@@ -21,6 +21,8 @@ export interface FixtureDocument {
   after?: string;
   /** The same step taken apart, for a page that draws its stages one at a time: the step's source and the fixtures it reads, as source. */
   step?: { source: string; fixtures: string };
+  /** The system the stages are drawn under, where it is not the default: a component that lives in a layer is drawn under that layer's. */
+  system?: string;
   /** The size of each stage that has a baseline, in CSS pixels. */
   sizes: Record<string, { width: number; height: number }>;
 }

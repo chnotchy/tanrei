@@ -20,7 +20,7 @@
     },
     {
       "id": "container",
-      "description": "Each half's shape: its fill, outline, elevation and corners. The halves share one look and are joined by a divider or by a narrow gap (separation): round outer ends, and under gap tighter corners where they face each other. The trailing half keeps its shape while the menu is open in the default system."
+      "description": "Each half's shape: its fill, outline, elevation and corners. The halves share one look (the destructive one too, SPB-34) and are joined by a divider or by a narrow gap (separation): round outer ends, and under gap tighter corners where they face each other. The trailing half keeps its shape while the menu is open in the default system."
     },
     {
       "id": "icon",
@@ -62,6 +62,12 @@
       "axis": "tanrei.comp.button-with-menu.variant",
       "default": "filled",
       "description": "Emphasis, as Button's variants of the same names. A design system may add values."
+    },
+    {
+      "name": "destructive",
+      "type": "boolean",
+      "default": false,
+      "description": "Marks a main action that deletes or discards something a person may not get back (Delete, with Delete all in the menu): both halves keep their variant's emphasis and take the error role's color in it, as a destructive Button of the same variant does (SPB-34). Use it for that kind of action alone, never for emphasis. It adds a color, not a meaning: the label still says what the action does (SPB-35). The menu's items are not marked by it: an item that deletes carries its own destructive."
     },
     {
       "name": "size",
@@ -165,7 +171,7 @@
     },
     {
       "name": "close",
-      "description": "The menu asks to be closed; carries the menu's reason: escape, back, outside, tab, focus-out or item (in the platform's casing)."
+      "description": "The menu asks to be closed; carries the menu's reason: escape, back, outside, tab, focus-out, item or anchor-hidden (in the platform's casing); anchor-hidden when the button with menu is no longer drawn while its menu is open (MNU-65)."
     }
   ],
   "states": [
@@ -317,6 +323,20 @@
       "id": "SPB-32",
       "text": "THE button with menu SHALL add comp.button-with-menu.container.outer-inset to the leading half's start padding, under either separation and at either trailing width, and to the trailing half's end padding, under either separation and at either trailing width, so that content beside a rounded outer end looks as far from it as from the tighter corner on its other side: the leading half SHALL be wider by that amount with its icon and label moved inward by it, and the trailing half SHALL be wider by that amount with its chevron centred in what is left, half of it nearer the leading half. WHILE trailingWidth is narrow THE trailing half SHALL be as wide as the chevron's box, comp.button-with-menu.trailing.padding-inline-narrow.medium on each side of it (of its own size) and the outer padding, with the chevron centred in what is left: a slim half beside a full end needs the compensation as much as a wide one, its chevron being nearer the curve, so it is one outer padding wider than a narrow icon-only Button of its size (BTN-12) where the two components' tokens agree, as in the default system. In a right-to-left layout the start is the right, as SPB-19 says.",
       "verify": "Fixture filled-medium under the default system: the label is 20 from the start edge and 16 from the leading half's end edge; the trailing half is 44 wide and its chevron's centre 20 from the seam and 24 from the end edge. Fixtures filled-narrow, outlined-narrow, filled-gap-narrow and outlined-gap-narrow: the trailing half is 36 wide, 4 wider than the Button fixture filled-icon-narrow, and its chevron's centre is 16 from the seam (or from the gap) and 20 from the end edge; the leading half is as in filled-medium. Fixture filled-narrow-rtl: the same, mirrored."
+    },
+    {
+      "id": "SPB-33",
+      "text": "WHERE the component that places the button with menu keeps one Tab stop among its items and makes each half a stop of its own (a toolbar, TBR-25), through the internal channel a Button reads from the component that places it (BTN-10), THE button with menu SHALL let that component say which half, if either, is its Tab stop and move focus to either half, SHALL take the other half out of the Tab order while it does, and SHALL keep each half's own name, role, state, keys and activation. WHILE no component does so THE button with menu SHALL keep both halves in the Tab order, as SPB-17 says. It adds nothing to the public surface: no prop, attribute or styling property says which half is a stop."
+    },
+    {
+      "id": "SPB-34",
+      "text": "WHILE destructive is true THE button with menu SHALL render both halves' containers, label, icon, chevron and outline, and the divider, from the destructive parts of its variant (comp.button-with-menu.filled.destructive.container.color, and so on for each variant), each half in its own state from the destructive parts of that state, and its elevation, shape and opacity as it would without destructive; WHILE destructive is false it SHALL render from the variant's own parts. In every shipped system the destructive parts are those of a destructive Button of the same variant (BTN-40) — filled: the error color with the on-error color on it; tonal: the error container with the on-error-container color on it; elevated and outlined: the variant's own container with the label, the icon and the chevron in the error color, and an outlined half's edge and divider in it too — and disabled they are those of the variant's plain disabled look, so that a disabled destructive button with menu looks like any disabled button with menu of its variant. THE button with menu SHALL NOT pass destructive to the items of its menu: an item is drawn destructive by its own destructive alone (MNU-18), since an option of the menu may delete where the main action does not, and the reverse.",
+      "verify": "Under the default system: filled-destructive is error with an on-error label and chevron, both halves; tonal-destructive error-container with on-error-container; elevated-destructive and outlined-destructive keep their variant's container with an error label and chevron, outlined-destructive with an error edge and divider. Each half's container, label and outline equal those of the Button fixture of the same variant with destructive (filled-destructive, tonal-destructive, elevated-destructive, outlined-destructive), at rest, hovered, keyboard-focused and pressed. filled-destructive-gap, filled-destructive-narrow and filled-destructive-open are filled-gap, filled-narrow and filled-open in the destructive colors; filled-destructive-disabled renders exactly as filled-disabled. A menu item without destructive in a destructive button with menu is drawn as the same item in a plain one."
+    },
+    {
+      "id": "SPB-35",
+      "text": "THE button with menu SHALL NOT make color the only sign that its main action is destructive: WHILE destructive is true it SHALL keep both halves' roles, accessible names, states and keyboard behaviour exactly as they are without it, and SHALL expose nothing more to assistive technology on the web, where no role or state says it; WHERE the platform has a destructive role of its own (SwiftUI's ButtonRole.destructive) THE button with menu SHALL give it to the leading half, whose press performs the action, and not to the trailing half, which only opens the menu. Its label says what it destroys.",
+      "verify": "The accessibility tree of filled-destructive equals that of filled-medium with the same label and menuLabel: two buttons, the same names, the same haspopup and expanded states, no description and nothing more."
     }
   ],
   "accessibility": {
@@ -353,7 +373,8 @@
       "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
       "The divider is decoration: it is not exposed and takes no press. The two halves are two buttons whether a line or a gap is between them.",
       "A narrow trailing half is drawn narrower than the minimum target; its hit area is not (SPB-6). Its target reaches outward past the end edge, so leave room for it there.",
-      "In the default system the outline of the outlined variant, and the divider of the outlined, tonal and elevated variants, are the hairline (the divider's color), far below 3:1 against their ground. That is within WCAG 1.4.11: the leading half is identified by its label, the trailing half by its chevron, and each half answers hover, focus and press on its own shape. The divider of the filled variant keeps the functional outline role, because a hairline cannot be seen on that fill."
+      "In the default system the outline of the outlined variant, and the divider of the outlined, tonal and elevated variants, are the hairline (the divider's color), far below 3:1 against their ground. That is within WCAG 1.4.11: the leading half is identified by its label, the trailing half by its chevron, and each half answers hover, focus and press on its own shape. The divider of the filled variant keeps the functional outline role, because a hairline cannot be seen on that fill.",
+      "destructive adds a color, never a meaning (WCAG 1.4.1, use of color): the error color tells people who see it that the main action deletes or discards something, and nothing tells a screen reader user so but the label. So the label names the action and what it acts on (\"Delete project\", not \"OK\"). Disabled, a destructive button with menu looks like any disabled one of its variant: a button that cannot be pressed does nothing."
     ]
   },
   "tokens": "comp.button-with-menu",
@@ -687,6 +708,82 @@
         "label": "Save",
         "menuLabel": "More save options"
       }
+    },
+    {
+      "id": "filled-destructive",
+      "props": {
+        "variant": "filled",
+        "destructive": true,
+        "label": "Delete",
+        "menuLabel": "More delete options"
+      }
+    },
+    {
+      "id": "tonal-destructive",
+      "props": {
+        "variant": "tonal",
+        "destructive": true,
+        "label": "Delete",
+        "menuLabel": "More delete options"
+      }
+    },
+    {
+      "id": "elevated-destructive",
+      "props": {
+        "variant": "elevated",
+        "destructive": true,
+        "label": "Delete",
+        "menuLabel": "More delete options"
+      }
+    },
+    {
+      "id": "outlined-destructive",
+      "props": {
+        "variant": "outlined",
+        "destructive": true,
+        "label": "Delete",
+        "menuLabel": "More delete options"
+      }
+    },
+    {
+      "id": "filled-destructive-gap",
+      "props": {
+        "variant": "filled",
+        "destructive": true,
+        "separation": "gap",
+        "label": "Delete",
+        "menuLabel": "More delete options"
+      }
+    },
+    {
+      "id": "filled-destructive-narrow",
+      "props": {
+        "variant": "filled",
+        "destructive": true,
+        "trailingWidth": "narrow",
+        "label": "Delete",
+        "menuLabel": "More delete options"
+      }
+    },
+    {
+      "id": "filled-destructive-disabled",
+      "props": {
+        "variant": "filled",
+        "destructive": true,
+        "disabled": true,
+        "label": "Delete",
+        "menuLabel": "More delete options"
+      }
+    },
+    {
+      "id": "filled-destructive-open",
+      "props": {
+        "variant": "filled",
+        "destructive": true,
+        "open": true,
+        "label": "Delete",
+        "menuLabel": "More delete options"
+      }
     }
   ],
   "platforms": {
@@ -695,6 +792,7 @@
       "name": "tanrei-button-with-menu",
       "props": {
         "variant": "variant",
+        "destructive": "destructive",
         "size": "size",
         "separation": "separation",
         "trailingWidth": "trailingWidth",
@@ -710,13 +808,14 @@
         "toggle": "toggle",
         "close": "close"
       },
-      "notes": "`<tanrei-button-with-menu label=\"Save\" menu-label=\"More save options\" hover-open hover-delay=\"400\">` with optional glyph elements in `slot=\"icon\"`, `slot=\"chevron\"` and `slot=\"chevron-open\"` (the trailing half draws `expand_more` through the icon helper when both chevron slots are empty), and the menu's item elements (`tanrei-menu-item`, `tanrei-menu-checkbox-item`, `tanrei-menu-radio-item`, `tanrei-menu-group`) as children with `slot=\"menu\"`, which it forwards into a `tanrei-menu` in its shadow root. Only the leading half's `click` reaches listeners on the element; the trailing half fires `toggle` (a CustomEvent whose `detail.open` is the value asked for, not the popover's ToggleEvent, which does not leave the shadow root), for a press, a key or a hover alike, and the menu's close fires `close` with `detail.reason`. The product sets `open` from both. `hoverDelay` is a number of milliseconds; unset (null) takes the token. Hover opening listens for `pointerenter` / `pointerleave` with `pointerType` `mouse` or `pen`, and opens the menu through the menu's internal no-focus channel (SPB-22); Escape for a menu open from hover is a capturing keydown on the document. Each half draws its outline as an inside border and its elevation ring as an inset box-shadow layer, the blurred layers staying outside (SPB-26). The trailing half carries `aria-haspopup=\"menu\"`, `aria-expanded` and `aria-controls`, and is the menu's focus-return target. `separation` (`auto`, `divider`, `gap`) and `trailing-width` (`default`, `narrow`) are attributes; auto reads the name in `--tanrei-comp-button-with-menu-container-separation`. Under divider the halves touch, the rule is drawn over the seam, and neither half draws a border or an inset ring on its inner edge."
+      "notes": "`<tanrei-button-with-menu label=\"Save\" menu-label=\"More save options\" hover-open hover-delay=\"400\">` with optional glyph elements in `slot=\"icon\"`, `slot=\"chevron\"` and `slot=\"chevron-open\"` (the trailing half draws `expand_more` through the icon helper when both chevron slots are empty), and the menu's item elements (`tanrei-menu-item`, `tanrei-menu-checkbox-item`, `tanrei-menu-radio-item`, `tanrei-menu-group`) as children with `slot=\"menu\"`, which it forwards into a `tanrei-menu` in its shadow root. Only the leading half's `click` reaches listeners on the element; the trailing half fires `toggle` (a CustomEvent whose `detail.open` is the value asked for, not the popover's ToggleEvent, which does not leave the shadow root), for a press, a key or a hover alike, and the menu's close fires `close` with `detail.reason`. The product sets `open` from both. `hoverDelay` is a number of milliseconds; unset (null) takes the token. Hover opening listens for `pointerenter` / `pointerleave` with `pointerType` `mouse` or `pen`, and opens the menu through the menu's internal no-focus channel (SPB-22); Escape for a menu open from hover is a capturing keydown on the document. Each half draws its outline as an inside border and its elevation ring as an inset box-shadow layer, the blurred layers staying outside (SPB-26). The trailing half carries `aria-haspopup=\"menu\"`, `aria-expanded` and `aria-controls`, and is the menu's focus-return target. `separation` (`auto`, `divider`, `gap`) and `trailing-width` (`default`, `narrow`) are attributes; auto reads the name in `--tanrei-comp-button-with-menu-container-separation`. Under divider the halves touch, the rule is drawn over the seam, and neither half draws a border or an inset ring on its inner edge. `destructive` is a boolean attribute; it draws both halves from the variant's destructive parts, exposes nothing more (SPB-35), and is not passed to the menu's items."
     },
     "swiftui": {
       "status": "planned",
       "name": "TanreiButtonWithMenu",
       "props": {
         "variant": "variant",
+        "destructive": "role",
         "size": "size",
         "separation": "separation",
         "trailingWidth": "trailingWidth",
@@ -732,13 +831,14 @@
         "toggle": "isMenuPresented",
         "close": "isMenuPresented"
       },
-      "notes": "`TanreiButtonWithMenu(_ title:, icon:, menuLabel:, isMenuPresented: Binding<Bool>, opensOnHover: Bool = false, hoverDelay: Duration? = nil, action:, chevron:, openChevron:) { TanreiMenuItem … }`: the title first, as `Button(_:action:)`; `chevron` and `openChevron` are optional glyph builders (the chevron and chevron-open slots); the trailing view builder is the menu's content, presented as `TanreiMenu` is. The trailing half writes the binding (toggle), and so does the menu when it closes (close); a product that needs the close reason reads the menu's. `disabled` follows `.disabled(_:)`. Hover uses `.onContinuousHover` (macOS, and iPadOS with a pointer); a nil `hoverDelay` takes the token. SwiftUI's `Menu(primaryAction:)` is not used: neither half can be tokenised. Ships the previous revision today (6 px corners, a fixed turning chevron, no hover opening); the rest is owed, including a check of SPB-26 on this platform. Also owed: the component's current name, `separation` and `trailingWidth`, the divider (SPB-31), the outer padding (SPB-32), a trailing half that keeps its shape while open (SPB-13), the tighter padding beside the icon, and the new fixtures; reading comp.button-with-menu.container.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet."
+      "notes": "`TanreiButtonWithMenu(_ title:, icon:, menuLabel:, isMenuPresented: Binding<Bool>, opensOnHover: Bool = false, hoverDelay: Duration? = nil, action:, chevron:, openChevron:) { TanreiMenuItem … }`: the title first, as `Button(_:action:)`; `chevron` and `openChevron` are optional glyph builders (the chevron and chevron-open slots); the trailing view builder is the menu's content, presented as `TanreiMenu` is. The trailing half writes the binding (toggle), and so does the menu when it closes (close); a product that needs the close reason reads the menu's. `disabled` follows `.disabled(_:)`. Hover uses `.onContinuousHover` (macOS, and iPadOS with a pointer); a nil `hoverDelay` takes the token. SwiftUI's `Menu(primaryAction:)` is not used: neither half can be tokenised. Ships the previous revision today (6 px corners, a fixed turning chevron, no hover opening); the rest is owed, including a check of SPB-26 on this platform. Also owed: the component's current name, `separation` and `trailingWidth`, the divider (SPB-31), the outer padding (SPB-32), a trailing half that keeps its shape while open (SPB-13), the tighter padding beside the icon, and the new fixtures; reading comp.button-with-menu.container.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: `role: ButtonRole? = nil`, as SwiftUI's own `Button(role:)` takes it: `.destructive` is destructive (SPB-34), and the role is given to the leading half alone (SPB-35)."
     },
     "compose": {
       "status": "planned",
       "name": "TanreiButtonWithMenu",
       "props": {
         "variant": "variant",
+        "destructive": "destructive",
         "size": "size",
         "separation": "separation",
         "trailingWidth": "trailingWidth",
@@ -754,13 +854,14 @@
         "toggle": "onMenuExpandedChange",
         "close": "onMenuDismissRequest"
       },
-      "notes": "`TanreiButtonWithMenu(text, onClick, menuContentDescription, menuExpanded, onMenuExpandedChange, onMenuDismissRequest, variant, size, enabled, icon, chevron, openChevron, openOnHover = false, hoverDelayMillis: Long? = null) { TanreiMenuItem(…) }`: `chevron` and `openChevron` are optional glyph lambdas (the chevron and chevron-open slots); the content lambda is the menu's, shown in the `TanreiMenu` popup. State hoisting: the caller keeps `menuExpanded`, sets it from `onMenuExpandedChange` (a press, a key or a hover) and to false from `onMenuDismissRequest`, which carries the reason. Hover reads `PointerEventType.Enter` / `Exit` for `PointerType.Mouse` and `Stylus` only; a null delay takes the token. The trailing half is `Role.Button` with a content description, and its expanded state as `expand` / `collapse` semantics actions. `enabled` is the inverse flag. Ships the previous revision today (6 px corners, a fixed turning chevron, no hover opening); the rest is owed, including a check of SPB-26 on this platform. Also owed: the component's current name, `separation` and `trailingWidth`, the divider (SPB-31), the outer padding (SPB-32), a trailing half that keeps its shape while open (SPB-13), the tighter padding beside the icon, and the new fixtures; reading comp.button-with-menu.container.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet."
+      "notes": "`TanreiButtonWithMenu(text, onClick, menuContentDescription, menuExpanded, onMenuExpandedChange, onMenuDismissRequest, variant, size, enabled, icon, chevron, openChevron, openOnHover = false, hoverDelayMillis: Long? = null) { TanreiMenuItem(…) }`: `chevron` and `openChevron` are optional glyph lambdas (the chevron and chevron-open slots); the content lambda is the menu's, shown in the `TanreiMenu` popup. State hoisting: the caller keeps `menuExpanded`, sets it from `onMenuExpandedChange` (a press, a key or a hover) and to false from `onMenuDismissRequest`, which carries the reason. Hover reads `PointerEventType.Enter` / `Exit` for `PointerType.Mouse` and `Stylus` only; a null delay takes the token. The trailing half is `Role.Button` with a content description, and its expanded state as `expand` / `collapse` semantics actions. `enabled` is the inverse flag. Ships the previous revision today (6 px corners, a fixed turning chevron, no hover opening); the rest is owed, including a check of SPB-26 on this platform. Also owed: the component's current name, `separation` and `trailingWidth`, the divider (SPB-31), the outer padding (SPB-32), a trailing half that keeps its shape while open (SPB-13), the tighter padding beside the icon, and the new fixtures; reading comp.button-with-menu.container.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: `destructive: Boolean = false` (SPB-34); Compose has no destructive role, so it draws and adds no semantics (SPB-35)."
     },
     "flutter": {
       "status": "planned",
       "name": "TanreiButtonWithMenu",
       "props": {
         "variant": "variant",
+        "destructive": "isDestructiveAction",
         "size": "size",
         "separation": "separation",
         "trailingWidth": "trailingWidth",
@@ -776,13 +877,14 @@
         "toggle": "onMenuToggle",
         "close": "onMenuClose"
       },
-      "notes": "`TanreiButtonWithMenu(label:, icon:, chevron:, openChevron:, menuSemanticLabel:, onPressed:, menuController:, menuChildren: [TanreiMenuItem(…)], onMenuToggle:, onMenuClose:, openOnHover: false, hoverDelay: null, variant:, size:)`, built with the widgets library: `chevron` and `openChevron` are optional glyph widgets (the chevron and chevron-open slots); `menuChildren` are the menu's items, shown through `TanreiMenuAnchor`. The controller is a `TanreiMenuController` (the Tanrei menu's own), passed or created internally; it is open, so the button with menu opens and closes the menu itself; `onMenuToggle` and `onMenuClose` report it. Hover uses a `MouseRegion` and ignores `PointerDeviceKind.touch`; `hoverDelay` is a `Duration?`, null taking the token. A null `onPressed` disables it. Ships the previous revision today (6 px corners, a fixed turning chevron, no hover opening); the rest is owed, including a check of SPB-26 on this platform. Also owed: the component's current name, `separation` and `trailingWidth`, the divider (SPB-31), the outer padding (SPB-32), a trailing half that keeps its shape while open (SPB-13), the tighter padding beside the icon, and the new fixtures; reading comp.button-with-menu.container.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet."
+      "notes": "`TanreiButtonWithMenu(label:, icon:, chevron:, openChevron:, menuSemanticLabel:, onPressed:, menuController:, menuChildren: [TanreiMenuItem(…)], onMenuToggle:, onMenuClose:, openOnHover: false, hoverDelay: null, variant:, size:)`, built with the widgets library: `chevron` and `openChevron` are optional glyph widgets (the chevron and chevron-open slots); `menuChildren` are the menu's items, shown through `TanreiMenuAnchor`. The controller is a `TanreiMenuController` (the Tanrei menu's own), passed or created internally; it is open, so the button with menu opens and closes the menu itself; `onMenuToggle` and `onMenuClose` report it. Hover uses a `MouseRegion` and ignores `PointerDeviceKind.touch`; `hoverDelay` is a `Duration?`, null taking the token. A null `onPressed` disables it. Ships the previous revision today (6 px corners, a fixed turning chevron, no hover opening); the rest is owed, including a check of SPB-26 on this platform. Also owed: the component's current name, `separation` and `trailingWidth`, the divider (SPB-31), the outer padding (SPB-32), a trailing half that keeps its shape while open (SPB-13), the tighter padding beside the icon, and the new fixtures; reading comp.button-with-menu.container.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: `isDestructiveAction: false`, the widgets library's name for it (SPB-34); it draws and adds no semantics (SPB-35)."
     },
     "react-native": {
       "status": "planned",
       "name": "ButtonWithMenu",
       "props": {
         "variant": "variant",
+        "destructive": "destructive",
         "size": "size",
         "separation": "separation",
         "trailingWidth": "trailingWidth",
@@ -798,7 +900,7 @@
         "toggle": "onMenuToggle",
         "close": "onMenuDismiss"
       },
-      "notes": "`<ButtonWithMenu label icon chevron openChevron menuAccessibilityLabel menuVisible hoverOpen hoverDelay onPress onMenuToggle onMenuDismiss menuItems={[…]} variant size>`: `chevron` and `openChevron` are optional glyph names (the chevron and chevron-open slots); `menuItems` is the `Menu`'s `items` array (the union of its four kinds), shown by a `Menu` on the overlay layer that `TanreiProvider` renders. Controlled: the caller sets `menuVisible` from `onMenuToggle` and to false from `onMenuDismiss`, which carries the reason. Hover uses `Pressable`'s `onHoverIn` / `onHoverOut`, which fire only for a pointer (iPadOS, Android with a mouse, web); `hoverDelay` is in milliseconds, undefined taking the token. The trailing half has the `button` role with `accessibilityState.expanded`. Ships the previous revision today (6 px corners, a fixed turning chevron, no hover opening); the rest is owed, including a check of SPB-26 on this platform. Also owed: the component's current name, `separation` and `trailingWidth`, the divider (SPB-31), the outer padding (SPB-32), a trailing half that keeps its shape while open (SPB-13), the tighter padding beside the icon, and the new fixtures; reading comp.button-with-menu.container.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet."
+      "notes": "`<ButtonWithMenu label icon chevron openChevron menuAccessibilityLabel menuVisible hoverOpen hoverDelay onPress onMenuToggle onMenuDismiss menuItems={[…]} variant size>`: `chevron` and `openChevron` are optional glyph names (the chevron and chevron-open slots); `menuItems` is the `Menu`'s `items` array (the union of its four kinds), shown by a `Menu` on the overlay layer that `TanreiProvider` renders. Controlled: the caller sets `menuVisible` from `onMenuToggle` and to false from `onMenuDismiss`, which carries the reason. Hover uses `Pressable`'s `onHoverIn` / `onHoverOut`, which fire only for a pointer (iPadOS, Android with a mouse, web); `hoverDelay` is in milliseconds, undefined taking the token. The trailing half has the `button` role with `accessibilityState.expanded`. Ships the previous revision today (6 px corners, a fixed turning chevron, no hover opening); the rest is owed, including a check of SPB-26 on this platform. Also owed: the component's current name, `separation` and `trailingWidth`, the divider (SPB-31), the outer padding (SPB-32), a trailing half that keeps its shape while open (SPB-13), the tighter padding beside the icon, and the new fixtures; reading comp.button-with-menu.container.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: `destructive` (SPB-34); it draws and adds no accessibility props (SPB-35)."
     }
   }
 }

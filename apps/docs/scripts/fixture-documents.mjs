@@ -29,7 +29,7 @@ if (!fs.existsSync(path.join(repo, 'packages/web/dist/tokens.css'))) {
   console.error('✖ fixture documents: packages/web/dist is missing; run `pnpm --filter @tanrei/web build` first');
   process.exit(1);
 }
-const { fixturesDocument, loadSpec } = await import('../../../packages/web/test/harness.ts');
+const { drawnUnder, fixturesDocument, loadSpec } = await import('../../../packages/web/test/harness.ts');
 
 /** The asset addresses the document is written with; none is kept (the fixtures page loads the site's own). */
 const NONE = { font: 'about:blank', tokens: 'about:blank', system: () => 'about:blank', icons: () => 'about:blank', bundle: 'about:blank' };
@@ -142,7 +142,9 @@ for (const file of fs.readdirSync(path.join(repo, 'specs')).filter((name) => nam
     if (!spec.platforms?.web || spec.platforms.web.status === 'planned') continue;
     const document = parts(await fixturesDocument(spec, { assets: NONE }));
     const staged = stagingOf(document.styles);
-    documents[name] = { ...document, ...staged, step: stepOf(document.after), windowed: windowedOf(staged.staging, document.stages), sizes: Object.fromEntries(document.stages.map((stage) => [stage.id, baseline(name, stage.id)]).filter(([, size]) => size)) };
+    // The system the stages are drawn under: a component that lives in a layer is drawn under that layer's system.
+    const { system } = drawnUnder(spec, {});
+    documents[name] = { ...document, ...staged, ...(system ? { system } : {}), step: stepOf(document.after), windowed: windowedOf(staged.staging, document.stages), sizes: Object.fromEntries(document.stages.map((stage) => [stage.id, baseline(name, stage.id)]).filter(([, size]) => size)) };
   } catch (error) {
     failed.push(`${name}: ${String(error).split('\n')[0]}`);
   }

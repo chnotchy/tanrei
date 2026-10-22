@@ -27,6 +27,7 @@ const SIZE_MEMBERS = {
   gap: 'container-gap',
   font: 'label-typescale',
   icon: 'icon-size',
+  'state-duration': 'motion-state-duration',
 } as const;
 
 const PREFIX = '--tanrei-comp-main-action-button';
@@ -119,7 +120,7 @@ export const styles = css`
     -webkit-tap-highlight-color: transparent;
     /* MAB-17: colors and elevation over the state motion. */
     transition-property: background-color, color, box-shadow, opacity;
-    transition-duration: var(${P}-motion-state-duration);
+    transition-duration: var(--_state-duration);
     transition-timing-function: var(${P}-motion-state-easing);
   }
   /* MAB-14: while it changes form (and only then — a change of direction moves the physical paddings, and that is not
@@ -127,8 +128,8 @@ export const styles = css`
   button[data-resizing] {
     transition-property: background-color, color, box-shadow, opacity, padding-inline-start, padding-inline-end;
     transition-duration:
-      var(${P}-motion-state-duration), var(${P}-motion-state-duration), var(${P}-motion-state-duration),
-      var(${P}-motion-state-duration), var(${P}-motion-resize-duration), var(${P}-motion-resize-duration);
+      var(--_state-duration), var(--_state-duration), var(--_state-duration),
+      var(--_state-duration), var(${P}-motion-resize-duration), var(${P}-motion-resize-duration);
     transition-timing-function:
       var(${P}-motion-state-easing), var(${P}-motion-state-easing), var(${P}-motion-state-easing),
       var(${P}-motion-state-easing), var(${P}-motion-resize-easing), var(${P}-motion-resize-easing);
@@ -254,7 +255,7 @@ export const styles = css`
   ${rippleStyles({
     color: '--_c-p',
     grow: `${PREFIX}-motion-feedback-duration`,
-    fade: `${PREFIX}-motion-state-duration`,
+    fade: '--_state-duration',
     easing: `${PREFIX}-motion-state-easing`,
   })}
 
@@ -271,7 +272,7 @@ export const styles = css`
   ${iconGlyph('.icon', {
     size: '--_icon',
     selected: '.never-selected',
-    duration: `${PREFIX}-motion-state-duration`,
+    duration: '--_state-duration',
     easing: `${PREFIX}-motion-state-easing`,
   })}
   .icon {

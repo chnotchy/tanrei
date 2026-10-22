@@ -35,7 +35,15 @@ const groups = galleryOf(spec);
 const inPage = groups.some((group) => group.stages.some((stage) => stage.drawn && stage.kind === 'inline'));
 const named = (template: string, values: Record<string, string | number>) => template.replace(/\{(\w+)\}/g, (place, key: string) => (key in values ? String(values[key]) : place));
 const scope = { [STAGE_SCOPE]: '' };
+// A component that lives in a layer is drawn under that layer's system, as its tests draw it: the stages are scoped to
+// it, and its opt-in stylesheet is loaded.
+const stylesheets = import.meta.glob<string>('../../../../../packages/web/src/generated/systems/*.css', { eager: true, query: '?url', import: 'default' });
+const system = spec.layer && spec.layer !== 'core' ? spec.layer : undefined;
+const systemSheet = system ? Object.entries(stylesheets).find(([file]) => file.endsWith(`/${system}.css`))?.[1] : undefined;
+if (system && !systemSheet) throw new Error(`FixtureGallery: no generated stylesheet for the system "${system}"`);
 ---
+
+{systemSheet && <link rel="stylesheet" href={systemSheet} />}
 
 <div class="docs-fixture-gallery not-content" data-fixture-gallery data-component={spec.name} data-fixture-tag={spec.platforms.web?.name} data-fixture-step={inPage && document?.step ? '' : undefined}>
   {inPage && document && <Fragment set:html={stagingStyle(document.staging)} />}
@@ -71,7 +79,7 @@ const scope = { [STAGE_SCOPE]: '' };
                         </div>
                       )}
                     </header>
-                    <div data-part="stage" id={`${id}-stage`} class="docs-stage-box" data-tanrei-demo data-pagefind-ignore>
+                    <div data-part="stage" id={`${id}-stage`} class="docs-stage-box" data-tanrei-system={system} data-tanrei-demo data-pagefind-ignore>
                       {!stage.drawn ? (
                         <p class="docs-muted docs-stage-none">{t.notDefinedYet}</p>
                       ) : sized ? (

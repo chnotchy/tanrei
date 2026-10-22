@@ -52,6 +52,20 @@
       ],
       "outputs": []
     },
+    "@tanrei/web#build": {
+      "dependsOn": [
+        "generate",
+        "^build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "../tools/src/cli.js",
+        "../tools/src/syntax.js"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
     "@tanrei/web#test:node": {
       "dependsOn": [
         "build"

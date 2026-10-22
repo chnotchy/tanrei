@@ -2,7 +2,7 @@
 title: Sistemas de diseño y personalización
 description: Un vocabulario, muchos sistemas de diseño. Cambia un dial, declara una paleta, reorienta un token, y todas las plataformas lo siguen en un solo commit.
 translationOf: foundations/design-systems.mdx
-sourceHash: 9108b285653d179e971cfa0d3452b18a2832f187
+sourceHash: caf3afbc5714bcc983352574d935aeaded71f2a5
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -21,7 +21,7 @@ Si aun así no se puede reproducir algún rasgo de un sistema de diseño (un mat
 
 ## Diales: un cambio, en todas partes
 
-Un sistema de diseño debería resultar adecuado de entrada y seguirte cuando cambias una sola cosa. Bajo todo lo demás hay siete **diales** numéricos:
+Un sistema de diseño debería resultar adecuado de entrada y seguirte cuando cambias una sola cosa. Bajo todo lo demás hay ocho **diales** numéricos:
 
 | Dial | Valor predeterminado | Mueve |
 |---|---|---|
@@ -29,6 +29,7 @@ Un sistema de diseño debería resultar adecuado de entrada y seguirte cuando ca
 | `dial.type.contrast` | 1 | cuánto se separan los títulos del texto de cuerpo |
 | `dial.space.unit` | 8px | todas las distancias |
 | `dial.size.unit` | 4px | las alturas de los controles, los tamaños de los iconos, las áreas de pulsación |
+| `dial.density` | 1 | la altura de los controles y las filas, y el espacio alrededor de su contenido: por debajo de 1 más juntos, por encima de 1 más holgados |
 | `dial.shape.unit` | 2px | todas las esquinas |
 | `dial.stroke.unit` | 1px | los bordes, los anillos, el indicador de foco |
 | `dial.motion.unit` | 50ms | todas las duraciones |
@@ -122,11 +123,12 @@ El mismo `<tanrei-button>`, el mismo marcado. `m3-like` y `cupertino` están ah�
 
 <SystemGallery />
 
-En la web, un preajuste es una hoja de estilos adicional, limitada a un atributo, así que los sistemas pueden incluso convivir uno al lado del otro:
+En la web, un preajuste es una hoja de estilos adicional, limitada a un atributo, así que los sistemas pueden incluso convivir uno al lado del otro. Su entrada registra los componentes que incluye, entre ellos los que el sistema predeterminado deja fuera (`@tanrei/web` registra solo los del sistema predeterminado):
 
 ```js
 import '@tanrei/web/tokens.css';
 import '@tanrei/web/systems/cupertino.css';
+import '@tanrei/web/cupertino'; // los componentes que incluye cupertino
 ```
 
 ```html
@@ -134,6 +136,34 @@ import '@tanrei/web/systems/cupertino.css';
 ```
 
 Lo que todavía no pueden expresar ni los valores ni las elecciones de tipo (los materiales de fondo, las etiquetas en mayúsculas como cuestión de estilo) figura como defecto de Tanrei en `docs/governance/mimicry-gaps.json`; no se oculta.
+
+## Un componente que tu sistema no tiene
+
+Un sistema puede dejar fuera un componente, o un valor de la `variant` de un componente: el sistema por defecto no tiene botón segmentado, ni campo de texto filled u outlined. Una capa lo dice en `components`, con el motivo y lo que se usa en su lugar:
+
+```json
+"components": {
+  "omit": { "carousel": { "reason": "Acme shows one thing at a time.", "insteadUse": ["list"] } },
+  "variants": { "tabs": { "omit": ["tonal"] } }
+}
+```
+
+Lo que se deja fuera se sigue dibujando y funciona. En una compilación de desarrollo, cada elemento que lo usa avisa una vez en la consola, con el nombre de tu sistema y lo que usa en su lugar. El aviso nombra el componente que escribiste: `<tanrei-text-field variant="outlined">` se informa como el `outlined` del campo de texto, no como la entrada de texto que dibuja dentro. Un componente que vive en la capa de otro sistema, como el menú FAB en m3-like, se informa igual, con la capa en la que vive.
+
+Para que tus pruebas fallen por ello, haz que se informe como un error y pregunta qué se usó:
+
+```js
+import { setAvailabilityMode, unavailableUses } from '@tanrei/web';
+
+setAvailabilityMode('error'); // en la preparación de tus pruebas, antes de que se dibuje nada
+
+test('el producto usa solo lo que tiene su sistema', async () => {
+  // …renderiza las pantallas del producto…
+  expect(unavailableUses()).toEqual([]);
+});
+```
+
+`unavailableUses()` enumera cada uso una vez, en orden alfabético (`segmented-button`, `text-field:outlined`), en cualquiera de los dos modos. Una compilación de producción no comprueba nada, así que allí la lista queda vacía. `@tanrei/web/availability` contiene las mismas dos funciones sin registrar ningún elemento.
 
 ## Compartir un sistema
 

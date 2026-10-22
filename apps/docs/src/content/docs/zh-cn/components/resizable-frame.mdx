@@ -1,0 +1,155 @@
+---
+title: 可调整大小的框
+description: 一个由人改变宽度和高度的框：拖动它边上或角上的手柄，用键盘，或按一下。Outlined 时，它是在手机宽度和笔记本电脑宽度下检查预览的地方；Plain 时，它是导航抽屉或侧栏的边。
+translationOf: components/resizable-frame.mdx
+sourceHash: a4cfbe849974e10d04768d89c60010bba48508e5
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="resizable-frame" />
+
+<DemoFrame label="一个由人通过结束边、下边和角调整大小的预览" plain>
+  <tanrei-resizable-frame width="360" height="200" handles="end bottom bottom-end" snap-widths="400 600" width-label="调整预览宽度" height-label="调整预览高度" corner-label="调整预览大小" style="inline-size: 100%">
+    <div style="box-sizing: border-box; min-block-size: 100%; padding: 1rem; background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface)">拖动手柄，或用 Tab 移到手柄上再按方向键。</div>
+  </tanrei-resizable-frame>
+</DemoFrame>
+
+可调整大小的框给它容纳的内容一个可以由人改变的宽度和高度。它的手柄就是[调整手柄](/zh-cn/components/handle/)：拖动时改变大小；用键盘移动时一次改变一步；不拖动而按下时，在最大的大小和之前的大小之间切换。框保存大小，在人改变了大小时告诉你，并把大小作为值交给每个手柄，让辅助技术能够读出。
+
+它有两种外观。**Outlined** 是一个圆角、带一条细线的框，手柄在框外，不遮住任何东西：这里用来检查页面或组件如何适应给它的空间。**Plain** 自己什么也不绘制：内容绘制自己的表面，每个手柄位于它的边上——比如为了长名称而被人拉宽的导航抽屉，或为了旁边的工作而被拉窄的侧栏。
+
+在 Web 上它是 `<tanrei-resizable-frame>`。其他平台尚未实现。
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 在手机、平板和笔记本电脑的宽度下检查的预览：拖动时会吸附到每个宽度。 -->
+    <tanrei-resizable-frame width="390" height="640" snap-widths="360 600 1024" width-label="调整预览宽度">
+      <iframe title="预览" src="/preview"></iframe>
+    </tanrei-resizable-frame>
+
+    <!-- 位于布局结束端的侧栏：Plain，从起始边调整大小。 -->
+    <tanrei-resizable-frame id="side" variant="plain" handles="start" min-width="240" max-width="560" size-indicator="none" width-label="调整侧栏大小">
+      <aside>…</aside>
+    </tanrei-resizable-frame>
+
+    <script type="module">
+      import '@tanrei/web/components/resizable-frame';
+      const side = document.querySelector('#side');
+      // 把这个人设定的宽度保留到下一次访问。
+      side.width = Number(localStorage.getItem('side-bar')) || 320;
+      side.addEventListener('change', (e) => localStorage.setItem('side-bar', String(e.detail.width)));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ResizableFrame } from '@tanrei/react';
+
+    <ResizableFrame
+      variant="plain"
+      handles={['start']}
+      width={width}
+      minWidth={240}
+      maxWidth={560}
+      sizeIndicator="none"
+      widthLabel="调整侧栏大小"
+      onChange={(e) => setWidth(e.detail.width)}
+    >
+      <aside>…</aside>
+    </ResizableFrame>
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<ComponentSpecs name="resizable-frame" />
+
+## 指南
+
+### 何时使用
+
+在应当让人给某样东西想要的空间、并看到它在这个空间里如何表现的地方使用：以另一宽度查看的页面或组件预览、主内容旁边的窗格、工具面板。
+
+| 你需要 | 使用 |
+| --- | --- |
+| 只让字段自身的高度随文字增长 | [文本字段](/zh-cn/components/text-field/)自带的角上手柄。 |
+| 从下边升起的面板 | [底部面板](/zh-cn/components/bottom-sheet/)，它绘制自己的拖动手柄。 |
+| 在几个固定大小之间选择，中间没有其他大小 | 切换这些大小的[分段按钮](/zh-cn/components/segmented-button/)。 |
+| 像缩放图片那样把显示的内容缩小，而不是给它更少的空间 | 不是这个：可调整大小的框改变的是空间，从不改变所容纳内容的比例。 |
+
+### 外观
+
+| `variant` | 绘制 | 用于 |
+| --- | --- | --- |
+| `outlined`（默认） | 圆角和一条细线；手柄在框外自己的空间里。鼠标移到框上时显示手柄。 | 预览：内容完整可见，框的任何部分都不会遮住它。 |
+| `plain` | 自己什么也不绘制：内容用自己的表面填满框。每个手柄位于它的边上，只在被指向、获得焦点或被按住时出现。 | 窗格的边：导航抽屉、侧栏。 |
+
+### 手柄
+
+| `handles` | 位于 | 改变 |
+| --- | --- | --- |
+| `end`（默认） | 结束边 | 宽度。用于布局起始端的内容：预览、导航抽屉。 |
+| `start` | 起始边 | 宽度，朝起始端增长。用于布局结束端的内容：侧栏。此时框位于它所得空间的结束端。 |
+| `bottom` | 下边 | 高度。 |
+| `bottom-end` | 结束端的下角 | 同时改变两者。 |
+
+可以任意指定其中几个、任意组合；空列表不绘制任何手柄，框就是你设定大小的一个框。`start` 和 `end` 跟随页面的方向：在从右到左的布局中，结束边是左边。
+
+### 大小
+
+`width` 和 `height` 是框的大小，单位为像素。它们为 null 时，框取布局给它的宽度和布局给它的高度；布局不给高度时，取内容的高度。一旦有人移动了手柄，大小就归这个人所有，并一直保持，直到你设定另一个大小。你设定的大小会立即绘制，不发送任何事件；布局变窄时框也随之变窄，空间恢复后宽度也会恢复。
+
+最小宽度是 `minWidth`，在你没有设定时为 320 像素：内容必须在不横向滚动的情况下重新排布的宽度。为窗格设定你自己的值——导航抽屉有它自己的最小宽度。最大宽度是 `maxWidth`，或布局给它的空间。`snapWidths` 是拖动经过时会吸附的宽度，例如常见手机、平板和小型笔记本电脑的宽度。
+
+### 它告诉你什么
+
+| 事件 | 何时 |
+| --- | --- |
+| `resize` | 拖动改变大小的每一帧：带有 `width` 和 `height`。 |
+| `change` | 人改变了大小之后，一次：拖动结束、按键移动了它，或不拖动而按下了手柄。如果你要保留一个人设定的大小，就在这里保存。 |
+
+### 尺寸指示
+
+手柄被按住或拥有键盘焦点时，框结束端的上角会出现一个小标签，显示大小，如“390 × 640”。把 `sizeIndicator` 设为 `always` 时一直显示——用于需要检查大小的预览；设为 `none` 时从不显示——用于没人读它大小的窗格。它用页面语言的数字书写，在任何布局中都从左到右排列，辅助技术不读它，而是读每个手柄的值。
+
+### 推荐
+
+- 给每个绘制的手柄一个说明它调整什么的名称：`widthLabel`、`heightLabel`、`cornerLabel`（“调整预览宽度”“调整侧栏大小”）。
+- 设定一个内容仍可用的最小宽度，以及一个让页面其余部分仍可用的最大宽度。
+- 把一个人设定的大小保存在他会回来的地方：抽屉或侧栏的宽度，从 `change` 中取得。
+
+### 避免
+
+- 不要在内容周围自己绘制调整大小的手柄：使用这个框，窗格的边用 `plain`。
+- 不要用它把内容像图片那样缩小：它改变的是空间，而不是比例。
+- 在本应由人改变大小的窗格上，不要去掉它的手柄：无法拖动的人用的正是按键和按下。
+
+## 无障碍
+
+<ComponentAccessibility name="resizable-frame" />
+
+### 组件负责的部分
+
+- 每个手柄都是一个可聚焦的分隔符——ARIA Authoring Practices 中的窗口分隔条——由它的标签命名，以像素为单位的大小是它的值，最小和最大是它的范围。
+- 在焦点顺序中，手柄排在内容之后：起始、结束、下边、角。Outlined 的框只在内容比它高、需要滚动时才是焦点停靠点。
+- 方向键按 `step` 像素改变大小，Shift 加方向键以及 Page Up 和 Page Down 按 `largeStep` 改变；Home 和 End 给出最小和最大。在起始边的手柄上，指向起始端的方向键使它变宽。
+- Enter、Space 或不拖动的按下，会在最大的大小和之前的大小之间切换，所以每个大小都无需拖动即可到达。
+- 拖动期间，内容中嵌入的文档不会获取指针，所以指针经过它们时拖动不会中断。
+- 尺寸指示对辅助技术隐藏；它绘制的正是手柄的值已经说明的内容。在要求减弱动态效果时，由按键或按下引起的变化会立即完成。
+- 在强制颜色模式下，Outlined 的边和尺寸指示的文字使用文字颜色，尺寸指示的底色使用画布颜色。
+
+### 需要你做的事
+
+- 给你绘制的每个手柄提供标签。没有它，手柄仍会绘制并工作，调试构建会报告这一点。
+- 确认从最小宽度起，在你允许的每个大小下内容都能正常使用。

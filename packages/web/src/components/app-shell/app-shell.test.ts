@@ -10,6 +10,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 // The build's own step (scripts/build.js), read here so a width that drifts from its token fails a test.
 import { declarations, propertyOf, resolved, tokensIn, writeConditions } from '../../../scripts/conditions.js';
 import { type DocumentOptions, type Fixture, appShellWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens } from '../../../test/harness.js';
+import { allSettled } from '../../../test/settled.js';
 
 const spec = loadSpec('app-shell');
 type P = Page;
@@ -620,7 +621,7 @@ test.describe('the main region, the aside, the footer', () => {
   });
 
   test('APS-10: a standard side sheet in the aside gives the aside its own width, with no inset and no edge of the frame’s beside it; a modal one takes no space in any class; the frame never changes the sheet’s variant', async ({ page }) => {
-    const sheet = (variant: string, open = true) => `<tanrei-side-sheet slot="aside" variant="${variant}" headline="Details"${open ? ' open' : ''}>Details of the selected thing.</tanrei-side-sheet>`;
+    const sheet = (variant: string, open = true) => `<tanrei-side-sheet slot="aside" variant="${variant}" headline="Details" close-label="Close details"${open ? ' open' : ''}>Details of the selected thing.</tanrei-side-sheet>`;
     await mount(page, real({ aside: sheet('standard') }), { width: 1280 });
     const aside = region(page, 'aside');
     await expect.poll(async () => (await edges(aside)).width).toBe(await resolveToken(page, '--tanrei-comp-side-sheet-container-width'));
@@ -1486,6 +1487,10 @@ test.describe('the element and its stylesheet', () => {
     const listeners = await page.evaluate(() => (window as unknown as { __listeners: string[] }).__listeners);
     expect(listeners.filter((entry) => entry.startsWith('media:') && /37\.5rem|64rem/.test(entry)).sort()).toEqual(['media:(min-width: 37.5rem)', 'media:(min-width: 64rem)']);
     expect(listeners.filter((entry) => /resize|scroll/.test(entry))).toEqual([]);
+    // Once it has drawn its first frames — every element settles over two frame callbacks after it is connected
+    // (MOT-3, src/primitives/element.ts) — it asks for none.
+    await allSettled(page);
+    await page.evaluate(() => ((window as unknown as { __frames: number }).__frames = 0));
     await page.waitForTimeout(300);
     expect(await page.evaluate(() => (window as unknown as { __frames: number }).__frames)).toBe(0);
   });

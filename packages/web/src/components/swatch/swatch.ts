@@ -1,8 +1,9 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
 import { AvailabilityController, OpenAxesController, hostAria, report } from '../../primitives/index.js';
 import type { TanreiSwatchShapeRegistry, TanreiSwatchSizeRegistry } from '../../registry.js';
 import { AXES, styles } from './swatch.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core sizes (small, medium, large), plus any a design system's generated `.d.ts` registers. */
 export type TanreiSwatchSize = keyof TanreiSwatchSizeRegistry;
@@ -45,7 +46,7 @@ function readColor(value: string): { color: string; refused: boolean } {
  * @csspart label - The color's name, beside the sample.
  * @csspart supporting-text - The line under the name.
  */
-export class TanreiSwatch extends LitElement {
+export class TanreiSwatch extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'swatch');
   static override styles = styles;
 

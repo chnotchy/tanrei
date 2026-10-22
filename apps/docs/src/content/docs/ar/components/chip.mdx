@@ -2,7 +2,7 @@
 title: الرقاقة
 description: عنصر تحكم صغير له تسمية يُعرض في صف، لإجراء مقترح أو رابط إلى مكان ما، أو عامل تصفية مفعَّل أو موقوف، أو عنصر أدخله المستخدم ويستطيع إزالته.
 translationOf: components/chip.mdx
-sourceHash: 37e38aec32b4906b81c9cd245bc9a0ee1ec6e828
+sourceHash: 035fe677407860928287282c7aaf348c8224ccac
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -44,8 +44,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <img slot="avatar" src="ada.jpg" alt="" />
     </tanrei-chip>
 
-    <!-- إزالة عامل تصفية مطبَّق لا تُضيع شيئًا: أوقف مظهر الإجراء الذي لا رجعة فيه. -->
-    <tanrei-chip kind="input" label="أقل من 30 دقيقة" remove-label="إزالة أقل من 30 دقيقة" no-destructive-remove></tanrei-chip>
+    <!-- إزالة مرفق تُضيعه: أعطِ إجراء الإزالة مظهر الإجراء الذي لا رجعة فيه. -->
+    <tanrei-chip kind="input" label="report.pdf" remove-label="إزالة report.pdf" destructive-remove></tanrei-chip>
 
     <script type="module">
       import '@tanrei/web/components/chip';
@@ -64,7 +64,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <Chip label="الاتجاهات" href="https://example.com/map" target="new" targetLabel="يُفتح في تبويب جديد" />
     <Chip kind="filter" selected={vegetarian} label="نباتي" onChange={(e) => setVegetarian(e.detail.selected)} />
     <Chip kind="input" label="Ada Lovelace" removeLabel="إزالة Ada Lovelace" onRemove={() => removeRecipient(ada)} />
-    <Chip kind="input" label="أقل من 30 دقيقة" removeLabel="إزالة أقل من 30 دقيقة" destructiveRemove={false} onRemove={clearTimeFilter} />
+    <Chip kind="input" label="report.pdf" removeLabel="إزالة report.pdf" destructiveRemove onRemove={() => removeAttachment(report)} />
     ```
   </TabItem>
   <TabItem label="SwiftUI">
@@ -147,9 +147,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-chip kind="filter" selected disabled label="نباتي"></tanrei-chip>
 </DemoFrame>
 
-<DemoFrame label="إجراءات الإزالة: لا رجعة فيها (الافتراضي) وعادية؛ حوِّم فوقها أو ركِّز عليها" plain>
-  <tanrei-chip kind="input" label="Ada Lovelace" remove-label="إزالة Ada Lovelace"></tanrei-chip>
-  <tanrei-chip kind="input" label="أقل من 30 دقيقة" remove-label="إزالة أقل من 30 دقيقة" no-destructive-remove></tanrei-chip>
+<DemoFrame label="إجراءات الإزالة: عادية (الافتراضي) ولا رجعة فيها؛ حوِّم فوقها أو ركِّز عليها" plain>
+  <tanrei-chip kind="input" label="أقل من 30 دقيقة" remove-label="إزالة أقل من 30 دقيقة"></tanrei-chip>
+  <tanrei-chip kind="input" label="report.pdf" remove-label="إزالة report.pdf" destructive-remove></tanrei-chip>
 </DemoFrame>
 
 <DemoFrame label="رقاقات الرابط: هنا، في تبويب جديد، معطَّلة" plain>
@@ -213,7 +213,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 تنتهي رقاقة الإدخال بإجراء إزالة: الرسم `cancel` المعبَّأ على حاوية مستديرة أكبر منه بقليل، تظهر حلقةً حول الرسم عند التحويم والتركيز والضغط. في النظام الافتراضي تكون الحاوية المستديرة متحدة المركز مع الطرف المستدير للرقاقة، وبُعدها عن الطرف كبُعدها عن الأعلى والأسفل. ولا تأخذ حيّزًا خاصًّا بها، فلا تجعل الرقاقة أعرض ولا أطول. إجراء الإزالة زر مستقل له اسمه، وله تحويمه وتركيزه وضغطه، وله مساحة لمس خاصة به تمتد نحو الخارج ولا تغطي التسمية أبدًا. الضغط عليه، أو ضغط المفتاح Backspace أو Delete والتركيز على الرقاقة، يطلب إزالة الرقاقة. **الرقاقة لا تزيل نفسها أبدًا.** شيفرتك هي التي تزيل العنصر وتنقل التركيز: إلى الرقاقة التالية، أو السابقة، أو الحقل الذي تخصه الرقاقات.
 
-افتراضيًّا يُقرأ إجراء الإزالة إجراءً لا رجعة فيه (`destructiveRemove`، وهي مفعَّلة ما لم توقفها). في وضع السكون يبدو كما كان سيبدو من دون هذه الراية. وما دام تحت التحويم أو التركيز أو الضغط يأخذ رسمه وطبقة حالته لون الخطأ. أوقفها لإزالة لا تُضيع شيئًا، كعامل تصفية مطبَّق يستطيع الشخص أن يعيده. على الويب خاصية HTML هي العكس، `no-destructive-remove`، لأن خاصية HTML المنطقية لا يمكن أن تكون قيمتها الافتراضية true. الراية تغيّر الألوان ولا شيء غيرها، وتُتجاهل في الأنواع الأخرى.
+يمكن أن يُقرأ إجراء الإزالة إجراءً لا رجعة فيه (`destructiveRemove`، وهي موقوفة افتراضيًّا). في وضع السكون يبدو كما كان سيبدو من دون هذه الراية. وما دام تحت التحويم أو التركيز أو الضغط يأخذ رسمه وطبقة حالته لون الخطأ. معظم الإزالات تأخذ شيئًا يستطيع الشخص أن يعيده بخطوة واحدة، كعامل تصفية مطبَّق أو عبارة بحث، لذا يبقى إجراء الإزالة عاديًّا ما لم تضبط الراية. اضبطها حيث تُضيع الإزالة شيئًا لا يعود بخطوة واحدة، كمرفق أو مستلم دُعي من قبل. على الويب الخاصية هي `destructive-remove`. الراية تغيّر الألوان ولا شيء غيرها، وتُتجاهل في الأنواع الأخرى.
 
 ورقاقة الإدخال التي لا يمكن إزالتها الآن، كمُدخلة في حقل للقراءة فقط، لا ترسم إجراء إزالة: اضبط `removable` على false. فلا يقف هناك إجراء لا يفعل شيئًا، والمفتاحان Backspace و Delete لا يطلبان شيئًا، وتأخذ الرقاقة حشو رقاقة بلا إجراء إزالة. وعلى الويب خاصية HTML هي العكس، `not-removable`. وتُتجاهل هذه الخاصية في الأنواع الأخرى.
 
@@ -224,7 +224,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - أبقِ التسميات قصيرة، من كلمة إلى ثلاث. تبقى الرقاقة على سطر واحد ولا تقتطع تسميتها بعلامة الحذف إلا حين يعطيها التخطيط عرضًا أقل مما يلزم.
 - استخدم طرازًا واحدًا لصف من الرقاقات.
 - سمِّ العنصر في تسمية الإزالة: «إزالة Ada Lovelace»، لا «إزالة».
-- أبقِ مظهر الإزالة التي لا رجعة فيها حيث تُضيع الإزالة ما أدخله الشخص، كمستلم أو وسم. وأوقفه حيث تكون الإزالة بلا ضرر.
+- لا تعطِ إجراء الإزالة مظهر الإجراء الذي لا رجعة فيه إلا حيث تُضيع الإزالة شيئًا لا يعود بخطوة واحدة، كمرفق. واتركه عاديًّا حيث يعود العنصر بخطوة واحدة، كعامل تصفية أو عبارة بحث.
 - على الويب، ضع صف الرقاقات في [مجموعة الوسوم](/ar/components/tag-group/): تضعها في أسطر تلتفّ، وتحفظ المسافة بينها، وتعرضها قائمةً واحدة. وعلى المنصات الأخرى، وفي الصف الذي يُمرَّر، خطِّط الرقاقات بنفسك.
 
 ### لا تفعل

@@ -1,0 +1,170 @@
+---
+title: العدّاد
+description: يبيّن أين تقع قيمة معروفة في مدى معروف — مساحة التخزين المستخدمة، أو شحن البطارية، أو حصة، أو قوة كلمة مرور — في صورة شريط أو حلقة يشبهان مؤشر التقدم، من غير أن يقول إن شيئًا جارٍ.
+translationOf: components/meter.mdx
+sourceHash: a9d8ef1942e071884710cdc52bdb78d45aadfb32
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="meter" />
+
+<DemoFrame label="خطي ودائري">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter value="0.62" label="مساحة التخزين المستخدمة" value-text="9.3 غيغابايت من 15 غيغابايت"></tanrei-meter>
+    <tanrei-meter value="37" max="50" label="المقاعد المحجوزة" value-text="37 من 50 مقعدًا"></tanrei-meter>
+  </div>
+  <tanrei-meter variant="circular" value="0.62" label="البطارية"></tanrei-meter>
+  <tanrei-meter variant="circular" size="large" value="0.15" status="warning" label="البطارية" value-text="منخفضة: 15%"></tanrei-meter>
+</DemoFrame>
+
+### الاستخدام
+
+عيّنتا Web و React تعرضان المواصفة الحالية. أما SwiftUI و Compose و Flutter و React Native فمخطَّط لها: لا تقدّم عدّادًا بعد.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-meter value="0.62" label="مساحة التخزين المستخدمة" value-text="9.3 غيغابايت من 15 غيغابايت"></tanrei-meter>
+    <tanrei-meter value="37" max="50" label="المقاعد المحجوزة" value-text="37 من 50 مقعدًا"></tanrei-meter>
+
+    <!-- المنتج يقرر ما تعنيه القيمة، ويقوله بالكلمات أيضًا. -->
+    <tanrei-meter value="0.85" status="warning" label="مساحة التخزين المستخدمة" value-text="ممتلئة تقريبًا: 12.8 غيغابايت من 15 غيغابايت"></tanrei-meter>
+
+    <tanrei-meter variant="circular" size="small" value="0.62" label="البطارية"></tanrei-meter>
+
+    <script type="module">
+      import '@tanrei/web/components/meter';
+      const meter = document.querySelector('tanrei-meter');
+      meter.value = used / quota;
+      meter.status = used / quota > 0.8 ? 'warning' : 'default';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Meter } from '@tanrei/react';
+
+    <Meter value={used / quota} label="مساحة التخزين المستخدمة" valueText={`${usedText} من ${quotaText}`} />
+    <Meter value={seats} max={50} label="المقاعد المحجوزة" valueText={`${seats} من 50 مقعدًا`} />
+    <Meter
+      value={used / quota}
+      status={used / quota > 0.8 ? 'warning' : 'default'}
+      label="مساحة التخزين المستخدمة"
+      valueText={used / quota > 0.8 ? `ممتلئة تقريبًا: ${usedText} من ${quotaText}` : `${usedText} من ${quotaText}`}
+    />
+    <Meter variant="circular" size="small" value={charge} label="البطارية" />
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="الحالات: default و info و success و warning و error" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter value="0.62" label="Default"></tanrei-meter>
+    <tanrei-meter value="0.4" status="info" label="Info"></tanrei-meter>
+    <tanrei-meter value="0.9" status="success" label="Success"></tanrei-meter>
+    <tanrei-meter value="0.85" status="warning" label="Warning"></tanrei-meter>
+    <tanrei-meter value="0.98" status="error" label="Error"></tanrei-meter>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="الأحجام، وطرفا المدى، ومدى مخصَّص" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter size="small" value="0.62" label="Small"></tanrei-meter>
+    <tanrei-meter size="medium" value="0.62" label="Medium"></tanrei-meter>
+    <tanrei-meter size="large" value="0.62" label="Large"></tanrei-meter>
+    <tanrei-meter value="0" label="فارغ"></tanrei-meter>
+    <tanrei-meter value="1" label="ممتلئ"></tanrei-meter>
+    <tanrei-meter value="37" max="50" value-text="37 من 50 مقعدًا" label="المقاعد المحجوزة"></tanrei-meter>
+  </div>
+  <tanrei-meter variant="circular" size="small" value="0.62" label="Small"></tanrei-meter>
+  <tanrei-meter variant="circular" size="medium" value="0.62" label="Medium"></tanrei-meter>
+  <tanrei-meter variant="circular" size="large" value="0.62" label="Large"></tanrei-meter>
+</DemoFrame>
+
+<DemoFrame label="الفصل: divider (اختيار النظام الافتراضي) و gap" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter separation="divider" value="0.62" label="Divider"></tanrei-meter>
+    <tanrei-meter separation="gap" value="0.62" label="Gap"></tanrei-meter>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="meter" />
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم العدّاد لتبيّن أين تقع كمية في مدى له حدّ أدنى وحدّ أقصى حقيقيان: مساحة التخزين المستخدمة من حصة، أو شحن بطارية، أو المقاعد المحجوزة في قاعة، أو قوة كلمة مرور جديدة. إنه يعرض مستوى؛ لا شيء جارٍ، ولا شيء سينتهي.
+
+للمهمة الجارية — رفع، أو استيراد، أو حفظ طويل — استخدم [مؤشر التقدم](/ar/components/progress-indicator/) بدلًا منه. شكله هو نفسه، لكن التقنيات المساعدة تخبر الناس بأن شيئًا جارٍ، والعدّاد يجب ألا يقول ذلك. والقيمة التي ليس لها حدّ أقصى ذو معنى، كعدد الرسائل، ليست هذا ولا ذاك: اعرضها نصًّا.
+
+### اختيار الطراز
+
+| الطراز (variant) | يُستخدم لـ |
+| --- | --- |
+| خطي (linear) | مستوى يخص صفحة أو قسمًا: مساحة التخزين في صفحة الإعدادات، أو حصة داخل بطاقة، أو صف في قائمة الخطط. يملأ الشريط العرض الذي يعطيه إياه تخطيطه. |
+| دائري (circular) | المواضع الضيقة والمستوى بجانب النص: البطارية في شريط الحالة، أو صف في قائمة الأجهزة. للحلقة مقاس ثابت. |
+
+### اختيار الحجم
+
+| الحجم | ثخانة الشريط / مقاس الحلقة في النظام الافتراضي | يُستخدم لـ |
+| --- | --- | --- |
+| صغير (small) | 2 / 16 | الصفوف الكثيفة، بجانب النص الصغير. |
+| متوسط (medium) | 4 / 24 | معظم المواضع. وهو الافتراضي. |
+| كبير (large) | 8 / 40 | المستوى الوحيد الذي يدور حوله العرض، كصفحة التخزين في حساب. |
+
+الأحجام والمسار واللون الافتراضي هي نفسها التي لمؤشر التقدم، فيتطابق العدّاد ومؤشر التقدم حين يتجاوران. ويستطيع نظام التصميم أن يميّز العدّاد برموزه الخاصة.
+
+### اختيار الحالة
+
+لا يقرر العدّاد ما تعنيه القيمة. أن يكون الأكثر أفضل أو أسوأ أمرٌ يعرفه منتجك: مساحة تخزين شبه ممتلئة هي warning، وكلمة مرور تقارب أقصى قوتها هي success. احسب الحالة بنفسك ومرّرها. وللحالات الأسماء التي يستخدمها الوسم وشريط الإشعار.
+
+| الحالة | تُستخدم لـ |
+| --- | --- |
+| Default | مستوى لا يحتاج إلى تعليق. معظم العدّادات تبقى هنا. |
+| Info | مستوى تحسن معرفته ولا يطلب شيئًا، كحصة تتجدد قريبًا. |
+| Success | مستوى في موضعه الصحيح، ككلمة مرور قوية. |
+| Warning | مستوى سيحتاج إلى انتباه قريبًا، كمساحة تخزين شبه ممتلئة أو بطارية منخفضة. |
+| Error | مستوى يمنع شيئًا الآن، كمساحة تخزين ممتلئة. |
+
+الحالة تغيّر لون المؤشر ولا شيء غيره. قل ما تعنيه بالكلمات أيضًا: في نص القيمة، وفي النص بجانب العدّاد.
+
+### افعل
+
+- أعطِه تسمية تقول ما الذي يُقاس: «مساحة التخزين المستخدمة»، لا «العدّاد». وإن عُرض بجانبه شرح فاستخدم الكلمات نفسها.
+- استخدم نص القيمة حين لا تكون النسبة المئوية هي القراءة الطبيعية: «9.3 غيغابايت من 15 غيغابايت»، «37 من 50 مقعدًا»، «قوية».
+- حين يكون للحالة معنى، ضعها في نص القيمة أيضًا: «ممتلئة تقريبًا: 12.8 غيغابايت من 15 غيغابايت».
+
+### لا تفعل
+
+- لا تستخدمه لمهمة جارية. ذاك مؤشر التقدم.
+- لا تعتمد على لون الحالة وحده. فمن لا يرى اللون يجب أن يعرف هو أيضًا أن مساحة التخزين شبه ممتلئة.
+- لا تعرض قيمة خارج المدى. فالعدّاد يرسمها ويعرضها محصورة في المدى، فلا يكون الرقم الذي يسمعه الشخص هو الرقم الذي لديك.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="meter" />
+
+### ما يتكفل به المكوّن
+
+- يعرض دور العدّاد (meter) والتسمية اسمًا له، ويعرض المدى والقيمة الحالية (محصورة في المدى) ونص القيمة إن وُجد. ولا يقول أبدًا إنه مشغول أو إن مهمة جارية.
+- لا يقبل التركيز أبدًا، ولا يُعلِن تغيّراته. تقرأ التقنيات المساعدة القيمة الحالية حين يصل الشخص إليه.
+- لا تُعلَن الحالة وحدها أبدًا: إنها تغيّر اللون فقط.
+- تغيّر القيمة يحرّك طرف المؤشر، وتغيّر الحالة يبدّل لونه تدريجيًّا. وحين يُطلب تقليل الحركة يتحرك الطرف فورًا ويتبدّل اللون وحده تدريجيًّا.
+- في الألوان المفروضة (forced colors) يصير المسار حافة رفيعة ويُملأ المؤشر، كلاهما بلون النص، أيًّا كانت الحالة، فتبقى القيمة مقروءة من حيث ينتهي المؤشر.
+- التسمية الفارغة، والقيمة الخارجة عن المدى، والقيمة التي ليست عددًا، وقيم `size` أو `variant` أو `separation` أو `status` غير المعروفة يُبلَّغ عنها في بنيات التنقيح (debug).
+
+### ما عليك فعله
+
+- قل بالكلمات ما تعنيه الحالة: في نص القيمة، وفي النص بجانب العدّاد.
+- أعلِن بنفسك التغيّر المهم، كامتلاء مساحة التخزين: رسالة في منطقة حيّة (live region) أو إشعار سيراه الشخص. العدّاد لن يقول ذلك.
+- إن غيّرت ألوان المؤشر، فأبقِ كل لون منها — الافتراضي والحالات الأربع — بتباين 3:1 على الأقل مقابل المسار ومقابل السطح الذي خلفه. تُقرأ القيمة من حيث يلتقي المؤشر بالمسار. والنظام الافتراضي يُبقي الألوان الخمسة فوق 4.6:1 في الوضع الفاتح وفوق 7.3:1 في الداكن.

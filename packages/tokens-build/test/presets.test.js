@@ -3,12 +3,12 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
-import { ROOT_SYSTEM, listSystems } from '../src/bundle.js';
-import { checkInvariants, isCriterionFinding, presetAccessibilityReport } from '../src/invariants.js';
+import { DEFAULT_SYSTEM, shippedSystems } from '../src/bundle.js';
+import { auditInvariants, isCriterionFinding, presetAccessibilityReport } from '../src/invariants.js';
 import { REPO_ROOT, buildModel } from '../src/model.js';
 import { loadSystem } from '../src/scheme.js';
 
-const presets = listSystems(REPO_ROOT).filter((id) => id !== ROOT_SYSTEM);
+const presets = shippedSystems(REPO_ROOT).filter((id) => id !== DEFAULT_SYSTEM);
 const bundle = (id) => path.join(REPO_ROOT, 'tokens/generated', id);
 const gaps = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'docs/governance/mimicry-gaps.json'), 'utf8')).gaps;
 
@@ -30,9 +30,9 @@ for (const id of presets) {
     // its contrast is measured with the fixed ruler and kept as information, never as a warning or a mimicry gap.
     // A structural or functional finding is not a measurement: it fails the build in every system.
     const report = JSON.parse(fs.readFileSync(path.join(bundle(id), 'a11y-report.json'), 'utf8'));
-    const findings = checkInvariants(await buildModel(bundle(id), id));
+    const { failures: findings, checked } = auditInvariants(await buildModel(bundle(id), id));
     assert.deepEqual(findings.filter((f) => !isCriterionFinding(f)), [], 'structural and functional invariants hold in every system');
-    assert.deepEqual(report, presetAccessibilityReport(id, findings));
+    assert.deepEqual(report, presetAccessibilityReport(id, findings, checked));
     assert.ok(!('severity' in report) && !('warnings' in report), 'a preset\'s measurements are not warnings');
   });
 

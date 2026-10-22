@@ -2,7 +2,7 @@
 title: Tanrei の作り方
 description: 2 つの信頼できる情報源、仕様起点のワークフロー、そして 5 つのプラットフォームとドキュメント、ステータス表の整合を保つドリフトチェック。
 translationOf: project/how-tanrei-is-built.mdx
-sourceHash: 3547dbe4350a1a06ebf6d102e3f0b187fd2b011e
+sourceHash: 84670c51e764e9115a091fe0fba8e6fa168dc5fb
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -38,7 +38,7 @@ THE button SHALL emit click exactly once.
 
 <Steps>
 
-1. **提案する。** 仕様を書く、または変更します。必要ならトークンも変更します。新しいコンポーネントと破壊的変更は Issue から始め、メンテナーが決めます。
+1. **提案する。** 仕様を書く、または変更します。必要ならトークンも変更します。新しいコンポーネントと破壊的変更は、仕様を変える前にメンテナーが決めます。
 2. **検証する。** `pnpm validate` がスキーマの検査、トークンの lint、すべてのテーマとコントラストレベルでのコントラスト不変条件の検証を行います。
 3. **生成する。** `pnpm generate` がトークンの出力、ひな形、ステータス表を再生成します。
 4. **実装する。** 仕様が挙げる各プラットフォームに、ユニットテスト、スナップショットテスト、アクセシビリティテストとともに実装します。

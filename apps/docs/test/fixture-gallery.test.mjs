@@ -123,7 +123,7 @@ describe('what the gallery writes into the page', () => {
 
   test('a document’s step in script is kept for the gallery, and the rewriting leaves it as it is', () => {
     const stepped = implemented.filter((spec) => fixtureDocument(spec.name).step);
-    assert.deepEqual(stepped.map((spec) => spec.name).sort(), ['chat-composer', 'drop-zone', 'embedded-text-input', 'file-upload']);
+    assert.deepEqual(stepped.map((spec) => spec.name).sort(), ['chat-composer', 'drop-zone', 'embedded-text-input', 'file-upload', 'scroll-area']);
     for (const spec of stepped) {
       const script = stepScript(spec.name, fixtureDocument(spec.name).step);
       assert.equal(tanreiContent(script, words), script, spec.name);

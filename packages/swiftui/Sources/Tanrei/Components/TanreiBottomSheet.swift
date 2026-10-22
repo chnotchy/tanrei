@@ -962,8 +962,8 @@ struct TanreiBottomSheetHandleChrome: View {
       TanreiContainerRipple(color: colors[$0], press: press, growth: tokens.rippleGrowth(reduceMotion: reduceMotion))
     }
     let style = system.shape.roundedCornerStyle
-    // BSH-12, BSH-22: the grip, decorative, centred in the box; its corners eased by the corner smoothing (BSH-18).
-    return RoundedRectangle(cornerRadius: tokens.handleGripShape, style: style)
+    // BSH-12, BSH-22: the grip, decorative, centred in the box, with round ends (a Handle's line, HDL-1): the box's full corner.
+    return RoundedRectangle(cornerRadius: tokens.handleContainerShape, style: style)
       .fill(colors[appearance.grip])
       .frame(width: tokens.handleGripWidth, height: tokens.handleGripHeight)
       .accessibilityHidden(true)

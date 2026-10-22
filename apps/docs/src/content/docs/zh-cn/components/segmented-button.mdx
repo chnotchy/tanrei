@@ -2,7 +2,7 @@
 title: "分段按钮"
 description: "让用户从两到五个相关的选项中选择一个或多个；这些选项并排绘制，是同一个控件中彼此相连的分段。"
 translationOf: components/segmented-button.mdx
-sourceHash: 064c374a356e8a7e012dab0484023992e0c8168c
+sourceHash: 6af9719e03456372600f15965041cf5525e4cc2b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -14,10 +14,6 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## 概览
 
 <ComponentAvailability name="segmented-button" />
-
-:::note[Tanrei 系统中没有]
-默认的 Tanrei 系统不提供分段按钮；Material 和 cupertino 预设提供它。在 Tanrei 中，多选一的选择如果会改变下方的内容，就用[标签页](/zh-cn/components/tabs/)，如果是设置一个值，就用[单选按钮](/zh-cn/components/radio-button/)；各自独立切换的按钮则是[按钮组](/zh-cn/components/button-group/)。这个组件在每个系统下仍然可以工作，只是在不提供它的系统下，开发时会有一条警告。本页的演示是在提供它的 `m3-like` 预设下绘制的。
-:::
 
 <DemoFrame label="单选、带图标、纯图标" system="m3-like">
   <tanrei-segmented-button label="范围" value="week">
@@ -67,7 +63,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Segment, SegmentedButton } from '@tanrei/react';
+    // 默认系统不包含分段按钮：它在 m3-like、m3-expressive-like 和 cupertino 的入口中，也在 /all 中。
+    import { Segment, SegmentedButton } from '@tanrei/react/m3-like';
 
     // 单选时 detail 是 { value }，多选时是 { values }。
     <SegmentedButton label="范围" value={range} onChange={(e) => 'value' in e.detail && setRange(e.detail.value)}>

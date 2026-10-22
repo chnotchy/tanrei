@@ -2,7 +2,7 @@
 title: फ़ील्ड ग्रुप
 description: एक ही सवाल का जवाब देने वाले कंट्रोल के सेट को, यानी चेकबॉक्स, स्विच, या साथ रहने वाले फ़ील्ड को, नाम देता है, ऐसे लेबल के साथ जो बता सकता है कि सेट ज़रूरी है या वैकल्पिक, एक विवरण और पूरे सेट की एक त्रुटि के साथ, और कंट्रोल को कॉलम या पंक्ति में रखता है।
 translationOf: components/field-group.mdx
-sourceHash: 6825a01b24b1fc9701b16dd5130baba7634da638
+sourceHash: ec4bcb123ec8e843f4501f71bdaee22bc494365f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="field-group" />
 
 <DemoFrame label="चेकबॉक्स का एक सेट, नाम, विवरण और ज़रूरी के निशान के साथ" column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।" requirement="required" required-text="ज़रूरी">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।" required required-text="ज़रूरी">
     <tanrei-checkbox label="ईमेल" checked></tanrei-checkbox>
     <tanrei-checkbox label="SMS"></tanrei-checkbox>
     <tanrei-checkbox label="पुश सूचना"></tanrei-checkbox>
@@ -34,7 +34,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-field-group label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।" requirement="required" required-text="ज़रूरी"
+    <tanrei-field-group label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।" required required-text="ज़रूरी"
                         error error-text="सूचना भेजने का कम से कम एक तरीक़ा चुनें।">
       <tanrei-checkbox name="notify" value="email" label="ईमेल"></tanrei-checkbox>
       <tanrei-checkbox name="notify" value="text" label="SMS"></tanrei-checkbox>
@@ -43,8 +43,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
     <!-- साथ रहने वाले फ़ील्ड। -->
     <tanrei-field-group label="डिलीवरी का पता" spacing="fields">
-      <tanrei-text-field label="मकान नंबर और गली" requirement="required" required-text="ज़रूरी"></tanrei-text-field>
-      <tanrei-text-field label="शहर" requirement="required" required-text="ज़रूरी"></tanrei-text-field>
+      <tanrei-text-field label="मकान नंबर और गली" required required-text="ज़रूरी"></tanrei-text-field>
+      <tanrei-text-field label="शहर" required required-text="ज़रूरी"></tanrei-text-field>
     </tanrei-field-group>
 
     <script type="module">
@@ -67,7 +67,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## स्पेक
 
 <DemoFrame label="पूरे सेट की त्रुटि, एक पंक्ति, स्विच, और साथ रहने वाले फ़ील्ड" plain column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।" requirement="required" required-text="ज़रूरी" error error-text="सूचना भेजने का कम से कम एक तरीक़ा चुनें।">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।" required required-text="ज़रूरी" error error-text="सूचना भेजने का कम से कम एक तरीक़ा चुनें।">
     <tanrei-checkbox label="ईमेल"></tanrei-checkbox>
     <tanrei-checkbox label="SMS"></tanrei-checkbox>
   </tanrei-field-group>
@@ -76,8 +76,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-checkbox label="SMS"></tanrei-checkbox>
     <tanrei-checkbox label="पुश"></tanrei-checkbox>
   </tanrei-field-group>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="निजता" supporting-text="ये सिर्फ़ इस डिवाइस पर लागू होती हैं।" requirement="optional" optional-text="वैकल्पिक">
-    <tanrei-switch label="इस्तेमाल का डेटा शेयर करें" selected></tanrei-switch>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="निजता" supporting-text="ये सिर्फ़ इस डिवाइस पर लागू होती हैं।" optional optional-text="वैकल्पिक">
+    <tanrei-switch label="इस्तेमाल का डेटा शेयर करें" checked></tanrei-switch>
     <tanrei-switch label="मेरी स्थिति दिखाएँ"></tanrei-switch>
   </tanrei-field-group>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="शहर और पिन कोड" spacing="fields" orientation="horizontal">
@@ -101,17 +101,17 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### रेडियो बटन का सेट: `kind`
 
-ग्रुप का न ज़रूरी का स्टेट होता है, न अमान्य का, इसलिए फ़ील्ड ग्रुप ज़रूरी या वैकल्पिक होना शब्दों में कहता है और अपने चेकबॉक्स को एक-एक करके अमान्य चिह्नित करता है। रेडियो बटन का सेट अलग है: वह पूरा का पूरा ज़रूरी और अमान्य होता है। `kind="radio-group"` फ़ील्ड ग्रुप को बताता है कि उसका सेट एक ही ग्रुप के रेडियो बटन हैं। तब सहायक तकनीक को वह उनके रेडियो ग्रुप के रूप में मिलता है: जब तक `requirement` का मान `required` है तब तक ज़रूरी, जब तक `error` true है तब तक अमान्य, और अपना ओरिएंटेशन बताता हुआ। `requiredText` अब उसके विवरण का हिस्सा नहीं रहता, क्योंकि यह बात स्टेट कह देता है।
+ग्रुप का न ज़रूरी का स्टेट होता है, न अमान्य का, इसलिए फ़ील्ड ग्रुप ज़रूरी या वैकल्पिक होना शब्दों में कहता है और अपने चेकबॉक्स को एक-एक करके अमान्य चिह्नित करता है। रेडियो बटन का सेट अलग है: वह पूरा का पूरा ज़रूरी और अमान्य होता है। `kind="radio-group"` फ़ील्ड ग्रुप को बताता है कि उसका सेट एक ही ग्रुप के रेडियो बटन हैं। तब सहायक तकनीक को वह उनके रेडियो ग्रुप के रूप में मिलता है: जब तक `required` सेट है तब तक ज़रूरी, जब तक `error` true है तब तक अमान्य, और अपना ओरिएंटेशन बताता हुआ। `requiredText` अब उसके विवरण का हिस्सा नहीं रहता, क्योंकि यह बात स्टेट कह देता है।
 
 ```html
-<tanrei-field-group kind="radio-group" label="डिलीवरी" requirement="required" required-text="ज़रूरी">
+<tanrei-field-group kind="radio-group" label="डिलीवरी" required required-text="ज़रूरी">
   <tanrei-radio-button name="delivery" value="standard" label="स्टैंडर्ड, 3 से 5 दिन" checked></tanrei-radio-button>
   <tanrei-radio-button name="delivery" value="express" label="एक्सप्रेस, अगले दिन"></tanrei-radio-button>
 </tanrei-field-group>
 ```
 
 <DemoFrame label="एक ही name वाले रेडियो बटन के चारों ओर एक फ़ील्ड ग्रुप, जिसका kind radio-group है" column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="डिलीवरी" requirement="required" required-text="ज़रूरी">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="डिलीवरी" required required-text="ज़रूरी">
     <tanrei-radio-button name="delivery-kind" value="standard" label="स्टैंडर्ड, 3 से 5 दिन" checked></tanrei-radio-button>
     <tanrei-radio-button name="delivery-kind" value="express" label="एक्सप्रेस, अगले दिन"></tanrei-radio-button>
   </tanrei-field-group>
@@ -128,7 +128,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - विवरण लेबल के नीचे, कंट्रोल से पहले आता है, और ग्रुप में त्रुटि रहने पर भी बना रहता है। "जो भी लागू हों, सभी चुनें" विकल्पों से पहले पढ़ा जाना चाहिए, और जवाब अस्वीकार होने पर व्यक्ति को यही दोबारा चाहिए।
 - त्रुटि टेक्स्ट अपनी अलग पंक्ति है, आख़िरी कंट्रोल के नीचे।
 
-लेबल, ज़रूरी या वैकल्पिक का टैग और तारांकन वही हैं जो फ़ील्ड के हैं।
+लेबल, ज़रूरी या वैकल्पिक का टैग और तारांकन वही हैं जो फ़ील्ड के हैं। फ़ॉर्म क्या माँगता है, यह बताने वाले `required` और `optional` भी वही हैं: दोनों सेट हों तो सेट ज़रूरी है।
 
 ### लेआउट
 

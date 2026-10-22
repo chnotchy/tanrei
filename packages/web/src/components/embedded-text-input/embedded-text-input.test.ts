@@ -566,6 +566,68 @@ test.describe('behavior', () => {
     await expect.poll(() => host(page, 'empty').evaluate((el) => [el.shadowRoot!.querySelector<HTMLElement>('.box')!.style.blockSize, el.shadowRoot!.querySelector('.box')!.hasAttribute('data-resizing')])).toEqual(['', false]);
   });
 
+  test('ETI-8: at every rendered frame of the motion a typed line break starts — in a holder at the top of its column and in one docked at the bottom of a column, which grows upward — the first line stays at the box’s top edge and the box never scrolls, because the caret on a line the box does not hold yet is not revealed by scrolling the box', async ({ page }) => {
+    // The two holders, each with one line of text: one at the top of its stage, one docked at the bottom of a column
+    // 400 px tall, as a conversation's composer is.
+    await mount(page, [fx('held-top', { multiline: true, value: 'One line' }), fx('held-docked', { multiline: true, value: 'One line' })], { reducedMotion: false });
+    await stage(page, 'held-docked').evaluate((el) => Object.assign((el as HTMLElement).style, { display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', blockSize: '400px' }));
+    const one = await line(page, 'held-top');
+    for (const id of ['held-top', 'held-docked']) {
+      // The motion is held at its start in the task that starts it — the `input` the key causes, after the element's own
+      // handler — and then stepped by hand: every read below follows a frame that was rendered, so what the browser
+      // does at a frame (revealing the caret) is seen, whatever the speed of the machine.
+      await host(page, id).evaluate((el) => {
+        const input = el.shadowRoot!.querySelector<HTMLTextAreaElement>('.input')!;
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+        el.addEventListener(
+          'input',
+          () => {
+            const animations = el.shadowRoot!.querySelector('.box')!.getAnimations();
+            for (const animation of animations) {
+              animation.pause();
+              animation.currentTime = 0;
+            }
+            (window as unknown as { __held: number }).__held = animations.length;
+          },
+          { once: true },
+        );
+      });
+      await page.keyboard.press('Enter');
+      const frames = await host(page, id).evaluate(async (el) => {
+        const input = el.shadowRoot!.querySelector<HTMLTextAreaElement>('.input')!;
+        const boxed = el.shadowRoot!.querySelector<HTMLElement>('.box')!;
+        const capsule = el.closest<HTMLElement>('.capsule')!;
+        const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+        const read = (at: string) => ({ at, first: input.getBoundingClientRect().top - boxed.getBoundingClientRect().top, scrolled: boxed.scrollTop, inHolder: input.getBoundingClientRect().top - capsule.getBoundingClientRect().top, height: boxed.getBoundingClientRect().height });
+        const animations = boxed.getAnimations();
+        const duration = Number(animations[0]?.effect?.getComputedTiming().duration ?? 0);
+        await frame();
+        const seen = [read('start')];
+        for (const part of [0.25, 0.5, 0.75]) {
+          for (const animation of animations) animation.currentTime = duration * part;
+          await frame();
+          seen.push(read(String(part)));
+        }
+        for (const animation of animations) animation.finish();
+        await frame();
+        seen.push(read('end'));
+        return { held: (window as unknown as { __held: number }).__held, seen };
+      });
+      expect(frames.held, `${id}: one motion`).toBe(1);
+      const padding = frames.seen.at(-1)!.inHolder;
+      for (const f of frames.seen) {
+        near(f.first, 0, `${id} at ${f.at}: the first line at the box’s top edge`, 0.5);
+        expect(f.scrolled, `${id} at ${f.at}: the box has not scrolled`).toBe(0);
+        near(f.inHolder, padding, `${id} at ${f.at}: the first line where it was in the holder`, 0.5);
+      }
+      near(frames.seen[0]!.height, one, `${id}: it starts at one line`);
+      expect(frames.seen[2]!.height, `${id}: through heights in between`).toBeGreaterThan(one + 1);
+      expect(frames.seen[2]!.height).toBeLessThan(2 * one - 1);
+      near(frames.seen.at(-1)!.height, 2 * one, `${id}: it ends at two lines`);
+    }
+  });
+
   test('ETI-9: the height changes at once, with no motion — when a five-line value is first drawn; when it is shown again after it was not; when its width, minRows or maxRows changed; while a pointer is held down in its text; and where motion is reduced', async ({ page }) => {
     await mount(page, [fx('five', { multiline: true, value: '1\n2\n3\n4\n5' }), fx('w', { multiline: true, value: 'A line of text that wraps where the input is narrow enough for it to' }), fx('held', { multiline: true, value: 'a\nb' })], { reducedMotion: false });
     const one = await line(page, 'five');
@@ -623,6 +685,83 @@ test.describe('behavior', () => {
     near(reduced.to, reduced.from + one, 'a line more in the next frame');
   });
 
+  test('ETI-8: a letter typed while the motion of a line break runs continues that motion — the motion it replaces reports its cancellation a frame later, and that report ends nothing: the height still moves from the one shown to the end height through heights on its curve, with no step of more than 35 % of the whole change', async ({ page }) => {
+    await mount(page, [fx('typed', { multiline: true, value: 'One line' }), fx('held-typed', { multiline: true, value: 'One line' })], { reducedMotion: false });
+    const one = await line(page, 'typed');
+    for (const id of ['typed', 'held-typed']) {
+      const run = await host(page, id).evaluate(async (el) => {
+        const input = el.shadowRoot!.querySelector<HTMLTextAreaElement>('.input')!;
+        const boxed = el.shadowRoot!.querySelector<HTMLElement>('.box')!;
+        const height = () => boxed.getBoundingClientRect().height;
+        const resizing = () => boxed.getAnimations().filter((a) => /^(block-size|height)$/.test((a as CSSTransition).transitionProperty));
+        const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+        let cancelled = 0;
+        boxed.addEventListener('transitioncancel', () => cancelled++);
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+        const from = height();
+        const hold = (at: (duration: number) => number) => {
+          const held = resizing();
+          const duration = Number(held[0]?.effect?.getComputedTiming().duration ?? 0);
+          for (const motion of boxed.getAnimations()) {
+            motion.pause();
+            motion.currentTime = at(duration);
+          }
+          return held.length;
+        };
+        // A line break: its motion runs for a rendered frame, held a thirteenth of the way (every read below follows a
+        // rendered frame).
+        document.execCommand('insertText', false, '\n');
+        const first = hold((duration) => duration / 13);
+        await frame();
+        const mid = height();
+        // A letter, a moment later: its change replaces that motion with one from the height then shown, and the replaced
+        // one is cancelled — which is reported with the next frame's events. The new motion is held at its start and then
+        // stepped by hand, so what is read does not depend on the machine's speed.
+        document.execCommand('insertText', false, 'b');
+        const motions = resizing();
+        for (const motion of boxed.getAnimations()) {
+          motion.pause();
+          motion.currentTime = 0;
+        }
+        const duration = Number(motions[0]?.effect?.getComputedTiming().duration ?? 0);
+        await frame();
+        const after = { motions: resizing().length, marked: boxed.hasAttribute('data-resizing'), cancelled };
+        const heights = [from, mid, height()];
+        // The eased progress at each read, from the motion itself: where the height should be, whatever the curve.
+        const progress = [Number.NaN, 0, Number(motions[0]?.effect?.getComputedTiming().progress ?? 1)];
+        for (let step = 1; step < 13; step++) {
+          for (const motion of motions) motion.currentTime = (duration * step) / 13;
+          await frame();
+          heights.push(height());
+          progress.push(Number(motions[0]?.effect?.getComputedTiming().progress ?? 1));
+        }
+        for (const motion of motions) motion.finish();
+        await frame();
+        heights.push(height());
+        progress.push(1);
+        return { first, held: motions.length, after, heights, progress };
+      });
+      expect(run.first, `${id}: the line break starts one motion`).toBe(1);
+      expect(run.held, `${id}: one motion runs after the letter`).toBe(1);
+      expect(run.after.cancelled, `${id}: the replaced motion reported its cancellation`).toBeGreaterThanOrEqual(1);
+      expect({ motions: run.after.motions, marked: run.after.marked }, `${id}: after that report the motion still runs`).toEqual({ motions: 1, marked: true });
+      const whole = run.heights.at(-1)! - run.heights[0]!;
+      near(whole, one, `${id}: one line more`);
+      // The letter's motion, from the height shown when it came: at each read where its curve has brought it.
+      const rest = run.heights.at(-1)! - run.heights[1]!;
+      expect(rest, `${id}: the letter's motion goes on from the height then shown`).toBeGreaterThan(1);
+      run.heights.forEach((h, i) => i >= 1 && near(h, run.heights[1]! + run.progress[i]! * rest, `${id}: read ${i} on the curve (${run.heights.join(' → ')})`, 1));
+      // And in the measure of a motion that jumps: at 13 evenly spaced times no step is more than 35 % of the change (the
+      // standard curve's largest is 28 %; a motion ended by the report moves 100 % at once).
+      for (let i = 1; i < run.heights.length; i++) {
+        const step = run.heights[i]! - run.heights[i - 1]!;
+        expect(step, `${id}: never lower than the one before (${run.heights.join(' → ')})`).toBeGreaterThanOrEqual(-0.01);
+        expect(step / whole, `${id}: step ${i} is no more than 35 % of the change (${run.heights.join(' → ')})`).toBeLessThanOrEqual(0.35);
+      }
+    }
+  });
+
   test('ETI-10: the height it takes in its layout is the animated one — a holder that sizes itself to its content is the input’s height plus its own paddings at every sample of a motion, with no jump at its start or its end; rowschange is emitted once when it is first drawn and once for each later change of the number of lines, before the first frame in which the height differs, and never for a text size alone', async ({ page }) => {
     // Heard from before the element is defined: the first one is not missed.
     const lead = `<script>window.__rows = []; document.addEventListener('rowschange', (event) => { const el = event.target; window.__rows.push(el.closest('[data-fixture]').getAttribute('data-fixture') + ':' + event.detail.rows + ':' + event.detail.scrolling + ':' + el.rows); });</script>`;
@@ -665,6 +804,12 @@ test.describe('behavior', () => {
       const ways: [string, () => Promise<unknown>][] = [
         ['Tab', () => tabTo(page, host(page, id))],
         ['a press', async () => {
+          // Scrolled into view before it is measured: a box is a rectangle in the window and the press a point in it.
+          // Where the Tab before it left the page is WebKit's to decide: it reveals a text control that Tab focused at
+          // a later rendering update, which the blur that follows can come before, and the page then stays where the
+          // previous stop was, the input below the window's bottom edge (y 757 in a window 720 high) and the press on
+          // nothing.
+          await native(page, id).scrollIntoViewIfNeeded();
           const b = await box(native(page, id));
           await page.mouse.click(b.x + 20, b.y + 10);
         }],
@@ -801,7 +946,11 @@ test.describe('behavior', () => {
     for (const part of await drawn(page, 'disabled')) expect(part).toEqual(NOTHING);
     await record(page, 'disabled');
     await host(page, 'disabled').evaluate((el) => (el as HTMLElement).focus());
+    // In view before it is measured: the fixture stands below the window's bottom edge (y 766 in a window 720 high), and
+    // a press at its place in the window would reach nothing and show nothing. The point is the element's.
+    await host(page, 'disabled').scrollIntoViewIfNeeded();
     const b = await box(host(page, 'disabled'));
+    expect(await host(page, 'disabled').evaluate((el, [x, y]) => el.contains(document.elementFromPoint(x!, y!)), [b.x + 10, b.y + 10])).toBe(true);
     await page.mouse.click(b.x + 10, b.y + 10);
     await page.keyboard.type('x');
     await page.keyboard.press('Control+Enter');

@@ -1,0 +1,28 @@
+---
+// The notice at the top of an install page: what is published and how to install it until the page's own steps are
+// the whole story (lib/release-notice.ts). The words are the page's language's (lib/i18n.ts, `release`); the version,
+// the dist-tag and the paused platforms come from the repository, so no page is edited when a version is released.
+// Where nothing differs from the page's steps, it draws nothing.
+import Callout from './Callout.astro';
+import { contentLang } from '../lib/i18n';
+import { releaseNotice } from '../lib/release-notice';
+
+interface Props {
+  /** The platform whose guide the page is (a platform id of tanrei.config.json). Leave it out on the overview. */
+  platform?: string;
+  /** The package, or the packages, the page installs, by their published names. */
+  pkg?: string | string[];
+  /** Where they are published: "npm", "Maven Central"… */
+  registry?: string;
+}
+const { platform, pkg, registry } = Astro.props;
+const notice = releaseNotice({ lang: contentLang(Astro), platform, pkgs: pkg === undefined ? [] : [pkg].flat(), registry });
+---
+
+{
+  notice && (
+    <Callout type="caution" title={notice.title}>
+      {notice.paragraphs.map((paragraph) => <p set:html={paragraph} />)}
+    </Callout>
+  )
+}

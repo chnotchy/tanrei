@@ -14,6 +14,24 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `dragged-disabled` | <img src="../../packages/web/snapshots/drop-zone/dragged-disabled.png" alt="web dragged-disabled" width="160"> |
 | `dragged-rtl` | <img src="../../packages/web/snapshots/drop-zone/dragged-rtl.png" alt="web dragged-rtl" width="160"> |
 
+## Handle
+
+| Fixture | Web Components |
+| --- | --- |
+| `default` | <img src="../../packages/web/snapshots/handle/default.png" alt="web default" width="160"> |
+| `revealed` | <img src="../../packages/web/snapshots/handle/revealed.png" alt="web revealed" width="160"> |
+| `horizontal` | <img src="../../packages/web/snapshots/handle/horizontal.png" alt="web horizontal" width="160"> |
+| `both-bottom-end` | <img src="../../packages/web/snapshots/handle/both-bottom-end.png" alt="web both-bottom-end" width="160"> |
+| `both-bottom-start` | <img src="../../packages/web/snapshots/handle/both-bottom-start.png" alt="web both-bottom-start" width="160"> |
+| `both-top-end` | <img src="../../packages/web/snapshots/handle/both-top-end.png" alt="web both-top-end" width="160"> |
+| `both-top-start` | <img src="../../packages/web/snapshots/handle/both-top-start.png" alt="web both-top-start" width="160"> |
+| `small` | <img src="../../packages/web/snapshots/handle/small.png" alt="web small" width="160"> |
+| `small-horizontal` | <img src="../../packages/web/snapshots/handle/small-horizontal.png" alt="web small-horizontal" width="160"> |
+| `small-both` | <img src="../../packages/web/snapshots/handle/small-both.png" alt="web small-both" width="160"> |
+| `button-expanded` | <img src="../../packages/web/snapshots/handle/button-expanded.png" alt="web button-expanded" width="160"> |
+| `disabled` | <img src="../../packages/web/snapshots/handle/disabled.png" alt="web disabled" width="160"> |
+| `rtl-both` | <img src="../../packages/web/snapshots/handle/rtl-both.png" alt="web rtl-both" width="160"> |
+
 ## List row
 
 | Fixture | Web Components |
@@ -56,6 +74,45 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `reorderable-gap` | <img src="../../packages/web/snapshots/list/reorderable-gap.png" alt="web reorderable-gap" width="160"> |
 | `reorderable-single-item` | <img src="../../packages/web/snapshots/list/reorderable-single-item.png" alt="web reorderable-single-item" width="160"> |
 | `reorderable-wrap` | <img src="../../packages/web/snapshots/list/reorderable-wrap.png" alt="web reorderable-wrap" width="160"> |
+| `icon-space-auto` | <img src="../../packages/web/snapshots/list/icon-space-auto.png" alt="web icon-space-auto" width="160"> |
+| `icon-space-always` | <img src="../../packages/web/snapshots/list/icon-space-always.png" alt="web icon-space-always" width="160"> |
+| `icon-space-never` | <img src="../../packages/web/snapshots/list/icon-space-never.png" alt="web icon-space-never" width="160"> |
+| `density-compact` | <img src="../../packages/web/snapshots/list/density-compact.png" alt="web density-compact" width="160"> |
+
+## Marquee text
+
+| Fixture | Web Components |
+| --- | --- |
+| `default` | <img src="../../packages/web/snapshots/marquee-text/default.png" alt="web default" width="160"> |
+| `fits` | <img src="../../packages/web/snapshots/marquee-text/fits.png" alt="web fits" width="160"> |
+| `bounce` | <img src="../../packages/web/snapshots/marquee-text/bounce.png" alt="web bounce" width="160"> |
+| `always` | <img src="../../packages/web/snapshots/marquee-text/always.png" alt="web always" width="160"> |
+| `always-control` | <img src="../../packages/web/snapshots/marquee-text/always-control.png" alt="web always-control" width="160"> |
+| `always-paused` | <img src="../../packages/web/snapshots/marquee-text/always-paused.png" alt="web always-paused" width="160"> |
+| `rtl` | <img src="../../packages/web/snapshots/marquee-text/rtl.png" alt="web rtl" width="160"> |
+
+## Meter
+
+| Fixture | Web Components |
+| --- | --- |
+| `linear` | <img src="../../packages/web/snapshots/meter/linear.png" alt="web linear" width="160"> |
+| `linear-info` | <img src="../../packages/web/snapshots/meter/linear-info.png" alt="web linear-info" width="160"> |
+| `linear-success` | <img src="../../packages/web/snapshots/meter/linear-success.png" alt="web linear-success" width="160"> |
+| `linear-warning` | <img src="../../packages/web/snapshots/meter/linear-warning.png" alt="web linear-warning" width="160"> |
+| `linear-error` | <img src="../../packages/web/snapshots/meter/linear-error.png" alt="web linear-error" width="160"> |
+| `linear-small` | <img src="../../packages/web/snapshots/meter/linear-small.png" alt="web linear-small" width="160"> |
+| `linear-large` | <img src="../../packages/web/snapshots/meter/linear-large.png" alt="web linear-large" width="160"> |
+| `linear-empty` | <img src="../../packages/web/snapshots/meter/linear-empty.png" alt="web linear-empty" width="160"> |
+| `linear-full` | <img src="../../packages/web/snapshots/meter/linear-full.png" alt="web linear-full" width="160"> |
+| `linear-range` | <img src="../../packages/web/snapshots/meter/linear-range.png" alt="web linear-range" width="160"> |
+| `linear-gap` | <img src="../../packages/web/snapshots/meter/linear-gap.png" alt="web linear-gap" width="160"> |
+| `linear-divider` | <img src="../../packages/web/snapshots/meter/linear-divider.png" alt="web linear-divider" width="160"> |
+| `linear-on-container-highest` | <img src="../../packages/web/snapshots/meter/linear-on-container-highest.png" alt="web linear-on-container-highest" width="160"> |
+| `linear-rtl` | <img src="../../packages/web/snapshots/meter/linear-rtl.png" alt="web linear-rtl" width="160"> |
+| `circular` | <img src="../../packages/web/snapshots/meter/circular.png" alt="web circular" width="160"> |
+| `circular-warning` | <img src="../../packages/web/snapshots/meter/circular-warning.png" alt="web circular-warning" width="160"> |
+| `circular-small` | <img src="../../packages/web/snapshots/meter/circular-small.png" alt="web circular-small" width="160"> |
+| `circular-large` | <img src="../../packages/web/snapshots/meter/circular-large.png" alt="web circular-large" width="160"> |
 
 ## Modal layer
 
@@ -63,6 +120,18 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | --- | --- |
 | `open` | <img src="../../packages/web/snapshots/modal-layer/open.png" alt="web open" width="160"> |
 | `no-scrim` | <img src="../../packages/web/snapshots/modal-layer/no-scrim.png" alt="web no-scrim" width="160"> |
+
+## Number ticker
+
+| Fixture | Web Components |
+| --- | --- |
+| `default` | <img src="../../packages/web/snapshots/number-ticker/default.png" alt="web default" width="160"> |
+| `currency-ja` | <img src="../../packages/web/snapshots/number-ticker/currency-ja.png" alt="web currency-ja" width="160"> |
+| `percent` | <img src="../../packages/web/snapshots/number-ticker/percent.png" alt="web percent" width="160"> |
+| `compact` | <img src="../../packages/web/snapshots/number-ticker/compact.png" alt="web compact" width="160"> |
+| `signed` | <img src="../../packages/web/snapshots/number-ticker/signed.png" alt="web signed" width="160"> |
+| `arabic-digits` | <img src="../../packages/web/snapshots/number-ticker/arabic-digits.png" alt="web arabic-digits" width="160"> |
+| `rtl` | <img src="../../packages/web/snapshots/number-ticker/rtl.png" alt="web rtl" width="160"> |
 
 ## Pagination
 
@@ -84,6 +153,31 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `compact-numbers` | <img src="../../packages/web/snapshots/pagination/compact-numbers.png" alt="web compact-numbers" width="160"> |
 | `rtl` | <img src="../../packages/web/snapshots/pagination/rtl.png" alt="web rtl" width="160"> |
 | `rtl-compact` | <img src="../../packages/web/snapshots/pagination/rtl-compact.png" alt="web rtl-compact" width="160"> |
+
+## Resizable frame
+
+| Fixture | Web Components |
+| --- | --- |
+| `default` | <img src="../../packages/web/snapshots/resizable-frame/default.png" alt="web default" width="160"> |
+| `all-handles` | <img src="../../packages/web/snapshots/resizable-frame/all-handles.png" alt="web all-handles" width="160"> |
+| `bottom-only` | <img src="../../packages/web/snapshots/resizable-frame/bottom-only.png" alt="web bottom-only" width="160"> |
+| `indicator-always` | <img src="../../packages/web/snapshots/resizable-frame/indicator-always.png" alt="web indicator-always" width="160"> |
+| `no-handles` | <img src="../../packages/web/snapshots/resizable-frame/no-handles.png" alt="web no-handles" width="160"> |
+| `plain` | <img src="../../packages/web/snapshots/resizable-frame/plain.png" alt="web plain" width="160"> |
+| `plain-start` | <img src="../../packages/web/snapshots/resizable-frame/plain-start.png" alt="web plain-start" width="160"> |
+| `rtl` | <img src="../../packages/web/snapshots/resizable-frame/rtl.png" alt="web rtl" width="160"> |
+
+## Scroll area
+
+| Fixture | Web Components |
+| --- | --- |
+| `default` | <img src="../../packages/web/snapshots/scroll-area/default.png" alt="web default" width="160"> |
+| `fade` | <img src="../../packages/web/snapshots/scroll-area/fade.png" alt="web fade" width="160"> |
+| `line` | <img src="../../packages/web/snapshots/scroll-area/line.png" alt="web line" width="160"> |
+| `blur` | <img src="../../packages/web/snapshots/scroll-area/blur.png" alt="web blur" width="160"> |
+| `none` | <img src="../../packages/web/snapshots/scroll-area/none.png" alt="web none" width="160"> |
+| `sideways` | <img src="../../packages/web/snapshots/scroll-area/sideways.png" alt="web sideways" width="160"> |
+| `rtl-sideways` | <img src="../../packages/web/snapshots/scroll-area/rtl-sideways.png" alt="web rtl-sideways" width="160"> |
 
 ## Stepper
 

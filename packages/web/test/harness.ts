@@ -46,6 +46,8 @@ export interface Fixture {
 type SlotFixture = 'glyph' | 'icon-only-button' | 'button' | 'text' | 'mark';
 export interface Spec {
   name: string;
+  /** The layer the component lives in (`core` when absent): only the systems that descend from it have its tokens. */
+  layer?: string;
   /** The members of a composed component. */
   builtFrom?: string[];
   props?: PropDecl[];
@@ -150,6 +152,12 @@ export const pickerWindow = (fixture: Fixture) => (fixture.props.layout === 'hor
 export const dialogWindow = (id: string) => (id.startsWith('compact') ? { width: 360, height: 640 } : { width: 640, height: 640 });
 
 /**
+ * The window a popover's `compact-` fixture is drawn alone in (POP-39's verify): 360 × 640, which is compact under the
+ * default system. Every other popover fixture is drawn in place on its 480 × 480 stage.
+ */
+export const popoverWindow = { width: 360, height: 640 } as const;
+
+/**
  * The window a navigation drawer fixture is drawn in when it is drawn alone: 480 × 640, and for the three responsive
  * fixtures the width NVD-53's verify names — `responsive-wide` 1280, `responsive-medium` 800, `responsive-narrow` 400 —
  * because a responsive drawer is what the window's width makes it. (A fixture cannot state its window.)
@@ -182,6 +190,11 @@ const fixtureTag = (spec: Spec, id: string): string => {
   const fixture = spec.fixtures.find((f) => f.id === id);
   return (fixture && STAGING[spec.name]?.tag?.(fixture)) || spec.platforms.web.name;
 };
+/**
+ * Whether a fixture's items are handed over by a step in script after it is mounted (`Staging.itemsInScript`): its
+ * markup alone draws it without them, so what its markup draws when it appears again is not the fixture.
+ */
+export const itemsStagedInScript = (spec: Spec, fixture: Fixture): boolean => !!STAGING[spec.name]?.itemsInScript?.(fixture);
 
 /** The chip's `input-avatar` fixture image: one neutral grey pixel (React Native's is the same one). */
 const FIXTURE_AVATAR = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGOYN28eAAO4AdvqohIbAAAAAElFTkSuQmCC';
@@ -249,15 +262,36 @@ let acme: Promise<string> | undefined;
  * The stylesheet of the `acme` fixture system (packages/tokens-build/test/fixtures/acme.system.json), built the way a
  * product builds its own layer. It extends the vocabulary, chooses `focus-style: glow`, draws a static icon
  * set, and gives hovered, focused and pressed three different strengths — which is what makes BTN-3 observable.
+ * Built here, it also includes the components that live in a layer it does not extend (the FAB menu, from m3-like), as a
+ * product that uses them does, so that every component can be drawn under it.
  * Mount it with `mountFixtures(page, spec, { system: 'acme', systemCss: await acmeSystemCss() })`.
  */
 export function acmeSystemCss(): Promise<string> {
   acme ??= (async () => {
     const { buildProductSystem } = await import('@tanrei/tokens-build/product');
-    const layerFile = path.join(repo, 'packages/tokens-build/test/fixtures/acme.system.json');
-    return (await buildProductSystem({ layerFile, targets: ['web'] })).files.web['acme.css'] as string;
+    const layer = JSON.parse(fs.readFileSync(path.join(repo, 'packages/tokens-build/test/fixtures/acme.system.json'), 'utf8'));
+    layer.components = { ...layer.components, include: [...(layer.components?.include ?? []), { name: 'fab-menu', from: 'm3-like' }] };
+    return (await buildProductSystem({ layers: [layer], targets: ['web'] })).files.web['acme.css'] as string;
   })();
   return acme;
+}
+
+const including = new Map<string, Promise<{ system: string; systemCss: string }>>();
+/**
+ * A product on a shipped system that includes a component which lives in a layer the system does not extend
+ * (`components.include: [{ name, from }]`), built the way a product builds its own layer: the component's tokens are
+ * valued with that system's own. Mount it with `mountFixtures(page, spec, await includingSystem('cupertino', 'fab-menu', 'm3-like'))`.
+ */
+export function includingSystem(base: string, name: string, from: string): Promise<{ system: string; systemCss: string }> {
+  const id = `${base}-with-${name}`;
+  if (!including.has(id)) {
+    including.set(id, (async () => {
+      const { buildProductSystem } = await import('@tanrei/tokens-build/product');
+      const layer = { id, name: id, extends: base, components: { include: [{ name, from }] } };
+      return { system: id, systemCss: (await buildProductSystem({ layers: [layer], targets: ['web'] })).files.web[`${id}.css`] as string };
+    })());
+  }
+  return including.get(id)!;
 }
 
 /**
@@ -330,6 +364,29 @@ function itemsMarkup(spec: Spec, items: FixtureItem[], staging: Staging): string
  * `text` plain text in the slot's inherited style.
  */
 /**
+ * A toolbar fixture's items as the web's children (`itemsMarkup`), with each `menu-button` given an id from the fixture's
+ * and a closed `<tanrei-menu>` anchored to it beside it, holding three items: what a product's menu button is (TBR-24).
+ */
+function toolbarItemsMarkup(spec: Spec, f: Fixture): string {
+  let n = 0;
+  const markup = (items: FixtureItem[]): string =>
+    items
+      .map((item) => {
+        if (item.kind === 'menu-button') {
+          const id = `${f.id}-menu-${++n}`;
+          return `${itemsMarkup(spec, [item], { itemAttributes: () => `id="${id}"` })}<tanrei-menu anchor="${id}"><tanrei-menu-item label="Name"></tanrei-menu-item><tanrei-menu-item label="Date modified"></tanrei-menu-item><tanrei-menu-item label="Size"></tanrei-menu-item></tanrei-menu>`;
+        }
+        if (item.kind === 'group') {
+          const label = item.props.label ? ` label="${String(item.props.label).replaceAll('&', '&amp;').replaceAll('"', '&quot;')}"` : '';
+          return `<tanrei-toolbar-group${label}>${markup(item.items ?? [])}</tanrei-toolbar-group>`;
+        }
+        return itemsMarkup(spec, [item], {});
+      })
+      .join('');
+  return markup(f.items ?? []);
+}
+
+/**
  * A mark as a fixture draws it (the slot fixture kind `mark`): `symbol` or `wordmark`, from design/brand/, inline and
  * in the current color, with the slot it fills — the same drawing every harness and the docs' Specs table make.
  */
@@ -347,10 +404,14 @@ function slotsMarkup(spec: Spec, slots: Fixture['slots']): string {
       if (!kind) throw new Error(`${spec.name}: the slot "${name}" is not declared, or declares no fixture kind`);
       return (Array.isArray(value) ? value : [value]).map((v) => {
         const text = escape(v);
+        // A staging that fills a slot from the fixture's string (a scroll area's content that scrolls) writes it itself.
+        const staged = STAGING[spec.name]?.slot?.(name, v);
+        if (staged !== undefined) return staged;
         if (kind === 'icon-only-button') return `<tanrei-button variant="text" slot="${name}" label="${text}"><span slot="icon">${text}</span></tanrei-button>`;
         if (kind === 'button') return `<tanrei-button slot="${name}" variant="text">${text}</tanrei-button>`;
         if (kind === 'mark') return markMarkup(v, name);
-        return `<span slot="${name}">${text}</span>`;
+        // The default slot is the one no `slot` attribute names.
+        return name === 'default' ? `<span>${text}</span>` : `<span slot="${name}">${text}</span>`;
       });
     })
     .join('');
@@ -385,6 +446,11 @@ const selectProps = ({ readOnly, inline, ...props }: Fixture['props']): Fixture[
   ...(readOnly !== undefined ? { readonly: readOnly } : {}),
   ...(props.open && inline !== false ? { inline: true } : {}),
 });
+/**
+ * A selection control's props as its attributes: `readOnly` keeps HTML's attribute name on the web (`readonly`), as a
+ * select's does — the checkbox, the radio button, the radio group and the switch.
+ */
+const readOnlyProps = ({ readOnly, ...props }: Fixture['props']): Fixture['props'] => ({ ...props, ...(readOnly !== undefined ? { readonly: readOnly } : {}) });
 /** A text input's icons, which a spec names in `content` as `leading-icon=<glyph> trailing-icon=<glyph>`: each a glyph of the system's icon set in that slot. */
 const textInputIcons = (content: string) =>
   content
@@ -419,8 +485,8 @@ const numberInputProps = ({ readOnly, steppers, ...props }: Fixture['props']): F
 export const INPUT_BOX = '--tanrei-comp-input-box-';
 /** The five components that draw their box from that set, and the names each keeps under its own prefix for what it alone draws. */
 const INPUT_BOX_READERS: Readonly<Record<string, RegExp>> = {
-  'text-input': /^(?:entries-|motion-resize-|code-|resize-grip-|segment-)|-resize-grip-color$/,
-  select: /^(?:list-|option-|group-|divider-|separation|motion-(?:feedback|open|close)-|pressed-opacity$)|-(?:selected-)?option-/,
+  'text-input': /^(?:entries-|motion-resize-|code-|segment-)/,
+  select: /^(?:list-|option-|group-|divider-|separation|status-|motion-(?:feedback|open|close)-|pressed-opacity$)|-(?:selected-)?option-/,
   combobox: /^(?:list-|option-|group-|divider-|separation|status-|container-action-gap|motion-(?:feedback|open|close)-|pressed-opacity$)|-(?:selected-)?option-/,
   'number-input': /^(?:stepper-|motion-repeat-)/,
   'color-input': /^swatch-(?:shape|outline-)/,
@@ -537,6 +603,11 @@ interface Staging {
   wrap?: (element: string, fixture: Fixture) => string;
   /** Spec props that the web spells differently from `name="value"` (a card's `inset: false` is the `flush` attribute). The fixture is given too, for an attribute that names something of its stage (a popover's anchor). */
   props?: (props: Fixture['props'], fixture: Fixture) => Fixture['props'];
+  /**
+   * A slot's markup from the fixture's string, where the slot's fixture kind is not enough on its own: a scroll area's
+   * text is enough lines (or a row wide enough) to scroll. Left out — or `undefined` for a slot — the kind's markup.
+   */
+  slot?: (name: string, text: string) => string | undefined;
   /** What an item of the fixture holds besides its attributes (a list item's avatar monogram). */
   itemContent?: (item: FixtureItem) => string;
   /** Attributes an item's element takes besides its props (the slot an app bar's item goes into). */
@@ -1015,6 +1086,54 @@ const STAGING: Record<string, Staging> = {
   'progress-indicator': {
     css: () => `[data-fixture^='linear'] { inline-size: 160px; }`,
   },
+  // A bar fills its layout's width: the progress indicator's 160-wide stage, so the two draw alike side by side.
+  // A marquee text is as wide as its place (MRQ-1): its stage gives it 240 in the body text style and color, which the
+  // long fixtures' text does not fit and "Short title" does.
+  'marquee-text': {
+    css: () => `tanrei-marquee-text { inline-size: 240px; color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }`,
+  },
+  meter: {
+    css: () => `[data-fixture^='linear'] { inline-size: 160px; }`,
+  },
+  // A ticker has no text style of its own (NTK-1): it is staged as a dashboard's figure, in a heading's style and the
+  // surface's text color, which it takes from its stage.
+  'number-ticker': {
+    css: () => `.stage:has(> tanrei-number-ticker) { font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing); color: var(--tanrei-sys-color-on-surface); }`,
+  },
+  // A scroll area is as large as its layout gives it (SCA-1): its stage gives it a box 280 × 160, and the fixture's text
+  // is content that does not fit it — twenty-four lines of "Long content", or a row of twelve tiles that cannot wrap
+  // ("A wide row") — every other row on a container color, so that a mark over it shows. Once staged, the box is
+  // scrolled to the middle in the direction its content does not fit (from the start edge, in either direction), so that
+  // both edges a fixture watches have content beyond them, and the step waits until the area has drawn both.
+  'scroll-area': {
+    css: () => `tanrei-scroll-area { inline-size: 280px; block-size: 160px; }
+      .scroll-fixture-line { padding: 8px 12px; color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }
+      .scroll-fixture-line:nth-child(odd), .scroll-fixture-tile:nth-child(odd) { background: var(--tanrei-sys-color-surface-container-highest); }
+      .scroll-fixture-row { display: flex; block-size: 100%; }
+      .scroll-fixture-tile { flex: none; box-sizing: border-box; inline-size: 96px; block-size: 136px; padding: 8px; color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }`,
+    slot: (name, text) => {
+      if (name !== 'default') return undefined;
+      const words = text.replaceAll('&', '&amp;').replaceAll('<', '&lt;');
+      const numbered = (n: number) => `${words} ${n + 1}`;
+      return text === 'A wide row'
+        ? `<div class="scroll-fixture-row">${Array.from({ length: 12 }, (_, n) => `<div class="scroll-fixture-tile">${numbered(n)}</div>`).join('')}</div>`
+        : Array.from({ length: 24 }, (_, n) => `<div class="scroll-fixture-line">${numbered(n)}</div>`).join('');
+    },
+    after: async (element) => {
+      const area = element as HTMLElement & { updateComplete: Promise<unknown> };
+      await area.updateComplete;
+      const box = area.shadowRoot!.querySelector<HTMLElement>('[part~="container"]')!;
+      const frame = box.parentElement!;
+      const rtl = getComputedStyle(box).direction === 'rtl';
+      const down = box.scrollHeight - box.clientHeight;
+      const along = box.scrollWidth - box.clientWidth;
+      box.scrollTop = down / 2;
+      box.scrollLeft = (rtl ? -along : along) / 2;
+      const watched = (area.getAttribute('edges') ?? 'top bottom').split(/\s+/).filter((edge) => (edge === 'top' || edge === 'bottom' ? down : along) > 0);
+      const drawn = () => watched.every((edge) => frame.hasAttribute(`data-${edge}`));
+      for (let frames = 0; frames < 60 && !drawn(); frames++) await new Promise((resolve) => requestAnimationFrame(resolve));
+    },
+  },
   // A loading indicator's fixture is the shown indicator from its first frame: no show delay and no entrance (LDG-11's
   // verify). A test's own fixture may name either.
   'loading-indicator': {
@@ -1081,32 +1200,57 @@ const STAGING: Record<string, Staging> = {
   },
   // A chip's content names what goes in its leading position: a glyph of the icon set (the `icon` slot), or `avatar` —
   // the shared neutral avatar image (one grey pixel, no person and no text, as React Native's) in the `avatar`
-  // slot. `destructiveRemove: false` is the `no-destructive-remove` attribute.
+  // slot.
   chip: {
     content: (content) =>
       content === 'avatar' ? `<img slot="avatar" alt="" src="${FIXTURE_AVATAR}" />` : `<span slot="icon">${content}</span>`,
-    props: ({ destructiveRemove, ...props }) => (destructiveRemove === false ? { ...props, noDestructiveRemove: true } : props),
   },
   // A radio button is never alone: it is an option of a group, and a group is the options with one name in one form
   // (RAD-3). Each fixture is its own group — its own form — so that one fixture's selection does not clear another's,
   // named as a product names it (RAD-16).
   'radio-button': {
-    wrap: (element, f) => `<form><div role="radiogroup" aria-label="${String(f.props.name ?? f.id)}">${element}</div></form>`,
+    wrap: (element, f) => `<form><div role="radiogroup" aria-label="${String(f.props.name ?? f.id)}"${f.props.readOnly ? ' aria-readonly="true"' : ''}>${element}</div></form>`,
+    props: readOnlyProps,
   },
+  checkbox: { props: readOnlyProps },
+  switch: { props: readOnlyProps },
   // A list is 360 wide (LST-1's verify). An item's content is the product's own: the content of a static item stands for
   // a box of the product's — a tile with a fill, padded and with small corners, in the body text style, as a product's
   // card or file item would be — so that the arrangement, the gap and the dividers show; an action, a link or an option
   // holds its text alone, which the item pads and colors itself (LST-8). A test's own item that holds markup holds it
-  // as written.
+  // as written. An item that holds a List row (its own `items`) holds the row alone, and the row holds nothing more.
   list: {
     css: () => `.stage > tanrei-list { inline-size: 360px; }
       .stage > tanrei-list .fixture-tile { display: block; box-sizing: border-box; padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }`,
     itemContent: (item) => {
       const content = item.content ?? '';
+      if (item.kind !== 'list-item' || item.items?.length) return content;
       if (content.includes('<')) return content;
       const actionable = !!item.props.interactive || !!item.props.href || item.props.value !== undefined;
       return actionable ? content : `<span class="fixture-tile">${content}</span>`;
     },
+  },
+  // A handle stands on what it resizes (HDL-3: the owner places it): a 160 × 96 box drawn by a hairline ring in
+  // outline-variant, its corners those an arc is concentric with (HDL-2: arc.radius plus inset, of the handle's size),
+  // the handle at its bottom edge for a height, at its end edge for a width, and in its corner for both.
+  handle: {
+    css: () => `.stage > .owner { display: grid; box-sizing: border-box; inline-size: 160px; block-size: 96px; box-shadow: inset 0 0 0 var(--tanrei-sys-border-hairline) var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset)); }
+      .stage > .owner[data-size='small'] { border-radius: calc(var(--tanrei-comp-handle-arc-radius-small) + var(--tanrei-comp-handle-inset)); }
+      .owner > tanrei-handle { justify-self: center; align-self: end; }
+      .owner[data-axis='horizontal'] > tanrei-handle { justify-self: end; align-self: center; }
+      .owner[data-axis='both'] > tanrei-handle { justify-self: end; align-self: end; }
+      .owner[data-axis='both'][data-corner^='top'] > tanrei-handle { align-self: start; }
+      .owner[data-axis='both'][data-corner$='start'] > tanrei-handle { justify-self: start; }`,
+    wrap: (element, f) => `<div class="owner" data-axis="${f.props.axis ?? 'vertical'}" data-corner="${f.props.corner ?? 'bottom-end'}" data-size="${f.props.size ?? 'medium'}">${element}</div>`,
+  },
+  // A resizable frame is given a room 640 wide, wider than any fixture's box and its handles, so that the greatest
+  // width is the room's and a plain frame's box at the end of its room (a side bar, RSF-1) stands apart from its start.
+  // What a fixture puts in it stands for the product's content: a block that fills the box, in a surface of its own,
+  // its text in the body style.
+  'resizable-frame': {
+    css: () => `.stage > tanrei-resizable-frame { inline-size: 640px; }
+      .resizable-frame-content { box-sizing: border-box; min-block-size: 100%; padding: 16px; background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }`,
+    slot: (name, text) => (name === 'default' ? `<div class="resizable-frame-content">${text.replaceAll('&', '&amp;').replaceAll('<', '&lt;')}</div>` : undefined),
   },
   // A list row is 360 wide (LRW-1's verify), standing alone. What a fixture puts in its leading slot stands for the
   // product's avatar or picture: a 40 disc of a container role holding the text as a monogram, in the label text style.
@@ -1119,9 +1263,12 @@ const STAGING: Record<string, Staging> = {
   // A test's own fixture that names an `anchor` is the real overlay instead: a button with that id is drawn before it.
   // A snackbar is drawn in place, outside a host (SNK-19), on a 400 px wide stage (the spec's web note); room below for
   // its elevation's shadow. `expanded-scrolls` is on a 400 × 240 stage, whose height stands for the host's area (SNK-25).
+  // `top-end` and `top-end-rtl` are on a stage 720 wide, wider than a compact window, whose width stands for the host's
+  // area (SNK-35): the bar stands at its end; `top-end-compact` keeps the 400 one, across which it stands.
   snackbar: {
     css: () => `.stage:has(> tanrei-snackbar) { box-sizing: border-box; inline-size: 400px; padding-block-end: 32px; }
-      .stage[data-fixture='expanded-scrolls'] { block-size: 240px; }`,
+      .stage[data-fixture='expanded-scrolls'] { block-size: 240px; }
+      .stage:is([data-fixture='top-end'], [data-fixture='top-end-rtl']) { inline-size: 720px; }`,
   },
   // A calendar is drawn at its natural size, centred on a 400 × 440 stage of the surface color (CAL-1's verify).
   calendar: {
@@ -1242,11 +1389,13 @@ const STAGING: Record<string, Staging> = {
   // A side sheet's stage is a 720 × 480 surface that stands for the window (the spec's web note): a standard sheet at the
   // end of a row whose other child fills the rest of the width, a modal one at the window's end edge, in the top layer.
   // Its action items are `tanrei-button` children in the `actions` slot.
+  // `closable: false` is the `not-closable` attribute (closable defaults to true).
   'side-sheet': {
     css: () => `.stage:has(> tanrei-side-sheet) { box-sizing: border-box; display: flex; inline-size: 720px; block-size: 480px; padding: 0; }
       .stage > .side-sheet-content { flex: 1 1 auto; min-inline-size: 0; }`,
     wrap: (element) => `<div class="side-sheet-content"></div>${element}`,
     itemAttributes: () => 'slot="actions"',
+    props: ({ closable, ...props }) => ({ ...props, ...(closable === false ? { notClosable: true } : {}) }),
   },
   // A button group is drawn start-aligned at its natural width — or at the stage's 400 while full-width — vertically
   // centred on a 400 × 96 stage when horizontal and at the top of a 400 × 240 stage when vertical (BGR-1's verify); its
@@ -1280,13 +1429,21 @@ const STAGING: Record<string, Staging> = {
   'button-with-menu': {
     css: () => `.stage:has(> tanrei-button-with-menu) { display: flex; align-items: center; inline-size: 320px; block-size: 96px; }`,
   },
-  // A toolbar's stages (TBR-1, TBR-4 and TBR-6's verify): a docked one spans a 360 × 64 stage (no system inset); a
-  // horizontal floating one is centred in 360 × 96, a vertical one in 96 × 240, so the elevation's shadow shows on every
-  // side. Its items are `tanrei-button` children, icon-only (a glyph's name as content) or labelled.
+  // A toolbar's stages (TBR-1, TBR-4, TBR-6 and TBR-18's verify): a docked one spans a 360 × 64 stage (no system inset);
+  // a horizontal floating one is centred in 360 × 96, a vertical one in 96 × 240, so the elevation's shadow shows on
+  // every side (one with groups in 96 × 288); an inline one stands at the start of a 360 × 56 stage, vertically
+  // centred — an overflowing one in 240.
+  // Its items are `tanrei-button` children, icon-only (a glyph's name as content) or labelled, `tanrei-button-with-menu`
+  // children, `tanrei-toolbar-group`s and `tanrei-divider` separators; a menu button is given an id and a closed
+  // `tanrei-menu` anchored to it, beside it (the fixture format has no field for the menu's own items).
   toolbar: {
     css: () => `.stage:has(> tanrei-toolbar) { box-sizing: border-box; inline-size: 360px; padding: 0; }
+      .stage:has(> tanrei-toolbar:not([variant='docked'], [variant='floating'])) { display: flex; align-items: center; block-size: 56px; }
+      .stage:is([data-fixture='inline-overflow'], [data-fixture='inline-overflow-pinned'], [data-fixture='rtl-inline-overflow']) { inline-size: 240px; }
       .stage:has(> tanrei-toolbar[variant='floating']) { display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); place-items: center; block-size: 96px; }
-      .stage:has(> tanrei-toolbar[variant='floating'][orientation='vertical']) { inline-size: 96px; block-size: 240px; }`,
+      .stage:has(> tanrei-toolbar[variant='floating'][orientation='vertical']) { inline-size: 96px; block-size: 240px; }
+      .stage[data-fixture='floating-vertical-groups'] { block-size: 288px; }`,
+    items: (spec, f) => toolbarItemsMarkup(spec, f),
   },
   // A keyboard shortcut's `keys` attribute holds its chords separated by spaces (the spec's web note); every fixture pins
   // its convention.
@@ -1310,10 +1467,11 @@ const STAGING: Record<string, Staging> = {
   tag: {
     css: () => `.stage:has(> tanrei-tag) { box-sizing: border-box; max-inline-size: 360px; }`,
   },
-  // A row of tabs is 360 wide and has no panel (TAB-14's verify). `track` is true, false or null (TAB-49): the attribute
-  // is absent for null, bare for true and `track="false"` for false, as the tooltip's `arrow` is.
+  // A row of tabs is 360 wide and has no panel (TAB-14's verify); a column of them stands at its start (TAB-51), and the
+  // column that scrolls is held to a row 240 tall (TAB-56's verify). `track` is true, false or null (TAB-49): the
+  // attribute is absent for null, bare for true and `track="false"` for false, as the tooltip's `arrow` is.
   tabs: {
-    css: () => `.stage > tanrei-tabs { inline-size: 360px; }`,
+    css: () => `.stage > tanrei-tabs { inline-size: 360px; }\n[data-fixture='vertical-scroll'] tanrei-tabs { block-size: 240px; }`,
     props: ({ track, ...props }) => ({ ...props, ...(track === undefined ? {} : { track: track === false ? 'false' : track }) }),
   },
   // A Tab view is 360 wide and each panel shows its content as body text inside sys.space.space200 of padding, which is
@@ -1340,9 +1498,9 @@ const STAGING: Record<string, Staging> = {
       if (f.props.tabs === undefined || f.props.tabs === '') return element;
       const tabs = loadSpec('tabs');
       const primary = tabs.fixtures.find((fixture) => fixture.id === 'primary')!;
-      const { selected: _selected, ...row } = primary.props;
-      const selected = f.props.selected;
-      const props = selected === undefined || selected === null ? row : { ...row, selected };
+      const { value: _value, ...row } = primary.props;
+      const value = f.props.value;
+      const props = value === undefined || value === null ? row : { ...row, value };
       const id = `tabs-${f.id}`;
       return `<tanrei-tabs id="${id}" ${attributes(tabs.props, tabs.platforms.web.props, props)}>${itemsMarkup(tabs, primary.items ?? [], {})}</tanrei-tabs>${element.replace('<tanrei-tab-view', `<tanrei-tab-view tabs="${id}"`)}`;
     },
@@ -1875,6 +2033,7 @@ const STAGING: Record<string, Staging> = {
   'radio-group': {
     css: () => `.stage > tanrei-radio-group { inline-size: 320px; }`,
     wrap: (element, f) => framedLanguage(element, f, 'tanrei-radio-group'),
+    props: readOnlyProps,
   },
   // A checkbox group is as wide as its layout gives it (CKG-1): 320, the width its twins — the field group's fixtures —
   // are drawn at, so that the two are the same picture. Its checkboxes are the fixture's items, the
@@ -1889,15 +2048,19 @@ const STAGING: Record<string, Staging> = {
   // A popover's stage is 480 × 480 with its anchor at the centre: a medium outlined Button labelled "Storage" (240 wide
   // for `width-anchor`), named by the popover's `anchor` (the spec's web note). The popover is open against it, drawn in
   // place (`inline`): the stage is its positioned ancestor and stands for the window. A fixture that names an `anchor`
-  // of its own (a test's) is the real overlay, in the top layer. `inset: false` is the `no-inset` attribute; `arrow` is
-  // true, false or unset, and its false is `="false"`. Its action items are `tanrei-button` children in the `actions` slot.
+  // of its own (a test's) is the real overlay, in the top layer, and so is a `compact-` one, drawn alone in a 360 × 640
+  // window (`popoverWindow`) on a stage that fills it: a compact window is the window's width (POP-39), which a stage
+  // cannot stand for. `inset: false` is the `no-inset` attribute; `arrow` is true, false or unset, and its false is
+  // `="false"`; `compactPresentation` is `compact-presentation`. Its action items are `tanrei-button` children in the
+  // `actions` slot.
   popover: {
     css: () => `.stage:has(> tanrei-popover) { box-sizing: border-box; position: relative; inline-size: 480px; block-size: 480px; padding: 0; display: grid; place-items: center; }
+      .stage[data-fixture^='compact']:has(> tanrei-popover) { inline-size: 360px; block-size: 640px; }
       [data-fixture='width-anchor'] > tanrei-button { display: grid; inline-size: 240px; }`,
     props: ({ inset, arrow, anchor, ...props }, f) => ({
       ...props,
       anchor: anchor ?? `popover-anchor-${f.id}`,
-      ...(anchor ? {} : { inline: true }),
+      ...(anchor || f.id.startsWith('compact') ? {} : { inline: true }),
       ...(inset === false ? { noInset: true } : {}),
       ...(arrow === undefined ? {} : { arrow: arrow === false ? 'false' : arrow }),
     }),
@@ -1909,10 +2072,12 @@ const STAGING: Record<string, Staging> = {
   // is cut (the fixture long-value). An open fixture draws its list in place below the trigger — the `inline` test
   // attribute — in a stage 440 high that stands for the window (it holds a large container and a list at its greatest
   // height, and the rows of a Field around them); a test's own fixture with `inline: false` is the real overlay
-  // instead. `readOnly` keeps HTML's attribute name on the web (`readonly`): `selectProps`.
+  // instead. `readOnly` keeps HTML's attribute name on the web (`readonly`): `selectProps`. A loading select's status row
+  // shows its indicator from the first frame, without its show delay and its entrance (SEL-68), as dialog-loading does.
   select: {
     css: () => `.stage:has(> tanrei-select) { box-sizing: content-box; inline-size: 280px; }
-      .stage:has(> tanrei-select[open][inline]) { position: relative; block-size: 440px; }`,
+      .stage:has(> tanrei-select[open][inline]) { position: relative; block-size: 440px; }
+      .stage:has(> tanrei-select[status='loading']) { --tanrei-comp-loading-indicator-motion-show-delay: 0ms; --tanrei-comp-loading-indicator-motion-enter-duration: 0ms; }`,
     props: (props) => selectProps(props),
   },
   // A select field is as wide as its place (SEF-1, SEL-49: a composed field fills the width its layout gives it, and
@@ -2148,6 +2313,14 @@ export interface AssetUrls {
   bundle: string;
 }
 
+/**
+ * The options a spec's fixtures are drawn with: a component that lives in a layer other than the root is drawn under
+ * that layer's system, the one place its tokens are, unless the caller names a system itself.
+ */
+export function drawnUnder<T extends DocumentOptions>(spec: Spec, options: T): T {
+  return options.system || !spec.layer || spec.layer === 'core' ? options : { ...options, system: spec.layer };
+}
+
 /** The stylesheet of the mounted preset, as the document embeds it. */
 const systemStyles = (options: DocumentOptions) => (options.system ? (options.systemCss ?? read(`dist/systems/${options.system}.css`)) : '');
 
@@ -2173,7 +2346,8 @@ function stageMarkup(spec: Spec, f: Fixture, mark: string): string {
  * with the tokens, the preset, the faces and the component bundle the stages need. A fixture that names a `direction`
  * has it as its stage's `dir`, whatever the document's is.
  */
-export async function fixturesDocument(spec: Spec, options: DocumentOptions = {}): Promise<string> {
+export async function fixturesDocument(spec: Spec, given: DocumentOptions = {}): Promise<string> {
+  const options = drawnUnder(spec, given);
   const tag = spec.platforms.web.name;
   const staging = STAGING[spec.name] ?? {};
   // With `twins`, each fixture that names a twin is followed by that fixture of its member, staged as the
@@ -2296,8 +2470,89 @@ export function glyphsSpelled(families: string[]): string[] {
   return spelled;
 }
 
-/** Render every fixture of a spec in the page, and wait until the components and their faces are drawn. */
-export async function mountFixtures(page: Page, spec: Spec, options: DocumentOptions & { reducedMotion?: boolean } = {}) {
+/** How a document is mounted, beyond what it is made of. */
+export interface MountOptions {
+  /** Emulates reduced motion (or its absence) from this mount on; left out, the page keeps what it had. */
+  reducedMotion?: boolean;
+  /**
+   * Return before the document has been painted as the components count it (`documentPainted()`,
+   * src/primitives/motion.ts), instead of after (`painted()` below). For the two cases that must:
+   * - a test of what is placed before the first paint — a surface told to open then is there at once, with no
+   *   entrance (MOT-4): it acts right after the mount;
+   * - a page whose clock the test holds (`page.clock` installed and paused before the mount): its frame callbacks wait
+   *   for the test, so the components count the document painted only once the test has run the clock two frames on.
+   * Without it, a mount on a held clock fails at once and says so.
+   */
+  beforePaint?: boolean;
+}
+
+/**
+ * Render every fixture of a spec in the page, and wait until the components and their faces are drawn and the document
+ * has been painted as the components count it — so a surface the test opens plays its entrance (MOT-4), however late the
+ * machine draws the page's first frames. `beforePaint` returns before that.
+ */
+export async function mountFixtures(page: Page, spec: Spec, given: DocumentOptions & MountOptions = {}) {
+  await mountDocument(page, spec, given);
+  if (!given.beforePaint) await painted(page);
+}
+
+/** How many frames the page draws without running a frame callback before its clock is taken to be held. */
+const HELD_FRAMES = 30;
+
+/**
+ * Resolves once the bundle's `documentPainted()` (src/primitives/motion.ts) is true in the page `mountFixtures` wrote.
+ *
+ * It reads the same clock the bundle does, after it: the bundle's module runs while the document is parsed and asks
+ * for two frame callbacks at `DOMContentLoaded` (or counts the page painted at once, where an earlier document in the
+ * window was painted); `page.setContent()` resolves at `load`, after that; and two frame callbacks asked for now run
+ * after the bundle's — in the same frames at the earliest, where they run in the order they were asked for. So the
+ * second of them comes after the bundle's second, which is when it counts the document painted.
+ *
+ * Frame callbacks run on the page's clock. Where a test installed `page.clock` they are its fakes, which run while that
+ * clock runs; where it holds that clock they wait for the test, and so would this: the page's real frames are counted
+ * too (a box that grows on the document timeline, which no page clock holds), and HELD_FRAMES of them with the page's
+ * time standing still fail the mount with what to do, instead of waiting out the test's timeout.
+ */
+export async function painted(page: Page): Promise<void> {
+  const verdict = await page.evaluate((held) => {
+    const twoFrames = new Promise<'painted'>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve('painted'))));
+    // A clock of the page's own (Playwright's) replaces the native function; without one there is nothing to watch.
+    if (/\[native code\]/.test(Function.prototype.toString.call(requestAnimationFrame))) return twoFrames;
+    const box = document.createElement('div');
+    box.setAttribute('aria-hidden', 'true');
+    box.style.cssText = 'position: fixed; inset-block-start: 0; inset-inline-start: 0; inline-size: 1px; block-size: 1px; overflow: clip; pointer-events: none; contain: strict;';
+    const mover = document.createElement('div');
+    mover.style.cssText = 'inline-size: 0; block-size: 1px;';
+    box.append(mover);
+    document.documentElement.append(box);
+    const growing = mover.animate([{ inlineSize: '0px' }, { inlineSize: '1000000px' }], { duration: 1_000_000, fill: 'forwards' });
+    const stop = () => {
+      watch.disconnect();
+      growing.cancel();
+      box.remove();
+    };
+    // Held is the page's time standing still while the page draws frames; a clock that runs is waited for.
+    const start = performance.now();
+    let drawn = 0;
+    let tell!: (verdict: 'held') => void;
+    const stalled = new Promise<'held'>((resolve) => (tell = resolve));
+    const watch = new ResizeObserver(() => {
+      if (performance.now() !== start) stop();
+      else if (++drawn >= held) tell('held');
+    });
+    watch.observe(mover);
+    return Promise.race([twoFrames, stalled]).finally(stop);
+  }, HELD_FRAMES);
+  if (verdict === 'held') {
+    throw new Error(
+      `mountFixtures: the page drew ${HELD_FRAMES} frames and ran no frame callback — its clock is held (page.clock paused before the mount), so the components will not count the document painted until the test runs the clock. Pass \`beforePaint: true\` to mount on a held clock, or hold the clock after the mount.`,
+    );
+  }
+}
+
+/** Writes the document of a spec's fixtures into the page, and waits until the components and their faces are drawn. */
+async function mountDocument(page: Page, spec: Spec, given: DocumentOptions & MountOptions) {
+  const options = drawnUnder(spec, given);
   const tag = spec.platforms.web.name;
   // Only when asked: a test that emulated reduced motion itself keeps it across mounts.
   if (options.reducedMotion !== undefined) await page.emulateMedia({ reducedMotion: options.reducedMotion ? 'reduce' : 'no-preference' });
@@ -2370,7 +2625,7 @@ const stagePlaces = new Map<string, Promise<Record<string, number>>>();
  * that part of a pixel above it (`lead`). The pictures are the same to the pixel (compared in Chromium, every fixture
  * of the text input, the tabs, the combobox, the select and the number input and every sixth of the Field's).
  */
-export async function mountFixtureAsInAll(page: Page, spec: Spec, fixture: Fixture, options: DocumentOptions & { reducedMotion?: boolean } = {}) {
+export async function mountFixtureAsInAll(page: Page, spec: Spec, fixture: Fixture, options: DocumentOptions & MountOptions = {}) {
   const key = `${spec.name} ${JSON.stringify(options, (name, value) => (name === 'assets' ? undefined : value))}`;
   let places = stagePlaces.get(key);
   if (!places) {
@@ -2550,6 +2805,36 @@ export async function setWords(page: Page, words: Record<string, string>, option
 export async function missingWords(page: Page): Promise<string[]> {
   await wordsApi(page);
   return page.evaluate(() => (globalThis as unknown as { tanreiWordsApi: { missingWords: () => string[] } }).tanreiWordsApi.missingWords());
+}
+
+// ── What the active system does not have ───────────────────────────────────────────────────────────────────────────
+// `setAvailabilityMode()` and `unavailableUses()`, called in the page as a product's test calls them: the test loads
+// `@tanrei/web/availability` beside the bundle, a second copy of the module that shares the bundle's mode and record
+// (src/primitives/availability.ts keeps them under a registered symbol), as the words above do.
+let availabilityScript: string | undefined;
+async function availabilityApi(page: Page) {
+  if (await page.evaluate(() => 'tanreiAvailabilityApi' in globalThis)) return;
+  availabilityScript ??= buildSync({
+    entryPoints: [path.join(pkg, 'dist/availability.js')],
+    bundle: true,
+    write: false,
+    format: 'iife',
+    globalName: 'tanreiAvailabilityApi',
+    define: { 'process.env.NODE_ENV': '"development"' },
+  }).outputFiles[0].text;
+  await page.addScriptTag({ content: availabilityScript });
+}
+
+/** `setAvailabilityMode()` of `@tanrei/web`, called in the page as a product calls it. */
+export async function setAvailabilityMode(page: Page, mode: string) {
+  await availabilityApi(page);
+  await page.evaluate((m) => (globalThis as unknown as { tanreiAvailabilityApi: { setAvailabilityMode: (mode: unknown) => void } }).tanreiAvailabilityApi.setAvailabilityMode(m), mode);
+}
+
+/** `unavailableUses()` of `@tanrei/web`, asked in the page. */
+export async function unavailableUses(page: Page): Promise<string[]> {
+  await availabilityApi(page);
+  return page.evaluate(() => (globalThis as unknown as { tanreiAvailabilityApi: { unavailableUses: () => string[] } }).tanreiAvailabilityApi.unavailableUses());
 }
 
 /**

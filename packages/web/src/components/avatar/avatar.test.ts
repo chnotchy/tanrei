@@ -6,7 +6,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
+import { resolveEasing } from '../../../test/appear.js';
+import { expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { type Fixture, type FixtureItem, avatarPicture, iconFaceArrives, loadSpec, mountFixtures, resolveToken, setWords, tab, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { motionEnded } from '../../../test/motions.js';
 import { decodePng } from '../../../test/png.js';
 
 const spec = loadSpec('avatar');
@@ -62,12 +65,24 @@ async function mountHtml(page: P, stages: Record<string, string>, options: Param
   }, Object.entries(stages));
   await settled(page);
 }
-/** The picture has been drawn in the fallback's place. */
+/** The picture has been drawn in the fallback's place: loaded, decoded, and its cross-fade over (AVT-4). */
 const pictured = async (host: Locator) => {
   await expect(host.locator('.image.loaded')).toHaveCount(1);
   // Loaded is not yet drawn: the picture is decoded off the page's turn (`decoding="async"`, AVT-4), and a picture
   // taken of the avatar before that shows its ground where the picture comes a frame later.
   await host.locator('.image.loaded').evaluate((el: HTMLImageElement) => el.decode());
+  await motionEnded(host);
+};
+/** AVT-4: what the avatar of a root draws in one frame of its picture's arrival — the opacities and its box. */
+const arrival = (root: Element) => {
+  const host = root.querySelector('tanrei-avatar')!;
+  const shadow = host.shadowRoot!;
+  const opacity = (selector: string) => {
+    const el = shadow.querySelector(selector);
+    return el ? Number(getComputedStyle(el).opacity) : -1;
+  };
+  const r = host.getBoundingClientRect();
+  return { image: opacity('.image'), label: opacity('.label'), glyph: opacity('.icon'), box: [r.x, r.y, r.width, r.height].join(',') };
 };
 /** What an avatar draws: the parts that can be seen. */
 const drawn = (host: Locator) =>
@@ -343,7 +358,7 @@ test.describe('behavior', () => {
     for (const [x, y] of [[17, 18], [39, 18], [50, 50], [28, 28]]) expect(dark.at(x, y), `dark at ${x},${y}`).toBe(light.at(x, y));
   });
 
-  test('AVT-4: until its picture has loaded the avatar draws its fallback at full size, and the picture takes the fallback’s place at once and without a motion, so nothing changes place; a picture that cannot be loaded leaves the fallback, is not asked for again and is reported; a new src starts from the fallback; an empty src asks for nothing', async ({ page }) => {
+  test('AVT-4: until its picture has loaded the avatar draws its fallback at full size, and the picture then fades in as the fallback fades out, one cross-fade over the tokens’ duration and curve in which nothing changes place, kept under reduced motion, and at once for a picture the browser already holds; a picture that cannot be loaded leaves the fallback, is not asked for again and is reported; a new src starts from the fallback; an empty src asks for nothing', async ({ page }) => {
     const seen = warnings(page);
     const asked: string[] = [];
     let release: () => void = () => {};
@@ -376,17 +391,66 @@ test.describe('behavior', () => {
     expect(await avatar(page, 'slow').locator('.image').getAttribute('alt')).toBe('');
     await expect.poll(() => drawn(avatar(page, 'gone'))).toEqual({ image: false, label: 'AL', glyph: null, images: 0 });
     const before = await places();
-    // …and the picture after, unchanged in place and size, without a motion.
-    release();
+    // …and the picture after: one cross-fade, the picture's opacity rising as the initials' falls, over the tokens'
+    // duration and curve, with the box's place and size the same in every frame.
+    const arriving = await sampleFrames(
+      stage(page, 'slow'),
+      async () => {
+        release();
+        await expect(avatar(page, 'slow').locator('.image.loaded')).toHaveCount(1);
+      },
+      { probe: arrival },
+    );
+    expect(arriving.before.probe).toMatchObject({ image: 0, label: 1 });
+    expect(arriving.rest.probe).toMatchObject({ image: 1, label: 0 });
+    expectAnimated(arriving, 'image');
+    expectAnimated(arriving, 'label');
+    expectNoFlicker(arriving);
+    for (const frame of arriving.frames) {
+      expect(frame.probe.box, `frame ${frame.index}`).toBe(arriving.before.probe.box);
+      // One cross-fade: the two move together, never both gone and never both whole in the middle.
+      if (Number(frame.probe.image) > 0 && Number(frame.probe.image) < 1) expect(Number(frame.probe.label), `frame ${frame.index}`).toBeGreaterThan(0);
+    }
+    const duration = await resolveToken(page, T('motion-picture-duration'), 'duration');
+    const easing = await resolveEasing(page, T('motion-picture-easing'));
+    expect(duration).toBe(await resolveToken(page, '--tanrei-sys-motion-role-state-default', 'duration'));
+    const fades = arriving.motions.filter((motion) => motion.name === 'opacity');
+    expect(fades.map((motion) => motion.on.split('.')[0]).sort()).toEqual(['img', 'span']);
+    for (const motion of fades) expect([motion.on, motion.duration, motion.easing]).toEqual([motion.on, duration, easing]);
     await pictured(avatar(page, 'slow'));
     await pictured(avatar(page, 'glyph'));
     expect(await drawn(avatar(page, 'slow'))).toEqual({ image: true, label: null, glyph: null, images: 1 });
     expect(await drawn(avatar(page, 'glyph'))).toEqual({ image: true, label: null, glyph: null, images: 1 });
     expect(await places()).toEqual(before);
-    for (const id of ['slow', 'glyph']) {
-      expect(await avatar(page, id).evaluate((el) => el.shadowRoot!.getAnimations().length), id).toBe(0);
-      expect(await css(avatar(page, id).locator('.image'), 'transition-duration'), id).toBe('0s');
-    }
+    // The glyph fades out beneath its picture the same way, and ends hidden.
+    expect(await css(avatar(page, 'glyph').locator('.icon'), 'opacity')).toBe('0');
+    // Reduced motion keeps the cross-fade: it is all opacity (MOT-6).
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    expect(await css(avatar(page, 'slow').locator('.image'), 'transition-property')).toBe('opacity, visibility');
+    // (An engine may list one duration for both properties.)
+    expect(new Set((await css(avatar(page, 'slow').locator('.image'), 'transition-duration')).split(', '))).toEqual(new Set([`${duration / 1000}s`]));
+    await page.emulateMedia({ reducedMotion: null });
+    // A picture the browser already holds — the one just loaded, asked for by another avatar — is drawn at once.
+    await page.evaluate(() => {
+      const held = document.createElement('div');
+      held.className = 'stage';
+      held.dataset.fixture = 'held';
+      held.innerHTML = '<tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>';
+      document.querySelector('main')!.append(held);
+    });
+    await settled(page);
+    // Settled, so that its transitions would run (MOT-3): it is the browser's holding the picture that skips them.
+    await expect(avatar(page, 'held')).not.toHaveAttribute('data-tanrei-settling');
+    const again = await sampleFrames(
+      stage(page, 'held'),
+      async () => {
+        await avatar(page, 'held').evaluate((el: HTMLElement & { src: string }, src) => (el.src = src), `${PICTURES}/slow.png`);
+        await expect(avatar(page, 'held').locator('.image.loaded')).toHaveCount(1);
+      },
+      { probe: arrival },
+    );
+    expect(again.motions.filter((motion) => motion.name === 'opacity')).toEqual([]);
+    expect(again.rest.probe).toMatchObject({ image: 1, label: 0 });
     // The picture that cannot be loaded: asked for once, reported with its address, and never again by itself.
     await expect.poll(() => seen.filter((w) => w.includes('AVT-4')).length).toBe(1);
     expect(seen.find((w) => w.includes('AVT-4'))).toContain(`${PICTURES}/gone.png`);

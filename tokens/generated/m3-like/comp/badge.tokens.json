@@ -51,7 +51,9 @@
               "dev.tanrei.derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
-                "by": 4
+                "by": 4,
+                "times": "{tanrei.dial.density}",
+                "round": "{tanrei.dial.size.unit}"
               }
             }
           },

@@ -11,7 +11,7 @@
             "usage": "Everything a side sheet reads: per variant (standard: beside the content; modal: over it) the container color, elevation, the shape of the corners that face the content, and the color of the edge that faces it; its width, paddings and edge width; the scrim; the header's height, gap and end inset, and the close button's Button variant; the headline's style and color; the content color; the dividers above the actions and below a scrolled header; how the actions are arranged, their default Button variant, their gap and padding; and the enter and exit motion.",
             "rules": [
               "A standard sheet sits beside the content and is set apart from it by its edge; a modal sheet is raised over the content and set apart by its elevation and the scrim.",
-              "The close button is an icon-only Button of the medium size in the variant comp.side-sheet.close-button.variant names (tonal in the default system). The actions are Tanrei Buttons, marked confirming or dismissive; the sheet places them as a full-width Button group and gives a Button without a variant the one comp.side-sheet.actions.variant names (tonal in the default system). It never changes a variant the product set, nor any Button's size or tokens.",
+              "The close button is an icon-only Button of the small size in the variant comp.side-sheet.close-button.variant names (tonal in the default system), as every host's close button is; the sheet draws it unless closable is set to false. The actions are Tanrei Buttons, marked confirming or dismissive; the sheet places them as a full-width Button group and gives a Button without a variant the one comp.side-sheet.actions.variant names (tonal in the default system). It never changes a variant the product set, nor any Button's size or tokens.",
               "A modal sheet offers at least one action; a standard sheet may have none.",
               "Choose another look for every side sheet of a product by re-valuing comp.side-sheet.actions.variant, comp.side-sheet.actions.arrangement and comp.side-sheet.close-button.variant in its layer; set a Button's variant for one action only.",
               "The headline names the sheet; keep it to a few words.",
@@ -163,7 +163,7 @@
           "variant": {
             "$type": "number",
             "$value": 1,
-            "$description": "The Button variant of the close button, an icon-only medium Button (SSH-5). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name.",
+            "$description": "The Button variant of the close button, an icon-only small Button (SSH-5): tonal in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "One product decides once how its sheets' close control stands out: a tonal button that reads as a control on any content, or a bare glyph that leaves the header to the headline."
@@ -285,21 +285,21 @@
         "motion": {
           "enter-duration": {
             "$type": "duration",
-            "$value": "{tanrei.comp.modal-layer.motion.enter-duration}",
-            "$description": "How long a sheet takes to slide in (and a modal sheet's scrim to fade in), or a standard sheet to open in the layout: the modal layer's, so that every modal surface of a product keeps one tempo."
+            "$value": "{tanrei.sys.motion.role.appear.sheet.enter}",
+            "$description": "How long a sheet takes to slide in (and a modal sheet's scrim to fade in), or a standard sheet to open in the layout: the role of a sheet's entrance, so that every sheet of a product keeps one tempo."
           },
           "enter-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.comp.modal-layer.motion.enter-easing}"
+            "$value": "{tanrei.sys.motion.easing.enter}"
           },
           "exit-duration": {
             "$type": "duration",
-            "$value": "{tanrei.comp.modal-layer.motion.exit-duration}",
-            "$description": "How long a sheet takes to slide out (and a modal sheet's scrim to fade out), or a standard sheet to close in the layout: the modal layer's, so that every modal surface of a product keeps one tempo."
+            "$value": "{tanrei.sys.motion.role.appear.sheet.exit}",
+            "$description": "How long a sheet takes to slide out (and a modal sheet's scrim to fade out), or a standard sheet to close in the layout: the role of a sheet's exit, so that every sheet of a product keeps one tempo."
           },
           "exit-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.comp.modal-layer.motion.exit-easing}"
+            "$value": "{tanrei.sys.motion.easing.exit}"
           }
         }
       }

@@ -1,16 +1,17 @@
 ---
-import { tokensIn, dimension, bezier, ns } from '../../lib/tokens';
+import { tokensIn, dimension, bezier, enumValues, formatValue, ns } from '../../lib/tokens';
 import { contentLang, strings } from '../../lib/i18n';
 import SourceNote from '../SourceNote.astro';
 import Table from '../Table.astro';
 
 interface Props {
-  part: 'duration' | 'easing' | 'spring';
+  part: 'duration' | 'role' | 'easing' | 'appear' | 'spring';
 }
 const { part } = Astro.props;
 const t = strings(contentLang(Astro));
 const tokens = tokensIn(`${ns}.sys.motion.${part}`);
-const durations = part === 'duration' ? [...tokens].sort((a, b) => a.value.value - b.value.value) : [];
+// The duration scale reads shortest first; the roles in the order the document groups them (state, selection, …).
+const durations = part === 'duration' ? [...tokens].sort((a, b) => a.value.value - b.value.value) : part === 'role' ? tokens : [];
 const maxDuration = Math.max(1, ...durations.map((tk) => tk.value.value));
 
 // Springs: one row per scheme/speed-kind with its four sub-tokens.
@@ -25,8 +26,8 @@ if (part === 'spring') {
 const curve = ([x1, y1, x2, y2]: number[]) => `M0,40 C${x1 * 40},${40 - y1 * 40} ${x2 * 40},${40 - y2 * 40} 40,0`;
 ---
 
-{part === 'duration' && (
-  <Table label={`${ns}.sys.motion.duration`}><table>
+{(part === 'duration' || part === 'role') && (
+  <Table label={`${ns}.sys.motion.${part}`}><table>
     <thead><tr><th scope="col" data-wrap="false">{t.token}</th><th scope="col" data-wrap="false">{t.value}</th><th scope="col" data-wrap="false">{t.preview}</th></tr></thead>
     <tbody>
       {durations.map((tk) => (
@@ -49,6 +50,20 @@ const curve = ([x1, y1, x2, y2]: number[]) => `M0,40 C${x1 * 40},${40 - y1 * 40}
           <td data-wrap="false"><code>{tk.cssVar}</code></td>
           <td class="docs-mono" data-wrap="false">{bezier(tk.value)}</td>
           <td><svg viewBox="-2 -14 44 68" width="44" height="68" aria-hidden="true"><path d="M0,40 L40,40 M0,40 L0,0" class="axis" /><path d={curve(tk.value)} class="curve" /></svg></td>
+        </tr>
+      ))}
+    </tbody>
+  </table></Table>
+)}
+
+{part === 'appear' && (
+  <Table label={`${ns}.sys.motion.appear`}><table>
+    <thead><tr><th scope="col" data-wrap="false">{t.token}</th><th scope="col" data-wrap="false">{t.value}</th></tr></thead>
+    <tbody>
+      {tokens.map((tk) => (
+        <tr>
+          <td data-wrap="false"><code>{tk.cssVar}</code></td>
+          <td class="docs-mono" data-wrap="false">{enumValues(tk.name)?.[tk.value] ?? formatValue(tk)}</td>
         </tr>
       ))}
     </tbody>

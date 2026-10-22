@@ -7,6 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
 import { type Fixture, loadSpec, missingWords, mountFixtures, setWords, rootTokens } from '../../test/harness.js';
+import { allSettled } from '../../test/settled.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const src = path.resolve(here, '..');
@@ -14,7 +15,7 @@ const repo = path.resolve(src, '../../..');
 const spec = loadSpec('field');
 type P = Page;
 
-const field = (id: string, props: Fixture['props'] = {}, extra: Partial<Fixture> = {}): Fixture => ({ id, props: { label: 'Volume', requirement: 'required', ...props }, items: [{ kind: 'slider', props: { value: 40 } }], ...extra });
+const field = (id: string, props: Fixture['props'] = {}, extra: Partial<Fixture> = {}): Fixture => ({ id, props: { label: 'Volume', required: true, ...props }, items: [{ kind: 'slider', props: { value: 40 } }], ...extra });
 const mount = (page: P, fixtures: Fixture[]) => mountFixtures(page, spec, { icons: true, fixtures });
 const host = (page: P, id: string) => page.locator(`[data-fixture="${id}"] > tanrei-field`);
 /** What the field draws as its requirement: the tag's text, else the asterisk, else nothing. */
@@ -40,7 +41,7 @@ const lang = (page: P, id: string, tag: string) => page.locator(`[data-fixture="
 test.describe('the product’s words', () => {
   test('nothing is given: the element draws its mark without words, missingWords() names the key, and the debug build reports it once per key and page, naming the prop', async ({ page }) => {
     const seen = warnings(page);
-    await mount(page, [field('one'), field('two'), field('optional', { requirement: 'optional' })]);
+    await mount(page, [field('one'), field('two'), field('optional', { required: false, optional: true })]);
     expect(await drawn(page, 'one')).toBe('*');
     expect(await drawn(page, 'two')).toBe('*');
     expect(await drawn(page, 'optional')).toBe('');
@@ -56,7 +57,7 @@ test.describe('the product’s words', () => {
   });
 
   test('setWords() without lang is the document’s set: connected elements draw the words at once, a second call merges key by key, and a key given as the empty string is taken away', async ({ page }) => {
-    await mount(page, [field('required'), field('optional', { requirement: 'optional' })]);
+    await mount(page, [field('required'), field('optional', { required: false, optional: true })]);
     await setWords(page, { requiredText: 'Mandatory' });
     expect(await drawn(page, 'required')).toBe('Mandatory');
     expect(await drawn(page, 'optional')).toBe('');
@@ -75,7 +76,7 @@ test.describe('the product’s words', () => {
       const added = document.createElement('tanrei-field');
       added.id = 'late';
       added.setAttribute('label', 'Late');
-      added.setAttribute('requirement', 'required');
+      added.setAttribute('required', '');
       document.body.append(added);
     });
     expect(await page.locator('#late').evaluate(async (el) => (await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete, el.shadowRoot!.querySelector('.requirement-tag')?.getAttribute('label')))).toBe('Needed');
@@ -95,7 +96,7 @@ test.describe('the product’s words', () => {
   });
 
   test('setWords() with lang is the set of the elements whose nearest lang attribute is that language — a region’s tag reads its language’s set, through shadow roots — and a key that set lacks is the document’s', async ({ page }) => {
-    await mount(page, [field('document'), field('japanese'), field('region'), field('nested'), field('french'), field('optional', { requirement: 'optional' }), field('shadow')]);
+    await mount(page, [field('document'), field('japanese'), field('region'), field('nested'), field('french'), field('optional', { required: false, optional: true }), field('shadow')]);
     await lang(page, 'japanese', 'ja');
     await lang(page, 'region', 'ja-JP');
     await lang(page, 'french', 'fr');
@@ -136,7 +137,7 @@ test.describe('the product’s words', () => {
   });
 
   test('missingWords() lists what was needed and given by nobody, in alphabetical order; a key given later leaves the list, and a word an instance gave was never missing', async ({ page }) => {
-    await mount(page, [field('required'), field('optional', { requirement: 'optional' }), field('own', { requiredText: 'Required' }), field('none', { requirement: 'none' }), field('asterisk', { requiredMark: 'asterisk' })]);
+    await mount(page, [field('required'), field('optional', { required: false, optional: true }), field('own', { requiredText: 'Required' }), field('none', { required: false, optional: false }), field('asterisk', { requiredMark: 'asterisk' })]);
     expect(await missingWords(page)).toEqual(['optionalText', 'requiredText']);
     await setWords(page, { requiredText: 'Required' });
     expect(await drawn(page, 'required')).toBe('Required');
@@ -156,17 +157,17 @@ test.describe('the product’s words', () => {
   test('an element taken out of the page with an update pending records nothing as missing — its words were given for a lang it no longer stands under — and a word that is really missing is recorded once the element stands in the page again', async ({ page }) => {
     const seen = warnings(page);
     const reports = () => seen.filter((line) => line.includes('the product\'s words have no'));
-    await mount(page, [field('studio', { requirement: 'none' })]);
+    await mount(page, [field('studio', { required: false, optional: false })]);
     await setWords(page, { requiredText: 'Required', optionalText: 'Optional' }, { lang: 'en-x-studio' });
     await lang(page, 'studio', 'en-x-studio');
     // A field frame (the field) and a field that reports by itself (the text field), both under the lang.
     await page.locator('[data-fixture="studio"]').evaluate(async (stage) => {
-      const text = document.createElement('tanrei-text-field') as HTMLElement & { label: string; requirement: string; updateComplete: Promise<unknown> };
+      const text = document.createElement('tanrei-text-field') as HTMLElement & { label: string; required: boolean; updateComplete: Promise<unknown> };
       text.label = 'Name';
-      text.requirement = 'required';
+      text.required = true;
       stage.append(text);
-      const field = stage.querySelector('tanrei-field') as HTMLElement & { requirement: string; updateComplete: Promise<unknown> };
-      field.requirement = 'required';
+      const field = stage.querySelector('tanrei-field') as HTMLElement & { required: boolean; updateComplete: Promise<unknown> };
+      field.required = true;
       await Promise.all([field.updateComplete, text.updateComplete]);
     });
     expect(await drawn(page, 'studio')).toBe('Required');
@@ -174,7 +175,7 @@ test.describe('the product’s words', () => {
 
     // A property set and the element removed in the same task: the update runs out of the page.
     const removed = await page.locator('[data-fixture="studio"]').evaluate(async (stage) => {
-      type Field = HTMLElement & { label: string; requirement: string; updateComplete: Promise<unknown> };
+      type Field = HTMLElement & { label: string; required: boolean; optional: boolean; updateComplete: Promise<unknown> };
       const fields = [...stage.querySelectorAll<Field>('tanrei-field, tanrei-text-field')];
       for (const each of fields) {
         each.label = 'Changed';
@@ -182,7 +183,7 @@ test.describe('the product’s words', () => {
       }
       await Promise.all(fields.map((each) => each.updateComplete));
       // The same with the other word, asked for the first time out of the page.
-      for (const each of fields) each.requirement = 'optional';
+      for (const each of fields) (each.required = false), (each.optional = true);
       await Promise.all(fields.map((each) => each.updateComplete));
       await new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)));
       (globalThis as unknown as { removedFields: Field[] }).removedFields = fields;
@@ -221,7 +222,7 @@ test.describe('the product’s words', () => {
 
   test('a word that is not needed is not missing: a field that draws the asterisk by its own prop, or by the design system’s answer, asks for no required word', async ({ page }) => {
     const seen = warnings(page);
-    await mount(page, [field('asterisk', { requiredMark: 'asterisk' }), field('none', { requiredMark: 'none' }), field('unasked', { requirement: 'none' })]);
+    await mount(page, [field('asterisk', { requiredMark: 'asterisk' }), field('none', { requiredMark: 'none' }), field('unasked', { required: false, optional: false })]);
     expect(await drawn(page, 'asterisk')).toBe('*');
     expect(await missingWords(page)).toEqual([]);
     // The system's own mark is the asterisk: a field that does not say (`auto`) needs no word either.
@@ -229,7 +230,7 @@ test.describe('the product’s words', () => {
     await page.evaluate(() => {
       const stage = document.createElement('div');
       stage.dataset.fixture = 'auto';
-      stage.innerHTML = '<tanrei-field label="Volume" requirement="required"><tanrei-slider value="40"></tanrei-slider></tanrei-field>';
+      stage.innerHTML = '<tanrei-field label="Volume" required><tanrei-slider value="40"></tanrei-slider></tanrei-field>';
       document.body.append(stage);
     });
     expect(await drawn(page, 'auto')).toBe('*');
@@ -333,10 +334,12 @@ test.describe('the product’s words', () => {
   });
 
   test('at rest the words cost nothing: after a set was given and drawn, no frame is asked for', async ({ page }) => {
-    await mount(page, [field('one'), field('optional', { requirement: 'optional' })]);
+    await mount(page, [field('one'), field('optional', { required: false, optional: true })]);
     await setWords(page, { requiredText: 'Required', optionalText: 'Optional' });
     await setWords(page, { requiredText: '必須' }, { lang: 'ja' });
     expect(await drawn(page, 'one')).toBe('Required');
+    // What a render connected has settled (MOT-3: two frame callbacks, once): at rest, nothing asks for a frame.
+    await allSettled(page);
     await page.evaluate(() => {
       const w = window as unknown as { __frames: number };
       w.__frames = 0;
@@ -348,14 +351,18 @@ test.describe('the product’s words', () => {
   });
 });
 
-test.describe('Tanrei ships no words', () => {
+test.describe('No component has words of its own', () => {
+  /** The English word pack: words a product applies only by importing `@tanrei/web/words/en` (src/words/en.ts). */
+  const PACK = path.join(src, 'generated/words-en.ts');
   /** Every source file of the package that is not a test, a generated list of keys or the sample data of a test page. */
-  const sources = (dir: string): string[] =>
+  const everySource = (dir: string): string[] =>
     fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
       const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) return sources(full);
+      if (entry.isDirectory()) return everySource(full);
       return /\.ts$/.test(entry.name) && !/\.test\.ts$/.test(entry.name) ? [full] : [];
     });
+  /** The same, without the pack: the files a component, a primitive or an entry is made of. */
+  const sources = (dir: string): string[] => everySource(dir).filter((file) => file !== PACK);
   /** The code of a file: its comments (where the old words may be told as examples to a developer) are not what a person reads. */
   const code = (file: string) =>
     fs
@@ -394,6 +401,21 @@ test.describe('Tanrei ships no words', () => {
       for (const match of code(file).matchAll(/^ {2}(\w+(?:Label|Text)) = (['"`])(.+)\2;$/gm)) found.push(`${path.relative(src, file)}: ${match[1]} = ${match[3]}`);
     }
     expect(found).toEqual([]);
+  });
+
+  test('the English word pack is imported by its own module alone: no entry, component, primitive, harness or other test applies it on a product’s behalf', () => {
+    const imports = (file: string) => /from '[^']*(?:generated\/words-en|words\/en)(?:\.js)?'|import '[^']*(?:generated\/words-en|words\/en)(?:\.js)?'/.test(fs.readFileSync(file, 'utf8'));
+    const tests = (dir: string): string[] =>
+      fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) return tests(full);
+        return /\.(?:ts|mjs)$/.test(entry.name) ? [full] : [];
+      });
+    const own = new Set([path.join(src, 'words/en.ts'), path.join(src, 'words/en.test.ts')]);
+    const importers = [...tests(src), ...tests(path.join(src, '../test'))].filter((file) => !own.has(file) && imports(file));
+    expect(importers.map((file) => path.relative(src, file))).toEqual([]);
+    // The pack itself holds the words: a word for every key, and nothing else.
+    expect(fs.existsSync(PACK)).toBe(true);
   });
 
   test('every key of the product’s words is one a spec declares, and the package lists them nowhere by hand', () => {

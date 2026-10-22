@@ -7,6 +7,8 @@ import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, requirementDrawn, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
+import { appearingFixture } from '../../../test/first-frame.js';
+import { expectFirstFrameAtRest } from '../../../test/frames.js';
 import { opticalSize } from '../../../test/icons.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { decodePng } from '../../../test/png.js';
@@ -16,10 +18,12 @@ type P = Page;
 const host = (page: P, id: string) => page.locator(`[data-fixture="${id}"] tanrei-text-input`);
 const input = (page: P, id: string) => host(page, id).locator('.input');
 const part = (page: P, id: string, selector: string) => host(page, id).locator(selector);
+/** The resize handle's box: the Handle's container, a separator with the lines as its value (TXI-39, TXI-41). */
+const GRIP = '.resize-handle .container';
 const css = (locator: Locator, property: string, pseudo?: string) =>
   locator.evaluate((el, [p, ps]) => getComputedStyle(el, ps ?? undefined).getPropertyValue(p as string), [property, pseudo ?? null] as const);
 const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name);
-// The box is drawn from the one set of tokens every input box is drawn from (TXI-68); the resize grip, a segment, the
+// The box is drawn from the one set of tokens every input box is drawn from (TXI-68); a segment, the
 // code face, the entries place and the motion of a height from the text input's own.
 const T = inputBoxToken('text-input');
 /**
@@ -92,7 +96,7 @@ const drawn = (page: P, id: string) =>
     const s = (selector: string, pseudo?: string) => getComputedStyle(root.querySelector(selector)!, pseudo);
     const stacked = !!root.querySelector('.edge');
     return {
-      container: s('.container').backgroundColor,
+      container: s('.field > .container').backgroundColor,
       indicator: stacked ? null : s('.indicator').backgroundColor,
       outline: stacked ? s('.edge').borderTopColor : s('.outline-end').borderTopColor,
       label: root.querySelector('.label') ? s('.label').color : null,
@@ -374,34 +378,34 @@ test.describe('behavior', () => {
     const id = 'outlined-empty';
     await tabTo(page, host(page, id));
     await expect(input(page, id)).toBeFocused();
-    for (const target of [input(page, id), part(page, id, '.container')]) expect(await css(target, 'outline-style')).toBe('none');
-    expect(await css(part(page, id, '.container'), 'content', '::after')).toBe('none');
+    for (const target of [input(page, id), part(page, id, '.field > .container')]) expect(await css(target, 'outline-style')).toBe('none');
+    expect(await css(part(page, id, '.field > .container'), 'content', '::after')).toBe('none');
     // A stacked field: its inner line is the focus indicator (TXI-26), and no ring is drawn either.
     await tabTo(page, host(page, 'stacked-empty'));
     await expect.poll(() => css(part(page, 'stacked-empty', '.edge'), 'border-top-color')).toBe(await resolveColor(page, T('stacked-focused-outline-color')));
-    for (const target of [input(page, 'stacked-empty'), part(page, 'stacked-empty', '.container')]) expect(await css(target, 'outline-style')).toBe('none');
-    expect(await css(part(page, 'stacked-empty', '.container'), 'content', '::after')).toBe('none');
+    for (const target of [input(page, 'stacked-empty'), part(page, 'stacked-empty', '.field > .container')]) expect(await css(target, 'outline-style')).toBe('none');
+    expect(await css(part(page, 'stacked-empty', '.field > .container'), 'content', '::after')).toBe('none');
     expect(await token(page, '--tanrei-sys-behavior-focus-style')).toBe('ring');
 
     await mountFixtures(page, spec, { system: 'acme', systemCss: await acmeSystemCss() });
     expect(await token(page, '--tanrei-sys-behavior-focus-style')).toBe('glow');
     await input(page, id).click(); // pointer focus shows it too: a field is focused however it was focused
     const ring = await resolveColor(page, '--tanrei-sys-color-focus-ring');
-    await expect.poll(() => css(part(page, id, '.container'), 'box-shadow', '::after')).toContain(ring);
+    await expect.poll(() => css(part(page, id, '.field > .container'), 'box-shadow', '::after')).toContain(ring);
     expect(await css(input(page, id), 'outline-style')).toBe('none');
     // The fallback for browsers without style queries names the same choice.
     expect(await part(page, id, '.field').getAttribute('data-focus-style')).toBe('glow');
     await page.locator('body').click({ position: { x: 1, y: 1 } });
-    expect(await css(part(page, id, '.container'), 'content', '::after')).toBe('none');
+    expect(await css(part(page, id, '.field > .container'), 'content', '::after')).toBe('none');
   });
 
   test('TXI-8: a press anywhere on the field focuses the input and draws no press answer; the hit area meets the target vertically', async ({ page }) => {
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     for (const id of ['outlined-affixes', 'outlined-icons', 'outlined-empty']) {
       await host(page, id).scrollIntoViewIfNeeded(); // the mouse does not scroll
-      const box = await bounds(part(page, id, '.container'));
+      const box = await bounds(part(page, id, '.field > .container'));
       expect(box.height, id).toBe(await resolveToken(page, T('container-height-medium')));
-      const hit = await part(page, id, '.container').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
+      const hit = await part(page, id, '.field > .container').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
       expect(hit, id).toBe(Math.max(box.height, pointer));
       // The label, the padding, the prefix, a decorative icon, and just outside the visual bounds inside the target.
       const spots = [
@@ -428,12 +432,12 @@ test.describe('behavior', () => {
     }
   });
 
-  test('TXI-8: a press on the box outside its controls — its padding, a floating label, the prefix, the suffix, a decorative icon — focuses the input; in a date field, a segment; a press on the picker button or on the resize grip does not; focus given to the element goes where a press goes', async ({ page }) => {
+  test('TXI-8: a press on the box outside its controls — its padding, a floating label, the prefix, the suffix, a decorative icon — focuses the input; in a date field, a segment; a press on the picker button or on the resize handle does not; focus given to the element goes where a press goes', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [...spec.fixtures] });
     const blur = () => blurAll(page);
     // The container's padding, at its start edge.
     await blur();
-    await part(page, 'stacked-empty', '.container').click({ position: { x: 3, y: 3 } });
+    await part(page, 'stacked-empty', '.field > .container').click({ position: { x: 3, y: 3 } });
     await expect(input(page, 'stacked-empty')).toBeFocused();
     // A floating label, resting in the input line.
     await blur();
@@ -449,13 +453,13 @@ test.describe('behavior', () => {
     }
     // A date field has no input: the press focuses the segment TXI-43 names (the first empty one).
     await blur();
-    await part(page, 'stacked-date-empty', '.container').click({ position: { x: 3, y: 3 } });
+    await part(page, 'stacked-date-empty', '.field > .container').click({ position: { x: 3, y: 3 } });
     expect(await focusedUnit(page, 'stacked-date-empty')).toBe('month');
     await blur();
     await part(page, 'stacked-date-picker', '.picker-button').click();
     expect(await focusedUnit(page, 'stacked-date-picker')).toBeNull();
     await blur();
-    await part(page, 'stacked-multiline-manual', '.grip').click();
+    await part(page, 'stacked-multiline-manual', GRIP).click();
     await expect(input(page, 'stacked-multiline-manual')).not.toBeFocused();
     // Focus given to the element — by the product, or by the Field that frames it for a press on its label row
     // (FLD-12) — goes where a press goes: the input, and in a date field the segment TXI-43 names (the last, in a
@@ -470,8 +474,8 @@ test.describe('behavior', () => {
     await host(page, 'stacked-date-empty').evaluate((el: HTMLElement) => el.focus());
     expect(await focusedUnit(page, 'stacked-date-empty')).toBe('month');
     // The container of a stacked field at 48 is the touch target itself.
-    const box = await bounds(part(page, 'stacked-empty', '.container'));
-    const hit = await part(page, 'stacked-empty', '.container').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
+    const box = await bounds(part(page, 'stacked-empty', '.field > .container'));
+    const hit = await part(page, 'stacked-empty', '.field > .container').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
     expect(hit).toBe(Math.max(box.height, await resolveToken(page, '--tanrei-sys-target-pointer')));
   });
 
@@ -482,7 +486,7 @@ test.describe('behavior', () => {
     await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
     expect(await page.evaluate(() => matchMedia('(pointer: coarse)').matches)).toBe(true);
     const touch = await resolveToken(page, '--tanrei-sys-target-touch');
-    const hit = await part(page, 'outlined-empty', '.container').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
+    const hit = await part(page, 'outlined-empty', '.field > .container').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
     expect(hit).toBe(touch);
   });
 
@@ -522,7 +526,7 @@ test.describe('behavior', () => {
       // No text of its own: nothing but the box is drawn, and a bare input has no words for the error.
       await expect(part(page, id, '.supporting-text')).toHaveCount(0);
       await expect(host(page, id).getByRole('textbox')).toHaveAccessibleDescription('');
-      expect((await bounds(host(page, id))).height, `${id}: as tall as its container`).toBeCloseTo((await bounds(part(page, id, '.container'))).height, 1);
+      expect((await bounds(host(page, id))).height, `${id}: as tall as its container`).toBeCloseTo((await bounds(part(page, id, '.field > .container'))).height, 1);
     }
     // The error label and edge are the error role in the default system.
     expect(await resolveColor(page, T('outlined-error-outline-color'))).toBe(await resolveColor(page, '--tanrei-sys-color-error'));
@@ -549,18 +553,18 @@ test.describe('behavior', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     const [resting, floated] = [await resolveToken(page, T('label-typescale-medium-font-size')), await resolveToken(page, T('label-floated-typescale-medium-font-size'))];
     for (const id of ['outlined-empty', 'filled-empty']) {
-      const c = await bounds(part(page, id, '.container'));
+      const c = await bounds(part(page, id, '.field > .container'));
       const l = await bounds(label(id));
       expect(l.y + l.height / 2, `${id} resting: centred`).toBeCloseTo(c.y + c.height / 2, 0);
       expect(await size(id)).toBe(resting);
     }
     // Floated by a value…
     const outline = await resolveToken(page, T('outline-width'));
-    const o = await bounds(part(page, 'outlined-filled', '.container'));
+    const o = await bounds(part(page, 'outlined-filled', '.field > .container'));
     const ol = await bounds(label('outlined-filled'));
     expect(ol.y + ol.height / 2, 'outlined: centred on the top edge').toBeCloseTo(o.y + outline / 2, 0);
     expect(await size('outlined-filled')).toBe(floated);
-    const f = await bounds(part(page, 'filled-filled', '.container'));
+    const f = await bounds(part(page, 'filled-filled', '.field > .container'));
     const fl = await bounds(label('filled-filled'));
     expect(fl.y - f.y, 'filled: at the top of the container').toBeCloseTo(await resolveToken(page, T('container-padding-block-with-label-medium')), 0);
     expect(fl.y + fl.height).toBeLessThanOrEqual((await bounds(input(page, 'filled-filled'))).y + 1);
@@ -582,7 +586,7 @@ test.describe('behavior', () => {
     await mountFixtures(page, spec, { reducedMotion: true, icons: true, fixtures: [fixture('o', { variant: 'outlined', label: 'Search' }, 'leading-icon=search'), fixture('f', { variant: 'filled', label: 'Search' }, 'leading-icon=search')] });
     const padding = await resolveToken(page, T('container-padding-inline-medium'));
     const textStart = async (id: string) => (await bounds(input(page, id))).x;
-    const box = async (id: string) => bounds(part(page, id, '.container'));
+    const box = async (id: string) => bounds(part(page, id, '.field > .container'));
     expect((await bounds(label('o'))).x, 'outlined resting: at the text').toBeCloseTo(await textStart('o'), 0);
     await input(page, 'o').focus();
     await expect.poll(async () => (await bounds(label('o'))).x - (await box('o')).x, 'outlined floated: at padding-inline').toBeCloseTo(padding, 0);
@@ -668,7 +672,7 @@ test.describe('behavior', () => {
       expect(resting.lines, `${variant} resting: two lines`).toHaveLength(2);
       expect(resting.text).toBe('Email address');
       expect(resting.cut, `${variant} resting: not cut`).toBe(false);
-      const c = await bounds(part(page, two, '.container'));
+      const c = await bounds(part(page, two, '.field > .container'));
       for (const l of resting.lines) {
         expect(l.top, `${variant} resting: inside the container`).toBeGreaterThanOrEqual(c.y - 0.5);
         expect(l.bottom).toBeLessThanOrEqual(c.y + c.height + 0.5);
@@ -687,7 +691,7 @@ test.describe('behavior', () => {
       expect(floated.cut, `${variant} floated: not cut`).toBe(false);
       expect(await extent(two), `${variant}: one height, resting and floated`).toBeCloseTo(restingHeight, 1);
       const field = await bounds(host(page, two));
-      const box = await bounds(part(page, two, '.container'));
+      const box = await bounds(part(page, two, '.field > .container'));
       const [first, last] = [floated.lines[0], floated.lines[1]];
       if (variant === 'filled') {
         // Inside the field, above the input line, in the band the container holds for them.
@@ -696,7 +700,7 @@ test.describe('behavior', () => {
         expect((await bounds(part(page, two, '.label'))).y - box.y).toBeCloseTo(await resolveToken(page, T('container-padding-block-with-label-medium')), 0);
       } else {
         // The last line sits on the top edge where a one-line label does; the line above it in the room above the container.
-        const [edge, oneBox] = [box.y, await bounds(part(page, one, '.container'))];
+        const [edge, oneBox] = [box.y, await bounds(part(page, one, '.field > .container'))];
         expect(last.bottom - edge, 'outlined floated: the last line on the top edge').toBeCloseTo(oneLine[0].bottom - oneBox.y, 0);
         expect(first.bottom, 'outlined floated: the line above in the room above the container').toBeLessThanOrEqual(edge + 0.5);
         // That room is reserved: the label reaches above the field only as far as a one-line label does.
@@ -713,7 +717,7 @@ test.describe('behavior', () => {
 
   test('TXI-14: the label moves over motion.label-*, colors and widths over motion.state-*, and both at once where motion is reduced', async ({ page }) => {
     const id = 'outlined-empty';
-    const [labelDuration, stateDuration] = [await resolveToken(page, T('motion-label-duration'), 'duration'), await resolveToken(page, T('motion-state-duration'), 'duration')];
+    const [labelDuration, stateDuration] = [await resolveToken(page, T('motion-label-duration'), 'duration'), await resolveToken(page, T('motion-state-duration-medium'), 'duration')];
     /**
      * Focuses the input and reads the transitions each part runs, in one task: getAnimations() flushes the style change,
      * so every transition the focus starts is read before any of them can finish — however long a busy machine takes
@@ -771,7 +775,7 @@ test.describe('behavior', () => {
     await expect(part(page, 'affixes-empty', '.prefix')).toBeVisible();
     // The prefix is affix.gap before the value; the suffix is at the end of the input line, affix.gap after the input.
     const gap = await resolveToken(page, T('affix-gap'));
-    const [prefix, field, suffix, container] = await Promise.all(['.prefix', '.input', '.suffix', '.container'].map((s) => bounds(part(page, 'outlined-affixes', s))));
+    const [prefix, field, suffix, container] = await Promise.all(['.prefix', '.input', '.suffix', '.field > .container'].map((s) => bounds(part(page, 'outlined-affixes', s))));
     expect(field.x - (prefix.x + prefix.width)).toBeCloseTo(gap, 1);
     expect(suffix.x - (field.x + field.width)).toBeCloseTo(gap, 1);
     expect(container.x + container.width - (suffix.x + suffix.width)).toBeCloseTo(await resolveToken(page, T('container-padding-inline-medium')), 1);
@@ -792,21 +796,21 @@ test.describe('behavior', () => {
   test('TXI-16: heights, padding and corners come from the size tokens — small, medium and large; a labelled filled field keeps room for the floated label from the start', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [...spec.fixtures, fixture('filled-hidden', { variant: 'filled', label: 'Search', labelHidden: true })] });
     for (const [id, size] of [['outlined-empty', 'medium'], ['outlined-large', 'large'], ['filled-hidden', 'medium']] as const) {
-      expect((await bounds(part(page, id, '.container'))).height, id).toBe(await resolveToken(page, T(`container-height-${size}`)));
+      expect((await bounds(part(page, id, '.field > .container'))).height, id).toBe(await resolveToken(page, T(`container-height-${size}`)));
     }
     for (const [id, size] of [['filled-empty', 'medium'], ['filled-filled', 'medium'], ['filled-large', 'large']] as const) {
       const min = 2 * (await resolveToken(page, T(`container-padding-block-with-label-${size}`))) + (await line(page, T(`label-floated-typescale-${size}`))) + (await line(page, T(`input-typescale-${size}`)));
-      expect((await bounds(part(page, id, '.container'))).height, id).toBeCloseTo(Math.max(min, await resolveToken(page, T(`container-height-${size}`))), 1);
+      expect((await bounds(part(page, id, '.field > .container'))).height, id).toBeCloseTo(Math.max(min, await resolveToken(page, T(`container-height-${size}`))), 1);
     }
     // The empty filled field has the same height as the filled one: nothing jumps when the label floats.
-    expect((await bounds(part(page, 'filled-empty', '.container'))).height).toBe((await bounds(part(page, 'filled-filled', '.container'))).height);
+    expect((await bounds(part(page, 'filled-empty', '.field > .container'))).height).toBe((await bounds(part(page, 'filled-filled', '.field > .container'))).height);
     // Padding: the text at padding-inline, beside an icon the icon at padding-inline-with-icon.
-    const c = await bounds(part(page, 'outlined-filled', '.container'));
+    const c = await bounds(part(page, 'outlined-filled', '.field > .container'));
     expect((await bounds(input(page, 'outlined-filled'))).x - c.x).toBeCloseTo(await resolveToken(page, T('container-padding-inline-medium')), 1);
-    const ci = await bounds(part(page, 'outlined-icons', '.container'));
+    const ci = await bounds(part(page, 'outlined-icons', '.field > .container'));
     expect((await bounds(part(page, 'outlined-icons', '.leading'))).x - ci.x).toBeCloseTo(await resolveToken(page, T('container-padding-inline-with-icon-medium')), 1);
     // Corners: all four by container.shape outlined; a filled field's bottom two by shape-bottom.
-    const radius = (id: string, corner: string) => css(part(page, id, '.container'), `border-${corner}-radius`).then(Number.parseFloat);
+    const radius = (id: string, corner: string) => css(part(page, id, '.field > .container'), `border-${corner}-radius`).then(Number.parseFloat);
     const [shape, bottom] = [await resolveToken(page, T('container-shape')), await resolveToken(page, T('container-shape-bottom'))];
     expect(await radius('outlined-filled', 'bottom-left')).toBe(shape);
     expect(await radius('outlined-filled', 'bottom-right')).toBe(shape);
@@ -815,22 +819,22 @@ test.describe('behavior', () => {
     expect(await radius('filled-filled', 'bottom-right')).toBe(bottom);
     for (const corner of ['top-left', 'top-right', 'bottom-left', 'bottom-right']) expect(await radius('stacked-filled', corner), `stacked ${corner}`).toBe(shape);
     for (const [id, size] of [['stacked-filled', 'medium'], ['stacked-large', 'large'], ['stacked-small', 'small']] as const) {
-      expect((await bounds(part(page, id, '.container'))).height, id).toBe(await resolveToken(page, T(`container-height-${size}`)));
+      expect((await bounds(part(page, id, '.field > .container'))).height, id).toBe(await resolveToken(page, T(`stacked-container-height-${size}`)));
     }
-    // Small: the box's small step — the select's (40 high, 12 of padding, the body text style) — for a bar or a toolbar;
+    // Small: the box's small step — as tall as a small Button (32 high, 12 of padding, the body text style) — for a bar or a toolbar;
     // its hit area still meets the minimum target.
     {
-      const small = await bounds(part(page, 'stacked-small', '.container'));
-      expect([small.height, (await bounds(input(page, 'stacked-small'))).x - small.x]).toEqual([await resolveToken(page, T('container-height-small')), await resolveToken(page, T('container-padding-inline-small'))]);
-      expect([await resolveToken(page, T('container-height-small')), await resolveToken(page, T('container-padding-inline-small'))]).toEqual([40, 12]);
+      const small = await bounds(part(page, 'stacked-small', '.field > .container'));
+      expect([small.height, (await bounds(input(page, 'stacked-small'))).x - small.x]).toEqual([await resolveToken(page, T('stacked-container-height-small')), await resolveToken(page, T('container-padding-inline-small'))]);
+      expect([await resolveToken(page, T('stacked-container-height-small')), await resolveToken(page, T('container-padding-inline-small'))]).toEqual([32, 12]);
       expect(Number.parseFloat(await css(input(page, 'stacked-small'), 'font-size'))).toBe(await resolveToken(page, T('input-typescale-small-font-size')));
-      const target = await part(page, 'stacked-small', '.container').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
+      const target = await part(page, 'stacked-small', '.field > .container').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
       expect(target).toBe(Math.max(small.height, await resolveToken(page, '--tanrei-sys-target-pointer')));
     }
     // It grows with enlarged text and never clips it.
-    const before = (await bounds(part(page, 'outlined-filled', '.container'))).height;
+    const before = (await bounds(part(page, 'outlined-filled', '.field > .container'))).height;
     await page.evaluate(() => (document.documentElement.style.fontSize = '200%'));
-    expect((await bounds(part(page, 'outlined-filled', '.container'))).height).toBeGreaterThan(before * 1.5);
+    expect((await bounds(part(page, 'outlined-filled', '.field > .container'))).height).toBeGreaterThan(before * 1.5);
     expect(await input(page, 'outlined-filled').evaluate((el) => el.scrollHeight <= el.clientHeight + 1)).toBe(true);
   });
 
@@ -839,12 +843,12 @@ test.describe('behavior', () => {
     expect(await token(page, '--tanrei-sys-shape-corner-smoothing')).toBe('0.6');
     const supported = await page.evaluate(() => CSS.supports('corner-shape: superellipse(log(2, 2))'));
     test.skip(!supported, 'corner-shape is not supported by this browser: circular fallback (README)');
-    const shape = await css(part(page, 'outlined-filled', '.container'), 'corner-top-left-shape');
+    const shape = await css(part(page, 'outlined-filled', '.field > .container'), 'corner-top-left-shape');
     expect(Number.parseFloat(shape.replace(/^superellipse\(|\)$/g, ''))).toBeCloseTo(Math.log2(2.6), 3);
     expect(await css(part(page, 'outlined-filled', '.outline-start'), 'corner-top-left-shape')).toBe(shape);
   });
 
-  test('TXI-17: a multi-line field shows lines of the input style at the height resize names — auto follows the text, manual starts at minRows with a grip, fixed stays at minRows whatever maxRows is — and aligns its label and icons with the first line; unknown values behave as auto and vertical and are reported; a password or a date stays single-line', async ({ page }) => {
+  test('TXI-17: a multi-line field shows lines of the input style at the height resize names — auto follows the text, manual starts at minRows with a handle, fixed stays at minRows whatever maxRows is — and aligns its label and icons with the first line; unknown values behave as auto and vertical and are reported; a password or a date stays single-line', async ({ page }) => {
     const seen = warnings(page);
     await mountFixtures(page, spec, {
       reducedMotion: true,
@@ -890,20 +894,20 @@ test.describe('behavior', () => {
     // Fixed: minRows lines whatever maxRows and the text are; it scrolls, and has no grip.
     expect(await height('fixed')).toBeCloseTo(2 * lineOf, 0);
     expect(await input(page, 'fixed').evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
-    await expect(part(page, 'fixed', '.grip')).toHaveCount(0);
+    await expect(part(page, 'fixed', GRIP)).toHaveCount(0);
     expect(await height('stacked-multiline-fixed')).toBeCloseTo(3 * lineOf, 0);
     // Manual: it starts at minRows lines, with the grip.
     expect(await height('stacked-multiline-manual')).toBeCloseTo(3 * lineOf, 0);
-    await expect(part(page, 'stacked-multiline-manual', '.grip')).toHaveCount(1);
+    await expect(part(page, 'stacked-multiline-manual', GRIP)).toHaveCount(1);
     // A minRows below 1 is 1.
     expect(await height('zero')).toBeCloseTo(lineOf, 0);
-    // Unknown values: auto (the height follows the three lines) and no grip; reported.
+    // Unknown values: auto (the height follows the three lines) and no handle; reported.
     expect(await height('odd')).toBeCloseTo(3 * lineOf, 0);
-    await expect(part(page, 'odd', '.grip')).toHaveCount(0);
+    await expect(part(page, 'odd', GRIP)).toHaveCount(0);
     // Not multiline: resize, resizeAxis, minRows and maxRows are ignored.
     expect(await input(page, 'single').evaluate((el) => el.localName)).toBe('input');
-    await expect(part(page, 'single', '.grip')).toHaveCount(0);
-    expect((await bounds(part(page, 'single', '.container'))).height).toBe(await resolveToken(page, T('container-height-medium')));
+    await expect(part(page, 'single', GRIP)).toHaveCount(0);
+    expect((await bounds(part(page, 'single', '.field > .container'))).height).toBe(await resolveToken(page, T('stacked-container-height-medium')));
     // Password: one line, reported. A date, time or date-time too.
     expect(await input(page, 'secret').evaluate((el) => el.localName)).toBe('input');
     await expect(host(page, 'when').locator('textarea')).toHaveCount(0);
@@ -950,7 +954,7 @@ test.describe('behavior', () => {
     // Not drawn: nothing in the input shows the count, and the input is as tall as its container.
     await expect(part(page, 'count', '.counter')).toHaveCount(0);
     expect(await host(page, 'count').evaluate((el) => [...el.shadowRoot!.querySelectorAll('*')].filter((node) => node.textContent === '12/40' && (node as HTMLElement).getClientRects().length > 0).length)).toBe(0);
-    expect((await bounds(host(page, 'count'))).height).toBeCloseTo((await bounds(part(page, 'count', '.container'))).height, 1);
+    expect((await bounds(host(page, 'count'))).height).toBeCloseTo((await bounds(part(page, 'count', '.field > .container'))).height, 1);
     // Part of its own description; none without a counter.
     await expect(host(page, 'count').getByRole('textbox')).toHaveAccessibleDescription('12/40');
     await expect(host(page, 'none').getByRole('textbox')).toHaveAccessibleDescription('');
@@ -1138,12 +1142,12 @@ test.describe('behavior', () => {
     await expect(part(page, 'stacked-filled', 'label')).toHaveCount(0);
     await expect(input(page, 'nameless')).not.toHaveAttribute('aria-label');
     expect(await host(page, 'nameless').getByRole('textbox').evaluate((el) => (el as HTMLInputElement).labels?.length ?? 0)).toBe(0);
-    expect((await bounds(part(page, 'nameless', '.container'))).height).toBe(await resolveToken(page, T('container-height-medium')));
+    expect((await bounds(part(page, 'nameless', '.field > .container'))).height).toBe(await resolveToken(page, T('stacked-container-height-medium')));
     await expect.poll(() => seen.filter((w) => w.includes('TXI-23')).length).toBe(1);
     expect(seen.find((w) => w.includes('TXI-23'))).toContain('no accessible name');
     // A bare input is never required, and has no requirement to set.
     await expect(input(page, 'stacked-empty')).toHaveJSProperty('required', false);
-    expect(await host(page, 'stacked-empty').evaluate((el) => ['requirement', 'requiredMark', 'supportingText', 'errorText'].filter((name) => name in el))).toEqual([]);
+    expect(await host(page, 'stacked-empty').evaluate((el) => ['optional', 'requiredMark', 'supportingText', 'errorText'].filter((name) => name in el))).toEqual([]);
     // In a Field: the Field's label is the name, drawn or hidden; the input's own label wins.
     await frame(page, 'named', { label: 'City', supportingText: 'Where you live.' }, { prefixText: 'JP', counter: true, maxLength: 20 });
     await frame(page, 'hidden', { label: 'Hidden', labelHidden: true }, {});
@@ -1160,7 +1164,7 @@ test.describe('behavior', () => {
       ['req-asterisk', { requiredMark: 'asterisk' }, {}],
       ['req-outlined', {}, { variant: 'outlined' }],
     ] as const) {
-      await frame(page, id, { label: 'City', requirement: 'required', ...field }, { name: 'city', ...props });
+      await frame(page, id, { label: 'City', required: true, ...field }, { name: 'city', ...props });
       await expect(input(page, id), id).toHaveJSProperty('required', true);
       expect(await host(page, id).evaluate((el) => [(el as any).validity.valueMissing, (el as any).validationMessage !== '']), id).toEqual([true, true]);
     }
@@ -1169,11 +1173,11 @@ test.describe('behavior', () => {
     await expect.poll(() => host(page, 'req-none').evaluate((el) => (el as any).validity.valid)).toBe(true);
     await expect(input(page, 'req-none')).not.toHaveAttribute('aria-invalid');
     // Optional: not required; the Field adds its optional text to the description.
-    await frame(page, 'optional', { label: 'Company', requirement: 'optional', optionalText: 'Optional' }, {});
+    await frame(page, 'optional', { label: 'Company', required: false, optional: true, optionalText: 'Optional' }, {});
     await expect(input(page, 'optional')).toHaveJSProperty('required', false);
     await expect(host(page, 'optional').getByRole('textbox')).toHaveAccessibleDescription('Optional');
     // The Field takes its requirement back: the input is not required any more.
-    await host(page, 'req-tag').evaluate((el) => ((el.parentElement as any).requirement = 'none'));
+    await host(page, 'req-tag').evaluate((el) => ((el.parentElement as any).required = false));
     await expect(input(page, 'req-tag')).toHaveJSProperty('required', false);
     expect(seen.filter((w) => w.includes('TXI-23')), 'a framed input is named by its Field').toHaveLength(1);
   });
@@ -1181,12 +1185,12 @@ test.describe('behavior', () => {
   test('TXI-24: in RTL the layout mirrors, the typed text follows its own direction, and an email value reads left to right at the start edge', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [...spec.fixtures, fixture('mail', { type: 'email', label: 'Email', value: 'ada@example.com' }), fixture('file', { variant: 'outlined', label: 'File', value: 'report', prefixText: '~/', suffixText: '.pdf' })] });
     await page.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'));
-    const c = await bounds(part(page, 'outlined-icons', '.container'));
+    const c = await bounds(part(page, 'outlined-icons', '.field > .container'));
     const [lead, trail] = await Promise.all(['.leading', '.trailing'].map((s) => bounds(part(page, 'outlined-icons', s))));
     expect(lead.x, 'leading icon on the right').toBeGreaterThan(trail.x);
     expect(c.x + c.width - (lead.x + lead.width)).toBeCloseTo(await resolveToken(page, T('container-padding-inline-with-icon-medium')), 1);
     const label = await bounds(part(page, 'outlined-filled', '.label'));
-    const cf = await bounds(part(page, 'outlined-filled', '.container'));
+    const cf = await bounds(part(page, 'outlined-filled', '.field > .container'));
     expect(cf.x + cf.width - (label.x + label.width), 'the label floats from the right edge').toBeCloseTo(await resolveToken(page, T('container-padding-inline-medium')), 1);
     // Beside a value laid out by its own direction the prefix is at the field's start edge and the suffix at its end edge…
     const [prefix, suffix] = await Promise.all(['.prefix', '.suffix'].map((s) => bounds(part(page, 'file', s))));
@@ -1201,19 +1205,18 @@ test.describe('behavior', () => {
     expect(await css(input(page, 'mail'), 'direction')).toBe('ltr');
   });
 
-  test('TXI-24: in RTL the picker button is on the left, the resize grip is in the bottom-left corner, and a date is one left-to-right row at the field’s start edge', async ({ page }) => {
+  test('TXI-24: in RTL the picker button is on the left, the resize handle is in the bottom-left corner, and a date is one left-to-right row at the field’s start edge', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [...spec.fixtures, fixture('ar', { type: 'date', locale: 'ar-EG', label: 'التاريخ', value: '2026-09-27' })] });
     await page.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'));
-    const c = await bounds(part(page, 'stacked-date-picker', '.container'));
+    const c = await bounds(part(page, 'stacked-date-picker', '.field > .container'));
     const [picker, text] = await Promise.all([bounds(part(page, 'stacked-date-picker', '.picker')), bounds(part(page, 'stacked-date-picker', '.row'))]);
     expect(picker.x, 'the picker button on the left').toBeLessThan(text.x);
     expect(picker.x - c.x).toBeCloseTo(await resolveToken(page, T('container-padding-inline-with-icon-medium')), 1);
-    // The grip in the container's bottom-left corner, resize-grip.inset from both edges.
-    const inset = await resolveToken(page, T('resize-grip-inset'));
+    // The handle in the container's bottom-left corner, its box against both edges (TXI-39).
     for (const id of ['stacked-multiline-manual-rtl', 'stacked-multiline-manual']) {
-      const [grip, box] = [await bounds(part(page, id, '.grip')), await bounds(part(page, id, '.container'))];
-      expect(grip.x - box.x, `${id}: from the left edge`).toBeCloseTo(inset, 1);
-      expect(box.y + box.height - (grip.y + grip.height), `${id}: from the bottom edge`).toBeCloseTo(inset, 1);
+      const [grip, box] = [await bounds(part(page, id, GRIP)), await bounds(part(page, id, '.field > .container'))];
+      expect(grip.x - box.x, `${id}: against the left edge`).toBeCloseTo(0, 1);
+      expect(box.y + box.height - (grip.y + grip.height), `${id}: against the bottom edge`).toBeCloseTo(0, 1);
     }
     // A date is one left-to-right row at the field's start (right) edge, in the order its locale's form gives: Hebrew
     // and Arabic write day, month, year — drawn left to right, as a date in digits is.
@@ -1223,7 +1226,7 @@ test.describe('behavior', () => {
       expect(await css(part(page, id, '.row'), 'direction'), id).toBe('ltr');
       const drawn = await segs(page, id).evaluateAll((all) => all.map((el) => ({ unit: el.getAttribute('data-unit'), x: el.getBoundingClientRect().x })).sort((a, b) => a.x - b.x).map((s) => s.unit));
       expect(drawn, `${id}: drawn left to right`).toEqual(order);
-      const [row, box] = [await bounds(part(page, id, '.row')), await bounds(part(page, id, '.container'))];
+      const [row, box] = [await bounds(part(page, id, '.row')), await bounds(part(page, id, '.field > .container'))];
       expect(box.x + box.width - (row.x + row.width), `${id}: at the right edge`).toBeCloseTo(pad, 1);
     }
     expect(await rowText(page, 'stacked-date-rtl')).toBe('27.09.2026');
@@ -1237,7 +1240,7 @@ test.describe('behavior', () => {
       host(page, id).evaluate((el) => {
         const origin = el.getBoundingClientRect();
         const root = el.shadowRoot!;
-        return ['.container', '.input', '.row', '.leading', '.trailing', '.picker', '.edge'].map((selector) => {
+        return ['.field > .container', '.input', '.row', '.leading', '.trailing', '.picker', '.edge'].map((selector) => {
           const node = root.querySelector(selector);
           const r = node?.getBoundingClientRect();
           if (!r || (r.width === 0 && r.height === 0)) return null;
@@ -1250,7 +1253,7 @@ test.describe('behavior', () => {
       expect(await css(edge, 'border-top-color'), `${id} at rest`).toBe('rgba(0, 0, 0, 0)');
       const before = await layout(id);
       // The line is drawn over the container, not around it: its box is the container's.
-      expect(before.find((b) => b?.[0] === '.edge')!.slice(1)).toEqual(before.find((b) => b?.[0] === '.container')!.slice(1));
+      expect(before.find((b) => b?.[0] === '.edge')!.slice(1)).toEqual(before.find((b) => b?.[0] === '.field > .container')!.slice(1));
       await entry(page, id).focus();
       await expect.poll(() => css(edge, 'border-top-color'), `${id} focused`).toBe(focusedColor);
       await expect.poll(() => css(edge, 'border-top-width').then(Number.parseFloat)).toBe(focusedWidth);
@@ -1258,7 +1261,7 @@ test.describe('behavior', () => {
       await blurAll(page);
     }
     // It changes over motion.state-*.
-    const duration = await resolveToken(page, T('motion-state-duration'), 'duration');
+    const duration = await resolveToken(page, T('motion-state-duration-medium'), 'duration');
     const running = await host(page, 'stacked-empty').evaluate((el) => {
       const root = el.shadowRoot!;
       root.querySelector<HTMLElement>('.input')!.focus();
@@ -1272,8 +1275,8 @@ test.describe('behavior', () => {
     expect(await resolveColor(page, T('stacked-error-outline-color'))).toBe(await resolveColor(page, '--tanrei-sys-color-error'));
     expect(Number.parseFloat(await css(error, 'border-top-width'))).toBe(await resolveToken(page, T('outline-width')));
     // Hovered: the state layer on the container, and no edge.
-    await part(page, 'stacked-empty', '.container').hover();
-    await expect.poll(() => css(part(page, 'stacked-empty', '.container'), 'background-color')).toBe(await resolveColor(page, T('stacked-hovered-container-color')));
+    await part(page, 'stacked-empty', '.field > .container').hover();
+    await expect.poll(() => css(part(page, 'stacked-empty', '.field > .container'), 'background-color')).toBe(await resolveColor(page, T('stacked-hovered-container-color')));
     expect(await css(part(page, 'stacked-empty', '.edge'), 'border-top-color')).toBe('rgba(0, 0, 0, 0)');
   });
 
@@ -1435,7 +1438,7 @@ test.describe('behavior', () => {
     // In a Field, which shows the words of the refusal in its supporting row and announces them (FLD-28).
     await frame(page, 'd', { label: 'Due', supportingText: 'By the end of the year.' }, { type: 'date', locale: 'en-US', max: '2026-12-31', invalidText: 'Finish the date.', unavailableText: 'Too late.' });
     await frame(page, 'listed', { label: 'On', errorText: 'Check the date.' }, { type: 'date', locale: 'en-US', disabledDates: ['2026-09-27'] });
-    await frame(page, 'req', { label: 'Born', requirement: 'required' }, { type: 'date', locale: 'en-US' });
+    await frame(page, 'req', { label: 'Born', required: true }, { type: 'date', locale: 'en-US' });
     const id = 'd';
     await listenDates(host(page, id));
     const committed = async () => (await dateEvents(page)).filter((e) => !e.startsWith('input:'));
@@ -1581,7 +1584,7 @@ test.describe('behavior', () => {
       await expect(button(id)).toHaveAttribute('size', size);
       expect((await bounds(button(id).locator('button'))).height, id).toBe(await resolveToken(page, `--tanrei-comp-button-container-height-${size}`));
       // Its glyph is centred where a trailing icon's would be.
-      const c = await bounds(part(page, id, '.container'));
+      const c = await bounds(part(page, id, '.field > .container'));
       const g = await bounds(button(id).locator('.icon'));
       const [padding, icon] = [await resolveToken(page, T(`container-padding-inline-with-icon-${size}`)), await resolveToken(page, T(`icon-size-${size}`))];
       expect(c.x + c.width - (g.x + g.width / 2), `${id}: across`).toBeCloseTo(padding + icon / 2, 0);
@@ -1670,23 +1673,18 @@ test.describe('behavior', () => {
     expect((await dateEvents(page)).slice(2)).toEqual(['input:2027-09-27', 'change:2027-09-27', 'action:2027-09-27']);
   });
 
-  test('TXI-6: the resize grip, a floating label’s asterisk and the segments are drawn from the tokens of the highest-precedence state, and the focused segment is highlighted in selection.color', async ({ page }) => {
+  test('TXI-6: a floating label’s asterisk and the segments are drawn from the tokens of the highest-precedence state, and the focused segment is highlighted in selection.color', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
-    await frame(page, 'required', { label: 'Email', requirement: 'required', requiredMark: 'asterisk' }, { variant: 'outlined' });
-    const colors = { 'required-asterisk': 'rgb(5, 0, 0)', 'resize-grip': 'rgb(6, 0, 0)' };
+    await frame(page, 'required', { label: 'Email', required: true, requiredMark: 'asterisk' }, { variant: 'outlined' });
+    const colors = { 'required-asterisk': 'rgb(5, 0, 0)' };
     // At rest: the plain parts.
-    expect(await css(part(page, 'stacked-multiline-manual', '.grip'), 'color')).toBe(await resolveColor(page, T('stacked-resize-grip-color')));
-    expect(await css(part(page, 'outlined-multiline-manual', '.grip'), 'color')).toBe(await resolveColor(page, T('outlined-resize-grip-color')));
     expect(await css(part(page, 'required', '.label .asterisk'), 'color')).toBe(await resolveColor(page, T('outlined-required-asterisk-color')));
     // Focused over hovered: each part reads the focused token of its variant.
     await override(page, {
-      [T('stacked-focused-resize-grip-color')]: colors['resize-grip'],
-      [T('stacked-hovered-resize-grip-color')]: 'rgb(9, 9, 9)',
       [T('outlined-focused-required-asterisk-color')]: colors['required-asterisk'],
       [T('outlined-hovered-required-asterisk-color')]: 'rgb(9, 9, 9)',
     });
     const focused: [string, string, string, string][] = [
-      ['stacked-multiline-manual', '.grip', 'color', colors['resize-grip']],
       ['required', '.label .asterisk', 'color', colors['required-asterisk']],
     ];
     for (const [id, selector, property, color] of focused) {
@@ -1738,7 +1736,7 @@ test.describe('behavior', () => {
     expect(await css(part(page, 'outlined-date-picker', 'label.label'), 'font-size')).toBe(`${await resolveToken(page, T('label-floated-typescale-medium-font-size'))}px`);
   });
 
-  test('TXI-37: an auto-resized field draws no grip and is exactly as tall as its lines, between minRows and maxRows; beyond maxRows it scrolls, and it shows no scrollbar while every line fits; the height follows typing, a value the product sets, a changed width and enlarged text, and what follows the field moves with it', async ({ page }) => {
+  test('TXI-37: an auto-resized field places no handle and is exactly as tall as its lines, between minRows and maxRows; beyond maxRows it scrolls, and it shows no scrollbar while every line fits; the height follows typing, a value the product sets, a changed width and enlarged text, and what follows the field moves with it', async ({ page }) => {
     await mountFixtures(page, spec, {
       reducedMotion: true,
       fixtures: [...spec.fixtures, fixture('wrap', { label: 'Notes', multiline: true, value: 'one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty' }), fixture('upside', { label: 'Notes', multiline: true, minRows: 3, maxRows: 2, value: '1\n2\n3\n4\n5' })],
@@ -1750,7 +1748,7 @@ test.describe('behavior', () => {
     expect(await lines('stacked-multiline')).toBeCloseTo(3, 1);
     expect(await lines('stacked-multiline-auto-grown')).toBeCloseTo(5, 1);
     expect(await lines('stacked-multiline-auto-max')).toBeCloseTo(3, 1);
-    for (const id of ['stacked-multiline', 'stacked-multiline-auto-grown', 'stacked-multiline-auto-max']) await expect(part(page, id, '.grip'), id).toHaveCount(0);
+    for (const id of ['stacked-multiline', 'stacked-multiline-auto-grown', 'stacked-multiline-auto-max']) await expect(part(page, id, GRIP), id).toHaveCount(0);
     expect(await scrolls('stacked-multiline-auto-grown')).toEqual([false, 'hidden']);
     expect(await scrolls('stacked-multiline')).toEqual([false, 'hidden']);
     expect(await scrolls('stacked-multiline-auto-max')).toEqual([true, 'auto']);
@@ -1795,7 +1793,7 @@ test.describe('behavior', () => {
     await mountFixtures(page, spec, { reducedMotion: false, fixtures: [fixture('a', { label: 'Notes', multiline: true, value: '1\n2' }), fixture('five', { label: 'Notes', multiline: true, value: '1\n2\n3\n4\n5' }), fixture('b', { label: 'Notes', multiline: true, value: '1\n2' })] });
     const lineOf = await line(page, T('input-typescale-medium'));
     const [duration, easing] = [await resolveToken(page, T('motion-resize-duration'), 'duration'), await token(page, T('motion-resize-easing'))];
-    expect(duration).toBe(await resolveToken(page, '--tanrei-sys-motion-duration-short4', 'duration'));
+    expect(duration).toBe(await resolveToken(page, '--tanrei-sys-motion-role-resize-default', 'duration'));
     // A five-line value on the first render shows five lines with no motion.
     expect(await input(page, 'five').evaluate((el) => [el.getAnimations().length, el.hasAttribute('data-resizing')])).toEqual([0, false]);
     expect((await bounds(input(page, 'five'))).height).toBeCloseTo(5 * lineOf, 0);
@@ -1810,7 +1808,7 @@ test.describe('behavior', () => {
         // takes back or holds while the change moves (TXI-51: the box itself is as tall as its text at once).
         const height = () => Number.parseFloat(getComputedStyle(field).height) + Number.parseFloat(getComputedStyle(field).marginBottom);
         const resize = (a: Animation) => /^margin-(bottom|block-end)$/.test((a as CSSTransition).transitionProperty);
-        const container = field.closest('.container')!;
+        const container = field.closest('.field > .container')!;
         const first = () => field.getBoundingClientRect().y - field.scrollTop - container.getBoundingClientRect().y;
         field.focus();
         field.setSelectionRange(field.value.length, field.value.length);
@@ -1901,12 +1899,90 @@ test.describe('behavior', () => {
     expect(reduced).toEqual({ running: 0, height: 3 * lineOf, scrolled: 0 });
   });
 
+  test('TXI-38: a letter typed while the motion of a line break runs continues that motion — the motion it replaces reports its cancellation a frame later, and that report ends nothing: the height still moves from the one shown to the end height through heights on its curve, with no step of more than 35 % of the whole change', async ({ page }) => {
+    await mountFixtures(page, spec, { reducedMotion: false, fixtures: [fixture('a', { label: 'Notes', multiline: true, value: '1\n2' })] });
+    const lineOf = await line(page, T('input-typescale-medium'));
+    for (const id of ['a']) {
+      const run = await input(page, id).evaluate(async (el) => {
+        const field = el as HTMLTextAreaElement;
+        // The height the input shows: its box, and what its bottom margin still takes back while the change moves.
+        const height = () => Number.parseFloat(getComputedStyle(field).height) + Number.parseFloat(getComputedStyle(field).marginBottom);
+        const resizing = () => field.getAnimations().filter((a) => /^margin-(bottom|block-end)$/.test((a as CSSTransition).transitionProperty));
+        const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+        let cancelled = 0;
+        field.addEventListener('transitioncancel', () => cancelled++);
+        field.focus();
+        field.setSelectionRange(field.value.length, field.value.length);
+        const from = height();
+        const hold = (at: (duration: number) => number) => {
+          const held = resizing();
+          const duration = Number(held[0]?.effect?.getComputedTiming().duration ?? 0);
+          for (const motion of field.getAnimations()) {
+            motion.pause();
+            motion.currentTime = at(duration);
+          }
+          return held.length;
+        };
+        // A line break: its motion runs for a rendered frame, held a thirteenth of the way (every read below follows a
+        // rendered frame).
+        document.execCommand('insertText', false, '\n');
+        const first = hold((duration) => duration / 13);
+        await frame();
+        const mid = height();
+        // A letter, a moment later: its change replaces that motion with one from the height then shown, and the replaced
+        // one is cancelled — which is reported with the next frame's events. The new motion is held at its start and then
+        // stepped by hand, so what is read does not depend on the machine's speed.
+        document.execCommand('insertText', false, 'b');
+        const motions = field.getAnimations();
+        for (const motion of motions) {
+          motion.pause();
+          motion.currentTime = 0;
+        }
+        const resize = resizing()[0];
+        const duration = Number(resize?.effect?.getComputedTiming().duration ?? 0);
+        await frame();
+        const after = { motions: resizing().length, marked: field.getAttribute('data-resizing'), cancelled };
+        const heights = [from, mid, height()];
+        // The eased progress at each read, from the motion itself: where the height should be, whatever the curve.
+        const progress = [Number.NaN, 0, Number(resize?.effect?.getComputedTiming().progress ?? 1)];
+        for (let step = 1; step < 13; step++) {
+          for (const motion of motions) motion.currentTime = (duration * step) / 13;
+          await frame();
+          heights.push(height());
+          progress.push(Number(resize?.effect?.getComputedTiming().progress ?? 1));
+        }
+        for (const motion of motions) motion.finish();
+        await frame();
+        heights.push(height());
+        progress.push(1);
+        return { first, held: motions.filter((a) => /^margin-(bottom|block-end)$/.test((a as CSSTransition).transitionProperty)).length, after, heights, progress };
+      });
+      expect(run.first, `${id}: the line break starts one motion`).toBe(1);
+      expect(run.held, `${id}: one motion runs after the letter`).toBe(1);
+      expect(run.after.cancelled, `${id}: the replaced motion reported its cancellation`).toBeGreaterThanOrEqual(1);
+      expect({ motions: run.after.motions, marked: run.after.marked }, `${id}: after that report the motion still runs`).toEqual({ motions: 1, marked: '' });
+      const whole = run.heights.at(-1)! - run.heights[0]!;
+      expect(whole, `${id}: one line more`).toBeCloseTo(lineOf, 0);
+      // The letter's motion, from the height shown when it came: at each read where its curve has brought it.
+      const rest = run.heights.at(-1)! - run.heights[1]!;
+      expect(rest, `${id}: the letter's motion goes on from the height then shown`).toBeGreaterThan(1);
+      run.heights.forEach((h, i) => i >= 1 && expect(Math.abs(h - (run.heights[1]! + run.progress[i]! * rest)), `${id}: read ${i} on the curve (${run.heights.join(' → ')})`).toBeLessThanOrEqual(1));
+      // And in the measure of a motion that jumps: at 13 evenly spaced times no step is more than 35 % of the change (the
+      // standard curve's largest is 28 %; a motion ended by the report moves 100 % at once).
+      for (let i = 1; i < run.heights.length; i++) {
+        const step = run.heights[i]! - run.heights[i - 1]!;
+        expect(step, `${id}: never lower than the one before (${run.heights.join(' → ')})`).toBeGreaterThanOrEqual(-0.01);
+        expect(step / whole, `${id}: step ${i} is no more than 35 % of the change (${run.heights.join(' → ')})`).toBeLessThanOrEqual(0.35);
+      }
+    }
+  });
+
   // ── TXI-51: a multi-line field is set from the top ────────────────────────────────────────────
   /** Where the parts of a field stand, from its container's top edge (and, for what belongs to the bottom, from its bottom edge). */
   const placesOf = (page: P, id: string) =>
     host(page, id).evaluate((el) => {
       const root = el.shadowRoot!;
-      const container = root.querySelector('.container')!.getBoundingClientRect();
+      const container = root.querySelector('.field > .container')!.getBoundingClientRect();
       const round = (value: number) => Math.round(value * 100) / 100;
       const top = (selector: string) => {
         const part = root.querySelector<HTMLElement>(selector);
@@ -1922,7 +1998,7 @@ test.describe('behavior', () => {
         const box = (root.querySelector<HTMLSlotElement>(`slot[name="${name}"]`)?.assignedElements()[0] as HTMLElement | undefined)?.getBoundingClientRect();
         return box ? round(box.top + box.height / 2 - container.top) : null;
       };
-      const grip = root.querySelector('.grip')?.getBoundingClientRect();
+      const grip = root.querySelector('.resize-handle')?.getBoundingClientRect();
       const supporting = root.querySelector('.supporting')?.getBoundingClientRect();
       const counter = root.querySelector('.counter')?.getBoundingClientRect();
       return {
@@ -1956,7 +2032,7 @@ test.describe('behavior', () => {
       const samples: Record<string, number | null>[] = ((window as any).txf51 = []);
       (window as any).txf51Run = true;
       const read = () => {
-        const container = root.querySelector('.container')!.getBoundingClientRect();
+        const container = root.querySelector('.field > .container')!.getBoundingClientRect();
         const field = root.querySelector<HTMLTextAreaElement>('.input')!;
         const slotted = (name: string) => {
           const box = (root.querySelector<HTMLSlotElement>(`slot[name="${name}"]`)?.assignedElements()[0] as HTMLElement | undefined)?.getBoundingClientRect();
@@ -1965,7 +2041,7 @@ test.describe('behavior', () => {
         const edge = (selector: string, from: 'top' | 'bottom') => {
           const box = root.querySelector(selector)?.getBoundingClientRect();
           if (!box || !(box.width || box.height)) return null;
-          return from === 'top' ? round(box.top - container.top) : selector === '.grip' ? round(container.bottom - box.bottom) : round(box.top - container.bottom);
+          return from === 'top' ? round(box.top - container.top) : selector === '.resize-handle' ? round(container.bottom - box.bottom) : round(box.top - container.bottom);
         };
         samples.push({
           height: round(container.height),
@@ -1976,7 +2052,7 @@ test.describe('behavior', () => {
           prefix: edge('.prefix', 'top'),
           suffix: edge('.suffix', 'top'),
           label: edge('.label', 'top'),
-          gripFromBottom: edge('.grip', 'bottom'),
+          gripFromBottom: edge('.resize-handle', 'bottom'),
           supportingBelow: edge('.supporting', 'bottom'),
           counterBelow: edge('.counter', 'bottom'),
         });
@@ -2034,7 +2110,7 @@ test.describe('behavior', () => {
         await field.focus();
         await field.evaluate((el) => (el as HTMLTextAreaElement).setSelectionRange(1e4, 1e4));
         // Focus has its own motion (the state's colors, an outlined field's edge): it is over before the samples begin.
-        await expect.poll(() => host(page, id).evaluate((el) => el.shadowRoot!.querySelector('.container')!.getAnimations({ subtree: true }).length), id).toBe(0);
+        await expect.poll(() => host(page, id).evaluate((el) => el.shadowRoot!.querySelector('.field > .container')!.getAnimations({ subtree: true }).length), id).toBe(0);
         const rest = await placesOf(page, id);
         expect(rest.scrolled, id).toBe(0);
         // Both icons are on the first of the five lines.
@@ -2090,7 +2166,7 @@ test.describe('behavior', () => {
     const check = async (note: string) => {
       for (const { id, variant, size } of cases) {
         const lineOf = await line(page, T(`input-typescale-${size}`));
-        const height = await resolveToken(page, T(`container-height-${size}`));
+        const height = await resolveToken(page, T(`${variant === 'stacked' ? 'stacked-' : ''}container-height-${size}`));
         for (const suffix of ['one', 'empty']) {
           const [single, multi, tall] = [await placesOf(page, `${id}-${suffix}-single`), await placesOf(page, `${id}-${suffix}-multi`), await placesOf(page, `${id}-${suffix}-tall`)];
           const name = `${id}-${suffix} ${note}`;
@@ -2103,7 +2179,7 @@ test.describe('behavior', () => {
           // …at a distance that more height does not change: four rows of room start there, and what the container is
           // higher by lies below the first line — down to the block padding under the last row.
           expect(tall.text, name).toBe(multi.text);
-          const below = await resolveToken(page, T(variant === 'filled' ? `container-padding-block-with-label-${size}` : `container-padding-block-${size}`));
+          const below = await resolveToken(page, T(variant === 'filled' ? `container-padding-block-with-label-${size}` : `${variant === 'stacked' ? 'stacked-' : ''}container-padding-block-${size}`));
           expect(tall.height, name).toBeCloseTo(tall.text + 4 * lineOf + below, 1);
           expect(tall.height, name).toBeGreaterThan(multi.height + 2 * lineOf);
           // Half of container.height below the top edge in a stacked and an outlined field (or lower, where the text is
@@ -2140,29 +2216,29 @@ test.describe('behavior', () => {
     // (The fields are widened first, so that the one line is still one line.)
     await page.addStyleTag({ content: '.stage > tanrei-text-input { inline-size: 720px !important; }' });
     await page.evaluate(() => (document.documentElement.style.fontSize = '200%'));
-    await expect.poll(async () => (await placesOf(page, 'stacked-medium-one-single')).height).toBeGreaterThan(await resolveToken(page, T('container-height-medium')) - 1);
+    await expect.poll(async () => (await placesOf(page, 'stacked-medium-one-single')).height).toBeGreaterThan(await resolveToken(page, T('stacked-container-height-medium')) - 1);
     await check('at 200 %');
   });
 
-  test('TXI-51: all the height a container has beyond one line lies below the first — the spare row of the three multi-line fixtures, the lines of an auto-grown one, the height given with the grip, a changed minRows — and the first line, the icons and the label keep their distance from the top edge through each change; the grip keeps its distance from the bottom and the end edge', async ({ page }) => {
+  test('TXI-51: all the height a container has beyond one line lies below the first — the spare row of the three multi-line fixtures, the lines of an auto-grown one, the height given with the handle, a changed minRows — and the first line, the icons and the label keep their distance from the top edge through each change; the handle keeps its distance from the bottom and the end edge', async ({ page }) => {
     await mountFixtures(page, spec, {
       icons: true,
       reducedMotion: false,
-      // The field whose grip is dragged comes first, inside the window.
+      // The field whose handle is dragged comes first, inside the window.
       fixtures: [
         fixture('manual', { label: 'Message', multiline: true, resize: 'manual', minRows: 2, resizeLabel: 'Resize', value: 'One\nTwo', supportingText: 'Shown to your team' }, 'leading-icon=search trailing-icon=close'),
         ...only(/^(stacked|filled|outlined)-multiline$/, /^stacked-multiline-auto-grown-icons$/),
-        fixture('single', { label: 'Message', value: 'One' }, 'leading-icon=search trailing-icon=close'),
+        fixture('single', { label: 'Message', value: 'One' }, 'leading-icon=search trailing-icon=close'), fixture('single-outlined', { label: 'Message', value: 'One', variant: 'outlined' }, 'leading-icon=search trailing-icon=close'),
       ],
     });
     const lineOf = await line(page, T('input-typescale-medium'));
-    const pad = await resolveToken(page, T('container-padding-block-medium'));
-    const single = await placesOf(page, 'single');
-    // The fixtures: two lines of text in three rows of room — the text starts at the top and the spare row is below it.
+    const [pad, stackedPad] = [await resolveToken(page, T('container-padding-block-medium')), await resolveToken(page, T('stacked-container-padding-block-medium'))];
+    const [single, singleOutlined] = [await placesOf(page, 'single'), await placesOf(page, 'single-outlined')];
+    // The fixtures: two lines of text in three rows of room — the text starts at the top and the spare row is below it; the first line is where a single-line field of its variant draws its one line.
     for (const id of ['stacked-multiline', 'outlined-multiline']) {
       const places = await placesOf(page, id);
-      expect(places.text, id).toBe(single.text);
-      expect(places.height, id).toBeCloseTo(places.text + 3 * lineOf + pad, 1);
+      expect(places.text, id).toBe((id.startsWith('stacked') ? single : singleOutlined).text);
+      expect(places.height, id).toBeCloseTo(places.text + 3 * lineOf + (id.startsWith('stacked') ? stackedPad : pad), 1);
     }
     const filled = await placesOf(page, 'filled-multiline');
     expect(filled.height).toBeCloseTo(filled.text + 3 * lineOf + (await resolveToken(page, T('container-padding-block-with-label-medium'))), 1);
@@ -2170,22 +2246,22 @@ test.describe('behavior', () => {
     const grown = await placesOf(page, 'stacked-multiline-auto-grown-icons');
     expect([grown.leading, grown.trailing]).toEqual([single.leading, single.trailing]);
     expect(grown.text).toBe(single.text);
-    expect(grown.height).toBeCloseTo(grown.text + 5 * lineOf + pad, 1);
-    // The grip: its distance from the bottom edge and the end edge, before, during and after a drag and the keys' motion.
-    const inset = await resolveToken(page, T('resize-grip-inset'));
+    expect(grown.height).toBeCloseTo(grown.text + 5 * lineOf + stackedPad, 1);
+    // The handle: against the bottom edge and the end edge, before, during and after a drag and the keys' motion.
+    const inset = 0;
     const rest = await placesOf(page, 'manual');
     expect(rest.gripFromBottom).toBeCloseTo(inset, 1);
-    const fromEnd = () => host(page, 'manual').evaluate((el) => el.shadowRoot!.querySelector('.container')!.getBoundingClientRect().right - el.shadowRoot!.querySelector('.grip')!.getBoundingClientRect().right);
+    const fromEnd = () => host(page, 'manual').evaluate((el) => el.shadowRoot!.querySelector('.field > .container')!.getBoundingClientRect().right - el.shadowRoot!.querySelector('.resize-handle')!.getBoundingClientRect().right);
     expect(await fromEnd()).toBeCloseTo(inset, 1);
     const stop = await everyFrame(page, 'manual');
-    const grip = await bounds(part(page, 'manual', '.grip'));
+    const grip = await bounds(part(page, 'manual', GRIP));
     await page.mouse.move(grip.x + grip.width / 2, grip.y + grip.height / 2);
     await page.mouse.down();
     for (const step of [10, 30, 52, 78]) await page.mouse.move(grip.x + grip.width / 2, grip.y + grip.height / 2 + step);
     await page.mouse.up();
     await expect.poll(async () => (await placesOf(page, 'manual')).height).toBeCloseTo(rest.height + 3 * lineOf, 1);
     // The keys move it over the motion (TXI-41).
-    await part(page, 'manual', '.grip').focus();
+    await part(page, 'manual', GRIP).focus();
     await page.keyboard.press('ArrowUp');
     await expect.poll(async () => (await placesOf(page, 'manual')).height).toBeCloseTo(rest.height + 2 * lineOf, 1);
     // minRows changed by the product: at once.
@@ -2224,8 +2300,8 @@ test.describe('behavior', () => {
       expect(await input(page, 'field').evaluate((el) => el.localName)).toBe(multiline ? 'textarea' : 'input');
       if (!multiline) {
         // TXI-16: the single input line is centred in a container of container.height.
-        const [container, field] = [await bounds(part(page, 'field', '.container')), await bounds(input(page, 'field'))];
-        expect(container.height).toBe(await resolveToken(page, T('container-height-medium')));
+        const [container, field] = [await bounds(part(page, 'field', '.field > .container')), await bounds(input(page, 'field'))];
+        expect(container.height).toBe(await resolveToken(page, T('stacked-container-height-medium')));
         expect(field.y + field.height / 2).toBeCloseTo(container.y + container.height / 2, 1);
         expect(await css(part(page, 'field', '.body'), 'align-items')).toBe('center');
       }
@@ -2328,11 +2404,11 @@ test.describe('behavior', () => {
       })) - 0.01);
     }
     // The row starts where the input text starts, at the field's start edge.
-    const textStart = (await bounds(input(page, 'stacked-filled'))).x - (await bounds(part(page, 'stacked-filled', '.container'))).x;
+    const textStart = (await bounds(input(page, 'stacked-filled'))).x - (await bounds(part(page, 'stacked-filled', '.field > .container'))).x;
     for (const id of ['stacked-date', 'stacked-date-empty', 'stacked-time-picker', 'stacked-time-empty']) {
-      expect((await bounds(part(page, id, '.row'))).x - (await bounds(part(page, id, '.container'))).x, id).toBeCloseTo(textStart, 1);
+      expect((await bounds(part(page, id, '.row'))).x - (await bounds(part(page, id, '.field > .container'))).x, id).toBeCloseTo(textStart, 1);
       // …and so does its first cell: an hour of one digit stands at the end of a cell two digits wide (TXI-42).
-      expect((await bounds(seg(page, id, id.includes('time') ? 'hour' : 'month'))).x - (await bounds(part(page, id, '.container'))).x, id).toBeCloseTo(textStart, 1);
+      expect((await bounds(seg(page, id, id.includes('time') ? 'hour' : 'month'))).x - (await bounds(part(page, id, '.field > .container'))).x, id).toBeCloseTo(textStart, 1);
     }
     // Laid out left to right in every layout direction, the day period isolated in its own direction.
     await expect(part(page, 'stacked-date-rtl', '.row')).toHaveAttribute('dir', 'ltr');
@@ -2366,7 +2442,7 @@ test.describe('behavior', () => {
         expect(text, `${theme} ${id}: selection.content.color`).toBe(await resolveColor(page, T('selection-content-color')));
         // An empty segment's placeholder is the text on the highlight, not the placeholder color.
         if (id === 'stacked-date-empty') expect(await css(first, 'color', '::before'), `${theme}: the placeholder`).toBe(text);
-        const container = await css(part(page, id, '.container'), 'background-color');
+        const container = await css(part(page, id, '.field > .container'), 'background-color');
         expect(ratio(highlight, container), `${theme} ${id}: the highlight against the container (${highlight} on ${container})`).toBeGreaterThanOrEqual(3);
         expect(ratio(text, highlight), `${theme} ${id}: the text on the highlight (${text} on ${highlight})`).toBeGreaterThanOrEqual(4.5);
         // The segments that are not being set keep the input's color and no fill.
@@ -2442,7 +2518,7 @@ test.describe('behavior', () => {
       await host(page, of).scrollIntoViewIfNeeded(); // the mouse does not scroll
       if (where === 'separator') await part(page, of, '.row').locator('.literal').first().click();
       else {
-        const c = await bounds(part(page, of, '.container'));
+        const c = await bounds(part(page, of, '.field > .container'));
         await page.mouse.click(c.x + 4, c.y + c.height / 2);
       }
       return focusedUnit(page, of);
@@ -2816,7 +2892,7 @@ test.describe('behavior', () => {
       ],
     });
     // In a Field: its help is the description, its requirement the required state, and its error the invalid one.
-    await frame(page, 'help', { label: 'Due', supportingText: 'A working day.', requirement: 'required', requiredText: 'Required' }, { type: 'date', locale: 'en-US' });
+    await frame(page, 'help', { label: 'Due', supportingText: 'A working day.', required: true, requiredText: 'Required' }, { type: 'date', locale: 'en-US' });
     await frame(page, 'refused', { label: 'Start date', error: true, errorText: 'Choose a date after today.' }, { type: 'date', locale: 'en-US', value: '2026-09-27' });
     // The accessibility tree of stacked-date: a group named "Start date" with three spin buttons.
     const group = host(page, 'stacked-date').getByRole('group', { name: 'Start date', exact: true });
@@ -2875,15 +2951,15 @@ test.describe('behavior', () => {
   test('TXI-50: a floating label is followed by an asterisk exactly while the Field that frames the input gives one — for its tag and its asterisk alike, and under auto for the mark the design system names; none where the Field or the system says none, where the label is not drawn or the input is stacked, and never outside a Field; the asterisk follows the label’s text in its style and place, resting and floated, from the input’s own tokens, and is kept from assistive technology', async ({ page }) => {
     const marks = ['auto', 'tag', 'asterisk', 'none'] as const;
     await mountFixtures(page, spec, { reducedMotion: true, fixtures: [fixture('bare', { variant: 'outlined', label: 'Email' }), fixture('plain', { variant: 'outlined', label: 'Email' })] });
-    for (const mark of marks) await frame(page, `outlined-${mark}`, { label: 'Email', requirement: 'required', requiredMark: mark, requiredText: 'Required' }, { variant: 'outlined' });
-    await frame(page, 'filled-auto', { label: 'Email', requirement: 'required', requiredText: 'Required' }, { variant: 'filled', value: 'ada@example.com' });
-    await frame(page, 'hidden', { label: 'Email', labelHidden: true, requirement: 'required', requiredMark: 'asterisk' }, { variant: 'outlined' });
+    for (const mark of marks) await frame(page, `outlined-${mark}`, { label: 'Email', required: true, requiredMark: mark, requiredText: 'Required' }, { variant: 'outlined' });
+    await frame(page, 'filled-auto', { label: 'Email', required: true, requiredText: 'Required' }, { variant: 'filled', value: 'ada@example.com' });
+    await frame(page, 'hidden', { label: 'Email', labelHidden: true, required: true, requiredMark: 'asterisk' }, { variant: 'outlined' });
     await frame(page, 'not-required', { label: 'Email' }, { variant: 'outlined' });
-    await frame(page, 'stacked', { label: 'Email', requirement: 'required', requiredMark: 'asterisk' }, {});
-    await frame(page, 'in-error', { label: 'Email', requirement: 'required', requiredMark: 'asterisk', error: true }, { variant: 'outlined' });
-    await frame(page, 'optional', { label: 'Company', requirement: 'optional', optionalText: 'Optional' }, { variant: 'outlined' });
-    await frame(page, 'optional-wordless', { label: 'Company', requirement: 'optional', optionalText: '' }, { variant: 'filled' });
-    await frame(page, 'optional-stacked', { label: 'Company', requirement: 'optional', optionalText: 'Optional' }, {});
+    await frame(page, 'stacked', { label: 'Email', required: true, requiredMark: 'asterisk' }, {});
+    await frame(page, 'in-error', { label: 'Email', required: true, requiredMark: 'asterisk', error: true }, { variant: 'outlined' });
+    await frame(page, 'optional', { label: 'Company', required: false, optional: true, optionalText: 'Optional' }, { variant: 'outlined' });
+    await frame(page, 'optional-wordless', { label: 'Company', required: false, optional: true, optionalText: '' }, { variant: 'filled' });
+    await frame(page, 'optional-stacked', { label: 'Company', required: false, optional: true, optionalText: 'Optional' }, {});
     const asterisks = (id: string) => host(page, id).locator('label.label .asterisk');
     // Under the default system the Field's mark is the tag: a floating label draws it as the asterisk.
     expect(await token(page, '--tanrei-comp-field-requirement-mark')).toBe('tag');
@@ -2936,7 +3012,7 @@ test.describe('behavior', () => {
     expect(mark.x + mark.width, 'the last thing in the label').toBeCloseTo(label.x + label.width, 0);
     // It floats with the label, in the floated style, and the outline's gap opens for the two together.
     // (Measured from the container: focus may scroll the page.)
-    const above = async () => (await bounds(star)).y - (await bounds(part(page, 'outlined-asterisk', '.container'))).y;
+    const above = async () => (await bounds(star)).y - (await bounds(part(page, 'outlined-asterisk', '.field > .container'))).y;
     const resting = await above();
     await input(page, 'outlined-asterisk').focus();
     await expect.poll(above).toBeLessThan(resting - 4);
@@ -2961,7 +3037,7 @@ test.describe('behavior', () => {
     }
   });
 
-  test('TXI-52, TXI-41: without resizeLabel the grip is drawn, works and has no accessible name, and without segmentEmptyText an empty segment has no value and no value text; the reports name both props; the product’s words give them, and an instance’s own prop wins', async ({ page }) => {
+  test('TXI-52, TXI-41: without resizeLabel the handle is drawn, works and has no accessible name, and without segmentEmptyText an empty segment has no value and no value text; the reports name both props; the product’s words give them, and an instance’s own prop wins', async ({ page }) => {
     const seen = warnings(page);
     const given = (id: string) => spec.fixtures.find((f) => f.id === id)!;
     const without = (id: string, as: string, ...names: string[]): Fixture => ({ ...given(id), id: as, props: Object.fromEntries(Object.entries(given(id).props).filter(([name]) => !names.includes(name))) as Fixture['props'] });
@@ -2975,9 +3051,9 @@ test.describe('behavior', () => {
         { ...given('stacked-date-empty'), id: 'date-own', props: { ...given('stacked-date-empty').props, segmentEmptyText: 'Not set' } },
       ],
     });
-    const grip = (id: string) => part(page, id, '.grip');
+    const grip = (id: string) => part(page, id, GRIP);
     const segments = (id: string) => host(page, id).getByRole('spinbutton').evaluateAll((all) => all.map((el) => [el.getAttribute('aria-valuenow'), el.getAttribute('aria-valuetext')]));
-    // The grip: drawn, a focus stop, a window splitter with its value — and no name.
+    // The handle: drawn, a focus stop, a window splitter with its value — and no name.
     await expect(grip('grip')).toBeVisible();
     expect(await grip('grip').evaluate((el) => [el.getAttribute('role'), el.getAttribute('aria-label'), el.getAttribute('aria-labelledby'), (el as HTMLElement).tabIndex, el.getAttribute('aria-valuenow')])).toEqual(['separator', null, null, 0, '3']);
     // It works: Down Arrow makes the input one line taller.
@@ -3007,44 +3083,42 @@ test.describe('behavior', () => {
   });
 });
 
-// The resize grip (TXI-39 … TXI-41). Each test mounts its own page once: these pages hold little but the grip's glyph,
-// and Firefox leaves `document.fonts.ready` pending on such a page when it is the second document written into one
+// The resize handle (TXI-39 … TXI-41, TXI-69). Each test mounts its own page once: these pages hold little but the
+// fields, and Firefox leaves `document.fonts.ready` pending on such a page when it is the second document written into one
 // window (the suite above mounts every fixture before each test) until something restyles it.
-test.describe('the resize grip', () => {
+test.describe('the resize handle', () => {
   test.beforeAll(async () => {
     test.setTimeout(120_000);
     await acmeSystemCss();
   });
 
-  test('TXI-22: the resize grip is a glyph of the system’s icon set at a step of the sys.icon scale, as every glyph the field draws', async ({ page }) => {
-    await mountFixtures(page, spec, { icons: true });
-    const steps = await Promise.all(['extra-small', 'small', 'medium', 'large'].map((step) => resolveToken(page, `--tanrei-sys-icon-${step}`)));
-    for (const [id, name] of [['stacked-multiline-manual', 'drag_handle'], ['stacked-multiline-manual-both', 'drag_indicator'], ['outlined-multiline-manual', 'drag_handle']]) {
-      const glyph = part(page, id, '.grip-glyph');
-      await expect(glyph, id).toHaveText(name);
-      const box = await bounds(glyph);
-      expect(steps, id).toContain(box.width);
-      expect([box.width, box.height], id).toEqual([await resolveToken(page, T('resize-grip-size')), await resolveToken(page, T('resize-grip-size'))]);
-      // The icon set's family, unselected fill and weight: the glyph is drawn (one em wide), not its name spelled out.
-      expect(await css(glyph, 'font-variation-settings')).toContain(`"FILL" ${await token(page, '--tanrei-sys-icon-fill-unselected')}`);
-      expect(await glyph.evaluate((el) => el.scrollWidth <= el.clientWidth + 1), `${id}: a glyph, not ligature text`).toBe(true);
+  test('TXI-39: the resize handle is a Handle — size small, its axis resizeAxis’s, its corner bottom-end — drawn by the Handle and never by a glyph of the icon set, and revealed while a pointer is over the field or the input has focus', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: only(/multiline/) });
+    for (const [id, axis] of [['stacked-multiline-manual', 'vertical'], ['stacked-multiline-manual-both', 'both'], ['outlined-multiline-manual', 'vertical']]) {
+      const handle = part(page, id, '.resize-handle');
+      expect(await handle.evaluate((el: any) => [el.localName, el.size, el.axis, el.corner]), id).toEqual(['tanrei-handle', 'small', axis, 'bottom-end']);
+      // No glyph: nothing of the field's own is drawn for it, and the Handle draws a line or an arc.
+      expect(await host(page, id).evaluate((el) => el.shadowRoot!.textContent ?? ''), id).not.toMatch(/drag_handle|drag_indicator/);
+      await expect(handle.locator(axis === 'both' ? 'svg.arc' : '.capsule'), id).toHaveCount(1);
     }
+    // Out of sight at rest under a pointer that hovers (HDL-23); revealed while the pointer is over the field, and while
+    // the input has focus.
+    const id = 'stacked-multiline-manual';
+    const revealed = () => part(page, id, '.resize-handle').evaluate((el: any) => el.revealed);
+    await page.mouse.move(0, 0);
+    expect(await revealed()).toBe(false);
+    await host(page, id).scrollIntoViewIfNeeded();
+    await input(page, id).hover();
+    await expect.poll(revealed).toBe(true);
+    await page.mouse.move(0, 0);
+    await expect.poll(revealed).toBe(false);
+    await input(page, id).focus();
+    await expect.poll(revealed).toBe(true);
+    await blurAll(page);
+    await expect.poll(revealed).toBe(false);
   });
 
-  test('TXI-35: the resize grip’s glyphs are never mirrored, in right-to-left either', async ({ page }) => {
-    await mountFixtures(page, spec, { icons: true, dir: 'rtl' });
-    for (const id of ['stacked-multiline-manual', 'stacked-multiline-manual-both', 'stacked-multiline-manual-rtl']) {
-      const glyph = part(page, id, '.grip-glyph');
-      await expect(glyph, id).not.toHaveAttribute('data-mirrored');
-      expect(await glyph.evaluate((el) => [...el.attributes].some((a) => /mirror/.test(a.name))), id).toBe(false);
-      expect(await css(glyph, 'transform'), id).toBe('none');
-      expect(await css(glyph, 'scale'), id).toBe('none');
-    }
-    // The picker button's glyphs are not marked either.
-    expect(await css(part(page, 'stacked-date-rtl', '.picker-button').locator('.icon'), 'scale')).toBe('none');
-  });
-
-  test('TXI-39: a manually resized field starts at minRows, does not follow its content, and draws the grip in the bottom end corner; a drag follows the pointer between minRows and maxRows — and sideways only where it resizes both ways — keeps the size, and moves neither the caret nor the focus; read-only keeps the grip and disabled draws none', async ({ page }) => {
+  test('TXI-39: a manually resized field starts at minRows, does not follow its content, and draws the handle in the bottom end corner; a drag follows the pointer between minRows and maxRows — and sideways only where it resizes both ways — keeps the size, and moves neither the caret nor the focus; read-only keeps the handle and disabled draws none', async ({ page }) => {
     await mountFixtures(page, spec, {
       icons: true,
       reducedMotion: true,
@@ -3058,20 +3132,19 @@ test.describe('the resize grip', () => {
     });
     const lineOf = await line(page, T('input-typescale-medium'));
     const id = 'stacked-multiline-manual';
-    const grip = (of: string) => part(page, of, '.grip');
+    const grip = (of: string) => part(page, of, GRIP);
     const height = (of: string) => bounds(input(page, of)).then((b) => b.height);
-    // Its place, size, glyph and color.
-    const [size, inset] = [await resolveToken(page, T('resize-grip-size')), await resolveToken(page, T('resize-grip-inset'))];
-    expect(size).toBe(await resolveToken(page, '--tanrei-sys-icon-extra-small'));
-    for (const of of [id, 'outlined-multiline-manual', 'stacked-multiline-manual-both']) {
-      const [g, c] = [await bounds(grip(of)), await bounds(part(page, of, '.container'))];
-      expect([g.width, g.height], of).toEqual([size, size]);
-      expect(c.x + c.width - (g.x + g.width), `${of}: from the end edge`).toBeCloseTo(inset, 1);
-      expect(c.y + c.height - (g.y + g.height), `${of}: from the bottom edge`).toBeCloseTo(inset, 1);
+    // Its place and size: the box of a small Handle against the container's bottom edge and its end edge.
+    const [length, breadth] = await Promise.all(['--tanrei-comp-handle-container-length-small', '--tanrei-comp-handle-container-breadth-small'].map((n) => resolveToken(page, n)));
+    for (const [of, size] of [[id, [length, breadth]], ['outlined-multiline-manual', [length, breadth]], ['stacked-multiline-manual-both', [breadth, breadth]]] as const) {
+      const [g, c] = [await bounds(grip(of)), await bounds(part(page, of, '.field > .container'))];
+      expect([g.width, g.height], of).toEqual(size);
+      expect(c.x + c.width - (g.x + g.width), `${of}: against the end edge`).toBeCloseTo(0, 1);
+      expect(c.y + c.height - (g.y + g.height), `${of}: against the bottom edge`).toBeCloseTo(0, 1);
     }
-    await expect(part(page, id, '.grip-glyph')).toHaveText('drag_handle');
-    await expect(part(page, 'stacked-multiline-manual-both', '.grip-glyph')).toHaveText('drag_indicator');
-    expect(await css(grip('error'), 'color')).toBe(await resolveColor(page, T('stacked-error-resize-grip-color')));
+    // The field gives it no color of its own: in error it is drawn as it is without.
+    const lineColor = (of: string) => css(part(page, of, '.resize-handle .capsule'), 'background-color');
+    expect(await lineColor("error")).toBe(await lineColor(id));
     // Over the text and inside the stacked field's inner line: it is the topmost thing at its centre.
     await host(page, id).scrollIntoViewIfNeeded();
     expect(await grip(id).evaluate((el) => {
@@ -3134,14 +3207,14 @@ test.describe('the resize grip', () => {
     const least = (await bounds(host(page, both))).width;
     expect(least).toBeCloseTo(2 * (await resolveToken(page, T('container-padding-inline-medium'))) + (await resolveToken(page, '--tanrei-sys-target-touch')), 0);
     expect((await bounds(input(page, both))).width).toBeCloseTo(await resolveToken(page, '--tanrei-sys-target-touch'), 0);
-    // Right-to-left: the grip is at the left, and a drag to the left widens.
+    // Right-to-left: the handle is at the left, and a drag to the left widens.
     const rtl = 'stacked-multiline-manual-rtl';
     const startRtl = await bounds(host(page, rtl));
     await drag(rtl, -12, 0);
     expect((await bounds(host(page, rtl))).width).toBeCloseTo(startRtl.width + 12, 0);
     await drag(rtl, 12, 0);
     expect((await bounds(host(page, rtl))).width).toBeCloseTo(startRtl.width, 0);
-    // Read-only keeps the grip; disabled draws none and keeps its size.
+    // Read-only keeps the handle; disabled draws none and keeps its size.
     await expect(grip('read')).toHaveCount(1);
     await drag('read', 0, lineOf);
     expect(await height('read')).toBeCloseTo(3 * lineOf, 0);
@@ -3149,25 +3222,25 @@ test.describe('the resize grip', () => {
     expect(await height('off')).toBeCloseTo(2 * lineOf, 0);
   });
 
-  test('TXI-40: the grip’s hit area is at least the minimum target, centred on its glyph and reaching past the container’s edges, without changing its drawn size; a press inside it belongs to the grip and places no caret; a fine pointer over it shows the resize cursor of its axes', async ({ page }) => {
+  test('TXI-40: the handle’s hit area is the Handle’s, at least the minimum target, centred on its box and reaching past the container’s edges, without changing its drawn size; a press inside it belongs to the handle and places no caret; a fine pointer over it shows the resize cursor of its axes', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures: only(/multiline/) });
     const id = 'stacked-multiline-manual';
     await host(page, id).scrollIntoViewIfNeeded(); // the mouse does not scroll
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     const area = (of: string) =>
-      part(page, of, '.grip').evaluate((el) => {
+      part(page, of, GRIP).evaluate((el) => {
         const [g, style] = [el.getBoundingClientRect(), getComputedStyle(el, '::before')];
-        return { width: Number.parseFloat(style.width), height: Number.parseFloat(style.height), glyph: [g.width, g.height], centre: [g.x + g.width / 2, g.y + g.height / 2] };
+        return { width: Number.parseFloat(style.width), height: Number.parseFloat(style.height), box: [g.width, g.height], centre: [g.x + g.width / 2, g.y + g.height / 2] };
       });
     const hit = await area(id);
     expect([hit.width, hit.height]).toEqual([pointer, pointer]);
-    expect(hit.glyph).toEqual([await resolveToken(page, T('resize-grip-size')), await resolveToken(page, T('resize-grip-size'))]);
+    expect(hit.box).toEqual(await Promise.all(['--tanrei-comp-handle-container-length-small', '--tanrei-comp-handle-container-breadth-small'].map((n) => resolveToken(page, n))));
     // It reaches past the container's bottom and end edges, and nothing in the layout moved for it.
-    const c = await bounds(part(page, id, '.container'));
+    const c = await bounds(part(page, id, '.field > .container'));
     expect(hit.centre[0] + pointer / 2).toBeGreaterThan(c.x + c.width);
     expect(hit.centre[1] + pointer / 2).toBeGreaterThan(c.y + c.height);
-    expect(c.height).toBeCloseTo((await bounds(part(page, 'stacked-multiline-fixed', '.container'))).height, 1);
-    // A press inside the area but off the glyph — over the text's corner, and just past the container — is the grip's:
+    expect(c.height).toBeCloseTo((await bounds(part(page, 'stacked-multiline-fixed', '.field > .container'))).height, 1);
+    // A press inside the area but off the box — over the text's corner, and just past the container — is the handle's:
     // it neither focuses the input nor places the caret, and it resizes.
     const lineOf = await line(page, T('input-typescale-medium'));
     for (const [dx, dy] of [[-(pointer / 2 - 3), -(pointer / 2 - 3)], [pointer / 2 - 3, pointer / 2 - 3]]) {
@@ -3189,12 +3262,12 @@ test.describe('the resize grip', () => {
     await page.keyboard.type('x');
     expect(await valueOf(page, id)).toContain('x');
     // The cursor: the axes it resizes.
-    expect(await css(part(page, id, '.grip'), 'cursor')).toBe('ns-resize');
-    expect(await css(part(page, 'stacked-multiline-manual-both', '.grip'), 'cursor')).toBe('nwse-resize');
-    expect(await css(part(page, 'stacked-multiline-manual-rtl', '.grip'), 'cursor')).toBe('nesw-resize');
+    expect(await css(part(page, id, GRIP), 'cursor')).toBe('ns-resize');
+    expect(await css(part(page, 'stacked-multiline-manual-both', GRIP), 'cursor')).toBe('nwse-resize');
+    expect(await css(part(page, 'stacked-multiline-manual-rtl', GRIP), 'cursor')).toBe('nesw-resize');
   });
 
-  test('TXI-40: a coarse pointer extends the grip’s hit area to sys.target.touch', async ({ page, browserName }) => {
+  test('TXI-40: a coarse pointer extends the handle’s hit area to sys.target.touch', async ({ page, browserName }) => {
     test.skip(browserName !== 'chromium', 'only Chromium can emulate a coarse pointer (touch emulation over CDP)');
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
@@ -3202,10 +3275,10 @@ test.describe('the resize grip', () => {
     await mountFixtures(page, spec, { icons: true, fixtures: only(/multiline/) });
     expect(await page.evaluate(() => matchMedia('(pointer: coarse)').matches)).toBe(true);
     const touch = await resolveToken(page, '--tanrei-sys-target-touch');
-    expect(await part(page, 'stacked-multiline-manual', '.grip').evaluate((el) => [getComputedStyle(el, '::before').width, getComputedStyle(el, '::before').height].map(Number.parseFloat))).toEqual([touch, touch]);
+    expect(await part(page, 'stacked-multiline-manual', GRIP).evaluate((el) => [getComputedStyle(el, '::before').width, getComputedStyle(el, '::before').height].map(Number.parseFloat))).toEqual([touch, touch]);
   });
 
-  test('TXI-41: the grip is a focus stop after the input, a window splitter named by resizeLabel whose value is the lines shown; the arrows resize by a line, Home and End go to the limits, Enter, Space or a click fit the height to the text and back; a horizontal arrow toward the end edge widens a field that resizes both ways; keyboard focus is shown around the glyph and pointer focus is not', async ({ page }) => {
+  test('TXI-41: the handle is a focus stop after the input, a window splitter named by resizeLabel whose value is the lines shown and whose limits are minRows and maxRows (or the lines the text needs); the arrows resize by a line and Page Down and Page Up by minRows, Home and End go to the limits, Enter, Space or a click fit the height to the text and back; a horizontal arrow toward the end edge widens a field that resizes both ways; keyboard focus is shown and pointer focus is not', async ({ page }) => {
     const seen = warnings(page);
     await mountFixtures(page, spec, {
       icons: true,
@@ -3219,33 +3292,38 @@ test.describe('the resize grip', () => {
     });
     const lineOf = await line(page, T('input-typescale-medium'));
     const lines = (id: string) => bounds(input(page, id)).then((b) => Math.round((b.height / lineOf) * 100) / 100);
-    const grip = (id: string) => part(page, id, '.grip');
+    const grip = (id: string) => part(page, id, GRIP);
     // Semantics: a focusable separator with a value, named by resizeLabel; its value the lines, its limits minRows and maxRows.
     const splitter = host(page, 'six').getByRole('separator', { name: 'Resize notes' });
     await expect(splitter).toHaveCount(1);
-    for (const [name, value] of [['tabindex', '0'], ['aria-orientation', 'horizontal'], ['aria-valuenow', '2'], ['aria-valuemin', '2'], ['aria-controls', 'input']]) await expect(splitter, name).toHaveAttribute(name, value);
-    await expect(splitter).not.toHaveAttribute('aria-valuemax'); // maxRows 0: none exposed
+    for (const [name, value] of [['tabindex', '0'], ['aria-orientation', 'horizontal'], ['aria-valuenow', '2'], ['aria-valuemin', '2'], ['aria-valuemax', '6']]) await expect(splitter, name).toHaveAttribute(name, value); // maxRows 0: the lines the text needs
     await expect(grip('capped')).toHaveAttribute('aria-valuemax', '4');
     await expect(host(page, 'stacked-multiline-manual').getByRole('separator', { name: 'Resize' })).toHaveAttribute('aria-valuenow', '3');
-    // A grip without a name still renders, and is reported.
+    // A handle without a name still renders, and is reported.
     await expect(grip('nameless')).toHaveCount(1);
     await expect.poll(() => seen.filter((w) => w.includes('TXI-41')).length).toBe(1);
-    // Tab: the input, the slotted button, then the grip.
+    // Tab: the input, the slotted button, then the handle.
     await tabTo(page, input(page, 'six'));
     await tab(page);
     await expect(host(page, 'six').locator('tanrei-button[slot="trailing-icon"] button')).toBeFocused();
     await tab(page);
     await expect(grip('six')).toBeFocused();
-    // Keyboard focus is shown around the glyph, as the focus style names (the ring); there is no state layer and no pressed answer.
+    // Keyboard focus is shown around the handle's box, as the focus style names (the ring, HDL-14).
     expect(await css(grip('six'), 'outline-style')).toBe('solid');
     expect(await css(grip('six'), 'outline-color')).toBe(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
-    expect(await host(page, 'six').locator('.ripple, [data-pressed]').count()).toBe(0);
     // Down Arrow three times adds three lines, and the exposed value follows; Up Arrow takes one back.
     for (let n = 0; n < 3; n++) await page.keyboard.press('ArrowDown');
     await expect.poll(() => lines('six')).toBe(5);
     await expect(grip('six')).toHaveAttribute('aria-valuenow', '5');
     await page.keyboard.press('ArrowUp');
     await expect.poll(() => lines('six')).toBe(4);
+    // Page Down and Shift with Down Arrow add minRows lines (a large step), Page Up takes them back.
+    await page.keyboard.press('PageDown');
+    await expect.poll(() => lines('six')).toBe(6);
+    await page.keyboard.press('PageUp');
+    await expect.poll(() => lines('six')).toBe(4);
+    await page.keyboard.press('Shift+ArrowDown');
+    await expect.poll(() => lines('six')).toBe(6);
     // Home returns to minRows; never below it.
     await page.keyboard.press('Home');
     await expect.poll(() => lines('six')).toBe(2);
@@ -3265,7 +3343,7 @@ test.describe('the resize grip', () => {
     await expect.poll(() => lines('six')).toBe(6);
     await page.keyboard.press('Space');
     await expect.poll(() => lines('six')).toBe(2);
-    expect(await valueOf(page, 'six'), 'the keys are the grip’s, not the text’s').toBe('1\n2\n3\n4\n5\n6');
+    expect(await valueOf(page, 'six'), 'the keys are the handle’s, not the text’s').toBe('1\n2\n3\n4\n5\n6');
     await expect(grip('six')).toBeFocused();
     // Within maxRows: End and the fit stop at four lines.
     await tabTo(page, grip('capped'));
@@ -3311,7 +3389,7 @@ test.describe('the resize grip', () => {
     expect(await width('stacked-multiline-manual')).toBe(vertical);
   });
 
-  test('TXI-41: where the field resizes both ways an activation of the grip also makes it as wide as its place, and the next one gives back the width it had — the width, too, never depends on a drag; a field that resizes vertically keeps its width', async ({ page }) => {
+  test('TXI-41: where the field resizes both ways an activation of the handle also makes it as wide as its place, and the next one gives back the width it had — the width, too, never depends on a drag; a field that resizes vertically keeps its width', async ({ page }) => {
     const manual = { variant: 'stacked', label: 'Notes', multiline: true, resize: 'manual', value: 'One line' };
     await mountFixtures(page, spec, { icons: true, fixtures: [fixture('both', { ...manual, resizeAxis: 'both' }), fixture('vertical', { ...manual })] });
     for (const id of ['both', 'vertical']) {
@@ -3321,41 +3399,85 @@ test.describe('the resize grip', () => {
     const width = async (id: string) => (await bounds(host(page, id))).width;
     expect(await width('both')).toBeCloseTo(240, 0);
     // A click that ends where it began: as wide as its place…
-    await part(page, 'both', '.grip').click();
+    await part(page, 'both', GRIP).click();
     await expect.poll(() => width('both')).toBeCloseTo(400, 0);
     // …and the next one gives back the width it had.
-    await part(page, 'both', '.grip').click();
+    await part(page, 'both', GRIP).click();
     await expect.poll(() => width('both')).toBeCloseTo(240, 0);
-    // Enter on the grip, and a click assistive technology makes, do the same.
-    await tabTo(page, part(page, 'both', '.grip'));
+    // Enter on the handle, and a click assistive technology makes, do the same.
+    await tabTo(page, part(page, 'both', GRIP));
     await page.keyboard.press('Enter');
     await expect.poll(() => width('both')).toBeCloseTo(400, 0);
-    await part(page, 'both', '.grip').evaluate((el) => (el as HTMLElement).click());
+    await part(page, 'both', GRIP).evaluate((el) => (el as HTMLElement).click());
     await expect.poll(() => width('both')).toBeCloseTo(240, 0);
     // Never wider than the field's own maximum width.
     await host(page, 'both').evaluate((el) => (el.style.maxInlineSize = '320px'));
-    await part(page, 'both', '.grip').click();
+    await part(page, 'both', GRIP).click();
     await expect.poll(() => width('both')).toBeCloseTo(320, 0);
-    await part(page, 'both', '.grip').click();
+    await part(page, 'both', GRIP).click();
     await expect.poll(() => width('both')).toBeCloseTo(240, 0);
     // A field that resizes vertically keeps its width.
-    await part(page, 'vertical', '.grip').click();
+    await part(page, 'vertical', GRIP).click();
     await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
     expect(await width('vertical')).toBeCloseTo(240, 0);
   });
 
-  test('TXI-41: a change made from the grip’s keys moves as TXI-38 says, and under glow the grip’s keyboard focus is the glow', async ({ page }) => {
+  test('TXI-69: resizeend says the size the person gave the field — once at the end of a drag, after a step or an activation that changed it, never for one that changed nothing — with its width while it resizes both ways; it leaves the shadow root', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      icons: true,
+      reducedMotion: true,
+      fixtures: [...only(/^stacked-multiline-manual(-both)?$/), fixture('capped', { label: 'Notes', multiline: true, resize: 'manual', minRows: 2, maxRows: 3, resizeLabel: 'Resize' })],
+    });
+    await page.evaluate(() => {
+      const log: unknown[] = ((window as any).resized = []);
+      document.addEventListener('resizeend', (e) => log.push([(e.target as HTMLElement).closest('[data-fixture]')!.getAttribute('data-fixture'), (e as CustomEvent).detail]));
+    });
+    const log = () => page.evaluate(() => (window as any).resized.splice(0) as [string, { lines: number; width: number | null }][]);
+    const lineOf = await line(page, T('input-typescale-medium'));
+    const id = 'stacked-multiline-manual';
+    // A drag: one event, at its release, with the lines it left.
+    await host(page, id).scrollIntoViewIfNeeded();
+    const g = await bounds(part(page, id, GRIP));
+    await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2);
+    await page.mouse.down();
+    for (const step of [10, 26, 2 * lineOf]) await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2 + step);
+    expect(await log()).toEqual([]);
+    await page.mouse.up();
+    expect(await log()).toEqual([[id, { lines: 5, width: null }]]);
+    // A key: one more line.
+    await tabTo(page, part(page, id, GRIP));
+    await page.keyboard.press('ArrowDown');
+    expect(await log()).toEqual([[id, { lines: 6, width: null }]]);
+    // A step that changes nothing says nothing: End on a field already at maxRows.
+    await tabTo(page, part(page, 'capped', GRIP));
+    await page.keyboard.press('End');
+    expect(await log()).toEqual([['capped', { lines: 3, width: null }]]);
+    await page.keyboard.press('End');
+    expect(await log()).toEqual([]);
+    // Both ways: the width comes with it.
+    const both = 'stacked-multiline-manual-both';
+    await tabTo(page, part(page, both, GRIP));
+    await page.keyboard.press('ArrowRight');
+    const [[from, detail]] = await log();
+    expect(from).toBe(both);
+    expect(detail.width).toBe(Math.round((await bounds(host(page, both))).width));
+    // A size given back by the product says nothing.
+    await host(page, id).evaluate(async (el: any) => { el.minRows = 4; await el.updateComplete; });
+    expect(await log()).toEqual([]);
+  });
+
+  test('TXI-41: a change made from the handle’s keys moves as TXI-38 says, and under glow the handle’s keyboard focus is the glow', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, reducedMotion: false, system: 'acme', systemCss: await acmeSystemCss(), fixtures: only(/multiline-manual/) });
     const id = 'stacked-multiline-manual';
-    const grip = part(page, id, '.grip');
+    const grip = part(page, id, GRIP);
     await tabTo(page, grip);
     const moved = await host(page, id).evaluate((el) => {
-      const [field, handle] = [el.shadowRoot!.querySelector('textarea')!, el.shadowRoot!.querySelector<HTMLElement>('.grip')!];
+      const [field, handle] = [el.shadowRoot!.querySelector('textarea')!, el.shadowRoot!.querySelector('.resize-handle')!.shadowRoot!.querySelector<HTMLElement>('.container')!];
       handle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
       return field.getAnimations().filter((a) => /^margin-(bottom|block-end)$/.test((a as CSSTransition).transitionProperty)).map((a) => Math.round(Number(a.effect!.getTiming().duration)));
     });
     expect(moved).toEqual([await resolveToken(page, T('motion-resize-duration'), 'duration')]);
-    // Glow: the halo around the glyph instead of the ring's line.
+    // Glow: the halo around the handle's box instead of the ring's line.
     expect(await token(page, '--tanrei-sys-behavior-focus-style')).toBe('glow');
     await expect.poll(() => css(grip, 'box-shadow', '::after')).toContain(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
     expect(await grip.getAttribute('data-focus-style')).toBe('glow');
@@ -3561,7 +3683,7 @@ test.describe('a field that holds code', () => {
   test('TXI-53: the prefix, the value and the suffix are one left-to-right row between mirrored icons', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [...only(/^stacked-code-affixes-rtl$/, /^stacked-code-multiline-rtl$/, /^stacked-code-rtl$/), twin('stacked-code-affixes-rtl', 'affixes-ltr')] });
     const id = 'stacked-code-affixes-rtl';
-    const [trailing, prefix, value, suffix, leading, container] = await Promise.all(['.trailing', '.prefix', '.input', '.suffix', '.leading', '.container'].map((selector) => bounds(part(page, id, selector))));
+    const [trailing, prefix, value, suffix, leading, container] = await Promise.all(['.trailing', '.prefix', '.input', '.suffix', '.leading', '.field > .container'].map((selector) => bounds(part(page, id, selector))));
     const order = [trailing, prefix, value, suffix, leading];
     for (let i = 1; i < order.length; i++) expect(order[i].x, `part ${i} stands to the right of part ${i - 1}`).toBeGreaterThanOrEqual(order[i - 1].x + order[i - 1].width - 0.5);
     // The icons keep the layout's paddings and gap: the leading icon at the right edge, the row a gap from each.
@@ -3572,38 +3694,39 @@ test.describe('a field that holds code', () => {
     expect(leading.x - (suffix.x + suffix.width), 'the gap to the leading icon, at the row’s right').toBeCloseTo(gap, 1);
     expect(prefix.x - (trailing.x + trailing.width), 'the gap to the trailing icon, at the row’s left').toBeCloseTo(gap, 1);
     // The row is the mirror image of nothing: it is where a left-to-right page has it, between the other icons.
-    const [prefixLtr, suffixLtr, containerLtr] = await Promise.all(['.prefix', '.suffix', '.container'].map((selector) => bounds(part(page, 'affixes-ltr', selector))));
+    const [prefixLtr, suffixLtr, containerLtr] = await Promise.all(['.prefix', '.suffix', '.field > .container'].map((selector) => bounds(part(page, 'affixes-ltr', selector))));
     expect(prefix.x - container.x).toBeCloseTo(prefixLtr.x - containerLtr.x, 1);
     expect(suffix.x - container.x).toBeCloseTo(suffixLtr.x - containerLtr.x, 1);
   });
 
-  test('TXI-53: a right-to-left code field resized by hand has its grip in the bottom-left corner, is exactly as tall as in a left-to-right layout, and keeps the grip’s size and inset as room after its last line that it scrolls through; no other field has that room', async ({ page }) => {
+  test('TXI-53: a right-to-left code field resized by hand has its handle in the bottom-left corner, is exactly as tall as in a left-to-right layout, and keeps the handle’s box as room after its last line that it scrolls through; no other field has that room', async ({ page }) => {
     const id = 'stacked-code-multiline-manual-rtl';
     await mountFixtures(page, spec, {
       icons: true,
       fixtures: [...only(/^stacked-code-multiline-manual-rtl$/), twin(id, 'manual-ltr'), twin(id, 'auto-rtl', { resize: 'auto' }, 'rtl'), twin(id, 'fixed-rtl', { resize: 'fixed' }, 'rtl'), twin(id, 'disabled-rtl', { disabled: true }, 'rtl'), twin(id, 'prose-rtl', { type: 'text' }, 'rtl')],
     });
-    const room = (await resolveToken(page, T('resize-grip-size'))) + (await resolveToken(page, T('resize-grip-inset')));
-    const [grip, container] = await Promise.all(['.grip', '.container'].map((selector) => bounds(part(page, id, selector))));
-    expect(grip.x - container.x, 'the grip in the bottom-left corner').toBeCloseTo(await resolveToken(page, T('resize-grip-inset')), 1);
+    const room = await resolveToken(page, '--tanrei-comp-handle-container-breadth-small');
+    const [grip, container] = await Promise.all([GRIP, '.field > .container'].map((selector) => bounds(part(page, id, selector))));
+    expect(grip.x - container.x, 'the handle in the bottom-left corner').toBeCloseTo(0, 1);
+    expect(grip.height).toBeCloseTo(room, 1);
     // As tall as the same field of a left-to-right page: the room is not height.
     expect((await bounds(host(page, id))).height).toBe((await bounds(host(page, 'manual-ltr'))).height);
     const [rtl, ltr] = [await boxOf(input(page, id)), await boxOf(input(page, 'manual-ltr'))];
     expect(rtl.offsetHeight).toBe(ltr.offsetHeight);
     expect(rtl.paddingBottom).toBeCloseTo(room, 1);
     expect(rtl.scrollHeight - ltr.scrollHeight, 'the left-to-right field scrolls through that much less').toBeCloseTo(room, 0);
-    // Scrolled to its end, the last line stands wholly above the grip.
+    // Scrolled to its end, the last line stands wholly above the handle.
     await input(page, id).evaluate((el) => (el.scrollTop = el.scrollHeight));
     const end = await boxOf(input(page, id));
     expect(end.scrollTop).toBeGreaterThan(0);
     const lastLineBottom = end.top + end.scrollHeight - end.paddingBottom - end.scrollTop;
-    expect(lastLineBottom).toBeLessThanOrEqual((await bounds(part(page, id, '.grip'))).y + 0.5);
-    // Nothing is added in a left-to-right layout, while resize is auto or fixed, without a grip, or for prose.
+    expect(lastLineBottom).toBeLessThanOrEqual((await bounds(part(page, id, GRIP))).y + 0.5);
+    // Nothing is added in a left-to-right layout, while resize is auto or fixed, without a handle, or for prose.
     for (const other of ['manual-ltr', 'auto-rtl', 'fixed-rtl', 'disabled-rtl', 'prose-rtl']) expect((await boxOf(input(page, other))).paddingBottom, other).toBe(0);
-    // The grip's activation fits the height to the lines of the code — four — not to the lines and the room.
-    await part(page, id, '.grip').focus();
+    // The handle's activation fits the height to the lines of the code — four — not to the lines and the room.
+    await part(page, id, GRIP).focus();
     await page.keyboard.press('Enter');
-    await expect(part(page, id, '.grip')).toHaveAttribute('aria-valuenow', '4');
+    await expect(part(page, id, GRIP)).toHaveAttribute('aria-valuenow', '4');
   });
 
   test('TXI-53: when the layout direction changes, the row keeps its direction, its scroll offsets, its selection and its caret', async ({ page, browserName }) => {
@@ -3665,7 +3788,7 @@ test.describe('a field that holds code', () => {
       // Exactly as tall as the text field of its variant and size, with the first line where that field sets it.
       const [a, b] = [await bounds(host(page, id)), await bounds(host(page, `${id}-as-text`))];
       expect(a.height, id).toBe(b.height);
-      const [line, proseLine, top, proseTop] = [await bounds(input(page, id)), await bounds(input(page, `${id}-as-text`)), await bounds(part(page, id, '.container')), await bounds(part(page, `${id}-as-text`, '.container'))];
+      const [line, proseLine, top, proseTop] = [await bounds(input(page, id)), await bounds(input(page, `${id}-as-text`)), await bounds(part(page, id, '.field > .container')), await bounds(part(page, `${id}-as-text`, '.field > .container'))];
       expect(line.y - top.y, `${id}: the first line`).toBeCloseTo(proseLine.y - proseTop.y, 1);
       expect(await css(input(page, id), 'font-variant-ligatures'), id).toBe('none');
       // The label keeps its own text style.
@@ -3836,7 +3959,7 @@ test.describe('a field that holds code', () => {
       expect(box.clientHeight / box.line, `${each}: three lines clear of the scrollbar`).toBeCloseTo(3, 1);
       expect(box.scrollHeight, each).toBeLessThanOrEqual(box.clientHeight + 1);
       // The length of a line changes the width of nothing.
-      for (const selector of ['', '.container', '.body']) {
+      for (const selector of ['', '.field > .container', '.body']) {
         const [a, b] = [await bounds(selector ? part(page, each, selector) : host(page, each)), await bounds(selector ? part(page, 'empty', selector) : host(page, 'empty'))];
         expect(a.width, `${each} ${selector || 'host'}`).toBe(b.width);
       }
@@ -3879,7 +4002,7 @@ test.describe('a field that holds code', () => {
     expect(widths.held).toEqual(widths.without);
     expect(widths.held[1]).toBe(0);
     // The caret scrolls the input and moves no other part.
-    const places = async (of: string) => Promise.all(['.container', '.above', '.supporting-text'].map(async (selector) => ((await part(page, of, selector).count()) ? bounds(part(page, of, selector)) : null)));
+    const places = async (of: string) => Promise.all(['.field > .container', '.above', '.supporting-text'].map(async (selector) => ((await part(page, of, selector).count()) ? bounds(part(page, of, selector)) : null)));
     // Read-only (TXI-10), the keys are the browser's for a text it does not edit: Firefox keeps the caret and scrolls
     // with it; Chromium draws no caret and scrolls with the arrows; WebKit scrolls with Option and the arrows.
     const readOnlyKey = browserName === 'firefox' ? LINE_END : browserName === 'webkit' ? 'Alt+ArrowRight' : 'ArrowRight';
@@ -4045,7 +4168,7 @@ test.describe('a field that holds code', () => {
       expect(box.line, id).toBeCloseTo((await line(page, T('input-typescale-medium'))), 0);
       // Nothing is cut up or down: every line is inside the input, and the input inside its container.
       expect(box.scrollHeight, `${id}: no line is cut`).toBeLessThanOrEqual(box.clientHeight + 1);
-      const [inner, outer] = [await bounds(input(page, id)), await bounds(part(page, id, '.container'))];
+      const [inner, outer] = [await bounds(input(page, id)), await bounds(part(page, id, '.field > .container'))];
       expect(inner.y, id).toBeGreaterThanOrEqual(outer.y);
       expect(inner.y + inner.height, id).toBeLessThanOrEqual(outer.y + outer.height + 0.5);
       expect(inner.x, id).toBeGreaterThanOrEqual(outer.x);
@@ -4072,7 +4195,7 @@ test.describe('a field that holds code', () => {
     const look = (id: string) =>
       host(page, id).evaluate((el) => {
         const read: Record<string, string> = {};
-        for (const selector of ['.container', '.input', '.edge']) {
+        for (const selector of ['.field > .container', '.input', '.edge']) {
           const style = getComputedStyle(el.shadowRoot!.querySelector(selector)!);
           for (const name of ['color', 'background-color', 'border-top-color', 'border-top-style', 'border-top-width', 'outline-color', 'outline-style', 'display', 'caret-color', 'font-family', 'font-size', 'line-height']) read[`${selector} ${name}`] = style.getPropertyValue(name);
         }
@@ -4081,9 +4204,9 @@ test.describe('a field that holds code', () => {
     const [own, prose] = [await look('stacked-code-multiline'), await look('as-text')];
     const differing = Object.keys(own).filter((name) => own[name] !== prose[name]);
     expect(differing).toEqual(['.input font-family']);
-    expect(own['.container border-top-style']).toBe('solid');
+    expect(own['.field > .container border-top-style']).toBe('solid');
     await input(page, 'stacked-code-multiline').focus();
-    await expect.poll(() => css(part(page, 'stacked-code-multiline', '.container'), 'outline-style')).toBe('solid');
+    await expect.poll(() => css(part(page, 'stacked-code-multiline', '.field > .container'), 'outline-style')).toBe('solid');
   });
 });
 
@@ -4127,7 +4250,7 @@ test.describe('the input and the Field that frames it', () => {
     await expect(host(page, 'pair').getByRole('textbox', { name: 'Email', exact: true })).toHaveCount(1);
     await host(page, 'pair').evaluate((el) => ((el.parentElement as any).labelHidden = false));
     // Required: the asterisk the Field gives, after the floating label.
-    await host(page, 'pair').evaluate((el) => Object.assign(el.parentElement as any, { requirement: 'required', requiredText: 'Required' }));
+    await host(page, 'pair').evaluate((el) => Object.assign(el.parentElement as any, { required: true, requiredText: 'Required' }));
     await expect(part(page, 'pair', 'label.label .asterisk')).toHaveCount(1);
     // Back to stacked: the Field's row again, with its own mark, and no label in the input.
     await host(page, 'pair').evaluate((el) => ((el as any).variant = 'stacked'));
@@ -4162,7 +4285,7 @@ test.describe('the input and the Field that frames it', () => {
          <div style="inline-size: 137px"><tanrei-text-input id="narrow" label="Filter" value="a value much wider than the place it stands in"></tanrei-text-input></div>
          <div style="inline-size: 137px"><tanrei-text-input id="code" label="Layer" type="code" multiline no-wrap value="a line of code much wider than the place it stands in"></tanrei-text-input></div>
          <div style="display: flex; align-items: center; inline-size: 500px"><span id="beside" style="flex: none; inline-size: 120px">Beside</span><tanrei-text-input id="in-a-row" label="Beside" style="flex: 1"></tanrei-text-input></div>
-         <tanrei-field label="Email" supporting-text="Help." requirement="required" required-text="Required" count-text="0/40" style="inline-size: 300px"><tanrei-text-input id="framed" counter maxlength="40"></tanrei-text-input></tanrei-field>
+         <tanrei-field label="Email" supporting-text="Help." required required-text="Required" count-text="0/40" style="inline-size: 300px"><tanrei-text-input id="framed" counter maxlength="40"></tanrei-text-input></tanrei-field>
          <tanrei-field label="Email" style="inline-size: 300px"><tanrei-text-input id="framed-outlined" variant="outlined"></tanrei-text-input></tanrei-field>`,
       ),
     );
@@ -4171,20 +4294,20 @@ test.describe('the input and the Field that frames it', () => {
     for (const [id, width] of [['bare', 420], ['narrow', 137], ['code', 137], ['in-a-row', 380], ['framed', 300], ['framed-outlined', 300]] as const) {
       expect(await css(one(id), 'display'), id).toBe('block');
       expect((await bounds(one(id))).width, `${id}: as wide as its place`).toBeCloseTo(width, 1);
-      expect((await bounds(one(id).locator('.container'))).width, `${id}: the box fills it`).toBeCloseTo(width, 1);
+      expect((await bounds(one(id).locator('.field > .container'))).width, `${id}: the box fills it`).toBeCloseTo(width, 1);
       // Exactly as tall as its container.
-      expect((await bounds(one(id))).height, `${id}: as tall as its container`).toBeCloseTo((await bounds(one(id).locator('.container'))).height, 1);
+      expect((await bounds(one(id))).height, `${id}: as tall as its container`).toBeCloseTo((await bounds(one(id).locator('.field > .container'))).height, 1);
       // No row of its own, in any look.
       expect(await one(id).evaluate((el) => el.shadowRoot!.querySelectorAll('.label-row, .above, tanrei-tag, .chip, .supporting, .supporting-text, .counter, [name="label-icon"]').length), id).toBe(0);
     }
-    expect((await bounds(one('bare'))).height).toBe(await resolveToken(page, T('container-height-medium')));
+    expect((await bounds(one('bare'))).height).toBe(await resolveToken(page, T('stacked-container-height-medium')));
     // Bare it is complete: named by its own label, with its placeholder, typed in, and heard.
     await expect(one('bare').getByRole('textbox', { name: 'Filter tokens', exact: true })).toHaveCount(1);
     await listen(one('bare'));
     await one('bare').locator('.input').click();
     await page.keyboard.type('ab');
     expect(await events(page)).toEqual(['input:a', 'input:ab']);
-    // What a person gives it with the resize grip is the one width of its own (TXI-39): nothing else writes one.
+    // What a person gives it with the resize handle is the one width of its own (TXI-39): nothing else writes one.
     expect(await one('bare').evaluate((el) => (el as HTMLElement).style.inlineSize)).toBe('');
   });
 
@@ -4208,7 +4331,7 @@ test.describe('the input and the Field that frames it', () => {
       withEntries('none', []) + withEntries('one', ['ada@example.com']) + withEntries('two', ['ada', 'grace']) + withEntries('wrapped', ['ada@example.com', 'grace.hopper@example.org']) + withEntries('long', ['ada', long]) + withEntries('rtl', ['ada', 'grace'], 'dir="rtl"'),
     );
     const one = (id: string) => page.locator(`#${id}`);
-    const [gap, rowGap, least, height] = [await resolveToken(page, T('entries-gap')), await resolveToken(page, T('entries-row-gap')), await resolveToken(page, T('entries-typing-min-width')), await resolveToken(page, T('container-height-medium'))];
+    const [gap, rowGap, least, height] = [await resolveToken(page, T('entries-gap')), await resolveToken(page, T('entries-row-gap')), await resolveToken(page, T('entries-typing-min-width')), await resolveToken(page, T('stacked-container-height-medium'))];
     const chipsOf = async (id: string) => Promise.all((await one(id).locator('tanrei-chip').all()).map((each) => bounds(each)));
     const body = async (id: string) => {
       const box = await bounds(one(id).locator('.body'));
@@ -4308,6 +4431,19 @@ test.describe('the input and the Field that frames it', () => {
     await expect.poll(() => one('filled').locator('input.input').evaluate((el: HTMLInputElement) => el.placeholder)).toBe('name@example.com');
   });
 
+  // An input whose entries slot holds content when it appears floats its label from its first frame: the label is not
+  // drawn over the chips and then moved up (as a page that is already drawn shows a Field, or a Chip field, of entries).
+  for (const [name, ids] of [
+    ['field', ['entries-email-filled', 'entries-email-outlined']],
+    ['chip-field', ['email-filled', 'email-outlined']],
+  ] as const) {
+    for (const id of ids) {
+      test(`TXI-65: the ${name} fixture ${id} floats its label over its entries from its first frame, with nothing moving into place`, async ({ page }) => {
+        expectFirstFrameAtRest(await appearingFixture(page, loadSpec(name), id));
+      });
+    }
+  }
+
   test('TXI-67: beside a value that is always left-to-right — one line of email, url, tel, number or password — the prefix, the value and the suffix are one run of writing, in that order along the direction of the affixes’ first strong character and left-to-right where they have none, in every layout direction and never from the value; the value, and an empty field’s placeholder, stand against the prefix where there is one and at the field’s start edge where there is none, and the icons, the label and the paddings follow the layout; beside every other value the prefix stays at the field’s start edge and the suffix at its end edge', async ({ page }) => {
     const rtl = (id: string, props: Fixture['props'], content?: string): Fixture => ({ ...fixture(id, { variant: 'stacked', label: 'Label', ...props }, content), direction: 'rtl' });
     await mountFixtures(page, spec, {
@@ -4333,7 +4469,7 @@ test.describe('the input and the Field that frames it', () => {
         return {
           run: root.querySelector('.body')!.getAttribute('dir'),
           layout: getComputedStyle(el).direction,
-          container: rect('.container')!,
+          container: rect('.field > .container')!,
           body: rect('.body')!,
           prefix: rect('.prefix'),
           input: rect('.input')!,
@@ -4507,8 +4643,8 @@ test.describe('values a design system adds', () => {
   test('a size and a variant a layer adds render from their tokens, with no report', async ({ page }) => {
     const seen = warnings(page);
     await mountFixtures(page, spec, { system: layer.id, systemCss: await sheet(), fixtures });
-    expect((await bounds(part(page, 'xl', '.container'))).height).toBe(await resolveToken(page, T('container-height-xl')));
-    expect(await css(part(page, 'underlined', '.container'), 'background-color')).toBe(await resolveColor(page, '--tanrei-sys-color-surface'));
+    expect((await bounds(part(page, 'xl', '.field > .container'))).height).toBe(await resolveToken(page, T('container-height-xl')));
+    expect(await css(part(page, 'underlined', '.field > .container'), 'background-color')).toBe(await resolveColor(page, '--tanrei-sys-color-surface'));
     // TXI-9: a variant the input does not know by name is laid out as stacked: no label of its own — the name it is
     // given still names it — and the inner line as its edge.
     await expect(part(page, 'underlined', 'label')).toHaveCount(0);
@@ -4522,7 +4658,7 @@ test.describe('values a design system adds', () => {
   test('TXI-9: a size or variant the active design system does not have renders as the default (stacked), an unknown type behaves as text, and a debug build reports each', async ({ page }) => {
     const seen = warnings(page);
     await mountFixtures(page, spec, { fixtures });
-    expect((await bounds(part(page, 'unknown-size', '.container'))).height).toBe((await bounds(part(page, 'plain', '.container'))).height);
+    expect((await bounds(part(page, 'unknown-size', '.field > .container'))).height).toBe((await bounds(part(page, 'plain', '.field > .container'))).height);
     expect(await drawn(page, 'unknown-variant')).toEqual(await drawn(page, 'plain'));
     await expect(part(page, 'unknown-variant', 'label')).toHaveCount(0);
     await expect(host(page, 'unknown-variant').getByRole('textbox', { name: 'D', exact: true })).toHaveCount(1);
@@ -4533,13 +4669,13 @@ test.describe('values a design system adds', () => {
 });
 
 test.describe('the box is the one set every input box is drawn from', () => {
-  test('TXI-68: the text input holds no token of the box under its own name — its own family is the resize grip, a segment, the code face, the entries place and the motion of a height, in the default system and in each preset', async () => {
+  test('TXI-68: the text input holds no token of the box under its own name — its own family is a segment, the code face, the entries place and the motion of a height, in the default system and in each preset', async () => {
     const dist = new URL('../../../dist/', import.meta.url);
     const sheets = ['tokens.css', 'systems/m3-like.css', 'systems/m3-expressive-like.css', 'systems/cupertino.css'].map((file) => fs.readFileSync(new URL(file, dist), 'utf8'));
     expect(inputBoxCopies(sheets, 'text-input')).toEqual([]);
     const mine = [...new Set([...sheets[0]!.matchAll(/--tanrei-comp-text-input-([a-z0-9-]+)(?=:)/g)].map((m) => m[1]!))];
-    expect(mine.filter((name) => !/^(entries-|motion-resize-|code-|resize-grip-|segment-)|-resize-grip-color$/.test(name))).toEqual([]);
-    expect(mine.length).toBeGreaterThan(30);
+    expect(mine.filter((name) => !/^(entries-|motion-resize-|code-|segment-)/.test(name))).toEqual([]);
+    expect(mine.length).toBeGreaterThan(10);
   });
 
   test('TXI-68: a custom property of the box set on one text input changes that one alone; set on an ancestor, every text input in it', async ({ page }) => {
@@ -4606,7 +4742,7 @@ test.describe('accessibility', () => {
       return repainted;
     });
     test.skip(!forced, 'forced colors are not emulated by this browser');
-    for (const id of ['filled-filled', 'outlined-filled', 'stacked-filled']) expect(await css(part(page, id, '.container'), 'border-top-style'), id).toBe('solid');
+    for (const id of ['filled-filled', 'outlined-filled', 'stacked-filled']) expect(await css(part(page, id, '.field > .container'), 'border-top-style'), id).toBe('solid');
   });
 });
 

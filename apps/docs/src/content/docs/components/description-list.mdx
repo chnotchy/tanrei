@@ -141,7 +141,7 @@ A `<dl>` without the `<div>` groups, as some Markdown renderers write it, is sti
 
 The list decides everything from its own width, never the window's. The same list is right in a page, a card, a side panel and a dialog.
 
-- **Inline stacks by itself.** When the values would be left less than 144 beside the widest term, every fact is drawn with its term above its value, all of them together, and returns to two columns when there is room. Do not switch the layout for a small window yourself.
+- **Inline stacks by itself.** When the values would be left less than 144 beside the widest term, every fact is drawn with its term above its value, all of them together, and returns to two columns when there is room. It decides again whenever its width changes, also a list that was first laid out with no width, in a panel or a tab that was not shown yet. Do not switch the layout for a small window yourself.
 - **Columns reduce by themselves.** `columns` is the most columns the stacked and stat layouts draw. Each column is at least 144 wide, so four figures are four columns in a wide page, two and two in a narrow one and one column on a phone. A list never draws more columns than it has facts.
 - **An inline list is one column.** `columns` has no effect on it.
 - **Nothing is cut.** Values wrap. An identifier or an address that cannot break is broken at the column's edge. The list never scrolls sideways.

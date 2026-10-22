@@ -1,0 +1,94 @@
+---
+title: 预设
+description: 用内置的某个预设来绘制你的产品：一个样式表和一个属性、它所需的字体、它包含的组件；也可以只把预设中的一个组件引入你自己的系统。
+translationOf: getting-started/presets.mdx
+sourceHash: b2dfc26dbf45b28c12730928bdddf74dd177e727
+---
+
+import Steps from '../../../../components/Steps.astro';
+import PresetFacts from '../../../../components/PresetFacts.astro';
+
+Tanrei 内置默认系统 `tanrei` 和三个预设：`m3-like`、`m3-expressive-like` 和 `cupertino`。预设是一个[设计系统层](/zh-cn/foundations/design-systems/#内置的系统)，和你自己会编写的层一样：它把另一个设计系统的值赋给 Tanrei 的组件，并决定自己包含哪些组件、以及组件 `variant` 的哪些值。你可以直接使用它，也可以把它作为[你自己的设计系统](/zh-cn/getting-started/your-design-system/)的起点。
+
+## 在 Web 上使用预设
+
+<Steps>
+
+1. 先加载令牌，再加载预设的样式表。预设的令牌在设置了它的属性的范围内生效。
+
+   ```js
+   import '@tanrei/web/tokens.css';
+   import '@tanrei/web/systems/m3-like.css';
+   ```
+
+2. 在 `<html>` 或页面的任意部分上设置属性：一个页面上可以同时存在多个系统。
+
+   ```html
+   <html data-tanrei-system="m3-like">
+   ```
+
+3. 用预设的入口代替 `@tanrei/web` 来注册组件。它只注册该预设包含的组件。
+
+   ```js
+   import '@tanrei/web/m3-like';
+   ```
+
+4. 按照令牌使用的字体族名称加载它的字体，见下文。Tanrei 不附带字体文件：参见[字体](/zh-cn/getting-started/web/#字体)。
+
+</Steps>
+
+预设包含的内容列在它的组件清单 `@tanrei/web/systems/<id>.components.json` 中，编辑器和编码代理会读取它。在本站，在[组件列表](/zh-cn/components/)旁边或侧边栏顶部选择一个设计系统，列表就只显示该系统包含的组件。
+
+## 预设一览
+
+下面每个预设的信息都读取自它的层、解析后的令牌和组件清单。
+
+### m3-like
+
+<PresetFacts system="m3-like" />
+
+### m3-expressive-like
+
+<PresetFacts system="m3-expressive-like" />
+
+### cupertino
+
+<PresetFacts system="cupertino" />
+
+## 把预设中的一个组件引入你自己的系统
+
+预设中有而默认系统中没有的组件（例如 `m3-like` 的 FAB 菜单，或分段按钮），基于默认系统的产品同样可以使用。编写一个继承 `tanrei` 的层，在其中引入该组件，并导入它自己的模块。这样该组件会用你的系统的令牌绘制：它的令牌引用你的系统的令牌，因此这样引入的 FAB 菜单与产品的其他部分外观一致，预设的值一个也不会带进来。
+
+<Steps>
+
+1. 在你的层（`design/acme.system.json`；参见[你自己的设计系统](/zh-cn/getting-started/your-design-system/)）中引入该组件。位于预设层中的组件要用 `from` 指明那个层；默认系统排除在外的组件只写名称。
+
+   ```json
+   {
+     "id": "acme",
+     "extends": "tanrei",
+     "components": {
+       "include": [{ "name": "fab-menu", "from": "m3-like" }, "segmented-button"]
+     }
+   }
+   ```
+
+2. 构建。`npx tanrei build` 会写出你的系统的样式表（其中包含被引入组件的令牌，值取自你的系统）以及列出这些组件的组件清单。
+
+3. 加载你的样式表，设置你的属性，并注册默认系统的组件和你引入的组件。
+
+   ```js
+   import '@tanrei/web/tokens.css';
+   import './styles/acme.css';
+   import '@tanrei/web';
+   import '@tanrei/web/components/fab-menu';
+   import '@tanrei/web/components/segmented-button';
+   ```
+
+   ```html
+   <html data-tanrei-system="acme">
+   ```
+
+</Steps>
+
+在不包含某个组件的系统下使用它时，它仍会被绘制，并在开发构建的控制台中提示这一点。每个组件的页面都会说明哪些系统包含它，以及其他系统改用什么。

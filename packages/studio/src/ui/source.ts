@@ -1,5 +1,7 @@
-// "Source": the layer file itself. A plain textarea with line numbers and error markers; every keystroke is parsed,
-// validated against the schema and run through the engine, and a valid edit is the new layer for every other level.
+// "Source": the layer file itself. A plain textarea with line numbers and error markers; every keystroke is parsed and
+// checked against the schema, and a valid edit is the new layer for every other level. It is run through the engine
+// — the whole build — once the typing rests (COMMIT_REST) or the text loses focus, not at every key: done for every
+// key, typing four letters into the id took four long tasks, one under each key.
 // Text that does not parse is a DRAFT (../draft.js): kept word for word while the person is elsewhere, never saved,
 // and never allowed to overwrite the last layer that parsed.
 import { stringifyLayer } from '../core.js';
@@ -11,6 +13,9 @@ function lineOf(text: string, needle: string | undefined) {
   const index = needle ? text.indexOf(JSON.stringify(needle)) : -1;
   return index === -1 ? undefined : lineAt(text, index);
 }
+
+/** How long the typing rests before a text that parses is committed: computed, saved, the layer of every level. */
+export const COMMIT_REST = 400;
 
 export function sourceLevel(ctx: Ctx): HTMLElement[] {
   const { t } = ctx;
@@ -28,21 +33,57 @@ export function sourceLevel(ctx: Ctx): HTMLElement[] {
     gutter.scrollTop = area.scrollTop;
   }
 
+  // The text that parsed and is not committed yet, and the timer that commits it once the typing rests.
+  let held: Json | undefined;
+  let resting: number | undefined;
+  function commitHeld() {
+    window.clearTimeout(resting);
+    if (!held) return;
+    const next = held;
+    held = undefined;
+    ctx.commit(next);
+    show(area.value, next);
+  }
+
+  /**
+   * The text as typed. Every key is parsed (a text that does not parse is a draft, said at once) and checked against
+   * the schema. A layer that parses is the new layer: at once where that computes nothing — a word (a name, a reason:
+   * `valueKey`) — or draws without computing (a palette's source, a dial: `liveProperties`, shown at the next frame);
+   * otherwise held, and committed once the typing rests or the text loses focus. `commit: false`: the text was put
+   * here (on opening, a change made elsewhere, a discarded draft), and is the layer already.
+   */
   function check(commit = true) {
     const text = area.value;
     mine = text;
-    const lines = new Set<number>();
-    const found: [string, number | undefined][] = [];
     const had = ctx.draft.pending;
     const result = ctx.draft.input(text, ctx.layer().id, t.source.notObject);
     const parsed: Json | undefined = 'layer' in result ? result.layer : undefined;
-    if ('error' in result) found.push([t.labelled(t.import.invalidJson, result.error), result.line]);
     if (had !== ctx.draft.pending || ctx.draft.pending) ctx.draftChanged();
     showDraft();
+    window.clearTimeout(resting);
+    held = undefined;
+    if (parsed && commit) {
+      const { studio } = ctx;
+      if (studio.valueKey(parsed) === studio.valueKey(ctx.layer())) ctx.commit(parsed);
+      else {
+        held = parsed;
+        resting = window.setTimeout(commitHeld, COMMIT_REST);
+        if (studio.liveProperties(ctx.view(), parsed)) ctx.commit(parsed, { preview: true });
+      }
+    }
+    show(text, parsed, 'error' in result ? result : undefined);
+  }
+  /**
+   * What is wrong with the text, each with the line it is on: a text that does not parse; for a held layer, what the
+   * schema says (the engine has not been asked yet); for a committed one, what the engine said too.
+   */
+  function show(text: string, parsed: Json | undefined, invalid?: { error: string; line?: number }) {
+    const lines = new Set<number>();
+    const found: [string, number | undefined][] = [];
+    if (invalid) found.push([t.labelled(t.import.invalidJson, invalid.error), invalid.line]);
     if (parsed) {
-      if (commit) ctx.commit(parsed);
       // Schema problems name a JSON pointer; engine problems start with a token id. Both are shown verbatim.
-      for (const message of ctx.latest().problems as string[]) {
+      for (const message of (held ? ctx.studio.validate(parsed) : ctx.latest().problems) as string[]) {
         const pointer = /^\/(\S*)/.exec(message)?.[1]?.split('/').filter(Boolean).at(-1)?.replaceAll('~1', '/');
         const id = /^([a-z][\w-]*(\.[\w-]+)+)/.exec(message)?.[1];
         found.push([message, lineOf(text, pointer ?? id)]);
@@ -73,6 +114,7 @@ export function sourceLevel(ctx: Ctx): HTMLElement[] {
   }
 
   area.addEventListener('input', () => check());
+  area.addEventListener('blur', commitHeld);
   area.addEventListener('scroll', () => (gutter.scrollTop = area.scrollTop));
   area.addEventListener('keydown', (event) => {
     // Tab indents like an editor; Escape hands Tab back to the page, so the keyboard is never trapped here.

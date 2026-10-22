@@ -4,6 +4,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const manifest = JSON.parse(fs.readFileSync(new URL('../../web/custom-elements.json', import.meta.url), 'utf8'));
+// The names are the repository's (tanrei.config.json): a wrapper is its element's tag without the prefix, and imports the
+// element's module from the web package of the scope.
+const { web: { tagPrefix }, packages: { npmScope } } = JSON.parse(fs.readFileSync(new URL('../../../tanrei.config.json', import.meta.url), 'utf8'));
+const PREFIX = `${tagPrefix}-`;
 const elements = manifest.modules
   .flatMap((m) => (m.declarations ?? []).map((d) => ({ ...d, module: m.path })))
   .filter((d) => d.customElement && d.tagName)
@@ -18,7 +22,7 @@ const NATIVE_EVENTS = new Set(['click', 'focus', 'blur', 'input', 'keydown', 'ke
 // its menu and stops their click at its shadow root, because only its leading half's click may reach listeners on it
 // (specs/button-with-menu.spec.json, web note) — so React's root listener never sees an item's click there, and a delegated
 // onClick would never fire. On the element it fires in any menu, and `ButtonWithMenu`'s own onClick stays the leading half's.
-const DIRECT_CLICK = new Set(['tanrei-menu-item', 'tanrei-menu-checkbox-item', 'tanrei-menu-radio-item']);
+const DIRECT_CLICK = new Set(['menu-item', 'menu-checkbox-item', 'menu-radio-item'].map((name) => `${PREFIX}${name}`));
 
 // An event the manifest types as `CustomEvent<Detail>` (JSDoc `@fires {CustomEvent<Detail>} name`), where the element's
 // module exports `Detail`, is typed for React too, so a handler reads `event.detail` without a cast.
@@ -44,7 +48,7 @@ const listened = (el) => [...customEvents(el), ...(DIRECT_CLICK.has(el.tagName) 
 // Every call made at load is marked pure as well, for a bundler that reads those marks and not the field.
 const HEADER = ['// GENERATED FILE — DO NOT EDIT.', '// Source: packages/web/custom-elements.json. Regenerate with `pnpm generate`.'];
 const PURE = '/* @__PURE__ */';
-const fileOf = (el) => el.tagName.replace(/^tanrei-/, '');
+const fileOf = (el) => el.tagName.slice(PREFIX.length);
 const wrappers = elements.map((el) => {
   const name = pascal(fileOf(el));
   const events = listened(el);
@@ -59,7 +63,7 @@ const wrappers = elements.map((el) => {
     ...(events.length ? ["import type { TanreiEvent } from '../../events.js';"] : []),
     ...(marks.length ? ["import { type Marked, withMarks } from '../../marks.js';"] : []),
     // Importing the element's module defines the element, and the elements it is drawn with.
-    `import { ${[`${el.name} as ${el.name}Element`, ...details.map((d) => `type ${d}`)].join(', ')} } from '@tanrei/web/components/${dir}';`,
+    `import { ${[`${el.name} as ${el.name}Element`, ...details.map((d) => `type ${d}`)].join(', ')} } from '${npmScope}/web/components/${dir}';`,
     '',
   ];
   // Every listener is on the element, so `currentTarget` is the element (`TanreiEvent`): a handler reads the new value

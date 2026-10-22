@@ -2,7 +2,7 @@
 title: कोड ब्लॉक
 description: पढ़ने, तुलना करने और कॉपी करने के लिए कोड की पंक्तियाँ, कोड के टाइपफ़ेस में, जो अपने भीतर स्क्रॉल होती हैं या रैप होती हैं, और जिनके साथ हेडर, पंक्ति संख्याएँ, चिह्नित पंक्तियाँ, प्रॉम्प्ट और कॉपी बटन वैकल्पिक हैं। कोड और उसकी भाषा मिलने पर यह कोड को ख़ुद हाइलाइट करता है।
 translationOf: components/code-block.mdx
-sourceHash: c4fe6cef35324f5127fdb081065d9e09553db29c
+sourceHash: 1bd663ebb32b8674bdfe30352e2eb0eeda3db6a5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -40,7 +40,7 @@ export const given = [
 <ComponentAvailability name="code-block" />
 
 <DemoFrame label="शीर्षक, भाषा का लेबल और कॉपी बटन; कोड अपनी भाषा के आधार पर हाइलाइट होता है" column>
-  <tanrei-code-block style="inline-size: 100%" title="Footer.tsx" language="tsx" language-label="TSX" copy copy-label="कॉपी करें" copied-label="कॉपी हो गया" copy-failed-label="कॉपी नहीं हो सका">
+  <tanrei-code-block style="inline-size: 100%" headline="Footer.tsx" language="tsx" language-label="TSX" copy copy-label="कॉपी करें" copied-label="कॉपी हो गया" copy-failed-label="कॉपी नहीं हो सका">
     <pre><code>{footer}</code></pre>
   </tanrei-code-block>
 </DemoFrame>
@@ -62,7 +62,7 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
     <link rel="stylesheet" href="@tanrei/web/code.css" />
 
     <tanrei-code-block
-      title="sizes.js"
+      headline="sizes.js"
       language="js"
       language-label="JavaScript"
       copy
@@ -93,7 +93,7 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
     import '@tanrei/web/code.css';
 
     {/* एलिमेंट कोड को पंक्तियों में रखता है, इसलिए कोड उसी के हाथ में रहने दें: टेक्स्ट पास करें। */}
-    <CodeBlock title="sizes.js" language="js" languageLabel="JavaScript" code={source} copy copyLabel="कॉपी करें" copiedLabel="कॉपी हो गया" copyFailedLabel="कॉपी नहीं हो सका" />
+    <CodeBlock headline="sizes.js" language="js" languageLabel="JavaScript" code={source} copy copyLabel="कॉपी करें" copiedLabel="कॉपी हो गया" copyFailedLabel="कॉपी नहीं हो सका" />
     ```
   </TabItem>
 </Tabs>
@@ -104,11 +104,11 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 
 <DemoFrame label="Filled और outlined, medium और small" plain column>
   <tanrei-code-block style="inline-size: 100%" language="js" label="उदाहरण"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
-  <tanrei-code-block style="inline-size: 100%" variant="outlined" size="small" title="sizes.js" language="js" language-label="JavaScript" copy copy-label="कॉपी करें" copied-label="कॉपी हो गया" copy-failed-label="कॉपी नहीं हो सका"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" variant="outlined" size="small" headline="sizes.js" language="js" language-label="JavaScript" copy copy-label="कॉपी करें" copied-label="कॉपी हो गया" copy-failed-label="कॉपी नहीं हो सका"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
 </DemoFrame>
 
 <DemoFrame label="पंक्ति संख्याएँ, एक हाइलाइट की गई पंक्ति, और जोड़ी और हटाई गई पंक्तियाँ" plain column>
-  <tanrei-code-block style="inline-size: 100%" language="js" title="sizes.js" line-numbers highlighted-lines="1" highlighted-label="हाइलाइट की गई" removed-lines="4" added-lines="5" removed-label="हटाई गई" added-label="जोड़ी गई" copy copy-label="कॉपी करें" copied-label="कॉपी हो गया" copy-failed-label="कॉपी नहीं हो सका"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('button');\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" language="js" headline="sizes.js" line-numbers highlighted-lines="1" highlighted-label="हाइलाइट की गई" removed-lines="4" added-lines="5" removed-label="हटाई गई" added-label="जोड़ी गई" copy copy-label="कॉपी करें" copied-label="कॉपी हो गया" copy-failed-label="कॉपी नहीं हो सका"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('button');\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
 </DemoFrame>
 
 <DemoFrame label="लंबी पंक्ति ब्लॉक के भीतर स्क्रॉल होती है, या रैप होती है" plain column>
@@ -118,7 +118,7 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 
 <DemoFrame label="प्रॉम्प्ट, और दिखाई जाने वाली पंक्तियों की सीमा" plain column>
   <tanrei-code-block style="inline-size: 100%" label="इंस्टॉलेशन" prompt="$" language="sh" language-label="Shell" copy copy-label="कॉपी करें" copied-label="कॉपी हो गया" copy-failed-label="कॉपी नहीं हो सका"><pre><code>{`npm install @tanrei/web\nnpx tanrei studio`}</code></pre></tanrei-code-block>
-  <tanrei-code-block style="inline-size: 100%" title="tide.log" max-lines="4" line-numbers><pre><code>{`01:00 tide high, gauge 1.55 m\n02:00 tide falling, gauge 1.90 m\n03:00 tide low, gauge 2.25 m\n04:00 tide rising, gauge 2.60 m\n05:00 tide high, gauge 1.20 m\n06:00 tide falling, gauge 1.55 m\n07:00 tide low, gauge 1.90 m\n08:00 tide rising, gauge 2.25 m`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" headline="tide.log" max-lines="4" line-numbers><pre><code>{`01:00 tide high, gauge 1.55 m\n02:00 tide falling, gauge 1.90 m\n03:00 tide low, gauge 2.25 m\n04:00 tide rising, gauge 2.60 m\n05:00 tide high, gauge 1.20 m\n06:00 tide falling, gauge 1.55 m\n07:00 tide low, gauge 1.90 m\n08:00 tide rising, gauge 2.25 m`}</code></pre></tanrei-code-block>
 </DemoFrame>
 
 **दो रूप।** `filled` एक हल्का फ़िल है, पेज पर रखे कोड के लिए। `outlined` में एक बारीक रेखा के भीतर कोई फ़िल नहीं होता, उस कोड के लिए जो पहले से फ़िल वाले कार्ड या पैनल के भीतर है।
@@ -157,7 +157,7 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 | ख़ाली, `text`, `plain`, `plaintext` | सादा। कोई रिपोर्ट नहीं होती। |
 | और कुछ भी | सादा। डीबग बिल्ड अनजान भाषा की रिपोर्ट एक बार करता है। |
 
-ब्लॉक कभी भाषा का अंदाज़ा नहीं लगाता: न कोड से, न `title` से, न `language-label` से। छोटा कोड कई भाषाओं का हो सकता है, और ग़लत अंदाज़ा कोड को ग़लत रंग देता है।
+ब्लॉक कभी भाषा का अंदाज़ा नहीं लगाता: न कोड से, न `headline` से, न `language-label` से। छोटा कोड कई भाषाओं का हो सकता है, और ग़लत अंदाज़ा कोड को ग़लत रंग देता है।
 
 **इसे बंद करना।** `highlight="false"` किसी एक ब्लॉक के लिए ब्लॉक का अपना हाइलाइटर बंद करता है। आपके दिए हुए टुकड़े तब भी बनते हैं।
 
@@ -264,7 +264,7 @@ const html = await highlightToHtml(source, 'tsx');
 
 ### करें
 
-- जो ब्लॉक स्क्रॉल हो सकता है, उसे `title` या `label` दें। स्क्रॉल होने वाली बॉडी फ़ोकस का एक पड़ाव है और उसे नाम चाहिए।
+- जो ब्लॉक स्क्रॉल हो सकता है, उसे `headline` या `label` दें। स्क्रॉल होने वाली बॉडी फ़ोकस का एक पड़ाव है और उसे नाम चाहिए।
 - कार्ड या पैनल के भीतर `outlined` इस्तेमाल करें, और पेज पर और रंगीन कंटेनर पर `filled`।
 - टाइप किए जाने वाले कमांड के ब्लॉक के लिए प्रॉम्प्ट इस्तेमाल करें। प्रॉम्प्ट कॉपी नहीं होता।
 - हर ब्लॉक को उसकी `language` दें। जिस टेक्स्ट का कोई सिंटैक्स नहीं है, उसके लिए `language="text"` इस्तेमाल करें।
@@ -282,7 +282,7 @@ const html = await highlightToHtml(source, 'tsx');
 
 ### कंपोनेंट क्या सँभालता है
 
-- कोड एक ग्रुप के भीतर का `code` एलिमेंट है, और ग्रुप का नाम `title` से आता है, या `label` से।
+- कोड एक ग्रुप के भीतर का `code` एलिमेंट है, और ग्रुप का नाम `headline` से आता है, या `label` से।
 - जो बॉडी स्क्रॉल हो सकती है, वह फ़ोकस के क्रम में एक पड़ाव है, कॉपी बटन के बाद, और ऐरो कुंजियों से स्क्रॉल होती है। जो बॉडी समा जाती है वह पड़ाव नहीं है, इसलिए छोटे उदाहरणों वाला पेज कोई पड़ाव नहीं जोड़ता।
 - पंक्ति संख्याएँ, चिह्न, पट्टियाँ और प्रॉम्प्ट सहायक तकनीक से छिपे रहते हैं। चिह्नित पंक्ति से पहले उसका लेबल शब्दों में आता है।
 - कोड ब्लॉक की वजह से पेज कभी आड़ा स्क्रॉल नहीं होता, 320 की चौड़ाई पर भी और टेक्स्ट के दोगुने साइज़ पर भी।

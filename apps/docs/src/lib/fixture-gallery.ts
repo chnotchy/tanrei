@@ -67,7 +67,7 @@ export function groupingAxis(spec: Spec): SpecProp | undefined {
 
 /**
  * The window a presented fixture is drawn alone in: the window the web package's harness draws it in
- * (packages/web/test/harness.ts — `dialogWindow`, `pickerWindow`, `drawerWindow`, `appShellWindow` and the stages its
+ * (packages/web/test/harness.ts — `dialogWindow`, `popoverWindow`, `pickerWindow`, `drawerWindow`, `appShellWindow` and the stages its
  * staging gives the rest), so that what a reader sees is what each platform's baseline holds. A component whose harness
  * stage is not a window takes a window that holds its stage.
  */
@@ -93,7 +93,7 @@ export function windowOf(spec: Spec, fixture: Fixture): Size {
     case 'tooltip':
       return { width: 320, height: 200 };
     case 'popover':
-      return { width: 480, height: 480 };
+      return id.startsWith('compact') ? { width: 360, height: 640 } : { width: 480, height: 480 };
     case 'fab-menu':
       return { width: 352, height: 352 };
     case 'snackbar':
@@ -111,6 +111,12 @@ export function windowOf(spec: Spec, fixture: Fixture): Size {
       return { width: 480, height: 480 };
   }
 }
+
+/**
+ * The padding of the web harness's stage around a fixture, on each side, in CSS pixels: a baseline's size less twice
+ * this is the room the fixture itself takes (the state matrix's cells hold it, lib/visuals/states.ts).
+ */
+export const HARNESS_STAGE_PADDING = 16;
 
 /** A prop's value as the caption shows it: a long text is cut after its first words (the copied markup holds all of it). */
 const LONGEST = 40;

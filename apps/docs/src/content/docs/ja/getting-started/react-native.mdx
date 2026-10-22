@@ -2,15 +2,15 @@
 title: React Native
 description: React Native アプリに Tanrei を追加します。
 translationOf: getting-started/react-native.mdx
-sourceHash: 79720aca2100185d961719b9ede0569a4ec3ab34
+sourceHash: 56d00833d4aaf691c31d6cf20eca6ee3e7b8aa51
 ---
 
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 `@tanrei/react-native` は TypeScript で書かれ、ネイティブモジュールを含みません。そのため、リンクするものは何もなく、Expo でも動作します。New Architecture を対象とし、React 19 と React Native 0.78 以降が必要です。
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/react-native" />
+<ReleaseNotice platform="react-native" registry="npm" pkg="@tanrei/react-native" />
 
 ## インストール
 
@@ -36,7 +36,7 @@ pnpm --filter @tanrei/react-native pack --pack-destination ../tanrei-packages
 npm install path/to/tanrei-packages/tanrei-react-native-*.tgz
 ```
 
-### 最初のリリース後
+### 公開後
 
 ```sh
 npm install @tanrei/react-native

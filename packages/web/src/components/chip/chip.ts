@@ -21,6 +21,7 @@ import type { TanreiChipSizeRegistry, TanreiChipVariantRegistry } from '../../re
 import { AXES, styles } from './chip.styles.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** What the chip does: a button (action), an on / off toggle (filter) or an item the user entered and can remove (input). A closed set. */
 export type TanreiChipKind = 'action' | 'filter' | 'input';
@@ -58,9 +59,9 @@ const REMOVE_GLYPH = 'cancel';
  * its leading position. An input chip has a remove action, a second button named by `removeLabel`, pressed by pointer,
  * touch or assistive technology and not a Tab stop: an input chip is one stop, and Backspace or Delete on it removes it,
  * which the chip tells assistive technology with `aria-keyshortcuts`. Both fire `remove` — the chip never removes itself
- * (the page does, and moves focus). By default the remove action reads as destructive (`destructiveRemove`; the attribute
- * `no-destructive-remove` turns it off): it looks the same at rest and takes the error color while it is hovered,
- * focused or pressed — a color only, never a change of name, glyph or size. The label is the visible text and the
+ * (the page does, and moves focus). With `destructiveRemove` (the attribute `destructive-remove`) the remove action reads
+ * as destructive: it looks the same at rest and takes the error color while it is hovered, focused or pressed — a color
+ * only, never a change of name, glyph or size. It is off by default. The label is the visible text and the
  * accessible name; the icon (the `icon` slot) and the avatar (the `avatar` slot, input chips only) are decorative.
  *
  * An action chip with `href` is a link and not a button (CHP-33): the shadow root holds an `<a href>` in place
@@ -82,7 +83,7 @@ const REMOVE_GLYPH = 'cancel';
  * @fires {CustomEvent<TanreiChipChangeDetail>} change - A filter chip was activated; fired after its `click`, as a native checkbox does. `detail.selected` (and the element's `selected`) is the new value.
  * @fires remove - The user asked to remove an input chip, with its remove action or with Backspace or Delete. The chip stays until the page removes it.
  */
-export class TanreiChip extends LitElement {
+export class TanreiChip extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'chip');
   static override styles = [styles, hiddenHost];
 
@@ -100,15 +101,12 @@ export class TanreiChip extends LitElement {
     variant: { type: String, reflect: true },
     size: { type: String, reflect: true },
     selected: { type: Boolean, reflect: true },
+    // Written back to the attribute, where a holder watches it (TGR-17); an empty value is no attribute.
+    value: { type: String, reflect: true, converter: { fromAttribute: (value: string | null) => value ?? '', toAttribute: (value: string) => value || null } },
     disabled: { type: Boolean, reflect: true },
     label: { type: String },
     removeLabel: { type: String, attribute: 'remove-label', reflect: true },
-    destructiveRemove: {
-      type: Boolean,
-      attribute: 'no-destructive-remove',
-      reflect: true,
-      converter: { fromAttribute: (value: string | null) => value === null, toAttribute: (value: boolean) => (value ? null : '') },
-    },
+    destructiveRemove: { type: Boolean, attribute: 'destructive-remove', reflect: true },
     removable: {
       type: Boolean,
       attribute: 'not-removable',
@@ -136,6 +134,12 @@ export class TanreiChip extends LitElement {
   /** Whether a filter chip is on. Ignored unless `kind` is filter. */
   selected = false;
 
+  /**
+   * What a component that holds the selection of a set of filter chips names this chip by: the tag group's `value` and
+   * `values`. Unique within the set. Not drawn and not exposed; the chip itself does nothing with it.
+   */
+  value = '';
+
   /** Prevents interaction and removes the chip, and its remove action, from the focus order. */
   disabled = false;
 
@@ -147,10 +151,12 @@ export class TanreiChip extends LitElement {
 
   /**
    * Whether an input chip's remove action reads as destructive: the same at rest, the error color while hovered,
-   * keyboard-focused or pressed. Set `no-destructive-remove` where removing loses nothing (a filter the user can add
-   * back in one step). Color only: the name, glyph, size and behaviour are the same either way. Ignored unless `kind` is input.
+   * keyboard-focused or pressed. Set `destructive-remove` where removing loses something that cannot be put back in a
+   * step (an attachment, a recipient already invited); leave it off where the person can put the item back in one step
+   * (an applied filter, a search term). Color only: the name, glyph, size and behaviour are the same either way. Ignored
+   * unless `kind` is input.
    */
-  destructiveRemove = true;
+  destructiveRemove = false;
 
   /**
    * Whether an input chip draws its remove action. Set `not-removable` for an entry that cannot be taken away now (a
@@ -271,7 +277,38 @@ export class TanreiChip extends LitElement {
       },
       { capture: true },
     );
+    this.addEventListener('mousedown', this.onMouseDown);
   }
+
+  /**
+   * CHP-39: a press anywhere on an input chip but its remove action never gives the remove action focus. An engine that
+   * gives a pressed `<button>` no focus (Safari on macOS) hands the press on to the host's focus delegate: the first
+   * element of the shadow root that a click focuses, which is one with a tabindex (HTML, "click focusable") — the remove
+   * action, not the chip's own button. So for that press the remove action has no tabindex: there the press focuses
+   * nothing in the chip, as on an action chip, and elsewhere the chip's own button, as before. The tabindex is back
+   * once the press has placed focus — in the next task, or at the next key or press if it comes first: a busy engine
+   * runs input before timers, and Tab moves focus in its keydown — so the Tab order (CHP-23) is as it was. Focus moved
+   * to the remove action by assistive technology or by script needs no tabindex. It is the mouse event, not the
+   * pointer's, that focuses: a touch's compatibility `mousedown` comes after the touch has ended.
+   */
+  private readonly onMouseDown = (event: MouseEvent) => {
+    this.restoreRemoveStop?.();
+    const remove = this.removeButton;
+    if (!remove || !this.removes || event.composedPath().includes(remove)) return;
+    remove.removeAttribute('tabindex');
+    const restore = () => {
+      if (this.restoreRemoveStop !== restore) return;
+      this.restoreRemoveStop = null;
+      window.removeEventListener('keydown', restore, true);
+      remove.setAttribute('tabindex', '-1');
+    };
+    this.restoreRemoveStop = restore;
+    window.addEventListener('keydown', restore, true);
+    setTimeout(restore);
+  };
+
+  /** CHP-39: puts the remove action's tabindex back after a press elsewhere on the chip took it away; null when it is there. */
+  private restoreRemoveStop: (() => void) | null = null;
 
   /** `element.click()` activates the chip as a person would — through its native button, or its anchor, so a link is followed — and does nothing while disabled. */
   override click() {
@@ -281,7 +318,7 @@ export class TanreiChip extends LitElement {
   }
 
   /** CHP-10: where style queries are missing, the focus style is read when focus arrives. */
-  private onFocus(event: FocusEvent) {
+  #onFocus(event: FocusEvent) {
     syncFocusStyle(this, event.currentTarget as HTMLElement);
   }
 
@@ -291,7 +328,7 @@ export class TanreiChip extends LitElement {
    * has finished its way through the page. Its last stop is the window, so `change` is fired from a listener added
    * there for this click; a listener that stops the click on its way still gets its `change`, in the next task.
    */
-  private onClick() {
+  #onClick() {
     if (this.effectiveKind !== 'filter' || this.disabled) return;
     this.selected = !this.selected;
     const detail = { selected: this.selected };
@@ -299,7 +336,7 @@ export class TanreiChip extends LitElement {
   }
 
   /** CHP-19: Backspace or Delete on a focused input chip asks for its removal, once per press. */
-  private onKeyDown(event: KeyboardEvent) {
+  #onKeyDown(event: KeyboardEvent) {
     this.press.onKeyDown(event);
     if (!this.removes || this.disabled || event.repeat) return;
     if (event.key === 'Backspace' || event.key === 'Delete') {
@@ -312,7 +349,7 @@ export class TanreiChip extends LitElement {
    * CHP-18: the remove action fires `remove`, never `click`: its native click stops at the remove button, inside the
    * shadow root, so it never reaches the element's listeners.
    */
-  private onRemoveClick(event: MouseEvent) {
+  #onRemoveClick(event: MouseEvent) {
     event.stopPropagation();
     if (this.disabled || !this.removes) return;
     this.requestRemove();
@@ -323,11 +360,11 @@ export class TanreiChip extends LitElement {
     this.dispatchEvent(new Event('remove', { bubbles: true }));
   }
 
-  private onIconSlotChange(event: Event) {
+  #onIconSlotChange(event: Event) {
     this.hasIcon = (event.target as HTMLSlotElement).assignedElements().length > 0;
   }
 
-  private onAvatarSlotChange(event: Event) {
+  #onAvatarSlotChange(event: Event) {
     this.hasAvatar = (event.target as HTMLSlotElement).assignedElements().length > 0;
   }
 
@@ -392,22 +429,22 @@ export class TanreiChip extends LitElement {
           aria-pressed=${kind === 'filter' ? String(this.selected) : nothing}
           aria-keyshortcuts=${this.removes && !this.disabled ? 'Delete Backspace' : nothing}
           ?disabled=${!link && this.disabled}
-          @click=${this.onClick}
+          @click=${this.#onClick}
           @pointerdown=${this.press.onPointerDown}
           @pointerup=${this.press.release}
           @pointercancel=${this.press.release}
           @pointerleave=${this.press.release}
-          @keydown=${this.onKeyDown}
+          @keydown=${this.#onKeyDown}
           @keyup=${this.press.onKeyUp}
           @blur=${this.press.onBlur}
-          @focus=${this.onFocus}
+          @focus=${this.#onFocus}
         >
           <span class="lead" aria-hidden="true">
             <span class="lead-clip">
               <span class="lead-item">
-                <span part="avatar" class="avatar" data-tanrei-shape><slot name="avatar" @slotchange=${this.onAvatarSlotChange}></slot></span>
+                <span part="avatar" class="avatar" data-tanrei-shape><slot name="avatar" @slotchange=${this.#onAvatarSlotChange}></slot></span>
                 <span class="glyphs">
-                  <span part="icon" class="glyph icon"><slot name="icon" @slotchange=${this.onIconSlotChange}></slot></span>
+                  <span part="icon" class="glyph icon"><slot name="icon" @slotchange=${this.#onIconSlotChange}></slot></span>
                   <span part="check" class="glyph check">${CHECK_GLYPH}</span>
                 </span>
               </span>
@@ -425,7 +462,7 @@ export class TanreiChip extends LitElement {
           aria-label=${this.removeLabel || nothing}
           ?disabled=${this.disabled}
           ?hidden=${!this.removes}
-          @click=${this.onRemoveClick}
+          @click=${this.#onRemoveClick}
           @pointerdown=${this.removePress.onPointerDown}
           @pointerup=${this.removePress.release}
           @pointercancel=${this.removePress.release}
@@ -433,7 +470,7 @@ export class TanreiChip extends LitElement {
           @keydown=${this.removePress.onKeyDown}
           @keyup=${this.removePress.onKeyUp}
           @blur=${this.removePress.onBlur}
-          @focus=${this.onFocus}
+          @focus=${this.#onFocus}
         >
           <span class="glyph" aria-hidden="true">${REMOVE_GLYPH}</span><span class="hold"></span>
         </button>

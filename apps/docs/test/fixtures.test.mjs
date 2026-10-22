@@ -1,6 +1,7 @@
 // The landing page's specimen (src/lib/fixtures.ts, drawn by components/Hero.astro), read by Node: the Buttons it draws
 // are the web package's own document's, read against the custom elements manifest of the web package — no browser,
-// no build.
+// no build. And what the site reads of that manifest (src/lib/repo.ts: `definedTags`, `webAttribute`), by which the
+// state matrix and the text for language models write a prop's attribute.
 //
 //   pnpm --filter @tanrei/docs test:node
 import assert from 'node:assert/strict';
@@ -12,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 register('./vite-shim.mjs', import.meta.url);
 const { specimenFixtures } = await import('../src/lib/fixtures.ts');
 const { fixtureDocument } = await import('../src/lib/fixture-documents.ts');
-const { specs } = await import('../src/lib/repo.ts');
+const { definedTags, specs, webAttribute } = await import('../src/lib/repo.ts');
 
 const repo = (file) => fileURLToPath(new URL(`../../../${file}`, import.meta.url));
 // The manifest, read here on its own: tag → the names of the attributes it reads.
@@ -50,5 +51,34 @@ describe("the landing page's specimen (components/Hero.astro)", () => {
   test('is markup alone: a component whose document takes a step in script has no specimen', () => {
     assert.ok(fixtureDocument('file-upload').step);
     assert.deepEqual(specimenFixtures(specs['file-upload']), []);
+  });
+});
+
+describe("what the site reads of the web package's manifest (src/lib/repo.ts)", () => {
+  const attributes = new Map(manifest.modules.flatMap((module) => (module.declarations ?? []).filter((declaration) => declaration.tagName).map((declaration) => [declaration.tagName, declaration.attributes ?? []])));
+
+  test("the elements the build defines are the manifest's", () => {
+    assert.deepEqual([...definedTags].sort(), [...declared.keys()].sort());
+  });
+
+  test("a property's attribute is the manifest's: HTML's own names, kebab-case, and the attribute that says the opposite", () => {
+    assert.deepEqual(webAttribute('tanrei-text-field', 'readOnly'), { name: 'readonly', inverse: false });
+    assert.deepEqual(webAttribute('tanrei-text-field', 'maxLength'), { name: 'maxlength', inverse: false });
+    assert.deepEqual(webAttribute('tanrei-text-field', 'supportingText'), { name: 'supporting-text', inverse: false });
+    assert.deepEqual(webAttribute('tanrei-text-input', 'noWrap'), { name: 'no-wrap', inverse: false });
+    assert.deepEqual(webAttribute('tanrei-field', 'countText'), { name: 'count-text', inverse: false });
+    assert.deepEqual(webAttribute('tanrei-card', 'inset'), { name: 'flush', inverse: true });
+    assert.equal(webAttribute('tanrei-card', 'noSuchProperty'), undefined);
+    assert.equal(webAttribute('tanrei-no-such-element', 'label'), undefined);
+  });
+
+  test('an attribute is the opposite of its property only where the property is a boolean that defaults to true', () => {
+    for (const [tag, list] of attributes) {
+      for (const attribute of list) {
+        if (!attribute.fieldName || !webAttribute(tag, attribute.fieldName)?.inverse) continue;
+        assert.equal(attribute.type?.text, 'boolean', `${tag} ${attribute.name}`);
+        assert.equal(attribute.default, 'true', `${tag} ${attribute.name}`);
+      }
+    }
   });
 });

@@ -14,7 +14,7 @@ import { json, repoRoot, studio } from './studio-node.js';
 
 const specs = fs.readdirSync(path.join(repoRoot, 'specs')).filter((file) => file.endsWith('.spec.json')).map((file) => json(`specs/${file}`));
 const status = json('docs/status/status.json');
-const model = studio.preview(studio.blank(studio.rootId)).model;
+const model = studio.preview(studio.blank(studio.defaultId)).model;
 const declared = Object.keys(model.components);
 /** The sets of tokens that are no component's, each with its readers (the input box). */
 const shared = model.shared;

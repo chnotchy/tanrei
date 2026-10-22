@@ -3,19 +3,58 @@
 // A component whose `listing` is the status file's `listings.onRequest` is shown only when the reader asks for
 // everything; nothing here hides a page, and no name of a value is written here: the callers pass `listings`.
 //
+// A second axis is the design system: a list shows the components of the system the reader chose (the default system
+// until they choose another), and a component that system does not have — one its components manifest lists among
+// what it does not have, `omitted` — is not shown. The callers pass the manifests; no system's name is written here.
+//
 // Plain functions with no browser and no Vite in them: `astro.config.mjs` builds the sidebar with them, the site's
 // components mark their rows with them, and Node tests them (test/listing.test.mjs).
 
 /**
- * @typedef {{ name: string, title: string, category: string, level: string, listing: string, builtFrom?: string[], docs?: string | null }} Row  A row of the status file's `components`.
+ * @typedef {{ name: string, title: string, category: string, level: string, listing: string, layer?: string, builtFrom?: string[], docs?: string | null }} Row  A row of the status file's `components`.
  * @typedef {{ listed: string, onRequest: string }} Listings  The status file's `listings`: which name is which.
+ * @typedef {{ system: string, omitted: { name: string }[] }} Manifest  What a list reads of a system's components manifest.
  */
+
+/**
+ * The shipped systems that do not have a component: those whose components manifest lists it among what they do not
+ * have, in the order of `manifests`. A component no manifest names (one with no spec yet) is in none of them.
+ *
+ * @param {string} name
+ * @param {Manifest[]} manifests
+ * @returns {string[]}
+ */
+export const absentFrom = (name, manifests) => manifests.filter((manifest) => manifest.omitted.some((entry) => entry.name === name)).map((manifest) => manifest.system);
+
+/**
+ * What a list shows under one system: the rows of the components it has.
+ *
+ * @template {Pick<Row, 'name'>} T
+ * @param {T[]} rows
+ * @param {Manifest[]} manifests
+ * @param {string} system
+ * @returns {T[]}
+ */
+export const shownUnder = (rows, manifests, system) => rows.filter((row) => !absentFrom(row.name, manifests).includes(system));
+
+/** The systems every one of `lists` is absent from: a group none of whose rows a system has is not shown under it. */
+const absentFromAll = (/** @type {string[][]} */ lists) => (lists.length ? lists.reduce((all, list) => all.filter((system) => list.includes(system))) : []);
 
 /** The address of a page among the components' own pages (`/components/button/`): a component documented elsewhere (a foundation) has none. */
 const OWN_PAGE = /^\/components\/[a-z0-9-]+\/$/;
 
 /** The categories in the order the inventory first names them: the order of every list that groups by what a component is for. */
-export const categoriesOf = (/** @type {Row[]} */ rows) => [...new Set(rows.map((row) => row.category))];
+/**
+ * The group a component is listed in: its category, or — for one that lives in a layer, which only the systems that
+ * descend from that layer have — that layer's own group, `layer:<id>`.
+ */
+export const groupOf = (/** @type {Pick<Row, 'category' | 'layer'>} */ row) => (row.layer ? `layer:${row.layer}` : row.category);
+
+/** The groups of the rows, the categories in the inventory's order and then the layers' groups. */
+export const categoriesOf = (/** @type {Pick<Row, 'category' | 'layer'>[]} */ rows) => {
+  const groups = [...new Set(rows.map(groupOf))];
+  return [...groups.filter((group) => !group.startsWith('layer:')), ...groups.filter((group) => group.startsWith('layer:'))];
+};
 
 /**
  * The components that have a page of their own, category by category (each category's in the inventory's order): the
@@ -26,7 +65,7 @@ export const categoriesOf = (/** @type {Row[]} */ rows) => [...new Set(rows.map(
  */
 export function componentPages(rows) {
   const pages = rows.filter((row) => OWN_PAGE.test(row.docs ?? ''));
-  return categoriesOf(pages).flatMap((category) => pages.filter((row) => row.category === category));
+  return categoriesOf(pages).flatMap((category) => pages.filter((row) => groupOf(row) === category));
 }
 
 /**
@@ -64,39 +103,45 @@ export const shownIn = (rows, listings, { everything = false } = {}) => (everyth
 export const usedIn = (all, name) => all.filter((other) => (other.builtFrom ?? []).includes(name));
 
 /**
- * @typedef {{ type: 'link', label: string, href: string, isCurrent: boolean, badge?: { text: string }, onRequest?: boolean }} LinkEntry
- * @typedef {{ type: 'group', label: string, entries: Entry[], collapsed: boolean, badge?: { text: string } }} GroupEntry
+ * @typedef {{ type: 'link', label: string, href: string, isCurrent: boolean, badge?: { text: string }, onRequest?: boolean, absentFrom?: string[] }} LinkEntry
+ * @typedef {{ type: 'group', label: string, entries: Entry[], collapsed: boolean, badge?: { text: string }, absentFrom?: string[] }} GroupEntry
  * @typedef {LinkEntry | GroupEntry} Entry
  */
 
 /**
  * The sidebar as it is drawn, from the sidebar the framework gives a page: in the group that holds the components'
  * pages, each component stands in a group of its category — named in the page's language by `categoryLabel` — and one
- * that is shown on request is marked (`onRequest`), unless it is the page being read: a reader who followed a link is
- * never nowhere. A link that is no component's page (the index) stays where it was, before the categories.
+ * that is shown on request is marked (`onRequest`), and one that some systems do not have is marked with those systems
+ * (`absentFrom`), unless it is the page being read: a reader who followed a link is never nowhere. A group whose every
+ * component a system does not have is marked with that system too. A link that is no component's page (the index)
+ * stays where it was, before the categories.
  *
  * @param {Entry[]} sidebar
  * @param {Row[]} rows
  * @param {Listings} listings
  * @param {string} base  The language's base (`''`, `/ja`).
  * @param {(category: string) => string} categoryLabel
+ * @param {Manifest[]} [manifests]  The shipped systems' components manifests.
  * @returns {Entry[]}
  */
-export function sidebarTree(sidebar, rows, listings, base, categoryLabel) {
+export function sidebarTree(sidebar, rows, listings, base, categoryLabel, manifests = []) {
   const byHref = new Map(componentPages(rows).map((row) => [`${base}${row.docs}`, row]));
   return sidebar.map((entry) => {
     if (entry.type !== 'group') return entry;
     const own = entry.entries.filter((child) => child.type === 'link' && byHref.has(child.href));
-    if (own.length === 0) return { ...entry, entries: sidebarTree(entry.entries, rows, listings, base, categoryLabel) };
+    if (own.length === 0) return { ...entry, entries: sidebarTree(entry.entries, rows, listings, base, categoryLabel, manifests) };
     const rowOf = (/** @type {Entry} */ child) => /** @type {Row} */ (byHref.get(/** @type {LinkEntry} */ (child).href));
-    const groups = categoriesOf(own.map(rowOf)).map((category) => ({
-      type: /** @type {const} */ ('group'),
-      label: categoryLabel(category),
-      collapsed: false,
-      entries: own
-        .filter((child) => rowOf(child).category === category)
-        .map((child) => (isOnRequest(rowOf(child), listings) && !(/** @type {LinkEntry} */ (child).isCurrent) ? { ...child, onRequest: true } : child)),
-    }));
+    /** A component's link as it is drawn: marked with what hides it, unless it is the page being read. */
+    const drawn = (/** @type {LinkEntry} */ child) => {
+      if (child.isCurrent) return child;
+      const absent = absentFrom(rowOf(child).name, manifests);
+      return { ...child, ...(isOnRequest(rowOf(child), listings) ? { onRequest: true } : {}), ...(absent.length ? { absentFrom: absent } : {}) };
+    };
+    const groups = categoriesOf(own.map(rowOf)).map((category) => {
+      const entries = own.filter((child) => groupOf(rowOf(child)) === category).map((child) => drawn(/** @type {LinkEntry} */ (child)));
+      const absent = absentFromAll(entries.map((child) => child.absentFrom ?? []));
+      return { type: /** @type {const} */ ('group'), label: categoryLabel(category), collapsed: false, entries, ...(absent.length ? { absentFrom: absent } : {}) };
+    });
     return { ...entry, entries: [...entry.entries.filter((child) => !own.includes(child)), ...groups] };
   });
 }
@@ -115,6 +160,35 @@ export const ON_REQUEST_ATTR = 'data-docs-on-request';
  * reader who has not asked.
  */
 export const listingBootstrap = `try{if(localStorage.getItem(${JSON.stringify(LISTING_KEY)})!==${JSON.stringify(LISTING_EVERYTHING)})throw 0}catch(e){document.documentElement.setAttribute(${JSON.stringify(LISTING_ATTR)},'listed')}`;
+
+/**
+ * The shared choice the reader's design system is (a `syncKey`): it is kept under the docs' tabs' key for that choice
+ * (components/tabs/keys.mjs, `tabsKey`), so a set of tabs with this `syncKey` opens the system the lists show, and the
+ * lists show the one a reader chose in such a set.
+ */
+export const SYSTEM_SYNC_KEY = 'system';
+/** The attribute of `<html>` that names the system the lists show (written by the head's script, `systemBootstrap`). */
+export const SYSTEM_ATTR = 'data-docs-system';
+/** The mark of a row, or a group, that some systems do not have: those systems' ids, separated by spaces. */
+export const ABSENT_ATTR = 'data-docs-absent-from';
+/** The mark of what is said under one system only (the index's line of what that system does not have): its id. */
+export const SYSTEM_ONLY_ATTR = 'data-docs-system-only';
+/** The `id` of the rule the head's script writes, which the lists' script takes away once it holds the rows itself. */
+export const SYSTEM_RULE_ID = 'docs-system-rule';
+
+/**
+ * The script of the page's head: where script runs, the lists show the system the reader chose from the first paint
+ * — the one kept under the choice's key, if it is one of `systems`, and `defaultSystem` otherwise. It names it on
+ * `<html>` and writes the one rule that hides what that system does not have, and what is said under another system
+ * only. Where no script runs nothing is written and everything is shown: the safe fallback. Storage that is blocked or
+ * throws is a reader who has not chosen.
+ *
+ * @param {string} key  The key the choice is kept under (`tabsKey(SYSTEM_SYNC_KEY)`).
+ * @param {string[]} systems  The shipped systems' ids.
+ * @param {string} defaultSystem
+ */
+export const systemBootstrap = (key, systems, defaultSystem) =>
+  `(function(){var s=${JSON.stringify(systems)},v=${JSON.stringify(defaultSystem)};try{var k=localStorage.getItem(${JSON.stringify(key)});if(s.indexOf(k)>=0)v=k}catch(e){}document.documentElement.setAttribute(${JSON.stringify(SYSTEM_ATTR)},v);var r=document.createElement('style');r.id=${JSON.stringify(SYSTEM_RULE_ID)};r.textContent='[${ABSENT_ATTR}~="'+v+'"],[${SYSTEM_ONLY_ATTR}]:not([${SYSTEM_ONLY_ATTR}="'+v+'"]){display:none}';document.head.appendChild(r)})()`;
 
 /**
  * The pages of one answer of the search in the order they are drawn: among the components' pages of the answer, one

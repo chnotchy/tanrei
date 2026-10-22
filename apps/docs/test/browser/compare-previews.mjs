@@ -3,9 +3,10 @@
 //
 // A preview is an element the page draws to show a component: the children of a live example's stage (DemoFrame), a
 // spec fixture's stage in the page — the web package's document's stage, drawn by the gallery
-// (components/fixtures/FixtureGallery.astro) — and the children of a file tree's stage (FileTree). Its copy is made
-// from the page's HTML as it was served, so the element is upgraded from the same markup, and stands in a shadow root
-// beside the preview: it inherits what the preview inherits, and is matched by
+// (components/fixtures/FixtureGallery.astro) — the children of a file tree's stage (FileTree), and what a figure drawn
+// from the repository shows on its canvas, less its overlay (VisualFrame). Its copy is made from the page's HTML as it
+// was served, so the element is upgraded from the same markup, and stands in a shadow root beside the preview: it
+// inherits what the preview inherits, and is matched by
 //
 //   1. every rule of the page's stylesheets, all of them in one layer — the reset, Starlight's rules, the docs' own —
 //      so a page rule that matches the element by its own markup matches the copy too (the docs' demo classes, a
@@ -21,8 +22,9 @@
 // beat it, a stylesheet the page does not load, a page rule that reaches into the component. Not what it cannot see:
 // a fixture drawn in a window of its own (an `iframe`, which is not a preview of this page), and one the page drew and
 // took its document's step in script for before the comparison began, are in a state the copy is not, and are left
-// out; parts placed against something outside the preview (an open surface's list) and visually hidden parts are not
-// compared.
+// out, as is a state matrix (its cells are held in states the copy is not in; test/browser/state-matrix.test.mjs checks
+// each against its tokens); parts placed against something outside the preview (an open surface's list) and visually
+// hidden parts are not compared.
 export async function comparePreviews({ componentCss, still }) {
   const frame = () => new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
   const quiet = document.createElement('style');
@@ -34,6 +36,7 @@ export async function comparePreviews({ componentCss, still }) {
     '[data-tanrei-demo] > figure > [data-part=frame] > [data-part=stage] > *',
     '.docs-stage-box[data-tanrei-demo] > [data-fixture-scope] > .stage',
     '.docs-file-tree > figure > [data-part=stage] > *',
+    '[data-docs-visual] > figure > [data-part=frame] > [data-part=stage] > [data-docs-visual-canvas] > :not([data-docs-visual-overlay], .docs-state-matrix)',
   ].join(', ');
   const served = new DOMParser().parseFromString(await (await fetch(location.href)).text(), 'text/html');
   // A fixture of the gallery is drawn from the gallery's data when its stage comes near the view: every one not yet
@@ -69,6 +72,26 @@ export async function comparePreviews({ componentCss, still }) {
     if (root.shadowRoot) walk(root.shadowRoot);
     walk(root);
     return out;
+  };
+  // Until every scripted motion that has an end, of an element inside one of the roots (their shadow trees included),
+  // has ended — for 5 s at most; one that never ends (a line that scrolls on) is not waited for.
+  const inside = (node, roots) => {
+    for (let n = node; n; n = up(n)) if (roots.includes(n)) return true;
+    return false;
+  };
+  const rest = async (roots) => {
+    const until = performance.now() + 5000;
+    for (;;) {
+      // A document's and a shadow root's `getAnimations()` each hold only the animations of their own tree.
+      const trees = new Set([document, ...roots.map((root) => root.getRootNode()), ...roots.flatMap(all).flatMap((e) => (e.shadowRoot ? [e.shadowRoot] : []))]);
+      const moving = [...trees]
+        .flatMap((tree) => tree.getAnimations())
+        .filter((animation) => animation.playState === 'running' && Number.isFinite(animation.effect?.getComputedTiming().endTime) && inside(animation.effect?.target, roots));
+      if (!moving.length || performance.now() > until) break;
+      await Promise.race([Promise.allSettled(moving.map((animation) => animation.finished)), new Promise((resolve) => setTimeout(resolve, until - performance.now()))]);
+      await frame();
+    }
+    await frame();
   };
   const settle = async (roots) => {
     const elements = roots.flatMap(all);
@@ -200,6 +223,10 @@ export async function comparePreviews({ componentCss, still }) {
     element.scrollIntoView({ block: 'center' });
     await frame();
     await frame();
+    // A component that changes when it first comes into view (a figure that rises to its value) starts that change as
+    // the scroll above brings it in, and draws it with the Web Animations API, which `still` (CSS) does not stop: the
+    // preview is measured once it, and its copy, have come to rest, as a reader sees them a moment later.
+    await rest([element, copy]);
     const a = drawn(element);
     const c = drawn(copy);
     const ra = element.getBoundingClientRect();

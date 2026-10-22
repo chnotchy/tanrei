@@ -42,7 +42,8 @@ function measureTargets(min) {
   const found = [];
   const shown = (el) => el.getBoundingClientRect().width > 0 && el.getBoundingClientRect().height > 0 && getComputedStyle(el).visibility !== 'hidden' && !el.closest('[hidden], [inert], details:not([open]) > :not(summary)');
   const round = (n) => Math.round(n * 10) / 10;
-  for (const el of document.querySelectorAll('a[href], button, summary, input:not([type="hidden"]), select, textarea, [role="tab"], [role="treeitem"], [tabindex="0"]')) {
+  // A tab is found by its element as well as its role: a row of tabs without panels is a radio group, its tabs radios.
+  for (const el of document.querySelectorAll('a[href], button, summary, input:not([type="hidden"]), select, textarea, [role="tab"], tanrei-tab, [role="treeitem"], [tabindex="0"]')) {
     if (el.disabled || el.closest('[data-scope]')) continue;
     // A radio or a checkbox is pressed on its label.
     const host = (el.matches('input[type="radio"], input[type="checkbox"]') && el.closest('label')) || el;
@@ -121,7 +122,15 @@ export async function openStudio({ layer = { id: 'acme', extends: 'tanrei' }, pa
     darkPane: scope.locator('.ts-pane').nth(1),
     /** One of a radio group's options, or one of a row of tabs: a person presses it, and so does this. */
     choose,
-    level: (name) => choose(page.locator('[data-levels]'), name),
+    /**
+     * Go to a level, and wait until all of it is drawn: Groups draws what the window shows first and the rest soon
+     * after (the root says `data-drawing` meanwhile), and a test reads the whole level. (test/browser/groups-switch.test.js
+     * is about that order itself.)
+     */
+    level: async (name) => {
+      await choose(page.locator('[data-levels]'), name);
+      await page.waitForSelector('[data-studio]:not([data-drawing])', { state: 'attached' });
+    },
     /** Choose an option of a `<tanrei-select>`, a `<tanrei-combobox>` or a `<tanrei-combobox-field>` as a person does: open it, type towards the option, press it. */
     pick: async (host, label) => {
       const typed = host.locator('input[role="combobox"]');

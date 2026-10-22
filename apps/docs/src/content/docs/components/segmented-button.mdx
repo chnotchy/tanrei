@@ -13,10 +13,6 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 
 <ComponentAvailability name="segmented-button" />
 
-:::note[Not in the Tanrei system]
-The default Tanrei system does not ship the segmented button; the Material and cupertino presets do. In Tanrei, one choice among several is [Tabs](/components/tabs/) where it changes the content below, and [radio buttons](/components/radio-button/) where it sets a value; buttons that each toggle on their own are a [Button group](/components/button-group/). The component still works under every system, with a warning in development where the system leaves it out. The demos on this page are drawn under the `m3-like` preset, a system that ships it.
-:::
-
 <DemoFrame label="Single selection, with icons, icon only" system="m3-like">
   <tanrei-segmented-button label="Range" value="week">
     <tanrei-segment value="day" label="Day"></tanrei-segment>
@@ -65,7 +61,8 @@ A segmented button holds its segments the way each platform holds repeated child
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Segment, SegmentedButton } from '@tanrei/react';
+    // The default system leaves the segmented button out: it is in the entries of m3-like, m3-expressive-like and cupertino, and in /all.
+    import { Segment, SegmentedButton } from '@tanrei/react/m3-like';
 
     // detail is { value } for a single choice and { values } for several.
     <SegmentedButton label="Range" value={range} onChange={(e) => 'value' in e.detail && setRange(e.detail.value)}>

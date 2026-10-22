@@ -1,14 +1,14 @@
 ---
 title: Words
-description: Tanrei ships no words. Every label, name and message a component draws or says is your product's — given on the component, or once for the whole product.
+description: A component has no words of its own. Every label, name and message it draws or says is your product's — given on the component, once for the whole product, or taken from the English word pack you import.
 ---
 
 import ProductWordKeys from '../../../components/ProductWordKeys.astro';
 import DemoFrame from '../../../components/DemoFrame.astro';
 
-**Tanrei ships no words.** No component has a default text in any language: not "Required", not "Close", not "OK". A word a component draws or says is one your product wrote.
+**A component has no words of its own.** No component has a default text in any language: not "Required", not "Close", not "OK". A word a component draws or says is one your product gave: written by you, or taken from [the English word pack](#the-english-word-pack), which you import.
 
-A default hides the failure it causes. A product in Japanese that forgets one word shows English beside its own text, and nothing reports it. A product in English has its own voice too ("Mandatory", "Done", "Nothing found"). So a component has no word to fall back on, and it tells you when one is missing.
+A default hides the failure it causes. A product in Japanese that forgets one word shows English beside its own text, and nothing reports it. A product in English has its own voice too ("Mandatory", "Done", "Nothing found"). So a component has no word to fall back on, and it tells you when one is missing. The English word pack is not such a fallback: nothing applies it but your own import.
 
 ## Where a word comes from
 
@@ -17,10 +17,27 @@ A component looks in three places, in this order, and nowhere else.
 | Place | What it gives | Example |
 | --- | --- | --- |
 | **The component itself** | Words about this one thing, and any word this one says differently | `label`, `error-text`; `close-label="Close filters"` |
-| **Your product's words** | Words you say the same way wherever the part is drawn, given once per language | `requiredText`, `closeLabel`, `previousMonthLabel` |
+| **Your product's words** | Words you say the same way wherever the part is drawn, given once per language, or the English word pack you import | `requiredText`, `closeLabel`, `previousMonthLabel` |
 | **The platform** | What the browser already has in the reader's language | Month and weekday names, digits, "AM", the browser's own message for a missing value |
 
 After these there is nothing: no fallback language, and no English "for now".
+
+## The English word pack
+
+Tanrei writes one set of your product's words for you: a word in plain, neutral English for every key, such as "Required", "Close" and "Previous month". Import it once:
+
+```js
+import '@tanrei/web/words/en';
+```
+
+It gives the words of the whole page, as one call of `setWords()` would. Nothing imports it for you: not `@tanrei/web`, not `@tanrei/react`, not a component, and not the `lang` of the page. The pack's word for each key is in [the table of keys](#the-keys).
+
+- **Your own words still win.** Call `setWords()` after the import, and the keys you give replace the pack's; a word on a component wins over both. The import sets every key when it runs, so a word you gave before it is replaced.
+- **Start from its words.** The module exports them too: `import { englishWords } from '@tanrei/web/words/en'`.
+- **In a product in another language**, a key that your language's set does not have is read from the page's set — with the pack imported, that is English. Import it there only where English is the word you want for a key you did not write; without it, the missing word is reported instead.
+- **It hides nothing it should not.** With the pack imported, every key has a word, so `missingWords()` is empty. To find the words your product has not written itself, ask it in a test that does not import the pack.
+
+In React, the import is the same line, in the module that renders first.
 
 ## Give your product's words once
 
@@ -43,13 +60,13 @@ Give only the words of the components you use. A second call adds to the first, 
 An attribute on one component always wins over your product's words:
 
 <DemoFrame label="The word on the component itself: one field says it differently" plain column>
-  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Email" requirement="required" required-text="Required"></tanrei-text-field>
-  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Company" requirement="required" required-text="Needed for invoices"></tanrei-text-field>
+  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Email" required required-text="Required"></tanrei-text-field>
+  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Company" required required-text="Needed for invoices"></tanrei-text-field>
 </DemoFrame>
 
 ```html
-<tanrei-text-field label="Email" requirement="required" required-text="Required"></tanrei-text-field>
-<tanrei-text-field label="Company" requirement="required" required-text="Needed for invoices"></tanrei-text-field>
+<tanrei-text-field label="Email" required required-text="Required"></tanrei-text-field>
+<tanrei-text-field label="Company" required required-text="Needed for invoices"></tanrei-text-field>
 ```
 
 ## More than one language
@@ -97,14 +114,14 @@ The component has no grammar: no plural forms, no ordinals and no choice between
 A missing word is a fault of the product, as a text field without a label is. The component makes it small for the person and visible to you.
 
 - **Words that would be drawn are not drawn.** Where a mark says the same thing, the mark stands in their place: an asterisk for the requirement tag of a required field, the close and check icons for a picker's Cancel and OK, `+1` for "next day". Where no mark does, nothing is drawn and the place keeps its size.
-- **A control that needs a name is still drawn and still works.** A calendar's navigation buttons, a text field's resize grip and a picker's actions keep working without a name. The one exception is a number field's steppers: an unnamed one is hidden from assistive technology, because the spin button beside it steps by itself.
+- **A control that needs a name is still drawn and still works.** A calendar's navigation buttons, a text field's resize handle and a picker's actions keep working without a name. The one exception is a number field's steppers: an unnamed one is hidden from assistive technology, because the spin button beside it steps by itself.
 - **It is reported.** In development the console names the attribute, once per word and page: `<tanrei-field>: required-text is empty and the product's words have no requiredText`.
 
 A control without an accessible name fails people who use a screen reader. The report is there so that you fix it, not so that you may leave it.
 
 ## Fail a test on a missing word
 
-`missingWords()` returns the keys that were needed since the page loaded and that nobody gave. Ask it at the end of a test that walks through your product.
+`missingWords()` returns the keys that were needed since the page loaded and that nobody gave. Ask it at the end of a test that walks through your product. A page that imports the English word pack misses none.
 
 ```js
 import { missingWords } from '@tanrei/web';
@@ -121,7 +138,7 @@ A glyph, an asterisk, a dash, a digit and a separator the locale gives are not w
 
 ## The keys
 
-Every key, the props that read it, and the places the component fills in its sentence. Most keys have the name of their prop. Three differ: a copy button's `label` and `failedLabel` read `copyLabel` and `copyFailedLabel`, and the breadcrumbs' `overflowLabel` reads `breadcrumbsOverflowLabel`.
+Every key, the props that read it, the places the component fills in its sentence, and its word in the English word pack. Most keys have the name of their prop. Three differ: a copy button's `label` and `failedLabel` read `copyLabel` and `copyFailedLabel`, and the breadcrumbs' `overflowLabel` reads `breadcrumbsOverflowLabel`.
 
 <ProductWordKeys />
 
@@ -129,4 +146,4 @@ Words that are about one thing — a field's `label`, a date-time picker's `labe
 
 ## Other platforms
 
-The rule is the same on every platform. Only the web is built so far; SwiftUI, Jetpack Compose, Flutter and React Native will take the product's words in their own idiom.
+The rule is the same on every platform. Only the web is built so far; SwiftUI, Jetpack Compose, Flutter and React Native will take the product's words, and the same English word pack, in their own idiom.

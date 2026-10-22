@@ -62,7 +62,7 @@ test.describe('behavior', () => {
   test('TXF-62: it is a Field that frames one text input, and nothing else — its shadow root holds the two members’ own elements, each prop is on the member it is from and the input’s own label, labelHidden, error and disabled are never set; the label-icon slot is the Field’s and the two icon slots the input’s; it draws no part, has no token and writes no custom property', async ({ page }) => {
     await mountHtml(
       page,
-      `<${TAG} id="plain" label="Email" label-hidden error disabled supporting-text="Help." requirement="required" required-text="Required" variant="outlined" size="large" type="email" value="ada@example.com" placeholder="you@example.com" maxlength="40" counter prefix-text="@" readonly>
+      `<${TAG} id="plain" label="Email" label-hidden error disabled supporting-text="Help." required required-text="Required" variant="outlined" size="large" type="email" value="ada@example.com" placeholder="you@example.com" maxlength="40" counter prefix-text="@" readonly>
          <span slot="label-icon">mail</span><span slot="leading-icon">search</span><span slot="trailing-icon">close</span>
        </${TAG}>`,
     );
@@ -78,7 +78,7 @@ test.describe('behavior', () => {
         root: [...root.childNodes].filter(drawn).map((node) => (node as Element).localName ?? '#text'),
         inFrame: [...frame!.childNodes].filter(drawn).map((node) => ((node as Element).localName === 'slot' ? `slot ${(node as HTMLSlotElement).name} → ${(node as Element).slot}` : ((node as Element).localName ?? '#text'))),
         inInput: [...input.children].map((node) => `slot ${(node as HTMLSlotElement).name} → ${node.slot}`),
-        frame: ['label', 'labelHidden', 'error', 'disabled', 'supportingText', 'requirement', 'requiredText'].map((name) => framing[name]),
+        frame: ['label', 'labelHidden', 'error', 'disabled', 'supportingText', 'required', 'requiredText'].map((name) => framing[name]),
         input: ['variant', 'size', 'type', 'value', 'placeholder', 'maxLength', 'counter', 'prefixText', 'readOnly'].map((name) => input[name]),
         // The four props both members have are the Field's: the input's own are never set by the element.
         own: ['label', 'labelHidden', 'error', 'disabled'].map((name) => input[name]),
@@ -91,7 +91,7 @@ test.describe('behavior', () => {
     expect(built.root, 'one member in the shadow root, and no text').toEqual(['tanrei-field']);
     expect(built.inFrame, 'the Field holds the passing slot of its glyph and its one control').toEqual(['slot label-icon → label-icon', 'tanrei-text-input']);
     expect(built.inInput, 'the input holds the passing slots of its two icons').toEqual(['slot leading-icon → leading-icon', 'slot trailing-icon → trailing-icon']);
-    expect(built.frame).toEqual(['Email', true, true, true, 'Help.', 'required', 'Required']);
+    expect(built.frame).toEqual(['Email', true, true, true, 'Help.', true, 'Required']);
     expect(built.input).toEqual(['outlined', 'large', 'email', 'ada@example.com', 'you@example.com', 40, true, '@', true]);
     expect(built.own, 'the input’s own label, labelHidden, error and disabled').toEqual(['', false, false, false]);
     expect(built.inputHasName).toBe(false);
@@ -184,7 +184,7 @@ test.describe('behavior', () => {
     await mountHtml(
       page,
       `<form id="form">
-         <${TAG} id="email" name="email" label="Email" requirement="required" value="ada@example.com"></${TAG}>
+         <${TAG} id="email" name="email" label="Email" required value="ada@example.com"></${TAG}>
          <${TAG} id="due" name="due" label="Due" type="date" locale="en-US" max="2026-12-31" unavailable-text="Too late." segment-empty-text="Empty" value="not a date"></${TAG}>
          <${TAG} id="off" name="off" label="Off" value="x" disabled></${TAG}>
          <button id="send">Send</button>
@@ -215,6 +215,10 @@ test.describe('behavior', () => {
     await page.locator('#send').click();
     expect(await page.evaluate(() => (window as unknown as { submitted: number }).submitted)).toBe(0);
     await one(page, 'email').evaluate((el) => ((el as HTMLElement & { value: string }).value = 'ada@example.com'));
+    // The submission that was refused shows the browser's own message under the input it focused, and Firefox on Linux
+    // draws it as a popup that takes the next press anywhere on the page to close itself: under a box as tall as a
+    // Button the date field's segments stand under that message. It closes when focus leaves the input.
+    await blurAll(page);
     // A date after max, committed: the input's entry error is the text field's validity, with the input's words.
     await box(one(page, 'due')).locator('.segment[data-unit="month"]').click();
     await page.keyboard.type('01052027');
@@ -235,7 +239,7 @@ test.describe('behavior', () => {
     await mountHtml(
       page,
       `<button id="before">Before</button>
-       <${TAG} id="plain" style="inline-size: 320px" label="Notes" supporting-text="A few words about the change." counter maxlength="40" value="a" requirement="required" required-text="Required"><span slot="label-icon">notes</span></${TAG}>
+       <${TAG} id="plain" style="inline-size: 320px" label="Notes" supporting-text="A few words about the change." counter maxlength="40" value="a" required required-text="Required"><span slot="label-icon">notes</span></${TAG}>
        <${TAG} id="floating" style="inline-size: 320px; margin-block-start: 24px" variant="outlined" label="Email" error error-text="Enter a complete address."></${TAG}>
        <${TAG} id="date" style="inline-size: 320px; margin-block-start: 24px" label="Due" type="date" locale="en-US" picker picker-label="Choose date" segment-empty-text="Empty"></${TAG}>
        <${TAG} id="stops" style="inline-size: 320px; margin-block-start: 24px" label="Message" multiline resize="manual" resize-label="Resize" value="One"><tanrei-button slot="trailing-icon" variant="text" label="Clear"><span slot="icon">close</span></tanrei-button></${TAG}>
@@ -275,11 +279,21 @@ test.describe('behavior', () => {
       expect(await focused(), `a press on ${selector}`).toBe('body');
     }
     const [container, row, label] = [await bounds(box(plain).locator('.container')), await bounds(field(plain).locator('.supporting')), await bounds(field(plain).locator('.label-row'))];
-    expect(row.y - (container.y + container.height), 'there is a gap below the box').toBeGreaterThan(1);
-    await page.mouse.click(container.x + 20, (container.y + container.height + row.y) / 2);
+    // The box's hit area reaches the minimum target beyond its drawn edges (TXI-8): a box shorter than the target (a
+    // stacked box as tall as a Button) takes a press in that reach. A press in the gap beyond it does nothing.
+    const reach = await box(plain).locator('.container').evaluate((el) => Math.max(0, (Number.parseFloat(getComputedStyle(el, '::before').height) - el.getBoundingClientRect().height) / 2));
+    const [bottom, top] = [container.y + container.height + reach, container.y - reach];
+    expect(row.y - bottom, 'there is a gap below the box, beyond its hit area').toBeGreaterThan(1);
+    await page.mouse.click(container.x + 20, (bottom + row.y) / 2);
     expect(await focused(), 'the gap between the box and the supporting row').toBe('body');
-    await page.mouse.click(container.x + 20, (label.y + label.height + container.y) / 2);
+    expect(top - (label.y + label.height), 'there is a gap above the box, beyond its hit area').toBeGreaterThan(1);
+    await page.mouse.click(container.x + 20, (label.y + label.height + top) / 2);
     expect(await focused(), 'the gap between the label row and the box').toBe('body');
+    if (reach > 1) {
+      await page.mouse.click(container.x + 20, container.y + container.height + reach / 2);
+      expect(await focused(), 'a press in the hit area below the drawn box is the input\'s').toBe('tanrei-text-field#plain > tanrei-text-input > input#input.input');
+      await blurAll(page);
+    }
     // (Focus that is in the input leaves it for such a press, as for a press on any text of the page: the platform's.)
     // A date field: the first empty segment, by the product and by a press on the label.
     await blurAll(page);
@@ -308,7 +322,7 @@ test.describe('behavior', () => {
       'tanrei-text-field#stops textarea#input.input',
       // The product's own Button in the trailing slot: its child, and a stop of its own.
       'tanrei-button button.has-icon',
-      'tanrei-text-field#stops div.grip',
+      'tanrei-text-field#stops div.container',
       'button#after button#after',
     ]);
   });
@@ -318,7 +332,7 @@ test.describe('behavior', () => {
     await mountHtml(
       page,
       `<tanrei-field id="outer" label="Outer" supporting-text="Outer help."><${TAG} id="inner" label="Inner" supporting-text="Inner help."></${TAG}></tanrei-field>
-       <tanrei-field-group id="group" label="Sign in" error error-text="Group error" requirement="required" required-text="Required"><${TAG} id="grouped" name="grouped" label="Email" supporting-text="Help." value="ada@example.com"></${TAG}></tanrei-field-group>`,
+       <tanrei-field-group id="group" label="Sign in" error error-text="Group error" required required-text="Required"><${TAG} id="grouped" name="grouped" label="Email" supporting-text="Help." value="ada@example.com"></${TAG}></tanrei-field-group>`,
     );
     // Both frames are drawn, and the text field keeps its own name and description.
     await expect(one(page, 'outer').locator('.frame > .label-row > .label').first()).toHaveText('Outer');
@@ -347,17 +361,17 @@ test.describe('behavior', () => {
     const seen = warnings(page);
     await mountHtml(
       page,
-      `<${TAG} id="required" label="Email" requirement="required"></${TAG}>
-       <${TAG} id="optional" label="Company" requirement="optional"></${TAG}>
+      `<${TAG} id="required" label="Email" required></${TAG}>
+       <${TAG} id="optional" label="Company" optional></${TAG}>
        <${TAG} id="grip" label="Message" multiline resize="manual"></${TAG}>
        <${TAG} id="date" label="Due" type="date" locale="en-US"></${TAG}>
-       <${TAG} id="own" label="Email" requirement="required" required-text="Needed"></${TAG}>`,
+       <${TAG} id="own" label="Email" required required-text="Needed"></${TAG}>`,
     );
     // With no words: the asterisk stands in the tag's place, no optional tag, a grip without a name, a segment without a value text.
     await expect(field(one(page, 'required')).locator('.label-row tanrei-tag')).toHaveCount(0);
     await expect(field(one(page, 'required')).locator('.label-row .asterisk')).toBeVisible();
     await expect(field(one(page, 'optional')).locator('.label-row tanrei-tag')).toHaveCount(0);
-    await expect(box(one(page, 'grip')).locator('.grip')).not.toHaveAttribute('aria-label', /.*/);
+    await expect(box(one(page, 'grip')).locator('.resize-handle .container')).not.toHaveAttribute('aria-label', /.*/);
     await expect(box(one(page, 'date')).locator('.segment').first()).not.toHaveAttribute('aria-valuetext', /.*/);
     await expect(field(one(page, 'own')).locator('.label-row tanrei-tag')).toHaveAttribute('label', 'Needed');
     expect(await missingWords(page)).toEqual(['optionalText', 'requiredText', 'resizeLabel', 'segmentEmptyText']);
@@ -370,7 +384,7 @@ test.describe('behavior', () => {
     await setWords(page, { requiredText: 'Required', optionalText: 'Optional', resizeLabel: 'Resize', segmentEmptyText: 'Empty' });
     await expect(field(one(page, 'required')).locator('.label-row tanrei-tag')).toHaveAttribute('label', 'Required');
     await expect(field(one(page, 'optional')).locator('.label-row tanrei-tag')).toHaveAttribute('label', 'Optional');
-    await expect(box(one(page, 'grip')).locator('.grip')).toHaveAttribute('aria-label', 'Resize');
+    await expect(box(one(page, 'grip')).locator('.resize-handle .container')).toHaveAttribute('aria-label', 'Resize');
     await expect(box(one(page, 'date')).locator('.segment').first()).toHaveAttribute('aria-valuetext', 'Empty');
     await expect(field(one(page, 'own')).locator('.label-row tanrei-tag')).toHaveAttribute('label', 'Needed');
     expect(await missingWords(page)).toEqual([]);

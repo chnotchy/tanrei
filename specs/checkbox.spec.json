@@ -59,6 +59,12 @@
       "description": "Prevents interaction and removes the checkbox from the focus order."
     },
     {
+      "name": "readOnly",
+      "type": "boolean",
+      "default": false,
+      "description": "Shows the choice and keeps it: the checkbox can be focused and read and is submitted with its form, but the person cannot switch it. Drawn as an enabled checkbox, without the hover and press answers (CHK-24)."
+    },
+    {
       "name": "label",
       "type": "string",
       "default": "",
@@ -187,6 +193,11 @@
       "id": "CHK-23",
       "text": "WHILE the checkbox stands in a checkbox group THE checkbox SHALL take its checked from the group's value and from the value the group reads from it (CKG-2), SHALL be disabled WHILE the group is (CKG-6), SHALL have its switching by the person reported by the group's change and by no event of its own that a listener on the group would receive as well (CKG-4), and WHERE the platform has forms SHALL submit nothing of its own, whatever name it carries (CKG-8). WHERE the checkbox stands in no checkbox group it SHALL be as it is anywhere — in a field, in a field group, in a table's row or alone: checked is its own, change is its own, and on the web it submits its own entry under its own name.",
       "verify": "Web unit: a checkbox with name and value inside a checkbox group adds no entry of its own to FormData and fires no change that a listener on the group, or a capture listener on the document, hears beside the group's; the same checkbox moved out of the group submits its entry and fires its own change again."
+    },
+    {
+      "id": "CHK-24",
+      "text": "WHILE readOnly is true and disabled is false THE checkbox SHALL stay focusable and in the focus order; SHALL NOT change checked or indeterminate, and SHALL NOT emit change, on any activation — pointer, touch, Space, Enter where Enter activates it, assistive technology, a click on its label or a click dispatched on the element; SHALL expose the read-only state to assistive technology beside its checked, not checked or mixed state; WHERE the platform has forms SHALL be submitted with its form as it is drawn, and SHALL NOT report a missing value to the form's own validation, because the person cannot give one; and SHALL be drawn from the resting component tokens of its condition — the enabled ones, never the disabled ones — and SHALL show no hovered and no pressed state, under any pressed feedback (no overlay, no ripple, no dim), while keyboard focus still selects the focused state and shows the focus ring (CHK-5, CHK-6). The product may still set checked and indeterminate, which then take the selection motion (CHK-13). WHILE disabled is true as well, disabled wins (CHK-3).",
+      "verify": "Web unit: a read-only checked checkbox is reached by Tab, keeps checked after a click on the box, a click on the label, Space and element.click(), and fires no input and no change; its input carries aria-readonly; a named one is in FormData and a required unchecked one leaves the form valid; hovered and pressed it draws its resting tokens, keyboard-focused its focused ones."
     }
   ],
   "accessibility": {
@@ -198,7 +209,7 @@
       },
       {
         "keys": "Space",
-        "action": "Switches it (an indeterminate checkbox becomes checked)."
+        "action": "Switches it (an indeterminate checkbox becomes checked); nothing while it is read-only."
       },
       {
         "keys": "Enter",
@@ -210,6 +221,7 @@
     "notes": [
       "The mixed state is announced as such (aria-checked=\"mixed\" on the web, a toggleable state of Indeterminate on Android, a Semantics mixed value in Flutter, accessibilityState checked \"mixed\" in React Native). SwiftUI has no mixed trait on iOS: the value is announced as \"mixed\" through accessibilityValue.",
       "error is exposed as invalid (aria-invalid on the web, the error semantics on Android and Flutter). The reason is text the form shows and associates with the checkbox; the checkbox does not draw it.",
+      "Read-only (CHK-24) is a checkbox that shows an answer in place and keeps it in the focus order, so that it is read with its form — on a review step, or where only some people may change it. HTML's readonly attribute does not apply to a checkbox, so a read-only checkbox is not a native one's: on the web it keeps the native checkbox enabled, cancels its activation and says read-only with aria-readonly, which WAI-ARIA allows on the checkbox role; React Aria's isReadOnly is the same: focusable, announced with its value, not changeable. Where the answer needs no control at all, write it as text; where the person may not reach it at all, it is disabled.",
       "Several checkboxes that answer one question are a checkbox group: it names the set, holds the list of the checked values under one name and says the set's error (CHK-23). A checkbox stands alone where it is one choice of its own — a consent, a setting — and in a field group where each checkbox of a set has a name of its own.",
       "The check and the dash are decorative glyphs of the icon set, hidden from assistive technology: where a glyph is written as a ligature (the web), its name (\"check\", \"remove\") is never announced or shown as text (CHK-12, CHK-19). Checked and indeterminate differ by the glyph alone, and both are exposed as states (CHK-14).",
       "The mark is drawn at its own weight (comp.checkbox.mark.weight, CHK-12), heavier than the system's icons in the default system. Its color already has the contrast of content on its fill; what a light weight loses is the stroke, which at this size is about one pixel wide and is drawn in a mix of the mark's color and the fill's. A system that sets a lighter weight should look at the dash in particular: it is one stroke, and it is all that tells indeterminate from checked.",
@@ -293,6 +305,14 @@
         "label": "Select row",
         "labelHidden": true
       }
+    },
+    {
+      "id": "read-only-selected",
+      "props": {
+        "readOnly": true,
+        "checked": true,
+        "label": "Send me a receipt"
+      }
     }
   ],
   "platforms": {
@@ -304,13 +324,22 @@
         "indeterminate": "indeterminate",
         "error": "error",
         "disabled": "disabled",
+        "readOnly": "readOnly",
         "label": "label",
         "labelHidden": "labelHidden"
       },
       "events": {
         "change": "change"
       },
-      "notes": "Form-associated (ElementInternals): it takes part in a form with `name` and `value` (default \"on\"), resets with it, and honours `required` as the native checkbox does; those three are web attributes, not spec props. It switches its own `checked` before firing `change` (and `input`), as a native checkbox does. `labelHidden` is the `label-hidden` attribute. Inside a `tanrei-checkbox-group` (found with `closest()` when it connects) it takes `checked` from the group, ignores `name` and `required`, submits nothing and fires no `input` or `change` of its own (CHK-23); a `value` attribute it does not carry is no value there, not \"on\"."
+      "parts": {
+        "container": "container",
+        "box": "box",
+        "outline": "box@outline",
+        "mark": "mark",
+        "label": "label",
+        "focus-ring": "box@focus-ring"
+      },
+      "notes": "Form-associated (ElementInternals): it takes part in a form with `name` and `value` (default \"on\"), resets with it, and honours `required` as the native checkbox does; those three are web attributes, not spec props. It switches its own `checked` before firing `change` (and `input`), as a native checkbox does. `labelHidden` is the `label-hidden` attribute. Inside a `tanrei-checkbox-group` (found with `closest()` when it connects) it takes `checked` from the group, ignores `name` and `required`, submits nothing and fires no `input` or `change` of its own (CHK-23); a `value` attribute it does not carry is no value there, not \"on\". `readOnly` is the `readonly` attribute (HTML's name; the native attribute does not apply to a checkbox, so the element cancels the activation itself and writes `aria-readonly` on its native checkbox)."
     },
     "swiftui": {
       "status": "lagging",
@@ -320,6 +349,7 @@
         "indeterminate": "isIndeterminate",
         "error": "isError",
         "disabled": "disabled",
+        "readOnly": "readOnly",
         "label": "title",
         "labelHidden": "labelsHidden"
       },
@@ -336,6 +366,7 @@
         "indeterminate": "state",
         "error": "isError",
         "disabled": "enabled",
+        "readOnly": "readOnly",
         "label": "label",
         "labelHidden": "labelHidden"
       },
@@ -352,6 +383,7 @@
         "indeterminate": "tristate",
         "error": "isError",
         "disabled": "onChanged",
+        "readOnly": "readOnly",
         "label": "label",
         "labelHidden": "labelHidden"
       },
@@ -368,6 +400,7 @@
         "indeterminate": "indeterminate",
         "error": "error",
         "disabled": "disabled",
+        "readOnly": "readOnly",
         "label": "label",
         "labelHidden": "labelHidden"
       },

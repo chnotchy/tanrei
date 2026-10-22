@@ -2389,7 +2389,7 @@ over a `surface` page), the gallery's entry and a documentation page's.
   and the next one scrolls.
 - **Drag handle** (BSH-11 … BSH-19) — a `handleContainerWidth` × `handleContainerHeight` box with `handleContainerShape`
   corners, `handleMarginBlock` above and below, centred, the grip (`handleGripWidth` × `handleGripHeight`,
-  `handleGripShape`) centred in it; each drawn from the `dragHandle` control's state tokens. With two heights it is one
+  with round ends) centred in it; each drawn from the `dragHandle` control's state tokens. With two heights it is one
   `role="button"` named by `handleLabel` with `accessibilityState.expanded` (true at full), and a press, Enter or Space
   moves the sheet to its other height; with one height it is drawn at rest and is not focusable, pressable or exposed.
   Press hold, `pressedFeedback` (overlay, ripple, dim, none), keyboard focus, `focusStyle`, corner smoothing and the state

@@ -71,10 +71,10 @@ const em = (tk: (typeof tokens)[number]) => Math.round((tk.value.letterSpacing.v
   // the role's weight plus its family's step, so the specimens follow the active system. The style ATTRIBUTE is
   // rewritten whole: setting one longhand through `el.style` expands the `font: var(…)` shorthand and loses it.
   for (const scale of document.querySelectorAll<HTMLElement>('[data-typescale]')) {
-    const toggle = scale.querySelector<HTMLElement & { selected: boolean }>('[data-typescale-emphasized]')!;
+    const toggle = scale.querySelector<HTMLElement & { checked: boolean }>('[data-typescale-emphasized]')!;
     const specimens = [...scale.querySelectorAll<HTMLElement>('.specimen')].map((el) => [el, el.getAttribute('style') ?? ''] as const);
     toggle.addEventListener('change', () => {
-      for (const [el, base] of specimens) el.setAttribute('style', toggle.selected ? `${base} font-weight: var(--specimen-emphasized);` : base);
+      for (const [el, base] of specimens) el.setAttribute('style', toggle.checked ? `${base} font-weight: var(--specimen-emphasized);` : base);
     });
   }
 </script>

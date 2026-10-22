@@ -36,6 +36,7 @@ import { TanreiDivider } from '../divider/divider.js';
 import { TanreiTooltip } from '../tooltip/tooltip.js';
 import '../loading-indicator/loading-indicator.js';
 import { AXES, cellStyles, drawerStyles, groupStyles, sectionStyles } from './navigation-drawer.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 export type { TanreiNavigationChangeDetail } from '../../primitives/index.js';
 
@@ -173,7 +174,7 @@ const REST: DrawerCellContext = {
  * row while expanded and the row cut after its icon while collapsed, the short label where collapsedLabels draws one, the
  * tooltip that names a collapsed cell without one, and the states, press and focus (NVD-4…10, NVD-31…35, NVD-56).
  */
-abstract class DrawerCell extends LitElement {
+abstract class DrawerCell extends TanreiElement {
   static override shadowRootOptions: ShadowRootInit = { ...LitElement.shadowRootOptions, delegatesFocus: true };
 
   static override properties: PropertyDeclarations = {
@@ -568,7 +569,7 @@ abstract class DrawerCell extends LitElement {
   }
 
   /** NVD-15, NVD-43: what the trailing slot holds, and what it says as part of the description. */
-  protected onTrailingChange(event: Event) {
+  #onTrailingChange(event: Event) {
     const assigned = (event.target as HTMLSlotElement).assignedElements({ flatten: true });
     const text = assigned
       .filter((element) => element.getAttribute('aria-hidden') !== 'true')
@@ -591,7 +592,7 @@ abstract class DrawerCell extends LitElement {
     const text = !filled && !!this.trailingText;
     const marked = mark && !filled && !text;
     return html`<span class=${classMap({ trailing: true, filled: filled || text || marked || after !== nothing })} aria-hidden="true" inert>
-      <span class=${classMap({ 'trailing-slot': true, filled, glyph })}><slot name="trailing" @slotchange=${this.onTrailingChange}></slot></span>
+      <span class=${classMap({ 'trailing-slot': true, filled, glyph })}><slot name="trailing" @slotchange=${this.#onTrailingChange}></slot></span>
       ${text ? html`<span part="trailing-text" class="trailing-text">${this.trailingText}</span>` : nothing}
       ${marked ? html`<span part="link-mark" class="link-mark">${LINK_MARK}</span>` : nothing}
       ${after}
@@ -1316,19 +1317,19 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
  * @slot - `<tanrei-navigation-drawer-item>` and `<tanrei-navigation-drawer-group>` children.
  * @csspart heading - The heading row.
  */
-export class TanreiNavigationDrawerSection extends LitElement {
+export class TanreiNavigationDrawerSection extends TanreiElement {
   static override styles = sectionStyles;
 
   static override properties: PropertyDeclarations = {
-    heading: { type: String },
+    headline: { type: String },
     divider: { type: Boolean, reflect: true },
     headingLevel: { type: Number, attribute: 'heading-level' },
     nested: { state: true },
     collapsed: { state: true },
   };
 
-  /** The text that names the items under it, exposed as a heading. Empty draws no heading row. */
-  heading = '';
+  /** The text that names the items under it (the spec's `title`), exposed as a heading. Empty draws no heading row. */
+  headline = '';
 
   /** Draws a divider (the divider component) before the section. */
   divider = false;
@@ -1363,8 +1364,8 @@ export class TanreiNavigationDrawerSection extends LitElement {
     const level = Math.min(6, Math.max(1, Math.round(Number(this.headingLevel) || 2)));
     return html`<div class=${classMap({ section: true, collapsed: this.collapsed })}>
       ${this.divider ? html`<tanrei-divider></tanrei-divider>` : nothing}
-      ${this.heading
-        ? html`<div part="heading" class="heading" role="heading" aria-level=${level} aria-hidden=${this.collapsed ? 'true' : nothing}><span class="heading-text">${this.heading}</span></div>`
+      ${this.headline
+        ? html`<div part="heading" class="heading" role="heading" aria-level=${level} aria-hidden=${this.collapsed ? 'true' : nothing}><span class="heading-text">${this.headline}</span></div>`
         : nothing}
       <div class="items" role="list"><slot></slot></div>
     </div>`;
@@ -1482,7 +1483,7 @@ interface Snapshot {
  * @fires {CustomEvent<TanreiNavigationDrawerExpandedChangeDetail>} expandedchange - The user asked a collapsible drawer for its other form (its menu button, or a group's cell while collapsed): `detail.expanded`. `expanded` (or, for a modal drawer, `open`) already holds it.
  * @fires {CustomEvent<TanreiNavigationDrawerPresentationChangeDetail>} presentationchange - A responsive drawer decided its presentation for the first time, or the window's width changed it: `detail.presentation` (and `presentation`) is `standard`, `column` or `modal`. A product shows its own menu button while it is `modal`.
  */
-export class TanreiNavigationDrawer extends LitElement {
+export class TanreiNavigationDrawer extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'navigation-drawer');
   static override styles = drawerStyles;
 
@@ -1711,7 +1712,10 @@ export class TanreiNavigationDrawer extends LitElement {
   /** The form at the last update; undefined before the first. */
   private wasCollapsed: boolean | undefined = undefined;
   private formTimer: ReturnType<typeof setTimeout> | undefined;
-  private presentTimer: ReturnType<typeof setTimeout> | undefined;
+  /** Counts the closes begun: a close whose motion ends finishes only if no other began since, and the drawer did not open again (NVD-22, NVD-40). */
+  private leaveRun = 0;
+  /** How far a collapsible modal drawer's items were scrolled, carried from its column to its dialog and back (NVD-40). */
+  private carriedOffset: number | null = null;
   /** Focus was on what the collapsed form does not draw when the drawer collapsed (NVD-36). */
   private focusLost = false;
   /** Whether focus was inside a standard drawer that is closing (read before the render makes it inert). */
@@ -2137,7 +2141,6 @@ export class TanreiNavigationDrawer extends LitElement {
       const wasOpen = this.open;
       // The overlay comes down without its motion and without a second `close`.
       if (this.shown) this.withdraw(false, false);
-      clearTimeout(this.presentTimer);
       this.presented = false;
       this.opener = null;
       this.removeAttribute('data-sliding');
@@ -2175,7 +2178,6 @@ export class TanreiNavigationDrawer extends LitElement {
     this.pinFrame = 0;
     this.removeAttribute('data-instant');
     clearTimeout(this.formTimer);
-    clearTimeout(this.presentTimer);
     if (this.shown) this.withdraw(false, false);
   }
 
@@ -2407,6 +2409,14 @@ export class TanreiNavigationDrawer extends LitElement {
   private present() {
     const dialog = this.dialog;
     if (!dialog || this.shown || !this.isConnected) return;
+    // Opened again while it was still closing: it turns back from where it is, still in the top layer, focus where it is.
+    if (dialog.open && dialog.classList.contains('leaving')) {
+      this.leaveRun++;
+      dialog.classList.remove('leaving');
+      this.shown = true;
+      modalLayer.add(this);
+      return;
+    }
     // A collapsible drawer's column was just replaced by its dialog: where focus was is read before that (willUpdate).
     this.opener = this.pendingOpener ?? deepActive();
     this.pendingOpener = null;
@@ -2414,38 +2424,66 @@ export class TanreiNavigationDrawer extends LitElement {
     this.shown = true;
     modalLayer.add(this);
     holdPageScroll(this, true);
+    // NVD-40: its items stand where its column's did.
+    this.carryOffset();
     // NVD-61: an offset given while it was closed is where it opens; NVD-57: focus then brings the selection into view.
     this.applyOffset();
     this.focusInside();
   }
 
-  /** NVD-20, NVD-22: out of the top layer (sliding, or narrowing to its column), focus back where it was, the page given back, `close`. */
+  /**
+   * NVD-20, NVD-22, NVD-40: out of the top layer, focus back where it was, the page given back, `close`. The drawer
+   * slides out (or narrows to its column, its look becoming the column's) while it is still in the top layer over its
+   * fading scrim, and leaves the top layer once that motion has ended: its own transitions' `finished`, the clock that
+   * draws it, in every engine — no timer. Then a collapsible drawer's column takes the dialog's place, drawn as the
+   * dialog's last frame was. Focus goes back then: until that, what had it is behind the modal dialog (or, for the
+   * column, inside it). Without `notify` (a change of presentation or variant, a removal) it comes down at once.
+   */
   private withdraw(restore = true, notify = true) {
     if (!this.shown) return;
     this.shown = false;
     modalLayer.delete(this);
-    holdPageScroll(this, false);
     const dialog = this.dialog;
-    if (dialog?.open) dialog.close();
-    // NVD-40: a collapsible drawer's dialog narrows back to its column, which then takes its place. Focus goes back once
-    // it has: the element that had it (its menu button, usually) is drawn in the closing dialog until then, and an
-    // element in a closed dialog cannot take focus.
-    const narrowing = this.collapses && this.presented;
-    if (!narrowing) {
-      if (restore) this.restoreFocus();
-      else this.opener = null;
-    } else {
-      clearTimeout(this.presentTimer);
-      this.presentTimer = setTimeout(() => {
-        if (this.open) return;
-        this.presented = false;
-        void this.updateComplete.then(() => {
-          if (restore) this.restoreFocus();
-          else this.opener = null;
-        });
-      }, this.expandDuration());
+    const run = ++this.leaveRun;
+    const finish = () => {
+      if (run !== this.leaveRun || this.shown) return;
+      dialog?.classList.remove('leaving');
+      holdPageScroll(this, false);
+      const narrowing = this.collapses && this.presented;
+      if (narrowing) this.carriedOffset = this.scroller?.scrollTop ?? null;
+      if (dialog?.open) dialog.close();
+      const focus = () => {
+        if (restore) this.restoreFocus();
+        else this.opener = null;
+      };
+      if (!narrowing) {
+        focus();
+        return;
+      }
+      this.presented = false;
+      void this.updateComplete.then(() => {
+        if (this.shown) return;
+        this.carryOffset();
+        focus();
+      });
+    };
+    if (!notify || !dialog?.open || !dialog.isConnected) finish();
+    else {
+      dialog.classList.add('leaving');
+      // The dialog's own motions and its scrim's; what its parts do over the change of form ends with them.
+      const running = dialog.getAnimations({ subtree: true }).filter((animation) => (animation.effect as KeyframeEffect | null)?.target === dialog);
+      if (running.length === 0) finish();
+      else void Promise.allSettled(running.map((animation) => animation.finished)).then(finish);
     }
     if (notify) this.dispatchEvent(new Event('close'));
+  }
+
+  /** NVD-40: the items of the panel now drawn are scrolled where those of the panel it replaced were. */
+  private carryOffset() {
+    const offset = this.carriedOffset;
+    this.carriedOffset = null;
+    const scroller = this.scroller;
+    if (offset !== null && scroller && scroller.clientHeight && scroller.scrollTop !== offset) this.scrollItemsTo(scroller, offset);
   }
 
   /** The change of form's duration, read through a real property (0 where motion is reduced). */
@@ -2471,7 +2509,7 @@ export class TanreiNavigationDrawer extends LitElement {
     this.dismiss();
   };
 
-  private onScrim(event: MouseEvent): boolean {
+  #onScrim(event: MouseEvent): boolean {
     const dialog = this.dialog;
     if (!dialog || event.composedPath()[0] !== dialog) return false;
     const box = dialog.getBoundingClientRect();
@@ -2479,7 +2517,7 @@ export class TanreiNavigationDrawer extends LitElement {
   }
 
   private readonly onPointerDown = (event: PointerEvent) => {
-    this.pressedScrim = this.onScrim(event);
+    this.pressedScrim = this.#onScrim(event);
     if (this.pressedScrim || !this.open) return;
     this.drag = { id: event.pointerId, x: event.clientX, time: event.timeStamp, following: false, lastX: event.clientX, lastTime: event.timeStamp, velocity: 0 };
   };
@@ -2540,24 +2578,24 @@ export class TanreiNavigationDrawer extends LitElement {
   };
 
   private readonly onClick = (event: MouseEvent) => {
-    const scrim = this.pressedScrim && this.onScrim(event);
+    const scrim = this.pressedScrim && this.#onScrim(event);
     this.pressedScrim = false;
     if (scrim) this.dismiss();
   };
 
   // ---- the header (NVD-37…39) ----
 
-  private onHeaderButtons() {
+  #onHeaderButtons() {
     this.hasButtons = this.headerButtons.length > 0;
     this.observeSizes();
     this.syncMenuButton();
   }
 
-  private onHeaderChange(event: Event) {
+  #onHeaderChange(event: Event) {
     this.hasTitle = (event.target as HTMLSlotElement).assignedNodes({ flatten: true }).some((node) => node.nodeType === Node.ELEMENT_NODE || (node.textContent ?? '').trim() !== '');
   }
 
-  private onMainAction() {
+  #onMainAction() {
     const actions = this.mainActions;
     this.hasMain = actions.length > 0;
     // NVD-39: the first is drawn; the rest are reported.
@@ -2684,14 +2722,17 @@ export class TanreiNavigationDrawer extends LitElement {
     if (changed.has('open') && changed.get('open') === true && !this.open && !this.modal) this.closingWithFocus = this.hasFocus();
     // NVD-40: a collapsible modal drawer's dialog widens from its column, placed over it.
     if (this.modal && this.collapses && this.open) {
-      clearTimeout(this.presentTimer);
       if (!this.presented) {
+        this.carriedOffset = this.scroller?.scrollTop ?? null;
         const active = deepActive();
         this.pendingOpener = (!active || active === document.body) && this.pressedMenu?.isConnected ? this.pressedMenu : active;
         const box = this.getBoundingClientRect();
         const rtl = getComputedStyle(this).direction === 'rtl';
         this.place = { '--_top': `${box.top}px`, '--_start': `${rtl ? document.documentElement.clientWidth - box.right : box.left}px`, '--_height': `${box.height}px` };
         this.presented = true;
+        // A drawer that appears open never showed its column: it is drawn open at its full width, scrim and all, from
+        // its first frame, and does not widen from the column (`@starting-style`) as one that opens does.
+        if (!this.hasUpdated) this.drawAtOnce();
       }
     }
   }
@@ -2795,11 +2836,11 @@ export class TanreiNavigationDrawer extends LitElement {
     return html`
       <div part="outline" class="edge" aria-hidden="true"></div>
       <div part="header" class=${classMap({ header: true, filled, 'no-buttons': !this.hasButtons })} style=${styleMap(this.measured)}>
-        <slot name="header-button" @slotchange=${this.onHeaderButtons}></slot>
+        <slot name="header-button" @slotchange=${this.#onHeaderButtons}></slot>
         <div class=${classMap({ title: true, filled: this.hasTitle })} ?inert=${collapsed} aria-hidden=${collapsed ? 'true' : nothing}>
-          <slot name="header" @slotchange=${this.onHeaderChange}></slot>
+          <slot name="header" @slotchange=${this.#onHeaderChange}></slot>
         </div>
-        <div class=${classMap({ main: true, filled: this.hasMain })}><slot name="main-action" @slotchange=${this.onMainAction}></slot></div>
+        <div class=${classMap({ main: true, filled: this.hasMain })}><slot name="main-action" @slotchange=${this.#onMainAction}></slot></div>
       </div>
       <div part="content" class="items" role="list" @scroll=${this.onScroll}><slot></slot></div>
       <span class="clock"></span>
@@ -2813,6 +2854,7 @@ export class TanreiNavigationDrawer extends LitElement {
       return html`<dialog
         part="container"
         class=${classMap({ drawer: true, widening: this.collapses })}
+        data-tanrei-appear
         style=${styleMap(this.collapses ? this.place : {})}
         aria-label=${label}
         tabindex="-1"

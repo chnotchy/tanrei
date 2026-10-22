@@ -2,7 +2,7 @@
 title: "标签组（Tag group）"
 description: "把一组 Tag 或纸片排成会换行的若干行，按其中的内容留出间距，并把这一组作为一个有名称的列表暴露出来。成员保持原样；纸片被移除之后，焦点会移到下一个纸片上。"
 translationOf: components/tag-group.mdx
-sourceHash: dfd5a40f6573b0faf035063e9e49568a6050b0e4
+sourceHash: 244216f99f145c63ac5a62ba10e948f72502850f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -119,7 +119,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | 静态的 Tag：文章的类别、一项设置可以取的值、一行状态 | 设置了 `spacing="tags"` 的标签组。 |
 | 通往每个标签对应页面的标签 | 由带 `href` 的纸片组成的标签组。Tag 是文本，不能成为链接。 |
 | 列表上方的筛选条件、字段下方的建议、用户输入的项 | 由纸片组成的标签组。 |
-| 一长行筛选条件，应当只按一次 Tab 就能越过 | 由切换按钮组成的[工具栏](/zh-cn/components/toolbar/)（见下文）。 |
+| 作为一个控件工作的筛选条件：一次只打开一个，或者打开好几个，只按一次 Tab 就能越过 | 设置了 `selection`、由筛选纸片组成的标签组（见下文）。 |
+| 必须留在一行上的一排切换按钮 | [工具栏](/zh-cn/components/toolbar/)。 |
 | 两到四个不同的操作 | [按钮组](/zh-cn/components/button-group/)。 |
 | 几个当中选一个 | [单选组](/zh-cn/components/radio-group/)、[标签页](/zh-cn/components/tabs/)或[分段按钮](/zh-cn/components/segmented-button/)。 |
 | 需要可见标签、必填和选填标记和错误信息的控件 | [字段组](/zh-cn/components/field-group/)。 |
@@ -147,37 +148,78 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 给每个成员相同的尺寸。尺寸不同的成员会在所在的行上居中对齐。
 - 没有成员的标签组什么也不绘制，也不占空间。没有标签的帖子不需要特殊处理。
 
-### 一行筛选条件只占一个 Tab 停靠点
-
-标签组让每个纸片各自成为一个 Tab 停靠点，就像按钮组里的每个按钮一样，用户用 Tab 在纸片之间移动。一长行筛选条件应当只按一次 Tab 就能越过时，请改为把筛选条件作为切换按钮放进[工具栏](/zh-cn/components/toolbar/)。工具栏是一个 Tab 停靠点，方向键在它的按钮之间移动，每个按钮保有自己的按下状态。工具栏只有一行：它不会换行。
-
-<DemoFrame label="只占一个 Tab 停靠点的筛选条件：由切换按钮组成的工具栏">
-  <tanrei-toolbar class="not-content" label="筛选条件">
-    <tanrei-button variant="outlined" toggle selected label="未关闭"></tanrei-button>
-    <tanrei-button variant="outlined" toggle label="分配给我"></tanrei-button>
-    <tanrei-button variant="outlined" toggle label="待审阅"></tanrei-button>
-  </tanrei-toolbar>
-</DemoFrame>
-
-```html
-<tanrei-toolbar label="筛选条件">
-  <tanrei-button variant="outlined" toggle selected label="未关闭"></tanrei-button>
-  <tanrei-button variant="outlined" toggle label="分配给我"></tanrei-button>
-  <tanrei-button variant="outlined" toggle label="待审阅"></tanrei-button>
-</tanrei-toolbar>
-```
-
 ### 组的标签
 
 `label` 为辅助技术给这一组命名：“标签”“筛选条件”。它不会被绘制。这一组需要可见的名称时，请在它前面写上你自己的标题或文字，同时仍然提供 `label`。
 
 ### 选择
 
-标签组不持有值。每个筛选纸片持有自己的 `selected`，可以同时打开好几个。如果一次只允许一个筛选条件，请在打开其中一个时自己把其余的关掉。
+默认情况下，标签组不持有值。每个筛选纸片持有自己的 `selected`，每个纸片各自是一个 Tab 停靠点。
+
+筛选条件作为一个控件工作时，请设置 `selection`。给每个筛选纸片一个 `value`，标签组就会说出哪些纸片是打开的。
+
+- `selection="single"`：最多只有一个纸片打开，由 `value` 指明。打开一个纸片会把其余的关掉。把打开的那个纸片关掉之后，就没有纸片打开，`value` 为 `null`，因为每个纸片都是一个开关。
+- `selection="multiple"`：可以打开任意多个，由 `values` 指明。
+
+用户切换一个纸片时，标签组设置 `value` 或 `values`，并触发一次带有 `detail.value` 或 `detail.values` 的 `change`。纸片自己的 `change` 到标签组为止。你自己设置 `value` 或 `values` 时，纸片会随之切换，但不触发任何事件。
+
+有选择时，这一组是一个 Tab 停靠点：上次获得焦点的纸片；没有的话，是第一个打开的纸片；再没有的话，是第一个纸片。方向键按它所指的方向在纸片之间移动，在从右到左的布局中也是如此；Home 和 End 移到第一个和最后一个纸片。这些按键不切换任何纸片，焦点也不会从最后一个纸片循环回第一个。Space 切换获得焦点的纸片。
+
+<DemoFrame label="一次一种排序方式，以及多个筛选条件">
+  <tanrei-tag-group class="not-content" label="排序方式" selection="single" value="updated">
+    <tanrei-chip kind="filter" label="最新" value="newest"></tanrei-chip>
+    <tanrei-chip kind="filter" label="最近更新" value="updated"></tanrei-chip>
+    <tanrei-chip kind="filter" label="评论最多" value="comments"></tanrei-chip>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" label="筛选条件" selection="multiple" values="open review">
+    <tanrei-chip kind="filter" label="未关闭" value="open"></tanrei-chip>
+    <tanrei-chip kind="filter" label="分配给我" value="assigned"></tanrei-chip>
+    <tanrei-chip kind="filter" label="待审阅" value="review"></tanrei-chip>
+    <tanrei-chip kind="filter" label="受阻" value="blocked"></tanrei-chip>
+  </tanrei-tag-group>
+</DemoFrame>
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-tag-group id="filters" label="筛选条件" selection="multiple" values="open">
+      <tanrei-chip kind="filter" label="未关闭" value="open"></tanrei-chip>
+      <tanrei-chip kind="filter" label="分配给我" value="assigned"></tanrei-chip>
+      <tanrei-chip kind="filter" label="待审阅" value="review"></tanrei-chip>
+    </tanrei-tag-group>
+
+    <script type="module">
+      document.querySelector('#filters').addEventListener('change', (event) => {
+        // detail.values：现在打开的纸片的值，标签组已经持有这些值。
+        applyFilters(event.detail.values);
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Chip, TagGroup } from '@tanrei/react';
+
+    <TagGroup label="排序方式" selection="single" value={order} onChange={(event) => setOrder(event.detail.value)}>
+      <Chip kind="filter" label="最新" value="newest" />
+      <Chip kind="filter" label="最近更新" value="updated" />
+      <Chip kind="filter" label="评论最多" value="comments" />
+    </TagGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+选择只包含筛选纸片。这一组里的其他纸片，例如“添加”纸片或已输入的项，用同样的方向键到达，并照常工作。已输入的项仍然用 Backspace 或 Delete 移除，之后获得焦点的纸片成为这一组的 Tab 停靠点。
+
+你拿掉一个筛选纸片时，标签组让 `value` 和 `values` 保持原样。如果这个筛选条件也应当消失，请自己修改它们。
+
+必须始终恰好有一个答案、且无法清除的选择，应使用[分段按钮](/zh-cn/components/segmented-button/)或[单选组](/zh-cn/components/radio-group/)。
 
 ### 移除纸片
 
 纸片请求被移除，由你来移除它。如果当时焦点在这个纸片上，或在它的移除操作上，标签组会把焦点放到它后面的那个纸片上；后面没有纸片时，放到前面的那个上。连续移除好几项的人，可以从原来的位置接着做下去。
+
+除非你在某个纸片上设置 `destructiveRemove`，纸片的移除操作都是普通外观，标签组也不会改变它。只有当移除会丢失一步无法恢复的东西时（例如附件），才设置它；已应用的筛选条件或搜索词一步就能恢复。
 
 有两件事仍然由你负责：
 
@@ -205,8 +247,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 这一组作为一个列表暴露出来，由 `label` 命名。每个成员是其中的一项：Tag 作为它的文本朗读；纸片作为它的按钮或链接朗读，并带上状态；输入纸片旁边还有它的移除操作。
 - 列表会告诉用户一共有多少个成员，以及自己正在其中的哪一个：“列表，4 项”。
 - 成员按给出的顺序朗读和获得焦点，在从右到左的布局中也是如此。
-- 每个纸片在焦点顺序中各是一个停靠点，输入纸片也只是一个：Tab 会跳过它的移除操作，在纸片上按 Backspace 或 Delete 即可移除它。标签组不获得焦点，也不处理任何按键。
-- 获得焦点的纸片被移除之后，焦点会移到下一个纸片上，绝不会移到移除操作上。
+- 没有选择时，每个纸片在焦点顺序中各是一个停靠点，输入纸片也只是一个：Tab 会跳过它的移除操作，在纸片上按 Backspace 或 Delete 即可移除它。标签组不获得焦点，也不处理任何按键。
+- 有选择时，这一组是一个停靠点。方向键、Home 和 End 在它的纸片之间移动，每个筛选纸片仍然说出自己是否处于按下状态。标签组仍然是一个列表，所以屏幕阅读器仍然会说出一共有多少个纸片。
+- 获得焦点的纸片被移除之后，焦点会移到下一个纸片上，绝不会移到移除操作上。有选择时，那个纸片成为这一组的停靠点。
 - 空的标签组不暴露任何东西：没有空列表，也没有名称。
 - 文本放大到 200% 时，成员变大，并换到更多的行上。不截断任何内容，也不出现横向滚动。
 - 在强制颜色模式下，标签组和平时一样什么也不绘制。成员绘制各自的边线。
@@ -227,11 +270,10 @@ Web 上的已知差距：
   }
   ```
 
-- 一组纸片之间不提供方向键导航：每个纸片是一个 Tab 停靠点。应当只占一个停靠点的一长行筛选条件，是由切换按钮组成的[工具栏](/zh-cn/components/toolbar/)，如“一行筛选条件只占一个 Tab 停靠点”中所示。
-
 ### 需要你做的事
 
 - 给标签组一个 `label`。组件不自带任何文字。
 - 给每个输入纸片一个说出其项目名称的 `removeLabel`。
+- 有选择时，给每个筛选纸片一个在这一组中唯一的 `value`。没有 `value` 的筛选纸片不参与选择，调试构建会报告这一点。
 - 纸片触发 `remove` 时移除它；最后一个也移除之后，自己移动焦点。
 - 用每个 Tag 自己的文字说出状态。只靠颜色永远说不出状态。

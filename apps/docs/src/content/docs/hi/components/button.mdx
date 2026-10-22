@@ -2,7 +2,7 @@
 title: बटन
 description: एक टैप या क्लिक से लोगों को कोई क्रिया करने, किसी चीज़ को चालू-बंद करने या किसी गंतव्य पर जाने देता है।
 translationOf: components/button.mdx
-sourceHash: af9d89a6c77ce45b911805a86b07eef4a749f99c
+sourceHash: a587774eb5411058152f514ed38199d856c52a81
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,18 +10,20 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import DemoFrame from '../../../../components/DemoFrame.astro';
+import VisualFrame from '../../../../components/visuals/VisualFrame.astro';
+import StateMatrix from '../../../../components/visuals/StateMatrix.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="button" />
 
-<DemoFrame label="वेरिएंट">
+<VisualFrame label="वेरिएंट" reserve={{ block: 'comp.button.container.height.medium' }} controls="both">
   <tanrei-button variant="filled">Filled</tanrei-button>
   <tanrei-button variant="tonal">Tonal</tanrei-button>
   <tanrei-button variant="elevated">Elevated</tanrei-button>
   <tanrei-button variant="outlined">Outlined</tanrei-button>
   <tanrei-button variant="text">Text</tanrei-button>
-</DemoFrame>
+</VisualFrame>
 
 ### इस्तेमाल
 
@@ -171,6 +173,8 @@ narrow बटन ठीक अपने ग्लिफ़ और हर ओर 
 
 वेरिएंट वैसे ही चुनें जैसे किसी दूसरी क्रिया के लिए। जहाँ हटाना ही वह कदम है जिसके लिए व्यू बना है, जैसे "प्रोजेक्ट हटाएँ?" डायलॉग की पुष्टि वाली क्रिया, वहाँ filled इस्तेमाल करें। जहाँ वह कई क्रियाओं में से एक है, जैसे किसी सूची की हर पंक्ति में "निकालें", वहाँ outlined या text इस्तेमाल करें। सिर्फ़ आइकन वाला बटन भी `destructive` ले सकता है, पर जो क्रिया पलटी नहीं जा सकती उसके लिए ग्लिफ़ से ज़्यादा साफ़ लेबल होता है। टॉगल का कोई विनाशकारी रूप नहीं होता।
 
+लिंक का भी नहीं होता। `href` वाला बटन `destructive` को अनदेखा करता है और अपने वेरिएंट के लिंक की तरह बनता है, क्योंकि लिंक पर जाने से कुछ नहीं हटता: वह व्यक्ति को सिर्फ़ उस जगह ले जाता है जहाँ कुछ हटाया जा सकता है। निशान उस जगह की क्रिया पर लगाएँ, जैसे लिंक से खुलने वाले पेज पर "हटाएँ" बटन। डीबग बिल्ड ऐसे लिंक की रिपोर्ट करता है जिसे `destructive` दिया गया हो।
+
 <DemoFrame label="हर वेरिएंट में विनाशकारी बटन, और सिर्फ़ आइकन वाला बटन" plain>
   <tanrei-button destructive>प्रोजेक्ट हटाएँ</tanrei-button>
   <tanrei-button variant="tonal" destructive>ड्राफ़्ट छोड़ें</tanrei-button>
@@ -258,7 +262,7 @@ narrow बटन ठीक अपने ग्लिफ़ और हर ओर 
   <TabItem label="Web">
     ```html
     <form id="profile">
-      <tanrei-text-field label="नाम" name="name" requirement="required"></tanrei-text-field>
+      <tanrei-text-field label="नाम" name="name" required></tanrei-text-field>
       <tanrei-button type="reset" variant="text">मिटाएँ</tanrei-button>
       <tanrei-button type="submit" variant="outlined" name="intent" value="draft">ड्राफ़्ट सेव करें</tanrei-button>
       <tanrei-button type="submit" name="intent" value="publish">प्रकाशित करें</tanrei-button>
@@ -291,7 +295,7 @@ narrow बटन ठीक अपने ग्लिफ़ और हर ओर 
         save(data.get('name'), data.get('intent'));
       }}
     >
-      <TextField label="नाम" name="name" requirement="required" />
+      <TextField label="नाम" name="name" required />
       <Button type="reset" variant="text">मिटाएँ</Button>
       <Button type="submit" variant="outlined" name="intent" value="draft">ड्राफ़्ट सेव करें</Button>
       <Button type="submit" name="intent" value="publish">प्रकाशित करें</Button>
@@ -341,6 +345,8 @@ narrow बटन ठीक अपने ग्लिफ़ और हर ओर 
   <tanrei-button variant="outlined" disabled>Disabled</tanrei-button>
 </DemoFrame>
 
+<StateMatrix name="button" />
+
 <ComponentSpecs name="button" />
 
 ## दिशानिर्देश
@@ -365,7 +371,7 @@ narrow बटन ठीक अपने ग्लिफ़ और हर ओर 
 
 `destructive` कोई वेरिएंट नहीं है: यह किसी भी वेरिएंट के साथ लगता है, और उस वेरिएंट का ज़ोर बनाए रखता है ([विनाशकारी क्रियाएँ](#विनाशकारी-क्रियाएँ) देखें)।
 
-`variant` के बिना बटन filled होता है, एक अपवाद के साथ: किसी [डायलॉग](/hi/components/dialog/) या [साइड शीट](/hi/components/side-sheet/) की क्रिया के रूप में रखे जाने पर वह उस होस्ट का वेरिएंट लेता है, जो डिफ़ॉल्ट सिस्टम में tonal है, इसलिए आप वेरिएंट सिर्फ़ उस क्रिया पर सेट करते हैं जिसे अलग दिखना चाहिए। साइड शीट का बंद करने वाला बटन इसी तरह शीट के बंद करने वाले बटन के लिए तय वेरिएंट लेता है।
+`variant` के बिना बटन filled होता है, एक अपवाद के साथ: किसी [डायलॉग](/hi/components/dialog/) या [साइड शीट](/hi/components/side-sheet/) की क्रिया के रूप में रखे जाने पर वह उस होस्ट का वेरिएंट लेता है, जो डिफ़ॉल्ट सिस्टम में tonal है, इसलिए आप वेरिएंट सिर्फ़ उस क्रिया पर सेट करते हैं जिसे अलग दिखना चाहिए। हर होस्ट का बंद करने वाला बटन, यानी पॉपओवर, साइड शीट, बॉटम शीट, कॉलआउट, स्नैकबार और इमेज प्रीव्यू का, सिर्फ़ आइकन वाला एक small बटन है, जो इसी तरह अपने होस्ट के बंद करने वाले बटन के लिए तय वेरिएंट लेता है, जो डिफ़ॉल्ट सिस्टम में tonal है। किसी रंगीन सतह पर, जैसे किसी स्थिति वाले कॉलआउट या उलटे स्नैकबार पर, वह उस सतह के टेक्स्ट के रंग में भी बनता है।
 
 ### करें
 
@@ -374,6 +380,7 @@ narrow बटन ठीक अपने ग्लिफ़ और हर ओर 
 - मुख्य क्रिया को वहाँ रखें जहाँ उस प्लैटफ़ॉर्म पर लोग उसकी उम्मीद करते हैं, और पूरे प्रॉडक्ट में वही क्रम बनाए रखें।
 - घने टूलबार और टेबल में `small` (32), डिफ़ॉल्ट रूप से `medium` (40), और टच-प्रधान या हीरो वाली जगहों पर `large` (56) इस्तेमाल करें। हिट एरिया हर साइज़ पर सुरक्षित है।
 - जो क्रिया कुछ हटाती या छोड़ देती है उस पर `destructive` सेट करें, और उसका वेरिएंट किसी भी दूसरी क्रिया की तरह उसके ज़ोर के हिसाब से चुनें।
+- जिस जगह कुछ हटाया जाता है, वहाँ ले जाने वाले लिंक को साधारण लिंक रखें, जिसका लेबल बताए कि वह कहाँ ले जाता है। `destructive` उस बटन पर सेट करें जो उस जगह पर हटाता है।
 - आइकन स्लॉट का इस्तेमाल लेबल को मज़बूत करने के लिए करें। लेबल सिर्फ़ वहाँ छोड़ें जहाँ ग्लिफ़ को ज़्यादातर लोग समझते हैं (खोज, बंद करना, और विकल्प), और बटन को `label` से नाम दें।
 
 ### न करें
@@ -384,6 +391,7 @@ narrow बटन ठीक अपने ग्लिफ़ और हर ओर 
 - वैलिडेशन की समस्या बताने के अकेले तरीक़े के रूप में बटन को अक्षम न करें। उसे सक्षम रखें और दबाए जाने पर बताएँ कि क्या कमी है, या `focusable-when-disabled` से उसे पहुँच में रखें और बताएँ कि क्यों।
 - क्रिया चलते समय बटन को अक्षम न करें। `busy` सेट करें, ताकि फ़ोकस उसी पर रहे।
 - `destructive` का इस्तेमाल ज़ोर देने के लिए, या ऐसी क्रिया के लिए न करें जो कुछ नष्ट नहीं करती। अगर किसी व्यू की हर क्रिया लाल हो, तो कोई भी अलग नहीं दिखती।
+- किसी लिंक को लाल न बनाएँ, और किसी बटन को `href` और `destructive` दोनों न दें। लिंक सिर्फ़ कहीं ले जाता है, इसलिए बटन `destructive` को अनदेखा करता है और अपने वेरिएंट के लिंक की तरह बनता है।
 - लेबल को काटकर छोटा न करें। बटन को बढ़ने दें, या छोटा लेबल लिखें।
 - सिर्फ़ आइकन वाले बटन को `label` के बिना न छोड़ें: ग्लिफ़ कोई नाम नहीं है।
 - सँकरे, सिर्फ़ आइकन वाले बटनों को हाथ से किनारे-से-किनारा सटाकर न रखें। उनके टार्गेट उनके किनारों से आगे तक पहुँचते हैं और एक-दूसरे पर चढ़ जाएँगे।

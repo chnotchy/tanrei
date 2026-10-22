@@ -3,14 +3,14 @@ import { ComposedControl, type ValueMember, composedHost, exported, forward } fr
 import type { FormEntry } from '../../primitives/form-says.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { report } from '../../primitives/report.js';
-import { TanreiField, type TanreiFieldRequiredMark, type TanreiFieldRequirement } from '../field/field.js';
+import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
 import { TanreiSlider, type TanreiSliderChangeDetail, type TanreiSliderSize, type TanreiSliderValueIndicator } from '../slider/slider.js';
 
 // The members' own types are the slider field's: it has no detail type and no type for a prop of its own.
-export type { TanreiFieldRequiredMark, TanreiFieldRequirement, TanreiSliderChangeDetail, TanreiSliderSize, TanreiSliderValueIndicator };
+export type { TanreiFieldRequiredMark, TanreiSliderChangeDetail, TanreiSliderSize, TanreiSliderValueIndicator };
 
 /** SLF-2: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's (W6). */
-const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'requirement', 'requiredMark', 'requiredText', 'optionalText'] as const;
+const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'] as const;
 /**
  * SLF-2: the props that are the Slider's, and the product's function for a value's words (SLD-18). `endLabel` is the
  * Slider's `label` and is given in the template. The Slider's own `disabled` and `orientation` are never set.
@@ -50,7 +50,7 @@ const BETWEEN = ' – ';
  * else, so it draws nothing of its own and has no token — every `--tanrei-comp-field-*` and `--tanrei-comp-slider-*`
  * value reaches the members by inheritance, and one slider field is set apart by setting such a property on this
  * element. Each property is its member's, set on that member unchanged: `label`, `label-hidden`, `supporting-text`,
- * `error-text`, `error`, `disabled`, `requirement`, `required-mark`, `required-text` and `optional-text` are the
+ * `error-text`, `error`, `disabled`, `required`, `optional`, `required-mark`, `required-text` and `optional-text` are the
  * Field's, every other one the Slider's — `end-label` is the Slider's `label`, the name of a range's end handle,
  * because `label` is the visible name here. It has no orientation: the track runs along the line. One level down, the
  * same by hand: `<tanrei-field label="Text size" value-text="120"><tanrei-slider name="text-size" min="50" max="200"
@@ -118,7 +118,8 @@ export class TanreiSliderField extends ComposedControl<number> {
     errorText: { type: String, attribute: 'error-text' },
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
-    requirement: { type: String, reflect: true },
+    required: { type: Boolean, reflect: true },
+    optional: { type: Boolean, reflect: true },
     requiredMark: { type: String, attribute: 'required-mark', reflect: true },
     requiredText: { type: String, attribute: 'required-text' },
     optionalText: { type: String, attribute: 'optional-text' },
@@ -158,8 +159,11 @@ export class TanreiSliderField extends ComposedControl<number> {
   /** @from tanrei-field.disabled */
   disabled = false;
 
-  /** @from tanrei-field.requirement */
-  requirement: TanreiFieldRequirement = 'none';
+  /** @from tanrei-field.required */
+  required = false;
+
+  /** @from tanrei-field.optional */
+  optional = false;
 
   /** @from tanrei-field.requiredMark */
   requiredMark: TanreiFieldRequiredMark = 'auto';

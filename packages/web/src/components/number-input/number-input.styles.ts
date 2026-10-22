@@ -1,6 +1,6 @@
 import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, focusGlow, focusGlowEnds, keptLength, minimumTarget, stateRules } from '../../primitives/index.js';
-import { INPUT_BOX, TRIGGER_SIZE_MEMBERS, floatingLabelStyles, floatingLabelText, triggerEdgeStyles, triggerOn, triggerTokens } from '../../primitives/field-trigger.js';
+import { INPUT_BOX, TRIGGER_SIZE_MEMBERS, floatingLabelStyles, floatingLabelText, stackedBoxStyles, triggerEdgeStyles, triggerOn, triggerTokens } from '../../primitives/field-trigger.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 
@@ -42,7 +42,7 @@ const PREFIX = '--tanrei-comp-number-input';
 const P = unsafeCSS(PREFIX);
 /** The box is drawn from the one set of tokens every input box is drawn from; `PREFIX` is what this component alone draws. */
 const B = unsafeCSS(INPUT_BOX);
-const STATE_MOTION = `var(${INPUT_BOX}-motion-state-duration) var(${INPUT_BOX}-motion-state-easing)`;
+const STATE_MOTION = `var(--_state-duration) var(${INPUT_BOX}-motion-state-easing)`;
 const motion = unsafeCSS(STATE_MOTION);
 // The field's token blocks: per variant both looks' parts in every state, per size the members of the size axis, which
 // look is painted (NMI-10), and each state's paint (NMI-15).
@@ -97,6 +97,7 @@ export const styles = css`
   ${unsafeCSS(CORE_VARIANTS.filter((v) => v !== DEFAULT_VARIANT).map((v) => variantBlock(v, `:host([variant='${v}'])`)).join('\n'))}
   ${unsafeCSS(lookBlock('plain', '.field'))}
   ${unsafeCSS(lookBlock('error', '.field[data-error]'))}
+  ${stackedBoxStyles()}
 
   .field {
     ${unsafeCSS(paint('-r', ''))}

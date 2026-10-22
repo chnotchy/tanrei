@@ -1,0 +1,144 @@
+---
+// A component's state matrix: the live component in each of its states, a row for each value of one of its choices
+// (lib/visuals/states.ts) — Tanrei's Table in the docs' figure frame (VisualFrame.astro), drawn under the default
+// system with the design system switch in its header. A page writes one line, `<StateMatrix name="button" />`, and the
+// six languages share it.
+//
+// - Every cell draws the same element, made from the web package's own fixture document of the spec's first fixture,
+//   with the row's value and the column's prop set on it. A state the browser makes (hovered, focused, pressed) is held
+//   by the figure's script (lib/visuals/pseudo-states.ts), which restyles the element on the docs' side: no attribute
+//   is added to the component for the docs' sake.
+// - A cell is a picture, not a control: what it draws is `inert` and hidden from assistive technology, so Tab does not
+//   pass through fifty buttons, and the cell says in words what it shows («filled, Hovered»), read with the table's
+//   headers. Nothing in it moves (pseudo-states.ts holds its transitions still).
+// - Each cell holds the room of the drawn element before it is defined, from the web package's baseline of the
+//   fixture it is made from, so nothing in the table moves when the elements arrive.
+import VisualFrame from './VisualFrame.astro';
+import Table from '../Table.astro';
+import { contentLang, strings } from '../../lib/i18n';
+import { getSpec } from '../../lib/repo';
+import { cssVar, ns } from '../../lib/tokens';
+import { drawnMatrixOf } from '../../lib/visuals/states';
+
+interface Props {
+  /** The component, by its spec's name. */
+  name: string;
+  /** The choice the rows are the values of; `variant` where the component has one. */
+  rows?: string;
+}
+const { name, rows } = Astro.props;
+const lang = contentLang(Astro);
+const t = strings(lang);
+const spec = getSpec(name);
+const matrix = drawnMatrixOf(name, rows);
+const stateName = (state: string) => t.visuals.stateNames[state] ?? state;
+const rowLabel = (row: (typeof matrix.drawn)[number]) => [row.value ?? spec.title, ...row.also].join(' ');
+const tallest = Math.max(0, ...matrix.drawn.flatMap((row) => row.cells.map((cell) => cell.room?.height ?? 0)));
+const room = (cell: (typeof matrix.drawn)[number]['cells'][number]) => (cell.room ? `min-inline-size: ${cell.room.width}px; min-block-size: ${cell.room.height}px;` : undefined);
+// The custom property that names how the system the figure is drawn under answers a press, read by the script.
+const feedback = cssVar([ns, 'sys', 'behavior', 'pressed-feedback']);
+// The sentence that names the states not drawn, with each state's name as code where the language's list puts it.
+const [before, after] = t.visuals.statesNotShown.split('{states}');
+const notShown = new Intl.ListFormat(lang, { type: 'conjunction' }).formatToParts(matrix.notShown);
+---
+
+<VisualFrame label={t.visuals.statesTitle} reserve={{ block: `${tallest}px` }} controls="both">
+  <Table label={`${spec.title} · ${t.visuals.statesTitle}`} rowHeaders stickyFirstColumn class="docs-state-matrix">
+    <table data-docs-state-matrix data-feedback={feedback} data-element={matrix.tag}>
+      <thead>
+        <tr>
+          {/* The names in the first column are plain words, not inline code, which breaks anywhere and would be cut to a
+              letter a line by a table at a phone's width. */}
+          <th scope="col" data-wrap="false">{matrix.rows ? <span translate="no">{matrix.rows.prop}</span> : spec.title}</th>
+          {
+            matrix.columns.map((column) => (
+              <th scope="col" data-align="center" data-wrap="false">
+                {stateName(column.state)}
+              </th>
+            ))
+          }
+        </tr>
+      </thead>
+      <tbody>
+        {
+          matrix.drawn.map((row) => (
+            <tr>
+              <th scope="row" data-wrap="false">
+                <span translate="no">{[row.value ?? spec.title, ...row.also].join(' · ')}</span>
+              </th>
+              {row.cells.map((cell) => (
+                <td data-align="center" data-wrap="false">
+                  <span class="docs-state-words">{`${rowLabel(row)}, ${stateName(cell.state)}`}</span>
+                  <div class="docs-state-cell" style={room(cell)} inert aria-hidden="true" data-docs-hold={cell.held ?? ''} set:html={cell.html} />
+                </td>
+              ))}
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </Table>
+  <Fragment slot="caption">
+    {t.visuals.statesHeld}
+    {
+      notShown.length > 0 && (
+        <>
+          {' '}
+          {before}
+          {notShown.map((part) => (part.type === 'element' ? <code>{part.value}</code> : part.value))}
+          {after}
+        </>
+      )
+    }
+  </Fragment>
+</VisualFrame>
+
+<script>
+  import '../../lib/register-web';
+  import { SYSTEM_EVENT, whenDrawn } from '../../lib/visuals/frame';
+  import { hold, wordsOf } from '../../lib/visuals/pseudo-states';
+
+  // Each cell's element held in its state once the figure's elements are defined and its time has come; again when
+  // the figure is drawn under another system, whose answer to a press may differ, and whose element may adopt more
+  // sheets.
+  for (const table of document.querySelectorAll<HTMLElement>('[data-docs-state-matrix]')) {
+    const frame = table.closest<HTMLElement>('[data-docs-visual]');
+    const property = table.dataset.feedback;
+    const tag = table.dataset.element;
+    if (!frame || !property || !tag) continue;
+    const holdAll = () => {
+      for (const cell of table.querySelectorAll<HTMLElement>('[data-docs-hold]')) {
+        const element = cell.querySelector(tag);
+        if (!(element instanceof HTMLElement)) continue;
+        hold(element, wordsOf(cell.dataset.docsHold ?? '', getComputedStyle(element).getPropertyValue(property).trim()));
+      }
+    };
+    whenDrawn(frame, () => {
+      holdAll();
+      frame.addEventListener(SYSTEM_EVENT, holdAll);
+    });
+  }
+</script>
+
+<style is:global>
+  /* The table is as wide as the stage at most: it scrolls inside its own box, its first column (the rows' names) in
+     view, rather than making the stage scroll. */
+  .docs-state-matrix {
+    min-inline-size: 0;
+    max-inline-size: 100%;
+  }
+  /* A cell draws its element in the middle of the room it holds. */
+  .docs-state-cell {
+    display: grid;
+    place-items: center;
+  }
+  /* What a cell shows, in words: read with the table's headers, never drawn. */
+  .docs-state-words {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+</style>

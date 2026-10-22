@@ -250,6 +250,7 @@ Round caps (`lineCap="round"`) make every dot a disc and every dash a rounded ba
 - Don't use a divider as a border or an outline of a container. It has no container and no shape.
 - Don't make it thicker or colored to give it meaning. `thickness` is for a pattern that needs the room to be seen, or a rule that matches thicker lines around it. The divider's color is not held to a contrast ratio, because the content it separates must be understood without it.
 - Don't add a divider inside a component that separates its own parts, such as between a menu's groups or a list's rows. Use the component's own prop.
+- Don't place a divider at the edge of a box that scrolls to say that more lies beyond it. A [scroll area](/components/scroll-area/) marks that edge, only while content lies beyond it, in the form the design system chose.
 - Don't let a line style carry meaning on its own. If a dashed line means "cut here", say so in text as well.
 - Don't rely on it for a heading. "— or —" between two forms is two dividers and a label, and the label carries the meaning.
 

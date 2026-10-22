@@ -7,8 +7,8 @@
 // `/fixtures/<component>/?id=<fixture>` draws that one fixture; without an `id` it draws nothing. The page is the
 // windows' and no reader's: it stands outside the documentation's frame, nothing on the site links to it, the site's
 // search does not index it (it has no `data-pagefind-body`), it asks search engines not to index it, and the sitemap
-// leaves it out (astro.config.mjs). The scheme is the one the site's picker stored, else the system's; a window sets
-// its own once it has loaded.
+// leaves it out (astro.config.mjs). The scheme and the contrast are the ones the site stored, else the system's; the
+// gallery gives a window its stage's once it has loaded.
 import '../../styles/fixture-page.css';
 import { specs } from '../../lib/repo';
 import { documentedComponents, fixtureDocument } from '../../lib/fixture-documents';
@@ -23,25 +23,35 @@ const spec = specs[Astro.params.component as string];
 const document = fixtureDocument(spec.name)!;
 const stages = document.stages.map((stage) => stage.html).join('\n');
 const holder = document.page ? 'div' : 'main';
+// The system the stages are drawn under (a component that lives in a layer is drawn under that layer's): its scope on the
+// page, and its opt-in stylesheet.
+const stylesheets = import.meta.glob<string>('../../../../../packages/web/src/generated/systems/*.css', { eager: true, query: '?url', import: 'default' });
+const systemSheet = document.system ? Object.entries(stylesheets).find(([file]) => file.endsWith(`/${document.system}.css`))?.[1] : undefined;
+if (document.system && !systemSheet) throw new Error(`fixtures/${spec.name}: no generated stylesheet for the system "${document.system}"`);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-tanrei-system={document.system}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex" />
     <title>{spec.title} · {spec.name}</title>
     <script is:inline>
-      // The scheme, before the first paint: the one the site's picker stored, else the system's.
+      // The scheme and the contrast, before the first paint: the ones the site's picker and contrast switch stored, else
+      // the system's. The page that holds the window gives it every later change of either (lib/fixture-stages.ts).
       (() => {
         let stored = null;
+        let contrast = null;
         try {
           stored = localStorage.getItem('starlight-theme');
+          contrast = localStorage.getItem('tanrei-docs-contrast');
         } catch {}
         if (stored === 'dark' || stored === 'light') document.documentElement.dataset.tanreiTheme = stored;
+        if (contrast === 'medium' || contrast === 'high') document.documentElement.dataset.tanreiContrast = contrast;
       })();
     </script>
+    {systemSheet && <link rel="stylesheet" href={systemSheet} />}
     <Fragment set:html={`<style>${document.styles}</style>`} />
   </head>
   <body data-component={spec.name}>

@@ -2,7 +2,7 @@
 title: "颜色输入框"
 description: "用户在里面设置一种颜色的那个方框——颜色的样本、可以阅读、键入和粘贴的文本值，以及一个用来请求选择器的按钮——它自己没有标签行、帮助文本和错误文本。用于已经为这种颜色命名的行或列，或者放进产品自己组合的字段里。"
 translationOf: components/color-input.mdx
-sourceHash: 5885b9f8c0f343c08541c5f3fa755279bd351aaa
+sourceHash: d34d509c0e3d4ab5d450352da69d5c2088816cda
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -73,7 +73,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { ColorInput } from '@tanrei/react';
+    // 进阶组件（用于构成其他组件的部件）从 advanced 入口导入。
+    import { ColorInput } from '@tanrei/react/advanced';
 
     <ColorInput label="主色，色调 40" value={tone} picker pickerLabel="选择“主色，色调 40”的颜色"
       onChange={(event) => setTone(event.currentTarget.value)} />
@@ -86,7 +87,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 用字段包住一个颜色输入框，就是把颜色字段拆开来写。输入框自己的 `label` 留空：由字段为它命名。`label`、`error`、`disabled` 和必填设置写在字段上；`name`、`value`、`invalidText` 和选择器写在输入框上。
 
 ```html
-<tanrei-field label="品牌色" requirement="required" required-text="必填"
+<tanrei-field label="品牌色" required required-text="必填"
   supporting-text="六位十六进制数字，例如 #0f766e。">
   <tanrei-color-input name="brand" value="#0f766e"
     invalid-text="请输入六位十六进制数字，例如 #0f766e。"
@@ -95,7 +96,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="里面放着一个颜色输入框的字段：画面与颜色字段相同" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="品牌色" requirement="required" required-text="必填" supporting-text="六位十六进制数字，例如 #0f766e。">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="品牌色" required required-text="必填" supporting-text="六位十六进制数字，例如 #0f766e。">
     <tanrei-color-input value="#0f766e" invalid-text="请输入六位十六进制数字，例如 #0f766e。" picker picker-label="选择颜色"></tanrei-color-input>
   </tanrei-field>
 </DemoFrame>
@@ -128,7 +129,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 方框本身在单独使用、放在字段里和用在颜色字段里时都一样，只在颜色字段的页面上写一次：[方框的各个部件](/zh-cn/components/color-field/#字段)、[值和文本](/zh-cn/components/color-field/#值和文本)，以及[选择器](/zh-cn/components/color-field/#选择器)。
 
-三种变体和三种尺寸——`small`（40）、`medium`（48）和 `large`（56）——都是文本输入框的。默认系统只提供 `stacked`。色块位于文本输入框放前置图标的位置，大小也与那个图标相同，所以颜色输入框放在带前置图标的文本输入框下方时，两者的起始边是对齐的。
+三种变体和三种尺寸——`small`（32）、`medium`（40）和 `large`（56）——都是文本输入框的。默认系统只提供 `stacked`。色块位于文本输入框放前置图标的位置，大小也与那个图标相同，所以颜色输入框放在带前置图标的文本输入框下方时，两者的起始边是对齐的。
 
 ### 单独使用，没有字段
 

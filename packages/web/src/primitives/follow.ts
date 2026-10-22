@@ -24,6 +24,13 @@ import type { ReactiveController, ReactiveControllerHost } from 'lit';
 // The component keeps what it compares and how it places: `check()` reads what the placement depends on, places again
 // if that differs from what it placed for, and says whether it did.
 //
+// An overlay with nothing drawn beside it no longer says what it belongs to (Floating UI's `hide` middleware,
+// `referenceHidden`; CSS anchor positioning's `position-visibility: anchors-visible`). Given its `anchor`, the
+// controller tells the component (`undrawn()`, once each time) when that anchor is no longer drawn: taken out of the
+// page, `display: none` (on it or on an ancestor), `visibility: hidden`, or skipped by `content-visibility`. Each of
+// these is seen by the observers above: the anchor's size becomes 0 × 0 (a ResizeObserver report), or an attribute
+// changed on an ancestor (a class, a style).
+//
 // What this cannot see (the frame loop could): an element followed that moves by less than a pixel with no event, one
 // that moves while it is wholly outside the viewport or has no area, a style sheet replaced so that an inherited value
 // changes with no attribute changed on an ancestor, and an anchor moved to another parent while the overlay is open.
@@ -44,6 +51,21 @@ export interface FollowOptions {
   sized?: () => Iterable<Maybe>;
   /** Places again if what the placement depends on changed; returns whether it did. */
   check: () => boolean;
+  /** The element the overlay stands beside, whose being drawn `undrawn()` is about (the anchor; a context menu's area). */
+  anchor?: () => Element | null | undefined;
+  /** The anchor is no longer drawn (`anchorUndrawn()`): called once each time it goes, with no placement for it. */
+  undrawn?: () => void;
+}
+
+/**
+ * Whether an anchor is no longer drawn: out of the page, without a box (`display: none` on it or an ancestor),
+ * `visibility: hidden`, or in a subtree `content-visibility` skips (hidden, or auto off screen). An engine without
+ * `checkVisibility()` sees a box only.
+ */
+export function anchorUndrawn(element: Element): boolean {
+  if (!element.isConnected) return true;
+  if (typeof element.checkVisibility === 'function') return !element.checkVisibility({ visibilityProperty: true, contentVisibilityAuto: true });
+  return element.getClientRects().length === 0;
 }
 
 /** The size a ResizeObserver last reported, as one comparable string. */
@@ -54,7 +76,8 @@ const sizeOf = (entry: ResizeObserverEntry) => {
 
 /**
  * Follows what an overlay is placed against by events, frame by frame only while it moves (TIP-9, MNU-2, MNU-46,
- * FBM-13, SRC-7, DTM-2). `start()` when the overlay is shown and placed, `stop()` when it is hidden.
+ * FBM-13, SRC-7, DTM-2), and tells it when its anchor is no longer drawn (MNU-65, DTM-51). `start()` when the overlay is
+ * shown and placed, `stop()` when it is hidden.
  */
 export class FollowController implements ReactiveController {
   private active = false;
@@ -71,6 +94,10 @@ export class FollowController implements ReactiveController {
   private attributes: MutationObserver | null = null;
   private readonly places = new Map<Element, IntersectionObserver>();
   private scheme: MediaQueryList | null = null;
+  /** The anchor was found not drawn, and the component told; until it is drawn again. */
+  private undrawn = false;
+  /** The anchor last found: one taken out of the page is no longer found by its id, and is still the one that went. */
+  private lastAnchor: Element | null = null;
 
   constructor(
     private readonly host: Host,
@@ -96,6 +123,8 @@ export class FollowController implements ReactiveController {
   start() {
     if (this.active || typeof window === 'undefined') return;
     this.active = true;
+    this.undrawn = false;
+    this.lastAnchor = null;
     window.addEventListener('scroll', this.request, { capture: true, passive: true });
     window.addEventListener('resize', this.request, { passive: true });
     window.visualViewport?.addEventListener('resize', this.request, { passive: true });
@@ -126,6 +155,7 @@ export class FollowController implements ReactiveController {
     this.resizes = this.attributes = null;
     this.followed = [];
     this.sized = [];
+    this.lastAnchor = null;
   }
 
   /** Something this cannot see may have changed the placement: checked in the next frame, and for as long as it changes. */
@@ -143,9 +173,30 @@ export class FollowController implements ReactiveController {
     if (this.active && this.quiet < QUIET) this.frame = requestAnimationFrame(this.step);
   };
 
+  /**
+   * Whether the anchor is not drawn: the component is told the first time, and nothing is placed against it while it
+   * is not (its box is 0 × 0 at the window's corner, or the last one it had).
+   */
+  private anchorGone(): boolean {
+    if (!this.options.undrawn) return false;
+    const found = this.options.anchor?.() ?? null;
+    if (found) this.lastAnchor = found;
+    const anchor = found ?? this.lastAnchor;
+    const gone = !!anchor && anchorUndrawn(anchor);
+    if (gone && !this.undrawn) {
+      this.undrawn = true;
+      this.options.undrawn?.();
+    } else if (!gone) this.undrawn = false;
+    return gone;
+  }
+
   /** One check; what is watched is read again after it, and each followed element's box is taken as its place. */
   private run(): boolean {
+    if (this.anchorGone()) return false;
     const changed = this.options.check();
+    // What the check wrote on what is watched (the surface's place, its cap read and put back) is the component's own,
+    // not a move: an attribute record it left would ask for the next frame, and that frame's check for the one after.
+    this.attributes?.takeRecords();
     if (!this.active) return changed;
     const followed = [...this.options.followed()].filter((element): element is Element => !!element);
     const sized = [...(this.options.sized?.() ?? [])].filter((element): element is Element => !!element);

@@ -55,7 +55,7 @@
               "Align a column of numbers to the end; leave text at the start. Do not centre text.",
               "The table never sorts, filters, fetches or pages. A sortable header asks: it tells the product which column and which direction, and draws the direction the product then sets. One column is sorted at a time.",
               "The sorted column is told by its mark and by its label in the color of the data, not by a fill and never by the primary or the accent color.",
-              "A selected row takes the quiet selection (secondary-container), the same in a list and in a tree. Its checkbox says the same without color. Never use the primary fill or the accent for it.",
+              "A selected row takes the quiet selection, the same in a list and in a tree: in the default system a layer of the row's text color. Its checkbox says the same without color. Never use the primary fill or the accent for it.",
               "A row that can be chosen is pressed anywhere, as one target: each condition's state-layer.color is what hover and press mix into its fill, and it aliases the row's text color. The row answers a pointer only; its checkbox is its control for the keyboard and for assistive technology.",
               "Rows are rows: a table with checkboxes is still a table, each checkbox and each sortable header its own Tab stop. Do not turn it into a grid of cells moved through with arrow keys.",
               "An empty body shows the product's Empty state in the empty slot; a body that is being fetched is loading, with placeholder rows that hold the product's Skeletons or the rows it had. The table writes no word of its own in either.",
@@ -173,7 +173,7 @@
             "container": {
               "color": {
                 "$value": "{tanrei.sys.color.secondary-container}",
-                "$description": "The fill of a body row that is selected, across the row's whole width, in place of a stripe: the quiet selection, a selected list item's and a selected tree row's. A first column kept in view takes it over sticky.container.color."
+                "$description": "The fill of a body row that is selected, across the row's whole width, in place of a stripe: the quiet selection, a selected list item's and a selected tree row's. A first column kept in view takes it over sticky.container.color. The role named here is the quiet selection's; the default system does not draw that tone — it values this token as a layer of the row's own content color (selected.state-layer.color at the selected layer, sys.state.selected-state-layer-opacity: 16 %, twice the hover layer: tokens/systems/tanrei.system.json), as a list values its selected option, so that the fill is seen by the same step on whatever the surface is and stands apart from a hovered row. A design system that sets this token draws what it sets."
               }
             },
             "text": {
@@ -195,10 +195,34 @@
             "$type": "dimension",
             "$description": "Space above and below a cell's content, per density. A row is as tall as its tallest cell: this padding twice and the lines of that cell's text. The table has no row height of its own.",
             "regular": {
-              "$value": "{tanrei.sys.space.space150}"
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.sys.space.space150}",
+                  "by": 1,
+                  "times": "{tanrei.dial.density}",
+                  "round": "{tanrei.sys.space.space25}"
+                }
+              }
             },
             "compact": {
-              "$value": "{tanrei.sys.space.space75}"
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.sys.space.space75}",
+                  "by": 1,
+                  "times": "{tanrei.dial.density}",
+                  "round": "{tanrei.sys.space.space25}"
+                }
+              }
             }
           },
           "padding-inline": {
@@ -485,16 +509,16 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$value": "{tanrei.sys.motion.role.state.large}",
             "$description": "How long a sortable header takes to change between its states."
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long the answer to a press on a sortable header takes to spread when sys.behavior.pressed-feedback is ripple: the pressed layer grows from the point of contact over this time, with state-easing. Unused by the other choices."
           }
         }

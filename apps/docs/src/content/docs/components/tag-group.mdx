@@ -117,7 +117,8 @@ On the web it is `<tanrei-tag-group>`. The other platforms have not implemented 
 | Static tags: an article's categories, the values a setting can take, a row of statuses | A tag group with `spacing="tags"`. |
 | Tags that lead to each tag's page | A tag group of chips with `href`. A tag is text and cannot be a link. |
 | Filters above a list, suggestions under a field, items a person entered | A tag group of chips. |
-| A long row of filters that should cost one Tab press to cross | A [toolbar](/components/toolbar/) of toggle buttons (below). |
+| Filters that work as one control: one on at a time, or several, crossed with one Tab press | A tag group of filter chips with `selection` (below). |
+| A row of toggle buttons that must stay on one line | A [toolbar](/components/toolbar/). |
 | Two to four different actions | A [button group](/components/button-group/). |
 | One choice among several | A [radio group](/components/radio-group/), [tabs](/components/tabs/) or a [segmented button](/components/segmented-button/). |
 | Controls that need a visible label, a requirement and an error | A [field group](/components/field-group/). |
@@ -145,37 +146,78 @@ A design system may add values of `spacing`.
 - Give every member the same size. Members of different sizes are centred on their line.
 - A group with no member draws nothing and takes no space. A post with no tags needs no special case.
 
-### One Tab stop for a row of filters
-
-A tag group gives each chip its own Tab stop, as each button of a button group has, and a person moves through the chips with Tab. Where a long row of filters should cost one Tab press to cross, put the filters in a [toolbar](/components/toolbar/) as toggle buttons instead. The toolbar is one Tab stop, the arrow keys move between its buttons, and each button keeps its own pressed state. A toolbar is one row: it does not wrap.
-
-<DemoFrame label="Filters as one Tab stop: a toolbar of toggle buttons">
-  <tanrei-toolbar class="not-content" label="Filters">
-    <tanrei-button variant="outlined" toggle selected label="Open"></tanrei-button>
-    <tanrei-button variant="outlined" toggle label="Assigned to me"></tanrei-button>
-    <tanrei-button variant="outlined" toggle label="Needs review"></tanrei-button>
-  </tanrei-toolbar>
-</DemoFrame>
-
-```html
-<tanrei-toolbar label="Filters">
-  <tanrei-button variant="outlined" toggle selected label="Open"></tanrei-button>
-  <tanrei-button variant="outlined" toggle label="Assigned to me"></tanrei-button>
-  <tanrei-button variant="outlined" toggle label="Needs review"></tanrei-button>
-</tanrei-toolbar>
-```
-
 ### The label
 
 `label` names the set for assistive technology: "Tags", "Filters". It is not drawn. Where the set needs a visible name, write your own heading or text before it, and still give `label`.
 
 ### Selection
 
-The group holds no value. Each filter chip holds its own `selected`, and several may be on at once. For one filter at a time, switch the others off yourself when one is switched on.
+By default the group holds no value. Each filter chip holds its own `selected`, and each chip is its own Tab stop.
+
+Set `selection` when the filters work as one control. Give each filter chip a `value`; the group then says which chips are on.
+
+- `selection="single"`: at most one chip is on, named by `value`. Switching a chip on switches the others off. Switching the chip that is on off leaves none on, and `value` is `null`, because each chip is a toggle.
+- `selection="multiple"`: any number are on, named by `values`.
+
+When a person switches a chip, the group sets `value` or `values` and fires one `change` with `detail.value` or `detail.values`. The chip's own `change` stops at the group. Setting `value` or `values` yourself switches the chips and fires nothing.
+
+With a selection the set is one Tab stop: the chip that last had focus, otherwise the first chip that is on, otherwise the first chip. The arrow keys move between the chips the way they point, also in a right-to-left layout, and Home and End go to the first and the last. They switch nothing, and focus does not wrap from the last chip to the first. Space switches the focused chip.
+
+<DemoFrame label="One sort order at a time, and several filters">
+  <tanrei-tag-group class="not-content" label="Sort by" selection="single" value="updated">
+    <tanrei-chip kind="filter" label="Newest" value="newest"></tanrei-chip>
+    <tanrei-chip kind="filter" label="Recently updated" value="updated"></tanrei-chip>
+    <tanrei-chip kind="filter" label="Most comments" value="comments"></tanrei-chip>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" label="Filters" selection="multiple" values="open review">
+    <tanrei-chip kind="filter" label="Open" value="open"></tanrei-chip>
+    <tanrei-chip kind="filter" label="Assigned to me" value="assigned"></tanrei-chip>
+    <tanrei-chip kind="filter" label="Needs review" value="review"></tanrei-chip>
+    <tanrei-chip kind="filter" label="Blocked" value="blocked"></tanrei-chip>
+  </tanrei-tag-group>
+</DemoFrame>
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-tag-group id="filters" label="Filters" selection="multiple" values="open">
+      <tanrei-chip kind="filter" label="Open" value="open"></tanrei-chip>
+      <tanrei-chip kind="filter" label="Assigned to me" value="assigned"></tanrei-chip>
+      <tanrei-chip kind="filter" label="Needs review" value="review"></tanrei-chip>
+    </tanrei-tag-group>
+
+    <script type="module">
+      document.querySelector('#filters').addEventListener('change', (event) => {
+        // detail.values: the values of the chips that are now on, which the group already holds.
+        applyFilters(event.detail.values);
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Chip, TagGroup } from '@tanrei/react';
+
+    <TagGroup label="Sort by" selection="single" value={order} onChange={(event) => setOrder(event.detail.value)}>
+      <Chip kind="filter" label="Newest" value="newest" />
+      <Chip kind="filter" label="Recently updated" value="updated" />
+      <Chip kind="filter" label="Most comments" value="comments" />
+    </TagGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+A selection holds filter chips only. Other chips in the set, such as an "Add" chip or entered items, are reached with the same arrow keys and work as they always do. An entered item is still removed with Backspace or Delete, and the chip that then has focus becomes the set's Tab stop.
+
+When you take a filter chip away, the group leaves `value` and `values` as they are. Change them yourself if the filter should be gone too.
+
+A choice that must always have exactly one answer, with no way to clear it, is a [segmented button](/components/segmented-button/) or a [radio group](/components/radio-group/).
 
 ### Removing a chip
 
 A chip asks to be removed and you remove it. If focus was on that chip or on its remove action, the group puts focus on the chip that followed, or on the one before when none follows. A person who removes several items in a row goes on from where they were.
+
+A chip's remove action is plain unless you set `destructiveRemove` on that chip, and the group does not change it. Set it only where removing loses something that cannot be put back in a step, such as an attachment; an applied filter or a search term comes back in one step.
 
 Two things stay yours:
 
@@ -203,8 +245,9 @@ Two things stay yours:
 - The set is exposed as one list, named by `label`. Each member is one item of it: a tag is read as its text, a chip as its button or its link with its state, and an input chip with its remove action beside it.
 - A list tells a person how many members there are and where they are among them: "list, 4 items".
 - The members are read and focused in the order given, in a right-to-left layout too.
-- Each chip is its own stop in the focus order, and an input chip one: Tab passes its remove action, and Backspace or Delete on the chip removes it. The group takes no focus and handles no key.
-- After a focused chip is removed, focus goes to the next chip, never to a remove action.
+- Without a selection, each chip is its own stop in the focus order, and an input chip one: Tab passes its remove action, and Backspace or Delete on the chip removes it. The group takes no focus and handles no key.
+- With a selection, the set is one stop. The arrow keys, Home and End move between its chips, and each filter chip still says it is pressed or not. The group is still a list, so a screen reader still says how many chips there are.
+- After a focused chip is removed, focus goes to the next chip, never to a remove action. With a selection, that chip becomes the set's stop.
 - An empty group exposes nothing: no empty list and no name.
 - At 200% text the members grow and wrap onto more lines. Nothing is cut and nothing scrolls sideways.
 - In forced colors the group draws nothing, as before. The members draw their own edges.
@@ -225,11 +268,11 @@ Known gaps on the web:
   }
   ```
 
-- Arrow keys between the chips of a set are not provided: each chip is a Tab stop. A long row of filters that should be one stop is a [toolbar](/components/toolbar/) of toggle buttons, as shown under "One Tab stop for a row of filters".
 
 ### What you need to do
 
 - Give the group a `label`. The component supplies no words of its own.
 - Give each input chip a `removeLabel` that names the item.
+- With a selection, give each filter chip a `value`, unique in the set. A filter chip without one is left out of the selection, and a debug build says so.
 - Remove a chip when it fires `remove`, and move focus yourself when the last one has gone.
 - Say a status in each tag's words. Color alone never says it.
