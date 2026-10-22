@@ -373,6 +373,46 @@ test.describe('overlay', () => {
     await expect(surface(page, 'edit')).not.toHaveClass(/side-top/);
   });
 
+  test('MNU-2, MNU-46: no taller than the product lets its surface be — its own max-block-size on the surface part, in pixels or a percentage — scrolled beyond it, and placed by that height, as a submenu is', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 600 });
+    const long = Array.from({ length: 16 }, (_, n) => it(`Item ${n + 1}`));
+    await mountFixtures(page, spec, { fixtures: [overlay('down', long), overlay('up', long, { placement: 'top-start' }), overlay('nested', [sub('More', long), it('Last')])] });
+    await page.addStyleTag({
+      content: `#a-down { position: fixed; top: 40px; left: 40px; } #a-up { position: fixed; top: 560px; left: 300px; } #a-nested { position: fixed; top: 40px; left: 400px; }
+        tanrei-menu::part(surface) { max-block-size: 150px; } tanrei-submenu::part(surface) { max-block-size: 30%; }`,
+    });
+    await wire(page);
+    const offset = await resolveToken(page, T('surface-offset'));
+    const open = async (id: string) => {
+      await menu(page, id).evaluate((el: any) => (el.open = true));
+      await expect.poll(() => isOpen(page, id)).toBe(true);
+      await motionEnded(page);
+      return [await bounds(anchor(page, id)), await bounds(surface(page, id))] as const;
+    };
+    let [a, s] = await open('down');
+    expect(s.height, 'the room below is larger: the product’s cap holds it').toBeCloseTo(150, 0);
+    expect(s.y).toBeCloseTo(a.y + a.height + offset, 0);
+    expect(await menu(page, 'down').locator('.scroll').evaluate((el) => el.scrollHeight > el.clientHeight), 'its items scroll').toBe(true);
+    await menu(page, 'down').evaluate((el: any) => (el.open = false));
+    // Above its anchor, its bottom edge stands the offset above the anchor at the capped height.
+    [a, s] = await open('up');
+    expect(s.height).toBeCloseTo(150, 0);
+    expect(s.y + s.height).toBeCloseTo(a.y - offset, 0);
+    // The product changes its cap while the menu is open: placed again by the new one.
+    await page.addStyleTag({ content: `tanrei-menu::part(surface) { max-block-size: 100px; }` });
+    await menu(page, 'up').evaluate((el) => el.setAttribute('data-capped', ''));
+    await expect.poll(async () => (await bounds(surface(page, 'up'))).height).toBeCloseTo(100, 0);
+    s = await bounds(surface(page, 'up'));
+    expect(s.y + s.height).toBeCloseTo(a.y - offset, 0);
+    await menu(page, 'up').evaluate((el: any) => (el.open = false));
+    // A submenu's surface, by a percentage of the window's height.
+    await open('nested');
+    const submenu = labelled(page, 'nested', 'More');
+    await submenu.evaluate((el: any) => (el.open = true));
+    await expect.poll(() => shown(submenu)).toBe(true);
+    await expect.poll(async () => (await surfaceBox(submenu)).height).toBeCloseTo(600 * 0.3, 0);
+  });
+
   test('MNU-4: it fades in and grows from the edge facing the anchor, fades out, and appears and disappears at once where motion is reduced', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [overlay('edit', EDIT)] });
     await wire(page);

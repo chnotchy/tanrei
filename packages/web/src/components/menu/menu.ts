@@ -39,6 +39,7 @@ import {
   registerOverlay,
   report,
   styleQueries,
+  surfaceCap,
   swallowRelease,
   syncFocusStyle,
   syncSeparation,
@@ -1829,15 +1830,18 @@ export class TanreiMenu extends TanreiElement {
     const lead = () => (first ? first.getBoundingClientRect().top - own.getBoundingClientRect().top + (submenu.scrollElement?.scrollTop ?? 0) : 0);
     // The surface's size as laid out, fractional (layoutSize): a snapped width would end it up to a pixel off its edge.
     const free = layoutSize(own).width;
-    let at = placeSubmenu({ ...input, surface: { width: free, height: naturalHeight(own, scroll) }, lead: lead() });
+    // MNU-46: no taller than the product lets it be (its own `max-block-size` on the surface part), nor than the room.
+    const cap = surfaceCap(own);
+    const height = () => Math.min(naturalHeight(own, scroll), cap);
+    let at = placeSubmenu({ ...input, surface: { width: free, height: height() }, lead: lead() });
     if (at.width < free) {
       // Narrowed, its items wrap: it is placed again at the height that gives.
       own.style.inlineSize = `${at.width}px`;
-      at = placeSubmenu({ ...input, surface: { width: layoutSize(own).width, height: naturalHeight(own, scroll) }, lead: lead() });
+      at = placeSubmenu({ ...input, surface: { width: layoutSize(own).width, height: height() }, lead: lead() });
     }
     own.style.top = `${at.top}px`;
     own.style.left = `${at.left}px`;
-    own.style.maxBlockSize = `${at.maxHeight}px`;
+    own.style.maxBlockSize = `${Math.min(at.maxHeight, cap)}px`;
     if (scroll && scroll.scrollTop !== scrolled) scroll.scrollTop = scrolled;
     own.classList.toggle('side-left', at.side === 'left');
     submenu.side = at.side;
@@ -2319,7 +2323,9 @@ export class TanreiMenu extends TanreiElement {
     const margin = Number.parseFloat(style.scrollMarginBlockEnd) || 0;
     // The surface's size as laid out, fractional and untouched by the enter motion's scale (layoutSize): a snapped
     // one would put an end-aligned or top-side surface up to a pixel off its anchor.
-    const size = { width: layoutSize(surface).width, height: naturalHeight(surface, scroll) };
+    // MNU-2: no taller than the product lets it be (its own `max-block-size` on the surface part), nor than the room.
+    const cap = surfaceCap(surface);
+    const size = { width: layoutSize(surface).width, height: Math.min(naturalHeight(surface, scroll), cap) };
     const viewport = visibleViewport();
     const against = this.placedAgainst() ?? { box: { x: viewport.x + margin, y: viewport.y + margin, width: 0, height: 0 }, point: false };
     const rtl = getComputedStyle(this).direction === 'rtl';
@@ -2329,7 +2335,7 @@ export class TanreiMenu extends TanreiElement {
       : placeMenu({ anchor: against.box, surface: size, viewport, placement, offset, margin, rtl });
     surface.style.top = `${at.top}px`;
     surface.style.left = `${at.left}px`;
-    surface.style.maxBlockSize = `${at.maxHeight}px`;
+    surface.style.maxBlockSize = `${Math.min(at.maxHeight, cap)}px`;
     surface.classList.toggle('side-top', at.side === 'top');
   }
 
@@ -2344,8 +2350,10 @@ export class TanreiMenu extends TanreiElement {
     const scroll = this.scrollBox;
     const direction = getComputedStyle(this).direction;
     const viewport = viewportKey();
-    // MNU-32: the layout direction is part of where the surface goes — a change of it places the surface again.
-    const layout = `${box?.x},${box?.y},${box?.width},${box?.height},${viewport},${scroll?.scrollHeight},${scroll?.scrollWidth},${direction}`;
+    // MNU-32: the layout direction is part of where the surface goes — a change of it places the surface again; so is
+    // the product's cap on its height, which no size of the surface reports while the cap the placement wrote holds it.
+    const cap = (surface: HTMLElement | null | undefined) => (surface ? surfaceCap(surface) : '');
+    const layout = `${box?.x},${box?.y},${box?.width},${box?.height},${viewport},${scroll?.scrollHeight},${scroll?.scrollWidth},${direction},${cap(this.surface)}`;
     if (layout !== this.lastLayout) {
       this.lastLayout = layout;
       this.place();
@@ -2366,7 +2374,7 @@ export class TanreiMenu extends TanreiElement {
         changed = true;
         break;
       }
-      const placed = `${row.x},${row.y},${row.width},${row.height},${parent.x},${parent.y},${parent.width},${parent.height},${viewport},${own?.scrollHeight},${own?.scrollWidth},${direction}`;
+      const placed = `${row.x},${row.y},${row.width},${row.height},${parent.x},${parent.y},${parent.width},${parent.height},${viewport},${own?.scrollHeight},${own?.scrollWidth},${direction},${cap(submenu.surfaceElement)}`;
       if (placed === submenu.lastLayout) continue;
       submenu.lastLayout = placed;
       this.placeSubmenu(submenu);

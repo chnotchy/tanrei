@@ -269,6 +269,30 @@ export function visibleViewport(): ViewportBox {
 /** The visible part of the window as one comparable string: what a placement that depends on it compares. */
 export const viewportKey = (box: ViewportBox = visibleViewport()) => `${box.x},${box.y},${box.width},${box.height}`;
 
+/**
+ * The most a product lets a placed surface be tall (MNU-2, MNU-46): the `max-block-size` the product's own rules give it
+ * (`::part(surface)`), read as a computed value with the height the placement writes on the surface taken off, in
+ * pixels; Infinity where it sets none. A length the computed value keeps relative (a percentage, a `calc()` with one) is
+ * resolved as the surface's own is: on a fixed box, against the window.
+ */
+export function surfaceCap(surface: HTMLElement): number {
+  const written = surface.style.maxBlockSize;
+  surface.style.maxBlockSize = '';
+  const value = getComputedStyle(surface).maxBlockSize;
+  surface.style.maxBlockSize = written;
+  if (!value || value === 'none') return Number.POSITIVE_INFINITY;
+  if (/^-?[\d.]+(e-?\d+)?px$/i.test(value)) return Math.max(0, Number.parseFloat(value));
+  // A fixed box beside the surface, as tall as that length, measures it.
+  const probe = document.createElement('div');
+  probe.style.cssText = 'position: fixed; inset-block-start: 0; inset-inline-start: 0; inline-size: 0; visibility: hidden; pointer-events: none';
+  probe.style.blockSize = value;
+  (surface.parentNode ?? document.body).appendChild(probe);
+  const measured = probe.getBoundingClientRect();
+  probe.remove();
+  const size = getComputedStyle(surface).writingMode.startsWith('vertical') ? measured.width : measured.height;
+  return Number.isFinite(size) ? Math.max(0, size) : Number.POSITIVE_INFINITY;
+}
+
 // ── A menu's kind of surface: below or above its anchor, beside its parent surface, at a point ─────────────────────
 
 /** The four placements of a menu's kind of surface (MNU-2, DTM-2): a side of the anchor, and the edge it is aligned by. */
@@ -296,7 +320,8 @@ function inViewport<T extends { top: number; left: number }>(viewport: Placement
  * when this one has less room than the surface needs within `margin` of the viewport's edge and the other has more;
  * aligned by its start or end edge with the anchor's (mirrored in right-to-left), then shifted along the anchor to stay
  * `margin` inside the viewport; its height limited to the room left. `viewport` is the visible part of the window
- * (`visibleViewport()`); coordinates are the window's (`left` is physical).
+ * (`visibleViewport()`); coordinates are the window's (`left` is physical). A surface the product caps is given at its
+ * capped height (`surfaceCap()`).
  */
 export function placeMenu(input: { anchor: MenuBox; surface: { width: number; height: number }; viewport: PlacementViewport; placement: MenuPlacement; offset: number; margin: number; rtl: boolean }) {
   return inViewport(input.viewport, (shift, viewport) => {

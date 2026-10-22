@@ -118,8 +118,9 @@
 //   placement   — placeAnchored(): where a surface that opens beside a control goes (the thirteen placements, offsets,
 //                 flipping, shifting, holding, the arrow's point: TIP-9, TIP-22…25, POP-2…5); anchorGone() (the anchor
 //                 removed, hidden or out of sight); the attributes of `offset`, `cross-offset` and a true/false/unset choice;
-//                 visibleViewport() (the visible part of the window, above the on-screen keyboard); placeMenu(),
-//                 placeAtPoint() and placeSubmenu() (a menu's kind of surface: MNU-2, MNU-46, MNU-47, MNU-61, DTM-2)
+//                 visibleViewport() (the visible part of the window, above the on-screen keyboard) and surfaceCap() (a
+//                 product's `max-block-size` on a placed surface); placeMenu(), placeAtPoint() and placeSubmenu() (a
+//                 menu's kind of surface: MNU-2, MNU-46, MNU-47, MNU-61, DTM-2)
 //   arrow       — arrowStyles(), shadowLayers(), shadeFilter() and shadeOn(): the arrow of an anchored surface, one shape with it
 //                 under one elevation (TIP-25, POP-10); arrowOutlineStyles(): its outline in forced colors (POP-32)
 //   compact-sheet — CompactWindow, compactProbeStyles() and sheetLookStyles(): a compact window, and the bottom sheet's
@@ -202,6 +203,7 @@ export {
   placeAtPoint,
   placeMenu,
   placeSubmenu,
+  surfaceCap,
   usableLength,
   viewportKey,
   visibleViewport,
