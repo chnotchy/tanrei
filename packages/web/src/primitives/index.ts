@@ -32,7 +32,9 @@
 //                 states and relationships on the host, taken off it and exposed on the element inside that carries the
 //                 role (element reflection for an id reference, its text where the engine has none); an owned name set
 //                 reported in debug builds, a component's own write on another element marked by asComponent();
-//                 DelegatedAriaWriter does the same for a member its template does not draw (a tab view's own row)
+//                 DelegatedAriaWriter does the same for a member its template does not draw (a tab view's own row);
+//                 holdsProductName(Class) + nameHost(host, name): a host that carries its role itself (a tab) holds
+//                 the product's aria-label and aria-labelledby while it names itself, and gives them back after
 //   focus-order — OUTSIDE_FOCUS_ORDER: a control a host takes out of the focus order (a number field's steppers, NUM-25)
 //   host-aria   — `hostAria()`: semantics a non-interactive component carries on its host (divider, progress…)
 //   visibility  — VisibilityController: whether the host can be seen, so a running animation pauses off screen
@@ -178,7 +180,7 @@ export { type Point, type RippleTokens, fadeRipple, rippleStyles, startRipple } 
 export { type StatePaints, type StateSelector, stateRules } from './states.js';
 export { arcStyles } from './arc.js';
 export { RANGE_SIZES, RANGE_VARIANTS, rangeAxes, rangeClasses, rangeOf, rangeTrackStyles, renderRangeBar, renderRangeRing } from './range-track.js';
-export { DELEGATED_RELATIONS, DELEGATED_STATES, DelegatedAriaWriter, type DelegatedName, type DelegatesAriaOptions, type OwnAria, ariaAttribute, asComponent, delegatedAria, delegatedNames, delegates, delegatesAria, namedByProduct, ownedNames } from './delegated-aria.js';
+export { DELEGATED_RELATIONS, DELEGATED_STATES, DelegatedAriaWriter, type DelegatedName, type DelegatesAriaOptions, type OwnAria, ariaAttribute, asComponent, delegatedAria, delegatedNames, delegates, delegatesAria, holdsProductName, nameHost, namedByProduct, ownedNames } from './delegated-aria.js';
 export { OUTSIDE_FOCUS_ORDER } from './focus-order.js';
 export { DIRECTION_PROBE, DirectionController, directionProbeStyles } from './direction.js';
 export { lineArrow } from './disclosure.js';

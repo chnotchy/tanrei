@@ -399,6 +399,143 @@ export function delegatesAria(element: { prototype: HTMLElement; observedAttribu
   };
 }
 
+/** The names a host that carries its role itself holds while it names itself (`holdsProductName()`). */
+const NAMING = ['aria-label', 'aria-labelledby'] as const;
+type NamingName = (typeof NAMING)[number];
+const isNaming = (name: string): name is NamingName => (NAMING as readonly string[]).includes(name);
+
+/** The name a host that carries its role itself gives itself now (`nameHost()`), and the elements of a held `aria-labelledby`. */
+const OWN_NAME = Symbol('tanrei.delegatedAria.ownName');
+const HELD = Symbol('tanrei.delegatedAria.held');
+
+interface Naming extends HTMLElement {
+  [OWN_NAME]?: string;
+  [HELD]?: readonly Element[] | null;
+  [SET]?: Map<RelationName, readonly Element[]>;
+}
+
+// The DOM's own methods, which `holdsProductName()` replaces on a class for its two names.
+const domSet = typeof Element === 'undefined' ? null : Element.prototype.setAttribute;
+const domRemove = typeof Element === 'undefined' ? null : Element.prototype.removeAttribute;
+
+/** Holds the name the product wrote (`aria-X` = `value`) as `data-aria-X`, so that the host's own is its whole name. */
+function hold(host: Naming, name: NamingName, value: string) {
+  if (name === 'aria-labelledby') {
+    // Set by the property, the attribute is empty: the elements are those its setter was given, else the engine's.
+    const set = host[SET]?.get(name);
+    host[SET]?.delete(name);
+    const elements = value === '' ? (set ?? (Object.getOwnPropertyDescriptor(Element.prototype, DELEGATED_RELATIONS[name])?.get?.call(host) as Element[] | null) ?? []) : null;
+    host[HELD] = elements ? [...elements] : null;
+    domSet!.call(host, dataName(name), value);
+    const clear = platformSetters.get(name);
+    if (elements && clear) clear.call(host, null);
+    else domRemove!.call(host, name);
+    return;
+  }
+  domSet!.call(host, dataName(name), value);
+  asComponent(() => domSet!.call(host, name, host[OWN_NAME]!));
+}
+
+/**
+ * Makes `element`'s class — one whose host carries its role itself, so that what the product writes on it is the
+ * platform's ARIA and is not moved (a tab) — hold the product's name while the component names the host itself
+ * (`nameHost()`): the platform would give the name to an `aria-labelledby` over the component's `aria-label`, so the
+ * product's `aria-label` and `aria-labelledby` are held as `data-aria-label` / `data-aria-labelledby` while it does,
+ * and given back as they were written once it no longer does. Removing one (`removeAttribute()`, `toggleAttribute()`,
+ * React's `undefined`, Lit's `nothing`), its `data-aria-` twin, or setting its ARIA property to null takes the held
+ * value away.
+ */
+export function holdsProductName(element: { prototype: HTMLElement; observedAttributes?: string[] }): void {
+  let observed: PropertyDescriptor | undefined;
+  for (let at: object | null = element; at && !observed; at = Object.getPrototypeOf(at)) observed = Object.getOwnPropertyDescriptor(at, 'observedAttributes');
+  Object.defineProperty(element, 'observedAttributes', {
+    configurable: true,
+    get(this: unknown) {
+      return [...((observed?.get?.call(this) as string[] | undefined) ?? []), ...NAMING];
+    },
+  });
+  const prototype = element.prototype as Naming & Record<string, unknown>;
+  const { removeAttribute, toggleAttribute, setAttribute } = element.prototype;
+  const attributeChanged = prototype.attributeChangedCallback as ((name: string, old: string | null, value: string | null) => void) | undefined;
+
+  prototype.attributeChangedCallback = function (this: Naming, name: string, old: string | null, value: string | null) {
+    // The component's own write, the product's while the host does not name itself, and a removal: as they are.
+    if (!isNaming(name) || componentWriting || !this[OWN_NAME] || value === null) return attributeChanged?.call(this, name, old, value);
+    hold(this, name, value);
+  };
+
+  prototype.removeAttribute = function (this: Naming, name: string) {
+    const lower = String(name).toLowerCase();
+    if (!isNaming(lower) || componentWriting) return removeAttribute.call(this, name);
+    if (lower === 'aria-labelledby') this[HELD] = null;
+    removeAttribute.call(this, dataName(lower));
+    // While it names itself, the host's aria-label is its own: the product takes away only what it wrote.
+    if (lower === 'aria-label' && this[OWN_NAME]) return;
+    removeAttribute.call(this, name);
+  };
+
+  prototype.toggleAttribute = function (this: Naming, name: string, force?: boolean) {
+    const lower = String(name).toLowerCase();
+    if (!isNaming(lower) || componentWriting) return toggleAttribute.call(this, name, force);
+    const on = force ?? !(this.hasAttribute(dataName(lower)) || (!this[OWN_NAME] && this.hasAttribute(lower)));
+    if (on) setAttribute.call(this, lower, '');
+    else this.removeAttribute(lower);
+    return on;
+  };
+
+  for (const name of NAMING) {
+    const set = platformSetters.get(name);
+    if (!set) continue;
+    Object.defineProperty(element.prototype, ARIA_PROPERTIES[name], {
+      configurable: true,
+      enumerable: true,
+      get: Object.getOwnPropertyDescriptor(Element.prototype, ARIA_PROPERTIES[name])?.get,
+      set(this: Naming, value: unknown) {
+        if (!componentWriting && (value === null || value === undefined || (Array.isArray(value) && value.length === 0))) return this.removeAttribute(name);
+        // The elements, for the hold: an engine may run it after this setter has returned (Firefox).
+        if (isRelation(name) && !componentWriting) (this[SET] ??= new Map()).set(name, [...(value as Iterable<Element>)]);
+        set.call(this, value);
+      },
+    });
+  }
+}
+
+/**
+ * The name a host of `holdsProductName()` gives itself, called on each of its updates: a non-empty `name` is written
+ * as its `aria-label` and holds the product's name; an empty one takes its own away and gives the product's back.
+ */
+export function nameHost(host: HTMLElement, name: string): void {
+  const element = host as Naming;
+  const was = element[OWN_NAME] ?? '';
+  element[OWN_NAME] = name;
+  asComponent(() => {
+    if (name) {
+      // It starts naming itself: what the product wrote is held.
+      if (!was) for (const each of NAMING) {
+        const value = host.getAttribute(each);
+        if (value !== null) hold(element, each, value);
+      }
+      if (host.getAttribute('aria-label') !== name) domSet!.call(host, 'aria-label', name);
+      return;
+    }
+    if (!was) return;
+    domRemove!.call(host, 'aria-label');
+    const label = host.getAttribute(dataName('aria-label'));
+    if (label !== null) {
+      domRemove!.call(host, dataName('aria-label'));
+      domSet!.call(host, 'aria-label', label);
+    }
+    const ids = host.getAttribute(dataName('aria-labelledby'));
+    if (ids !== null) {
+      domRemove!.call(host, dataName('aria-labelledby'));
+      const held = element[HELD];
+      element[HELD] = null;
+      if (ids === '' && held) platformSetters.get('aria-labelledby')?.call(host, held.filter((each) => each.isConnected));
+      else domSet!.call(host, 'aria-labelledby', ids);
+    }
+  });
+}
+
 /**
  * Gives `target` — another component that moves the product's ARIA (a Copy button's Button) — the elements of a
  * relationship, as a product's property would, or takes them away.

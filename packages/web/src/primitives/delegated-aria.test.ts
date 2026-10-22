@@ -964,3 +964,55 @@ for (const [name, subject] of Object.entries(REDRAWN)) {
     expect(await said(), 'put back').toEqual({ on: first, described: 'Described text', copies: 1 });
   });
 }
+
+test('TAB-22 TAB-62 tab: its host is the tab, and while its label is set the product’s aria-label and aria-labelledby on it are held, so that the label is its whole name; emptied, they are given back as written, and taking them away takes the held ones', async ({ page, browserName }) => {
+  const markup = (rest: string) => `<tanrei-tabs label="Sections" value="a"><tanrei-tab id="subject" value="a" label="Alpha" ${rest}></tanrei-tab><tanrei-tab value="b" label="Beta"></tanrei-tab></tanrei-tabs>`;
+  type Tab = HTMLElement & { label: string; ariaLabelledByElements: Element[] | null; ariaLabel: string | null };
+  const host = () =>
+    page.evaluate(() => {
+      const tab = document.querySelector('#subject') as Tab;
+      return { attributes: Object.fromEntries([...tab.attributes].filter((a) => a.name.includes('aria-label')).map((a) => [a.name, a.value])), labelledBy: (tab.ariaLabelledByElements ?? []).map((each) => each.id) };
+    });
+  const label = async (to: string) => {
+    await page.evaluate((to) => ((document.querySelector('#subject') as Tab).label = to), to);
+    await settle(page);
+  };
+  const tab = page.locator('#subject');
+
+  await load(page, 'tanrei-tabs', markup('aria-label="Product name" aria-labelledby="named"'));
+  await expect(tab, 'the label is the whole name').toHaveAccessibleName('Alpha');
+  expect(await host(), 'held as their twins').toEqual({ attributes: { 'aria-label': 'Alpha', 'data-aria-label': 'Product name', 'data-aria-labelledby': 'named' }, labelledBy: [] });
+  if (browserName === 'chromium') {
+    const tree = await axTree(page, '#stage');
+    expect(tree.filter((line) => line.includes('Product name') || line.includes('"Named text"')), tree.join('\n')).toEqual([]);
+    expect(tree.filter((line) => /^\s*tab "Alpha"/.test(line)), tree.join('\n')).toHaveLength(1);
+  }
+  await label('');
+  expect(await host(), 'emptied: given back as written').toEqual({ attributes: { 'aria-label': 'Product name', 'aria-labelledby': 'named' }, labelledBy: ['named'] });
+  await expect(tab, 'the platform’s precedence: aria-labelledby').toHaveAccessibleName('Named text');
+  await label('Gamma');
+  expect(await host(), 'set again: held again').toEqual({ attributes: { 'aria-label': 'Gamma', 'data-aria-label': 'Product name', 'data-aria-labelledby': 'named' }, labelledBy: [] });
+  await expect(tab).toHaveAccessibleName('Gamma');
+
+  // Written while the label is set, and taken away while held: by the attribute, and by the property.
+  await page.evaluate(() => {
+    const element = document.querySelector('#subject') as Tab;
+    element.setAttribute('aria-labelledby', 'other');
+    element.ariaLabel = null;
+  });
+  await settle(page);
+  expect(await host(), 'a new one held, and the aria-label taken away').toEqual({ attributes: { 'aria-label': 'Gamma', 'data-aria-labelledby': 'other' }, labelledBy: [] });
+  await expect(tab).toHaveAccessibleName('Gamma');
+  await page.evaluate(() => (document.querySelector('#subject') as Tab).removeAttribute('aria-labelledby'));
+  await settle(page);
+  expect(await host(), 'removeAttribute takes the held one away').toEqual({ attributes: { 'aria-label': 'Gamma' }, labelledBy: [] });
+
+  // Elements given by the property are held, and given back by reference.
+  await page.evaluate(() => ((document.querySelector('#subject') as Tab).ariaLabelledByElements = [document.querySelector('#named')!]));
+  await settle(page);
+  expect(await host(), 'elements held').toEqual({ attributes: { 'aria-label': 'Gamma', 'data-aria-labelledby': '' }, labelledBy: [] });
+  await expect(tab).toHaveAccessibleName('Gamma');
+  await label('');
+  expect((await host()).labelledBy, 'given back by reference').toEqual(['named']);
+  expect((await host()).attributes, 'and the tab’s own aria-label is gone').not.toHaveProperty('aria-label');
+});
