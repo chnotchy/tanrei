@@ -228,7 +228,7 @@
     },
     {
       "id": "SEG-22",
-      "text": "WHILE a segment's label is empty THE segmented button SHALL still render the segment, and in debug builds report that it has no accessible name; WHILE a segment's labelHidden is true and its icon is empty THE segmented button SHALL draw the label anyway and in debug builds report the segment; WHILE the set's label is empty, or the set holds fewer than two or more than five segments, THE segmented button SHALL still render and in debug builds report it."
+      "text": "WHILE a segment's label is empty and the product gives the segment a name of its own on the element — aria-label, or aria-labelledby naming an element — THE segmented button SHALL expose that name as the segment's accessible name; WHILE a segment's label is empty and the product gives it none THE segmented button SHALL still render the segment, and in debug builds report that it has no accessible name; WHILE a segment's labelHidden is true and its icon is empty THE segmented button SHALL draw the label anyway and in debug builds report the segment; WHILE the set's label is empty, or the set holds fewer than two or more than five segments, THE segmented button SHALL still render and in debug builds report it."
     },
     {
       "id": "SEG-23",
