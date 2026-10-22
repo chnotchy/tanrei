@@ -400,7 +400,7 @@
 
 /* ── Preview ────────────────────────────────────────────────────────── */
 .ts-preview {
-  /* The panes lay themselves out by the room THE PREVIEW has — next to a tree, under a sidebar, on a phone — never by
+  /* The panes lay themselves out by the room THE PREVIEW has — next to the rail and the panel, on a phone — never by
      the viewport. */
   container: ts-preview / inline-size;
   position: sticky;
@@ -416,21 +416,54 @@
   overflow: hidden;
   min-inline-size: 0;
 }
-@media (max-width: 63.999rem) {
-  /* The sticky preview is short on a phone: components first, the type ramp after them. */
-  .ts-pane .ts-ramp {
-    order: 1;
-  }
-  .ts-pane .ts-card,
-  .ts-pane .ts-intents,
-  .ts-pane .ts-measures {
-    order: 2;
-  }
-}
+/* The bar: the title and the screens on the first line; how the screen is seen (the scheme, the contrast), the checks'
+   count and the emphasis on the next, with the line that says none of it is saved. */
 .ts-preview-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tanrei-sys-space-space50) var(--tanrei-sys-space-space150);
   min-block-size: 2.75rem;
   padding: 0.375rem 0.5rem 0.375rem 0.875rem;
   border-block-end: var(--ts-hairline-dashed);
+}
+.ts-preview-bar > [data-screens] {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+.ts-preview-conditions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tanrei-sys-space-space50) var(--tanrei-sys-space-space100);
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+.ts-preview-conditions > tanrei-tabs {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+.ts-preview-conditions > .ts-row-actions {
+  margin-inline-start: auto;
+}
+.ts-preview-word {
+  font: var(--tanrei-comp-tabs-label-typescale-font);
+  letter-spacing: var(--tanrei-comp-tabs-label-typescale-letter-spacing);
+  color: var(--tanrei-sys-color-on-surface-variant);
+  white-space: nowrap;
+}
+.ts-preview-note {
+  flex: 1 0 100%;
+  margin: 0;
+  font-size: var(--ts-text-xs);
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+@media (max-width: 63.999rem) {
+  /* The sticky preview is short on a phone: the note is the bar's longest line, and the first to go. */
+  .ts-preview-note {
+    display: none;
+  }
 }
 .ts-stale {
   margin: 0;
@@ -442,13 +475,15 @@
 .ts-scope {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  /* A pane shorter than the preview still fills it: the screen's surface, not the Studio's, down to the foot. */
+  align-content: stretch;
   overflow: auto;
   overscroll-behavior: contain;
 }
-/* Light and dark side by side only when each pane is a readable column (a headline wraps in words, a row of buttons
-   fits); otherwise one above the other, each at the preview's full width. */
-@container ts-preview (min-width: 42rem) {
-  .ts-scope {
+/* Light and dark side by side only when each pane is a readable column; otherwise one above the other, each at the
+   preview's full width. */
+@container ts-preview (min-width: 56rem) {
+  .ts-scope[data-mode='both'] {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -456,25 +491,258 @@
   visibility: hidden;
 }
 
-/* Everything inside a pane is drawn with tokens of the system being edited — no docs chrome in here. */
+/* Everything inside a pane is drawn with tokens of the system being edited — no Studio chrome in here. A pane is the
+   container its screen lays itself out by. */
 .ts-pane {
+  container: ts-pane / inline-size;
   display: grid;
   align-content: start;
-  gap: var(--tanrei-sys-space-space200);
-  padding: var(--tanrei-sys-space-space250);
+  min-inline-size: 0;
   background: var(--tanrei-sys-color-surface);
   color: var(--tanrei-sys-color-on-surface);
-  min-inline-size: 0;
+  font: var(--tanrei-sys-typescale-body-font);
+  letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing);
 }
-.ts-pane p {
+.ts-scope[data-mode='both'] .ts-pane + .ts-pane {
+  border-block-start: var(--tanrei-sys-border-hairline) solid var(--tanrei-sys-color-outline-variant);
+}
+@container ts-preview (min-width: 56rem) {
+  .ts-scope[data-mode='both'] .ts-pane + .ts-pane {
+    border-block-start: 0;
+    border-inline-start: var(--tanrei-sys-border-hairline) solid var(--tanrei-sys-color-outline-variant);
+  }
+}
+.ts-pane-label {
+  display: none;
+  padding: var(--tanrei-sys-space-space100) var(--tanrei-sys-space-space200) 0;
+  font: var(--tanrei-sys-typescale-label-small-font);
+  letter-spacing: var(--tanrei-sys-typescale-label-small-letter-spacing);
+  text-transform: uppercase;
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-scope[data-mode='both'] .ts-pane-label {
+  display: block;
+}
+.ts-pane :is(h3, h4, h5, p):not(.ts-s-article *) {
   margin: 0;
   min-inline-size: 0;
   overflow-wrap: anywhere;
 }
-.ts-pane-label {
+
+/* ── Preview: the screens ───────────────────────────────────────────── */
+.ts-screen {
+  min-inline-size: 0;
+}
+.ts-s-muted {
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-s-eyebrow {
   text-transform: uppercase;
   color: var(--tanrei-sys-color-on-surface-variant);
 }
+.ts-s-pad {
+  padding: var(--tanrei-sys-space-space250);
+}
+.ts-s-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tanrei-sys-space-space150);
+  min-inline-size: 0;
+}
+.ts-s-tight {
+  gap: var(--tanrei-sys-space-space50);
+}
+.ts-s-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tanrei-sys-space-space100);
+  min-inline-size: 0;
+}
+.ts-s-between {
+  justify-content: space-between;
+}
+.ts-s-end {
+  justify-content: flex-end;
+}
+.ts-s-grid {
+  display: grid;
+  gap: var(--tanrei-sys-space-space200);
+  min-inline-size: 0;
+}
+.ts-s-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tanrei-sys-space-space150);
+  min-inline-size: 0;
+  padding: var(--tanrei-sys-space-space250);
+  border-radius: var(--tanrei-sys-shape-corner-large);
+  background: var(--tanrei-sys-color-surface-container-low);
+}
+
+/* Overview: a panel for each kind of component, as many columns as fit. */
+.ts-s-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  align-items: start;
+  gap: var(--tanrei-sys-space-space200);
+  padding: var(--tanrei-sys-space-space250);
+}
+.ts-s-system {
+  grid-column: 1 / -1;
+}
+
+/* An app: its bar across the top; under it the navigation and the content (dashboard), or a list and its detail. */
+.ts-s-app {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-inline-size: 0;
+}
+.ts-s-app-body,
+.ts-s-docs {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  min-inline-size: 0;
+}
+.ts-s-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tanrei-sys-space-space250);
+  min-inline-size: 0;
+  padding: var(--tanrei-sys-space-space300);
+}
+.ts-s-kpis {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+}
+.ts-s-kpi {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: var(--tanrei-sys-space-space50);
+}
+.ts-s-two {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+}
+.ts-s-bars {
+  display: flex;
+  align-items: end;
+  gap: var(--tanrei-sys-space-space75);
+  block-size: calc(var(--tanrei-sys-space-space900) * 1.75);
+}
+.ts-s-bars span {
+  flex: 1;
+  border-start-start-radius: var(--tanrei-sys-shape-corner-small);
+  border-start-end-radius: var(--tanrei-sys-shape-corner-small);
+  background: var(--tanrei-sys-color-primary);
+}
+.ts-s-bars span:nth-child(even) {
+  background: var(--tanrei-sys-color-primary-container);
+}
+
+/* A form: one column, as wide as a line of reading. */
+.ts-s-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tanrei-sys-space-space300);
+  max-inline-size: 46rem;
+  margin-inline: auto;
+  padding: var(--tanrei-sys-space-space400) var(--tanrei-sys-space-space300);
+}
+.ts-s-two-fields {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* A list and the detail of what it selects. */
+.ts-s-split {
+  display: grid;
+  grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
+  align-items: start;
+  min-inline-size: 0;
+}
+.ts-s-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tanrei-sys-space-space150);
+  min-inline-size: 0;
+  padding: var(--tanrei-sys-space-space200);
+  border-inline-end: var(--tanrei-sys-border-hairline) solid var(--tanrei-sys-color-outline-variant);
+}
+.ts-s-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tanrei-sys-space-space200);
+  min-inline-size: 0;
+  padding: var(--tanrei-sys-space-space300);
+}
+
+/* A documentation page: the site's bar, its navigation, the text and a table of contents. */
+.ts-s-docs {
+  grid-template-columns: auto minmax(0, 1fr) minmax(10rem, 13rem);
+}
+.ts-s-article {
+  min-inline-size: 0;
+  max-inline-size: 48rem;
+  padding: var(--tanrei-sys-space-space400);
+}
+.ts-s-lead {
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-s-demo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tanrei-sys-space-space100);
+  margin-block: var(--tanrei-sys-space-space200);
+  padding: var(--tanrei-sys-space-space300);
+  border: var(--tanrei-sys-border-hairline) solid var(--tanrei-sys-color-outline-variant);
+  border-radius: var(--tanrei-sys-shape-corner-large);
+}
+.ts-s-toc {
+  padding: var(--tanrei-sys-space-space400) var(--tanrei-sys-space-space200);
+}
+
+/* A pane too narrow for the page's text beside its navigation and its table of contents: the table of contents is
+   left out, as a documentation site's narrower layout leaves it out. */
+@container ts-pane (max-width: 60rem) {
+  .ts-s-docs {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .ts-s-two {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ts-s-toc {
+    display: none;
+  }
+}
+/* A narrow pane — a phone, or light and dark side by side in a narrow preview: one column, the navigation left out
+   as a product's narrow layout leaves it out. */
+@container ts-pane (max-width: 42rem) {
+  .ts-s-app-body,
+  .ts-s-docs,
+  .ts-s-split,
+  .ts-s-two,
+  .ts-s-two-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ts-s-app-body > :first-child,
+  .ts-s-docs > :first-child {
+    display: none;
+  }
+  .ts-s-list {
+    border-inline-end: 0;
+    border-block-end: var(--tanrei-sys-border-hairline) solid var(--tanrei-sys-color-outline-variant);
+  }
+  .ts-s-content,
+  .ts-s-detail,
+  .ts-s-article {
+    padding: var(--tanrei-sys-space-space200);
+  }
+  .ts-s-form {
+    padding: var(--tanrei-sys-space-space250) var(--tanrei-sys-space-space200);
+  }
+}
+
+/* What the overview draws of the system itself. */
 .ts-ramp {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -483,31 +751,6 @@
 .ts-ramp [data-sample='body'],
 .ts-ramp [data-sample='label'] {
   color: var(--tanrei-sys-color-on-surface-variant);
-}
-.ts-buttons,
-.ts-card-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--tanrei-sys-space-space100);
-}
-.ts-card {
-  display: grid;
-  gap: var(--tanrei-sys-space-space100);
-  padding: var(--tanrei-sys-space-space200);
-  border: var(--tanrei-sys-border-hairline) solid var(--tanrei-sys-color-outline-variant);
-  border-radius: var(--tanrei-sys-shape-corner-medium);
-  background: var(--tanrei-sys-color-surface-container-low);
-}
-.ts-card-body {
-  color: var(--tanrei-sys-color-on-surface-variant);
-}
-.ts-card-actions {
-  justify-content: flex-end;
-}
-.ts-sample-link {
-  color: var(--tanrei-sys-color-link);
-  text-underline-offset: 0.2em;
 }
 .ts-intents {
   display: flex;

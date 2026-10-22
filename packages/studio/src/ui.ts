@@ -732,6 +732,10 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     /** The words a component on this page needed and nobody gave (`missingWords()` of @tanrei/web): empty, or a defect. */
     missingWords: () => missingWords(),
     describe: (id: string) => (last ? studio.describe(last, id) : null),
+    /** The preview: which screen it shows, and in which mode. */
+    getPreview: () => preview.state(),
+    setScreen: preview.setScreen,
+    setMode: preview.setMode,
     save: () => saveNow(),
     destroy: () => {
       stopWatching();

@@ -7,11 +7,14 @@ import '@tanrei/web/tokens.css';
 // - what opens and closes is an accordion, and a token's facts a description list, each around the Studio's own
 //   elements, drawn by its stylesheet — loaded with the page, so that the first fold a level draws does not give the
 //   whole document, the preview with it, another sheet to be styled by;
+// - the preview's screens hold a table and a page of text, both drawn by stylesheets around the product's own elements;
 // - and the Studio's own.
 import '@tanrei/web/icons.css';
 import '@tanrei/web/tree-view.css';
 import '@tanrei/web/accordion.css';
 import '@tanrei/web/description-list.css';
+import '@tanrei/web/table.css';
+import '@tanrei/web/prose.css';
 import '../src/studio.css';
 import { type StudioLanguage, createHttpAdapter, mountStudio, studioDirection, studioLanguage, studioLanguages, studioStrings, takeToken } from '../src/index';
 import './app.css';

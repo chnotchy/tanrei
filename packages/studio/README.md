@@ -15,6 +15,12 @@ The Studio is the whole page it is mounted in. Across the top stands its bar: th
 
 Undo and redo step through the layers that were committed: a step is one commit, and commits closer together than half a second (the letters of a name typed in one go) are one step. ⌘Z and ⇧⌘Z (Ctrl+Z, Ctrl+Shift+Z and Ctrl+Y elsewhere) do the same wherever the focus is in the Studio, except in a field that holds text, where they are the field's own. A layer read again from the file starts a history of its own.
 
+## The preview
+
+The preview draws the layer on five screens built from Tanrei's own components (`src/ui/screens.ts`): an **overview** of every kind of component, with what the system itself is made of — its text styles, icons, intents, steps and the layer's own tokens — a **dashboard**, a **settings form**, a **list and its detail**, and a **documentation page**. The scope they stand in gets the whole sheet `tanrei build` would write, so every component on them follows the layer; the overview draws one sample per variant and size a component declares, a variant or a size the layer adds included. Their text is a product's, in the Studio's language (`screens` in `src/strings/`), with numbers, money and dates formatted for it.
+
+Its bar chooses how they are seen, which is not the layer's and is never saved in the file, only remembered in this browser: the **screen**, **light**, **dark** or the two **side by side**, and the **contrast** (standard, medium, high, as the documentation's header offers them). A screen is drawn once and kept while what it draws stays the same, so switching screens and modes moves elements that exist; each switch is measured on the page's timeline (`tanrei-studio: preview shown`).
+
 ## Four levels
 
 | Level | What it shows |
