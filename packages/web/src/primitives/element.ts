@@ -90,7 +90,11 @@ export abstract class TanreiElement extends LitElement {
     const document = this.ownerDocument;
     const now = focusedIn(document);
     const moved = now !== kept.was && now !== null && now !== document.body && now !== document.documentElement;
-    if (!moved) this.focus(kept.options);
+    if (moved) return;
+    // Laid out first: WebKit, focusing a field whose box it has not laid out yet, scrolls to it once it has, whatever
+    // `preventScroll` said.
+    this.getBoundingClientRect();
+    this.focus(kept.options);
   }
 
   protected static override finalizeStyles(styles?: CSSResultGroup): CSSResultOrNative[] {

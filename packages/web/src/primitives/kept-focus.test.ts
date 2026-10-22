@@ -50,7 +50,7 @@ async function load(page: Page, tag: string) {
 }
 
 /** What happens when a script inserts the control and, before its first update, does `then`; read after it has drawn. */
-type Then = 'focus' | 'focus, then the other input' | 'focus, then blur' | 'focus, then remove' | 'focus without scrolling' | 'focus, then focus without scrolling';
+type Then = 'focus' | 'focus, then the other input' | 'focus, then blur' | 'focus, then remove' | 'focus without scrolling' | 'focus, then focus without scrolling' | 'drawn, then focus without scrolling';
 
 async function insertAnd(page: Page, markup: string, then: Then) {
   return page.evaluate(
@@ -61,8 +61,13 @@ async function insertAnd(page: Page, markup: string, then: Then) {
       stage.style.paddingBlockStart = '200vh';
       stage.innerHTML = markup;
       const subject = stage.querySelector<Updating>('#subject')!;
+      // What the engine does with the same call once the control has drawn: the measure of what the options are owed.
+      if (then === 'drawn, then focus without scrolling') {
+        await subject.updateComplete;
+        subject.getBoundingClientRect();
+      }
       const before = { updated: subject.hasUpdated, active: document.activeElement?.localName ?? null };
-      if (then === 'focus without scrolling') subject.focus({ preventScroll: true });
+      if (then === 'focus without scrolling' || then === 'drawn, then focus without scrolling') subject.focus({ preventScroll: true });
       else if (then === 'focus, then focus without scrolling') {
         subject.focus();
         subject.focus({ preventScroll: true });
@@ -102,15 +107,19 @@ for (const [tag, markup] of Object.entries(SUBJECTS)) {
     expect(given.inside, `focus is in the control once it has drawn (it is on ${given.focused})`).toBe(true);
     expect(given.scrolled, 'focus scrolls it into view').toBe(true);
 
+    // With its options: the page scrolls as it does when the drawn control is focused without scrolling — not at all,
+    // but where the engine itself scrolls to a field it redraws as focus arrives (WebKit, a number input).
+    await load(page, tag);
+    const drawn = await insertAnd(page, markup, 'drawn, then focus without scrolling');
     await load(page, tag);
     const still = await insertAnd(page, markup, 'focus without scrolling');
     expect(still.inside, `focus({ preventScroll: true }) is given (it is on ${still.focused})`).toBe(true);
-    expect(still.scrolled, 'with its options: the page does not scroll').toBe(false);
+    expect(still.scrolled, 'with its options: the page scrolls no more than for the drawn control').toBe(drawn.scrolled);
 
     await load(page, tag);
     const last = await insertAnd(page, markup, 'focus, then focus without scrolling');
     expect(last.inside, 'focus asked for twice is given once').toBe(true);
-    expect(last.scrolled, 'with the last call’s options').toBe(false);
+    expect(last.scrolled, 'with the last call’s options').toBe(drawn.scrolled);
 
     await load(page, tag);
     const moved = await insertAnd(page, markup, 'focus, then the other input');
