@@ -2,7 +2,7 @@
 title: "导航抽屉"
 description: "在起始侧边缘的一块面板里，按分区和分组列出产品的目的地：在大屏幕上位于内容旁边，在 compact 屏幕上盖在内容之上，还可以收起为一列图标。"
 translationOf: components/navigation-drawer.mdx
-sourceHash: 6b5906890ce701b55375672b7848c317fc45c977
+sourceHash: 4bf1e2f8cfb556f3bf9eeb62aee445d4aafeb0be
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="navigation-drawer" />
 
 :::note[规格已修订，尚未覆盖所有平台]
-本页描述的是规格当前所定的导航抽屉。`collapsible` 的抽屉可以收窄为一列图标，由此取代了导航轨道（navigation rail）：收起的抽屉就是去掉标签的展开抽屉，每一行都在图标之后截断，它的菜单按钮再把它展宽，每个图标都留在原位。目的地的 `badge` 文本改为 `trailingText`，画得更低调，另有 `trailing` 插槽用来放图标；`badge` 现在指图标上的徽标。`group` 项用来展开和折叠嵌套的目的地。行高为 48，与菜单项的高度相同。`responsive` 让窗口的宽度决定抽屉的呈现方式。带 `href` 的目的地是链接，`revealSelected` 和 `scrollOffset` 则让抽屉可以充当网站的侧边栏。Web 组件已经做到了这一切，本页的演示也是如此。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是上一版——行高 44，`badge` 是行末的文本，没有收起形态、分组、链接目的地和响应式呈现，另有一个独立的导航轨道；这些平台的示例展示的也是那个版本。 紧凑的 `density` 和同时作为目的地的分组（`selectableGroups`）更新一些，目前只在 Web 上提供。
+本页描述的是规格当前所定的导航抽屉。`collapsible` 的抽屉可以收窄为一列图标，由此取代了导航轨道（navigation rail）：收起的抽屉就是去掉标签的展开抽屉，每一行都在图标之后截断，它的菜单按钮再把它展宽，每个图标都留在原位。目的地的 `badge` 文本改为 `trailingText`，画得更低调，另有 `trailing` 插槽用来放图标；`badge` 现在指图标上的徽标。`group` 项用来展开和折叠嵌套的目的地。行高为 48，与菜单项的高度相同。`responsive` 让窗口的宽度决定抽屉的呈现方式。带 `href` 的目的地是链接，`revealSelected` 和 `scrollOffset` 则让抽屉可以充当网站的侧边栏。Web 组件已经做到了这一切，本页的演示也是如此。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是上一版——行高 44，`badge` 是行末的文本，没有收起形态、分组、链接目的地和响应式呈现，另有一个独立的导航轨道；这些平台的示例展示的也是那个版本。 紧凑的 `density`、同时作为目的地的分组（`selectableGroups`）和筛选输入框（`filterable`）更新一些，目前只在 Web 上提供。
 :::
 
 <DemoFrame label="带两个分区的标准抽屉">
@@ -59,6 +59,25 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-navigation-drawer-item label="标签页" href="#sidebar-demo-tabs" trailing-text="新"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-group>
     <tanrei-navigation-drawer-item label="源代码" href="#sidebar-demo-source" target="new" target-label="在新标签页中打开"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<DemoFrame label="可以筛选行的抽屉：在输入框中键入，或者在页面的任何地方按 / 来到输入框" plain>
+  <tanrei-navigation-drawer open filterable reveal-selected value="#filter-demo-tabs" label="文档" filter-label="筛选导航" filter-placeholder="筛选" filter-count-text="匹配项：{count}" filter-empty-text="无匹配项" filter-clear-label="清除" style="block-size: 26rem">
+    <tanrei-navigation-drawer-group label="开始使用">
+      <tanrei-navigation-drawer-item label="概览" href="#filter-demo-overview"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="Web" href="#filter-demo-web"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-group label="基础">
+      <tanrei-navigation-drawer-item label="颜色" href="#filter-demo-color"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="字体排印" href="#filter-demo-typography"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-group label="组件">
+      <tanrei-navigation-drawer-item label="按钮" href="#filter-demo-button"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="导航栏" href="#filter-demo-navigation-bar"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="导航抽屉" href="#filter-demo-navigation-drawer"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="标签页" href="#filter-demo-tabs"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
   </tanrei-navigation-drawer>
 </DemoFrame>
 
@@ -106,6 +125,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 分组的行只负责展开和折叠分组，不选中任何东西。当一个分组本身也是一个地方时（例如网站中某个分区的概览页，或选中后会显示内容的文件夹），请给抽屉设置 `selectableGroups`，并给分组一个 `value` 或 `href`：这样它的行会像目的地的行一样选中它，而它的展开箭头成为单独的控件，负责展开和折叠。两者都没有的分组仍然只展开和折叠。同时作为目的地的分组目前在 Web 上提供。
 
 `density` 可以是默认的 `regular`，也可以是 `compact`：32 高的行、16 的字形和更窄的图标列，供目的地很多、用指针操作的工具使用。紧凑密度目前在 Web 上提供。
+
+`filterable` 会在行的上方画一个筛选输入框。用户键入的内容会把抽屉缩小到标签中含有它的那些行，包含这些行的分组在筛选期间临时展开；清空输入框，抽屉就恢复原样。`filterValue` 就是这段文本，用户键入时由抽屉设置，然后触发 `filterChange`；你也可以设置它，在重新绘制页面时把筛选还原。输入框的文字由你提供：`filterLabel` 是它的名称，`filterPlaceholder`、`filterCountText`（“匹配项：\{count}”）、`filterEmptyText` 和 `filterClearLabel` 留空时取自你的产品文字。筛选目前在 Web 上提供。
 
 抽屉有两种变体，一个产品通常两种都用：窗口足够宽时用标准，不够宽时用模态。
 
@@ -158,6 +179,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       </tanrei-navigation-drawer-group>
     </tanrei-navigation-drawer>
 
+    <!-- 可以筛选行的侧边栏：在页面的任何地方按“/”都会来到输入框。文字由你提供。 -->
+    <tanrei-navigation-drawer id="filtered" label="文档" value="/components/tabs/" reveal-selected open
+      filterable filter-label="筛选导航" filter-placeholder="筛选"
+      filter-count-text="匹配项：{count}" filter-empty-text="无匹配项" filter-clear-label="清除">
+      <tanrei-navigation-drawer-group label="组件">
+        <tanrei-navigation-drawer-item label="按钮" href="/components/button/"></tanrei-navigation-drawer-item>
+        <tanrei-navigation-drawer-item label="标签页" href="/components/tabs/"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-group>
+    </tanrei-navigation-drawer>
+
     <script type="module">
       import '@tanrei/web/components/navigation-drawer';
       import '@tanrei/web/components/button';
@@ -179,6 +210,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       });
       // 响应式抽屉会说明窗口宽度让它变成了什么：standard、column 或 modal。
       sidebar.addEventListener('presentationchange', (e) => showMenuButton(e.detail.presentation === 'modal'));
+
+      // 保存用户留下的筛选文本，留给下一个页面（抽屉自己不保存任何东西）。
+      const filtered = document.querySelector('#filtered');
+      filtered.addEventListener('filterchange', (e) => sessionStorage.setItem('filter', e.detail.value));
+      filtered.filterValue = sessionStorage.getItem('filter') ?? '';
     </script>
     ```
   </TabItem>
@@ -224,6 +260,25 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
         <NavigationDrawerItem label="标签页" href="/components/tabs/" trailingText="新" />
       </NavigationDrawerGroup>
       <NavigationDrawerItem label="源代码" href="https://example.com/tanrei" target="new" targetLabel="在新标签页中打开" />
+    </NavigationDrawer>
+
+    // 可以筛选行的侧边栏：用户键入时，抽屉自己设置 filterValue。
+    <NavigationDrawer
+      label="文档"
+      open
+      filterable
+      filterLabel="筛选导航"
+      filterPlaceholder="筛选"
+      filterCountText="匹配项：{count}"
+      filterEmptyText="无匹配项"
+      filterClearLabel="清除"
+      filterValue={filter}
+      onFilterchange={(e) => setFilter(e.detail.value)}
+    >
+      <NavigationDrawerGroup label="组件">
+        <NavigationDrawerItem label="按钮" href="/components/button/" />
+        <NavigationDrawerItem label="标签页" href="/components/tabs/" />
+      </NavigationDrawerGroup>
     </NavigationDrawer>
     ```
   </TabItem>
@@ -497,6 +552,19 @@ Web 已经实现了它；SwiftUI、Compose、Flutter 和 React Native 在跟上�
 - **离开本站的链接**把 `target` 设为 `new`。它在新标签页中打开；除非你在那里放了后置内容，否则它展开的行以图标集的 `open_in_new` 结尾；`targetLabel` 在它的名称之后朗读。这句话由你来写（“在新标签页中打开”）：Tanrei 不提供任何文案。
 - **路由监听 `change`。** 它在浏览器跟随链接之前触发，而且只针对普通激活：不带修饰键的主按键、触摸或 Enter，并且链接的 `target` 是 `same`。取消它，然后前往它带来的 `href`。在另一个标签页中打开的链接不会触发任何事件，模态抽屉也会保持打开。
 
+### 筛选
+
+筛选是在原地缩小抽屉，而不是搜索。[搜索](/zh-cn/components/search/)会查找每个页面的内容，并在它自己的视图中显示找到的结果。筛选只看抽屉已经列出的那些地方的标签，并把它们留在原处，这样知道页面名称的读者只要按两次键——“/”和名称开头的几个字母——就能到达那里，并在周围的项中看到它。请为两者各分配一个键：像在侧边栏中提供筛选的文档网站那样，用“/”来筛选，用 ⌘K 或 Ctrl+K 来搜索。
+
+- **什么算匹配。** 标签中含有键入的每一个词的行算作匹配，每个词可以出现在标签中的任何位置，顺序不限，不区分大小写、字符的宽度（全角与半角）和字母上的附加符号：“nav dr”能找到“Navigation drawer”，“resume”能找到“Résumé”。只比较标签，不比较辅助文本、后置文本和地址。不获取、不排序，也不重新排列任何东西：在服务器上匹配、按排名匹配或比较标签以外内容的产品，请不要设置 `filterable`，而是像以前一样把匹配的行交给抽屉。
+- **`filterMode`** 默认是 `filter`：不匹配的行被隐藏，包含匹配项的分组保留，因自身名称而匹配的分组连同内容整体保留。`highlight` 什么也不隐藏，只标记匹配项，适合要放在上下文中阅读的结构。
+- **分组临时展开。** 包含匹配项的折叠分组会为了筛选而画成展开的样子。它的 `open` 不变，也不会触发 `toggle`，所以清空输入框后它会重新折叠。筛选期间用户自己展开或折叠的分组归用户所有：它保持用户留下的状态。
+- **第一个匹配项随时可取。** 焦点在输入框中时，第一个匹配的行会画成获得焦点的样子。按 Enter 会像在那一行上按 Enter 一样取用它，按下方向键会把焦点移到它上面；键入的内容仍留在输入框中。Escape 清空输入框，再按一次会把焦点送回按“/”之前所在的地方。
+- **在页面的任何地方按“/”都能来到输入框**，只有焦点在文本输入框里时例外，那时它会输入一个斜杠。收起的抽屉会先展开。`filterShortcut` 可以换成别的键，空列表则不绑定任何键，供已经在使用“/”的产品选择。在窄窗口中，[应用外壳](/zh-cn/components/app-shell/)会因这个键打开关闭着的抽屉，并把焦点放进它的输入框。
+- **数量。** 筛选期间，结果顶部会用低调的一行说明有多少行匹配（`filterCountText`），一行都不匹配时则显示 `filterEmptyText`。设置 `filterCountHidden` 后不画数量，但仍会告诉辅助技术。
+- **匹配项的标记与搜索相同**：匹配的字母使用更深的文字颜色和更粗的字重，背后有浅色底。
+- **不保存任何东西。** 抽屉消失后，文本也随之忘掉。如果希望筛选跟着读者走，请从 `filterChange` 保存 `filterValue`，并在下一个页面把它还原。
+
 ### 行、分组与分区
 
 - 行高至少为 48，与[菜单](/zh-cn/components/menu/)的项一样高，圆角也相同。标签只有一行并会被截断，除非设置 `labelWrap` 让它换行、行随之增高。
@@ -523,6 +591,7 @@ Web 已经实现了它；SwiftUI、Compose、Flutter 和 React Native 在跟上�
 - 不要在分区里嵌套分区，也不要把分区放进分组。调试构建会报告这种情况，并在原处直接绘制内层分区的目的地。
 - 不要在没有设置 `selectableGroups` 时给分组 `value` 或 `href`，指望它的行能选中它。它只会展开和折叠，调试构建会报告这一点。
 - 不要在宽度足以容纳标准抽屉的窗口上使用模态抽屉。
+- 不要让筛选代替网站的搜索。筛选靠名称找到地方；要在内容中找某个词的读者，需要的是搜索。
 
 ## 无障碍
 
@@ -544,7 +613,10 @@ Web 已经实现了它；SwiftUI、Compose、Flutter 和 React Native 在跟上�
 - 焦点环绘制在行的周围，只在键盘聚焦时显示。键盘焦点落在没有完全可见的行上时，会以最短的距离把它滚入可见范围。
 - 两种形态下，点击区域都是整个单元格，并且绝不小于最小目标。
 - 文本变大时，两种形态的宽度都保持不变，行和分区标题则变高。标签会换行；短标签会被截断。图标不会缩放。
-- 调试构建会报告：目的地没有标签、模态抽屉没有 `label`、值不对应任何目的地、同一个值被使用了两次、嵌套的分区、分组里的分区、超过三级的嵌套、设计系统中没有的变体、可收起的抽屉没有菜单按钮、`trailing` 插槽里有可聚焦的元素、`href` 是 `javascript:` 地址或无法解析、未知的 `target`，以及 `target` 为 `new` 却没有 `targetLabel` 的链接。 设计系统中没有的密度，以及在未设置 `selectableGroups` 时带有 `value` 或 `href` 的分组，也会被报告。
+- 筛选输入框是一个以 `filterLabel` 为名称的搜索字段，位于各行之前，并表明自己控制着抽屉的列表。它的清除按钮以 `filterClearLabel` 为名称；它的“/”作为它的键盘快捷键公开（在 Web 上是 `aria-keyshortcuts`），按键提示则对辅助技术隐藏。
+- 被筛选隐藏的行对辅助技术来说也不存在了，所以用户听到的每一个位置和数量都是筛选之后的。键入停顿一秒后，抽屉自己的一个状态会以礼貌（polite）的方式说明有多少行匹配，或者一行都不匹配，焦点不会移动。结果顶部画出的数量对辅助技术隐藏，辅助技术听到的是这个状态。
+- 匹配项除了颜色还用字重和浅色底标记，所以绝不只靠颜色；在强制颜色模式下使用平台标记文本的颜色。行的名称仍是完整的标签，朗读时不会在标记处停顿。
+- 调试构建会报告：目的地没有标签、模态抽屉没有 `label`、值不对应任何目的地、同一个值被使用了两次、嵌套的分区、分组里的分区、超过三级的嵌套、设计系统中没有的变体、可收起的抽屉没有菜单按钮、`trailing` 插槽里有可聚焦的元素、`href` 是 `javascript:` 地址或无法解析、未知的 `target`，以及 `target` 为 `new` 却没有 `targetLabel` 的链接。 设计系统中没有的密度，以及在未设置 `selectableGroups` 时带有 `value` 或 `href` 的分组，也会被报告。使用筛选时，还会报告没有 `filterLabel` 的输入框、没有名称的清除按钮、未知的 `filterMode`、包含不止一个组合键的 `filterShortcut`，以及已被另一个抽屉或搜索占用的组合键。
 
 已知的平台差距：
 
@@ -561,6 +633,8 @@ Web 已经实现了它；SwiftUI、Compose、Flutter 和 React Native 在跟上�
 - React Native 的抽屉还没有自己的 `insets` 属性：它只读取 `TanreiProvider` 的边衬区（insets）。目的地把它的位置作为值文本携带，除非你传入 `positionText`，否则是英文。
 - React Native：模态抽屉的拖动和快速滑动、它的焦点移动以及退出手势，尚未在真机上验证。
 - SwiftUI、Compose、Flutter 和 React Native（它们提供的是上一版）：第一行位于抽屉内边距下方半个间隙处，而且标签换行的行在各平台上变高的方式并不一致（SwiftUI 和 Compose 会保持行的最小高度，直到文本再也放不下）。各平台在跟上时，都会把内边距量到第一个单元格，并把行高当作最小值。
+- Web：输入框中随时可取的第一个匹配项画成获得焦点的行，但它不是输入框的活动后代：目的地是链接或按钮，不能成为输入框的活动后代。屏幕阅读器用户可以用下方向键到达它。
+- SwiftUI、Compose、Flutter 和 React Native 还没有筛选。
 - Web：可收起的模态抽屉要等收窄回它那一列之后才交还焦点；拖动时移动的是整块面板；它的对话框按打开时测得的那一列的盒子来定位。
 
 ### 需要你做的事
@@ -576,3 +650,4 @@ Web 已经实现了它；SwiftUI、Compose、Flutter 和 React Native 在跟上�
 - 在 SwiftUI 上，抽屉关闭之后，请自己把键盘焦点交还给菜单按钮。
 - 在 React Native 上，抽屉关闭之后，请自己把焦点移回菜单按钮，传入用你的产品语言写的 `positionText`，并把窗口的边衬区交给 `TanreiProvider`。
 - 让每个目的地的值在标准和模态两种形态之间保持唯一且稳定。
+- 设置 `filterable` 时，给输入框一个说明它筛选什么的 `filterLabel`（“筛选导航”），并为 `filterCountText`、`filterEmptyText`、`filterClearLabel` 和 `filterPlaceholder` 提供你的文字，可以写在抽屉上，也可以作为产品文字一次性给出。

@@ -152,6 +152,7 @@
     "refresh",
     "remove",
     "resize",
+    "resume",
     "rocket_launch",
     "save",
     "scale",

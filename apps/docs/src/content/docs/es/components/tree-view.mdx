@@ -2,7 +2,7 @@
 title: Vista de árbol
 description: Una jerarquía de elementos que se abren y se cierran. Las filas empiezan más adentro en cada nivel, con un chevron al inicio de cada fila que contiene otras. Solo se lee y se abre, o bien en ella se eligen uno o varios elementos, y es una sola parada en el orden del foco.
 translationOf: components/tree-view.mdx
-sourceHash: f70a47c13a2aa39f74d0811ee7a1d630714145e2
+sourceHash: 8f4c8fa520b03dfaab421dbeca978455f3d8bca1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -66,6 +66,12 @@ En la web es `<tanrei-tree-view>` alrededor de tus propias listas anidadas. Las 
         </li>
         <li data-value="node_modules" data-expandable><span><bdi>node_modules</bdi></span></li>
       </ul>
+    </tanrei-tree-view>
+
+    <!-- Un árbol que filtra sus filas: "/" en una fila lleva al campo que hay encima. Las palabras son tuyas. -->
+    <tanrei-tree-view label="Archivos del proyecto" filterable filter-label="Filtrar archivos" filter-placeholder="Filtrar"
+      filter-count-text="Coincidencias: {count}" filter-empty-text="Sin coincidencias" filter-clear-label="Borrar">
+      <ul>…</ul>
     </tanrei-tree-view>
 
     <script type="module">
@@ -135,6 +141,7 @@ Una fila también puede contener su etiqueta como texto simple, sin un `<bdi>` a
 | `toggle` | La persona, o la búsqueda en la página del navegador, abrió o cerró un padre. En el `<li>`; se propaga. | `open` |
 | `rename` | La persona dio un nombre nuevo a un elemento en su sitio. En el `<li>`; se propaga. | `label` (el nombre nuevo, sin espacios en los extremos) y `previous` |
 | `create` | La persona dio nombre al elemento nuevo que pidió `create()`. En el árbol. | `label`, `parent`, `within` y `after` (el `<li>` en el que entra y el que lo precede, o `null`) |
+| `filterchange` | La persona cambió el texto del filtro: al escribir, borrar, pegar, con el botón de borrar o con Escape. En el árbol. | `value`, el texto nuevo (`filter-value` ya lo tiene) |
 
 Ninguno de estos eventos se emite por un cambio que haces tú.
 
@@ -142,6 +149,7 @@ Ninguno de estos eventos se emite por un cambio que haces tú.
 | --- | --- |
 | `edit(li)` | Abre el campo sobre el nombre de un elemento, como F2. Solo mientras el árbol es `editable`. |
 | `create({ parent, icon })` | Añade una fila nueva junto al elemento seleccionado, con un campo vacío para darle nombre. Devuelve si la añadió. |
+| `focusFilter()` | Lleva el foco al campo del filtro, con su texto seleccionado. Solo mientras el árbol es `filterable`. Asígnalo a una tecla tuya para toda la ventana. |
 
 ## Especificaciones
 
@@ -319,7 +327,19 @@ El árbol muestra lo que se le da, no se desplaza y no dibuja solo las filas que
 - Solo cuestan algo las filas que se muestran. A los elementos de un padre cerrado no se les aplican estilos, no se disponen y no se leen hasta que el padre se abre.
 - Un cambio en una fila vuelve a aplicar estilos solo a esa fila, sea cual sea el tamaño del árbol.
 
-El filtrado también es cosa tuya. Da al árbol los elementos que coinciden, pon `data-open` en los padres que los contienen y di cuántos coincidieron en un mensaje de estado propio.
+### Filtrado
+
+`filterable` dibuja un campo de filtro encima de la primera fila, fijado en la parte superior de tu caja de desplazamiento, con los padres fijados debajo. Lo que la persona escribe reduce el árbol a las filas cuya etiqueta lo contiene; al vaciar el campo, el árbol vuelve a quedar como estaba.
+
+- **Qué coincide.** Una fila coincide cuando su etiqueta contiene todas las palabras escritas, cada una en cualquier lugar y en cualquier orden, sin distinguir mayúsculas de minúsculas, el ancho de un carácter ni los signos diacríticos. Solo se compara la etiqueta, no el texto de apoyo, el texto final ni el valor. No se busca en los elementos de un padre que todavía no los ha recibido (`data-expandable`).
+- **`filter-mode`** es `filter` por defecto: las filas que no coinciden se ocultan, los padres que contienen una coincidencia se quedan, y un padre encontrado por su propio nombre se queda entero. `highlight` no oculta nada y solo marca las coincidencias, para una estructura que se lee en su contexto, como los archivos de un proyecto.
+- **Los padres se abren de forma temporal.** Un padre cerrado que contiene una coincidencia se dibuja abierto para el filtro. Su `data-open` no cambia y no se emite `toggle`, así que al vaciar el campo vuelve a cerrarse. Un padre que la persona abre o cierra mientras filtra es suyo: se queda como lo dejó.
+- **La primera coincidencia está lista para tomarla.** Mientras el foco está en el campo, la primera fila que coincide se dibuja como la fila con el foco, y el campo la indica como su descendiente activo. Enter la toma, como lo haría Enter en esa fila: la elige, o abre o cierra un padre que no se puede elegir. Flecha abajo lleva el foco a ella, dentro del árbol. Escape vacía el campo; Escape en una fila vacía el filtro y deja a la persona en el elemento que encontró, entre sus vecinos.
+- **"/" en una fila** lleva el foco al campo; cualquier otra letra sigue llevando a la siguiente fila que empieza por ella. El árbol no escucha esa tecla en ningún otro sitio ni dibuja ninguna pista de ella. `filter-shortcut` cambia la tecla, y `focusFilter()` te permite asignar una para toda la ventana.
+- **El recuento.** Mientras hay un filtro aplicado, una línea discreta al principio de los resultados dice cuántas filas coinciden (`filter-count-text`), o `filter-empty-text` cuando no coincide ninguna. `filter-count-hidden` no dibuja el recuento; se sigue comunicando a la tecnología de apoyo.
+- **Las coincidencias se marcan como las marca la búsqueda**: un color de texto más fuerte y un relleno discreto detrás de las letras que coinciden, con un peso mayor donde la plataforma puede dibujarlo. En la web la etiqueta es tu propio texto, que el árbol nunca divide, así que la marca es un resaltado de sus rangos y no dibuja peso.
+
+Si decides las coincidencias de otra manera (en un servidor, con una clasificación, comparando algo más que la etiqueta), deja `filterable` desactivado, da al árbol los elementos que coinciden, pon `data-open` en los padres que los contienen y di cuántos coincidieron en un mensaje de estado propio.
 
 ### Árboles profundos y ventanas estrechas
 
@@ -340,6 +360,7 @@ Todo se dibuja antes de que el script se cargue, salvo el relleno de selección,
 - No pongas un enlace, un botón ni un campo en una fila. Ninguna tecla del árbol llega a él.
 - No uses un árbol para las páginas de un sitio. Los enlaces se encuentran por las vías con las que un navegador y un lector de pantalla enumeran los enlaces.
 - No selecciones al mover el foco. Las teclas de flecha mueven; Enter y Espacio eligen.
+- No asignes "/" a otra cosa tuya en las filas de un árbol que se puede filtrar. Pon otra tecla en `filter-shortcut`, o ninguna.
 
 ## Accesibilidad
 
@@ -364,7 +385,10 @@ Todo se dibuja antes de que el script se cargue, salvo el relleno de selección,
 - El chevron, los iconos y las guías quedan ocultos para la tecnología de apoyo. La fila de carga también queda oculta: el padre dice que está ocupado.
 - Una etiqueta y una nota ocupan una línea cada una; una cortada se muestra entera en un tooltip al pasar el puntero y con el foco del teclado, que Escape oculta y al que se puede llevar el puntero, y el nombre accesible es siempre entero. Con `label-wrap` y `supporting-wrap`, con el texto al 200% saltan de línea y las filas crecen.
 - Con colores forzados, una fila seleccionada toma los colores de selección del sistema y un borde.
-- Las compilaciones de depuración notifican un `label` vacío, un elemento sin etiqueta, una etiqueta escrita como texto propio de la fila, un control en una fila, un valor que no nombra ningún elemento, dos elementos con un mismo valor, un `density`, `selection`, `chevron`, `guides`, `icon-space` o `highlight` desconocidos, un `indent` o un `icon-gap` que no es un número, un padre sin icono con `chevron="none"` y un campo sin `edit-label`.
+- El campo del filtro es un campo de búsqueda con el nombre de `filter-label`, delante del árbol y con su propia parada de tabulación, así que el árbol sigue siendo una sola parada. Indica que controla el árbol, señala la primera coincidencia como su descendiente activo, y su botón de borrar se nombra con `filter-clear-label`.
+- Las filas que oculta un filtro desaparecen también para la tecnología de apoyo, así que cada nivel, posición y tamaño que oye la persona son los del filtro. Cuando se deja de escribir durante un segundo, un estado junto al árbol dice cuántas filas coinciden, o que no coincide ninguna, de forma cortés y sin mover el foco: lo único que el árbol anuncia. El recuento dibujado al principio de los resultados está oculto para la tecnología de apoyo, que oye el estado en su lugar.
+- Una coincidencia se marca con un relleno además de su color, con los colores del texto marcado de la plataforma en colores forzados, y el nombre de la fila sigue siendo su etiqueta entera.
+- Las compilaciones de depuración notifican un `label` vacío, un elemento sin etiqueta, una etiqueta escrita como texto propio de la fila, un control en una fila, un valor que no nombra ningún elemento, dos elementos con un mismo valor, un `density`, `selection`, `chevron`, `guides`, `icon-space` o `highlight` desconocidos, un `indent` o un `icon-gap` que no es un número, un padre sin icono con `chevron="none"`, un campo sin `edit-label`, un campo de filtro sin `filter-label`, un botón de borrar sin nombre, un `filter-mode` desconocido y un `filter-shortcut` de más de una combinación.
 
 ### Qué debes hacer tú
 
@@ -372,3 +396,4 @@ Todo se dibuja antes de que el script se cargue, salvo el relleno de selección,
 - Di tú que una carga ha fallado, junto al árbol o como un elemento cuya etiqueta lo diga. El árbol no anuncia nada cuando llegan los elementos.
 - Da una marca propia en el contenido final donde cada elemento elegido de una selección múltiple deba distinguirse por algo más que su relleno.
 - Pon un árbol largo en una caja de desplazamiento con un nombre o un encabezado, para que las personas sepan qué contiene la caja.
+- Con `filterable`, da al campo un `filter-label` que diga qué filtra («Filtrar archivos»), y da tus palabras para `filter-count-text`, `filter-empty-text`, `filter-clear-label` y `filter-placeholder`, en el árbol o una sola vez con `setWords()`.

@@ -14,7 +14,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 <ComponentAvailability name="navigation-drawer" />
 
 :::note[A revised spec, not yet on every platform]
-This page describes the navigation drawer as the spec has it now. A `collapsible` drawer narrows to a column of icons, which replaces the navigation rail: the collapsed drawer is the expanded one with its labels gone, each row cut after its icon, and its menu button widens it again with every icon in place. A destination's `badge` text becomes `trailingText`, drawn quieter, and a `trailing` slot holds a glyph; `badge` is now a badge on the icon. `group` items open and close nested destinations. Rows are 48 high, the height of a menu's item. `responsive` lets the window's width choose how the drawer is presented. A destination with an `href` is a link, and `revealSelected` and `scrollOffset` make the drawer a site's sidebar. The web component already does all of this, and so do the demos. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship the previous revision, with 44 rows, `badge` as text at the row's end, no collapsed form, groups, link destinations or responsive presentation, and a separate navigation rail, and their samples show that revision. The compact `density` and groups that are destinations (`selectableGroups`) are newer still, and on the web only.
+This page describes the navigation drawer as the spec has it now. A `collapsible` drawer narrows to a column of icons, which replaces the navigation rail: the collapsed drawer is the expanded one with its labels gone, each row cut after its icon, and its menu button widens it again with every icon in place. A destination's `badge` text becomes `trailingText`, drawn quieter, and a `trailing` slot holds a glyph; `badge` is now a badge on the icon. `group` items open and close nested destinations. Rows are 48 high, the height of a menu's item. `responsive` lets the window's width choose how the drawer is presented. A destination with an `href` is a link, and `revealSelected` and `scrollOffset` make the drawer a site's sidebar. The web component already does all of this, and so do the demos. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship the previous revision, with 44 rows, `badge` as text at the row's end, no collapsed form, groups, link destinations or responsive presentation, and a separate navigation rail, and their samples show that revision. The compact `density`, groups that are destinations (`selectableGroups`) and the filter field (`filterable`) are newer still, and on the web only.
 :::
 
 <DemoFrame label="A standard drawer with two sections">
@@ -57,6 +57,25 @@ This page describes the navigation drawer as the spec has it now. A `collapsible
       <tanrei-navigation-drawer-item label="Tabs" href="#sidebar-demo-tabs" trailing-text="New"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-group>
     <tanrei-navigation-drawer-item label="Source code" href="#sidebar-demo-source" target="new" target-label="opens in a new tab"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<DemoFrame label="A drawer that filters its rows: type in the field, or press / anywhere on the page to reach it" plain>
+  <tanrei-navigation-drawer open filterable reveal-selected value="#filter-demo-tabs" label="Documentation" filter-label="Filter navigation" filter-placeholder="Filter" filter-count-text="Matches: {count}" filter-empty-text="No matches" filter-clear-label="Clear" style="block-size: 26rem">
+    <tanrei-navigation-drawer-group label="Getting started">
+      <tanrei-navigation-drawer-item label="Overview" href="#filter-demo-overview"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="Web" href="#filter-demo-web"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-group label="Foundations">
+      <tanrei-navigation-drawer-item label="Color" href="#filter-demo-color"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="Typography" href="#filter-demo-typography"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-group label="Components">
+      <tanrei-navigation-drawer-item label="Button" href="#filter-demo-button"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="Navigation bar" href="#filter-demo-navigation-bar"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="Navigation drawer" href="#filter-demo-navigation-drawer"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="Tabs" href="#filter-demo-tabs"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
   </tanrei-navigation-drawer>
 </DemoFrame>
 
@@ -104,6 +123,8 @@ A destination with an `href` is a link and not a button. The browser follows it 
 A group's row opens and closes it and chooses nothing. Where a group is a place of its own as well (a section's overview page in a site, a folder that is shown when it is chosen), set the drawer's `selectableGroups` and give the group a `value` or an `href`: its row then chooses it, as a destination's row does, and its chevron becomes a control of its own that opens and closes it. A group without either still only opens and closes. Groups that are destinations are on the web today.
 
 `density` is `regular`, the default, or `compact`: 32 rows with 16 glyphs and a narrower column of icons, for a tool used with a pointer whose drawer lists many places. The compact density is on the web today.
+
+`filterable` draws a filter field above the rows. What the person types narrows the drawer to the rows whose label holds it, and the groups that hold them open for as long as the filter is there; empty the field and the drawer is back as it was. `filterValue` is the text, which the drawer sets as the person types before it fires `filterChange`; you set it too, to give a filter back when a page is drawn again. The words of the field are yours: `filterLabel` names it, and `filterPlaceholder`, `filterCountText` ("Matches: \{count}"), `filterEmptyText` and `filterClearLabel` come from your words where you leave them empty. The filter is on the web today.
 
 The drawer has two variants, and one product usually uses both: standard where the window is wide enough, modal where it is not.
 
@@ -156,6 +177,16 @@ With `responsive` the drawer makes that choice itself, from the window's width (
       </tanrei-navigation-drawer-group>
     </tanrei-navigation-drawer>
 
+    <!-- A sidebar that filters its rows: "/" anywhere on the page goes to the field. The words are yours. -->
+    <tanrei-navigation-drawer id="filtered" label="Documentation" value="/components/tabs/" reveal-selected open
+      filterable filter-label="Filter navigation" filter-placeholder="Filter"
+      filter-count-text="Matches: {count}" filter-empty-text="No matches" filter-clear-label="Clear">
+      <tanrei-navigation-drawer-group label="Components">
+        <tanrei-navigation-drawer-item label="Button" href="/components/button/"></tanrei-navigation-drawer-item>
+        <tanrei-navigation-drawer-item label="Tabs" href="/components/tabs/"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-group>
+    </tanrei-navigation-drawer>
+
     <script type="module">
       import '@tanrei/web/components/navigation-drawer';
       import '@tanrei/web/components/button';
@@ -177,6 +208,11 @@ With `responsive` the drawer makes that choice itself, from the window's width (
       });
       // A responsive drawer says what the window's width made it: standard, column or modal.
       sidebar.addEventListener('presentationchange', (e) => showMenuButton(e.detail.presentation === 'modal'));
+
+      // The filter text the person left, kept for the next page (the drawer stores nothing).
+      const filtered = document.querySelector('#filtered');
+      filtered.addEventListener('filterchange', (e) => sessionStorage.setItem('filter', e.detail.value));
+      filtered.filterValue = sessionStorage.getItem('filter') ?? '';
     </script>
     ```
   </TabItem>
@@ -222,6 +258,25 @@ With `responsive` the drawer makes that choice itself, from the window's width (
         <NavigationDrawerItem label="Tabs" href="/components/tabs/" trailingText="New" />
       </NavigationDrawerGroup>
       <NavigationDrawerItem label="Source code" href="https://example.com/tanrei" target="new" targetLabel="opens in a new tab" />
+    </NavigationDrawer>
+
+    // A sidebar that filters its rows: the drawer sets filterValue itself as the person types.
+    <NavigationDrawer
+      label="Documentation"
+      open
+      filterable
+      filterLabel="Filter navigation"
+      filterPlaceholder="Filter"
+      filterCountText="Matches: {count}"
+      filterEmptyText="No matches"
+      filterClearLabel="Clear"
+      filterValue={filter}
+      onFilterchange={(e) => setFilter(e.detail.value)}
+    >
+      <NavigationDrawerGroup label="Components">
+        <NavigationDrawerItem label="Button" href="/components/button/" />
+        <NavigationDrawerItem label="Tabs" href="/components/tabs/" />
+      </NavigationDrawerGroup>
     </NavigationDrawer>
     ```
   </TabItem>
@@ -495,6 +550,19 @@ Give every destination an `href` and the drawer the page's own address as its `v
 - **A link that leaves the site** takes `target` `new`. It opens in a new tab, its expanded row ends with the icon set's `open_in_new` unless you put trailing content there, and `targetLabel` is read after its name. The words are yours ("opens in a new tab"): Tanrei ships none.
 - **A router listens to `change`.** It fires before the browser follows a link, for a plain activation only: the primary button without a modifier key, a touch or Enter, on a link whose `target` is `same`. Cancel it and go to the `href` it carries. A link opened in another tab fires nothing, and leaves a modal drawer open.
 
+### Filtering
+
+A filter narrows the drawer in place; it is not a search. The [search](/components/search/) looks through the content of every page and shows what it found in a view of its own. The filter looks only at the labels of the places the drawer already lists and leaves them where they are, so that a reader who knows a page's name reaches it in two keys, "/" and its first letters, and sees it among its neighbours. Give each its own key: "/" for the filter, as documentation sites with a sidebar filter do, and ⌘K or Ctrl+K for the search.
+
+- **What matches.** A row matches while its label holds every word typed, each anywhere in it and in any order, without regard to case, to the width of a character or to the marks on a letter: "nav dr" finds "Navigation drawer", and "resume" finds "Résumé". Only the label is compared — not the supporting text, the trailing text or the address. Nothing is fetched, ranked or reordered: a product that matches on a server, by a ranking or by more than the label leaves `filterable` off and gives the drawer the rows that match, as before.
+- **`filterMode`** is `filter`, the default: the rows that do not match are hidden, the groups that hold a match stay, and a group found by its own name stays whole. `highlight` hides nothing and only marks the matches, for a structure that is read in its context.
+- **Groups open for the time being.** A closed group that holds a match is drawn open for the filter. Its `open` does not change and no `toggle` fires, so emptying the field closes it again. A group the person opens or closes while filtering is theirs: it stays as they left it.
+- **The first match is ready to take.** While focus is in the field, the first row that matches is drawn as the focused row. Enter takes it, as Enter on that row would, and Down Arrow moves focus to it; typing goes on in the field. Escape empties the field, and pressed again returns focus to where "/" came from.
+- **"/" reaches the field from anywhere** on the page, except where focus is in a text field, where it types a slash. A collapsed drawer expands first. `filterShortcut` changes the key, and an empty list binds none, for a product that already uses "/". A narrow window's [app shell](/components/app-shell/) opens a closed drawer for the key and puts focus in its field.
+- **The count.** While a filter is applied, a quiet line at the top of the results says how many rows match (`filterCountText`), or `filterEmptyText` where none does. `filterCountHidden` draws no count; it is still said to assistive technology.
+- **Matches are marked as the search marks them**: a stronger text color, a heavier weight and a quiet fill behind the matched letters.
+- **Nothing is stored.** The drawer forgets the text when it is gone. Keep `filterValue` from `filterChange` and give it back on the next page if the filter should follow the reader.
+
 ### Rows, groups and sections
 
 - Rows are at least 48 high, the height of a [menu](/components/menu/)'s item, with its corners. A label is one line, cut, unless `labelWrap` lets it wrap and the row grow with it.
@@ -521,6 +589,7 @@ Give every destination an `href` and the drawer the page's own address as its `v
 - Don't nest a section in a section, or put a section in a group. Debug builds report it and draw the inner section's destinations in its place.
 - Don't give a group a `value` or an `href` while `selectableGroups` is off and expect its row to choose it. It only opens and closes, and debug builds report it.
 - Don't use a modal drawer on a window wide enough for a standard one.
+- Don't make the filter stand in for the site's search. It finds places by their names; a reader who looks for a word in the content needs the search.
 
 ## Accessibility
 
@@ -542,7 +611,10 @@ Give every destination an `href` and the drawer the page's own address as its `v
 - The focus ring is drawn around the row, for keyboard focus only. Keyboard focus on a row that is not wholly in view scrolls it into view by the least distance.
 - The hit area is the whole cell, in both forms, and never less than the minimum target.
 - Larger text keeps both forms' widths and makes rows and headings taller. Labels wrap; short labels are cut. Icons are not scaled.
-- Debug builds report a destination without a label, a modal drawer without a `label`, a value that names no destination, a value used twice, a nested section, a section in a group, nesting deeper than three levels, a variant the design system does not have, a collapsible drawer without a menu button, a focusable element in the `trailing` slot, an `href` that is a `javascript:` address or cannot be read, an unknown `target`, and a link with `target` `new` and no `targetLabel`. They also report a density the design system does not have, and a group with a `value` or an `href` while `selectableGroups` is off.
+- The filter field is a search field named by `filterLabel`, before the rows, and it says that it controls the drawer's list. Its clear button is named by `filterClearLabel`, and its "/" is exposed as its keyboard shortcut (`aria-keyshortcuts` on the web) while the key hint is hidden from assistive technology.
+- The rows a filter hides are gone for assistive technology too, so every position and size a person hears is the filter's. Once typing pauses for a second, a status of the drawer's own says how many rows match, or that none does, politely and without moving focus. The count drawn at the top of the results is hidden from assistive technology, which hears the status instead.
+- A match is marked by its weight and a fill as well as its color, so it never depends on color alone, and in the platform's marked-text colors under forced colors. A row's name stays its whole label, read without a pause at a mark.
+- Debug builds report a destination without a label, a modal drawer without a `label`, a value that names no destination, a value used twice, a nested section, a section in a group, nesting deeper than three levels, a variant the design system does not have, a collapsible drawer without a menu button, a focusable element in the `trailing` slot, an `href` that is a `javascript:` address or cannot be read, an unknown `target`, and a link with `target` `new` and no `targetLabel`. They also report a density the design system does not have, and a group with a `value` or an `href` while `selectableGroups` is off. With a filter, they report a field without `filterLabel`, a clear button without a name, an unknown `filterMode`, a `filterShortcut` of more than one chord, and a chord another drawer or search already holds.
 
 Known platform gaps:
 
@@ -559,6 +631,8 @@ Known platform gaps:
 - React Native's drawer has no `insets` prop of its own yet: it reads only `TanreiProvider`'s insets. A destination carries its position as its value text, in English unless you pass `positionText`.
 - React Native: the modal drawer's drag and fling, its focus move and the escape gesture have not yet been checked on a device.
 - SwiftUI, Compose, Flutter and React Native, which ship the previous revision: the first row sits half a gap below the drawer's padding, and a row with a wrapped label does not grow the same way on each (SwiftUI and Compose keep the row's minimum height until the text no longer fits in it). Each measures the padding to the first cell and treats the row's height as a minimum when it catches up.
+- Web: the first match the field makes ready is drawn as a focused row, but it is not the field's active descendant: a destination is a link or a button, which an input's active descendant cannot be. A screen reader user reaches it with Down Arrow.
+- SwiftUI, Compose, Flutter and React Native do not have the filter yet.
 - Web: a modal collapsible drawer returns focus only once it has narrowed back to its column, a drag moves the whole panel, and its dialog is placed on the column's box as measured when it opened.
 
 ### What you need to do
@@ -574,3 +648,4 @@ Known platform gaps:
 - On SwiftUI, give keyboard focus back to the menu button yourself after the drawer closes.
 - On React Native, move focus back to the menu button yourself after the drawer closes, pass `positionText` in your product's language, and give `TanreiProvider` the window's insets.
 - Keep each destination's value unique and stable across the standard and modal forms.
+- With `filterable`, give the field a `filterLabel` that says what it narrows ("Filter navigation"), and give your words for `filterCountText`, `filterEmptyText`, `filterClearLabel` and `filterPlaceholder`, on the drawer or once in your product's words.

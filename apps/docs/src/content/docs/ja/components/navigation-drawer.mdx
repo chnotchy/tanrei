@@ -2,7 +2,7 @@
 title: ナビゲーションドロワー
 description: プロダクトの行き先を、先頭側の端のパネルにセクションやグループでまとめて並べます。大きい画面ではコンテンツの横に、コンパクトな画面ではコンテンツの上に重ねて表示し、アイコンの列まで折りたたむこともできます。
 translationOf: components/navigation-drawer.mdx
-sourceHash: 6b5906890ce701b55375672b7848c317fc45c977
+sourceHash: 4bf1e2f8cfb556f3bf9eeb62aee445d4aafeb0be
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="navigation-drawer" />
 
 :::note[仕様は改訂済み、各プラットフォームは追従待ち]
-このページは、仕様の現在の形のナビゲーションドロワーを説明しています。`collapsible` のドロワーはアイコンの列まで狭まり、これがナビゲーションレールの代わりになります。折りたたんだドロワーは、展開したドロワーからラベルがなくなっただけのもので、各項目をアイコンの後ろで切った形です。メニューボタンでまた広がり、どのアイコンも位置を変えません。行き先の `badge` のテキストは `trailingText` になって控えめに描かれ、`trailing` スロットにはグリフを置けます。`badge` は、アイコンに付けるバッジになりました。`group` の項目で、入れ子の行き先を開閉できます。項目の高さは 48 で、メニューの項目と同じです。`responsive` を付けると、ウィンドウの幅がドロワーの表示のしかたを選びます。`href` を持つ行き先はリンクで、`revealSelected` と `scrollOffset` によってドロワーはサイトのサイドバーになります。Web コンポーネントはすでにこのすべてに対応しており、デモもそれを示しています。SwiftUI、Compose、Flutter、React Native は上の表で「追従待ち」です。追従するまでは以前の版（項目の高さ 44、`badge` は項目の末尾のテキスト、折りたたんだ形、グループ、リンクの行き先、幅に応じた表示はなく、ナビゲーションレールは別のコンポーネント）を提供しており、これらの例もその版のものです。 コンパクトな `density` と、行き先にもなるグループ（`selectableGroups`）はさらに新しく、今のところ Web だけです。
+このページは、仕様の現在の形のナビゲーションドロワーを説明しています。`collapsible` のドロワーはアイコンの列まで狭まり、これがナビゲーションレールの代わりになります。折りたたんだドロワーは、展開したドロワーからラベルがなくなっただけのもので、各項目をアイコンの後ろで切った形です。メニューボタンでまた広がり、どのアイコンも位置を変えません。行き先の `badge` のテキストは `trailingText` になって控えめに描かれ、`trailing` スロットにはグリフを置けます。`badge` は、アイコンに付けるバッジになりました。`group` の項目で、入れ子の行き先を開閉できます。項目の高さは 48 で、メニューの項目と同じです。`responsive` を付けると、ウィンドウの幅がドロワーの表示のしかたを選びます。`href` を持つ行き先はリンクで、`revealSelected` と `scrollOffset` によってドロワーはサイトのサイドバーになります。Web コンポーネントはすでにこのすべてに対応しており、デモもそれを示しています。SwiftUI、Compose、Flutter、React Native は上の表で「追従待ち」です。追従するまでは以前の版（項目の高さ 44、`badge` は項目の末尾のテキスト、折りたたんだ形、グループ、リンクの行き先、幅に応じた表示はなく、ナビゲーションレールは別のコンポーネント）を提供しており、これらの例もその版のものです。 コンパクトな `density`、行き先にもなるグループ（`selectableGroups`）、絞り込みの入力欄（`filterable`）はさらに新しく、今のところ Web だけです。
 :::
 
 <DemoFrame label="2 つのセクションを持つスタンダードのドロワー">
@@ -59,6 +59,25 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-navigation-drawer-item label="タブ" href="#sidebar-demo-tabs" trailing-text="新着"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-group>
     <tanrei-navigation-drawer-item label="ソースコード" href="#sidebar-demo-source" target="new" target-label="新しいタブで開きます"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<DemoFrame label="行を絞り込めるドロワー：入力欄に入力するか、ページのどこかで / を押して入力欄に移ります" plain>
+  <tanrei-navigation-drawer open filterable reveal-selected value="#filter-demo-tabs" label="ドキュメント" filter-label="ナビゲーションを絞り込む" filter-placeholder="絞り込む" filter-count-text="一致: {count} 件" filter-empty-text="一致する項目はありません" filter-clear-label="クリア" style="block-size: 26rem">
+    <tanrei-navigation-drawer-group label="はじめに">
+      <tanrei-navigation-drawer-item label="概要" href="#filter-demo-overview"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="Web" href="#filter-demo-web"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-group label="基礎">
+      <tanrei-navigation-drawer-item label="カラー" href="#filter-demo-color"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="タイポグラフィ" href="#filter-demo-typography"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-group label="コンポーネント">
+      <tanrei-navigation-drawer-item label="ボタン" href="#filter-demo-button"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="ナビゲーションバー" href="#filter-demo-navigation-bar"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="ナビゲーションドロワー" href="#filter-demo-navigation-drawer"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="タブ" href="#filter-demo-tabs"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
   </tanrei-navigation-drawer>
 </DemoFrame>
 
@@ -106,6 +125,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 グループの行はグループを開閉するだけで、何も選びません。グループがそれ自体ひとつの場所でもあるとき（サイトでセクションの概要ページがある、選ぶとフォルダーの中身を表示する、など）は、ドロワーに `selectableGroups` を付け、グループに `value` か `href` を与えます。するとグループの行は行き先の行と同じようにそれを選び、シェブロンはグループを開閉する独立した操作部品になります。どちらも持たないグループは、これまでどおり開閉するだけです。行き先にもなるグループは、今のところ Web で使えます。
 
 `density` は既定の `regular` か `compact` です。`compact` は項目の高さ 32、グリフ 16 で、アイコンの列も狭く、行き先の多いドロワーをポインターで使うツール向けです。コンパクトな密度は、今のところ Web で使えます。
+
+`filterable` を設定すると、項目の上に絞り込みの入力欄を描きます。入力した文字をラベルに含む行だけにドロワーが絞り込まれ、それを含むグループは絞り込みの間だけ開きます。入力欄を空にすると、ドロワーは元に戻ります。`filterValue` はそのテキストで、ユーザーが入力するとドロワーが自分で設定してから `filterChange` を発火します。ページを描き直すときに絞り込みを戻すため、利用者側で設定することもできます。入力欄の文言は利用者側のものです。`filterLabel` が入力欄の名前になり、`filterPlaceholder`、`filterCountText`（「一致: \{count} 件」）、`filterEmptyText`、`filterClearLabel` は、空にしておくとプロダクトの文言から読みます。絞り込みは、今のところ Web で使えます。
 
 ドロワーには 2 つのバリアントがあり、1 つのプロダクトでたいてい両方を使います。ウィンドウの幅が足りればスタンダード、足りなければモーダルです。
 
@@ -158,6 +179,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       </tanrei-navigation-drawer-group>
     </tanrei-navigation-drawer>
 
+    <!-- 行を絞り込めるサイドバー：ページのどこで「/」を押しても入力欄に移ります。文言は利用者側のものです。 -->
+    <tanrei-navigation-drawer id="filtered" label="ドキュメント" value="/components/tabs/" reveal-selected open
+      filterable filter-label="ナビゲーションを絞り込む" filter-placeholder="絞り込む"
+      filter-count-text="一致: {count} 件" filter-empty-text="一致する項目はありません" filter-clear-label="クリア">
+      <tanrei-navigation-drawer-group label="コンポーネント">
+        <tanrei-navigation-drawer-item label="ボタン" href="/components/button/"></tanrei-navigation-drawer-item>
+        <tanrei-navigation-drawer-item label="タブ" href="/components/tabs/"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-group>
+    </tanrei-navigation-drawer>
+
     <script type="module">
       import '@tanrei/web/components/navigation-drawer';
       import '@tanrei/web/components/button';
@@ -179,6 +210,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       });
       // responsive のドロワーは、ウィンドウの幅で決まった表示（standard、column、modal）を伝えます。
       sidebar.addEventListener('presentationchange', (e) => showMenuButton(e.detail.presentation === 'modal'));
+
+      // ユーザーが残した絞り込みのテキストを、次のページのために取っておきます（ドロワーは何も保存しません）。
+      const filtered = document.querySelector('#filtered');
+      filtered.addEventListener('filterchange', (e) => sessionStorage.setItem('filter', e.detail.value));
+      filtered.filterValue = sessionStorage.getItem('filter') ?? '';
     </script>
     ```
   </TabItem>
@@ -224,6 +260,25 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
         <NavigationDrawerItem label="タブ" href="/components/tabs/" trailingText="新着" />
       </NavigationDrawerGroup>
       <NavigationDrawerItem label="ソースコード" href="https://example.com/tanrei" target="new" targetLabel="新しいタブで開きます" />
+    </NavigationDrawer>
+
+    // 行を絞り込めるサイドバー：ユーザーが入力すると、ドロワーが自分で filterValue を設定します。
+    <NavigationDrawer
+      label="ドキュメント"
+      open
+      filterable
+      filterLabel="ナビゲーションを絞り込む"
+      filterPlaceholder="絞り込む"
+      filterCountText="一致: {count} 件"
+      filterEmptyText="一致する項目はありません"
+      filterClearLabel="クリア"
+      filterValue={filter}
+      onFilterchange={(e) => setFilter(e.detail.value)}
+    >
+      <NavigationDrawerGroup label="コンポーネント">
+        <NavigationDrawerItem label="ボタン" href="/components/button/" />
+        <NavigationDrawerItem label="タブ" href="/components/tabs/" />
+      </NavigationDrawerGroup>
     </NavigationDrawer>
     ```
   </TabItem>
@@ -497,6 +552,19 @@ Web は実装済みです。SwiftUI、Compose、Flutter、React Native は、追
 - **サイトの外へ出るリンク**には `target` に `new` を指定します。新しいタブで開き、末尾の内容を置いていなければ、展開した項目の末尾にアイコンセットの `open_in_new` を描き、名前の後に `targetLabel` を読み上げます。この言葉（「新しいタブで開きます」など）は利用者側で用意します。Tanrei は言葉を同梱しません。
 - **ルーターは `change` を聞きます。** `change` は、ブラウザーがリンクをたどる前に発火します。ただし、ふつうの実行のときだけです。`target` が `same` のリンクを、修飾キーなしの主ボタン、タッチ、Enter のいずれかで実行したときです。これをキャンセルし、運ばれてきた `href` へ移ります。別のタブで開いたリンクは何も発火せず、モーダルのドロワーも開いたままにします。
 
+### 絞り込み
+
+絞り込みは、ドロワーをその場で狭めるもので、検索ではありません。[検索](/ja/components/search/)はすべてのページの内容を探し、見つけたものを専用のビューに表示します。絞り込みは、ドロワーがすでに並べている場所のラベルだけを見て、それをその場に残します。そのため、ページの名前を知っている読み手は、「/」と最初の数文字の 2 つのキーでそこに着き、周りの項目の中でその位置を見られます。それぞれに専用のキーを割り当てます。サイドバーに絞り込みを持つドキュメントサイトにならって、絞り込みには「/」、検索には ⌘K か Ctrl+K です。
+
+- **一致するもの。** 入力したすべての語を、それぞれラベルのどこかに、順不同で含む行が一致します。大文字と小文字、文字の幅（全角と半角）、文字に付く記号（アクセントなど）は区別しません。「nav dr」は「Navigation drawer」に、「resume」は「Résumé」に一致します。比べるのはラベルだけで、補足テキスト、末尾テキスト、アドレスは比べません。取得も、順位付けも、並べ替えもしません。サーバーで探す、順位を付ける、ラベル以外も比べるプロダクトは、`filterable` を設定せず、これまでどおり一致した行をドロワーに渡します。
+- **`filterMode`** の既定は `filter` です。一致しない行は隠し、一致を持つグループは残し、名前で一致したグループは中身ごと残します。`highlight` は何も隠さず、一致に印を付けるだけです。前後のつながりの中で読む構造に使います。
+- **グループは一時的に開きます。** 一致を持つ閉じたグループは、絞り込みのために開いて描きます。`open` は変わらず、`toggle` も発火しないので、入力欄を空にすると、また閉じます。絞り込み中にユーザーが開閉したグループはユーザーのもので、置いたままの状態を保ちます。
+- **最初の一致はすぐに選べます。** 入力欄にフォーカスがある間、一致する最初の行をフォーカスのある行として描きます。Enter はその行で Enter を押したときと同じくそれを実行し、下矢印はその行にフォーカスを移します。入力は入力欄で続けられます。Escape は入力欄を空にし、もう一度押すと、「/」を押す前の場所にフォーカスを戻します。
+- **「/」は、ページのどこからでも入力欄に移ります。** ただし、テキストの入力欄にフォーカスがあるときは、そこにスラッシュを入力します。折りたたんだドロワーは、先に展開します。キーは `filterShortcut` で変えられ、空のリストにするとキーを割り当てません。すでに「/」を使っているプロダクト向けです。狭いウィンドウでは、[アプリシェル](/ja/components/app-shell/)が閉じたドロワーをこのキーで開き、入力欄にフォーカスを移します。
+- **件数。** 絞り込み中は、結果の先頭に控えめな 1 行で、一致した行の数（`filterCountText`）を、何も一致しなければ `filterEmptyText` を表示します。`filterCountHidden` を設定すると件数は描きませんが、支援技術には伝えます。
+- **一致には、検索と同じ印を付けます。** 一致した文字を濃い文字色と太い文字にし、後ろに薄い塗りを描きます。
+- **何も保存しません。** ドロワーがなくなると、テキストも忘れます。絞り込みを読み手について回らせたいときは、`filterChange` から `filterValue` を取っておき、次のページで戻します。
+
 ### 行き先、グループ、セクション
 
 - 項目の高さは最小 48 で、[メニュー](/ja/components/menu/)の項目と同じ高さ、同じ角の丸みです。ラベルは 1 行で切り詰め、`labelWrap` を付けると折り返して項目も高くなります。
@@ -523,6 +591,7 @@ Web は実装済みです。SwiftUI、Compose、Flutter、React Native は、追
 - セクションを入れ子にしたり、グループにセクションを入れたりしない。デバッグビルドで報告し、内側のセクションの行き先をその場所に描きます。
 - `selectableGroups` を付けずにグループに `value` や `href` を与えて、行で選べるようにしようとしない。開閉するだけで、デバッグビルドで報告します。
 - スタンダードが収まる幅のウィンドウでモーダルを使わない。
+- 絞り込みを、サイトの検索の代わりにしない。絞り込みは場所を名前で見つけるものです。内容の中の語を探す読み手には、検索が必要です。
 
 ## アクセシビリティ
 
@@ -544,7 +613,10 @@ Web は実装済みです。SwiftUI、Compose、Flutter、React Native は、追
 - フォーカスリングは項目の周りに、キーボードフォーカスのときだけ描きます。全部は見えていない項目にキーボードフォーカスが移ると、見えるところまで最小限だけスクロールします。
 - ヒット領域は、どちらの形でもセル全体で、最小ターゲットを下回ることはありません。
 - 文字を大きくしても、どちらの形の幅も変わらず、項目と見出しが高くなります。ラベルは折り返し、短いラベルは切り詰め、アイコンは拡大しません。
-- ラベルのない行き先、`label` のないモーダルのドロワー、どの行き先も指していない値、重複した値、入れ子のセクション、グループの中のセクション、3 つより深い階層、デザインシステムにないバリアント、メニューボタンのない折りたためるドロワー、`trailing` スロットの中のフォーカスできる要素、`javascript:` のアドレスや読み取れない `href`、定義にない `target`、`target` が `new` なのに `targetLabel` のないリンクは、デバッグビルドで報告します。 デザインシステムにない密度と、`selectableGroups` を付けていないのに `value` か `href` を持つグループも報告します。
+- 絞り込みの入力欄は、`filterLabel` を名前とする検索フィールドで、項目の前にあり、ドロワーのリストを操作することを伝えます。クリアボタンの名前は `filterClearLabel` です。「/」は入力欄のキーボードショートカット（Web では `aria-keyshortcuts`）として伝え、キーのヒントは支援技術から隠します。
+- 絞り込みで隠した行は、支援技術からも消えます。そのため、聞こえる位置と数はどれも絞り込み後のものです。入力が 1 秒止まると、ドロワー自身のステータスが、一致した行の数、または何も一致しないことを、フォーカスを動かさずに polite に伝えます。結果の先頭に描く件数は支援技術から隠し、代わりにステータスが伝えます。
+- 一致には、色だけでなく太さと塗りでも印を付けるので、色だけに頼ることはありません。強制カラーモードでは、プラットフォームの、印を付けたテキストの色で描きます。行の名前はラベル全体のままで、印のところで区切って読み上げることはありません。
+- ラベルのない行き先、`label` のないモーダルのドロワー、どの行き先も指していない値、重複した値、入れ子のセクション、グループの中のセクション、3 つより深い階層、デザインシステムにないバリアント、メニューボタンのない折りたためるドロワー、`trailing` スロットの中のフォーカスできる要素、`javascript:` のアドレスや読み取れない `href`、定義にない `target`、`target` が `new` なのに `targetLabel` のないリンクは、デバッグビルドで報告します。 デザインシステムにない密度と、`selectableGroups` を付けていないのに `value` か `href` を持つグループも報告します。絞り込みでは、`filterLabel` のない入力欄、名前のないクリアボタン、未知の `filterMode`、2 つ以上の組み合わせを持つ `filterShortcut`、ほかのドロワーや検索がすでに使っている組み合わせを報告します。
 
 プラットフォームごとの既知の制約：
 
@@ -561,6 +633,8 @@ Web は実装済みです。SwiftUI、Compose、Flutter、React Native は、追
 - React Native のドロワーには、まだ自分の `insets` プロパティがなく、`TanreiProvider` のインセットだけを読みます。行き先は位置を値のテキストとして持ち、`positionText` を渡さなければ英語です。
 - React Native：モーダルのドロワーのドラッグとフリング、フォーカスの移動、アクセシビリティの「戻る」ジェスチャーは、実機ではまだ確かめていません。
 - 以前の版を提供している SwiftUI、Compose、Flutter、React Native：最初の項目はドロワーの余白から間隔の半分だけ下に置かれ、ラベルが折り返した行の高さの伸び方もそろっていません（SwiftUI と Compose は、文字が収まらなくなるまで行の最小の高さを保ちます）。追従するときに、余白を最初のセルまでで測り、行の高さを最小値として扱うようになります。
+- Web：入力欄ですぐに選べる最初の一致はフォーカスのある行として描きますが、入力欄のアクティブな子孫ではありません。行き先はリンクかボタンで、入力欄のアクティブな子孫にはなれないためです。スクリーンリーダーの利用者は、下矢印でその行に着きます。
+- SwiftUI、Compose、Flutter、React Native には、まだ絞り込みがありません。
 - Web：モーダルの折りたためるドロワーは、列の幅まで狭まってからでないとフォーカスを戻さず、ドラッグするとパネル全体が動き、ダイアログは開いたときに測った列の位置に置かれます。
 
 ### 利用者側で行うこと
@@ -576,3 +650,4 @@ Web は実装済みです。SwiftUI、Compose、Flutter、React Native は、追
 - SwiftUI では、ドロワーが閉じた後に、キーボードフォーカスをメニューボタンへ利用者側で戻します。
 - React Native では、ドロワーが閉じた後にメニューボタンへのフォーカスの戻しを利用者側で行い、プロダクトの言語で `positionText` を渡し、ウィンドウのインセットを `TanreiProvider` に渡します。
 - 各行き先の値は重複させず、スタンダードとモーダルのどちらでも変えないでおきます。
+- `filterable` のときは、何を絞り込むかを伝える `filterLabel`（「ナビゲーションを絞り込む」）を入力欄に付け、`filterCountText`、`filterEmptyText`、`filterClearLabel`、`filterPlaceholder` の文言を、ドロワーに、またはプロダクトの文言として一度だけ渡します。

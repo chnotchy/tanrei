@@ -2,7 +2,7 @@
 title: "树视图"
 description: "由可以展开和折叠的项组成的层级结构。每深一级，行就多缩进一些；凡是包含其他项的行，开头都有一个 V 形箭头。它可以只供阅读和展开，也可以在其中选择一项或多项；它在焦点顺序中只占一个停靠点。"
 translationOf: components/tree-view.mdx
-sourceHash: f70a47c13a2aa39f74d0811ee7a1d630714145e2
+sourceHash: 8f4c8fa520b03dfaab421dbeca978455f3d8bca1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -66,6 +66,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
         </li>
         <li data-value="node_modules" data-expandable><span><bdi>node_modules</bdi></span></li>
       </ul>
+    </tanrei-tree-view>
+
+    <!-- 可以筛选行的树：在行上按“/”会移到它上方的输入框。文字由你提供。 -->
+    <tanrei-tree-view label="项目文件" filterable filter-label="筛选文件" filter-placeholder="筛选"
+      filter-count-text="匹配项：{count}" filter-empty-text="无匹配项" filter-clear-label="清除">
+      <ul>…</ul>
     </tanrei-tree-view>
 
     <script type="module">
@@ -135,6 +141,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | `toggle` | 用户或浏览器的页面内查找展开或折叠了一个父项。在 `<li>` 上触发，并且冒泡。 | `open` |
 | `rename` | 用户就地给一个项起了新名字。在 `<li>` 上触发，并且冒泡。 | `label`（去掉首尾空白的新名字）和 `previous` |
 | `create` | 用户为 `create()` 请求的新项起了名字。在树上触发。 | `label`、`parent`、`within` 和 `after`（它所在的和它之前的 `<li>`，没有则为 `null`） |
+| `filterchange` | 用户更改了筛选文本：键入、删除、粘贴、清除按钮或 Escape。在树上触发。 | `value`，即新的文本（`filter-value` 已经是这个值） |
 
 你自己做出的更改，不会触发这些事件中的任何一个。
 
@@ -142,6 +149,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | --- | --- |
 | `edit(li)` | 像 F2 一样，在一个项的名字上打开输入框。仅在树为 `editable` 时有效。 |
 | `create({ parent, icon })` | 在选中项旁边加一行新行，带一个空输入框用来起名。返回是否加上了。 |
+| `focusFilter()` | 把焦点移到筛选输入框，并选中其中的文本。仅在树为 `filterable` 时有效。可以把它绑定到你自己的、整个窗口都有效的按键上。 |
 
 ## 规格
 
@@ -319,7 +327,19 @@ tree.addEventListener('create', (event) => {
 - 只有显示出来的行才有开销。折叠着的父项的子项在它展开之前不会被加样式、排版或朗读。
 - 无论树有多大，一行的改动只会重新计算这一行的样式。
 
-筛选同样由你来做。把符合条件的项交给树，在包含它们的父项上设置 `data-open`，并在你自己的状态文本里说明有多少项符合。
+### 筛选
+
+设置 `filterable` 后，树会在第一行上方画一个筛选输入框，它固定在你的滚动框顶部，被固定的父项排在它下面。用户键入的内容会把树缩小到标签中含有它的那些行；清空输入框，树就恢复原样。
+
+- **什么算匹配。** 标签中含有键入的每一个词的行算作匹配，每个词可以出现在标签中的任何位置，顺序不限，不区分大小写、字符的宽度（全角与半角）和字母上的附加符号。只比较标签，不比较辅助文本、后置文本和值。还没有给出子项的父项（`data-expandable`）不会被搜索。
+- **`filter-mode`** 默认是 `filter`：不匹配的行被隐藏，包含匹配项的父项保留，因自身名称而匹配的父项连同内容整体保留。`highlight` 什么也不隐藏，只标记匹配项，适合要放在上下文中阅读的结构，例如一个项目的文件。
+- **父项临时展开。** 包含匹配项的折叠父项会为了筛选而画成展开的样子。它的 `data-open` 不变，也不会触发 `toggle`，所以清空输入框后它会重新折叠。筛选期间用户自己展开或折叠的父项归用户所有：它保持用户留下的状态。
+- **第一个匹配项随时可取。** 焦点在输入框中时，第一个匹配的行会画成获得焦点的样子，输入框把它作为自己的活动后代。按 Enter 会像在那一行上按 Enter 一样取用它：选中它，或者展开、折叠一个不能选择的父项。按下方向键会把焦点移到它上面，进入树中。Escape 清空输入框；在某一行上按 Escape 会清空筛选，让用户停在找到的项上，看到它周围的项。
+- **在行上按“/”** 会把焦点移到输入框；其他字母仍然像以前一样，按开头的字母跳到对应的行。树只在行上监听这个键，也不会画出提示。`filter-shortcut` 可以换成别的键，`focusFilter()` 则让你绑定一个对整个窗口都有效的键。
+- **数量。** 筛选期间，结果顶部会用低调的一行说明有多少行匹配（`filter-count-text`），一行都不匹配时则显示 `filter-empty-text`。设置 `filter-count-hidden` 后不画数量，但仍会告诉辅助技术。
+- **匹配项的标记与搜索相同**：匹配的字母使用更深的文字颜色，背后有浅色底；平台能画出字重时，字重也会更粗。在 Web 上，标签是你自己的文本，树从不拆分它，所以标记是对其文本范围的高亮，不画字重。
+
+如果你用别的方式判断匹配——在服务器上查找、排序，或者比较标签以外的内容——就不要设置 `filterable`，把符合条件的项交给树，在包含它们的父项上设置 `data-open`，并在你自己的状态文本里说明有多少项符合。
 
 ### 很深的树与很窄的窗口
 
@@ -340,6 +360,7 @@ tree.addEventListener('create', (event) => {
 - 不要在行里放链接、按钮或输入框。树的任何按键都到不了它。
 - 不要把树用于网站的页面。链接是通过浏览器和屏幕阅读器列出链接的那些方式被找到的。
 - 不要靠移动焦点来选择。方向键负责移动；Enter 和 Space 负责选择。
+- 不要在可筛选的树的行上把“/”另作他用。请把 `filter-shortcut` 设为别的键，或者不设任何键。
 
 ## 无障碍
 
@@ -364,7 +385,10 @@ tree.addEventListener('create', (event) => {
 - V 形箭头、图标和引导线对辅助技术隐藏。加载行也是隐藏的：由父项说明它正忙。
 - 标签和辅助文本各占一行；被截断的文本在悬停和键盘聚焦时在工具提示中完整显示，按 Escape 可隐藏，指针可以移到工具提示上，无障碍名称始终是完整的。设置 `label-wrap` 和 `supporting-wrap` 时，文本为 200% 时它们会换行，行会增高。
 - 在强制颜色模式下，选中的行采用系统的选中颜色，并加上一道边线。
-- 调试构建会报告：空的 `label`、没有标签的项、直接写在行里的标签、行里的控件、不对应任何项的值、两个值相同的项、未知的 `density`、`selection`、`chevron`、`guides`、`icon-space` 或 `highlight`、不是数字的 `indent` 或 `icon-gap`、在 `chevron="none"` 下没有图标的父项，以及没有 `edit-label` 的输入框。
+- 筛选输入框是一个以 `filter-label` 为名称的搜索字段，位于树之前，是一个独立的停靠点，所以树仍然只占一个停靠点。它表明自己控制着这棵树，把第一个匹配项作为自己的活动后代，它的清除按钮以 `filter-clear-label` 为名称。
+- 被筛选隐藏的行对辅助技术来说也不存在了，所以用户听到的每一个层级、位置和数量都是筛选之后的。键入停顿一秒后，树旁边的一个状态会以礼貌（polite）的方式说明有多少行匹配，或者一行都不匹配，焦点不会移动：这是树唯一会朗读的内容。结果顶部画出的数量对辅助技术隐藏，辅助技术听到的是这个状态。
+- 匹配项除了颜色还用浅色底标记，在强制颜色模式下使用平台标记文本的颜色，行的名称仍是完整的标签。
+- 调试构建会报告：空的 `label`、没有标签的项、直接写在行里的标签、行里的控件、不对应任何项的值、两个值相同的项、未知的 `density`、`selection`、`chevron`、`guides`、`icon-space` 或 `highlight`、不是数字的 `indent` 或 `icon-gap`、在 `chevron="none"` 下没有图标的父项、没有 `edit-label` 的输入框、没有 `filter-label` 的筛选输入框、没有名称的清除按钮、未知的 `filter-mode`，以及包含不止一个组合键的 `filter-shortcut`。
 
 ### 需要你做的事
 
@@ -372,3 +396,4 @@ tree.addEventListener('create', (event) => {
 - 获取失败时，由你自己说明：写在树的旁边，或者作为一个用标签说明这一点的项。子项到达时，树不会朗读任何内容。
 - 多选时，如果每个选中的项必须靠填充以外的东西来区分，请在后置内容里放一个你自己的标记。
 - 把很长的树放进带有名称或标题的滚动框里，让用户知道框里是什么。
+- 设置 `filterable` 时，给输入框一个说明它筛选什么的 `filter-label`（“筛选文件”），并为 `filter-count-text`、`filter-empty-text`、`filter-clear-label` 和 `filter-placeholder` 提供你的文字，可以写在树上，也可以用 `setWords()` 一次性给出。
