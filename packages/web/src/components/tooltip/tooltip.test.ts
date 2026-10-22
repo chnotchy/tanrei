@@ -437,6 +437,15 @@ async function openIt(page: P, id: string) {
   await rested(page, id);
   return [await bounds(anchor(page, id)), await bounds(surface(page, id))] as const;
 }
+/**
+ * The anchor's box and the placed box of an open tooltip, read once the surface is shown and has a box again: a move of
+ * the anchor places it anew, and on a busy machine the frames that do it may not have run when the test reads.
+ */
+async function shownBounds(page: P, id: string) {
+  await expect.poll(() => shown(page, id), 'the tooltip is still open').toBe(true);
+  await expect.poll(async () => (await surface(page, id).boundingBox()) !== null, 'its surface has a box').toBe(true);
+  return [await bounds(anchor(page, id)), await bounds(surface(page, id))] as const;
+}
 const edges = (b: { x: number; y: number; width: number; height: number }) => ({ left: b.x, top: b.y, right: b.x + b.width, bottom: b.y + b.height, centerX: b.x + b.width / 2, centerY: b.y + b.height / 2 });
 type Edges = ReturnType<typeof edges>;
 /** Opens it and returns both boxes as their edges and centres. */
@@ -636,14 +645,14 @@ test.describe('placement', () => {
     // No room above: it flips below; near the left edge it shifts right to the margin, and no farther.
     await anchorAt(page, 'top', 2, 2);
     await settle(page);
-    [a, s] = [await bounds(anchor(page, 'top')), await bounds(surface(page, 'top'))];
+    [a, s] = await shownBounds(page, 'top');
     expect(await side(page, 'top')).toBe('bottom');
     expect(s.y - (a.y + a.height)).toBeCloseTo(offset, 0);
     expect(s.x).toBeCloseTo(margin, 0);
     // It follows the anchor.
     await anchorAt(page, 'top', 300, 300);
     await settle(page);
-    [a, s] = [await bounds(anchor(page, 'top')), await bounds(surface(page, 'top'))];
+    [a, s] = await shownBounds(page, 'top');
     expect(edges(s).centerX).toBeCloseTo(edges(a).centerX, 0);
     // Flipped, the alignment is kept: top-start below is bottom-start, the start edges still meeting.
     await anchorAt(page, 'aligned', 380, 2);
