@@ -200,7 +200,18 @@ async function axTree(page: P) {
   await cdp.send('Accessibility.enable');
   const { nodes } = await cdp.send('Accessibility.getFullAXTree');
   await cdp.detach();
-  return nodes
+  // In the tree's own order — depth first from the root, as a reader meets it — not the order the engine lists its
+  // nodes in, which follows when each node was made.
+  const byId = new Map(nodes.map((node) => [node.nodeId, node]));
+  const ordered: typeof nodes = [];
+  const walk = (id: string) => {
+    const node = byId.get(id);
+    if (!node) return;
+    ordered.push(node);
+    for (const child of node.childIds ?? []) walk(child);
+  };
+  walk(nodes[0]!.nodeId);
+  return ordered
     .filter((node) => !node.ignored)
     .map((node) => {
       const property = (name: string) => node.properties?.find((p) => p.name === name)?.value.value;
