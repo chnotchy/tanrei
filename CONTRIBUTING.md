@@ -25,7 +25,7 @@ pnpm check      # validate → generate → drift → build → test
 
 ### What `pnpm check` runs on a fresh clone
 
-`pnpm check` checks what CI checks, and needs only Node and pnpm plus the browsers Playwright runs (`pnpm --filter @tanrei/web exec playwright install`): validate, generate (the tree stays clean), drift, the format check, then `pnpm build` and `pnpm test` over the token engine, the pipeline, the tools, the CLI, the MCP server, Theme Studio, the docs site, and the web and React packages. The platforms listed in [`packages/tools/paused-platforms.json`](packages/tools/paused-platforms.json) are left out of `pnpm build` and `pnpm test`, as CI leaves them out ([Native CI is paused](#native-ci-is-paused)); run one on its own with `pnpm --filter @tanrei/<platform> test`. Each native platform needs its own toolchain:
+`pnpm check` checks what CI checks, and needs only Node and pnpm plus the browsers Playwright runs (`pnpm --filter @tanrei/web exec playwright install`): validate, generate (the tree stays clean), drift, the format check, then `pnpm build` (the web package's build ends by parsing every file of its `dist/` as the ECMAScript edition its `tsconfig.json` targets, ES2022: `node packages/tools/src/cli.js syntax`) and `pnpm test` over the token engine, the pipeline, the tools, the CLI, the MCP server, Theme Studio, the docs site, and the web and React packages. The platforms listed in [`packages/tools/paused-platforms.json`](packages/tools/paused-platforms.json) are left out of `pnpm build` and `pnpm test`, as CI leaves them out ([Native CI is paused](#native-ci-is-paused)); run one on its own with `pnpm --filter @tanrei/<platform> test`. Each native platform needs its own toolchain:
 
 | Platform | Toolchain |
 |---|---|

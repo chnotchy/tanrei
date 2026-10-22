@@ -2,7 +2,7 @@
 title: Web
 description: Tanrei の CSS トークンと Web Components を、どの Web プロジェクトでも使えます。
 translationOf: getting-started/web.mdx
-sourceHash: b795991094209ca4e3878521a44be6737c299786
+sourceHash: b80f1fce0b42384ed5d6b457b10570050f9c65ea
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -228,4 +228,36 @@ Material Symbols Rounded のファイルは、すべてのグリフを、すべ�
 
 ## ブラウザーの対応
 
-トークンは `light-dark()` とカスケードレイヤーに依存しています。どちらも、Chrome、Edge、Firefox、Safari の現行バージョンで使えます。
+Tanrei は、次のバージョン以降で動きます。
+
+| ブラウザー | バージョン |
+|---|---|
+| Chrome、Edge | 125 |
+| Firefox | 126 |
+| Safari（macOS、iOS） | 17.5 |
+
+どの数字も、Tanrei が描くのに欠かせない機能のうち、いちばん新しいものが使えるようになったバージョンです。どの機能にも代わりの手段はありません。
+
+- **CSS**: 色はすべて `light-dark()` の組です（Chrome・Edge 123、Firefox 120、Safari 17.5）。サイズと文字サイズは CSS の `round()` で丸めています（Chrome・Edge 125、Firefox 118、Safari 15.4）。コンポーネントは、カスタムステート（`:state()`）で見た目を切り替えます（Chrome・Edge 125、Firefox 126、Safari 17.4）。メニュー、ツールチップ、スナックバーは、Popover API で最上位レイヤーに開きます（Chrome・Edge 114、Firefox 125、Safari 17）。スタイルシートを包んでいるカスケードレイヤーは、それより前から使えます（Chrome・Edge 99、Firefox 97、Safari 15.4）。
+- **JavaScript**: パッケージは ES2022 で、公開するファイルが 1 つでもそれを超えるとビルドが失敗します。いちばん新しい構文はクラスの static ブロックで、Chrome・Edge 94、Firefox 93、Safari 16.4 から動きます。パッケージを古いターゲット向けにトランスパイルしても、下限は下がりません。上の CSS は変わらないからです。
+
+これより新しい機能は、なくても動く場所でだけ使っています。`@starting-style` がなければ開くときのアニメーションが再生されず、`corner-shape` がなければ角が丸いままになるだけです。
+
+### 古いブラウザーで開いた人に知らせる
+
+Tanrei 自身はこれをしません。製品のエントリーポイントの役目です。先に機能を確かめ、そろっているときだけ、アプリを Tanrei ごと読み込みます。
+
+```html
+<p id="unsupported" hidden>このサイトには Chrome または Edge 125、Firefox 126、Safari 17.5 以降が必要です。</p>
+<script type="module">
+  // Safari の下限は light-dark() で、Chrome と Edge の下限は round() で、Firefox の下限は :state() で決まる
+  const supported =
+    CSS.supports('color', 'light-dark(red, red)') &&
+    CSS.supports('width', 'round(1px, 1px)') &&
+    CSS.supports('selector(:state(open))');
+  if (supported) import('./app.js'); // @tanrei/web を読み込むアプリ
+  else document.getElementById('unsupported').hidden = false;
+</script>
+```
+
+このスクリプトは小さく、素直に書いてください。古いものも含め、訪れた人のブラウザーがすべてこれを実行します。静的な `import` にすると、ブラウザーはこのスクリプトより先にアプリを読み込むので、アプリを解析できない古いブラウザーでは確認そのものが動きません。`import()` なら、確認が済んでから読み込みます。

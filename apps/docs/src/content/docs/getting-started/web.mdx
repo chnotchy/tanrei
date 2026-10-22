@@ -226,4 +226,36 @@ The whole Material Symbols Rounded file holds every glyph at every weight, fill,
 
 ## Browser support
 
-The tokens rely on `light-dark()` and cascade layers, which are available in current versions of Chrome, Edge, Firefox and Safari.
+Tanrei works in these versions and later:
+
+| Browser | Version |
+|---|---|
+| Chrome and Edge | 125 |
+| Firefox | 126 |
+| Safari, on macOS and iOS | 17.5 |
+
+Each number is the newest of the features Tanrei cannot draw without, none of which has a fallback:
+
+- **CSS.** Every color is a `light-dark()` pair (Chrome and Edge 123, Firefox 120, Safari 17.5). Sizes and type sizes are rounded with CSS `round()` (Chrome and Edge 125, Firefox 118, Safari 15.4). The components restyle on custom states, `:state()` (Chrome and Edge 125, Firefox 126, Safari 17.4). Menus, tooltips and snackbars open in the top layer with the Popover API (Chrome and Edge 114, Firefox 125, Safari 17). The cascade layers the stylesheets are wrapped in came earlier (Chrome and Edge 99, Firefox 97, Safari 15.4).
+- **JavaScript.** The package is ES2022, and its build fails if any file it publishes goes further. Its newest syntax, class static blocks, runs from Chrome and Edge 94, Firefox 93 and Safari 16.4. Compiling the package for an older target does not lower the floor: the CSS above stays what it is.
+
+A few newer features are used only where a browser without them still works: without `@starting-style` an opening animation does not play, and without `corner-shape` a corner stays round.
+
+### Telling a visitor their browser is too old
+
+Tanrei does not do this itself: it belongs to your product's entry point. Test the features first, and load the app, and Tanrei with it, only when they are there:
+
+```html
+<p id="unsupported" hidden>This site needs Chrome or Edge 125, Firefox 126 or Safari 17.5, or a later version.</p>
+<script type="module">
+  // light-dark() sets Safari's floor, round() Chrome's and Edge's, :state() Firefox's.
+  const supported =
+    CSS.supports('color', 'light-dark(red, red)') &&
+    CSS.supports('width', 'round(1px, 1px)') &&
+    CSS.supports('selector(:state(open))');
+  if (supported) import('./app.js'); // your app, which imports @tanrei/web
+  else document.getElementById('unsupported').hidden = false;
+</script>
+```
+
+Keep this script small and plain: every visitor's browser runs it, the old ones included. With a static `import`, the browser loads the app before this script runs, and an old one that cannot parse the app never reaches the test; `import()` loads it only afterwards.

@@ -98,6 +98,39 @@ runs. Import the stylesheet of each one you use (or link `dist/<name>.css`):
 page on the surface, its text on-surface in the body face, no margin on `<body>`); a preset's `systems/<id>.css` is not
 in it.
 
+## Browser support
+
+Chrome and Edge 125, Firefox 126, Safari 17.5 (macOS and iOS), and later. Each is the newest of the features Tanrei
+cannot draw without, none of which has a fallback:
+
+| Feature | Chrome, Edge | Firefox | Safari |
+|---|---|---|---|
+| `light-dark()`: every color | 123 | 120 | **17.5** |
+| CSS `round()`: sizes and type sizes | **125** | 118 | 15.4 |
+| Custom states, `:state()`: the components' styles | **125** | **126** | 17.4 |
+| The Popover API: menus, tooltips, snackbars | 114 | 125 | 17 |
+| Cascade layers: every stylesheet | 99 | 97 | 15.4 |
+| ES2022 syntax (class static blocks, its newest) | 94 | 93 | 16.4 |
+
+The JavaScript is ES2022: the package's build parses every file of `dist/` again as ES2022 and fails on anything
+later. Compiling it for an older target does not lower the floor, since the CSS stays what it is. Newer features are
+used only where a browser without them still works (an opening animation by `@starting-style`, `corner-shape`).
+
+Telling a visitor their browser is too old is your entry point's job: test the features, and only then load the app,
+and Tanrei with it, by `import()`; a static `import` would load it before the test runs.
+
+```html
+<p id="unsupported" hidden>This site needs Chrome or Edge 125, Firefox 126 or Safari 17.5, or a later version.</p>
+<script type="module">
+  const supported =
+    CSS.supports('color', 'light-dark(red, red)') &&
+    CSS.supports('width', 'round(1px, 1px)') &&
+    CSS.supports('selector(:state(open))');
+  if (supported) import('./app.js'); // your app, which imports @tanrei/web
+  else document.getElementById('unsupported').hidden = false;
+</script>
+```
+
 ## Fonts
 
 Tanrei references fonts by name and bundles none. Make the families your system names available, with `@font-face`

@@ -2,7 +2,7 @@
 title: Web
 description: 在任何 Web 项目中使用 Tanrei 的 CSS 令牌和 Web Components。
 translationOf: getting-started/web.mdx
-sourceHash: b795991094209ca4e3878521a44be6737c299786
+sourceHash: b80f1fce0b42384ed5d6b457b10570050f9c65ea
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -228,4 +228,36 @@ import '@tanrei/web/icons.css';
 
 ## 浏览器支持
 
-令牌依赖 `light-dark()` 和级联层，Chrome、Edge、Firefox 和 Safari 的当前版本均已支持。
+Tanrei 在以下版本及更高版本中可用：
+
+| 浏览器 | 版本 |
+|---|---|
+| Chrome 和 Edge | 125 |
+| Firefox | 126 |
+| Safari（macOS 和 iOS） | 17.5 |
+
+每个数字都来自 Tanrei 绘制时离不开的功能中最新的那一项，这些功能都没有替代方案：
+
+- **CSS**：所有颜色都是 `light-dark()` 写成的一对值（Chrome 和 Edge 123、Firefox 120、Safari 17.5）。尺寸和字号用 CSS 的 `round()` 取整（Chrome 和 Edge 125、Firefox 118、Safari 15.4）。组件依据自定义状态 `:state()` 切换样式（Chrome 和 Edge 125、Firefox 126、Safari 17.4）。菜单、工具提示和消息条通过 Popover API 在顶层打开（Chrome 和 Edge 114、Firefox 125、Safari 17）。包裹样式表的级联层更早就已支持（Chrome 和 Edge 99、Firefox 97、Safari 15.4）。
+- **JavaScript**：这个包是 ES2022 的，只要它发布的任何一个文件超出 ES2022，构建就会失败。它用到的最新语法是类的静态初始化块，从 Chrome 和 Edge 94、Firefox 93、Safari 16.4 起即可运行。把这个包转译到更旧的目标并不能降低下限：上面的 CSS 不会因此改变。
+
+少数更新的功能只用在缺少它们也能正常工作的地方：没有 `@starting-style` 时，打开时的动画不会播放；没有 `corner-shape` 时，转角就保持普通的圆角。
+
+### 告诉访客浏览器版本太旧
+
+Tanrei 自己不做这件事：这是产品入口的职责。先检测这些功能，只有都具备时才加载应用，连同 Tanrei 一起：
+
+```html
+<p id="unsupported" hidden>本网站需要 Chrome 或 Edge 125、Firefox 126、Safari 17.5 或更高版本。</p>
+<script type="module">
+  // light-dark() 决定 Safari 的下限，round() 决定 Chrome 和 Edge 的下限，:state() 决定 Firefox 的下限
+  const supported =
+    CSS.supports('color', 'light-dark(red, red)') &&
+    CSS.supports('width', 'round(1px, 1px)') &&
+    CSS.supports('selector(:state(open))');
+  if (supported) import('./app.js'); // 你的应用，由它导入 @tanrei/web
+  else document.getElementById('unsupported').hidden = false;
+</script>
+```
+
+这段脚本要写得小而朴素：每位访客的浏览器都会运行它，旧浏览器也不例外。如果用静态 `import`，浏览器会在这段脚本运行之前就加载应用，无法解析应用的旧浏览器根本走不到检测这一步；`import()` 则在检测之后才加载。

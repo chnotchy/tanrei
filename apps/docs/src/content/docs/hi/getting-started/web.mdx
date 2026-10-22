@@ -2,7 +2,7 @@
 title: Web
 description: किसी भी वेब प्रोजेक्ट में Tanrei के CSS टोकन और Web Components इस्तेमाल करें।
 translationOf: getting-started/web.mdx
-sourceHash: b795991094209ca4e3878521a44be6737c299786
+sourceHash: b80f1fce0b42384ed5d6b457b10570050f9c65ea
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -228,4 +228,36 @@ import '@tanrei/web/icons.css';
 
 ## ब्राउज़र सपोर्ट
 
-टोकन `light-dark()` और कैस्केड लेयर पर निर्भर हैं, जो Chrome, Edge, Firefox और Safari के मौजूदा वर्शन में उपलब्ध हैं।
+Tanrei इन वर्शन और इनके बाद के वर्शन में काम करता है:
+
+| ब्राउज़र | वर्शन |
+|---|---|
+| Chrome और Edge | 125 |
+| Firefox | 126 |
+| Safari, macOS और iOS पर | 17.5 |
+
+हर संख्या उन फ़ीचर में सबसे नए फ़ीचर से आती है जिनके बिना Tanrei बन ही नहीं सकता, और इनमें से किसी का कोई विकल्प नहीं है:
+
+- **CSS.** हर रंग `light-dark()` की एक जोड़ी है (Chrome और Edge 123, Firefox 120, Safari 17.5)। साइज़ और फ़ॉन्ट साइज़ CSS के `round()` से राउंड किए जाते हैं (Chrome और Edge 125, Firefox 118, Safari 15.4)। कंपोनेंट कस्टम स्टेट, `:state()`, के हिसाब से अपनी स्टाइल बदलते हैं (Chrome और Edge 125, Firefox 126, Safari 17.4)। मेन्यू, टूलटिप और स्नैकबार Popover API से टॉप लेयर में खुलते हैं (Chrome और Edge 114, Firefox 125, Safari 17)। स्टाइलशीट जिन कैस्केड लेयर में लिपटी हैं, वे इनसे पहले से उपलब्ध हैं (Chrome और Edge 99, Firefox 97, Safari 15.4)।
+- **JavaScript.** पैकेज ES2022 में है, और अगर उसकी पब्लिश होने वाली कोई भी फ़ाइल इससे आगे जाती है तो उसका बिल्ड फ़ेल हो जाता है। इसका सबसे नया सिंटैक्स, क्लास के static ब्लॉक, Chrome और Edge 94, Firefox 93 और Safari 16.4 से चलता है। पैकेज को किसी पुराने टारगेट के लिए ट्रांसपाइल करने से न्यूनतम वर्शन नीचे नहीं आता: ऊपर वाली CSS जैसी है वैसी ही रहती है।
+
+कुछ नए फ़ीचर सिर्फ़ वहीं इस्तेमाल होते हैं जहाँ उनके बिना भी ब्राउज़र ठीक से काम करता है: `@starting-style` न हो तो खुलने का एनिमेशन नहीं चलता, और `corner-shape` न हो तो कोना सामान्य गोल ही रहता है।
+
+### विज़िटर को बताना कि उसका ब्राउज़र बहुत पुराना है
+
+Tanrei यह ख़ुद नहीं करता: यह आपके प्रोडक्ट के एंट्री पॉइंट का काम है। पहले फ़ीचर जाँचें, और ऐप को, उसके साथ Tanrei को, तभी लोड करें जब वे मौजूद हों:
+
+```html
+<p id="unsupported" hidden>इस साइट के लिए Chrome या Edge 125, Firefox 126 या Safari 17.5, या इनसे नया वर्शन चाहिए।</p>
+<script type="module">
+  // Safari का न्यूनतम वर्शन light-dark() से, Chrome और Edge का round() से, और Firefox का :state() से तय होता है
+  const supported =
+    CSS.supports('color', 'light-dark(red, red)') &&
+    CSS.supports('width', 'round(1px, 1px)') &&
+    CSS.supports('selector(:state(open))');
+  if (supported) import('./app.js'); // आपका ऐप, जो @tanrei/web को इंपोर्ट करता है
+  else document.getElementById('unsupported').hidden = false;
+</script>
+```
+
+इस स्क्रिप्ट को छोटा और सीधा रखें: हर विज़िटर का ब्राउज़र इसे चलाता है, पुराने ब्राउज़र भी। स्टैटिक `import` के साथ ब्राउज़र इस स्क्रिप्ट के चलने से पहले ही ऐप लोड कर लेता है, और जो पुराना ब्राउज़र ऐप को पार्स नहीं कर पाता वह जाँच तक पहुँचता ही नहीं; `import()` ऐप को जाँच के बाद ही लोड करता है।
