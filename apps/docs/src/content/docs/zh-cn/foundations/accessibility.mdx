@@ -2,33 +2,39 @@
 title: 无障碍
 description: Tanrei 内建于令牌和组件规格中的无障碍要求，以及保证这些要求得到遵守的检查。
 translationOf: foundations/accessibility.mdx
-sourceHash: a2c14cfcd30a37f95bfe67ab8c79acd0f27b54b4
+sourceHash: 5fef4e4236fc321309c4c0f09d0fdd9cef986c8e
 ---
 
 import Callout from '../../../../components/Callout.astro';
 import DimensionScale from '../../../../components/tokens/DimensionScale.astro';
+import { contrast } from '../../../../lib/contrast';
 
 在 Tanrei 中，无障碍是对系统本身施加的一组约束。令牌构建不会输出对比度不达标的配色方案；组件规格如果缺少角色、键盘操作表和目标尺寸保证，就不是有效的规格。
 
 ## 对比度
 
-| 内容 | 最低对比度 |
-| --- | --- |
-| 传达含义的文本和图标 | 4.5:1 |
-| 大号文本（常规字重约 24px 及以上，或粗体约 19px 及以上） | 3:1 |
-| 识别或操作控件所必需的边界和图形 | 3:1 |
-| 焦点环相对于相邻表面 | 3:1 |
+令牌构建会用以下阈值测量每一种配色方案（浅色和深色，各自在标准、中、高对比度下），只要有一对达不到就会失败：
 
-禁用的元素和纯装饰不受此限，`outline-variant` 的细线也在其列。正因为有这项豁免，当边框是表明控件存在的唯一线索时，必须使用 `outline`，而不是 `outline-variant`。
+| 内容 | 标准与中对比度 | 高对比度 |
+| --- | --- | --- |
+| 文本，以及用内容色绘制的图标 | {contrast.text} | {contrast.highContrastText} |
+| 状态标记相对于该状态自己的色调容器 | {contrast.nonText} | {contrast.nonText} |
+| 识别或操作控件所必需的边界和图形 | {contrast.nonText} | {contrast.nonText} |
+| 焦点环相对于相邻表面 | {contrast.nonText} | {contrast.nonText} |
+
+大号文本没有更低的阈值。WCAG 对常规字重约 24px 及以上、或粗体约 19px 及以上的文本接受较低的对比度，但构建对所有文本角色都按 {contrast.text} 检查，高对比度下按 {contrast.highContrastText}：颜色角色并不知道自己会以多大的字号使用。
+
+禁用的元素和纯装饰不受此限，标准对比度下 `outline-variant` 的细线也在其列。正因为有这项豁免，当边框是表明控件存在的唯一线索时，必须使用 `outline`，而不是 `outline-variant`。
 
 ### 强制执行的不变式
 
 以下条件在每个主题、每个对比度级别下（共 6 种组合）都成立，否则构建失败：
 
-- 每一对 `(X, on-X)` 角色的对比度至少为 4.5:1；
-- `outline` 相对于每个表面角色至少为 3:1；
-- 在默认系统的中、高对比度下，`outline-variant` 相对于每个表面角色分别至少为 3:1 和 4.5:1，并且 `outline` 始终更强；
-- `focus-ring` 相对于表面至少为 3:1。
+- 每一对 `(X, on-X)` 角色，以及每个文本角色（`on-surface`、`on-surface-variant`、`link`、意图的颜色）相对于每个表面角色，对比度至少为 {contrast.text}，在两种高对比度方案中至少为 {contrast.highContrastText}；
+- 每个状态的颜色相对于该状态自己的色调容器至少为 {contrast.nonText}；
+- `outline` 相对于每个表面角色至少为 {contrast.nonText}；
+- 在默认系统的中、高对比度下，`outline-variant` 相对于每个表面角色分别至少为 {contrast.hairlineMedium} 和 {contrast.hairlineHigh}，并且 `outline` 始终更强；
+- `focus-ring` 相对于表面至少为 {contrast.nonText}。
 
 项目规则禁止为了让检查通过而放宽阈值。
 

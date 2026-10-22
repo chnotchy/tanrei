@@ -17,7 +17,7 @@ const BUTTON = 'var(--tanrei-comp-button-container-height-small)';
 /** Attribute selectors for what the element reads as "there is one": a string that is not empty. */
 const has = (attribute: string) => `[${attribute}]:not([${attribute}=''])`;
 /** COD-8: the block has a header — a title or a language label. */
-const HEADED = `:is(${has('title')}, ${has('language-label')})`;
+const HEADED = `:is(${has('headline')}, ${has('language-label')})`;
 /** COD-10: the padding at the copy button's side, without a header. */
 const BESIDE_BUTTON = `calc(var(--_code-block-pad-inline) + ${BUTTON} + ${T('copy-button-inset')})`;
 /** Code that is not in the element's lines: text, or lines without a box for their code (see below). */
@@ -89,8 +89,8 @@ ${FALLBACK}${HEADED} > pre {
   grid-area: 2 / 1 / auto / -1;
   min-inline-size: 0;
 }
-${FALLBACK}${has('title')}::before {
-  content: attr(title);
+${FALLBACK}${has('headline')}::before {
+  content: attr(headline);
   grid-area: 1 / 1;
   justify-self: start;
   overflow: hidden;

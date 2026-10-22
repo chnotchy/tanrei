@@ -236,10 +236,9 @@ export const styles = css`
     display: none;
   }
 
-  /* PGN-18: the row drawn for a new page is drawn at once, without a motion of its own (the element marks it for two
+  /* PGN-18: an item the row now uses for another page is drawn as that page at once (the element marks it for two
      frames); and every change of state is at once where motion is reduced. */
-  .row.still .item,
-  .row.still .glyph {
+  .item.still {
     transition: none;
   }
   @media (prefers-reduced-motion: reduce) {

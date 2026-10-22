@@ -2,7 +2,7 @@
   "$schema": "./component.schema.json",
   "name": "side-sheet",
   "title": "Side sheet",
-  "summary": "Shows supplementary content or a secondary task in a panel at the end edge, beside the content on a wide screen or over it on a compact one, with a headline, an optional close button and actions: optional beside the content, at least one over it.",
+  "summary": "Shows supplementary content or a secondary task in a panel at the end edge, beside the content on a wide screen or over it on a compact one, with a headline, a close button and actions: optional beside the content, at least one over it.",
   "category": "containment",
   "level": "composed",
   "listing": "default",
@@ -38,7 +38,7 @@
     },
     {
       "id": "close-button",
-      "description": "An icon-only Button of the medium size showing the close glyph at the end of the header, in the variant comp.side-sheet.close-button.variant names (tonal in the default system). The sheet places it and chooses its variant; everything else it reads from Button's own tokens.",
+      "description": "An icon-only Button of the small size showing the close glyph at the end of the header, in the variant comp.side-sheet.close-button.variant names (tonal in the default system), as every host's close button is. The sheet places it and chooses its variant; everything else it reads from Button's own tokens.",
       "optional": true
     },
     {
@@ -83,14 +83,14 @@
     {
       "name": "closable",
       "type": "boolean",
-      "default": false,
-      "description": "Draws the close button at the end of the header. A standard sheet has no other way for the person to close it, so give it one unless the product's own control or one of its actions closes it."
+      "default": true,
+      "description": "Draws the close button at the end of the header. True by default, in both variants: a standard sheet has no other way for the person to close it, and a modal one shows a way out where the person reads. Set it to false only where the product's own control, or one of the sheet's actions, closes the sheet."
     },
     {
       "name": "closeLabel",
       "type": "string",
       "default": "",
-      "description": "The close button's accessible name (\"Close filters\"). Required while closable is true.",
+      "description": "The close button's accessible name (\"Close filters\"). Required while closable is true, which is the default.",
       "words": "closeLabel"
     },
     {
@@ -188,8 +188,8 @@
     },
     {
       "id": "SSH-5",
-      "text": "WHILE closable is true THE side sheet SHALL draw at the end of its header an icon-only Button of the medium size showing the close glyph and named by closeLabel, in the variant comp.side-sheet.close-button.variant names, given through the channel a Button reads from the component that places it, and otherwise unrestyled: it reads Button's own tokens and answers hover, focus and press as any Button does; WHEN the user activates it THE side sheet SHALL emit close exactly once with the reason close, in either variant. WHILE closable is true and closeLabel is empty it SHALL still draw the button, and in debug builds report that the button has no accessible name.",
-      "verify": "Under the default system the close button of standard, modal and the other closable fixtures is a tonal circle; under m3-like it is a bare glyph (text)."
+      "text": "WHILE closable is true THE side sheet SHALL draw at the end of its header an icon-only Button of the small size showing the close glyph and named by closeLabel, in the variant comp.side-sheet.close-button.variant names, given through the channel a Button reads from the component that places it, and otherwise unrestyled: it reads Button's own tokens, answers hover, focus and press as any Button does and keeps its own minimum target (BTN-5); WHEN the user activates it THE side sheet SHALL emit close exactly once with the reason close, in either variant. WHILE closable is true and closeLabel is empty it SHALL still draw the button, and in debug builds report that the button has no accessible name.",
+      "verify": "Under the default system the close button of standard, modal and the other closable fixtures is a tonal circle, 32 × 32 (the small Button); under m3-like it is a bare glyph (text) at m3-like's small Button size. A sheet whose closable is not set draws it."
     },
     {
       "id": "SSH-6",
@@ -311,7 +311,8 @@
       "id": "standard-actions",
       "props": {
         "open": true,
-        "headline": "Filters"
+        "headline": "Filters",
+        "closable": false
       },
       "content": "Show results from the last 30 days with every selected label.",
       "items": [
@@ -448,7 +449,18 @@
       "events": {
         "close": "close"
       },
-      "notes": "`closeLabel` is the `close-label` attribute. `close` is a CustomEvent whose `detail.reason` is `close`, `scrim`, `escape`, `back` or `drag`; the product sets `open` to false from it. Slots: default and `actions`. The actions are laid out by the button group's placement (BGR-13 to BGR-17) inside the shadow root: the sheet's shadow root uses manual slot assignment, assigns its content children to the default slot, and assigns each action to one of three action slots in the order of the orientation, so focus and the accessibility tree follow the placed order (BGR-15); CSS `order` is not used. Modal: a `<dialog>` in the shadow root opened with `showModal()`, its `::backdrop` the scrim. Standard: an `<aside>` named by the headline, placed by the product as the last item of a flex row; its width animates. The close button is a `<tanrei-button>` in the shadow root, icon-only (the close glyph in its `icon` slot, its `label` from `close-label`), whose variant comes from the resolved comp.side-sheet.close-button.variant through the internal controller the group gives its items. The `autofocus` attribute on a slotted element marks initial focus. Debug builds (`import.meta.env.DEV` or the package's dev export) report a modal sheet opened with no assigned action (SSH-16). The keyboard's room (SSH-20) is the `visualViewport`'s height. Insets are `env(safe-area-inset-*)`. Snapshot harness: a 720 × 480 viewport with a `surface` page; the standard sheet at the end of a row whose other child fills the rest of the width; the modal sheet opened by `open`, the screenshot being the viewport. `dividerVisibility` is the `divider-visibility` attribute (`auto`, `always`, `scroll`); `auto` reads `--tanrei-comp-side-sheet-divider-visibility` from the cascade with a style query, and where the browser has none the sheet writes the name it read on its header when it renders.",
+      "parts": {
+        "container": "container",
+        "outline": "outline",
+        "scrim": "container@backdrop",
+        "header": "header",
+        "headline": "headline",
+        "close-button": "close-button",
+        "content": "content",
+        "divider": "divider",
+        "actions": "actions"
+      },
+      "notes": "`closable` is a boolean property that defaults to true; its attribute is the inverse `not-closable` (an HTML boolean attribute cannot default to true), as the chip's `removable` is. `closeLabel` is the `close-label` attribute. `close` is a CustomEvent whose `detail.reason` is `close`, `scrim`, `escape`, `back` or `drag`; the product sets `open` to false from it. Slots: default and `actions`. The actions are laid out by the button group's placement (BGR-13 to BGR-17) inside the shadow root: the sheet's shadow root uses manual slot assignment, assigns its content children to the default slot, and assigns each action to one of three action slots in the order of the orientation, so focus and the accessibility tree follow the placed order (BGR-15); CSS `order` is not used. Modal: a `<dialog>` in the shadow root opened with `showModal()`, its `::backdrop` the scrim. Standard: an `<aside>` named by the headline, placed by the product as the last item of a flex row; its width animates. The close button is a `<tanrei-button>` in the shadow root, icon-only (the close glyph in its `icon` slot, its `label` from `close-label`), whose variant comes from the resolved comp.side-sheet.close-button.variant through the internal controller the group gives its items. The `autofocus` attribute on a slotted element marks initial focus. Debug builds (`import.meta.env.DEV` or the package's dev export) report a modal sheet opened with no assigned action (SSH-16). The keyboard's room (SSH-20) is the `visualViewport`'s height. Insets are `env(safe-area-inset-*)`. Snapshot harness: a 720 × 480 viewport with a `surface` page; the standard sheet at the end of a row whose other child fills the rest of the width; the modal sheet opened by `open`, the screenshot being the viewport. `dividerVisibility` is the `divider-visibility` attribute (`auto`, `always`, `scroll`); `auto` reads `--tanrei-comp-side-sheet-divider-visibility` from the cascade with a style query, and where the browser has none the sheet writes the name it read on its header when it renders.",
       "items": {
         "action": {
           "name": "tanrei-button",

@@ -1,9 +1,12 @@
-// <tanrei-tag-group>, driven by specs/tag-group.spec.json: every behaviour id (TGR-1…16) is cited by a test title, every
+// <tanrei-tag-group>, driven by specs/tag-group.spec.json: every behaviour id (TGR-1…21) is cited by a test title, every
 // fixture has a baseline, and every length is read back from the tokens — never from a number written here, except
 // where the spec's own `verify` names the default system's value.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
+import { resolveEasing } from '../../../test/appear.js';
+import { type Frames, expectAnimated, expectFirstFrameAtRest, sampleFrames } from '../../../test/frames.js';
 import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('tag-group');
 type P = Page;
@@ -624,40 +627,140 @@ test.describe('behavior', () => {
     expect(await host(page, 'rewritten').evaluate((el) => [...el.children].map((child) => child.getAttribute('label')))).toEqual(['Inter', 'Roboto']);
   });
 
-  test('TGR-10: a member that is added, is removed or changes its size is placed again at once, without a motion; a member that has focus while it moves to another line keeps it, and adding a member moves no focus', async ({ page }) => {
-    await mount(page, only('chips-filters'));
+  // TGR-10: where each member is drawn in a frame, from the group's corner, by its label.
+  const placesProbe = (root: Element) => {
+    const origin = root.getBoundingClientRect();
+    const out: Record<string, number> = {};
+    for (const el of Array.from(root.children)) {
+      const label = el.getAttribute('label') ?? '';
+      const r = el.getBoundingClientRect();
+      out[`x:${label}`] = Math.round((r.left - origin.left) * 10) / 10;
+      out[`y:${label}`] = Math.round((r.top - origin.top) * 10) / 10;
+      out[`right:${label}`] = Math.round((r.right - origin.left) * 10) / 10;
+    }
+    return out;
+  };
+  /** TGR-10, MOT-2: in every frame `name` lies on the way from where it was drawn before the change to where it rests, and never turns back. */
+  const onTheWay = (seen: Frames, name: string) => {
+    const from = Number(seen.before.probe[name]);
+    const to = Number(seen.rest.probe[name]);
+    let last = from;
+    for (const frame of seen.frames) {
+      const value = Number(frame.probe[name]);
+      expect(Math.min(from, to) - 0.5 <= value && value <= Math.max(from, to) + 0.5, `${name} in frame ${frame.index}: ${value} on the way ${from} → ${to}`).toBe(true);
+      expect((value - last) * Math.sign(to - from), `${name} in frame ${frame.index}: ${last} → ${value} goes toward ${to}`).toBeGreaterThanOrEqual(-0.5);
+      last = value;
+    }
+  };
+  /** The moves the group made, as the frames sampler held them: scripts' animations on the members. */
+  const moves = (seen: Frames) => seen.motions.filter((motion) => motion.kind === 'script' && /^tanrei-(chip|tag)\b/.test(motion.on));
+  const expectMoveTiming = async (page: P, seen: Frames) => {
+    const duration = await resolveToken(page, T('motion-move-duration'), 'duration');
+    expect(duration, 'move-duration aliases sys.motion.role.selection.travel').toBe(await resolveToken(page, '--tanrei-sys-motion-role-selection-travel', 'duration'));
+    const easing = await resolveEasing(page, T('motion-move-easing'));
+    expect(easing, 'move-easing aliases sys.motion.easing.spatial').toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-spatial'));
+    expect(moves(seen).length).toBeGreaterThan(0);
+    for (const motion of moves(seen)) expect([motion.duration, motion.easing], motion.on).toEqual([Math.round(duration), easing]);
+  };
+
+  test('TGR-10: a member that is removed leaves at once, and the members after it move toward the start from where they were drawn, over the move motion (sys.motion.role.selection.travel on the spatial curve), without fading or scaling; the ones before it stay, and focus stays where it was', async ({ page }) => {
+    await mount(page, only('chips-filters'), { reducedMotion: false });
+    const id = 'chips-filters';
+    expect((await layout(page, id)).lines.length).toBe(1);
+    // MOT-3: nothing moved while the group was first drawn.
+    expect(await members(page, id).evaluateAll((all) => all.flatMap((el) => el.getAnimations()).length)).toBe(0);
+    await tabTo(page, member(page, id, 4).locator('.container'));
+    await motionEnded(page);
+    const seen = await sampleFrames(host(page, id), () => member(page, id, 1).evaluate((el) => el.remove()), { probe: placesProbe });
+    expect(seen.complete).toBe(true);
+    expect(seen.frames[0]!.probe['x:Assigned to me'], 'the removed member is gone in the first frame').toBeUndefined();
+    for (const label of ['Needs review', 'Blocked', 'Has a design']) {
+      expectAnimated(seen, `x:${label}`);
+      onTheWay(seen, `x:${label}`);
+      expect(seen.frames.every((frame) => frame.probe[`y:${label}`] === seen.rest.probe[`y:${label}`]), `${label} stays on its line`).toBe(true);
+    }
+    expect(seen.frames.every((frame) => frame.probe['x:Open'] === seen.before.probe['x:Open']), 'the member before it does not move').toBe(true);
+    await expectMoveTiming(page, seen);
+    // Only a translation: no opacity, scale or filter on the members at any frame.
+    expect(await members(page, id).evaluateAll((all) => all.map((el) => [getComputedStyle(el).opacity, getComputedStyle(el).scale, getComputedStyle(el).translate]))).toEqual(Array(4).fill(['1', 'none', 'none']));
+    const closed = await layout(page, id);
+    near(closed.placed[1].x - closed.placed[0].right, await token(page, 'gap-chips'), 'the rest stand a gap apart');
+    expect(await focusPath(page)).toBe(onChip('Has a design'));
+  });
+
+  test('TGR-10: a member that is added appears in its place at once, the members after it move aside, and adding a member moves no focus', async ({ page }) => {
+    await mount(page, only('chips-filters'), { reducedMotion: false });
+    const id = 'chips-filters';
+    await tabTo(page, member(page, id, 4).locator('.container'));
+    await motionEnded(page);
+    const seen = await sampleFrames(host(page, id), () => host(page, id).evaluate((el) => el.insertAdjacentHTML('afterbegin', '<tanrei-chip kind="filter" label="Added"></tanrei-chip>')), { probe: placesProbe });
+    expect(seen.complete).toBe(true);
+    // The new member is drawn whole, where it rests, from the first frame.
+    for (const frame of seen.frames) expect([frame.probe['x:Added'], frame.probe['right:Added']], `frame ${frame.index}`).toEqual([seen.rest.probe['x:Added'], seen.rest.probe['right:Added']]);
+    // The first member that stood after it moves aside; one that goes to another line moves there.
+    expectAnimated(seen, 'x:Open');
+    onTheWay(seen, 'x:Open');
+    const rest = await layout(page, id);
+    const later = rest.placed.filter((m) => m.label !== 'Added');
+    for (const one of later) {
+      const moved = seen.before.probe[`x:${one.label}`] !== seen.rest.probe[`x:${one.label}`] || seen.before.probe[`y:${one.label}`] !== seen.rest.probe[`y:${one.label}`];
+      if (moved) expectAnimated(seen, seen.before.probe[`y:${one.label}`] !== seen.rest.probe[`y:${one.label}`] ? `y:${one.label}` : `x:${one.label}`);
+    }
+    await expect(stage(page, id).getByRole('listitem')).toHaveCount(6);
+    expect(await focusPath(page)).toBe(onChip('Has a design'));
+  });
+
+  test('TGR-10: a member that grows until the last one no longer fits sends that one to the next line over the move motion, in both directions; it keeps focus; the line is placed again by TGR-2', async ({ page }) => {
+    await mount(page, only('chips-filters'), { reducedMotion: false });
     const id = 'chips-filters';
     const before = await layout(page, id);
     expect(before.lines.length).toBe(1);
     await tabTo(page, member(page, id, 4).locator('.container'));
-    expect(await focusPath(page)).toBe(onChip('Has a design'));
-    // Added: placed in the same task's layout, and focus is where it was.
-    const after = await host(page, id).evaluate((el) => {
-      el.insertAdjacentHTML('afterbegin', '<tanrei-chip kind="filter" label="Added first"></tanrei-chip>');
-      el.insertAdjacentHTML('beforeend', '<tanrei-chip kind="filter" label="Added last"></tanrei-chip>');
-      return [...el.children].map((child) => child.getBoundingClientRect().width > 0 || child.localName);
-    });
-    expect(after.length).toBe(7);
-    await expect(stage(page, id).getByRole('listitem')).toHaveCount(7);
-    expect(await focusPath(page)).toBe(onChip('Has a design'));
-    // A member grows: the ones after it go to the next line — the focused one among them — and focus stays on it.
-    await member(page, id, 1).evaluate((el) => el.setAttribute('label', 'Open and waiting for a review by someone on the design system team'));
-    await expect.poll(async () => (await layout(page, id)).lines.length).toBeGreaterThan(1);
+    await motionEnded(page);
+    const seen = await sampleFrames(host(page, id), () => member(page, id, 1).evaluate((el) => el.setAttribute('label', 'Assigned to me and waiting for a review')), { probe: placesProbe });
+    expect(seen.complete).toBe(true);
     const grown = await layout(page, id);
-    const focused = grown.placed.find((m) => m.label === 'Has a design')!;
-    expect(focused.y).toBeGreaterThan(before.placed[4].y);
+    expect(grown.lines.length).toBeGreaterThan(1);
+    const sent = grown.lines[1]![0]!.label;
+    expectAnimated(seen, `y:${sent}`);
+    onTheWay(seen, `y:${sent}`);
+    onTheWay(seen, `x:${sent}`);
+    expect(seen.frames.every((frame) => frame.probe['x:Open'] === seen.before.probe['x:Open'] && frame.probe['y:Open'] === seen.before.probe['y:Open']), 'the member before the one that grew does not move').toBe(true);
+    await expectMoveTiming(page, seen);
     expect(await focusPath(page)).toBe(onChip('Has a design'));
-    near(top(grown.lines[1]) - bottom(grown.lines[0]), await token(page, 'row-gap-chips'), 'placed again by TGR-2');
-    // Without a motion of its own: nothing in the group animates or transitions.
-    expect(await host(page, id).evaluate((el) => [el.getAnimations({ subtree: false }).length, getComputedStyle(el.shadowRoot!.querySelector('[role="list"]')!).transitionDuration, getComputedStyle(el).transitionDuration])).toEqual([0, '0s', '0s']);
-    // A size that changes: the line is as tall as its tallest member again.
-    await members(page, id).evaluateAll((all) => all.forEach((el) => el.setAttribute('size', 'small')));
-    await expect.poll(async () => (await layout(page, id)).placed[0].height).toBe(await resolveToken(page, '--tanrei-comp-chip-container-height-small'));
-    // Removed: the rest close up at once.
-    await member(page, id, 1).evaluate((el) => el.remove());
-    const closed = await layout(page, id);
-    near(closed.placed[1].x - closed.placed[0].right, await token(page, 'gap-chips'), 'the rest stand a gap apart');
-    expect(await focusPath(page)).toBe(onChip('Has a design'));
+    near(top(grown.lines[1]!) - bottom(grown.lines[0]!), await token(page, 'row-gap-chips'), 'placed again by TGR-2');
+  });
+
+  test('TGR-10: a line that keeps its members follows a member that changes its size over its own motion at once — a filter chip that is switched on carries the chips after it, a gap away in every frame, and the group moves none of them', async ({ page }) => {
+    await mount(page, [fx('carried', { spacing: 'chips', label: 'Filters' }, filters('Open', 'Mine', 'Review'))], { reducedMotion: false });
+    const id = 'carried';
+    const probe = (root: Element) => {
+      const [a, b, c] = Array.from(root.children).map((el) => el.getBoundingClientRect());
+      return { width: a!.width, gap: Math.round((b!.left - a!.right) * 10) / 10, next: Math.round((c!.left - b!.right) * 10) / 10 };
+    };
+    const seen = await sampleFrames(host(page, id), () => member(page, id, 0).evaluate((el) => ((el as HTMLElement & { selected: boolean }).selected = true)), { probe });
+    expect(seen.complete).toBe(true);
+    expect((await layout(page, id)).lines.length).toBe(1);
+    // The chip grows over its own selection motion (CHP-10) …
+    expectAnimated(seen, 'width');
+    // … and the chips after it keep their gap in every frame: carried, not chased.
+    for (const frame of seen.frames) near(Number(frame.probe.gap), await token(page, 'gap-chips'), `frame ${frame.index}: the gap after the chip that grows`);
+    for (const frame of seen.frames) near(Number(frame.probe.next), await token(page, 'gap-chips'), `frame ${frame.index}: the gap after that`);
+    expect(moves(seen)).toEqual([]);
+  });
+
+  test('TGR-10: where motion is reduced, and when the width the layout gives the group changes, every member is placed again at once', async ({ page }) => {
+    await mount(page, only('chips-filters'), { reducedMotion: true });
+    const id = 'chips-filters';
+    const removed = await sampleFrames(host(page, id), () => member(page, id, 1).evaluate((el) => el.remove()), { probe: placesProbe });
+    expectFirstFrameAtRest(removed);
+    expect(moves(removed)).toEqual([]);
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    const width = (await layout(page, id)).group.width;
+    const narrowed = await sampleFrames(host(page, id), () => host(page, id).evaluate((el, w) => (el.style.inlineSize = `${Math.round(w / 2)}px`), width), { probe: placesProbe });
+    expect((await layout(page, id)).lines.length).toBeGreaterThan(1);
+    expectFirstFrameAtRest(narrowed);
+    expect(moves(narrowed)).toEqual([]);
   });
 
   test('TGR-11: content that is not a tag or a chip is still laid out and exposed as a member, and reported; an element with a role of its own keeps it', async ({ page }) => {
@@ -684,6 +787,8 @@ test.describe('behavior', () => {
     const heightBefore = (await layout(page, 'chips-filters-wrap')).placed[0].height;
     await page.evaluate(() => (document.documentElement.style.fontSize = '200%'));
     await frames(page);
+    // TGR-10: the members that change line move there; what is read is where they rest.
+    await motionEnded(page);
     for (const [id, spacing] of [['tags-wrap', 'tags'], ['chips-filters-wrap', 'chips'], ['chips-input-add', 'chips'], ['tags-long-member', 'tags']] as const) {
       const { group, placed, lines } = await layout(page, id);
       const [gap, rowGap] = [await token(page, `gap-${spacing}`), await token(page, `row-gap-${spacing}`)];
@@ -803,6 +908,218 @@ test.describe('behavior', () => {
     expect(seen.join('\n')).toMatch(/spacing "Not A Name" is not a value of the active design system; it is drawn as "chips" \(TGR-16\)/);
     expect(seen.join('\n')).not.toMatch(/dense/);
   });
+
+  // ── Selection (TGR-17 to TGR-21) ──────────────────────────────────────────────────────────────────────────────────
+
+  test('TGR-17: under single or multiple the group holds the selection of its filter chips by their value — each shows and exposes it as its pressed state; a value set by the product, a chip that arrives and a chip that changes its value are put right, and nothing is fired; a member that leaves changes nothing; under none the chips keep what they have; a selection the group does not have is none, and reported', async ({ page }) => {
+    const seen = warnings(page);
+    const filters5 = `<tanrei-chip kind="filter" label="Open" value="open"></tanrei-chip><tanrei-chip kind="filter" label="Assigned to me" value="assigned"></tanrei-chip><tanrei-chip kind="filter" label="Needs review" value="review" selected></tanrei-chip><tanrei-chip kind="filter" label="Blocked" value="blocked"></tanrei-chip><tanrei-chip label="Clear"></tanrei-chip>`;
+    await mount(page, [...only('chips-filters-multiple', 'chips-filters-single'), fx('odd', { label: 'Filters', selection: 'several' }, filters5)]);
+    const pressed = (id: string) => members(page, id).evaluateAll((all) => all.map((el) => el.shadowRoot!.querySelector('.container')!.getAttribute('aria-pressed')));
+    await page.evaluate((tag) => {
+      const w = window as unknown as { __seen: string[] };
+      w.__seen = [];
+      for (const group of document.querySelectorAll(tag)) group.addEventListener('change', (event) => w.__seen.push(`${(event.target as Element).localName}:${JSON.stringify((event as CustomEvent).detail)}`));
+    }, TAG);
+    const events = () => page.evaluate(() => (window as unknown as { __seen: string[] }).__seen);
+    // The spec's unit: values [open, review] put Open and Needs review on, and only them.
+    await expect.poll(() => pressed('chips-filters-multiple')).toEqual(['true', 'false', 'true', 'false', 'false']);
+    await expect(stage(page, 'chips-filters-multiple').getByRole('button', { name: 'Needs review', pressed: true })).toHaveCount(1);
+    await expect.poll(() => pressed('chips-filters-single')).toEqual(['false', 'true', 'false', 'false']);
+    // Still one list of items, each chip its own button (TGR-7).
+    await expect(stage(page, 'chips-filters-multiple').getByRole('list', { name: 'Filters' })).toHaveCount(1);
+    await expect(stage(page, 'chips-filters-multiple').getByRole('listitem')).toHaveCount(5);
+    // The product sets the selection: the chips follow, and nothing is fired.
+    await host(page, 'chips-filters-multiple').evaluate((el: any) => (el.values = ['blocked']));
+    await expect.poll(() => pressed('chips-filters-multiple')).toEqual(['false', 'false', 'false', 'true', 'false']);
+    await host(page, 'chips-filters-single').evaluate((el: any) => (el.value = 'oldest'));
+    await expect.poll(() => pressed('chips-filters-single')).toEqual(['false', 'false', 'false', 'true']);
+    await host(page, 'chips-filters-single').evaluate((el: any) => (el.value = null));
+    await expect.poll(() => pressed('chips-filters-single')).toEqual(['false', 'false', 'false', 'false']);
+    // A filter chip that arrives with a value the selection holds arrives on; one whose value changes follows.
+    await host(page, 'chips-filters-multiple').evaluate((el) => el.insertAdjacentHTML('beforeend', '<tanrei-chip kind="filter" label="Blocked too" value="blocked"></tanrei-chip>'));
+    await expect.poll(() => pressed('chips-filters-multiple')).toEqual(['false', 'false', 'false', 'true', 'false', 'true']);
+    await member(page, 'chips-filters-multiple', 0).evaluate((el: any) => (el.value = 'blocked'));
+    await expect.poll(() => pressed('chips-filters-multiple')).toEqual(['true', 'false', 'false', 'true', 'false', 'true']);
+    // A member that leaves changes neither the values nor anything else, and fires nothing.
+    await member(page, 'chips-filters-multiple', 3).evaluate((el) => el.remove());
+    expect(await host(page, 'chips-filters-multiple').evaluate((el: any) => el.values)).toEqual(['blocked']);
+    // A value that names no member puts nothing on and is not reported.
+    await host(page, 'chips-filters-multiple').evaluate((el: any) => (el.values = ['gone']));
+    await expect.poll(() => pressed('chips-filters-multiple')).toEqual(['false', 'false', 'false', 'false', 'false']);
+    expect(await events()).toEqual([]);
+    // Under none the chips keep what they have, and each holds its own again.
+    await host(page, 'chips-filters-single').evaluate((el: any) => { el.value = 'newest'; });
+    await expect.poll(() => pressed('chips-filters-single')).toEqual(['true', 'false', 'false', 'false']);
+    await host(page, 'chips-filters-single').evaluate((el: any) => { el.selection = 'none'; });
+    await frames(page);
+    await host(page, 'chips-filters-single').evaluate((el: any) => { el.value = 'oldest'; });
+    await frames(page);
+    expect(await pressed('chips-filters-single')).toEqual(['true', 'false', 'false', 'false']);
+    await member(page, 'chips-filters-single', 2).click();
+    await expect.poll(() => pressed('chips-filters-single')).toEqual(['true', 'false', 'true', 'false']);
+    await expect.poll(events).toEqual(['tanrei-chip:{"selected":true}']);
+    // A selection the group does not have is none: the chips keep their own state, and it is reported.
+    expect(await pressed('odd')).toEqual(['false', 'false', 'true', 'false', null]);
+    await expect.poll(() => seen.filter((line) => line.includes('TGR-17')).length).toBe(1);
+    expect(seen.find((line) => line.includes('TGR-17'))).toMatch(/selection "several" is not none, single or multiple/);
+  });
+
+  test('TGR-18: a filter chip without a value is left out of the selection — it keeps its own selected and its own change — and two filter chips with one value go on and off together; each is reported, and the group renders either way', async ({ page }) => {
+    const seen = warnings(page);
+    const markup = `<tanrei-chip kind="filter" label="Open" value="open"></tanrei-chip><tanrei-chip kind="filter" label="Loose"></tanrei-chip><tanrei-chip kind="filter" label="Open again" value="open"></tanrei-chip>`;
+    await mount(page, [fx('odd', { label: 'Filters', selection: 'multiple' }, markup)]);
+    await page.evaluate((tag) => {
+      const w = window as unknown as { __seen: string[] };
+      w.__seen = [];
+      document.querySelector(tag)!.addEventListener('change', (event) => w.__seen.push(`${(event.target as Element).localName}:${JSON.stringify((event as CustomEvent).detail)}`));
+    }, TAG);
+    const selected = () => members(page, 'odd').evaluateAll((all) => all.map((el) => (el as HTMLElement & { selected: boolean }).selected));
+    await member(page, 'odd', 1).click();
+    await expect.poll(selected).toEqual([false, true, false]);
+    await expect.poll(() => page.evaluate(() => (window as unknown as { __seen: string[] }).__seen)).toEqual(['tanrei-chip:{"selected":true}']);
+    expect(await host(page, 'odd').evaluate((el: any) => el.values)).toEqual([]);
+    await member(page, 'odd', 0).click();
+    await expect.poll(selected).toEqual([true, true, true]);
+    await member(page, 'odd', 2).click();
+    await expect.poll(selected).toEqual([false, true, false]);
+    await expect.poll(() => page.evaluate(() => (window as unknown as { __seen: string[] }).__seen)).toEqual(['tanrei-chip:{"selected":true}', 'tanrei-tag-group:{"values":["open"]}', 'tanrei-tag-group:{"values":[]}']);
+    await expect(list(page, 'odd')).toBeVisible();
+    await expect.poll(() => seen.filter((line) => line.includes('TGR-18')).length).toBe(2);
+    expect(seen.join('\n')).toMatch(/the filter chip "Loose" has no value/);
+    expect(seen.join('\n')).toMatch(/two filter chips have the value "open"/);
+  });
+
+  test('TGR-19: switching a filter chip sets value (single) — the others go off, and the chip that is on can be switched off — or values (multiple), then fires one change with what the group now holds; the chip’s own change stops at the group, and the product’s writes fire nothing', async ({ page }) => {
+    await mount(page, only('chips-filters-single', 'chips-filters-multiple'));
+    await page.evaluate((tag) => {
+      const w = window as unknown as { __seen: string[] };
+      w.__seen = [];
+      // Listeners on the group and above it: what passes the group is the group's own change, and the chip's click.
+      for (const group of document.querySelectorAll(tag)) {
+        group.addEventListener('change', (event) => w.__seen.push(`${group.getAttribute('label')} change ${(event.target as Element).localName}:${JSON.stringify((event as CustomEvent).detail)}:${JSON.stringify((group as any).selection === 'single' ? (group as any).value : (group as any).values)}`));
+        group.addEventListener('click', (event) => w.__seen.push(`${group.getAttribute('label')} click ${(event.target as Element).localName}`));
+      }
+      document.addEventListener('change', (event) => w.__seen.push(`document change ${(event.target as Element).localName}`));
+    }, TAG);
+    const events = () => page.evaluate(() => (window as unknown as { __seen: string[] }).__seen);
+    // What was heard since the last look, which is then forgotten.
+    const heard = async (expected: string[]) => {
+      await expect.poll(events).toEqual(expected);
+      await page.evaluate(() => (window as unknown as { __seen: string[] }).__seen.splice(0));
+    };
+    const selected = (id: string) => members(page, id).evaluateAll((all) => all.map((el) => (el as HTMLElement & { selected: boolean }).selected));
+    // The spec's unit: Oldest while Recently updated is on.
+    await member(page, 'chips-filters-single', 3).click();
+    await expect.poll(() => selected('chips-filters-single')).toEqual([false, false, false, true]);
+    await heard(['Sort by click tanrei-chip', 'Sort by change tanrei-tag-group:{"value":"oldest"}:"oldest"', 'document change tanrei-tag-group']);
+    // The chip that is on, switched off: none is on, and value is null.
+    await member(page, 'chips-filters-single', 3).click();
+    await expect.poll(() => selected('chips-filters-single')).toEqual([false, false, false, false]);
+    await heard(['Sort by click tanrei-chip', 'Sort by change tanrei-tag-group:{"value":null}:null', 'document change tanrei-tag-group']);
+    // Multiple: Space on Assigned to me adds it; Space again takes it out.
+    await member(page, 'chips-filters-multiple', 1).locator('.container').focus();
+    await page.keyboard.press('Space');
+    await expect.poll(() => selected('chips-filters-multiple')).toEqual([true, true, true, false, false]);
+    await heard(['Filters click tanrei-chip', 'Filters change tanrei-tag-group:{"values":["open","review","assigned"]}:["open","review","assigned"]', 'document change tanrei-tag-group']);
+    await page.keyboard.press('Enter');
+    await expect.poll(() => selected('chips-filters-multiple')).toEqual([true, false, true, false, false]);
+    await heard(['Filters click tanrei-chip', 'Filters change tanrei-tag-group:{"values":["open","review"]}:["open","review"]', 'document change tanrei-tag-group']);
+    // A disabled chip switches nothing and fires nothing.
+    await member(page, 'chips-filters-multiple', 4).evaluate((el: any) => (el.disabled = true));
+    await member(page, 'chips-filters-multiple', 4).click({ force: true });
+    await frames(page);
+    // The product's writes fire nothing.
+    await host(page, 'chips-filters-multiple').evaluate((el: any) => { el.values = ['design']; el.selection = 'single'; el.value = 'open'; });
+    await frames(page);
+    expect(await events()).toEqual([]);
+  });
+
+  test('TGR-20: under a selection the set is one Tab stop — the chip that is on, then the chip that last had focus — and the arrows (the way they point, in right-to-left too), Home and End move between its chips without switching anything, passing a tag and a disabled chip; focus does not wrap, Up and Down do nothing, and Space is the chip’s own', async ({ page }) => {
+    const markup = `<tanrei-chip kind="filter" label="Newest" value="newest"></tanrei-chip><tanrei-tag label="Static"></tanrei-tag><tanrei-chip kind="filter" label="Recently updated" value="updated"></tanrei-chip><tanrei-chip kind="filter" label="Off" value="off" disabled></tanrei-chip><tanrei-chip kind="filter" label="Most comments" value="comments"></tanrei-chip><tanrei-chip kind="input" label="Oldest" remove-label="Remove Oldest"></tanrei-chip>`;
+    await mount(page, [fx('set', { label: 'Sort by', selection: 'single', value: 'updated' }, markup)]);
+    await host(page, 'set').evaluate((el) => {
+      el.insertAdjacentHTML('beforebegin', '<button id="before">Before</button>');
+      el.insertAdjacentHTML('afterend', '<button id="after">After</button>');
+    });
+    const active = () => page.evaluate(() => document.activeElement?.id ?? '');
+    const stops = () => host(page, 'set').evaluate((el) => [...el.children].filter((child) => child.localName === 'tanrei-chip' && !child.hasAttribute('tabindex')).map((child) => child.getAttribute('label')));
+    await page.locator('#before').focus();
+    // One stop: the chip that is on. Tab again leaves the set, past its other chips and the input chip's remove action.
+    await tab(page);
+    expect(await focusPath(page)).toBe(onChip('Recently updated'));
+    expect(await stops()).toEqual(['Recently updated']);
+    await tab(page);
+    expect(await active()).toBe('after');
+    await tab(page, { back: true });
+    expect(await focusPath(page)).toBe(onChip('Recently updated'));
+    // The arrows move in the order given, passing the tag and the disabled chip, and stop at the ends; Home and End.
+    const keys: [string, string][] = [
+      ['ArrowRight', 'Most comments'],
+      ['ArrowRight', 'Oldest'],
+      ['ArrowRight', 'Oldest'],
+      ['ArrowLeft', 'Most comments'],
+      ['ArrowLeft', 'Recently updated'],
+      ['ArrowLeft', 'Newest'],
+      ['ArrowLeft', 'Newest'],
+      ['End', 'Oldest'],
+      ['ArrowUp', 'Oldest'],
+      ['ArrowDown', 'Oldest'],
+      ['Home', 'Newest'],
+      ['ArrowRight', 'Recently updated'],
+      ['ArrowRight', 'Most comments'],
+    ];
+    for (const [key, label] of keys) {
+      await page.keyboard.press(key);
+      expect(await focusPath(page), key).toBe(onChip(label));
+    }
+    // Nothing was switched, and the page did not scroll.
+    expect(await host(page, 'set').evaluate((el: any) => el.value)).toBe('updated');
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
+    // The chip that last had focus is the stop now.
+    expect(await stops()).toEqual(['Most comments']);
+    await tab(page);
+    await tab(page, { back: true });
+    expect(await focusPath(page)).toBe(onChip('Most comments'));
+    // Space is the chip's own: it switches the focused chip.
+    await page.keyboard.press('Space');
+    await expect.poll(() => host(page, 'set').evaluate((el: any) => el.value)).toBe('comments');
+    // In a right-to-left layout each arrow moves the way it points: Left to the next chip.
+    await stage(page, 'set').evaluate((el) => el.setAttribute('dir', 'rtl'));
+    await page.keyboard.press('ArrowLeft');
+    expect(await focusPath(page)).toBe(onChip('Oldest'));
+    await page.keyboard.press('ArrowRight');
+    expect(await focusPath(page)).toBe(onChip('Most comments'));
+    // The group itself never takes focus.
+    expect(await host(page, 'set').evaluate((el) => [el.hasAttribute('tabindex'), el.getAttribute('role')])).toEqual([false, null]);
+  });
+
+  test('TGR-21: under a selection the chip that has focus after a removal is the set’s one stop; a stop that leaves, or is disabled, while focus is elsewhere is replaced; under none every chip has its own stop again, and a tabindex of the product’s own is kept', async ({ page }) => {
+    await mount(page, [fx('five', { spacing: 'chips', label: 'Recipients', selection: 'multiple' }, inputs(...FIVE))]);
+    const stops = () => host(page, 'five').evaluate((el) => [...el.children].filter((child) => !child.hasAttribute('tabindex')).map((child) => child.getAttribute('label')));
+    await host(page, 'five').evaluate((el) => el.addEventListener('remove', (event) => (event.target as Element).remove()));
+    // No chip is on: the first is the stop.
+    expect(await stops()).toEqual(['Ada']);
+    await member(page, 'five', 0).locator('.container').focus();
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('ArrowRight');
+    expect(await focusPath(page)).toBe(onChip('Katherine'));
+    // The spec's unit: Delete on the focused third puts focus on the former fourth, the only stop.
+    await page.keyboard.press('Delete');
+    await expect.poll(() => focusPath(page)).toBe(onChip('Margaret'));
+    expect(await stops()).toEqual(['Margaret']);
+    // The stop leaves while focus is elsewhere: the first chip that takes focus is the stop.
+    await page.evaluate(() => (document.activeElement as HTMLElement).blur());
+    await member(page, 'five', 2).evaluate((el) => el.remove());
+    await expect.poll(stops).toEqual(['Ada']);
+    // The stop is disabled: the next chip that takes focus is.
+    await member(page, 'five', 0).evaluate((el: any) => (el.disabled = true));
+    await expect.poll(stops).toEqual(['Grace']);
+    // A tabindex of the product's own is kept, under a selection and after it.
+    await member(page, 'five', 2).evaluate((el) => el.setAttribute('tabindex', '0'));
+    await host(page, 'five').evaluate((el: any) => (el.selection = 'none'));
+    await expect.poll(() => host(page, 'five').evaluate((el) => [...el.children].map((child) => child.getAttribute('tabindex')))).toEqual([null, null, '0']);
+  });
 });
 
 test.describe('accessibility', () => {
@@ -853,7 +1170,7 @@ test.describe('fixtures', () => {
   });
 
   test('every fixture mounts its members as the spec gives them, with the spacing it names', async ({ page }) => {
-    expect(spec.fixtures.length).toBe(22);
+    expect(spec.fixtures.length).toBe(24);
     for (const f of spec.fixtures) {
       const given = f.items!;
       expect(await members(page, f.id).evaluateAll((all) => all.map((el) => [el.localName, el.getAttribute('label')])), f.id).toEqual(given.map((item) => [item.kind === 'tag' ? 'tanrei-tag' : 'tanrei-chip', String(item.props.label)]));

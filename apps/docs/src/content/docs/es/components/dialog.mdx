@@ -2,7 +2,7 @@
 title: Diálogo
 description: Detiene a la persona para una decisión o unos pocos datos sin los que la tarea no puede continuar, en una superficie que atenúa y bloquea todo lo que hay detrás hasta que se responde o se descarta.
 translationOf: components/dialog.mdx
-sourceHash: 0b78df28088e3b0e0169efe05949a3bf381ca977
+sourceHash: 6193fa7b3625e364f0f5e1e6d39e10a714ce70c1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -33,7 +33,7 @@ Un diálogo es un componente controlado. Lo abres definiendo `open` y lo cierras
 
 El diálogo tiene un icono opcional, un titular, un texto de apoyo opcional, contenido propio opcional y sus acciones. Un diálogo es una conversación: siempre ofrece al menos una respuesta. Las acciones son botones de Tanrei, cada uno marcado como `confirming` (completa la tarea: Guardar, Eliminar, Permitir) o `dismissive` (se echa atrás: Cancelar, Ahora no). El diálogo las coloca según esas marcas, así que puedes darlas en cualquier orden, y dibuja como tonal toda acción cuya `variant` no hayas definido.
 
-Activa `closable` para dibujar un botón de cerrar al final del encabezado, con el nombre de `closeLabel`. Da a `width` el valor `small`, `medium` o `large` para que el diálogo tenga un ancho fijo en lugar del ancho de su contenido.
+Da a `width` el valor `small`, `medium` o `large` para que el diálogo tenga un ancho fijo en lugar del ancho de su contenido. Un diálogo no tiene botón de cerrar: su salida sin respuesta es una acción de descarte, como Cancelar.
 
 Marca el elemento que debe recibir el foco cuando se abre el diálogo con la marca propia de la plataforma: `autofocus` en la web, `.defaultFocus` o un `@AccessibilityFocusState` en SwiftUI, un `FocusRequester` pasado como `initialFocus` en Compose, `autofocus: true` en Flutter e `initialFocusRef` en React Native. Sin marca, el foco va al propio diálogo, de modo que su titular se lee primero.
 
@@ -60,9 +60,10 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
       <tanrei-button slot="actions" confirming variant="filled" destructive>Eliminar</tanrei-button>
     </tanrei-dialog>
 
-    <!-- Un formulario con una sola acción: un botón de cerrar y un ancho fijo. -->
-    <tanrei-dialog headline="Editar el nombre visible" closable close-label="Cerrar" width="small">
+    <!-- Un formulario: Cancelar junto a Guardar, y un ancho fijo. Un diálogo no tiene botón de cerrar. -->
+    <tanrei-dialog headline="Editar el nombre visible" width="small">
       <tanrei-text-input label="Nombre visible" autofocus></tanrei-text-input>
+      <tanrei-button slot="actions" dismissive>Cancelar</tanrei-button>
       <tanrei-button slot="actions" confirming>Guardar</tanrei-button>
     </tanrei-dialog>
 
@@ -75,8 +76,8 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
       // Una acción nunca cierra el diálogo: lo cierras tú, desde su controlador.
       cancel.addEventListener('click', () => (dialog.open = false));
       discard.addEventListener('click', () => { discardDraft(); dialog.open = false; });
-      // Escape, una pulsación en el fondo y el botón de cerrar emiten cancel, como en un <dialog> nativo;
-      // e.detail.reason dice cuál fue: escape, back, scrim o close.
+      // Escape y una pulsación en el fondo emiten cancel, como en un <dialog> nativo;
+      // e.detail.reason dice cuál fue: escape, back o scrim.
       // Después el diálogo se cierra solo, salvo que canceles el evento.
       dialog.addEventListener('cancel', (e) => { if (unsaved()) e.preventDefault(); });
       // close sigue a cada cierre.
@@ -217,12 +218,17 @@ Usa un snackbar para informar de lo que acaba de ocurrir, con un «Deshacer» op
 | --- | --- | --- |
 | Icono | el slot de icono | Opcional. Un glifo que marca el tipo de decisión, como `delete`. Va al inicio de la primera línea del titular, 12 antes de ella, y se queda junto a esa línea cuando el titular salta de línea. |
 | Titular | `headline` | Obligatorio. La pregunta o la afirmación, como «¿Descartar el borrador?». Siempre alineado al inicio. Es el nombre accesible del diálogo. |
-| Botón de cerrar | `closable`, `closeLabel` | Opcional. Un botón de solo icono con el glifo de cerrar al final del encabezado, con el nombre de `closeLabel`. Pide cerrar el diálogo como lo hace Escape, así que solo se dibuja mientras `dismissible` es true. |
 | Texto de apoyo | `supportingText` | Qué va a ocurrir, o lo que la persona necesita saber para decidir. Siempre alineado al inicio. Es la descripción del diálogo. |
 | Contenido | el slot predeterminado | Cualquier otra cosa que la decisión necesite: una lista para elegir, un campo. El diálogo le da un margen interior y un color de contenido; no lo dispone. |
 | Acciones | el slot de acciones | Obligatorio: al menos un botón de Tanrei, cada uno marcado como `confirming` o `dismissive`. El diálogo los coloca como un grupo de botones a todo lo ancho y dibuja como tonal los que no tienen variante. |
 
 Cuando las partes no caben en la ventana, la cabecera y las acciones se quedan en su sitio y el texto de apoyo y el contenido se desplazan entre ellos. Un divisor de línea fina separa de ellos la cabecera, y otro las acciones, mientras se desplazan, también cuando están en su inicio. Define `dividerVisibility` como `scroll` (`divider-visibility` en la web) para dibujar cada divisor solo mientras algo queda desplazado fuera de la vista más allá de él; `cupertino` y `m3-like` lo eligen para todos los diálogos. Cuando el texto grande no deja espacio ni siquiera para eso, se desplaza el diálogo entero, sin divisores.
+
+En la web, la parte que se desplaza es `::part(scroll)`. Sea cual sea el margen interior horizontal que le des a `::part(container)`, esa parte llega hasta los bordes del contenedor y conserva ese mismo margen por dentro, así que sus divisores siguen cruzando todo el diálogo y nada se sale de él. Si tu contenido mantiene una fila fija al pie con `position: sticky`, indica a la parte que se desplaza cuánto mide esa fila, para que un campo que se desplaza a la vista al recibir el foco no quede debajo de ella:
+
+```css
+tanrei-dialog::part(scroll) { scroll-padding-block-end: 56px; }
+```
 
 Se admite un titular sin texto de apoyo: una pregunta en el titular, con sus respuestas, es una conversación. Lo que un diálogo no puede ser es una afirmación sin nada que responder.
 
@@ -236,22 +242,22 @@ Las acciones se reparten a partes iguales el ancho interior del contenedor, con 
 - **Otro aspecto.** Define la `variant` de un botón para darle otro aspecto a esa acción, como un «Cancelar» text junto a un «Eliminar» filled. Define `destructive` en una acción que elimina o descarta, como ese «Eliminar»: conserva su variante y toma el color de error. El diálogo nunca sobrescribe una variante que hayas definido, ni `destructive`. Un producto que quiera otro aspecto para todos los diálogos lo define una sola vez en su capa (`actions.variant`, y `actions.arrangement` para acciones con su propio ancho alineadas al final), no en cada botón.
 - **Al menos una.** Un diálogo sin ninguna acción se abre igualmente, y las compilaciones de depuración lo notifican como un error. Donde la API de una plataforma puede exigir acciones, la especificación dice que lo hace: el constructor `actions:` de SwiftUI, el parámetro `actions` de Compose, la lista `actions` de Flutter y la propiedad `actions` de React Native. De las cuatro, hoy solo es obligatoria la de SwiftUI; las demás siguen aceptando un diálogo sin acciones hasta que se pongan al día. Las compilaciones de depuración también notifican un diálogo cuyas acciones están todas deshabilitadas mientras `dismissible` es false, porque eso no deja ninguna salida.
 
-### El botón de cerrar
+### Sin botón de cerrar
 
-<DemoFrame label="Un formulario con una acción, un botón de cerrar y el ancho small">
-  <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-closable').open = true">Editar el nombre visible</tanrei-button>
-  <tanrei-dialog id="dialog-demo-closable" headline="Editar el nombre visible" supporting-text="Todo el equipo ve este nombre." closable close-label="Cerrar" width="small">
+<DemoFrame label="Un formulario con Cancelar junto a Guardar, y el ancho small">
+  <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-form').open = true">Editar el nombre visible</tanrei-button>
+  <tanrei-dialog id="dialog-demo-form" headline="Editar el nombre visible" supporting-text="Todo el equipo ve este nombre." width="small">
+    <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-dialog').open = false">Cancelar</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">Guardar</tanrei-button>
   </tanrei-dialog>
 </DemoFrame>
 
-Activa `closable` para dibujar un botón de cerrar al final del encabezado: un botón de solo icono con el glifo de cerrar, con el nombre de `closeLabel` («Cerrar», o «Cerrar ajustes» cuando la página tiene otros botones de cerrar). En el sistema predeterminado se dibuja sin relleno. Un sistema puede darle otra variante de botón (`close-button.variant`).
+Un diálogo no dibuja ningún botón de cerrar en su encabezado. Pide una decisión, y su salida sin decidir es su acción de descarte y, mientras `dismissible` es true, Escape, la acción de retroceso de la plataforma y una pulsación en el velo.
 
-- **Qué hace.** Pulsarlo emite `dismiss` con el motivo `close`, igual que Escape, el retroceso y el velo lo emiten con los suyos. Tú cierras el diálogo en respuesta, como en cualquier descarte; en la web el diálogo se cierra solo salvo que canceles `cancel`.
-- **Cuándo usarlo.** Dáselo a un diálogo sin acción de descarte, como un formulario cuya única acción es Guardar o un diálogo que muestra algo para leer, y a un diálogo grande cuyas acciones quedan lejos de donde la persona empieza. Una confirmación breve con Cancelar junto a la acción de confirmar rara vez lo necesita.
-- **Solo mientras se puede descartar.** Un botón de cerrar es una salida sin respuesta. Cuando `dismissible` es false, la persona debe elegir una de las acciones, así que el diálogo no dibuja botón de cerrar, diga lo que diga `closable`, y las compilaciones de depuración avisan de que `closable` se ignora. Un diálogo de alerta puede tenerlo mientras se pueda descartar. Pon `dismissible` en false en una alerta que exige respuesta, y el botón de cerrar desaparece con Escape y el velo.
-- **Su lugar.** Va al final del encabezado, 12 después del titular, centrado en la primera línea del titular. Un titular largo salta de línea antes de él. En una disposición de derecha a izquierda va a la izquierda. Cuando un sistema coloca el icono encima de un titular centrado, el icono y el titular siguen centrados en el diálogo, y el botón de cerrar queda arriba, al final.
-- **Foco.** Es la primera parada del orden de tabulación, antes del contenido y de las acciones. El foco no empieza en él: sin una marca, el foco va al propio diálogo.
+- **Un formulario o una elección.** Pon una acción de descarte, como Cancelar, junto a la de confirmar, como en el ejemplo.
+- **Algo para leer.** Da al diálogo una acción con la etiqueta Cerrar, o Cancelar si hay algo que cancelar, y márcala `dismissive`. Si el contenido solo necesita una salida y ninguna respuesta, muéstralo en una hoja lateral, que tiene botón de cerrar, o en una hoja inferior, que la persona puede cerrar deslizando.
+- **Un diálogo largo.** Mientras su contenido se desplaza, las acciones se quedan en su sitio al pie, así que la salida sigue a la vista.
+- **En la web.** Un diálogo al que se le da `closable` o `close-label` no dibuja nada por ello, y las compilaciones de depuración avisan de que un diálogo no tiene botón de cerrar.
 
 ### Ancho
 
@@ -264,15 +270,15 @@ De forma predeterminada (`width` content), el diálogo es tan ancho como su part
 | `medium` | 560 | un formulario, una lista de opciones |
 | `large` | 800 | contenido que necesita espacio, como una tabla o una vista previa |
 
-Un ancho fijo nunca supera la ventana menos 16 a cada lado, así que un diálogo large en una ventana de 640 mide 608. En una ventana compacta (más estrecha que 600), todos los anchos se colocan como el predeterminado: abajo, tan anchos como la ventana menos sus márgenes. Un cambio de `width` con el diálogo abierto se dibuja al instante. Un producto cambia los tres anchos de todos sus diálogos en su capa (`width.small`, `width.medium`, `width.large`).
+Un ancho fijo nunca supera la ventana menos 16 a cada lado, así que un diálogo large en una ventana de 640 mide 608. En una ventana compacta (más estrecha que 600), todos los anchos se colocan como el predeterminado: una hoja abajo, tan ancha como la ventana hasta 640. Un cambio de `width` con el diálogo abierto se dibuja al instante. Un producto cambia los tres anchos de todos sus diálogos en su capa (`width.small`, `width.medium`, `width.large`).
 
 ### En una ventana compacta
 
-Cuando la ventana mide menos de 600 de ancho, el diálogo se sitúa en la parte inferior del área segura de la ventana en lugar de en el centro: a 16 de los bordes inferior y laterales (o por encima del teclado en pantalla), tan ancho como la ventana menos esos márgenes hasta un máximo de 560, con las cuatro esquinas redondeadas. Solo cuenta el ancho, de modo que un teléfono en horizontal no es compacto y su diálogo aparece centrado.
+Cuando la ventana mide menos de 600 de ancho, el diálogo toma el aspecto de la hoja inferior en lugar de situarse en el centro. Es la regla de Tanrei para todos los diálogos y todos los popovers en una ventana compacta. El diálogo se apoya en el borde inferior de la ventana (o sobre el teclado en pantalla), tan ancho como la ventana hasta `comp.bottom-sheet.container.max-width` (640), con el color y la elevación de la hoja inferior, sus esquinas superiores redondeadas y las inferiores rectas. Su color llega por debajo del margen inferior del sistema, y sus partes conservan el relleno y los estilos de texto del propio diálogo. Solo cuenta el ancho, de modo que un teléfono en horizontal no es compacto y su diálogo aparece centrado.
 
-Ahí sigue siendo un diálogo, no una hoja inferior. No tiene tirador de arrastre, no sigue un arrastre y no se cierra al deslizar. Su rol, su foco, lo que deja inerte y su descarte son los de cualquier diálogo. Cuando la ventana cruza los 600 mientras el diálogo está abierto, pasa a la otra posición de inmediato, sin movimiento, y el foco se queda donde está.
+Ahí parece una hoja inferior, pero sigue siendo un diálogo. Tiene una sola altura y sus salidas son sus acciones, Escape, la acción de retroceso y el velo, así que no tiene tirador de arrastre, no sigue un arrastre y no se cierra al deslizar. Su rol, su foco, lo que deja inerte, su velo y su descarte son los de cualquier diálogo. Cuando la ventana cruza los 600 mientras el diálogo está abierto, pasa a la otra posición de inmediato, sin movimiento, y el foco se queda donde está.
 
-Un sistema que mantiene los diálogos centrados en todas partes define el ancho compacto como 0. Los preajustes `m3-like` y `cupertino` lo hacen, ya que los dos originales centran sus diálogos. También conservan las acciones de texto de sus originales.
+Un sistema que mantiene los diálogos centrados en todas partes define el ancho compacto como 0. Los preajustes `m3-like` y `cupertino` lo hacen, ya que los dos originales centran sus diálogos. También conservan las acciones de texto de sus originales. Para mantener un diálogo centrado en cualquier ventana, pon su `compactPresentation` en `own` (`compact-presentation="own"` en la web).
 
 ### Apertura, foco y cierre
 
@@ -281,11 +287,11 @@ Un diálogo es una superposición modal. Lleva el foco a su interior, lo mantien
 - **Apertura.** Cuando `open` pasa a ser true, el diálogo se presenta por encima de todo lo que hay en su ventana, centrado (o en la parte inferior de una ventana compacta), sobre un velo que atenúa toda la ventana. Todo lo que queda fuera se vuelve inerte: no puede recibir el foco ni pulsarse, y la tecnología de apoyo no puede alcanzarlo. El contenido que hay detrás deja de desplazarse.
 - **Entrada del foco.** El foco pasa al elemento que marcaste, o al propio diálogo, de modo que la tecnología de apoyo lee primero el titular y el siguiente Tab llega al primer elemento que puede recibir el foco. El foco se mueve cuando el diálogo se abre, no cuando termina su movimiento.
 - **Retención del foco.** Tab desde el último elemento que puede recibir el foco va al primero, y Mayús+Tab desde el primero va al último. La navegación del lector de pantalla no sale del diálogo.
-- **Descarte.** Mientras `dismissible` es true, Escape, la acción de retroceso de la plataforma (el botón o el gesto de retroceso de Android, el gesto de escape de accesibilidad de iOS) y una pulsación en el velo emiten `dismiss` una vez, y tú cierras el diálogo. En la web el diálogo se cierra solo salvo que canceles `cancel`, como hace un `<dialog>` nativo. Mientras `dismissible` es false no hacen nada, y solo una acción cierra el diálogo. Un diálogo situado en la parte inferior de una ventana compacta no se cierra al deslizar. El botón de cerrar también emite `dismiss`. `dismiss` lleva el motivo: `escape`, `back`, `scrim` o `close`.
+- **Descarte.** Mientras `dismissible` es true, Escape, la acción de retroceso de la plataforma (el botón o el gesto de retroceso de Android, el gesto de escape de accesibilidad de iOS) y una pulsación en el velo emiten `dismiss` una vez, y tú cierras el diálogo. En la web el diálogo se cierra solo salvo que canceles `cancel`, como hace un `<dialog>` nativo. Mientras `dismissible` es false no hacen nada, y solo una acción cierra el diálogo. Un diálogo situado en la parte inferior de una ventana compacta no se cierra al deslizar. `dismiss` lleva el motivo: `escape`, `back` o `scrim`.
 - **Devolución del foco.** Cuando se cierra, el foco vuelve al elemento que lo tenía cuando se abrió el diálogo. El contenido que hay detrás se restaura tal como estaba.
 - **Apilamiento.** Un diálogo abierto desde otro diálogo se apila encima de él con su propio velo y vuelve inerte también al primero. Escape descarta solo el que está más arriba, y al cerrarlo el foco vuelve al elemento del primer diálogo que lo tenía.
 - **Anuncio.** El diálogo se anuncia como un diálogo, con su titular como nombre y su texto de apoyo como descripción. Con `alert` es un diálogo de alerta, y la tecnología de apoyo lee el titular y el texto de apoyo en cuanto se abre.
-- **Movimiento.** El velo aparece con un fundido. Un contenedor centrado aparece con un fundido mientras crece desde un tamaño algo menor que el suyo. Un contenedor situado en la parte inferior de una ventana compacta aparece con un fundido mientras sube 32 hasta su sitio, sin crecer, y baja 32 mientras se desvanece. Donde el movimiento está reducido, se funde sin crecer ni moverse; en Android, cuyo ajuste elimina todas las animaciones, aparece de inmediato.
+- **Movimiento.** El velo aparece con un fundido. Un contenedor centrado aparece con un fundido mientras crece desde un tamaño algo menor que el suyo. En una ventana compacta, el contenedor sube desde debajo del borde inferior con el movimiento de la hoja inferior, sin crecer, y vuelve a bajar al cerrarse. Donde el movimiento está reducido, se funde sin crecer ni moverse; en Android, cuyo ajuste elimina todas las animaciones, aparece de inmediato.
 
 Cómo lo presenta cada plataforma: un `<dialog>` nativo abierto con `showModal()` en la web, `.fullScreenCover` con fondo transparente en SwiftUI para iOS (en macOS, que no tiene cubierta a pantalla completa, una superposición sobre la vista a la que se aplica el modificador), una ventana `Dialog` en Compose, una ruta modal en Flutter y un `Modal` transparente en React Native. Cada una desactiva su propia atenuación y su propia transición, de modo que todas las plataformas dibujan el mismo velo y el mismo movimiento a partir de los tokens.
 
@@ -297,13 +303,14 @@ Un snackbar que todavía no se ha mostrado espera mientras hay un diálogo de Ta
 - Da a las acciones el nombre de lo que hacen: «Descartar», «Eliminar», «Cerrar sesión». Evita «Sí» y «No».
 - Marca cada acción como `confirming` o `dismissive` y deja que el diálogo las coloque.
 - Da una respuesta a cada diálogo. Un diálogo que solo informa es un snackbar o una línea en la página.
+- Da a un diálogo que muestra algo para leer una acción con la etiqueta Cerrar, o Cancelar, o muestra ese contenido en una hoja lateral.
 - En una confirmación destructiva, marca «Cancelar» para el foco inicial. En un formulario, marca el primer campo. En un diálogo cuyo texto debe leerse primero, no marques nada.
 - Define `alert` solo para interrupciones urgentes: una confirmación destructiva, una conexión perdida.
 
 ### Evita
 
 - No abras un diálogo que la persona no ha pedido, salvo que la tarea de verdad no pueda continuar.
-- No dibujes un botón de cerrar que tendrías que quitar: en un diálogo que exige respuesta, pon `dismissible` en false y deja `closable` desactivado.
+- No añadas un botón de cerrar propio al encabezado ni al contenido: un diálogo no lo tiene, y su salida es una acción de descarte.
 - No pongas `dismissible` en false salvo que la persona deba elegir una de las acciones. Quienes usan un pulsador o un lector de pantalla dependen de Escape y de la acción de retroceso. Un diálogo que no se puede descartar sigue necesitando una salida visible, como «Cancelar».
 - No pongas más que unos pocos datos en un diálogo. Lleva un formulario largo a una página.
 - No ordenes las acciones a mano para poner la de confirmación en último lugar, ni definas una variante en cada botón para obtener tonal: el diálogo hace ambas cosas.
@@ -320,7 +327,6 @@ Un snackbar que todavía no se ha mostrado espera mientras hay un diálogo de Ta
 - Todo lo que queda fuera es inerte y está oculto para la tecnología de apoyo mientras está abierto.
 - Al abrirse, el foco pasa al elemento que marcaste, o al propio diálogo. Tab y Mayús+Tab dan la vuelta dentro de él. Al cerrarse, el foco vuelve al elemento que lo tenía cuando se abrió.
 - Escape, la acción de retroceso de la plataforma y una pulsación en el velo emiten `dismiss` mientras `dismissible` es true. Con diálogos apilados, solo se descarta el que está más arriba.
-- El botón de cerrar es un botón de Tanrei con el nombre de `closeLabel`. Es la primera parada del tabulador, y el foco no empieza en él.
 - Enter y Espacio activan el botón que tiene el foco. El diálogo no añade ninguna acción predeterminada a Enter.
 - Las acciones son botones de Tanrei, que cumplen por sí mismos el objetivo mínimo. Los 16 que hay entre las acciones apiladas mantienen entero cada objetivo.
 - El foco y los lectores de pantalla encuentran las acciones en el orden de colocación, el mismo que ve una persona vidente.
@@ -331,7 +337,7 @@ Un snackbar que todavía no se ha mostrado espera mientras hay un diálogo de Ta
 Carencias conocidas por plataforma:
 
 - SwiftUI, Compose, Flutter y React Native: `dividerVisibility` espera a que esas plataformas se pongan al día. Sus divisores aparecen solo mientras algo queda desplazado fuera de la vista más allá de ellos, como hace `scroll`.
-- SwiftUI, Compose, Flutter y React Native: el botón de cerrar (`closable`, `closeLabel`), `width` y el motivo que lleva `dismiss` esperan a que esas plataformas se pongan al día.
+- SwiftUI, Compose, Flutter y React Native: `width` y el motivo que lleva `dismiss` esperan a que esas plataformas se pongan al día.
 - Web: Firefox no puede mantener en la capa superior un diálogo que se está cerrando mientras se desvanece, así que ahí el diálogo desaparece de inmediato al cerrarse, sin el fundido de salida.
 - Web: todavía no se ha comprobado en un dispositivo con teclado en pantalla que el diálogo se mantenga apartado de él.
 - SwiftUI no tiene rol de diálogo ni de diálogo de alerta. El contenedor lleva el rasgo modal, tiene el titular como nombre y el texto de apoyo como indicación, y el titular lleva el rasgo de encabezado. Con `alert`, VoiceOver lee el titular y el texto de apoyo cuando se abre el diálogo.
@@ -350,7 +356,7 @@ Carencias conocidas por plataforma:
 - Da a cada diálogo al menos una acción y marca cada una como `confirming` o `dismissive`. En las plataformas que todavía ofrecen la revisión anterior, pon tú la acción de confirmación en último lugar.
 - Cierra tú el diálogo: desde el controlador de cada acción y en respuesta a `dismiss` (`onRequestClose`, `onDismissRequest`, el binding o la ruta, según la plataforma).
 - Marca el foco inicial donde ayude: «Cancelar» en una confirmación destructiva, el primer campo en un formulario.
-- Con `closable`, da `closeLabel`: es el único nombre del botón de cerrar.
 - Da a cada diálogo una salida visible, una acción de descarte como «Cancelar», incluso cuando `dismissible` sea false.
 - En React Native, pasa `initialFocusRef`. Después de que el diálogo se cierre, devuelve tú el foco a quien lo abrió si la plataforma no lo hace.
 - En SwiftUI para macOS, aplica `.tanreiDialog` a la vista raíz de la ventana, para que el velo cubra toda la ventana.
+- En la web, si tu contenido mantiene una fila fija al pie, define `scroll-padding-block-end` en `::part(scroll)` con la altura de esa fila, para que el elemento con el foco nunca quede oculto debajo de ella.

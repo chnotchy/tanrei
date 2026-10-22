@@ -3,16 +3,19 @@
 // its presets: layers → DTCG bundle → its tokens (reader.js) → invariants → one file per platform.
 import fs from 'node:fs';
 import path from 'node:path';
-import { listSystems } from './bundle.js';
+import { ROOT_SYSTEM, heldComponents, listSystems, outsideStandIns, shippedSystems } from './bundle.js';
+import { CATALOG_FILE, componentsManifest, manifestComment, readComponentCatalog } from './components-manifest.js';
 import { emitCss } from './emit/css.js';
 import { dartSystemNames, emitDart } from './emit/dart.js';
 import { emitKotlin } from './emit/kotlin.js';
 import { emitSwift } from './emit/swift.js';
 import { emitShadcnTheme, emitTailwindTheme } from './emit/theme-exports.js';
 import { emitTs } from './emit/ts.js';
+import { checkedPairs, isRefusedEverywhere } from './invariants.js';
 import { fontReport } from './fonts.js';
 import { componentGlyphs, iconAxesOf } from './glyphs.js';
 import { buildIR } from './ir.js';
+import { nativeChain, sheetAvailability } from './layers.js';
 import { CONFIG, GENERATED_HEADER, REPO_ROOT, pascal } from './model.js';
 import { LAYER_SUFFIX, LayerProblems, chainDigest, localLayerFile, readSystemChain, resolveChain, resolveSystem, systemIdOf, validateSystem } from './resolve.js';
 import { loadSystem } from './scheme.js';
@@ -33,8 +36,19 @@ function webRegistry(ir, id) {
   return { [`${id}.d.ts`]: [...GENERATED_HEADER.map((l) => `// ${l}`), `// Values the "${id}" design system adds to component props.`, `import '${CONFIG.packages.npmScope}/web/registry';`, '', `declare module '${CONFIG.packages.npmScope}/web/registry' {`, ...lines, '}', ''].join('\n') };
 }
 
+/**
+ * The product's components manifest (components-manifest.js): what its system ships, each with the module that
+ * registers it, and what it does not have. Worked out from the component catalog the vocabulary carries.
+ */
+function productComponents(chain, held, command) {
+  const catalog = readComponentCatalog(REPO_ROOT);
+  if (!catalog) throw new Error(`${CATALOG_FILE} is missing from the vocabulary at ${REPO_ROOT}: run \`pnpm generate\` in the Tanrei repository`);
+  return { $comment: manifestComment(chain.at(-1).id, `\`${command}\``), ...componentsManifest(chain, catalog, held, shippedSystems(REPO_ROOT)) };
+}
+
 /** Every output `tanrei build` can write. A product picks the ones it ships. */
 export const TARGETS = ['tokens', 'web', 'swiftui', 'compose', 'flutter', 'react-native', 'tailwind', 'shadcn'];
+const NATIVE = new Set(['swiftui', 'compose', 'flutter', 'react-native']);
 
 export { LAYER_SUFFIX, LayerProblems, chainDigest, localLayerFile, readSystemChain, resolveChain, resolveSystem, systemIdOf, validateSystem };
 
@@ -72,22 +86,36 @@ export async function buildProductSystem({ layerFile, layers, dir, targets = TAR
   const resolved = await resolveSystem(input);
   const { id, chain, files: bundle } = resolved;
   const model = await resolved.model();
-  const warnings = await resolved.warnings();
+  const { failures: warnings, checked } = await resolved.audit();
+  // A product layer is warned of a violation, not failed — except where the system would draw nothing that works: a hit
+  // area under what is drawn, or a density of zero or less.
+  const refused = warnings.filter(isRefusedEverywhere);
+  if (refused.length) throw new Error(`system "${id}" cannot be built:\n${refused.map((finding) => `  - ${finding}`).join('\n')}`);
   const sourceName = layerFile ? path.basename(layerFile) : `${id}${LAYER_SUFFIX}`;
 
   const previous = [...GENERATED_HEADER];
-  GENERATED_HEADER[1] = `Source: ${sourceName} (extends ${chain.slice(0, -1).map((l) => l.id).reverse().join(' ← ')}). Regenerate with \`${command}\`.`;
+  // The parents nearest first. Every chain starts at the root, so the root is named only when it is the one parent.
+  const parents = chain.slice(0, -1).map((l) => l.id).reverse();
+  GENERATED_HEADER[1] = `Source: ${sourceName} (extends ${(parents.length > 1 ? parents.filter((parent) => parent !== ROOT_SYSTEM) : parents).join(' ← ')}). Regenerate with \`${command}\`.`;
   try {
     const ir = buildIR(model);
+    // The native targets type the system with the whole vocabulary: a component that lives in a layer the product does
+    // not extend is valued with the product's own tokens there (`nativeChain`), as the shipped systems' native outputs are.
+    const held = heldComponents(listSystems(REPO_ROOT), (layer) => loadSystem(REPO_ROOT, layer));
+    const standIns = outsideStandIns(listSystems(REPO_ROOT), (layer) => loadSystem(REPO_ROOT, layer));
+    const native = nativeChain(chain, held);
+    const nativeIr = native === chain || !targets.some((t) => NATIVE.has(t)) ? ir : buildIR(await (await resolveChain(native, { model: false })).model());
     const note = warnings.length ? `⚠ ${warnings.length} accessibility/structure warning(s) in system "${id}" — see a11y-report.json in the tokens output.` : null;
     const flat = (emitted) => Object.fromEntries(Object.entries(emitted).map(([file, text]) => [path.basename(file), note ? `// ${note}\n${text}` : text]));
     const all = {
-      tokens: () => ({ ...bundle, 'a11y-report.json': { system: id, severity: 'warning', count: warnings.length, warnings } }),
-      web: () => ({ [`${id}.css`]: (note ? `/* ${note} */\n` : '') + emitCss(model, { scope: id }), ...webRegistry(ir, id) }),
-      swiftui: () => flat(emitSwift(ir, { external: true })),
-      compose: () => flat(emitKotlin(ir, { externalPackage: kotlinPackage })),
-      flutter: () => flat(emitDart(ir, { external: true })),
-      'react-native': () => flat(emitTs(ir, { external: true })),
+      tokens: () => ({ ...bundle, 'a11y-report.json': { system: id, severity: 'warning', checked: checkedPairs(checked), count: warnings.length, warnings }, 'components.json': productComponents(chain, held, command) }),
+      // The product's sheet says what its system does not have and what it uses instead, as a shipped system's does:
+      // declared in its own scope, so that an element there reads the product's lists and not the default system's from `:root`.
+      web: () => ({ [`${id}.css`]: (note ? `/* ${note} */\n` : '') + emitCss(model, { scope: id, ...sheetAvailability(chain, held, standIns) }), ...webRegistry(ir, id) }),
+      swiftui: () => flat(emitSwift(nativeIr, { external: true })),
+      compose: () => flat(emitKotlin(nativeIr, { externalPackage: kotlinPackage })),
+      flutter: () => flat(emitDart(nativeIr, { external: true })),
+      'react-native': () => flat(emitTs(nativeIr, { external: true })),
       tailwind: () => ({ [`${id}.tailwind.css`]: emitTailwindTheme(model) }),
       shadcn: () => ({ [`${id}.shadcn.css`]: emitShadcnTheme(model) }),
     };

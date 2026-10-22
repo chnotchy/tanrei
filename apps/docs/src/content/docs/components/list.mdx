@@ -248,6 +248,20 @@ A list may mix static, interactive and link items. A selectable list holds only 
 
 The arrow keys only move focus; the selection changes when the person presses Space or Enter, or taps the item. A selected option is drawn with the selected fill and a check at its end, and the check's space is kept in every option, so the content lines up.
 
+### Rows with and without a glyph
+
+When the items hold [list rows](/components/list-row/) and only some of the rows have a leading glyph (`leadingIcon`), `iconSpace` decides where the other rows start their text:
+
+| iconSpace | A row without a glyph |
+| --- | --- |
+| `auto` (default) | Keeps the glyph's room, empty, while another row of the list draws a glyph, so that every headline starts on one line. In a list where no row draws a glyph, the texts start at the row's start. |
+| `always` | Keeps the room in every row, even where no row draws a glyph. |
+| `never` | Keeps no room: its text starts at the row's start. |
+
+The list decides for all its rows together, in every arrangement and mode. An avatar, a picture or a control in a row's `leading` slot does not count and keeps no room beside it, because its size is yours and differs from row to row. The [menu](/components/menu/), the [tree view](/components/tree-view/) and the [navigation drawer](/components/navigation-drawer/) have the same `iconSpace`, with the same values and default.
+
+`density` sets how much room an item takes: `regular` (the default) or `compact`, for a tool used with a mouse where many items are looked through. In a compact list an action, a link or an option of plain text is 32 high, and every [list row](/components/list-row/) of an item is drawn compact whatever its own `density`, so that the rows of one list are of one density. For touch an item is never lower than the touch target.
+
 ### Do
 
 - Give a selectable list a `label` that says what the options are, and a reorderable list one that says what the items are.
@@ -273,7 +287,7 @@ The arrow keys only move focus; the selection changes when the person presses Sp
 - A dragged item follows the pointer with the dragged fill and shadow; the others slide aside over the reorder motion. Where motion is reduced, everything but the item under the pointer moves at once. In forced colors a dragged item is outlined in the highlight color.
 - Escape puts a dragged item back and does not also close a dialog the list is in. A long press on an item opens no menu of the browser's.
 - An interactive item, a link or an option is at least the minimum target, its focus ring is drawn inside it, and it grows with larger text.
-- Debug builds report an item without a name, a selectable or reorderable list without a label, an option whose value is empty or repeated, a selection that names no option, a control inside an interactive item or an option, a word nobody gave, and `reorderable` on a selectable list.
+- Debug builds report an item without a name, a selectable or reorderable list without a label, an option whose value is empty or repeated, a selection that names no option, a control inside an interactive item or an option, a word nobody gave, `reorderable` on a selectable list, and an `iconSpace` the list does not define.
 
 Known platform gaps:
 

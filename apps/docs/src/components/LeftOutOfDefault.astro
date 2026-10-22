@@ -1,0 +1,29 @@
+---
+// What the default system leaves out — whole components first, then values of a component's `variant` — each written
+// as the element a product would write and linked to the component's page. The default system is the namespace of
+// tanrei.config.json; the list is the status file's (docs/status/status.json, which `pnpm generate` writes from the
+// systems' layer files), and the element's name is the spec's web name. Nothing in it is written by hand, so a page
+// that places it never names a component the system ships, or misses one it leaves out.
+import { componentHref, config, getSpec, unavailable } from '../lib/repo';
+import { localeBase } from '../lib/i18n';
+
+const base = localeBase(Astro);
+const leftOut = unavailable[config.namespace];
+if (!leftOut) throw new Error(`The status file says nothing of the default system "${config.namespace}": run pnpm generate.`);
+const element = (name: string) => {
+  const tag = getSpec(name).platforms.web?.name;
+  if (!tag) throw new Error(`specs/${name}.spec.json names no web element.`);
+  return tag;
+};
+const entries = [
+  ...leftOut.components.map((name) => ({ name, markup: `<${element(name)}>` })),
+  ...Object.entries(leftOut.variants).flatMap(([name, values]) => values.map((value) => ({ name, markup: `<${element(name)} variant="${value}">` }))),
+];
+---
+
+<ul>
+  {entries.map(({ name, markup }) => {
+    const href = componentHref(base, name);
+    return <li>{href ? <a href={href}><code>{markup}</code></a> : <code>{markup}</code>}</li>;
+  })}
+</ul>

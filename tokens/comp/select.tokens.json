@@ -40,20 +40,37 @@
             "variant": {
               "default": "stacked",
               "from": "states"
+            },
+            "density": {
+              "default": "regular",
+              "values": [
+                "regular",
+                "compact"
+              ],
+              "members": [
+                "option.height",
+                "option.padding-inline",
+                "option.padding-block",
+                "option.gap",
+                "option.leading-icon.size",
+                "option.mark.size",
+                "group-title.padding-inline"
+              ]
             }
           },
           "dev.tanrei.llm": {
-            "usage": "What a select draws that is its own: the list it opens. Its surface, corners, lift, paddings, offset from the box, margin to the window's edge, least and greatest width and greatest height; an option's row, text styles, glyph and check sizes; a group's title, the divider or the gap between groups; the motion of opening and closing and of a row's state change, and a row's opacity in each state; and an option's colors at rest and chosen, in each state. The box is comp.input-box.*.",
+            "usage": "What a select draws that is its own: the list it opens. Its surface, corners, lift, paddings, offset from the box, margin to the window's edge, least and greatest width and greatest height; per density (regular, compact) an option's least height, paddings, gap, glyph and check sizes and a group title's inset; an option's corners and text styles; a group's title, the divider or the gap between groups; the motion of opening and closing and of a row's state change, and a row's opacity in each state; and an option's colors at rest and chosen, in each state. The box is comp.input-box.*.",
             "rules": [
               "A select chooses exactly one value from a closed list and holds it as a form value. For actions use a menu; for several values use checkboxes or a list with multiple selection; for a list a person filters by typing use a combobox.",
               "With up to about five options that fit on the screen, radio buttons or tabs show every choice at once and cost one press less; use a select where the options are many or the space is small.",
               "A select is the bare box and its list: it has no label row, no requirement tag, no help and no error text. In a form use the select field, which is a Field around a select; the tokens of those rows are comp.field.*.",
               "The box — container, edges, floating label, the line that shows the chosen value (input), the chevron (trailing-icon, at icon.size), heights and paddings at small, medium and large, and the colors of each look in each state — is comp.input-box.*, shared with the text input, the combobox, the number input and the color input. This group holds only the list.",
               "Every value of the list and of an option equals the menu's (comp.menu.surface.color, …). Change them together in a layer, or a product's lists stop reading as one kind.",
-              "The list's parts are list.*, option.*, group-title.*, divider.* and group.gap; an option's colors are each variant's option.* and selected-option.* parts, the same under every variant.",
+              "The list's parts are list.*, option.*, group-title.*, divider.*, group.gap and status.* (the row after the options that says the source is loading, failed, or gave nothing); an option's colors are each variant's option.* and selected-option.* parts, the same under every variant.",
               "The chosen option is the quiet selection: the selected-option fill with a check at the end of its row. The fill never carries the choice alone.",
               "list.max-height caps a long list, which then scrolls.",
               "option.state-layer.color and selected-option.state-layer.color are the colors the state layers mix into a row. motion.state-duration, motion.state-easing and the four opacity tokens are the rows'; the box has its own in comp.input-box.",
+              "compact is for a tool used with a pointer, where rows are many and looked through often; touch always gets rows of the touch target. The density never changes a text style.",
               "Restyle through these tokens in a layer; never fork the component."
             ]
           }
@@ -151,38 +168,85 @@
         "option": {
           "height": {
             "$type": "dimension",
-            "$value": {
-              "value": 48,
-              "unit": "px"
-            },
             "$description": "An option's minimum height.",
-            "$extensions": {
-              "dev.tanrei.derive": {
-                "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 12
+            "regular": {
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 12,
+                  "times": "{tanrei.dial.density}",
+                  "round": "{tanrei.dial.size.unit}",
+                  "min": "{tanrei.sys.target.minimum}"
+                }
               }
+            },
+            "compact": {
+              "$value": "{tanrei.comp.menu.container.height.compact}"
             }
           },
           "shape": {
             "$type": "dimension",
-            "$value": "{tanrei.sys.shape.corner.small}",
-            "$description": "The corners of an option's row."
+            "$value": {
+              "value": 4,
+              "unit": "px"
+            },
+            "$description": "The corners of an option's row: the list's corner less the inset the rows stand at, so that the two curves keep one distance.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "sub",
+                "of": "{tanrei.comp.select.list.shape}",
+                "by": "{tanrei.comp.select.list.padding-inline}"
+              },
+              "dev.tanrei.concentric": {
+                "outer": "{tanrei.comp.select.list.shape}",
+                "inset": "{tanrei.comp.select.list.padding-inline}"
+              }
+            }
           },
           "padding-inline": {
             "$type": "dimension",
-            "$value": "{tanrei.sys.space.space150}",
-            "$description": "Padding at the sides of an option's row."
+            "$description": "Padding at the sides of an option's row.",
+            "regular": {
+              "$value": "{tanrei.sys.space.space150}"
+            },
+            "compact": {
+              "$value": "{tanrei.comp.menu.container.padding-inline.compact}"
+            }
           },
           "padding-block": {
             "$type": "dimension",
-            "$value": "{tanrei.sys.space.space100}",
-            "$description": "Padding above and below an option's content."
+            "$description": "Padding above and below an option's content.",
+            "regular": {
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space100}",
+                  "height": "{tanrei.comp.select.option.height.regular}"
+                }
+              }
+            },
+            "compact": {
+              "$value": "{tanrei.comp.menu.container.padding-block.compact}"
+            }
           },
           "gap": {
             "$type": "dimension",
-            "$value": "{tanrei.sys.space.space150}",
-            "$description": "Distance between an option's glyph, its text and its check."
+            "$description": "Distance between an option's glyph, its text and its check.",
+            "regular": {
+              "$value": "{tanrei.sys.space.space150}"
+            },
+            "compact": {
+              "$value": "{tanrei.comp.menu.container.gap.compact}"
+            }
           },
           "label": {
             "typescale": {
@@ -201,15 +265,25 @@
           "leading-icon": {
             "size": {
               "$type": "dimension",
-              "$value": "{tanrei.sys.icon.medium}",
-              "$description": "An option's glyph."
+              "$description": "An option's glyph.",
+              "regular": {
+                "$value": "{tanrei.sys.icon.medium}"
+              },
+              "compact": {
+                "$value": "{tanrei.comp.menu.leading-icon.size.compact}"
+              }
             }
           },
           "mark": {
             "size": {
               "$type": "dimension",
-              "$value": "{tanrei.sys.icon.medium}",
-              "$description": "The box of the check at the end of the chosen option's row, kept in every row so that labels wrap alike."
+              "$description": "The box of the check at the end of the chosen option's row, kept in every row so that labels wrap alike.",
+              "regular": {
+                "$value": "{tanrei.sys.icon.medium}"
+              },
+              "compact": {
+                "$value": "{tanrei.comp.menu.mark.size.compact}"
+              }
             }
           }
         },
@@ -225,8 +299,37 @@
           },
           "padding-inline": {
             "$type": "dimension",
-            "$value": "{tanrei.comp.select.option.padding-inline}",
-            "$description": "Inset of a group's heading from the rows' edges."
+            "$description": "Inset of a group's heading from the rows' edges.",
+            "regular": {
+              "$value": "{tanrei.comp.select.option.padding-inline.regular}"
+            },
+            "compact": {
+              "$value": "{tanrei.comp.select.option.padding-inline.compact}"
+            }
+          }
+        },
+        "status": {
+          "typescale": {
+            "$description": "The status row's text and the text shown while the select holds no option.",
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.body-small}"
+          },
+          "color": {
+            "$description": "The status row's text while nothing is wrong, and the text shown while the select holds no option: secondary to the options.",
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface-variant}"
+          },
+          "error": {
+            "color": {
+              "$description": "The status row's text while status is error. The words say what failed; the color says that something did.",
+              "$type": "color",
+              "$value": "{tanrei.sys.color.error}"
+            }
+          },
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product fills some of its selects from a source that takes time or can fail — the projects of an account, the people of a team — and must say, in the list, that it is waiting, that it failed, or that there is nothing to choose; how quiet that line is beside the options is its choice."
+            }
           }
         },
         "group": {
@@ -272,35 +375,35 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$value": "{tanrei.sys.motion.role.state.default}",
             "$description": "How long a change of colors and edge widths takes."
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long a ripple takes to grow over a pressed option."
           },
           "open-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short4}",
+            "$value": "{tanrei.sys.motion.role.appear.anchored.enter}",
             "$description": "How long the list takes to appear."
           },
           "open-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+            "$value": "{tanrei.sys.motion.easing.enter}"
           },
           "close-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short2}",
+            "$value": "{tanrei.sys.motion.role.appear.anchored.exit}",
             "$description": "How long the list takes to go."
           },
           "close-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}"
+            "$value": "{tanrei.sys.motion.easing.exit}"
           }
         },
         "stacked": {

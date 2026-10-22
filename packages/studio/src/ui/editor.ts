@@ -253,7 +253,14 @@ export function tokenDetail(ctx: Ctx, id: string, open: (id: string) => void): H
 
 export function ruleText(rule: Json, ns: string): string {
   const name = (v: unknown) => (isRef(v) ? short((v as string).slice(1, -1), ns) : String(v));
-  if (rule.fn === 'mul') return `${name(rule.of)} × ${rule.by}${rule.exp !== undefined ? ` ^ ${name(rule.exp)}` : ''}`;
+  if (rule.fn === 'mul') {
+    // max(min, round(of × by^exp × times, round)), in the order the engine applies it.
+    const product = `${name(rule.of)} × ${rule.by}${rule.exp !== undefined ? ` ^ ${name(rule.exp)}` : ''}${rule.times !== undefined ? ` × ${name(rule.times)}` : ''}`;
+    const rounded = rule.round !== undefined ? `round(${product}, ${name(rule.round)})` : product;
+    return rule.min !== undefined ? `max(${name(rule.min)}, ${rounded})` : rounded;
+  }
+  if (rule.fn === 'pad') return `pad(${name(rule.of)}${rule.by !== undefined ? ` × ${rule.by}` : ''}, ${name(rule.height)})`;
+  if (rule.fn === 'sub') return `max(0, ${name(rule.of)} − ${name(rule.by)})`;
   if (rule.fn === 'mix') return `mix(${name(rule.base)}, ${name(rule.with)}, ${name(rule.amount)})`;
   if (rule.fn === 'alpha') return `alpha(${name(rule.of)}, ${name(rule.amount)})`;
   if (rule.fn === 'tone') return `tone(${rule.palette})`;

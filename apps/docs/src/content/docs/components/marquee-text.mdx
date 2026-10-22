@@ -1,0 +1,151 @@
+---
+title: Marquee text
+description: One line of text that does not fit its place. It rests cut with an ellipsis, and while its trigger holds it scrolls sideways at a steady pace to show all of itself. It moves only when the text overflows, never where motion is reduced, and is read once, whole.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="marquee-text" />
+
+<DemoFrame label="A title that does not fit, and one that does">
+  <tanrei-marquee-text style="inline-size: min(100%, 14rem)">Track 7 — A very long title that does not fit in the row it stands in</tanrei-marquee-text>
+  <tanrei-marquee-text style="inline-size: min(100%, 14rem)">Short title</tanrei-marquee-text>
+</DemoFrame>
+
+A marquee text is one line of the product's text in a place too narrow for it. At rest it reads as any cut line does: it starts at the line's start and ends with an ellipsis where it is cut. While its trigger holds — by default, while the pointer is over it or the control it stands in has keyboard focus — it scrolls sideways at a steady pace, given in pixels per second, so that every part of the text passes through view; then it comes back to its start and rests. Point at the first line above. The second fits, so it never moves: a marquee text whose text fits is a plain line of text.
+
+It suits the places where a line has a fixed width and its text is usually short but sometimes is not: the title in a list row, a label in a navigation bar or a drawer, a chip, the name of what is playing, a cell of a table. Where a cut line is enough most of the time, the other choice is to leave it cut and give the full text in a [tooltip](/components/tooltip/), which shows it whole at once and moves nothing.
+
+### Usage
+
+The Web and React samples show the current spec. SwiftUI, Compose, Flutter and React Native are planned: they do not ship a marquee text yet.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- The default: moves while the pointer is over it or the control it stands in, or while that control has keyboard focus. -->
+    <tanrei-marquee-text>Track 7 — A very long title that does not fit in the row it stands in</tanrei-marquee-text>
+
+    <!-- Moves to its end and back, once for each hover or focus. -->
+    <tanrei-marquee-text loop="bounce" iterations="1">…</tanrei-marquee-text>
+
+    <!-- The name of what is playing: moves by itself, with its own pause button. -->
+    <tanrei-marquee-text trigger="always" playback-control play-label="Play scrolling text" pause-label="Pause scrolling text">
+      Now playing: a very long title of a song by an artist with a long name
+    </tanrei-marquee-text>
+
+    <script type="module">
+      import '@tanrei/web/components/marquee-text';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { MarqueeText } from '@tanrei/react';
+
+    <MarqueeText>{track.title}</MarqueeText>
+
+    <MarqueeText loop="bounce" iterations={1}>{track.title}</MarqueeText>
+
+    {/* Moves by itself; the page's own control that pauses every moving part sets paused. */}
+    <MarqueeText trigger="always" paused={motionPaused}>
+      {`Now playing: ${track.title}`}
+    </MarqueeText>
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<ComponentSpecs name="marquee-text" />
+
+## Guidelines
+
+### When to use
+
+Use a marquee text where a line must stay one line, at a width the layout fixes, and a person sometimes needs the part that is cut: a long song title in a row of a playlist, a destination's label that a language makes long, a chip that holds a name. The line keeps its height and its place, and shows the rest of itself only when asked.
+
+Don't use it for text a person must read in full to act — a warning, an error, the terms of a choice, an amount, an instruction. Moving text is slow to read and easy to miss. Give such text the lines it needs, and let it wrap.
+
+### Choosing a trigger
+
+| Trigger | Use for |
+| --- | --- |
+| `hover-or-focus` | The default, and the right choice almost everywhere: the line moves when a person points at it or reaches the control it stands in with the keyboard, so both see the same thing. |
+| `hover` | A long list that keyboard users move through quickly, where every row's title starting to move as focus passes would distract more than it helps. |
+| `focus` | A line in a surface used mostly with the keyboard or a remote control, where hovering means nothing. |
+| `always` | The name of what is playing, and lines like it that a person glances at rather than points at. It moves by itself from when it is shown, and needs a way to pause it (see Accessibility). |
+
+The trigger's area is the control the line stands in — a row, a chip, a destination — not only the line: pointing anywhere at the row moves its title. Hover counts only a fine pointer, such as a mouse or a pen; a touch does not start the motion.
+
+### Repeat or bounce
+
+- **`repeat`** (the default) moves the text toward its start until its end has passed, with a copy following it a gap behind, so that the line never empties and comes back to where it began. It reads like a ticker, and suits a line that moves for a while.
+- **`bounce`** moves the text until its end is in view, rests there, and moves it back. It draws no copy, so the end and the start are never seen side by side. It suits a line that moves once, for a short look at its end.
+
+Both move the text in the direction it is written: toward the left for a left-to-right text, toward the right for a right-to-left one, whatever the page around it.
+
+### Speed and pauses
+
+- **`speed`** is in pixels per second, not a time for a whole pass, so a long title and a short one move at the same pace. Leave it to the token, `comp.marquee-text.speed`, so that every moving line of the product keeps one pace. When the text size is enlarged, the speed grows with the text, and as many characters pass in a second at every size.
+- **`startPause`** is how long the text rests at its start before each pass, so that its beginning can be read. With `trigger="always"` it is also the wait before the first pass.
+- **`endPause`**, with `bounce`, is how long the text rests with its end in view before it moves back.
+- **`iterations`** is how many passes one trigger plays before the text rests at its start. Left at null, passes go on until the pointer leaves or focus moves away, and for `always`, for as long as the line is shown. A count that keeps the motion short is what makes a hover or focus trigger accessible (below).
+
+The pauses are reading times. The product's motion settings, which speed animation up or slow it down, do not shorten them.
+
+### Content
+
+Keep the text short enough that people rarely need to see it move: the marquee is for the occasional title that is longer than the rest, not a way to fit a sentence into a chip. Put what tells items apart at the start, where it is read without motion. The text may hold inline content, such as a bold run; it is always one line.
+
+### Do
+
+- Let a line stand in the control a person points at or focuses, so that the trigger's area is the whole row.
+- Set `iterations` so that each hover or focus plays a short run and stops.
+- Give a line with `trigger="always"` a way to pause it: its own playback control, or the product's control that pauses every moving part of the page.
+
+### Don't
+
+- Don't use it for text a person must read in full to act. Give that text its own lines.
+- Don't put several lines that move all the time on one screen. One moving line draws the eye; several compete with each other and with everything else on the screen.
+- Don't make the line itself a button or a link to start the motion. It is text; the control around it is what a person presses.
+- Don't shorten the pauses to fit a long text into a short run. Shorten the text, or show it whole another way.
+
+## Accessibility
+
+<ComponentAccessibility name="marquee-text" />
+
+### The defaults can conflict with WCAG 2.2.2
+
+[Pause, Stop, Hide](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html) (WCAG 2.2.2, Level A) asks that motion which starts by itself, lasts more than five seconds and stands beside other content can be paused, stopped or hidden by the person. Tanrei's defaults do not meet it on their own, in two ways, and the product decides how to meet it.
+
+1. **`trigger="always"` draws no playback control by default** (`playbackControl` is false). A line that moves all the time for more than five seconds beside other content needs a way to pause it. Either set `playbackControl`, and the line draws an icon-only pause and play button at its end, named by `pauseLabel` and `playLabel` or by the product's words `marqueePauseLabel` and `marqueePlayLabel`; or bind the product's own control that pauses every moving part of the page to `paused`. A debug build reports a line that moves all the time with neither.
+2. **With `hover`, `focus` and `hover-or-focus`, `iterations` at null plays passes until the pointer leaves or focus moves away.** The WCAG Understanding document counts motion started by a hover or a focus as motion that starts automatically, and says that motion which stops only when focus leaves is not a means to stop it. To meet 2.2.2, set `iterations` so that the motion ends within five seconds. For a long text, one pass may already take longer: shorten the text or raise the speed, or show the full text another way.
+
+The line holds its motion while a pointer is over it or focus is within it, and holds it while it is out of view or its page is hidden. That makes it easier to read, but it is not a way to stop it.
+
+### What the component handles
+
+- It moves only when the text does not fit. A line whose text fits draws plain text and starts nothing.
+- Where reduced motion is requested (WCAG 2.3.3), it never moves. A hover or a focus shows the hidden part a viewport at a time, without a motion, resting on each view, so that every part of the text can still be seen; a line with `trigger="always"` rests cut and draws no playback control.
+- Assistive technology reads the text once, whole, as text, where the line stands. The copy, the ellipsis and the fade are hidden from it, and the motion changes nothing it reads and announces nothing.
+- The line is not a focus stop. Tab reaches the control it stands in, and the playback control while it is drawn.
+- The playback control is a Button of the text variant and the small size, with the icon set's pause glyph while the text moves and the play glyph while it is paused. Enter or Space toggles it, focus stays on it, and it emits `pausedChange`. Its target meets the minimum.
+- In a right-to-left layout the playback control stands at the left end of the line; the text moves by its own direction.
+- With forced colors, the text takes the color the platform gives the element around it, and its edges are clipped instead of faded.
+- It has no words of its own. A playback control that has no name from the instance or the product's words is still drawn, and reported in debug builds; so are an unknown `trigger` or `loop` and a speed, a pause or a count that is out of range.
+
+The web component is not the HTML `<marquee>` element. That element is [deprecated](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/marquee), ignores reduced motion and cannot be paused by the person.
+
+### What you need to do
+
+- Meet WCAG 2.2.2 as above: a way to pause every line with `trigger="always"`, and a count of `iterations` that ends a hover's or a focus's motion within five seconds.
+- Give the playback control its two names, in the instance or once in the product's words, in the language of the page: "Pause scrolling text" and "Play scrolling text" say what the button does.
+- Keep text a person must read in full out of a marquee: a cut line hides it from anyone who never triggers the motion.
+- Keep one line that moves all the time to a screen, and none beside a long text a person is reading.

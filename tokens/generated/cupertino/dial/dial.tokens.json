@@ -3,7 +3,7 @@
     "dev.tanrei.system": {
       "id": "cupertino",
       "chain": [
-        "tanrei",
+        "core",
         "cupertino"
       ],
       "extensions": [
@@ -32,38 +32,10 @@
       "layers": [
         {
           "$schema": "../schema/system.schema.json",
-          "id": "tanrei",
-          "name": "Tanrei",
-          "description": "The default design system. Near-monochrome surfaces, a monochrome primary and one accent. Every other system extends this one.",
+          "id": "core",
+          "name": "Core",
+          "description": "The root layer every design system extends. It values the vocabulary: the palettes, the color roles drawn from them and the per-state rules of the components. It leaves no component out; a system chooses its components in its own layer.",
           "specVersion": "tanrei-2026.2",
-          "unavailable": {
-            "components": [
-              "segmented-button",
-              "fab-menu"
-            ],
-            "variants": {
-              "text-input": [
-                "filled",
-                "outlined"
-              ],
-              "select": [
-                "filled",
-                "outlined"
-              ],
-              "combobox": [
-                "filled",
-                "outlined"
-              ],
-              "number-input": [
-                "filled",
-                "outlined"
-              ],
-              "color-input": [
-                "filled",
-                "outlined"
-              ]
-            }
-          },
           "palettes": {
             "neutral": {
               "description": "Surfaces, text and the monochrome primary. Zero chroma.",
@@ -1015,6 +987,30 @@
               },
               "reason": "A selected option's fill is a layer of the row's own content color, twice the hover layer, as the menu's current link item is (and its checked row at medium and high contrast), so that the quiet selection looks the same in a list and in a menu and stands as far from a hovered row as a hovered row stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: in light it is the same grey as a hovered row (1.01:1 between them)."
             },
+            "tanrei.comp.tree-view.selected.container.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.comp.tree-view.selected.state-layer.color}",
+                "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
+              },
+              "reason": "A row's selection is the same layer in every component that selects rows: it follows tanrei.comp.list.selected.container.color, a layer of the row's own content color twice the hover layer, so that a selected node stands as far from a hovered one as a hovered one stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: in light it is the same grey as a hovered row (1.01:1 between them)."
+            },
+            "tanrei.comp.navigation-drawer.selected.item.container.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.comp.navigation-drawer.selected.item.state-layer.color}",
+                "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
+              },
+              "reason": "A row's selection is the same layer in every component that selects rows: it follows tanrei.comp.list.selected.container.color, a layer of the row's own content color twice the hover layer, so that the current destination stands as far from a hovered one as a hovered one stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: in light it is 1.03:1 from a hovered destination."
+            },
+            "tanrei.comp.table.row.selected.container.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.comp.table.row.selected.state-layer.color}",
+                "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
+              },
+              "reason": "A row's selection is the same layer in every component that selects rows: it follows tanrei.comp.list.selected.container.color, a layer of the row's own content color twice the hover layer, so that a selected row stands as far from a hovered one as a hovered one stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: in light it is the same grey as a hovered row (1.01:1 between them)."
+            },
             "tanrei.comp.menu.expanded.container.color": {
               "derive": {
                 "fn": "alpha",
@@ -1659,6 +1655,26 @@
             "tanrei.comp.one-time-code-input.standard.disabled.error.outline.color": {
               "$value": "{tanrei.comp.one-time-code-input.standard.outline.color}",
               "reason": "A disabled code input draws no edge, in error too: it cannot be corrected while disabled. As the stacked text field."
+            },
+            "tanrei.comp.handle.standard.hovered.line.color": {
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "reason": "A handle answers a pointer over it with a darker line (HDL-4): the line is the handle's answer itself, where the generic rule keeps a part at its resting color."
+            },
+            "tanrei.comp.handle.standard.pressed.line.color": {
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "reason": "The line stays dark while a press or a drag holds the handle (HDL-4 draws the two alike)."
+            },
+            "tanrei.comp.handle.standard.disabled.container.color": {
+              "$value": "{tanrei.comp.handle.standard.container.color}",
+              "reason": "A disabled handle's box draws no fill, as at rest: it is a mark on an edge, not a filled control."
+            },
+            "tanrei.comp.bottom-sheet.drag-handle.hovered.grip.color": {
+              "$value": "{tanrei.comp.handle.standard.hovered.line.color}",
+              "reason": "The sheet's drag handle is a Handle (BSH-12): its grip answers a pointer as every handle's line does (HDL-4)."
+            },
+            "tanrei.comp.bottom-sheet.drag-handle.pressed.grip.color": {
+              "$value": "{tanrei.comp.handle.standard.pressed.line.color}",
+              "reason": "The sheet's drag handle is a Handle (BSH-12): its grip stays dark while a press or a drag holds it, as every handle's line does (HDL-4)."
             }
           },
           "rules": [
@@ -2021,6 +2037,11 @@
               "reason": "A disabled destructive button looks like any disabled button of its variant: an outlined one keeps the plain disabled edge, not the error color, since it cannot be pressed."
             },
             {
+              "match": "tanrei.comp.button-with-menu.*.disabled.destructive.*.color",
+              "$value": "{tanrei.comp.button-with-menu.$1.disabled.$2.color}",
+              "reason": "A disabled destructive button with menu looks like any disabled button with menu of its variant, as a disabled destructive Button does: its fill, edge, divider and label are the plain disabled ones, since it cannot be pressed."
+            },
+            {
               "match": "tanrei.comp.main-action-button.*.hovered.container.elevation",
               "$value": "{tanrei.sys.elevation.level4}",
               "reason": "The main action button rises further under a pointer; the generic rule keeps the resting level."
@@ -2232,11 +2253,6 @@
               "reason": "The icon indicator is a fill or nothing, as the item container is; disabled, it keeps that, and the faded icon and label say the destination is unavailable."
             },
             {
-              "match": "tanrei.comp.navigation-rail.*.disabled.item.container.color",
-              "$value": "{tanrei.comp.navigation-rail.$1.item.container.color}",
-              "reason": "The item container is the active indicator or nothing; disabled, it keeps that, and the faded icon and label say the destination is unavailable."
-            },
-            {
               "match": "tanrei.comp.navigation-drawer.*.disabled.item.container.color",
               "$value": "{tanrei.comp.navigation-drawer.$1.item.container.color}",
               "reason": "The item container is the active indicator or nothing; disabled, it keeps that, and the faded icon and label say the destination is unavailable."
@@ -2245,16 +2261,6 @@
               "match": "tanrei.comp.navigation-drawer.*.disabled.item.icon-indicator.color",
               "$value": "{tanrei.comp.navigation-drawer.$1.item.icon-indicator.color}",
               "reason": "The icon indicator is a fill or nothing, as the item container is; disabled, it keeps that, and the faded icon and label say the destination is unavailable."
-            },
-            {
-              "match": "tanrei.comp.fab-menu.*.hovered.container.elevation",
-              "$value": "{tanrei.sys.elevation.level4}",
-              "reason": "The FAB menu's toggle rises further under a pointer, as the main action button does."
-            },
-            {
-              "match": "tanrei.comp.fab-menu.*.hovered.open.container.elevation",
-              "$value": "{tanrei.sys.elevation.level4}",
-              "reason": "The open toggle rises under a pointer too, as the main action button does."
             },
             {
               "match": "tanrei.comp.slider.*.disabled.container.color",
@@ -2416,15 +2422,14 @@
           "$schema": "../schema/system.schema.json",
           "id": "cupertino",
           "name": "Cupertino (Apple HIG-inspired)",
-          "extends": "tanrei",
-          "unavailable": {
-            "components": [
-              "fab-menu"
-            ],
+          "extends": "core",
+          "components": {
             "variants": {
-              "navigation-bar": [
-                "filled"
-              ]
+              "navigation-bar": {
+                "omit": [
+                  "filled"
+                ]
+              }
             }
           },
           "description": "An independent approximation of the look of Apple's platforms, expressed purely as values: a saturated system tint, pure white and black canvases, gray fills with tinted labels, rounded rectangles, no hover state and a dimmed pressed state.",
@@ -2831,6 +2836,34 @@
             "tanrei.sys.behavior.divider-visibility": {
               "$value": 1,
               "reason": "Apple's navigation bars and toolbars draw their hairline only while content lies under them: at the scroll edge their appearance has no shadow (scrollEdgeAppearance), and a sheet's bar follows the same rule."
+            },
+            "tanrei.sys.behavior.scroll-edge": {
+              "$value": 3,
+              "reason": "Apple's OS 26 marks the edge of a scroll view under a bar with a soft, blurred edge by default (ScrollEdgeEffectStyle.soft, \"a soft-edged, blurred\" effect); its hard style is the line."
+            },
+            "tanrei.sys.state.hover-state-layer-opacity": {
+              "$value": 0,
+              "reason": "Apple platforms draw no state layer: a control is not tinted under the pointer. The rules below keep every container at rest; this keeps a color known only where a control is drawn (a Button's tone on a colored surface, a carousel item over its image) at rest too."
+            },
+            "tanrei.sys.state.focus-state-layer-opacity": {
+              "$value": 0,
+              "reason": "Apple platforms show keyboard focus by the focus ring alone, with no layer over the control, for a color known only where a control is drawn as for every other."
+            },
+            "tanrei.comp.menubar.expanded.container.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.comp.menubar.expanded.state-layer.color}",
+                "amount": 0.08
+              },
+              "reason": "A Mac menu bar marks the title whose menu is open with a fill. The default system derives it from the hover layer, which this system sets to 0, so the fill keeps the default's amount."
+            },
+            "tanrei.comp.menubar.expanded.focused.container.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.comp.menubar.expanded.state-layer.color}",
+                "amount": 0.1
+              },
+              "reason": "Under keyboard focus the open title keeps its fill, at the default system's focus-layer amount (this system's is 0)."
             },
             "tanrei.sys.shape.corner-smoothing": {
               "$value": 0.6,
@@ -3807,6 +3840,13 @@
               "$value": "{tanrei.sys.typescale.body-subhead}",
               "reason": "A small Apple button carries Subheadline (15pt); the medium and large sizes carry Body (17pt)."
             },
+            "tanrei.sys.target.minimum": {
+              "$value": {
+                "value": 28,
+                "unit": "px"
+              },
+              "reason": "The least height this preset draws a pressable at: its small Button, Button with menu and segmented button are 28. Not yet checked against the reference."
+            },
             "tanrei.comp.button.container.height.small": {
               "derive": {
                 "fn": "mul",
@@ -4065,6 +4105,30 @@
               "$value": "{tanrei.sys.color.on-surface}",
               "reason": "Keeps the selected text this preset drew: on its tinted highlight the text stays in the input's color (on-surface in every variant); the default system draws it in on-primary on its primary highlight."
             },
+            "tanrei.comp.input-box.stacked.container.height.small": {
+              "$value": "{tanrei.comp.input-box.container.height.small}",
+              "reason": "Keeps this preset's stacked field as it was, as tall as its other fields; the default system's stacked boxes follow its Buttons, which here are shorter than an Apple field."
+            },
+            "tanrei.comp.input-box.stacked.container.height.medium": {
+              "$value": "{tanrei.comp.input-box.container.height.medium}",
+              "reason": "Keeps this preset's stacked field as it was, as tall as its other fields; the default system's stacked boxes follow its Buttons, which here are shorter than an Apple field."
+            },
+            "tanrei.comp.input-box.stacked.container.height.large": {
+              "$value": "{tanrei.comp.input-box.container.height.large}",
+              "reason": "Keeps this preset's stacked field as it was, as tall as its other fields; the default system's stacked boxes follow its Buttons, which here are shorter than an Apple field."
+            },
+            "tanrei.comp.input-box.stacked.container.padding-block.small": {
+              "$value": "{tanrei.comp.input-box.container.padding-block.small}",
+              "reason": "Keeps this preset's stacked field as it was, as tall as its other fields; the default system's stacked boxes follow its Buttons, which here are shorter than an Apple field."
+            },
+            "tanrei.comp.input-box.stacked.container.padding-block.medium": {
+              "$value": "{tanrei.comp.input-box.container.padding-block.medium}",
+              "reason": "Keeps this preset's stacked field as it was, as tall as its other fields; the default system's stacked boxes follow its Buttons, which here are shorter than an Apple field."
+            },
+            "tanrei.comp.input-box.stacked.container.padding-block.large": {
+              "$value": "{tanrei.comp.input-box.container.padding-block.large}",
+              "reason": "Keeps this preset's stacked field as it was, as tall as its other fields; the default system's stacked boxes follow its Buttons, which here are shorter than an Apple field."
+            },
             "tanrei.comp.input-box.container.shape": {
               "$value": "{tanrei.sys.shape.corner.medium}"
             },
@@ -4233,7 +4297,7 @@
               "$value": "{tanrei.sys.typescale.caption}",
               "reason": "Apple's Footnote (13pt, label-small here) has a line too tall for a 24pt chip with its padding; Caption 1 (12pt) fits, the size of the default system's small chip label."
             },
-            "tanrei.comp.list.container.height": {
+            "tanrei.comp.list.container.height.regular": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
@@ -4299,11 +4363,27 @@
               "$value": "{tanrei.sys.color.on-surface}",
               "reason": "Apple keeps a chosen row's text in the label color and says the choice with the check alone: this preset's selected item has no fill of its own."
             },
+            "tanrei.comp.tree-view.selected.container.color": {
+              "$value": "{tanrei.sys.color.secondary-container}",
+              "reason": "This preset keeps the secondary-container fill it has drawn for a selected tree row, where the default system lays a layer of the content color; how Apple's outline view marks a selected row is a fidelity decision for this preset."
+            },
+            "tanrei.comp.table.row.selected.container.color": {
+              "$value": "{tanrei.sys.color.secondary-container}",
+              "reason": "This preset keeps the secondary-container fill it has drawn for a selected table row, where the default system lays a layer of the content color; how Apple's tables mark a selected row is a fidelity decision for this preset."
+            },
             "tanrei.comp.menu.surface.color": {
               "$value": "{tanrei.sys.color.surface-container-lowest}"
             },
             "tanrei.comp.menu.surface.shape": {
               "$value": "{tanrei.sys.shape.corner.extra-large}"
+            },
+            "tanrei.comp.menu.container.shape": {
+              "$value": "{tanrei.sys.shape.corner.small}",
+              "reason": "This preset keeps the corner it drew, the small corner, on an item's row, where the default system derives the inner corner from the outer one less the inset; whether its original rounds a row so is a fidelity decision for this preset."
+            },
+            "tanrei.comp.search.suggestion.container.shape": {
+              "$value": "{tanrei.sys.shape.corner.small}",
+              "reason": "This preset keeps the corner it drew, the small corner, on a suggestion's highlight, where the default system derives the inner corner from the outer one less the inset; whether its original rounds a row so is a fidelity decision for this preset."
             },
             "tanrei.comp.menu.label.typescale": {
               "$value": "{tanrei.sys.typescale.body-large}",
@@ -4339,6 +4419,10 @@
             "tanrei.comp.tabs.secondary.selected.icon.color": {
               "$value": "{tanrei.sys.color.primary}"
             },
+            "tanrei.comp.popover.close-button.variant": {
+              "$value": 4,
+              "reason": "Apple's popovers and panels close with a bare glyph. Keeps the preset's look; the change to a tonal close button is the default system's."
+            },
             "tanrei.comp.tooltip.motion.show-delay": {
               "$value": "{tanrei.sys.motion.duration.extra-long4}",
               "reason": "Apple's help tags wait about a second before they appear."
@@ -4369,17 +4453,9 @@
             "tanrei.comp.snackbar.action.content.color": {
               "$value": "{tanrei.sys.color.primary}"
             },
-            "tanrei.comp.snackbar.controls.icon.size": {
-              "$value": "{tanrei.sys.icon.small}",
-              "reason": "This preset's own size, small where the default system's is medium."
-            },
             "tanrei.sys.icon.mark.weight": {
               "$value": "{tanrei.sys.icon.weight}",
               "reason": "This preset draws a control's mark at the weight of its icons, lighter than the default system's marks. The pin is an alias, so the marks follow the preset's icon weight; moving it is a fidelity decision for this preset."
-            },
-            "tanrei.comp.snackbar.close.content.color": {
-              "$value": "{tanrei.sys.color.on-surface-variant}",
-              "reason": "On the light banner the default's inverse-on-surface close glyph would vanish."
             },
             "tanrei.comp.dialog.container.color": {
               "$value": "{tanrei.sys.color.surface-container-high}"
@@ -4419,6 +4495,10 @@
             "tanrei.comp.side-sheet.actions.gap": {
               "$value": "{tanrei.sys.space.space100}",
               "reason": "Matches this preset's dialog actions (8)."
+            },
+            "tanrei.comp.image-preview.bar.button.variant": {
+              "$value": 4,
+              "reason": "Apple's photo viewer draws its bar controls as bare glyphs. Keeps the preset's look; the change to tonal controls is the default system's."
             },
             "tanrei.comp.dialog.compact.window-width": {
               "$value": "{tanrei.sys.space.space0}",
@@ -4510,8 +4590,12 @@
               "reason": "Apple's tab bar draws no shape around a tab; its content keeps the tab bar's spacing."
             },
             "tanrei.comp.navigation-bar.item.icon-indicator.height": {
-              "$value": "{tanrei.comp.navigation-bar.item.container.height}",
-              "reason": "Keeps the glyph's place and its distance to the title as they were."
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 8
+              },
+              "reason": "The glyph sits in a box 32 high, which sets its place in the bar and its distance to the title."
             },
             "tanrei.comp.navigation-bar.filled-selected.item.container.color": {
               "$value": {
@@ -4558,28 +4642,6 @@
               "$value": "{tanrei.comp.navigation-bar.filled-selected.item.label.color}",
               "reason": "Apple's tab bar draws no shape over a tab, so the covered copy keeps the color of what it covers."
             },
-            "tanrei.comp.navigation-rail.selected.item.container.color": {
-              "$value": {
-                "colorSpace": "srgb",
-                "components": [
-                  0,
-                  0,
-                  0
-                ],
-                "alpha": 0,
-                "hex": "#000000"
-              },
-              "reason": "iPadOS has no rail; like Apple's tab bar, the preset marks the current destination by its tint, not by a shape."
-            },
-            "tanrei.comp.navigation-rail.selected.item.icon.color": {
-              "$value": "{tanrei.sys.color.primary}"
-            },
-            "tanrei.comp.navigation-rail.selected.item.label.color": {
-              "$value": "{tanrei.sys.color.primary}"
-            },
-            "tanrei.comp.navigation-rail.item.label.typescale": {
-              "$value": "{tanrei.sys.typescale.caption}"
-            },
             "tanrei.comp.navigation-drawer.container.color.standard": {
               "$value": "{tanrei.sys.color.surface-container-low}"
             },
@@ -4601,9 +4663,6 @@
               "$value": "{tanrei.sys.color.on-primary}"
             },
             "tanrei.comp.navigation-drawer.selected.item.label.color": {
-              "$value": "{tanrei.sys.color.on-primary}"
-            },
-            "tanrei.comp.navigation-drawer.selected.item.badge.color": {
               "$value": "{tanrei.sys.color.on-primary}"
             },
             "tanrei.comp.navigation-drawer.unselected.item.icon.color": {
@@ -4792,22 +4851,6 @@
             },
             "tanrei.comp.button-with-menu.outlined.label.color": {
               "$value": "{tanrei.sys.color.primary}"
-            },
-            "tanrei.comp.fab-menu.container.shape.small": {
-              "$value": "{tanrei.sys.shape.corner.full}"
-            },
-            "tanrei.comp.fab-menu.container.shape.medium": {
-              "$value": "{tanrei.sys.shape.corner.full}"
-            },
-            "tanrei.comp.fab-menu.container.shape.large": {
-              "$value": "{tanrei.sys.shape.corner.full}"
-            },
-            "tanrei.comp.fab-menu.item.shape": {
-              "$value": "{tanrei.sys.shape.corner.full}"
-            },
-            "tanrei.comp.fab-menu.item.label.typescale": {
-              "$value": "{tanrei.sys.typescale.body-large}",
-              "reason": "Apple's Body (17pt) for a menu of actions."
             },
             "tanrei.comp.toolbar.container.color.docked": {
               "$value": "{tanrei.sys.color.surface-container-low}",
@@ -5034,6 +5077,10 @@
               "$value": 1,
               "reason": "Apple's graphical date picker pages its months sideways, with chevrons at the end of the month row."
             },
+            "tanrei.comp.callout.close-button.variant": {
+              "$value": 4,
+              "reason": "Keeps the bare close glyph this preset draws on a notice; the change to a tonal close button is the default system's."
+            },
             "tanrei.comp.date-time-picker.time.entry-modes": {
               "$value": 1,
               "reason": "Apple's time picker is a set of wheels."
@@ -5167,10 +5214,6 @@
               "$value": "{tanrei.sys.icon.small}",
               "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.fab-menu.icon.size.large": {
-              "$value": "{tanrei.sys.icon.medium}",
-              "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."
-            },
             "tanrei.comp.button.icon.size-without-label.medium": {
               "$value": "{tanrei.sys.icon.small}",
               "reason": "The glyph this preset draws in Button's icon-only form, smaller than the default system's; moving it is a fidelity decision for this preset."
@@ -5235,19 +5278,31 @@
               "$value": 1,
               "reason": "Apple's radio fills are opaque."
             },
-            "tanrei.comp.menu.leading-icon.size": {
+            "tanrei.comp.menu.leading-icon.size.regular": {
               "$value": "{tanrei.sys.icon.extra-small}",
               "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.menu.mark.size": {
+            "tanrei.comp.menu.mark.size.regular": {
               "$value": "{tanrei.sys.icon.extra-small}",
               "reason": "This preset's own size for the menu's check, which is not the default system's glyph size; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.menu.trailing-icon.size": {
+            "tanrei.comp.menu.trailing-icon.size.regular": {
               "$value": "{tanrei.sys.icon.extra-small}",
               "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.menu.container.height": {
+            "tanrei.comp.menu.leading-icon.size.compact": {
+              "$value": "{tanrei.sys.icon.extra-small}",
+              "reason": "A compact row keeps this preset's glyph size: its regular glyph is already the smaller one, and a compact row draws no larger glyph than a regular one."
+            },
+            "tanrei.comp.menu.mark.size.compact": {
+              "$value": "{tanrei.sys.icon.extra-small}",
+              "reason": "A compact row keeps this preset's check size: its regular check is already the smaller one, and a compact row draws no larger mark than a regular one."
+            },
+            "tanrei.comp.menu.trailing-icon.size.compact": {
+              "$value": "{tanrei.sys.icon.extra-small}",
+              "reason": "A compact row keeps this preset's glyph size: its regular glyph is already the smaller one, and a compact row draws no larger glyph than a regular one."
+            },
+            "tanrei.comp.menu.container.height.regular": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
@@ -5263,7 +5318,7 @@
               "$value": "{tanrei.sys.icon.small}",
               "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.search.suggestion.leading-icon.size": {
+            "tanrei.comp.search.suggestion.leading-icon.size.regular": {
               "$value": "{tanrei.sys.icon.small}",
               "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."
             },
@@ -5275,7 +5330,7 @@
               },
               "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.search.suggestion.container.height": {
+            "tanrei.comp.search.suggestion.container.height.regular": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
@@ -5283,11 +5338,11 @@
               },
               "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.search.suggestion.container.padding-inline": {
+            "tanrei.comp.search.suggestion.container.padding-inline.regular": {
               "$value": "{tanrei.sys.space.space150}",
               "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.search.suggestion.container.gap": {
+            "tanrei.comp.search.suggestion.container.gap.regular": {
               "$value": "{tanrei.sys.space.space150}",
               "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
             },
@@ -5658,21 +5713,9 @@
               "$value": "{tanrei.sys.color.success-container}",
               "reason": "This preset's own action label color; the default system's takes it from the bar's text."
             },
-            "tanrei.comp.snackbar.close.inverse-info.content.color": {
-              "$value": "{tanrei.sys.color.on-info}",
-              "reason": "What this preset draws on its inverse filled status bar; the default system's bar is a quiet tint."
-            },
-            "tanrei.comp.snackbar.close.inverse-warning.content.color": {
-              "$value": "{tanrei.sys.color.on-warning}",
-              "reason": "What this preset draws on its inverse filled status bar; the default system's bar is a quiet tint."
-            },
-            "tanrei.comp.snackbar.close.inverse-error.content.color": {
-              "$value": "{tanrei.sys.color.on-error}",
-              "reason": "What this preset draws on its inverse filled status bar; the default system's bar is a quiet tint."
-            },
-            "tanrei.comp.snackbar.close.inverse-success.content.color": {
-              "$value": "{tanrei.sys.color.on-success}",
-              "reason": "What this preset draws on its inverse filled status bar; the default system's bar is a quiet tint."
+            "tanrei.comp.snackbar.close-button.variant": {
+              "$value": 4,
+              "reason": "The close and expand glyphs stand bare on this preset's banner, as a text Button with an icon only; the default system's are tonal."
             },
             "tanrei.comp.snackbar.action.tonal-layer.opacity": {
               "$value": 0,
@@ -5781,6 +5824,10 @@
               "$value": "{tanrei.sys.shape.corner.extra-large}",
               "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.surface.shape."
             },
+            "tanrei.comp.select.option.shape": {
+              "$value": "{tanrei.sys.shape.corner.small}",
+              "reason": "This preset keeps the corner it drew, the small corner, on an option's row, where the default system derives the inner corner from the outer one less the inset; whether its original rounds a row so is a fidelity decision for this preset."
+            },
             "tanrei.comp.select.option.label.typescale": {
               "$value": "{tanrei.sys.typescale.body-large}",
               "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.label.typescale: Apple's menu items are set in Body (17pt), which is body-large here."
@@ -5801,21 +5848,21 @@
               "$value": "{tanrei.sys.space.space0}",
               "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.divider.space."
             },
-            "tanrei.comp.select.option.leading-icon.size": {
+            "tanrei.comp.select.option.leading-icon.size.regular": {
               "$value": "{tanrei.sys.icon.extra-small}",
-              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.leading-icon.size: This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."
+              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.leading-icon.size.regular: This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.select.option.mark.size": {
+            "tanrei.comp.select.option.mark.size.regular": {
               "$value": "{tanrei.sys.icon.extra-small}",
-              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.mark.size: This preset's own size for the menu's check, which is not the default system's glyph size; moving it is a fidelity decision for this preset."
+              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.mark.size.regular: This preset's own size for the menu's check, which is not the default system's glyph size; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.select.option.height": {
+            "tanrei.comp.select.option.height.regular": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 11
               },
-              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.container.height: This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
+              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.container.height.regular: This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
             },
             "tanrei.comp.select.stacked.selected-option.container.color": {
               "$value": "{tanrei.comp.select.stacked.option.container.color}",
@@ -5897,6 +5944,10 @@
               "$value": "{tanrei.sys.shape.corner.extra-large}",
               "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.surface.shape."
             },
+            "tanrei.comp.combobox.option.shape": {
+              "$value": "{tanrei.sys.shape.corner.small}",
+              "reason": "This preset keeps the corner it drew, the small corner, on an option's row, where the default system derives the inner corner from the outer one less the inset; whether its original rounds a row so is a fidelity decision for this preset."
+            },
             "tanrei.comp.combobox.option.label.typescale": {
               "$value": "{tanrei.sys.typescale.body-large}",
               "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.label.typescale: Apple's menu items are set in Body (17pt), which is body-large here."
@@ -5917,21 +5968,21 @@
               "$value": "{tanrei.sys.space.space0}",
               "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.divider.space."
             },
-            "tanrei.comp.combobox.option.leading-icon.size": {
+            "tanrei.comp.combobox.option.leading-icon.size.regular": {
               "$value": "{tanrei.sys.icon.extra-small}",
-              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.leading-icon.size: This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."
+              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.leading-icon.size.regular: This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.combobox.option.mark.size": {
+            "tanrei.comp.combobox.option.mark.size.regular": {
               "$value": "{tanrei.sys.icon.extra-small}",
-              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.mark.size: This preset's own size for the menu's check, which is not the default system's glyph size; moving it is a fidelity decision for this preset."
+              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.mark.size.regular: This preset's own size for the menu's check, which is not the default system's glyph size; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.combobox.option.height": {
+            "tanrei.comp.combobox.option.height.regular": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 11
               },
-              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.container.height: This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
+              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.container.height.regular: This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
             },
             "tanrei.comp.combobox.stacked.selected-option.container.color": {
               "$value": "{tanrei.comp.combobox.stacked.option.container.color}",
@@ -6087,16 +6138,6 @@
               "reason": "No hover on Apple platforms."
             },
             {
-              "match": "tanrei.comp.fab-menu.*.hovered.container.elevation",
-              "$value": "{tanrei.comp.fab-menu.$1.container.elevation}",
-              "reason": "Apple platforms have no hover lift."
-            },
-            {
-              "match": "tanrei.comp.fab-menu.*.hovered.open.container.elevation",
-              "$value": "{tanrei.comp.fab-menu.$1.open.container.elevation}",
-              "reason": "Apple platforms have no hover lift."
-            },
-            {
               "match": "tanrei.comp.search.*.focused.outline.color",
               "$value": "{tanrei.comp.search.$1.outline.color}",
               "reason": "An iOS search field shows focus by its caret and the keyboard, not by an edge."
@@ -6111,11 +6152,12 @@
       "$description": "Dials: the few numbers a whole system is derived from. Change one and every token derived from it follows on every platform; tokens marked fixed do not. Color seeds are not dials — they are palette declarations in tokens/systems/.",
       "$extensions": {
         "dev.tanrei.llm": {
-          "usage": "Seven numbers the whole system is derived from. To make everything larger, roomier, rounder, bolder or slower, change a dial in your layer file instead of editing the tokens derived from it.",
+          "usage": "Eight numbers the whole system is derived from. To make everything larger, roomier, denser, rounder, bolder or slower, change a dial in your layer file instead of editing the tokens derived from it.",
           "rules": [
             "Set a dial with {\"$value\": …, \"reason\": \"…\"} in a layer; never in component code.",
             "A color is not a dial: declare or re-seed a palette under \"palettes\".",
-            "Changing space.unit without size.unit can make controls too small for their padding; the build reports it."
+            "Changing space.unit without size.unit can make controls too small for their padding; the build reports it.",
+            "density is a plain number, 1 by default: below 1 controls and rows are drawn closer, above 1 they get more room. Heights stay on the size unit's grid and never go below sys.target.minimum; it moves heights, block paddings and the gaps between rows only, never text, glyphs, corners or the room across a row."
           ]
         }
       },
@@ -6171,6 +6213,16 @@
               "rationale": "One product sets the scale of control heights, icon sizes and hit targets together.",
               "since": "0.1.0"
             }
+          }
+        }
+      },
+      "density": {
+        "$type": "number",
+        "$value": 1,
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product decides once how much room its controls and rows take around their content: a tool looked through all day draws them closer, a product used mostly by touch gives them more.",
+            "since": "0.1.0"
           }
         }
       },

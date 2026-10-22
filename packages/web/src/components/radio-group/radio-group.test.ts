@@ -1,4 +1,4 @@
-// <tanrei-radio-group>, driven by specs/radio-group.spec.json: every behaviour id (RGP-1…19) is cited by a test title,
+// <tanrei-radio-group>, driven by specs/radio-group.spec.json: every behaviour id (RGP-1…20) is cited by a test title,
 // every fixture has a baseline, and every length and color is read back from the field group's tokens — the radio group
 // has none of its own — never from a number written here.
 //
@@ -199,7 +199,7 @@ test.describe('behavior', () => {
           exported: frame.getAttribute('exportparts'),
           kind: frame.kind,
           spacing: frame.spacing,
-          same: ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'disabled', 'requirement', 'requiredMark', 'requiredText', 'optionalText', 'orientation'].filter((name) => frame[name] !== mine[name]),
+          same: ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'disabled', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText', 'orientation'].filter((name) => frame[name] !== mine[name]),
           slotted: root.querySelector('slot')!.assignedElements().map((child) => child.localName),
         };
       }),
@@ -208,7 +208,7 @@ test.describe('behavior', () => {
     const twin = async (id: string) => {
       await host(page, id).evaluate(async (el) => {
         const other = document.createElement('tanrei-field-group');
-        for (const name of ['label', 'supporting-text', 'error-text', 'requirement', 'required-mark', 'required-text', 'optional-text', 'error']) if (el.hasAttribute(name)) other.setAttribute(name, el.getAttribute(name)!);
+        for (const name of ['label', 'supporting-text', 'error-text', 'required', 'optional', 'required-mark', 'required-text', 'optional-text', 'error']) if (el.hasAttribute(name)) other.setAttribute(name, el.getAttribute(name)!);
         other.style.inlineSize = '320px';
         other.id = `twin-${el.parentElement!.dataset.fixture}`;
         for (const child of el.children) {
@@ -291,7 +291,7 @@ test.describe('behavior', () => {
 
   test('RGP-1: a required set draws the mark requiredMark names — the tag, the asterisk after the label’s text in the asterisk color, or nothing — and under auto the one comp.field-group.requirement.mark names, which follows sys.behavior.requirement-mark, the system’s one answer for every field and every set; whichever mark is drawn, and with no drawn label, the group is exposed as required', async ({ page }) => {
     const marks = ['auto', 'tag', 'asterisk', 'none'] as const;
-    await mount(page, [...marks.map((mark) => fx(mark, { requirement: 'required', requiredMark: mark })), fx('hidden', { labelHidden: true, requirement: 'required' })]);
+    await mount(page, [...marks.map((mark) => fx(mark, { required: true, requiredMark: mark })), fx('hidden', { labelHidden: true, required: true })]);
     const drawn = async (id: string) => ({
       tag: (await part(page, id, '.required-tag').count()) > 0 && (await part(page, id, '.required-tag').isVisible()),
       asterisk: (await part(page, id, '.asterisk').count()) > 0 && (await part(page, id, '.asterisk').isVisible()),
@@ -504,7 +504,7 @@ test.describe('behavior', () => {
   test('RGP-6: exactly one radio button is in the focus order — the selected one while it is enabled, otherwise the first enabled one; Tab and Shift+Tab enter the group there from either side and leave it from whichever has focus; the group is not a stop, and a press on its label, its mark, its description or its error text does nothing; the stop changing under the focus leaves focus where it is; with no enabled radio button there is no stop', async ({ page }) => {
     await mount(page, [
       fx('none', {}),
-      fx('third', { value: 'pickup', requirement: 'required', supportingText: 'Help.', error: true, errorText: 'Wrong.' }),
+      fx('third', { value: 'pickup', required: true, supportingText: 'Help.', error: true, errorText: 'Wrong.' }),
       fx('selected-disabled', { value: 'standard' }, [radio('standard', 'Standard', { disabled: true }), radio('express', 'Express'), radio('pickup', 'Pick up')]),
       fx('all-disabled', { value: 'express' }, [radio('standard', 'Standard', { disabled: true }), radio('express', 'Express', { disabled: true })]),
     ]);
@@ -592,7 +592,7 @@ test.describe('behavior', () => {
   });
 
   test('RGP-8: requirement asks and never puts the group in error; error draws errorText and the error parts of the frame, exposes the group as invalid and draws every enabled radio button in the error form of its condition — a disabled one as out of error, and none exposed as invalid; an error that appears, or changes its words, while focus is on a radio button is announced once, politely, without moving focus; a change of value does not clear the error', async ({ page }) => {
-    await mount(page, [...spec.fixtures.filter((f) => ['required-error', 'error-selected', 'none-selected', 'supporting', 'error-one-disabled', 'one-disabled'].includes(f.id)), fx('a', { requirement: 'required', supportingText: 'Help.' }), fx('b', {})]);
+    await mount(page, [...spec.fixtures.filter((f) => ['required-error', 'error-selected', 'none-selected', 'supporting', 'error-one-disabled', 'one-disabled'].includes(f.id)), fx('a', { required: true, supportingText: 'Help.' }), fx('b', {})]);
     // A required group with no answer is not in error by itself.
     expect(await host(page, 'a').evaluate((el) => [(el as HTMLElement & { error: boolean }).error, el.hasAttribute('error')])).toEqual([false, false]);
     await expect(part(page, 'a', '.error-text')).toHaveCount(0);
@@ -667,7 +667,7 @@ test.describe('behavior', () => {
     await form(
       page,
       `<tanrei-radio-group id="g" label="Delivery" name="delivery" value="express">${DELIVERY.replaceAll('<tanrei-radio-button ', '<tanrei-radio-button name="option" ')}</tanrei-radio-group>
-       <fieldset id="set"><tanrei-radio-group id="inner" label="Size" name="size" value="m" requirement="required"><tanrei-radio-button value="s" label="Small"></tanrei-radio-button><tanrei-radio-button value="m" label="Medium" checked></tanrei-radio-button></tanrei-radio-group></fieldset>
+       <fieldset id="set"><tanrei-radio-group id="inner" label="Size" name="size" value="m" required><tanrei-radio-button value="s" label="Small"></tanrei-radio-button><tanrei-radio-button value="m" label="Medium" checked></tanrei-radio-button></tanrei-radio-group></fieldset>
        <button id="submit">Send</button>`,
     );
     const g = page.locator('#g');
@@ -726,12 +726,12 @@ test.describe('behavior', () => {
     expect(await g.evaluate((el) => (el as HTMLElement & { value: string }).value)).toBe('');
   });
 
-  test('RGP-9: the value is the group’s — it is still submitted while the radio button of that value is one the product disabled by itself (RGP-7), and not while the group is disabled; a group that was disabled, required and unanswered reports the missing value again once it is enabled, anchored on the radio button that is then the stop; RGP-7: the group has no read-only state', async ({ page }) => {
+  test('RGP-9: the value is the group’s — it is still submitted while the radio button of that value is one the product disabled by itself (RGP-7), and not while the group is disabled; a group that was disabled, required and unanswered reports the missing value again once it is enabled, anchored on the radio button that is then the stop', async ({ page }) => {
     await mountSpec(page, 'default');
     await form(
       page,
       `<tanrei-radio-group id="g" label="Delivery" name="delivery" value="express"><tanrei-radio-button value="standard" label="Standard"></tanrei-radio-button><tanrei-radio-button value="express" label="Express" disabled></tanrei-radio-button></tanrei-radio-group>
-       <tanrei-radio-group id="asked" label="Size" name="size" requirement="required" disabled><tanrei-radio-button value="s" label="Small"></tanrei-radio-button><tanrei-radio-button value="m" label="Medium"></tanrei-radio-button></tanrei-radio-group>`,
+       <tanrei-radio-group id="asked" label="Size" name="size" required disabled><tanrei-radio-button value="s" label="Small"></tanrei-radio-button><tanrei-radio-button value="m" label="Medium"></tanrei-radio-button></tanrei-radio-group>`,
     );
     const [g, asked] = [page.locator('#g'), page.locator('#asked')];
     // A selected radio button disabled by itself: shown selected, out of the focus order, and its value submitted.
@@ -755,8 +755,6 @@ test.describe('behavior', () => {
     expect(await asked.evaluate((el) => (el as HTMLElement & { reportValidity(): boolean }).reportValidity())).toBe(false);
     expect(await page.evaluate(() => (window as unknown as { invalid: string[] }).invalid)).toEqual(['asked']);
     await expect.poll(() => asked.locator('tanrei-radio-button').evaluateAll((all) => all.findIndex((el) => el === document.activeElement || el.matches(':focus-within')))).toBe(0);
-    // No read-only state: neither a property nor an attribute of the group's.
-    expect(await g.evaluate((el) => ['readOnly' in el, 'readonly' in el, (el.constructor as unknown as { observedAttributes: string[] }).observedAttributes.some((name) => /read-?only/i.test(name))])).toEqual([false, false, false]);
   });
 
   test('RGP-6: focus asked of the group itself goes to the radio button that is the stop, and blur() takes it from the one that has it; a page’s label for the group moves focus there; the group is not focusable and does not delegate focus; while no radio button is enabled focus goes nowhere', async ({ page }) => {
@@ -871,9 +869,9 @@ test.describe('behavior', () => {
     expect(await places(page, 'default')).toEqual(['1/3', '2/3', '3/3']);
     expect(await places(page, 'one-disabled')).toEqual(['1/3', '2/3', '3/3']);
     // Each new text is exposed at once.
-    await set(page, 'default', { supportingText: 'Help.', error: true, errorText: 'Wrong.', requirement: 'optional', optionalText: 'If you like' });
+    await set(page, 'default', { supportingText: 'Help.', error: true, errorText: 'Wrong.', required: false, optional: true, optionalText: 'If you like' });
     expect(await group(page, 'default')).toMatchObject({ described: ['Help.', 'Wrong.', 'If you like'], invalid: true, required: false });
-    await set(page, 'default', { requirement: 'required', error: false });
+    await set(page, 'default', { required: true, error: false });
     expect(await group(page, 'default')).toMatchObject({ described: ['Help.'], invalid: false, required: true });
     // Without a label it still renders.
     await expect(options(page, 'nameless')).toHaveCount(3);
@@ -1096,7 +1094,7 @@ test.describe('behavior', () => {
   });
 
   test('RGP-17: the label, the description, the error text and the tag’s text are each text of their own direction, isolated — a left-to-right text keeps its order in a right-to-left layout — and are still placed and aligned by the layout direction', async ({ page }) => {
-    await mount(page, [...spec.fixtures.filter((f) => f.id === 'ltr-label-rtl'), fx('error', { label: 'Wi-Fi 6E', requirement: 'required', error: true, errorText: 'Choose 1 band, at least.' }, THREE, { direction: 'rtl' })]);
+    await mount(page, [...spec.fixtures.filter((f) => f.id === 'ltr-label-rtl'), fx('error', { label: 'Wi-Fi 6E', required: true, error: true, errorText: 'Choose 1 band, at least.' }, THREE, { direction: 'rtl' })]);
     const id = 'ltr-label-rtl';
     for (const [fixture, selector] of [
       [id, '.label'],
@@ -1130,13 +1128,9 @@ test.describe('behavior', () => {
     expect(await part(page, 'error', '.required-tag').locator('.label').evaluate((el) => [getComputedStyle(el).unicodeBidi, el.getAttribute('dir')])).toEqual(['plaintext', 'auto']);
   });
 
-  test('RGP-18: a requirement the group does not know behaves as none — for the form’s validation too; an unknown requiredMark or orientation renders with its default (auto, vertical); each is reported once in debug builds, by the field group, as it does (FGR-22)', async ({ page }) => {
+  test('RGP-18: an unknown requiredMark or orientation renders with its default (auto, vertical); each is reported once in debug builds, by the field group, as it does (FGR-22)', async ({ page }) => {
     const seen = warnings(page);
-    await mount(page, [fx('requirement', { requirement: 'mandatory' }), fx('mark', { requirement: 'required', requiredMark: 'star' }), fx('orientation', { orientation: 'diagonal' }), fx('default', {})]);
-    await expect(part(page, 'requirement', '.requirement-tag, .asterisk')).toHaveCount(0);
-    expect(await group(page, 'requirement')).toMatchObject({ required: false, described: [] });
-    await form(page, `<tanrei-radio-group id="g" label="Delivery" name="delivery" requirement="mandatory">${DELIVERY}</tanrei-radio-group>`);
-    expect(await page.evaluate(() => document.querySelector<HTMLFormElement>('#form')!.checkValidity()), 'an unknown requirement asks nothing').toBe(true);
+    await mount(page, [fx('mark', { required: true, requiredMark: 'star' }), fx('orientation', { orientation: 'diagonal' }), fx('default', {})]);
     await expect(part(page, 'mark', '.required-tag')).toBeVisible();
     await expect(part(page, 'mark', '.asterisk')).toBeHidden();
     expect((await group(page, 'mark')).required).toBe(true);
@@ -1145,7 +1139,6 @@ test.describe('behavior', () => {
     // Reported once for each element, by the field group inside it; the radio group says nothing of its own.
     const reports = seen.filter((w) => w.includes('FGR-22') && w.includes('<tanrei-field-group>'));
     expect(seen.filter((w) => w.includes('<tanrei-radio-group>'))).toEqual([]);
-    expect(reports.filter((w) => w.includes('requirement "mandatory"'))).toHaveLength(2);
     expect(reports.filter((w) => w.includes('requiredMark "star"'))).toHaveLength(1);
     expect(reports.filter((w) => w.includes('orientation "diagonal"'))).toHaveLength(1);
   });
@@ -1154,12 +1147,12 @@ test.describe('behavior', () => {
     const seen = warnings(page);
     const bare = (id: string, props: Fixture['props']): Fixture => ({ id, props: { label: 'Delivery', ...props }, items: THREE });
     await mount(page, [
-      bare('auto', { requirement: 'required' }),
-      bare('tag', { requirement: 'required', requiredMark: 'tag' }),
-      bare('none', { requirement: 'required', requiredMark: 'none' }),
-      bare('optional', { requirement: 'optional', supportingText: 'Help.' }),
-      bare('own', { requirement: 'required', requiredText: 'Needed' }),
-      bare('own-optional', { requirement: 'optional', optionalText: 'If you like' }),
+      bare('auto', { required: true }),
+      bare('tag', { required: true, requiredMark: 'tag' }),
+      bare('none', { required: true, requiredMark: 'none' }),
+      bare('optional', { required: false, optional: true, supportingText: 'Help.' }),
+      bare('own', { required: true, requiredText: 'Needed' }),
+      bare('own-optional', { required: false, optional: true, optionalText: 'If you like' }),
     ]);
     const drawn = async (id: string) => ({
       tag: (await part(page, id, '.requirement-tag').count()) > 0 && (await part(page, id, '.requirement-tag').isVisible()) ? await part(page, id, '.requirement-tag').getAttribute('label') : null,
@@ -1200,6 +1193,67 @@ test.describe('behavior', () => {
   });
 });
 
+test.describe('read-only', () => {
+  test('RGP-20: a read-only group is entered at its selected radio button; the arrow keys move focus among the enabled ones and select nothing; a click on a radio button or its label, Space and element.click() select nothing; the group emits nothing and keeps value', async ({ page }) => {
+    await mount(page, [fx('ro', { readOnly: true, value: 'express' }, [radio('standard', 'Standard'), radio('express', 'Express'), radio('pickup', 'Pick up'), radio('later', 'Later', { disabled: true })])]);
+    const id = 'ro';
+    await listen(page, id);
+    expect(await stops(page, id)).toEqual([false, true, false, false]);
+    await tabTo(page, option(page, id, 1));
+    expect(await focused(page, id)).toBe(1);
+    await page.keyboard.press('ArrowDown');
+    expect(await focused(page, id)).toBe(2);
+    await page.keyboard.press('ArrowDown'); // the disabled one is passed over, and the keys wrap
+    expect(await focused(page, id)).toBe(0);
+    await page.keyboard.press('ArrowUp');
+    expect(await focused(page, id)).toBe(2);
+    await page.keyboard.press('Space');
+    await option(page, id, 0).locator('.container').click();
+    await option(page, id, 0).locator('.label').click();
+    await option(page, id, 2).evaluate((el) => (el as HTMLElement).click());
+    await settled(page, id);
+    expect([await value(page, id), await checked(page, id), await heard(page, '')]).toEqual(['express', [false, true, false, false], []]);
+    // The stop is still the selected one: Tab out and back lands there.
+    await page.locator('body').click({ position: { x: 1, y: 1 } });
+    await tabTo(page, option(page, id, 1));
+    expect(await focused(page, id)).toBe(1);
+  });
+
+  test('RGP-20: it is exposed as read-only beside its other states, and each radio button as an enabled radio with its checked state; its frame and radio buttons are drawn from their enabled tokens; disabled wins over read-only', async ({ page }) => {
+    await mount(page, [fx('ro', { readOnly: true, value: 'express', required: true, supportingText: 'You can change this until the order ships.' }), fx('both', { readOnly: true, disabled: true, value: 'express' })]);
+    await expect(host(page, 'ro').locator('[role="radiogroup"]')).toHaveAttribute('aria-readonly', 'true');
+    expect(await group(page, 'ro')).toMatchObject({ required: true, disabled: false });
+    // aria-readonly is a state of the radiogroup role: nothing for the accessibility checks to report.
+    const results = await new AxeBuilder({ page }).include('.stage').analyze();
+    expect(results.violations.map((v) => v.id)).toEqual([]);
+    await expect(options(page, 'ro').nth(1).getByRole('radio', { checked: true, disabled: false })).toHaveCount(1);
+    expect(await options(page, 'ro').evaluateAll((all) => all.map((el) => [el.hasAttribute('readonly'), el.shadowRoot!.querySelector('.root')!.hasAttribute('data-readonly')]))).toEqual([[false, true], [false, true], [false, true]]);
+    expect(await css(part(page, 'ro', '.label'), 'color')).toBe(await color(page, 'standard-label-color'));
+    expect(await css(part(page, 'ro', '.label'), 'color')).not.toBe(await color(page, 'standard-disabled-label-color'));
+    expect(await css(part(page, 'ro', '.supporting-text'), 'color')).toBe(await color(page, 'standard-supporting-text-color'));
+    await expect(host(page, 'both').locator('[role="radiogroup"]')).not.toHaveAttribute('aria-readonly');
+    expect((await group(page, 'both')).disabled).toBe(true);
+    expect(await stops(page, 'both')).toEqual([false, false, false]);
+    // Taken back: the attribute goes, the radio buttons are their own again, and an arrow key selects.
+    await set(page, 'ro', { readOnly: false });
+    await expect(host(page, 'ro').locator('[role="radiogroup"]')).not.toHaveAttribute('aria-readonly');
+    await tabTo(page, option(page, 'ro', 1));
+    await page.keyboard.press('ArrowDown');
+    await settled(page, 'ro');
+    expect(await value(page, 'ro')).toBe('pickup');
+  });
+
+  test('RGP-20: a read-only group is submitted with its form, and a required one left empty reports no missing value', async ({ page }) => {
+    await mountSpec(page, 'default');
+    await form(page, `<tanrei-radio-group id="g" label="Delivery" name="delivery" value="express" readonly>${DELIVERY}</tanrei-radio-group><tanrei-radio-group id="asked" label="Size" name="size" required readonly>${DELIVERY}</tanrei-radio-group>`);
+    expect(await entries(page)).toEqual(['delivery=express']);
+    const valid = () => page.evaluate(() => document.querySelector<HTMLFormElement>('#form')!.checkValidity());
+    expect(await valid()).toBe(true);
+    await page.locator('#asked').evaluate((el) => ((el as HTMLElement & { readOnly: boolean }).readOnly = false));
+    await expect.poll(valid).toBe(false);
+  });
+});
+
 test.describe('accessibility', () => {
   test('no axe violations in light and dark', async ({ page }) => {
     for (const theme of ['light', 'dark'] as const) {
@@ -1211,8 +1265,8 @@ test.describe('accessibility', () => {
 
   test('no axe violations with a group that is disabled and in error, one inside a field group, and one in a form', async ({ page }) => {
     for (const theme of ['light', 'dark'] as const) {
-      await mount(page, [fx('disabled-error', { disabled: true, error: true, errorText: 'Choose one.', requirement: 'required', requiredMark: 'asterisk' }), fx('hidden', { labelHidden: true, requirement: 'optional' })], { theme });
-      await form(page, `<tanrei-field-group label="Shipping" spacing="fields"><tanrei-text-field label="Street"></tanrei-text-field><tanrei-radio-group label="Delivery" name="delivery" requirement="required" supporting-text="Help.">${DELIVERY}</tanrei-radio-group></tanrei-field-group>`);
+      await mount(page, [fx('disabled-error', { disabled: true, error: true, errorText: 'Choose one.', required: true, requiredMark: 'asterisk' }), fx('hidden', { labelHidden: true, required: false, optional: true })], { theme });
+      await form(page, `<tanrei-field-group label="Shipping" spacing="fields"><tanrei-text-field label="Street"></tanrei-text-field><tanrei-radio-group label="Delivery" name="delivery" required supporting-text="Help.">${DELIVERY}</tanrei-radio-group></tanrei-field-group>`);
       const results = await new AxeBuilder({ page }).include('main').analyze();
       expect(results.violations, theme).toEqual([]);
     }
@@ -1246,7 +1300,7 @@ test.describe('accessibility', () => {
     expect((await whole('default'))[0]).toMatch(/^generic ""( invalid=false)?$/);
     expect((await whole('disabled'))[0]).toMatch(/^radiogroup /);
     // A state set later reaches the tree at once.
-    await set(page, 'default', { error: true, errorText: 'Choose another.', requirement: 'required', value: 'pickup' });
+    await set(page, 'default', { error: true, errorText: 'Choose another.', required: true, value: 'pickup' });
     const later = await tree('default');
     expect(later[0]).toBe('radiogroup "Delivery" (Choose another.) invalid=true orientation=vertical required=true');
     expect(later.slice(1).map((line) => /checked=(\w+)/.exec(line)![1])).toEqual(['false', 'false', 'true']);
@@ -1271,7 +1325,7 @@ test.describe('fixtures', () => {
       expect(await part(page, f.id, '.label').count(), `${f.id} label`).toBe(labelled ? 1 : 0);
       if (labelled) await expect(part(page, f.id, '.label'), f.id).toContainText(String(f.props.label));
       expect((await group(page, f.id)).name, f.id).toBe(String(f.props.label));
-      const requirement = f.props.requirement ?? 'none';
+      const requirement = f.props.required ? 'required' : f.props.optional ? 'optional' : 'none';
       const tag = labelled && (requirement === 'optional' || (requirement === 'required' && (f.props.requiredMark ?? 'auto') !== 'asterisk'));
       expect(await part(page, f.id, '.requirement-tag').count(), `${f.id} tag`).toBe(tag ? 1 : 0);
       expect(await part(page, f.id, '.supporting-text').count(), `${f.id} description`).toBe(f.props.supportingText ? 1 : 0);

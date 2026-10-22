@@ -2,7 +2,7 @@
 title: Subida de archivos
 description: Permite elegir archivos con un selector de archivos y muestra lo elegido como elementos de archivo, en una columna de filas o en una tira de mosaicos. Colocado en un formulario, conserva los archivos elegidos y los envía sin código; un producto que envía los archivos por su cuenta da los elementos de archivo. Nunca sube nada por sí mismo.
 translationOf: components/file-upload.mdx
-sourceHash: 67264060c8d6ff2b2e7ccea18067fef9dac9238e
+sourceHash: b2debb12c2d70ab0dd1bea4e0b4c51c55b599528
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -402,7 +402,7 @@ Con `rows="given"`, cada fila es un [elemento de archivo](/es/components/file-it
 Pon el control de subida en un [campo](/es/components/field/) cuando el formulario muestre una etiqueta, una ayuda, un error o una marca de obligatorio. El campo los dibuja y se los da al control de subida.
 
 ```html
-<tanrei-field label="Archivo adjunto" requirement="required" required-text="Obligatorio"
+<tanrei-field label="Archivo adjunto" required required-text="Obligatorio"
               error error-text="Elige un PDF de 10 MB como máximo.">
   <tanrei-file-upload name="attachment" accept=".pdf" max-size="10000000"
                       constraints-text="PDF, hasta 10 MB" remove-label="Quitar {name}">

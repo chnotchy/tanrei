@@ -3,16 +3,17 @@
 // @tanrei/tokens-build — the same code `tanrei build` runs — so the server can never disagree with a build.
 import fs from 'node:fs';
 import path from 'node:path';
-import { AXES, STATES, collectVocabulary as engineCollectVocabulary, dependencyIndex, expandStateVocabulary, listExtensions, materializeVocabulary, walkTokens } from '@tanrei/token-engine';
-import { listSystems, validateLayerFile } from '@tanrei/tokens-build/bundle';
+import { AXES, STATES, collectVocabulary as engineCollectVocabulary, dependencyIndex, expandStateVocabulary, isHeldDocument, listExtensions, materializeVocabulary, walkTokens } from '@tanrei/token-engine';
+import { DEFAULT_SYSTEM, ROOT_SYSTEM, listSystems, shippedSystems as systemsOffered, validateLayerFile } from '@tanrei/tokens-build/bundle';
 import { CONFIG, REPO_ROOT } from '@tanrei/tokens-build/model';
 // resolve.js is the pipeline without the platform emitters: layers → bundle → DTCG resolver → model, all in memory.
 import { chainDigest, readSystemChain, resolveChainByScheme, systemIdOf, validateSystem } from '@tanrei/tokens-build/resolve';
-import { SCHEMES, loadSystem, sourceFiles, vocabularyDigest } from '@tanrei/tokens-build/scheme';
+import { SCHEMES, heldDocuments, loadSystem, sourceFiles, vocabularyDigest } from '@tanrei/tokens-build/scheme';
 
 export { CONFIG, REPO_ROOT, SCHEMES };
 export const NS = CONFIG.namespace;
-export const ROOT_SYSTEM = NS;
+// The root layer every chain starts from, and the default system — the one a tool reads when it is named no system.
+export { DEFAULT_SYSTEM, ROOT_SYSTEM };
 export const VOCABULARY = 'dev.tanrei.vocabulary';
 export const LLM = 'dev.tanrei.llm';
 export const DERIVE = 'dev.tanrei.derive';
@@ -25,7 +26,8 @@ export const SEGMENT = /^[a-z0-9][a-z0-9-]*$/;
 export const isPlaceholder = (text) => typeof text === 'string' && /^\s*<[^>]*>\s*$/.test(text);
 const clone = (value) => JSON.parse(JSON.stringify(value));
 // Names come from tanrei.config.json; the engine takes the namespace as a parameter.
-const collectVocabulary = (layers) => engineCollectVocabulary(layers, { namespace: NS });
+// `lend`: a layer a component is included from — one of the chain's, or a shipped one.
+const collectVocabulary = (layers, chain = layers) => engineCollectVocabulary(layers, { namespace: NS, lend: (id) => chain.find((layer) => layer.id === id) ?? (listSystems(REPO_ROOT).includes(id) ? loadSystem(REPO_ROOT, id) : undefined) });
 const LAYER_SUFFIX = '.system.json';
 
 /** An error whose message is meant for the calling agent; `details` travels with it as JSON. */
@@ -36,7 +38,10 @@ export class ToolError extends Error {
   }
 }
 
+/** Every layer that ships in tokens/systems/, the root among them: what a reference may name. */
 export const shippedSystems = () => listSystems(REPO_ROOT);
+/** The systems a product chooses from: every shipped layer but the root, which has no output of its own. */
+export const listedSystems = () => systemsOffered(REPO_ROOT);
 export const shippedLayer = (id) => loadSystem(REPO_ROOT, id);
 export const isRef = (v) => typeof v === 'string' && /^\{[^}]+\}$/.test(v);
 
@@ -64,7 +69,7 @@ export function describeReference({ system, layerFile, layer, parents, dir } = {
     if (!fs.existsSync(file)) throw new ToolError(`${layerFile}: no such file. Pass an absolute path, or one relative to the server's working directory (${process.cwd()}).`);
     return { kind: 'file', file };
   }
-  const id = system ?? ROOT_SYSTEM;
+  const id = system ?? DEFAULT_SYSTEM;
   if (!shippedSystems().includes(id)) throw new ToolError(`"${id}" is not a shipped system. Shipped: ${shippedSystems().join(', ')}. For a product's own system pass "layerFile": the path of its <id>${LAYER_SUFFIX}.`);
   return { kind: 'shipped', id };
 }
@@ -215,6 +220,23 @@ async function withScheme(context, scheme) {
   return ctx;
 }
 
+/**
+ * The layers a reference names, root first, once they pass the checks a build makes first (schema, components): what
+ * the component tools work from — they read a system's choice of components, not its values, so nothing is built.
+ */
+export function readValidLayers(input) {
+  const reference = describeReference(input);
+  let read;
+  try {
+    read = readChain(reference);
+  } catch (error) {
+    throw new ToolError(error.message);
+  }
+  const problems = layerProblems(reference, read);
+  if (problems.length) throw new ToolError(`"${read.id}" is not a valid layer. Fix these first (validate_layer reports the same list):`, { problems });
+  return { reference, id: read.id, chain: read.chain };
+}
+
 /** Build a chain of layers that exists only in memory — what propose_extension does to verify a proposal. */
 export function trialBuild(chain) {
   const layer = chain.at(-1);
@@ -252,6 +274,9 @@ async function assemble(id, chain) {
     extensionOf(token) {
       const own = token.$extensions?.[VOCABULARY];
       if (own?.extension) return { declaredBy: own.declaredBy, rationale: own.rationale };
+      // The tokens of a component that lives in a layer belong to the declaration of its whole vocabulary.
+      const component = extensions.find((e) => e.kind === 'component' && token.id.startsWith(`${e.id}.`));
+      if (component) return { declaredBy: component.declaredBy, rationale: component.rationale, declaredAs: component.id };
       // The per-state tokens of a declared variant are generated by the state engine; they belong to the axis value.
       const axis = axisOf(components, token.id);
       const declaration = axis && extensions.find((e) => e.id === `${axis.id}.${axis.key}`);
@@ -334,7 +359,8 @@ function checkVocabulary(chain, reports) {
     failed.push(id);
     if (reports(layer)) problems.push(`${layer}: vocabulary: ${message}`);
   };
-  const accepted = chain.map((layer) => ({ id: layer.id, vocabulary: {} }));
+  // A component a layer includes from the layer that holds it comes with that layer's `components`.
+  const accepted = chain.map((layer) => ({ id: layer.id, ...(layer.components ? { components: layer.components } : {}), vocabulary: {} }));
   chain.forEach((layer, i) => {
     for (const [id, entry] of Object.entries(layer.vocabulary ?? {})) {
       if (isPlaceholder(entry?.rationale)) {
@@ -342,7 +368,8 @@ function checkVocabulary(chain, reports) {
         continue;
       }
       try {
-        collectVocabulary([...accepted.slice(0, i), { id: layer.id, vocabulary: { ...accepted[i].vocabulary, [id]: entry } }]);
+        // One declaration at a time, against what is accepted before it (an include is judged once, below).
+        collectVocabulary([...accepted.slice(0, i), { ...accepted[i], vocabulary: { ...accepted[i].vocabulary, [id]: entry } }].map(({ components, ...rest }) => rest));
         accepted[i].vocabulary[id] = entry;
       } catch (error) {
         fail(layer.id, id, error.message);
@@ -350,10 +377,18 @@ function checkVocabulary(chain, reports) {
     }
   });
 
-  const docs = clone(sourceFiles(REPO_ROOT));
+  // The core's documents, and those the layers hold: a component this chain has is materialised from its own.
+  const docs = clone({ ...sourceFiles(REPO_ROOT), ...heldDocuments(REPO_ROOT) });
   const known = new Map();
   // Tokens before axis values — the engine's own order: an axis value may be cloned from a step declared alongside it.
-  const declared = Object.entries(collectVocabulary(accepted)).sort(([, a], [, b]) => Number(a.kind === 'axis-value') - Number(b.kind === 'axis-value'));
+  let collected = {};
+  try {
+    collected = collectVocabulary(accepted, chain);
+  } catch (error) {
+    // An include that names a layer which does not hold the component: said once, for the layer that wrote it.
+    fail(chain.at(-1).id, 'components.include', error.message);
+  }
+  const declared = Object.entries(collected).sort(([, a], [, b]) => Number(a.kind === 'axis-value') - Number(b.kind === 'axis-value'));
   for (const [id, declaration] of declared) {
     if (declaration.kind === 'token' && id.startsWith(SYS_COLOR)) known.set(id, 'color'); // valued by the palette engine
     try {
@@ -362,6 +397,8 @@ function checkVocabulary(chain, reports) {
       fail(declaration.declaredBy, id, error.message);
     }
   }
+  // The documents of the components this chain does not have are no part of it.
+  for (const name of Object.keys(docs)) if (isHeldDocument(name)) delete docs[name];
   for (const doc of Object.values(docs)) for (const { id, type } of walkTokens(doc)) known.set(id, type);
   for (const { id, type } of expandStateVocabulary(Object.entries(docs).filter(([name]) => name.startsWith('comp/')).map(([, doc]) => doc))) known.set(id, type);
   return { problems, failed, known };
@@ -431,7 +468,7 @@ export async function validateLayer(input) {
   if (problems.length) return { id: read.id, chain, valid: false, problems };
   try {
     const ctx = await loadContext(input);
-    return { id: read.id, chain, valid: true, problems: [], tokens: Object.keys(ctx.tokens('light')).length, extensions: ctx.extensions.length, ...(ctx.system.notices?.length ? { notices: ctx.system.notices } : {}), warnings: await ctx.warnings() };
+    return { id: read.id, chain, valid: true, problems: [], tokens: Object.keys(ctx.tokens('light')).length, extensions: ctx.extensions.length, warnings: await ctx.warnings() };
   } catch (error) {
     // What only the engine can see: a cycle, an alias to a token that does not exist, a rule the closed language lacks.
     return { id: read.id, chain, valid: false, problems: [error.message, ...(error.details?.problems ?? [])] };

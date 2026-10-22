@@ -108,11 +108,12 @@
           "switch-duration": {
             "$type": "duration",
             "$value": "{tanrei.sys.motion.spring.standard.default-spatial.duration}",
-            "$description": "How long a switch takes when a tab is selected, and how long the rest of it takes after a swipe is released. The tabs' indicator slides over the same default, so the two land together."
+            "$description": "How long a switch takes when a tab is selected, and how long the rest of it takes after a swipe is released. The tabs' indicator slides over the same default, so the two land together.",
+            "$extensions": {}
           },
           "switch-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.spring.standard.default-spatial.easing}",
+            "$value": "{tanrei.sys.motion.easing.spatial}",
             "$description": "The switch's easing. A spatial spring may overshoot; the travel follows it, the fade and the blur stop at their end points."
           },
           "fade-duration": {
@@ -129,7 +130,8 @@
           "fade-easing": {
             "$type": "cubicBezier",
             "$value": "{tanrei.sys.motion.spring.standard.default-effects.easing}",
-            "$description": "The reduced-motion crossfade's easing: an effects curve, which never overshoots."
+            "$description": "The reduced-motion crossfade's easing: the curve of a change of state, which never overshoots.",
+            "$extensions": {}
           }
         }
       }

@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import {
   AvailabilityController,
   DismissController,
@@ -23,25 +23,29 @@ import { FloatingLabelController, floatingAsterisk, floatingLabel, triggerEdges 
 import {
   OPTION_GLYPHS,
   OPTION_GROUP_TAG,
+  OPTION_ICON_SPACES,
   OPTION_MIRRORED,
   OPTION_TAG,
   type OptionData,
+  type OptionIconSpace,
   OptionListController,
   type OptionModel,
   OptionsController,
   anchoredOptionList,
+  optionDensityAxis,
   filterOptions,
 } from '../../primitives/option-list.js';
-import type { TanreiInputBoxSizeRegistry, TanreiInputBoxVariantRegistry } from '../../registry.js';
+import type { TanreiComboboxDensityRegistry, TanreiInputBoxSizeRegistry, TanreiInputBoxVariantRegistry } from '../../registry.js';
 import '../button/button.js';
 import '../loading-indicator/loading-indicator.js';
 import '../option/option.js';
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
 import { takeFormDisabled } from '../../primitives/form-disabled.js';
 import { FormSays } from '../../primitives/form-says.js';
-import { AXES, INSET, styles } from './combobox.styles.js';
+import { AXES, INSET, PREFIX, styles } from './combobox.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The three looks of the input box (`comp.input-box`): a filled box with no label of its own (`stacked`: the label above is its Field's), or the label floating inside a `filled` or `outlined` box. A design system may leave some out or add values. */
 export type TanreiComboboxVariant = keyof TanreiInputBoxVariantRegistry;
@@ -49,6 +53,10 @@ export type TanreiComboboxVariant = keyof TanreiInputBoxVariantRegistry;
 export type TanreiComboboxSize = Exclude<keyof TanreiInputBoxSizeRegistry, 'small'>;
 /** How a group of options is told from what is next to it: the design system's answer (auto), a line, or empty space. */
 export type TanreiComboboxSeparation = SeparationProp;
+/** Whether a shown option keeps the leading icon column where it has no icon (CMB-67). A closed set: the menu's values. */
+export type TanreiComboboxIconSpace = OptionIconSpace;
+/** How much room an option of the list takes (CMB-68): `regular`, `compact`, or a density a design system added. */
+export type TanreiComboboxDensity = keyof TanreiComboboxDensityRegistry;
 /** Who decides which options answer the text: the combobox (`contains`), or the product (`none`). */
 export type TanreiComboboxFilter = 'contains' | 'none';
 /** What the product's source of options is doing. */
@@ -198,7 +206,7 @@ function matchRun(folded: Folded, query: string): [string, string, string] | nul
  * @fires {CustomEvent<TanreiComboboxToggleDetail>} toggle - The list was opened or closed by the person, or closed by having nothing left to show; `open` is already the new one. `detail.open`, and for a close `detail.reason`: `select`, `commit`, `escape`, `outside`, `press`, `tab`, `focus-out`, `anchor-hidden` or `empty`. After a choice it follows `change`. Composed and not bubbling, as the platform's own `toggle`: heard on the element, and on an element composed around it, and by no ancestor. Never fired when the product sets `open`.
  * @fires {CustomEvent<TanreiComboboxChangeDetail>} action - The person pressed Enter with no option active and the text was committed; after any `change` it caused. Cancelable: unless it is cancelled, the form the combobox stands in is then asked to submit.
  */
-export class TanreiCombobox extends LitElement {
+export class TanreiCombobox extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'combobox');
   static override styles = styles;
 
@@ -254,6 +262,8 @@ export class TanreiCombobox extends LitElement {
     statusText: { type: String, attribute: 'status-text' },
     emptyText: { type: String, attribute: 'empty-text' },
     separation: { type: String, reflect: true },
+    iconSpace: { type: String, attribute: 'icon-space', reflect: true },
+    density: { type: String, reflect: true, useDefault: true },
     inline: { type: Boolean, reflect: true },
     hasLeading: { state: true },
     focused: { state: true },
@@ -340,6 +350,22 @@ export class TanreiCombobox extends LitElement {
   /** How a group of options is told from what is next to it: `divider`, `gap`, or `auto` for the design system's answer (`--tanrei-comp-combobox-separation`). */
   separation: TanreiComboboxSeparation = 'auto';
 
+  /**
+   * Whether a shown option keeps the room of the leading icon column where it has no icon, so that the labels of a
+   * section — the shown options of a group, or a run of shown options outside any group — start on one line (CMB-67):
+   * `auto` while another shown option of its section has a `leading-icon` (one the filter hides does not count),
+   * `always` in every option, `never` only where it has one.
+   */
+  iconSpace: TanreiComboboxIconSpace = 'auto';
+
+  /**
+   * How much room an option of the list takes (CMB-68): its least height, paddings, the gap between its columns and the
+   * size of its glyphs, never its text style; the field's own box is size's. `regular` (the default) is for a product
+   * used by touch as well as by pointer; `compact` (the menu's compact row) for a tool used with a pointer. For touch an
+   * option is never lower than the touch target (CMB-34). A design system may add values.
+   */
+  density: TanreiComboboxDensity = 'regular';
+
   /** For tests and fixtures: draws the open list in place below the field — inside its positioned ancestor, which stands for the window — not in the top layer; it then answers no dismissal. */
   inline = false;
 
@@ -378,6 +404,8 @@ export class TanreiCombobox extends LitElement {
 
   /** CMB-56: sizes and variants a design system adds, and a value the active system does not have (src/primitives/axes.ts). */
   private readonly axes = new OpenAxesController(this, { component: 'combobox', behavior: 'CMB-56', axes: AXES });
+  /** CMB-68: a density a design system added is drawn from its tokens; one the active system lacks is reported. */
+  private readonly densities = new OpenAxesController(this, { component: 'combobox-density', behavior: 'CMB-68', axes: [optionDensityAxis(PREFIX)] });
   /** CMB-44: where style queries are missing the system's separation is read by script, again when the system is switched. */
   private readonly system = new SystemWatchController(this);
   /**
@@ -401,6 +429,7 @@ export class TanreiCombobox extends LitElement {
     model: () => this.shown,
     chosen: () => this.chosen,
     choose: (option) => this.choose(option),
+    iconSpace: () => (OPTION_ICON_SPACES.includes(this.iconSpace) ? this.iconSpace : 'auto'),
     // CMB-26: an active option that is no longer shown gives way to what typing would have found.
     replacement: (options) => (this.native.composing ? null : this.found(options)),
   });
@@ -627,10 +656,12 @@ export class TanreiCombobox extends LitElement {
 
   /** Moves focus to the input: the combobox's one stop in the focus order (the clear button, while shown, is the next). */
   override focus(options?: FocusOptions) {
+    if (this.keepFocusUntilRendered(options)) return;
     this.input?.focus(options);
   }
 
   override blur() {
+    this.forgetKeptFocus();
     this.input?.blur();
   }
 
@@ -699,7 +730,7 @@ export class TanreiCombobox extends LitElement {
     // CMB-30: a list with nothing left to show closes with the reason empty, once the text is drawn (updated()).
   }
 
-  private onInput(event: Event) {
+  #onInput(event: Event) {
     if (this.native.composingInput(event)) return;
     const input = event.target as HTMLInputElement;
     this.took(input.value, false);
@@ -807,12 +838,12 @@ export class TanreiCombobox extends LitElement {
 
   // ── CMB-16, CMB-21, CMB-26 … CMB-30: the input's keys ─────────────────────────────────────────────────────────
 
-  private onKeyDown(event: KeyboardEvent) {
+  #onKeyDown(event: KeyboardEvent) {
     if (event.defaultPrevented || this.inert_) return;
     // CMB-16: while an input method composes, every key is its own.
     if (event.isComposing || this.native.composing || event.keyCode === 229) return;
     const { key } = event;
-    // CMB-29: Tab moves focus on; the field marks the press (onFieldKeyDown).
+    // CMB-29: Tab moves focus on; the field marks the press (#onFieldKeyDown).
     if (key === 'Tab') return;
     if (key === 'Enter') {
       this.enter(event);
@@ -883,23 +914,23 @@ export class TanreiCombobox extends LitElement {
     }
   }
 
-  private onFocus() {
+  #onFocus() {
     this.focused = true;
     // CMB-15: where style queries are missing, the focus style is read when focus arrives.
     syncFocusStyle(this, this.renderRoot.querySelector<HTMLElement>('.field'));
   }
 
-  private onBlur() {
+  #onBlur() {
     this.focused = false;
   }
 
   /** CMB-29: every key that goes down in the field — the input's and the clear button's — says whether a Tab is moving focus. */
-  private onFieldKeyDown(event: KeyboardEvent) {
+  #onFieldKeyDown(event: KeyboardEvent) {
     this.tabbing = event.key === 'Tab';
   }
 
   /** CMB-29: a Tab that comes up in the field moved no focus out of it (something cancelled it): it is over. */
-  private onFieldKeyUp(event: KeyboardEvent) {
+  #onFieldKeyUp(event: KeyboardEvent) {
     if (event.key === 'Tab') this.tabbing = false;
   }
 
@@ -908,7 +939,7 @@ export class TanreiCombobox extends LitElement {
    * given up where it names nothing; the active option is not chosen; an open list closes with the reason tab or
    * focus-out. Focus that leaves the window has gone nowhere: nothing is resolved until it goes elsewhere in the page.
    */
-  private onFocusOut(event: FocusEvent) {
+  #onFocusOut(event: FocusEvent) {
     // A Tab's focus move is this one, wherever it goes: within the field, out of the window or elsewhere in the page.
     const tabbed = this.tabbing;
     this.tabbing = false;
@@ -925,7 +956,7 @@ export class TanreiCombobox extends LitElement {
    * else. A press in the input places the caret; the clear button and the chevron answer their own click, and focus
    * stays where it is (the clear button is reached by Tab).
    */
-  private onContainerPress(event: MouseEvent) {
+  #onContainerPress(event: MouseEvent) {
     if (event.button !== 0) return;
     const target = event.target as Element;
     if (target.closest('.input')) return;
@@ -936,7 +967,7 @@ export class TanreiCombobox extends LitElement {
   }
 
   /** CMB-19: a press on the chevron opens the list while it is closed and closes it while it is open; focus is the input's. */
-  private onChevron() {
+  #onChevron() {
     if (this.inert_ || this.readOnly) return;
     this.focus({ preventScroll: true });
     if (this.open && this.presented) this.closeList('press');
@@ -947,7 +978,7 @@ export class TanreiCombobox extends LitElement {
    * CMB-20: the clear button empties the text and the value: `input` once with the empty text, `change` once while the
    * value was not empty, focus to the input, and the list left as it is — showing every option while open.
    */
-  private onClear() {
+  #onClear() {
     if (this.inert_ || this.readOnly) return;
     const had = this.value !== '';
     this.value = '';
@@ -959,7 +990,7 @@ export class TanreiCombobox extends LitElement {
     this.focus();
   }
 
-  private onLeadingSlotChange(event: Event) {
+  #onLeadingSlotChange(event: Event) {
     const slot = event.target as HTMLSlotElement;
     this.hasLeading = slot.assignedNodes({ flatten: true }).some((node) => node.nodeType === Node.ELEMENT_NODE || !!node.textContent?.trim());
     // CMB-18: the slot's content is a glyph only.
@@ -1076,6 +1107,10 @@ export class TanreiCombobox extends LitElement {
     if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
       report(this, 'CMB-44', `separation "${this.separation}" is not auto, divider or gap; it behaves as "auto"`);
     }
+    // CMB-67: an iconSpace the combobox does not define is auto; a debug build says so.
+    if (changed.has('iconSpace') && !OPTION_ICON_SPACES.includes(this.iconSpace)) {
+      report(this, 'CMB-67', `iconSpace "${this.iconSpace}" is not auto, always or never; it behaves as "auto"`);
+    }
     const { options, nested } = this.options$.model;
     // The options are reported when they change — not on every render.
     const signature = `${options.map((option) => `${option.value}\u0001${option.label}`).join('\u0000')}\u0000${nested.length}`;
@@ -1152,12 +1187,12 @@ export class TanreiCombobox extends LitElement {
         data-leading=${leading ?? nothing}
         ?data-chevron=${chevron}
         ?data-clear=${clear}
-        @focusout=${this.onFocusOut}
-        @keydown=${this.onFieldKeyDown}
-        @keyup=${this.onFieldKeyUp}
+        @focusout=${this.#onFocusOut}
+        @keydown=${this.#onFieldKeyDown}
+        @keyup=${this.#onFieldKeyUp}
       >
-        <div part="container" class="container" data-tanrei-shape aria-disabled=${inert ? 'true' : nothing} @mousedown=${this.onContainerPress}>
-          <span part="leading-icon" class="icon leading-slot" aria-hidden="true"><slot name="leading-icon" @slotchange=${this.onLeadingSlotChange}></slot></span>
+        <div part="container" class="container" data-tanrei-shape aria-disabled=${inert ? 'true' : nothing} @mousedown=${this.#onContainerPress}>
+          <span part="leading-icon" class="icon leading-slot" aria-hidden="true"><slot name="leading-icon" @slotchange=${this.#onLeadingSlotChange}></slot></span>
           <span part="leading-icon" class="icon leading-own" aria-hidden="true"><span class="ink">${leading === 'option' ? chosen?.leadingIcon : nothing}</span></span>
           <div class="body">
             <input
@@ -1185,22 +1220,22 @@ export class TanreiCombobox extends LitElement {
               aria-expanded=${expanded ? 'true' : 'false'}
               aria-controls=${expanded ? 'list' : nothing}
               aria-activedescendant=${(expanded && this.list.activeId) || nothing}
-              @input=${this.onInput}
-              @keydown=${this.onKeyDown}
-              @focus=${this.onFocus}
-              @blur=${this.onBlur}
+              @input=${this.#onInput}
+              @keydown=${this.#onKeyDown}
+              @focus=${this.#onFocus}
+              @blur=${this.#onBlur}
               @compositionstart=${this.native.onCompositionStart}
               @compositionend=${this.native.onCompositionEnd}
             />
           </div>
           ${clear
             ? html`<span class="clear-box"
-                ><tanrei-button part="clear-button" class="clear" variant="text" size="small" label=${this.words.get('clearLabel', this.clearLabel)} @click=${this.onClear}
+                ><tanrei-button part="clear-button" class="clear" variant="text" size="small" label=${this.words.get('clearLabel', this.clearLabel)} @click=${this.#onClear}
                   ><span slot="icon" class="clear-glyph"><span class="ink">close</span></span></tanrei-button
                 ></span
               >`
             : nothing}${chevron
-            ? html`<button part="chevron" class="chevron" type="button" tabindex="-1" aria-label=${name} aria-expanded=${expanded ? 'true' : 'false'} ?disabled=${inert} @click=${this.onChevron}>
+            ? html`<button part="chevron" class="chevron" type="button" tabindex="-1" aria-label=${name} aria-expanded=${expanded ? 'true' : 'false'} ?disabled=${inert} @click=${this.#onChevron}>
                 <span class="icon chevron-glyph" aria-hidden="true"><span class="ink">expand_more</span></span>
               </button>`
             : nothing}

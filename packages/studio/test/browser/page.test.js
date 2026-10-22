@@ -29,7 +29,11 @@ async function unfold(page, level) {
 }
 async function unfoldNow(page, level) {
   // The two lists that scroll in a box of their own: everything the build reports, and the rules a layer inherits.
-  if (level !== 'essentials') await page.locator('[data-warnings-wrap]:not([open]) > summary').click();
+  if (level !== 'essentials') {
+    await page.locator('[data-warnings-wrap]:not([open]) > summary').click();
+    // (The list is written at the fold's `toggle` event, a task after the press.)
+    await page.waitForSelector('[data-warnings-wrap] [data-warnings]', { state: 'attached' });
+  }
   if (level === 'tokens') await page.locator('[data-panel="rules"] details:not([open]) > summary').click();
   if (level === 'groups') {
     for (const selector of ['[data-palette="primary"] [data-tones] > summary', '[data-typeface="mono"] > summary', '[data-extension="tanrei.comp.button.size.3x"] > summary', '[data-component="button"]:not([open]) > summary', '[data-component="button"] [data-common] > summary']) {

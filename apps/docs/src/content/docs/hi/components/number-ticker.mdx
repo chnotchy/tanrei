@@ -1,0 +1,140 @@
+---
+title: नंबर टिकर
+description: बदलती हुई संख्या — कोई गिनती, कीमत, स्कोर या डैशबोर्ड का कोई आँकड़ा — दिखाता है, हर बदले हुए अंक को उसके नए मान तक ले जाकर, ताकि व्यक्ति देख सके कि वह बदली, किस दिशा में और लगभग कितनी, जबकि सहायक तकनीक को केवल वह मान बताया जाता है जिस पर वह ठहरती है।
+translationOf: components/number-ticker.mdx
+sourceHash: 95f0526e88d9f97f2e8636d465f88d6f39585435
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="number-ticker" />
+
+<DemoFrame label="दिखाई देते ही अपने मान तक चढ़ते आँकड़े">
+  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+    <tanrei-number-ticker start-value="0" value="1234" label="ऑर्डर"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="0" value="98400" number-style="currency" currency="USD" fraction-digits="0" label="आय"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="0" value="0.426" number-style="percent" fraction-digits="1" label="कन्वर्ज़न"></tanrei-number-ticker>
+  </div>
+</DemoFrame>
+
+### इस्तेमाल
+
+Web और React के उदाहरण मौजूदा स्पेक के अनुसार हैं। SwiftUI, Compose, Flutter और React Native योजना में हैं: इनमें अभी नंबर टिकर नहीं है।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-number-ticker value="1234" label="ऑर्डर"></tanrei-number-ticker>
+    <tanrei-number-ticker value="98400" number-style="currency" currency="USD" label="आय"></tanrei-number-ticker>
+
+    <!-- डैशबोर्ड का आँकड़ा पहली बार दिखाई देने पर 0 से चढ़ता है। -->
+    <tanrei-number-ticker start-value="0" value="0.426" number-style="percent" fraction-digits="1"></tanrei-number-ticker>
+
+    <!-- व्यक्ति जिस गिनती को बदल रहा है: हर बदलाव ठहरने पर एक बार बताई जाती है। -->
+    <tanrei-number-ticker value="2" live="polite" label="कार्ट में आइटम"></tanrei-number-ticker>
+
+    <script type="module">
+      import '@tanrei/web/components/number-ticker';
+      const ticker = document.querySelector('tanrei-number-ticker');
+      ticker.value = orders.length;
+      ticker.addEventListener('settle', (event) => console.log('now showing', event.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { NumberTicker } from '@tanrei/react';
+
+    <NumberTicker value={orders.length} label="ऑर्डर" />
+    <NumberTicker value={revenue} numberStyle="currency" currency="USD" label="आय" />
+    <NumberTicker startValue={0} value={0.426} numberStyle="percent" fractionDigits={1} />
+    <NumberTicker value={count} live="polite" label="कार्ट में आइटम" onSettle={(event) => setShown(event.detail.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+## स्पेक
+
+<DemoFrame label="ऐनिमेशन: slide (डिफ़ॉल्ट सिस्टम का चुनाव), blur, blur-slide और flip" plain>
+  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+    <tanrei-number-ticker start-value="1180" value="1234" animation="slide" label="स्लाइड"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="1180" value="1234" animation="blur" label="ब्लर"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="1180" value="1234" animation="blur-slide" label="ब्लर और स्लाइड"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="1180" value="1234" animation="flip" label="फ़्लिप"></tanrei-number-ticker>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="trend: auto (19 से 20 पर दोनों अंक ऊपर) और digit (इकाई का अंक 9 से 0 तक नीचे)" plain>
+  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+    <tanrei-number-ticker start-value="19" value="20" trend="auto" label="अपने आप"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="19" value="20" trend="digit" label="हर अंक अलग"></tanrei-number-ticker>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="number-ticker" />
+
+## दिशानिर्देश
+
+### कब इस्तेमाल करें
+
+नंबर टिकर ऐसी संख्या के लिए इस्तेमाल करें जो व्यक्ति के देखते-देखते बदलती है और जिसका बदलना खुद देखने लायक है: ऑर्डर आने के साथ बढ़ती गिनती, बदलती कीमत, स्कोर, पेज खुलने पर अपने मान तक चढ़ते डैशबोर्ड के आँकड़े। गति दिखाती है कि संख्या बदली, किस दिशा में और लगभग कितनी।
+
+जो संख्या कभी-कभार बदलती है, या जिसे बदलते हुए कोई नहीं देखता, वह सादा टेक्स्ट है। किसी ज्ञात रेंज के भीतर का स्तर — कोटे में इस्तेमाल हुई स्टोरेज — [मीटर](/hi/components/meter/) है। समय और तारीख संख्याएँ नहीं हैं: उन्हें प्लेटफ़ॉर्म के तारीख और समय के फ़ॉर्मैट से लिखें।
+
+### संख्या कैसे लिखी जाती है
+
+टिकर के अपने कोई शब्द या संख्या के नियम नहीं हैं। प्लेटफ़ॉर्म का नंबर फ़ॉर्मैटर उसे पाठक की भाषा में लिखता है: समूह और दशमलव विभाजक, मुद्रा का चिह्न, प्रतिशत का चिह्न, बड़ी संख्या का छोटा रूप (1.2K, 1.2万) और खुद अंक (मिस्र की अरबी में ١٢٣٤)। एक स्टाइल (decimal, percent, currency या unit), मुद्रा कोड या इकाई, संक्षिप्त नोटेशन, दशमलव के बाद अंकों की तय संख्या और चिह्न कब लिखना है, चुनें; भाषा न देने पर टिकर उस जगह की भाषा लेता है जहाँ वह है।
+
+इसका अपना फ़ॉन्ट, साइज़ या रंग भी नहीं है: यह उस जगह की टेक्स्ट स्टाइल में बनता है जहाँ आप इसे रखते हैं, बराबर चौड़ाई के अंकों में, ताकि अंक बदलने पर संख्या खिसके नहीं। यह डैशबोर्ड कार्ड का बड़ा आँकड़ा भी हो सकता है और किसी वाक्य के भीतर की गिनती भी।
+
+### ऐनिमेशन चुनना
+
+| ऐनिमेशन | किसके लिए |
+| --- | --- |
+| Slide | ज़्यादातर संख्याएँ। हर बदले हुए अंक का कॉलम घूमकर नए अंक तक आता है। डिफ़ॉल्ट सिस्टम का चुनाव। |
+| Blur | शांत बदलाव: पुराना अंक धुंधला होकर ओझल होता है और नया साफ़ होकर आता है। |
+| Blur slide | वही, साथ में अंक बदलाव की दिशा में थोड़ा खिसकते हैं। |
+| Flip | स्प्लिट-फ़्लैप बोर्ड: प्रस्थान की सूचना, काउंटडाउन, यांत्रिक दिखने वाला प्रोडक्ट। |
+| None | ऐसी संख्या जिसे तुरंत बदलना चाहिए। |
+
+पूरे प्रोडक्ट में एक ही ऐनिमेशन रखें: उसे हर टिकर पर नहीं, डिज़ाइन सिस्टम में एक बार (`comp.number-ticker.animation`) तय करें।
+
+### trend चुनना
+
+डिफ़ॉल्ट रूप से हर बदला हुआ अंक उसी दिशा में चलता है जिसमें पूरी संख्या चली: बढ़ने पर ऊपर, घटने पर नीचे, इसलिए 19 से 20 पर दोनों अंक ऊपर जाते हैं। यह एक संख्या का एक बदलाव पढ़ा जाता है। जब हर स्थान का अपना अर्थ हो तब `digit` चुनें — तब हर अंक अपने बदलाव के अनुसार चलता है, इसलिए इकाई का अंक 9 से 0 तक नीचे जाता है। `up` और `down` एक दिशा तय कर देते हैं, उस संख्या के लिए जो हमेशा एक ही ओर गिनती है।
+
+### करें
+
+- इसे टेक्स्ट के भीतर रखें, या इसके कंटेनर को वह टेक्स्ट स्टाइल दें जो आप चाहते हैं। यह सब कुछ वहीं से लेता है।
+- जब संख्या के पास दिखने वाला कुछ भी न बताए कि वह क्या है, तो लेबल दें: "आय", "ऑर्डर"।
+- अपने आप बदलने वाले आँकड़ों के लिए live बंद रखें। इसे केवल उस संख्या के लिए चालू करें जिसका व्यक्ति इंतज़ार कर रहा है या जिसे वह बदल रहा है।
+- डैशबोर्ड पर शुरुआती मान इस्तेमाल करें, ताकि आँकड़े पहली बार दिखने पर एक बार चढ़ें।
+
+### न करें
+
+- टिकर से बढ़त को हरा और गिरावट को लाल न रंगें: इसमें ऐसे रंग नहीं हैं। अगर बदलाव का कोई अर्थ है, तो संख्या के पास बताएँ — टैग, शब्द, लेबल वाला तीर।
+- किसी संख्या को एक सेकंड में कई बार अपडेट न करें। हर बदलाव में गति की पूरी अवधि लगती है; लगातार बदलाव शोर जैसे लगते हैं। उसे उस रफ़्तार से अपडेट करें जिसे व्यक्ति समझ सके।
+- इसे समय के लिए इस्तेमाल न करें। घड़ी के अंक 9 पर नहीं, 59 पर पलटते हैं।
+
+## सुलभता
+
+<ComponentAccessibility name="number-ticker" />
+
+### कंपोनेंट क्या सँभालता है
+
+- सहायक तकनीक एक ही टेक्स्ट पढ़ती है: लेबल, फिर फ़ॉर्मैटर के लिखे अनुसार संख्या। बनाए गए अंक छिपे रहते हैं, इसलिए संख्या कभी अंक-दर-अंक, या खिड़कियों से गुज़रते अंकों के रूप में नहीं पढ़ी जाती।
+- डिफ़ॉल्ट रूप से कुछ नहीं बताया जाता: ज़्यादातर आँकड़े उस पल का मुख्य विषय नहीं होते। live को polite करने पर हर बदलाव ठहरने के बाद संख्या एक बार विनम्रता से बताई जाती है — बीच का कोई मान या बाद के बदलाव से बदला गया मान कभी नहीं।
+- कम गति माँगे जाने पर नई संख्या तुरंत आ जाती है और पुरानी थोड़ी देर में फ़ीकी होकर ओझल होती है।
+- यह उस जगह की भाषा और दिशा लेता है जहाँ यह है, और किसी के भी बदलने पर संख्या तुरंत दोबारा लिखता है।
+- animation, trend, style, notation, sign display या live का अज्ञात मान, धनात्मक न होने वाली duration, फ़ॉर्मैटर के लिए अनजान मुद्रा या इकाई और संख्या न होने वाला मान डीबग बिल्ड में रिपोर्ट होते हैं।
+
+### आपको क्या करना है
+
+- अगर आपका प्रोडक्ट किसी संख्या को दूसरे कंटेंट के बगल में बार-बार अपने आप अपडेट करता है, तो अपडेट रोकने या उनकी आवृत्ति चुनने का तरीका दें (WCAG 2.2.2 रोकें, बंद करें, छिपाएँ)।
+- जहाँ ज़रूरी हो, बदलाव का अर्थ शब्दों में बताएँ। गति दिखाती है कि संख्या बदली; यह नहीं बताती कि यह अच्छा है या बुरा।

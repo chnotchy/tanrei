@@ -4,11 +4,11 @@ description: Add Tanrei to a React Native app.
 ---
 
 import Callout from '../../../components/Callout.astro';
-import PreReleaseNotice from '../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../components/ReleaseNotice.astro';
 
 `@tanrei/react-native` is written in TypeScript with no native modules, so there is nothing to link and it works with Expo. It targets the New Architecture and requires React 19 and React Native 0.78 or later.
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/react-native" />
+<ReleaseNotice platform="react-native" registry="npm" pkg="@tanrei/react-native" />
 
 ## Install
 
@@ -34,7 +34,7 @@ then install the packed file in your app:
 npm install path/to/tanrei-packages/tanrei-react-native-*.tgz
 ```
 
-### After the first release
+### Once it is published
 
 ```sh
 npm install @tanrei/react-native

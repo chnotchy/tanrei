@@ -1,0 +1,170 @@
+---
+title: Medidor
+description: Muestra dónde está un valor conocido dentro de un intervalo conocido (el almacenamiento usado, la carga de una batería, una cuota, la seguridad de una contraseña) en forma de barra o de anillo con el aspecto del indicador de progreso, sin decir que haya nada en curso.
+translationOf: components/meter.mdx
+sourceHash: a9d8ef1942e071884710cdc52bdb78d45aadfb32
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="meter" />
+
+<DemoFrame label="Lineal y circular">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter value="0.62" label="Almacenamiento usado" value-text="9,3 GB de 15 GB"></tanrei-meter>
+    <tanrei-meter value="37" max="50" label="Plazas ocupadas" value-text="37 de 50 plazas"></tanrei-meter>
+  </div>
+  <tanrei-meter variant="circular" value="0.62" label="Batería"></tanrei-meter>
+  <tanrei-meter variant="circular" size="large" value="0.15" status="warning" label="Batería" value-text="Baja: 15 %"></tanrei-meter>
+</DemoFrame>
+
+### Uso
+
+Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose, Flutter y React Native están previstos: todavía no ofrecen un medidor.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-meter value="0.62" label="Almacenamiento usado" value-text="9,3 GB de 15 GB"></tanrei-meter>
+    <tanrei-meter value="37" max="50" label="Plazas ocupadas" value-text="37 de 50 plazas"></tanrei-meter>
+
+    <!-- El producto decide qué significa el valor, y también lo dice con palabras. -->
+    <tanrei-meter value="0.85" status="warning" label="Almacenamiento usado" value-text="Casi lleno: 12,8 GB de 15 GB"></tanrei-meter>
+
+    <tanrei-meter variant="circular" size="small" value="0.62" label="Batería"></tanrei-meter>
+
+    <script type="module">
+      import '@tanrei/web/components/meter';
+      const meter = document.querySelector('tanrei-meter');
+      meter.value = used / quota;
+      meter.status = used / quota > 0.8 ? 'warning' : 'default';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Meter } from '@tanrei/react';
+
+    <Meter value={used / quota} label="Almacenamiento usado" valueText={`${usedText} de ${quotaText}`} />
+    <Meter value={seats} max={50} label="Plazas ocupadas" valueText={`${seats} de 50 plazas`} />
+    <Meter
+      value={used / quota}
+      status={used / quota > 0.8 ? 'warning' : 'default'}
+      label="Almacenamiento usado"
+      valueText={used / quota > 0.8 ? `Casi lleno: ${usedText} de ${quotaText}` : `${usedText} de ${quotaText}`}
+    />
+    <Meter variant="circular" size="small" value={charge} label="Batería" />
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Estados: default, info, success, warning, error" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter value="0.62" label="Default"></tanrei-meter>
+    <tanrei-meter value="0.4" status="info" label="Info"></tanrei-meter>
+    <tanrei-meter value="0.9" status="success" label="Success"></tanrei-meter>
+    <tanrei-meter value="0.85" status="warning" label="Warning"></tanrei-meter>
+    <tanrei-meter value="0.98" status="error" label="Error"></tanrei-meter>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="Tamaños, extremos del intervalo y un intervalo propio" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter size="small" value="0.62" label="Small"></tanrei-meter>
+    <tanrei-meter size="medium" value="0.62" label="Medium"></tanrei-meter>
+    <tanrei-meter size="large" value="0.62" label="Large"></tanrei-meter>
+    <tanrei-meter value="0" label="Vacío"></tanrei-meter>
+    <tanrei-meter value="1" label="Lleno"></tanrei-meter>
+    <tanrei-meter value="37" max="50" value-text="37 de 50 plazas" label="Plazas ocupadas"></tanrei-meter>
+  </div>
+  <tanrei-meter variant="circular" size="small" value="0.62" label="Small"></tanrei-meter>
+  <tanrei-meter variant="circular" size="medium" value="0.62" label="Medium"></tanrei-meter>
+  <tanrei-meter variant="circular" size="large" value="0.62" label="Large"></tanrei-meter>
+</DemoFrame>
+
+<DemoFrame label="Separación: divider (la elección del sistema predeterminado) y gap" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter separation="divider" value="0.62" label="Divider"></tanrei-meter>
+    <tanrei-meter separation="gap" value="0.62" label="Gap"></tanrei-meter>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="meter" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un medidor para mostrar dónde está una cantidad dentro de un intervalo que tiene un mínimo y un máximo reales: el almacenamiento usado de una cuota, la carga de una batería, las plazas ocupadas de una sala, la seguridad de una contraseña nueva. Muestra un nivel; no hay nada en curso y nada va a terminar.
+
+Para una tarea que se está ejecutando (una subida, una importación, un guardado largo), usa en su lugar un [indicador de progreso](/es/components/progress-indicator/). Tiene el mismo aspecto, pero la tecnología de apoyo le dice a la persona que algo está en curso, y un medidor no debe decirlo. Un valor sin un máximo con sentido, como el número de mensajes, no es ni lo uno ni lo otro: muéstralo como texto.
+
+### Cómo elegir una variante
+
+| Variante | Úsala para |
+| --- | --- |
+| Lineal | Un nivel que pertenece a una página o a una sección: el almacenamiento en una página de ajustes, una cuota dentro de una tarjeta, una fila de una lista de planes. La barra ocupa el ancho que le da su diseño. |
+| Circular | Lugares estrechos y un nivel junto a un texto: una batería en una barra de estado, una fila de una lista de dispositivos. El anillo tiene un tamaño fijo. |
+
+### Cómo elegir un tamaño
+
+| Tamaño | Grosor de la barra / tamaño del anillo en el sistema predeterminado | Úsalo para |
+| --- | --- | --- |
+| Small | 2 / 16 | Filas densas, junto a un texto pequeño. |
+| Medium | 4 / 24 | La mayoría de los lugares. Es el predeterminado. |
+| Large | 8 / 40 | El único nivel del que trata una vista, como la página de almacenamiento de una cuenta. |
+
+Los tamaños, la pista y el color predeterminado son los del indicador de progreso, así que un medidor y un indicador de progreso uno junto al otro coinciden. Un sistema de diseño puede distinguir el medidor mediante sus propios tokens.
+
+### Cómo elegir un estado
+
+El medidor no decide qué significa un valor. Si más es mejor o peor lo sabe tu producto: un almacenamiento casi lleno es un warning, una contraseña casi en su máxima seguridad es un success. Calcula tú el estado y pásalo. Los estados tienen los nombres que usan el tag y el snackbar.
+
+| Estado | Úsalo para |
+| --- | --- |
+| Default | Un nivel que no necesita comentario. La mayoría de los medidores se quedan aquí. |
+| Info | Un nivel que conviene conocer y que no pide nada, como una cuota que se renueva pronto. |
+| Success | Un nivel que está donde debe estar, como una contraseña segura. |
+| Warning | Un nivel que pronto necesitará atención, como un almacenamiento casi lleno o una batería baja. |
+| Error | Un nivel que ya impide algo, como un almacenamiento lleno. |
+
+Un estado cambia el color del indicador y nada más. Di también con palabras qué significa: en el texto de valor y en el texto junto al medidor.
+
+### Recomendado
+
+- Dale una etiqueta que diga qué se mide: «Almacenamiento usado», no «Medidor». Si junto a él se muestra una leyenda, usa las mismas palabras.
+- Usa un texto de valor cuando un porcentaje no sea la lectura natural: «9,3 GB de 15 GB», «37 de 50 plazas», «Segura».
+- Cuando el estado signifique algo, ponlo también en el texto de valor: «Casi lleno: 12,8 GB de 15 GB».
+
+### Evita
+
+- No lo uses para una tarea que se está ejecutando. Eso es un indicador de progreso.
+- No te apoyes solo en el color de un estado. Quien no puede ver el color también tiene que enterarse de que el almacenamiento está casi lleno.
+- No muestres un valor fuera del intervalo. El medidor lo dibuja y lo expone limitado al intervalo, así que el número que oiría la persona no sería el que tienes.
+
+## Accesibilidad
+
+<ComponentAccessibility name="meter" />
+
+### De qué se encarga el componente
+
+- Expone el rol de medidor (meter) con la etiqueta como nombre, el intervalo, el valor actual (limitado al intervalo) y el texto de valor cuando lo hay. Nunca dice que esté ocupado ni que haya una tarea en curso.
+- Nunca recibe el foco y no anuncia sus cambios. La tecnología de apoyo lee el valor actual cuando la persona llega a él.
+- Un estado nunca se anuncia por sí solo: solo cambia el color.
+- Un cambio de valor mueve el extremo del indicador y un cambio de estado funde su color. Cuando se pide reducir movimiento, el extremo se mueve de inmediato y solo se funde el color.
+- Con colores forzados, la pista pasa a ser un borde fino y el indicador se rellena, ambos en el color del texto, sea cual sea el estado, de modo que el valor se sigue leyendo donde termina el indicador.
+- Las compilaciones de depuración notifican una etiqueta vacía, un valor fuera del intervalo, un valor que no es un número y un `size`, `variant`, `separation` o `status` desconocido.
+
+### Qué debes hacer tú
+
+- Di con palabras qué significa un estado: en el texto de valor y en el texto junto al medidor.
+- Anuncia tú un cambio que importe, como que el almacenamiento se ha llenado: un mensaje en una región activa (live region) o un aviso que la persona vaya a ver. El medidor no lo dirá.
+- Si los cambias, mantén cada color del indicador (el predeterminado y los cuatro estados) con un contraste de al menos 3:1 frente a la pista y frente a la superficie que tiene detrás. El valor se lee allí donde el indicador se encuentra con la pista. El sistema predeterminado mantiene los cinco por encima de 4,6:1 en claro y de 7,3:1 en oscuro.

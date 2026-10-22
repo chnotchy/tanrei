@@ -2,7 +2,7 @@
 title: "下拉选择框"
 description: "让用户从一个封闭的列表里选择一个值——触发器的外观和尺寸与文本输入框的方框相同，显示选中的选项；选项列表从触发器展开，选项可以分组——它没有自己的标签行、帮助文本和错误文本。用于栏、工具栏或表格，或者放进产品自己组合的字段里。"
 translationOf: components/select.mdx
-sourceHash: e857bc793421580596e324148fe48b5f0adc1525
+sourceHash: 6498add9840e5413d69077058e2b885721456c9b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -97,7 +97,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 包住下拉选择框的字段，就是展开写出来的下拉选择字段。下拉选择框自己的 `label` 留空：由字段为它命名。`label`、`error`、`disabled` 和必填与否写在字段上；`name`、`value`、选项以及与选择有关的一切写在下拉选择框上。
 
 ```html
-<tanrei-field label="国家/地区" requirement="required" required-text="必填"
+<tanrei-field label="国家/地区" required required-text="必填"
   supporting-text="发票将寄往该国家/地区。">
   <tanrei-select name="country" placeholder="请选择国家/地区">
     <tanrei-option value="jp">日本</tanrei-option>
@@ -107,7 +107,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="里面放着下拉选择框的字段：画面与下拉选择字段相同" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国家/地区" requirement="required" required-text="必填" supporting-text="发票将寄往该国家/地区。">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国家/地区" required required-text="必填" supporting-text="发票将寄往该国家/地区。">
     <tanrei-select placeholder="请选择国家/地区">
       <tanrei-option value="jp">日本</tanrei-option>
       <tanrei-option value="ke">肯尼亚</tanrei-option>
@@ -152,7 +152,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 三种变体就是文本输入框的那三种。默认系统只提供 `stacked`；`filled` 和 `outlined` 留给以这种方式绘制文本输入框的系统。一个表单只用一种样式。
 
-`small`（40）、`medium`（48）和 `large`（56）是文本输入框的高度。`small` 用于栏、工具栏或一排紧凑的控件，在那里小号选择框和小号文本输入框高度一致。
+`small`（32）、`medium`（40）和 `large`（56）是文本输入框的高度。`small` 用于栏、工具栏或一排紧凑的控件，在那里小号选择框和小号文本输入框高度一致。
 
 ### 哪些属于下拉选择框，哪些属于字段
 
@@ -175,7 +175,34 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | 组 | 一串选项，上方可以有一个标题。组与组之间用分隔线或间隙分开，由设计系统或 `separation` 决定 |
 | 禁用的选项 | 可以用方向键到达，让用户知道它存在，但绝不会被选中 |
 
+选项的字形位于标签前的一列中。没有字形的选项是否保留这一列的空间，由 `iconSpace` 决定。`auto`（默认）在同一区段中另有选项带字形时保留这一列，使该区段的标签从同一条线开始；在没有字形的区段中不保留。区段是一个组，或组外相邻的一串选项。`always` 在每个选项中都保留，`never` 只在带字形的选项中设这一列。[菜单](/zh-cn/components/menu/)也有同样的 `iconSpace`，取值和默认值都相同。
+
+`density` 决定一个选项占多大空间：`regular`（默认，高 48）或 `compact`（高 32，图标 20，即[菜单](/zh-cn/components/menu/)的紧凑行），后者适用于用鼠标操作、列表很长的工具。文字大小不变，无论密度如何，容器都由 `size` 决定。触摸时选项绝不低于触摸目标。
+
 值为空字符串的选项与其他选项一样是一个选择，用于“无”或“不限”。下拉选择框自己没有回到“尚未选择”的办法：允许不作选择的地方，请提供一个表明这一点的选项。
+
+### 加载中、失败和没有可选项
+
+如果选项来自需要时间或可能失败的来源，请在列表里说明。`status`、`statusText` 和 `emptyText` 就是[组合框](/zh-cn/components/combobox/)和[搜索](/zh-cn/components/search/)的属性，取值和含义都相同。
+
+| 你设置的 | 列表在选项之后显示的 |
+| --- | --- |
+| `status="loading"` 和 `statusText` | 一个小的加载指示器，以 `statusText` 命名（“正在加载项目”）。列表标记为忙碌，不播报任何内容。已有的选项仍然可以选择 |
+| `status="error"` 和 `statusText` | 以错误颜色显示的文本，立即朗读（“无法加载项目”） |
+| 只有 `statusText` | 该文本，礼貌地朗读（“你最近的 3 个项目”） |
+| `emptyText`，在没有选项时 | 代替选项显示的文本（“还没有项目”） |
+
+这一状态行在选项滚动时始终可见。它不是选项：按它不会有任何反应，方向键也不会移到它上面。列表打开时它已显示的内容，会在列表打开时朗读。
+
+下拉选择框自己从不获取、等待或重试。开始时把 `status` 设为 `loading`，选项到达后提供选项并改回 `idle`；失败时设为 `error`，并用文字说明失败。
+
+没有选项、没有状态也没有 `emptyText` 的下拉选择框不会打开。请给它 `emptyText`，或用 `setWords()` 一次性提供产品的 `noOptionsText`，让打开它的人知道为什么没有可选项。
+
+<DemoFrame label="加载中、失败和没有可选项" column>
+  <tanrei-select class="not-content" label="项目" placeholder="选择项目" status="loading" status-text="正在加载项目"></tanrei-select>
+  <tanrei-select class="not-content" label="项目" placeholder="选择项目" status="error" status-text="无法加载项目。请检查网络连接。"></tanrei-select>
+  <tanrei-select class="not-content" label="项目" placeholder="选择项目" empty-text="还没有项目"></tanrei-select>
+</DemoFrame>
 
 ### 打开、移动和选择
 
@@ -203,8 +230,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - `change` 是一个 composed 并且冒泡的事件。`toggle` 是 composed 的，但不冒泡：在下拉选择框上能监听到，在包住它的下拉选择字段上也能监听到，而 `<details>` 这样的祖先元素绝不会收到。
 - 列表是顶层（top layer）中的 `popover="manual"` 元素。在外部按下会关闭它，这次按下也会传到它下方的元素。
 - 浮动标签（`filled`、`outlined`）位于容器内部，所以按下它会打开列表。
-- `supporting-text`、`error-text`、`requirement`、`required-mark`、`required-text` 和 `optional-text`，以及给 `label-icon` 插槽的子元素，属于下拉选择字段和字段。写在下拉选择框上，它们什么都不绘制；调试构建会报告一次，并指出 `<tanrei-select-field>`。
-- 部件：`container`、`outline`、`active-indicator`、`label`、`requirement-label`、`value`、`placeholder`、`leading-icon`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider`。
+- `supporting-text`、`error-text`、`required`、`optional`、`required-mark`、`required-text` 和 `optional-text`，以及给 `label-icon` 插槽的子元素，属于下拉选择字段和字段。写在下拉选择框上，它们什么都不绘制；调试构建会报告一次，并指出 `<tanrei-select-field>`。
+- 部件：`container`、`outline`、`active-indicator`、`label`、`requirement-label`、`value`、`placeholder`、`leading-icon`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider`、`status`。
+- `empty-text` 为空时，从产品的文字（`setWords({ noOptionsText })`）读取。
 - 在元素定义之前，它的选项是页面上的普通文本。请隐藏 `tanrei-select:not(:defined) > *`，并预留高度。
 - Web 没有自己的返回手势，所以 `toggle` 绝不会带有原因 `back`。
 - `readOnly` 对应 `readonly` 属性（attribute）。
@@ -268,7 +296,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 文本放大到 200% 时，选项和标题会换行。只有容器里的值保持在一行之内，而列表和辅助技术仍然给出完整的值。
 - 在强制颜色模式下，触发器和列表会多出一道边线，活动选项采用系统的高亮颜色，选中的选项靠对勾来表示。
 - 在从右到左的布局中，触发器和每一行都会镜像，每段文本保持自己的方向。V 形箭头和对勾不镜像。
-- 它自己不带任何文字，也不朗读任何文字。
+- 状态行是列表框之外的实时区域。它显示的内容会在列表打开时和变化时朗读：平时礼貌地朗读，来源失败时立即朗读。加载中列表框标记为忙碌，不播报任何内容。
+- 它自己不带任何文字。`emptyText` 为空时，从产品的文字（`noOptionsText`）读取。
 
 Web 上的已知差距：
 
@@ -281,3 +310,4 @@ Web 上的已知差距：
 - 用 `label` 为每个单独使用的下拉选择框命名，并为每个选项提供标签。下拉选择框旁边的可见文字并不能为它命名。
 - 单独使用的下拉选择框可能出错的地方，请用辅助技术读得到的文字说明哪里错了：一条与页面关联的、你自己的消息，或者包住下拉选择框的一个字段。
 - 在同一个下拉选择框里，让各个选项的值保持唯一。
+- 加载中请写 `statusText`，因为它是加载指示器的名称；可能没有选项的下拉选择框，请写 `emptyText`。

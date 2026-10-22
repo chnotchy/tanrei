@@ -38,6 +38,16 @@ import { neighbourTarget } from './target.js';
 // width and label their own — whose hit area stops at the middle of the gap to a neighbour. A toolbar spreads or packs
 // its items, so it measures each gap and tells the item how far it may reach on each side (`reachStart`, `reachEnd`),
 // along the row's axis.
+//
+// A component that draws a Button on a colored surface of its own (a status callout's, an inverse or status
+// snackbar's) gives it a tone through the same channel (BTN-45): the content color of that surface, and the color of
+// a focus indicator's outer stroke there (`Tone`). The item asks for it when it connects (`HOST_TONE`, a child in the
+// host's light DOM) and the host tells it when its surface changes (`giveTone()`, a Button in its shadow root). The
+// controller marks the item's container `data-tone` and writes the two colors on it as `--_tone` and `--_tone-focus`,
+// from the moment the container is made (`toneRef`); the item's styles lay its looks over them (button.styles.ts).
+// The colors are known only where the button is drawn, so the states are computed there, from the tone and the
+// system's state-layer opacities — a state color valued at the root would hold the root's colors, whatever the button
+// is given later.
 
 /**
  * Where a group places one of its items: the group's variant, whether the item is its first or its last in the placed
@@ -70,6 +80,21 @@ export const GROUP_AVAILABILITY = Symbol.for('tanrei.group-availability');
 /** A host's side for the variant: the one it gives one of its children whose own is not set (null: none). */
 export const HOST_VARIANT = Symbol.for('tanrei.host-variant');
 
+/** A host's side for the tone (BTN-45): the one it gives one of its children (null: none). */
+export const HOST_TONE = Symbol.for('tanrei.host-tone');
+
+/**
+ * A tone (BTN-45): the content color of the colored surface a host draws the Button on, and the color of a focus
+ * indicator's outer stroke on it (left out: the content color). Each is a CSS color expression of the host's own
+ * tokens (`var(--tanrei-comp-callout-error-body-color-tonal)`), read where the Button is drawn.
+ */
+export interface Tone {
+  color: string;
+  focus?: string;
+}
+
+const sameTone = (a: Tone | null, b: Tone | null) => a === b || (!!a && !!b && a.color === b.color && (a.focus ?? null) === (b.focus ?? null));
+
 /** An element that places its children (a button group). */
 export interface PlacingGroup {
   [GROUP_PLACE](child: Element): GroupPlace | null;
@@ -79,9 +104,18 @@ export interface PlacingGroup {
 export interface VariantHost {
   [HOST_VARIANT](child: Element): string | null;
 }
+/** An element that gives its children a tone (BTN-45): a host that draws them on a colored surface of its own. */
+export interface ToneHost {
+  [HOST_TONE](child: Element): Tone | null;
+}
 /** An element that can be placed in a group (a Button, an icon button). */
 export interface GroupItem {
   readonly [GROUP_ITEM]: GroupItemController;
+}
+
+/** Gives `element` the tone its host chose for it (null: none), through the Button's group-item channel (BTN-45). */
+export function giveTone(element: Element | null | undefined, tone: Tone | null) {
+  (element as (Element & Partial<GroupItem>) | null | undefined)?.[GROUP_ITEM]?.giveTone(tone);
 }
 
 /**
@@ -116,6 +150,8 @@ export class GroupItemController implements ReactiveController {
   place: GroupPlace | null = null;
   /** The variant its host gives it while its own is not set (DLG-20, SSH-17, SSH-5); null outside such a host. */
   variant: string | null = null;
+  /** The tone its host gives it (BTN-45); null outside such a host. */
+  tone: Tone | null = null;
   private observer: ResizeObserver | null = null;
   private observed: HTMLElement | null = null;
 
@@ -128,9 +164,10 @@ export class GroupItemController implements ReactiveController {
 
   hostConnected() {
     // The group may have placed its children before this element was upgraded; ask it.
-    const parent = this.host.parentElement as (HTMLElement & Partial<PlacingGroup> & Partial<VariantHost>) | null;
+    const parent = this.host.parentElement as (HTMLElement & Partial<PlacingGroup> & Partial<VariantHost> & Partial<ToneHost>) | null;
     this.set(parent?.[GROUP_PLACE]?.(this.host) ?? null);
     this.give(parent?.[HOST_VARIANT]?.(this.host) ?? null);
+    this.giveTone(parent?.[HOST_TONE]?.(this.host) ?? null);
   }
 
   /** The platform's word that the item is disabled changed (its `formDisabledCallback`): its group is told. */
@@ -141,6 +178,7 @@ export class GroupItemController implements ReactiveController {
   hostDisconnected() {
     this.set(null);
     this.give(null);
+    this.giveTone(null);
     this.watch(null);
   }
 
@@ -151,9 +189,24 @@ export class GroupItemController implements ReactiveController {
     this.host.requestUpdate();
   }
 
+  /** The host's tone (BTN-45): written on the container at once — its mark and its two colors together. */
+  giveTone(tone: Tone | null) {
+    if (sameTone(tone, this.tone)) return;
+    this.tone = tone ? { ...tone } : null;
+    this.paint(this.container());
+  }
+
+  /**
+   * BTN-45: bound on the item's container in its template (`ref(controller.toneRef)`), so that the tone is on a
+   * container from the moment it is made, before anything computes its style: a style computed without it, even
+   * once, starts a transition from the variant's own colors to the tone's.
+   */
+  readonly toneRef = (element?: Element) => this.paint((element as HTMLElement | undefined) ?? null);
+
   hostUpdated() {
     this.watch(this.place?.variant === 'connected' ? this.container() : null);
     this.reach();
+    this.paint(this.container());
   }
 
   /** The group's word. */
@@ -183,6 +236,25 @@ export class GroupItemController implements ReactiveController {
   }
 
   private reached: HTMLElement | null = null;
+  private toned: HTMLElement | null = null;
+
+  /**
+   * BTN-45: the tone on the container — `data-tone` and its two colors, `--_tone` and `--_tone-focus`, which the item's
+   * styles read under that mark — always together, so that no style is ever computed with the one and not the other.
+   */
+  private paint(container: HTMLElement | null) {
+    const element = this.tone ? container : null;
+    if (this.toned && this.toned !== element) {
+      this.toned.removeAttribute('data-tone');
+      this.toned.style.removeProperty('--_tone');
+      this.toned.style.removeProperty('--_tone-focus');
+    }
+    this.toned = element;
+    if (!element || !this.tone) return;
+    element.style.setProperty('--_tone', this.tone.color);
+    element.style.setProperty('--_tone-focus', this.tone.focus ?? 'var(--_tone)');
+    element.setAttribute('data-tone', '');
+  }
 
   /** TBR-9: a row item's reach toward each neighbour, as the caps `neighbourTarget()` reads on the container. */
   private reach() {

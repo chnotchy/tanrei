@@ -1,6 +1,6 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
-import { AvailabilityController, FieldControlController, FieldProviderController, type FieldState, GROUP_PLACE, type GroupPlace, type PlacingGroup, WordsController, missingValueMessage, report } from '../../primitives/index.js';
+import { AvailabilityController, FieldControlController, FieldProviderController, type FieldState, GROUP_PLACE, type GroupPlace, type PlacingGroup, WordsController, CoalescedSync, countWork, missingValueMessage, report } from '../../primitives/index.js';
 import { ComposedElement, composedHost, exported, forward } from '../../primitives/composed.js';
 import { acceptConverter } from '../../primitives/file-format.js';
 import { FILE_ITEM_TAKE_FOCUS, FILE_ITEM_UPDATE, type FileItemGiven, giveFileItem } from '../../primitives/file-item-holder.js';
@@ -394,6 +394,15 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
   private held: Element | null = null;
   private stood: Element[] = [];
 
+  /**
+   * The re-read of the product's rows (`readRows()`), once per turn however many rows said they changed in it: a file
+   * upload of N rows built, or N rows changed at once, re-reads its N rows once — not once per row, which made the build
+   * O(N²). It runs in a microtask, before the next frame, so every frame draws the rows as they are (FUP-29, FUP-39).
+   */
+  private readonly rowSyncs = new CoalescedSync(() => {
+    if (this.isConnected) this.readRows();
+  });
+
   /** FUP-17, FUP-30: a row that comes or goes is drawn at once; a row that left with focus on it hands focus on. */
   private readonly children$ = typeof MutationObserver === 'undefined' ? null : new MutationObserver((records) => this.rowsChanged(records));
 
@@ -511,10 +520,13 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
 
   /** The native constraint validity: `valueMissing` while it is required and no row carries a file. */
   get validity(): ValidityState {
+    // Here and below: a row that said it changed in this task is read first, so its file counts.
+    this.rowSyncs.flush();
     return this.internals.validity;
   }
 
   get validationMessage(): string {
+    this.rowSyncs.flush();
     return this.internals.validationMessage;
   }
 
@@ -523,10 +535,12 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
   }
 
   checkValidity() {
+    this.rowSyncs.flush();
     return this.internals.checkValidity();
   }
 
   reportValidity() {
+    this.rowSyncs.flush();
     return this.internals.reportValidity();
   }
 
@@ -820,11 +834,12 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
     event.stopPropagation();
     // A file item it made itself is drawn from what the file upload holds: nothing of it is read back.
     if (this.keeps) return;
-    this.readRows();
+    this.rowSyncs.request();
   };
 
   /** The rows were added to, removed from, or changed: drawn at once, said once, submitted as they are now. */
   private readRows() {
+    countWork('file-upload.sync');
     const rows = this.givenRows;
     this.count = rows.length;
     // FUP-17: the List draws the rows in the order they stand now — a new order of as many rows too.
@@ -846,7 +861,7 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
     // A file item that left is the product's alone again: what it was given goes back.
     for (const record of records) for (const node of record.removedNodes) if (node instanceof Element && node.localName === ITEM) giveFileItem(node, null);
     const before = this.stood;
-    this.readRows();
+    this.rowSyncs.now();
     this.stood = this.givenRows;
     this.afterLeave(before, records);
   }
@@ -1029,6 +1044,8 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
     this.assignSlots();
     // FUP-24, FUP-32: the file picker is told at once what a field gave the file upload.
     this.provider.sync();
+    // FUP-28: and its trigger, just passed on, is told by the file picker before the trigger is first drawn.
+    this.picker?.tellTrigger();
     this.tellRows();
     this.syncForm();
     if (this.leavingHeld) {

@@ -41,7 +41,7 @@ function groupsLayer(extendsId) {
 for (const { id: extendsId } of studio.systems) {
   test(`a Studio layer on "${extendsId}" builds to exactly what the Studio previewed`, async () => {
     let layer = groupsLayer(extendsId);
-    if (extendsId === studio.rootId) layer = studio.dropPalette(layer, 'accent');
+    if (extendsId === studio.defaultId) layer = studio.dropPalette(layer, 'accent');
     layer = op(layer, `${NS}.comp.button.container.padding-inline-start.medium`, { scale: 2 });
     layer = op(layer, `${NS}.comp.button.container.gap.medium`, { $value: `{${NS}.sys.space.space50}` });
     layer = op(layer, `${NS}.sys.typescale.label-small`, { $value: { fontSize: { value: 11, unit: 'px' } }, reason: 'Legal footnote size is contractual.' });
@@ -49,13 +49,13 @@ for (const { id: extendsId } of studio.systems) {
 
     const { view, result } = await assertPreviewIsTheBuild(layer);
     for (const intent of ['primary', 'correct', 'incorrect']) assert.ok(view.intents.includes(intent), `${intent} is an intent with its four roles`);
-    if (extendsId === studio.rootId) assert.ok(!('accent' in view.model.colors.light), 'a dropped palette leaves no roles');
+    if (extendsId === studio.defaultId) assert.ok(!('accent' in view.model.colors.light), 'a dropped palette leaves no roles');
     const sheet = result.files.web[`${layer.id}.css`];
     assert.match(sheet, /--tanrei-dial-type-base: 1\.0625rem;/);
     assert.match(sheet, /--tanrei-comp-button-container-gap-medium: var\(--tanrei-sys-space-space50\);/);
     assert.match(sheet, /--tanrei-sys-typescale-label-small-font-size: 0\.6875rem;/);
     assert.equal(view.valueOf(`${NS}.sys.typescale.label-small`).fontSize.value, 11, 'the pin holds whatever type.base is');
-    if (extendsId === studio.rootId) assert.equal(view.valueOf(`${NS}.sys.typescale.body-large`).fontSize.value, 17, 'body-large is type.base × 1');
+    if (extendsId === studio.defaultId) assert.equal(view.valueOf(`${NS}.sys.typescale.body-large`).fontSize.value, 17, 'body-large is type.base × 1');
     assert.equal(view.valueOf(`${NS}.comp.button.container.height.medium`).value, 44);
   });
 }
@@ -193,7 +193,7 @@ for (const [kind, write] of Object.entries(OPERATIONS)) {
     const { view } = await assertPreviewIsTheBuild(layer);
     // revert-to-inherited: the editor's last operation takes the layer back to nothing.
     const reverted = Object.keys(layer.tokens ?? {}).reduce((l, id) => studio.applyOperation(l, id, null).layer, studio.setRules(layer, []));
-    assert.deepEqual(reverted, { id: 'studio-operation', extends: studio.rootId });
+    assert.deepEqual(reverted, { id: 'studio-operation', extends: studio.defaultId });
     // The editor offers only what the engine calls legal for this token.
     for (const id of Object.keys(layer.tokens ?? {})) assert.ok(studio.describe(view, id).operations.some((o) => o.op === 'revert to inherited'));
   });
@@ -242,7 +242,7 @@ for (const [kind, fragment] of Object.entries(EXTENSIONS)) {
       assert.deepEqual(studio.removeExtension(layer, id).vocabulary?.[id], undefined);
     }
     // Removing every declaration also removes the operations that only made sense with it.
-    assert.deepEqual(Object.keys(fragment.vocabulary).reduce((l, id) => studio.removeExtension(l, id), layer), { id: 'studio-extension', extends: studio.rootId });
+    assert.deepEqual(Object.keys(fragment.vocabulary).reduce((l, id) => studio.removeExtension(l, id), layer), { id: 'studio-extension', extends: studio.defaultId });
   });
 }
 
@@ -336,6 +336,19 @@ test('a broken layer is reported with the engine’s own words, and never throws
   assert.equal(view.ok, false);
   assert.match(view.problems.join('\n'), /tanrei\.sys\.space\.nope: unknown token .* declare it under "vocabulary"/);
   assert.match(studio.preview({ id: 'tanrei', extends: 'tanrei' }).problems.join('\n'), /shipped system/);
+});
+
+test('a contrast-pick on a role may choose a palette tone: the states that read the role read the tone it chose', async () => {
+  // A role aliases its pick's winner. When the candidates are ref.palette tones, the per-state component colors
+  // (the button's filled label, on on-primary) must follow that alias into the palette, not look for a role by its name.
+  const start = studio.setPalette({ ...studio.blank('tanrei'), id: 'pick-tone' }, 'primary', { source: { seed: '#0f766e' } });
+  const from = ['{tanrei.ref.palette.primary.10}', '{tanrei.ref.palette.primary.99}'];
+  const result = studio.applyOperation(start, 'tanrei.sys.color.on-primary', { derive: { fn: 'contrast-pick', on: '{tanrei.sys.color.primary}', from } });
+  assert.equal(result.problem, undefined);
+  const view = studio.preview(result.layer);
+  assert.deepEqual(view.problems, []);
+  for (const tokens of Object.values(view.model.perScheme)) assert.ok(from.includes(`{${tokens['tanrei.sys.color.on-primary'].alias}}`), 'the role aliases one of the tones');
+  await assertPreviewIsTheBuild(result.layer);
 });
 
 test('the sources the page bundles are the ones the resolver names', () => {

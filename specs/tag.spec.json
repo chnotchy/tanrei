@@ -602,6 +602,13 @@
         "dot": "dot",
         "disabled": "disabled"
       },
+      "parts": {
+        "container": "container",
+        "label": "label",
+        "icon": "icon",
+        "dot": "dot",
+        "outline": "container@outline"
+      },
       "notes": "`<tanrei-tag>` with the label as the `label` attribute and the glyph in the `icon` slot. The host is `display: inline-flex` with `vertical-align: baseline` and no `role`, no `tabindex` and no listeners; `pointer-events` stay as they are, so a press over a tag inside a link or a button reaches that element (TAG-10). `statusLabel` is reflected as the `status-label` attribute and drawn as visually hidden text before the label in the shadow root, followed by a comma and a space (TAG-11); the glyph and the dot are `aria-hidden`. The label is one `dir=\"auto\"` run with `text-overflow: ellipsis` (TAG-18). Under `forced-colors: active` the container takes a `CanvasText` border of the outline width (TAG-14). `disabled` is a reflected boolean attribute that draws the look's disabled tokens and nothing else: no `aria-disabled`, no `inert`, no listener (TAG-21); under `forced-colors: active` the edge and the text are `GrayText`."
     },
     "swiftui": {

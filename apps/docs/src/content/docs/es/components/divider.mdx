@@ -2,7 +2,7 @@
 title: Divisor
 description: Separa grupos de contenido en una lista, un diseño o una barra de herramientas con una línea delgada.
 translationOf: components/divider.mdx
-sourceHash: a900ff2d8bf8a75bc9b74c35a5e534d81fd620fb
+sourceHash: 30a7a4cb70a241da25e710981e6be81e76fb6142
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -252,6 +252,7 @@ Los extremos redondeados (`lineCap="round"`) convierten cada punto en un disco y
 - No uses un divisor como borde o contorno de un contenedor. No tiene contenedor ni forma.
 - No lo hagas más grueso ni le des color para darle significado. `thickness` es para un patrón que necesita espacio para verse, o para una raya que coincida con líneas más gruesas a su alrededor. Al color del divisor no se le exige una relación de contraste, porque el contenido que separa debe entenderse sin él.
 - No añadas un divisor dentro de un componente que separa sus propias partes, por ejemplo entre los grupos de un menú o las filas de una lista. Usa la propiedad del propio componente.
+- No pongas un divisor en el borde de una caja que se desplaza para decir que hay más contenido más allá. Un [área de desplazamiento](/es/components/scroll-area/) marca ese borde, solo mientras hay contenido más allá, con la forma que eligió el sistema de diseño.
 - No dejes que un estilo de línea transmita un significado por sí solo. Si una línea de trazos significa «corta por aquí», dilo también con texto.
 - No dependas de él como encabezado. «— o —» entre dos formularios son dos divisores y una etiqueta, y es la etiqueta la que transmite el significado.
 

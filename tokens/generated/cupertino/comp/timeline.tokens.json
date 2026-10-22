@@ -174,10 +174,34 @@
             "$type": "dimension",
             "$description": "The space between the end of one event and the beginning of the next, per density. Regular is the space prose puts between two blocks in the default system; compact, half of it, is for a long log of one-line events.",
             "regular": {
-              "$value": "{tanrei.sys.space.space200}"
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.sys.space.space200}",
+                  "by": 1,
+                  "times": "{tanrei.dial.density}",
+                  "round": "{tanrei.sys.space.space25}"
+                }
+              }
             },
             "compact": {
-              "$value": "{tanrei.sys.space.space100}"
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.sys.space.space100}",
+                  "by": 1,
+                  "times": "{tanrei.dial.density}",
+                  "round": "{tanrei.sys.space.space25}"
+                }
+              }
             }
           }
         },

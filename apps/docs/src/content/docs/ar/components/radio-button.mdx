@@ -2,7 +2,7 @@
 title: زر الاختيار
 description: يتيح للأشخاص اختيار خيار واحد بالضبط من مجموعة صغيرة معروضة كلها دفعة واحدة.
 translationOf: components/radio-button.mdx
-sourceHash: 75fabd1dc1d5852c84f2905cd64938216d9b6b8a
+sourceHash: 580d206e4ecad18e8ec686f544dd11bd9a7b7564
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -130,6 +130,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-radio-button name="specs-disabled" value="unselected" disabled label="معطَّل، غير محدَّد"></tanrei-radio-button>
     <tanrei-radio-button name="specs-disabled" value="selected" disabled checked label="معطَّل، محدَّد"></tanrei-radio-button>
   </div>
+  <div role="radiogroup" aria-label="للقراءة فقط" aria-readonly="true" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-radio-button name="specs-readonly" value="unselected" readonly label="للقراءة فقط، غير محدَّد"></tanrei-radio-button>
+    <tanrei-radio-button name="specs-readonly" value="selected" readonly checked label="للقراءة فقط، محدَّد"></tanrei-radio-button>
+  </div>
   <div role="radiogroup" aria-label="التسمية مخفيّة">
     <tanrei-radio-button name="specs-hidden" value="weekly" checked label-hidden label="أسبوعيًّا"></tanrei-radio-button>
   </div>
@@ -183,6 +187,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - التسمية هي الاسم المتاح للتقنيات المساعدة، سواء رُسمت أم أُخفيت بالخاصية `labelHidden`. والنص المرسوم مخفيّ عن التقنيات المساعدة، فيُقرأ الاسم مرة واحدة.
 - للمجموعة موضع توقف واحد للمفتاح Tab: الخيار المحدَّد، أو أول خيار مفعَّل ما دام لا شيء محدَّدًا. مفاتيح الأسهم تنتقل إلى الخيار المفعَّل التالي أو السابق وتحدّده، وتلتفّ عند الطرفين؛ ويتبادل مفتاحا السهم لليسار والسهم لليمين في التخطيط من اليمين إلى اليسار.
 - المفتاح Space يحدّد الخيار الذي عليه التركيز. والمفتاح Enter لا يحدّده إلا حيث تفعّل المنصة أي عنصر تحكم عليه التركيز بالمفتاح Enter (Android و tvOS)؛ أما على الويب فالمفتاح Enter يرسل النموذج.
+- ما دامت `readOnly` مضبوطة، أو ما دامت مجموعة أزرار الاختيار المحيطة به للقراءة فقط، يبقى الخيار قابلًا للتركيز وتبلغه مفاتيح الأسهم، لكن لا شيء يحدّده: لا الضغط ولا المفتاح Space ولا النقر على التسمية ولا `click()` ولا مفتاح سهم يصل إليه. ولا يُظهر استجابة للتمرير أو الضغط. ليس لدور radio حالة للقراءة فقط، فالمجموعة هي التي تقولها.
 - تحديد خيار يلغي تحديد الخيارات الأخرى. والخيار الذي صار محدَّدًا وحده يبلّغ عن التغيّر، وتفعيل الخيار المحدَّد لا يفعل شيئًا.
 - النقر أو اللمس على التسمية يحدّد الخيار. التسمية جزء من مساحة اللمس، ومساحة اللمس تستوفي الحد الأدنى للهدف. ويحجز كل خيار ارتفاع الهدف في التخطيط، فتحتفظ الخيارات المرصوصة بأهداف كاملة ومنفصلة.
 - التحديد تحمله الحلقة وحدها: الحلقة المحدَّدة تحافظ على تباين 3:1 مقابل كل سطح في النظام الافتراضي، وثخانتها مرتان ونصف ثخانة غير المحدَّدة. أما التعبئة شبه الشفافة فلا تُحتسب في ذلك، لكنها تُبقي تباين 3:1 مع الحلقة التي تلاقيها، في كل حالة وعلى كل سطح وفي كل مخطط (WCAG 1.4.11)، فيُرى مركز الخيار المحدَّد أيضًا.
@@ -193,12 +198,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 فجوات معروفة في المنصات:
 
 - ما زالت SwiftUI و Compose و Flutter و React Native ترسم زر الاختيار السابق، بنقطة وبالمقاسات السابقة، ولا ترسم بعد الحلقة والتعبئة شكلًا واحدًا، ولا تحجز ارتفاع الهدف في التخطيط، فالخيارات المرصوصة بلا فجوة تتشارك مساحة الهدف.
+- `readOnly` موجودة على الويب وحده حتى الآن: لا تملكها SwiftUI و Compose و Flutter و React Native بعد.
 - تحت `m3-like` تتدرّج النقطة المحدَّدة في الظهور بمقاسها الكامل، حيث يكبّرها Material من المركز (فجوة المحاكاة `radio-dot-scale-in`).
 
 ### ما عليك فعله
 
 - سمِّ المجموعة بالسؤال الذي تجيب عنه. على الويب، أحِط الخيارات بعنصر له `role="radiogroup"` و `aria-labelledby`، أو بعنصر `<fieldset>` مع `<legend>`. في Flutter عيِّن `semanticLabel` على `TanreiRadioGroup`؛ وفي React Native عيِّن `accessibilityLabel` على `RadioGroup`.
 - كوِّن المجموعة بأسلوب المنصة، لتعمل المفاتيح والموضع: `name` واحد على الويب، و `Modifier.selectableGroup()` على الأب في Compose، و `TanreiRadioGroup` في Flutter، و `RadioGroup` في React Native.
+- حين تجمع الخيارات بنفسك عبر `name` وتجعل كلًّا منها للقراءة فقط، قل ذلك على الحاوية: `aria-readonly="true"` بجانب `role="radiogroup"`. و[مجموعة أزرار الاختيار](/ar/components/radio-group/) التي تحمل `readOnly` تفعل ذلك عنك.
 - إن كان السؤال مطلوبًا وتُرك بلا جواب، فاعرض الرسالة على المجموعة: [مجموعة أزرار الاختيار](/ar/components/radio-group/) التي في حالة الخطأ ترسم نص الخطأ وتضع كل زر اختيار في هيئة الخطأ الخاصة به. وللخيارات المجموعة من دونها عيِّن `error` على كل زر اختيار: تأخذ الحلقة والنقطة لون الخطأ، كما يأخذه صندوق خانة الاختيار. والخيار المعطَّل لا يُظهر لون الخطأ.
 - زر الاختيار الذي في حالة الخطأ لا يُعرض على أنه غير صالح، لأن دوره ليست له هذه الحالة. والمجموعة هي التي تقولها: مجموعة أزرار الاختيار غير صالحة ونص الخطأ يصفها. وحيث تجمع الخيارات بنفسك، قل الخطأ بالكلمات بجانبها.
 - إن أعدت تنسيق الحلقة والتعبئة في طبقتك، فأبقِ الحلقة قوية بما يكفي لتُظهر التحديد وحدها. البناء لا يفحص ذلك.

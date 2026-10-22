@@ -22,6 +22,8 @@ import '../menu/menu.js';
 import type { TanreiMenuCloseDetail } from '../menu/menu.js';
 import { styles } from './breadcrumbs.styles.js';
 import { adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { TanreiElement } from '../../primitives/element.js';
+import { FacesWatch } from '../../primitives/faces.js';
 
 /** What a trail longer than its width does (BRC-9, BRC-15): fold its middle behind the overflow button, or run over several lines. */
 export type TanreiBreadcrumbsOverflow = 'collapse' | 'wrap';
@@ -146,7 +148,7 @@ function takenOut(count: number, out: number): Set<number> {
  * @csspart overflow-button - The button that stands for the levels taken out of the trail and opens their menu.
  * @csspart overflow-icon - The overflow button's glyph.
  */
-export class TanreiBreadcrumbs extends LitElement {
+export class TanreiBreadcrumbs extends TanreiElement {
   static override styles = styles;
 
   // Each level stands in a list item of its own, so the element assigns each child to that item's slot (BRC-1).
@@ -238,7 +240,7 @@ export class TanreiBreadcrumbs extends LitElement {
     for (const [type, listener] of this.pressListeners) this.addEventListener(type, listener, true);
     this.mutations?.observe(this, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTRIBUTES });
     this.watch(this, true);
-    document.fonts?.addEventListener('loadingdone', this.onFaces);
+    this.faces.connect();
     this.levelsStale = true;
     if (this.hasUpdated) this.requestUpdate();
   }
@@ -253,7 +255,7 @@ export class TanreiBreadcrumbs extends LitElement {
     TanreiBreadcrumbs.due.delete(this);
     cancelAnimationFrame(this.keeping);
     this.keeping = 0;
-    document.fonts?.removeEventListener('loadingdone', this.onFaces);
+    this.faces.disconnect();
     for (const press of this.pressControllers) press.hostDisconnected();
     this.heldPress = null;
     this.heldAnchor = null;
@@ -270,8 +272,8 @@ export class TanreiBreadcrumbs extends LitElement {
     this.requestUpdate();
   }
 
-  /** A face arrived: the labels may be wider or narrower than they were measured. */
-  private readonly onFaces = () => this.decide();
+  /** A face arrived, or the faces are ready after a measurement taken while one loaded: the labels may be wider or narrower than they were measured. */
+  private readonly faces = new FacesWatch(() => this.decide());
 
   /**
    * Reads the product's children: every `<a>` and `<span>` is a level. An address that is no destination is taken off
@@ -373,6 +375,8 @@ export class TanreiBreadcrumbs extends LitElement {
     for (const { list } of live) list.classList.add('measure');
     const read = live.map(({ list }) => ({ widths: [...list.querySelectorAll('li.level')].map(width), button: width(list.querySelector('li.more')), room: width(list) }));
     for (const { list } of live) list.classList.remove('measure');
+    // After the layout the reads forced: a face the labels first asked for in it is loading now.
+    for (const { trail } of live) trail.faces.measured();
     live.forEach(({ trail }, index) => trail.take(read[index]!, observed));
   }
 

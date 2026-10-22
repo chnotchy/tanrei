@@ -337,10 +337,10 @@ export const styles = css`
     ${unsafeCSS(PROGRESS)}: 1;
   }
   /* SWT-12: a handle that shows a glyph in a condition is at least handle.size-with-icon in that condition. */
-  .root[data-unselected-icon] {
+  .root[data-unchecked-icon] {
     --_size0: max(var(--_hs0), var(--tanrei-comp-switch-handle-size-with-icon));
   }
-  .root[data-selected-icon] {
+  .root[data-checked-icon] {
     --_size1: max(var(--_hs1), var(--tanrei-comp-switch-handle-size-with-icon));
   }
   ${unsafeCSS(PRESSED)} {

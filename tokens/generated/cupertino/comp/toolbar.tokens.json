@@ -4,23 +4,25 @@
       "toolbar": {
         "$extensions": {
           "dev.tanrei.vocabulary": {
-            "rationale": "One product puts a short row of actions for the current screen or selection across the bottom edge on some screens and floating over the content on others (an editor's tools, a map's controls), horizontal or, beside the content on a large screen, vertical.",
+            "rationale": "One product places a row of related controls inside its content on some screens (an editor's formatting bar, a table's actions, a row of filters), docks one across the bottom edge on others and floats one over the content elsewhere (a drawing's tools, a map's controls), horizontal or, beside the content, vertical; it groups related controls and sets the groups apart as its other components set parts apart.",
             "since": "0.1.0"
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a toolbar reads: for each variant (docked: across the bottom edge; floating: a rounded surface over the content) the container color, elevation, corners, cross-axis size, end padding, minimum gap between items and edge color, and the width of that edge.",
+            "usage": "Everything a toolbar reads: for each variant (inline: in place in the content, with no surface of its own in the default system; docked: across the bottom edge; floating: a rounded surface over the content) the container color, elevation, corners, cross-axis size, end padding, minimum gap between items and edge color, and the width of that edge; the space and the line that set two groups apart, and which of the two the toolbar draws.",
             "rules": [
               "The toolbar has no interaction states: its items are the product's icon buttons and buttons, with their own tokens, which the toolbar does not restyle.",
-              "docked and floating must differ visibly at rest: a floating toolbar is raised and rounded, a docked one is flush with the screen's bottom edge.",
+              "inline, docked and floating must differ visibly at rest: an inline toolbar stands on the surface it is placed on, a floating toolbar is raised and rounded, a docked one is flush with the screen's bottom edge.",
               "container.size is the extent across the row of items: the height of a horizontal toolbar, the width of a vertical one. It is a minimum.",
               "A container color must keep the items' own icon and label colors readable: a standard icon button draws on-surface-variant on it.",
+              "separation follows sys.behavior.separation: divider draws divider.length of divider.thickness in divider.color between two groups with group.gap on each side, gap leaves twice group.gap. Set it apart from the system's choice only for a reason of the toolbar's own.",
               "Restyle through these tokens in a layer; never fork the component."
             ]
           },
           "dev.tanrei.axes": {
             "variant": {
-              "default": "docked",
+              "default": "inline",
               "values": [
+                "inline",
                 "docked",
                 "floating"
               ],
@@ -39,6 +41,23 @@
         "container": {
           "color": {
             "$type": "color",
+            "inline": {
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "An inline toolbar stands on the surface it is placed on: it has no fill of its own."
+                }
+              }
+            },
             "docked": {
               "$value": "{tanrei.sys.color.surface-container-low}",
               "$extensions": {}
@@ -51,6 +70,10 @@
           },
           "elevation": {
             "$type": "shadow",
+            "inline": {
+              "$value": "{tanrei.sys.elevation.level0}",
+              "$description": "No shadow of its own."
+            },
             "docked": {
               "$value": "{tanrei.sys.elevation.level0}"
             },
@@ -62,6 +85,10 @@
           },
           "shape": {
             "$type": "dimension",
+            "inline": {
+              "$value": "{tanrei.sys.shape.corner.medium}",
+              "$description": "For a layer that fills the surface; nothing is drawn with it in the default system."
+            },
             "docked": {
               "$value": "{tanrei.sys.shape.corner.none}",
               "$description": "A docked toolbar is flush with the screen's edges."
@@ -73,6 +100,21 @@
           "size": {
             "$type": "dimension",
             "$description": "The extent across the row of items: the height of a horizontal toolbar, the width of a vertical one, not counting a docked toolbar's system inset. A minimum: a button's enlarged label grows it.",
+            "inline": {
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              },
+              "$description": "A medium Button's height: the items' targets reach beyond it themselves (BTN-5).",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.sys.control.height.medium}",
+                  "by": 1,
+                  "min": "{tanrei.sys.target.minimum}"
+                }
+              }
+            },
             "docked": {
               "$value": {
                 "value": 44,
@@ -103,6 +145,10 @@
           "padding-inline": {
             "$type": "dimension",
             "$description": "From each end of the toolbar, along its axis, to the first and the last item.",
+            "inline": {
+              "$value": "{tanrei.sys.space.space0}",
+              "$description": "Its ends line up with the content around it."
+            },
             "docked": {
               "$value": "{tanrei.sys.space.space100}",
               "$extensions": {}
@@ -115,7 +161,11 @@
           },
           "gap": {
             "$type": "dimension",
-            "$description": "Between the visible bounds of two neighbouring items. docked: the least space between them in a toolbar that spreads its items across its width; neighbouring hit areas meet at the middle of it (TBR-9), so it is what keeps each item's target whole: at sys.target.touch minus an item's length or more, the item keeps its full target between neighbours, and the default system's 16 is 48 minus its narrowest icon button (small, 32). floating: the space between items in a toolbar that is as long as its items need; 0 in the default system, where the items stand as close as their targets allow, each keeping sys.target.touch along the axis (TBR-16), so medium icon buttons (40) stand 8 apart and items 48 or longer touch.",
+            "$description": "Between the visible bounds of two neighbouring items. docked: the least space between them in a toolbar that spreads its items across its width; neighbouring hit areas meet at the middle of it (TBR-9), so it is what keeps each item's target whole: at sys.target.touch minus an item's length or more, the item keeps its full target between neighbours, so it is derived as sys.target.touch less the narrowest icon button (a small one), never below zero: 48 − 32 = 16 in the default system. floating: the space between items in a toolbar that is as long as its items need; 0 in the default system, where the items stand as close as their targets allow, each keeping sys.target.touch along the axis (TBR-16), so medium icon buttons (40) stand 8 apart and items 48 or longer touch.",
+            "inline": {
+              "$value": "{tanrei.sys.space.space50}",
+              "$description": "A condensed row: neighbouring items stand at least this far apart, and further as TBR-16 keeps their targets apart, as a floating toolbar's do."
+            },
             "docked": {
               "$value": "{tanrei.sys.target.spacing}",
               "$extensions": {}
@@ -130,6 +180,23 @@
           "color": {
             "$type": "color",
             "$description": "A docked toolbar's top edge; the edge around a floating toolbar's whole shape.",
+            "inline": {
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "An inline toolbar has no edge of its own."
+                }
+              }
+            },
             "docked": {
               "$value": "{tanrei.sys.color.outline-variant}"
             },
@@ -154,6 +221,43 @@
           "width": {
             "$type": "dimension",
             "$value": "{tanrei.sys.border.hairline}"
+          }
+        },
+        "group": {
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "The space on each side of the line between two groups, or of a separator item; under a gap separation, the empty space is twice this."
+          }
+        },
+        "divider": {
+          "length": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space300}",
+            "$description": "How long the line between two groups is, across the toolbar's axis, centred: shorter than the row it stands in."
+          },
+          "thickness": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}",
+            "$description": "As the Divider's line."
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.outline-variant}",
+            "$description": "The Divider's role. Decorative to the eye; the line is exposed as a separator."
+          }
+        },
+        "separation": {
+          "$type": "number",
+          "$value": "{tanrei.sys.behavior.separation}",
+          "$description": "How two groups, or a separator item, set items apart. divider: a line of divider.thickness and divider.length in divider.color with group.gap on each side. gap: twice group.gap of empty space and no line. Follows the system's choice; a toolbar's separation prop overrides it (TBR-23). The value is an index into dev.tanrei.enum.values; platforms receive the name.",
+          "$extensions": {
+            "dev.tanrei.enum": {
+              "values": [
+                "divider",
+                "gap"
+              ]
+            }
           }
         }
       }

@@ -1,0 +1,170 @@
+---
+title: メーター
+description: ストレージの使用量、電池の残量、割り当ての消費、パスワードの強さのように、決まった範囲の中で、ある値がどこにあるかを示します。見た目はプログレスインジケーターと同じバーまたはリングですが、何かが進行中だとは伝えません。
+translationOf: components/meter.mdx
+sourceHash: a9d8ef1942e071884710cdc52bdb78d45aadfb32
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="meter" />
+
+<DemoFrame label="リニアとサーキュラー">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter value="0.62" label="ストレージの使用量" value-text="15 GB 中 9.3 GB"></tanrei-meter>
+    <tanrei-meter value="37" max="50" label="予約済みの席" value-text="50 席中 37 席"></tanrei-meter>
+  </div>
+  <tanrei-meter variant="circular" value="0.62" label="バッテリー"></tanrei-meter>
+  <tanrei-meter variant="circular" size="large" value="0.15" status="warning" label="バッテリー" value-text="残りわずか：15%"></tanrei-meter>
+</DemoFrame>
+
+### 使い方
+
+Web と React の例は現在の仕様に沿っています。SwiftUI、Compose、Flutter、React Native は予定で、まだメーターを提供していません。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-meter value="0.62" label="ストレージの使用量" value-text="15 GB 中 9.3 GB"></tanrei-meter>
+    <tanrei-meter value="37" max="50" label="予約済みの席" value-text="50 席中 37 席"></tanrei-meter>
+
+    <!-- 値が何を意味するかはプロダクトが決め、言葉でも伝えます。 -->
+    <tanrei-meter value="0.85" status="warning" label="ストレージの使用量" value-text="残りわずか：15 GB 中 12.8 GB"></tanrei-meter>
+
+    <tanrei-meter variant="circular" size="small" value="0.62" label="バッテリー"></tanrei-meter>
+
+    <script type="module">
+      import '@tanrei/web/components/meter';
+      const meter = document.querySelector('tanrei-meter');
+      meter.value = used / quota;
+      meter.status = used / quota > 0.8 ? 'warning' : 'default';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Meter } from '@tanrei/react';
+
+    <Meter value={used / quota} label="ストレージの使用量" valueText={`${quotaText} 中 ${usedText}`} />
+    <Meter value={seats} max={50} label="予約済みの席" valueText={`50 席中 ${seats} 席`} />
+    <Meter
+      value={used / quota}
+      status={used / quota > 0.8 ? 'warning' : 'default'}
+      label="ストレージの使用量"
+      valueText={used / quota > 0.8 ? `残りわずか：${quotaText} 中 ${usedText}` : `${quotaText} 中 ${usedText}`}
+    />
+    <Meter variant="circular" size="small" value={charge} label="バッテリー" />
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="ステータス：default、info、success、warning、error" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter value="0.62" label="Default"></tanrei-meter>
+    <tanrei-meter value="0.4" status="info" label="Info"></tanrei-meter>
+    <tanrei-meter value="0.9" status="success" label="Success"></tanrei-meter>
+    <tanrei-meter value="0.85" status="warning" label="Warning"></tanrei-meter>
+    <tanrei-meter value="0.98" status="error" label="Error"></tanrei-meter>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="サイズ、範囲の両端、独自の範囲" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter size="small" value="0.62" label="Small"></tanrei-meter>
+    <tanrei-meter size="medium" value="0.62" label="Medium"></tanrei-meter>
+    <tanrei-meter size="large" value="0.62" label="Large"></tanrei-meter>
+    <tanrei-meter value="0" label="空"></tanrei-meter>
+    <tanrei-meter value="1" label="満杯"></tanrei-meter>
+    <tanrei-meter value="37" max="50" value-text="50 席中 37 席" label="予約済みの席"></tanrei-meter>
+  </div>
+  <tanrei-meter variant="circular" size="small" value="0.62" label="Small"></tanrei-meter>
+  <tanrei-meter variant="circular" size="medium" value="0.62" label="Medium"></tanrei-meter>
+  <tanrei-meter variant="circular" size="large" value="0.62" label="Large"></tanrei-meter>
+</DemoFrame>
+
+<DemoFrame label="区切り方：divider（既定のシステムの選択）と gap" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter separation="divider" value="0.62" label="Divider"></tanrei-meter>
+    <tanrei-meter separation="gap" value="0.62" label="Gap"></tanrei-meter>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="meter" />
+
+## ガイドライン
+
+### 使う場面
+
+本当の最小値と最大値がある範囲の中で、ある量がどこにあるかを示すときに使います。割り当てに対するストレージの使用量、電池の残量、部屋の予約済みの席、新しいパスワードの強さなどです。示すのは量で、何かが進行中なわけでも、いつか終わるわけでもありません。
+
+アップロード、インポート、時間のかかる保存のように、実行中のタスクには、代わりに[プログレスインジケーター](/ja/components/progress-indicator/)を使います。見た目は同じですが、支援技術は何かが進行中だと伝えます。メーターはそう伝えてはいけません。メッセージの件数のように、意味のある最大値がない値はどちらでもなく、テキストで示します。
+
+### バリアントの選び方
+
+| バリアント | 用途 |
+| --- | --- |
+| Linear | ページやセクションに属する量。設定ページのストレージ、カードの中の割り当て、プランの一覧の行など。バーはレイアウトが与える幅いっぱいに伸びます。 |
+| Circular | 狭い場所や、テキストの横での量。ステータスバーの電池、デバイスの一覧の行など。リングの大きさは固定です。 |
+
+### サイズの選び方
+
+| サイズ | 既定のシステムでのバーの太さ / リングの大きさ | 用途 |
+| --- | --- | --- |
+| Small | 2 / 16 | 密度の高い行、小さなテキストの横。 |
+| Medium | 4 / 24 | ほとんどの場所。既定値です。 |
+| Large | 8 / 40 | アカウントのストレージのページのように、その画面の主役である量。 |
+
+サイズ、トラック、既定の色はプログレスインジケーターと同じなので、メーターとプログレスインジケーターを並べてもそろいます。デザインシステムは、メーター自身のトークンで、メーターだけを変えられます。
+
+### ステータスの選び方
+
+値が何を意味するかを、メーターは決めません。多いほうが良いのか悪いのかは、プロダクトが知っていることです。ストレージがほぼいっぱいなら warning、パスワードがほぼ最大の強さなら success です。ステータスはプロダクトが計算して渡します。ステータスの名前は、タグとスナックバーと同じです。
+
+| ステータス | 用途 |
+| --- | --- |
+| Default | 何も言う必要のない量。ほとんどのメーターはこれです。 |
+| Info | 知っておく価値はあるが、何も求めない量。まもなくリセットされる割り当てなど。 |
+| Success | あるべきところにある量。強いパスワードなど。 |
+| Warning | 近いうちに注意が必要な量。ほぼいっぱいのストレージや、残りわずかの電池など。 |
+| Error | すでに何かを止めている量。いっぱいになったストレージなど。 |
+
+ステータスが変えるのはインジケーターの色だけです。その意味は言葉でも伝えます。値のテキストと、メーターの横のテキストです。
+
+### 推奨
+
+- 何を測っているかを表すラベルを付けます。「メーター」ではなく「ストレージの使用量」です。横にキャプションを表示するなら、同じ言葉を使います。
+- パーセントが自然な読み方でないときは、値のテキストを使います。「15 GB 中 9.3 GB」「50 席中 37 席」「強い」などです。
+- ステータスに意味があるときは、値のテキストにも入れます。「残りわずか：15 GB 中 12.8 GB」のようにします。
+
+### 非推奨
+
+- 実行中のタスクに使わない。それはプログレスインジケーターです。
+- ステータスの色だけに頼らない。色が見えない人にも、ストレージがほぼいっぱいだと伝わらなければなりません。
+- 範囲の外の値を示さない。メーターは範囲に収めて描き、伝えるので、聞こえる数は手元の数と違ってしまいます。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="meter" />
+
+### コンポーネントが担うこと
+
+- メーターのロールを公開し、ラベルを名前にします。範囲、現在の値（範囲に収めたもの）、値のテキストがあればそれも公開します。ビジー状態や、タスクが進行中であることは伝えません。
+- フォーカスを受け取らず、変化を自分から読み上げません。支援技術は、利用者がたどり着いたときに現在の値を読みます。
+- ステータスをそれだけで読み上げることはありません。変わるのは色だけです。
+- 値が変わるとインジケーターの端が動き、ステータスが変わると色がフェードします。動きを減らす設定のときは、端はすぐに動き、色だけがフェードします。
+- 強制カラーモードでは、ステータスにかかわらず、トラックは細い縁に、インジケーターは塗りつぶしになり、どちらもテキストの色で描かれます。値は、インジケーターの終わる位置で読み取れます。
+- 空のラベル、範囲の外の値、数でない値、未知の `size`、`variant`、`separation`、`status` は、デバッグビルドで報告されます。
+
+### 利用者がすること
+
+- ステータスが意味することを言葉で伝えます。値のテキストと、メーターの横のテキストです。
+- ストレージがいっぱいになったときのように、重要な変化は自分で知らせます。ライブリージョンのメッセージか、利用者が目にする通知です。メーターは知らせません。
+- インジケーターの色（既定と 4 つのステータス）を変えるときは、どれもトラックと背後のサーフェスに対して 3:1 以上を保ちます。値は、インジケーターとトラックの接する位置で読み取られます。既定のシステムでは、5 色ともライトで 4.6:1 以上、ダークで 7.3:1 以上です。

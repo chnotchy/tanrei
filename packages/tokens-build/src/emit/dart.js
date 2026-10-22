@@ -120,11 +120,10 @@ const axisId = (axis, key) => (/^[a-z]/.test(key) ? id(key) : id(`${axis}-${key}
  *   perState   per-state tokens of the component itself (`hovered.opacity`); no resting counterpart is assumed
  */
 function componentShape(component, tokens, declared = {}) {
-  const live = tokens.filter((t) => !t.deprecated);
   const sortStates = (names) => [...names].sort((a, b) => (STATE_ORDER.indexOf(a) + 1 || 99) - (STATE_ORDER.indexOf(b) + 1 || 99) || (a < b ? -1 : 1));
 
   const axes = Object.entries(declared).map(([axis, def]) => {
-    const mine = live.filter((t) => t.axis === axis);
+    const mine = tokens.filter((t) => t.axis === axis);
     const byKey = new Map(); // key → state → member → token
     for (const t of mine) {
       const states = byKey.get(t.key) ?? byKey.set(t.key, new Map()).get(t.key);
@@ -145,7 +144,7 @@ function componentShape(component, tokens, declared = {}) {
   });
 
   let perState = null;
-  const own = live.filter((t) => !t.axis && t.state);
+  const own = tokens.filter((t) => !t.axis && t.state);
   if (own.length) {
     const byState = new Map(); // state → part → token
     for (const t of own) {
@@ -158,7 +157,7 @@ function componentShape(component, tokens, declared = {}) {
     perState = { states: sortStates(byState.keys()), parts: [...byState.values().next().value.keys()].sort(), tokens: byState };
   }
 
-  return { name: component, flat: live.filter((t) => !t.axis && !t.state), axes, perState };
+  return { name: component, flat: tokens.filter((t) => !t.axis && !t.state), axes, perState };
 }
 
 const componentShapes = (ir) => Object.entries(ir.componentTokens).map(([name, tokens]) => componentShape(name, tokens, ir.axes[name]));
@@ -181,9 +180,7 @@ const coreSteps = (ir, series, obj) => Object.keys(obj).filter((k) => !addedStep
 
 const measureFields = (ir) =>
   Object.entries(ir.measure).flatMap(([group, values]) =>
-    Object.keys(values)
-      .filter((k) => !ir.deprecatedMeasures.includes(`${group}-${k}`))
-      .map((k) => ({ group, key: k, name: camel([group, k]), step: `${group}-${k}`, added: addedSteps(ir, group).has(k) })),
+    Object.keys(values).map((k) => ({ group, key: k, name: camel([group, k]), step: `${group}-${k}`, added: addedSteps(ir, group).has(k) })),
   );
 
 /**
@@ -1220,7 +1217,7 @@ export function emitDartSystem(ir, { vocabularyRoles = ir.coreRoles, vocabularyI
   for (const [namespace, tokens] of Object.entries(ir.extensions.own)) {
     const Ns = pascal([namespace]);
     const root = { children: new Map() };
-    for (const t of tokens.filter((x) => !x.deprecated)) {
+    for (const t of tokens) {
       // `acme.comp.rating.star.size` → rating.star.size: the `comp` tier is the default place; other tiers stay a level.
       const segments = t.id.split('.').slice(1);
       const at = segments[0] === 'comp' ? segments.slice(1) : segments;

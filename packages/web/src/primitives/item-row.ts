@@ -84,11 +84,15 @@ export function itemRowStyles({ prefix, parts, conditions, on, paints }: ItemRow
  * LST-11, MNU-12: a pressable row is at least `sys.target.pointer` tall for a fine pointer and `sys.target.touch` for a
  * coarse one — rows that touch cannot extend a hit area over each other, so the row itself grows — and at least `height`
  * (its own minimum) whatever the pointer.
+ *
+ * `pointer` is what a fine pointer's row is held to: the pointer target, or — for a compact density, the one place a
+ * row is lower than it (MNU-12, SEL-37, CMB-34, SRC-16, LST-11, TRV-26) — a private switch the component sets to `0px`.
+ * Touch is never given less than the touch target.
  */
-export function rowTarget(selector: string, height: string): CSSResult {
+export function rowTarget(selector: string, height: string, pointer = 'var(--tanrei-sys-target-pointer)'): CSSResult {
   return unsafeCSS(`
   ${selector} {
-    min-block-size: max(${height}, var(--tanrei-sys-target-pointer));
+    min-block-size: max(${height}, ${pointer});
   }
   @media (pointer: coarse) {
     ${selector} {

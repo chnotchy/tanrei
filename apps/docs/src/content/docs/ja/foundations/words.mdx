@@ -1,16 +1,16 @@
 ---
 title: 言葉
-description: Tanrei は言葉を同梱しません。コンポーネントが描いたり読み上げたりするラベル、名前、メッセージは、すべてプロダクトのものです。コンポーネントに書くか、プロダクト全体に一度だけ渡します。
+description: コンポーネントは自分の言葉を持ちません。コンポーネントが描いたり読み上げたりするラベル、名前、メッセージは、すべてプロダクトのものです。コンポーネントに書くか、プロダクト全体に一度だけ渡すか、import した英語の言葉のパックから取ります。
 translationOf: foundations/words.mdx
-sourceHash: 2e2cdc9a6fac5336bbdea998f043a08a73daa2cb
+sourceHash: cde7229312c583aa11ef0dc7634daa997d078d17
 ---
 
 import ProductWordKeys from '../../../../components/ProductWordKeys.astro';
 import DemoFrame from '../../../../components/DemoFrame.astro';
 
-**Tanrei は言葉を同梱しません。** どのコンポーネントも、どの言語でも、既定のテキストを持ちません。「必須」も「閉じる」も「OK」もありません。コンポーネントが描いたり読み上げたりする言葉は、プロダクトが書いたものです。
+**コンポーネントは自分の言葉を持ちません。** どのコンポーネントも、どの言語でも、既定のテキストを持ちません。「必須」も「閉じる」も「OK」もありません。コンポーネントが描いたり読み上げたりする言葉は、プロダクトが渡したものです。自分で書いたものか、自分で import した[英語の言葉のパック](#英語の言葉のパック)から取ったものです。
 
-既定値は、それが引き起こす失敗を隠します。日本語のプロダクトが言葉を 1 つ書き忘れると、自分のテキストの横に英語が出ますが、そのことは誰にも報告されません。英語のプロダクトにも、自分の言い回しがあります（「Mandatory」「Done」「Nothing found」）。そこで、コンポーネントは代わりに使う言葉を持たず、足りない言葉があればそれを知らせます。
+既定値は、それが引き起こす失敗を隠します。日本語のプロダクトが言葉を 1 つ書き忘れると、自分のテキストの横に英語が出ますが、そのことは誰にも報告されません。英語のプロダクトにも、自分の言い回しがあります（「Mandatory」「Done」「Nothing found」）。そこで、コンポーネントは代わりに使う言葉を持たず、足りない言葉があればそれを知らせます。英語の言葉のパックは、そのような代わりの言葉ではありません。プロダクト自身が import しない限り、使われません。
 
 ## 言葉はどこから来るか
 
@@ -19,10 +19,27 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | 場所 | 渡すもの | 例 |
 | --- | --- | --- |
 | **コンポーネント自身** | その 1 つだけについての言葉と、その 1 つだけ言い方を変えたい言葉 | `label`、`error-text`、`close-label="絞り込みを閉じる"` |
-| **プロダクトの言葉** | そのパーツがどこに描かれても同じ言い方をする言葉。言語ごとに一度だけ渡します | `requiredText`、`closeLabel`、`previousMonthLabel` |
+| **プロダクトの言葉** | そのパーツがどこに描かれても同じ言い方をする言葉。言語ごとに一度だけ渡すか、import した英語の言葉のパックから取ります | `requiredText`、`closeLabel`、`previousMonthLabel` |
 | **プラットフォーム** | ブラウザーが読み手の言語ですでに持っているもの | 月名、曜日名、数字、「午前」、値がないときのブラウザー自身のメッセージ |
 
 この 3 つのあとには何もありません。代わりの言語はなく、「とりあえず英語」もありません。
+
+## 英語の言葉のパック
+
+Tanrei は、プロダクトの言葉を 1 組だけ用意しています。すべてのキーに、平易で癖のない英語の言葉を 1 つずつ（「Required」「Close」「Previous month」など）。一度だけ import します。
+
+```js
+import '@tanrei/web/words/en';
+```
+
+これで、`setWords()` を 1 回呼んだときと同じように、ページ全体の言葉が渡ります。プロダクトの代わりにこれを import するものはありません。`@tanrei/web` も `@tanrei/react` も、コンポーネントも、ページの `lang` も import しません。キーごとのパックの言葉は、[キーの一覧](#キーの一覧)にあります。
+
+- **自分の言葉が優先します。** import のあとに `setWords()` を呼ぶと、渡したキーはパックの言葉と置き換わります。コンポーネントに書いた言葉は、その両方に優先します。import は実行されたときにすべてのキーを渡すので、それより前に渡した言葉は置き換えられます。
+- **パックの言葉から始められます。** モジュールは同じ言葉を値としても出しています。`import { englishWords } from '@tanrei/web/words/en'`
+- **英語以外のプロダクトでは**、その言語の組にないキーはページの組から読まれます。パックを import していれば、それは英語です。自分で書いていないキーに英語を出してよいところでだけ import してください。import しなければ、足りない言葉は報告されます。
+- **隠すべきでないものは隠しません。** パックを import すると、すべてのキーに言葉があるので、`missingWords()` は空になります。プロダクトが自分で書いていない言葉を探すには、パックを import しないテストで確かめます。
+
+React でも、import は同じ 1 行です。最初に描画するモジュールに書きます。
 
 ## プロダクトの言葉を一度だけ渡す
 
@@ -45,13 +62,13 @@ setWords({
 コンポーネントに書いた属性は、プロダクトの言葉より常に優先されます。
 
 <DemoFrame label="コンポーネント自身に書いた言葉：1 つのフィールドだけ言い方を変える" plain column>
-  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="メールアドレス" requirement="required" required-text="必須"></tanrei-text-field>
-  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="会社名" requirement="required" required-text="請求書に必要"></tanrei-text-field>
+  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="メールアドレス" required required-text="必須"></tanrei-text-field>
+  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="会社名" required required-text="請求書に必要"></tanrei-text-field>
 </DemoFrame>
 
 ```html
-<tanrei-text-field label="メールアドレス" requirement="required" required-text="必須"></tanrei-text-field>
-<tanrei-text-field label="会社名" requirement="required" required-text="請求書に必要"></tanrei-text-field>
+<tanrei-text-field label="メールアドレス" required required-text="必須"></tanrei-text-field>
+<tanrei-text-field label="会社名" required required-text="請求書に必要"></tanrei-text-field>
 ```
 
 ## 複数の言語
@@ -106,7 +123,7 @@ setWords({ movedText: '{headline}：{count} 件中 {position} 番目' }, { lang:
 
 ## 言葉が足りなければテストを失敗させる
 
-`missingWords()` は、ページを読み込んでから必要になり、誰も渡さなかったキーを返します。プロダクトの画面をひととおり表示するテストの最後に確かめます。
+`missingWords()` は、ページを読み込んでから必要になり、誰も渡さなかったキーを返します。プロダクトの画面をひととおり表示するテストの最後に確かめます。英語の言葉のパックを import したページでは、足りない言葉はありません。
 
 ```js
 import { missingWords } from '@tanrei/web';
@@ -123,7 +140,7 @@ test('プロダクトに必要な言葉がすべて渡されている', async ()
 
 ## キーの一覧
 
-すべてのキーと、それを読み取るプロパティ、そしてコンポーネントがその文の中で埋める場所です。ほとんどのキーは、プロパティと同じ名前です。違うのは 3 つです。コピーボタンの `label` と `failedLabel` は `copyLabel` と `copyFailedLabel` を読み、パンくずリストの `overflowLabel` は `breadcrumbsOverflowLabel` を読みます。
+すべてのキーと、それを読み取るプロパティ、コンポーネントがその文の中で埋める場所、そして英語の言葉のパックでの言葉です。ほとんどのキーは、プロパティと同じ名前です。違うのは 3 つです。コピーボタンの `label` と `failedLabel` は `copyLabel` と `copyFailedLabel` を読み、パンくずリストの `overflowLabel` は `breadcrumbsOverflowLabel` を読みます。
 
 <ProductWordKeys />
 
@@ -131,4 +148,4 @@ test('プロダクトに必要な言葉がすべて渡されている', async ()
 
 ## ほかのプラットフォーム
 
-この規則は、どのプラットフォームでも同じです。いま実装されているのは Web だけです。SwiftUI、Jetpack Compose、Flutter、React Native は、それぞれの流儀でプロダクトの言葉を受け取るようになります。
+この規則は、どのプラットフォームでも同じです。いま実装されているのは Web だけです。SwiftUI、Jetpack Compose、Flutter、React Native は、それぞれの流儀でプロダクトの言葉と、同じ英語の言葉のパックを受け取るようになります。

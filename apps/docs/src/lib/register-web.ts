@@ -1,11 +1,12 @@
 // Registers every Tanrei custom element for live demos (browser only).
 //
-// Importing the package's entry defines every element: the entry is in the package's `sideEffects`
-// list, so a bundler keeps it (and each component module it imports) even where nothing is used.
+// `@tanrei/web/all` defines every element: the docs draw each component, those only a preset ships among them (the
+// segmented button, the FAB menu), under a system that ships it. The entry is in the package's `sideEffects` list, so
+// a bundler keeps it (and each component module it imports) even where nothing is used.
 //
-// The docs' link forms hold a plain anchor until their element is defined (link-fallback.ts): it goes first.
-import './link-fallback';
-import * as tanrei from '@tanrei/web';
+// The docs' link forms hold a plain anchor until their element is defined: lib/link-fallback.ts takes it away, from
+// the head of every page (components/frame/Head.astro), not from here — a module this one's whole graph holds back.
+import * as tanrei from '@tanrei/web/all';
 
 declare global {
   interface Window {
