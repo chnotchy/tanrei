@@ -909,3 +909,58 @@ test('RGP-21 radio-group: its read-only state reaches the radio group through it
   expect(after.inner['aria-readonly']).toBeNull();
   expect(after.described, 'the product’s description stays').toBe('Described text');
 });
+
+/** An element whose template draws the product's description on one element, then on another in its place. */
+interface Redrawn {
+  sentence: string;
+  tag: string;
+  markup: string;
+  /** The elements it draws it on, the first before `turn`, the second after. */
+  on: [string, string];
+  /** The property that turns it from one to the other, and its two values. */
+  turn: [string, unknown, unknown];
+}
+
+const REDRAWN: Record<string, Redrawn> = {
+  // A part inside its template: the input in the place of the textarea.
+  'text-input': { sentence: 'TXI-70', tag: 'tanrei-text-input', markup: '<tanrei-text-input id="subject" label="Text" aria-describedby="described"></tanrei-text-input>', on: ['input', 'textarea'], turn: ['multiline', false, true] },
+  // The whole template: the navigation landmark in the place of the dialog.
+  'navigation-drawer': { sentence: 'NVD-78', tag: 'tanrei-navigation-drawer', markup: SUBJECTS['navigation-drawer']!.markup('aria-describedby="described"'), on: ['nav[part="container"]', 'dialog'], turn: ['variant', 'standard', 'modal'] },
+};
+
+for (const [name, subject] of Object.entries(REDRAWN)) {
+  test(`${subject.sentence} ${name}: an element its template no longer draws takes its copy of the product’s description with it, and a host taken out of the page and put back keeps its copy`, async ({ page }) => {
+    await load(page, subject.tag, subject.markup);
+    const said = () =>
+      page.evaluate((on) => {
+        const root = document.querySelector('#subject')!.shadowRoot!;
+        const element = on.map((selector) => root.querySelector(selector)).find(Boolean)!;
+        const described = (element.getAttribute('aria-describedby') ?? '')
+          .split(/\s+/)
+          .filter(Boolean)
+          .map((id) => root.getElementById(id)?.textContent ?? '')
+          .filter((text) => text === 'Described text')
+          .join(' ');
+        return { on: element.localName, described, copies: root.querySelectorAll('[id^="tanrei-described-"]').length };
+      }, subject.on);
+    const turn = async (value: unknown) => {
+      await page.evaluate(([property, value]) => ((document.querySelector('#subject') as unknown as Record<string, unknown>)[property as string] = value), [subject.turn[0], value]);
+      await settle(page);
+    };
+    const [first, second] = subject.on.map((selector) => selector.replace(/\[.*$/, ''));
+    expect(await said()).toEqual({ on: first, described: 'Described text', copies: 1 });
+    await turn(subject.turn[2]);
+    expect(await said(), 'the first element’s copy went with it').toEqual({ on: second, described: 'Described text', copies: 1 });
+    await turn(subject.turn[1]);
+    expect(await said(), 'and back').toEqual({ on: first, described: 'Described text', copies: 1 });
+    // Taken out of the page and put back, the element is drawn as it was, and its copy is back with it.
+    await page.evaluate(() => {
+      const host = document.querySelector('#subject')!;
+      const parent = host.parentNode!;
+      host.remove();
+      parent.appendChild(host);
+    });
+    await settle(page);
+    expect(await said(), 'put back').toEqual({ on: first, described: 'Described text', copies: 1 });
+  });
+}

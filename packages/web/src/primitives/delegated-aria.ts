@@ -69,7 +69,8 @@
 // Where an engine has no element reflection, the text of the elements named stands in for them: the label's as the
 // name, the description's (and the error message's) after the component's own description.
 import { noChange } from 'lit';
-import { Directive, type ElementPart, type PartInfo, PartType, directive } from 'lit/directive.js';
+import { AsyncDirective } from 'lit/async-directive.js';
+import { type ElementPart, type PartInfo, PartType, directive } from 'lit/directive.js';
 import { report } from './report.js';
 
 /** The states and properties that move, by attribute. (`aria-hidden` is not one: it hides the whole component.) */
@@ -442,6 +443,8 @@ export class DelegatedAriaWriter {
   private turn = 0;
   /** The hidden copy of the description's text in the control's shadow root (above), and the two ids it takes. */
   private copy: HTMLElement | null = null;
+  /** Where the copy was put, for when the element is back in the page (`attach()`). */
+  private copyParent: Node | null = null;
   private readonly copyIds = [`tanrei-described-${++copies}-a`, `tanrei-described-${copies}-b`] as const;
 
   write(target: HTMLElement, from: HTMLElement, own: OwnAria = {}) {
@@ -536,6 +539,21 @@ export class DelegatedAriaWriter {
     }
   }
 
+  /**
+   * The element has left the page — its template no longer draws it (a drawer that turns from its navigation landmark
+   * into its dialog), or its host has left: the copy of the description it drew goes with it, and a reference not yet
+   * drawn is not drawn.
+   */
+  detach() {
+    this.turn++;
+    this.copy?.remove();
+  }
+
+  /** The element is back in the page as it was (its host put back): so is the copy, where it was. */
+  attach() {
+    if (this.copy && !this.copy.isConnected) this.copyParent?.appendChild(this.copy);
+  }
+
   /** The description: the component's own ids, then the hidden copy of the product's text (above). */
   private describe(element: HTMLElement, root: Node, { ids, text }: { ids: string; text: string }) {
     if (!text) {
@@ -548,9 +566,12 @@ export class DelegatedAriaWriter {
       copy.id = id;
       copy.hidden = true;
       copy.textContent = text;
-      (root.nodeType === Node.DOCUMENT_NODE ? element.parentNode : root)?.appendChild(copy);
+      const parent = root.nodeType === Node.DOCUMENT_NODE ? element.parentNode : root;
+      parent?.appendChild(copy);
       this.copy = copy;
+      this.copyParent = parent;
     }
+    if (!this.copy) this.copyParent = null;
     const value = [ids, this.copy?.id ?? ''].filter(Boolean).join(' ');
     if (value) {
       if (element.getAttribute('aria-describedby') !== value) element.setAttribute('aria-describedby', value);
@@ -561,7 +582,7 @@ export class DelegatedAriaWriter {
 /** The copies of descriptions made in this page, for their ids. */
 let copies = 0;
 
-class DelegatedAria extends Directive {
+class DelegatedAria extends AsyncDirective {
   private readonly writer = new DelegatedAriaWriter();
 
   constructor(part: PartInfo) {
@@ -576,6 +597,15 @@ class DelegatedAria extends Directive {
   override update(part: ElementPart, [host, own]: [HTMLElement, OwnAria]) {
     this.writer.write(part.element as HTMLElement, host, own);
     return noChange;
+  }
+
+  // The template dropped the element, or its host left the page: no copy of a description is left in the shadow root.
+  protected override disconnected() {
+    this.writer.detach();
+  }
+
+  protected override reconnected() {
+    this.writer.attach();
   }
 }
 
