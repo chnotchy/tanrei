@@ -8737,7 +8737,7 @@ out with no term wrapped, `data-measuring`; nothing is painted in between), adds
 least width, and writes the sum on itself — `data-stacks-below="256"` — with one rule in a sheet it adds:
 `@container (inline-size < 256px)`. From then on **the browser draws the other form itself** as the list is resized,
 in the same frame and with no script running. The terms are measured again when the list's content changes, when a
-face arrives, and when the list changes size (a reader's text size, a system switched above it); a width that changed
+face arrives (`FacesWatch`: also once the faces are ready after a measurement taken while one loaded), and when the list changes size (a reader's text size, a system switched above it); a width that changed
 there is written in the next frame. One observer of sizes and one of changes per list; nothing at rest.
 
 Good to know:
