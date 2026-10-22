@@ -745,7 +745,7 @@ disabledWaitsWhileFocused(TanreiOneTimeCodeInput);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiOneTimeCodeInput);
 // The product's ARIA on the host is the input's (src/primitives/delegated-aria.ts); the disabled state is its own.
-delegatesAria(TanreiOneTimeCodeInput, { owns: ['aria-disabled'] });
+delegatesAria(TanreiOneTimeCodeInput, { owns: ['aria-disabled'], sentence: 'OTC-31' });
 if (!customElements.get('tanrei-one-time-code-input')) customElements.define('tanrei-one-time-code-input', TanreiOneTimeCodeInput);
 
 declare global {

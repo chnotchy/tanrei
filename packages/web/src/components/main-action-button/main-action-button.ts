@@ -245,7 +245,7 @@ export class TanreiMainActionButton extends TanreiElement {
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiMainActionButton);
 // The product's ARIA on the host is the native element's; the disabled state is its own.
-delegatesAria(TanreiMainActionButton, { owns: ['aria-disabled'] });
+delegatesAria(TanreiMainActionButton, { owns: ['aria-disabled'], sentence: 'MAB-25' });
 if (!customElements.get('tanrei-main-action-button')) customElements.define('tanrei-main-action-button', TanreiMainActionButton);
 
 declare global {

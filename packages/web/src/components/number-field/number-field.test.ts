@@ -4,6 +4,8 @@
 // forty-six fixtures the same pixels and the same control as the Field's fixture `number-<id>` — and reports). The
 // members' own sentences are the members' tests (number-input.test.ts, NMI-1 to NMI-46; field.test.ts, FLD-1 to
 // FLD-28). This file holds what the number field's own sentences add, NUM-47 to NUM-51, and repeats no test of a member.
+// NUM-52: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';

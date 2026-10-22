@@ -3,6 +3,8 @@
 // written here. The FAB menu lives in the m3-like layer: its fixtures are drawn under m3-like (the harness draws a
 // component that lives in a layer under that layer's system), and a choice of kind another system makes is read under a
 // product on that system that includes the FAB menu from m3-like (`includingSystem`), as acme does.
+// FBM-28: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, iconFaceArrives, includingSystem, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';

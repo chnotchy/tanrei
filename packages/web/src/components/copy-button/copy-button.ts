@@ -377,7 +377,7 @@ export class TanreiCopyButton extends TanreiElement {
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiCopyButton);
 // The product's ARIA on the host is the element's that carries the role; it is given to the Button it is drawn by, which exposes it; the disabled state is its own.
-delegatesAria(TanreiCopyButton, { owns: ['aria-pressed', 'aria-disabled'] });
+delegatesAria(TanreiCopyButton, { owns: ['aria-pressed', 'aria-disabled'], sentence: 'CPY-20' });
 if (!customElements.get('tanrei-copy-button')) customElements.define('tanrei-copy-button', TanreiCopyButton);
 
 declare global {

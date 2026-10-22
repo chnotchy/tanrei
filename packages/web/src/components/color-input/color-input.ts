@@ -817,7 +817,7 @@ disabledWaitsWhileFocused(TanreiColorInput);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiColorInput);
 // The product's ARIA on the host is the element's that carries the role; the disabled state is its own.
-delegatesAria(TanreiColorInput, { owns: ['aria-disabled'] });
+delegatesAria(TanreiColorInput, { owns: ['aria-disabled'], sentence: 'CLI-46' });
 if (!customElements.get('tanrei-color-input')) customElements.define('tanrei-color-input', TanreiColorInput);
 
 declare global {

@@ -1,6 +1,8 @@
 // <tanrei-radio-button>, driven by specs/radio-button.spec.json: every behaviour id (RAD-1…28) is cited by a test title,
 // every fixture has a baseline, and every condition, state and choice of kind is read back from the tokens — never from
 // a number written here. Each spec fixture is staged as its own group (test/harness.ts); the group tests build one.
+// RAD-29: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';

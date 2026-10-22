@@ -1,6 +1,8 @@
 // <tanrei-checkbox>, driven by specs/checkbox.spec.json: every behaviour id (CHK-1…24) is cited by a test title, every
 // fixture has a baseline, and every condition, state and choice of kind is read back from the tokens — never from a
 // number written here.
+// CHK-25: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';

@@ -1252,7 +1252,7 @@ disabledWaitsWhileFocused(TanreiCombobox);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiCombobox);
 // The product's ARIA on the host is the element's that carries the role; the list it opens and the disabled state are its own.
-delegatesAria(TanreiCombobox, { owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-disabled'] });
+delegatesAria(TanreiCombobox, { owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-disabled'], sentence: 'CMB-69' });
 if (!customElements.get('tanrei-combobox')) customElements.define('tanrei-combobox', TanreiCombobox);
 
 declare global {

@@ -742,7 +742,7 @@ if (!customElements.get('tanrei-menu')) customElements.define('tanrei-menu', Tan
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiButtonWithMenu);
 // The product's ARIA on the host is the element's that carries the role; the leading half, its action, takes it; the menu the trailing half opens and the disabled state are its own.
-delegatesAria(TanreiButtonWithMenu, { owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-disabled'] });
+delegatesAria(TanreiButtonWithMenu, { owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-disabled'], sentence: 'SPB-36' });
 if (!customElements.get('tanrei-button-with-menu')) customElements.define('tanrei-button-with-menu', TanreiButtonWithMenu);
 
 declare global {

@@ -907,7 +907,7 @@ disabledWaitsWhileFocused(TanreiSelect);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiSelect);
 // The product's ARIA on the host is the element's that carries the role; the list it opens and the disabled state are its own.
-delegatesAria(TanreiSelect, { owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-disabled'] });
+delegatesAria(TanreiSelect, { owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-disabled'], sentence: 'SEL-71' });
 if (!customElements.get('tanrei-select')) customElements.define('tanrei-select', TanreiSelect);
 
 declare global {

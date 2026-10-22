@@ -20,9 +20,9 @@
 //                                    reads `[data-aria-X]`. `owns` names what the component says itself (a toggle's
 //                                    `aria-pressed`, a checkbox's `aria-checked`, `aria-disabled`): those move too, so
 //                                    the host carries nothing, are not exposed, and a debug build reports each one
-//                                    set (`report()`, citing `sentence` — the spec sentence that says where the value
-//                                    comes from instead, `host-aria` where none does — and `instead`, what to write
-//                                    in its place). A composed element that passes the product's ARIA on to a member
+//                                    set (`report()`, citing `sentence` — the id of the spec sentence that states this
+//                                    rule for the component, "WHERE the platform has ARIA attributes (the web)" — and
+//                                    `instead`, what to write in its place). A composed element that passes the product's ARIA on to a member
 //                                    that moves it owns what that member owns as well (`ownedNames()`).
 //   delegatedAria(host, own)         on the element that carries the role, in the template: `own` is what the component
 //                                    says itself (`'aria-label': this.label`); an empty value leaves the name to the
@@ -223,8 +223,8 @@ const watchOf = (host: Delegating) => (host[WATCH] ??= new TreeWatch(host));
 export interface DelegatesAriaOptions {
   /** What the component says itself: moved, never exposed, and reported where the product sets it. */
   owns?: readonly DelegatedName[];
-  /** The spec sentence a report of an owned name cites: where the value comes from instead. `host-aria` by default. */
-  sentence?: string;
+  /** The id of the component's spec sentence that states this rule ("WHERE the platform has ARIA attributes (the web)…"), which a report of an owned name cites. */
+  sentence: string;
   /** For an owned name, what the product writes in its place (`'name it with label'`), said in its report. */
   instead?: Partial<Record<DelegatedName, string>>;
 }
@@ -234,7 +234,7 @@ export interface DelegatesAriaOptions {
  * carries its role (`delegatedAria()`): every name of the list, those in `owns` moved and not exposed — and, in a debug
  * build, reported once per element and name where something other than a Tanrei component sets one (`asComponent()`).
  */
-export function delegatesAria(element: { prototype: HTMLElement; observedAttributes?: string[] }, { owns = [], sentence = 'host-aria', instead = {} }: DelegatesAriaOptions = {}): void {
+export function delegatesAria(element: { prototype: HTMLElement; observedAttributes?: string[] }, { owns = [], sentence, instead = {} }: DelegatesAriaOptions): void {
   const exposed = ALL.filter((name) => !owns.includes(name));
   const moved = new Set<string>(ALL);
   const owned = new Set<string>(owns);

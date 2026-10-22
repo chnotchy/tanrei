@@ -664,7 +664,7 @@ if (!customElements.get('tanrei-fab-menu-item')) customElements.define('tanrei-f
 focusedAtFirst(TanreiFabMenu);
 // The product's ARIA on the host is the toggle's (src/primitives/delegated-aria.ts); the menu it opens and the disabled
 // state are its own (FBM-20).
-delegatesAria(TanreiFabMenu, { owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-disabled'] });
+delegatesAria(TanreiFabMenu, { owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-disabled'], sentence: 'FBM-28' });
 if (!customElements.get('tanrei-fab-menu')) customElements.define('tanrei-fab-menu', TanreiFabMenu);
 
 declare global {

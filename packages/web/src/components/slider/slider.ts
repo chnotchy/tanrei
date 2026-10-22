@@ -842,7 +842,7 @@ disabledWaitsWhileFocused(TanreiSlider);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiSlider);
 // The product's ARIA on the host is the element's that carries the role; on every handle; the disabled state is its own.
-delegatesAria(TanreiSlider, { owns: ['aria-disabled'] });
+delegatesAria(TanreiSlider, { owns: ['aria-disabled'], sentence: 'SLD-27' });
 if (!customElements.get('tanrei-slider')) customElements.define('tanrei-slider', TanreiSlider);
 
 declare global {

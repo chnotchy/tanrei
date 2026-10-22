@@ -4,6 +4,8 @@
 // src/primitives/composed.test.ts (W13-1 to W13-8), and its members' own behaviour by their own files (a
 // higher level's tests repeat no test of a member; FLD-29 and FLD-30, the value text, are the Field's). What is here is
 // the thirteen sentences of its own, as they hold of THIS element.
+// SLF-14: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

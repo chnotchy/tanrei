@@ -439,7 +439,7 @@ disabledWaitsWhileFocused(TanreiRadioButton);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiRadioButton);
 // The product's ARIA on the host is the element's that carries the role; its checked and disabled states are its own.
-delegatesAria(TanreiRadioButton, { owns: ['aria-checked', 'aria-pressed', 'aria-disabled'] });
+delegatesAria(TanreiRadioButton, { owns: ['aria-checked', 'aria-pressed', 'aria-disabled'], sentence: 'RAD-29' });
 if (!customElements.get('tanrei-radio-button')) customElements.define('tanrei-radio-button', TanreiRadioButton);
 
 declare global {

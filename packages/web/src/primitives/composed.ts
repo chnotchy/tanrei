@@ -219,7 +219,7 @@ const FIELD_OWNS: readonly DelegatedName[] = ['aria-label', 'aria-labelledby', '
 const NAME_INSTEAD = 'name it with label (labelHidden keeps the name and draws none)';
 
 /**
- * A composed field (`element`, whose spec's `sentence` says that its name is its Field's label) moves the product's
+ * A composed field (`element`; `sentence` is the id of its spec's sentence that states this, which a report cites) moves the product's
  * ARIA from its host to `data-aria-*` (src/primitives/delegated-aria.ts) and passes it on to `control`, its member that
  * carries the role, which moves and exposes it in turn: but for the name and the disabled state, which are its own,
  * and what `control` says itself (a select's `aria-expanded`). Called after the class is written, before it is

@@ -2623,7 +2623,7 @@ if (!customElements.get('tanrei-tab')) customElements.define('tanrei-tab', Tanre
 if (!customElements.get('tanrei-tab-panel')) customElements.define('tanrei-tab-panel', TanreiTabPanel);
 // The product's ARIA on the row's host is its tab list's (src/primitives/delegated-aria.ts). A tab's host is the tab
 // itself and keeps what is written on it.
-delegatesAria(TanreiTabs);
+delegatesAria(TanreiTabs, { sentence: 'TAB-62' });
 if (!customElements.get('tanrei-tabs')) customElements.define('tanrei-tabs', TanreiTabs);
 
 declare global {

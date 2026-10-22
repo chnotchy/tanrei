@@ -2884,8 +2884,8 @@ if (!customElements.get('tanrei-badge')) customElements.define('tanrei-badge', T
 if (!customElements.get('tanrei-tooltip')) customElements.define('tanrei-tooltip', TanreiTooltip);
 // The product's ARIA on an item's or a group's host is its row's (src/primitives/delegated-aria.ts), in both forms of the
 // drawer; whether it is the current page, whether a group is open and what it opens, and the disabled state are its own.
-delegatesAria(TanreiNavigationDrawerItem, { owns: ['aria-current', 'aria-disabled'] });
-delegatesAria(TanreiNavigationDrawerGroup, { owns: ['aria-current', 'aria-expanded', 'aria-controls', 'aria-disabled'] });
+delegatesAria(TanreiNavigationDrawerItem, { owns: ['aria-current', 'aria-disabled'], sentence: 'NVD-78' });
+delegatesAria(TanreiNavigationDrawerGroup, { owns: ['aria-current', 'aria-expanded', 'aria-controls', 'aria-disabled'], sentence: 'NVD-78' });
 if (!customElements.get(ITEM)) customElements.define(ITEM, TanreiNavigationDrawerItem);
 if (!customElements.get(GROUP)) customElements.define(GROUP, TanreiNavigationDrawerGroup);
 if (!customElements.get(SECTION)) customElements.define(SECTION, TanreiNavigationDrawerSection);

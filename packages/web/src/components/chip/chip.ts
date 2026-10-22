@@ -486,7 +486,7 @@ export class TanreiChip extends TanreiElement {
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiChip);
 // The product's ARIA on the host is the element's that carries the role; a filter chip's pressed state and the disabled state are its own.
-delegatesAria(TanreiChip, { owns: ['aria-pressed', 'aria-disabled'] });
+delegatesAria(TanreiChip, { owns: ['aria-pressed', 'aria-disabled'], sentence: 'CHP-40' });
 if (!customElements.get('tanrei-chip')) customElements.define('tanrei-chip', TanreiChip);
 
 declare global {

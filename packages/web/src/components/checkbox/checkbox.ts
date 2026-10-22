@@ -370,7 +370,7 @@ disabledWaitsWhileFocused(TanreiCheckbox);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiCheckbox);
 // The product's ARIA on the host is the element's that carries the role; its checked and disabled states are its own.
-delegatesAria(TanreiCheckbox, { owns: ['aria-checked', 'aria-pressed', 'aria-disabled'] });
+delegatesAria(TanreiCheckbox, { owns: ['aria-checked', 'aria-pressed', 'aria-disabled'], sentence: 'CHK-25' });
 if (!customElements.get('tanrei-checkbox')) customElements.define('tanrei-checkbox', TanreiCheckbox);
 
 declare global {

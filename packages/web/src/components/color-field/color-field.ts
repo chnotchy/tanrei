@@ -213,8 +213,8 @@ export class TanreiColorField extends ComposedControl<string> {
   }
 }
 
-// CLF-43: the product's ARIA on the host is its control's (src/primitives/delegated-aria.ts), but for its name, which is label.
-fieldDelegatesAria(TanreiColorField, TanreiColorInput, 'CLF-43');
+// CLF-48: the product's ARIA on the host is its control's (src/primitives/delegated-aria.ts), but for its name, which is label (CLF-43).
+fieldDelegatesAria(TanreiColorField, TanreiColorInput, 'CLF-48');
 if (!customElements.get('tanrei-color-field')) customElements.define('tanrei-color-field', TanreiColorField);
 
 declare global {

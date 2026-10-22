@@ -296,8 +296,8 @@ export class TanreiSelectField extends ComposedControl<string> {
   }
 }
 
-// SEF-1: the product's ARIA on the host is its control's (src/primitives/delegated-aria.ts), but for its name, which is label.
-fieldDelegatesAria(TanreiSelectField, TanreiSelect, 'SEF-1');
+// SEF-6: the product's ARIA on the host is its control's (src/primitives/delegated-aria.ts), but for its name, which is label (SEF-1).
+fieldDelegatesAria(TanreiSelectField, TanreiSelect, 'SEF-6');
 if (!customElements.get('tanrei-select-field')) customElements.define('tanrei-select-field', TanreiSelectField);
 
 declare global {

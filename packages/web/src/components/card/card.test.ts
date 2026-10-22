@@ -1,6 +1,8 @@
 // <tanrei-card>, driven by specs/card.spec.json: every behaviour id (CRD-1…17) is cited by a test title, every fixture
 // has a baseline, and every variant, state and choice of kind is read back from the tokens — never from a number written
 // here.
+// CRD-24: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';

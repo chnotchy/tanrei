@@ -5,6 +5,8 @@
 // label above, the label glyph, the requirement tag, the help, an announced error (FLD-2 to FLD-9, FLD-11 to FLD-13) —
 // are the Field's, and the twins hold that a select field is the pair. What a sentence says of "the Field that frames
 // it" is tested with a Field around the select (`frame()`).
+// SEL-71: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

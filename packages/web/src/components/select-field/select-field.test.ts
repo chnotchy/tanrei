@@ -5,6 +5,8 @@
 // sentences are the members' tests (select.test.ts, SEL-1 to SEL-64; field.test.ts, FLD-1 to FLD-28). This file holds
 // what the select field's own sentences add, SEF-1 to SEF-5, with the tests of
 // the mechanism's (the options read through a slot: O1 to O9), and repeats no test of a member.
+// SEF-6: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';

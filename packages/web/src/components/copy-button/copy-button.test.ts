@@ -3,6 +3,8 @@
 // copy button has none of its own but one duration. The copied and failed forms last two seconds after a
 // press, which a fixture cannot hold: the tests press with the browser's clipboard replaced by a double, and once with
 // the browser's own.
+// CPY-20: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';

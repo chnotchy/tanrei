@@ -546,7 +546,7 @@ export class TanreiSegmentedButton extends TanreiElement {
 
 // The product's ARIA on a segment's host is its button's (src/primitives/delegated-aria.ts); its checked or pressed state
 // and the disabled state are its own (SEG-20).
-delegatesAria(TanreiSegment, { owns: ['aria-checked', 'aria-pressed', 'aria-disabled'] });
+delegatesAria(TanreiSegment, { owns: ['aria-checked', 'aria-pressed', 'aria-disabled'], sentence: 'SEG-29' });
 if (!customElements.get('tanrei-segment')) customElements.define('tanrei-segment', TanreiSegment);
 if (!customElements.get('tanrei-segmented-button')) customElements.define('tanrei-segmented-button', TanreiSegmentedButton);
 

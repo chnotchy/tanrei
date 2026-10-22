@@ -1953,7 +1953,7 @@ disabledWaitsWhileFocused(TanreiSearch);
 focusedAtFirst(TanreiSearch);
 // The product's ARIA on the host is the input's, or the trigger's while the bar is a button; the view it opens, the
 // shortcut its hint draws (SRC-37) and the disabled state are its own.
-delegatesAria(TanreiSearch, { owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-keyshortcuts', 'aria-disabled'] });
+delegatesAria(TanreiSearch, { owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-keyshortcuts', 'aria-disabled'], sentence: 'SRC-54' });
 if (!customElements.get('tanrei-search')) customElements.define('tanrei-search', TanreiSearch);
 
 declare global {

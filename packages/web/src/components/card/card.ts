@@ -260,7 +260,7 @@ export class TanreiCard extends TanreiElement {
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiCard);
 // The product's ARIA on the host is the element's that carries the role; the disabled state is its own.
-delegatesAria(TanreiCard, { owns: ['aria-disabled'] });
+delegatesAria(TanreiCard, { owns: ['aria-disabled'], sentence: 'CRD-24' });
 if (!customElements.get('tanrei-card')) customElements.define('tanrei-card', TanreiCard);
 
 declare global {
