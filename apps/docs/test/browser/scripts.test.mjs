@@ -20,8 +20,9 @@ if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/di
 
 /**
  * The most script the home page may transfer, compressed as this host compresses it, with every file it asks for
- * before it is idle: 185 KB. It draws 15 of the package's elements, and is 179 KB in 86 files; it was 608 KB in 71
- * files when every page imported the whole web package, which defines all of its elements.
+ * before it is idle: 185 KB. It defines the elements it draws, but the search, which waits for its first use, and is
+ * 172 KB in 86 files; it was 608 KB in 71 files when every page imported the whole web package, which defines all of
+ * its elements.
  */
 const HOME_SCRIPT_BUDGET = 185 * 1024;
 
@@ -98,15 +99,17 @@ describe('a built page’s scripts', { concurrency: 2 }, () => {
       const { context, page, errors } = await open(url);
       try {
         // The modules a page asks for are all in once it is quiet; an element is upgraded when its module is evaluated.
+        // An element defined on its first use (`data-define-on-use`: the search) is left undefined until then
+        // (test/browser/search-on-use.test.mjs).
         await page.waitForFunction(() => {
-          const undefinedIn = (root) => [...root.querySelectorAll('*')].some((el) => (el.localName.startsWith('tanrei-') && !el.matches(':defined')) || (el.shadowRoot && undefinedIn(el.shadowRoot)));
+          const undefinedIn = (root) => [...root.querySelectorAll('*')].some((el) => (el.localName.startsWith('tanrei-') && !el.matches(':defined') && !el.hasAttribute('data-define-on-use')) || (el.shadowRoot && undefinedIn(el.shadowRoot)));
           return !undefinedIn(document);
         }, null, { timeout: 10_000 }).catch(() => {});
         const left = await page.evaluate(() => {
           const out = new Set();
           const visit = (root, where) => {
             for (const el of root.querySelectorAll('*')) {
-              if (el.localName.startsWith('tanrei-') && !el.matches(':defined')) out.add(`${el.localName} (${where})`);
+              if (el.localName.startsWith('tanrei-') && !el.matches(':defined') && !el.hasAttribute('data-define-on-use')) out.add(`${el.localName} (${where})`);
               if (el.shadowRoot) visit(el.shadowRoot, `in the shadow root of ${el.localName}`);
             }
           };

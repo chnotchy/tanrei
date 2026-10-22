@@ -11,6 +11,9 @@
 // MutationObserver on the document, and an element a component draws in its shadow root, seen by the same observer on
 // each Tanrei element's shadow root. A component's module imports the elements it draws, but one that does not would
 // otherwise draw an undefined element here, where the whole package no longer stands behind it.
+//
+// An element marked `data-define-on-use` is left to the script that owns it, which defines it when it is first used
+// (the site's search: components/frame/Search.astro).
 import { loaders, modules } from 'virtual:tanrei-element-modules';
 
 type Load = () => Promise<unknown>;
@@ -48,7 +51,9 @@ function want(element: Element) {
 function scan(node: Element | Document | ShadowRoot) {
   const each = (element: Element) => {
     if (!element.localName.startsWith('tanrei-')) return;
-    if (!element.matches(':defined')) want(element);
+    if (!element.matches(':defined')) {
+      if (!element.hasAttribute('data-define-on-use')) want(element);
+    }
     else if (element.shadowRoot) watch(element.shadowRoot);
   };
   if (node instanceof Element) each(node);
