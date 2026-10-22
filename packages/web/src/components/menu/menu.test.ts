@@ -220,6 +220,50 @@ test.describe('overlay', () => {
     expect(await focused(page)).toBe('elsewhere');
   });
 
+  // Every row is in a group, and the first row is disabled: the first enabled row is in the second group.
+  const GROUPS_ONLY = overlay('groups-only', [group({}, [it('Undo', { disabled: true })]), group({ value: 'date' }, [radio('Name', 'name'), radio('Date', 'date')]), group({}, [it('Delete')])]);
+
+  test('MNU-1: a menu whose every item is in a group, mounted open, focuses its first enabled item, and the arrow keys move from there', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [GROUPS_ONLY] });
+    // As a product that draws the menu only while it is open: the menu, its groups and their items are made and put in
+    // the page at once, the menu already open — its groups have not drawn their slots when the menu opens.
+    await anchor(page, 'groups-only').focus();
+    await page.evaluate(() => {
+      const drawn = document.querySelector('[data-fixture="groups-only"] tanrei-menu')!;
+      const again = drawn.cloneNode(true) as HTMLElement & { open: boolean };
+      again.open = true;
+      drawn.replaceWith(again);
+    });
+    await expect.poll(() => isOpen(page, 'groups-only')).toBe(true);
+    expect(await focused(page)).toBe('Name');
+    await page.keyboard.press('ArrowDown');
+    expect(await focused(page)).toBe('Date');
+    await page.keyboard.press('ArrowDown');
+    expect(await focused(page)).toBe('Delete');
+    await wire(page);
+    await page.keyboard.press('Escape');
+    await expect.poll(() => isOpen(page, 'groups-only')).toBe(false);
+    expect(await focused(page)).toBe('a-groups-only');
+  });
+
+  test('MNU-1: a menu opened in the task that gives it new groups focuses its first enabled item, and the arrow keys move from there', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [GROUPS_ONLY] });
+    await anchor(page, 'groups-only').focus();
+    // The product opens the menu and replaces its groups with new ones at once: neither the menu nor the new groups
+    // have drawn their slots when it opens.
+    await menu(page, 'groups-only').evaluate((el: HTMLElement & { open: boolean }) => {
+      const fresh = [...el.children].map((child) => child.cloneNode(true));
+      el.open = true;
+      el.replaceChildren(...fresh);
+    });
+    await expect.poll(() => isOpen(page, 'groups-only')).toBe(true);
+    expect(await focused(page)).toBe('Name');
+    await page.keyboard.press('ArrowUp');
+    expect(await focused(page)).toBe('Undo');
+    await page.keyboard.press('ArrowUp');
+    expect(await focused(page)).toBe('Delete');
+  });
+
   test('MNU-2: placed offset from the anchor by placement, flipped and shifted to stay in the viewport, scrolled when too tall, following the anchor, mirrored in RTL', async ({ page }) => {
     await page.setViewportSize({ width: 800, height: 600 });
     const fixtures = (['bottom-start', 'bottom-end', 'top-start', 'top-end'] as const).map((placement) => overlay(placement, EDIT, { placement }));
