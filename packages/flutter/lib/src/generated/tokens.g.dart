@@ -19277,6 +19277,119 @@ class TanreiRadioButtonTokens {
       };
 }
 
+/// `comp.resizable-frame.*`
+@immutable
+class TanreiResizableFrameTokens {
+  const TanreiResizableFrameTokens({
+    required this.containerMinHeight,
+    required this.containerMinWidth,
+    required this.containerShape,
+    required this.handleGap,
+    required this.motionIndicatorEnterDuration,
+    required this.motionIndicatorEnterEasing,
+    required this.motionIndicatorExitDuration,
+    required this.motionIndicatorExitEasing,
+    required this.motionResizeDuration,
+    required this.motionResizeEasing,
+    required this.outlineColor,
+    required this.outlineWidth,
+    required this.sizeIndicatorContainerColor,
+    required this.sizeIndicatorContainerHeight,
+    required this.sizeIndicatorContainerPaddingInline,
+    required this.sizeIndicatorContainerShape,
+    required this.sizeIndicatorLabelColor,
+    required this.sizeIndicatorLabelTypescale,
+    required this.sizeIndicatorOffset,
+    required this.snapDistance,
+  });
+
+  /// `comp.resizable-frame.container-min-height`
+  final double containerMinHeight;
+  /// `comp.resizable-frame.container-min-width`
+  final double containerMinWidth;
+  /// `comp.resizable-frame.container-shape`
+  final double containerShape;
+  /// `comp.resizable-frame.handle-gap`
+  final double handleGap;
+  /// `comp.resizable-frame.motion-indicator-enter-duration`
+  final int motionIndicatorEnterDuration;
+  /// `comp.resizable-frame.motion-indicator-enter-easing`
+  final TanreiCubicBezier motionIndicatorEnterEasing;
+  /// `comp.resizable-frame.motion-indicator-exit-duration`
+  final int motionIndicatorExitDuration;
+  /// `comp.resizable-frame.motion-indicator-exit-easing`
+  final TanreiCubicBezier motionIndicatorExitEasing;
+  /// `comp.resizable-frame.motion-resize-duration`
+  final int motionResizeDuration;
+  /// `comp.resizable-frame.motion-resize-easing`
+  final TanreiCubicBezier motionResizeEasing;
+  /// `comp.resizable-frame.outline-color`
+  final TanreiPaint outlineColor;
+  /// `comp.resizable-frame.outline-width`
+  final double outlineWidth;
+  /// `comp.resizable-frame.size-indicator-container-color`
+  final TanreiPaint sizeIndicatorContainerColor;
+  /// `comp.resizable-frame.size-indicator-container-height`
+  final double sizeIndicatorContainerHeight;
+  /// `comp.resizable-frame.size-indicator-container-padding-inline`
+  final double sizeIndicatorContainerPaddingInline;
+  /// `comp.resizable-frame.size-indicator-container-shape`
+  final double sizeIndicatorContainerShape;
+  /// `comp.resizable-frame.size-indicator-label-color`
+  final TanreiPaint sizeIndicatorLabelColor;
+  /// `comp.resizable-frame.size-indicator-label-typescale`
+  final TanreiTextStyle sizeIndicatorLabelTypescale;
+  /// `comp.resizable-frame.size-indicator-offset`
+  final double sizeIndicatorOffset;
+  /// `comp.resizable-frame.snap-distance`
+  final double snapDistance;
+
+  /// A copy with the given tokens replaced.
+  TanreiResizableFrameTokens copyWith({
+    double? containerMinHeight,
+    double? containerMinWidth,
+    double? containerShape,
+    double? handleGap,
+    int? motionIndicatorEnterDuration,
+    TanreiCubicBezier? motionIndicatorEnterEasing,
+    int? motionIndicatorExitDuration,
+    TanreiCubicBezier? motionIndicatorExitEasing,
+    int? motionResizeDuration,
+    TanreiCubicBezier? motionResizeEasing,
+    TanreiPaint? outlineColor,
+    double? outlineWidth,
+    TanreiPaint? sizeIndicatorContainerColor,
+    double? sizeIndicatorContainerHeight,
+    double? sizeIndicatorContainerPaddingInline,
+    double? sizeIndicatorContainerShape,
+    TanreiPaint? sizeIndicatorLabelColor,
+    TanreiTextStyle? sizeIndicatorLabelTypescale,
+    double? sizeIndicatorOffset,
+    double? snapDistance,
+  }) => TanreiResizableFrameTokens(
+        containerMinHeight: containerMinHeight ?? this.containerMinHeight,
+        containerMinWidth: containerMinWidth ?? this.containerMinWidth,
+        containerShape: containerShape ?? this.containerShape,
+        handleGap: handleGap ?? this.handleGap,
+        motionIndicatorEnterDuration: motionIndicatorEnterDuration ?? this.motionIndicatorEnterDuration,
+        motionIndicatorEnterEasing: motionIndicatorEnterEasing ?? this.motionIndicatorEnterEasing,
+        motionIndicatorExitDuration: motionIndicatorExitDuration ?? this.motionIndicatorExitDuration,
+        motionIndicatorExitEasing: motionIndicatorExitEasing ?? this.motionIndicatorExitEasing,
+        motionResizeDuration: motionResizeDuration ?? this.motionResizeDuration,
+        motionResizeEasing: motionResizeEasing ?? this.motionResizeEasing,
+        outlineColor: outlineColor ?? this.outlineColor,
+        outlineWidth: outlineWidth ?? this.outlineWidth,
+        sizeIndicatorContainerColor: sizeIndicatorContainerColor ?? this.sizeIndicatorContainerColor,
+        sizeIndicatorContainerHeight: sizeIndicatorContainerHeight ?? this.sizeIndicatorContainerHeight,
+        sizeIndicatorContainerPaddingInline: sizeIndicatorContainerPaddingInline ?? this.sizeIndicatorContainerPaddingInline,
+        sizeIndicatorContainerShape: sizeIndicatorContainerShape ?? this.sizeIndicatorContainerShape,
+        sizeIndicatorLabelColor: sizeIndicatorLabelColor ?? this.sizeIndicatorLabelColor,
+        sizeIndicatorLabelTypescale: sizeIndicatorLabelTypescale ?? this.sizeIndicatorLabelTypescale,
+        sizeIndicatorOffset: sizeIndicatorOffset ?? this.sizeIndicatorOffset,
+        snapDistance: snapDistance ?? this.snapDistance,
+      );
+}
+
 /// `comp.scroll-area.*`
 @immutable
 class TanreiScrollAreaTokens {
@@ -26826,6 +26939,7 @@ class TanreiSystem {
     required this.progressIndicator,
     required this.prose,
     required this.radioButton,
+    required this.resizableFrame,
     required this.scrollArea,
     required this.search,
     required this.segmentedButton,
@@ -26929,6 +27043,7 @@ class TanreiSystem {
   final TanreiProgressIndicatorTokens progressIndicator;
   final TanreiProseTokens prose;
   final TanreiRadioButtonTokens radioButton;
+  final TanreiResizableFrameTokens resizableFrame;
   final TanreiScrollAreaTokens scrollArea;
   final TanreiSearchTokens search;
   final TanreiSegmentedButtonTokens segmentedButton;
@@ -27031,6 +27146,7 @@ class TanreiSystem {
     TanreiProgressIndicatorTokens? progressIndicator,
     TanreiProseTokens? prose,
     TanreiRadioButtonTokens? radioButton,
+    TanreiResizableFrameTokens? resizableFrame,
     TanreiScrollAreaTokens? scrollArea,
     TanreiSearchTokens? search,
     TanreiSegmentedButtonTokens? segmentedButton,
@@ -27131,6 +27247,7 @@ class TanreiSystem {
         progressIndicator: progressIndicator ?? this.progressIndicator,
         prose: prose ?? this.prose,
         radioButton: radioButton ?? this.radioButton,
+        resizableFrame: resizableFrame ?? this.resizableFrame,
         scrollArea: scrollArea ?? this.scrollArea,
         search: search ?? this.search,
         segmentedButton: segmentedButton ?? this.segmentedButton,

@@ -1,0 +1,153 @@
+---
+title: Resizable frame
+description: A box whose width and height a person changes by a handle on its edge or its corner, from the keyboard, or with one press. Outlined, it is where a preview is checked at a phone's width and a laptop's; plain, it is the edge of a navigation drawer or a side bar.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="resizable-frame" />
+
+<DemoFrame label="A preview a person resizes by its end edge, its bottom edge and its corner" plain>
+  <tanrei-resizable-frame width="360" height="200" handles="end bottom bottom-end" snap-widths="400 600" width-label="Resize preview width" height-label="Resize preview height" corner-label="Resize preview" style="inline-size: 100%">
+    <div style="box-sizing: border-box; min-block-size: 100%; padding: 1rem; background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface)">Drag a handle, or move to one with Tab and use the arrow keys.</div>
+  </tanrei-resizable-frame>
+</DemoFrame>
+
+A resizable frame gives what it holds a width and a height that a person can change. Its handles are [Handles](/components/handle/): dragged, they change the size; moved from the keyboard, they change it a step at a time; pressed without a drag, they switch between the greatest size and the one before it. The frame keeps the size, tells you when a person has changed it, and gives each handle the size as its value, so that assistive technology reads it.
+
+It has two looks. **Outlined** is a box with rounded corners and one hairline, its handles outside it so that they cover nothing: the place to check how a page or a component responds to the room it is given. **Plain** draws nothing of its own: the content draws its own surface, and each handle stands on its edge — a navigation drawer a person makes wider for long names, a side bar made narrower for the work beside it.
+
+On the web it is `<tanrei-resizable-frame>`. The other platforms have not implemented it yet.
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- A preview checked at a phone's width, a tablet's and a laptop's: a drag snaps to each. -->
+    <tanrei-resizable-frame width="390" height="640" snap-widths="360 600 1024" width-label="Resize preview width">
+      <iframe title="Preview" src="/preview"></iframe>
+    </tanrei-resizable-frame>
+
+    <!-- A side bar at the end of the layout: plain, resized from its start edge. -->
+    <tanrei-resizable-frame id="side" variant="plain" handles="start" min-width="240" max-width="560" size-indicator="none" width-label="Resize side bar">
+      <aside>…</aside>
+    </tanrei-resizable-frame>
+
+    <script type="module">
+      import '@tanrei/web/components/resizable-frame';
+      const side = document.querySelector('#side');
+      // Keep the person's width from one visit to the next.
+      side.width = Number(localStorage.getItem('side-bar')) || 320;
+      side.addEventListener('change', (e) => localStorage.setItem('side-bar', String(e.detail.width)));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ResizableFrame } from '@tanrei/react';
+
+    <ResizableFrame
+      variant="plain"
+      handles={['start']}
+      width={width}
+      minWidth={240}
+      maxWidth={560}
+      sizeIndicator="none"
+      widthLabel="Resize side bar"
+      onChange={(e) => setWidth(e.detail.width)}
+    >
+      <aside>…</aside>
+    </ResizableFrame>
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<ComponentSpecs name="resizable-frame" />
+
+## Guidelines
+
+### When to use
+
+Use a resizable frame where a person should give something the room they want, and see what it does with it: a preview of a page or a component at another width, a pane beside the main content, a panel of tools.
+
+| You need | Use |
+| --- | --- |
+| Only a field's own height to grow with its text | The [text field](/components/text-field/)'s own corner handle. |
+| A sheet that rises from the bottom edge | The [bottom sheet](/components/bottom-sheet/), which draws its own drag handle. |
+| A choice between a few fixed sizes, and nothing between them | A [segmented button](/components/segmented-button/) that switches them. |
+| What is shown made smaller as a picture is, not given less room | Not this: a resizable frame changes the room, never the scale of what it holds. |
+
+### Its looks
+
+| `variant` | Draws | Use for |
+| --- | --- | --- |
+| `outlined` (default) | Rounded corners and one hairline; the handles in their own room outside the box. A mouse over the frame shows the handles. | A preview: the content is seen whole, and nothing of the frame covers it. |
+| `plain` | Nothing of its own: the content fills the box with its own surface. Each handle stands on its edge and appears only when it is pointed at, focused or held. | The edge of a pane: a navigation drawer, a side bar. |
+
+### Its handles
+
+| `handles` | Stands on | Changes |
+| --- | --- | --- |
+| `end` (default) | The end edge | The width. For content at the start of a layout: a preview, a navigation drawer. |
+| `start` | The start edge | The width, growing toward the start. For content at the end of a layout: a side bar. The box then stands at the end of its room. |
+| `bottom` | The bottom edge | The height. |
+| `bottom-end` | The bottom-end corner | Both at once. |
+
+Name any of them, in any combination; an empty list draws none, and the frame is a box of the size you set. `start` and `end` follow the page's direction: in a right-to-left layout the end edge is the left one.
+
+### Sizes
+
+`width` and `height` are the box's size in pixels. While they are null, the box takes the width the layout gives it and the height the layout gives it — or the content's height, where the layout gives none. Once a person moves a handle, the size is theirs, and it stays until you set another. A size you set is drawn at once and sends no event; a narrower layout narrows the box and gives the width back when there is room again.
+
+The least width is `minWidth`, and 320 pixels while you set none: the width at which content must reflow without scrolling sideways. Set your own for a pane — a navigation drawer has its own least width. The greatest is `maxWidth`, or the room the layout gives. `snapWidths` are widths a drag snaps to as it passes them, such as the widths of a common phone, a tablet and a small laptop.
+
+### What it tells you
+
+| Event | When |
+| --- | --- |
+| `resize` | In every frame a drag changes the size: `width` and `height`. |
+| `change` | Once a person has changed the size: a drag ended, a key moved it, or a handle was pressed without a drag. Store it here if you keep a person's size. |
+
+### The size indicator
+
+While a handle is held or has keyboard focus, a small label in the box's top-end corner shows the size, as "390 × 640". `sizeIndicator` set to `always` shows it all the time — a preview that is checked for its size — and `none` never does — a pane, whose size nobody reads. It is written in the digits of the page's language and left to right in every layout, and assistive technology does not read it: it reads each handle's value instead.
+
+### Do
+
+- Give every drawn handle a name that says what it resizes: `widthLabel`, `heightLabel`, `cornerLabel` ("Resize preview width", "Resize side bar").
+- Set a least width under which the content still works, and a greatest one that leaves the rest of the page usable.
+- Keep a person's size where they will come back to it: a drawer's or a side bar's width, from `change`.
+
+### Don't
+
+- Don't draw resize handles of your own around content: use this frame, `plain` for a pane's edge.
+- Don't use it to make content smaller as a picture: it changes the room, not the scale.
+- Don't take a pane's handles away where a person is meant to change its size: the keys and the press are what a person who cannot drag uses.
+
+## Accessibility
+
+<ComponentAccessibility name="resizable-frame" />
+
+### What the component handles
+
+- Each handle is a focusable separator — the window splitter of the ARIA Authoring Practices — named by its label, with the size in pixels as its value and the least and the greatest as its range.
+- The handles come after the content in the focus order: start, end, bottom, corner. The outlined box is a focus stop only while its content is taller than it and scrolls.
+- The arrow keys change the size by `step` pixels, Shift with an arrow and Page Up and Page Down by `largeStep`; Home and End give the least and the greatest. On the start handle the arrow toward the start widens.
+- Enter, Space, or a press without a drag switches between the greatest size and the one before it, so every size can be reached without dragging.
+- While a drag lasts, no embedded document in the content takes the pointer, so the drag is not lost when the pointer passes over it.
+- The size indicator is hidden from assistive technology; it draws what the handles' values already say. Changes made by a key or a press move at once where reduced motion is asked for.
+- In forced-colors mode the outlined edge and the indicator's text take the text color, the indicator's ground the canvas color.
+
+### What you need to do
+
+- Give each handle you draw its label. Without one the handle is still drawn and works, and a debug build reports it.
+- Make sure the content works at every size you allow, from the least width up.

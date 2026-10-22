@@ -654,6 +654,13 @@
       "listing": "default"
     },
     {
+      "name": "resizable-frame",
+      "title": "Resizable frame",
+      "category": "containment",
+      "level": "composed",
+      "listing": "default"
+    },
+    {
       "name": "scroll-area",
       "title": "Scroll area",
       "category": "containment",

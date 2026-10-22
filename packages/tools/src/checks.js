@@ -57,10 +57,11 @@ export function compileSpecSchema() {
   return ajv.compile(JSON.parse(read('specs/component.schema.json')));
 }
 
-/** A `strings` prop takes a list of strings; no other prop takes a list. */
+/** A `strings` prop takes a list of strings and a `numbers` prop a list of finite numbers; no other prop takes a list. */
 function shapeProblem(prop, value) {
   const list = Array.isArray(value);
   if (prop.type === 'strings') return list && value.every((v) => typeof v === 'string') ? null : 'a strings prop takes a list of strings';
+  if (prop.type === 'numbers') return list && value.every((v) => typeof v === 'number' && Number.isFinite(v)) ? null : 'a numbers prop takes a list of numbers';
   return list ? `a ${prop.type} prop does not take a list` : null;
 }
 

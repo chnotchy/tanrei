@@ -39,11 +39,11 @@ To build **your own design system** on Tanrei's vocabulary — one layer file in
 
 | Platform | Package | Components |
 |---|---|---|
-| Web Components | `@tanrei/web` · `@tanrei/react` (npm) | 11 alpha · 83 lagging |
-| SwiftUI (paused) | `Tanrei` (Swift Package Manager) | 29 lagging · 65 planned |
-| Jetpack Compose (paused) | `io.github.chnotchy:tanrei` (Maven) | 29 lagging · 65 planned |
-| Flutter (paused) | `tanrei` (pub.dev) | 29 lagging · 65 planned |
-| React Native (paused) | `@tanrei/react-native` (npm) | 29 lagging · 65 planned |
+| Web Components | `@tanrei/web` · `@tanrei/react` (npm) | 13 alpha · 83 lagging |
+| SwiftUI (paused) | `Tanrei` (Swift Package Manager) | 29 lagging · 67 planned |
+| Jetpack Compose (paused) | `io.github.chnotchy:tanrei` (Maven) | 29 lagging · 67 planned |
+| Flutter (paused) | `tanrei` (pub.dev) | 29 lagging · 67 planned |
+| React Native (paused) | `@tanrei/react-native` (npm) | 29 lagging · 67 planned |
 
 *alpha*: implemented and tested; the API may change · *lagging*: an implementation exists but has not caught up with the current spec · *planned*: nothing shippable yet. The [component status matrix](docs/status/STATUS.md) has every component on every platform; it is computed from the repository and cannot claim more than is there.
 
