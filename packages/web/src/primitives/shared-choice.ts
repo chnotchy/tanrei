@@ -2,6 +2,8 @@
 // and never in the DOM. A group is a name, its members and its choice; what a person chose is remembered under the
 // product's own key, read once for a key and written once for a choice, however many rows name it.
 
+import { flatParent } from './flat-tree.js';
+
 /** The rows of one document that name one group, and the choice they share (TAB-36). */
 export interface SharedChoice<Member> {
   readonly name: string;
@@ -87,8 +89,7 @@ export function remember(document: Document, key: string, value: string) {
 function scrollRegions(element: Element): Element[] {
   const regions: Element[] = [];
   const document = element.ownerDocument;
-  const up = (node: Element): Element | null => node.assignedSlot ?? node.parentElement ?? ((node.getRootNode() as ShadowRoot).host as Element | undefined) ?? null;
-  for (let node = up(element); node && node !== document.documentElement; node = up(node)) {
+  for (let node = flatParent(element); node && node !== document.documentElement; node = flatParent(node)) {
     if (node.scrollHeight - node.clientHeight < 1) continue;
     const overflow = getComputedStyle(node).overflowY;
     if (overflow === 'auto' || overflow === 'scroll' || overflow === 'overlay') regions.push(node);

@@ -30,6 +30,7 @@ import {
 // Not re-exported by the primitives' index: internal to a region and its destinations.
 import { askDestinationContext } from '../../primitives/destination.js';
 import { type CutTextContent, CutTextTip, isCut } from '../../primitives/cut-text.js';
+import { flatParent } from '../../primitives/flat-tree.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { TanreiBadge } from '../badge/badge.js';
 import { TanreiDivider } from '../divider/divider.js';
@@ -2813,9 +2814,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
     if (!panel || panel.matches('[inert]') || (panel instanceof HTMLDialogElement && !panel.open)) return;
     // Inert is inherited through slots and shadow roots: every ancestor in the flat tree is asked.
     const inert = (candidate: Element) => {
-      for (let at: Node | null = candidate; at && at !== this; at = (at as Element).assignedSlot ?? at.parentNode ?? (at as ShadowRoot).host ?? null) {
-        if (at instanceof Element && at.hasAttribute('inert')) return true;
-      }
+      for (let at: Element | null = candidate; at && at !== this; at = flatParent(at)) if (at.hasAttribute('inert')) return true;
       return false;
     };
     const shown = (candidate: HTMLElement) => candidate.isConnected && !inert(candidate) && candidate.getClientRects().length > 0 && getComputedStyle(candidate).visibility !== 'hidden';

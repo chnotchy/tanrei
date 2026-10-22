@@ -4,6 +4,8 @@
 // way; what differs between them is named by the caller (the placement an unknown value falls back to, the order `auto`
 // tries the sides in and how it lines the surface up).
 
+import { flatParent } from './flat-tree.js';
+
 /**
  * Where an anchored surface prefers to stand: a side of the anchor, and how it lines up along that side. `top` and
  * `bottom` centre it above or below; with `-start` or `-end` its start or end edge meets the anchor's. `start` and `end`
@@ -198,8 +200,7 @@ export function anchorOutOfSight(element: Element, box: DOMRect, viewport: { wid
     }
     if (style.position === 'fixed') return false;
     if (style.position === 'absolute') escaping = true;
-    const root = node.getRootNode();
-    node = node.assignedSlot ?? node.parentElement ?? (root instanceof ShadowRoot ? root.host : null);
+    node = flatParent(node);
   }
   return false;
 }

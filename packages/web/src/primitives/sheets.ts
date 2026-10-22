@@ -17,6 +17,8 @@
 //     inside a bundle, answers the same — and it is asked once for a root and a sheet while the root's own stylesheets
 //     stay as many as they were: not once per instance, and not once per turn.
 
+import { flatParent } from './flat-tree.js';
+
 type Root = Document | ShadowRoot;
 
 const isRoot = (node: Node): node is Root => 'adoptedStyleSheets' in node;
@@ -25,14 +27,6 @@ const isRoot = (node: Node): node is Root => 'adoptedStyleSheets' in node;
 export function adopt(root: Node, sheet: CSSStyleSheet | null | undefined) {
   if (!sheet || !isRoot(root) || root.adoptedStyleSheets.includes(sheet)) return;
   root.adoptedStyleSheets = [...root.adoptedStyleSheets, sheet];
-}
-
-/** What an element inherits from: its slot where it has one, else its parent, else the host of its shadow root. */
-function inheritsFrom(element: Element): Element | null {
-  if (element.assignedSlot) return element.assignedSlot;
-  const parent = element.parentNode;
-  if (parent instanceof Element) return parent;
-  return parent instanceof ShadowRoot ? parent.host : null;
 }
 
 /**
@@ -59,7 +53,7 @@ function drawn(element: Element, mark: string): boolean {
   const subject = outermost(element);
   const value = getComputedStyle(subject).getPropertyValue(mark).trim();
   if (value === '') return false;
-  const from = inheritsFrom(subject);
+  const from = flatParent(subject);
   return !from || getComputedStyle(from).getPropertyValue(mark).trim() !== value;
 }
 
