@@ -1,4 +1,4 @@
-// <tanrei-radio-button>, driven by specs/radio-button.spec.json: every behaviour id (RAD-1…27) is cited by a test title,
+// <tanrei-radio-button>, driven by specs/radio-button.spec.json: every behaviour id (RAD-1…28) is cited by a test title,
 // every fixture has a baseline, and every condition, state and choice of kind is read back from the tokens — never from
 // a number written here. Each spec fixture is staged as its own group (test/harness.ts); the group tests build one.
 import AxeBuilder from '@axe-core/playwright';
@@ -7,6 +7,7 @@ import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, res
 import { BEHIND, INSIDE, RATIOS, atRatio, depth, endMotion, holdMotionAt, offLine, paintedBehind, shoot, stageBehind, worst } from '../../../test/one-shape.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { motionEnded } from '../../../test/motions.js';
+import { allSettled } from '../../../test/settled.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 
 const spec = loadSpec('radio-button');
@@ -126,7 +127,10 @@ const selected = (page: P) => page.evaluate(() => [...document.querySelectorAll(
 
 /**
  * One group: the options given, each in its own stage (so `host(page, id)` finds it), all with the name "size" and no
- * form around them, inside one element with role radiogroup; a button before and after it for Tab.
+ * form around them, inside one element with role radiogroup; a button before and after it for Tab. Resolves once every
+ * option has settled where it now stands: moving an option connects it again, and an option settles for two frames
+ * after each connection (data-tanrei-settling, MOT-3), starting no transition meanwhile — a change of condition made in
+ * those frames, which a slow runner reaches, is drawn at once, without the selection motion a test reads.
  */
 async function mountGroup(page: P, options: Fixture['props'][], { dir = 'ltr' }: { dir?: 'ltr' | 'rtl' } = {}) {
   await mountFixtures(page, spec, { fixtures: options.map((props, i) => fixture(`o${i}`, { name: 'size', value: `v${i}`, label: `Option ${i}`, ...props })) });
@@ -143,6 +147,7 @@ async function mountGroup(page: P, options: Fixture['props'][], { dir = 'ltr' }:
     main.insertAdjacentHTML('afterbegin', '<button id="before">Before</button>');
     main.insertAdjacentHTML('beforeend', '<button id="after">After</button>');
   }, dir);
+  await allSettled(page);
 }
 /** Everything a condition paints, as drawn. */
 const drawn = (page: P, id: string, { settled = false } = {}) =>
@@ -235,9 +240,9 @@ test.describe('behavior', () => {
     await expect.poll(() => selected(page)).toEqual(['v0', 'v3']);
     expect((await events(page)).change).toEqual(['v2:true']);
     await expect(input(page, 'o2')).not.toBeChecked();
-    // The spec's fixtures are one group each, in a form each: four of them are selected at once.
+    // The spec's fixtures are one group each, in a form each: five of them are selected at once.
     await mountFixtures(page, spec);
-    expect((await selected(page)).length).toBe(4);
+    expect((await selected(page)).length).toBe(5);
   });
 
   test('RAD-4: Down and Right move to the next enabled option and select it, Up and Left to the previous, wrapping, skipping disabled ones', async ({ page }) => {
@@ -567,7 +572,7 @@ test.describe('behavior', () => {
 
   test('RAD-10: disabled renders from the disabled tokens of its condition — the round container stays clear — and of its error form while it is in error, which are those of the plain form: disabled wins', async ({ page }) => {
     const option = { value: 'weekly', name: 'frequency', label: 'Weekly', disabled: true, error: true };
-    await mountFixtures(page, spec, { fixtures: [...spec.fixtures, fixture('disabled-error-unselected', option), fixture('disabled-error-selected', { ...option, selected: true })] });
+    await mountFixtures(page, spec, { fixtures: [...spec.fixtures, fixture('disabled-error-unselected', option), fixture('disabled-error-selected', { ...option, checked: true })] });
     for (const [id, condition] of [['disabled-unselected', 'unselected'], ['disabled-selected', 'selected'], ['disabled-error-unselected', 'error-unselected'], ['disabled-error-selected', 'error-selected']] as const) {
       await matches(page, id, condition, 'disabled');
       // In error and disabled: every part is what the same option out of error draws (RAD-26).
@@ -1274,10 +1279,13 @@ test.describe('one shape', () => {
   // What a gap shows is what is behind, a pixel wide at worst (255 levels of a channel here) and never less than a
   // quarter of it; two shares each rounded to 8 bits and then summed may be 2 levels off.
   const TOLERANCE = 3;
+  // Mounted and settled: a radio button starts no transition for two frames after it is connected (MOT-3), so a
+  // selection motion read after the mount begins once those frames are over, or it is no motion at all.
   const mount = async (page: P, offset: number, options: Parameters<typeof mountFixtures>[2] = {}) => {
     await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => SELECTED.includes(f.id)), ...options });
     await stageBehind(page, offset);
     await page.mouse.move(0, 0);
+    await allSettled(page);
   };
   /** The two colors the radio button paints at this moment. */
   const parts = (page: P, id: string) => ringOf(page, id).evaluate((el) => ({ ring: getComputedStyle(el, '::before').backgroundColor, fill: getComputedStyle(el.querySelector('.fill')!).backgroundColor }));
@@ -1317,9 +1325,16 @@ test.describe('one shape', () => {
         const el = host(page, 'selected');
         await endMotion(el);
         for (const checked of [false, true]) {
+          // The change, and the motion it begins held at its start in the same task: asking for the animations brings
+          // the style up to date, which begins them. A motion left to run until the next round trip may be over by
+          // then on a slow runner, and the frames below would all be its end.
           await el.evaluate(async (node: any, value: boolean) => {
             node.checked = value;
             await node.updateComplete;
+            for (const animation of (node as Element).shadowRoot!.getAnimations()) {
+              animation.pause();
+              animation.currentTime = 0;
+            }
           }, checked);
           const strokes: number[] = [];
           for (const share of [0.2, 0.5, 0.8]) {
@@ -1375,6 +1390,100 @@ test.describe('one shape', () => {
   });
 });
 
+test.describe('read-only', () => {
+  test('RAD-28: a read-only option is not selected by a click on its ring or its label, by Space, by element.click() or by a dispatched click, and emits nothing; the group keeps its selection', async ({ page }) => {
+    await mountGroup(page, [{ checked: true }, { readOnly: true }, {}]);
+    await listenAll(page);
+    const id = 'o1';
+    await container(page, id).click();
+    await labelOf(page, id).click();
+    await host(page, id).evaluate((el) => {
+      (el as HTMLElement).click();
+      el.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }));
+    });
+    await input(page, id).focus();
+    await page.keyboard.press('Space');
+    expect(await selected(page)).toEqual(['v0']);
+    expect((await events(page)).input).toBe(0);
+    expect((await events(page)).change).toEqual([]);
+    await expect(input(page, id)).not.toBeChecked();
+  });
+
+  test('RAD-28: an arrow key moves focus to a read-only option and selects nothing, and from it moves on and selects an option that is not read-only; the tab stop stays on the selected option', async ({ page }) => {
+    await mountGroup(page, [{ checked: true }, { readOnly: true }, {}]);
+    await listenAll(page);
+    await tabTo(page, host(page, 'o0'));
+    await page.keyboard.press('ArrowDown');
+    await expect(input(page, 'o1')).toBeFocused();
+    expect(await selected(page)).toEqual(['v0']);
+    await page.keyboard.press('ArrowDown');
+    await expect(input(page, 'o2')).toBeFocused();
+    expect(await selected(page)).toEqual(['v2']);
+    expect((await events(page)).change).toEqual(['v2:true']);
+  });
+
+  test('RAD-28: in a set whose options are each read-only, Tab enters at the selected option and leaves the set, the arrow keys move focus round it and select nothing, and the option is exposed as an enabled radio with its checked state', async ({ page }) => {
+    await mountGroup(page, [{ readOnly: true }, { readOnly: true, checked: true }, { readOnly: true }]);
+    await page.evaluate(() => document.querySelector('#group')!.setAttribute('aria-readonly', 'true'));
+    await listenAll(page);
+    await page.locator('#before').focus();
+    await tab(page);
+    await expect(input(page, 'o1')).toBeFocused();
+    for (const [key, at] of [['ArrowDown', 'o2'], ['ArrowDown', 'o0'], ['ArrowUp', 'o2']] as const) {
+      await page.keyboard.press(key);
+      await expect(input(page, at), `${key} → ${at}`).toBeFocused();
+    }
+    expect(await selected(page)).toEqual(['v1']);
+    expect((await events(page)).change).toEqual([]);
+    await tab(page);
+    await expect(page.locator('#after')).toBeFocused();
+    await tab(page, { back: true });
+    await expect(input(page, 'o1')).toBeFocused();
+    await expect(host(page, 'o1').getByRole('radio', { checked: true, disabled: false })).toHaveCount(1);
+    // The radio role has no read-only state: the option writes none, the set's container says it.
+    await expect(input(page, 'o1')).not.toHaveAttribute('aria-readonly');
+    await expect(host(page, 'o1')).toHaveAttribute('readonly', '');
+  });
+
+  test('RAD-28: disabled wins over read-only; the product may still set checked; taken back, the option is selected again', async ({ page }) => {
+    await mountGroup(page, [{ checked: true }, { readOnly: true }, { readOnly: true, disabled: true }]);
+    await expect(host(page, 'o2').getByRole('radio', { disabled: true })).toHaveCount(1);
+    await host(page, 'o1').evaluate((el) => ((el as any).checked = true));
+    expect(await selected(page)).toEqual(['v1']);
+    await host(page, 'o0').evaluate((el) => ((el as any).checked = true));
+    await host(page, 'o1').evaluate((el) => ((el as any).readOnly = false));
+    await container(page, 'o1').click();
+    expect(await selected(page)).toEqual(['v1']);
+  });
+
+  test('RAD-28: it is drawn from the resting tokens of its condition — the enabled ones — with no hovered and no pressed state; keyboard focus shows the focused state', async ({ page }) => {
+    await mountFixtures(page, spec);
+    const id = 'read-only-selected';
+    await page.mouse.move(0, 0);
+    await matches(page, id, 'selected');
+    expect((await expected(page, 'selected')).ring).not.toBe((await expected(page, 'selected', 'disabled')).ring);
+    await container(page, id).hover();
+    await matches(page, id, 'selected');
+    expect(await css(host(page, id).locator('.root'), 'cursor')).toBe('default');
+    await page.mouse.down();
+    expect(await pressed(page, id)).toBeNull();
+    await matches(page, id, 'selected');
+    await page.mouse.move(0, 0);
+    await page.mouse.up();
+    await page.locator('body').click({ position: { x: 1, y: 1 } });
+    await tabTo(page, host(page, id));
+    await matches(page, id, 'selected', 'focused');
+    await page.keyboard.down('Space');
+    expect(await pressed(page, id)).toBeNull();
+    await page.keyboard.up('Space');
+  });
+
+  test('RAD-28: a read-only option that is selected is submitted with its form', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === 'read-only-selected') });
+    expect(await page.evaluate(() => [...new FormData(document.querySelector('form')!).entries()].map(([k, v]) => `${k}=${v}`))).toEqual(['frequency=weekly']);
+  });
+});
+
 test.describe('form', () => {
   test('the selected option of a named group submits its value; a reset returns every option to its checked attribute', async ({ page }) => {
     await mountGroup(page, [{}, { checked: true }, {}]);
@@ -1401,11 +1510,11 @@ test.describe('fixtures', () => {
   });
 
   test('every fixture is mounted and visible, in the condition, the error form and the state the spec gives it', async ({ page }) => {
-    // Five, and the two error forms.
-    expect(spec.fixtures.map((f) => f.id)).toEqual(['unselected', 'selected', 'error-unselected', 'error-selected', 'disabled-unselected', 'disabled-selected', 'label-hidden']);
+    // Six, and the two error forms.
+    expect(spec.fixtures.map((f) => f.id)).toEqual(['unselected', 'selected', 'error-unselected', 'error-selected', 'disabled-unselected', 'disabled-selected', 'label-hidden', 'read-only-selected']);
     for (const f of spec.fixtures) {
       await expect(host(page, f.id), f.id).toBeVisible();
-      expect(await host(page, f.id).evaluate((el) => [(el as any).checked, (el as any).error, (el as any).disabled, el.shadowRoot!.querySelector('.root')!.hasAttribute('data-error')]), f.id).toEqual([f.props.selected === true, f.props.error === true, f.props.disabled === true, f.props.error === true]);
+      expect(await host(page, f.id).evaluate((el) => [(el as any).checked, (el as any).error, (el as any).disabled, (el as any).readOnly, el.shadowRoot!.querySelector('.root')!.hasAttribute('data-error')]), f.id).toEqual([f.props.checked === true, f.props.error === true, f.props.disabled === true, f.props.readOnly === true, f.props.error === true]);
       await expect(labelOf(page, f.id), f.id).toHaveCount(f.props.labelHidden ? 0 : 1);
       await expect(page.locator(`[data-fixture="${f.id}"]`).getByRole('radio', { name: String(f.props.label), exact: true }), f.id).toHaveCount(1);
     }

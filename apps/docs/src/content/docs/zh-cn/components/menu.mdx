@@ -2,7 +2,7 @@
 title: "菜单"
 description: "一小组操作或选项，显示在一个临时表面上，这个表面从请求它的元素处打开。"
 translationOf: components/menu.mdx
-sourceHash: ad2a0f5519b3e938183f3e51cbbc55ed7514242e
+sourceHash: dde889cba5c9b3c811de7ca80489ea496b14e941
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -429,6 +429,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - **`never`** 只给在该列中画了内容的行设这一列，因此每个标签紧跟在它自己的标记或图标之后开始。
 
 每个表面各自决定，子菜单跟随其菜单的 `iconSpace`。无论组内各行保留什么，组的标题都从行内容开始的位置起画。[树视图](/zh-cn/components/tree-view/)和[导航抽屉](/zh-cn/components/navigation-drawer/)也有同样的 `iconSpace`，取值和默认值都相同。
+
+### 密度
+
+`density` 决定一行占多大空间。`regular`（默认：行高 48，图标 24）适用于既用触摸也用指针的产品。`compact`（行高 32，图标 20，即[树视图](/zh-cn/components/tree-view/)的紧凑行）适用于用鼠标操作、菜单很长且经常打开的工具。两者的文字大小相同。触摸时行高绝不低于触摸目标，所以手机上的紧凑菜单行高仍是 48。每个子菜单都采用其菜单的密度。
 
 ### 链接
 

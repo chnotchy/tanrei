@@ -5,7 +5,8 @@ import path from 'node:path';
 import { ENUM, cannot, enumName, extensionRecipes as engineRecipes, legalOperations as engineOperations, matchingRules, operationFor, ruleDependencies } from '@tanrei/token-engine';
 import { idToVar as cssVar } from '@tanrei/tokens-build/emit/css';
 import { PRESET_CRITERIA_NOTE, isCriterionFinding, leadWithStructure } from '@tanrei/tokens-build/invariants';
-import { CONFIG, DERIVE, NS, REPO_ROOT, ROOT_SYSTEM, SCHEMES, SEGMENT, STATE, ToolError, declaredExtensions, isPlaceholder, isRef, loadContext, readLayers, shippedLayer, shippedSystems, trialBuild, validateLayer } from './systems.js';
+import { CATEGORIES, DEFAULT_SECTIONS, LEVELS, LISTINGS, PLATFORMS, SECTIONS, STATUSES, checkUsage, findComponent, getComponent, listComponents } from './components.js';
+import { CONFIG, DEFAULT_SYSTEM, DERIVE, NS, REPO_ROOT, ROOT_SYSTEM, SCHEMES, SEGMENT, STATE, ToolError, declaredExtensions, isPlaceholder, isRef, listedSystems, loadContext, readLayers, shippedLayer, shippedSystems, trialBuild, validateLayer } from './systems.js';
 
 // Names come from tanrei.config.json; the engine is a pure library and takes the namespace as a parameter.
 const legalOperations = (descriptor) => engineOperations(descriptor, { namespace: NS });
@@ -17,7 +18,7 @@ const SYS_COLOR = `${NS}.sys.color.`;
 
 // ── shared input fragments ───────────────────────────────────────────────
 const systemProperties = {
-  system: { type: 'string', description: `A shipped system id (default "${ROOT_SYSTEM}"), or the path of a product's <id>.system.json.` },
+  system: { type: 'string', description: `A shipped system id (default "${DEFAULT_SYSTEM}"), or the path of a product's <id>.system.json.` },
   layerFile: { type: 'string', description: "Path of a product's <id>.system.json (absolute, or relative to the server's working directory). Wins over `system`." },
 };
 const schemeProperty = { type: 'string', enum: SCHEMES, default: 'light', description: 'Theme × contrast. Only colors differ between schemes.' };
@@ -146,15 +147,15 @@ async function listSystemsTool({ layerFile, warnings = true }) {
   // for their warning counts (seconds each), not after.
   const ctx = layerFile ? await loadContext({ layerFile }) : null;
   const shipped = [];
-  for (const id of shippedSystems()) {
+  for (const id of listedSystems()) {
     const summary = summarizeLayer(shippedLayer(id), readLayers({ system: id }).chain);
     const fidelity = fidelityOf(id);
     if (fidelity) summary.fidelity = fidelity;
     if (warnings) {
       const findings = await (await loadContext({ system: id })).warnings();
-      // The root system has none (a violation fails its build). An imitation preset is not held to Tanrei's accessibility
+      // The default system has none (a violation fails its build). An imitation preset is not held to Tanrei's accessibility
       // criteria in any contrast scheme: its contrast findings are measurements, not warnings.
-      if (id === ROOT_SYSTEM) summary.accessibilityWarnings = findings.length;
+      if (id === DEFAULT_SYSTEM) summary.accessibilityWarnings = findings.length;
       else {
         // A structural or functional finding is not a measurement: it fails the preset's build, so a shipped preset has none.
         const failures = findings.filter((f) => !isCriterionFinding(f));
@@ -163,7 +164,7 @@ async function listSystemsTool({ layerFile, warnings = true }) {
     }
     shipped.push(summary);
   }
-  const result = { root: ROOT_SYSTEM, schemes: SCHEMES, shipped };
+  const result = { root: ROOT_SYSTEM, default: DEFAULT_SYSTEM, schemes: SCHEMES, shipped };
   if (ctx) {
     const known = new Set(shippedSystems());
     result.product = {
@@ -290,7 +291,6 @@ async function explainToken({ token: id, scheme = 'light', ...reference }) {
     ...(rule ? { rule } : {}),
     cssVar: cssVar(id),
     description: token.$description,
-    ...(token.$deprecated ? { deprecated: token.$deprecated } : {}),
     // Core vocabulary, or an extension a layer of this system declared — with who declared it and why.
     ...(extension ? { extension: true, ...extension } : {}),
     vocabulary: meta.vocabulary ?? null,
@@ -506,7 +506,6 @@ async function proposeExtension({ kind, near, component, axis, from, value, scal
         built: true,
         how: `Built "${ctx.id}" + this fragment with the real pipeline (a stand-in for the rationale). Nothing was written.`,
         newTokens: { total: added.length, values: Object.fromEntries(added.slice(0, 40).map((other) => [other, briefValue(after[other])])) },
-        ...(trial.system.notices?.length ? { notices: trial.system.notices } : {}),
         // The parent is resolved once per chain digest and kept; the trial's warnings read its light tokens and role colors only.
         newWarnings: (await trial.warnings()).filter((warning) => !before.has(warning)),
       };
@@ -557,12 +556,63 @@ const object = (properties, required = []) => ({ type: 'object', additionalPrope
 export const TOOLS = [
   {
     name: 'list_systems',
-    description: "The design systems that ship with Tanrei (the root `tanrei` and the presets that extend it) and, with `layerFile`, a product's own layer chain. A system is a LAYER: it changes values of a small shared core vocabulary, and may EXTEND it under `vocabulary` — each system lists its extensions with the layer that declared them, and a preset measured against the published system it reproduces lists its `fidelity` (equal / measured reference tokens, how many differ or have no counterpart, and the reference). Start here.",
+    description: "The design systems that ship with Tanrei (the default `tanrei` and the presets; every chain starts at the root layer `core`, which values the vocabulary and is not listed) and, with `layerFile`, a product's own layer chain. A system is a LAYER: it changes values of a small shared core vocabulary, and may EXTEND it under `vocabulary` — each system lists its extensions with the layer that declared them, and a preset measured against the published system it reproduces lists its `fidelity` (equal / measured reference tokens, how many differ or have no counterpart, and the reference). Start here.",
     inputSchema: object({
       layerFile: systemProperties.layerFile,
       warnings: { type: 'boolean', default: true, description: 'Count accessibility/structure warnings per system (builds each system once; cached). For an imitation preset the count is of contrast measurements that do not apply to it, under `accessibility`.' },
     }),
     handler: listSystemsTool,
+  },
+  {
+    name: 'list_components',
+    description: `The components a system ships, from its components manifest — call it first, to settle the system, and write UI with nothing it does not list. Each component: name, title, category, level, listing (\`advanced\` = a building block that a composed component usually wraps), a short summary, the web element with the module that registers it, the React wrapper with the entry to import it from, the \`variant\` values this system offers, and each platform's status. \`omitted\` lists the components the system does not have — the layer that left each out and why, or the layer it lives in — with \`insteadUse\` (what this system ships for the same job), the shipped systems that have it and the layer line that takes it; \`omittedVariants\` the variant values it leaves out. Default system "${DEFAULT_SYSTEM}"; with \`layerFile\`, a product's system as \`tanrei build\` works it out.`,
+    inputSchema: object({
+      ...systemProperties,
+      listing: { type: 'string', enum: LISTINGS, description: 'advanced: the building blocks a composed component wraps; a product usually writes the composed one.' },
+      category: { type: 'string', enum: CATEGORIES },
+      level: { type: 'string', enum: LEVELS },
+      platform: { type: 'string', enum: PLATFORMS, default: 'web', description: 'The platform whose status is shown, and filtered on with `status`.' },
+      status: { type: 'string', enum: STATUSES },
+      ...pagination(100, 200),
+    }),
+    handler: listComponents,
+  },
+  {
+    name: 'get_component',
+    description: "One component as its spec describes it, for one system: its props (`variant` narrowed to the values this system offers), events, slots, the elements it holds (`items`), states, its behaviour as EARS rules each with its stable id (`BTN-1` …), accessibility (role, keys, labeling), and one fixture as an example of what to set. `name` may be the component's name, its element or its React wrapper. A component the system does not have answers `available: false` with what to use instead. `sections` narrows the answer, or adds `anatomy`, `tokens`, `platforms` (each platform's names for every prop and event) and `fixtures` (all of them).",
+    inputSchema: object(
+      {
+        name: { type: 'string', description: 'e.g. "text-field", "tanrei-text-field" or "TextField".' },
+        ...systemProperties,
+        sections: { type: 'array', items: { type: 'string', enum: SECTIONS }, uniqueItems: true, default: DEFAULT_SECTIONS, description: `Default: ${DEFAULT_SECTIONS.join(', ')}.` },
+      },
+      ['name'],
+    ),
+    handler: getComponent,
+  },
+  {
+    name: 'find_component',
+    description: 'Which component does a job: the words of `need` ("pick a date", "confirm before deleting") against each spec\'s name and title, its summary and its props, best first, among the components the system has. A component that matches as well but that the system does not have is listed apart (`notInThisSystem`), with what to use instead.',
+    inputSchema: object(
+      {
+        need: { type: 'string', minLength: 2, description: 'What the UI has to do, in plain English.' },
+        ...systemProperties,
+        limit: { type: 'integer', minimum: 1, maximum: 20, default: 5 },
+      },
+      ['need'],
+    ),
+    handler: findComponent,
+  },
+  {
+    name: 'check_usage',
+    description: "Check code against a system's components manifest — the check `tanrei audit` runs: every element (`<tanrei-…>`, a tag in a string, an imported React wrapper) and every CSS selector naming an element of a component the system does not have; every import of an entry that does not fit the system (another system's, or the one of every component), of a web module or of a React wrapper it does not have; and every literal `variant` the system leaves out. Each with its file, line and column, why, and what to write instead (`insteadUse` for a component, also the shipped systems that have it and the layer line that takes it into a product; `use` for an import; `values` for a variant). An unknown `tanrei-` element is reported with the nearest components. Comments are skipped. It reads the text, not a syntax tree: a variant set from a variable is not seen. Pass `code` (with `path`, whose extension says how to read it: .html, .css, or script by default) or `files`. Reads, never writes.",
+    inputSchema: object({
+      code: { type: 'string', maxLength: 1048576, description: 'Source text: HTML, a template, JSX/TSX, Vue, Svelte…' },
+      path: { type: 'string', description: 'With `code`: the name findings carry as `file`; its extension says how to read the text (.html, .vue, .svelte and .astro as markup, .css, .scss and .less as a stylesheet, anything else as script).' },
+      files: { type: 'array', items: { type: 'string' }, minItems: 1, maxItems: 50, description: "Paths of files to read (absolute, or relative to the server's working directory)." },
+      ...systemProperties,
+    }),
+    handler: checkUsage,
   },
   {
     name: 'search_tokens',

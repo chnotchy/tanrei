@@ -13,6 +13,8 @@
 //   behavior    — reading a choice of kind from the cascade
 //   icon        — styles/icons.ts: `iconGlyph()` (a component's own icon, drawn as icons.css draws `.tanrei-icon`)
 //   glyph       — GlyphDrawnController: `data-drawn` on a component's glyph while the icon set can draw it (CHK-19, MNU-30, SNK-26)
+//   faces       — FacesWatch: what measures text measures it again when a face arrives, and once the faces are ready
+//                 after a measurement taken while one loaded (one watch of the page's fonts for every host)
 //   glyph-pending — PendingGlyphs: `data-glyphs="pending"` on a light-DOM component whose glyphs a stylesheet draws, while the icon set cannot (TRV-40)
 //   glyph-mirror — GlyphMirrorController: `data-tanrei-mirrored` on a component's own glyphs and on the glyphs in its slots
 //                 whose name the active icon set mirrors in right-to-left (BTN-19); the styles are
@@ -23,8 +25,11 @@
 //                 element's language, else the document's; `missing()`: recorded, reported once per key and page),
 //                 wordFor() / watchWords() for a script; setWords() and missingWords() are the product's two functions
 //   missing-value — missingValueMessage(): the browser's message of a required control left empty, else the element's own words
-//   availability — AvailabilityController: a component or variant the active system leaves out, reported
+//   availability — AvailabilityController: a component or variant the active system does not have, recorded and reported
+//                 under the element the product wrote; setAvailabilityMode() and unavailableUses() are the product's two functions
 //   arc         — arcStyles: a ring of SVG circles (center, radius, stroke, circumference), ring-turn and pulse
+//   range-track — rangeTrackStyles(), renderRangeBar(), renderRangeRing(), rangeOf(), rangeAxes(): a value on a track as a
+//                 bar or a ring, from a component's own tokens (the progress indicator's determinate form, the meter)
 //   description — FORWARDED_DESCRIPTION: the host's aria-description, rendered on the native element (FORWARDED_INVALID: its aria-invalid)
 //   focus-order — OUTSIDE_FOCUS_ORDER: a control a host takes out of the focus order (a number field's steppers, NUM-25)
 //   host-aria   — `hostAria()`: semantics a non-interactive component carries on its host (divider, progress…)
@@ -63,11 +68,15 @@
 //                 across shadow roots, the platform's, one page-wide watcher; the chords' attribute converter; and the
 //                 internal event a keyboard shortcut tells its host with (KBS-12, a menu item's aria-keyshortcuts)
 //   item-update — notifyItemUpdate(): an item tells its container a prop it reads changed, an internal event kept out of
-//                 the manifest (segment, list item, menu item, suggestion, tab)
+//                 the manifest (segment, list item, menu item, suggestion, tab); CoalescedSync, the container's side: one
+//                 re-read of its items per turn, however many said they changed (a build of N items is O(N), not O(N²))
+//   work-count  — countWork(): a debug build counts a piece of work on globalThis.__tanreiCounts, for the performance
+//                 tests to hold as a count
 //   group-item  — the internal channel between a button group and its Buttons and icon buttons: GroupItemController
 //                 (where the item sits), groupItemStyles() (its corners, width and hit area in the group), GROUP_PLACE;
 //                 a toolbar's items are `row` items of it, their hit areas capped at the measured half-gaps (TBR-9);
-//                 a dialog gives its actions their variant through it (HOST_VARIANT, DLG-20)
+//                 a dialog gives its actions their variant through it (HOST_VARIANT, DLG-20), and a host that draws a
+//                 Button on a colored surface of its own gives it a tone (HOST_TONE, giveTone(), BTN-45)
 //   actions     — ActionPlacement and actionBoxStyles(): the actions at the foot of a dialog or a side sheet, placed by
 //                 their flags as a full-width Button group places its items (BGR-13…19) into three hand-assigned slots,
 //                 row or column by fit, each given the host's variant (DLG-10, DLG-20, SSH-11, SSH-17); compChoice()
@@ -89,6 +98,10 @@
 //   modal       — modalLayer: the Tanrei modal overlays open in the window, which a snackbar waits and pauses for (SNK-9, SNK-12);
 //                 deepActive(), tabbables(), trapFocus() and holdPageScroll(): what every modal overlay (dialog, drawer) does;
 //                 focusWithin() and returnFocus(): focus inside a host, and given back to its opener (the sheets)
+//   modal-exit  — openModal(), closeModal(), modalExitStyles(): a modal <dialog> closes at once (focus goes back) and stays
+//                 drawn in the top layer, inert, until its exit and its scrim's have played, in every engine (MDL-7)
+//   scrim       — scrimFilter() and SCRIM_FILTER: a modal surface's scrim blur as a backdrop filter only where there is
+//                 a blur to draw (MDL-1)
 //   sheet       — what the sheets share (bottom sheet, BSH-5, BSH-9; side sheet, SSH-4): SheetDrag (slop, following,
 //                 velocity), the fling and slop constants, stoppedBefore() and POINTER_STOPPED_TIME (a still pointer's
 //                 release is no fling, for every drag that flings), modalSheetKeys() (Escape and the trap), closeRequestReason()
@@ -101,17 +114,30 @@
 //                 syncDividerVisibility()
 //   follow      — FollowController: an overlay placed by script follows its anchor by events (scroll, resize, sizes, a place
 //                 that changed with no event, a motion beginning), frame by frame only while something moves (TIP-9,
-//                 MNU-2, FBM-13, SRC-7, DTM-2)
+//                 MNU-2, FBM-13, SRC-7, DTM-2), and says when its anchor is no longer drawn (anchorUndrawn(): out of the
+//                 page, display none, visibility hidden, skipped by content-visibility; MNU-65, DTM-51)
 //   disclosure  — lineArrow(): the arrow key toward the end or the start of the line, for a row that opens and closes what is
 //                 under it (a navigation drawer's group, NVD-45; an accordion's header, ACC-11)
 //   placement   — placeAnchored(): where a surface that opens beside a control goes (the thirteen placements, offsets,
 //                 flipping, shifting, holding, the arrow's point: TIP-9, TIP-22…25, POP-2…5); anchorGone() (the anchor
-//                 removed, hidden or out of sight); the attributes of `offset`, `cross-offset` and a true/false/unset choice
-//   arrow       — arrowStyles(), shadowLayers() and shadeFilter(): the arrow of an anchored surface, one shape with it
+//                 removed, hidden or out of sight); the attributes of `offset`, `cross-offset` and a true/false/unset choice;
+//                 visibleViewport() (the visible part of the window, above the on-screen keyboard) and surfaceCap() (a
+//                 product's `max-block-size` on a placed surface); placeMenu(), placeAtPoint() and placeSubmenu() (a
+//                 menu's kind of surface: MNU-2, MNU-46, MNU-47, MNU-61, DTM-2)
+//   arrow       — arrowStyles(), shadowLayers(), shadeFilter() and shadeOn(): the arrow of an anchored surface, one shape with it
 //                 under one elevation (TIP-25, POP-10); arrowOutlineStyles(): its outline in forced colors (POP-32)
+//   compact-sheet — CompactWindow, compactProbeStyles() and sheetLookStyles(): a compact window, and the bottom sheet's
+//                 appearance a popover and a dialog take there (POP-39, POP-41, DLG-17, DLG-18)
 //   anchored    — AnchoredSurfaceController and anchoredSurfaceStyles(): a surface presented in the top layer, placed
 //                 beside its anchor, limited to the room, following it, with its open and close motion (POP-1…5,
 //                 POP-7, POP-8, POP-26, POP-27, POP-36); what a select, a combobox and a color field stand on
+//   motion      — docs/architecture/motion.md in code: appearStyles() and AppearController (the one appearance of a
+//                 surface, its entrance skipped before the first paint — documentPainted(), MOT-4 — turned round from the
+//                 value shown, exit() resolved by its transitions), AnimatedSize (a box whose size follows its content,
+//                 anchored, clipped, MOT-5), Settle with settleStyles / settleRule() (styles/motion.ts: no transition in
+//                 an element's first frames, MOT-3)
+//   element     — TanreiElement and TanreiLightElement (element.ts): the base every element extends, which settles it
+//                 (MOT-3) — settleStyles composed last in a shadow root; the build writes settleRule() into a light-DOM sheet
 //   dismiss     — DismissController: Escape (the topmost surface alone, after everything inside heard the key), a press
 //                 outside and focus leaving ask the host to close (POP-21, POP-23); registerOverlay() and
 //                 logicalAncestors(): an overlay opened from inside a surface is that surface's own (POP-24)
@@ -151,12 +177,14 @@ export { PressController, type PressOptions, type PressedBy, pressHold } from '.
 export { type Point, type RippleTokens, fadeRipple, rippleStyles, startRipple } from './ripple.js';
 export { type StatePaints, type StateSelector, stateRules } from './states.js';
 export { arcStyles } from './arc.js';
+export { RANGE_SIZES, RANGE_VARIANTS, rangeAxes, rangeClasses, rangeOf, rangeTrackStyles, renderRangeBar, renderRangeRing } from './range-track.js';
 export { FORWARDED_DESCRIPTION, FORWARDED_INVALID } from './description.js';
 export { OUTSIDE_FOCUS_ORDER } from './focus-order.js';
 export { DIRECTION_PROBE, DirectionController, directionProbeStyles } from './direction.js';
 export { lineArrow } from './disclosure.js';
 export { PendingGlyphs, isGlyphProbe } from './glyph-pending.js';
-export { FollowController, type FollowOptions } from './follow.js';
+export { FacesWatch, type FacesChanged } from './faces.js';
+export { FollowController, type FollowOptions, anchorUndrawn } from './follow.js';
 export {
   ANCHORED_PLACEMENTS,
   type AnchoredArrow,
@@ -165,17 +193,46 @@ export {
   type AnchoredPlace,
   type AnchoredPlacement,
   type AnchoredSide,
+  type MenuBox,
+  type MenuPlacement,
   type NamedSide,
+  type PlacementViewport,
+  type ViewportBox,
   anchorGone,
   anchorOutOfSight,
   choiceAttribute,
   crossOffsetAttribute,
   numericAttribute,
   placeAnchored,
+  placeAtPoint,
+  placeMenu,
+  placeSubmenu,
+  surfaceCap,
   usableLength,
+  viewportKey,
+  visibleViewport,
 } from './placement.js';
-export { type ArrowStyleOptions, type ShadowLayer, arrowOutlineStyles, arrowStyles, shadeFilter, shadowLayers } from './arrow.js';
+export { type ArrowStyleOptions, type ShadowLayer, arrowOutlineStyles, arrowStyles, shadeFilter, shadeOn, shadowLayers } from './arrow.js';
+export { CompactWindow, type SheetLookOptions, compactProbeStyles, sheetLookStyles } from './compact-sheet.js';
 export { type AnchoredStyleOptions, AnchoredSurfaceController, type AnchoredSurfaceOptions, anchoredSurfaceStyles } from './anchored.js';
+export {
+  AnimatedSize,
+  type AnimatedSizeOptions,
+  type AppearControllerOptions,
+  AppearController,
+  type AppearOptions,
+  type AppearOrigin,
+  type AppearRole,
+  type AppearTiming,
+  type SizeAnchor,
+  type SizeAxis,
+  Settle,
+  afterFirstPaint,
+  appearStyles,
+  documentPainted,
+} from './motion.js';
+export { APPEARING, SETTLING, settleRule, settleStyles } from '../styles/motion.js';
+export { TanreiElement, TanreiLightElement } from './element.js';
 export { DismissController, type DismissOptions, type DismissReason, type OverlayEntry, logicalAncestors, overlayDepth, registerOverlay } from './dismiss.js';
 export { type OverlayTabOptions, focusOverlay, keepOverlayFocusAfterPress, quietFocus, returnOverlayFocus, tabThroughOverlay, watchInput } from './overlay-focus.js';
 export { hostAria } from './host-aria.js';
@@ -225,6 +282,8 @@ export { answersPress, findInteractive, pressTakenWithin, slottedInteractive } f
 export { VisibilityController } from './visibility.js';
 export { layoutScale } from './layout-scale.js';
 export { deepActive, focusWithin, holdPageScroll, modalLayer, returnFocus, tabbables, trapFocus } from './modal.js';
+export { LEAVING, closeModal, isLeaving, modalExitStyles, openModal } from './modal-exit.js';
+export { SCRIM_FILTER, scrimFilter } from './scrim.js';
 export {
   POINTER_STOPPED_TIME,
   SHEET_FLING_VELOCITY,
@@ -313,7 +372,8 @@ export {
 } from './link.js';
 export { layoutSize, naturalHeight } from './natural-height.js';
 export { parseValues } from './values.js';
-export { notifyItemUpdate } from './item-update.js';
+export { CoalescedSync, notifyItemUpdate } from './item-update.js';
+export { countWork } from './work-count.js';
 export { type FilledRun, type FilledSentence, type PlaceFaults, fillPlaces, placeFaults, reportPlaces } from './places.js';
 export {
   ACTION_COLUMN,
@@ -337,10 +397,14 @@ export {
   type GroupItem,
   GroupItemController,
   type GroupPlace,
+  HOST_TONE,
   HOST_VARIANT,
+  giveTone,
   groupItemReset,
   groupItemStyles,
   type PlacingGroup,
+  type Tone,
+  type ToneHost,
   type VariantHost,
 } from './group-item.js';
 export {

@@ -11,10 +11,11 @@
  * them (not an inline one). An element that is not laid out, or has no size, answers 1 — and 0 on an axis it has a
  * size on and is drawn flat (scaled to nothing: the first frame of a surface that grows from an edge): nothing can be
  * measured through it then, and the caller measures again once it is not.
+ *
+ * A caller that has read the element's box on the page and its computed style already, for its own use, passes them
+ * (`drawn`, `style`): the scale is then found without reading either again.
  */
-export function layoutScale(element: Element): { x: number; y: number } {
-  const drawn = element.getBoundingClientRect();
-  const style = getComputedStyle(element);
+export function layoutScale(element: Element, drawn: DOMRectReadOnly = element.getBoundingClientRect(), style: CSSStyleDeclaration = getComputedStyle(element)): { x: number; y: number } {
   const side = (names: string[]) => names.reduce((sum, name) => sum + (Number.parseFloat(style.getPropertyValue(name)) || 0), 0);
   const border = style.boxSizing === 'border-box';
   const laid = {

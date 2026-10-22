@@ -1,7 +1,8 @@
-import { type PropertyDeclarations, type PropertyValues, ReactiveElement } from 'lit';
+import type { PropertyDeclarations, PropertyValues } from 'lit';
 import { AvailabilityController, SystemWatchController, VisibilityController, WordsController, report, styleQueries } from '../../primitives/index.js';
 import { debugBuild } from '../../primitives/report.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { TanreiLightElement } from '../../primitives/element.js';
 
 // The text of src/styles/skeleton.css — the stylesheet that draws the skeleton — written in by the build
 // (scripts/build.js), so the element can add it to whichever root it is connected to. A build that wrote nothing
@@ -163,7 +164,7 @@ let defining = false;
  * @tag tanrei-skeleton
  * @slot - The placeholders — empty elements with `class="tanrei-skeleton-placeholder"` — alone or inside a layout of the product's own. They are children in the document, not slotted nodes: the element has no shadow root.
  */
-export class TanreiSkeleton extends ReactiveElement {
+export class TanreiSkeleton extends TanreiLightElement {
   private readonly availability = new AvailabilityController(this, 'skeleton');
 
   static override properties: PropertyDeclarations = {

@@ -313,11 +313,12 @@
           "condition-duration": {
             "$type": "duration",
             "$value": "{tanrei.sys.motion.duration.short4}",
-            "$description": "How long the bar takes to change between flat and scrolled."
+            "$description": "How long the bar takes to change between flat and scrolled.",
+            "$extensions": {}
           },
           "condition-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           }
         }
       }

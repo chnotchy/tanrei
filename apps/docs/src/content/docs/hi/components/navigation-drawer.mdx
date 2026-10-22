@@ -2,7 +2,7 @@
 title: नेविगेशन ड्रॉअर
 description: प्रॉडक्ट के गंतव्यों को शुरुआती किनारे के एक पैनल में, सेक्शन और ग्रुप में बाँटकर दिखाता है; बड़ी स्क्रीन पर कॉन्टेंट के बग़ल में और छोटी स्क्रीन पर उसके ऊपर, और सिमटकर आइकन का एक कॉलम बन सकता है।
 translationOf: components/navigation-drawer.mdx
-sourceHash: c0e6415cbe529e2cea498fc6093ce5a4744b804d
+sourceHash: 5a0659850fec34d28617357f9478089babbb3c8f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -21,12 +21,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <DemoFrame label="दो सेक्शन वाला standard ड्रॉअर">
   <tanrei-navigation-drawer open value="inbox" label="मेल" style="block-size: 26rem">
-    <tanrei-navigation-drawer-section heading="मेल">
+    <tanrei-navigation-drawer-section headline="मेल">
       <tanrei-navigation-drawer-item value="inbox" label="इनबॉक्स" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
       <tanrei-navigation-drawer-item value="sent" label="भेजे गए" icon="send"></tanrei-navigation-drawer-item>
       <tanrei-navigation-drawer-item value="drafts" label="ड्राफ़्ट" icon="draft"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-section>
-    <tanrei-navigation-drawer-section heading="लेबल" divider>
+    <tanrei-navigation-drawer-section headline="लेबल" divider>
       <tanrei-navigation-drawer-item value="work" label="काम" icon="label" trailing-text="नया"></tanrei-navigation-drawer-item>
       <tanrei-navigation-drawer-item value="family" label="परिवार" icon="label"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-section>
@@ -65,7 +65,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <DemoFrame label="कॉम्पैक्ट ड्रॉअर, पॉइंटर से इस्तेमाल होने वाले टूल के लिए: 32 ऊँची पंक्तियाँ और 16 के ग्लिफ़, हर नेस्टेड आइकन वहीं जहाँ उसके ग्रुप का लेबल शुरू होता है" plain>
   <tanrei-navigation-drawer open density="compact" value="tree-view" label="Workspace" style="block-size: 22rem">
     <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
-    <tanrei-navigation-drawer-section heading="Projects">
+    <tanrei-navigation-drawer-section headline="Projects">
       <tanrei-navigation-drawer-group label="Tanrei" icon="folder" open>
         <tanrei-navigation-drawer-item value="tokens" label="Tokens" icon="palette" trailing-text="412"></tanrei-navigation-drawer-item>
         <tanrei-navigation-drawer-group label="Components" icon="widgets" open>
@@ -97,7 +97,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### इस्तेमाल
 
-नेविगेशन ड्रॉअर में पाँच तरह के आइटम होते हैं। `destination` एक पंक्ति है, जिसमें एक वैकल्पिक आइकन, एक लेबल और अंत में वैकल्पिक अंतिम कॉन्टेंट होता है; `href` के साथ यह एक लिंक है। `group` वह पंक्ति है जो अपने भीतर के गंतव्यों और ग्रुप को खोलती और बंद करती है। `section` गंतव्यों और ग्रुप को एक वैकल्पिक `heading` के नीचे इकट्ठा करता है, और उसके पहले एक वैकल्पिक `divider` हो सकता है; सेक्शन एक-दूसरे के भीतर नहीं रखे जाते, और ग्रुप में सेक्शन नहीं रखे जाते। `header-button` (पहला वाला मेन्यू बटन है) और `main-action` हेडर में रहते हैं। वेब पर ये `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` और `<tanrei-navigation-drawer-section>` चाइल्ड हैं, और `header-button` और `main-action` स्लॉट में सिर्फ़ आइकन वाले `<tanrei-button>` और एक `<tanrei-main-action-button>`। जो प्लैटफ़ॉर्म पीछे हैं, वे गंतव्य और सेक्शन अपने तरीक़े से लेते हैं: SwiftUI पर `TanreiNavigationDrawerItem` और `TanreiNavigationDrawerSection` व्यू और Compose पर इन्हीं नामों के कॉल, Flutter के `children:` में `TanreiNavigationDrawerDestination` और `TanreiNavigationDrawerSection` ऑब्जेक्ट, और React Native पर `items` ऐरे की गंतव्य और सेक्शन वाली एंट्री, जहाँ सेक्शन की पहचान उसके अपने `items` से होती है।
+नेविगेशन ड्रॉअर में पाँच तरह के आइटम होते हैं। `destination` एक पंक्ति है, जिसमें एक वैकल्पिक आइकन, एक लेबल और अंत में वैकल्पिक अंतिम कॉन्टेंट होता है; `href` के साथ यह एक लिंक है। `group` वह पंक्ति है जो अपने भीतर के गंतव्यों और ग्रुप को खोलती और बंद करती है। `section` गंतव्यों और ग्रुप को एक वैकल्पिक `title` (वेब पर `headline`) के नीचे इकट्ठा करता है, और उसके पहले एक वैकल्पिक `divider` हो सकता है; सेक्शन एक-दूसरे के भीतर नहीं रखे जाते, और ग्रुप में सेक्शन नहीं रखे जाते। `header-button` (पहला वाला मेन्यू बटन है) और `main-action` हेडर में रहते हैं। वेब पर ये `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` और `<tanrei-navigation-drawer-section>` चाइल्ड हैं, और `header-button` और `main-action` स्लॉट में सिर्फ़ आइकन वाले `<tanrei-button>` और एक `<tanrei-main-action-button>`। जो प्लैटफ़ॉर्म पीछे हैं, वे गंतव्य और सेक्शन अपने तरीक़े से लेते हैं: SwiftUI पर `TanreiNavigationDrawerItem` और `TanreiNavigationDrawerSection` व्यू और Compose पर इन्हीं नामों के कॉल, Flutter के `children:` में `TanreiNavigationDrawerDestination` और `TanreiNavigationDrawerSection` ऑब्जेक्ट, और React Native पर `items` ऐरे की गंतव्य और सेक्शन वाली एंट्री, जहाँ सेक्शन की पहचान उसके अपने `items` से होती है।
 
 चयन ड्रॉअर का होता है, गंतव्य के मान के आधार पर, गंतव्य चाहे जहाँ भी हो। `change` और `reselect` वैसे ही काम करते हैं जैसे नेविगेशन बार में। Compose में ड्रॉअर के स्तर का कोई मान नहीं है: मौजूदा आइटम को आप `selected` चिह्नित करते हैं, और उसका `onClick` change और reselect दोनों का काम करता है। Flutter इंडेक्स से चुनता है, जो सेक्शन के पार पढ़ने के क्रम में गिना जाता है।
 
@@ -123,11 +123,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
     <!-- Modal: शैडो रूट में एक <dialog>, जो showModal() से खुलता है। Standard एक <nav> है, जिसका नाम label से आता है। -->
     <tanrei-navigation-drawer variant="modal" label="मेल" value="inbox">
-      <tanrei-navigation-drawer-section heading="मेल">
+      <tanrei-navigation-drawer-section headline="मेल">
         <tanrei-navigation-drawer-item value="inbox" label="इनबॉक्स" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
         <tanrei-navigation-drawer-item value="sent" label="भेजे गए" icon="send"></tanrei-navigation-drawer-item>
       </tanrei-navigation-drawer-section>
-      <tanrei-navigation-drawer-section heading="लेबल" divider>
+      <tanrei-navigation-drawer-section headline="लेबल" divider>
         <tanrei-navigation-drawer-item value="work" label="काम" icon="label" trailing-text="नया"></tanrei-navigation-drawer-item>
       </tanrei-navigation-drawer-section>
     </tanrei-navigation-drawer>
@@ -200,7 +200,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       onChange={(e) => setFolder(e.detail.value)}
       onClose={() => setOpen(false)}
     >
-      <NavigationDrawerSection heading="मेल">
+      <NavigationDrawerSection headline="मेल">
         <NavigationDrawerItem value="inbox" label="इनबॉक्स" icon="inbox" trailingText="24" />
         <NavigationDrawerItem value="sent" label="भेजे गए" icon="send" />
       </NavigationDrawerSection>

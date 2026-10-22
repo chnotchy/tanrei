@@ -2,7 +2,7 @@
 title: Búsqueda
 description: Una barra de búsqueda, o un activador compacto que la sustituye, que ofrece sugerencias y resultados mientras se escribe, en una vista acoplada bajo la barra, en un diálogo o sobre toda la pantalla.
 translationOf: components/search.mdx
-sourceHash: dff91514d103fc191272197ef2ffe65ccaa3f058
+sourceHash: 086f7f1c3045fd6c16e3efb539c84a64cab8e632
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -322,6 +322,8 @@ Los dos vienen incluidos, porque su comportamiento pertenece a la búsqueda: el 
 
 - **Una sugerencia es algo que se elige; un resultado es un lugar al que ir.** Una sugerencia ayuda a terminar la consulta o salta a algo conocido, y las teclas de flecha la convierten en la activa mientras el foco se queda en el campo de entrada. Un resultado es algo que tu búsqueda ha encontrado: un enlace que recibe el foco él mismo.
 - Usa el icono inicial para distinguir los tipos: el del historial para una consulta anterior, una carpeta, una página, una sección.
+- Cuando solo algunas filas tienen icono, `iconSpace` decide dónde empiezan su titular las demás. `auto` (predeterminado) guarda el espacio del icono, vacío, en todas las filas de la vista mientras alguna sugerencia o algún resultado tenga icono, para que los titulares queden alineados; `always` lo guarda en todas las filas, y `never` solo en una fila que tiene icono. El [menú](/es/components/menu/) tiene el mismo `iconSpace`, con los mismos valores y el mismo valor predeterminado.
+- `density` fija cuánto espacio ocupa una fila de la vista: `regular` (el valor por defecto, de 56 de alto) o `compact` (de 32 de alto con un glifo de 20), para una paleta de comandos o una herramienta que se usa con el ratón y el teclado. Ni la barra ni el texto cambian. Con el tacto una fila nunca es más baja que el objetivo táctil.
 - Escribe titulares cortos y pon el detalle en el texto de apoyo o en el extracto: «Facturas» y, después, «Carpeta · 24 mensajes». Saltan de línea en lugar de cortarse.
 - Marca en el extracto lo que ha coincidido. La marca es la del sistema, un color, un peso mayor y un relleno suave detrás de la coincidencia, de modo que las coincidencias se ven igual en todas partes y se encuentran en cualquier escritura, también donde la fuente no tiene un peso entre el normal y la negrita.
 - Agrupa los resultados cuando vayan juntos: las secciones bajo su página, los mensajes bajo «Mensajes». El título de un grupo es un enlace cuando el propio grupo es un lugar.

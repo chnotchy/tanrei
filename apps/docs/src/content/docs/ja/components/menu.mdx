@@ -2,7 +2,7 @@
 title: メニュー
 description: 呼び出した要素から開く一時的なサーフェスに、少数のアクションや選択肢を並べて見せます。
 translationOf: components/menu.mdx
-sourceHash: ad2a0f5519b3e938183f3e51cbbc55ed7514242e
+sourceHash: dde889cba5c9b3c811de7ca80489ea496b14e941
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -429,6 +429,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - **`never`** は、その列に何かを描く行にだけ列を設けます。各ラベルは、その行自身の印やアイコンのすぐ後から始まります。
 
 サーフェスごとに決め、サブメニューはそのメニューの `iconSpace` に従います。グループのタイトルは、行が何を空けておくかにかかわらず、行の内容が始まる位置から始まります。[ツリービュー](/ja/components/tree-view/)と[ナビゲーションドロワー](/ja/components/navigation-drawer/)にも、同じ値と既定値の `iconSpace` があります。
+
+### 密度
+
+`density` は行が取る広さを決めます。`regular`（既定。行の高さ 48、グリフ 24）は、タッチでもポインターでも使われるプロダクト向けです。`compact`（行の高さ 32、グリフ 20。[ツリービュー](/ja/components/tree-view/)の compact の行）は、マウスで使い、長いメニューを何度も開くツール向けです。文字の大きさはどちらでも変わりません。タッチでは行がタッチターゲットより低くなることはなく、スマートフォンの compact のメニューも行は 48 のままです。サブメニューはすべて、そのメニューの密度に従います。
 
 ### リンク
 

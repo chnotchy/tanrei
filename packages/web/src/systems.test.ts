@@ -19,8 +19,25 @@ const SUBJECTS = [
   // Modal, one height: the scrim, the sheet's color, top corners (eased in cupertino), elevation and padding, the handle's
   // row and grip (cupertino's 36 × 5 grabber in a 16 row) and the body text. Its baseline is the 400 × 720 window.
   subject('bottom-sheet', (fixture) => fixture.id === 'modal', { window: { width: 400, height: 720 }, wholeWindow: true }),
+  // An arc at its corner, drawn at rest: each preset's line color and thickness, the arc's radius and inset from the
+  // corner (the stage's corner is concentric with it).
+  subject('handle', (fixture) => fixture.id === 'both-bottom-end'),
+  // Outlined with its size indicator drawn: each preset's corners and edge for the box, and the indicator's height,
+  // padding, corners, inverse colors and monospaced digits.
+  subject('resizable-frame', (fixture) => fixture.id === 'indicator-always'),
   // A determinate bar: track and indicator colors, thickness, and the gap and stop indicator m3-like adds.
   subject('progress-indicator', (fixture) => fixture.id === 'linear-determinate'),
+  // A bar with a value text: the progress indicator's track, thickness and separation under each preset, in the meter's own default color.
+  subject('meter', (fixture) => fixture.id === 'linear'),
+  // A dashboard's figure: each preset's text style around it (the ticker has none of its own) and its tabular digits.
+  subject('number-ticker', (fixture) => fixture.id === 'default', { reducedMotion: true }),
+  // Scrolled to the middle, both edges marked: each preset's scroll edge (shadow in the default system, a line in the m3
+  // presets, a blur in cupertino), its depth and its color over the same content.
+  // Each fixture is its own axe unit: a scroll box that is a focus stop is a region, and a page of every fixture would
+  // hold the spec's regions (named alike, or not at all) side by side, which no product page does.
+  subject('scroll-area', (fixture) => fixture.id === 'default', { reducedMotion: true, axeEach: true }),
+  // At rest, cut with its ellipsis: the line drawn in the text style around it under each preset (it has no style of its own).
+  subject('marquee-text', (fixture) => fixture.id === 'default', { reducedMotion: true }),
   // Contained: the indicator's size and color, and the container's size, color and elevation (m3-expressive-like differs in all).
   subject('loading-indicator', (fixture) => fixture.id === 'contained-medium', { reducedMotion: true }),
   // Checked: the box's size, corner and fill, the check glyph (the icon set's family, weight and mark size), the outline width and the label's text role together.
@@ -64,7 +81,9 @@ const SUBJECTS = [
   // glyph of its icon set, the title's and the body's text styles, and the close button.
   subject('callout', (fixture) => fixture.id === 'closable-title-actions', { icons: true }),
   // Primary with icons: the stacked icon and label, the selected text and filled glyph, the indicator's weight and corners, the divider.
-  subject('tabs', (fixture) => fixture.id === 'primary-icons', { icons: true }),
+  // And the column: the indicator inset all round, the track's concentric corners, and the underline and the divider
+  // on its end edge where a preset draws them (m3-like).
+  subject('tabs', (fixture) => fixture.id === 'primary-icons' || fixture.id === 'vertical', { icons: true }),
   // At rest under the primary tabs: the panel's clip and corners (square in every preset); the page turn the m3 presets
   // and cupertino draw shows only in the Tab view's own test frames.
   subject('tab-view', (fixture) => fixture.id === 'default'),
@@ -283,10 +302,16 @@ const SUBJECTS = [
 ];
 const button = SUBJECTS[0].spec;
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
+// The presets: every layer in tokens/systems/ but the default system (named like the namespace) and the root (the one
+// layer without `extends`, which has no stylesheet of its own) — the rule the CLI and the MCP server offer systems by.
+// A layer's folder (tokens/systems/m3-like/, the documents of the components that live in it) is no layer.
+const namespace: string = JSON.parse(fs.readFileSync(path.join(repo, 'tanrei.config.json'), 'utf8')).namespace;
 const presets = fs
   .readdirSync(path.join(repo, 'tokens/systems'))
-  .map((f) => f.replace('.system.json', ''))
-  .filter((id) => id !== 'tanrei');
+  .filter((f) => f.endsWith('.system.json'))
+  .map((f) => ({ id: f.replace('.system.json', ''), layer: JSON.parse(fs.readFileSync(path.join(repo, 'tokens/systems', f), 'utf8')) }))
+  .filter(({ id, layer }) => id !== namespace && layer.extends)
+  .map(({ id }) => id);
 /**
  * Tanrei's accessibility criteria in axe: the contrast thresholds (AA, and AAA's enhanced one), a link's contrast with
  * the text around it (`link-in-text-block`) and the target size. An
@@ -298,6 +323,8 @@ const presets = fs
  */
 const CRITERIA = ['color-contrast', 'color-contrast-enhanced', 'link-in-text-block', 'target-size'];
 const sheet = (id: string) => fs.readFileSync(path.join(repo, `packages/web/dist/systems/${id}.css`), 'utf8');
+/** The components a system does not have: they live in a layer it does not extend (`--tanrei-unavailable-layer`). */
+const outside = (id: string) => new Set((/--tanrei-unavailable-layer: "([^"]*)";/.exec(sheet(id))?.[1] ?? '').split(/\s+/).filter(Boolean).map((pair) => pair.split('=')[0]));
 const inner = (page: Page, fixture: string) => fixtureHost(page, button, fixture).locator('button');
 const style = (page: Page, fixture: string, property: string) => inner(page, fixture).evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
 
@@ -488,7 +515,8 @@ for (const system of presets) {
       expect(box!.height).toBe(await resolveToken(page, '--tanrei-comp-button-container-height-medium'));
     });
 
-    for (const { spec, fixtures, icons, reducedMotion, window, wholeWindow, alone, ...scope } of SUBJECTS) {
+    // A component that lives in a layer this system does not extend is not drawn under it: the system has none of its tokens.
+    for (const { spec, fixtures, icons, reducedMotion, window, wholeWindow, alone, ...scope } of SUBJECTS.filter((s) => !outside(system).has(s.spec.name))) {
       for (const unit of axeUnits({ spec, ...scope })) {
         test(`${unit.name}: ${system} passes axe's functional rules at standard contrast (not its contrast or target-size criteria)`, async ({ page }) => {
           await axe(page, spec, unit.name, system, undefined, icons, unit.fixtures);

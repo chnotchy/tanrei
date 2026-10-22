@@ -15,6 +15,7 @@ import {
   syncFocusStyle,
 } from '../../primitives/index.js';
 import { AXES, segmentStyles, setStyles } from './segmented-button.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** One option at a time (a radio group), or each option on and off (toggle buttons). A closed set: anything else is single. */
 export type TanreiSegmentedButtonSelection = 'single' | 'multiple';
@@ -63,7 +64,7 @@ const SEGMENT_UPDATE = 'tanrei-segment-update';
  * @csspart label - The segment's text.
  * @csspart divider - The line in the gap before the segment (not drawn before the first; hidden from assistive technology).
  */
-export class TanreiSegment extends LitElement {
+export class TanreiSegment extends TanreiElement {
   static override styles = segmentStyles;
 
   static override shadowRootOptions: ShadowRootInit = { ...LitElement.shadowRootOptions, delegatesFocus: true };
@@ -300,7 +301,7 @@ export class TanreiSegment extends LitElement {
  * @csspart set - The row that holds the segments: its fill, corners and outline (`::after`).
  * @fires {CustomEvent<TanreiSegmentedButtonChangeDetail>} change - The user changed the selection: `detail.value` (single) or `detail.values` (multiple) after the change, which the set already holds.
  */
-export class TanreiSegmentedButton extends LitElement {
+export class TanreiSegmentedButton extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'segmented-button');
   static override styles = setStyles;
 

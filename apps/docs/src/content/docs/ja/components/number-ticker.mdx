@@ -1,0 +1,140 @@
+---
+title: ナンバーティッカー
+description: 件数、価格、スコア、ダッシュボードの数字のように変わる数を、変わった桁だけを新しい値まで動かして示します。見る人には変わったこと、その向き、おおよその量が伝わり、支援技術には落ち着いた最後の値だけが伝わります。
+translationOf: components/number-ticker.mdx
+sourceHash: 95f0526e88d9f97f2e8636d465f88d6f39585435
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="number-ticker" />
+
+<DemoFrame label="画面に入ったときに値まで上がっていく数字">
+  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+    <tanrei-number-ticker start-value="0" value="1234" label="注文数"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="0" value="98400" number-style="currency" currency="USD" fraction-digits="0" label="売上"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="0" value="0.426" number-style="percent" fraction-digits="1" label="コンバージョン率"></tanrei-number-ticker>
+  </div>
+</DemoFrame>
+
+### 使い方
+
+Web と React の例は現在の仕様に沿っています。SwiftUI、Compose、Flutter、React Native は予定で、まだナンバーティッカーを提供していません。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-number-ticker value="1234" label="注文数"></tanrei-number-ticker>
+    <tanrei-number-ticker value="98400" number-style="currency" currency="USD" label="売上"></tanrei-number-ticker>
+
+    <!-- ダッシュボードの数字は、初めて画面に入ったときに 0 から上がる。 -->
+    <tanrei-number-ticker start-value="0" value="0.426" number-style="percent" fraction-digits="1"></tanrei-number-ticker>
+
+    <!-- 人が変えている数：変化が落ち着くたびに 1 回だけ知らせる。 -->
+    <tanrei-number-ticker value="2" live="polite" label="カートの商品数"></tanrei-number-ticker>
+
+    <script type="module">
+      import '@tanrei/web/components/number-ticker';
+      const ticker = document.querySelector('tanrei-number-ticker');
+      ticker.value = orders.length;
+      ticker.addEventListener('settle', (event) => console.log('now showing', event.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { NumberTicker } from '@tanrei/react';
+
+    <NumberTicker value={orders.length} label="注文数" />
+    <NumberTicker value={revenue} numberStyle="currency" currency="USD" label="売上" />
+    <NumberTicker startValue={0} value={0.426} numberStyle="percent" fractionDigits={1} />
+    <NumberTicker value={count} live="polite" label="カートの商品数" onSettle={(event) => setShown(event.detail.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="アニメーション：slide（既定のシステムの選択）、blur、blur-slide、flip" plain>
+  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+    <tanrei-number-ticker start-value="1180" value="1234" animation="slide" label="スライド"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="1180" value="1234" animation="blur" label="ぼかし"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="1180" value="1234" animation="blur-slide" label="ぼかしとスライド"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="1180" value="1234" animation="flip" label="フリップ"></tanrei-number-ticker>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="trend：auto（19 から 20 で両方の桁が上へ）と digit（1 の位が 9 から 0 へ下がる）" plain>
+  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+    <tanrei-number-ticker start-value="19" value="20" trend="auto" label="自動"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="19" value="20" trend="digit" label="桁ごと"></tanrei-number-ticker>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="number-ticker" />
+
+## ガイドライン
+
+### 使う場面
+
+人が見ている間に変わり、その変化そのものに見る価値がある数に使います。注文が届くたびに増える件数、動く価格、スコア、ページを開いたときに値まで上がっていくダッシュボードの数字などです。動きによって、数が変わったこと、その向き、おおよその量が伝わります。
+
+めったに変わらない数や、変わる瞬間を誰も見ていない数は、ふつうのテキストにします。割り当てに対するストレージ使用量のように、決まった範囲の中の水準は[メーター](/ja/components/meter/)です。時刻や日付は数ではありません。プラットフォームの日付と時刻の書式で書きます。
+
+### 数の書き方
+
+ナンバーティッカーは、自分の言葉も数の規則も持ちません。数はプラットフォームの数の書式が読み手の言語で書きます。桁区切りと小数点、通貨記号、パーセント記号、大きな数の短い形（1.2K、1.2万）、そして数字そのもの（エジプトのアラビア語では ١٢٣٤）です。スタイル（decimal、percent、currency、unit）、通貨コードか単位、短縮表記、小数部の桁数、符号を書く場合を選びます。言語を指定しなければ、置かれた場所の言語を使います。
+
+書体、大きさ、色も持ちません。置いた場所の文字のスタイルで、等幅の数字で描くので、桁が変わっても数の位置がずれません。ダッシュボードのカードの大きな数字にも、文中の件数にもなります。
+
+### アニメーションの選び方
+
+| アニメーション | 用途 |
+| --- | --- |
+| Slide | ほとんどの数。変わった桁の列が新しい数字まで回ります。既定のシステムの選択です。 |
+| Blur | 控えめな変化。古い数字がぼやけて消え、新しい数字がはっきり現れます。 |
+| Blur slide | 同じ変化に、変化の向きへの短い移動が加わります。 |
+| Flip | 反転フラップ式の表示板。発車案内、カウントダウン、機械的な見た目のプロダクトに。 |
+| None | すぐに変わらなければならない数。 |
+
+プロダクトの中ではアニメーションを 1 つにそろえます。ティッカーごとではなく、デザインシステムで 1 回（`comp.number-ticker.animation`）設定します。
+
+### trend の選び方
+
+既定では、変わった桁はすべて数全体の動いた向きに動きます。増えたら上へ、減ったら下へ動くので、19 から 20 では両方の桁が上へ動きます。1 つの数の 1 回の変化として読めます。それぞれの位がそれ自体で意味を持つ場合は `digit` を選びます。各桁が自分の変化の向きに動くので、1 の位は 9 から 0 へ下がります。`up` と `down` は向きを固定するもので、一方向にしか数えない数に使います。
+
+### 推奨
+
+- テキストの中に置くか、入れ物に望む文字のスタイルを与えます。ティッカーはすべてをそこから受け取ります。
+- 数の横に何の数かを示すものが見えていないときは、ラベルを付けます（「売上」「注文数」）。
+- ひとりでに変わる数字では live をオフのままにします。人が待っている数や、人が変えている数だけオンにします。
+- ダッシュボードでは開始値を使い、数字が初めて見えたときに 1 回だけ上がるようにします。
+
+### 非推奨
+
+- ティッカーで増加を緑に、減少を赤に塗らないでください。そのような色は持っていません。変化に意味があるなら、数の横で伝えます（タグ、言葉、ラベル付きの矢印）。
+- 1 秒に何度も数を更新しないでください。1 回の変化には動きの時間がかかり、変化が続けて届くと雑音に見えます。人が追える速さで更新します。
+- 時間には使わないでください。時計の桁は 9 ではなく 59 で繰り上がります。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="number-ticker" />
+
+### コンポーネントが担うこと
+
+- 支援技術が読むのは 1 つのテキストです。ラベルと、書式どおりの数です。描いた数字は隠すので、数が 1 桁ずつ読まれたり、窓を通り過ぎる数字が読まれたりすることはありません。
+- 既定では何も知らせません。ほとんどの数字はその場の主題ではないからです。live を polite にすると、変化が落ち着くたびに 1 回だけ控えめに知らせます。途中の値や、後の変化に置き換えられた値は知らせません。
+- 動きを減らす設定のときは、新しい数がすぐに表示され、古い数が短くフェードアウトします。
+- 置かれた場所の言語と方向を使い、どちらかが変わるとすぐに数を書き直します。
+- 未知の animation、trend、style、notation、sign display、live の値、正でない duration、書式が知らない通貨や単位、数でない値は、デバッグビルドで報告します。
+
+### 利用者がすること
+
+- プロダクトが数をひとりでに何度も更新し、それがほかの内容と並んでいるなら、更新を止める手段か、更新の頻度を選ぶ手段を用意します（WCAG 2.2.2 一時停止、停止、非表示）。
+- 大事な変化では、その意味を言葉で伝えます。動きは変わったことを示しますが、それが良いことか悪いことかは伝えません。

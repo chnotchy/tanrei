@@ -105,7 +105,8 @@
       "listing": "advanced",
       "builtFrom": [],
       "uses": [
-        "button"
+        "button",
+        "handle"
       ],
       "hasSpec": true,
       "docs": "/components/text-input/",
@@ -233,6 +234,42 @@
       }
     },
     {
+      "name": "meter",
+      "title": "Meter",
+      "category": "communication",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/meter/",
+      "platforms": {
+        "web": "alpha",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "number-ticker",
+      "title": "Number ticker",
+      "category": "communication",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/number-ticker/",
+      "platforms": {
+        "web": "alpha",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
       "name": "loading-indicator",
       "title": "Loading indicator",
       "category": "communication",
@@ -337,7 +374,8 @@
       "builtFrom": [],
       "uses": [
         "button",
-        "menu"
+        "menu",
+        "list-row"
       ],
       "hasSpec": true,
       "docs": "/components/list/",
@@ -416,7 +454,9 @@
       "level": "base",
       "listing": "default",
       "builtFrom": [],
-      "uses": [],
+      "uses": [
+        "button"
+      ],
       "hasSpec": true,
       "docs": "/components/snackbar/",
       "platforms": {
@@ -621,7 +661,10 @@
       "builtFrom": [
         "modal-layer"
       ],
-      "uses": [],
+      "uses": [
+        "button",
+        "handle"
+      ],
       "hasSpec": true,
       "docs": "/components/bottom-sheet/",
       "platforms": {
@@ -718,6 +761,7 @@
       "category": "actions",
       "level": "base",
       "listing": "default",
+      "layer": "m3-like",
       "builtFrom": [],
       "uses": [],
       "hasSpec": true,
@@ -733,12 +777,15 @@
     {
       "name": "toolbar",
       "title": "Toolbar",
-      "category": "navigation",
+      "category": "actions",
       "level": "base",
       "listing": "default",
       "builtFrom": [],
       "uses": [
-        "button"
+        "button",
+        "button-with-menu",
+        "divider",
+        "menu"
       ],
       "hasSpec": true,
       "docs": "/components/toolbar/",
@@ -1823,19 +1870,95 @@
         "flutter": "planned",
         "react-native": "planned"
       }
+    },
+    {
+      "name": "handle",
+      "title": "Handle",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/handle/",
+      "platforms": {
+        "web": "alpha",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "resizable-frame",
+      "title": "Resizable frame",
+      "category": "containment",
+      "level": "composed",
+      "listing": "default",
+      "builtFrom": [
+        "handle"
+      ],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/resizable-frame/",
+      "platforms": {
+        "web": "alpha",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "scroll-area",
+      "title": "Scroll area",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/scroll-area/",
+      "platforms": {
+        "web": "alpha",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "marquee-text",
+      "title": "Marquee text",
+      "category": "communication",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "button"
+      ],
+      "hasSpec": true,
+      "docs": "/components/marquee-text/",
+      "platforms": {
+        "web": "alpha",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
     }
   ],
   "totals": {
     "web": {
       "planned": 0,
       "lagging": 83,
-      "alpha": 7,
+      "alpha": 13,
       "beta": 0,
       "stable": 0,
       "deprecated": 0
     },
     "swiftui": {
-      "planned": 61,
+      "planned": 67,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1843,7 +1966,7 @@
       "deprecated": 0
     },
     "compose": {
-      "planned": 61,
+      "planned": 67,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1851,7 +1974,7 @@
       "deprecated": 0
     },
     "flutter": {
-      "planned": 61,
+      "planned": 67,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1859,7 +1982,7 @@
       "deprecated": 0
     },
     "react-native": {
-      "planned": 61,
+      "planned": 67,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1869,13 +1992,14 @@
   },
   "unavailable": {
     "cupertino": {
-      "components": [
-        "fab-menu"
-      ],
+      "components": [],
       "variants": {
         "navigation-bar": [
           "filled"
         ]
+      },
+      "outside": {
+        "fab-menu": "m3-like"
       }
     },
     "m3-expressive-like": {
@@ -1887,7 +2011,8 @@
         "tabs": [
           "tonal"
         ]
-      }
+      },
+      "outside": {}
     },
     "m3-like": {
       "components": [],
@@ -1898,12 +2023,12 @@
         "tabs": [
           "tonal"
         ]
-      }
+      },
+      "outside": {}
     },
     "tanrei": {
       "components": [
-        "segmented-button",
-        "fab-menu"
+        "segmented-button"
       ],
       "variants": {
         "text-input": [
@@ -1926,6 +2051,9 @@
           "filled",
           "outlined"
         ]
+      },
+      "outside": {
+        "fab-menu": "m3-like"
       }
     }
   }

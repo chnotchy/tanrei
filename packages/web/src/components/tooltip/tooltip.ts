@@ -1,6 +1,7 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
+  AppearController,
   AvailabilityController,
   FollowController,
   SHORTCUT_UPDATE,
@@ -17,6 +18,7 @@ import {
   registerOverlay,
   report,
   shadeFilter,
+  shadeOn,
   shadowLayers,
   styleQueries,
   swallowRelease,
@@ -27,6 +29,7 @@ import '../keyboard-shortcut/keyboard-shortcut.js';
 import type { TanreiKeyboardShortcut } from '../keyboard-shortcut/keyboard-shortcut.js';
 import { ARROW_PROPERTY, CHOICE, INVERSE_PROPERTY, styles } from './tooltip.styles.js';
 import { PLACEMENTS, type TanreiTooltipPlacement, type TooltipArrow, type TooltipSide, placeTooltip } from './tooltip-placement.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 export { type TanreiTooltipPlacement, type TooltipArrow, type TooltipBox, type TooltipPlace, type TooltipSide, placeTooltip } from './tooltip-placement.js';
 
@@ -87,10 +90,12 @@ function warmFor(duration: number) {
  * `touchTimeout` in milliseconds (0 is at once), or the tokens `motion.show-delay`, `motion.hide-delay` and
  * `timeout.touch` while unset. Opening and closing by itself fires `toggle`; setting `open` does not.
  *
- * It comes out of the anchor's side: it fades in while it grows from `motion.enter-scale` and travels
- * `motion.enter-offset`, the growth fixed where an arrow points or would point, and goes back the same way; a motion that
- * is interrupted turns round from where it is, a warm tooltip appears whole at once, and where motion is reduced it
- * fades alone. Its place is never animated.
+ * It comes out of the anchor's side as every surface appears (`sys.motion.appear.*`: a fade and a growth from 0.96
+ * under the default system), grown from the middle of the edge that faces the anchor, over `motion.enter-duration` and
+ * `-easing`, and goes back the same way over `motion.exit-duration` and `-easing`; a motion that is interrupted turns
+ * round from where it is, a warm tooltip appears whole at once, one mounted open before the page's first paint is there
+ * without its motion, and where motion is reduced it cross-fades over `sys.motion.role.reduced`. Its place is never
+ * animated.
  *
  * `arrow` draws a triangle that points at the anchor, one shape with the container; `inverse` draws it in the opposite
  * scheme's colors (true) or on a surface of the scheme (false). Left unset, each takes the system's choice:
@@ -113,14 +118,14 @@ function warmFor(duration: number) {
  * @csspart shortcut - The `<tanrei-keyboard-shortcut>` that writes a plain tooltip's shortcut after its text.
  * @fires {CustomEvent<TanreiTooltipToggleDetail>} toggle - The tooltip opened or closed by itself (hover, focus, long-press, Escape, the touch timeout, another tooltip opening): `detail.open` (and the element's `open`) is the new value.
  */
-export class TanreiTooltip extends LitElement {
+export class TanreiTooltip extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'tooltip');
   static override styles = [styles, hiddenHost];
 
   static override properties: PropertyDeclarations = {
     variant: { type: String, reflect: true },
     text: { type: String },
-    title: { type: String },
+    headline: { type: String },
     shortcut: { converter: chordsConverter },
     placement: { type: String, reflect: true },
     offset: { converter: numeric },
@@ -147,11 +152,8 @@ export class TanreiTooltip extends LitElement {
   /** The description. Required. */
   text = '';
 
-  /**
-   * A heading for a rich tooltip; a plain one ignores it. The attribute is read once and removed from the element, so the
-   * browser does not also draw its own `title` tooltip over the anchor.
-   */
-  override title = '';
+  /** A heading for a rich tooltip (the spec's `title`); a plain one ignores it. */
+  headline = '';
 
   /**
    * The keyboard shortcut of the anchor's command, in the keyboard shortcut's key names: one chord per string, pressed
@@ -240,8 +242,6 @@ export class TanreiTooltip extends LitElement {
   /** TIP-9: the side it stands on, kept while that side has room; and the placement and direction it was taken for. */
   private side: TooltipSide | null = null;
   private placedFor = '';
-  /** TIP-29: which closing motion is running; an earlier one that ends late changes nothing. */
-  private motionRun = 0;
   /** TIP-25: the elevation's layers, drawn round the container and its arrow as one shape; and what they were read from. */
   private layers: ShadowLayer[] = [];
   private shade = '';
@@ -250,8 +250,9 @@ export class TanreiTooltip extends LitElement {
   private described: { element: Element; text: string } | null = null;
   /** TIP-27: the element this tooltip put `aria-keyshortcuts` on, and what it wrote. */
   private keyed: { element: Element; keys: string } | null = null;
-  private removingTitle = false;
   private unregister: (() => void) | null = null;
+  /** TIP-15, TIP-28, TIP-29: its appearance — opened and closed, turned round, made at once (src/primitives/motion.ts). */
+  private readonly appear = new AppearController(this, { motion: () => this.motion });
 
   constructor() {
     super();
@@ -269,16 +270,6 @@ export class TanreiTooltip extends LitElement {
     // TIP-27: the keys it writes changed without it (the keyboard convention of an ancestor): the anchor's shortcut follows.
     root.addEventListener(SHORTCUT_UPDATE, () => this.sync());
     return root;
-  }
-
-  override attributeChangedCallback(name: string, old: string | null, value: string | null) {
-    if (name === 'title' && this.removingTitle) return;
-    super.attributeChangedCallback(name, old, value);
-    if (name === 'title' && value !== null) {
-      this.removingTitle = true;
-      this.removeAttribute('title');
-      this.removingTitle = false;
-    }
   }
 
   override disconnectedCallback() {
@@ -640,10 +631,9 @@ export class TanreiTooltip extends LitElement {
     this.side = at.side;
     surface.style.top = `${at.top}px`;
     surface.style.left = `${at.left}px`;
+    // TIP-15: the side it grows from, and whether it covers its anchor (then from its middle): read by its appearance.
     surface.dataset.side = at.side;
-    // TIP-15: it grows from the point of its edge where an arrow points or would point; over the anchor, from its middle.
-    const edge = { top: `${at.point}px 100%`, bottom: `${at.point}px 0`, left: `100% ${at.point}px`, right: `0 ${at.point}px` };
-    motion.style.transformOrigin = at.held ? '' : edge[at.side];
+    surface.toggleAttribute('data-held', at.held);
     // TIP-25: the arrow on the edge that faces the anchor, and the elevation round the container and the arrow together.
     if (at.arrow) {
       surface.style.setProperty('--_arrow-at', `${at.point}px`);
@@ -654,8 +644,8 @@ export class TanreiTooltip extends LitElement {
       }
       surface.dataset.arrow = this.layers.length ? 'shaded' : 'flat';
     } else delete surface.dataset.arrow;
-    // The filter is named from the element's own style, so that the name is looked up in this shadow root.
-    motion.style.filter = surface.dataset.arrow === 'shaded' ? 'url(#shade)' : '';
+    // On the placed box: what moves inside it keeps `filter` for the appearance's blur.
+    shadeOn(surface);
   }
 
   /** What a frame can change besides the boxes: the direction, whether an arrow is asked for, and the look. */
@@ -715,13 +705,14 @@ export class TanreiTooltip extends LitElement {
     if (fading && fading !== this) fading.hide(false);
     if (fading === this) fading = null;
     showing = this;
-    this.motionRun++;
-    // TIP-29: where the closing motion has got to, before the popover is taken out and put back.
-    const reached = leaving ? getComputedStyle(motion) : null;
-    const from = reached ? { opacity: reached.opacity, transform: reached.transform } : null;
-    // Shown again even when still open, so it is the newest in the top layer: above a dialog opened since.
-    if (surface.matches(':popover-open')) surface.hidePopover();
-    surface.showPopover();
+    // Shown again even when still open, so it is the newest in the top layer: above a dialog opened since — and, still
+    // leaving, put back where its exit has got to (TIP-29).
+    if (surface.matches(':popover-open'))
+      this.appear.keep(() => {
+        surface.hidePopover();
+        surface.showPopover();
+      });
+    else surface.showPopover();
     this.shown = true;
     if (!leaving) this.side = null;
     this.place();
@@ -729,16 +720,11 @@ export class TanreiTooltip extends LitElement {
     this.following.start();
     document.addEventListener('pointerdown', this.onDocumentPress, true);
     window.addEventListener('keydown', this.onEscape, true);
-    // The first frame, without a transition: closed (the start of the entering motion), where it had got to, or whole.
-    motion.style.transition = 'none';
-    if (from) Object.assign(motion.style, from);
-    if (whole) surface.classList.add('open');
-    void motion.offsetWidth;
-    // …and from there to open, over the entering motion.
-    motion.style.transition = '';
-    motion.style.opacity = '';
-    motion.style.transform = '';
+    // Placed, it starts from the side it was placed on (its style was read for its size before it had one); a tooltip
+    // still leaving goes on from where it is; one that takes over is whole at once (TIP-28).
+    if (!leaving) this.appear.drawAtOnce();
     surface.classList.add('open');
+    this.appear.enter(whole);
   }
 
   /**
@@ -761,16 +747,17 @@ export class TanreiTooltip extends LitElement {
     };
     if (!this.shown) {
       // Already leaving: told to go at once, it goes (TIP-28).
-      if (!fade) finish();
+      if (!fade) {
+        void this.appear.exit(true);
+        finish();
+      }
       return;
     }
     this.shown = false;
-    const run = ++this.motionRun;
     if (!fade) {
-      motion.style.transition = 'none';
       surface.classList.remove('open');
+      void this.appear.exit(true);
       finish();
-      motion.style.transition = '';
       return;
     }
     // TIP-28: tooltips stay warm from now, for the warm time.
@@ -779,9 +766,8 @@ export class TanreiTooltip extends LitElement {
       fading = this;
     }
     surface.classList.remove('open');
-    const running = motion.getAnimations();
-    if (running.length === 0) finish();
-    else void Promise.allSettled(running.map((animation) => animation.finished)).then(() => run === this.motionRun && finish());
+    // Out of the top layer once its exit has played; told to open again before that, it stays.
+    void this.appear.exit().then((gone) => gone && finish());
   }
 
   /** TIP-14: the text (after the title, for a rich tooltip) as the anchor's description, or nothing. */
@@ -823,7 +809,7 @@ export class TanreiTooltip extends LitElement {
   }
 
   private description(): string {
-    const title = this.variant === 'rich' ? this.title.trim() : '';
+    const title = this.variant === 'rich' ? this.headline.trim() : '';
     return [title, this.text.trim()].filter(Boolean).join(', ');
   }
 
@@ -852,8 +838,8 @@ export class TanreiTooltip extends LitElement {
   protected override updated(changed: PropertyValues<this>) {
     this.sync();
     if (changed.has('text') && !this.hasText) report(this, 'TIP-16', 'text is empty, so the tooltip never opens and describes nothing; give it text');
-    if ((changed.has('title') || changed.has('variant')) && this.variant !== 'rich' && this.title.trim()) {
-      report(this, 'TIP-16', `a plain tooltip ignores its title "${this.title}"; use variant="rich" to draw it`);
+    if ((changed.has('headline') || changed.has('variant')) && this.variant !== 'rich' && this.headline.trim()) {
+      report(this, 'TIP-16', `a plain tooltip ignores its headline "${this.headline}"; use variant="rich" to draw it`);
     }
     for (const { prop, attribute, token } of WAITS) {
       const value: unknown = this[prop];
@@ -894,7 +880,7 @@ export class TanreiTooltip extends LitElement {
 
   protected override render() {
     const rich = this.variant === 'rich';
-    const title = rich && this.title.trim() ? this.title : '';
+    const title = rich && this.headline.trim() ? this.headline : '';
     const keys = this.keys;
     // TIP-13, TIP-14: role tooltip; hidden from assistive technology while the anchor carries its text as a description.
     // TIP-15: the popover is the placed box; what moves is the wrapper inside it, which holds the container and its arrow.
@@ -910,7 +896,7 @@ export class TanreiTooltip extends LitElement {
         @mousedown=${this.swallow}
         @pointerup=${this.swallow}
       >
-        <div class="motion">
+        <div class="motion" data-tanrei-appear>
           <span part="arrow" class="arrow" aria-hidden="true"></span>
           <div part="container" class=${keys.length ? 'bubble keyed' : 'bubble'} data-tanrei-shape>
             ${title ? html`<span part="title" class="title">${title}</span>` : nothing}

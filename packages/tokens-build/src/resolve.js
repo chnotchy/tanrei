@@ -15,8 +15,8 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT_SYSTEM, assertSystemId, buildBundle, layerChain, listSystems, validateLayerFile } from './bundle.js';
-import { checkInvariants } from './invariants.js';
+import { ROOT_SYSTEM, assertSystemId, buildBundle, heldComponents, layerChain, listSystems, outsideComponents, validateLayerFile } from './bundle.js';
+import { auditInvariants, checkInvariants } from './invariants.js';
 import { REPO_ROOT, buildModelFromBundle, invariantModel, lintValues } from './model.js';
 import { readBundle } from './reader.js';
 import { loadSystem, systemPath } from './scheme.js';
@@ -109,6 +109,14 @@ export function validateSystem(input) {
   const problems = [];
   if (chain.at(-1).id !== id) problems.push(`${id}${LAYER_SUFFIX}: "id" must equal the file name`);
   chain.forEach((layer, i) => problems.push(...validateLayerFile(REPO_ROOT, layer, fileIds[i])));
+  // A component that lives in a layer the chain does not extend is taken from that layer by name and layer; named
+  // alone, `include` only brings back what an ancestor left out, and would bring nothing.
+  const outside = outsideComponents(chain, heldComponents(listSystems(REPO_ROOT), (shipped) => loadSystem(REPO_ROOT, shipped)));
+  chain.forEach((layer, i) => {
+    for (const name of (layer.components?.include ?? []).filter((include) => typeof include === 'string' && outside[include])) {
+      problems.push(`${fileIds[i] ?? layer.id}${LAYER_SUFFIX} components.include: "${name}" lives in the layer "${outside[name]}", which this system does not extend — include it from there: { "name": "${name}", "from": "${outside[name]}" }`);
+    }
+  });
   return [...new Set(problems)];
 }
 
@@ -134,7 +142,7 @@ export async function resolveChain(chain, { model: wantsModel = true } = {}) {
   const reader = readBundle(files, id);
   await lintValues(reader.tokens());
   let model;
-  let warnings;
+  let audit;
   const resolved = {
     id,
     chain,
@@ -156,9 +164,9 @@ export async function resolveChain(chain, { model: wantsModel = true } = {}) {
      * (`like`, another resolved system with the same colors, once let a trial build skip five schemes; reading them
      * costs a twentieth of a second now, and the argument is ignored.)
      */
-    warnings: () => (warnings ??= resolved.model().then(checkInvariants)),
-    /** Declarations core has since made redundant. */
-    notices: system.notices ?? [],
+    warnings: () => resolved.audit().then(({ failures }) => failures),
+    /** The same findings, with the number of contrast pairs measured in each scheme (`auditInvariants`). */
+    audit: () => (audit ??= resolved.model().then(auditInvariants)),
   };
   if (wantsModel) await resolved.warnings();
   return resolved;
@@ -170,7 +178,7 @@ export async function resolveChain(chain, { model: wantsModel = true } = {}) {
  * `resolveChain`. (It existed because a system read whole held a gigabyte; it is kept for its callers. A scheme is
  * still read only when `load` or `warnings` needs it — the warnings need the role colors of all of them.)
  * @param {object[]} chain layers, root first
- * @returns {Promise<{ id: string, chain: object[], digest: string, system: object, files: Record<string, object>, notices: object[],
+ * @returns {Promise<{ id: string, chain: object[], digest: string, system: object, files: Record<string, object>,
  *   tokens: (scheme?: string) => Record<string, object>, load: (scheme: string) => Promise<Record<string, object>>, warnings: () => Promise<string[]> }>}
  *   `tokens(scheme)` answers for a scheme that is loaded (the light one, or one a `load` has settled) and throws otherwise.
  */
@@ -200,7 +208,6 @@ export async function resolveChainByScheme(chain) {
     load,
     // From the light tokens and the role colors of every scheme: the model's warnings without the model's component colors.
     warnings: () => (warnings ??= invariantModel(files, id, reader.tokens('light'), reader).then(checkInvariants)),
-    notices: system.notices ?? [],
   };
 }
 

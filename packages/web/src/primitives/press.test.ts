@@ -19,7 +19,6 @@ const SUBJECTS: readonly (readonly [component: string, fixture: string, pressed:
   ['button-with-menu', 'filled-medium', 'button', 'SPB-9'],
   ['fab-menu', 'filled-closed', '.toggle', 'FBM-8'],
   ['snackbar', 'action', '.control', 'SNK-5'],
-  ['callout', 'closable', '.close', 'CLO-17'],
   ['file-item', 'row-interactive', '.body.pressable', 'FIT-15'],
   ['file-item', 'row', '.action', 'FIT-15'],
   ['search', 'trigger', '.trigger', 'SRC-19'],

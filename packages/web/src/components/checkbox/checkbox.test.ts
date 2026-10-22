@@ -1,4 +1,4 @@
-// <tanrei-checkbox>, driven by specs/checkbox.spec.json: every behaviour id (CHK-1…19) is cited by a test title, every
+// <tanrei-checkbox>, driven by specs/checkbox.spec.json: every behaviour id (CHK-1…24) is cited by a test title, every
 // fixture has a baseline, and every condition, state and choice of kind is read back from the tokens — never from a
 // number written here.
 import fs from 'node:fs';
@@ -1403,6 +1403,124 @@ test.describe('one shape', () => {
       });
     });
   }
+});
+
+test.describe('read-only', () => {
+  test.beforeEach(async ({ page }) => {
+    await mountFixtures(page, spec);
+  });
+
+  test('CHK-24: a read-only checkbox is in the focus order, and no click on the box or the label, no Space, no element.click() and no dispatched click switches it or emits input or change', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      fixtures: [fixture('before', { label: 'Before' }), ...spec.fixtures.filter((f) => f.id === 'read-only-selected'), fixture('ro-mixed', { readOnly: true, indeterminate: true, label: 'Select all' }), fixture('ro-off', { readOnly: true, label: 'Email me updates' })],
+    });
+    for (const id of ['read-only-selected', 'ro-mixed', 'ro-off']) {
+      const target = host(page, id);
+      const before = await checked(target);
+      await listen(target);
+      await container(page, id).click();
+      await labelOf(page, id).click();
+      await target.evaluate((el) => {
+        (el as HTMLElement).click();
+        el.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }));
+      });
+      await page.locator('body').click({ position: { x: 1, y: 1 } });
+      await tabTo(page, target);
+      await expect(input(page, id), id).toBeFocused();
+      await page.keyboard.press('Space');
+      const seen = await events(page);
+      expect({ input: seen.input, change: seen.change }, id).toEqual({ input: 0, change: 0 });
+      expect(await checked(target), id).toEqual(before);
+    }
+    // In the order of Tab between its neighbours, as an enabled checkbox is.
+    await tabTo(page, host(page, 'before'));
+    await tab(page);
+    await expect(input(page, 'read-only-selected')).toBeFocused();
+    await tab(page);
+    await expect(input(page, 'ro-mixed')).toBeFocused();
+  });
+
+  test('CHK-24: it is exposed as read-only beside checked, not checked or mixed, and not as disabled; disabled wins over it; the product may still set checked', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [...spec.fixtures.filter((f) => f.id === 'read-only-selected'), fixture('ro-mixed', { readOnly: true, indeterminate: true, label: 'Select all' }), fixture('both', { readOnly: true, disabled: true, label: 'Both' })] });
+    const ro = host(page, 'read-only-selected');
+    await expect(ro.getByRole('checkbox', { checked: true, disabled: false })).toHaveCount(1);
+    await expect(input(page, 'read-only-selected')).toHaveAttribute('aria-readonly', 'true');
+    await expect(host(page, 'ro-mixed').getByRole('checkbox', { checked: 'mixed' })).toHaveCount(1);
+    await expect(input(page, 'ro-mixed')).toHaveAttribute('aria-readonly', 'true');
+    await expect(host(page, 'both').getByRole('checkbox', { disabled: true })).toHaveCount(1);
+    await expect(input(page, 'both')).not.toHaveAttribute('aria-readonly');
+    await expect(ro).toHaveAttribute('readonly', '');
+    // The product's own change still draws the new condition.
+    await ro.evaluate((el) => ((el as any).checked = false));
+    await expect(input(page, 'read-only-selected')).not.toBeChecked();
+    await page.mouse.move(0, 0);
+    await matches(page, 'read-only-selected', 'unselected');
+    // Taken back, it switches again.
+    await ro.evaluate((el) => ((el as any).readOnly = false));
+    await expect(input(page, 'read-only-selected')).not.toHaveAttribute('aria-readonly');
+    await container(page, 'read-only-selected').click();
+    expect((await checked(ro)).checked).toBe(true);
+  });
+
+  test('CHK-24: it is drawn from the resting tokens of its condition — the enabled ones — with no hovered and no pressed state; keyboard focus shows the focused state', async ({ page }) => {
+    const id = 'read-only-selected';
+    await page.mouse.move(0, 0);
+    await matches(page, id, 'selected');
+    expect((await expected(page, 'selected')).box).not.toBe((await expected(page, 'selected', 'disabled')).box);
+    await container(page, id).hover();
+    await matches(page, id, 'selected');
+    expect(await css(host(page, id).locator('.root'), 'cursor')).toBe('default');
+    await page.mouse.down();
+    expect(await pressed(page, id)).toBeNull();
+    await matches(page, id, 'selected');
+    await page.mouse.move(0, 0);
+    await page.mouse.up();
+    await labelOf(page, id).hover();
+    await matches(page, id, 'selected');
+    await page.mouse.move(0, 0);
+    await page.locator('body').click({ position: { x: 1, y: 1 } });
+    await tabTo(page, host(page, id));
+    await matches(page, id, 'selected', 'focused');
+    await page.keyboard.down('Space');
+    expect(await pressed(page, id)).toBeNull();
+    await page.keyboard.up('Space');
+    await matches(page, id, 'selected', 'focused');
+  });
+
+  test('CHK-24: under m3-like (ripple) and cupertino (dim) a press on it grows no ripple and dims nothing', async ({ page }) => {
+    for (const system of ['m3-like', 'cupertino'] as const) {
+      await mountFixtures(page, spec, { system, fixtures: spec.fixtures.filter((f) => f.id === 'read-only-selected') });
+      const id = 'read-only-selected';
+      await page.mouse.move(0, 0);
+      const rest = await css(host(page, id).locator('.root'), 'opacity');
+      await container(page, id).hover();
+      await page.mouse.down();
+      expect(await pressed(page, id), system).toBeNull();
+      await expect(ripples(page, id), system).toHaveCount(0);
+      expect(await css(host(page, id).locator('.root'), 'opacity'), system).toBe(rest);
+      await page.mouse.up();
+      await page.mouse.move(0, 0);
+    }
+  });
+
+  test('CHK-24: a named read-only checkbox is submitted as it is drawn; a required one left unchecked reports no missing value and is still exposed as required', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      fixtures: [fixture('on', { label: 'Email me updates', name: 'updates', value: 'weekly', checked: true, readOnly: true }), fixture('terms', { label: 'I accept the terms', name: 'terms', required: true, readOnly: true })],
+    });
+    await page.evaluate(() => {
+      const form = document.createElement('form');
+      const main = document.querySelector('main')!;
+      form.append(...main.querySelectorAll('.stage'));
+      main.replaceWith(form);
+    });
+    const data = () => page.evaluate(() => [...new FormData(document.querySelector('form')!).entries()].map(([k, v]) => `${k}=${v}`));
+    expect(await data()).toEqual(['updates=weekly']);
+    expect(await page.evaluate(() => document.querySelector('form')!.checkValidity())).toBe(true);
+    await expect(input(page, 'terms')).toHaveAttribute('aria-required', 'true');
+    // Not read-only any more, the same checkbox asks for its answer again.
+    await host(page, 'terms').evaluate((el) => ((el as any).readOnly = false));
+    await expect.poll(() => page.evaluate(() => document.querySelector('form')!.checkValidity())).toBe(false);
+  });
 });
 
 test.describe('form', () => {

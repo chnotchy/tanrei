@@ -8,6 +8,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
+import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
+import { expectNoFlicker, sampleFrames } from '../../../test/frames.js';
+import { motionEnded } from '../../../test/motions.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxOwn, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
@@ -294,7 +297,7 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
     await mountSpec(page, ['stacked-value', 'stacked-large', 'stacked-small', 'stacked-clearable', 'stacked-leading-icon', 'filled-value']);
     for (const [id, size] of [['stacked-value', 'medium'], ['stacked-large', 'large'], ['stacked-small', 'small']] as const) {
       const c = await box(container(page, id));
-      near(c.height, await token(page, `container-height-${size}`), `${id} height`);
+      near(c.height, await token(page, `stacked-container-height-${size}`), `${id} height`);
       const field = await box(input(page, id));
       const chevron = await box(part(page, id, '.chevron-glyph'));
       near(field.x - c.x, await token(page, `container-padding-inline-${size}`), `${id} text padding`);
@@ -303,12 +306,12 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
       near(chevron.x - (field.x + field.width), await token(page, `container-gap-${size}`), `${id} container.gap after the input`);
       near(chevron.y + chevron.height / 2, c.y + c.height / 2, `${id} chevron centred`);
       near(field.y + field.height / 2, c.y + c.height / 2, `${id} input centred`);
-      expect((c.height - field.height) / 2, `${id} padding-block`).toBeGreaterThanOrEqual((await token(page, `container-padding-block-${size}`)) - 0.6);
+      expect((c.height - field.height) / 2, `${id} padding-block`).toBeGreaterThanOrEqual((await token(page, `stacked-container-padding-block-${size}`)) - 0.6);
       near(await px(container(page, id), 'border-top-left-radius'), await token(page, 'container-shape'), `${id} corner`);
       near(await px(container(page, id), 'border-bottom-right-radius'), await token(page, 'container-shape'), `${id} bottom corner`);
     }
-    // The default system's numbers: the text field's 48 and 56, 16 and 12, and a 24 glyph.
-    expect([await token(page, 'container-height-medium'), await token(page, 'container-height-large')]).toEqual([48, 56]);
+    // The default system's numbers: a stacked box 40 and 56, as tall as a Button of its size, 16 and 12, and a 24 glyph.
+    expect([await token(page, 'stacked-container-height-medium'), await token(page, 'stacked-container-height-large')]).toEqual([40, 56]);
     expect([await token(page, 'container-padding-inline-medium'), await token(page, 'container-padding-inline-with-icon-medium'), await token(page, 'icon-size-medium')]).toEqual([16, 12, 24]);
     // The clear button's box, then the chevron: action-gap apart, the first of them container.gap after the input.
     const clear = await box(part(page, 'stacked-clearable', '.clear-box'));
@@ -388,12 +391,12 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
 
   test('CMB-7: a filled or outlined combobox draws "*" after its floating label exactly while the Field that frames it gives an asterisk — for a tag too, and never for the mark none — requirement.asterisk-gap from the text, in the label’s style and its variant’s required-asterisk color (the error part while in error), hidden from assistive technology; it draws no tag and no optional label; with no Field, no mark or no drawn label it draws no mark', async ({ page }) => {
     await mount(page, [fx('bare', { variant: 'outlined' })]);
-    for (const mark of ['auto', 'tag', 'asterisk', 'none'] as const) await frame(page, `outlined-${mark}`, { label: 'City', requirement: 'required', requiredMark: mark, requiredText: 'Required' }, { variant: 'outlined' });
-    await frame(page, 'filled', { label: 'City', requirement: 'required', requiredText: 'Required' }, { variant: 'filled', value: 'tokyo' });
-    await frame(page, 'hidden', { label: 'City', labelHidden: true, requirement: 'required', requiredMark: 'asterisk' }, { variant: 'outlined' });
-    await frame(page, 'optional', { label: 'City', requirement: 'optional', optionalText: 'Optional' }, { variant: 'outlined' });
-    await frame(page, 'stacked', { label: 'City', requirement: 'required', requiredMark: 'asterisk' }, {});
-    await frame(page, 'error', { label: 'City', requirement: 'required', requiredMark: 'asterisk', error: true }, { variant: 'outlined' });
+    for (const mark of ['auto', 'tag', 'asterisk', 'none'] as const) await frame(page, `outlined-${mark}`, { label: 'City', required: true, requiredMark: mark, requiredText: 'Required' }, { variant: 'outlined' });
+    await frame(page, 'filled', { label: 'City', required: true, requiredText: 'Required' }, { variant: 'filled', value: 'tokyo' });
+    await frame(page, 'hidden', { label: 'City', labelHidden: true, required: true, requiredMark: 'asterisk' }, { variant: 'outlined' });
+    await frame(page, 'optional', { label: 'City', required: false, optional: true, optionalText: 'Optional' }, { variant: 'outlined' });
+    await frame(page, 'stacked', { label: 'City', required: true, requiredMark: 'asterisk' }, {});
+    await frame(page, 'error', { label: 'City', required: true, requiredMark: 'asterisk', error: true }, { variant: 'outlined' });
     const star = (id: string) => part(page, id, '.floating .asterisk');
     // The Field's answer: an asterisk for the tag too (the default system marks with the tag), none for the mark none.
     expect(await css(page.locator('html'), F('requirement-mark'))).toBe('tag');
@@ -548,10 +551,10 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
   test('CMB-12: the name, the description and the required state are the Field’s that frames it — its label names the input whether or not a label is drawn, its shown text describes it — and the combobox’s own label wins; the placeholder is never the name; the same name names its list and its chevron; while its Field says required it is exposed as required whichever mark is drawn and reports a missing value to the form while value is empty, and it is never required by itself; with neither name it still renders and is reported', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, [fx('own', { placeholder: 'Type to find a city' }), fx('unnamed', { label: '', placeholder: 'Type to find a city' })]);
-    await frame(page, 'framed', { label: 'Country', supportingText: 'Where the order is sent.', requirement: 'required', requiredText: 'Required' }, { placeholder: 'Type' });
-    await frame(page, 'hidden', { label: 'Country', labelHidden: true, requirement: 'required', requiredMark: 'none' }, { value: 'tokyo' });
+    await frame(page, 'framed', { label: 'Country', supportingText: 'Where the order is sent.', required: true, requiredText: 'Required' }, { placeholder: 'Type' });
+    await frame(page, 'hidden', { label: 'Country', labelHidden: true, required: true, requiredMark: 'none' }, { value: 'tokyo' });
     await frame(page, 'both', { label: '' }, { label: 'Its own' });
-    await frame(page, 'optional', { label: 'Company', requirement: 'optional', optionalText: 'Optional', supportingText: 'Help.' }, {});
+    await frame(page, 'optional', { label: 'Company', required: false, optional: true, optionalText: 'Optional', supportingText: 'Help.' }, {});
     const name = async (id: string) => (await input(page, id).getAttribute('aria-label')) ?? '';
     expect([await name('own'), await name('framed'), await name('hidden'), await name('both'), await name('unnamed')]).toEqual(['City', 'Country', 'Country', 'Its own', '']);
     expect(await input(page, 'framed').getAttribute('aria-labelledby'), 'named by one thing').toBeNull();
@@ -573,10 +576,10 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
     const validity = (id: string) => host(page, id).evaluate((el) => [(el as unknown as HTMLInputElement).validity.valueMissing, (el as unknown as HTMLInputElement).validity.valid]);
     expect(await validity('framed'), 'empty and required: missing').toEqual([true, false]);
     expect(await validity('hidden'), 'a value: not missing').toEqual([false, true]);
-    await setFrame(page, 'framed', { requirement: 'none' });
+    await setFrame(page, 'framed', { required: false, optional: false });
     expect([await input(page, 'framed').getAttribute('aria-required'), await validity('framed')]).toEqual([null, [false, true]]);
     // Never by itself: the attribute of the frame it was says nothing to a bare combobox.
-    await host(page, 'own').evaluate((el) => el.setAttribute('requirement', 'required'));
+    await host(page, 'own').evaluate((el) => el.setAttribute('required', ''));
     await settle(page, 'own');
     expect([await input(page, 'own').getAttribute('aria-required'), await validity('own')]).toEqual([null, [false, true]]);
     // Neither name: it renders, and says so once; a combobox its Field names says nothing.
@@ -585,7 +588,7 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
 
   test('CMB-14: a press on its floating label, a decorative leading glyph or the container’s padding moves focus to the input and does nothing else — it opens nothing and changes nothing — and so does a press on the label row of the Field that frames it, while a press on that Field’s supporting row does nothing; the hit area meets the minimum target; the input is one stop, the clear button a second, the chevron and the options none', async ({ page }) => {
     await mount(page, [fx('one', { value: 'tokyo', clearable: true, clearLabel: 'Clear city' }, CITIES, { slots: { 'leading-icon': 'location_on' } }), fx('after', {}), fx('floating', { variant: 'outlined', value: 'tokyo' })]);
-    await frame(page, 'framed', { label: 'Country', requirement: 'required', requiredText: 'Required', supportingText: 'Help.' }, { value: 'tokyo' });
+    await frame(page, 'framed', { label: 'Country', required: true, requiredText: 'Required', supportingText: 'Help.' }, { value: 'tokyo' });
     await listen(page, 'one');
     await listen(page, 'framed');
     await pressOn(part(page, 'one', '.leading-slot'));
@@ -684,8 +687,8 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
     // The motion: the state duration, and none where motion is reduced.
     expect(await px(container(page, 'one'), 'transition-duration'), 'reduced: at once').toBe(0);
     await page.emulateMedia({ reducedMotion: 'no-preference' });
-    near((await px(container(page, 'one'), 'transition-duration')) * 1000, await duration(page, 'motion-state-duration'), 'the container', 1);
-    near((await px(edge, 'transition-duration')) * 1000, await duration(page, 'motion-state-duration'), 'the edge', 1);
+    near((await px(container(page, 'one'), 'transition-duration')) * 1000, await duration(page, 'motion-state-duration-medium'), 'the container', 1);
+    near((await px(edge, 'transition-duration')) * 1000, await duration(page, 'motion-state-duration-medium'), 'the edge', 1);
     // Glow: the halo around the container while focused, and still no ring.
     await mount(page, [fx('one', { value: 'tokyo' })], { system: 'acme', systemCss: await acmeSystemCss() });
     await tabTo(page, input(page, 'one'));
@@ -955,7 +958,7 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
       bare('second', { value: 'tokyo', clearable: true }),
       bare('own', { value: 'tokyo', clearable: true, clearLabel: 'Clear city' }),
       // The attributes of the frame it was: a bare combobox knows none of them.
-      bare('old', { requirement: 'required', requiredMark: 'tag', requiredText: 'Required', optionalText: 'Optional', supportingText: 'Help.', errorText: 'No.' }),
+      bare('old', { required: true, requiredMark: 'tag', requiredText: 'Required', optionalText: 'Optional', supportingText: 'Help.', errorText: 'No.' }),
     ]);
     const named = (id: string) => part(page, id, '.clear').evaluate((el) => (el as HTMLElement & { label: string }).label);
     // No words: the button is drawn with no name, works, and is reported.
@@ -1591,8 +1594,8 @@ test.describe('behavior: the list', () => {
     let row_ = status('open-status');
     await expect(row_.locator('.said').first()).toHaveText('2 of 48 people shown. Keep typing to narrow.');
     expect((await box(row_)).y, 'after the last option').toBeGreaterThanOrEqual((await box(rows(page, 'open-status').last())).y + (await box(rows(page, 'open-status').last())).height - 0.6);
-    near(await px(row_, 'padding-left'), await token(page, 'option-padding-inline'), 'option.padding-inline');
-    near(await px(row_, 'padding-top'), await token(page, 'option-padding-block'), 'option.padding-block');
+    near(await px(row_, 'padding-left'), await token(page, 'option-padding-inline-regular'), 'option.padding-inline');
+    near(await px(row_, 'padding-top'), await token(page, 'option-padding-block-regular'), 'option.padding-block');
     near(await px(row_, 'font-size'), await token(page, 'status-typescale-font-size'), 'status.typescale');
     expect(await css(row_, 'color')).toBe(await color(page, 'status-color'));
     expect(await row_.evaluate((el) => [el.getAttribute('role'), el.tabIndex, el.closest('[role="listbox"]')]), 'not an option, and not in the list box').toEqual([null, -1, null]);
@@ -1605,7 +1608,7 @@ test.describe('behavior: the list', () => {
     const spinner = row_.locator('tanrei-loading-indicator');
     expect(await spinner.evaluate((el) => [el.getAttribute('size'), el.getAttribute('label')])).toEqual(['small', 'Loading people']);
     expect(await row_.locator('.said').allTextContents()).toEqual(['', '']);
-    near((await box(spinner)).x - (await box(row_)).x, await token(page, 'option-padding-inline'), 'at the row’s start', 1);
+    near((await box(spinner)).x - (await box(row_)).x, await token(page, 'option-padding-inline-regular'), 'at the row’s start', 1);
     await set(page, 'open-status', { statusText: 'x' });
     near((await box(row_)).height, (await box(status('open-status'))).height, 'one line of text tall');
     // The option left in the list while loading is drawn and usable.
@@ -1666,24 +1669,24 @@ test.describe('behavior: the list', () => {
     expect(await regions()).toEqual({ polite: 'No matches', assertive: '', busy: null });
   });
 
-  test('CMB-34: an option is one row — option.padding-inline from each edge, the leading icon column while any option has one, the label with the supporting text below it, and the check’s box at the end, option.gap apart — at least option.height and the minimum target tall, wrapping and growing rather than cutting; the whole row is its target', async ({ page }) => {
+  test('CMB-34: an option is one row — option.padding-inline from each edge, the leading icon column as CMB-67 says, the label with the supporting text below it, and the check’s box at the end, option.gap apart — at least option.height and the minimum target tall, wrapping and growing rather than cutting; the whole row is its target', async ({ page }) => {
     await mountSpec(page, ['stacked-open', 'open-icons', 'open-supporting-text', 'open-long-options'], { reducedMotion: true });
     const plain = row(page, 'stacked-open', 'Kyoto');
     const b = await box(plain);
     const [label, markBox] = [await box(plain.locator('.option-label')), await box(plain.locator('.row-column.mark'))];
-    near(label.x - b.x, await token(page, 'option-padding-inline'), 'padding-inline before the label');
-    near(b.x + b.width - (markBox.x + markBox.width), await token(page, 'option-padding-inline'), 'padding-inline after the box');
-    near(markBox.width, await token(page, 'option-mark-size'), 'the check’s box');
-    near(markBox.height, await token(page, 'option-mark-size'), 'the check’s box');
-    expect(b.height).toBeGreaterThanOrEqual((await token(page, 'option-height')) - 0.6);
+    near(label.x - b.x, await token(page, 'option-padding-inline-regular'), 'padding-inline before the label');
+    near(b.x + b.width - (markBox.x + markBox.width), await token(page, 'option-padding-inline-regular'), 'padding-inline after the box');
+    near(markBox.width, await token(page, 'option-mark-size-regular'), 'the check’s box');
+    near(markBox.height, await token(page, 'option-mark-size-regular'), 'the check’s box');
+    expect(b.height).toBeGreaterThanOrEqual((await token(page, 'option-height-regular')) - 0.6);
     expect(b.height).toBeGreaterThanOrEqual((await resolveToken(page, '--tanrei-sys-target-pointer')) - 0.6);
-    near(await px(plain, 'padding-top'), await token(page, 'option-padding-block'), 'padding-block');
+    near(await px(plain, 'padding-top'), await token(page, 'option-padding-block-regular'), 'padding-block');
     near(await px(plain.locator('.option-label'), 'font-size'), await token(page, 'option-label-typescale-font-size'), 'the label’s text style');
     // The icon column: kept in every row of a list where any option has a glyph, so that labels align.
     const [withIcon, without] = [row(page, 'open-icons', 'Bus'), row(page, 'open-icons', 'On foot')];
     const icon = await box(withIcon.locator('.option-icon'));
-    near(icon.width, await token(page, 'option-leading-icon-size'), 'the glyph');
-    near((await box(withIcon.locator('.option-label'))).x - (icon.x + icon.width), await token(page, 'option-gap'), 'option.gap');
+    near(icon.width, await token(page, 'option-leading-icon-size-regular'), 'the glyph');
+    near((await box(withIcon.locator('.option-label'))).x - (icon.x + icon.width), await token(page, 'option-gap-regular'), 'option.gap');
     near((await box(without.locator('.option-label'))).x, (await box(withIcon.locator('.option-label'))).x, 'the labels align');
     await expect(row(page, 'stacked-open', 'Kyoto').locator('.row-column.leading')).toHaveCount(0);
     // The supporting text: below the label, in its own text style.
@@ -1775,7 +1778,7 @@ test.describe('behavior: the list', () => {
     const id = 'open-icons';
     const [bus, train, foot] = [row(page, id, 'Bus').locator('.option-icon'), row(page, id, 'Train').locator('.option-icon'), row(page, id, 'On foot').locator('.option-icon')];
     await expect(bus).toHaveText('directions_bus');
-    near((await box(bus)).width, await token(page, 'option-leading-icon-size'), 'option.leading-icon.size');
+    near((await box(bus)).width, await token(page, 'option-leading-icon-size-regular'), 'option.leading-icon.size');
     expect(await css(bus, 'color')).toBe(await color(page, 'stacked-option-leading-icon-color'));
     expect(await css(train, 'color')).toBe(await color(page, 'stacked-selected-option-leading-icon-color'));
     const family = async (name: string) => (await css(page.locator('html'), `--tanrei-sys-icon-family-${name}`)).replaceAll('"', '').trim();
@@ -1950,8 +1953,8 @@ test.describe('behavior: the list', () => {
     await expect(title).toHaveText('Asia');
     expect(await css(title, 'color')).toBe(await color(page, 'group-title-color'));
     near(await px(title, 'font-size'), await token(page, 'group-title-typescale-font-size'), 'group-title.typescale');
-    near(await px(title, 'padding-left'), await token(page, 'group-title-padding-inline'), 'padding-inline');
-    near(await px(title, 'padding-top'), await token(page, 'option-padding-block'), 'padding-block');
+    near(await px(title, 'padding-left'), await token(page, 'group-title-padding-inline-regular'), 'padding-inline');
+    near(await px(title, 'padding-top'), await token(page, 'option-padding-block-regular'), 'padding-block');
     near((await box(title)).x, (await box(rows(page, id).first())).x, 'from the rows’ start edge');
     expect((await box(title)).y + (await box(title)).height).toBeLessThanOrEqual((await box(rows(page, id).first())).y + 0.6);
     expect(await title.evaluate((el) => [el.tabIndex, el.getAttribute('role'), getComputedStyle(el).overflowWrap, el.closest('.scroll') !== null])).toEqual([-1, 'presentation', 'break-word', true]);
@@ -2017,7 +2020,128 @@ test.describe('behavior: the list', () => {
     await expect.poll(() => seen.some((w) => w.includes('CMB-44') && w.includes('sometimes'))).toBe(true);
   });
 
-  test('CMB-45: the list fades in and grows from the edge that faces the container over motion.open-*, fades out over motion.close-*, and appears and disappears at once where motion is reduced; closing it takes no input; a change of the options shown changes its height at once; the value, the text and the open state change when it closes, not when its motion ends', async ({ page }) => {
+  test('CMB-45: the list appears from where the appearance starts it — opacity 0 and scale 0.96 — grown from the edge that faces the container, and leaves the same way back on the accelerating curve, its last frame leaving no more than that curve does; nothing flickers', async ({ page }) => {
+    await mount(page, [fx('one', { value: 'lisbon' })], { reducedMotion: false });
+    await focusInput(page, 'one');
+    const opening = await sampleFrames(host(page, 'one'), () => page.keyboard.press('ArrowDown'), { probe: appearProbe });
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 0.96 });
+    expect(String(opening.frames[0]!.probe.origin)).toMatch(/ 0px$/);
+    expect(opening.rest.probe).toMatchObject({ opacity: 1, sx: 1, sy: 1 });
+    expectNoFlicker(opening);
+    const closing = await sampleFrames(host(page, 'one'), () => page.keyboard.press('Escape'), { probe: appearProbe });
+    expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 0.96, sy: 0.96 });
+    expectNoFlicker(closing);
+    const exit = await resolveEasing(page, T('motion-close-easing'));
+    expect(exit).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-standard-accelerate'));
+    expectExitEnd(closing, { duration: await resolveToken(page, T('motion-close-duration'), 'duration'), easing: bezierOf(exit) });
+  });
+
+  test('CMB-67: iconSpace — auto keeps the leading icon column, empty, in a section where another shown option has an icon, and none in a section without icons; an option the filter hides does not count; always in every option; never only in an option that has an icon; a section is a group or a run of options outside any group; decided again when an option changes; an unknown value is auto, reported', async ({ page }) => {
+    const seen = warnings(page);
+    const spaced = spec.fixtures.filter((f) => f.id.startsWith('icon-space-'));
+    expect(spaced.map((f) => f.id)).toEqual(['icon-space-auto', 'icon-space-always', 'icon-space-never']);
+    const auto = spaced[0];
+    await mount(page, [
+      ...spaced,
+      // Typing leaves Copy link alone in its group: Mail and Messages, which have the icons, are hidden.
+      { ...auto, id: 'typed', props: { ...auto.props, value: '', inputValue: 'link' } },
+      fx('runs', { value: 'a', open: true }, [option('A', 'a', { leadingIcon: 'mail' }), option('B', 'b'), group('G', [option('C', 'c'), option('D', 'd')]), option('E', 'e')]),
+      fx('odd', { value: 'a', open: true, iconSpace: 'sometimes' } as Fixture['props'], [group('G', [option('A', 'a', { leadingIcon: 'mail' }), option('B', 'b')]), group('H', [option('C', 'c')])]),
+    ]);
+    const [pad, gap, size] = [await token(page, 'option-padding-inline-regular'), await token(page, 'option-gap-regular'), await token(page, 'option-leading-icon-size-regular')];
+    const none = pad;
+    const kept = pad + size + gap;
+    /** Where an option's label starts, from its row's start edge. */
+    const at = async (id: string, label: string) => (await box(row(page, id, label).locator('.option-label'))).x - (await box(row(page, id, label))).x;
+    const expectStarts = async (id: string, starts: Record<string, number>) => {
+      for (const [label, start] of Object.entries(starts)) near(await at(id, label), start, `${id}: ${label}`);
+    };
+    expect(await host(page, 'icon-space-auto').evaluate((el: any) => el.iconSpace)).toBe('auto');
+    // auto: the group Apps keeps the column on Copy link; the group Files has no icon and keeps none.
+    await expectStarts('icon-space-auto', { Mail: kept, Messages: kept, 'Copy link': kept, Print: none, 'Save as PDF': none });
+    await expect(row(page, 'icon-space-auto', 'Copy link').locator('.row-column.leading[aria-hidden="true"]')).toHaveCount(1);
+    await expect(row(page, 'icon-space-auto', 'Print').locator('.row-column.leading')).toHaveCount(0);
+    const titles = part(page, 'icon-space-auto', '.group-title');
+    near((await box(titles.nth(0))).x, (await box(titles.nth(1))).x, 'the titles start alike');
+    await expectStarts('icon-space-always', { Mail: kept, 'Copy link': kept, Print: kept, 'Save as PDF': kept });
+    await expectStarts('icon-space-never', { Mail: kept, Messages: kept, 'Copy link': none, Print: none, 'Save as PDF': none });
+    // The options the filter hides do not count: Copy link, alone in its group, keeps no column.
+    await expect(rows(page, 'typed')).toHaveCount(1);
+    await expectStarts('typed', { 'Copy link': none });
+    // Options outside any group are a section of their own, each run apart from the next.
+    await expectStarts('runs', { A: kept, B: kept, C: none, D: none, E: none });
+    // An unknown value is auto, reported.
+    await expectStarts('odd', { A: kept, B: kept, C: none });
+    await expect.poll(() => seen.some((w) => w.includes('(CMB-67)') && w.includes('sometimes'))).toBe(true);
+    // Decided again: an icon given to Print keeps the column on Save as PDF; taken away, the group keeps none.
+    await host(page, 'icon-space-auto').evaluate((el) => el.querySelector('[value="print"]')!.setAttribute('leading-icon', 'print'));
+    await expect.poll(() => at('icon-space-auto', 'Save as PDF')).toBeCloseTo(kept, 0);
+    await host(page, 'icon-space-auto').evaluate((el) => el.querySelector('[value="print"]')!.removeAttribute('leading-icon'));
+    await expect.poll(() => at('icon-space-auto', 'Save as PDF')).toBeCloseTo(none, 0);
+    // iconSpace changed while the list is shown.
+    await host(page, 'icon-space-auto').evaluate((el: any) => (el.iconSpace = 'never'));
+    await expect.poll(() => at('icon-space-auto', 'Copy link')).toBeCloseTo(none, 0);
+    await host(page, 'icon-space-auto').evaluate((el) => el.setAttribute('icon-space', 'always'));
+    await expect.poll(() => at('icon-space-auto', 'Print')).toBeCloseTo(kept, 0);
+  });
+
+  test('CMB-68: a compact combobox draws its options and group titles from the compact tokens — lower, set in less, smaller glyphs, the same text — as low as its density gives for a mouse and the touch target for touch, the field’s box unchanged; an unknown density is regular and reported, an added one is drawn from its tokens, and a change is drawn at once', async ({ page, browserName }) => {
+    const seen = warnings(page);
+    const compact = spec.fixtures.find((f) => f.id === 'density-compact')!;
+    await mount(page, [
+      compact,
+      { ...compact, id: 'density-regular', props: { ...compact.props, density: 'regular' } },
+      { ...compact, id: 'density-odd', props: { ...compact.props, density: 'huge' } as Fixture['props'] },
+      { ...compact, id: 'density-added', props: { ...compact.props, density: 'roomy' } as Fixture['props'] },
+    ]);
+    const sizes = async (density: string) => {
+      const [height, padBlock, padInline, gap, icon, mark, title] = await Promise.all(
+        ['option-height', 'option-padding-block', 'option-padding-inline', 'option-gap', 'option-leading-icon-size', 'option-mark-size', 'group-title-padding-inline'].map((n) => token(page, `${n}-${density}`)),
+      );
+      return { height, padBlock, padInline, gap, icon, mark, title };
+    };
+    const [regular, small] = [await sizes('regular'), await sizes('compact')];
+    // The default system's compact option: the menu's compact row, 32 high with 20 glyphs, 8 from its edges.
+    expect([small.height, small.icon, small.mark, small.padInline]).toEqual([32, 20, 20, 8]);
+    const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
+    const drawn = async (id: string, label: string) => {
+      const r = row(page, id, label);
+      const [b, l, icon, font] = [await box(r), await box(r.locator('.option-label')), await px(r.locator('.option-icon'), 'font-size'), await css(r.locator('.option-label'), 'font-size')];
+      return { height: b.height, start: l.x - b.x, icon, font };
+    };
+    const mail = await drawn('density-compact', 'Mail');
+    const mailRegular = await drawn('density-regular', 'Mail');
+    near(mail.height, small.height, 'a compact option');
+    expect(mail.height).toBeLessThan(pointer);
+    near(mail.icon, small.icon, 'its glyph');
+    near(mail.start, small.padInline + small.icon + small.gap, 'its label after the padding, the glyph and the gap');
+    near(mailRegular.height, Math.max(regular.height, pointer), 'a regular option');
+    near(mailRegular.start, regular.padInline + regular.icon + regular.gap, 'a regular label');
+    // The density never changes a text style; the check's box and a group's title take the density.
+    expect(mail.font).toBe(mailRegular.font);
+    const titles = part(page, 'density-compact', '.group-title');
+    near(await px(titles.first(), 'padding-inline-start'), small.title, 'a group title’s inset');
+    // The field's own box is size's, not the density's.
+    near((await box(container(page, 'density-compact'))).height, (await box(container(page, 'density-regular'))).height, 'the field’s box');
+    // An unknown density is drawn as regular, and a debug build says so.
+    near((await drawn('density-odd', 'Mail')).height, mailRegular.height, 'an unknown density');
+    await expect.poll(() => seen.filter((w) => w.includes('CMB-68') && w.includes('"huge"')).length).toBe(1);
+    // A density a design system adds is drawn from its tokens, the default's where it has none.
+    await rootTokens(page, { [T('option-height-roomy')]: '60px', [T('option-leading-icon-size-roomy')]: '28px' });
+    await expect.poll(async () => (await drawn('density-added', 'Mail')).height).toBeCloseTo(60, 0);
+    near((await drawn('density-added', 'Mail')).icon, 28, 'an added density’s glyph');
+    // A change is drawn at once.
+    await host(page, 'density-regular').evaluate((el: any) => (el.density = 'compact'));
+    await expect.poll(async () => (await drawn('density-regular', 'Mail')).height).toBeCloseTo(mail.height, 0);
+    // CMB-34: for touch a compact option is the touch target.
+    if (browserName !== 'chromium') return;
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
+    await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
+    await expect.poll(async () => (await drawn('density-compact', 'Mail')).height).toBeCloseTo(await resolveToken(page, '--tanrei-sys-target-touch'), 0);
+  });
+
+  test('CMB-45: the list appears as a popover\'s container does over motion.open-*, leaves the same way over motion.close-*, and only fades, over role.reduced, where motion is reduced; closing it takes no input; a change of the options shown changes its height at once; the value, the text and the open state change when it closes, not when its motion ends', async ({ page }) => {
     await mount(page, [fx('one', { value: 'lisbon' })], { reducedMotion: false });
     // The motions at 40 s, each ended by hand: what is read 'still fading' is read some round trips after the change that
     // begins the fade, and at 400 ms a runner that takes 150 ms an answer read a list that had arrived. The durations are
@@ -2029,7 +2153,7 @@ test.describe('behavior: the list', () => {
     await focusInput(page, 'one');
     await page.keyboard.press('ArrowDown');
     await shownList(page, 'one').toBe(true);
-    expect(await motion.evaluate((el) => [getComputedStyle(el).transitionProperty, getComputedStyle(el).transitionDuration, el.style.transformOrigin.endsWith(' 0px') || el.style.transformOrigin.endsWith(' 0')])).toEqual(['opacity, transform', '40s, 40s', true]);
+    expect(await motion.evaluate((el) => [getComputedStyle(el).transitionProperty, getComputedStyle(el).transitionDuration, getComputedStyle(el).transformOrigin.endsWith(' 0px')])).toEqual(['opacity, scale, translate, filter, display, overlay', '40s', true]);
     expect(Number(await css(motion, 'opacity')), 'still fading in').toBeLessThan(1);
     await arrive();
     await expect.poll(async () => Number(await css(motion, 'opacity'))).toBe(1);
@@ -2058,13 +2182,13 @@ test.describe('behavior: the list', () => {
     await expect.poll(async () => (await read(page, 'one')).open).toBe(false);
     await arrive();
     await closedList(page, 'one');
-    // Reduced motion: at once.
+    // Reduced motion: only a fade, over role.reduced — no scale, no distance.
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.keyboard.press('ArrowDown');
-    expect(await css(motion, 'transition-duration')).toBe('0s');
-    expect(Number(await css(motion, 'opacity'))).toBe(1);
+    expect(await motion.evaluate((el) => [getComputedStyle(el).transitionProperty, Number.parseFloat(getComputedStyle(el).transitionDuration) * 1000, getComputedStyle(el).scale])).toEqual(['opacity, display, overlay', await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration'), 'none']);
+    await expect.poll(async () => Number(await css(motion, 'opacity'))).toBe(1);
     await page.keyboard.press('Escape');
-    expect(await part(page, 'one', '.surface').evaluate((el) => el.matches(':popover-open'))).toBe(false);
+    await expect.poll(() => part(page, 'one', '.surface').evaluate((el) => el.matches(':popover-open'))).toBe(false);
   });
 });
 
@@ -2189,7 +2313,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     await frame(
       page,
       'one',
-      { label: 'Token', supportingText: 'Used by the theme.', requirement: 'optional', optionalText: 'Optional' },
+      { label: 'Token', supportingText: 'Used by the theme.', required: false, optional: true, optionalText: 'Optional' },
       { value: 'b', clearable: true, clearLabel: 'Clear token', statusText: '3 of 12 shown' },
       '<tanrei-option-group label="Colors"><tanrei-option value="a" supporting-text="#111">Alpha</tanrei-option><tanrei-option value="b">Beta</tanrei-option></tanrei-option-group><tanrei-option value="g" disabled>Gamma</tanrei-option>',
     );
@@ -2229,7 +2353,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     // Required, invalid, read-only, then disabled.
     await page.keyboard.press('Escape');
     await set(page, 'one', { status: 'idle', statusText: '', inputValue: 'Beta' });
-    await setFrame(page, 'one', { requirement: 'required', error: true, errorText: 'Choose a token of the list.' });
+    await setFrame(page, 'one', { required: true, error: true, errorText: 'Choose a token of the list.' });
     [box_] = await axNodes(page, 'combobox');
     expect(box_).toMatchObject({ required: true, invalid: 'true', description: 'Choose a token of the list.', expanded: false });
     await set(page, 'one', { readOnly: true });
@@ -2308,7 +2432,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     test.skip(browserName !== 'chromium', 'forced colors are emulated in Chromium');
     await page.emulateMedia({ forcedColors: 'active' });
     await mount(page, [...spec.fixtures.filter((f) => ['stacked-value', 'stacked-error-value', 'filled-value', 'outlined-value', 'stacked-disabled', 'open-supporting-text', 'open-status-error'].includes(f.id))]);
-    await frame(page, 'required', { label: 'City', requirement: 'required', requiredMark: 'asterisk', error: true, errorText: 'Choose a city.' }, { variant: 'outlined', value: 'tokyo' });
+    await frame(page, 'required', { label: 'City', required: true, requiredMark: 'asterisk', error: true, errorText: 'Choose a city.' }, { variant: 'outlined', value: 'tokyo' });
     const canvasText = await systemColor(page, 'CanvasText');
     for (const [id, selector] of [['required', '.floating'], ['required', '.floating .asterisk'], ['outlined-value', '.floating'], ['open-status-error', '.status']] as const) {
       expect(await css(part(page, id, selector), 'color'), `${id} ${selector}`).toBe(canvasText);
@@ -2371,7 +2495,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     const [glyph, name, check] = [await box(chosen.locator('.option-icon')), await box(chosen.locator('.option-label')), await box(chosen.locator('.check'))];
     expect(glyph.x, 'the glyph at the right of the label').toBeGreaterThanOrEqual(name.x + name.width - 0.6);
     expect(check.x + check.width, 'the check at the left').toBeLessThanOrEqual(name.x + 0.6);
-    near((await box(chosen)).x + (await box(chosen)).width - (glyph.x + glyph.width), await token(page, 'option-padding-inline'), 'logical paddings');
+    near((await box(chosen)).x + (await box(chosen)).width - (glyph.x + glyph.width), await token(page, 'option-padding-inline-regular'), 'logical paddings');
   });
 
   test('CMB-53: the layout direction comes from the nearest ancestor that sets one, and a change of it while the combobox is shown — its list open — is drawn at once, keeping the value, the text, the open state, the active option and focus, the list placed again by the new direction', async ({ page }) => {
@@ -2419,7 +2543,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     await expect(arrow).toHaveText('arrow_forward');
     expect(await arrow.getAttribute('data-tanrei-mirrored'), 'arrow_forward is in the icon set’s list').not.toBeNull();
     expect(await mirrored(arrow)).toBe(true);
-    near((await box(arrow)).width, await token(page, 'option-leading-icon-size'), 'the same box');
+    near((await box(arrow)).width, await token(page, 'option-leading-icon-size-regular'), 'the same box');
     expect(await mirrored(part(page, open, '.row.selected .check'))).toBe(false);
     expect(await mirrored(part(page, open, '.chevron-glyph'))).toBe(false);
     expect(await mirrored(part(page, 'stacked-required-rtl', '.clear-glyph'))).toBe(false);
@@ -2644,7 +2768,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     await page.evaluate(async () => {
       document.body.insertAdjacentHTML(
         'beforeend',
-        `<form id="f"><fieldset id="set"><tanrei-field label="City" requirement="required" required-text="Required"><tanrei-combobox id="c" name="city" value="tokyo">
+        `<form id="f"><fieldset id="set"><tanrei-field label="City" required required-text="Required"><tanrei-combobox id="c" name="city" value="tokyo">
            <tanrei-option value="kyoto">Kyoto</tanrei-option><tanrei-option value="lisbon">Lisbon</tanrei-option><tanrei-option value="tokyo">Tokyo</tanrei-option></tanrei-combobox></tanrei-field>
            <tanrei-combobox id="font" name="font" label="Font" allow-custom-value><tanrei-option value="Inter">Inter</tanrei-option></tanrei-combobox></fieldset></form>`,
       );
@@ -2748,7 +2872,7 @@ test.describe('the Field around it, the option elements and the options through 
     await set(page, 'outlined', { open: true });
     expect([await drawnFocused('outlined'), (await read(page, 'outlined')).shown]).toEqual([false, false]);
     // What it takes: the name, the description and the states (CMB-10, CMB-12, CMB-46 hold each in full).
-    await setFrame(page, 'stacked', { error: true, errorText: 'We do not deliver there yet.', requirement: 'required', requiredText: 'Required' });
+    await setFrame(page, 'stacked', { error: true, errorText: 'We do not deliver there yet.', required: true, requiredText: 'Required' });
     expect(await input(page, 'stacked').evaluate((el) => [el.getAttribute('aria-label'), el.getAttribute('aria-invalid'), el.getAttribute('aria-required')])).toEqual(['City', 'true', 'true']);
     expect(await description(page, 'stacked'), 'the error text in the help’s place (FLD-11)').toBe('We do not deliver there yet.');
     // No count, and no refusal: a text that names no option is given up, and the Field is not put in error by it.
@@ -2767,7 +2891,7 @@ test.describe('the Field around it, the option elements and the options through 
       fx('bare', { value: 'tokyo' }),
       fx('large', { size: 'large' }),
       fx('floating', { variant: 'filled', value: 'tokyo' }),
-      fx('old', { requirement: 'required', requiredMark: 'tag', requiredText: 'Required', optionalText: 'Optional', supportingText: 'Help.', errorText: 'No.' }, `${CITY_OPTIONS}<span slot="label-icon">schedule</span>`),
+      fx('old', { required: true, requiredMark: 'tag', requiredText: 'Required', optionalText: 'Optional', supportingText: 'Help.', errorText: 'No.' }, `${CITY_OPTIONS}<span slot="label-icon">schedule</span>`),
     ]);
     for (const id of ['bare', 'large', 'floating', 'old']) {
       const [h, c] = [await box(host(page, id)), await box(container(page, id))];
@@ -3147,6 +3271,8 @@ test.describe('accessibility', () => {
       await type(page, 'e');
       await shownList(page, 'one').toBe(true);
       await page.keyboard.press('ArrowDown');
+      // The list fades in, even where motion is reduced (MOT-6): its colors are read once it is whole.
+      await motionEnded(page);
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).slice(0, 3).join(' | ')}`), theme).toEqual([]);
     });
@@ -3156,7 +3282,7 @@ test.describe('accessibility', () => {
 test.describe('fixtures', () => {
   test('every fixture is mounted and visible, with the floating label where its look has one, the text, the glyphs and — where it is open — the list, the rows and the status row the spec gives it, and with no row of a frame', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
-    expect(spec.fixtures).toHaveLength(49);
+    expect(spec.fixtures).toHaveLength(53);
     const flat = (items: FixtureItem[] = []): FixtureItem[] => items.flatMap((item) => (item.kind === 'option' ? [item] : flat(item.items)));
     const folded = (text: string) => text.normalize('NFKD').toLowerCase();
     for (const f of spec.fixtures) {

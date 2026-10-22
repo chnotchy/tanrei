@@ -2,7 +2,7 @@
 title: كتلة الشيفرة
 description: أسطر من الشيفرة تُقرأ وتُقارَن وتُنسخ، بخط الشيفرة، تُمرَّر داخل الكتلة أو تلتفّ، ومعها اختياريًّا ترويسة وأرقام أسطر وأسطر معلَّمة ومحثّ وزر نسخ. وإذا أُعطيت الشيفرة ولغتها ميّزت صيغتها بنفسها.
 translationOf: components/code-block.mdx
-sourceHash: c4fe6cef35324f5127fdb081065d9e09553db29c
+sourceHash: 1bd663ebb32b8674bdfe30352e2eb0eeda3db6a5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -40,7 +40,7 @@ export const given = [
 <ComponentAvailability name="code-block" />
 
 <DemoFrame label="عنوان، وتسمية للّغة، وزر نسخ؛ والشيفرة تُميَّز صيغتها بحسب لغتها" column>
-  <tanrei-code-block style="inline-size: 100%" title="Footer.tsx" language="tsx" language-label="TSX" copy copy-label="نسخ" copied-label="تم النسخ" copy-failed-label="تعذّر النسخ">
+  <tanrei-code-block style="inline-size: 100%" headline="Footer.tsx" language="tsx" language-label="TSX" copy copy-label="نسخ" copied-label="تم النسخ" copy-failed-label="تعذّر النسخ">
     <pre><code>{footer}</code></pre>
   </tanrei-code-block>
 </DemoFrame>
@@ -62,7 +62,7 @@ export const given = [
     <link rel="stylesheet" href="@tanrei/web/code.css" />
 
     <tanrei-code-block
-      title="sizes.js"
+      headline="sizes.js"
       language="js"
       language-label="JavaScript"
       copy
@@ -93,7 +93,7 @@ export const given = [
     import '@tanrei/web/code.css';
 
     {/* العنصر يرتّب الشيفرة في أسطر، فدعه يملك الشيفرة: مرِّر النص. */}
-    <CodeBlock title="sizes.js" language="js" languageLabel="JavaScript" code={source} copy copyLabel="نسخ" copiedLabel="تم النسخ" copyFailedLabel="تعذّر النسخ" />
+    <CodeBlock headline="sizes.js" language="js" languageLabel="JavaScript" code={source} copy copyLabel="نسخ" copiedLabel="تم النسخ" copyFailedLabel="تعذّر النسخ" />
     ```
   </TabItem>
 </Tabs>
@@ -104,11 +104,11 @@ export const given = [
 
 <DemoFrame label="الطرازان filled و outlined، والحجمان medium و small" plain column>
   <tanrei-code-block style="inline-size: 100%" language="js" label="مثال"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
-  <tanrei-code-block style="inline-size: 100%" variant="outlined" size="small" title="sizes.js" language="js" language-label="JavaScript" copy copy-label="نسخ" copied-label="تم النسخ" copy-failed-label="تعذّر النسخ"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" variant="outlined" size="small" headline="sizes.js" language="js" language-label="JavaScript" copy copy-label="نسخ" copied-label="تم النسخ" copy-failed-label="تعذّر النسخ"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
 </DemoFrame>
 
 <DemoFrame label="أرقام أسطر، وسطر مُبرَز، وأسطر مضافة ومحذوفة" plain column>
-  <tanrei-code-block style="inline-size: 100%" language="js" title="sizes.js" line-numbers highlighted-lines="1" highlighted-label="مُبرَز" removed-lines="4" added-lines="5" removed-label="محذوف" added-label="مضاف" copy copy-label="نسخ" copied-label="تم النسخ" copy-failed-label="تعذّر النسخ"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('button');\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" language="js" headline="sizes.js" line-numbers highlighted-lines="1" highlighted-label="مُبرَز" removed-lines="4" added-lines="5" removed-label="محذوف" added-label="مضاف" copy copy-label="نسخ" copied-label="تم النسخ" copy-failed-label="تعذّر النسخ"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('button');\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
 </DemoFrame>
 
 <DemoFrame label="السطر الطويل يُمرَّر داخل الكتلة، أو يلتفّ" plain column>
@@ -118,7 +118,7 @@ export const given = [
 
 <DemoFrame label="محثّ، وحدّ أعلى لعدد الأسطر المعروضة" plain column>
   <tanrei-code-block style="inline-size: 100%" label="التثبيت" prompt="$" language="sh" language-label="Shell" copy copy-label="نسخ" copied-label="تم النسخ" copy-failed-label="تعذّر النسخ"><pre><code>{`npm install @tanrei/web\nnpx tanrei studio`}</code></pre></tanrei-code-block>
-  <tanrei-code-block style="inline-size: 100%" title="tide.log" max-lines="4" line-numbers><pre><code>{`01:00 tide high, gauge 1.55 m\n02:00 tide falling, gauge 1.90 m\n03:00 tide low, gauge 2.25 m\n04:00 tide rising, gauge 2.60 m\n05:00 tide high, gauge 1.20 m\n06:00 tide falling, gauge 1.55 m\n07:00 tide low, gauge 1.90 m\n08:00 tide rising, gauge 2.25 m`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" headline="tide.log" max-lines="4" line-numbers><pre><code>{`01:00 tide high, gauge 1.55 m\n02:00 tide falling, gauge 1.90 m\n03:00 tide low, gauge 2.25 m\n04:00 tide rising, gauge 2.60 m\n05:00 tide high, gauge 1.20 m\n06:00 tide falling, gauge 1.55 m\n07:00 tide low, gauge 1.90 m\n08:00 tide rising, gauge 2.25 m`}</code></pre></tanrei-code-block>
 </DemoFrame>
 
 **طرازان.** الطراز `filled` تعبئة هادئة، لشيفرة في صفحة. والطراز `outlined` بلا تعبئة داخل خط رفيع واحد، لشيفرة داخل بطاقة أو لوحة لها تعبئة أصلًا.
@@ -157,7 +157,7 @@ export const given = [
 | فارغة، أو `text` أو `plain` أو `plaintext` | عادية. ولا يُبلَّغ عن شيء. |
 | أي قيمة أخرى | عادية. وبنية التنقيح (debug) تبلّغ عن اللغة المجهولة مرة واحدة. |
 
-لا تخمّن الكتلة اللغة أبدًا، لا من الشيفرة ولا من `title` ولا من `language-label`. فالشيفرة القصيرة ملتبسة، والتخمين الخاطئ يلوّن الشيفرة تلوينًا خاطئًا.
+لا تخمّن الكتلة اللغة أبدًا، لا من الشيفرة ولا من `headline` ولا من `language-label`. فالشيفرة القصيرة ملتبسة، والتخمين الخاطئ يلوّن الشيفرة تلوينًا خاطئًا.
 
 **إيقافه.** القيمة `highlight="false"` توقف أداة التمييز الخاصة بالكتلة لكتلة واحدة. والمقاطع التي تعطيها أنت تظل تُرسم.
 
@@ -264,7 +264,7 @@ const html = await highlightToHtml(source, 'tsx');
 
 ### افعل
 
-- أعطِ الكتلة التي يمكن أن تُمرَّر `title` أو `label`. المتن الذي يُمرَّر موضع توقف للتركيز ويحتاج إلى اسم.
+- أعطِ الكتلة التي يمكن أن تُمرَّر `headline` أو `label`. المتن الذي يُمرَّر موضع توقف للتركيز ويحتاج إلى اسم.
 - استخدم الطراز `outlined` داخل بطاقة أو لوحة، والطراز `filled` في صفحة وعلى حاوية ملوَّنة.
 - استخدم محثًّا لكتلة من الأوامر التي تُكتب. المحثّ لا يُنسخ.
 - أعطِ كل كتلة قيمة `language` الخاصة بها. واستخدم `language="text"` لنص لا صيغة له.
@@ -282,7 +282,7 @@ const html = await highlightToHtml(source, 'tsx');
 
 ### ما يتكفل به المكوّن
 
-- الشيفرة هي عنصر `code` داخل مجموعة يسمّيها `title`، أو `label`.
+- الشيفرة هي عنصر `code` داخل مجموعة يسمّيها `headline`، أو `label`.
 - المتن الذي يمكن أن يُمرَّر موضع توقف واحد في ترتيب التركيز، بعد زر النسخ، ويُمرَّر بمفاتيح الأسهم. والمتن الذي يتسع له المكان ليس موضع توقف، فصفحة من الأمثلة القصيرة لا تضيف أي موضع.
 - أرقام الأسطر والإشارات والأشرطة والمحثّ مخفيّة عن التقنيات المساعدة. والسطر المعلَّم تسبقه تسميته بالكلمات.
 - لا تُمرَّر الصفحة جانبيًّا أبدًا من أجل كتلة شيفرة، عند عرض 320 وعند ضعف مقاس النص.

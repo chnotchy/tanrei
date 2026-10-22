@@ -1,0 +1,196 @@
+---
+title: "滚动区域"
+description: "用平台自己的滚动方式滚动内容的框。在它关注的每条边上，用表面颜色的渐变带、内容本身的渐隐、一条线或模糊来表示边外还有内容，既不改变自身尺寸，也不移动内容。"
+translationOf: components/scroll-area.mdx
+sourceHash: fd54b46e1aadb3f1cd30abe2cb060f324ca86fbc
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import BehaviorChoice from '../../../../components/tokens/BehaviorChoice.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+## 概览
+
+<ComponentAvailability name="scroll-area" />
+
+<DemoFrame label="固定高度框中的列表">
+  <tanrei-scroll-area label="消息" style="inline-size: min(100%, 20rem); block-size: 16rem">
+    <tanrei-list-row headline="Ada" supporting-text="草稿可以审阅了"></tanrei-list-row>
+    <tanrei-list-row headline="Grace" supporting-text="会议改到周四了"></tanrei-list-row>
+    <tanrei-list-row headline="Alan" supporting-text="旅行的照片"></tanrei-list-row>
+    <tanrei-list-row headline="Hedy" supporting-text="能帮忙核对一下数字吗？"></tanrei-list-row>
+    <tanrei-list-row headline="Katherine" supporting-text="6 点落地"></tanrei-list-row>
+    <tanrei-list-row headline="Edsger" supporting-text="今天的笔记"></tanrei-list-row>
+    <tanrei-list-row headline="Barbara" supporting-text="新计划在附件里"></tanrei-list-row>
+    <tanrei-list-row headline="Donald" supporting-text="第 3 章，第二遍修改"></tanrei-list-row>
+    <tanrei-list-row headline="Margaret" supporting-text="一切就绪"></tanrei-list-row>
+    <tanrei-list-row headline="Rosalind" supporting-text="实验室的新照片"></tanrei-list-row>
+  </tanrei-scroll-area>
+</DemoFrame>
+
+内容放得下时，区域自己什么也不绘制。滚动试试：下方还有内容时，底边会被标示；一旦有内容滚出上方的视野，顶边也会被标示。
+
+### 用法
+
+Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter 和 React Native 尚在计划中：它们还没有提供滚动区域。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 尺寸由布局给出；默认标示顶边和底边。 -->
+    <tanrei-scroll-area label="消息" style="block-size: 20rem">
+      …
+    </tanrei-scroll-area>
+
+    <!-- 在 filled 卡片上：阴影取卡片的颜色，让列表沉入卡片。 -->
+    <tanrei-scroll-area label="结果" style="--tanrei-comp-scroll-area-shadow-color: var(--tanrei-comp-card-filled-container-color); block-size: 16rem">
+      …
+    </tanrei-scroll-area>
+
+    <!-- 在图片或视频上：让内容本身渐隐，不绘制任何颜色。 -->
+    <tanrei-scroll-area scroll-edge="fade" label="字幕">…</tanrei-scroll-area>
+
+    <!-- 横向滚动的一行：标示起始边和结束边。 -->
+    <tanrei-scroll-area edges="start end" label="照片">…</tanrei-scroll-area>
+
+    <script type="module">
+      import '@tanrei/web/components/scroll-area';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ScrollArea } from '@tanrei/react';
+
+    <ScrollArea label="消息" style={{ blockSize: '20rem' }}>
+      {messages}
+    </ScrollArea>
+
+    {/* 在 filled 卡片上：阴影取卡片的颜色。 */}
+    <ScrollArea
+      label="结果"
+      style={{ '--tanrei-comp-scroll-area-shadow-color': 'var(--tanrei-comp-card-filled-container-color)', blockSize: '16rem' } as React.CSSProperties}
+    >
+      {results}
+    </ScrollArea>
+
+    <ScrollArea scrollEdge="fade" label="字幕">{captions}</ScrollArea>
+    <ScrollArea edges={['start', 'end']} label="照片">{photos}</ScrollArea>
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="滚动边缘：shadow（默认系统的选择）、fade、line、blur 和 none" plain>
+  <tanrei-scroll-area scroll-edge="shadow" label="阴影" style="inline-size: 9rem; block-size: 10rem">
+    <p>阴影。一条使用区域所在表面颜色的渐变带，在边缘处最浓，到距边缘 24 处消失。滚动后顶边也会被标示。内容看起来像是沉入了表面。</p>
+  </tanrei-scroll-area>
+  <tanrei-scroll-area scroll-edge="fade" label="渐隐" style="inline-size: 9rem; block-size: 10rem">
+    <p>渐隐。内容本身朝边缘逐渐淡出，不绘制任何颜色，因此区域背后的东西会透出来。滚动后顶边也会被标示。</p>
+  </tanrei-scroll-area>
+  <tanrei-scroll-area scroll-edge="line" label="线条" style="inline-size: 9rem; block-size: 10rem">
+    <p>线条。边外还有内容时，沿边缘画一条分隔线颜色的细线。滚动后顶边也会出现线条，底边的线条则会消失。</p>
+  </tanrei-scroll-area>
+  <tanrei-scroll-area scroll-edge="blur" label="模糊" style="inline-size: 9rem; block-size: 10rem">
+    <p>模糊。内容在深 48 的带中被模糊，边缘处最强，到带的内侧端不再模糊。滚动后顶边也会被标示。</p>
+  </tanrei-scroll-area>
+  <tanrei-scroll-area scroll-edge="none" label="无" style="inline-size: 9rem; block-size: 10rem">
+    <p>无。边缘不做任何标示，只有平台的滚动条表示内容还在继续。滚动它，和其他几个比较一下。</p>
+  </tanrei-scroll-area>
+</DemoFrame>
+
+<ComponentSpecs name="scroll-area" />
+
+## 指南
+
+### 何时使用
+
+当布局给屏幕的某一部分固定的尺寸，而其中的内容可能更长时，使用滚动区域：对话旁边的消息列表、搜索字段下方的结果、窗格里的长表单、横向滚动的一行图片。区域让内容留在你放置的位置，并在它关注的每条边上表示边外还有内容。
+
+自己会滚动的组件——[表格](/zh-cn/components/table/)、对话框的内容、面板——外面不需要它，页面外面也不需要：页面自身的滚动没有需要标示的边。对话框、面板、弹出框和应用栏会在固定部分与滚动内容相接的地方自己画线。
+
+### 如何选择滚动边缘
+
+| 形式 | 用于 |
+| --- | --- |
+| `shadow` | 不透明的表面：内容沉入其中。渐变带使用区域所在表面的颜色，而不是一种自己的灰色。这是默认系统的选择。 |
+| `fade` | 区域背后是透明表面、图片或视频。内容本身淡出，不绘制颜色，因此背后的东西会透出来。 |
+| `line` | 用线条标示边缘的产品，以及渐变带会遮住太多内容的高密度布局。线条是分隔线颜色的细线。 |
+| `blur` | 栏和边缘是半透明的产品：内容在边缘处变得柔和。它的绘制成本最高（见下文）。 |
+| `none` | 边缘本身就可以保持原样的框，例如滚动条始终显示、已经足够说明问题的框。 |
+
+每条边单独绘制，并且只在边外还有内容时绘制：在列表顶部，只有底边被标示。情况变化时，边缘的标示会渐入或渐出；在减弱动态效果时则立即切换。标示从不改变区域的尺寸，也从不移动内容。
+
+`edges` 指定关注哪些边：默认是 `top` 和 `bottom`，横向滚动的一行用 `start` 和 `end`。在从左到右的布局中 start 是左边，在从右到左的布局中是右边。
+
+### 阴影取所在表面的颜色
+
+阴影是一条表面自身颜色的渐变带，叠在内容上，在边缘处最浓。在它的颜色所指的表面上，它与表面无缝相接；在其他表面上，它看起来就是一块颜色不对的污迹。`comp.scroll-area.shadow.color` 默认是普通表面（`sys.color.surface`）。当区域放在另一种表面上——卡片、面板、某种容器颜色——请把它设为那个表面的颜色：在层中设置，作用于放在那里的所有滚动区域；或者只在这一个实例上设置。在 Web 上，这是 `--tanrei-comp-scroll-area-shadow-color` 自定义属性，设置在元素或其祖先上。
+
+如果区域背后没有不透明的东西——半透明的面板、图片、视频——那就没有哪种颜色是对的。这时请选择 `fade`。
+
+### 模糊的绘制成本更高
+
+模糊会在滚动的每一帧中，把带中的内容模糊后再画一遍：`comp.scroll-area.blur.layers` 层半径逐级变化的图层（默认系统中为 4 层，边缘处半径最大为 8，带深 48）。在产品的外观需要它的地方使用，并保持**一个屏幕上最多两条模糊边缘**——一个列表的顶边和底边，而不是每个窗格。当平台无法模糊带后面的内容时（没有背景滤镜的浏览器、Android 12 之前的版本、产品没有传入模糊视图的 React Native），区域会改为绘制 `shadow`，所以即使选择了模糊，也要设置阴影的颜色。
+
+### 整个系统只做一次选择
+
+用什么标示滚动框的边缘，是产品只需做一次的种类选择：它的列表、表单和窗格不应各用一种方式标示边缘。
+
+<BehaviorChoice choice="scroll-edge" />
+
+滚动区域通过自己的令牌 `comp.scroll-area.scroll-edge` 读取这个选择，因此设计系统可以让滚动区域与系统的选择不同。单个实例用 `scrollEdge`（Web 上为 `scroll-edge`）设置自己的值；默认值 `auto` 跟随令牌。默认系统绘制 `shadow`；`m3-like` 绘制 `line`，`cupertino` 绘制 `blur`，与它们原本的设计标示滚动边缘的方式一致。
+
+<SystemValues tokens={['sys.behavior.scroll-edge']} />
+
+### 滚动边缘与分隔线的显示
+
+系统中有两个选择与滚动有关，它们回答的是不同的问题：
+
+- `sys.behavior.divider-visibility` 决定**固定区域的线条何时显示**：应用栏的边缘、对话框的标题和操作区、面板的标题——内容在其下滚动时保持不动的部分。它可以始终显示，或者只在有内容滚动到它之外时显示。
+- `sys.behavior.scroll-edge` 决定**用什么标示滚动框的边缘**，即边外还有内容时：阴影、渐隐、线条还是模糊。
+
+产品可以分别设置它们：例如一个标题线跟随滚动的对话框，旁边是沉入表面的列表。
+
+### 保留平台自己的滚动
+
+滚动区域就是平台自己的滚动框，只是在边缘上叠加绘制了标示。滚轮、触控板、触摸、键盘、辅助技术和平台的滚动条都与在其他框中一样工作，滚动条也保持平台的外观。区域不添加自己的滚动、吸附或滚动条；它不对内部做任何布局，也没有填充、边框或圆角。内容的样式照常由你设定。
+
+### 推荐
+
+- 在布局中给区域尺寸：一个高度、网格中的一份、页眉和页脚留下的空间。区域会采用给它的尺寸。
+- 只要区域所在的不是普通表面，就把阴影的颜色设为那个表面的颜色。
+- 给它一个说明其内容的标签：“消息”“结果”“照片”。
+
+### 避免
+
+- 不要在滚动边缘自己画分隔线、边框或渐变。请选择滚动边缘，这样它只在边外还有内容时出现，并与产品的其他部分一致。
+- 不要在图片、视频或半透明表面上使用阴影。请使用渐隐。
+- 一个屏幕上不要超过两条模糊边缘。
+- 不要嵌套朝同一方向滚动的滚动区域。用户无法判断一次滑动会移动哪一个。
+- 不要为了给标示腾出地方而隐藏平台的滚动条。标示说明还有更多内容；滚动条说明还有多少，而且它本身就是一个控件。
+
+## 无障碍
+
+<ComponentAccessibility name="scroll-area" />
+
+### 组件负责的部分
+
+- 当内容放不下、内部也没有可获得键盘焦点的元素时，框本身会成为焦点顺序中的一站，并作为以 `label` 命名的区域（region）公开，使键盘能够滚动它（WCAG 2.1.1）。方向键、Page Up、Page Down、Home、End 和 Space 会像平台滚动任何框一样滚动它。
+- 当内部有元素获得焦点，或内容放得下时，框不是焦点停靠点，也不公开任何角色：键盘会到达内容，内容在获得焦点时滚动到视野中。
+- 焦点指示绘制在框的边缘内侧，位于所有标示之上，从不被标示淡化，并且只在键盘获得焦点时显示。
+- 标示对辅助技术隐藏，在标示上的每一次按下、悬停和滚动都会传到其下方的内容。
+- 边缘的标示会在短时间内渐入渐出，这是不透明度的变化而不是运动；在请求减弱动态效果时会立即出现。
+- 在强制颜色模式下，每种形式都绘制为文本颜色的线条。
+- 它没有自己的文字。当框是焦点停靠点时的空标签，以及未知的 `scrollEdge` 或 `edges` 值，都会在调试构建中报告。
+
+### 需要你做的事
+
+- 给它一个说明其内容的 `label`。用 Tab 键到达框的人会听到这个名称；没有名称时，他们只会听到这里有一个区域。
+- 要预期带下面的内容是在滚动到视野中之后才被阅读，而不是在原处。阴影或渐隐会有意降低其下方内容的对比度，但只在带内，并且只在该内容朝边缘滚动时；内容一旦滚动到视野中，就恢复完整的对比度。
+- 会自行变化的内容（实时更新的列表、新消息）请像在其他地方一样告知用户。区域不会播报滚动进来的内容。

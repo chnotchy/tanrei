@@ -2,7 +2,7 @@
 title: Hoja inferior
 description: Hace subir desde el borde inferior un contenido complementario o una tarea breve, ya sea sobre la parte baja de la pantalla mientras el resto sigue siendo utilizable, o como un paso modal que atenúa y bloquea todo lo demás hasta que se descarta.
 translationOf: components/bottom-sheet.mdx
-sourceHash: d77cc21cf2849244a6a599b3ed9810153f414b35
+sourceHash: 129b9ec0bcae9a6a88c4f15e18d3132be5652383
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -27,20 +27,21 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 Una hoja inferior es un componente controlado y nunca se cierra por sí misma. La abres con `open`. Cuando la persona pide que se vaya, la hoja emite `close` con el motivo, y tú vuelves a poner `open` en false. SwiftUI es la única excepción: ahí `open` es un binding, así que la hoja escribe false en él y después llama a `onClose`. Si dejas `open` en true, la hoja se queda, y tras un arrastre vuelve a asentarse en su altura más baja. En la web esto difiere del diálogo: la hoja cancela el evento nativo `cancel` y emite `close` en su lugar, de modo que Escape no la cierra hasta que lo haces tú.
 
-`close` lleva uno de cuatro motivos, con las mayúsculas y minúsculas propias de la plataforma:
+`close` lleva uno de cinco motivos, con las mayúsculas y minúsculas propias de la plataforma:
 
 | Motivo | Qué hizo la persona | En qué forma |
 | --- | --- | --- |
+| `close` | Pulsó el botón de cierre de la hoja (`closable`) | Estándar y modal |
 | `drag` | Soltó la hoja por debajo de la mitad de su altura más baja, o la lanzó hacia abajo desde ahí | Estándar y modal |
 | `scrim` | Pulsó la zona atenuada que rodea una hoja modal | Modal |
 | `escape` | Pulsó Escape | Modal |
 | `back` | Usó la acción de retroceso de la plataforma: el botón o el gesto de retroceso de Android, el gesto de escape de accesibilidad de iOS. En la web, una petición de cierre que llega sin una tecla, como el gesto de retroceso de Android en el navegador, es `back`. | Modal |
 
-La hoja emite `close` solo mientras `dismissible` es true, y exactamente una vez por cada petición. Mientras es false, el velo, Escape y la acción de retroceso no hacen nada, y un arrastre hacia abajo se asienta en la altura más baja.
+La hoja emite `close` solo mientras `dismissible` es true, y exactamente una vez por cada petición. Mientras es false, el velo, Escape y la acción de retroceso no hacen nada, y un arrastre hacia abajo se asienta en la altura más baja. El botón de cierre es la excepción: pide cerrar con el motivo `close` diga lo que diga `dismissible`, porque es una salida que decidiste dibujar.
 
 La hoja tiene dos formas en `variant`. **Modal**, la predeterminada, es una superposición modal: atenúa toda la ventana, mantiene el foco dentro y lo devuelve cuando se cierra. **Estándar** es una región del diseño de página, no una superposición: cubre la parte inferior del padre en el que la colocas, no dibuja ningún velo y deja que la persona siga trabajando en el contenido que hay encima.
 
-Lo que va dentro de la hoja es cosa tuya. La hoja separa su contenido del borde con su margen interior (pon `inset` en false para una lista cuyas filas llevan su propio margen interior), lo recorta, le entrega un color de contenido y lo desplaza. No tiene un titular ni un botón de cierre propios: pon tu título y un botón «Cerrar» o «Listo» en el contenido.
+Lo que va dentro de la hoja es cosa tuya. La hoja separa su contenido del borde con su margen interior (pon `inset` en false para una lista cuyas filas llevan su propio margen interior), lo recorta, le entrega un color de contenido y lo desplaza. Dale un `headline` y dibuja una cabecera sobre el contenido: el titular, un encabezado que además da nombre a la hoja cuando `label` está vacío, y, con `closable` activado, un botón de cierre que recibe su nombre de `closeLabel`: un botón small, tonal en el sistema predeterminado, como todos los botones de cierre de Tanrei. Bajo la cabecera hay un divisor según indique `dividerVisibility`, y la cabecera no se mueve mientras el contenido se desplaza. `closable` está desactivado de forma predeterminada, porque el tirador y, en una hoja modal, el velo son las salidas de la hoja; actívalo en una hoja estándar o en una hoja sin tirador.
 
 Marca el elemento que debe recibir el foco cuando se abre la hoja con la marca propia de la plataforma: `autofocus` en la web, `.defaultFocus` o un `@AccessibilityFocusState` en SwiftUI, un `FocusRequester` pasado como `initialFocus` en Compose, `autofocus: true` en Flutter e `initialFocusRef` en React Native. Sin una marca, el foco va a la hoja en sí, de modo que su etiqueta se lee primero.
 
@@ -278,20 +279,22 @@ Arrastrar nunca es la única manera. El tirador cambia la altura con una sola pu
 
 ### De qué se encarga el componente
 
-- Una hoja modal se expone como un diálogo modal que recibe su nombre de `label`. Una hoja estándar es una región que recibe su nombre de `label`, una región de referencia (landmark) en la web.
+- Una hoja modal se expone como un diálogo modal que recibe su nombre de `label`, o de su `headline` cuando `label` está vacío. Una hoja estándar es una región que recibe su nombre del mismo modo, una región de referencia (landmark) en la web.
+- El titular es un encabezado. El botón de cierre es un botón de solo icono de Tanrei que recibe su nombre de `closeLabel`, con el objetivo mínimo, el anillo de foco y los estados del propio botón; pide a la hoja que se cierre con el motivo `close` en ambas formas, diga lo que diga `dismissible`. El divisor bajo la cabecera es decorativo.
 - Mientras una hoja modal está abierta, todo lo que queda fuera está inerte y oculto para la tecnología de apoyo, y el foco y la navegación del lector de pantalla permanecen dentro. Una hoja estándar no deja nada inerte.
 - Al abrirse, el foco pasa al elemento que marcaste, o a la hoja. Al cerrarse, el foco vuelve al elemento que lo tenía cuando se abrió la hoja. Esto vale para ambas formas.
 - Escape, la acción de retroceso de la plataforma y una pulsación en el velo piden a una hoja modal que se cierre, mientras `dismissible` sea true. Una hoja estándar ignora Escape y la acción de retroceso.
-- Mientras la hoja tiene dos alturas, el tirador de arrastre es un único botón, que puede recibir el foco y recibe su nombre de `handleLabel`, expandido en la altura completa. Enter y Espacio llevan la hoja a su otra altura. Con una sola altura, el tirador queda oculto para la tecnología de apoyo. La barra del tirador siempre está oculta.
+- El tirador de arrastre es un [tirador de tamaño](/es/components/handle/) que siempre se dibuja y que toma los tokens propios de la hoja. Mientras la hoja tiene dos alturas, es un único botón, que puede recibir el foco y recibe su nombre de `handleLabel`, expandido en la altura completa. Enter y Espacio llevan la hoja a su otra altura. Con una sola altura, el tirador queda oculto para la tecnología de apoyo. La barra del tirador siempre está oculta.
 - El área de pulsación del tirador es como mínimo el objetivo mínimo, y su anillo de foco solo se muestra para el foco del teclado.
 - El contenido se desplaza dentro de la hoja, y el foco del teclado y la tecnología de apoyo pueden desplazarlo en cualquiera de las dos alturas.
 - Un texto más grande hace que la hoja crezca con su contenido, hasta la altura que permite su posición (detent), y a partir de ahí el contenido se desplaza. El tirador no se escala.
 - El color de la hoja llega hasta debajo del margen interior inferior del sistema, y su contenido queda por encima de ese margen y por encima del teclado en pantalla.
-- Las compilaciones de depuración avisan de una hoja sin `label`, de un tirador interactivo sin `handleLabel` y de un valor desconocido de `variant` o de `detent`.
+- Las compilaciones de depuración avisan de una hoja sin `label` ni `headline`, de un tirador interactivo sin `handleLabel`, de un botón de cierre sin `closeLabel`, de una hoja sin tirador ni botón de cierre que aun así se puede descartar (nada en pantalla dice cómo) y de un valor desconocido de `variant`, `detent` o `dividerVisibility`.
 
 Carencias conocidas por plataforma:
 
 - Un arrastre con el ratón sobre el contenido mueve la hoja como lo hace un toque, así que el texto de una hoja no se puede seleccionar arrastrando hacia abajo sobre él mientras la hoja todavía pueda moverse.
+- SwiftUI, Compose, Flutter y React Native todavía no dibujan la cabecera: `headline`, `closable`, `closeLabel` y `dividerVisibility`, y el motivo `close`, solo existen en la web por ahora.
 - Web: con el tacto, el navegador decide quién se queda con un gesto cuando este empieza, así que el traspaso entre la hoja y el desplazamiento del contenido requiere un segundo gesto. Un ratón o un lápiz hacen el traspaso dentro de un mismo arrastre. El arrastre táctil todavía no está cubierto por ninguna prueba. En Firefox la hoja se va de inmediato en lugar de salir deslizándose, igual que el diálogo.
 - SwiftUI no tiene rol de diálogo ni de región: la hoja es un contenedor que recibe su nombre de `label`, con el rasgo modal mientras es modal. El tirador no tiene estado expandido, así que su valor dice «expanded» o «collapsed», solo en inglés. SwiftUI no puede llevar el foco a la hoja en sí cuando no hay nada marcado, y al cerrarse no devuelve el foco del teclado a ningún elemento; en iOS, la cubierta modal devuelve el foco de VoiceOver. En macOS, una hoja modal cubre solo la vista a la que está aplicado el modificador, así que aplícalo a la raíz de la ventana.
 - SwiftUI en iOS: por debajo de su altura completa, un arrastre sobre el contenido sube la hoja y el siguiente arrastre desplaza, y ahí el contenido no se desplaza, ni siquiera para VoiceOver o el teclado. El texto simple del contenido toma la fuente de cuerpo sin su interlineado, así que dos líneas miden 40 puntos de alto donde las demás plataformas dibujan 44.
@@ -305,9 +308,9 @@ Carencias conocidas por plataforma:
 
 ### Qué debes hacer tú
 
-- Dale a cada hoja un `label`, como «Guardar foto». Da nombre al diálogo o a la región.
+- Dale a cada hoja un `label` o un `headline`, como «Guardar foto». Da nombre al diálogo o a la región.
 - Dale al tirador un `handleLabel`, como «Cambiar el tamaño de la hoja», en el idioma de tu producto.
 - Cierra la hoja tú: pon `open` en false en respuesta a `close` (el evento `close` en la web, `onClose` en Compose, Flutter y React Native), y desde tu propio botón «Listo» o «Cerrar». En SwiftUI, la hoja escribe false en el binding por ti.
-- Dale a una hoja estándar, y a una hoja modal cuyo `dismissible` es false, un botón visible que la cierre. Arrastrar no debe ser la única salida.
+- Dale a una hoja estándar, y a una hoja modal cuyo `dismissible` es false, un botón visible que la cierre: su botón de cierre (`closable`, con un `closeLabel`) o uno tuyo. Arrastrar no debe ser la única salida.
 - Marca el foco inicial donde ayude, como en el primer campo de un formulario breve.
 - En React Native, pasa `initialFocusRef`, devuelve tú el foco al elemento que abrió la hoja después de que se cierre, y pasa los márgenes interiores de la ventana a `insets` de la hoja o a `TanreiProvider`.

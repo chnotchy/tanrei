@@ -2,7 +2,7 @@
 title: Panel de navegación
 description: Muestra los destinos de un producto en un panel situado en el borde de inicio, organizados en secciones y grupos, junto al contenido en una pantalla grande o sobre él en una compacta, y puede contraerse hasta quedar en una columna de iconos.
 translationOf: components/navigation-drawer.mdx
-sourceHash: c0e6415cbe529e2cea498fc6093ce5a4744b804d
+sourceHash: 5a0659850fec34d28617357f9478089babbb3c8f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -21,12 +21,12 @@ Esta página describe el panel de navegación tal como lo define ahora la especi
 
 <DemoFrame label="Un panel estándar con dos secciones">
   <tanrei-navigation-drawer open value="inbox" label="Correo" style="block-size: 26rem">
-    <tanrei-navigation-drawer-section heading="Correo">
+    <tanrei-navigation-drawer-section headline="Correo">
       <tanrei-navigation-drawer-item value="inbox" label="Bandeja de entrada" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
       <tanrei-navigation-drawer-item value="sent" label="Enviados" icon="send"></tanrei-navigation-drawer-item>
       <tanrei-navigation-drawer-item value="drafts" label="Borradores" icon="draft"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-section>
-    <tanrei-navigation-drawer-section heading="Etiquetas" divider>
+    <tanrei-navigation-drawer-section headline="Etiquetas" divider>
       <tanrei-navigation-drawer-item value="work" label="Trabajo" icon="label" trailing-text="Nuevo"></tanrei-navigation-drawer-item>
       <tanrei-navigation-drawer-item value="family" label="Familia" icon="label"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-section>
@@ -65,7 +65,7 @@ Esta página describe el panel de navegación tal como lo define ahora la especi
 <DemoFrame label="Un panel compacto, para una herramienta que se usa con puntero: filas de 32 y glifos de 16, cada icono anidado donde empieza la etiqueta de su grupo" plain>
   <tanrei-navigation-drawer open density="compact" value="tree-view" label="Workspace" style="block-size: 22rem">
     <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
-    <tanrei-navigation-drawer-section heading="Projects">
+    <tanrei-navigation-drawer-section headline="Projects">
       <tanrei-navigation-drawer-group label="Tanrei" icon="folder" open>
         <tanrei-navigation-drawer-item value="tokens" label="Tokens" icon="palette" trailing-text="412"></tanrei-navigation-drawer-item>
         <tanrei-navigation-drawer-group label="Components" icon="widgets" open>
@@ -97,7 +97,7 @@ Esta página describe el panel de navegación tal como lo define ahora la especi
 
 ### Uso
 
-Un panel de navegación tiene cinco tipos de elemento. Un `destination` es una fila con un icono opcional, una etiqueta y, al final, un contenido final opcional; con `href` es un enlace. Un `group` es una fila que abre y cierra los destinos y grupos que contiene. Una `section` agrupa destinos y grupos bajo un `heading` opcional, con un `divider` opcional delante; las secciones no se anidan, y los grupos no contienen secciones. Un `header-button` (el primero es el botón de menú) y una `main-action` se sitúan en la cabecera. En la web son elementos hijos `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` y `<tanrei-navigation-drawer-section>`, y elementos `<tanrei-button>` de solo icono y un `<tanrei-main-action-button>` en los slots `header-button` y `main-action`. Las plataformas rezagadas reciben los destinos y las secciones según su estilo propio: vistas `TanreiNavigationDrawerItem` y `TanreiNavigationDrawerSection` en SwiftUI y llamadas con esos nombres en Compose, objetos `TanreiNavigationDrawerDestination` y `TanreiNavigationDrawerSection` dentro de `children:` en Flutter, y entradas de destino y de sección de un array `items` en React Native, donde una sección se distingue por tener sus propios `items`.
+Un panel de navegación tiene cinco tipos de elemento. Un `destination` es una fila con un icono opcional, una etiqueta y, al final, un contenido final opcional; con `href` es un enlace. Un `group` es una fila que abre y cierra los destinos y grupos que contiene. Una `section` agrupa destinos y grupos bajo un `title` (`headline` en la web) opcional, con un `divider` opcional delante; las secciones no se anidan, y los grupos no contienen secciones. Un `header-button` (el primero es el botón de menú) y una `main-action` se sitúan en la cabecera. En la web son elementos hijos `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` y `<tanrei-navigation-drawer-section>`, y elementos `<tanrei-button>` de solo icono y un `<tanrei-main-action-button>` en los slots `header-button` y `main-action`. Las plataformas rezagadas reciben los destinos y las secciones según su estilo propio: vistas `TanreiNavigationDrawerItem` y `TanreiNavigationDrawerSection` en SwiftUI y llamadas con esos nombres en Compose, objetos `TanreiNavigationDrawerDestination` y `TanreiNavigationDrawerSection` dentro de `children:` en Flutter, y entradas de destino y de sección de un array `items` en React Native, donde una sección se distingue por tener sus propios `items`.
 
 La selección pertenece al panel y se expresa con el valor de un destino, esté donde esté ese destino. `change` y `reselect` funcionan como en la barra de navegación. Compose no tiene un valor a nivel de panel: marcas el elemento actual con `selected`, y su `onClick` hace tanto de change como de reselect. Flutter selecciona por índice, contado a través de las secciones en el orden de lectura.
 
@@ -123,11 +123,11 @@ Con `responsive`, el panel toma esa decisión por sí mismo a partir del ancho d
 
     <!-- Modal: un <dialog> en el shadow root, abierto con showModal(). Standard es un <nav> que recibe su nombre de label. -->
     <tanrei-navigation-drawer variant="modal" label="Correo" value="inbox">
-      <tanrei-navigation-drawer-section heading="Correo">
+      <tanrei-navigation-drawer-section headline="Correo">
         <tanrei-navigation-drawer-item value="inbox" label="Bandeja de entrada" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
         <tanrei-navigation-drawer-item value="sent" label="Enviados" icon="send"></tanrei-navigation-drawer-item>
       </tanrei-navigation-drawer-section>
-      <tanrei-navigation-drawer-section heading="Etiquetas" divider>
+      <tanrei-navigation-drawer-section headline="Etiquetas" divider>
         <tanrei-navigation-drawer-item value="work" label="Trabajo" icon="label" trailing-text="Nuevo"></tanrei-navigation-drawer-item>
       </tanrei-navigation-drawer-section>
     </tanrei-navigation-drawer>
@@ -200,7 +200,7 @@ Con `responsive`, el panel toma esa decisión por sí mismo a partir del ancho d
       onChange={(e) => setFolder(e.detail.value)}
       onClose={() => setOpen(false)}
     >
-      <NavigationDrawerSection heading="Correo">
+      <NavigationDrawerSection headline="Correo">
         <NavigationDrawerItem value="inbox" label="Bandeja de entrada" icon="inbox" trailingText="24" />
         <NavigationDrawerItem value="sent" label="Enviados" icon="send" />
       </NavigationDrawerSection>

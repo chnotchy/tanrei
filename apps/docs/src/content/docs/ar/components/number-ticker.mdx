@@ -1,0 +1,140 @@
+---
+title: عارض الأرقام المتحرّك
+description: يعرض رقمًا يتغيّر — عددًا أو سعرًا أو نتيجة أو رقمًا في لوحة معلومات — بتحريك كل خانة تغيّرت إلى قيمتها الجديدة، فيرى الشخص أنه تغيّر وفي أي اتجاه وبمقدار تقريبي، بينما لا تُبلَّغ التقنيات المساعدة إلا بالقيمة التي يستقر عليها.
+translationOf: components/number-ticker.mdx
+sourceHash: 95f0526e88d9f97f2e8636d465f88d6f39585435
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="number-ticker" />
+
+<DemoFrame label="أرقام ترتفع إلى قيمها عندما تظهر">
+  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+    <tanrei-number-ticker start-value="0" value="1234" label="الطلبات"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="0" value="98400" number-style="currency" currency="USD" fraction-digits="0" label="الإيرادات"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="0" value="0.426" number-style="percent" fraction-digits="1" label="معدل التحويل"></tanrei-number-ticker>
+  </div>
+</DemoFrame>
+
+### الاستخدام
+
+تتبع أمثلة Web و React المواصفات الحالية. أما SwiftUI و Compose و Flutter و React Native فهي مخطَّطة: لا تتضمن عارض أرقام متحرّكًا بعد.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-number-ticker value="1234" label="الطلبات"></tanrei-number-ticker>
+    <tanrei-number-ticker value="98400" number-style="currency" currency="USD" label="الإيرادات"></tanrei-number-ticker>
+
+    <!-- يرتفع رقم لوحة المعلومات من 0 في أول مرة يظهر فيها. -->
+    <tanrei-number-ticker start-value="0" value="0.426" number-style="percent" fraction-digits="1"></tanrei-number-ticker>
+
+    <!-- عدد يغيّره الشخص: يُعلَن مرة واحدة عند استقرار كل تغيير. -->
+    <tanrei-number-ticker value="2" live="polite" label="العناصر في السلة"></tanrei-number-ticker>
+
+    <script type="module">
+      import '@tanrei/web/components/number-ticker';
+      const ticker = document.querySelector('tanrei-number-ticker');
+      ticker.value = orders.length;
+      ticker.addEventListener('settle', (event) => console.log('now showing', event.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { NumberTicker } from '@tanrei/react';
+
+    <NumberTicker value={orders.length} label="الطلبات" />
+    <NumberTicker value={revenue} numberStyle="currency" currency="USD" label="الإيرادات" />
+    <NumberTicker startValue={0} value={0.426} numberStyle="percent" fractionDigits={1} />
+    <NumberTicker value={count} live="polite" label="العناصر في السلة" onSettle={(event) => setShown(event.detail.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="الحركات: slide (اختيار النظام الافتراضي) و blur و blur-slide و flip" plain>
+  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+    <tanrei-number-ticker start-value="1180" value="1234" animation="slide" label="انزلاق"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="1180" value="1234" animation="blur" label="تمويه"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="1180" value="1234" animation="blur-slide" label="تمويه وانزلاق"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="1180" value="1234" animation="flip" label="قلب"></tanrei-number-ticker>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="trend: ‏auto (من 19 إلى 20 ترتفع الخانتان) و digit (تنزل خانة الآحاد من 9 إلى 0)" plain>
+  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+    <tanrei-number-ticker start-value="19" value="20" trend="auto" label="تلقائي"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="19" value="20" trend="digit" label="لكل خانة"></tanrei-number-ticker>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="number-ticker" />
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم عارض الأرقام المتحرّك لرقم يتغيّر بينما ينظر إليه الشخص، حين يستحق التغيير نفسه أن يُرى: عدد يزيد مع وصول الطلبات، أو سعر يتحرك، أو نتيجة، أو أرقام لوحة معلومات ترتفع إلى قيمها عند فتح الصفحة. تُظهر الحركة أن الرقم تغيّر، وفي أي اتجاه، وبمقدار تقريبي.
+
+الرقم الذي نادرًا ما يتغيّر، أو الذي لا يراه أحد وهو يتغيّر، نص عادي. والمستوى داخل مدى معروف — مثل التخزين المستخدم من حصة — هو [العدّاد](/ar/components/meter/). الأوقات والتواريخ ليست أرقامًا: اكتبها بتنسيق التاريخ والوقت في المنصة.
+
+### كيف يُكتب الرقم
+
+ليس للعارض كلمات ولا قواعد أرقام خاصة به. يكتب منسّق الأرقام في المنصة الرقم بلغة القارئ: فواصل المجموعات والفاصلة العشرية، ورمز العملة، وعلامة النسبة المئوية، والصيغة المختصرة للرقم الكبير (1.2K، 1.2万)، والأرقام نفسها (١٢٣٤ بالعربية كما تُكتب في مصر). اختر نمطًا (decimal أو percent أو currency أو unit)، ورمز عملة أو وحدة، والصيغة المختصرة، وعددًا ثابتًا من الخانات العشرية، ومتى تُكتب الإشارة؛ وإن لم تحدد لغة أخذ لغة المكان الذي يقع فيه.
+
+وليس له خط ولا حجم ولا لون: يُرسم بنمط النص في المكان الذي تضعه فيه، بأرقام متساوية العرض حتى لا ينزاح الرقم حين تتغيّر خاناته. قد يكون الرقم الكبير في بطاقة لوحة معلومات، أو عددًا داخل جملة.
+
+### اختيار الحركة
+
+| الحركة | تُستخدم لـ |
+| --- | --- |
+| Slide | معظم الأرقام. يدور عمود كل خانة متغيّرة حتى يصل إلى رقمها الجديد. اختيار النظام الافتراضي. |
+| Blur | تغيير أهدأ: يتموّه الرقم القديم ويختفي بينما يتضح الجديد. |
+| Blur slide | الشيء نفسه، مع تحرّك الأرقام مسافة قصيرة في اتجاه التغيير. |
+| Flip | لوحة بأوراق قلّابة: مواعيد المغادرة، أو عدّ تنازلي، أو منتج ذو مظهر ميكانيكي. |
+| None | رقم يجب أن يتغيّر فورًا. |
+
+حافظ على حركة واحدة في منتجك كله: حدّدها مرة واحدة في نظام التصميم (`comp.number-ticker.animation`) بدلًا من تحديدها في كل عارض.
+
+### اختيار trend
+
+افتراضيًا تتحرك كل خانة متغيّرة في الاتجاه الذي تحرّك فيه الرقم كله: إلى الأعلى إن زاد وإلى الأسفل إن نقص، فمن 19 إلى 20 ترتفع الخانتان معًا. هكذا يُقرأ تغييرًا واحدًا لرقم واحد. اختر `digit` حين يكون لكل خانة معنى في ذاتها — عندها تتحرك كل خانة وفق تغييرها هي، فتنزل خانة الآحاد من 9 إلى 0. أما `up` و `down` فيثبّتان اتجاهًا واحدًا، لرقم لا يعدّ إلا في اتجاه واحد.
+
+### افعل
+
+- ضعه داخل النص، أو أعطِ حاويته نمط النص الذي تريده. فهو يأخذ كل شيء من هناك.
+- أضف تسمية حين لا يدل شيء مرئي بجوار الرقم على ماهيته: «الإيرادات»، «الطلبات».
+- اترك live مطفأً للأرقام التي تتغيّر من تلقاء نفسها. شغّله فقط لرقم ينتظره الشخص أو يغيّره.
+- استخدم قيمة البداية في لوحة المعلومات لترتفع أرقامها مرة واحدة، في أول مرة تُرى.
+
+### لا تفعل
+
+- لا تلوّن الارتفاع بالأخضر ولا الانخفاض بالأحمر عبر العارض: ليست لديه هذه الألوان. إن كان للتغيير معنى فقُله بجوار الرقم — وسم، أو كلمة، أو سهم بتسمية.
+- لا تحدّث رقمًا مرات عدة في الثانية. يستغرق كل تغيير مدة الحركة؛ وسيل التغييرات يُقرأ ضجيجًا. حدّثه بإيقاع يستطيع الشخص متابعته.
+- لا تستخدمه للوقت. خانات الساعة تعود إلى الصفر عند 59 لا عند 9.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="number-ticker" />
+
+### ما يتكفل به المكوّن
+
+- تقرأ التقنيات المساعدة نصًا واحدًا: التسمية، ثم الرقم كما يكتبه المنسّق. الخانات المرسومة مخفية، فلا يُقرأ الرقم خانة خانة أبدًا، ولا كأرقام تمرّ عبر نوافذها.
+- افتراضيًا لا يُعلَن شيء: معظم الأرقام ليست محور اللحظة. ومع ضبط live على polite يُعلَن الرقم بلطف مرة واحدة عند استقرار كل تغيير، ولا تُعلَن أبدًا قيمة يمرّ بها، ولا قيمة حلّ محلها تغيير لاحق.
+- عند طلب تقليل الحركة يظهر الرقم الجديد فورًا، ويتلاشى القديم لوقت قصير.
+- يأخذ لغة المكان الذي يقع فيه واتجاهه، ويعيد كتابة الرقم فورًا عند تغيّر أي منهما.
+- يُبلَّغ في إصدارات التصحيح عن قيمة غير معروفة لـ animation أو trend أو style أو notation أو sign display أو live، وعن duration غير موجبة، وعن عملة أو وحدة لا يعرفها المنسّق، وعن قيمة ليست رقمًا.
+
+### ما عليك فعله
+
+- إن كان منتجك يحدّث رقمًا من تلقاء نفسه مرة بعد مرة بجوار محتوى آخر، فقدّم طريقة لإيقاف التحديثات مؤقتًا أو لاختيار عدد مرات وصولها (WCAG 2.2.2 الإيقاف المؤقت والإيقاف والإخفاء).
+- اشرح معنى التغيير بالكلمات حيث يهم. تُظهر الحركة أن الرقم تغيّر؛ ولا تقول إن كان ذلك جيدًا أم سيئًا.

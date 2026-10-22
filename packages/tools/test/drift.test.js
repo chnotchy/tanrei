@@ -2,8 +2,8 @@
 // compared whole — a file in it that the generator does not write again is reported as one that should not exist.
 // The React wrappers are the case: one module per wrapper under packages/react/src/generated/, so a hand edit to any
 // one of them, or the wrapper of an element that is gone, must be seen. These tests run the React generator entry of
-// GENERATORS for real, in a copy of what it reads and runs: the manifest, the specs (for how each event is cased) and
-// the generator.
+// GENERATORS for real, in a copy of what it reads and runs: the manifest, tanrei.config.json, the specs (for how each
+// event is cased) and the generator.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -22,7 +22,7 @@ const GENERATED = 'packages/react/src/generated';
 function reactTree() {
   const root = tempDir('drift');
   const specs = fs.readdirSync(path.join(REPO, 'specs')).filter((f) => f.endsWith('.spec.json')).map((f) => `specs/${f}`);
-  for (const rel of ['packages/react/scripts/generate.js', 'packages/web/custom-elements.json', ...specs]) {
+  for (const rel of ['packages/react/scripts/generate.js', 'packages/web/custom-elements.json', 'tanrei.config.json', ...specs]) {
     fs.mkdirSync(path.dirname(path.join(root, rel)), { recursive: true });
     fs.copyFileSync(path.join(REPO, rel), path.join(root, rel));
   }

@@ -13,14 +13,14 @@
     "validate": "turbo run validate",
     "build": "node scripts/run-unpaused.mjs build",
     "test": "node scripts/run-unpaused.mjs test --concurrency=3",
-    "generate": "turbo run generate && node packages/tools/src/glyphs.js && node scripts/generate-fixtures.mjs",
+    "generate": "turbo run generate && node packages/tools/src/glyphs.js && node packages/tokens-build/src/components-catalog.js && node packages/react/scripts/entries.js && node packages/tools/src/npm-metadata.js && node scripts/generate-fixtures.mjs",
     "drift": "node packages/tools/src/cli.js drift",
     "status": "node packages/tools/src/cli.js status",
     "brand:pull": "node scripts/brand-pull.mjs",
     "check": "pnpm validate && pnpm generate && pnpm drift && node scripts/check-format.mjs && pnpm build && pnpm test",
     "docs:dev": "pnpm --filter @tanrei/docs dev",
     "changeset": "changeset",
-    "version-packages": "changeset version && node packages/tools/src/cli.js sync-versions",
+    "version-packages": "changeset version && node packages/tools/src/cli.js sync-versions && node packages/tools/src/npm-metadata.js",
     "prepare": "lefthook install"
   },
   "devDependencies": {

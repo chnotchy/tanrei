@@ -2,23 +2,29 @@
 title: React
 description: مكوّنات React محدَّدة الأنواع، مولَّدة من Web Components الخاصة بـ Tanrei.
 translationOf: getting-started/react.mdx
-sourceHash: 8b454fa8146b58d18f714d8bfd7dfdcf0b9a647e
+sourceHash: c0c841b6e6aeb6c0b3a2c71ef99d5f54268d0991
 ---
 
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 تغلِّف الحزمة `@tanrei/react` كل عنصر مخصص من `@tanrei/web` بمكوّن React حقيقي له خصائص محدَّدة الأنواع ومعالجات أحداث. تُولَّد هذه الأغلفة من بيان العناصر المخصصة (custom elements manifest)، فتطابق دائمًا العناصر التي تغلِّفها.
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/react" />
+<ReleaseNotice platform="web" registry="npm" pkg={["@tanrei/react", "@tanrei/web"]} />
 
 ## التثبيت
 
 يلزم React 18 أو أحدث.
 
+### من npm
+
+```sh
+npm install @tanrei/react @tanrei/web
+```
+
 ### من الشيفرة المصدرية
 
-كما في [حزمة الويب](/ar/getting-started/web/) (Git، و Node 22.12 أو أحدث، و pnpm 12): ابنِ الحزمتين كلتيهما في نسخة مستنسخة من المستودع واحزمهما،
+لاستعمال الشيفرة المصدرية كما هي على `main`، افعل كما في [حزمة الويب](/ar/getting-started/web/) (Git، و Node 22.12 أو أحدث، و pnpm 12): ابنِ الحزمتين كلتيهما في نسخة مستنسخة من المستودع واحزمهما،
 
 ```sh
 git clone https://github.com/chnotchy/tanrei.git
@@ -34,16 +40,13 @@ pnpm --filter @tanrei/web --filter @tanrei/react pack --pack-destination ../tanr
 npm install path/to/tanrei-packages/tanrei-web-*.tgz path/to/tanrei-packages/tanrei-react-*.tgz
 ```
 
-### بعد الإصدار الأول
-
-```sh
-npm install @tanrei/react @tanrei/web
-```
-
 ## الاستخدام
 
+حمِّل أوراق الأنماط مرة واحدة، قبل أن تُعرض المكوّنات: الملف `tanrei.css` يضم أساس الصفحة والرموز وكل أوراق الأنماط الأخرى في الحزمة في ملف واحد. ولتحميلها واحدة واحدة، انظر [دليل الويب](/ar/getting-started/web/).
+
 ```tsx
-import '@tanrei/web/tokens.css';
+import '@tanrei/web/tanrei.css';
+import '@tanrei/web/words/en';
 import { Button } from '@tanrei/react';
 
 export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
@@ -62,9 +65,30 @@ export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
 
 تحمل الخصائص أسماء خصائص HTML للعنصر نفسها (`variant` و `size` و `disabled`). والأحداث معالجات React عادية. ويُستمع إلى الحدث الخاص بالعنصر باسم يبدأ بـ `on` ويليه اسم الحدث بصيغة camel case، كما يسمّي React أحداثه (`onKeyDown`): يُطلق درج التنقل الحدث `expandedchange`، ويُستمع إليه بـ `onExpandedChange`.
 
+تعطي `@tanrei/web/words/en` كلمة بإنجليزية بسيطة لكل تسمية ورسالة ترسمها المكوّنات أو تقولها، مثل وسم المطلوب أو اسم زر الإغلاق؛ ويمكنك الاستغناء عنها وإعطاء كلماتك بالدالة `setWords()` من `@tanrei/react`. انظر [الكلمات](/ar/foundations/words/).
+
+## مدخل لكل نظام تصميم
+
+للحزمة مدخل لكل نظام تصميم يشحنه Tanrei، فلا يقترح محرّرك، ولا يقبل فحص الأنواع، إلا ما يملكه نظامك:
+
+| المدخل | ما يصدّره |
+|---|---|
+| `@tanrei/react` | مكوّنات النظام الافتراضي، Tanrei. ليست فيه قائمة FAB، التي تعيش في طبقة m3-like، ولا الزر المقسَّم الذي يستبعده Tanrei، والمتغيّر الذي يستبعده Tanrei ليس قيمةً للخاصية: لا يجتاز `<TextField variant="outlined">` فحص الأنواع |
+| `@tanrei/react/m3-like` و`@tanrei/react/m3-expressive-like` و`@tanrei/react/cupertino` | مكوّنات ذلك الإعداد المسبق، بمتغيّراته |
+| `@tanrei/react/advanced` | المكوّنات المتقدّمة، أي الأجزاء التي تُبنى منها مكوّنات أخرى: `TextInput` و`ModalLayer` و`Combobox` وغيرها. وعادةً ما يكتب المنتج المكوّن المبني من أحدها: `TextField` و`Dialog` و`ComboboxField` |
+| `@tanrei/react/all` | كل المكوّنات، أيًّا كان النظام الذي يملكها: لنظام تصميم خاص بك، ولبناء نظام |
+
+```tsx
+import '@tanrei/web/tokens.css';
+import '@tanrei/web/systems/m3-like.css';
+import { FabMenu, FabMenuItem, TextField } from '@tanrei/react/m3-like';
+```
+
+المكوّن هو نفسه في كل مدخل، فلا تُبقي أداة التجميع إلا ما تستورده. ويصدّر كل مدخل أيضًا `setWords` و`missingWords` والنوع `TanreiEvent`. تُولَّد المداخل من قائمة مكوّنات كل نظام، `@tanrei/web/systems/<id>.components.json`، التي تذكر مدخل كل مكوّن (`react.import`)؛ وقائمة نظامك الخاص، التي يكتبها `tanrei build`، تذكر `@tanrei/react/all`.
+
 ## التصيير على الخادم
 
-تُخرج المكوّنات وسم العنصر المخصص على الخادم، ثم يُرقّى العنصر في المتصفح. في إطارات العمل التي تفصل بين الخادم والعميل، استورد `@tanrei/react` من مكوّن عميل حتى تُسجَّل تعريفات العناصر في المتصفح.
+تُخرج المكوّنات وسم العنصر المخصص على الخادم، ثم يُرقّى العنصر في المتصفح. في إطارات العمل التي تفصل بين الخادم والعميل، استورد المدخل الذي تستخدمه من مكوّن عميل حتى تُسجَّل تعريفات العناصر في المتصفح.
 
 <Callout>
   السمة والتباين والرموز (tokens) والخطوط تعمل تمامًا كما في [دليل Web](/ar/getting-started/web/)؛ ولا تضيف حزمة React شيئًا من عندها فوق ذلك.

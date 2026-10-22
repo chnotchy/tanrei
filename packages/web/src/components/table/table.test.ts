@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { atRest } from '../../../test/at-rest.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { decodePng } from '../../../test/png.js';
+import { decodePng, paintedColor } from '../../../test/png.js';
 import { expectPressHeldAtEveryMoment } from '../../../test/held-press.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, tableNameSuffix, withoutIconFont, rootTokens } from '../../../test/harness.js';
@@ -3077,6 +3077,39 @@ test.describe('rows that can be chosen', () => {
     await expect(tr(1)).toHaveAttribute('data-pressed', 'none');
     expect(await paint()).toEqual(hovered);
     await up();
+  });
+
+  test('TBL-43, TBL-59: a chosen row at rest and a row under the pointer are painted at least 1.1:1 apart, in light and in dark — each its token laid over the surface the table stands on — so that the selection is never the grey of a hovered row', async ({ page }) => {
+    const id = 'selection';
+    // A pixel of a row's last cell, in its end padding at half its height: the row's fill as the engine lays it over
+    // the surface, with none of the cell's content on it.
+    const painted = async (r: number) => {
+      const at = await box(cell(page, id, 'tbody', r, 4));
+      const shot = decodePng(await page.screenshot({ scale: 'css', animations: 'allow' }));
+      const i = (Math.round(at.y + at.height / 2) * shot.width + Math.round(at.x + at.width - 3)) * 4;
+      return [shot.data[i], shot.data[i + 1], shot.data[i + 2]];
+    };
+    const luminance = (c: number[]) => c.map((v) => v / 255).map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)).reduce((sum, v, i) => sum + v * [0.2126, 0.7152, 0.0722][i], 0);
+    const contrast = (a: number[], b: number[]) => {
+      const [light, dark] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+      return (light + 0.05) / (dark + 0.05);
+    };
+    const near = (a: number[], b: number[]) => a.every((v, i) => Math.abs(v - b[i]) <= 1);
+    const rgb = (color: string) => (color.match(/\d+/g) ?? []).slice(0, 3).map(Number);
+    for (const theme of ['light', 'dark'] as const) {
+      await mountFixtures(page, spec, { theme, fixtures: some(id) });
+      await settled(page, id);
+      await expect(table(page, id).locator('> tbody > tr').nth(0)).toHaveAttribute('data-selected', '');
+      await cell(page, id, 'tbody', 2, 3).hover();
+      await expect(table(page, id).locator('> tbody > tr').nth(1)).toHaveAttribute('data-tanrei-hit', '');
+      // One probe at a time: paintedColor draws its probe under one id.
+      const chosen = rgb(await paintedColor(page, `var(${T('row-selected-container-color')})`));
+      const hovered = rgb(await paintedColor(page, `var(${T('row-unselected-hovered-container-color')})`));
+      // What is measured is what the tokens are, as the engine composites them.
+      await expect.poll(async () => near(await painted(2), hovered), `${theme}: the hovered row is ${hovered}`).toBe(true);
+      expect(near(await painted(1), chosen), `${theme}: the chosen row is ${chosen}, painted ${await painted(1)}`).toBe(true);
+      expect(contrast(await painted(1), await painted(2)), `${theme}: chosen ${await painted(1)} against hovered ${await painted(2)}`).toBeGreaterThanOrEqual(1.1);
+    }
   });
 
   test('TBL-25: rows that are replaced because the product ordered or fetched them keep keyboard focus on the checkbox that had it — the checkbox of the row with the same value — and a checkbox that takes focus under a header row or a status line kept in view is brought out from under it', async ({ page }) => {

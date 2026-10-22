@@ -2,7 +2,7 @@
 title: メニュー付きボタン
 description: 主なアクションを 1 回の押下で実行し、関連するアクションは、隣につながったもう 1 つのボタンから開くメニューで示します。
 translationOf: components/button-with-menu.mdx
-sourceHash: 52a376bf9ba1224db956bf1d3bb5f7de5f2ab5f9
+sourceHash: b2cc3ce77b318949d05a451ba15d953c237f71ee
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -284,6 +284,20 @@ Material 3 では、対応するコンポーネントを split button と呼び�
 
 細いメニュー側の半分は、見た目は最小ターゲットより狭くなりますが、ヒット領域は狭くなりません。ターゲットは外側へ、末尾側の端を越えて届きます。narrow のアイコンだけのボタンの横と同じように、そこに余裕を取ってください。
 
+### 破壊的なアクション
+
+主なアクションが、元に戻せないかもしれないものを削除したり破棄したりするメニュー付きボタン（削除と、メニューの「すべてのバージョンを削除」）には、`destructive` を設定します。両方の半分が variant の強調を保ったまま、その中でエラーの色を使います。同じ variant の破壊的な[ボタン](/ja/components/button/#破壊的なアクション)と同じです。Filled はエラーの色で、Tonal はエラーのコンテナの色で塗られます。Elevated と Outlined はラベルとシェブロンをエラーの色で描き、Outlined は輪郭と区切り線もその色にします。無効のときは、同じ variant の無効のメニュー付きボタンと同じ見た目です。
+
+`destructive` が付くのは 2 つの半分だけで、メニューの項目には付きません。メニューの選択肢は、主なアクションが削除しないものを削除することも、その逆もあるので、削除する項目にはそれぞれ `destructive` を設定します。
+
+<DemoFrame label="破壊的なメニュー付きボタン（各 variant と、隙間でつないだもの）" plain>
+  <tanrei-button-with-menu destructive label="削除" menu-label="削除のその他のオプション"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="tonal" destructive label="削除" menu-label="削除のその他のオプション"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="elevated" destructive label="削除" menu-label="削除のその他のオプション"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" destructive label="削除" menu-label="削除のその他のオプション"></tanrei-button-with-menu>
+  <tanrei-button-with-menu separation="gap" destructive label="削除" menu-label="削除のその他のオプション"></tanrei-button-with-menu>
+</DemoFrame>
+
 ## 仕様
 
 <DemoFrame label="サイズ、アイコン、開いた状態、無効状態" plain>
@@ -387,6 +401,7 @@ Text バリアントはありません。塗りも枠線もないと 2 つの半
 - 区切り線は装飾です。支援技術からは隠され、押しても何も起こりません。間にあるのが線でも隙間でも、2 つの半分は 2 つのボタンです。
 - 既定のシステムでは、Outlined の輪郭と、Outlined・Tonal・Elevated の区切り線は細い線で、あえて控えめにしてあります。主アクション側はラベルで、メニュー側はシェブロンで見分けられます。Filled の区切り線はもっと強い線です。その塗りの上では細い線が見えないからです。
 - ラベルが途中で切れることはありません。文字サイズを大きくすると折り返し、両方の半分がそろって縦に伸びます。
+- `destructive` が加えるのは色だけです。Web には破壊的なアクションを表すロールも状態もないので、両方の半分のロール、名前、状態、キー操作は変わりません。破壊的なロールがある SwiftUI では、主アクション側の半分がそのロールを持ちます。
 - 無効なメニュー付きボタンは、両方の半分を無効として伝え、フォーカスの順序から外し、メニューを表示しません。`open` がどうであっても、閉じた形を描きます。
 - ラベルやメニューラベルがない場合と、メニューに項目がない場合は、デバッグビルドで報告します。
 
@@ -402,6 +417,7 @@ Text バリアントはありません。塗りも枠線もないと 2 つの半
 ### 利用者側で行うこと
 
 - 両方のラベルを書きます。シェブロンだけでは名前になりませんし、「保存」の隣の「その他」ではメニューに何があるか分かりません。
+- 破壊的なメニュー付きボタンでは、何を消すのかをラベルで伝えます（「OK」ではなく「プロジェクトを削除」）。エラーの色は、それが見える人にしか伝わりません（WCAG 1.4.1、色の使用）。
 - Web、Compose、React Native では、トグルのイベントを受けて `open` を設定し、閉じるイベントを受けて false に戻します。メニュー付きボタンは求めるだけです。`hoverOpen` のときは、ホバーも同じトグルのイベントで求めます。
 - メニューが閉じたとき、自分でフォーカスを動かさないでください。メニュー付きボタンがメニュー側へ戻します。
 - アイコンを表示する項目も含めて、すべてのメニュー項目にラベルを付けます。

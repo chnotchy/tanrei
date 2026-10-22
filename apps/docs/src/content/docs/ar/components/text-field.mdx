@@ -2,7 +2,7 @@
 title: حقل النص
 description: يتيح للأشخاص إدخال نص وتحريره، سطرًا واحدًا أو عدة أسطر تتبع النص أو يُغيَّر حجمها باليد، أو إدخال تاريخ أو وقت وحدةً وحدةً بصيغة الإعدادات المحلية، أو شيفرة تُحفظ كما كُتبت تمامًا، مع تسمية تستطيع أن تقول إن الحقل مطلوب أو اختياري، وأيقونات اختيارية، وبادئة ولاحقة، ونص مساعد، وعدّاد أحرف، وزر منتقٍ.
 translationOf: components/text-field.mdx
-sourceHash: 2e78214631aec6fa526771b0c65343465243cf85
+sourceHash: f108ac8d052ea1953cbb471dc7611d237bf1bae7
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,11 +16,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="text-field" />
 
 :::note[مواصفة معدَّلة، لم تصل بعد إلى كل منصة]
-تصف هذه الصفحة حقل النص كما هو في المواصفة الآن: طراز (variant) هو `stacked`، وهو الافتراضي، وتسميته فوق الحقل؛ والطرازان `filled` و `outlined` باقيان لإعدادات Material الجاهزة والإعداد الجاهز cupertino فقط؛ وثلاثة ارتفاعات هي 40 و 48 و 56؛ وأنواع للتاريخ والوقت، مع زر منتقٍ؛ وحقل متعدد الأسطر يتبع نصه أو يُغيَّر حجمه بمقبض (`resize`)؛ وتاريخ أو وقت يُدخل وحدةً وحدةً، في مقاطع؛ والخاصية `requirement` التي تعلّم الحقل بأنه مطلوب أو اختياري وتحلّ محل الراية `required`. مكوّن الويب يفعل ذلك كله منذ الآن، وكذلك العروض التوضيحية. ويمكن للحقل أيضًا أن يحمل شيفرة (`type="code"`، ومعه `wrap` لأسطرها): بناه الويب، ولم تبنِه أي منصة أخرى بعد. وحقل النص حقل حول حقل إدخال النص، كما تصفه هذه الصفحة: بنى الويب ذلك أيضًا، وزالت فيه خاصية HTML `required`. أما SwiftUI و Compose و Flutter و React Native فموسومة أعلاه بأنها متأخرة: إلى أن تلحق تقدّم المراجعة السابقة، وهي من الطراز outlined افتراضيًّا بارتفاعي 36 و 40، وفيها راية `required` لا ترسم علامة، وليس فيها الطراز `stacked` ولا أنواع التاريخ والوقت ولا زر المنتقي ولا أوضاع تغيير الحجم، وتعرض عيّناتها تلك المراجعة.
+تصف هذه الصفحة حقل النص كما هو في المواصفة الآن: طراز (variant) هو `stacked`، وهو الافتراضي، وتسميته فوق الحقل؛ والطرازان `filled` و `outlined` باقيان لإعدادات Material الجاهزة والإعداد الجاهز cupertino فقط؛ وثلاثة ارتفاعات هي 40 و 48 و 56؛ وأنواع للتاريخ والوقت، مع زر منتقٍ؛ وحقل متعدد الأسطر يتبع نصه أو يُغيَّر حجمه بمقبض (`resize`)؛ وتاريخ أو وقت يُدخل وحدةً وحدةً، في مقاطع؛ والخاصيتان `required` و `optional` اللتان تعلّمان الحقل بأنه مطلوب أو اختياري. مكوّن الويب يفعل ذلك كله منذ الآن، وكذلك العروض التوضيحية. ويمكن للحقل أيضًا أن يحمل شيفرة (`type="code"`، ومعه `wrap` لأسطرها): بناه الويب، ولم تبنِه أي منصة أخرى بعد. وحقل النص حقل حول حقل إدخال النص، كما تصفه هذه الصفحة: بنى الويب ذلك أيضًا، وزالت فيه خاصية HTML `required`. أما SwiftUI و Compose و Flutter و React Native فموسومة أعلاه بأنها متأخرة: إلى أن تلحق تقدّم المراجعة السابقة، وهي من الطراز outlined افتراضيًّا بارتفاعي 36 و 40، وفيها راية `required` لا ترسم علامة، وليس فيها الطراز `stacked` ولا أنواع التاريخ والوقت ولا زر المنتقي ولا أوضاع تغيير الحجم، وتعرض عيّناتها تلك المراجعة.
 :::
 
 <DemoFrame label="الطراز Stacked، وهو الافتراضي: حقل مطلوب، وتاريخ مع زر المنتقي" column>
-  <tanrei-text-field label="البريد الإلكتروني" type="email" requirement="required" supporting-text="نستخدمه لتسجيل دخولك فقط." required-text="مطلوب"></tanrei-text-field>
+  <tanrei-text-field label="البريد الإلكتروني" type="email" required supporting-text="نستخدمه لتسجيل دخولك فقط." required-text="مطلوب"></tanrei-text-field>
   <tanrei-text-field label="تاريخ البدء" type="date" locale="ar-u-nu-latn" value="2026-09-27" picker picker-label="اختيار تاريخ البدء" segment-empty-text="فارغ"></tanrei-text-field>
 </DemoFrame>
 
@@ -36,9 +36,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <TabItem label="Web">
     ```html
     <form>
-      <tanrei-text-field name="email" label="البريد الإلكتروني" type="email" autocomplete="email" requirement="required" required-text="مطلوب"
+      <tanrei-text-field name="email" label="البريد الإلكتروني" type="email" autocomplete="email" required required-text="مطلوب"
         supporting-text="نستخدمه لتسجيل دخولك فقط."></tanrei-text-field>
-      <tanrei-text-field name="company" label="الشركة" requirement="optional" optional-text="اختياري"></tanrei-text-field>
+      <tanrei-text-field name="company" label="الشركة" optional optional-text="اختياري"></tanrei-text-field>
       <!-- يتبع نصه من 3 أسطر إلى 8، ثم يُمرَّر. -->
       <tanrei-text-field name="message" label="الرسالة" multiline min-rows="3" max-rows="8"></tanrei-text-field>
       <!-- يُغيَّر حجمه باليد، بمقبض. -->
@@ -93,7 +93,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       value={email}
       onInput={(e) => setEmail(e.currentTarget.value)}
       onChange={() => save(email)}
-      requirement="required"
+      required
       requiredText="مطلوب"
       error={submitted && !isValid(email)}
       errorText="أدخِل عنوان بريد إلكتروني كاملًا."
@@ -205,14 +205,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 الحقل نفسه مكتوبًا باليد من عضويه هو الصورة نفسها، ومربع النص (text box) نفسه عند التقنيات المساعدة، بالاسم والوصف والحالات نفسها:
 
 ```html
-<tanrei-field label="البريد الإلكتروني" requirement="required" required-text="مطلوب"
+<tanrei-field label="البريد الإلكتروني" required required-text="مطلوب"
   supporting-text="نستخدمه لتسجيل دخولك فقط.">
   <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input>
 </tanrei-field>
 ```
 
 <DemoFrame label="الحقل نفسه مكتوبًا باليد: حقل بداخله حقل إدخال النص" column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="البريد الإلكتروني" requirement="required" required-text="مطلوب" supporting-text="نستخدمه لتسجيل دخولك فقط.">
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="البريد الإلكتروني" required required-text="مطلوب" supporting-text="نستخدمه لتسجيل دخولك فقط.">
     <tanrei-text-input type="email"></tanrei-text-input>
   </tanrei-field>
 </DemoFrame>
@@ -256,9 +256,9 @@ input.addEventListener('input', () => (field.countText = input.countText));
 </DemoFrame>
 
 <DemoFrame label="مطلوب واختياري: الوسمان، والنجمة" plain column>
-  <tanrei-text-field label="البريد الإلكتروني" type="email" requirement="required" required-text="مطلوب"></tanrei-text-field>
-  <tanrei-text-field label="الشركة" requirement="optional" optional-text="اختياري"></tanrei-text-field>
-  <tanrei-text-field label="البريد الإلكتروني" type="email" requirement="required" required-mark="asterisk"></tanrei-text-field>
+  <tanrei-text-field label="البريد الإلكتروني" type="email" required required-text="مطلوب"></tanrei-text-field>
+  <tanrei-text-field label="الشركة" optional optional-text="اختياري"></tanrei-text-field>
+  <tanrei-text-field label="البريد الإلكتروني" type="email" required required-mark="asterisk"></tanrei-text-field>
 </DemoFrame>
 
 <DemoFrame label="عدة أسطر: يتبع النص، ويُغيَّر حجمه بمقبض (نزولًا، وفي الاتجاهين)، وثابت" plain column>
@@ -296,7 +296,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 | الجانب | من الحقل | من حقل إدخال النص |
 | --- | --- | --- |
-| الخصائص | `label`، `labelHidden`، `supportingText`، `errorText`، `error`، `disabled`، `requirement`، `requiredMark`، `requiredText`، `optionalText` | كل ما عداها: `variant`، `size`، `type`، `value`، `placeholder`، `readOnly`، والأسطر وتغيير الحجم، `wrap`، `maxLength`، `counter`، والبادئة واللاحقة، `autocomplete`، وكل ما يخص التاريخ أو الوقت |
+| الخصائص | `label`، `labelHidden`، `supportingText`، `errorText`، `error`، `disabled`، `required`، `optional`، `requiredMark`، `requiredText`، `optionalText` | كل ما عداها: `variant`، `size`، `type`، `value`، `placeholder`، `readOnly`، والأسطر وتغيير الحجم، `wrap`، `maxLength`، `counter`، والبادئة واللاحقة، `autocomplete`، وكل ما يخص التاريخ أو الوقت |
 | الأحداث | — | `input`، `change`، `action`، `pickerRequest`، `entryError` |
 | المنافذ (slots) | `label-icon` | `leading-icon`، `trailing-icon` |
 | رموز التصميم | `comp.field.*` | `comp.input-box.*` للصندوق، وهي التي يقرؤها كل صندوق إدخال؛ و `comp.text-input.*` لما يرسمه حقل إدخال النص وحده |
@@ -318,12 +318,12 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 - جذر الظل (shadow root) في العنصر فيه عنصر `<tanrei-field>` بداخله عنصر `<tanrei-text-input>`، ولا شيء غيرهما. واستيراد العنصر يعرّف الاثنين.
 - العنصر كتلة تملأ مكانها، لا صندوق مضمَّن في السطر بعرض حقل الإدخال النصي الخاص بالمتصفح.
-- العنصر مرتبط بالنماذج (form-associated). يأخذ `name` و `form`، ويرسل القيمة، ولا يرسل شيئًا وهو معطَّل، ويعود عند إعادة الضبط إلى قيمة خاصية HTML (attribute) `value`، ويُستعاد عند التنقل، ويتبع عنصر `<fieldset>` المعطَّل، ويبلّغ بأن القيمة ناقصة ما دامت `requirement` بالقيمة `required` وهو فارغ. وعضواه لا يضيفان أي مُدخلة (entry) إلى النموذج. والمفتاح Enter في حقل من سطر واحد يضغط الزر الافتراضي في نموذج العنصر؛ ألغِ الحدث `action` لتمنع ذلك.
+- العنصر مرتبط بالنماذج (form-associated). يأخذ `name` و `form`، ويرسل القيمة، ولا يرسل شيئًا وهو معطَّل، ويعود عند إعادة الضبط إلى قيمة خاصية HTML (attribute) `value`، ويُستعاد عند التنقل، ويتبع عنصر `<fieldset>` المعطَّل، ويبلّغ بأن القيمة ناقصة ما دامت `required` معيَّنة وهو فارغ. وعضواه لا يضيفان أي مُدخلة (entry) إلى النموذج. والمفتاح Enter في حقل من سطر واحد يضغط الزر الافتراضي في نموذج العنصر؛ ألغِ الحدث `action` لتمنع ذلك.
 - الأحداث `input` و `change` و `action` و `pickerrequest` و `entryerror` هي أحداث حقل إدخال النص نفسه. وهدفها هو العنصر، و `event.target.value` هي القيمة الجديدة في كل مستمع. وأنواع التفاصيل (detail) هي أنواع حقل الإدخال: `TanreiTextInputActionDetail` و `TanreiTextInputPickerRequestDetail` و `TanreiTextInputEntryErrorDetail`.
-- الأجزاء: `field` و `text-input` هما العضوان. وأجزاؤهما لها هنا الأسماء نفسها التي لها في المستوى الأدنى: `label-icon`، `supporting-text`، `counter`؛ `container`، `outline`، `active-indicator`، `input`، `segment`، `prefix`، `suffix`، `leading-icon`، `trailing-icon`، `picker-button`، `resize-grip`. والجزءان `label` و `requirement-label` هما المرسومان، أيًّا كان العضو الذي يرسمهما؛ أما `field-label` و `text-input-label` و `field-requirement-label` و `text-input-requirement-label` فتسمّي ما يخص عضوًا واحدًا.
+- الأجزاء: `field` و `text-input` هما العضوان. وأجزاؤهما لها هنا الأسماء نفسها التي لها في المستوى الأدنى: `label-icon`، `supporting-text`، `counter`؛ `container`، `outline`، `active-indicator`، `input`، `segment`، `prefix`، `suffix`، `leading-icon`، `trailing-icon`، `picker-button`، `resize-handle`. والجزءان `label` و `requirement-label` هما المرسومان، أيًّا كان العضو الذي يرسمهما؛ أما `field-label` و `text-input-label` و `field-requirement-label` و `text-input-requirement-label` فتسمّي ما يخص عضوًا واحدًا.
 - العنصر نفسه غير قابل للتركيز وليس له دور: فالدالة `focus()` تذهب إلى حقل الإدخال. والضغط على صف التسمية أو على الصندوق أو على تسمية عائمة ينقل التركيز إلى حقل الإدخال. والضغط على المساعدة أو نص الخطأ أو العدد أو الفجوة بين صف والصندوق لا يفعل شيئًا.
 - سمِّه بالخاصية `label`، ومعها `label-hidden` حيث لا يُراد رسم التسمية، ولا تسمِّه أبدًا بالخاصية `aria-label`، فهي لا تسمّي شيئًا هنا.
-- خصائص HTML هي خصائص العضوين نفسها: بصيغة kebab-case، مثل `supporting-text` و `error-text` و `min-rows` و `no-wrap`، ما عدا `readonly` و `maxlength` و `autocomplete` و `min` و `max`. ولا توجد خاصية HTML اسمها `required`: اكتب `requirement="required"`.
+- خصائص HTML هي خصائص العضوين نفسها: بصيغة kebab-case، مثل `supporting-text` و `error-text` و `min-rows` و `no-wrap`، ما عدا `readonly` و `maxlength` و `autocomplete` و `min` و `max`. ولا توجد خاصية HTML اسمها `required`: اكتب `required`.
 - قبل أن يُعرَّف العنصر لا يكون له حجم. احجز ارتفاعه.
 
 ## الإرشادات
@@ -344,7 +344,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 الافتراضي هو stacked في كل نظام، ومنها الإعدادات الجاهزة. والمنتج المبني على Material الذي يريد تسمية Material العائمة يعيّن `variant` في حقوله بالقيمة `outlined` أو `filled`. وتحت نظام Tanrei ما زال الطرازان `filled` و `outlined` يعملان، مع تحذير في أثناء التطوير.
 
-الحجم `medium` (48) هو الحقل المكثَّف، والحجم `large` (56) هو الحقل القياسي. استخدم `medium` في عوامل التصفية والإعدادات الكثيفة، و `large` في نماذج تسجيل الدخول وإتمام الشراء. والحجم `small` (40) هو ارتفاع قائمة الاختيار الصغيرة، لحقل في شريط تطبيق أو شريط أدوات أو صف كثيف من عناصر التحكم، ونص الإدخال فيه 14. ونص الإدخال 16 في الحجمين الآخرين في النظام الافتراضي. والارتفاعات حدود دنيا: يكبر الحقل مع النص الأكبر، ومنطقة اللمس تبلغ الحد الأدنى للهدف دائمًا.
+الحجم `medium` (40) هو الحقل المكثَّف، والحجم `large` (56) هو الحقل القياسي. استخدم `medium` في عوامل التصفية والإعدادات الكثيفة، و `large` في نماذج تسجيل الدخول وإتمام الشراء. والحجم `small` (32) هو ارتفاع قائمة الاختيار الصغيرة، لحقل في شريط تطبيق أو شريط أدوات أو صف كثيف من عناصر التحكم، ونص الإدخال فيه 14. ونص الإدخال 16 في الحجمين الآخرين في النظام الافتراضي. والارتفاعات حدود دنيا: يكبر الحقل مع النص الأكبر، ومنطقة اللمس تبلغ الحد الأدنى للهدف دائمًا.
 
 ### التسميات والنصوص النائبة
 
@@ -354,7 +354,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 ### مطلوب واختياري
 
-الخاصية `requirement` تقول ما يطلبه النموذج من الحقل: `none` (الافتراضي) أو `required` أو `optional`. وهي إعداد واحد بثلاث قيم، لأن الحقل لا يكون الاثنين معًا أبدًا.
+الخاصيتان `required` و `optional` تقولان ما يطلبه النموذج من الحقل: `required` أن الجواب لازم، و `optional` أنه يجوز تركه فارغًا. والحقل لا يكون الاثنين معًا أبدًا: فإن عُيِّنتا كلتاهما كان مطلوبًا.
 
 - **المطلوب** يعرض الحقل على أنه مطلوب ويرسم علامة المطلوب بجانب التسمية.
 - **الاختياري** يرسم وسم الاختياري ويضيف نصه إلى وصف الحقل.
@@ -365,7 +365,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 علِّم الأقل من النوعين في النموذج: حيث تكون أكثر الحقول مطلوبة علِّم الاختيارية، والعكس بالعكس. وإن استخدمت النجمة — والحقل من الطراز filled أو outlined يستخدمها دائمًا للحقل المطلوب — فقل مرة واحدة في النموذج، قرب أعلاه، ما معناها («* مطلوب»): فالنجمة عُرف لا كلمة، وليس كل أحد يعرفه.
 
-الخاصية `requirement` تحلّ محل الراية `required` التي في المراجعة السابقة. على الويب لم تعد خاصية HTML `required` ولا خاصية العنصر موجودة: اكتب `requirement="required"`. والحقل الذي كان مطلوبًا يعرض الآن علامة أيضًا: عيِّن `requiredMark` بالقيمة `none` حيث لا تريدها.
+والحقل المطلوب يعرض علامة: عيِّن `requiredMark` بالقيمة `none` حيث لا تريدها.
 
 ### نص المساعدة ونص الخطأ
 
@@ -459,7 +459,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 - ضع النص الثابت الذي ليس جزءًا من القيمة في `prefixText` و `suffixText`: علامة عملة، وحدة.
 - ضع إجراء المسح أو إجراء إظهار كلمة المرور في منفذ النهاية زرًّا بأيقونة فقط من عندك، له اسمه. زر المنتقي هو الإجراء الوحيد المبني في الحقل، ويأتي بعد إجراءاتك.
 - استخدم `multiline` للنص الذي قد يمتد إلى عدة أسطر. وهو افتراضيًّا يكبر من `minRows` إلى `maxRows`، ثم يُمرَّر.
-- عيِّن `requirement` على الحقول التي يطلبها النموذج، وقل مع ذلك ما الناقص في `errorText` حين يُرسل النموذج.
+- عيِّن `required` على الحقول التي يطلبها النموذج، وقل مع ذلك ما الناقص في `errorText` حين يُرسل النموذج.
 - استخدم `type="code"` لقيمة تقرؤها آلة، كنمط أو مفتاح أو مقتطف من إعدادات، وقل ما يجب أن تكون عليه في التسمية وفي `supportingText`.
 
 ### لا تفعل
@@ -469,7 +469,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 - لا تخلط الطُرُز في نموذج واحد.
 - لا تضع حقل نص داخل حقل. فهو حقل أصلًا؛ وبنية التنقيح (debug) تقول ذلك. وعنصر التحكم الذي يؤطّره الحقل هو حقل إدخال النص.
 - لا تستخدم حقلًا من النوع `text` وتحليلًا من عندك لتاريخ. استخدم `date`، ليأتي معه ترتيب الإعدادات المحلية ومفاتيح المقاطع وخطأ الإدخال.
-- لا تكتب «(مطلوب)» في التسمية وتعيّن `requirement` معًا. العلامة تقول ذلك سلفًا، وقارئ الشاشة سيسمعه مرتين.
+- لا تكتب «(مطلوب)» في التسمية وتعيّن `required` معًا. العلامة تقول ذلك سلفًا، وقارئ الشاشة سيسمعه مرتين.
 - لا تجعل الحقل الذي يُغيَّر حجمه باليد الطريقة الوحيدة لرؤية نص طويل. أعطِه من `minRows` ما يكفي ليكون نافعًا حين يُفتح.
 - لا تعطِّل حقلًا لمجرد عرض قيمة لا تتغيّر. استخدم `readOnly`، ليبقى في وسع الناس أن يركّزوا عليها ويحدّدوها وينسخوها.
 - لا تعيّن خط الشيفرة لحقل نص من الخارج، بالمحدِّد `::part(input)` أو بنمط من عندك، ولا تضف `dir` أو `spellcheck` إلى العنصر. استخدم `type="code"`: فالخط وحده يترك حقلًا يبدو صحيحًا وما زال يصحّح ما يُكتب.
@@ -528,7 +528,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 - اكتب تسمية تسمّي القيمة، وأبقِها حتى حين تخفيها.
 - اكتب نص خطأ يقول كيف تُصحَّح القيمة، وعيِّن `error` بنفسك. على SwiftUI و React Native ذلك النص هو الطريقة الوحيدة التي يُسمع بها الخطأ. ولحقل تاريخ أو وقت اكتب أيضًا `invalidText` و `unavailableText`، وأعطِ `segmentEmptyText`: من دونه يُقرأ المقطع الفارغ بلا قيمة.
 - أعطِ زر المنتقي الخاصية `pickerLabel` بلغة منتجك، وافتح المنتقي من الحدث `pickerRequest`.
-- عيِّن `requirement`، وأعطِ `requiredText` و `optionalText`: على الحقل، أو مرة واحدة للمنتج كله بالاستدعاء `setWords({ requiredText, optionalText })`، كما يمكن أن تُعطى `resizeLabel` و `segmentEmptyText` بالطريقة نفسها. لا يتضمن Tanrei أي كلمة على الويب، والكلمة الناقصة يُبلَّغ عنها أثناء التطوير. انظر [كلمات المنتج](/ar/foundations/words/). وإلى أن يلحق SwiftUI و Compose و Flutter و React Native لا ترسم حقولها علامة، و SwiftUI و React Native لا يُعلِنان حالة المطلوب: قل «مطلوب» في التسمية هناك.
+- عيِّن `required` أو `optional`، وأعطِ `requiredText` و `optionalText`: على الحقل، أو مرة واحدة للمنتج كله بالاستدعاء `setWords({ requiredText, optionalText })`، كما يمكن أن تُعطى `resizeLabel` و `segmentEmptyText` بالطريقة نفسها. لا يتضمن Tanrei أي كلمة على الويب، والكلمة الناقصة يُبلَّغ عنها أثناء التطوير. انظر [كلمات المنتج](/ar/foundations/words/). وإلى أن يلحق SwiftUI و Compose و Flutter و React Native لا ترسم حقولها علامة، و SwiftUI و React Native لا يُعلِنان حالة المطلوب: قل «مطلوب» في التسمية هناك.
 - سمِّ مقبض تغيير الحجم بالخاصية `resizeLabel`. من دونها يُرسم المقبض ويعمل، ولا اسم له.
 - ضع الوحدة أو العملة في `prefixText` أو `suffixText`، لا في القيمة، لتُقرأ مع القيمة ولا تُكتب.
 - لحقل الشيفرة، قل ما يجب أن تكون عليه الشيفرة في `label` و `supportingText` («محتوى طلب Webhook» و«JSON»)، وقل ما الخطأ فيها في `errorText`: فالحقل لا يعرف اللغة.

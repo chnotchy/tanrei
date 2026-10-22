@@ -250,6 +250,18 @@ test('a strings prop takes a list of strings in a fixture; no other prop takes a
   has(problems(spec), /sets selected: a string prop does not take a list/);
 });
 
+test('a numbers prop takes a list of finite numbers, in its default and in a fixture', () => {
+  const spec = sample();
+  spec.props.push({ name: 'snapWidths', type: 'numbers', default: [], description: 'The widths a drag snaps to.' });
+  for (const p of CONFIG.platforms) spec.platforms[p].props.snapWidths = 'snapWidths';
+  spec.fixtures[0].props.snapWidths = [360, 600, 1024];
+  assert.deepEqual(problems(spec), []);
+  spec.fixtures[0].props.snapWidths = ['360'];
+  has(problems(spec), /sets snapWidths: a numbers prop takes a list of numbers/);
+  spec.fixtures[0].props.snapWidths = 360;
+  has(problems(spec), /sets snapWidths: a numbers prop takes a list of numbers/);
+});
+
 // A fixture fills a named slot only where the slot says what its strings become.
 test('a fixture fills slots that declare what a string becomes, and only those', () => {
   const spec = sample();

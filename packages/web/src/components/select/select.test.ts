@@ -10,6 +10,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
+import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
+import { expectNoFlicker, sampleFrames } from '../../../test/frames.js';
+import { motionEnded } from '../../../test/motions.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, withoutIconFont, inputBoxCopies, inputBoxOwn, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
@@ -147,6 +150,8 @@ const pressOn = async (target: Locator) => {
 };
 const focusSelect = (page: P, id: string) => host(page, id).evaluate((el) => (el as HTMLElement).focus());
 const shownList = (page: P, id: string) => expect.poll(async () => (await read(page, id)).shown);
+/** The list has come to rest: until its entrance ends it is still growing toward the container's edge (SEL-30). */
+const arrived = (page: P, id: string) => motionEnded(part(page, id, '.motion'));
 const closedList = async (page: P, id: string) => {
   await expect.poll(async () => (await read(page, id)).open).toBe(false);
   await expect.poll(() => part(page, id, '.surface').evaluate((el) => el.matches(':popover-open'))).toBe(false);
@@ -205,7 +210,7 @@ test.describe('behavior: the trigger', () => {
     await mountSpec(page, ['stacked-value', 'stacked-large', 'stacked-small', 'stacked-option-icon', 'filled-value']);
     for (const [id, size] of [['stacked-value', 'medium'], ['stacked-large', 'large'], ['stacked-small', 'small']] as const) {
       const c = await box(container(page, id));
-      near(c.height, await token(page, `container-height-${size}`), `${id} height`);
+      near(c.height, await token(page, `stacked-container-height-${size}`), `${id} height`);
       const value = await box(part(page, id, '.value'));
       const chevron = await box(part(page, id, '.chevron'));
       near(value.x - c.x, await token(page, `container-padding-inline-${size}`), `${id} text padding`);
@@ -216,8 +221,8 @@ test.describe('behavior: the trigger', () => {
       near(await px(container(page, id), 'border-top-left-radius'), await token(page, 'container-shape'), `${id} corner`);
       near(await px(container(page, id), 'border-bottom-right-radius'), await token(page, 'container-shape'), `${id} bottom corner`);
     }
-    // The default system's numbers (the spec's verify): 48 and 56 with 16 and 12 and a 24 chevron; 40 with 12 and 8 and a 20 one.
-    expect([await token(page, 'container-height-medium'), await token(page, 'container-height-large'), await token(page, 'container-height-small')]).toEqual([48, 56, 40]);
+    // The default system's numbers (the spec's verify): a stacked select 40 and 56, as tall as a Button of its size, with 16 and 12 and a 24 chevron; 32 with 12 and 8 and a 20 one.
+    expect([await token(page, 'stacked-container-height-medium'), await token(page, 'stacked-container-height-large'), await token(page, 'stacked-container-height-small')]).toEqual([40, 56, 32]);
     expect([await token(page, 'container-padding-inline-medium'), await token(page, 'container-padding-inline-with-icon-medium'), await token(page, 'icon-size-medium')]).toEqual([16, 12, 24]);
     expect([await token(page, 'container-padding-inline-small'), await token(page, 'container-padding-inline-with-icon-small'), await token(page, 'icon-size-small')]).toEqual([12, 8, 20]);
     // With a leading icon: the glyph padding before it, the gap after it, then the value.
@@ -238,7 +243,7 @@ test.describe('behavior: the trigger', () => {
     expect(inputBoxCopies(sheets, 'select')).toEqual([]);
     // What stays under the select's name beside the list's and the options': the rows change state over, and are faded by, their own.
     const mine = declared(sheets[0]!, 'select').map((name) => name.replace('--tanrei-comp-select-', ''));
-    expect(mine.filter((name) => !/^(list|option|group|divider|separation|motion-(feedback|open|close))|-(selected-)?option-/.test(name)).sort()).toEqual(['disabled-opacity', 'focused-opacity', 'hovered-opacity', 'motion-state-duration', 'motion-state-easing', 'pressed-opacity']);
+    expect(mine.filter((name) => !/^(list|option|group|divider|separation|status|motion-(feedback|open|close))|-(selected-)?option-/.test(name)).sort()).toEqual(['disabled-opacity', 'focused-opacity', 'hovered-opacity', 'motion-state-duration', 'motion-state-easing', 'pressed-opacity']);
   });
 
   test('SEL-65: a custom property of the box set on one select changes that one alone; set on an ancestor, every select in it — and in every other input box there', async ({ page }) => {
@@ -312,12 +317,12 @@ test.describe('behavior: the trigger', () => {
 
   test('SEL-7: a floating label draws the asterisk the Field that frames it gives — for a tag or an asterisk named there, by the Field or by the design system — after its text, requirement.asterisk-gap from it, in the label’s style and the required-asterisk color of its variant, hidden from assistive technology; no mark where the Field names none, where the label is not drawn or where no Field frames it; never a tag, never an optional label', async ({ page }) => {
     await mount(page, [fx('bare', { variant: 'outlined' }), fx('bare-attribute', { variant: 'outlined' }, '<tanrei-option value="jp">Japan</tanrei-option>')], { system: 'm3-like' });
-    for (const mark of ['auto', 'tag', 'asterisk', 'none'] as const) await frame(page, mark, { label: 'Country', requirement: 'required', requiredMark: mark }, { variant: 'outlined' });
-    await frame(page, 'filled', { label: 'Country', requirement: 'required', requiredMark: 'tag' }, { variant: 'filled' });
-    await frame(page, 'hidden', { label: 'Country', labelHidden: true, requirement: 'required', requiredMark: 'asterisk' }, { variant: 'outlined' });
-    await frame(page, 'optional', { label: 'Country', requirement: 'optional' }, { variant: 'filled' });
-    await frame(page, 'error', { label: 'Country', requirement: 'required', requiredMark: 'asterisk', error: true }, { variant: 'outlined' });
-    await frame(page, 'stacked', { label: 'Country', requirement: 'required', requiredMark: 'asterisk' }, {});
+    for (const mark of ['auto', 'tag', 'asterisk', 'none'] as const) await frame(page, mark, { label: 'Country', required: true, requiredMark: mark }, { variant: 'outlined' });
+    await frame(page, 'filled', { label: 'Country', required: true, requiredMark: 'tag' }, { variant: 'filled' });
+    await frame(page, 'hidden', { label: 'Country', labelHidden: true, required: true, requiredMark: 'asterisk' }, { variant: 'outlined' });
+    await frame(page, 'optional', { label: 'Country', required: false, optional: true }, { variant: 'filled' });
+    await frame(page, 'error', { label: 'Country', required: true, requiredMark: 'asterisk', error: true }, { variant: 'outlined' });
+    await frame(page, 'stacked', { label: 'Country', required: true, requiredMark: 'asterisk' }, {});
     const asterisks = (id: string) => part(page, id, '.floating .asterisk').count();
     // A tag named by the Field reaches a floating label as the asterisk; the asterisk is the asterisk.
     for (const id of ['tag', 'asterisk', 'filled']) expect(await asterisks(id), id).toBe(1);
@@ -338,7 +343,7 @@ test.describe('behavior: the trigger', () => {
     // A stacked select draws no label, so no asterisk: the mark above it is the Field's.
     expect([await part(page, 'stacked', '.floating').count(), await fieldRow(page, 'stacked', '.label-row .asterisk').count()]).toEqual([0, 1]);
     // No Field: no mark, whatever is written on the select.
-    await host(page, 'bare-attribute').evaluate((el) => el.setAttribute('requirement', 'required'));
+    await host(page, 'bare-attribute').evaluate((el) => el.setAttribute('required', ''));
     await set(page, 'bare-attribute', { placeholder: 'x' });
     for (const id of ['bare', 'bare-attribute']) expect([await asterisks(id), await container(page, id).getAttribute('aria-required')], id).toEqual([0, null]);
     // Under auto the Field gives what the design system names: m3-like names the asterisk…
@@ -366,7 +371,7 @@ test.describe('behavior: the trigger', () => {
   test('SEL-9: in error — its own, or its Field’s — the select is exposed as invalid and draws every part of its trigger from the error parts of its variant — a stacked one a line inside its edge at rest — while its list and options stay as they are; it shows no error text of its own and never sets error itself', async ({ page }) => {
     await mountSpec(page, ['stacked-error', 'stacked-error-value', 'stacked-value', 'filled-error']);
     await frame(page, 'framed', { label: 'Country', error: true, errorText: 'We cannot ship there yet.' }, { value: 'jp' });
-    await frame(page, 'required', { label: 'Country', requirement: 'required' }, {});
+    await frame(page, 'required', { label: 'Country', required: true }, {});
     for (const id of ['stacked-error-value', 'framed']) {
       expect(await container(page, id).getAttribute('aria-invalid'), id).toBe('true');
       const edge = part(page, id, '.edge');
@@ -409,7 +414,7 @@ test.describe('behavior: the trigger', () => {
       fx('nameless', { label: '', value: 'x' }, [option('', 'x'), option('Other', 'y')]),
     ]);
     await frame(page, 'framed', { label: 'Shipping country', supportingText: 'Where your order goes.' }, { placeholder: 'Choose a country' });
-    await frame(page, 'hidden', { label: 'Shipping country', labelHidden: true, requirement: 'required' }, { name: 'country', placeholder: 'Choose a country' });
+    await frame(page, 'hidden', { label: 'Shipping country', labelHidden: true, required: true }, { name: 'country', placeholder: 'Choose a country' });
     await frame(page, 'own', { label: '' }, { label: 'Its own' });
     await frame(page, 'both', { label: '', supportingText: 'Help.' }, { label: 'Its own' });
     const name = (id: string) => container(page, id).getAttribute('aria-label');
@@ -433,11 +438,11 @@ test.describe('behavior: the trigger', () => {
     expect(await validity('framed')).toEqual({ missing: false, valid: true, message: false });
     await set(page, 'hidden', { value: 'jp' });
     expect(await validity('hidden')).toEqual({ missing: false, valid: true, message: false });
-    await setField(page, 'hidden', { requirement: 'none' });
+    await setField(page, 'hidden', { required: false, optional: false });
     await set(page, 'hidden', { value: '' });
     expect([await container(page, 'hidden').getAttribute('aria-required'), await validity('hidden')]).toEqual([null, { missing: false, valid: true, message: false }]);
     // No requirement of its own: the attribute that left does nothing, and the select does not validate because of it.
-    await host(page, 'own-requirement').evaluate((el) => el.setAttribute('requirement', 'required'));
+    await host(page, 'own-requirement').evaluate((el) => el.setAttribute('required', ''));
     await set(page, 'own-requirement', { placeholder: 'Choose' });
     expect([await container(page, 'own-requirement').getAttribute('aria-required'), await validity('own-requirement')]).toEqual([null, { missing: false, valid: true, message: false }]);
     await expect(container(page, 'nameless')).toBeVisible();
@@ -449,7 +454,7 @@ test.describe('behavior: the trigger', () => {
 
   test('SEL-13: the select adds one stop to the focus order, its container; a press on the label row of the Field that frames it moves focus to the container and opens nothing; a label that floats in the container is part of it, and a press on it opens the list', async ({ page }) => {
     await mount(page, [fx('one', { value: 'jp' }), fx('two', { value: 'fr' }), fx('floating', { variant: 'outlined' })], { system: 'm3-like' });
-    await frame(page, 'framed', { label: 'Country', requirement: 'required', requiredMark: 'tag', supportingText: 'Help.' }, { value: 'jp' });
+    await frame(page, 'framed', { label: 'Country', required: true, requiredMark: 'tag', supportingText: 'Help.' }, { value: 'jp' });
     // One stop: Tab from the first select's container reaches the second's, and back.
     await focusSelect(page, 'one');
     await tab(page);
@@ -557,7 +562,7 @@ test.describe('behavior: the trigger', () => {
     expect(await long.textContent(), 'the whole label is still there to be read').toBe('Send me every notification as it happens, including the ones about threads I only follow');
     const [c, v, chevron] = [await box(container(page, 'long-value')), await box(long), await box(part(page, 'long-value', '.chevron'))];
     near(c.width, 280, 'never wider than its layout');
-    near(c.height, await token(page, 'container-height-medium'), 'one line');
+    near(c.height, await token(page, 'stacked-container-height-medium'), 'one line');
     near(chevron.x - (v.x + v.width), await token(page, 'container-gap-medium'), 'the gap before the chevron is whole');
     near(c.x + c.width - (chevron.x + chevron.width), await token(page, 'container-padding-inline-with-icon-medium'), 'the end padding is whole');
     // The placeholder: same place and style, its own color; nothing where it is empty.
@@ -703,8 +708,8 @@ test.describe('behavior: the trigger', () => {
     // The motion.
     expect(await px(container(page, id), 'transition-duration')).toBe(0);
     await page.emulateMedia({ reducedMotion: 'no-preference' });
-    near((await px(container(page, id), 'transition-duration')) * 1000, await duration(page, 'motion-state-duration'), 'motion.state-duration', 1);
-    near((await px(edge, 'transition-duration')) * 1000, await duration(page, 'motion-state-duration'), 'the edge', 1);
+    near((await px(container(page, id), 'transition-duration')) * 1000, await duration(page, 'motion-state-duration-medium'), 'motion.state-duration', 1);
+    near((await px(edge, 'transition-duration')) * 1000, await duration(page, 'motion-state-duration-medium'), 'the edge', 1);
   });
 
   test('SEL-21: focus is shown by the focused tokens — the focused edge is the indicator — and never by a ring around the container; where the focus style is glow the container also glows while focused', async ({ page }) => {
@@ -724,8 +729,8 @@ test.describe('behavior: the trigger', () => {
     await mountSpec(page, ['stacked-small', 'stacked-option-icon']);
     const target = await container(page, 'stacked-small').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
     const least = await resolveToken(page, '--tanrei-sys-target-pointer');
-    expect(target).toBeGreaterThanOrEqual(Math.max(least, await token(page, 'container-height-small')) - 0.01);
-    near((await box(container(page, 'stacked-small'))).height, await token(page, 'container-height-small'), 'the visual size');
+    expect(target).toBeGreaterThanOrEqual(Math.max(least, await token(page, 'stacked-container-height-small')) - 0.01);
+    near((await box(container(page, 'stacked-small'))).height, await token(page, 'stacked-container-height-small'), 'the visual size');
     const id = 'stacked-option-icon';
     const c = await box(container(page, id));
     for (const [name, x] of [['the start padding', 3], ['the leading icon', 20], ['the value', 70], ['the chevron', c.width - 20], ['the end padding', c.width - 3]] as const) {
@@ -738,7 +743,7 @@ test.describe('behavior: the trigger', () => {
     }
   });
 
-  test('SEL-62: the select has no words of its own and reads none — bare or framed, closed or open, with or without the product’s words it shows its options’ labels, its placeholder and its name and nothing else in words, and asks for no word; the words of a requirement are read by the Field that frames it', async ({ page }) => {
+  test('SEL-62: the select has no words of its own — bare or framed, closed or open, with or without the product’s words it shows its options’ labels, its placeholder and its name and nothing else in words; its empty text is the instance’s emptyText, else the product’s noOptionsText, else none, and a select with nothing to show asks for that word once when the person tries to open it; the words of a requirement are read by the Field that frames it', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, [
       fx('bare', { placeholder: 'Choose a country' }),
@@ -746,8 +751,8 @@ test.describe('behavior: the trigger', () => {
       fx('open', { value: 'jp', open: true }, [group('Asia', [option('Japan', 'jp', { supportingText: 'UTC+9', leadingIcon: 'schedule' })]), option('Kenya', 'ke')]),
       fx('none', { placeholder: 'Nothing to choose' }, []),
     ]);
-    await frame(page, 'framed', { label: 'Shipping country', requirement: 'required', requiredText: '', optionalText: '' }, {});
-    await frame(page, 'framed-optional', { label: 'Billing country', requirement: 'optional', requiredText: '', optionalText: '' }, {});
+    await frame(page, 'framed', { label: 'Shipping country', required: true, requiredText: '', optionalText: '' }, {});
+    await frame(page, 'framed-optional', { label: 'Billing country', required: false, optional: true, requiredText: '', optionalText: '' }, {});
     /** Every word a select holds: the text of its shadow root, and every name it says by attribute. */
     const words = () =>
       page.evaluate((tag) =>
@@ -774,11 +779,26 @@ test.describe('behavior: the trigger', () => {
     expect(said.filter((text) => text.includes('Optional')), 'the optional word is in the description the Field gives').toHaveLength(1);
     // A bare select, and one whose list holds nothing, draw no word of the product's or of their own.
     for (const id of ['bare', 'none']) expect(await host(page, id).evaluate((el) => el.shadowRoot!.textContent!.replace(/\s+/g, ' ').trim()), id).not.toMatch(/Required|Optional/);
+    // The empty text. Nobody gives it: a select with no option does not open, and says once which words are missing.
+    await mount(page, [fx('empty', {}, []), fx('own', { emptyText: 'No countries yet' }, [])], { reducedMotion: true });
+    await container(page, 'empty').click();
+    for (const key of ['Enter', 'ArrowDown']) await page.keyboard.press(key);
+    expect((await read(page, 'empty')).shown).toBe(false);
+    await expect.poll(() => seen.filter((w) => w.includes('SEL-62') && w.includes('empty-text is empty') && w.includes('noOptionsText')).length).toBe(1);
+    expect(await missingWords(page)).toContain('noOptionsText');
+    // The product's word: the select opens and draws it; an instance's own emptyText wins.
+    await setWords(page, { noOptionsText: 'Nothing to choose here' });
+    await container(page, 'empty').click();
+    await shownList(page, 'empty').toBe(true);
+    await expect(part(page, 'empty', '.status .status-text')).toHaveText('Nothing to choose here');
+    await set(page, 'own', { open: true });
+    await shownList(page, 'own').toBe(true);
+    await expect(part(page, 'own', '.status .status-text')).toHaveText('No countries yet');
   });
 
   test('SEL-63: the select says to the Field that frames it that it draws the label while its variant floats one, where its value starts and ends, and that it is drawn focused while its list is open — and says it again when it changes; it takes the Field’s name, description and states, whether the label is hidden and whether an asterisk follows it; it keeps no count and reports no refusal', async ({ page }) => {
     await mount(page, [fx('base', {})], { system: 'm3-like', reducedMotion: true });
-    await frame(page, 'one', { label: 'Country', supportingText: 'Where your invoices are addressed.', requirement: 'required' }, { value: 'jp' });
+    await frame(page, 'one', { label: 'Country', supportingText: 'Where your invoices are addressed.', required: true }, { value: 'jp' });
     await frame(page, 'icon', { label: 'Language', supportingText: 'Applies to this device.' }, { value: 'ja' }, '<tanrei-option value="en">English</tanrei-option><tanrei-option value="ja">日本語</tanrei-option><span slot="leading-icon">translate</span>');
     await frame(page, 'other', { label: 'Other' }, { value: 'fr' });
     const id = 'one';
@@ -837,7 +857,7 @@ test.describe('behavior: the trigger', () => {
       fx('bare', { value: 'jp' }),
       fx('floating', { variant: 'outlined', value: 'jp' }),
       // What a person coming from the select field writes by habit: the harness writes each as its attribute.
-      fx('left', { value: 'jp', supportingText: 'Help.', errorText: 'No.', requirement: 'required', requiredMark: 'tag', requiredText: 'Required', optionalText: 'Optional' }, `${COUNTRY_OPTIONS}<span slot="label-icon">schedule</span>`),
+      fx('left', { value: 'jp', supportingText: 'Help.', errorText: 'No.', required: true, requiredMark: 'tag', requiredText: 'Required', optionalText: 'Optional' }, `${COUNTRY_OPTIONS}<span slot="label-icon">schedule</span>`),
       fx('one', { value: 'jp', supportingText: 'Help.' }),
     ]);
     for (const id of ['bare', 'floating', 'left', 'one']) {
@@ -861,7 +881,7 @@ test.describe('behavior: the trigger', () => {
     // Reported once for each element, naming what was given and the select field.
     await expect.poll(() => seen.filter((w) => w.includes('SEL-64')).length).toBe(2);
     const report = seen.find((w) => w.includes('SEL-64') && w.includes('label-icon'))!;
-    for (const name of ['supporting-text', 'error-text', 'requirement', 'required-mark', 'required-text', 'optional-text', 'label-icon', 'tanrei-select-field']) expect(report, name).toContain(name);
+    for (const name of ['supporting-text', 'error-text', 'required', 'optional', 'required-mark', 'required-text', 'optional-text', 'label-icon', 'tanrei-select-field']) expect(report, name).toContain(name);
     await set(page, 'left', { placeholder: 'y' });
     await set(page, 'left', { value: 'ca' });
     expect(seen.filter((w) => w.includes('SEL-64')), 'once for the element').toHaveLength(2);
@@ -906,6 +926,7 @@ test.describe('behavior: the list', () => {
     await listen(page, 'one');
     await container(page, 'one').click();
     await shownList(page, 'one').toBe(true);
+    await arrived(page, 'one');
     const offset = await token(page, 'list-offset');
     let [c, l] = [await box(container(page, 'one')), await box(part(page, 'one', '.list'))];
     near(l.y - (c.y + c.height), offset, 'list.offset below');
@@ -947,6 +968,32 @@ test.describe('behavior: the list', () => {
     await host(page, 'one').evaluate((el) => (el.style.display = 'none'));
     await expect.poll(() => heard(page)).toEqual(['toggle false anchor-hidden']);
     expect((await read(page, 'one')).open).toBe(false);
+  });
+
+  test('SEL-24: the list stays inside the visible part of the window — above the on-screen keyboard, and below a visual viewport scrolled down, as iOS leaves it to keep a field in view — and is whole again when that changes', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 700 });
+    await mount(page, [fx('one', { value: 'fr' })]);
+    await page.evaluate(() => document.body.insertAdjacentHTML('afterbegin', '<div style="block-size: 300px"></div>'));
+    await container(page, 'one').click();
+    await shownList(page, 'one').toBe(true);
+    await grownIn(page, 'one');
+    const margin = await token(page, 'list-viewport-margin');
+    const before = await box(part(page, 'one', '.list'));
+    const visual = (b: { top: number; height: number } | null) =>
+      page.evaluate((v) => {
+        const real = (window as any).__realViewport ?? ((window as any).__realViewport = window.visualViewport);
+        const fake = v && { offsetTop: v.top, offsetLeft: 0, height: v.height, width: window.innerWidth, scale: 1, addEventListener() {}, removeEventListener() {} };
+        Object.defineProperty(window, 'visualViewport', { configurable: true, get: () => fake ?? real });
+        window.dispatchEvent(new Event('resize'));
+      }, b);
+    await visual({ top: 200, height: 250 });
+    await expect.poll(async () => ((l) => l.y + l.height)(await box(part(page, 'one', '.list')))).toBeLessThanOrEqual(450 - margin + 0.6);
+    expect((await box(part(page, 'one', '.list'))).y, 'below the top of what is visible').toBeGreaterThanOrEqual(200 + margin - 0.6);
+    expect((await read(page, 'one')).shown, 'still open').toBe(true);
+    // The keyboard hides: whole again, on the side it took while that side has room (POP-5).
+    await visual(null);
+    await expect.poll(async () => (await box(part(page, 'one', '.list'))).height).toBeCloseTo(before.height, 1);
+    expect((await box(part(page, 'one', '.list'))).y).toBeGreaterThanOrEqual(margin - 0.6);
   });
 
   test('SEL-25: the list is filled with list.color, raised by list.elevation, rounded by list.shape and insets its options by its paddings; it is as wide as its options need, never narrower than its container or list.min-width, never wider than list.max-width past a narrower container, and never wider than the window allows; as tall as its options up to list.max-height, scrolling beyond that, vertically only; opened with a chosen option, the whole of that option is in view', async ({ page }) => {
@@ -1065,8 +1112,8 @@ test.describe('behavior: the list', () => {
     await container(page, 'one').click();
     await shownList(page, 'one').toBe(true);
     const [placed, sheet] = [await box(part(page, 'one', '.surface')), await box(part(page, 'one', '.list'))];
-    expect(sheet.height, 'the sheet has not grown to the press yet').toBeLessThan(placed.height - 8);
-    await page.mouse.click(placed.x + placed.width / 2, placed.y + placed.height - 4);
+    expect(sheet.height, 'the sheet has not grown to the press yet').toBeLessThan(placed.height - 4);
+    await page.mouse.click(placed.x + placed.width / 2, placed.y + placed.height - 2);
     expect(await read(page, 'one')).toMatchObject({ focused: true, open: true, value: 'b' });
     expect(await page.evaluate(() => document.activeElement?.localName)).toBe(TAG);
   });
@@ -1218,7 +1265,22 @@ test.describe('behavior: the list', () => {
     expect(await select.evaluate((el) => el.shadowRoot!.querySelectorAll('.list [popover], .list [aria-haspopup], .list a, .list button').length)).toBe(0);
   });
 
-  test('SEL-30: the list fades in and grows from the edge that faces the container over motion.open-*, fades out over motion.close-*, and appears and disappears at once where motion is reduced; closed or closing it takes no pointer input; the value and the open state change when it closes, not when its motion ends', async ({ page }) => {
+  test('SEL-30: the list appears from where the appearance starts it — opacity 0 and scale 0.96 — grown from the edge that faces the container, and leaves the same way back on the accelerating curve, its last frame leaving no more than that curve does; nothing flickers', async ({ page }) => {
+    await mount(page, [fx('one', { value: 'fr' })], { reducedMotion: false });
+    const opening = await sampleFrames(host(page, 'one'), () => container(page, 'one').click(), { probe: appearProbe });
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 0.96 });
+    expect(String(opening.frames[0]!.probe.origin)).toMatch(/ 0px$/);
+    expect(opening.rest.probe).toMatchObject({ opacity: 1, sx: 1, sy: 1 });
+    expectNoFlicker(opening);
+    const closing = await sampleFrames(host(page, 'one'), () => page.keyboard.press('Escape'), { probe: appearProbe });
+    expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 0.96, sy: 0.96 });
+    expectNoFlicker(closing);
+    const exit = await resolveEasing(page, T('motion-close-easing'));
+    expect(exit).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-standard-accelerate'));
+    expectExitEnd(closing, { duration: await resolveToken(page, T('motion-close-duration'), 'duration'), easing: bezierOf(exit) });
+  });
+
+  test('SEL-30: the list appears as a popover\'s container does over motion.open-*, leaves the same way over motion.close-*, and only fades, over role.reduced, where motion is reduced; closed or closing it takes no pointer input; the value and the open state change when it closes, not when its motion ends', async ({ page }) => {
     await mount(page, [fx('one', { value: 'fr' })], { reducedMotion: false });
     // The motions at 40 s, each ended by hand: what is read 'still fading' is read some round trips after the change that
     // begins the fade, and at 400 ms a runner that takes 150 ms an answer read a list that had arrived. The durations are
@@ -1229,7 +1291,7 @@ test.describe('behavior: the list', () => {
     const arrive = () => motion.evaluate((el) => el.getAnimations().forEach((animation) => animation.finish()));
     await container(page, 'one').click();
     await shownList(page, 'one').toBe(true);
-    expect(await motion.evaluate((el) => [getComputedStyle(el).transitionProperty, getComputedStyle(el).transitionDuration, el.style.transformOrigin.endsWith(' 0px') || el.style.transformOrigin.endsWith(' 0')])).toEqual(['opacity, transform', '40s, 40s', true]);
+    expect(await motion.evaluate((el) => [getComputedStyle(el).transitionProperty, getComputedStyle(el).transitionDuration, getComputedStyle(el).transformOrigin.endsWith(' 0px')])).toEqual(['opacity, scale, translate, filter, display, overlay', '40s', true]);
     expect(Number(await css(motion, 'opacity')), 'still fading in').toBeLessThan(1);
     await arrive();
     await expect.poll(async () => Number(await css(motion, 'opacity'))).toBe(1);
@@ -1250,13 +1312,13 @@ test.describe('behavior: the list', () => {
     await expect.poll(async () => (await read(page, 'one')).open).toBe(false);
     await arrive();
     await closedList(page, 'one');
-    // Reduced motion: at once.
+    // Reduced motion: only a fade, over role.reduced — no scale, no distance.
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await container(page, 'one').click();
-    expect(await css(motion, 'transition-duration')).toBe('0s');
-    expect(Number(await css(motion, 'opacity'))).toBe(1);
+    expect(await motion.evaluate((el) => [getComputedStyle(el).transitionProperty, Number.parseFloat(getComputedStyle(el).transitionDuration) * 1000, getComputedStyle(el).scale])).toEqual(['opacity, display, overlay', await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration'), 'none']);
+    await expect.poll(async () => Number(await css(motion, 'opacity'))).toBe(1);
     await page.keyboard.press('Escape');
-    expect(await part(page, 'one', '.surface').evaluate((el) => el.matches(':popover-open'))).toBe(false);
+    await expect.poll(() => part(page, 'one', '.surface').evaluate((el) => el.matches(':popover-open'))).toBe(false);
   });
 
   test('SEL-31: the opening list makes the chosen option active, or the first that is not disabled where none is chosen; Down and Up Arrow move by one across groups and stop at the ends, Home and End go to the first and last, Page Down and Page Up move by ten; a disabled option is reached like any other, a title never; nothing here changes the value, and the active option is scrolled into view', async ({ page }) => {
@@ -1422,7 +1484,7 @@ test.describe('behavior: the list', () => {
     expect(await css(chosen.locator('.check'), 'visibility')).toBe('visible');
   });
 
-  test('SEL-36: the product’s open shows and removes the list without toggle; its value moves the label, the fill and the check without change or toggle and leaves the active option where it is; options that change while the list is open keep the active option where its value still exists; a select that becomes disabled or read-only, or loses its last option, while open closes without toggle', async ({ page }) => {
+  test('SEL-36: the product’s open shows and removes the list without toggle; its value moves the label, the fill and the check without change or toggle and leaves the active option where it is; options that change while the list is open keep the active option where its value still exists; a status that changes while the list is open is drawn as it then is and the list stays open; a select that becomes disabled or read-only, or is left with nothing to show, while open closes without toggle', async ({ page }) => {
     await mount(page, [fx('one', { value: 'fr' })], { reducedMotion: true });
     await listen(page, 'one');
     await set(page, 'one', { open: true });
@@ -1456,18 +1518,29 @@ test.describe('behavior: the list', () => {
     await host(page, 'one').evaluate((el) => el.replaceChildren());
     await closedList(page, 'one');
     expect(await heard(page)).toEqual([]);
+    // Without options but with a status, it opens and stays open while the status changes; left with nothing to show,
+    // it closes, silently.
+    await set(page, 'one', { status: 'loading', statusText: 'Loading countries', open: true });
+    await shownList(page, 'one').toBe(true);
+    await expect(part(page, 'one', '.status tanrei-loading-indicator')).toHaveCount(1);
+    await set(page, 'one', { status: 'error', statusText: 'Countries could not be loaded.' });
+    expect((await read(page, 'one')).shown).toBe(true);
+    await expect(part(page, 'one', '.status .status-text')).toHaveText('Countries could not be loaded.');
+    await set(page, 'one', { status: 'idle', statusText: '' });
+    await closedList(page, 'one');
+    expect(await heard(page)).toEqual([]);
   });
 
-  test('SEL-37: an option is one row — option.padding-inline from each edge, the leading icon column while any option has one, the label with the supporting text below it, and the check’s box at the end, option.gap apart — at least option.height and the minimum target tall, wrapping and growing rather than cutting; the whole row is the hit area', async ({ page }) => {
+  test('SEL-37: an option is one row — option.padding-inline from each edge, the leading icon column as SEL-66 says, the label with the supporting text below it, and the check’s box at the end, option.gap apart — at least option.height and the minimum target tall, wrapping and growing rather than cutting; the whole row is the hit area', async ({ page }) => {
     await mountSpec(page, ['stacked-open', 'open-icons', 'open-supporting-text', 'open-long-options']);
-    const [pad, gap, mark, block] = [await token(page, 'option-padding-inline'), await token(page, 'option-gap'), await token(page, 'option-mark-size'), await token(page, 'option-padding-block')];
+    const [pad, gap, mark, block] = [await token(page, 'option-padding-inline-regular'), await token(page, 'option-gap-regular'), await token(page, 'option-mark-size-regular'), await token(page, 'option-padding-block-regular')];
     const r = row(page, 'stacked-open', 'Canada');
     const [rb, label, check] = [await box(r), await box(r.locator('.option-label')), await box(r.locator('.mark'))];
     near(label.x - rb.x, pad, 'padding-inline at the start');
     near(rb.x + rb.width - (check.x + check.width), pad, 'padding-inline at the end');
     near(check.width, mark, 'the check’s box');
     near(check.height, mark, 'the check’s box');
-    expect(rb.height).toBeGreaterThanOrEqual(Math.max(await token(page, 'option-height'), await resolveToken(page, '--tanrei-sys-target-pointer')) - 0.6);
+    expect(rb.height).toBeGreaterThanOrEqual(Math.max(await token(page, 'option-height-regular'), await resolveToken(page, '--tanrei-sys-target-pointer')) - 0.6);
     near(await px(r.locator('.option-label'), 'font-size'), await token(page, 'option-label-typescale-font-size'), 'the label’s style');
     // The spec's verify: the label starts 16 from the list's edge, where the value starts in a medium container.
     near(label.x - (await box(part(page, 'stacked-open', '.list'))).x, (await token(page, 'list-padding-inline')) + pad, 'from the list’s edge');
@@ -1505,8 +1578,8 @@ test.describe('behavior: the list', () => {
       const own = name.replace('--tanrei-comp-select-', '');
       const rules: [RegExp, string][] = [
         [/^list-(color|elevation|shape|padding-block|padding-inline|min-width|max-width|offset|viewport-margin)$/, 'surface-$1'],
-        [/^option-(height|shape|padding-inline|padding-block|gap)$/, 'container-$1'],
-        [/^option-((?:label|supporting-text)-typescale-.+|leading-icon-size|mark-size)$/, '$1'],
+        [/^option-(shape|(?:height|padding-inline|padding-block|gap)-(?:regular|compact))$/, 'container-$1'],
+        [/^option-((?:label|supporting-text)-typescale-.+|(?:leading-icon-size|mark-size)-(?:regular|compact))$/, '$1'],
         [/^(group-title-.+|group-gap|divider-(?:color|space|thickness)|separation)$/, '$1'],
         [/^(motion-(?:feedback-duration|open-duration|open-easing|close-duration|close-easing))$/, '$1'],
         [/^(?:stacked|filled|outlined)-((?:hovered|focused|pressed|disabled)-)?option-([a-z-]+-color)$/, 'unselected-$1$2'],
@@ -1599,7 +1672,7 @@ test.describe('behavior: the list', () => {
     const [m, c] = [await box(chosen.locator('.mark')), await box(check)];
     near(c.x + c.width / 2, m.x + m.width / 2, 'centred in its box');
     near(c.y + c.height / 2, m.y + m.height / 2, 'centred in its box');
-    near(c.width, await token(page, 'option-mark-size'), 'mark.size');
+    near(c.width, await token(page, 'option-mark-size-regular'), 'mark.size');
     for (const label of ['Canada', 'France', 'Kenya', 'New Zealand']) expect(await css(row(page, id, label).locator('.check'), 'visibility'), label).toBe('hidden');
     // No path, shape or character of its own: the box holds the glyph's name and nothing else.
     expect(await chosen.locator('.mark').evaluate((el) => [el.querySelectorAll('svg, img').length, el.textContent?.trim()])).toEqual([0, 'check']);
@@ -1623,8 +1696,8 @@ test.describe('behavior: the list', () => {
     const root = page.locator('html');
     const [light, dark] = [row(page, 'open-icons', 'Light').locator('.option-icon'), row(page, 'open-icons', 'Dark').locator('.option-icon')];
     await expect(light).toHaveText('light_mode');
-    near((await box(light)).width, await token(page, 'option-leading-icon-size'), 'leading-icon.size');
-    near((await box(light)).height, await token(page, 'option-leading-icon-size'), 'leading-icon.size');
+    near((await box(light)).width, await token(page, 'option-leading-icon-size-regular'), 'leading-icon.size');
+    near((await box(light)).height, await token(page, 'option-leading-icon-size-regular'), 'leading-icon.size');
     expect(await css(light, 'font-variation-settings')).toContain(`"FILL" ${(await css(root, '--tanrei-sys-icon-fill-unselected')).trim()}`);
     expect(await css(dark, 'font-variation-settings')).toContain(`"FILL" ${(await css(root, '--tanrei-sys-icon-fill-selected')).trim()}`);
     expect(await css(dark, 'font-family')).toContain((await css(root, '--tanrei-sys-icon-family-selected')).replaceAll('"', '').trim());
@@ -1742,8 +1815,8 @@ test.describe('behavior: the list', () => {
     await expect(title).toHaveText('Asia');
     expect(await css(title, 'color')).toBe(await color(page, 'group-title-color'));
     near(await px(title, 'font-size'), await token(page, 'group-title-typescale-font-size'), 'group-title.typescale');
-    near(await px(title, 'padding-left'), await token(page, 'group-title-padding-inline'), 'padding-inline');
-    near(await px(title, 'padding-top'), await token(page, 'option-padding-block'), 'padding-block');
+    near(await px(title, 'padding-left'), await token(page, 'group-title-padding-inline-regular'), 'padding-inline');
+    near(await px(title, 'padding-top'), await token(page, 'option-padding-block-regular'), 'padding-block');
     near((await box(title)).x, (await box(rows(page, id).first())).x, 'from the rows’ start edge');
     expect((await box(title)).y + (await box(title)).height).toBeLessThanOrEqual((await box(rows(page, id).first())).y + 0.6);
     expect(await title.evaluate((el) => [el.tabIndex, el.getAttribute('role'), getComputedStyle(el).overflowWrap, el.closest('.scroll') !== null])).toEqual([-1, 'presentation', 'break-word', true]);
@@ -1805,12 +1878,217 @@ test.describe('behavior: the list', () => {
     expect(await drawn('odd'), 'an unknown value is auto').toEqual({ dividers: 0, gaps: 1, places: 1 });
     await expect.poll(() => seen.some((w) => w.includes('SEL-45') && w.includes('sometimes'))).toBe(true);
   });
+
+  test('SEL-66: iconSpace — auto keeps the leading icon column, empty, in a section where another option has an icon, and none in a section without icons; always in every option; never only in an option that has an icon; a section is a group or a run of options outside any group; decided again when an option changes; an unknown value is auto, reported', async ({ page }) => {
+    const seen = warnings(page);
+    const spaced = spec.fixtures.filter((f) => f.id.startsWith('icon-space-'));
+    expect(spaced.map((f) => f.id)).toEqual(['icon-space-auto', 'icon-space-always', 'icon-space-never']);
+    await mount(page, [
+      ...spaced,
+      fx('runs', { value: 'a', open: true }, [option('A', 'a', { leadingIcon: 'mail' }), option('B', 'b'), group('G', [option('C', 'c'), option('D', 'd')]), option('E', 'e')]),
+      fx('odd', { value: 'a', open: true, iconSpace: 'sometimes' } as Fixture['props'], [group('G', [option('A', 'a', { leadingIcon: 'mail' }), option('B', 'b')]), group('H', [option('C', 'c')])]),
+    ]);
+    const [pad, gap, size] = [await token(page, 'option-padding-inline-regular'), await token(page, 'option-gap-regular'), await token(page, 'option-leading-icon-size-regular')];
+    const none = pad;
+    const kept = pad + size + gap;
+    /** Where an option's label starts, from its row's start edge. */
+    const at = async (id: string, label: string) => (await box(row(page, id, label).locator('.option-label'))).x - (await box(row(page, id, label))).x;
+    const expectStarts = async (id: string, starts: Record<string, number>) => {
+      for (const [label, start] of Object.entries(starts)) near(await at(id, label), start, `${id}: ${label}`);
+    };
+    expect(await host(page, 'icon-space-auto').evaluate((el: any) => el.iconSpace)).toBe('auto');
+    // auto: the group Apps keeps the column on Copy link; the group Files has no icon and keeps none.
+    await expectStarts('icon-space-auto', { Mail: kept, Messages: kept, 'Copy link': kept, Print: none, 'Save as PDF': none });
+    await expect(row(page, 'icon-space-auto', 'Copy link').locator('.row-column.leading[aria-hidden="true"]')).toHaveCount(1);
+    await expect(row(page, 'icon-space-auto', 'Print').locator('.row-column.leading')).toHaveCount(0);
+    // A group's title keeps its own place whatever its section keeps (SEL-44).
+    const titles = part(page, 'icon-space-auto', '.group-title');
+    near((await box(titles.nth(0))).x, (await box(titles.nth(1))).x, 'the titles start alike');
+    await expectStarts('icon-space-always', { Mail: kept, 'Copy link': kept, Print: kept, 'Save as PDF': kept });
+    await expectStarts('icon-space-never', { Mail: kept, Messages: kept, 'Copy link': none, Print: none, 'Save as PDF': none });
+    // Options outside any group are a section of their own, each run apart from the next.
+    await expectStarts('runs', { A: kept, B: kept, C: none, D: none, E: none });
+    // An unknown value is auto, reported.
+    await expectStarts('odd', { A: kept, B: kept, C: none });
+    await expect.poll(() => seen.some((w) => w.includes('(SEL-66)') && w.includes('sometimes'))).toBe(true);
+    // Decided again: an icon given to Print keeps the column on Save as PDF; taken away, the group keeps none.
+    await host(page, 'icon-space-auto').evaluate((el) => el.querySelector('[value="print"]')!.setAttribute('leading-icon', 'print'));
+    await expect.poll(() => at('icon-space-auto', 'Save as PDF')).toBeCloseTo(kept, 0);
+    await host(page, 'icon-space-auto').evaluate((el) => el.querySelector('[value="print"]')!.removeAttribute('leading-icon'));
+    await expect.poll(() => at('icon-space-auto', 'Save as PDF')).toBeCloseTo(none, 0);
+    // iconSpace changed while the list is shown.
+    await host(page, 'icon-space-auto').evaluate((el: any) => (el.iconSpace = 'never'));
+    await expect.poll(() => at('icon-space-auto', 'Copy link')).toBeCloseTo(none, 0);
+    await host(page, 'icon-space-auto').evaluate((el) => el.setAttribute('icon-space', 'always'));
+    await expect.poll(() => at('icon-space-auto', 'Print')).toBeCloseTo(kept, 0);
+  });
+
+  test('SEL-70: a compact select draws its options and group titles from the compact tokens — lower, set in less, smaller glyphs, the same text — as low as its density gives for a mouse and the touch target for touch, the field’s box unchanged; an unknown density is regular and reported, an added one is drawn from its tokens, and a change is drawn at once', async ({ page, browserName }) => {
+    const seen = warnings(page);
+    const compact = spec.fixtures.find((f) => f.id === 'density-compact')!;
+    await mount(page, [
+      compact,
+      { ...compact, id: 'density-regular', props: { ...compact.props, density: 'regular' } },
+      { ...compact, id: 'density-odd', props: { ...compact.props, density: 'huge' } as Fixture['props'] },
+      { ...compact, id: 'density-added', props: { ...compact.props, density: 'roomy' } as Fixture['props'] },
+    ]);
+    const sizes = async (density: string) => {
+      const [height, padBlock, padInline, gap, icon, mark, title] = await Promise.all(
+        ['option-height', 'option-padding-block', 'option-padding-inline', 'option-gap', 'option-leading-icon-size', 'option-mark-size', 'group-title-padding-inline'].map((n) => token(page, `${n}-${density}`)),
+      );
+      return { height, padBlock, padInline, gap, icon, mark, title };
+    };
+    const [regular, small] = [await sizes('regular'), await sizes('compact')];
+    // The default system's compact option: the menu's compact row, 32 high with 20 glyphs, 8 from its edges.
+    expect([small.height, small.icon, small.mark, small.padInline]).toEqual([32, 20, 20, 8]);
+    const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
+    const drawn = async (id: string, label: string) => {
+      const r = row(page, id, label);
+      const [b, l, icon, font] = [await box(r), await box(r.locator('.option-label')), await px(r.locator('.option-icon'), 'font-size'), await css(r.locator('.option-label'), 'font-size')];
+      return { height: b.height, start: l.x - b.x, icon, font };
+    };
+    const mail = await drawn('density-compact', 'Mail');
+    const mailRegular = await drawn('density-regular', 'Mail');
+    near(mail.height, small.height, 'a compact option');
+    expect(mail.height).toBeLessThan(pointer);
+    near(mail.icon, small.icon, 'its glyph');
+    near(mail.start, small.padInline + small.icon + small.gap, 'its label after the padding, the glyph and the gap');
+    near(mailRegular.height, Math.max(regular.height, pointer), 'a regular option');
+    near(mailRegular.start, regular.padInline + regular.icon + regular.gap, 'a regular label');
+    // The density never changes a text style; the check's box and a group's title take the density.
+    expect(mail.font).toBe(mailRegular.font);
+    const titles = part(page, 'density-compact', '.group-title');
+    near(await px(titles.first(), 'padding-inline-start'), small.title, 'a group title’s inset');
+    // The field's own box is size's, not the density's.
+    near((await box(container(page, 'density-compact'))).height, (await box(container(page, 'density-regular'))).height, 'the field’s box');
+    // An unknown density is drawn as regular, and a debug build says so.
+    near((await drawn('density-odd', 'Mail')).height, mailRegular.height, 'an unknown density');
+    await expect.poll(() => seen.filter((w) => w.includes('SEL-70') && w.includes('"huge"')).length).toBe(1);
+    // A density a design system adds is drawn from its tokens, the default's where it has none.
+    await rootTokens(page, { [T('option-height-roomy')]: '60px', [T('option-leading-icon-size-roomy')]: '28px' });
+    await expect.poll(async () => (await drawn('density-added', 'Mail')).height).toBeCloseTo(60, 0);
+    near((await drawn('density-added', 'Mail')).icon, 28, 'an added density’s glyph');
+    // A change is drawn at once.
+    await host(page, 'density-regular').evaluate((el: any) => (el.density = 'compact'));
+    await expect.poll(async () => (await drawn('density-regular', 'Mail')).height).toBeCloseTo(mail.height, 0);
+    // SEL-37: for touch a compact option is the touch target.
+    if (browserName !== 'chromium') return;
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
+    await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
+    await expect.poll(async () => (await drawn('density-compact', 'Mail')).height).toBeCloseTo(await resolveToken(page, '--tanrei-sys-target-touch'), 0);
+  });
+
+  test('SEL-68, SEL-26, SEL-31, SEL-51, SEL-59: with a status the list draws a status row after the last option, outside the list box and the box that scrolls, inset and padded as an option, taking no input and never active — statusText, wrapping as text of its own direction, in status.typescale and status.color, in status.error.color while the source failed, and while loading one small loading indicator named by statusText in the text’s place, the row one line tall; the options left in the list stay choosable; a select with no option draws its empty text in the row’s place, its list without an active option; with no status the row takes no room', async ({ page }) => {
+    await mount(page, [...spec.fixtures.filter((f) => ['open-loading', 'open-status', 'open-status-error', 'open-empty', 'stacked-open'].includes(f.id)), fx('loading-more', { status: 'loading', statusText: 'Loading more countries', open: true })], { reducedMotion: true });
+    const status = (id: string) => part(page, id, '.status');
+    // Idle: the text, after the last option, outside the list box and the box that scrolls.
+    let row_ = status('open-status');
+    await expect(row_.locator('.status-text')).toHaveText('Your 3 most recent projects. Search for others on the Projects page.');
+    const last = await box(rows(page, 'open-status').last());
+    expect((await box(row_)).y, 'after the last option').toBeGreaterThanOrEqual(last.y + last.height - 0.6);
+    near(await px(row_, 'padding-left'), await token(page, 'option-padding-inline-regular'), 'option.padding-inline');
+    near(await px(row_, 'padding-top'), await token(page, 'option-padding-block-regular'), 'option.padding-block');
+    near(await px(row_, 'font-size'), await token(page, 'status-typescale-font-size'), 'status.typescale');
+    expect(await css(row_, 'color')).toBe(await color(page, 'status-color'));
+    expect(await row_.evaluate((el) => [el.getAttribute('role'), el.tabIndex, el.closest('[role="listbox"]'), el.closest('.scroll')]), 'not an option, not in the list box, not in the box that scrolls').toEqual([null, -1, null, null]);
+    expect(await row_.locator('.status-text').evaluate((el) => [el.scrollWidth <= el.clientWidth + 1, getComputedStyle(el).unicodeBidi]), 'it wraps, as text of its own direction').toEqual([true, 'plaintext']);
+    // Error: the same row in the error color.
+    expect(await css(status('open-status-error'), 'color')).toBe(await color(page, 'status-error-color'));
+    await expect(status('open-status-error').locator('.status-text')).toHaveText('Projects could not be loaded. Check your connection.');
+    // Loading: the indicator, named, at the row's start, and no text; the row as tall as one line of text.
+    row_ = status('open-loading');
+    const spinner = row_.locator('tanrei-loading-indicator');
+    expect(await spinner.evaluate((el) => [el.getAttribute('size'), el.getAttribute('label')])).toEqual(['small', 'Loading projects']);
+    await expect(row_.locator('.status-text')).toHaveCount(0);
+    near((await box(spinner)).x - (await box(row_)).x, await token(page, 'option-padding-inline-regular'), 'at the row’s start', 1);
+    near((await box(row_)).height, (await box(status('open-empty'))).height, 'one line of text tall');
+    // The empty text, in the status row's place and style.
+    await expect(status('open-empty').locator('.status-text')).toHaveText('No projects yet');
+    expect(await css(status('open-empty'), 'color')).toBe(await color(page, 'status-color'));
+    await expect(rows(page, 'open-empty')).toHaveCount(0);
+    // No status: no row, and no room.
+    expect((await box(status('stacked-open'))).height).toBe(0);
+    // The options left in the list while loading are chosen as any option is.
+    // Each select below is brought into the window before it is focused: the fixtures above it are tall, and a list a
+    // key opens while its select is out of the window is closed at once (POP-5), and WebKit in Linux scrolls a focused
+    // element into view a frame or more after focus(), after the key that opens the list has been handled.
+    const focusInView = async (id: string) => {
+      await host(page, id).scrollIntoViewIfNeeded();
+      await focusSelect(page, id);
+    };
+    await set(page, 'loading-more', { inline: false, open: false });
+    await focusInView('loading-more');
+    await page.keyboard.press('ArrowDown');
+    await shownList(page, 'loading-more').toBe(true);
+    await arrived(page, 'loading-more');
+    await pressOn(row(page, 'loading-more', 'Kenya'));
+    expect(await read(page, 'loading-more')).toMatchObject({ value: 'ke', open: false });
+    // A press on the row is no input and takes no focus; an arrow key never makes it active.
+    await set(page, 'open-status', { inline: false, open: false });
+    await focusInView('open-status');
+    await page.keyboard.press('ArrowDown');
+    await shownList(page, 'open-status').toBe(true);
+    await arrived(page, 'open-status');
+    await page.keyboard.press('End');
+    for (let i = 0; i < 3; i++) await page.keyboard.press('ArrowDown');
+    expect((await read(page, 'open-status')).active).toBe('Comet');
+    await pressOn(status('open-status'));
+    expect(await read(page, 'open-status')).toMatchObject({ open: true, value: 'atlas', focused: true, active: 'Comet' });
+    // A list with no option has no active option: the keys move nothing, Enter and Space choose nothing, Escape closes it.
+    await set(page, 'open-empty', { inline: false, open: false });
+    await listen(page, 'open-empty');
+    await focusInView('open-empty');
+    await page.keyboard.press('Enter');
+    await shownList(page, 'open-empty').toBe(true);
+    for (const key of ['ArrowDown', 'End', 'Enter', 'Space']) await page.keyboard.press(key);
+    expect(await read(page, 'open-empty')).toMatchObject({ open: true, active: null, value: '', focused: true });
+    await page.keyboard.press('Escape');
+    await closedList(page, 'open-empty');
+    expect(await heard(page)).toEqual(['toggle true', 'toggle false escape']);
+  });
+
+  test('SEL-69: the status row’s live regions are empty while the list is closed and are given the row’s text once it is shown — statusText or the empty text in the polite one (role status) while idle, in the assertive one (role alert) while the source failed; while loading both are empty and the list box is busy; a text changed while open is a change of the same region; the drawn text is kept from assistive technology; the select composes no text of its own', async ({ page }) => {
+    await mount(page, [fx('one', { emptyText: 'No countries yet' }, [])], { reducedMotion: true });
+    const regions = () =>
+      part(page, 'one', '.status').evaluate((el) => ({
+        polite: el.querySelector('[role="status"]')!.textContent,
+        assertive: el.querySelector('[role="alert"]')!.textContent,
+        busy: (el.getRootNode() as ShadowRoot).querySelector('[role="listbox"]')!.getAttribute('aria-busy'),
+        drawn: el.querySelector('.status-text')?.getAttribute('aria-hidden') ?? null,
+      }));
+    expect(await regions(), 'closed: nothing to read').toEqual({ polite: '', assertive: '', busy: null, drawn: 'true' });
+    // Shown, what the row already says is read.
+    await container(page, 'one').click();
+    await shownList(page, 'one').toBe(true);
+    await expect.poll(regions).toEqual({ polite: 'No countries yet', assertive: '', busy: null, drawn: 'true' });
+    const polite = await part(page, 'one', '.status [role="status"]').elementHandle();
+    await set(page, 'one', { status: 'loading', statusText: 'Loading countries' });
+    expect(await regions(), 'loading announces nothing, and the list box is busy').toEqual({ polite: '', assertive: '', busy: 'true', drawn: null });
+    await set(page, 'one', { status: 'idle', statusText: '2 of 48 countries shown' });
+    expect(await regions()).toEqual({ polite: '2 of 48 countries shown', assertive: '', busy: null, drawn: 'true' });
+    expect(await part(page, 'one', '.status [role="status"]').evaluate((el, before) => el === before, polite), 'the same region: its text changed').toBe(true);
+    await set(page, 'one', { status: 'error', statusText: 'Countries could not be loaded.' });
+    expect(await regions()).toEqual({ polite: '', assertive: 'Countries could not be loaded.', busy: null, drawn: 'true' });
+    // Closed, the regions are empty again; opened, what the row says is read again.
+    await page.keyboard.press('Escape');
+    await closedList(page, 'one');
+    expect(await regions()).toMatchObject({ polite: '', assertive: '' });
+    await container(page, 'one').click();
+    await shownList(page, 'one').toBe(true);
+    await expect.poll(regions).toMatchObject({ polite: '', assertive: 'Countries could not be loaded.' });
+    // The number of options is the list's to expose: the row's words are the product's alone.
+    await host(page, 'one').evaluate((el) => el.insertAdjacentHTML('beforeend', '<tanrei-option value="ke">Kenya</tanrei-option>'));
+    await set(page, 'one', { status: 'idle', statusText: '' });
+    await expect(rows(page, 'one')).toHaveCount(1);
+    expect(await regions()).toEqual({ polite: '', assertive: '', busy: null, drawn: null });
+  });
 });
 
 test.describe('behavior: conditions, exposure, size and direction', () => {
   test('SEL-46: a disabled select — its own disabled, or its Field’s — is not focusable, does not open, emits nothing, is exposed as disabled, is left out of form submission and draws every part of its trigger, the chevron, the floating label and its asterisk included, from the disabled tokens of its variant, of its error parts while in error', async ({ page }) => {
     await mount(page, [...spec.fixtures.filter((f) => ['stacked-disabled', 'outlined-disabled'].includes(f.id)), fx('after', { value: 'ca' }), fx('error', { value: 'jp', disabled: true, error: true })], { system: 'm3-like' });
-    await frame(page, 'framed', { label: 'Country', disabled: true, requirement: 'required', requiredMark: 'asterisk' }, { variant: 'outlined', value: 'jp' });
+    await frame(page, 'framed', { label: 'Country', disabled: true, required: true, requiredMark: 'asterisk' }, { variant: 'outlined', value: 'jp' });
     const id = 'stacked-disabled';
     await listen(page, id);
     expect(await container(page, id).evaluate((el) => [el.getAttribute('aria-disabled'), el.hasAttribute('tabindex'), el.tabIndex])).toEqual(['true', false, -1]);
@@ -1922,11 +2200,11 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     await frame(
       page,
       'one',
-      { label: 'Plan', supportingText: 'Billed monthly.', requirement: 'required' },
+      { label: 'Plan', supportingText: 'Billed monthly.', required: true },
       { value: 'team', placeholder: 'Choose a plan' },
       '<tanrei-option-group label="Plans"><tanrei-option value="free" supporting-text="One project">Free</tanrei-option><tanrei-option value="team" supporting-text="Unlimited projects" leading-icon="group">Team</tanrei-option></tanrei-option-group><tanrei-option value="enterprise" disabled>Enterprise</tanrei-option>',
     );
-    await frame(page, 'states', { label: 'Country', labelHidden: true, requirement: 'optional', error: true, errorText: 'Choose a country.' }, { placeholder: 'Choose a country' });
+    await frame(page, 'states', { label: 'Country', labelHidden: true, required: false, optional: true, error: true, errorText: 'Choose a country.' }, { placeholder: 'Choose a country' });
     const comboboxes = async () => {
       const found = await axNodes(page, 'combobox');
       return ['Plan', 'Country', 'Region', 'Language'].map((name) => found.find((node) => node.name === name)!);
@@ -2029,7 +2307,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     await frames(page, 4);
     const after = await sizes();
     expect(after.container, 'the container grows with the value’s line').toBeGreaterThan(before.container);
-    expect(after.container, 'the height of its size is a minimum').toBeGreaterThanOrEqual((await token(page, 'container-height-medium')) - 0.6);
+    expect(after.container, 'the height of its size is a minimum').toBeGreaterThanOrEqual((await token(page, 'stacked-container-height-medium')) - 0.6);
     expect(after.row).toBeGreaterThan(before.row);
     near(after.chevron, await token(page, 'icon-size-medium'), 'the chevron keeps its size');
     expect(await part(page, 'one', '.value').evaluate((el) => getComputedStyle(el).whiteSpace)).toBe('nowrap');
@@ -2048,14 +2326,14 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     expect((await box(part(page, 'one', '.list'))).height).toBeLessThanOrEqual(160.6);
   });
 
-  test('SEL-52: in forced colors the floating label and its asterisk are drawn in the text color — of every filled and outlined fixture — and no color of the select’s own tells an error: it is carried by the invalid state and the words of the Field that frames it', async ({ page, browserName }) => {
+  test('SEL-52: in forced colors the floating label and its asterisk are drawn in the text color — of every filled and outlined fixture — and so is the status row’s text, in error too; no color of the select’s own tells an error: it is carried by the invalid state and the words of the Field that frames it', async ({ page, browserName }) => {
     test.skip(browserName !== 'chromium', 'forced colors are emulated in Chromium');
     await page.emulateMedia({ forcedColors: 'active' });
     const floating = spec.fixtures.filter((f) => (f.props.variant === 'filled' || f.props.variant === 'outlined') && !f.props.disabled);
     expect(floating.length).toBeGreaterThanOrEqual(10);
     await mount(page, floating);
-    await frame(page, 'required', { label: 'Country', requirement: 'required', requiredMark: 'asterisk' }, { variant: 'outlined' });
-    await frame(page, 'error', { label: 'Country', requirement: 'required', requiredMark: 'asterisk', error: true, errorText: 'Choose a country.' }, { variant: 'filled' });
+    await frame(page, 'required', { label: 'Country', required: true, requiredMark: 'asterisk' }, { variant: 'outlined' });
+    await frame(page, 'error', { label: 'Country', required: true, requiredMark: 'asterisk', error: true, errorText: 'Choose a country.' }, { variant: 'filled' });
     const canvasText = await page.evaluate(() => {
       const probe = document.createElement('div');
       probe.style.color = 'CanvasText';
@@ -2070,6 +2348,9 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     expect(await container(page, 'error').getAttribute('aria-invalid')).toBe('true');
     await expect(fieldRow(page, 'error', '.error-text')).toHaveText('Choose a country.');
     expect(await css(part(page, 'error', '.floating'), 'color'), 'the label of a select in error is the label of one at rest').toBe(await css(part(page, 'required', '.floating'), 'color'));
+    // The status row's text, in error too.
+    await mountSpec(page, ['open-status', 'open-status-error']);
+    for (const id of ['open-status', 'open-status-error']) expect(await css(part(page, id, '.status'), 'color'), id).toBe(canvasText);
   });
 
   test('SEL-53: in forced colors the container has an edge outline.width wide in the control text color in every variant, in the highlight color at the focused width while focused; the list an edge in the text color; the active option the highlight colors; a disabled select and a disabled option the disabled text color; the chosen option is shown by its check', async ({ page, browserName }) => {
@@ -2106,7 +2387,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
 
   test('SEL-55: in a right-to-left layout the leading icon is at the right of the container and the chevron at the left, a floating label starts at the right edge with its asterisk at its left; the list is aligned to the container’s right edge, and in each option the leading icon is at the right and the check at the left', async ({ page }) => {
     await mount(page, [...spec.fixtures.filter((f) => ['open-rtl', 'outlined-rtl'].includes(f.id))], { system: 'm3-like' });
-    await frame(page, 'floating', { label: 'المنطقة الزمنية', requirement: 'required', requiredMark: 'asterisk', supportingText: 'تُعرض المواعيد بهذا التوقيت.' }, { variant: 'outlined' }, '<tanrei-option value="t" leading-icon="schedule">طوكيو</tanrei-option>', 'rtl');
+    await frame(page, 'floating', { label: 'المنطقة الزمنية', required: true, requiredMark: 'asterisk', supportingText: 'تُعرض المواعيد بهذا التوقيت.' }, { variant: 'outlined' }, '<tanrei-option value="t" leading-icon="schedule">طوكيو</tanrei-option>', 'rtl');
     const right = (b: { x: number; width: number }) => b.x + b.width;
     const open = 'open-rtl';
     await set(page, open, { open: false });
@@ -2128,9 +2409,9 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     near(right(list), right(oc), 'the list is aligned to the container’s right edge');
     const tokyo = row(page, open, 'طوكيو');
     const [r, glyph, name, check] = [await box(tokyo), await box(tokyo.locator('.option-icon')), await box(tokyo.locator('.option-label')), await box(tokyo.locator('.mark'))];
-    near(right(r) - right(glyph), await token(page, 'option-padding-inline'), 'the option’s icon at the right');
+    near(right(r) - right(glyph), await token(page, 'option-padding-inline-regular'), 'the option’s icon at the right');
     expect(right(name)).toBeLessThanOrEqual(glyph.x + 0.6);
-    near(check.x - r.x, await token(page, 'option-padding-inline'), 'the check at the left');
+    near(check.x - r.x, await token(page, 'option-padding-inline-regular'), 'the check at the left');
     near(right(await box(part(page, open, '.group-title').first())), right(r), 'the title starts at the right');
   });
 
@@ -2149,6 +2430,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     await focusSelect(page, 'one');
     await page.keyboard.press('ArrowDown');
     await shownList(page, 'one').toBe(true);
+    await arrived(page, 'one');
     await page.keyboard.press('ArrowDown');
     const right = (b: { x: number; width: number }) => b.x + b.width;
     let [c, list, chevron] = [await box(container(page, 'one')), await box(part(page, 'one', '.list')), await box(part(page, 'one', '.chevron'))];
@@ -2185,7 +2467,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     expect(await arrow.getAttribute('data-tanrei-mirrored'), 'arrow_forward is in the icon set’s list').not.toBeNull();
     expect(await mirrored(arrow)).toBe(true);
     const before = await box(arrow);
-    near(before.width, await token(page, 'option-leading-icon-size'), 'the same box');
+    near(before.width, await token(page, 'option-leading-icon-size-regular'), 'the same box');
     expect(await mirrored(row(page, open, 'طوكيو').locator('.check'))).toBe(false);
     expect(await mirrored(part(page, open, '.chevron'))).toBe(false);
     // The chosen option's glyph in the container, and the slots.
@@ -2365,7 +2647,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     await expect(row(page, 'closed', 'الأخير').locator('.said')).toHaveAttribute('dir', 'rtl');
   });
 
-  test('SEL-60: a variant or size the active design system does not have is drawn with the default’s tokens and reported; a variant a layer added draws no label and its edge as a stacked select does, with that value’s own tokens', async ({ page }) => {
+  test('SEL-60: a variant or size the active design system does not have is drawn with the default’s tokens and reported; a variant a layer added draws no label and its edge as a stacked select does, with that value’s own tokens; a status the select does not define is idle, and reported', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, [fx('odd', { variant: 'ghost', size: 'huge', value: 'jp' }), fx('plain', { value: 'jp' })]);
     const [odd, plain] = [container(page, 'odd'), container(page, 'plain')];
@@ -2400,9 +2682,15 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     // In a Field, a select of such a variant says it draws no label: the Field draws its row above it.
     await frame(page, 'framed', { label: 'Country' }, { variant: 'tinted', value: 'jp' });
     await expect(fieldRow(page, 'framed', '.label-row > .label')).toHaveText('Country');
+    // A status the select does not define is idle: its text drawn as a status at rest, and reported.
+    await mount(page, [fx('odd-status', { status: 'pending', statusText: '5 countries', open: true })], { reducedMotion: true });
+    await expect(part(page, 'odd-status', '.status .status-text')).toHaveText('5 countries');
+    expect(await part(page, 'odd-status', '.status').getAttribute('class')).toBe('status');
+    await expect(part(page, 'odd-status', '.status tanrei-loading-indicator')).toHaveCount(0);
+    await expect.poll(() => seen.some((w) => w.includes('SEL-60') && w.includes('status "pending"'))).toBe(true);
   });
 
-  test('SEL-61: a select that holds no option draws its trigger as it is, stays focusable, does not open by any input or because open is true, draws no empty list and no text of its own, and is reported', async ({ page }) => {
+  test('SEL-61, SEL-23: a select that has nothing to show — no option, no status and no empty text — draws its trigger as it is, stays focusable, does not open by any input or because open is true, draws no empty list and no text of its own, and is reported; given an empty text, a status text or a loading status it opens as any select does, its list that row alone', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, [fx('none', { placeholder: 'Nothing to choose', open: true, inline: false }, []), fx('plain', { placeholder: 'Nothing to choose' })]);
     await listen(page, 'none');
@@ -2419,6 +2707,24 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     await host(page, 'none').evaluate((el) => el.insertAdjacentHTML('beforeend', '<tanrei-option value="a">A</tanrei-option>'));
     await shownList(page, 'none').toBe(true);
     expect(await heard(page)).toEqual([]);
+    // Something to say: it opens by a press, its list the status row alone.
+    const given = [
+      ['empty', { emptyText: 'No countries yet' }],
+      ['failed', { status: 'error', statusText: 'Countries could not be loaded.' }],
+      ['loading', { status: 'loading', statusText: 'Loading countries' }],
+    ] as const;
+    await mount(page, given.map(([id, props]) => fx(id, props, [])), { reducedMotion: true });
+    for (const [id] of given) {
+      await listen(page, id);
+      await container(page, id).click();
+      await shownList(page, id).toBe(true);
+      expect(await heard(page), id).toEqual(['toggle true']);
+      await expect(rows(page, id), id).toHaveCount(0);
+      expect(await part(page, id, '.list').evaluate((el) => el.classList.contains('bare')), `${id}: the row alone`).toBe(true);
+      await expect(part(page, id, id === 'loading' ? '.status tanrei-loading-indicator' : '.status .status-text'), id).toHaveCount(1);
+      await page.keyboard.press('Escape');
+      await closedList(page, id);
+    }
   });
 });
 
@@ -2428,7 +2734,7 @@ test.describe('the form, a frame around it and the option elements', () => {
     await page.evaluate(async () => {
       document.body.insertAdjacentHTML(
         'beforeend',
-        `<form id="f"><fieldset id="set"><tanrei-field label="Country" requirement="required" required-text="Required"><tanrei-select id="s" name="country" value="fr">
+        `<form id="f"><fieldset id="set"><tanrei-field label="Country" required required-text="Required"><tanrei-select id="s" name="country" value="fr">
            <tanrei-option value="">None</tanrei-option><tanrei-option value="ca">Canada</tanrei-option><tanrei-option value="fr">France</tanrei-option></tanrei-select></tanrei-field></fieldset></form>`,
       );
       for (let round = 0; round < 2; round++) for (const el of document.querySelectorAll('#f tanrei-field, #s')) await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
@@ -2816,6 +3122,8 @@ test.describe('accessibility', () => {
       await page.keyboard.press('ArrowDown');
       await shownList(page, 'one').toBe(true);
       await page.keyboard.press('ArrowDown');
+      // The list fades in, even where motion is reduced (MOT-6): its colors are read once it is whole.
+      await motionEnded(page);
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).slice(0, 3).join(' | ')}`), theme).toEqual([]);
     });
@@ -2825,7 +3133,7 @@ test.describe('accessibility', () => {
 test.describe('fixtures', () => {
   test('every fixture is mounted and visible, with the floating label, the value or the placeholder, the glyphs and — where it is open — the list the spec gives it, and no row of a frame', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
-    expect(spec.fixtures).toHaveLength(45);
+    expect(spec.fixtures).toHaveLength(53);
     const flat = (items: FixtureItem[] = []): FixtureItem[] => items.flatMap((item) => (item.kind === 'option' ? [item] : flat(item.items)));
     for (const f of spec.fixtures) {
       await expect(host(page, f.id), f.id).toBeVisible();

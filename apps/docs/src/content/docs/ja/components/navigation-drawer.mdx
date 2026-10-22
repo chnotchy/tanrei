@@ -2,7 +2,7 @@
 title: ナビゲーションドロワー
 description: プロダクトの行き先を、先頭側の端のパネルにセクションやグループでまとめて並べます。大きい画面ではコンテンツの横に、コンパクトな画面ではコンテンツの上に重ねて表示し、アイコンの列まで折りたたむこともできます。
 translationOf: components/navigation-drawer.mdx
-sourceHash: c0e6415cbe529e2cea498fc6093ce5a4744b804d
+sourceHash: 5a0659850fec34d28617357f9478089babbb3c8f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -21,12 +21,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <DemoFrame label="2 つのセクションを持つスタンダードのドロワー">
   <tanrei-navigation-drawer open value="inbox" label="メール" style="block-size: 26rem">
-    <tanrei-navigation-drawer-section heading="メール">
+    <tanrei-navigation-drawer-section headline="メール">
       <tanrei-navigation-drawer-item value="inbox" label="受信トレイ" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
       <tanrei-navigation-drawer-item value="sent" label="送信済み" icon="send"></tanrei-navigation-drawer-item>
       <tanrei-navigation-drawer-item value="drafts" label="下書き" icon="draft"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-section>
-    <tanrei-navigation-drawer-section heading="ラベル" divider>
+    <tanrei-navigation-drawer-section headline="ラベル" divider>
       <tanrei-navigation-drawer-item value="work" label="仕事" icon="label" trailing-text="新着"></tanrei-navigation-drawer-item>
       <tanrei-navigation-drawer-item value="family" label="家族" icon="label"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-section>
@@ -65,7 +65,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <DemoFrame label="コンパクトなドロワー：ポインターで使うツール向けに、項目の高さ 32、グリフ 16。入れ子のアイコンはグループのラベルの位置にそろいます" plain>
   <tanrei-navigation-drawer open density="compact" value="tree-view" label="Workspace" style="block-size: 22rem">
     <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
-    <tanrei-navigation-drawer-section heading="Projects">
+    <tanrei-navigation-drawer-section headline="Projects">
       <tanrei-navigation-drawer-group label="Tanrei" icon="folder" open>
         <tanrei-navigation-drawer-item value="tokens" label="Tokens" icon="palette" trailing-text="412"></tanrei-navigation-drawer-item>
         <tanrei-navigation-drawer-group label="Components" icon="widgets" open>
@@ -97,7 +97,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### 使い方
 
-ナビゲーションドロワーが持つ項目は 5 種類です。`destination`（行き先）は、アイコン（省略可）、ラベル、末尾の内容（省略可）でできた 1 行の項目で、`href` を持つとリンクになります。`group`（グループ）は、中の行き先やグループを開閉する行です。`section`（セクション）は行き先やグループをまとめるもので、`heading`（見出し）と、前に引く `divider`（区切り線）を持てます。セクションは入れ子にできず、グループはセクションを持てません。`header-button`（最初のものがメニューボタン）と `main-action` はヘッダーに置きます。Web では子要素の `<tanrei-navigation-drawer-item>`、`<tanrei-navigation-drawer-group>`、`<tanrei-navigation-drawer-section>` と、`header-button` と `main-action` のスロットに入れるアイコンだけの `<tanrei-button>` と `<tanrei-main-action-button>` です。追従待ちのプラットフォームは、行き先とセクションをそれぞれの流儀で受け取ります。SwiftUI では `TanreiNavigationDrawerItem` と `TanreiNavigationDrawerSection` のビュー、Compose では同じ名前の呼び出し、Flutter では `children:` に並べた `TanreiNavigationDrawerDestination` と `TanreiNavigationDrawerSection`、React Native では配列 `items` の中の行き先とセクションの要素です。React Native のセクションは、自分の `items` を持つことで行き先と見分けられます。
+ナビゲーションドロワーが持つ項目は 5 種類です。`destination`（行き先）は、アイコン（省略可）、ラベル、末尾の内容（省略可）でできた 1 行の項目で、`href` を持つとリンクになります。`group`（グループ）は、中の行き先やグループを開閉する行です。`section`（セクション）は行き先やグループをまとめるもので、`title`（Web では `headline`）（見出し）と、前に引く `divider`（区切り線）を持てます。セクションは入れ子にできず、グループはセクションを持てません。`header-button`（最初のものがメニューボタン）と `main-action` はヘッダーに置きます。Web では子要素の `<tanrei-navigation-drawer-item>`、`<tanrei-navigation-drawer-group>`、`<tanrei-navigation-drawer-section>` と、`header-button` と `main-action` のスロットに入れるアイコンだけの `<tanrei-button>` と `<tanrei-main-action-button>` です。追従待ちのプラットフォームは、行き先とセクションをそれぞれの流儀で受け取ります。SwiftUI では `TanreiNavigationDrawerItem` と `TanreiNavigationDrawerSection` のビュー、Compose では同じ名前の呼び出し、Flutter では `children:` に並べた `TanreiNavigationDrawerDestination` と `TanreiNavigationDrawerSection`、React Native では配列 `items` の中の行き先とセクションの要素です。React Native のセクションは、自分の `items` を持つことで行き先と見分けられます。
 
 選択は、行き先の値によってドロワーが持ちます。行き先がどのセクションにあってもかまいません。`change` と `reselect` はナビゲーションバーと同じです。Compose にはドロワー全体の値がなく、今の項目に利用者側で `selected` を付け、その `onClick` が change と reselect を兼ねます。Flutter は番号で選び、番号はセクションをまたいで読み上げ順に数えます。
 
@@ -123,11 +123,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
     <!-- モーダルは、シャドウルートの中で showModal() で開く <dialog> です。スタンダードは label を名前とする <nav> です。 -->
     <tanrei-navigation-drawer variant="modal" label="メール" value="inbox">
-      <tanrei-navigation-drawer-section heading="メール">
+      <tanrei-navigation-drawer-section headline="メール">
         <tanrei-navigation-drawer-item value="inbox" label="受信トレイ" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
         <tanrei-navigation-drawer-item value="sent" label="送信済み" icon="send"></tanrei-navigation-drawer-item>
       </tanrei-navigation-drawer-section>
-      <tanrei-navigation-drawer-section heading="ラベル" divider>
+      <tanrei-navigation-drawer-section headline="ラベル" divider>
         <tanrei-navigation-drawer-item value="work" label="仕事" icon="label" trailing-text="新着"></tanrei-navigation-drawer-item>
       </tanrei-navigation-drawer-section>
     </tanrei-navigation-drawer>
@@ -200,7 +200,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       onChange={(e) => setFolder(e.detail.value)}
       onClose={() => setOpen(false)}
     >
-      <NavigationDrawerSection heading="メール">
+      <NavigationDrawerSection headline="メール">
         <NavigationDrawerItem value="inbox" label="受信トレイ" icon="inbox" trailingText="24" />
         <NavigationDrawerItem value="sent" label="送信済み" icon="send" />
       </NavigationDrawerSection>

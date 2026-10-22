@@ -2,7 +2,7 @@
 title: 画像プレビュー
 description: ユーザーがサムネイルを押すと、一連の画像のうち 1 枚をウィンドウ全体に表示します。拡大して元に戻す、拡大したまま動かす、次の画像や前の画像へ移るといった操作で細部まで見られ、閉じるまで表示が続きます。
 translationOf: components/image-preview.mdx
-sourceHash: 450b71c7c9821c96c28393d6ebdbe647f082f1d6
+sourceHash: e96ae85ed4881dbba6ec6a53785b75f08794dbf3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -34,7 +34,7 @@ import square from '../../../../../../../packages/web/test/fixtures/image-previe
 
 表示するのは静止画像だけです。ユーザーに何も尋ねないので、[ダイアログ](/ja/components/dialog/)ではありません。画像は見るもので、押すものではないので、[カルーセル](/ja/components/carousel/)でもありません。ただし、カルーセルの項目や[図](/ja/components/figure/)の中の画像は、画像プレビューを開くきっかけとして自然です。
 
-**使っている部品**は、縮小、拡大、閉じる、前へ、次への[ボタン](/ja/components/button/)と、届く途中の画像の代わりに置く[スケルトン](/ja/components/skeleton/)です。どちらも本物のコンポーネントで、それぞれ自分のトークンを読みます。画像を拡大して動かすステージと、画像から画像へ移る仕組みは画像プレビュー自身のもので、ほかのどこにもありません。
+**使っている部品**は、縮小、拡大、閉じる、前へ、次への[ボタン](/ja/components/button/)と、届く途中の画像の代わりに置く[スケルトン](/ja/components/skeleton/)です。どちらも本物のコンポーネントで、それぞれ自分のトークンを読みます。バーの縮小、拡大、閉じるは小さいボタンで、既定のシステムでは Tonal です。閉じるボタンは Tanrei のほかの閉じるボタンと同じで、その横の拡大と縮小も同じ見た目にそろえています。前へと次へは中くらいの大きさです。m3-like と cupertino のプリセットでは、バーのボタンはグリフだけのままです。画像を拡大して動かすステージと、画像から画像へ移る仕組みは画像プレビュー自身のもので、ほかのどこにもありません。
 
 Web では `<tanrei-image-preview>` で、子に `<tanrei-image-preview-item>` を置きます。ほかのプラットフォームはまだ実装していません。
 
@@ -153,9 +153,9 @@ preview.addEventListener('zoomchange', (e) => {
 
 ```html
 <dialog class="viewer" aria-label="部屋の写真">
-  <tanrei-button variant="text" label="縮小"><span slot="icon">zoom_out</span></tanrei-button>
-  <tanrei-button variant="text" label="拡大"><span slot="icon">zoom_in</span></tanrei-button>
-  <tanrei-button variant="text" label="閉じる"><span slot="icon">close</span></tanrei-button>
+  <tanrei-button variant="tonal" size="small" label="縮小"><span slot="icon">zoom_out</span></tanrei-button>
+  <tanrei-button variant="tonal" size="small" label="拡大"><span slot="icon">zoom_in</span></tanrei-button>
+  <tanrei-button variant="tonal" size="small" label="閉じる"><span slot="icon">close</span></tanrei-button>
   <tanrei-button variant="tonal" label="前の画像"><span slot="icon">chevron_left</span></tanrei-button>
   <img alt="庭に面した窓のある寝室" src="room-large.jpg" tabindex="0">
   <tanrei-button variant="tonal" label="次の画像"><span slot="icon">chevron_right</span></tanrei-button>

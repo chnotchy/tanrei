@@ -17,7 +17,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
   <tanrei-tooltip text="Move to trash" no-describe>
     <tanrei-button variant="text" label="Move to trash"><span slot="icon">delete</span></tanrei-button>
   </tanrei-tooltip>
-  <tanrei-tooltip variant="rich" title="Storage" text="Files in the trash still count toward your storage until they are deleted." placement="bottom">
+  <tanrei-tooltip variant="rich" headline="Storage" text="Files in the trash still count toward your storage until they are deleted." placement="bottom">
     <tanrei-button variant="text" label="About storage"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
 </DemoFrame>
@@ -55,7 +55,7 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
       <tanrei-button variant="text" label="Filter"><span slot="icon">filter_list</span></tanrei-button>
     </tanrei-tooltip>
 
-    <tanrei-tooltip id="storage" variant="rich" title="Storage" placement="bottom"
+    <tanrei-tooltip id="storage" variant="rich" headline="Storage" placement="bottom"
                     text="Files in the trash still count toward your storage until they are deleted.">
       <tanrei-button variant="text" label="About storage"><span slot="icon">info</span></tanrei-button>
     </tanrei-tooltip>
@@ -87,7 +87,7 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
     </Tooltip>
     <Tooltip
       variant="rich"
-      title="Storage"
+      headline="Storage"
       text="Files in the trash still count toward your storage until they are deleted."
       placement="bottom"
       touchTimeout={4000} // a few sentences need longer to read after a long-press
@@ -176,7 +176,7 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
     // open shows it from your code and emits nothing; onOpenChange hears what it does by itself.
     <Tooltip
       variant="rich"
-      title="Storage"
+      headline="Storage"
       text="Files in the trash still count toward your storage until they are deleted."
       placement="bottom"
       open={showHint}
@@ -213,7 +213,7 @@ A tooltip is invisible to touch users until they long-press, and a screen reader
 
 | Variant | What it is | Use for |
 | --- | --- | --- |
-| Plain | One short phrase, by default on the inverse surface. It ignores `title`, and can show a keyboard shortcut after its text. | Naming what an icon does: "Move to trash", "Share". |
+| Plain | One short phrase, by default on the inverse surface. It ignores `headline`, and can show a keyboard shortcut after its text. | Naming what an icon does: "Move to trash", "Share". |
 | Rich | An optional title above a few sentences, by default on a raised surface. It ignores `shortcut`. | Explaining a term or a setting: "Storage" and what counts toward it. |
 
 The variant is a structural choice, not a token axis. A design system restyles both forms, but cannot add a third by values.
@@ -261,7 +261,7 @@ The variant is a structural choice, not a token axis. A design system restyles b
   <tanrei-tooltip text="Filter by date or by owner" placement="bottom-start" arrow>
     <tanrei-button variant="text" label="Filter"><span slot="icon">filter_list</span></tanrei-button>
   </tanrei-tooltip>
-  <tanrei-tooltip variant="rich" title="Storage" text="Files in the trash still count toward your storage until they are deleted." placement="end" arrow>
+  <tanrei-tooltip variant="rich" headline="Storage" text="Files in the trash still count toward your storage until they are deleted." placement="end" arrow>
     <tanrei-button variant="text" label="About storage"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
 </DemoFrame>
@@ -277,8 +277,8 @@ Use an arrow where the side alone does not say which control is meant: a hint yo
 <DemoFrame label="Point at or focus a button: each form inverse and on a surface" plain>
   <tanrei-tooltip text="The opposite scheme's colors" inverse><tanrei-button variant="outlined" size="small">Plain, inverse</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="A raised surface of the scheme" inverse="false"><tanrei-button variant="outlined" size="small">Plain, surface</tanrei-button></tanrei-tooltip>
-  <tanrei-tooltip variant="rich" title="On a surface" text="A raised surface of the scheme, with its elevation." inverse="false"><tanrei-button variant="outlined" size="small">Rich, surface</tanrei-button></tanrei-tooltip>
-  <tanrei-tooltip variant="rich" title="Inverse" text="The opposite scheme's colors, with no shadow." inverse><tanrei-button variant="outlined" size="small">Rich, inverse</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip variant="rich" headline="On a surface" text="A raised surface of the scheme, with its elevation." inverse="false"><tanrei-button variant="outlined" size="small">Rich, surface</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip variant="rich" headline="Inverse" text="The opposite scheme's colors, with no shadow." inverse><tanrei-button variant="outlined" size="small">Rich, inverse</tanrei-button></tanrei-tooltip>
 </DemoFrame>
 
 Either form can be drawn inverse, in the opposite scheme's colors, or on a raised surface of the scheme.
@@ -326,7 +326,7 @@ A tooltip is a read overlay. People take information from it and never act insid
 - **Takes no focus, blocks nothing.** It holds nothing focusable or pressable, makes nothing inert and draws no scrim. A press on the tooltip closes it and does not reach what lies under it.
 - **Above everything.** It is drawn above every other layer of its window, including an open dialog and its scrim, so a tooltip inside a dialog is visible.
 - **Placement.** It stands where `placement` says; see [Placement](#placement). It follows the anchor as it moves, and closes when the anchor is removed, hidden, scrolled out of the window, or scrolled out of sight inside a scrolling area.
-- **Motion.** It comes out of the anchor's side: it fades in while it grows a little and travels a few pixels away from the anchor, and goes back the same way. A motion that is interrupted turns round from where it is. While it is closing, the tooltip takes no pointer, so it never stands in the way of what is under it. Where motion is reduced it only fades.
+- **Motion.** It comes out of the anchor's side, as every surface of the design system appears: by default it fades in while it grows a little from the middle of the edge that faces the anchor, and goes back the same way. A motion that is interrupted turns round from where it is. While it is closing, the tooltip takes no pointer, so it never stands in the way of what is under it. Where motion is reduced it only fades.
 - **Announcement.** Nothing is announced when the tooltip appears. While `describes` is true, its text, after the title for a rich tooltip, is the anchor's description whether the tooltip is open or not, and the drawn tooltip is kept from being read a second time.
 
 ### Delays for one tooltip
@@ -374,14 +374,14 @@ Each platform uses a non-modal presentation: a `popover="manual"` element in the
 - It grows with larger text without clipping it, and its text is aligned to the start of the layout direction.
 - A shortcut is exposed as the anchor's keyboard shortcut (`aria-keyshortcuts` on the web, on the element that takes focus), and the drawn keys are hidden from assistive technology. Where the anchor already states a shortcut of its own, the tooltip's keys are spelled out at the end of the description instead, while `describes` is true.
 - The arrow is decoration and is hidden from assistive technology. Both looks use pairs of text and container colors whose contrast the build checks in every scheme.
-- Its motion is small: a fade, a slight growth and a few pixels of travel. Where motion is reduced it fades without growing or travelling, except on Android, whose setting removes every animation. The delays, the touch timeout and the time during which the next tooltip opens at once are waits, not motion, and are kept everywhere.
+- Its motion is small: by default a fade and a slight growth. Where motion is reduced it fades without growing or travelling, except on Android, whose setting removes every animation. The delays, the touch timeout and the time during which the next tooltip opens at once are waits, not motion, and are kept everywhere.
 - A tooltip whose text is empty never opens and adds nothing. Debug builds report it, and a plain tooltip's ignored title.
 
 Known platform gaps:
 
 - SwiftUI, Compose, Flutter and React Native do not take `showDelay`, `hideDelay` or `touchTimeout` yet, and do not count the gap as hover: every tooltip there takes the system's delays, and the pointer crosses the gap within the hide delay. They also have only the four centred placements (`top`, `bottom`, `start`, `end`), and no `offset`, `crossOffset`, `arrow`, `inverse` or `shortcut`; their tooltips fade without growing or travelling.
 - Web: a touch long-press opens a tooltip only where the browser reports it as a context menu. iOS Safari does not, so there a tooltip does not open by touch.
-- Web: `<tanrei-tooltip>` reads and removes its own `title` attribute, so that the browser does not draw its native tooltip over the anchor too. The `title` property keeps the value.
+- Web: the rich tooltip's title is the `headline` attribute. A `title` attribute on `<tanrei-tooltip>` is the browser's own, and the browser draws its native tooltip for it: don't set one.
 - SwiftUI has no tooltip role. The description is the anchor's accessibility hint.
 - SwiftUI on iOS: Return or Space on a focused anchor does not close the tooltip, and Escape closes it only while the anchor has focus. An anchor that takes focus from a tap, such as a text field, opens its tooltip. An anchor that is made transparent or covered is not detected as hidden.
 - SwiftUI draws tooltips in a layer that `.tanreiTheme(_:)` and a Tanrei dialog provide. Content that SwiftUI presents apart, such as your own `.sheet` or `.popover`, needs `.tanreiTooltipLayer()` for its tooltips to show.

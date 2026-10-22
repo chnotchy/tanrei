@@ -195,6 +195,12 @@
         "max": "max",
         "label": "label"
       },
+      "parts": {
+        "container": "container",
+        "dot": "container",
+        "label": "label",
+        "outline": "container@outline"
+      },
       "notes": "Wraps its anchor in the default slot. No `count` attribute is the dot. The badge sets `aria-description` on the slotted anchor and keeps its own shadow content `aria-hidden`."
     },
     "swiftui": {

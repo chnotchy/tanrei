@@ -2,7 +2,7 @@
 title: "按钮"
 description: "让用户只需轻点或点击一次，就能执行一项操作、打开或关闭某个功能，或前往某个目标位置。"
 translationOf: components/button.mdx
-sourceHash: af9d89a6c77ce45b911805a86b07eef4a749f99c
+sourceHash: a587774eb5411058152f514ed38199d856c52a81
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,18 +10,20 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import DemoFrame from '../../../../components/DemoFrame.astro';
+import VisualFrame from '../../../../components/visuals/VisualFrame.astro';
+import StateMatrix from '../../../../components/visuals/StateMatrix.astro';
 
 ## 概览
 
 <ComponentAvailability name="button" />
 
-<DemoFrame label="变体">
+<VisualFrame label="变体" reserve={{ block: 'comp.button.container.height.medium' }} controls="both">
   <tanrei-button variant="filled">Filled</tanrei-button>
   <tanrei-button variant="tonal">Tonal</tanrei-button>
   <tanrei-button variant="elevated">Elevated</tanrei-button>
   <tanrei-button variant="outlined">Outlined</tanrei-button>
   <tanrei-button variant="text">Text</tanrei-button>
-</DemoFrame>
+</VisualFrame>
 
 ### 用法
 
@@ -171,6 +173,8 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
 
 像为其他操作那样选择变体。当删除正是这个视图要完成的那一步时，例如“删除项目？”对话框中的确认操作，用 filled。当它只是若干操作之一时，例如列表每一行中的“移除”，用 outlined 或 text。纯图标按钮也可以设置 `destructive`，但对于无法撤销的操作，标签比图标更清楚。切换按钮没有破坏性外观。
 
+链接也没有。带 `href` 的按钮会忽略 `destructive`，按其变体的链接来绘制，因为跟随链接不会删除任何东西：它只是把用户带到可以删除东西的地方。应当标记的是那个地方的操作，例如链接打开的页面中的“删除”按钮。调试构建会报告设置了 `destructive` 的链接。
+
 <DemoFrame label="各变体的破坏性按钮，以及纯图标按钮" plain>
   <tanrei-button destructive>删除项目</tanrei-button>
   <tanrei-button variant="tonal" destructive>放弃草稿</tanrei-button>
@@ -258,7 +262,7 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
   <TabItem label="Web">
     ```html
     <form id="profile">
-      <tanrei-text-field label="姓名" name="name" requirement="required"></tanrei-text-field>
+      <tanrei-text-field label="姓名" name="name" required></tanrei-text-field>
       <tanrei-button type="reset" variant="text">清除</tanrei-button>
       <tanrei-button type="submit" variant="outlined" name="intent" value="draft">保存草稿</tanrei-button>
       <tanrei-button type="submit" name="intent" value="publish">发布</tanrei-button>
@@ -291,7 +295,7 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
         save(data.get('name'), data.get('intent'));
       }}
     >
-      <TextField label="姓名" name="name" requirement="required" />
+      <TextField label="姓名" name="name" required />
       <Button type="reset" variant="text">清除</Button>
       <Button type="submit" variant="outlined" name="intent" value="draft">保存草稿</Button>
       <Button type="submit" name="intent" value="publish">发布</Button>
@@ -341,6 +345,8 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
   <tanrei-button variant="outlined" disabled>Disabled</tanrei-button>
 </DemoFrame>
 
+<StateMatrix name="button" />
+
 <ComponentSpecs name="button" />
 
 ## 指南
@@ -365,7 +371,7 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
 
 `destructive` 不是变体：它可以与任何变体搭配，并保持该变体的强调程度（参见[破坏性操作](#破坏性操作)）。
 
-没有 `variant` 的按钮是 filled，只有一个例外：作为[对话框](/zh-cn/components/dialog/)或[侧边面板](/zh-cn/components/side-sheet/)的操作放置时，它采用宿主的变体，在默认系统中是 tonal。因此只需要给外观应当不同的那个操作设置变体。侧边面板的关闭按钮也以同样的方式采用面板为关闭按钮规定的变体。
+没有 `variant` 的按钮是 filled，只有一个例外：作为[对话框](/zh-cn/components/dialog/)或[侧边面板](/zh-cn/components/side-sheet/)的操作放置时，它采用宿主的变体，在默认系统中是 tonal。因此只需要给外观应当不同的那个操作设置变体。每个宿主的关闭按钮——弹出框、侧边面板、底部面板、提示块、消息条和图片预览的——都是一个 small 的纯图标按钮，以同样的方式采用宿主为关闭按钮规定的变体，在默认系统中是 tonal。在带颜色的表面上，例如表示状态的提示块或反色的消息条上，它还会以该表面的文字颜色绘制。
 
 ### 推荐
 
@@ -374,6 +380,7 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
 - 把主操作放在该平台的用户预期的位置，并在整个产品中保持这一顺序。
 - 在密集的工具栏和表格中使用 `small`（32），默认使用 `medium`（40），在以触摸为主的界面或首屏主视觉区域使用 `large`（56）。每种尺寸的点击区域都有保证。
 - 给删除或丢弃某些东西的操作设置 `destructive`，并像其他操作一样按强调程度选择变体。
+- 通往删除某些东西之处的链接，做成普通链接，用标签说明它通向哪里。在那个地方执行删除的按钮上设置 `destructive`。
 - 用图标插槽来强化标签。只有在图标的含义广为人知时（搜索、关闭、更多）才省略标签，并用 `label` 为按钮命名。
 
 ### 避免
@@ -384,6 +391,7 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
 - 不要把禁用按钮当作传达校验问题的唯一手段。让它保持可用，并在被按下时说明还缺少什么；或者用 `focusable-when-disabled` 让它仍可到达，并说明原因。
 - 不要在按钮的操作进行期间禁用它。请设置 `busy`，让焦点留在它上面。
 - 不要为了强调而使用 `destructive`，也不要把它用在不会破坏任何东西的操作上。如果一个视图中的操作全是红色，就没有哪个能突出。
+- 不要把链接做成红色，也不要给按钮同时设置 `href` 和 `destructive`。链接只负责把用户带到别处，所以按钮会忽略 `destructive`，按其变体的链接来绘制。
 - 不要截断标签。让按钮变宽，或者把标签写短。
 - 不要让纯图标按钮缺少 `label`：图标不是名称。
 - 不要手动把 narrow 的纯图标按钮一个紧挨一个地排列。它们的目标会延伸到边缘之外，彼此重叠。

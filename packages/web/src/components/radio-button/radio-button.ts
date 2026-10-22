@@ -5,6 +5,7 @@ import { AvailabilityController, PressController, SelectionController, markCondi
 import { styles } from './radio-button.styles.js';
 import { FocusedStop, disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** What `change` carries: the value of the option that became selected. */
 export interface TanreiRadioButtonChangeDetail {
@@ -18,6 +19,8 @@ export interface TanreiRadioButtonChangeDetail {
 export interface TanreiRadioButtonOwner extends HTMLElement {
   /** Its radio buttons, in the order given. */
   readonly options: TanreiRadioButton[];
+  /** RAD-28, RGP-20: while the group is read-only, so is each of its radio buttons, whatever its own `readOnly`. */
+  readonly readOnly: boolean;
   /** One of them changed its `checked` (`selection`: true), its `value` or its `disabled`. */
   optionChanged(option: TanreiRadioButton, selection: boolean): void;
   /** A person selected one of them: where it would fire its `input`, then its `change`, it tells the group instead, which fires its own. */
@@ -44,6 +47,11 @@ const STEPS: Record<string, number> = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1
  * Form-associated: while selected it submits `value` under `name`, resets to its `checked` attribute and follows a
  * disabled `<fieldset>`. It selects itself before it fires `input` and `change`; the option it replaced fires nothing.
  *
+ * Read-only (`readonly`, or a read-only radio group around it: RAD-28): it stays focusable and reached by the arrow
+ * keys, and nothing a person does selects it — HTML's `readonly` does not apply to a radio button, so the option cancels
+ * the native radio's activation itself. The radio role has no read-only state: the group says it. It is drawn as an
+ * enabled option without the hover and press answers; keyboard focus still shows.
+ *
  * @tag tanrei-radio-button
  * @csspart container - The round state layer behind the ring (hover, focus, press).
  * @csspart ring - The ring: a thin stroke while unselected, thickened inward while selected.
@@ -53,7 +61,7 @@ const STEPS: Record<string, number> = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1
  * @fires input - The user selected this option; `checked` is already true.
  * @fires {CustomEvent<TanreiRadioButtonChangeDetail>} change - The user selected this option; `detail.value` is its value.
  */
-export class TanreiRadioButton extends LitElement {
+export class TanreiRadioButton extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'radio-button');
   /** Disabled under the focus it holds, its stop keeps its `tabindex` for one frame, as the platform's own control keeps focus (src/primitives/disabled-while-focused.ts). */
   private readonly stop = new FocusedStop(this);
@@ -76,6 +84,7 @@ export class TanreiRadioButton extends LitElement {
     value: { type: String },
     name: { type: String, reflect: true },
     disabled: { type: Boolean, reflect: true },
+    readOnly: { type: Boolean, attribute: 'readonly', reflect: true },
     error: { type: Boolean, reflect: true },
     label: { type: String },
     labelHidden: { type: Boolean, attribute: 'label-hidden', reflect: true },
@@ -84,7 +93,7 @@ export class TanreiRadioButton extends LitElement {
     groupSize: { state: true },
   };
 
-  /** Whether this option is the one chosen in its group (the spec's `selected`, a native radio's `checked`). */
+  /** Whether this option is the one chosen in its group (a native radio's `checked`). */
   checked = false;
 
   /** What this option stands for: carried by `change`, and submitted with a form. */
@@ -95,6 +104,12 @@ export class TanreiRadioButton extends LitElement {
 
   /** Prevents interaction; the option is skipped by the focus order and by the arrow keys. */
   disabled = false;
+
+  /**
+   * A person cannot select this option (RAD-28): it is still focused, read and reached by the arrow keys. The `readonly`
+   * attribute. A read-only radio group makes each of its options so without changing this. `disabled` wins over it.
+   */
+  readOnly = false;
 
   /** Marks the option as part of an answer that was refused: the error form of its condition is drawn. A radio group or a field group in error puts its radio buttons there itself; this is for options grouped without one. It exposes no invalid state — the radio role has none; the group says it. */
   error = false;
@@ -133,7 +148,8 @@ export class TanreiRadioButton extends LitElement {
   private readonly press = new PressController(this, {
     container: () => this.renderRoot.querySelector('.container'),
     holdCarrier: () => this.renderRoot.querySelector('.control'),
-    disabled: () => this.selection.disabled,
+    // RAD-28: a read-only option shows no pressed state either — a press changes nothing.
+    disabled: () => this.selection.disabled || this.isReadOnly,
     keys: [' '],
     origin: selectionRippleOrigin(() => this.renderRoot.querySelector('.container')),
   });
@@ -190,6 +206,15 @@ export class TanreiRadioButton extends LitElement {
    */
   regroup() {
     this.syncGroup();
+  }
+
+  /**
+   * RAD-28: read-only by its own `readOnly` or by the read-only radio group it stands in.
+   *
+   * @internal
+   */
+  get isReadOnly(): boolean {
+    return this.readOnly || !!this.owner?.readOnly;
   }
 
   /** Disabled by its own `disabled` or by a disabled `<fieldset>` around it. */
@@ -265,19 +290,20 @@ export class TanreiRadioButton extends LitElement {
 
   /** RAD-1 / RAD-4: the user selected this option. It selects itself, then tells; nothing happens if it already was. */
   private selectByUser() {
-    if (this.checked || this.isDisabled) return;
+    // RAD-28: an arrow key that lands on a read-only option focuses it and selects nothing.
+    if (this.checked || this.isDisabled || this.isReadOnly) return;
     this.checked = true;
     this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
     this.dispatchEvent(new CustomEvent<TanreiRadioButtonChangeDetail>('change', { bubbles: true, detail: { value: this.value } }));
   }
 
   /** RAD-13: where style queries are missing, the focus style is read when focus arrives. */
-  private onFocus() {
+  #onFocus() {
     syncFocusStyle(this, this.input);
   }
 
   /** RAD-4: the arrow keys move to the next or previous enabled option, wrapping, and select it; RTL mirrors left and right. */
-  private onKeyDown(event: KeyboardEvent) {
+  #onKeyDown(event: KeyboardEvent) {
     this.selection.onKeyDown(event);
     this.press.onKeyDown(event);
     const step = STEPS[event.key];
@@ -296,17 +322,20 @@ export class TanreiRadioButton extends LitElement {
   }
 
   /** A click on the label's text or on the target around the ring is the label's; only the input's click is let out. */
-  private onRootClick(event: Event) {
+  #onRootClick(event: Event) {
     if (event.target !== this.input) event.stopPropagation();
   }
 
   /** The native control has already switched: mark the change of condition before anything can style it. */
-  private onClick() {
+  #onClick(event: Event) {
+    // RAD-28: read-only, the activation is cancelled — the native radio goes back to what it was and fires no input and
+    // no change — whatever started it: a press, Space, the label, assistive technology or element.click().
+    if (this.isReadOnly) return event.preventDefault();
     markConditionChange(this.renderRoot.querySelector('.root'));
   }
 
   /** RAD-1: the native radio was selected (a click, Space, assistive technology); a selected one fires nothing (RAD-2). */
-  private onInput(event: Event) {
+  #onInput(event: Event) {
     event.stopPropagation();
     markConditionChange(this.renderRoot.querySelector('.root'));
     this.checked = true;
@@ -316,7 +345,7 @@ export class TanreiRadioButton extends LitElement {
     this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
   }
 
-  private onChange() {
+  #onChange() {
     const owner = this.owner;
     if (owner) return owner.optionSelected(this, 'change');
     this.dispatchEvent(new CustomEvent<TanreiRadioButtonChangeDetail>('change', { bubbles: true, detail: { value: this.value } }));
@@ -370,7 +399,8 @@ export class TanreiRadioButton extends LitElement {
       <label
         class="root"
         ?data-error=${this.inError}
-        @click=${this.onRootClick}
+        ?data-readonly=${this.isReadOnly}
+        @click=${this.#onRootClick}
         @pointerdown=${this.press.onPointerDown}
         @pointerup=${this.press.release}
         @pointercancel=${this.press.release}
@@ -388,13 +418,13 @@ export class TanreiRadioButton extends LitElement {
             aria-description=${this.selection.field.description() || nothing}
             aria-posinset=${this.position}
             aria-setsize=${this.groupSize}
-            @click=${this.onClick}
-            @input=${this.onInput}
-            @change=${this.onChange}
-            @keydown=${this.onKeyDown}
+            @click=${this.#onClick}
+            @input=${this.#onInput}
+            @change=${this.#onChange}
+            @keydown=${this.#onKeyDown}
             @keyup=${this.press.onKeyUp}
             @blur=${this.press.onBlur}
-            @focus=${this.onFocus}
+            @focus=${this.#onFocus}
           />
           <span part="container" class="container" data-tanrei-shape aria-hidden="true"></span>
           <span part="ring" class="ring" data-tanrei-shape aria-hidden="true"><span part="fill" class="fill"></span></span>

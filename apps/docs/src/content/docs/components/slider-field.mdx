@@ -130,8 +130,8 @@ What changes one level down is where things are said. `name`, `value` and `start
 ## Specs
 
 <DemoFrame label="Required with the product's word, optional, in error and disabled" plain column>
-  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" requirement="required" required-text="Required" value="40"></tanrei-slider-field>
-  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" requirement="optional" optional-text="Optional" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" required required-text="Required" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" optional optional-text="Optional" value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" supporting-text="Applies to alerts and media." error error-text="Choose a level above 0." value="0"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" supporting-text="Applies to alerts and media." disabled value="40"></tanrei-slider-field>
 </DemoFrame>
@@ -140,7 +140,7 @@ What changes one level down is where things are said. `name`, `value` and `start
 
 | Aspect | From the field | From the slider |
 | --- | --- | --- |
-| Properties | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `value`, `startValue`, `range`, `min`, `max`, `step`, `origin`, `stops`, `size`, `valueIndicator`, `valueText`, `startValueText`, `startLabel`, and `endLabel`, which is the slider's `label` |
+| Properties | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText` | `value`, `startValue`, `range`, `min`, `max`, `step`, `origin`, `stops`, `size`, `valueIndicator`, `valueText`, `startValueText`, `startLabel`, and `endLabel`, which is the slider's `label` |
 | Events | — | `input`, `change` |
 | Slots | `label-icon` | — |
 | Tokens | `comp.field.*` | `comp.slider.*` |
@@ -149,7 +149,7 @@ One property is the slider field's own: `valueHidden`. And one property of the f
 
 The slider has a `disabled` and an `orientation` of its own. Neither is a property of the slider field: the field's `disabled` disables the slider, so that the label and the value text follow, and the track always runs in the inline direction: a slider field has no vertical orientation.
 
-A slider always has a value, so `requirement` does not mean "not empty" here. A form that marks every control as required or optional marks this one too; what it refuses — a level of 0, a range too narrow — is yours to say with `error` and `errorText`. An error changes nothing of the track: the words and the invalid state carry it.
+A slider always has a value, so `required` does not mean "not empty" here. A form that marks every control as required or optional marks this one too; what it refuses — a level of 0, a range too narrow — is yours to say with `error` and `errorText`. An error changes nothing of the track: the words and the invalid state carry it.
 
 What the handles do — dragging, the keys, the steps, the value indicator — is on the [slider's page](/components/slider/). What the frame does — the required mark, the value text, the help, the error and how it is announced — is on the [field's page](/components/field/).
 

@@ -2,7 +2,7 @@
 title: "图片预览"
 description: "用户按下缩略图时，把一组图片中的一张铺满整个窗口显示，供人仔细查看：可以放大再还原，放大后可以四处移动，也可以移到下一张或上一张，直到关闭为止。"
 translationOf: components/image-preview.mdx
-sourceHash: 450b71c7c9821c96c28393d6ebdbe647f082f1d6
+sourceHash: e96ae85ed4881dbba6ec6a53785b75f08794dbf3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -34,7 +34,7 @@ import square from '../../../../../../../packages/web/test/fixtures/image-previe
 
 它只显示静态图片，别的都不显示。它不向用户提出任何问题，所以它不是[对话框](/zh-cn/components/dialog/)；它的图片是用来看的，不是用来按的，所以它也不是[轮播](/zh-cn/components/carousel/)。不过，从轮播的某一项或[图示](/zh-cn/components/figure/)里的图片打开它，是很自然的做法。
 
-**用到的组件**有[按钮](/zh-cn/components/button/)（缩小、放大、关闭、上一张和下一张），以及在图片到来之前占位的[骨架屏](/zh-cn/components/skeleton/)。它们是真正的组件，读取各自的令牌。放大并移动图片的展示区，以及从一张图片翻到下一张的切换，则是图片预览自己的，别处没有。
+**用到的组件**有[按钮](/zh-cn/components/button/)（缩小、放大、关闭、上一张和下一张），以及在图片到来之前占位的[骨架屏](/zh-cn/components/skeleton/)。它们是真正的组件，读取各自的令牌。顶栏上的缩小、放大和关闭是 small 按钮，在默认系统中是 tonal：关闭按钮与 Tanrei 的每个关闭按钮一样，旁边的缩放按钮也画成同样的样子。上一张和下一张是 medium。m3-like 和 cupertino 预设在顶栏上保留不带底色的字形。放大并移动图片的展示区，以及从一张图片翻到下一张的切换，则是图片预览自己的，别处没有。
 
 在 Web 上它是 `<tanrei-image-preview>`，子元素是 `<tanrei-image-preview-item>`。其他平台尚未实现。
 
@@ -153,9 +153,9 @@ preview.addEventListener('zoomchange', (e) => {
 
 ```html
 <dialog class="viewer" aria-label="房间的照片">
-  <tanrei-button variant="text" label="缩小"><span slot="icon">zoom_out</span></tanrei-button>
-  <tanrei-button variant="text" label="放大"><span slot="icon">zoom_in</span></tanrei-button>
-  <tanrei-button variant="text" label="关闭"><span slot="icon">close</span></tanrei-button>
+  <tanrei-button variant="tonal" size="small" label="缩小"><span slot="icon">zoom_out</span></tanrei-button>
+  <tanrei-button variant="tonal" size="small" label="放大"><span slot="icon">zoom_in</span></tanrei-button>
+  <tanrei-button variant="tonal" size="small" label="关闭"><span slot="icon">close</span></tanrei-button>
   <tanrei-button variant="tonal" label="上一张图片"><span slot="icon">chevron_left</span></tanrei-button>
   <img alt="一间窗外是花园的卧室" src="room-large.jpg" tabindex="0">
   <tanrei-button variant="tonal" label="下一张图片"><span slot="icon">chevron_right</span></tanrei-button>

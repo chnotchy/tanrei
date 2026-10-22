@@ -347,6 +347,13 @@
         "label": "label",
         "disabled": "disabled"
       },
+      "parts": {
+        "container": "container",
+        "label": "label",
+        "separator": "separator",
+        "chord": "chord",
+        "sequence": "sequence"
+      },
       "notes": "The `keys` attribute holds the chords separated by spaces (`keys=\"mod+k mod+c\"`); the property is an array. The shadow root draws a `<kbd>` per chord holding a `<kbd>` per key, as HTML nests keys that are pressed together, all `aria-hidden`, beside one visually hidden text (KBS-10). Under `auto` the convention is the nearest ancestor's `data-tanrei-keyboard-convention` attribute (`apple` or `standard`), read when the element connects and when that attribute changes, else `apple` where `navigator.userAgentData.platform` or `navigator.platform` names macOS, iOS or iPadOS. The read-only `ariaKeyShortcuts` property is KBS-12's form, which the menu sets on its item. The small caps line up with text through `vertical-align: baseline` on an `inline-flex` host (KBS-15). Words: the element has no names for keys; without `label` its text for assistive technology is `ariaKeyShortcuts`."
     },
     "swiftui": {

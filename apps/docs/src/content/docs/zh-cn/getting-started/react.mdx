@@ -2,23 +2,29 @@
 title: React
 description: 由 Tanrei 的 Web Components 生成的、带类型的 React 组件。
 translationOf: getting-started/react.mdx
-sourceHash: 8b454fa8146b58d18f714d8bfd7dfdcf0b9a647e
+sourceHash: c0c841b6e6aeb6c0b3a2c71ef99d5f54268d0991
 ---
 
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 `@tanrei/react` 把 `@tanrei/web` 中的每个自定义元素包装成真正的 React 组件，带有类型化的属性和事件处理函数。这些包装组件由自定义元素清单（custom elements manifest）生成，因此始终与它们包装的元素保持一致。
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/react" />
+<ReleaseNotice platform="web" registry="npm" pkg={["@tanrei/react", "@tanrei/web"]} />
 
 ## 安装
 
 需要 React 18 或更高版本。
 
+### 从 npm
+
+```sh
+npm install @tanrei/react @tanrei/web
+```
+
 ### 从源码
 
-与 [Web 包](/zh-cn/getting-started/web/)一样（Git、Node 22.12 或更高版本、pnpm 12）：在仓库的克隆中构建这两个包并打包，
+要使用 `main` 上的源码，与 [Web 包](/zh-cn/getting-started/web/)一样（Git、Node 22.12 或更高版本、pnpm 12）：在仓库的克隆中构建这两个包并打包，
 
 ```sh
 git clone https://github.com/chnotchy/tanrei.git
@@ -34,16 +40,13 @@ pnpm --filter @tanrei/web --filter @tanrei/react pack --pack-destination ../tanr
 npm install path/to/tanrei-packages/tanrei-web-*.tgz path/to/tanrei-packages/tanrei-react-*.tgz
 ```
 
-### 首次发布之后
-
-```sh
-npm install @tanrei/react @tanrei/web
-```
-
 ## 使用
 
+在组件渲染之前加载一次样式表：`tanrei.css` 把页面的基础样式、令牌和这个包的其他所有样式表放在一个文件里。要一个一个地加载，参见 [Web 指南](/zh-cn/getting-started/web/)。
+
 ```tsx
-import '@tanrei/web/tokens.css';
+import '@tanrei/web/tanrei.css';
+import '@tanrei/web/words/en';
 import { Button } from '@tanrei/react';
 
 export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
@@ -62,9 +65,30 @@ export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
 
 属性的名称与元素的 attribute 相同（`variant`、`size`、`disabled`）。事件就是普通的 React 处理函数。元素自己的事件，与 React 自身的事件一样，用 `on` 加上驼峰式的事件名来监听（与 `onKeyDown` 同一形式）：导航抽屉发出的 `expandedchange` 用 `onExpandedChange` 监听。
 
+`@tanrei/web/words/en` 为组件绘制或朗读的每一个标签和消息（例如必填标签、关闭按钮的名称）给出平实的英语文字；也可以不用它，而用 `@tanrei/react` 的 `setWords()` 给出你自己的文字。参见[文字](/zh-cn/foundations/words/)。
+
+## 每个设计系统一个入口
+
+这个包为 Tanrei 自带的每个设计系统各提供一个入口，这样编辑器提示的、类型检查接受的，只有你的系统所拥有的内容：
+
+| 入口 | 导出的内容 |
+|---|---|
+| `@tanrei/react` | 默认系统 Tanrei 的组件。位于 m3-like 层的 FAB 菜单，以及 Tanrei 不包含的分段按钮，都不在其中；Tanrei 不包含的变体也不是该属性的取值：`<TextField variant="outlined">` 无法通过类型检查 |
+| `@tanrei/react/m3-like`、`@tanrei/react/m3-expressive-like`、`@tanrei/react/cupertino` | 该预设的组件及其变体 |
+| `@tanrei/react/advanced` | 进阶组件，即用于构成其他组件的部件：`TextInput`、`ModalLayer`、`Combobox` 等。产品通常写的是由它们构成的组件：`TextField`、`Dialog`、`ComboboxField` |
+| `@tanrei/react/all` | 所有组件，不论属于哪个系统：用于你自己的设计系统，以及构建设计系统 |
+
+```tsx
+import '@tanrei/web/tokens.css';
+import '@tanrei/web/systems/m3-like.css';
+import { FabMenu, FabMenuItem, TextField } from '@tanrei/react/m3-like';
+```
+
+同一个组件在每个入口中都是同一个，因此打包工具仍然只保留你导入的部分。每个入口也都导出 `setWords`、`missingWords` 和 `TanreiEvent` 类型。这些入口由每个系统的组件清单 `@tanrei/web/systems/<id>.components.json` 生成，清单中写明了每个组件的入口（`react.import`）；由 `tanrei build` 写出的你自己系统的清单，写的是 `@tanrei/react/all`。
+
 ## 服务端渲染
 
-这些组件在服务端渲染出自定义元素的标签，然后在浏览器中升级。在区分服务端和客户端的框架里，请从客户端组件中导入 `@tanrei/react`，以便元素的定义在浏览器中完成注册。
+这些组件在服务端渲染出自定义元素的标签，然后在浏览器中升级。在区分服务端和客户端的框架里，请从客户端组件中导入你所用的入口，以便元素的定义在浏览器中完成注册。
 
 <Callout>
   主题、对比度、令牌和字体的用法与 [Web 指南](/zh-cn/getting-started/web/)中的说明完全相同；React 包没有在此之上添加任何自己的东西。

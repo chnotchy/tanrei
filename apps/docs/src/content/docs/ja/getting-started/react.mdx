@@ -2,23 +2,29 @@
 title: React
 description: Tanrei の Web Components から生成した、型付きの React コンポーネント。
 translationOf: getting-started/react.mdx
-sourceHash: 8b454fa8146b58d18f714d8bfd7dfdcf0b9a647e
+sourceHash: c0c841b6e6aeb6c0b3a2c71ef99d5f54268d0991
 ---
 
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 `@tanrei/react` は、`@tanrei/web` の各カスタム要素を、型付きのプロパティとイベントハンドラーを持つ本物の React コンポーネントでラップします。ラッパーはカスタム要素のマニフェストから生成されるので、ラップしている要素と常に一致します。
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/react" />
+<ReleaseNotice platform="web" registry="npm" pkg={["@tanrei/react", "@tanrei/web"]} />
 
 ## インストール
 
 React 18 以降が必要です。
 
+### npm から
+
+```sh
+npm install @tanrei/react @tanrei/web
+```
+
 ### ソースから
 
-[Web のパッケージ](/ja/getting-started/web/)と同じく（Git、Node 22.12 以降、pnpm 12）、リポジトリのクローンで 2 つのパッケージをビルドしてパックします。
+`main` のソースを使うには、[Web のパッケージ](/ja/getting-started/web/)と同じく（Git、Node 22.12 以降、pnpm 12）、リポジトリのクローンで 2 つのパッケージをビルドしてパックします。
 
 ```sh
 git clone https://github.com/chnotchy/tanrei.git
@@ -34,16 +40,13 @@ pnpm --filter @tanrei/web --filter @tanrei/react pack --pack-destination ../tanr
 npm install path/to/tanrei-packages/tanrei-web-*.tgz path/to/tanrei-packages/tanrei-react-*.tgz
 ```
 
-### 最初のリリース後
-
-```sh
-npm install @tanrei/react @tanrei/web
-```
-
 ## 使い方
 
+コンポーネントが描画される前に、スタイルシートを一度だけ読み込みます。`tanrei.css` は、ページのベース、トークン、パッケージのほかのすべてのスタイルシートを 1 つにまとめたファイルです。1 つずつ読み込む方法は [Web のガイド](/ja/getting-started/web/)を参照してください。
+
 ```tsx
-import '@tanrei/web/tokens.css';
+import '@tanrei/web/tanrei.css';
+import '@tanrei/web/words/en';
 import { Button } from '@tanrei/react';
 
 export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
@@ -62,9 +65,30 @@ export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
 
 プロパティの名前は、要素の属性と同じです（`variant`、`size`、`disabled`）。イベントは、通常の React のハンドラーです。要素が独自に出すイベントは、React 自身のイベントと同じく、`on` にイベント名をキャメルケースで続けた名前で受け取ります（`onKeyDown` と同じ形）。ナビゲーションドロワーが出す `expandedchange` は `onExpandedChange` です。
 
+`@tanrei/web/words/en` は、コンポーネントが描いたり読み上げたりするラベルとメッセージ（必須のタグや閉じるボタンの名前など）のすべてに、平易な英語の言葉を渡します。使わずに、`@tanrei/react` の `setWords()` で自分の言葉を渡してもかまいません。[言葉](/ja/foundations/words/)を参照してください。
+
+## デザインシステムごとのエントリー
+
+このパッケージには、Tanrei が出荷するデザインシステムごとにエントリーがあります。エディターが候補に出し、型チェックが通すのは、あなたのシステムにあるものだけです。
+
+| エントリー | エクスポートするもの |
+|---|---|
+| `@tanrei/react` | 既定のシステム Tanrei のコンポーネント。m3-like レイヤーにある FAB メニューと、Tanrei が持たないセグメントボタンはここにありません。Tanrei が持たないバリアントも、プロパティの値になりません。`<TextField variant="outlined">` は型チェックを通りません |
+| `@tanrei/react/m3-like`、`@tanrei/react/m3-expressive-like`、`@tanrei/react/cupertino` | そのプリセットのコンポーネントと、そのバリアント |
+| `@tanrei/react/advanced` | 上級者向けのコンポーネント、つまりほかのコンポーネントの部品です。`TextInput`、`ModalLayer`、`Combobox` など。プロダクトでは、ふつうはそれから作られたコンポーネント（`TextField`、`Dialog`、`ComboboxField`）を書きます |
+| `@tanrei/react/all` | どのシステムにあるかを問わず、すべてのコンポーネント。独自のデザインシステムで使うときと、デザインシステムを作るときのためのものです |
+
+```tsx
+import '@tanrei/web/tokens.css';
+import '@tanrei/web/systems/m3-like.css';
+import { FabMenu, FabMenuItem, TextField } from '@tanrei/react/m3-like';
+```
+
+コンポーネントはどのエントリーでも同じものなので、バンドラーが残すのは、インポートしたものだけです。どのエントリーも `setWords`、`missingWords` と `TanreiEvent` 型をエクスポートします。エントリーは、各システムのコンポーネント一覧（`@tanrei/web/systems/<id>.components.json`）から生成されます。この一覧には、各コンポーネントのエントリー（`react.import`）が書かれています。`tanrei build` が書く独自のシステムの一覧では、それは `@tanrei/react/all` です。
+
 ## サーバーレンダリング
 
-コンポーネントは、サーバーではカスタム要素のタグをレンダリングし、ブラウザーでアップグレードされます。サーバーとクライアントが分かれているフレームワークでは、`@tanrei/react` をクライアントコンポーネントからインポートして、要素の定義がブラウザーで登録されるようにしてください。
+コンポーネントは、サーバーではカスタム要素のタグをレンダリングし、ブラウザーでアップグレードされます。サーバーとクライアントが分かれているフレームワークでは、使うエントリーをクライアントコンポーネントからインポートして、要素の定義がブラウザーで登録されるようにしてください。
 
 <Callout>
   テーマ、コントラスト、トークン、フォントは、[Web のガイド](/ja/getting-started/web/)に書かれているとおりに動作します。React のパッケージが独自に加えるものはありません。

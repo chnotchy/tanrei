@@ -1,0 +1,31 @@
+/*
+ * The page's base: what a page that uses Tanrei draws outside the components, so that a product's own text is in the
+ * system's color, on its surface, in its body face — not the browser's black Times on white with a margin around it.
+ *
+ *   import '@tanrei/web/tokens.css';
+ *   import '@tanrei/web/base.css';
+ *
+ * `@tanrei/web/tanrei.css` holds this, the tokens and every stylesheet of the package in one file.
+ *
+ * In the cascade layer `tanrei.base`, so any rule of the product's own wins over it. Nothing here is a value of its
+ * own: the colors and the face are the default system's tokens, and a preset's or a subtree's re-valued tokens are
+ * read the same way.
+ *
+ * - The page follows the scheme the tokens follow. `color-scheme` is not written here: the tokens already put
+ *   `light dark` on the root and a forced theme on `[data-tanrei-theme]`, and a rule in this layer, which a page
+ *   loads after them, would win over the forced theme on `<html>`.
+ * - The body face is the body role's `font` whole, on `<body>`, not on `<html>`: the root's font size is what `rem`
+ *   means, and the system's sizes are written in `rem` (the type dial's base is `1rem`), so a face on the root would
+ *   shrink every size the tokens give. Its letter-spacing is not set, because it would be inherited by text of every
+ *   script (a joined script takes none): a role's tracking is set where the role is used (`text.css`).
+ */
+@layer tanrei.base {
+  html {
+    background: var(--tanrei-sys-color-surface);
+    color: var(--tanrei-sys-color-on-surface);
+  }
+  body {
+    margin: 0;
+    font: var(--tanrei-sys-typescale-body-font);
+  }
+}

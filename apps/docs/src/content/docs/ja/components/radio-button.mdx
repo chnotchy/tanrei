@@ -2,7 +2,7 @@
 title: ラジオボタン
 description: 一度にすべて見えている少数の選択肢から、ちょうど 1 つを選べるようにします。
 translationOf: components/radio-button.mdx
-sourceHash: 75fabd1dc1d5852c84f2905cd64938216d9b6b8a
+sourceHash: 580d206e4ecad18e8ec686f544dd11bd9a7b7564
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -130,6 +130,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-radio-button name="specs-disabled" value="unselected" disabled label="無効、未選択"></tanrei-radio-button>
     <tanrei-radio-button name="specs-disabled" value="selected" disabled checked label="無効、選択"></tanrei-radio-button>
   </div>
+  <div role="radiogroup" aria-label="読み取り専用" aria-readonly="true" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-radio-button name="specs-readonly" value="unselected" readonly label="読み取り専用、未選択"></tanrei-radio-button>
+    <tanrei-radio-button name="specs-readonly" value="selected" readonly checked label="読み取り専用、選択"></tanrei-radio-button>
+  </div>
   <div role="radiogroup" aria-label="ラベルを隠す">
     <tanrei-radio-button name="specs-hidden" value="weekly" checked label-hidden label="毎週"></tanrei-radio-button>
   </div>
@@ -183,6 +187,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - ラベルは、描かれていても `labelHidden` で隠されていても、アクセシブルネームになります。描かれたテキストは支援技術から隠すので、名前が読まれるのは 1 度だけです。
 - グループの中で Tab で止まる位置は 1 つです。選ばれている選択肢、何も選ばれていなければ最初の有効な選択肢です。矢印キーは次または前の有効な選択肢に移ってそれを選び、端では反対側に戻ります。右から左のレイアウトでは、左右の矢印キーの向きが入れ替わります。
 - Space でフォーカスのある選択肢を選びます。Enter で選べるのは、フォーカスのあるコントロールを Enter で操作するのが慣習のプラットフォーム（Android、tvOS）だけです。Web では Enter はフォームを送信します。
+- `readOnly` の間、または周りのラジオグループが読み取り専用の間は、選択肢はフォーカスでき、矢印キーでもたどれますが、押下、Space、ラベルのクリック、`click()`、矢印キーでの到着のどれでも選ばれません。ホバーと押下の反応も出ません。radio ロールには読み取り専用の状態がないので、それを伝えるのはグループです。
 - 選択肢を選ぶと、ほかの選択肢の選択は外れます。変更を知らせるのは新しく選ばれた選択肢だけで、すでに選ばれている選択肢を操作しても何も起きません。
 - ラベルをクリックまたはタップすると、その選択肢が選ばれます。ラベルもヒット領域に含まれ、ヒット領域は最小ターゲットを満たします。各選択肢はターゲットの高さをレイアウトで確保するので、縦に並べた選択肢もそれぞれ独立したターゲット全体を持ちます。
 - 選択を伝えるのはリングだけです。既定のシステムでは、選ばれたリングはどのサーフェスに対しても 3:1 以上を保ち、選ばれていないリングの 2.5 倍の太さがあります。半透明の塗りはそこに数えませんが、接するリングとの間で、どの状態、どのサーフェス、どのスキームでも 3:1 以上を保ちます（WCAG 1.4.11）。選んだ選択肢の中心も見分けられます。
@@ -193,12 +198,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 プラットフォームごとの既知の制約：
 
 - SwiftUI、Compose、Flutter、React Native は、まだ以前の寸法で点のある以前のラジオボタンを描き、リングと塗りを 1 つの形として描くことにも対応しておらず、ターゲットの高さもレイアウトで確保しません。そのため、隙間なく並べた選択肢はターゲットを分け合います。
+- `readOnly` はいまのところ Web だけにあります。SwiftUI、Compose、Flutter、React Native にはまだありません。
 - `m3-like` では、選ばれたときの点は元の大きさのままフェードインします。Material では中心から拡大して現れます（mimicry-gaps 台帳 `radio-dot-scale-in`）。
 
 ### 利用者側で行うこと
 
 - グループに、答える問いを名前として付けます。Web では選択肢を `role="radiogroup"` と `aria-labelledby` を持つ要素、または `<legend>` を持つ `<fieldset>` で囲みます。Flutter では `TanreiRadioGroup` の `semanticLabel`、React Native では `RadioGroup` の `accessibilityLabel` を設定します。
 - キー操作と位置の読み上げが働くように、グループは各プラットフォームの方法で作ります。Web では同じ `name`、Compose では親の `Modifier.selectableGroup()`、Flutter では `TanreiRadioGroup`、React Native では `RadioGroup` です。
+- 選択肢を自分で `name` によってまとめ、どれも読み取り専用にするときは、それをコンテナで伝えます。`role="radiogroup"` の隣に `aria-readonly="true"` を付けてください。`readOnly` を付けた[ラジオグループ](/ja/components/radio-group/)なら、これを代わりに行います。
 - 必須の問いに答えがないときは、グループにメッセージを表示します。エラーの[ラジオグループ](/ja/components/radio-group/)は、エラーテキストを描き、すべてのラジオボタンをエラーの形にします。ラジオグループを使わずにまとめた選択肢では、それぞれのラジオボタンに `error` を設定します。チェックボックスのボックスと同じように、リングと中の丸がエラーの色になります。無効の選択肢は、エラーの色になりません。
 - エラーのラジオボタンが invalid として伝えられることはありません。ラジオボタンのロールには、その状態がないためです。伝えるのはグループです。ラジオグループは invalid になり、エラーテキストがその説明になります。選択肢を自分でまとめる場合は、そのそばにエラーを言葉で書きます。
 - 自分のレイヤでリングと塗りを変えるときは、リングだけで選択が分かる強さを保ちます。ビルドでは確かめません。

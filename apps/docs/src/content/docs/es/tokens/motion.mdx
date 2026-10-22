@@ -1,24 +1,43 @@
 ---
 title: Tokens de movimiento
-description: Tokens de muelle, de duración y de curva de aceleración.
+description: Duraciones por papel, la escala de duraciones, curvas de aceleración por papel, desde dónde aparece una superficie, y muelles.
 translationOf: tokens/motion.mdx
-sourceHash: c524fce45805382c2430560ed82dd0e9036683a0
+sourceHash: b119d7cccb22639de328461912f2b3d5bf1779d6
 ---
 
+import BehaviorChoice from '../../../../components/tokens/BehaviorChoice.astro';
 import MotionTokens from '../../../../components/tokens/MotionTokens.astro';
 
 Tokens de movimiento bajo `tanrei.sys.motion`. Para las pautas de uso, lee [Movimiento](/es/foundations/motion/).
+
+## Duraciones por papel
+
+Lo que tarda un cambio depende de lo que se mueve: un cambio de estado, una selección, una caja que cambia de tamaño, un contenido que se abre en su sitio y cada clase de superficie que aparece y se va tienen su papel. El token de duración de un componente es un alias de su papel, así que una capa cambia en una sola línea el tiempo de todos los componentes de un mismo papel. Una superficie se va más deprisa de lo que aparece. Los papeles siguen al dial de movimiento.
+
+<MotionTokens part="role" />
+
+## Duraciones
+
+La escala de la que están hechos los papeles.
+
+<MotionTokens part="duration" />
+
+## Curvas de aceleración
+
+Las curvas, y los cuatro papeles con los que un componente acelera un cambio: `enter` para una superficie que aparece, `exit` para una que se va, `state` para un cambio de estado en su sitio y `spatial` para lo que se mueve o cambia de tamaño en su sitio. Cada papel nombra una curva de la escala.
+
+<MotionTokens part="easing" />
+
+## Desde dónde aparece una superficie
+
+Toda superficie que aparece —un menú, una lista, un popover, un tooltip, un diálogo, un snackbar— parte de la misma opacidad, la misma escala, la misma distancia y el mismo desenfoque, y se va por el mismo camino de vuelta. Una sola elección de tipo los fija a la vez; una capa elige otra, o fija uno de los valores.
+
+<BehaviorChoice choice="appearance" />
+
+<MotionTokens part="appear" />
 
 ## Muelles
 
 Cada muelle tiene cuatro subtokens. `stiffness` y `damping` gobiernan las plataformas con animación de muelles; `duration` y `easing` son la aproximación que se usa donde no hay muelles, como en CSS.
 
 <MotionTokens part="spring" />
-
-## Duraciones
-
-<MotionTokens part="duration" />
-
-## Curvas de aceleración
-
-<MotionTokens part="easing" />

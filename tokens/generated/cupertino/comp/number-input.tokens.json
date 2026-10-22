@@ -34,7 +34,7 @@
           "inset": {
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space50}",
-            "$description": "From the container's end edge to the stepper nearest it: with a 40 button in a 48 container, the same room at the end as above and below."
+            "$description": "From the container's end edge to the stepper nearest it. In the default system a medium stacked box is as tall as its 40 steppers, so they fill its height and stand this far from its end."
           }
         },
         "motion": {

@@ -125,7 +125,9 @@
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
-                  "by": 6
+                  "by": 6,
+                  "times": "{tanrei.dial.density}",
+                  "round": "{tanrei.dial.size.unit}"
                 }
               }
             },
@@ -356,46 +358,22 @@
           },
           "enter-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short4}",
-            "$description": "How long the tooltip takes to fade in, grow and travel to its place."
+            "$value": "{tanrei.sys.motion.role.appear.hint.enter}",
+            "$description": "How long the tooltip takes to appear from its anchor's side: a hint's entrance."
           },
           "enter-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
-          },
-          "enter-scale": {
-            "$type": "number",
-            "$value": 0.95,
-            "$description": "The size the tooltip grows from as it fades in, and shrinks to as it fades out, as a fraction of its own; the growth is fixed at the point of its edge that faces the anchor. 1 fades without growing.",
-            "$extensions": {
-              "dev.tanrei.vocabulary": {
-                "rationale": "One product tunes how much its tooltips seem to come out of the control they describe: a little, not at all, or plainly.",
-                "since": "0.1.0"
-              },
-              "dev.tanrei.derive": {
-                "fixed": "A proportion of the tooltip's own size; no dial scales it."
-              }
-            }
-          },
-          "enter-offset": {
-            "$type": "dimension",
-            "$value": "{tanrei.sys.space.space50}",
-            "$description": "How far towards the anchor from its place the tooltip starts as it fades in, and returns as it fades out. 0 fades without travelling.",
-            "$extensions": {
-              "dev.tanrei.vocabulary": {
-                "rationale": "One product tunes how far a tooltip travels from its anchor as it appears: enough to say which control it came from, whatever the tooltip's size, or not at all.",
-                "since": "0.1.0"
-              }
-            }
+            "$value": "{tanrei.sys.motion.easing.enter}"
           },
           "exit-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}",
-            "$description": "How long the tooltip takes to fade out, shrink and travel back."
+            "$value": "{tanrei.sys.motion.role.appear.hint.exit}",
+            "$description": "How long the tooltip takes to leave the way it came: a hint's exit."
           },
           "exit-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard-accelerate}"
+            "$value": "{tanrei.sys.motion.easing.standard-accelerate}",
+            "$extensions": {}
           }
         },
         "timeout": {

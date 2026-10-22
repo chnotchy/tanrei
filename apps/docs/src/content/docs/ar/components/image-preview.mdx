@@ -2,7 +2,7 @@
 title: معاينة الصور
 description: تعرض صورة واحدة من مجموعة على النافذة كلها حين يضغط الشخص صورتها المصغّرة، ليراها عن قرب، فيكبّرها ويعيدها، ويتحرك فيها وهي مكبَّرة، وينتقل إلى الصورة التالية أو السابقة، إلى أن تُغلق.
 translationOf: components/image-preview.mdx
-sourceHash: 450b71c7c9821c96c28393d6ebdbe647f082f1d6
+sourceHash: e96ae85ed4881dbba6ec6a53785b75f08794dbf3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -34,7 +34,7 @@ import square from '../../../../../../../packages/web/test/fixtures/image-previe
 
 هي تعرض صورًا ثابتة ولا شيء غيرها. وهي لا تطلب من الشخص شيئًا، فليست [مربع حوار](/ar/components/dialog/)؛ وصورها يُنظر إليها ولا تُضغط، فليست [عرضًا دوّارًا](/ar/components/carousel/). ومع ذلك فإن عنصرًا في عرض دوّار، أو صورة في [شكل توضيحي](/ar/components/figure/)، موضع طبيعي تُفتح منه.
 
-**تُبنى من** [أزرار](/ar/components/button/)، هي التصغير والتكبير والإغلاق والسابق والتالي، ومن [هيكل تحميل](/ar/components/skeleton/) يقف مكان الصورة وهي في طريقها. وهذه هي المكوّنات الحقيقية، تقرأ رموزها هي. أما منطقة العرض (stage) التي تكبّر الصورة وتحرّكها، والانتقال من صورة إلى التي تليها، فهما لمعاينة الصور وحدها ولا يوجدان في أي مكان آخر.
+**تُبنى من** [أزرار](/ar/components/button/)، هي التصغير والتكبير والإغلاق والسابق والتالي، ومن [هيكل تحميل](/ar/components/skeleton/) يقف مكان الصورة وهي في طريقها. وهذه هي المكوّنات الحقيقية، تقرأ رموزها هي. وأزرار التصغير والتكبير والإغلاق في الشريط أزرار صغيرة (small)، وهي tonal في النظام الافتراضي: زر الإغلاق مثل كل أزرار الإغلاق في Tanrei، وزرا التكبير والتصغير بجانبه على الهيئة نفسها. أما السابق والتالي فمتوسطان (medium). ويحتفظ الإعدادان المسبقان m3-like وcupertino برموز بلا خلفية في الشريط. أما منطقة العرض (stage) التي تكبّر الصورة وتحرّكها، والانتقال من صورة إلى التي تليها، فهما لمعاينة الصور وحدها ولا يوجدان في أي مكان آخر.
 
 على الويب هي `<tanrei-image-preview>` ومعها عناصر فرعية `<tanrei-image-preview-item>`. والمنصات الأخرى لم تنفّذها بعد.
 
@@ -153,9 +153,9 @@ preview.addEventListener('zoomchange', (e) => {
 
 ```html
 <dialog class="viewer" aria-label="صور الغرفة">
-  <tanrei-button variant="text" label="تصغير"><span slot="icon">zoom_out</span></tanrei-button>
-  <tanrei-button variant="text" label="تكبير"><span slot="icon">zoom_in</span></tanrei-button>
-  <tanrei-button variant="text" label="إغلاق"><span slot="icon">close</span></tanrei-button>
+  <tanrei-button variant="tonal" size="small" label="تصغير"><span slot="icon">zoom_out</span></tanrei-button>
+  <tanrei-button variant="tonal" size="small" label="تكبير"><span slot="icon">zoom_in</span></tanrei-button>
+  <tanrei-button variant="tonal" size="small" label="إغلاق"><span slot="icon">close</span></tanrei-button>
   <tanrei-button variant="tonal" label="الصورة السابقة"><span slot="icon">chevron_left</span></tanrei-button>
   <img alt="غرفة نوم لها نافذة تطل على حديقة" src="room-large.jpg" tabindex="0">
   <tanrei-button variant="tonal" label="الصورة التالية"><span slot="icon">chevron_right</span></tanrei-button>

@@ -4,7 +4,9 @@
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import { componentFiles } from '../../tokens-build/src/components-catalog.js';
 import { keepFiles } from './keep.js';
+import { npmMetadataOutputs } from './npm-metadata.js';
 
 /**
  * Every generator in the repository, in dependency order: [cwd, command, args, outputs]. An output is a file, or a
@@ -17,11 +19,19 @@ export const GENERATORS = [
   // The glyph names the components and the docs site draw, and the icon axes of the shipped systems (read from the
   // resolved tokens the step before writes).
   ['.', 'node', ['packages/tools/src/glyphs.js'], ['packages/web/src/generated/glyphs.json', 'apps/docs/src/generated/glyphs.json']],
+  // What npm shows of each published package beside its name: homepage, bugs, keywords, the MCP registry's name
+  // (docs/registries/npm-keywords.json and tanrei.config.json).
+  ['.', 'node', ['packages/tools/src/npm-metadata.js'], npmMetadataOutputs()],
   // As the `generate` script of packages/web: what the analyzer reads and where it writes is its configuration's
   // (packages/web/custom-elements-manifest.config.mjs), written once.
   ['packages/web', 'node_modules/.bin/cem', ['analyze'], ['packages/web/custom-elements.json']],
   // One module per wrapper (src/generated/wrappers/) and the module that re-exports them.
   ['packages/react', 'node', ['scripts/generate.js'], ['packages/react/src/generated/']],
+  // The component catalog and each shipped system's components manifest: read from the specs and from what the two
+  // steps before write (the elements' manifest, the wrappers), so it runs after them.
+  ['.', 'node', ['packages/tokens-build/src/components-catalog.js'], componentFiles()],
+  // The React package's entries: the wrappers of each entry the manifests name, so it runs after them.
+  ['.', 'node', ['packages/react/scripts/entries.js'], ['packages/react/src/entries/generated/']],
 ];
 
 const isDirectory = (output) => output.endsWith('/');

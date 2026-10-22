@@ -1,8 +1,9 @@
-import { type PropertyDeclarations, type PropertyValues, ReactiveElement } from 'lit';
+import type { PropertyDeclarations, PropertyValues } from 'lit';
 import { AvailabilityController, report } from '../../primitives/index.js';
 import { debugBuild } from '../../primitives/report.js';
 import type { TanreiPageHeaderSizeRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { TanreiLightElement } from '../../primitives/element.js';
 
 /** The core sizes (small, medium, large), plus any a design system's generated `.d.ts` registers. */
 export type TanreiPageHeaderSize = keyof TanreiPageHeaderSizeRegistry;
@@ -121,7 +122,7 @@ function writtenSheet(id: string, rule: () => string): CSSStyleSheet | null {
  * @tag tanrei-page-header
  * @slot - The page's own elements, in reading order: the breadcrumbs, `[data-part="eyebrow"]`, the heading, the description's `p`, `[data-part="meta"]` and `[data-part="actions"]`. They are children in the document, not slotted nodes: the element has no shadow root.
  */
-export class TanreiPageHeader extends ReactiveElement {
+export class TanreiPageHeader extends TanreiLightElement {
   private readonly availability = new AvailabilityController(this, 'page-header');
 
   static override properties: PropertyDeclarations = {

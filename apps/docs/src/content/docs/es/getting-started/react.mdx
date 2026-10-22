@@ -2,23 +2,29 @@
 title: React
 description: Componentes de React con tipos, generados a partir de los Web Components de Tanrei.
 translationOf: getting-started/react.mdx
-sourceHash: 8b454fa8146b58d18f714d8bfd7dfdcf0b9a647e
+sourceHash: c0c841b6e6aeb6c0b3a2c71ef99d5f54268d0991
 ---
 
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 `@tanrei/react` envuelve cada elemento personalizado de `@tanrei/web` en un componente de React de verdad, con propiedades y controladores de eventos tipados. Los envoltorios se generan a partir del manifiesto de elementos personalizados, así que siempre coinciden con los elementos que envuelven.
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/react" />
+<ReleaseNotice platform="web" registry="npm" pkg={["@tanrei/react", "@tanrei/web"]} />
 
 ## Instalación
 
 Se requiere React 18 o posterior.
 
+### Desde npm
+
+```sh
+npm install @tanrei/react @tanrei/web
+```
+
 ### Desde el código fuente
 
-Igual que con el [paquete Web](/es/getting-started/web/) (Git, Node 22.12 o posterior, pnpm 12): compila los dos paquetes en un clon del repositorio y empaquétalos,
+Para usar el código fuente tal como está en `main`, haz lo mismo que con el [paquete Web](/es/getting-started/web/) (Git, Node 22.12 o posterior, pnpm 12): compila los dos paquetes en un clon del repositorio y empaquétalos,
 
 ```sh
 git clone https://github.com/chnotchy/tanrei.git
@@ -34,16 +40,13 @@ y luego instala los dos archivos empaquetados en tu proyecto con un solo comando
 npm install path/to/tanrei-packages/tanrei-web-*.tgz path/to/tanrei-packages/tanrei-react-*.tgz
 ```
 
-### Después del primer lanzamiento
-
-```sh
-npm install @tanrei/react @tanrei/web
-```
-
 ## Uso
 
+Carga las hojas de estilo una sola vez, antes de que se rendericen los componentes: `tanrei.css` es la base de la página, los tokens y todas las demás hojas de estilo del paquete en un archivo. Para cargarlas una a una, consulta la [guía de Web](/es/getting-started/web/).
+
 ```tsx
-import '@tanrei/web/tokens.css';
+import '@tanrei/web/tanrei.css';
+import '@tanrei/web/words/en';
 import { Button } from '@tanrei/react';
 
 export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
@@ -62,9 +65,30 @@ export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
 
 Las propiedades llevan los mismos nombres que los atributos del elemento (`variant`, `size`, `disabled`). Los eventos son controladores de eventos de React corrientes. Un evento propio del elemento se escucha con `on` y el nombre del evento en camel case, como React nombra los suyos (`onKeyDown`): un cajón de navegación emite `expandedchange`, y se escucha con `onExpandedChange`.
 
+`@tanrei/web/words/en` da un texto en inglés llano para cada etiqueta y cada mensaje que los componentes dibujan o dicen, como el de un tag de obligatorio o el nombre de un botón de cerrar; prescinde de él y da los tuyos con `setWords()` de `@tanrei/react`. Consulta [Textos](/es/foundations/words/).
+
+## Una entrada por sistema de diseño
+
+El paquete tiene una entrada para cada sistema de diseño que Tanrei incluye, de modo que tu editor ofrece, y la comprobación de tipos acepta, solo lo que tiene tu sistema:
+
+| Entrada | Lo que exporta |
+|---|---|
+| `@tanrei/react` | Los componentes del sistema predeterminado, Tanrei. El menú FAB, que vive en la capa m3-like, y el botón segmentado, que Tanrei deja fuera, no están en ella, y una variante que Tanrei deja fuera no es un valor de la prop: `<TextField variant="outlined">` no pasa la comprobación de tipos |
+| `@tanrei/react/m3-like`, `@tanrei/react/m3-expressive-like`, `@tanrei/react/cupertino` | Los componentes de ese preset, con sus variantes |
+| `@tanrei/react/advanced` | Los componentes avanzados, las piezas de las que se construyen otros: `TextInput`, `ModalLayer`, `Combobox` y los demás. Un producto suele escribir el componente construido a partir de uno: `TextField`, `Dialog`, `ComboboxField` |
+| `@tanrei/react/all` | Todos los componentes, tenga cada uno el sistema que sea: para un sistema de diseño propio y para construir uno |
+
+```tsx
+import '@tanrei/web/tokens.css';
+import '@tanrei/web/systems/m3-like.css';
+import { FabMenu, FabMenuItem, TextField } from '@tanrei/react/m3-like';
+```
+
+Un componente es el mismo en todas las entradas, así que el empaquetador sigue conservando solo lo que importas. Todas las entradas exportan también `setWords`, `missingWords` y el tipo `TanreiEvent`. Las entradas se generan a partir del manifiesto de componentes de cada sistema, `@tanrei/web/systems/<id>.components.json`, que indica la entrada de cada componente (`react.import`); el manifiesto de tu propio sistema, que escribe `tanrei build`, indica `@tanrei/react/all`.
+
 ## Renderizado en el servidor
 
-Los componentes generan en el servidor la etiqueta de un elemento personalizado y se actualizan en el navegador. En los frameworks que separan servidor y cliente, importa `@tanrei/react` desde un componente de cliente para que las definiciones de los elementos se registren en el navegador.
+Los componentes generan en el servidor la etiqueta de un elemento personalizado y se actualizan en el navegador. En los frameworks que separan servidor y cliente, importa la entrada que usas desde un componente de cliente para que las definiciones de los elementos se registren en el navegador.
 
 <Callout>
   El tema, el contraste, los tokens y las fuentes funcionan exactamente como se describe en la [guía de Web](/es/getting-started/web/); el paquete de React no añade nada propio encima.

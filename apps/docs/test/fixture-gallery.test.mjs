@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, test } from 'node:test';
 
 register('./vite-shim.mjs', import.meta.url);
-const { galleryOf, groupingAxis, stageOf, windowOf, fixturePageHref } = await import('../src/lib/fixture-gallery.ts');
+const { galleryOf, groupingAxis, stageOf, windowOf, fixtureWindowHref } = await import('../src/lib/fixture-gallery.ts');
 const { drawsLive, liveFixture } = await import('../src/lib/fixtures.ts');
 const { definedTags, specs } = await import('../src/lib/repo.ts');
 
@@ -95,8 +95,8 @@ describe('the gallery of fixtures', () => {
     assert.match(stageOf(specs.dialog, specs.dialog.fixtures[0], true).markup, /^<tanrei-dialog[^>]* open[\s>]/);
   });
 
-  test('a fixture’s own page is addressed with its id and scheme', () => {
-    assert.equal(fixturePageHref('button'), '/fixtures/button/');
-    assert.equal(fixturePageHref('dialog', 'basic', 'dark'), '/fixtures/dialog/?id=basic&theme=dark');
+  test('a window’s document is addressed with its fixture’s id', () => {
+    assert.equal(fixtureWindowHref('dialog', 'basic'), '/fixtures/dialog/?id=basic');
+    assert.equal(fixtureWindowHref('menu', 'a b&c'), '/fixtures/menu/?id=a+b%26c');
   });
 });

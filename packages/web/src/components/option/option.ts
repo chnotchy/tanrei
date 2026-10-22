@@ -1,5 +1,6 @@
-import { LitElement, type PropertyDeclarations, css } from 'lit';
+import { type PropertyDeclarations, css } from 'lit';
 import { OPTION_GROUP_TAG, OPTION_TAG } from '../../primitives/option-list.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 // The two elements a field that opens a list of options holds: `<tanrei-option>` and `<tanrei-option-group>`. One pair
 // for the select and the combobox: a select that needs a
@@ -24,7 +25,7 @@ const hidden = css`
  * @tag tanrei-option
  * @slot - The option's label, as text, where the `label` attribute is not given. It is read, never drawn in place.
  */
-export class TanreiOption extends LitElement {
+export class TanreiOption extends TanreiElement {
   static override styles = hidden;
 
   static override properties: PropertyDeclarations = {
@@ -63,7 +64,7 @@ export class TanreiOption extends LitElement {
  * @tag tanrei-option-group
  * @slot - The group's `<tanrei-option>` elements.
  */
-export class TanreiOptionGroup extends LitElement {
+export class TanreiOptionGroup extends TanreiElement {
   static override styles = hidden;
 
   static override properties: PropertyDeclarations = {

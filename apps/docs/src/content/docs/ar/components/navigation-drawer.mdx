@@ -2,7 +2,7 @@
 title: درج التنقل
 description: يسرد وجهات المنتج في لوحة عند حافة البداية، في أقسام ومجموعات، بجانب المحتوى على شاشة كبيرة أو فوقه على شاشة مضغوطة، ويمكن أن يُطوى إلى عمود من الأيقونات.
 translationOf: components/navigation-drawer.mdx
-sourceHash: c0e6415cbe529e2cea498fc6093ce5a4744b804d
+sourceHash: 5a0659850fec34d28617357f9478089babbb3c8f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -21,12 +21,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <DemoFrame label="درج قياسي فيه قسمان">
   <tanrei-navigation-drawer open value="inbox" label="البريد" style="block-size: 26rem">
-    <tanrei-navigation-drawer-section heading="البريد">
+    <tanrei-navigation-drawer-section headline="البريد">
       <tanrei-navigation-drawer-item value="inbox" label="الوارد" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
       <tanrei-navigation-drawer-item value="sent" label="المرسَل" icon="send"></tanrei-navigation-drawer-item>
       <tanrei-navigation-drawer-item value="drafts" label="المسودات" icon="draft"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-section>
-    <tanrei-navigation-drawer-section heading="التصنيفات" divider>
+    <tanrei-navigation-drawer-section headline="التصنيفات" divider>
       <tanrei-navigation-drawer-item value="work" label="العمل" icon="label" trailing-text="جديد"></tanrei-navigation-drawer-item>
       <tanrei-navigation-drawer-item value="family" label="العائلة" icon="label"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-section>
@@ -65,7 +65,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <DemoFrame label="درج مضغوط لأداة تُستخدم بالمؤشر: صفوف بارتفاع 32 ورسوم بحجم 16، وكل أيقونة متداخلة حيث تبدأ تسمية مجموعتها" plain>
   <tanrei-navigation-drawer open density="compact" value="tree-view" label="Workspace" style="block-size: 22rem">
     <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
-    <tanrei-navigation-drawer-section heading="Projects">
+    <tanrei-navigation-drawer-section headline="Projects">
       <tanrei-navigation-drawer-group label="Tanrei" icon="folder" open>
         <tanrei-navigation-drawer-item value="tokens" label="Tokens" icon="palette" trailing-text="412"></tanrei-navigation-drawer-item>
         <tanrei-navigation-drawer-group label="Components" icon="widgets" open>
@@ -97,7 +97,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### الاستخدام
 
-لدرج التنقل خمسة أنواع من العناصر. النوع `destination` صف فيه أيقونة اختيارية وتسمية ومحتوى اختياري في نهايته؛ ومع `href` يكون رابطًا. والنوع `group` صف يفتح الوجهات والمجموعات التي داخله ويغلقها. والنوع `section` يجمع وجهات ومجموعات تحت `heading` اختياري، وقبله `divider` اختياري؛ الأقسام لا تتداخل، والمجموعات لا تحمل أقسامًا. ويقع في الترويسة العنصر `header-button` (وأولها زر القائمة) والعنصر `main-action`. على الويب هي عناصر فرعية `<tanrei-navigation-drawer-item>` و `<tanrei-navigation-drawer-group>` و `<tanrei-navigation-drawer-section>`، وعناصر `<tanrei-button>` بأيقونة فقط وعنصر `<tanrei-main-action-button>` في المنفذين `header-button` و `main-action`. وتأخذ المنصات المتأخرة الوجهات والأقسام بأسلوبها: عروض `TanreiNavigationDrawerItem` و `TanreiNavigationDrawerSection` على SwiftUI واستدعاءات بالاسمين نفسيهما على Compose، وكائنات `TanreiNavigationDrawerDestination` و `TanreiNavigationDrawerSection` في `children:` على Flutter، ومدخلات وجهات وأقسام في مصفوفة `items` على React Native، حيث يُعرَف القسم بأن له `items` خاصة به.
+لدرج التنقل خمسة أنواع من العناصر. النوع `destination` صف فيه أيقونة اختيارية وتسمية ومحتوى اختياري في نهايته؛ ومع `href` يكون رابطًا. والنوع `group` صف يفتح الوجهات والمجموعات التي داخله ويغلقها. والنوع `section` يجمع وجهات ومجموعات تحت `title` (`headline` على الويب) اختياري، وقبله `divider` اختياري؛ الأقسام لا تتداخل، والمجموعات لا تحمل أقسامًا. ويقع في الترويسة العنصر `header-button` (وأولها زر القائمة) والعنصر `main-action`. على الويب هي عناصر فرعية `<tanrei-navigation-drawer-item>` و `<tanrei-navigation-drawer-group>` و `<tanrei-navigation-drawer-section>`، وعناصر `<tanrei-button>` بأيقونة فقط وعنصر `<tanrei-main-action-button>` في المنفذين `header-button` و `main-action`. وتأخذ المنصات المتأخرة الوجهات والأقسام بأسلوبها: عروض `TanreiNavigationDrawerItem` و `TanreiNavigationDrawerSection` على SwiftUI واستدعاءات بالاسمين نفسيهما على Compose، وكائنات `TanreiNavigationDrawerDestination` و `TanreiNavigationDrawerSection` في `children:` على Flutter، ومدخلات وجهات وأقسام في مصفوفة `items` على React Native، حيث يُعرَف القسم بأن له `items` خاصة به.
 
 التحديد ملك للدرج، بقيمة الوجهة، أينما وقفت الوجهة. يعمل `change` و `reselect` كما في شريط التنقل. ليس في Compose قيمة على مستوى الدرج: تميّز العنصر الحالي بالخاصية `selected`، وتقوم `onClick` فيه مقام change و reselect معًا. ويحدّد Flutter بالفهرس، معدودًا عبر الأقسام بترتيب القراءة.
 
@@ -123,11 +123,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
     <!-- النمطي: عنصر <dialog> في shadow root، يُفتح بـ showModal(). والقياسي عنصر <nav> اسمه label. -->
     <tanrei-navigation-drawer variant="modal" label="البريد" value="inbox">
-      <tanrei-navigation-drawer-section heading="البريد">
+      <tanrei-navigation-drawer-section headline="البريد">
         <tanrei-navigation-drawer-item value="inbox" label="الوارد" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
         <tanrei-navigation-drawer-item value="sent" label="المرسَل" icon="send"></tanrei-navigation-drawer-item>
       </tanrei-navigation-drawer-section>
-      <tanrei-navigation-drawer-section heading="التصنيفات" divider>
+      <tanrei-navigation-drawer-section headline="التصنيفات" divider>
         <tanrei-navigation-drawer-item value="work" label="العمل" icon="label" trailing-text="جديد"></tanrei-navigation-drawer-item>
       </tanrei-navigation-drawer-section>
     </tanrei-navigation-drawer>
@@ -200,7 +200,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       onChange={(e) => setFolder(e.detail.value)}
       onClose={() => setOpen(false)}
     >
-      <NavigationDrawerSection heading="البريد">
+      <NavigationDrawerSection headline="البريد">
         <NavigationDrawerItem value="inbox" label="الوارد" icon="inbox" trailingText="24" />
         <NavigationDrawerItem value="sent" label="المرسَل" icon="send" />
       </NavigationDrawerSection>

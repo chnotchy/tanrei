@@ -12,7 +12,7 @@ import { TanreiBottomSheet as TanreiBottomSheetElement, type TanreiBottomSheetCl
  * - default — The content: it gets `content.color` as its color, and plain text the body role.
  *
  * Events:
- * - `onClose` (`close`) — The sheet asks to be closed: `detail.reason` is `drag`, `scrim`, `escape` or `back`. Set `open` to false. Only while `closedby` is not `none`.
+ * - `onClose` (`close`) — The sheet asks to be closed: `detail.reason` is `close` (its close button, whatever `closedby` says), or `drag`, `scrim`, `escape` or `back` (only while `closedby` is not `none`). Set `open` to false.
  * - `onDetentChange` (`detentchange`) — The person moved the sheet to its other height, by a drag or with the handle: `detail.detent` (and `detent`) is the new one. Not fired when you set `detent`.
  */
 export const BottomSheet = /* @__PURE__ */ createComponent({

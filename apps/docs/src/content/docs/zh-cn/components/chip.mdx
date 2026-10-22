@@ -2,7 +2,7 @@
 title: "纸片（Chip）"
 description: "排成一行的带标签的小控件：用于建议的操作或通往某处的链接、可开可关的筛选条件，或者用户输入后可以移除的项。"
 translationOf: components/chip.mdx
-sourceHash: 37e38aec32b4906b81c9cd245bc9a0ee1ec6e828
+sourceHash: 035fe677407860928287282c7aaf348c8224ccac
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -44,8 +44,8 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
       <img slot="avatar" src="ada.jpg" alt="" />
     </tanrei-chip>
 
-    <!-- 移除一个已应用的筛选条件不会丢失任何东西：关闭破坏性外观。 -->
-    <tanrei-chip kind="input" label="30 分钟以内" remove-label="移除“30 分钟以内”" no-destructive-remove></tanrei-chip>
+    <!-- 移除附件会丢失这个附件：给移除操作加上破坏性外观。 -->
+    <tanrei-chip kind="input" label="report.pdf" remove-label="移除 report.pdf" destructive-remove></tanrei-chip>
 
     <script type="module">
       import '@tanrei/web/components/chip';
@@ -64,7 +64,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
     <Chip label="路线" href="https://example.com/map" target="new" targetLabel="在新标签页中打开" />
     <Chip kind="filter" selected={vegetarian} label="素食" onChange={(e) => setVegetarian(e.detail.selected)} />
     <Chip kind="input" label="李华" removeLabel="移除李华" onRemove={() => removeRecipient(ada)} />
-    <Chip kind="input" label="30 分钟以内" removeLabel="移除“30 分钟以内”" destructiveRemove={false} onRemove={clearTimeFilter} />
+    <Chip kind="input" label="report.pdf" removeLabel="移除 report.pdf" destructiveRemove onRemove={() => removeAttachment(report)} />
     ```
   </TabItem>
   <TabItem label="SwiftUI">
@@ -147,9 +147,9 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
   <tanrei-chip kind="filter" selected disabled label="素食"></tanrei-chip>
 </DemoFrame>
 
-<DemoFrame label="移除操作：破坏性（默认）和普通；悬停或聚焦即可看出差别" plain>
-  <tanrei-chip kind="input" label="李华" remove-label="移除李华"></tanrei-chip>
-  <tanrei-chip kind="input" label="30 分钟以内" remove-label="移除“30 分钟以内”" no-destructive-remove></tanrei-chip>
+<DemoFrame label="移除操作：普通（默认）和破坏性；悬停或聚焦即可看出差别" plain>
+  <tanrei-chip kind="input" label="30 分钟以内" remove-label="移除“30 分钟以内”"></tanrei-chip>
+  <tanrei-chip kind="input" label="report.pdf" remove-label="移除 report.pdf" destructive-remove></tanrei-chip>
 </DemoFrame>
 
 <DemoFrame label="链接纸片：在当前页打开、在新标签页中打开、禁用" plain>
@@ -213,7 +213,7 @@ Material Design 3 有 4 个纸片家族。Tanrei 只算 3 个种类：它的辅�
 
 输入纸片以移除操作结尾：填充样式的 `cancel` 图标，放在一个比它略大的圆形容器上；悬停、聚焦和按下时，这个容器显示为图标周围的一圈圆环。在默认系统中，这个圆形容器与纸片的圆形末端同心，到末端的距离与到顶部和底部的距离相等。它不占用自己的空间，所以不会让纸片变宽或变高。移除操作是一个独立的按钮，有自己的名称，自己的悬停、聚焦和按下状态，以及自己的点击区域；这个区域向外延伸，绝不盖住标签。按下它，或者在纸片获得焦点时按 Backspace 或 Delete，都是请求移除这个纸片。**纸片绝不会移除自己。** 由你的代码移除这一项并移动焦点：移到下一个纸片、上一个纸片，或者这些纸片所属的字段。
 
-默认情况下，移除操作呈现为破坏性操作（`destructiveRemove`，除非你把它关掉，否则是打开的）。静止时，它的样子和没有这个标志时一样。悬停、聚焦或按下时，它的图标和状态层采用错误颜色。对于不会丢失任何东西的移除，例如用户还能加回来的已应用筛选条件，请把它关掉。在 Web 上，这个属性是反过来的 `no-destructive-remove`，因为 HTML 的布尔属性不能默认为 true。这个标志只改变颜色，不改变别的，并且在其他种类上会被忽略。
+移除操作可以呈现为破坏性操作（`destructiveRemove`，默认关闭）。静止时，它的样子和没有这个标志时一样。悬停、聚焦或按下时，它的图标和状态层采用错误颜色。大多数移除拿掉的是用户一步就能恢复的东西，例如已应用的筛选条件或搜索词，所以除非你设置这个标志，移除操作都是普通外观。当移除会丢失一步无法恢复的东西时（例如附件，或已经发出邀请的收件人），再设置它。在 Web 上，这个属性是 `destructive-remove`。这个标志只改变颜色，不改变别的，并且在其他种类上会被忽略。
 
 暂时不能移除的输入纸片，例如只读字段里的一个条目，不绘制移除操作：把 `removable` 设为 false。这样就不会有一个什么都不做的操作摆在那里，Backspace 和 Delete 不请求任何事情，纸片的内边距也与不带移除操作的纸片相同。在 Web 上，这个属性是反过来的 `not-removable`。它在其他种类上会被忽略。
 
@@ -224,7 +224,7 @@ Material Design 3 有 4 个纸片家族。Tanrei 只算 3 个种类：它的辅�
 - 标签保持简短，一到三个词。纸片保持在一行之内，只有布局给它的宽度不够时，才以省略号截断标签。
 - 一行纸片只使用一种变体。
 - 在移除标签中说出这一项的名称：写“移除李华”，而不是“移除”。
-- 当移除会丢失用户输入的内容（例如收件人或标签）时，保留破坏性的移除外观。移除无关紧要时，把它关掉。
+- 只有当移除会丢失一步无法恢复的东西时（例如附件），才给移除操作加上破坏性外观。如果这一项一步就能恢复（例如筛选条件或搜索词），就保持普通外观。
 - 在 Web 上，把一行纸片放进[标签组](/zh-cn/components/tag-group/)：它把纸片排成会换行的若干行，保持它们之间的距离，并把它们作为一个列表暴露出来。在其他平台上，以及需要滚动的一行纸片，布局由你自己来做。
 
 ### 避免

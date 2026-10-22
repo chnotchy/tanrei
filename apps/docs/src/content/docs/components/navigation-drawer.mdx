@@ -19,12 +19,12 @@ This page describes the navigation drawer as the spec has it now. A `collapsible
 
 <DemoFrame label="A standard drawer with two sections">
   <tanrei-navigation-drawer open value="inbox" label="Mail" style="block-size: 26rem">
-    <tanrei-navigation-drawer-section heading="Mail">
+    <tanrei-navigation-drawer-section headline="Mail">
       <tanrei-navigation-drawer-item value="inbox" label="Inbox" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
       <tanrei-navigation-drawer-item value="sent" label="Sent" icon="send"></tanrei-navigation-drawer-item>
       <tanrei-navigation-drawer-item value="drafts" label="Drafts" icon="draft"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-section>
-    <tanrei-navigation-drawer-section heading="Labels" divider>
+    <tanrei-navigation-drawer-section headline="Labels" divider>
       <tanrei-navigation-drawer-item value="work" label="Work" icon="label" trailing-text="New"></tanrei-navigation-drawer-item>
       <tanrei-navigation-drawer-item value="family" label="Family" icon="label"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-section>
@@ -63,7 +63,7 @@ This page describes the navigation drawer as the spec has it now. A `collapsible
 <DemoFrame label="A compact drawer, for a tool used with a pointer: 32 rows and 16 glyphs, each nested icon where its group's label starts" plain>
   <tanrei-navigation-drawer open density="compact" value="tree-view" label="Workspace" style="block-size: 22rem">
     <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
-    <tanrei-navigation-drawer-section heading="Projects">
+    <tanrei-navigation-drawer-section headline="Projects">
       <tanrei-navigation-drawer-group label="Tanrei" icon="folder" open>
         <tanrei-navigation-drawer-item value="tokens" label="Tokens" icon="palette" trailing-text="412"></tanrei-navigation-drawer-item>
         <tanrei-navigation-drawer-group label="Components" icon="widgets" open>
@@ -95,7 +95,7 @@ This page describes the navigation drawer as the spec has it now. A `collapsible
 
 ### Usage
 
-A navigation drawer has five kinds of item. A `destination` is a row with an optional icon, a label and optional trailing content at its end; with an `href` it is a link. A `group` is a row that opens and closes the destinations and groups inside it. A `section` groups destinations and groups under an optional `heading`, with an optional `divider` before it; sections do not nest, and groups do not hold sections. A `header-button` (the first is the menu button) and a `main-action` sit in the header. On the web they are `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` and `<tanrei-navigation-drawer-section>` children, and icon-only `<tanrei-button>`s and a `<tanrei-main-action-button>` in the `header-button` and `main-action` slots. The lagging platforms take destinations and sections in their own idiom: `TanreiNavigationDrawerItem` and `TanreiNavigationDrawerSection` views on SwiftUI and calls on Compose, `TanreiNavigationDrawerDestination` and `TanreiNavigationDrawerSection` objects in Flutter's `children:`, and destination and section entries of an `items` array on React Native, where a section is told apart by its own `items`.
+A navigation drawer has five kinds of item. A `destination` is a row with an optional icon, a label and optional trailing content at its end; with an `href` it is a link. A `group` is a row that opens and closes the destinations and groups inside it. A `section` groups destinations and groups under an optional `title` (`headline` on the web), with an optional `divider` before it; sections do not nest, and groups do not hold sections. A `header-button` (the first is the menu button) and a `main-action` sit in the header. On the web they are `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` and `<tanrei-navigation-drawer-section>` children, and icon-only `<tanrei-button>`s and a `<tanrei-main-action-button>` in the `header-button` and `main-action` slots. The lagging platforms take destinations and sections in their own idiom: `TanreiNavigationDrawerItem` and `TanreiNavigationDrawerSection` views on SwiftUI and calls on Compose, `TanreiNavigationDrawerDestination` and `TanreiNavigationDrawerSection` objects in Flutter's `children:`, and destination and section entries of an `items` array on React Native, where a section is told apart by its own `items`.
 
 The selection belongs to the drawer, by a destination's value, wherever the destination stands. `change` and `reselect` work as for the navigation bar. Compose has no drawer-level value: you mark the current item `selected`, and its `onClick` serves as both change and reselect. Flutter selects by index, counted through the sections in reading order.
 
@@ -121,11 +121,11 @@ With `responsive` the drawer makes that choice itself, from the window's width (
 
     <!-- Modal: a <dialog> in the shadow root, opened with showModal(). Standard is a <nav> named by label. -->
     <tanrei-navigation-drawer variant="modal" label="Mail" value="inbox">
-      <tanrei-navigation-drawer-section heading="Mail">
+      <tanrei-navigation-drawer-section headline="Mail">
         <tanrei-navigation-drawer-item value="inbox" label="Inbox" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
         <tanrei-navigation-drawer-item value="sent" label="Sent" icon="send"></tanrei-navigation-drawer-item>
       </tanrei-navigation-drawer-section>
-      <tanrei-navigation-drawer-section heading="Labels" divider>
+      <tanrei-navigation-drawer-section headline="Labels" divider>
         <tanrei-navigation-drawer-item value="work" label="Work" icon="label" trailing-text="New"></tanrei-navigation-drawer-item>
       </tanrei-navigation-drawer-section>
     </tanrei-navigation-drawer>
@@ -198,7 +198,7 @@ With `responsive` the drawer makes that choice itself, from the window's width (
       onChange={(e) => setFolder(e.detail.value)}
       onClose={() => setOpen(false)}
     >
-      <NavigationDrawerSection heading="Mail">
+      <NavigationDrawerSection headline="Mail">
         <NavigationDrawerItem value="inbox" label="Inbox" icon="inbox" trailingText="24" />
         <NavigationDrawerItem value="sent" label="Sent" icon="send" />
       </NavigationDrawerSection>

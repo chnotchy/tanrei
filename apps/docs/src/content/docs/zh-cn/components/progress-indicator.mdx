@@ -2,7 +2,7 @@
 title: "进度指示器"
 description: "以条形或圆环显示任务已经进行到哪里；进度未知时，则表示任务正在进行。"
 translationOf: components/progress-indicator.mdx
-sourceHash: f486cb2aed81fdd7e8f613cede165ad08fad7a23
+sourceHash: 7a2f831964be9fb1473847365cd287574d956952
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -188,7 +188,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 ### 避免
 
 - 不要用颜色来报告失败。对看不到颜色的人来说，红色的进度条什么也没说；应当停止指示器，并在它旁边显示一条消息。
-- 不要把它当作显示某个水平的量表，例如已用存储空间或密码强度。那是计量条（meter），是另一个组件。
+- 不要把它当作显示某个水平的量表，例如已用存储空间或密码强度。那是[计量条](/zh-cn/components/meter/)（meter），是另一个组件。
 - 不要让数值倒退，也不要在任务完成之前跳到终点。进度条是对剩余等待时间的承诺。
 - 不要为同一项任务显示多个指示器。为整体显示一个，或者为用户关心的每一项各显示一个。
 

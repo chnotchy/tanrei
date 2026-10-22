@@ -110,7 +110,7 @@ for (const { id: extendsId } of studio.systems) {
     ]);
     const icons = studio.iconSet(layer);
     assert.deepEqual([icons.mode, icons.unselected, icons.selected, icons.weight, icons.fillUnselected], ['static', ['Material Icons Outlined'], ['Material Icons'], 500, 0.25]);
-    assert.deepEqual(studio.behaviors(layer).map((choice) => [choice.key, choice.value]), [['pressed-feedback', 'none'], ['focus-style', 'glow'], ['separation', 'gap'], ['link-underline', 'never'], ['requirement-mark', 'none'], ['divider-visibility', 'scroll']]);
+    assert.deepEqual(studio.behaviors(layer).map((choice) => [choice.key, choice.value]), [['pressed-feedback', 'none'], ['focus-style', 'glow'], ['separation', 'gap'], ['link-underline', 'never'], ['requirement-mark', 'none'], ['divider-visibility', 'scroll'], ['scroll-edge', 'blur'], ['appearance', 'unfold']]);
     assert.deepEqual([studio.cornerSmoothing(layer).value, studio.cornerSmoothing(layer).changed], [0.8, true]);
 
     // …Every token shows the same entries and may write them back unchanged (the editor's own path)…
@@ -210,10 +210,14 @@ test('a choice of kind is picked by name; an index outside its names is a proble
     ['requirement-mark', ['tag', 'asterisk', 'none'], 'tag', false],
     // The sixth, when the edge of a region that stays in place is drawn: at rest, or only once content scrolls past it.
     ['divider-visibility', ['always', 'scroll'], 'always', false],
+    // The seventh, what marks the edge of a box that scrolls while content lies beyond it.
+    ['scroll-edge', ['shadow', 'fade', 'line', 'blur'], 'shadow', false],
+    // The eighth, how a surface appears: it sets where every surface that appears starts from.
+    ['appearance', ['fade-scale', 'fade', 'fade-slide', 'blur-slide', 'unfold'], 'fade-scale', false],
   ]);
   for (const choice of studio.behaviors(layer)) assert.ok(choice.description.length > 40, `${choice.key} explains its names`);
-  assert.deepEqual(studio.behaviors(blank('cupertino')).map((choice) => choice.value), ['dim', 'ring', 'divider', 'always', 'none', 'scroll'],'a preset’s choices are what a layer on it inherits');
-  assert.deepEqual(studio.behaviors(blank('m3-like')).map((choice) => choice.value), ['ripple', 'ring', 'gap', 'always', 'asterisk', 'scroll'],'and a preset that parts its joined pieces with space says so');
+  assert.deepEqual(studio.behaviors(blank('cupertino')).map((choice) => choice.value), ['dim', 'ring', 'divider', 'always', 'none', 'scroll', 'blur', 'fade-scale'],'a preset’s choices are what a layer on it inherits');
+  assert.deepEqual(studio.behaviors(blank('m3-like')).map((choice) => choice.value), ['ripple', 'ring', 'gap', 'always', 'asterisk', 'scroll', 'line', 'unfold'],'and a preset that parts its joined pieces with space says so');
   assert.deepEqual(studio.setBehavior(layer, BEHAVIOR('pressed-feedback'), 'sparkle'), layer, 'a layer chooses among the names; it does not add one');
   // Every token: the token carries its names, so the editor can offer a name picker instead of a number field.
   const view = studio.preview(studio.setBehavior(layer, BEHAVIOR('pressed-feedback'), 'dim'));
@@ -373,7 +377,7 @@ test('a layer that extends another LOCAL layer: the Studio resolves the chain th
     assert.equal(view.valueOf(`${NS}.comp.button.container.gap.medium`).value, 96, 'a step the local parent added to the vocabulary');
     assert.equal(studio.describe(view, `${NS}.dial.shape.unit`).setBy.layer, 'house');
     // The groups read what the local parent says, and an edit on top of it is an ordinary operation.
-    assert.deepEqual(studio.behaviors(app).map((choice) => choice.value), ['ripple', 'glow', 'gap', 'always', 'asterisk', 'scroll'], 'the press, the separation, the requirement mark and the divider visibility are m3-like’s, the focus style is the local parent’s, the underline the default system’s');
+    assert.deepEqual(studio.behaviors(app).map((choice) => choice.value), ['ripple', 'glow', 'gap', 'always', 'asterisk', 'scroll', 'line', 'unfold'], 'the press, the separation, the requirement mark, the divider visibility, the scroll edge and the appearance are m3-like’s, the focus style is the local parent’s, the underline the default system’s');
     assert.equal(studio.setBehavior(app, BEHAVIOR('focus-style'), 'glow').tokens[BEHAVIOR('focus-style')], undefined, 'what the local base already says writes nothing');
     const edited = studio.setDial(studio.setBehavior(app, BEHAVIOR('focus-style'), 'ring'), `${NS}.dial.type.base`, 17);
     await assertPreviewIsTheBuild(edited, { parents: [house] });
