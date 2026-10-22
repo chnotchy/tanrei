@@ -36,7 +36,8 @@ export interface TanreiFabMenuToggleDetail {
  * Why the FAB menu asks to be closed (FBM-15, FBM-16), by the spec's names — the menu's reasons. The web has no back
  * gesture of its own: Escape is its close request, so `back` is never sent here.
  */
-export type TanreiFabMenuCloseReason = TanreiMenuCloseReason;
+/** The menu's reasons, but anchor-hidden: the FAB menu's items stand with its own toggle, which closes them with it. */
+export type TanreiFabMenuCloseReason = Exclude<TanreiMenuCloseReason, 'anchor-hidden'>;
 /** What `close` carries: why the FAB menu asks to be closed. */
 export interface TanreiFabMenuCloseDetail {
   reason: TanreiFabMenuCloseReason;

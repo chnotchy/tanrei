@@ -624,6 +624,24 @@ test.describe('placement', () => {
     await expect.poll(() => isOpen(page)).toBe(false);
     await page.locator('#a').evaluate((el) => (el.style.visibility = ''));
     await clearLog(page);
+    // No box (display none), and skipped by content-visibility in a box of its own: the same.
+    await open(page);
+    await page.locator('#a').evaluate((el) => (el.style.display = 'none'));
+    await expect.poll(() => log(page)).toEqual(['p:anchor-hidden']);
+    await expect.poll(() => isOpen(page)).toBe(false);
+    await page.locator('#a').evaluate((el) => (el.style.display = ''));
+    await clearLog(page);
+    await page.locator('#a').evaluate((el) => {
+      const box = Object.assign(document.createElement('div'), { id: 'box-a' });
+      el.before(box);
+      box.append(el);
+    });
+    await open(page);
+    await page.locator('#box-a').evaluate((el) => (el.style.contentVisibility = 'hidden'));
+    await expect.poll(() => log(page)).toEqual(['p:anchor-hidden']);
+    await expect.poll(() => isOpen(page)).toBe(false);
+    await page.locator('#box-a').evaluate((el) => (el.style.contentVisibility = ''));
+    await clearLog(page);
     await open(page);
     await page.locator('#a').evaluate((el) => el.remove());
     await expect.poll(() => log(page)).toEqual(['p:anchor-hidden']);

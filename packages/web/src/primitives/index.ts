@@ -112,7 +112,8 @@
 //                 syncDividerVisibility()
 //   follow      — FollowController: an overlay placed by script follows its anchor by events (scroll, resize, sizes, a place
 //                 that changed with no event, a motion beginning), frame by frame only while something moves (TIP-9,
-//                 MNU-2, FBM-13, SRC-7, DTM-2)
+//                 MNU-2, FBM-13, SRC-7, DTM-2), and says when its anchor is no longer drawn (anchorUndrawn(): out of the
+//                 page, display none, visibility hidden, skipped by content-visibility; MNU-65, DTM-51)
 //   disclosure  — lineArrow(): the arrow key toward the end or the start of the line, for a row that opens and closes what is
 //                 under it (a navigation drawer's group, NVD-45; an accordion's header, ACC-11)
 //   placement   — placeAnchored(): where a surface that opens beside a control goes (the thirteen placements, offsets,
@@ -180,7 +181,7 @@ export { OUTSIDE_FOCUS_ORDER } from './focus-order.js';
 export { DIRECTION_PROBE, DirectionController, directionProbeStyles } from './direction.js';
 export { lineArrow } from './disclosure.js';
 export { PendingGlyphs, isGlyphProbe } from './glyph-pending.js';
-export { FollowController, type FollowOptions } from './follow.js';
+export { FollowController, type FollowOptions, anchorUndrawn } from './follow.js';
 export {
   ANCHORED_PLACEMENTS,
   type AnchoredArrow,

@@ -426,6 +426,61 @@ test.describe('overlay', () => {
     expect(s.y).toBeCloseTo(a.y + a.height + offset, 0);
   });
 
+  test('MNU-65: an open menu whose anchor is no longer drawn — display none, taken out of the page, skipped by content-visibility, visibility hidden — emits close once with the reason anchor-hidden and is closed, every submenu with it; focus that was inside it does not stay there; drawn again, it opens and follows as before', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [overlay('edit', [...EDIT, sub('More', [it('One'), it('Two')])])] });
+    // The anchor in a box of its own, which content-visibility can skip without skipping the menu.
+    await page.evaluate(() => {
+      const anchor = document.getElementById('a-edit')!;
+      const box = Object.assign(document.createElement('div'), { id: 'box-edit' });
+      anchor.before(box);
+      box.append(anchor);
+    });
+    await wire(page);
+    const ways = ['display', 'removed', 'content-visibility', 'visibility'] as const;
+    const hide = (way: (typeof ways)[number], hidden: boolean) =>
+      page.evaluate(
+        ([w, h]) => {
+          const box = document.getElementById('box-edit')!;
+          const anchor = (document.getElementById('a-edit') ?? (window as any).__anchor) as HTMLElement;
+          (window as any).__anchor = anchor;
+          if (w === 'display') anchor.style.display = h ? 'none' : '';
+          else if (w === 'visibility') anchor.style.visibility = h ? 'hidden' : '';
+          else if (w === 'content-visibility') box.style.contentVisibility = h ? 'hidden' : '';
+          else if (h) anchor.remove();
+          else box.append(anchor);
+        },
+        [way, hidden] as const,
+      );
+    for (const way of ways) {
+      await page.evaluate(() => ((window as any).log.length = 0));
+      await anchor(page, 'edit').focus();
+      await page.keyboard.press('Enter');
+      await expect.poll(() => isOpen(page, 'edit')).toBe(true);
+      expect(await focused(page)).toBe('Cut');
+      // A submenu open too: it closes with the menu.
+      const more = labelled(page, 'edit', 'More');
+      await more.evaluate((el: any) => (el.open = true));
+      await expect.poll(() => shown(more)).toBe(true);
+      await hide(way, true);
+      await expect.poll(() => log(page), { message: way }).toEqual(['close:anchor-hidden']);
+      await expect.poll(() => isOpen(page, 'edit'), { message: way }).toBe(false);
+      expect(await more.evaluate((el: any) => el.open), `${way}: the submenu closed with it`).toBe(false);
+      await expect.poll(() => page.evaluate(() => !document.activeElement?.closest('tanrei-menu')), { message: `${way}: focus is not left in the closed menu` }).toBe(true);
+      expect(await log(page), `${way}: once`).toEqual(['close:anchor-hidden']);
+      await hide(way, false);
+    }
+    // Drawn again: it opens beside the anchor and follows it.
+    await page.evaluate(() => ((window as any).log.length = 0));
+    await anchor(page, 'edit').focus();
+    await page.keyboard.press('Enter');
+    await expect.poll(() => isOpen(page, 'edit')).toBe(true);
+    await motionEnded(page);
+    const offset = await resolveToken(page, T('surface-offset'));
+    await page.evaluate(() => (document.getElementById('box-edit')!.style.paddingTop = '30px'));
+    await expect.poll(async () => (await bounds(surface(page, 'edit'))).y).toBeCloseTo((await bounds(anchor(page, 'edit'))).y + (await bounds(anchor(page, 'edit'))).height + offset, 0);
+    expect(await log(page)).toEqual([]);
+  });
+
   test('MNU-4: it fades in and grows from the edge facing the anchor, fades out, and appears and disappears at once where motion is reduced', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [overlay('edit', EDIT)] });
     await wire(page);

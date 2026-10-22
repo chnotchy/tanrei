@@ -171,7 +171,7 @@
     },
     {
       "name": "close",
-      "description": "The menu asks to be closed; carries the menu's reason: escape, back, outside, tab, focus-out or item (in the platform's casing)."
+      "description": "The menu asks to be closed; carries the menu's reason: escape, back, outside, tab, focus-out, item or anchor-hidden (in the platform's casing); anchor-hidden when the button with menu is no longer drawn while its menu is open (MNU-65)."
     }
   ],
   "states": [
