@@ -2,7 +2,7 @@
 title: Callout
 description: Un aviso que forma parte del contenido y se queda en él (una nota, una precaución, el motivo de algo o un resumen de lo que está mal), con un relleno discreto o con contorno, en los colores de un estado y con su glifo, con un título, acciones y un botón de cierre opcionales.
 translationOf: components/callout.mdx
-sourceHash: 320f2641050ceff2eca3845c2bce486e1bb800a0
+sourceHash: 3c436844ceb67c8f97b0d4e71ba26f1cb2c8799a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -17,7 +17,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <DemoFrame label="Una nota, una precaución con título y un aviso con acciones y botón de cierre" column>
   <tanrei-callout status="info" status-label="Información" style="inline-size: min(100%, 34rem)">La web dibuja esta revisión; las demás plataformas la seguirán.</tanrei-callout>
-  <tanrei-callout status="warning" headline="Prelanzamiento: todavía no se ha publicado" style="inline-size: min(100%, 34rem)">El paquete aún no está disponible en el registro de paquetes. Los pasos de instalación siguientes muestran cómo funcionará tras la primera versión.</tanrei-callout>
+  <tanrei-callout status="warning" headline="Haz una copia de seguridad antes de migrar" style="inline-size: min(100%, 34rem)">La migración reescribe la base de datos en su sitio. Los pasos siguientes muestran cómo conservar una copia que puedas restaurar.</tanrei-callout>
   <tanrei-callout id="callout-demo-overview" variant="outlined" headline="Hay una versión más reciente de esta página" closable close-label="Cerrar" style="inline-size: min(100%, 34rem)">Vuelve a cargarla para leerla. No se pierde nada de lo que has escrito.<tanrei-button slot="actions" variant="outlined" onclick="this.closest('tanrei-callout').open = false">Volver a cargar</tanrei-button></tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-overview').open = true">Mostrar de nuevo el último</tanrei-button>
 </DemoFrame>
@@ -52,9 +52,9 @@ El cuerpo es el propio contenido del elemento. El título es el atributo `headli
 
     <!-- El contenido extenso es prosa, con el tamaño del callout y sin medida. -->
     <tanrei-callout size="large" status="warning">
-      <h3 slot="title">Prelanzamiento: todavía no se ha publicado</h3>
+      <h3 slot="title">Haz una copia de seguridad antes de migrar</h3>
       <div class="tanrei-prose" data-size="large" data-measure="false">
-        <p>El paquete aún no está en el registro de paquetes. <a href="/es/status/">Consulta el estado</a>.</p>
+        <p>La migración reescribe la base de datos en su sitio. <a href="#restore">Consulta cómo restaurar una copia</a>.</p>
         <ul><li>…</li></ul>
       </div>
     </tanrei-callout>
@@ -95,7 +95,7 @@ El cuerpo es el propio contenido del elemento. El título es el atributo `headli
 
 <DemoFrame label="Un título, tu propio glifo, acciones, un botón de cierre y el tamaño grande" plain column>
   <tanrei-callout headline="Consejo" style="inline-size: min(100%, 34rem)"><span slot="icon">lightbulb</span>Mantén habilitada una acción y explica qué falta cuando se use.</tanrei-callout>
-  <tanrei-callout status="info" headline="Experimental" style="inline-size: min(100%, 34rem)"><span slot="icon">science</span>Este comportamiento puede cambiar antes de la primera versión.</tanrei-callout>
+  <tanrei-callout status="info" headline="Experimental" style="inline-size: min(100%, 34rem)"><span slot="icon">science</span>Este comportamiento puede cambiar en una versión posterior.</tanrei-callout>
   <tanrei-callout status="warning" headline="El archivo ha cambiado en el disco" style="inline-size: min(100%, 34rem)">Aquí tienes cambios que no están en él. No se sobrescribe nada hasta que elijas.<tanrei-button slot="actions" variant="outlined">Volver a cargar desde el disco</tanrei-button><tanrei-button slot="actions" variant="text">Conservar los míos</tanrei-button></tanrei-callout>
   <tanrei-callout id="callout-demo-closable" headline="La búsqueda ahora incluye las notas de versión" closable close-label="Cerrar" style="inline-size: min(100%, 34rem)">Pulsa el botón de cierre: el callout desaparece de inmediato y el foco vuelve a donde estaba.</tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-closable').open = true">Mostrarlo de nuevo</tanrei-button>
@@ -173,7 +173,7 @@ La prosa no trae color, así que se lee sobre cualquier relleno, y sus enlaces v
 
 Las acciones son tus propios [botones](/es/components/button/) o enlaces, uno o dos. Usa botones `outlined` o `text`: un botón `tonal` tiene el relleno del callout tonal sin estado, y ahí no se distingue como botón. El callout los dispone en una fila que salta de línea y no hace nada más: no se cierra cuando se pulsa uno.
 
-`closable` dibuja un botón de cierre, que recibe su nombre de `close-label`. Al pulsarlo, `open` pasa a ser false y se emite `dismiss`. El callout nunca se cierra por sí solo y no responde a Escape. Cuando una persona cierre uno, recuérdalo: un callout que se puede cerrar y vuelve en cada visita es ruido. Una precaución que matiza el contenido que tiene al lado no debería poder cerrarse.
+`closable` dibuja un botón de cierre: un [botón](../button/) pequeño, solo con icono, que recibe su nombre de `close-label` y su variante de `--tanrei-comp-callout-close-button-variant` (tonal en el sistema predeterminado). En un callout tonal se dibuja en el color de texto del propio callout —un círculo de ese color hecho translúcido, con el glifo dentro en el mismo color—, de modo que se ve sobre el relleno de cualquier estado; en un callout outlined, que no tiene relleno, es el botón tal como es en cualquier otra parte. Responde al paso del puntero, al foco y a la pulsación como cualquier botón. Al pulsarlo, `open` pasa a ser false y se emite `dismiss`. El callout nunca se cierra por sí solo y no responde a Escape. Cuando una persona cierre uno, recuérdalo: un callout que se puede cerrar y vuelve en cada visita es ruido. Una precaución que matiza el contenido que tiene al lado no debería poder cerrarse.
 
 ### Aparecer en respuesta a algo
 
@@ -209,7 +209,7 @@ El cuerpo, el slot del título y las acciones son hijos del propio elemento, as�
 
 ### Recomendado
 
-- Di el estado con palabras. «Advertencia: todavía no se ha publicado» no necesita nada más; «Accesibilidad» en una advertencia necesita `status-label="Advertencia"`.
+- Di el estado con palabras. «Advertencia: haz antes una copia de seguridad» no necesita nada más; «Accesibilidad» en una advertencia necesita `status-label="Advertencia"`.
 - Usa los estados con el significado que tienen en todas partes. Una recomendación no es un éxito.
 - Pon una sola lista de puntos en un solo callout en lugar de varios callouts seguidos.
 
@@ -232,7 +232,7 @@ El cuerpo, el slot del título y las acciones son hijos del propio elemento, as�
 - Un título dado como texto es texto sin más. Un encabezado en el slot `title` conserva su nivel.
 - No es una parada en el orden del foco y nunca mueve el foco. Tab llega a los enlaces y controles del cuerpo, después a las acciones y después al botón de cierre.
 - Cuando se cierra mientras el foco está dentro, el foco vuelve al elemento que lo tenía antes de entrar en el callout, de modo que el siguiente Tab llega a lo que venía a continuación.
-- El área de pulsación del botón de cierre alcanza el objetivo mínimo, y su anillo de foco se dibuja en un color que se ve sobre el relleno del callout.
+- El botón de cierre es un botón: su área de pulsación alcanza el objetivo mínimo y, en un callout tonal, su glifo y su anillo de foco van en el color de texto del callout, que mantiene al menos 6:1 frente al botón en todos los estados y esquemas de color del sistema predeterminado.
 - Con el texto ampliado, todo salta de línea y crece; el glifo y el botón de cierre se quedan en la primera línea.
 - Con colores forzados, todos los aspectos ganan un borde en el color del texto, y el glifo se dibuja entero.
 - En un diseño de derecha a izquierda, el glifo pasa a la derecha y el botón de cierre a la izquierda, un glifo que el conjunto de iconos marca para ello se refleja, y un título escrito de izquierda a derecha conserva su propio orden.

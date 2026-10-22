@@ -2,7 +2,7 @@
 title: Pestañas
 description: Cambia entre vistas de un mismo tema con una fila de pestañas con etiqueta sobre una pista. Hay una pestaña seleccionada, marcada por un indicador que se desliza entre las pestañas y sigue al dedo que se arrastra por la fila.
 translationOf: components/tabs.mdx
-sourceHash: 5a237d30d09f0a0f89946169fa1e7b937b64e0d6
+sourceHash: 69eaaac41ca8870b83e0b2b2fe14004cae89db0e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -40,7 +40,7 @@ Esta página describe las pestañas tal como están especificadas ahora: pestañ
 
 Una fila de pestañas tiene un solo tipo de elemento, `tab`. Cada plataforma recibe las pestañas como recibe cualquier conjunto de hijos repetidos: elementos hijos `<tanrei-tab>` en la web, vistas `TanreiTab` etiquetadas por valor en el constructor de vistas de SwiftUI, llamadas a `TanreiTab` en la lambda de contenido de Compose, widgets `TanreiTab` en la lista `tabs:` de Flutter y un array `items` de objetos simples en React Native.
 
-La selección pertenece a la fila, por valor. `selected` contiene el valor de la pestaña seleccionada y `change` lleva el nuevo. Se escribe `value` en la web, Flutter y React Native, `selection` en SwiftUI y `selectedValue` en Compose. Si se deja vacío, queda seleccionada la primera pestaña habilitada. El `disabled` de una pestaña es solo suyo.
+La selección pertenece a la fila, por valor. `value` contiene el valor de la pestaña seleccionada y `change` lleva el nuevo. Se escribe `selection` en SwiftUI y `selectedValue` en Compose. Si se deja vacío, queda seleccionada la primera pestaña habilitada. El `disabled` de una pestaña es solo suyo.
 
 Las pestañas no dibujan los paneles, pero deciden cuál se muestra. En la web, los elementos `<tanrei-tab-panel>` van después de las pestañas y se emparejan con ellas por `value`. En SwiftUI, cada pestaña lleva su panel. En Flutter, `TanreiTabBarView` muestra el panel del valor seleccionado. En Compose y React Native, eres tú quien muestra el panel seleccionado, justo después de la fila. Para paneles entre los que una persona puede pasar deslizando, usa en su lugar una [vista de pestañas](/es/components/tab-view/): dibuja su propia fila de pestañas o se enlaza con una fila colocada en otro lugar, como en una barra de la aplicación.
 
@@ -308,7 +308,7 @@ Una [vista de pestañas](/es/components/tab-view/) tiene una `transition` propia
 
 ### Selección y paneles
 
-- **Por valor.** Cada pestaña tiene un `value`, único en su fila. Un valor sobrevive a que se añadan, quiten o reordenen pestañas, mientras que un índice seleccionaría otra vista sin avisar. Un valor de `selected` que no nombra ninguna pestaña no selecciona ninguna ni muestra ningún panel, y las compilaciones de depuración lo notifican.
+- **Por valor.** Cada pestaña tiene un `value`, único en su fila. Un valor sobrevive a que se añadan, quiten o reordenen pestañas, mientras que un índice seleccionaría otra vista sin avisar. Un `value` que no nombra ninguna pestaña no selecciona ninguna ni muestra ningún panel, y las compilaciones de depuración lo notifican.
 - **Activación automática.** Mover el foco con las teclas de flecha también selecciona la pestaña, y el panel cambia de inmediato. Si un panel tarda en cargarse, muestra un estado de carga dentro de él en lugar de retrasar el cambio.
 - **Las pestañas deshabilitadas se saltan.** Las teclas de flecha pasan de largo y nunca son la parada de tabulación, porque llegar a una seleccionaría una pestaña que no se puede seleccionar. En esto se diferencian de la lista y del menú, cuyos elementos deshabilitados siguen siendo accesibles porque llegar a ellos no selecciona nada.
 - **El indicador se desliza.** Cuando la selección cambia, el indicador se desliza y cambia de tamaño desde la pestaña anterior hasta la nueva, y un círculo se ensancha por el camino hasta ser una cápsula. Donde el movimiento está reducido, se mueve de inmediato. Cuando la fila aparece por primera vez, o la pestaña seleccionada cambia de tamaño sin una nueva selección (llega una fuente, cambia el tamaño del texto), el indicador se coloca en su sitio sin deslizarse. Una pestaña que pasa a estar seleccionada o con foco mientras está parcialmente fuera de la vista por el desplazamiento se desplaza hasta quedar a la vista.
@@ -345,6 +345,26 @@ En la demostración, Náutico existe solo en la segunda fila: al elegirlo, la pr
 
 Las pestañas de este sitio son un ejemplo: cada conjunto de ejemplos por plataforma es una [vista de pestañas](/es/components/tab-view/) de un mismo grupo.
 
+### Pestañas verticales
+
+Con `orientation` en `vertical`, las pestañas se apilan en una columna en el borde inicial, junto a las vistas que alternan: las categorías de una página de ajustes o de un diálogo, las secciones de un registro. En todo lo demás es el mismo componente: una pestaña seleccionada, un indicador que se desliza y se puede arrastrar, los paneles y la elección compartida.
+
+<DemoFrame label="Pestañas verticales junto a sus paneles">
+  <tanrei-tabs orientation="vertical" value="general" label="Ajustes" style="inline-size: 30rem">
+    <tanrei-tab value="general" label="General" icon="settings"></tanrei-tab>
+    <tanrei-tab value="notifications" label="Notificaciones" icon="notifications"></tanrei-tab>
+    <tanrei-tab value="privacy" label="Privacidad" icon="lock"></tanrei-tab>
+    <tanrei-tab-panel value="general"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">Idioma, región y página de inicio.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="notifications"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">Correo, notificaciones push y un resumen semanal.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="privacy"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">Quién puede ver tu perfil.</p></tanrei-tab-panel>
+  </tanrei-tabs>
+</DemoFrame>
+
+- **La columna.** Todas las pestañas son tan anchas como la más ancha, con el icono antes de la etiqueta en el borde inicial, en todas las variantes y tamaños. Las pestañas se tocan arriba y abajo, así que cada una mide al menos el objetivo mínimo de alto: las pestañas de una columna pequeña miden 44 (48 con entrada táctil), no 32. Para ensanchar la columna, usa `::part(tablist)`. En una columna más estrecha que su pestaña más ancha, la etiqueta se corta y se muestra entera en una información sobre herramientas.
+- **El indicador y la pista.** El indicador es la pestaña menos el margen interior de la pista por cada lado. Las esquinas de la pista son las del indicador más ese margen, de modo que ambas siguen siendo concéntricas en los extremos, por alta que sea la columna. Un sistema de diseño que dibuja una línea bajo la pestaña seleccionada la dibuja en el borde final de la columna, junto al panel, con el divisor a lo largo de ese borde.
+- **Teclas.** Flecha abajo y flecha arriba pasan a la pestaña siguiente y a la anterior y la seleccionan; Inicio y Fin van a los extremos. Flecha derecha y flecha izquierda no hacen nada, así que siguen siendo de la página. Las tecnologías de apoyo saben que la lista de pestañas es vertical.
+- **Desplazamiento.** Si das una altura a la fila, las pestañas que no caben se desplazan arriba y abajo dentro de la pista. El tacto las desplaza; solo un ratón o un lápiz arrastran el indicador. `fullWidth` no se aplica a una columna.
+
 ### Iconos
 
 - Da un icono a todas las pestañas de una fila, o a ninguna. Los iconos se dibujan con contorno cuando la pestaña no está seleccionada y con relleno cuando lo está.
@@ -359,6 +379,7 @@ Las pestañas de este sitio son un ejemplo: cada conjunto de ejemplos por plataf
 - Mantén estable el orden de las pestañas, para que las personas encuentren una vista donde la dejaron.
 - Pon las pestañas secundarias dentro de una vista de pestañas primarias, y no al revés.
 - Mantén en su sitio, y deshabilitada, una pestaña que a veces no está disponible, para que la fila no cambie de forma.
+- Usa pestañas verticales para las vistas de un mismo tema cuando son muchas o sus etiquetas son largas: las categorías de una página de ajustes, las secciones de un registro.
 
 ### Evita
 
@@ -366,6 +387,7 @@ Las pestañas de este sitio son un ejemplo: cada conjunto de ejemplos por plataf
 - No hagas que una pestaña abra un diálogo, inicie una acción o salga de la pantalla. Una pestaña no tiene un destino propio: para moverte entre páginas, usa enlaces, una barra de navegación o un panel de navegación.
 - No anides dos filas de la misma variante.
 - No mezcles en una fila pestañas con icono y sin icono.
+- No uses pestañas verticales para elegir adónde ir en una aplicación. Una columna de destinos es trabajo del panel de navegación: sus elementos son enlaces, y elegir uno cambia la dirección.
 
 ## Accesibilidad
 
@@ -373,23 +395,24 @@ Las pestañas de este sitio son un ejemplo: cada conjunto de ejemplos por plataf
 
 ### De qué se encarga el componente
 
-- La fila se expone como una lista de pestañas que recibe su nombre de `label`. Cada pestaña tiene el rol de pestaña, su estado seleccionado, su posición y el número de pestañas, y recibe su nombre de su etiqueta, se dibuje esta o no.
+- Una fila con paneles se expone como una lista de pestañas que recibe su nombre de `label`. Cada pestaña tiene el rol de pestaña, su estado seleccionado, su posición y el número de pestañas, y recibe su nombre de su etiqueta, se dibuje esta o no.
 - El panel de la pestaña seleccionada se expone como un panel de pestaña, que recibe su nombre de su pestaña y se asocia con ella donde la plataforma puede expresarlo. Los demás paneles quedan ocultos a la vista y a la tecnología de apoyo. Un panel que no contiene nada que pueda recibir el foco se hace él mismo enfocable, para que Tab llegue a él.
 - La fila es una sola parada de tabulación: la pestaña seleccionada. Flecha derecha y Flecha izquierda llevan a la pestaña habilitada siguiente y a la anterior, pasando de un extremo al otro, y la seleccionan. Se intercambian en los diseños de derecha a izquierda. Inicio y Fin van a la primera y a la última pestaña habilitada. Enter y Espacio seleccionan la pestaña con foco. Tab pasa de la pestaña seleccionada a su panel.
 - Las teclas de flecha se saltan las pestañas deshabilitadas, que nunca son la parada de tabulación y se anuncian como deshabilitadas.
 - El anillo de foco rodea la caja que el indicador ocupa en la pestaña con foco, con su misma forma, y se mantiene dentro de la pista, de modo que una fila que se desplaza no puede recortarlo. Se muestra solo para el foco del teclado.
 - Las pestañas tocan a sus vecinas, así que una pestaña más estrecha que el objetivo mínimo crece en anchura hasta alcanzarlo. Una fila más baja que el objetivo (el tamaño pequeño) no se hace más alta: sus pestañas responden a una pulsación un poco por encima y por debajo de la fila, y ceden ante un control que esté ahí.
-- Una fila sin paneles sigue siendo una lista de pestañas que recibe su nombre de `label`, y sus pestañas dicen que no controlan nada. El estado seleccionado de una pestaña es lo que se comunica a la tecnología de apoyo; lo que la elección cambia debajo de la fila te toca dibujarlo a ti. Tab pasa de la pestaña seleccionada a lo que siga a la fila.
+- Una fila sin paneles es una elección entre unas pocas opciones, y se expone como tal: un grupo de botones de opción que recibe su nombre de `label`, cada pestaña un botón de opción y la seleccionada marcada. Una lista de pestañas le diría a quien usa un lector de pantalla que detrás viene un panel. Cualquier tecla de flecha lleva a la pestaña habilitada siguiente o a la anterior y la selecciona, sea cual sea la orientación, como en un grupo de botones de opción. Lo que la elección cambia debajo de la fila te toca dibujarlo a ti. Tab pasa de la pestaña seleccionada a lo que siga a la fila. En cuanto la fila tiene un panel, pasa a ser una lista de pestañas.
 - Con colores forzados, el indicador es un resaltado relleno en todas las variantes, con pista o sin ella, de modo que una fila tonal muestra su selección con tanta claridad como una primaria.
 - Un texto más grande nunca oculta una etiqueta a la tecnología de apoyo. Una pestaña que se ajusta a su contenido se ensancha y la fila se desplaza. Una pestaña que comparte la fila trunca su etiqueta, que sigue siendo su nombre accesible y se muestra entera donde la plataforma puede.
 - Los iconos, la pista, el indicador, el subrayado y el divisor quedan ocultos para la tecnología de apoyo. La copia cubierta de cada etiqueta bajo el indicador es decorativa, así que cada etiqueta se anuncia una sola vez.
 - Un arrastre por la fila nunca es la única manera: todas las pestañas se seleccionan con un toque o un clic sobre ellas, y con las teclas de flecha. Durante un arrastre, ninguna pestaña se expone como seleccionada, ningún panel cambia y no se anuncia nada; la selección se hace al soltar, y Escape cancela el arrastre. Con un lector de pantalla en funcionamiento, el arrastre con un dedo pertenece al lector, y las pestañas se seleccionan con su gesto de activación.
 - En un grupo, las filas que siguen a otra cambian en silencio. No se anuncia nada, el foco se queda en la pestaña que usó la persona y esa fila se queda donde está en la ventana, de modo que quien usa la ampliación de pantalla no pierde su sitio. Cada fila comunica a la tecnología de apoyo su pestaña seleccionada cuando la persona llega a ella.
-- Las compilaciones de depuración notifican una pestaña sin etiqueta, un valor vacío o repetido, un valor de `selected` que no nombra ninguna pestaña, una etiqueta oculta sin icono, una variante o un tamaño que el sistema de diseño no tiene y una `transition` que las pestañas no definen.
+- Las compilaciones de depuración notifican una pestaña sin etiqueta, un valor vacío o repetido, un `value` que no nombra ninguna pestaña, una etiqueta oculta sin icono, una variante o un tamaño que el sistema de diseño no tiene y una `transition` que las pestañas no definen.
 
 Carencias conocidas por plataforma:
 
 - SwiftUI, Compose y React Native no tienen rol de panel de pestaña. El panel seleccionado sigue a la fila en el orden de lectura.
+- SwiftUI, Compose, Flutter y React Native todavía exponen una fila sin paneles como pestañas, no como un grupo de botones de opción.
 - SwiftUI tampoco tiene rol de lista de pestañas ni de pestaña. La fila es un contenedor que recibe su nombre de `label`, con el rasgo de barra de pestañas, y cada pestaña es un botón con el rasgo de seleccionado. En iOS, VoiceOver indica la posición de una pestaña a partir del rasgo de barra de pestañas; en el resto, la posición es el valor de la pestaña («2 of 3»), solo en inglés.
 - SwiftUI no puede asociar el panel con su pestaña ni saber si un panel contiene algo enfocable, así que un panel sin nada enfocable no se convierte en una parada de tabulación.
 - Compose no tiene rol de lista de pestañas. La fila es un grupo seleccionable que recibe su nombre de `contentDescription` y lleva el número de pestañas como información de colección. Cada pestaña tiene el rol de pestaña, su estado seleccionado y su posición.

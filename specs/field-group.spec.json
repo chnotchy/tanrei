@@ -76,15 +76,16 @@
       "description": "Disables every control of the set and draws the frame as disabled."
     },
     {
-      "name": "requirement",
-      "type": "enum",
-      "values": [
-        "none",
-        "required",
-        "optional"
-      ],
-      "default": "none",
-      "description": "What the form asks of the set. required exposes it as required and draws the required mark beside the label; optional draws the optional tag; none says and draws nothing. One setting with three states, because a set is never both. It never validates: a missing answer is the product's to report with error."
+      "name": "required",
+      "type": "boolean",
+      "default": false,
+      "description": "What the form asks of the set: true exposes it as required and draws the required mark beside the label. It never validates: a missing answer is the product's to report with error."
+    },
+    {
+      "name": "optional",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws the optional tag after the label and adds optionalText to the group's description, because assistive technology has no state for it. Ignored while required is true: a set is never both."
     },
     {
       "name": "requiredMark",
@@ -96,7 +97,7 @@
         "none"
       ],
       "default": "auto",
-      "description": "How this set shows that it is required: tag is a small filled Tag with requiredText, asterisk is \"*\" after the label, none draws nothing and keeps the semantics. Auto takes comp.field-group.requirement.mark, which follows sys.behavior.requirement-mark, the system's one answer. Ignored unless requirement is required."
+      "description": "How this set shows that it is required: tag is a small filled Tag with requiredText, asterisk is \"*\" after the label, none draws nothing and keeps the semantics. Auto takes comp.field-group.requirement.mark, which follows sys.behavior.requirement-mark, the system's one answer. Ignored unless required is true."
     },
     {
       "name": "requiredText",
@@ -182,10 +183,10 @@
       "component": "switch",
       "props": [
         {
-          "name": "selected",
+          "name": "checked",
           "type": "boolean",
           "default": false,
-          "description": "Whether it is on, as the Switch's selected."
+          "description": "Whether it is on, as the Switch's checked."
         },
         {
           "name": "label",
@@ -225,15 +226,16 @@
           "description": "Its own help, as the Text field's supportingText."
         },
         {
-          "name": "requirement",
-          "type": "enum",
-          "values": [
-            "none",
-            "required",
-            "optional"
-          ],
-          "default": "none",
-          "description": "As the Text field's requirement."
+          "name": "required",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Text field's required."
+        },
+        {
+          "name": "optional",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Text field's optional."
         },
         {
           "name": "requiredText",
@@ -255,10 +257,10 @@
       "component": "radio-button",
       "props": [
         {
-          "name": "selected",
+          "name": "checked",
           "type": "boolean",
           "default": false,
-          "description": "Whether it is the chosen one, as the Radio button's selected."
+          "description": "Whether it is the chosen one, as the Radio button's checked."
         },
         {
           "name": "value",
@@ -309,16 +311,16 @@
     },
     {
       "id": "FGR-4",
-      "text": "THE field group SHALL take from requirement what the form asks of the set: none says nothing and draws nothing; required draws the required mark (FGR-5, FGR-6) and exposes the requirement (FGR-10, FGR-11); optional draws the optional tag (FGR-5) and adds optionalText to the group's description (FGR-11), because assistive technology has no state for it. THE field group SHALL NOT validate because of requirement: it SHALL NOT set the error condition for a missing answer or show an error text of its own; what a missing answer means is the product's to say with error and errorText. WHILE disabled is true THE field group SHALL keep its mark: an asterisk drawn from the group's disabled tokens (FGR-14), a requirement tag drawn as a tag inside something disabled (FGR-5, TAG-21)."
+      "text": "THE field group SHALL take from required and optional what the form asks of the set: WHILE required is true it draws the required mark (FGR-5, FGR-6) and exposes the requirement (FGR-10, FGR-11); WHILE optional is true it draws the optional tag (FGR-5) and adds optionalText to the group's description (FGR-11), because assistive technology has no state for it; WHILE both are false it says nothing and draws nothing. THE field group SHALL NOT validate because of required: it SHALL NOT set the error condition for a missing answer or show an error text of its own; what a missing answer means is the product's to say with error and errorText. WHILE disabled is true THE field group SHALL keep its mark: an asterisk drawn from the group's disabled tokens (FGR-14), a requirement tag drawn as a tag inside something disabled (FGR-5, TAG-21)."
     },
     {
       "id": "FGR-5",
-      "text": "WHILE the label is drawn and requirement is optional, or requirement is required and the required mark is tag (FGR-6), THE field group SHALL draw after the label's text, comp.field-group.requirement.gap from it and centred on the label's last line, a requirement tag: the Tag component, drawn as every tag is — size small, variant filled for required and tonal for optional, status default, no glyph and no dot, its label requiredText or optionalText on one line (TAG-1, TAG-2, TAG-5) — from the Tag's own tokens (comp.tag.container.height.small, comp.tag.label.typescale.small, comp.tag.filled.container.color, comp.tag.tonal.container.color and the others those sentences name). THE field group SHALL have no token for the requirement tag's fill, lettering, text style, paddings or corners and SHALL set none of the Tag's for it, so that a design system or a product that restyles its small tags restyles the requirement tag with them and nothing restyles the requirement tag alone. THE field group SHALL draw the requirement tag the same at rest and WHILE error is true, because a tag has no states (TAG-9) and what the form asks has not changed; WHILE disabled is true THE field group SHALL have it drawn as a tag inside something disabled (TAG-21), from the Tag's own disabled tokens, so that it fades with the label it follows. The requirement tag is text, never a control: it SHALL take no focus and no hover, focus or press answer of its own (FGR-12). It SHALL NOT make the label's row taller: where it is taller than the label's line it SHALL reach equally above and below that line. WHEN the label and the requirement tag do not fit on one line THE field group SHALL wrap the label (FGR-2) and move the tag whole to a line of its own after the label's last line, never cutting or splitting it. WHILE requiredText or optionalText is empty THE field group SHALL NOT draw the tag of that kind and in debug builds SHALL report it. THE field group SHALL keep both tags from assistive technology as drawn parts: what they say reaches it as FGR-10 and FGR-11 say.",
+      "text": "WHILE the label is drawn and optional is true, or required is true and the required mark is tag (FGR-6), THE field group SHALL draw after the label's text, comp.field-group.requirement.gap from it and centred on the label's last line, a requirement tag: the Tag component, drawn as every tag is — size small, variant filled for required and tonal for optional, status default, no glyph and no dot, its label requiredText or optionalText on one line (TAG-1, TAG-2, TAG-5) — from the Tag's own tokens (comp.tag.container.height.small, comp.tag.label.typescale.small, comp.tag.filled.container.color, comp.tag.tonal.container.color and the others those sentences name). THE field group SHALL have no token for the requirement tag's fill, lettering, text style, paddings or corners and SHALL set none of the Tag's for it, so that a design system or a product that restyles its small tags restyles the requirement tag with them and nothing restyles the requirement tag alone. THE field group SHALL draw the requirement tag the same at rest and WHILE error is true, because a tag has no states (TAG-9) and what the form asks has not changed; WHILE disabled is true THE field group SHALL have it drawn as a tag inside something disabled (TAG-21), from the Tag's own disabled tokens, so that it fades with the label it follows. The requirement tag is text, never a control: it SHALL take no focus and no hover, focus or press answer of its own (FGR-12). It SHALL NOT make the label's row taller: where it is taller than the label's line it SHALL reach equally above and below that line. WHEN the label and the requirement tag do not fit on one line THE field group SHALL wrap the label (FGR-2) and move the tag whole to a line of its own after the label's last line, never cutting or splitting it. WHILE requiredText or optionalText is empty THE field group SHALL NOT draw the tag of that kind and in debug builds SHALL report it. THE field group SHALL keep both tags from assistive technology as drawn parts: what they say reaches it as FGR-10 and FGR-11 say.",
       "verify": "Fixtures checkboxes-required, checkboxes-optional, checkboxes-required-ja and checkboxes-rtl. The tags overlay those of the field (slider-required, slider-optional) pixel for pixel, and in checkboxes-disabled and radio-buttons-disabled the tag is the picture of the tag fixture small-filled-disabled; no token of comp.field-group names a tag's fill, lettering, text style, padding or corner."
     },
     {
       "id": "FGR-6",
-      "text": "WHILE requirement is required and the label is drawn THE field group SHALL draw the required mark that requiredMark names — tag (FGR-5), asterisk or none — and WHILE requiredMark is auto, the one comp.field-group.requirement.mark names: that token follows sys.behavior.requirement-mark, the design system's one answer for every field and every set of controls, unless a layer gives comp.field-group.requirement.mark a value of its own. As asterisk it SHALL draw the character \"*\" after the label's text, comp.field-group.requirement.asterisk-gap from it, in the label's text style, in comp.field-group.standard.required-asterisk.color (comp.field-group.standard.error.required-asterisk.color WHILE error is true), and SHALL keep it from assistive technology; as none it SHALL draw no mark. Whichever mark is drawn, and WHILE the label is not drawn, THE field group SHALL still expose the requirement (FGR-10, FGR-11).",
+      "text": "WHILE required is true and the label is drawn THE field group SHALL draw the required mark that requiredMark names — tag (FGR-5), asterisk or none — and WHILE requiredMark is auto, the one comp.field-group.requirement.mark names: that token follows sys.behavior.requirement-mark, the design system's one answer for every field and every set of controls, unless a layer gives comp.field-group.requirement.mark a value of its own. As asterisk it SHALL draw the character \"*\" after the label's text, comp.field-group.requirement.asterisk-gap from it, in the label's text style, in comp.field-group.standard.required-asterisk.color (comp.field-group.standard.error.required-asterisk.color WHILE error is true), and SHALL keep it from assistive technology; as none it SHALL draw no mark. Whichever mark is drawn, and WHILE the label is not drawn, THE field group SHALL still expose the requirement (FGR-10, FGR-11).",
       "verify": "Fixture checkboxes-required-asterisk. Under the default system the mark is tag. Unit: with sys.behavior.requirement-mark set to asterisk and to none a set under auto follows it, as a field beside it does; with comp.field-group.requirement.mark set against the system's choice the group's token wins and the field beside it still follows the system; requiredMark tag, asterisk and none each win over both."
     },
     {
@@ -337,11 +339,11 @@
     {
       "id": "FGR-10",
       "text": "THE field group SHALL expose itself to assistive technology as a group that contains its controls and is named by label, whether or not the label is drawn. WHILE kind is radio-group it SHALL be exposed as a radio group in that group's place, with a radio group's states (FGR-25). WHILE kind is group the group has neither a required nor an invalid state: each checkbox the field group put in its error condition (FGR-8) is exposed as invalid by that checkbox, and the requirement is given in words (FGR-11). WHILE label is empty THE field group SHALL still render and in debug builds report that the set has no accessible name.",
-      "verify": "Unit: role and name with labelHidden false and true; requirement required and error true expose neither state on the group, the invalid state on each checkbox, and the required text in the group's description."
+      "verify": "Unit: role and name with labelHidden false and true; required true and error true expose neither state on the group, the invalid state on each checkbox, and the required text in the group's description."
     },
     {
       "id": "FGR-11",
-      "text": "THE field group SHALL make these the description of the group, in this order: supportingText; errorText WHILE error is true; requiredText WHILE requirement is required and kind is group, because a group has no required state to carry it and a radio group has one; optionalText WHILE requirement is optional. WHILE error is true it SHALL also make errorText part of the description of each control it put in its error condition (FGR-8) that is exposed as invalid by itself (a checkbox), after any description the control has of its own, so that a control exposed as invalid says why; a radio button in its error form SHALL be given neither the state nor the words, because its radio group carries both (FGR-25, RAD-26). WHEN one of these texts changes THE field group SHALL expose the new text at once. The requirement tag and the asterisk SHALL NOT be exposed as drawn parts."
+      "text": "THE field group SHALL make these the description of the group, in this order: supportingText; errorText WHILE error is true; requiredText WHILE required is true and kind is group, because a group has no required state to carry it and a radio group has one; optionalText WHILE optional is true. WHILE error is true it SHALL also make errorText part of the description of each control it put in its error condition (FGR-8) that is exposed as invalid by itself (a checkbox), after any description the control has of its own, so that a control exposed as invalid says why; a radio button in its error form SHALL be given neither the state nor the words, because its radio group carries both (FGR-25, RAD-26). WHEN one of these texts changes THE field group SHALL expose the new text at once. The requirement tag and the asterisk SHALL NOT be exposed as drawn parts."
     },
     {
       "id": "FGR-12",
@@ -388,7 +390,7 @@
     },
     {
       "id": "FGR-22",
-      "text": "WHEN requirement names a value the field group does not know THE field group SHALL behave as none; WHEN requiredMark, orientation or kind names a value it does not know THE field group SHALL render with that prop's default (auto, vertical, group); WHEN spacing names a value that the active design system does not have THE field group SHALL render with the default value's tokens; and in debug builds THE field group SHALL report the unknown value."
+      "text": "WHEN requiredMark, orientation or kind names a value it does not know THE field group SHALL render with that prop's default (auto, vertical, group); WHEN spacing names a value that the active design system does not have THE field group SHALL render with the default value's tokens; and in debug builds THE field group SHALL report the unknown value."
     },
     {
       "id": "FGR-23",
@@ -396,13 +398,17 @@
     },
     {
       "id": "FGR-24",
-      "text": "THE field group SHALL have no words of its own: it SHALL take requiredText and optionalText from the instance's prop and, WHILE that is empty, from the product's words of the same name — the words a product sets once for all its components — and from nowhere else. IF neither gives requiredText WHILE requirement is required THE field group SHALL draw the asterisk of FGR-6 in the tag's place WHILE the required mark is tag, so that the requirement is still shown without a word, SHALL say nothing of the requirement to assistive technology WHILE kind is group, because a group has no required state and FGR-11 has no words to give it, whichever mark is drawn — WHILE kind is radio-group the required state says it without a word (FGR-25) — and in debug builds SHALL report the missing words once. IF neither gives optionalText WHILE requirement is optional THE field group SHALL draw no tag, SHALL add nothing to the description for it, and in debug builds SHALL report the missing words once.",
-      "verify": "Unit, with no product's words set: requirement required and no requiredText draws the asterisk and no tag, and the report names requiredText; requirement optional and no optionalText draws no tag and adds nothing to the description. With the product's words set, an instance without the props draws them; an instance's own prop wins. No test finds an English word the test did not give."
+      "text": "THE field group SHALL have no words of its own: it SHALL take requiredText and optionalText from the instance's prop and, WHILE that is empty, from the product's words of the same name — the words a product sets once for all its components — and from nowhere else. IF neither gives requiredText WHILE required is true THE field group SHALL draw the asterisk of FGR-6 in the tag's place WHILE the required mark is tag, so that the requirement is still shown without a word, SHALL say nothing of the requirement to assistive technology WHILE kind is group, because a group has no required state and FGR-11 has no words to give it, whichever mark is drawn — WHILE kind is radio-group the required state says it without a word (FGR-25) — and in debug builds SHALL report the missing words once. IF neither gives optionalText WHILE optional is true THE field group SHALL draw no tag, SHALL add nothing to the description for it, and in debug builds SHALL report the missing words once.",
+      "verify": "Unit, with no product's words set: required true and no requiredText draws the asterisk and no tag, and the report names requiredText; optional true and no optionalText draws no tag and adds nothing to the description. With the product's words set, an instance without the props draws them; an instance's own prop wins. No test finds an English word the test did not give."
     },
     {
       "id": "FGR-25",
-      "text": "WHILE kind is radio-group THE field group SHALL be exposed to assistive technology as one radio group in the place of the group of FGR-10 — never a radio group inside a group, nor a group inside a radio group — that contains its radio buttons: named by label, whether or not the label is drawn; required WHILE requirement is required; invalid WHILE error is true; disabled WHILE disabled is true (FGR-14); saying its orientation where the platform's radio group has one; and described as FGR-11 says, without requiredText, because the required state carries it. It SHALL change nothing that is drawn: its rows, its tokens, its measures and its layout are those of the same field group whose kind is group (FGR-1 to FGR-8, FGR-13). It SHALL hold the radio buttons of one group and no other control, and in debug builds SHALL report another control, radio buttons of more than one group, and a spacing other than controls. The radio buttons SHALL keep what their own group gives them — exclusion, the arrow keys, the single tab stop and each one's position in the set (RAD-3, RAD-4, RAD-5, RAD-16), from the radio group they stand in (RGP-3 to RGP-6) or, written by hand, from their name (RAD-25) — and THE field group SHALL still select nothing, hold no value, move no focus, handle no key and emit no event (FGR-12, FGR-15). WHERE the platform forms a radio group with a container of its own THE field group SHALL be the frame of that container and SHALL NOT expose a second group around it.",
-      "verify": "Unit: with kind radio-group and three radio buttons of one name, exactly one radio group and no other group is in the accessibility tree, named by label with labelHidden false and true; requirement required and error true expose both states on it, and requiredText is not in its description; the radio buttons say 1, 2 and 3 of 3. Each fixture radio-buttons-* is the same picture as the same fixture with kind group, and as the radio group's fixture that names it as its twin."
+      "text": "WHILE kind is radio-group THE field group SHALL be exposed to assistive technology as one radio group in the place of the group of FGR-10 — never a radio group inside a group, nor a group inside a radio group — that contains its radio buttons: named by label, whether or not the label is drawn; required WHILE required is true; invalid WHILE error is true; disabled WHILE disabled is true (FGR-14); saying its orientation where the platform's radio group has one; and described as FGR-11 says, without requiredText, because the required state carries it. It SHALL change nothing that is drawn: its rows, its tokens, its measures and its layout are those of the same field group whose kind is group (FGR-1 to FGR-8, FGR-13). It SHALL hold the radio buttons of one group and no other control, and in debug builds SHALL report another control, radio buttons of more than one group, and a spacing other than controls. The radio buttons SHALL keep what their own group gives them — exclusion, the arrow keys, the single tab stop and each one's position in the set (RAD-3, RAD-4, RAD-5, RAD-16), from the radio group they stand in (RGP-3 to RGP-6) or, written by hand, from their name (RAD-25) — and THE field group SHALL still select nothing, hold no value, move no focus, handle no key and emit no event (FGR-12, FGR-15). WHERE the platform forms a radio group with a container of its own THE field group SHALL be the frame of that container and SHALL NOT expose a second group around it.",
+      "verify": "Unit: with kind radio-group and three radio buttons of one name, exactly one radio group and no other group is in the accessibility tree, named by label with labelHidden false and true; required true and error true expose both states on it, and requiredText is not in its description; the radio buttons say 1, 2 and 3 of 3. Each fixture radio-buttons-* is the same picture as the same fixture with kind group, and as the radio group's fixture that names it as its twin."
+    },
+    {
+      "id": "FGR-26",
+      "text": "IF required and optional are both true THEN THE field group SHALL behave as WHILE required alone is true — it draws the required mark and no optional tag, and says no optionalText — and in debug builds SHALL report that optional is ignored, because a set is never both required and optional."
     }
   ],
   "accessibility": {
@@ -493,7 +499,7 @@
       "props": {
         "label": "Notify me by",
         "supportingText": "Choose all that apply.",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required"
       },
       "items": [
@@ -522,7 +528,7 @@
       "id": "checkboxes-optional",
       "props": {
         "label": "Notify me by",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "Optional"
       },
       "items": [
@@ -550,7 +556,7 @@
       "id": "checkboxes-required-asterisk",
       "props": {
         "label": "Notify me by",
-        "requirement": "required",
+        "required": true,
         "requiredMark": "asterisk",
         "requiredText": "Required"
       },
@@ -581,7 +587,7 @@
       "props": {
         "label": "Notify me by",
         "supportingText": "Choose all that apply.",
-        "requirement": "required",
+        "required": true,
         "error": true,
         "errorText": "Choose at least one way to reach you.",
         "requiredText": "Required"
@@ -715,7 +721,7 @@
       "props": {
         "label": "Notify me by",
         "supportingText": "Choose all that apply.",
-        "requirement": "required",
+        "required": true,
         "disabled": true,
         "requiredText": "Required"
       },
@@ -809,7 +815,7 @@
           "kind": "switch",
           "props": {
             "label": "Share usage data",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -822,7 +828,7 @@
           "kind": "switch",
           "props": {
             "label": "Personalized suggestions",
-            "selected": true
+            "checked": true
           }
         }
       ]
@@ -831,7 +837,7 @@
       "id": "switches-optional",
       "props": {
         "label": "Privacy",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "Optional"
       },
       "items": [
@@ -861,7 +867,7 @@
           "props": {
             "label": "Street",
             "value": "12 Harbour Road",
-            "requirement": "required",
+            "required": true,
             "requiredText": "Required"
           }
         },
@@ -869,7 +875,7 @@
           "kind": "text-field",
           "props": {
             "label": "Apartment, suite",
-            "requirement": "optional",
+            "optional": true,
             "optionalText": "Optional"
           }
         },
@@ -913,7 +919,7 @@
         "label": "Billing address",
         "spacing": "fields",
         "supportingText": "Where the invoice is sent.",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "Optional"
       },
       "items": [
@@ -935,7 +941,7 @@
       "id": "long-label",
       "props": {
         "label": "Which of these ways may we use to reach you when a delivery is late, damaged or returned to the depot before you have seen it",
-        "requirement": "required",
+        "required": true,
         "supportingText": "Choose all that apply. We use the first one that answers, and we never use a way you have not chosen here, whatever the reason.",
         "error": true,
         "errorText": "Choose at least one way to reach you, or tell us below that you do not want to be reached about deliveries at all.",
@@ -967,7 +973,7 @@
       "props": {
         "label": "連絡方法",
         "supportingText": "当てはまるものをすべて選んでください。",
-        "requirement": "required",
+        "required": true,
         "requiredText": "必須"
       },
       "items": [
@@ -997,7 +1003,7 @@
       "props": {
         "label": "お届け先",
         "spacing": "fields",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "任意"
       },
       "items": [
@@ -1023,7 +1029,7 @@
       "props": {
         "label": "طرق الإشعار",
         "supportingText": "اختر كل ما ينطبق.",
-        "requirement": "required",
+        "required": true,
         "requiredText": "مطلوب"
       },
       "items": [
@@ -1113,7 +1119,7 @@
       "props": {
         "label": "Notify me by",
         "supportingText": "Choose all that apply.",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required",
         "error": true,
         "errorText": "This number cannot receive text messages. Choose another way, or change the number."
@@ -1291,7 +1297,7 @@
             "name": "radio-buttons-default",
             "value": "standard",
             "label": "Standard, 3 to 5 days",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1367,7 +1373,7 @@
             "name": "radio-buttons-supporting",
             "value": "express",
             "label": "Express, next day",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1395,7 +1401,7 @@
             "name": "radio-buttons-label-hidden",
             "value": "standard",
             "label": "Standard, 3 to 5 days",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1421,7 +1427,7 @@
       "props": {
         "label": "Delivery",
         "supportingText": "You can change this until the order ships.",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required",
         "kind": "radio-group"
       },
@@ -1432,7 +1438,7 @@
             "name": "radio-buttons-required",
             "value": "standard",
             "label": "Standard, 3 to 5 days",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1457,7 +1463,7 @@
       "id": "radio-buttons-optional",
       "props": {
         "label": "Delivery",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "Optional",
         "kind": "radio-group"
       },
@@ -1492,7 +1498,7 @@
       "id": "radio-buttons-required-asterisk",
       "props": {
         "label": "Delivery",
-        "requirement": "required",
+        "required": true,
         "requiredMark": "asterisk",
         "kind": "radio-group"
       },
@@ -1503,7 +1509,7 @@
             "name": "radio-buttons-required-asterisk",
             "value": "standard",
             "label": "Standard, 3 to 5 days",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1528,7 +1534,7 @@
       "id": "radio-buttons-required-error",
       "props": {
         "label": "Delivery",
-        "requirement": "required",
+        "required": true,
         "error": true,
         "errorText": "Choose how the order reaches you.",
         "requiredText": "Required",
@@ -1566,7 +1572,7 @@
       "props": {
         "label": "Delivery",
         "supportingText": "You can change this until the order ships.",
-        "requirement": "required",
+        "required": true,
         "error": true,
         "errorText": "Express delivery does not reach this address. Choose another way.",
         "requiredText": "Required",
@@ -1587,7 +1593,7 @@
             "name": "radio-buttons-error-selected",
             "value": "express",
             "label": "Express, next day",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1605,7 +1611,7 @@
       "props": {
         "label": "Delivery",
         "supportingText": "You can change this until the order ships.",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required",
         "error": true,
         "errorText": "Express delivery does not reach this address. Choose another way.",
@@ -1626,7 +1632,7 @@
             "name": "radio-buttons-error-one-disabled",
             "value": "express",
             "label": "Express, next day",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1662,7 +1668,7 @@
             "name": "radio-buttons-horizontal",
             "value": "m",
             "label": "Medium",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1722,7 +1728,7 @@
             "name": "radio-buttons-horizontal-many",
             "value": "fri",
             "label": "Friday",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1764,7 +1770,7 @@
       "props": {
         "label": "Delivery",
         "supportingText": "You can change this until the order ships.",
-        "requirement": "required",
+        "required": true,
         "disabled": true,
         "requiredText": "Required",
         "kind": "radio-group"
@@ -1776,7 +1782,7 @@
             "name": "radio-buttons-disabled",
             "value": "standard",
             "label": "Standard, 3 to 5 days",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1810,7 +1816,7 @@
             "name": "radio-buttons-one-disabled",
             "value": "standard",
             "label": "Standard, 3 to 5 days",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1836,7 +1842,7 @@
       "id": "radio-buttons-long-label",
       "props": {
         "label": "How should we deliver the parts of this order that are in stock today, given that the rest will follow when they arrive from the supplier",
-        "requirement": "required",
+        "required": true,
         "supportingText": "You can change this until the first parcel ships. After that the choice holds for every parcel of the order, whatever is in it.",
         "error": true,
         "errorText": "Choose how the order reaches you, or go back one step and remove the parts that are not in stock yet.",
@@ -1875,7 +1881,7 @@
       "props": {
         "label": "配送方法",
         "supportingText": "発送されるまで変更できます。",
-        "requirement": "required",
+        "required": true,
         "requiredText": "必須",
         "kind": "radio-group"
       },
@@ -1886,7 +1892,7 @@
             "name": "radio-buttons-required-ja",
             "value": "standard",
             "label": "通常配送（3〜5日）",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1911,7 +1917,7 @@
       "id": "radio-buttons-error-ja",
       "props": {
         "label": "配送方法",
-        "requirement": "required",
+        "required": true,
         "requiredText": "必須",
         "error": true,
         "errorText": "配送方法を選んでください。",
@@ -1950,7 +1956,7 @@
       "props": {
         "label": "طريقة التوصيل",
         "supportingText": "يمكنك تغيير هذا حتى يُشحن الطلب.",
-        "requirement": "required",
+        "required": true,
         "requiredText": "مطلوب",
         "kind": "radio-group"
       },
@@ -1969,7 +1975,7 @@
             "name": "radio-buttons-rtl",
             "value": "express",
             "label": "سريع، في اليوم التالي",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -1988,7 +1994,7 @@
       "props": {
         "label": "גודל",
         "orientation": "horizontal",
-        "requirement": "required",
+        "required": true,
         "requiredText": "חובה",
         "error": true,
         "errorText": "יש לבחור גודל.",
@@ -2044,7 +2050,7 @@
             "name": "radio-buttons-ltr-label-rtl",
             "value": "5",
             "label": "5 GHz",
-            "selected": true
+            "checked": true
           }
         },
         {
@@ -2069,7 +2075,8 @@
         "errorText": "errorText",
         "error": "error",
         "disabled": "disabled",
-        "requirement": "requirement",
+        "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -2090,7 +2097,7 @@
         "switch": {
           "name": "tanrei-switch",
           "props": {
-            "selected": "selected",
+            "checked": "checked",
             "label": "label",
             "disabled": "disabled"
           }
@@ -2101,7 +2108,8 @@
             "label": "label",
             "value": "value",
             "supportingText": "supportingText",
-            "requirement": "requirement",
+            "required": "required",
+            "optional": "optional",
             "requiredText": "requiredText",
             "optionalText": "optionalText"
           }
@@ -2109,7 +2117,7 @@
         "radio-button": {
           "name": "tanrei-radio-button",
           "props": {
-            "selected": "checked",
+            "checked": "checked",
             "value": "value",
             "name": "name",
             "label": "label",
@@ -2117,7 +2125,7 @@
           }
         }
       },
-      "notes": "`<tanrei-field-group label=\"Notify me by\"><tanrei-checkbox label=\"Email\"></tanrei-checkbox>…</tanrei-field-group>`: the controls are the elements of the default slot. They stay in the product's light DOM, so each keeps its place in a `<form>`, its `name` and `value` and its events; the group is not form-associated and holds no value. The shadow root holds a `<fieldset>` with a `<legend>` around the slot — the accessibility tree is built from the flattened tree, so the slotted controls are inside the group it names; every id it refers to is in the same shadow root. The description and the error text are referenced by `aria-describedby` on the fieldset, with visually hidden text for `requiredText` or `optionalText` where FGR-11 asks for them; `labelHidden` hides the legend visually and keeps it as the name. A `disabled` attribute on a fieldset in a shadow root does not reach slotted controls, so the group gives `disabled`, the error condition and the error text to each control itself: a Tanrei control asks for them with the composed `tanrei-field-connect` event a field answers, and any other element receives `disabled`, `aria-invalid` and `aria-description`; the group removes exactly what it set when an element leaves the slot (`slotchange`, FGR-23). The announcement of FGR-9 is a visually hidden `aria-live=\"polite\"` element in the shadow root, written only while `:focus-within` holds. The controls are laid out by a flex container with `gap`, `flex-direction` by `orientation` and `flex-wrap: wrap` in a row. Attributes are kebab-case: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`. The requirement tag is a `<tanrei-tag size=\"small\">`, `filled` or `tonal`, with nothing set on it: it reads the Tag's tokens as every tag where the group stands does. The host is `display: block`. Words: the element has no words of its own. `required-text` and `optional-text` left empty read the product's words, set once with `setWords()` from `@tanrei/web`; the element draws again when they change. While `kind=\"radio-group\"` the element that is the group — the same `fieldset`, with its `legend` — carries `role=\"radiogroup\"`, `aria-labelledby` the legend (which stays in the tree while `label-hidden`), `aria-required` while `requirement=\"required\"`, `aria-invalid` while `error`, and `aria-orientation` as `orientation` says; the hidden text for `requiredText` is left out of `aria-describedby`. The states are attributes on that element and not ElementInternals, which the accessibility checks cannot see. Nothing else in the shadow root differs, so the two kinds are the same picture; whether an engine takes the role on a `fieldset`, or the build puts a `div` in its place for this kind, is held by the test that reads one radio group in the accessibility tree in three engines. `kind` is reflected. The radio buttons are slotted as any control: those of a `tanrei-radio-group` around the field group reach it through that element's slot, and those a product writes by hand carry one `name` (RAD-25). A `tanrei-radio-button` asks the group as a checkbox does and says that it draws an error condition; while `error` the group gives it `invalid` and nothing else — no description — and the radio button draws its error form and writes no `aria-invalid` (FGR-8, FGR-11, RAD-26). The radio group's `aria-invalid` stays on the `fieldset`. The tag's element carries no custom property and is centred on the label's line without its height being read; `required-mark` takes `tag`; and `--tanrei-comp-field-group-requirement-mark` is `var(--tanrei-sys-behavior-requirement-mark)` until a layer sets it."
+      "notes": "`<tanrei-field-group label=\"Notify me by\"><tanrei-checkbox label=\"Email\"></tanrei-checkbox>…</tanrei-field-group>`: the controls are the elements of the default slot. They stay in the product's light DOM, so each keeps its place in a `<form>`, its `name` and `value` and its events; the group is not form-associated and holds no value. The shadow root holds a `<fieldset>` with a `<legend>` around the slot — the accessibility tree is built from the flattened tree, so the slotted controls are inside the group it names; every id it refers to is in the same shadow root. The description and the error text are referenced by `aria-describedby` on the fieldset, with visually hidden text for `requiredText` or `optionalText` where FGR-11 asks for them; `labelHidden` hides the legend visually and keeps it as the name. A `disabled` attribute on a fieldset in a shadow root does not reach slotted controls, so the group gives `disabled`, the error condition and the error text to each control itself: a Tanrei control asks for them with the composed `tanrei-field-connect` event a field answers, and any other element receives `disabled`, `aria-invalid` and `aria-description`; the group removes exactly what it set when an element leaves the slot (`slotchange`, FGR-23). The announcement of FGR-9 is a visually hidden `aria-live=\"polite\"` element in the shadow root, written only while `:focus-within` holds. The controls are laid out by a flex container with `gap`, `flex-direction` by `orientation` and `flex-wrap: wrap` in a row. Attributes are kebab-case: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`. The requirement tag is a `<tanrei-tag size=\"small\">`, `filled` or `tonal`, with nothing set on it: it reads the Tag's tokens as every tag where the group stands does. The host is `display: block`. Words: the element has no words of its own. `required-text` and `optional-text` left empty read the product's words, set once with `setWords()` from `@tanrei/web`; the element draws again when they change. While `kind=\"radio-group\"` the element that is the group — the same `fieldset`, with its `legend` — carries `role=\"radiogroup\"`, `aria-labelledby` the legend (which stays in the tree while `label-hidden`), `aria-required` while `required`, `aria-invalid` while `error`, and `aria-orientation` as `orientation` says; the hidden text for `requiredText` is left out of `aria-describedby`. The states are attributes on that element and not ElementInternals, which the accessibility checks cannot see. Nothing else in the shadow root differs, so the two kinds are the same picture; whether an engine takes the role on a `fieldset`, or the build puts a `div` in its place for this kind, is held by the test that reads one radio group in the accessibility tree in three engines. `kind` is reflected. The radio buttons are slotted as any control: those of a `tanrei-radio-group` around the field group reach it through that element's slot, and those a product writes by hand carry one `name` (RAD-25). A `tanrei-radio-button` asks the group as a checkbox does and says that it draws an error condition; while `error` the group gives it `invalid` and nothing else — no description — and the radio button draws its error form and writes no `aria-invalid` (FGR-8, FGR-11, RAD-26). The radio group's `aria-invalid` stays on the `fieldset`. The tag's element carries no custom property and is centred on the label's line without its height being read; `required-mark` takes `tag`; and `--tanrei-comp-field-group-requirement-mark` is `var(--tanrei-sys-behavior-requirement-mark)` until a layer sets it."
     },
     "swiftui": {
       "status": "planned",
@@ -2129,7 +2137,8 @@
         "errorText": "errorText",
         "error": "error",
         "disabled": "disabled",
-        "requirement": "requirement",
+        "required": "isRequired",
+        "optional": "isOptional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -2150,7 +2159,7 @@
         "switch": {
           "name": "TanreiSwitch",
           "props": {
-            "selected": "isOn",
+            "checked": "isOn",
             "label": "title",
             "disabled": "disabled"
           }
@@ -2161,7 +2170,8 @@
             "label": "label",
             "value": "text",
             "supportingText": "supportingText",
-            "requirement": "requirement",
+            "required": "isRequired",
+            "optional": "isOptional",
             "requiredText": "requiredText",
             "optionalText": "optionalText"
           }
@@ -2169,7 +2179,7 @@
         "radio-button": {
           "name": "TanreiRadioButton",
           "props": {
-            "selected": "selection",
+            "checked": "selection",
             "value": "value",
             "name": "TanreiRadioGroup",
             "label": "title",
@@ -2177,7 +2187,7 @@
           }
         }
       },
-      "notes": "`TanreiFieldGroup(\"Notify me by\", supportingText:, errorText:, error:, requirement:, orientation:, spacing:) { TanreiCheckbox(…) … }`. `labelHidden` follows the `.labelsHidden()` environment and `disabled` follows `.disabled(_:)`, which disables the content. The content is laid out by a custom `Layout` (a column, or a row that wraps); the container is `.accessibilityElement(children: .contain)` with the label and the description as its label and hint, and the error condition reaches the controls through the environment (`\\.tanreiField`). The product's words are read from the `\\.tanreiWords` environment value. `kind: .radioGroup` makes the same container the radio group of the `TanreiRadioButton`s in it: iOS has no radio group trait, so the container keeps `.accessibilityElement(children: .contain)` with the label and the description, and required and invalid are added to its hint in words (FGR-25). Not built on this platform yet: in error it also puts each `TanreiRadioButton` it holds in its error form (FGR-8, RAD-26). Not built on this platform yet: the requirement tag as this platform's Tag at its small size with nothing of the field group's set on it (FGR-5); generated tokens with none of the field group's values for it and with the system's choice of mark, which the field group's own token follows (FGR-6); the first mark named tag."
+      "notes": "`TanreiFieldGroup(\"Notify me by\", supportingText:, errorText:, error:, required:, optional:, orientation:, spacing:) { TanreiCheckbox(…) … }`. `labelHidden` follows the `.labelsHidden()` environment and `disabled` follows `.disabled(_:)`, which disables the content. The content is laid out by a custom `Layout` (a column, or a row that wraps); the container is `.accessibilityElement(children: .contain)` with the label and the description as its label and hint, and the error condition reaches the controls through the environment (`\\.tanreiField`). The product's words are read from the `\\.tanreiWords` environment value. `kind: .radioGroup` makes the same container the radio group of the `TanreiRadioButton`s in it: iOS has no radio group trait, so the container keeps `.accessibilityElement(children: .contain)` with the label and the description, and required and invalid are added to its hint in words (FGR-25). Not built on this platform yet: in error it also puts each `TanreiRadioButton` it holds in its error form (FGR-8, RAD-26). Not built on this platform yet: the requirement tag as this platform's Tag at its small size with nothing of the field group's set on it (FGR-5); generated tokens with none of the field group's values for it and with the system's choice of mark, which the field group's own token follows (FGR-6); the first mark named tag."
     },
     "compose": {
       "status": "planned",
@@ -2189,7 +2199,8 @@
         "errorText": "errorText",
         "error": "isError",
         "disabled": "enabled",
-        "requirement": "requirement",
+        "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -2210,7 +2221,7 @@
         "switch": {
           "name": "TanreiSwitch",
           "props": {
-            "selected": "checked",
+            "checked": "checked",
             "label": "label",
             "disabled": "enabled"
           }
@@ -2221,7 +2232,8 @@
             "label": "label",
             "value": "value",
             "supportingText": "supportingText",
-            "requirement": "requirement",
+            "required": "required",
+            "optional": "optional",
             "requiredText": "requiredText",
             "optionalText": "optionalText"
           }
@@ -2229,7 +2241,7 @@
         "radio-button": {
           "name": "TanreiRadioButton",
           "props": {
-            "selected": "selected",
+            "checked": "selected",
             "value": "onClick",
             "name": "selectableGroup",
             "label": "label",
@@ -2237,7 +2249,7 @@
           }
         }
       },
-      "notes": "`TanreiFieldGroup(label = \"Notify me by\", supportingText = …, isError = …, requirement = …, orientation = …, spacing = …) { TanreiCheckbox(…) … }`. `enabled` is the inverse flag and reaches the content through `LocalTanreiFieldState`, with `isError` and the error text. A `Column` or a `FlowRow`; the container sets `semantics { contentDescription; stateDescription }` without merging its descendants. The product's words are read from `LocalTanreiWords`. `kind = TanreiFieldGroupKind.RadioGroup` applies `Modifier.selectableGroup()` to the container and adds the error to its semantics (FGR-25); the bare `TanreiRadioButton(selected, onClick)` is what stands in it one level down. Not built on this platform yet: in error it also puts each `TanreiRadioButton` it holds in its error form (FGR-8, RAD-26). Not built on this platform yet: the requirement tag as this platform's Tag at its small size with nothing of the field group's set on it (FGR-5); generated tokens with none of the field group's values for it and with the system's choice of mark, which the field group's own token follows (FGR-6); the first mark named tag."
+      "notes": "`TanreiFieldGroup(label = \"Notify me by\", supportingText = …, isError = …, required = …, optional = …, orientation = …, spacing = …) { TanreiCheckbox(…) … }`. `enabled` is the inverse flag and reaches the content through `LocalTanreiFieldState`, with `isError` and the error text. A `Column` or a `FlowRow`; the container sets `semantics { contentDescription; stateDescription }` without merging its descendants. The product's words are read from `LocalTanreiWords`. `kind = TanreiFieldGroupKind.RadioGroup` applies `Modifier.selectableGroup()` to the container and adds the error to its semantics (FGR-25); the bare `TanreiRadioButton(selected, onClick)` is what stands in it one level down. Not built on this platform yet: in error it also puts each `TanreiRadioButton` it holds in its error form (FGR-8, RAD-26). Not built on this platform yet: the requirement tag as this platform's Tag at its small size with nothing of the field group's set on it (FGR-5); generated tokens with none of the field group's values for it and with the system's choice of mark, which the field group's own token follows (FGR-6); the first mark named tag."
     },
     "flutter": {
       "status": "planned",
@@ -2249,7 +2261,8 @@
         "errorText": "errorText",
         "error": "isError",
         "disabled": "enabled",
-        "requirement": "requirement",
+        "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -2270,7 +2283,7 @@
         "switch": {
           "name": "TanreiSwitch",
           "props": {
-            "selected": "value",
+            "checked": "value",
             "label": "label",
             "disabled": "onChanged"
           }
@@ -2281,7 +2294,8 @@
             "label": "labelText",
             "value": "controller",
             "supportingText": "helperText",
-            "requirement": "requirement",
+            "required": "required",
+            "optional": "optional",
             "requiredText": "requiredText",
             "optionalText": "optionalText"
           }
@@ -2289,7 +2303,7 @@
         "radio-button": {
           "name": "TanreiRadioButton",
           "props": {
-            "selected": "groupValue",
+            "checked": "groupValue",
             "value": "value",
             "name": "TanreiRadioGroup",
             "label": "label",
@@ -2297,7 +2311,7 @@
           }
         }
       },
-      "notes": "`TanreiFieldGroup(labelText: 'Notify me by', helperText: …, errorText: …, isError: …, requirement: …, orientation: …, spacing: …, children: […])`. `enabled` is the inverse flag. A `Column` or a `Wrap`; a `Semantics(container: true, label:, hint:)` node around the children, and an inherited `TanreiFieldScope` that gives the children the error condition and the disabled state. The product's words are read from the `TanreiWords` inherited widget, which the app fills from its own localizations. `kind: TanreiFieldGroupKind.radioGroup` makes the `Semantics` node the radio group of the radio buttons in it (FGR-25). Not built on this platform yet: in error it also puts each `TanreiRadioButton` it holds in its error form (FGR-8, RAD-26). Not built on this platform yet: the requirement tag as this platform's Tag at its small size with nothing of the field group's set on it (FGR-5); generated tokens with none of the field group's values for it and with the system's choice of mark, which the field group's own token follows (FGR-6); the first mark named tag."
+      "notes": "`TanreiFieldGroup(labelText: 'Notify me by', helperText: …, errorText: …, isError: …, required: …, optional: …, orientation: …, spacing: …, children: […])`. `enabled` is the inverse flag. A `Column` or a `Wrap`; a `Semantics(container: true, label:, hint:)` node around the children, and an inherited `TanreiFieldScope` that gives the children the error condition and the disabled state. The product's words are read from the `TanreiWords` inherited widget, which the app fills from its own localizations. `kind: TanreiFieldGroupKind.radioGroup` makes the `Semantics` node the radio group of the radio buttons in it (FGR-25). Not built on this platform yet: in error it also puts each `TanreiRadioButton` it holds in its error form (FGR-8, RAD-26). Not built on this platform yet: the requirement tag as this platform's Tag at its small size with nothing of the field group's set on it (FGR-5); generated tokens with none of the field group's values for it and with the system's choice of mark, which the field group's own token follows (FGR-6); the first mark named tag."
     },
     "react-native": {
       "status": "planned",
@@ -2309,7 +2323,8 @@
         "errorText": "errorText",
         "error": "error",
         "disabled": "disabled",
-        "requirement": "requirement",
+        "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -2330,7 +2345,7 @@
         "switch": {
           "name": "Switch",
           "props": {
-            "selected": "value",
+            "checked": "value",
             "label": "label",
             "disabled": "disabled"
           }
@@ -2341,7 +2356,8 @@
             "label": "label",
             "value": "value",
             "supportingText": "supportingText",
-            "requirement": "requirement",
+            "required": "required",
+            "optional": "optional",
             "requiredText": "requiredText",
             "optionalText": "optionalText"
           }
@@ -2349,7 +2365,7 @@
         "radio-button": {
           "name": "RadioButton",
           "props": {
-            "selected": "selected",
+            "checked": "selected",
             "value": "value",
             "name": "RadioGroup",
             "label": "label",

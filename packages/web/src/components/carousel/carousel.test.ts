@@ -422,7 +422,8 @@ async function tick(page: P, ms: number) {
 async function clockPage(page: P, fixtures: Fixture[]) {
   await holdClock(page);
   await holdFills(page);
-  await mountFixtures(page, spec, { icons: true, fixtures });
+  // On the held clock the page counts itself painted only when the test runs it: the harness does not wait for that.
+  await mountFixtures(page, spec, { icons: true, fixtures, beforePaint: true });
   await override(page, { [T('motion-autoplay-duration')]: '0ms', [T('motion-scroll-duration')]: '0ms' });
   // Out of the way of every carousel: the pointer holds autoplay while it is over one.
   await page.mouse.move(1200, 700);
@@ -3001,7 +3002,7 @@ test.describe('fixtures', () => {
     await holdClock(page);
     // …and the fill's animation with it, which the page clock does not hold (CRL-36).
     await holdFills(page);
-    await mountFixtures(page, spec, { icons: true, reducedMotion: false });
+    await mountFixtures(page, spec, { icons: true, reducedMotion: false, beforePaint: true });
   });
 
   for (const f of spec.fixtures) {

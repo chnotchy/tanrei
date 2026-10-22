@@ -2,7 +2,7 @@
 title: "单选按钮"
 description: "让用户从同时全部显示出来的一小组选项中恰好选择一个。"
 translationOf: components/radio-button.mdx
-sourceHash: 75fabd1dc1d5852c84f2905cd64938216d9b6b8a
+sourceHash: 580d206e4ecad18e8ec686f544dd11bd9a7b7564
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -130,6 +130,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-radio-button name="specs-disabled" value="unselected" disabled label="禁用，未选中"></tanrei-radio-button>
     <tanrei-radio-button name="specs-disabled" value="selected" disabled checked label="禁用，选中"></tanrei-radio-button>
   </div>
+  <div role="radiogroup" aria-label="只读" aria-readonly="true" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-radio-button name="specs-readonly" value="unselected" readonly label="只读，未选中"></tanrei-radio-button>
+    <tanrei-radio-button name="specs-readonly" value="selected" readonly checked label="只读，已选中"></tanrei-radio-button>
+  </div>
   <div role="radiogroup" aria-label="隐藏标签">
     <tanrei-radio-button name="specs-hidden" value="weekly" checked label-hidden label="每周"></tanrei-radio-button>
   </div>
@@ -183,6 +187,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 标签就是无障碍名称，无论它是画出来的，还是用 `labelHidden` 隐藏的。画出来的文本对辅助技术隐藏，所以名称只读一次。
 - 一个组只有一个 Tab 停靠点：选中的选项；没有选项被选中时，是第一个可用的选项。方向键移到下一个或上一个可用的选项并选中它，到两端时循环；在从右到左的布局中，左方向键和右方向键互换。
 - Space 选中获得焦点的选项。Enter 只在平台用 Enter 激活任何获得焦点的控件时（Android、tvOS）才选中它；在 Web 上，Enter 提交表单。
+- 设置 `readOnly` 时，或外围的单选组为只读时，选项仍可获得焦点，方向键也仍能到达它，但没有任何操作会选中它：按下、Space、点击标签、`click()`，或方向键移到它上面都不会。它也没有悬停和按下的反馈。radio 角色没有只读状态，所以由组来说明。
 - 选中一个选项会取消其他选项的选中。只有变为选中的选项报告这次变化，激活已经选中的选项则什么都不会发生。
 - 点击或轻点标签会选中该选项。标签是点击区域的一部分，点击区域满足最小目标。每个选项都在布局中预留目标的高度，所以堆叠的选项各自保有完整、独立的目标。
 - 选中与否只由圆环来表达：在默认系统中，选中的圆环相对于每一种表面都保持 3:1 的对比度，并且粗细是未选中圆环的两倍半。半透明的填充不计入其中，但它与所接触的圆环在每一种状态、每一种表面和每一种配色方案下都保持 3:1 的对比度（WCAG 1.4.11），因此选中选项的中心也看得出来。
@@ -193,12 +198,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 已知的平台差距：
 
 - SwiftUI、Compose、Flutter 和 React Native 仍然绘制上一版的单选按钮：带圆点，使用以前的尺寸，还没有把圆环和填充画成一个形状，也不在布局中预留目标的高度，所以不留间隙堆叠的选项会共用目标区域。
+- `readOnly` 目前只在 Web 上提供：SwiftUI、Compose、Flutter 和 React Native 还没有。
 - 在 `m3-like` 下，选中时的圆点以完整大小淡入，而 Material 是让它从中心放大出现（模仿差距 `radio-dot-scale-in`）。
 
 ### 需要你做的事
 
 - 用组所回答的问题为它命名。在 Web 上，用带有 `role="radiogroup"` 和 `aria-labelledby` 的元素包裹这些选项，或者用带 `<legend>` 的 `<fieldset>`。在 Flutter 中，在 `TanreiRadioGroup` 上设置 `semanticLabel`；在 React Native 中，在 `RadioGroup` 上设置 `accessibilityLabel`。
 - 按平台的方式构成组，这样按键和位置才能正常工作：在 Web 上使用同一个 `name`，在 Compose 中给父级加上 `Modifier.selectableGroup()`，在 Flutter 中使用 `TanreiRadioGroup`，在 React Native 中使用 `RadioGroup`。
+- 当你自己用 `name` 组合选项并让每一项都只读时，请在容器上说明：在 `role="radiogroup"` 旁加上 `aria-readonly="true"`。设置了 `readOnly` 的[单选组](/zh-cn/components/radio-group/)会替你做到这一点。
 - 如果问题必须回答却没有回答，把消息显示在组上：处于错误状态的[单选组](/zh-cn/components/radio-group/)会绘制它的错误文本，并让每个单选按钮都以错误形态绘制。没有用单选组来分组的选项，要在每个单选按钮上设置 `error`：圆环和圆点采用错误颜色，与复选框的方框一样。禁用的选项不显示错误颜色。
 - 处于错误状态的单选按钮不会暴露为无效，因为它的角色没有这种状态。这一点由组来说明：单选组是无效的，并以它的错误文本作为描述。自己为选项分组时，要在它们旁边用文字说明错误。
 - 如果你在自己的层里重新设定圆环和填充的样式，要让圆环足够醒目，单靠它就能看出选中与否。构建不会检查这一点。

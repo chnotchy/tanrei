@@ -19,6 +19,7 @@ import {
   syncSeparation,
 } from '../../primitives/index.js';
 import { styles } from './button-group.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** How the buttons are laid out: spaced apart, or joined into one shape. A closed set (the two differ in structure). */
 export type TanreiButtonGroupVariant = 'standard' | 'connected';
@@ -77,7 +78,7 @@ const clear = (color: string) => /^rgba\(.*,\s*0(\.0+)?\s*\)$/.test(color) || /\
  * @slot - The items: `<tanrei-button>` elements, with `confirming` or `dismissive` on the ones the group should place. Anything else is still laid out, and reported in debug builds (BGR-10).
  * @csspart divider - The line on a seam of a connected group under `divider` (decoration: not exposed, takes no press). A seam between two items that rest on different fills carries none (BGR-24).
  */
-export class TanreiButtonGroup extends LitElement implements PlacingGroup {
+export class TanreiButtonGroup extends TanreiElement implements PlacingGroup {
   private readonly availability = new AvailabilityController(this, 'button-group');
   static override styles = styles;
 

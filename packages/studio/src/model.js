@@ -84,7 +84,6 @@ function resolveScheme(files, resolver, scheme, entriesOf, only) {
       type: finalType,
       value,
       description: token.$description,
-      deprecated: token.$deprecated || undefined,
       alias: chain[1],
       aliasFinal: chain.length > 1 ? chain.at(-1) : undefined,
       partialAlias: chain.length > 1 ? undefined : finalType === 'shadow' && resolved.partial && !Array.isArray(end.token.$value) ? [resolved.partial] : resolved.partial,

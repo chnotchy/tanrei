@@ -40,10 +40,26 @@
             "variant": {
               "default": "stacked",
               "from": "states"
+            },
+            "density": {
+              "default": "regular",
+              "values": [
+                "regular",
+                "compact"
+              ],
+              "members": [
+                "option.height",
+                "option.padding-inline",
+                "option.padding-block",
+                "option.gap",
+                "option.leading-icon.size",
+                "option.mark.size",
+                "group-title.padding-inline"
+              ]
             }
           },
           "dev.tanrei.llm": {
-            "usage": "What a combobox draws that is its own. The list: its surface, corners, lift, paddings, offset from the box, margin to the window's edge and greatest height; an option's row, text styles, glyph and check sizes and the weight of the matched letters; a group's title, the divider or the gap between groups; the status row; the motion of opening and closing and of a row's state change, and a row's opacity in each state; an option's colors at rest and chosen, in each state. And the gap between the clear button and the chevron. The box is comp.input-box.*.",
+            "usage": "What a combobox draws that is its own. The list: its surface, corners, lift, paddings, offset from the box, margin to the window's edge and greatest height; per density (regular, compact) an option's least height, paddings, gap, glyph and check sizes and a group title's inset; an option's corners, text styles and the weight of the matched letters; a group's title, the divider or the gap between groups; the status row; the motion of opening and closing and of a row's state change, and a row's opacity in each state; an option's colors at rest and chosen, in each state. And the gap between the clear button and the chevron. The box is comp.input-box.*.",
             "rules": [
               "A combobox holds one value a person finds by typing. For a short closed list use a select; for a query that finds things to go to use the search; for actions use a menu.",
               "A combobox is the bare box and its list: it has no label row, no requirement tag, no help and no error text. Put it in a Field for those, or use the combobox field, which is that pair; their tokens are comp.field.*.",
@@ -52,6 +68,7 @@
               "The chosen option is the quiet selection: selected-option.container.color under on-secondary-container content, always with the check.",
               "option.state-layer.color and selected-option.state-layer.color are the colors the state layers mix into a row. motion.state-duration, motion.state-easing and the four opacity tokens are the rows'; the box has its own in comp.input-box.",
               "The clear button is an icon-only Button of the text variant with Button's own tokens; container.action-gap is its distance from the chevron.",
+              "compact is for a tool used with a pointer, where rows are many and looked through often; touch always gets rows of the touch target. The density never changes a text style.",
               "Restyle through these tokens in a layer; never fork the component."
             ]
           }
@@ -351,34 +368,34 @@
           "state-duration": {
             "$description": "How long colors and edge widths take to follow a change of state.",
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}"
+            "$value": "{tanrei.sys.motion.role.state.default}"
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$description": "How long an option's ripple takes to grow.",
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}"
+            "$value": "{tanrei.sys.motion.role.feedback}"
           },
           "open-duration": {
             "$description": "How long the list takes to appear.",
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short4}"
+            "$value": "{tanrei.sys.motion.role.appear.anchored.enter}"
           },
           "open-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+            "$value": "{tanrei.sys.motion.easing.enter}"
           },
           "close-duration": {
             "$description": "How long the list takes to go.",
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short2}"
+            "$value": "{tanrei.sys.motion.role.appear.anchored.exit}"
           },
           "close-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}"
+            "$value": "{tanrei.sys.motion.easing.exit}"
           }
         },
         "list": {
@@ -442,40 +459,75 @@
         },
         "option": {
           "height": {
-            "$description": "Minimum height of an option's row; the row grows with its text.",
             "$type": "dimension",
-            "$value": {
-              "value": 48,
-              "unit": "px"
-            },
-            "$extensions": {
-              "dev.tanrei.derive": {
-                "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 12
+            "$description": "Minimum height of an option's row; the row grows with its text.",
+            "regular": {
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 12
+                }
               }
+            },
+            "compact": {
+              "$value": "{tanrei.comp.menu.container.height.compact}"
             }
           },
           "shape": {
-            "$description": "The corners of a row's highlight and of its state layer.",
             "$type": "dimension",
             "$value": "{tanrei.sys.shape.corner.none}",
-            "$extensions": {}
+            "$description": "The corners of a row's highlight and of its state layer: the list's corner less the inset the rows stand at, so that the two curves keep one distance.",
+            "$extensions": {
+              "dev.tanrei.concentric": {
+                "outer": "{tanrei.comp.combobox.list.shape}",
+                "inset": "{tanrei.comp.combobox.list.padding-inline}"
+              }
+            }
           },
           "padding-inline": {
-            "$description": "Padding at each end of a row.",
             "$type": "dimension",
-            "$value": "{tanrei.sys.space.space150}"
+            "$description": "Padding at each end of a row.",
+            "regular": {
+              "$value": "{tanrei.sys.space.space150}"
+            },
+            "compact": {
+              "$value": "{tanrei.comp.menu.container.padding-inline.compact}"
+            }
           },
           "padding-block": {
-            "$description": "Padding above and below a row's text; also above and below a group's title and the status row.",
             "$type": "dimension",
-            "$value": "{tanrei.sys.space.space100}"
+            "$description": "Padding above and below a row's text; also above and below a group's title and the status row.",
+            "regular": {
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space100}",
+                  "height": "{tanrei.comp.combobox.option.height.regular}"
+                }
+              }
+            },
+            "compact": {
+              "$value": "{tanrei.comp.menu.container.padding-block.compact}"
+            }
           },
           "gap": {
-            "$description": "Distance between a row's glyph, its text and its check.",
             "$type": "dimension",
-            "$value": "{tanrei.sys.space.space150}"
+            "$description": "Distance between a row's glyph, its text and its check.",
+            "regular": {
+              "$value": "{tanrei.sys.space.space150}"
+            },
+            "compact": {
+              "$value": "{tanrei.comp.menu.container.gap.compact}"
+            }
           },
           "label": {
             "typescale": {
@@ -493,17 +545,27 @@
           },
           "leading-icon": {
             "size": {
-              "$description": "The glyph before an option's label.",
               "$type": "dimension",
-              "$value": "{tanrei.sys.icon.medium}",
-              "$extensions": {}
+              "$description": "The glyph before an option's label.",
+              "regular": {
+                "$value": "{tanrei.sys.icon.medium}",
+                "$extensions": {}
+              },
+              "compact": {
+                "$value": "{tanrei.comp.menu.leading-icon.size.compact}"
+              }
             }
           },
           "mark": {
             "size": {
-              "$description": "The check at the end of the chosen option's row, and the box kept for it in every row.",
               "$type": "dimension",
-              "$value": "{tanrei.sys.icon.medium}"
+              "$description": "The check at the end of the chosen option's row, and the box kept for it in every row.",
+              "regular": {
+                "$value": "{tanrei.sys.icon.medium}"
+              },
+              "compact": {
+                "$value": "{tanrei.comp.menu.mark.size.compact}"
+              }
             }
           },
           "match": {
@@ -531,8 +593,13 @@
           },
           "padding-inline": {
             "$type": "dimension",
-            "$value": "{tanrei.comp.combobox.option.padding-inline}",
-            "$description": "A title starts where the rows' content starts."
+            "$description": "A title starts where the rows' content starts.",
+            "regular": {
+              "$value": "{tanrei.comp.combobox.option.padding-inline.regular}"
+            },
+            "compact": {
+              "$value": "{tanrei.comp.combobox.option.padding-inline.compact}"
+            }
           }
         },
         "group": {

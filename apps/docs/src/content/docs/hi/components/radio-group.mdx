@@ -2,7 +2,7 @@
 title: रेडियो ग्रुप
 description: ऐसा एक सवाल पूछता है जिसका, एक साथ दिखाए गए थोड़े-से विकल्पों में से, ठीक एक जवाब होता है। यह रेडियो बटन का ऐसा सेट है जो चुना हुआ मान रखता है, ऐसे लेबल के नीचे जो बता सकता है कि जवाब ज़रूरी है या वैकल्पिक, एक विवरण और पूरे सेट की एक त्रुटि के साथ।
 translationOf: components/radio-group.mdx
-sourceHash: 3acaf21d866775ed8947b13d2537e747c103a871
+sourceHash: e9c637af4e26a776faf7851c62e6badc99a1ebac
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="radio-group" />
 
 <DemoFrame label="रेडियो बटन का एक सेट, नाम, विवरण और ज़रूरी के निशान के साथ" column>
-  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="डिलीवरी" supporting-text="ऑर्डर भेजे जाने तक आप इसे बदल सकते हैं।" requirement="required" required-text="ज़रूरी" value="standard">
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="डिलीवरी" supporting-text="ऑर्डर भेजे जाने तक आप इसे बदल सकते हैं।" required required-text="ज़रूरी" value="standard">
     <tanrei-radio-button value="standard" label="स्टैंडर्ड, 3 से 5 दिन"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="एक्सप्रेस, अगले दिन"></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="स्टोर से पिकअप"></tanrei-radio-button>
@@ -36,7 +36,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-radio-group label="डिलीवरी" name="delivery" value="standard" requirement="required" required-text="ज़रूरी"
+    <tanrei-radio-group label="डिलीवरी" name="delivery" value="standard" required required-text="ज़रूरी"
                         supporting-text="ऑर्डर भेजे जाने तक आप इसे बदल सकते हैं।">
       <tanrei-radio-button value="standard" label="स्टैंडर्ड, 3 से 5 दिन"></tanrei-radio-button>
       <tanrei-radio-button value="express" label="एक्सप्रेस, अगले दिन"></tanrei-radio-button>
@@ -76,7 +76,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```html
 <tanrei-field-group kind="radio-group" label="डिलीवरी"
                     supporting-text="ऑर्डर भेजे जाने तक आप इसे बदल सकते हैं।"
-                    requirement="required" required-text="ज़रूरी">
+                    required required-text="ज़रूरी">
   <tanrei-radio-button name="delivery" value="standard" label="स्टैंडर्ड, 3 से 5 दिन" checked></tanrei-radio-button>
   <tanrei-radio-button name="delivery" value="express" label="एक्सप्रेस, अगले दिन"></tanrei-radio-button>
   <tanrei-radio-button name="delivery" value="pickup" label="स्टोर से पिकअप"></tanrei-radio-button>
@@ -84,7 +84,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="वही सेट हाथ से लिखा हुआ: एक फ़ील्ड ग्रुप जिसका kind radio-group है, और उसमें एक ही name वाले रेडियो बटन" column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="डिलीवरी" supporting-text="ऑर्डर भेजे जाने तक आप इसे बदल सकते हैं।" requirement="required" required-text="ज़रूरी">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="डिलीवरी" supporting-text="ऑर्डर भेजे जाने तक आप इसे बदल सकते हैं।" required required-text="ज़रूरी">
     <tanrei-radio-button name="delivery-by-hand" value="standard" label="स्टैंडर्ड, 3 से 5 दिन" checked></tanrei-radio-button>
     <tanrei-radio-button name="delivery-by-hand" value="express" label="एक्सप्रेस, अगले दिन"></tanrei-radio-button>
     <tanrei-radio-button name="delivery-by-hand" value="pickup" label="स्टोर से पिकअप"></tanrei-radio-button>
@@ -108,12 +108,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## स्पेक
 
 <DemoFrame label="त्रुटि में एक ज़रूरी सेट जिसका जवाब नहीं दिया गया, एक अस्वीकार हुआ जवाब, एक पंक्ति, और एक सेट जिसका एक विकल्प अक्षम है" plain column>
-  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="डिलीवरी" requirement="required" required-text="ज़रूरी" error error-text="चुनें कि ऑर्डर आप तक कैसे पहुँचे।">
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="डिलीवरी" required required-text="ज़रूरी" error error-text="चुनें कि ऑर्डर आप तक कैसे पहुँचे।">
     <tanrei-radio-button value="standard" label="स्टैंडर्ड, 3 से 5 दिन"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="एक्सप्रेस, अगले दिन"></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="स्टोर से पिकअप"></tanrei-radio-button>
   </tanrei-radio-group>
-  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="डिलीवरी" supporting-text="ऑर्डर भेजे जाने तक आप इसे बदल सकते हैं।" requirement="required" required-text="ज़रूरी" value="express" error error-text="इस पते पर एक्सप्रेस डिलीवरी उपलब्ध नहीं है। कोई दूसरा तरीक़ा चुनें।">
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="डिलीवरी" supporting-text="ऑर्डर भेजे जाने तक आप इसे बदल सकते हैं।" required required-text="ज़रूरी" value="express" error error-text="इस पते पर एक्सप्रेस डिलीवरी उपलब्ध नहीं है। कोई दूसरा तरीक़ा चुनें।">
     <tanrei-radio-button value="standard" label="स्टैंडर्ड, 3 से 5 दिन"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="एक्सप्रेस, अगले दिन"></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="स्टोर से पिकअप"></tanrei-radio-button>
@@ -123,9 +123,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-radio-button value="m" label="मीडियम"></tanrei-radio-button>
     <tanrei-radio-button value="l" label="लार्ज"></tanrei-radio-button>
   </tanrei-radio-group>
-  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="डिलीवरी" requirement="optional" optional-text="वैकल्पिक" value="standard">
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="डिलीवरी" optional optional-text="वैकल्पिक" value="standard">
     <tanrei-radio-button value="standard" label="स्टैंडर्ड, 3 से 5 दिन"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="एक्सप्रेस, अगले दिन" disabled></tanrei-radio-button>
+    <tanrei-radio-button value="pickup" label="स्टोर से पिकअप"></tanrei-radio-button>
+  </tanrei-radio-group>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="डिलीवरी" value="express" readonly>
+    <tanrei-radio-button value="standard" label="स्टैंडर्ड, 3 से 5 दिन"></tanrei-radio-button>
+    <tanrei-radio-button value="express" label="एक्सप्रेस, अगले दिन"></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="स्टोर से पिकअप"></tanrei-radio-button>
   </tanrei-radio-group>
 </DemoFrame>
@@ -154,7 +159,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### वेब क्या अलग ढंग से बनाता है
 
 - एलिमेंट के शैडो रूट में एक स्लॉट के चारों ओर एक `<tanrei-field-group kind="radio-group">` है। रेडियो बटन आपके अपने चाइल्ड बने रहते हैं। एलिमेंट को इंपोर्ट करने से दोनों सदस्य डिफ़ाइन हो जाते हैं।
-- एलिमेंट फ़ॉर्म से जुड़ा एलिमेंट है। वह `name` और `form` लेता है, और `name` के नाम से `value` सबमिट करता है, तब भी जब चयनित रेडियो बटन वह हो जिसे आपने अकेले अक्षम किया है। उसके रेडियो बटन कुछ सबमिट नहीं करते, उनका `name` चाहे जो हो। वह रीसेट होने पर अपने `value` ऐट्रिब्यूट पर लौटता है, अक्षम `<fieldset>` के साथ अक्षम होता है, और जब तक `requirement` का मान `required` है और `value` ख़ाली है, बताता है कि मान नहीं है, उन्हीं शब्दों में जो ब्राउज़र बिना जवाब वाले रेडियो बटन के सेट के लिए इस्तेमाल करता है।
+- एलिमेंट फ़ॉर्म से जुड़ा एलिमेंट है। वह `name` और `form` लेता है, और `name` के नाम से `value` सबमिट करता है, तब भी जब चयनित रेडियो बटन वह हो जिसे आपने अकेले अक्षम किया है। उसके रेडियो बटन कुछ सबमिट नहीं करते, उनका `name` चाहे जो हो। वह रीसेट होने पर अपने `value` ऐट्रिब्यूट पर लौटता है, अक्षम `<fieldset>` के साथ अक्षम होता है, और जब तक `required` सेट है और `value` ख़ाली है, बताता है कि मान नहीं है, उन्हीं शब्दों में जो ब्राउज़र बिना जवाब वाले रेडियो बटन के सेट के लिए इस्तेमाल करता है।
 - `change` एक CustomEvent है जिसका `detail.value` नया मान है; `input` उससे पहले फ़ायर होता है। ग्रुप के भीतर के रेडियो बटन पर लगा लिसनर इनमें से कोई नहीं सुनता।
 - भाग: `field-group` फ़्रेम है, और उसके भागों के नाम यहाँ वही हैं जो एक स्तर नीचे हैं: `label`, `requirement-label`, `supporting-text`, `error-text`। आपके अपने रेडियो बटन की स्टाइल वैसे ही दी जाती है जैसे कहीं भी, `tanrei-radio-button::part(…)` से।
 - एलिमेंट पर ख़ुद फ़ोकस नहीं जा सकता। `focus()` उस रेडियो बटन पर जाता है जो पड़ाव है, और पेज का अपना `<label for>` फ़ोकस वहीं ले जाता है।
@@ -199,6 +204,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 मान बदलने से त्रुटि नहीं हटती। जब जवाब स्वीकार करने लायक़ हो, तब उसे हटाएँ।
 
+### केवल पढ़ने के लिए
+
+केवल पढ़ने वाला ग्रुप अपना उत्तर वहीं दिखाता है, ताकि व्यक्ति उसे पढ़ सके पर बदल न सके: जैसे समीक्षा का चरण, या ऐसा चुनाव जिसे कुछ ही लोग बदल सकते हैं। Tab अब भी इसमें चुने हुए रेडियो बटन पर प्रवेश करता है, ऐरो कुंजियाँ विकल्पों के बीच चलती हैं पर कोई नहीं चुनतीं, और मान फ़ॉर्म के साथ सबमिट होता है। उत्तर दिए बिना छोड़ा गया ज़रूरी, केवल पढ़ने वाला ग्रुप फ़ॉर्म से अस्वीकार नहीं होता, क्योंकि व्यक्ति उसका उत्तर नहीं दे सकता। यह सक्षम ग्रुप की तरह बनता है, बस होवर और दबाने की प्रतिक्रिया के बिना।
+
 ### करें
 
 - सेट को उस सवाल से नाम दें जिसका जवाब उसके विकल्प देते हैं: "डिलीवरी"।
@@ -210,7 +219,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - रेडियो ग्रुप में ऐसी कोई और चीज़ न रखें जिसे ऑपरेट किया जा सके: न चेकबॉक्स, न बटन, न फ़ील्ड।
 - रेडियो ग्रुप के रेडियो बटन को `name` न दें। वह `name` अनदेखा किया जाता है: ग्रुप ही उनका ग्रुप है।
 - रेडियो ग्रुप को लेबल देने के लिए उसे फ़ील्ड या फ़ील्ड ग्रुप में न लपेटें। उसका अपना लेबल है। रेडियो ग्रुप ऐसे फ़ील्ड ग्रुप का एक सदस्य हो सकता है जो किसी बड़े सेट को नाम देता है ("शिपिंग")।
-- ग्रुप को अक्षम करके सेट को सिर्फ़ पढ़ने के लिए न बनाएँ: अक्षम ग्रुप कुछ सबमिट नहीं करता। रेडियो ग्रुप का सिर्फ़ पढ़ने वाला कोई स्टेट नहीं है। जो जवाब बदला नहीं जा सकता, उसे टेक्स्ट के रूप में दिखाएँ, या हर रेडियो बटन को अकेले अक्षम करें, जिससे मान बना रहता है।
+- ग्रुप को अक्षम करके सेट को केवल पढ़ने वाला न बनाएँ: अक्षम ग्रुप कुछ भी सबमिट नहीं करता और उस तक पहुँचा नहीं जा सकता। `readOnly` इस्तेमाल करें, जो सेट को फ़ोकस क्रम में रखता है और उसका मान सबमिट करता है।
 
 ## सुलभता
 
@@ -219,7 +228,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### कंपोनेंट क्या सँभालता है
 
 - एक रेडियो ग्रुप, जिसके भीतर उसके रेडियो बटन हैं और जिसका नाम `label` से आता है, चाहे वह दिखाया गया हो या `labelHidden` से छिपाया गया हो।
-- ज़रूरी स्टेट, जब तक `requirement` का मान `required` है; अमान्य स्टेट, जब तक `error` true है; अक्षम स्टेट, जब तक `disabled` true है; और उसका ओरिएंटेशन।
+- ज़रूरी स्टेट, जब तक `required` सेट है; अमान्य स्टेट, जब तक `error` true है; अक्षम स्टेट, जब तक `disabled` true है; और उसका ओरिएंटेशन।
+- `readOnly` true रहने पर केवल पढ़ने की अवस्था। तब हर रेडियो बटन केवल पढ़ने वाला होता है: Tab और ऐरो कुंजियाँ फ़ोकस अब भी ले जाती हैं, और व्यक्ति कुछ भी करे, `value` नहीं बदलता।
 - ग्रुप का विवरण `supportingText` है, फिर `errorText` जब तक `error` true है, फिर `optionalText` जब तक वह वैकल्पिक है। `requiredText` उसका हिस्सा नहीं है: यह बात ज़रूरी स्टेट कहता है।
 - हर रेडियो बटन सेट में अपनी जगह और सेट का साइज़ बताता है, जिसमें अक्षम विकल्प भी गिने जाते हैं।
 - फ़ोकस के क्रम में एक पड़ाव: चयनित रेडियो बटन, या पहला सक्षम रेडियो बटन। Tab ग्रुप में वहीं प्रवेश करती है और वहीं से बाहर जाती है; ऐरो कुंजियाँ उसके भीतर चलती हैं, अक्षम विकल्प को छोड़ देती हैं और दोनों सिरों पर घूमकर दूसरे सिरे पर पहुँचती हैं। दाएँ से बाएँ वाले लेआउट में Left Arrow और Right Arrow आपस में बदल जाती हैं।

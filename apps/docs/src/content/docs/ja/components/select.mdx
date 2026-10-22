@@ -2,7 +2,7 @@
 title: セレクト
 description: 決まったリストの中から 1 つの値を選べるようにします。テキスト入力欄のボックスと同じ見た目と寸法で、選ばれているオプションを表示するトリガーと、そこから開くオプションのリスト（グループ分けもできます）から成ります。ラベルの行、補足、エラーテキストは持ちません。バー、ツールバー、テーブルに置くか、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/select.mdx
-sourceHash: e857bc793421580596e324148fe48b5f0adc1525
+sourceHash: 6498add9840e5413d69077058e2b885721456c9b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -97,7 +97,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select>` です。ほか
 フィールドでセレクトを囲むと、セレクトフィールドを自分で書いたものになります。セレクトの `label` は空のままにします。名前はフィールドが与えます。`label`、`error`、`disabled`、必須の指定はフィールドに、`name`、`value`、オプション、選ぶ操作に関するすべてはセレクトに指定します。
 
 ```html
-<tanrei-field label="国" requirement="required" required-text="必須"
+<tanrei-field label="国" required required-text="必須"
   supporting-text="請求書の宛先になります。">
   <tanrei-select name="country" placeholder="国を選択">
     <tanrei-option value="jp">日本</tanrei-option>
@@ -107,7 +107,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select>` です。ほか
 ```
 
 <DemoFrame label="フィールドの中にセレクトを入れたもの。セレクトフィールドと同じ見た目になります" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国" requirement="required" required-text="必須" supporting-text="請求書の宛先になります。">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国" required required-text="必須" supporting-text="請求書の宛先になります。">
     <tanrei-select placeholder="国を選択">
       <tanrei-option value="jp">日本</tanrei-option>
       <tanrei-option value="ke">ケニア</tanrei-option>
@@ -152,7 +152,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select>` です。ほか
 
 3 つのバリアントは、テキスト入力欄と同じです。既定のシステムが提供するのは `stacked` だけで、`filled` と `outlined` は、テキスト入力欄をその形で描くシステムのためのものです。1 つのフォームの中では、バリアントをそろえます。
 
-`small`（40）、`medium`（48）、`large`（56）は、テキスト入力欄の高さです。`small` は、バー、ツールバー、コントロールを詰めて並べた行のためのもので、小さなセレクトと小さなテキスト入力欄が同じ高さで並びます。
+`small`（32）、`medium`（40）、`large`（56）は、テキスト入力欄の高さです。`small` は、バー、ツールバー、コントロールを詰めて並べた行のためのもので、小さなセレクトと小さなテキスト入力欄が同じ高さで並びます。
 
 ### セレクトが受け持つものと、フィールドが受け持つもの
 
@@ -175,7 +175,34 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select>` です。ほか
 | グループ | ひと続きのオプションで、タイトルを付けられます。グループの間は、デザインシステムまたは `separation` の指定に従って、線か余白で区切ります |
 | 無効なオプション | 矢印キーで移動できるので、あることは分かりますが、選ぶことはできません |
 
+オプションのグリフは、ラベルの前の列に描きます。グリフのないオプションでその列の幅を空けておくかどうかは `iconSpace` が決めます。`auto`（既定）は、セクションの中にグリフのあるオプションがほかにあれば幅を空けておき、そのセクションのラベルを一直線にそろえます。グリフのないセクションでは空けません。セクションとは、グループか、グループの外にひと続きに並ぶオプションのことです。`always` はすべてのオプションで空けておき、`never` はグリフのあるオプションにだけ列を設けます。[メニュー](/ja/components/menu/)にも、同じ値と既定値の `iconSpace` があります。
+
+`density` は選択肢が取る広さを決めます。`regular`（既定。高さ 48）と、マウスで使い長いリストを扱うツール向けの `compact`（高さ 32、グリフ 20。[メニュー](/ja/components/menu/)の compact の行）です。文字の大きさは変わらず、コンテナーは密度にかかわらず `size` のとおりです。タッチでは選択肢がタッチターゲットより低くなることはありません。
+
 値が空文字列のオプションも、ほかと同じ選択肢です。「なし」や「指定なし」に使います。セレクト自身には、何も選ばれていない状態に戻す方法がありません。選ばないことを認める場合は、そのためのオプションを用意します。
+
+### 読み込み中、失敗、選べるものがないとき
+
+オプションの取得に時間がかかったり、失敗したりすることがあるなら、そのことをリストの中で伝えます。`status`、`statusText`、`emptyText` は[コンボボックス](/ja/components/combobox/)と[検索](/ja/components/search/)のプロパティと同じもので、値も意味も同じです。
+
+| 設定するもの | オプションの後にリストが表示するもの |
+| --- | --- |
+| `status="loading"` と `statusText` | 小さなローディングインジケーター。名前は `statusText`（「プロジェクトを読み込んでいます」）です。リストは処理中として示され、何も読み上げません。すでにあるオプションは選べます |
+| `status="error"` と `statusText` | エラーの色のテキスト。すぐに読み上げます（「プロジェクトを読み込めませんでした」） |
+| `statusText` だけ | テキスト。控えめに読み上げます（「最近の 3 件のプロジェクト」） |
+| `emptyText`（オプションがないとき） | オプションの代わりに表示するテキスト（「プロジェクトはまだありません」） |
+
+このステータス行は、オプションをスクロールしても見えたままです。オプションではないので、押しても何も起きず、矢印キーでも移動しません。リストを開いたときにすでに表示している内容は、開いたときに読み上げます。
+
+セレクトは自分では取得も待機も再試行もしません。始めるときに `status` を `loading` にし、届いたらオプションを渡して `idle` に戻します。失敗したら、その内容を伝える言葉とともに `error` にします。
+
+オプションもステータスも `emptyText` もないセレクトは開きません。`emptyText` を渡すか、プロダクトの `noOptionsText` を `setWords()` で一度渡しておき、開いた人に選べるものがない理由が伝わるようにします。
+
+<DemoFrame label="読み込み中、失敗、選べるものがない場合" column>
+  <tanrei-select class="not-content" label="プロジェクト" placeholder="プロジェクトを選択" status="loading" status-text="プロジェクトを読み込んでいます"></tanrei-select>
+  <tanrei-select class="not-content" label="プロジェクト" placeholder="プロジェクトを選択" status="error" status-text="プロジェクトを読み込めませんでした。接続を確認してください。"></tanrei-select>
+  <tanrei-select class="not-content" label="プロジェクト" placeholder="プロジェクトを選択" empty-text="プロジェクトはまだありません"></tanrei-select>
+</DemoFrame>
 
 ### 開く、移動する、選ぶ
 
@@ -203,8 +230,9 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select>` です。ほか
 - `change` は、composed でバブルするイベントです。`toggle` は composed ですが、バブルしません。セレクトと、それを囲むセレクトフィールドでは受け取れますが、`<details>` のような祖先には届きません。
 - リストは、トップレイヤーにある `popover="manual"` の要素です。外側を押すとリストは閉じ、押した位置にある要素にもその操作が届きます。
 - 浮き上がるラベル（`filled`、`outlined`）はコンテナの中にあるので、ラベルを押すとリストが開きます。
-- `supporting-text`、`error-text`、`requirement`、`required-mark`、`required-text`、`optional-text` と、`label-icon` スロットに入れる子は、セレクトフィールドとフィールドのものです。セレクトに書いても何も描かれません。デバッグビルドは、要素ごとに 1 度だけそのことを伝え、`<tanrei-select-field>` を案内します。
-- パーツ: `container`、`outline`、`active-indicator`、`label`、`requirement-label`、`value`、`placeholder`、`leading-icon`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider`。
+- `supporting-text`、`error-text`、`required`、`optional`、`required-mark`、`required-text`、`optional-text` と、`label-icon` スロットに入れる子は、セレクトフィールドとフィールドのものです。セレクトに書いても何も描かれません。デバッグビルドは、要素ごとに 1 度だけそのことを伝え、`<tanrei-select-field>` を案内します。
+- パーツ: `container`、`outline`、`active-indicator`、`label`、`requirement-label`、`value`、`placeholder`、`leading-icon`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider`、`status`。
+- `empty-text` が空のときは、プロダクトの言葉（`setWords({ noOptionsText })`）を読みます。
 - 要素が定義されるまでの間、オプションはふつうのテキストとして表示されます。`tanrei-select:not(:defined) > *` を隠し、高さを確保しておいてください。
 - Web には固有の戻る操作がないので、`toggle` が理由 `back` を伝えることはありません。
 - `readOnly` は、`readonly` 属性です。
@@ -268,7 +296,8 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select>` です。ほか
 - テキストを 200% にすると、オプションとタイトルは折り返します。1 行のままなのはコンテナの中の値だけで、その全文は、リストと支援技術から得られます。
 - 強制カラーモードでは、トリガーとリストに縁が付き、アクティブなオプションはハイライトの色になります。選ばれているオプションは、チェックで示されます。
 - 右から左のレイアウトでは、トリガーとそれぞれの行が左右反転し、それぞれのテキストは自身の方向を保ちます。シェブロンとチェックは反転しません。
-- 自分の言葉は持たず、プロダクトの言葉も読みません。
+- ステータス行は、リストボックスの外にあるライブリージョンです。表示している内容は、リストを開いたときと変わったときに読み上げます。通常は控えめに、取得に失敗したときはすぐに読み上げます。読み込み中はリストボックスを処理中として示し、何も読み上げません。
+- 自分の言葉は持ちません。`emptyText` が空のときは、プロダクトの言葉（`noOptionsText`）を読みます。
 
 Web での既知の制約：
 
@@ -281,3 +310,4 @@ Web での既知の制約：
 - 単独で使うセレクトには必ず `label` で名前を付け、すべてのオプションにラベルを付けます。横に見えるテキストがあっても、それはセレクトの名前にはなりません。
 - 単独のセレクトの値が誤りになりうるときは、何が違うのかを、支援技術に届く言葉で伝えます。ページに結び付けた自分のメッセージか、セレクトを囲むフィールドです。
 - オプションの値は、1 つのセレクトの中で重複させません。
+- 読み込み中は `statusText` を書きます。ローディングインジケーターの名前になるからです。オプションがなくなりうるセレクトには `emptyText` を書きます。

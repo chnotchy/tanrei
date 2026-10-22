@@ -2,15 +2,15 @@
 title: Jetpack Compose
 description: Jetpack Compose で作った Android アプリに Tanrei を追加します。
 translationOf: getting-started/compose.mdx
-sourceHash: e564c9d2bb7d382cd74d239b9c27e2fd46818c69
+sourceHash: f1958195e67a8f92f0714022cbc34d27cfadffc0
 ---
 
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 Compose 向けのライブラリは、コンポーザブル、`TanreiTheme`、生成されたトークンのオブジェクトを提供します。Material のコンポーネントライブラリではなく Compose Foundation に依存しているので、アプリに 2 つ目のデザインシステムを持ち込むことはありません。
 
-<PreReleaseNotice registry="Maven Central" pkg="io.github.chnotchy:tanrei" />
+<ReleaseNotice platform="compose" registry="Maven Central" pkg="io.github.chnotchy:tanrei" />
 
 ## インストール
 
@@ -38,7 +38,7 @@ dependencies {
 }
 ```
 
-### 最初のリリース後
+### 公開後
 
 ```kotlin
 // build.gradle.kts

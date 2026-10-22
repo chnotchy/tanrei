@@ -39,7 +39,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a menu reads: its surface (color, elevation, shape, paddings, width bounds, distance from the anchor and from the viewport's edge), an item's height, paddings, gap and text styles, the form its keyboard shortcut is drawn in (keycap or plain), the icon sizes, how a checkbox item and a radio item are marked (the look of the matching control, or the icon set's check) and the measures of those looks, a group's title and its inset, how groups are separated (a divider or a gap) and the measures of each, a submenu's distance from the surface it opens from and the delay before a resting pointer opens it, the open and close motion, and for each condition (unselected, selected = checked, current = the link item of the page the person is on, destructive, expanded = the item whose submenu is open) the colors of an item's row and parts in each state.",
+            "usage": "Everything a menu reads: its surface (color, elevation, shape, paddings, width bounds, distance from the anchor and from the viewport's edge), per density (regular, compact) an item's least height, paddings and gap, a group title's inset and the sizes of the icons and the mark; an item's text styles, the form its keyboard shortcut is drawn in (keycap or plain), how a checkbox item and a radio item are marked (the look of the matching control, or the icon set's check) and the measures of those looks, a group's title, how groups are separated (a divider or a gap) and the measures of each, a submenu's distance from the surface it opens from and the delay before a resting pointer opens it, the open and close motion, and for each condition (unselected, selected = checked, current = the link item of the page the person is on, destructive, expanded = the item whose submenu is open) the colors of an item's row and parts in each state.",
             "rules": [
               "A menu holds actions and choices, never other controls: no fields, sliders or switches inside it. The checkbox and radio looks of its marks are drawings, not controls.",
               "Mark an item destructive only when its action deletes or discards something; do not use it for emphasis.",
@@ -54,13 +54,31 @@
               "Every glyph the menu draws — the check, the check inside a checked box, the submenu indicator (chevron_right) — is a glyph of the system's icon set; to change one, choose another icon set.",
               "A group's title starts where the rows' content starts (group-title.padding-inline, which follows container.padding-inline), not after the mark and icon columns.",
               "Give an item its keyboard shortcut in shortcut (the keyboard shortcut's key names, mod+c), never as trailing text; the menu draws it with the keyboard shortcut component in shortcut.variant's form and exposes it as the item's keyboard shortcut. Trailing text is for text that is not a shortcut (a count, \"Beta\").",
-              "Use a submenu for a second level only when the first would otherwise be too long to scan; keep to one level of submenus where possible and never more than two. A submenu item is not an action and has no shortcut."
+              "Use a submenu for a second level only when the first would otherwise be too long to scan; keep to one level of submenus where possible and never more than two. A submenu item is not an action and has no shortcut.",
+              "compact is for a tool used with a pointer, where rows are many and looked through often; touch always gets rows of the touch target. The density never changes a text style."
             ]
           },
           "dev.tanrei.axes": {
             "condition": {
               "default": "unselected",
               "from": "states"
+            },
+            "density": {
+              "default": "regular",
+              "values": [
+                "regular",
+                "compact"
+              ],
+              "members": [
+                "container.height",
+                "container.padding-inline",
+                "container.padding-block",
+                "container.gap",
+                "leading-icon.size",
+                "trailing-icon.size",
+                "mark.size",
+                "group-title.padding-inline"
+              ]
             }
           }
         },
@@ -134,35 +152,70 @@
           "shape": {
             "$type": "dimension",
             "$value": "{tanrei.sys.shape.corner.none}",
-            "$description": "The corners of an item's row, which the state layer fills.",
-            "$extensions": {}
+            "$description": "The corners of an item's row, which the state layer fills: the sheet's corner less the inset the rows stand at, so that the two curves keep one distance.",
+            "$extensions": {
+              "dev.tanrei.concentric": {
+                "outer": "{tanrei.comp.menu.surface.shape}",
+                "inset": "{tanrei.comp.menu.surface.padding-inline}"
+              }
+            }
           },
           "height": {
             "$type": "dimension",
-            "$value": {
-              "value": 48,
-              "unit": "px"
-            },
-            "$extensions": {
-              "dev.tanrei.derive": {
-                "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 12
+            "$description": "Minimum height of an item. It grows to the minimum target for touch, with its content and with enlarged text.",
+            "regular": {
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 12
+                }
               }
             },
-            "$description": "Minimum height of an item. It grows to the minimum target for touch, with its content and with enlarged text."
+            "compact": {
+              "$value": "{tanrei.comp.tree-view.container.height.compact}"
+            }
           },
           "padding-inline": {
             "$type": "dimension",
-            "$value": "{tanrei.sys.space.space150}"
+            "regular": {
+              "$value": "{tanrei.sys.space.space150}"
+            },
+            "compact": {
+              "$value": "{tanrei.comp.tree-view.container.padding-inline.compact}"
+            }
           },
           "padding-block": {
             "$type": "dimension",
-            "$value": "{tanrei.sys.space.space100}"
+            "regular": {
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space100}",
+                  "height": "{tanrei.comp.menu.container.height.regular}"
+                }
+              }
+            },
+            "compact": {
+              "$value": "{tanrei.comp.tree-view.container.padding-block.compact}"
+            }
           },
           "gap": {
             "$type": "dimension",
-            "$value": "{tanrei.sys.space.space150}"
+            "regular": {
+              "$value": "{tanrei.sys.space.space150}"
+            },
+            "compact": {
+              "$value": "{tanrei.comp.tree-view.container.gap.compact}"
+            }
           }
         },
         "separation": {
@@ -228,23 +281,38 @@
         "leading-icon": {
           "size": {
             "$type": "dimension",
-            "$value": "{tanrei.sys.icon.medium}",
-            "$extensions": {}
+            "regular": {
+              "$value": "{tanrei.sys.icon.medium}",
+              "$extensions": {}
+            },
+            "compact": {
+              "$value": "{tanrei.sys.icon.small}"
+            }
           }
         },
         "trailing-icon": {
           "size": {
             "$type": "dimension",
-            "$value": "{tanrei.sys.icon.medium}",
             "$description": "The size of an item's trailing icon, and of the submenu indicator (the icon set's chevron_right) a submenu item draws in the same column.",
-            "$extensions": {}
+            "regular": {
+              "$value": "{tanrei.sys.icon.medium}",
+              "$extensions": {}
+            },
+            "compact": {
+              "$value": "{tanrei.sys.icon.small}"
+            }
           }
         },
         "mark": {
           "size": {
             "$type": "dimension",
-            "$value": "{tanrei.sys.icon.medium}",
-            "$description": "The width of the mark column, reserved in every item of a surface that has a checkbox or radio item, and the glyph box of a mark that is a glyph: the icon set's check, or the glyph markIcon names. A control look (control.box.size, control.ring.size) is centered in it. Medium, the size of the leading icon beside it."
+            "$description": "The width of the mark column, reserved in every item of a surface that has a checkbox or radio item, and the glyph box of a mark that is a glyph: the icon set's check, or the glyph markIcon names. A control look (control.box.size, control.ring.size) is centered in it. Medium, the size of the leading icon beside it.",
+            "regular": {
+              "$value": "{tanrei.sys.icon.medium}"
+            },
+            "compact": {
+              "$value": "{tanrei.sys.icon.small}"
+            }
           },
           "width": {
             "$type": "dimension",
@@ -425,13 +493,18 @@
           },
           "padding-inline": {
             "$type": "dimension",
-            "$value": "{tanrei.comp.menu.container.padding-inline}",
             "$description": "How far a group's title is inset from the rows' start and end edges. It follows the rows' own padding, so the title starts where the rows' content starts (the check, the leading icon or the label, whichever comes first), not after the check and icon columns.",
-            "$extensions": {
-              "dev.tanrei.vocabulary": {
-                "rationale": "One product may set its menus' section headings at an inset of their own — flush with the rows' content, or hung further out as a caption over a dense list — without moving the padding of every row.",
-                "since": "0.1.0"
+            "regular": {
+              "$value": "{tanrei.comp.menu.container.padding-inline.regular}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product may set its menus' section headings at an inset of their own — flush with the rows' content, or hung further out as a caption over a dense list — without moving the padding of every row.",
+                  "since": "0.1.0"
+                }
               }
+            },
+            "compact": {
+              "$value": "{tanrei.comp.menu.container.padding-inline.compact}"
             }
           }
         },
@@ -1000,34 +1073,34 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}"
+            "$value": "{tanrei.sys.motion.role.state.large}"
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
           },
           "open-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short4}",
+            "$value": "{tanrei.sys.motion.role.appear.anchored.enter}",
             "$description": "How long the sheet takes to fade in and grow from the anchor's side."
           },
           "open-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+            "$value": "{tanrei.sys.motion.easing.enter}"
           },
           "close-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short2}",
+            "$value": "{tanrei.sys.motion.role.appear.anchored.exit}",
             "$description": "How long the sheet takes to fade out."
           },
           "close-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}"
+            "$value": "{tanrei.sys.motion.easing.exit}"
           },
           "submenu-delay": {
             "$type": "duration",

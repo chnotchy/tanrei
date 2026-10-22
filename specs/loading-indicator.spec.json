@@ -214,6 +214,10 @@
         "entrance": "entrance",
         "enterDuration": "enterDuration"
       },
+      "parts": {
+        "indicator": "indicator",
+        "container": "container"
+      },
       "notes": "The host carries `role=\"progressbar\"`, `aria-label` and `aria-busy=\"true\"` once shown, and no aria-value attributes; during the show delay it carries none of them and is `aria-hidden=\"true\"`, and its parts are `visibility: hidden` while the host keeps its size (LDG-11). The delay starts in `connectedCallback` and is cancelled in `disconnectedCallback`, so moving the element within the document starts a new delay; hiding it with `hidden` or CSS does not (LDG-16) — insert and remove it with the wait. `showDelay` and `enterDuration` are number properties in milliseconds, null by default, set by the `show-delay` and `enter-duration` attributes; an attribute that is empty or does not parse as a finite number is not a number (LDG-14), so `show-delay=\"\"` takes the token and does not show at once. `entrance` is a string property and attribute, `auto` by default; `auto` reads `--tanrei-comp-loading-indicator-motion-entrance` from the cascade, which carries the choice's name. The arc turns with a CSS animation that `@media (prefers-reduced-motion: reduce)` replaces, and pauses while the element is not intersecting the viewport. Snapshot harness: each fixture is rendered with `show-delay=\"0\"` and `enter-duration=\"0\"` (LDG-11)."
     },
     "swiftui": {

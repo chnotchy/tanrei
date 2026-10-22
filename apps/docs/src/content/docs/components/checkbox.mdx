@@ -146,6 +146,7 @@ The revision that gave the checkbox its present sizes and the icon set's glyphs 
     <tanrei-checkbox disabled checked label="Disabled, checked"></tanrei-checkbox>
     <tanrei-checkbox disabled indeterminate label="Disabled, indeterminate"></tanrei-checkbox>
   </div>
+  <tanrei-checkbox readonly checked label="Read-only, checked"></tanrei-checkbox>
   <tanrei-checkbox checked label-hidden label="Select row"></tanrei-checkbox>
 </DemoFrame>
 
@@ -162,6 +163,10 @@ When the checkbox changes, the box, the outline and the glyph change color, and 
 Use a checkbox for a choice that stands on its own: a list where people may pick any number of options, including none, or a single yes-or-no such as agreeing to terms. The choice takes effect when the person confirms, for example by submitting the form or saving. A checkbox also selects rows in a table or items in a list.
 
 The indeterminate state belongs to a parent checkbox whose children are partly checked, such as "Select all" above a list. It is not a third answer that a person can pick.
+
+### Read-only
+
+A read-only checkbox shows an answer that the person can read but not change, such as a review step before an order is sent, or a setting that only some people may change. It stays in the focus order, is announced with its state and as read-only, and is submitted with its form. It looks like an enabled checkbox without the hover and press feedback, so that it reads as an answer rather than as something unavailable. Use `disabled` when the choice does not apply at all, and write the answer as text when nobody needs to reach it.
 
 ### Checkbox, radio button or switch
 
@@ -195,6 +200,7 @@ The indeterminate state belongs to a parent checkbox whose children are partly c
 - The label is the accessible name, whether it is drawn or hidden with `labelHidden`. The drawn text is hidden from assistive technology, so the name is read once.
 - A click or tap on the label toggles the checkbox. The label is part of the hit area, and the hit area meets the minimum target.
 - Space toggles it. Enter toggles it only where the platform activates any focused control with Enter (Android, tvOS); on the web, Enter submits the form.
+- While `readOnly` is set it stays focusable and is announced as read-only beside its state. No press, Space, click on the label or `click()` changes it, and it shows no hover or press feedback. On the web its value is still submitted, and a required one reports no missing value. HTML's `readonly` does not apply to a checkbox, so the component does this itself.
 - It shows the focus indicator around the box, for keyboard focus only.
 - The check and the dash are hidden from assistive technology. Checked and mixed are announced from the state, never from the glyph's name.
 - Where motion is reduced, the new condition is drawn whole in the first frame after the change, never delayed or half-drawn. A change during a change continues from what is drawn at that moment.
@@ -205,6 +211,7 @@ The indeterminate state belongs to a parent checkbox whose children are partly c
 Known platform gaps:
 
 - SwiftUI, Compose, Flutter and React Native still draw the check and the dash as marks of their own and animate them in their own way, without the mark's own weight and the one-shape box.
+- `readOnly` is on the web only so far: SwiftUI, Compose, Flutter and React Native do not have it yet.
 - Under `m3-like`, the check is the icon set's glyph and fades and grows in, where Material draws its own check on stroke by stroke and bends it into the dash (mimicry gap `checkbox-mark-drawn-on`).
 
 ### What you need to do

@@ -617,7 +617,7 @@ function DragHandle({ tokens, theme, interactive, expanded, label, onToggle, tes
         {interaction.wave.ripple ? <PressRipple ripple={interaction.wave.ripple} color={theme.paint(appearance.pressed.containerColor)} radius={tokens.handleContainerShape} cornerSmoothing={cornerSmoothing} testID={part('ripple')} /> : null}
         {/* BSH-12 / BSH-22: the grip, centred in the box; decorative. */}
         <Animated.View
-          style={{ width: tokens.handleGripWidth, height: tokens.handleGripHeight, borderRadius: tokens.handleGripShape, backgroundColor: fillOf(colors.grip, drawn.grip) }}
+          style={{ width: tokens.handleGripWidth, height: tokens.handleGripHeight, borderRadius: tokens.handleContainerShape, backgroundColor: fillOf(colors.grip, drawn.grip) }}
           pointerEvents="none"
           testID={part('grip')}
           {...HIDDEN_FROM_ASSISTIVE_TECHNOLOGY}

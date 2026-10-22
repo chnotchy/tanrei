@@ -1,7 +1,8 @@
-import { type PropertyDeclarations, type PropertyValues, ReactiveElement } from 'lit';
+import type { PropertyDeclarations, PropertyValues } from 'lit';
 import { AvailabilityController, SEPARATIONS, SEPARATION_VALUES, type SeparationProp, compChoice, deepActive, report, styleQueries } from '../../primitives/index.js';
 import { debugBuild } from '../../primitives/report.js';
 import { adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { TanreiLightElement } from '../../primitives/element.js';
 
 /** What scrolls (APS-14, APS-15): the whole page in the window, or the main region alone inside a frame as tall as the window. */
 export type TanreiAppShellScroll = 'page' | 'main';
@@ -163,7 +164,7 @@ let ids = 0;
  * @cssprop --tanrei-app-shell-scroll-offset-end - On the document's root: the height the frame keeps over the bottom of the page (the navigation bar's).
  * @cssprop --tanrei-app-shell-window-class - Inherited by everything the frame holds: `compact`, `medium` or `expanded`, for a style container query.
  */
-export class TanreiAppShell extends ReactiveElement {
+export class TanreiAppShell extends TanreiLightElement {
   private readonly availability = new AvailabilityController(this, 'app-shell');
 
   static override properties: PropertyDeclarations = {

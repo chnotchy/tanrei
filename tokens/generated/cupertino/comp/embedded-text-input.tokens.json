@@ -88,12 +88,12 @@
         "motion": {
           "resize-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short4}",
+            "$value": "{tanrei.sys.motion.role.resize.default}",
             "$description": "How long the height takes to change when the number of lines shown changes (ETI-8)."
           },
           "resize-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}",
+            "$value": "{tanrei.sys.motion.easing.spatial}",
             "$description": "The curve of that change."
           }
         }

@@ -6,6 +6,7 @@
   "category": "actions",
   "level": "base",
   "listing": "default",
+  "layer": "m3-like",
   "anatomy": [
     {
       "id": "container",
@@ -622,7 +623,7 @@
           "notes": "A child element: `<tanrei-fab-menu-item label=\"Upload\" icon=\"upload\">`; its `click` bubbles."
         }
       },
-      "notes": "`<tanrei-fab-menu label=\"Create\" variant size open>` with a `slot=\"icon\"` glyph and `tanrei-fab-menu-item` children. The toggle is a `<button>` in the shadow root with `aria-haspopup=\"menu\"`, `aria-expanded` and `aria-controls`; the items are a manual popover in the top layer with role menu, placed with CSS anchor positioning and a script fallback, as the menu is. `toggle` is a CustomEvent whose `detail.open` is the value asked for (not the popover's ToggleEvent, which does not leave the shadow root); `close` carries `detail.reason`. The page positions the element. The `inline` attribute, for tests, draws the open items in place (FBM-13). The open toggle's glyph is the icon helper's `close` in the `icon` part (FBM-11)."
+      "notes": "`<tanrei-fab-menu label=\"Create\" variant size open>` with a `slot=\"icon\"` glyph and `tanrei-fab-menu-item` children. The toggle is a `<button>` in the shadow root with `aria-haspopup=\"menu\"`, `aria-expanded` and `aria-controls`; the items are a manual popover in the top layer with role menu, placed with CSS anchor positioning and a script fallback, as the menu is. `toggle` is a CustomEvent whose `detail.open` is the value asked for (not the popover's ToggleEvent, which does not leave the shadow root); `close` carries `detail.reason`. The page positions the element. The `inline` attribute, for tests, draws the open items in place (FBM-13). The open toggle's glyph is the icon helper's `close` in the `icon` part (FBM-11). It lives in the m3-like layer: `@tanrei/web/m3-like` registers it (with `@tanrei/web/components/fab-menu`, its own module), and `@tanrei/web` does not; its tokens are in the stylesheet of the m3-like systems (`@tanrei/web/systems/m3-like.css`, `m3-expressive-like.css`) and of a product that includes it."
     },
     "swiftui": {
       "status": "lagging",
@@ -651,7 +652,7 @@
           "notes": "`TanreiFabMenuItem(_ title:, icon:, action:)` in the view builder."
         }
       },
-      "notes": "`TanreiFabMenu(_ label:, icon:, variant:, size:, isPresented: Binding<Bool>) { TanreiFabMenuItem … }`, placed by the caller as the main action button is (an `.overlay(alignment: .bottomTrailing)`). The items are presented as `TanreiMenu` presents its surface, with a clear background, so a press outside closes them. Writing the binding is toggle and close. `disabled` follows `.disabled(_:)`. iOS has no menu role: the items are buttons in a container named by label. Without an installed icon font it strokes the close glyph as a shape of its own (`TanreiChipGlyph(kind: .close)`) instead of drawing nothing (FBM-11, FBM-24)."
+      "notes": "`TanreiFabMenu(_ label:, icon:, variant:, size:, isPresented: Binding<Bool>) { TanreiFabMenuItem … }`, placed by the caller as the main action button is (an `.overlay(alignment: .bottomTrailing)`). The items are presented as `TanreiMenu` presents its surface, with a clear background, so a press outside closes them. Writing the binding is toggle and close. `disabled` follows `.disabled(_:)`. iOS has no menu role: the items are buttons in a container named by label. Without an installed icon font it strokes the close glyph as a shape of its own (`TanreiChipGlyph(kind: .close)`) instead of drawing nothing (FBM-11, FBM-24). The FAB menu lives in the m3-like layer, and only the systems that descend from it have its tokens; whether this platform ships it in a package of its own is decided when the platform catches up with the web."
     },
     "compose": {
       "status": "lagging",
@@ -680,7 +681,7 @@
           "notes": "`TanreiFabMenuItem(text, icon, onClick)` called in the content lambda."
         }
       },
-      "notes": "`TanreiFabMenu(expanded, onExpandedChange, onDismissRequest, contentDescription, icon, variant, size, enabled) { TanreiFabMenuItem(…) }`, placed through `Scaffold`'s `floatingActionButton` slot or by the caller; the items are shown in a `Popup`. State hoisting: the caller keeps `expanded`, sets it from `onExpandedChange` and to false from `onDismissRequest`, which carries the reason. Material 3's `FloatingActionButtonMenu` is not used. `enabled` is the inverse flag. Without an installed icon font it strokes the close glyph as a vector of its own (`TanreiDrawnGlyph`) instead of drawing nothing (FBM-11, FBM-24)."
+      "notes": "`TanreiFabMenu(expanded, onExpandedChange, onDismissRequest, contentDescription, icon, variant, size, enabled) { TanreiFabMenuItem(…) }`, placed through `Scaffold`'s `floatingActionButton` slot or by the caller; the items are shown in a `Popup`. State hoisting: the caller keeps `expanded`, sets it from `onExpandedChange` and to false from `onDismissRequest`, which carries the reason. Material 3's `FloatingActionButtonMenu` is not used. `enabled` is the inverse flag. Without an installed icon font it strokes the close glyph as a vector of its own (`TanreiDrawnGlyph`) instead of drawing nothing (FBM-11, FBM-24). The FAB menu lives in the m3-like layer, and only the systems that descend from it have its tokens; whether this platform ships it in a package of its own is decided when the platform catches up with the web."
     },
     "flutter": {
       "status": "lagging",
@@ -709,7 +710,7 @@
           "notes": "`TanreiFabMenuItem(label:, icon:, onPressed:)` in the `items:` list."
         }
       },
-      "notes": "`TanreiFabMenu(controller:, semanticLabel:, icon:, variant:, size:, enabled:, items: [TanreiFabMenuItem(…)], onToggle:, onClose:)`, built with the widgets library and placed through `Scaffold.floatingActionButton` or by the caller; the items are shown in the `Overlay`. The controller is a `TanreiMenuController` (the Tanrei menu's own), passed or created internally; it is open, so the FAB menu opens and closes itself; `onToggle` and `onClose` report it. `enabled` is a flag here, because the toggle's press is the component's own. Lagging behind FBM-24: it writes the close glyph as the Material Symbols code point U+E5CD (`tanreiCloseGlyph`), and without the icon font it draws whatever the fallback face has there instead of nothing."
+      "notes": "`TanreiFabMenu(controller:, semanticLabel:, icon:, variant:, size:, enabled:, items: [TanreiFabMenuItem(…)], onToggle:, onClose:)`, built with the widgets library and placed through `Scaffold.floatingActionButton` or by the caller; the items are shown in the `Overlay`. The controller is a `TanreiMenuController` (the Tanrei menu's own), passed or created internally; it is open, so the FAB menu opens and closes itself; `onToggle` and `onClose` report it. `enabled` is a flag here, because the toggle's press is the component's own. Lagging behind FBM-24: it writes the close glyph as the Material Symbols code point U+E5CD (`tanreiCloseGlyph`), and without the icon font it draws whatever the fallback face has there instead of nothing. The FAB menu lives in the m3-like layer, and only the systems that descend from it have its tokens; whether this platform ships it in a package of its own is decided when the platform catches up with the web."
     },
     "react-native": {
       "status": "lagging",
@@ -738,7 +739,7 @@
           "notes": "The element type of the `items` array: `{ label, icon, onPress }`, where `icon` is the glyph's name."
         }
       },
-      "notes": "`<FabMenu icon=\"add\" accessibilityLabel visible onToggle onDismiss items={FabMenuItem[]} variant size disabled>`; the caller positions it. The items are presented on the overlay layer that `TanreiProvider` renders (not a `Modal`, which would make the rest of the screen unreachable) and placed by measuring the toggle (`measureInWindow`); Android's back button (`BackHandler`) is close. Controlled: the caller sets `visible` from `onToggle` and to false from `onDismiss`, which carries the reason. Lagging behind FBM-24: without the icon font the ligature `close` prints as a word."
+      "notes": "`<FabMenu icon=\"add\" accessibilityLabel visible onToggle onDismiss items={FabMenuItem[]} variant size disabled>`; the caller positions it. The items are presented on the overlay layer that `TanreiProvider` renders (not a `Modal`, which would make the rest of the screen unreachable) and placed by measuring the toggle (`measureInWindow`); Android's back button (`BackHandler`) is close. Controlled: the caller sets `visible` from `onToggle` and to false from `onDismiss`, which carries the reason. Lagging behind FBM-24: without the icon font the ligature `close` prints as a word. The FAB menu lives in the m3-like layer, and only the systems that descend from it have its tokens; whether this platform ships it in a package of its own is decided when the platform catches up with the web."
     }
   }
 }

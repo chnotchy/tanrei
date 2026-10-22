@@ -162,9 +162,6 @@ const boxStyles = css`
     flex: 1 1 auto;
     grid-template: minmax(0, 1fr) / minmax(0, 1fr);
     place-items: stretch;
-    inline-size: auto;
-    max-inline-size: none;
-    block-size: auto;
     padding-block: ${t('item-container-padding-block')};
     padding-inline: ${t('item-container-padding-inline')};
   }

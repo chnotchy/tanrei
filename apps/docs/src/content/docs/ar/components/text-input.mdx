@@ -2,7 +2,7 @@
 title: حقل إدخال النص
 description: الصندوق الذي يكتب فيه الأشخاص، وكل ما يُكتب فيه، سطرًا واحدًا أو عدة أسطر، تاريخًا أو وقتًا أو شيفرة، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لموضع تقف تسميته في مكان آخر، أو داخل حقل يركّبه المنتج بنفسه.
 translationOf: components/text-input.mdx
-sourceHash: 06b01bf09709b58b9d0db57bc6adde3c204610d9
+sourceHash: 0010bbce8df9402be23fc43b87feaec5e7a469c7
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -76,7 +76,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { TextInput } from '@tanrei/react';
+    // يُستورد المكوّن المتقدّم، وهو جزء تُبنى منه مكوّنات أخرى، من المدخل advanced.
+    import { TextInput } from '@tanrei/react/advanced';
 
     <TextInput name="q" type="search" label="تصفية الرموز" placeholder="تصفية الرموز"
       value={query} onInput={(event) => setQuery(event.currentTarget.value)} />
@@ -89,14 +90,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 الحقل الذي يحيط بحقل إدخال النص هو حقل نص مكتوب بالتفصيل. اترك `label` الخاصة بحقل الإدخال فارغة: فالحقل هو الذي يسمّيه. تُقال `label` و `error` و `disabled` والمطلوب أو الاختياري على الحقل؛ وتُقال `name` و `value` وكل ما يخص الكتابة على حقل الإدخال.
 
 ```html
-<tanrei-field label="البريد الإلكتروني" requirement="required" required-text="مطلوب"
+<tanrei-field label="البريد الإلكتروني" required required-text="مطلوب"
   supporting-text="نستخدمه لتسجيل دخولك فقط.">
   <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input>
 </tanrei-field>
 ```
 
 <DemoFrame label="حقل فيه حقل إدخال النص: الصورة نفسها التي لحقل النص" column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="البريد الإلكتروني" requirement="required" required-text="مطلوب" supporting-text="نستخدمه لتسجيل دخولك فقط.">
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="البريد الإلكتروني" required required-text="مطلوب" supporting-text="نستخدمه لتسجيل دخولك فقط.">
     <tanrei-text-input type="email"></tanrei-text-input>
   </tanrei-field>
 </DemoFrame>
@@ -153,7 +154,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - **التاريخ أو الوقت الذي يُترك نصف مملوء**، أو بقيمة غير متاحة، يرسم الصندوق في حالة الخطأ ويصدر `entryError`. ويُضاف نص `invalidText` أو `unavailableText` إلى وصف حقل الإدخال؛ ولا شيء يرسمه.
 - **العدد** يُحفظ ويوصف ويُعلَن، ولا يُرسم. والخاصية `countText` هي العدد نصًّا («12/40»)، لترسمه أنت.
 - **المطلوب** يقوله الحقل. وليس لحقل الإدخال المجرَّد إعداد للمطلوب أو الاختياري: حيث يحتاج النموذج إلى جواب، تحقق منه بنفسك.
-- **الحجم الصغير** (40، ونصه 14) لحقل إدخال في شريط تطبيق أو شريط أدوات أو صف كثيف من عناصر التحكم: يقف بجانب [قائمة اختيار](/ar/components/select/) صغيرة أو زر صغير بارتفاع واحد. والحجمان `medium` (48) و `large` (56) للنماذج. ومنطقة اللمس فيه تبلغ الحد الأدنى للهدف في كل حجم.
+- **الحجم الصغير** (32، ونصه 14) لحقل إدخال في شريط تطبيق أو شريط أدوات أو صف كثيف من عناصر التحكم: يقف بجانب [قائمة اختيار](/ar/components/select/) صغيرة أو زر صغير بارتفاع واحد. والحجمان `medium` (40) و `large` (56) للنماذج. ومنطقة اللمس فيه تبلغ الحد الأدنى للهدف في كل حجم.
 - **البادئة في صفحة من اليمين إلى اليسار.** قيمة حقل البريد الإلكتروني أو الرابط أو الهاتف أو العدد أو كلمة المرور تُكتب من اليسار إلى اليمين. وبجانب البادئة تقف ملاصقة لها، فيُقرأ `https://` والعنوان سلسلة واحدة في الصفحة من اليمين إلى اليسار أيضًا؛ ومن دون بادئة تقف عند حافة البداية لحقل الإدخال.
 
 ### ما أُدخل سلفًا
@@ -179,7 +180,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - الحدثان `input` و `change` يعبران حدود جذر الظل (composed). والحدث `action` من النوع CustomEvent وقابل للإلغاء: ألغِه لتمنع المفتاح Enter من إرسال النموذج. والحدثان `pickerrequest` و `entryerror` من النوع CustomEvent، وفي `detail` لهما، على الترتيب، `{ value, type, min, max }` و `{ reason, text }`. وأنواعها `TanreiTextInputActionDetail` و `TanreiTextInputPickerRequestDetail` و `TanreiTextInputEntryErrorDetail`.
 - الخاصية `countText` للقراءة فقط، وتتجدد بعد كل تغيير في القيمة. وليست لها خاصية HTML.
 - خصائص HTML مكتوبة بصيغة kebab-case، مثل `label-hidden` و `min-rows` و `prefix-text` و `no-wrap`، والأخيرة هي `wrap` بالقيمة false. أما `readonly` و `maxlength` و `autocomplete` و `min` و `max` فتحتفظ بأسمائها في HTML.
-- الأجزاء: `container`، `outline`، `active-indicator`، `label`، `requirement-label`، `input`، `entries`، `segment`، `prefix`، `suffix`، `leading-icon`، `trailing-icon`، `picker-button`، `resize-grip`.
+- الأجزاء: `container`، `outline`، `active-indicator`، `label`، `requirement-label`، `input`، `entries`، `segment`، `prefix`، `suffix`، `leading-icon`، `trailing-icon`، `picker-button`، `resize-handle`.
 - المنافذ: `leading-icon` و `trailing-icon` و `entries`. وأيقونة النهاية قد تكون زرًّا بأيقونة فقط من عندك. والجزء `entries` ليس له صندوق من عنده: عناصره تقف في أسطر الصندوق نفسه.
 - الخاصيتان `resize-label` و `segment-empty-text` تُقرآن من كلمات المنتج (`setWords()`) حين تُتركان فارغتين.
 - قبل أن يُعرَّف العنصر لا يكون له حجم. احجز ارتفاع الصندوق.

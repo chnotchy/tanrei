@@ -123,10 +123,30 @@
           "padding-block": {
             "$type": "dimension",
             "small": {
-              "$value": "{tanrei.sys.space.space25}"
+              "$value": {
+                "value": 2,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space25}",
+                  "height": "{tanrei.comp.tag.container.height.small}"
+                }
+              }
             },
             "medium": {
-              "$value": "{tanrei.sys.space.space25}"
+              "$value": {
+                "value": 2,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space25}",
+                  "height": "{tanrei.comp.tag.container.height.medium}"
+                }
+              }
             },
             "$description": "Padding above and below the row's tallest item (the label's line or the glyph's box), per size. Heights are minimums, so this shows only when text is enlarged: one line of each size's text style with this padding is exactly that size's height (16 + 2 × 2 = 20; 20 + 2 × 2 = 24). It is the same at both sizes in the default system and is kept per size because the build checks each height against the padding of its own size."
           },

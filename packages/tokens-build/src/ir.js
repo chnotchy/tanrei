@@ -81,7 +81,6 @@ export function buildIR(model) {
     spring: {},
     elevation: {},
     system: model.system,
-    deprecatedMeasures: [],
     dials: {},
     intents: [],
     axes: {},
@@ -140,7 +139,6 @@ export function buildIR(model) {
       }
       else if (MEASURE_GROUPS.includes(group)) {
         (ir.measure[group] ??= {})[rest[0]] = token.value.value;
-        if (token.deprecated) ir.deprecatedMeasures.push(`${group}-${rest[0]}`);
       } else if (group === 'motion' && rest[0] === 'duration') ir.duration[rest[1]] = token.value.value;
       else if (group === 'motion' && rest[0] === 'easing') ir.easing[rest[1]] = token.value;
       else if (group === 'motion' && rest[0] === 'spring') {
@@ -301,8 +299,8 @@ function axesOf({ axes, states }, tokens) {
 }
 
 function componentToken(model, token, rest) {
-  // `state` is set on per-state tokens; `deprecated` ones exist only until every platform has migrated.
-  const entry = { id: token.id, name: rest.join('-'), type: token.type, state: token.state ?? null, deprecated: Boolean(token.deprecated) };
+  // `state` is set on per-state tokens.
+  const entry = { id: token.id, name: rest.join('-'), type: token.type, state: token.state ?? null };
   const final = token.aliasFinal ?? token.alias;
   if (token.type === 'color') entry.paint = paintOf(model, token.id);
   else if (token.type === 'typography') entry.typescale = typeName(final.slice(SYS_TYPE.length).split('.'));

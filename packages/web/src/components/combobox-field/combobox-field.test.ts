@@ -8,6 +8,7 @@ import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { loadSpec, missingWords, mountFixtures, setWords, tab } from '../../../test/harness.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('combobox-field');
 type P = Page;
@@ -80,7 +81,7 @@ test.describe('behavior', () => {
   test('CBF-1: it is a Field that frames one combobox, and nothing else — its shadow root holds the two members’ own elements, each prop is on the member it is from and the combobox’s own label, labelHidden, error and disabled are never set; the label-icon slot is the Field’s and the leading-icon slot the combobox’s, each passed on only while it is filled; it draws no part and writes no custom property of its own', async ({ page }) => {
     await mountHtml(
       page,
-      `<${TAG} id="plain" label="City" label-hidden error disabled supporting-text="Help." requirement="required" required-text="Required" variant="outlined" size="large" value="tokyo" placeholder="Type a city" readonly allow-custom-value filter="none" no-chevron clearable clear-label="Clear" status="error" status-text="Failed" empty-text="None" separation="gap">
+      `<${TAG} id="plain" label="City" label-hidden error disabled supporting-text="Help." required required-text="Required" variant="outlined" size="large" value="tokyo" placeholder="Type a city" readonly allow-custom-value filter="none" no-chevron clearable clear-label="Clear" status="error" status-text="Failed" empty-text="None" separation="gap">
          ${CITIES}<span slot="label-icon">place</span><span slot="leading-icon">search</span>
        </${TAG}>
        <${TAG} id="bare" label="City">${CITIES}</${TAG}>`,
@@ -97,7 +98,7 @@ test.describe('behavior', () => {
         root: [...root.childNodes].filter(drawn).map(named),
         inFrame: [...frame!.childNodes].filter(drawn).map(named),
         inCombobox: [...inner.childNodes].filter(drawn).map(named),
-        frame: ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'disabled', 'requirement', 'requiredMark', 'requiredText', 'optionalText'].map((name) => framing[name]),
+        frame: ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'disabled', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'].map((name) => framing[name]),
         control: ['variant', 'size', 'value', 'placeholder', 'readOnly', 'allowCustomValue', 'filter', 'noChevron', 'clearable', 'clearLabel', 'status', 'statusText', 'emptyText', 'separation'].map((name) => inner[name]),
         // The combobox's own props of the same names are never set by the element: they reach it through the Field.
         own: ['label', 'labelHidden', 'error', 'disabled'].map((name) => inner[name]),
@@ -111,7 +112,7 @@ test.describe('behavior', () => {
     expect(built.root).toEqual(['tanrei-field']);
     expect(built.inFrame).toEqual(['slot label-icon → label-icon', 'tanrei-combobox']);
     expect(built.inCombobox).toEqual(['slot (default) → (default)', 'slot leading-icon → leading-icon']);
-    expect(built.frame).toEqual(['City', true, 'Help.', '', true, true, 'required', 'auto', 'Required', '']);
+    expect(built.frame).toEqual(['City', true, 'Help.', '', true, true, true, false, 'auto', 'Required', '']);
     expect(built.control).toEqual(['outlined', 'large', 'tokyo', 'Type a city', true, true, 'none', true, true, 'Clear', 'error', 'Failed', 'None', 'gap']);
     expect(built.own).toEqual(['', false, false, false]);
     expect(built.attributes).toEqual([]);
@@ -136,7 +137,7 @@ test.describe('behavior', () => {
       page,
       `<div style="inline-size: 520px"><${TAG} id="wide" label="City" supporting-text="Help." value="long">${long}</${TAG}></div>
        <div style="inline-size: 137px"><${TAG} id="narrow" label="City">${long}</${TAG}></div>
-       <div style="inline-size: 300px"><${TAG} id="outlined" variant="outlined" label="City" requirement="required" required-mark="asterisk">${CITIES}</${TAG}></div>
+       <div style="inline-size: 300px"><${TAG} id="outlined" variant="outlined" label="City" required required-mark="asterisk">${CITIES}</${TAG}></div>
        <div style="display: flex; inline-size: 400px"><${TAG} id="in-a-row" label="City" style="flex: 1">${CITIES}</${TAG}><span style="inline-size: 100px; flex: none"></span></div>`,
     );
     for (const [id, width] of [['wide', 520], ['narrow', 137], ['outlined', 300], ['in-a-row', 300]] as const) {
@@ -152,6 +153,8 @@ test.describe('behavior', () => {
     await focus(one(page, 'wide'));
     await page.keyboard.press('ArrowDown');
     await expect(rows(one(page, 'wide'))).toHaveCount(1);
+    // At rest: until its entrance ends the list is still growing toward the container's edge (CMB-45).
+    await motionEnded(combobox(one(page, 'wide')).locator('.motion'));
     const [list, container] = [await bounds(combobox(one(page, 'wide')).locator('.list')), await bounds(combobox(one(page, 'wide')).locator('.field > .container'))];
     expect(Math.abs(list.width - container.width)).toBeLessThanOrEqual(0.6);
   });
@@ -265,7 +268,7 @@ test.describe('behavior', () => {
   test('CBF-4: in a form it is the one control the form sees — it submits its combobox’s committed value under its name, never the text of an edit; Enter that chooses an option submits nothing, and Enter with no option active asks the element’s own form through its default button; its members take no part in the form', async ({ page }) => {
     await mountHtml(
       page,
-      `<form id="form"><${TAG} id="field" name="city" label="City" requirement="required" required-text="Required" value="tokyo">${CITIES}</${TAG}><button id="send" name="via" value="send">Send</button></form>
+      `<form id="form"><${TAG} id="field" name="city" label="City" required required-text="Required" value="tokyo">${CITIES}</${TAG}><button id="send" name="via" value="send">Send</button></form>
        <script>window.log = []; const form = document.getElementById('form'); form.addEventListener('submit', (event) => { event.preventDefault(); window.log.push('submit ' + [...new FormData(form, event.submitter).entries()].join('|')); });</script>`,
     );
     const element = one(page, 'field');
@@ -344,7 +347,7 @@ test.describe('behavior', () => {
     await mountHtml(
       page,
       `<tanrei-field id="outer" label="Outer" supporting-text="Outer help."><${TAG} id="inner" label="Inner" supporting-text="Inner help.">${CITIES}</${TAG}></tanrei-field>
-       <tanrei-field-group id="group" label="Delivery" error error-text="Group error" requirement="required" required-text="Required"><${TAG} id="grouped" name="grouped" label="City" supporting-text="Help." value="tokyo">${CITIES}</${TAG}></tanrei-field-group>`,
+       <tanrei-field-group id="group" label="Delivery" error error-text="Group error" required required-text="Required"><${TAG} id="grouped" name="grouped" label="City" supporting-text="Help." value="tokyo">${CITIES}</${TAG}></tanrei-field-group>`,
     );
     // Both frames are drawn, and the combobox field keeps its own name and description.
     await expect(one(page, 'outer').locator('.frame > .label-row > .label').first()).toHaveText('Outer');
@@ -373,9 +376,9 @@ test.describe('behavior', () => {
     const seen = warnings(page);
     await mountHtml(
       page,
-      `<${TAG} id="wordless" label="City" requirement="required" clearable value="tokyo">${CITIES}</${TAG}>
-       <${TAG} id="optional" label="City" requirement="optional">${CITIES}</${TAG}>
-       <${TAG} id="own" label="City" requirement="required" required-text="Needed" clearable clear-label="Clear city" empty-text="Nothing here" value="tokyo">${CITIES}</${TAG}>`,
+      `<${TAG} id="wordless" label="City" required clearable value="tokyo">${CITIES}</${TAG}>
+       <${TAG} id="optional" label="City" optional>${CITIES}</${TAG}>
+       <${TAG} id="own" label="City" required required-text="Needed" clearable clear-label="Clear city" empty-text="Nothing here" value="tokyo">${CITIES}</${TAG}>`,
     );
     const tag = (id: string) => field(one(page, id)).locator('.requirement-tag .label');
     const clear = (id: string) => combobox(one(page, id)).locator('.clear').evaluate((el) => (el as HTMLElement & { label: string }).label);
@@ -412,7 +415,7 @@ test.describe('behavior', () => {
     await page.setViewportSize({ width: 320, height: 900 });
     await mountHtml(
       page,
-      `<${TAG} id="field" label="The city we deliver to" requirement="required" required-text="Required" supporting-text="Where the order is sent, once it is paid." value="tokyo" open inline status-text="3 cities shown. Keep typing to narrow.">${CITIES}</${TAG}>
+      `<${TAG} id="field" label="The city we deliver to" required required-text="Required" supporting-text="Where the order is sent, once it is paid." value="tokyo" open inline status-text="3 cities shown. Keep typing to narrow.">${CITIES}</${TAG}>
        <div dir="rtl" style="margin-block-start: 480px"><${TAG} id="rtl" label="المدينة" supporting-text="إلى أين يُرسل الطلب." value="tokyo" clearable clear-label="مسح">${CITIES}</${TAG}></div>`,
     );
     await page.evaluate(() => (document.documentElement.style.fontSize = '200%'));

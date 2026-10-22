@@ -2,7 +2,7 @@
 title: Botón segmentado
 description: Permite elegir una opción, o varias, entre dos y cinco opciones relacionadas que se dibujan una junto a otra como los segmentos unidos de un solo control.
 translationOf: components/segmented-button.mdx
-sourceHash: 064c374a356e8a7e012dab0484023992e0c8168c
+sourceHash: 6af9719e03456372600f15965041cf5525e4cc2b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -14,10 +14,6 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## Descripción general
 
 <ComponentAvailability name="segmented-button" />
-
-:::note[No forma parte del sistema Tanrei]
-El sistema Tanrei predeterminado no incluye el botón segmentado; los preajustes Material y cupertino sí. En Tanrei, una elección entre varias se hace con [pestañas](/es/components/tabs/) cuando cambia el contenido de debajo, y con [botones de opción](/es/components/radio-button/) cuando define un valor; los botones que se conmutan cada uno por su cuenta son un [grupo de botones](/es/components/button-group/). El componente sigue funcionando con cualquier sistema, con una advertencia durante el desarrollo cuando el sistema lo deja fuera. Las demostraciones de esta página se dibujan con el preajuste `m3-like`, un sistema que lo incluye.
-:::
 
 <DemoFrame label="Selección única, con iconos y de solo icono" system="m3-like">
   <tanrei-segmented-button label="Intervalo" value="week">
@@ -67,7 +63,8 @@ Un botón segmentado recibe sus segmentos como cada plataforma recibe los hijos 
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Segment, SegmentedButton } from '@tanrei/react';
+    // El sistema predeterminado deja fuera el botón segmentado: está en las entradas de m3-like, m3-expressive-like y cupertino, y en /all.
+    import { Segment, SegmentedButton } from '@tanrei/react/m3-like';
 
     // detail es { value } para una sola elección y { values } para varias.
     <SegmentedButton label="Intervalo" value={range} onChange={(e) => 'value' in e.detail && setRange(e.detail.value)}>

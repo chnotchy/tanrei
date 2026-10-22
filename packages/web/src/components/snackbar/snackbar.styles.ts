@@ -1,12 +1,13 @@
 import { css, unsafeCSS } from 'lit';
-import { focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, stateRules, whenChosen } from '../../primitives/index.js';
+import { focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, stateRules, type Tone, whenChosen } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 
-// Every visual value is a token (tokens/comp/snackbar.tokens.json). The action and the close button are the two values
-// of the snackbar's control axis: each has its container and content colors per state, and they share the
-// geometry under `controls.*`; the expand button reads the close button's tokens. The bar itself answers no state.
+// Every visual value is a token (tokens/comp/snackbar.tokens.json). The action is the snackbar's one control of its own:
+// it has its container and content colors per state, and its geometry under `controls.*`. The expand and close buttons
+// are small Tanrei Buttons (SNK-34), drawn from Button's own tokens in the tone the snackbar gives them. The bar itself
+// answers no state.
 //
 // A snackbar has ten forms (SNK-21, SNK-30): its status (default, info, warning, error, success), on a surface of the
 // scheme or drawn inverse. A form is a condition written as a one-word prefix — none, `<status>`, `inverse`,
@@ -31,8 +32,8 @@ export const INVERSE = ['off', 'on'] as const;
 export const INVERSE_PROPERTY = '--_inverse';
 /** The component token itself: the system's choice as the cascade gives it to the host, whatever its attribute says. */
 export const INVERSE_TOKEN = `${PREFIX}-container-inverse`;
-/** One control's colors in every state, as `--_c-h` (container, hovered), `--_o-p` (content, pressed)… in one form. */
-const controlBlock = (control: 'action' | 'close', selector: string, form = '') =>
+/** The action's colors in every state, as `--_c-h` (container, hovered), `--_o-p` (content, pressed)… in one form. */
+const controlBlock = (control: 'action', selector: string, form = '') =>
   `${selector} {\n${Object.entries(STATES)
     .flatMap(([state, suffix]) => {
       const name = [control, state, form].filter(Boolean).join('-');
@@ -41,7 +42,9 @@ const controlBlock = (control: 'action' | 'close', selector: string, form = '') 
     .join('\n')}\n}`;
 /**
  * The bar's own colors in one form, as `--_bar`, `--_title`, `--_text`, `--_icon` (a status form's glyph), `--_edge` (a
- * status form's edge, SNK-31) and `--_focus` (the outer stroke of the focus indicator drawn on this bar, SNK-3).
+ * status form's edge, SNK-31) and `--_focus` (the outer stroke of the focus indicator drawn on this bar, SNK-3); and the
+ * tone of the expand and close Buttons (SNK-34): the form's message color and its focus color, as `--_button-tone` and
+ * `--_button-tone-focus`, which the Buttons inherit.
  */
 const barBlock = (selector: string, form: string, glyph: boolean) => {
   const part = (name: string) => `var(${PREFIX}-${form ? `${form}-` : ''}${name})`;
@@ -50,8 +53,16 @@ const barBlock = (selector: string, form: string, glyph: boolean) => {
   --_title: ${part('title-color')};
   --_text: ${part('supporting-text-color')};${glyph ? `\n  --_icon: ${part('icon-color')};\n  --_edge: ${part('outline-color')};` : ''}
   --_focus: ${part('focus-ring-color')};
+  --_button-tone: ${part('supporting-text-color')};
+  --_button-tone-focus: ${part('focus-ring-color')};
 }`;
 };
+/**
+ * SNK-34, BTN-45: the tone the snackbar gives its expand and close Buttons, the same words in every form: each form's
+ * block above sets the two custom properties on the bar, and a Button reads them where it is drawn, so a change of form
+ * (SNK-30) recolors it at once. The names are the snackbar's own and no Button's.
+ */
+export const BUTTON_TONE: Tone = { color: 'var(--_button-tone)', focus: 'var(--_button-tone-focus)' };
 /** The five forms of `bar` on a surface (`inverse` false) or drawn inverse: each status's block, the default's first. */
 const formBlocks = (bar: string, inverse: boolean) =>
   (['default', ...STATUSES] as const)
@@ -59,8 +70,7 @@ const formBlocks = (bar: string, inverse: boolean) =>
       const form = [inverse ? 'inverse' : '', status === 'default' ? '' : status].filter(Boolean).join('-');
       const of = `${bar}[data-status='${status}']`;
       return `${barBlock(of, form, status !== 'default')}
-${controlBlock('action', `${of} .action`, form)}
-${controlBlock('close', `${of} :is(.close, .expand)`, form)}`;
+${controlBlock('action', `${of} .action`, form)}`;
     })
     .join('\n');
 
@@ -90,8 +100,9 @@ export const styles = css`
   :host([inverse='false' i]) {
     ${unsafeCSS(INVERSE_PROPERTY)}: off;
   }
-  /* SNK-13: shown by its host as a manual popover — in the top layer, at the bottom of the window, centred, the margin
-     above the bottom edge (and the keyboard, and the safe area) and from the sides. None of the browser's popover box. */
+  /* SNK-13: shown by its host as a manual popover — in the top layer and, at the bottom (the default, and what an
+     unknown placement is), at the bottom of the window, centred, the margin above the bottom edge (and the keyboard, and
+     the safe area) and from the sides. None of the browser's popover box. */
   :host([popover]) {
     box-sizing: border-box;
     position: fixed;
@@ -115,8 +126,48 @@ export const styles = css`
   :host([popover]:not(:popover-open)) {
     display: none;
   }
+  /* SNK-35: at the top end — the margin below the top edge and from the end edge, inside the safe area and below what
+     the frame keeps over the top of the window (a sticky header of <tanrei-app-shell>, APS-17, or a product's own frame
+     that sets the same property), so it never covers a top app bar. The end side is the direction's, and so is the
+     safe-area inset on that side. */
+  :host([popover][placement='top-end']) {
+    --_inset-start: env(safe-area-inset-left, 0px);
+    --_inset-end: env(safe-area-inset-right, 0px);
+    --_inset-top: max(env(safe-area-inset-top, 0px), var(--tanrei-app-shell-scroll-offset, 0px));
+    inset: calc(${t('container-margin')} + var(--_inset-top)) auto auto auto;
+    inset-inline-end: calc(${t('container-margin')} + var(--_inset-end));
+    margin: 0;
+    max-inline-size: calc(100% - 2 * ${t('container-margin')} - var(--_inset-start) - var(--_inset-end));
+    /* In a compact window (narrower than breakpoint.medium) it stands across the top, the margin from each side: its
+       least width is then the window's less the margins, and otherwise none. (B - 100vw) is positive only below the
+       breakpoint, and × 100000 turns any such amount into more than a window is wide — a step, without a media query,
+       which cannot read a custom property. */
+    min-inline-size: min(100% - 2 * ${t('container-margin')} - var(--_inset-start) - var(--_inset-end), (${t('breakpoint-medium')} - 100vw) * 100000);
+    /* SNK-25, SNK-37: the host's area is measured from below what the frame keeps over its top. */
+    max-block-size: calc(100dvh - 2 * ${t('container-margin')} - var(--_inset-top) - env(safe-area-inset-bottom, 0px) - var(--tanrei-snackbar-keyboard, 0px));
+  }
+  :host([popover][placement='top-end']:dir(rtl)) {
+    --_inset-start: env(safe-area-inset-right, 0px);
+    --_inset-end: env(safe-area-inset-left, 0px);
+  }
+  /* SNK-35: shown, the bar fills its host's box, which is as wide as the bar's content within its bounds and, in a compact
+     window, as wide as the window less the margins (above), and stands at its end where max-width holds it narrower.
+     The host's least width resolves against the window; a percentage in the bar's own least width would not count
+     toward the host's width in every engine, and its width of 100% counts as its content's. */
+  :host([popover][placement='top-end']) .bar {
+    inline-size: 100%;
+    justify-self: end;
+    margin-inline: 0;
+  }
+  /* SNK-19, SNK-35: drawn in place at the top end, the bar stands at the end of the width it is given, and across the
+     whole of it where that width — which stands for the host's area — is narrower than breakpoint.medium (the same step
+     as the host's). */
+  :host([placement='top-end']:not([popover])) .bar {
+    margin-inline: auto 0;
+    min-inline-size: max(min(${t('container-min-width')}, 100%), min(100%, (${t('breakpoint-medium')} - 100%) * 100000));
+  }
 
-  /* SNK-15: a control — the action's label, or a glyph in a square — at least controls.height tall, on its corners. */
+  /* SNK-15: the action — its label at least controls.height tall, on its corners. */
   /* SNK-21, SNK-30: the five forms on a surface, then the five drawn inverse — by a style query on the host's choice,
      which follows the attribute, a layer and a system switched on any ancestor with no script, and by data-inverse
      (written by the element) in a browser without style queries. */
@@ -310,13 +361,18 @@ export const styles = css`
   ${focusRing((focus) => `.text${focus} ~ .focus`, { inside: true, color: 'var(--_focus)' })}
 
   /* The first control is container.gap after the text, the next ones controls.gap after the one before; each is
-     centred on the text's first line, overlapping the padding rather than growing the row. */
-  .control {
+     centred on the text's first line, overlapping the padding rather than growing the row. The action is
+     controls.height tall, or as tall as its label's line where enlarged text makes that taller; the expand and close
+     buttons are small Buttons (SNK-34), as tall as their size. */
+  :is(.control, .expand, .close) {
     align-self: start;
-    margin-block: calc((var(--_line) - ${t('controls-height')}) / 2);
+    margin-block: calc((var(--_line) - max(${t('controls-height')}, ${unsafeCSS(lineOf('controls-label'))})) / 2);
     margin-inline-start: ${t('container-gap')};
   }
-  .control + .control {
+  :is(.expand, .close) {
+    margin-block: calc((var(--_line) - var(--tanrei-comp-button-container-height-small)) / 2);
+  }
+  :is(.control, .expand, .close) + :is(.expand, .close) {
     margin-inline-start: ${t('controls-gap')};
   }
   .action {
@@ -351,7 +407,7 @@ export const styles = css`
     margin-block: ${t('container-gap')} 0;
     margin-inline-start: 0;
   }
-  .bar.stacked .action + .control {
+  .bar.stacked .action + :is(.expand, .close) {
     margin-inline-start: ${t('container-gap')};
   }
   /* Expanded, the text fills its row, which holds it to the height the bar may take (SNK-25). */
@@ -369,8 +425,8 @@ export const styles = css`
   /* SNK-33: the action's tonal layer — its content color of the form and the state it is in (the color the label is
      drawn in, so it follows every state and its transition) at action.tonal-layer.opacity, filling the container to its
      corners, in every state. It is the label's own layer under the label: above the container color of the state and,
-     later in the same stacking order, above a ripple (the control's first child); it takes no press and no room. Not on
-     the expand or the close button. At 0 it is transparent: the action is its container alone. */
+     later in the same stacking order, above a ripple (the control's first child); it takes no press and no room. The
+     action's alone. At 0 it is transparent: the action is its container alone. */
   .action .hold {
     corner-shape: inherit;
   }
@@ -384,16 +440,17 @@ export const styles = css`
     background: ${faded('currentColor', 'action-tonal-layer-opacity')};
     pointer-events: none;
   }
-  .close,
-  .expand {
-    inline-size: ${t('controls-height')};
-    block-size: ${t('controls-height')};
+  /* SNK-34: the glyph the snackbar gives an expand or close Button, in the Button's icon slot, which sizes and draws it;
+     its box clips the name a text face would spell while the icon set cannot draw it yet. */
+  .glyph {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
   }
-  ${iconGlyph('.icon', { size: `${PREFIX}-controls-icon-size`, selected: ':not(*)', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
   /* SNK-26: nothing in a glyph's place until the icon set can draw it (GlyphDrawnController sets data-drawn); the box keeps
      its size. */
   .status:not([data-drawn]),
-  .icon:not([data-drawn]) {
+  .glyph:not([data-drawn]) {
     visibility: hidden;
   }
   /* The ligature's own width, which GlyphDrawnController compares with the glyph box. */
@@ -402,10 +459,10 @@ export const styles = css`
     vertical-align: top;
   }
 
-  /* SNK-4: each control's hit area meets the minimum target without changing its visual size. */
+  /* SNK-4: the action's hit area meets the minimum target without changing its visual size (a Button keeps its own). */
   ${minimumTarget('.control')}
 
-  /* SNK-2, SNK-5, SNK-6: each state paints the control from that state's tokens; pressed > focused > hovered. */
+  /* SNK-2, SNK-5, SNK-6: each state paints the action from that state's tokens; pressed > focused > hovered. */
   ${stateRules(on, {
     hovered: `${paint('-h')}
     opacity: ${T('hovered-opacity')};`,
@@ -426,14 +483,15 @@ export const styles = css`
     easing: `${PREFIX}-motion-state-easing`,
   })}
 
-  /* SNK-3, SNK-7: the ring (or the glow) around the focused control, never animated, its outer stroke in the form's
-     focus color: the indicator is drawn on the bar, so the bar decides what shows on it. */
+  /* SNK-3, SNK-7: the ring (or the glow) around the focused action, never animated, its outer stroke in the form's
+     focus color: the indicator is drawn on the bar, so the bar decides what shows on it. (The expand and close Buttons
+     draw their own, in the same color through their tone.) */
   ${focusRing(on, { color: 'var(--_focus)' })}
 
-  /* SNK-7: corner smoothing on the bar and the controls (data-tanrei-shape). */
+  /* SNK-7: corner smoothing on the bar and the action (data-tanrei-shape). */
   ${shape}
 
-  /* SNK-5: the label and the glyph carry press-hold for PressController. */
+  /* SNK-5: the action's label carries press-hold for PressController. */
   ${pressHold('.hold')}
 
   /* SNK-24: while the bar grows or shrinks, what is outside its new height is clipped — and the text, held to a row
@@ -446,9 +504,13 @@ export const styles = css`
   }
 
   /* SNK-17: in, it rises from below the bottom edge by its own height plus its margin while fading in; out, it fades in
-     place. Where motion is reduced it only fades. */
+     place, at either placement. Where motion is reduced it only fades. */
   :host(.entering) {
     animation: snackbar-in ${t('motion-enter-duration')} ${t('motion-enter-easing')} both;
+  }
+  /* SNK-36: at the top end it descends from above the top edge instead, by the same distance — the mirror of the rise. */
+  :host(.entering[placement='top-end']) {
+    animation-name: snackbar-in-top;
   }
   :host(.leaving) {
     animation: snackbar-out ${t('motion-exit-duration')} ${t('motion-exit-easing')} both;
@@ -457,6 +519,12 @@ export const styles = css`
     from {
       opacity: 0;
       translate: 0 calc(100% + ${t('container-margin')});
+    }
+  }
+  @keyframes snackbar-in-top {
+    from {
+      opacity: 0;
+      translate: 0 calc(-100% - ${t('container-margin')});
     }
   }
   @keyframes snackbar-out {
@@ -470,7 +538,8 @@ export const styles = css`
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    :host(.entering) {
+    :host(.entering),
+    :host(.entering[placement='top-end']) {
       animation-name: snackbar-fade-in;
     }
     .control {

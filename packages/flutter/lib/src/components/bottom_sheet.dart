@@ -1011,7 +1011,7 @@ class _DragHandleState extends State<_DragHandle>
         height: tokens.handleGripHeight,
         child: DecoratedBox(
           decoration: TanreiContainerDecoration(
-            shape: TanreiCornerShape(smoothing: smoothing, radius: tokens.handleGripShape),
+            shape: TanreiCornerShape(smoothing: smoothing, radius: tokens.handleContainerShape),
             color: visuals.label,
           ),
         ),

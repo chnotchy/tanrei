@@ -1,0 +1,173 @@
+{
+  "tanrei": {
+    "comp": {
+      "meter": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product shows where a quantity stands in a known range — storage used, a battery's charge, a quota, a password's strength — apart from the progress of a task: the two look alike by default, but they mean different things, so the product can restyle one without the other.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a meter reads: the bar's thickness and the ring's size and stroke per size, the track color, the ends' shape, whether the indicator meets the track or stands a gap from it, that gap and the stop indicator, the indicator color of each status, and the motion of a change of value or of status. The dimensions, the track and the default indicator color follow the progress indicator's tokens, so the two match side by side.",
+            "rules": [
+              "Use a meter for a quantity in a known range; a task under way is a progress indicator, and a value with no meaningful maximum is neither.",
+              "Always give it a label (the accessible name); use valueText when a percentage is not the natural reading (\"12.4 GB of 15 GB\").",
+              "The meter has no thresholds: the product decides the status from what the value means, and says it in words too (valueText or the text beside it) — the status changes the color only.",
+              "Every indicator color on track.color, and on the surface behind the meter, must stay distinguishable (3:1): the boundary between them is the value.",
+              "Restyle through these tokens in a layer; to set the meter apart from the progress indicator, value these tokens rather than the progress indicator's."
+            ]
+          },
+          "dev.tanrei.axes": {
+            "size": {
+              "default": "medium",
+              "values": [
+                "small",
+                "medium",
+                "large"
+              ],
+              "members": [
+                "linear.thickness",
+                "circular.size",
+                "circular.thickness"
+              ]
+            }
+          }
+        },
+        "linear": {
+          "thickness": {
+            "$type": "dimension",
+            "$description": "The bar's height, per size: the progress indicator's by default. The bar has no length of its own; it fills the inline size its layout gives it.",
+            "small": {
+              "$value": "{tanrei.comp.progress-indicator.linear.thickness.small}"
+            },
+            "medium": {
+              "$value": "{tanrei.comp.progress-indicator.linear.thickness.medium}"
+            },
+            "large": {
+              "$value": "{tanrei.comp.progress-indicator.linear.thickness.large}"
+            }
+          }
+        },
+        "circular": {
+          "size": {
+            "$type": "dimension",
+            "$description": "The ring's square box, per size: the progress indicator's by default.",
+            "small": {
+              "$value": "{tanrei.comp.progress-indicator.circular.size.small}"
+            },
+            "medium": {
+              "$value": "{tanrei.comp.progress-indicator.circular.size.medium}"
+            },
+            "large": {
+              "$value": "{tanrei.comp.progress-indicator.circular.size.large}"
+            }
+          },
+          "thickness": {
+            "$type": "dimension",
+            "$description": "The ring's stroke width, per size: the progress indicator's by default.",
+            "small": {
+              "$value": "{tanrei.comp.progress-indicator.circular.thickness.small}"
+            },
+            "medium": {
+              "$value": "{tanrei.comp.progress-indicator.circular.thickness.medium}"
+            },
+            "large": {
+              "$value": "{tanrei.comp.progress-indicator.circular.thickness.large}"
+            }
+          }
+        },
+        "track": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.comp.progress-indicator.track.color}",
+            "$description": "The whole range, from min to max: the progress indicator's track by default."
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.comp.progress-indicator.track.shape}",
+            "$description": "The corner radius of the bar's ends and of the indicator's ends, clamped to half the thickness. The ring's caps are round unless this is sys.shape.corner.none."
+          },
+          "separation": {
+            "$type": "number",
+            "$value": "{tanrei.comp.progress-indicator.track.separation}",
+            "$description": "How the indicator is told from the rest of its track. divider: the indicator is drawn on the track with no space between them. gap: track.gap of empty space is left between them. Follows the progress indicator's choice, and so the system's; an instance's separation prop overrides it. The value is an index into dev.tanrei.enum.values; platforms receive the name.",
+            "$extensions": {
+              "dev.tanrei.enum": {
+                "values": [
+                  "divider",
+                  "gap"
+                ]
+              }
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.comp.progress-indicator.track.gap}",
+            "$description": "Under gap: empty space, measured along the track, between the end of the indicator and the rest of the track. Not drawn under divider."
+          }
+        },
+        "stop-indicator": {
+          "size": {
+            "$type": "dimension",
+            "$value": "{tanrei.comp.progress-indicator.stop-indicator.size}",
+            "$description": "The diameter of the dot a bar draws at the track's end, in the indicator color of its status, to mark where the range ends; never drawn larger than the bar is thick, and not drawn while the indicator covers it at max. 0 draws none."
+          }
+        },
+        "indicator": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.comp.progress-indicator.indicator.color}",
+            "$description": "The indicator of a meter whose status is default: the progress indicator's indicator color by default."
+          }
+        },
+        "info": {
+          "indicator": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.info}",
+              "$description": "The indicator of a meter whose status is info: the status's own color, as the tag's info mark."
+            }
+          }
+        },
+        "success": {
+          "indicator": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.success}",
+              "$description": "The indicator of a meter whose status is success: the status's own color, as the tag's success mark."
+            }
+          }
+        },
+        "warning": {
+          "indicator": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.warning}",
+              "$description": "The indicator of a meter whose status is warning: the status's own color, as the tag's warning mark."
+            }
+          }
+        },
+        "error": {
+          "indicator": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.error}",
+              "$description": "The indicator of a meter whose status is error: the status's own color, as the tag's error mark."
+            }
+          }
+        },
+        "motion": {
+          "value-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.comp.progress-indicator.motion.value-duration}",
+            "$description": "How long the indicator's end takes to move to a new value, and its color to change to a new status's."
+          },
+          "value-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.comp.progress-indicator.motion.value-easing}"
+          }
+        }
+      }
+    }
+  }
+}

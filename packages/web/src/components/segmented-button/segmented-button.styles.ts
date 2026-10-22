@@ -34,6 +34,7 @@ const SIZE_MEMBERS = {
   font: 'label-typescale',
   icon: 'icon-size',
   check: 'check-size',
+  'state-duration': 'motion-state-duration',
 } as const;
 
 // A value the core does not have may be missing from the active design system: fall back to the default's token.
@@ -180,7 +181,7 @@ export const segmentStyles = css`
   ${unsafeCSS(conditionBlock(PREFIX, 'selected', PARTS, '.container.selected'))}
   /* SEG-16, SEG-23: a part that both the states and the selection recolor takes the state motion, and the selection motion
      while the condition changes (data-condition-change on .root, src/primitives/selection.ts). */
-  ${recolorTiming(PREFIX)}
+  ${recolorTiming(PREFIX, '--_size-state-duration')}
 
   /* SEG-13, SEG-14, SEG-15: the container fills the segment; its content is centred, padded by the size's paddings,
      in the size's label style. The first and last segments' outer corners are the set's less its padding (concentric),
@@ -214,7 +215,7 @@ export const segmentStyles = css`
     user-select: none;
     -webkit-tap-highlight-color: transparent;
     transition-property: background-color, box-shadow, color, opacity;
-    transition-duration: var(--_recolor-duration), var(--_recolor-duration), var(--_recolor-duration), ${t('motion-state-duration')};
+    transition-duration: var(--_recolor-duration), var(--_recolor-duration), var(--_recolor-duration), var(--_size-state-duration);
     transition-timing-function: var(--_recolor-easing), var(--_recolor-easing), var(--_recolor-easing), ${t('motion-state-easing')};
   }
   /* SEG-11: the one corner rule, after the container's reset (all: unset) and before its corners. */
@@ -250,7 +251,7 @@ export const segmentStyles = css`
 
   /* SEG-10 ripple: the pressed container color of the segment's condition, grown over motion.feedback-duration and faded
      over motion.state-duration, both with motion.state-easing, clipped to the segment's corners. */
-  ${rippleStyles({ color: '--_c-p', grow: `${PREFIX}-motion-feedback-duration`, fade: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
+  ${rippleStyles({ color: '--_c-p', grow: `${PREFIX}-motion-feedback-duration`, fade: '--_size-state-duration', easing: `${PREFIX}-motion-state-easing` })}
   .ripple {
     ${unsafeCSS(corners())}
   }
@@ -341,8 +342,8 @@ export const segmentStyles = css`
      the check — the icon set's \`check\`, never mirrored — always in the selected ones. SEG-27: iconGlyph() mirrors the
      icon GlyphMirrorController marked, in right-to-left, in its own box. The icon is drawn at sys.icon.weight, the check
      — a control's own mark — at comp.segmented-button.check.weight. */
-  ${iconGlyph('.icon', { size: '--_size-icon', selected: '.container.selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
-  ${iconGlyph('.check', { size: '--_size-check', selected: '.glyphs', weight: `${PREFIX}-check-weight`, duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
+  ${iconGlyph('.icon', { size: '--_size-icon', selected: '.container.selected', duration: '--_size-state-duration', easing: `${PREFIX}-motion-state-easing` })}
+  ${iconGlyph('.check', { size: '--_size-check', selected: '.glyphs', weight: `${PREFIX}-check-weight`, duration: '--_size-state-duration', easing: `${PREFIX}-motion-state-easing` })}
   .glyphs > * {
     grid-area: 1 / 1;
     color: var(--_i);

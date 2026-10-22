@@ -2,7 +2,7 @@
 title: Selector de archivos
 description: Permite elegir archivos con el selector propio de la plataforma —desde un botón y, donde hay sitio, desde un lugar al que también se pueden arrastrar—, dice los límites con palabras antes de la elección, juzga lo elegido y entrega a tu producto lo que se aceptó y lo que se rechazó. No conserva nada, no enumera nada y no participa en ningún formulario.
 translationOf: components/file-picker.mdx
-sourceHash: ac3dfd53a1c0d1fa06df9c4d546b5bdcc1b5e3aa
+sourceHash: 7b60eb18075b635e3d10042c71ae794088afa2bf
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -81,7 +81,9 @@ Pon un botón en el slot `trigger` y escucha `select`.
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Button, Field, FilePicker } from '@tanrei/react';
+    // Un componente avanzado —una pieza de la que se construyen otros— se importa desde la entrada advanced.
+    import { Button, Field } from '@tanrei/react';
+    import { FilePicker } from '@tanrei/react/advanced';
 
     <Field label="Archivo de capa" error={!!problem} errorText={problem}>
       <FilePicker accept={['.json']} constraintsText="Un archivo JSON"
@@ -169,7 +171,7 @@ Déjalo vacío y ahí no se dibuja nada, lo que conviene a un botón de adjuntar
 Pon el selector de archivos en un [campo](/es/components/field/) cuando el formulario muestre una etiqueta, una ayuda, un error o una marca de obligatorio. El campo los dibuja y se los da al selector de archivos, cuyo activador recibe entonces de ellos su nombre y su descripción.
 
 ```html
-<tanrei-field label="Archivo adjunto" requirement="required" required-text="Obligatorio"
+<tanrei-field label="Archivo adjunto" required required-text="Obligatorio"
               error error-text="Elige un PDF de 10 MB como máximo.">
   <tanrei-file-picker accept=".pdf" max-size="10000000"
                       constraints-text="PDF, hasta 10 MB" selection-text="Ningún archivo elegido">
@@ -178,7 +180,7 @@ Pon el selector de archivos en un [campo](/es/components/field/) cuando el formu
 </tanrei-field>
 ```
 
-Un selector de archivos no envía nada. No tiene `name` ni valor, y `required` solo informa a la tecnología de apoyo. Decir si falta un archivo le corresponde al componente que conserva los archivos: tu código, o un [control de subida de archivos](/es/components/file-upload/), que sí es un control de formulario.
+Un selector de archivos no envía nada. No tiene `name` ni valor, y `required` solo informa a la tecnología de apoyo. Decir si falta un archivo le corresponde al componente que conserva los archivos: tu código, o un [control de subida de archivos](/es/components/file-upload/), que sí es un control de formulario. `required`, como lo dice un campo, es lo mismo que `required`.
 
 ### De derecha a izquierda
 

@@ -162,7 +162,7 @@ test.describe('slider field', () => {
 
   test('SLF-2: each prop goes at once and on every change to the member it is from — ten to the Field, fourteen to the Slider, endLabel as the Slider\'s label while range is true — and the Slider is given no orientation and no disabled of its own: the Field disables it', async ({ page }) => {
     await mount(page, [fx('a', { supportingText: 'Help', value: 40 })]);
-    const toField = { label: 'Price', labelHidden: false, supportingText: 'Per night.', errorText: 'Too wide.', error: true, requirement: 'required', requiredMark: 'asterisk', requiredText: 'Needed', optionalText: 'If you like' };
+    const toField = { label: 'Price', labelHidden: false, supportingText: 'Per night.', errorText: 'Too wide.', error: true, required: true, requiredMark: 'asterisk', requiredText: 'Needed', optionalText: 'If you like' };
     const toSlider = { value: 300, startValue: 100, range: true, min: 0, max: 500, step: 50, origin: null, stops: true, size: 'medium', valueIndicator: 'always', valueText: '$300', startValueText: '$100', startLabel: 'Minimum price' };
     await set(page, 'a', { ...toField, ...toSlider, endLabel: 'Maximum price', disabled: true });
     const read = (member: Locator, names: string[]) => member.evaluate((el, keys) => Object.fromEntries(keys.map((key) => [key, (el as unknown as Record<string, unknown>)[key]])), names);
@@ -328,7 +328,7 @@ test.describe('slider field', () => {
     expect(await said('required')).toEqual({ name: 'Volume', description: 'Required', invalid: null, required: null });
     expect(await said('optional')).toEqual({ name: 'Volume', description: 'Optional', invalid: null, required: null });
     expect(await said('error')).toEqual({ name: 'Volume', description: 'Choose a level above 0.', invalid: 'true', required: null });
-    await set(page, 'range-words', { error: true, errorText: 'Too wide.', requirement: 'optional', optionalText: 'Optional' });
+    await set(page, 'range-words', { error: true, errorText: 'Too wide.', required: false, optional: true, optionalText: 'Optional' });
     for (const which of ['start', 'end'] as const) expect(await said('range-words', which)).toMatchObject({ description: 'Too wide. Optional', invalid: 'true' });
     expect(seen.filter((text) => text.includes('[tanrei]')), 'a range named at both handles under a drawn label is reported by nobody').toEqual([]);
     if (browserName === 'chromium') {
@@ -491,7 +491,7 @@ test.describe('slider field', () => {
   });
 
   test('SLF-8: disabled is a disabled Field holding a disabled Slider — no handle takes focus or changes, no event is heard, the value indicator is not shown, the label, the mark, the supporting row and the value text are drawn from the Field\'s disabled tokens — and the value text stays drawn', async ({ page }) => {
-    await mount(page, [fx('off', { supportingText: 'Help', disabled: true, value: 40, requirement: 'required', requiredMark: 'asterisk', valueIndicator: 'always' }), fx('on', { value: 40 })]);
+    await mount(page, [fx('off', { supportingText: 'Help', disabled: true, value: 40, required: true, requiredMark: 'asterisk', valueIndicator: 'always' }), fx('on', { value: 40 })]);
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await expect(valueText(page, 'off')).toHaveText('40');
     const T = (name: string) => resolveColor(page, `--tanrei-comp-field-standard-disabled-${name}-color`);

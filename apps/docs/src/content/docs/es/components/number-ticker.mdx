@@ -1,0 +1,140 @@
+---
+title: Contador animado
+description: Muestra un número que cambia —un recuento, un precio, una puntuación, una cifra de un panel— moviendo cada dígito que cambia hasta su nuevo valor, para que una persona vea que cambió, en qué dirección y aproximadamente cuánto, mientras a la tecnología de apoyo solo se le comunica el valor en el que se detiene.
+translationOf: components/number-ticker.mdx
+sourceHash: 95f0526e88d9f97f2e8636d465f88d6f39585435
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="number-ticker" />
+
+<DemoFrame label="Cifras que suben hasta su valor al entrar en la vista">
+  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+    <tanrei-number-ticker start-value="0" value="1234" label="Pedidos"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="0" value="98400" number-style="currency" currency="USD" fraction-digits="0" label="Ingresos"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="0" value="0.426" number-style="percent" fraction-digits="1" label="Conversión"></tanrei-number-ticker>
+  </div>
+</DemoFrame>
+
+### Uso
+
+Los ejemplos de Web y React siguen la especificación actual. SwiftUI, Compose, Flutter y React Native están previstos: todavía no incluyen un contador animado.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-number-ticker value="1234" label="Pedidos"></tanrei-number-ticker>
+    <tanrei-number-ticker value="98400" number-style="currency" currency="USD" label="Ingresos"></tanrei-number-ticker>
+
+    <!-- La cifra de un panel sube desde 0 la primera vez que entra en la vista. -->
+    <tanrei-number-ticker start-value="0" value="0.426" number-style="percent" fraction-digits="1"></tanrei-number-ticker>
+
+    <!-- Un recuento que la persona cambia: se anuncia una vez cuando cada cambio se detiene. -->
+    <tanrei-number-ticker value="2" live="polite" label="Artículos en el carrito"></tanrei-number-ticker>
+
+    <script type="module">
+      import '@tanrei/web/components/number-ticker';
+      const ticker = document.querySelector('tanrei-number-ticker');
+      ticker.value = orders.length;
+      ticker.addEventListener('settle', (event) => console.log('now showing', event.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { NumberTicker } from '@tanrei/react';
+
+    <NumberTicker value={orders.length} label="Pedidos" />
+    <NumberTicker value={revenue} numberStyle="currency" currency="USD" label="Ingresos" />
+    <NumberTicker startValue={0} value={0.426} numberStyle="percent" fractionDigits={1} />
+    <NumberTicker value={count} live="polite" label="Artículos en el carrito" onSettle={(event) => setShown(event.detail.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Animaciones: slide (la elección del sistema predeterminado), blur, blur-slide y flip" plain>
+  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+    <tanrei-number-ticker start-value="1180" value="1234" animation="slide" label="Deslizar"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="1180" value="1234" animation="blur" label="Desenfoque"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="1180" value="1234" animation="blur-slide" label="Desenfoque y deslizamiento"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="1180" value="1234" animation="flip" label="Paleta"></tanrei-number-ticker>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="trend: auto (de 19 a 20 ambos dígitos suben) y digit (las unidades bajan de 9 a 0)" plain>
+  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+    <tanrei-number-ticker start-value="19" value="20" trend="auto" label="Automático"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="19" value="20" trend="digit" label="Por dígito"></tanrei-number-ticker>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="number-ticker" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un contador animado para un número que cambia mientras una persona lo mira, cuando el propio cambio merece verse: un recuento que sube a medida que llegan pedidos, un precio que se mueve, una puntuación, las cifras de un panel que suben hasta su valor cuando se abre la página. El movimiento muestra que el número cambió, en qué dirección y aproximadamente cuánto.
+
+Un número que cambia pocas veces, o que nadie mira cambiar, es texto normal. Un nivel dentro de un intervalo conocido —el almacenamiento usado de una cuota— es un [medidor](/es/components/meter/). Las horas y las fechas no son números: escríbelas con el formato de fecha y hora de la plataforma.
+
+### Cómo se escribe el número
+
+El contador no tiene palabras ni reglas numéricas propias. El formateador de números de la plataforma lo escribe en el idioma del lector: los separadores de miles y decimales, el símbolo de la moneda, el signo de porcentaje, la forma corta de un número grande (1,2 mil, 1.2万) y los propios dígitos (١٢٣٤ en árabe tal como se escribe en Egipto). Elige un estilo (decimal, percent, currency o unit), un código de moneda o una unidad, la notación compacta, un número fijo de decimales y cuándo escribir el signo; si no indicas un idioma, toma el del lugar donde está.
+
+Tampoco tiene tipografía, tamaño ni color: se dibuja con el estilo de texto del lugar donde lo colocas, con cifras de igual ancho para que el número no se desplace cuando cambian sus dígitos. Puede ser la cifra grande de una tarjeta de un panel o un recuento dentro de una frase.
+
+### Cómo elegir una animación
+
+| Animación | Uso |
+| --- | --- |
+| Slide | La mayoría de los números. La columna de cada dígito que cambia gira hasta su nuevo dígito. La elección del sistema predeterminado. |
+| Blur | Un cambio más discreto: el dígito anterior se desenfoca y se desvanece mientras el nuevo aparece nítido. |
+| Blur slide | Lo mismo, con los dígitos desplazándose un poco en la dirección del cambio. |
+| Flip | Un panel de paletas: salidas, una cuenta atrás, un producto de aspecto mecánico. |
+| None | Un número que debe cambiar de inmediato. |
+
+Mantén una sola animación en todo tu producto: defínela una vez en el sistema de diseño (`comp.number-ticker.animation`) en lugar de en cada contador.
+
+### Cómo elegir el trend
+
+De forma predeterminada, cada dígito que cambia se mueve en la dirección en que se movió el número completo: hacia arriba si creció, hacia abajo si disminuyó, de modo que de 19 a 20 ambos dígitos suben. Así se lee como un cambio de un número. Elige `digit` cuando cada posición significa algo por sí misma: cada dígito se mueve entonces según su propio cambio, y las unidades bajan de 9 a 0. `up` y `down` fijan una dirección, para un número que solo cuenta en un sentido.
+
+### Recomendado
+
+- Colócalo dentro del texto, o da a su contenedor el estilo de texto que quieras. Toma todo de ahí.
+- Añade una etiqueta cuando nada visible junto al número diga qué es: «Ingresos», «Pedidos».
+- Deja live desactivado en las cifras que cambian solas. Actívalo solo para un número que la persona espera o está cambiando.
+- Usa el valor inicial en un panel para que sus cifras suban una vez, la primera vez que se ven.
+
+### Evita
+
+- No colorees una subida de verde ni una bajada de rojo a través del contador: no tiene esos colores. Si un cambio significa algo, dilo junto al número: una etiqueta, una palabra, una flecha con texto.
+- No actualices un número varias veces por segundo. Cada cambio dura lo que dura el movimiento; una sucesión de cambios se percibe como ruido. Actualízalo al ritmo que una persona puede seguir.
+- No lo uses para la hora. Los dígitos de un reloj pasan a cero en 59, no en 9.
+
+## Accesibilidad
+
+<ComponentAccessibility name="number-ticker" />
+
+### De qué se encarga el componente
+
+- La tecnología de apoyo lee un solo texto: la etiqueta y, después, el número tal como lo escribe el formateador. Los dígitos dibujados están ocultos, así que el número nunca se lee dígito a dígito ni como los dígitos que pasan por sus ventanas.
+- De forma predeterminada no se anuncia nada: la mayoría de las cifras no son lo principal en ese momento. Con live en polite, el número se anuncia de forma educada una vez cuando cada cambio se detiene, nunca un valor por el que pasa ni uno que un cambio posterior sustituyó.
+- Cuando se pide movimiento reducido, el número nuevo aparece al instante y el anterior se desvanece brevemente.
+- Toma el idioma y la dirección del lugar donde está, y vuelve a escribir el número al instante cuando cambia cualquiera de los dos.
+- En las compilaciones de depuración se informa de un valor desconocido de animation, trend, style, notation, sign display o live, de una duration que no es positiva, de una moneda o unidad que el formateador no conoce y de un valor que no es un número.
+
+### Qué debes hacer tú
+
+- Si tu producto actualiza un número por sí solo una y otra vez junto a otro contenido, ofrece una forma de pausar las actualizaciones o de elegir con qué frecuencia llegan (WCAG 2.2.2 Pausar, detener, ocultar).
+- Explica con palabras lo que significa un cambio cuando importa. El movimiento muestra que cambió; no dice si es bueno o malo.

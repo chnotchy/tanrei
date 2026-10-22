@@ -1,0 +1,94 @@
+---
+title: Preajustes
+description: Dibuja tu producto con uno de los preajustes incluidos —una hoja de estilos y un atributo, las fuentes que pide, los componentes que tiene— o lleva un solo componente de un preajuste a un sistema propio.
+translationOf: getting-started/presets.mdx
+sourceHash: b2dfc26dbf45b28c12730928bdddf74dd177e727
+---
+
+import Steps from '../../../../components/Steps.astro';
+import PresetFacts from '../../../../components/PresetFacts.astro';
+
+Tanrei incluye su sistema predeterminado, `tanrei`, y tres preajustes: `m3-like`, `m3-expressive-like` y `cupertino`. Un preajuste es una [capa de sistema de diseño](/es/foundations/design-systems/#los-sistemas-incluidos) como la que escribirías tú: da a los componentes de Tanrei los valores de otro sistema de diseño y decide qué componentes, y qué valores de su `variant`, tiene. Úsalo tal cual o como punto de partida de [tu propio sistema de diseño](/es/getting-started/your-design-system/).
+
+## Usar un preajuste en la web
+
+<Steps>
+
+1. Carga los tokens y después la hoja de estilos del preajuste. Sus tokens se aplican donde está su atributo.
+
+   ```js
+   import '@tanrei/web/tokens.css';
+   import '@tanrei/web/systems/m3-like.css';
+   ```
+
+2. Pon el atributo en `<html>` o en cualquier parte de la página: en una página pueden convivir varios sistemas.
+
+   ```html
+   <html data-tanrei-system="m3-like">
+   ```
+
+3. Registra los componentes del preajuste con su entrada, en lugar de `@tanrei/web`. Registra los componentes que tiene el preajuste y ningún otro.
+
+   ```js
+   import '@tanrei/web/m3-like';
+   ```
+
+4. Carga sus fuentes con los nombres de familia que usan sus tokens, que se listan abajo. Tanrei no incluye archivos de fuentes: consulta [Fuentes](/es/getting-started/web/#fuentes).
+
+</Steps>
+
+Lo que tiene un preajuste figura en su manifiesto de componentes, `@tanrei/web/systems/<id>.components.json`, que leen los editores y los agentes de programación. En este sitio, elige un sistema de diseño junto a la [lista de componentes](/es/components/) o en la parte superior de la barra lateral, y las listas muestran solo lo que tiene ese sistema.
+
+## Los preajustes
+
+Los datos de cada preajuste que siguen se leen de su capa, de sus tokens resueltos y de su manifiesto de componentes.
+
+### m3-like
+
+<PresetFacts system="m3-like" />
+
+### m3-expressive-like
+
+<PresetFacts system="m3-expressive-like" />
+
+### cupertino
+
+<PresetFacts system="cupertino" />
+
+## Llevar un componente de un preajuste a tu propio sistema
+
+Un componente que tiene un preajuste y no el sistema predeterminado —el menú FAB de `m3-like`, o el botón segmentado— no queda fuera del alcance de un producto sobre el sistema predeterminado. Escribe una capa que extienda `tanrei`, incluye en ella el componente e importa su propio módulo. El componente se dibuja entonces con los tokens de tu sistema: sus tokens apuntan a los de tu sistema, así que un menú FAB llevado de esta forma se ve como el resto de tu producto, y no viene ninguno de los valores del preajuste.
+
+<Steps>
+
+1. Incluye el componente en tu capa (`design/acme.system.json`; consulta [Tu propio sistema de diseño](/es/getting-started/your-design-system/)). Un componente que vive en la capa de un preajuste nombra esa capa (`from`); uno que el sistema predeterminado deja fuera se nombra solo.
+
+   ```json
+   {
+     "id": "acme",
+     "extends": "tanrei",
+     "components": {
+       "include": [{ "name": "fab-menu", "from": "m3-like" }, "segmented-button"]
+     }
+   }
+   ```
+
+2. Compila. `npx tanrei build` escribe la hoja de estilos de tu sistema, con los tokens de los componentes incluidos valorados a partir de los tuyos, y tu manifiesto de componentes, que los lista.
+
+3. Carga tu hoja de estilos, pon tu atributo y registra los componentes del sistema predeterminado y los que llevaste.
+
+   ```js
+   import '@tanrei/web/tokens.css';
+   import './styles/acme.css';
+   import '@tanrei/web';
+   import '@tanrei/web/components/fab-menu';
+   import '@tanrei/web/components/segmented-button';
+   ```
+
+   ```html
+   <html data-tanrei-system="acme">
+   ```
+
+</Steps>
+
+Un componente usado bajo un sistema que no lo tiene se dibuja igualmente, y lo indica en la consola de una compilación de desarrollo. La página de cada componente dice qué sistemas lo tienen y qué usan los demás en su lugar.

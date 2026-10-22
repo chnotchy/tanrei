@@ -2,11 +2,15 @@
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { GENERATED_MANIFEST, checkParity, generatedFilesOnDisk, validateAvailability, validatePackages, validateSpecs } from './checks.js';
+import { GENERATED_MANIFEST, checkParity, generatedFilesOnDisk, layerProblems, validateAvailability, validatePackages, validateSpecs } from './checks.js';
 import { CONFIG, PLATFORMS, REPO_ROOT } from './conventions.js';
 import { GENERATORS, regenerate } from './drift.js';
+import { citationFiles, writeCitation } from './citation.js';
 import { checkRetiredTerms, checkWorkMarkers } from './scans.js';
+import { syntaxProblems, targetEdition } from './syntax.js';
 import { buildStatus, levelLine, listingLine, statusFiles, writeStatus } from './status.js';
+import { draftParts, manifestElements, withParts } from './parts.js';
+import { wordPackProblems } from './words.js';
 
 function report(title, problems) {
   if (!problems.length) {
@@ -22,15 +26,19 @@ function validate() {
   const results = [
     report('specs valid', validateSpecs()),
     report('system availability names what exists', validateAvailability()),
+    report('components live where their specs say', layerProblems()),
     report('publishable packages carry the license and NOTICE', validatePackages()),
     report('no retired names', checkRetiredTerms()),
     report('work markers say what is missing', checkWorkMarkers()),
+    report('the English word pack has a word for every key', wordPackProblems()),
   ];
   return results.every(Boolean);
 }
 
 function status() {
   const s = writeStatus();
+  // How to cite the project, from tanrei.config.json (citation.js).
+  writeCitation();
   const width = Math.max(...s.components.map((c) => c.title.length));
   // The level is a column of its own, as wide as the longest of the names.
   const level = Math.max('Level'.length, ...Object.values(s.levels).map((name) => name.length));
@@ -56,8 +64,10 @@ function status() {
 function drift() {
   const checkOnly = process.argv.slice(3).includes('--check') || process.env.TANREI_CHECK_ONLY === '1';
   let ok = report('spec ↔ implementation parity', checkParity());
+  // The pack is generated from the list of keys, so a key a spec adds without its English word fails here too.
+  ok = report('the English word pack has a word for every key', wordPackProblems()) && ok;
 
-  const stale = Object.entries(statusFiles())
+  const stale = Object.entries({ ...statusFiles(), ...citationFiles() })
     .filter(([rel, content]) => {
       const file = path.join(REPO_ROOT, rel);
       return !fs.existsSync(file) || fs.readFileSync(file, 'utf8') !== content;
@@ -107,12 +117,58 @@ function syncVersions() {
     if (text === null) continue;
     fs.writeFileSync(path.join(REPO_ROOT, rel), text.replace(pattern, replacement));
   }
+  // Everything `status` writes from the version is written again from the new one, in a process of its own: this one
+  // read tanrei.config.json before the edit.
+  execFileSync(process.execPath, [process.argv[1], 'status'], { stdio: 'inherit' });
   console.log(`✔ versions synced to ${version}`);
   return true;
 }
 
+/**
+ * `parts <component>… [--write]`: a first `platforms.web.parts` for each spec named that has none — the anatomy ids
+ * the element exports a CSS part of the same name for — and the ids left for the author. `--write` writes it into
+ * the spec; `validate` then names what is still to map.
+ */
+function parts() {
+  const args = process.argv.slice(3);
+  const write = args.includes('--write');
+  const names = args.filter((a) => a !== '--write');
+  if (!names.length) {
+    console.error('usage: tanrei parts <component>… [--write]');
+    return false;
+  }
+  const tags = manifestElements(JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'packages/web/custom-elements.json'), 'utf8')));
+  let ok = true;
+  for (const name of names) {
+    const rel = `specs/${name}.spec.json`;
+    const text = safeRead(rel);
+    if (text === null) { console.error(`✖ ${rel} does not exist`); ok = false; continue; }
+    const spec = JSON.parse(text);
+    if (spec.platforms.web.parts) { console.log(`– ${name}: has parts already`); continue; }
+    const draft = draftParts(spec, tags);
+    console.log(`${name}: ${Object.keys(draft.parts).length} of ${spec.anatomy.length} by name${draft.open.length ? `; left to map: ${draft.open.join(', ')}` : ''}`);
+    if (!write) continue;
+    const next = withParts(text, draft.parts);
+    if (next === null) { console.error(`✖ ${rel} is not in canonical JSON form; write its parts by hand`); ok = false; continue; }
+    fs.writeFileSync(path.join(REPO_ROOT, rel), next);
+  }
+  return ok;
+}
+
 const parity = () => report('spec ↔ implementation parity', checkParity());
-const commands = { validate, status, parity, drift, 'sync-versions': syncVersions };
+/**
+ * The web package's `dist/**\/*.js` parses as the ECMAScript edition its tsconfig targets (syntax.js). The package's
+ * build runs it last, so `pnpm build`, `pnpm check` and every CI job that builds the package run it.
+ */
+function syntax() {
+  const web = path.join(REPO_ROOT, 'packages/web');
+  const dist = path.join(web, 'dist');
+  if (!fs.existsSync(dist)) return report('web dist syntax', ['packages/web/dist does not exist: build the package first (pnpm --filter @tanrei/web build)']);
+  const year = targetEdition(path.join(web, 'tsconfig.json'));
+  const { files, problems } = syntaxProblems(dist, year);
+  return report(`web dist parses as ES${year} (${files} files)`, problems.map((problem) => `packages/web/dist/${problem} — write it in ES${year}, or have the build lower it`));
+}
+const commands = { validate, status, parity, drift, parts, syntax, 'sync-versions': syncVersions };
 const command = commands[process.argv[2]];
 if (!command) {
   console.error(`usage: tanrei <${Object.keys(commands).join('|')}>\nplatforms: ${CONFIG.platforms.map((p) => PLATFORMS[p].label).join(', ')}`);

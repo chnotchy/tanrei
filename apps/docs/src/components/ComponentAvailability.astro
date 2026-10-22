@@ -1,9 +1,20 @@
 ---
 // Overview → per-platform availability, from docs/status/status.json + the spec's `platforms` block. The component's
-// summary and its facts (category, token namespace, level) are the page's head's (frame/PageTitle.astro); what a
-// design system leaves out is Tanrei's description list, a system to a line.
-import { getSpec, platforms, statusOf, unavailable } from '../lib/repo';
-import { contentLang, strings } from '../lib/i18n';
+// summary and its facts (category, token namespace, level) are the page's head's (frame/PageTitle.astro).
+//
+// What the shipped design systems do with it is read from their components manifests (lib/systems.ts), never written
+// on the page: for a component that some systems do not have, a note — Tanrei's Callout — says which systems have it
+// and which entries register it, which do not and why, what they use instead (each a link), and how a product on such
+// a system takes it all the same (the line of its layer and the module it imports). The layer that left it out is
+// named where it is not the system's own. The reason is the layer's own
+// sentence, shown as written in English (`lang="en"`), as everything the site shows from the repository. The values of
+// its `variant` a system leaves out are Tanrei's description list, a system to a line.
+import { componentHref, getSpec, platforms, statusOf } from '../lib/repo';
+import { availabilityOf, titleOf, variantsLeftOut } from '../lib/systems';
+import { contentLang, localeBase, strings } from '../lib/i18n';
+import Callout from './Callout.astro';
+import CodeSample from './CodeSample.astro';
+import Sentence from './Sentence.astro';
 import StatusBadge from './StatusBadge.astro';
 import SourceNote from './SourceNote.astro';
 
@@ -12,10 +23,23 @@ interface Props {
 }
 const spec = getSpec(Astro.props.name);
 const row = statusOf(spec.name);
-const t = strings(contentLang(Astro));
-// The systems that leave this component, or some of its variants, out.
-const leftOutBy = Object.entries(unavailable).filter(([, u]) => u.components.includes(spec.name)).map(([id]) => id);
-const variantsLeftOut = Object.entries(unavailable).flatMap(([id, u]) => (u.variants[spec.name] ? [`${id}: ${u.variants[spec.name].join(', ')}`] : []));
+const lang = contentLang(Astro);
+const t = strings(lang);
+const base = localeBase(Astro);
+const where = availabilityOf(spec.name);
+const lacks = where?.lacks ?? [];
+const variantsOut = variantsLeftOut(spec.name);
+/** A component's name as a link to its page, or as text where it has none. */
+const linked = (name: string) => ({ title: titleOf(name), href: componentHref(base, name) });
+/** A value as JSON on one line, with a space inside braces and after each colon and comma, as the layer files are written. */
+const inline = (value: unknown): string =>
+  typeof value === 'object' && value !== null
+    ? Array.isArray(value)
+      ? `[${value.map(inline).join(', ')}]`
+      : `{ ${Object.entries(value).map(([key, entry]) => `${JSON.stringify(key)}: ${inline(entry)}`).join(', ')} }`
+    : JSON.stringify(value);
+const layerLine = where && `"components": {\n  "include": ${inline([where.include])}\n}`;
+const importLine = where?.module && `import '${where.module}';`;
 ---
 
 <div class="not-content availability" data-tanrei-code="plain">
@@ -35,16 +59,55 @@ const variantsLeftOut = Object.entries(unavailable).flatMap(([id, u]) => (u.vari
       </dl>
     </tanrei-description-list>
   </div>
-  {(leftOutBy.length > 0 || variantsLeftOut.length > 0) && (
+  {variantsOut.length > 0 && (
     <tanrei-description-list class="left-out" layout="inline" density="compact" separation="gap">
       <dl>
-        {leftOutBy.length > 0 && <div><dt>{t.notShippedIn}</dt>{leftOutBy.map((id) => <dd><code>{id}</code></dd>)}</div>}
-        {variantsLeftOut.length > 0 && <div><dt>{t.variantsNotShippedIn}</dt><dd>{variantsLeftOut.join(' · ')}</dd></div>}
+        <div><dt>{t.variantsNotShippedIn}</dt><dd>{variantsOut.map(({ system, values }) => `${system}: ${values.join(', ')}`).join(' · ')}</dd></div>
       </dl>
     </tanrei-description-list>
   )}
   <SourceNote files={['docs/status/status.json', `specs/${spec.name}.spec.json`]} />
 </div>
+
+{where && lacks.length > 0 && (
+  <div class="systems" data-docs-availability-note>
+    <Callout type="note" title={t.system.noteTitle}>
+      {where.has.length > 0 && (
+        <p>
+          <Sentence text={t.system.has}>
+            <Fragment slot="systems">{where.has.map((id, at) => (<>{at > 0 && ', '}<code>{id}</code></>))}</Fragment>
+            <Fragment slot="entries">{where.entries.map((entry, at) => (<>{at > 0 && ', '}<code>{entry}</code></>))}</Fragment>
+          </Sentence>
+        </p>
+      )}
+      {lacks.map((lack) => (
+        <p>
+          <Sentence text={t.system.lacks}>
+            <Fragment slot="systems">{lack.systems.map((id, at) => (<>{at > 0 && ', '}<code>{id}</code></>))}</Fragment>
+          </Sentence>{' '}
+          {lack.providedBy && <Sentence text={t.system.livesIn}><Fragment slot="layer"><code>{lack.providedBy}</code></Fragment></Sentence>}
+          {!lack.providedBy && lack.omittedBy && lack.systems.some((id) => id !== lack.omittedBy) && <Sentence text={t.system.leftOutBy}><Fragment slot="layer"><code>{lack.omittedBy}</code></Fragment></Sentence>}
+          {lack.reason && <>{' '}<span lang={lang === 'en' ? undefined : 'en'}>{lack.reason}</span></>}
+          {lack.insteadUse.length > 0 && (
+            <>
+              {' '}
+              <Sentence text={t.system.use}>
+                <Fragment slot="components">{lack.insteadUse.map(linked).map((member, at) => (<>{at > 0 && ', '}{member.href ? <a class="tanrei-link" href={member.href}>{member.title}</a> : member.title}</>))}</Fragment>
+              </Sentence>
+            </>
+          )}
+        </p>
+      ))}
+      <p>
+        <Sentence text={t.system.take}>
+          <a slot="guide" class="tanrei-link" href={`${base}/getting-started/your-design-system/`}>{t.system.guide}</a>
+        </Sentence>
+      </p>
+      {layerLine && <CodeSample code={layerLine} language="json" label={t.system.layerFile} />}
+      {importLine && <CodeSample code={importLine} language="js" label={t.system.yourCode} />}
+    </Callout>
+  </div>
+)}
 
 <script>
   import '../lib/register-web';
@@ -54,7 +117,10 @@ const variantsLeftOut = Object.entries(unavailable).flatMap(([id, u]) => (u.vari
   .left-out {
     margin-block-start: 1rem;
   }
-  code {
+  .systems {
+    margin-block-start: 1.5rem;
+  }
+  .availability code {
     font-family: var(--sl-font-mono);
     font-size: var(--sl-text-xs);
   }

@@ -101,6 +101,14 @@ A translation is natural technical writing in its language, not word for word: s
 | elevation | エレベーション | 层级（Elevation） |
 | shadow | 影 | 阴影 |
 | scrim | スクリム | 遮罩 |
+| scroll edge (the mark at an edge of a box that scrolls while content lies beyond it) | スクロールエッジ | 滚动边缘 |
+| fade (the scroll edge that fades the content itself; a state change that fades is フェードする / 渐变) | フェード | 渐隐 |
+| blur (a scroll edge, a surface's appearance) | ぼかし | 模糊 |
+| pass (one run of a marquee text's motion) | 流れ（1 回の流れ） | 一轮 |
+| trigger (of a marquee text: what makes it move) | トリガー | 触发条件 |
+| playback control (a pause and play button) | 再生コントロール | 播放控件 |
+| ellipsis (where a cut line ends) | 省略記号 | 省略号 |
+| copy (a second drawing of a text that repeats) | コピー | 副本 |
 | overlay | オーバーレイ | 浮层 |
 | motion | モーション | 动效 |
 | duration, easing | 時間、イージング | 时长、缓动 |
@@ -135,7 +143,7 @@ A translation is natural technical writing in its language, not word for word: s
 | default | 既定 | 默认 |
 | opt in | オプトイン | 选择启用 |
 | right-to-left | 右から左（RTL） | 从右到左（RTL） |
-| words (of a product: what it gives the components to draw and say) | 言葉 for the idea and the page; 文言 only for one particular string (「エラーの文言」). The fixed sentence is 「Tanrei は言葉を同梱しません。」 | 文字 |
+| words (of a product: what it gives the components to draw and say) | 言葉 for the idea and the page; 文言 only for one particular string (「エラーの文言」). The fixed sentence is 「コンポーネントは自分の言葉を持ちません。」 The English word pack (`@tanrei/web/words/en`) is 「英語の言葉のパック」 | 文字; the English word pack is 英语文字包 |
 | select, choose (the verb) | In a control's name, the Sino-Japanese verb: 「日付を選択」「すべて選択」. Running text that tells the reader what to do may say 選ぶ | 选择 |
 
 ## Section headings of a component page: Japanese and Simplified Chinese
@@ -191,6 +199,7 @@ As common nouns: page titles, headings, running text.
 | FAB menu | FAB メニュー | FAB 菜单 |
 | Field | フィールド | 字段 |
 | Field group | フィールドグループ | 字段组 |
+| Handle (the mark dragged to change a size; not a slider's or a switch's handle) | ハンドル — where a slider's is near, サイズ変更のハンドル | 调整手柄 — never 滑块, nor 手柄 alone where the Slider's is near |
 | Figure | 図 | 图示 |
 | File item | ファイル項目 | 文件项 |
 | File picker (the component; the platform's own picker stays ピッカー, ファイルピッカー in running text) | ファイルピッカー | 文件选择器 — the platform's own picker is 平台的文件选择器, short 选择器 |
@@ -204,11 +213,14 @@ As common nouns: page titles, headings, running text.
 | List row | リスト行 — its parts: オーバーライン, 見出し (headline), 補足テキスト, 末尾テキスト | 列表行 — its parts: 上标文本 (overline), 标题 (headline), 辅助文本, 后置文本 |
 | Loading indicator | ローディングインジケーター | 加载指示器 |
 | Main action button | メインアクションボタン | 主操作按钮 |
+| Marquee text | マーキーテキスト | 跑马灯文本 |
 | Menu | メニュー | 菜单 |
 | Menubar | メニューバー | 菜单栏 |
+| Meter (a level in a known range; a task under way is the Progress indicator) | メーター | 计量条 |
 | Navigation bar | ナビゲーションバー | 导航栏 |
 | Navigation drawer | ナビゲーションドロワー | 导航抽屉 |
 | Number field | 数値フィールド | 数字字段 |
+| Number ticker (a number whose changed digits move to the new value) | ナンバーティッカー | 数字滚动器 |
 | One-time-code input | ワンタイムコード入力欄 | 一次性验证码输入框 |
 | Page header | ページヘッダー | 页头 |
 | Pagination | ページネーション | 分页 |
@@ -217,6 +229,8 @@ As common nouns: page titles, headings, running text.
 | Progress indicator | プログレスインジケーター | 进度指示器 |
 | Radio button | ラジオボタン | 单选按钮 |
 | Radio group | ラジオグループ | 单选组 |
+| Resizable frame | サイズ変更できる枠 — 枠 as the Handle page already calls the box its handle stands on; フレーム is an animation frame | 可调整大小的框 — short 框, as the Handle page writes 预览框; 帧 is an animation frame |
+| Scroll area | スクロールエリア | 滚动区域 |
 | Search | 検索 | 搜索 |
 | Segmented button | セグメントボタン | 分段按钮 |
 | Select | セレクト | 下拉选择框 |
@@ -327,6 +341,14 @@ As common nouns: page titles, headings, running text.
 | elevation | elevación | एलिवेशन | الارتفاع |
 | shadow | sombra | शैडो | الظل |
 | scrim | velo | स्क्रिम | الحجاب (scrim) |
+| scroll edge | borde de desplazamiento | स्क्रॉल एज | حافة التمرير |
+| fade (the scroll edge that fades the content itself) | desvanecido — «el contenido se desvanece» | फ़ेड | التلاشي — «يتلاشى المحتوى» |
+| blur (a scroll edge) | desenfoque | ब्लर | التمويه |
+| pass (one run of a marquee text's motion) | pasada | दौर (masculine) | الدورة |
+| trigger (of a marquee text: what makes it move) | activador | ट्रिगर | المحفِّز — `المشغِّل` stays the trigger of a select |
+| playback control (a pause and play button) | control de reproducción | प्लेबैक कंट्रोल (masculine) | عنصر التحكم في التشغيل |
+| ellipsis (where a cut line ends) | puntos suspensivos | एलिप्सिस (…) | علامة الحذف (…) |
+| copy (a second drawing of a text that repeats) | copia | कॉपी (feminine) | النسخة |
 | overlay | superposición | ओवरले | التراكب |
 | motion | movimiento | मोशन | الحركة |
 | duration, easing | duración, curva de aceleración | अवधि, ईज़िंग | المدة، منحنى التسارع |
@@ -413,6 +435,7 @@ As common nouns: page titles, headings, running text. The API name (`Button`, `t
 | FAB menu | Menú FAB | FAB मेन्यू | قائمة FAB |
 | Field | Campo | फ़ील्ड | الحقل |
 | Field group | Grupo de campos | फ़ील्ड ग्रुप | مجموعة الحقول |
+| Handle (the mark dragged to change a size) | Tirador de tamaño — short «el tirador», masculine; a sheet's is «tirador de arrastre» | साइज़ हैंडल (masculine), short हैंडल | مقبض تغيير الحجم, with `(handle)` on the page's first mention; short `المقبض` |
 | File item | Elemento de archivo | फ़ाइल आइटम (masculine) | عنصر الملف, with `(file item)` on the page's first mention; plural `عناصر الملفات`; short `العنصر` |
 | File picker (the component) | Selector de archivos — the platform's own is «el selector de archivos de la plataforma» | फ़ाइल पिकर — the platform's own is प्लैटफ़ॉर्म का फ़ाइल पिकर | منتقي الملفات, with `(file picker)` on the page's first mention; the platform's own is `منتقي الملفات الخاص بالمنصة`, short `المنتقي` |
 | Drop zone (a wrapper that takes files dropped anywhere on it; not the File picker's drop area) | Zona de soltar archivos — feminine, short «la zona»; the picker's drop area stays «la zona para soltar del selector de archivos» | ड्रॉप ज़ोन — masculine, short ज़ोन; not ड्रॉप एरिया | ساحة الإفلات, with `(drop zone)` on the page's first mention, short `الساحة`, feminine; not `منطقة الإفلات` |
@@ -427,11 +450,14 @@ As common nouns: page titles, headings, running text. The API name (`Button`, `t
 | List row | Fila de lista — its parts: sobretítulo (overline), titular (headline), texto de apoyo, texto final | लिस्ट पंक्ति — its parts: ओवरलाइन, हेडलाइन, सहायक टेक्स्ट, अंतिम टेक्स्ट | صف القائمة — its parts: السطر العلوي (overline)، العنوان الرئيسي (headline)، النص المساعد، النص في النهاية |
 | Loading indicator | Indicador de carga | लोडिंग इंडिकेटर | مؤشر التحميل |
 | Main action button | Botón de acción principal | मुख्य ऐक्शन बटन | زر الإجراء الرئيسي |
+| Marquee text | Texto en marquesina — masculine, «el texto en marquesina»; the effect alone is «la marquesina» | मार्की टेक्स्ट (masculine) — the line it draws is लाइन (feminine) | النص المتحرك (marquee) — the gloss on a page's first mention |
 | Menu | Menú | मेन्यू | قائمة الخيارات |
 | Menubar | Barra de menús | मेन्यू बार | شريط القوائم |
+| Meter | Medidor | मीटर | العدّاد |
 | Navigation bar | Barra de navegación | नेविगेशन बार | شريط التنقل |
 | Navigation drawer | Panel de navegación | नेविगेशन ड्रॉअर | درج التنقل |
 | Number field | Campo numérico | नंबर फ़ील्ड | حقل العدد |
+| Number ticker | Contador animado | नंबर टिकर | عارض الأرقام المتحرّك |
 | One-time-code input | Entrada de código de un solo uso — feminine, short «la entrada»; «Campo de código de un solo uso» is the One-time-code field, and neither is shortened to «campo de código», which is the text field of `type="code"` | वन-टाइम कोड इनपुट | حقل إدخال الرمز لمرة واحدة — short «حقل الرمز»; never «حقل الشيفرة», which is the text field of `type="code"` |
 | Page header | Cabecera de página | पेज हेडर | رأس الصفحة |
 | Pagination | Paginación | पेजिनेशन | التنقل بين الصفحات |
@@ -440,6 +466,8 @@ As common nouns: page titles, headings, running text. The API name (`Button`, `t
 | Progress indicator | Indicador de progreso | प्रोग्रेस इंडिकेटर | مؤشر التقدم |
 | Radio button | Botón de opción | रेडियो बटन | زر الاختيار |
 | Radio group | Grupo de botones de opción | रेडियो ग्रुप | مجموعة أزرار الاختيار |
+| Resizable frame | Marco redimensionable — short «el marco», masculine; an animation frame is «fotograma» | साइज़ बदलने वाला फ़्रेम (masculine), short फ़्रेम, after साइज़ हैंडल | الإطار القابل لتغيير الحجم, with `(resizable frame)` on the page's first mention; short `الإطار`; an animation frame is said without إطار (`مع كل تحديث للرسم`) |
+| Scroll area | Área de desplazamiento — feminine, written «el área» / «un área» (its adjectives agree: «el área marcada») | स्क्रॉल एरिया (masculine) | منطقة التمرير — short `المنطقة` |
 | Search | Búsqueda | खोज | البحث |
 | Segmented button | Botón segmentado | सेगमेंटेड बटन | الزر المقسَّم |
 | Select | Select — in running text «el select», masculine, lower case | सिलेक्ट | عنصر الاختيار — the bare control; «حقل الاختيار» is the Select field |
@@ -534,7 +562,7 @@ In Spanish, the terms the translators of the later component pages proposed, app
 | picker button / entry error (a color field) | botón del selector / error de entrada |
 | link item (a menu) / a new context / modifier key / middle click | elemento de enlace / un contexto nuevo / tecla modificadora / clic con el botón central |
 | media (the empty state's slot) | gráfico — «contenido multimedia» stays the List's |
-| "Tanrei ships no words of its own" | «Tanrei no incluye textos propios»; the page is «Textos» |
+| "A component has no words of its own"; the English word pack | «Un componente no tiene textos propios»; the page is «Textos»; «el paquete de textos en inglés» |
 | member (of a group) | miembro |
 | external link / origin (of a site) | enlace externo / origen |
 | sideways (scroll, drag, swipe) | hacia los lados; one movement is «hacia un lado» |
@@ -612,7 +640,7 @@ In Simplified Chinese, the terms the translators of the component pages proposed
 | member (of a group) / touch target | 成员 / 触摸目标 |
 | external link / host (of an address) / inert | 外部链接 / 主机名 / 惰性（inert） |
 | media (the empty state's slot) | 媒体 |
-| words (a product's); "Tanrei ships no words"; "once for the whole product" | 文字, 产品的文字; Tanrei 不自带任何文字; 为整个产品只给一次 |
+| words (a product's); "A component has no words of its own"; "once for the whole product"; the English word pack | 文字, 产品的文字; 组件没有自己的文字; 为整个产品只给一次; 英语文字包 |
 | your product's language | 你的产品的语言 |
 | placeholder (of a skeleton) / placeholder row; busy; pulse / wave | 占位符 / 占位行; 忙碌; 脉冲 / 波浪 |
 | sort; reorder; Move up / Move down | 排序; 调整顺序 (not 重新排序); 上移 / 下移 |
@@ -653,6 +681,7 @@ After the first full translation each language rendered some recurring terms in 
 
 | English | Japanese | Simplified Chinese | Spanish | Hindi | Arabic |
 |---|---|---|---|---|---|
+| a column of a state matrix: enabled / disabled / hovered / focused / pressed (the state's name as a label) | 有効 / 無効 / ホバー / フォーカス / 押下 | 启用 / 禁用 / 悬停 / 聚焦 / 按下 | Habilitado / Deshabilitado / Con el cursor encima / Con foco / Pulsado | सक्षम / अक्षम / होवर / फ़ोकस / दबाया हुआ | مُمكَّن / معطَّل / التحويم / التركيز / الضغط |
 | lagging (a platform's status; the site's status label) | 追従待ち | 待跟进 — "until they catch up" is 在跟上之前 | rezagado (van rezagados) | पीछे | متأخر |
 | previous revision (what a lagging platform ships) | 以前の版 | 上一版 | revisión anterior | पिछला संशोधन | المراجعة السابقة — never التنقيح, which is "debug" |
 | fling | フリング | 快速滑动 | lanzamiento (verb: lanzar) | फ़्लिंग (verb: फ़्लिंग करना) | دفعة سريعة (fling) — the gloss on a page's first mention; fling velocity is سرعة الدفع |
@@ -867,7 +896,7 @@ The later component pages, from what the pages say.
 | link item (a menu) / a new context / modifier key | लिंक आइटम / नया संदर्भ / मॉडिफ़ायर कुंजी |
 | external link / origin / destination / host | बाहरी लिंक / ओरिजिन / गंतव्य / होस्ट |
 | media (the empty state's slot) | मीडिया |
-| words (a product's); "Tanrei ships no words (of its own)" | शब्द, प्रॉडक्ट के शब्द; Tanrei अपना कोई शब्द साथ नहीं देता |
+| words (a product's); "A component has no words of its own"; the English word pack | शब्द, प्रॉडक्ट के शब्द; किसी कंपोनेंट के अपने कोई शब्द नहीं होते; अंग्रेज़ी शब्दों का पैक |
 | reported in development | डेवलपमेंट में रिपोर्ट होती है |
 | No matches (a list's empty text) | कोई नतीजा नहीं |
 | running text | चलता टेक्स्ट (before a postposition चलते टेक्स्ट) |
@@ -1047,6 +1076,7 @@ These supersede an older Arabic cell where the two disagree.
 
 | English | Arabic |
 |---|---|
+| "A component has no words of its own"; the English word pack | `ليس للمكوّن كلمات خاصة به`; `حزمة الكلمات الإنجليزية` |
 | a tab of the Tabs component | `التبويب`، plural `التبويبات` — the short form on component pages; the component's name stays `علامات التبويب`, and a browser's tab is `تبويب جديد` |
 | revised (a spec, by a proposal); a revision | `معدَّلة`، `عدّله المقترح`؛ `المراجعة` — never `منقَّحة` / `نقّح`: `التنقيح` is "debug" (`بنيات التنقيح`) |
 | landmark (accessibility) | `مَعلم (landmark)`, vowelled: `معلم` alone reads as "teacher" |

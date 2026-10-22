@@ -1,4 +1,5 @@
 import { css, unsafeCSS } from 'lit';
+import { SCRIM_FILTER, modalExitStyles, scrimFilter } from '../../primitives/index.js';
 
 // Every visual value is a token (tokens/comp/modal-layer.tokens.json). The layer draws its scrim and nothing else: its
 // container has no color, edge, shadow, shape or padding of its own (MDL-11), and the content is the product's.
@@ -37,12 +38,11 @@ export const styles = css`
     font: inherit;
     text-align: start;
     outline: none;
-    /* MDL-7: out, it fades over the exit motion — kept in the top layer and displayed until it has. */
+    /* MDL-7: out, it fades over the exit motion — kept drawn in the top layer until it has (closeModal). */
     opacity: 0;
-    transition-property: opacity, display, overlay;
+    transition-property: opacity;
     transition-duration: ${t('motion-exit-duration')};
     transition-timing-function: ${t('motion-exit-easing')};
-    transition-behavior: allow-discrete;
   }
   dialog[open] {
     opacity: 1;
@@ -58,14 +58,14 @@ export const styles = css`
 
   /* MDL-1, MDL-7: the scrim over the whole window behind the container, its color (alpha included) and its blur of what
      lies behind, fading with the container. Opacity is all that moves, so reduced motion changes nothing here. */
+  ${scrimFilter('dialog', T('scrim-blur'))}
   dialog::backdrop {
     background: ${t('scrim-color')};
-    backdrop-filter: blur(${t('scrim-blur')});
+    backdrop-filter: ${SCRIM_FILTER};
     opacity: 0;
-    transition-property: opacity, display, overlay;
+    transition-property: opacity;
     transition-duration: ${t('motion-exit-duration')};
     transition-timing-function: ${t('motion-exit-easing')};
-    transition-behavior: allow-discrete;
   }
   dialog[open]::backdrop {
     opacity: 1;
@@ -82,4 +82,6 @@ export const styles = css`
     background: transparent;
     backdrop-filter: none;
   }
+  /* MDL-7: closed, it stays drawn in the top layer until its exit and its scrim's have played (src/primitives/modal-exit.ts). */
+  ${modalExitStyles('dialog')}
 `;

@@ -2,7 +2,7 @@
 title: رفع الملفات
 description: يتيح للأشخاص اختيار ملفات بمنتقي ملفات، ويعرض ما اختير عناصر ملفات، في عمود من الصفوف أو في سلسلة من البلاطات. إذا وُضع في نموذج احتفظ بالملفات المختارة وأرسلها بلا شيفرة؛ والمنتج الذي يرسل الملفات بنفسه يعطي عناصر الملفات. وهو لا يرفع شيئًا بنفسه أبدًا.
 translationOf: components/file-upload.mdx
-sourceHash: 67264060c8d6ff2b2e7ccea18067fef9dac9238e
+sourceHash: b2debb12c2d70ab0dd1bea4e0b4c51c55b599528
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -402,7 +402,7 @@ upload.clear();
 ضع مكوّن رفع الملفات داخل [حقل](/ar/components/field/) حين يعرض النموذج تسمية أو مساعدة أو خطأ أو علامة المطلوب. فالحقل يرسمها ويعطيها للمكوّن.
 
 ```html
-<tanrei-field label="المرفق" requirement="required" required-text="مطلوب"
+<tanrei-field label="المرفق" required required-text="مطلوب"
               error error-text="اختر ملف PDF لا يتجاوز حجمه 10 ميغابايت.">
   <tanrei-file-upload name="attachment" accept=".pdf" max-size="10000000"
                       constraints-text="ملف PDF، حتى 10 ميغابايت" remove-label="إزالة {name}">

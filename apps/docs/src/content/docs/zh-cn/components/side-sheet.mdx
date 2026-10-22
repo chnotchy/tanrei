@@ -1,8 +1,8 @@
 ---
 title: "侧边面板"
-description: "在末尾侧边缘的面板中放置补充内容或次要任务，带有标题、可选的关闭按钮和可选的操作；在宽窗口中位于内容旁边，在 compact 窗口中盖在内容之上。"
+description: "在末尾侧边缘的面板中放置补充内容或次要任务，带有标题、关闭按钮和可选的操作；在宽窗口中位于内容旁边，在 compact 窗口中盖在内容之上。"
 translationOf: components/side-sheet.mdx
-sourceHash: fc5ffa5244c401cdf4301f894820d0b9cb2b1dc7
+sourceHash: b24891eb6703f2c8705a45c1da8ece80df34b951
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="side-sheet" />
 
 :::note[规格已修订，尚未覆盖所有平台]
-本页描述的是规格当前所定的侧边面板的操作和关闭按钮，与对话框的相同。操作是一行占满宽度的 tonal 按钮，按各自的任务放置：每个都标记为 `confirming` 或 `dismissive`，模态面板必须至少提供一个。关闭按钮是 tonal 的。页眉下方与操作上方一样始终有一条分隔线；操作保持在屏幕键盘上方。Web 组件已经做到了这一切，演示也是如此；在修订通过评审之前，它在上表中仍标记为“待跟进”。SwiftUI、Compose、Flutter 和 React Native 同样待跟进：在跟上之前，它们提供上一版，用 standard 图标按钮来关闭，操作按给定顺序从起始侧边缘排成一行，在两种形态中都可以省略，彼此相距 8。
+本页描述的是规格当前所定的侧边面板的操作和关闭按钮，与对话框的相同。操作是一行占满宽度的 tonal 按钮，按各自的任务放置：每个都标记为 `confirming` 或 `dismissive`，模态面板必须至少提供一个。关闭按钮是一个 small 的 tonal 按钮，除非把 `closable` 设为 false，否则都会绘制。页眉下方与操作上方一样始终有一条分隔线；操作保持在屏幕键盘上方。Web 组件已经做到了这一切，演示也是如此；在修订通过评审之前，它在上表中仍标记为“待跟进”。SwiftUI、Compose、Flutter 和 React Native 同样待跟进：在跟上之前，它们提供上一版，用 standard 图标按钮来关闭，操作按给定顺序从起始侧边缘排成一行，在两种形态中都可以省略，彼此相距 8。
 :::
 
 <DemoFrame label="位于一行末尾的标准面板">
@@ -25,7 +25,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <p style="margin: 0">搜索结果</p>
       <tanrei-button variant="outlined" onclick="const sheet = document.getElementById('side-sheet-demo-standard'); sheet.open = !sheet.open">筛选</tanrei-button>
     </div>
-    <tanrei-side-sheet id="side-sheet-demo-standard" open headline="筛选" closable close-label="关闭筛选" onclose="this.open = false">
+    <tanrei-side-sheet id="side-sheet-demo-standard" open headline="筛选" close-label="关闭筛选" onclose="this.open = false">
       <p>显示最近 30 天内带有全部所选标签的结果。</p>
       <tanrei-button slot="actions">重置</tanrei-button>
       <tanrei-button slot="actions" confirming>应用</tanrei-button>
@@ -54,7 +54,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - **标准**是默认形态，是一个布局区域，而不是浮层。打开时，它在你放置它的那一行的末尾占据自己的宽度，旁边的内容随之调整大小。它不绘制遮罩，也从不把焦点留在里面。
 - **模态**形态是一个模态浮层。它带着遮罩从末尾侧边缘滑到内容之上，把焦点留在里面，并在关闭时把焦点交还。
 
-面板会绘制一个页眉，其中有 `headline`；当 `closable` 为 true 时，还有一个以 `closeLabel` 命名的关闭按钮。你的内容位于页眉下方；放在 actions 插槽中的 Tanrei 按钮沿底部排列，每个都标记为 `confirming`（完成任务：应用、保存）或 `dismissive`（退出任务：取消）。面板按这些标记来放置操作，所以你可以按任意顺序给出它们；没有设置 `variant` 的操作，面板会把它画成 tonal。模态面板必须至少提供一个操作；标准面板可以没有。操作本身从不关闭面板：请在操作的处理函数中关闭它。
+面板会绘制一个页眉，其中有 `headline`；当 `closable` 为 true（默认值）时，还有一个以 `closeLabel` 命名的关闭按钮。你的内容位于页眉下方；放在 actions 插槽中的 Tanrei 按钮沿底部排列，每个都标记为 `confirming`（完成任务：应用、保存）或 `dismissive`（退出任务：取消）。面板按这些标记来放置操作，所以你可以按任意顺序给出它们；没有设置 `variant` 的操作，面板会把它画成 tonal。模态面板必须至少提供一个操作；标准面板可以没有。操作本身从不关闭面板：请在操作的处理函数中关闭它。
 
 面板打开时应当获得焦点的元素，用平台自己的方式标记：在 Web 上是 `autofocus`，在 SwiftUI 上是 `.defaultFocus` 或 `@AccessibilityFocusState`，在 Compose 上是作为 `initialFocus` 传入的 `FocusRequester`，在 Flutter 上是 `autofocus: true`，在 React Native 上是 `initialFocusRef`。在 SwiftUI 上，`.defaultFocus` 移动键盘焦点，作为 `initialFocus` 传入的 `@AccessibilityFocusState` 绑定移动 VoiceOver 焦点。没有标记时，焦点落在面板本身，因此最先朗读的是它的标题。
 
@@ -68,7 +68,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
     <!-- 标准形态：flex 行的最后一项。它是一个以标题命名的 <aside>。 -->
     <div style="display: flex">
       <main style="flex: 1">…</main>
-      <tanrei-side-sheet headline="筛选" closable close-label="关闭筛选">
+      <tanrei-side-sheet headline="筛选" close-label="关闭筛选">
         <p>显示最近 30 天内带有全部所选标签的结果。</p>
         <!-- confirming 放在行的末尾侧。没有 variant 时，两者都是 tonal。 -->
         <tanrei-button slot="actions">重置</tanrei-button>
@@ -95,7 +95,6 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
       variant={wide ? 'standard' : 'modal'}
       open={open}
       headline="筛选"
-      closable
       closeLabel="关闭筛选"
       onClose={() => setOpen(false)}
     >
@@ -210,7 +209,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 
 <DemoFrame label="模态面板：用按钮打开它" plain>
   <tanrei-button variant="outlined" onclick="document.getElementById('side-sheet-demo-modal').open = true">筛选</tanrei-button>
-  <tanrei-side-sheet id="side-sheet-demo-modal" variant="modal" headline="筛选" closable close-label="关闭筛选" onclose="this.open = false">
+  <tanrei-side-sheet id="side-sheet-demo-modal" variant="modal" headline="筛选" close-label="关闭筛选" onclose="this.open = false">
     <p>显示最近 30 天内带有全部所选标签的结果。</p>
     <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-side-sheet').open = false">取消</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-side-sheet').open = false">应用</tanrei-button>
@@ -243,7 +242,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 | 部件 | 设置方式 | 说明 |
 | --- | --- | --- |
 | 标题 | `headline` | 必填。说明面板是关于什么的，例如“筛选”。它是面板的无障碍名称，也是一个标题（heading）；它会换行，而不是被截断。 |
-| 关闭按钮 | `closable`、`closeLabel` | 位于页眉末尾的中号纯图标按钮，带有 `close` 图标，在默认系统中是 tonal 的。面板负责绘制它，并把它连接到 `close`；你为它提供标签。 |
+| 关闭按钮 | `closable`、`closeLabel` | 位于页眉末尾的 small 纯图标按钮，带有 `close` 图标，在默认系统中是 tonal 的，与 Tanrei 的每个关闭按钮一样（在 m3-like 中是不带底色的字形）。默认会绘制；当你自己的控件或某个操作负责关闭面板时，把 `closable` 设为 false（`not-closable` 属性）。面板负责绘制它，并把它连接到 `close`；你为它提供标签。 |
 | 内容 | 默认插槽 | 面板的用途所在。面板为它留出内边距，为它提供内容颜色，并让它在页眉和操作之间滚动。 |
 | 操作 | actions 插槽 | Tanrei 按钮，每个都标记为 `confirming` 或 `dismissive`，位于一条分隔线之下。在模态面板中必填，在标准面板中可选。面板负责放置它们，并把没有 variant 的操作画成 tonal；除此之外，它从不改变它们的样式。 |
 
@@ -265,7 +264,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 ### 推荐
 
 - 写一个简短的标题，点明面板的内容：“筛选”“详情”“属性”。
-- 为标准面板提供关闭按钮，除非你自己的某个控件（例如一个可切换的“筛选”按钮）能关闭它。
+- 保留标准面板默认绘制的关闭按钮，除非你自己的某个控件（例如一个可切换的“筛选”按钮）能关闭它。
 - 在两种形态中使用相同的内容，让产品只凭窗口宽度在两者之间切换。
 - 把每个操作都标记为 `confirming` 或 `dismissive`，让面板来放置它们。
 - 为模态面板提供一个完成任务的操作，例如“应用”，而不只是退出的途径。
@@ -309,7 +308,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 ### 需要你做的事
 
 - 为每个面板提供 `headline`。它是面板的名称。
-- 当 `closable` 为 true 时，为关闭按钮提供 `closeLabel`，说明它关闭的是什么，例如“关闭筛选”。
+- 为默认绘制的关闭按钮提供 `closeLabel`，说明它关闭的是什么，例如“关闭筛选”。
 - 自己关闭面板：在响应 `close` 时（Web 上的 `close` 事件，Compose、Flutter 和 React Native 上的 `onClose`）把 `open` 设为 false。在 SwiftUI 上，面板会替你把 false 写入绑定。
 - 为标准面板提供关闭它的方式：它的关闭按钮，或你自己的一个带标签的控件。
 - 为模态面板提供至少一个操作，把每个操作标记为 `confirming` 或 `dismissive`，并在操作的处理函数中关闭面板。

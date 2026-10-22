@@ -1,0 +1,54 @@
+# Known vulnerabilities in the locked dependencies, from the OSV database (https://google.github.io/osv-scanner/).
+#
+# A pull request that changes the lockfile is scanned twice, on its base and on its head, and fails only on a
+# vulnerability it brings in. What main already locks does not fail it.
+#
+# Once a week (and when dispatched) main is scanned whole. That run reports and does not fail: its findings go to
+# Security > Code scanning, where what is already locked is triaged, and a run that is red every week says nothing.
+#
+# Both jobs call Google's reusable workflows, pinned by commit. They check out the repository, run the scanner, and
+# upload the SARIF results (hence `security-events: write`).
+name: OSV-Scanner
+
+on:
+  # A draft pull request is held, as in ci.yml: nothing runs until it is ready for review or carries `ci:run`.
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - pnpm-lock.yaml
+      - .github/workflows/osv-scanner.yml
+  schedule:
+    - cron: "23 4 * * 1" # Mondays, 04:23 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: osv-scanner-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  pull-request:
+    name: Vulnerabilities this pull request brings in
+    if: >-
+      github.event_name == 'pull_request' &&
+      (!github.event.pull_request.draft || contains(github.event.pull_request.labels.*.name, 'ci:run'))
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@b1d267aea5211fa648d9d442fa64b90dbdcbdd36 # v2.7.0
+    permissions:
+      actions: read # the SARIF upload reads this run's workflow details
+      contents: read # the checkout
+      security-events: write # the SARIF results go to Code scanning
+    with:
+      runs-on: ubuntu-24.04
+
+  locked:
+    name: Vulnerabilities already locked
+    if: github.event_name != 'pull_request'
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@b1d267aea5211fa648d9d442fa64b90dbdcbdd36 # v2.7.0
+    permissions:
+      actions: read # the SARIF upload reads this run's workflow details
+      contents: read # the checkout
+      security-events: write # the SARIF results go to Code scanning
+    with:
+      runs-on: ubuntu-24.04
+      fail-on-vuln: false

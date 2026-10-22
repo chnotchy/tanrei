@@ -400,7 +400,7 @@ With `rows="given"` each row is a [file item](/components/file-item/) you write,
 Put the file upload in a [field](/components/field/) when the form shows a label, help, an error or a required mark. The field draws them and gives them to the file upload.
 
 ```html
-<tanrei-field label="Attachment" requirement="required" required-text="Required"
+<tanrei-field label="Attachment" required required-text="Required"
               error error-text="Choose a PDF of 10 MB or less.">
   <tanrei-file-upload name="attachment" accept=".pdf" max-size="10000000"
                       constraints-text="PDF, up to 10 MB" remove-label="Remove {name}">

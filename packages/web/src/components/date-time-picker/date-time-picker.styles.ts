@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { conditionBlock, focusRing, minimumTarget, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
+import { SCRIM_FILTER, appearStyles, conditionBlock, focusRing, minimumTarget, modalExitStyles, pressHold, rippleStyles, scrimFilter, stateRules } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 
@@ -89,35 +89,30 @@ export const styles = css`
     background: ${t('modal-container-color')};
     box-shadow: ${t('modal-container-elevation')};
     ${unsafeCSS(cornerRadius(`${PREFIX}-modal-container-shape`))}
-    /* DTM-35: out, it fades over the close motion — kept in the top layer and displayed until it has. */
-    opacity: 0;
-    transition-property: opacity, scale, display, overlay;
-    transition-duration: ${t('modal-motion-close-duration')};
-    transition-timing-function: ${t('modal-motion-close-easing')};
-    transition-behavior: allow-discrete;
   }
   .surface.modal[open] {
     display: flex;
-    opacity: 1;
-    /* DTM-35: in, it fades in and grows about its centre from enter-scale over the open motion. */
-    transition-duration: ${t('modal-motion-open-duration')};
-    transition-timing-function: ${t('modal-motion-open-easing')};
   }
-  @starting-style {
-    .surface.modal[open] {
-      opacity: 0;
-      scale: ${t('modal-motion-enter-scale')};
-    }
-  }
+  /* DTM-35: it appears as every modal surface does (src/primitives/motion.ts, role modal): from sys.motion.appear.*,
+     grown about its centre and risen into place, over the open motion; it leaves the same way back over the close
+     motion, kept in the top layer and displayed until it has. Under reduced motion it only fades. */
+  ${appearStyles({
+    motion: '.surface.modal:not(.inline)',
+    open: '[open]',
+    role: 'modal',
+    origin: 'center',
+    enter: { duration: T('modal-motion-open-duration'), easing: T('modal-motion-open-easing') },
+    exit: { duration: T('modal-motion-close-duration'), easing: T('modal-motion-close-easing') },
+  })}
   /* DTM-1, MDL-1: the modal layer's scrim, over the whole window behind the picker (its color and blur), fading with it. */
+  ${scrimFilter('.surface.modal', T('modal-scrim-blur'))}
   .surface.modal::backdrop {
     background: ${t('modal-scrim-color')};
-    backdrop-filter: blur(${t('modal-scrim-blur')});
+    backdrop-filter: ${SCRIM_FILTER};
     opacity: 0;
-    transition-property: opacity, display, overlay;
+    transition-property: opacity;
     transition-duration: ${t('modal-motion-close-duration')};
     transition-timing-function: ${t('modal-motion-close-easing')};
-    transition-behavior: allow-discrete;
   }
   .surface.modal[open]::backdrop {
     opacity: 1;
@@ -129,12 +124,8 @@ export const styles = css`
       opacity: 0;
     }
   }
-  /* DTM-35: where motion is reduced a modal picker only fades. */
-  @media (prefers-reduced-motion: reduce) {
-    .surface.modal {
-      transition-property: opacity, display, overlay;
-    }
-  }
+  /* MDL-7: closed, it stays drawn in the top layer until its exit and its scrim's have played (src/primitives/modal-exit.ts). */
+  ${modalExitStyles('.surface.modal')}
 
   /* DTM-2: a docked picker is a manual popover in the top layer, placed by script below its anchor; its color,
      elevation and corners. Its placement reads its two lengths through real properties. */

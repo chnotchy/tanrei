@@ -13,7 +13,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const fixtures = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures');
-const MISSING = 'data:image/png;base64,AAAA';
+/** The address of `fixtures/missing.png`: bytes no decoder reads, so the picture fails at once. */
+export const MISSING = 'data:image/png;base64,AAAA';
 const PENDING = '';
 
 /** The address a staged page uses for the fixture picture `src`; an address that names no fixture picture is returned as it is. */

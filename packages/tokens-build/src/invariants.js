@@ -27,7 +27,62 @@ export const leadWithStructure = (warnings) => [...warnings.filter((w) => !/^\[[
  * difference matters for an imitation preset only: the criteria do not apply to it, in any contrast scheme,
  * while a structural or functional failure fails in every system.
  */
-export const isCriterionFinding = (finding) => /^\[[a-z-]+\] [a-z0-9.-]+ on [a-z0-9.-]+: \d+\.\d+:1 < \d+(\.\d+)?:1 \(/.test(finding);
+export const isCriterionFinding = (finding) => /^\[[a-z-]+\] [a-z0-9.-]+ on [a-z0-9.-]+: \d+\.\d+:1 < \d+(\.\d+)?:1 \(/.test(finding) || isTargetSizeFinding(finding);
+
+/**
+ * A target size under its criterion: a target token under WCAG 2.5.8's 24px, or a height the core vocabulary floors at
+ * sys.target.minimum that a layer set below it. A criterion, as a contrast pair is: an error in the default system,
+ * a warning in a product layer, information in an imitation preset.
+ */
+const isTargetSizeFinding = (finding) => finding.startsWith('target size: ');
+
+/**
+ * A target-floor finding that fails in every system, a product layer's too: a hit area under the drawn floor
+ * (`sys.target.pointer` or `.touch` under `sys.target.minimum`) means nothing, and a density of zero or less draws
+ * nothing at all.
+ */
+export const isRefusedEverywhere = (finding) => finding.startsWith('target floor: ');
+
+/**
+ * The least target size the build holds: WCAG 2.5.8 (Target Size, Minimum), 24 CSS px. A constant, as the contrast
+ * thresholds are; Tanrei's own minimum target is a value of the system, `sys.target.minimum`, which may be anything
+ * from this up.
+ */
+export const TARGET_THRESHOLDS = Object.freeze({ minimum: 24 });
+
+/**
+ * The heights the core vocabulary floors at sys.target.minimum: every token of `documents` whose rule has
+ * `min: {<ns>.sys.target.minimum}`, and every token whose value is an alias of one (transitively). A layer may replace
+ * such a token's rule — pin it, re-point it — and the target-floor check still holds what it resolves to.
+ * @param {object[]} documents DTCG documents of the core vocabulary (its comp/ documents and those its layers hold)
+ * @returns {string[]}
+ */
+export function targetFloors(documents) {
+  const MIN = `{${CONFIG.namespace}.sys.target.minimum}`;
+  const floored = new Set();
+  const aliases = new Map();
+  const walk = (node, path) => {
+    if (!node || typeof node !== 'object') return;
+    if ('$value' in node) {
+      const id = path.join('.');
+      if (node.$extensions?.['dev.tanrei.derive']?.min === MIN) floored.add(id);
+      else if (typeof node.$value === 'string' && /^\{[^{}]+\}$/.test(node.$value)) aliases.set(id, node.$value.slice(1, -1));
+      return;
+    }
+    for (const [key, child] of Object.entries(node)) if (!key.startsWith('$')) walk(child, [...path, key]);
+  };
+  for (const doc of documents) walk(doc, []);
+  for (let grew = true; grew; ) {
+    grew = false;
+    for (const [id, target] of aliases) {
+      if (floored.has(target) && !floored.has(id)) {
+        floored.add(id);
+        grew = true;
+      }
+    }
+  }
+  return [...floored].sort();
+}
 
 /** Why an imitation preset's measurements are information and not warnings — the words its report and headers use. */
 export const PRESET_CRITERIA_NOTE =
@@ -37,20 +92,48 @@ export const PRESET_CRITERIA_NOTE =
  * The accessibility report of an imitation preset (`tokens/generated/<id>/a11y-report.json`): the fixed ruler's
  * measurements, marked as not applying. Only criterion findings belong here; anything else fails the build.
  */
-export const presetAccessibilityReport = (system, measurements) => ({
+export const presetAccessibilityReport = (system, measurements, checked) => ({
   system,
   criteria: 'not-applied',
   because: PRESET_CRITERIA_NOTE,
+  checked: checkedPairs(checked),
   count: measurements.length,
   measurements,
 });
 
+/** Why the default system's report lists no finding — the words its report uses. */
+export const DEFAULT_CRITERIA_NOTE =
+  "The default system is held to Tanrei's accessibility criteria in every contrast scheme: a pair under its threshold, or any other invariant violation, fails the build. A committed report therefore lists no finding; it records what was checked.";
+
+/** The accessibility report of the default system (`tokens/generated/a11y-report.json`): what the build checked. */
+export const defaultAccessibilityReport = (system, checked) => ({
+  system,
+  criteria: 'enforced',
+  because: DEFAULT_CRITERIA_NOTE,
+  checked: checkedPairs(checked),
+});
+
+/**
+ * The rows whose selection is told by their fill (`ROW_SELECTION` below): each is a selected row's container color, the
+ * color of a row that is not selected under the pointer, and the color of the selected row's text, the component's own
+ * tokens. A menu's checked row is told by its mark and has no fill at standard contrast, a select's and a combobox's
+ * option are menus, and a chip, a segmented button and a tab draw a check or an indicator beside their fill: none is
+ * held here.
+ */
+const SELECTED_ROWS = [
+  ['list.selected.container.color', 'list.unselected.hovered.container.color', 'list.selected.content.color'],
+  ['tree-view.selected.container.color', 'tree-view.unselected.hovered.container.color', 'tree-view.selected.label.color'],
+  ['navigation-drawer.selected.item.container.color', 'navigation-drawer.unselected.hovered.item.container.color', 'navigation-drawer.selected.item.label.color'],
+  ['table.row.selected.container.color', 'table.row.unselected.hovered.container.color', 'table.row.selected.text.color'],
+];
+
 /**
  * The components whose colors `checkInvariants` compares in every scheme, and not by role alone: the radio's mark
- * (the radio button, and the menu's radio item) is drawn over a state layer that a rule derives. A model read one
- * scheme at a time (`invariantModel`) carries their colors in every scheme, so that it reports what a whole model does.
+ * (the radio button, and the menu's radio item) is drawn over a state layer that a rule derives, and a selected row
+ * and a hovered one are layers over the surface the row stands on. A model read one scheme at a time
+ * (`invariantModel`) carries their colors in every scheme, so that it reports what a whole model does.
  */
-export const COMPONENTS_HELD_IN_EVERY_SCHEME = ['radio-button', 'menu'];
+export const COMPONENTS_HELD_IN_EVERY_SCHEME = ['radio-button', 'menu', ...new Set(SELECTED_ROWS.map(([selected]) => selected.split('.')[0]))];
 
 /** WCAG 2.x contrast ratio; a translucent foreground is composited over the background first. */
 export function contrast(fgColor, bgColor) {
@@ -130,6 +213,26 @@ const HIGH_CONTRAST_TEXT = 7;
 // decoration beside a control that its label already identifies (WCAG 1.4.11), and is not held. The default system
 // alone is held to it (below).
 const HAIRLINE = { medium: 3, high: 4.5 };
+// How far a selected row stands from a row under the pointer, both laid over the surface they stand on, in every
+// scheme and on every surface role. A selection that is a layer twice the hover layer stands 1.15:1 to 1.3:1 from a
+// hovered row in the default system; a tone chosen against the page met the hover layer at 1.00:1 to 1.03:1, and the
+// two rows read as one grey. The default system alone is held to it: a preset keeps its original's selection.
+const ROW_SELECTION = 1.1;
+
+/**
+ * The contrast thresholds the checks here hold, as the n of n:1. The docs state them from this object (their
+ * Accessibility and Color pages), so that a page cannot say less, or more, than the build checks.
+ */
+export const CONTRAST_THRESHOLDS = Object.freeze({
+  /** Text, and a content color on its container, in the standard and medium contrast schemes. */
+  text: TEXT,
+  /** The same pairs in the high-contrast schemes. */
+  highContrastText: HIGH_CONTRAST_TEXT,
+  /** A boundary that identifies a control, a status's mark, the focus indicator: in every scheme. */
+  nonText: NON_TEXT,
+  /** The hairline (outline-variant) in the default system's raised-contrast schemes. */
+  hairline: Object.freeze({ ...HAIRLINE }),
+});
 // The scheme of the other theme at the same contrast level (an inverse status form mirrors it).
 const OTHER_THEME = { light: 'dark', 'light-medium': 'dark-medium', 'light-high': 'dark-high', dark: 'light', 'dark-medium': 'light-medium', 'dark-high': 'light-high' };
 
@@ -139,8 +242,24 @@ const choiceOf = (model, name) => {
   return token?.enum?.values?.[token.value];
 };
 
-export function checkInvariants(model) {
+/**
+ * Every finding of the fixed ruler, and how many contrast pairs it measured in each scheme of the model. A pair is one
+ * comparison that can produce one finding: `rolePairs` are the pairs of color roles (a foreground role on each
+ * background it may sit on, the tonal and declared pairs, the hairline and the input's edge of a raised-contrast
+ * scheme); `componentPairs` are the pairs of a component's own colors (a focus indicator on its own bar, the snackbar's
+ * inverse status forms, code, a radio's mark, a link told from text by color). A pair that a role pair already holds,
+ * or whose colors the model does not carry, is not measured and not counted. The public number of pairs is this count:
+ * `tokens/generated/a11y-report.json` (the default system) and `tokens/generated/<id>/a11y-report.json` write it.
+ * @returns {{ failures: string[], checked: Record<string, { rolePairs: number, componentPairs: number }> }}
+ */
+export function auditInvariants(model) {
   const failures = [];
+  const checked = Object.fromEntries(model.schemes.map((scheme) => [scheme, { rolePairs: 0, componentPairs: 0 }]));
+  // Every ratio a pair is judged by is measured here, so what is counted is what is checked.
+  const measure = (scheme, kind, fg, bg) => {
+    checked[scheme][kind] += 1;
+    return contrast(fg, bg);
+  };
   const focusStyle = choiceOf(model, 'focus-style');
   for (const scheme of model.schemes) {
     const roles = model.colors[scheme];
@@ -154,7 +273,7 @@ export function checkInvariants(model) {
         continue;
       }
       const required = isHigh && min === TEXT ? HIGH_CONTRAST_TEXT : min;
-      const ratio = contrast(roles[fg].value, roles[bg].value);
+      const ratio = measure(scheme, 'rolePairs', roles[fg].value, roles[bg].value);
       if (ratio < required) {
         failures.push(`[${scheme}] ${fg} on ${bg}: ${ratio.toFixed(2)}:1 < ${required}:1 (${why})`);
       }
@@ -164,9 +283,9 @@ export function checkInvariants(model) {
     const level = model.system !== CONFIG.namespace ? null : isHigh ? 'high' : scheme.endsWith('-medium') ? 'medium' : null;
     if (level && roles['outline-variant'] && roles.outline) {
       for (const s of SURFACES.filter((each) => roles[each])) {
-        const hairline = contrast(roles['outline-variant'].value, roles[s].value);
+        const hairline = measure(scheme, 'rolePairs', roles['outline-variant'].value, roles[s].value);
         if (hairline < HAIRLINE[level]) failures.push(`[${scheme}] outline-variant on ${s}: ${hairline.toFixed(2)}:1 < ${HAIRLINE[level]}:1 (the hairline in a raised-contrast scheme)`);
-        const edge = contrast(roles.outline.value, roles[s].value);
+        const edge = measure(scheme, 'rolePairs', roles.outline.value, roles[s].value);
         if (edge < hairline) failures.push(`[${scheme}] outline on ${s}: ${edge.toFixed(2)}:1 < ${hairline.toFixed(2)}:1 (an input's edge stays stronger than the hairline)`);
       }
     }
@@ -261,7 +380,7 @@ export function checkInvariants(model) {
       const fg = byRole ? model.colors[scheme][ringRole].value : model.componentColors?.[scheme]?.[ring.id]?.value;
       const bg = byRole ? model.colors[scheme][barRole].value : model.componentColors?.[scheme]?.[barId]?.value;
       if (!fg || !bg || rgba(bg).a < 1) continue;
-      const ratio = contrast(fg, bg);
+      const ratio = measure(scheme, 'componentPairs', fg, bg);
       if (ratio < NON_TEXT) failures.push(`[${scheme}] ${short(ring.id)} on ${short(barId)}: ${ratio.toFixed(2)}:1 < ${NON_TEXT}:1 (focus indicator on the component's own bar, WCAG 2.4.13)`);
     }
   }
@@ -298,12 +417,12 @@ export function checkInvariants(model) {
     }
   }
 
-  // 2–4, 6. What is read on an inverse status bar is held against that bar: the title and the message (4.5:1, 7:1 in
-  // the high-contrast schemes), the glyph at icon.opacity (3:1), the description at its opacity under a title (text),
-  // and the close button's glyph on its container over the bar (3:1). A pair whose two colors follow color roles and
-  // whose foreground is drawn opaque is a role pair, held above. The proposal's check 5, the action's label on the
-  // action as drawn in each state, is not here: it reads state colors of schemes a partial model does not carry, so
-  // a system read one scheme at a time and read whole would report differently.
+  // 2–4. What is read on an inverse status bar is held against that bar: the title and the message (4.5:1, 7:1 in
+  // the high-contrast schemes), the glyph at icon.opacity (3:1) and the description at its opacity under a title
+  // (text). A pair whose two colors follow color roles and whose foreground is drawn opaque is a role pair, held above.
+  // The proposal's check 5, the action's label on the action as drawn in each state, is not here: it reads state
+  // colors of schemes a partial model does not carry, so a system read one scheme at a time and read whole would
+  // report differently.
   const STATES = ['', 'hovered.', 'focused.', 'pressed.'];
   for (const status of STATUSES) {
     const form = `inverse-${status}`;
@@ -314,7 +433,6 @@ export function checkInvariants(model) {
       [`${form}.supporting-text.color`, null, 1, TEXT, 'message on its bar'],
       [`${form}.icon.color`, null, number(`${snackbar}.icon.opacity`), NON_TEXT, 'status glyph at icon.opacity on its bar'],
       [`${form}.supporting-text.color`, null, number(`${snackbar}.supporting-text.under-title.opacity`), TEXT, 'description at its opacity under a title'],
-      ...STATES.map((state) => [`close.${state}${form}.content.color`, `close.${state}${form}.container.color`, 1, NON_TEXT, 'close glyph on its container over the bar']),
     ];
     for (const [fgName, groundName, opacity, min, why] of pairs) {
       const [fgId, groundId] = [`${snackbar}.${fgName}`, groundName && `${snackbar}.${groundName}`];
@@ -325,8 +443,40 @@ export function checkInvariants(model) {
         if (!fg || !bar || rgba(bar).a < 1 || (groundId && !ground)) continue;
         const bg = ground ? flat(ground, bar) : bar;
         const required = scheme.endsWith('-high') && min === TEXT ? HIGH_CONTRAST_TEXT : min;
-        const ratio = contrast(faded(fg, opacity), bg);
+        const ratio = measure(scheme, 'componentPairs', faded(fg, opacity), bg);
         if (ratio < required) failures.push(`[${scheme}] ${short(fgId)} on ${short(groundId ?? barId)}: ${ratio.toFixed(2)}:1 < ${required}:1 (${why})`);
+      }
+    }
+  }
+
+  // 6. The expand and close buttons' glyph on its circle over the bar, in all ten forms (SNK-34, BTN-45): the snackbar
+  // gives them its form's message color as their tone, and a Button draws its glyph in it, and its container — where
+  // its variant draws one — in it at comp.button.tone.container.opacity over the bar, with each state's layer of it
+  // over that at the system's state-layer opacity. The circle is a blend no role pair holds: the glyph is held against
+  // it at 3:1 at rest and in each state. A variant that draws no container (outlined, text) leaves the bar under the
+  // glyph at rest, which the message's own pair holds; a press answered by a dim or by nothing draws no pressed layer.
+  const ns = CONFIG.namespace;
+  const toneOpacity = model.tokens[`${ns}.comp.button.tone.container.opacity`]?.value;
+  const variant = model.tokens[`${snackbar}.close-button.variant`]?.value;
+  const LAYERS = { rest: null, hovered: 'hover', focused: 'focus', pressed: 'pressed' };
+  const layerOpacity = Object.fromEntries(Object.entries(LAYERS).map(([state, name]) => [state, name ? model.tokens[`${ns}.sys.state.${name}-state-layer-opacity`]?.value : 0]));
+  if (['dim', 'none'].includes(choiceOf(model, 'pressed-feedback'))) delete layerOpacity.pressed;
+  if (typeof toneOpacity === 'number' && typeof variant === 'number' && Object.values(layerOpacity).every((value) => typeof value === 'number')) {
+    const bare = variant === 3 || variant === 4;
+    for (const form of ['', ...STATUSES, 'inverse', ...STATUSES.map((status) => `inverse-${status}`)]) {
+      const prefix = form ? `${snackbar}.${form}` : snackbar;
+      const [toneId, barId] = [`${prefix}.supporting-text.color`, `${prefix}.container.color`];
+      if (!model.tokens[toneId] || !model.tokens[barId]) continue;
+      for (const scheme of model.schemes) {
+        const [tone, bar] = [inScheme(scheme, toneId), inScheme(scheme, barId)];
+        if (!tone || !bar || rgba(bar).a < 1) continue;
+        const circle = bare ? bar : flat(faded(tone, toneOpacity), bar);
+        for (const [state, opacity] of Object.entries(layerOpacity)) {
+          if (bare && state === 'rest') continue;
+          const ground = opacity ? flat(faded(tone, opacity), circle) : circle;
+          const ratio = measure(scheme, 'componentPairs', tone, ground);
+          if (ratio < NON_TEXT) failures.push(`[${scheme}] ${short(toneId)} on ${short(barId)}: ${ratio.toFixed(2)}:1 < ${NON_TEXT}:1 (expand and close glyph on its circle over the bar, ${state})`);
+        }
       }
     }
   }
@@ -370,8 +520,33 @@ export function checkInvariants(model) {
       const bg = bgRole && model.colors[scheme][bgRole] ? model.colors[scheme][bgRole].value : inScheme(scheme, bgId);
       if (!fg || !bg || rgba(bg).a < 1) continue;
       const required = scheme.endsWith('-high') && min === TEXT ? HIGH_CONTRAST_TEXT : min;
-      const ratio = contrast(fg, bg);
+      const ratio = measure(scheme, 'componentPairs', fg, bg);
       if (ratio < required) failures.push(`[${scheme}] ${short(fgId)} on ${short(bgId)}: ${ratio.toFixed(2)}:1 < ${required}:1 (${why})`);
+    }
+  }
+
+  // A meter's value is read where its indicator ends against its track (WCAG 1.4.11). The indicator color of each of
+  // its statuses — default, info, success, warning and error — is held 3:1 against the track, and against every
+  // surface role the meter may stand on (where a gap separation leaves space, the surface shows between them), in
+  // every scheme. A non-text ratio is not raised in the high-contrast schemes. A pair the role pairs already hold at
+  // 3:1 or more (a status's own color on a surface is held as text there) is left to them.
+  const meter = `${CONFIG.namespace}.comp.meter`;
+  const meterGrounds = [[`${meter}.track.color`, 'its track'], ...SURFACES.map((surface) => [`${CONFIG.namespace}.sys.color.${surface}`, 'the surface it stands on'])];
+  for (const part of ['indicator.color', ...STATUSES.map((status) => `${status}.indicator.color`)]) {
+    const fgId = `${meter}.${part}`;
+    if (!model.tokens[fgId]) continue;
+    for (const [bgId, what] of meterGrounds) {
+      const isRole = bgId.startsWith(`${CONFIG.namespace}.sys.color.`);
+      if (!isRole && !model.tokens[bgId]) continue;
+      const [fgRole, bgRole] = [role(model.tokens[fgId]), isRole ? bgId.split('.').at(-1) : role(model.tokens[bgId])];
+      if (fgRole && bgRole && (held.get(`${fgRole} ${bgRole}`) ?? 0) >= NON_TEXT) continue;
+      for (const scheme of model.schemes) {
+        const fg = fgRole && model.colors[scheme][fgRole] ? model.colors[scheme][fgRole].value : inScheme(scheme, fgId);
+        const bg = bgRole && model.colors[scheme][bgRole] ? model.colors[scheme][bgRole].value : inScheme(scheme, bgId);
+        if (!fg || !bg || rgba(bg).a < 1) continue;
+        const ratio = measure(scheme, 'componentPairs', fg, bg);
+        if (ratio < NON_TEXT) failures.push(`[${scheme}] ${short(fgId)} on ${short(bgId)}: ${ratio.toFixed(2)}:1 < ${NON_TEXT}:1 (a meter's indicator against ${what}, where its value is read — WCAG 1.4.11)`);
+      }
     }
   }
 
@@ -427,6 +602,8 @@ export function checkInvariants(model) {
             const ratio = contrast(center, gap ? ground : flat(ring, ground));
             if (!worst || ratio < worst.ratio) worst = { ratio, groundId };
           }
+          // One pair, the center against what it meets, judged on the ground where it is weakest: counted once.
+          if (worst) checked[scheme].componentPairs += 1;
           if (!worst || worst.ratio >= NON_TEXT) continue;
           const [fillId, besideId] = [at(`${condition}.${state}${mark.fill}.color`), gap ? short(worst.groundId) : short(at(`${condition}.${state}${mark.ring}.color`))];
           const why = gap
@@ -435,6 +612,96 @@ export function checkInvariants(model) {
           failures.push(`[${scheme}] ${short(fillId)} on ${besideId}: ${worst.ratio.toFixed(2)}:1 < ${NON_TEXT}:1 (${why})`);
         }
       }
+    }
+  }
+
+  // A selected row against a hovered one (`ROW_SELECTION`), and the selected row's text on its fill (4.5:1, 7:1 in the
+  // high-contrast schemes). Each fill is laid over each surface role of the scheme (the selection replaces the hover
+  // layer's ground, it is not stacked on it) and the worst pair is reported. A fill that is a role is held on its own
+  // by the role pairs above. Compared from the component colors of the schemes the model carries.
+  if (model.system === CONFIG.namespace) {
+    for (const [selectedName, hoveredName, textName] of SELECTED_ROWS) {
+      const [selectedId, hoveredId, textId] = [selectedName, hoveredName, textName].map((name) => `${CONFIG.namespace}.comp.${name}`);
+      if (!model.tokens[selectedId] || !model.tokens[hoveredId]) continue;
+      for (const scheme of model.schemes) {
+        const [selected, hovered, text] = [colorOf(scheme, selectedId), colorOf(scheme, hoveredId), model.tokens[textId] && colorOf(scheme, textId)];
+        if (!selected || !hovered) continue;
+        let apart;
+        let read;
+        for (const surface of SURFACES) {
+          const ground = model.colors[scheme][surface]?.value;
+          if (!ground || rgba(ground).a < 1) continue;
+          const fill = flat(selected, ground);
+          const ratio = contrast(fill, flat(hovered, ground));
+          if (!apart || ratio < apart.ratio) apart = { ratio, surface };
+          if (text && !role(model.tokens[selectedId])) {
+            const textRatio = contrast(text, fill);
+            if (!read || textRatio < read.ratio) read = { ratio: textRatio, surface };
+          }
+        }
+        // Each pair is judged on the surface where it is weakest: counted once, as a radio's mark is.
+        if (apart) checked[scheme].componentPairs += 1;
+        if (read) checked[scheme].componentPairs += 1;
+        if (apart && apart.ratio < ROW_SELECTION) failures.push(`[${scheme}] ${short(selectedId)} on ${short(hoveredId)}: ${apart.ratio.toFixed(2)}:1 < ${ROW_SELECTION}:1 (a selected row against a hovered one, each laid over sys.color.${apart.surface}: the two read as one fill — make the selection a layer of the row's content color, as comp.list.selected.container.color is)`);
+        const required = scheme.endsWith('-high') ? HIGH_CONTRAST_TEXT : TEXT;
+        if (read && read.ratio < required) failures.push(`[${scheme}] ${short(textId)} on ${short(selectedId)}: ${read.ratio.toFixed(2)}:1 < ${required}:1 (a selected row's text on its fill, laid over sys.color.${read.surface})`);
+      }
+    }
+  }
+
+  // Concentric corners. An inner corner annotated `dev.tanrei.concentric` — a row's shape inside a surface's, a
+  // control's inside its container's — is the outer corner less the inset between them, and never below zero:
+  // larger, its fill bulges past the outer curve where the two meet; smaller, the gap between them is not even. A
+  // pill (a corner set by its height) is not annotated. Held in the default system: a preset keeps its original's
+  // corners, and says so in its own layer.
+  if (model.system === CONFIG.namespace) {
+    const px = (id) => model.tokens[id]?.value?.value;
+    for (const token of Object.values(model.tokens)) {
+      if (!token.concentric) continue;
+      const [outerId, insetId] = [token.concentric.outer, token.concentric.inset].map((ref) => (typeof ref === 'string' ? ref.replace(/^\{|\}$/g, '') : undefined));
+      const [inner, outer, inset] = [token.value?.value, px(outerId), px(insetId)];
+      if (typeof inner !== 'number' || typeof outer !== 'number' || typeof inset !== 'number') {
+        failures.push(`${short(token.id)}: dev.tanrei.concentric names ${JSON.stringify(token.concentric)}, which must be two dimension tokens, { "outer": "{id}", "inset": "{id}" }`);
+        continue;
+      }
+      const expected = Math.max(0, outer - inset);
+      if (inner !== expected) failures.push(`${short(token.id)}: ${inner}px, but an inner corner is its outer corner less the inset, never below zero — max(0, ${short(outerId)} ${outer}px − ${short(insetId)} ${inset}px) = ${expected}px; derive it with { "fn": "sub", "of": "{${outerId}}", "by": "{${insetId}}" }`);
+    }
+  }
+
+  // One height per size name. A stacked input box — the box that draws no label inside it, the only look the default
+  // system ships — is as tall as a Button of the same size, so that an input and a Button set side by side in one row
+  // stand as tall as each other. Held in the default system: a preset keeps its original's fields, and says so in its
+  // own layer.
+  if (model.system === CONFIG.namespace) {
+    for (const size of ['small', 'medium', 'large']) {
+      const [boxId, buttonId] = [`${CONFIG.namespace}.comp.input-box.stacked.container.height.${size}`, `${CONFIG.namespace}.comp.button.container.height.${size}`];
+      const [box, button] = [model.tokens[boxId]?.value?.value, model.tokens[buttonId]?.value?.value];
+      if (typeof box !== 'number' || typeof button !== 'number') failures.push(`${short(boxId)} and ${short(buttonId)} must both be dimensions: a stacked input box is as tall as a Button of the same size`);
+      else if (box !== button) failures.push(`${short(boxId)}: ${box}px, but a stacked input box is as tall as a Button of the same size — ${short(buttonId)} is ${button}px; alias it, { "$value": "{${buttonId}}" }`);
+    }
+  }
+
+  // The target floor. sys.target.minimum is the least height (and width, for an icon-only control) anything a person
+  // presses is drawn at, and pointer and touch the least areas a press is taken from: none of them under WCAG 2.5.8's
+  // 24px, a hit area never under what is drawn, and a density above zero. Every height the core floors at the minimum
+  // (`model.floored`, `targetFloors`, and any rule of this system with that `min`) is held at it, so a layer that pins
+  // or re-points one below it is told.
+  const px = (id) => model.tokens[`${CONFIG.namespace}.${id}`]?.value?.value;
+  const minimum = px('sys.target.minimum');
+  for (const name of ['minimum', 'pointer', 'touch']) {
+    const value = px(`sys.target.${name}`);
+    if (typeof value === 'number' && value < TARGET_THRESHOLDS.minimum) failures.push(`target size: sys.target.${name}: ${value}px < ${TARGET_THRESHOLDS.minimum}px (WCAG 2.5.8: the least target a person presses)`);
+    if (name !== 'minimum' && typeof value === 'number' && typeof minimum === 'number' && value < minimum) failures.push(`target floor: sys.target.${name}: ${value}px is under sys.target.minimum (${minimum}px) — the area a press is taken from is never smaller than what is drawn; set it to the minimum or above`);
+  }
+  const density = model.tokens[`${CONFIG.namespace}.dial.density`]?.value;
+  if (typeof density === 'number' && !(density > 0)) failures.push(`target floor: dial.density: ${density} — a density is above zero (1 is the default; below 1 draws closer, above 1 gives more room)`);
+  if (typeof minimum === 'number') {
+    const MIN = `{${CONFIG.namespace}.sys.target.minimum}`;
+    const floored = new Set([...(model.floored ?? []), ...Object.values(model.tokens).filter((token) => token.derive?.min === MIN).map((token) => token.id)]);
+    for (const id of [...floored].sort()) {
+      const value = model.tokens[id]?.value?.value;
+      if (typeof value === 'number' && value < minimum) failures.push(`target size: ${id.slice(CONFIG.namespace.length + 1)}: ${value}px < sys.target.minimum ${minimum}px (a box a person presses is drawn at least the minimum target; derive it with "min": "${MIN}", or lower the minimum)`);
     }
   }
 
@@ -463,9 +730,29 @@ export function checkInvariants(model) {
     for (const scheme of model.schemes) {
       const [fg, beside] = [colorIn(scheme, fgId), colorIn(scheme, besideId)];
       if (!fg || !beside || rgba(fg).a < 1 || rgba(beside).a < 1) continue;
-      const ratio = contrast(fg, beside);
+      const ratio = measure(scheme, 'componentPairs', fg, beside);
       if (ratio < NON_TEXT) failures.push(`[${scheme}] ${short(fgId)} against ${short(besideId)}: ${ratio.toFixed(2)}:1 < ${NON_TEXT}:1 (${why}, while ${short(choice.id)} is "${named}": a link not underlined at rest is told from text by color alone — WCAG 1.4.1; underline it always, or move the link color)`);
     }
   }
-  return failures;
+  return { failures, checked };
 }
+
+/** The findings of `auditInvariants` alone: what the build fails on, warns of or records. */
+export const checkInvariants = (model) => auditInvariants(model).failures;
+
+/**
+ * The count of `auditInvariants` as a report writes it: the totals over every scheme, then each scheme's.
+ * @param {Record<string, { rolePairs: number, componentPairs: number }>} checked
+ */
+export const checkedPairs = (checked) => ({
+  rolePairs: Object.values(checked).reduce((sum, each) => sum + each.rolePairs, 0),
+  componentPairs: Object.values(checked).reduce((sum, each) => sum + each.componentPairs, 0),
+  schemes: checked,
+});
+
+/** One line for a build's output: `826 role pairs and 40 component pairs in 6 schemes (light 127 + 8, …)`. */
+export const checkedLine = (checked) => {
+  const { rolePairs, componentPairs, schemes } = checkedPairs(checked);
+  const each = Object.entries(schemes).map(([scheme, n]) => `${scheme} ${n.rolePairs} + ${n.componentPairs}`).join(', ');
+  return `${rolePairs} role pairs and ${componentPairs} component pairs checked in ${Object.keys(schemes).length} schemes (${each})`;
+};

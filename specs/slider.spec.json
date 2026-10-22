@@ -444,6 +444,16 @@
         "input": "input",
         "change": "change"
       },
+      "parts": {
+        "track": "track",
+        "active-track": "active-track",
+        "handle": "handle",
+        "handle-outline": "handle@outline",
+        "container": "container",
+        "stop-indicator": "stop-indicator",
+        "value-indicator": "value-indicator",
+        "focus-ring": "handle@focus-ring"
+      },
       "notes": "Attributes are kebab-case (`start-value`, `value-indicator`, `start-label`, `value-text`, `start-value-text`). Each handle is an element with `role=\"slider\"` and its aria-value attributes, `aria-orientation` and `aria-label` in the shadow root (not `ElementInternals`, which axe cannot see). Not `<input type=\"range\">`: it has one handle, no gap, no stop dots, and its parts cannot be styled alike in every engine. The handle's outline is its box's border with `box-sizing: border-box`, over its background (the fill), so it keeps its width and height (SLD-24); while track.gap is 0 the two pieces of the tracks meet at the handle's center under it (SLD-8). Form-associated: it takes `name` and submits value (a range submits startValue, then value, under the same name), and it sets its own `value` and `startValue` before firing `input` and `change`, as a native control does. Snapshot harness: the stages of SLD-7. The product's function for a value's words (SLD-18) is `formatValue`, a property and never an attribute: `((value: number) => string) | null`, null by default; it is asked for each handle at every change of a value and when the property itself is set."
     },
     "swiftui": {

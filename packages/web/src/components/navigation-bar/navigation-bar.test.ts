@@ -213,7 +213,7 @@ destinationSuite({
   itemTag: 'tanrei-navigation-bar-item',
   lines: 1,
   range: [3, 5],
-  own: ['item', 'selection'],
+  own: ['selection'],
   ids: {
     activate: 'NVB-1',
     disabled: 'NVB-2',
@@ -224,7 +224,6 @@ destinationSuite({
     pressHold: 'NVB-8',
     feedback: 'NVB-9',
     cornersAndFocusStyle: 'NVB-10',
-    item: 'NVB-12',
     labels: 'NVB-13',
     icon: 'NVB-14',
     selection: 'NVB-15',

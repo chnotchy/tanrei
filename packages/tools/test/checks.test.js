@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { checkParity, compileSpecSchema, implementationProblems, specProblems, systemAvailability, unknownTokenIdsInProse, validateAvailability, validateSpecs, wordsProblems } from '../src/checks.js';
+import { layerChain, outsideStandIns, standInProblems } from '../../tokens-build/src/layers.js';
+import { checkParity, compileSpecSchema, implementationProblems, layerProblems, specProblems, systemAvailability, systemIds, unknownTokenIdsInProse, validateAvailability, validateSpecs, wordsProblems } from '../src/checks.js';
 import { CONFIG, DOCS_PAGES, OVERRIDES, PLATFORMS, exists, loadSpecs, read } from '../src/conventions.js';
 import { buildStatus, docsAddress } from '../src/status.js';
 
@@ -141,14 +142,60 @@ test('the status matrix names a docs page only where the page exists', () => {
   assert.equal(docsAddress('a-component-nobody-wrote'), null);
 });
 
-test('every system\'s unavailable list names what exists, and a layer that declares one replaces its parent\'s', () => {
+test('what every system leaves out names what exists, and a layer changes what its parent ships', () => {
   assert.deepEqual(validateAvailability(), []);
   const availability = systemAvailability();
   assert.ok(availability.tanrei.components.includes('segmented-button'));
-  // m3-like replaces the root's list with its own: every component, no filled navigation bar and no
-  // tonal tabs.
-  assert.deepEqual(availability['m3-like'], { components: [], variants: { 'navigation-bar': ['filled'], tabs: ['tonal'] } });
+  assert.ok(!('core' in availability), 'the root ships no output of its own, and leaves nothing out');
+  // m3-like brings back what the default system leaves out and leaves out its own: every component, no filled
+  // navigation bar and no tonal tabs.
+  assert.deepEqual(availability['m3-like'], { components: [], variants: { 'navigation-bar': ['filled'], tabs: ['tonal'] }, outside: {} });
   assert.deepEqual(availability['m3-expressive-like'], availability['m3-like']);
+  // What lives in a layer a system does not extend is outside it, with that layer, not left out.
+  assert.deepEqual(availability.tanrei.outside, { 'fab-menu': 'm3-like' });
+  assert.deepEqual(availability.cupertino.outside, { 'fab-menu': 'm3-like' });
+  assert.ok(!availability.tanrei.components.includes('fab-menu'));
+});
+
+test('a component lives where its spec says: the inventory, the layer that declares its vocabulary and its document agree', () => {
+  assert.deepEqual(layerProblems(), []);
+  const specs = loadSpecs();
+  const rows = JSON.parse(read('specs/inventory.json')).components;
+  const layers = ['core', 'm3-like', 'tanrei'];
+  const holding = { vocabulary: { 'tanrei.comp.fab-menu': { document: 'comp/fab-menu.tokens.json', rationale: 'Only the Material line ships it.' } } };
+  const readOne = (id) => (id === 'm3-like' ? holding : {});
+  const lives = (spec, row, read = readOne) => layerProblems(specs.map((each) => (each.spec.name === 'fab-menu' ? { ...each, spec } : each)), rows.map((each) => (each.name === 'fab-menu' ? row : each)), layers, read).join('\n');
+  const fab = specs.find(({ spec }) => spec.name === 'fab-menu');
+  const row = rows.find((each) => each.name === 'fab-menu');
+  assert.equal(lives(fab.spec, row), '');
+  assert.match(lives(fab.spec, { ...row, layer: undefined }), /layer is "m3-like", but specs\/inventory\.json says "core"/);
+  assert.match(lives({ ...fab.spec, layer: 'nowhere' }, { ...row, layer: 'nowhere' }), /layer "nowhere" is not a design system layer/);
+  assert.match(lives(fab.spec, row, () => ({})), /declares no "tanrei\.comp\.fab-menu" under "vocabulary"/);
+  const { layer, ...core } = fab.spec;
+  assert.match(lives(core, { ...row, layer: undefined }), /declares the vocabulary of "fab-menu", whose spec and inventory row say it lives in "core"/);
+  assert.match(lives(fab.spec, row, (id) => (id === 'm3-like' || id === 'tanrei' ? holding : {})), /is declared by "m3-like" too — a component lives in one layer/);
+  // What the holding layer names for a system without the component are other components of the inventory.
+  const naming = (insteadUse) => (id) => (id === 'm3-like' ? { vocabulary: { 'tanrei.comp.fab-menu': { ...holding.vocabulary['tanrei.comp.fab-menu'], outside: { reason: 'A main action button opens a sheet.', insteadUse } } } } : {});
+  assert.equal(lives(fab.spec, row, naming(['main-action-button', 'bottom-sheet'])), '');
+  assert.match(lives(fab.spec, row, naming(['main-action-button', 'speed-dial'])), /"tanrei\.comp\.fab-menu"\.outside\.insteadUse: "speed-dial" is not in specs\/inventory\.json/);
+  assert.match(lives(fab.spec, row, naming(['fab-menu'])), /outside\.insteadUse names the component itself/);
+});
+
+test('what the layer that holds a component names for the systems without it is a component each of them ships', () => {
+  const readLayer = (id) => JSON.parse(read(`tokens/systems/${id}.system.json`));
+  const held = new Map([['fab-menu', 'm3-like']]);
+  const standIns = outsideStandIns(systemIds(), readLayer);
+  assert.deepEqual([...standIns.keys()], ['fab-menu'], 'the premise: m3-like names what to use instead of the FAB menu');
+  assert.deepEqual(standIns.get('fab-menu').insteadUse, ['main-action-button', 'bottom-sheet']);
+  const tanrei = layerChain('tanrei', readLayer);
+  assert.deepEqual(standInProblems(tanrei, held, standIns), []);
+  const acme = (components) => standInProblems([...tanrei, { id: 'acme', extends: 'tanrei', components }], held, standIns);
+  assert.deepEqual(acme({ omit: { 'bottom-sheet': { reason: 'Acme shows no sheets at all.' } } }), [
+    'acme.system.json: "fab-menu" lives in the layer "m3-like", which names "bottom-sheet" to use instead, but this system does not ship "bottom-sheet" ("acme" leaves it out) — its components manifest drops it from what to use instead',
+  ]);
+  // A system that has the component, by its line or by including it, is told nothing.
+  assert.deepEqual(acme({ omit: { 'bottom-sheet': { reason: 'Acme shows no sheets at all.' } }, include: [{ name: 'fab-menu', from: 'm3-like' }] }), []);
+  assert.deepEqual(standInProblems([...layerChain('m3-like', readLayer), { id: 'acme', extends: 'm3-like', components: { omit: { 'bottom-sheet': { reason: 'Acme shows no sheets at all.' } } } }], held, standIns), []);
 });
 
 test('a spec platform is lagging by its status alone: the spec names nothing else about what it owes', () => {
