@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { after, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { uncountedFailures } from '../src/run-node-tests.js';
+import { shard, uncountedFailures } from '../src/run-node-tests.js';
 import { leavesNothingBehind, tempDir } from '../src/test-tmp.js';
 
 leavesNothingBehind(after);
@@ -19,6 +19,7 @@ const runner = path.join(pkg, 'src/run-node-tests.js');
 function childEnv() {
   const env = { ...process.env };
   delete env.NODE_TEST_CONTEXT;
+  delete env.TEST_SHARD;
   return env;
 }
 
@@ -60,6 +61,23 @@ describe('the Node test runner of every package', () => {
     // On a Node that counts it the runner's own exit code is enough; where it does not, the message says why.
     if (/not counted/.test(output)) assert.match(output, /not ok \d+ - reads a file/);
   });
+});
+
+test('TEST_SHARD runs one share of the files, and the shares together run each file once', () => {
+  const dir = tempDir('node-test-shard');
+  const files = ['a', 'b', 'c', 'd', 'e'].map((name) => `${name}.test.mjs`);
+  for (const file of files) fs.writeFileSync(path.join(dir, file), `import { test } from 'node:test';\ntest('${file}', () => {});\n`);
+  const ran = [];
+  for (const index of [1, 2]) {
+    const child = spawnSync(process.execPath, [runner, '*.test.mjs'], { cwd: dir, env: { ...childEnv(), TEST_SHARD: `${index}/2` }, encoding: 'utf8' });
+    assert.equal(child.status, 0, `${child.stdout}${child.stderr}`);
+    const names = [...child.stdout.matchAll(/^ok \d+ - (\S+)$/gm)].map((m) => m[1]);
+    assert.ok(names.length > 0 && names.length < files.length, `shard ${index}/2 ran ${names.join(', ')}`);
+    ran.push(...names);
+  }
+  assert.deepEqual(ran.sort(), files);
+  assert.deepEqual(shard({}), []);
+  for (const value of ['0/3', '4/3', '1', 'a/b']) assert.throws(() => shard({ TEST_SHARD: value }), /TEST_SHARD/);
 });
 
 test('a TAP report’s failures: at any depth, without the TODOs', () => {
