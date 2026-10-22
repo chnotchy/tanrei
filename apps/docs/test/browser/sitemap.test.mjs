@@ -1,6 +1,7 @@
 // The built sitemap (astro.config.mjs, src/lib/lastmod.mjs): every address in it says when its page last changed
 // (`<lastmod>`), and that is the date git gives for the page's sources — asked one page at a time, never the time of
-// the build — and each sitemap the index lists is dated by its newest page. No browser: it reads the files.
+// the build — and each sitemap the index lists is dated by its newest page; and every page's head prints, as its one
+// date, the date its sitemap gives it (components/frame/PageTitle.astro). No browser: it reads the files.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //
@@ -42,6 +43,26 @@ describe('the sitemap', () => {
           if (!expected || Date.parse(lastmod[0]) !== Date.parse(expected)) wrong.push(`${loc}: ${lastmod[0]} (git: ${expected || 'no commit'} for ${sources.join(', ')})`);
         }),
       );
+    }
+    assert.deepEqual(wrong, []);
+  });
+
+  test('gives every page the date its head prints under its title, and that is the only date the head prints', () => {
+    const urls = sitemaps.flatMap((sitemap) => sitemap.urls);
+    const wrong = [];
+    for (const { loc, lastmod } of urls) {
+      const pathname = new URL(loc).pathname;
+      const html = fs.readFileSync(path.join(dist, pathname, pathname.endsWith('/') ? 'index.html' : ''), 'utf8');
+      const head = /<tanrei-page-header class="docs-page-header"[^>]*>([\s\S]*?)<\/tanrei-page-header>/.exec(html)?.[1];
+      // Every page has a head but each language's first page, whose hero stands in its place and prints no date.
+      if (!head) {
+        if (!/^\/([a-z-]+\/)?$/.test(pathname) || /<time\b/.test(html)) wrong.push(`${loc}: no head`);
+        continue;
+      }
+      const times = [...head.matchAll(/<time\b[^>]*\bdatetime="([^"]+)"/g)].map(([, datetime]) => datetime);
+      const meta = /<div data-part="meta"[^>]*>([\s\S]*?)<\/div>/.exec(head)?.[1];
+      if (times.length !== 1 || !meta?.includes(`datetime="${times[0]}"`)) wrong.push(`${loc}: ${times.length} dates in its head`);
+      else if (Date.parse(times[0]) !== Date.parse(lastmod[0])) wrong.push(`${loc}: its head says ${times[0]}, its sitemap ${lastmod[0]}`);
     }
     assert.deepEqual(wrong, []);
   });

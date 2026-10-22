@@ -1,6 +1,6 @@
-// What the docs' lists of dated and staged things say to Tanrei's timeline and to the page header's meta line
-// (specs/timeline.spec.json, specs/page-header.spec.json): a stage's status, a date in the page's language with its
-// machine-readable form, and the order of dated entries. Plain functions, so that Node can test them without the site
+// What the docs' lists of staged things say to Tanrei's timeline, and what a page's head says of when it last changed
+// (specs/timeline.spec.json, specs/page-header.spec.json): a stage's status, and a date in the page's language with
+// its machine-readable form. Plain functions, so that Node can test them without the site
 // (test/dated.test.mjs).
 
 /** A status of a timeline's event that has one (TML-7). */
@@ -33,18 +33,17 @@ export function currentStage(statuses: readonly StageStatus[]): number {
   return under.length === 1 ? under[0] : -1;
 }
 
-/** A date as a `<time>` element says it: `datetime` for a machine, `text` for a reader of `lang`. The day is UTC's. */
-export function dateParts(date: Date, lang: string): { datetime: string; text: string } {
-  return {
-    datetime: date.toISOString().slice(0, 10),
-    text: new Intl.DateTimeFormat(lang, { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(date),
-  };
-}
-
 /**
- * Dated entries, newest first. Two entries of one day carry a time in their date; the id only makes the order of an
- * exact tie deterministic. An entry without a date comes last.
+ * When a page last changed, as the page header's meta line says it in a `<time>` element: `datetime` is the date as it
+ * was given (the sitemap's value, ISO 8601 with its offset), and `text` its day, written for a reader of `lang`. The day
+ * is the one the date names in its own offset, so the page and its sitemap name one day.
  */
-export function newestFirst<T extends { id: string; data: { date?: Date } }>(entries: readonly T[]): T[] {
-  return [...entries].sort((a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0) || b.id.localeCompare(a.id));
+export function updatedParts(iso: string, lang: string): { datetime: string; text: string } {
+  const day = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  if (!day || Number.isNaN(Date.parse(iso))) throw new Error(`not an ISO 8601 date: ${iso}`);
+  const [, year, month, date] = day.map(Number);
+  return {
+    datetime: iso,
+    text: new Intl.DateTimeFormat(lang, { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(Date.UTC(year, month - 1, date)),
+  };
 }

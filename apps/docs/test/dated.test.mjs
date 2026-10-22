@@ -1,5 +1,5 @@
-// What the docs' lists of dated and staged things say to Tanrei's timeline and to the page header's meta line
-// (src/lib/dated.ts): a stage's status, the list's current item, a date in the page's language and the order of dated entries.
+// What the docs' lists of staged things say to Tanrei's timeline, and what the page header's meta line says of when a
+// page last changed (src/lib/dated.ts): a stage's status, the list's current item, and a date in the page's language.
 //
 //   pnpm --filter @tanrei/docs test:node
 import assert from 'node:assert/strict';
@@ -7,7 +7,7 @@ import { register } from 'node:module';
 import { describe, test } from 'node:test';
 
 register('./vite-shim.mjs', import.meta.url);
-const { currentStage, dateParts, newestFirst, stageStatus } = await import('../src/lib/dated.ts');
+const { currentStage, stageStatus, updatedParts } = await import('../src/lib/dated.ts');
 const { strings } = await import('../src/lib/i18n.ts');
 const { source, translations } = await import('../i18n/locales.mjs');
 
@@ -33,44 +33,30 @@ describe('a stage of the roadmap', () => {
   test('has its status in words in every language of the site', () => {
     for (const lang of [source, ...translations].map((language) => language.lang)) {
       const t = strings(lang);
-      for (const key of ['done', 'inProgress', 'notStarted', 'published']) assert.ok(t[key]?.trim(), `${lang}: ${key}`);
+      for (const key of ['done', 'inProgress', 'notStarted', 'updated']) assert.ok(t[key]?.trim(), `${lang}: ${key}`);
     }
   });
 });
 
-describe('a date', () => {
-  const date = new Date('2026-09-21T18:00:00Z');
-  test('is a day for a machine, whatever time the post gives', () => {
-    assert.equal(dateParts(date, 'en').datetime, '2026-09-21');
-    assert.equal(dateParts(new Date('2026-09-19'), 'ja').datetime, '2026-09-19');
+describe('the date a page last changed', () => {
+  test('is, for a machine, the date as the sitemap gives it', () => {
+    assert.equal(updatedParts('2026-10-21T19:08:04+09:00', 'en').datetime, '2026-10-21T19:08:04+09:00');
+    assert.equal(updatedParts('2026-10-21T00:10:00Z', 'ja').datetime, '2026-10-21T00:10:00Z');
   });
   test('is written in the language of the page', () => {
-    assert.equal(dateParts(date, 'en').text, 'September 21, 2026');
-    assert.equal(dateParts(date, 'ja').text, '2026年9月21日');
-    assert.equal(dateParts(date, 'es').text, '21 de septiembre de 2026');
-    assert.equal(dateParts(date, 'zh-CN').text, '2026年9月21日');
-    assert.match(dateParts(date, 'hi').text, /सितंबर/);
-    assert.match(dateParts(date, 'ar').text, /سبتمبر/);
+    const date = '2026-09-21T18:00:00+09:00';
+    assert.equal(updatedParts(date, 'en').text, 'September 21, 2026');
+    assert.equal(updatedParts(date, 'ja').text, '2026年9月21日');
+    assert.equal(updatedParts(date, 'es').text, '21 de septiembre de 2026');
+    assert.equal(updatedParts(date, 'zh-CN').text, '2026年9月21日');
+    assert.match(updatedParts(date, 'hi').text, /सितंबर/);
+    assert.match(updatedParts(date, 'ar').text, /سبتمبر/);
   });
-  test("is UTC's day, not the build machine's", () => {
-    assert.equal(dateParts(new Date('2026-09-21T23:30:00Z'), 'en').text, 'September 21, 2026');
-    assert.equal(dateParts(new Date('2026-09-21T00:10:00Z'), 'en').text, 'September 21, 2026');
+  test('is the day the date names in its own offset, neither UTC’s nor the build machine’s', () => {
+    assert.equal(updatedParts('2026-09-22T01:30:00+09:00', 'en').text, 'September 22, 2026');
+    assert.equal(updatedParts('2026-09-21T23:30:00-05:00', 'en').text, 'September 21, 2026');
   });
-});
-
-describe('dated entries', () => {
-  const entry = (id, date) => ({ id, data: { date: date && new Date(date) } });
-  test('are listed newest first, a time parting two of one day', () => {
-    const listed = newestFirst([entry('a', '2026-09-19'), entry('c', '2026-09-21T18:00:00Z'), entry('b', '2026-09-21'), entry('d', '2026-09-22')]);
-    assert.deepEqual(listed.map((e) => e.id), ['d', 'c', 'b', 'a']);
-  });
-  test('keep one order for an exact tie, and an entry without a date last', () => {
-    const listed = newestFirst([entry('x'), entry('a', '2026-09-21'), entry('b', '2026-09-21')]);
-    assert.deepEqual(listed.map((e) => e.id), ['b', 'a', 'x']);
-  });
-  test('do not reorder the list they were given', () => {
-    const given = [entry('a', '2026-09-19'), entry('b', '2026-09-22')];
-    newestFirst(given);
-    assert.deepEqual(given.map((e) => e.id), ['a', 'b']);
+  test('is refused when it is no date', () => {
+    assert.throws(() => updatedParts('yesterday', 'en'), /ISO 8601/);
   });
 });
