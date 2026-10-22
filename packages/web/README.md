@@ -76,9 +76,10 @@ exposes them on that element. To keep the control one node for assistive technol
   it), never inside another component's shadow root. It follows the element as it is added, removed or changed.
 - `aria-errormessage` is read with the description while the control is invalid (`aria-invalid="true"`).
 - `aria-hidden` stays on the control: it hides the whole control.
-- In Playwright, a description given by `aria-describedby` is not seen by `toHaveAccessibleDescription()`: Playwright's
-  own computation does not follow the element references a shadow root needs. Assert it from the browser's
-  accessibility tree. A name given by `aria-labelledby` is seen.
+- Playwright sees the name and the description: `getByRole({ name })`, `getByLabel()`, `ariaSnapshot()` and
+  `toHaveAccessibleDescription()`. Its own computation does not follow the element references a shadow root needs, so
+  the control also gives its native element the name's text and keeps a hidden copy of the description's text in its
+  shadow root. `toHaveAccessibleErrorMessage()` reads nothing: the error message is part of the description.
 
 ## Systems, themes and contrast
 

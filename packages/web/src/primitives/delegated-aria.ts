@@ -39,12 +39,17 @@
 // elements it names join its description, after those of `aria-describedby` — the description a person hears, and no
 // empty `aria-errormessage=""` for a checker to refuse.
 //
-// Playwright's own name computation does not follow reflected element references: `getByRole({ name })`,
-// `getByLabel()` and `ariaSnapshot()` see a reflected `aria-labelledby` as absent. So beside the reference the control
-// is also given its text as a plain `aria-label`, kept in step with the text; the engines take the reference over the
-// string, so what they expose is the same. The same does not work for a description — Playwright reads the empty
-// `aria-describedby=""` that reflection leaves and stops there — so a description is drawn by reference alone. Remove
-// the `aria-label` copy when Playwright follows reflected references.
+// Playwright's own name and description computation does not follow reflected element references: it reads the
+// `aria-labelledby` / `aria-describedby` attribute and looks its ids up in the element's own tree, and reflection
+// leaves that attribute empty. So, for Playwright and for the engines alike:
+//   - a name given by `aria-labelledby` is drawn by reference and, beside it, as its text in `aria-label`, kept in step
+//     with the text (the engines take the reference over the string, so they expose the same);
+//   - a description given by `aria-describedby` (and the error message joined to it) is a copy of the text in a hidden
+//     element of the control's own shadow root, which the control's `aria-describedby` names by id after the
+//     component's own ids. Each new text is a new copy under the other of two ids: Chromium's macOS tree does not follow
+//     a change of the text of a hidden element a description names, but does follow a reference to another element.
+// Remove both when Playwright follows reflected element references; `aria-controls` and `aria-details`, which no
+// Playwright assertion reads, are drawn by reference alone.
 //
 // Where an engine has no element reflection, the text of the elements named stands in for them: the label's as the
 // name, the description's (and the error message's) after the component's own description.
@@ -301,6 +306,9 @@ class DelegatedAria extends Directive {
   /** The relationships it drew last by element reflection. */
   private referenced = new Set<RelationName>();
   private turn = 0;
+  /** The hidden copy of the description's text in the control's shadow root (above), and the two ids it takes. */
+  private copy: HTMLElement | null = null;
+  private readonly copyIds = [`tanrei-described-${++copies}-a`, `tanrei-described-${copies}-b`] as const;
 
   constructor(part: PartInfo) {
     super(part);
@@ -336,8 +344,14 @@ class DelegatedAria extends Directive {
     }
     const named: Element[] = [];
     const referenced = new Map<RelationName, { ids: string; given: Element[] }>();
+    // The description, on a native control: its own ids and a copy of the product's text, set once committed (below).
+    let described: { ids: string; text: string } | null = null;
     for (const [name, { ids, given }] of lists) {
       named.push(...given);
+      if (name === 'aria-describedby' && !inner) {
+        described = { ids, text: given.map(textOf).filter(Boolean).join(' ') };
+        continue;
+      }
       // A Tanrei element that moves it takes the elements whatever the engine, and draws them where it can.
       if (given.length && (reflects(name) || inner)) {
         referenced.set(name, { ids, given });
@@ -364,6 +378,7 @@ class DelegatedAria extends Directive {
       else element[DELEGATED_RELATIONS[name]] = null;
     }
     for (const name of this.written) {
+      if (name === 'aria-describedby' && described) continue;
       if (!values.has(name) && !referenced.has(name as RelationName) && ariaAttribute(element, name) !== null) element.removeAttribute(name);
     }
     for (const [name, value] of values) {
@@ -373,11 +388,13 @@ class DelegatedAria extends Directive {
     this.referenced = new Set(referenced.keys());
     // The component's own ids are looked up once this render has been committed: an element it names may come later in
     // the template, or in a part committed after this one.
+    if (described) this.written.add('aria-describedby');
     const turn = ++this.turn;
-    if (referenced.size) {
+    if (referenced.size || described) {
       queueMicrotask(() => {
         if (turn !== this.turn) return;
         const root = element.getRootNode() as Document | ShadowRoot | DocumentFragment;
+        if (described) this.describe(element, root, described);
         for (const [name, { ids, given }] of referenced) {
           const owned = ids.split(/\s+/).filter(Boolean).map((id) => root.getElementById?.(id) ?? null).filter((found): found is HTMLElement => found !== null);
           const next = [...owned, ...given];
@@ -388,7 +405,31 @@ class DelegatedAria extends Directive {
     }
     return noChange;
   }
+
+  /** The description: the component's own ids, then the hidden copy of the product's text (above). */
+  private describe(element: HTMLElement, root: Node, { ids, text }: { ids: string; text: string }) {
+    if (!text) {
+      this.copy?.remove();
+      this.copy = null;
+    } else if (!this.copy || this.copy.textContent !== text || this.copy.getRootNode() !== root) {
+      const id = this.copy?.id === this.copyIds[0] ? this.copyIds[1] : this.copyIds[0];
+      this.copy?.remove();
+      const copy = (element.ownerDocument ?? document).createElement('span');
+      copy.id = id;
+      copy.hidden = true;
+      copy.textContent = text;
+      (root.nodeType === Node.DOCUMENT_NODE ? element.parentNode : root)?.appendChild(copy);
+      this.copy = copy;
+    }
+    const value = [ids, this.copy?.id ?? ''].filter(Boolean).join(' ');
+    if (value) {
+      if (element.getAttribute('aria-describedby') !== value) element.setAttribute('aria-describedby', value);
+    } else if (element.hasAttribute('aria-describedby')) element.removeAttribute('aria-describedby');
+  }
 }
+
+/** The copies of descriptions made in this page, for their ids. */
+let copies = 0;
 
 /**
  * On the element that carries the role: the component's own ARIA (`own`) and, for every name its class exposes

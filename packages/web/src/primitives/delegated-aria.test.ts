@@ -100,7 +100,13 @@ function read_(page: Page, path: string[], names: string[]) {
       const ids = (property: string) => ((inner[property] as Element[] | null | undefined) ?? []).map((element) => element.id || element.textContent);
       return {
         inner: Object.fromEntries(names.map((name) => [name, inner.getAttribute(name)])),
-        describedBy: ids('ariaDescribedByElements'),
+        // The description is the text of what the element's aria-describedby names in its own tree: the component's own
+        // ids, and the copy of the product's text it keeps there.
+        described: (inner.getAttribute('aria-describedby') ?? '')
+          .split(/\s+/)
+          .filter(Boolean)
+          .map((id) => ((inner.getRootNode() as ShadowRoot).getElementById(id)?.textContent ?? '').trim())
+          .join(' '),
         labelledBy: ids('ariaLabelledByElements'),
         controls: ids('ariaControlsElements'),
         errormessage: inner.getAttribute('aria-errormessage'),
@@ -127,7 +133,7 @@ for (const [name, subject] of Object.entries(SUBJECTS)) {
     await load(page, `tanrei-${name}`, subject.markup(`${written} ${relations} ${owned}`));
     const before = await read_(page, subject.path, names);
     for (const [state, value] of Object.entries(states)) expect(before.inner[state], `${state} is the element's`).toBe(value);
-    expect(before.describedBy, 'aria-describedby reaches the element by reflection').toEqual(['described']);
+    expect(before.described, 'aria-describedby reaches the element').toBe('Described text');
     if (!subject.owns.includes('aria-controls')) expect(before.controls, 'aria-controls reaches the element by reflection').toEqual(['controlled']);
     for (const state of subject.owns) expect(before.inner[state], `${state} is the component's own`).not.toBe(state === 'aria-disabled' ? 'true' : 'mixed');
     expect(before.ariaOnHost, 'the host carries no aria-* of the product’s').toEqual([]);
@@ -151,7 +157,7 @@ for (const [name, subject] of Object.entries(SUBJECTS)) {
     expect(after.data['data-aria-invalid'], '…and off the host').toBeUndefined();
     expect(after.inner['aria-current'], 'toggleAttribute(name, false) takes it off').toBeNull();
     expect(after.data['data-aria-current']).toBeUndefined();
-    expect(after.describedBy, 'elements given by property').toEqual(['other']);
+    expect(after.described, 'elements given by property').toBe('Other text');
     expect(after.ariaOnHost).toEqual([]);
 
     // The property, and the moved attribute removed by the product itself.
@@ -164,7 +170,7 @@ for (const [name, subject] of Object.entries(SUBJECTS)) {
     const last = await read_(page, subject.path, names);
     if ('aria-current' in states) expect(last.inner['aria-current'], 'a state set by its property moves too').toBe('page');
     expect(last.data['data-aria-current']).toBe('page');
-    expect(last.describedBy, 'data-aria-* removed by the product takes it off').toEqual([]);
+    expect(last.described, 'data-aria-* removed by the product takes it off').toBe('');
     expect(last.inner['aria-describedby'], 'no reference is left behind').toBeNull();
     expect(last.ariaOnHost).toEqual([]);
   });
@@ -174,7 +180,7 @@ for (const [name, subject] of Object.entries(SUBJECTS)) {
     const said = await read_(page, subject.path, ['aria-label', 'aria-description']);
     if (subject.ownName) expect(said.inner['aria-label'], 'its own label is its whole name').toBe(subject.ownName);
     else expect(said.inner['aria-label'], 'the label’s text is the name').toBe('Named text');
-    expect(said.inner['aria-description'] ?? '', 'the description’s text is in the description').toContain('Described text');
+    expect(said.described, 'the description’s text is the description').toBe('Described text');
     expect(said.ariaOnHost, 'and the host keeps neither').toEqual([]);
   });
 }
@@ -189,34 +195,34 @@ test('the host of a control is no second node with the name, the description or 
 test('a relationship of the component’s own and the product’s are one list: a combobox in a field is described by its supporting text and by what the product names', async ({ page }) => {
   await load(page, 'tanrei-combobox', '<tanrei-field label="Fruit" supporting-text="Pick one"><tanrei-combobox id="subject" aria-describedby="described"><tanrei-option value="a">Alpha</tanrei-option></tanrei-combobox></tanrei-field>');
   const said = await read_(page, ['input'], []);
-  expect(said.describedBy).toEqual(['description', 'described']);
+  expect(said.described).toBe('Pick one Described text');
 });
 
 test('aria-errormessage joins the description while the control is invalid, after aria-describedby, once; it is never written on the element', async ({ page }) => {
   await load(page, 'tanrei-text-input', '<tanrei-text-input id="subject" label="Name" aria-invalid="true" aria-describedby="described" aria-errormessage="error"></tanrei-text-input>');
   const invalid = await read_(page, ['input'], []);
-  expect(invalid.describedBy).toEqual(['described', 'error']);
+  expect(invalid.described).toBe('Described text Error text');
   expect(invalid.errormessage, 'no aria-errormessage on the element').toBeNull();
   await page.evaluate(() => document.querySelector('#subject')!.setAttribute('aria-describedby', 'error'));
   await settle(page);
-  expect((await read_(page, ['input'], [])).describedBy, 'the same element once').toEqual(['error']);
+  expect((await read_(page, ['input'], [])).described, 'the same element once').toBe('Error text');
   await page.evaluate(() => document.querySelector('#subject')!.setAttribute('aria-invalid', 'false'));
   await settle(page);
-  expect((await read_(page, ['input'], [])).describedBy, 'valid: the error message is not described').toEqual(['error']);
+  expect((await read_(page, ['input'], [])).described, 'valid: the error message is not described').toBe('Error text');
   await page.evaluate(() => document.querySelector('#subject')!.removeAttribute('aria-describedby'));
   await settle(page);
   const valid = await read_(page, ['input'], []);
-  expect(valid.describedBy).toEqual([]);
+  expect(valid.described).toBe('');
   expect(valid.errormessage).toBeNull();
 });
 
 test('the elements a reference names are followed: one added after the control, its text changed, removed, and replaced by another of the same id', async ({ page }) => {
   await load(page, 'tanrei-button', '<tanrei-button id="subject" aria-labelledby="later-name" aria-describedby="later">Send</tanrei-button><div id="home"></div>');
   const said = () => read_(page, ['button'], ['aria-label', 'aria-describedby']);
-  expect((await said()).describedBy, 'nothing yet').toEqual([]);
+  expect((await said()).described, 'nothing yet').toBe('');
   await page.evaluate(() => (document.querySelector('#home')!.innerHTML = '<p id="later">Later text</p><p id="later-name">Later name</p>'));
   await settle(page);
-  expect((await said()).describedBy, 'added later').toEqual(['later']);
+  expect((await said()).described, 'added later').toBe('Later text');
   expect((await said()).labelledBy).toEqual(['later-name']);
   // The name's text is also the element's aria-label, for Playwright, which does not follow reflected references.
   expect((await said()).inner['aria-label']).toBe('Later name');
@@ -228,12 +234,14 @@ test('the elements a reference names are followed: one added after the control, 
   await page.evaluate(() => document.querySelector('#later')!.remove());
   await settle(page);
   const removed = await said();
-  expect(removed.describedBy, 'removed').toEqual([]);
+  expect(removed.described, 'removed').toBe('');
   expect(removed.inner['aria-describedby'], 'the reference is taken off, not left holding the removed element').toBeNull();
   await page.evaluate(() => document.querySelector('#home')!.insertAdjacentHTML('beforeend', '<p id="later">Replacement text</p>'));
   await settle(page);
-  const replaced = await page.evaluate(() => ((document.querySelector('#subject')!.shadowRoot!.querySelector('button') as unknown as { ariaDescribedByElements: Element[] }).ariaDescribedByElements ?? []).map((e) => e.textContent));
-  expect(replaced, 'replaced by another of the same id').toEqual(['Replacement text']);
+  expect((await said()).described, 'replaced by another of the same id').toBe('Replacement text');
+  await page.evaluate(() => (document.querySelector('#later')!.textContent = 'Changed text'));
+  await settle(page);
+  expect((await said()).described, 'its text changed').toBe('Changed text');
 });
 
 test('a reference reaches an element of the tree around the control (the shadow root that holds it), and never one inside a sibling component’s shadow root', async ({ page }) => {
@@ -249,10 +257,13 @@ test('a reference reaches an element of the tree around the control (the shadow 
     await held.updateComplete;
     await far.updateComplete;
     await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    const of = (host: Element) => ((host.shadowRoot!.querySelector('button') as unknown as { ariaDescribedByElements: Element[] | null }).ariaDescribedByElements ?? []).map((e) => e.id);
+    const of = (host: Element) => {
+      const button = host.shadowRoot!.querySelector('button')!;
+      return (button.getAttribute('aria-describedby') ?? '').split(/\s+/).filter(Boolean).map((id) => host.shadowRoot!.getElementById(id)?.textContent);
+    };
     return { held: of(held), far: of(far) };
   });
-  expect(result.held).toEqual(['inside']);
+  expect(result.held).toEqual(['Inside text']);
   expect(result.far, 'another component’s shadow root is out of reach').toEqual([]);
 });
 
@@ -277,10 +288,20 @@ test('axe reports nothing on controls the product gives aria-* — the hosts car
   expect(result.violations.map((violation) => `${violation.id}: ${violation.nodes.map((node) => node.target.join(' > ')).join(', ')}`)).toEqual([]);
 });
 
-test('a name given by aria-labelledby is seen by Playwright too: getByRole({ name }), getByLabel() and ariaSnapshot() (its text is also the element’s aria-label)', async ({ page }) => {
+test('a name given by aria-labelledby and a description given by aria-describedby are seen by Playwright too: getByRole({ name }), getByLabel(), ariaSnapshot() and toHaveAccessibleDescription()', async ({ page }) => {
   await load(page, 'tanrei-button', '<tanrei-button id="subject" aria-labelledby="named">Send</tanrei-button><tanrei-text-input id="field" aria-labelledby="named"></tanrei-text-input>');
   await expect(page.getByRole('button', { name: 'Named text', exact: true })).toHaveCount(1);
   await expect(page.getByRole('textbox', { name: 'Named text', exact: true })).toHaveCount(1);
   await expect(page.getByLabel('Named text', { exact: true })).toHaveCount(2);
   expect(await page.locator('#subject').ariaSnapshot()).toContain('button "Named text"');
+  await page.evaluate(() => {
+    const host = document.querySelector('#subject')!;
+    host.setAttribute('aria-invalid', 'true');
+    host.setAttribute('aria-describedby', 'described');
+    host.setAttribute('aria-errormessage', 'error');
+  });
+  await settle(page);
+  await expect(page.locator('#subject').getByRole('button')).toHaveAccessibleDescription('Described text Error text');
+  await page.evaluate(() => (document.querySelector('#described')!.textContent = 'Described again'));
+  await expect(page.locator('#subject').getByRole('button')).toHaveAccessibleDescription('Described again Error text');
 });
