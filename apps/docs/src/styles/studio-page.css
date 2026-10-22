@@ -1,14 +1,17 @@
 /* The page of Theme Studio (components/StudioPage.astro): the Studio, the whole page, and nothing of the documentation's
    frame. The web package's stylesheets the Studio draws with go into layers of the docs' own, as every page's do
    (test/stylesheets.test.mjs): the tokens and the page's base (the page is not Starlight's, so the base is Tanrei's),
-   the icon class, and the tree view, the accordion and the description list the Studio's levels are made of. The
-   Studio's own stylesheet is linked by the page itself, so that it is on this page only. */
+   the icon class, the tree view, the accordion and the description list the Studio's levels are made of, and the
+   table and the prose its preview's screens draw. The Studio's own stylesheet is linked by the page itself, so that
+   it is on this page only. */
 @import '@tanrei/web/tokens.css' layer(docs.tokens);
 @import '@tanrei/web/base.css' layer(docs.base);
 @import '@tanrei/web/icons.css' layer(docs.icons);
 @import '@tanrei/web/tree-view.css' layer(docs.tree-view);
 @import '@tanrei/web/accordion.css' layer(docs.accordion);
 @import '@tanrei/web/description-list.css' layer(docs.description-list);
+@import '@tanrei/web/table.css' layer(docs.table);
+@import '@tanrei/web/prose.css' layer(docs.prose);
 @import './fonts.generated.css';
 @import './script-faces.css';
 
