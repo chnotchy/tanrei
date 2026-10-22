@@ -11,6 +11,8 @@ import {
   RovingKeys,
   afterClick,
   deepActive,
+  delegatedAria,
+  delegatesAria,
   hostAria,
   report,
   syncFocusStyle,
@@ -623,7 +625,7 @@ export class TanreiFabMenu extends TanreiElement {
         type="button"
         class=${classMap({ toggle: true, open, turning: this.turning })}
         data-tanrei-shape
-        aria-label=${this.label || nothing}
+        ${delegatedAria(this, { 'aria-label': this.label })}
         aria-haspopup="menu"
         aria-expanded=${String(open)}
         aria-controls="list"
@@ -660,6 +662,9 @@ export class TanreiFabMenu extends TanreiElement {
 if (!customElements.get('tanrei-fab-menu-item')) customElements.define('tanrei-fab-menu-item', TanreiFabMenuItem);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiFabMenu);
+// The product's ARIA on the host is the toggle's (src/primitives/delegated-aria.ts); the menu it opens and the disabled
+// state are its own (FBM-20).
+delegatesAria(TanreiFabMenu, { owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-disabled'] });
 if (!customElements.get('tanrei-fab-menu')) customElements.define('tanrei-fab-menu', TanreiFabMenu);
 
 declare global {

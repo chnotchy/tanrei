@@ -13,6 +13,8 @@ import {
   PressController,
   badgeDescription,
   deepActive,
+  delegatedAria,
+  delegatesAria,
   findInteractive,
   holdPageScroll,
   lineArrow,
@@ -796,7 +798,8 @@ export class TanreiNavigationDrawerItem extends DrawerCell implements Destinatio
     // supporting text first, then the badge's description, then the trailing content.
     const link = this.link.form;
     const [supporting, ...rest] = this.supportingText ? this.rowDescription : ['', ...this.rowDescription];
-    const description = this.link.describe(supporting, badgeDescription(this.badge, this.badgeCount, this.badgeLabel), ...rest) ?? nothing;
+    // The product's aria-description on the host comes first (src/primitives/delegated-aria.ts).
+    const description = this.link.describe(this.getAttribute('data-aria-description'), supporting, badgeDescription(this.badge, this.badgeCount, this.badgeLabel), ...rest);
     const content = this.row(this.trailingContent(!!link?.opensNew, this.endRoom()));
     if (link) {
       return html`<a
@@ -804,9 +807,7 @@ export class TanreiNavigationDrawerItem extends DrawerCell implements Destinatio
         class=${classMap(classes)}
         style=${styleMap(this.cellStyle())}
         ${linkAttributes(link)}
-        aria-current=${selected ? 'page' : nothing}
-        aria-label=${this.label || nothing}
-        aria-description=${description}
+        ${delegatedAria(this, { 'aria-current': selected && 'page', 'aria-label': this.label, 'aria-description': description })}
         @click=${this.hideName}
         @pointerdown=${this.press.onPointerDown}
         @pointerup=${this.press.release}
@@ -826,9 +827,7 @@ export class TanreiNavigationDrawerItem extends DrawerCell implements Destinatio
       style=${styleMap(this.cellStyle())}
       type="button"
       ?disabled=${this.disabled}
-      aria-current=${selected ? 'page' : nothing}
-      aria-label=${this.label || nothing}
-      aria-description=${description}
+      ${delegatedAria(this, { 'aria-current': selected && 'page', 'aria-label': this.label, 'aria-description': description })}
       @click=${this.hideName}
       @pointerdown=${this.press.onPointerDown}
       @pointerup=${this.press.release}
@@ -1159,7 +1158,7 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
           class=${classMap({ ...this.cellClasses({ open: true, static: true }), ...this.pinClasses() })}
           style=${styleMap({ ...this.cellStyle(), ...this.pinStyle() })}
           aria-hidden="true"
-          aria-label=${this.label || nothing}
+          ${delegatedAria(this, { 'aria-label': this.label })}
           @pointerenter=${this.onPointerEnter}
           @pointerleave=${this.onPointerLeave}
         >
@@ -1167,7 +1166,7 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
         </div>
         ${this.fold(shown)}`;
     }
-    const description = this.rowDescription.join(', ') || nothing;
+    const description = this.described();
     return html`<button
         part="cell"
         id="row"
@@ -1175,8 +1174,7 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
         style=${styleMap({ ...this.cellStyle(), ...this.pinStyle() })}
         type="button"
         ?disabled=${this.disabled}
-        aria-label=${this.label || nothing}
-        aria-description=${description}
+        ${delegatedAria(this, { 'aria-label': this.label, 'aria-description': description })}
         aria-expanded=${expandable || collapsed ? String(shown) : nothing}
         aria-controls="items"
         @click=${this.onClick}
@@ -1193,6 +1191,11 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
         ${this.row(this.trailingContent(false, this.endChevron()))}
       </button>
       ${this.fold(shown)}`;
+  }
+
+  /** The row's description: the product's aria-description on the host first (src/primitives/delegated-aria.ts), then its own. */
+  private described(): string {
+    return [this.getAttribute('data-aria-description'), ...this.rowDescription].filter(Boolean).join(', ');
   }
 
   /** NVD-44, NVD-68: the chevron at the very end of the row, after its trailing content, while chevron is end. */
@@ -1235,7 +1238,7 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
     const style = styleMap(this.cellStyle());
     const form = this.linkForm;
     const content = this.row(this.trailingContent(false, this.endChevron()));
-    const description = this.rowDescription.join(', ') || nothing;
+    const description = this.described();
     const row = form
       ? html`<a
           part="cell"
@@ -1243,9 +1246,7 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
           class=${classes}
           style=${style}
           ${linkAttributes(form)}
-          aria-current=${current ? 'page' : nothing}
-          aria-label=${this.label || nothing}
-          aria-description=${description}
+          ${delegatedAria(this, { 'aria-current': current && 'page', 'aria-label': this.label, 'aria-description': description })}
           @click=${this.onClick}
           @pointerdown=${this.press.onPointerDown}
           @pointerup=${this.press.release}
@@ -1265,9 +1266,7 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
           style=${style}
           type="button"
           ?disabled=${this.disabled}
-          aria-current=${current ? 'page' : nothing}
-          aria-label=${this.label || nothing}
-          aria-description=${description}
+          ${delegatedAria(this, { 'aria-current': current && 'page', 'aria-label': this.label, 'aria-description': description })}
           @click=${this.onClick}
           @pointerdown=${this.press.onPointerDown}
           @pointerup=${this.press.release}
@@ -2883,6 +2882,10 @@ if (!customElements.get('tanrei-divider')) customElements.define('tanrei-divider
 if (!customElements.get('tanrei-badge')) customElements.define('tanrei-badge', TanreiBadge);
 // NVD-56: a collapsed cell's name is shown by the tooltip component.
 if (!customElements.get('tanrei-tooltip')) customElements.define('tanrei-tooltip', TanreiTooltip);
+// The product's ARIA on an item's or a group's host is its row's (src/primitives/delegated-aria.ts), in both forms of the
+// drawer; whether it is the current page, whether a group is open and what it opens, and the disabled state are its own.
+delegatesAria(TanreiNavigationDrawerItem, { owns: ['aria-current', 'aria-disabled'] });
+delegatesAria(TanreiNavigationDrawerGroup, { owns: ['aria-current', 'aria-expanded', 'aria-controls', 'aria-disabled'] });
 if (!customElements.get(ITEM)) customElements.define(ITEM, TanreiNavigationDrawerItem);
 if (!customElements.get(GROUP)) customElements.define(GROUP, TanreiNavigationDrawerGroup);
 if (!customElements.get(SECTION)) customElements.define(SECTION, TanreiNavigationDrawerSection);

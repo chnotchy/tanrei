@@ -17,6 +17,8 @@ import {
   compChoice,
   countWork,
   findInteractive,
+  delegatedAria,
+  delegatesAria,
   hostAria,
   keepInPlace,
   layoutScale,
@@ -2607,7 +2609,7 @@ export class TanreiTabs extends TanreiElement {
 
   protected override render() {
     return html`
-      <div part="tablist" class="row" role="tablist" aria-label=${this.label || nothing} aria-orientation=${this.vertical ? 'vertical' : nothing}>
+      <div part="tablist" class="row" role="tablist" ${delegatedAria(this, { 'aria-label': this.label })} aria-orientation=${this.vertical ? 'vertical' : nothing}>
         <div part="divider" class="divider" aria-hidden="true"></div>
         <div part="scroller track" class="scroller" data-tanrei-shape><div class="tabs"><slot></slot></div></div>
       </div>
@@ -2619,6 +2621,9 @@ export class TanreiTabs extends TanreiElement {
 if (!customElements.get('tanrei-tooltip')) customElements.define('tanrei-tooltip', TanreiTooltip);
 if (!customElements.get('tanrei-tab')) customElements.define('tanrei-tab', TanreiTab);
 if (!customElements.get('tanrei-tab-panel')) customElements.define('tanrei-tab-panel', TanreiTabPanel);
+// The product's ARIA on the row's host is its tab list's (src/primitives/delegated-aria.ts). A tab's host is the tab
+// itself and keeps what is written on it.
+delegatesAria(TanreiTabs);
 if (!customElements.get('tanrei-tabs')) customElements.define('tanrei-tabs', TanreiTabs);
 
 declare global {
