@@ -2,15 +2,15 @@
 title: Jetpack Compose
 description: 把 Tanrei 添加到用 Jetpack Compose 构建的 Android 应用中。
 translationOf: getting-started/compose.mdx
-sourceHash: e564c9d2bb7d382cd74d239b9c27e2fd46818c69
+sourceHash: f1958195e67a8f92f0714022cbc34d27cfadffc0
 ---
 
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 Compose 库提供可组合函数、`TanreiTheme` 和生成的令牌对象。它依赖的是 Compose Foundation，而不是某个 Material 组件库，因此不会给你的应用带进第二套设计系统。
 
-<PreReleaseNotice registry="Maven Central" pkg="io.github.chnotchy:tanrei" />
+<ReleaseNotice platform="compose" registry="Maven Central" pkg="io.github.chnotchy:tanrei" />
 
 ## 安装
 
@@ -38,7 +38,7 @@ dependencies {
 }
 ```
 
-### 首次发布之后
+### 发布之后
 
 ```kotlin
 // build.gradle.kts

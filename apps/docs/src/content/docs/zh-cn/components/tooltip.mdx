@@ -2,7 +2,7 @@
 title: "工具提示"
 description: "当用户用指针指向某个元素、用键盘聚焦它或长按它时，用几个词描述这个元素；它不取得焦点，也不阻挡任何东西。"
 translationOf: components/tooltip.mdx
-sourceHash: 51e462efff5a2291a95f405f23d53506018a5153
+sourceHash: 352d33c155f7fa0c00f78129b4607ba1537de540
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-tooltip text="移到回收站" no-describe>
     <tanrei-button variant="text" label="移到回收站"><span slot="icon">delete</span></tanrei-button>
   </tanrei-tooltip>
-  <tanrei-tooltip variant="rich" title="存储空间" text="回收站中的文件在删除前仍会占用你的存储空间。" placement="bottom">
+  <tanrei-tooltip variant="rich" headline="存储空间" text="回收站中的文件在删除前仍会占用你的存储空间。" placement="bottom">
     <tanrei-button variant="text" label="关于存储空间"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
 </DemoFrame>
@@ -57,7 +57,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
       <tanrei-button variant="text" label="筛选"><span slot="icon">filter_list</span></tanrei-button>
     </tanrei-tooltip>
 
-    <tanrei-tooltip id="storage" variant="rich" title="存储空间" placement="bottom"
+    <tanrei-tooltip id="storage" variant="rich" headline="存储空间" placement="bottom"
                     text="回收站中的文件在删除前仍会占用你的存储空间。">
       <tanrei-button variant="text" label="关于存储空间"><span slot="icon">info</span></tanrei-button>
     </tanrei-tooltip>
@@ -89,7 +89,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
     </Tooltip>
     <Tooltip
       variant="rich"
-      title="存储空间"
+      headline="存储空间"
       text="回收站中的文件在删除前仍会占用你的存储空间。"
       placement="bottom"
       touchTimeout={4000} // 长按之后，几句话需要更长的时间来阅读
@@ -178,7 +178,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
     // open 从你的代码里显示它，不触发任何事件；onOpenChange 得知它自行做了什么。
     <Tooltip
       variant="rich"
-      title="存储空间"
+      headline="存储空间"
       text="回收站中的文件在删除前仍会占用你的存储空间。"
       placement="bottom"
       open={showHint}
@@ -215,7 +215,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 
 | 变体 | 它是什么 | 用途 |
 | --- | --- | --- |
-| Plain | 一个简短的短语，默认画在反色表面上。它忽略 `title`，可以在文本之后显示键盘快捷键。 | 说出图标的作用：“移到回收站”“分享”。 |
+| Plain | 一个简短的短语，默认画在反色表面上。它忽略 `headline`，可以在文本之后显示键盘快捷键。 | 说出图标的作用：“移到回收站”“分享”。 |
 | Rich | 几句话，上方可以有一个标题，默认画在抬升的表面上。它忽略 `shortcut`。 | 解释一个术语或一项设置：“存储空间”以及哪些内容计入其中。 |
 
 变体是结构上的选择，而不是令牌的一个轴。设计系统可以改变两种形式的样式，但不能靠取值添加第三种。
@@ -263,7 +263,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
   <tanrei-tooltip text="按日期或所有者筛选" placement="bottom-start" arrow>
     <tanrei-button variant="text" label="筛选"><span slot="icon">filter_list</span></tanrei-button>
   </tanrei-tooltip>
-  <tanrei-tooltip variant="rich" title="存储空间" text="回收站中的文件在删除前仍会占用你的存储空间。" placement="end" arrow>
+  <tanrei-tooltip variant="rich" headline="存储空间" text="回收站中的文件在删除前仍会占用你的存储空间。" placement="end" arrow>
     <tanrei-button variant="text" label="关于存储空间"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
 </DemoFrame>
@@ -279,8 +279,8 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 <DemoFrame label="用指针指向按钮，或聚焦按钮：两种形式各自的反色外观和表面外观" plain>
   <tanrei-tooltip text="相反配色方案的颜色" inverse><tanrei-button variant="outlined" size="small">Plain，反色</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="当前配色方案中抬升的表面" inverse="false"><tanrei-button variant="outlined" size="small">Plain，表面</tanrei-button></tanrei-tooltip>
-  <tanrei-tooltip variant="rich" title="画在表面上" text="当前配色方案中抬升的表面，带有它的层级。" inverse="false"><tanrei-button variant="outlined" size="small">Rich，表面</tanrei-button></tanrei-tooltip>
-  <tanrei-tooltip variant="rich" title="反色" text="相反配色方案的颜色，没有阴影。" inverse><tanrei-button variant="outlined" size="small">Rich，反色</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip variant="rich" headline="画在表面上" text="当前配色方案中抬升的表面，带有它的层级。" inverse="false"><tanrei-button variant="outlined" size="small">Rich，表面</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip variant="rich" headline="反色" text="相反配色方案的颜色，没有阴影。" inverse><tanrei-button variant="outlined" size="small">Rich，反色</tanrei-button></tanrei-tooltip>
 </DemoFrame>
 
 两种形式都可以画成反色，即使用相反配色方案的颜色；也可以画在当前配色方案中抬升的表面上。
@@ -328,7 +328,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 - **不取得焦点，不阻挡任何东西。** 它不包含任何可聚焦或可按下的内容，不让任何东西变为惰性（inert），也不绘制遮罩。在工具提示上按下会关闭它，并且这次按下不会到达它下面的内容。
 - **位于一切之上。** 它画在所在窗口的所有其他层之上，包括打开的对话框及其遮罩，所以对话框里的工具提示是看得见的。
 - **位置。** 它位于 `placement` 所指定的地方，见[位置](#位置)。锚点移动时它会跟随；锚点被移除、被隐藏、被滚出窗口，或者在滚动区域内被滚出视野时，它会关闭。
-- **动效。** 它从靠近锚点的一侧出现：淡入的同时略微变大，并朝远离锚点的方向移动几个像素；消失时按原路返回。被打断的动效会从当前位置掉头。关闭过程中，工具提示不接收指针，所以它从不挡住下面的内容。在减弱动态效果的设置下，它只淡入淡出。
+- **动效。** 它与设计系统中其他表面的出现方式相同，从靠近锚点的一侧出现：默认情况下，它从朝向锚点的那条边的中点略微变大并同时淡入；消失时按原路返回。被打断的动效会从当前位置掉头。关闭过程中，工具提示不接收指针，所以它从不挡住下面的内容。在减弱动态效果的设置下，它只淡入淡出。
 - **朗读。** 工具提示出现时不朗读任何内容。`describes` 为 true 时，无论工具提示是否打开，它的文本（rich 工具提示则在标题之后）都是锚点的描述，并且画出来的工具提示不会被再读一遍。
 
 ### 单个工具提示的延迟
@@ -376,14 +376,14 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 - 文本放大时它随之变大，不会裁掉文本；它的文本向布局方向的起始侧对齐。
 - 快捷键会作为锚点的键盘快捷键提供给辅助技术（在 Web 上是 `aria-keyshortcuts`，设置在取得焦点的元素上），画出来的按键对辅助技术隐藏。如果锚点已经声明了自己的快捷键，则在 `describes` 为 true 时，改为把工具提示的按键拼写出来，放在描述的末尾。
 - 箭头是装饰，对辅助技术隐藏。两种外观使用的都是成对的文本颜色和容器颜色，构建会在每种配色方案下检查它们的对比度。
-- 它的动效很小：淡入、略微变大，以及几个像素的位移。在减弱动态效果的设置下，它只淡入淡出，不变大也不移动；Android 除外，它的这项设置会移除所有动画。各种延迟、触摸超时，以及下一个工具提示会立即打开的那段时间，都是等待而不是动效，在任何地方都保持不变。
+- 它的动效很小：默认只有淡入和略微变大。在减弱动态效果的设置下，它只淡入淡出，不变大也不移动；Android 除外，它的这项设置会移除所有动画。各种延迟、触摸超时，以及下一个工具提示会立即打开的那段时间，都是等待而不是动效，在任何地方都保持不变。
 - 文本为空的工具提示从不打开，也不添加任何内容。调试构建会报告这种情况，也会报告 plain 工具提示上被忽略的标题。
 
 已知的平台差距：
 
 - SwiftUI、Compose、Flutter 和 React Native 还不接受 `showDelay`、`hideDelay` 和 `touchTimeout`，也不把间隙算作悬停：在这些平台上，每个工具提示都采用系统的延迟，指针要在隐藏延迟之内越过间隙。它们还只有四个居中的位置（`top`、`bottom`、`start`、`end`），没有 `offset`、`crossOffset`、`arrow`、`inverse` 和 `shortcut`；它们的工具提示只淡入淡出，不变大也不移动。
 - Web：只有在浏览器把触摸长按报告为上下文菜单的地方，长按才会打开工具提示。iOS Safari 不这样报告，所以在那里工具提示无法通过触摸打开。
-- Web：`<tanrei-tooltip>` 会读取并移除自己的 `title` 属性（attribute），这样浏览器就不会再在锚点上画出原生的工具提示。`title` 属性（property）保留这个值。
+- Web：富工具提示的标题是 `headline` 属性。`<tanrei-tooltip>` 上的 `title` 属性属于浏览器自己，浏览器会为它画出原生的工具提示：不要设置它。
 - SwiftUI 没有工具提示角色。描述是锚点的无障碍提示（accessibility hint）。
 - iOS 上的 SwiftUI：在已聚焦的锚点上按 Return 或 Space 不会关闭工具提示，Escape 也只在锚点持有焦点时才关闭它。因轻点而获得焦点的锚点（例如文本字段）会打开它的工具提示。被设为透明或被遮住的锚点不会被检测为隐藏。
 - SwiftUI 把工具提示画在由 `.tanreiTheme(_:)` 和 Tanrei 对话框提供的一层里。由 SwiftUI 另行呈现的内容，例如你自己的 `.sheet` 或 `.popover`，需要加上 `.tanreiTooltipLayer()`，其中的工具提示才会显示。

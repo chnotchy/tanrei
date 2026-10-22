@@ -1,8 +1,9 @@
-import { type PropertyDeclarations, type PropertyValues, ReactiveElement } from 'lit';
+import type { PropertyDeclarations, PropertyValues } from 'lit';
 import { AvailabilityController, SEPARATIONS, SEPARATION_VALUES, type SeparationProp, compChoice, report, styleQueries } from '../../primitives/index.js';
 import { debugBuild } from '../../primitives/report.js';
 import type { TanreiFigureVariantRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { TanreiLightElement } from '../../primitives/element.js';
 
 /** The core looks (outlined, filled, plain), plus any a design system's generated `.d.ts` registers. */
 export type TanreiFigureVariant = keyof TanreiFigureVariantRegistry;
@@ -136,7 +137,7 @@ const idOf = (element: Element, part: string) => (element.id ||= `tanrei-figure-
  * @slot caption - For a figure the element builds: the product's own caption content in place of `caption`. In the native form it is the `<figcaption>`.
  * @slot attachment - For a figure the element builds: the block joined under the stage. In the native form it is the element with `data-part="attachment"`.
  */
-export class TanreiFigure extends ReactiveElement {
+export class TanreiFigure extends TanreiLightElement {
   private readonly availability = new AvailabilityController(this, 'figure');
 
   static override properties: PropertyDeclarations = {

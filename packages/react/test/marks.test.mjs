@@ -30,7 +30,7 @@ test('withMarks(): renders the wrapper it was given, with the marks as attribute
 });
 
 test('the generated Button carries the marks, and a wrapper without marks is the element’s wrapper itself', async () => {
-  const { Button, ButtonGroup } = await import('../dist/index.js');
+  const { Button, ButtonGroup } = await import('../dist/entries/generated/index.js');
   const element = Button.render({ confirming: false, dismissive: true, variant: 'text' }, null);
   const { ref: _ref, ...props } = element.props;
   assert.deepEqual(props, { dismissive: '', variant: 'text' });
@@ -79,7 +79,7 @@ test('withMarks(): an attribute that has the name of a read-only property is kep
 });
 
 test('the generated Button writes form as an attribute: its element’s form property has only a getter', async () => {
-  const { Button } = await import('../dist/index.js');
+  const { Button } = await import('../dist/entries/generated/index.js');
   const rendered = Button.render({ type: 'submit', form: 'checkout', name: 'intent', value: 'pay' }, null);
   const { ref: attach = rendered.ref, ...props } = rendered.props;
   assert.deepEqual(props, { type: 'submit', name: 'intent', value: 'pay' });
@@ -100,7 +100,7 @@ test('every form-associated element of the manifest has a wrapper that writes fo
     tags.sort(),
     ['button', 'chat-composer', 'checkbox', 'checkbox-group', 'chip-field', 'color-field', 'color-input', 'combobox', 'combobox-field', 'embedded-text-input', 'file-upload', 'number-field', 'number-input', 'one-time-code-field', 'one-time-code-input', 'radio-button', 'radio-group', 'search', 'select', 'select-field', 'slider', 'slider-field', 'switch', 'text-field', 'text-input'].map((name) => `tanrei-${name}`),
   );
-  const wrappers = await import('../dist/index.js');
+  const wrappers = await import('../dist/entries/generated/all.js');
   for (const tag of tags) {
     const name = tag
       .replace(/^tanrei-/, '')

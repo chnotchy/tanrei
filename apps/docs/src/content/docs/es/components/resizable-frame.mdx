@@ -1,0 +1,155 @@
+---
+title: Marco redimensionable
+description: Una caja cuya anchura y altura cambia una persona con un tirador en su borde o en su esquina, con el teclado o con una sola pulsación. Con el aspecto outlined, es donde se comprueba una vista previa con la anchura de un teléfono y la de un portátil; con plain, es el borde de un panel de navegación o de una barra lateral.
+translationOf: components/resizable-frame.mdx
+sourceHash: a4cfbe849974e10d04768d89c60010bba48508e5
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="resizable-frame" />
+
+<DemoFrame label="Una vista previa que una persona redimensiona por su borde final, su borde inferior y su esquina" plain>
+  <tanrei-resizable-frame width="360" height="200" handles="end bottom bottom-end" snap-widths="400 600" width-label="Cambiar la anchura de la vista previa" height-label="Cambiar la altura de la vista previa" corner-label="Cambiar el tamaño de la vista previa" style="inline-size: 100%">
+    <div style="box-sizing: border-box; min-block-size: 100%; padding: 1rem; background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface)">Arrastra un tirador, o ve a uno con Tab y usa las flechas.</div>
+  </tanrei-resizable-frame>
+</DemoFrame>
+
+Un marco redimensionable le da a lo que contiene una anchura y una altura que una persona puede cambiar. Sus tiradores son [tiradores de tamaño](/es/components/handle/): si se arrastran, cambian el tamaño; si se mueven con el teclado, lo cambian paso a paso; si se pulsan sin arrastrar, alternan entre el tamaño máximo y el anterior. El marco guarda el tamaño, te avisa cuando una persona lo ha cambiado y le da a cada tirador el tamaño como valor, para que la tecnología de asistencia lo lea.
+
+Tiene dos aspectos. **Outlined** es una caja con esquinas redondeadas y una línea fina, con los tiradores fuera de ella para que no tapen nada: el lugar para comprobar cómo responde una página o un componente al espacio que se le da. **Plain** no dibuja nada propio: el contenido dibuja su propia superficie y cada tirador está en su borde, como un panel de navegación que una persona ensancha para ver nombres largos o una barra lateral que estrecha para el trabajo de al lado.
+
+En la web es `<tanrei-resizable-frame>`. Las demás plataformas aún no lo han implementado.
+
+### Uso
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- Una vista previa que se comprueba con la anchura de un teléfono, de una tableta y de un portátil: un arrastre se ajusta a cada una. -->
+    <tanrei-resizable-frame width="390" height="640" snap-widths="360 600 1024" width-label="Cambiar la anchura de la vista previa">
+      <iframe title="Vista previa" src="/preview"></iframe>
+    </tanrei-resizable-frame>
+
+    <!-- Una barra lateral al final del diseño: plain, redimensionada desde su borde inicial. -->
+    <tanrei-resizable-frame id="side" variant="plain" handles="start" min-width="240" max-width="560" size-indicator="none" width-label="Cambiar el tamaño de la barra lateral">
+      <aside>…</aside>
+    </tanrei-resizable-frame>
+
+    <script type="module">
+      import '@tanrei/web/components/resizable-frame';
+      const side = document.querySelector('#side');
+      // Conserva la anchura de la persona de una visita a la siguiente.
+      side.width = Number(localStorage.getItem('side-bar')) || 320;
+      side.addEventListener('change', (e) => localStorage.setItem('side-bar', String(e.detail.width)));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ResizableFrame } from '@tanrei/react';
+
+    <ResizableFrame
+      variant="plain"
+      handles={['start']}
+      width={width}
+      minWidth={240}
+      maxWidth={560}
+      sizeIndicator="none"
+      widthLabel="Cambiar el tamaño de la barra lateral"
+      onChange={(e) => setWidth(e.detail.width)}
+    >
+      <aside>…</aside>
+    </ResizableFrame>
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<ComponentSpecs name="resizable-frame" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Úsalo donde una persona deba darle a algo el espacio que quiera y ver qué hace con él: la vista previa de una página o de un componente con otra anchura, un panel junto al contenido principal, un panel de herramientas.
+
+| Necesitas | Usa |
+| --- | --- |
+| Solo que la altura de un campo crezca con su texto | El tirador propio de la esquina del [campo de texto](/es/components/text-field/). |
+| Una hoja que sube desde el borde inferior | La [hoja inferior](/es/components/bottom-sheet/), que dibuja su propio tirador de arrastre. |
+| Elegir entre unos pocos tamaños fijos, sin nada entre ellos | Un [botón segmentado](/es/components/segmented-button/) que los alterne. |
+| Que lo que se muestra se haga más pequeño como una imagen, no que reciba menos espacio | No esto: un marco redimensionable cambia el espacio, nunca la escala de lo que contiene. |
+
+### Sus aspectos
+
+| `variant` | Dibuja | Úsalo para |
+| --- | --- | --- |
+| `outlined` (predeterminado) | Esquinas redondeadas y una línea fina; los tiradores, en su propio espacio fuera de la caja. El ratón sobre el marco muestra los tiradores. | Una vista previa: el contenido se ve entero y nada del marco lo tapa. |
+| `plain` | Nada propio: el contenido llena la caja con su propia superficie. Cada tirador está en su borde y solo aparece cuando se señala, recibe el foco o se mantiene pulsado. | El borde de un panel: un panel de navegación, una barra lateral. |
+
+### Sus tiradores
+
+| `handles` | Va en | Cambia |
+| --- | --- | --- |
+| `end` (predeterminado) | El borde final | La anchura. Para contenido al comienzo de un diseño: una vista previa, un panel de navegación. |
+| `start` | El borde inicial | La anchura, que crece hacia el inicio. Para contenido al final de un diseño: una barra lateral. La caja se coloca entonces al final de su espacio. |
+| `bottom` | El borde inferior | La altura. |
+| `bottom-end` | La esquina inferior final | Las dos a la vez. |
+
+Indica cualquiera de ellos, en cualquier combinación; una lista vacía no dibuja ninguno, y el marco es una caja del tamaño que fijes. `start` y `end` siguen la dirección de la página: en un diseño de derecha a izquierda, el borde final es el izquierdo.
+
+### Tamaños
+
+`width` y `height` son el tamaño de la caja en píxeles. Mientras son null, la caja toma la anchura que le da el diseño y la altura que le da el diseño, o la altura del contenido donde el diseño no le da ninguna. En cuanto una persona mueve un tirador, el tamaño es suyo, y se mantiene hasta que tú fijes otro. Un tamaño que fijas se dibuja al instante y no envía ningún evento; un diseño más estrecho estrecha la caja y le devuelve la anchura cuando vuelve a haber espacio.
+
+La anchura mínima es `minWidth`, y 320 píxeles mientras no fijes ninguna: la anchura con la que el contenido debe reorganizarse sin desplazarse hacia los lados. Fija la tuya para un panel: un panel de navegación tiene su propia anchura mínima. La máxima es `maxWidth`, o el espacio que da el diseño. `snapWidths` son anchuras a las que se ajusta un arrastre al pasar por ellas, como las de un teléfono común, una tableta y un portátil pequeño.
+
+### Lo que te dice
+
+| Evento | Cuándo |
+| --- | --- |
+| `resize` | En cada fotograma en que un arrastre cambia el tamaño: `width` y `height`. |
+| `change` | Una vez que una persona ha cambiado el tamaño: terminó un arrastre, una tecla lo movió o se pulsó un tirador sin arrastrar. Guárdalo aquí si conservas el tamaño de una persona. |
+
+### El indicador de tamaño
+
+Mientras un tirador se mantiene pulsado o tiene el foco del teclado, una pequeña etiqueta en la esquina superior final de la caja muestra el tamaño, como «390 × 640». `sizeIndicator` con el valor `always` lo muestra siempre (una vista previa en la que se comprueba el tamaño) y con `none`, nunca (un panel, cuyo tamaño nadie lee). Se escribe con las cifras del idioma de la página y de izquierda a derecha en cualquier diseño, y la tecnología de asistencia no lo lee: lee en su lugar el valor de cada tirador.
+
+### Recomendado
+
+- Dale a cada tirador dibujado un nombre que diga qué redimensiona: `widthLabel`, `heightLabel`, `cornerLabel` («Cambiar la anchura de la vista previa», «Cambiar el tamaño de la barra lateral»).
+- Fija una anchura mínima con la que el contenido siga funcionando, y una máxima que deje usable el resto de la página.
+- Conserva el tamaño de una persona donde vaya a volver a él: la anchura de un panel de navegación o de una barra lateral, a partir de `change`.
+
+### Evita
+
+- No dibujes tus propios tiradores de cambio de tamaño alrededor del contenido: usa este marco, con `plain` para el borde de un panel.
+- No lo uses para hacer más pequeño el contenido como una imagen: cambia el espacio, no la escala.
+- No quites los tiradores de un panel cuyo tamaño una persona debe poder cambiar: las teclas y la pulsación son lo que usa quien no puede arrastrar.
+
+## Accesibilidad
+
+<ComponentAccessibility name="resizable-frame" />
+
+### De qué se encarga el componente
+
+- Cada tirador es un separador que recibe el foco — el divisor de ventanas de ARIA Authoring Practices —, nombrado por su etiqueta, con el tamaño en píxeles como valor y el mínimo y el máximo como rango.
+- Los tiradores van después del contenido en el orden de foco: inicial, final, inferior, esquina. La caja outlined solo es una parada de foco mientras su contenido es más alto que ella y se desplaza.
+- Las flechas cambian el tamaño en `step` píxeles; Mayús con una flecha, Re Pág y Av Pág, en `largeStep`; Inicio y Fin dan el mínimo y el máximo. En el tirador inicial, la flecha que apunta hacia el inicio ensancha.
+- Intro, Espacio o una pulsación sin arrastre alternan entre el tamaño máximo y el anterior, de modo que cada tamaño se alcanza sin arrastrar.
+- Mientras dura un arrastre, ningún documento incrustado en el contenido toma el puntero, así que el arrastre no se pierde cuando el puntero pasa por encima.
+- El indicador de tamaño está oculto para la tecnología de asistencia; dibuja lo que ya dicen los valores de los tiradores. Los cambios hechos con una tecla o una pulsación se aplican al instante donde se pide movimiento reducido.
+- En el modo de colores forzados, el borde outlined y el texto del indicador toman el color del texto, y el fondo del indicador el color del lienzo.
+
+### Qué debes hacer tú
+
+- Dale su etiqueta a cada tirador que dibujes. Sin ella, el tirador se dibuja y funciona igual, y una compilación de depuración lo avisa.
+- Comprueba que el contenido funciona en cada tamaño que permites, a partir de la anchura mínima.

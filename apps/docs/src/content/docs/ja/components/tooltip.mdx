@@ -2,7 +2,7 @@
 title: ツールチップ
 description: ポインターを載せたとき、キーボードでフォーカスしたとき、長押ししたときに、要素を短い言葉で説明します。フォーカスを奪わず、何もふさぎません。
 translationOf: components/tooltip.mdx
-sourceHash: 51e462efff5a2291a95f405f23d53506018a5153
+sourceHash: 352d33c155f7fa0c00f78129b4607ba1537de540
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-tooltip text="ゴミ箱に移動" no-describe>
     <tanrei-button variant="text" label="ゴミ箱に移動"><span slot="icon">delete</span></tanrei-button>
   </tanrei-tooltip>
-  <tanrei-tooltip variant="rich" title="ストレージ" text="ゴミ箱の中のファイルも、削除されるまではストレージの使用量に含まれます。" placement="bottom">
+  <tanrei-tooltip variant="rich" headline="ストレージ" text="ゴミ箱の中のファイルも、削除されるまではストレージの使用量に含まれます。" placement="bottom">
     <tanrei-button variant="text" label="ストレージについて"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
 </DemoFrame>
@@ -57,7 +57,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
       <tanrei-button variant="text" label="絞り込み"><span slot="icon">filter_list</span></tanrei-button>
     </tanrei-tooltip>
 
-    <tanrei-tooltip id="storage" variant="rich" title="ストレージ" placement="bottom"
+    <tanrei-tooltip id="storage" variant="rich" headline="ストレージ" placement="bottom"
                     text="ゴミ箱の中のファイルも、削除されるまではストレージの使用量に含まれます。">
       <tanrei-button variant="text" label="ストレージについて"><span slot="icon">info</span></tanrei-button>
     </tanrei-tooltip>
@@ -89,7 +89,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
     </Tooltip>
     <Tooltip
       variant="rich"
-      title="ストレージ"
+      headline="ストレージ"
       text="ゴミ箱の中のファイルも、削除されるまではストレージの使用量に含まれます。"
       placement="bottom"
       touchTimeout={4000} // 数文あるので、長押しの後に読む時間を長めに取ります
@@ -178,7 +178,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
     // open はコードから表示するためのもので、何も発火しません。onOpenChange には自分で開閉したときに届きます。
     <Tooltip
       variant="rich"
-      title="ストレージ"
+      headline="ストレージ"
       text="ゴミ箱の中のファイルも、削除されるまではストレージの使用量に含まれます。"
       placement="bottom"
       open={showHint}
@@ -215,7 +215,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 
 | バリアント | 何か | 用途 |
 | --- | --- | --- |
-| Plain | 短いひとこと。既定では反転したサーフェスの上に描きます。`title` は無視し、テキストの後ろにキーボードショートカットを表示できます。 | アイコンのアクションの名前。「ゴミ箱に移動」「共有」など。 |
+| Plain | 短いひとこと。既定では反転したサーフェスの上に描きます。`headline` は無視し、テキストの後ろにキーボードショートカットを表示できます。 | アイコンのアクションの名前。「ゴミ箱に移動」「共有」など。 |
 | Rich | 省略できるタイトルと、その下の数文。既定では浮き上がったサーフェスの上に描きます。`shortcut` は無視します。 | 用語や設定の説明。「ストレージ」と、何が使用量に含まれるかなど。 |
 
 バリアントは構造の選択で、トークンの軸ではありません。デザインシステムは両方の見た目を変えられますが、値だけで 3 つ目の形を加えることはできません。
@@ -263,7 +263,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
   <tanrei-tooltip text="日付や所有者で絞り込みます" placement="bottom-start" arrow>
     <tanrei-button variant="text" label="絞り込み"><span slot="icon">filter_list</span></tanrei-button>
   </tanrei-tooltip>
-  <tanrei-tooltip variant="rich" title="ストレージ" text="ゴミ箱の中のファイルも、削除されるまではストレージの使用量に含まれます。" placement="end" arrow>
+  <tanrei-tooltip variant="rich" headline="ストレージ" text="ゴミ箱の中のファイルも、削除されるまではストレージの使用量に含まれます。" placement="end" arrow>
     <tanrei-button variant="text" label="ストレージについて"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
 </DemoFrame>
@@ -279,8 +279,8 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 <DemoFrame label="ボタンにポインターを載せるか、フォーカスしてください：それぞれの形の、反転とサーフェスの上" plain>
   <tanrei-tooltip text="反対のスキームの色" inverse><tanrei-button variant="outlined" size="small">Plain、反転</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="スキームの浮き上がったサーフェス" inverse="false"><tanrei-button variant="outlined" size="small">Plain、サーフェスの上</tanrei-button></tanrei-tooltip>
-  <tanrei-tooltip variant="rich" title="サーフェスの上" text="スキームの浮き上がったサーフェスに、エレベーションを付けて描きます。" inverse="false"><tanrei-button variant="outlined" size="small">Rich、サーフェスの上</tanrei-button></tanrei-tooltip>
-  <tanrei-tooltip variant="rich" title="反転" text="反対のスキームの色で、影なしで描きます。" inverse><tanrei-button variant="outlined" size="small">Rich、反転</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip variant="rich" headline="サーフェスの上" text="スキームの浮き上がったサーフェスに、エレベーションを付けて描きます。" inverse="false"><tanrei-button variant="outlined" size="small">Rich、サーフェスの上</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip variant="rich" headline="反転" text="反対のスキームの色で、影なしで描きます。" inverse><tanrei-button variant="outlined" size="small">Rich、反転</tanrei-button></tanrei-tooltip>
 </DemoFrame>
 
 どちらの形も、反転して（反対のスキームの色で）描くことも、スキームの浮き上がったサーフェスの上に描くこともできます。
@@ -328,7 +328,7 @@ Web では、[スナックバー](/ja/components/snackbar/)と同じく、属性
 - **フォーカスを奪わず、何もふさがない。** フォーカスできるものも押せるものも含まず、何も操作不能にせず、スクリムも描きません。ツールチップを押すとツールチップが閉じ、押下はその下には届きません。
 - **一番上に描く。** ウィンドウのほかのどの層よりも上に描きます。開いているダイアログとそのスクリムより上なので、ダイアログの中のツールチップも見えます。
 - **配置。** `placement` が指定する場所に立ちます。[配置](#配置)を参照してください。アンカーが動けば付いていき、アンカーが取り除かれたり、隠れたり、スクロールでウィンドウの外に出たり、スクロールする領域の中で見えなくなったりすると閉じます。
-- **動き。** アンカーの側から出てきます。少し大きくなりながら、アンカーから数ピクセル離れる方向へ動きつつフェードインし、同じ道を戻って消えます。途中で向きが変わるときは、いまの状態から折り返します。閉じている途中のツールチップはポインターを受け取らないので、下にあるものの邪魔になりません。動きを減らす設定では、フェードだけになります。
+- **動き。** デザインシステムのほかのサーフェスと同じ現れ方で、アンカーの側から出てきます。既定では、アンカーに面した辺の中央から少し大きくなりながらフェードインし、同じ道を戻って消えます。途中で向きが変わるときは、いまの状態から折り返します。閉じている途中のツールチップはポインターを受け取らないので、下にあるものの邪魔になりません。動きを減らす設定では、フェードだけになります。
 - **読み上げ。** ツールチップが現れても何も読み上げません。`describes` が true の間は、そのテキスト（リッチならタイトルの後に続けたもの）が、開いているかどうかにかかわらずアンカーの説明になり、描かれたツールチップが重ねて読まれることはありません。
 
 ### ツールチップごとの遅延
@@ -376,14 +376,14 @@ Web では、[スナックバー](/ja/components/snackbar/)と同じく、属性
 - 文字を大きくしても切れずに広がり、テキストはレイアウト方向の先頭側にそろえます。
 - ショートカットは、アンカーのキーボードショートカットとして伝えます（Web では、フォーカスを受け取る要素の `aria-keyshortcuts`）。描かれたキーは支援技術から隠します。アンカーが自分でショートカットを示しているときは、`describes` が true の間、ツールチップのキーを説明の最後に言葉で加えます。
 - 矢印は装飾で、支援技術から隠します。どちらの見た目も、ビルドがすべてのスキームでコントラストを確かめている、文字とコンテナの色の組を使います。
-- 動きは小さく、フェード、わずかな拡大、数ピクセルの移動だけです。動きを減らす設定では、大きさも位置も変えずにフェードします。ただし、すべてのアニメーションを取り除く Android の設定では、瞬時に表示と非表示を切り替えます。遅延、タッチ用の表示時間、次のツールチップがすぐに開く時間は、動きではなく待ち時間なので、どこでも残ります。
+- 動きは小さく、既定ではフェードとわずかな拡大だけです。動きを減らす設定では、大きさも位置も変えずにフェードします。ただし、すべてのアニメーションを取り除く Android の設定では、瞬時に表示と非表示を切り替えます。遅延、タッチ用の表示時間、次のツールチップがすぐに開く時間は、動きではなく待ち時間なので、どこでも残ります。
 - テキストが空のツールチップは開かず、アンカーに何も加えません。そのことと、プレーンなツールチップで無視されるタイトルは、デバッグビルドで報告します。
 
 プラットフォームごとの既知の制約：
 
 - SwiftUI、Compose、Flutter、React Native は、まだ `showDelay`、`hideDelay`、`touchTimeout` を受け取らず、隙間もホバーとして数えません。そこではどのツールチップもシステムの遅延を使い、ポインターは非表示の遅延の間に隙間を越えます。配置も中央揃えの 4 つ（`top`、`bottom`、`start`、`end`）だけで、`offset`、`crossOffset`、`arrow`、`inverse`、`shortcut` はありません。ツールチップは大きさも位置も変えずにフェードします。
 - Web：タッチの長押しでツールチップが開くのは、ブラウザーが長押しをコンテキストメニューとして伝える場合だけです。iOS の Safari は伝えないので、そこではタッチでは開きません。
-- Web：`<tanrei-tooltip>` は自分の `title` 属性を読み取ってから取り除きます。ブラウザー標準のツールチップがアンカーの上に重ねて描かれないようにするためです。値は `title` プロパティに残ります。
+- Web：リッチツールチップのタイトルは `headline` 属性です。`<tanrei-tooltip>` の `title` 属性はブラウザー自身のもので、ブラウザーはそれに標準のツールチップを描きます。付けないでください。
 - SwiftUI にはツールチップのロールがありません。説明はアンカーのアクセシビリティヒントになります。
 - iOS の SwiftUI：フォーカスのあるアンカーで Return や Space を押してもツールチップは閉じず、Escape で閉じるのはアンカーにフォーカスがあるときだけです。テキストフィールドのように、タップでフォーカスを受け取るアンカーでは、ツールチップが開きます。透明にされたり覆われたりしたアンカーは、隠れたものとして検出しません。
 - SwiftUI は、`.tanreiTheme(_:)` と Tanrei のダイアログが用意する層にツールチップを描きます。利用者側の `.sheet` や `.popover` のように SwiftUI が別に表示する内容では、`.tanreiTooltipLayer()` を付けないとツールチップが表示されません。

@@ -35,6 +35,10 @@ fs.mkdirSync(path.dirname(path.join(vocabulary, glyphs)), { recursive: true });
 fs.copyFileSync(path.join(repo, glyphs), path.join(vocabulary, glyphs));
 // Sources only: tokens/generated/ is build output, and a product build never reads it.
 fs.cpSync(path.join(repo, 'tokens'), path.join(vocabulary, 'tokens'), { recursive: true, filter: (source) => path.relative(repo, source) !== path.join('tokens', 'generated') });
+// The component catalog, which `tanrei build` writes a product's components manifest from: at its path in the repository.
+const catalog = 'packages/tokens-build/generated/component-catalog.json';
+fs.mkdirSync(path.dirname(path.join(vocabulary, catalog)), { recursive: true });
+fs.copyFileSync(path.join(repo, catalog), path.join(vocabulary, catalog));
 // Theme Studio, prebuilt by packages/studio (`pnpm --filter @tanrei/studio build:app`), for `tanrei studio`.
 const studio = path.join(repo, 'packages/studio/dist-app');
 const hasStudio = fs.existsSync(path.join(studio, 'index.html'));

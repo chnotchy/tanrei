@@ -1,8 +1,8 @@
 ---
 title: ツールバー
-description: いま表示している画面や選択中のものに対するアクションを、短い列にまとめます。画面の下端に固定するか、コンテンツの上に浮かせて置きます。Tab で止まるのは 1 か所で、アクションの間は矢印キーで移動します。
+description: 関連するコントロールをひとまとめにし、Tab で止まる位置を 1 か所にします。コンテンツが必要とする場所にインラインで置くか、画面の下端に固定するか、コンテンツの上に浮かせて置きます。コントロールの間は矢印キーで移動し、収まらないものはオーバーフローメニューに入ります。
 translationOf: components/toolbar.mdx
-sourceHash: 208b8298cc2fa085a6bfd76cf0992d8e087dc579
+sourceHash: a8432aa4140d0470d37330b77fd6878ea1e55585
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -15,69 +15,112 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <ComponentAvailability name="toolbar" />
 
-<DemoFrame label="ドックとフローティング" column>
-  <tanrei-toolbar label="メッセージのアクション" style="inline-size: 22rem">
+<DemoFrame label="インライン、ドック、フローティング" column>
+  <tanrei-toolbar label="書式">
+    <tanrei-toolbar-group label="文字のスタイル">
+      <tanrei-button variant="text" toggle selected label="太字"><span slot="icon">format_bold</span></tanrei-button>
+      <tanrei-button variant="text" toggle label="斜体"><span slot="icon">format_italic</span></tanrei-button>
+      <tanrei-button variant="text" toggle label="下線"><span slot="icon">format_underlined</span></tanrei-button>
+    </tanrei-toolbar-group>
+    <tanrei-toolbar-group>
+      <tanrei-button variant="text" label="リンクを挿入"><span slot="icon">link</span></tanrei-button>
+      <tanrei-button variant="text" label="画像を挿入"><span slot="icon">image</span></tanrei-button>
+    </tanrei-toolbar-group>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="docked" label="メッセージのアクション" style="inline-size: 22rem">
     <tanrei-button variant="text" label="アーカイブ"><span slot="icon">archive</span></tanrei-button>
     <tanrei-button variant="text" label="削除"><span slot="icon">delete</span></tanrei-button>
     <tanrei-button variant="text" label="未読にする"><span slot="icon">mark_email_unread</span></tanrei-button>
     <tanrei-button variant="text" label="移動"><span slot="icon">drive_file_move</span></tanrei-button>
   </tanrei-toolbar>
-  <tanrei-toolbar variant="floating" label="書式">
-    <tanrei-button variant="text" toggle selected label="太字"><span slot="icon">format_bold</span></tanrei-button>
-    <tanrei-button variant="text" toggle label="斜体"><span slot="icon">format_italic</span></tanrei-button>
-    <tanrei-button variant="text" toggle label="下線"><span slot="icon">format_underlined</span></tanrei-button>
-    <tanrei-button variant="text" label="リンクを挿入"><span slot="icon">link</span></tanrei-button>
+  <tanrei-toolbar variant="floating" label="描画ツール">
+    <tanrei-button variant="text" label="ペン"><span slot="icon">edit</span></tanrei-button>
+    <tanrei-button variant="text" label="蛍光ペン"><span slot="icon">ink_highlighter</span></tanrei-button>
+    <tanrei-button variant="text" label="消しゴム"><span slot="icon">ink_eraser</span></tanrei-button>
+    <tanrei-button variant="filled" label="完了"><span slot="icon">check</span></tanrei-button>
   </tanrei-toolbar>
 </DemoFrame>
 
 ### 使い方
 
-ツールバーに置ける項目は 2 種類です。1 つは `action` で、アイコンだけでラベルのない Tanrei の[ボタン](/ja/components/button/)そのものです（太字のようなトグルは、`toggle` を付けたものです）。もう 1 つは `button` で、ラベルのある Tanrei のボタンそのものです。どちらも利用者側で用意するコンポーネントで、それぞれが自分のラベル、クリック、状態を持ちます。ツールバーはそれらを読み順に並べ、キーボードフォーカスをその間で動かすだけです。見た目を変えることはないので、ツールバーの中のアイコンだけのボタンも、ほかの場所と同じ見た目で同じように動きます。項目の渡し方は、各プラットフォームが繰り返しの子要素を受け取るいつものやり方に従います。Web では子要素、SwiftUI ではビュービルダー、Compose ではコンテンツラムダの中の呼び出し、Flutter では `children` のリスト、React Native では子要素です。
+ツールバーは、関連するコントロールをひとまとめにします。アクション、トグル、メニューを開くボタン、[メニュー付きボタン](/ja/components/button-with-menu/)などです。項目は利用者側で用意する Tanrei の[ボタン](/ja/components/button/)とメニュー付きボタンそのもので、それぞれが自分のラベル、クリック、状態を持ちます。ツールバーはそれらを読み順に並べ、グループの間を区切り、キーボードフォーカスをその間で動かし、収まらないものをオーバーフローメニューに隠します。見た目を変えることはないので、ツールバーの中のアイコンだけのボタンも、ほかの場所と同じ見た目で同じように動きます。
+
+項目は 6 種類です。
+
+- `action`：アイコンだけのボタン。太字のようなトグルは、`toggle` を付けたものです。
+- `button`：ラベルのあるボタン。オンとオフを切り替える絞り込みのように、これもトグルにできます。
+- `menu-button`：Tanrei の[メニュー](/ja/components/menu/)をアンカーしたボタン。並べ替えや挿入などです。メニューは利用者側のもので、そのボタンの隣に置きます。ツールバーはメニューを並べません。
+- `button-with-menu`：メインのアクションと、関連するアクションのメニュー。左右それぞれが、矢印キーで止まる位置になります。
+- `group`：太字、斜体、下線のような、関連する項目のひと続き。自分では何も描きません。まとまりがその人にとって意味を持つときは、「文字のスタイル」のように `label` を付けます。
+- `separator`：グループに入っていない 2 つの項目の間の線。Web では[区切り線](/ja/components/divider/)で、ツールバーは 2 つのグループの間の線と同じように描きます。
+
+**インライン（既定）。** インラインのツールバーは、利用者側のレイアウトが置いた場所、つまり働きかける対象のコンテンツの中に置かれます。表の上、エディターの上端、絞り込みの並びとしてリストの横などです。長さは項目が必要とする分だけで、レイアウトが許す長さを超えることはありません。既定のシステムでは、自分のサーフェスも影も縁も持たず、両端は周りのコンテンツとそろいます。
 
 **ドック。** ドックのツールバーは画面の下端いっぱいに広がります。色はホームインジケーターやジェスチャーバーの下まで届き、項目はその上、左右のインセットの内側に収まります。Web は `env(safe-area-inset-bottom)` を読み、SwiftUI では `.safeAreaInset(edge: .bottom)` でバーを置き、Compose は `windowInsets`（既定はナビゲーションバー）を受け取り、Flutter は下側の `MediaQuery` のパディングを読みます。React Native では、Tanrei がセーフエリアのライブラリに依存しないため、インセットはツールバーの `insets` プロパティか `TanreiProvider` から受け取ります。
 
 **フローティング。** フローティングのツールバーは、[メインアクションボタン](/ja/components/main-action-button/)と同じく自分では位置を決めません。置き場所は利用者側のレイアウトで決めます。ふつうはコンテンツの下端の少し上に中央揃えで、縦向きならコンテンツの末尾側の端の横に置きます。
 
-Web と React の例は現在の仕様に沿っています。SwiftUI、Compose、Flutter、React Native は追従待ちで、ツールバーとボタンの以前の版を提供しています。そこでは、アイコンだけのアクションは別のアイコンボタンです。追いつくまで、これらの例はその版のものです。
+Web と React の例は現在の仕様に沿っています。SwiftUI、Compose、Flutter、React Native は追従待ちで、ツールバーとボタンの以前の版を提供しています。そこでは、ツールバーは指定しない限りドックで、入れられるのはボタンだけ、収まらないものはスクロールし、アイコンだけのアクションは別のアイコンボタンです。追いつくまで、これらの例はその版のものです。
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-toolbar label="メッセージのアクション">
-      <tanrei-button variant="text" label="アーカイブ"><span slot="icon">archive</span></tanrei-button>
-      <tanrei-button variant="text" label="削除"><span slot="icon">delete</span></tanrei-button>
-      <tanrei-button variant="text" label="移動"><span slot="icon">drive_file_move</span></tanrei-button>
-      <tanrei-button variant="filled">返信</tanrei-button>
+    <tanrei-toolbar label="書式" overflow-label="その他の書式">
+      <tanrei-toolbar-group label="文字のスタイル">
+        <tanrei-button variant="text" toggle selected label="太字"><span slot="icon">format_bold</span></tanrei-button>
+        <tanrei-button variant="text" toggle label="斜体"><span slot="icon">format_italic</span></tanrei-button>
+      </tanrei-toolbar-group>
+      <tanrei-toolbar-group>
+        <tanrei-button variant="text" label="リンクを挿入"><span slot="icon">link</span></tanrei-button>
+        <tanrei-button variant="text" id="insert" label="挿入"><span slot="icon">add</span></tanrei-button>
+        <tanrei-menu anchor="insert">
+          <tanrei-menu-item label="表"></tanrei-menu-item>
+          <tanrei-menu-item label="水平線"></tanrei-menu-item>
+        </tanrei-menu>
+      </tanrei-toolbar-group>
+      <tanrei-divider></tanrei-divider>
+      <tanrei-button variant="filled" toolbar-overflow="never">公開</tanrei-button>
     </tanrei-toolbar>
 
-    <!-- フローティングで縦向き。置き場所はページが決めます。 -->
-    <tanrei-toolbar variant="floating" orientation="vertical" label="地図の操作" class="map-controls">
-      <tanrei-button variant="text" label="拡大"><span slot="icon">add</span></tanrei-button>
-      <tanrei-button variant="text" label="縮小"><span slot="icon">remove</span></tanrei-button>
+    <!-- 画面の下端いっぱいにドックします。 -->
+    <tanrei-toolbar variant="docked" label="メッセージのアクション">
+      <tanrei-button variant="text" label="アーカイブ"><span slot="icon">archive</span></tanrei-button>
+      <tanrei-button variant="text" label="削除"><span slot="icon">delete</span></tanrei-button>
+      <tanrei-button variant="filled">返信</tanrei-button>
     </tanrei-toolbar>
 
     <script type="module">
       import '@tanrei/web/components/toolbar';
       import '@tanrei/web/components/button';
+      import '@tanrei/web/components/divider';
+      import '@tanrei/web/components/menu';
       // 項目は利用者側のものです。ツールバー自身はイベントを出しません。
-      document.querySelector('[label="アーカイブ"]').addEventListener('click', archive);
+      document.querySelector('[label="リンクを挿入"]').addEventListener('click', insertLink);
+      const insert = document.querySelector('tanrei-menu[anchor="insert"]');
+      document.querySelector('#insert').addEventListener('click', () => (insert.open = !insert.open));
+      insert.addEventListener('close', () => (insert.open = false));
     </script>
     ```
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Button, Toolbar } from '@tanrei/react';
+    import { Button, Divider, Toolbar, ToolbarGroup } from '@tanrei/react';
 
-    <Toolbar label="メッセージのアクション">
-      <Button variant="text" label="アーカイブ" onClick={archive}><span slot="icon">archive</span></Button>
-      <Button variant="text" label="削除" onClick={remove}><span slot="icon">delete</span></Button>
-      <Button variant="text" label="移動" onClick={move}><span slot="icon">drive_file_move</span></Button>
-      <Button variant="filled" onClick={reply}>返信</Button>
+    <Toolbar label="書式" overflowLabel="その他の書式">
+      <ToolbarGroup label="文字のスタイル">
+        <Button variant="text" toggle selected={bold} label="太字" onChange={(e) => setBold(e.detail.selected)}><span slot="icon">format_bold</span></Button>
+        <Button variant="text" toggle selected={italic} label="斜体" onChange={(e) => setItalic(e.detail.selected)}><span slot="icon">format_italic</span></Button>
+      </ToolbarGroup>
+      <ToolbarGroup>
+        <Button variant="text" label="リンクを挿入" onClick={insertLink}><span slot="icon">link</span></Button>
+      </ToolbarGroup>
+      <Divider />
+      <Button variant="filled" toolbar-overflow="never" onClick={publish}>公開</Button>
     </Toolbar>
 
-    <Toolbar variant="floating" label="書式">
-      <Button variant="text" toggle selected={bold} label="太字" onChange={(e) => setBold(e.detail.selected)}><span slot="icon">format_bold</span></Button>
-      <Button variant="text" label="リンクを挿入" onClick={insertLink}><span slot="icon">link</span></Button>
+    <Toolbar variant="docked" label="メッセージのアクション">
+      <Button variant="text" label="アーカイブ" onClick={archive}><span slot="icon">archive</span></Button>
+      <Button variant="filled" onClick={reply}>返信</Button>
     </Toolbar>
     ```
   </TabItem>
@@ -180,32 +223,50 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 
 ## 仕様
 
-<DemoFrame label="ボタンの項目、項目 1 つ、無効な項目、Filled のアクション、縦向き" plain column>
-  <tanrei-toolbar label="作成" style="inline-size: 22rem">
+<DemoFrame label="グループと区切り、メニューボタン、メニュー付きボタン、ラベル付きのトグル、オーバーフローメニュー" plain column>
+  <tanrei-toolbar label="ドキュメントのアクション">
+    <tanrei-button variant="text" label="元に戻す"><span slot="icon">undo</span></tanrei-button>
+    <tanrei-button variant="text" label="やり直す"><span slot="icon">redo</span></tanrei-button>
+    <tanrei-divider></tanrei-divider>
+    <tanrei-button variant="text" id="toolbar-demo-sort" label="並べ替え"><span slot="icon">sort</span></tanrei-button>
+    <tanrei-menu anchor="toolbar-demo-sort">
+      <tanrei-menu-item label="名前"></tanrei-menu-item>
+      <tanrei-menu-item label="更新日時"></tanrei-menu-item>
+    </tanrei-menu>
+    <tanrei-button-with-menu label="保存" menu-label="保存のその他のオプション" variant="tonal">
+      <tanrei-menu-item slot="menu" label="名前を付けて保存"></tanrei-menu-item>
+    </tanrei-button-with-menu>
+  </tanrei-toolbar>
+  <tanrei-toolbar label="絞り込み">
+    <tanrei-button variant="outlined" toggle selected>未完了</tanrei-button>
+    <tanrei-button variant="outlined" toggle>自分が担当</tanrei-button>
+    <tanrei-button variant="outlined" toggle>添付ファイルあり</tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar label="メッセージのアクション" overflow-label="その他のアクション" style="inline-size: 15rem">
+    <tanrei-button variant="text" label="アーカイブ"><span slot="icon">archive</span></tanrei-button>
+    <tanrei-button variant="text" label="削除"><span slot="icon">delete</span></tanrei-button>
+    <tanrei-button variant="text" label="未読にする"><span slot="icon">mark_email_unread</span></tanrei-button>
+    <tanrei-button variant="text" label="移動"><span slot="icon">drive_file_move</span></tanrei-button>
+    <tanrei-button variant="text" label="ラベル"><span slot="icon">label</span></tanrei-button>
+    <tanrei-button variant="text" label="フラグ"><span slot="icon">flag</span></tanrei-button>
+    <tanrei-button variant="text" label="スヌーズ"><span slot="icon">snooze</span></tanrei-button>
+    <tanrei-button variant="text" label="印刷"><span slot="icon">print</span></tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="docked" label="作成" style="inline-size: 22rem">
     <tanrei-button variant="text" label="ファイルを添付"><span slot="icon">attach_file</span></tanrei-button>
     <tanrei-button variant="text" label="写真を挿入"><span slot="icon">image</span></tanrei-button>
     <tanrei-button variant="text" label="リンクを挿入"><span slot="icon">link</span></tanrei-button>
     <tanrei-button variant="filled">送信</tanrei-button>
   </tanrei-toolbar>
-  <tanrei-toolbar label="返信" style="inline-size: 22rem">
-    <tanrei-button variant="tonal">返信</tanrei-button>
-  </tanrei-toolbar>
-  <tanrei-toolbar label="メッセージのアクション" style="inline-size: 22rem">
-    <tanrei-button variant="text" label="アーカイブ"><span slot="icon">archive</span></tanrei-button>
-    <tanrei-button variant="text" label="削除" disabled><span slot="icon">delete</span></tanrei-button>
-    <tanrei-button variant="text" label="未読にする"><span slot="icon">mark_email_unread</span></tanrei-button>
-    <tanrei-button variant="text" label="移動"><span slot="icon">drive_file_move</span></tanrei-button>
-  </tanrei-toolbar>
-  <tanrei-toolbar variant="floating" label="描画ツール">
-    <tanrei-button variant="text" label="ペン"><span slot="icon">edit</span></tanrei-button>
-    <tanrei-button variant="text" label="蛍光ペン"><span slot="icon">ink_highlighter</span></tanrei-button>
-    <tanrei-button variant="text" label="消しゴム"><span slot="icon">ink_eraser</span></tanrei-button>
-    <tanrei-button variant="filled" label="完了"><span slot="icon">check</span></tanrei-button>
-  </tanrei-toolbar>
   <tanrei-toolbar variant="floating" orientation="vertical" label="地図の操作">
-    <tanrei-button variant="text" label="拡大"><span slot="icon">add</span></tanrei-button>
-    <tanrei-button variant="text" label="縮小"><span slot="icon">remove</span></tanrei-button>
-    <tanrei-button variant="text" label="現在地"><span slot="icon">my_location</span></tanrei-button>
+    <tanrei-toolbar-group label="ズーム">
+      <tanrei-button variant="text" label="拡大"><span slot="icon">add</span></tanrei-button>
+      <tanrei-button variant="text" label="縮小"><span slot="icon">remove</span></tanrei-button>
+    </tanrei-toolbar-group>
+    <tanrei-toolbar-group>
+      <tanrei-button variant="text" label="現在地"><span slot="icon">my_location</span></tanrei-button>
+      <tanrei-button variant="text" label="レイヤー"><span slot="icon">layers</span></tanrei-button>
+    </tanrei-toolbar-group>
   </tanrei-toolbar>
 </DemoFrame>
 
@@ -215,20 +276,21 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 
 ### 使う場面
 
-目の前にあるものに対する、いくつかのアクションをまとめるときに使います。開いているメッセージのアーカイブ・削除・移動、エディターの太字・斜体・リンク、お絵描きアプリのペンと消しゴム、地図の拡大・縮小・現在地などです。どれも、いまの画面や選択中のものに働きかけるアクションで、次にどこへ行くかを選ぶものではありません。
+目の前にあるものに働きかけるコントロールをまとめるときに使います。エディターの上の太字・斜体・リンク、表の上の絞り込み・並べ替え・ダウンロード、開いているメッセージのアーカイブ・削除・移動、絵の上のペンと消しゴム、地図の拡大・縮小・現在地などです。どのコントロールも、いまのコンテンツや選択中のものに働きかけるもので、次にどこへ行くかを選ぶものではありません。
 
 画面のタイトル、戻る操作、画面全体に関わる 1〜2 個のアクションは、上端の[アプリバー](/ja/components/app-bar/)に置きます。アプリの最上位の行き先を切り替えるなら[ナビゲーションバー](/ja/components/navigation-bar/)を使います。ドックのツールバーとナビゲーションバーは同じ画面に置きません。どちらも画面の下端を使うからです。
 
-### ドックかフローティングか
+### インラインか、ドックか、フローティングか
 
 | バリアント | 置かれる場所 | 項目の並び | 用途 |
 | --- | --- | --- | --- |
-| ドック（既定） | 画面の下端いっぱい。色はシステムバーの下まで届く | 幅いっぱいに、等間隔で広げる | 詳細画面のアクション。開いているメッセージ、写真、ドキュメントなど |
-| フローティング | コンテンツの上に浮く、角の丸いサーフェス。置き場所はレイアウトが決める | 間を詰めて並べ、必要な長さだけになる。各項目は自分のタッチターゲットの分の余裕を保つ | 周りのコンテンツを見せたまま使う道具。エディター、キャンバス、地図など |
+| インライン（既定） | コンテンツの中の、利用者側のレイアウトが置いた場所。既定のシステムでは自分のサーフェスを持たない | 間を詰めて並べ、必要な長さだけになる。各項目は自分のタッチターゲットの分の余裕を保つ | ページの一部分のコントロール。エディターの書式、表のアクション、絞り込みの並びなど |
+| ドック | 画面の下端いっぱいに、下端に接して。色はシステムバーの下まで届く | 幅いっぱいに、等間隔で広げる | スマートフォンの詳細画面のアクション。開いているメッセージ、写真、ドキュメントなど |
+| フローティング | コンテンツの上に浮く、角の丸いサーフェス。置き場所は利用者側のレイアウトが決める | 間を詰めて並べ、必要な長さだけになる。各項目は自分のタッチターゲットの分の余裕を保つ | 周りのコンテンツを見せたまま使う道具。キャンバス、地図など |
 
-ドックのツールバーは常に横向きです。フローティングは縦向きにもでき、大きな画面では地図の操作ボタンのようにコンテンツの横に立てて置けます。1 つのプロダクトの中で、画面によってドックとフローティングを使い分けてかまいません。デザインシステムが追加したバリアントは、自分の値を使いつつ、ドックの形で並びます。
+ドックのツールバーは常に横向きです。インラインとフローティングは縦向きにもでき、コンテンツの横に置けます。1 つのプロダクトの中で、ある画面ではインラインに置き、別の画面ではドックにし、さらに別の画面では浮かせてかまいません。デザインシステムが追加したバリアントは、自分の値を使いつつ、インラインの形で並びます。
 
-ドックのツールバーは、項目を幅いっぱいに広げ、隙間（既定のシステムでは 16）より近づけることはありません。フローティングのツールバーは項目の間を詰めます。既定のシステムでは隙間は 0 で、隣り合う 2 つの項目は、それぞれが並びの方向に自分のタッチターゲットを保つのに必要な分だけ離れます。large のボタンどうしは接し、medium では 8、small では 16 離れます。このためにツールバーが項目の幅を広げたり見た目を変えたりすることはなく、間隔はマウスでもタッチでも同じです。
+ドックのツールバーは、項目を幅いっぱいに広げ、隙間（既定のシステムでは 16）より近づけることはありません。インラインとフローティングのツールバーは項目の間を詰めます。隣り合う 2 つの項目は、それぞれが並びの方向に自分のタッチターゲットを保つのに必要な分だけ離れ、隙間（既定のシステムではインラインで 4、フローティングで 0）より近づくことはありません。large のボタンどうしは接し、medium では 8、small では 16 離れます。このためにツールバーが項目の幅を広げたり見た目を変えたりすることはなく、間隔はマウスでもタッチでも同じです。
 
 <DemoFrame label="フローティング：small、medium、large の項目と、narrow と wide の項目" plain column>
   <tanrei-toolbar variant="floating" label="書式（small）">
@@ -259,18 +321,30 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 
 - ほとんどのアクションには、`text` バリアントのアイコンだけの[ボタン](/ja/components/button/)を使います。ツールバーの行き着く先になるアクション（送信、完了など）は 1 つだけ目立たせます。Filled のアイコンだけのボタン（幅を `wide` にしてもかまいません）にするか、アイコンより言葉のほうが伝わるなら、ラベルのある Filled のボタンにします。
 - 小さなアクションがたくさん並ぶツールバーには、`narrow` のアイコンだけのボタンが向いています。見た目はターゲットより狭くなりますが、ツールバーが隣との間にターゲットの分の余裕を保ちます。
-- 太字やミュートのようにオンとオフを切り替えるアクションは、`toggle` を付けたアイコンだけのボタンにします。選択状態も読み上げも、ボタン自身が持ちます。
+- 太字やミュートのようにオンとオフを切り替えるアクションは、`toggle` を付けたアイコンだけのボタンにします。オンとオフのある絞り込みは、`toggle` を付けたラベルのあるボタンにします。選択状態も読み上げも、それぞれのボタン自身が持ちます。
+- いくつかのコマンドから選ばせるコントロールには、ツールバーの中のボタンに[メニュー](/ja/components/menu/)をアンカーします。保存と名前を付けて保存のように、バリエーションのあるメインのアクションには[メニュー付きボタン](/ja/components/button-with-menu/)を使います。
 - 並び順は変えないようにします。人はアクションを位置で覚えるので、画面ごとに項目の位置が変わると覚えにくくなります。
-- 項目が 1 つだけのツールバーは、その項目を中央に置きます。そのアクションはコンテンツの中に置いたほうがよくないか、一度考えてみてください。
+- 項目が 1 つだけのドックのツールバーは、その項目を中央に置きます。その項目はコンテンツの中に置いたほうがよくないか、一度考えてみてください。
+
+### グループと区切り
+
+関連する項目はグループにまとめます。太字・斜体・下線、元に戻す・やり直す、拡大・縮小などです。ツールバーは、2 つのグループの間と、グループとどのグループにも入っていない項目の間を、デザインシステムがほかの場所でパーツを区切るのと同じやり方で区切ります。既定のシステムでは短い線とその両側の 8 の余白で、区切りを余白で表すデザインシステムでは、線のない 16 の空きで区切ります。ツールバーの `separation` は、そのツールバーに固有の理由があるときだけ指定します。区切りの項目は、グループに入っていない 2 つの項目の間に同じ線を引きます。
+
+ツールバーは両端に線を引くことはなく、2 本の線を並べることもありません。まとまりがその人にとって意味を持つとき（「文字のスタイル」）はグループに `label` を付け、スクリーンリーダーがその名前を伝えるようにします。ラベルのないグループは、項目を区切るだけで何も伝えません。
 
 ### 項目が収まらないとき
 
-ツールバーは項目を折り返したり、縮めたり、隠したりしません。項目が入りきらないときは列がスクロールし、どの項目にも届くようにします。このときデバッグビルドで報告します。あふれたアクションは、ツールバーの末尾に置いた「その他のオプション」のアイコンボタンから開く、利用者側の[メニュー](/ja/components/menu/)にまとめます。
+ツールバーは項目を折り返したり縮めたりしません。項目が使える長さより多くの場所を必要とするときは、末尾から 1 つずつ項目を隠し、残った最後の項目の後ろにオーバーフローボタンを表示します。このボタンは、隠れた項目を元の順に、ラベル、アイコン、状態とともに並べたメニューを開きます。アクションはメニュー項目に、トグルはチェックボックスの項目に、メニューボタンはサブメニューに、メニュー付きボタンはメインのアクションとそれに続くサブメニューになります。どれを選んでも、隠れた項目とまったく同じことをします。オーバーフローボタンの名前は `overflow-label`（「その他のアクション」）で付けるか、プロダクト全体で一度だけ `setWords({ toolbarOverflowLabel: … })` で付けます。
+
+送信や完了のように残さなければならない項目には `toolbar-overflow="never"` を付けます。ツールバーは代わりにそれより前の項目を隠します。隠さない項目だけでもなお収まらないときは、列の残りがスクロールします。どの項目も隠さずにすべてを列に残し、スクロールさせるなら、`overflow="scroll"` を指定します。
+
+何を隠すかはツールバーを描く前に決まり、長さが変わったときもそのフレームの中で決め直します。そのため、いったん描かれた項目が後から隠れることはなく、列が跳ねることもありません。
 
 ### 推奨
 
-- ツールバーには、中のアクションが何をするものかを表す名前を付けます。「書式」「メッセージのアクション」などです。
+- ツールバーには、中のコントロールが何をするものかを表す名前を付けます。「書式」「メッセージのアクション」などです。
 - いま使えないアクションは、取り除かずに無効にします。そうすればほかの項目の位置が動きません。
+- よく使われる項目ほど先頭に置きます。ツールバーは末尾から隠すからです。
 - フローティングのツールバーは、使っている間も見えている必要があるコンテンツや、ナビゲーションバー、システムのインセットにかからない場所に置きます。
 
 ### 非推奨
@@ -278,7 +352,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 - テキストフィールド、スライダー、チップの並びをツールバーに入れない。どれも、ツールバーがフォーカスの移動に使う矢印キーを必要とします。検索はアプリバーかページに置きます。
 - ドックのツールバーとナビゲーションバーを同じ画面に置かない。
 - ツールバーを目立たせるために項目の見た目を変えない。代わりに、ボタンのバリアントを Tonal か Filled にします。
-- ナビゲーションの行き先をツールバーに入れない。ツールバーの項目はアクションです。
+- ナビゲーションの行き先をツールバーに入れない。ツールバーの項目は、コンテンツに働きかけるコントロールです。
 
 ## アクセシビリティ
 
@@ -287,21 +361,28 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 ### コンポーネントが担うこと
 
 - WAI-ARIA のツールバーパターンに沿い、Tab で止まるのはツールバーの中の 1 か所だけです。Tab で入ると、最後にキーボードフォーカスのあった項目、それもなければ最初の無効でない項目に止まり、次の Tab でツールバーから出ます。トグルが 8 個並ぶ書式ツールバーも、Tab 1 回で通り過ぎられます。
-- 中では、ツールバーの向きに沿った矢印キーで次または前の項目へ移り、端では折り返します。横向きなら右矢印と左矢印、縦向きなら下矢印と上矢印です。Home と End で最初と最後の項目へ移ります。右から左（RTL）のレイアウトでは、左矢印で次の項目へ移ります。
+- 中では、ツールバーの向きに沿った矢印キーで次または前の項目へ移り、端では折り返します。横向きなら右矢印と左矢印、縦向きなら下矢印と上矢印です。Home と End で最初と最後の項目へ移ります。右から左（RTL）のレイアウトでは、左矢印で次の項目へ移ります。グループの項目はツールバーの項目として扱い、メニュー付きボタンは左右それぞれが止まる位置になり、区切りは飛ばし、オーバーフローボタンが最後に止まる位置になります。
 - フォーカスを動かしただけで項目が実行されることはありません。Enter と Space は、フォーカスのある項目にその項目自身の動きをさせるので、トグルはそのまま切り替わります。
+- 項目にアンカーしたメニューが開いている間は、キー操作はメニューのものです。メニューが閉じると、フォーカスはそれを開いた項目に戻ります。
+- ツールバーが狭くなってフォーカスのある項目が隠れたときは、フォーカスはオーバーフローボタンへ移ります。
 - 無効な項目は矢印キーで飛ばされ、Tab で止まる位置にもなりません。無効なボタンはフォーカスを受け取らないからです。
 - このフォーカス移動は、各プラットフォームでリスト、メニュー、タブが使っているものと同じ仕組みです。
 - ツールバーのロールがあるプラットフォーム（Web、React Native）では、`label` を名前とし、向きを持つツールバーとして伝えます。SwiftUI、Compose、Flutter にはこのロールがないため、`label` を名前とし、項目を順に含むグループとして伝えます。
+- `label` のあるグループは、その名前を持つグループとして伝えます。グループの間の線は区切りとして伝えます。
+- オーバーフローボタンは、メニューを開くボタンとして、展開状態とともに伝えます。そのメニューには、隠れた項目がすべて、それぞれの名前と状態とともに入ります。
 - 各項目は、自分の名前、ロール、状態、ターゲットをそのまま保ちます。ツールバーはそこに何も加えず、見た目も変えません。
-- 隣り合う 2 つの項目のヒット領域は重なりません。ドックのツールバーでは隙間のちょうど中間で接します。既定のシステムの隙間（16）は、そこでもどの項目も 48 のタッチターゲット全体を保てる幅です。隙間を狭くしたデザインシステムでは、項目の間のターゲットも狭くなります。フローティングのツールバーでは、ポインターの種類にかかわらず、各項目が並びの方向にタッチターゲット 1 つ分の長さを保てるだけ離して並べるので、narrow や small のボタンが隣に押し狭められることはありません。隣がない側では、項目はターゲット全体を保ちます。
-- キーボードフォーカスを受け取った項目がスクロールで見えない位置にあれば、全体が見えるところまでスクロールします。
+- 隣り合う 2 つの項目のヒット領域は重なりません。ドックのツールバーでは隙間のちょうど中間で接します。既定のシステムの隙間（16）は、そこでもどの項目も 48 のタッチターゲット全体を保てる幅です。隙間を狭くしたデザインシステムでは、項目の間のターゲットも狭くなります。インラインとフローティングのツールバーでは、ポインターの種類にかかわらず、各項目が並びの方向にタッチターゲット 1 つ分の長さを保てるだけ離して並べるので、narrow や small のボタンが隣に押し狭められることはありません。隣がない側では、項目はターゲット全体を保ちます。
+- `overflow` が `scroll` のとき、キーボードフォーカスを受け取った項目がスクロールで見えない位置にあれば、全体が見えるところまでスクロールします。
 - 文字を大きくすると、ツールバーは向きと直交する方向に伸びて項目を収めます。項目そのものを拡大することはありません。
-- `label` がない場合、項目がない場合、Tanrei のボタンでないものが入っている場合、ドックなのに縦向きが指定された場合、項目が収まらない場合、バリアントや向きに知らない値が指定された場合は、デバッグビルドで報告します。
+- `label` がない場合、項目がない場合、どの種類にも当てはまらない項目がある場合、ドックなのに縦向きが指定された場合、オーバーフローボタンの名前がない場合、バリアント、向き、`overflow`、`separation` に知らない値が指定された場合は、デバッグビルドで報告します。
 
 プラットフォームごとの既知の制約：
 
 - SwiftUI、Compose、Flutter にはツールバーのロールがありません。スクリーンリーダーには、ツールバーではなく名前の付いたグループとして聞こえます。各パッケージの README にもそう書いています。このグループは向きを伝えません。
+- SwiftUI、Compose、Flutter、React Native は追従待ちです。インラインのバリアント、グループと区切り、オーバーフローメニューがなく、項目にはボタンしか入れられません。
 - Web：ドックのツールバーは `env(safe-area-inset-bottom)` を読みますが、この値はページの viewport メタに `viewport-fit=cover` がない限り 0 です。
+- Web：縦向きのツールバーのオーバーフローメニューは、オーバーフローボタンの横ではなく下に開きます。メニューに横に開く配置がないためです。
+- Web：インラインとフローティングのツールバーは、使える長さを親要素から測ります。flex の行の中で、親ではなく兄弟要素によって長さが決まるツールバーは、親か項目のサイズが変わったときにしか、何が収まるかを決め直しません。
 - Web：項目がスクロールしている間、項目のうちツールバーの軸と直交する方向にはみ出す部分（ヒット領域、フォーカスリングやグロー、Elevated のボタンの影）は切り取られます。スクロールバーは表示しません。
 - SwiftUI では、Tab で止まる 1 か所は、キーボード操作のための 1 つのフォーカスグループになります。フルキーボードアクセスでは、矢印キーで項目の間を移り、Tab でグループから出ます。キー操作は規則としてテストしているだけで、実際のキーボードではまだ確かめていません。
 - SwiftUI：項目がスクロールしている間、端の項目のヒット領域はツールバーの端で止まります。サイズが変わって項目がスクロールし始めたり、スクロールしなくなったりすると、項目は作り直されるため、項目のキーボードフォーカスや押している途中の操作が失われます。
@@ -312,8 +393,8 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 
 ### 利用者側で行うこと
 
-- ツールバーに `label` を付け、アイコンだけのものも含めて、すべての項目にプロダクトの言語でラベルを付けます。
-- 入れるのは Tanrei のボタン（アイコンだけ、またはラベル付き）だけにします。
+- ツールバーに `label` を付け、アイコンだけのものも含めて、すべての項目にプロダクトの言語でラベルを付けます。オーバーフローボタンにも、`overflow-label` かプロダクト側の言葉で名前を付けます。
+- 入れるのは Tanrei のボタンとメニュー付きボタンだけにします。単独で置くか、グループに入れるか、メニューをアンカーして置きます。
 - 使えないアクションは無効にし、理由が分かりにくいときは近くで理由を伝えます。
-- アクションが収まらないときのあふれメニューは、利用者側で用意します。
+- メニューボタンのメニューは、ほかのメニューと同じく、利用者側で開閉します。
 - フローティングのツールバーは、表示している間も必要なコンテンツを覆わない場所に置きます。

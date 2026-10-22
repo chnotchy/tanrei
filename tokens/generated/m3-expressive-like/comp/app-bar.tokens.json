@@ -102,6 +102,86 @@
             "$value": "{tanrei.sys.target.spacing}"
           }
         },
+        "brand": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product puts its brand in its app bar as the link to its first page: one logo file, its symbol, its wordmark, or the two set side by side, each at a height the bar's icons and title stand in line with, in the color of the bar's text so that a one-color mark follows the scheme and the contrast.",
+              "since": "0.1.0"
+            }
+          },
+          "symbol": {
+            "size": {
+              "$type": "dimension",
+              "$description": "The symbol's height (and a square symbol's width): an icon's, so that it stands where an icon button's icon stands.",
+              "$value": "{tanrei.sys.icon.medium}"
+            }
+          },
+          "wordmark": {
+            "height": {
+              "$type": "dimension",
+              "$description": "The wordmark's height: the height of its frame, which keeps the capital of the default system's wordmark at least 24 px high (its minimum) and its ink inside the brand's cell. Its width follows its proportions.",
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 10
+                }
+              }
+            }
+          },
+          "image": {
+            "height": {
+              "$type": "dimension",
+              "$description": "The height of a brand given as one image (a product's single logo file): a wordmark's, which most logo files are drawn around.",
+              "$value": "{tanrei.comp.app-bar.brand.wordmark.height}"
+            }
+          },
+          "lockup": {
+            "symbol": {
+              "size": {
+                "$type": "dimension",
+                "$description": "The symbol's height beside the wordmark in a lockup: the wordmark's, so that the two stand at one height (APB-24). A symbol shown alone keeps brand.symbol.size.",
+                "$value": "{tanrei.comp.app-bar.brand.wordmark.height}"
+              }
+            },
+            "gap": {
+              "$type": "dimension",
+              "$description": "Between the symbol and the wordmark set side by side.",
+              "$value": "{tanrei.sys.space.space100}"
+            },
+            "alignment": {
+              "$type": "number",
+              "$value": 0,
+              "$description": "How the symbol and the wordmark of a lockup align in the row's block axis: center (their centres on one line), start (their tops) or end (their bottoms, for a symbol that stands on the wordmark's baseline). The value is an index into dev.tanrei.enum.values; platforms receive the name.",
+              "$extensions": {
+                "dev.tanrei.enum": {
+                  "values": [
+                    "center",
+                    "start",
+                    "end"
+                  ]
+                },
+                "dev.tanrei.derive": {
+                  "fixed": "A choice of kind; no dial scales it."
+                }
+              }
+            }
+          },
+          "shape": {
+            "$type": "dimension",
+            "$description": "The corners of the brand's cell, which its focus indicator follows: the icon buttons' beside it.",
+            "$value": "{tanrei.sys.shape.corner.full}"
+          },
+          "color": {
+            "$type": "color",
+            "$description": "The brand's color: an image drawn in the current color takes it; an image of its own colors keeps them.",
+            "$value": "{tanrei.sys.color.on-surface}"
+          }
+        },
         "title": {
           "typescale": {
             "$type": "typography",
@@ -233,11 +313,12 @@
           "condition-duration": {
             "$type": "duration",
             "$value": "{tanrei.sys.motion.duration.short4}",
-            "$description": "How long the bar takes to change between flat and scrolled."
+            "$description": "How long the bar takes to change between flat and scrolled.",
+            "$extensions": {}
           },
           "condition-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           }
         }
       }

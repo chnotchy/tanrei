@@ -8,18 +8,20 @@ import ComponentAvailability from '../../../components/ComponentAvailability.ast
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
 import DemoFrame from '../../../components/DemoFrame.astro';
+import VisualFrame from '../../../components/visuals/VisualFrame.astro';
+import StateMatrix from '../../../components/visuals/StateMatrix.astro';
 
 ## Overview
 
 <ComponentAvailability name="button" />
 
-<DemoFrame label="Variants">
+<VisualFrame label="Variants" reserve={{ block: 'comp.button.container.height.medium' }} controls="both">
   <tanrei-button variant="filled">Filled</tanrei-button>
   <tanrei-button variant="tonal">Tonal</tanrei-button>
   <tanrei-button variant="elevated">Elevated</tanrei-button>
   <tanrei-button variant="outlined">Outlined</tanrei-button>
   <tanrei-button variant="text">Text</tanrei-button>
-</DemoFrame>
+</VisualFrame>
 
 ### Usage
 
@@ -169,6 +171,8 @@ Set `destructive` on a button whose action deletes or discards something a perso
 
 Choose the variant as for any other action. Use filled where deleting is the step the view exists for, such as the confirming action of a "Delete project?" dialog. Use outlined or text where it is one action among several, such as Remove in each row of a list. An icon-only button takes `destructive` as well, but for an action that cannot be undone a label is clearer than a glyph. A toggle has no destructive look.
 
+A link has none either. A button with `href` ignores `destructive` and is drawn as the link of its variant, because following a link deletes nothing: it only takes the person to the place where something can be deleted. Mark the action at that place instead, such as the Delete button on the page the link opens. A debug build reports a link that is given `destructive`.
+
 <DemoFrame label="Destructive buttons in each variant, and icon-only" plain>
   <tanrei-button destructive>Delete project</tanrei-button>
   <tanrei-button variant="tonal" destructive>Discard draft</tanrei-button>
@@ -256,7 +260,7 @@ On the web a button is one of its form's controls, and `type` says what a press 
   <TabItem label="Web">
     ```html
     <form id="profile">
-      <tanrei-text-field label="Name" name="name" requirement="required"></tanrei-text-field>
+      <tanrei-text-field label="Name" name="name" required></tanrei-text-field>
       <tanrei-button type="reset" variant="text">Clear</tanrei-button>
       <tanrei-button type="submit" variant="outlined" name="intent" value="draft">Save draft</tanrei-button>
       <tanrei-button type="submit" name="intent" value="publish">Publish</tanrei-button>
@@ -289,7 +293,7 @@ On the web a button is one of its form's controls, and `type` says what a press 
         save(data.get('name'), data.get('intent'));
       }}
     >
-      <TextField label="Name" name="name" requirement="required" />
+      <TextField label="Name" name="name" required />
       <Button type="reset" variant="text">Clear</Button>
       <Button type="submit" variant="outlined" name="intent" value="draft">Save draft</Button>
       <Button type="submit" name="intent" value="publish">Publish</Button>
@@ -339,6 +343,8 @@ When the same word is drawn on several buttons, such as "Remove" in every row of
   <tanrei-button variant="outlined" disabled>Disabled</tanrei-button>
 </DemoFrame>
 
+<StateMatrix name="button" />
+
 <ComponentSpecs name="button" />
 
 ## Guidelines
@@ -363,7 +369,7 @@ Variants express emphasis, and emphasis is a budget. Spend it once per view.
 
 `destructive` is not a variant: it goes with any of them, and keeps that variant's emphasis (see [Destructive actions](#destructive-actions)).
 
-A button without a `variant` is filled, with one exception: placed as a [dialog](/components/dialog/)'s or a [side sheet](/components/side-sheet/)'s action, it takes that host's variant, tonal in the default system, so you set a variant only on the action that should look different. A side sheet's close button takes the sheet's close-button variant the same way.
+A button without a `variant` is filled, with one exception: placed as a [dialog](/components/dialog/)'s or a [side sheet](/components/side-sheet/)'s action, it takes that host's variant, tonal in the default system, so you set a variant only on the action that should look different. Every host's close button — a popover's, a side sheet's, a bottom sheet's, a callout's, a snackbar's, an image preview's — is a small icon-only button that takes its host's close-button variant the same way, tonal in the default system. On a colored surface, such as a status callout or an inverse snackbar, it is also drawn in that surface's text color.
 
 ### Do
 
@@ -372,6 +378,7 @@ A button without a `variant` is filled, with one exception: placed as a [dialog]
 - Place the primary action where the platform's users expect it, and keep that order across the product.
 - Use `small` (32) in dense toolbars and tables, `medium` (40) by default, and `large` (56) for touch-first or hero placements. The hit area is safe at every size.
 - Set `destructive` on an action that deletes or discards something, and choose its variant for its emphasis, as for any other action.
+- Make a link to the place where something is deleted an ordinary link, whose label says where it goes. Set `destructive` on the button that deletes, at that place.
 - Use the icon slot to reinforce a label. Leave the label out only where the glyph is widely understood (search, close, more), and name the button with `label`.
 
 ### Don't
@@ -382,6 +389,7 @@ A button without a `variant` is filled, with one exception: placed as a [dialog]
 - Don't disable a button as the only way to communicate a validation problem. Keep it enabled and explain what is missing when it is pressed, or keep it reachable with `focusable-when-disabled` and say why.
 - Don't disable a button while its action is under way. Set `busy`, so that focus stays on it.
 - Don't use `destructive` for emphasis, or for an action that destroys nothing. If every action in a view is red, none of them stands out.
+- Don't make a link red, and don't give a button both `href` and `destructive`. A link only leads somewhere, so the button ignores `destructive` and draws the link of its variant.
 - Don't truncate labels. Let the button grow, or write a shorter label.
 - Don't leave an icon-only button without `label`: the glyph is not a name.
 - Don't pack narrow icon-only buttons edge to edge by hand. Their targets reach past their edges and would overlap.

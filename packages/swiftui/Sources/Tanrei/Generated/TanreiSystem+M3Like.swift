@@ -652,6 +652,14 @@ private let m3LikeAccordionTokens = TanreiAccordionTokens(
 
 private let m3LikeAppBarTokens = TanreiAppBarTokens(
   actionsGap: 8,
+  brandColor: .role(.onSurface),
+  brandImageHeight: 40,
+  brandLockupAlignment: 0,
+  brandLockupGap: 8,
+  brandLockupSymbolSize: 40,
+  brandShape: 9999,
+  brandSymbolSize: 24,
+  brandWordmarkHeight: 40,
   containerGap: 8,
   containerPaddingBlockEnd: 12,
   containerPaddingInline: 4,
@@ -720,6 +728,8 @@ private let m3LikeAvatarTokens = TanreiAvatarTokens(
   groupOutlineWidth: 2,
   iconColor: .role(.onSurfaceVariant),
   labelColor: .role(.onSurfaceVariant),
+  motionPictureDuration: 150,
+  motionPictureEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   sizes: TanreiAvatarSizes(
     small: TanreiAvatarSizeTokens(
       containerSize: 24,
@@ -765,6 +775,7 @@ private let m3LikeBadgeTokens = TanreiBadgeTokens(
 )
 
 private let m3LikeBottomSheetTokens = TanreiBottomSheetTokens(
+  closeButtonVariant: 4,
   containerColor: .role(.surfaceContainerLow),
   containerElevation: m3LikeElevation.level1,
   containerMarginBlockStart: 48,
@@ -773,13 +784,20 @@ private let m3LikeBottomSheetTokens = TanreiBottomSheetTokens(
   containerPartialFraction: 0.5,
   containerShape: 28,
   contentColor: .role(.onSurface),
+  dividerColor: .role(.outlineVariant),
+  dividerVisibility: 1,
+  dividerWidth: 1,
   handleContainerHeight: 24,
   handleContainerShape: 9999,
   handleContainerWidth: 48,
   handleGripHeight: 4,
-  handleGripShape: 9999,
   handleGripWidth: 32,
   handleMarginBlock: 12,
+  headerGap: 8,
+  headerHeight: 64,
+  headerPaddingInlineEnd: 12,
+  headlineColor: .role(.onSurface),
+  headlineTypescale: m3LikeTypescale.heading5,
   motionEnterDuration: 300,
   motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
   motionExitDuration: 200,
@@ -1001,7 +1019,12 @@ private let m3LikeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.onPrimary),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.onPrimary)
+        stateLayerColor: .role(.onPrimary),
+        destructiveContainerColor: .role(.error),
+        destructiveLabelColor: .role(.onError),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.onError)
       ),
       hovered: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .mix(base: .role(.primary), with: .role(.onPrimary), amount: 0.08),
@@ -1009,7 +1032,12 @@ private let m3LikeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.onPrimary),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.onPrimary)
+        stateLayerColor: .role(.onPrimary),
+        destructiveContainerColor: .mix(base: .role(.error), with: .role(.onError), amount: 0.08),
+        destructiveLabelColor: .role(.onError),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.onError)
       ),
       focused: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .mix(base: .role(.primary), with: .role(.onPrimary), amount: 0.12),
@@ -1017,7 +1045,12 @@ private let m3LikeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.onPrimary),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.onPrimary)
+        stateLayerColor: .role(.onPrimary),
+        destructiveContainerColor: .mix(base: .role(.error), with: .role(.onError), amount: 0.12),
+        destructiveLabelColor: .role(.onError),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.onError)
       ),
       pressed: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .mix(base: .role(.primary), with: .role(.onPrimary), amount: 0.12),
@@ -1025,7 +1058,12 @@ private let m3LikeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.onPrimary),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.onPrimary)
+        stateLayerColor: .role(.onPrimary),
+        destructiveContainerColor: .mix(base: .role(.error), with: .role(.onError), amount: 0.12),
+        destructiveLabelColor: .role(.onError),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.onError)
       ),
       disabled: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .alpha(of: .role(.onSurface), amount: 0.12),
@@ -1033,7 +1071,12 @@ private let m3LikeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
         outlineColor: .none,
         dividerColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveContainerColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        destructiveLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
     tonal: TanreiButtonWithMenuVariantTokens(
@@ -1043,7 +1086,12 @@ private let m3LikeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.onSecondaryContainer),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.onSecondaryContainer)
+        stateLayerColor: .role(.onSecondaryContainer),
+        destructiveContainerColor: .role(.errorContainer),
+        destructiveLabelColor: .role(.onErrorContainer),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.onErrorContainer)
       ),
       hovered: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.08),
@@ -1051,7 +1099,12 @@ private let m3LikeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.onSecondaryContainer),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.onSecondaryContainer)
+        stateLayerColor: .role(.onSecondaryContainer),
+        destructiveContainerColor: .mix(base: .role(.errorContainer), with: .role(.onErrorContainer), amount: 0.08),
+        destructiveLabelColor: .role(.onErrorContainer),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.onErrorContainer)
       ),
       focused: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.12),
@@ -1059,7 +1112,12 @@ private let m3LikeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.onSecondaryContainer),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.onSecondaryContainer)
+        stateLayerColor: .role(.onSecondaryContainer),
+        destructiveContainerColor: .mix(base: .role(.errorContainer), with: .role(.onErrorContainer), amount: 0.12),
+        destructiveLabelColor: .role(.onErrorContainer),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.onErrorContainer)
       ),
       pressed: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.12),
@@ -1067,7 +1125,12 @@ private let m3LikeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.onSecondaryContainer),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.onSecondaryContainer)
+        stateLayerColor: .role(.onSecondaryContainer),
+        destructiveContainerColor: .mix(base: .role(.errorContainer), with: .role(.onErrorContainer), amount: 0.12),
+        destructiveLabelColor: .role(.onErrorContainer),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.onErrorContainer)
       ),
       disabled: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .alpha(of: .role(.onSurface), amount: 0.12),
@@ -1075,7 +1138,12 @@ private let m3LikeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
         outlineColor: .none,
         dividerColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveContainerColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        destructiveLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
     elevated: TanreiButtonWithMenuVariantTokens(
@@ -1085,7 +1153,12 @@ private let m3LikeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.primary),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.primary)
+        stateLayerColor: .role(.primary),
+        destructiveContainerColor: .role(.surfaceContainerLow),
+        destructiveLabelColor: .role(.error),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.error)
       ),
       hovered: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .mix(base: .role(.surfaceContainerLow), with: .role(.primary), amount: 0.08),
@@ -1093,7 +1166,12 @@ private let m3LikeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.primary),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.primary)
+        stateLayerColor: .role(.primary),
+        destructiveContainerColor: .mix(base: .role(.surfaceContainerLow), with: .role(.error), amount: 0.08),
+        destructiveLabelColor: .role(.error),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.error)
       ),
       focused: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .mix(base: .role(.surfaceContainerLow), with: .role(.primary), amount: 0.12),
@@ -1101,7 +1179,12 @@ private let m3LikeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.primary),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.primary)
+        stateLayerColor: .role(.primary),
+        destructiveContainerColor: .mix(base: .role(.surfaceContainerLow), with: .role(.error), amount: 0.12),
+        destructiveLabelColor: .role(.error),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.error)
       ),
       pressed: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .mix(base: .role(.surfaceContainerLow), with: .role(.primary), amount: 0.12),
@@ -1109,7 +1192,12 @@ private let m3LikeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.primary),
         outlineColor: .none,
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.primary)
+        stateLayerColor: .role(.primary),
+        destructiveContainerColor: .mix(base: .role(.surfaceContainerLow), with: .role(.error), amount: 0.12),
+        destructiveLabelColor: .role(.error),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .role(.outline),
+        destructiveStateLayerColor: .role(.error)
       ),
       disabled: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .alpha(of: .role(.onSurface), amount: 0.12),
@@ -1117,7 +1205,12 @@ private let m3LikeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
         outlineColor: .none,
         dividerColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveContainerColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        destructiveLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveOutlineColor: .none,
+        destructiveDividerColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
     outlined: TanreiButtonWithMenuVariantTokens(
@@ -1127,7 +1220,12 @@ private let m3LikeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.primary),
         outlineColor: .role(.outline),
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.primary)
+        stateLayerColor: .role(.primary),
+        destructiveContainerColor: .none,
+        destructiveLabelColor: .role(.error),
+        destructiveOutlineColor: .role(.error),
+        destructiveDividerColor: .role(.error),
+        destructiveStateLayerColor: .role(.error)
       ),
       hovered: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .mix(base: .none, with: .role(.primary), amount: 0.08),
@@ -1135,7 +1233,12 @@ private let m3LikeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.primary),
         outlineColor: .role(.outline),
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.primary)
+        stateLayerColor: .role(.primary),
+        destructiveContainerColor: .mix(base: .none, with: .role(.error), amount: 0.08),
+        destructiveLabelColor: .role(.error),
+        destructiveOutlineColor: .role(.error),
+        destructiveDividerColor: .role(.error),
+        destructiveStateLayerColor: .role(.error)
       ),
       focused: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .mix(base: .none, with: .role(.primary), amount: 0.12),
@@ -1143,7 +1246,12 @@ private let m3LikeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.primary),
         outlineColor: .role(.primary),
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.primary)
+        stateLayerColor: .role(.primary),
+        destructiveContainerColor: .mix(base: .none, with: .role(.error), amount: 0.12),
+        destructiveLabelColor: .role(.error),
+        destructiveOutlineColor: .role(.error),
+        destructiveDividerColor: .role(.error),
+        destructiveStateLayerColor: .role(.error)
       ),
       pressed: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .mix(base: .none, with: .role(.primary), amount: 0.12),
@@ -1151,7 +1259,12 @@ private let m3LikeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .role(.primary),
         outlineColor: .role(.outline),
         dividerColor: .role(.outline),
-        stateLayerColor: .role(.primary)
+        stateLayerColor: .role(.primary),
+        destructiveContainerColor: .mix(base: .none, with: .role(.error), amount: 0.12),
+        destructiveLabelColor: .role(.error),
+        destructiveOutlineColor: .role(.error),
+        destructiveDividerColor: .role(.error),
+        destructiveStateLayerColor: .role(.error)
       ),
       disabled: TanreiButtonWithMenuVariantStateTokens(
         containerColor: .none,
@@ -1159,7 +1272,12 @@ private let m3LikeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
         labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
         outlineColor: .alpha(of: .role(.onSurface), amount: 0.12),
         dividerColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveContainerColor: .none,
+        destructiveLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveOutlineColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        destructiveDividerColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     )
   ),
@@ -1186,8 +1304,8 @@ private let m3LikeButtonTokens = TanreiButtonTokens(
   containerShape: 9999,
   motionBusyCycleDuration: 1000,
   motionFeedbackDuration: 450,
-  motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  toneContainerOpacity: 0.16,
   sizes: TanreiButtonSizes(
     small: TanreiButtonSizeTokens(
       containerHeight: 32,
@@ -1202,7 +1320,8 @@ private let m3LikeButtonTokens = TanreiButtonTokens(
       iconSize: 18,
       iconSizeWithoutLabel: 20,
       containerGap: 8,
-      outlineWidth: 1
+      outlineWidth: 1,
+      motionStateDuration: 150
     ),
     medium: TanreiButtonSizeTokens(
       containerHeight: 40,
@@ -1217,7 +1336,8 @@ private let m3LikeButtonTokens = TanreiButtonTokens(
       iconSize: 18,
       iconSizeWithoutLabel: 24,
       containerGap: 8,
-      outlineWidth: 1
+      outlineWidth: 1,
+      motionStateDuration: 150
     ),
     large: TanreiButtonSizeTokens(
       containerHeight: 56,
@@ -1232,7 +1352,8 @@ private let m3LikeButtonTokens = TanreiButtonTokens(
       iconSize: 18,
       iconSizeWithoutLabel: 24,
       containerGap: 8,
-      outlineWidth: 1
+      outlineWidth: 1,
+      motionStateDuration: 150
     )
   ),
   variants: TanreiButtonVariants(
@@ -2044,107 +2165,18 @@ private let m3LikeCalendarTokens = TanreiCalendarTokens(
 private let m3LikeCalloutTokens = TanreiCalloutTokens(
   actionsGap: 12,
   actionsItemGap: 8,
+  closeButtonVariant: 4,
   containerGap: 8,
   containerPaddingBlock: 12,
   containerPaddingInline: 16,
   containerPaddingInlineEndWithClose: 8,
   containerShape: 12,
-  controlsHeight: 32,
-  controlsIconSize: 20,
-  controlsShape: 9999,
   iconGap: 12,
   iconOpacity: 0.85,
   iconSize: 20,
-  motionFeedbackDuration: 450,
-  motionStateDuration: 150,
-  motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineColor: .role(.outlineVariant),
   outlineWidth: 1,
   titleGap: 4,
-  controls: TanreiCalloutControls(
-    close: TanreiCalloutControlTokens(
-      enabled: TanreiCalloutControlStateTokens(
-        containerColor: .none,
-        contentColor: .role(.onSecondaryContainer),
-        stateLayerColor: .role(.onSecondaryContainer),
-        infoContainerColor: .none,
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .none,
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .none,
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .none,
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        outlinedContainerColor: .none,
-        outlinedContentColor: .role(.onSurfaceVariant),
-        outlinedStateLayerColor: .role(.onSurfaceVariant)
-      ),
-      hovered: TanreiCalloutControlStateTokens(
-        containerColor: .mix(base: .none, with: .role(.onSecondaryContainer), amount: 0.08),
-        contentColor: .role(.onSecondaryContainer),
-        stateLayerColor: .role(.onSecondaryContainer),
-        infoContainerColor: .mix(base: .none, with: .role(.onInfoContainer), amount: 0.08),
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .mix(base: .none, with: .role(.onWarningContainer), amount: 0.08),
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .mix(base: .none, with: .role(.onErrorContainer), amount: 0.08),
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .mix(base: .none, with: .role(.onSuccessContainer), amount: 0.08),
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        outlinedContainerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.08),
-        outlinedContentColor: .role(.onSurfaceVariant),
-        outlinedStateLayerColor: .role(.onSurfaceVariant)
-      ),
-      focused: TanreiCalloutControlStateTokens(
-        containerColor: .mix(base: .none, with: .role(.onSecondaryContainer), amount: 0.12),
-        contentColor: .role(.onSecondaryContainer),
-        stateLayerColor: .role(.onSecondaryContainer),
-        infoContainerColor: .mix(base: .none, with: .role(.onInfoContainer), amount: 0.12),
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .mix(base: .none, with: .role(.onWarningContainer), amount: 0.12),
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .mix(base: .none, with: .role(.onErrorContainer), amount: 0.12),
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .mix(base: .none, with: .role(.onSuccessContainer), amount: 0.12),
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        outlinedContainerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.12),
-        outlinedContentColor: .role(.onSurfaceVariant),
-        outlinedStateLayerColor: .role(.onSurfaceVariant)
-      ),
-      pressed: TanreiCalloutControlStateTokens(
-        containerColor: .mix(base: .none, with: .role(.onSecondaryContainer), amount: 0.12),
-        contentColor: .role(.onSecondaryContainer),
-        stateLayerColor: .role(.onSecondaryContainer),
-        infoContainerColor: .mix(base: .none, with: .role(.onInfoContainer), amount: 0.12),
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .mix(base: .none, with: .role(.onWarningContainer), amount: 0.12),
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .mix(base: .none, with: .role(.onErrorContainer), amount: 0.12),
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .mix(base: .none, with: .role(.onSuccessContainer), amount: 0.12),
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        outlinedContainerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.12),
-        outlinedContentColor: .role(.onSurfaceVariant),
-        outlinedStateLayerColor: .role(.onSurfaceVariant)
-      )
-    )
-  ),
   sizes: TanreiCalloutSizes(
     medium: TanreiCalloutSizeTokens(
       titleTypescale: m3LikeTypescale.heading6,
@@ -2161,64 +2193,45 @@ private let m3LikeCalloutTokens = TanreiCalloutTokens(
       titleColor: .role(.onSecondaryContainer),
       bodyColor: .role(.onSecondaryContainer),
       iconColor: .role(.onSecondaryContainer),
-      focusRingColor: .role(.onSecondaryContainer),
       infoContainerColor: .role(.infoContainer),
       infoTitleColor: .role(.onInfoContainer),
       infoBodyColor: .role(.onInfoContainer),
       infoIconColor: .role(.info),
-      infoFocusRingColor: .role(.onInfoContainer),
       warningContainerColor: .role(.warningContainer),
       warningTitleColor: .role(.onWarningContainer),
       warningBodyColor: .role(.onWarningContainer),
       warningIconColor: .role(.warning),
-      warningFocusRingColor: .role(.onWarningContainer),
       errorContainerColor: .role(.errorContainer),
       errorTitleColor: .role(.onErrorContainer),
       errorBodyColor: .role(.onErrorContainer),
       errorIconColor: .role(.error),
-      errorFocusRingColor: .role(.onErrorContainer),
       successContainerColor: .role(.successContainer),
       successTitleColor: .role(.onSuccessContainer),
       successBodyColor: .role(.onSuccessContainer),
-      successIconColor: .role(.success),
-      successFocusRingColor: .role(.onSuccessContainer)
+      successIconColor: .role(.success)
     ),
     outlined: TanreiCalloutVariantTokens(
       containerColor: .none,
       titleColor: .role(.onSurface),
       bodyColor: .role(.onSurface),
       iconColor: .role(.onSurfaceVariant),
-      focusRingColor: .role(.focusRing),
       infoContainerColor: .none,
       infoTitleColor: .role(.onSurface),
       infoBodyColor: .role(.onSurface),
       infoIconColor: .role(.info),
-      infoFocusRingColor: .role(.focusRing),
       warningContainerColor: .none,
       warningTitleColor: .role(.onSurface),
       warningBodyColor: .role(.onSurface),
       warningIconColor: .role(.warning),
-      warningFocusRingColor: .role(.focusRing),
       errorContainerColor: .none,
       errorTitleColor: .role(.onSurface),
       errorBodyColor: .role(.onSurface),
       errorIconColor: .role(.error),
-      errorFocusRingColor: .role(.focusRing),
       successContainerColor: .none,
       successTitleColor: .role(.onSurface),
       successBodyColor: .role(.onSurface),
-      successIconColor: .role(.success),
-      successFocusRingColor: .role(.focusRing)
+      successIconColor: .role(.success)
     )
-  ),
-  hovered: TanreiCalloutStateTokens(
-    opacity: 1
-  ),
-  focused: TanreiCalloutStateTokens(
-    opacity: 1
-  ),
-  pressed: TanreiCalloutStateTokens(
-    opacity: 1
   )
 )
 
@@ -2566,7 +2579,6 @@ private let m3LikeCheckboxTokens = TanreiCheckboxTokens(
   labelTypescale: m3LikeTypescale.body,
   markSize: 20,
   markWeight: 400,
-  markWidth: 2,
   motionFeedbackDuration: 450,
   motionMarkEnterScale: 0.5,
   motionMarkScaleDuration: 350,
@@ -2855,7 +2867,6 @@ private let m3LikeChipTokens = TanreiChipTokens(
   motionFeedbackDuration: 450,
   motionSelectionDuration: 150,
   motionSelectionEasing: TanreiCubicBezier(0.31, 0.94, 0.34, 1),
-  motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   removeContainerShape: 9999,
@@ -2871,7 +2882,8 @@ private let m3LikeChipTokens = TanreiChipTokens(
       labelTypescale: m3LikeTypescale.labelSmall,
       iconSize: 20,
       avatarSize: 16,
-      removeContainerSize: 24
+      removeContainerSize: 24,
+      motionStateDuration: 150
     ),
     medium: TanreiChipSizeTokens(
       containerHeight: 32,
@@ -2884,7 +2896,8 @@ private let m3LikeChipTokens = TanreiChipTokens(
       labelTypescale: m3LikeTypescale.label,
       iconSize: 18,
       avatarSize: 24,
-      removeContainerSize: 28
+      removeContainerSize: 28,
+      motionStateDuration: 150
     )
   ),
   variants: TanreiChipVariants(
@@ -3203,7 +3216,6 @@ private let m3LikeComboboxTokens = TanreiComboboxTokens(
   dividerSpace: 8,
   dividerThickness: 1,
   groupTitleColor: .role(.onSurfaceVariant),
-  groupTitlePaddingInline: 12,
   groupTitleTypescale: m3LikeTypescale.labelSmall,
   groupGap: 16,
   listColor: .role(.surfaceContainer),
@@ -3221,14 +3233,8 @@ private let m3LikeComboboxTokens = TanreiComboboxTokens(
   motionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  optionGap: 12,
-  optionHeight: 48,
   optionLabelTypescale: m3LikeTypescale.label,
-  optionLeadingIconSize: 24,
-  optionMarkSize: 24,
   optionMatchEmphasis: 200,
-  optionPaddingBlock: 8,
-  optionPaddingInline: 12,
   optionShape: 0,
   optionSupportingTextTypescale: m3LikeTypescale.bodySmall,
   separation: 0,
@@ -3438,6 +3444,26 @@ private let m3LikeComboboxTokens = TanreiComboboxTokens(
       )
     )
   ),
+  densitys: TanreiComboboxDensitys(
+    regular: TanreiComboboxDensityTokens(
+      optionHeight: 48,
+      optionPaddingInline: 12,
+      optionPaddingBlock: 8,
+      optionGap: 12,
+      optionLeadingIconSize: 24,
+      optionMarkSize: 24,
+      groupTitlePaddingInline: 12
+    ),
+    compact: TanreiComboboxDensityTokens(
+      optionHeight: 32,
+      optionPaddingInline: 8,
+      optionPaddingBlock: 6,
+      optionGap: 8,
+      optionLeadingIconSize: 20,
+      optionMarkSize: 20,
+      groupTitlePaddingInline: 8
+    )
+  ),
   hovered: TanreiComboboxStateTokens(
     opacity: 1
   ),
@@ -3505,7 +3531,6 @@ private let m3LikeDateTimePickerTokens = TanreiDateTimePickerTokens(
   modalContainerShape: 28,
   modalMotionCloseDuration: 200,
   modalMotionCloseEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
-  modalMotionEnterScale: 0.95,
   modalMotionOpenDuration: 300,
   modalMotionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
   modalScrimBlur: 0,
@@ -3648,7 +3673,6 @@ private let m3LikeDialogTokens = TanreiDialogTokens(
   actionsGap: 8,
   actionsMarginBlockStart: 24,
   actionsVariant: 4,
-  closeButtonVariant: 4,
   compactWindowWidth: 0,
   containerColor: .role(.surfaceContainerHigh),
   containerElevation: m3LikeElevation.level3,
@@ -3670,8 +3694,6 @@ private let m3LikeDialogTokens = TanreiDialogTokens(
   iconSize: 24,
   motionEnterDuration: 300,
   motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionEnterOffset: 32,
-  motionEnterScale: 0.95,
   motionExitDuration: 200,
   motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
   scrimBlur: 0,
@@ -4420,10 +4442,79 @@ private let m3LikeFileUploadTokens = TanreiFileUploadTokens(
   listGap: 16
 )
 
+private let m3LikeHandleTokens = TanreiHandleTokens(
+  containerShape: 9999,
+  inset: 4,
+  motionFeedbackDuration: 450,
+  motionStateDuration: 150,
+  motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  sizes: TanreiHandleSizes(
+    small: TanreiHandleSizeTokens(
+      containerLength: 20,
+      containerBreadth: 16,
+      lineLength: 12,
+      lineThickness: 3,
+      lineActiveLength: 16,
+      lineActiveThickness: 4,
+      arcRadius: 8
+    ),
+    medium: TanreiHandleSizeTokens(
+      containerLength: 48,
+      containerBreadth: 24,
+      lineLength: 32,
+      lineThickness: 4,
+      lineActiveLength: 40,
+      lineActiveThickness: 6,
+      arcRadius: 16
+    )
+  ),
+  conditions: TanreiHandleConditions(
+    standard: TanreiHandleConditionTokens(
+      enabled: TanreiHandleConditionStateTokens(
+        containerColor: .none,
+        lineColor: .role(.outline),
+        stateLayerColor: .role(.outline)
+      ),
+      hovered: TanreiHandleConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.outline), amount: 0.08),
+        lineColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.outline)
+      ),
+      focused: TanreiHandleConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.outline), amount: 0.12),
+        lineColor: .role(.outline),
+        stateLayerColor: .role(.outline)
+      ),
+      pressed: TanreiHandleConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.outline), amount: 0.12),
+        lineColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.outline)
+      ),
+      disabled: TanreiHandleConditionStateTokens(
+        containerColor: .none,
+        lineColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
+    )
+  ),
+  hovered: TanreiHandleStateTokens(
+    opacity: 1
+  ),
+  focused: TanreiHandleStateTokens(
+    opacity: 1
+  ),
+  pressed: TanreiHandleStateTokens(
+    opacity: 1
+  ),
+  disabled: TanreiHandleStateTokens(
+    opacity: 1
+  )
+)
+
 private let m3LikeImagePreviewTokens = TanreiImagePreviewTokens(
   barButtonVariant: 4,
   barContainerColor: .role(.surface),
-  barGap: 4,
+  barGap: 12,
   barHeight: 56,
   barPaddingInline: 8,
   captionColor: .role(.onSurface),
@@ -4446,7 +4537,6 @@ private let m3LikeImagePreviewTokens = TanreiImagePreviewTokens(
   motionControlsEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionEnterDuration: 300,
   motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionEnterScale: 0.95,
   motionExitDuration: 200,
   motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
   motionPageDuration: 300,
@@ -4475,7 +4565,6 @@ private let m3LikeInputBoxTokens = TanreiInputBoxTokens(
   containerShapeBottom: 0,
   motionLabelDuration: 150,
   motionLabelEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineNotchPadding: 4,
   outlineWidth: 1,
@@ -4485,39 +4574,48 @@ private let m3LikeInputBoxTokens = TanreiInputBoxTokens(
   sizes: TanreiInputBoxSizes(
     small: TanreiInputBoxSizeTokens(
       containerHeight: 40,
+      stackedContainerHeight: 40,
       containerPaddingInline: 12,
       containerPaddingInlineWithIcon: 8,
       containerPaddingBlock: 8,
+      stackedContainerPaddingBlock: 8,
       containerPaddingBlockWithLabel: 2,
       containerGap: 8,
       labelTypescale: m3LikeTypescale.bodyLarge,
       labelFloatedTypescale: m3LikeTypescale.bodySmall,
       inputTypescale: m3LikeTypescale.body,
-      iconSize: 20
+      iconSize: 20,
+      motionStateDuration: 150
     ),
     medium: TanreiInputBoxSizeTokens(
       containerHeight: 56,
+      stackedContainerHeight: 56,
       containerPaddingInline: 16,
       containerPaddingInlineWithIcon: 12,
       containerPaddingBlock: 16,
+      stackedContainerPaddingBlock: 16,
       containerPaddingBlockWithLabel: 8,
       containerGap: 16,
       labelTypescale: m3LikeTypescale.bodyLarge,
       labelFloatedTypescale: m3LikeTypescale.bodySmall,
       inputTypescale: m3LikeTypescale.bodyLarge,
-      iconSize: 24
+      iconSize: 24,
+      motionStateDuration: 150
     ),
     large: TanreiInputBoxSizeTokens(
       containerHeight: 56,
+      stackedContainerHeight: 56,
       containerPaddingInline: 16,
       containerPaddingInlineWithIcon: 12,
       containerPaddingBlock: 16,
+      stackedContainerPaddingBlock: 16,
       containerPaddingBlockWithLabel: 8,
       containerGap: 16,
       labelTypescale: m3LikeTypescale.bodyLarge,
       labelFloatedTypescale: m3LikeTypescale.bodySmall,
       inputTypescale: m3LikeTypescale.bodyLarge,
-      iconSize: 24
+      iconSize: 24,
+      motionStateDuration: 150
     )
   ),
   variants: TanreiInputBoxVariants(
@@ -5172,8 +5270,6 @@ private let m3LikeListRowTokens = TanreiListRowTokens(
 
 private let m3LikeListTokens = TanreiListTokens(
   containerGap: 16,
-  containerHeight: 56,
-  containerPaddingBlock: 8,
   containerPaddingInlineEnd: 24,
   containerPaddingInlineStart: 16,
   containerShape: 0,
@@ -5258,6 +5354,16 @@ private let m3LikeListTokens = TanreiListTokens(
       )
     )
   ),
+  densitys: TanreiListDensitys(
+    regular: TanreiListDensityTokens(
+      containerHeight: 56,
+      containerPaddingBlock: 8
+    ),
+    compact: TanreiListDensityTokens(
+      containerHeight: 32,
+      containerPaddingBlock: 4
+    )
+  ),
   hovered: TanreiListStateTokens(
     containerShape: 0,
     opacity: 1
@@ -5310,7 +5416,6 @@ private let m3LikeMainActionButtonTokens = TanreiMainActionButtonTokens(
   motionFeedbackDuration: 450,
   motionResizeDuration: 500,
   motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
-  motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   sizes: TanreiMainActionButtonSizes(
     small: TanreiMainActionButtonSizeTokens(
@@ -5323,7 +5428,8 @@ private let m3LikeMainActionButtonTokens = TanreiMainActionButtonTokens(
       containerPaddingBlock: 6,
       containerGap: 8,
       labelTypescale: m3LikeTypescale.label,
-      iconSize: 24
+      iconSize: 24,
+      motionStateDuration: 150
     ),
     medium: TanreiMainActionButtonSizeTokens(
       containerHeight: 56,
@@ -5335,7 +5441,8 @@ private let m3LikeMainActionButtonTokens = TanreiMainActionButtonTokens(
       containerPaddingBlock: 6,
       containerGap: 12,
       labelTypescale: m3LikeTypescale.label,
-      iconSize: 24
+      iconSize: 24,
+      motionStateDuration: 150
     ),
     large: TanreiMainActionButtonSizeTokens(
       containerHeight: 96,
@@ -5347,7 +5454,8 @@ private let m3LikeMainActionButtonTokens = TanreiMainActionButtonTokens(
       containerPaddingBlock: 6,
       containerGap: 16,
       labelTypescale: m3LikeTypescale.heading5,
-      iconSize: 36
+      iconSize: 36,
+      motionStateDuration: 150
     )
   ),
   variants: TanreiMainActionButtonVariants(
@@ -5462,12 +5570,21 @@ private let m3LikeMainActionButtonTokens = TanreiMainActionButtonTokens(
   )
 )
 
+private let m3LikeMarqueeTextTokens = TanreiMarqueeTextTokens(
+  fadeExtent: 16,
+  gap: 48,
+  motionEasing: TanreiCubicBezier(0, 0, 1, 1),
+  motionEndPause: 1200,
+  motionReturnDuration: 150,
+  motionReturnEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStartDelay: 300,
+  motionStartPause: 1200,
+  playbackGap: 8,
+  speed: 30
+)
+
 private let m3LikeMenuTokens = TanreiMenuTokens(
   checkboxItemMark: 1,
-  containerGap: 12,
-  containerHeight: 48,
-  containerPaddingBlock: 8,
-  containerPaddingInline: 12,
   containerShape: 0,
   controlBoxShape: 4,
   controlBoxSize: 18,
@@ -5483,12 +5600,9 @@ private let m3LikeMenuTokens = TanreiMenuTokens(
   dividerSpace: 8,
   dividerThickness: 1,
   groupTitleColor: .role(.onSurfaceVariant),
-  groupTitlePaddingInline: 12,
   groupTitleTypescale: m3LikeTypescale.labelSmall,
   groupGap: 16,
   labelTypescale: m3LikeTypescale.label,
-  leadingIconSize: 24,
-  markSize: 24,
   markWidth: 2,
   motionCloseDuration: 100,
   motionCloseEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
@@ -5512,7 +5626,6 @@ private let m3LikeMenuTokens = TanreiMenuTokens(
   surfacePaddingInline: 0,
   surfaceShape: 4,
   surfaceViewportMargin: 8,
-  trailingIconSize: 24,
   trailingTextTypescale: m3LikeTypescale.labelSmall,
   conditions: TanreiMenuConditions(
     unselected: TanreiMenuConditionTokens(
@@ -5826,6 +5939,28 @@ private let m3LikeMenuTokens = TanreiMenuTokens(
       )
     )
   ),
+  densitys: TanreiMenuDensitys(
+    regular: TanreiMenuDensityTokens(
+      containerHeight: 48,
+      containerPaddingInline: 12,
+      containerPaddingBlock: 8,
+      containerGap: 12,
+      leadingIconSize: 24,
+      trailingIconSize: 24,
+      markSize: 24,
+      groupTitlePaddingInline: 12
+    ),
+    compact: TanreiMenuDensityTokens(
+      containerHeight: 32,
+      containerPaddingInline: 8,
+      containerPaddingBlock: 6,
+      containerGap: 8,
+      leadingIconSize: 20,
+      trailingIconSize: 20,
+      markSize: 20,
+      groupTitlePaddingInline: 8
+    )
+  ),
   hovered: TanreiMenuStateTokens(
     containerShape: 0,
     opacity: 1
@@ -5975,6 +6110,38 @@ private let m3LikeMenubarTokens = TanreiMenubarTokens(
   )
 )
 
+private let m3LikeMeterTokens = TanreiMeterTokens(
+  errorIndicatorColor: .role(.error),
+  indicatorColor: .role(.primary),
+  infoIndicatorColor: .role(.info),
+  motionValueDuration: 300,
+  motionValueEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  stopIndicatorSize: 4,
+  successIndicatorColor: .role(.success),
+  trackColor: .role(.secondaryContainer),
+  trackGap: 4,
+  trackSeparation: 1,
+  trackShape: 9999,
+  warningIndicatorColor: .role(.warning),
+  sizes: TanreiMeterSizes(
+    small: TanreiMeterSizeTokens(
+      linearThickness: 4,
+      circularSize: 24,
+      circularThickness: 4
+    ),
+    medium: TanreiMeterSizeTokens(
+      linearThickness: 4,
+      circularSize: 40,
+      circularThickness: 4
+    ),
+    large: TanreiMeterSizeTokens(
+      linearThickness: 4,
+      circularSize: 48,
+      circularThickness: 4
+    )
+  )
+)
+
 private let m3LikeModalLayerTokens = TanreiModalLayerTokens(
   motionEnterDuration: 300,
   motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
@@ -5989,11 +6156,9 @@ private let m3LikeNavigationBarTokens = TanreiNavigationBarTokens(
   containerElevation: m3LikeElevation.level0,
   containerHeight: 80,
   containerPadding: 0,
-  itemContainerHeight: 32,
   itemContainerPaddingBlock: 0,
   itemContainerPaddingInline: 0,
   itemContainerShape: 9999,
-  itemContainerWidth: 64,
   itemGap: 4,
   itemIconIndicatorHeight: 32,
   itemIconIndicatorShape: 9999,
@@ -6229,7 +6394,6 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
   headerTypescale: m3LikeTypescale.heading5,
   headingColor: .role(.onSurfaceVariant),
   headingTypescale: m3LikeTypescale.heading6,
-  itemBadgeTypescale: m3LikeTypescale.label,
   itemContainerShape: 9999,
   itemGap: 12,
   itemIconIndicatorShape: 9999,
@@ -6278,7 +6442,6 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurfaceVariant)
       ),
       hovered: TanreiNavigationDrawerConditionStateTokens(
@@ -6289,7 +6452,6 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurfaceVariant)
       ),
       focused: TanreiNavigationDrawerConditionStateTokens(
@@ -6300,7 +6462,6 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurfaceVariant)
       ),
       pressed: TanreiNavigationDrawerConditionStateTokens(
@@ -6311,7 +6472,6 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .role(.onSurfaceVariant)
       ),
       disabled: TanreiNavigationDrawerConditionStateTokens(
@@ -6322,7 +6482,6 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemBadgeColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
@@ -6335,7 +6494,6 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .role(.onSecondaryContainer)
       ),
       hovered: TanreiNavigationDrawerConditionStateTokens(
@@ -6346,7 +6504,6 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .role(.onSecondaryContainer)
       ),
       focused: TanreiNavigationDrawerConditionStateTokens(
@@ -6357,7 +6514,6 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .role(.onSecondaryContainer)
       ),
       pressed: TanreiNavigationDrawerConditionStateTokens(
@@ -6368,7 +6524,6 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .role(.onSecondaryContainer)
       ),
       disabled: TanreiNavigationDrawerConditionStateTokens(
@@ -6379,7 +6534,6 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemBadgeColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
@@ -6392,7 +6546,6 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .none
       ),
       hovered: TanreiNavigationDrawerConditionStateTokens(
@@ -6403,7 +6556,6 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .none
       ),
       focused: TanreiNavigationDrawerConditionStateTokens(
@@ -6414,7 +6566,6 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .none
       ),
       pressed: TanreiNavigationDrawerConditionStateTokens(
@@ -6425,7 +6576,6 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSurfaceVariant),
         itemTrailingTextColor: .role(.onSurfaceVariant),
         itemTrailingIconColor: .role(.onSurfaceVariant),
-        itemBadgeColor: .role(.onSurfaceVariant),
         itemStateLayerColor: .none
       ),
       disabled: TanreiNavigationDrawerConditionStateTokens(
@@ -6436,7 +6586,6 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemBadgeColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
@@ -6449,7 +6598,6 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .none
       ),
       hovered: TanreiNavigationDrawerConditionStateTokens(
@@ -6460,7 +6608,6 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .none
       ),
       focused: TanreiNavigationDrawerConditionStateTokens(
@@ -6471,7 +6618,6 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .none
       ),
       pressed: TanreiNavigationDrawerConditionStateTokens(
@@ -6482,7 +6628,6 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .role(.onSecondaryContainer),
         itemTrailingTextColor: .role(.onSecondaryContainer),
         itemTrailingIconColor: .role(.onSecondaryContainer),
-        itemBadgeColor: .role(.onSecondaryContainer),
         itemStateLayerColor: .none
       ),
       disabled: TanreiNavigationDrawerConditionStateTokens(
@@ -6493,7 +6638,6 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
         itemSupportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemTrailingIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemBadgeColor: .alpha(of: .role(.onSurface), amount: 0.38),
         itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     )
@@ -6546,112 +6690,22 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
   )
 )
 
-private let m3LikeNavigationRailTokens = TanreiNavigationRailTokens(
-  containerColor: .role(.surface),
-  containerElevation: m3LikeElevation.level0,
-  containerGap: 8,
-  containerPaddingBlock: 16,
-  containerWidth: 80,
-  headerGap: 24,
-  itemContainerHeight: 32,
-  itemContainerShape: 9999,
-  itemContainerWidth: 56,
-  itemGap: 4,
-  itemIconSize: 24,
-  itemLabelTypescale: m3LikeTypescale.labelSmall,
-  motionFeedbackDuration: 450,
-  motionSelectionDuration: 350,
-  motionSelectionEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
-  motionStateDuration: 150,
-  motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  outlineColor: .none,
-  outlineWidth: 1,
-  conditions: TanreiNavigationRailConditions(
-    unselected: TanreiNavigationRailConditionTokens(
-      enabled: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .none,
-        itemIconColor: .role(.onSurfaceVariant),
-        itemLabelColor: .role(.onSurfaceVariant),
-        itemStateLayerColor: .role(.onSurfaceVariant)
-      ),
-      hovered: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.08),
-        itemIconColor: .role(.onSurfaceVariant),
-        itemLabelColor: .role(.onSurfaceVariant),
-        itemStateLayerColor: .role(.onSurfaceVariant)
-      ),
-      focused: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.12),
-        itemIconColor: .role(.onSurfaceVariant),
-        itemLabelColor: .role(.onSurfaceVariant),
-        itemStateLayerColor: .role(.onSurfaceVariant)
-      ),
-      pressed: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.12),
-        itemIconColor: .role(.onSurfaceVariant),
-        itemLabelColor: .role(.onSurfaceVariant),
-        itemStateLayerColor: .role(.onSurfaceVariant)
-      ),
-      disabled: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .none,
-        itemIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
-      )
-    ),
-    selected: TanreiNavigationRailConditionTokens(
-      enabled: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .role(.secondaryContainer),
-        itemIconColor: .role(.onSecondaryContainer),
-        itemLabelColor: .role(.onSurface),
-        itemStateLayerColor: .role(.onSecondaryContainer)
-      ),
-      hovered: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.08),
-        itemIconColor: .role(.onSecondaryContainer),
-        itemLabelColor: .role(.onSurface),
-        itemStateLayerColor: .role(.onSecondaryContainer)
-      ),
-      focused: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.12),
-        itemIconColor: .role(.onSecondaryContainer),
-        itemLabelColor: .role(.onSurface),
-        itemStateLayerColor: .role(.onSecondaryContainer)
-      ),
-      pressed: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.12),
-        itemIconColor: .role(.onSecondaryContainer),
-        itemLabelColor: .role(.onSurface),
-        itemStateLayerColor: .role(.onSecondaryContainer)
-      ),
-      disabled: TanreiNavigationRailConditionStateTokens(
-        itemContainerColor: .role(.secondaryContainer),
-        itemIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        itemStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
-      )
-    )
-  ),
-  hovered: TanreiNavigationRailStateTokens(
-    opacity: 1
-  ),
-  focused: TanreiNavigationRailStateTokens(
-    opacity: 1
-  ),
-  pressed: TanreiNavigationRailStateTokens(
-    opacity: 1
-  ),
-  disabled: TanreiNavigationRailStateTokens(
-    opacity: 1
-  )
-)
-
 private let m3LikeNumberInputTokens = TanreiNumberInputTokens(
   motionRepeatDelay: 500,
   motionRepeatInterval: 100,
   motionRepeatIntervalFast: 50,
   stepperGap: 0,
   stepperInset: 4
+)
+
+private let m3LikeNumberTickerTokens = TanreiNumberTickerTokens(
+  animation: 0,
+  blurSlideDistance: 8,
+  blurRadius: 8,
+  motionDuration: 500,
+  motionEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
+  motionReducedDuration: 100,
+  motionStagger: 50
 )
 
 private let m3LikeOneTimeCodeInputTokens = TanreiOneTimeCodeInputTokens(
@@ -6897,6 +6951,7 @@ private let m3LikePopoverTokens = TanreiPopoverTokens(
   arrowVisible: 0,
   arrowWidth: 12,
   closeButtonVariant: 4,
+  compactWindowWidth: 600,
   containerColor: .role(.surfaceBright),
   containerElevation: m3LikeElevation.level2,
   containerGap: 12,
@@ -7237,6 +7292,43 @@ private let m3LikeRadioButtonTokens = TanreiRadioButtonTokens(
   )
 )
 
+private let m3LikeResizableFrameTokens = TanreiResizableFrameTokens(
+  containerMinHeight: 200,
+  containerMinWidth: 320,
+  containerShape: 16,
+  handleGap: 8,
+  motionIndicatorEnterDuration: 200,
+  motionIndicatorEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+  motionIndicatorExitDuration: 150,
+  motionIndicatorExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  motionResizeDuration: 200,
+  motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
+  outlineColor: .role(.outlineVariant),
+  outlineWidth: 1,
+  sizeIndicatorContainerColor: .role(.inverseSurface),
+  sizeIndicatorContainerHeight: 24,
+  sizeIndicatorContainerPaddingInline: 8,
+  sizeIndicatorContainerShape: 8,
+  sizeIndicatorLabelColor: .role(.inverseOnSurface),
+  sizeIndicatorLabelTypescale: m3LikeTypescale.codeSmall,
+  sizeIndicatorOffset: 8,
+  snapDistance: 8
+)
+
+private let m3LikeScrollAreaTokens = TanreiScrollAreaTokens(
+  blurExtent: 48,
+  blurLayers: 4,
+  blurRadius: 8,
+  fadeExtent: 24,
+  lineColor: .role(.outlineVariant),
+  lineWidth: 1,
+  motionDuration: 150,
+  motionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  scrollEdge: 2,
+  shadowColor: .role(.surface),
+  shadowExtent: 24
+)
+
 private let m3LikeSearchTokens = TanreiSearchTokens(
   containerButtonGap: 8,
   containerGap: 8,
@@ -7270,13 +7362,8 @@ private let m3LikeSearchTokens = TanreiSearchTokens(
   statusColor: .role(.onSurfaceVariant),
   statusErrorColor: .role(.error),
   statusTypescale: m3LikeTypescale.bodySmall,
-  suggestionContainerGap: 16,
-  suggestionContainerHeight: 56,
-  suggestionContainerPaddingBlock: 8,
-  suggestionContainerPaddingInline: 16,
   suggestionContainerShape: 8,
   suggestionHeadlineTypescale: m3LikeTypescale.body,
-  suggestionLeadingIconSize: 24,
   suggestionSupportingTextTypescale: m3LikeTypescale.bodySmall,
   triggerContainerGap: 8,
   triggerContainerHeight: 40,
@@ -7373,6 +7460,22 @@ private let m3LikeSearchTokens = TanreiSearchTokens(
       )
     )
   ),
+  densitys: TanreiSearchDensitys(
+    regular: TanreiSearchDensityTokens(
+      suggestionContainerHeight: 56,
+      suggestionContainerPaddingInline: 16,
+      suggestionContainerPaddingBlock: 8,
+      suggestionContainerGap: 16,
+      suggestionLeadingIconSize: 24
+    ),
+    compact: TanreiSearchDensityTokens(
+      suggestionContainerHeight: 32,
+      suggestionContainerPaddingInline: 8,
+      suggestionContainerPaddingBlock: 4,
+      suggestionContainerGap: 8,
+      suggestionLeadingIconSize: 20
+    )
+  ),
   hovered: TanreiSearchStateTokens(
     opacity: 1,
     outlineWidth: 1
@@ -7399,7 +7502,6 @@ private let m3LikeSegmentedButtonTokens = TanreiSegmentedButtonTokens(
   motionFeedbackDuration: 450,
   motionSelectionDuration: 150,
   motionSelectionEasing: TanreiCubicBezier(0.31, 0.94, 0.34, 1),
-  motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineColor: .role(.outline),
   outlineWidth: 1,
@@ -7414,7 +7516,8 @@ private let m3LikeSegmentedButtonTokens = TanreiSegmentedButtonTokens(
       containerGap: 8,
       labelTypescale: m3LikeTypescale.label,
       iconSize: 18,
-      checkSize: 18
+      checkSize: 18,
+      motionStateDuration: 150
     ),
     medium: TanreiSegmentedButtonSizeTokens(
       containerHeight: 40,
@@ -7423,7 +7526,8 @@ private let m3LikeSegmentedButtonTokens = TanreiSegmentedButtonTokens(
       containerGap: 8,
       labelTypescale: m3LikeTypescale.label,
       iconSize: 18,
-      checkSize: 18
+      checkSize: 18,
+      motionStateDuration: 150
     ),
     large: TanreiSegmentedButtonSizeTokens(
       containerHeight: 48,
@@ -7432,7 +7536,8 @@ private let m3LikeSegmentedButtonTokens = TanreiSegmentedButtonTokens(
       containerGap: 8,
       labelTypescale: m3LikeTypescale.label,
       iconSize: 18,
-      checkSize: 18
+      checkSize: 18,
+      motionStateDuration: 150
     )
   ),
   conditions: TanreiSegmentedButtonConditions(
@@ -7534,7 +7639,6 @@ private let m3LikeSelectTokens = TanreiSelectTokens(
   dividerSpace: 8,
   dividerThickness: 1,
   groupTitleColor: .role(.onSurfaceVariant),
-  groupTitlePaddingInline: 12,
   groupTitleTypescale: m3LikeTypescale.labelSmall,
   groupGap: 16,
   listColor: .role(.surfaceContainer),
@@ -7554,16 +7658,13 @@ private let m3LikeSelectTokens = TanreiSelectTokens(
   motionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  optionGap: 12,
-  optionHeight: 48,
   optionLabelTypescale: m3LikeTypescale.label,
-  optionLeadingIconSize: 24,
-  optionMarkSize: 24,
-  optionPaddingBlock: 8,
-  optionPaddingInline: 12,
   optionShape: 0,
   optionSupportingTextTypescale: m3LikeTypescale.bodySmall,
   separation: 0,
+  statusColor: .role(.onSurfaceVariant),
+  statusErrorColor: .role(.error),
+  statusTypescale: m3LikeTypescale.bodySmall,
   variants: TanreiSelectVariants(
     stacked: TanreiSelectVariantTokens(
       enabled: TanreiSelectVariantStateTokens(
@@ -7767,6 +7868,26 @@ private let m3LikeSelectTokens = TanreiSelectTokens(
       )
     )
   ),
+  densitys: TanreiSelectDensitys(
+    regular: TanreiSelectDensityTokens(
+      optionHeight: 48,
+      optionPaddingInline: 12,
+      optionPaddingBlock: 8,
+      optionGap: 12,
+      optionLeadingIconSize: 24,
+      optionMarkSize: 24,
+      groupTitlePaddingInline: 12
+    ),
+    compact: TanreiSelectDensityTokens(
+      optionHeight: 32,
+      optionPaddingInline: 8,
+      optionPaddingBlock: 6,
+      optionGap: 8,
+      optionLeadingIconSize: 20,
+      optionMarkSize: 20,
+      groupTitlePaddingInline: 8
+    )
+  ),
   hovered: TanreiSelectStateTokens(
     opacity: 1
   ),
@@ -7954,6 +8075,8 @@ private let m3LikeSliderTokens = TanreiSliderTokens(
 
 private let m3LikeSnackbarTokens = TanreiSnackbarTokens(
   actionTonalLayerOpacity: 0,
+  breakpointMedium: 600,
+  closeButtonVariant: 4,
   containerColor: .role(.surfaceBright),
   containerElevation: m3LikeElevation.level3,
   containerGap: 8,
@@ -7968,8 +8091,7 @@ private let m3LikeSnackbarTokens = TanreiSnackbarTokens(
   containerPaddingInlineStart: 16,
   containerShape: 4,
   controlsGap: 4,
-  controlsHeight: 36,
-  controlsIconSize: 24,
+  controlsHeight: 32,
   controlsLabelTypescale: m3LikeTypescale.label,
   controlsPaddingInline: 14,
   controlsShape: 9999,
@@ -8179,136 +8301,6 @@ private let m3LikeSnackbarTokens = TanreiSnackbarTokens(
         inverseSuccessContainerColor: .mix(base: .role(.onSuccessContainer), with: .role(.successContainer), amount: 0.12),
         inverseSuccessContentColor: .role(.successContainer),
         inverseSuccessStateLayerColor: .role(.successContainer)
-      )
-    ),
-    close: TanreiSnackbarControlTokens(
-      enabled: TanreiSnackbarControlStateTokens(
-        containerColor: .none,
-        contentColor: .role(.onSurfaceVariant),
-        stateLayerColor: .role(.onSurfaceVariant),
-        infoContainerColor: .none,
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .none,
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .none,
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .none,
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        inverseContainerColor: .none,
-        inverseContentColor: .role(.inverseOnSurface),
-        inverseStateLayerColor: .role(.inverseOnSurface),
-        inverseInfoContainerColor: .none,
-        inverseInfoContentColor: .role(.onInfo),
-        inverseInfoStateLayerColor: .role(.onInfo),
-        inverseWarningContainerColor: .none,
-        inverseWarningContentColor: .role(.onWarning),
-        inverseWarningStateLayerColor: .role(.onWarning),
-        inverseErrorContainerColor: .none,
-        inverseErrorContentColor: .role(.onError),
-        inverseErrorStateLayerColor: .role(.onError),
-        inverseSuccessContainerColor: .none,
-        inverseSuccessContentColor: .role(.onSuccess),
-        inverseSuccessStateLayerColor: .role(.onSuccess)
-      ),
-      hovered: TanreiSnackbarControlStateTokens(
-        containerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.08),
-        contentColor: .role(.onSurfaceVariant),
-        stateLayerColor: .role(.onSurfaceVariant),
-        infoContainerColor: .mix(base: .none, with: .role(.onInfoContainer), amount: 0.08),
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .mix(base: .none, with: .role(.onWarningContainer), amount: 0.08),
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .mix(base: .none, with: .role(.onErrorContainer), amount: 0.08),
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .mix(base: .none, with: .role(.onSuccessContainer), amount: 0.08),
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        inverseContainerColor: .mix(base: .none, with: .role(.inverseOnSurface), amount: 0.08),
-        inverseContentColor: .role(.inverseOnSurface),
-        inverseStateLayerColor: .role(.inverseOnSurface),
-        inverseInfoContainerColor: .mix(base: .none, with: .role(.onInfo), amount: 0.08),
-        inverseInfoContentColor: .role(.onInfo),
-        inverseInfoStateLayerColor: .role(.onInfo),
-        inverseWarningContainerColor: .mix(base: .none, with: .role(.onWarning), amount: 0.08),
-        inverseWarningContentColor: .role(.onWarning),
-        inverseWarningStateLayerColor: .role(.onWarning),
-        inverseErrorContainerColor: .mix(base: .none, with: .role(.onError), amount: 0.08),
-        inverseErrorContentColor: .role(.onError),
-        inverseErrorStateLayerColor: .role(.onError),
-        inverseSuccessContainerColor: .mix(base: .none, with: .role(.onSuccess), amount: 0.08),
-        inverseSuccessContentColor: .role(.onSuccess),
-        inverseSuccessStateLayerColor: .role(.onSuccess)
-      ),
-      focused: TanreiSnackbarControlStateTokens(
-        containerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.12),
-        contentColor: .role(.onSurfaceVariant),
-        stateLayerColor: .role(.onSurfaceVariant),
-        infoContainerColor: .mix(base: .none, with: .role(.onInfoContainer), amount: 0.12),
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .mix(base: .none, with: .role(.onWarningContainer), amount: 0.12),
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .mix(base: .none, with: .role(.onErrorContainer), amount: 0.12),
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .mix(base: .none, with: .role(.onSuccessContainer), amount: 0.12),
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        inverseContainerColor: .mix(base: .none, with: .role(.inverseOnSurface), amount: 0.12),
-        inverseContentColor: .role(.inverseOnSurface),
-        inverseStateLayerColor: .role(.inverseOnSurface),
-        inverseInfoContainerColor: .mix(base: .none, with: .role(.onInfo), amount: 0.12),
-        inverseInfoContentColor: .role(.onInfo),
-        inverseInfoStateLayerColor: .role(.onInfo),
-        inverseWarningContainerColor: .mix(base: .none, with: .role(.onWarning), amount: 0.12),
-        inverseWarningContentColor: .role(.onWarning),
-        inverseWarningStateLayerColor: .role(.onWarning),
-        inverseErrorContainerColor: .mix(base: .none, with: .role(.onError), amount: 0.12),
-        inverseErrorContentColor: .role(.onError),
-        inverseErrorStateLayerColor: .role(.onError),
-        inverseSuccessContainerColor: .mix(base: .none, with: .role(.onSuccess), amount: 0.12),
-        inverseSuccessContentColor: .role(.onSuccess),
-        inverseSuccessStateLayerColor: .role(.onSuccess)
-      ),
-      pressed: TanreiSnackbarControlStateTokens(
-        containerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.12),
-        contentColor: .role(.onSurfaceVariant),
-        stateLayerColor: .role(.onSurfaceVariant),
-        infoContainerColor: .mix(base: .none, with: .role(.onInfoContainer), amount: 0.12),
-        infoContentColor: .role(.onInfoContainer),
-        infoStateLayerColor: .role(.onInfoContainer),
-        warningContainerColor: .mix(base: .none, with: .role(.onWarningContainer), amount: 0.12),
-        warningContentColor: .role(.onWarningContainer),
-        warningStateLayerColor: .role(.onWarningContainer),
-        errorContainerColor: .mix(base: .none, with: .role(.onErrorContainer), amount: 0.12),
-        errorContentColor: .role(.onErrorContainer),
-        errorStateLayerColor: .role(.onErrorContainer),
-        successContainerColor: .mix(base: .none, with: .role(.onSuccessContainer), amount: 0.12),
-        successContentColor: .role(.onSuccessContainer),
-        successStateLayerColor: .role(.onSuccessContainer),
-        inverseContainerColor: .mix(base: .none, with: .role(.inverseOnSurface), amount: 0.12),
-        inverseContentColor: .role(.inverseOnSurface),
-        inverseStateLayerColor: .role(.inverseOnSurface),
-        inverseInfoContainerColor: .mix(base: .none, with: .role(.onInfo), amount: 0.12),
-        inverseInfoContentColor: .role(.onInfo),
-        inverseInfoStateLayerColor: .role(.onInfo),
-        inverseWarningContainerColor: .mix(base: .none, with: .role(.onWarning), amount: 0.12),
-        inverseWarningContentColor: .role(.onWarning),
-        inverseWarningStateLayerColor: .role(.onWarning),
-        inverseErrorContainerColor: .mix(base: .none, with: .role(.onError), amount: 0.12),
-        inverseErrorContentColor: .role(.onError),
-        inverseErrorStateLayerColor: .role(.onError),
-        inverseSuccessContainerColor: .mix(base: .none, with: .role(.onSuccess), amount: 0.12),
-        inverseSuccessContentColor: .role(.onSuccess),
-        inverseSuccessStateLayerColor: .role(.onSuccess)
       )
     )
   ),
@@ -9430,6 +9422,8 @@ private let m3LikeTabsTokens = TanreiTabsTokens(
 )
 
 private let m3LikeTagGroupTokens = TanreiTagGroupTokens(
+  motionMoveDuration: 350,
+  motionMoveEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
   spacings: TanreiTagGroupSpacings(
     tags: TanreiTagGroupSpacingTokens(
       gap: 8,
@@ -9585,65 +9579,7 @@ private let m3LikeTextInputTokens = TanreiTextInputTokens(
   entriesTypingMinWidth: 72,
   motionResizeDuration: 200,
   motionResizeEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  resizeGripInset: 4,
-  resizeGripSize: 16,
-  segmentPaddingInline: 2,
-  variants: TanreiTextInputVariants(
-    stacked: TanreiTextInputVariantTokens(
-      enabled: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      hovered: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      focused: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      disabled: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        errorResizeGripColor: .alpha(of: .role(.onSurface), amount: 0.38)
-      )
-    ),
-    filled: TanreiTextInputVariantTokens(
-      enabled: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      hovered: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      focused: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      disabled: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        errorResizeGripColor: .alpha(of: .role(.onSurface), amount: 0.38)
-      )
-    ),
-    outlined: TanreiTextInputVariantTokens(
-      enabled: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      hovered: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      focused: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .role(.onSurfaceVariant),
-        errorResizeGripColor: .role(.onSurfaceVariant)
-      ),
-      disabled: TanreiTextInputVariantStateTokens(
-        resizeGripColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        errorResizeGripColor: .alpha(of: .role(.onSurface), amount: 0.38)
-      )
-    )
-  )
+  segmentPaddingInline: 2
 )
 
 private let m3LikeTimelineTokens = TanreiTimelineTokens(
@@ -9689,8 +9625,22 @@ private let m3LikeTimelineTokens = TanreiTimelineTokens(
 )
 
 private let m3LikeToolbarTokens = TanreiToolbarTokens(
+  dividerColor: .role(.outlineVariant),
+  dividerLength: 24,
+  dividerThickness: 1,
+  groupGap: 8,
   outlineWidth: 1,
+  separation: 1,
   variants: TanreiToolbarVariants(
+    inline: TanreiToolbarVariantTokens(
+      containerColor: .none,
+      containerElevation: m3LikeElevation.level0,
+      containerShape: 12,
+      containerSize: 40,
+      containerPaddingInline: 0,
+      containerGap: 4,
+      outlineColor: .none
+    ),
     docked: TanreiToolbarVariantTokens(
       containerColor: .role(.surface),
       containerElevation: m3LikeElevation.level0,
@@ -9719,8 +9669,6 @@ private let m3LikeTooltipTokens = TanreiTooltipTokens(
   arrowWidth: 12,
   motionEnterDuration: 200,
   motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
-  motionEnterOffset: 4,
-  motionEnterScale: 0.95,
   motionExitDuration: 150,
   motionExitEasing: TanreiCubicBezier(0.3, 0, 1, 1),
   motionHideDelay: 100,
@@ -9978,6 +9926,7 @@ extension TanreiSystem {
       iconLarge: 32,
       iconMedium: 24,
       iconSmall: 20,
+      targetMinimum: 32,
       targetPointer: 44,
       targetSpacing: 8,
       targetTouch: 48
@@ -9996,11 +9945,13 @@ extension TanreiSystem {
       opticalSizeMax: 48
     ),
     behavior: TanreiBehavior(
+      appearance: .unfold,
       dividerVisibility: .scroll,
       focusStyle: .ring,
       linkUnderline: .always,
       pressedFeedback: .ripple,
       requirementMark: .asterisk,
+      scrollEdge: .line,
       separation: .gap
     ),
     motion: TanreiMotionTokens(
@@ -10027,10 +9978,14 @@ extension TanreiSystem {
       easing: TanreiEasing(
         emphasizedAccelerate: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
         emphasizedDecelerate: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+        enter: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+        exit: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
         linear: TanreiCubicBezier(0, 0, 1, 1),
+        spatial: TanreiCubicBezier(0.27, 1.06, 0.18, 1),
         standard: TanreiCubicBezier(0.2, 0, 0, 1),
         standardAccelerate: TanreiCubicBezier(0.3, 0, 1, 1),
-        standardDecelerate: TanreiCubicBezier(0, 0, 0, 1)
+        standardDecelerate: TanreiCubicBezier(0, 0, 0, 1),
+        state: TanreiCubicBezier(0.2, 0, 0, 1)
       ),
       spring: TanreiSprings(
         expressive: TanreiSpringSet(
@@ -10087,6 +10042,7 @@ extension TanreiSystem {
     fileItem: m3LikeFileItemTokens,
     filePicker: m3LikeFilePickerTokens,
     fileUpload: m3LikeFileUploadTokens,
+    handle: m3LikeHandleTokens,
     imagePreview: m3LikeImagePreviewTokens,
     inlineCode: m3LikeInlineCodeTokens,
     inputBox: m3LikeInputBoxTokens,
@@ -10097,13 +10053,15 @@ extension TanreiSystem {
     list: m3LikeListTokens,
     loadingIndicator: m3LikeLoadingIndicatorTokens,
     mainActionButton: m3LikeMainActionButtonTokens,
+    marqueeText: m3LikeMarqueeTextTokens,
     menu: m3LikeMenuTokens,
     menubar: m3LikeMenubarTokens,
+    meter: m3LikeMeterTokens,
     modalLayer: m3LikeModalLayerTokens,
     navigationBar: m3LikeNavigationBarTokens,
     navigationDrawer: m3LikeNavigationDrawerTokens,
-    navigationRail: m3LikeNavigationRailTokens,
     numberInput: m3LikeNumberInputTokens,
+    numberTicker: m3LikeNumberTickerTokens,
     oneTimeCodeInput: m3LikeOneTimeCodeInputTokens,
     pageHeader: m3LikePageHeaderTokens,
     pagination: m3LikePaginationTokens,
@@ -10112,6 +10070,8 @@ extension TanreiSystem {
     progressIndicator: m3LikeProgressIndicatorTokens,
     prose: m3LikeProseTokens,
     radioButton: m3LikeRadioButtonTokens,
+    resizableFrame: m3LikeResizableFrameTokens,
+    scrollArea: m3LikeScrollAreaTokens,
     search: m3LikeSearchTokens,
     segmentedButton: m3LikeSegmentedButtonTokens,
     select: m3LikeSelectTokens,

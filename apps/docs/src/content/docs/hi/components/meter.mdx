@@ -1,0 +1,170 @@
+---
+title: मीटर
+description: दिखाता है कि कोई ज्ञात मान किसी ज्ञात रेंज में कहाँ है — इस्तेमाल हुआ स्टोरेज, बैटरी का चार्ज, कोई कोटा, पासवर्ड की मज़बूती — एक बार या रिंग के रूप में, जो प्रोग्रेस इंडिकेटर जैसा दिखता है, पर यह नहीं कहता कि कुछ चल रहा है।
+translationOf: components/meter.mdx
+sourceHash: a9d8ef1942e071884710cdc52bdb78d45aadfb32
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="meter" />
+
+<DemoFrame label="Linear और circular">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter value="0.62" label="इस्तेमाल हुआ स्टोरेज" value-text="15 GB में से 9.3 GB"></tanrei-meter>
+    <tanrei-meter value="37" max="50" label="भरी हुई सीटें" value-text="50 में से 37 सीटें"></tanrei-meter>
+  </div>
+  <tanrei-meter variant="circular" value="0.62" label="बैटरी"></tanrei-meter>
+  <tanrei-meter variant="circular" size="large" value="0.15" status="warning" label="बैटरी" value-text="कम: 15%"></tanrei-meter>
+</DemoFrame>
+
+### इस्तेमाल
+
+Web और React के उदाहरण मौजूदा स्पेक दिखाते हैं। SwiftUI, Compose, Flutter और React Native योजना में हैं: वे अभी मीटर नहीं देते।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-meter value="0.62" label="इस्तेमाल हुआ स्टोरेज" value-text="15 GB में से 9.3 GB"></tanrei-meter>
+    <tanrei-meter value="37" max="50" label="भरी हुई सीटें" value-text="50 में से 37 सीटें"></tanrei-meter>
+
+    <!-- मान का क्या मतलब है, यह प्रोडक्ट तय करता है, और उसे शब्दों में भी कहता है। -->
+    <tanrei-meter value="0.85" status="warning" label="इस्तेमाल हुआ स्टोरेज" value-text="लगभग भरा हुआ: 15 GB में से 12.8 GB"></tanrei-meter>
+
+    <tanrei-meter variant="circular" size="small" value="0.62" label="बैटरी"></tanrei-meter>
+
+    <script type="module">
+      import '@tanrei/web/components/meter';
+      const meter = document.querySelector('tanrei-meter');
+      meter.value = used / quota;
+      meter.status = used / quota > 0.8 ? 'warning' : 'default';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Meter } from '@tanrei/react';
+
+    <Meter value={used / quota} label="इस्तेमाल हुआ स्टोरेज" valueText={`${quotaText} में से ${usedText}`} />
+    <Meter value={seats} max={50} label="भरी हुई सीटें" valueText={`50 में से ${seats} सीटें`} />
+    <Meter
+      value={used / quota}
+      status={used / quota > 0.8 ? 'warning' : 'default'}
+      label="इस्तेमाल हुआ स्टोरेज"
+      valueText={used / quota > 0.8 ? `लगभग भरा हुआ: ${quotaText} में से ${usedText}` : `${quotaText} में से ${usedText}`}
+    />
+    <Meter variant="circular" size="small" value={charge} label="बैटरी" />
+    ```
+  </TabItem>
+</Tabs>
+
+## स्पेक
+
+<DemoFrame label="स्थितियाँ: default, info, success, warning, error" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter value="0.62" label="Default"></tanrei-meter>
+    <tanrei-meter value="0.4" status="info" label="Info"></tanrei-meter>
+    <tanrei-meter value="0.9" status="success" label="Success"></tanrei-meter>
+    <tanrei-meter value="0.85" status="warning" label="Warning"></tanrei-meter>
+    <tanrei-meter value="0.98" status="error" label="Error"></tanrei-meter>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="साइज़, रेंज के दोनों छोर और अपनी रेंज" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter size="small" value="0.62" label="Small"></tanrei-meter>
+    <tanrei-meter size="medium" value="0.62" label="Medium"></tanrei-meter>
+    <tanrei-meter size="large" value="0.62" label="Large"></tanrei-meter>
+    <tanrei-meter value="0" label="ख़ाली"></tanrei-meter>
+    <tanrei-meter value="1" label="भरा हुआ"></tanrei-meter>
+    <tanrei-meter value="37" max="50" value-text="50 में से 37 सीटें" label="भरी हुई सीटें"></tanrei-meter>
+  </div>
+  <tanrei-meter variant="circular" size="small" value="0.62" label="Small"></tanrei-meter>
+  <tanrei-meter variant="circular" size="medium" value="0.62" label="Medium"></tanrei-meter>
+  <tanrei-meter variant="circular" size="large" value="0.62" label="Large"></tanrei-meter>
+</DemoFrame>
+
+<DemoFrame label="अलगाव: divider (डिफ़ॉल्ट सिस्टम का चुनाव) और gap" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter separation="divider" value="0.62" label="Divider"></tanrei-meter>
+    <tanrei-meter separation="gap" value="0.62" label="Gap"></tanrei-meter>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="meter" />
+
+## दिशानिर्देश
+
+### कब इस्तेमाल करें
+
+मीटर तब इस्तेमाल करें जब आपको दिखाना हो कि कोई मात्रा ऐसी रेंज में कहाँ है जिसका असली न्यूनतम और अधिकतम हो: कोटे में से इस्तेमाल हुआ स्टोरेज, बैटरी का चार्ज, किसी कमरे में भरी हुई सीटें, नए पासवर्ड की मज़बूती। यह एक स्तर दिखाता है; कुछ चल नहीं रहा, और कुछ ख़त्म नहीं होगा।
+
+जो काम चल रहा है — अपलोड, इंपोर्ट, लंबा सेव — उसके लिए इसकी जगह [प्रोग्रेस इंडिकेटर](/hi/components/progress-indicator/) इस्तेमाल करें। वह एक जैसा दिखता है, पर सहायक तकनीक लोगों को बताती है कि कुछ चल रहा है, और मीटर को यह नहीं कहना चाहिए। जिस मान का कोई सार्थक अधिकतम नहीं, जैसे संदेशों की गिनती, वह दोनों में से कोई नहीं है: उसे टेक्स्ट के रूप में दिखाएँ।
+
+### वेरिएंट चुनना
+
+| वेरिएंट | किसके लिए |
+| --- | --- |
+| Linear | वह स्तर जो किसी पेज या सेक्शन का है: सेटिंग्स पेज पर स्टोरेज, कार्ड के भीतर कोटा, प्लान की लिस्ट में एक पंक्ति। बार उतनी चौड़ाई भरता है जितनी उसका लेआउट उसे देता है। |
+| Circular | तंग जगहें और टेक्स्ट के बग़ल का स्तर: स्टेटस बार में बैटरी, डिवाइसों की लिस्ट में एक पंक्ति। रिंग का साइज़ तय होता है। |
+
+### साइज़ चुनना
+
+| साइज़ | डिफ़ॉल्ट सिस्टम में बार की मोटाई / रिंग का साइज़ | किसके लिए |
+| --- | --- | --- |
+| Small | 2 / 16 | घनी पंक्तियाँ, छोटे टेक्स्ट के बग़ल में। |
+| Medium | 4 / 24 | ज़्यादातर जगहें। यही डिफ़ॉल्ट है। |
+| Large | 8 / 40 | वह एक स्तर जिसके बारे में पूरा व्यू है, जैसे किसी अकाउंट का स्टोरेज पेज। |
+
+साइज़, ट्रैक और डिफ़ॉल्ट रंग प्रोग्रेस इंडिकेटर के ही हैं, इसलिए मीटर और प्रोग्रेस इंडिकेटर अगल-बग़ल मेल खाते हैं। डिज़ाइन सिस्टम मीटर के अपने टोकन से मीटर को अलग कर सकता है।
+
+### स्थिति चुनना
+
+मीटर यह तय नहीं करता कि किसी मान का क्या मतलब है। ज़्यादा अच्छा है या बुरा, यह आपका प्रोडक्ट जानता है: लगभग भरा स्टोरेज warning है, लगभग पूरी मज़बूती वाला पासवर्ड success है। स्थिति ख़ुद निकालें और पास करें। स्थितियों के नाम वही हैं जो टैग और स्नैकबार इस्तेमाल करते हैं।
+
+| स्थिति | किसके लिए |
+| --- | --- |
+| Default | वह स्तर जिस पर कुछ कहने की ज़रूरत नहीं। ज़्यादातर मीटर यहीं रहते हैं। |
+| Info | जानने लायक़ स्तर जो कुछ नहीं माँगता, जैसे जल्द ही रीसेट होने वाला कोटा। |
+| Success | वह स्तर जो वहीं है जहाँ उसे होना चाहिए, जैसे मज़बूत पासवर्ड। |
+| Warning | वह स्तर जिस पर जल्द ही ध्यान देना होगा, जैसे लगभग भरा स्टोरेज या कम बैटरी। |
+| Error | वह स्तर जो पहले से कुछ रोक रहा है, जैसे भरा हुआ स्टोरेज। |
+
+स्थिति इंडिकेटर का रंग बदलती है, और कुछ नहीं। उसका मतलब शब्दों में भी कहें: मान टेक्स्ट में, और मीटर के बग़ल के टेक्स्ट में।
+
+### करें
+
+- उसे ऐसा लेबल दें जो बताए कि क्या नापा जा रहा है: "इस्तेमाल हुआ स्टोरेज", न कि "मीटर"। अगर उसके बग़ल में कोई कैप्शन दिखता है, तो वही शब्द इस्तेमाल करें।
+- जब प्रतिशत में बताना स्वाभाविक न हो, तो मान टेक्स्ट इस्तेमाल करें: "15 GB में से 9.3 GB", "50 में से 37 सीटें", "मज़बूत"।
+- जब स्थिति का कोई मतलब हो, तो उसे मान टेक्स्ट में भी डालें: "लगभग भरा हुआ: 15 GB में से 12.8 GB"।
+
+### न करें
+
+- इसे चल रहे काम के लिए इस्तेमाल न करें। वह प्रोग्रेस इंडिकेटर है।
+- सिर्फ़ स्थिति के रंग पर भरोसा न करें। जो रंग नहीं देख सकता, उसे भी पता चलना चाहिए कि स्टोरेज लगभग भर गया है।
+- रेंज से बाहर का मान न दिखाएँ। मीटर उसे रेंज के भीतर सीमित करके बनाता और देता है, इसलिए व्यक्ति जो संख्या सुनेगा, वह आपकी संख्या नहीं होगी।
+
+## सुलभता
+
+<ComponentAccessibility name="meter" />
+
+### कंपोनेंट क्या सँभालता है
+
+- यह मीटर का रोल देता है, जिसका नाम लेबल है, साथ में रेंज, मौजूदा मान (रेंज के भीतर सीमित किया हुआ) और मान टेक्स्ट, अगर हो। यह कभी नहीं कहता कि यह व्यस्त है या कोई काम चल रहा है।
+- इस पर कभी फ़ोकस नहीं जा सकता, और यह अपने बदलाव पढ़कर नहीं सुनाता। जब व्यक्ति इस तक पहुँचता है, तो सहायक तकनीक मौजूदा मान पढ़ती है।
+- स्थिति अपने आप कभी नहीं सुनाई जाती: वह सिर्फ़ रंग बदलती है।
+- मान बदलने पर इंडिकेटर का सिरा खिसकता है और स्थिति बदलने पर उसका रंग धीरे-धीरे बदलता है। जब मोशन कम करने का अनुरोध हो, तो सिरा तुरंत खिसकता है और सिर्फ़ रंग धीरे-धीरे बदलता है।
+- फ़ोर्स्ड कलर्स में, स्थिति चाहे जो हो, ट्रैक एक पतला किनारा बन जाता है और इंडिकेटर भरा जाता है, दोनों टेक्स्ट के रंग में, ताकि मान अब भी वहीं से पढ़ा जा सके जहाँ इंडिकेटर ख़त्म होता है।
+- ख़ाली लेबल, रेंज से बाहर का मान, ऐसा मान जो संख्या नहीं है, और अनजान `size`, `variant`, `separation` या `status` डीबग बिल्ड में रिपोर्ट किए जाते हैं।
+
+### आपको क्या करना है
+
+- स्थिति का मतलब शब्दों में कहें: मान टेक्स्ट में, और मीटर के बग़ल के टेक्स्ट में।
+- कोई ज़रूरी बदलाव, जैसे स्टोरेज का भर जाना, ख़ुद बताएँ: लाइव रीजन में एक संदेश, या ऐसी सूचना जो व्यक्ति देखेगा। मीटर यह नहीं कहेगा।
+- अगर आप रंग बदलते हैं, तो इंडिकेटर के हर रंग — डिफ़ॉल्ट और चारों स्थितियाँ — को ट्रैक और उसके पीछे की सरफ़ेस के मुक़ाबले कम से कम 3:1 पर रखें। मान वहीं से पढ़ा जाता है जहाँ इंडिकेटर ट्रैक से मिलता है। डिफ़ॉल्ट सिस्टम पाँचों को लाइट में 4.6:1 से ऊपर और डार्क में 7.3:1 से ऊपर रखता है।

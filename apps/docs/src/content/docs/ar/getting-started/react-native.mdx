@@ -2,15 +2,15 @@
 title: React Native
 description: أضف Tanrei إلى تطبيق React Native.
 translationOf: getting-started/react-native.mdx
-sourceHash: 79720aca2100185d961719b9ede0569a4ec3ab34
+sourceHash: 56d00833d4aaf691c31d6cf20eca6ee3e7b8aa51
 ---
 
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 الحزمة `@tanrei/react-native` مكتوبة بلغة TypeScript بلا وحدات أصلية، فلا شيء يحتاج إلى ربط، وهي تعمل مع Expo. تستهدف المعمارية الجديدة (New Architecture) وتتطلب React 19 و React Native 0.78 أو أحدث.
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/react-native" />
+<ReleaseNotice platform="react-native" registry="npm" pkg="@tanrei/react-native" />
 
 ## التثبيت
 
@@ -36,7 +36,7 @@ pnpm --filter @tanrei/react-native pack --pack-destination ../tanrei-packages
 npm install path/to/tanrei-packages/tanrei-react-native-*.tgz
 ```
 
-### بعد الإصدار الأول
+### بعد نشرها
 
 ```sh
 npm install @tanrei/react-native

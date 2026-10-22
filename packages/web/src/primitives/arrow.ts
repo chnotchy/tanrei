@@ -6,9 +6,9 @@ import { type CSSResult, type TemplateResult, html, nothing, svg, unsafeCSS } fr
 // while an arrow is drawn the painted box gives up its shadow and the same layers are drawn by an SVG filter over the
 // box and the arrow together.
 //
-// The markup the styles expect, inside the placed box (`surface`):
+// The markup the styles expect, inside the placed box (`surface`), which the filter is set on (`shadeOn()`):
 //
-//   <div class="motion">                         what the filter is set on (`filter: url(#shade)`, by the script)
+//   <div class="motion">                         what fades and grows (its own filter is the appearance's blur)
 //     <span class="arrow" aria-hidden="true">    the triangle
 //     <div class="…">                            the painted box (`box`)
 //   </div>
@@ -35,7 +35,12 @@ export function shadowLayers(value: string): ShadowLayer[] {
   // Split at the commas between layers, not those inside a color function.
   for (const layer of value.split(/,(?![^(]*\))/)) {
     const color = /[a-z-]+\([^)]*\)|#[0-9a-f]+/i.exec(layer)?.[0] ?? layer.trim().split(/\s+/).find((word) => /^[a-z]+$/i.test(word) && word !== 'inset') ?? '';
-    const [x = 0, y = 0, blur = 0, spread = 0] = (layer.replace(color, ' ').match(/-?[\d.]+(?:e-?\d+)?px|(?<![\w.])0(?![\w.])/g) ?? []).map((length) => Number.parseFloat(length));
+    // A length is a number in px, or a bare 0 that is not part of a word or of another number — told by the character
+    // before it, not by a lookbehind: a bundler cannot lower a lookbehind for an older target, and this needs none.
+    const rest = layer.replace(color, ' ');
+    const [x = 0, y = 0, blur = 0, spread = 0] = [...rest.matchAll(/-?[\d.]+(?:e-?\d+)?px|0(?![\w.])/g)]
+      .filter((length) => length[0] !== '0' || !/[\w.]/.test(rest.charAt(length.index - 1)))
+      .map((length) => Number.parseFloat(length[0]));
     // No alpha at all: `transparent`, a fourth component of 0 (`rgba(0, 0, 0, 0)`) or one after a slash (`color(srgb 0 0 0 / 0)`).
     const clear = color === 'transparent' || /^[a-z-]+\((?:[^,]+,){3}\s*0(?:\.0+)?%?\s*\)$/i.test(color) || /\/\s*0(?:\.0+)?%?\s*\)$/.test(color);
     if (/\binset\b/.test(layer) || clear || !color || (x === 0 && y === 0 && blur === 0 && spread <= 0)) continue;
@@ -69,6 +74,18 @@ export function shadeFilter(layers: readonly ShadowLayer[]): TemplateResult | ty
         </feMerge>
       </filter>
     </svg>`;
+}
+
+/**
+ * Sets the elevation's filter on the placed box while its arrow is shaded (`data-arrow='shaded'`), and takes it off
+ * otherwise. On the placed box, not on what moves inside it: there the filter is the appearance's blur
+ * (`appearStyles()`, src/primitives/motion.ts), and an inline filter would hold it. The filter is drawn round what the
+ * box holds as it is drawn — faded and grown with it. It is named from the element's own style, so that the name is
+ * looked up in its shadow root.
+ */
+export function shadeOn(surface: HTMLElement): void {
+  const filter = surface.dataset.arrow === 'shaded' ? 'url(#shade)' : '';
+  if (surface.style.filter !== filter) surface.style.filter = filter;
 }
 
 /** What `arrowStyles()` is told: the selectors of the markup above, and the values the arrow is drawn from. */

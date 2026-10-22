@@ -4,6 +4,7 @@
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import { componentFiles } from '../../tokens-build/src/components-catalog.js';
 import { keepFiles } from './keep.js';
 import { npmMetadataOutputs } from './npm-metadata.js';
 
@@ -26,6 +27,11 @@ export const GENERATORS = [
   ['packages/web', 'node_modules/.bin/cem', ['analyze'], ['packages/web/custom-elements.json']],
   // One module per wrapper (src/generated/wrappers/) and the module that re-exports them.
   ['packages/react', 'node', ['scripts/generate.js'], ['packages/react/src/generated/']],
+  // The component catalog and each shipped system's components manifest: read from the specs and from what the two
+  // steps before write (the elements' manifest, the wrappers), so it runs after them.
+  ['.', 'node', ['packages/tokens-build/src/components-catalog.js'], componentFiles()],
+  // The React package's entries: the wrappers of each entry the manifests name, so it runs after them.
+  ['.', 'node', ['packages/react/scripts/entries.js'], ['packages/react/src/entries/generated/']],
 ];
 
 const isDirectory = (output) => output.endsWith('/');

@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, type TemplateResult, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, type TemplateResult, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { repeat } from 'lit/directives/repeat.js';
@@ -6,6 +6,7 @@ import { styleMap } from 'lit/directives/style-map.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
   ActionPlacement,
+  AppearController,
   AvailabilityController,
   BUTTON_VARIANTS,
   type CalendarDate,
@@ -22,6 +23,7 @@ import {
   ambientLocale,
   asciiDigits,
   clockText,
+  closeModal,
   closeRequestReason,
   compChoice,
   compareDates,
@@ -41,12 +43,14 @@ import {
   layoutSize,
   naturalHeight,
   numberText,
+  openModal,
   parseClockTime,
   parseIsoDate,
   parseValues,
   periodNames,
   periodOf,
   periodPlace,
+  placeMenu,
   report,
   roundDown,
   shownHour12,
@@ -59,6 +63,8 @@ import {
   timeText,
   trapFocus,
   unitName,
+  viewportKey,
+  visibleViewport,
   watchEscape,
   type WordKey,
   WordsController,
@@ -66,9 +72,10 @@ import {
 import '../button/button.js';
 import '../calendar/calendar.js';
 import type { TanreiCalendar, TanreiCalendarChangeDetail } from '../calendar/calendar.js';
-import { placeMenu } from '../menu/menu.js';
+import type { LinkedTabView, TanreiTabs } from '../tabs/tabs.js';
 import '../tabs/tabs.js';
 import { styles } from './date-time-picker.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** modal: a dialog over a scrim, committed by OK. docked: a surface below its anchor. */
 export type TanreiDateTimePickerPresentation = 'modal' | 'docked';
@@ -87,7 +94,7 @@ export type TanreiDateTimePickerLayout = 'auto' | 'vertical' | 'horizontal';
  * without a key (Android's back) arrives as the native dialog's `cancel` and is sent as `back`; one an Escape key caused
  * is sent as `escape`.
  */
-export type TanreiDateTimePickerCloseReason = 'escape' | 'back' | 'outside' | 'tab' | 'focus-out' | 'cancel' | 'confirm' | 'select';
+export type TanreiDateTimePickerCloseReason = 'escape' | 'back' | 'outside' | 'tab' | 'focus-out' | 'cancel' | 'confirm' | 'select' | 'anchor-hidden';
 export interface TanreiDateTimePickerCloseDetail {
   reason: TanreiDateTimePickerCloseReason;
 }
@@ -261,7 +268,7 @@ let ids = 0;
  * @fires {CustomEvent<TanreiDateTimePickerChangeDetail>} change - The person committed a choice that differs from the one before (OK, or choosing a date in a docked picker that sets a date only). `value`, `start` and `end` are already the new ones; `detail` holds them too. Fired before the `close` it causes.
  * @fires {CustomEvent<TanreiDateTimePickerCloseDetail>} close - The picker asks to be closed: `detail.reason` is `escape`, `back`, `outside`, `tab`, `focus-out`, `cancel`, `confirm` or `select`. Set `open` to false.
  */
-export class TanreiDateTimePicker extends LitElement {
+export class TanreiDateTimePicker extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'date-time-picker');
   private readonly system = new SystemWatchController(this);
   /** DTM-48: the product's words, read where the instance gives none (src/primitives/words.ts). */
@@ -560,6 +567,17 @@ export class TanreiDateTimePicker extends LitElement {
   private session = false;
   private shown = false;
   private presenting = false;
+  /**
+   * DTM-35: a modal picker's appearance, opened and closed (src/primitives/motion.ts): made at once before the first
+   * paint (MOT-4), turned round from what it shows (MOT-2). Its `<dialog>` is the surface that appears; a docked or an
+   * in-place picker has none.
+   */
+  private readonly appear = new AppearController(this, {
+    motion: () => {
+      const surface = this.surface;
+      return surface instanceof HTMLDialogElement && !this.inline ? surface : null;
+    },
+  });
   private closeRequested = false;
   /** The choice the picker opened with, in the mode's form (DTM-6). */
   private openedWith: Record<End, string> = { value: '', start: '', end: '' };
@@ -2042,16 +2060,16 @@ export class TanreiDateTimePicker extends LitElement {
   /** DTM-5: a press that starts and ends on a modal picker's scrim. */
   private readonly onDialogPointerDown = (event: PointerEvent) => {
     this.onSurfacePointerDown(event);
-    this.pressedScrim = this.onScrim(event);
+    this.pressedScrim = this.#onScrim(event);
   };
 
   private readonly onDialogClick = (event: MouseEvent) => {
-    const scrim = this.pressedScrim && this.onScrim(event);
+    const scrim = this.pressedScrim && this.#onScrim(event);
     this.pressedScrim = false;
     if (scrim) this.requestClose('outside');
   };
 
-  private onScrim(event: MouseEvent): boolean {
+  #onScrim(event: MouseEvent): boolean {
     const surface = this.surface;
     if (!surface || this.inline || event.composedPath()[0] !== surface) return false;
     const box = surface.getBoundingClientRect();
@@ -2092,7 +2110,10 @@ export class TanreiDateTimePicker extends LitElement {
 
   // ── Presenting (DTM-1 … DTM-4, DTM-9, DTM-35 … DTM-37) ────────────────────────────────────────────────────────────
 
-  /** DTM-2, DTM-36: a docked picker below its anchor (flipped, shifted, its height limited to the room), following it. */
+  /**
+   * DTM-2, DTM-36: a docked picker below its anchor (flipped, shifted, its height limited to the room), following it,
+   * inside the visible part of the window: above the on-screen keyboard.
+   */
   private place() {
     const surface = this.surface;
     if (!surface || this.inline || !this.shown || this.modal) return;
@@ -2104,10 +2125,10 @@ export class TanreiDateTimePicker extends LitElement {
     // surface itself where everything scrolls together.
     const scroller = surface.classList.contains('whole') ? surface : surface.querySelector<HTMLElement>('.body');
     const size = { width: layoutSize(surface).width, height: naturalHeight(surface, scroller) };
-    const box = this.anchorElement?.getBoundingClientRect() ?? { x: margin, y: margin, width: 0, height: 0 };
-    const viewport = { width: document.documentElement.clientWidth, height: document.documentElement.clientHeight };
+    const viewport = visibleViewport();
+    const box = this.anchorElement?.getBoundingClientRect() ?? { x: viewport.x + margin, y: viewport.y + margin, width: 0, height: 0 };
     const at = placeMenu({ anchor: box, surface: size, viewport, placement: 'bottom-start', offset, margin, rtl: getComputedStyle(this).direction === 'rtl' });
-    const left = size.width > viewport.width - 2 * margin ? Math.max(0, (viewport.width - size.width) / 2) : at.left;
+    const left = size.width > viewport.width - 2 * margin ? viewport.x + Math.max(0, (viewport.width - size.width) / 2) : at.left;
     surface.style.top = `${at.top}px`;
     surface.style.left = `${left}px`;
     surface.style.maxBlockSize = `${at.maxHeight}px`;
@@ -2122,7 +2143,7 @@ export class TanreiDateTimePicker extends LitElement {
     const box = this.anchorElement?.getBoundingClientRect();
     const body = this.renderRoot.querySelector<HTMLElement>('.body');
     // DTM-41: the layout direction too — the start edges are aligned (DTM-2), so a change of it places the container again.
-    const layout = `${box?.x},${box?.y},${box?.width},${box?.height},${document.documentElement.clientWidth},${document.documentElement.clientHeight},${body?.scrollHeight},${getComputedStyle(this).direction}`;
+    const layout = `${box?.x},${box?.y},${box?.width},${box?.height},${viewportKey()},${body?.scrollHeight},${getComputedStyle(this).direction}`;
     if (layout === this.lastLayout) return false;
     this.lastLayout = layout;
     this.place();
@@ -2133,6 +2154,9 @@ export class TanreiDateTimePicker extends LitElement {
     followed: () => [this.anchorElement],
     sized: () => [this.surface, this.renderRoot?.querySelector('.body')],
     check: this.follow,
+    // DTM-51: the anchor of a docked picker is no longer drawn.
+    anchor: () => this.anchorElement,
+    undrawn: () => this.requestClose('anchor-hidden'),
   });
 
   private stopFollowing() {
@@ -2204,7 +2228,10 @@ export class TanreiDateTimePicker extends LitElement {
     try {
       if (surface instanceof HTMLDialogElement) {
         watchEscape();
-        if (!surface.open) surface.showModal();
+        // DTM-35: opened modally — or, still leaving, taken back where its exit has got to (MOT-2,
+        // src/primitives/modal-exit.ts).
+        openModal(surface);
+        this.appear.enter();
         modalLayer.add(this);
         holdPageScroll(this, true);
         window.visualViewport?.addEventListener('resize', this.onWindow);
@@ -2294,7 +2321,10 @@ export class TanreiDateTimePicker extends LitElement {
       modalLayer.delete(this);
       holdPageScroll(this, false);
       window.visualViewport?.removeEventListener('resize', this.onWindow);
-      if (surface.open) surface.close();
+      // DTM-35: no longer modal at once — the page and focus are given back now — and drawn in the top layer until its
+      // exit and its scrim's have played (closeModal), in every engine.
+      void closeModal(surface);
+      void this.appear.exit(!this.isConnected);
     } else if (surface) {
       surface.classList.remove('entering');
       surface.classList.add('leaving');
@@ -2326,18 +2356,30 @@ export class TanreiDateTimePicker extends LitElement {
     });
   }
 
-  /** DTM-13: the entry-mode tabs control their panel (the row sets none of its own: it has no panels). */
+  /** The entry-mode tabs the time section is linked to as their panel (DTM-13). */
+  private entryRow: TanreiTabs | null = null;
+
+  /**
+   * DTM-13, TAB-42: the time section is the entry-mode tabs' panel. The row holds no panel of its own, so the picker
+   * links the section to it as a Tab view links its panels: the row is then a tab list whose tabs control the section,
+   * and not the radio group a row without panels is.
+   */
+  private readonly timePanelLink: LinkedTabView = ((picker: TanreiDateTimePicker): LinkedTabView => ({
+    get isConnected() {
+      return picker.isConnected;
+    },
+    panelFor: () => picker.renderRoot.querySelector<HTMLElement>('#time-panel'),
+    followTabs() {},
+    rowSelected() {},
+    rowWillSelect() {},
+  }))(this);
+
   private linkPanels() {
-    const link = (tabs: string, panel: string) => {
-      const row = this.renderRoot.querySelector<HTMLElement & { updateComplete: Promise<unknown> }>(tabs);
-      if (!row) return;
-      void row.updateComplete.then(() =>
-        requestAnimationFrame(() => {
-          for (const tab of row.querySelectorAll('tanrei-tab')) hostAria(tab, { 'aria-controls': panel });
-        }),
-      );
-    };
-    link('.entry-tabs', 'time-panel');
+    const row = this.renderRoot.querySelector<TanreiTabs>('.entry-tabs');
+    if (row === this.entryRow) return;
+    this.entryRow?.unlinkView(this.timePanelLink);
+    this.entryRow = row;
+    row?.linkView(this.timePanelLink);
   }
 
   // ── Updates ───────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -2911,6 +2953,7 @@ export class TanreiDateTimePicker extends LitElement {
       return html`<dialog
         part="container"
         class=${classes}
+        data-tanrei-appear
         aria-label=${ifDefined(label || undefined)}
         tabindex="-1"
         data-tanrei-shape

@@ -176,15 +176,15 @@ test('the Figma plan: choices have no scope and say their name; icon families ar
   assert.equal(defaults.collections.find((c) => c.name === 'tanrei/ref').variables.find((v) => v.name === 'typeface/mono').values.value, 'Roboto Mono');
 });
 
-test('the Figma plan: durations are documented numbers (ms, no scope), a component’s alias follows the step; nothing a variable can hold is left out', async () => {
+test('the Figma plan: durations are documented numbers (ms, no scope), a component’s alias follows its role; nothing a variable can hold is left out', async () => {
   const model = await (await resolveSystem({ system: 'tanrei' })).model();
   const plan = emitFigmaPlan(model);
   const find = (collection, name) => plan.collections.find((c) => c.name === collection).variables.find((v) => v.name === name);
   const feedback = find('tanrei/comp', 'button/motion/feedback-duration');
-  assert.deepEqual([feedback.type, feedback.scopes, feedback.web, feedback.values.value], ['FLOAT', [], 'var(--tanrei-comp-button-motion-feedback-duration)', { alias: { collection: 'tanrei/sys', name: 'motion/duration/long1' } }]);
+  assert.deepEqual([feedback.type, feedback.scopes, feedback.web, feedback.values.value], ['FLOAT', [], 'var(--tanrei-comp-button-motion-feedback-duration)', { alias: { collection: 'tanrei/sys', name: 'motion/role/feedback' } }]);
   assert.match(feedback.description, /Milliseconds\. Motion is not drawn in Figma: documented, not applied\.$/);
   assert.deepEqual([find('tanrei/sys', 'motion/duration/long1').values.value, find('tanrei/sys', 'motion/duration/long1').scopes], [model.tokens['tanrei.sys.motion.duration.long1'].value.value, []]);
-  assert.deepEqual(find('tanrei/comp', 'button/motion/state-duration').values.value, { alias: { collection: 'tanrei/sys', name: 'motion/duration/short3' } });
+  assert.deepEqual(find('tanrei/comp', 'button/motion/state-duration/medium').values.value, { alias: { collection: 'tanrei/sys', name: 'motion/role/state/default' } });
   // Every alias in the plan points at a variable of the plan.
   const names = new Set(plan.collections.flatMap((c) => c.variables.map((v) => `${c.name}|${v.name}`)));
   for (const c of plan.collections) for (const v of c.variables) for (const value of Object.values(v.values)) if (value?.alias) assert.ok(names.has(`${value.alias.collection}|${value.alias.name}`), `${v.name} → ${value.alias.name}`);

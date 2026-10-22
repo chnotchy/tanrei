@@ -2,7 +2,7 @@
 title: Campo de chips
 description: Recoge una lista de textos cortos (direcciones de correo electrónico, números de teléfono, palabras clave) que se escriben uno tras otro en un solo campo. Cada texto que tu comprobación acepta se convierte en un chip que se puede quitar, o devolver a la parte donde se escribe para cambiarlo, y la lista es el único valor del campo.
 translationOf: components/chip-field.mdx
-sourceHash: 57a522628aedb8d06ff28bc67b67f0e5ab5b3ccd
+sourceHash: c40811ad47af7b7bc1c71ac68bdfe8da9010cbbf
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -137,7 +137,7 @@ Baja a ese nivel para una organización que el campo de chips no ofrezca, como e
 ## Especificaciones
 
 <DemoFrame label="Obligatorio, de solo lectura, deshabilitado, y palabras clave que solo se crean con Enter" plain column>
-  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Destinatarios" type="email" requirement="required" required-text="Obligatorio" remove-label="Quitar {entry}" value='["ada@example.com"]'></tanrei-chip-field>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Destinatarios" type="email" required required-text="Obligatorio" remove-label="Quitar {entry}" value='["ada@example.com"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Destinatarios" type="email" readonly remove-label="Quitar {entry}" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Destinatarios" type="email" disabled remove-label="Quitar {entry}" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Autores" remove-label="Quitar {entry}" supporting-text="Pulsa Enter después de cada nombre." value='["Lovelace, Ada","Hopper, Grace"]'></tanrei-chip-field>
@@ -147,12 +147,12 @@ Baja a ese nivel para una organización que el campo de chips no ofrezca, como e
 
 | Aspecto | Del campo | De la entrada de texto | Propio del campo de chips |
 | --- | --- | --- | --- |
-| Propiedades | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `type`, `placeholder`, `readOnly`, `autocomplete` e `inputValue` (el `value` de la entrada de texto) | `value`, `separators`, `maxEntries`, `invalidText`, `duplicateText`, `limitText`, `removeLabel`, `addedText`, `addedCountText`, `removedText` |
+| Propiedades | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `type`, `placeholder`, `readOnly`, `autocomplete` e `inputValue` (el `value` de la entrada de texto) | `value`, `separators`, `maxEntries`, `invalidText`, `duplicateText`, `limitText`, `removeLabel`, `addedText`, `addedCountText`, `removedText` |
 | Eventos | — | `input`, `action` | `change`, `check`, `reject` |
 | Slots | `label-icon` | — | — |
 | Tokens | `comp.field.*` | `comp.input-box.*` para la caja; `comp.text-input.*` para el lugar de los elementos | Ninguno; los elementos leen `comp.chip.*` |
 
-- **Los elementos son chips pequeños** en los dos tamaños de la caja. Un elemento largo ocupa una línea él solo y el chip lo corta; su texto entero sigue siendo su nombre y su valor.
+- **Los elementos son chips pequeños** en los dos tamaños de la caja. Un elemento largo ocupa una línea él solo y el chip lo corta; su texto entero sigue siendo su nombre y su valor. Sus acciones de quitar son simples, como las de un chip de forma predeterminada: un elemento quitado se puede volver a escribir.
 - **El marcador de posición** solo se muestra mientras la lista está vacía.
 - **De solo lectura**: se puede llegar a los elementos y leerlos, y se envían. No se puede crear ni quitar ninguno, ni devolverlo a la parte donde se escribe, y cada chip se dibuja sin su acción de quitar. El campo termina con su última línea de chips: no reserva espacio para escribir. Un campo deshabilitado conserva ese espacio, para que tenga la misma forma cuando se vuelva a habilitar.
 - **Deshabilitado**: el campo, la caja y todos los chips están deshabilitados, y no se envía nada.
@@ -174,7 +174,7 @@ El campo de chips no tiene ningún token propio. Para cambiar una sola instancia
 
 - El shadow root del elemento contiene un `<tanrei-field>` con un `<tanrei-text-input>` dentro, y un `<tanrei-chip>` por cada elemento de la lista en el slot `entries` de la entrada de texto. Importar el elemento define los tres.
 - `value` es una propiedad de tipo array: asigna un array nuevo para cambiarla. El atributo `value` se lee una sola vez, como un array JSON de cadenas, y es a lo que vuelve el restablecimiento de un formulario. `separators` también es un array; su atributo es un array JSON.
-- El elemento está asociado a formularios. Envía con `name` un valor por cada elemento de la lista, en orden, y nada mientras la lista está vacía o el campo está deshabilitado. El texto que se está escribiendo nunca se envía. Sigue a un `<fieldset>` deshabilitado, se restaura al navegar y notifica que falta un valor mientras `requirement` es `required` y la lista está vacía.
+- El elemento está asociado a formularios. Envía con `name` un valor por cada elemento de la lista, en orden, y nada mientras la lista está vacía o el campo está deshabilitado. El texto que se está escribiendo nunca se envía. Sigue a un `<fieldset>` deshabilitado, se restaura al navegar y notifica que falta un valor mientras `required` está activado y la lista está vacía.
 - `change`, `check` y `reject` son CustomEvents que emite el elemento: su `detail` es `{ value, added, removed }`, `{ text, values }` y `{ text, reason, message }`. `check` es cancelable y se lee cuando vuelve: una respuesta dada más tarde no se lee.
 - `input` y `action` son los de la propia entrada de texto. `action` solo se emite con Enter cuando la parte donde se escribe está vacía, y entonces pide el envío del formulario. Enter sobre un texto crea un elemento: la tecla se detiene antes de que la entrada de texto la oiga, de modo que un listener de `keydown` en la fase de propagación no oye esa pulsación.
 - Partes: `field`, `text-input` y `chip` son los miembros. Las partes propias del campo y de la entrada de texto conservan sus nombres (`label`, `supporting-text`, `container`, `input`, `entries`, etcétera). Las de un chip son `entry-container`, `entry-label` y `entry-remove`.

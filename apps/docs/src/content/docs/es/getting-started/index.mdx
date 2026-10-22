@@ -2,18 +2,16 @@
 title: Primeros pasos
 description: Qué incluye Tanrei, cómo encajan sus piezas y por dónde empezar en tu plataforma.
 translationOf: getting-started/index.mdx
-sourceHash: 29f0e96c7f768e4c4fac79e67bd59e1112e73709
+sourceHash: 4047de815b86a5425d5a3c8912e2fffd4fe11c22
 ---
 
-import Callout from '../../../../components/Callout.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 import { CardGrid, LinkCard } from '../../../../components/cards';
 import { Tabs, TabItem } from '../../../../components/tabs';
 
 Tanrei es un sistema de diseño que se distribuye como bibliotecas nativas. No adoptas un entorno de ejecución ni un framework multiplataforma: añades el paquete de la plataforma con la que ya trabajas y obtienes los mismos tokens, los mismos componentes y el mismo comportamiento de accesibilidad que en todas las demás.
 
-<Callout type="caution" title="Prelanzamiento">
-  Tanrei está en desarrollo activo y **todavía no se ha lanzado nada**: ningún paquete está en un registro de paquetes. La guía de cada plataforma muestra cómo compilarlo hoy desde el código fuente y cómo será la instalación después del primer lanzamiento. La API que muestran estas guías refleja las especificaciones y el código fuente actuales, y puede cambiar antes de entonces. La [página de estado](/es/status/) muestra exactamente qué existe hoy. Los paquetes de Web y React se compilan desde el código fuente; SwiftUI, Compose, Flutter y React Native todavía no se han puesto al día con las especificaciones actuales y aún no se compilan.
-</Callout>
+<ReleaseNotice />
 
 ## Elige tu plataforma
 
@@ -72,7 +70,8 @@ Cada componente se define una sola vez, en una especificación independiente de 
 
 ## Cómo leer esta documentación
 
-- Los [fundamentos](/es/foundations/principles/) explican las ideas y las reglas.
+- Los [fundamentos](/es/foundations/brand/) explican las ideas y las reglas.
 - La [referencia de tokens](/es/tokens/color/) enumera todos los valores, representados directamente a partir de los archivos de tokens.
 - Los [componentes](/es/components/) siguen una misma plantilla: descripción general, especificaciones, pautas y accesibilidad. Las tablas de esas páginas salen de la especificación del componente, así que no pueden quedar desactualizadas.
 - El [estado](/es/status/) se genera a partir del repositorio.
+- [Usar Tanrei con agentes de IA](/es/getting-started/ai-agents/) muestra cómo conectar el servidor MCP y da a un agente de programación las reglas para escribir tu interfaz con Tanrei.

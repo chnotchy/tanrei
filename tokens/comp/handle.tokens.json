@@ -1,0 +1,343 @@
+{
+  "tanrei": {
+    "comp": {
+      "handle": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product lets a person change the size of several things by dragging an edge or a corner, or from the keyboard: a sheet's height, a text field's height and width, a pane's or a preview frame's width. Each needs the same mark, quiet at rest and clear while it is used, and a smaller one where a large mark would cover text.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "standard"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed",
+              "disabled"
+            ],
+            "perVariant": {
+              "container.color": "color",
+              "line.color": "color",
+              "state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a handle reads: per size, its box (the length along its line and the breadth across it; a square of the breadth for an arc), its line's length and thickness at rest and while it is used, and an arc's radius; how far an arc stays in from its corner's two edges; the box's corners; the box, line and state-layer colors in each state; and the state and press motion.",
+            "rules": [
+              "A handle changes a size, never a place: a reorder handle is another control, drawn with dots.",
+              "The line is a control's boundary, not decoration: it is held to the functional 3:1 boundary.",
+              "An arc shares its centre with a corner whose radius is arc.radius plus inset: give the box it stands on that corner, or change inset to match the corner it has.",
+              "Restyle through these tokens in a layer; never draw a handle of your own.",
+              "standard.state-layer.color is the color hover, focus and press mix into the handle's box; it aliases the line color."
+            ]
+          },
+          "dev.tanrei.axes": {
+            "size": {
+              "default": "medium",
+              "values": [
+                "small",
+                "medium"
+              ],
+              "members": [
+                "container.length",
+                "container.breadth",
+                "line.length",
+                "line.thickness",
+                "line.active-length",
+                "line.active-thickness",
+                "arc.radius"
+              ]
+            },
+            "condition": {
+              "default": "standard",
+              "from": "states"
+            }
+          }
+        },
+        "container": {
+          "length": {
+            "$type": "dimension",
+            "$description": "The handle's box along its line: where its hover, focus and press are drawn, centred on the line. Its width under a handle that changes a height, its height under one that changes a width.",
+            "small": {
+              "$value": {
+                "value": 20,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 5
+                }
+              }
+            },
+            "medium": {
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 12
+                }
+              }
+            }
+          },
+          "breadth": {
+            "$type": "dimension",
+            "$description": "The handle's box across its line, and the side of the square box an arc is drawn in at its corner.",
+            "small": {
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 4
+                }
+              }
+            },
+            "medium": {
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 6
+                }
+              }
+            }
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.full}",
+            "$description": "The corners of the handle's box: a pill across a line, a circle around an arc."
+          }
+        },
+        "line": {
+          "length": {
+            "$type": "dimension",
+            "$description": "The drawn capsule's length at rest, round ends included.",
+            "small": {
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 3
+                }
+              }
+            },
+            "medium": {
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 8
+                }
+              }
+            }
+          },
+          "thickness": {
+            "$type": "dimension",
+            "$description": "The drawn line's thickness at rest: the capsule's, and the arc's stroke.",
+            "small": {
+              "$value": {
+                "value": 3,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 0.75
+                }
+              }
+            },
+            "medium": {
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 1
+                }
+              }
+            }
+          },
+          "active-length": {
+            "$type": "dimension",
+            "$description": "The capsule's length while a fine pointer is over the handle or a press or a drag holds it: a little longer than at rest, grown about its centre.",
+            "small": {
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 4
+                }
+              }
+            },
+            "medium": {
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 10
+                }
+              }
+            }
+          },
+          "active-thickness": {
+            "$type": "dimension",
+            "$description": "The line's thickness while a fine pointer is over the handle or a press or a drag holds it: a little thicker than at rest.",
+            "small": {
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 1
+                }
+              }
+            },
+            "medium": {
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 1.5
+                }
+              }
+            }
+          }
+        },
+        "arc": {
+          "radius": {
+            "$type": "dimension",
+            "$description": "The radius of the quarter circle drawn for a handle that changes a height and a width at once, to the middle of its stroke. It stays the same while the handle is used, so that the arc keeps its centre.",
+            "small": {
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 2
+                }
+              }
+            },
+            "medium": {
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 4
+                }
+              }
+            }
+          }
+        },
+        "inset": {
+          "$type": "dimension",
+          "$value": "{tanrei.sys.space.space50}",
+          "$description": "How far the middle of an arc's stroke stays in from each of its corner's two edges."
+        },
+        "standard": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$description": "The handle's box at rest: nothing is drawn; its states draw the state layer.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "The handle draws no fill at rest; its states draw the state layer."
+                }
+              }
+            }
+          },
+          "line": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.outline}",
+              "$description": "The line is how a sighted person finds a control, so it takes the functional boundary role (3:1 on every surface), not the decorative hairline."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.handle.standard.line.color}"
+            }
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.role.state.compact}",
+            "$description": "How long the line takes to grow, thicken, darken and appear, and the box's state layer to change."
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.state}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.role.feedback}",
+            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
+          }
+        }
+      }
+    }
+  }
+}

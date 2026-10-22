@@ -39,6 +39,7 @@ const SIZE_MEMBERS = {
   'icon-alone': 'icon-size-without-label',
   gap: 'container-gap',
   'outline-width': 'outline-width',
+  'state-duration': 'motion-state-duration',
 } as const;
 
 const PREFIX = '--tanrei-comp-button';
@@ -65,6 +66,53 @@ const lookBlock = (look: keyof typeof LOOKS, selector: string) =>
   `${selector} {\n${Object.entries(STATES)
     .flatMap(([, suffix]) => Object.keys(PARTS).map((key) => `  --_${key}${suffix}: var(--_${look}-${key}${suffix});`))
     .join('\n')}\n}`;
+
+/**
+ * BTN-45: the tone a host gives the button (src/primitives/group-item.ts) — `--_tone`, the content color of the
+ * colored surface it draws the button on, and `--_tone-focus`, the color of a focus indicator's outer stroke there,
+ * both set on the container, which is marked `data-tone`. The plain look is laid over the tone: the label, the icon and
+ * the state layer in it; the container, where the variant draws one at rest, the tone at
+ * comp.button.tone.container.opacity, and where it draws none (outlined, text) its own, an outlined edge taking that
+ * translucent tone instead. The tone is known only here, so each state is computed here as the core rules compute a
+ * state from a resting color: the tone laid over the resting container at the system's state-layer opacity of the
+ * state, and disabled the tone at the system's disabled opacities. (A state token valued at the root holds the root's
+ * colors: overriding the resting color here would not move it.) A toggle and a destructive button keep their looks,
+ * and a link (the anchor), which has no destructive look (BTN-43), takes the tone as the same link without it does;
+ * the size, shape, elevation and opacity are the button's own in every case.
+ */
+const toneOf = (opacity: string) => `color-mix(in srgb, var(--_tone) calc(var(${opacity}) * 100%), transparent)`;
+const TONE_LAYERS = { '-h': 'hover', '-f': 'focus', '-p': 'pressed' } as const;
+/** The variants that draw no container at rest: on a tone they still draw none. */
+const BARE_VARIANTS = ['outlined', 'text'] as const;
+const toned = (variant: string) => `:host([variant='${variant}']) button[data-tone], :host(:not([variant])) button[data-tone][data-host-variant='${variant}']`;
+const toneBlock = `
+  button[data-tone] {
+    --_tone-rest: ${toneOf('--tanrei-comp-button-tone-container-opacity')};
+    --_tone-disabled: ${toneOf('--tanrei-sys-state-disabled-container-opacity')};
+    --_tone-edge: var(--_plain-o);
+    --_tone-edge-d: var(--_plain-o-d);
+    --_focus-color: var(--_tone-focus);
+  }
+  ${BARE_VARIANTS.map(toned).join(',\n  ')} {
+    --_tone-rest: var(--_plain-c);
+    --_tone-disabled: var(--_plain-c-d);
+  }
+  ${toned('outlined')} {
+    --_tone-edge: ${toneOf('--tanrei-comp-button-tone-container-opacity')};
+    --_tone-edge-d: var(--_tone-edge);
+  }
+  :host(:not([destructive])) button[data-tone]:not([aria-pressed]),
+  a[data-tone] {
+    --_c: var(--_tone-rest);
+${Object.entries(TONE_LAYERS)
+  .map(([suffix, state]) => `    --_c${suffix}: color-mix(in srgb, var(--_tone-rest), var(--_tone) calc(var(--tanrei-sys-state-${state}-state-layer-opacity) * 100%));`)
+  .join('\n')}
+    --_c-d: var(--_tone-disabled);
+${['', ...Object.keys(TONE_LAYERS)].map((suffix) => `    --_l${suffix}: var(--_tone);\n    --_i${suffix}: var(--_tone);\n    --_o${suffix}: var(--_tone-edge);`).join('\n')}
+    --_l-d: ${toneOf('--tanrei-sys-state-disabled-content-opacity')};
+    --_i-d: var(--_l-d);
+    --_o-d: var(--_tone-edge-d);
+  }`;
 
 const sizeBlock = (size: string, selector: string, fallback: string | null = null) =>
   `${selector} {\n${Object.entries(SIZE_MEMBERS)
@@ -121,8 +169,11 @@ const buttonStyles = css`
   ${unsafeCSS(lookBlock('plain', 'button'))}
   ${unsafeCSS(lookBlock('unselected', 'button[aria-pressed]'))}
   ${unsafeCSS(lookBlock('selected', "button[aria-pressed='true']"))}
-  /* BTN-40, BTN-41: a destructive button reads its variant's destructive parts; a toggle (aria-pressed) keeps its own. */
-  ${unsafeCSS(lookBlock('destructive', ':host([destructive]) button:not([aria-pressed])'))}
+  /* BTN-40, BTN-41, BTN-43: a destructive button reads its variant's destructive parts; a toggle (aria-pressed) keeps its
+     own, and a link (the anchor, a) the plain parts of its variant: it only leads somewhere, and deletes nothing. */
+  ${unsafeCSS(lookBlock('destructive', ':host([destructive]) button:not([aria-pressed], a)'))}
+  /* BTN-45: the plain look on the tone a host gives (above). */
+  ${unsafeCSS(toneBlock)}
 
   button {
     all: unset;
@@ -143,6 +194,8 @@ const buttonStyles = css`
     --_add-end: 0px;
     --_add-top: 0px;
     --_add-bottom: 0px;
+    /* BTN-4: the focus indicator's outer stroke — the system's role, or on a tone the tone's focus color (BTN-45). */
+    --_focus-color: var(--tanrei-sys-color-focus-ring);
     min-block-size: calc(max(var(--_height), var(--_min-height)) + var(--_add-top) + var(--_add-bottom));
     padding-block: calc(var(--_pad-block) + var(--_add-top)) calc(var(--_pad-block) + var(--_add-bottom));
     padding-inline: calc(var(--_pad-inline-start) + var(--_add-start)) calc(var(--_pad-inline-end) + var(--_add-end));
@@ -158,7 +211,7 @@ const buttonStyles = css`
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     transition-property: background-color, color, box-shadow, opacity, border-radius;
-    transition-duration: var(--tanrei-comp-button-motion-state-duration);
+    transition-duration: var(--_state-duration);
     transition-timing-function: var(--tanrei-comp-button-motion-state-easing);
   }
 
@@ -248,12 +301,12 @@ const buttonStyles = css`
     color: '--_c-p',
     inset: '--_outline-width',
     grow: '--tanrei-comp-button-motion-feedback-duration',
-    fade: '--tanrei-comp-button-motion-state-duration',
+    fade: '--_state-duration',
     easing: '--tanrei-comp-button-motion-state-easing',
   })}
 
   /* BTN-4 and BTN-10 focus-style: the ring (or the glow), never animated. */
-  ${focusRing(on)}
+  ${focusRing(on, { color: 'var(--_focus-color)' })}
 
   /* BTN-10, corner smoothing: the shared rule, on the container (data-tanrei-shape) and, by inheritance, its ring. */
   ${shape}
@@ -305,7 +358,7 @@ const buttonStyles = css`
   ${iconGlyph('.icon', {
     size: '--_glyph',
     selected: "button[aria-pressed='true']",
-    duration: '--tanrei-comp-button-motion-state-duration',
+    duration: '--_state-duration',
     easing: '--tanrei-comp-button-motion-state-easing',
   })}
   .icon {
@@ -337,7 +390,7 @@ const buttonStyles = css`
   ${iconGlyph('.mark', {
     size: '--_icon',
     selected: "button[aria-pressed='true']",
-    duration: '--tanrei-comp-button-motion-state-duration',
+    duration: '--_state-duration',
     easing: '--tanrei-comp-button-motion-state-easing',
   })}
 

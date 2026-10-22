@@ -2,25 +2,38 @@
   "$schema": "./component.schema.json",
   "name": "toolbar",
   "title": "Toolbar",
-  "summary": "Holds a short row of actions for the current screen or selection, docked across the bottom edge or floating over the content.",
-  "category": "navigation",
+  "summary": "Holds a set of related controls — actions, toggles, a choice among a few, a menu — as one Tab stop: inline where its content needs it (an editor's formatting bar, a table's actions, a row of filters), docked across an edge of the screen or of a region, or floating over the content.",
+  "category": "actions",
   "level": "base",
   "listing": "default",
   "uses": [
-    "button"
+    "button",
+    "button-with-menu",
+    "divider",
+    "menu"
   ],
   "anatomy": [
     {
       "id": "container",
-      "description": "The surface that holds the items: a bar across the bottom edge of the screen whose color reaches under the bottom system inset (docked), or a rounded, raised surface over the content (floating)."
+      "description": "The surface that holds the items: none of its own in the default system where the toolbar stands inline in the content; a bar across the bottom edge of the screen whose color reaches under the bottom system inset (docked); or a rounded, raised surface over the content (floating)."
     },
     {
       "id": "items",
-      "description": "The actions: the product's own Tanrei Buttons, icon-only and labelled, in reading order. The toolbar lays them out and moves keyboard focus among them; it does not restyle them."
+      "description": "The controls, in reading order: the product's own Tanrei Buttons, icon-only and labelled, toggles among them, Buttons that open a Menu, and Buttons with menu, alone or in groups. The toolbar lays them out and moves keyboard focus among them; it does not restyle them."
+    },
+    {
+      "id": "separator",
+      "description": "A line across the toolbar between two groups, or where a separator item stands, or the empty space that takes its place, as the design system's separation says.",
+      "optional": true
+    },
+    {
+      "id": "overflow-button",
+      "description": "The icon-only Button at the end that opens a Menu of the items that do not fit, drawn only while some do not.",
+      "optional": true
     },
     {
       "id": "outline",
-      "description": "The docked toolbar's top edge, or the edge around a floating toolbar's whole shape (none in the default system)."
+      "description": "The docked toolbar's top edge, or the edge around a floating or an inline toolbar's whole shape (none in the default system for the last two)."
     }
   ],
   "props": [
@@ -28,11 +41,12 @@
       "name": "variant",
       "type": "enum",
       "values": [
+        "inline",
         "docked",
         "floating"
       ],
-      "default": "docked",
-      "description": "Docked spans the bottom edge of the screen, flush with it; floating is a rounded, raised surface over the content, as long as its items. One product docks its toolbar on some screens and floats it on others. A design system may add values.",
+      "default": "inline",
+      "description": "Inline stands in place where the layout puts it, as long as its items need and no longer than the layout allows, with no surface, shadow or edge of its own in the default system (an editor's formatting bar, a table's actions, a row of filters); docked is a full-width bar along the bottom edge of the screen, flush with it; floating is a rounded, raised surface over the content, as long as its items. One product places a toolbar inside its content on one screen, docks it on another and floats it on a third. A design system may add values.",
       "axis": "tanrei.comp.toolbar.variant"
     },
     {
@@ -43,13 +57,41 @@
         "vertical"
       ],
       "default": "horizontal",
-      "description": "The direction the items run. Vertical is for a floating toolbar beside the content on a large screen; a docked toolbar is always horizontal."
+      "description": "The direction the items run. Vertical is for an inline or a floating toolbar beside the content (a floating one on a large screen); a docked toolbar is always horizontal."
     },
     {
       "name": "label",
       "type": "string",
       "default": "",
       "description": "Names the toolbar for assistive technology (\"Formatting\", \"Message actions\"). Never drawn. Required."
+    },
+    {
+      "name": "overflow",
+      "type": "enum",
+      "values": [
+        "menu",
+        "scroll"
+      ],
+      "default": "menu",
+      "description": "What happens when the items do not fit along the toolbar's axis: menu hides items from the end into an overflow menu at the end of the toolbar (TBR-18); scroll keeps every item and scrolls them (TBR-8)."
+    },
+    {
+      "name": "overflowLabel",
+      "type": "string",
+      "default": "",
+      "description": "The overflow button's accessible name (\"More actions\"), in the product's language. Never drawn. Empty takes the product's words. Needed whenever the toolbar may be narrower than its items.",
+      "words": "toolbarOverflowLabel"
+    },
+    {
+      "name": "separation",
+      "type": "enum",
+      "values": [
+        "auto",
+        "divider",
+        "gap"
+      ],
+      "default": "auto",
+      "description": "How two groups, or a separator item, set items apart: divider draws a line across the toolbar with space on each side, gap leaves empty space and no line. Auto takes comp.toolbar.separation, the design system's answer (divider in the default system)."
     }
   ],
   "items": [
@@ -94,6 +136,16 @@
           "type": "boolean",
           "default": false,
           "description": "As the Button's disabled."
+        },
+        {
+          "name": "overflow",
+          "type": "enum",
+          "values": [
+            "auto",
+            "never"
+          ],
+          "default": "auto",
+          "description": "Whether the toolbar may hide this item into its overflow menu when space runs out: never keeps it (Send, Done). Read by the toolbar to place the item."
         }
       ],
       "slots": [
@@ -132,10 +184,32 @@
           "description": "As the button's variant."
         },
         {
+          "name": "toggle",
+          "type": "boolean",
+          "default": false,
+          "description": "As the button's toggle: a labelled toggle (a filter that is on or off)."
+        },
+        {
+          "name": "selected",
+          "type": "boolean",
+          "default": false,
+          "description": "As the button's selected: whether a toggle is on."
+        },
+        {
           "name": "disabled",
           "type": "boolean",
           "default": false,
           "description": "As the button's disabled."
+        },
+        {
+          "name": "overflow",
+          "type": "enum",
+          "values": [
+            "auto",
+            "never"
+          ],
+          "default": "auto",
+          "description": "Whether the toolbar may hide this item into its overflow menu when space runs out: never keeps it (Send, Done). Read by the toolbar to place the item."
         }
       ],
       "slots": [
@@ -148,14 +222,148 @@
         {
           "name": "click",
           "description": "The button was activated, as the button's click."
+        },
+        {
+          "name": "change",
+          "description": "A toggle was switched, as the button's change."
         }
       ]
+    },
+    {
+      "name": "menu-button",
+      "summary": "A Button that opens a Tanrei Menu anchored to it (Sort, Insert): icon-only unless the product sets otherwise, laid out by the toolbar as any other item and not restyled. The Menu is the product's, beside it in the toolbar; it is neither laid out nor an item.",
+      "component": "button",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "Its accessible name (\"Sort\"), as the Button's label. Required."
+        },
+        {
+          "name": "variant",
+          "type": "enum",
+          "values": [
+            "filled",
+            "tonal",
+            "elevated",
+            "outlined",
+            "text"
+          ],
+          "default": "text",
+          "description": "As the Button's variant."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Button's disabled."
+        },
+        {
+          "name": "overflow",
+          "type": "enum",
+          "values": [
+            "auto",
+            "never"
+          ],
+          "default": "auto",
+          "description": "Whether the toolbar may hide this item into its overflow menu when space runs out: never keeps it (Send, Done). Read by the toolbar to place the item."
+        }
+      ],
+      "slots": [
+        {
+          "name": "icon",
+          "description": "Its glyph, as the Button's icon slot. A fixture item's content is this glyph."
+        }
+      ],
+      "events": [
+        {
+          "name": "click",
+          "description": "The button was activated, as the Button's click: the product opens its Menu."
+        }
+      ]
+    },
+    {
+      "name": "button-with-menu",
+      "summary": "A Button with menu: a main action and a menu of related ones, each half a stop of the toolbar's arrow keys (TBR-25), laid out by the toolbar and not restyled.",
+      "component": "button-with-menu",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "The leading half's label (\"Save\"), as the Button with menu's label."
+        },
+        {
+          "name": "menuLabel",
+          "type": "string",
+          "default": "",
+          "description": "The trailing half's accessible name (\"More save options\"), as the Button with menu's menuLabel."
+        },
+        {
+          "name": "variant",
+          "type": "enum",
+          "values": [
+            "filled",
+            "tonal",
+            "elevated",
+            "outlined"
+          ],
+          "default": "filled",
+          "description": "As the Button with menu's variant."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Button with menu's disabled."
+        },
+        {
+          "name": "overflow",
+          "type": "enum",
+          "values": [
+            "auto",
+            "never"
+          ],
+          "default": "auto",
+          "description": "Whether the toolbar may hide this item into its overflow menu when space runs out: never keeps it (Send, Done). Read by the toolbar to place the item."
+        }
+      ],
+      "events": [
+        {
+          "name": "click",
+          "description": "The main action was activated, as the Button with menu's click."
+        },
+        {
+          "name": "toggle",
+          "description": "The trailing half asks to open or close the menu, as the Button with menu's toggle."
+        }
+      ]
+    },
+    {
+      "name": "group",
+      "summary": "A run of related items (Bold, Italic, Underline), optionally named; the toolbar sets it apart from what is next to it as separation says. It draws nothing of its own.",
+      "container": true,
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "Names the group for assistive technology (\"Text style\"); never drawn. Empty leaves the group unexposed: its items are the toolbar's."
+        }
+      ]
+    },
+    {
+      "name": "separator",
+      "summary": "A line across the toolbar between two items outside the groups: the toolbar draws it as it draws the line between two groups, and it is never a stop of the arrow keys.",
+      "component": "divider",
+      "props": []
     }
   ],
   "slots": [
     {
       "name": "default",
-      "description": "Holds the items, in reading order: Tanrei Buttons, icon-only and labelled."
+      "description": "Holds the items, in reading order: Tanrei Buttons, icon-only and labelled, Buttons with a Tanrei Menu anchored to them (the Menu beside its Button), Buttons with menu, groups of them and separators."
     }
   ],
   "states": [
@@ -186,7 +394,7 @@
     },
     {
       "id": "TBR-6",
-      "text": "WHILE orientation is vertical and variant is floating THE toolbar SHALL stack its items from top to bottom in the order given, with the floating paddings and gap along the vertical axis and at least comp.toolbar.container.size.floating as its width; WHILE orientation is vertical and variant is docked THE toolbar SHALL lay out as a horizontal docked toolbar and in debug builds report that a docked toolbar is horizontal.",
+      "text": "WHILE orientation is vertical and variant is floating or inline THE toolbar SHALL stack its items from top to bottom in the order given, with its variant's paddings and gap along the vertical axis and at least its variant's container size as its width; WHILE orientation is vertical and variant is docked THE toolbar SHALL lay out as a horizontal docked toolbar and in debug builds report that a docked toolbar is horizontal.",
       "verify": "The vertical fixture is drawn centered in a 96 × 240 stage."
     },
     {
@@ -195,16 +403,16 @@
     },
     {
       "id": "TBR-8",
-      "text": "IF the items need more length than the toolbar has along its axis THE toolbar SHALL keep every item at its own size and the gap at its minimum, SHALL scroll its items along its axis so that every item stays reachable, SHALL bring an item that receives keyboard focus fully into view, and in debug builds SHALL report that the extra actions belong in an overflow menu the product provides; it SHALL NOT wrap, shrink or hide an item."
+      "text": "WHILE overflow is scroll and the items need more length than the toolbar has along its axis THE toolbar SHALL keep every item at its own size and the gap at its minimum, SHALL scroll its items along its axis so that every item stays reachable, and SHALL bring an item that receives keyboard focus fully into view; it SHALL NOT wrap, shrink or hide an item."
     },
     {
       "id": "TBR-9",
-      "text": "THE toolbar SHALL NOT restyle its items: each SHALL render as the Button it is, from its own tokens, variant and size, and SHALL keep its own press, focus, target and disabled behaviour and its own semantics, a toggle Button staying a toggle. Between two items the hit areas SHALL never overlap (as BGR-4): in a docked toolbar they SHALL meet at the middle of the gap, and in a floating one where the lengths TBR-16 keeps for the two items meet; each item SHALL keep its full target on every side that has no neighbour. In a docked toolbar the gap (at least comp.toolbar.container.gap.docked) is what keeps an item's target whole between its neighbours: at sys.target.touch minus the item's length or more, every item keeps its full target there, as the default system's gap does for every Button size; a layer that narrows that gap narrows the targets between items. In a floating toolbar TBR-16 keeps it, whatever comp.toolbar.container.gap.floating is.",
+      "text": "THE toolbar SHALL NOT restyle its items: each SHALL render as the Button it is, from its own tokens, variant and size, and SHALL keep its own press, focus, target and disabled behaviour and its own semantics, a toggle Button staying a toggle. Between two items the hit areas SHALL never overlap (as BGR-4): in a docked toolbar they SHALL meet at the middle of the gap, and in a floating or an inline one where the lengths TBR-16 keeps for the two items meet; each item SHALL keep its full target on every side that has no neighbour. In a docked toolbar the gap (at least comp.toolbar.container.gap.docked) is what keeps an item's target whole between its neighbours: at sys.target.touch minus the item's length or more, every item keeps its full target there, as the default system's gap does for every Button size; a layer that narrows that gap narrows the targets between items. In a floating or an inline toolbar TBR-16 keeps it, whatever comp.toolbar.container.gap.floating or comp.toolbar.container.gap.inline is.",
       "verify": "Under the default system comp.toolbar.container.gap.docked is 16, sys.target.touch (48) minus the small icon-only Button (32), comp.toolbar.container.gap.floating is 0, and comp.toolbar.container.padding-inline.floating is 12, the space across the row around a medium item ((64 − 40) / 2), more than its reach (4): in floating, floating-filled-action, floating-vertical and the docked fixtures every item's hit area is at least 48 along the axis and 48 across it, and Android's touch-target check (48 dp, an error for the default system) passes on each of them."
     },
     {
       "id": "TBR-10",
-      "text": "THE toolbar SHALL be one Tab stop: the item that had keyboard focus last, or else the first item that is not disabled. WHILE an item has keyboard focus, Right Arrow and Left Arrow in a horizontal toolbar (Left Arrow moving to the next item in a right-to-left layout) and Down Arrow and Up Arrow in a vertical one SHALL move focus to the next and previous item that is not disabled, wrapping at the ends, and Home and End to the first and last such item; moving focus SHALL NOT activate an item, and Enter and Space SHALL act on the focused item as that item does. A disabled item SHALL NOT take focus, as its own spec says (BTN-2)."
+      "text": "THE toolbar SHALL be one Tab stop: the item that had keyboard focus last, or else the first item that is not disabled. Its items are its own and its groups' items, in reading order; a separator and a Menu anchored to an item are none. WHILE an item has keyboard focus, Right Arrow and Left Arrow in a horizontal toolbar (Left Arrow moving to the next item in a right-to-left layout) and Down Arrow and Up Arrow in a vertical one SHALL move focus to the next and previous item that is not disabled, wrapping at the ends, and Home and End to the first and last such item; moving focus SHALL NOT activate an item, and Enter and Space SHALL act on the focused item as that item does. A disabled item SHALL NOT take focus, as its own spec says (BTN-2)."
     },
     {
       "id": "TBR-11",
@@ -212,11 +420,11 @@
     },
     {
       "id": "TBR-12",
-      "text": "WHILE label is empty THE toolbar SHALL still render, and in debug builds report that it has no accessible name; IF the toolbar holds no item, or an element that is not a Button, THE toolbar SHALL still lay out what it holds and in debug builds report it, because a field or a slider would take the arrow keys the toolbar moves focus with."
+      "text": "WHILE label is empty THE toolbar SHALL still render, and in debug builds report that it has no accessible name. IF the toolbar holds no item, or an element that is neither one of its item kinds nor a Menu anchored to one of its items, THE toolbar SHALL still lay it out, and in debug builds report it, because a field or a slider would take the arrow keys the toolbar moves focus with (the WAI-ARIA toolbar pattern)."
     },
     {
       "id": "TBR-13",
-      "text": "WHEN variant names a value that the active design system does not have, or orientation a value the component does not define, THE toolbar SHALL render with the default value (docked, horizontal), and in debug builds report the unknown value. A variant value that a layer adds SHALL take the docked structure — spanning the width, reaching under the insets, spreading its items, a top edge — with its own values, because the structure is not a value a layer can set."
+      "text": "WHEN variant names a value that the active design system does not have, or orientation a value the component does not define, THE toolbar SHALL render with the default value (inline, horizontal), and in debug builds report the unknown value. A variant value that a layer adds SHALL take the inline structure with its own values, because the structure is not a value a layer can set. WHEN overflow or separation names a value the component does not define THE toolbar SHALL render with menu or auto, and in debug builds report it."
     },
     {
       "id": "TBR-14",
@@ -229,8 +437,47 @@
     },
     {
       "id": "TBR-16",
-      "text": "WHILE variant is floating THE toolbar SHALL lay its items comp.toolbar.container.gap.floating apart, measured between their visible bounds along its axis, and SHALL move two neighbours further apart only as far as each needs in order to keep, centred on itself, a length of sys.target.touch along the axis that its neighbour's does not reach into, because items that stand this close cannot extend a hit area over each other (as BGR-3): where the token is 0, as in the default system, an item at least sys.target.touch long touches its neighbour, and a shorter one stands half of what it lacks away from it. THE toolbar SHALL NOT widen, resize or restyle an item to do so (TBR-9), SHALL space its items the same whatever the input type, so that the toolbar does not change with the pointer, and SHALL space them so along the vertical axis WHILE orientation is vertical (TBR-6). A floating toolbar is as long as its items need (TBR-4) and never spreads them across a width; WHILE variant is docked THE toolbar SHALL spread its items across its width and keep comp.toolbar.container.gap.docked as the least space between them (TBR-2), unchanged.",
+      "text": "WHILE variant is floating THE toolbar SHALL lay its items comp.toolbar.container.gap.floating apart (and WHILE it is inline comp.toolbar.container.gap.inline apart, TBR-17), measured between their visible bounds along its axis, and SHALL move two neighbours further apart only as far as each needs in order to keep, centred on itself, a length of sys.target.touch along the axis that its neighbour's does not reach into, because items that stand this close cannot extend a hit area over each other (as BGR-3): where the token is 0, as in the default system, an item at least sys.target.touch long touches its neighbour, and a shorter one stands half of what it lacks away from it. THE toolbar SHALL NOT widen, resize or restyle an item to do so (TBR-9), SHALL space its items the same whatever the input type, so that the toolbar does not change with the pointer, and SHALL space them so along the vertical axis WHILE orientation is vertical (TBR-6). A floating toolbar is as long as its items need (TBR-4) and never spreads them across a width; WHILE variant is docked THE toolbar SHALL spread its items across its width and keep comp.toolbar.container.gap.docked as the least space between them (TBR-2), unchanged.",
       "verify": "Fixture floating under the default system: four medium icon-only Buttons (40) stand 8 apart (4 + 4) where they stood 16, and the toolbar is 208 long (4 × 40 + 3 × 8 + 2 × 12) where it was 232. floating-vertical: the same along the column. Unit: a floating toolbar of large (56) Buttons draws them touching; one of small (32) Buttons 16 apart; with sys.target.touch set to 0 in a test layer every size touches. The docked fixtures do not move."
+    },
+    {
+      "id": "TBR-17",
+      "text": "WHILE variant is inline THE toolbar SHALL lay its items out in one line along its axis where the layout places it, as long as its items need and never longer than the layout allows, with comp.toolbar.container.padding-inline.inline at each end, comp.toolbar.container.gap.inline between neighbours spaced as TBR-16 spaces a floating toolbar's, and at least comp.toolbar.container.size.inline across its axis; it SHALL fill its container with comp.toolbar.container.color.inline, raise it by comp.toolbar.container.elevation.inline, round it by comp.toolbar.container.shape.inline and edge it comp.toolbar.outline.width thick in comp.toolbar.outline.color.inline (transparent, none and no edge in the default system), and SHALL NOT read a system inset, position itself or spread its items.",
+      "verify": "Fixture inline-formatting under the default system: no fill, no shadow, no edge; 40 high; the first item at the start edge; two medium icon-only items 8 apart (the 4 + 4 their targets lack, more than the gap's 4)."
+    },
+    {
+      "id": "TBR-18",
+      "text": "WHILE overflow is menu and the items, at their own sizes and with the least gaps, need more length along the axis than the toolbar has THE toolbar SHALL hide items from its end, in reverse reading order and one at a time, skipping every item whose overflow is never, until the items that remain and the overflow button fit; SHALL draw the overflow button after the last item that remains — an icon-only Tanrei Button of the text variant and the medium size, showing the glyph more_horiz in a horizontal toolbar and more_vert in a vertical one, named by overflowLabel or the product's words, exposed as a button that opens a menu, with its expanded state; and SHALL NOT hide an item whose overflow is never even when the items then do not fit, in which case TBR-8 applies to what remains.",
+      "verify": "Fixture inline-overflow: eight items in a 240-wide stage; the items that fit and the overflow button, nothing past the stage's end. inline-overflow-pinned: Send stays and the items before it are hidden. rtl-inline-overflow: inline-overflow, from the right."
+    },
+    {
+      "id": "TBR-19",
+      "text": "THE toolbar SHALL decide which items are hidden before the first frame in which it is drawn, and again in the frame in which its length or its items change, so that no item is drawn and then hidden in a later frame, and its size across its axis never changes because an item was hidden or shown; hiding and showing items SHALL NOT be animated, because it answers a change of the layout that a motion would lag behind."
+    },
+    {
+      "id": "TBR-20",
+      "text": "WHEN the overflow button is activated THE toolbar SHALL open a Tanrei Menu anchored to it, placed bottom-end (in a vertical toolbar, at the side away from the edge it stands at), holding the hidden items in reading order: an action or a labelled Button as a menu item with its label and its icon, disabled while it is; a toggle as a checkbox item with its selected state; a menu button as a submenu item holding its menu's items; a Button with menu as an item for its main action followed by a submenu item named by its menuLabel; and a separator, or the boundary between two groups, as the menu's separation. Activating a menu item SHALL do exactly what activating the hidden item does — the same click or change, once, from that item — and close the menu."
+    },
+    {
+      "id": "TBR-21",
+      "text": "WHEN the item that is the toolbar's Tab stop, or has keyboard focus, is hidden THE toolbar SHALL make the overflow button the Tab stop and, if focus was on the item, move focus to the overflow button; THE overflow button SHALL be the last stop of the arrow-key order (TBR-10)."
+    },
+    {
+      "id": "TBR-22",
+      "text": "THE toolbar SHALL lay out a group's items in its own line, in place, as items of the toolbar (the group draws nothing of its own), SHALL expose a group whose label is not empty as a group named by that label, and a group whose label is empty as nothing (its items are the toolbar's)."
+    },
+    {
+      "id": "TBR-23",
+      "text": "THE toolbar SHALL set two neighbouring groups — or a group and an item outside any group — apart as separation names: WHILE it is divider by a line comp.toolbar.divider.thickness thick and comp.toolbar.divider.length long across the axis, centred, in comp.toolbar.divider.color, with comp.toolbar.group.gap on each side; WHILE it is gap by twice comp.toolbar.group.gap of empty space. A separator item SHALL be drawn the same way wherever it stands. THE toolbar SHALL expose each such line as a separator, SHALL never make it a stop of the arrow keys, and SHALL draw no line at the start or the end of the toolbar, and never two lines side by side.",
+      "verify": "Fixture inline-formatting under the default system: a line 1 thick and 24 long in outline-variant, 8 from the items on each side. inline-separation-gap: 16 of empty space and no line."
+    },
+    {
+      "id": "TBR-24",
+      "text": "WHILE an item is the anchor of a Menu THE toolbar SHALL keep it an item of the arrow-key order and SHALL neither lay out nor count the Menu; WHILE that Menu is open its keys SHALL be the Menu's, and WHEN it closes focus SHALL return to its anchor, which stays the Tab stop."
+    },
+    {
+      "id": "TBR-25",
+      "text": "THE toolbar SHALL make each half of a Button with menu a stop of its own in the arrow-key order, the leading half first in reading order, each keeping its own name, role and state."
     }
   ],
   "accessibility": {
@@ -242,7 +489,7 @@
       },
       {
         "keys": "Right Arrow / Left Arrow (horizontal), Down Arrow / Up Arrow (vertical)",
-        "action": "Moves focus to the next or previous enabled item, wrapping at the ends (Left and Right mirrored in right-to-left layouts)."
+        "action": "Moves focus to the next or previous enabled item — a group's items and each half of a Button with menu included, separators skipped, the overflow button last — wrapping at the ends (Left and Right mirrored in right-to-left layouts)."
       },
       {
         "keys": "Home / End",
@@ -250,18 +497,19 @@
       },
       {
         "keys": "Enter or Space",
-        "action": "Activates the focused item, as that Button does."
+        "action": "Activates the focused item, as that Button does; on the overflow button, opens the menu of the hidden items."
       }
     ],
-    "labeling": "label names the toolbar; it is never drawn. Each item is named by its own label (an icon-only Button's label, a labelled Button's text). The toolbar adds no name, role or state to its items.",
+    "labeling": "label names the toolbar; it is never drawn. A group's label names the group; empty leaves it unexposed. Each item is named by its own label (an icon-only Button's label, a labelled Button's text), and the overflow button by overflowLabel or the product's words. The toolbar adds no name, role or state to its items.",
     "minimumTarget": true,
     "notes": [
-      "The toolbar has no target of its own and takes no input: its items are the product's Buttons, icon-only and labelled, which meet the minimum target themselves (BTN-5). A medium item's target (48) fits inside a floating toolbar's 64.",
+      "The toolbar has no target of its own and takes no input: its items are the product's Buttons, icon-only and labelled, which meet the minimum target themselves (BTN-5). A medium item's target (48) fits inside a floating toolbar's 64, and reaches past an inline toolbar's 40 as a Button's does anywhere.",
       "The web has the toolbar role (with aria-orientation) and React Native has role toolbar. SwiftUI, Compose and Flutter have no toolbar role: there the toolbar is a group (an accessibility container, a traversal group, a semantics container) named by label, and each README says so.",
       "One Tab stop with arrow-key movement is the WAI-ARIA toolbar pattern. It uses the same roving focus the list, menu and tabs use on each platform; a Button outside a toolbar is unchanged.",
-      "A toolbar holds actions only. A text field, slider or chip set inside it would take the arrow keys the toolbar needs; search belongs in the app bar or the page.",
+      "A toolbar holds Buttons, menu buttons, Buttons with menu, groups of them and separators. Anything else is laid out and reported (TBR-12), because a control that uses the arrow keys would take the keys the toolbar moves focus with.",
       "A docked toolbar and a navigation bar are not used on the same screen: both claim the bottom edge.",
-      "How the items look is their own design system's answer; the toolbar reads no state tokens."
+      "How the items look is their own design system's answer; the toolbar reads no state tokens.",
+      "Hidden items stay reachable: the overflow button is the last stop of the arrow keys, and its menu holds every hidden item with its own name and state; activating one is activating the item."
     ]
   },
   "tokens": "comp.toolbar",
@@ -503,6 +751,477 @@
           "content": "my_location"
         }
       ]
+    },
+    {
+      "id": "inline-formatting",
+      "props": {
+        "label": "Formatting",
+        "overflowLabel": "More formatting"
+      },
+      "items": [
+        {
+          "kind": "group",
+          "props": {
+            "label": "Text style"
+          },
+          "items": [
+            {
+              "kind": "action",
+              "props": {
+                "label": "Bold",
+                "toggle": true,
+                "selected": true
+              },
+              "content": "format_bold"
+            },
+            {
+              "kind": "action",
+              "props": {
+                "label": "Italic",
+                "toggle": true
+              },
+              "content": "format_italic"
+            },
+            {
+              "kind": "action",
+              "props": {
+                "label": "Underline",
+                "toggle": true
+              },
+              "content": "format_underlined"
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {},
+          "items": [
+            {
+              "kind": "action",
+              "props": {
+                "label": "Insert link"
+              },
+              "content": "link"
+            },
+            {
+              "kind": "action",
+              "props": {
+                "label": "Insert image"
+              },
+              "content": "image"
+            }
+          ]
+        },
+        {
+          "kind": "separator",
+          "props": {}
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Clear formatting"
+          },
+          "content": "format_clear"
+        }
+      ]
+    },
+    {
+      "id": "inline-separation-gap",
+      "props": {
+        "label": "Formatting",
+        "separation": "gap",
+        "overflowLabel": "More formatting"
+      },
+      "items": [
+        {
+          "kind": "group",
+          "props": {
+            "label": "Text style"
+          },
+          "items": [
+            {
+              "kind": "action",
+              "props": {
+                "label": "Bold",
+                "toggle": true,
+                "selected": true
+              },
+              "content": "format_bold"
+            },
+            {
+              "kind": "action",
+              "props": {
+                "label": "Italic",
+                "toggle": true
+              },
+              "content": "format_italic"
+            },
+            {
+              "kind": "action",
+              "props": {
+                "label": "Underline",
+                "toggle": true
+              },
+              "content": "format_underlined"
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {},
+          "items": [
+            {
+              "kind": "action",
+              "props": {
+                "label": "Insert link"
+              },
+              "content": "link"
+            },
+            {
+              "kind": "action",
+              "props": {
+                "label": "Insert image"
+              },
+              "content": "image"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "inline-overflow",
+      "props": {
+        "label": "Message actions",
+        "overflowLabel": "More actions"
+      },
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "label": "Archive"
+          },
+          "content": "archive"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Delete"
+          },
+          "content": "delete"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Mark as unread"
+          },
+          "content": "mark_email_unread"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Move"
+          },
+          "content": "drive_file_move"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Label"
+          },
+          "content": "label"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Flag"
+          },
+          "content": "flag"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Snooze"
+          },
+          "content": "snooze"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Print"
+          },
+          "content": "print"
+        }
+      ]
+    },
+    {
+      "id": "inline-overflow-pinned",
+      "props": {
+        "label": "Compose",
+        "overflowLabel": "More actions"
+      },
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "label": "Attach file"
+          },
+          "content": "attach_file"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Insert photo"
+          },
+          "content": "image"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Insert link"
+          },
+          "content": "link"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Insert emoji"
+          },
+          "content": "mood"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Schedule send"
+          },
+          "content": "schedule"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "filled",
+            "overflow": "never"
+          },
+          "content": "Send"
+        }
+      ]
+    },
+    {
+      "id": "inline-menu-button",
+      "props": {
+        "label": "Table actions",
+        "overflowLabel": "More table actions"
+      },
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "label": "Filter"
+          },
+          "content": "filter_list"
+        },
+        {
+          "kind": "menu-button",
+          "props": {
+            "label": "Sort"
+          },
+          "content": "sort"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Download"
+          },
+          "content": "download"
+        }
+      ]
+    },
+    {
+      "id": "inline-button-with-menu",
+      "props": {
+        "label": "Document actions",
+        "overflowLabel": "More document actions"
+      },
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "label": "Undo"
+          },
+          "content": "undo"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Redo"
+          },
+          "content": "redo"
+        },
+        {
+          "kind": "separator",
+          "props": {}
+        },
+        {
+          "kind": "button-with-menu",
+          "props": {
+            "label": "Save",
+            "menuLabel": "More save options",
+            "variant": "tonal"
+          }
+        }
+      ]
+    },
+    {
+      "id": "inline-labelled-toggles",
+      "props": {
+        "label": "Filters",
+        "overflowLabel": "More filters"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined",
+            "toggle": true,
+            "selected": true
+          },
+          "content": "Open"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined",
+            "toggle": true
+          },
+          "content": "Assigned to me"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined",
+            "toggle": true
+          },
+          "content": "Has attachments"
+        }
+      ]
+    },
+    {
+      "id": "floating-vertical-groups",
+      "props": {
+        "variant": "floating",
+        "orientation": "vertical",
+        "label": "Map controls",
+        "overflowLabel": "More map controls"
+      },
+      "items": [
+        {
+          "kind": "group",
+          "props": {
+            "label": "Zoom"
+          },
+          "items": [
+            {
+              "kind": "action",
+              "props": {
+                "label": "Zoom in"
+              },
+              "content": "add"
+            },
+            {
+              "kind": "action",
+              "props": {
+                "label": "Zoom out"
+              },
+              "content": "remove"
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {},
+          "items": [
+            {
+              "kind": "action",
+              "props": {
+                "label": "My location"
+              },
+              "content": "my_location"
+            },
+            {
+              "kind": "action",
+              "props": {
+                "label": "Layers"
+              },
+              "content": "layers"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rtl-inline-overflow",
+      "direction": "rtl",
+      "props": {
+        "label": "Message actions",
+        "overflowLabel": "More actions"
+      },
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "label": "Archive"
+          },
+          "content": "archive"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Delete"
+          },
+          "content": "delete"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Mark as unread"
+          },
+          "content": "mark_email_unread"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Move"
+          },
+          "content": "drive_file_move"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Label"
+          },
+          "content": "label"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Flag"
+          },
+          "content": "flag"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Snooze"
+          },
+          "content": "snooze"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Print"
+          },
+          "content": "print"
+        }
+      ]
     }
   ],
   "platforms": {
@@ -512,9 +1231,12 @@
       "props": {
         "variant": "variant",
         "orientation": "orientation",
-        "label": "label"
+        "label": "label",
+        "overflow": "overflow",
+        "overflowLabel": "overflowLabel",
+        "separation": "separation"
       },
-      "notes": "The items are `<tanrei-button>` children, icon-only and labelled, in the default slot. The host has `role=\"toolbar\"`, `aria-orientation` and `aria-label` from `label`. The roving Tab stop sets `tabindex` on the item elements (0 on the Tab stop, -1 on the others): both items delegate focus to the button in their shadow root, and a host whose tabindex is -1 takes that button out of the Tab order. A docked toolbar's bottom inset is `env(safe-area-inset-bottom)`. Snapshot harness: the stages of TBR-1, TBR-4 and TBR-6.",
+      "notes": "The items are `<tanrei-button>` children, icon-only and labelled, `<tanrei-button-with-menu>` children, `<tanrei-toolbar-group>` children holding them, and `<tanrei-divider>` separators; a `<tanrei-menu anchor>` child anchored to an item's id is that item's Menu and is not laid out. The host has `role=\"toolbar\"`, `aria-orientation` and `aria-label` from `label`; a group with a label has `role=\"group\"` and `aria-label`. The toolbar assigns each of its children, and a group each of its items, to a slot of its own (manual slot assignment), so that the toolbar draws the separations between them and leaves a hidden item unassigned: a hidden item is not drawn and keeps its place, its listeners and its state in the page. The overflow button and its menu are elements of the toolbar's shadow root. The roving Tab stop sets `tabindex` on the item elements (0 on the Tab stop, -1 on the others): an item delegates focus to the button in its shadow root, and a host whose tabindex is -1 takes that button out of the Tab order; a Button with menu is told which of its halves is the Tab stop through the internal channel (SPB-33). A docked toolbar's bottom inset is `env(safe-area-inset-bottom)`. Snapshot harness: the stages of TBR-1, TBR-4, TBR-6 and TBR-18.",
       "items": {
         "action": {
           "name": "tanrei-button",
@@ -523,7 +1245,8 @@
             "variant": "variant",
             "toggle": "toggle",
             "selected": "selected",
-            "disabled": "disabled"
+            "disabled": "disabled",
+            "overflow": "toolbar-overflow"
           },
           "events": {
             "click": "click",
@@ -535,12 +1258,56 @@
           "name": "tanrei-button",
           "props": {
             "variant": "variant",
-            "disabled": "disabled"
+            "disabled": "disabled",
+            "toggle": "toggle",
+            "selected": "selected",
+            "overflow": "toolbar-overflow"
+          },
+          "events": {
+            "click": "click",
+            "change": "change"
+          },
+          "notes": "A `<tanrei-button>` child; the label is its content."
+        },
+        "menu-button": {
+          "name": "tanrei-button",
+          "props": {
+            "label": "label",
+            "variant": "variant",
+            "disabled": "disabled",
+            "overflow": "toolbar-overflow"
           },
           "events": {
             "click": "click"
           },
-          "notes": "A `<tanrei-button>` child; the label is its content."
+          "notes": "A `<tanrei-button id>` child with a `<tanrei-menu anchor=\"<its id>\">` beside it, in the toolbar or in the same group."
+        },
+        "button-with-menu": {
+          "name": "tanrei-button-with-menu",
+          "props": {
+            "label": "label",
+            "menuLabel": "menuLabel",
+            "variant": "variant",
+            "disabled": "disabled",
+            "overflow": "toolbar-overflow"
+          },
+          "events": {
+            "click": "click",
+            "toggle": "toggle"
+          },
+          "notes": "A `<tanrei-button-with-menu>` child, its menu items in `slot=\"menu\"` as anywhere."
+        },
+        "group": {
+          "name": "tanrei-toolbar-group",
+          "props": {
+            "label": "label"
+          },
+          "notes": "A `<tanrei-toolbar-group>` child holding items: `display: contents`, with `role=\"group\"` and `aria-label` while its label is not empty."
+        },
+        "separator": {
+          "name": "tanrei-divider",
+          "props": {},
+          "notes": "A `<tanrei-divider>` child: the toolbar draws the line itself, as between two groups (TBR-23), as an element of its own with `role=\"separator\"`, and leaves the divider unassigned."
         }
       }
     },
@@ -550,9 +1317,12 @@
       "props": {
         "variant": "variant",
         "orientation": "orientation",
-        "label": "label"
+        "label": "label",
+        "overflow": "overflow",
+        "overflowLabel": "overflowLabel",
+        "separation": "separation"
       },
-      "notes": "`TanreiToolbar(_ label: String, variant:, orientation:) { items }`, a view builder of `TanreiButton`s, icon-only and labelled. A docked toolbar is placed with `.safeAreaInset(edge: .bottom)`, its background ignoring the bottom safe area. SwiftUI's own `.toolbar` with a bottom-bar placement is not used: its bar cannot take the tokens. SwiftUI has no toolbar role: the toolbar is an accessibility container (`.accessibilityElement(children: .contain)`) labelled by `label`. The roving Tab stop is one focus group for the keyboard: Full Keyboard Access moves among its items with the arrow keys and leaves it with Tab.",
+      "notes": "`TanreiToolbar(_ label: String, variant:, orientation:) { items }`, a view builder of `TanreiButton`s, icon-only and labelled. A docked toolbar is placed with `.safeAreaInset(edge: .bottom)`, its background ignoring the bottom safe area. SwiftUI's own `.toolbar` with a bottom-bar placement is not used: its bar cannot take the tokens. SwiftUI has no toolbar role: the toolbar is an accessibility container (`.accessibilityElement(children: .contain)`) labelled by `label`. The roving Tab stop is one focus group for the keyboard: Full Keyboard Access moves among its items with the arrow keys and leaves it with Tab. Lagging: the inline variant, the overflow menu, groups, separators, menu buttons and Buttons with menu as items are not built on this platform yet; it draws the docked and floating toolbar of icon-only and labelled Buttons, docked by default. `.toolbarOverflow(.never)` on an item keeps it; the overflow menu is a SwiftUI `Menu` drawn from the Tanrei Menu's tokens.",
       "items": {
         "action": {
           "name": "TanreiButton",
@@ -561,7 +1331,8 @@
             "variant": "variant",
             "toggle": "isSelected",
             "selected": "isSelected",
-            "disabled": "disabled"
+            "disabled": "disabled",
+            "overflow": "toolbarOverflow"
           },
           "events": {
             "click": "action",
@@ -573,12 +1344,56 @@
           "name": "TanreiButton",
           "props": {
             "variant": "variant",
-            "disabled": "disabled"
+            "disabled": "disabled",
+            "toggle": "isSelected",
+            "selected": "isSelected",
+            "overflow": "toolbarOverflow"
+          },
+          "events": {
+            "click": "action",
+            "change": "isSelected"
+          },
+          "notes": "A `TanreiButton` in the toolbar's view builder."
+        },
+        "menu-button": {
+          "name": "TanreiButton",
+          "props": {
+            "label": "label",
+            "variant": "variant",
+            "disabled": "disabled",
+            "overflow": "toolbarOverflow"
           },
           "events": {
             "click": "action"
           },
-          "notes": "A `TanreiButton` in the toolbar's view builder."
+          "notes": "A `TanreiButton` with `.tanreiMenu { … }` attached, in the toolbar's view builder."
+        },
+        "button-with-menu": {
+          "name": "TanreiButtonWithMenu",
+          "props": {
+            "label": "title",
+            "menuLabel": "menuLabel",
+            "variant": "variant",
+            "disabled": "disabled",
+            "overflow": "toolbarOverflow"
+          },
+          "events": {
+            "click": "action",
+            "toggle": "isMenuPresented"
+          },
+          "notes": "A `TanreiButtonWithMenu` in the toolbar's view builder."
+        },
+        "group": {
+          "name": "TanreiToolbarGroup",
+          "props": {
+            "label": "label"
+          },
+          "notes": "`TanreiToolbarGroup(_ label:) { items }` in the toolbar's view builder: an accessibility container named by its label, or none without one."
+        },
+        "separator": {
+          "name": "TanreiDivider",
+          "props": {},
+          "notes": "A `TanreiDivider()` in the toolbar's view builder; the toolbar draws the line from its own tokens."
         }
       }
     },
@@ -588,9 +1403,12 @@
       "props": {
         "variant": "variant",
         "orientation": "orientation",
-        "label": "contentDescription"
+        "label": "contentDescription",
+        "overflow": "overflow",
+        "overflowLabel": "overflowContentDescription",
+        "separation": "separation"
       },
-      "notes": "`TanreiToolbar(contentDescription, modifier, variant, orientation, windowInsets) { … }`, the items called in its content lambda. `windowInsets` defaults to `WindowInsets.navigationBars` for a docked toolbar and to none for a floating one. Compose has no toolbar role: the toolbar is a traversal group (`isTraversalGroup`) labelled by `contentDescription`, and the README says so. The roving Tab stop is `TanreiRovingFocus`, the primitive the list, menu and tabs use, horizontal or vertical by orientation; the toolbar registers each item it holds.",
+      "notes": "`TanreiToolbar(contentDescription, modifier, variant, orientation, windowInsets) { … }`, the items called in its content lambda. `windowInsets` defaults to `WindowInsets.navigationBars` for a docked toolbar and to none for a floating one. Compose has no toolbar role: the toolbar is a traversal group (`isTraversalGroup`) labelled by `contentDescription`, and the README says so. The roving Tab stop is `TanreiRovingFocus`, the primitive the list, menu and tabs use, horizontal or vertical by orientation; the toolbar registers each item it holds. Lagging: the inline variant, the overflow menu, groups, separators, menu buttons and Buttons with menu as items are not built on this platform yet; it draws the docked and floating toolbar of icon-only and labelled Buttons, docked by default. `Modifier.toolbarOverflow(TanreiToolbarOverflow.Never)` on an item keeps it; the overflow menu is a `TanreiMenu`.",
       "items": {
         "action": {
           "name": "TanreiButton",
@@ -599,7 +1417,8 @@
             "variant": "variant",
             "toggle": "onCheckedChange",
             "selected": "checked",
-            "disabled": "enabled"
+            "disabled": "enabled",
+            "overflow": "Modifier.toolbarOverflow"
           },
           "events": {
             "click": "onClick",
@@ -611,12 +1430,56 @@
           "name": "TanreiButton",
           "props": {
             "variant": "variant",
-            "disabled": "enabled"
+            "disabled": "enabled",
+            "toggle": "onCheckedChange",
+            "selected": "checked",
+            "overflow": "Modifier.toolbarOverflow"
+          },
+          "events": {
+            "click": "onClick",
+            "change": "onCheckedChange"
+          },
+          "notes": "A `TanreiButton` called in the toolbar's content lambda."
+        },
+        "menu-button": {
+          "name": "TanreiButton",
+          "props": {
+            "label": "contentDescription",
+            "variant": "variant",
+            "disabled": "enabled",
+            "overflow": "Modifier.toolbarOverflow"
           },
           "events": {
             "click": "onClick"
           },
-          "notes": "A `TanreiButton` called in the toolbar's content lambda."
+          "notes": "A `TanreiButton` with a `TanreiMenu` anchored to it, called in the toolbar's content lambda."
+        },
+        "button-with-menu": {
+          "name": "TanreiButtonWithMenu",
+          "props": {
+            "label": "text",
+            "menuLabel": "menuContentDescription",
+            "variant": "variant",
+            "disabled": "enabled",
+            "overflow": "Modifier.toolbarOverflow"
+          },
+          "events": {
+            "click": "onClick",
+            "toggle": "onMenuExpandedChange"
+          },
+          "notes": "A `TanreiButtonWithMenu` called in the toolbar's content lambda."
+        },
+        "group": {
+          "name": "TanreiToolbarGroup",
+          "props": {
+            "label": "contentDescription"
+          },
+          "notes": "`TanreiToolbarGroup(contentDescription) { … }` in the toolbar's content lambda: a traversal group named by its description, or none without one."
+        },
+        "separator": {
+          "name": "TanreiDivider",
+          "props": {},
+          "notes": "A `TanreiDivider()` called in the toolbar's content lambda; the toolbar draws the line from its own tokens."
         }
       }
     },
@@ -626,9 +1489,12 @@
       "props": {
         "variant": "variant",
         "orientation": "orientation",
-        "label": "semanticLabel"
+        "label": "semanticLabel",
+        "overflow": "overflow",
+        "overflowLabel": "overflowSemanticLabel",
+        "separation": "separation"
       },
-      "notes": "`TanreiToolbar(semanticLabel:, variant:, orientation:, children: [...])` (`orientation` is Flutter's `Axis`). A docked toolbar applies the bottom `MediaQuery.padding` itself, as `SafeArea` would, with its color under it. Flutter's widgets library has no toolbar role: the toolbar is a `Semantics(container: true, explicitChildNodes: true, label:)`, and the README says so. The roving Tab stop is `TanreiItemGroupMixin`, the primitive the list, menu and tabs use, with its item axis set by orientation.",
+      "notes": "`TanreiToolbar(semanticLabel:, variant:, orientation:, children: [...])` (`orientation` is Flutter's `Axis`). A docked toolbar applies the bottom `MediaQuery.padding` itself, as `SafeArea` would, with its color under it. Flutter's widgets library has no toolbar role: the toolbar is a `Semantics(container: true, explicitChildNodes: true, label:)`, and the README says so. The roving Tab stop is `TanreiItemGroupMixin`, the primitive the list, menu and tabs use, with its item axis set by orientation. Lagging: the inline variant, the overflow menu, groups, separators, menu buttons and Buttons with menu as items are not built on this platform yet; it draws the docked and floating toolbar of icon-only and labelled Buttons, docked by default. An item wrapped in `TanreiToolbarItem(overflow: TanreiToolbarOverflow.never, child:)` is kept; the overflow menu is a `TanreiMenu`.",
       "items": {
         "action": {
           "name": "TanreiButton",
@@ -637,7 +1503,8 @@
             "variant": "variant",
             "toggle": "isSelected",
             "selected": "isSelected",
-            "disabled": "onPressed"
+            "disabled": "onPressed",
+            "overflow": "TanreiToolbarItem.overflow"
           },
           "events": {
             "click": "onPressed",
@@ -649,12 +1516,56 @@
           "name": "TanreiButton",
           "props": {
             "variant": "variant",
-            "disabled": "onPressed"
+            "disabled": "onPressed",
+            "toggle": "isSelected",
+            "selected": "isSelected",
+            "overflow": "TanreiToolbarItem.overflow"
+          },
+          "events": {
+            "click": "onPressed",
+            "change": "onPressed"
+          },
+          "notes": "A `TanreiButton` in the toolbar's `children`."
+        },
+        "menu-button": {
+          "name": "TanreiButton",
+          "props": {
+            "label": "semanticLabel",
+            "variant": "variant",
+            "disabled": "onPressed",
+            "overflow": "TanreiToolbarItem.overflow"
           },
           "events": {
             "click": "onPressed"
           },
-          "notes": "A `TanreiButton` in the toolbar's `children`."
+          "notes": "A `TanreiButton` that opens a `TanreiMenu` anchored to it, in the toolbar's `children`."
+        },
+        "button-with-menu": {
+          "name": "TanreiButtonWithMenu",
+          "props": {
+            "label": "label",
+            "menuLabel": "menuSemanticLabel",
+            "variant": "variant",
+            "disabled": "onPressed",
+            "overflow": "TanreiToolbarItem.overflow"
+          },
+          "events": {
+            "click": "onPressed",
+            "toggle": "menuController"
+          },
+          "notes": "A `TanreiButtonWithMenu` in the toolbar's `children`."
+        },
+        "group": {
+          "name": "TanreiToolbarGroup",
+          "props": {
+            "label": "semanticLabel"
+          },
+          "notes": "`TanreiToolbarGroup(semanticLabel:, children:)` in the toolbar's `children`: a semantics container named by its label, or none without one."
+        },
+        "separator": {
+          "name": "TanreiDivider",
+          "props": {},
+          "notes": "A `TanreiDivider()` in the toolbar's `children`; the toolbar draws the line from its own tokens."
         }
       }
     },
@@ -664,9 +1575,12 @@
       "props": {
         "variant": "variant",
         "orientation": "orientation",
-        "label": "accessibilityLabel"
+        "label": "accessibilityLabel",
+        "overflow": "overflow",
+        "overflowLabel": "overflowAccessibilityLabel",
+        "separation": "separation"
       },
-      "notes": "`<Toolbar variant orientation accessibilityLabel insets>{items}</Toolbar>`, the items being `Button` elements, icon-only and labelled. The view has `role=\"toolbar\"`. A docked toolbar takes the bottom inset from its own `insets` prop, falling back to `TanreiProvider`'s `insets`; the package takes no safe-area dependency. The roving Tab stop and the arrow keys work where a hardware keyboard is attached, as the tabs row's do.",
+      "notes": "`<Toolbar variant orientation accessibilityLabel insets>{items}</Toolbar>`, the items being `Button` elements, icon-only and labelled. The view has `role=\"toolbar\"`. A docked toolbar takes the bottom inset from its own `insets` prop, falling back to `TanreiProvider`'s `insets`; the package takes no safe-area dependency. The roving Tab stop and the arrow keys work where a hardware keyboard is attached, as the tabs row's do. Lagging: the inline variant, the overflow menu, groups, separators, menu buttons and Buttons with menu as items are not built on this platform yet; it draws the docked and floating toolbar of icon-only and labelled Buttons, docked by default. `toolbarOverflow=\"never\"` on an item keeps it; the overflow menu is a `Menu`.",
       "items": {
         "action": {
           "name": "Button",
@@ -675,7 +1589,8 @@
             "variant": "variant",
             "toggle": "toggle",
             "selected": "selected",
-            "disabled": "disabled"
+            "disabled": "disabled",
+            "overflow": "toolbarOverflow"
           },
           "events": {
             "click": "onPress",
@@ -687,12 +1602,56 @@
           "name": "Button",
           "props": {
             "variant": "variant",
-            "disabled": "disabled"
+            "disabled": "disabled",
+            "toggle": "toggle",
+            "selected": "selected",
+            "overflow": "toolbarOverflow"
+          },
+          "events": {
+            "click": "onPress",
+            "change": "onSelectedChange"
+          },
+          "notes": "A `Button` element among the toolbar's children."
+        },
+        "menu-button": {
+          "name": "Button",
+          "props": {
+            "label": "accessibilityLabel",
+            "variant": "variant",
+            "disabled": "disabled",
+            "overflow": "toolbarOverflow"
           },
           "events": {
             "click": "onPress"
           },
-          "notes": "A `Button` element among the toolbar's children."
+          "notes": "A `Button` with a `Menu` anchored to it, among the toolbar's children."
+        },
+        "button-with-menu": {
+          "name": "ButtonWithMenu",
+          "props": {
+            "label": "label",
+            "menuLabel": "menuAccessibilityLabel",
+            "variant": "variant",
+            "disabled": "disabled",
+            "overflow": "toolbarOverflow"
+          },
+          "events": {
+            "click": "onPress",
+            "toggle": "onToggle"
+          },
+          "notes": "A `ButtonWithMenu` among the toolbar's children."
+        },
+        "group": {
+          "name": "ToolbarGroup",
+          "props": {
+            "label": "accessibilityLabel"
+          },
+          "notes": "`<ToolbarGroup accessibilityLabel>{items}</ToolbarGroup>` among the toolbar's children: a view with role group while it has a label."
+        },
+        "separator": {
+          "name": "Divider",
+          "props": {},
+          "notes": "A `Divider` among the toolbar's children; the toolbar draws the line from its own tokens."
         }
       }
     }

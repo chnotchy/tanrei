@@ -1,4 +1,4 @@
-import { type PropertyDeclarations, type PropertyValues, ReactiveElement } from 'lit';
+import type { PropertyDeclarations, PropertyValues } from 'lit';
 import { AvailabilityController, PressController, RovingKeys, findInteractive, lineArrow, report, styleQueries, syncFocusStyle } from '../../primitives/index.js';
 import { PendingGlyphs, isGlyphProbe } from '../../primitives/glyph-pending.js';
 import { type CutTextContent, CutTextTip, isCut } from '../../primitives/cut-text.js';
@@ -9,6 +9,7 @@ import type { TanreiTreeViewDensityRegistry } from '../../registry.js';
 import '../loading-indicator/loading-indicator.js';
 import { TanreiEmbeddedTextInput } from '../embedded-text-input/embedded-text-input.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { TanreiLightElement } from '../../primitives/element.js';
 
 /** Whether people choose items: none (read and opened), single (one item), multiple (any number, each by itself). */
 export type TanreiTreeViewSelection = 'none' | 'single' | 'multiple';
@@ -297,7 +298,7 @@ let descriptions = 0;
  * @fires {CustomEvent<TanreiTreeViewRenameDetail>} rename - Dispatched on an item's `<li>` (it bubbles): the user gave it a new name in place; `detail.label` is the name (trimmed, not empty, not the old one) and `detail.previous` the label it had. The tree changes no label: set it to rename the item.
  * @fires {CustomEvent<TanreiTreeViewCreateDetail>} create - The user named the new item `create()` asked for: `detail.label`, `detail.parent`, and the `<li>` it goes under (`detail.within`, null at the first level) and follows (`detail.after`, null where it is first). The tree's own row is gone; add the item, and the tree moves focus to it.
  */
-export class TanreiTreeView extends ReactiveElement {
+export class TanreiTreeView extends TanreiLightElement {
   private readonly availability = new AvailabilityController(this, 'tree-view');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
@@ -431,6 +432,7 @@ export class TanreiTreeView extends ReactiveElement {
 
   override connectedCallback() {
     super.connectedCallback();
+    if (!this.hasUpdated) this.drawStates();
     this.adoptSheet();
     for (const [type, listener] of this.listeners) this.addEventListener(type, listener);
     this.mutations?.observe(this, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ITEM_ATTRIBUTES });
@@ -463,6 +465,20 @@ export class TanreiTreeView extends ReactiveElement {
    */
   private adoptSheet() {
     adoptUnlessDrawn(this, sheet('tree-view', () => TREE_VIEW_CSS), '--_trv-gap');
+  }
+
+  protected override willUpdate() {
+    if (!this.hasUpdated) this.drawStates();
+  }
+
+  /**
+   * TRV-15, TRV-9: the rows' states — selected, expanded — as the first frame draws them. They are written when the
+   * tree is first connected, before anything asks for style (`adoptSheet`'s question, a product that measures what it
+   * inserted), and again before the first update for a value set in between: a row styled once without its
+   * `aria-selected` would move into the selected condition over TRV-31's motion, as if the selection had changed.
+   */
+  private drawStates() {
+    for (const root of this.roots()) for (let item = firstItem(root); item; item = this.nextShown(item)) this.readState(item);
   }
 
   protected override updated(changed: PropertyValues) {
@@ -1745,7 +1761,7 @@ export class TanreiTreeView extends ReactiveElement {
    * the middle of the gap after the chevron's box, and at least the target wide. The lengths are the row's own, as the
    * cascade computes them.
    */
-  private onChevron(item: Item, row: HTMLElement, x: number): boolean {
+  #onChevron(item: Item, row: HTMLElement, x: number): boolean {
     const style = getComputedStyle(row);
     const rtl = style.direction === 'rtl';
     const box = row.getBoundingClientRect();
@@ -1844,7 +1860,7 @@ export class TanreiTreeView extends ReactiveElement {
     if (!item || !row || click.button !== 0 || !this.answers(item)) return;
     // (A click that names no place — one made by script — is a press on the row.)
     const placed = click.detail > 0 || click.clientX !== 0 || click.clientY !== 0;
-    const chevron = placed && isParent(item) && this.canChoose(item) && this.onChevron(item, row, click.clientX);
+    const chevron = placed && isParent(item) && this.canChoose(item) && this.#onChevron(item, row, click.clientX);
     // TRV-52: a press with Shift selects from the anchor to the pressed row.
     if (!chevron && click.shiftKey && this.mode === 'multiple' && this.canChoose(item)) {
       this.selectRange(this.anchor ?? this.active ?? item, item);

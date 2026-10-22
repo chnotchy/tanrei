@@ -1,0 +1,196 @@
+---
+title: Área de desplazamiento
+description: Una caja que desplaza tu contenido con el desplazamiento propio de la plataforma y muestra, en cada borde que vigila, que hay más contenido más allá (una franja del color de la superficie, un desvanecido del contenido, una línea o un desenfoque) sin cambiar de tamaño ni mover el contenido.
+translationOf: components/scroll-area.mdx
+sourceHash: fd54b46e1aadb3f1cd30abe2cb060f324ca86fbc
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import BehaviorChoice from '../../../../components/tokens/BehaviorChoice.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+## Descripción general
+
+<ComponentAvailability name="scroll-area" />
+
+<DemoFrame label="Una lista en una caja de altura fija">
+  <tanrei-scroll-area label="Mensajes" style="inline-size: min(100%, 20rem); block-size: 16rem">
+    <tanrei-list-row headline="Ada" supporting-text="El borrador está listo para revisar"></tanrei-list-row>
+    <tanrei-list-row headline="Grace" supporting-text="He movido la reunión al jueves"></tanrei-list-row>
+    <tanrei-list-row headline="Alan" supporting-text="Fotos del viaje"></tanrei-list-row>
+    <tanrei-list-row headline="Hedy" supporting-text="¿Puedes revisar las cifras?"></tanrei-list-row>
+    <tanrei-list-row headline="Katherine" supporting-text="Aterrizo a las 6"></tanrei-list-row>
+    <tanrei-list-row headline="Edsger" supporting-text="Notas de hoy"></tanrei-list-row>
+    <tanrei-list-row headline="Barbara" supporting-text="Te adjunto el nuevo plan"></tanrei-list-row>
+    <tanrei-list-row headline="Donald" supporting-text="Capítulo 3, segunda revisión"></tanrei-list-row>
+    <tanrei-list-row headline="Margaret" supporting-text="Todo listo"></tanrei-list-row>
+    <tanrei-list-row headline="Rosalind" supporting-text="Fotos nuevas del laboratorio"></tanrei-list-row>
+  </tanrei-scroll-area>
+</DemoFrame>
+
+Mientras su contenido cabe, el área no dibuja nada propio. Desplázala: el borde inferior se marca mientras queda más contenido abajo, y el superior en cuanto algo se ha desplazado fuera de la vista por arriba.
+
+### Uso
+
+Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose, Flutter y React Native están previstos: todavía no ofrecen un área de desplazamiento.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- El diseño de página le da su tamaño; de forma predeterminada marca los bordes superior e inferior. -->
+    <tanrei-scroll-area label="Mensajes" style="block-size: 20rem">
+      …
+    </tanrei-scroll-area>
+
+    <!-- Sobre una tarjeta filled: la sombra toma el color de la tarjeta, para que la lista se hunda en ella. -->
+    <tanrei-scroll-area label="Resultados" style="--tanrei-comp-scroll-area-shadow-color: var(--tanrei-comp-card-filled-container-color); block-size: 16rem">
+      …
+    </tanrei-scroll-area>
+
+    <!-- Sobre una imagen o un video: el propio contenido se desvanece y no se dibuja ningún color. -->
+    <tanrei-scroll-area scroll-edge="fade" label="Subtítulos">…</tanrei-scroll-area>
+
+    <!-- Una fila que se desplaza en horizontal: marca sus bordes de inicio y de fin. -->
+    <tanrei-scroll-area edges="start end" label="Fotos">…</tanrei-scroll-area>
+
+    <script type="module">
+      import '@tanrei/web/components/scroll-area';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ScrollArea } from '@tanrei/react';
+
+    <ScrollArea label="Mensajes" style={{ blockSize: '20rem' }}>
+      {messages}
+    </ScrollArea>
+
+    {/* Sobre una tarjeta filled: la sombra toma el color de la tarjeta. */}
+    <ScrollArea
+      label="Resultados"
+      style={{ '--tanrei-comp-scroll-area-shadow-color': 'var(--tanrei-comp-card-filled-container-color)', blockSize: '16rem' } as React.CSSProperties}
+    >
+      {results}
+    </ScrollArea>
+
+    <ScrollArea scrollEdge="fade" label="Subtítulos">{captions}</ScrollArea>
+    <ScrollArea edges={['start', 'end']} label="Fotos">{photos}</ScrollArea>
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Bordes de desplazamiento: shadow (la elección del sistema predeterminado), fade, line, blur y none" plain>
+  <tanrei-scroll-area scroll-edge="shadow" label="Sombra" style="inline-size: 9rem; block-size: 10rem">
+    <p>Sombra. Una franja del color de la superficie sobre la que está el área, plena en el borde y nula a 24 de él. Desplázala para ver marcado también el borde superior. El contenido parece hundirse en la superficie.</p>
+  </tanrei-scroll-area>
+  <tanrei-scroll-area scroll-edge="fade" label="Desvanecido" style="inline-size: 9rem; block-size: 10rem">
+    <p>Desvanecido. El propio contenido se desvanece hacia el borde y no se dibuja ningún color, así que se ve lo que haya detrás del área. Desplázala para ver marcado también el borde superior.</p>
+  </tanrei-scroll-area>
+  <tanrei-scroll-area scroll-edge="line" label="Línea" style="inline-size: 9rem; block-size: 10rem">
+    <p>Línea. Una línea fina a lo largo del borde, del color de un divisor, mientras hay contenido más allá. Desplázala para ver aparecer la línea de arriba y desaparecer la de abajo.</p>
+  </tanrei-scroll-area>
+  <tanrei-scroll-area scroll-edge="blur" label="Desenfoque" style="inline-size: 9rem; block-size: 10rem">
+    <p>Desenfoque. El contenido se desenfoca en una franja de 48 de profundidad, más en el borde y nada en el extremo interior de la franja. Desplázala para ver marcado también el borde superior.</p>
+  </tanrei-scroll-area>
+  <tanrei-scroll-area scroll-edge="none" label="Ninguno" style="inline-size: 9rem; block-size: 10rem">
+    <p>Ninguno. Nada marca los bordes: solo la barra de desplazamiento de la plataforma dice que el contenido sigue. Desplázala para compararla con las demás.</p>
+  </tanrei-scroll-area>
+</DemoFrame>
+
+<ComponentSpecs name="scroll-area" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un área de desplazamiento donde tu diseño de página da a una parte de la pantalla un tamaño fijo y su contenido puede ser más largo: una lista de mensajes junto a una conversación, los resultados bajo un campo de búsqueda, un formulario largo en un panel, una fila de imágenes que se desplaza en horizontal. El área mantiene el contenido donde lo pusiste y dice, en cada borde que vigila, que hay más más allá.
+
+No la necesitas alrededor de un componente que ya se desplaza por sí mismo (una [tabla](/es/components/table/), el contenido de un diálogo, una hoja) ni alrededor de la página: el desplazamiento propio de la página no tiene un borde que marcar. Un diálogo, una hoja, un popover y una barra de la aplicación dibujan su propia línea donde una parte que se queda en su sitio se encuentra con contenido que se desplaza.
+
+### Cómo elegir un borde de desplazamiento
+
+| Forma | Úsala para |
+| --- | --- |
+| `shadow` | Una superficie opaca: el contenido se hunde en ella. La franja se dibuja en el color de la superficie sobre la que está el área, no en un gris propio. Es la elección del sistema predeterminado. |
+| `fade` | Una superficie transparente, una imagen o un video detrás del área. El propio contenido se desvanece y no se dibuja ningún color, así que lo que hay detrás se ve. |
+| `line` | Un producto que marca sus bordes con líneas, y un diseño de página denso donde una franja taparía demasiado contenido. La línea es una línea fina del color de un divisor. |
+| `blur` | Un producto cuyas barras y bordes son translúcidos: el contenido se suaviza en el borde. Es la forma que más cuesta dibujar (más abajo). |
+| `none` | Una caja cuyos bordes ya pueden quedar tal cual, como una cuya barra de desplazamiento siempre está a la vista y basta. |
+
+Cada borde se dibuja por separado, y solo mientras hay contenido más allá de él: al principio de la lista solo se marca el borde inferior. La marca de un borde aparece y desaparece con un fundido cuando eso cambia, y de inmediato donde el movimiento está reducido. La marca nunca cambia el tamaño del área ni mueve el contenido.
+
+`edges` indica qué bordes se vigilan: `top` y `bottom` de forma predeterminada, y `start` y `end` para una fila que se desplaza en horizontal. El inicio es la izquierda en un diseño de izquierda a derecha y la derecha en uno de derecha a izquierda (RTL).
+
+### La sombra toma el color de su superficie
+
+Una sombra es una franja del color de la propia superficie colocada sobre el contenido, plena en el borde. Sobre la superficie que nombra su color, se une a ella sin costura; sobre cualquier otra, se ve como una mancha del color equivocado. `comp.scroll-area.shadow.color` es la superficie normal (`sys.color.surface`) de forma predeterminada. Donde el área está sobre otra superficie (una tarjeta, una hoja, un color de contenedor), dale el color de esa superficie: en una capa, para todas las áreas de desplazamiento que estén ahí, o en esa única instancia. En la web es la propiedad personalizada `--tanrei-comp-scroll-area-shadow-color`, que se pone en el elemento o en un ancestro.
+
+Donde no hay nada opaco detrás del área (un panel translúcido, una imagen, un video), ningún color es el correcto. Elige `fade` ahí.
+
+### El desenfoque cuesta más de dibujar
+
+Un desenfoque vuelve a dibujar el contenido de su franja, desenfocado, en cada fotograma de un desplazamiento: `comp.scroll-area.blur.layers` capas de radio escalonado (4 en el sistema predeterminado, hasta un radio de 8 en el borde, en una franja de 48 de profundidad). Úsalo donde el aspecto del producto lo pide, y limítalo a **dos bordes desenfocados como máximo por pantalla**: los de arriba y abajo de una lista, no los de cada panel. Donde la plataforma no puede desenfocar lo que hay detrás de una franja (un navegador sin filtros de fondo, Android anterior a la versión 12, React Native sin una vista de desenfoque que tu producto le pase), el área dibuja `shadow` en su lugar; por eso, define el color de la sombra incluso donde eliges un desenfoque.
+
+### Una elección para todo el sistema
+
+Qué marca el borde de una caja que se desplaza es una elección de tipo que se hace una sola vez para el producto: sus listas, formularios y paneles no deberían marcar cada uno sus bordes de una manera distinta.
+
+<BehaviorChoice choice="scroll-edge" />
+
+El área de desplazamiento la lee a través de su propio token, `comp.scroll-area.scroll-edge`, así que un sistema de diseño puede apartar el área de la elección del sistema. Una instancia fija la suya con `scrollEdge` (`scroll-edge` en la web); su valor predeterminado, `auto`, sigue a los tokens. El sistema predeterminado dibuja `shadow`; `m3-like` dibuja `line` y `cupertino` `blur`, como marcan sus originales los bordes que se desplazan.
+
+<SystemValues tokens={['sys.behavior.scroll-edge']} />
+
+### Borde de desplazamiento y visibilidad del divisor
+
+Dos elecciones del sistema tienen que ver con el desplazamiento, y responden a preguntas distintas:
+
+- `sys.behavior.divider-visibility` dice **cuándo está la línea de una región fija**: el borde de una barra de la aplicación, del encabezado y las acciones de un diálogo, del encabezado de una hoja; una parte que se queda en su sitio mientras el contenido se desplaza por debajo. Se dibuja siempre, o solo mientras algo se ha desplazado más allá de ella.
+- `sys.behavior.scroll-edge` dice **qué marca el borde de una caja que se desplaza** mientras hay contenido más allá de ese borde: una sombra, un desvanecido, una línea o un desenfoque.
+
+Un producto puede fijarlas por separado: un diálogo cuya línea de encabezado sigue al desplazamiento y, a su lado, listas que se hunden en su superficie.
+
+### Conserva el desplazamiento de la plataforma
+
+El área de desplazamiento es la caja de desplazamiento propia de la plataforma, con marcas dibujadas sobre sus bordes. La rueda, el trackpad, el toque, el teclado, la tecnología de apoyo y las barras de desplazamiento de la plataforma funcionan como en cualquier otra caja, y las barras conservan el aspecto de la plataforma. El área no añade desplazamiento propio, ni ajuste a puntos (snap), ni barra de desplazamiento; no dispone nada en su interior y no tiene relleno, borde ni esquinas. Da estilo al contenido como lo harías en cualquier otro sitio.
+
+### Recomendado
+
+- Da al área su tamaño en tu diseño de página: una altura, una parte de una cuadrícula, el espacio que dejan un encabezado y un pie. Toma el tamaño que se le da.
+- Da a la sombra el color de la superficie sobre la que está el área, siempre que no sea la superficie normal.
+- Dale una etiqueta que diga qué contiene: «Mensajes», «Resultados», «Fotos».
+
+### Evita
+
+- No dibujes un divisor, un borde ni un degradado propios en un borde que se desplaza. Elige el borde de desplazamiento, para que aparezca solo mientras hay contenido más allá y coincida con el resto del producto.
+- No uses una sombra sobre una imagen, un video o una superficie translúcida. Usa un desvanecido.
+- No pongas más de dos bordes desenfocados en una pantalla.
+- No anides áreas de desplazamiento que se desplazan en la misma dirección. Una persona no puede saber cuál moverá un deslizamiento.
+- No ocultes las barras de desplazamiento de la plataforma para dejar sitio a las marcas. Las marcas dicen que hay más; la barra dice cuánto, y es un control por derecho propio.
+
+## Accesibilidad
+
+<ComponentAccessibility name="scroll-area" />
+
+### De qué se encarga el componente
+
+- Mientras su contenido no cabe y nada en su interior recibe el foco del teclado, la propia caja pasa a ser una parada en el orden de foco, expuesta como una región con el nombre de `label`, para que un teclado pueda desplazarla (WCAG 2.1.1). Las flechas, Re Pág, Av Pág, Inicio, Fin y la barra espaciadora la desplazan, como la plataforma desplaza cualquier caja.
+- Mientras algo en su interior recibe el foco, o el contenido cabe, la caja no es una parada de foco y no expone ningún rol: el teclado llega al contenido, y el contenido se desplaza a la vista al recibir el foco.
+- El indicador de foco se dibuja dentro del borde de la caja, por encima de todas las marcas y nunca atenuado por una de ellas, y solo con el foco del teclado.
+- Las marcas están ocultas para la tecnología de apoyo, y toda pulsación, paso del cursor y desplazamiento sobre ellas llega al contenido que hay debajo.
+- La marca de un borde aparece y desaparece con un fundido breve, un cambio de opacidad y no un movimiento; aparece de inmediato cuando se pide reducir movimiento.
+- Con colores forzados, cada forma se dibuja como una línea en el color del texto.
+- No tiene palabras propias. Las compilaciones de depuración notifican una etiqueta vacía mientras la caja es una parada de foco, y un valor desconocido de `scrollEdge` o de `edges`.
+
+### Qué debes hacer tú
+
+- Dale una `label` que diga qué contiene. Quien llega a la caja con el tabulador oye ese nombre; sin él, solo oye que hay una región.
+- Cuenta con que el contenido bajo una franja se lee cuando se desplaza a la vista, no donde está. Una sombra o un desvanecido bajan el contraste del contenido que tienen debajo, a propósito, pero solo dentro de su franja y solo mientras ese contenido está desplazado hacia el borde; el contenido recupera todo su contraste en cuanto se desplaza a la vista.
+- Anuncia el contenido que cambia por sí solo (una lista en directo, mensajes nuevos) como lo harías en cualquier otro sitio. El área no anuncia lo que entra al desplazarse.

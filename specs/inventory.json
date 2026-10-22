@@ -79,6 +79,20 @@
       "listing": "default"
     },
     {
+      "name": "meter",
+      "title": "Meter",
+      "category": "communication",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "number-ticker",
+      "title": "Number ticker",
+      "category": "communication",
+      "level": "base",
+      "listing": "default"
+    },
+    {
       "name": "loading-indicator",
       "title": "Loading indicator",
       "category": "communication",
@@ -251,12 +265,13 @@
       "title": "FAB menu",
       "category": "actions",
       "level": "base",
-      "listing": "default"
+      "listing": "default",
+      "layer": "m3-like"
     },
     {
       "name": "toolbar",
       "title": "Toolbar",
-      "category": "navigation",
+      "category": "actions",
       "level": "base",
       "listing": "default"
     },
@@ -627,6 +642,34 @@
     {
       "name": "swatch",
       "title": "Swatch",
+      "category": "communication",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "handle",
+      "title": "Handle",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "resizable-frame",
+      "title": "Resizable frame",
+      "category": "containment",
+      "level": "composed",
+      "listing": "default"
+    },
+    {
+      "name": "scroll-area",
+      "title": "Scroll area",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "marquee-text",
+      "title": "Marquee text",
       "category": "communication",
       "level": "base",
       "listing": "default"

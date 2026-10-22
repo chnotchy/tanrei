@@ -11,6 +11,7 @@ import { styles } from './embedded-text-input.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { CompositionEnd } from '../../primitives/composition-end.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** What the value is: the keyboard, autocorrection and autocapitalization, and nothing else (ETI-17). */
 export type TanreiEmbeddedTextInputType = 'text' | 'search' | 'email' | 'url' | 'tel';
@@ -110,7 +111,7 @@ function facesArrived(): Promise<unknown> | null {
  * @fires {CustomEvent<TanreiEmbeddedTextInputActionDetail>} action - The person asked for the action of whatever holds the input, by Enter as `enter-key` says or by Ctrl+Enter or Command+Enter. `detail.value` is the value. Bubbles; cancelable — a cancelled one keeps a single-line input from submitting its form.
  * @fires {CustomEvent<TanreiEmbeddedTextInputRowsChangeDetail>} rowschange - The number of lines the input shows is about to change, or it was first drawn: `detail.rows`, and `detail.scrolling` where the text has more lines and scrolls inside. Once per change, before the height moves. Bubbles.
  */
-export class TanreiEmbeddedTextInput extends LitElement {
+export class TanreiEmbeddedTextInput extends TanreiElement {
   static override styles = [styles, hiddenHost];
 
   /** ETI-19: a control of the form it stands in. */

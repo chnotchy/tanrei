@@ -33,6 +33,8 @@ const SUBJECTS: Subject[] = [
   { id: 'BGR-21', spec: 'button-group', fixture: (f) => f.props.variant === 'connected' && !f.props.separation, choice: GAP, named: ['data-separation', 'gap'] },
   { id: 'SPB-30', spec: 'button-with-menu', fixture: (f) => !f.props.separation, choice: GAP, named: ['data-separation', 'gap'] },
   { id: 'PRG-17', spec: 'progress-indicator', fixture: (f) => !f.props.separation && f.props.value !== undefined, choice: GAP, named: ['data-separation', 'gap'] },
+  { id: 'SCA-7', spec: 'scroll-area', fixture: 'default', choice: { '--tanrei-sys-behavior-scroll-edge': 'line' }, named: ['data-scroll-edge', 'line'] },
+  { id: 'MTR-4', spec: 'meter', fixture: (f) => !f.props.separation, choice: GAP, named: ['data-separation', 'gap'] },
   { id: 'MNU-35', spec: 'menu', fixture: (f) => !f.props.separation && !!f.items?.some((item) => item.kind === 'group'), choice: GAP, named: ['data-separation', 'gap'] },
   { id: 'MNU-38', spec: 'menu', fixture: 'checkbox-checked', choice: { '--tanrei-comp-menu-checkbox-item-mark': 'check' }, named: ['data-mark', 'check'] },
   { id: 'TIP-26', spec: 'tooltip', fixture: (f) => f.props.variant === 'rich' && f.props.inverse === undefined, choice: { '--tanrei-comp-tooltip-rich-container-inverse': 'on' }, named: ['data-inverse', 'on'], enters: ['opacity', 'transform'] },

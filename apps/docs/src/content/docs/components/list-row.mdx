@@ -17,7 +17,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
   <tanrei-list dividers style="inline-size: 22rem">
     <tanrei-list-item>
       <tanrei-list-row leading-icon="bluetooth" headline="Bluetooth" supporting-text="Two devices">
-        <tanrei-switch slot="trailing" label="Bluetooth" label-hidden selected></tanrei-switch>
+        <tanrei-switch slot="trailing" label="Bluetooth" label-hidden checked></tanrei-switch>
       </tanrei-list-row>
     </tanrei-list-item>
     <tanrei-list-item interactive>
@@ -89,6 +89,7 @@ The row learns from the list item it is in what that item is, and draws itself t
 - **A static item, or a row on its own.** The row draws its own paddings and its own colors. A control in its leading or trailing slot keeps its own focus and press.
 - **An interactive item, a link item or an option.** The item pads its content, so the row draws no padding of its own and keeps its height: a column that mixes static and pressable items keeps one height. The item is named by the row's headline and described by its other texts. A selected option draws the row's texts and glyphs in its selected content color.
 - **A reorderable list.** The list's handle stands at the item's start, before the row, in place of the row's start padding.
+- **Rows with and without a glyph.** Where the list's `iconSpace` asks for it (by default, while another row of the list draws a leading glyph), a row without a leading part keeps a glyph's room, empty, so that its headline starts where the others' do. A row on its own keeps none.
 - **A horizontal list, or one that wraps.** In a line the row is as wide as its parts and is never cut; in lines that wrap it is never wider than the list, and its text is cut where it must be.
 
 Put the row as the item's direct child. A row wrapped in another element inside the item is told nothing and draws itself as it would on its own.
@@ -131,7 +132,7 @@ The headline, the overline and the supporting text are cut with an ellipsis wher
 ### Do
 
 - Give every row a headline. Keep the overline a short category and the trailing text a short value.
-- Give every row of a column a leading glyph or picture, or none, so that the texts line up.
+- In a list, leave the glyph out of a row that has none to show: the list keeps its room, so the headlines still line up. Give every row of a column a picture, or none, since a picture's room is not kept.
 - Make a row that opens something the content of an interactive item or a link item.
 
 ### Don't

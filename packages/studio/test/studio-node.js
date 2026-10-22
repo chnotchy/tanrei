@@ -5,9 +5,10 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import Ajv2020 from 'ajv/dist/2020.js';
-import { checkInvariants, contrast } from '@tanrei/tokens-build/invariants';
-import { emitCss, idToVar } from '@tanrei/tokens-build/emit/css';
+import { checkInvariants, contrast, targetFloors } from '@tanrei/tokens-build/invariants';
+import { declarations, emitCss, idToVar } from '@tanrei/tokens-build/emit/css';
 import { cssColor } from '@tanrei/tokens-build/pure';
+import { heldComponents, outsideStandIns, sheetAvailability } from '@tanrei/tokens-build/layers';
 import { createStudio } from '../src/core.js';
 import { catalogOf } from '../src/listing.js';
 
@@ -24,7 +25,9 @@ const { TonalPalette } = await load('palettes/tonal_palette.js');
 
 const resolver = json('tokens/tanrei.resolver.json');
 const refs = Object.values(resolver.sets).flatMap((set) => set.sources.map((s) => s.$ref)).filter((ref) => !ref.startsWith('generated/'));
-const sources = Object.fromEntries(refs.map((ref) => [ref, json(`tokens/${ref}`)]));
+// …and the documents of the components that live in a layer, keyed as the engine looks them up.
+const held = fs.readdirSync(path.join(repoRoot, 'tokens/systems'), { withFileTypes: true }).filter((entry) => entry.isDirectory()).flatMap((entry) => fs.readdirSync(path.join(repoRoot, 'tokens/systems', entry.name, 'comp')).map((file) => `systems/${entry.name}/comp/${file}`));
+const sources = Object.fromEntries([...refs, ...held].map((ref) => [ref, json(`tokens/${ref}`)]));
 export const shipped = Object.fromEntries(
   fs.readdirSync(path.join(repoRoot, 'tokens/systems')).filter((f) => f.endsWith('.system.json')).map((f) => [f.replace('.system.json', ''), json(`tokens/systems/${f}`)]),
 );
@@ -39,9 +42,14 @@ export const studio = createStudio({
   mcu: { Hct, TonalPalette },
   validateSchema: (layer) => (validate(layer) ? [] : validate.errors.map((e) => `${e.instancePath || '/'} ${e.message}`)),
   emitCss,
+  heldComponents,
+  outsideStandIns,
+  sheetAvailability,
   checkInvariants,
+  targetFloors,
   contrast,
   idToVar,
   cssColor,
+  declarations,
   catalog: catalogOf(json('docs/status/status.json')),
 });

@@ -43,7 +43,7 @@ On the web it is `<tanrei-one-time-code-input>`. The other platforms have not im
       <tanrei-field label="Verification code"
         supporting-text="Enter the 6-digit code we sent to your phone."
         error-text="That code is not right. Check the message and try again."
-        requirement="required" required-text="Required">
+        required required-text="Required">
         <tanrei-one-time-code-input name="code" group-size="3"></tanrei-one-time-code-input>
       </tanrei-field>
     </form>
@@ -68,7 +68,9 @@ On the web it is `<tanrei-one-time-code-input>`. The other platforms have not im
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Field, OneTimeCodeInput } from '@tanrei/react';
+    // An advanced component — a building block of others — is imported from the advanced entry.
+    import { Field } from '@tanrei/react';
+    import { OneTimeCodeInput } from '@tanrei/react/advanced';
 
     <Field label="Verification code" error={wrong}
       supportingText="Enter the 6-digit code we sent to your phone."
@@ -205,5 +207,5 @@ Known gaps on the web:
 
 - Give the control a name: the label of the field around it, or its own `label` where the visible label is elsewhere — in the same words.
 - Say what is expected in words: how many characters, and where the code was sent. The cells show the length only to people who see them.
-- Say that a code is wrong, expired or required with the field's `errorText`, `supportingText` and `requirement`. Color is never the only sign.
+- Say that a code is wrong, expired or required with the field's `errorText`, `supportingText` and `required`. Color is never the only sign.
 - Where the time to enter a code is limited, say so, and let the person ask for more time or a new code.

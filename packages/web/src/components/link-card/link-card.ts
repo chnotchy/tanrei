@@ -1,8 +1,9 @@
-import { type PropertyDeclarations, type PropertyValues, ReactiveElement } from 'lit';
+import type { PropertyDeclarations, PropertyValues } from 'lit';
 import { type TanreiLinkCardNode, displayHost, hostNodes, isExternal, pictureAddress, plainText, repeatsHost } from '../../links/index.js';
 import { AvailabilityController, LINK_KEYS, PressController, linkRel, readDestination, readTarget, report, syncFocusStyle, watchWords, wordFor } from '../../primitives/index.js';
 import type { TanreiLinkCardVariantRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { TanreiLightElement } from '../../primitives/element.js';
 
 /** The core looks (outlined, filled), plus any a design system's generated `.d.ts` registers. */
 export type TanreiLinkCardVariant = keyof TanreiLinkCardVariantRegistry;
@@ -155,7 +156,7 @@ let cards = 0;
  * @slot - The product's own anchor, holding the parts (`data-part`: `body` around `title`, `description`, `image-alt`, `site` and `words`; then `media`). A child in the document, not a slotted node: the element has no shadow root. Nothing in it is pressed by itself (LKC-35).
  * @fires click - The anchor's own `click`, before the destination opens; cancelling it cancels the navigation (a client-side router takes it).
  */
-export class TanreiLinkCard extends ReactiveElement {
+export class TanreiLinkCard extends TanreiLightElement {
   private readonly availability = new AvailabilityController(this, 'link-card');
 
   static override properties: PropertyDeclarations = {

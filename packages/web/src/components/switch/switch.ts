@@ -17,12 +17,13 @@ import {
 import { PROGRESS, styles } from './switch.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
 
-/** What `change` carries: the new value of `selected`. */
+/** What `change` carries: the new value of `checked`. */
 export interface TanreiSwitchChangeDetail {
-  selected: boolean;
+  checked: boolean;
 }
 
 /**
@@ -34,14 +35,19 @@ export interface TanreiSwitchChangeDetail {
  *
  * A tap switches it. A drag along the track (touch, pen or mouse; from the track, the handle or the target around them,
  * not from the label) carries the handle with the pointer, and every part that differs between off and on is drawn at
- * the handle's progress between the two, with no threshold. `selected`, the form value and the exposed state change
+ * the handle's progress between the two, with no threshold. `checked`, the form value and the exposed state change
  * when the pointer is released — to the nearer side, or the side a fling is toward — with one `input` and one `change`;
- * Escape, a cancelled pointer, `disabled` or a `selected` set meanwhile return the handle and fire nothing.
+ * Escape, a cancelled pointer, `disabled` or a `checked` set meanwhile return the handle and fire nothing.
  *
- * Form-associated: while selected it submits `value` (default "on") under `name`, resets to its `selected` attribute and
- * follows a disabled `<fieldset>`, as a native checkbox does. It switches its own `selected` before it fires `input` and
+ * Form-associated: while checked it submits `value` (default "on") under `name`, resets to its `checked` attribute and
+ * follows a disabled `<fieldset>`, as a native checkbox does. It switches its own `checked` before it fires `input` and
  * `change`. The semantics are a native checkbox with the role switch in the shadow root, named by `label`; a click on
  * the visible label toggles it.
+ *
+ * Read-only (`readonly`, SWT-25): it stays focusable and submitted, and a person can neither switch it nor drag its
+ * handle — HTML's `readonly` does not apply to a checkbox, so the element cancels the native checkbox's activation
+ * itself and says `aria-readonly` on it. It is drawn as an enabled switch without the hover and press answers; keyboard
+ * focus still shows.
  *
  * @tag tanrei-switch
  * @csspart track - The track: its fill and outline.
@@ -51,10 +57,10 @@ export interface TanreiSwitchChangeDetail {
  * set's glyph, drawn only once the icon set can draw it, at the opacity the handle's progress gives its condition.
  * @csspart label - The visible label.
  * @attr {string} form - The id of the form the switch belongs to, where it stands outside it: the platform's own attribute, which then wins over a form around it. The `form` property is read-only and returns the form element.
- * @fires input - The user switched it; `selected` is already the new value.
- * @fires {CustomEvent<TanreiSwitchChangeDetail>} change - The user switched it; `detail.selected` (and the element's `selected`) is the new value.
+ * @fires input - The user switched it; `checked` is already the new value.
+ * @fires {CustomEvent<TanreiSwitchChangeDetail>} change - The user switched it; `detail.checked` (and the element's `checked`) is the new value.
  */
-export class TanreiSwitch extends LitElement {
+export class TanreiSwitch extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'switch');
   static override styles = [styles, hiddenHost];
 
@@ -63,21 +69,28 @@ export class TanreiSwitch extends LitElement {
   static override shadowRootOptions: ShadowRootInit = { ...LitElement.shadowRootOptions, delegatesFocus: true };
 
   static override properties: PropertyDeclarations = {
-    selected: { type: Boolean },
+    checked: { type: Boolean },
     disabled: { type: Boolean, reflect: true },
+    readOnly: { type: Boolean, attribute: 'readonly', reflect: true },
     label: { type: String },
     labelHidden: { type: Boolean, attribute: 'label-hidden', reflect: true },
-    selectedIcon: { type: String, attribute: 'selected-icon' },
-    unselectedIcon: { type: String, attribute: 'unselected-icon' },
+    checkedIcon: { type: String, attribute: 'checked-icon' },
+    uncheckedIcon: { type: String, attribute: 'unchecked-icon' },
     name: { type: String, reflect: true },
     value: { type: String },
   };
 
-  /** Whether the setting is on. The `selected` attribute is the default a form reset returns to. */
-  selected = false;
+  /** Whether the setting is on. The `checked` attribute is the default a form reset returns to. */
+  checked = false;
 
   /** Prevents interaction and removes the switch from the focus order. */
   disabled = false;
+
+  /**
+   * Shows the setting and keeps it (SWT-25): focusable, submitted with its form, neither switched nor dragged by a
+   * person. The `readonly` attribute. `disabled` wins over it.
+   */
+  readOnly = false;
 
   /** The text that names the setting: drawn next to the track and used as the accessible name. */
   label = '';
@@ -85,16 +98,16 @@ export class TanreiSwitch extends LitElement {
   /** Draws no visible label but keeps `label` as the accessible name (the `label-hidden` attribute). */
   labelHidden = false;
 
-  /** The glyph (a name in the system's icon set) the handle shows while on; empty shows none (`selected-icon`). A name the icon set flags is drawn mirrored in right-to-left. */
-  selectedIcon = '';
+  /** The glyph (a name in the system's icon set) the handle shows while on; empty shows none (`checked-icon`). A name the icon set flags is drawn mirrored in right-to-left. */
+  checkedIcon = '';
 
-  /** The glyph the handle shows while off; empty shows none (`unselected-icon`). A name the icon set flags is drawn mirrored in right-to-left. */
-  unselectedIcon = '';
+  /** The glyph the handle shows while off; empty shows none (`unchecked-icon`). A name the icon set flags is drawn mirrored in right-to-left. */
+  uncheckedIcon = '';
 
   /** Web only: the name it is submitted under. */
   name = '';
 
-  /** Web only: what it submits while selected. */
+  /** Web only: what it submits while checked. */
   value = 'on';
 
   /** Form association, a click on the host, Enter (src/primitives/selection.ts). */
@@ -104,7 +117,8 @@ export class TanreiSwitch extends LitElement {
   private readonly press = new PressController(this, {
     container: () => this.renderRoot.querySelector('.container'),
     holdCarrier: () => this.renderRoot.querySelector('.control'),
-    disabled: () => this.selection.disabled,
+    // SWT-25: a read-only switch shows no pressed state either — a press changes nothing.
+    disabled: () => this.selection.disabled || this.readOnly,
     keys: [' '],
     origin: selectionRippleOrigin(() => this.renderRoot.querySelector('.container')),
   });
@@ -133,11 +147,11 @@ export class TanreiSwitch extends LitElement {
   }
 
   formResetCallback() {
-    this.selected = this.hasAttribute('selected');
+    this.checked = this.hasAttribute('checked');
   }
 
   formStateRestoreCallback(state: string | null) {
-    this.selected = state === 'true';
+    this.checked = state === 'true';
   }
 
   formDisabledCallback(disabled: boolean) {
@@ -145,20 +159,28 @@ export class TanreiSwitch extends LitElement {
   }
 
   /** SWT-9: where style queries are missing, the focus style is read when focus arrives. */
-  private onFocus() {
+  #onFocus() {
     syncFocusStyle(this, this.input);
   }
 
-  private onKeyDown(event: KeyboardEvent) {
+  #onKeyDown(event: KeyboardEvent) {
     this.selection.onKeyDown(event);
     this.press.onKeyDown(event);
+  }
+
+  /**
+   * SWT-25: read-only, the activation is cancelled — the native checkbox goes back to what it was and fires no input and
+   * no change — whatever started it: a press, Space, the label, assistive technology or element.click().
+   */
+  #onClick(event: Event) {
+    if (this.readOnly) event.preventDefault();
   }
 
   /**
    * A click on the label's text or on the target around the track is the label's; only the input's click is let out.
    * SWT-20: the click that follows a drag the switch took is not an activation — it never reaches the label.
    */
-  private onRootClick(event: Event) {
+  #onRootClick(event: Event) {
     if (event.target === this.input) return;
     event.stopPropagation();
     if (!this.swallowClick) return;
@@ -195,16 +217,16 @@ export class TanreiSwitch extends LitElement {
   };
 
   /** SWT-1: the native switch switched; the element takes the new value before anyone hears of it. */
-  private onInput(event: Event) {
+  #onInput(event: Event) {
     event.stopPropagation();
     // SWT-13: the native switch is the new condition already, and the next style pass draws it.
     this.markTravel();
-    this.selected = this.input!.checked;
+    this.checked = this.input!.checked;
     this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
   }
 
-  private onChange() {
-    this.dispatchEvent(new CustomEvent<TanreiSwitchChangeDetail>('change', { bubbles: true, detail: { selected: this.selected } }));
+  #onChange() {
+    this.dispatchEvent(new CustomEvent<TanreiSwitchChangeDetail>('change', { bubbles: true, detail: { checked: this.checked } }));
   }
 
   /** The pointer that may become, or is, a drag (SWT-19); null when none is down on the control. */
@@ -232,7 +254,7 @@ export class TanreiSwitch extends LitElement {
   private drawnProgress(): number {
     const [thumb, track] = [this.renderRoot.querySelector<HTMLElement>('.thumb'), this.renderRoot.querySelector<HTMLElement>('.track')];
     const travel = track ? track.offsetWidth - track.offsetHeight : 0;
-    if (!thumb || !track || travel <= 0) return this.selected ? 1 : 0;
+    if (!thumb || !track || travel <= 0) return this.checked ? 1 : 0;
     const along = Number.parseFloat(getComputedStyle(thumb).translate);
     if (!Number.isFinite(along)) return 0;
     return clamp((getComputedStyle(track).direction === 'rtl' ? -along : along) / travel);
@@ -241,17 +263,18 @@ export class TanreiSwitch extends LitElement {
   /** SWT-19: where a pointer is along the track, as the handle's progress — 0 at its unselected position, 1 at its selected one (mirrored in RTL, SWT-11). */
   private progressAt(event: PointerEvent): number {
     const track = this.renderRoot.querySelector('.track');
-    if (!track) return this.selected ? 1 : 0;
+    if (!track) return this.checked ? 1 : 0;
     const box = track.getBoundingClientRect();
     const travel = box.width - box.height;
-    if (travel <= 0) return this.selected ? 1 : 0;
+    if (travel <= 0) return this.checked ? 1 : 0;
     const along = (event.clientX - box.left - box.height / 2) / travel;
     return clamp(getComputedStyle(track).direction === 'rtl' ? 1 - along : along);
   }
 
   /** SWT-19: a press on the track, the handle or the target around them may become a drag; the label is not part of the control. */
-  private onControlPointerDown(event: PointerEvent) {
-    if (this.drag || this.selection.disabled || !event.isPrimary || (event.pointerType === 'mouse' && event.button !== 0)) return;
+  #onControlPointerDown(event: PointerEvent) {
+    // SWT-25: a read-only switch takes no drag.
+    if (this.drag || this.selection.disabled || this.readOnly || !event.isPrimary || (event.pointerType === 'mouse' && event.button !== 0)) return;
     this.drag = new SheetDrag(event, 'x');
     window.addEventListener('pointermove', this.onPointerMove, true);
     window.addEventListener('pointerup', this.onPointerUp, true);
@@ -322,7 +345,7 @@ export class TanreiSwitch extends LitElement {
 
   /**
    * SWT-20: a release chooses the side a fling is toward, else the side the handle is nearer to — the other condition
-   * from the middle on. A change switches `selected` with one `input` and one `change`, as an activation does; either
+   * from the middle on. A change switches `checked` with one `input` and one `change`, as an activation does; either
    * way the progress leaves the pointer's place for the condition's over the selection motion.
    */
   private readonly onPointerUp = (event: PointerEvent) => {
@@ -335,21 +358,21 @@ export class TanreiSwitch extends LitElement {
     this.pointerAt = this.progressAt(event);
     this.drawDrag();
     const velocity = drag.velocity(event) * (getComputedStyle(this).direction === 'rtl' ? -1 : 1);
-    const chosen = Math.abs(velocity) >= SHEET_FLING_VELOCITY ? velocity > 0 : this.selected ? this.progress > 0.5 : this.progress >= 0.5;
-    const switches = chosen !== this.selected;
+    const chosen = Math.abs(velocity) >= SHEET_FLING_VELOCITY ? velocity > 0 : this.checked ? this.progress > 0.5 : this.progress >= 0.5;
+    const switches = chosen !== this.checked;
     // The native switch takes the chosen condition before the progress is let go, so that the progress leaves the
     // pointer's place for that condition's in one step.
     if (switches) {
       const input = this.input;
       if (input) input.checked = chosen;
-      this.selected = chosen;
+      this.checked = chosen;
     }
     this.swallowClick = true;
     this.endDrag();
     this.press.release(event);
     if (!switches) return;
     this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
-    this.onChange();
+    this.#onChange();
   };
 
   private readonly onPointerCancel = (event: PointerEvent) => {
@@ -365,12 +388,12 @@ export class TanreiSwitch extends LitElement {
   };
 
   /** SWT-21: a capture taken away (a system gesture) cancels the drag; after a release there is none left to cancel. */
-  private onLostPointerCapture(event: PointerEvent) {
+  #onLostPointerCapture(event: PointerEvent) {
     if (this.drag?.following && event.pointerId === this.drag.id) this.cancelDrag();
   }
 
   /**
-   * SWT-21: the drag is over without a choice. The handle and the look return to the condition `selected` holds, over
+   * SWT-21: the drag is over without a choice. The handle and the look return to the condition `checked` holds, over
    * the selection motion; nothing is emitted, and a click the pointer still produces is not an activation.
    */
   private cancelDrag() {
@@ -403,14 +426,14 @@ export class TanreiSwitch extends LitElement {
     }
   }
 
-  /** A new press: whatever click a drag left unanswered is not coming any more. Presses on the control arrive here after `onControlPointerDown`. */
-  private onRootPointerDown(event: PointerEvent) {
+  /** A new press: whatever click a drag left unanswered is not coming any more. Presses on the control arrive here after `#onControlPointerDown`. */
+  #onRootPointerDown(event: PointerEvent) {
     this.swallowClick = false;
     this.press.onPointerDown(event);
   }
 
   /** SWT-19: the switch stays pressed for as long as a drag lasts, wherever the captured pointer goes. */
-  private onPointerLeave(event: PointerEvent) {
+  #onPointerLeave(event: PointerEvent) {
     if (!this.drag?.following) this.press.release(event);
   }
 
@@ -422,15 +445,15 @@ export class TanreiSwitch extends LitElement {
     this.root?.removeAttribute('data-between');
   }
 
-  /** SWT-21: the product set `selected`, or the switch became disabled, while a drag lasted: the drag is cancelled. */
+  /** SWT-21: the product set `checked`, or the switch became disabled, while a drag lasted: the drag is cancelled. */
   protected override willUpdate(changed: PropertyValues<this>) {
-    if (this.drag && ((this.hasUpdated && changed.has('selected')) || this.selection.disabled)) this.cancelDrag();
+    if (this.drag && ((this.hasUpdated && changed.has('checked')) || this.selection.disabled || this.readOnly)) this.cancelDrag();
     // SWT-13: a change of condition the product made is drawn by this update.
-    if (this.hasUpdated && changed.has('selected')) this.markTravel();
+    if (this.hasUpdated && changed.has('checked')) this.markTravel();
   }
 
   protected override updated(changed: PropertyValues<this>) {
-    this.selection.setFormValue(this.selected ? this.value : null, String(this.selected));
+    this.selection.setFormValue(this.checked ? this.value : null, String(this.checked));
     // SWT-16: a switch without a name still renders; a debug build says what is missing.
     if (changed.has('label') && !this.label && !this.selection.field.label) report(this, 'SWT-16', 'label is empty, so the switch has no accessible name; give it a label');
   }
@@ -446,31 +469,34 @@ export class TanreiSwitch extends LitElement {
     return html`
       <label
         class="root"
-        ?data-selected-icon=${!!this.selectedIcon}
-        ?data-unselected-icon=${!!this.unselectedIcon}
-        @click=${this.onRootClick}
-        @pointerdown=${this.onRootPointerDown}
+        ?data-checked-icon=${!!this.checkedIcon}
+        ?data-unchecked-icon=${!!this.uncheckedIcon}
+        ?data-readonly=${this.readOnly}
+        @click=${this.#onRootClick}
+        @pointerdown=${this.#onRootPointerDown}
         @pointerup=${this.press.release}
         @pointercancel=${this.press.release}
-        @pointerleave=${this.onPointerLeave}
+        @pointerleave=${this.#onPointerLeave}
       >
-        <span class="control" @pointerdown=${this.onControlPointerDown} @lostpointercapture=${this.onLostPointerCapture}>
+        <span class="control" @pointerdown=${this.#onControlPointerDown} @lostpointercapture=${this.#onLostPointerCapture}>
           <input
             class="native"
             type="checkbox"
             role="switch"
-            .checked=${live(this.selected)}
+            .checked=${live(this.checked)}
             ?disabled=${this.selection.disabled}
             aria-label=${this.selection.field.name(this.label) || nothing}
             aria-description=${this.selection.field.description() || nothing}
             aria-invalid=${this.selection.field.invalid ? 'true' : nothing}
             aria-required=${this.selection.field.required ? 'true' : nothing}
-            @input=${this.onInput}
-            @change=${this.onChange}
-            @keydown=${this.onKeyDown}
+            aria-readonly=${this.readOnly && !this.selection.disabled ? 'true' : nothing}
+            @click=${this.#onClick}
+            @input=${this.#onInput}
+            @change=${this.#onChange}
+            @keydown=${this.#onKeyDown}
             @keyup=${this.press.onKeyUp}
             @blur=${this.press.onBlur}
-            @focus=${this.onFocus}
+            @focus=${this.#onFocus}
           />
           <span part="track" class="track" data-tanrei-shape aria-hidden="true"><span class="fill off"></span><span class="fill on"></span></span>
           <span class="thumb" aria-hidden="true" @transitionend=${this.endTravel} @transitioncancel=${this.endTravel}>
@@ -483,8 +509,8 @@ export class TanreiSwitch extends LitElement {
               <span part="handle" class="handle">
                 <span class="paint off"></span>
                 <span class="paint on"></span>
-                ${this.unselectedIcon ? html`<span class="glyph off"><span part="icon" class="icon off"><span class="ink">${this.unselectedIcon}</span></span></span>` : nothing}
-                ${this.selectedIcon ? html`<span class="glyph on"><span part="icon" class="icon on"><span class="ink">${this.selectedIcon}</span></span></span>` : nothing}
+                ${this.uncheckedIcon ? html`<span class="glyph off"><span part="icon" class="icon off"><span class="ink">${this.uncheckedIcon}</span></span></span>` : nothing}
+                ${this.checkedIcon ? html`<span class="glyph on"><span part="icon" class="icon on"><span class="ink">${this.checkedIcon}</span></span></span>` : nothing}
               </span>
             </span>
           </span>

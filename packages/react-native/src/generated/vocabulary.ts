@@ -268,6 +268,7 @@ export interface TanreiState {
 
 /** The dial values this system was derived from (informational at runtime: derivation is build-time). */
 export interface TanreiDials {
+  readonly density: number;
   readonly motionUnit: number;
   readonly shapeUnit: number;
   readonly sizeUnit: number;
@@ -301,6 +302,7 @@ export interface TanreiIconMeasure {
 }
 
 export interface TanreiTargetMeasure {
+  readonly minimum: number;
   readonly pointer: number;
   readonly spacing: number;
   readonly touch: number;
@@ -337,18 +339,22 @@ export interface TanreiIconStyle {
  * Choices of kind: behaviour that is a name, not an amount. The names are vocabulary — a system chooses
  * among them. The first name of each is the default, and what a platform draws when it cannot draw the choice.
  */
+export type TanreiAppearance = "fade-scale" | "fade" | "fade-slide" | "blur-slide" | "unfold";
 export type TanreiDividerVisibility = "always" | "scroll";
 export type TanreiFocusStyle = "ring" | "glow";
 export type TanreiLinkUnderline = "always" | "hover" | "never";
 export type TanreiPressedFeedback = "overlay" | "ripple" | "dim" | "none";
 export type TanreiRequirementMark = "tag" | "asterisk" | "none";
+export type TanreiScrollEdge = "shadow" | "fade" | "line" | "blur";
 export type TanreiSeparation = "divider" | "gap";
 export interface TanreiBehavior {
+  readonly appearance: TanreiAppearance;
   readonly dividerVisibility: TanreiDividerVisibility;
   readonly focusStyle: TanreiFocusStyle;
   readonly linkUnderline: TanreiLinkUnderline;
   readonly pressedFeedback: TanreiPressedFeedback;
   readonly requirementMark: TanreiRequirementMark;
+  readonly scrollEdge: TanreiScrollEdge;
   readonly separation: TanreiSeparation;
 }
 
@@ -393,10 +399,14 @@ export interface TanreiDuration {
 export interface TanreiEasing {
   readonly emphasizedAccelerate: TanreiCubicBezier;
   readonly emphasizedDecelerate: TanreiCubicBezier;
+  readonly enter: TanreiCubicBezier;
+  readonly exit: TanreiCubicBezier;
   readonly linear: TanreiCubicBezier;
+  readonly spatial: TanreiCubicBezier;
   readonly standard: TanreiCubicBezier;
   readonly standardAccelerate: TanreiCubicBezier;
   readonly standardDecelerate: TanreiCubicBezier;
+  readonly state: TanreiCubicBezier;
 }
 
 export interface TanreiMotion {
@@ -558,6 +568,14 @@ export type TanreiAppBarConditions = { readonly [Key in TanreiCoreAppBarConditio
  */
 export interface TanreiAppBarTokens {
   readonly actionsGap: number;
+  readonly brandColor: TanreiPaint;
+  readonly brandImageHeight: number;
+  readonly brandLockupAlignment: number;
+  readonly brandLockupGap: number;
+  readonly brandLockupSymbolSize: number;
+  readonly brandShape: number;
+  readonly brandSymbolSize: number;
+  readonly brandWordmarkHeight: number;
   readonly containerGap: number;
   readonly containerPaddingBlockEnd: number;
   readonly containerPaddingInline: number;
@@ -654,6 +672,8 @@ export interface TanreiAvatarTokens {
   readonly groupOutlineWidth: number;
   readonly iconColor: TanreiPaint;
   readonly labelColor: TanreiPaint;
+  readonly motionPictureDuration: number;
+  readonly motionPictureEasing: TanreiCubicBezier;
   readonly sizes: TanreiAvatarSizes;
   readonly shapes: TanreiAvatarShapes;
 }
@@ -708,6 +728,7 @@ export type TanreiBottomSheetControls = { readonly [Key in TanreiCoreBottomSheet
  * `<state><Part>`), then one holder per axis (`controls`), keyed by the axis value.
  */
 export interface TanreiBottomSheetTokens {
+  readonly closeButtonVariant: number;
   readonly containerColor: TanreiPaint;
   readonly containerElevation: TanreiElevationLevel;
   readonly containerMarginBlockStart: number;
@@ -716,14 +737,21 @@ export interface TanreiBottomSheetTokens {
   readonly containerPartialFraction: number;
   readonly containerShape: number;
   readonly contentColor: TanreiPaint;
+  readonly dividerColor: TanreiPaint;
+  readonly dividerVisibility: number;
+  readonly dividerWidth: number;
   readonly focusedOpacity: number;
   readonly handleContainerHeight: number;
   readonly handleContainerShape: number;
   readonly handleContainerWidth: number;
   readonly handleGripHeight: number;
-  readonly handleGripShape: number;
   readonly handleGripWidth: number;
   readonly handleMarginBlock: number;
+  readonly headerGap: number;
+  readonly headerHeight: number;
+  readonly headerPaddingInlineEnd: number;
+  readonly headlineColor: TanreiPaint;
+  readonly headlineTypescale: TanreiTypescaleRole;
   readonly hoveredOpacity: number;
   readonly motionEnterDuration: number;
   readonly motionEnterEasing: TanreiCubicBezier;
@@ -866,6 +894,11 @@ export interface TanreiButtonWithMenuVariantStateTokens {
   readonly outlineColor: TanreiPaint;
   readonly dividerColor: TanreiPaint;
   readonly stateLayerColor: TanreiPaint;
+  readonly destructiveContainerColor: TanreiPaint;
+  readonly destructiveLabelColor: TanreiPaint;
+  readonly destructiveOutlineColor: TanreiPaint;
+  readonly destructiveDividerColor: TanreiPaint;
+  readonly destructiveStateLayerColor: TanreiPaint;
 }
 /** One `variant`: the resting state (`enabled`) and every interaction state. States are not extensible. */
 export interface TanreiButtonWithMenuVariantTokens {
@@ -938,6 +971,7 @@ export interface TanreiButtonSizeTokens {
   readonly iconSizeWithoutLabel: number;
   readonly containerGap: number;
   readonly outlineWidth: number;
+  readonly motionStateDuration: number;
 }
 /** Core values are required; a value a system added is present only in that system. */
 export type TanreiButtonSizes = { readonly [Key in TanreiCoreButtonSize]: TanreiButtonSizeTokens } & { readonly [Key in TanreiButtonSize]?: TanreiButtonSizeTokens };
@@ -1007,10 +1041,10 @@ export interface TanreiButtonTokens {
   readonly hoveredOpacity: number;
   readonly motionBusyCycleDuration: number;
   readonly motionFeedbackDuration: number;
-  readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
   readonly pressedContainerShape: number;
   readonly pressedOpacity: number;
+  readonly toneContainerOpacity: number;
   readonly sizes: TanreiButtonSizes;
   readonly variants: TanreiButtonVariants;
 }
@@ -1085,48 +1119,6 @@ export interface TanreiCalendarTokens {
 }
 
 /**
- * Every value of `comp.callout`'s `control` axis. The core values are listed here; a system that adds one
- * declares it by module augmentation — its generated file does that. At runtime a value the active system
- * does not have falls back to `close` (with a dev-only warning).
- */
-export interface TanreiCalloutControlRegistry {
-  close: true;
-}
-export type TanreiCalloutControl = keyof TanreiCalloutControlRegistry;
-export type TanreiCoreCalloutControl = "close";
-
-/** What one `control` of `comp.callout` is drawn from in ONE interaction state. */
-export interface TanreiCalloutControlStateTokens {
-  readonly containerColor: TanreiPaint;
-  readonly contentColor: TanreiPaint;
-  readonly stateLayerColor: TanreiPaint;
-  readonly infoContainerColor: TanreiPaint;
-  readonly infoContentColor: TanreiPaint;
-  readonly infoStateLayerColor: TanreiPaint;
-  readonly warningContainerColor: TanreiPaint;
-  readonly warningContentColor: TanreiPaint;
-  readonly warningStateLayerColor: TanreiPaint;
-  readonly errorContainerColor: TanreiPaint;
-  readonly errorContentColor: TanreiPaint;
-  readonly errorStateLayerColor: TanreiPaint;
-  readonly successContainerColor: TanreiPaint;
-  readonly successContentColor: TanreiPaint;
-  readonly successStateLayerColor: TanreiPaint;
-  readonly outlinedContainerColor: TanreiPaint;
-  readonly outlinedContentColor: TanreiPaint;
-  readonly outlinedStateLayerColor: TanreiPaint;
-}
-/** One `control`: the resting state (`enabled`) and every interaction state. States are not extensible. */
-export interface TanreiCalloutControlTokens {
-  readonly enabled: TanreiCalloutControlStateTokens;
-  readonly hovered: TanreiCalloutControlStateTokens;
-  readonly focused: TanreiCalloutControlStateTokens;
-  readonly pressed: TanreiCalloutControlStateTokens;
-}
-/** Core values are required; a value a system added is present only in that system. */
-export type TanreiCalloutControls = { readonly [Key in TanreiCoreCalloutControl]: TanreiCalloutControlTokens } & { readonly [Key in TanreiCalloutControl]?: TanreiCalloutControlTokens };
-
-/**
  * Every value of `comp.callout`'s `size` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
  * does not have falls back to `medium` (with a dev-only warning).
@@ -1164,59 +1156,45 @@ export interface TanreiCalloutVariantTokens {
   readonly titleColor: TanreiPaint;
   readonly bodyColor: TanreiPaint;
   readonly iconColor: TanreiPaint;
-  readonly focusRingColor: TanreiPaint;
   readonly infoContainerColor: TanreiPaint;
   readonly infoTitleColor: TanreiPaint;
   readonly infoBodyColor: TanreiPaint;
   readonly infoIconColor: TanreiPaint;
-  readonly infoFocusRingColor: TanreiPaint;
   readonly warningContainerColor: TanreiPaint;
   readonly warningTitleColor: TanreiPaint;
   readonly warningBodyColor: TanreiPaint;
   readonly warningIconColor: TanreiPaint;
-  readonly warningFocusRingColor: TanreiPaint;
   readonly errorContainerColor: TanreiPaint;
   readonly errorTitleColor: TanreiPaint;
   readonly errorBodyColor: TanreiPaint;
   readonly errorIconColor: TanreiPaint;
-  readonly errorFocusRingColor: TanreiPaint;
   readonly successContainerColor: TanreiPaint;
   readonly successTitleColor: TanreiPaint;
   readonly successBodyColor: TanreiPaint;
   readonly successIconColor: TanreiPaint;
-  readonly successFocusRingColor: TanreiPaint;
 }
 /** Core values are required; a value a system added is present only in that system. */
 export type TanreiCalloutVariants = { readonly [Key in TanreiCoreCalloutVariant]: TanreiCalloutVariantTokens } & { readonly [Key in TanreiCalloutVariant]?: TanreiCalloutVariantTokens };
 
 /**
  * `comp.callout`: one member per token that is on no axis (a per-state one carries the state in its name,
- * `<state><Part>`), then one holder per axis (`controls`, `sizes`, `variants`), keyed by the axis value.
+ * `<state><Part>`), then one holder per axis (`sizes`, `variants`), keyed by the axis value.
  */
 export interface TanreiCalloutTokens {
   readonly actionsGap: number;
   readonly actionsItemGap: number;
+  readonly closeButtonVariant: number;
   readonly containerGap: number;
   readonly containerPaddingBlock: number;
   readonly containerPaddingInline: number;
   readonly containerPaddingInlineEndWithClose: number;
   readonly containerShape: number;
-  readonly controlsHeight: number;
-  readonly controlsIconSize: number;
-  readonly controlsShape: number;
-  readonly focusedOpacity: number;
-  readonly hoveredOpacity: number;
   readonly iconGap: number;
   readonly iconOpacity: number;
   readonly iconSize: number;
-  readonly motionFeedbackDuration: number;
-  readonly motionStateDuration: number;
-  readonly motionStateEasing: TanreiCubicBezier;
   readonly outlineColor: TanreiPaint;
   readonly outlineWidth: number;
-  readonly pressedOpacity: number;
   readonly titleGap: number;
-  readonly controls: TanreiCalloutControls;
   readonly sizes: TanreiCalloutSizes;
   readonly variants: TanreiCalloutVariants;
 }
@@ -1461,7 +1439,6 @@ export interface TanreiCheckboxTokens {
   readonly labelTypescale: TanreiTypescaleRole;
   readonly markSize: number;
   readonly markWeight: number;
-  readonly markWidth: number;
   readonly motionFeedbackDuration: number;
   readonly motionMarkEnterScale: number;
   readonly motionMarkScaleDuration: number;
@@ -1501,6 +1478,7 @@ export interface TanreiChipSizeTokens {
   readonly iconSize: number;
   readonly avatarSize: number;
   readonly removeContainerSize: number;
+  readonly motionStateDuration: number;
 }
 /** Core values are required; a value a system added is present only in that system. */
 export type TanreiChipSizes = { readonly [Key in TanreiCoreChipSize]: TanreiChipSizeTokens } & { readonly [Key in TanreiChipSize]?: TanreiChipSizeTokens };
@@ -1563,7 +1541,6 @@ export interface TanreiChipTokens {
   readonly motionFeedbackDuration: number;
   readonly motionSelectionDuration: number;
   readonly motionSelectionEasing: TanreiCubicBezier;
-  readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
   readonly outlineWidth: number;
   readonly pressedOpacity: number;
@@ -1721,8 +1698,33 @@ export interface TanreiComboboxVariantTokens {
 export type TanreiComboboxVariants = { readonly [Key in TanreiCoreComboboxVariant]: TanreiComboboxVariantTokens } & { readonly [Key in TanreiComboboxVariant]?: TanreiComboboxVariantTokens };
 
 /**
+ * Every value of `comp.combobox`'s `density` axis. The core values are listed here; a system that adds one
+ * declares it by module augmentation — its generated file does that. At runtime a value the active system
+ * does not have falls back to `regular` (with a dev-only warning).
+ */
+export interface TanreiComboboxDensityRegistry {
+  regular: true;
+  compact: true;
+}
+export type TanreiComboboxDensity = keyof TanreiComboboxDensityRegistry;
+export type TanreiCoreComboboxDensity = "regular" | "compact";
+
+/** The tokens of one `density` of `comp.combobox`. */
+export interface TanreiComboboxDensityTokens {
+  readonly optionHeight: number;
+  readonly optionPaddingInline: number;
+  readonly optionPaddingBlock: number;
+  readonly optionGap: number;
+  readonly optionLeadingIconSize: number;
+  readonly optionMarkSize: number;
+  readonly groupTitlePaddingInline: number;
+}
+/** Core values are required; a value a system added is present only in that system. */
+export type TanreiComboboxDensitys = { readonly [Key in TanreiCoreComboboxDensity]: TanreiComboboxDensityTokens } & { readonly [Key in TanreiComboboxDensity]?: TanreiComboboxDensityTokens };
+
+/**
  * `comp.combobox`: one member per token that is on no axis (a per-state one carries the state in its name,
- * `<state><Part>`), then one holder per axis (`variants`), keyed by the axis value.
+ * `<state><Part>`), then one holder per axis (`variants`, `densitys`), keyed by the axis value.
  */
 export interface TanreiComboboxTokens {
   readonly containerActionGap: number;
@@ -1732,7 +1734,6 @@ export interface TanreiComboboxTokens {
   readonly dividerThickness: number;
   readonly focusedOpacity: number;
   readonly groupTitleColor: TanreiPaint;
-  readonly groupTitlePaddingInline: number;
   readonly groupTitleTypescale: TanreiTypescaleRole;
   readonly groupGap: number;
   readonly hoveredOpacity: number;
@@ -1751,14 +1752,8 @@ export interface TanreiComboboxTokens {
   readonly motionOpenEasing: TanreiCubicBezier;
   readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
-  readonly optionGap: number;
-  readonly optionHeight: number;
   readonly optionLabelTypescale: TanreiTypescaleRole;
-  readonly optionLeadingIconSize: number;
-  readonly optionMarkSize: number;
   readonly optionMatchEmphasis: number;
-  readonly optionPaddingBlock: number;
-  readonly optionPaddingInline: number;
   readonly optionShape: number;
   readonly optionSupportingTextTypescale: TanreiTypescaleRole;
   readonly pressedOpacity: number;
@@ -1767,6 +1762,7 @@ export interface TanreiComboboxTokens {
   readonly statusErrorColor: TanreiPaint;
   readonly statusTypescale: TanreiTypescaleRole;
   readonly variants: TanreiComboboxVariants;
+  readonly densitys: TanreiComboboxDensitys;
 }
 
 /**
@@ -1862,7 +1858,6 @@ export interface TanreiDateTimePickerTokens {
   readonly modalContainerShape: number;
   readonly modalMotionCloseDuration: number;
   readonly modalMotionCloseEasing: TanreiCubicBezier;
-  readonly modalMotionEnterScale: number;
   readonly modalMotionOpenDuration: number;
   readonly modalMotionOpenEasing: TanreiCubicBezier;
   readonly modalScrimBlur: number;
@@ -1952,7 +1947,6 @@ export interface TanreiDialogTokens {
   readonly actionsGap: number;
   readonly actionsMarginBlockStart: number;
   readonly actionsVariant: number;
-  readonly closeButtonVariant: number;
   readonly compactWindowWidth: number;
   readonly containerColor: TanreiPaint;
   readonly containerElevation: TanreiElevationLevel;
@@ -1974,8 +1968,6 @@ export interface TanreiDialogTokens {
   readonly iconSize: number;
   readonly motionEnterDuration: number;
   readonly motionEnterEasing: TanreiCubicBezier;
-  readonly motionEnterOffset: number;
-  readonly motionEnterScale: number;
   readonly motionExitDuration: number;
   readonly motionExitEasing: TanreiCubicBezier;
   readonly scrimBlur: number;
@@ -2534,6 +2526,77 @@ export interface TanreiFileUploadTokens {
 }
 
 /**
+ * Every value of `comp.handle`'s `size` axis. The core values are listed here; a system that adds one
+ * declares it by module augmentation — its generated file does that. At runtime a value the active system
+ * does not have falls back to `medium` (with a dev-only warning).
+ */
+export interface TanreiHandleSizeRegistry {
+  small: true;
+  medium: true;
+}
+export type TanreiHandleSize = keyof TanreiHandleSizeRegistry;
+export type TanreiCoreHandleSize = "small" | "medium";
+
+/** The tokens of one `size` of `comp.handle`. */
+export interface TanreiHandleSizeTokens {
+  readonly containerLength: number;
+  readonly containerBreadth: number;
+  readonly lineLength: number;
+  readonly lineThickness: number;
+  readonly lineActiveLength: number;
+  readonly lineActiveThickness: number;
+  readonly arcRadius: number;
+}
+/** Core values are required; a value a system added is present only in that system. */
+export type TanreiHandleSizes = { readonly [Key in TanreiCoreHandleSize]: TanreiHandleSizeTokens } & { readonly [Key in TanreiHandleSize]?: TanreiHandleSizeTokens };
+
+/**
+ * Every value of `comp.handle`'s `condition` axis. The core values are listed here; a system that adds one
+ * declares it by module augmentation — its generated file does that. At runtime a value the active system
+ * does not have falls back to `standard` (with a dev-only warning).
+ */
+export interface TanreiHandleConditionRegistry {
+  standard: true;
+}
+export type TanreiHandleCondition = keyof TanreiHandleConditionRegistry;
+export type TanreiCoreHandleCondition = "standard";
+
+/** What one `condition` of `comp.handle` is drawn from in ONE interaction state. */
+export interface TanreiHandleConditionStateTokens {
+  readonly containerColor: TanreiPaint;
+  readonly lineColor: TanreiPaint;
+  readonly stateLayerColor: TanreiPaint;
+}
+/** One `condition`: the resting state (`enabled`) and every interaction state. States are not extensible. */
+export interface TanreiHandleConditionTokens {
+  readonly enabled: TanreiHandleConditionStateTokens;
+  readonly hovered: TanreiHandleConditionStateTokens;
+  readonly focused: TanreiHandleConditionStateTokens;
+  readonly pressed: TanreiHandleConditionStateTokens;
+  readonly disabled: TanreiHandleConditionStateTokens;
+}
+/** Core values are required; a value a system added is present only in that system. */
+export type TanreiHandleConditions = { readonly [Key in TanreiCoreHandleCondition]: TanreiHandleConditionTokens } & { readonly [Key in TanreiHandleCondition]?: TanreiHandleConditionTokens };
+
+/**
+ * `comp.handle`: one member per token that is on no axis (a per-state one carries the state in its name,
+ * `<state><Part>`), then one holder per axis (`sizes`, `conditions`), keyed by the axis value.
+ */
+export interface TanreiHandleTokens {
+  readonly containerShape: number;
+  readonly disabledOpacity: number;
+  readonly focusedOpacity: number;
+  readonly hoveredOpacity: number;
+  readonly inset: number;
+  readonly motionFeedbackDuration: number;
+  readonly motionStateDuration: number;
+  readonly motionStateEasing: TanreiCubicBezier;
+  readonly pressedOpacity: number;
+  readonly sizes: TanreiHandleSizes;
+  readonly conditions: TanreiHandleConditions;
+}
+
+/**
  * `comp.image-preview`: one member per token that is on no axis (a per-state one carries the state in its name,
  * `<state><Part>`), then one holder per axis, keyed by the axis value.
  */
@@ -2563,7 +2626,6 @@ export interface TanreiImagePreviewTokens {
   readonly motionControlsEasing: TanreiCubicBezier;
   readonly motionEnterDuration: number;
   readonly motionEnterEasing: TanreiCubicBezier;
-  readonly motionEnterScale: number;
   readonly motionExitDuration: number;
   readonly motionExitEasing: TanreiCubicBezier;
   readonly motionPageDuration: number;
@@ -2605,15 +2667,18 @@ export type TanreiCoreInputBoxSize = "small" | "medium" | "large";
 /** The tokens of one `size` of `comp.input-box`. */
 export interface TanreiInputBoxSizeTokens {
   readonly containerHeight: number;
+  readonly stackedContainerHeight: number;
   readonly containerPaddingInline: number;
   readonly containerPaddingInlineWithIcon: number;
   readonly containerPaddingBlock: number;
+  readonly stackedContainerPaddingBlock: number;
   readonly containerPaddingBlockWithLabel: number;
   readonly containerGap: number;
   readonly labelTypescale: TanreiTypescaleRole;
   readonly labelFloatedTypescale: TanreiTypescaleRole;
   readonly inputTypescale: TanreiTypescaleRole;
   readonly iconSize: number;
+  readonly motionStateDuration: number;
 }
 /** Core values are required; a value a system added is present only in that system. */
 export type TanreiInputBoxSizes = { readonly [Key in TanreiCoreInputBoxSize]: TanreiInputBoxSizeTokens } & { readonly [Key in TanreiInputBoxSize]?: TanreiInputBoxSizeTokens };
@@ -2688,7 +2753,6 @@ export interface TanreiInputBoxTokens {
   readonly hoveredOutlineWidth: number;
   readonly motionLabelDuration: number;
   readonly motionLabelEasing: TanreiCubicBezier;
-  readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
   readonly outlineNotchPadding: number;
   readonly outlineWidth: number;
@@ -2959,13 +3023,31 @@ export interface TanreiListConditionTokens {
 export type TanreiListConditions = { readonly [Key in TanreiCoreListCondition]: TanreiListConditionTokens } & { readonly [Key in TanreiListCondition]?: TanreiListConditionTokens };
 
 /**
+ * Every value of `comp.list`'s `density` axis. The core values are listed here; a system that adds one
+ * declares it by module augmentation — its generated file does that. At runtime a value the active system
+ * does not have falls back to `regular` (with a dev-only warning).
+ */
+export interface TanreiListDensityRegistry {
+  regular: true;
+  compact: true;
+}
+export type TanreiListDensity = keyof TanreiListDensityRegistry;
+export type TanreiCoreListDensity = "regular" | "compact";
+
+/** The tokens of one `density` of `comp.list`. */
+export interface TanreiListDensityTokens {
+  readonly containerHeight: number;
+  readonly containerPaddingBlock: number;
+}
+/** Core values are required; a value a system added is present only in that system. */
+export type TanreiListDensitys = { readonly [Key in TanreiCoreListDensity]: TanreiListDensityTokens } & { readonly [Key in TanreiListDensity]?: TanreiListDensityTokens };
+
+/**
  * `comp.list`: one member per token that is on no axis (a per-state one carries the state in its name,
- * `<state><Part>`), then one holder per axis (`conditions`), keyed by the axis value.
+ * `<state><Part>`), then one holder per axis (`conditions`, `densitys`), keyed by the axis value.
  */
 export interface TanreiListTokens {
   readonly containerGap: number;
-  readonly containerHeight: number;
-  readonly containerPaddingBlock: number;
   readonly containerPaddingInlineEnd: number;
   readonly containerPaddingInlineStart: number;
   readonly containerShape: number;
@@ -2993,6 +3075,7 @@ export interface TanreiListTokens {
   readonly pressedContainerShape: number;
   readonly pressedOpacity: number;
   readonly conditions: TanreiListConditions;
+  readonly densitys: TanreiListDensitys;
 }
 
 /**
@@ -3060,6 +3143,7 @@ export interface TanreiMainActionButtonSizeTokens {
   readonly containerGap: number;
   readonly labelTypescale: TanreiTypescaleRole;
   readonly iconSize: number;
+  readonly motionStateDuration: number;
 }
 /** Core values are required; a value a system added is present only in that system. */
 export type TanreiMainActionButtonSizes = { readonly [Key in TanreiCoreMainActionButtonSize]: TanreiMainActionButtonSizeTokens } & { readonly [Key in TanreiMainActionButtonSize]?: TanreiMainActionButtonSizeTokens };
@@ -3106,11 +3190,27 @@ export interface TanreiMainActionButtonTokens {
   readonly motionFeedbackDuration: number;
   readonly motionResizeDuration: number;
   readonly motionResizeEasing: TanreiCubicBezier;
-  readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
   readonly pressedOpacity: number;
   readonly sizes: TanreiMainActionButtonSizes;
   readonly variants: TanreiMainActionButtonVariants;
+}
+
+/**
+ * `comp.marquee-text`: one member per token that is on no axis (a per-state one carries the state in its name,
+ * `<state><Part>`), then one holder per axis, keyed by the axis value.
+ */
+export interface TanreiMarqueeTextTokens {
+  readonly fadeExtent: number;
+  readonly gap: number;
+  readonly motionEasing: TanreiCubicBezier;
+  readonly motionEndPause: number;
+  readonly motionReturnDuration: number;
+  readonly motionReturnEasing: TanreiCubicBezier;
+  readonly motionStartDelay: number;
+  readonly motionStartPause: number;
+  readonly playbackGap: number;
+  readonly speed: number;
 }
 
 /**
@@ -3153,15 +3253,37 @@ export interface TanreiMenuConditionTokens {
 export type TanreiMenuConditions = { readonly [Key in TanreiCoreMenuCondition]: TanreiMenuConditionTokens } & { readonly [Key in TanreiMenuCondition]?: TanreiMenuConditionTokens };
 
 /**
+ * Every value of `comp.menu`'s `density` axis. The core values are listed here; a system that adds one
+ * declares it by module augmentation — its generated file does that. At runtime a value the active system
+ * does not have falls back to `regular` (with a dev-only warning).
+ */
+export interface TanreiMenuDensityRegistry {
+  regular: true;
+  compact: true;
+}
+export type TanreiMenuDensity = keyof TanreiMenuDensityRegistry;
+export type TanreiCoreMenuDensity = "regular" | "compact";
+
+/** The tokens of one `density` of `comp.menu`. */
+export interface TanreiMenuDensityTokens {
+  readonly containerHeight: number;
+  readonly containerPaddingInline: number;
+  readonly containerPaddingBlock: number;
+  readonly containerGap: number;
+  readonly leadingIconSize: number;
+  readonly trailingIconSize: number;
+  readonly markSize: number;
+  readonly groupTitlePaddingInline: number;
+}
+/** Core values are required; a value a system added is present only in that system. */
+export type TanreiMenuDensitys = { readonly [Key in TanreiCoreMenuDensity]: TanreiMenuDensityTokens } & { readonly [Key in TanreiMenuDensity]?: TanreiMenuDensityTokens };
+
+/**
  * `comp.menu`: one member per token that is on no axis (a per-state one carries the state in its name,
- * `<state><Part>`), then one holder per axis (`conditions`), keyed by the axis value.
+ * `<state><Part>`), then one holder per axis (`conditions`, `densitys`), keyed by the axis value.
  */
 export interface TanreiMenuTokens {
   readonly checkboxItemMark: number;
-  readonly containerGap: number;
-  readonly containerHeight: number;
-  readonly containerPaddingBlock: number;
-  readonly containerPaddingInline: number;
   readonly containerShape: number;
   readonly controlBoxShape: number;
   readonly controlBoxSize: number;
@@ -3181,14 +3303,11 @@ export interface TanreiMenuTokens {
   readonly focusedContainerShape: number;
   readonly focusedOpacity: number;
   readonly groupTitleColor: TanreiPaint;
-  readonly groupTitlePaddingInline: number;
   readonly groupTitleTypescale: TanreiTypescaleRole;
   readonly groupGap: number;
   readonly hoveredContainerShape: number;
   readonly hoveredOpacity: number;
   readonly labelTypescale: TanreiTypescaleRole;
-  readonly leadingIconSize: number;
-  readonly markSize: number;
   readonly markWidth: number;
   readonly motionCloseDuration: number;
   readonly motionCloseEasing: TanreiCubicBezier;
@@ -3214,9 +3333,9 @@ export interface TanreiMenuTokens {
   readonly surfacePaddingInline: number;
   readonly surfaceShape: number;
   readonly surfaceViewportMargin: number;
-  readonly trailingIconSize: number;
   readonly trailingTextTypescale: TanreiTypescaleRole;
   readonly conditions: TanreiMenuConditions;
+  readonly densitys: TanreiMenuDensitys;
 }
 
 /**
@@ -3281,6 +3400,48 @@ export interface TanreiMenubarTokens {
 }
 
 /**
+ * Every value of `comp.meter`'s `size` axis. The core values are listed here; a system that adds one
+ * declares it by module augmentation — its generated file does that. At runtime a value the active system
+ * does not have falls back to `medium` (with a dev-only warning).
+ */
+export interface TanreiMeterSizeRegistry {
+  small: true;
+  medium: true;
+  large: true;
+}
+export type TanreiMeterSize = keyof TanreiMeterSizeRegistry;
+export type TanreiCoreMeterSize = "small" | "medium" | "large";
+
+/** The tokens of one `size` of `comp.meter`. */
+export interface TanreiMeterSizeTokens {
+  readonly linearThickness: number;
+  readonly circularSize: number;
+  readonly circularThickness: number;
+}
+/** Core values are required; a value a system added is present only in that system. */
+export type TanreiMeterSizes = { readonly [Key in TanreiCoreMeterSize]: TanreiMeterSizeTokens } & { readonly [Key in TanreiMeterSize]?: TanreiMeterSizeTokens };
+
+/**
+ * `comp.meter`: one member per token that is on no axis (a per-state one carries the state in its name,
+ * `<state><Part>`), then one holder per axis (`sizes`), keyed by the axis value.
+ */
+export interface TanreiMeterTokens {
+  readonly errorIndicatorColor: TanreiPaint;
+  readonly indicatorColor: TanreiPaint;
+  readonly infoIndicatorColor: TanreiPaint;
+  readonly motionValueDuration: number;
+  readonly motionValueEasing: TanreiCubicBezier;
+  readonly stopIndicatorSize: number;
+  readonly successIndicatorColor: TanreiPaint;
+  readonly trackColor: TanreiPaint;
+  readonly trackGap: number;
+  readonly trackSeparation: number;
+  readonly trackShape: number;
+  readonly warningIndicatorColor: TanreiPaint;
+  readonly sizes: TanreiMeterSizes;
+}
+
+/**
  * `comp.modal-layer`: one member per token that is on no axis (a per-state one carries the state in its name,
  * `<state><Part>`), then one holder per axis, keyed by the axis value.
  */
@@ -3340,11 +3501,9 @@ export interface TanreiNavigationBarTokens {
   readonly disabledOpacity: number;
   readonly focusedOpacity: number;
   readonly hoveredOpacity: number;
-  readonly itemContainerHeight: number;
   readonly itemContainerPaddingBlock: number;
   readonly itemContainerPaddingInline: number;
   readonly itemContainerShape: number;
-  readonly itemContainerWidth: number;
   readonly itemGap: number;
   readonly itemIconIndicatorHeight: number;
   readonly itemIconIndicatorShape: number;
@@ -3407,7 +3566,6 @@ export interface TanreiNavigationDrawerConditionStateTokens {
   readonly itemSupportingTextColor: TanreiPaint;
   readonly itemTrailingTextColor: TanreiPaint;
   readonly itemTrailingIconColor: TanreiPaint;
-  readonly itemBadgeColor: TanreiPaint;
   readonly itemStateLayerColor: TanreiPaint;
 }
 /** One `condition`: the resting state (`enabled`) and every interaction state. States are not extensible. */
@@ -3478,7 +3636,6 @@ export interface TanreiNavigationDrawerTokens {
   readonly headingColor: TanreiPaint;
   readonly headingTypescale: TanreiTypescaleRole;
   readonly hoveredOpacity: number;
-  readonly itemBadgeTypescale: TanreiTypescaleRole;
   readonly itemContainerShape: number;
   readonly itemGap: number;
   readonly itemIconIndicatorShape: number;
@@ -3510,67 +3667,6 @@ export interface TanreiNavigationDrawerTokens {
 }
 
 /**
- * Every value of `comp.navigation-rail`'s `condition` axis. The core values are listed here; a system that adds one
- * declares it by module augmentation — its generated file does that. At runtime a value the active system
- * does not have falls back to `unselected` (with a dev-only warning).
- */
-export interface TanreiNavigationRailConditionRegistry {
-  unselected: true;
-  selected: true;
-}
-export type TanreiNavigationRailCondition = keyof TanreiNavigationRailConditionRegistry;
-export type TanreiCoreNavigationRailCondition = "unselected" | "selected";
-
-/** What one `condition` of `comp.navigation-rail` is drawn from in ONE interaction state. */
-export interface TanreiNavigationRailConditionStateTokens {
-  readonly itemContainerColor: TanreiPaint;
-  readonly itemIconColor: TanreiPaint;
-  readonly itemLabelColor: TanreiPaint;
-  readonly itemStateLayerColor: TanreiPaint;
-}
-/** One `condition`: the resting state (`enabled`) and every interaction state. States are not extensible. */
-export interface TanreiNavigationRailConditionTokens {
-  readonly enabled: TanreiNavigationRailConditionStateTokens;
-  readonly hovered: TanreiNavigationRailConditionStateTokens;
-  readonly focused: TanreiNavigationRailConditionStateTokens;
-  readonly pressed: TanreiNavigationRailConditionStateTokens;
-  readonly disabled: TanreiNavigationRailConditionStateTokens;
-}
-/** Core values are required; a value a system added is present only in that system. */
-export type TanreiNavigationRailConditions = { readonly [Key in TanreiCoreNavigationRailCondition]: TanreiNavigationRailConditionTokens } & { readonly [Key in TanreiNavigationRailCondition]?: TanreiNavigationRailConditionTokens };
-
-/**
- * `comp.navigation-rail`: one member per token that is on no axis (a per-state one carries the state in its name,
- * `<state><Part>`), then one holder per axis (`conditions`), keyed by the axis value.
- */
-export interface TanreiNavigationRailTokens {
-  readonly containerColor: TanreiPaint;
-  readonly containerElevation: TanreiElevationLevel;
-  readonly containerGap: number;
-  readonly containerPaddingBlock: number;
-  readonly containerWidth: number;
-  readonly disabledOpacity: number;
-  readonly focusedOpacity: number;
-  readonly headerGap: number;
-  readonly hoveredOpacity: number;
-  readonly itemContainerHeight: number;
-  readonly itemContainerShape: number;
-  readonly itemContainerWidth: number;
-  readonly itemGap: number;
-  readonly itemIconSize: number;
-  readonly itemLabelTypescale: TanreiTypescaleRole;
-  readonly motionFeedbackDuration: number;
-  readonly motionSelectionDuration: number;
-  readonly motionSelectionEasing: TanreiCubicBezier;
-  readonly motionStateDuration: number;
-  readonly motionStateEasing: TanreiCubicBezier;
-  readonly outlineColor: TanreiPaint;
-  readonly outlineWidth: number;
-  readonly pressedOpacity: number;
-  readonly conditions: TanreiNavigationRailConditions;
-}
-
-/**
  * `comp.number-input`: one member per token that is on no axis (a per-state one carries the state in its name,
  * `<state><Part>`), then one holder per axis, keyed by the axis value.
  */
@@ -3580,6 +3676,20 @@ export interface TanreiNumberInputTokens {
   readonly motionRepeatIntervalFast: number;
   readonly stepperGap: number;
   readonly stepperInset: number;
+}
+
+/**
+ * `comp.number-ticker`: one member per token that is on no axis (a per-state one carries the state in its name,
+ * `<state><Part>`), then one holder per axis, keyed by the axis value.
+ */
+export interface TanreiNumberTickerTokens {
+  readonly animation: number;
+  readonly blurSlideDistance: number;
+  readonly blurRadius: number;
+  readonly motionDuration: number;
+  readonly motionEasing: TanreiCubicBezier;
+  readonly motionReducedDuration: number;
+  readonly motionStagger: number;
 }
 
 /**
@@ -3785,6 +3895,7 @@ export interface TanreiPopoverTokens {
   readonly arrowVisible: number;
   readonly arrowWidth: number;
   readonly closeButtonVariant: number;
+  readonly compactWindowWidth: number;
   readonly containerColor: TanreiPaint;
   readonly containerElevation: TanreiElevationLevel;
   readonly containerGap: number;
@@ -4024,6 +4135,51 @@ export interface TanreiRadioButtonTokens {
 }
 
 /**
+ * `comp.resizable-frame`: one member per token that is on no axis (a per-state one carries the state in its name,
+ * `<state><Part>`), then one holder per axis, keyed by the axis value.
+ */
+export interface TanreiResizableFrameTokens {
+  readonly containerMinHeight: number;
+  readonly containerMinWidth: number;
+  readonly containerShape: number;
+  readonly handleGap: number;
+  readonly motionIndicatorEnterDuration: number;
+  readonly motionIndicatorEnterEasing: TanreiCubicBezier;
+  readonly motionIndicatorExitDuration: number;
+  readonly motionIndicatorExitEasing: TanreiCubicBezier;
+  readonly motionResizeDuration: number;
+  readonly motionResizeEasing: TanreiCubicBezier;
+  readonly outlineColor: TanreiPaint;
+  readonly outlineWidth: number;
+  readonly sizeIndicatorContainerColor: TanreiPaint;
+  readonly sizeIndicatorContainerHeight: number;
+  readonly sizeIndicatorContainerPaddingInline: number;
+  readonly sizeIndicatorContainerShape: number;
+  readonly sizeIndicatorLabelColor: TanreiPaint;
+  readonly sizeIndicatorLabelTypescale: TanreiTypescaleRole;
+  readonly sizeIndicatorOffset: number;
+  readonly snapDistance: number;
+}
+
+/**
+ * `comp.scroll-area`: one member per token that is on no axis (a per-state one carries the state in its name,
+ * `<state><Part>`), then one holder per axis, keyed by the axis value.
+ */
+export interface TanreiScrollAreaTokens {
+  readonly blurExtent: number;
+  readonly blurLayers: number;
+  readonly blurRadius: number;
+  readonly fadeExtent: number;
+  readonly lineColor: TanreiPaint;
+  readonly lineWidth: number;
+  readonly motionDuration: number;
+  readonly motionEasing: TanreiCubicBezier;
+  readonly scrollEdge: number;
+  readonly shadowColor: TanreiPaint;
+  readonly shadowExtent: number;
+}
+
+/**
  * Every value of `comp.search`'s `condition` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
  * does not have falls back to `standard` (with a dev-only warning).
@@ -4062,8 +4218,31 @@ export interface TanreiSearchConditionTokens {
 export type TanreiSearchConditions = { readonly [Key in TanreiCoreSearchCondition]: TanreiSearchConditionTokens } & { readonly [Key in TanreiSearchCondition]?: TanreiSearchConditionTokens };
 
 /**
+ * Every value of `comp.search`'s `density` axis. The core values are listed here; a system that adds one
+ * declares it by module augmentation — its generated file does that. At runtime a value the active system
+ * does not have falls back to `regular` (with a dev-only warning).
+ */
+export interface TanreiSearchDensityRegistry {
+  regular: true;
+  compact: true;
+}
+export type TanreiSearchDensity = keyof TanreiSearchDensityRegistry;
+export type TanreiCoreSearchDensity = "regular" | "compact";
+
+/** The tokens of one `density` of `comp.search`. */
+export interface TanreiSearchDensityTokens {
+  readonly suggestionContainerHeight: number;
+  readonly suggestionContainerPaddingInline: number;
+  readonly suggestionContainerPaddingBlock: number;
+  readonly suggestionContainerGap: number;
+  readonly suggestionLeadingIconSize: number;
+}
+/** Core values are required; a value a system added is present only in that system. */
+export type TanreiSearchDensitys = { readonly [Key in TanreiCoreSearchDensity]: TanreiSearchDensityTokens } & { readonly [Key in TanreiSearchDensity]?: TanreiSearchDensityTokens };
+
+/**
  * `comp.search`: one member per token that is on no axis (a per-state one carries the state in its name,
- * `<state><Part>`), then one holder per axis (`conditions`), keyed by the axis value.
+ * `<state><Part>`), then one holder per axis (`conditions`, `densitys`), keyed by the axis value.
  */
 export interface TanreiSearchTokens {
   readonly containerButtonGap: number;
@@ -4106,13 +4285,8 @@ export interface TanreiSearchTokens {
   readonly statusColor: TanreiPaint;
   readonly statusErrorColor: TanreiPaint;
   readonly statusTypescale: TanreiTypescaleRole;
-  readonly suggestionContainerGap: number;
-  readonly suggestionContainerHeight: number;
-  readonly suggestionContainerPaddingBlock: number;
-  readonly suggestionContainerPaddingInline: number;
   readonly suggestionContainerShape: number;
   readonly suggestionHeadlineTypescale: TanreiTypescaleRole;
-  readonly suggestionLeadingIconSize: number;
   readonly suggestionSupportingTextTypescale: TanreiTypescaleRole;
   readonly triggerContainerGap: number;
   readonly triggerContainerHeight: number;
@@ -4131,6 +4305,7 @@ export interface TanreiSearchTokens {
   readonly viewScrimColor: TanreiPaint;
   readonly viewViewportMargin: number;
   readonly conditions: TanreiSearchConditions;
+  readonly densitys: TanreiSearchDensitys;
 }
 
 /**
@@ -4155,6 +4330,7 @@ export interface TanreiSegmentedButtonSizeTokens {
   readonly labelTypescale: TanreiTypescaleRole;
   readonly iconSize: number;
   readonly checkSize: number;
+  readonly motionStateDuration: number;
 }
 /** Core values are required; a value a system added is present only in that system. */
 export type TanreiSegmentedButtonSizes = { readonly [Key in TanreiCoreSegmentedButtonSize]: TanreiSegmentedButtonSizeTokens } & { readonly [Key in TanreiSegmentedButtonSize]?: TanreiSegmentedButtonSizeTokens };
@@ -4208,7 +4384,6 @@ export interface TanreiSegmentedButtonTokens {
   readonly motionFeedbackDuration: number;
   readonly motionSelectionDuration: number;
   readonly motionSelectionEasing: TanreiCubicBezier;
-  readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
   readonly outlineColor: TanreiPaint;
   readonly outlineWidth: number;
@@ -4260,8 +4435,33 @@ export interface TanreiSelectVariantTokens {
 export type TanreiSelectVariants = { readonly [Key in TanreiCoreSelectVariant]: TanreiSelectVariantTokens } & { readonly [Key in TanreiSelectVariant]?: TanreiSelectVariantTokens };
 
 /**
+ * Every value of `comp.select`'s `density` axis. The core values are listed here; a system that adds one
+ * declares it by module augmentation — its generated file does that. At runtime a value the active system
+ * does not have falls back to `regular` (with a dev-only warning).
+ */
+export interface TanreiSelectDensityRegistry {
+  regular: true;
+  compact: true;
+}
+export type TanreiSelectDensity = keyof TanreiSelectDensityRegistry;
+export type TanreiCoreSelectDensity = "regular" | "compact";
+
+/** The tokens of one `density` of `comp.select`. */
+export interface TanreiSelectDensityTokens {
+  readonly optionHeight: number;
+  readonly optionPaddingInline: number;
+  readonly optionPaddingBlock: number;
+  readonly optionGap: number;
+  readonly optionLeadingIconSize: number;
+  readonly optionMarkSize: number;
+  readonly groupTitlePaddingInline: number;
+}
+/** Core values are required; a value a system added is present only in that system. */
+export type TanreiSelectDensitys = { readonly [Key in TanreiCoreSelectDensity]: TanreiSelectDensityTokens } & { readonly [Key in TanreiSelectDensity]?: TanreiSelectDensityTokens };
+
+/**
  * `comp.select`: one member per token that is on no axis (a per-state one carries the state in its name,
- * `<state><Part>`), then one holder per axis (`variants`), keyed by the axis value.
+ * `<state><Part>`), then one holder per axis (`variants`, `densitys`), keyed by the axis value.
  */
 export interface TanreiSelectTokens {
   readonly disabledOpacity: number;
@@ -4270,7 +4470,6 @@ export interface TanreiSelectTokens {
   readonly dividerThickness: number;
   readonly focusedOpacity: number;
   readonly groupTitleColor: TanreiPaint;
-  readonly groupTitlePaddingInline: number;
   readonly groupTitleTypescale: TanreiTypescaleRole;
   readonly groupGap: number;
   readonly hoveredOpacity: number;
@@ -4291,18 +4490,16 @@ export interface TanreiSelectTokens {
   readonly motionOpenEasing: TanreiCubicBezier;
   readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
-  readonly optionGap: number;
-  readonly optionHeight: number;
   readonly optionLabelTypescale: TanreiTypescaleRole;
-  readonly optionLeadingIconSize: number;
-  readonly optionMarkSize: number;
-  readonly optionPaddingBlock: number;
-  readonly optionPaddingInline: number;
   readonly optionShape: number;
   readonly optionSupportingTextTypescale: TanreiTypescaleRole;
   readonly pressedOpacity: number;
   readonly separation: number;
+  readonly statusColor: TanreiPaint;
+  readonly statusErrorColor: TanreiPaint;
+  readonly statusTypescale: TanreiTypescaleRole;
   readonly variants: TanreiSelectVariants;
+  readonly densitys: TanreiSelectDensitys;
 }
 
 /**
@@ -4472,10 +4669,9 @@ export interface TanreiSliderTokens {
  */
 export interface TanreiSnackbarControlRegistry {
   action: true;
-  close: true;
 }
 export type TanreiSnackbarControl = keyof TanreiSnackbarControlRegistry;
-export type TanreiCoreSnackbarControl = "action" | "close";
+export type TanreiCoreSnackbarControl = "action";
 
 /** What one `control` of `comp.snackbar` is drawn from in ONE interaction state. */
 export interface TanreiSnackbarControlStateTokens {
@@ -4526,6 +4722,8 @@ export type TanreiSnackbarControls = { readonly [Key in TanreiCoreSnackbarContro
  */
 export interface TanreiSnackbarTokens {
   readonly actionTonalLayerOpacity: number;
+  readonly breakpointMedium: number;
+  readonly closeButtonVariant: number;
   readonly containerColor: TanreiPaint;
   readonly containerElevation: TanreiElevationLevel;
   readonly containerGap: number;
@@ -4541,7 +4739,6 @@ export interface TanreiSnackbarTokens {
   readonly containerShape: number;
   readonly controlsGap: number;
   readonly controlsHeight: number;
-  readonly controlsIconSize: number;
   readonly controlsLabelTypescale: TanreiTypescaleRole;
   readonly controlsPaddingInline: number;
   readonly controlsShape: number;
@@ -5207,6 +5404,8 @@ export type TanreiTagGroupSpacings = { readonly [Key in TanreiCoreTagGroupSpacin
  * `<state><Part>`), then one holder per axis (`spacings`), keyed by the axis value.
  */
 export interface TanreiTagGroupTokens {
+  readonly motionMoveDuration: number;
+  readonly motionMoveEasing: TanreiCubicBezier;
   readonly spacings: TanreiTagGroupSpacings;
 }
 
@@ -5288,36 +5487,8 @@ export interface TanreiTagTokens {
 }
 
 /**
- * Every value of `comp.text-input`'s `variant` axis. The core values are listed here; a system that adds one
- * declares it by module augmentation — its generated file does that. At runtime a value the active system
- * does not have falls back to `stacked` (with a dev-only warning).
- */
-export interface TanreiTextInputVariantRegistry {
-  stacked: true;
-  filled: true;
-  outlined: true;
-}
-export type TanreiTextInputVariant = keyof TanreiTextInputVariantRegistry;
-export type TanreiCoreTextInputVariant = "stacked" | "filled" | "outlined";
-
-/** What one `variant` of `comp.text-input` is drawn from in ONE interaction state. */
-export interface TanreiTextInputVariantStateTokens {
-  readonly resizeGripColor: TanreiPaint;
-  readonly errorResizeGripColor: TanreiPaint;
-}
-/** One `variant`: the resting state (`enabled`) and every interaction state. States are not extensible. */
-export interface TanreiTextInputVariantTokens {
-  readonly enabled: TanreiTextInputVariantStateTokens;
-  readonly hovered: TanreiTextInputVariantStateTokens;
-  readonly focused: TanreiTextInputVariantStateTokens;
-  readonly disabled: TanreiTextInputVariantStateTokens;
-}
-/** Core values are required; a value a system added is present only in that system. */
-export type TanreiTextInputVariants = { readonly [Key in TanreiCoreTextInputVariant]: TanreiTextInputVariantTokens } & { readonly [Key in TanreiTextInputVariant]?: TanreiTextInputVariantTokens };
-
-/**
  * `comp.text-input`: one member per token that is on no axis (a per-state one carries the state in its name,
- * `<state><Part>`), then one holder per axis (`variants`), keyed by the axis value.
+ * `<state><Part>`), then one holder per axis, keyed by the axis value.
  */
 export interface TanreiTextInputTokens {
   readonly codeTabSize: number;
@@ -5327,10 +5498,7 @@ export interface TanreiTextInputTokens {
   readonly entriesTypingMinWidth: number;
   readonly motionResizeDuration: number;
   readonly motionResizeEasing: TanreiCubicBezier;
-  readonly resizeGripInset: number;
-  readonly resizeGripSize: number;
   readonly segmentPaddingInline: number;
-  readonly variants: TanreiTextInputVariants;
 }
 
 /**
@@ -5403,14 +5571,15 @@ export interface TanreiTimelineTokens {
 /**
  * Every value of `comp.toolbar`'s `variant` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
- * does not have falls back to `docked` (with a dev-only warning).
+ * does not have falls back to `inline` (with a dev-only warning).
  */
 export interface TanreiToolbarVariantRegistry {
+  inline: true;
   docked: true;
   floating: true;
 }
 export type TanreiToolbarVariant = keyof TanreiToolbarVariantRegistry;
-export type TanreiCoreToolbarVariant = "docked" | "floating";
+export type TanreiCoreToolbarVariant = "inline" | "docked" | "floating";
 
 /** The tokens of one `variant` of `comp.toolbar`. */
 export interface TanreiToolbarVariantTokens {
@@ -5430,7 +5599,12 @@ export type TanreiToolbarVariants = { readonly [Key in TanreiCoreToolbarVariant]
  * `<state><Part>`), then one holder per axis (`variants`), keyed by the axis value.
  */
 export interface TanreiToolbarTokens {
+  readonly dividerColor: TanreiPaint;
+  readonly dividerLength: number;
+  readonly dividerThickness: number;
+  readonly groupGap: number;
   readonly outlineWidth: number;
+  readonly separation: number;
   readonly variants: TanreiToolbarVariants;
 }
 
@@ -5445,8 +5619,6 @@ export interface TanreiTooltipTokens {
   readonly arrowWidth: number;
   readonly motionEnterDuration: number;
   readonly motionEnterEasing: TanreiCubicBezier;
-  readonly motionEnterOffset: number;
-  readonly motionEnterScale: number;
   readonly motionExitDuration: number;
   readonly motionExitEasing: TanreiCubicBezier;
   readonly motionHideDelay: number;
@@ -5611,6 +5783,7 @@ export interface TanreiComponents {
   readonly fileItem: TanreiFileItemTokens;
   readonly filePicker: TanreiFilePickerTokens;
   readonly fileUpload: TanreiFileUploadTokens;
+  readonly handle: TanreiHandleTokens;
   readonly imagePreview: TanreiImagePreviewTokens;
   readonly inlineCode: TanreiInlineCodeTokens;
   readonly inputBox: TanreiInputBoxTokens;
@@ -5621,13 +5794,15 @@ export interface TanreiComponents {
   readonly list: TanreiListTokens;
   readonly loadingIndicator: TanreiLoadingIndicatorTokens;
   readonly mainActionButton: TanreiMainActionButtonTokens;
+  readonly marqueeText: TanreiMarqueeTextTokens;
   readonly menu: TanreiMenuTokens;
   readonly menubar: TanreiMenubarTokens;
+  readonly meter: TanreiMeterTokens;
   readonly modalLayer: TanreiModalLayerTokens;
   readonly navigationBar: TanreiNavigationBarTokens;
   readonly navigationDrawer: TanreiNavigationDrawerTokens;
-  readonly navigationRail: TanreiNavigationRailTokens;
   readonly numberInput: TanreiNumberInputTokens;
+  readonly numberTicker: TanreiNumberTickerTokens;
   readonly oneTimeCodeInput: TanreiOneTimeCodeInputTokens;
   readonly pageHeader: TanreiPageHeaderTokens;
   readonly pagination: TanreiPaginationTokens;
@@ -5636,6 +5811,8 @@ export interface TanreiComponents {
   readonly progressIndicator: TanreiProgressIndicatorTokens;
   readonly prose: TanreiProseTokens;
   readonly radioButton: TanreiRadioButtonTokens;
+  readonly resizableFrame: TanreiResizableFrameTokens;
+  readonly scrollArea: TanreiScrollAreaTokens;
   readonly search: TanreiSearchTokens;
   readonly segmentedButton: TanreiSegmentedButtonTokens;
   readonly select: TanreiSelectTokens;
@@ -5709,7 +5886,6 @@ declare module './vocabulary' {
   interface TanreiButtonSizeRegistry {}
   interface TanreiButtonVariantRegistry {}
   interface TanreiCalendarConditionRegistry {}
-  interface TanreiCalloutControlRegistry {}
   interface TanreiCalloutSizeRegistry {}
   interface TanreiCalloutVariantRegistry {}
   interface TanreiCardVariantRegistry {}
@@ -5722,6 +5898,7 @@ declare module './vocabulary' {
   interface TanreiCodeBlockVariantRegistry {}
   interface TanreiCodeBlockSyntaxRegistry {}
   interface TanreiComboboxVariantRegistry {}
+  interface TanreiComboboxDensityRegistry {}
   interface TanreiDateTimePickerConditionRegistry {}
   interface TanreiDescriptionListDensityRegistry {}
   interface TanreiEmbeddedTextInputConditionRegistry {}
@@ -5734,6 +5911,8 @@ declare module './vocabulary' {
   interface TanreiFigureVariantRegistry {}
   interface TanreiFileItemFormRegistry {}
   interface TanreiFilePickerConditionRegistry {}
+  interface TanreiHandleSizeRegistry {}
+  interface TanreiHandleConditionRegistry {}
   interface TanreiInputBoxSizeRegistry {}
   interface TanreiInputBoxVariantRegistry {}
   interface TanreiKeyboardShortcutSizeRegistry {}
@@ -5742,16 +5921,18 @@ declare module './vocabulary' {
   interface TanreiLinkVariantRegistry {}
   interface TanreiListRowDensityRegistry {}
   interface TanreiListConditionRegistry {}
+  interface TanreiListDensityRegistry {}
   interface TanreiLoadingIndicatorSizeRegistry {}
   interface TanreiMainActionButtonSizeRegistry {}
   interface TanreiMainActionButtonVariantRegistry {}
   interface TanreiMenuConditionRegistry {}
+  interface TanreiMenuDensityRegistry {}
   interface TanreiMenubarConditionRegistry {}
+  interface TanreiMeterSizeRegistry {}
   interface TanreiNavigationBarConditionRegistry {}
   interface TanreiNavigationDrawerVariantRegistry {}
   interface TanreiNavigationDrawerConditionRegistry {}
   interface TanreiNavigationDrawerDensityRegistry {}
-  interface TanreiNavigationRailConditionRegistry {}
   interface TanreiOneTimeCodeInputConditionRegistry {}
   interface TanreiPageHeaderSizeRegistry {}
   interface TanreiPaginationSizeRegistry {}
@@ -5761,9 +5942,11 @@ declare module './vocabulary' {
   interface TanreiProseSizeRegistry {}
   interface TanreiRadioButtonConditionRegistry {}
   interface TanreiSearchConditionRegistry {}
+  interface TanreiSearchDensityRegistry {}
   interface TanreiSegmentedButtonSizeRegistry {}
   interface TanreiSegmentedButtonConditionRegistry {}
   interface TanreiSelectVariantRegistry {}
+  interface TanreiSelectDensityRegistry {}
   interface TanreiSideSheetVariantRegistry {}
   interface TanreiSliderSizeRegistry {}
   interface TanreiSliderConditionRegistry {}
@@ -5782,7 +5965,6 @@ declare module './vocabulary' {
   interface TanreiTagGroupSpacingRegistry {}
   interface TanreiTagSizeRegistry {}
   interface TanreiTagVariantRegistry {}
-  interface TanreiTextInputVariantRegistry {}
   interface TanreiTimelineSizeRegistry {}
   interface TanreiTimelineDensityRegistry {}
   interface TanreiToolbarVariantRegistry {}

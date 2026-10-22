@@ -1,5 +1,5 @@
 // <tanrei-description-list> and description-list.css, driven by specs/description-list.spec.json: every behaviour id
-// (DSL-1…23) is cited by a test title, every fixture has a baseline, and every length and color is read back from the
+// (DSL-1…24) is cited by a test title, every fixture has a baseline, and every length and color is read back from the
 // tokens — never from a number written here (the numbers of a `verify` are the spec's own, for the default system).
 import fs from 'node:fs';
 import path from 'node:path';
@@ -237,7 +237,43 @@ test.describe('layouts', () => {
     expect([...errors, ...(await page.evaluate(() => (window as unknown as { __errors?: string[] }).__errors ?? []))]).toEqual([]);
   });
 
-  test('DSL-5: stacked — the term on lines of its own and its values below it after stack.gap, both at the start edge of the fact’s column and no wider than it', async ({ page }) => {
+  test('DSL-24: a list connected while it has no width — its terms above their values then, and measured again so — draws them beside their values once it is given the room, and above them again when it loses it: 256 and 255 for a 96 wide term beside a long value', async ({ page }) => {
+    const long = 'The label, or the accessible label of a button that shows only a glyph, which a person reads beside its term and which is longer than any column it is given here.';
+    await mountFixtures(page, spec, { fixtures: [fx('own', {}, [f1(wide(96), long), f1('Short', 'Another value')])] });
+    // Connected while it has no width, as a list is in a panel that is not laid out yet.
+    await size(page, 'own', 0);
+    await host(page, 'own').evaluate((el) => {
+      const parent = el.parentElement!;
+      el.remove();
+      parent.append(el);
+    });
+    // The observer of sizes has told the element of its size there, and the element has answered — measured the list
+    // as it is drawn then, stacked, and written what it read — before anything is asked: one report of an observer
+    // made after the element's, which is told after it, and the frame after that report, which the element's own
+    // frame comes before. Counted in reports and frames, not in time.
+    await list(page, 'own').evaluate(
+      (dl) =>
+        new Promise<void>((resolve) => {
+          new ResizeObserver((_, observer) => {
+            observer.disconnect();
+            requestAnimationFrame(() => resolve());
+          }).observe(dl);
+        }),
+    );
+    // With no width, nothing is beside anything: each value is under its term.
+    for (const n of [1, 2]) expect((await edges(value(page, 'own', n))).top).toBeGreaterThanOrEqual((await edges(term(page, 'own', n))).bottom - 0.5);
+    // Given the room, it decides again from the new width — not from the long value it was measured beside — as DSL-4
+    // draws a list that was laid out with a width from the start: two columns at 256 (96 + 16 + 144), stacked at 255.
+    await size(page, 'own', 256);
+    await expect.poll(async () => [await drawn(page, 'own', 1), await drawn(page, 'own', 2)]).toEqual(['inline', 'inline']);
+    near((await edges(value(page, 'own', 1))).width, await resolveToken(page, T('column-min-width')));
+    await size(page, 'own', 255);
+    await expect.poll(async () => [await drawn(page, 'own', 1), await drawn(page, 'own', 2)]).toEqual(['stacked', 'stacked']);
+    await size(page, 'own', 256);
+    await expect.poll(async () => [await drawn(page, 'own', 1), await drawn(page, 'own', 2)]).toEqual(['inline', 'inline']);
+  });
+
+  test('DSL-5:stacked — the term on lines of its own and its values below it after stack.gap, both at the start edge of the fact’s column and no wider than it', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [...some('stacked', 'stacked-compact', 'columns'), fx('long-term', { layout: 'stacked', columns: 3 }, [f1('A term that is long enough to run over more than one line of the column it is drawn in, whatever the face', 'Value'), f1('B', 'Value'), f1('C', 'Value')])] });
     const gap = await resolveToken(page, T('stack-gap'));
     for (const id of ['stacked', 'stacked-compact', 'columns', 'long-term']) {

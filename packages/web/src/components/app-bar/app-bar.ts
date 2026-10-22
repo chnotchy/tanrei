@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import {
@@ -12,6 +12,7 @@ import {
 } from '../../primitives/index.js';
 import { AXES, CORE_SIZES, heightProbe, styles } from './app-bar.styles.js';
 import { ownDirection } from '../../styles/product-text.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core sizes (small, large), plus any a design system adds: a size other than small has a title row that collapses. */
 export type TanreiAppBarSize = 'small' | 'large' | (string & {});
@@ -21,6 +22,16 @@ export type TanreiAppBarTitleAlignment = 'start' | 'center';
 
 /** When the bottom edge is drawn (APB-18): `auto` takes `comp.app-bar.outline.visibility`. */
 export type TanreiAppBarDividerVisibility = DividerVisibilityProp;
+
+/** How a brand's symbol and wordmark stand when both are given (APB-21): side by side, or by turns with the window's width. */
+export type TanreiAppBarBrandLayout = 'lockup' | 'responsive';
+
+const BRAND_LAYOUTS: readonly string[] = ['lockup', 'responsive'];
+const BRAND_SLOTS = ['brand', 'brand-symbol', 'brand-wordmark'] as const;
+type BrandSlot = (typeof BRAND_SLOTS)[number];
+
+/** What the bar reads of the app shell it stands in (src/components/app-shell): the window's class, once decided. */
+type WindowClassSource = Element & { windowClass?: string | null };
 
 const clamp = (value: number, low: number, high: number) => Math.min(high, Math.max(low, value));
 
@@ -38,6 +49,18 @@ const clamp = (value: number, low: number, high: number) => Math.min(high, Math.
  * default, the element whose id `scroll-target` names, or nothing with `scroll-target="none"` (then set `scrolled`
  * yourself). A large bar shrinks one for one with the scroll until only its top row is left (APB-8).
  *
+ * The brand (APB-19 to APB-23): one link to the product's first page (`brand-href`), named by the product's name
+ * (`brand-label`), drawn by the bar around the images the product gives it — an `<img>` or an inline `<svg>`, which the
+ * bar sizes from its tokens and hides from assistive technology: one image (`slot="brand"`, a single logo file), the
+ * symbol (`slot="brand-symbol"`), the wordmark (`slot="brand-wordmark"`), or both. One image, a symbol alone or a
+ * wordmark alone is shown at every width. Given both, `brand-layout` sets them side by side (`lockup`, the default:
+ * `comp.app-bar.brand.lockup.gap` apart, aligned as `comp.app-bar.brand.lockup.alignment` says) or by turns
+ * (`responsive`: the wordmark while the window is medium or wider, the symbol while it is compact — the enclosing
+ * `<tanrei-app-shell>`'s window class, or the window's width against `--tanrei-sys-breakpoint-medium` outside one). The
+ * brand stands after the navigation item in an icon button's cell, in `comp.app-bar.brand.color`, which an image drawn
+ * in `currentColor` takes. The link is the bar's: a router that follows links by their clicks reads it from the
+ * click's composed path. Without `brand-href` the brand is one image named by `brand-label`.
+ *
  * The bottom edge: `divider-visibility` (`auto | always | scroll`, APB-18). `always` — the default system's — draws it
  * at rest and under content alike, in the scrolled condition's outline color; `scroll` draws each condition's own (none
  * at rest in the default system). `auto` takes `comp.app-bar.outline.visibility`. The color and elevation follow
@@ -48,15 +71,19 @@ const clamp = (value: number, low: number, high: number) => Math.min(high, Math.
  *
  * @tag tanrei-app-bar
  * @slot navigation - The navigation item: one icon-only `<tanrei-button>` (back, menu or close) at the start.
+ * @slot brand - The brand as one image (a single logo file), drawn `comp.app-bar.brand.image.height` high.
+ * @slot brand-symbol - The brand's symbol, drawn `comp.app-bar.brand.symbol.size` high.
+ * @slot brand-wordmark - The brand's wordmark, drawn `comp.app-bar.brand.wordmark.height` high.
  * @slot actions - The action items: up to three icon-only `<tanrei-button>`s at the end, in reading order.
  * @csspart container - The bar: its color, elevation, and the system insets it reaches under.
- * @csspart top-row - The row of the navigation item, the title block and the actions.
+ * @csspart top-row - The row of the navigation item, the brand, the title block and the actions.
+ * @csspart brand - The brand: its link (or, without `brand-href`, its image) around the images it shows.
  * @csspart title - The title (the heading), in the top row and in a large bar's own title row.
  * @csspart subtitle - The line under the title.
  * @csspart expanded - A large bar's own title row, under the top row, which collapses as the content scrolls.
  * @csspart outline - The bar's bottom edge.
  */
-export class TanreiAppBar extends LitElement {
+export class TanreiAppBar extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'app-bar');
   static override styles = styles;
 
@@ -65,11 +92,16 @@ export class TanreiAppBar extends LitElement {
     headline: { type: String },
     subtitle: { type: String },
     titleAlignment: { type: String, attribute: 'title-alignment', reflect: true },
+    brandHref: { type: String, attribute: 'brand-href' },
+    brandLabel: { type: String, attribute: 'brand-label' },
+    brandLayout: { type: String, attribute: 'brand-layout', reflect: true },
     scrolled: { type: Boolean, reflect: true },
     dividerVisibility: { type: String, attribute: 'divider-visibility', reflect: true },
     scrollTarget: { type: String, attribute: 'scroll-target' },
     headingLevel: { type: Number, attribute: 'heading-level' },
     hasNavigation: { state: true },
+    brands: { state: true },
+    compact: { state: true },
     hasActions: { state: true },
     layerExpands: { state: true },
     collapse: { state: true },
@@ -88,6 +120,19 @@ export class TanreiAppBar extends LitElement {
 
   /** `start` (after the navigation button) or `center` (centred on the bar). A large bar's own title row always starts at the start. Reflected. */
   titleAlignment: TanreiAppBarTitleAlignment = 'start';
+
+  /** The address of the product's first page: the brand is a link to it. Empty draws the brand as an image (APB-22). */
+  brandHref = '';
+
+  /** The product's name: the brand's one accessible name, whichever of its images is shown (APB-22). */
+  brandLabel = '';
+
+  /**
+   * How the brand's symbol and wordmark stand when both are given (APB-21): `lockup` (side by side, the default) or
+   * `responsive` (the wordmark while the window is medium or wider, the symbol while it is compact). Reflected as
+   * `brand-layout`.
+   */
+  brandLayout: TanreiAppBarBrandLayout = 'lockup';
 
   /** Whether content lies under the bar: the scrolled look, and a large bar drawn collapsed. A connected scrolling element sets it. Reflected. */
   scrolled = false;
@@ -109,6 +154,12 @@ export class TanreiAppBar extends LitElement {
   headingLevel = 1;
 
   private hasNavigation = false;
+  /** How many images each brand slot holds (APB-19, APB-23). */
+  private brands: Record<BrandSlot, number> = { brand: 0, 'brand-symbol': 0, 'brand-wordmark': 0 };
+  /** Whether the window class is compact (APB-21): the app shell's, or the window's width against sys.breakpoint.medium. */
+  private compact = false;
+  private shell: WindowClassSource | null = null;
+  private widths: MediaQueryList | null = null;
   private hasActions = false;
   /** Whether a size a layer added is defined by the active system (then it has a title row that collapses). */
   private layerExpands = false;
@@ -132,6 +183,7 @@ export class TanreiAppBar extends LitElement {
 
   override connectedCallback() {
     super.connectedCallback();
+    this.watchWindow();
     if (!this.hasUpdated) return;
     this.observe();
     this.connectScroll();
@@ -139,8 +191,48 @@ export class TanreiAppBar extends LitElement {
 
   override disconnectedCallback() {
     super.disconnectedCallback();
+    this.unwatchWindow();
     this.disconnectScroll();
     this.resize$?.disconnect();
+  }
+
+  // ---- APB-21: the window class a responsive brand follows ----
+
+  /** The app shell's window class where the bar stands in one and it has decided; else the window's width. */
+  private watchWindow() {
+    this.unwatchWindow();
+    this.shell = this.closest<WindowClassSource>('tanrei-app-shell');
+    this.shell?.addEventListener('windowclasschange', this.onWindow);
+    const medium = typeof matchMedia === 'function' ? getComputedStyle(this).getPropertyValue('--tanrei-sys-breakpoint-medium').trim() : '';
+    if (medium) {
+      this.widths = matchMedia(`(min-width: ${medium})`);
+      this.widths.addEventListener('change', this.onWindow);
+    }
+    this.onWindow();
+  }
+
+  private unwatchWindow() {
+    this.shell?.removeEventListener('windowclasschange', this.onWindow);
+    this.widths?.removeEventListener('change', this.onWindow);
+    this.shell = null;
+    this.widths = null;
+  }
+
+  private readonly onWindow = () => {
+    const decided = this.shell?.windowClass;
+    this.compact = decided ? decided === 'compact' : this.widths ? !this.widths.matches : false;
+  };
+
+  /**
+   * APB-21, APB-23: the brand's images shown — one image wherever `brand` holds one (the parts are then not shown); a
+   * symbol or a wordmark alone; both as a lockup; or, responsive, the one the window's class asks for.
+   */
+  private get shownBrand(): BrandSlot[] {
+    if (this.brands.brand > 0) return ['brand'];
+    const symbol = this.brands['brand-symbol'] > 0;
+    const wordmark = this.brands['brand-wordmark'] > 0;
+    if (symbol && wordmark) return this.brandLayout === 'responsive' ? [this.compact ? 'brand-symbol' : 'brand-wordmark'] : ['brand-symbol', 'brand-wordmark'];
+    return symbol ? ['brand-symbol'] : wordmark ? ['brand-wordmark'] : [];
   }
 
   /** A size other than small has a title row of its own: large, or a size a layer added that the active system defines. */
@@ -248,10 +340,16 @@ export class TanreiAppBar extends LitElement {
   }
 
   /** APB-4, APB-13: which slots hold items; more than one navigation item or three actions still render, and are reported. */
-  private onSlotChange(event: Event) {
+  #onSlotChange(event: Event) {
     const slot = event.target as HTMLSlotElement;
     const items = slot.assignedElements();
-    if (slot.name === 'navigation') {
+    if ((BRAND_SLOTS as readonly string[]).includes(slot.name)) {
+      this.brands = { ...this.brands, [slot.name]: items.length };
+      // APB-22: the images are the link's picture, not its name: the name is brand-label, read once.
+      for (const item of items) if (item.getAttribute('aria-hidden') !== 'true') item.setAttribute('aria-hidden', 'true');
+      if (items.length > 1) report(this, 'APB-23', `the ${slot.name} slot holds ${items.length} images; it draws one`);
+      this.reportBrand();
+    } else if (slot.name === 'navigation') {
       this.hasNavigation = items.length > 0;
       if (items.length > 1) report(this, 'APB-13', `the bar holds ${items.length} navigation items; a bar has one navigation button`);
     } else {
@@ -260,9 +358,16 @@ export class TanreiAppBar extends LitElement {
     }
   }
 
+  /** APB-23: a brand without a name, and an image in brand given beside the parts it takes the place of. */
+  private reportBrand() {
+    const { brand, 'brand-symbol': symbol, 'brand-wordmark': wordmark } = this.brands;
+    if (brand > 0 && symbol + wordmark > 0) report(this, 'APB-23', 'the bar has an image in brand and the symbol or the wordmark beside it; it shows the image in brand alone');
+    if (brand + symbol + wordmark > 0 && !this.brandLabel.trim()) report(this, 'APB-23', 'the bar has a brand and no brand-label; give it the product\'s name');
+  }
+
   /** The boxes whose size moves the centred title's balance and the collapse's range. */
   private observe() {
-    for (const selector of ['.row', '.navigation', '.actions', '.block']) {
+    for (const selector of ['.row', '.lead', '.actions', '.block']) {
       const element = this.find(selector);
       if (element) this.resize$?.observe(element);
     }
@@ -278,6 +383,11 @@ export class TanreiAppBar extends LitElement {
     if (changed.has('dividerVisibility') && !isDividerVisibility(this.dividerVisibility)) {
       report(this, 'APB-18', `divider-visibility "${this.dividerVisibility}" is not a value of the app bar; it is drawn as "auto"`);
     }
+    // APB-23: a brand layout the bar does not define is drawn as a lockup (shownBrand reads only "responsive").
+    if (changed.has('brandLayout') && !BRAND_LAYOUTS.includes(this.brandLayout)) {
+      report(this, 'APB-23', `brand-layout "${this.brandLayout}" is not a value of the app bar; it is drawn as "lockup"`);
+    }
+    if (changed.has('brandLabel') && this.hasUpdated) this.reportBrand();
   }
 
   protected override updated(changed: PropertyValues<this>) {
@@ -293,7 +403,7 @@ export class TanreiAppBar extends LitElement {
     const block = this.find('.block');
     if (block) this.resize$?.observe(block);
     if (changed.has('size') || changed.has('layerExpands' as keyof TanreiAppBar) || changed.has('headline') || changed.has('subtitle')) this.follow();
-    if (changed.has('titleAlignment') || changed.has('hasNavigation' as keyof TanreiAppBar) || changed.has('hasActions' as keyof TanreiAppBar)) this.balance();
+    if (changed.has('titleAlignment') || changed.has('hasNavigation' as keyof TanreiAppBar) || changed.has('hasActions' as keyof TanreiAppBar) || changed.has('brands' as keyof TanreiAppBar) || changed.has('compact' as keyof TanreiAppBar)) this.balance();
   }
 
   /** APB-5, APB-7, APB-12: the title (a heading) and the subtitle read after it; `hidden` keeps a copy out of the tree. */
@@ -317,17 +427,32 @@ export class TanreiAppBar extends LitElement {
     // APB-12: the expanded title is the one exposed while any of it is visible.
     const topHidden = expands && covered < 1;
     const showsExpanded = expands && (this.connected || !this.scrolled);
+    const shown = this.shownBrand;
+    const hasBrand = shown.length > 0;
+    // APB-21, APB-22: the slots stay, so that the bar hears what they hold; the ones not shown are in no box. The images
+    // are the picture of one link (or one image) named by brand-label.
+    // APB-24: a lockup's symbol stands at the wordmark's height.
+    const images = html`<span class=${classMap({ images: true, lockup: shown.length > 1 })}>${BRAND_SLOTS.map((name) => html`<slot name=${name} ?hidden=${!shown.includes(name)} @slotchange=${this.#onSlotChange}></slot>`)}</span>`;
+    const label = this.brandLabel.trim() || nothing;
+    const brand = !hasBrand
+      ? html`<span class="brand" hidden>${images}</span>`
+      : this.brandHref
+        ? html`<a part="brand" class="brand" href=${this.brandHref} aria-label=${label}>${images}</a>`
+        : html`<span part="brand" class="brand" role="img" aria-label=${label}>${images}</span>`;
     return html`
       <div part="container" class="container">
         <div
           part="top-row"
-          class=${classMap({ row: true, center: this.center, 'has-navigation': this.hasNavigation, 'has-actions': this.hasActions })}
+          class=${classMap({ row: true, center: this.center, 'has-navigation': this.hasNavigation, 'has-brand': hasBrand, 'has-actions': this.hasActions })}
         >
-          <div class="navigation"><slot name="navigation" @slotchange=${this.onSlotChange}></slot></div>
+          <div class="lead">
+            <div class="navigation"><slot name="navigation" @slotchange=${this.#onSlotChange}></slot></div>
+            ${brand}
+          </div>
           <div class="title-area" style=${styleMap({ opacity: expands && covered < 1 ? String(covered) : null })}>
             ${topTitle ? this.titleBlock(topHidden) : nothing}
           </div>
-          <div class="actions"><slot name="actions" @slotchange=${this.onSlotChange}></slot></div>
+          <div class="actions"><slot name="actions" @slotchange=${this.#onSlotChange}></slot></div>
         </div>
         ${showsExpanded
           ? html`<div part="expanded" class="expanded" aria-hidden=${covered >= 1 ? 'true' : nothing}>

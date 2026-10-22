@@ -2,6 +2,36 @@
   "system": "m3-like",
   "criteria": "not-applied",
   "because": "An imitation preset is held to fidelity to the system it imitates, not to Tanrei's accessibility criteria, in every contrast scheme. These are measurements against the fixed thresholds, kept as information: they are not warnings and not mimicry gaps.",
+  "checked": {
+    "rolePairs": 744,
+    "componentPairs": 894,
+    "schemes": {
+      "light": {
+        "rolePairs": 124,
+        "componentPairs": 149
+      },
+      "light-medium": {
+        "rolePairs": 124,
+        "componentPairs": 149
+      },
+      "light-high": {
+        "rolePairs": 124,
+        "componentPairs": 149
+      },
+      "dark": {
+        "rolePairs": 124,
+        "componentPairs": 149
+      },
+      "dark-medium": {
+        "rolePairs": 124,
+        "componentPairs": 149
+      },
+      "dark-high": {
+        "rolePairs": 124,
+        "componentPairs": 149
+      }
+    }
+  },
   "count": 0,
   "measurements": []
 }

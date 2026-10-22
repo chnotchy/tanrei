@@ -26,7 +26,7 @@ export interface TanreiWords {
   characterCountText?: string;
   /** Read by `combobox.clearLabel`, `search.clearLabel`. */
   clearLabel?: string;
-  /** Read by `callout.closeLabel`, `dialog.closeLabel`, `image-preview.closeLabel`, `popover.closeLabel`, `side-sheet.closeLabel`, `snackbar.closeLabel`. */
+  /** Read by `bottom-sheet.closeLabel`, `callout.closeLabel`, `image-preview.closeLabel`, `popover.closeLabel`, `side-sheet.closeLabel`, `snackbar.closeLabel`. */
   closeLabel?: string;
   /** Read by `date-time-picker.confirmLabel`. */
   confirmLabel?: string;
@@ -104,6 +104,10 @@ export interface TanreiWords {
   liftedText?: string;
   /** Read by `image-preview.loadingLabel`, `navigation-drawer.loadingLabel`, `skeleton.label`, `tree-view.loadingLabel`. */
   loadingLabel?: string;
+  /** Read by `marquee-text.pauseLabel`. */
+  marqueePauseLabel?: string;
+  /** Read by `marquee-text.playLabel`. */
+  marqueePlayLabel?: string;
   /** Read by `menubar.overflowLabel`. */
   menubarOverflowLabel?: string;
   /** Read by `date-time-picker.minuteLabel`. */
@@ -130,6 +134,8 @@ export interface TanreiWords {
   nextPageLabel?: string;
   /** Read by `file-upload.emptyText`. */
   noFileText?: string;
+  /** Read by `select.emptyText`. */
+  noOptionsText?: string;
   /** Read by `field.optionalText`, `field-group.optionalText`. */
   optionalText?: string;
   /** Read by `pagination.countText`. A word with places: `{page}` (number), `{count}` (number). */
@@ -188,6 +194,8 @@ export interface TanreiWords {
   targetLabel?: string;
   /** Read by `calendar.todayLabel`, `date-time-picker.todayLabel`. */
   todayLabel?: string;
+  /** Read by `toolbar.overflowLabel`. */
+  toolbarOverflowLabel?: string;
   /** Read by `date-time-picker.wheelsLabel`. */
   wheelsLabel?: string;
   /** Read by `calendar.yearViewLabel`, `date-time-picker.yearViewLabel`. */
@@ -202,7 +210,7 @@ export interface TanreiWords {
 export type WordKey = keyof TanreiWords;
 
 /** Every key of the product's words, in alphabetical order. */
-export const wordKeys: readonly WordKey[] = ['addedLabel', 'attachLabel', 'avatarGroupOverflowLabel', 'backLabel', 'breadcrumbsOverflowLabel', 'busyLabel', 'cancelLabel', 'cancelledText', 'characterCountNoLimitText', 'characterCountText', 'clearLabel', 'closeLabel', 'confirmLabel', 'copiedLabel', 'copyFailedLabel', 'copyLabel', 'dateLabel', 'decrementLabel', 'dialLabel', 'dragHandleHint', 'dragHandleLabel', 'dropZoneRefusingText', 'dropZoneText', 'duplicateEntryText', 'editLabel', 'emptyText', 'endLabel', 'entriesAddedText', 'entryAddedText', 'entryLimitText', 'entryModeLabel', 'entryRemoveLabel', 'entryRemovedText', 'expandLabel', 'externalLabel', 'fileCountErrorText', 'fileSizeErrorText', 'fileTypeErrorText', 'filesDroppedText', 'filesRefusedText', 'firstPageLabel', 'handleLabel', 'highlightedLabel', 'hourLabel', 'imageCountText', 'imageErrorText', 'incrementLabel', 'lastPageLabel', 'liftedText', 'loadingLabel', 'menubarOverflowLabel', 'minuteLabel', 'moveAfterLabel', 'moveBeforeLabel', 'moveToEndLabel', 'moveToStartLabel', 'movedText', 'nextDayLabel', 'nextImageLabel', 'nextItemLabel', 'nextMonthLabel', 'nextPageLabel', 'noFileText', 'optionalText', 'pageCountText', 'pageLabel', 'pauseLabel', 'periodLabel', 'playLabel', 'previousImageLabel', 'previousItemLabel', 'previousMonthLabel', 'previousPageLabel', 'rangeErrorText', 'rangeLabel', 'removeLabel', 'removedLabel', 'requiredText', 'resizeLabel', 'retryLabel', 'segmentEmptyText', 'selectAllLabel', 'sendLabel', 'sortedAscendingLabel', 'sortedDescendingLabel', 'startLabel', 'stepCompletedText', 'stepErrorText', 'stepPositionText', 'stopLabel', 'targetLabel', 'todayLabel', 'wheelsLabel', 'yearViewLabel', 'zoomInLabel', 'zoomOutLabel'];
+export const wordKeys: readonly WordKey[] = ['addedLabel', 'attachLabel', 'avatarGroupOverflowLabel', 'backLabel', 'breadcrumbsOverflowLabel', 'busyLabel', 'cancelLabel', 'cancelledText', 'characterCountNoLimitText', 'characterCountText', 'clearLabel', 'closeLabel', 'confirmLabel', 'copiedLabel', 'copyFailedLabel', 'copyLabel', 'dateLabel', 'decrementLabel', 'dialLabel', 'dragHandleHint', 'dragHandleLabel', 'dropZoneRefusingText', 'dropZoneText', 'duplicateEntryText', 'editLabel', 'emptyText', 'endLabel', 'entriesAddedText', 'entryAddedText', 'entryLimitText', 'entryModeLabel', 'entryRemoveLabel', 'entryRemovedText', 'expandLabel', 'externalLabel', 'fileCountErrorText', 'fileSizeErrorText', 'fileTypeErrorText', 'filesDroppedText', 'filesRefusedText', 'firstPageLabel', 'handleLabel', 'highlightedLabel', 'hourLabel', 'imageCountText', 'imageErrorText', 'incrementLabel', 'lastPageLabel', 'liftedText', 'loadingLabel', 'marqueePauseLabel', 'marqueePlayLabel', 'menubarOverflowLabel', 'minuteLabel', 'moveAfterLabel', 'moveBeforeLabel', 'moveToEndLabel', 'moveToStartLabel', 'movedText', 'nextDayLabel', 'nextImageLabel', 'nextItemLabel', 'nextMonthLabel', 'nextPageLabel', 'noFileText', 'noOptionsText', 'optionalText', 'pageCountText', 'pageLabel', 'pauseLabel', 'periodLabel', 'playLabel', 'previousImageLabel', 'previousItemLabel', 'previousMonthLabel', 'previousPageLabel', 'rangeErrorText', 'rangeLabel', 'removeLabel', 'removedLabel', 'requiredText', 'resizeLabel', 'retryLabel', 'segmentEmptyText', 'selectAllLabel', 'sendLabel', 'sortedAscendingLabel', 'sortedDescendingLabel', 'startLabel', 'stepCompletedText', 'stepErrorText', 'stepPositionText', 'stopLabel', 'targetLabel', 'todayLabel', 'toolbarOverflowLabel', 'wheelsLabel', 'yearViewLabel', 'zoomInLabel', 'zoomOutLabel'];
 
 /** The props that read each key, as `<component>.<prop>` and, for an item kind, `<component>/<kind>.<prop>`. */
 export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
@@ -217,7 +225,7 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   characterCountNoLimitText: ['text-input.counterNoLimitText'],
   characterCountText: ['text-input.counterText'],
   clearLabel: ['combobox.clearLabel', 'search.clearLabel'],
-  closeLabel: ['callout.closeLabel', 'dialog.closeLabel', 'image-preview.closeLabel', 'popover.closeLabel', 'side-sheet.closeLabel', 'snackbar.closeLabel'],
+  closeLabel: ['bottom-sheet.closeLabel', 'callout.closeLabel', 'image-preview.closeLabel', 'popover.closeLabel', 'side-sheet.closeLabel', 'snackbar.closeLabel'],
   confirmLabel: ['date-time-picker.confirmLabel'],
   copiedLabel: ['code-block.copiedLabel', 'copy-button.copiedLabel'],
   copyFailedLabel: ['code-block.copyFailedLabel', 'copy-button.failedLabel'],
@@ -256,6 +264,8 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   lastPageLabel: ['pagination.lastLabel'],
   liftedText: ['file-upload.liftedText', 'list.liftedText'],
   loadingLabel: ['image-preview.loadingLabel', 'navigation-drawer.loadingLabel', 'skeleton.label', 'tree-view.loadingLabel'],
+  marqueePauseLabel: ['marquee-text.pauseLabel'],
+  marqueePlayLabel: ['marquee-text.playLabel'],
   menubarOverflowLabel: ['menubar.overflowLabel'],
   minuteLabel: ['date-time-picker.minuteLabel'],
   moveAfterLabel: ['file-upload.moveAfterLabel', 'list.moveAfterLabel'],
@@ -269,6 +279,7 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   nextMonthLabel: ['calendar.nextMonthLabel', 'date-time-picker.nextMonthLabel'],
   nextPageLabel: ['pagination.nextLabel'],
   noFileText: ['file-upload.emptyText'],
+  noOptionsText: ['select.emptyText'],
   optionalText: ['field.optionalText', 'field-group.optionalText'],
   pageCountText: ['pagination.countText'],
   pageLabel: ['pagination.pageLabel'],
@@ -298,6 +309,7 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   stopLabel: ['chat-composer.stopLabel'],
   targetLabel: ['button.targetLabel', 'card.targetLabel', 'chip.targetLabel', 'link.targetLabel', 'link-card.targetLabel', 'list/list-item.targetLabel', 'menu/item.targetLabel', 'menubar/item.targetLabel', 'navigation-bar/destination.targetLabel', 'navigation-drawer/destination.targetLabel', 'search/result.targetLabel', 'search/result-group.targetLabel'],
   todayLabel: ['calendar.todayLabel', 'date-time-picker.todayLabel'],
+  toolbarOverflowLabel: ['toolbar.overflowLabel'],
   wheelsLabel: ['date-time-picker.wheelsLabel'],
   yearViewLabel: ['calendar.yearViewLabel', 'date-time-picker.yearViewLabel'],
   zoomInLabel: ['image-preview.zoomInLabel'],

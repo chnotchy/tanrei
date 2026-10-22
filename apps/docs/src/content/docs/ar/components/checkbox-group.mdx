@@ -2,7 +2,7 @@
 title: مجموعة خانات الاختيار
 description: تطرح سؤالًا واحدًا قد تكون له عدة أجوبة من بين خيارات قليلة معروضة كلها دفعة واحدة، وهي مجموعة من خانات الاختيار تحت تسمية واحدة، مع وصف وخطأ واحد، تحمل قائمة القيم المحدَّدة تحت اسم واحد وتستطيع أن تأتي بخانة اختيار تحدّدها كلها.
 translationOf: components/checkbox-group.mdx
-sourceHash: ea8d81d4935124793d854ad0c9c264e59b596578
+sourceHash: 320c2d0f75bef6bb336ea072b1aef4b74ee7cd0e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="checkbox-group" />
 
 <DemoFrame label="مجموعة خانات اختيار، وأخرى فيها خانة اختيار تحدّدها كلها" column>
-  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="أبلِغني عبر" supporting-text="اختر كل ما ينطبق." requirement="required" required-text="مطلوب">
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="أبلِغني عبر" supporting-text="اختر كل ما ينطبق." required required-text="مطلوب">
     <tanrei-checkbox value="email" label="البريد الإلكتروني" checked></tanrei-checkbox>
     <tanrei-checkbox value="text" label="رسالة نصية"></tanrei-checkbox>
     <tanrei-checkbox value="push" label="إشعار فوري"></tanrei-checkbox>
@@ -48,7 +48,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <form>
       <tanrei-checkbox-group name="notify" label="أبلِغني عبر"
         supporting-text="اختر كل ما ينطبق."
-        requirement="required" required-text="مطلوب"
+        required required-text="مطلوب"
         error-text="اختر طريقة واحدة على الأقل للتواصل معك.">
         <tanrei-checkbox value="email" label="البريد الإلكتروني" checked></tanrei-checkbox>
         <tanrei-checkbox value="text" label="رسالة نصية"></tanrei-checkbox>
@@ -108,7 +108,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ```html
 <tanrei-field-group label="أبلِغني عبر" supporting-text="اختر كل ما ينطبق."
-                    requirement="required" required-text="مطلوب">
+                    required required-text="مطلوب">
   <tanrei-checkbox name="notify" value="email" label="البريد الإلكتروني" checked></tanrei-checkbox>
   <tanrei-checkbox name="notify" value="text" label="رسالة نصية"></tanrei-checkbox>
   <tanrei-checkbox name="notify" value="push" label="إشعار فوري"></tanrei-checkbox>
@@ -116,7 +116,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="المجموعة نفسها مكتوبةً باليد: مجموعة حقول بداخلها خانات اختيار" column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="أبلِغني عبر" supporting-text="اختر كل ما ينطبق." requirement="required" required-text="مطلوب">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="أبلِغني عبر" supporting-text="اختر كل ما ينطبق." required required-text="مطلوب">
     <tanrei-checkbox name="notify" value="email" label="البريد الإلكتروني" checked></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="text" label="رسالة نصية"></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="push" label="إشعار فوري"></tanrei-checkbox>
@@ -154,7 +154,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-checkbox value="m" label="M" checked></tanrei-checkbox>
     <tanrei-checkbox value="l" label="L"></tanrei-checkbox>
   </tanrei-checkbox-group>
-  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="أبلِغني عبر" supporting-text="اختر كل ما ينطبق." requirement="required" required-text="مطلوب" error error-text="هذا الرقم لا يستقبل الرسائل النصية. اختر طريقة أخرى، أو غيّر الرقم.">
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="أبلِغني عبر" supporting-text="اختر كل ما ينطبق." required required-text="مطلوب" error error-text="هذا الرقم لا يستقبل الرسائل النصية. اختر طريقة أخرى، أو غيّر الرقم.">
     <tanrei-checkbox value="email" label="البريد الإلكتروني"></tanrei-checkbox>
     <tanrei-checkbox value="text" label="رسالة نصية" checked></tanrei-checkbox>
     <tanrei-checkbox value="push" label="إشعار فوري"></tanrei-checkbox>
@@ -174,7 +174,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 | الجانب | من مجموعة الحقول | من خانات الاختيار | ما للمجموعة نفسها |
 | --- | --- | --- | --- |
-| الخصائص | `label`، `labelHidden`، `supportingText`، `errorText`، `error`، `disabled`، `requirement`، `requiredMark`، `requiredText`، `optionalText`، `orientation` | الخصائص `value` و `label` و `disabled` لكل خانة اختيار، على الخانة نفسها | `value`، `selectAllLabel` |
+| الخصائص | `label`، `labelHidden`، `supportingText`، `errorText`، `error`، `disabled`، `required`، `optional`، `requiredMark`، `requiredText`، `optionalText`، `orientation` | الخصائص `value` و `label` و `disabled` لكل خانة اختيار، على الخانة نفسها | `value`، `selectAllLabel` |
 | الأحداث | — | لا شيء: خانة الاختيار التي في مجموعة لا تصدر حدثًا من عندها | `change` |
 | رموز التصميم | `comp.field-group.*` | `comp.checkbox.*` | لا شيء |
 
@@ -201,7 +201,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - جذر الظل (shadow root) في العنصر فيه عنصر `<tanrei-field-group>` حول خانة تحديد الكل، ما دامت `select-all-label` معطاة، وحول منفذ. وخانات الاختيار تبقى عناصرك الفرعية أنت. واستيراد العنصر يعرّف العضوين كليهما.
 - الخاصية `value` خاصية للعنصر فقط: مصفوفة، تُنسخ عند الدخول وعند الخروج. وليست هناك خاصية HTML (attribute) باسم `value`، لأن القائمة في خاصية HTML تحتاج إلى فاصل قد تحويه قيمة، ولأن في HTML هيئة لذلك سلفًا: الخاصية `checked` على كل عنصر فرعي.
 - خانة الاختيار التي ليست لها خاصية HTML `value` ولا قيمة معيَّنة لا قيمة لها: فالقيمة «`on`» التي ترسلها خانة اختيار مجرَّدة لا تُقرأ في مجموعة. تُرسم غير محدَّدة، وتبلّغ بنيات التنقيح (debug) عنها.
-- العنصر مرتبط بالنماذج (form-associated). يأخذ `name` و `form`، ويرسل مُدخلة واحدة تحت `name` لكل قيمة، وهو ما ترسله خانات اختيار أصلية لها اسم واحد. وخانات الاختيار فيه لا ترسل شيئًا، أيًّا كان `name` الذي تحمله. ويعود عند إعادة الضبط إلى قيمته الأولى، ويتبع عنصر `<fieldset>` المعطَّل، ويبلّغ بأن القيمة ناقصة ما دامت `requirement` بالقيمة `required` والقائمة فارغة. والرسالة هي `error-text`، وإلا فنص المطلوب، وإلا فقيمة `label`: أعطِ `error-text` من البداية، لا حين تُعيَّن `error` فقط.
+- العنصر مرتبط بالنماذج (form-associated). يأخذ `name` و `form`، ويرسل مُدخلة واحدة تحت `name` لكل قيمة، وهو ما ترسله خانات اختيار أصلية لها اسم واحد. وخانات الاختيار فيه لا ترسل شيئًا، أيًّا كان `name` الذي تحمله. ويعود عند إعادة الضبط إلى قيمته الأولى، ويتبع عنصر `<fieldset>` المعطَّل، ويبلّغ بأن القيمة ناقصة ما دامت `required` معيَّنة والقائمة فارغة. والرسالة هي `error-text`، وإلا فنص المطلوب، وإلا فقيمة `label`: أعطِ `error-text` من البداية، لا حين تُعيَّن `error` فقط.
 - الحدث `change` من النوع CustomEvent، و `detail.value` فيه نسخة من القائمة؛ ويصدر الحدث `input` قبله. والمستمع الموضوع على خانة اختيار داخل المجموعة لا يسمع أيًّا منهما.
 - الأجزاء: `field-group` هو الإطار، ولأجزائه هنا الأسماء نفسها التي لها في المستوى الأدنى: `label`، `requirement-label`، `supporting-text`، `error-text`. والجزء `select-all` هو خانة تحديد الكل، وأجزاؤها `select-all-container` و `select-all-box` و `select-all-mark` و `select-all-label`. وخانات الاختيار التي من عندك تُنسَّق كما تُنسَّق في أي مكان، بالمحدِّد `tanrei-checkbox::part(…)`.
 - العنصر نفسه غير قابل للتركيز. فالدالة `focus()` تذهب إلى أول خانة اختيار غير معطَّلة، وعنصر `<label for>` من عند الصفحة ينقل التركيز إليها.

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// The published package carries a bundled server and its own copy of the vocabulary (dist/vocabulary): tokens/,
-// tanrei.config.json and the mimicry-gaps registry. Inside the Tanrei monorepo the sources are used directly
-// when there is no dist/, or when TANREI_MCP_FROM_SOURCE is set.
+// The published package carries a bundled server and its own copy of the vocabulary (dist/vocabulary): tokens/, the
+// component specs and catalog, tanrei.config.json and the mimicry-gaps registry. Inside the Tanrei monorepo the
+// sources are used directly when there is no dist/, or when TANREI_MCP_FROM_SOURCE is set.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

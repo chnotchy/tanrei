@@ -1,5 +1,5 @@
 {
-  "$comment": "What a registry shows of each npm package beside its name and description, read by packages/tools/src/npm-metadata.js (`pnpm generate`), which writes `homepage`, `bugs`, `keywords` and, for an MCP server, `mcpName` into the package's package.json. Keyed by the package's directory under packages/. `docs` is the package's page on the docs site (tanrei.config.json `site`), `keywords` its search words; the namespace is added to them by the generator. `mcpServer`: the package is an MCP server, named in the MCP registry as io.github.<the repository's owner>/<the namespace>.",
+  "$comment": "What a registry shows of each npm package beside its name and description, read by packages/tools/src/npm-metadata.js (`pnpm generate`), which writes `homepage`, `bugs`, `keywords` and, for an MCP server, `mcpName` into the package's package.json. Keyed by the package's directory under packages/. `docs` is the package's page on the docs site (tanrei.config.json `site`), `keywords` its search words; the namespace is added to them by the generator. `mcpServer`: the package is an MCP server, named in the MCP registry as io.github.<the repository's owner>/<the namespace>; its `title` and `description` (100 characters at most, the registry's limit) are those of its registry entry, which the generator writes to the package's server.json.",
   "packages": {
     "web": {
       "docs": "/getting-started/web/",
@@ -12,7 +12,10 @@
     "mcp": {
       "docs": "/getting-started/your-design-system/",
       "keywords": ["mcp", "mcp-server", "model-context-protocol", "design-system", "design-tokens", "ai-agents"],
-      "mcpServer": true
+      "mcpServer": {
+        "title": "Tanrei",
+        "description": "Lets an AI agent search, resolve and explain Tanrei's design tokens and write a valid system layer."
+      }
     },
     "token-engine": {
       "docs": "/getting-started/your-design-system/",

@@ -2,7 +2,7 @@
 title: फ़ाइल पिकर
 description: लोगों को प्लैटफ़ॉर्म के अपने पिकर से फ़ाइलें चुनने देता है, एक बटन से और, जहाँ जगह हो, ऐसी जगह से जिस पर फ़ाइलें ड्रैग करके भी छोड़ी जा सकती हैं। वह चुनाव से पहले सीमाएँ शब्दों में बताता है, जो चुना गया उसे परखता है, और आपके प्रॉडक्ट को वे फ़ाइलें सौंपता है जो उसने स्वीकार कीं और वे जो उसने अस्वीकार कीं। वह कुछ नहीं रखता, कोई लिस्ट नहीं दिखाता और किसी फ़ॉर्म का हिस्सा नहीं बनता।
 translationOf: components/file-picker.mdx
-sourceHash: ac3dfd53a1c0d1fa06df9c4d546b5bdcc1b5e3aa
+sourceHash: 7b60eb18075b635e3d10042c71ae794088afa2bf
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -81,7 +81,9 @@ import Callout from '../../../../components/Callout.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Button, Field, FilePicker } from '@tanrei/react';
+    // उन्नत कंपोनेंट, जिससे दूसरे कंपोनेंट बनते हैं, advanced एंट्री से इम्पोर्ट होता है।
+    import { Button, Field } from '@tanrei/react';
+    import { FilePicker } from '@tanrei/react/advanced';
 
     <Field label="लेयर फ़ाइल" error={!!problem} errorText={problem}>
       <FilePicker accept={['.json']} constraintsText="एक JSON फ़ाइल"
@@ -169,7 +171,7 @@ React में `judge()` ref पर होता है: `ref.current.judge(fil
 जब फ़ॉर्म लेबल, सहायता, त्रुटि या ज़रूरी का निशान दिखाता है, तब फ़ाइल पिकर को किसी [फ़ील्ड](/hi/components/field/) में रखें। फ़ील्ड उन्हें दिखाता है और फ़ाइल पिकर को देता है, और तब पिकर के ट्रिगर का नाम और विवरण उन्हीं से आता है।
 
 ```html
-<tanrei-field label="अटैचमेंट" requirement="required" required-text="ज़रूरी"
+<tanrei-field label="अटैचमेंट" required required-text="ज़रूरी"
               error error-text="10 MB या उससे छोटी PDF चुनें।">
   <tanrei-file-picker accept=".pdf" max-size="10000000"
                       constraints-text="PDF, 10 MB तक" selection-text="कोई फ़ाइल नहीं चुनी गई">
@@ -178,7 +180,7 @@ React में `judge()` ref पर होता है: `ref.current.judge(fil
 </tanrei-field>
 ```
 
-फ़ाइल पिकर कुछ सबमिट नहीं करता। उसका न `name` है, न कोई मान, और `required` सिर्फ़ सहायक तकनीक को बताता है। कोई फ़ाइल छूटी है या नहीं, यह बताना उस कंपोनेंट का काम है जो फ़ाइलें रखता है: आपका कोड, या [फ़ाइल अपलोड](/hi/components/file-upload/), जो एक फ़ॉर्म कंट्रोल है।
+फ़ाइल पिकर कुछ सबमिट नहीं करता। उसका न `name` है, न कोई मान, और `required` सिर्फ़ सहायक तकनीक को बताता है। कोई फ़ाइल छूटी है या नहीं, यह बताना उस कंपोनेंट का काम है जो फ़ाइलें रखता है: आपका कोड, या [फ़ाइल अपलोड](/hi/components/file-upload/), जो एक फ़ॉर्म कंट्रोल है। `required`, जैसा फ़ील्ड कहता है, `required` के बराबर है।
 
 ### दाएँ से बाएँ
 

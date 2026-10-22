@@ -2,7 +2,7 @@
 title: テキストフィールド
 description: 1 行のテキスト、文章に合わせて伸びるか手で大きさを変えられる複数行のテキスト、ロケールの書き方で単位ごとに入力する日付・時刻、書かれたとおりに保持するコードを入力・編集します。必須か任意かを示せるラベル、アイコン、接頭辞と接尾辞、補足テキスト、文字数カウンター、ピッカーボタンを添えられます。
 translationOf: components/text-field.mdx
-sourceHash: 80bd2e5b7b0fc36f83a6afdc3f7a86a3bbcf37b1
+sourceHash: f108ac8d052ea1953cbb471dc7611d237bf1bae7
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,11 +16,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="text-field" />
 
 :::note[仕様は改訂済み、各プラットフォームは追従待ち]
-このページは、仕様の現在の形のテキストフィールドを説明しています。ラベルをフィールドの上に置く `stacked` バリアントが既定で、`filled` と `outlined` は Material と cupertino のプリセットだけのものです。高さは 40、48、56 で、日付と時刻の種類とピッカーボタンがあります。複数行のフィールドは文章に合わせて伸びるか、グリップで大きさを変えられ（`resize`）、日付や時刻はセグメントで単位ごとに入力し、必須か任意かを示す `requirement` が `required` フラグに代わります。Web コンポーネントはすでにこのすべてに対応しており、デモもそれを示しています。フィールドはコードも保持できます（`type="code"` と、行の折り返しを決める `wrap`）。Web は実装済みで、ほかのプラットフォームはまだです。テキストフィールドは、このページで説明しているとおり、テキスト入力欄を囲むフィールドです。Web はこれも実装済みで、`required` 属性はなくなりました。SwiftUI、Compose、Flutter、React Native は上の表で「追従待ち」です。追従するまでは以前の版（既定が outlined で高さ 36 と 40、印を描かない `required` フラグがあり、`stacked` バリアント・日付や時刻の種類・ピッカーボタン・リサイズの方式はない）を提供しており、これらの例もその版のものです。
+このページは、仕様の現在の形のテキストフィールドを説明しています。ラベルをフィールドの上に置く `stacked` バリアントが既定で、`filled` と `outlined` は Material と cupertino のプリセットだけのものです。高さは 40、48、56 で、日付と時刻の種類とピッカーボタンがあります。複数行のフィールドは文章に合わせて伸びるか、グリップで大きさを変えられ（`resize`）、日付や時刻はセグメントで単位ごとに入力し、必須か任意かを示す `required` と `optional` があります。Web コンポーネントはすでにこのすべてに対応しており、デモもそれを示しています。フィールドはコードも保持できます（`type="code"` と、行の折り返しを決める `wrap`）。Web は実装済みで、ほかのプラットフォームはまだです。テキストフィールドは、このページで説明しているとおり、テキスト入力欄を囲むフィールドです。Web はこれも実装済みで、`required` 属性はなくなりました。SwiftUI、Compose、Flutter、React Native は上の表で「追従待ち」です。追従するまでは以前の版（既定が outlined で高さ 36 と 40、印を描かない `required` フラグがあり、`stacked` バリアント・日付や時刻の種類・ピッカーボタン・リサイズの方式はない）を提供しており、これらの例もその版のものです。
 :::
 
 <DemoFrame label="既定の Stacked：必須のフィールドと、ピッカーボタン付きの日付" column>
-  <tanrei-text-field label="メールアドレス" type="email" requirement="required" required-text="必須" supporting-text="サインインにだけ使います。"></tanrei-text-field>
+  <tanrei-text-field label="メールアドレス" type="email" required required-text="必須" supporting-text="サインインにだけ使います。"></tanrei-text-field>
   <tanrei-text-field label="開始日" type="date" locale="ja-JP" value="2026-09-27" picker picker-label="開始日を選択" segment-empty-text="未入力"></tanrei-text-field>
 </DemoFrame>
 
@@ -36,9 +36,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <TabItem label="Web">
     ```html
     <form>
-      <tanrei-text-field name="email" label="メールアドレス" type="email" autocomplete="email" requirement="required" required-text="必須"
+      <tanrei-text-field name="email" label="メールアドレス" type="email" autocomplete="email" required required-text="必須"
         supporting-text="サインインにだけ使います。"></tanrei-text-field>
-      <tanrei-text-field name="company" label="会社名" requirement="optional" optional-text="任意"></tanrei-text-field>
+      <tanrei-text-field name="company" label="会社名" optional optional-text="任意"></tanrei-text-field>
       <!-- 文章に合わせて 3 行から 8 行まで伸び、それを超えるとスクロールします。 -->
       <tanrei-text-field name="message" label="メッセージ" multiline min-rows="3" max-rows="8"></tanrei-text-field>
       <!-- グリップを使って、手で大きさを変えます。 -->
@@ -93,7 +93,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       value={email}
       onInput={(e) => setEmail(e.currentTarget.value)}
       onChange={() => save(email)}
-      requirement="required"
+      required
       requiredText="必須"
       error={submitted && !isValid(email)}
       errorText="メールアドレスを最後まで入力してください。"
@@ -205,14 +205,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 同じフィールドを 2 つの構成要素から自分で書いても、見た目は同じで、支援技術にとっても、同じ名前、説明、状態を持つ同じテキストボックスになります。
 
 ```html
-<tanrei-field label="メールアドレス" requirement="required" required-text="必須"
+<tanrei-field label="メールアドレス" required required-text="必須"
   supporting-text="サインインにだけ使います。">
   <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input>
 </tanrei-field>
 ```
 
 <DemoFrame label="同じフィールドを自分で書いたもの。フィールドの中にテキスト入力欄があります" column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="メールアドレス" requirement="required" required-text="必須" supporting-text="サインインにだけ使います。">
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="メールアドレス" required required-text="必須" supporting-text="サインインにだけ使います。">
     <tanrei-text-input type="email"></tanrei-text-input>
   </tanrei-field>
 </DemoFrame>
@@ -256,9 +256,9 @@ input.addEventListener('input', () => (field.countText = input.countText));
 </DemoFrame>
 
 <DemoFrame label="必須と任意：タグと、アスタリスク" plain column>
-  <tanrei-text-field label="メールアドレス" type="email" requirement="required" required-text="必須"></tanrei-text-field>
-  <tanrei-text-field label="会社名" requirement="optional" optional-text="任意"></tanrei-text-field>
-  <tanrei-text-field label="メールアドレス" type="email" requirement="required" required-mark="asterisk"></tanrei-text-field>
+  <tanrei-text-field label="メールアドレス" type="email" required required-text="必須"></tanrei-text-field>
+  <tanrei-text-field label="会社名" optional optional-text="任意"></tanrei-text-field>
+  <tanrei-text-field label="メールアドレス" type="email" required required-mark="asterisk"></tanrei-text-field>
 </DemoFrame>
 
 <DemoFrame label="複数行：文章に合わせて伸びる、グリップで変える（縦、縦横）、固定" plain column>
@@ -296,7 +296,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 | 観点 | フィールドから | テキスト入力欄から |
 | --- | --- | --- |
-| プロパティ | `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`requirement`、`requiredMark`、`requiredText`、`optionalText` | それ以外のすべて。`variant`、`size`、`type`、`value`、`placeholder`、`readOnly`、複数行とリサイズ、`wrap`、`maxLength`、`counter`、接頭辞と接尾辞、`autocomplete`、日付と時刻に関するすべて |
+| プロパティ | `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`required`、`optional`、`requiredMark`、`requiredText`、`optionalText` | それ以外のすべて。`variant`、`size`、`type`、`value`、`placeholder`、`readOnly`、複数行とリサイズ、`wrap`、`maxLength`、`counter`、接頭辞と接尾辞、`autocomplete`、日付と時刻に関するすべて |
 | イベント | — | `input`、`change`、`action`、`pickerRequest`、`entryError` |
 | スロット | `label-icon` | `leading-icon`、`trailing-icon` |
 | トークン | `comp.field.*` | ボックスは `comp.input-box.*`（すべての入力ボックスが読みます）。テキスト入力欄だけが描く部分は `comp.text-input.*` |
@@ -318,12 +318,12 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 - 要素のシャドウルートにあるのは、`<tanrei-text-input>` を入れた `<tanrei-field>` だけです。要素をインポートすると、2 つとも定義されます。
 - 要素は、置かれた場所の幅いっぱいに広がるブロックです。ブラウザーのテキスト入力欄と同じ幅のインラインのボックスではありません。
-- 要素はフォームに関連付けられます。`name` と `form` を受け取り、値を送信します（無効の間は何も送信しません）。リセットすると `value` 属性の値に戻り、ページの移動で復元され、無効な `<fieldset>` に従い、`requirement` が `required` で値が空の間は、値がないことを報告します。2 つの構成要素がフォームに項目を加えることはありません。1 行のフィールドで Enter を押すと、要素のフォームの既定のボタンが押されます。`action` をキャンセルすると押されません。
+- 要素はフォームに関連付けられます。`name` と `form` を受け取り、値を送信します（無効の間は何も送信しません）。リセットすると `value` 属性の値に戻り、ページの移動で復元され、無効な `<fieldset>` に従い、`required` が設定されていて値が空の間は、値がないことを報告します。2 つの構成要素がフォームに項目を加えることはありません。1 行のフィールドで Enter を押すと、要素のフォームの既定のボタンが押されます。`action` をキャンセルすると押されません。
 - `input`、`change`、`action`、`pickerrequest`、`entryerror` は、テキスト入力欄のイベントです。イベントのターゲットはこの要素で、どのリスナーでも `event.target.value` が新しい値です。detail の型は入力欄のもので、`TanreiTextInputActionDetail`、`TanreiTextInputPickerRequestDetail`、`TanreiTextInputEntryErrorDetail` です。
-- パーツ: `field` と `text-input` が 2 つの構成要素です。構成要素のパーツは、1 つ下の階層と同じ名前です。`label-icon`、`supporting-text`、`counter` と、`container`、`outline`、`active-indicator`、`input`、`segment`、`prefix`、`suffix`、`leading-icon`、`trailing-icon`、`picker-button`、`resize-grip` です。`label` と `requirement-label` は、どちらの構成要素が描いていても、描かれているほうを指します。`field-label`、`text-input-label`、`field-requirement-label`、`text-input-requirement-label` は、片方の構成要素のものを指します。
+- パーツ: `field` と `text-input` が 2 つの構成要素です。構成要素のパーツは、1 つ下の階層と同じ名前です。`label-icon`、`supporting-text`、`counter` と、`container`、`outline`、`active-indicator`、`input`、`segment`、`prefix`、`suffix`、`leading-icon`、`trailing-icon`、`picker-button`、`resize-handle` です。`label` と `requirement-label` は、どちらの構成要素が描いていても、描かれているほうを指します。`field-label`、`text-input-label`、`field-requirement-label`、`text-input-requirement-label` は、片方の構成要素のものを指します。
 - 要素そのものはフォーカスを受け取らず、ロールもありません。`focus()` は入力欄に移ります。ラベルの行、ボックス、浮き上がるラベルを押すと、入力欄にフォーカスが移ります。補足、エラーテキスト、文字数、行とボックスの間のすき間を押しても、何も起こりません。
 - 名前は `label` で付けます。ラベルを描かないときは `label-hidden` を併せて指定します。`aria-label` はここでは何にも名前を付けないので、使いません。
-- 属性は構成要素のものと同じです。`supporting-text`、`error-text`、`min-rows`、`no-wrap` などのケバブケースで、`readonly`、`maxlength`、`autocomplete`、`min`、`max` は HTML の名前のままです。`required` 属性はありません。`requirement="required"` と書きます。
+- 属性は構成要素のものと同じです。`supporting-text`、`error-text`、`min-rows`、`no-wrap` などのケバブケースで、`readonly`、`maxlength`、`autocomplete`、`min`、`max` は HTML の名前のままです。`required` 属性はありません。`required` と書きます。
 - 要素が定義されるまでは、大きさがありません。高さを確保してください。
 
 ## ガイドライン
@@ -344,7 +344,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 既定値はプリセットを含むすべてのシステムで stacked です。Material の浮き上がるラベルを使いたい Material のプロダクトは、フィールドの `variant` を `outlined` か `filled` に設定します。Tanrei システムでも `filled` と `outlined` は動作しますが、開発時に警告が出ます。
 
-`medium`（48）は密度を上げたフィールド、`large`（56）は標準のフィールドです。絞り込みや密度の高い設定画面には `medium`、サインインや購入手続きのフォームには `large` が向いています。`small`（40）は小さなセレクトと同じ高さで、アプリバー、ツールバー、コントロールが密に並ぶ行に置くフィールドのためのものです。入力の文字は 14 になります。既定のシステムでは、ほかの 2 つのサイズでは入力の文字は 16 です。高さは最小値で、文字を大きくするとフィールドも大きくなり、当たり判定はいつも最小ターゲットを満たします。
+`medium`（40）は密度を上げたフィールド、`large`（56）は標準のフィールドです。絞り込みや密度の高い設定画面には `medium`、サインインや購入手続きのフォームには `large` が向いています。`small`（32）は小さなセレクトと同じ高さで、アプリバー、ツールバー、コントロールが密に並ぶ行に置くフィールドのためのものです。入力の文字は 14 になります。既定のシステムでは、ほかの 2 つのサイズでは入力の文字は 16 です。高さは最小値で、文字を大きくするとフィールドも大きくなり、当たり判定はいつも最小ターゲットを満たします。
 
 ### ラベルとプレースホルダー
 
@@ -354,7 +354,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 ### 必須と任意
 
-`requirement` は、フォームがそのフィールドに何を求めるかを表します。`none`（既定）、`required`、`optional` のいずれかです。フィールドが必須でも任意でもあることはないので、3 つの値を持つ 1 つの設定になっています。
+`required` と `optional` は、フォームがそのフィールドに何を求めるかを表します。`required` は答えが必要なこと、`optional` は空のままでもよいことです。フィールドが必須でも任意でもあることはありません。両方を設定すると必須になります。
 
 - **必須** は、フィールドを必須として伝え、ラベルの横に必須の印を描きます。
 - **任意** は、任意のタグを描き、その言葉をフィールドの説明に加えます。
@@ -365,7 +365,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 フォームの中で少ないほうに印を付けます。ほとんどが必須なら任意の項目に、その逆なら必須の項目に付けます。アスタリスクを使うなら（Filled と Outlined のフィールドは、必須のフィールドにいつも使います）、その意味をフォームの中、上のほうで一度書いておきます（「* 必須」）。アスタリスクは言葉ではなく慣習で、誰もが知っているわけではありません。
 
-`requirement` は、以前の版の `required` フラグに代わるものです。Web では、`required` 属性も `required` プロパティもなくなりました。`requirement="required"` と書きます。必須だったフィールドには、印も表示されるようになります。印がいらない箇所では、`requiredMark` を `none` にします。
+必須のフィールドには印が表示されます。印がいらない箇所では、`requiredMark` を `none` にします。
 
 ### 補足テキストとエラーテキスト
 
@@ -459,7 +459,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 - 通貨記号や単位など、値に含めない固定のテキストは `prefixText` と `suffixText` に入れます。
 - 入力を消す、パスワードを表示するといったアクションは、名前を付けた自前のアイコンだけのボタンとして末尾のスロットに置きます。フィールドに組み込まれているアクションはピッカーボタンだけで、利用者側のアクションのあとに並びます。
 - 数行にわたりうるテキストには `multiline` を使います。既定では `minRows` から `maxRows` まで伸び、それを超えるとスクロールします。
-- フォームが求めるフィールドには `requirement` を設定します。そのうえで、送信時に何が足りないかを `errorText` で伝えます。
+- フォームが求めるフィールドには `required` を設定します。そのうえで、送信時に何が足りないかを `errorText` で伝えます。
 - 機械が読む値（パターン、キー、設定の断片）には `type="code"` を使い、何を書くべきかをラベルと `supportingText` で伝えます。
 
 ### 非推奨
@@ -469,7 +469,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 - 1 つのフォームでバリアントを混ぜない。
 - テキストフィールドをフィールドの中に入れない。すでにフィールドで、デバッグビルドがそのことを報告します。フィールドが囲むコントロールは、テキスト入力欄です。
 - 日付を `text` のフィールドと自前の解析で扱わない。`date` を使えば、ロケールの並び順、セグメントのキー操作、入力エラーが付いてきます。
-- `requirement` を設定したうえで、ラベルにも「（必須）」と書かない。印がすでに伝えており、スクリーンリーダーでは 2 度読まれます。
+- `required` を設定したうえで、ラベルにも「（必須）」と書かない。印がすでに伝えており、スクリーンリーダーでは 2 度読まれます。
 - 手で大きさを変えるフィールドを、長い文章を見る唯一の手段にしない。開いた時点で役に立つだけの `minRows` を設定します。
 - 変えられない値を見せるためだけにフィールドを無効にしない。`readOnly` にすれば、フォーカス、選択、コピーはできます。
 - `::part(input)` や自前のスタイルで、テキストフィールドに外からコード用の書体を当てない。要素に `dir` や `spellcheck` を足すこともしない。`type="code"` を使います。書体だけを変えたフィールドは、見た目は正しくても、入力された文字を修正してしまいます。
@@ -528,7 +528,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 - 値の内容を表すラベルを書き、隠す場合も必ず設定します。
 - 直し方が分かるエラーテキストを書き、`error` は利用者側で設定します。SwiftUI と React Native では、そのテキストがエラーを耳で知る唯一の手段です。日付や時刻のフィールドでは、`invalidText` と `unavailableText` も書き、`segmentEmptyText` を渡します。これがなければ、空のセグメントは値なしとして読み上げられます。
 - ピッカーボタンの `pickerLabel` をプロダクトの言語で設定し、`pickerRequest` を受けてピッカーを開きます。
-- `requirement` を設定し、`requiredText` と `optionalText` を渡します。フィールドに書くか、`setWords({ requiredText, optionalText })` でプロダクト全体に一度だけ渡します。`resizeLabel` と `segmentEmptyText` も同じように渡せます。Web では Tanrei は言葉を同梱しません。足りない言葉は開発時に報告されます。[プロダクトの言葉](/ja/foundations/words/)を参照してください。SwiftUI、Compose、Flutter、React Native が追従するまで、これらのフィールドは印を描かず、SwiftUI と React Native は必須の状態を読み上げません。これらのプラットフォームでは、必須であることをラベルに書きます。
+- `required` を設定し、`requiredText` と `optionalText` を渡します。フィールドに書くか、`setWords({ requiredText, optionalText })` でプロダクト全体に一度だけ渡します。`resizeLabel` と `segmentEmptyText` も同じように渡せます。Web では Tanrei は言葉を同梱しません。足りない言葉は開発時に報告されます。[プロダクトの言葉](/ja/foundations/words/)を参照してください。SwiftUI、Compose、Flutter、React Native が追従するまで、これらのフィールドは印を描かず、SwiftUI と React Native は必須の状態を読み上げません。これらのプラットフォームでは、必須であることをラベルに書きます。
 - リサイズのグリップに、`resizeLabel` で名前を付けます。これがなくてもグリップは描かれて動作しますが、名前を持ちません。
 - 単位や通貨は値に含めず、`prefixText` か `suffixText` に入れます。そうすれば入力する必要がなく、値と一緒に読み上げられます。
 - コードのフィールドでは、何を書くべきかを `label` と `supportingText` で伝え（「Webhook の本文」「JSON」）、何が誤っているかを `errorText` で伝えます。フィールドはその言語を知りません。

@@ -2,7 +2,7 @@
 title: सेगमेंटेड बटन
 description: लोगों को दो से पाँच संबंधित विकल्पों में से एक या कई चुनने देता है, जो एक ही कंट्रोल के जुड़े हुए सेगमेंट के रूप में अगल-बग़ल बने होते हैं।
 translationOf: components/segmented-button.mdx
-sourceHash: 064c374a356e8a7e012dab0484023992e0c8168c
+sourceHash: 6af9719e03456372600f15965041cf5525e4cc2b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -14,10 +14,6 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## अवलोकन
 
 <ComponentAvailability name="segmented-button" />
-
-:::note[Tanrei सिस्टम में नहीं]
-डिफ़ॉल्ट Tanrei सिस्टम सेगमेंटेड बटन नहीं देता; Material और cupertino प्रीसेट इसे देते हैं। Tanrei में कई में से एक का चुनाव, जहाँ वह नीचे का कॉन्टेंट बदलता है वहाँ [टैब](/hi/components/tabs/) से होता है, और जहाँ वह एक मान सेट करता है वहाँ [रेडियो बटन](/hi/components/radio-button/) से; जो बटन अलग-अलग, अपने आप टॉगल होते हैं, वे एक [बटन ग्रुप](/hi/components/button-group/) हैं। कंपोनेंट फिर भी हर सिस्टम में काम करता है, और जहाँ सिस्टम इसे छोड़ देता है वहाँ डेवलपमेंट में एक चेतावनी देता है। इस पेज के डेमो `m3-like` प्रीसेट में बने हैं, जो इसे देने वाला एक सिस्टम है।
-:::
 
 <DemoFrame label="एकल चयन, आइकन के साथ, सिर्फ़ आइकन" system="m3-like">
   <tanrei-segmented-button label="अवधि" value="week">
@@ -67,7 +63,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Segment, SegmentedButton } from '@tanrei/react';
+    // डिफ़ॉल्ट सिस्टम सेगमेंटेड बटन को शामिल नहीं करता: यह m3-like, m3-expressive-like और cupertino की एंट्री में है, और /all में।
+    import { Segment, SegmentedButton } from '@tanrei/react/m3-like';
 
     // एकल चयन के लिए detail { value } है, और कई के लिए { values }।
     <SegmentedButton label="अवधि" value={range} onChange={(e) => 'value' in e.detail && setRange(e.detail.value)}>

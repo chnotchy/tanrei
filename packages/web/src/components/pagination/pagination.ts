@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { wordPlaces } from '../../generated/words.js';
 import {
@@ -16,6 +16,7 @@ import { ambientLocale } from '../../primitives/locale-date.js';
 import { fillPlaces, reportPlaces } from '../../primitives/places.js';
 import { WordsController } from '../../primitives/words.js';
 import { AXES, styles } from './pagination.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** numbered: the page numbers, drawn compact where they do not fit; compact: the controls and the sentence alone. */
 export type TanreiPaginationVariant = 'numbered' | 'compact';
@@ -107,7 +108,7 @@ export function pageItems(page: number, count: number, siblings: number, boundar
  * @csspart count - The compact form's sentence.
  * @fires {CustomEvent<TanreiPaginationChangeDetail>} change - The person asked for another page: `detail.page`. Fired before the page changes and before a link is followed; cancelable — `preventDefault()` keeps the page and opens nothing.
  */
-export class TanreiPagination extends LitElement {
+export class TanreiPagination extends TanreiElement {
   static override styles = styles;
 
   static override properties: PropertyDeclarations = {
@@ -195,8 +196,8 @@ export class TanreiPagination extends LitElement {
   private readonly pressControllers = new Set<{ element: HTMLElement; press: PressController }>();
   /** PGN-19: where focus goes after the page changed, and whether it shows its ring. */
   private focusAfter: { control: Control | null; ring: boolean | undefined } | null = null;
-  /** PGN-18: the current page that was drawn last. */
-  private drawnPage = 0;
+  /** PGN-18: the page or control each item element drew last. */
+  private readonly drawnAs = new WeakMap<HTMLElement, string>();
 
   override disconnectedCallback() {
     super.disconnectedCallback();
@@ -415,13 +416,17 @@ export class TanreiPagination extends LitElement {
   protected override updated(changed: PropertyValues<this>) {
     if (this.pages < 1) this.setAttribute('data-empty', '');
     else this.removeAttribute('data-empty');
-    // PGN-18: a new current page is drawn at once — no item recolors over the state motion for it.
-    const row = this.renderRoot.querySelector('.row');
-    if (row && this.drawnPage && this.drawnPage !== this.current) {
-      row.classList.add('still');
-      requestAnimationFrame(() => requestAnimationFrame(() => row.classList.remove('still')));
+    // PGN-18: an item that draws the page or control it drew before changes between its states over the state motion
+    // (the page that was current, the page that becomes current, a control that is now disabled); an element the row
+    // now uses for another page is that page's at once, so no colour of the page it drew before fades into it.
+    for (const item of this.renderRoot.querySelectorAll<HTMLElement>('.row .item')) {
+      const now = item.dataset.control ?? `page ${item.dataset.page}`;
+      const was = this.drawnAs.get(item);
+      this.drawnAs.set(item, now);
+      if (was === undefined || was === now) continue;
+      item.classList.add('still');
+      requestAnimationFrame(() => requestAnimationFrame(() => item.classList.remove('still')));
     }
-    this.drawnPage = this.current;
     this.observe();
     this.decide();
     for (const entry of this.pressControllers) {

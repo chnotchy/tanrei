@@ -1,6 +1,7 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html } from 'lit';
 import { AvailabilityController, hostAria, report } from '../../primitives/index.js';
 import { INSETS, LINE_CAPS, LINE_STYLES, ORIENTATIONS, styles } from './divider.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** `horizontal` separates stacked content; `vertical` separates content in a row. */
 export type TanreiDividerOrientation = 'horizontal' | 'vertical';
@@ -64,7 +65,7 @@ function roundDashes(dashes: [number, number][], t: number, drawn: number, verti
  * @tag tanrei-divider
  * @csspart line - The drawn line (the inset stretch is outside it): a bordered box for solid, dotted and dashed, an SVG for wavy.
  */
-export class TanreiDivider extends LitElement {
+export class TanreiDivider extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'divider');
   static override styles = styles;
 

@@ -1,0 +1,2388 @@
+{
+  "$schema": "../schema/system.schema.json",
+  "id": "core",
+  "name": "Core",
+  "description": "The root layer every design system extends. It values the vocabulary: the palettes, the color roles drawn from them and the per-state rules of the components. It leaves no component out; a system chooses its components in its own layer.",
+  "specVersion": "tanrei-2026.2",
+  "palettes": {
+    "neutral": {
+      "description": "Surfaces, text and the monochrome primary. Zero chroma.",
+      "source": {
+        "hue": 0,
+        "chroma": 0
+      }
+    },
+    "error": {
+      "source": {
+        "seed": "#d93036"
+      }
+    },
+    "success": {
+      "source": {
+        "seed": "#1f883d"
+      }
+    },
+    "warning": {
+      "source": {
+        "seed": "#b86e00"
+      }
+    },
+    "info": {
+      "source": {
+        "seed": "#3b6fd4"
+      }
+    },
+    "accent": {
+      "description": "Tanrei's one chromatic voice: the keyboard focus ring. Declared by this system rather than fixed in the vocabulary, because which accent a product has — or whether it has one — is that product's choice.",
+      "source": {
+        "seed": "#30a3f0"
+      },
+      "roles": "intent"
+    },
+    "error-quiet": {
+      "description": "The hue of the error palette at a low chroma: the faint tint a message of that status stands on, and the deep tone of what is drawn on it. The error palette keeps its full chroma for the status color itself.",
+      "source": {
+        "hue": 22,
+        "chroma": 16
+      }
+    },
+    "success-quiet": {
+      "description": "The hue of the success palette at a low chroma: the faint tint a message of that status stands on, and the deep tone of what is drawn on it. The success palette keeps its full chroma for the status color itself.",
+      "source": {
+        "hue": 150,
+        "chroma": 16
+      }
+    },
+    "warning-quiet": {
+      "description": "The hue of the warning palette at a low chroma: the faint tint a message of that status stands on, and the deep tone of what is drawn on it. The warning palette keeps its full chroma for the status color itself.",
+      "source": {
+        "hue": 66,
+        "chroma": 16
+      }
+    },
+    "info-quiet": {
+      "description": "The hue of the info palette at a low chroma: the faint tint a message of that status stands on, and the deep tone of what is drawn on it. The info palette keeps its full chroma for the status color itself.",
+      "source": {
+        "hue": 268,
+        "chroma": 16
+      }
+    },
+    "syntax-keyword": {
+      "description": "A purple: the language's own words — its keywords, its modifiers, its at-rules. Declared by this system without roles: it colors code and nothing else.",
+      "source": {
+        "hue": 315,
+        "chroma": 64
+      }
+    },
+    "syntax-string": {
+      "description": "A green: text quoted in the code. It is near the hue of the success palette and is not that palette: a system that re-values success does not move it, and no status role reads it. Declared by this system without roles: it colors code and nothing else.",
+      "source": {
+        "hue": 145,
+        "chroma": 52
+      }
+    },
+    "syntax-constant": {
+      "description": "An orange: the values that are not text — numbers, booleans and null, named constants, units. Declared by this system without roles: it colors code and nothing else.",
+      "source": {
+        "hue": 55,
+        "chroma": 64
+      }
+    },
+    "syntax-function": {
+      "description": "A blue: the names of functions, and at a tone nearer the text, of properties. Declared by this system without roles: it colors code and nothing else.",
+      "source": {
+        "hue": 265,
+        "chroma": 64
+      }
+    },
+    "syntax-type": {
+      "description": "A blue-green: the names of types. Declared by this system without roles: it colors code and nothing else.",
+      "source": {
+        "hue": 200,
+        "chroma": 48
+      }
+    },
+    "syntax-tag": {
+      "description": "A red: what markup and style sheets address — an element's name, a selector. It is near the hue of the error palette and is not that palette: a system that re-values error does not move it, and no status role reads it. Declared by this system without roles: it colors code and nothing else.",
+      "source": {
+        "hue": 20,
+        "chroma": 70
+      }
+    }
+  },
+  "tokens": {
+    "tanrei.sys.color.primary": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": {
+          "light": [
+            10,
+            6,
+            0
+          ],
+          "dark": [
+            93,
+            96,
+            100
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.on-primary": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": {
+          "light": [
+            100
+          ],
+          "dark": [
+            5
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.primary-container": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": {
+          "light": [
+            94,
+            92,
+            90
+          ],
+          "dark": [
+            15,
+            17,
+            19
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.on-primary-container": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": {
+          "light": [
+            10,
+            6,
+            0
+          ],
+          "dark": [
+            93,
+            96,
+            100
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.inverse-primary": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": {
+          "light": [
+            90
+          ],
+          "dark": [
+            10
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.secondary": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": {
+          "light": [
+            35,
+            28,
+            20
+          ],
+          "dark": [
+            75,
+            82,
+            90
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.on-secondary": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": {
+          "light": [
+            100
+          ],
+          "dark": [
+            10
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.secondary-container": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": {
+          "light": [
+            94,
+            92,
+            90
+          ],
+          "dark": [
+            14,
+            16,
+            18
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.on-secondary-container": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": {
+          "light": [
+            15,
+            10,
+            0
+          ],
+          "dark": [
+            90,
+            95,
+            100
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.surface": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": {
+          "light": [
+            100
+          ],
+          "dark": [
+            3
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.surface-dim": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": {
+          "light": [
+            95
+          ],
+          "dark": [
+            0
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.surface-bright": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": {
+          "light": [
+            100
+          ],
+          "dark": [
+            12
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.surface-container-lowest": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": {
+          "light": [
+            100
+          ],
+          "dark": [
+            1
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.surface-container-low": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": {
+          "light": [
+            98
+          ],
+          "dark": [
+            5
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.surface-container": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": {
+          "light": [
+            97
+          ],
+          "dark": [
+            7
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.surface-container-high": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": {
+          "light": [
+            96
+          ],
+          "dark": [
+            10
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.surface-container-highest": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": {
+          "light": [
+            94
+          ],
+          "dark": [
+            13
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.surface-variant": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": {
+          "light": [
+            94
+          ],
+          "dark": [
+            13
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.on-surface": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": {
+          "light": [
+            10,
+            6,
+            0
+          ],
+          "dark": [
+            93,
+            96,
+            100
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.on-surface-variant": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": {
+          "light": [
+            32,
+            25,
+            15
+          ],
+          "dark": [
+            66,
+            75,
+            85
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.outline": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": {
+          "light": [
+            55,
+            46,
+            32
+          ],
+          "dark": [
+            52,
+            64,
+            80
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.outline-variant": {
+      "derive": {
+        "fn": "alpha",
+        "of": {
+          "light": "black",
+          "dark": "white"
+        },
+        "amount": {
+          "light": [
+            8,
+            44,
+            56
+          ],
+          "dark": [
+            14,
+            36,
+            48
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.inverse-surface": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": {
+          "light": [
+            12
+          ],
+          "dark": [
+            93
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.inverse-on-surface": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": {
+          "light": [
+            95
+          ],
+          "dark": [
+            12
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.focus-ring": {
+      "derive": {
+        "fn": "tone",
+        "palette": "accent",
+        "tone": {
+          "light": [
+            45,
+            38,
+            30
+          ],
+          "dark": [
+            72,
+            80,
+            87
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.focus-ring-inner": {
+      "derive": {
+        "fn": "alpha",
+        "of": "black",
+        "amount": [
+          0
+        ]
+      }
+    },
+    "tanrei.sys.color.link": {
+      "$value": "{tanrei.sys.color.primary}",
+      "reason": "A link takes the primary's color, so the accent is the keyboard focus ring's alone. A link is told from the text beside it by its underline, in every scheme."
+    },
+    "tanrei.sys.color.inverse-link": {
+      "$value": "{tanrei.sys.color.inverse-primary}",
+      "reason": "On an inverse surface a link takes the color a primary-colored action has there, as on a surface it takes the primary's. The role exists so that a layer can re-point links alone."
+    },
+    "tanrei.sys.color.elevation-ring": {
+      "derive": {
+        "fn": "alpha",
+        "of": {
+          "light": "black",
+          "dark": "white"
+        },
+        "amount": {
+          "light": [
+            8,
+            14,
+            30
+          ],
+          "dark": [
+            14,
+            22,
+            40
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.elevation-shadow-1": {
+      "derive": {
+        "fn": "alpha",
+        "of": "black",
+        "amount": {
+          "light": [
+            4
+          ],
+          "dark": [
+            10
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.elevation-shadow-2": {
+      "derive": {
+        "fn": "alpha",
+        "of": "black",
+        "amount": {
+          "light": [
+            6
+          ],
+          "dark": [
+            16
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.elevation-shadow-3": {
+      "derive": {
+        "fn": "alpha",
+        "of": "black",
+        "amount": {
+          "light": [
+            12
+          ],
+          "dark": [
+            30
+          ]
+        }
+      }
+    },
+    "tanrei.sys.color.scrim": {
+      "derive": {
+        "fn": "alpha",
+        "of": "black",
+        "amount": [
+          40
+        ]
+      }
+    },
+    "tanrei.sys.color.shadow": {
+      "derive": {
+        "fn": "tone",
+        "palette": "neutral",
+        "tone": [
+          0
+        ]
+      }
+    },
+    "tanrei.comp.button.outlined.disabled.container.color": {
+      "$value": "{tanrei.comp.button.outlined.container.color}"
+    },
+    "tanrei.comp.button.text.disabled.container.color": {
+      "$value": "{tanrei.comp.button.text.container.color}"
+    },
+    "tanrei.comp.pagination.item.disabled.container.color": {
+      "$value": "{tanrei.comp.pagination.item.container.color}"
+    },
+    "tanrei.comp.checkbox.unselected.disabled.box.color": {
+      "$value": "{tanrei.comp.checkbox.unselected.box.color}"
+    },
+    "tanrei.comp.checkbox.error-unselected.disabled.box.color": {
+      "$value": "{tanrei.comp.checkbox.error-unselected.box.color}"
+    },
+    "tanrei.comp.radio-button.unselected.disabled.fill.color": {
+      "$value": "{tanrei.comp.radio-button.unselected.fill.color}"
+    },
+    "tanrei.comp.radio-button.error-unselected.disabled.fill.color": {
+      "$value": "{tanrei.comp.radio-button.error-unselected.fill.color}"
+    },
+    "tanrei.comp.switch.selected.disabled.handle.color": {
+      "$value": "{tanrei.sys.color.surface}"
+    },
+    "tanrei.comp.switch.unselected.disabled.icon.color": {
+      "$value": "{tanrei.sys.color.surface}"
+    },
+    "tanrei.comp.input-box.outlined.hovered.container.color": {
+      "$value": "{tanrei.comp.input-box.outlined.container.color}"
+    },
+    "tanrei.comp.input-box.outlined.hovered.error.container.color": {
+      "$value": "{tanrei.comp.input-box.outlined.error.container.color}"
+    },
+    "tanrei.comp.input-box.outlined.hovered.outline.color": {
+      "$value": "{tanrei.sys.color.on-surface}"
+    },
+    "tanrei.comp.input-box.filled.hovered.active-indicator.color": {
+      "$value": "{tanrei.sys.color.on-surface}"
+    },
+    "tanrei.comp.input-box.outlined.focused.outline.color": {
+      "$value": "{tanrei.sys.color.focus-ring}"
+    },
+    "tanrei.comp.input-box.filled.focused.active-indicator.color": {
+      "$value": "{tanrei.sys.color.focus-ring}"
+    },
+    "tanrei.comp.input-box.focused.outline.width": {
+      "$value": "{tanrei.sys.border.thick}"
+    },
+    "tanrei.comp.input-box.focused.active-indicator.width": {
+      "$value": "{tanrei.sys.border.thick}"
+    },
+    "tanrei.comp.input-box.outlined.disabled.outline.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.on-surface}",
+        "amount": "{tanrei.sys.state.disabled-container-opacity}"
+      }
+    },
+    "tanrei.comp.input-box.outlined.disabled.error.outline.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.on-surface}",
+        "amount": "{tanrei.sys.state.disabled-container-opacity}"
+      }
+    },
+    "tanrei.comp.input-box.outlined.disabled.active-indicator.color": {
+      "$value": "{tanrei.comp.input-box.outlined.active-indicator.color}"
+    },
+    "tanrei.comp.input-box.outlined.disabled.error.active-indicator.color": {
+      "$value": "{tanrei.comp.input-box.outlined.error.active-indicator.color}"
+    },
+    "tanrei.comp.input-box.filled.disabled.error.outline.color": {
+      "$value": "{tanrei.comp.input-box.filled.error.outline.color}"
+    },
+    "tanrei.comp.input-box.stacked.focused.outline.color": {
+      "$value": "{tanrei.sys.color.focus-ring}",
+      "reason": "A stacked field answers focus with a line inside its edge, in the focus-ring color (TXI-26)."
+    },
+    "tanrei.comp.input-box.stacked.disabled.outline.color": {
+      "$value": "{tanrei.comp.input-box.stacked.outline.color}",
+      "reason": "A stacked field has no edge at rest; disabled, it grows none."
+    },
+    "tanrei.comp.input-box.stacked.disabled.error.outline.color": {
+      "$value": "{tanrei.comp.input-box.stacked.outline.color}",
+      "reason": "A disabled stacked field draws no edge, in error too: it cannot be corrected while disabled."
+    },
+    "tanrei.comp.input-box.stacked.disabled.active-indicator.color": {
+      "$value": "{tanrei.comp.input-box.stacked.active-indicator.color}",
+      "reason": "A stacked field has no active indicator; disabled, it grows none."
+    },
+    "tanrei.comp.input-box.stacked.disabled.error.active-indicator.color": {
+      "$value": "{tanrei.comp.input-box.stacked.error.active-indicator.color}",
+      "reason": "A stacked field has no active indicator; disabled, it grows none, in error too."
+    },
+    "tanrei.comp.button.text.disabled.unselected.container.color": {
+      "$value": "{tanrei.comp.button.text.unselected.container.color}"
+    },
+    "tanrei.comp.button.text.disabled.selected.container.color": {
+      "$value": "{tanrei.comp.button.text.selected.container.color}"
+    },
+    "tanrei.comp.button.outlined.disabled.unselected.container.color": {
+      "$value": "{tanrei.comp.button.outlined.unselected.container.color}"
+    },
+    "tanrei.comp.button.outlined.disabled.destructive.container.color": {
+      "$value": "{tanrei.comp.button.outlined.disabled.container.color}",
+      "reason": "A disabled destructive outlined button looks like any disabled outlined button: it has no fill."
+    },
+    "tanrei.comp.button.text.disabled.destructive.container.color": {
+      "$value": "{tanrei.comp.button.text.disabled.container.color}",
+      "reason": "A disabled destructive text button looks like any disabled text button: it has no fill."
+    },
+    "tanrei.comp.chip.outlined.disabled.container.color": {
+      "$value": "{tanrei.comp.chip.outlined.container.color}"
+    },
+    "tanrei.comp.tag.outlined.disabled.container.color": {
+      "$value": "{tanrei.comp.tag.outlined.container.color}",
+      "reason": "An outlined tag has no fill; drawn inside something disabled it grows none, and keeps its hairline."
+    },
+    "tanrei.comp.menu.unselected.disabled.mark.color": {
+      "$value": "{tanrei.comp.menu.unselected.mark.color}"
+    },
+    "tanrei.comp.menu.destructive.disabled.mark.color": {
+      "$value": "{tanrei.comp.menu.destructive.mark.color}"
+    },
+    "tanrei.comp.segmented-button.unselected.disabled.container.color": {
+      "$value": "{tanrei.comp.segmented-button.unselected.container.color}"
+    },
+    "tanrei.comp.button-with-menu.outlined.disabled.container.color": {
+      "$value": "{tanrei.comp.button-with-menu.outlined.container.color}"
+    },
+    "tanrei.comp.search.focused.outline.width": {
+      "$value": "{tanrei.sys.border.thick}"
+    },
+    "tanrei.comp.chat-composer.focused.outline.width": {
+      "$value": "{tanrei.sys.border.thick}",
+      "reason": "The focused edge is the capsule's focus indicator, drawn at the thick border as a field's and the search bar's are."
+    },
+    "tanrei.comp.calendar.selected.disabled.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.on-surface}",
+        "amount": "{tanrei.sys.state.disabled-container-opacity}"
+      }
+    },
+    "tanrei.comp.calendar.today.disabled.outline.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.on-surface}",
+        "amount": "{tanrei.sys.state.disabled-content-opacity}"
+      }
+    },
+    "tanrei.comp.menu.selected.disabled.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.on-surface}",
+        "amount": [
+          0,
+          "{tanrei.sys.state.disabled-container-opacity}"
+        ]
+      },
+      "reason": "A disabled checked item keeps the fill its condition has — none at standard contrast, a neutral fill at medium and high contrast — and loses its tint there as every disabled fill does; its mark still shows the choice. The menu's rule for the other conditions keeps a row that has no fill without one."
+    },
+    "tanrei.comp.menu.current.disabled.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.on-surface}",
+        "amount": "{tanrei.sys.state.disabled-container-opacity}"
+      },
+      "reason": "A disabled current link item keeps a fill, so that where the person is still shows, but loses its tint as every disabled fill does."
+    },
+    "tanrei.comp.menu.selected.disabled.control-mark.color": {
+      "$value": "{tanrei.comp.menu.surface.color}",
+      "reason": "The check sits on the box's translucent disabled fill; faded like it, it would vanish (the checkbox's rule, for the menu's box)."
+    },
+    "tanrei.comp.button-with-menu.tonal.disabled.divider.color": {
+      "$value": "{tanrei.comp.button-with-menu.tonal.divider.color}",
+      "reason": "A hairline is already quieter than disabled content; a disabled button with menu keeps it rather than drawing a stronger line than an enabled one."
+    },
+    "tanrei.comp.button-with-menu.elevated.disabled.divider.color": {
+      "$value": "{tanrei.comp.button-with-menu.elevated.divider.color}",
+      "reason": "As the tonal variant's."
+    },
+    "tanrei.comp.button-with-menu.outlined.disabled.divider.color": {
+      "$value": "{tanrei.comp.button-with-menu.outlined.divider.color}",
+      "reason": "As the tonal variant's; it stays the color of the outline it meets."
+    },
+    "tanrei.sys.color.error-container": {
+      "derive": {
+        "fn": "tone",
+        "palette": "error-quiet",
+        "tone": {
+          "light": [
+            95
+          ],
+          "dark": [
+            14
+          ]
+        }
+      },
+      "reason": "A status container is a faint tint of the status on the surface, from the status's quiet palette, not a tone of its full chroma."
+    },
+    "tanrei.sys.color.on-error-container": {
+      "derive": {
+        "fn": "tone",
+        "palette": "error-quiet",
+        "tone": {
+          "light": [
+            16,
+            12,
+            8
+          ],
+          "dark": [
+            92,
+            94,
+            96
+          ]
+        }
+      },
+      "reason": "What is drawn on a status container is a deep tone of the status's quiet palette in a light scheme and a pale one in a dark scheme. Drawn the other way round, the pair is the inverse status bar and its text."
+    },
+    "tanrei.sys.color.success-container": {
+      "derive": {
+        "fn": "tone",
+        "palette": "success-quiet",
+        "tone": {
+          "light": [
+            95
+          ],
+          "dark": [
+            14
+          ]
+        }
+      },
+      "reason": "A status container is a faint tint of the status on the surface, from the status's quiet palette, not a tone of its full chroma."
+    },
+    "tanrei.sys.color.on-success-container": {
+      "derive": {
+        "fn": "tone",
+        "palette": "success-quiet",
+        "tone": {
+          "light": [
+            16,
+            12,
+            8
+          ],
+          "dark": [
+            92,
+            94,
+            96
+          ]
+        }
+      },
+      "reason": "What is drawn on a status container is a deep tone of the status's quiet palette in a light scheme and a pale one in a dark scheme. Drawn the other way round, the pair is the inverse status bar and its text."
+    },
+    "tanrei.sys.color.warning-container": {
+      "derive": {
+        "fn": "tone",
+        "palette": "warning-quiet",
+        "tone": {
+          "light": [
+            95
+          ],
+          "dark": [
+            14
+          ]
+        }
+      },
+      "reason": "A status container is a faint tint of the status on the surface, from the status's quiet palette, not a tone of its full chroma."
+    },
+    "tanrei.sys.color.on-warning-container": {
+      "derive": {
+        "fn": "tone",
+        "palette": "warning-quiet",
+        "tone": {
+          "light": [
+            16,
+            12,
+            8
+          ],
+          "dark": [
+            92,
+            94,
+            96
+          ]
+        }
+      },
+      "reason": "What is drawn on a status container is a deep tone of the status's quiet palette in a light scheme and a pale one in a dark scheme. Drawn the other way round, the pair is the inverse status bar and its text."
+    },
+    "tanrei.sys.color.info-container": {
+      "derive": {
+        "fn": "tone",
+        "palette": "info-quiet",
+        "tone": {
+          "light": [
+            95
+          ],
+          "dark": [
+            14
+          ]
+        }
+      },
+      "reason": "A status container is a faint tint of the status on the surface, from the status's quiet palette, not a tone of its full chroma."
+    },
+    "tanrei.sys.color.on-info-container": {
+      "derive": {
+        "fn": "tone",
+        "palette": "info-quiet",
+        "tone": {
+          "light": [
+            16,
+            12,
+            8
+          ],
+          "dark": [
+            92,
+            94,
+            96
+          ]
+        }
+      },
+      "reason": "What is drawn on a status container is a deep tone of the status's quiet palette in a light scheme and a pale one in a dark scheme. Drawn the other way round, the pair is the inverse status bar and its text."
+    },
+    "tanrei.comp.menu.selected.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.comp.menu.selected.state-layer.color}",
+        "amount": [
+          0,
+          "{tanrei.sys.state.selected-state-layer-opacity}"
+        ]
+      },
+      "reason": "A checked row is told by its mark, the check or the control look, which a person reads as the choice; at standard contrast it is drawn with no fill, as the menus of macOS, iOS and Fluent 2 draw theirs, so that the one row with a fill is the row the person is on (the current link item). A person who asks for more contrast is given the fill as a second cue: at medium and high contrast the row is a layer of its own content color, twice the hover layer, seen by the same step on whatever the sheet is and as far from a hovered row as a hovered row stands from one at rest."
+    },
+    "tanrei.comp.menu.current.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.comp.menu.current.state-layer.color}",
+        "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
+      },
+      "reason": "The current link item has no mark: its fill alone tells the row the person is on from its neighbours, in every contrast scheme. It is a layer of the row's own content color, twice the hover layer, so that it is seen by the same step on whatever the sheet is and stands as far from a hovered row as a hovered row stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: on the menu's lifted sheet it is 1.06:1 in dark, and in light the same grey as a hovered row."
+    },
+    "tanrei.comp.list.selected.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.comp.list.selected.state-layer.color}",
+        "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
+      },
+      "reason": "A selected option's fill is a layer of the row's own content color, twice the hover layer, as the menu's current link item is (and its checked row at medium and high contrast), so that the quiet selection looks the same in a list and in a menu and stands as far from a hovered row as a hovered row stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: in light it is the same grey as a hovered row (1.01:1 between them)."
+    },
+    "tanrei.comp.tree-view.selected.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.comp.tree-view.selected.state-layer.color}",
+        "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
+      },
+      "reason": "A row's selection is the same layer in every component that selects rows: it follows tanrei.comp.list.selected.container.color, a layer of the row's own content color twice the hover layer, so that a selected node stands as far from a hovered one as a hovered one stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: in light it is the same grey as a hovered row (1.01:1 between them)."
+    },
+    "tanrei.comp.navigation-drawer.selected.item.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.comp.navigation-drawer.selected.item.state-layer.color}",
+        "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
+      },
+      "reason": "A row's selection is the same layer in every component that selects rows: it follows tanrei.comp.list.selected.container.color, a layer of the row's own content color twice the hover layer, so that the current destination stands as far from a hovered one as a hovered one stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: in light it is 1.03:1 from a hovered destination."
+    },
+    "tanrei.comp.table.row.selected.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.comp.table.row.selected.state-layer.color}",
+        "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
+      },
+      "reason": "A row's selection is the same layer in every component that selects rows: it follows tanrei.comp.list.selected.container.color, a layer of the row's own content color twice the hover layer, so that a selected row stands as far from a hovered one as a hovered one stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: in light it is the same grey as a hovered row (1.01:1 between them)."
+    },
+    "tanrei.comp.menu.expanded.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.comp.menu.expanded.state-layer.color}",
+        "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+      },
+      "reason": "The item whose submenu is open keeps the look it had under the pointer — the hover layer over the sheet — instead of a surface tone, which is darker than the sheet in dark (1.04:1)."
+    },
+    "tanrei.comp.menu.expanded.hovered.container.color": {
+      "$value": "{tanrei.comp.menu.expanded.container.color}",
+      "reason": "The open item already shows the hover layer; a pointer on it adds no second one, so it never reads as a checked row."
+    },
+    "tanrei.comp.menu.expanded.focused.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.comp.menu.expanded.state-layer.color}",
+        "amount": "{tanrei.sys.state.focus-state-layer-opacity}"
+      },
+      "reason": "Under keyboard focus the open item answers as a plain row does, with the focus layer alone; the layers do not stack."
+    },
+    "tanrei.comp.menu.expanded.pressed.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.comp.menu.expanded.state-layer.color}",
+        "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
+      },
+      "reason": "Under a press the open item answers as a plain row does, with the pressed layer alone; stacked on the hover layer, its supporting text would fall under 4.5:1 in dark."
+    },
+    "tanrei.comp.tabs.tonal.selected.active-indicator.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.comp.tabs.tonal.selected.state-layer.color}",
+        "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
+      },
+      "reason": "The tonal tabs' active indicator is a layer of the selected tab's own content color, twice the hover layer, laid over the track or over whatever surface a row without a track stands on, so that it is seen by the same step everywhere (1.36:1 to 1.37:1 in light and 1.38:1 to 1.55:1 in dark, on the track and on every surface role). The tonal container itself is a tone chosen against the page: on the page it is 1.16:1 in light, on a surface-container fill 1.07:1, and on the track, which is that same tone, it cannot be seen at all. It follows tanrei.comp.menu.current.container.color."
+    },
+    "tanrei.comp.menubar.expanded.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.comp.menubar.expanded.state-layer.color}",
+        "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+      },
+      "reason": "The title whose menu is open keeps the look it had under the pointer — the hover layer over whatever the bar stands on. A surface tone is chosen against one surface, and the bar has none of its own. It restates tanrei.comp.menu.expanded.container.color."
+    },
+    "tanrei.comp.menubar.expanded.hovered.container.color": {
+      "$value": "{tanrei.comp.menubar.expanded.container.color}",
+      "reason": "The open title already shows the hover layer; a pointer on it adds no second one."
+    },
+    "tanrei.comp.menubar.expanded.focused.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.comp.menubar.expanded.state-layer.color}",
+        "amount": "{tanrei.sys.state.focus-state-layer-opacity}"
+      },
+      "reason": "Under keyboard focus the open title answers as a title at rest does, with the focus layer alone; the layers do not stack."
+    },
+    "tanrei.comp.menubar.expanded.pressed.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.comp.menubar.expanded.state-layer.color}",
+        "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
+      },
+      "reason": "Under a press the open title answers with the pressed layer alone."
+    },
+    "tanrei.comp.snackbar.inverse-info.container.color": {
+      "derive": {
+        "fn": "tone",
+        "palette": "info-quiet",
+        "tone": {
+          "light": [
+            14
+          ],
+          "dark": [
+            95
+          ]
+        }
+      },
+      "reason": "An inverse status bar is the status bar of the other theme. These are the tones of sys.color.info-container with light and dark exchanged; keep the two in step."
+    },
+    "tanrei.comp.snackbar.inverse-info.supporting-text.color": {
+      "derive": {
+        "fn": "tone",
+        "palette": "info-quiet",
+        "tone": {
+          "light": [
+            92,
+            94,
+            96
+          ],
+          "dark": [
+            16,
+            12,
+            8
+          ]
+        }
+      },
+      "reason": "The text on an inverse status bar is the other theme's text on its status bar. These are the tones of sys.color.on-info-container with light and dark exchanged; keep the two in step."
+    },
+    "tanrei.comp.snackbar.inverse-info.icon.color": {
+      "derive": {
+        "fn": "tone",
+        "palette": "info",
+        "tone": {
+          "light": [
+            72,
+            80,
+            87
+          ],
+          "dark": [
+            45,
+            38,
+            30
+          ]
+        }
+      },
+      "reason": "The glyph on an inverse status bar is the other theme's status color, the one that theme draws on this bar. These are the tones of sys.color.info with light and dark exchanged; keep the two in step."
+    },
+    "tanrei.comp.snackbar.inverse-info.outline.color": {
+      "derive": {
+        "fn": "tone",
+        "palette": "info",
+        "tone": {
+          "light": [
+            72,
+            80,
+            87
+          ],
+          "dark": [
+            45,
+            38,
+            30
+          ]
+        }
+      },
+      "reason": "The edge of an inverse status bar is the other theme's status color, as its glyph is. These are the tones of sys.color.info with light and dark exchanged; keep the two in step."
+    },
+    "tanrei.comp.snackbar.inverse-warning.container.color": {
+      "derive": {
+        "fn": "tone",
+        "palette": "warning-quiet",
+        "tone": {
+          "light": [
+            14
+          ],
+          "dark": [
+            95
+          ]
+        }
+      },
+      "reason": "An inverse status bar is the status bar of the other theme. These are the tones of sys.color.warning-container with light and dark exchanged; keep the two in step."
+    },
+    "tanrei.comp.snackbar.inverse-warning.supporting-text.color": {
+      "derive": {
+        "fn": "tone",
+        "palette": "warning-quiet",
+        "tone": {
+          "light": [
+            92,
+            94,
+            96
+          ],
+          "dark": [
+            16,
+            12,
+            8
+          ]
+        }
+      },
+      "reason": "The text on an inverse status bar is the other theme's text on its status bar. These are the tones of sys.color.on-warning-container with light and dark exchanged; keep the two in step."
+    },
+    "tanrei.comp.snackbar.inverse-warning.icon.color": {
+      "derive": {
+        "fn": "tone",
+        "palette": "warning",
+        "tone": {
+          "light": [
+            72,
+            80,
+            87
+          ],
+          "dark": [
+            45,
+            38,
+            30
+          ]
+        }
+      },
+      "reason": "The glyph on an inverse status bar is the other theme's status color, the one that theme draws on this bar. These are the tones of sys.color.warning with light and dark exchanged; keep the two in step."
+    },
+    "tanrei.comp.snackbar.inverse-warning.outline.color": {
+      "derive": {
+        "fn": "tone",
+        "palette": "warning",
+        "tone": {
+          "light": [
+            72,
+            80,
+            87
+          ],
+          "dark": [
+            45,
+            38,
+            30
+          ]
+        }
+      },
+      "reason": "The edge of an inverse status bar is the other theme's status color, as its glyph is. These are the tones of sys.color.warning with light and dark exchanged; keep the two in step."
+    },
+    "tanrei.comp.snackbar.inverse-error.container.color": {
+      "derive": {
+        "fn": "tone",
+        "palette": "error-quiet",
+        "tone": {
+          "light": [
+            14
+          ],
+          "dark": [
+            95
+          ]
+        }
+      },
+      "reason": "An inverse status bar is the status bar of the other theme. These are the tones of sys.color.error-container with light and dark exchanged; keep the two in step."
+    },
+    "tanrei.comp.snackbar.inverse-error.supporting-text.color": {
+      "derive": {
+        "fn": "tone",
+        "palette": "error-quiet",
+        "tone": {
+          "light": [
+            92,
+            94,
+            96
+          ],
+          "dark": [
+            16,
+            12,
+            8
+          ]
+        }
+      },
+      "reason": "The text on an inverse status bar is the other theme's text on its status bar. These are the tones of sys.color.on-error-container with light and dark exchanged; keep the two in step."
+    },
+    "tanrei.comp.snackbar.inverse-error.icon.color": {
+      "derive": {
+        "fn": "tone",
+        "palette": "error",
+        "tone": {
+          "light": [
+            72,
+            80,
+            87
+          ],
+          "dark": [
+            45,
+            38,
+            30
+          ]
+        }
+      },
+      "reason": "The glyph on an inverse status bar is the other theme's status color, the one that theme draws on this bar. These are the tones of sys.color.error with light and dark exchanged; keep the two in step."
+    },
+    "tanrei.comp.snackbar.inverse-error.outline.color": {
+      "derive": {
+        "fn": "tone",
+        "palette": "error",
+        "tone": {
+          "light": [
+            72,
+            80,
+            87
+          ],
+          "dark": [
+            45,
+            38,
+            30
+          ]
+        }
+      },
+      "reason": "The edge of an inverse status bar is the other theme's status color, as its glyph is. These are the tones of sys.color.error with light and dark exchanged; keep the two in step."
+    },
+    "tanrei.comp.snackbar.inverse-success.container.color": {
+      "derive": {
+        "fn": "tone",
+        "palette": "success-quiet",
+        "tone": {
+          "light": [
+            14
+          ],
+          "dark": [
+            95
+          ]
+        }
+      },
+      "reason": "An inverse status bar is the status bar of the other theme. These are the tones of sys.color.success-container with light and dark exchanged; keep the two in step."
+    },
+    "tanrei.comp.snackbar.inverse-success.supporting-text.color": {
+      "derive": {
+        "fn": "tone",
+        "palette": "success-quiet",
+        "tone": {
+          "light": [
+            92,
+            94,
+            96
+          ],
+          "dark": [
+            16,
+            12,
+            8
+          ]
+        }
+      },
+      "reason": "The text on an inverse status bar is the other theme's text on its status bar. These are the tones of sys.color.on-success-container with light and dark exchanged; keep the two in step."
+    },
+    "tanrei.comp.snackbar.inverse-success.icon.color": {
+      "derive": {
+        "fn": "tone",
+        "palette": "success",
+        "tone": {
+          "light": [
+            72,
+            80,
+            87
+          ],
+          "dark": [
+            45,
+            38,
+            30
+          ]
+        }
+      },
+      "reason": "The glyph on an inverse status bar is the other theme's status color, the one that theme draws on this bar. These are the tones of sys.color.success with light and dark exchanged; keep the two in step."
+    },
+    "tanrei.comp.snackbar.inverse-success.outline.color": {
+      "derive": {
+        "fn": "tone",
+        "palette": "success",
+        "tone": {
+          "light": [
+            72,
+            80,
+            87
+          ],
+          "dark": [
+            45,
+            38,
+            30
+          ]
+        }
+      },
+      "reason": "The edge of an inverse status bar is the other theme's status color, as its glyph is. These are the tones of sys.color.success with light and dark exchanged; keep the two in step."
+    },
+    "tanrei.comp.link.standard.disabled.container.color": {
+      "$value": "{tanrei.comp.link.standard.container.color}",
+      "reason": "A link has no fill; disabled, the shape behind its text stays invisible."
+    },
+    "tanrei.comp.link.standard.disabled.current.container.color": {
+      "$value": "{tanrei.comp.link.standard.current.container.color}",
+      "reason": "A link has no fill; disabled, the shape behind its text stays invisible."
+    },
+    "tanrei.comp.link.inverse.disabled.container.color": {
+      "$value": "{tanrei.comp.link.inverse.container.color}",
+      "reason": "A link has no fill; disabled, the shape behind its text stays invisible."
+    },
+    "tanrei.comp.link.inverse.disabled.current.container.color": {
+      "$value": "{tanrei.comp.link.inverse.current.container.color}",
+      "reason": "A link has no fill; disabled, the shape behind its text stays invisible."
+    },
+    "tanrei.comp.code-block.syntax.color.keyword": {
+      "derive": {
+        "fn": "tone",
+        "palette": "syntax-keyword",
+        "tone": {
+          "light": [
+            40,
+            33,
+            25
+          ],
+          "dark": [
+            76,
+            82,
+            89
+          ]
+        }
+      },
+      "reason": "A keyword is a purple. The default system draws code in a conventional, vivid scheme."
+    },
+    "tanrei.comp.code-block.syntax.color.constant": {
+      "derive": {
+        "fn": "tone",
+        "palette": "syntax-constant",
+        "tone": {
+          "light": [
+            40,
+            33,
+            25
+          ],
+          "dark": [
+            76,
+            82,
+            89
+          ]
+        }
+      },
+      "reason": "A number, a boolean or null is an orange. The default system draws code in a conventional, vivid scheme."
+    },
+    "tanrei.comp.code-block.syntax.color.tag": {
+      "derive": {
+        "fn": "tone",
+        "palette": "syntax-tag",
+        "tone": {
+          "light": [
+            40,
+            33,
+            25
+          ],
+          "dark": [
+            76,
+            82,
+            89
+          ]
+        }
+      },
+      "reason": "An element's name or a selector is a red, from a palette of its own and not the error color. The default system draws code in a conventional, vivid scheme."
+    },
+    "tanrei.comp.code-block.syntax.color.string": {
+      "derive": {
+        "fn": "tone",
+        "palette": "syntax-string",
+        "tone": {
+          "light": [
+            40,
+            33,
+            25
+          ],
+          "dark": [
+            76,
+            82,
+            89
+          ]
+        }
+      },
+      "reason": "Quoted text is a green, from a palette of its own and not the success color. The default system draws code in a conventional, vivid scheme."
+    },
+    "tanrei.comp.code-block.syntax.color.function": {
+      "derive": {
+        "fn": "tone",
+        "palette": "syntax-function",
+        "tone": {
+          "light": [
+            40,
+            33,
+            25
+          ],
+          "dark": [
+            76,
+            82,
+            89
+          ]
+        }
+      },
+      "reason": "A function's name is a blue. The default system draws code in a conventional, vivid scheme."
+    },
+    "tanrei.comp.code-block.syntax.color.property": {
+      "derive": {
+        "fn": "tone",
+        "palette": "syntax-function",
+        "tone": {
+          "light": [
+            36,
+            30,
+            22
+          ],
+          "dark": [
+            80,
+            85,
+            91
+          ]
+        }
+      },
+      "reason": "A property's name is the blue of a function's name, a step nearer the text in each scheme: the two are told by tone, and by where they stand. The default system draws code in a conventional, vivid scheme."
+    },
+    "tanrei.comp.code-block.syntax.color.type": {
+      "derive": {
+        "fn": "tone",
+        "palette": "syntax-type",
+        "tone": {
+          "light": [
+            40,
+            33,
+            25
+          ],
+          "dark": [
+            76,
+            82,
+            89
+          ]
+        }
+      },
+      "reason": "A type's name is a blue-green. The default system draws code in a conventional, vivid scheme."
+    },
+    "tanrei.comp.select.stacked.disabled.selected-option.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.on-surface}",
+        "amount": [
+          0,
+          "{tanrei.sys.state.disabled-container-opacity}"
+        ]
+      },
+      "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.selected.disabled.container.color: A disabled checked item keeps the fill its condition has — none at standard contrast, a neutral fill at medium and high contrast — and loses its tint there as every disabled fill does; its mark still shows the choice. The menu's rule for the other conditions keeps a row that has no fill without one."
+    },
+    "tanrei.comp.select.filled.disabled.selected-option.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.on-surface}",
+        "amount": [
+          0,
+          "{tanrei.sys.state.disabled-container-opacity}"
+        ]
+      },
+      "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.selected.disabled.container.color: A disabled checked item keeps the fill its condition has — none at standard contrast, a neutral fill at medium and high contrast — and loses its tint there as every disabled fill does; its mark still shows the choice. The menu's rule for the other conditions keeps a row that has no fill without one."
+    },
+    "tanrei.comp.select.outlined.disabled.selected-option.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.on-surface}",
+        "amount": [
+          0,
+          "{tanrei.sys.state.disabled-container-opacity}"
+        ]
+      },
+      "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.selected.disabled.container.color: A disabled checked item keeps the fill its condition has — none at standard contrast, a neutral fill at medium and high contrast — and loses its tint there as every disabled fill does; its mark still shows the choice. The menu's rule for the other conditions keeps a row that has no fill without one."
+    },
+    "tanrei.comp.select.stacked.selected-option.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.comp.select.stacked.selected-option.state-layer.color}",
+        "amount": [
+          0,
+          "{tanrei.sys.state.selected-state-layer-opacity}"
+        ]
+      },
+      "reason": "So that a select resolves as the menu does: its chosen option carries the check. It restates tanrei.comp.menu.selected.container.color: A checked row is told by its mark, the check or the control look, which a person reads as the choice; at standard contrast it is drawn with no fill, as the menus of macOS, iOS and Fluent 2 draw theirs, so that the one row with a fill is the row the person is on (the current link item). A person who asks for more contrast is given the fill as a second cue: at medium and high contrast the row is a layer of its own content color, twice the hover layer, seen by the same step on whatever the sheet is and as far from a hovered row as a hovered row stands from one at rest."
+    },
+    "tanrei.comp.select.filled.selected-option.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.comp.select.filled.selected-option.state-layer.color}",
+        "amount": [
+          0,
+          "{tanrei.sys.state.selected-state-layer-opacity}"
+        ]
+      },
+      "reason": "So that a select resolves as the menu does: its chosen option carries the check. It restates tanrei.comp.menu.selected.container.color: A checked row is told by its mark, the check or the control look, which a person reads as the choice; at standard contrast it is drawn with no fill, as the menus of macOS, iOS and Fluent 2 draw theirs, so that the one row with a fill is the row the person is on (the current link item). A person who asks for more contrast is given the fill as a second cue: at medium and high contrast the row is a layer of its own content color, twice the hover layer, seen by the same step on whatever the sheet is and as far from a hovered row as a hovered row stands from one at rest."
+    },
+    "tanrei.comp.select.outlined.selected-option.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.comp.select.outlined.selected-option.state-layer.color}",
+        "amount": [
+          0,
+          "{tanrei.sys.state.selected-state-layer-opacity}"
+        ]
+      },
+      "reason": "So that a select resolves as the menu does: its chosen option carries the check. It restates tanrei.comp.menu.selected.container.color: A checked row is told by its mark, the check or the control look, which a person reads as the choice; at standard contrast it is drawn with no fill, as the menus of macOS, iOS and Fluent 2 draw theirs, so that the one row with a fill is the row the person is on (the current link item). A person who asks for more contrast is given the fill as a second cue: at medium and high contrast the row is a layer of its own content color, twice the hover layer, seen by the same step on whatever the sheet is and as far from a hovered row as a hovered row stands from one at rest."
+    },
+    "tanrei.comp.combobox.stacked.disabled.selected-option.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.on-surface}",
+        "amount": [
+          0,
+          "{tanrei.sys.state.disabled-container-opacity}"
+        ]
+      },
+      "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.selected.disabled.container.color: A disabled checked item keeps the fill its condition has — none at standard contrast, a neutral fill at medium and high contrast — and loses its tint there as every disabled fill does; its mark still shows the choice. The menu's rule for the other conditions keeps a row that has no fill without one."
+    },
+    "tanrei.comp.combobox.filled.disabled.selected-option.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.on-surface}",
+        "amount": [
+          0,
+          "{tanrei.sys.state.disabled-container-opacity}"
+        ]
+      },
+      "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.selected.disabled.container.color: A disabled checked item keeps the fill its condition has — none at standard contrast, a neutral fill at medium and high contrast — and loses its tint there as every disabled fill does; its mark still shows the choice. The menu's rule for the other conditions keeps a row that has no fill without one."
+    },
+    "tanrei.comp.combobox.outlined.disabled.selected-option.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.on-surface}",
+        "amount": [
+          0,
+          "{tanrei.sys.state.disabled-container-opacity}"
+        ]
+      },
+      "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.selected.disabled.container.color: A disabled checked item keeps the fill its condition has — none at standard contrast, a neutral fill at medium and high contrast — and loses its tint there as every disabled fill does; its mark still shows the choice. The menu's rule for the other conditions keeps a row that has no fill without one."
+    },
+    "tanrei.comp.combobox.stacked.selected-option.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.comp.combobox.stacked.selected-option.state-layer.color}",
+        "amount": [
+          0,
+          "{tanrei.sys.state.selected-state-layer-opacity}"
+        ]
+      },
+      "reason": "So that a combobox resolves as the menu does: its chosen option carries the check. It restates tanrei.comp.menu.selected.container.color: A checked row is told by its mark, the check or the control look, which a person reads as the choice; at standard contrast it is drawn with no fill, as the menus of macOS, iOS and Fluent 2 draw theirs, so that the one row with a fill is the row the person is on (the current link item). A person who asks for more contrast is given the fill as a second cue: at medium and high contrast the row is a layer of its own content color, twice the hover layer, seen by the same step on whatever the sheet is and as far from a hovered row as a hovered row stands from one at rest."
+    },
+    "tanrei.comp.combobox.filled.selected-option.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.comp.combobox.filled.selected-option.state-layer.color}",
+        "amount": [
+          0,
+          "{tanrei.sys.state.selected-state-layer-opacity}"
+        ]
+      },
+      "reason": "So that a combobox resolves as the menu does: its chosen option carries the check. It restates tanrei.comp.menu.selected.container.color: A checked row is told by its mark, the check or the control look, which a person reads as the choice; at standard contrast it is drawn with no fill, as the menus of macOS, iOS and Fluent 2 draw theirs, so that the one row with a fill is the row the person is on (the current link item). A person who asks for more contrast is given the fill as a second cue: at medium and high contrast the row is a layer of its own content color, twice the hover layer, seen by the same step on whatever the sheet is and as far from a hovered row as a hovered row stands from one at rest."
+    },
+    "tanrei.comp.combobox.outlined.selected-option.container.color": {
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.comp.combobox.outlined.selected-option.state-layer.color}",
+        "amount": [
+          0,
+          "{tanrei.sys.state.selected-state-layer-opacity}"
+        ]
+      },
+      "reason": "So that a combobox resolves as the menu does: its chosen option carries the check. It restates tanrei.comp.menu.selected.container.color: A checked row is told by its mark, the check or the control look, which a person reads as the choice; at standard contrast it is drawn with no fill, as the menus of macOS, iOS and Fluent 2 draw theirs, so that the one row with a fill is the row the person is on (the current link item). A person who asks for more contrast is given the fill as a second cue: at medium and high contrast the row is a layer of its own content color, twice the hover layer, seen by the same step on whatever the sheet is and as far from a hovered row as a hovered row stands from one at rest."
+    },
+    "tanrei.comp.one-time-code-input.standard.focused.outline.color": {
+      "$value": "{tanrei.sys.color.focus-ring}",
+      "reason": "The active cell answers focus with a line inside its edge, in the focus-ring color (OTC-7), as a stacked text field does."
+    },
+    "tanrei.comp.one-time-code-input.focused.outline.width": {
+      "$value": "{tanrei.sys.border.thick}",
+      "reason": "The focused line is the thick border, as the text field's."
+    },
+    "tanrei.comp.one-time-code-input.standard.disabled.error.outline.color": {
+      "$value": "{tanrei.comp.one-time-code-input.standard.outline.color}",
+      "reason": "A disabled code input draws no edge, in error too: it cannot be corrected while disabled. As the stacked text field."
+    },
+    "tanrei.comp.handle.standard.hovered.line.color": {
+      "$value": "{tanrei.sys.color.on-surface-variant}",
+      "reason": "A handle answers a pointer over it with a darker line (HDL-4): the line is the handle's answer itself, where the generic rule keeps a part at its resting color."
+    },
+    "tanrei.comp.handle.standard.pressed.line.color": {
+      "$value": "{tanrei.sys.color.on-surface-variant}",
+      "reason": "The line stays dark while a press or a drag holds the handle (HDL-4 draws the two alike)."
+    },
+    "tanrei.comp.handle.standard.disabled.container.color": {
+      "$value": "{tanrei.comp.handle.standard.container.color}",
+      "reason": "A disabled handle's box draws no fill, as at rest: it is a mark on an edge, not a filled control."
+    },
+    "tanrei.comp.bottom-sheet.drag-handle.hovered.grip.color": {
+      "$value": "{tanrei.comp.handle.standard.hovered.line.color}",
+      "reason": "The sheet's drag handle is a Handle (BSH-12): its grip answers a pointer as every handle's line does (HDL-4)."
+    },
+    "tanrei.comp.bottom-sheet.drag-handle.pressed.grip.color": {
+      "$value": "{tanrei.comp.handle.standard.pressed.line.color}",
+      "reason": "The sheet's drag handle is a Handle (BSH-12): its grip stays dark while a press or a drag holds it, as every handle's line does (HDL-4)."
+    }
+  },
+  "rules": [
+    {
+      "match": "tanrei.comp.*.*.hovered.container.color",
+      "derive": {
+        "fn": "mix",
+        "base": "{tanrei.comp.$1.$2.container.color}",
+        "with": "{tanrei.comp.$1.$2.state-layer.color}",
+        "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+      }
+    },
+    {
+      "match": "tanrei.comp.*.*.focused.container.color",
+      "derive": {
+        "fn": "mix",
+        "base": "{tanrei.comp.$1.$2.container.color}",
+        "with": "{tanrei.comp.$1.$2.state-layer.color}",
+        "amount": "{tanrei.sys.state.focus-state-layer-opacity}"
+      }
+    },
+    {
+      "match": "tanrei.comp.*.*.pressed.container.color",
+      "derive": {
+        "fn": "mix",
+        "base": "{tanrei.comp.$1.$2.container.color}",
+        "with": "{tanrei.comp.$1.$2.state-layer.color}",
+        "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
+      }
+    },
+    {
+      "match": "tanrei.comp.*.*.hovered.*.container.color",
+      "derive": {
+        "fn": "mix",
+        "base": "{tanrei.comp.$1.$2.$3.container.color}",
+        "with": "{tanrei.comp.$1.$2.$3.state-layer.color}",
+        "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+      },
+      "reason": "The container of a condition (selected., unselected., …) mixes with that condition's state-layer color."
+    },
+    {
+      "match": "tanrei.comp.*.*.focused.*.container.color",
+      "derive": {
+        "fn": "mix",
+        "base": "{tanrei.comp.$1.$2.$3.container.color}",
+        "with": "{tanrei.comp.$1.$2.$3.state-layer.color}",
+        "amount": "{tanrei.sys.state.focus-state-layer-opacity}"
+      },
+      "reason": "The container of a condition (selected., unselected., …) mixes with that condition's state-layer color."
+    },
+    {
+      "match": "tanrei.comp.*.*.pressed.*.container.color",
+      "derive": {
+        "fn": "mix",
+        "base": "{tanrei.comp.$1.$2.$3.container.color}",
+        "with": "{tanrei.comp.$1.$2.$3.state-layer.color}",
+        "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
+      },
+      "reason": "The container of a condition (selected., unselected., …) mixes with that condition's state-layer color."
+    },
+    {
+      "match": "tanrei.comp.*.*.hovered.label.color",
+      "$value": "{tanrei.comp.$1.$2.label.color}"
+    },
+    {
+      "match": "tanrei.comp.*.*.hovered.outline.color",
+      "$value": "{tanrei.comp.$1.$2.outline.color}"
+    },
+    {
+      "match": "tanrei.comp.*.*.hovered.container.elevation",
+      "$value": "{tanrei.comp.$1.$2.container.elevation}"
+    },
+    {
+      "match": "tanrei.comp.*.*.focused.label.color",
+      "$value": "{tanrei.comp.$1.$2.label.color}"
+    },
+    {
+      "match": "tanrei.comp.*.*.focused.outline.color",
+      "$value": "{tanrei.comp.$1.$2.outline.color}"
+    },
+    {
+      "match": "tanrei.comp.*.*.focused.container.elevation",
+      "$value": "{tanrei.comp.$1.$2.container.elevation}"
+    },
+    {
+      "match": "tanrei.comp.*.*.pressed.label.color",
+      "$value": "{tanrei.comp.$1.$2.label.color}"
+    },
+    {
+      "match": "tanrei.comp.*.*.pressed.outline.color",
+      "$value": "{tanrei.comp.$1.$2.outline.color}"
+    },
+    {
+      "match": "tanrei.comp.*.*.pressed.container.elevation",
+      "$value": "{tanrei.comp.$1.$2.container.elevation}"
+    },
+    {
+      "match": "tanrei.comp.*.*.disabled.container.color",
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.on-surface}",
+        "amount": "{tanrei.sys.state.disabled-container-opacity}"
+      }
+    },
+    {
+      "match": "tanrei.comp.*.*.disabled.*.container.color",
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.on-surface}",
+        "amount": "{tanrei.sys.state.disabled-container-opacity}"
+      },
+      "reason": "The container of a condition is a fill when disabled, as a plain container is."
+    },
+    {
+      "match": "tanrei.comp.*.*.disabled.label.color",
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.on-surface}",
+        "amount": "{tanrei.sys.state.disabled-content-opacity}"
+      }
+    },
+    {
+      "match": "tanrei.comp.*.*.disabled.outline.color",
+      "$value": "{tanrei.comp.$1.$2.outline.color}"
+    },
+    {
+      "match": "tanrei.comp.*.*.disabled.container.elevation",
+      "$value": "{tanrei.sys.elevation.level0}"
+    },
+    {
+      "match": "tanrei.comp.*.*.opacity",
+      "$value": 1,
+      "reason": "Tanrei shows state by color, not by dimming the whole control."
+    },
+    {
+      "match": "tanrei.comp.*.*.container.shape",
+      "$value": "{tanrei.comp.$1.container.shape}"
+    },
+    {
+      "match": "tanrei.comp.*.*.hovered.*.color",
+      "$value": "{tanrei.comp.$1.$2.$3.color}",
+      "reason": "A part other than the container keeps its resting color under hover; the container carries the state answer."
+    },
+    {
+      "match": "tanrei.comp.*.*.focused.*.color",
+      "$value": "{tanrei.comp.$1.$2.$3.color}",
+      "reason": "A part other than the container keeps its resting color under focus."
+    },
+    {
+      "match": "tanrei.comp.*.*.pressed.*.color",
+      "$value": "{tanrei.comp.$1.$2.$3.color}",
+      "reason": "A part other than the container keeps its resting color under a press."
+    },
+    {
+      "match": "tanrei.comp.*.*.disabled.*.color",
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.on-surface}",
+        "amount": "{tanrei.sys.state.disabled-content-opacity}"
+      },
+      "reason": "A disabled part reads as disabled content unless the component's own rule says it is a fill."
+    },
+    {
+      "match": "tanrei.comp.*.*.hovered.*.elevation",
+      "$value": "{tanrei.comp.$1.$2.$3.elevation}",
+      "reason": "A part other than the container keeps its resting elevation."
+    },
+    {
+      "match": "tanrei.comp.*.*.focused.*.elevation",
+      "$value": "{tanrei.comp.$1.$2.$3.elevation}",
+      "reason": "A part other than the container keeps its resting elevation."
+    },
+    {
+      "match": "tanrei.comp.*.*.pressed.*.elevation",
+      "$value": "{tanrei.comp.$1.$2.$3.elevation}",
+      "reason": "A part other than the container keeps its resting elevation."
+    },
+    {
+      "match": "tanrei.comp.*.*.disabled.*.elevation",
+      "$value": "{tanrei.sys.elevation.level0}",
+      "reason": "Nothing disabled is raised."
+    },
+    {
+      "match": "tanrei.comp.*.*.hovered.*.*.color",
+      "$value": "{tanrei.comp.$1.$2.$3.$4.color}",
+      "reason": "A part of a condition (selected., unselected., …) other than the container keeps its resting color under hover."
+    },
+    {
+      "match": "tanrei.comp.*.*.focused.*.*.color",
+      "$value": "{tanrei.comp.$1.$2.$3.$4.color}",
+      "reason": "A part of a condition (selected., unselected., …) other than the container keeps its resting color under focus."
+    },
+    {
+      "match": "tanrei.comp.*.*.pressed.*.*.color",
+      "$value": "{tanrei.comp.$1.$2.$3.$4.color}",
+      "reason": "A part of a condition (selected., unselected., …) other than the container keeps its resting color under a press."
+    },
+    {
+      "match": "tanrei.comp.*.*.disabled.*.*.color",
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.on-surface}",
+        "amount": "{tanrei.sys.state.disabled-content-opacity}"
+      },
+      "reason": "A disabled part of a condition reads as disabled content unless the component's own rule says it is a fill."
+    },
+    {
+      "match": "tanrei.comp.*.*.hovered.*.*.elevation",
+      "$value": "{tanrei.comp.$1.$2.$3.$4.elevation}",
+      "reason": "A part of a condition (selected., unselected., …) other than the container keeps its resting elevation."
+    },
+    {
+      "match": "tanrei.comp.*.*.focused.*.*.elevation",
+      "$value": "{tanrei.comp.$1.$2.$3.$4.elevation}",
+      "reason": "A part of a condition (selected., unselected., …) other than the container keeps its resting elevation."
+    },
+    {
+      "match": "tanrei.comp.*.*.pressed.*.*.elevation",
+      "$value": "{tanrei.comp.$1.$2.$3.$4.elevation}",
+      "reason": "A part of a condition (selected., unselected., …) other than the container keeps its resting elevation."
+    },
+    {
+      "match": "tanrei.comp.*.*.disabled.*.*.elevation",
+      "$value": "{tanrei.sys.elevation.level0}",
+      "reason": "Nothing disabled is raised."
+    },
+    {
+      "match": "tanrei.comp.tag.outlined.disabled.*.container.color",
+      "$value": "{tanrei.comp.tag.outlined.$1.container.color}",
+      "reason": "An outlined tag of a status has no fill either; drawn inside something disabled it grows none."
+    },
+    {
+      "match": "tanrei.comp.checkbox.*.disabled.container.color",
+      "$value": "{tanrei.comp.checkbox.$1.container.color}",
+      "reason": "The round state layer is not a fill; disabled, it stays invisible."
+    },
+    {
+      "match": "tanrei.comp.checkbox.*.disabled.outline.color",
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.on-surface}",
+        "amount": "{tanrei.sys.state.disabled-content-opacity}"
+      },
+      "reason": "The default keeps an outline's resting color when disabled (Button's outlined variant); a checkbox's outline is its content."
+    },
+    {
+      "match": "tanrei.comp.checkbox.*.disabled.mark.color",
+      "$value": "{tanrei.sys.color.surface}",
+      "reason": "The mark sits on a translucent disabled fill; faded like it, it would vanish."
+    },
+    {
+      "match": "tanrei.comp.radio-button.*.disabled.container.color",
+      "$value": "{tanrei.comp.radio-button.$1.container.color}",
+      "reason": "The round state layer is not a fill; disabled, it stays invisible."
+    },
+    {
+      "match": "tanrei.comp.switch.*.disabled.container.color",
+      "$value": "{tanrei.comp.switch.$1.container.color}",
+      "reason": "The round state layer is not a fill; disabled, it stays invisible."
+    },
+    {
+      "match": "tanrei.comp.switch.*.disabled.track.color",
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.on-surface}",
+        "amount": "{tanrei.sys.state.disabled-container-opacity}"
+      },
+      "reason": "A switch's track is a fill, not content."
+    },
+    {
+      "match": "tanrei.comp.switch.*.disabled.outline.color",
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.on-surface}",
+        "amount": "{tanrei.sys.state.disabled-container-opacity}"
+      },
+      "reason": "The disabled track and its outline read as one faded fill."
+    },
+    {
+      "match": "tanrei.comp.switch.*.*.handle.size",
+      "$value": "{tanrei.comp.switch.$1.handle.size}",
+      "reason": "The handle keeps its condition's size in every state; a system that grows it under a press says so."
+    },
+    {
+      "match": "tanrei.comp.switch.*.pressed.handle.size",
+      "$value": {
+        "value": 28,
+        "unit": "px"
+      },
+      "reason": "Material Design 3's pressed handle: 28 in both conditions, filling the track inside its outline. A per-state dimension takes an alias or a fixed literal, not a derivation, so the size dial does not reach it."
+    },
+    {
+      "match": "tanrei.comp.card.elevated.hovered.container.elevation",
+      "$value": "{tanrei.sys.elevation.level3}",
+      "reason": "The elevated card rises on hover, one level above its rest."
+    },
+    {
+      "match": "tanrei.comp.card.elevated.disabled.container.elevation",
+      "$value": "{tanrei.sys.elevation.level1}",
+      "reason": "A disabled elevated card loses its depth but keeps level1's ring; its container is the surface's white, so without the ring nothing would mark where it is."
+    },
+    {
+      "match": "tanrei.comp.card.*.disabled.container.color",
+      "$value": "{tanrei.comp.card.$1.container.color}",
+      "reason": "A disabled card keeps its surface and dims as a whole; the generic rule would replace the surface with on-surface at 12 % under the content."
+    },
+    {
+      "match": "tanrei.comp.card.*.disabled.content.color",
+      "$value": "{tanrei.comp.card.$1.content.color}",
+      "reason": "The whole-card dim already fades the content; the content fallback would fade it twice."
+    },
+    {
+      "match": "tanrei.comp.card.disabled.opacity",
+      "$value": "{tanrei.sys.state.disabled-content-opacity}",
+      "reason": "A card cannot recolor content it does not know, so a disabled card dims as a whole."
+    },
+    {
+      "match": "tanrei.comp.input-box.*.focused.container.color",
+      "$value": "{tanrei.comp.input-box.$1.container.color}",
+      "reason": "A field answers focus with its edge, not a state layer; the container stays at rest."
+    },
+    {
+      "match": "tanrei.comp.input-box.*.focused.error.container.color",
+      "$value": "{tanrei.comp.input-box.$1.error.container.color}",
+      "reason": "A field answers focus with its edge, not a state layer; the container stays at rest, in error too."
+    },
+    {
+      "match": "tanrei.comp.input-box.*.disabled.container.color",
+      "$value": "{tanrei.comp.input-box.$1.container.color}",
+      "reason": "A disabled field keeps its fill (an outlined one has none); it is shown by its faded content and edge."
+    },
+    {
+      "match": "tanrei.comp.input-box.*.disabled.error.container.color",
+      "$value": "{tanrei.comp.input-box.$1.error.container.color}",
+      "reason": "A disabled field keeps its fill, in error too."
+    },
+    {
+      "match": "tanrei.comp.input-box.*.focused.label.color",
+      "$value": "{tanrei.sys.color.primary}",
+      "reason": "A focused field's label turns primary; the error label keeps the error color through the prefixed-part fallback."
+    },
+    {
+      "match": "tanrei.comp.input-box.*.outline.width",
+      "$value": "{tanrei.comp.input-box.outline.width}",
+      "reason": "The resting outline width in every state unless named; a dimension has no fallback."
+    },
+    {
+      "match": "tanrei.comp.input-box.*.active-indicator.width",
+      "$value": "{tanrei.comp.input-box.active-indicator.width}",
+      "reason": "The resting indicator width in every state unless named; a dimension has no fallback."
+    },
+    {
+      "match": "tanrei.comp.button.*.disabled.*.outline.color",
+      "$value": "{tanrei.comp.button.$1.$2.outline.color}",
+      "reason": "A toggle's outline keeps its resting value when disabled: a look with no outline does not grow one."
+    },
+    {
+      "match": "tanrei.comp.button.*.disabled.destructive.outline.color",
+      "$value": "{tanrei.comp.button.$1.disabled.outline.color}",
+      "reason": "A disabled destructive button looks like any disabled button of its variant: an outlined one keeps the plain disabled edge, not the error color, since it cannot be pressed."
+    },
+    {
+      "match": "tanrei.comp.button-with-menu.*.disabled.destructive.*.color",
+      "$value": "{tanrei.comp.button-with-menu.$1.disabled.$2.color}",
+      "reason": "A disabled destructive button with menu looks like any disabled button with menu of its variant, as a disabled destructive Button does: its fill, edge, divider and label are the plain disabled ones, since it cannot be pressed."
+    },
+    {
+      "match": "tanrei.comp.main-action-button.*.hovered.container.elevation",
+      "$value": "{tanrei.sys.elevation.level4}",
+      "reason": "The main action button rises further under a pointer; the generic rule keeps the resting level."
+    },
+    {
+      "match": "tanrei.comp.chip.elevated.hovered.container.elevation",
+      "$value": "{tanrei.sys.elevation.level3}",
+      "reason": "The elevated chip rises on hover, one level above its rest, as the elevated card does."
+    },
+    {
+      "match": "tanrei.comp.chip.elevated.hovered.selected.container.elevation",
+      "$value": "{tanrei.sys.elevation.level3}",
+      "reason": "The elevated chip rises on hover when it is selected too."
+    },
+    {
+      "match": "tanrei.comp.chip.*.disabled.selected.outline.color",
+      "$value": "{tanrei.comp.chip.$1.selected.outline.color}",
+      "reason": "A selected chip has no border; disabled, it does not grow one."
+    },
+    {
+      "match": "tanrei.comp.chip.*.disabled.remove.container.color",
+      "$value": "{tanrei.comp.chip.$1.remove.container.color}",
+      "reason": "The remove action's round container is a state layer, not a fill; disabled, it stays invisible."
+    },
+    {
+      "match": "tanrei.comp.chip.*.disabled.destructive-remove.container.color",
+      "$value": "{tanrei.comp.chip.$1.destructive-remove.container.color}",
+      "reason": "As the remove action: its round container is a state layer, not a fill; disabled, it stays invisible."
+    },
+    {
+      "match": "tanrei.comp.chip.*.hovered.destructive-remove.icon.color",
+      "$value": "{tanrei.sys.color.error}",
+      "reason": "A destructive remove glyph takes the error color while hovered; at rest it keeps its resting color."
+    },
+    {
+      "match": "tanrei.comp.chip.*.focused.destructive-remove.icon.color",
+      "$value": "{tanrei.sys.color.error}",
+      "reason": "A destructive remove glyph takes the error color under keyboard focus, as under hover."
+    },
+    {
+      "match": "tanrei.comp.chip.*.pressed.destructive-remove.icon.color",
+      "$value": "{tanrei.sys.color.error}",
+      "reason": "A destructive remove glyph takes the error color under a press, as under hover."
+    },
+    {
+      "match": "tanrei.comp.list.*.disabled.container.color",
+      "$value": "{tanrei.comp.list.$1.container.color}",
+      "reason": "A disabled row keeps its resting fill (none stays none) and dims as a whole."
+    },
+    {
+      "match": "tanrei.comp.list.*.disabled.*.color",
+      "$value": "{tanrei.comp.list.$1.$2.color}",
+      "reason": "A disabled item dims as a whole: its parts keep their resting colors, or they would be faded twice."
+    },
+    {
+      "match": "tanrei.comp.accordion.*.disabled.container.color",
+      "$value": "{tanrei.comp.accordion.$1.container.color}",
+      "reason": "A header has no fill at rest; disabled, it grows none, and is shown by its faded label, glyphs and chevron."
+    },
+    {
+      "match": "tanrei.comp.list.disabled.opacity",
+      "$value": "{tanrei.sys.state.disabled-content-opacity}",
+      "reason": "A list item holds media and slot content it cannot recolor, so a disabled item dims as a whole."
+    },
+    {
+      "match": "tanrei.comp.tree-view.*.disabled.container.color",
+      "$value": "{tanrei.comp.tree-view.$1.container.color}",
+      "reason": "A disabled row keeps its resting fill: none stays none, and a selected one still shows the choice. It dims as a whole."
+    },
+    {
+      "match": "tanrei.comp.tree-view.*.disabled.*.color",
+      "$value": "{tanrei.comp.tree-view.$1.$2.color}",
+      "reason": "A disabled row dims as a whole: its parts keep their resting colors, or they would be faded twice."
+    },
+    {
+      "match": "tanrei.comp.tree-view.disabled.opacity",
+      "$value": "{tanrei.sys.state.disabled-content-opacity}",
+      "reason": "A row holds trailing content it cannot recolor, so a disabled row dims as a whole, as a list item does."
+    },
+    {
+      "match": "tanrei.comp.table.row.*.hovered.container.color",
+      "derive": {
+        "fn": "mix",
+        "base": "{tanrei.comp.table.row.$1.container.color}",
+        "with": "{tanrei.comp.table.row.$1.state-layer.color}",
+        "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+      },
+      "reason": "A row that can be chosen is one target: hover mixes its condition's state-layer color into its fill, as a list item's and a tree row's. Its id is one segment deeper than a component's variant, so the generic rules do not reach it."
+    },
+    {
+      "match": "tanrei.comp.table.row.*.pressed.container.color",
+      "derive": {
+        "fn": "mix",
+        "base": "{tanrei.comp.table.row.$1.container.color}",
+        "with": "{tanrei.comp.table.row.$1.state-layer.color}",
+        "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
+      },
+      "reason": "A press on a row that can be chosen mixes its condition's state-layer color into its fill, as a list item's and a tree row's."
+    },
+    {
+      "match": "tanrei.comp.table.row.*.*.text.color",
+      "$value": "{tanrei.comp.table.row.$1.text.color}",
+      "reason": "A row's text keeps its condition's color under hover and press; the fill carries the state answer."
+    },
+    {
+      "match": "tanrei.comp.link.inverse.disabled.*.color",
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.inverse-on-surface}",
+        "amount": "{tanrei.sys.state.disabled-content-opacity}"
+      },
+      "reason": "An inverse link sits on the inverse surface: its disabled content fades from that surface's content color, not from on-surface, which would vanish there."
+    },
+    {
+      "match": "tanrei.comp.link.inverse.disabled.current.*.color",
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.inverse-on-surface}",
+        "amount": "{tanrei.sys.state.disabled-content-opacity}"
+      },
+      "reason": "An inverse link sits on the inverse surface: its disabled content fades from that surface's content color, not from on-surface, which would vanish there."
+    },
+    {
+      "match": "tanrei.comp.menu.*.disabled.container.color",
+      "$value": "{tanrei.comp.menu.$1.container.color}",
+      "reason": "A disabled item keeps the fill of its condition; the selected one has a line of its own."
+    },
+    {
+      "match": "tanrei.comp.menubar.*.disabled.container.color",
+      "$value": "{tanrei.comp.menubar.$1.container.color}",
+      "reason": "A title has no fill at rest; disabled, it grows none. It restates tanrei.comp.menu.*.disabled.container.color."
+    },
+    {
+      "match": "tanrei.comp.tabs.*.*.track.color",
+      "$value": "{tanrei.comp.tabs.$1.track.color}",
+      "reason": "The track is the row's, not a tab's: it keeps its variant's color in every state of every tab, because tabs are one choice among equals and only the active indicator marks the selection."
+    },
+    {
+      "match": "tanrei.comp.tabs.*.disabled.container.color",
+      "$value": "{tanrei.comp.tabs.$1.container.color}",
+      "reason": "A tab has no fill at rest; disabled, it grows none."
+    },
+    {
+      "match": "tanrei.comp.tabs.*.disabled.*.container.color",
+      "$value": "{tanrei.comp.tabs.$1.$2.container.color}",
+      "reason": "A selected tab has no fill at rest; disabled, it grows none."
+    },
+    {
+      "match": "tanrei.comp.tabs.*.disabled.active-indicator.color",
+      "$value": "{tanrei.comp.tabs.$1.active-indicator.color}",
+      "reason": "A tab that is not selected draws no indicator, disabled or not."
+    },
+    {
+      "match": "tanrei.comp.tabs.*.*.active-indicator.thickness",
+      "$value": "{tanrei.comp.tabs.$1.active-indicator.thickness}",
+      "reason": "The indicator keeps its variant's thickness in every state; a dimension has no fallback."
+    },
+    {
+      "match": "tanrei.comp.tabs.*.*.active-indicator.shape",
+      "$value": "{tanrei.comp.tabs.$1.active-indicator.shape}",
+      "reason": "The indicator keeps its variant's corners in every state; a dimension has no fallback."
+    },
+    {
+      "match": "tanrei.comp.tabs.*.disabled.selected.active-indicator.color",
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.on-surface}",
+        "amount": "{tanrei.sys.state.disabled-container-opacity}"
+      },
+      "reason": "The active indicator is a fill, not content: faded as content it would match the covered label drawn on it."
+    },
+    {
+      "match": "tanrei.comp.tabs.*.disabled.underline.color",
+      "$value": "{tanrei.comp.tabs.$1.underline.color}",
+      "reason": "A tab that is not selected draws no underline, disabled or not."
+    },
+    {
+      "match": "tanrei.comp.tabs.*.disabled.selected.underline.color",
+      "$value": "{tanrei.comp.tabs.$1.selected.underline.color}",
+      "reason": "The default system draws no underline; disabled, it grows none. A system that draws the line states its disabled value."
+    },
+    {
+      "match": "tanrei.comp.tabs.*.*.underline.thickness",
+      "$value": "{tanrei.comp.tabs.$1.underline.thickness}",
+      "reason": "The underline keeps its variant's thickness in every state; a dimension has no fallback."
+    },
+    {
+      "match": "tanrei.comp.tabs.*.*.underline.shape",
+      "$value": "{tanrei.comp.tabs.$1.underline.shape}",
+      "reason": "The underline keeps its variant's corners in every state; a dimension has no fallback."
+    },
+    {
+      "match": "tanrei.comp.navigation-bar.*.disabled.item.container.color",
+      "$value": "{tanrei.comp.navigation-bar.$1.item.container.color}",
+      "reason": "The item container is the active indicator or nothing; disabled, it keeps that, and the faded icon and label say the destination is unavailable."
+    },
+    {
+      "match": "tanrei.comp.navigation-bar.filled-selected.disabled.item.container.color",
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.on-surface}",
+        "amount": "{tanrei.sys.state.disabled-container-opacity}"
+      },
+      "reason": "The filled active indicator is a strong fill with its content inverted on it: kept, it would carry disabled content on primary; faded as a fill it is Button's disabled filled look."
+    },
+    {
+      "match": "tanrei.comp.navigation-bar.*.disabled.item.icon-indicator.color",
+      "$value": "{tanrei.comp.navigation-bar.$1.item.icon-indicator.color}",
+      "reason": "The icon indicator is a fill or nothing, as the item container is; disabled, it keeps that, and the faded icon and label say the destination is unavailable."
+    },
+    {
+      "match": "tanrei.comp.navigation-drawer.*.disabled.item.container.color",
+      "$value": "{tanrei.comp.navigation-drawer.$1.item.container.color}",
+      "reason": "The item container is the active indicator or nothing; disabled, it keeps that, and the faded icon and label say the destination is unavailable."
+    },
+    {
+      "match": "tanrei.comp.navigation-drawer.*.disabled.item.icon-indicator.color",
+      "$value": "{tanrei.comp.navigation-drawer.$1.item.icon-indicator.color}",
+      "reason": "The icon indicator is a fill or nothing, as the item container is; disabled, it keeps that, and the faded icon and label say the destination is unavailable."
+    },
+    {
+      "match": "tanrei.comp.slider.*.disabled.container.color",
+      "$value": "{tanrei.comp.slider.$1.container.color}",
+      "reason": "The round state layer is not a fill; disabled, it stays invisible."
+    },
+    {
+      "match": "tanrei.comp.slider.*.disabled.track.color",
+      "derive": {
+        "fn": "alpha",
+        "of": "{tanrei.sys.color.on-surface}",
+        "amount": "{tanrei.sys.state.disabled-container-opacity}"
+      },
+      "reason": "The track is a fill, not content: faded as content it would match the disabled active track, and the value could not be read."
+    },
+    {
+      "match": "tanrei.comp.slider.*.disabled.active-stop-indicator.color",
+      "$value": "{tanrei.sys.color.surface}",
+      "reason": "A stop dot on the disabled active track: faded like the track, it would vanish."
+    },
+    {
+      "match": "tanrei.comp.slider.*.disabled.handle.color",
+      "$value": "{tanrei.comp.slider.$1.handle.color}",
+      "reason": "The handle's fill hides the tracks that run under it; disabled, it keeps its resting fill and the outline shows the state."
+    },
+    {
+      "match": "tanrei.comp.slider.*.*.handle.width",
+      "$value": "{tanrei.comp.slider.$1.handle.width}",
+      "reason": "The handle keeps its resting width in every state; a dimension has no fallback. A system that narrows it under a press says so."
+    },
+    {
+      "match": "tanrei.comp.search.*.focused.container.color",
+      "$value": "{tanrei.comp.search.$1.container.color}",
+      "reason": "The search bar answers focus with its edge, not a state layer; the container stays at rest."
+    },
+    {
+      "match": "tanrei.comp.search.*.focused.outline.color",
+      "$value": "{tanrei.sys.color.focus-ring}",
+      "reason": "The focused edge is the bar's focus indicator, held to 3:1 as the focus ring is."
+    },
+    {
+      "match": "tanrei.comp.search.*.disabled.container.color",
+      "$value": "{tanrei.comp.search.$1.container.color}",
+      "reason": "A disabled bar keeps its fill, as a disabled filled field does; it is shown by its faded glyph and text."
+    },
+    {
+      "match": "tanrei.comp.search.*.outline.width",
+      "$value": "{tanrei.comp.search.outline.width}",
+      "reason": "The resting edge width in every state unless named; a dimension has no fallback."
+    },
+    {
+      "match": "tanrei.comp.search.*.disabled.suggestion.container.color",
+      "$value": "{tanrei.comp.search.$1.suggestion.container.color}",
+      "reason": "A suggestion row has no fill at rest; disabled, it grows none."
+    },
+    {
+      "match": "tanrei.comp.calendar.*.disabled.container.color",
+      "$value": "{tanrei.comp.calendar.$1.container.color}",
+      "reason": "An unavailable day keeps its resting container (none, today's, or the range's band) and is shown by its faded number; the selected one has its own token."
+    },
+    {
+      "match": "tanrei.comp.date-time-picker.*.*.selector.outline.width",
+      "$value": "{tanrei.comp.date-time-picker.$1.selector.outline.width}",
+      "reason": "A selector keeps its condition's edge width in every state; a dimension has no fallback."
+    },
+    {
+      "match": "tanrei.comp.field.*.focused.label.color",
+      "$value": "{tanrei.sys.color.primary}",
+      "reason": "A field's label turns primary while focus is inside it, as a focused text field's does; the error label keeps its color through the prefixed-part fallback."
+    },
+    {
+      "match": "tanrei.comp.select.*.disabled.option.container.color",
+      "$value": "{tanrei.comp.select.$1.option.container.color}",
+      "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.*.disabled.container.color: A disabled item keeps the fill of its condition; the selected one has a line of its own."
+    },
+    {
+      "match": "tanrei.comp.select.*.disabled.selected-option.container.color",
+      "$value": "{tanrei.comp.select.$1.selected-option.container.color}",
+      "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.*.disabled.container.color: A disabled item keeps the fill of its condition; the selected one has a line of its own."
+    },
+    {
+      "match": "tanrei.comp.combobox.*.disabled.option.container.color",
+      "$value": "{tanrei.comp.combobox.$1.option.container.color}",
+      "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.*.disabled.container.color: A disabled item keeps the fill of its condition; the selected one has a line of its own."
+    },
+    {
+      "match": "tanrei.comp.combobox.*.disabled.selected-option.container.color",
+      "$value": "{tanrei.comp.combobox.$1.selected-option.container.color}",
+      "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.*.disabled.container.color: A disabled item keeps the fill of its condition; the selected one has a line of its own."
+    },
+    {
+      "match": "tanrei.comp.one-time-code-input.*.focused.container.color",
+      "$value": "{tanrei.comp.one-time-code-input.$1.container.color}",
+      "reason": "A field answers focus with its edge, not a state layer; the cell stays at rest."
+    },
+    {
+      "match": "tanrei.comp.one-time-code-input.*.focused.error.container.color",
+      "$value": "{tanrei.comp.one-time-code-input.$1.error.container.color}",
+      "reason": "The cell stays at rest under focus, in error too."
+    },
+    {
+      "match": "tanrei.comp.one-time-code-input.*.disabled.container.color",
+      "$value": "{tanrei.comp.one-time-code-input.$1.container.color}",
+      "reason": "A disabled field keeps its fill and is shown by its faded content, as the text field beside it."
+    },
+    {
+      "match": "tanrei.comp.one-time-code-input.*.disabled.error.container.color",
+      "$value": "{tanrei.comp.one-time-code-input.$1.error.container.color}",
+      "reason": "A disabled field keeps its fill, in error too."
+    },
+    {
+      "match": "tanrei.comp.one-time-code-input.*.outline.width",
+      "$value": "{tanrei.comp.one-time-code-input.outline.width}",
+      "reason": "The resting line width in every state unless named; a dimension has no fallback."
+    },
+    {
+      "match": "tanrei.comp.file-item.*.disabled.container.color",
+      "$value": "{tanrei.comp.file-item.$1.container.color}",
+      "reason": "The body of a file item has no fill at rest; disabled, it grows none, and what it shows of the file stays as it is (FIT-21). The generic rule would lay a fill over the name and the picture."
+    },
+    {
+      "match": "tanrei.comp.file-item.*.disabled.action.container.color",
+      "$value": "{tanrei.comp.file-item.$1.action.container.color}",
+      "reason": "Disabled, an action keeps the container it has at rest: a tile's the opaque disc its faded glyph is read on over a picture, a row's none — a quiet icon-only button grows no fill when it is disabled, or it would look like a filled one. The chip's remove action keeps its resting container for the same reason."
+    },
+    {
+      "match": "tanrei.comp.chat-composer.*.focused.container.color",
+      "$value": "{tanrei.comp.chat-composer.$1.container.color}",
+      "reason": "The capsule answers focus with its edge, not a state layer; the container stays at rest, in error too."
+    },
+    {
+      "match": "tanrei.comp.chat-composer.standard.focused.outline.color",
+      "$value": "{tanrei.sys.color.focus-ring}",
+      "reason": "The focused edge is the capsule's focus indicator, held to 3:1 as the focus ring is. In error the focused edge keeps the error color through the generic fallback and is told by its width."
+    },
+    {
+      "match": "tanrei.comp.chat-composer.*.disabled.container.color",
+      "$value": "{tanrei.comp.chat-composer.$1.container.color}",
+      "reason": "A disabled capsule keeps its fill, as a disabled search bar and a disabled filled field do; it is shown by the faded typing and Buttons inside it, which their own tokens draw."
+    },
+    {
+      "match": "tanrei.comp.chat-composer.*.outline.width",
+      "$value": "{tanrei.comp.chat-composer.outline.width}",
+      "reason": "The resting edge width in every state unless named; a dimension has no fallback."
+    },
+    {
+      "match": "tanrei.comp.stepper.*.disabled.container.color",
+      "$value": "{tanrei.comp.stepper.$1.container.color}",
+      "reason": "A step has no fill at rest; disabled, it grows none, and is shown by its faded marker content, ring and text."
+    },
+    {
+      "match": "tanrei.comp.stepper.*.disabled.marker.color",
+      "$value": "{tanrei.comp.stepper.$1.marker.color}",
+      "reason": "A marker keeps the fill of its condition when its step is disabled (none stays none), so that its condition is still seen; its faded content and ring say it cannot be gone to."
+    }
+  ]
+}

@@ -186,7 +186,7 @@ const ACTIONS = (slot: string) => `<tanrei-button id="send" ${slot}>Send</tanrei
 const CONTAINERS: Record<string, { body: string; open: boolean }> = {
   'a popover': { body: `<button id="anchor">Anchor</button><tanrei-popover id="host" open anchor="anchor" label="Popover"><p>Text</p>${ACTIONS('slot="actions"')}</tanrei-popover>`, open: true },
   'a dialog': { body: `<tanrei-dialog id="host" open headline="Dialog">${ACTIONS('slot="actions"')}</tanrei-dialog>`, open: true },
-  'a side sheet': { body: `<tanrei-side-sheet id="host" open headline="Sheet" closable close-label="Close">${ACTIONS('slot="actions"')}</tanrei-side-sheet>`, open: true },
+  'a side sheet': { body: `<tanrei-side-sheet id="host" open headline="Sheet" close-label="Close">${ACTIONS('slot="actions"')}</tanrei-side-sheet>`, open: true },
   'a toolbar': { body: `<tanrei-toolbar id="host" label="Toolbar">${ACTIONS('')}</tanrei-toolbar>`, open: false },
   'a button group': { body: `<tanrei-button-group id="host" label="Group">${ACTIONS('')}</tanrei-button-group>`, open: false },
   'a callout': { body: `<tanrei-callout id="host" open closable close-label="Close" status-label="Note">Text ${ACTIONS('slot="actions"')}</tanrei-callout>`, open: true },

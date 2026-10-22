@@ -2,7 +2,7 @@
 title: زر الإجراء الرئيسي
 description: ينفّذ الإجراء الأهم الوحيد في الشاشة على حاوية مرتفعة تطفو فوق المحتوى، واسمه مكتوب كاملًا، أو مطويًّا إلى أيقونته وحدها.
 translationOf: components/main-action-button.mdx
-sourceHash: 100851dcd58588339815b7cf46318e4f1a9950e2
+sourceHash: 4ea11cf1c96e665e4d8a7ce5bde60156fedc09b3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -92,6 +92,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - الأسماء FAB و small FAB و large FAB في Material 3 هي زر إجراء رئيسي مطويّ بالأحجام medium و small و large. والاسم extended FAB فيه هو الهيئة الممتدة.
 - الخاصية `expanded` في Compose (على `ExtendedFloatingActionButton`) والخاصية `isExtended` في Flutter (على `FloatingActionButton.extended`) هما `extended`.
 - ألوان FAB في Material 3، وهي primary و secondary و tertiary و surface، تقابل الطُرُز `filled` و `tonal` و `surface` والقيم التي يضيفها إعداد جاهز. الإعداد الجاهز m3-like يرسم زوايا المربع المستدير والارتفاعين 56 و 96 الخاصة بنظام Material عبر رموز (tokens) هذا المكوّن.
+- بلغة Material، زر الإجراء الرئيسي هو FAB. وقائمة FAB في Material هي [قائمة FAB](/ar/components/fab-menu/)، وهي مكوّن من طبقة m3-like: تملكها الأنظمة التي تنحدر منها.
 
 ## المواصفات
 
@@ -127,7 +128,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - للإجراء الذي يخص نموذجًا أو مربع حوار أو عنصرًا واحدًا في المحتوى، استخدم [زرًّا](/ar/components/button/) حيث يكون ذلك المحتوى.
 - لعدة إجراءات على الشاشة الحالية أو على التحديد، استخدم [شريط أدوات](/ar/components/toolbar/).
-- حين يأتي الإجراء الرئيسي في بضع هيئات مترابطة (مستند جديد، أو مجلد، أو رفع ملف)، دع زر الإجراء الرئيسي يفتح [لوحة سفلية](/ar/components/bottom-sheet/) تسردها. و[قائمة FAB](/ar/components/fab-menu/) تؤدي هذه المهمة في الإعدادات الجاهزة التي تتضمنها؛ أما النظام الافتراضي فلا يتضمنها.
+- حين يأتي الإجراء الرئيسي في بضع هيئات مترابطة (مستند جديد، أو مجلد، أو رفع ملف)، دع زر الإجراء الرئيسي يفتح [لوحة سفلية](/ar/components/bottom-sheet/) تسردها. و[قائمة FAB](/ar/components/fab-menu/) تؤدي هذه المهمة في أنظمة طبقة m3-like، حيث تعيش؛ أما النظام الافتراضي فلا يملكها.
 - ينفّذ إجراء ولا يأخذ وجهة. عنصر التحكم الذي لا يفعل إلا نقل الأشخاص إلى مكان آخر رابط: [زر](/ar/components/button/) له الخاصية `href`.
 
 ### ممتد أم مطويّ

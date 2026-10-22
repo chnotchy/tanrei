@@ -27,7 +27,7 @@ private object M3ExpressiveLikeSystemSource {
         val elevation = elevation()
         TanreiSystem(
             id = "m3-expressive-like",
-            dials = TanreiDials(motionUnit = 50f, shapeUnit = 4f, sizeUnit = 4f, spaceUnit = 8f, strokeUnit = 1f, typeBase = 16f, typeContrast = 1f),
+            dials = TanreiDials(density = 1f, motionUnit = 50f, shapeUnit = 4f, sizeUnit = 4f, spaceUnit = 8f, strokeUnit = 1f, typeBase = 16f, typeContrast = 1f),
             intents = listOf(TanreiColorRole.Error, TanreiColorRole.Info, TanreiColorRole.Primary, TanreiColorRole.Secondary, TanreiColorRole.Success, TanreiColorRole("tertiary"), TanreiColorRole.Warning),
             colors = TanreiColorSchemes(
                 light = lightColors(),
@@ -55,7 +55,7 @@ private object M3ExpressiveLikeSystemSource {
             ),
             motion = motion(),
             elevation = elevation,
-            behavior = TanreiBehavior(dividerVisibility = TanreiDividerVisibility.Scroll, focusStyle = TanreiFocusStyle.Ring, linkUnderline = TanreiLinkUnderline.Always, pressedFeedback = TanreiPressedFeedback.Ripple, requirementMark = TanreiRequirementMark.Asterisk, separation = TanreiSeparation.Gap),
+            behavior = TanreiBehavior(appearance = TanreiAppearance.Unfold, dividerVisibility = TanreiDividerVisibility.Scroll, focusStyle = TanreiFocusStyle.Ring, linkUnderline = TanreiLinkUnderline.Always, pressedFeedback = TanreiPressedFeedback.Ripple, requirementMark = TanreiRequirementMark.Asterisk, scrollEdge = TanreiScrollEdge.Line, separation = TanreiSeparation.Gap),
             accordion = accordion(typescale, elevation),
             appBar = appBar(typescale, elevation),
             appShell = appShell(typescale, elevation),
@@ -91,6 +91,7 @@ private object M3ExpressiveLikeSystemSource {
             fileItem = fileItem(typescale, elevation),
             filePicker = filePicker(typescale, elevation),
             fileUpload = fileUpload(typescale, elevation),
+            handle = handle(typescale, elevation),
             imagePreview = imagePreview(typescale, elevation),
             inlineCode = inlineCode(typescale, elevation),
             inputBox = inputBox(typescale, elevation),
@@ -101,13 +102,15 @@ private object M3ExpressiveLikeSystemSource {
             list = list(typescale, elevation),
             loadingIndicator = loadingIndicator(typescale, elevation),
             mainActionButton = mainActionButton(typescale, elevation),
+            marqueeText = marqueeText(typescale, elevation),
             menu = menu(typescale, elevation),
             menubar = menubar(typescale, elevation),
+            meter = meter(typescale, elevation),
             modalLayer = modalLayer(typescale, elevation),
             navigationBar = navigationBar(typescale, elevation),
             navigationDrawer = navigationDrawer(typescale, elevation),
-            navigationRail = navigationRail(typescale, elevation),
             numberInput = numberInput(typescale, elevation),
+            numberTicker = numberTicker(typescale, elevation),
             oneTimeCodeInput = oneTimeCodeInput(typescale, elevation),
             pageHeader = pageHeader(typescale, elevation),
             pagination = pagination(typescale, elevation),
@@ -116,6 +119,8 @@ private object M3ExpressiveLikeSystemSource {
             progressIndicator = progressIndicator(typescale, elevation),
             prose = prose(typescale, elevation),
             radioButton = radioButton(typescale, elevation),
+            resizableFrame = resizableFrame(typescale, elevation),
+            scrollArea = scrollArea(typescale, elevation),
             search = search(typescale, elevation),
             segmentedButton = segmentedButton(typescale, elevation),
             select = select(typescale, elevation),
@@ -683,6 +688,7 @@ private object M3ExpressiveLikeSystemSource {
         iconLarge = 32.dp,
         iconMedium = 24.dp,
         iconSmall = 20.dp,
+        targetMinimum = 32.dp,
         targetPointer = 44.dp,
         targetSpacing = 8.dp,
         targetTouch = 48.dp,
@@ -712,10 +718,14 @@ private object M3ExpressiveLikeSystemSource {
         easing = TanreiEasing(
             emphasizedAccelerate = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 0.8f, y2 = 0.15f),
             emphasizedDecelerate = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
+            enter = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
+            exit = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 0.8f, y2 = 0.15f),
             linear = TanreiCubicBezier(x1 = 0f, y1 = 0f, x2 = 1f, y2 = 1f),
+            spatial = TanreiCubicBezier(x1 = 0.27f, y1 = 1.06f, x2 = 0.18f, y2 = 1f),
             standard = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             standardAccelerate = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 1f, y2 = 1f),
             standardDecelerate = TanreiCubicBezier(x1 = 0f, y1 = 0f, x2 = 0f, y2 = 1f),
+            state = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
         ),
         expressiveSpring = TanreiSprings(
             scheme = "expressive",
@@ -888,6 +898,14 @@ private object M3ExpressiveLikeSystemSource {
     fun appBar(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiAppBarTokens =
         TanreiAppBarTokens(
             actionsGap = 8.dp,
+            brandColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            brandImageHeight = 40.dp,
+            brandLockupAlignment = 0f,
+            brandLockupGap = 8.dp,
+            brandLockupSymbolSize = 40.dp,
+            brandShape = 9999.dp,
+            brandSymbolSize = 24.dp,
+            brandWordmarkHeight = 40.dp,
             containerGap = 8.dp,
             containerPaddingBlockEnd = 12.dp,
             containerPaddingInline = 4.dp,
@@ -944,6 +962,8 @@ private object M3ExpressiveLikeSystemSource {
             groupOutlineWidth = 2.dp,
             iconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             labelColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
+            motionPictureDuration = 150,
+            motionPictureEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             sizes = TanreiAvatarSizes(
                 small = TanreiAvatarSizeTokens(containerSize = 24.dp, labelTypescale = typescale.caption, iconSize = 16.dp, groupOverlap = 2.dp),
                 medium = TanreiAvatarSizeTokens(containerSize = 40.dp, labelTypescale = typescale.label, iconSize = 24.dp, groupOverlap = 4.dp),
@@ -974,6 +994,7 @@ private object M3ExpressiveLikeSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun bottomSheet(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiBottomSheetTokens =
         TanreiBottomSheetTokens(
+            closeButtonVariant = 4f,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainerLow),
             containerElevation = elevation.level1,
             containerMarginBlockStart = 48.dp,
@@ -982,13 +1003,20 @@ private object M3ExpressiveLikeSystemSource {
             containerPartialFraction = 0.5f,
             containerShape = 28.dp,
             contentColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            dividerColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
+            dividerVisibility = 1f,
+            dividerWidth = 1.dp,
             handleContainerHeight = 24.dp,
             handleContainerShape = 9999.dp,
             handleContainerWidth = 48.dp,
             handleGripHeight = 4.dp,
-            handleGripShape = 9999.dp,
             handleGripWidth = 32.dp,
             handleMarginBlock = 12.dp,
+            headerGap = 8.dp,
+            headerHeight = 64.dp,
+            headerPaddingInlineEnd = 12.dp,
+            headlineColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            headlineTypescale = typescale.heading5,
             motionEnterDuration = 300,
             motionEnterEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
             motionExitDuration = 200,
@@ -1170,6 +1198,11 @@ private object M3ExpressiveLikeSystemSource {
                         outlineColor = TanreiPaint.None,
                         dividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
+                        destructiveContainerColor = TanreiPaint.Role(TanreiColorRole.Error),
+                        destructiveLabelColor = TanreiPaint.Role(TanreiColorRole.OnError),
+                        destructiveOutlineColor = TanreiPaint.None,
+                        destructiveDividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                        destructiveStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnError),
                     ),
                     hovered = TanreiButtonWithMenuVariantStateTokens(
                         containerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.Primary), with = TanreiPaint.Role(TanreiColorRole.OnPrimary), amount = 0.08f),
@@ -1178,6 +1211,11 @@ private object M3ExpressiveLikeSystemSource {
                         outlineColor = TanreiPaint.None,
                         dividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
+                        destructiveContainerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.Error), with = TanreiPaint.Role(TanreiColorRole.OnError), amount = 0.08f),
+                        destructiveLabelColor = TanreiPaint.Role(TanreiColorRole.OnError),
+                        destructiveOutlineColor = TanreiPaint.None,
+                        destructiveDividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                        destructiveStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnError),
                     ),
                     focused = TanreiButtonWithMenuVariantStateTokens(
                         containerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.Primary), with = TanreiPaint.Role(TanreiColorRole.OnPrimary), amount = 0.12f),
@@ -1186,6 +1224,11 @@ private object M3ExpressiveLikeSystemSource {
                         outlineColor = TanreiPaint.None,
                         dividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
+                        destructiveContainerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.Error), with = TanreiPaint.Role(TanreiColorRole.OnError), amount = 0.12f),
+                        destructiveLabelColor = TanreiPaint.Role(TanreiColorRole.OnError),
+                        destructiveOutlineColor = TanreiPaint.None,
+                        destructiveDividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                        destructiveStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnError),
                     ),
                     pressed = TanreiButtonWithMenuVariantStateTokens(
                         containerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.Primary), with = TanreiPaint.Role(TanreiColorRole.OnPrimary), amount = 0.12f),
@@ -1194,6 +1237,11 @@ private object M3ExpressiveLikeSystemSource {
                         outlineColor = TanreiPaint.None,
                         dividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
+                        destructiveContainerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.Error), with = TanreiPaint.Role(TanreiColorRole.OnError), amount = 0.12f),
+                        destructiveLabelColor = TanreiPaint.Role(TanreiColorRole.OnError),
+                        destructiveOutlineColor = TanreiPaint.None,
+                        destructiveDividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                        destructiveStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnError),
                     ),
                     disabled = TanreiButtonWithMenuVariantStateTokens(
                         containerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.12f),
@@ -1202,6 +1250,11 @@ private object M3ExpressiveLikeSystemSource {
                         outlineColor = TanreiPaint.None,
                         dividerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         stateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                        destructiveContainerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.12f),
+                        destructiveLabelColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                        destructiveOutlineColor = TanreiPaint.None,
+                        destructiveDividerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                        destructiveStateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                     ),
                 ),
                 tonal = TanreiButtonWithMenuVariantTokens(
@@ -1212,6 +1265,11 @@ private object M3ExpressiveLikeSystemSource {
                         outlineColor = TanreiPaint.None,
                         dividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+                        destructiveContainerColor = TanreiPaint.Role(TanreiColorRole.ErrorContainer),
+                        destructiveLabelColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
+                        destructiveOutlineColor = TanreiPaint.None,
+                        destructiveDividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                        destructiveStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
                     ),
                     hovered = TanreiButtonWithMenuVariantStateTokens(
                         containerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SecondaryContainer), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.08f),
@@ -1220,6 +1278,11 @@ private object M3ExpressiveLikeSystemSource {
                         outlineColor = TanreiPaint.None,
                         dividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+                        destructiveContainerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.ErrorContainer), with = TanreiPaint.Role(TanreiColorRole.OnErrorContainer), amount = 0.08f),
+                        destructiveLabelColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
+                        destructiveOutlineColor = TanreiPaint.None,
+                        destructiveDividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                        destructiveStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
                     ),
                     focused = TanreiButtonWithMenuVariantStateTokens(
                         containerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SecondaryContainer), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.12f),
@@ -1228,6 +1291,11 @@ private object M3ExpressiveLikeSystemSource {
                         outlineColor = TanreiPaint.None,
                         dividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+                        destructiveContainerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.ErrorContainer), with = TanreiPaint.Role(TanreiColorRole.OnErrorContainer), amount = 0.12f),
+                        destructiveLabelColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
+                        destructiveOutlineColor = TanreiPaint.None,
+                        destructiveDividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                        destructiveStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
                     ),
                     pressed = TanreiButtonWithMenuVariantStateTokens(
                         containerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SecondaryContainer), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.12f),
@@ -1236,6 +1304,11 @@ private object M3ExpressiveLikeSystemSource {
                         outlineColor = TanreiPaint.None,
                         dividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+                        destructiveContainerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.ErrorContainer), with = TanreiPaint.Role(TanreiColorRole.OnErrorContainer), amount = 0.12f),
+                        destructiveLabelColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
+                        destructiveOutlineColor = TanreiPaint.None,
+                        destructiveDividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                        destructiveStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
                     ),
                     disabled = TanreiButtonWithMenuVariantStateTokens(
                         containerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.12f),
@@ -1244,6 +1317,11 @@ private object M3ExpressiveLikeSystemSource {
                         outlineColor = TanreiPaint.None,
                         dividerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         stateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                        destructiveContainerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.12f),
+                        destructiveLabelColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                        destructiveOutlineColor = TanreiPaint.None,
+                        destructiveDividerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                        destructiveStateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                     ),
                 ),
                 elevated = TanreiButtonWithMenuVariantTokens(
@@ -1254,6 +1332,11 @@ private object M3ExpressiveLikeSystemSource {
                         outlineColor = TanreiPaint.None,
                         dividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                        destructiveContainerColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainerLow),
+                        destructiveLabelColor = TanreiPaint.Role(TanreiColorRole.Error),
+                        destructiveOutlineColor = TanreiPaint.None,
+                        destructiveDividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                        destructiveStateLayerColor = TanreiPaint.Role(TanreiColorRole.Error),
                     ),
                     hovered = TanreiButtonWithMenuVariantStateTokens(
                         containerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SurfaceContainerLow), with = TanreiPaint.Role(TanreiColorRole.Primary), amount = 0.08f),
@@ -1262,6 +1345,11 @@ private object M3ExpressiveLikeSystemSource {
                         outlineColor = TanreiPaint.None,
                         dividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                        destructiveContainerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SurfaceContainerLow), with = TanreiPaint.Role(TanreiColorRole.Error), amount = 0.08f),
+                        destructiveLabelColor = TanreiPaint.Role(TanreiColorRole.Error),
+                        destructiveOutlineColor = TanreiPaint.None,
+                        destructiveDividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                        destructiveStateLayerColor = TanreiPaint.Role(TanreiColorRole.Error),
                     ),
                     focused = TanreiButtonWithMenuVariantStateTokens(
                         containerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SurfaceContainerLow), with = TanreiPaint.Role(TanreiColorRole.Primary), amount = 0.12f),
@@ -1270,6 +1358,11 @@ private object M3ExpressiveLikeSystemSource {
                         outlineColor = TanreiPaint.None,
                         dividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                        destructiveContainerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SurfaceContainerLow), with = TanreiPaint.Role(TanreiColorRole.Error), amount = 0.12f),
+                        destructiveLabelColor = TanreiPaint.Role(TanreiColorRole.Error),
+                        destructiveOutlineColor = TanreiPaint.None,
+                        destructiveDividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                        destructiveStateLayerColor = TanreiPaint.Role(TanreiColorRole.Error),
                     ),
                     pressed = TanreiButtonWithMenuVariantStateTokens(
                         containerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SurfaceContainerLow), with = TanreiPaint.Role(TanreiColorRole.Primary), amount = 0.12f),
@@ -1278,6 +1371,11 @@ private object M3ExpressiveLikeSystemSource {
                         outlineColor = TanreiPaint.None,
                         dividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                        destructiveContainerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SurfaceContainerLow), with = TanreiPaint.Role(TanreiColorRole.Error), amount = 0.12f),
+                        destructiveLabelColor = TanreiPaint.Role(TanreiColorRole.Error),
+                        destructiveOutlineColor = TanreiPaint.None,
+                        destructiveDividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                        destructiveStateLayerColor = TanreiPaint.Role(TanreiColorRole.Error),
                     ),
                     disabled = TanreiButtonWithMenuVariantStateTokens(
                         containerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.12f),
@@ -1286,6 +1384,11 @@ private object M3ExpressiveLikeSystemSource {
                         outlineColor = TanreiPaint.None,
                         dividerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         stateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                        destructiveContainerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.12f),
+                        destructiveLabelColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                        destructiveOutlineColor = TanreiPaint.None,
+                        destructiveDividerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                        destructiveStateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                     ),
                 ),
                 outlined = TanreiButtonWithMenuVariantTokens(
@@ -1296,6 +1399,11 @@ private object M3ExpressiveLikeSystemSource {
                         outlineColor = TanreiPaint.Role(TanreiColorRole.Outline),
                         dividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                        destructiveContainerColor = TanreiPaint.None,
+                        destructiveLabelColor = TanreiPaint.Role(TanreiColorRole.Error),
+                        destructiveOutlineColor = TanreiPaint.Role(TanreiColorRole.Error),
+                        destructiveDividerColor = TanreiPaint.Role(TanreiColorRole.Error),
+                        destructiveStateLayerColor = TanreiPaint.Role(TanreiColorRole.Error),
                     ),
                     hovered = TanreiButtonWithMenuVariantStateTokens(
                         containerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.Primary), amount = 0.08f),
@@ -1304,6 +1412,11 @@ private object M3ExpressiveLikeSystemSource {
                         outlineColor = TanreiPaint.Role(TanreiColorRole.Outline),
                         dividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                        destructiveContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.Error), amount = 0.08f),
+                        destructiveLabelColor = TanreiPaint.Role(TanreiColorRole.Error),
+                        destructiveOutlineColor = TanreiPaint.Role(TanreiColorRole.Error),
+                        destructiveDividerColor = TanreiPaint.Role(TanreiColorRole.Error),
+                        destructiveStateLayerColor = TanreiPaint.Role(TanreiColorRole.Error),
                     ),
                     focused = TanreiButtonWithMenuVariantStateTokens(
                         containerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.Primary), amount = 0.12f),
@@ -1312,6 +1425,11 @@ private object M3ExpressiveLikeSystemSource {
                         outlineColor = TanreiPaint.Role(TanreiColorRole.Primary),
                         dividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                        destructiveContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.Error), amount = 0.12f),
+                        destructiveLabelColor = TanreiPaint.Role(TanreiColorRole.Error),
+                        destructiveOutlineColor = TanreiPaint.Role(TanreiColorRole.Error),
+                        destructiveDividerColor = TanreiPaint.Role(TanreiColorRole.Error),
+                        destructiveStateLayerColor = TanreiPaint.Role(TanreiColorRole.Error),
                     ),
                     pressed = TanreiButtonWithMenuVariantStateTokens(
                         containerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.Primary), amount = 0.12f),
@@ -1320,6 +1438,11 @@ private object M3ExpressiveLikeSystemSource {
                         outlineColor = TanreiPaint.Role(TanreiColorRole.Outline),
                         dividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                        destructiveContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.Error), amount = 0.12f),
+                        destructiveLabelColor = TanreiPaint.Role(TanreiColorRole.Error),
+                        destructiveOutlineColor = TanreiPaint.Role(TanreiColorRole.Error),
+                        destructiveDividerColor = TanreiPaint.Role(TanreiColorRole.Error),
+                        destructiveStateLayerColor = TanreiPaint.Role(TanreiColorRole.Error),
                     ),
                     disabled = TanreiButtonWithMenuVariantStateTokens(
                         containerColor = TanreiPaint.None,
@@ -1328,6 +1451,11 @@ private object M3ExpressiveLikeSystemSource {
                         outlineColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.12f),
                         dividerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         stateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                        destructiveContainerColor = TanreiPaint.None,
+                        destructiveLabelColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                        destructiveOutlineColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.12f),
+                        destructiveDividerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                        destructiveStateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                     ),
                 ),
             ),
@@ -1340,19 +1468,19 @@ private object M3ExpressiveLikeSystemSource {
             containerShape = 9999.dp,
             motionBusyCycleDuration = 1000,
             motionFeedbackDuration = 450,
-            motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            toneContainerOpacity = 0.16f,
             hovered = TanreiButtonStateTokens(containerShape = 9999.dp, opacity = 1f),
             focused = TanreiButtonStateTokens(containerShape = 9999.dp, opacity = 1f),
             pressed = TanreiButtonStateTokens(containerShape = 9999.dp, opacity = 1f),
             disabled = TanreiButtonStateTokens(containerShape = 9999.dp, opacity = 1f),
             sizes = TanreiButtonSizes(
-                small = TanreiButtonSizeTokens(containerHeight = 40.dp, containerPaddingInlineNarrow = 2.dp, containerWidthWide = 40.dp, containerPaddingInlineStart = 16.dp, containerPaddingInlineEnd = 16.dp, containerPaddingInlineStartWithIcon = 16.dp, containerPaddingInlineEndWithIcon = 16.dp, containerPaddingBlock = 6.dp, labelTypescale = typescale.label, iconSize = 20.dp, iconSizeWithoutLabel = 24.dp, containerGap = 8.dp, outlineWidth = 1.dp),
-                medium = TanreiButtonSizeTokens(containerHeight = 56.dp, containerPaddingInlineNarrow = 4.dp, containerWidthWide = 52.dp, containerPaddingInlineStart = 24.dp, containerPaddingInlineEnd = 24.dp, containerPaddingInlineStartWithIcon = 24.dp, containerPaddingInlineEndWithIcon = 24.dp, containerPaddingBlock = 6.dp, labelTypescale = typescale.label, iconSize = 24.dp, iconSizeWithoutLabel = 24.dp, containerGap = 8.dp, outlineWidth = 1.dp),
-                large = TanreiButtonSizeTokens(containerHeight = 96.dp, containerPaddingInlineNarrow = 8.dp, containerWidthWide = 72.dp, containerPaddingInlineStart = 48.dp, containerPaddingInlineEnd = 48.dp, containerPaddingInlineStartWithIcon = 48.dp, containerPaddingInlineEndWithIcon = 48.dp, containerPaddingBlock = 6.dp, labelTypescale = typescale.label, iconSize = 32.dp, iconSizeWithoutLabel = 32.dp, containerGap = 12.dp, outlineWidth = 2.dp),
+                small = TanreiButtonSizeTokens(containerHeight = 40.dp, containerPaddingInlineNarrow = 2.dp, containerWidthWide = 40.dp, containerPaddingInlineStart = 16.dp, containerPaddingInlineEnd = 16.dp, containerPaddingInlineStartWithIcon = 16.dp, containerPaddingInlineEndWithIcon = 16.dp, containerPaddingBlock = 6.dp, labelTypescale = typescale.label, iconSize = 20.dp, iconSizeWithoutLabel = 24.dp, containerGap = 8.dp, outlineWidth = 1.dp, motionStateDuration = 150),
+                medium = TanreiButtonSizeTokens(containerHeight = 56.dp, containerPaddingInlineNarrow = 4.dp, containerWidthWide = 52.dp, containerPaddingInlineStart = 24.dp, containerPaddingInlineEnd = 24.dp, containerPaddingInlineStartWithIcon = 24.dp, containerPaddingInlineEndWithIcon = 24.dp, containerPaddingBlock = 6.dp, labelTypescale = typescale.label, iconSize = 24.dp, iconSizeWithoutLabel = 24.dp, containerGap = 8.dp, outlineWidth = 1.dp, motionStateDuration = 150),
+                large = TanreiButtonSizeTokens(containerHeight = 96.dp, containerPaddingInlineNarrow = 8.dp, containerWidthWide = 72.dp, containerPaddingInlineStart = 48.dp, containerPaddingInlineEnd = 48.dp, containerPaddingInlineStartWithIcon = 48.dp, containerPaddingInlineEndWithIcon = 48.dp, containerPaddingBlock = 6.dp, labelTypescale = typescale.label, iconSize = 32.dp, iconSizeWithoutLabel = 32.dp, containerGap = 12.dp, outlineWidth = 2.dp, motionStateDuration = 150),
                 extra = mapOf(
-                    TanreiButtonSize("xsmall") to TanreiButtonSizeTokens(containerHeight = 32.dp, containerPaddingInlineNarrow = 4.dp, containerWidthWide = 40.dp, containerPaddingInlineStart = 16.dp, containerPaddingInlineEnd = 16.dp, containerPaddingInlineStartWithIcon = 16.dp, containerPaddingInlineEndWithIcon = 16.dp, containerPaddingBlock = 6.dp, labelTypescale = typescale.label, iconSize = 20.dp, iconSizeWithoutLabel = 20.dp, containerGap = 8.dp, outlineWidth = 1.dp),
-                    TanreiButtonSize("xlarge") to TanreiButtonSizeTokens(containerHeight = 136.dp, containerPaddingInlineNarrow = 4.dp, containerWidthWide = 72.dp, containerPaddingInlineStart = 64.dp, containerPaddingInlineEnd = 64.dp, containerPaddingInlineStartWithIcon = 64.dp, containerPaddingInlineEndWithIcon = 64.dp, containerPaddingBlock = 6.dp, labelTypescale = typescale.label, iconSize = 40.dp, iconSizeWithoutLabel = 40.dp, containerGap = 16.dp, outlineWidth = 3.dp),
+                    TanreiButtonSize("xsmall") to TanreiButtonSizeTokens(containerHeight = 32.dp, containerPaddingInlineNarrow = 4.dp, containerWidthWide = 40.dp, containerPaddingInlineStart = 16.dp, containerPaddingInlineEnd = 16.dp, containerPaddingInlineStartWithIcon = 16.dp, containerPaddingInlineEndWithIcon = 16.dp, containerPaddingBlock = 6.dp, labelTypescale = typescale.label, iconSize = 20.dp, iconSizeWithoutLabel = 20.dp, containerGap = 8.dp, outlineWidth = 1.dp, motionStateDuration = 150),
+                    TanreiButtonSize("xlarge") to TanreiButtonSizeTokens(containerHeight = 136.dp, containerPaddingInlineNarrow = 4.dp, containerWidthWide = 72.dp, containerPaddingInlineStart = 64.dp, containerPaddingInlineEnd = 64.dp, containerPaddingInlineStartWithIcon = 64.dp, containerPaddingInlineEndWithIcon = 64.dp, containerPaddingBlock = 6.dp, labelTypescale = typescale.label, iconSize = 40.dp, iconSizeWithoutLabel = 40.dp, containerGap = 16.dp, outlineWidth = 3.dp, motionStateDuration = 150),
                 ),
             ),
             variants = TanreiButtonVariants(
@@ -2144,117 +2272,25 @@ private object M3ExpressiveLikeSystemSource {
         TanreiCalloutTokens(
             actionsGap = 12.dp,
             actionsItemGap = 8.dp,
+            closeButtonVariant = 4f,
             containerGap = 8.dp,
             containerPaddingBlock = 12.dp,
             containerPaddingInline = 16.dp,
             containerPaddingInlineEndWithClose = 8.dp,
             containerShape = 12.dp,
-            controlsHeight = 32.dp,
-            controlsIconSize = 20.dp,
-            controlsShape = 9999.dp,
             iconGap = 12.dp,
             iconOpacity = 0.85f,
             iconSize = 20.dp,
-            motionFeedbackDuration = 450,
-            motionStateDuration = 150,
-            motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             outlineColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
             outlineWidth = 1.dp,
             titleGap = 4.dp,
-            hovered = TanreiCalloutStateTokens(opacity = 1f),
-            focused = TanreiCalloutStateTokens(opacity = 1f),
-            pressed = TanreiCalloutStateTokens(opacity = 1f),
-            controls = TanreiCalloutControls(
-                close = TanreiCalloutControlTokens(
-                    enabled = TanreiCalloutControlStateTokens(
-                        containerColor = TanreiPaint.None,
-                        contentColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        infoContainerColor = TanreiPaint.None,
-                        infoContentColor = TanreiPaint.Role(TanreiColorRole.OnInfoContainer),
-                        infoStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnInfoContainer),
-                        warningContainerColor = TanreiPaint.None,
-                        warningContentColor = TanreiPaint.Role(TanreiColorRole.OnWarningContainer),
-                        warningStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnWarningContainer),
-                        errorContainerColor = TanreiPaint.None,
-                        errorContentColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
-                        errorStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
-                        successContainerColor = TanreiPaint.None,
-                        successContentColor = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer),
-                        successStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer),
-                        outlinedContainerColor = TanreiPaint.None,
-                        outlinedContentColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        outlinedStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    hovered = TanreiCalloutControlStateTokens(
-                        containerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.08f),
-                        contentColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        infoContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnInfoContainer), amount = 0.08f),
-                        infoContentColor = TanreiPaint.Role(TanreiColorRole.OnInfoContainer),
-                        infoStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnInfoContainer),
-                        warningContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnWarningContainer), amount = 0.08f),
-                        warningContentColor = TanreiPaint.Role(TanreiColorRole.OnWarningContainer),
-                        warningStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnWarningContainer),
-                        errorContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnErrorContainer), amount = 0.08f),
-                        errorContentColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
-                        errorStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
-                        successContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer), amount = 0.08f),
-                        successContentColor = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer),
-                        successStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer),
-                        outlinedContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant), amount = 0.08f),
-                        outlinedContentColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        outlinedStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    focused = TanreiCalloutControlStateTokens(
-                        containerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.12f),
-                        contentColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        infoContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnInfoContainer), amount = 0.12f),
-                        infoContentColor = TanreiPaint.Role(TanreiColorRole.OnInfoContainer),
-                        infoStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnInfoContainer),
-                        warningContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnWarningContainer), amount = 0.12f),
-                        warningContentColor = TanreiPaint.Role(TanreiColorRole.OnWarningContainer),
-                        warningStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnWarningContainer),
-                        errorContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnErrorContainer), amount = 0.12f),
-                        errorContentColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
-                        errorStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
-                        successContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer), amount = 0.12f),
-                        successContentColor = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer),
-                        successStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer),
-                        outlinedContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant), amount = 0.12f),
-                        outlinedContentColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        outlinedStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    pressed = TanreiCalloutControlStateTokens(
-                        containerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.12f),
-                        contentColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        infoContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnInfoContainer), amount = 0.12f),
-                        infoContentColor = TanreiPaint.Role(TanreiColorRole.OnInfoContainer),
-                        infoStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnInfoContainer),
-                        warningContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnWarningContainer), amount = 0.12f),
-                        warningContentColor = TanreiPaint.Role(TanreiColorRole.OnWarningContainer),
-                        warningStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnWarningContainer),
-                        errorContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnErrorContainer), amount = 0.12f),
-                        errorContentColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
-                        errorStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
-                        successContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer), amount = 0.12f),
-                        successContentColor = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer),
-                        successStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer),
-                        outlinedContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant), amount = 0.12f),
-                        outlinedContentColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        outlinedStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                ),
-            ),
             sizes = TanreiCalloutSizes(
                 medium = TanreiCalloutSizeTokens(titleTypescale = typescale.heading6, bodyTypescale = typescale.body),
                 large = TanreiCalloutSizeTokens(titleTypescale = typescale.heading5, bodyTypescale = typescale.bodyLarge),
             ),
             variants = TanreiCalloutVariants(
-                tonal = TanreiCalloutVariantTokens(containerColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer), titleColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), bodyColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), iconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), focusRingColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), infoContainerColor = TanreiPaint.Role(TanreiColorRole.InfoContainer), infoTitleColor = TanreiPaint.Role(TanreiColorRole.OnInfoContainer), infoBodyColor = TanreiPaint.Role(TanreiColorRole.OnInfoContainer), infoIconColor = TanreiPaint.Role(TanreiColorRole.Info), infoFocusRingColor = TanreiPaint.Role(TanreiColorRole.OnInfoContainer), warningContainerColor = TanreiPaint.Role(TanreiColorRole.WarningContainer), warningTitleColor = TanreiPaint.Role(TanreiColorRole.OnWarningContainer), warningBodyColor = TanreiPaint.Role(TanreiColorRole.OnWarningContainer), warningIconColor = TanreiPaint.Role(TanreiColorRole.Warning), warningFocusRingColor = TanreiPaint.Role(TanreiColorRole.OnWarningContainer), errorContainerColor = TanreiPaint.Role(TanreiColorRole.ErrorContainer), errorTitleColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer), errorBodyColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer), errorIconColor = TanreiPaint.Role(TanreiColorRole.Error), errorFocusRingColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer), successContainerColor = TanreiPaint.Role(TanreiColorRole.SuccessContainer), successTitleColor = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer), successBodyColor = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer), successIconColor = TanreiPaint.Role(TanreiColorRole.Success), successFocusRingColor = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer)),
-                outlined = TanreiCalloutVariantTokens(containerColor = TanreiPaint.None, titleColor = TanreiPaint.Role(TanreiColorRole.OnSurface), bodyColor = TanreiPaint.Role(TanreiColorRole.OnSurface), iconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant), focusRingColor = TanreiPaint.Role(TanreiColorRole.FocusRing), infoContainerColor = TanreiPaint.None, infoTitleColor = TanreiPaint.Role(TanreiColorRole.OnSurface), infoBodyColor = TanreiPaint.Role(TanreiColorRole.OnSurface), infoIconColor = TanreiPaint.Role(TanreiColorRole.Info), infoFocusRingColor = TanreiPaint.Role(TanreiColorRole.FocusRing), warningContainerColor = TanreiPaint.None, warningTitleColor = TanreiPaint.Role(TanreiColorRole.OnSurface), warningBodyColor = TanreiPaint.Role(TanreiColorRole.OnSurface), warningIconColor = TanreiPaint.Role(TanreiColorRole.Warning), warningFocusRingColor = TanreiPaint.Role(TanreiColorRole.FocusRing), errorContainerColor = TanreiPaint.None, errorTitleColor = TanreiPaint.Role(TanreiColorRole.OnSurface), errorBodyColor = TanreiPaint.Role(TanreiColorRole.OnSurface), errorIconColor = TanreiPaint.Role(TanreiColorRole.Error), errorFocusRingColor = TanreiPaint.Role(TanreiColorRole.FocusRing), successContainerColor = TanreiPaint.None, successTitleColor = TanreiPaint.Role(TanreiColorRole.OnSurface), successBodyColor = TanreiPaint.Role(TanreiColorRole.OnSurface), successIconColor = TanreiPaint.Role(TanreiColorRole.Success), successFocusRingColor = TanreiPaint.Role(TanreiColorRole.FocusRing)),
+                tonal = TanreiCalloutVariantTokens(containerColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer), titleColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), bodyColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), iconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), infoContainerColor = TanreiPaint.Role(TanreiColorRole.InfoContainer), infoTitleColor = TanreiPaint.Role(TanreiColorRole.OnInfoContainer), infoBodyColor = TanreiPaint.Role(TanreiColorRole.OnInfoContainer), infoIconColor = TanreiPaint.Role(TanreiColorRole.Info), warningContainerColor = TanreiPaint.Role(TanreiColorRole.WarningContainer), warningTitleColor = TanreiPaint.Role(TanreiColorRole.OnWarningContainer), warningBodyColor = TanreiPaint.Role(TanreiColorRole.OnWarningContainer), warningIconColor = TanreiPaint.Role(TanreiColorRole.Warning), errorContainerColor = TanreiPaint.Role(TanreiColorRole.ErrorContainer), errorTitleColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer), errorBodyColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer), errorIconColor = TanreiPaint.Role(TanreiColorRole.Error), successContainerColor = TanreiPaint.Role(TanreiColorRole.SuccessContainer), successTitleColor = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer), successBodyColor = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer), successIconColor = TanreiPaint.Role(TanreiColorRole.Success)),
+                outlined = TanreiCalloutVariantTokens(containerColor = TanreiPaint.None, titleColor = TanreiPaint.Role(TanreiColorRole.OnSurface), bodyColor = TanreiPaint.Role(TanreiColorRole.OnSurface), iconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant), infoContainerColor = TanreiPaint.None, infoTitleColor = TanreiPaint.Role(TanreiColorRole.OnSurface), infoBodyColor = TanreiPaint.Role(TanreiColorRole.OnSurface), infoIconColor = TanreiPaint.Role(TanreiColorRole.Info), warningContainerColor = TanreiPaint.None, warningTitleColor = TanreiPaint.Role(TanreiColorRole.OnSurface), warningBodyColor = TanreiPaint.Role(TanreiColorRole.OnSurface), warningIconColor = TanreiPaint.Role(TanreiColorRole.Warning), errorContainerColor = TanreiPaint.None, errorTitleColor = TanreiPaint.Role(TanreiColorRole.OnSurface), errorBodyColor = TanreiPaint.Role(TanreiColorRole.OnSurface), errorIconColor = TanreiPaint.Role(TanreiColorRole.Error), successContainerColor = TanreiPaint.None, successTitleColor = TanreiPaint.Role(TanreiColorRole.OnSurface), successBodyColor = TanreiPaint.Role(TanreiColorRole.OnSurface), successIconColor = TanreiPaint.Role(TanreiColorRole.Success)),
             ),
         )
 
@@ -2584,7 +2620,6 @@ private object M3ExpressiveLikeSystemSource {
             labelTypescale = typescale.body,
             markSize = 20.dp,
             markWeight = 400f,
-            markWidth = 2.dp,
             motionFeedbackDuration = 450,
             motionMarkEnterScale = 0.5f,
             motionMarkScaleDuration = 350,
@@ -2863,7 +2898,6 @@ private object M3ExpressiveLikeSystemSource {
             motionFeedbackDuration = 450,
             motionSelectionDuration = 150,
             motionSelectionEasing = TanreiCubicBezier(x1 = 0.31f, y1 = 0.94f, x2 = 0.34f, y2 = 1f),
-            motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             outlineWidth = 1.dp,
             removeContainerShape = 9999.dp,
@@ -2872,8 +2906,8 @@ private object M3ExpressiveLikeSystemSource {
             pressed = TanreiChipStateTokens(opacity = 1f),
             disabled = TanreiChipStateTokens(opacity = 1f),
             sizes = TanreiChipSizes(
-                small = TanreiChipSizeTokens(containerHeight = 24.dp, containerPaddingInline = 8.dp, containerPaddingInlineWithIcon = 6.dp, containerPaddingInlineWithAvatar = 4.dp, containerPaddingInlineWithRemove = 6.dp, containerPaddingBlock = 2.dp, containerGap = 4.dp, labelTypescale = typescale.labelSmall, iconSize = 20.dp, avatarSize = 16.dp, removeContainerSize = 24.dp),
-                medium = TanreiChipSizeTokens(containerHeight = 32.dp, containerPaddingInline = 16.dp, containerPaddingInlineWithIcon = 8.dp, containerPaddingInlineWithAvatar = 4.dp, containerPaddingInlineWithRemove = 8.dp, containerPaddingBlock = 4.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 18.dp, avatarSize = 24.dp, removeContainerSize = 28.dp),
+                small = TanreiChipSizeTokens(containerHeight = 24.dp, containerPaddingInline = 8.dp, containerPaddingInlineWithIcon = 6.dp, containerPaddingInlineWithAvatar = 4.dp, containerPaddingInlineWithRemove = 6.dp, containerPaddingBlock = 2.dp, containerGap = 4.dp, labelTypescale = typescale.labelSmall, iconSize = 20.dp, avatarSize = 16.dp, removeContainerSize = 24.dp, motionStateDuration = 150),
+                medium = TanreiChipSizeTokens(containerHeight = 32.dp, containerPaddingInline = 16.dp, containerPaddingInlineWithIcon = 8.dp, containerPaddingInlineWithAvatar = 4.dp, containerPaddingInlineWithRemove = 8.dp, containerPaddingBlock = 4.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 18.dp, avatarSize = 24.dp, removeContainerSize = 28.dp, motionStateDuration = 150),
             ),
             variants = TanreiChipVariants(
                 outlined = TanreiChipVariantTokens(
@@ -3146,7 +3180,6 @@ private object M3ExpressiveLikeSystemSource {
             dividerSpace = 8.dp,
             dividerThickness = 1.dp,
             groupTitleColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-            groupTitlePaddingInline = 12.dp,
             groupTitleTypescale = typescale.labelSmall,
             groupGap = 16.dp,
             listColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainer),
@@ -3164,14 +3197,8 @@ private object M3ExpressiveLikeSystemSource {
             motionOpenEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
             motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
-            optionGap = 12.dp,
-            optionHeight = 48.dp,
             optionLabelTypescale = typescale.label,
-            optionLeadingIconSize = 24.dp,
-            optionMarkSize = 24.dp,
             optionMatchEmphasis = 200f,
-            optionPaddingBlock = 8.dp,
-            optionPaddingInline = 12.dp,
             optionShape = 0.dp,
             optionSupportingTextTypescale = typescale.bodySmall,
             separation = 0f,
@@ -3385,6 +3412,10 @@ private object M3ExpressiveLikeSystemSource {
                     ),
                 ),
             ),
+            densitys = TanreiComboboxDensitys(
+                regular = TanreiComboboxDensityTokens(optionHeight = 48.dp, optionPaddingInline = 12.dp, optionPaddingBlock = 8.dp, optionGap = 12.dp, optionLeadingIconSize = 24.dp, optionMarkSize = 24.dp, groupTitlePaddingInline = 12.dp),
+                compact = TanreiComboboxDensityTokens(optionHeight = 32.dp, optionPaddingInline = 8.dp, optionPaddingBlock = 6.dp, optionGap = 8.dp, optionLeadingIconSize = 20.dp, optionMarkSize = 20.dp, groupTitlePaddingInline = 8.dp),
+            ),
         )
 
     @Suppress("UNUSED_PARAMETER")
@@ -3444,7 +3475,6 @@ private object M3ExpressiveLikeSystemSource {
             modalContainerShape = 28.dp,
             modalMotionCloseDuration = 200,
             modalMotionCloseEasing = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 0.8f, y2 = 0.15f),
-            modalMotionEnterScale = 0.95f,
             modalMotionOpenDuration = 300,
             modalMotionOpenEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
             modalScrimBlur = 0.dp,
@@ -3573,7 +3603,6 @@ private object M3ExpressiveLikeSystemSource {
             actionsGap = 8.dp,
             actionsMarginBlockStart = 24.dp,
             actionsVariant = 4f,
-            closeButtonVariant = 4f,
             compactWindowWidth = 0.dp,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainerHigh),
             containerElevation = elevation.level3,
@@ -3595,8 +3624,6 @@ private object M3ExpressiveLikeSystemSource {
             iconSize = 24.dp,
             motionEnterDuration = 300,
             motionEnterEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
-            motionEnterOffset = 32.dp,
-            motionEnterScale = 0.95f,
             motionExitDuration = 200,
             motionExitEasing = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 0.8f, y2 = 0.15f),
             scrimBlur = 0.dp,
@@ -4312,11 +4339,58 @@ private object M3ExpressiveLikeSystemSource {
         )
 
     @Suppress("UNUSED_PARAMETER")
+    fun handle(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiHandleTokens =
+        TanreiHandleTokens(
+            containerShape = 9999.dp,
+            inset = 4.dp,
+            motionFeedbackDuration = 450,
+            motionStateDuration = 150,
+            motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            hovered = TanreiHandleStateTokens(opacity = 1f),
+            focused = TanreiHandleStateTokens(opacity = 1f),
+            pressed = TanreiHandleStateTokens(opacity = 1f),
+            disabled = TanreiHandleStateTokens(opacity = 1f),
+            sizes = TanreiHandleSizes(
+                small = TanreiHandleSizeTokens(containerLength = 20.dp, containerBreadth = 16.dp, lineLength = 12.dp, lineThickness = 3.dp, lineActiveLength = 16.dp, lineActiveThickness = 4.dp, arcRadius = 8.dp),
+                medium = TanreiHandleSizeTokens(containerLength = 48.dp, containerBreadth = 24.dp, lineLength = 32.dp, lineThickness = 4.dp, lineActiveLength = 40.dp, lineActiveThickness = 6.dp, arcRadius = 16.dp),
+            ),
+            conditions = TanreiHandleConditions(
+                standard = TanreiHandleConditionTokens(
+                    enabled = TanreiHandleConditionStateTokens(
+                        containerColor = TanreiPaint.None,
+                        lineColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                    ),
+                    hovered = TanreiHandleConditionStateTokens(
+                        containerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.Outline), amount = 0.08f),
+                        lineColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                    ),
+                    focused = TanreiHandleConditionStateTokens(
+                        containerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.Outline), amount = 0.12f),
+                        lineColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                    ),
+                    pressed = TanreiHandleConditionStateTokens(
+                        containerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.Outline), amount = 0.12f),
+                        lineColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.Outline),
+                    ),
+                    disabled = TanreiHandleConditionStateTokens(
+                        containerColor = TanreiPaint.None,
+                        lineColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                        stateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                    ),
+                ),
+            ),
+        )
+
+    @Suppress("UNUSED_PARAMETER")
     fun imagePreview(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiImagePreviewTokens =
         TanreiImagePreviewTokens(
             barButtonVariant = 4f,
             barContainerColor = TanreiPaint.Role(TanreiColorRole.Surface),
-            barGap = 4.dp,
+            barGap = 12.dp,
             barHeight = 56.dp,
             barPaddingInline = 8.dp,
             captionColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
@@ -4339,7 +4413,6 @@ private object M3ExpressiveLikeSystemSource {
             motionControlsEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             motionEnterDuration = 300,
             motionEnterEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
-            motionEnterScale = 0.95f,
             motionExitDuration = 200,
             motionExitEasing = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 0.8f, y2 = 0.15f),
             motionPageDuration = 300,
@@ -4372,7 +4445,6 @@ private object M3ExpressiveLikeSystemSource {
             containerShapeBottom = 0.dp,
             motionLabelDuration = 150,
             motionLabelEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
-            motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             outlineNotchPadding = 4.dp,
             outlineWidth = 1.dp,
@@ -4383,9 +4455,9 @@ private object M3ExpressiveLikeSystemSource {
             focused = TanreiInputBoxStateTokens(activeIndicatorWidth = 2.dp, opacity = 1f, outlineWidth = 2.dp),
             disabled = TanreiInputBoxStateTokens(activeIndicatorWidth = 1.dp, opacity = 1f, outlineWidth = 1.dp),
             sizes = TanreiInputBoxSizes(
-                small = TanreiInputBoxSizeTokens(containerHeight = 40.dp, containerPaddingInline = 12.dp, containerPaddingInlineWithIcon = 8.dp, containerPaddingBlock = 8.dp, containerPaddingBlockWithLabel = 2.dp, containerGap = 8.dp, labelTypescale = typescale.bodyLarge, labelFloatedTypescale = typescale.bodySmall, inputTypescale = typescale.body, iconSize = 20.dp),
-                medium = TanreiInputBoxSizeTokens(containerHeight = 56.dp, containerPaddingInline = 16.dp, containerPaddingInlineWithIcon = 12.dp, containerPaddingBlock = 16.dp, containerPaddingBlockWithLabel = 8.dp, containerGap = 16.dp, labelTypescale = typescale.bodyLarge, labelFloatedTypescale = typescale.bodySmall, inputTypescale = typescale.bodyLarge, iconSize = 24.dp),
-                large = TanreiInputBoxSizeTokens(containerHeight = 56.dp, containerPaddingInline = 16.dp, containerPaddingInlineWithIcon = 12.dp, containerPaddingBlock = 16.dp, containerPaddingBlockWithLabel = 8.dp, containerGap = 16.dp, labelTypescale = typescale.bodyLarge, labelFloatedTypescale = typescale.bodySmall, inputTypescale = typescale.bodyLarge, iconSize = 24.dp),
+                small = TanreiInputBoxSizeTokens(containerHeight = 40.dp, stackedContainerHeight = 40.dp, containerPaddingInline = 12.dp, containerPaddingInlineWithIcon = 8.dp, containerPaddingBlock = 8.dp, stackedContainerPaddingBlock = 8.dp, containerPaddingBlockWithLabel = 2.dp, containerGap = 8.dp, labelTypescale = typescale.bodyLarge, labelFloatedTypescale = typescale.bodySmall, inputTypescale = typescale.body, iconSize = 20.dp, motionStateDuration = 150),
+                medium = TanreiInputBoxSizeTokens(containerHeight = 56.dp, stackedContainerHeight = 56.dp, containerPaddingInline = 16.dp, containerPaddingInlineWithIcon = 12.dp, containerPaddingBlock = 16.dp, stackedContainerPaddingBlock = 16.dp, containerPaddingBlockWithLabel = 8.dp, containerGap = 16.dp, labelTypescale = typescale.bodyLarge, labelFloatedTypescale = typescale.bodySmall, inputTypescale = typescale.bodyLarge, iconSize = 24.dp, motionStateDuration = 150),
+                large = TanreiInputBoxSizeTokens(containerHeight = 56.dp, stackedContainerHeight = 56.dp, containerPaddingInline = 16.dp, containerPaddingInlineWithIcon = 12.dp, containerPaddingBlock = 16.dp, stackedContainerPaddingBlock = 16.dp, containerPaddingBlockWithLabel = 8.dp, containerGap = 16.dp, labelTypescale = typescale.bodyLarge, labelFloatedTypescale = typescale.bodySmall, inputTypescale = typescale.bodyLarge, iconSize = 24.dp, motionStateDuration = 150),
             ),
             variants = TanreiInputBoxVariants(
                 stacked = TanreiInputBoxVariantTokens(
@@ -4992,8 +5064,6 @@ private object M3ExpressiveLikeSystemSource {
     fun list(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiListTokens =
         TanreiListTokens(
             containerGap = 16.dp,
-            containerHeight = 56.dp,
-            containerPaddingBlock = 8.dp,
             containerPaddingInlineEnd = 24.dp,
             containerPaddingInlineStart = 16.dp,
             containerShape = 0.dp,
@@ -5082,6 +5152,10 @@ private object M3ExpressiveLikeSystemSource {
                     ),
                 ),
             ),
+            densitys = TanreiListDensitys(
+                regular = TanreiListDensityTokens(containerHeight = 56.dp, containerPaddingBlock = 8.dp),
+                compact = TanreiListDensityTokens(containerHeight = 32.dp, containerPaddingBlock = 4.dp),
+            ),
         )
 
     @Suppress("UNUSED_PARAMETER")
@@ -5110,16 +5184,15 @@ private object M3ExpressiveLikeSystemSource {
             motionFeedbackDuration = 450,
             motionResizeDuration = 500,
             motionResizeEasing = TanreiCubicBezier(x1 = 0.27f, y1 = 1.06f, x2 = 0.18f, y2 = 1f),
-            motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             hovered = TanreiMainActionButtonStateTokens(opacity = 1f),
             focused = TanreiMainActionButtonStateTokens(opacity = 1f),
             pressed = TanreiMainActionButtonStateTokens(opacity = 1f),
             disabled = TanreiMainActionButtonStateTokens(opacity = 1f),
             sizes = TanreiMainActionButtonSizes(
-                small = TanreiMainActionButtonSizeTokens(containerHeight = 40.dp, containerShape = 12.dp, containerPaddingInlineStart = 16.dp, containerPaddingInlineEnd = 16.dp, containerPaddingInlineStartWithIcon = 12.dp, containerPaddingInlineEndWithIcon = 12.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 24.dp),
-                medium = TanreiMainActionButtonSizeTokens(containerHeight = 56.dp, containerShape = 16.dp, containerPaddingInlineStart = 20.dp, containerPaddingInlineEnd = 20.dp, containerPaddingInlineStartWithIcon = 16.dp, containerPaddingInlineEndWithIcon = 20.dp, containerPaddingBlock = 6.dp, containerGap = 12.dp, labelTypescale = typescale.label, iconSize = 24.dp),
-                large = TanreiMainActionButtonSizeTokens(containerHeight = 96.dp, containerShape = 28.dp, containerPaddingInlineStart = 32.dp, containerPaddingInlineEnd = 32.dp, containerPaddingInlineStartWithIcon = 24.dp, containerPaddingInlineEndWithIcon = 32.dp, containerPaddingBlock = 6.dp, containerGap = 16.dp, labelTypescale = typescale.heading5, iconSize = 36.dp),
+                small = TanreiMainActionButtonSizeTokens(containerHeight = 40.dp, containerShape = 12.dp, containerPaddingInlineStart = 16.dp, containerPaddingInlineEnd = 16.dp, containerPaddingInlineStartWithIcon = 12.dp, containerPaddingInlineEndWithIcon = 12.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 24.dp, motionStateDuration = 150),
+                medium = TanreiMainActionButtonSizeTokens(containerHeight = 56.dp, containerShape = 16.dp, containerPaddingInlineStart = 20.dp, containerPaddingInlineEnd = 20.dp, containerPaddingInlineStartWithIcon = 16.dp, containerPaddingInlineEndWithIcon = 20.dp, containerPaddingBlock = 6.dp, containerGap = 12.dp, labelTypescale = typescale.label, iconSize = 24.dp, motionStateDuration = 150),
+                large = TanreiMainActionButtonSizeTokens(containerHeight = 96.dp, containerShape = 28.dp, containerPaddingInlineStart = 32.dp, containerPaddingInlineEnd = 32.dp, containerPaddingInlineStartWithIcon = 24.dp, containerPaddingInlineEndWithIcon = 32.dp, containerPaddingBlock = 6.dp, containerGap = 16.dp, labelTypescale = typescale.heading5, iconSize = 36.dp, motionStateDuration = 150),
             ),
             variants = TanreiMainActionButtonVariants(
                 filled = TanreiMainActionButtonVariantTokens(
@@ -5222,13 +5295,24 @@ private object M3ExpressiveLikeSystemSource {
         )
 
     @Suppress("UNUSED_PARAMETER")
+    fun marqueeText(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiMarqueeTextTokens =
+        TanreiMarqueeTextTokens(
+            fadeExtent = 16.dp,
+            gap = 48.dp,
+            motionEasing = TanreiCubicBezier(x1 = 0f, y1 = 0f, x2 = 1f, y2 = 1f),
+            motionEndPause = 1200,
+            motionReturnDuration = 150,
+            motionReturnEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            motionStartDelay = 300,
+            motionStartPause = 1200,
+            playbackGap = 8.dp,
+            speed = 30f,
+        )
+
+    @Suppress("UNUSED_PARAMETER")
     fun menu(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiMenuTokens =
         TanreiMenuTokens(
             checkboxItemMark = 1f,
-            containerGap = 12.dp,
-            containerHeight = 48.dp,
-            containerPaddingBlock = 8.dp,
-            containerPaddingInline = 12.dp,
             containerShape = 0.dp,
             controlBoxShape = 4.dp,
             controlBoxSize = 18.dp,
@@ -5244,12 +5328,9 @@ private object M3ExpressiveLikeSystemSource {
             dividerSpace = 8.dp,
             dividerThickness = 1.dp,
             groupTitleColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-            groupTitlePaddingInline = 12.dp,
             groupTitleTypescale = typescale.labelSmall,
             groupGap = 16.dp,
             labelTypescale = typescale.label,
-            leadingIconSize = 24.dp,
-            markSize = 24.dp,
             markWidth = 2.dp,
             motionCloseDuration = 100,
             motionCloseEasing = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 0.8f, y2 = 0.15f),
@@ -5273,7 +5354,6 @@ private object M3ExpressiveLikeSystemSource {
             surfacePaddingInline = 0.dp,
             surfaceShape = 4.dp,
             surfaceViewportMargin = 8.dp,
-            trailingIconSize = 24.dp,
             trailingTextTypescale = typescale.labelSmall,
             hovered = TanreiMenuStateTokens(containerShape = 0.dp, opacity = 1f),
             focused = TanreiMenuStateTokens(containerShape = 0.dp, opacity = 1f),
@@ -5591,6 +5671,10 @@ private object M3ExpressiveLikeSystemSource {
                     ),
                 ),
             ),
+            densitys = TanreiMenuDensitys(
+                regular = TanreiMenuDensityTokens(containerHeight = 48.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 8.dp, containerGap = 12.dp, leadingIconSize = 24.dp, trailingIconSize = 24.dp, markSize = 24.dp, groupTitlePaddingInline = 12.dp),
+                compact = TanreiMenuDensityTokens(containerHeight = 32.dp, containerPaddingInline = 8.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, leadingIconSize = 20.dp, trailingIconSize = 20.dp, markSize = 20.dp, groupTitlePaddingInline = 8.dp),
+            ),
         )
 
     @Suppress("UNUSED_PARAMETER")
@@ -5715,6 +5799,28 @@ private object M3ExpressiveLikeSystemSource {
         )
 
     @Suppress("UNUSED_PARAMETER")
+    fun meter(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiMeterTokens =
+        TanreiMeterTokens(
+            errorIndicatorColor = TanreiPaint.Role(TanreiColorRole.Error),
+            indicatorColor = TanreiPaint.Role(TanreiColorRole.Primary),
+            infoIndicatorColor = TanreiPaint.Role(TanreiColorRole.Info),
+            motionValueDuration = 300,
+            motionValueEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            stopIndicatorSize = 4.dp,
+            successIndicatorColor = TanreiPaint.Role(TanreiColorRole.Success),
+            trackColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
+            trackGap = 4.dp,
+            trackSeparation = 1f,
+            trackShape = 9999.dp,
+            warningIndicatorColor = TanreiPaint.Role(TanreiColorRole.Warning),
+            sizes = TanreiMeterSizes(
+                small = TanreiMeterSizeTokens(linearThickness = 4.dp, circularSize = 24.dp, circularThickness = 4.dp),
+                medium = TanreiMeterSizeTokens(linearThickness = 4.dp, circularSize = 40.dp, circularThickness = 4.dp),
+                large = TanreiMeterSizeTokens(linearThickness = 4.dp, circularSize = 48.dp, circularThickness = 4.dp),
+            ),
+        )
+
+    @Suppress("UNUSED_PARAMETER")
     fun modalLayer(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiModalLayerTokens =
         TanreiModalLayerTokens(
             motionEnterDuration = 300,
@@ -5732,11 +5838,9 @@ private object M3ExpressiveLikeSystemSource {
             containerElevation = elevation.level0,
             containerHeight = 80.dp,
             containerPadding = 0.dp,
-            itemContainerHeight = 32.dp,
             itemContainerPaddingBlock = 0.dp,
             itemContainerPaddingInline = 0.dp,
             itemContainerShape = 9999.dp,
-            itemContainerWidth = 64.dp,
             itemGap = 4.dp,
             itemIconIndicatorHeight = 32.dp,
             itemIconIndicatorShape = 9999.dp,
@@ -5966,7 +6070,6 @@ private object M3ExpressiveLikeSystemSource {
             headerTypescale = typescale.heading5,
             headingColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             headingTypescale = typescale.heading6,
-            itemBadgeTypescale = typescale.label,
             itemContainerShape = 9999.dp,
             itemGap = 12.dp,
             itemIconIndicatorShape = 9999.dp,
@@ -6009,7 +6112,6 @@ private object M3ExpressiveLikeSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                     ),
                     hovered = TanreiNavigationDrawerConditionStateTokens(
@@ -6020,7 +6122,6 @@ private object M3ExpressiveLikeSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                     ),
                     focused = TanreiNavigationDrawerConditionStateTokens(
@@ -6031,7 +6132,6 @@ private object M3ExpressiveLikeSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                     ),
                     pressed = TanreiNavigationDrawerConditionStateTokens(
@@ -6042,7 +6142,6 @@ private object M3ExpressiveLikeSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                     ),
                     disabled = TanreiNavigationDrawerConditionStateTokens(
@@ -6053,7 +6152,6 @@ private object M3ExpressiveLikeSystemSource {
                         itemSupportingTextColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemTrailingTextColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemTrailingIconColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                        itemBadgeColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemStateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                     ),
                 ),
@@ -6066,7 +6164,6 @@ private object M3ExpressiveLikeSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     hovered = TanreiNavigationDrawerConditionStateTokens(
@@ -6077,7 +6174,6 @@ private object M3ExpressiveLikeSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     focused = TanreiNavigationDrawerConditionStateTokens(
@@ -6088,7 +6184,6 @@ private object M3ExpressiveLikeSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     pressed = TanreiNavigationDrawerConditionStateTokens(
@@ -6099,7 +6194,6 @@ private object M3ExpressiveLikeSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     disabled = TanreiNavigationDrawerConditionStateTokens(
@@ -6110,7 +6204,6 @@ private object M3ExpressiveLikeSystemSource {
                         itemSupportingTextColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemTrailingTextColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemTrailingIconColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                        itemBadgeColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemStateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                     ),
                 ),
@@ -6123,7 +6216,6 @@ private object M3ExpressiveLikeSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemStateLayerColor = TanreiPaint.None,
                     ),
                     hovered = TanreiNavigationDrawerConditionStateTokens(
@@ -6134,7 +6226,6 @@ private object M3ExpressiveLikeSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemStateLayerColor = TanreiPaint.None,
                     ),
                     focused = TanreiNavigationDrawerConditionStateTokens(
@@ -6145,7 +6236,6 @@ private object M3ExpressiveLikeSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemStateLayerColor = TanreiPaint.None,
                     ),
                     pressed = TanreiNavigationDrawerConditionStateTokens(
@@ -6156,7 +6246,6 @@ private object M3ExpressiveLikeSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
                         itemStateLayerColor = TanreiPaint.None,
                     ),
                     disabled = TanreiNavigationDrawerConditionStateTokens(
@@ -6167,7 +6256,6 @@ private object M3ExpressiveLikeSystemSource {
                         itemSupportingTextColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemTrailingTextColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemTrailingIconColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                        itemBadgeColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemStateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                     ),
                 ),
@@ -6180,7 +6268,6 @@ private object M3ExpressiveLikeSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemStateLayerColor = TanreiPaint.None,
                     ),
                     hovered = TanreiNavigationDrawerConditionStateTokens(
@@ -6191,7 +6278,6 @@ private object M3ExpressiveLikeSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemStateLayerColor = TanreiPaint.None,
                     ),
                     focused = TanreiNavigationDrawerConditionStateTokens(
@@ -6202,7 +6288,6 @@ private object M3ExpressiveLikeSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemStateLayerColor = TanreiPaint.None,
                     ),
                     pressed = TanreiNavigationDrawerConditionStateTokens(
@@ -6213,7 +6298,6 @@ private object M3ExpressiveLikeSystemSource {
                         itemSupportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemTrailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        itemBadgeColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemStateLayerColor = TanreiPaint.None,
                     ),
                     disabled = TanreiNavigationDrawerConditionStateTokens(
@@ -6224,7 +6308,6 @@ private object M3ExpressiveLikeSystemSource {
                         itemSupportingTextColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemTrailingTextColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemTrailingIconColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                        itemBadgeColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemStateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                     ),
                 ),
@@ -6236,100 +6319,6 @@ private object M3ExpressiveLikeSystemSource {
         )
 
     @Suppress("UNUSED_PARAMETER")
-    fun navigationRail(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiNavigationRailTokens =
-        TanreiNavigationRailTokens(
-            containerColor = TanreiPaint.Role(TanreiColorRole.Surface),
-            containerElevation = elevation.level0,
-            containerGap = 8.dp,
-            containerPaddingBlock = 16.dp,
-            containerWidth = 80.dp,
-            headerGap = 24.dp,
-            itemContainerHeight = 32.dp,
-            itemContainerShape = 9999.dp,
-            itemContainerWidth = 56.dp,
-            itemGap = 4.dp,
-            itemIconSize = 24.dp,
-            itemLabelTypescale = typescale.labelSmall,
-            motionFeedbackDuration = 450,
-            motionSelectionDuration = 350,
-            motionSelectionEasing = TanreiCubicBezier(x1 = 0.27f, y1 = 1.06f, x2 = 0.18f, y2 = 1f),
-            motionStateDuration = 150,
-            motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
-            outlineColor = TanreiPaint.None,
-            outlineWidth = 1.dp,
-            hovered = TanreiNavigationRailStateTokens(opacity = 1f),
-            focused = TanreiNavigationRailStateTokens(opacity = 1f),
-            pressed = TanreiNavigationRailStateTokens(opacity = 1f),
-            disabled = TanreiNavigationRailStateTokens(opacity = 1f),
-            conditions = TanreiNavigationRailConditions(
-                unselected = TanreiNavigationRailConditionTokens(
-                    enabled = TanreiNavigationRailConditionStateTokens(
-                        itemContainerColor = TanreiPaint.None,
-                        itemIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    hovered = TanreiNavigationRailConditionStateTokens(
-                        itemContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant), amount = 0.08f),
-                        itemIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    focused = TanreiNavigationRailConditionStateTokens(
-                        itemContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant), amount = 0.12f),
-                        itemIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    pressed = TanreiNavigationRailConditionStateTokens(
-                        itemContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant), amount = 0.12f),
-                        itemIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    disabled = TanreiNavigationRailConditionStateTokens(
-                        itemContainerColor = TanreiPaint.None,
-                        itemIconColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                        itemLabelColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                        itemStateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                    ),
-                ),
-                selected = TanreiNavigationRailConditionTokens(
-                    enabled = TanreiNavigationRailConditionStateTokens(
-                        itemContainerColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
-                        itemIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
-                        itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                    ),
-                    hovered = TanreiNavigationRailConditionStateTokens(
-                        itemContainerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SecondaryContainer), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.08f),
-                        itemIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
-                        itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                    ),
-                    focused = TanreiNavigationRailConditionStateTokens(
-                        itemContainerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SecondaryContainer), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.12f),
-                        itemIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
-                        itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                    ),
-                    pressed = TanreiNavigationRailConditionStateTokens(
-                        itemContainerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SecondaryContainer), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.12f),
-                        itemIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                        itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
-                        itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-                    ),
-                    disabled = TanreiNavigationRailConditionStateTokens(
-                        itemContainerColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
-                        itemIconColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                        itemLabelColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                        itemStateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                    ),
-                ),
-            ),
-        )
-
-    @Suppress("UNUSED_PARAMETER")
     fun numberInput(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiNumberInputTokens =
         TanreiNumberInputTokens(
             motionRepeatDelay = 500,
@@ -6337,6 +6326,18 @@ private object M3ExpressiveLikeSystemSource {
             motionRepeatIntervalFast = 50,
             stepperGap = 0.dp,
             stepperInset = 4.dp,
+        )
+
+    @Suppress("UNUSED_PARAMETER")
+    fun numberTicker(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiNumberTickerTokens =
+        TanreiNumberTickerTokens(
+            animation = 0f,
+            blurSlideDistance = 8.dp,
+            blurRadius = 8.dp,
+            motionDuration = 500,
+            motionEasing = TanreiCubicBezier(x1 = 0.27f, y1 = 1.06f, x2 = 0.18f, y2 = 1f),
+            motionReducedDuration = 100,
+            motionStagger = 50,
         )
 
     @Suppress("UNUSED_PARAMETER")
@@ -6553,6 +6554,7 @@ private object M3ExpressiveLikeSystemSource {
             arrowVisible = 0f,
             arrowWidth = 12.dp,
             closeButtonVariant = 4f,
+            compactWindowWidth = 600.dp,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceBright),
             containerElevation = elevation.level2,
             containerGap = 12.dp,
@@ -6863,6 +6865,47 @@ private object M3ExpressiveLikeSystemSource {
         )
 
     @Suppress("UNUSED_PARAMETER")
+    fun resizableFrame(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiResizableFrameTokens =
+        TanreiResizableFrameTokens(
+            containerMinHeight = 200.dp,
+            containerMinWidth = 320.dp,
+            containerShape = 16.dp,
+            handleGap = 8.dp,
+            motionIndicatorEnterDuration = 200,
+            motionIndicatorEnterEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
+            motionIndicatorExitDuration = 150,
+            motionIndicatorExitEasing = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 0.8f, y2 = 0.15f),
+            motionResizeDuration = 200,
+            motionResizeEasing = TanreiCubicBezier(x1 = 0.27f, y1 = 1.06f, x2 = 0.18f, y2 = 1f),
+            outlineColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
+            outlineWidth = 1.dp,
+            sizeIndicatorContainerColor = TanreiPaint.Role(TanreiColorRole.InverseSurface),
+            sizeIndicatorContainerHeight = 24.dp,
+            sizeIndicatorContainerPaddingInline = 8.dp,
+            sizeIndicatorContainerShape = 8.dp,
+            sizeIndicatorLabelColor = TanreiPaint.Role(TanreiColorRole.InverseOnSurface),
+            sizeIndicatorLabelTypescale = typescale.codeSmall,
+            sizeIndicatorOffset = 8.dp,
+            snapDistance = 8.dp,
+        )
+
+    @Suppress("UNUSED_PARAMETER")
+    fun scrollArea(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiScrollAreaTokens =
+        TanreiScrollAreaTokens(
+            blurExtent = 48.dp,
+            blurLayers = 4f,
+            blurRadius = 8.dp,
+            fadeExtent = 24.dp,
+            lineColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
+            lineWidth = 1.dp,
+            motionDuration = 150,
+            motionEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            scrollEdge = 2f,
+            shadowColor = TanreiPaint.Role(TanreiColorRole.Surface),
+            shadowExtent = 24.dp,
+        )
+
+    @Suppress("UNUSED_PARAMETER")
     fun search(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiSearchTokens =
         TanreiSearchTokens(
             containerButtonGap = 8.dp,
@@ -6897,13 +6940,8 @@ private object M3ExpressiveLikeSystemSource {
             statusColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             statusErrorColor = TanreiPaint.Role(TanreiColorRole.Error),
             statusTypescale = typescale.bodySmall,
-            suggestionContainerGap = 16.dp,
-            suggestionContainerHeight = 56.dp,
-            suggestionContainerPaddingBlock = 8.dp,
-            suggestionContainerPaddingInline = 16.dp,
             suggestionContainerShape = 8.dp,
             suggestionHeadlineTypescale = typescale.body,
-            suggestionLeadingIconSize = 24.dp,
             suggestionSupportingTextTypescale = typescale.bodySmall,
             triggerContainerGap = 8.dp,
             triggerContainerHeight = 40.dp,
@@ -7004,6 +7042,10 @@ private object M3ExpressiveLikeSystemSource {
                     ),
                 ),
             ),
+            densitys = TanreiSearchDensitys(
+                regular = TanreiSearchDensityTokens(suggestionContainerHeight = 56.dp, suggestionContainerPaddingInline = 16.dp, suggestionContainerPaddingBlock = 8.dp, suggestionContainerGap = 16.dp, suggestionLeadingIconSize = 24.dp),
+                compact = TanreiSearchDensityTokens(suggestionContainerHeight = 32.dp, suggestionContainerPaddingInline = 8.dp, suggestionContainerPaddingBlock = 4.dp, suggestionContainerGap = 8.dp, suggestionLeadingIconSize = 20.dp),
+            ),
         )
 
     @Suppress("UNUSED_PARAMETER")
@@ -7016,7 +7058,6 @@ private object M3ExpressiveLikeSystemSource {
             motionFeedbackDuration = 450,
             motionSelectionDuration = 150,
             motionSelectionEasing = TanreiCubicBezier(x1 = 0.31f, y1 = 0.94f, x2 = 0.34f, y2 = 1f),
-            motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             outlineColor = TanreiPaint.Role(TanreiColorRole.Outline),
             outlineWidth = 1.dp,
@@ -7028,9 +7069,9 @@ private object M3ExpressiveLikeSystemSource {
             pressed = TanreiSegmentedButtonStateTokens(containerShape = 0.dp, opacity = 1f),
             disabled = TanreiSegmentedButtonStateTokens(containerShape = 0.dp, opacity = 1f),
             sizes = TanreiSegmentedButtonSizes(
-                small = TanreiSegmentedButtonSizeTokens(containerHeight = 32.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 18.dp, checkSize = 18.dp),
-                medium = TanreiSegmentedButtonSizeTokens(containerHeight = 40.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 18.dp, checkSize = 18.dp),
-                large = TanreiSegmentedButtonSizeTokens(containerHeight = 48.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 18.dp, checkSize = 18.dp),
+                small = TanreiSegmentedButtonSizeTokens(containerHeight = 32.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 18.dp, checkSize = 18.dp, motionStateDuration = 150),
+                medium = TanreiSegmentedButtonSizeTokens(containerHeight = 40.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 18.dp, checkSize = 18.dp, motionStateDuration = 150),
+                large = TanreiSegmentedButtonSizeTokens(containerHeight = 48.dp, containerPaddingInline = 12.dp, containerPaddingBlock = 6.dp, containerGap = 8.dp, labelTypescale = typescale.label, iconSize = 18.dp, checkSize = 18.dp, motionStateDuration = 150),
             ),
             conditions = TanreiSegmentedButtonConditions(
                 unselected = TanreiSegmentedButtonConditionTokens(
@@ -7117,7 +7158,6 @@ private object M3ExpressiveLikeSystemSource {
             dividerSpace = 8.dp,
             dividerThickness = 1.dp,
             groupTitleColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-            groupTitlePaddingInline = 12.dp,
             groupTitleTypescale = typescale.labelSmall,
             groupGap = 16.dp,
             listColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainer),
@@ -7137,16 +7177,13 @@ private object M3ExpressiveLikeSystemSource {
             motionOpenEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
             motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
-            optionGap = 12.dp,
-            optionHeight = 48.dp,
             optionLabelTypescale = typescale.label,
-            optionLeadingIconSize = 24.dp,
-            optionMarkSize = 24.dp,
-            optionPaddingBlock = 8.dp,
-            optionPaddingInline = 12.dp,
             optionShape = 0.dp,
             optionSupportingTextTypescale = typescale.bodySmall,
             separation = 0f,
+            statusColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
+            statusErrorColor = TanreiPaint.Role(TanreiColorRole.Error),
+            statusTypescale = typescale.bodySmall,
             hovered = TanreiSelectStateTokens(opacity = 1f),
             focused = TanreiSelectStateTokens(opacity = 1f),
             pressed = TanreiSelectStateTokens(opacity = 1f),
@@ -7354,6 +7391,10 @@ private object M3ExpressiveLikeSystemSource {
                     ),
                 ),
             ),
+            densitys = TanreiSelectDensitys(
+                regular = TanreiSelectDensityTokens(optionHeight = 48.dp, optionPaddingInline = 12.dp, optionPaddingBlock = 8.dp, optionGap = 12.dp, optionLeadingIconSize = 24.dp, optionMarkSize = 24.dp, groupTitlePaddingInline = 12.dp),
+                compact = TanreiSelectDensityTokens(optionHeight = 32.dp, optionPaddingInline = 8.dp, optionPaddingBlock = 6.dp, optionGap = 8.dp, optionLeadingIconSize = 20.dp, optionMarkSize = 20.dp, groupTitlePaddingInline = 8.dp),
+            ),
         )
 
     @Suppress("UNUSED_PARAMETER")
@@ -7504,6 +7545,8 @@ private object M3ExpressiveLikeSystemSource {
     fun snackbar(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiSnackbarTokens =
         TanreiSnackbarTokens(
             actionTonalLayerOpacity = 0f,
+            breakpointMedium = 600.dp,
+            closeButtonVariant = 4f,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceBright),
             containerElevation = elevation.level3,
             containerGap = 8.dp,
@@ -7518,8 +7561,7 @@ private object M3ExpressiveLikeSystemSource {
             containerPaddingInlineStart = 16.dp,
             containerShape = 4.dp,
             controlsGap = 4.dp,
-            controlsHeight = 36.dp,
-            controlsIconSize = 24.dp,
+            controlsHeight = 40.dp,
             controlsLabelTypescale = typescale.label,
             controlsPaddingInline = 14.dp,
             controlsShape = 9999.dp,
@@ -7732,136 +7774,6 @@ private object M3ExpressiveLikeSystemSource {
                         inverseSuccessContainerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer), with = TanreiPaint.Role(TanreiColorRole.SuccessContainer), amount = 0.12f),
                         inverseSuccessContentColor = TanreiPaint.Role(TanreiColorRole.SuccessContainer),
                         inverseSuccessStateLayerColor = TanreiPaint.Role(TanreiColorRole.SuccessContainer),
-                    ),
-                ),
-                close = TanreiSnackbarControlTokens(
-                    enabled = TanreiSnackbarControlStateTokens(
-                        containerColor = TanreiPaint.None,
-                        contentColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        infoContainerColor = TanreiPaint.None,
-                        infoContentColor = TanreiPaint.Role(TanreiColorRole.OnInfoContainer),
-                        infoStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnInfoContainer),
-                        warningContainerColor = TanreiPaint.None,
-                        warningContentColor = TanreiPaint.Role(TanreiColorRole.OnWarningContainer),
-                        warningStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnWarningContainer),
-                        errorContainerColor = TanreiPaint.None,
-                        errorContentColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
-                        errorStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
-                        successContainerColor = TanreiPaint.None,
-                        successContentColor = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer),
-                        successStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer),
-                        inverseContainerColor = TanreiPaint.None,
-                        inverseContentColor = TanreiPaint.Role(TanreiColorRole.InverseOnSurface),
-                        inverseStateLayerColor = TanreiPaint.Role(TanreiColorRole.InverseOnSurface),
-                        inverseInfoContainerColor = TanreiPaint.None,
-                        inverseInfoContentColor = TanreiPaint.Role(TanreiColorRole.OnInfo),
-                        inverseInfoStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnInfo),
-                        inverseWarningContainerColor = TanreiPaint.None,
-                        inverseWarningContentColor = TanreiPaint.Role(TanreiColorRole.OnWarning),
-                        inverseWarningStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnWarning),
-                        inverseErrorContainerColor = TanreiPaint.None,
-                        inverseErrorContentColor = TanreiPaint.Role(TanreiColorRole.OnError),
-                        inverseErrorStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnError),
-                        inverseSuccessContainerColor = TanreiPaint.None,
-                        inverseSuccessContentColor = TanreiPaint.Role(TanreiColorRole.OnSuccess),
-                        inverseSuccessStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSuccess),
-                    ),
-                    hovered = TanreiSnackbarControlStateTokens(
-                        containerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant), amount = 0.08f),
-                        contentColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        infoContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnInfoContainer), amount = 0.08f),
-                        infoContentColor = TanreiPaint.Role(TanreiColorRole.OnInfoContainer),
-                        infoStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnInfoContainer),
-                        warningContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnWarningContainer), amount = 0.08f),
-                        warningContentColor = TanreiPaint.Role(TanreiColorRole.OnWarningContainer),
-                        warningStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnWarningContainer),
-                        errorContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnErrorContainer), amount = 0.08f),
-                        errorContentColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
-                        errorStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
-                        successContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer), amount = 0.08f),
-                        successContentColor = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer),
-                        successStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer),
-                        inverseContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.InverseOnSurface), amount = 0.08f),
-                        inverseContentColor = TanreiPaint.Role(TanreiColorRole.InverseOnSurface),
-                        inverseStateLayerColor = TanreiPaint.Role(TanreiColorRole.InverseOnSurface),
-                        inverseInfoContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnInfo), amount = 0.08f),
-                        inverseInfoContentColor = TanreiPaint.Role(TanreiColorRole.OnInfo),
-                        inverseInfoStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnInfo),
-                        inverseWarningContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnWarning), amount = 0.08f),
-                        inverseWarningContentColor = TanreiPaint.Role(TanreiColorRole.OnWarning),
-                        inverseWarningStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnWarning),
-                        inverseErrorContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnError), amount = 0.08f),
-                        inverseErrorContentColor = TanreiPaint.Role(TanreiColorRole.OnError),
-                        inverseErrorStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnError),
-                        inverseSuccessContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnSuccess), amount = 0.08f),
-                        inverseSuccessContentColor = TanreiPaint.Role(TanreiColorRole.OnSuccess),
-                        inverseSuccessStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSuccess),
-                    ),
-                    focused = TanreiSnackbarControlStateTokens(
-                        containerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant), amount = 0.12f),
-                        contentColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        infoContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnInfoContainer), amount = 0.12f),
-                        infoContentColor = TanreiPaint.Role(TanreiColorRole.OnInfoContainer),
-                        infoStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnInfoContainer),
-                        warningContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnWarningContainer), amount = 0.12f),
-                        warningContentColor = TanreiPaint.Role(TanreiColorRole.OnWarningContainer),
-                        warningStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnWarningContainer),
-                        errorContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnErrorContainer), amount = 0.12f),
-                        errorContentColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
-                        errorStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
-                        successContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer), amount = 0.12f),
-                        successContentColor = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer),
-                        successStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer),
-                        inverseContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.InverseOnSurface), amount = 0.12f),
-                        inverseContentColor = TanreiPaint.Role(TanreiColorRole.InverseOnSurface),
-                        inverseStateLayerColor = TanreiPaint.Role(TanreiColorRole.InverseOnSurface),
-                        inverseInfoContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnInfo), amount = 0.12f),
-                        inverseInfoContentColor = TanreiPaint.Role(TanreiColorRole.OnInfo),
-                        inverseInfoStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnInfo),
-                        inverseWarningContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnWarning), amount = 0.12f),
-                        inverseWarningContentColor = TanreiPaint.Role(TanreiColorRole.OnWarning),
-                        inverseWarningStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnWarning),
-                        inverseErrorContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnError), amount = 0.12f),
-                        inverseErrorContentColor = TanreiPaint.Role(TanreiColorRole.OnError),
-                        inverseErrorStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnError),
-                        inverseSuccessContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnSuccess), amount = 0.12f),
-                        inverseSuccessContentColor = TanreiPaint.Role(TanreiColorRole.OnSuccess),
-                        inverseSuccessStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSuccess),
-                    ),
-                    pressed = TanreiSnackbarControlStateTokens(
-                        containerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant), amount = 0.12f),
-                        contentColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        infoContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnInfoContainer), amount = 0.12f),
-                        infoContentColor = TanreiPaint.Role(TanreiColorRole.OnInfoContainer),
-                        infoStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnInfoContainer),
-                        warningContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnWarningContainer), amount = 0.12f),
-                        warningContentColor = TanreiPaint.Role(TanreiColorRole.OnWarningContainer),
-                        warningStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnWarningContainer),
-                        errorContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnErrorContainer), amount = 0.12f),
-                        errorContentColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
-                        errorStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnErrorContainer),
-                        successContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer), amount = 0.12f),
-                        successContentColor = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer),
-                        successStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSuccessContainer),
-                        inverseContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.InverseOnSurface), amount = 0.12f),
-                        inverseContentColor = TanreiPaint.Role(TanreiColorRole.InverseOnSurface),
-                        inverseStateLayerColor = TanreiPaint.Role(TanreiColorRole.InverseOnSurface),
-                        inverseInfoContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnInfo), amount = 0.12f),
-                        inverseInfoContentColor = TanreiPaint.Role(TanreiColorRole.OnInfo),
-                        inverseInfoStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnInfo),
-                        inverseWarningContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnWarning), amount = 0.12f),
-                        inverseWarningContentColor = TanreiPaint.Role(TanreiColorRole.OnWarning),
-                        inverseWarningStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnWarning),
-                        inverseErrorContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnError), amount = 0.12f),
-                        inverseErrorContentColor = TanreiPaint.Role(TanreiColorRole.OnError),
-                        inverseErrorStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnError),
-                        inverseSuccessContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnSuccess), amount = 0.12f),
-                        inverseSuccessContentColor = TanreiPaint.Role(TanreiColorRole.OnSuccess),
-                        inverseSuccessStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSuccess),
                     ),
                 ),
             ),
@@ -8889,6 +8801,8 @@ private object M3ExpressiveLikeSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun tagGroup(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiTagGroupTokens =
         TanreiTagGroupTokens(
+            motionMoveDuration = 350,
+            motionMoveEasing = TanreiCubicBezier(x1 = 0.27f, y1 = 1.06f, x2 = 0.18f, y2 = 1f),
             spacings = TanreiTagGroupSpacings(
                 tags = TanreiTagGroupSpacingTokens(gap = 8.dp, rowGap = 8.dp),
                 chips = TanreiTagGroupSpacingTokens(gap = 8.dp, rowGap = 16.dp),
@@ -9030,65 +8944,7 @@ private object M3ExpressiveLikeSystemSource {
             entriesTypingMinWidth = 72.dp,
             motionResizeDuration = 200,
             motionResizeEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
-            resizeGripInset = 4.dp,
-            resizeGripSize = 16.dp,
             segmentPaddingInline = 2.dp,
-            variants = TanreiTextInputVariants(
-                stacked = TanreiTextInputVariantTokens(
-                    enabled = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        errorResizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    hovered = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        errorResizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    focused = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        errorResizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    disabled = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                        errorResizeGripColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                    ),
-                ),
-                filled = TanreiTextInputVariantTokens(
-                    enabled = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        errorResizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    hovered = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        errorResizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    focused = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        errorResizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    disabled = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                        errorResizeGripColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                    ),
-                ),
-                outlined = TanreiTextInputVariantTokens(
-                    enabled = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        errorResizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    hovered = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        errorResizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    focused = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                        errorResizeGripColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
-                    ),
-                    disabled = TanreiTextInputVariantStateTokens(
-                        resizeGripColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                        errorResizeGripColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                    ),
-                ),
-            ),
         )
 
     @Suppress("UNUSED_PARAMETER")
@@ -9124,8 +8980,14 @@ private object M3ExpressiveLikeSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun toolbar(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiToolbarTokens =
         TanreiToolbarTokens(
+            dividerColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
+            dividerLength = 24.dp,
+            dividerThickness = 1.dp,
+            groupGap = 8.dp,
             outlineWidth = 1.dp,
+            separation = 1f,
             variants = TanreiToolbarVariants(
+                inline = TanreiToolbarVariantTokens(containerColor = TanreiPaint.None, containerElevation = elevation.level0, containerShape = 12.dp, containerSize = 40.dp, containerPaddingInline = 0.dp, containerGap = 4.dp, outlineColor = TanreiPaint.None),
                 docked = TanreiToolbarVariantTokens(containerColor = TanreiPaint.Role(TanreiColorRole.Surface), containerElevation = elevation.level0, containerShape = 0.dp, containerSize = 64.dp, containerPaddingInline = 16.dp, containerGap = 8.dp, outlineColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant)),
                 floating = TanreiToolbarVariantTokens(containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceBright), containerElevation = elevation.level3, containerShape = 9999.dp, containerSize = 64.dp, containerPaddingInline = 8.dp, containerGap = 8.dp, outlineColor = TanreiPaint.None),
             ),
@@ -9140,8 +9002,6 @@ private object M3ExpressiveLikeSystemSource {
             arrowWidth = 12.dp,
             motionEnterDuration = 200,
             motionEnterEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
-            motionEnterOffset = 4.dp,
-            motionEnterScale = 0.95f,
             motionExitDuration = 150,
             motionExitEasing = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 1f, y2 = 1f),
             motionHideDelay = 100,

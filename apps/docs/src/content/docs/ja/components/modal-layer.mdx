@@ -2,7 +2,7 @@
 title: モーダルレイヤー
 description: すべてのモーダルなサーフェスの下にあるレイヤーです。表示するものの背後のウィンドウを暗くし、そこにあるものをすべて操作不能にします。フォーカスを中へ移してとどめ、閉じたら返し、Escape、プラットフォームの「戻る」、暗い部分の押下で閉じるよう求めます。一度スタイルを変えれば、すべてのモーダルなサーフェスがそれに従います。
 translationOf: components/modal-layer.mdx
-sourceHash: e6ede40ce27d5047b0691b404bc90d640cff347a
+sourceHash: b3984edc74655ea0935bdf9c218e40967f4095a4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -76,7 +76,8 @@ Web では `<tanrei-modal-layer>` です。ほかのプラットフォームは�
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { ModalLayer } from '@tanrei/react';
+    // 上級者向けのコンポーネント（ほかのコンポーネントの部品）は、advanced のエントリーから読み込みます。
+    import { ModalLayer } from '@tanrei/react/advanced';
 
     <ModalLayer open={open} label="コマンド" onClose={() => setOpen(false)}>
       <CommandPalette />
@@ -105,13 +106,12 @@ Web では `<tanrei-modal-layer>` です。ほかのプラットフォームは�
 {
   "tokens": {
     "tanrei.comp.modal-layer.scrim.color": { "$value": "{tanrei.sys.color.scrim}" },
-    "tanrei.comp.modal-layer.scrim.blur": { "$value": { "value": 8, "unit": "px" }, "reason": "モーダルなサーフェスの背後をすりガラスのように見せます。" },
-    "tanrei.comp.modal-layer.motion.enter-duration": { "$value": "{tanrei.sys.motion.duration.medium4}" }
+    "tanrei.comp.modal-layer.scrim.blur": { "$value": { "value": 8, "unit": "px" }, "reason": "モーダルなサーフェスの背後をすりガラスのように見せます。" }
   }
 }
 ```
 
-暗い部分の不透明度は、その色のアルファです。明るくしたり暗くしたりするには、色か、システムの `scrim` ロールを変えます。1 つのサーフェスだけを変えたいときは、代わりにそのサーフェス自身のトークン（`comp.dialog.scrim.color`、`comp.side-sheet.motion.enter-duration`）を設定します。設定するまでは、レイヤーのトークンを参照しています。
+暗い部分の不透明度は、その色のアルファです。明るくしたり暗くしたりするには、色か、システムの `scrim` ロールを変えます。1 つのサーフェスだけを変えたいときは、代わりにそのサーフェス自身のトークン（`comp.dialog.scrim.color`、`comp.dialog.motion.enter-duration`）を設定します。設定するまでは、レイヤーのトークンを参照しています。
 
 ## 仕様
 

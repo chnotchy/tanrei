@@ -160,11 +160,11 @@
       "key": "closeLabel",
       "readers": [
         {
-          "component": "callout",
+          "component": "bottom-sheet",
           "prop": "closeLabel"
         },
         {
-          "component": "dialog",
+          "component": "callout",
           "prop": "closeLabel"
         },
         {
@@ -664,6 +664,24 @@
       ]
     },
     {
+      "key": "marqueePauseLabel",
+      "readers": [
+        {
+          "component": "marquee-text",
+          "prop": "pauseLabel"
+        }
+      ]
+    },
+    {
+      "key": "marqueePlayLabel",
+      "readers": [
+        {
+          "component": "marquee-text",
+          "prop": "playLabel"
+        }
+      ]
+    },
+    {
       "key": "menubarOverflowLabel",
       "readers": [
         {
@@ -817,6 +835,15 @@
       "readers": [
         {
           "component": "file-upload",
+          "prop": "emptyText"
+        }
+      ]
+    },
+    {
+      "key": "noOptionsText",
+      "readers": [
+        {
+          "component": "select",
           "prop": "emptyText"
         }
       ]
@@ -1199,6 +1226,15 @@
         {
           "component": "date-time-picker",
           "prop": "todayLabel"
+        }
+      ]
+    },
+    {
+      "key": "toolbarOverflowLabel",
+      "readers": [
+        {
+          "component": "toolbar",
+          "prop": "overflowLabel"
         }
       ]
     },

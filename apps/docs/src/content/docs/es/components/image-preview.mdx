@@ -2,7 +2,7 @@
 title: Vista previa de imágenes
 description: Muestra una imagen de un conjunto a toda la ventana cuando una persona pulsa su miniatura, para verla de cerca —ampliarla y volver, moverse por ella mientras está ampliada, y pasar a la imagen siguiente o a la anterior— hasta que se cierra.
 translationOf: components/image-preview.mdx
-sourceHash: caadfe986913a18784dba1d60a26a868a2370960
+sourceHash: cf3abaf4200c8a573c2daf0b205f42be76a4a5ab
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -34,7 +34,7 @@ Usa una vista previa de imágenes donde una página muestra una imagen en peque�
 
 Muestra imágenes fijas y nada más. No le pide nada a la persona, así que no es un [diálogo](/es/components/dialog/); sus imágenes se miran y no se pulsan, así que no es un [carrusel](/es/components/carousel/), aunque un elemento de un carrusel, o una imagen de una [figura](/es/components/figure/), son lugares naturales desde los que abrirla.
 
-**Construida con** [botones](/es/components/button/) —alejar, acercar, cerrar, anterior y siguiente— y un [esqueleto](/es/components/skeleton/) que ocupa el lugar de una imagen que está en camino. Son los componentes reales, que leen sus propios tokens. El escenario que amplía y mueve una imagen, y el paso de una imagen a la siguiente, son propios de la vista previa de imágenes y no existen en ningún otro sitio.
+**Construida con** [botones](/es/components/button/) —alejar, acercar, cerrar, anterior y siguiente— y un [esqueleto](/es/components/skeleton/) que ocupa el lugar de una imagen que está en camino. Son los componentes reales, que leen sus propios tokens. Alejar, acercar y cerrar, en la barra, son botones small, tonales en el sistema predeterminado: el de cierre como todos los botones de cierre de Tanrei, y los de zoom a su lado del mismo modo. Anterior y siguiente son medium. Los presets m3-like y cupertino conservan glifos sin fondo en la barra. El escenario que amplía y mueve una imagen, y el paso de una imagen a la siguiente, son propios de la vista previa de imágenes y no existen en ningún otro sitio.
 
 En la web es `<tanrei-image-preview>` con hijos `<tanrei-image-preview-item>`. Las demás plataformas todavía no la han implementado.
 
@@ -153,9 +153,9 @@ La vista previa de imágenes no se compone de otros componentes, así que no pue
 
 ```html
 <dialog class="viewer" aria-label="Fotos de la habitación">
-  <tanrei-button variant="text" label="Alejar"><span slot="icon">zoom_out</span></tanrei-button>
-  <tanrei-button variant="text" label="Acercar"><span slot="icon">zoom_in</span></tanrei-button>
-  <tanrei-button variant="text" label="Cerrar"><span slot="icon">close</span></tanrei-button>
+  <tanrei-button variant="tonal" size="small" label="Alejar"><span slot="icon">zoom_out</span></tanrei-button>
+  <tanrei-button variant="tonal" size="small" label="Acercar"><span slot="icon">zoom_in</span></tanrei-button>
+  <tanrei-button variant="tonal" size="small" label="Cerrar"><span slot="icon">close</span></tanrei-button>
   <tanrei-button variant="tonal" label="Imagen anterior"><span slot="icon">chevron_left</span></tanrei-button>
   <img alt="Un dormitorio con una ventana que da a un jardín" src="room-large.jpg" tabindex="0">
   <tanrei-button variant="tonal" label="Imagen siguiente"><span slot="icon">chevron_right</span></tanrei-button>

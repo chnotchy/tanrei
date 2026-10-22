@@ -367,25 +367,25 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}"
+            "$value": "{tanrei.sys.motion.role.state.compact}"
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
           },
           "selection-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-effects.duration}",
+            "$value": "{tanrei.sys.motion.role.selection.mark}",
             "$description": "How long the ring's stroke takes to thicken or thin, and the ring and fill to change color (the fill from none to its color and back), when the selection changes."
           },
           "selection-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-effects.easing}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           }
         }
       }

@@ -2,7 +2,7 @@
 title: "组合框"
 description: "用户在里面键入以找到一个值的那个方框，以及它打开的选项列表——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的地方，或者放进产品自己组合的字段里。"
 translationOf: components/combobox.mdx
-sourceHash: 5ae9d9248515d491b9f784d4e648e502d7e560a1
+sourceHash: 20505447c5a948a07d010334c0b1c6d27b691e0b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -87,7 +87,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Combobox, Option } from '@tanrei/react';
+    // 进阶组件（用于构成其他组件的部件）从 advanced 入口导入。
+    import { Combobox, Option } from '@tanrei/react/advanced';
 
     <Combobox label="负责人，发布说明" value={assignee} onChange={(event) => setAssignee(event.detail.value)}>
       <Option value="aiko">田中爱子</Option>
@@ -104,7 +105,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 用字段包住一个组合框，就是把组合框字段拆开来写。组合框自己的 `label` 留空：由字段为它命名。`label`、`error`、`disabled` 和必填设置写在字段上；`name`、`value`、选项以及与键入有关的一切写在组合框上。
 
 ```html
-<tanrei-field label="城市" requirement="required" required-text="必填"
+<tanrei-field label="城市" required required-text="必填"
   supporting-text="订单将寄往该城市。">
   <tanrei-combobox name="city" value="tokyo">
     <tanrei-option value="kyoto">京都</tanrei-option>
@@ -114,7 +115,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="里面放着一个组合框的字段：画面与组合框字段相同" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="城市" requirement="required" required-text="必填" supporting-text="订单将寄往该城市。">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="城市" required required-text="必填" supporting-text="订单将寄往该城市。">
     <tanrei-combobox value="tokyo" empty-text="无匹配项">
       <tanrei-option value="kyoto">京都</tanrei-option>
       <tanrei-option value="tokyo">东京</tanrei-option>
@@ -163,7 +164,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | 保存 | 值、文本、列表是否打开、它在表单中的位置、事件 | 什么都不保存 |
 | 告诉辅助技术 | 它是一个带列表的组合框，是否已展开，以及哪个选项是活动选项 | 名称、帮助文本或错误文本、必填、无效、禁用 |
 
-三种变体和三种尺寸——`small`（40）、`medium`（48）和 `large`（56）——都是文本输入框的：组合框和文本输入框并排时，每一条线都对齐。默认系统只提供 `stacked`。
+三种变体和三种尺寸——`small`（32）、`medium`（40）和 `large`（56）——都是文本输入框的：组合框和文本输入框并排时，每一条线都对齐。默认系统只提供 `stacked`。
 
 ### 单独使用，没有字段
 
@@ -171,6 +172,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - **错误**是 `error`，由你来设置：方框画成错误状态，并暴露为无效。组合框没有错误文本。请在它旁边用文字说明哪里不对，或者用字段框住它。
 - **必填**要由字段来说明。单独使用的组合框没有必填设置：表单需要回答的地方，请自己校验。
 - **不对应任何选项的文本**在用户离开时会被放弃，除非设置了 `allowCustomValue`。它绝不是组合框自己的错误。
+
+### 列表中的字形
+
+选项的字形位于标签前的一列中。没有字形的选项是否保留这一列的空间，由 `iconSpace` 决定。`auto`（默认）在同一区段中另有选项带字形时保留这一列，使该区段的标签从同一条线开始；在没有字形的区段中不保留。区段是一个组，或组外相邻的一串选项。`always` 在每个选项中都保留，`never` 只在带字形的选项中设这一列。[菜单](/zh-cn/components/menu/)也有同样的 `iconSpace`，取值和默认值都相同。被筛选隐藏的选项不计入。
+
+`density` 决定一个选项占多大空间：`regular`（默认，高 48）或 `compact`（高 32，图标 20，即[菜单](/zh-cn/components/menu/)的紧凑行），后者适用于用鼠标操作、列表很长的工具。文字大小不变，无论密度如何，容器都由 `size` 决定。触摸时选项绝不低于触摸目标。
 
 <ComponentSpecs name="combobox" />
 
@@ -212,7 +219,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 不要把占位符当作标签。一有人键入它就消失，而且它绝不是名称。
 - 不要在字段里的组合框上设置 `label`、`error` 或 `disabled`。把它们写在字段上，标签和帮助文本才会随之变化。
 - 不要把组合框字段放进字段。它本身已经是字段；字段框住的控件是组合框。
-- 不要在组合框上写 `supporting-text`、`error-text` 或 `requirement`。它们是字段的，组合框一样都不绘制。
+- 不要在组合框上写 `supporting-text`、`error-text`、`required` 或 `optional`。它们是字段的，组合框一样都不绘制。
 
 ## 无障碍
 

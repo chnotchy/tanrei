@@ -49,6 +49,33 @@ A product's own layer, built with `tanrei build`, is one more stylesheet used th
 adds become legal prop values through the `.d.ts` that build writes (it augments `@tanrei/web/registry`); the wrapper's
 prop types are the element's, so they follow.
 
+## One entry per design system
+
+What you can import is what your design system has: the package has an entry for each system Tanrei ships, and an
+editor completes, and a type check accepts, only that system's components and variants.
+
+| Entry | What it exports |
+|---|---|
+| `@tanrei/react` | The components of the default system, Tanrei. Not the FAB menu, which lives in the m3-like layer, nor the segmented button, which Tanrei leaves out (`import { FabMenu } from '@tanrei/react'` is TS2305); and a variant Tanrei leaves out is not a value of the prop (`<TextField variant="outlined">` is TS2322) |
+| `@tanrei/react/m3-like`, `@tanrei/react/m3-expressive-like`, `@tanrei/react/cupertino` | The components of that preset, with its variants |
+| `@tanrei/react/advanced` | The components listed as advanced, the building blocks of others: `TextInput`, `NumberInput`, `ColorInput`, `OneTimeCodeInput`, `EmbeddedTextInput`, `Combobox`, `FilePicker`, `ModalLayer`. Each one's doc comment names the components built from it, which a product usually writes instead |
+| `@tanrei/react/all` | Every wrapper, whichever system has its component: for a design system of your own (built with `tanrei build`) and for building one |
+
+```tsx
+import '@tanrei/web/systems/m3-like.css';
+import { FabMenu, FabMenuItem, TextField } from '@tanrei/react/m3-like';
+```
+
+A wrapper is the same component in every entry — a system's entry narrows the type of `variant`, nothing at run time
+— so a bundler keeps only what you import, from whichever entry. A wrapper of an element a component draws among its
+children (`ListItem`, `Option`, `Tab`) is in every entry its component is in. Every entry also exports the words
+(`setWords`, `missingWords`) and `TanreiEvent`.
+
+The entries say what the components manifests say: each system's `@tanrei/web/systems/<id>.components.json` names,
+for each component, the entry its wrapper is imported from (`react.import`), and the entries are generated from those
+manifests. The manifest of your own system, which `tanrei build` writes into its `tokens` output, names
+`@tanrei/react/all`.
+
 ## How props, children and events map
 
 | In React | Becomes | Notes |
@@ -109,7 +136,7 @@ Props that are the element's properties keep their property types, which matters
 `<Badge count={3} label="3 unread"><Button variant="text" label="Inbox"><span slot="icon">inbox</span></Button></Badge>`.
 The selection controls are form-associated elements that switch themselves and then fire `change` as a `CustomEvent`:
 `<Checkbox label="Email me updates" checked={on} onChange={(e) => setOn(e.detail.checked)} />`,
-`<Switch label="Wi-Fi" selected={wifi} onChange={(e) => setWifi(e.detail.selected)} />`, and for a group of radio
+`<Switch label="Wi-Fi" checked={wifi} onChange={(e) => setWifi(e.detail.checked)} />`, and for a group of radio
 buttons, one `name` and the chosen `value`: `<RadioButton name="size" value="m" label="Medium" checked={size === 'm'}
 onChange={(e) => setSize(e.detail.value)} />` inside a `role="radiogroup"` element with a name. `labelHidden` keeps
 the name without drawing it.
@@ -166,20 +193,25 @@ know:
 
 ## Generated code
 
-`src/generated/` is written by `scripts/generate.js` from `packages/web/custom-elements.json` (`pnpm generate`) and
-must not be edited by hand; add a component in `@tanrei/web` — spec first — and regenerate. Each wrapper is a module
-of its own (`src/generated/wrappers/<name>.ts`, which imports its element's module), and `src/generated/components.ts`
-re-exports them. The package declares no side effects (`"sideEffects": false`) and every call made at load is marked
-pure, so a bundler keeps the wrappers a product uses and, through them, only their elements: `import { Calendar } from
-'@tanrei/react'` bundles the calendar and the buttons it is drawn with, not the whole of `@tanrei/web`
-(`test/tree-shaking.test.mjs` holds this). Wrappers in one shared module could not be dropped: each element's module
-defines its element when it is evaluated, a side effect `@tanrei/web` declares.
+`src/generated/` is written by `scripts/generate.js` from `packages/web/custom-elements.json`, and
+`src/entries/generated/` by `scripts/entries.js` from the components manifests (`tokens/generated/<id>/components.json`)
+once they are written (`pnpm generate` runs both); neither is edited by hand: add a component in `@tanrei/web` — spec
+first — and regenerate. Each wrapper is a module of its own (`src/generated/wrappers/<name>.ts`, which imports its
+element's module), and `src/generated/components.ts` re-exports them all (the `/all` entry). Each other entry re-exports
+the wrappers the manifests put in it; which entry a component is in is decided in one place, `importOf` in
+`packages/tokens-build/src/components-manifest.js`, and the package's `exports` must name each entry (the generator
+fails until they do). The package declares no side effects (`"sideEffects": false`) and every call made at load is
+marked pure, so a bundler keeps the wrappers a product uses and, through them, only their elements: `import { Calendar }
+from '@tanrei/react'` bundles the calendar and the buttons it is drawn with, not the whole of `@tanrei/web`
+(`test/tree-shaking.test.mjs` holds this for every wrapper from every entry). Wrappers in one shared module could not be
+dropped: each element's module defines its element when it is evaluated, a side effect `@tanrei/web` declares.
 `pnpm --filter @tanrei/react build` compiles it with `tsc`. What the generator reads from the manifest: an element's
 tag and class, its events with their types (`@fires {CustomEvent<Detail>} name`), its slots and event descriptions for
 the doc comment, and its attributes that have no property (`@attr {boolean} name`) for the marks.
 
-Two small files beside it are written by hand: `src/events.ts` (`TanreiEvent`) and `src/marks.ts` (how a mark becomes
-an attribute). `pnpm --filter @tanrei/react test` compiles `test/types.tsx` — what a typed project must be able to
+Four small files beside it are written by hand: `src/events.ts` (`TanreiEvent`), `src/marks.ts` (how a mark becomes
+an attribute), `src/narrowed.ts` (the type of a wrapper whose system leaves variant values out) and `src/common.ts`
+(what every entry exports besides its wrappers). `pnpm --filter @tanrei/react test` compiles `test/types.tsx` — what a typed project must be able to
 write against the wrappers, and what must stay an error — and runs `test/*.test.mjs` under Node; neither needs a
 browser.
 

@@ -238,10 +238,10 @@ test.describe('items', () => {
 
   test('LST-8: an action, a link or an option is one padded box at least container.height tall, the mark container.gap after its content, handing it the content color and text style; the whole box is the hit area', async ({ page }) => {
     const box = await bounds(row(page, 'single-selected', 0));
-    expect(box.height).toBeGreaterThanOrEqual(await resolveToken(page, T('container-height')));
+    expect(box.height).toBeGreaterThanOrEqual(await resolveToken(page, T('container-height-regular')));
     expect(Number.parseFloat(await css(row(page, 'interactive', 0), 'padding-left'))).toBe(await resolveToken(page, T('container-padding-inline-start')));
     expect(Number.parseFloat(await css(row(page, 'interactive', 0), 'padding-right'))).toBe(await resolveToken(page, T('container-padding-inline-end')));
-    expect(Number.parseFloat(await css(row(page, 'interactive', 0), 'padding-top'))).toBe(await resolveToken(page, T('container-padding-block')));
+    expect(Number.parseFloat(await css(row(page, 'interactive', 0), 'padding-top'))).toBe(await resolveToken(page, T('container-padding-block-regular')));
     const content = await bounds(item(page, 'single-selected', 0).locator('.content').first());
     const mark = await bounds(item(page, 'single-selected', 0).locator('.mark'));
     expect(mark.x - (content.x + content.width)).toBeCloseTo(await resolveToken(page, T('container-gap')), 1);
@@ -299,7 +299,7 @@ test.describe('items', () => {
   });
 
   test('LST-11: an action, a link or an option is at least sys.target.pointer tall and wide; a coarse pointer makes it sys.target.touch', async ({ page, browserName }) => {
-    await override(page, { [T('container-height')]: '10px', [T('container-padding-block')]: '0px', [T('container-padding-inline-start')]: '0px', [T('container-padding-inline-end')]: '0px' });
+    await override(page, { [T('container-height-regular')]: '10px', [T('container-padding-block-regular')]: '0px', [T('container-padding-inline-start')]: '0px', [T('container-padding-inline-end')]: '0px' });
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     const b = await bounds(row(page, 'line-single-selected', 0));
     expect(b.height).toBeGreaterThanOrEqual(pointer);
@@ -310,7 +310,7 @@ test.describe('items', () => {
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await page.reload();
     await mountFixtures(page, spec, { fixtures: [byId('interactive')] });
-    await override(page, { [T('container-height')]: '10px', [T('container-padding-block')]: '0px' });
+    await override(page, { [T('container-height-regular')]: '10px', [T('container-padding-block-regular')]: '0px' });
     if (await page.evaluate(() => matchMedia('(pointer: coarse)').matches)) expect((await bounds(row(page, 'interactive', 0))).height).toBeGreaterThanOrEqual(await resolveToken(page, '--tanrei-sys-target-touch'));
   });
 
@@ -1108,24 +1108,24 @@ test.describe('a List row as an item’s content', () => {
       icons: true,
       fixtures: [
         fixture('static', {}, [[ROW('Wi-Fi')], [`<div>${ROW('Nested')}</div>`]]),
-        fixture('options', { selection: 'single', label: 'Networks', value: 'a' }, [[ROW('Home'), { value: 'a' }], [ROW('Office'), { value: 'b', disabled: true }]]),
+        fixture('options', { selection: 'single', label: 'Networks', value: 'a' }, [[ROW('Home'), { value: 'a' }], [ROW('Office'), { value: 'b', disabled: true, leadingRoom: true }]]),
         fixture('reorder', { reorderable: true, label: 'Networks', dragHandleLabel: 'Reorder {label}' }, [[ROW('Home')], [ROW('Office')]]),
       ],
     });
-    expect(await frame(page, 'static', 0)).toEqual({ boxed: false, handled: false, selected: false, disabled: false });
+    expect(await frame(page, 'static', 0)).toEqual({ boxed: false, handled: false, selected: false, disabled: false, leadingRoom: true, density: 'regular' });
     expect(await item(page, 'static', 1).evaluate((el) => (el.querySelector('tanrei-list-row') as any).listItemFrame)).toBeNull();
-    expect(await frame(page, 'options', 0)).toEqual({ boxed: true, handled: false, selected: true, disabled: false });
-    expect(await frame(page, 'options', 1)).toEqual({ boxed: true, handled: false, selected: false, disabled: true });
-    expect(await frame(page, 'reorder', 0)).toEqual({ boxed: false, handled: true, selected: false, disabled: false });
+    expect(await frame(page, 'options', 0)).toEqual({ boxed: true, handled: false, selected: true, disabled: false, leadingRoom: true, density: 'regular' });
+    expect(await frame(page, 'options', 1)).toEqual({ boxed: true, handled: false, selected: false, disabled: true, leadingRoom: true, density: 'regular' });
+    expect(await frame(page, 'reorder', 0)).toEqual({ boxed: false, handled: true, selected: false, disabled: false, leadingRoom: true, density: 'regular' });
     // Every change is told at once: the item becomes interactive, the selection moves, the list stops being reorderable.
     await page.evaluate(() => {
       document.querySelector('[data-fixture="static"] tanrei-list-item')!.setAttribute('interactive', '');
       (document.querySelector('[data-fixture="options"] tanrei-list') as HTMLElement & { value: string }).value = 'b';
       document.querySelector('[data-fixture="reorder"] tanrei-list')!.removeAttribute('reorderable');
     });
-    await expect.poll(() => frame(page, 'static', 0)).toEqual({ boxed: true, handled: false, selected: false, disabled: false });
-    await expect.poll(() => frame(page, 'options', 0)).toEqual({ boxed: true, handled: false, selected: false, disabled: false });
-    await expect.poll(() => frame(page, 'reorder', 0)).toEqual({ boxed: false, handled: false, selected: false, disabled: false });
+    await expect.poll(() => frame(page, 'static', 0)).toEqual({ boxed: true, handled: false, selected: false, disabled: false, leadingRoom: true, density: 'regular' });
+    await expect.poll(() => frame(page, 'options', 0)).toEqual({ boxed: true, handled: false, selected: false, disabled: false, leadingRoom: true, density: 'regular' });
+    await expect.poll(() => frame(page, 'reorder', 0)).toEqual({ boxed: false, handled: false, selected: false, disabled: false, leadingRoom: true, density: 'regular' });
     // A row moved out of the item is told that it stands alone.
     await page.evaluate(() => {
       const row = document.querySelector('[data-fixture="static"] tanrei-list-row')!;
@@ -1165,7 +1165,139 @@ test.describe('a List row as an item’s content', () => {
   });
 });
 
+test.describe('iconSpace', () => {
+  const PLAIN = (headline: string, more = '') => `<tanrei-list-row headline="${headline}" ${more}></tanrei-list-row>`;
+  const GLYPH = (headline: string) => `<tanrei-list-row leading-icon="wifi" headline="${headline}"></tanrei-list-row>`;
+  const AVATAR = (headline: string) => `<tanrei-list-row headline="${headline}"><span slot="leading">MO</span></tanrei-list-row>`;
+  const R = (name: string) => `--tanrei-comp-list-row-${name}`;
+  /** Where the headline of the row of item n starts, from the item's start edge. */
+  const start = async (page: P, id: string, n: number) => (await bounds(item(page, id, n).locator('tanrei-list-row .headline'))).x - (await bounds(item(page, id, n))).x;
+  const room = (page: P, id: string, n: number) => item(page, id, n).locator('tanrei-list-row .leading-room');
+
+  test('LST-50: auto keeps a glyph’s room, empty, in a row without a leading part while another item’s row draws a glyph, and none in a list without glyphs; always in every row; never only where a row draws one; a leading slot’s content does not count; decided again on every change; an unknown value is auto, reported', async ({ page }) => {
+    const seen = warnings(page);
+    const spaced = spec.fixtures.filter((f) => f.id.startsWith('icon-space-'));
+    expect(spaced.map((f) => f.id)).toEqual(['icon-space-auto', 'icon-space-always', 'icon-space-never']);
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        ...spaced,
+        fixture('plain', {}, [[PLAIN('Apples')], [PLAIN('Bananas')]]),
+        fixture('plain-always', { iconSpace: 'always' }, [[PLAIN('Apples')], [PLAIN('Bananas')]]),
+        fixture('avatar', {}, [[AVATAR('Mira')], [PLAIN('About')]]),
+        fixture('odd', { iconSpace: 'sometimes' } as Fixture['props'], [[GLYPH('Wi-Fi')], [PLAIN('About')]]),
+      ],
+    });
+    const pad = await resolveToken(page, R('container-padding-inline-start'));
+    const size = await resolveToken(page, R('leading-icon-size'));
+    const gap = await resolveToken(page, R('container-gap'));
+    const none = pad;
+    const kept = pad + size + gap;
+    expect(await list(page, 'icon-space-auto').evaluate((el: any) => el.iconSpace)).toBe('auto');
+    // auto and always: About, which draws no glyph, starts its headline where Wi-Fi and Bluetooth start theirs.
+    for (const id of ['icon-space-auto', 'icon-space-always']) {
+      for (const n of [0, 1, 2]) expect(await start(page, id, n), `${id} ${n}`).toBeCloseTo(kept, 1);
+      await expect(room(page, id, 2)).toHaveAttribute('aria-hidden', 'true');
+      expect((await bounds(room(page, id, 2))).width).toBeCloseTo(size, 1);
+      await expect(room(page, id, 0)).toHaveCount(0);
+    }
+    // never: About starts at the row's start padding.
+    expect(await start(page, 'icon-space-never', 2)).toBeCloseTo(none, 1);
+    expect(await start(page, 'icon-space-never', 1)).toBeCloseTo(kept, 1);
+    await expect(room(page, 'icon-space-never', 2)).toHaveCount(0);
+    // The range is the list: a list whose rows draw no glyph keeps no room (auto), and every row keeps it (always).
+    for (const n of [0, 1]) {
+      expect(await start(page, 'plain', n)).toBeCloseTo(none, 1);
+      expect(await start(page, 'plain-always', n)).toBeCloseTo(kept, 1);
+    }
+    // An avatar in the leading slot does not count, and its row keeps no room beside it.
+    expect(await start(page, 'avatar', 1)).toBeCloseTo(none, 1);
+    await expect(room(page, 'avatar', 0)).toHaveCount(0);
+    // A value the list does not define is auto, reported.
+    expect(await start(page, 'odd', 1)).toBeCloseTo(kept, 1);
+    await expect.poll(() => seen.filter((w) => w.includes('iconSpace "sometimes" is not a value the list defines') && w.includes('(LST-50)')).length).toBe(1);
+    // Decided again: a glyph given to a row, then taken away; an item with a glyph added; iconSpace changed while shown.
+    await item(page, 'plain', 0).locator('tanrei-list-row').evaluate((el) => el.setAttribute('leading-icon', 'wifi'));
+    await expect.poll(() => start(page, 'plain', 1)).toBeCloseTo(kept, 1);
+    await item(page, 'plain', 0).locator('tanrei-list-row').evaluate((el) => el.removeAttribute('leading-icon'));
+    await expect.poll(() => start(page, 'plain', 1)).toBeCloseTo(none, 1);
+    await list(page, 'avatar').evaluate((el) => el.insertAdjacentHTML('beforeend', '<tanrei-list-item><tanrei-list-row leading-icon="wifi" headline="Wi-Fi"></tanrei-list-row></tanrei-list-item>'));
+    await expect.poll(() => start(page, 'avatar', 1)).toBeCloseTo(kept, 1);
+    await expect(room(page, 'avatar', 0)).toHaveCount(0);
+    await list(page, 'icon-space-auto').evaluate((el: any) => (el.iconSpace = 'never'));
+    await expect.poll(() => start(page, 'icon-space-auto', 2)).toBeCloseTo(none, 1);
+    await list(page, 'icon-space-never').evaluate((el) => el.setAttribute('icon-space', 'always'));
+    await expect.poll(() => start(page, 'icon-space-never', 2)).toBeCloseTo(kept, 1);
+  });
+
+  test('LST-50: the room is kept in every mode of the list — in actions, options and a reorderable list, after the handle', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        fixture('actions', {}, [[GLYPH('Wi-Fi'), { interactive: true }], [PLAIN('About'), { interactive: true }]]),
+        fixture('options', { selection: 'single', label: 'Networks' }, [[GLYPH('Home'), { value: 'a' }], [PLAIN('Office'), { value: 'b' }]]),
+        fixture('reorder', { reorderable: true, label: 'Networks', dragHandleLabel: 'Reorder {label}' }, [[GLYPH('Home')], [PLAIN('Office')]]),
+      ],
+    });
+    for (const id of ['actions', 'options', 'reorder']) {
+      const glyph = (await bounds(item(page, id, 0).locator('tanrei-list-row .headline'))).x;
+      expect((await bounds(item(page, id, 1).locator('tanrei-list-row .headline'))).x, id).toBeCloseTo(glyph, 1);
+    }
+  });
+});
+
 test.describe('accessibility', () => {
+  test('LST-51: a compact list draws its actions, links and options from the compact tokens, as low as its density gives for a mouse and the touch target for touch, and every List row of an item draws the list’s density in place of its own; an unknown density is regular and reported, an added one is drawn from its tokens, and a change is drawn at once', async ({ page, browserName }) => {
+    const seen = warnings(page);
+    const compact = byId('density-compact');
+    const regularFixture = { ...compact, id: 'density-regular', props: { ...compact.props, density: 'regular' } } as Fixture;
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [compact, regularFixture, { ...compact, id: 'density-odd', props: { ...compact.props, density: 'huge' } } as Fixture, { ...compact, id: 'density-added', props: { ...compact.props, density: 'roomy' } } as Fixture],
+    });
+    const [height, padBlock, rowOneLine, pointer] = await Promise.all([
+      resolveToken(page, T('container-height-compact')),
+      resolveToken(page, T('container-padding-block-compact')),
+      resolveToken(page, '--tanrei-comp-list-row-container-height-one-line-compact'),
+      resolveToken(page, '--tanrei-sys-target-pointer'),
+    ]);
+    // The default system's compact item: the tree view's compact row.
+    expect(height).toBe(32);
+    const heightOf = async (id: string, n: number) => (await bounds(item(page, id, n))).height;
+    // An option of plain text is the density's height, lower than the pointer target; one holding a row is the row's.
+    expect(await heightOf('density-compact', 2)).toBeCloseTo(height, 0);
+    expect(await heightOf('density-compact', 2)).toBeLessThan(pointer);
+    expect(await css(row(page, 'density-compact', 2), 'padding-top')).toBe(`${padBlock}px`);
+    expect(await heightOf('density-compact', 0)).toBeCloseTo(rowOneLine, 0);
+    const listRow = (id: string, n: number) => item(page, id, n).locator('tanrei-list-row');
+    expect(await listRow('density-compact', 0).evaluate((el: any) => el.drawnDensity)).toBe('compact');
+    // A regular list: the regular item and row.
+    expect(await heightOf('density-regular', 2)).toBeCloseTo(Math.max(await resolveToken(page, T('container-height-regular')), pointer), 0);
+    expect(await heightOf('density-regular', 0)).toBeCloseTo(await resolveToken(page, '--tanrei-comp-list-row-container-height-one-line-regular'), 0);
+    // LRW-17: a row's own density is not read in an item of a list: the list's is drawn.
+    await listRow('density-compact', 0).evaluate((el: any) => (el.density = 'regular'));
+    await expect.poll(() => heightOf('density-compact', 0)).toBeCloseTo(rowOneLine, 0);
+    // An unknown density is drawn as regular, and a debug build says so.
+    expect(await heightOf('density-odd', 2)).toBeCloseTo(await heightOf('density-regular', 2), 0);
+    await expect.poll(() => seen.filter((w) => w.includes('LST-51') && w.includes('"huge"')).length).toBe(1);
+    // A density a design system adds is drawn from its tokens, the default's where it has none.
+    await override(page, { [T('container-height-roomy')]: '64px', '--tanrei-comp-list-row-container-height-one-line-roomy': '80px', '--tanrei-comp-list-row-container-padding-block-roomy': '12px' });
+    await expect.poll(() => heightOf('density-added', 2)).toBeCloseTo(64, 0);
+    await expect.poll(() => heightOf('density-added', 0)).toBeCloseTo(80, 0);
+    // A change is drawn at once, the rows with it.
+    await list(page, 'density-regular').evaluate((el: any) => (el.density = 'compact'));
+    await expect.poll(() => heightOf('density-regular', 2)).toBeCloseTo(height, 0);
+    await expect.poll(() => heightOf('density-regular', 0)).toBeCloseTo(rowOneLine, 0);
+    // LST-11: for touch a compact option is the touch target.
+    if (browserName !== 'chromium') return;
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
+    await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
+    await page.reload();
+    await mountFixtures(page, spec, { icons: true, fixtures: [compact] });
+    if (await page.evaluate(() => matchMedia('(pointer: coarse)').matches)) expect(await heightOf('density-compact', 2)).toBeGreaterThanOrEqual((await resolveToken(page, '--tanrei-sys-target-touch')) - 0.5);
+  });
+
   test('no axe violations in light and dark', async ({ page }) => {
     for (const theme of ['light', 'dark'] as const) {
       await mountFixtures(page, spec, { theme, icons: true });

@@ -126,19 +126,27 @@ export function createPreview(ctx: Ctx, { contrast, onContrast }: { contrast: Co
 
   const sampled = (view: Json) => Object.entries(view.model.components as Json).filter(([component]) => SAMPLED.includes(component));
 
-  /** The view the sheet and the panes were last written from. */
+  /** The computation the sheet and the panes were last written from, and the sheet. */
   let applied: Json | undefined;
+  let written = '';
   /** What a drag wrote on the elements the sheet's tokens are declared on: those elements, and the properties. */
   let patched: { on: HTMLElement[]; names: Set<string> } | undefined;
   /**
-   * While a palette's color is dragged: its tones (core.paletteProperties), set as the person moves on the elements
-   * the sheet declares its tokens on — the scope, and a contrast set inside it (emitCss's base block). The sheet is
-   * neither written again nor changed: the browser parses nothing and restyles the preview alone, which costs a third
-   * of what writing the sheet costs, or less (and changing a rule of the sheet restyles the page). The next `apply`
-   * takes them off: what is drawn then is the sheet of the view it applies.
+   * While a palette's color or a dial is dragged: what the applied view's sheet would change (core.liveProperties),
+   * set as the person moves on the elements the sheet declares its tokens on — the scope, and a contrast set inside it
+   * (emitCss's base block). The sheet is neither written again nor changed: the browser parses nothing and restyles
+   * the preview alone, which costs a third of what writing the sheet costs, or less (and changing a rule of the sheet
+   * restyles the page). Each patch is the whole difference from the applied view, so a property it no longer names —
+   * a value dragged back to where it started — is taken off. The next `apply` takes them all off: what is drawn then
+   * is the sheet of the view it applies.
    */
   function patch(properties: Record<string, string>) {
     patched ??= { on: [scope, ...scope.querySelectorAll<HTMLElement>(`[data-${NS}-contrast]`)], names: new Set() };
+    for (const name of patched.names) {
+      if (name in properties) continue;
+      patched.names.delete(name);
+      for (const el of patched.on) el.style.removeProperty(name);
+    }
     for (const [name, value] of Object.entries(properties)) {
       patched.names.add(name);
       for (const el of patched.on) el.style.setProperty(name, value);
@@ -151,13 +159,15 @@ export function createPreview(ctx: Ctx, { contrast, onContrast }: { contrast: Co
 
   function apply(view: Json, level: Contrast) {
     scope.setAttribute(`data-${NS}-contrast`, level);
-    // A view is computed once for a layer (core.preview), so the same view is the same sheet and the same panes: a
-    // level drawn again, or another contrast, writes neither. The sheet is the system's whole — written again it has
-    // the browser read it again, and style and lay out the whole page with it.
+    // A layer is computed once for its values (core.preview), so the same computation is the same sheet and the same
+    // panes: a level drawn again, another contrast, or a name or a reason typed, writes neither. The sheet is the
+    // system's whole — written again it has the browser read it again, and style and lay out the whole page with it —
+    // so a computation that only brought the model's words up to date, and wrote the same sheet, does not write it.
     if (patched) unpatch();
-    if (view !== applied) {
-      applied = view;
-      sheet.textContent = view.css(scopeId);
+    if (view.computation !== applied) {
+      applied = view.computation;
+      const css = view.css(scopeId);
+      if (css !== written) sheet.textContent = written = css;
       // The panes are redrawn only when WHAT is drawn changes (a variant, a size, a step, an own token) — values arrive through the sheet.
       const key = JSON.stringify([sampled(view), view.intents, Object.values(view.model.tokens as Json).filter((token: Json) => token.vocabulary?.extension || token.namespace !== NS).map((token: Json) => [token.id, token.namespace !== NS && token.value])]);
       if (key !== drawn) {

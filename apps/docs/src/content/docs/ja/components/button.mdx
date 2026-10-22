@@ -2,7 +2,7 @@
 title: ボタン
 description: 1 回のタップまたはクリックで、アクションの実行、オン・オフの切り替え、移動先への移動を行えるようにします。
 translationOf: components/button.mdx
-sourceHash: af9d89a6c77ce45b911805a86b07eef4a749f99c
+sourceHash: a587774eb5411058152f514ed38199d856c52a81
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,18 +10,20 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import DemoFrame from '../../../../components/DemoFrame.astro';
+import VisualFrame from '../../../../components/visuals/VisualFrame.astro';
+import StateMatrix from '../../../../components/visuals/StateMatrix.astro';
 
 ## 概要
 
 <ComponentAvailability name="button" />
 
-<DemoFrame label="バリアント">
+<VisualFrame label="バリアント" reserve={{ block: 'comp.button.container.height.medium' }} controls="both">
   <tanrei-button variant="filled">Filled</tanrei-button>
   <tanrei-button variant="tonal">Tonal</tanrei-button>
   <tanrei-button variant="elevated">Elevated</tanrei-button>
   <tanrei-button variant="outlined">Outlined</tanrei-button>
   <tanrei-button variant="text">Text</tanrei-button>
-</DemoFrame>
+</VisualFrame>
 
 ### 使い方
 
@@ -171,6 +173,8 @@ narrow のボタンは、グリフとその両側の余白だけでできてい�
 
 variant は、ほかのアクションと同じように選びます。削除がその画面の目的そのものであるとき、たとえば「プロジェクトを削除しますか？」ダイアログの確定のアクションには Filled を使います。いくつかあるアクションの 1 つにすぎないとき、たとえばリストの各行の「外す」には Outlined か Text を使います。アイコンだけのボタンにも `destructive` を設定できますが、元に戻せないアクションには、グリフよりラベルのほうが明確です。トグルには破壊的な見た目はありません。
 
+リンクにもありません。`href` を持つボタンは `destructive` を無視し、その variant のリンクとして描かれます。リンクをたどっても何も消えないからです。リンクは、何かを削除できる場所へ連れて行くだけです。印を付けるのはその場所のアクション、たとえばリンク先のページの「削除」ボタンです。デバッグビルドは、`destructive` を付けたリンクを報告します。
+
 <DemoFrame label="各 variant の破壊的なボタンと、アイコンだけのボタン" plain>
   <tanrei-button destructive>プロジェクトを削除</tanrei-button>
   <tanrei-button variant="tonal" destructive>下書きを破棄</tanrei-button>
@@ -258,7 +262,7 @@ Web では、ボタンはフォームのコントロールの 1 つで、押し�
   <TabItem label="Web">
     ```html
     <form id="profile">
-      <tanrei-text-field label="名前" name="name" requirement="required"></tanrei-text-field>
+      <tanrei-text-field label="名前" name="name" required></tanrei-text-field>
       <tanrei-button type="reset" variant="text">クリア</tanrei-button>
       <tanrei-button type="submit" variant="outlined" name="intent" value="draft">下書きを保存</tanrei-button>
       <tanrei-button type="submit" name="intent" value="publish">公開</tanrei-button>
@@ -291,7 +295,7 @@ Web では、ボタンはフォームのコントロールの 1 つで、押し�
         save(data.get('name'), data.get('intent'));
       }}
     >
-      <TextField label="名前" name="name" requirement="required" />
+      <TextField label="名前" name="name" required />
       <Button type="reset" variant="text">クリア</Button>
       <Button type="submit" variant="outlined" name="intent" value="draft">下書きを保存</Button>
       <Button type="submit" name="intent" value="publish">公開</Button>
@@ -341,6 +345,8 @@ Web では、ボタンはフォームのコントロールの 1 つで、押し�
   <tanrei-button variant="outlined" disabled>Disabled</tanrei-button>
 </DemoFrame>
 
+<StateMatrix name="button" />
+
 <ComponentSpecs name="button" />
 
 ## ガイドライン
@@ -365,7 +371,7 @@ Web では、ボタンはフォームのコントロールの 1 つで、押し�
 
 `destructive` は variant ではありません。どの variant とも組み合わせられ、その variant の強調を保ちます（[破壊的なアクション](#破壊的なアクション)を参照）。
 
-`variant` のないボタンは Filled です。ただし、[ダイアログ](/ja/components/dialog/)や[サイドシート](/ja/components/side-sheet/)のアクションとして置いたときは、その置き場所の variant（既定のシステムでは Tonal）になります。見た目を変えたいアクションにだけ variant を設定すれば済みます。サイドシートの閉じるボタンも、同じようにシートの閉じるボタン用の variant になります。
+`variant` のないボタンは Filled です。ただし、[ダイアログ](/ja/components/dialog/)や[サイドシート](/ja/components/side-sheet/)のアクションとして置いたときは、その置き場所の variant（既定のシステムでは Tonal）になります。見た目を変えたいアクションにだけ variant を設定すれば済みます。ポップオーバー、サイドシート、ボトムシート、コールアウト、スナックバー、画像プレビューの閉じるボタンは、どれも小さいアイコンだけのボタンで、同じように置き場所の閉じるボタン用の variant（既定のシステムでは Tonal）になります。状態を示すコールアウトや反転したスナックバーのような色の付いた面では、その面の文字の色でも描かれます。
 
 ### 推奨
 
@@ -374,6 +380,7 @@ Web では、ボタンはフォームのコントロールの 1 つで、押し�
 - 主アクションは、そのプラットフォームの利用者が期待する位置に置き、プロダクト全体で順序を揃えます。
 - 密度の高いツールバーや表では `small`（32）、通常は `medium`（40）、タッチ主体の画面やヒーロー領域では `large`（56）を使います。どのサイズでもヒット領域は確保されます。
 - 何かを削除または破棄するアクションに `destructive` を設定し、variant はほかのアクションと同じく強調の度合いで選びます。
+- 何かを削除する場所へのリンクは普通のリンクにし、ラベルで行き先を伝えます。`destructive` は、その場所で削除を行うボタンに設定します。
 - アイコンスロットはラベルを補強するために使います。ラベルを省くのは、検索、閉じる、その他のように広く通じるグリフのときだけにし、`label` でボタンに名前を付けます。
 
 ### 非推奨
@@ -384,6 +391,7 @@ Web では、ボタンはフォームのコントロールの 1 つで、押し�
 - 入力の不備を伝える唯一の手段としてボタンを無効化しない。有効のままにして、押されたときに何が足りないかを説明するか、`focusable-when-disabled` で Tab が届くようにして理由を伝えます。
 - アクションの進行中にボタンを無効にしない。`busy` を設定すれば、フォーカスはボタンに残ります。
 - `destructive` を強調のために使わない。何も壊さないアクションにも使わない。画面のアクションがすべて赤ければ、どれも目立ちません。
+- リンクを赤くしない。ボタンに `href` と `destructive` を両方付けない。リンクは行き先へ連れて行くだけなので、ボタンは `destructive` を無視し、その variant のリンクとして描かれます。
 - ラベルを途中で切らない。ボタンの幅を広げるか、ラベルを短くします。
 - アイコンだけのボタンを `label` なしで置かない。グリフは名前になりません。
 - narrow のアイコンだけのボタンを、自分で隙間なく並べない。ターゲットは見えている端の外側まで届くので、重なってしまいます。

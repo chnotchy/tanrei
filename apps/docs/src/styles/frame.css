@@ -30,53 +30,51 @@
     padding: var(--tanrei-sys-space-space100) var(--tanrei-comp-app-shell-gutter-compact);
   }
 
-  /* ── The header: the app bar, with the site's mark beside the menu button ──────────────────────────────────────
-     The mark is the brand's symbol (Header.astro) in an icon button's box: as wide as it is high — the link's own
-     target, the pointer's or the touch target — with the symbol centred in it at an icon's size. Its centre and its
-     inset are then the menu button's and the actions': the row is one line of icons, the symbol's frame where an
-     icon's frame would be. It is painted on-surface (the bar's title color), so it follows the scheme and the
-     contrast; after the menu button it stands at the gap one icon button keeps from the next. Its corners — what its
-     hover, press and focus ring are drawn on — are the Button's, so the ring around it is the one around the menu
-     button. */
-  .docs-site-title {
-    --tanrei-comp-link-container-shape: var(--tanrei-comp-button-container-shape);
-    --tanrei-comp-link-hovered-container-shape: var(--tanrei-comp-button-container-shape);
-    --tanrei-comp-link-pressed-container-shape: var(--tanrei-comp-button-container-shape);
-    --tanrei-comp-link-focused-container-shape: var(--tanrei-comp-button-focused-container-shape);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    min-inline-size: var(--tanrei-sys-target-pointer);
-    min-block-size: var(--tanrei-sys-target-pointer);
-    color: var(--tanrei-comp-app-bar-title-color);
+  /* ── The header: the app bar, with the site's brand beside the menu button ─────────────────────────────────────
+     The brand is the bar's (APB-19, APB-20): Tanrei's wordmark (Header.astro), in an icon button's cell after the menu
+     button, comp.app-bar.brand.wordmark.height high, in comp.app-bar.brand.color. Until the bar is defined the image
+     holds the box the bar will give it: the cell's padding around the wordmark's height, the gap after the menu
+     button (none where the shell hides the button). */
+  tanrei-app-bar:not(:defined) > .docs-brand {
+    box-sizing: content-box;
+    flex: none;
+    min-inline-size: 0;
+    min-block-size: 0;
+    inline-size: auto;
+    block-size: var(--tanrei-comp-app-bar-brand-wordmark-height);
+    padding-inline: calc((var(--tanrei-sys-target-pointer) - var(--tanrei-comp-app-bar-brand-symbol-size)) / 2);
+    padding-block: calc((var(--tanrei-sys-target-pointer) - var(--tanrei-comp-app-bar-brand-wordmark-height)) / 2);
+    color: var(--tanrei-comp-app-bar-brand-color);
   }
   @media (pointer: coarse) {
-    .docs-site-title {
-      min-inline-size: var(--tanrei-sys-target-touch);
-      min-block-size: var(--tanrei-sys-target-touch);
+    tanrei-app-bar:not(:defined) > .docs-brand {
+      padding-inline: calc((var(--tanrei-sys-target-touch) - var(--tanrei-comp-app-bar-brand-symbol-size)) / 2);
+      padding-block: calc((var(--tanrei-sys-target-touch) - var(--tanrei-comp-app-bar-brand-wordmark-height)) / 2);
     }
   }
-  .docs-site-mark {
-    flex: none;
-    inline-size: var(--tanrei-sys-icon-medium);
-    block-size: var(--tanrei-sys-icon-medium);
-  }
-  [data-app-shell-menu] + .docs-site-title {
+  tanrei-app-bar:not(:defined) > [data-app-shell-menu] + .docs-brand {
     margin-inline-start: var(--tanrei-comp-app-bar-actions-gap);
   }
-  /* Where the shell hides the menu button, the mark begins the bar in the button's place. */
   @container style(--_aps-menu: hidden) {
-    [data-app-shell-menu] + .docs-site-title {
+    tanrei-app-bar:not(:defined) > [data-app-shell-menu] + .docs-brand {
       margin-inline-start: 0;
     }
   }
-  tanrei-app-shell[data-menu='hidden'] [data-app-shell-menu] + .docs-site-title {
+  tanrei-app-shell[data-menu='hidden'] tanrei-app-bar:not(:defined) > [data-app-shell-menu] + .docs-brand {
     margin-inline-start: 0;
   }
   /* The theme's select is given no width: it is as wide as the longest of its three words needs, in the page's
      language (SEL-49), and choosing one never changes it. Until it is defined its options hold that width for it
-     (below). */
+     (below).
+     Nor is it given the bar's cell: the bar makes each item at least as tall as the minimum target and centres it
+     there (APB-11), which suits a Button, whose box is centred in its own element; a select's box stands at the top
+     of its element, so in a 44 high cell it stood 2 above the search beside it. The select is exactly as tall as its
+     box (SEL-64), the bar centres that, and the select extends its own hit area to the target (SEL-22).
+     It is medium (Header.astro): a stacked select is as tall as a Button of its size, and the search trigger and the
+     language's Button beside it are as tall as a medium Button, which a small select is not. */
+  tanrei-app-bar > tanrei-select.docs-theme {
+    min-block-size: auto;
+  }
   /* A compact window: the theme and the language are one button and its menu; a wider one: the select and the
      language's button. By the shell's window class — a style query, and the shell's own word where the browser has
      none (until the shell is defined such a browser shows the wide arrangement). */
@@ -97,14 +95,14 @@
   tanrei-app-shell[data-window-class='compact'] tanrei-app-bar > .docs-compact-only {
     display: inline-flex;
   }
-  /* The site's mark leaves a bar too narrow for it beside the menu button and two actions (a 320 wide window at
+  /* The site's brand leaves a bar too narrow for it beside the menu button and two actions (a 320 wide window at
      twice the text size): the widths are the reader's text size, as the shell's are (APS-2). The first level of the
      breadcrumbs still leads to the same page. */
   tanrei-app-shell > [slot='header'] {
     container: docs-header / inline-size;
   }
   @container docs-header (inline-size < 14rem) {
-    .docs-site-title {
+    .docs-brand {
       display: none;
     }
   }
@@ -125,9 +123,12 @@
     padding-inline: var(--tanrei-comp-app-bar-container-padding-inline);
     background: var(--tanrei-comp-app-bar-flat-container-color);
   }
-  /* The search: the one item of the bar that neither the shell nor the window's class shows and hides. */
+  /* The search: the one item of the bar that neither the shell nor the window's class shows and hides, and the first
+     action in either arrangement, so the actions start from it at the end. (An item of the arrangement the window's
+     class does not show has no slot, Header.astro: no rule here may take the first action from the slots.) */
   tanrei-app-bar:not(:defined) > .docs-search {
     display: inline-flex;
+    margin-inline-start: auto;
   }
   tanrei-app-bar:not(:defined) > .docs-wide-only {
     display: inline-flex;
@@ -155,9 +156,6 @@
   tanrei-app-bar:not(:defined) > [slot='actions'] ~ [slot='actions'] {
     margin-inline-start: var(--tanrei-comp-app-bar-actions-gap);
   }
-  tanrei-app-bar:not(:defined) > :not([slot='actions']) + [slot='actions'] {
-    margin-inline-start: auto;
-  }
   @media (pointer: coarse) {
     tanrei-app-bar:not(:defined) > :where([slot]) {
       min-inline-size: var(--tanrei-sys-target-touch);
@@ -180,15 +178,15 @@
   }
   /* A Select's options are running text until it is defined, and a Menu's items are nothing: the select keeps its
      box, the menu has none. The box is the one the select will make
-     itself (SEL-49), so the search beside it does not move when it is defined: a small container's height, and the
-     widest of its options in the value's text style between the glyph and the chevron — the options are a column of
-     lines with no height, drawn nowhere, and the widest of them is the box's width. */
+     itself (SEL-49), so the search beside it does not move when it is defined: a medium stacked container's height,
+     and the widest of its options in the value's text style between the glyph and the chevron — the options are a
+     column of lines with no height, drawn nowhere, and the widest of them is the box's width. */
   tanrei-select.docs-theme:not(:defined) {
     flex-direction: column;
-    block-size: var(--tanrei-comp-input-box-container-height-small, var(--tanrei-sys-target-pointer));
-    padding-inline: calc(var(--tanrei-comp-input-box-container-padding-inline-with-icon-small) + var(--tanrei-comp-input-box-icon-size-small) + var(--tanrei-comp-input-box-container-gap-small));
-    font: var(--tanrei-comp-input-box-input-typescale-small-font);
-    letter-spacing: var(--tanrei-comp-input-box-input-typescale-small-letter-spacing);
+    block-size: var(--tanrei-comp-input-box-stacked-container-height-medium, var(--tanrei-sys-target-pointer));
+    padding-inline: calc(var(--tanrei-comp-input-box-container-padding-inline-with-icon-medium) + var(--tanrei-comp-input-box-icon-size-medium) + var(--tanrei-comp-input-box-container-gap-medium));
+    font: var(--tanrei-comp-input-box-input-typescale-medium-font);
+    letter-spacing: var(--tanrei-comp-input-box-input-typescale-medium-letter-spacing);
   }
   tanrei-select.docs-theme:not(:defined) > :where(tanrei-option) {
     flex: none;
@@ -204,21 +202,60 @@
   }
 
   /* ── The sidebar until the drawer is defined, and where no script runs: its own anchors, as the drawer's rows ──
-     The shell keeps the column's place (APS-24); this draws what stands in it. */
+     The shell keeps the column's place (APS-24); this draws what stands in it. Its header is the drawer's (NVD-38),
+     from the drawer's and the button's tokens, so that neither it nor a row below it moves when the drawer is
+     defined: the menu button centred on the icon column, and beside it, item.gap after the button, the header's
+     content — the choice of design system above the "All components" switch, each holding its own room until it is
+     defined — laid out at the drawer's full width; the button centred on the height of the two; the first row
+     header.gap below them. */
   tanrei-navigation-drawer.docs-sidebar:not(:defined) {
+    --docs-sidebar-lead: calc(var(--tanrei-comp-navigation-drawer-collapsed-container-width-regular) / 2 + var(--tanrei-comp-button-container-height-medium) / 2 + var(--tanrei-comp-navigation-drawer-item-gap));
     box-sizing: border-box;
+    grid-template-columns:
+      calc(var(--docs-sidebar-lead) - var(--tanrei-comp-navigation-drawer-container-padding-inline))
+      calc(var(--tanrei-comp-navigation-drawer-container-width) - var(--docs-sidebar-lead) - var(--tanrei-comp-navigation-drawer-container-padding-inline));
+    align-content: start;
     overflow: hidden auto;
     overscroll-behavior: contain;
     padding: var(--tanrei-comp-navigation-drawer-container-padding-block) var(--tanrei-comp-navigation-drawer-container-padding-inline);
     border-inline-end: var(--tanrei-sys-border-hairline) solid var(--tanrei-sys-color-outline-variant);
   }
+  /* Laid out as a grid only where the shell shows it: in a compact window the shell gives it no box (APS-4), and a
+     `display` of this layer would win over the shell's. */
+  @container style(--tanrei-app-shell-window-class: expanded) or style(--tanrei-app-shell-window-class: medium) {
+    tanrei-navigation-drawer.docs-sidebar:not(:defined) {
+      display: grid;
+    }
+  }
+  tanrei-app-shell:is([data-window-class='expanded'], [data-window-class='medium']) > tanrei-navigation-drawer.docs-sidebar:not(:defined) {
+    display: grid;
+  }
   tanrei-navigation-drawer.docs-sidebar:not(:defined) > tanrei-button {
     display: flex;
+    grid-row: 1 / span 2;
+    grid-column: 1;
+    align-self: center;
+    justify-self: start;
     align-items: center;
     justify-content: center;
-    inline-size: var(--tanrei-comp-navigation-drawer-item-container-height-regular);
-    block-size: var(--tanrei-comp-navigation-drawer-item-container-height-regular);
-    margin-block-end: var(--tanrei-comp-navigation-drawer-container-gap-regular);
+    inline-size: var(--tanrei-comp-button-container-height-medium);
+    block-size: var(--tanrei-comp-button-container-height-medium);
+    margin-inline-start: calc(var(--tanrei-comp-navigation-drawer-collapsed-container-width-regular) / 2 - var(--tanrei-comp-button-container-height-medium) / 2 - var(--tanrei-comp-navigation-drawer-container-padding-inline));
+  }
+  tanrei-navigation-drawer.docs-sidebar:not(:defined) > .docs-system {
+    grid-row: 1;
+    grid-column: 2;
+  }
+  tanrei-navigation-drawer.docs-sidebar:not(:defined) > .docs-listing {
+    grid-row: 2;
+    grid-column: 2;
+    justify-self: start;
+  }
+  tanrei-navigation-drawer.docs-sidebar:not(:defined) > :is(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item) {
+    grid-column: 1 / -1;
+  }
+  tanrei-navigation-drawer.docs-sidebar:not(:defined) > [slot] + :is(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item) {
+    margin-block-start: var(--tanrei-comp-navigation-drawer-header-gap);
   }
   .docs-sidebar:not(:defined) :is(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item) {
     display: block;

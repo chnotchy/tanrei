@@ -1,6 +1,6 @@
 # Tanrei — agent & contributor rules
 
-Tanrei is one design system shipped to five platforms (Web Components, SwiftUI, Jetpack Compose, Flutter, React Native). These rules apply to humans and AI agents alike. Nested `AGENTS.md` files add local rules; the nearest one wins on conflict, but none may weaken this file.
+Tanrei is one design system shipped to five platforms (Web Components, SwiftUI, Jetpack Compose, Flutter, React Native). These rules apply to humans and AI agents alike. Every change is made by the maintainers: outside contributions are not accepted (pull requests, and proposals for new components or tokens), for the supply chain's sake; issues are for bug reports and questions ([CONTRIBUTING.md](CONTRIBUTING.md#outside-contributions-are-not-accepted)). Nested `AGENTS.md` files add local rules; the nearest one wins on conflict, but none may weaken this file.
 
 ## The two sources of truth
 
@@ -11,15 +11,16 @@ Everything else is **derived**: generated token outputs, platform implementation
 
 ## Hard rules
 
-- **Spec first.** Never change a component's public surface (props, events, states, slots, a11y semantics, token bindings) in a platform package without the same change in `specs/` in the same commit. A new component, or a breaking change to one, is the maintainers' decision: open an issue before writing it.
+- **Spec first.** Never change a component's public surface (props, events, states, slots, a11y semantics, token bindings) in a platform package without the same change in `specs/` in the same commit. A new component, or a breaking change to one, is the maintainers' decision, made before the spec changes.
 - **Never hand-edit generated files.** Anything under a `generated/` directory, `custom-elements.json`, and `docs/status/` is produced by `pnpm generate`. Edit the source or the generator instead.
 - **No hardcoded design values in components.** Colors, radii, type, spacing, motion, and opacity come from `tanrei.comp.*` / `tanrei.sys.*` tokens. Component tokens alias system tokens; the only literals allowed are a component's own container heights (the invariant check enforces exactly this).
 - **Names come from `tanrei.config.json`.** Do not hardcode the namespace, npm scope, or tag prefix anywhere a generator could supply it.
 - **Do not update snapshot baselines to make a test pass.** A snapshot diff is a finding. Update baselines only when the visual change is the intended result of a spec/token change, and say so in the changeset.
 - **Do not bypass checks.** No `--no-verify`, no disabling CI jobs. The one standing exception is the maintainers': the native platforms' CI jobs are paused until each platform catches up with the web (one switch, `packages/tools/paused-platforms.json`, read by CI and by the root `pnpm build`, `pnpm test` and `pnpm check`; see CONTRIBUTING.md) — nothing else is paused, and a paused platform is neither published nor raised in status. Accessibility thresholds are constants in code: never edit them, and never turn an error for the default `tanrei` system into a warning. (Product layers report violations as warnings by design. Imitation presets are held to fidelity to their original, not to Tanrei's accessibility criteria, in every contrast scheme; a functional failure is a bug in any system.)
-- **The core vocabulary is decided by the one-product test**: a core token exists because one product may need that distinction — not because one design system has it, and not because a component happens to use it today. Never grow the core for one design system's sake. **A layer extends the vocabulary instead**: under `vocabulary`, with a `rationale`, additive only — a step in a series, a value on a component axis, or tokens in the layer's own namespace. A shipped preset extends only with evidence in its fidelity map.
+- **The core vocabulary is decided by the one-product test**: a core token exists because one product may need that distinction — not because one design system has it, and not because a component happens to use it today. Never grow the core for one design system's sake. **A layer extends the vocabulary instead**: under `vocabulary`, with a `rationale`, additive only — a step in a series, a value on a component axis, tokens in the layer's own namespace, or the whole vocabulary of a component that lives in that layer (a component lives in the layer every system that ships it descends from). A shipped preset extends only with evidence in its fidelity map.
 - **Say what you leave undone.** What you notice and do not fix goes into your report or pull request description, with what was seen (a path, a command, a number) and what would fix it. A `TODO` in source says in words what is missing.
 - **Never publish.** Releasing to npm / pub.dev / Maven Central, pushing a release tag, or changing a repository's visibility is a maintainer's decision.
+- **No backward compatibility during the 0.x prereleases.** Rename, remove and change freely, everywhere at once: no deprecated alias, shim, fallback for an old name or shape, or token kept for an implementation that has not caught up. Compatibility code you find is removed, not extended. The changeset says what broke.
 - **Every user-visible change needs a changeset** (`pnpm changeset`). All packages version in lockstep.
 
 ## Definition of parity

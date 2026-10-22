@@ -1,0 +1,421 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "meter",
+  "title": "Meter",
+  "summary": "Shows where a known value stands in a known range — storage used, a battery's charge, a quota, the strength of a password — as a bar or a ring that looks like the progress indicator, without saying that anything is under way.",
+  "category": "communication",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "track",
+      "description": "The full length of the bar, or the full circle of the ring: the whole range from min to max."
+    },
+    {
+      "id": "indicator",
+      "description": "The part of the track drawn in the indicator color of the meter's status: the fraction of the range up to the value. It meets the rest of the track, or stands a gap from it (separation)."
+    },
+    {
+      "id": "stop-indicator",
+      "description": "A dot at the end of a bar's track that marks where the range ends, drawn whenever its size is above 0.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "linear",
+        "circular"
+      ],
+      "default": "linear",
+      "description": "Linear is a bar that fills the width its layout gives it; circular is a ring of a fixed size, for tight places and beside text. A structural choice drawn by code, not a token axis, as the progress indicator's is."
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "small",
+        "medium",
+        "large"
+      ],
+      "default": "medium",
+      "axis": "tanrei.comp.meter.size",
+      "description": "The bar's thickness or the ring's box, the progress indicator's three sizes by default (2 / 4 / 8 and 16 / 24 / 40). A design system may add values."
+    },
+    {
+      "name": "separation",
+      "type": "enum",
+      "values": [
+        "auto",
+        "divider",
+        "gap"
+      ],
+      "default": "auto",
+      "description": "How the indicator is told from the rest of its track. divider: drawn on the track with no space between them. gap: empty space between them. Auto takes comp.meter.track.separation, which follows the design system's choice."
+    },
+    {
+      "name": "value",
+      "type": "number",
+      "default": 0,
+      "description": "Where the measured quantity stands, between min and max. Always a number: a meter has no unknown value, and a task under way is a progress indicator."
+    },
+    {
+      "name": "min",
+      "type": "number",
+      "default": 0,
+      "description": "The low end of the range."
+    },
+    {
+      "name": "max",
+      "type": "number",
+      "default": 1,
+      "description": "The high end of the range."
+    },
+    {
+      "name": "status",
+      "type": "enum",
+      "values": [
+        "default",
+        "info",
+        "success",
+        "warning",
+        "error"
+      ],
+      "default": "default",
+      "description": "What the product says the value means, in the names the tag and the snackbar use: default draws the indicator in the meter's own color; info, success, warning and error in that status's color. The product decides it — the meter has no thresholds of its own — and it changes colors only: the words that say so are valueText's and the product's."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name: what is measured (\"Storage used\"). Required: a bar alone is not a name."
+    },
+    {
+      "name": "valueText",
+      "type": "string",
+      "default": "",
+      "description": "How assistive technology reads the value when a percentage is not the natural reading (\"12.4 GB of 15 GB\", \"Strong\"). Empty reads the platform's percentage. Where status means something, say it here too (\"Almost full: 14.2 GB of 15 GB\")."
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "MTR-1",
+      "text": "THE meter SHALL draw the indicator over the fraction (value − min) / (max − min) of the track, from the track's start: the inline-start of a bar, the top of a ring, turning clockwise."
+    },
+    {
+      "id": "MTR-2",
+      "text": "THE meter SHALL draw a bar comp.meter.linear.thickness.medium high for medium (and so on for each size) across the full inline size its layout gives it, and a ring whose outer edge fills a comp.meter.circular.size.medium square with a stroke of comp.meter.circular.thickness.medium for medium (and so on for each size)."
+    },
+    {
+      "id": "MTR-3",
+      "text": "THE meter SHALL draw the track in comp.meter.track.color and the indicator over it in the indicator color of its status — comp.meter.indicator.color WHILE status is default, comp.meter.info.indicator.color WHILE it is info, comp.meter.success.indicator.color WHILE it is success, comp.meter.warning.indicator.color WHILE it is warning and comp.meter.error.indicator.color WHILE it is error; the ends of a bar's track and indicator SHALL be rounded by comp.meter.track.shape, clamped to half the thickness, and a ring's arcs SHALL have round caps unless comp.meter.track.shape is sys.shape.corner.none."
+    },
+    {
+      "id": "MTR-4",
+      "text": "THE meter SHALL tell the indicator from the rest of its track as its separation names — WHILE separation is auto, as comp.meter.track.separation names; WHILE it is divider or gap, as that value names — and WHILE the separation is gap and value lies strictly between min and max SHALL leave comp.meter.track.gap of empty space, measured along the track, between the indicator and the rest of the track (on a ring, at both ends of the indicator's arc); WHILE it is divider THE meter SHALL draw the indicator on the track with nothing between them."
+    },
+    {
+      "id": "MTR-5",
+      "text": "WHILE comp.meter.stop-indicator.size is above 0 THE meter SHALL draw at the end of a bar's track a round dot of that size, centred across the track, in the indicator color of its status; a ring SHALL draw none."
+    },
+    {
+      "id": "MTR-6",
+      "text": "WHEN value, min, max or status changes after the first frame THE meter SHALL move the indicator's end to the new fraction over comp.meter.motion.value-duration with comp.meter.motion.value-easing, and change the indicator's color over the same duration; WHEN it changes again during that motion THE meter SHALL go on from the place and the color then shown. THE meter SHALL draw its first frame at its value and in its status's color without a motion, and WHERE reduced motion is requested SHALL move the end at once and keep the change of color as a fade over the same duration."
+    },
+    {
+      "id": "MTR-7",
+      "text": "THE meter SHALL expose to assistive technology a meter — the platform's own meter where it has one, and otherwise an element with a value range and no busy state — named by label, with min and max as its range, the clamped value as its current value, and valueText as the value's text WHILE valueText is not empty; it SHALL NOT expose the progressbar role or a busy state, because nothing is under way."
+    },
+    {
+      "id": "MTR-8",
+      "text": "THE meter SHALL NOT be focusable, SHALL take no input and SHALL NOT announce a change of its value or its status by itself; assistive technology SHALL read the current value when it reaches the meter."
+    },
+    {
+      "id": "MTR-9",
+      "text": "THE meter SHALL expose nothing of status by itself: status SHALL change the indicator's color and nothing else, so that what the color means reaches every person only through the words the product gives in valueText, label or the text beside the meter."
+    },
+    {
+      "id": "MTR-10",
+      "text": "IF value is below min or above max THE meter SHALL draw and expose it clamped to that range; IF value is not a finite number THE meter SHALL draw and expose min; IF max is not greater than min THE meter SHALL draw the track with no indicator and expose a current value of 0 in a range of 0 to 1; in each case debug builds SHALL report the values."
+    },
+    {
+      "id": "MTR-11",
+      "text": "WHEN size names a value that the active design system does not have, or variant, separation or status a value the meter does not define, THE meter SHALL render with the default value's tokens (medium, linear, auto, default), and in debug builds report the unknown value."
+    },
+    {
+      "id": "MTR-12",
+      "text": "WHERE the layout direction is right-to-left THE meter SHALL fill a bar from the right and draw its stop indicator at the left; a ring SHALL NOT be mirrored: it starts at the top and turns clockwise in every direction, as a clock does."
+    },
+    {
+      "id": "MTR-13",
+      "text": "THE meter SHALL take its layout direction from where it is used and SHALL have no direction setting of its own; WHEN that direction changes while the meter is shown THE meter SHALL draw itself for the new direction at once, without a motion of its own, keeping its value."
+    },
+    {
+      "id": "MTR-14",
+      "text": "WHILE label is empty THE meter SHALL still render, and in debug builds report that it has no accessible name."
+    },
+    {
+      "id": "MTR-15",
+      "text": "WHERE the platform draws with a person's own forced colors THE meter SHALL draw its track as an edge sys.border.hairline wide in the platform's text color and its indicator filled in the platform's text color, whatever its status, so that the value is still read from where the indicator ends."
+    }
+  ],
+  "accessibility": {
+    "role": "meter",
+    "keyboard": [],
+    "labeling": "label is the accessible name. valueText, when given, replaces the platform's percentage as the spoken value. A visible caption beside the meter is the product's composition; when it exists, use the same words as label. status is never announced: say in valueText what it means.",
+    "minimumTarget": true,
+    "notes": [
+      "Not interactive: the meter takes no input and is never focusable (MTR-8), so the minimum target holds without extending anything.",
+      "A meter shows where a value stands in a known range; it is not progress (WAI-ARIA APG, Meter: not for loading or percent completion) and not for a value without a meaningful maximum. A task under way is a progress indicator.",
+      "The value is read from the boundary between indicator and track, so every indicator color — default and the four statuses — must stay at least 3:1 against comp.meter.track.color and the surface behind it (WCAG 1.4.11). In the default system each is above 4.6:1 in light and 7.3:1 in dark.",
+      "Color is never the only sign of a status (WCAG 1.4.1): MTR-9.",
+      "Web: the host carries role=\"meter\" and the aria-value attributes; the native <meter> element is not drawn, because its look cannot be styled in every engine."
+    ]
+  },
+  "tokens": "comp.meter",
+  "fixtures": [
+    {
+      "id": "linear",
+      "props": {
+        "value": 0.62,
+        "label": "Storage used",
+        "valueText": "9.3 GB of 15 GB"
+      }
+    },
+    {
+      "id": "linear-info",
+      "props": {
+        "value": 0.4,
+        "status": "info",
+        "label": "Monthly quota"
+      }
+    },
+    {
+      "id": "linear-success",
+      "props": {
+        "value": 0.9,
+        "status": "success",
+        "label": "Password strength",
+        "valueText": "Strong"
+      }
+    },
+    {
+      "id": "linear-warning",
+      "props": {
+        "value": 0.85,
+        "status": "warning",
+        "label": "Storage used",
+        "valueText": "Almost full: 12.8 GB of 15 GB"
+      }
+    },
+    {
+      "id": "linear-error",
+      "props": {
+        "value": 0.98,
+        "status": "error",
+        "label": "Storage used",
+        "valueText": "Full: 14.7 GB of 15 GB"
+      }
+    },
+    {
+      "id": "linear-small",
+      "props": {
+        "value": 0.62,
+        "size": "small",
+        "label": "Storage used"
+      }
+    },
+    {
+      "id": "linear-large",
+      "props": {
+        "value": 0.62,
+        "size": "large",
+        "label": "Storage used"
+      }
+    },
+    {
+      "id": "linear-empty",
+      "props": {
+        "value": 0,
+        "label": "Storage used"
+      }
+    },
+    {
+      "id": "linear-full",
+      "props": {
+        "value": 1,
+        "label": "Storage used"
+      }
+    },
+    {
+      "id": "linear-range",
+      "props": {
+        "value": 37,
+        "min": 0,
+        "max": 50,
+        "label": "Seats taken",
+        "valueText": "37 of 50 seats"
+      }
+    },
+    {
+      "id": "linear-gap",
+      "props": {
+        "value": 0.62,
+        "separation": "gap",
+        "label": "Storage used"
+      }
+    },
+    {
+      "id": "linear-divider",
+      "props": {
+        "value": 0.62,
+        "separation": "divider",
+        "label": "Storage used"
+      }
+    },
+    {
+      "id": "linear-on-container-highest",
+      "props": {
+        "value": 0.62,
+        "label": "Storage used"
+      },
+      "surface": "surface-container-highest"
+    },
+    {
+      "id": "linear-rtl",
+      "props": {
+        "value": 0.62,
+        "label": "Storage used"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "circular",
+      "props": {
+        "variant": "circular",
+        "value": 0.62,
+        "label": "Battery"
+      }
+    },
+    {
+      "id": "circular-warning",
+      "props": {
+        "variant": "circular",
+        "value": 0.15,
+        "status": "warning",
+        "label": "Battery",
+        "valueText": "Low: 15%"
+      }
+    },
+    {
+      "id": "circular-small",
+      "props": {
+        "variant": "circular",
+        "value": 0.62,
+        "size": "small",
+        "label": "Battery"
+      }
+    },
+    {
+      "id": "circular-large",
+      "props": {
+        "variant": "circular",
+        "value": 0.62,
+        "size": "large",
+        "label": "Battery"
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "alpha",
+      "name": "tanrei-meter",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "separation": "separation",
+        "value": "value",
+        "min": "min",
+        "max": "max",
+        "status": "status",
+        "label": "label",
+        "valueText": "valueText"
+      },
+      "parts": {
+        "track": "track",
+        "indicator": "indicator",
+        "stop-indicator": "stop-indicator"
+      },
+      "notes": "Drawn as the progress indicator is (the two share the drawing code; the meter never runs the indeterminate animation). The host carries `role=\"meter\"`, `aria-valuemin`, `aria-valuemax`, `aria-valuenow`, `aria-label` and `aria-valuetext` while `value-text` is set. `separation` and `status` are attributes; `auto` reads the name in `--tanrei-comp-meter-track-separation`."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiMeter",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "separation": "separation",
+        "value": "value",
+        "min": "bounds.lowerBound",
+        "max": "bounds.upperBound",
+        "status": "status",
+        "label": "label",
+        "valueText": "valueText"
+      },
+      "notes": "`TanreiMeter(\"Storage used\", value: 9.3, in: 0...15)`. Exposed as SwiftUI exposes a `Gauge`: an element with the label and an accessibility value, `accessibilityValue(valueText)` while it is set; no updates-frequently trait."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiMeter",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "separation": "separation",
+        "value": "value",
+        "min": "valueRange.start",
+        "max": "valueRange.endInclusive",
+        "status": "status",
+        "label": "label",
+        "valueText": "valueText"
+      },
+      "notes": "Semantics `progressBarRangeInfo` with the range (Android has no separate meter role) and `stateDescription` from valueText; never the indeterminate range info."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiMeter",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "separation": "separation",
+        "value": "value",
+        "min": "min",
+        "max": "max",
+        "status": "status",
+        "label": "label",
+        "valueText": "valueText"
+      },
+      "notes": "`Semantics(label:, value:)` with the value text or the percentage; on the web renderer the role is meter."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "Meter",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "separation": "separation",
+        "value": "value",
+        "min": "min",
+        "max": "max",
+        "status": "status",
+        "label": "label",
+        "valueText": "valueText"
+      },
+      "notes": "`accessibilityRole=\"progressbar\"` is not used; the view carries `accessibilityValue={{ min, max, now, text }}` with `role=\"meter\"` where React Native passes it through (web), and the label."
+    }
+  }
+}

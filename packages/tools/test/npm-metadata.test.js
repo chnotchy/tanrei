@@ -1,11 +1,12 @@
 // What npm shows of each published package beside its name (src/npm-metadata.js): the values, where they stand in a
-// package.json, and that every package a release publishes has them.
+// package.json, and that every package a release publishes has them; and the MCP server's listing in the MCP registry.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
+import Ajv from 'ajv';
 import { CONFIG, REPO_ROOT } from '../src/conventions.js';
-import { metadata, npmMetadataFiles, place } from '../src/npm-metadata.js';
+import { MCP_SERVER_SCHEMA, metadata, npmMetadataFiles, place, serverJson } from '../src/npm-metadata.js';
 
 const config = { namespace: 'acme', site: 'https://design.example.com', repository: { public: 'someone/acme' } };
 
@@ -81,4 +82,67 @@ test('the site is an https address with no path', () => {
   const url = new URL(CONFIG.site);
   assert.equal(url.protocol, 'https:');
   assert.equal(url.pathname, '/');
+});
+
+// The MCP registry's listing (packages/mcp/server.json): the registry's released schema, and its own rules beyond it
+// (docs/reference/server-json/official-registry-requirements.md and docs/modelcontextprotocol-io/ in
+// modelcontextprotocol/registry): the name is the package's `mcpName` under the namespace the publisher logs in to,
+// the package comes from npmjs.org at one exact version, and that version is the package's.
+const SCHEMA_COPY = path.join(REPO_ROOT, 'packages/tools/test/fixtures/mcp-registry/server.schema.json');
+
+/** The registry's schema, compiled; `uri` is the one format it uses. */
+function registrySchema() {
+  const ajv = new Ajv({ allErrors: true, strict: false });
+  ajv.addFormat('uri', (value) => URL.canParse(value));
+  const validate = ajv.compile(JSON.parse(fs.readFileSync(SCHEMA_COPY, 'utf8')));
+  return Object.assign((value) => validate(value), { errors: () => ajv.errorsText(validate.errors) });
+}
+
+const serverJsonFile = () => JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'packages/mcp/server.json'), 'utf8'));
+
+test("server.json is the MCP server's entry: its mcpName, its title and description, and the package at its version", () => {
+  const entry = { docs: '/start/', keywords: [], mcpServer: { title: 'Acme', description: 'Tokens for agents.' } };
+  assert.deepEqual(serverJson('mcp', entry, { name: '@acme/mcp', version: '2.0.0-next.3' }, config), {
+    $schema: MCP_SERVER_SCHEMA,
+    name: 'io.github.someone/acme',
+    title: 'Acme',
+    description: 'Tokens for agents.',
+    repository: { url: 'https://github.com/someone/acme', source: 'github', subfolder: 'packages/mcp' },
+    websiteUrl: 'https://design.example.com/start/',
+    version: '2.0.0-next.3',
+    packages: [{ registryType: 'npm', registryBaseUrl: 'https://registry.npmjs.org', identifier: '@acme/mcp', version: '2.0.0-next.3', transport: { type: 'stdio' } }],
+  });
+  assert.throws(() => serverJson('mcp', { ...entry, mcpServer: { title: 'Acme' } }, { name: '@acme/mcp', version: '1.0.0' }, config), /"title" and a "description"/);
+});
+
+test("the copy of the registry's schema is the one server.json names", () => {
+  const { $id } = JSON.parse(fs.readFileSync(SCHEMA_COPY, 'utf8'));
+  assert.equal($id, MCP_SERVER_SCHEMA, 'a newer schema: replace the copy and MCP_SERVER_SCHEMA together (fixtures/mcp-registry/README.md)');
+});
+
+test("packages/mcp/server.json passes the MCP registry's schema and its rules for an npm package", () => {
+  const validate = registrySchema();
+  const server = serverJsonFile();
+  assert.ok(validate(server), validate.errors());
+
+  const manifest = manifestOf('mcp');
+  const owner = CONFIG.repository.public.split('/')[0];
+  assert.equal(server.name, manifest.mcpName, 'the registry checks the name against the mcpName of the package on npm');
+  assert.ok(server.name.startsWith(`io.github.${owner}/`), 'a GitHub login grants io.github.<the account>/ only');
+  assert.equal(server.version, manifest.version, 'the listing is of the version on npm');
+  assert.equal(server.packages.length, 1);
+  const [pkg] = server.packages;
+  assert.deepEqual(
+    { registryType: pkg.registryType, registryBaseUrl: pkg.registryBaseUrl, identifier: pkg.identifier, version: pkg.version, transport: pkg.transport },
+    { registryType: 'npm', registryBaseUrl: 'https://registry.npmjs.org', identifier: manifest.name, version: manifest.version, transport: { type: 'stdio' } },
+  );
+  assert.equal(Object.keys(manifest.bin ?? {}).length, 1, 'npx runs the one binary of the package, with no arguments');
+});
+
+test('a server.json that breaks the registry\'s rules fails the schema', () => {
+  const validate = registrySchema();
+  const server = serverJsonFile();
+  assert.ok(!validate({ ...server, description: 'x'.repeat(101) }), 'a description over 100 characters');
+  assert.ok(!validate({ ...server, name: 'tanrei' }), 'a name without a namespace');
+  assert.ok(!validate({ ...server, packages: [{ ...server.packages[0], version: 'latest' }] }), 'a package version that is not exact');
 });

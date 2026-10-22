@@ -1,0 +1,187 @@
+---
+title: 调整手柄
+description: 用拖动或键盘移动它，来改变它所在之物（面板、字段、窗格、预览框）的大小的标记。一个方向是一段短线，两个方向是一段四分之一圆弧。它报告被移动了多少；改变大小的是它的所有者。
+translationOf: components/handle.mdx
+sourceHash: 96b088d0f03e91d67a76ccdc8f4ae5804881ddf9
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="handle" />
+
+<DemoFrame label="改变高度的手柄、改变宽度的手柄，以及在角上同时改变两者的手柄">
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle label="调整笔记大小" value="4" min="2" max="12" value-text="4 行" revealed style="justify-self: center; align-self: end"></tanrei-handle>
+  </div>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle axis="horizontal" label="调整预览大小" value="50" revealed style="justify-self: end; align-self: center"></tanrei-handle>
+  </div>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle axis="both" label="调整消息大小" value="6" min="3" max="12" value-text="6 行" revealed style="justify-self: end; align-self: end"></tanrei-handle>
+  </div>
+</DemoFrame>
+
+调整手柄位于某个可以由人改变大小之物的边或角上：面板的上边、文本字段的下角、窗格或预览的边。被拖动时，它报告移动了多远；用键盘移动时，它报告请求的是哪一步；不拖动而按下时，它也报告这一点。它自己从不改变任何东西的大小。大小由它所在之物保存，一步是多少也由那一方决定，并把大小交还给手柄，让辅助技术能够读出。
+
+在 Web 上它是 `<tanrei-handle>`。其他平台尚未实现。
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <div class="notes">
+      <textarea aria-label="笔记"></textarea>
+      <!-- 放在下边：它改变高度。value 属于所有者，单位也是所有者的。 -->
+      <tanrei-handle label="调整笔记大小" value="4" min="2" max="12" value-text="4 行"></tanrei-handle>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/handle';
+      const handle = document.querySelector('.notes tanrei-handle');
+      const notes = document.querySelector('.notes textarea');
+      const lineHeight = 24;
+      let start = 0;
+      const show = (lines) => {
+        lines = Math.min(12, Math.max(2, Math.round(lines)));
+        notes.rows = lines;
+        handle.value = lines;
+        handle.valueText = `${lines} 行`;
+      };
+      handle.addEventListener('resizestart', () => (start = notes.rows));
+      // 距按下点的距离（像素）：block 向下为正。
+      handle.addEventListener('resize', (e) => show(start + e.detail.block / lineHeight));
+      // 这里一步是一行；Home 和 End 请求最小和最大。
+      handle.addEventListener('step', (e) => {
+        const { direction, amount } = e.detail;
+        show(amount === 'limit' ? (direction < 0 ? 2 : 12) : notes.rows + direction * (amount === 'large' ? 3 : 1));
+      });
+      // 不拖动而按下：在你知道的两个大小之间切换，这样任何大小都不需要拖动。
+      handle.addEventListener('activate', () => show(notes.rows < 12 ? 12 : 2));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Handle } from '@tanrei/react';
+
+    <Handle
+      label="调整笔记大小"
+      value={rows}
+      min={2}
+      max={12}
+      valueText={`${rows} 行`}
+      onResizestart={() => setStart(rows)}
+      onResize={(e) => setRows(clamp(start + e.detail.block / 24))}
+      onStep={(e) => setRows(stepped(rows, e.detail))}
+      onActivate={() => setRows(rows < 12 ? 12 : 2)}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="使用之前看不见：把指针移上去，或用 Tab 移到它" plain>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle label="调整面板大小" value="30" style="justify-self: center; align-self: end"></tanrei-handle>
+  </div>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-small) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle axis="both" size="small" label="调整评论大小" value="3" style="justify-self: end; align-self: end"></tanrei-handle>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="handle" />
+
+## 指南
+
+### 何时使用
+
+在应当让人把某样东西调成想要的大小的地方使用：写长回答的字段、地图上的面板、侧边面板、以另一宽度查看页面的预览。
+
+| 你需要 | 使用 |
+| --- | --- |
+| 把列表中的项移到另一个位置 | [列表](/zh-cn/components/list/)的重新排序手柄，用圆点绘制。线改变大小，点改变位置。 |
+| 在几个固定大小之间选择，中间没有其他大小 | [分段按钮](/zh-cn/components/segmented-button/)，或切换大小的[按钮](/zh-cn/components/button/)。 |
+| 从下边升起的面板 | [底部面板](/zh-cn/components/bottom-sheet/)，它绘制自己的拖动手柄。 |
+
+### 形态
+
+| `axis` | 绘制为 | 位于 |
+| --- | --- | --- |
+| `vertical`（默认） | 一段水平短线 | 下边或上边：改变高度。 |
+| `horizontal` | 一段竖直短线 | 起始边或结束边：改变宽度。 |
+| `both` | 一段朝 `corner` 鼓起的四分之一圆弧 | 角：同时改变高度和宽度。 |
+
+`corner` 用逻辑方向书写：`end` 在从左到右的布局中是右边，在从右到左的布局中是左边，因此 `bottom-end` 的圆弧会自行跟随页面的方向。
+
+| `size` | 用于 |
+| --- | --- |
+| `medium`（默认） | 面板、窗格、框。 |
+| `small` | 文本字段的角，较大的标记会遮住文字的地方。 |
+
+两种尺寸都保持最小目标。命中区域在需要时会伸出它所在之物之外，而不改变绘制的样子。
+
+### 它告诉你什么，你做什么
+
+| 事件 | 何时 | 你做什么 |
+| --- | --- | --- |
+| `resizestart` | 拖动开始：按下后移动超过了触摸容差。 | 记住开始时的大小。关闭所调整之物中任何 iframe 的 `pointer-events`。 |
+| `resize` | 拖动移动的每一帧。`inline` 和 `block` 是距按下点的距离（像素）：`inline` 朝结束边为正，`block` 向下为正。 | 设置大小：开始的大小加上距离，用你自己的单位，在你的范围之内。 |
+| `resizeend` | 拖动结束，只一次。平台取消时 `cancelled` 为 true。 | 保留大小，或者在被取消时恢复。重新打开 iframe。 |
+| `step` | 某个按键请求了变化：`axis`、`direction`（1 或 −1）和 `amount`（`one`、`large`，Home 和 End 为 `limit`）。 | 决定一步是多少——一行、1 或 10 像素、5%——并按它改变大小。 |
+| `activate` | 不拖动而按下并松开，或按 Enter 或 Space。 | 在你知道的两个大小之间切换：文字所需的高度和最小高度，全宽和之前的宽度。 |
+
+每次改变之后，把新的大小作为 `value` 交给手柄（还有 `min`、`max`，以及数字说不清时的 `valueText`）。辅助技术读出的就是它。没有 `value` 的手柄是一个按钮：只在你知道的大小之间切换的手柄用这种形态，并给它 `expanded`。
+
+### 使用之前看不见
+
+调整手柄很安静：静止时什么也不绘制，让人看到的是它所在之物，而不是工具。鼠标移到它上面、键盘焦点到达它、以及按下和拖动期间，它才显现。移到它上面时，指针也变成调整大小的光标。在没有悬停的触摸屏上，它总是被绘制。
+
+在必须被看到才能被发现的地方设置 `revealed`：面板的握把就是这样，它告诉人面板可以拉动。如果希望在指针位于手柄所在之物上时显示手柄（字段在被指向时显示它角上的手柄），也在那段时间设置它。
+
+### 放置
+
+手柄只占它自己的框，把它放到边或角上的是你。把线放在边的中间。把圆弧放在角上，并让那个角的半径等于 `arc.radius` 加 `inset`，这样圆弧和角共用一个圆心。
+
+### 推荐
+
+- 给每个手柄一个说明它调整什么的 `label`：“调整笔记大小”“调整预览大小”。
+- 每次改变后把大小作为 `value` 交还，并在 `valueText` 中用你的单位书写。
+- 用一个不需要拖动的大小来响应 `activate`。
+- 保持调整后的大小，直到人再次改变它。
+
+### 避免
+
+- 不要用手柄把东西移到另一个位置。
+- 不要把东西缩小到其内容无法使用的大小，也不要把页面放宽到需要横向滚动的宽度。
+- 不要把手柄放在人正在阅读的文字上；它是边上的标记。
+
+## 无障碍
+
+<ComponentAccessibility name="handle" />
+
+### 组件负责的部分
+
+- 有 `value` 时，它是一个可聚焦的分隔符——ARIA Authoring Practices 中的窗口分隔条——由 `label` 命名，带有值、范围、值文本和线的方向。没有时，它是一个按钮，在你提供时带有展开状态。
+- 即使看不见，它也是焦点顺序中的一个停靠点。键盘焦点一到就连同焦点环立即显现，所以用键盘的人总能看到焦点在哪里。
+- 轴向的方向键请求一步，Shift 加方向键以及 Page Up 和 Page Down 请求一大步，Home 和 End 请求最小和最大的大小。Enter 和 Space 激活它。其他所有按键都交给你。
+- 按下不会取得焦点，也不会选中文字，所以拖动手柄时字段仍保留插入符。拖动会跟随指针越过窗口的边缘。
+- 不拖动而按下就会激活，所以你提供的每个大小都能用一次点击或轻点到达。
+- 放大文字时它保持原来的大小：它是边上的标记，不是文字。
+- 在强制颜色模式下，线使用按钮文字颜色，被指向或按下时使用高亮颜色，禁用时使用禁用文字颜色。
+- 在从右到左的布局中，圆弧的结束一侧的角在左边，斜向光标随之转向，左方向键指向结束边，`inline` 向左为正。
+
+### 需要你做的事
+
+- 提供 `label`。没有它，手柄仍会绘制并工作，调试构建会报告这一点。
+- 用人们熟悉的单位，保持 `value`、`min`、`max` 和 `valueText` 为最新。
+- 用一个不需要拖动的大小来响应 `activate`。对无法拖动的人来说，只有拖动是不够的。
+- 拖动期间，不要让所调整之物中的 iframe 获取指针（`pointer-events: none`），否则指针经过它时拖动会中断。
+- 确认在你允许的每个大小下内容都仍然可用。

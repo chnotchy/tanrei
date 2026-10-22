@@ -1,5 +1,5 @@
 /*
- * Description list (specs/description-list.spec.json, DSL-1 to DSL-23): what is known about one
+ * Description list (specs/description-list.spec.json, DSL-1 to DSL-24): what is known about one
  * thing as named facts — a quiet term and the value that answers it — with the terms in one column beside their
  * values, above them, or under a large figure. It is laid out by its own width and takes no input.
  *
@@ -35,8 +35,10 @@
  *
  * - Every selector starts at the element's name and has no specificity (`:where()`; a rule on `::after` has a
  *   pseudo-element's), so one class of the product's wins, and the ORDER of the rules decides between two of them.
- *   The one declaration of `data-measuring` is `!important`: it must win over the rule the element writes, which is
- *   in no layer so that it wins over a copy of this sheet a page loads into a layer of its own.
+ *   The one declaration of `data-measuring` is `!important`: what the element reads must be the two columns,
+ *   whatever another rule says of the list's columns — a product's, or the rule the element writes, which is in no
+ *   layer so that it wins over a copy of this sheet a page loads into a layer of its own. That rule does not apply at
+ *   all while the list is measured: it also places every value in the term's column (DSL-24).
  * - A rule reaches the list's own groups, terms and values by child combinators only: a list inside a value is the
  *   product's.
  * - The space between two facts is the lower fact's: a margin, a line (its border) and a padding that together are
