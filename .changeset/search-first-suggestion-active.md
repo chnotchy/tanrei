@@ -4,8 +4,9 @@
 
 **Breaking (behaviour).** The search now makes its first suggestion active as soon as the view shows suggestions, so a
 single Enter chooses it, as a web search, a documentation search and a command palette do. This is the WAI-ARIA
-combobox's list autocomplete with automatic selection. Focus stays in the input, and the input names that suggestion as
-its `aria-activedescendant`, so a screen reader reads the suggestion Enter will choose. The suggestion becomes active
+combobox's list autocomplete with automatic selection. Focus stays in the input. The suggestion is selected, but the input
+names it as its `aria-activedescendant` only once the person moves with an arrow key, so a screen reader does not read a
+suggestion after every key typed. The suggestion becomes active
 again each time the person types, deletes, pastes or moves the caret, and each time the product gives new suggestions,
 the view opens, or focus comes back to the input. Down Arrow goes on to the second suggestion. Up Arrow on the first
 leaves none active, and Enter then emits `submit` with the query as typed.

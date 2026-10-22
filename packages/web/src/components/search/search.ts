@@ -524,7 +524,8 @@ const WAITING = new Set<{ syncShortcut(): void }>();
  *
  * `docked` (the default) opens a view under the bar: a manual popover in the top layer, placed by script (flipped above
  * the bar when there is more room there), following the bar. Focus stays in the input — the WAI-ARIA combobox pattern:
- * the input controls the suggestions' listbox and names the active suggestion as its active descendant. A press outside
+ * the input controls the suggestions' listbox and names the active suggestion as its active descendant once the person
+ * moves to it with an arrow key (the first, active as the suggestions show, is selected but not read out). A press outside
  * closes it AND reaches the element under it. `full-screen` opens a modal `<dialog>` over the whole window with its own
  * header (a back button, the input, the clear button); it takes focus, keeps it, and gives it back to the bar's input.
  *
@@ -613,6 +614,7 @@ export class TanreiSearch extends TanreiElement {
     entries: { state: true },
     iconColumn: { state: true },
     active: { state: true },
+    moved: { state: true },
     resultCurrent: { state: true },
     typing: { state: true },
     hasLeading: { state: true },
@@ -717,8 +719,13 @@ export class TanreiSearch extends TanreiElement {
   protected entries: (TanreiSearchResult | TanreiSearchResultGroup)[] = [];
   /** SRC-16, SRC-42, SRC-52: every row of the view keeps the leading icon column, as iconSpace says. */
   protected iconColumn = false;
-  /** The active suggestion's index (the input's active descendant), or -1. */
+  /** The active suggestion's index, or -1. */
   protected active = -1;
+  /**
+   * SRC-14, SRC-24: the person moved to the active suggestion with an arrow key, so it is the input's active descendant
+   * and is read out; a suggestion made active automatically (the first, as they show) is not, until they move.
+   */
+  protected moved = false;
   /** SRC-49: the first result is the one the action key takes (the view holds no suggestion), focus staying in the input. */
   protected resultCurrent = false;
   /** SRC-14, SRC-49: focus is in an input of the search (the bar's or the header's), where its keys are answered. */
@@ -1097,9 +1104,13 @@ export class TanreiSearch extends TanreiElement {
     this.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true, inputType: 'deleteContentBackward' }));
   }
 
-  /** SRC-14: the active suggestion, scrolled into view inside the view's scrolling box, and its ring's focus style (SRC-21). */
-  private setActive(index: number) {
+  /**
+   * SRC-14: the active suggestion, scrolled into view inside the view's scrolling box, and its ring's focus style (SRC-21).
+   * `moved`: the person moved to it with an arrow key, so it is announced (SRC-24); made active automatically, it is not.
+   */
+  private setActive(index: number, moved: boolean) {
     this.active = index;
+    this.moved = moved && index >= 0;
     this.resultCurrent = false;
     if (index < 0) return;
     void this.updateComplete.then(() => {
@@ -1135,13 +1146,17 @@ export class TanreiSearch extends TanreiElement {
    * selection — while the view is open, focus is in the input and no input method composes: the first suggestion, or
    * with none the first result; otherwise nothing is.
    */
-  private firstCurrent() {
+  private firstCurrent(keepMoved = false) {
     const now = this.expanded && !this.inert_ && this.typing && !this.composing;
     if (now && this.suggestions.length > 0) {
-      if (this.active !== 0 || this.resultCurrent) this.setActive(0);
+      if (this.active !== 0 || this.resultCurrent) this.setActive(0, false);
+      // SRC-14: made active again automatically, it is not read out until the person moves — unless this only confirms
+      // the first that an arrow key moved to (the Down Arrow that opened the view).
+      else if (!keepMoved) this.moved = false;
       return;
     }
     this.active = -1;
+    this.moved = false;
     this.resultCurrent = now && this.rows.length > 0;
   }
 
@@ -1167,6 +1182,7 @@ export class TanreiSearch extends TanreiElement {
   /** SRC-13, SRC-14, SRC-49: nothing in the view is the one the action key takes: it submits the value as typed. */
   private noneCurrent() {
     this.active = -1;
+    this.moved = false;
     this.resultCurrent = false;
   }
 
@@ -1201,10 +1217,14 @@ export class TanreiSearch extends TanreiElement {
     switch (event.key) {
       case 'ArrowDown':
         event.preventDefault();
-        if (!this.expanded) this.expand();
+        if (!this.expanded) {
+          this.expand();
+          // SRC-14: the Down Arrow that opens the view moves to its first suggestion, which is read out (as APG's does).
+          this.moved = this.active >= 0;
+        }
         // SRC-49: from the current result, on to the one after it (staying on it where it is the only one).
         else if (this.resultCurrent) this.focusResult(Math.min(1, this.rows.length - 1));
-        else if (this.active < count - 1) this.setActive(this.active + 1);
+        else if (this.active < count - 1) this.setActive(this.active + 1, true);
         // SRC-14, SRC-49: with no suggestion to go to — none in the view, or the last one active — on to the first result.
         else this.focusResult(0);
         return;
@@ -1213,7 +1233,7 @@ export class TanreiSearch extends TanreiElement {
         if (this.expanded && (this.active >= 0 || this.resultCurrent)) {
           event.preventDefault();
           if (this.resultCurrent) this.noneCurrent();
-          else this.setActive(this.active - 1);
+          else this.setActive(this.active - 1, true);
         }
         return;
       case 'Enter': {
@@ -1303,7 +1323,7 @@ export class TanreiSearch extends TanreiElement {
       else {
         // SRC-49: from the first result back to the input — the last suggestion active, or nothing current.
         this.currentInput?.focus();
-        if (this.suggestions.length > 0) this.setActive(this.suggestions.length - 1);
+        if (this.suggestions.length > 0) this.setActive(this.suggestions.length - 1, true);
         else this.noneCurrent();
       }
       return true;
@@ -1719,7 +1739,7 @@ export class TanreiSearch extends TanreiElement {
     }
     // SRC-14, SRC-49: the view the product opens or closes, or a search that becomes disabled, decides again what the
     // action key takes: the first suggestion or result while the view is open and the input has focus, else nothing.
-    if (changed.has('expanded') || changed.has('disabled') || (changed as Map<PropertyKey, unknown>).has('formDisabled')) this.firstCurrent();
+    if (changed.has('expanded') || changed.has('disabled') || (changed as Map<PropertyKey, unknown>).has('formDisabled')) this.firstCurrent(true);
     if (this.active >= this.suggestions.length || !this.expanded) this.active = -1;
     // SRC-44: a group stands group.gap below whatever stands above it in the view and above whatever follows it; two
     // groups that follow each other stand one gap apart.
@@ -1865,9 +1885,12 @@ export class TanreiSearch extends TanreiElement {
    * empty or letterless value keeps the layout's direction, so the caret and the placeholder stand at the bar's start
    * edge (an empty `dir="auto"` input is left to right in every layout).
    */
-  /** SRC-24: the input's semantics — a search field named by label; a combobox while its view shows the suggestions. */
+  /**
+   * SRC-24: the input's semantics — a search field named by label; a combobox while its view shows the suggestions,
+   * whose active descendant is the active suggestion once the person has moved to it (SRC-14).
+   */
   private renderInput(place: 'bar' | 'header', listed: boolean) {
-    const activeId = listed && this.active >= 0 ? `option-${this.active}` : undefined;
+    const activeId = listed && this.active >= 0 && this.moved ? `option-${this.active}` : undefined;
     return html`<input
       part="input"
       class="input"

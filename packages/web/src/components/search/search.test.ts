@@ -984,18 +984,21 @@ test.describe('opening and closing', () => {
 });
 
 test.describe('suggestions', () => {
-  test('SRC-14: the first suggestion is active from the moment the view shows it, focus staying in the input — Enter chooses it in one press; Down and Up Arrow move from there, stopping on the last, none above the first (Enter then submits the query as typed); typing, moving the caret or new suggestions make the first active again', async ({ page }) => {
+  test('SRC-14: the first suggestion is active from the moment the view shows it, focus staying in the input — Enter chooses it in one press; Down and Up Arrow move from there, stopping on the last, none above the first (Enter then submits the query as typed); typing, moving the caret or new suggestions make the first active again, unannounced until an arrow key moves', async ({ page }) => {
     await mount(page, [live('s', { value: 'inv' })]);
     const field = input(page, 's');
     await field.focus();
-    const active = () => field.getAttribute('aria-activedescendant');
+    const active = () => activeOption(page, 's');
+    const told = () => field.getAttribute('aria-activedescendant');
     const selected = () => host(page, 's').evaluate((el) => [...el.shadowRoot!.querySelectorAll('[role="option"]')].map((o) => o.getAttribute('aria-selected')));
     expect(await active(), 'closed: nothing is active').toBeNull();
     await page.keyboard.press('ArrowDown'); // opens, with the first active at once
     await expect.poll(active).toBe('option-0');
+    expect(await told(), 'the Down Arrow that opened the view moved to the first: it is announced').toBe('option-0');
     expect(await selected(), 'the active option is the selected one, and only it').toEqual(['true', 'false', 'false']);
     await page.keyboard.press('ArrowDown');
     await expect.poll(active, 'Down Arrow goes on to the second').toBe('option-1');
+    expect(await told(), 'the suggestion an arrow key moves to is announced').toBe('option-1');
     await page.keyboard.press('ArrowDown');
     await page.keyboard.press('ArrowDown');
     await expect.poll(active, 'staying on the last').toBe('option-2');
@@ -1018,6 +1021,8 @@ test.describe('suggestions', () => {
     await expect.poll(active).toBe('option-1');
     await page.keyboard.type('o');
     await expect.poll(active).toBe('option-0');
+    expect(await told(), 'made active by typing, it is selected but not announced').toBeNull();
+    expect(await selected()).toEqual(['true', 'false', 'false']);
     expect(await prop(host(page, 's'), 'value')).toBe('invo');
     // Deleting.
     await page.keyboard.press('ArrowDown');
@@ -1031,6 +1036,10 @@ test.describe('suggestions', () => {
     await page.keyboard.press('ArrowDown');
     await host(page, 's').evaluate((el) => el.insertAdjacentHTML('beforeend', '<tanrei-search-suggestion value="x" headline="x"></tanrei-search-suggestion>'));
     await expect.poll(active).toBe('option-0');
+    expect(await told()).toBeNull();
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowUp');
+    expect(await told(), 'back on the first by an arrow key: announced').toBe('option-0');
     // Up Arrow on the first gives Enter back to the query as typed: submit, and the view closes (it shows no result).
     await wire(host(page, 's'));
     await page.keyboard.press('ArrowUp');
@@ -1051,6 +1060,7 @@ test.describe('suggestions', () => {
     await field.focus();
     await expect.poll(active).toBe('option-0');
     await expect(row(page, 's', 0)).toHaveAttribute('data-active', '');
+    expect(await told()).toBeNull();
   });
 
   test('SRC-14, TXI-4: while an input method composes no suggestion is active and Enter, Escape and the arrow keys are its own — the Enter that confirms a conversion chooses and submits nothing; when it ends the first is active, and the next Enter chooses it', async ({ page }) => {
@@ -1059,7 +1069,7 @@ test.describe('suggestions', () => {
     const field = input(page, 's');
     await field.focus();
     await page.keyboard.press('ArrowDown');
-    const active = () => field.getAttribute('aria-activedescendant');
+    const active = () => activeOption(page, 's');
     await expect.poll(active).toBe('option-0');
     await wire(s);
     // A composition as the platform reports it: compositionstart, then the element's text and an input that composes.
@@ -1096,7 +1106,7 @@ test.describe('suggestions', () => {
     expect((await log(page)).filter((e) => !e.startsWith('input'))).toEqual(['select:nihongo', 'toggle:false:select:false']);
   });
 
-  test('SRC-14, SRC-24: assistive technology is told the first suggestion as soon as the view shows it — the input names it as its active descendant, and the option is selected — and a real composition in Chromium makes none active until it is confirmed', async ({ page, browserName }) => {
+  test('SRC-14, SRC-24: the first suggestion, made active as the view shows it while the person types, is selected but not announced — the input names no active descendant — and the suggestion an arrow key moves to is; measured in Chromium’s accessibility tree, where a real composition also makes none active until it is confirmed', async ({ page, browserName }) => {
     await mount(page, [live('s', { value: '' }, [])]);
     const s = host(page, 's');
     const field = input(page, 's');
@@ -1110,20 +1120,35 @@ test.describe('suggestions', () => {
       });
     });
     await page.keyboard.type('to');
-    await expect.poll(() => field.getAttribute('aria-activedescendant')).toBe('option-0');
+    await expect.poll(() => activeOption(page, 's')).toBe('option-0');
     await expect(field).toHaveAttribute('role', 'combobox');
     await expect(field).toHaveAttribute('aria-expanded', 'true');
-    // What the accessibility tree says of the input and the option it names.
+    // Selected, so that what Enter takes is in the tree; not the active descendant, so that nothing is read per key.
+    await expect(field).not.toHaveAttribute('aria-activedescendant', /.*/);
     const snapshot = await s.locator('[role="listbox"]').ariaSnapshot();
     expect(snapshot).toContain('option "to a" [selected]');
     expect(snapshot).not.toContain('option "to b" [selected]');
+    if (browserName === 'chromium') expect(await toldInChromium(page)).toEqual({ field: 'combobox "Search mail"', active: null });
+    // The person moves: each suggestion an arrow key moves to is the active descendant, and is read.
+    await page.keyboard.press('ArrowDown');
+    await expect(field).toHaveAttribute('aria-activedescendant', 'option-1');
+    if (browserName === 'chromium') expect(await toldInChromium(page)).toEqual({ field: 'combobox "Search mail"', active: 'option "to b"' });
+    await page.keyboard.press('ArrowUp');
+    await expect(field).toHaveAttribute('aria-activedescendant', 'option-0');
+    if (browserName === 'chromium') expect(await toldInChromium(page)).toEqual({ field: 'combobox "Search mail"', active: 'option "to a"' });
+    // Typing again: the new first is active and selected, and nothing is read for it.
+    await page.keyboard.type('k');
+    await expect.poll(() => activeOption(page, 's')).toBe('option-0');
+    await expect(field).not.toHaveAttribute('aria-activedescendant', /.*/);
     if (browserName !== 'chromium') return;
+    expect(await toldInChromium(page)).toEqual({ field: 'combobox "Search mail"', active: null });
     const cdp = await page.context().newCDPSession(page);
     for (const text of ['け', 'けん']) await cdp.send('Input.imeSetComposition', { text, selectionStart: text.length, selectionEnd: text.length });
-    await expect.poll(() => field.getAttribute('aria-activedescendant'), 'composing: none').toBeNull();
+    await expect.poll(() => activeOption(page, 's'), 'composing: none').toBeNull();
     await cdp.send('Input.insertText', { text: '検' });
-    await expect.poll(() => field.getAttribute('aria-activedescendant'), 'confirmed: the first again').toBe('option-0');
-    expect(await prop(s, 'value')).toBe('to検');
+    await expect.poll(() => activeOption(page, 's'), 'confirmed: the first again').toBe('option-0');
+    await expect(field).not.toHaveAttribute('aria-activedescendant', /.*/);
+    expect(await prop(s, 'value')).toBe('tok検');
   });
 
   test('SRC-14: a suggestion that becomes active while scrolled out of view is scrolled into view', async ({ page }) => {
@@ -1473,7 +1498,7 @@ test.describe('accessibility', () => {
     await expect(listbox.getByRole('option')).toHaveCount(3);
     const folder = page.getByRole('option', { name: 'Invoices', exact: true });
     await expect(folder).toHaveAccessibleDescription('Folder · 24 messages');
-    // SRC-14: the first suggestion is the active descendant from the moment the view shows it.
+    // SRC-14: the Down Arrow that opened the view moved to the first suggestion: it is the active descendant.
     await expect(combo).toHaveAttribute('aria-activedescendant', 'option-0');
     await expect(page.getByRole('option', { name: 'invoices', exact: true })).toHaveAttribute('aria-selected', 'true');
     expect(await host(page, 's').locator('.option-icon[aria-hidden="true"]').count()).toBe(3);
@@ -1593,6 +1618,24 @@ const focused = (page: P) =>
     return active ? `${active.localName}${root instanceof ShadowRoot ? `@${root.host.localName.replace('tanrei-search', 'search')}:${(root.host as any).value ?? ''}` : active.id ? `#${active.id}` : ''}` : null;
   });
 const toggles = async (page: P) => (await log(page)).filter((entry) => entry.startsWith('toggle'));
+/** The active suggestion — the option drawn active, whether or not it is announced — by its id, or null. */
+const activeOption = (page: P, id: string) => host(page, id).evaluate((el) => el.shadowRoot!.querySelector('.option[data-active]')?.id ?? null);
+/**
+ * What Chromium's accessibility tree tells assistive technology of the focused field: its role and name, and the node
+ * it names as its active descendant (null: none, so nothing is read for it).
+ */
+async function toldInChromium(page: P) {
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Accessibility.enable');
+  const { nodes } = await cdp.send('Accessibility.getFullAXTree');
+  await cdp.detach();
+  const byNode = new Map(nodes.map((node) => [node.backendDOMNodeId, node]));
+  const said = (node: (typeof nodes)[number]) => `${String(node.role?.value)} "${String(node.name?.value ?? '')}"`;
+  const field = nodes.find((node) => !node.ignored && ['searchbox', 'combobox'].includes(String(node.role?.value)) && (node.properties ?? []).some((property) => property.name === 'focused' && property.value.value === true));
+  const relation = field?.properties?.find((property) => property.name === 'activedescendant');
+  const active = relation ? byNode.get(relation.value.relatedNodes?.[0]?.backendDOMNodeId) : undefined;
+  return { field: field ? said(field) : null, active: active ? said(active) : null };
+}
 
 test.describe('trigger', () => {
   test('SRC-35: the button trigger is the bar’s container at trigger.container.height — the search glyph at trigger.leading-icon.size, the placeholder (or the label) on one line in trigger.label.typescale, cut at its end, then the hint — and the icon trigger a medium icon-only text Button; neither draws an input, a clear button or a slot', async ({ page }) => {
@@ -2484,8 +2527,10 @@ test.describe('keys through results', () => {
     ]);
     const field = input(page, 's');
     await field.focus();
-    // SRC-14: focus in the input of an open view makes the first suggestion active; Down Arrow goes on to the second.
-    await expect(field).toHaveAttribute('aria-activedescendant', 'option-0');
+    // SRC-14: focus in the input of an open view makes the first suggestion active (not announced until the person
+    // moves); Down Arrow goes on to the second.
+    await expect.poll(() => activeOption(page, 's')).toBe('option-0');
+    await expect(field).not.toHaveAttribute('aria-activedescendant', /.*/);
     await page.keyboard.press('ArrowDown');
     await expect(field).toHaveAttribute('aria-activedescendant', 'option-1');
     expect(await focused(page)).toBe('input@search:inv');

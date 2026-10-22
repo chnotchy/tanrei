@@ -7718,15 +7718,20 @@ on-screen keyboard. Opening focuses the header's input with the caret at the end
 input, which does not reopen it. A press on the view that would take focus nowhere keeps it inside. It fades in and out
 over the open and close motion. The slots are not drawn in the header.
 
-**Keyboard (SRC-12…15).** The WAI-ARIA combobox pattern: Down / Up Arrow move the active suggestion while focus stays in
-the input (Down from none is the first; it stays on the last; Up on the first leaves none); typing, deleting, moving the
-caret or new suggestions leave none active; the active row is scrolled into view. Enter chooses the active suggestion, or
-submits. Escape closes the view; closed, it empties a value (one `input`), and with none it does nothing and passes on.
+**Keyboard (SRC-12…15).** The WAI-ARIA combobox pattern with list autocomplete and automatic selection: the first
+suggestion is active as soon as the view shows suggestions while the input has focus, and again after typing, deleting,
+moving the caret, new suggestions or focus coming back; Down / Up Arrow move the active suggestion while focus stays in
+the input (Down from none is the first; it stays on the last; Up on the first leaves none); the active row is scrolled
+into view. Enter chooses the active suggestion, or submits. Escape closes the view; closed, it empties a value (one
+`input`), and with none it does nothing and passes on.
 
 **Semantics (SRC-24).** The input is a native `type="search"` (a searchbox) with `enterkeyhint="search"` and `dir="auto"`,
 named by `aria-label` from `label`, never by the placeholder. While the view shows suggestions it is a `combobox` with
 `aria-autocomplete="list"`, `aria-expanded="true"`, `aria-controls` naming the `listbox` (named by `label`) and
-`aria-activedescendant` naming the active `option` (`aria-selected="true"`); each option is named by its headline
+`aria-activedescendant` naming the active `option` once the person has moved to it with an arrow key (the Down Arrow
+that opens the view included). The first, made active automatically, is `aria-selected="true"` but not named, so a screen
+reader reads no suggestion per key typed — APG's list autocomplete example sets only `aria-selected` on its automatic
+choice, and GitHub's combobox-nav marks its default option with a data attribute alone; each option is named by its headline
 (`aria-labelledby`) and described by its supporting text (`aria-describedby`). The spec names the combobox for the docked
 view; the web's full-screen header input is one too, so the active suggestion is announced there as well. Icons and the divider are hidden; the full-screen view is a modal `dialog` named by
 `label`; the clear and back buttons are icon-only Tanrei Buttons named by `clearLabel` and `backLabel`.
