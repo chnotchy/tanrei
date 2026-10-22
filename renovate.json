@@ -23,6 +23,14 @@
       "groupSlug": "npm-minor-patch"
     },
     {
+      "description": [
+        "lefthook 2.2.2 was published from a maintainer's account, without the trusted publisher and provenance its earlier releases carry, and pnpm's trustPolicy (pnpm-workspace.yaml) refuses it.",
+        "Renovate cannot see that policy: offered 2.2.2, it fails to write the lockfile, and the whole npm group is left without one. The next release that pnpm accepts is offered as usual."
+      ],
+      "matchPackageNames": ["lefthook"],
+      "allowedVersions": "!/^2\\.2\\.2$/"
+    },
+    {
       "description": "One pull request a week for the GitHub Actions, each pinned to a commit SHA with its version in a comment.",
       "matchManagers": ["github-actions"],
       "matchDepTypes": ["action", "workflow"],
