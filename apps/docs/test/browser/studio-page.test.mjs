@@ -156,6 +156,57 @@ for (const engine of ENGINES) {
       }
     });
 
+    test('a link opened in a browser that kept a layer of its own: the link’s layer is shown, the kept one is not written over, and the notice leads back to it or keeps the link’s', async () => {
+      const kept = () => page.evaluate(() => JSON.parse(localStorage.getItem('tanrei-theme-studio')).layer.extends);
+      const first = await open(browser);
+      let link;
+      try {
+        await chooseBase(first.page, 'cupertino');
+        await first.page.waitForFunction(() => new URLSearchParams(location.hash.slice(1)).get('layer'));
+        link = first.page.url().slice(origin.length);
+      } finally {
+        await first.close();
+      }
+      const { page, problems, close } = await open(browser);
+      try {
+        // This browser's own layer.
+        await chooseBase(page, 'm3-like');
+        await page.waitForFunction(() => JSON.parse(localStorage.getItem('tanrei-theme-studio') ?? '{}').layer?.extends === 'm3-like');
+        const banner = page.locator('[data-shared-banner]');
+        // The link, loaded anew each time: an address of its own (a query the page ignores), so it is no step within the page.
+        let visit = 0;
+        const openLink = async () => {
+          await page.goto(`${origin}/studio/?visit=${++visit}${link.slice(link.indexOf('#'))}`);
+          await page.waitForSelector('[data-studio][data-level]');
+          await page.waitForFunction(() => window.tanreiStudio.getLayer().extends === 'cupertino');
+        };
+        await openLink();
+        assert.equal(await banner.evaluate((el) => el.open), true, 'the notice says the layer is the link’s');
+        assert.equal(await kept(), 'm3-like', 'and the layer this browser kept is still the one kept');
+        assert.equal(await page.locator('[data-undo]').evaluate((el) => el.disabled), true, 'nothing to undo: the link’s layer is no edit');
+        await page.locator('[data-back-to-mine]').click();
+        assert.equal((await layer(page)).extends, 'm3-like', 'back to the kept layer');
+        assert.equal(await banner.evaluate((el) => el.open), false);
+        const linked = new URLSearchParams(link.slice(link.indexOf('#') + 1)).get('layer');
+        await page.waitForFunction((code) => { const now = new URLSearchParams(location.hash.slice(1)).get('layer'); return now && now !== code; }, linked);
+        // Keeping the link's layer: this browser keeps it from then on.
+        await openLink();
+        await page.locator('[data-keep-shared]').click();
+        assert.equal(await banner.evaluate((el) => el.open), false);
+        assert.equal(await kept(), 'cupertino', 'kept');
+        // An edit of the link's layer keeps it too.
+        await chooseBase(page, 'm3-like');
+        await page.waitForFunction(() => JSON.parse(localStorage.getItem('tanrei-theme-studio')).layer.extends === 'm3-like');
+        await openLink();
+        await chooseBase(page, 'tanrei');
+        assert.equal(await banner.evaluate((el) => el.open), false, 'the notice goes with the first edit');
+        assert.equal(await kept(), 'tanrei', 'and the edited layer is the one kept');
+        assert.deepEqual(problems, []);
+      } finally {
+        await close();
+      }
+    });
+
     test('undo and redo: from the bar’s buttons and from the keyboard, the address following', async () => {
       const { page, problems, close } = await open(browser);
       try {

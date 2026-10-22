@@ -470,6 +470,17 @@ const en = {
     resize: 'Width of the properties panel',
     width: (px: number) => `${px} pixels`,
   },
+  // The layer of a link, shown in the place of the one this browser kept (ui.ts `showShared`).
+  shared: {
+    status: 'Information',
+    title: 'You are looking at a shared layer',
+    body: 'It came with the link you opened. The layer you were working on is still kept in this browser; editing this one, or keeping it, puts this one in its place.',
+    keep: 'Keep this layer',
+    mine: 'Back to my layer',
+    kept: 'This browser keeps the shared layer now, in place of the one you had.',
+    edited: 'You edited the shared layer, so this browser keeps it now, in place of the one you had.',
+    back: 'Back to your layer.',
+  },
   app: {
     language: 'Language',
     theme: 'Theme',

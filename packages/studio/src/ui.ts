@@ -86,9 +86,14 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
 
   // Text typed at "Source" that does not parse (./draft.js). It is remembered with the rest, so a reload keeps it too.
   let draft = createSourceDraft();
+  /**
+   * While the page shows the layer of a link (`address`): the layer this browser kept before it. It stays the one kept
+   * until the person edits the link's layer or keeps it, and they can go back to it.
+   */
+  let mine: Layer | null = null;
   function remember() {
     try {
-      localStorage.setItem(STORE, JSON.stringify(adapter ? { level, contrast, draft, panel: panelWidth } : { layer, level, contrast, draft, panel: panelWidth }));
+      localStorage.setItem(STORE, JSON.stringify(adapter ? { level, contrast, draft, panel: panelWidth } : { layer: mine ?? layer, level, contrast, draft, panel: panelWidth }));
     } catch {}
   }
   function recall() {
@@ -113,6 +118,8 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     latest: () => latest,
     commit(next, options) {
       layer = next;
+      // An edit of a link's layer makes it the person's: it is kept from now on, in the place of theirs.
+      if (mine && !options?.preview) keepShared(t.shared.edited);
       if (!options?.preview) {
         // A step to undo: what was committed before, unless nothing changed.
         if (stringifyLayer(next) !== stringifyLayer(committed)) history.record(committed);
@@ -158,6 +165,8 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   const file = h('div', { class: 'ts-file', 'data-file': true });
   // What changed underneath the person, and the two answers: a live callout (it is announced when it opens).
   const banner = h('tanrei-callout', { class: 'ts-banner', status: 'warning', 'status-label': t.file.states.conflict, live: true, open: 'false', 'data-banner': true });
+  // The layer of a link, shown in the place of the one this browser kept, and the two ways on (`address`).
+  const sharedBanner = h('tanrei-callout', { class: 'ts-banner', status: 'info', 'status-label': t.shared.status, live: true, open: 'false', 'data-shared-banner': true });
   const a11y = h('div');
   const exportHost = h('div');
   const glyph = (name: string) => h('span', { class: `${studio.tagPrefix}-icon`, slot: 'icon', 'aria-hidden': 'true', translate: 'no' }, name);
@@ -179,7 +188,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   const handle = h('tanrei-handle', { class: 'ts-handle', axis: 'horizontal', label: t.frame.resize, 'data-panel-handle': true }) as HTMLElement & { value: number | null; min: number; max: number; valueText: string };
   // The frame is the page's main region; what is announced is said from inside it.
   const layout = h('main', { class: 'ts-frame', 'data-frame': true }, rail, preview.el, handle, inspector, status);
-  root.replaceChildren(bar, banner, layout);
+  root.replaceChildren(bar, h('div', { class: 'ts-notices' }, banner, sharedBanner), layout);
 
   // ── the panel's width ─────────────────────────────────────────────────────────────────────────
   // The handle reports how far it was moved and the keys pressed on it (the Handle's window splitter); the Studio
@@ -640,8 +649,9 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   // ── the layer in the address (`address`) ──────────────────────────────────────────────────────
   // Written a moment after each commit, in place of the address the tab has (the Back button still leaves the Studio):
   // a link copied from the address bar opens the Studio on this layer. An untouched layer writes none. A layer that
-  // arrives in the address — the page opened from a link, or a link pasted into this tab — is the layer then, in the
-  // place of the one this browser kept, and the step back to that one can be undone.
+  // arrives in the address — the page opened from a link, or a link pasted into this tab — is shown, and the one this
+  // browser kept is not written over: it stays the one kept until the person edits the link's layer or keeps it, and
+  // the notice above the frame leads back to it.
   let addressTimer: number | undefined;
   let written: string | null = linked ? layerParam(location.hash) : null;
   function writeAddress() {
@@ -653,6 +663,50 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       written = code;
       window.history.replaceState(window.history.state, '', `${location.pathname}${location.search}${withLayer(location.hash, code)}`);
     }, 250);
+  }
+  /**
+   * Show the layer of a link. The layer this browser kept — `kept`, unless one is already set aside — is set aside when
+   * it holds anything the link's does not: an untouched layer, or the same one, is no work to lose.
+   */
+  function showShared(next: Layer, kept: Layer) {
+    const aside = mine ?? kept;
+    layer = committed = next;
+    history.clear();
+    drawHistory();
+    if (stringifyLayer(aside) === stringifyLayer(next) || stringifyLayer(aside) === stringifyLayer(studio.blank())) {
+      mine = null;
+      sharedBanner.open = false;
+      return;
+    }
+    mine = aside;
+    sharedBanner.replaceChildren(
+      h('b', { slot: 'title', text: t.shared.title }),
+      ` ${t.shared.body}`,
+      h('div', { class: 'ts-actions', slot: 'actions' }, button(t.shared.keep, () => keepShared(t.shared.kept), { primary: true, 'data-keep-shared': true }), button(t.shared.mine, () => backToMine(), { 'data-back-to-mine': true })),
+    );
+    sharedBanner.open = true;
+  }
+  /** The link's layer is the person's from now on: kept in this browser, in the place of the one set aside. */
+  function keepShared(said: string) {
+    mine = null;
+    sharedBanner.open = false;
+    remember();
+    ctx.announce(said);
+  }
+  /** Back to the layer this browser kept: drawn, and written into the address in the place of the link's. */
+  function backToMine() {
+    if (!mine) return;
+    const inside = sharedBanner.contains(document.activeElement);
+    layer = committed = mine;
+    mine = null;
+    sharedBanner.open = false;
+    history.clear();
+    build();
+    drawHistory();
+    remember();
+    writeAddress();
+    if (inside) inspector.focus({ preventScroll: true });
+    ctx.announce(t.shared.back);
   }
   /** The layer of the address, or `null` when it holds none, or none that can be read (a link cut short is left alone). */
   async function readAddress(): Promise<Layer | null> {
@@ -667,14 +721,18 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   }
   const onHash = () => {
     if (layerParam(location.hash) === written) return;
-    readAddress().then((next) => next && ctx.commit(next, { rebuild: true }));
+    readAddress().then((next) => {
+      if (!live || !next) return;
+      showShared(next, committed);
+      build();
+    });
   };
   let live = true;
   if (linked && layerParam(location.hash)) {
     // Read before the first drawing, so that the layer of the link is the first one drawn.
     readAddress().then((next) => {
       if (!live) return;
-      if (next) layer = committed = next;
+      if (next) showShared(next, layer);
       build();
       remember();
     });

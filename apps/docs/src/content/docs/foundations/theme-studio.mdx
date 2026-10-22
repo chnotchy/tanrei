@@ -11,7 +11,7 @@ A design system should feel right by default and follow you when you change one 
 
 Nothing in it is a mock-up. The preview is a real system scope with real components, and it applies the very stylesheet `tanrei build` would write for your layer — computed in your browser by the same engine, emitter and accessibility checks. Repository tests build Studio layers with the CLI pipeline and require the whole sheet, every token value in all six schemes and every warning to match.
 
-The layer you are making stays in this browser, and in the page’s address: a link to the Studio, copied from the address bar, opens it on the same layer. Every change can be undone and redone, with the buttons in the Studio’s bar or with ⌘Z and ⇧⌘Z (Ctrl+Z and Ctrl+Shift+Z).
+The layer you are making stays in this browser, and in the page’s address: a link to the Studio, copied from the address bar, opens it on the same layer. A link never writes over the layer a browser kept: the Studio shows the link’s layer and says so, and keeps yours until you edit the link’s or choose to keep it — or go back to yours. Every change can be undone and redone, with the buttons in the Studio’s bar or with ⌘Z and ⇧⌘Z (Ctrl+Z and Ctrl+Shift+Z).
 
 ## What the controls write
 

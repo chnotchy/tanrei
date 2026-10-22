@@ -456,6 +456,16 @@ const es: Dictionary = {
     resize: 'Ancho del panel de propiedades',
     width: (px: number) => `${px} píxeles`,
   },
+  shared: {
+    status: 'Información',
+    title: 'Estás viendo una capa compartida',
+    body: 'Llegó con el enlace que abriste. La capa en la que trabajabas sigue guardada en este navegador; si editas esta o decides quedártela, ocupará su lugar.',
+    keep: 'Quedarme con esta capa',
+    mine: 'Volver a mi capa',
+    kept: 'Ahora este navegador guarda la capa compartida en lugar de la que tenías.',
+    edited: 'Editaste la capa compartida, así que ahora este navegador la guarda en lugar de la que tenías.',
+    back: 'Has vuelto a tu capa.',
+  },
   app: {
     language: 'Idioma',
     theme: 'Tema',

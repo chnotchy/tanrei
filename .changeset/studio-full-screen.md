@@ -17,7 +17,9 @@ page that held it, Foundations › Theme Studio, is now a short page about the t
   each step is saved like any other edit.
 - **The layer is in the address.** On the docs site the layer is written into the page's fragment (`#layer=…`, the
   layer file's text compressed and in base64url), so a link copied from the address bar opens the Studio on the same
-  layer, in any browser.
+  layer, in any browser. A link never writes over the layer a browser kept: the Studio shows the link's layer under a
+  notice, keeps the visitor's own until they edit the link's or choose **Keep this layer**, and **Back to my layer**
+  returns to theirs.
 
 **Breaking (`mountStudio`).** The Studio now takes the whole page it is mounted in and draws its own bar; a host gives
 its items to that bar with the new `bar: { start, end }` option instead of drawing a bar of its own (the standalone
