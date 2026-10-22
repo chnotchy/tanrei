@@ -7853,7 +7853,10 @@ children's order, by giving them `slot="result"`. A result holds no listener: th
 
 Activated in place — a primary press, a touch or Enter, no modifier, `target` same — a result fires `select`
 (**cancelable**: cancelling it keeps the link from being followed) and the view closes with the reason `select`. Opened
-any other way, nothing is fired and the view stays open. Down Arrow in the input, with no suggestion left to go to, moves
+any other way, nothing is fired and the view stays open. Enter in the input with Command (Apple convention) or Control
+opens the current result in a new tab, and with Shift in a new window, through `window.open` with `noopener` (and
+`noreferrer` where `rel` says so; a new window is a `popup`, the only window a page can ask for): a click dispatched with
+the modifiers would do it in Chromium and Firefox, but WebKit follows such a click in place whatever its modifiers. Down Arrow in the input, with no suggestion left to go to, moves
 **real focus** to the first result and on through them, across groups; Up Arrow comes back, to the input from the first.
 Typing a character, Backspace, Delete or pasting on a result moves focus to the input, where the key then acts. Tab goes
 through the links in a modal view; docked, it closes the view and moves on from the input. A result is a `listitem` of a

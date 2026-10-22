@@ -16,3 +16,6 @@ hardware keyboard again after an arrow key, Home, End or a mouse press on the in
 
 Each suggestion's option now has an id of its own element instead of one by its place in the list, so suggestions the
 product replaces are new options to a screen reader, and one the product moves keeps its id.
+
+With a result current, Enter in the input with Command (Control on other keyboards) opens it in a new tab, and with Shift
+in a new window, as that press on the link would. Nothing is emitted and the view stays open.

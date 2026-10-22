@@ -1243,6 +1243,7 @@ export class TanreiSearch extends TanreiElement {
    * WebKit that keydown comes after `compositionend`, with the key code 229.
    */
   private readonly onInputKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'Enter' && this.openElsewhere(event)) return;
     if (this.inert_ || event.altKey || event.ctrlKey || event.metaKey) return;
     const input = event.target as HTMLInputElement;
     if (event.isComposing || event.keyCode === 229 || this.composing) return;
@@ -1317,6 +1318,36 @@ export class TanreiSearch extends TanreiElement {
         void input;
     }
   };
+
+  /**
+   * SRC-49, SRC-45: Enter in the input with the modifier that opens a link elsewhere — Command (Apple convention) or Control
+   * for a new tab, Shift for a new window — opens the current result's destination there, emitting nothing and keeping
+   * the view, as that press on the link does. Opened by `window.open`, not by a click dispatched with the modifiers:
+   * WebKit follows such a click in place whatever its modifiers (measured), so Command+Enter would leave the page. A new
+   * tab opens in front, as DocSearch's does; a new window is a `popup`, the only window a page can ask for. The opened
+   * page has no opener, and no referrer where the result's `rel` says `noreferrer`. Returns whether the key was taken.
+   */
+  private openElsewhere(event: KeyboardEvent): boolean {
+    if (this.inert_ || !this.expanded || !this.resultCurrent || event.altKey || event.isComposing || event.keyCode === 229 || this.composing) return false;
+    const apple = this.convention === 'apple';
+    const tab = apple ? event.metaKey && !event.ctrlKey : event.ctrlKey && !event.metaKey;
+    const window_ = event.shiftKey && !event.metaKey && !event.ctrlKey;
+    const result = this.rows[0];
+    const href = result?.destination?.href;
+    if ((!tab && !window_) || !result || !href) return false;
+    event.preventDefault();
+    if (event.repeat) return true;
+    const row = result.row;
+    if (row) {
+      // SRC-19: the row shows its press, as for Enter without a modifier.
+      this.pressRow(row);
+      this.rowPress.press(null);
+      this.rowPress.release();
+    }
+    const rel = (result.rel ?? '').toLowerCase().split(/\s+/);
+    window.open(href, '_blank', ['noopener', ...(rel.includes('noreferrer') ? ['noreferrer'] : []), ...(window_ ? ['popup'] : [])].join(','));
+    return true;
+  }
 
   /** SRC-6, SRC-9: Escape anywhere in the search closes an open view; Tab closes the docked one and stays in the full-screen one. */
   private readonly onHostKeyDown = (event: KeyboardEvent) => {

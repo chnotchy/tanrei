@@ -2716,6 +2716,62 @@ test.describe('keys through results', () => {
     expect(await log(page)).toEqual(['select:cmd', 'toggle:false:select:false']);
   });
 
+  test('SRC-49, SRC-45: Enter in the input with Command (Apple convention) or Control (the others) opens the current result in a new tab, and with Shift in a new window — as the link would with that modifier — without an opener, emitting nothing and keeping the view; Alt, the other platform’s modifier and a result without a destination take nothing', async ({ page }) => {
+    await mountSite(page, [
+      site('s', {}, [{ kind: 'result', props: { value: 'first', headline: 'First', href: '/first', rel: 'noreferrer' } }, result('second', 'Second')]),
+      site('b', {}, [{ kind: 'result', props: { value: 'cmd', headline: 'A command' } }]),
+    ]);
+    // What the search asks the browser to open, recorded instead of opened.
+    await page.evaluate(() => {
+      const opened = ((window as any).opened = [] as string[]);
+      window.open = ((url?: string | URL, target?: string, features?: string) => {
+        opened.push(`${String(url)} ${target} ${features}`);
+        return null;
+      }) as typeof window.open;
+    });
+    const opened = () => page.evaluate(() => (window as any).opened.splice(0) as string[]);
+    const s = host(page, 's');
+    for (const [convention, tab, other] of [
+      ['apple', 'Meta', 'Control'],
+      ['standard', 'Control', 'Meta'],
+    ] as const) {
+      // The convention the search reads (KBS-2): the harness writes one on each search, so it is changed there.
+      await s.evaluate((el, c) => el.setAttribute('data-tanrei-keyboard-convention', c), convention);
+      await trigger(page, 's').click();
+      await expect(link(page, 's', 'first')).toHaveAttribute('data-current', '');
+      await wire(s);
+      await page.keyboard.press(`${tab}+Enter`);
+      expect(await opened(), convention).toEqual(['/first _blank noopener,noreferrer']);
+      await page.keyboard.press('Shift+Enter');
+      expect(await opened(), convention).toEqual(['/first _blank noopener,noreferrer,popup']);
+      // Nothing emitted, nothing followed in place, and the view stays for the next one.
+      expect(await log(page), convention).toEqual([]);
+      expect(await nav(page), convention).toEqual([]);
+      expect(await prop(s, 'expanded'), convention).toBe(true);
+      await expect(link(page, 's', 'first')).toHaveAttribute('data-current', '');
+      // The other platform's modifier, and Alt, take nothing.
+      for (const chord of [`${other}+Enter`, 'Alt+Enter']) {
+        await page.keyboard.press(chord);
+        expect([await opened(), await log(page)], `${convention} ${chord}`).toEqual([[], []]);
+      }
+      expect(await prop(s, 'expanded')).toBe(true);
+      await page.keyboard.press('Escape');
+    }
+    // With nothing current (Up Arrow on the first) the modified Enter opens nothing.
+    await trigger(page, 's').click();
+    await page.keyboard.press('ArrowUp');
+    await page.keyboard.press('Control+Enter');
+    await page.keyboard.press('Shift+Enter');
+    expect(await opened()).toEqual([]);
+    await page.keyboard.press('Escape');
+    // A current result without a destination (a button) has nowhere to open.
+    await trigger(page, 'b').click();
+    await wire(host(page, 'b'));
+    await page.keyboard.press('Control+Enter');
+    await page.keyboard.press('Shift+Enter');
+    expect([await opened(), await log(page)]).toEqual([[], []]);
+  });
+
   test('SRC-49: a result that takes focus is scrolled into view; typing, deleting or pasting on a result returns focus to the input, where the key edits the value; Enter is the browser’s own activation of the link; Escape closes as from the input', async ({ page }) => {
     await page.setViewportSize({ width: 800, height: 400 });
     await mountSite(page, [site('s', {}, Array.from({ length: 12 }, (_, n) => result(`r${n}`, `Result ${n}`, { excerpt: ['An excerpt with a ', 'match', '.'] })))]);
