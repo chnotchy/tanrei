@@ -2,32 +2,18 @@
 title: Theme Studio
 description: Mueve unos pocos controles, observa cómo los siguen componentes reales y exporta una capa de sistema de diseño válida que puedes compilar para todas las plataformas.
 translationOf: foundations/theme-studio.mdx
-sourceHash: 6dfd1dd75c6743becf2c43621a0542af9e2138d1
-tableOfContents: false
+sourceHash: 01ec28b269c1b6d5ee517a45ff5ff7059cd04d84
 ---
 
-import ThemeStudio from '../../../../components/ThemeStudio.astro';
+import { LinkCard } from '../../../../components/cards';
 
 Un sistema de diseño debería resultar adecuado de entrada y seguirte cuando cambias una sola cosa. El Studio es esa idea hecha tangible: elige una base, gira un dial, escoge un color, cambia un token, añade uno propio, y exporta el pequeño [archivo de capa](/es/foundations/design-systems/#un-sistema-de-diseño-es-una-capa) que dice exactamente qué has cambiado y nada más.
 
-Aquí nada es una maqueta. La vista previa es un ámbito de sistema real, con componentes e iconos reales: un botón con un icono inicial, un conmutador cuyo icono se rellena cuando está seleccionado, y los mismos iconos dibujados sin seleccionar y seleccionados, de modo que el conjunto de iconos, `sys.icon.weight` y `sys.icon.fill.*` son tan visibles como un color. El texto se compone con las pilas de fuentes que elijas y con las fuentes que este navegador tiene de verdad: cuando la familia que una pila pone en primer lugar no está instalada aquí, el Studio lo dice junto al control; la vista previa muestra entonces la fuente alternativa, y tu producto debe cargar esa fuente. Nunca se descarga nada de un servidor de fuentes. La vista previa aplica la misma hoja de estilos que `tanrei build` escribiría para tu capa, calculada en tu navegador por el mismo motor, el mismo emisor y las mismas comprobaciones de accesibilidad. Las pruebas del repositorio compilan capas del Studio con la cadena de la CLI y exigen que coincidan la hoja entera, el valor de cada token en los seis esquemas y cada advertencia.
+<LinkCard title="Abrir Theme Studio" description="El Studio en una página propia, con toda la ventana para la vista previa." href="/es/studio/" />
 
-<ThemeStudio />
+Nada de lo que contiene es una maqueta. La vista previa es un ámbito de sistema real con componentes reales, y aplica la misma hoja de estilos que `tanrei build` escribiría para tu capa, calculada en tu navegador por el mismo motor, el mismo emisor y las mismas comprobaciones de accesibilidad. Las pruebas del repositorio compilan capas del Studio con la cadena de la CLI y exigen que coincidan la hoja completa, cada valor de token en los seis esquemas y cada advertencia.
 
-## Cuatro niveles, un archivo
-
-La personalización es fractal: bastan unos pocos controles deslizantes, y el control total nunca queda lejos. Todos los niveles editan el **mismo** `<id>.system.json`; un nivel es una vista del archivo, nunca un modo, así que al cambiar de nivel no se pierde nada.
-
-| Nivel | Para | Qué ves |
-|---|---|---|
-| **Essentials** | una configuración rápida | una base, un color de marca y cuatro controles deslizantes: tamaño del texto, espaciado, redondez y contraste de los títulos |
-| **Groups** | recorrer las cosas área por área | los ocho diales con sus motivos, todas las paletas (una semilla, o matiz + croma, y una tabla de los tonos que fija a colores exactos), los tres tipos de letra, el conjunto de iconos, la forma (un control deslizante de suavizado de esquinas, de 0 a 1, donde 0.6 es la esquina de iOS), las elecciones de comportamiento, los tamaños y las variantes de cada componente con las ediciones habituales (por tamaño, para el tamaño que elijas) y lo que añade tu capa |
-| **Every token** | tocar las cosas una a una | un árbol con búsqueda de todos los tokens (valor resuelto, por esquema en el caso de los colores; tipo; qué capa lo definió; su descripción y sus indicaciones de uso; qué depende de él) y un editor que ofrece solo las operaciones válidas para ese token |
-| **Source** | quien prefiere el archivo | el JSON, validado mientras escribes por el esquema y por el motor de tokens, cuyo mensaje se muestra palabra por palabra |
-
-El texto de **Source** que todavía no se puede analizar es un borrador: se conserva exactamente como se escribió mientras visitas los demás niveles (el selector de nivel dice *Source has invalid edits*) y al recargar la página, nunca se guarda en tu archivo, y la vista previa y los demás niveles se quedan en el último texto que se pudo analizar hasta que el borrador también pueda analizarse.
-
-En Essentials, **Spacing** arrastra consigo la unidad de tamaño en proporción: la altura de un control debe dar cabida a su margen interior, y la compilación comprueba exactamente eso. Si defines `dial.size.unit` por separado en Groups, Essentials lo deja en paz a partir de entonces.
+La capa que estás creando se queda en este navegador y en la dirección de la página: un enlace al Studio copiado de la barra de direcciones lo abre con la misma capa. Cada cambio se puede deshacer y rehacer, con los botones de la barra del Studio o con ⌘Z y ⇧⌘Z (Ctrl+Z y Ctrl+Mayús+Z).
 
 ## Qué escriben los controles
 
@@ -52,10 +38,6 @@ Typefaces, Icons, Shape y Behaviour escriben valores fijados, y un valor fijado 
 
 Un control que se deja en su valor base no escribe nada, así que un Studio sin tocar exporta `{ "id", "extends" }` y se compila exactamente como el sistema base. Todo lo que puede contener una capa válida se puede editar aquí: al importar una capa no queda nada al margen.
 
-## Añadir al vocabulario
-
-**Add…** (en Groups y en Every token) declara algo nuevo. Un tamaño es una línea, `{ "from": "large", "scale": 1.5 }`, y el Studio muestra todos los tokens que crea esa línea, tal como se resolverían, antes de que la añadas; después, cada miembro se puede sustituir por separado, y la advertencia de altura de la compilación se muestra en vivo, porque la escala predeterminada rara vez es la adecuada para el margen interior. Una variante se clona de otra, y las reglas de patrón del sistema dan valor a sus estados de interacción. Un token propio vive en el espacio de nombres de tu capa (`acme.comp.rating.star.size`) y aparece bajo *Your tokens* en la vista previa; cambiar el nombre de la capa cambia con él ese espacio de nombres. Los tamaños y las variantes que añadas los dibuja de inmediato el `<tanrei-button>` real.
-
 ## Sobre tu propio archivo
 
 `tanrei studio` sirve este Studio en local y lo apunta al archivo de capa de tu producto: las ediciones se guardan en el archivo a medida que las haces, **Build** ejecuta `tanrei build`, y cuando el archivo cambia por debajo (un editor, un `git checkout`), el Studio ofrece recargar o conservar lo que está abierto. Nunca sobrescribe en silencio. Solo se guarda cuando el esquema, las reglas para una cadena de capas y el motor de tokens aceptan la capa (el servidor se lo pregunta al propio motor y responde con su mensaje), de modo que el archivo en disco es siempre uno que `tanrei build` compila, sea cual sea el programa que lo envió. La aplicación también sirve, desde su propia dirección, los tipos de letra y las fuentes de iconos que nombran los sistemas incluidos con Tanrei (Inter, Noto Sans JP, Roboto Mono, Roboto, Material Symbols Rounded y Outlined), así que un preajuste se dibuja con sus propios tipos.
@@ -64,4 +46,4 @@ Un producto puede apilar sus propias capas: `acme-app.system.json`, que extiende
 
 ## Lo que no puede hacer
 
-En esta página no hay ningún archivo detrás del Studio, así que aquí no se puede importar una capa que extiende otra capa tuya: ábrela con `tanrei studio`, que conoce los archivos que tiene al lado. El Studio nunca descarga una fuente de ningún lugar que no sea el sitio que lo sirve: una familia que ese sitio no ofrece y que tu navegador no tiene se nombra, y la vista previa muestra con honestidad la fuente alternativa. Sus pruebas de «la vista previa es igual a la compilación» comparan la hoja de estilos web, el paquete de tokens y las advertencias; las salidas nativas las genera `tanrei build` a partir del mismo modelo.
+En el sitio no hay ningún archivo detrás del Studio, así que aquí no se puede importar una capa que extiende otra capa tuya: ábrela con `tanrei studio`, que conoce los archivos que tiene al lado. El Studio nunca descarga una fuente de ningún lugar que no sea el sitio que lo sirve: una familia que ese sitio no ofrece y que tu navegador no tiene se nombra, y la vista previa muestra con honestidad la fuente alternativa. Sus pruebas de «la vista previa es igual a la compilación» comparan la hoja de estilos web, el paquete de tokens y las advertencias; las salidas nativas las genera `tanrei build` a partir del mismo modelo.
