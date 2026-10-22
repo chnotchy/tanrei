@@ -11,13 +11,14 @@ import { starlightLocales, translations } from './i18n/locales.mjs';
 import { SYSTEM_SYNC_KEY, listingBootstrap, sidebarSlugs, systemBootstrap } from './src/lib/listing.mjs';
 import { tanreiMarkdown } from './src/lib/markdown.mjs';
 import { notFoundFiles } from './src/lib/not-found-files.mjs';
-import { sitemapLastmod } from './src/lib/lastmod.mjs';
+import { pageLastmod } from './src/lib/lastmod.mjs';
 import { pagePolicies } from './src/lib/csp.mjs';
 
 const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
-// When each page of the sitemap last changed: the newest commit of its own source and, for a component's page, of its
-// spec, read from git when the site is built (src/lib/lastmod.mjs).
-const lastmod = sitemapLastmod({
+// When each page last changed: the newest commit of what it is made from (its own source; for a component's page, its
+// spec and component tokens; for a page that draws tokens, `tokens/`), read from git once when the site is built. The
+// sitemap writes it, and each page's head prints it from the virtual module the integration serves (src/lib/lastmod.mjs).
+const lastmod = pageLastmod({
   repoRoot,
   contentDir: path.relative(repoRoot, fileURLToPath(new URL('./src/content/docs', import.meta.url))).split(path.sep).join('/'),
   languages: translations.map(({ dir }) => dir),
@@ -178,7 +179,7 @@ export default defineConfig({
     }),
     // The sitemap, with Starlight's languages as Starlight configures its own (which it leaves out once the site has
     // one): every page but the documents the fixtures' windows draw (src/pages/fixtures/), which are no reader's page.
-    // Each page says when it last changed (`lastmod`, from git; never the time of the build).
+    // Each page says when it last changed (`lastmod`, from git; never the time of the build): the date its head prints.
     lastmod.integration,
     sitemap({
       i18n: { defaultLocale: 'root', locales: Object.fromEntries(Object.entries(starlightLocales).map(([locale, { lang }]) => [locale, lang])) },
