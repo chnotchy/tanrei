@@ -35,7 +35,7 @@ import '@tanrei/web/icons.css';
 <button aria-pressed="true"><span class="tanrei-icon" aria-hidden="true">favorite</span> Favourite</button>
 ```
 
-`.tanrei-icon` reads `aria-pressed`, `aria-selected`, `aria-checked` and `aria-current` on any ancestor, or `data-selected` on the icon or an ancestor (`data-selected="false"` opts one icon out). Give an icon `aria-hidden="true"` when text next to it says the same thing, and the control an accessible name when it does not.
+`.tanrei-icon` reads `aria-pressed`, `aria-selected`, `aria-checked` and `aria-current` on any ancestor (on a Tanrei control, which moves them to `data-aria-*`, it reads `data-aria-pressed`, `data-aria-selected`, `data-aria-checked` and `data-aria-current`), or `data-selected` on the icon or an ancestor (`data-selected="false"` opts one icon out). Give an icon `aria-hidden="true"` when text next to it says the same thing, and the control an accessible name when it does not.
 
 On the native platforms the same values arrive with the design system (`system.icon`), together with a small helper that turns *selected* and a size into what the font needs. Tanrei does not ship an icon component yet.
 

@@ -229,8 +229,9 @@ ${opticalSize('.tanrei-icon', { size: 'var(--_size)', fill: 'var(--_fill)' })}
   .tanrei-icon[data-size='large'] { --tanrei-icon-size: var(--tanrei-sys-icon-large); }
 
   /* Selected → the selected family, filled. One rule, everywhere. */
-  /* :where() keeps these at the specificity of one class, so the opt-out below always wins. */
-  :where([aria-pressed='true'], [aria-selected='true'], [aria-checked='true'], [aria-current]:not([aria-current='false']), [data-selected]:not([data-selected='false'])) .tanrei-icon,
+  /* :where() keeps these at the specificity of one class, so the opt-out below always wins. A Tanrei control moves the
+     product's aria-* on it to data-aria-* (src/primitives/delegated-aria.ts), so both names are read. */
+  :where([aria-pressed='true'], [aria-selected='true'], [aria-checked='true'], [aria-current]:not([aria-current='false']), [data-aria-pressed='true'], [data-aria-selected='true'], [data-aria-checked='true'], [data-aria-current]:not([data-aria-current='false']), [data-selected]:not([data-selected='false'])) .tanrei-icon,
   .tanrei-icon:where([data-selected]:not([data-selected='false'])) {
     --_fill: var(--tanrei-sys-icon-fill-selected);
     --_family: var(--tanrei-sys-icon-family-selected);

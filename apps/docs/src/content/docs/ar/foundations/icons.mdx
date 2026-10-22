@@ -37,7 +37,7 @@ import '@tanrei/web/icons.css';
 <button aria-pressed="true"><span class="tanrei-icon" aria-hidden="true">favorite</span> المفضّلة</button>
 ```
 
-يقرأ الصنف `.tanrei-icon` خصائص HTML `aria-pressed` و `aria-selected` و `aria-checked` و `aria-current` على أي عنصر سلف، أو `data-selected` على الأيقونة أو على سلف لها (والقيمة `data-selected="false"` تستثني أيقونة واحدة). أعطِ الأيقونة `aria-hidden="true"` حين يقول النص المجاور لها الشيء نفسه، وأعطِ عنصر التحكم اسمًا متاحًا للتقنيات المساعدة حين لا يقوله.
+يقرأ الصنف `.tanrei-icon` خصائص HTML `aria-pressed` و `aria-selected` و `aria-checked` و `aria-current` على أي عنصر سلف (وعلى عناصر التحكم في Tanrei، التي تنقلها إلى `data-aria-*`، يقرأ `data-aria-pressed` و `data-aria-selected` و `data-aria-checked` و `data-aria-current`)، أو `data-selected` على الأيقونة أو على سلف لها (والقيمة `data-selected="false"` تستثني أيقونة واحدة). أعطِ الأيقونة `aria-hidden="true"` حين يقول النص المجاور لها الشيء نفسه، وأعطِ عنصر التحكم اسمًا متاحًا للتقنيات المساعدة حين لا يقوله.
 
 على المنصات الأصلية تصل القيم نفسها مع نظام التصميم (`system.icon`)، ومعها دالة مساعدة صغيرة تحوّل حالة «محدد» والحجم إلى ما يحتاج إليه الخط. لا يوفّر Tanrei مكوّن أيقونة حتى الآن.
 

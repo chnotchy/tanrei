@@ -37,7 +37,7 @@ import '@tanrei/web/icons.css';
 <button aria-pressed="true"><span class="tanrei-icon" aria-hidden="true">favorite</span> पसंदीदा</button>
 ```
 
-`.tanrei-icon` किसी भी पूर्वज एलिमेंट पर `aria-pressed`, `aria-selected`, `aria-checked` और `aria-current` पढ़ता है, या आइकन अथवा किसी पूर्वज पर `data-selected` (`data-selected="false"` किसी एक आइकन को इससे बाहर रखता है)। जब आइकन के पास का टेक्स्ट वही बात कहता हो, तो आइकन को `aria-hidden="true"` दें, और जब न कहता हो, तो कंट्रोल को एक्सेसिबल नाम दें।
+`.tanrei-icon` किसी भी पूर्वज एलिमेंट पर `aria-pressed`, `aria-selected`, `aria-checked` और `aria-current` पढ़ता है (Tanrei कंट्रोल इन्हें `data-aria-*` पर ले जाते हैं, इसलिए उन पर यह `data-aria-pressed`, `data-aria-selected`, `data-aria-checked` और `data-aria-current` पढ़ता है), या आइकन अथवा किसी पूर्वज पर `data-selected` (`data-selected="false"` किसी एक आइकन को इससे बाहर रखता है)। जब आइकन के पास का टेक्स्ट वही बात कहता हो, तो आइकन को `aria-hidden="true"` दें, और जब न कहता हो, तो कंट्रोल को एक्सेसिबल नाम दें।
 
 नेटिव प्लैटफ़ॉर्म पर यही मान डिज़ाइन सिस्टम के साथ आते हैं (`system.icon`), साथ में एक छोटा हेल्पर, जो **चयनित** होने की स्थिति और एक साइज़ को उस रूप में बदलता है जो फ़ॉन्ट को चाहिए। Tanrei अभी कोई आइकन कंपोनेंट शिप नहीं करता।
 
