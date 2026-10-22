@@ -2,7 +2,7 @@
 title: Hoja inferior
 description: Hace subir desde el borde inferior un contenido complementario o una tarea breve, ya sea sobre la parte baja de la pantalla mientras el resto sigue siendo utilizable, o como un paso modal que atenúa y bloquea todo lo demás hasta que se descarta.
 translationOf: components/bottom-sheet.mdx
-sourceHash: a504e1751fb54db71a3a343987fb23e9c6a2d365
+sourceHash: 781f175ddbfa9321c454fa0561caa9d7e064fd0b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -284,7 +284,7 @@ Arrastrar nunca es la única manera. El tirador cambia la altura con una sola pu
 - Mientras una hoja modal está abierta, todo lo que queda fuera está inerte y oculto para la tecnología de apoyo, y el foco y la navegación del lector de pantalla permanecen dentro. Una hoja estándar no deja nada inerte.
 - Al abrirse, el foco pasa al elemento que marcaste, o a la hoja. Al cerrarse, el foco vuelve al elemento que lo tenía cuando se abrió la hoja. Esto vale para ambas formas.
 - Escape, la acción de retroceso de la plataforma y una pulsación en el velo piden a una hoja modal que se cierre, mientras `dismissible` sea true. Una hoja estándar ignora Escape y la acción de retroceso.
-- Mientras la hoja tiene dos alturas, el tirador de arrastre es un único botón, que puede recibir el foco y recibe su nombre de `handleLabel`, expandido en la altura completa. Enter y Espacio llevan la hoja a su otra altura. Con una sola altura, el tirador queda oculto para la tecnología de apoyo. La barra del tirador siempre está oculta.
+- El tirador de arrastre es un [tirador de tamaño](/es/components/handle/) que siempre se dibuja y que toma los tokens propios de la hoja. Mientras la hoja tiene dos alturas, es un único botón, que puede recibir el foco y recibe su nombre de `handleLabel`, expandido en la altura completa. Enter y Espacio llevan la hoja a su otra altura. Con una sola altura, el tirador queda oculto para la tecnología de apoyo. La barra del tirador siempre está oculta.
 - El área de pulsación del tirador es como mínimo el objetivo mínimo, y su anillo de foco solo se muestra para el foco del teclado.
 - El contenido se desplaza dentro de la hoja, y el foco del teclado y la tecnología de apoyo pueden desplazarlo en cualquiera de las dos alturas.
 - Un texto más grande hace que la hoja crezca con su contenido, hasta la altura que permite su posición (detent), y a partir de ahí el contenido se desplaza. El tirador no se escala.
