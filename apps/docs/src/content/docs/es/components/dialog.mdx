@@ -224,6 +224,12 @@ Usa un snackbar para informar de lo que acaba de ocurrir, con un «Deshacer» op
 
 Cuando las partes no caben en la ventana, la cabecera y las acciones se quedan en su sitio y el texto de apoyo y el contenido se desplazan entre ellos. Un divisor de línea fina separa de ellos la cabecera, y otro las acciones, mientras se desplazan, también cuando están en su inicio. Define `dividerVisibility` como `scroll` (`divider-visibility` en la web) para dibujar cada divisor solo mientras algo queda desplazado fuera de la vista más allá de él; `cupertino` y `m3-like` lo eligen para todos los diálogos. Cuando el texto grande no deja espacio ni siquiera para eso, se desplaza el diálogo entero, sin divisores.
 
+En la web, la parte que se desplaza es `::part(scroll)`. Sea cual sea el margen interior horizontal que le des a `::part(container)`, esa parte llega hasta los bordes del contenedor y conserva ese mismo margen por dentro, así que sus divisores siguen cruzando todo el diálogo y nada se sale de él. Si tu contenido mantiene una fila fija al pie con `position: sticky`, indica a la parte que se desplaza cuánto mide esa fila, para que un campo que se desplaza a la vista al recibir el foco no quede debajo de ella:
+
+```css
+tanrei-dialog::part(scroll) { scroll-padding-block-end: 56px; }
+```
+
 Se admite un titular sin texto de apoyo: una pregunta en el titular, con sus respuestas, es una conversación. Lo que un diálogo no puede ser es una afirmación sin nada que responder.
 
 ### Las acciones
@@ -353,3 +359,4 @@ Carencias conocidas por plataforma:
 - Da a cada diálogo una salida visible, una acción de descarte como «Cancelar», incluso cuando `dismissible` sea false.
 - En React Native, pasa `initialFocusRef`. Después de que el diálogo se cierre, devuelve tú el foco a quien lo abrió si la plataforma no lo hace.
 - En SwiftUI para macOS, aplica `.tanreiDialog` a la vista raíz de la ventana, para que el velo cubra toda la ventana.
+- En la web, si tu contenido mantiene una fila fija al pie, define `scroll-padding-block-end` en `::part(scroll)` con la altura de esa fila, para que el elemento con el foco nunca quede oculto debajo de ella.
