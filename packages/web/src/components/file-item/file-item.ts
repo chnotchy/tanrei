@@ -349,6 +349,7 @@ export class TanreiFileItem extends TanreiElement {
 
   /** Moves focus to the file item's first stop: its body where that is pressable, else its retry action, else its remove action. */
   override focus(options?: FocusOptions) {
+    if (this.keepFocusUntilRendered(options)) return;
     this.renderRoot?.querySelector<HTMLElement>('.body.pressable:not(:disabled):not([aria-disabled="true"]), .action:not(:disabled)')?.focus(options);
   }
 

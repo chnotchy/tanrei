@@ -285,6 +285,7 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
 
   /** W7, item 2: what has focus among its checkboxes loses it — they are the product's children, outside the shadow root. */
   override blur() {
+    this.forgetKeptFocus();
     let active = (this.getRootNode() as Document | ShadowRoot).activeElement;
     if (!active || !this.contains(active)) return super.blur();
     while (active.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
