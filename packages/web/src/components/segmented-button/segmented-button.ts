@@ -11,6 +11,7 @@ import {
   delegatesAria,
   hostAria,
   markConditionChange,
+  namedByProduct,
   notifyItemUpdate,
   parseValues,
   report,
@@ -515,7 +516,7 @@ export class TanreiSegmentedButton extends TanreiElement {
       this.reportOnce(seen, 'SEG-12', `the value "${repeated}" is given to more than one segment; the first of them is the one it selects`);
     }
     segments.forEach((segment, index) => {
-      if (!segment.label.trim()) this.reportOnce(seen, 'SEG-22', `segment ${index + 1} (value "${segment.value}") has an empty label, so it has no accessible name; give it a label`);
+      if (!segment.label.trim() && !namedByProduct(segment)) this.reportOnce(seen, 'SEG-22', `segment ${index + 1} (value "${segment.value}") has an empty label, so it has no accessible name; give it a label`);
       if (segment.labelHidden && !segment.icon) this.reportOnce(seen, 'SEG-22', `segment ${index + 1} ("${segment.label}") hides its label but has no icon, so its label is drawn anyway; give it an icon`);
     });
     if (!this.label.trim()) this.reportOnce(seen, 'SEG-22', 'label is empty, so the set has no accessible name; give it the question its options answer');

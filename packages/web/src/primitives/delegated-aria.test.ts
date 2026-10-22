@@ -916,6 +916,12 @@ const UNNAMED: Record<string, Unnamed> = {
   popover: { sentence: 'POP-29', markup: (rest) => `<button id="popover-anchor" type="button">Open</button><tanrei-popover id="subject" anchor="popover-anchor" open ${rest}>Words</tanrei-popover>`, path: ['[part="container"]'], says: 'no accessible name' },
   breadcrumbs: { sentence: 'BRC-1', markup: (rest) => `<tanrei-breadcrumbs id="subject" ${rest}><a href="#home">Home</a><span>Here</span></tanrei-breadcrumbs>`, path: ['nav'], says: 'no accessible name' },
   pagination: { sentence: 'PGN-1', markup: (rest) => `<tanrei-pagination id="subject" page="1" count="5" previous-label="Previous page" next-label="Next page" page-label="Page {page}" ${rest}></tanrei-pagination>`, path: ['nav'], says: 'no accessible name' },
+  segment: {
+    sentence: 'SEG-22',
+    markup: (rest) => `<tanrei-segmented-button label="View"><tanrei-segment id="subject" value="a" ${rest}></tanrei-segment><tanrei-segment value="b" label="Beta"></tanrei-segment></tanrei-segmented-button>`,
+    path: ['button'],
+    says: 'has an empty label',
+  },
   handle: { sentence: 'HDL-8', markup: (rest) => `<tanrei-handle id="subject" value="50" ${rest}></tanrei-handle>`, path: ['[role="separator"]'], says: 'no accessible name' },
   // A modal drawer is a dialog (NVD-23): the dialog takes the drawer's name.
   'navigation-drawer (modal)': {
