@@ -12,6 +12,7 @@ import { SYSTEM_SYNC_KEY, listingBootstrap, sidebarSlugs, systemBootstrap } from
 import { tanreiMarkdown } from './src/lib/markdown.mjs';
 import { notFoundFiles } from './src/lib/not-found-files.mjs';
 import { sitemapLastmod } from './src/lib/lastmod.mjs';
+import { pageMarkdownFiles } from './src/lib/page-markdown.mjs';
 import { pagePolicies } from './src/lib/csp.mjs';
 
 const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
@@ -191,6 +192,9 @@ export default defineConfig({
     // After Starlight, so that its passes run after Starlight's: Markdown's tables, notices and fenced code are drawn by
     // Tanrei's Table, Callout and Code block (src/lib/markdown.mjs).
     tanreiMarkdown(),
+    // Every page as Markdown beside it (`<path>.md`), from the built page, dated as the sitemap dates it
+    // (src/lib/page-markdown.mjs).
+    pageMarkdownFiles({ languages: translations.map(({ dir }) => dir), lastmod: lastmod.of }),
     // Each language's not-found page also as `<language>/404.html`, for a host that answers with the nearest one.
     notFoundFiles(translations),
     // Last, so that it reads every page as it is served: each page's own script policy, the hashes of the inline scripts
