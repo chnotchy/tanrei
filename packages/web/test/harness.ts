@@ -1959,7 +1959,7 @@ const STAGING: Record<string, Staging> = {
   // item, in order: named by the item's `name`, as many zero bytes long as its place among the items (1, 2, 3 …), so
   // that no two are the same file (FUP-43), with one fixed time of last change. Whether each is kept or refused is the
   // element's own judging of the fixture's `accept` and `maxFiles`. The items are not also written as child rows.
-  // The documentation's renderer stages the same way (apps/docs/src/lib/fixtures.ts, `data-fixture-files`).
+  // The documentation's gallery runs this same step on the stages it draws (apps/docs/src/lib/fixture-stages.ts).
   'file-upload': {
     css: () => `.stage > tanrei-file-upload { inline-size: 360px; }`,
     props: ({ accept, ...props }) => ({ ...props, ...(Array.isArray(accept) ? { accept: accept.join(',') } : {}) }),
@@ -2190,7 +2190,7 @@ const STAGING: Record<string, Staging> = {
   // that ends in an image's extension, one of the stage's own pictures (`data-stage-pictures`, which the element does
   // not read), so that a tile draws it. Whether each is kept or refused is the element's own judging; an item's
   // `sizeText` is not drawn, since a kept file's File item is given no size (CCM-22). The items are not also written
-  // as children. The documentation's renderer stages the same way (apps/docs/src/lib/fixtures.ts).
+  // as children. The documentation's gallery runs this same step (apps/docs/src/lib/fixture-stages.ts).
   'chat-composer': {
     css: () => `.stage:has(> tanrei-chat-composer) { box-sizing: content-box; inline-size: 480px; }`,
     props: ({ accept, ...props }) => ({ ...props, ...(Array.isArray(accept) ? { accept: accept.join(',') } : {}) }),

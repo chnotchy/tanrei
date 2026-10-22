@@ -25,7 +25,7 @@ const figures = [
   { value: Object.keys(specs).length, label: t.heroSpecified },
   { value: contextIds.length, label: t.heroContexts },
 ];
-// The specimen's Buttons, as the Specs tab draws a fixture (lib/fixtures.ts): the element's own attributes and its
+// The specimen's Buttons, as the web package's document draws a fixture (lib/fixtures.ts): the element's own attributes and its
 // slots, so an icon button has its icon; no link, no toggle state, one width.
 const demoFixtures = specs.button ? specimenFixtures(specs.button) : [];
 const tag = specs.button?.platforms.web?.name;
