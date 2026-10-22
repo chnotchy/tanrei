@@ -37,7 +37,8 @@ const read = (page) =>
       host: [...host.attributes].map((a) => a.name).filter((name) => name.startsWith('aria-') || name.startsWith('data-aria-')).sort(),
       label: button.getAttribute('aria-label'),
       current: button.getAttribute('aria-current'),
-      describedBy: (button.ariaDescribedByElements ?? []).map((element) => element.id),
+      // The description: the text of what the button's aria-describedby names in its own tree.
+      described: (button.getAttribute('aria-describedby') ?? '').split(/\s+/).filter(Boolean).map((id) => host.shadowRoot.getElementById(id)?.textContent).join(' '),
     };
   });
 
@@ -62,11 +63,11 @@ for (const engine of [chromium, firefox, webkit]) {
       );
       await page.goto(`${ORIGIN}/`);
       await page.locator('tanrei-button:defined').waitFor();
-      assert.deepEqual(await read(page), { host: ['data-aria-current', 'data-aria-describedby', 'data-aria-label'], label: 'Inbox', current: 'page', describedBy: ['hint'] });
+      assert.deepEqual(await read(page), { host: ['data-aria-current', 'data-aria-describedby', 'data-aria-label'], label: 'Inbox', current: 'page', described: 'Opens the inbox' });
       await page.evaluate(() => window.setAria(false));
-      assert.deepEqual(await read(page), { host: [], label: null, current: null, describedBy: [] });
+      assert.deepEqual(await read(page), { host: [], label: null, current: null, described: '' });
       await page.evaluate(() => window.setAria(true));
-      assert.deepEqual(await read(page), { host: ['data-aria-current', 'data-aria-describedby', 'data-aria-label'], label: 'Inbox', current: 'page', describedBy: ['hint'] });
+      assert.deepEqual(await read(page), { host: ['data-aria-current', 'data-aria-describedby', 'data-aria-label'], label: 'Inbox', current: 'page', described: 'Opens the inbox' });
       assert.deepEqual(errors, []);
       await page.close();
     });
