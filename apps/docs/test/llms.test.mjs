@@ -229,7 +229,7 @@ describe("a component's page as Markdown", () => {
 
 describe('llms-full.txt', () => {
   const text = llmsFull(site);
-  test("holds the page of every component the default system ships, and no other", () => {
+  test("holds the spec of every component the default system ships, and no other", () => {
     const lines = text.split('\n');
     assert.equal(lines.filter((line) => /^# /.test(line)).length, 1);
     const titles = lines.filter((line) => /^## /.test(line)).map((line) => line.slice(3));

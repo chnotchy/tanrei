@@ -1,8 +1,8 @@
 // The site's text for language models and other programs that read it (https://llmstxt.org/): `/llms.txt`, an index of
-// the site in Markdown; `/llms-full.txt`, the pages of the default system's components in one file;
-// `/systems/<id>/llms.txt`, the index of one shipped design system; and `/components/<name>.md`, a component's page as
-// Markdown. Pages under src/pages/ serve them; this module writes them, as plain functions, so that Node can test them
-// without the site (test/llms.test.mjs).
+// the site in Markdown; `/llms-full.txt`, the specs of the default system's components in one file;
+// `/systems/<id>/llms.txt`, the index of one shipped design system; and a component's spec as Markdown, which the
+// Markdown of its page holds (`/components/<name>.md`, lib/page-markdown.mjs). Pages under src/pages/ serve them; this
+// module writes them, as plain functions, so that Node can test them without the site (test/llms.test.mjs).
 //
 // Everything here is read from the sources of truth, never from the site's HTML: what a system ships from its
 // components manifest (tokens/generated/<id>/components.json, written by `pnpm generate`), what a component is from its
@@ -275,8 +275,9 @@ function platformsSection(spec: Spec): string[] {
 }
 
 /**
- * A component's page as Markdown, from its spec: what it is, where it is available, its names on each platform, its
- * anatomy, props, events, slots, items and states, its accessibility, every requirement with its id, and its tokens.
+ * A component's spec as Markdown — the Specs section of its page's Markdown, and its part of `/llms-full.txt`: what it
+ * is, where it is available, its names on each platform, its anatomy, props, events, slots, items and states, its
+ * accessibility, every requirement with its id, and its tokens.
  */
 export function componentMarkdown(name: string, site: URL): string {
   const spec = specs[name];
@@ -370,7 +371,7 @@ export function llmsIndex(site: URL, groups: PageGroup[], id: string = ns): stri
       ? `This index follows the default design system, ${manifest.name} (${code(manifest.system)}): the components listed first are the ones it ships. A component it does not ship is listed apart, with what to use instead; it is only in the systems named there. Each other system has an index of its own (below).`
       : `This index follows the ${manifest.name} design system (${code(manifest.system)})${layer?.extends ? `, which extends ${code(layer.extends)}` : ''}: the components listed first are the ones it ships. ${line(layer?.description)}`,
     '',
-    `${choosing(manifest)} Each component link is a Markdown page generated from the component's spec: its props, events, slots, states, accessibility, every requirement with its id, its tokens, and its name and status on each platform. The version is ${code(config.version)}, a 0.x prerelease: names and APIs may change between releases.`,
+    `${choosing(manifest)} Each component link is its page as Markdown: the page's own text, then what the component's spec says — its props, events, slots, states, accessibility, every requirement with its id, its tokens, and its name and status on each platform. The version is ${code(config.version)}, a 0.x prerelease: names and APIs may change between releases.`,
     '',
     `## Components in ${manifest.name}`,
     '',
@@ -401,7 +402,7 @@ export function llmsIndex(site: URL, groups: PageGroup[], id: string = ns): stri
     '',
     '## Optional',
     '',
-    ...(isDefault ? [`- [llms-full.txt](${absolute(site, '/llms-full.txt')}): The Markdown pages of every component ${manifest.name} ships, in one file.`] : []),
+    ...(isDefault ? [`- [llms-full.txt](${absolute(site, '/llms-full.txt')}): The spec of every component ${manifest.name} ships, as Markdown, in one file.`] : []),
     `- [Status](${absolute(site, '/status/')}): Which component exists on which platform, generated from the repository.`,
     `- [Source repository](${repository}): The tokens (${code('tokens/')}), the specs (${code('specs/')}) and every platform's package.`,
   );
@@ -409,8 +410,8 @@ export function llmsIndex(site: URL, groups: PageGroup[], id: string = ns): stri
 }
 
 /**
- * Every page of the components the default system ships, in one file, after the default index's head: what a model
- * that reads one file needs to build with the default system.
+ * The spec of every component the default system ships, as Markdown, in one file, after the default index's head: what
+ * a model that reads one file needs to build with the default system.
  */
 export function llmsFull(site: URL): string {
   const head = [
@@ -418,7 +419,7 @@ export function llmsFull(site: URL): string {
     '',
     `> ${summary}`,
     '',
-    `This file holds the page of every component the default design system, ${defaultManifest.name} (${code(defaultManifest.system)}), ships, generated from its spec. The index is ${absolute(site, '/llms.txt')}; a component ${defaultManifest.name} does not ship is not here.`,
+    `This file holds the spec of every component the default design system, ${defaultManifest.name} (${code(defaultManifest.system)}), ships, as Markdown. The index is ${absolute(site, '/llms.txt')}; a component ${defaultManifest.name} does not ship is not here.`,
   ].join('\n');
   // Each page's headings one level down, so that the file has one title.
   const pages = defaultManifest.components.map((component) => componentMarkdown(component.name, site).replace(/^(#{1,5}) /gm, '#$1 '));
