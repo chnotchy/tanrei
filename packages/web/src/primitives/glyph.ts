@@ -1,4 +1,5 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
+import { FacesWatch } from './faces.js';
 
 /**
  * A glyph of the icon set is a ligature: while its font is missing (still loading, failed, or never made available —
@@ -48,7 +49,7 @@ const observer =
           const owner = owners.get(entry.target);
           if (owner) hosts.add(owner);
         }
-        mark([...hosts].flatMap((host) => host.read()));
+        mark([...hosts].flatMap((host) => host.read(true)));
       });
 
 /**
@@ -58,17 +59,45 @@ const observer =
  * The hosts of one turn are read in ONE microtask after their renders — one layout for them all — and only then are
  * the marks written. The decision is still made in the task of the render, before any frame.
  */
-const deciding = new Set<GlyphDrawnController>();
-function decideTogether(host: GlyphDrawnController) {
+const deciding = new Map<GlyphDrawnController, boolean>();
+function decideTogether(host: GlyphDrawnController, again = false) {
   if (!deciding.size) {
     queueMicrotask(() => {
       const hosts = [...deciding];
       deciding.clear();
-      watchAgain(mark(hosts.flatMap((each) => each.read())));
+      watchAgain(mark(hosts.flatMap(([each, all]) => each.read(all))));
     });
   }
-  deciding.add(host);
+  deciding.set(host, again || !!deciding.get(host));
 }
+
+/**
+ * What each ink was last read under: its name and the family it is set in. A render that leaves both as they were has
+ * nothing new to read — the ink is as wide as it was, or the observer reports it after the next layout — so the glyph
+ * keeps its mark without a layout (a page that toggles a hundred checkboxes reads none of their glyphs). A render that
+ * changes either (a checkbox that turns selected under a system whose selected glyphs have a family of their own) is
+ * read in the turn of the render, as before. An ink read in no box (its glyph not laid out) is read again on its next
+ * render: being laid out is not a change of name or family.
+ */
+const readUnder = new WeakMap<Element, string>();
+/** An ink's name and the family it is set in, as `readUnder` keeps them. */
+const underOf = (ink: HTMLElement) => `${ink.textContent}\n${getComputedStyle(ink).fontFamily}`;
+
+/** The families an ink was read in: a face of another family that arrives cannot change what a glyph draws. */
+const iconFamilies = new Set<string>();
+const familyName = (family: string) => family.trim().replace(/^["']|["']$/g, '').toLowerCase();
+
+/**
+ * One watch of the fonts of the page for every host (`FacesWatch`). A face that finishes loading, or fails to, has
+ * every host read all its glyphs again — once, together — unless it is of none of the families the glyphs were read
+ * in: a text face's arrival leaves every ligature as wide as it was. Without an observer to report what this skips,
+ * every load is read; so is the moment the faces are ready after a glyph was read while one loaded, which names no face.
+ */
+const connected = new Set<GlyphDrawnController>();
+const faces = new FacesWatch((loaded) => {
+  if (observer && loaded && !loaded.some((face) => iconFamilies.has(familyName(face.family)))) return;
+  for (const host of connected) decideTogether(host, true);
+});
 
 /**
  * A mark written here, between two frames, was read from a width the observer has not been told of: it compares an
@@ -98,7 +127,6 @@ function watchAgain(glyphs: readonly HTMLElement[]) {
 export class GlyphDrawnController implements ReactiveController {
   private connected = false;
   private readonly observed = new Set<Element>();
-  private readonly fontsChanged = () => decideTogether(this);
 
   /**
    * `firstInFrame`: a glyph the host draws for the first time is decided by the observer — after the layout of the
@@ -117,8 +145,8 @@ export class GlyphDrawnController implements ReactiveController {
 
   hostConnected() {
     this.connected = true;
-    document.fonts?.addEventListener('loadingdone', this.fontsChanged);
-    document.fonts?.addEventListener('loadingerror', this.fontsChanged);
+    connected.add(this);
+    faces.connect();
   }
 
   hostDisconnected() {
@@ -126,10 +154,11 @@ export class GlyphDrawnController implements ReactiveController {
     for (const ink of this.observed) {
       observer?.unobserve(ink);
       owners.delete(ink);
+      readUnder.delete(ink);
     }
     this.observed.clear();
-    document.fonts?.removeEventListener('loadingdone', this.fontsChanged);
-    document.fonts?.removeEventListener('loadingerror', this.fontsChanged);
+    connected.delete(this);
+    if (!connected.size) faces.disconnect();
   }
 
   /**
@@ -154,15 +183,36 @@ export class GlyphDrawnController implements ReactiveController {
     if (decide) decideTogether(this);
   }
 
-  /** Each glyph, and whether its ink is the ligature: a reading of the layout. None for a host that is not connected. */
-  read(): Reading[] {
+  /**
+   * Each glyph, and whether its ink is the ligature: a reading of the layout. None for a host that is not connected.
+   * `again`: read every glyph (a face arrived, the observer reported a size); otherwise only the glyphs whose name or
+   * family changed since they were read (`readUnder`) — the others are left out, and keep their mark.
+   *
+   * The family is read only of an ink that is laid out: one read in a box last time (and compared before any layout),
+   * or one whose box was just read and is not empty. An ink in a part that is not drawn (the buttons of a search's
+   * closed view) has no style resolved here: Firefox keeps a style resolved for an element outside the layout, and a
+   * glyph slotted into a Button's flex box then reads as `inline-block` where it is drawn as a block, a frame after it
+   * was drawn — a change of style no frame shows.
+   */
+  read(again = false): Reading[] {
     const readings: Reading[] = [];
     if (!this.connected) return readings;
     for (const glyph of this.glyphs()) {
       const ink = glyph.firstElementChild as HTMLElement | null;
+      const watched = !!ink && this.observed.has(ink);
+      const known = watched ? readUnder.get(ink) : undefined;
+      if (!again && known !== undefined && known === underOf(ink!)) continue;
       const box = glyph.clientWidth;
       readings.push([glyph, !!ink && box > 0 && ink.offsetWidth <= box * DRAWN_WIDTH]);
+      if (!watched) continue;
+      if (box > 0) {
+        const under = underOf(ink!);
+        readUnder.set(ink!, under);
+        for (const name of under.slice(under.indexOf('\n') + 1).split(',')) iconFamilies.add(familyName(name));
+      } else readUnder.delete(ink!);
     }
+    // After the layout the reads forced: the icon face a glyph first asked for in it is loading now.
+    if (readings.length) faces.measured();
     return readings;
   }
 }

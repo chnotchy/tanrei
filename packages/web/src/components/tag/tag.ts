@@ -1,9 +1,10 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { AvailabilityController, GlyphMirrorController, OpenAxesController, report } from '../../primitives/index.js';
 import type { TanreiTagSizeRegistry, TanreiTagVariantRegistry } from '../../registry.js';
 import { AXES, STATUSES, styles } from './tag.styles.js';
 import { ownDirection } from '../../styles/product-text.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core variants (tonal, outlined, filled), plus any a design system's generated `.d.ts` registers. */
 export type TanreiTagVariant = keyof TanreiTagVariantRegistry;
@@ -43,7 +44,7 @@ const isStatus = (status: string): status is (typeof STATUSES)[number] => (STATU
  * @csspart dot - The dot (hidden from assistive technology).
  * @csspart label - The label text.
  */
-export class TanreiTag extends LitElement {
+export class TanreiTag extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'tag');
   static override styles = styles;
 
@@ -110,7 +111,7 @@ export class TanreiTag extends LitElement {
     return isStatus(this.status) ? this.status : 'default';
   }
 
-  private onIconSlotChange(event: Event) {
+  #onIconSlotChange(event: Event) {
     this.hasIcon = (event.target as HTMLSlotElement).assignedElements().length > 0;
   }
 
@@ -158,7 +159,7 @@ export class TanreiTag extends LitElement {
       <span part="container" class="container ${classMap({ 'has-lead': this.hasIcon || dot, 'has-icon': this.hasIcon })}" data-tanrei-shape>
         <span class="row">
           <span class="lead" aria-hidden="true">
-            <span part="icon" class="icon"><slot name="icon" @slotchange=${this.onIconSlotChange}></slot></span>
+            <span part="icon" class="icon"><slot name="icon" @slotchange=${this.#onIconSlotChange}></slot></span>
             ${dot ? html`<span part="dot" class="dot"></span>` : nothing}
           </span>
           ${spoken ? html`<span class="status">${spoken}, </span>` : nothing}<span part="label" class="label" dir=${ownDirection(this.label)}>${this.label}</span>

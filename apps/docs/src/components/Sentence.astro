@@ -1,0 +1,19 @@
+---
+// A sentence of the dictionary (lib/i18n.ts) with its `{place}`s filled by the caller's named slots — the names, links
+// and code a page writes there — so that a sentence's words and their order stay the language's own:
+//
+//   <Sentence text={t.system.lacks}><Fragment slot="systems"><code>cupertino</code></Fragment></Sentence>
+//
+// The text is escaped; a place no slot fills is left as it is written, which a test would see.
+import { pieces } from '../lib/systems';
+
+interface Props {
+  text: string;
+}
+const escape = (text: string) => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+const html = await Promise.all(
+  pieces(Astro.props.text).map(async (piece) => (typeof piece === 'string' ? escape(piece) : Astro.slots.has(piece.place) ? await Astro.slots.render(piece.place) : escape(`{${piece.place}}`))),
+);
+---
+
+<Fragment set:html={html.join('')} />

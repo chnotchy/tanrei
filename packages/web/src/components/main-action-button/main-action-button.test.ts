@@ -396,7 +396,7 @@ test.describe('behavior', () => {
     const duration = await resolveToken(page, T('motion-resize-duration'), 'duration');
     expect(duration).toBeGreaterThan(0);
     const easing = await resolveAs(page, 'transition-timing-function', T('motion-resize-easing'));
-    expect(easing).toBe(await resolveAs(page, 'transition-timing-function', '--tanrei-sys-motion-spring-standard-default-spatial-easing'));
+    expect(easing).toBe(await resolveAs(page, 'transition-timing-function', '--tanrei-sys-motion-easing-spatial'));
     const box = host(page, id).locator('.label-box');
     expect(await style(box, 'transition-property')).toBe('grid-template-columns, opacity');
     expect((await style(box, 'transition-duration')).split(', ').map((d) => Number.parseFloat(d) * 1000)).toEqual([duration, duration]);
@@ -551,7 +551,7 @@ test.describe('behavior', () => {
 
   test('MAB-17: colors and elevation change over motion.state-duration with motion.state-easing, and at once where motion is reduced', async ({ page }) => {
     const id = 'filled-extended';
-    const duration = await resolveToken(page, T('motion-state-duration'), 'duration');
+    const duration = await resolveToken(page, T('motion-state-duration-medium'), 'duration');
     const easing = await resolveAs(page, 'transition-timing-function', T('motion-state-easing'));
     expect(await css(page, id, 'transition-property')).toBe('background-color, color, box-shadow, opacity');
     expect(Number.parseFloat(await css(page, id, 'transition-duration')) * 1000).toBe(duration);
@@ -827,7 +827,7 @@ test.describe('press, feedback, corners and focus style', () => {
     expect(layer.color).toBe(await resolveColor(page, T('tonal-pressed-container-color')));
     expect(layer).toMatchObject({ animation: 'ripple-grow', behind: '-1' });
     expect(layer.grow).toBe(await resolveToken(page, T('motion-feedback-duration'), 'duration'));
-    expect(layer.fade).toBe(await resolveToken(page, T('motion-state-duration'), 'duration'));
+    expect(layer.fade).toBe(await resolveToken(page, T('motion-state-duration-medium'), 'duration'));
     expect(await css(page, id, 'background-color')).toBe(hovered);
     expect(await css(page, id, 'color')).toBe('rgb(0, 0, 255)');
     expect(await style(glyphBox(page, id), 'color')).toBe('rgb(0, 0, 255)');

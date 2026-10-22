@@ -10,7 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { CONFIG } from './config.js';
-import { COMPONENTS_HELD_IN_EVERY_SCHEME } from './invariants.js';
+import { COMPONENTS_HELD_IN_EVERY_SCHEME, targetFloors } from './invariants.js';
 import { TokenReadError, readBundle } from './reader.js';
 import { SCHEMES } from './scheme.js';
 
@@ -148,7 +148,6 @@ function simplified(token, tokenPath) {
     type: token.$type,
     value: token.$value,
     description: token.$description,
-    deprecated: token.$deprecated || undefined,
     // Direct alias target (one hop), so emitters can keep the ref → sys → comp chain visible.
     alias: token.aliasChain?.[0],
     // The end of the alias chain (a comp token may alias another comp token that aliases a sys token).
@@ -160,6 +159,8 @@ function simplified(token, tokenPath) {
     state: token.$extensions?.['dev.tanrei.state'],
     // Set on a choice of kind: { values: [...] }; the value is an index into it.
     enum: token.$extensions?.['dev.tanrei.enum'],
+    // Set on an inner corner: { outer: "{id}", inset: "{id}" }, the corner it stands in and how far inside it.
+    concentric: token.$extensions?.['dev.tanrei.concentric'],
   };
 }
 
@@ -209,6 +210,25 @@ export async function buildModelFromBundle(files, systemId = NS, resolver, { col
   return modelFrom(resolver ?? readBundle(files, systemId), systemId, componentDeclarations(null, systemId, (name) => files[name]), colorsFrom);
 }
 
+/**
+ * The heights the core vocabulary floors at sys.target.minimum (`targetFloors`), read once from Tanrei's own component
+ * documents — those in tokens/comp/ and those its layers hold — whatever system a model is of: a layer that replaces
+ * such a height's rule is still held to the floor by the target-floor check.
+ */
+let floors;
+export function coreTargetFloors() {
+  if (floors) return floors;
+  const documents = [];
+  const read = (dir) => {
+    if (!fs.existsSync(dir)) return;
+    for (const name of fs.readdirSync(dir)) if (name.endsWith('.tokens.json')) documents.push(JSON.parse(fs.readFileSync(path.join(dir, name), 'utf8')));
+  };
+  read(path.join(TOKENS_DIR, 'comp'));
+  const systems = path.join(TOKENS_DIR, 'systems');
+  if (fs.existsSync(systems)) for (const entry of fs.readdirSync(systems, { withFileTypes: true })) if (entry.isDirectory()) read(path.join(systems, entry.name, 'comp'));
+  return (floors = targetFloors(documents));
+}
+
 function modelFrom(resolver, systemId, components, colorsFrom) {
   const base = resolver.apply({ scheme: 'light' });
   if (colorsFrom) return partialModel(base, systemId, components, colorsFrom.colors);
@@ -229,7 +249,7 @@ function modelFrom(resolver, systemId, components, colorsFrom) {
     }
   }
   assertEveryRole(colors);
-  return { system: systemId, schemes: SCHEMES, tokens, colors, componentColors, components };
+  return { system: systemId, schemes: SCHEMES, tokens, colors, componentColors, components, floored: coreTargetFloors() };
 }
 
 const SYS_COLOR = `${NS}.sys.color.`;
@@ -261,7 +281,7 @@ function assertEveryRole(colors) {
 function partialModel(base, systemId, components, colors, otherSchemes = {}) {
   const tokens = simplifyAll(base);
   const light = Object.fromEntries(Object.entries(tokens).filter(([id, t]) => id.startsWith(COMP) && t.type === 'color'));
-  return { system: systemId, schemes: SCHEMES, tokens, colors, componentColors: { ...otherSchemes, light }, components, partial: true };
+  return { system: systemId, schemes: SCHEMES, tokens, colors, componentColors: { ...otherSchemes, light }, components, partial: true, floored: coreTargetFloors() };
 }
 
 // ── What the invariants read ─────────────────────────────────────────────
@@ -303,6 +323,22 @@ async function schemeColors(reader) {
 export async function invariantModel(files, systemId, light, reader) {
   const { colors, componentColors } = await schemeColors(reader);
   return partialModel(light, systemId, componentDeclarations(null, systemId, (name) => files[name]), colors, componentColors);
+}
+
+/**
+ * Every `$deprecated` in Tanrei's own token sources (`documents`: repository path → parsed JSON). During the 0.x
+ * prereleases no token is kept deprecated beside what replaces it: a token that goes is removed with every reader of
+ * it, and the changeset names it. (The reader still reads `$deprecated` from any other bundle, as DTCG defines it.)
+ */
+export function deprecatedInSources(documents) {
+  const problems = [];
+  const visit = (node, at, file) => {
+    if (!node || typeof node !== 'object' || Array.isArray(node)) return;
+    if (Object.hasOwn(node, '$deprecated')) problems.push(`${file}: ${at.join('.') || 'the document'} has $deprecated — during 0.x a token is removed, not deprecated: remove it and what reads it, and name it in the changeset`);
+    for (const [key, child] of Object.entries(node)) if (!key.startsWith('$')) visit(child, [...at, key], file);
+  };
+  for (const [file, doc] of Object.entries(documents)) visit(doc, [], file);
+  return problems;
 }
 
 export const byPrefix = (model, prefix) =>

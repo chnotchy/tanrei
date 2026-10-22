@@ -1,24 +1,43 @@
 ---
 title: 动效令牌
-description: 弹簧、时长和缓动令牌。
+description: 按角色划分的时长、时长刻度、按角色划分的缓动曲线、界面从何处出现，以及弹簧。
 translationOf: tokens/motion.mdx
-sourceHash: c524fce45805382c2430560ed82dd0e9036683a0
+sourceHash: b119d7cccb22639de328461912f2b3d5bf1779d6
 ---
 
+import BehaviorChoice from '../../../../components/tokens/BehaviorChoice.astro';
 import MotionTokens from '../../../../components/tokens/MotionTokens.astro';
 
 `tanrei.sys.motion` 下的动效令牌。使用指引请阅读[动效](/zh-cn/foundations/motion/)。
+
+## 按角色划分的时长
+
+一次变化需要多长时间，取决于动的是什么：状态的变化、选择、改变大小的盒子、原地展开的内容，以及每一种出现又离开的界面，各有自己的角色。组件的时长令牌是其角色的别名，因此一个图层只需一行，就能调整同一角色下所有组件的时长。界面离开时比出现时更快。各角色的时长跟随动效刻度盘。
+
+<MotionTokens part="role" />
+
+## 时长
+
+各角色所依据的刻度。
+
+<MotionTokens part="duration" />
+
+## 缓动
+
+缓动曲线，以及组件为变化选择缓动时所依据的四个角色：`enter` 用于出现的界面，`exit` 用于离开的界面，`state` 用于原地的状态变化，`spatial` 用于原地移动或改变大小的东西。每个角色都指向刻度中的一条曲线。
+
+<MotionTokens part="easing" />
+
+## 界面从何处出现
+
+所有出现的界面——菜单、列表、弹出框、工具提示、对话框、消息条——都从同样的不透明度、缩放、距离和模糊开始，离开时沿同一条路径返回。这些值由一个“类型选择”一并决定；图层可以选择另一种，也可以固定其中某一个值。
+
+<BehaviorChoice choice="appearance" />
+
+<MotionTokens part="appear" />
 
 ## 弹簧
 
 每个弹簧有四个子令牌。`stiffness` 和 `damping` 用于具备弹簧动画的平台；`duration` 和 `easing` 则是在无法使用弹簧的地方（例如 CSS）采用的近似值。
 
 <MotionTokens part="spring" />
-
-## 时长
-
-<MotionTokens part="duration" />
-
-## 缓动
-
-<MotionTokens part="easing" />

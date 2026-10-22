@@ -34,6 +34,7 @@ const SIZE_MEMBERS = {
   icon: 'icon-size',
   avatar: 'avatar-size',
   remove: 'remove-container-size',
+  'state-duration': 'motion-state-duration',
 } as const;
 
 const PREFIX = '--tanrei-comp-chip';
@@ -133,7 +134,7 @@ export const styles = css`
 
   /* CHP-13, CHP-24: a part that both the states and the condition recolor takes the state motion, and the selection
      motion while the condition changes (data-condition-change on .root, src/primitives/selection.ts). */
-  ${recolorTiming(PREFIX)}
+  ${recolorTiming(PREFIX, '--_state-duration')}
 
   .root {
     position: relative;
@@ -169,7 +170,7 @@ export const styles = css`
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     transition-property: background-color, color, box-shadow, opacity;
-    transition-duration: var(--_recolor-duration), var(--_recolor-duration), var(--_recolor-duration), var(--tanrei-comp-chip-motion-state-duration);
+    transition-duration: var(--_recolor-duration), var(--_recolor-duration), var(--_recolor-duration), var(--_state-duration);
     transition-timing-function: var(--_recolor-easing), var(--_recolor-easing), var(--_recolor-easing), var(--tanrei-comp-chip-motion-state-easing);
   }
 
@@ -351,7 +352,7 @@ export const styles = css`
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     transition-property: background-color, color, opacity;
-    transition-duration: var(--tanrei-comp-chip-motion-state-duration);
+    transition-duration: var(--_state-duration);
     transition-timing-function: var(--tanrei-comp-chip-motion-state-easing);
   }
   .root.input .remove {
@@ -419,7 +420,7 @@ export const styles = css`
     color: '--_ripple',
     inset: '--_ripple-inset',
     grow: '--tanrei-comp-chip-motion-feedback-duration',
-    fade: '--tanrei-comp-chip-motion-state-duration',
+    fade: '--_state-duration',
     easing: '--tanrei-comp-chip-motion-state-easing',
   })}
 

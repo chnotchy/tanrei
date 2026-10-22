@@ -11,6 +11,7 @@ import {
   LinkController,
   type LinkForm,
   NativeTextController,
+  OpenAxesController,
   PressController,
   SHORTCUT_UPDATE,
   SystemWatchController,
@@ -28,10 +29,13 @@ import {
   modalLayer,
   naturalHeight,
   notifyItemUpdate,
+  placeMenu,
   platformConvention,
   report,
   syncFocusStyle,
   trapFocus,
+  viewportKey,
+  visibleViewport,
   WordsController,
 } from '../../primitives/index.js';
 import '../button/button.js';
@@ -39,13 +43,14 @@ import '../button/button.js';
 import '../keyboard-shortcut/keyboard-shortcut.js';
 import type { TanreiKeyboardShortcut } from '../keyboard-shortcut/keyboard-shortcut.js';
 import '../loading-indicator/loading-indicator.js';
-import { placeMenu } from '../menu/menu.js';
 import { pressDefaultButton } from '../../primitives/default-button.js';
 import { takeFormDisabled } from '../../primitives/form-disabled.js';
-import { groupStyles, rowStyles, styles, suggestionStyles } from './search.styles.js';
+import { AXES, groupStyles, rowStyles, styles, suggestionStyles } from './search.styles.js';
+import type { TanreiSearchDensityRegistry } from '../../registry.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /**
  * The glyphs of the system's icon set the search draws — the spec's names, not values; it draws no mark of
@@ -67,6 +72,11 @@ const BARS: readonly TanreiSearchBar[] = ['field', 'button', 'icon'];
 /** What the product's search is doing: nothing awaited, a query running, or a query failed. */
 export type TanreiSearchStatus = 'idle' | 'loading' | 'error';
 const STATUSES: readonly TanreiSearchStatus[] = ['idle', 'loading', 'error'];
+/** Whether a row of the view keeps the leading icon column where it has no icon (SRC-52). A closed set: the menu's values. */
+export type TanreiSearchIconSpace = 'auto' | 'always' | 'never';
+/** How much room a row of the view takes (SRC-53): `regular`, `compact`, or a density a design system added. */
+export type TanreiSearchDensity = keyof TanreiSearchDensityRegistry;
+const ICON_SPACES: readonly TanreiSearchIconSpace[] = ['auto', 'always', 'never'];
 
 /**
  * Why the search closes its view (SRC-6), by the spec's names. `back` is the full-screen view's back button, or the
@@ -96,7 +106,7 @@ export interface TanreiSearchSelectDetail {
  *
  * @tag tanrei-search-suggestion
  */
-export class TanreiSearchSuggestion extends LitElement {
+export class TanreiSearchSuggestion extends TanreiElement {
   static override styles = suggestionStyles;
 
   static override properties: PropertyDeclarations = {
@@ -167,7 +177,7 @@ const contentNodes = (host: Element): (Element | Text)[] =>
  * suggestion's row, drawn by the element because the row is its own `<a>` — and the excerpt with its marks. It holds no
  * listener of its own: the search it is in answers its press, its keys and its activation.
  */
-export abstract class TanreiSearchRow extends LitElement {
+export abstract class TanreiSearchRow extends TanreiElement {
   static override properties: PropertyDeclarations = {
     value: { type: String },
     headline: { type: String },
@@ -217,7 +227,7 @@ export abstract class TanreiSearchRow extends LitElement {
   /** Web only: forwarded to the anchor's `download`. */
   download: string | null = null;
 
-  /** @internal SRC-42: the search keeps the leading icon column in every row while any suggestion or result has an icon. */
+  /** @internal SRC-42, SRC-52: the row keeps the leading icon column — the search's iconSpace keeps it, or the row has an icon. */
   iconColumn = false;
 
   /** SRC-45: the link the row is while it has a destination, and what a debug build is told (src/primitives/link.ts). */
@@ -542,7 +552,7 @@ const WAITING = new Set<{ syncShortcut(): void }>();
  * @fires {CustomEvent<TanreiSearchSelectDetail>} select - The person chose a suggestion, or activated a result in place (without a modifier key, in the same window): `detail.value` is its value. The search does not change `value`; set the value you want. For a result it is fired before the browser follows the link and is cancelable: cancelling it keeps the link from being followed, so that a router can take it. A result opened in a new tab (a modifier key, the middle button, `target="new"`) fires nothing.
  * @fires {CustomEvent<TanreiSearchToggleDetail>} toggle - The search opened or closed its view: `detail.expanded` (and the element's `expanded`) is the new value, and `detail.reason` says why it closed (`escape`, `back`, `select`, `submit`, `outside`, `tab`, `focus-out`, `shortcut`), or `null` when it opened.
  */
-export class TanreiSearch extends LitElement {
+export class TanreiSearch extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'search');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
@@ -583,6 +593,8 @@ export class TanreiSearch extends LitElement {
     bindShortcut: { type: Boolean, attribute: 'bind-shortcut' },
     status: { type: String, reflect: true },
     statusText: { type: String, attribute: 'status-text' },
+    iconSpace: { type: String, attribute: 'icon-space', reflect: true },
+    density: { type: String, reflect: true, useDefault: true },
     inline: { type: Boolean, reflect: true },
     name: { type: String, reflect: true },
     suggestions: { state: true },
@@ -662,6 +674,24 @@ export class TanreiSearch extends LitElement {
    */
   statusText = '';
 
+  /**
+   * Whether a row of the view — a suggestion, a result, a linked group heading — keeps the room of the leading icon
+   * column where it has no icon, so that the headlines start on one line (SRC-52): `auto` while any suggestion or
+   * result of the view has a `leading-icon`, `always` in every row, `never` only in a row that has one (`icon-space`).
+   */
+  iconSpace: TanreiSearchIconSpace = 'auto';
+
+  /**
+   * How much room a row of the view takes (SRC-53) — a suggestion, a result, a result group's linked heading —: its least
+   * height, paddings, the gap after its icon column and the size of its glyph, never its text style; the bar is not
+   * changed. `regular` (the default) is for a product used by touch as well as by pointer; `compact` for a tool used with
+   * a pointer. For touch a row is never lower than the touch target (SRC-16). A design system may add values.
+   */
+  density: TanreiSearchDensity = 'regular';
+
+  /** SRC-53: a density a design system added is drawn from its tokens; one the active system lacks is reported. */
+  private readonly densities = new OpenAxesController(this, { component: 'search', behavior: 'SRC-53', axes: AXES });
+
   /** For tests and documentation: draws the open view in place, without the overlay's behaviour. */
   inline = false;
 
@@ -671,7 +701,7 @@ export class TanreiSearch extends LitElement {
   protected suggestions: TanreiSearchSuggestion[] = [];
   /** The results and result groups (children), in the product's order. */
   protected entries: (TanreiSearchResult | TanreiSearchResultGroup)[] = [];
-  /** SRC-16, SRC-42: any suggestion or result has a leading icon, so every row keeps the column. */
+  /** SRC-16, SRC-42, SRC-52: every row of the view keeps the leading icon column, as iconSpace says. */
   protected iconColumn = false;
   /** The active suggestion's index (the input's active descendant), or -1. */
   protected active = -1;
@@ -891,6 +921,22 @@ export class TanreiSearch extends LitElement {
   }
 
   /** The suggestions, the results and the result groups (children), and whether anything else is the view's content. */
+  /**
+   * SRC-16, SRC-42, SRC-52: the leading icon column, decided for the view as a whole — every row while iconSpace keeps it
+   * (auto: while any suggestion or result has an icon; always), and otherwise a row that has an icon of its own.
+   */
+  private decideIconColumn(suggestions: readonly TanreiSearchSuggestion[] = this.suggestions) {
+    const space: TanreiSearchIconSpace = ICON_SPACES.includes(this.iconSpace) ? this.iconSpace : 'auto';
+    const rows = this.entries.flatMap((entry) => (entry instanceof TanreiSearchResultGroup ? [entry, ...entry.results] : [entry]));
+    const any = suggestions.some((s) => !!s.leadingIcon) || rows.some((row) => !!row.leadingIcon && (!(row instanceof TanreiSearchResultGroup) || row.linked));
+    const every = space === 'always' || (space === 'auto' && any);
+    if (every !== this.iconColumn) this.iconColumn = every;
+    for (const row of rows) {
+      const kept = every || !!row.leadingIcon;
+      if (row.iconColumn !== kept) row.iconColumn = kept;
+    }
+  }
+
   private readChildren(records?: MutationRecord[]) {
     // SRC-43: a result's excerpt is its child content; the one observer tells each result whose content changed.
     if (records) {
@@ -921,11 +967,7 @@ export class TanreiSearch extends LitElement {
         : node.nodeType === Node.TEXT_NODE && !!node.textContent?.trim(),
     );
     if (content !== this.hasContent) this.hasContent = content;
-    // SRC-16, SRC-42: the leading icon column is kept in every row of the view while any suggestion or result has an icon.
-    const rows = this.entries.flatMap((entry) => (entry instanceof TanreiSearchResultGroup ? [entry, ...entry.results] : [entry]));
-    const icons = suggestions.some((s) => !!s.leadingIcon) || rows.some((row) => !!row.leadingIcon && (!(row instanceof TanreiSearchResultGroup) || row.linked));
-    if (icons !== this.iconColumn) this.iconColumn = icons;
-    for (const row of rows) if (row.iconColumn !== icons) row.iconColumn = icons;
+    this.decideIconColumn(suggestions);
     this.checkSuggestions();
     this.checkResults();
     // SRC-51: the result that had focus was removed or replaced: focus goes to the input rather than out of the view.
@@ -970,7 +1012,7 @@ export class TanreiSearch extends LitElement {
     }
   }
 
-  private onSlotChange(event: Event) {
+  #onSlotChange(event: Event) {
     const slot = event.target as HTMLSlotElement;
     const elements = slot.assignedElements({ flatten: true });
     if (slot.name === 'leading') this.hasLeading = elements.length > 0;
@@ -1131,7 +1173,7 @@ export class TanreiSearch extends LitElement {
       return;
     }
     const row = rowOf(event, this);
-    if (row && this.onResultKeyDown(event, row)) return;
+    if (row && this.#onResultKeyDown(event, row)) return;
     if (event.key !== 'Tab' || this.inline) return;
     const dialog = this.dialog;
     if (this.modal && dialog && this.fullShown) {
@@ -1149,7 +1191,7 @@ export class TanreiSearch extends LitElement {
    * there is one). Typing, deleting or pasting moves focus to the input, so that the key edits the value there. Enter is
    * the browser's own activation of the link; the row only shows its press (SRC-19). Returns whether the key was taken.
    */
-  private onResultKeyDown(event: KeyboardEvent, row: TanreiSearchRow): boolean {
+  #onResultKeyDown(event: KeyboardEvent, row: TanreiSearchRow): boolean {
     const plain = !event.altKey && !event.ctrlKey && !event.metaKey;
     if (plain && !event.shiftKey && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
       event.preventDefault();
@@ -1397,14 +1439,12 @@ export class TanreiSearch extends LitElement {
     const margin = Number.parseFloat(style.scrollMarginBlockEnd) || 0;
     const box = bar.getBoundingClientRect();
     view.style.inlineSize = `${box.width}px`;
-    // The on-screen keyboard: the part of the layout viewport the visual viewport no longer covers.
-    const visual = window.visualViewport;
-    const height = Math.min(document.documentElement.clientHeight, visual ? visual.offsetTop + visual.height : Number.POSITIVE_INFINITY);
     const at = placeMenu({
       anchor: box,
       // SRC-14: measured capped, so following the bar never loses the active suggestion.
       surface: { width: box.width, height: naturalHeight(view, view.querySelector<HTMLElement>('.scroll')) },
-      viewport: { width: document.documentElement.clientWidth, height },
+      // The visible part of the window: above the on-screen keyboard.
+      viewport: visibleViewport(),
       placement: 'bottom-start',
       offset,
       margin,
@@ -1420,8 +1460,7 @@ export class TanreiSearch extends LitElement {
   private readonly follow = (): boolean => {
     const box = this.barElement?.getBoundingClientRect();
     const scroll = this.view?.querySelector<HTMLElement>('.scroll');
-    const visual = window.visualViewport;
-    const layout = `${box?.x},${box?.y},${box?.width},${box?.height},${document.documentElement.clientWidth},${document.documentElement.clientHeight},${visual?.height},${visual?.offsetTop},${scroll?.scrollHeight}`;
+    const layout = `${box?.x},${box?.y},${box?.width},${box?.height},${viewportKey()},${scroll?.scrollHeight}`;
     if (layout === this.lastLayout) return false;
     this.lastLayout = layout;
     this.place();
@@ -1545,6 +1584,11 @@ export class TanreiSearch extends LitElement {
     }
     if (changed.has('bar') && !BARS.includes(this.bar)) report(this, 'SRC-27', `bar "${this.bar}" is not a value the search defines; it is drawn as "field"`);
     if (changed.has('status') && !STATUSES.includes(this.status)) report(this, 'SRC-27', `status "${this.status}" is not a value the search defines; it is read as "idle"`);
+    // SRC-52: an iconSpace the search does not define is auto, reported; a change decides the column again.
+    if (changed.has('iconSpace')) {
+      if (!ICON_SPACES.includes(this.iconSpace)) report(this, 'SRC-52', `iconSpace "${this.iconSpace}" is not a value the search defines; it is drawn as "auto"`);
+      this.decideIconColumn();
+    }
     if (this.active >= this.suggestions.length || !this.expanded) this.active = -1;
     // SRC-44: a group stands group.gap below whatever stands above it in the view and above whatever follows it; two
     // groups that follow each other stand one gap apart.
@@ -1754,7 +1798,7 @@ export class TanreiSearch extends LitElement {
                 @pointerleave=${this.rowPress.release}
                 @click=${this.onRowClick}
               >
-                ${icons ? html`<span class="option-icon ${s.leadingIcon ? '' : 'empty'}" aria-hidden="true">${s.leadingIcon}</span>` : nothing}
+                ${icons || s.leadingIcon ? html`<span class="option-icon ${s.leadingIcon ? '' : 'empty'}" aria-hidden="true">${s.leadingIcon}</span>` : nothing}
                 <span class="text">
                   <span class="headline" id="headline-${i}">${s.headline}</span>
                   ${s.supportingText ? html`<span class="supporting" id="supporting-${i}">${s.supportingText}</span>` : nothing}
@@ -1856,15 +1900,16 @@ export class TanreiSearch extends LitElement {
           >
             <span class="outline" aria-hidden="true"></span>
             <span class="hold" aria-hidden="true"></span>
-            <span class="leading" ?hidden=${!this.hasLeading}><slot name="leading" @slotchange=${this.onSlotChange}></slot></span>
+            <span class="leading" ?hidden=${!this.hasLeading}><slot name="leading" @slotchange=${this.#onSlotChange}></slot></span>
             ${this.hasLeading ? nothing : glyph} ${this.renderInput('bar', listed && !modal)} ${this.renderHint(this.value !== '')} ${this.renderClear('small')}
-            <span class="trailing" ?hidden=${this.trailingCount === 0}><slot name="trailing" @slotchange=${this.onSlotChange}></slot></span>
+            <span class="trailing" ?hidden=${this.trailingCount === 0}><slot name="trailing" @slotchange=${this.#onSlotChange}></slot></span>
           </div>`}
       <div part="view" class="view" data-tanrei-shape popover=${this.inline ? nothing : 'manual'} role="none" @mousedown=${this.onViewMouseDown}>${modal ? nothing : body}</div>
       ${hung && covered ? html`<div class="scrim" @click=${this.onScrimClick}></div>` : nothing}
       <dialog
         part="dialog"
         class=${hung ? 'full hung' : 'full'}
+        data-tanrei-appear
         ?data-tanrei-shape=${hung}
         tabindex="-1"
         aria-label=${ifDefined(this.label || undefined)}

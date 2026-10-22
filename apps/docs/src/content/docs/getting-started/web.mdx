@@ -5,18 +5,24 @@ description: Use Tanrei's CSS tokens and Web Components in any web project.
 
 import Steps from '../../../components/Steps.astro';
 import Callout from '../../../components/Callout.astro';
-import PreReleaseNotice from '../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../components/ReleaseNotice.astro';
 import DemoFrame from '../../../components/DemoFrame.astro';
 
 `@tanrei/web` contains two things: a stylesheet of design tokens as CSS custom properties, and standards-based custom elements built with Lit. It has no framework requirement.
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/web" />
+<ReleaseNotice platform="web" registry="npm" pkg="@tanrei/web" />
 
 ## Install
 
+### From npm
+
+```sh
+npm install @tanrei/web
+```
+
 ### From source
 
-You need Git, Node 22.12 or later and pnpm 12 (`corepack enable` gives you the version the repository pins). Build the package in a clone of the repository, pack it, and install the packed file in your project:
+To use the source as it stands on `main`, before it is published, you need Git, Node 22.12 or later and pnpm 12 (`corepack enable` gives you the version the repository pins). Build the package in a clone of the repository, pack it, and install the packed file in your project:
 
 ```sh
 git clone https://github.com/chnotchy/tanrei.git
@@ -31,36 +37,43 @@ pnpm --filter @tanrei/web pack --pack-destination ../tanrei-packages
 npm install path/to/tanrei-packages/tanrei-web-*.tgz
 ```
 
-The packed file holds what a release will publish, so everything below works the same way. To take a newer state of the source, pull, build and pack again, then install the new file.
-
-### After the first release
-
-```sh
-npm install @tanrei/web
-```
+The packed file holds what a release publishes, so everything below works the same way. To take a newer state of the source, pull, build and pack again, then install the new file.
 
 ## Use
 
 <Steps>
 
-1. Load the tokens once, as early as possible. They are wrapped in a cascade layer (`tanrei.tokens`), so your own styles always win.
+1. Load the stylesheets once, as early as possible. They are wrapped in cascade layers (`tanrei.*`), so your own styles always win.
+
+   ```js
+   import '@tanrei/web/tanrei.css';
+   ```
+
+   `tanrei.css` is everything in one file: the base of the page, the tokens, and the stylesheets of the parts drawn without an element (the text styles, the table, the accordion and the others). To load only what you use, take the tokens, the base if you want it, and each of those stylesheets as you need it:
 
    ```js
    import '@tanrei/web/tokens.css';
+   import '@tanrei/web/base.css'; // the page in the system's surface, text color and body face, with no margin on the body
    ```
 
-2. Register the components. Import everything, or only the elements you use.
+   The base gives the page itself the surface color, your own text the on-surface color and the body face, and takes the browser's margin off the body. Without it the page keeps the browser's defaults.
+
+2. Register the components of your design system, or only the elements you use.
 
    ```js
    import '@tanrei/web';
+   // on a preset, its entry instead: m3-like, m3-expressive-like or cupertino
+   import '@tanrei/web/m3-like';
    // or, one element at a time:
    import '@tanrei/web/components/button';
    ```
 
+   `@tanrei/web` registers the components the default system ships and no other, so a product on it cannot reach one its system does not have. A preset's entry, `@tanrei/web/<id>`, registers what that preset ships, and `@tanrei/web/all` every component of the package. A component that only a preset ships, such as the [segmented button](/components/segmented-button/), can still be taken on purpose: include it in your system's layer and import its own module.
+
    The `@tanrei/web/…` specifiers are package exports: a bundler (Vite, webpack, esbuild) resolves them. Without one, a browser cannot resolve a bare specifier in `<link>` or `<script src>`, so serve the package's `dist/` and point at the files — the stylesheets as they are, and `tanrei.bundle.js`, which carries Lit and every element:
 
    ```html
-   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tokens.css" />
+   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tanrei.css" />
    <script type="module" src="/node_modules/@tanrei/web/dist/tanrei.bundle.js"></script>
    ```
 
@@ -71,15 +84,22 @@ npm install @tanrei/web
    <tanrei-button variant="outlined" size="small" disabled>Cancel</tanrei-button>
    ```
 
-4. Give your product's words. Tanrei ships none: the text of a requirement tag, the name of a close button and the like are yours. Say them once, per language, or on each element.
+4. Give your product's words. A component has none of its own: the text of a requirement tag, the name of a close button and the like are your product's. To start with plain English for every one of them, import the English word pack once:
+
+   ```js
+   import '@tanrei/web/words/en';
+   ```
+
+   Change any of them, or give the words of another language, with `setWords()` after it. A word you give wins over the pack, and a word on an element wins over both.
 
    ```js
    import { setWords } from '@tanrei/web';
 
-   setWords({ requiredText: 'Required', optionalText: 'Optional', closeLabel: 'Close' });
+   setWords({ requiredText: 'Mandatory' });
+   setWords({ requiredText: '必須', optionalText: '任意', closeLabel: '閉じる' }, { lang: 'ja' });
    ```
 
-   A component still works without a word, and tells you in the console which one it lacks. See [Words](/foundations/words/).
+   Without the pack and without your words, a component still works, and tells you in the console which word it lacks. See [Words](/foundations/words/).
 
 </Steps>
 
@@ -87,6 +107,10 @@ npm install @tanrei/web
   <tanrei-button variant="filled">Deploy</tanrei-button>
   <tanrei-button variant="outlined" size="small" disabled>Cancel</tanrei-button>
 </DemoFrame>
+
+## The elements' manifest
+
+Editors and coding agents read the package's elements from its [custom elements manifest](https://github.com/webcomponents/custom-elements-manifest), `@tanrei/web/custom-elements.json`: every element with its attributes, properties, events, slots and parts, and nothing a product cannot reach. `@tanrei/web/custom-elements/<id>.json` holds only the elements system `<id>` ships, so a tool that works in one system offers nothing else.
 
 ## Theme and contrast
 
@@ -106,6 +130,50 @@ To take control, set attributes:
   Both attributes work on `<html>` or on any subtree. The generated stylesheet declares the whole token set on `:root, [data-tanrei-contrast]`, so a `data-tanrei-contrast` on a nested element re-resolves the component tokens inside it against that contrast level, not only the system colors.
 </Callout>
 
+### Keep a person's choice of theme
+
+If people choose a theme in your product, store the choice and put it on `<html>` before the page is first drawn: set by a script that runs later, the page shows the system's theme for a frame first. `@tanrei/web/theme-script` does both. `themeScript()` is a small script to inline in `<head>`, before the stylesheets, and `saveTheme()` stores a choice and draws it at once.
+
+```js
+import { loadTheme, saveTheme } from '@tanrei/web/theme-script';
+
+saveTheme('dark'); // 'light', 'dark', or 'system' to follow the operating system again
+loadTheme();       // what is stored: 'light', 'dark' or 'system'
+```
+
+In Next.js (App Router), inline it in the root layout. `suppressHydrationWarning` is there because the script changes an attribute of `<html>` before React hydrates it.
+
+```tsx
+// app/layout.tsx
+import { themeScript } from '@tanrei/web/theme-script';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript() }} />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+In Astro, inline it in the layout:
+
+```html
+---
+// src/layouts/Layout.astro
+import { themeScript } from '@tanrei/web/theme-script';
+---
+<html lang="en">
+  <head>
+    <script is:inline set:html={themeScript()} />
+  </head>
+  <body><slot /></body>
+</html>
+```
+
 ## Tokens in your own CSS
 
 Every token is a custom property named after its path: `tanrei.sys.color.primary` becomes `--tanrei-sys-color-primary`.
@@ -118,6 +186,8 @@ Every token is a custom property named after its path: `tanrei.sys.color.primary
   font: var(--tanrei-sys-typescale-body-font);
 }
 ```
+
+To set a token from script, use `setTokens()` from `@tanrei/web`: `setTokens({ '--tanrei-sys-color-primary': '#0b57d0' })` on the root, or with `{ on: element }` for one part of the page. One token set alone on the root with `style.setProperty()` makes Safari restyle the whole page for seconds; `setTokens()` writes it so that it does not.
 
 ## Text styles
 
@@ -156,4 +226,36 @@ The whole Material Symbols Rounded file holds every glyph at every weight, fill,
 
 ## Browser support
 
-The tokens rely on `light-dark()` and cascade layers, which are available in current versions of Chrome, Edge, Firefox and Safari.
+Tanrei works in these versions and later:
+
+| Browser | Version |
+|---|---|
+| Chrome and Edge | 125 |
+| Firefox | 126 |
+| Safari, on macOS and iOS | 17.5 |
+
+Each number is the newest of the features Tanrei cannot draw without, none of which has a fallback:
+
+- **CSS.** Every color is a `light-dark()` pair (Chrome and Edge 123, Firefox 120, Safari 17.5). Sizes and type sizes are rounded with CSS `round()` (Chrome and Edge 125, Firefox 118, Safari 15.4). The components restyle on custom states, `:state()` (Chrome and Edge 125, Firefox 126, Safari 17.4). Menus, tooltips and snackbars open in the top layer with the Popover API (Chrome and Edge 114, Firefox 125, Safari 17). The cascade layers the stylesheets are wrapped in came earlier (Chrome and Edge 99, Firefox 97, Safari 15.4).
+- **JavaScript.** The package is ES2022, and its build fails if any file it publishes goes further. Its newest syntax, class static blocks, runs from Chrome and Edge 94, Firefox 93 and Safari 16.4. Compiling the package for an older target does not lower the floor: the CSS above stays what it is.
+
+A few newer features are used only where a browser without them still works: without `@starting-style` an opening animation does not play, and without `corner-shape` a corner stays round.
+
+### Telling a visitor their browser is too old
+
+Tanrei does not do this itself: it belongs to your product's entry point. Test the features first, and load the app, and Tanrei with it, only when they are there:
+
+```html
+<p id="unsupported" hidden>This site needs Chrome or Edge 125, Firefox 126 or Safari 17.5, or a later version.</p>
+<script type="module">
+  // light-dark() sets Safari's floor, round() Chrome's and Edge's, :state() Firefox's.
+  const supported =
+    CSS.supports('color', 'light-dark(red, red)') &&
+    CSS.supports('width', 'round(1px, 1px)') &&
+    CSS.supports('selector(:state(open))');
+  if (supported) import('./app.js'); // your app, which imports @tanrei/web
+  else document.getElementById('unsupported').hidden = false;
+</script>
+```
+
+Keep this script small and plain: every visitor's browser runs it, the old ones included. With a static `import`, the browser loads the app before this script runs, and an old one that cannot parse the app never reaches the test; `import()` loads it only afterwards.

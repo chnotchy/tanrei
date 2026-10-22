@@ -37,7 +37,7 @@ On the web it is `<tanrei-one-time-code-field>`. The other platforms have not im
       <tanrei-one-time-code-field name="code" label="Verification code"
         supporting-text="Enter the 6-digit code we sent to your phone."
         error-text="That code is not right. Check the message and try again."
-        requirement="required" required-text="Required"
+        required required-text="Required"
         group-size="3"></tanrei-one-time-code-field>
     </form>
 
@@ -103,8 +103,8 @@ What changes one level down is where things are said. `name` and `value` are on 
 ## Specs
 
 <DemoFrame label="Required with the product's word, optional, disabled, and a masked code of four" plain column>
-  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Verification code" requirement="required" required-text="Required" supporting-text="Enter the 6-digit code we sent to your phone." group-size="3"></tanrei-one-time-code-field>
-  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Backup code" requirement="optional" optional-text="Optional" type="alphanumeric" group-size="3" value="A7K"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Verification code" required required-text="Required" supporting-text="Enter the 6-digit code we sent to your phone." group-size="3"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Backup code" optional optional-text="Optional" type="alphanumeric" group-size="3" value="A7K"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Verification code" disabled supporting-text="Enter the 6-digit code we sent to your phone." group-size="3" value="123456"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="PIN from the letter" length="4" mask value="4821"></tanrei-one-time-code-field>
 </DemoFrame>
@@ -113,7 +113,7 @@ What changes one level down is where things are said. `name` and `value` are on 
 
 | Aspect | From the field | From the one-time-code input |
 | --- | --- | --- |
-| Properties | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `value`, `length`, `type`, `groupSize`, `mask`, `readOnly` |
+| Properties | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText` | `value`, `length`, `type`, `groupSize`, `mask`, `readOnly` |
 | Events | — | `input`, `change`, `complete`, `action` |
 | Slots | `label-icon` | — |
 | Tokens | `comp.field.*` | `comp.one-time-code-input.*` |
@@ -136,7 +136,7 @@ The one-time-code field has no token of its own. Its frame reads the field's tok
 ### What the web draws differently
 
 - The element's shadow root holds a `<tanrei-field>` with a `<tanrei-one-time-code-input>` in it, and nothing else. Importing the element defines both.
-- The element is form-associated. It takes `name` and `form`, submits the code alone — nothing while disabled —, resets to the `value` attribute, follows a disabled `<fieldset>`, and reports a missing value while `requirement` is `required` and it is empty. Its two members add no entry to the form. Enter in the cells presses the default button of the element's form; cancel `action` to prevent it.
+- The element is form-associated. It takes `name` and `form`, submits the code alone — nothing while disabled —, resets to the `value` attribute, follows a disabled `<fieldset>`, and reports a missing value while `required` is set and it is empty. Its two members add no entry to the form. Enter in the cells presses the default button of the element's form; cancel `action` to prevent it.
 - `input`, `change`, `complete` and `action` are the one-time-code input's CustomEvents with `detail.value`. Their target is the element, and `event.target.value` is the code in every listener.
 - Parts: `field` and `one-time-code-input` are the two members. Their own parts have the same names here as one level down: `label`, `label-icon`, `requirement-label`, `supporting-text`; `input`, `cell`, `character`, `caret`, `separator`.
 - The element is not focusable itself: `focus()` goes to the cells, and a page's own `<label for>` moves focus there. `autofocus` on the element focuses the cells when it is first drawn, unless something else has focus.
@@ -170,7 +170,7 @@ The one-time-code field has no token of its own. Its frame reads the field's tok
 ### What the component handles
 
 - It is one text box, the one-time-code input's. Its name is `label`, drawn or not; its description is the shown supporting or error text, with the optional text while the field is optional.
-- It is exposed as invalid while `error` is true, as required while `requirement` is `required`, as disabled while `disabled` is true, as read-only while `readOnly` is true, and as a password field while `mask` is true.
+- It is exposed as invalid while `error` is true, as required while `required` is set, as disabled while `disabled` is true, as read-only while `readOnly` is true, and as a password field while `mask` is true.
 - The name, the description and the states are tied exactly as a field ties them to any control it frames. The field written by hand, one level down, is the same text box.
 - The drawn label, the requirement mark, the cells, the caret and the group marks are not exposed a second time.
 - It is one stop for the Tab key. A press on the label moves focus to the cells and operates nothing; a press on the help does nothing.
@@ -184,5 +184,5 @@ Known gaps on the web are its members': what screen readers say while a code is 
 
 - Give `label`, always, in the words a person would use for the code.
 - Say what is expected in words: how many characters, and where the code was sent. The cells show the length only to people who see them.
-- Say that a code is wrong, expired or required with `errorText`, `supportingText` and `requirement`. Color is never the only sign.
+- Say that a code is wrong, expired or required with `errorText`, `supportingText` and `required`. Color is never the only sign.
 - Where the time to enter a code is limited, say so, and let the person ask for more time or a new code.

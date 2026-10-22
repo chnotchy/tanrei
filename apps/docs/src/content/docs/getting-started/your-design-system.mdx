@@ -5,28 +5,45 @@ description: Keep one layer file in your product. One command writes tokens and 
 
 import Steps from '../../../components/Steps.astro';
 import Callout from '../../../components/Callout.astro';
+import ReleaseNotice from '../../../components/ReleaseNotice.astro';
 
 Tanrei's components never change when your product's look does. What changes is a **layer**: a small JSON file that sets values of the shared vocabulary and declares your palettes. `@tanrei/cli` turns that one file into everything each platform needs.
 
-<Callout type="caution" title="Before the first release">
-  `@tanrei/cli` and `@tanrei/mcp` are not on npm yet. Until they are, build them from the source and install the packed files in your product as development dependencies; every `npx tanrei …` command on this page then runs the installed copy.
+<ReleaseNotice registry="npm" pkg={["@tanrei/cli", "@tanrei/mcp"]} />
 
-  ```sh
-  git clone https://github.com/chnotchy/tanrei.git
-  cd tanrei
-  pnpm install
-  pnpm --filter @tanrei/studio build:app   # Theme Studio, which `tanrei studio` serves
-  pnpm --filter @tanrei/cli --filter @tanrei/mcp build
-  pnpm --filter @tanrei/cli --filter @tanrei/mcp pack --pack-destination ../tanrei-packages
-  ```
+## Install
 
-  ```sh
-  # in your product: the path to the folder the packages were written to
-  npm install --save-dev path/to/tanrei-packages/tanrei-cli-*.tgz path/to/tanrei-packages/tanrei-mcp-*.tgz
-  ```
+### From npm
 
-  For the MCP server, register the installed copy: `claude mcp add tanrei -- npx tanrei-mcp`, run in your product's folder.
-</Callout>
+Add the command line tool to your product as a development dependency; every `npx tanrei …` command on this page then runs that copy. It carries Theme Studio, which `tanrei studio` serves.
+
+```sh
+npm install --save-dev @tanrei/cli
+```
+
+The MCP server needs no install: `npx` fetches `@tanrei/mcp` when an agent starts it, as registered further down this page.
+
+### From source
+
+To use the source as it stands on `main`, build both packages in a clone of the repository and install the packed files in your product as development dependencies:
+
+```sh
+git clone https://github.com/chnotchy/tanrei.git
+cd tanrei
+pnpm install
+pnpm --filter @tanrei/studio build:app   # Theme Studio, which `tanrei studio` serves
+pnpm --filter @tanrei/cli --filter @tanrei/mcp build
+pnpm --filter @tanrei/cli --filter @tanrei/mcp pack --pack-destination ../tanrei-packages
+```
+
+```sh
+# in your product: the path to the folder the packages were written to
+npm install --save-dev path/to/tanrei-packages/tanrei-cli-*.tgz path/to/tanrei-packages/tanrei-mcp-*.tgz
+```
+
+For the MCP server, register the installed copy instead: `claude mcp add tanrei -- npx tanrei-mcp`, run in your product's folder.
+
+## From a layer to every platform
 
 <Steps>
 
@@ -92,7 +109,7 @@ Customization is layered, and every level edits the one `<id>.system.json`:
 | You want | You use |
 |---|---|
 | A quick setup | **Theme Studio → Essentials**: a base system, your brand color and four sliders (text size, spacing, roundness, heading contrast) |
-| To tune groups | **Studio → Groups**: all seven dials, palettes, per-component summaries |
+| To tune groups | **Studio → Groups**: all eight dials, palettes, per-component summaries |
 | To touch one token at a time, in a GUI | **Studio → Every token**: search the whole vocabulary; each token offers only the edits that are legal for it, and shows what follows it |
 | To edit source | **Studio → Source**, or your editor: the JSON, validated against the schema and by the engine |
 | A token that does not exist | [Add it](/foundations/design-systems/#adding-to-the-vocabulary): a step in a series, a Button size or variant in one line, or tokens of your own |
@@ -102,6 +119,22 @@ npx tanrei studio
 ```
 
 opens Theme Studio **on your layer file**: edits are saved to it as you make them (review them with git like any change), an edit made in your editor at the same time is never overwritten, and "Build" runs `tanrei build`. It listens on `127.0.0.1` only and the printed link carries a one-time key. The Studio on this site is the same tool with import and export instead of a file.
+
+## Check the code against your system
+
+```bash
+npx tanrei audit src
+```
+
+reads your product's code — script (JS, TS, JSX), markup (HTML, Vue, Svelte, Astro) and stylesheets (CSS, Sass, Less) — and reports what your system does not have, each at its file, line and column, with what to write instead:
+
+- an element of a component the system does not have — `<tanrei-fab-menu>` in a page, a template, JSX or a string, an imported React wrapper, or a CSS selector that names it — with the components the system ships for the same job, the systems that have it, and the line of your layer that would take it in;
+- an import from an entry that does not fit the system — `@tanrei/web/m3-like` or `@tanrei/react/all` in a product of the default system — with the entry that does;
+- a written `variant="…"` the system leaves out, with the values it offers.
+
+It checks against your product's system (`tanrei.json`), or the one `--system` names: a shipped system such as `m3-like`, or a layer file. Give it files, directories, or a glob in quotes (`'src/**/*.{ts,tsx,html,css}'`); a directory is read without `node_modules` and hidden directories. `--format json` prints the findings as data. It exits with 1 when it finds something, so it can run in CI beside `tanrei build --check`, and with 2 when it cannot run. The MCP server's `check_usage` runs the same check.
+
+It reads the text, not a running page: comments are skipped, but a variant held in a variable, or a tag put together from pieces, is not seen.
 
 ## Tailwind CSS and shadcn/ui
 
@@ -117,9 +150,10 @@ Add `"tailwind"` or `"shadcn"` to `outputs`. Both files only **map names** onto 
 ## Sharing a system — with people, tools and AI agents
 
 - The `tokens` output is a self-contained **DTCG 2025.10** bundle with a standard resolver. Any design-token tool can read it; the layer files that produced it travel inside, and every group carries usage guidance for agents in `$extensions["dev.tanrei.llm"]`.
-- `@tanrei/mcp` is a [Model Context Protocol](https://modelcontextprotocol.io) server. An agent working in your repository can search the vocabulary, see where a value comes from, compare systems, **propose an extension** (a new Button size, a step, a token of your own) with its resulting values, and **validate a layer edit before it writes it** — and it is told the rules: change values through a layer, extend the vocabulary only by adding and with a rationale, give every pinned value a reason, never touch a threshold.
+- It also holds `components.json`, the components your system ships: each with its element (or class), its React name and the module that registers it, and the components it does not have, with the layer that left each out and what to use instead. An agent that reads it suggests only components your product can use. Each shipped system has one as well: `@tanrei/web/systems/<id>.components.json`.
+- `@tanrei/mcp` is a [Model Context Protocol](https://modelcontextprotocol.io) server. An agent working in your repository can search the vocabulary, see where a value comes from, compare systems, **propose an extension** (a new Button size, a step, a token of your own) with its resulting values, and **validate a layer edit before it writes it** — and it is told the rules: change values through a layer, extend the vocabulary only by adding and with a rationale, give every pinned value a reason, never touch a threshold. For the UI itself it answers from the system's components manifest and the specs: **which components the system has** (and, for one it does not, what to use instead), a component's props, events and behaviour rules, and **which elements, imports and variants in your code the system does not have**, with where they are — the check `tanrei audit` runs.
 
-  After the first release, register it from npm (until then, see "Before the first release" at the top of this page):
+  Register it from npm, in your product's folder ([Using Tanrei with AI agents](/getting-started/ai-agents/) has the settings for other clients):
 
   ```bash
   claude mcp add tanrei -- npx -y @tanrei/mcp

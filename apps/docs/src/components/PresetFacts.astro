@@ -1,0 +1,121 @@
+---
+// The facts of one shipped preset, as a product needs them to draw with it, all read from the repository: its
+// stylesheet and the attribute that scopes it (the names from tanrei.config.json), the entry that registers its
+// components and how many there are, the fonts it asks for — each role's stack as its tokens resolve it
+// (design/tokens/<id>/), and the families a product loads, with the package each comes from
+// (packages/tools/src/font-faces.js) — and, beside the default system, the components and the values of `variant` it
+// has and does not have (its components manifest, lib/systems.ts). Drawn as Tanrei's description list, a fact to a row.
+import { componentHref, config, manifests } from '../lib/repo';
+import { presetComponents, titleOf, type SameValues } from '../lib/systems';
+import { ns, shippedSystems } from '../lib/tokens';
+import { contentLang, localeBase, strings } from '../lib/i18n';
+import { FONT_PACKAGES } from '../../../../packages/tools/src/font-faces.js';
+import Sentence from './Sentence.astro';
+import SourceNote from './SourceNote.astro';
+
+interface Props {
+  /** The preset's id (`tokens/systems/<id>.system.json`). */
+  system: string;
+}
+const { system } = Astro.props;
+const manifest = manifests.find((entry) => entry.system === system);
+const resolved = shippedSystems.find((entry) => entry.id === system);
+if (!manifest || !resolved || system === manifests[0]?.system) throw new Error(`PresetFacts: "${system}" is not a shipped preset (tokens/generated/<id>/components.json, design/tokens/<id>/)`);
+const t = strings(contentLang(Astro));
+const base = localeBase(Astro);
+const facts = presetComponents(manifest);
+const stylesheet = `${config.packages.npmScope}/web/systems/${system}.css`;
+const attribute = `data-${config.namespace}-system="${system}"`;
+
+/** A typeface role's stack as the preset resolves it (`ref.typeface.<role>`). */
+const stack = (role: string): string[] => resolved.tree?.[ns]?.ref?.typeface?.[role]?.$value ?? [];
+/** The fonts of each role: the stack, and the families of it a product loads (those a package provides). */
+const fonts = [
+  { label: t.preset.text, families: [...new Set([...stack('brand'), ...stack('plain')])] },
+  { label: t.preset.code, families: stack('mono') },
+  { label: t.preset.icons, families: stack('icon') },
+].map((role) => ({ ...role, load: role.families.filter((family) => family in FONT_PACKAGES) }));
+const packageOf = (family: string) => (FONT_PACKAGES as Record<string, string[]>)[family][0];
+
+/** A component's name as a link to its page, or as text where it has none. */
+const linked = (name: string) => ({ title: titleOf(name), href: componentHref(base, name) });
+const values = (groups: SameValues[]) => groups.map((group) => ({ values: group.values.join(', '), components: group.components.map(linked) }));
+const variantsBeyond = values(facts.variantsBeyond);
+const variantsOut = values(facts.variantsOut);
+---
+
+<div class="not-content preset" data-tanrei-code="plain" data-docs-preset={system}>
+  <tanrei-description-list layout="inline" density="compact" separation="gap">
+    <dl>
+      <div><dt>{t.preset.stylesheet}</dt><dd><code>{stylesheet}</code></dd></div>
+      <div><dt>{t.preset.attribute}</dt><dd><code>{attribute}</code></dd></div>
+      <div>
+        <dt>{t.preset.components}</dt>
+        <dd>
+          <Sentence text={t.preset.count}>
+            <Fragment slot="count">{String(facts.count)}</Fragment>
+            <code slot="entry">{facts.entry}</code>
+          </Sentence>
+        </dd>
+      </div>
+      {fonts.map((role) => (
+        <div>
+          <dt>{role.label}</dt>
+          <dd>
+            <code>{role.families.join(', ')}</code>{' — '}
+            {role.load.length > 0 ? (
+              <Sentence text={t.preset.load}>
+                <Fragment slot="families">{role.load.map((family, at) => (<>{at > 0 && ', '}{family} (<code>{packageOf(family)}</code>)</>))}</Fragment>
+              </Sentence>
+            ) : (
+              t.preset.platform
+            )}
+          </dd>
+        </div>
+      ))}
+      <div>
+        <dt>{t.preset.beyond}</dt>
+        <dd>{facts.beyond.length ? facts.beyond.map(linked).map((member, at) => (<>{at > 0 && ', '}{member.href ? <a class="tanrei-link" href={member.href}>{member.title}</a> : member.title}</>)) : t.preset.none}</dd>
+      </div>
+      <div>
+        <dt>{t.preset.notIn}</dt>
+        <dd>
+          {facts.lacks.length
+            ? facts.lacks.map((lack, at) => (
+                <>
+                  {at > 0 && ' · '}
+                  <Sentence text={lack.insteadUse.length ? t.system.insteadUse : '{component}'}>
+                    <Fragment slot="component">{linked(lack.name).href ? <a class="tanrei-link" href={linked(lack.name).href}>{titleOf(lack.name)}</a> : titleOf(lack.name)}</Fragment>
+                    <Fragment slot="components">{lack.insteadUse.map(linked).map((member, index) => (<>{index > 0 && ', '}{member.href ? <a class="tanrei-link" href={member.href}>{member.title}</a> : member.title}</>))}</Fragment>
+                  </Sentence>
+                </>
+              ))
+            : t.preset.none}
+        </dd>
+      </div>
+      <div>
+        <dt>{t.preset.variantsBeyond}</dt>
+        <dd>{variantsBeyond.length ? variantsBeyond.map((group, at) => (<>{at > 0 && ' · '}<code>{group.values}</code>: {group.components.map((member, index) => (<>{index > 0 && ', '}{member.href ? <a class="tanrei-link" href={member.href}>{member.title}</a> : member.title}</>))}</>)) : t.preset.none}</dd>
+      </div>
+      <div>
+        <dt>{t.preset.variantsOut}</dt>
+        <dd>{variantsOut.length ? variantsOut.map((group, at) => (<>{at > 0 && ' · '}<code>{group.values}</code>: {group.components.map((member, index) => (<>{index > 0 && ', '}{member.href ? <a class="tanrei-link" href={member.href}>{member.title}</a> : member.title}</>))}</>)) : t.preset.none}</dd>
+      </div>
+    </dl>
+  </tanrei-description-list>
+  <SourceNote files={[`tokens/systems/${system}.system.json`, `tokens/generated/${system}/components.json`]} />
+</div>
+
+<script>
+  import '../lib/register-web';
+</script>
+
+<style>
+  .preset {
+    margin-block: 1rem 1.5rem;
+  }
+  code {
+    font-family: var(--sl-font-mono);
+    font-size: var(--sl-text-xs);
+  }
+</style>

@@ -2,7 +2,7 @@
 title: حقل الرقاقات
 description: يجمع قائمة من النصوص القصيرة، كعناوين البريد الإلكتروني وأرقام الهاتف والكلمات المفتاحية، تُكتب واحدًا بعد الآخر في حقل واحد. كل نص يقبله فحصك يصير رقاقة يمكن إزالتها، أو إعادتها إلى جزء الكتابة لتغييرها، والقائمة هي القيمة الواحدة للحقل.
 translationOf: components/chip-field.mdx
-sourceHash: 57a522628aedb8d06ff28bc67b67f0e5ab5b3ccd
+sourceHash: c40811ad47af7b7bc1c71ac68bdfe8da9010cbbf
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -137,7 +137,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## المواصفات
 
 <DemoFrame label="مطلوب، وللقراءة فقط، ومعطَّل، وكلمات مفتاحية لا تُصنع إلا بالمفتاح Enter" plain column>
-  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="المستلمون" type="email" requirement="required" required-text="مطلوب" remove-label="إزالة {entry}" value='["ada@example.com"]'></tanrei-chip-field>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="المستلمون" type="email" required required-text="مطلوب" remove-label="إزالة {entry}" value='["ada@example.com"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="المستلمون" type="email" readonly remove-label="إزالة {entry}" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="المستلمون" type="email" disabled remove-label="إزالة {entry}" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="المؤلفون" remove-label="إزالة {entry}" supporting-text="اضغط Enter بعد كل اسم." value='["Lovelace, Ada","Hopper, Grace"]'></tanrei-chip-field>
@@ -147,12 +147,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 | الجانب | من الحقل | من حقل إدخال النص | ما لحقل الرقاقات نفسه |
 | --- | --- | --- | --- |
-| الخصائص | `label`، `labelHidden`، `supportingText`، `errorText`، `error`، `disabled`، `requirement`، `requiredMark`، `requiredText`، `optionalText` | `variant`، `size`، `type`، `placeholder`، `readOnly`، `autocomplete`، ثم `inputValue` (وهي `value` في حقل إدخال النص) | `value`، `separators`، `maxEntries`، `invalidText`، `duplicateText`، `limitText`، `removeLabel`، `addedText`، `addedCountText`، `removedText` |
+| الخصائص | `label`، `labelHidden`، `supportingText`، `errorText`، `error`، `disabled`، `required`، `optional`، `requiredMark`، `requiredText`، `optionalText` | `variant`، `size`، `type`، `placeholder`، `readOnly`، `autocomplete`، ثم `inputValue` (وهي `value` في حقل إدخال النص) | `value`، `separators`، `maxEntries`، `invalidText`، `duplicateText`، `limitText`، `removeLabel`، `addedText`، `addedCountText`، `removedText` |
 | الأحداث | — | `input`، `action` | `change`، `check`، `reject` |
 | المنافذ (slots) | `label-icon` | — | — |
 | رموز التصميم | `comp.field.*` | `comp.input-box.*` للصندوق؛ و `comp.text-input.*` لمكان المُدخلات | لا شيء؛ والمُدخلات تقرأ `comp.chip.*` |
 
-- **المُدخلات رقاقات صغيرة** في حجمي الصندوق كليهما. والمُدخلة الطويلة تأخذ سطرًا لها وحدها وتقصّها الرقاقة؛ ونصها الكامل يبقى اسمها وقيمتها.
+- **المُدخلات رقاقات صغيرة** في حجمي الصندوق كليهما. والمُدخلة الطويلة تأخذ سطرًا لها وحدها وتقصّها الرقاقة؛ ونصها الكامل يبقى اسمها وقيمتها. وإجراءات إزالتها عادية، كما هي في الرقاقة افتراضيًّا: فالمُدخلة المُزالة يمكن كتابتها من جديد.
 - **النص النائب** لا يُعرض إلا ما دامت القائمة فارغة.
 - **للقراءة فقط**: يمكن الوصول إلى المُدخلات وقراءتها، وهي تُرسل. ولا يمكن صنع مُدخلة ولا إزالتها ولا إعادتها إلى الكتابة، وكل رقاقة تُرسم بلا إجراء الإزالة. وينتهي الحقل بآخر سطر من رقاقاته: لا يحتفظ بمساحة للكتابة. أما الحقل المعطَّل فيحتفظ بتلك المساحة، ليكون له الشكل نفسه حين يُفعَّل من جديد.
 - **معطَّل**: الحقل والصندوق وكل رقاقة معطَّلة، ولا يُرسل شيء.
@@ -174,7 +174,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - جذر الظل (shadow root) في العنصر فيه عنصر `<tanrei-field>` بداخله عنصر `<tanrei-text-input>`، وعنصر `<tanrei-chip>` لكل مُدخلة في المنفذ `entries` من حقل إدخال النص. واستيراد العنصر يعرّف الثلاثة.
 - الخاصية `value` مصفوفة: أسنِد مصفوفة جديدة لتغيّرها. وخاصية HTML (attribute) `value` تُقرأ مرة واحدة، مصفوفة JSON من السلاسل النصية، وهي ما تعود إليه إعادة ضبط النموذج. والخاصية `separators` مصفوفة أيضًا؛ وخاصية HTML المقابلة لها مصفوفة JSON.
-- العنصر مرتبط بالنماذج (form-associated). يرسل قيمة لكل مُدخلة تحت `name`، بالترتيب، ولا يرسل شيئًا ما دامت القائمة فارغة أو الحقل معطَّلًا. والنص المكتوب لا يُرسل أبدًا. ويتبع عنصر `<fieldset>` المعطَّل، ويُستعاد عند التنقل، ويبلّغ بأن القيمة ناقصة ما دامت `requirement` بالقيمة `required` والقائمة فارغة.
+- العنصر مرتبط بالنماذج (form-associated). يرسل قيمة لكل مُدخلة تحت `name`، بالترتيب، ولا يرسل شيئًا ما دامت القائمة فارغة أو الحقل معطَّلًا. والنص المكتوب لا يُرسل أبدًا. ويتبع عنصر `<fieldset>` المعطَّل، ويُستعاد عند التنقل، ويبلّغ بأن القيمة ناقصة ما دامت `required` معيَّنة والقائمة فارغة.
 - الأحداث `change` و `check` و `reject` من النوع CustomEvent ويرسلها العنصر: وفي `detail` لها، على الترتيب، `{ value, added, removed }` و `{ text, values }` و `{ text, reason, message }`. والحدث `check` قابل للإلغاء ويُقرأ حين يعود: فالجواب الذي يُعطى بعد ذلك لا يُقرأ.
 - الحدثان `input` و `action` هما حدثا حقل إدخال النص نفسه. والحدث `action` لا يصدر إلا بالمفتاح Enter وجزء الكتابة فارغ، ويطلب عندئذ إرسال النموذج. والمفتاح Enter على نص يصنع مُدخلة: يُوقَف المفتاح قبل أن يسمعه حقل إدخال النص، فمستمع `keydown` في طور التصاعد (bubbling) لا يسمع تلك الضغطة.
 - الأجزاء: `field` و `text-input` و `chip` هي الأعضاء. وأجزاء الحقل وحقل إدخال النص تحتفظ بأسمائها (`label`، `supporting-text`، `container`، `input`، `entries`، وهكذا). وأجزاء الرقاقة هي `entry-container` و `entry-label` و `entry-remove`.

@@ -4,19 +4,25 @@ description: Typed React components generated from Tanrei's Web Components.
 ---
 
 import Callout from '../../../components/Callout.astro';
-import PreReleaseNotice from '../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../components/ReleaseNotice.astro';
 
 `@tanrei/react` wraps each custom element from `@tanrei/web` in a real React component with typed props and event handlers. The wrappers are generated from the custom elements manifest, so they always match the elements they wrap.
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/react" />
+<ReleaseNotice platform="web" registry="npm" pkg={["@tanrei/react", "@tanrei/web"]} />
 
 ## Install
 
 React 18 or later is required.
 
+### From npm
+
+```sh
+npm install @tanrei/react @tanrei/web
+```
+
 ### From source
 
-As for the [Web package](/getting-started/web/) (Git, Node 22.12 or later, pnpm 12): build both packages in a clone of the repository and pack them,
+To use the source as it stands on `main`, do as for the [Web package](/getting-started/web/) (Git, Node 22.12 or later, pnpm 12): build both packages in a clone of the repository and pack them,
 
 ```sh
 git clone https://github.com/chnotchy/tanrei.git
@@ -32,16 +38,13 @@ then install both packed files in your project with one command, so that the Rea
 npm install path/to/tanrei-packages/tanrei-web-*.tgz path/to/tanrei-packages/tanrei-react-*.tgz
 ```
 
-### After the first release
-
-```sh
-npm install @tanrei/react @tanrei/web
-```
-
 ## Use
 
+Load the stylesheets once, before the components render: `tanrei.css` is the base of the page, the tokens and every other stylesheet of the package in one file. To load them one by one, see the [Web guide](/getting-started/web/).
+
 ```tsx
-import '@tanrei/web/tokens.css';
+import '@tanrei/web/tanrei.css';
+import '@tanrei/web/words/en';
 import { Button } from '@tanrei/react';
 
 export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
@@ -60,9 +63,30 @@ export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
 
 Props carry the same names as the element's attributes (`variant`, `size`, `disabled`). Events are ordinary React handlers.
 
+`@tanrei/web/words/en` gives a word in plain English for every label and message the components draw or say, such as a required tag's or a close button's; leave it out and give your own with `setWords()` from `@tanrei/react`. See [Words](/foundations/words/).
+
+## One entry per design system
+
+The package has an entry for each design system Tanrei ships, so that your editor offers, and the type check accepts, only what your system has:
+
+| Entry | What it exports |
+|---|---|
+| `@tanrei/react` | The components of the default system, Tanrei. The FAB menu, which lives in the m3-like layer, and the segmented button, which Tanrei leaves out, are not in it, and a variant Tanrei leaves out is not a value of the prop: `<TextField variant="outlined">` does not type-check |
+| `@tanrei/react/m3-like`, `@tanrei/react/m3-expressive-like`, `@tanrei/react/cupertino` | The components of that preset, with its variants |
+| `@tanrei/react/advanced` | The advanced components, the building blocks of others: `TextInput`, `ModalLayer`, `Combobox` and the rest. A product usually writes the component built from one — `TextField`, `Dialog`, `ComboboxField` |
+| `@tanrei/react/all` | Every component, whichever system has it: for a design system of your own, and for building one |
+
+```tsx
+import '@tanrei/web/tokens.css';
+import '@tanrei/web/systems/m3-like.css';
+import { FabMenu, FabMenuItem, TextField } from '@tanrei/react/m3-like';
+```
+
+A component is the same in every entry, so a bundler still keeps only what you import. Every entry also exports `setWords`, `missingWords` and the `TanreiEvent` type. The entries are generated from each system's components manifest, `@tanrei/web/systems/<id>.components.json`, which names the entry of each component (`react.import`); the manifest of your own system, which `tanrei build` writes, names `@tanrei/react/all`.
+
 ## Server rendering
 
-The components render a custom element tag on the server and upgrade in the browser. In frameworks with a server/client split, import `@tanrei/react` from a client component so the element definitions are registered in the browser.
+The components render a custom element tag on the server and upgrade in the browser. In frameworks with a server/client split, import the entry you use from a client component so the element definitions are registered in the browser.
 
 <Callout>
   Theme, contrast, tokens and fonts work exactly as described in the [Web guide](/getting-started/web/); the React package adds nothing of its own on top.

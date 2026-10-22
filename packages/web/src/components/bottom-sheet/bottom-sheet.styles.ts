@@ -1,10 +1,13 @@
 import { css, unsafeCSS } from 'lit';
-import { focusRing, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
+import { SCRIM_FILTER, dividerVisibilityHost, focusRing, modalExitStyles, scrimFilter, whenScroll } from '../../primitives/index.js';
+import { productText } from '../../styles/product-text.js';
+import { scriptTracking } from '../../styles/script-tracking.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 
 // Every visual value is a token (tokens/comp/bottom-sheet.tokens.json). Both forms read the same container tokens: the
-// scrim (a modal sheet's ::backdrop) and the behaviour set them apart. The one pressable part, the drag handle, is the
-// `drag-handle` control: its box, grip and state layer per state; its geometry is `handle.*`.
+// scrim (a modal sheet's ::backdrop) and the behaviour set them apart. The one pressable part, the drag handle, is a
+// <tanrei-handle> given the sheet's tokens: the `drag-handle` control (its box, grip and state layer per state) and
+// `handle.*` (its geometry).
 const PREFIX = '--tanrei-comp-bottom-sheet';
 const T = (name: string) => `var(${PREFIX}-${name})`;
 const t = (name: string) => unsafeCSS(T(name));
@@ -20,18 +23,33 @@ const partialCap = (of: string) => `min(calc(${of} * ${T('container-partial-frac
 /** BSH-6: at full, the area less the top margin. */
 const fullCap = (of: string) => `max(0px, calc(${of} - ${T('container-margin-block-start')}))`;
 
-/** The drag handle's colors in every state, as `--_c-h` (box, hovered), `--_g-p` (grip, pressed)… */
-const STATES = { '': '-r', hovered: '-h', focused: '-f', pressed: '-p' } as const;
-const handleBlock = Object.entries(STATES)
-  .flatMap(([state, suffix]) => [
-    `  --_c${suffix}: var(${PREFIX}-drag-handle-${state ? `${state}-` : ''}container-color);`,
-    `  --_g${suffix}: var(${PREFIX}-drag-handle-${state ? `${state}-` : ''}grip-color);`,
-  ])
-  .join('\n');
-/** Where each state is read (BSH-13): on the interactive handle only (a native button); a handle at rest answers nothing. */
-const on = (state: string) => `button.handle${state}`;
-const paint = (suffix: string, container = true) => `${container ? `\n    background-color: var(--_c${suffix});` : ''}
-    --_g: var(--_g${suffix});`;
+/**
+ * BSH-12: the sheet's tokens, given to its Handle as the Handle's own custom properties — the box and the line of size
+ * medium, the colors and opacity of each state, and the state and press motion. In the default system each sheet token
+ * aliases the Handle's, so the two are drawn alike until a layer re-values the sheet's.
+ */
+const HANDLE = '--tanrei-comp-handle';
+const STATES = ['', 'hovered', 'focused', 'pressed'] as const;
+const handleTokens = [
+  `${HANDLE}-container-length-medium: ${T('handle-container-width')};`,
+  `${HANDLE}-container-breadth-medium: ${T('handle-container-height')};`,
+  `${HANDLE}-container-shape: ${T('handle-container-shape')};`,
+  `${HANDLE}-container-shape-pill: ${T('handle-container-shape-pill')};`,
+  `${HANDLE}-line-length-medium: ${T('handle-grip-width')};`,
+  `${HANDLE}-line-thickness-medium: ${T('handle-grip-height')};`,
+  ...STATES.flatMap((state) => {
+    const at = state ? `${state}-` : '';
+    return [
+      `${HANDLE}-standard-${at}container-color: ${T(`drag-handle-${at}container-color`)};`,
+      `${HANDLE}-standard-${at}line-color: ${T(`drag-handle-${at}grip-color`)};`,
+      `${HANDLE}-standard-${at}state-layer-color: ${T(`drag-handle-${at}state-layer-color`)};`,
+      ...(state ? [`${HANDLE}-${state}-opacity: ${T(`${state}-opacity`)};`] : []),
+    ];
+  }),
+  `${HANDLE}-motion-state-duration: ${T('motion-state-duration')};`,
+  `${HANDLE}-motion-state-easing: ${T('motion-state-easing')};`,
+  `${HANDLE}-motion-feedback-duration: ${T('motion-feedback-duration')};`,
+].join('\n    ');
 
 const ENTER = `${T('motion-enter-duration')} ${T('motion-enter-easing')}`;
 
@@ -68,6 +86,8 @@ export const styles = css`
     outline: none;
     touch-action: none;
     translate: 0 var(--_drag, 0px);
+    /* The header's lift above the content (z-index 1) stays inside the sheet. */
+    isolation: isolate;
     --_row: 0px;
   }
   .sheet[data-tanrei-shape] {
@@ -135,10 +155,9 @@ export const styles = css`
     inset-inline: 0;
     inset-block: auto var(--_keyboard, 0px);
     --_area-top: var(--_inset-top);
-    transition-property: translate, opacity, display, overlay;
+    transition-property: translate, opacity;
     transition-duration: ${t('motion-exit-duration')};
     transition-timing-function: ${t('motion-exit-easing')};
-    transition-behavior: allow-discrete;
   }
   dialog.sheet:not([open]) {
     display: none;
@@ -153,14 +172,14 @@ export const styles = css`
       translate: 0 100%;
     }
   }
+  ${scrimFilter('dialog.sheet', T('scrim-blur'))}
   dialog.sheet::backdrop {
     background: ${t('scrim-color')};
-    backdrop-filter: blur(${t('scrim-blur')});
+    backdrop-filter: ${SCRIM_FILTER};
     opacity: 0;
-    transition-property: opacity, display, overlay;
+    transition-property: opacity;
     transition-duration: ${t('motion-exit-duration')};
     transition-timing-function: ${t('motion-exit-easing')};
-    transition-behavior: allow-discrete;
   }
   dialog.sheet[open]::backdrop {
     opacity: 1;
@@ -172,6 +191,8 @@ export const styles = css`
       opacity: 0;
     }
   }
+  /* MDL-7: closed, it stays drawn in the top layer until its exit and its scrim's have played (src/primitives/modal-exit.ts). */
+  ${modalExitStyles('dialog')}
 
   /* BSH-4: a standard sheet is a layout region over the bottom of the parent that holds it and the content: the host
      fills that parent (which the product positions) and lets every press reach the content; the sheet is docked to its
@@ -235,84 +256,71 @@ export const styles = css`
   .sheet.has-handle {
     --_row: calc(${t('handle-container-height')} + 2 * ${t('handle-margin-block')});
   }
+  /* BSH-12 to BSH-19: the drag handle is a Handle — its box, grip, states, hit area (HDL-5), focus ring, press hold and
+     pressed answer are the Handle's, drawn from the sheet's tokens. */
   .handle {
-    ${unsafeCSS(handleBlock)}
-    all: unset;
+    ${unsafeCSS(handleTokens)}
+  }
+
+  /* BSH-28: the header — below the handle's row (or at the top without one), a row at least header.height high: the
+     headline from container.padding after the start edge and, while closable, the close button ending
+     header.padding-inline-end before the end edge, header.gap after the headline, both centred in the row; it grows with
+     a headline that wraps, stays while the content scrolls, and a drag on it is the sheet's. */
+  .header {
     box-sizing: border-box;
     position: relative;
-    isolation: isolate;
+    z-index: 1;
     display: flex;
     flex: none;
     align-items: center;
-    justify-content: center;
-    inline-size: ${t('handle-container-width')};
-    block-size: ${t('handle-container-height')};
-    ${unsafeCSS(cornerRadius(`${PREFIX}-handle-container-shape`))}
-    ${unsafeCSS(paint('-r'))}
-    -webkit-tap-highlight-color: transparent;
-    transition-property: background-color, opacity;
-    transition-duration: ${t('motion-state-duration')};
-    transition-timing-function: ${t('motion-state-easing')};
+    gap: ${t('header-gap')};
+    min-block-size: ${t('header-height')};
+    padding-inline: ${t('container-padding')};
+    touch-action: none;
   }
-  button.handle {
-    cursor: pointer;
+  .header.closable {
+    padding-inline-end: ${t('header-padding-inline-end')};
   }
-  /* BSH-12: the grip, centred in the box; decorative. */
-  .grip {
-    display: block;
+  .headline {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    margin: 0;
+    font: ${t('headline-typescale-font')};
+    letter-spacing: ${t('headline-typescale-letter-spacing')};
+    color: ${t('headline-color')};
+    overflow-wrap: break-word;
+  }
+  /* The headline's letter-spacing follows its script, as every title's does (src/styles/script-tracking.ts); it is its
+     own run, in the direction of its first strong character, its lines aligned to the layout's start edge. */
+  ${unsafeCSS(scriptTracking('.headline', T('headline-typescale-letter-spacing'), { shadow: true }))}
+  ${productText('.headline', { align: 'start' })}
+  /* BSH-29: the icon-only Button, placed and never restyled (its variant is given through the Button's channel). */
+  .close {
     flex: none;
-    inline-size: ${t('handle-grip-width')};
-    block-size: ${t('handle-grip-height')};
-    ${unsafeCSS(cornerRadius(`${PREFIX}-handle-grip-shape`))}
-    background-color: var(--_g);
-    pointer-events: none;
-    transition: background-color ${t('motion-state-duration')} ${t('motion-state-easing')};
+    margin-inline-start: auto;
   }
-  /* BSH-15: the hit area is the handle's whole row across its box, and at least sys.target.pointer (a fine pointer) or
-     sys.target.touch (a coarse one) wide and high, without changing the drawn box. */
-  button.handle::before {
-    content: '';
+  /* BSH-28: the divider below the header, a divider.width hairline in divider.color across the sheet's full width (over
+     the content's top edge). always: whenever the header is drawn; scroll: only while the content is scrolled from its
+     top. Shown and hidden at once. */
+  ${dividerVisibilityHost(`${PREFIX}-divider-visibility`)}
+  .divider {
     position: absolute;
-    inset-block-start: 50%;
-    inset-inline-start: 50%;
-    inline-size: max(100%, var(--tanrei-sys-target-pointer));
-    block-size: max(calc(100% + 2 * ${t('handle-margin-block')}), var(--tanrei-sys-target-pointer));
-    transform: translate(-50%, -50%);
+    inset-block-start: 100%;
+    inset-inline: 0;
+    block-size: ${t('divider-width')};
+    background: ${t('divider-color')};
+    pointer-events: none;
   }
-  @media (pointer: coarse) {
-    button.handle::before {
-      inline-size: max(100%, var(--tanrei-sys-target-touch));
-      block-size: max(calc(100% + 2 * ${t('handle-margin-block')}), var(--tanrei-sys-target-touch));
-    }
+  ${whenScroll(
+    '.header',
+    (header) => `
+  ${header} .divider {
+    visibility: hidden;
   }
-  :host(:dir(rtl)) button.handle::before {
-    transform: translate(50%, -50%);
-  }
-
-  /* BSH-13, BSH-16, BSH-17: each state paints the handle's box, grip and opacity from that state's tokens; pressed >
-     focused > hovered. */
-  ${stateRules(on, {
-    hovered: `${paint('-h')}
-    opacity: ${T('hovered-opacity')};`,
-    focused: `${paint('-f')}
-    opacity: ${T('focused-opacity')};`,
-    pressed: `${paint('-p')}
-    opacity: ${T('pressed-opacity')};`,
-    pressedContent: `${paint('-p', false)}
-    opacity: ${T('pressed-opacity')};`,
-    disabled: '',
-  })}
-  button.handle[data-pressed]:not([data-pressed='none']) .grip {
-    transition-duration: 0s;
-  }
-  /* BSH-17 ripple: grows over motion.feedback-duration, fades over motion.state-duration. */
-  ${rippleStyles({ color: '--_c-p', grow: `${PREFIX}-motion-feedback-duration`, fade: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
-  /* BSH-14, BSH-18: the ring (or the glow) around the handle's box, never animated. */
-  ${focusRing(on)}
-  ${pressHold('.hold')}
-  .hold {
-    display: none;
-  }
+  ${header}.scrolled .divider {
+    visibility: visible;
+  }`,
+  )}
 
   /* BSH-8, BSH-10: the content, below the handle's row — inset by container.padding from the start, end and bottom (and
      the top, without a handle) unless flush; clipped to the container's shape; in the body role; scrolling inside the
@@ -352,8 +360,12 @@ export const styles = css`
   .content.inset {
     padding: 0 ${t('container-padding')} ${t('container-padding')};
   }
-  .sheet:not(.has-handle) .content.inset {
+  .sheet:not(.has-handle):not(.has-header) .content.inset {
     padding-block-start: ${t('container-padding')};
+  }
+  /* Below a header the content's top corners meet the header, not the container's. */
+  .sheet.has-header :is(.content, .focus) {
+    --tanrei-corner-radius: 0px;
   }
   /* BSH-10: a drag on the content is the sheet's until the sheet is at its full height, then the content's to scroll —
      up at once; down once it is at its top (read by script at each scroll). */
@@ -379,20 +391,13 @@ export const styles = css`
   /* BSH-18: corner smoothing on the container and the handle's box (data-tanrei-shape). */
   ${shape}
 
-  @media (prefers-reduced-motion: reduce) {
-    .handle,
-    .grip {
-      transition: none;
-    }
-  }
   @media (forced-colors: active) {
     .sheet {
       border: 1px solid CanvasText;
       border-block-end: 0;
     }
-    .grip {
-      forced-color-adjust: none;
-      background-color: CanvasText;
+    .divider {
+      background: CanvasText;
     }
   }
 `;

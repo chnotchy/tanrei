@@ -14,13 +14,19 @@ const T = (name: string) => unsafeCSS(`var(${PREFIX}-${name})`);
 const ref = (member: string, density: string, fallback: string | null) =>
   fallback ? `var(${PREFIX}-${member}-${density}, var(${PREFIX}-${member}-${fallback}))` : `var(${PREFIX}-${member}-${density})`;
 
-/** Per density (LRW-1, LRW-3): the least height of one, two and three lines, and the space above and below the text. */
+/**
+ * Per density (LRW-1, LRW-3): the least height of one, two and three lines, and the space above and below the text; and
+ * the list's padding of that density, which an item that pads its content takes off the row's height (LRW-8, LST-51).
+ * Written on the row's box, which carries the density it draws (LRW-17): its own, or the one its list tells it.
+ */
 const densityBlock = (density: string, selector: string, fallback: string | null = null) => `${selector} {
   --_h1: ${ref('container-height-one-line', density, fallback)};
   --_h2: ${ref('container-height-two-line', density, fallback)};
   --_h3: ${ref('container-height-three-line', density, fallback)};
   --_pb: ${ref('container-padding-block', density, fallback)};
+  --_lpb: var(--tanrei-comp-list-container-padding-block-${density}, var(--tanrei-comp-list-container-padding-block-${DEFAULT_DENSITY}));
 }`;
+const drawnAt = (density: string) => `.row[data-density='${density}']`;
 
 /** LRW-14: a density a layer added gets its block on demand, falling back to the default's tokens. */
 export const AXES: readonly OpenAxis[] = [
@@ -30,6 +36,8 @@ export const AXES: readonly OpenAxis[] = [
     default: DEFAULT_DENSITY,
     rules: (value, selector) => densityBlock(value, selector, DEFAULT_DENSITY),
     probe: (value) => `${PREFIX}-container-padding-block-${value}` as const,
+    // LRW-17: the density the row draws — the list's inside an item of a list, else its own.
+    drawn: { read: (host) => String((host as HTMLElement & { drawnDensity: string }).drawnDensity ?? ''), selector: drawnAt },
   },
 ];
 
@@ -37,10 +45,10 @@ export const AXES: readonly OpenAxis[] = [
 const role = (part: string) => unsafeCSS(`font: var(${PREFIX}-${part}-typescale-font);\n    letter-spacing: var(${PREFIX}-${part}-typescale-letter-spacing);`);
 
 export const styles = css`
-  ${unsafeCSS(densityBlock(DEFAULT_DENSITY, ':host'))}
+  ${unsafeCSS(densityBlock(DEFAULT_DENSITY, '.row'))}
   ${unsafeCSS(
     CORE_DENSITIES.filter((density) => density !== DEFAULT_DENSITY)
-      .map((density) => densityBlock(density, `:host([density='${density}'])`))
+      .map((density) => densityBlock(density, drawnAt(density)))
       .join('\n'),
   )}
 
@@ -80,7 +88,7 @@ export const styles = css`
   }
   .row.boxed {
     padding: 0;
-    min-block-size: calc(var(--_h) - 2 * var(--tanrei-comp-list-container-padding-block));
+    min-block-size: calc(var(--_h) - 2 * var(--_lpb));
   }
 
   /* LRW-1: leading, text, trailing text, trailing slot, trailing glyph, the gap apart; an absent part takes no room.
@@ -103,6 +111,13 @@ export const styles = css`
   .leading:not(.has),
   .trailing:not(.has) {
     display: none;
+  }
+  /* LRW-16: the room of a leading glyph the row does not draw, kept where the List asks for it (LST-50): the glyph's
+     box, drawing nothing, the parts' gap after it. */
+  .leading-room {
+    flex: none;
+    inline-size: ${T('leading-icon-size')};
+    block-size: ${T('leading-icon-size')};
   }
 
   /* LRW-2: the text takes the width that is left; its lines follow one another with no space between them. */

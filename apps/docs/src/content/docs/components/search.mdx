@@ -320,6 +320,8 @@ Both are built in, because their behaviour belongs to the search: clear empties 
 
 - **A suggestion is something to choose; a result is somewhere to go.** A suggestion helps finish the query or jumps to a known thing, and the arrow keys make it active while focus stays in the input. A result is a thing your search found: a link that takes focus itself.
 - Use the leading icon to tell kinds apart: history for a past query, a folder, a page, a section.
+- Where only some rows have an icon, `iconSpace` decides where the others start their headline. `auto` (the default) keeps the icon's room, empty, in every row of the view while any suggestion or result has an icon, so that the headlines line up; `always` keeps it in every row, and `never` only in a row that has an icon. The [menu](/components/menu/) has the same `iconSpace`, with the same values and default.
+- `density` sets how much room a row of the view takes: `regular` (the default, 56 high) or `compact` (32 high with a 20 glyph), for a command palette or a tool used with a mouse and the keyboard. Neither the bar nor the text changes. For touch a row is never lower than the touch target.
 - Keep headlines short and put detail in the supporting text or the excerpt: "Invoices", then "Folder · 24 messages". They wrap rather than being cut off.
 - Mark in the excerpt what matched. The mark is the system's, a color, a heavier weight and a quiet fill behind the match, so matches look the same everywhere and are found in every script, also where the font has no weight between regular and bold.
 - Group results when they belong together: sections under their page, messages under "Messages". A group's heading is a link when the group itself is a place.

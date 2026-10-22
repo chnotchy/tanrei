@@ -13,7 +13,9 @@
 // The native element is given its end height at once (`--_rows`, which the component's stylesheet multiplies by one
 // line of its text style). A box as tall as its text has nothing to scroll, so the browser never scrolls the first line
 // away to show a caret on a line the box does not hold yet; the first line stays at the top edge at every frame, and
-// the box, which clips while it moves, uncovers the new lines as its bottom edge passes them. Going down, the element is
+// the box, which clips while it moves, uncovers the new lines as its bottom edge passes them. The box clips without
+// being a scroll container (`overflow: clip` in the component's stylesheet): one that only hides what overflows it can
+// still be scrolled, and the browser would scroll it to reveal the caret on the new line. Going down, the element is
 // the smaller height at once and the box still holds the room that leaves.
 //
 // It holds no token and writes no duration: the component's stylesheet says how `[data-resizing]` moves
@@ -46,6 +48,19 @@ export interface AutoHeightOptions {
 const wholeLines = (lines: number) => Math.max(1, Math.ceil(lines - 0.05));
 
 const reduced = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/**
+ * Whether a transition of a property `property` matches still runs on `element` (or is held, paused): the motion a
+ * `transitionend` or `transitioncancel` would end is not over while one does.
+ *
+ * A change that arrives while a height moves replaces that motion with one from the height then shown, and the replaced
+ * transition is cancelled. Its `transitioncancel` is dispatched with the next frame's events — after the new motion has
+ * begun — so a handler that takes every such event for the end of the motion would end the new one, and the height
+ * would jump to its end. An event of the motion that has ended finds none still running: a finished transition is no
+ * longer one of the element's animations.
+ */
+export const stillMoving = (element: Element, property: RegExp): boolean =>
+  element.getAnimations().some((animation) => property.test((animation as CSSTransition).transitionProperty ?? '') && animation.playState !== 'finished');
 
 export class AutoHeight {
   /** The lines the element shows, or is on its way to show; 0 until it was first fitted. */
@@ -144,10 +159,15 @@ export class AutoHeight {
     if (box.style.blockSize) box.style.blockSize = '';
   }
 
-  /** The box's own transition of its height ended or was cancelled: bind it to `transitionend` and `transitioncancel` on the box. */
+  /**
+   * The box's own transition of its height ended or was cancelled: bind it to `transitionend` and `transitioncancel` on
+   * the box. The event of a motion that a later change replaced arrives while that change's motion runs, and ends
+   * nothing (`stillMoving`).
+   */
   readonly ended = (event: TransitionEvent) => {
     const box = this.options.box();
     if (!box || event.target !== box || !/^(block-size|height|width)$/.test(event.propertyName)) return;
+    if (stillMoving(box, /^(block-size|height)$/)) return;
     this.settle(box);
   };
 

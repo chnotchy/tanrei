@@ -200,7 +200,7 @@ test.describe('behavior', () => {
   });
 
   test('FGR-2: the label above the controls in label.typescale and the label color, wrapped onto as many lines as it needs and never cut; labelHidden or an empty label draws no label row, no gap and no requirement mark', async ({ page }) => {
-    await mount(page, [...spec.fixtures.filter((f) => ['checkboxes', 'long-label', 'checkboxes-label-hidden'].includes(f.id)), fx('hidden-required', { label: 'Notify me by', labelHidden: true, requirement: 'required' }), fx('empty', { requirement: 'required' })]);
+    await mount(page, [...spec.fixtures.filter((f) => ['checkboxes', 'long-label', 'checkboxes-label-hidden'].includes(f.id)), fx('hidden-required', { label: 'Notify me by', labelHidden: true, required: true }), fx('empty', { required: true })]);
     const label = part(page, 'checkboxes', '.label');
     expect(await css(label, 'color')).toBe(await color(page, 'standard-label-color'));
     near(Number.parseFloat(await css(label, 'font-size')), await token(page, 'label-typescale-font-size'), 'label.typescale');
@@ -251,7 +251,7 @@ test.describe('behavior', () => {
   });
 
   test('FGR-4: requirement none says and draws nothing; required draws the required mark and says so in the group’s description; optional draws the optional tag and adds optionalText to the description; it never validates, and a disabled group keeps its mark — the asterisk from the disabled tokens, the tag drawn as a tag inside something disabled', async ({ page }) => {
-    await mount(page, [...spec.fixtures.filter((f) => ['checkboxes', 'checkboxes-required', 'checkboxes-optional', 'checkboxes-disabled'].includes(f.id)), fx('disabled-asterisk', { label: 'Notify me by', requirement: 'required', requiredMark: 'asterisk', disabled: true })]);
+    await mount(page, [...spec.fixtures.filter((f) => ['checkboxes', 'checkboxes-required', 'checkboxes-optional', 'checkboxes-disabled'].includes(f.id)), fx('disabled-asterisk', { label: 'Notify me by', required: true, requiredMark: 'asterisk', disabled: true })]);
     await expect(part(page, 'checkboxes', '.requirement-tag, .asterisk')).toHaveCount(0);
     expect((await group(page, 'checkboxes')).described).toEqual([]);
     await expect(part(page, 'checkboxes-required', '.required-tag')).toBeVisible();
@@ -259,7 +259,7 @@ test.describe('behavior', () => {
     await expect(part(page, 'checkboxes-optional', '.optional-tag')).toBeVisible();
     expect((await group(page, 'checkboxes-optional')).described).toEqual(['Optional']);
     // It never validates: nothing is checked in the optional fixture, a required set with nothing checked is not in error.
-    await set(page, 'checkboxes-optional', { requirement: 'required' });
+    await set(page, 'checkboxes-optional', { required: true });
     expect(await host(page, 'checkboxes-optional').evaluate((el: HTMLElement & { error: boolean }) => el.error)).toBe(false);
     await expect(part(page, 'checkboxes-optional', '.error-text')).toHaveCount(0);
     for (const control of await members(page, 'checkboxes-optional').all()) expect((await semantics(control)).invalid).toBe(false);
@@ -279,14 +279,14 @@ test.describe('behavior', () => {
     const seen = warnings(page);
     await mount(page, [
       ...spec.fixtures.filter((f) => ['checkboxes', 'checkboxes-required', 'checkboxes-optional', 'long-label', 'checkboxes-error', 'checkboxes-disabled'].includes(f.id)),
-      fx('optional-error', { label: 'Notify me by', requirement: 'optional', error: true, errorText: 'Wrong.' }),
-      fx('optional-disabled', { label: 'Notify me by', requirement: 'optional', disabled: true }),
+      fx('optional-error', { label: 'Notify me by', required: false, optional: true, error: true, errorText: 'Wrong.' }),
+      fx('optional-disabled', { label: 'Notify me by', required: false, optional: true, disabled: true }),
       // A bare tag of each look, to compare with.
       fx('tags', { label: 'Tags' }, '<tanrei-tag id="small-filled" size="small" variant="filled" label="Required"></tanrei-tag><tanrei-tag id="small-tonal" size="small" variant="tonal" label="Optional"></tanrei-tag><tanrei-tag id="small-filled-disabled" size="small" variant="filled" label="Required" disabled></tanrei-tag><tanrei-tag id="small-tonal-disabled" size="small" variant="tonal" label="Optional" disabled></tanrei-tag>'),
-      fx('no-required-text', { label: 'Notify me by', requirement: 'required', requiredText: '' }),
-      fx('no-optional-text', { label: 'Notify me by', requirement: 'optional', optionalText: '' }),
+      fx('no-required-text', { label: 'Notify me by', required: true, requiredText: '' }),
+      fx('no-optional-text', { label: 'Notify me by', required: false, optional: true, optionalText: '' }),
       // The field's own tags, to lay the two over each other.
-      fx('fields', { label: 'Fields', spacing: 'fields' }, '<tanrei-field id="field-required" label="Volume" requirement="required" required-text="Required"><input /></tanrei-field><tanrei-field id="field-optional" label="Volume" requirement="optional" optional-text="Optional"><input /></tanrei-field>'),
+      fx('fields', { label: 'Fields', spacing: 'fields' }, '<tanrei-field id="field-required" label="Volume" required required-text="Required"><input /></tanrei-field><tanrei-field id="field-optional" label="Volume" optional optional-text="Optional"><input /></tanrei-field>'),
     ]);
     for (const [id, kind, variant, text] of [
       ['checkboxes-required', 'required', 'filled', 'Required'],
@@ -358,7 +358,7 @@ test.describe('behavior', () => {
 
   test('FGR-6: a required set draws the mark requiredMark names — the tag, the asterisk after the label’s text in its style and the asterisk color, hidden from assistive technology, or nothing — and under auto the one comp.field-group.requirement.mark names, which follows sys.behavior.requirement-mark unless it is set apart — a group set apart leaves the field beside it on the system’s choice — and requiredMark wins over both; whichever mark is drawn, and with no drawn label, the requirement is still exposed', async ({ page }) => {
     const marks = ['auto', 'tag', 'asterisk', 'none'] as const;
-    await mount(page, [...marks.map((mark) => fx(mark, { label: 'Notify me by', requirement: 'required', requiredMark: mark })), fx('hidden', { label: 'Notify me by', labelHidden: true, requirement: 'required' }), fx('with-field', { label: 'Fields', spacing: 'fields' }, '<tanrei-field id="beside" label="Volume" requirement="required" required-text="Required"><input /></tanrei-field>')]);
+    await mount(page, [...marks.map((mark) => fx(mark, { label: 'Notify me by', required: true, requiredMark: mark })), fx('hidden', { label: 'Notify me by', labelHidden: true, required: true }), fx('with-field', { label: 'Fields', spacing: 'fields' }, '<tanrei-field id="beside" label="Volume" required required-text="Required"><input /></tanrei-field>')]);
     const drawn = async (id: string) => ({
       tag: (await part(page, id, '.required-tag').count()) > 0 && (await part(page, id, '.required-tag').isVisible()),
       asterisk: (await part(page, id, '.asterisk').count()) > 0 && (await part(page, id, '.asterisk').isVisible()),
@@ -457,7 +457,7 @@ test.describe('behavior', () => {
       fx('no-text', { label: 'No text', error: true }),
       fx('radios', { label: 'Delivery', kind: 'radio-group', error: true, errorText: 'Choose one.' }, '<tanrei-radio-button name="d" value="a" label="Standard"></tanrei-radio-button><tanrei-radio-button name="d" value="b" label="Express" checked></tanrei-radio-button><tanrei-radio-button name="d" value="c" label="Pick-up" disabled></tanrei-radio-button>'),
       fx('radios-valid', { label: 'Delivery', kind: 'radio-group' }, '<tanrei-radio-button name="e" value="a" label="Standard" error></tanrei-radio-button><tanrei-radio-button name="e" value="b" label="Express" checked></tanrei-radio-button><tanrei-radio-button name="e" value="c" label="Pick-up" disabled></tanrei-radio-button>'),
-      fx('asterisk', { label: 'Notify me by', requirement: 'required', requiredMark: 'asterisk', error: true, errorText: 'Wrong.' }),
+      fx('asterisk', { label: 'Notify me by', required: true, requiredMark: 'asterisk', error: true, errorText: 'Wrong.' }),
     ]);
     const id = 'checkboxes-error';
     const error = part(page, id, '.error-text');
@@ -531,7 +531,7 @@ test.describe('behavior', () => {
     await frames(page);
     expect(await announced(page, 'first')).toBe('');
     await member(page, 'a', 1).locator('input').focus();
-    await set(page, 'a', { supportingText: 'New help.', requirement: 'required' });
+    await set(page, 'a', { supportingText: 'New help.', required: true });
     await frames(page);
     expect(await announced(page, 'a')).toBe('');
     await set(page, 'a', { error: true, errorText: 'Choose at least one.' });
@@ -591,7 +591,7 @@ test.describe('behavior', () => {
     await set(page, 'checkboxes-error', { errorText: 'Choose one or more.' });
     expect((await group(page, 'checkboxes-error')).described[1]).toBe('Choose one or more.');
     expect((await semantics(member(page, 'checkboxes-error', 0))).description).toBe('Choose one or more.');
-    await set(page, 'checkboxes-error', { error: false, requirement: 'optional', optionalText: 'Optional', supportingText: '' });
+    await set(page, 'checkboxes-error', { error: false, required: false, optional: true, optionalText: 'Optional', supportingText: '' });
     expect((await group(page, 'checkboxes-error')).described).toEqual(['Optional']);
     expect((await semantics(member(page, 'checkboxes-error', 0))).description).toBeNull();
     await set(page, 'native', { error: false });
@@ -602,7 +602,7 @@ test.describe('behavior', () => {
   });
 
   test('FGR-12: a press on the label, the requirement mark, the description or the error text does nothing and moves no focus; the group adds no stop to the focus order and handles no key — Tab reaches its controls as it would outside it', async ({ page }) => {
-    await mount(page, [fx('a', { label: 'Notify me by', requirement: 'required', supportingText: 'Choose all that apply.', error: true, errorText: 'Choose at least one.' }), fx('b', { label: 'Days' }, [checkbox('Monday'), checkbox('Tuesday', { disabled: true }), checkbox('Wednesday')])]);
+    await mount(page, [fx('a', { label: 'Notify me by', required: true, supportingText: 'Choose all that apply.', error: true, errorText: 'Choose at least one.' }), fx('b', { label: 'Days' }, [checkbox('Monday'), checkbox('Tuesday', { disabled: true }), checkbox('Wednesday')])]);
     const checkedBefore = await members(page, 'a').evaluateAll((all) => all.map((el) => (el as HTMLElement & { checked: boolean }).checked));
     for (const target of ['.label', '.required-tag', '.supporting-text', '.error-text']) {
       await part(page, 'a', target).click();
@@ -735,9 +735,9 @@ test.describe('behavior', () => {
   test('FGR-15: radio buttons in a field group are framed like any control and given nothing a set of them needs — no value, no required or invalid state, no radio group — and reported; a member that is a group of its own is one member: placed and spaced as a field, passed disabled, and passed neither the error nor the requirement; the group selects nothing, holds no value, moves no focus and emits no event', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, [
-      fx('radios', { label: 'Delivery', requirement: 'required', error: true, errorText: 'Choose one.' }, '<tanrei-radio-button name="delivery" value="standard" label="Standard"></tanrei-radio-button><tanrei-radio-button name="delivery" value="express" label="Express"></tanrei-radio-button>'),
+      fx('radios', { label: 'Delivery', required: true, error: true, errorText: 'Choose one.' }, '<tanrei-radio-button name="delivery" value="standard" label="Standard"></tanrei-radio-button><tanrei-radio-button name="delivery" value="express" label="Express"></tanrei-radio-button>'),
       // What a radio group is to a field group: a member that speaks for itself and follows only `disabled`.
-      fx('shipping', { label: 'Shipping', spacing: 'fields', requirement: 'required', error: true, errorText: 'Something is missing.' }, '<tanrei-text-field label="Street"></tanrei-text-field><acme-radio-group></acme-radio-group>'),
+      fx('shipping', { label: 'Shipping', spacing: 'fields', required: true, error: true, errorText: 'Something is missing.' }, '<tanrei-text-field label="Street"></tanrei-text-field><acme-radio-group></acme-radio-group>'),
     ]);
     const states = await page.evaluate(async () => {
       const told: unknown[] = [];
@@ -789,7 +789,7 @@ test.describe('behavior', () => {
     await mount(page, [
       fx(
         'shipping',
-        { label: 'Shipping', spacing: 'fields', requirement: 'required', error: true, errorText: 'Something is missing.' },
+        { label: 'Shipping', spacing: 'fields', required: true, error: true, errorText: 'Something is missing.' },
         '<tanrei-text-field label="Street"></tanrei-text-field><tanrei-radio-group label="Delivery" name="delivery" value="standard" supporting-text="You can change this later."><tanrei-radio-button value="standard" label="Standard"></tanrei-radio-button><tanrei-radio-button value="express" label="Express"></tanrei-radio-button></tanrei-radio-group>',
       ),
     ]);
@@ -845,7 +845,7 @@ test.describe('behavior', () => {
     await mount(page, [
       fx(
         'contact',
-        { label: 'Contact', spacing: 'fields', requirement: 'required', error: true, errorText: 'Something is missing.' },
+        { label: 'Contact', spacing: 'fields', required: true, error: true, errorText: 'Something is missing.' },
         '<tanrei-text-field label="Name"></tanrei-text-field><tanrei-checkbox-group label="Notify me by" name="notify" supporting-text="Choose all that apply."><tanrei-checkbox value="email" label="Email" checked></tanrei-checkbox><tanrei-checkbox value="text" label="Text message"></tanrei-checkbox></tanrei-checkbox-group>',
       ),
     ]);
@@ -984,7 +984,7 @@ test.describe('behavior', () => {
     const seen = warnings(page);
     await mount(page, [
       fx('none', { label: 'Empty', supportingText: 'Nothing to choose.' }, ''),
-      fx('outer', { label: 'Contact', spacing: 'fields', requirement: 'required', error: true, errorText: 'Something is missing.' }, '<tanrei-text-field label="Name"></tanrei-text-field><tanrei-field-group label="Notify me by"><tanrei-checkbox label="Email"></tanrei-checkbox><tanrei-checkbox label="Push"></tanrei-checkbox></tanrei-field-group>'),
+      fx('outer', { label: 'Contact', spacing: 'fields', required: true, error: true, errorText: 'Something is missing.' }, '<tanrei-text-field label="Name"></tanrei-text-field><tanrei-field-group label="Notify me by"><tanrei-checkbox label="Email"></tanrei-checkbox><tanrei-checkbox label="Push"></tanrei-checkbox></tanrei-field-group>'),
     ]);
     await expect(part(page, 'none', '.label')).toBeVisible();
     await expect(part(page, 'none', '.supporting-text')).toBeVisible();
@@ -1011,7 +1011,7 @@ test.describe('behavior', () => {
   });
 
   test('FGR-21: the label, the description, the error text and the tag’s text are each text of their own direction, isolated — a left-to-right text keeps its order in a right-to-left layout — and are still placed and aligned by the layout direction', async ({ page }) => {
-    await mount(page, [...spec.fixtures.filter((f) => f.id === 'ltr-label-rtl'), fx('error', { label: 'Wi-Fi 6E', requirement: 'required', error: true, errorText: 'Choose 1 band, at least.' }, THREE, { direction: 'rtl' })]);
+    await mount(page, [...spec.fixtures.filter((f) => f.id === 'ltr-label-rtl'), fx('error', { label: 'Wi-Fi 6E', required: true, error: true, errorText: 'Choose 1 band, at least.' }, THREE, { direction: 'rtl' })]);
     const id = 'ltr-label-rtl';
     for (const [fixture, selector] of [
       [id, '.label'],
@@ -1045,29 +1045,25 @@ test.describe('behavior', () => {
     expect(await part(page, 'error', '.required-tag').locator('.label').evaluate((el) => [getComputedStyle(el).unicodeBidi, el.getAttribute('dir')])).toEqual(['plaintext', 'auto']);
   });
 
-  test('FGR-22: a requirement the group does not know behaves as none; an unknown requiredMark, orientation or kind renders with its default (auto, vertical, group); a spacing the active design system does not have renders with the default value’s tokens; each is reported in debug builds', async ({ page }) => {
+  test('FGR-22: an unknown requiredMark, orientation or kind renders with its default (auto, vertical, group); a spacing the active design system does not have renders with the default value’s tokens; each is reported in debug builds', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, [
-      fx('requirement', { label: 'Notify me by', requirement: 'mandatory' }),
-      fx('mark', { label: 'Notify me by', requirement: 'required', requiredMark: 'star' }),
+      fx('mark', { label: 'Notify me by', required: true, requiredMark: 'star' }),
       fx('orientation', { label: 'Notify me by', orientation: 'diagonal' }),
       fx('spacing', { label: 'Notify me by', spacing: 'sections' }),
-      fx('kind', { label: 'Notify me by', kind: 'listbox', requirement: 'required' }),
+      fx('kind', { label: 'Notify me by', kind: 'listbox', required: true }),
       fx('default', { label: 'Notify me by' }),
     ]);
     // An unknown kind is a group: no role of another kind, and the requirement in words (FGR-11).
     expect(await host(page, 'kind').evaluate((el) => el.shadowRoot!.querySelector('fieldset')!.getAttribute('role'))).toBeNull();
     expect(await group(page, 'kind')).toMatchObject({ role: 'fieldset', required: false, described: ['Required'] });
     await expect(stage(page, 'kind').getByRole('group', { name: 'Notify me by', exact: true })).toHaveCount(1);
-    await expect(part(page, 'requirement', '.requirement-tag, .asterisk')).toHaveCount(0);
-    expect((await group(page, 'requirement')).described).toEqual([]);
     await expect(part(page, 'mark', '.required-tag')).toBeVisible();
     await expect(part(page, 'mark', '.asterisk')).toBeHidden();
     const ys = async (id: string) => Promise.all((await members(page, id).all()).map(async (m) => (await box(m)).y - (await box(host(page, id))).y));
     expect(await ys('orientation'), 'a column').toEqual(await ys('default'));
     expect(await ys('spacing'), 'the default spacing').toEqual(await ys('default'));
     const reports = seen.filter((w) => w.includes('FGR-22'));
-    expect(reports.filter((w) => w.includes('requirement "mandatory"'))).toHaveLength(1);
     expect(reports.filter((w) => w.includes('requiredMark "star"'))).toHaveLength(1);
     expect(reports.filter((w) => w.includes('orientation "diagonal"'))).toHaveLength(1);
     expect(reports.filter((w) => w.includes('spacing "sections"'))).toHaveLength(1);
@@ -1148,13 +1144,13 @@ test.describe('behavior', () => {
     const seen = warnings(page);
     const bare = (id: string, props: Fixture['props']): Fixture => ({ id, props: { label: 'Notify me by', ...props }, items: THREE });
     await mount(page, [
-      bare('auto', { requirement: 'required', supportingText: 'Choose all that apply.' }),
-      bare('tag', { requirement: 'required', requiredMark: 'tag' }),
-      bare('asterisk', { requirement: 'required', requiredMark: 'asterisk' }),
-      bare('none', { requirement: 'required', requiredMark: 'none' }),
-      bare('optional', { requirement: 'optional' }),
-      bare('own', { requirement: 'required', requiredText: 'Needed' }),
-      bare('own-optional', { requirement: 'optional', optionalText: 'If you like' }),
+      bare('auto', { required: true, supportingText: 'Choose all that apply.' }),
+      bare('tag', { required: true, requiredMark: 'tag' }),
+      bare('asterisk', { required: true, requiredMark: 'asterisk' }),
+      bare('none', { required: true, requiredMark: 'none' }),
+      bare('optional', { required: false, optional: true }),
+      bare('own', { required: true, requiredText: 'Needed' }),
+      bare('own-optional', { required: false, optional: true, optionalText: 'If you like' }),
     ]);
     const drawn = async (id: string) => ({
       tag: (await part(page, id, '.requirement-tag').count()) > 0 && (await part(page, id, '.requirement-tag').isVisible()) ? await part(page, id, '.requirement-tag').getAttribute('label') : null,
@@ -1238,8 +1234,8 @@ test.describe('behavior', () => {
     await mount(page, [
       fx('plain', { label: 'Delivery', kind: 'radio-group' }, radios('plain')),
       fx('unseen', { label: 'Delivery', labelHidden: true, kind: 'radio-group', orientation: 'horizontal' }, radios('unseen')),
-      fx('asked', { label: 'Delivery', kind: 'radio-group', requirement: 'required', supportingText: 'You can change this later.', error: true, errorText: 'Choose one.' }, radios('asked')),
-      fx('optional', { label: 'Delivery', kind: 'radio-group', requirement: 'optional' }, radios('optional')),
+      fx('asked', { label: 'Delivery', kind: 'radio-group', required: true, supportingText: 'You can change this later.', error: true, errorText: 'Choose one.' }, radios('asked')),
+      fx('optional', { label: 'Delivery', kind: 'radio-group', required: false, optional: true }, radios('optional')),
       fx('off', { label: 'Delivery', kind: 'radio-group', disabled: true }, radios('off')),
     ]);
     await frames(page);
@@ -1282,7 +1278,7 @@ test.describe('behavior', () => {
   });
 
   test('FGR-25: the radio-group kind changes nothing that the group does — it selects nothing, holds no value, moves no focus, handles no key and emits no event (FGR-12, FGR-15): exclusion, the arrow keys, the one tab stop and each position stay the radio buttons’ own, by their name (RAD-3, RAD-4, RAD-5, RAD-16, RAD-25); a press on the frame’s texts selects nothing; an error that appears under a radio button’s focus is announced once (FGR-9)', async ({ page, browserName }) => {
-    await mount(page, [fx('set', { label: 'Delivery', kind: 'radio-group', supportingText: 'You can change this later.', requirement: 'required' }, radios('delivery', -1))]);
+    await mount(page, [fx('set', { label: 'Delivery', kind: 'radio-group', supportingText: 'You can change this later.', required: true }, radios('delivery', -1))]);
     await page.evaluate(() => {
       const log: string[] = ((window as unknown as { heard: string[] }).heard = []);
       const el = document.querySelector('tanrei-field-group')!;
@@ -1349,8 +1345,8 @@ test.describe('behavior', () => {
   test('FGR-24: in the radio-group kind the required state says the requirement without a word — with no requiredText from the instance or the product the asterisk stands in the tag’s place, the set is still exposed as required, and the missing word is reported once as a word that is not drawn, not as a requirement nobody says', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, [
-      { id: 'tag', props: { label: 'Delivery', kind: 'radio-group', requirement: 'required', requiredMark: 'tag' }, content: radios('tag') },
-      { id: 'none', props: { label: 'Delivery', kind: 'radio-group', requirement: 'required', requiredMark: 'none' }, content: radios('none') },
+      { id: 'tag', props: { label: 'Delivery', kind: 'radio-group', required: true, requiredMark: 'tag' }, content: radios('tag') },
+      { id: 'none', props: { label: 'Delivery', kind: 'radio-group', required: true, requiredMark: 'none' }, content: radios('none') },
     ]);
     await frames(page);
     await expect(part(page, 'tag', '.asterisk')).toBeVisible();
@@ -1407,9 +1403,9 @@ test.describe('accessibility', () => {
       await mount(
         page,
         [
-          fx('native', { label: 'Days', supportingText: 'Choose all that apply.', requirement: 'required', error: true, errorText: 'Choose a day.' }, '<label><input type="checkbox" /> Monday</label><label><input type="checkbox" /> Tuesday</label>'),
-          fx('nested', { label: 'Contact', spacing: 'fields' }, '<tanrei-text-field label="Name"></tanrei-text-field><tanrei-field label="Volume" supporting-text="Help."><tanrei-slider></tanrei-slider></tanrei-field><tanrei-field-group label="Notify me by" requirement="optional"><tanrei-checkbox label="Email"></tanrei-checkbox></tanrei-field-group>'),
-          fx('disabled-error', { label: 'Notify me by', disabled: true, error: true, errorText: 'Choose one.', requirement: 'required', requiredMark: 'asterisk' }),
+          fx('native', { label: 'Days', supportingText: 'Choose all that apply.', required: true, error: true, errorText: 'Choose a day.' }, '<label><input type="checkbox" /> Monday</label><label><input type="checkbox" /> Tuesday</label>'),
+          fx('nested', { label: 'Contact', spacing: 'fields' }, '<tanrei-text-field label="Name"></tanrei-text-field><tanrei-field label="Volume" supporting-text="Help."><tanrei-slider></tanrei-slider></tanrei-field><tanrei-field-group label="Notify me by" optional><tanrei-checkbox label="Email"></tanrei-checkbox></tanrei-field-group>'),
+          fx('disabled-error', { label: 'Notify me by', disabled: true, error: true, errorText: 'Choose one.', required: true, requiredMark: 'asterisk' }),
         ],
         { theme },
       );
@@ -1454,9 +1450,9 @@ test.describe('accessibility', () => {
 test.describe('accessibility of the radio-group kind (FGR-25)', () => {
   const RADIOS = (name: string) => `<tanrei-radio-button name="${name}" value="standard" label="Standard"></tanrei-radio-button><tanrei-radio-button name="${name}" value="express" label="Express" checked></tanrei-radio-button><tanrei-radio-button name="${name}" value="pickup" label="Pick up" disabled></tanrei-radio-button>`;
   const SETS = [
-    fx('asked', { label: 'Delivery', kind: 'radio-group', requirement: 'required', supportingText: 'You can change this later.', error: true, errorText: 'Choose one.' }, RADIOS('asked')),
-    fx('unseen', { label: 'Delivery', kind: 'radio-group', labelHidden: true, orientation: 'horizontal', requirement: 'optional' }, RADIOS('unseen')),
-    fx('off', { label: 'Delivery', kind: 'radio-group', disabled: true, requirement: 'required', requiredMark: 'asterisk' }, RADIOS('off')),
+    fx('asked', { label: 'Delivery', kind: 'radio-group', required: true, supportingText: 'You can change this later.', error: true, errorText: 'Choose one.' }, RADIOS('asked')),
+    fx('unseen', { label: 'Delivery', kind: 'radio-group', labelHidden: true, orientation: 'horizontal', required: false, optional: true }, RADIOS('unseen')),
+    fx('off', { label: 'Delivery', kind: 'radio-group', disabled: true, required: true, requiredMark: 'asterisk' }, RADIOS('off')),
   ];
 
   test('FGR-25: no axe violations in the radio-group kind — the role on the fieldset, its required and invalid states and its orientation are accepted — in light and dark', async ({ page }) => {
@@ -1511,7 +1507,7 @@ test.describe('fixtures', () => {
       expect(await part(page, f.id, '.label').count(), `${f.id} label`).toBe(labelled ? 1 : 0);
       if (labelled) await expect(part(page, f.id, '.label'), f.id).toContainText(String(f.props.label));
       expect((await group(page, f.id)).name, f.id).toBe(String(f.props.label));
-      const requirement = f.props.requirement ?? 'none';
+      const requirement = f.props.required ? 'required' : f.props.optional ? 'optional' : 'none';
       const tag = labelled && (requirement === 'optional' || (requirement === 'required' && (f.props.requiredMark ?? 'auto') !== 'asterisk'));
       expect(await part(page, f.id, '.requirement-tag').count(), `${f.id} tag`).toBe(tag ? 1 : 0);
       expect(await part(page, f.id, '.supporting-text').count(), `${f.id} description`).toBe(f.props.supportingText ? 1 : 0);

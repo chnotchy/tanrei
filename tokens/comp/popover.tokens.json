@@ -8,10 +8,10 @@
             "since": "0.1.0"
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a popover reads: the container's color, elevation, corner shape, paddings, the gap between its parts, its least and greatest width and its greatest height; the distance to its anchor and to the window's edges; the arrow; the header's gap, the headline's color and text style and the close button's variant; the content color; the dividers shown while the content scrolls; how the actions are arranged, their default Button variant and their spacing; and the open and close motion.",
+            "usage": "Everything a popover reads: the container's color, elevation, corner shape, paddings, the gap between its parts, its least and greatest width and its greatest height; the distance to its anchor and to the window's edges; the window width below which it is a sheet; the arrow; the header's gap, the headline's color and text style and the close button's variant; the content color; the dividers shown while the content scrolls; how the actions are arranged, their default Button variant and their spacing; and the open and close motion.",
             "rules": [
               "A popover is opened by a press on a control and holds content a person can operate. Something that opens on hover or focus and only describes its anchor is a tooltip; a list of commands or choices is a menu; something the task cannot go on without is a dialog.",
-              "A popover is not modal: no scrim, no focus trap, nothing behind it inert. Escape, a press outside it and focus leaving it close it.",
+              "Beside its anchor a popover is not modal: no scrim, no focus trap, nothing behind it inert. Escape, a press outside it and focus leaving it close it. In a window narrower than compact.window-width it takes the bottom sheet's appearance and is modal, reading comp.bottom-sheet's container, scrim and motion tokens; compactPresentation own keeps one beside its anchor.",
               "Say where it goes with placement, offset and crossOffset; never position it by hand. It flips, shifts and follows its anchor by itself.",
               "Give it a name: headline where it draws one, label where it does not.",
               "Its close button and its actions are Tanrei Buttons with Button's own tokens; the popover names only their variant. Re-value comp.popover.close-button.variant, comp.popover.actions.variant and comp.popover.actions.arrangement in a layer to change every popover of a product.",
@@ -110,6 +110,18 @@
           "$value": "{tanrei.sys.space.space100}",
           "$description": "The least distance between the popover and the edges of the window's safe area and the on-screen keyboard; the popover flips, shifts, narrows or, in a window smaller than itself, covers its anchor to keep it."
         },
+        "compact": {
+          "window-width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.breakpoint.medium}",
+            "$description": "A window narrower than this is compact: the popover takes the bottom sheet's appearance at the window's bottom edge instead of standing beside its anchor (POP-39). 0 keeps every popover beside its anchor in every window.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides below which window width its popovers become sheets at the bottom of the window, as its dialogs do, and a product whose popovers stay beside their anchors everywhere sets 0."
+              }
+            }
+          }
+        },
         "arrow": {
           "$extensions": {
             "dev.tanrei.vocabulary": {
@@ -174,11 +186,11 @@
         "close-button": {
           "variant": {
             "$type": "number",
-            "$value": 4,
-            "$description": "The Button variant of the close button, an icon-only small Button (POP-13). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name.",
+            "$value": 1,
+            "$description": "The Button variant of the close button, an icon-only small Button (POP-13): tonal in the default system, as every host's close button is. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
-                "rationale": "One product decides once how its popovers' close control stands: a bare glyph that leaves a small header to its headline, or a tonal button that reads as a control on any content, as its sheets' does."
+                "rationale": "One product decides once how its popovers' close control stands: a tonal button that reads as a control on any content, or a bare glyph that leaves a small header to its headline."
               },
               "dev.tanrei.enum": {
                 "values": [
@@ -286,21 +298,21 @@
         "motion": {
           "open-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short4}",
-            "$description": "How long the container takes to fade in and grow from the anchor's side. The menu's."
+            "$value": "{tanrei.sys.motion.role.appear.anchored.enter}",
+            "$description": "How long the container takes to appear from the anchor's side: an anchored surface's entrance."
           },
           "open-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+            "$value": "{tanrei.sys.motion.easing.enter}"
           },
           "close-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short2}",
-            "$description": "How long the container takes to fade out. The menu's."
+            "$value": "{tanrei.sys.motion.role.appear.anchored.exit}",
+            "$description": "How long the container takes to leave the way it came: an anchored surface's exit."
           },
           "close-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}"
+            "$value": "{tanrei.sys.motion.easing.exit}"
           }
         }
       }

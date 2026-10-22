@@ -5,26 +5,29 @@
 //   tanrei explain <token> [--config …]      the value, where it comes from layer by layer, and what a layer may write
 //   tanrei studio [--port n] [--no-open]     Theme Studio, locally, editing the product's layer file in place
 //   tanrei systems                           the systems that ship with this version
+//   tanrei audit <file|dir|glob…>            what the code uses that the system does not have (exit 1 when anything)
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DERIVE, ENUM, enumName, legalOperations, matchingRules } from '@tanrei/token-engine';
 import { TARGETS, buildProductSystem } from '@tanrei/tokens-build/product';
-import { listSystems } from '@tanrei/tokens-build/bundle';
+import { heldComponents, layerChain, listSystems, shippedSystems as systemsOffered } from '@tanrei/tokens-build/bundle';
+import { AUDITED_EXTENSIONS, auditContext, auditTexts } from '@tanrei/tokens-build/components-audit';
+import { CATALOG_FILE, componentsManifest, readComponentCatalog } from '@tanrei/tokens-build/components-manifest';
 import { FONT_NOTE, fontLines, fontReport } from '@tanrei/tokens-build/fonts';
 import { glyphLines } from '@tanrei/tokens-build/glyphs';
 import { leadWithStructure } from '@tanrei/tokens-build/invariants';
 import { buildIR } from '@tanrei/tokens-build/ir';
 import { CONFIG, REPO_ROOT } from '@tanrei/tokens-build/model';
-import { resolveSystem, validateSystem } from '@tanrei/tokens-build/resolve';
+import { readSystemChain, resolveSystem, validateSystem } from '@tanrei/tokens-build/resolve';
 import { loadSystem } from '@tanrei/tokens-build/scheme';
 import { startStudioServer } from './studio-server.js';
 
 const CONFIG_FILE = 'tanrei.json';
 /** The systems `init --extends` accepts: the ones this version ships, the default first. Read, never listed by hand, so the help cannot fall behind them. */
 export function shippedSystems() {
-  const ids = listSystems(REPO_ROOT);
+  const ids = systemsOffered(REPO_ROOT);
   return [...ids.filter((id) => id === CONFIG.namespace), ...ids.filter((id) => id !== CONFIG.namespace)];
 }
 
@@ -36,6 +39,7 @@ const help = () => `tanrei — build your own design system on Tanrei
   tanrei explain <token-id> [--config ${CONFIG_FILE}]
   tanrei studio    [--config ${CONFIG_FILE}] [--port <n>] [--no-open]
   tanrei systems
+  tanrei audit <file|dir|glob…> [--system <id|layer file>] [--config ${CONFIG_FILE}] [--format text|json]
 
 ${CONFIG_FILE}:
   {
@@ -46,7 +50,12 @@ ${CONFIG_FILE}:
     }
   }
 
---check writes nothing and fails if a committed output is out of date (for CI).`;
+--check writes nothing and fails if a committed output is out of date (for CI).
+
+audit reads the files (a directory: its ${AUDITED_EXTENSIONS.map((ext) => `.${ext}`).join(' ')} files, without
+node_modules and hidden directories; quote a glob so that the shell leaves it to audit) and reports every element,
+selector, import and literal variant the system does not have, with what to write instead. The system is --system,
+else the product's (${CONFIG_FILE}), else ${CONFIG.namespace}. Exit 0: nothing found; 1: something found; 2: it could not run.`;
 
 function parse(argv) {
   const flags = {};
@@ -142,7 +151,6 @@ async function validate(flags) {
   // The engine is the final authority (an unknown token id, a cycle, a choice out of range): build it, in memory.
   const resolved = await resolveSystem({ layerFile }, { validate: false });
   const fonts = fontReport(buildIR(await resolved.model()));
-  for (const notice of resolved.notices) console.warn(`⚠ ${notice}`);
   for (const warning of fonts.warnings) console.warn(`⚠ ${warning}`);
   // Valid is not the same as free of findings: what `tanrei build` would warn about is said here already.
   printWarnings(await resolved.warnings());
@@ -241,7 +249,7 @@ function openInBrowser(url) {
 }
 
 async function systems() {
-  for (const id of listSystems(REPO_ROOT)) {
+  for (const id of systemsOffered(REPO_ROOT)) {
     const layer = loadSystem(REPO_ROOT, id);
     console.log(`${id.padEnd(12)} ${layer.name ?? ''}${layer.extends ? `  (extends ${layer.extends})` : ''}`);
     const resolved = await resolveSystem({ system: id }, { validate: false });
@@ -251,6 +259,136 @@ async function systems() {
   }
   console.log(`\n${FONT_NOTE}`);
   return 0;
+}
+
+// ── audit ────────────────────────────────────────────────────────────────
+
+/**
+ * The components manifest `audit` checks against, with every shipped system's (which systems have a component, which
+ * entry registers what). All of them are worked out from the layers and the component catalog the vocabulary carries,
+ * the way `pnpm generate` and `tanrei build` write them: nothing generated is read.
+ */
+function auditedSystem(flags) {
+  const catalog = readComponentCatalog(REPO_ROOT);
+  if (!catalog) throw new Error(`${CATALOG_FILE} is missing from the vocabulary at ${REPO_ROOT}: run \`pnpm generate\` in the Tanrei repository`);
+  const read = (id) => loadSystem(REPO_ROOT, id);
+  const held = heldComponents(listSystems(REPO_ROOT), read);
+  const ids = shippedSystems();
+  const shipped = new Map(ids.map((id) => [id, componentsManifest(layerChain(id, read), catalog, held, ids)]));
+  const named = typeof flags.system === 'string' ? flags.system : null;
+  let layerFile = null;
+  if (named?.endsWith('.system.json')) layerFile = path.resolve(named);
+  else if (named) {
+    if (!shipped.has(named)) throw new Error(`"${named}" is not a shipped system (${ids.join(', ')}). For a product's own system pass its layer file, <id>.system.json.`);
+    return { catalog, shipped, manifest: shipped.get(named), product: false };
+  } else if (typeof flags.config === 'string' || fs.existsSync(CONFIG_FILE)) layerFile = readConfig(flags).layerFile;
+  else return { catalog, shipped, manifest: shipped.get(CONFIG.namespace), product: false };
+  if (!fs.existsSync(layerFile)) throw new Error(`${path.relative(process.cwd(), layerFile)}: no such layer file`);
+  const problems = validateSystem({ layerFile });
+  if (problems.length) throw new Error(`${path.relative(process.cwd(), layerFile)} is not a valid layer (\`tanrei validate\` says more):\n${problems.map((p) => `  - ${p}`).join('\n')}`);
+  return { catalog, shipped, manifest: componentsManifest(readSystemChain({ layerFile }).chain, catalog, held, ids), product: true };
+}
+
+/** A glob as a regular expression over a path relative to its base, with `/` between segments: `**`, `*`, `?`, `{a,b}`, `[…]`. */
+function globPattern(glob) {
+  let source = '';
+  for (let i = 0; i < glob.length; i++) {
+    const c = glob[i];
+    if (c === '*' && glob[i + 1] === '*') {
+      const slash = glob[i + 2] === '/';
+      source += slash ? '(?:[^/]*/)*' : '.*';
+      i += slash ? 2 : 1;
+    } else if (c === '*') source += '[^/]*';
+    else if (c === '?') source += '[^/]';
+    else if (c === '{') {
+      const end = glob.indexOf('}', i);
+      if (end === -1) source += '\\{';
+      else {
+        source += `(?:${glob.slice(i + 1, end).split(',').map((part) => part.replace(/[.+^$()|[\]\\]/g, '\\$&').replace(/\*/g, '[^/]*').replace(/\?/g, '[^/]')).join('|')})`;
+        i = end;
+      }
+    } else if (c === '[') {
+      const end = glob.indexOf(']', i);
+      source += end === -1 ? '\\[' : glob.slice(i, end + 1);
+      if (end !== -1) i = end;
+    } else source += c.replace(/[.+^$()|\\]/g, '\\$&');
+  }
+  return new RegExp(`^${source}$`);
+}
+
+/** Every file under `dir` (relative paths, with `/`), but node_modules and hidden directories. */
+function walk(dir, base = dir, out = []) {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (entry.name === 'node_modules' || entry.name.startsWith('.')) continue;
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) walk(full, base, out);
+    else if (entry.isFile()) out.push(path.relative(base, full).split(path.sep).join('/'));
+  }
+  return out;
+}
+
+/** The files the arguments name: a file, a directory (the files audit reads in it), or a glob. */
+function auditedFiles(patterns) {
+  const files = new Set();
+  const audited = new RegExp(`\\.(?:${AUDITED_EXTENSIONS.join('|')})$`, 'i');
+  for (const pattern of patterns) {
+    if (!/[*?{[]/.test(pattern)) {
+      const full = path.resolve(pattern);
+      if (!fs.existsSync(full)) throw new Error(`${pattern}: no such file or directory`);
+      if (!fs.statSync(full).isDirectory()) files.add(full);
+      else for (const file of walk(full)) if (audited.test(file)) files.add(path.join(full, file));
+      continue;
+    }
+    const posix = pattern.split(path.sep).join('/');
+    const segments = posix.split('/');
+    const literal = segments.findIndex((segment) => /[*?{[]/.test(segment));
+    const base = path.resolve(segments.slice(0, literal).join('/') || '.');
+    const match = globPattern(segments.slice(literal).join('/'));
+    if (fs.existsSync(base)) for (const file of walk(base)) if (match.test(file)) files.add(path.join(base, file));
+  }
+  return [...files].sort();
+}
+
+/** The findings as a person reads them: by file, each with what to write instead. */
+function printAudit(report) {
+  const show = (list) => list.map((c) => (c.web?.tag ? `${c.name} (<${c.web.tag}>)` : c.name)).join(', ');
+  let file;
+  for (const finding of report.findings) {
+    if (finding.file !== file) {
+      file = finding.file;
+      console.log(`${file === undefined ? '' : '\n'}${file}`);
+    }
+    console.log(`  ${`${finding.line}:${finding.column}`.padEnd(8)} ${finding.found}  ${finding.problem}`);
+    const more = [];
+    if (finding.reason) more.push(`why: ${finding.reason}`);
+    if (finding.providedBy) more.push(`it lives in the "${finding.providedBy}" layer`);
+    if (finding.insteadUse?.length) more.push(`instead: ${show(finding.insteadUse)}`);
+    if (finding.values) more.push(`values: ${finding.values.join(', ')}`);
+    if (finding.use) more.push(`use: ${finding.use}`);
+    if (finding.near?.length) more.push(`near: ${finding.near.join(', ')}`);
+    if (finding.availableIn?.length) more.push(`in: ${finding.availableIn.join(', ')}`);
+    if (finding.howToInclude?.write) more.push(`${report.product ? 'or, in the layer' : 'or, in a product layer'}: ${JSON.stringify(finding.howToInclude.write)}`);
+    else if (finding.howToInclude?.note) more.push(`or: ${finding.howToInclude.note}`);
+    for (const line of more) console.log(`  ${' '.repeat(8)} ${line}`);
+  }
+  const files = new Set(report.findings.map((finding) => finding.file)).size;
+  if (report.clean) console.log(`✔ "${report.system}": ${report.checked} file(s), nothing the system does not have`);
+  else console.log(`\n✖ "${report.system}": ${report.errors} finding(s) in ${files} of ${report.checked} file(s)`);
+}
+
+/** Check files against the system's components manifest. Exit 0 when nothing is found, 1 when something is. */
+function audit(flags, patterns) {
+  if (!patterns.length) throw new Error(`usage: tanrei audit <file|dir|glob…> [--system <id|layer file>] [--config ${CONFIG_FILE}] [--format text|json]`);
+  const format = flags.format ?? 'text';
+  if (!['text', 'json'].includes(format)) throw new Error(`--format is text or json, not "${format}"`);
+  const { catalog, shipped, manifest, product } = auditedSystem(flags);
+  const files = auditedFiles(patterns);
+  if (!files.length) throw new Error(`no file matches ${patterns.join(' ')}`);
+  const texts = files.map((file) => ({ file: path.relative(process.cwd(), file).split(path.sep).join('/'), text: fs.readFileSync(file, 'utf8') }));
+  const report = auditTexts(auditContext(catalog, manifest, shipped, { product }), texts);
+  if (format === 'json') console.log(JSON.stringify(report, null, 2));
+  else printAudit(report);
+  return report.clean ? 0 : 1;
 }
 
 export async function main(argv) {
@@ -264,10 +402,18 @@ export async function main(argv) {
     if (command === 'init') return init(rest, flags);
     if (command === 'studio') return await studio(flags);
     if (command === 'systems') return await systems();
+    if (command === 'audit') {
+      try {
+        return audit(flags, rest);
+      } catch (error) {
+        // A product's tanrei.json that cannot be read is as much a reason the audit could not run as a wrong argument.
+        throw Object.assign(error, { exitCode: 2 });
+      }
+    }
     console.error(`unknown command "${command}"\n\n${help()}`);
     return 2;
   } catch (error) {
     console.error(`✖ ${error.message}`);
-    return 1;
+    return error.exitCode ?? 1;
   }
 }

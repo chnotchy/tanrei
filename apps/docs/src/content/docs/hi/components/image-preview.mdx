@@ -2,7 +2,7 @@
 title: इमेज प्रीव्यू
 description: जब कोई व्यक्ति किसी थंबनेल को दबाता है, तब तस्वीरों के सेट की एक तस्वीर को पूरी विंडो पर दिखाता है, ताकि उसे पास से देखा जा सके। तस्वीर को बड़ा और वापस छोटा किया जा सकता है, बड़ी होने पर इधर-उधर खिसकाया जा सकता है, और अगली या पिछली तस्वीर पर जाया जा सकता है, जब तक प्रीव्यू बंद न किया जाए।
 translationOf: components/image-preview.mdx
-sourceHash: caadfe986913a18784dba1d60a26a868a2370960
+sourceHash: cf3abaf4200c8a573c2daf0b205f42be76a4a5ab
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -34,7 +34,7 @@ import square from '../../../../../../../packages/web/test/fixtures/image-previe
 
 यह स्थिर तस्वीरें दिखाता है, और कुछ नहीं। यह व्यक्ति से कुछ नहीं पूछता, इसलिए यह [डायलॉग](/hi/components/dialog/) नहीं है; इसकी तस्वीरें देखी जाती हैं, दबाई नहीं जातीं, इसलिए यह [कैरसेल](/hi/components/carousel/) भी नहीं है। फिर भी कैरसेल का कोई आइटम, या किसी [फ़िगर](/hi/components/figure/) की तस्वीर, इसे खोलने की स्वाभाविक जगह है।
 
-**किनसे बना है:** [बटन](/hi/components/button/) से, यानी ज़ूम आउट, ज़ूम इन, बंद करना, पिछली और अगली, और एक [स्केलेटन](/hi/components/skeleton/) से, जो अभी लोड हो रही तस्वीर की जगह रहता है। ये असली कंपोनेंट हैं, जो अपने टोकन ख़ुद पढ़ते हैं। वह स्टेज जो तस्वीर को बड़ा करता और खिसकाता है, और एक तस्वीर से अगली पर जाना, इमेज प्रीव्यू के अपने हैं और कहीं और नहीं मिलते।
+**किनसे बना है:** [बटन](/hi/components/button/) से, यानी ज़ूम आउट, ज़ूम इन, बंद करना, पिछली और अगली, और एक [स्केलेटन](/hi/components/skeleton/) से, जो अभी लोड हो रही तस्वीर की जगह रहता है। ये असली कंपोनेंट हैं, जो अपने टोकन ख़ुद पढ़ते हैं। बार के ज़ूम आउट, ज़ूम इन और बंद करने वाले बटन small हैं, डिफ़ॉल्ट सिस्टम में tonal: बंद करने वाला बटन वैसा ही जैसा Tanrei का हर बंद करने वाला बटन है, और उसके पास के ज़ूम बटन भी उसी तरह। पिछली और अगली medium हैं। m3-like और cupertino प्रीसेट बार पर बिना पृष्ठभूमि वाले ग्लिफ़ रखते हैं। वह स्टेज जो तस्वीर को बड़ा करता और खिसकाता है, और एक तस्वीर से अगली पर जाना, इमेज प्रीव्यू के अपने हैं और कहीं और नहीं मिलते।
 
 वेब पर यह `<tanrei-image-preview>` है, जिसके चाइल्ड `<tanrei-image-preview-item>` हैं। बाक़ी प्लैटफ़ॉर्म ने इसे अभी इम्प्लीमेंट नहीं किया है।
 
@@ -153,9 +153,9 @@ preview.addEventListener('zoomchange', (e) => {
 
 ```html
 <dialog class="viewer" aria-label="कमरे की फ़ोटो">
-  <tanrei-button variant="text" label="ज़ूम आउट करें"><span slot="icon">zoom_out</span></tanrei-button>
-  <tanrei-button variant="text" label="ज़ूम इन करें"><span slot="icon">zoom_in</span></tanrei-button>
-  <tanrei-button variant="text" label="बंद करें"><span slot="icon">close</span></tanrei-button>
+  <tanrei-button variant="tonal" size="small" label="ज़ूम आउट करें"><span slot="icon">zoom_out</span></tanrei-button>
+  <tanrei-button variant="tonal" size="small" label="ज़ूम इन करें"><span slot="icon">zoom_in</span></tanrei-button>
+  <tanrei-button variant="tonal" size="small" label="बंद करें"><span slot="icon">close</span></tanrei-button>
   <tanrei-button variant="tonal" label="पिछली इमेज"><span slot="icon">chevron_left</span></tanrei-button>
   <img alt="बग़ीचे की ओर खुलती खिड़की वाला बेडरूम" src="room-large.jpg" tabindex="0">
   <tanrei-button variant="tonal" label="अगली इमेज"><span slot="icon">chevron_right</span></tanrei-button>

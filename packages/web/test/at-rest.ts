@@ -28,3 +28,39 @@ export const atRest = (target: Locator | Page, frames = 5): Promise<RestingPlace
     }
     return { top: el.scrollTop, left: el.scrollLeft };
   }, frames);
+
+/** An element's border box, as `getBoundingClientRect()` gives it. */
+export interface RestingBox {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+/**
+ * Waits until an element's box stands still — the same border box in `frames` frames in a row — and returns it.
+ *
+ * For a box moved by a motion that no list of animations shows, once every motion the page can see has ended
+ * (`motionEnded`, test/motions.ts): the height of a `<details>` element's content is a transition of its
+ * `::details-content`, which `getAnimations()` lists in no engine and whose events reach no listener. It runs over the
+ * same duration as the motions that come with it (a chevron's turn, an item's clock), but not on the same frames:
+ * Chromium starts it a frame or two after them when a change turns a motion back, so it ends that much later, and a box
+ * read in the task after they ended was a pixel short of its end on a CI runner. Counting frames and not time, this
+ * waits as long as the motion takes on any machine and at any playback rate; a box that moves changes in every frame
+ * (a layout unit is 1/64 px).
+ */
+export const boxAtRest = (target: Locator, frames = 3): Promise<RestingBox> =>
+  target.evaluate(async (el, count) => {
+    const read = () => {
+      const r = el.getBoundingClientRect();
+      return { left: r.left, top: r.top, width: r.width, height: r.height };
+    };
+    let last = read();
+    for (let same = 0; same < count; ) {
+      await new Promise((r) => requestAnimationFrame(r));
+      const now = read();
+      same = now.left === last.left && now.top === last.top && now.width === last.width && now.height === last.height ? same + 1 : 0;
+      last = now;
+    }
+    return last;
+  }, frames);

@@ -2,7 +2,7 @@
 title: "模态层"
 description: "每个模态表面下面的那一层。它把所呈现内容背后的窗口变暗，让那里的一切变为惰性；把焦点移进来、留在里面、关闭时交还；并在用户按下 Escape、使用平台的返回操作或按下变暗区域时请求关闭。只需调整它一次，所有模态表面都会随之改变。"
 translationOf: components/modal-layer.mdx
-sourceHash: e6ede40ce27d5047b0691b404bc90d640cff347a
+sourceHash: b3984edc74655ea0935bdf9c218e40967f4095a4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -76,7 +76,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { ModalLayer } from '@tanrei/react';
+    // 进阶组件（用于构成其他组件的部件）从 advanced 入口导入。
+    import { ModalLayer } from '@tanrei/react/advanced';
 
     <ModalLayer open={open} label="命令" onClose={() => setOpen(false)}>
       <CommandPalette />
@@ -105,13 +106,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 {
   "tokens": {
     "tanrei.comp.modal-layer.scrim.color": { "$value": "{tanrei.sys.color.scrim}" },
-    "tanrei.comp.modal-layer.scrim.blur": { "$value": { "value": 8, "unit": "px" }, "reason": "我们的模态表面会让背后的内容呈现磨砂效果。" },
-    "tanrei.comp.modal-layer.motion.enter-duration": { "$value": "{tanrei.sys.motion.duration.medium4}" }
+    "tanrei.comp.modal-layer.scrim.blur": { "$value": { "value": 8, "unit": "px" }, "reason": "我们的模态表面会让背后的内容呈现磨砂效果。" }
   }
 }
 ```
 
-变暗区域的不透明度就是它颜色的 alpha 值：要让它更浅或更深，就改变这个颜色，或改变系统的 `scrim` 角色。要让某一个表面与众不同，就改为设置那个表面自己的令牌（`comp.dialog.scrim.color`、`comp.side-sheet.motion.enter-duration`）。在你设置之前，它指向的是这一层的令牌。
+变暗区域的不透明度就是它颜色的 alpha 值：要让它更浅或更深，就改变这个颜色，或改变系统的 `scrim` 角色。要让某一个表面与众不同，就改为设置那个表面自己的令牌（`comp.dialog.scrim.color`、`comp.dialog.motion.enter-duration`）。在你设置之前，它指向的是这一层的令牌。
 
 ## 规格
 

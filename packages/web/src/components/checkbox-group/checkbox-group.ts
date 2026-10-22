@@ -6,11 +6,11 @@ import { takeFormDisabled } from '../../primitives/form-disabled.js';
 import { report } from '../../primitives/report.js';
 import { WordsController } from '../../primitives/words.js';
 import { TanreiCheckbox, type TanreiCheckboxOwner } from '../checkbox/checkbox.js';
-import { TanreiFieldGroup, type TanreiFieldGroupOrientation, type TanreiFieldGroupRequiredMark, type TanreiFieldGroupRequirement } from '../field-group/field-group.js';
+import { TanreiFieldGroup, type TanreiFieldGroupOrientation, type TanreiFieldGroupRequiredMark } from '../field-group/field-group.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 
 // The field group's own types are the checkbox group's: it has none of its own for the props it passes on.
-export type { TanreiFieldGroupOrientation, TanreiFieldGroupRequiredMark, TanreiFieldGroupRequirement };
+export type { TanreiFieldGroupOrientation, TanreiFieldGroupRequiredMark };
 
 /** What `change` carries: the list after the change, which the group already holds — a copy. */
 export interface TanreiCheckboxGroupChangeDetail {
@@ -18,7 +18,7 @@ export interface TanreiCheckboxGroupChangeDetail {
 }
 
 /** CKG-1: the props that are the field group's, given to it unchanged. `disabled` is the field group's too, joined with a disabled fieldset's (W6). */
-const GROUP = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'requirement', 'requiredMark', 'requiredText', 'optionalText', 'orientation'] as const;
+const GROUP = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText', 'orientation'] as const;
 
 /** W4: the field group's documented parts, under its own names (`::part(label)` is the set's label, as one level down). */
 const GROUP_PARTS = exported(TanreiFieldGroup);
@@ -67,7 +67,7 @@ function keepAsking(host: Element, ask: () => void) {
  * Form-associated: it submits one entry per value under `name` — what checkboxes of one name submit — and its
  * checkboxes submit nothing; a checkbox disabled by itself keeps its entry; a disabled group submits nothing. It
  * returns to its first value when the form is reset, is restored on navigation, follows `<fieldset disabled>`, and
- * reports `valueMissing` while `requirement="required"` and the list is empty, with `error-text`, else the required
+ * reports `valueMissing` while `required` and the list is empty, with `error-text`, else the required
  * text, else `label` as its message. It never sets `error` itself.
  *
  * The element is not focusable itself and has no role: every checkbox is a stop of its own, `focus()` goes to the first
@@ -103,7 +103,8 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
     errorText: { type: String, attribute: 'error-text' },
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
-    requirement: { type: String, reflect: true },
+    required: { type: Boolean, reflect: true },
+    optional: { type: Boolean, reflect: true },
     requiredMark: { type: String, attribute: 'required-mark', reflect: true },
     requiredText: { type: String, attribute: 'required-text' },
     optionalText: { type: String, attribute: 'optional-text' },
@@ -155,8 +156,11 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
   /** @from tanrei-field-group.disabled */
   disabled = false;
 
-  /** @from tanrei-field-group.requirement */
-  requirement: TanreiFieldGroupRequirement = 'none';
+  /** @from tanrei-field-group.required */
+  required = false;
+
+  /** @from tanrei-field-group.optional */
+  optional = false;
 
   /** @from tanrei-field-group.requiredMark */
   requiredMark: TanreiFieldGroupRequiredMark = 'auto';
@@ -445,7 +449,7 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
       for (const entry of value) entries.append(this.name, entry);
     }
     this.internals.setFormValue(entries, JSON.stringify(value));
-    if (!off && this.requirement === 'required' && !value.length) {
+    if (!off && this.required && !value.length) {
       // The product's words: a browser has a sentence for one unchecked box and none for a set. The
       // last resort is the required mark itself, a mark and not a word, so that the flag is never refused.
       const message = [this.errorText, this.words.get('requiredText', this.requiredText), this.label].find((text) => text.trim() !== '') ?? '*';

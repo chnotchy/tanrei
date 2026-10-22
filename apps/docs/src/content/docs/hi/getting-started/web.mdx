@@ -2,23 +2,29 @@
 title: Web
 description: किसी भी वेब प्रोजेक्ट में Tanrei के CSS टोकन और Web Components इस्तेमाल करें।
 translationOf: getting-started/web.mdx
-sourceHash: 3ecaeb6746e2657a87faf465d962be3eb0d109bf
+sourceHash: b80f1fce0b42384ed5d6b457b10570050f9c65ea
 ---
 
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 import DemoFrame from '../../../../components/DemoFrame.astro';
 
 `@tanrei/web` में दो चीज़ें हैं: डिज़ाइन टोकन की एक स्टाइलशीट, जिसमें टोकन CSS कस्टम प्रॉपर्टी के रूप में हैं, और Lit से बने, वेब मानकों पर आधारित कस्टम एलिमेंट। इसके लिए किसी फ़्रेमवर्क की ज़रूरत नहीं है।
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/web" />
+<ReleaseNotice platform="web" registry="npm" pkg="@tanrei/web" />
 
 ## इंस्टॉल करें
 
+### npm से
+
+```sh
+npm install @tanrei/web
+```
+
 ### सोर्स से
 
-आपको Git, Node 22.12 या उसके बाद का वर्शन और pnpm 12 चाहिए (`corepack enable` से आपको वही वर्शन मिलता है जो रिपॉज़िटरी में तय है)। रिपॉज़िटरी के क्लोन में पैकेज बिल्ड करें, उसे पैक करें, और पैक की गई फ़ाइल अपने प्रोजेक्ट में इंस्टॉल करें:
+`main` पर मौजूद सोर्स को उसके प्रकाशित होने से पहले इस्तेमाल करने के लिए आपको Git, Node 22.12 या उसके बाद का वर्शन और pnpm 12 चाहिए (`corepack enable` से आपको वही वर्शन मिलता है जो रिपॉज़िटरी में तय है)। रिपॉज़िटरी के क्लोन में पैकेज बिल्ड करें, उसे पैक करें, और पैक की गई फ़ाइल अपने प्रोजेक्ट में इंस्टॉल करें:
 
 ```sh
 git clone https://github.com/chnotchy/tanrei.git
@@ -33,36 +39,43 @@ pnpm --filter @tanrei/web pack --pack-destination ../tanrei-packages
 npm install path/to/tanrei-packages/tanrei-web-*.tgz
 ```
 
-पैक की गई फ़ाइल में वही है जो कोई रिलीज़ प्रकाशित करेगी, इसलिए नीचे का सब कुछ उसी तरह काम करता है। सोर्स की नई स्थिति लेने के लिए pull करें, फिर से बिल्ड और पैक करें, और नई फ़ाइल इंस्टॉल करें।
-
-### पहली रिलीज़ के बाद
-
-```sh
-npm install @tanrei/web
-```
+पैक की गई फ़ाइल में वही है जो कोई रिलीज़ प्रकाशित करती है, इसलिए नीचे का सब कुछ उसी तरह काम करता है। सोर्स की नई स्थिति लेने के लिए pull करें, फिर से बिल्ड और पैक करें, और नई फ़ाइल इंस्टॉल करें।
 
 ## इस्तेमाल
 
 <Steps>
 
-1. टोकन एक बार लोड करें, जितना पहले हो सके। वे एक कैस्केड लेयर (`tanrei.tokens`) में लिपटे हैं, इसलिए आपकी अपनी स्टाइल हमेशा उन पर भारी पड़ती हैं।
+1. स्टाइलशीट एक बार लोड करें, जितना पहले हो सके। वे कैस्केड लेयर (`tanrei.*`) में लिपटी हैं, इसलिए आपकी अपनी स्टाइल हमेशा उन पर भारी पड़ती हैं।
+
+   ```js
+   import '@tanrei/web/tanrei.css';
+   ```
+
+   `tanrei.css` में सब कुछ एक फ़ाइल में है: पेज का बेस, टोकन, और उन भागों की स्टाइलशीट जो बिना एलिमेंट के बनते हैं (टेक्स्ट स्टाइल, टेबल, अकॉर्डियन और बाक़ी)। सिर्फ़ वही लोड करना हो जो आप इस्तेमाल करते हैं, तो टोकन लें, चाहें तो बेस भी, और उन स्टाइलशीट में से हर एक तभी लें जब उसकी ज़रूरत हो:
 
    ```js
    import '@tanrei/web/tokens.css';
+   import '@tanrei/web/base.css'; // पेज सिस्टम की सरफ़ेस, टेक्स्ट के रंग और बॉडी फ़ॉन्ट में, और body पर कोई मार्जिन नहीं
    ```
 
-2. कंपोनेंट रजिस्टर करें। सब कुछ इंपोर्ट करें, या सिर्फ़ वे एलिमेंट जो आप इस्तेमाल करते हैं।
+   बेस पेज को सरफ़ेस का रंग देता है, आपके अपने टेक्स्ट को on-surface रंग और बॉडी फ़ॉन्ट देता है, और ब्राउज़र का body पर लगाया मार्जिन हटा देता है। इसके बिना पेज ब्राउज़र के डिफ़ॉल्ट पर रहता है।
+
+2. अपने डिज़ाइन सिस्टम के कंपोनेंट रजिस्टर करें, या सिर्फ़ वे एलिमेंट जो आप इस्तेमाल करते हैं।
 
    ```js
    import '@tanrei/web';
+   // प्रीसेट पर, उसकी एंट्री इसकी जगह: m3-like, m3-expressive-like या cupertino
+   import '@tanrei/web/m3-like';
    // या, एक-एक एलिमेंट:
    import '@tanrei/web/components/button';
    ```
 
+   `@tanrei/web` सिर्फ़ वे कंपोनेंट रजिस्टर करता है जो डिफ़ॉल्ट सिस्टम में हैं, इसलिए उस पर बना प्रोडक्ट ऐसे कंपोनेंट तक नहीं पहुँच सकता जो उसके सिस्टम में नहीं है। प्रीसेट की एंट्री, `@tanrei/web/<id>`, वह रजिस्टर करती है जो उस प्रीसेट में है, और `@tanrei/web/all` पैकेज के सारे कंपोनेंट। जो कंपोनेंट सिर्फ़ किसी प्रीसेट में है, जैसे [सेगमेंटेड बटन](/hi/components/segmented-button/), उसे फिर भी जान-बूझकर लिया जा सकता है: उसे अपने सिस्टम की लेयर में शामिल करें और उसका अपना मॉड्यूल इंपोर्ट करें।
+
    `@tanrei/web/…` वाले स्पेसिफ़ायर पैकेज के एक्सपोर्ट हैं: इन्हें कोई बंडलर (Vite, webpack, esbuild) रिज़ॉल्व करता है। बंडलर के बिना ब्राउज़र `<link>` या `<script src>` में बेयर स्पेसिफ़ायर रिज़ॉल्व नहीं कर सकता, इसलिए पैकेज का `dist/` सर्व करें और सीधे फ़ाइलों की ओर इशारा करें — स्टाइलशीट जैसी हैं वैसी ही, और `tanrei.bundle.js`, जिसमें Lit और हर एलिमेंट शामिल है:
 
    ```html
-   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tokens.css" />
+   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tanrei.css" />
    <script type="module" src="/node_modules/@tanrei/web/dist/tanrei.bundle.js"></script>
    ```
 
@@ -73,15 +86,22 @@ npm install @tanrei/web
    <tanrei-button variant="outlined" size="small" disabled>रद्द करें</tanrei-button>
    ```
 
-4. अपने प्रॉडक्ट के शब्द दें। Tanrei अपना कोई शब्द साथ नहीं देता: ज़रूरी या वैकल्पिक के टैग का टेक्स्ट, बंद करने वाले बटन का नाम और ऐसे दूसरे शब्द आपके हैं। उन्हें हर भाषा के लिए एक बार दें, या हर एलिमेंट पर लिखें।
+4. अपने प्रॉडक्ट के शब्द दें। किसी कंपोनेंट के अपने कोई शब्द नहीं होते: ज़रूरी या वैकल्पिक के टैग का टेक्स्ट, बंद करने वाले बटन का नाम और ऐसे दूसरे शब्द आपके प्रॉडक्ट के हैं। शुरुआत में इन सबके लिए सादी अंग्रेज़ी चाहिए, तो अंग्रेज़ी शब्दों का पैक एक बार import करें:
+
+   ```js
+   import '@tanrei/web/words/en';
+   ```
+
+   इनमें से कोई भी बदलने के लिए, या किसी दूसरी भाषा के शब्द देने के लिए, उसके बाद `setWords()` कॉल करें। आपका दिया शब्द पैक से ऊपर है, और एलिमेंट पर दिया शब्द इन दोनों से ऊपर।
 
    ```js
    import { setWords } from '@tanrei/web';
 
-   setWords({ requiredText: 'ज़रूरी', optionalText: 'वैकल्पिक', closeLabel: 'बंद करें' });
+   setWords({ requiredText: 'Mandatory' });
+   setWords({ requiredText: 'ज़रूरी', optionalText: 'वैकल्पिक', closeLabel: 'बंद करें' }, { lang: 'hi' });
    ```
 
-   शब्द के बिना भी कंपोनेंट काम करता है, और कंसोल में बताता है कि कौन-सा शब्द नहीं मिला। देखें [शब्द](/hi/foundations/words/)।
+   पैक और आपके शब्दों के बिना भी कंपोनेंट काम करता है, और कंसोल में बताता है कि कौन-सा शब्द नहीं मिला। देखें [शब्द](/hi/foundations/words/)।
 
 </Steps>
 
@@ -89,6 +109,10 @@ npm install @tanrei/web
   <tanrei-button variant="filled">डिप्लॉय करें</tanrei-button>
   <tanrei-button variant="outlined" size="small" disabled>रद्द करें</tanrei-button>
 </DemoFrame>
+
+## एलिमेंट का मैनिफ़ेस्ट
+
+एडिटर और कोडिंग एजेंट पैकेज के एलिमेंट उसके [custom elements manifest](https://github.com/webcomponents/custom-elements-manifest), `@tanrei/web/custom-elements.json`, से पढ़ते हैं: हर एलिमेंट अपने ऐट्रिब्यूट, प्रॉपर्टी, इवेंट, स्लॉट और पार्ट के साथ, और ऐसा कुछ नहीं जिस तक प्रोडक्ट नहीं पहुँच सकता। `@tanrei/web/custom-elements/<id>.json` में सिर्फ़ वे एलिमेंट हैं जो सिस्टम `<id>` में हैं, इसलिए एक सिस्टम में काम करने वाला टूल और कुछ नहीं सुझाता।
 
 ## थीम और कंट्रास्ट
 
@@ -108,6 +132,50 @@ npm install @tanrei/web
   दोनों ऐट्रिब्यूट `<html>` पर या किसी भी सबट्री पर काम करते हैं। जनरेट की गई स्टाइलशीट पूरा टोकन सेट `:root, [data-tanrei-contrast]` पर घोषित करती है, इसलिए किसी नेस्टेड एलिमेंट पर लगा `data-tanrei-contrast` उसके भीतर सिर्फ़ सिस्टम के रंग ही नहीं, कंपोनेंट टोकन भी उसी कंट्रास्ट स्तर के हिसाब से दोबारा रिज़ॉल्व करता है।
 </Callout>
 
+### किसी व्यक्ति की चुनी हुई थीम बनाए रखें
+
+अगर आपके प्रॉडक्ट में लोग थीम चुन सकते हैं, तो उनकी पसंद सहेजें और पेज के पहली बार बनने से पहले उसे `<html>` पर लगाएँ: बाद में चलने वाली स्क्रिप्ट से लगाने पर पेज पहले एक फ़्रेम के लिए सिस्टम की थीम दिखाता है। `@tanrei/web/theme-script` दोनों काम करता है। `themeScript()` एक छोटी स्क्रिप्ट है जिसे `<head>` में, स्टाइलशीट से पहले, इनलाइन लिखा जाता है, और `saveTheme()` पसंद सहेजता है और उसे तुरंत लागू करता है।
+
+```js
+import { loadTheme, saveTheme } from '@tanrei/web/theme-script';
+
+saveTheme('dark'); // 'light', 'dark', या फिर से ऑपरेटिंग सिस्टम के हिसाब से चलने के लिए 'system'
+loadTheme();       // जो सहेजा गया है: 'light', 'dark' या 'system'
+```
+
+Next.js (App Router) में इसे रूट लेआउट में इनलाइन लिखें। `suppressHydrationWarning` इसलिए है कि React के हाइड्रेट करने से पहले स्क्रिप्ट `<html>` का एक ऐट्रिब्यूट बदल देती है।
+
+```tsx
+// app/layout.tsx
+import { themeScript } from '@tanrei/web/theme-script';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript() }} />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+Astro में इसे लेआउट में इनलाइन लिखें:
+
+```html
+---
+// src/layouts/Layout.astro
+import { themeScript } from '@tanrei/web/theme-script';
+---
+<html lang="en">
+  <head>
+    <script is:inline set:html={themeScript()} />
+  </head>
+  <body><slot /></body>
+</html>
+```
+
 ## अपनी CSS में टोकन
 
 हर टोकन एक कस्टम प्रॉपर्टी है, जिसका नाम उसके पाथ से बनता है: `tanrei.sys.color.primary` का नाम `--tanrei-sys-color-primary` बन जाता है।
@@ -120,6 +188,8 @@ npm install @tanrei/web
   font: var(--tanrei-sys-typescale-body-font);
 }
 ```
+
+स्क्रिप्ट से टोकन सेट करने के लिए `@tanrei/web` का `setTokens()` इस्तेमाल करें: रूट पर `setTokens({ '--tanrei-sys-color-primary': '#0b57d0' })`, या पेज के किसी एक हिस्से के लिए `{ on: element }` के साथ। रूट पर `style.setProperty()` से अकेला एक टोकन सेट करने पर Safari कई सेकंड तक पूरे पेज की स्टाइल फिर से निकालता है; `setTokens()` उसे इस तरह लिखता है कि ऐसा न हो।
 
 ## टेक्स्ट स्टाइल
 
@@ -158,4 +228,36 @@ import '@tanrei/web/icons.css';
 
 ## ब्राउज़र सपोर्ट
 
-टोकन `light-dark()` और कैस्केड लेयर पर निर्भर हैं, जो Chrome, Edge, Firefox और Safari के मौजूदा वर्शन में उपलब्ध हैं।
+Tanrei इन वर्शन और इनके बाद के वर्शन में काम करता है:
+
+| ब्राउज़र | वर्शन |
+|---|---|
+| Chrome और Edge | 125 |
+| Firefox | 126 |
+| Safari, macOS और iOS पर | 17.5 |
+
+हर संख्या उन फ़ीचर में सबसे नए फ़ीचर से आती है जिनके बिना Tanrei बन ही नहीं सकता, और इनमें से किसी का कोई विकल्प नहीं है:
+
+- **CSS.** हर रंग `light-dark()` की एक जोड़ी है (Chrome और Edge 123, Firefox 120, Safari 17.5)। साइज़ और फ़ॉन्ट साइज़ CSS के `round()` से राउंड किए जाते हैं (Chrome और Edge 125, Firefox 118, Safari 15.4)। कंपोनेंट कस्टम स्टेट, `:state()`, के हिसाब से अपनी स्टाइल बदलते हैं (Chrome और Edge 125, Firefox 126, Safari 17.4)। मेन्यू, टूलटिप और स्नैकबार Popover API से टॉप लेयर में खुलते हैं (Chrome और Edge 114, Firefox 125, Safari 17)। स्टाइलशीट जिन कैस्केड लेयर में लिपटी हैं, वे इनसे पहले से उपलब्ध हैं (Chrome और Edge 99, Firefox 97, Safari 15.4)।
+- **JavaScript.** पैकेज ES2022 में है, और अगर उसकी पब्लिश होने वाली कोई भी फ़ाइल इससे आगे जाती है तो उसका बिल्ड फ़ेल हो जाता है। इसका सबसे नया सिंटैक्स, क्लास के static ब्लॉक, Chrome और Edge 94, Firefox 93 और Safari 16.4 से चलता है। पैकेज को किसी पुराने टारगेट के लिए ट्रांसपाइल करने से न्यूनतम वर्शन नीचे नहीं आता: ऊपर वाली CSS जैसी है वैसी ही रहती है।
+
+कुछ नए फ़ीचर सिर्फ़ वहीं इस्तेमाल होते हैं जहाँ उनके बिना भी ब्राउज़र ठीक से काम करता है: `@starting-style` न हो तो खुलने का एनिमेशन नहीं चलता, और `corner-shape` न हो तो कोना सामान्य गोल ही रहता है।
+
+### विज़िटर को बताना कि उसका ब्राउज़र बहुत पुराना है
+
+Tanrei यह ख़ुद नहीं करता: यह आपके प्रोडक्ट के एंट्री पॉइंट का काम है। पहले फ़ीचर जाँचें, और ऐप को, उसके साथ Tanrei को, तभी लोड करें जब वे मौजूद हों:
+
+```html
+<p id="unsupported" hidden>इस साइट के लिए Chrome या Edge 125, Firefox 126 या Safari 17.5, या इनसे नया वर्शन चाहिए।</p>
+<script type="module">
+  // Safari का न्यूनतम वर्शन light-dark() से, Chrome और Edge का round() से, और Firefox का :state() से तय होता है
+  const supported =
+    CSS.supports('color', 'light-dark(red, red)') &&
+    CSS.supports('width', 'round(1px, 1px)') &&
+    CSS.supports('selector(:state(open))');
+  if (supported) import('./app.js'); // आपका ऐप, जो @tanrei/web को इंपोर्ट करता है
+  else document.getElementById('unsupported').hidden = false;
+</script>
+```
+
+इस स्क्रिप्ट को छोटा और सीधा रखें: हर विज़िटर का ब्राउज़र इसे चलाता है, पुराने ब्राउज़र भी। स्टैटिक `import` के साथ ब्राउज़र इस स्क्रिप्ट के चलने से पहले ही ऐप लोड कर लेता है, और जो पुराना ब्राउज़र ऐप को पार्स नहीं कर पाता वह जाँच तक पहुँचता ही नहीं; `import()` ऐप को जाँच के बाद ही लोड करता है।

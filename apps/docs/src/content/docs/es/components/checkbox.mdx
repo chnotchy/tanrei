@@ -2,7 +2,7 @@
 title: Casilla de verificación
 description: Permite activar o desactivar una elección independiente, mostrar una elección principal que solo está activada en parte y señalar una elección obligatoria que ha quedado sin hacer.
 translationOf: components/checkbox.mdx
-sourceHash: 5f5b384760649426cba12f3085fb27fa6c7a5c97
+sourceHash: 41115adc606cd77721bfa14586382e10f63283dc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -148,6 +148,7 @@ La revisión que dio a la casilla de verificación sus tamaños actuales y los g
     <tanrei-checkbox disabled checked label="Deshabilitada, marcada"></tanrei-checkbox>
     <tanrei-checkbox disabled indeterminate label="Deshabilitada, indeterminada"></tanrei-checkbox>
   </div>
+  <tanrei-checkbox readonly checked label="Solo lectura, marcada"></tanrei-checkbox>
   <tanrei-checkbox checked label-hidden label="Seleccionar fila"></tanrei-checkbox>
 </DemoFrame>
 
@@ -164,6 +165,10 @@ Cuando la casilla de verificación cambia, el recuadro, el contorno y el glifo c
 Usa una casilla de verificación para una elección que se sostiene por sí sola: una lista en la que las personas pueden escoger cualquier número de opciones, incluida ninguna, o un único sí o no, como aceptar unas condiciones. La elección surte efecto cuando la persona confirma, por ejemplo al enviar el formulario o al guardar. Una casilla de verificación también selecciona filas de una tabla o elementos de una lista.
 
 El estado indeterminado corresponde a una casilla principal cuyas casillas secundarias están marcadas en parte, como «Seleccionar todo» encima de una lista. No es una tercera respuesta que una persona pueda escoger.
+
+### Solo lectura
+
+Una casilla de verificación de solo lectura muestra una respuesta que la persona puede leer pero no cambiar, como un paso de revisión antes de enviar un pedido o un ajuste que solo algunas personas pueden cambiar. Sigue en el orden del foco, se anuncia con su estado y como de solo lectura, y se envía con su formulario. Se ve como una casilla habilitada, sin la respuesta al pasar el puntero ni al pulsar, para que se lea como una respuesta y no como algo no disponible. Usa `disabled` cuando la opción no aplica en absoluto, y escribe la respuesta como texto cuando nadie necesita llegar a ella.
 
 ### Casilla de verificación, botón de opción o interruptor
 
@@ -197,6 +202,7 @@ El estado indeterminado corresponde a una casilla principal cuyas casillas secun
 - La etiqueta es el nombre accesible, tanto si se dibuja como si se oculta con `labelHidden`. El texto dibujado queda oculto para la tecnología de apoyo, de modo que el nombre se lee una sola vez.
 - Un clic o un toque en la etiqueta conmuta la casilla de verificación. La etiqueta forma parte del área de pulsación, y el área de pulsación cumple el objetivo mínimo.
 - Espacio la conmuta. Enter la conmuta solo donde la plataforma activa con Enter cualquier control con foco (Android, tvOS); en la web, Enter envía el formulario.
+- Mientras `readOnly` está activo, sigue pudiendo recibir el foco y se anuncia como de solo lectura junto a su estado. Ninguna pulsación, Espacio, clic en la etiqueta ni `click()` la cambia, y no muestra respuesta al pasar el puntero ni al pulsar. En la web su valor se sigue enviando, y una obligatoria no informa de un valor ausente. El `readonly` de HTML no se aplica a una casilla de verificación, así que el componente lo hace por sí mismo.
 - Muestra el indicador de foco alrededor del recuadro, solo para el foco del teclado.
 - La marca de verificación y el guion quedan ocultos para la tecnología de apoyo. Los estados marcada y mixta se anuncian a partir del estado, nunca a partir del nombre del glifo.
 - Cuando el movimiento está reducido, la nueva condición se dibuja completa en el primer fotograma después del cambio, nunca con retraso ni a medio dibujar. Un cambio durante otro cambio continúa desde lo que hay dibujado en ese momento.
@@ -207,6 +213,7 @@ El estado indeterminado corresponde a una casilla principal cuyas casillas secun
 Carencias conocidas por plataforma:
 
 - SwiftUI, Compose, Flutter y React Native siguen dibujando la marca de verificación y el guion como marcas propias y animándolos a su manera, sin el peso propio de la marca ni el recuadro de una sola forma.
+- `readOnly` está por ahora solo en la web: SwiftUI, Compose, Flutter y React Native todavía no lo tienen.
 - Con `m3-like`, la marca de verificación es el glifo del conjunto de iconos y aparece con un fundido mientras crece, mientras que Material dibuja su propia marca trazo a trazo y la dobla hasta convertirla en el guion (laguna de imitación `checkbox-mark-drawn-on`).
 
 ### Qué debes hacer tú

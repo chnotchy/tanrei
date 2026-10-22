@@ -1,0 +1,302 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "resizable-frame",
+  "title": "Resizable frame",
+  "summary": "Gives content — a component preview, a page in an embedded document, a navigation drawer, a side bar — a width and a height that a person changes by dragging a handle on its edge or its corner, from the keyboard or by activating the handle: outlined, a box to check how the content responds to the room it is given; plain, the edge of a pane.",
+  "category": "containment",
+  "level": "composed",
+  "listing": "default",
+  "builtFrom": ["handle"],
+  "fills": ["handle.value", "handle.min", "handle.max", "handle.label", "handle.revealed"],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The box the content is laid out in, as wide and as tall as the frame's size. Outlined, its corners rounded and edged with one hairline, and the content clipped to it; plain, nothing drawn. It gives the content no fill of its own."
+    },
+    {
+      "id": "content",
+      "description": "Whatever the product puts in the frame: a component, an embedded document, a layout, a navigation drawer. The frame gives it its width and its height and does nothing else to it."
+    },
+    {
+      "id": "start-handle",
+      "description": "A Handle (axis horizontal) centred along the start edge: it changes the width from that edge (a side bar at the end of a layout).",
+      "optional": true
+    },
+    {
+      "id": "end-handle",
+      "description": "A Handle (axis horizontal) centred along the end edge: it changes the width.",
+      "optional": true
+    },
+    {
+      "id": "bottom-handle",
+      "description": "A Handle (axis vertical) centred along the bottom edge: it changes the height.",
+      "optional": true
+    },
+    {
+      "id": "corner-handle",
+      "description": "A Handle (axis both, corner bottom-end) at the bottom-end corner: it changes both.",
+      "optional": true
+    },
+    {
+      "id": "size-indicator",
+      "description": "A small label inside the box at its top-end corner that shows the size as width × height in pixels while a handle is held or has keyboard focus, or always.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": ["outlined", "plain"],
+      "default": "outlined",
+      "description": "outlined: a box with rounded corners and one hairline, its handles outside it so that they cover nothing — where a person checks how content responds to its room (a preview). plain: no edge and no corners of its own, the content drawing its own surface, and each handle centred on its edge — the edge of a pane (a navigation drawer, a side bar)."
+    },
+    {
+      "name": "handles",
+      "type": "strings",
+      "default": ["end"],
+      "description": "Which handles the frame draws: any of start, end, bottom and bottom-end, in any combination. start is for content at the end of a layout, which grows toward the start (a side bar); end for content at its start (a preview, a navigation drawer). An empty list draws none, and the frame is a box of the size the product sets."
+    },
+    {
+      "name": "width",
+      "type": "number",
+      "default": null,
+      "description": "The width of the box in pixels. Null takes the width the layout gives. A drag, a key or an activation changes it, and the frame keeps the width the person gave until the product sets another; a product that keeps a person's width (a drawer's, from one visit to the next) stores it from change and sets it again."
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "default": null,
+      "description": "The height of the box in pixels. Null takes the height the layout gives where it gives one (a row that stretches its items, a grid's cell, a pane beside the page), and the content's height where it does not, within minHeight and maxHeight. Changed as width is."
+    },
+    {
+      "name": "minWidth",
+      "type": "number",
+      "default": null,
+      "description": "The least width a person can give. Null takes comp.resizable-frame.container.min-width (320 in the default system: the width at which content must reflow without scrolling sideways, WCAG 1.4.10). A pane sets its own (a navigation drawer's least)."
+    },
+    {
+      "name": "maxWidth",
+      "type": "number",
+      "default": null,
+      "description": "The greatest width. Null is the width the layout gives the frame."
+    },
+    {
+      "name": "minHeight",
+      "type": "number",
+      "default": null,
+      "description": "The least height. Null takes comp.resizable-frame.container.min-height."
+    },
+    {
+      "name": "maxHeight",
+      "type": "number",
+      "default": null,
+      "description": "The greatest height. Null is unlimited where the layout lets the frame grow."
+    },
+    {
+      "name": "snapWidths",
+      "type": "numbers",
+      "default": [],
+      "description": "Widths in whole pixels a drag of a handle that changes the width snaps to (360, 600, 1024: a common phone, a tablet, a small laptop). A width within comp.resizable-frame.snap-distance of one is taken as that one."
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "default": 10,
+      "description": "How many pixels one arrow key changes a size by."
+    },
+    {
+      "name": "largeStep",
+      "type": "number",
+      "default": 100,
+      "description": "How many pixels Shift with an arrow key, Page Up or Page Down changes a size by."
+    },
+    {
+      "name": "sizeIndicator",
+      "type": "enum",
+      "values": ["none", "active", "always"],
+      "default": "active",
+      "description": "When the size indicator is drawn: never; while a handle is held or has keyboard focus; or all the time. A pane that is not checked for its size (a navigation drawer) sets none."
+    },
+    {
+      "name": "widthLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the start and the end handle (\"Resize preview width\", \"Resize navigation\"). Required while one of them is drawn."
+    },
+    {
+      "name": "heightLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the bottom handle (\"Resize preview height\"). Required while it is drawn."
+    },
+    {
+      "name": "cornerLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the corner handle (\"Resize preview\"). Required while it is drawn."
+    }
+  ],
+  "events": [
+    {
+      "name": "resize",
+      "description": "The size changed during a drag; emitted in every frame it changes. Carries width and height in pixels."
+    },
+    {
+      "name": "change",
+      "description": "A person finished changing the size: a drag ended, a key changed it, or a handle was activated. Carries width and height. Not emitted when the product sets a size."
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "description": "The content: a component, an embedded document, a layout, a navigation drawer. A fixture's string is drawn as plain text in it.",
+      "fixture": "text"
+    }
+  ],
+  "states": ["enabled", "hovered", "focused", "pressed"],
+  "behavior": [
+    {
+      "id": "RSF-1",
+      "text": "THE resizable frame SHALL lay out its container as a box of its width and its height — width while it is not null and otherwise the width the layout gives it, height while it is not null and otherwise the height the layout gives it or, where the layout gives none, its content's height — each kept within its least and greatest (minWidth or comp.resizable-frame.container.min-width, and the lesser of maxWidth and the layout's width; minHeight or comp.resizable-frame.container.min-height, and maxHeight), with no fill and no elevation of its own, placed at the start edge of the room the layout gives it, or at its end edge WHILE handles names start and not end, so that the edge a person drags is the one that moves."
+    },
+    {
+      "id": "RSF-2",
+      "text": "WHILE variant is outlined THE resizable frame SHALL draw its container with comp.resizable-frame.container.shape corners eased by sys.shape.corner-smoothing, edged inside with a line comp.resizable-frame.outline.width wide in comp.resizable-frame.outline.color, SHALL lay its content out at the box's width and clip it to the box's shape, and WHILE the content is taller than the box SHALL scroll it inside the box and make the box one focus stop, so that a keyboard scrolls it; WHILE variant is plain THE resizable frame SHALL draw no edge and no corners, SHALL give the content the box's width and height to fill, and SHALL clip nothing: the content draws its own surface and scrolls itself. In both THE resizable frame SHALL style nothing inside the content."
+    },
+    {
+      "id": "RSF-3",
+      "text": "THE resizable frame SHALL draw the handles that handles names and no other: for start and end a Handle with axis horizontal centred along that edge, for bottom a Handle with axis vertical centred along the bottom edge, for bottom-end a Handle with axis both and corner bottom-end at that corner, each at size medium, and each with a hit area that meets the minimum target by its own rule (HDL-5). WHILE variant is outlined each handle SHALL stand outside the box, its box comp.resizable-frame.handle.gap beyond the edge (beyond both edges for the corner), and THE resizable frame SHALL keep room for them outside the box, so that they never cover the content; WHILE variant is plain each handle SHALL be centred on its edge (its corner on the box's corner) and take no room."
+    },
+    {
+      "id": "RSF-4",
+      "text": "WHILE a drag of a handle lasts THE resizable frame SHALL change its width by the inline distance of the end and the corner handle, and by that distance taken the other way for the start handle, and its height by the block distance of the bottom and the corner handle, from the size it had when the drag began, kept within its least and greatest, following the drag without a motion, and SHALL emit resize with the new width and height in every frame the size changes; WHEN the drag ends THE resizable frame SHALL keep the size and emit change once, and none WHERE the size did not change."
+    },
+    {
+      "id": "RSF-5",
+      "text": "WHILE a drag of a handle that changes the width lasts and snapWidths names widths THE resizable frame SHALL take a width within comp.resizable-frame.snap-distance of one of them as that width, and SHALL let the width go on with the drag once it is farther than that."
+    },
+    {
+      "id": "RSF-6",
+      "text": "WHILE a drag of a handle lasts THE resizable frame SHALL keep every embedded document in its content from taking pointer input, so that the drag is not lost when the pointer passes over it, and SHALL give it input again WHEN the drag ends."
+    },
+    {
+      "id": "RSF-7",
+      "text": "WHEN a handle emits step THE resizable frame SHALL change the size the step's axis stands for — the width for the inline axis, the height for the block axis — by step pixels for amount one and by largeStep pixels for amount large, wider toward the edge the handle stands on (toward the end for the end and the corner handle, toward the start for the start handle) and taller downward, and to its least for amount limit with direction −1 (Home) and to its greatest with direction 1 (End), kept within its least and greatest, and SHALL emit change once WHERE the size changed; it SHALL move to the new size over comp.resizable-frame.motion.resize-duration with comp.resizable-frame.motion.resize-easing, and at once where motion is reduced."
+    },
+    {
+      "id": "RSF-8",
+      "text": "WHEN the start or the end handle is activated THE resizable frame SHALL make its width its greatest WHILE it is narrower, and SHALL give it back the width it had before the person last made it the greatest WHILE it already is the greatest (the least width where it had none); the bottom handle SHALL do the same with the height, the content's height standing for the greatest WHILE maxHeight is null; the corner handle SHALL do both. Each SHALL move as RSF-7 says and emit change once, so that no size the frame offers depends on a drag (WCAG 2.5.7)."
+    },
+    {
+      "id": "RSF-9",
+      "text": "THE resizable frame SHALL give each handle the value its size stands for — the width in pixels for the start and the end handle, the height for the bottom and the corner handle — with its least and greatest as min and max, and SHALL name the start and the end handle by widthLabel, the bottom handle by heightLabel and the corner handle by cornerLabel; WHILE a drawn handle's label is empty THE resizable frame SHALL still render it, and in debug builds report that it has no accessible name."
+    },
+    {
+      "id": "RSF-10",
+      "text": "WHILE sizeIndicator is always, or sizeIndicator is active and a handle is held by a press or a drag or has keyboard focus, THE resizable frame SHALL draw its size indicator inside the box, comp.resizable-frame.size-indicator.offset from its top and end edges, over the content: the width, the character ×, and the height, in whole pixels written with the platform's digits for the layout's language and without grouping, in comp.resizable-frame.size-indicator.label.typescale and comp.resizable-frame.size-indicator.label.color, on a container comp.resizable-frame.size-indicator.container.height high, padded by comp.resizable-frame.size-indicator.container.padding-inline at its sides, with comp.resizable-frame.size-indicator.container.shape corners, filled with comp.resizable-frame.size-indicator.container.color; it SHALL take no input, and SHALL be hidden from assistive technology, which reads each size as its handle's value."
+    },
+    {
+      "id": "RSF-11",
+      "text": "WHEN the size indicator appears or goes THE resizable frame SHALL fade it in over comp.resizable-frame.motion.indicator-enter-duration with comp.resizable-frame.motion.indicator-enter-easing and out over comp.resizable-frame.motion.indicator-exit-duration with comp.resizable-frame.motion.indicator-exit-easing, and at once where motion is reduced; WHILE a drag lasts it SHALL update the numbers in every frame, without a motion."
+    },
+    {
+      "id": "RSF-12",
+      "text": "WHEN the product sets width or height THE resizable frame SHALL draw the new size at once and SHALL NOT emit resize or change; WHEN the layout's width becomes narrower than the frame's width THE resizable frame SHALL be as wide as the layout allows and keep the width the person gave for when there is room again."
+    },
+    {
+      "id": "RSF-13",
+      "text": "WHERE the layout direction is right-to-left THE resizable frame SHALL mirror its layout: the box at the right of its room (at its left WHILE it stands at the end edge, RSF-1), the end handle on the box's left edge and the start handle on its right, the corner handle at the bottom-left corner, so that a drag away from the box widens it, and the size indicator at the top-left, its numbers still written left to right, the width at the left of the height, as a size is written in every language."
+    },
+    {
+      "id": "RSF-14",
+      "text": "THE resizable frame SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the frame is shown THE resizable frame SHALL draw itself for the new direction at once, without a motion of its own, keeping its size.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "RSF-15",
+      "text": "WHERE the platform draws with a person's own forced colors THE resizable frame SHALL draw the outlined box's edge in the platform's text color, and its size indicator's text in the platform's text color on the platform's canvas color, with an edge of comp.resizable-frame.outline.width in the text color around it."
+    },
+    {
+      "id": "RSF-16",
+      "text": "IF handles names a value other than start, end, bottom and bottom-end, or variant or sizeIndicator a value the component does not define, THE resizable frame SHALL ignore that handle, draw the variant as outlined or treat the indicator as active, and in debug builds report the unknown value; IF a value of snapWidths is not a whole number of pixels above zero THE resizable frame SHALL ignore it and in debug builds report it."
+    },
+    {
+      "id": "RSF-17",
+      "text": "THE resizable frame SHALL have no words of its own and SHALL read none of the product's words: widthLabel, heightLabel and cornerLabel are about this one frame, and the size indicator is made of digits and a mark."
+    },
+    {
+      "id": "RSF-18",
+      "text": "THE resizable frame SHALL add to the focus order its handles after its content, in the order start, end, bottom, bottom-end, and no other stop of its own but the box while it scrolls (RSF-2)."
+    },
+    {
+      "id": "RSF-19",
+      "text": "WHILE variant is outlined and a fine pointer is over the frame — its box or a handle's target — THE resizable frame SHALL draw its handles at rest (the handle's revealed), so that a person who points at a preview sees where to take it; WHILE variant is plain THE resizable frame SHALL leave each handle out of sight until it is used, as the Handle does (HDL-23), so that a pane's edge stays quiet under a pointer that only passes over the pane."
+    }
+  ],
+  "accessibility": {
+    "role": "none (a group of the product's content and its handles); each handle is a focusable separator",
+    "keyboard": [
+      { "keys": "Tab", "action": "Moves through the content, then the handles: start, end, bottom, corner." },
+      { "keys": "Arrow keys on a handle", "action": "Change the size by step pixels; with Shift, by largeStep (HDL-9, RSF-7). On the start handle the arrow toward the start widens." },
+      { "keys": "Page Up / Page Down", "action": "Change the size by largeStep." },
+      { "keys": "Home / End", "action": "Give the size its least or its greatest." },
+      { "keys": "Enter or Space", "action": "Switch between the greatest size and the size before it (RSF-8)." }
+    ],
+    "labeling": "Each handle is named by its label (widthLabel for the start and the end handle, heightLabel, cornerLabel) and tells its size as its value in pixels, with its least and greatest. The size indicator is hidden: it draws what the handles already tell.",
+    "minimumTarget": true,
+    "notes": [
+      "The default least width, 320, is the width at which content must reflow without a sideways scroll (WCAG 1.4.10), so that a person checking a design can reach that width and no narrower by accident; a product sets minWidth lower for a narrower check, and a pane sets its own.",
+      "Dragging movements (WCAG 2.5.7): every size is also reachable by activating a handle (the greatest and the one before) and by its keys.",
+      "The keys follow the window splitter pattern of the ARIA Authoring Practices: each handle is a separator with a value, Home and End give the least and the greatest."
+    ]
+  },
+  "tokens": "comp.resizable-frame",
+  "fixtures": [
+    { "id": "default", "props": { "width": 480, "height": 240, "widthLabel": "Resize preview width" }, "slots": { "default": "Preview" } },
+    { "id": "all-handles", "props": { "width": 480, "height": 240, "handles": ["end", "bottom", "bottom-end"], "widthLabel": "Resize preview width", "heightLabel": "Resize preview height", "cornerLabel": "Resize preview" }, "slots": { "default": "Preview" } },
+    { "id": "bottom-only", "props": { "width": 480, "height": 240, "handles": ["bottom"], "heightLabel": "Resize preview height" }, "slots": { "default": "Preview" } },
+    { "id": "indicator-always", "props": { "width": 390, "height": 240, "sizeIndicator": "always", "widthLabel": "Resize preview width" }, "slots": { "default": "Preview" } },
+    { "id": "no-handles", "props": { "width": 360, "height": 200, "handles": [] }, "slots": { "default": "Preview" } },
+    { "id": "plain", "props": { "variant": "plain", "width": 280, "height": 240, "minWidth": 200, "sizeIndicator": "none", "widthLabel": "Resize navigation" }, "slots": { "default": "Navigation" } },
+    { "id": "plain-start", "props": { "variant": "plain", "width": 280, "height": 240, "minWidth": 200, "handles": ["start"], "sizeIndicator": "always", "widthLabel": "Resize side bar" }, "slots": { "default": "Side bar" } },
+    { "id": "rtl", "direction": "rtl", "props": { "width": 480, "height": 240, "handles": ["end", "bottom-end"], "sizeIndicator": "always", "widthLabel": "Resize preview width", "cornerLabel": "Resize preview" }, "slots": { "default": "Preview" } }
+  ],
+  "platforms": {
+    "web": {
+      "status": "alpha",
+      "name": "tanrei-resizable-frame",
+      "props": { "variant": "variant", "handles": "handles", "width": "width", "height": "height", "minWidth": "minWidth", "maxWidth": "maxWidth", "minHeight": "minHeight", "maxHeight": "maxHeight", "snapWidths": "snapWidths", "step": "step", "largeStep": "largeStep", "sizeIndicator": "sizeIndicator", "widthLabel": "widthLabel", "heightLabel": "heightLabel", "cornerLabel": "cornerLabel" },
+      "events": { "resize": "resize", "change": "change" },
+      "notes": "`<tanrei-resizable-frame variant handles=\"end bottom-end\" width height min-width max-width min-height max-height snap-widths=\"360 600 1024\" step large-step size-indicator width-label height-label corner-label>` with the content in the default slot. `handles` and `snapWidths` are array properties; their attributes are space-separated or a JSON array. The handles are `<tanrei-handle>` in the shadow root. RSF-6 sets `pointer-events: none` on every slotted `<iframe>`, `<object>` and `<embed>` (and every one inside the slotted content) between the handles' resizestart and resizeend. `resize` and `change` are composed, bubbling `CustomEvent`s with `{ width, height }`; the Handle's own events stay in the shadow root."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiResizableFrame",
+      "props": { "variant": "variant", "handles": "handles", "width": "width", "height": "height", "minWidth": "minWidth", "maxWidth": "maxWidth", "minHeight": "minHeight", "maxHeight": "maxHeight", "snapWidths": "snapWidths", "step": "step", "largeStep": "largeStep", "sizeIndicator": "sizeIndicator", "widthLabel": "widthLabel", "heightLabel": "heightLabel", "cornerLabel": "cornerLabel" },
+      "events": { "resize": "onResize", "change": "onChange" },
+      "notes": "`width` and `height` are `Binding<CGFloat?>`; `snapWidths` is `[CGFloat]`. Content is the view builder."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiResizableFrame",
+      "props": { "variant": "variant", "handles": "handles", "width": "width", "height": "height", "minWidth": "minWidth", "maxWidth": "maxWidth", "minHeight": "minHeight", "maxHeight": "maxHeight", "snapWidths": "snapWidths", "step": "step", "largeStep": "largeStep", "sizeIndicator": "sizeIndicator", "widthLabel": "widthLabel", "heightLabel": "heightLabel", "cornerLabel": "cornerLabel" },
+      "events": { "resize": "onResize", "change": "onChange" },
+      "notes": "`snapWidths: List<Dp>`; sizes in `Dp`. Content is the trailing composable."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiResizableFrame",
+      "props": { "variant": "variant", "handles": "handles", "width": "width", "height": "height", "minWidth": "minWidth", "maxWidth": "maxWidth", "minHeight": "minHeight", "maxHeight": "maxHeight", "snapWidths": "snapWidths", "step": "step", "largeStep": "largeStep", "sizeIndicator": "sizeIndicator", "widthLabel": "widthLabel", "heightLabel": "heightLabel", "cornerLabel": "cornerLabel" },
+      "events": { "resize": "onResize", "change": "onChanged" },
+      "notes": "`snapWidths: List<double>`. Content is `child`."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "ResizableFrame",
+      "props": { "variant": "variant", "handles": "handles", "width": "width", "height": "height", "minWidth": "minWidth", "maxWidth": "maxWidth", "minHeight": "minHeight", "maxHeight": "maxHeight", "snapWidths": "snapWidths", "step": "step", "largeStep": "largeStep", "sizeIndicator": "sizeIndicator", "widthLabel": "widthLabel", "heightLabel": "heightLabel", "cornerLabel": "cornerLabel" },
+      "events": { "resize": "onResize", "change": "onChange" },
+      "notes": "`snapWidths: number[]`. Content is `children`."
+    }
+  }
+}

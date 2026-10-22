@@ -1,0 +1,187 @@
+---
+title: Tirador de tamaño
+description: La marca que una persona arrastra, o mueve con el teclado, para cambiar el tamaño de lo que la lleva — una hoja, un campo, un panel, el marco de una vista previa. Una línea corta para una dirección, un arco de un cuarto de círculo para dos. Informa de cuánto se movió; el tamaño lo cambia su dueño.
+translationOf: components/handle.mdx
+sourceHash: 96b088d0f03e91d67a76ccdc8f4ae5804881ddf9
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="handle" />
+
+<DemoFrame label="Un tirador que cambia una altura, uno que cambia una anchura y uno en una esquina que cambia las dos">
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle label="Cambiar el tamaño de las notas" value="4" min="2" max="12" value-text="4 líneas" revealed style="justify-self: center; align-self: end"></tanrei-handle>
+  </div>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle axis="horizontal" label="Cambiar el tamaño de la vista previa" value="50" revealed style="justify-self: end; align-self: center"></tanrei-handle>
+  </div>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle axis="both" label="Cambiar el tamaño del mensaje" value="6" min="3" max="12" value-text="6 líneas" revealed style="justify-self: end; align-self: end"></tanrei-handle>
+  </div>
+</DemoFrame>
+
+Un tirador de tamaño está en un borde o en una esquina de algo cuyo tamaño una persona puede cambiar: el borde superior de una hoja, la esquina inferior de un campo de texto, el borde de un panel o de una vista previa. Si se arrastra, informa de cuánto se movió; si se mueve con el teclado, de qué paso se pidió; si se pulsa sin arrastrar, de eso. Nunca cambia el tamaño de nada por sí mismo. El tamaño lo guarda aquello sobre lo que está, que también decide qué es un paso y le devuelve el tamaño al tirador para que la tecnología de asistencia pueda leerlo.
+
+En la web es `<tanrei-handle>`. Las demás plataformas aún no lo han implementado.
+
+### Uso
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <div class="notes">
+      <textarea aria-label="Notas"></textarea>
+      <!-- En el borde inferior: cambia la altura. Su valor es del dueño, en la unidad del dueño. -->
+      <tanrei-handle label="Cambiar el tamaño de las notas" value="4" min="2" max="12" value-text="4 líneas"></tanrei-handle>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/handle';
+      const handle = document.querySelector('.notes tanrei-handle');
+      const notes = document.querySelector('.notes textarea');
+      const lineHeight = 24;
+      let start = 0;
+      const show = (lines) => {
+        lines = Math.min(12, Math.max(2, Math.round(lines)));
+        notes.rows = lines;
+        handle.value = lines;
+        handle.valueText = `${lines} líneas`;
+      };
+      handle.addEventListener('resizestart', () => (start = notes.rows));
+      // La distancia desde la pulsación, en píxeles: block es positivo hacia abajo.
+      handle.addEventListener('resize', (e) => show(start + e.detail.block / lineHeight));
+      // Aquí un paso es una línea; Inicio y Fin piden el mínimo y el máximo.
+      handle.addEventListener('step', (e) => {
+        const { direction, amount } = e.detail;
+        show(amount === 'limit' ? (direction < 0 ? 2 : 12) : notes.rows + direction * (amount === 'large' ? 3 : 1));
+      });
+      // Pulsado sin arrastrar: alterna entre los dos tamaños que conoces, para que ningún tamaño exija arrastrar.
+      handle.addEventListener('activate', () => show(notes.rows < 12 ? 12 : 2));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Handle } from '@tanrei/react';
+
+    <Handle
+      label="Cambiar el tamaño de las notas"
+      value={rows}
+      min={2}
+      max={12}
+      valueText={`${rows} líneas`}
+      onResizestart={() => setStart(rows)}
+      onResize={(e) => setRows(clamp(start + e.detail.block / 24))}
+      onStep={(e) => setRows(stepped(rows, e.detail))}
+      onActivate={() => setRows(rows < 12 ? 12 : 2)}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Oculto hasta que se usa: pasa el puntero por encima o llega a él con Tab" plain>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle label="Cambiar el tamaño del panel" value="30" style="justify-self: center; align-self: end"></tanrei-handle>
+  </div>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-small) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle axis="both" size="small" label="Cambiar el tamaño del comentario" value="3" style="justify-self: end; align-self: end"></tanrei-handle>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="handle" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Úsalo donde una persona deba poder darle a algo el tamaño que quiera: un campo para una respuesta larga, una hoja sobre un mapa, un panel lateral, la vista previa de una página con otra anchura.
+
+| Necesitas | Usa |
+| --- | --- |
+| Mover un elemento de una lista a otro lugar | El tirador para reordenar de la [lista](/es/components/list/), que se dibuja con puntos. Una línea cambia un tamaño; los puntos cambian un lugar. |
+| Elegir entre unos pocos tamaños fijos, sin nada entre ellos | Un [botón segmentado](/es/components/segmented-button/) o un [botón](/es/components/button/) que los alterne. |
+| Una hoja que sube desde el borde inferior | La [hoja inferior](/es/components/bottom-sheet/), que dibuja su propio tirador de arrastre. |
+
+### Sus formas
+
+| `axis` | Se dibuja como | Va en |
+| --- | --- | --- |
+| `vertical` (predeterminado) | Una línea corta horizontal | Un borde inferior o superior: cambia una altura. |
+| `horizontal` | Una línea corta vertical | Un borde inicial o final: cambia una anchura. |
+| `both` | Un arco de un cuarto de círculo, curvado hacia `corner` | Una esquina: cambia una altura y una anchura a la vez. |
+
+`corner` se escribe en términos lógicos: `end` es la derecha en un diseño de izquierda a derecha y la izquierda en un diseño de derecha a izquierda, así que un arco `bottom-end` sigue por sí solo la dirección de la página.
+
+| `size` | Úsalo para |
+| --- | --- |
+| `medium` (predeterminado) | Una hoja, un panel, un marco. |
+| `small` | La esquina de un campo de texto, donde una marca mayor taparía el texto. |
+
+Los dos tamaños conservan el área táctil mínima. El área que responde se extiende más allá de aquello sobre lo que está cuando hace falta, sin cambiar lo que se dibuja.
+
+### Lo que te dice y lo que haces
+
+| Evento | Cuándo | Qué haces |
+| --- | --- | --- |
+| `resizestart` | Empezó un arrastre: la pulsación se movió más allá de la tolerancia táctil. | Recuerda el tamaño del comienzo. Desactiva `pointer-events` en cualquier iframe de lo que cambias de tamaño. |
+| `resize` | En cada fotograma en que el arrastre se mueve. `inline` y `block` son la distancia desde la pulsación, en píxeles: `inline` hacia el borde final, `block` hacia abajo. | Fija el tamaño: el del comienzo más la distancia, en tu propia unidad, dentro de tus límites. |
+| `resizeend` | El arrastre terminó, una sola vez. `cancelled` es true cuando la plataforma lo canceló. | Conserva el tamaño, o devuélvelo al anterior si se canceló. Vuelve a activar los iframes. |
+| `step` | Una tecla pidió un cambio: `axis`, `direction` (1 o −1) y `amount` (`one`, `large`, o `limit` para Inicio y Fin). | Decide qué es un paso — una línea, 1 o 10 píxeles, un 5 % — y cambia el tamaño en esa cantidad. |
+| `activate` | Se pulsó y soltó sin arrastrar, o Intro o Espacio. | Alterna entre dos tamaños que conoces: la altura que necesita su texto y la mínima, toda la anchura y la que tenía. |
+
+Después de cada cambio, dale al tirador el tamaño nuevo como `value` (con `min`, `max` y, donde un número no lo diga, `valueText`). Eso es lo que lee la tecnología de asistencia. Un tirador sin `value` es un botón: usa esa forma cuando el tirador solo alterna entre tamaños que conoces, y dale `expanded`.
+
+### Oculto hasta que se usa
+
+Un tirador es discreto: en reposo no se dibuja nada, para que se vea aquello sobre lo que está y no sus herramientas. Aparece cuando el ratón está encima, cuando el foco del teclado llega a él y mientras se pulsa o se arrastra. Encima de él, el puntero toma además el cursor de cambio de tamaño. En una pantalla táctil, que no tiene paso del cursor, siempre se dibuja.
+
+Pon `revealed` donde el tirador tenga que verse para que se encuentre: el agarre de una hoja, que dice que la hoja se puede arrastrar. Ponlo también mientras el puntero está sobre aquello en lo que está el tirador, si quieres que se vea entonces (un campo que muestra el tirador de su esquina mientras se señala).
+
+### Dónde ponerlo
+
+El tirador ocupa el espacio de su propia caja y nada más: eres tú quien lo coloca en el borde o en la esquina. Pon una línea en el centro de su borde. Pon un arco en su esquina y dale a esa esquina un radio de `arc.radius` más `inset`, para que el arco y la esquina compartan centro.
+
+### Recomendado
+
+- Dale a cada tirador un `label` que diga qué cambia de tamaño: «Cambiar el tamaño de las notas», «Cambiar el tamaño de la vista previa».
+- Devuélvele el tamaño como `value` tras cada cambio, con `valueText` en tu unidad.
+- Responde a `activate` con un tamaño que no exija arrastrar.
+- Conserva el tamaño que la persona eligió hasta que lo cambie de nuevo.
+
+### Evita
+
+- No uses un tirador para mover algo a otro lugar.
+- No reduzcas nada por debajo del tamaño que su contenido necesita para usarse, ni ensanches una página hasta que haya que desplazarla hacia los lados.
+- No pongas el tirador sobre un texto que la persona está leyendo; es una marca en un borde.
+
+## Accesibilidad
+
+<ComponentAccessibility name="handle" />
+
+### De qué se encarga el componente
+
+- Con `value`, es un separador que recibe el foco — el divisor de ventanas de ARIA Authoring Practices —, nombrado por `label`, con su valor, su rango, su texto del valor y la orientación de su línea. Sin él, es un botón, con el estado expandido cuando le das uno.
+- Es una parada del orden de foco, también mientras está oculto. El foco del teclado lo hace aparecer al instante con su anillo de foco, así que quien usa el teclado siempre ve dónde está el foco.
+- Las flechas de su eje piden un paso; Mayús con una flecha, Re Pág y Av Pág, un paso grande; Inicio y Fin, el tamaño mínimo y el máximo. Intro y Espacio lo activan. Las demás teclas te llegan a ti.
+- Una pulsación no toma el foco ni selecciona texto, así que un campo conserva su cursor de texto mientras se arrastra su tirador. El arrastre sigue al puntero más allá del borde de la ventana.
+- Pulsado sin arrastrar, se activa, de modo que cada tamaño que ofreces se alcanza con un clic o un toque.
+- Con el texto ampliado conserva su tamaño: es una marca en un borde, no texto.
+- En el modo de colores forzados, la línea toma el color del texto de los botones, el de resaltado mientras se señala o se pulsa y el del texto deshabilitado mientras está deshabilitado.
+- En un diseño de derecha a izquierda, las esquinas finales de un arco están a la izquierda, su cursor diagonal gira con él, la flecha izquierda apunta al borde final e `inline` es positivo hacia la izquierda.
+
+### Qué debes hacer tú
+
+- Dale un `label`. Sin él, el tirador se dibuja y funciona igual, y una compilación de depuración lo avisa.
+- Mantén al día `value`, `min`, `max` y `valueText`, en la unidad que la gente conoce.
+- Responde a `activate` con un tamaño que no exija arrastrar. Para quien no puede arrastrar, arrastrar no basta.
+- Mientras dura un arrastre, impide que cualquier iframe de lo que cambias de tamaño tome el puntero (`pointer-events: none`), o el arrastre se detendrá cuando el puntero pase por encima.
+- Comprueba que el contenido sigue funcionando en cada tamaño que permites.

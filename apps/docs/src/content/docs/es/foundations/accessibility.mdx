@@ -2,33 +2,39 @@
 title: Accesibilidad
 description: Los requisitos de accesibilidad que Tanrei incorpora en los tokens y en las especificaciones de los componentes, y las comprobaciones que los imponen.
 translationOf: foundations/accessibility.mdx
-sourceHash: a2c14cfcd30a37f95bfe67ab8c79acd0f27b54b4
+sourceHash: 5fef4e4236fc321309c4c0f09d0fdd9cef986c8e
 ---
 
 import Callout from '../../../../components/Callout.astro';
 import DimensionScale from '../../../../components/tokens/DimensionScale.astro';
+import { contrast } from '../../../../lib/contrast';
 
 En Tanrei, la accesibilidad es un conjunto de restricciones sobre el propio sistema. La compilación de los tokens se niega a producir un esquema que no cumpla el contraste, y la especificación de un componente no es válida sin su rol, su tabla de teclado y su garantía de objetivo.
 
 ## Contraste
 
-| Contenido | Contraste mínimo |
-| --- | --- |
-| Texto e iconos que transmiten significado | 4.5:1 |
-| Texto grande (a partir de unos 24px en peso normal, o 19px en negrita) | 3:1 |
-| Límites y gráficos necesarios para identificar o manejar un control | 3:1 |
-| El anillo de foco frente a las superficies adyacentes | 3:1 |
+La compilación de los tokens mide cada esquema, claro y oscuro con contraste estándar, medio y alto, con estos umbrales, y falla cuando un par no los alcanza:
 
-Los elementos deshabilitados y la decoración pura, incluidas las líneas finas de `outline-variant`, están exentos. Esa exención es la razón por la que un borde que es la única señal de un control debe usar `outline` y no `outline-variant`.
+| Contenido | Contraste estándar y medio | Contraste alto |
+| --- | --- | --- |
+| Texto, e iconos dibujados en un color de contenido | {contrast.text} | {contrast.highContrastText} |
+| La marca de un estado sobre su propio contenedor tonal | {contrast.nonText} | {contrast.nonText} |
+| Límites y gráficos necesarios para identificar o manejar un control | {contrast.nonText} | {contrast.nonText} |
+| El anillo de foco frente a las superficies adyacentes | {contrast.nonText} | {contrast.nonText} |
+
+El texto grande no tiene un umbral más bajo. WCAG acepta menos contraste para el texto a partir de unos 24px en peso normal, o 19px en negrita, pero la compilación exige {contrast.text} a todos los roles de texto, y {contrast.highContrastText} con contraste alto: un rol de color no sabe a qué tamaño se usará.
+
+Los elementos deshabilitados y la decoración pura están exentos, y también lo está la línea fina de `outline-variant` con el contraste estándar. Esa exención es la razón por la que un borde que es la única señal de un control debe usar `outline` y no `outline-variant`.
 
 ### Invariantes que se imponen
 
 Se cumplen en todos los temas y en todos los niveles de contraste, seis combinaciones en total; de lo contrario, la compilación falla:
 
-- cada par de roles `(X, on-X)` es de al menos 4.5:1;
-- `outline` es de al menos 3:1 frente a todos los roles de superficie;
-- en el sistema predeterminado, con contraste medio y alto, `outline-variant` es de al menos 3:1 y 4.5:1 frente a todos los roles de superficie, y `outline` sigue siendo más fuerte;
-- `focus-ring` es de al menos 3:1 frente a las superficies.
+- cada par de roles `(X, on-X)`, y cada rol de texto (`on-surface`, `on-surface-variant`, `link`, el color de una intención) sobre todos los roles de superficie, es de al menos {contrast.text}, y de al menos {contrast.highContrastText} en los dos esquemas de contraste alto;
+- el color de cada estado es de al menos {contrast.nonText} frente a su propio contenedor tonal;
+- `outline` es de al menos {contrast.nonText} frente a todos los roles de superficie;
+- en el sistema predeterminado, con contraste medio y alto, `outline-variant` es de al menos {contrast.hairlineMedium} y {contrast.hairlineHigh} frente a todos los roles de superficie, y `outline` sigue siendo más fuerte;
+- `focus-ring` es de al menos {contrast.nonText} frente a las superficies.
 
 Las reglas del proyecto prohíben rebajar un umbral para que una comprobación pase.
 

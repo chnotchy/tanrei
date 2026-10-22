@@ -235,8 +235,8 @@ const DRIVEN: Record<string, Driven> = {
     },
     // The label is the Field's row in the stacked look and the input's own in a floating one (FLD-25): two instances.
     allParts: [
-      { attributes: `label="Recipients" supporting-text="Help" requirement="required" required-text="Required" error error-text="Wrong" remove-label="Remove {entry}" value='["ada@example.com"]'`, children: '<span slot="label-icon">mail</span>' },
-      { attributes: `variant="outlined" label="Recipients" requirement="required" required-mark="asterisk" remove-label="Remove {entry}" value='["ada@example.com"]'`, children: '' },
+      { attributes: `label="Recipients" supporting-text="Help" required required-text="Required" error error-text="Wrong" remove-label="Remove {entry}" value='["ada@example.com"]'`, children: '<span slot="label-icon">mail</span>' },
+      { attributes: `variant="outlined" label="Recipients" required required-mark="asterisk" remove-label="Remove {entry}" value='["ada@example.com"]'`, children: '' },
     ],
     tree: chipFieldTree,
   },
@@ -259,7 +259,7 @@ const DRIVEN: Record<string, Driven> = {
     kept: { given: 'ab 12-34 x', kept: '1234' },
     values: ['12', '3456'],
     allParts: {
-      attributes: 'label="Verification code" supporting-text="Help" requirement="required" required-text="Required" error error-text="Wrong" group-size="3" value="12"',
+      attributes: 'label="Verification code" supporting-text="Help" required required-text="Required" error error-text="Wrong" group-size="3" value="12"',
       children: '<span slot="label-icon">lock</span>',
       act: async (_page, element) => focus(element),
     },
@@ -368,7 +368,7 @@ const DRIVEN: Record<string, Driven> = {
     neverEmpty: true,
     restoreState: (value) => `0 ${value}`,
     allParts: {
-      attributes: 'label="Volume" supporting-text="Help" requirement="required" required-text="Required" error error-text="Wrong" step="25" stops value="50" value-indicator="always"',
+      attributes: 'label="Volume" supporting-text="Help" required required-text="Required" error error-text="Wrong" step="25" stops value="50" value-indicator="always"',
       children: '<span slot="label-icon">volume_up</span>',
     },
   },
@@ -457,6 +457,13 @@ const DRIVEN: Record<string, Driven> = {
         act: async (page, element) => (await focus(element), await page.keyboard.type('9'), await element.evaluate((el: HTMLElement) => el.blur())),
         value: '',
       },
+      // A multi-line field resized by hand: a step of its input's handle shows one line more (TXI-41, TXI-69), and the
+      // value does not change.
+      resizeEnd: {
+        before: async (_page, element) => element.evaluate((el: HTMLElement) => Object.assign(el, { multiline: true, resize: 'manual', resizeLabel: 'Resize' })),
+        act: async (page, element) => (await element.locator('.resize-handle .container').focus(), await page.keyboard.press('ArrowDown')),
+        value: '',
+      },
     },
     // A text input keeps a text as it is given (a date input that is given no ISO date keeps none: text-field.test.ts).
     kept: { given: 'Ada  Lovelace ', kept: 'Ada  Lovelace ' },
@@ -464,10 +471,10 @@ const DRIVEN: Record<string, Driven> = {
     // The label is the Field's row in the stacked look and the input's own in a floating one (FLD-25): two instances.
     allParts: [
       {
-        attributes: 'label="Notes" supporting-text="Help" requirement="required" required-text="Required" error error-text="Wrong" counter maxlength="40" multiline resize="manual" resize-label="Resize" prefix-text="$" suffix-text="USD" value="a"',
+        attributes: 'label="Notes" supporting-text="Help" required required-text="Required" error error-text="Wrong" counter maxlength="40" multiline resize="manual" resize-label="Resize" prefix-text="$" suffix-text="USD" value="a"',
         children: '<span slot="label-icon">notes</span><span slot="leading-icon">search</span><span slot="trailing-icon">close</span>',
       },
-      { attributes: 'variant="outlined" type="date" picker picker-label="Choose date" label="Start date" requirement="required" required-mark="asterisk" value="2026-09-27"', children: '' },
+      { attributes: 'variant="outlined" type="date" picker picker-label="Choose date" label="Start date" required required-mark="asterisk" value="2026-09-27"', children: '' },
     ],
     enterSubmits: true,
   },
@@ -475,7 +482,7 @@ const DRIVEN: Record<string, Driven> = {
     attributes: { frame: 'label="Notify me by" supporting-text="Choose all that apply."', member: '' },
     children: '<tanrei-checkbox value="email" label="Email"></tanrei-checkbox><tanrei-checkbox value="text" label="Text message"></tanrei-checkbox>',
     events: { change: { act: async (_page, element) => element.locator('tanrei-checkbox').first().click(), value: ['email'] } },
-    allParts: { attributes: 'label="Notify me by" supporting-text="Help" requirement="required" required-text="Required" error error-text="Wrong" select-all-label="All of these"', children: '<tanrei-checkbox value="email" label="Email" checked></tanrei-checkbox>' },
+    allParts: { attributes: 'label="Notify me by" supporting-text="Help" required required-text="Required" error error-text="Wrong" select-all-label="All of these"', children: '<tanrei-checkbox value="email" label="Email" checked></tanrei-checkbox>' },
     enterSubmits: false,
     placed: { propertyOnly: ['value'], events: ['input'], parts: { checkbox: 'select-all' } },
   },
@@ -501,11 +508,11 @@ const DRIVEN: Record<string, Driven> = {
     // The label is the Field's row in the stacked look and the combobox's own in a floating one (FLD-25): two instances.
     allParts: [
       {
-        attributes: 'label="City" supporting-text="Help" requirement="required" required-text="Required" error error-text="Wrong" value="tokyo" clearable clear-label="Clear" open inline status-text="2 shown" separation="divider"',
+        attributes: 'label="City" supporting-text="Help" required required-text="Required" error error-text="Wrong" value="tokyo" clearable clear-label="Clear" open inline status-text="2 shown" separation="divider"',
         children:
           '<span slot="label-icon">place</span><span slot="leading-icon">search</span><tanrei-option value="kyoto" supporting-text="Japan" leading-icon="location_on">Kyoto</tanrei-option><tanrei-option-group label="More"><tanrei-option value="tokyo">Tokyo</tanrei-option></tanrei-option-group>',
       },
-      { attributes: 'variant="filled" label="City" requirement="required" required-mark="asterisk" value="tokyo"', children: CITIES },
+      { attributes: 'variant="filled" label="City" required required-mark="asterisk" value="tokyo"', children: CITIES },
     ],
     enterSubmits: true,
   },
@@ -542,8 +549,8 @@ const DRIVEN: Record<string, Driven> = {
     values: ['#0f766e', '#fde047'],
     // The label is the Field's row in the stacked look and the input's own in a floating one (FLD-25): two instances.
     allParts: [
-      { attributes: 'label="Brand color" supporting-text="Help" requirement="required" required-text="Required" error error-text="Wrong" value="#0f766e" picker picker-label="Choose color"', children: '<span slot="label-icon">format_paint</span>' },
-      { attributes: 'variant="filled" label="Brand color" requirement="required" required-mark="asterisk" value="#0f766e"', children: '' },
+      { attributes: 'label="Brand color" supporting-text="Help" required required-text="Required" error error-text="Wrong" value="#0f766e" picker picker-label="Choose color"', children: '<span slot="label-icon">format_paint</span>' },
+      { attributes: 'variant="filled" label="Brand color" required required-mark="asterisk" value="#0f766e"', children: '' },
     ],
     enterSubmits: true,
   },
@@ -573,10 +580,10 @@ const DRIVEN: Record<string, Driven> = {
     // The label is the Field's row in the stacked look and the input's own in a floating one (FLD-25): two instances.
     allParts: [
       {
-        attributes: 'label="Amount" supporting-text="Help" requirement="required" required-text="Required" error error-text="Wrong" prefix-text="$" suffix-text="USD" value="1" increment-label="Increase" decrement-label="Decrease"',
+        attributes: 'label="Amount" supporting-text="Help" required required-text="Required" error error-text="Wrong" prefix-text="$" suffix-text="USD" value="1" increment-label="Increase" decrement-label="Decrease"',
         children: '<span slot="label-icon">timer</span>',
       },
-      { attributes: 'variant="filled" label="Amount" requirement="required" required-mark="asterisk" value="1" increment-label="Increase" decrement-label="Decrease"', children: '' },
+      { attributes: 'variant="filled" label="Amount" required required-mark="asterisk" value="1" increment-label="Increase" decrement-label="Decrease"', children: '' },
     ],
     enterSubmits: true,
   },
@@ -600,11 +607,11 @@ const DRIVEN: Record<string, Driven> = {
     // The label is the Field's row in the stacked look and the select's own in a floating one (FLD-25): two instances.
     allParts: [
       {
-        attributes: 'label="Time zone" supporting-text="Help" requirement="required" required-text="Required" error error-text="Wrong" value="Asia/Tokyo" separation="divider" open',
+        attributes: 'label="Time zone" supporting-text="Help" required required-text="Required" error error-text="Wrong" value="Asia/Tokyo" separation="divider" open',
         children:
           '<span slot="label-icon">schedule</span><span slot="leading-icon">public</span><tanrei-option-group label="Asia"><tanrei-option value="Asia/Tokyo" leading-icon="schedule" supporting-text="UTC+9">Tokyo</tanrei-option></tanrei-option-group><tanrei-option-group label="Europe"><tanrei-option value="Europe/Lisbon">Lisbon</tanrei-option></tanrei-option-group>',
       },
-      { attributes: 'variant="outlined" label="Country" requirement="required" required-mark="asterisk" placeholder="Choose a country"', children: '<tanrei-option value="jp">Japan</tanrei-option>' },
+      { attributes: 'variant="outlined" label="Country" required required-mark="asterisk" placeholder="Choose a country"', children: '<tanrei-option value="jp">Japan</tanrei-option>' },
     ],
     neverDrawn: { counter: 'a select keeps no count (SEL-63), so the select field gives its Field none; the part is exported as the Field documents it' },
   },
@@ -612,7 +619,7 @@ const DRIVEN: Record<string, Driven> = {
     attributes: { frame: 'label="Delivery" supporting-text="You can change this until the order ships."', member: '' },
     children: '<tanrei-radio-button value="standard" label="Standard"></tanrei-radio-button><tanrei-radio-button value="express" label="Express"></tanrei-radio-button>',
     events: { change: { act: async (_page, element) => element.locator('tanrei-radio-button').first().click(), value: 'standard' } },
-    allParts: { attributes: 'label="Delivery" supporting-text="Help" requirement="required" required-text="Required" error error-text="Wrong"', children: '<tanrei-radio-button value="standard" label="Standard"></tanrei-radio-button>' },
+    allParts: { attributes: 'label="Delivery" supporting-text="Help" required required-text="Required" error error-text="Wrong"', children: '<tanrei-radio-button value="standard" label="Standard"></tanrei-radio-button>' },
     enterSubmits: false,
     placed: { propertyOnly: [], events: ['input'], parts: {}, light: ['radio-button'] },
   },
@@ -641,8 +648,8 @@ const focusPath = (page: Page) =>
   });
 /**
  * A debug report that is about the composed element or its members. That the active design system leaves a value out
- * is said of a fixture that draws such a
- * value, by the member and by its twin alike, and is not a case a composed element cannot be in.
+ * is said of a fixture that draws such a value — under the composed element, for the member it draws, and by its twin
+ * alike — and is not a case a composed element cannot be in.
  */
 const reports = (seen: string[]) => seen.filter((text) => text.includes('[tanrei]') && !text.includes('is left out of the active design system'));
 function warnings(page: Page) {
@@ -699,7 +706,7 @@ test.describe('the primitives of a composed element', () => {
   });
 
   test('FormSays: what a control tells its form is heard by whoever listens — the last word at once, then each later one, with the value, the state, the flags, the message and the control\'s own anchor (W6, items 2 and 3)', async ({ page }) => {
-    await mount(page, `<form><tanrei-field label="Code" requirement="required"><tanrei-one-time-code-input id="c" name="code" value="12"></tanrei-one-time-code-input></tanrei-field></form>`, 'tanrei-one-time-code-input');
+    await mount(page, `<form><tanrei-field label="Code" required><tanrei-one-time-code-input id="c" name="code" value="12"></tanrei-one-time-code-input></tanrei-field></form>`, 'tanrei-one-time-code-input');
     const heard = await page.evaluate(async () => {
       const control = document.getElementById('c') as HTMLElement & { value: string; updateComplete: Promise<unknown>; validity: ValidityState };
       type Word = { value: unknown; state: unknown; flags: ValidityStateFlags; message: string; anchor?: HTMLElement };
@@ -1047,10 +1054,10 @@ for (const written of COMPOSED) {
     framed(`${spec.name} W13-5 form: under its name the element submits exactly what its value member submits when it is placed in the form by hand, and no member adds an entry; reset, restore, a disabled fieldset, checkValidity() and the validation message are the member's by hand (W6)`, async ({ page }) => {
       const [frame, member] = [frameMember(spec), valueMember(spec)];
       const [first, second] = driven.values!;
-      const byHand = (id: string, rest: string) => `<${frame.tag} ${driven.attributes.frame} requirement="required"><${member.tag} id="${id}" name="code" ${driven.attributes.member} ${rest}>${driven.children ?? ''}</${member.tag}></${frame.tag}>`;
+      const byHand = (id: string, rest: string) => `<${frame.tag} ${driven.attributes.frame} required><${member.tag} id="${id}" name="code" ${driven.attributes.member} ${rest}>${driven.children ?? ''}</${member.tag}></${frame.tag}>`;
       await mount(
         page,
-        `<form id="composed-form"><fieldset>${plain(`name="code" value="${first}" requirement="required"`)}</fieldset></form>
+        `<form id="composed-form"><fieldset>${plain(`name="code" value="${first}" required`)}</fieldset></form>
          <form id="hand-form"><fieldset>${byHand('hand', `value="${first}"`)}</fieldset></form>`,
         tag,
       );
@@ -1113,7 +1120,7 @@ for (const written of COMPOSED) {
     });
 
     (driven.neverEmpty ? (((..._: unknown[]) => {}) as unknown as typeof test) : valued)(`${spec.name} W13-5 form: the browser's message is anchored to the member's own native element, two shadow roots down — reportValidity() is false, tells the element it is invalid and focuses the control, and the form is not submitted (W6, item 3)`, async ({ page }) => {
-      await mount(page, `<form id="form">${plain('name="code" requirement="required"')}<button id="send">Send</button></form><script>window.submitted = 0; document.getElementById('form').addEventListener('submit', (event) => { event.preventDefault(); window.submitted++; });</script>`, tag);
+      await mount(page, `<form id="form">${plain('name="code" required')}<button id="send">Send</button></form><script>window.submitted = 0; document.getElementById('form').addEventListener('submit', (event) => { event.preventDefault(); window.submitted++; });</script>`, tag);
       const member = valueMember(spec);
       const reported = await element(page).evaluate((el) => {
         let invalid = 0;
@@ -1444,8 +1451,9 @@ for (const written of COMPOSED) {
         (el as HTMLElement & { requestUpdate(): void; updateComplete: Promise<unknown> }).requestUpdate();
         await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
       });
-      expect(seen.filter((text) => text.includes(`<${tag}>`))).toHaveLength(1);
-      expect(seen.find((text) => text.includes(`<${tag}>`))).toContain('aria-label');
+      // A fixture of a value the system leaves out is reported under the composed element too (AVL-1): not this report.
+      expect(reports(seen).filter((text) => text.includes(`<${tag}>`))).toHaveLength(1);
+      expect(reports(seen).find((text) => text.includes(`<${tag}>`))).toContain('aria-label');
       for (const fixture of byDesign) {
         seen.length = 0;
         await mountFixtures(page, spec, { icons: true, fixtures: [fixture] });

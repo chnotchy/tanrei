@@ -4,6 +4,8 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type DocumentOptions, type Fixture, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, missingWords, mountFixtures, setWords, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { appearingFixture } from '../../../test/first-frame.js';
+import { expectFirstFrameAtRest } from '../../../test/frames.js';
 import { drawnOpticalSize, opticalSize } from '../../../test/icons.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 
@@ -2599,6 +2601,20 @@ test.describe('before the element is defined, without script, in a shadow root',
     });
     await inner.locator('li[data-value="b"] > span').click({ position: { x: 4, y: 10 } });
     expect(await page.evaluate(() => (window as any).movedAtClick as number)).toBe(1);
+  });
+});
+
+// A tree that appears on a page that is already there — as a single-page product draws a view — is in its selection
+// from its first frame: a selected row does not fade in from the unselected condition (TRV-15; TRV-31's motion is for
+// a change, and appearing is none). Every fixture that selects something.
+test.describe('the first frame', () => {
+  for (const f of spec.fixtures.filter((f) => f.props.value !== undefined || f.props.values !== undefined)) {
+    test(`TRV-15: ${f.id} is drawn in its first frame as it rests, its selected rows selected, with nothing moving into it`, async ({ page }) => {
+      expectFirstFrameAtRest(await appearingFixture(page, spec, f.id));
+    });
+  }
+  test('TRV-15: a tree whose layout the product reads in the task that inserts it is selected in its first frame all the same', async ({ page }) => {
+    expectFirstFrameAtRest(await appearingFixture(page, spec, 'multiple', { measured: true }));
   });
 });
 

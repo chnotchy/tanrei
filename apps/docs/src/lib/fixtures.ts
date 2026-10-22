@@ -439,6 +439,15 @@ const isPageHeader = (spec: Spec) => spec.name === 'page-header';
 const isAppShell = (spec: Spec) => spec.name === 'app-shell';
 
 /**
+ * The spec whose fixtures are a box that scrolls, caught in the middle of a scroll: the scroll area's fixture fills its
+ * slot with enough lines (or a row wide enough) to scroll, in a box of a fixed size, scrolled to the middle so that
+ * both edges are marked (the spec's web note). A fixture's slot here is one string, and a cell of this page has no
+ * size to give it nor a step in script to scroll it: each is drawn by the web package's harness, alone in a window
+ * of the stage its baseline was taken of, which holds the box, the lines and the scroll.
+ */
+const isScrollArea = (spec: Spec) => spec.name === 'scroll-area';
+
+/**
  * The avatar: one spec that is two elements on the web (its web note). A fixture with members is the group element —
  * the avatar's tag with `-group` — around members that are the avatar's own element, which `itemsHtml` writes; a
  * fixture without is the avatar. Writing every fixture with the spec's one web name would draw avatars inside an
@@ -512,7 +521,8 @@ const IMAGE_PREVIEW_PICTURES: [string, string][] = [
  *   element, so there is no tag to write — except the page header's meta items (`[data-part="meta"] > *`), which
  *   `pageHeaderHtml` writes with the rest of the head's own elements.
  *
- * And not one whose fixtures are whole windows (`isAppShell`).
+ * And not one whose fixtures are whole windows (`isAppShell`), nor one whose fixtures are a box caught in the middle of
+ * a scroll (`isScrollArea`).
  */
 export function drawsLive(spec: Spec): boolean {
   // The spec's own containers: an item that is another component holds that component's items, which
@@ -522,12 +532,24 @@ export function drawsLive(spec: Spec): boolean {
   const mapped = Object.values(spec.platforms.web?.items ?? {});
   const native = mapped.some((item) => /^[a-z][a-z0-9]*$/.test(item.name));
   const unnamed = mapped.some((item) => !/^[A-Za-z][A-Za-z0-9-]*$/.test(item.name));
-  if (isAppShell(spec)) return false;
+  if (isAppShell(spec) || isScrollArea(spec)) return false;
   return isTable(spec) || isDescriptionList(spec) || isSkeleton(spec) || isAccordion(spec) || isTableOfContents(spec) || isTreeView(spec) || isPageHeader(spec) || isBreadcrumbs(spec) || (!nested && !native && !unnamed);
 }
 
 /** What any element may carry and no manifest lists: this renderer's own staging, a child's `slot`, and the two open families. */
 const isGlobalAttribute = (name: string) => ['class', 'style', 'dir', 'lang', 'slot'].includes(name) || name.startsWith('data-') || name.startsWith('aria-');
+
+/**
+ * Whether an attribute written on an item's element is read by the spec's own element, which holds the item: the
+ * toolbar reads `toolbar-overflow` on each of its items, a Button that does not read it itself. The spec's web
+ * mapping names it for an item kind drawn by that element, it is in the holder's own namespace (`<component>-`), and
+ * the installed build defines the holder. The item's manifest cannot list it, since the item does not read it.
+ */
+export function holderReadsAttribute(spec: Spec, tag: string, name: string): boolean {
+  const web = spec.platforms.web;
+  if (!web?.name || !definedTags.has(web.name) || !name.startsWith(`${spec.name}-`)) return false;
+  return Object.values(web.items ?? {}).some((item) => item.name === tag && Object.values(item.props ?? {}).includes(name));
+}
 
 /**
  * Whether the installed web build can draw one fixture of a spec that is drawn live. A spec is accepted before the web
@@ -562,7 +584,7 @@ export function drawsFixture(spec: Spec, fixture: Fixture): boolean {
   for (const [, tag, written] of html.matchAll(/<(tanrei-[a-z0-9-]+)((?:\s+[^\s=<>"]+(?:="[^"]*")?)*)\s*>/g)) {
     if (!definedTags.has(tag)) return false;
     for (const [, name, value] of written.matchAll(/\s+([^\s=<>"]+)(?:="([^"]*)")?/g)) {
-      if (isGlobalAttribute(name)) continue;
+      if (isGlobalAttribute(name) || holderReadsAttribute(spec, tag, name)) continue;
       if (!webReadsAttribute(tag, name)) return false;
       // A value the build does not read yet, of an attribute it reads (the list's `reorder="drag"`, whose handle the
       // web has not built): the manifest lists the values it does.
@@ -942,7 +964,7 @@ export function liveFixture(spec: Spec, fixture: Fixture, options: LiveOptions =
   const fills =
     spec.name === 'divider'
       ? fixture.props.orientation === 'vertical' ? 'block-size: 3rem' : 'inline-size: 10rem'
-      : spec.name === 'progress-indicator' && fixture.props.variant !== 'circular'
+      : (spec.name === 'progress-indicator' || spec.name === 'meter') && fixture.props.variant !== 'circular'
         ? 'inline-size: 10rem'
         : spec.name === 'slider'
           ? fixture.props.orientation === 'vertical' ? 'block-size: 15rem' : 'inline-size: 20rem'

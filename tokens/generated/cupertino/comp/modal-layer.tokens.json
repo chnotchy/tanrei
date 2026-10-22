@@ -44,23 +44,23 @@
         "motion": {
           "enter-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.medium2}",
-            "$description": "How long the scrim takes to fade in as a modal surface opens. Each modal overlay's own enter duration aliases this one, so that its surface arrives with its scrim."
+            "$value": "{tanrei.sys.motion.role.appear.modal.enter}",
+            "$description": "How long the scrim takes to fade in as a modal surface opens: the modal role's entrance. The enter duration of each modal surface that takes the modal role (dialog, modal picker, image preview) aliases this one, so that it arrives with its scrim; a sheet takes the sheet role, and its scrim fades in step with it."
           },
           "enter-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}",
-            "$description": "The curve of the scrim's fade in; each modal overlay's own enter easing aliases it."
+            "$value": "{tanrei.sys.motion.easing.enter}",
+            "$description": "The curve of the scrim's fade in: the entrance curve. The enter easing of each modal surface that takes the modal role aliases it."
           },
           "exit-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short4}",
-            "$description": "How long the scrim takes to fade out as a modal surface closes. Each modal overlay's own exit duration aliases this one, so that its surface leaves with its scrim."
+            "$value": "{tanrei.sys.motion.role.appear.modal.exit}",
+            "$description": "How long the scrim takes to fade out as a modal surface closes: the modal role's exit. The exit duration of each modal surface that takes the modal role (dialog, modal picker, image preview) aliases this one, so that it leaves with its scrim; a sheet takes the sheet role, and its scrim fades out in step with it."
           },
           "exit-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}",
-            "$description": "The curve of the scrim's fade out; each modal overlay's own exit easing aliases it."
+            "$value": "{tanrei.sys.motion.easing.exit}",
+            "$description": "The curve of the scrim's fade out: the exit curve. The exit easing of each modal surface that takes the modal role aliases it."
           }
         }
       }

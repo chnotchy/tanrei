@@ -2,6 +2,36 @@
   "system": "cupertino",
   "criteria": "not-applied",
   "because": "An imitation preset is held to fidelity to the system it imitates, not to Tanrei's accessibility criteria, in every contrast scheme. These are measurements against the fixed thresholds, kept as information: they are not warnings and not mimicry gaps.",
+  "checked": {
+    "rolePairs": 642,
+    "componentPairs": 726,
+    "schemes": {
+      "light": {
+        "rolePairs": 107,
+        "componentPairs": 121
+      },
+      "light-medium": {
+        "rolePairs": 107,
+        "componentPairs": 121
+      },
+      "light-high": {
+        "rolePairs": 107,
+        "componentPairs": 121
+      },
+      "dark": {
+        "rolePairs": 107,
+        "componentPairs": 121
+      },
+      "dark-medium": {
+        "rolePairs": 107,
+        "componentPairs": 121
+      },
+      "dark-high": {
+        "rolePairs": 107,
+        "componentPairs": 121
+      }
+    }
+  },
   "count": 112,
   "measurements": [
     "[light] on-error on error: 4.03:1 < 4.5:1 (content on filled container)",

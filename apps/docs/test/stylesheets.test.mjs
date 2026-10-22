@@ -28,8 +28,12 @@ const shipped = Object.keys(web.exports)
 
 // The two the framework's `customCss` loads (astro.config.mjs): the tokens are custom properties in `tanrei.tokens`, and
 // the icon set's class sets the glyph's face, which no rule of Starlight's sets. And the two whose rules prose.css
-// carries word for word (packages/web/src/styles/steps.test.ts and timeline.test.ts hold that they are the same).
+// carries word for word (packages/web/src/styles/steps.test.ts and timeline.test.ts hold that they are the same). And
+// two the site does not load: the page's base, because the site's page is Starlight's, which sets its own background,
+// color and face; and tanrei.css, which is the base, the tokens and every other one of them in one file.
 const ELSEWHERE = {
+  'base.css': 'not loaded',
+  'tanrei.css': 'not loaded',
   'tokens.css': 'customCss',
   'icons.css': 'customCss',
   'steps.css': 'prose.css',
@@ -48,6 +52,7 @@ test('every stylesheet the web package ships is loaded into a layer of the docsâ
   const styles = files(path.join(src, 'styles'), /\.css$/).map(read).join('\n');
   const config = fs.readFileSync(path.join(docs, 'astro.config.mjs'), 'utf8');
   const missing = shipped.filter((name) => {
+    if (ELSEWHERE[name] === 'not loaded') return false;
     if (ELSEWHERE[name] === 'customCss') return !config.includes(`'@tanrei/web/${name}'`);
     if (ELSEWHERE[name] === 'prose.css') return !new RegExp(`@import '@tanrei/web/prose\\.css' layer\\(docs\\.`).test(styles);
     return !new RegExp(`@import '@tanrei/web/${name.replace('.', '\\.')}' layer\\(docs\\.[a-z-]+\\);`).test(styles);

@@ -1,3 +1,4 @@
+import { FacesWatch } from './faces.js';
 import { DRAWN_WIDTH } from './glyph.js';
 
 /**
@@ -18,10 +19,11 @@ const PROBE = 'data-tanrei-glyph-probe';
 const FAMILY = '--tanrei-sys-icon-family-unselected';
 
 const connected = new Set<PendingGlyphs>();
-const fontsChanged = () => {
+/** One watch of the page's fonts for every host: a face that arrives (or the faces ready) is a family to measure again. */
+const faces = new FacesWatch(() => {
   drawable.clear();
   for (const pending of connected) pending.read();
-};
+});
 
 /** Whether `node` is the box a host's glyph is measured in: its coming and going is not a change of the host's content. */
 export const isGlyphProbe = (node: Node) => node instanceof Element && node.hasAttribute(PROBE);
@@ -38,20 +40,14 @@ export class PendingGlyphs {
 
   /** Call when the host is connected. */
   connect() {
-    if (!connected.size) {
-      document.fonts?.addEventListener('loadingdone', fontsChanged);
-      document.fonts?.addEventListener('loadingerror', fontsChanged);
-    }
     connected.add(this);
+    faces.connect();
   }
 
   /** Call when the host is disconnected. */
   disconnect() {
     connected.delete(this);
-    if (!connected.size) {
-      document.fonts?.removeEventListener('loadingdone', fontsChanged);
-      document.fonts?.removeEventListener('loadingerror', fontsChanged);
-    }
+    if (!connected.size) faces.disconnect();
     this.sizes?.disconnect();
     this.probe?.remove();
     this.probe = null;
@@ -66,6 +62,8 @@ export class PendingGlyphs {
     if (!drawn) {
       const probe = this.probe ?? host.appendChild(this.box());
       const width = probe.getBoundingClientRect().width;
+      // After the layout the read forced: the icon face the probe first asked for in it is loading now.
+      faces.measured();
       drawn = width <= EM * DRAWN_WIDTH;
       if (drawn && width > 0) drawable.add(family);
       else if (!this.probe) {

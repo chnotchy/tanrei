@@ -32,7 +32,7 @@ Use an image preview where a page shows a picture small because the page is abou
 
 It shows still pictures and nothing else. It asks nothing of the person, so it is not a [dialog](/components/dialog/); its pictures are looked at and not pressed, so it is not a [carousel](/components/carousel/) — though a carousel's item, or a picture in a [figure](/components/figure/), is a natural thing to open it from.
 
-**Built with** [buttons](/components/button/) — zoom out, zoom in, close, previous and next — and a [skeleton](/components/skeleton/) that stands in for a picture on its way. They are the real components, reading their own tokens. The stage that enlarges and moves a picture, and the turning from one picture to the next, are the image preview's own and exist nowhere else.
+**Built with** [buttons](/components/button/) — zoom out, zoom in, close, previous and next — and a [skeleton](/components/skeleton/) that stands in for a picture on its way. They are the real components, reading their own tokens. The bar's zoom out, zoom in and close are small buttons, tonal in the default system: the close button as every close button in Tanrei is, and the zoom controls beside it the same way. Previous and next are medium. The m3-like and cupertino presets keep bare glyphs on the bar. The stage that enlarges and moves a picture, and the turning from one picture to the next, are the image preview's own and exist nowhere else.
 
 On the web it is `<tanrei-image-preview>` with `<tanrei-image-preview-item>` children. The other platforms have not implemented it yet.
 
@@ -151,9 +151,9 @@ The image preview is not built from other components, so you cannot write the sa
 
 ```html
 <dialog class="viewer" aria-label="Photos of the room">
-  <tanrei-button variant="text" label="Zoom out"><span slot="icon">zoom_out</span></tanrei-button>
-  <tanrei-button variant="text" label="Zoom in"><span slot="icon">zoom_in</span></tanrei-button>
-  <tanrei-button variant="text" label="Close"><span slot="icon">close</span></tanrei-button>
+  <tanrei-button variant="tonal" size="small" label="Zoom out"><span slot="icon">zoom_out</span></tanrei-button>
+  <tanrei-button variant="tonal" size="small" label="Zoom in"><span slot="icon">zoom_in</span></tanrei-button>
+  <tanrei-button variant="tonal" size="small" label="Close"><span slot="icon">close</span></tanrei-button>
   <tanrei-button variant="tonal" label="Previous image"><span slot="icon">chevron_left</span></tanrei-button>
   <img alt="A bedroom with a window onto a garden" src="room-large.jpg" tabindex="0">
   <tanrei-button variant="tonal" label="Next image"><span slot="icon">chevron_right</span></tanrei-button>

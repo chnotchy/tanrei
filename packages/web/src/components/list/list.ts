@@ -1,10 +1,11 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { html, literal } from 'lit/static-html.js';
 import { wordPlaces } from '../../generated/words.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
   AvailabilityController,
+  CoalescedSync,
   GlyphDrawnController,
   GlyphMirrorController,
   LINK_MARK,
@@ -15,6 +16,7 @@ import {
   TOUCH_SLOP as SLOP,
   type TanreiLinkTarget,
   WordsController,
+  countWork,
   deepActive,
   fillPlaces,
   focusWithin,
@@ -29,12 +31,15 @@ import {
   reportPlaces,
   slottedInteractive,
   syncFocusStyle,
+  OpenAxesController,
 } from '../../primitives/index.js';
 import { ambientLocale } from '../../primitives/locale-date.js';
 import '../button/button.js';
 import type { TanreiButton } from '../button/button.js';
 import '../menu/menu.js';
-import { itemStyles, listStyles } from './list.styles.js';
+import { AXES, itemStyles, listStyles } from './list.styles.js';
+import type { TanreiListDensityRegistry } from '../../registry.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** LST-21: the glyph of the icon set a selected option draws — the spec's name, not a value. */
 const CHECK_GLYPH = 'check';
@@ -52,6 +57,12 @@ const GAPS: readonly TanreiListGap[] = ['none', 'small', 'medium', 'large'];
 /** Whether people choose items: `none` shows or opens things; `single` and `multiple` make the list a listbox. A closed set. */
 export type TanreiListSelection = 'none' | 'single' | 'multiple';
 const SELECTIONS: readonly TanreiListSelection[] = ['none', 'single', 'multiple'];
+
+/** Whether a List row keeps the room of a leading glyph it does not draw (LST-50): the menu's and the tree view's values. A closed set. */
+export type TanreiListIconSpace = 'auto' | 'always' | 'never';
+/** How much room an item takes (LST-51): `regular`, `compact`, or a density a design system added. */
+export type TanreiListDensity = keyof TanreiListDensityRegistry;
+const ICON_SPACES: readonly TanreiListIconSpace[] = ['auto', 'always', 'never'];
 
 /** What `move` carries: the index the item had when the move began and the index it is to have, both from 0. */
 export interface TanreiListMoveDetail {
@@ -88,6 +99,10 @@ interface ItemContext {
   orientation: TanreiListOrientation;
   /** LST-3: where the item draws the divider between it and the item before it; none for the first. */
   divider: 'none' | 'block' | 'inline';
+  /** LST-50: a List row of the item keeps the room of a leading glyph where it draws no leading part. */
+  leadingRoom: boolean;
+  /** LST-51: the list's density, which a List row of the item draws in place of its own. */
+  density: string;
   /** LST-32, LST-33, LST-47: the handle's name and description and the four move words; empty where nobody gave them. */
   handleLabel: string;
   handleHint: string;
@@ -106,18 +121,25 @@ export interface TanreiListItemFrame {
   selected: boolean;
   /** The item is a disabled action, link or option (LST-15). */
   disabled: boolean;
+  /** The list asks the element to keep the room of a leading glyph where it draws no leading part (LST-50). */
+  leadingRoom: boolean;
+  /** The list's density, which the element draws in place of its own (LST-51, LRW-17). */
+  density: string;
 }
 
 /**
  * LST-48, LST-49: an element that fits itself to the item it is the direct child of — a `<tanrei-list-row>`. The item
  * sets `listItemFrame` (null once the element is no longer its child), and reads the item's name and description from it.
- * The element fires `tanrei-list-item-content` (bubbling) when it is first defined and whenever its name or description
- * changes, so that the item tells it the frame and the list hears the new name.
+ * The element fires `tanrei-list-item-content` (bubbling) when it is first defined and whenever its name, its
+ * description or whether it draws a leading glyph changes, so that the item tells it the frame and the list hears the
+ * new name and decides the room of a leading glyph again (LST-50).
  */
 export interface TanreiListItemContent extends HTMLElement {
   listItemFrame: TanreiListItemFrame | null;
   readonly listItemName: string;
   readonly listItemDescription: string;
+  /** LST-50: the element draws a glyph as its leading part — not the content of a leading slot. */
+  readonly listItemGlyph: boolean;
 }
 
 /** Whether a child of an item fits itself to the item (LST-48). */
@@ -166,7 +188,7 @@ const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(pre
  * @csspart divider - The hairline between the item and the one before it, while the list has dividers.
  * @fires click - An interactive item or a link item was activated by pointer, touch, keyboard or assistive technology. A link item fires it before the browser follows the address; `preventDefault()` cancels the navigation.
  */
-export class TanreiListItem extends LitElement {
+export class TanreiListItem extends TanreiElement {
   static override styles = [itemStyles, hiddenHost];
 
   static override properties: PropertyDeclarations = {
@@ -220,7 +242,7 @@ export class TanreiListItem extends LitElement {
   download: string | null = null;
 
   /** What the list says about this item. */
-  private context: ItemContext = { selectable: false, selected: false, tabStop: false, position: 0, size: 0, reorder: false, orientation: 'vertical', divider: 'none', handleLabel: '', handleHint: '', moves: NO_MOVES };
+  private context: ItemContext = { selectable: false, selected: false, tabStop: false, position: 0, size: 0, reorder: false, orientation: 'vertical', divider: 'none', leadingRoom: false, density: 'regular', handleLabel: '', handleHint: '', moves: NO_MOVES };
 
   /** LST-33: whether the move menu is open, and whether it has been drawn yet (it is drawn the first time it opens). */
   private menuOpen = false;
@@ -290,6 +312,11 @@ export class TanreiListItem extends LitElement {
     return [...this.children].filter(fitsItem);
   }
 
+  /** @internal LST-50: whether a List row of the item draws a glyph as its leading part. */
+  get drawsGlyph(): boolean {
+    return this.fitted.some((child) => child.listItemGlyph);
+  }
+
   /** LST-49: the name the item's List rows give it: their headlines. */
   private get contentName(): string {
     return spoken(
@@ -318,7 +345,14 @@ export class TanreiListItem extends LitElement {
   /** LST-48: tells each child that fits itself to the item what the item is, and a child that left that it stands alone. */
   private tellContent() {
     const mode = this.mode;
-    const frame: TanreiListItemFrame = { boxed: mode !== 'static', handled: this.context.reorder, selected: this.selected, disabled: mode !== 'static' && this.disabled };
+    const frame: TanreiListItemFrame = {
+      boxed: mode !== 'static',
+      handled: this.context.reorder,
+      selected: this.selected,
+      disabled: mode !== 'static' && this.disabled,
+      leadingRoom: this.context.leadingRoom,
+      density: this.context.density,
+    };
     const key = JSON.stringify(frame);
     const now = new Set(this.fitted);
     for (const child of this.framed) {
@@ -463,7 +497,7 @@ export class TanreiListItem extends LitElement {
   };
 
   /** LST-15: a press on a disabled item does not focus it (as on a native disabled control); the arrow keys still reach it. */
-  private onMouseDown(event: MouseEvent) {
+  #onMouseDown(event: MouseEvent) {
     if (this.mode !== 'static' && this.disabled) event.preventDefault();
   }
 
@@ -488,7 +522,7 @@ export class TanreiListItem extends LitElement {
   }
 
   /** The content changed: what it holds is inspected, the list hears that the item's name may have changed. */
-  private onContentChange() {
+  #onContentChange() {
     this.tellContent();
     this.requestUpdate();
     void this.inspectContent();
@@ -514,7 +548,7 @@ export class TanreiListItem extends LitElement {
   }
 
   /** LST-33: the handle was pressed — by pointer, touch, Enter or assistive technology, as a Button is. */
-  private onHandleClick(event: Event) {
+  #onHandleClick(event: Event) {
     const list = this.parentElement;
     // A press that carried the item is no press of the handle.
     if (list instanceof TanreiList && list.swallowsHandleClick()) {
@@ -526,12 +560,12 @@ export class TanreiListItem extends LitElement {
   }
 
   /** LST-33: the menu asks to be closed — Escape, a press outside, Tab, focus leaving, an item chosen. */
-  private onMenuClose() {
+  #onMenuClose() {
     this.menuOpen = false;
   }
 
   /** LST-33: a move was chosen. */
-  private onMoveChosen(move: Move) {
+  #onMoveChosen(move: Move) {
     this.menuOpen = false;
     const list = this.parentElement;
     if (list instanceof TanreiList) list.requestMenuMove(this, move);
@@ -617,7 +651,7 @@ export class TanreiListItem extends LitElement {
         @pointerup=${this.press.release}
         @pointercancel=${this.press.release}
         @pointerleave=${this.press.release}
-        @mousedown=${this.onMouseDown}
+        @mousedown=${this.#onMouseDown}
       >
         ${reorder
           ? html`<tanrei-button
@@ -630,17 +664,17 @@ export class TanreiListItem extends LitElement {
               .forwardedDescription=${this.context.handleHint || null}
               ?disabled=${lone}
               focusable-when-disabled
-              @click=${this.onHandleClick}
+              @click=${this.#onHandleClick}
               ><span slot="icon" class="handle-glyph" data-mirror="never"><span class="ink">${HANDLE_GLYPH}</span></span></tanrei-button
             >`
           : nothing}
-        <span part="content" class="content"><slot @slotchange=${this.onContentChange}></slot></span>
+        <span part="content" class="content"><slot @slotchange=${this.#onContentChange}></slot></span>
         <span class="hold" aria-hidden="true"></span>
         ${link?.opensNew ? html`<span part="new-context" class="new-context" aria-hidden="true"><span class="ink">${LINK_MARK}</span></span>` : nothing}
         ${this.context.selectable ? html`<span part="mark" class="mark" aria-hidden="true"><span class="ink">${CHECK_GLYPH}</span></span>` : nothing}
       </${tag}>
       ${reorder && this.menuDrawn
-        ? html`<tanrei-menu anchor="handle" placement="bottom-start" .open=${this.menuOpen && !lone} @close=${this.onMenuClose}>
+        ? html`<tanrei-menu anchor="handle" placement="bottom-start" .open=${this.menuOpen && !lone} @close=${this.#onMenuClose}>
             ${MOVES.map(
               (move) =>
                 html`<tanrei-menu-item
@@ -648,7 +682,7 @@ export class TanreiListItem extends LitElement {
                   leading-icon=${MOVE_GLYPHS[orientation][move]}
                   ?disabled=${useless[move]}
                   data-move=${move}
-                  @click=${() => this.onMoveChosen(move)}
+                  @click=${() => this.#onMoveChosen(move)}
                 ></tanrei-menu-item>`,
             )}
           </tanrei-menu>`
@@ -741,7 +775,7 @@ interface Press {
  * @fires {CustomEvent<TanreiListChangeDetail>} change - The user changed the selection: `detail.value` (single) or `detail.values` (multiple) after the change, which the list already holds.
  * @fires {CustomEvent<TanreiListMoveDetail>} move - The user asked for an item to stand in another place — by the move menu, the keyboard or a drag: `detail.from` is the item's index and `detail.to` the index it is to have, both from 0. Fired once per move; it bubbles and cannot be cancelled. The list has moved nothing: reorder your items.
  */
-export class TanreiList extends LitElement {
+export class TanreiList extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'list');
   static override styles = [listStyles, hiddenHost];
 
@@ -750,6 +784,8 @@ export class TanreiList extends LitElement {
     wrap: { type: Boolean, reflect: true },
     gap: { type: String, reflect: true },
     dividers: { type: Boolean, reflect: true },
+    iconSpace: { type: String, attribute: 'icon-space', reflect: true },
+    density: { type: String, reflect: true, useDefault: true },
     selection: { type: String, reflect: true },
     label: { type: String },
     value: { type: String },
@@ -777,6 +813,24 @@ export class TanreiList extends LitElement {
 
   /** Draws a hairline between every two neighbouring items. Read only while `wrap` is false (LST-3). */
   dividers = false;
+
+  /**
+   * Whether a List row that is an item's direct child keeps the room of a leading glyph where it draws none, so that
+   * the headlines start on one line (LST-50): `auto` keeps it while another item's row draws a glyph (`leading-icon`),
+   * `always` in every row, `never` only in a row that draws one. A leading slot's avatar or picture does not count.
+   */
+  iconSpace: TanreiListIconSpace = 'auto';
+
+  /**
+   * How much room an item takes (LST-51): the least height of an action, a link and an option and the padding above and
+   * below its content, and the density of every List row that is an item's direct child. `regular` (the default) is for a
+   * product used by touch as well as by pointer; `compact` for a tool used with a pointer. For touch an item is never
+   * lower than the touch target (LST-11). A design system may add values.
+   */
+  density: TanreiListDensity = 'regular';
+
+  /** LST-51: a density a design system added is drawn from its tokens; one the active system lacks is reported. */
+  private readonly densities = new OpenAxesController(this, { component: 'list', behavior: 'LST-51', axes: AXES });
 
   /** Whether people choose items: `none` shows or opens things; `single` chooses one; `multiple` any number. */
   selection: TanreiListSelection = 'none';
@@ -850,9 +904,18 @@ export class TanreiList extends LitElement {
   private readonly motions = new Map<TanreiListItem, Animation>();
   private resize?: ResizeObserver;
   private scrollFrame = 0;
+  /**
+   * The re-read of the items (`sync()`), once per turn however many items said they changed in it: a list of N items
+   * built, or N names changed at once, re-reads its N items once — not once per item, which made the build O(N²).
+   */
+  private readonly syncs = new CoalescedSync(() => this.sync());
+  /** What reads the items' context in the task it runs in reads it re-read (a key press, a press, focus). */
+  private readonly flushSyncs = () => this.syncs.flush();
 
   constructor() {
     super();
+    // Before every handler below: an item that changed in this task is read as it is now.
+    for (const type of ['keydown', 'keyup', 'click', 'focusin', 'focusout', 'pointerdown', 'contextmenu', 'dragstart']) this.addEventListener(type, this.flushSyncs, { capture: true });
     this.addEventListener('keydown', this.onKeyDown, { capture: true });
     this.addEventListener('keyup', this.onKeyUp, { capture: true });
     this.addEventListener('click', this.onClick);
@@ -871,7 +934,7 @@ export class TanreiList extends LitElement {
     this.addEventListener('pointerdown', this.onPointerDown);
     this.addEventListener('contextmenu', this.onContextMenu);
     this.addEventListener('dragstart', this.onDragStart);
-    this.addEventListener('tanrei-list-item-update', this.sync);
+    this.addEventListener('tanrei-list-item-update', this.syncs.request);
   }
 
   /** The items, in order: the list's `<tanrei-list-item>` children. */
@@ -917,6 +980,7 @@ export class TanreiList extends LitElement {
   /** Tells every item what it is now (LST-3, LST-17, LST-18, LST-25, LST-31) and reports what a debug build should (LST-25, LST-47). */
   private readonly sync = () => {
     if (!this.hasUpdated) return;
+    countWork('list.sync');
     const items = this.items;
     const selectable = this.mode !== 'none';
     const reorder = this.isReorderable;
@@ -933,6 +997,9 @@ export class TanreiList extends LitElement {
       null;
     const orientation = this.axis;
     const divider: ItemContext['divider'] = this.dividers && !this.wrap ? (orientation === 'vertical' ? 'block' : 'inline') : 'none';
+    // LST-50: the list is one run — its rows keep a glyph's room while one of them draws a glyph (auto), always, or never.
+    const space: TanreiListIconSpace = ICON_SPACES.includes(this.iconSpace) ? this.iconSpace : 'auto';
+    const leadingRoom = space === 'always' || (space === 'auto' && items.some((item) => item.drawsGlyph));
     items.forEach((item, index) =>
       item.setListContext({
         selectable,
@@ -943,6 +1010,8 @@ export class TanreiList extends LitElement {
         reorder,
         orientation,
         divider: index === 0 ? 'none' : divider,
+        leadingRoom,
+        density: String(this.density ?? ''),
         handleLabel: reorder ? this.handleName : '',
         handleHint: reorder ? this.handleHintText : '',
         moves: reorder ? this.moveNames : NO_MOVES,
@@ -1019,7 +1088,7 @@ export class TanreiList extends LitElement {
     }, this.motion().duration);
     this.dispatchEvent(new CustomEvent<TanreiListMoveDetail>('move', { bubbles: true, detail: { from, to } }));
     // A product that reordered in its handler has answered already.
-    this.sync();
+    this.syncs.now();
   }
 
   /** LST-39, LST-43: the product did not give the order: what was dropped goes back, focus stays on the handle of what stands there. */
@@ -1605,8 +1674,14 @@ export class TanreiList extends LitElement {
 
   // ── Keyboard ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-  /** The list's children changed: what each item is, where each is drawn, and where focus stands. */
-  private readonly onSlotChange = () => {
+  /**
+   * The list's children changed: what each item is, where each is drawn, and where focus stands. Only the list's own
+   * slot changing is that: a slot inside an item (a component that slots its rows into List items) changing what it
+   * holds bubbles here too, once per item, and is the item's content — which the item tells the list itself
+   * (item-update). Re-read for each of those, a list of N such items built re-read itself N times: O(N²).
+   */
+  private readonly onSlotChange = (event: Event) => {
+    if (event.target !== event.currentTarget) return;
     // LST-35, LST-40: the product changed the items while one was carried — it goes back, nothing is moved.
     if (this.carry) {
       const carry = this.carry;
@@ -1614,7 +1689,7 @@ export class TanreiList extends LitElement {
       this.stopPointer();
       this.cancel(keyboard && carry.item.isConnected);
     }
-    this.sync();
+    this.syncs.now();
     if (!this.isReorderable) return;
     this.observeItems();
     void this.placesChanged();
@@ -1724,7 +1799,7 @@ export class TanreiList extends LitElement {
     }
     if (!item || event.composedPath()[0] !== item.focusTarget || item === this.lastFocused) return;
     this.lastFocused = item;
-    this.sync();
+    this.syncs.now();
   };
 
   /** LST-35: focus leaving the handle of an item lifted by the keyboard puts it back. LST-46: a handle let go of focus. */
@@ -1823,6 +1898,7 @@ export class TanreiList extends LitElement {
     if (changed.has('selection') && !SELECTIONS.includes(this.selection)) report(this, 'LST-6', `selection "${this.selection}" is not a value the list defines; it is drawn as "none"`);
     if (changed.has('orientation') && !ORIENTATIONS.includes(this.orientation)) report(this, 'LST-6', `orientation "${this.orientation}" is not a value the list defines; it is drawn as "vertical"`);
     if (changed.has('gap') && !GAPS.includes(this.gap)) report(this, 'LST-6', `gap "${this.gap}" is not a value the list defines; it is drawn as "none"`);
+    if (changed.has('iconSpace') && !ICON_SPACES.includes(this.iconSpace)) report(this, 'LST-50', `iconSpace "${this.iconSpace}" is not a value the list defines; it is drawn as "auto"`);
     // LST-35, LST-40: the product changed what the list is while an item was carried: it goes back.
     if (this.carry && (changed.has('reorderable') || changed.has('selection'))) {
       const keyboard = this.carry.by === 'keyboard';
@@ -1867,7 +1943,7 @@ export class TanreiList extends LitElement {
       this.places.clear();
       this.heldFocus = null;
     }
-    this.sync();
+    this.syncs.now();
   }
 
   protected override render() {

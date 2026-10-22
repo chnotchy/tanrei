@@ -4,6 +4,7 @@ import { AvailabilityController, GlyphDrawnController, GlyphMirrorController, LI
 import { hiddenHost } from '../../primitives/hidden.js';
 import { FORWARDED_ROWS, type TanreiMenu, type TanreiMenuBarChannel, type TanreiMenuCloseDetail, type TanreiSubmenuToggleDetail } from '../menu/menu.js';
 import { barStyles, itemStyles, menuStyles } from './menubar.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** What a bar menu's `toggle` carries: its new `open`. */
 export interface TanreiMenubarMenuToggleDetail {
@@ -87,7 +88,7 @@ const flatParent = (node: Node): Node | null => {
  * @csspart label - The title's text.
  * @fires {CustomEvent<TanreiMenubarMenuToggleDetail>} toggle - The person opened or closed the menu: `detail.open` (and the element's `open`) is the new value. It bubbles. A change the product makes to `open` fires none. A submenu item's `toggle` bubbles through the element too: tell them apart by the event's target.
  */
-export class TanreiMenubarMenu extends LitElement {
+export class TanreiMenubarMenu extends TanreiElement {
   static override styles = menuStyles;
 
   // Each child in a slot of its own, forwarded into the menu, which draws its dividers between them (MNU-23).
@@ -372,7 +373,7 @@ export class TanreiMenubarMenu extends LitElement {
  * @csspart mark - The `open_in_new` glyph of a link item that opens a new context (hidden from assistive technology).
  * @fires click - The bar item was activated by pointer, touch, Enter, Space or assistive technology — in the row, after the open menu of the bar has closed, or folded, in the overflow item's menu, before that menu closes. An action's is the host's own click; a link item's is its anchor's, before the link is followed: `preventDefault()` stops the navigation.
  */
-export class TanreiMenubarItem extends LitElement {
+export class TanreiMenubarItem extends TanreiElement {
   static override styles = [itemStyles, hiddenHost];
 
   // The anchor alone is drawn, in the label's place: nothing else the element holds is.
@@ -872,7 +873,7 @@ export class TanreiMenubarItem extends LitElement {
  * @csspart container - The overflow item's container: its fill, corners, every state, the ripple and the focus ring.
  * @csspart icon - The overflow item's glyph (hidden from assistive technology).
  */
-export class TanreiMenubar extends LitElement {
+export class TanreiMenubar extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'menubar');
   static override styles = barStyles;
 

@@ -2,7 +2,7 @@
 title: チップ
 description: 行に並べて使う、ラベル付きの小さなコントロールです。提案されたアクションやどこかへのリンク、オンとオフを切り替える絞り込み、ユーザーが入力して取り除ける項目を表します。
 translationOf: components/chip.mdx
-sourceHash: 37e38aec32b4906b81c9cd245bc9a0ee1ec6e828
+sourceHash: 035fe677407860928287282c7aaf348c8224ccac
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -44,8 +44,8 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
       <img slot="avatar" src="ada.jpg" alt="" />
     </tanrei-chip>
 
-    <!-- 適用中の絞り込みを外しても何も失われないので、破壊的な見た目をオフにします。 -->
-    <tanrei-chip kind="input" label="30 分以内" remove-label="30 分以内を削除" no-destructive-remove></tanrei-chip>
+    <!-- 添付ファイルを取り除くと、そのファイルは失われます。取り除くアクションに破壊的な見た目を付けます。 -->
+    <tanrei-chip kind="input" label="report.pdf" remove-label="report.pdf を削除" destructive-remove></tanrei-chip>
 
     <script type="module">
       import '@tanrei/web/components/chip';
@@ -64,7 +64,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
     <Chip label="経路" href="https://example.com/map" target="new" targetLabel="新しいタブで開きます" />
     <Chip kind="filter" selected={vegetarian} label="ベジタリアン" onChange={(e) => setVegetarian(e.detail.selected)} />
     <Chip kind="input" label="山田 花子" removeLabel="山田 花子を削除" onRemove={() => removeRecipient(ada)} />
-    <Chip kind="input" label="30 分以内" removeLabel="30 分以内を削除" destructiveRemove={false} onRemove={clearTimeFilter} />
+    <Chip kind="input" label="report.pdf" removeLabel="report.pdf を削除" destructiveRemove onRemove={() => removeAttachment(report)} />
     ```
   </TabItem>
   <TabItem label="SwiftUI">
@@ -147,9 +147,9 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
   <tanrei-chip kind="filter" selected disabled label="ベジタリアン"></tanrei-chip>
 </DemoFrame>
 
-<DemoFrame label="取り除くアクション：破壊的（既定）と通常。ホバーかフォーカスで違いが見えます" plain>
-  <tanrei-chip kind="input" label="山田 花子" remove-label="山田 花子を削除"></tanrei-chip>
-  <tanrei-chip kind="input" label="30 分以内" remove-label="30 分以内を削除" no-destructive-remove></tanrei-chip>
+<DemoFrame label="取り除くアクション：通常（既定）と破壊的。ホバーかフォーカスで違いが見えます" plain>
+  <tanrei-chip kind="input" label="30 分以内" remove-label="30 分以内を削除"></tanrei-chip>
+  <tanrei-chip kind="input" label="report.pdf" remove-label="report.pdf を削除" destructive-remove></tanrei-chip>
 </DemoFrame>
 
 <DemoFrame label="リンクのチップ：同じタブ、新しいタブ、無効" plain>
@@ -213,7 +213,7 @@ Material Design 3 にはチップが 4 系統あります。Tanrei では種類�
 
 入力チップの末尾には、取り除くアクションがあります。塗りつぶしの `cancel` グリフを、それより少し大きい丸いコンテナに載せたもので、ホバー、フォーカス、押下の間はグリフの周りに輪として見えます。既定のシステムでは、丸いコンテナはチップの丸い端と同心で、端からの距離が上下からの距離と同じになります。丸いコンテナは自分の場所を取らないので、チップの幅も高さも変えません。取り除くアクションはチップとは別のボタンで、名前、ホバー・フォーカス・押下の状態、ヒット領域を自分で持ちます。ヒット領域は外側に向かって広がり、ラベルにはかかりません。このボタンを押すか、チップにフォーカスがある状態で Backspace か Delete を押すと、チップを取り除くよう求めます。**チップは自分自身を取り除きません。** 項目を取り除き、次のチップ、前のチップ、またはチップが属するフィールドへフォーカスを移すのは、利用者側のコードです。
 
-既定では、取り除くアクションは破壊的なアクションとして見えます（`destructiveRemove`。オフにしない限りオンです）。通常時の見た目はフラグがないときと同じで、ホバー、フォーカス、押下の間だけ、グリフとステートレイヤーがエラーの色になります。適用中の絞り込みのように、あとから付け直せて何も失われない取り除きではオフにします。Web では HTML の真偽値属性を既定で true にできないため、属性は反対の意味の `no-destructive-remove` です。このフラグが変えるのは色だけで、ほかの種類のチップでは無視されます。
+取り除くアクションは、破壊的なアクションとして見せることができます（`destructiveRemove`。既定はオフです）。通常時の見た目はフラグがないときと同じで、ホバー、フォーカス、押下の間だけ、グリフとステートレイヤーがエラーの色になります。取り除くものの多くは、適用中の絞り込みや検索語のように、1 回の操作で元に戻せます。そのため、フラグを付けない限り、取り除くアクションは通常の見た目です。添付ファイルや招待済みの宛先のように、取り除くと 1 回の操作では戻せないものが失われる場所でフラグを付けます。Web では属性は `destructive-remove` です。このフラグが変えるのは色だけで、ほかの種類のチップでは無視されます。
 
 読み取り専用のフィールドのエントリのように、いまは取り除けない入力チップは、取り除くアクションを描きません。`removable` を false にします。働かないアクションが残ることはなく、Backspace と Delete も何も求めず、チップの余白は取り除くアクションのないチップと同じになります。Web では、属性は反対の意味の `not-removable` です。ほかの種類のチップでは無視されます。
 
@@ -224,7 +224,7 @@ Material Design 3 にはチップが 4 系統あります。Tanrei では種類�
 - ラベルは 1〜3 語程度に短くします。チップは 1 行のままで、レイアウトの幅が足りないときだけラベルを末尾で省略します。
 - 1 行に並べるチップのバリアントはそろえます。
 - 取り除くアクションのラベルには項目の名前を入れます。「削除」ではなく「山田 花子を削除」です。
-- 宛先やタグのように、取り除くと入力したものが失われる場所では、破壊的な見た目を残します。取り除いても害のない場所ではオフにします。
+- 破壊的な見た目は、添付ファイルのように、取り除くと 1 回の操作では戻せないものが失われる場所にだけ付けます。絞り込みや検索語のように 1 回の操作で戻せる項目では、通常の見た目のままにします。
 - Web では、並べたチップを[タググループ](/ja/components/tag-group/)に入れます。チップを折り返す行に並べ、チップの間に間隔を取り、全体を 1 つのリストとして伝えます。ほかのプラットフォームでは、またスクロールさせる並びでは、自分でレイアウトします。
 
 ### 非推奨

@@ -16,7 +16,7 @@
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { test } from 'node:test';
-import { ROOT_SYSTEM, listSystems } from '../src/bundle.js';
+import { DEFAULT_SYSTEM, shippedSystems } from '../src/bundle.js';
 import { CONFIG, REPO_ROOT, buildModel } from '../src/model.js';
 
 const NS = `${CONFIG.namespace}.comp`;
@@ -96,10 +96,10 @@ const REQUIRED = [
     ['label', 'supporting-text', 'required-asterisk'].map((part) => `stacked.${condition}${part}.color`)),
 ];
 
-const systems = [ROOT_SYSTEM, ...listSystems(REPO_ROOT).filter((id) => id !== ROOT_SYSTEM)];
+const systems = [DEFAULT_SYSTEM, ...shippedSystems(REPO_ROOT).filter((id) => id !== DEFAULT_SYSTEM)];
 const models = new Map();
 const modelOf = async (system) => {
-  if (!models.has(system)) models.set(system, await (system === ROOT_SYSTEM ? buildModel() : buildModel(path.join(REPO_ROOT, 'tokens/generated', system), system)));
+  if (!models.has(system)) models.set(system, await (system === DEFAULT_SYSTEM ? buildModel() : buildModel(path.join(REPO_ROOT, 'tokens/generated', system), system)));
   return models.get(system);
 };
 /** A token's value as drawn in a scheme: a color of that scheme, anything else as the model resolved it. */
@@ -146,7 +146,7 @@ for (const [component, frame] of Object.entries(FRAMES)) {
 }
 
 test('the comparison is not vacuous: a token whose value moves away from its reference is found, by name', async () => {
-  const model = structuredClone(await modelOf(ROOT_SYSTEM));
+  const model = structuredClone(await modelOf(DEFAULT_SYSTEM));
   const [mine, held] = framePairs(model, 'field-group').find(([id]) => id.endsWith('.label.gap'));
   assert.equal(held, `${FIELD}.label.gap`);
   model.tokens[mine].value = { value: 12, unit: 'px' };
@@ -164,15 +164,18 @@ test('the comparison is not vacuous: a token whose value moves away from its ref
 });
 
 test('the text field has no group of its own: the box is the one set, the text input has what it alone draws, the Field the rows', async () => {
-  const model = await modelOf(ROOT_SYSTEM);
+  const model = await modelOf(DEFAULT_SYSTEM);
   const count = (group) => Object.keys(model.tokens).filter((id) => id.startsWith(`${NS}.${group}.`)).length;
   assert.equal(count('text-field'), 0);
   // 364 were the text input's (361 at the split, and three for the entries place): 330 are the box's
-  // now, and 34 are its own — the resize grip, a segment, the code face, the entries place, the motion of a height.
-  assert.equal(count('text-input'), 34);
-  // The box: the text input's 330, and the ten of the small size, which the select alone offered.
+  // now, 26 went with the resize grip (its handle is a Handle, comp.handle.*), and 8 are its own — a segment, the code
+  // face, the entries place, the motion of a height.
+  assert.equal(count('text-input'), 8);
+  // The box: the text input's 330, the ten of the small size, which the select alone offered, and its state duration
+  // per size (three in place of one), and the stacked look's own height and block padding per size (six), which make a
+  // stacked box as tall as a Button of its size.
   const box = Object.keys(model.tokens).filter((id) => id.startsWith(`${INPUT_BOX}.`));
-  assert.equal(box.length, 340);
+  assert.equal(box.length, 348);
   // Every name of the box is its own reference, but the stacked look's label and asterisk, which the Field draws above a stacked box.
   assert.equal(box.filter((id) => reference(id.slice(INPUT_BOX.length + 1)) !== id).length, 16);
   // No name of the text input's own group is a name a text field had for the box or a row.
@@ -185,7 +188,7 @@ test('the text field has no group of its own: the box is the one set, the text i
 });
 
 test('a split field has no group of its own: the box is the one set, its input has what it alone draws, the Field the rows', async () => {
-  const model = await modelOf(ROOT_SYSTEM);
+  const model = await modelOf(DEFAULT_SYSTEM);
   const count = (group) => Object.keys(model.tokens).filter((id) => id.startsWith(`${NS}.${group}.`)).length;
   // The number field: 438 ids were its own, then 283 the number input's; five are — where the
   // steppers stand and how a hold repeats.
@@ -194,11 +197,13 @@ test('a split field has no group of its own: the box is the one set, its input h
   // The color field: 391, then 236 the color input's; three are — the swatch's shape and its hairline.
   assert.equal(count('color-field'), 0);
   assert.equal(count('color-input'), 3);
-  // The select: 739, then 548 for the box and the list; 203 are — the list (with its greatest width), and the rows' own state motion and opacity.
-  assert.equal(count('select'), 203);
+  // The select: 739, then 548 for the box and the list; 206 were — the list (with its greatest width), the rows' own state
+  // motion and opacity, and the status row —, and 213 are since seven measures of a row are one per density (regular, compact).
+  assert.equal(count('select'), 213);
   assert.equal(count('select-field'), 0);
-  // The combobox: 765, then 574; 206 are — the list, the matched letters, the status row, the gap of its two actions.
-  assert.equal(count('combobox'), 206);
+  // The combobox: 765, then 574; 206 were — the list, the matched letters, the status row, the gap of its two actions —,
+  // and 213 are since seven measures of a row are one per density.
+  assert.equal(count('combobox'), 213);
   assert.equal(count('combobox-field'), 0);
 });
 

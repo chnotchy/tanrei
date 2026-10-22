@@ -1,9 +1,16 @@
-// <tanrei-dialog>, driven by specs/dialog.spec.json: every behaviour id (DLG-1…24) is cited by a test title, every
-// fixture has a baseline (the 640 × 640 window, 360 × 640 for the compact ones, since the dialog and its scrim are in the
-// top layer), and every value is read back from the tokens — never from a number written here.
+// <tanrei-dialog>, driven by specs/dialog.spec.json: every behaviour id (DLG-1…28; DLG-25 is retired) is cited by a
+// test title, every fixture has a baseline (the 640 × 640 window, 360 × 640 for the compact ones, since the dialog and
+// its scrim are in the top layer), and every value is read back from the tokens — never from a number written here.
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, dialogWindow, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { buildSync } from 'esbuild';
+import { watchTransitions, transitionsRun } from '../../../test/transitions.js';
+import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
+import { type Frames, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
+import { motionEnded } from '../../../test/motions.js';
+import { type Fixture, type FixtureItem, dialogWindow, fixturesDocument, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 
 const spec = loadSpec('dialog');
 type P = Page;
@@ -60,9 +67,9 @@ const closed = (id: string): Fixture => {
   const fixture = spec.fixtures.find((fx) => fx.id === id)!;
   return { ...fixture, props: { ...fixture.props, open: false } };
 };
-async function mount(page: P, fixtures: Fixture[], window = WIDE) {
+async function mount(page: P, fixtures: Fixture[], window = WIDE, system?: string) {
   await page.setViewportSize(window);
-  await mountFixtures(page, spec, { icons: true, fixtures });
+  await mountFixtures(page, spec, { icons: true, fixtures, system });
   await page.evaluate(() => {
     const log: string[] = ((window as any).log = []);
     for (const d of document.querySelectorAll<any>('tanrei-dialog')) {
@@ -197,48 +204,166 @@ test.describe('presentation and focus', () => {
     expect(await log(page)).toEqual(['d:Discard']);
   });
 
-  test('DLG-13: centred, it fades and grows in over the enter motion, fades out over the exit motion, and only fades where motion is reduced; focus moves at once', async ({ page }) => {
+  test('DLG-13: centred, the container appears from where the appearance starts it — opacity 0 and scale 0.96 under the default system — grown about its centre over the enter motion; closing, it leaves the same way back over the exit motion on the accelerating curve, its last frame leaving no more than that curve does; nothing flickers, and focus moves at once', async ({ page }) => {
     await mount(page, [f('d')]);
-    // The motions at 40 s, ended by hand: the opacity and the scale are read 'on their way' three to five answers after
-    // the opening, and at 2 s a runner that takes half a second an answer read a dialog that had arrived. The durations
-    // are read from the transitions after the override, so the binding to the tokens is still what is proved.
-    await override(page, { [T('motion-enter-duration')]: '40s', [T('motion-exit-duration')]: '40s' });
     await page.locator('#open-d').focus();
+    // Focus moves when it opens, while the motion runs: read in the step that opens it.
+    let focusAtOnce: unknown = null;
+    const opening = await sampleFrames(dialog(page, 'd'), async () => (focusAtOnce = await host(page, 'd').evaluate(async (el: any) => {
+      el.open = true;
+      await el.updateComplete;
+      const active = el.shadowRoot.activeElement;
+      return active?.localName ?? null;
+    })), { probe: appearProbe });
+    expect(focusAtOnce).toBe('dialog');
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 0.96 });
+    expect(opening.rest.probe).toMatchObject({ opacity: 1, sx: 1, sy: 1, tx: 0, ty: 0, blur: 0 });
+    // About its centre.
+    const box = await bounds(dialog(page, 'd'));
+    const [ox, oy] = String(opening.frames[0]!.probe.origin).split(' ').map(Number.parseFloat);
+    expect(ox).toBeCloseTo(box.width / 2, 1);
+    expect(oy).toBeCloseTo(box.height / 2, 1);
+    expectNoFlicker(opening);
+    expectAnimated(opening, 'opacity');
+    const drawn = (seen: Frames) => seen.motions.filter((motion) => motion.on.startsWith('dialog') && !motion.on.includes('::') && ['opacity', 'scale'].includes(motion.name));
+    for (const motion of drawn(opening)) {
+      expect(motion.duration, motion.name).toBe(await resolveToken(page, T('motion-enter-duration'), 'duration'));
+      expect(motion.easing, motion.name).toBe(await resolveEasing(page, T('motion-enter-easing')));
+    }
+    // (WebKit reports the scrim's fade as the container's own — its pseudo-element unnamed — so the properties are counted once each.)
+    expect([...new Set(drawn(opening).map((motion) => motion.name))].sort()).toEqual(['opacity', 'scale']);
+    // The modal role's tempo (MDL-7).
+    expect(await resolveToken(page, T('motion-enter-duration'), 'duration')).toBe(await resolveToken(page, '--tanrei-sys-motion-role-appear-modal-enter', 'duration'));
+
+    let afterClose: unknown = null;
+    const closing = await sampleFrames(dialog(page, 'd'), async () => (afterClose = await host(page, 'd').evaluate(async (el: any) => {
+      el.open = false;
+      await el.updateComplete;
+      const native = el.shadowRoot.querySelector('dialog') as HTMLDialogElement;
+      return { open: native.open, focused: document.activeElement?.id ?? null };
+    })), { probe: appearProbe });
+    // No longer modal and focus back at once; drawn in the top layer until the exit has played, in every engine (MDL-7).
+    expect(afterClose).toEqual({ open: false, focused: 'open-d' });
+    expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 0.96, sy: 0.96 });
+    expectNoFlicker(closing);
+    expectAnimated(closing, 'opacity');
+    const exit = await resolveEasing(page, T('motion-exit-easing'));
+    // The exit role's curve (the accelerating one under the default system), as the scrim's fade is.
+    expect(exit).toBe(await resolveEasing(page, '--tanrei-sys-motion-easing-exit'));
+    for (const motion of drawn(closing)) {
+      expect(motion.duration, motion.name).toBe(await resolveToken(page, T('motion-exit-duration'), 'duration'));
+      expect(motion.easing, motion.name).toBe(exit);
+    }
+    expect([...new Set(drawn(closing).map((motion) => motion.name))].sort()).toEqual(['opacity', 'scale']);
+    expectExitEnd(closing, { duration: await resolveToken(page, T('motion-exit-duration'), 'duration'), easing: bezierOf(exit) });
+    expect(closing.frames.filter((frame) => frame.probe.opacity !== 0).length).toBeGreaterThan(3);
+    expect(await css(dialog(page, 'd'), 'display')).toBe('none');
+  });
+
+  test('DLG-13: under the unfold appearance (m3-like) a centred container has no anchored edge: it grows on both axes from its centre', async ({ page }) => {
+    await mount(page, [f('d')], WIDE, 'm3-like');
+    expect(await token(page, '--tanrei-sys-behavior-appearance')).toBe('unfold');
+    const opening = await sampleFrames(dialog(page, 'd'), () => host(page, 'd').evaluate((el: any) => (el.open = true)), { probe: appearProbe });
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: Number(await token(page, '--tanrei-sys-motion-appear-scale')) });
+    expect(opening.rest.probe).toMatchObject({ opacity: 1, sx: 1, sy: 1 });
+    expectNoFlicker(opening);
+  });
+
+  test('DLG-13: where motion is reduced the container only fades, in and out, over sys.motion.role.reduced — no scale, no distance, no blur', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await mount(page, [f('d')]);
+    const reduced = await resolveToken(page, '--tanrei-sys-motion-role-reduced', 'duration');
+    const own = (seen: Frames) => seen.motions.filter((motion) => motion.on.startsWith('dialog') && !motion.on.includes('::') && !['display', 'overlay'].includes(motion.name)).map((motion) => [motion.name, motion.duration]);
+    const opening = await sampleFrames(dialog(page, 'd'), () => host(page, 'd').evaluate((el: any) => (el.open = true)), { probe: appearProbe });
+    expectAppearStart(opening.frames[0]!, { opacity: 0, scale: 1 });
+    expect(opening.frames.every((frame) => frame.probe.sx === 1 && frame.probe.sy === 1 && frame.probe.ty === 0 && frame.probe.blur === 0)).toBe(true);
+    // Only the opacity moves, over role.reduced (WebKit also lists the scrim's fade here, its pseudo-element unnamed).
+    expect(own(opening)).toContainEqual(['opacity', reduced]);
+    expect(own(opening).filter(([name]) => name !== 'opacity')).toEqual([]);
+    const closing = await sampleFrames(dialog(page, 'd'), () => close(page, 'd'), { probe: appearProbe });
+    expect(own(closing)).toContainEqual(['opacity', reduced]);
+    expect(own(closing).filter(([name]) => name !== 'opacity')).toEqual([]);
+    expect(closing.rest.probe).toMatchObject({ opacity: 0, sx: 1, sy: 1 });
+  });
+
+  test('DLG-13: a motion turned round goes on from the opacity and the size it has reached — closed while it enters, and opened again while it leaves', async ({ page }) => {
+    await mount(page, [f('d')]);
+    await override(page, { [T('motion-enter-duration')]: '600ms', [T('motion-exit-duration')]: '600ms' });
+    // A turn is read where the motion is held at half its length, not where a clock has let it get to; the new state is
+    // set and read in the same task, before a frame has passed.
+    const turn = (open: boolean) =>
+      host(page, 'd').evaluate(async (el: any, to) => {
+        const native = el.shadowRoot.querySelector('dialog') as HTMLElement;
+        const read = () => {
+          const style = getComputedStyle(native);
+          return { opacity: Number(style.opacity), scale: style.scale === 'none' ? 1 : Number(style.scale.split(' ')[0]) };
+        };
+        const own = () => native.getAnimations().filter((a) => ['opacity', 'scale'].includes((a as CSSTransition).transitionProperty));
+        // What the dialog carries, for the failure message: each animation's property, pseudo-element, state and keyframes
+        // (a count alone does not say which motion is one too many).
+        const listed = () =>
+          native.getAnimations().map((a) => {
+            const effect = a.effect as KeyframeEffect | null;
+            const property = (a as CSSTransition).transitionProperty ?? (a as CSSAnimation).animationName ?? a.id;
+            const values = effect?.getKeyframes().map((keyframe) => String(keyframe[property] ?? '')) ?? [];
+            return `${property} ${JSON.stringify(effect?.pseudoElement ?? null)} ${a.playState} ${values.join(' → ')}`;
+          });
+        const running = own();
+        for (const animation of running) {
+          animation.pause();
+          animation.currentTime = Number(animation.effect!.getComputedTiming().endTime) / 2;
+        }
+        const held = read();
+        el.open = to;
+        await el.updateComplete;
+        const turned = own();
+        for (const animation of turned) animation.pause();
+        return { held, turned: read(), moving: turned.map((a) => (a as CSSTransition).transitionProperty).sort(), listed: listed().join('; ') };
+      }, open);
     await host(page, 'd').evaluate(async (el: any) => {
       el.open = true;
       await el.updateComplete;
     });
-    // Focus has already moved, while the motion runs.
-    expect(await focused(page)).toBe('dialog');
-    const running = await dialog(page, 'd').evaluate((el) =>
-      el.getAnimations().map((a) => ({ property: (a as CSSTransition).transitionProperty, duration: a.effect!.getTiming().duration })),
-    );
-    expect(running).toEqual(expect.arrayContaining([{ property: 'opacity', duration: 40_000 }, { property: 'scale', duration: 40_000 }]));
-    expect(running.map((r) => r.property)).not.toContain('translate');
-    expect(Number(await css(dialog(page, 'd'), 'opacity'))).toBeLessThan(1);
-    expect(Number.parseFloat(await css(dialog(page, 'd'), 'scale'))).toBeLessThan(1);
-    expect(Number.parseFloat(await css(dialog(page, 'd'), 'scale'))).toBeGreaterThanOrEqual(Number(await token(page, T('motion-enter-scale'))) - 0.001);
-    await dialog(page, 'd').evaluate((el) => el.getAnimations().forEach((a) => a.finish()));
-    await close(page, 'd');
-    await expect(page.locator('#open-d')).toBeFocused();
-    await dialog(page, 'd').evaluate((el) => el.getAnimations().forEach((a) => a.finish()));
-    await page.emulateMedia({ reducedMotion: 'reduce' });
-    await mount(page, [f('d')]);
-    // (Opened and read in one step, as the close of the compact dialog is: nothing of the test stands between the
-    // opening and what moves at it.)
-    const reduced = await host(page, 'd').evaluate(async (el: any) => {
-      el.open = true;
-      await el.updateComplete;
-      return (el.shadowRoot.querySelector('dialog') as HTMLElement).getAnimations().map((a) => (a as CSSTransition).transitionProperty);
-    });
-    expect(reduced).toContain('opacity');
-    expect(reduced).not.toContain('scale');
-    // The tokens' own durations.
-    await page.emulateMedia({ reducedMotion: 'no-preference' });
-    await mount(page, [f('d')]);
-    expect(Number.parseFloat(await css(dialog(page, 'd'), 'transition-duration')) * 1000).toBe(await resolveToken(page, T('motion-exit-duration'), 'duration'));
-    await open(page, 'd');
-    expect(Number.parseFloat(await css(dialog(page, 'd'), 'transition-duration')) * 1000).toBe(await resolveToken(page, T('motion-enter-duration'), 'duration'));
+    const closedMidway = await turn(false);
+    expect(closedMidway.held.opacity).toBeGreaterThan(0.05);
+    expect(closedMidway.held.opacity).toBeLessThan(0.99);
+    expect(closedMidway.moving, closedMidway.listed).toEqual(['opacity', 'scale']);
+    expect(closedMidway.turned.opacity).toBeCloseTo(closedMidway.held.opacity, 2);
+    expect(closedMidway.turned.scale).toBeCloseTo(closedMidway.held.scale, 3);
+    await host(page, 'd').evaluate((el: any) => (el.shadowRoot.querySelector('dialog') as HTMLElement).getAnimations().forEach((a) => a.play()));
+    // Opened again while it leaves: put back into the top layer where its exit has got to, not from its start.
+    const openedMidway = await turn(true);
+    expect(openedMidway.held.opacity).toBeGreaterThan(0.01);
+    expect(openedMidway.moving, openedMidway.listed).toEqual(['opacity', 'scale']);
+    expect(openedMidway.turned.opacity).toBeCloseTo(openedMidway.held.opacity, 2);
+    expect(openedMidway.turned.scale).toBeCloseTo(openedMidway.held.scale, 3);
+    expect(await isOpen(page, 'd')).toBe(true);
+    await host(page, 'd').evaluate((el: any) => (el.shadowRoot.querySelector('dialog') as HTMLElement).getAnimations().forEach((a) => a.finish()));
+    expect(await css(dialog(page, 'd'), 'opacity')).toBe('1');
+  });
+
+  test('DLG-13: a dialog in the page\'s markup with open appears in the first frame without its motion, and one mounted open after the first paint plays its entrance', async ({ page, browserName }) => {
+    await mount(page, []);
+    const main = page.locator('main');
+    const mounted = await sampleFrames(main, () => main.evaluate((el) => el.insertAdjacentHTML('beforeend', '<tanrei-dialog id="late" headline="Discard draft?" open><tanrei-button slot="actions" confirming>Discard</tanrei-button></tanrei-dialog>')), { probe: appearProbe });
+    expectAppearStart(mounted.frames[0]!, { opacity: 0, scale: 0.96 });
+    expect(mounted.rest.probe).toMatchObject({ opacity: 1, sx: 1 });
+    // In the page's markup, open before the first paint: there at once, and no entrance runs on the container (every
+    // transition that starts in a shadow root is counted from before the first element is made).
+    const count = `<script>window.__runs = []; const attach = Element.prototype.attachShadow; Element.prototype.attachShadow = function (init) { const root = attach.call(this, init); root.addEventListener('transitionrun', (event) => window.__runs.push(this.localName + ' ' + event.target.localName + event.pseudoElement + ' ' + event.propertyName)); return root; };</script>`;
+    const markup = await fixturesDocument(spec, { icons: true, fixtures: [], lead: `${count}<tanrei-dialog headline="Discard draft?" open><tanrei-button slot="actions" confirming>Discard</tanrei-button></tanrei-dialog>` });
+    await page.route('http://dialog.test/', (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: markup }));
+    await page.goto('http://dialog.test/');
+    await page.waitForFunction(() => !!customElements.get('tanrei-dialog'));
+    const native = page.locator('tanrei-dialog').locator('dialog');
+    await expect.poll(() => native.evaluate((el) => (el as HTMLDialogElement).open)).toBe(true);
+    await motionEnded(native);
+    expect(await native.evaluate((el) => [getComputedStyle(el).opacity, getComputedStyle(el).scale])).toEqual(['1', 'none']);
+    // The entrance would move the scale (0.96 under the default system); the scrim's fade is the modal layer's (WebKit
+    // names no pseudo-element for it, so its opacity is not told from the container's there).
+    const runs = (await page.evaluate(() => (window as unknown as { __runs: string[] }).__runs)).filter((run) => run.startsWith('tanrei-dialog dialog '));
+    expect(runs.filter((run) => !run.endsWith(' opacity'))).toEqual([]);
+    if (browserName !== 'webkit') expect(runs).toEqual([]);
   });
 
   test('DLG-14: a dialog, or an alertdialog, named by the headline and described by the supporting text; an empty headline still opens and is reported', async ({ page }) => {
@@ -619,6 +744,53 @@ test.describe('layout', () => {
     expect(await css(dialog(page, 'basic').locator('.middle'), 'visibility', '::after')).toBe('hidden');
   });
 
+  test('DLG-11: the scrolling part is ::part(scroll) and reaches the container’s edges whatever inline padding ::part(container) is given, never overflowing it; its dividers and focus box follow; a sticky foot’s scroll padding is written on it', async ({ page }) => {
+    await mount(page, [closed('scrolling')]);
+    await page.addStyleTag({ content: 'tanrei-dialog::part(container) { padding-inline: 8px 40px; } tanrei-dialog::part(scroll) { scroll-padding-block-end: 56px; }' });
+    await open(page, 'scrolling');
+    const d = dialog(page, 'scrolling');
+    const scroll = d.locator('.scroll');
+    await expect(scroll).toHaveAttribute('part', 'scroll');
+    expect(await css(scroll, 'scroll-padding-block-end')).toBe('56px');
+    expect(await scroll.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
+    /** Where the scrolling part, the dividers and the focus box stand against the container, at its start and its end. */
+    const geometry = () =>
+      d.evaluate((el) => {
+        const rtl = getComputedStyle(el).direction === 'rtl';
+        const outer = el.getBoundingClientRect();
+        const edges = (box: { left: number; right: number }) => {
+          const left = Math.round(box.left - outer.left);
+          const right = Math.round(outer.right - box.right);
+          return rtl ? [right, left] : [left, right];
+        };
+        const middle = el.querySelector('.middle')!;
+        const m = middle.getBoundingClientRect();
+        const pseudo = (which: string) => {
+          const style = getComputedStyle(middle, which);
+          return edges({ left: m.left + Number.parseFloat(style.left), right: m.right - Number.parseFloat(style.right) });
+        };
+        const s = el.querySelector('.scroll')!;
+        const style = getComputedStyle(s);
+        const inset = (rtl ? [style.paddingRight, style.paddingLeft] : [style.paddingLeft, style.paddingRight]).map((v) => Math.round(Number.parseFloat(v)));
+        return {
+          overflow: el.scrollWidth - el.clientWidth,
+          scroll: edges(s.getBoundingClientRect()),
+          inset,
+          before: pseudo('::before'),
+          after: pseudo('::after'),
+          focus: edges(el.querySelector('.focus')!.getBoundingClientRect()),
+        };
+      });
+    const at = (start: number, end: number) => ({ overflow: 0, scroll: [0, 0], inset: [start, end], before: [0, 0], after: [0, 0], focus: [0, 0] });
+    expect(await geometry()).toEqual(at(8, 40));
+    // A change of padding while it is open is followed, and in right-to-left the start is the right.
+    await page.addStyleTag({ content: 'tanrei-dialog::part(container) { padding-inline: 48px 0px; }' });
+    await expect.poll(geometry).toEqual(at(48, 0));
+    await host(page, 'scrolling').evaluate((el) => el.setAttribute('dir', 'rtl'));
+    await expect.poll(geometry).toEqual(at(48, 0));
+    expect(await d.evaluate((el) => getComputedStyle(el).paddingRight)).toBe('48px');
+  });
+
   test('DLG-24: auto follows comp.dialog.divider.visibility, which follows sys.behavior.divider-visibility; the attribute overrides it; a change is drawn at once; an unknown value is auto and reported', async ({ page }) => {
     const seen = reports(page);
     await mount(page, [closed('scrolling')]);
@@ -703,22 +875,31 @@ test.describe('layout', () => {
 });
 
 test.describe('compact window', () => {
-  test('DLG-17: narrower than compact.window-width it sits at the bottom, the margin from the bottom and the sides, as wide as the window less them; still a modal dialog; crossing the width moves it at once, focus kept; 0 disables it', async ({ page }) => {
-    await mount(page, [closed('compact')], COMPACT);
-    const [margin, maxW, windowWidth] = await Promise.all(['container-margin', 'container-max-width', 'compact-window-width'].map((n) => resolveToken(page, T(n))));
+  const B = (name: string) => `--tanrei-comp-bottom-sheet-${name}`;
+  test('DLG-17: narrower than compact.window-width it takes the bottom sheet’s appearance — at the bottom edge, as wide as the window up to its greatest width, its color, elevation and top corners, square at the bottom — and stays a modal dialog; crossing the width moves it at once, focus kept; own and 0 keep it centred; an unknown value is a sheet, and reported', async ({ page }) => {
+    const seen = reports(page);
+    await mount(page, [closed('compact'), f('own', { compactPresentation: 'own' })], COMPACT);
+    const windowWidth = await resolveToken(page, T('compact-window-width'));
     expect(COMPACT.width).toBeLessThan(windowWidth);
     expect(WIDE.width).toBeGreaterThanOrEqual(windowWidth);
     await open(page, 'compact');
     const d = dialog(page, 'compact');
+    const [maxW, radius, padding] = await Promise.all([resolveToken(page, B('container-max-width')), resolveToken(page, B('container-shape')), resolveToken(page, T('container-padding'))]);
     let b = await bounds(d);
-    expect(b.x).toBeCloseTo(margin, 0);
-    expect(b.width).toBeCloseTo(Math.min(maxW, COMPACT.width - 2 * margin), 0);
-    expect(COMPACT.height - (b.y + b.height)).toBeCloseTo(margin, 0);
-    // All four corners the container's; still a modal dialog, dismissed as one, with no handle.
-    const radius = await resolveToken(page, T('container-shape'));
-    for (const corner of ['top-left', 'top-right', 'bottom-left', 'bottom-right']) expect(Number.parseFloat(await css(d, `border-${corner}-radius`))).toBe(radius);
+    expect(b.x).toBeCloseTo(0, 0);
+    expect(b.width).toBeCloseTo(Math.min(maxW, COMPACT.width), 0);
+    expect(b.y + b.height).toBeCloseTo(COMPACT.height, 0);
+    for (const corner of ['top-left', 'top-right']) expect(Number.parseFloat(await css(d, `border-${corner}-radius`))).toBeCloseTo(radius, 1);
+    for (const corner of ['bottom-left', 'bottom-right']) expect(Number.parseFloat(await css(d, `border-${corner}-radius`))).toBe(0);
+    expect(await css(d, 'background-color')).toBe(await resolveColor(page, B('container-color')));
+    expect(await css(d, 'box-shadow')).toBe(await resolveShadow(page, B('container-elevation')));
+    // Its parts keep the dialog's padding and its scrim is the dialog's own.
+    expect(Number.parseFloat(await css(d, 'padding-inline-start'))).toBeCloseTo(padding, 1);
+    expect(await css(d, 'background-color', '::backdrop')).toBe(await resolveColor(page, T('scrim-color')));
+    // Still a modal dialog, dismissed as one, with no handle.
     expect(await d.evaluate((el) => el.matches(':modal'))).toBe(true);
     await expect(page.getByRole('dialog', { name: 'Discard draft?' })).toHaveCount(1);
+    await expect(host(page, 'compact').locator('.handle')).toHaveCount(0);
     // Crossing the width while open: centred at once, focus where it was.
     await tab(page);
     expect(await focused(page)).toBe('Cancel');
@@ -729,11 +910,30 @@ test.describe('compact window', () => {
     }).toBe(WIDE.height / 2);
     expect(await d.evaluate((el) => el.getAnimations().length)).toBe(0);
     expect(await focused(page)).toBe('Cancel');
+    await watchTransitions(d);
     await page.setViewportSize(COMPACT);
-    await expect.poll(async () => Math.round(COMPACT.height - ((await bounds(d)).y + (await bounds(d)).height))).toBe(Math.round(margin));
+    await expect.poll(async () => Math.round((await bounds(d)).y + (await bounds(d)).height)).toBe(COMPACT.height);
+    expect(await transitionsRun(d)).toEqual([]);
+    expect(await focused(page)).toBe('Cancel');
     // Escape still dismisses it.
     await page.keyboard.press('Escape');
     await expect.poll(() => isOpen(page, 'compact')).toBe(false);
+    // own: centred in the compact window, the dialog's own color and corners.
+    await open(page, 'own');
+    const o = dialog(page, 'own');
+    b = await bounds(o);
+    expect(b.y + b.height / 2).toBeCloseTo(COMPACT.height / 2, 0);
+    expect(await css(o, 'background-color')).toBe(await resolveColor(page, T('container-color')));
+    // …and a change of compact-presentation while open is drawn at once.
+    await host(page, 'own').evaluate((el: any) => (el.compactPresentation = 'sheet'));
+    await expect.poll(async () => Math.round((await bounds(o)).y + (await bounds(o)).height)).toBe(COMPACT.height);
+    await close(page, 'own');
+    // An unknown value: a sheet, and reported.
+    await host(page, 'own').evaluate((el: any) => (el.compactPresentation = 'centred'));
+    await open(page, 'own');
+    expect(Math.round((await bounds(o)).y + (await bounds(o)).height)).toBe(COMPACT.height);
+    expect(seen.some((r) => r.text.includes('DLG-17') && r.text.includes('"centred"'))).toBe(true);
+    await close(page, 'own');
     // 0: no window is compact — centred in the same window.
     await override(page, { [T('compact-window-width')]: '0px' });
     await open(page, 'compact');
@@ -741,13 +941,12 @@ test.describe('compact window', () => {
     expect(b.y + b.height / 2).toBeCloseTo(COMPACT.height / 2, 0);
   });
 
-  test('DLG-18: at the bottom it fades in while rising by enter-offset, without growing, and sinks by it while fading out; only fades where motion is reduced', async ({ page }) => {
+  test('DLG-18: as a sheet it slides up from below the bottom edge over the bottom sheet’s enter motion, without growing, and down over its exit motion, the scrim fading; only fades where motion is reduced', async ({ page }) => {
     await mount(page, [closed('compact')], COMPACT);
     // The motions at 40 s, each ended by hand: what is read 'on its way' is read some answers after the change that
-    // begins it, and at 2 s a runner that takes half a second an answer read a dialog that had arrived. The durations
-    // are read from the transitions after the override, so the binding to the tokens is still what is proved.
-    await override(page, { [T('motion-enter-duration')]: '40s', [T('motion-exit-duration')]: '40s' });
-    const offset = await resolveToken(page, T('motion-enter-offset'));
+    // begins it. The durations are read from the transitions after the override, so the binding to the tokens is
+    // still what is proved.
+    await override(page, { [B('motion-enter-duration')]: '40s', [B('motion-exit-duration')]: '40s' });
     await page.locator('#open-compact').focus();
     await host(page, 'compact').evaluate(async (el: any) => {
       el.open = true;
@@ -756,11 +955,12 @@ test.describe('compact window', () => {
     expect(await focused(page)).toBe('dialog');
     const d = dialog(page, 'compact');
     const running = await d.evaluate((el) => el.getAnimations().map((a) => ({ property: (a as CSSTransition).transitionProperty, duration: a.effect!.getTiming().duration })));
-    expect(running).toEqual(expect.arrayContaining([{ property: 'opacity', duration: 40_000 }, { property: 'translate', duration: 40_000 }]));
+    expect(running).toEqual(expect.arrayContaining([{ property: 'translate', duration: 40_000 }]));
     expect(running.map((r) => r.property)).not.toContain('scale');
-    const moving = Number.parseFloat((await css(d, 'translate')).split(' ')[1] ?? '0');
+    expect(running.map((r) => r.property)).not.toContain('opacity');
+    const [moving, height] = await d.evaluate((el) => [Number.parseFloat(getComputedStyle(el).translate.split(' ')[1] ?? '0'), el.getBoundingClientRect().height]);
     expect(moving).toBeGreaterThan(0);
-    expect(moving).toBeLessThanOrEqual(offset + 0.5);
+    expect(moving).toBeLessThanOrEqual(height + 0.5);
     await d.evaluate((el) => el.getAnimations().forEach((a) => a.finish()));
     // (Closed and read in one step: nothing of the test stands between the close and what moves at it.)
     const leaving = await host(page, 'compact').evaluate(async (el: any) => {
@@ -768,27 +968,20 @@ test.describe('compact window', () => {
       await el.updateComplete;
       return (el.shadowRoot.querySelector('dialog') as HTMLElement).getAnimations().map((a) => ({ property: (a as CSSTransition).transitionProperty, duration: a.effect!.getTiming().duration }));
     });
-    // A closed dialog stays in the top layer for its exit only where the engine can transition `overlay`. Where it
-    // cannot (Firefox) it is gone at once and nothing is left to move,
-    // so what is read there is what the exit is declared to be — the same properties, time and distance.
-    if (await page.evaluate(() => CSS.supports('overlay', 'auto'))) {
-      expect(leaving).toEqual(expect.arrayContaining([{ property: 'opacity', duration: 40_000 }, { property: 'translate', duration: 40_000 }]));
-      expect(leaving.map((l) => l.property)).not.toContain('scale');
-    } else {
-      expect(leaving).toEqual([]);
-      expect(await css(d, 'display')).toBe('none');
-      const rest = await d.evaluate((el) => ({ opacity: Number(getComputedStyle(el).opacity), sunk: Number.parseFloat(getComputedStyle(el).translate.split(' ')[1] ?? '0') }));
-      expect(rest.opacity).toBe(0);
-      expect(rest.sunk).toBeCloseTo(offset, 1);
-    }
+    // A closed dialog stays drawn in the top layer for its exit, in every engine (MDL-7).
+    expect(leaving).toEqual(expect.arrayContaining([{ property: 'translate', duration: 40_000 }]));
+    expect(leaving.map((l) => l.property)).not.toContain('scale');
+    expect(await css(d, 'display')).not.toBe('none');
     const out = await d.evaluate((el) => {
       const style = getComputedStyle(el);
       return { properties: style.transitionProperty.split(', '), duration: Number.parseFloat(style.transitionDuration) * 1000, scale: style.scale };
     });
-    expect(out.properties).toEqual(expect.arrayContaining(['opacity', 'translate', 'display', 'overlay']));
+    expect(out.properties).toContain('translate');
     expect(out.duration).toBe(40_000);
     expect(out.scale).toBe('none');
     await d.evaluate((el) => el.getAnimations().forEach((a) => a.finish()));
+    // Out of view: its own height below its place.
+    expect(await css(d, 'translate')).toBe('0px 100%');
     await expect(page.locator('#open-compact')).toBeFocused();
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await mount(page, [closed('compact')], COMPACT);
@@ -856,9 +1049,7 @@ test.describe('actions', () => {
   });
 });
 
-test.describe('close button and width', () => {
-  const closeButton = (page: P, id: string) => host(page, id).locator('tanrei-button.close');
-  const paint = (locator: Locator) => locator.locator('button').evaluate((el) => getComputedStyle(el).backgroundColor);
+test.describe('header, reason and width', () => {
   /** Every `cancel`'s reason, as `<id>:<reason>`. */
   const reasons = (page: P) =>
     page.evaluate(() => {
@@ -869,10 +1060,11 @@ test.describe('close button and width', () => {
       }
     });
   const reasonLog = (page: P) => page.evaluate(() => (window as any).reasons as string[]);
-  const CLOSABLE = { closable: true, closeLabel: 'Close' };
+  /** Every Tanrei Button the dialog draws in its own shadow root (the actions are the product's, in the light DOM). */
+  const ownButtons = (page: P, id: string) => host(page, id).evaluate((el) => el.shadowRoot!.querySelectorAll('tanrei-button').length);
 
-  test('DLG-5, DLG-25: dismiss carries its reason — escape, back, scrim, and close for the close button', async ({ page }) => {
-    await mount(page, [f('d', CLOSABLE)]);
+  test('DLG-5: dismiss carries its reason — escape, back and scrim', async ({ page }) => {
+    await mount(page, [f('d')]);
     await reasons(page);
     // The platform's back first: a close request without a key, before any Escape has been pressed.
     await open(page, 'd');
@@ -884,110 +1076,55 @@ test.describe('close button and width', () => {
     await open(page, 'd');
     await page.mouse.click(4, 4);
     await expect.poll(() => isOpen(page, 'd')).toBe(false);
-    await open(page, 'd');
-    await closeButton(page, 'd').locator('button').click();
-    await expect.poll(() => isOpen(page, 'd')).toBe(false);
-    expect(await reasonLog(page)).toEqual(['d:back', 'd:escape', 'd:scrim', 'd:close']);
-    expect(await log(page)).toEqual(['d:cancel', 'd:close', 'd:cancel', 'd:close', 'd:cancel', 'd:close', 'd:cancel', 'd:close']);
+    expect(await reasonLog(page)).toEqual(['d:back', 'd:escape', 'd:scrim']);
+    expect(await log(page)).toEqual(['d:cancel', 'd:close', 'd:cancel', 'd:close', 'd:cancel', 'd:close']);
   });
 
-  test('DLG-25: while closable, an icon-only small Button with the close glyph named by close-label, in close-button.variant (text) given through the Button’s channel; a click, Enter or Space dismisses once with the reason close, unless cancelled; an empty close-label still draws it and is reported; closedby none draws none and reports it', async ({ page }) => {
-    const seen = reports(page);
-    await mount(page, [f('d', CLOSABLE), f('unnamed', { closable: true }), f('fixed', { ...CLOSABLE, dismissible: false }), f('plain')]);
-    await reasons(page);
-    expect(await token(page, T('close-button-variant'))).toBe('text');
-    await open(page, 'd');
-    // Focus does not start on it (DLG-2): the dialog itself has it, and the close button is the first Tab stop.
-    expect(await focused(page)).toBe('dialog');
-    const button = closeButton(page, 'd');
-    await expect(button).not.toHaveAttribute('variant');
-    await expect(button).toHaveAttribute('size', 'small');
-    expect(await button.evaluate((el) => el.textContent?.trim())).toBe('close');
-    await page.mouse.move(0, 0);
-    await expect.poll(() => paint(button)).toBe(await resolveColor(page, '--tanrei-comp-button-text-container-color'));
-    const size = await resolveToken(page, '--tanrei-comp-button-container-height-small');
-    const box = await bounds(button.locator('button'));
-    expect(box.width).toBeCloseTo(size, 2);
-    expect(box.height).toBeCloseTo(size, 2);
-    await expect(host(page, 'd').getByRole('button', { name: 'Close' })).toHaveCount(1);
-    expect(await tabOrder(page, 'd', 1)).toEqual(['close']);
-    // Cancelled, it stays open; each activation asks once.
-    await page.evaluate(() => document.querySelector('[data-fixture="d"] tanrei-dialog')!.addEventListener('cancel', (e) => e.preventDefault()));
-    await button.locator('button').click();
-    await button.locator('button').focus();
-    await page.keyboard.press('Enter');
-    await page.keyboard.press('Space');
-    expect(await reasonLog(page)).toEqual(['d:close', 'd:close', 'd:close']);
-    expect(await isOpen(page, 'd')).toBe(true);
-    await close(page, 'd');
-    // A system's choice (tonal), read when the dialog lays out.
-    await override(page, { [T('close-button-variant')]: 'tonal' });
-    await open(page, 'd');
-    await page.mouse.move(0, 0);
-    await expect.poll(() => paint(button)).toBe(await resolveColor(page, '--tanrei-comp-button-tonal-container-color'));
-    await close(page, 'd');
-    // Not closable: none.
-    await open(page, 'plain');
-    await expect(closeButton(page, 'plain')).toHaveCount(0);
-    await close(page, 'plain');
-    // Unnamed: drawn and reported.
-    await open(page, 'unnamed');
-    await expect(closeButton(page, 'unnamed')).toBeVisible();
-    expect(seen.some((r) => r.text.includes('DLG-25') && r.text.includes('close-label is empty'))).toBe(true);
-    await close(page, 'unnamed');
-    // Not dismissible: no close button, and the ignored closable is reported.
-    await open(page, 'fixed');
-    await expect(closeButton(page, 'fixed')).toHaveCount(0);
-    expect(seen.some((r) => r.text.includes('DLG-25') && r.text.includes('closable is ignored'))).toBe(true);
-    // Made dismissible again, it draws the button.
-    await host(page, 'fixed').evaluate((el: any) => (el.closedBy = 'any'));
-    await expect(closeButton(page, 'fixed')).toBeVisible();
-  });
-
-  test('DLG-26: the header is one row — the close button at its end, header.gap after the headline, its end edge at the padding, centred on the headline’s first line; right-to-left at the left; above, the icon and the headline stay centred in the container', async ({ page }) => {
-    await mount(page, [
-      f('d', CLOSABLE),
-      f('long', { ...CLOSABLE, headline: 'A headline long enough that it wraps onto a second line beside the close button' }),
-      f('i', CLOSABLE, { slots: { icon: 'delete' } }),
-      f('untitled', { ...CLOSABLE, headline: '' }),
-    ]);
-    const [pad, headerGap] = await Promise.all(['container-padding', 'header-gap'].map((n) => resolveToken(page, T(n))));
-    await open(page, 'd');
-    const d = dialog(page, 'd');
-    const [box, hb, cb] = [await bounds(d), await bounds(d.locator('.headline')), await bounds(closeButton(page, 'd').locator('button'))];
-    expect(box.x + box.width - (cb.x + cb.width)).toBeCloseTo(pad, 0);
-    expect(cb.y - box.y).toBeCloseTo(pad, 0);
-    const line = Number.parseFloat(await css(d.locator('.headline'), 'line-height'));
-    expect(hb.y + line / 2).toBeCloseTo(cb.y + cb.height / 2, 0);
-    await close(page, 'd');
-    // A headline that wraps takes the width the button leaves, header.gap before it.
-    await open(page, 'long');
-    const l = dialog(page, 'long');
-    const [lh, lc] = [await bounds(l.locator('.headline')), await bounds(closeButton(page, 'long').locator('button'))];
-    expect(lh.height).toBeGreaterThan(line * 1.5);
-    expect(lc.x - (lh.x + lh.width)).toBeGreaterThanOrEqual(headerGap - 0.5);
-    expect(lc.y + lc.height / 2).toBeCloseTo(lh.y + line / 2, 0);
-    await close(page, 'long');
-    // Without a headline, the header is still drawn for the close button.
+  test('DLG-26: the header is one row of the icon and the headline across the inner width, nothing at its end; with neither, no header', async ({ page }) => {
+    await mount(page, [f('d'), f('i', {}, { slots: { icon: 'delete' } }), f('untitled', { headline: '' })]);
+    const pad = await resolveToken(page, T('container-padding'));
+    for (const id of ['d', 'i']) {
+      await open(page, id);
+      const d = dialog(page, id);
+      const header = d.locator('[part="header"]');
+      await expect(header).toBeVisible();
+      // The row holds the icon and the headline, and nothing after them.
+      expect(await header.evaluate((el) => [...el.children].map((child) => [...child.classList].sort().join(' ')))).toEqual([id === 'i' ? 'head with-icon' : 'head']);
+      const [box, hb] = [await bounds(d), await bounds(d.locator('.headline'))];
+      expect(box.x + box.width - (hb.x + hb.width)).toBeCloseTo(pad, 0);
+      await close(page, id);
+    }
+    // No headline and no icon: no header, and the supporting text starts at the padding.
     await open(page, 'untitled');
-    await expect(closeButton(page, 'untitled')).toBeVisible();
-    await close(page, 'untitled');
-    // Right-to-left: at the left, the headline at the right of it. (The glyph close is not one the icon set mirrors.)
-    await page.evaluate(() => document.querySelector('[data-fixture="d"]')!.setAttribute('dir', 'rtl'));
-    await open(page, 'd');
-    const [rb, rc, rh] = [await bounds(d), await bounds(closeButton(page, 'd').locator('button')), await bounds(d.locator('.headline'))];
-    expect(rc.x - rb.x).toBeCloseTo(pad, 0);
-    expect(rh.x).toBeGreaterThan(rc.x + rc.width);
-    await close(page, 'd');
-    // Above, as a system chooses it: the icon and the headline centred in the container, the button at the top end.
-    await override(page, { [T('icon-placement')]: 'above' });
-    await open(page, 'i');
-    const a = dialog(page, 'i');
-    const [ab, ai, ah, ac] = [await bounds(a), await bounds(a.locator('.head .icon')), await bounds(a.locator('.headline')), await bounds(closeButton(page, 'i').locator('button'))];
-    expect(ai.x + ai.width / 2).toBeCloseTo(ab.x + ab.width / 2, 0);
-    expect(ah.x + ah.width / 2).toBeCloseTo(ab.x + ab.width / 2, 0);
-    expect(ac.y - ab.y).toBeCloseTo(pad, 0);
-    expect(ac.x - (ah.x + ah.width)).toBeGreaterThanOrEqual(headerGap - 0.5);
+    const u = dialog(page, 'untitled');
+    await expect(u.locator('[part="header"]')).toBeHidden();
+    expect((await bounds(u.locator('.supporting'))).y - (await bounds(u)).y).toBeCloseTo(pad, 0);
+  });
+
+  test('DLG-28: a dialog draws no close button — closable and close-label, as attributes or as properties, draw nothing and are reported; focus and Tab reach the actions', async ({ page }) => {
+    const seen = reports(page);
+    await mount(page, [f('asked'), f('written'), f('plain')]);
+    await host(page, 'asked').evaluate((el) => {
+      el.setAttribute('closable', '');
+      el.setAttribute('close-label', 'Close');
+    });
+    await host(page, 'written').evaluate((el: any) => {
+      el.closable = true;
+      el.closeLabel = 'Close';
+    });
+    for (const id of ['asked', 'written', 'plain']) {
+      await open(page, id);
+      // Nothing of the dialog's own: no Button, nothing named Close; focus starts on the dialog, and Tab reaches the
+      // first action.
+      expect(await ownButtons(page, id)).toBe(0);
+      await expect(host(page, id).getByRole('button', { name: 'Close' })).toHaveCount(0);
+      expect(await focused(page)).toBe('dialog');
+      expect(await tabOrder(page, id, 1)).toEqual(['Cancel']);
+      await close(page, id);
+    }
+    const said = (needle: string) => seen.filter((r) => r.text.includes('DLG-28') && r.text.includes(needle));
+    await expect.poll(() => said('<tanrei-dialog>').length).toBe(2);
+    expect(said('a dialog has no close button').length).toBe(2);
   });
 
   test('DLG-27: small, medium and large are their widths whatever the parts ask, never wider than the window less the margins; content is DLG-7’s; a compact window places every width alike; a change is drawn at once; an unknown width is content and reported', async ({ page }) => {
@@ -1014,12 +1151,13 @@ test.describe('close button and width', () => {
     await host(page, 'd').evaluate((el: any) => (el.width = 'small'));
     await expect.poll(async () => (await bounds(d)).width).toBeCloseTo(small, 0);
     expect(await focused(page)).toBe('dialog');
-    // A compact window: as wide as the window less the margins, as content is.
+    // A compact window: a sheet as wide as the window, whatever width names (DLG-17).
+    const sheetWidth = Math.min(await resolveToken(page, '--tanrei-comp-bottom-sheet-container-max-width'), COMPACT.width);
     await page.setViewportSize(COMPACT);
     await host(page, 'd').evaluate((el: any) => (el.width = 'large'));
-    await expect.poll(async () => (await bounds(d)).width).toBeCloseTo(Math.min(maxW, COMPACT.width - 2 * margin), 0);
+    await expect.poll(async () => (await bounds(d)).width).toBeCloseTo(sheetWidth, 0);
     await host(page, 'd').evaluate((el: any) => (el.width = 'small'));
-    await expect.poll(async () => (await bounds(d)).width).toBeCloseTo(Math.min(maxW, COMPACT.width - 2 * margin), 0);
+    await expect.poll(async () => (await bounds(d)).width).toBeCloseTo(sheetWidth, 0);
     await close(page, 'd');
     // Content (the default) is sized by its parts, between min-width and max-width.
     await page.setViewportSize(WIDE);
@@ -1033,6 +1171,73 @@ test.describe('close button and width', () => {
     await open(page, 'content');
     expect((await bounds(dialog(page, 'content'))).width).toBeCloseTo(c.width, 0);
     expect(seen.some((r) => r.text.includes('DLG-27') && r.text.includes('"huge"'))).toBe(true);
+  });
+});
+
+test.describe('Lit development mode', () => {
+  // Lit's development build warns (`change-in-update`) when an element sets one of its reactive properties inside its
+  // own update — in `firstUpdated` or `updated` — so that one update schedules another. A product's development server
+  // resolves Lit's `development` export, so a product sees the warning; the harness's bundle is Lit's production build,
+  // which does not check. This page defines the components from a development build of the package instead.
+  const dist = (file: string) => fileURLToPath(new URL(`../../../dist/${file}`, import.meta.url));
+  let development: string | undefined;
+  const developmentBundle = () =>
+    (development ??= buildSync({
+      entryPoints: [dist('all.js')],
+      bundle: true,
+      write: false,
+      format: 'esm',
+      conditions: ['development'],
+      define: { 'process.env.NODE_ENV': '"development"' },
+    }).outputFiles[0].text.replaceAll('</script', '<\\/script'));
+
+  test('mounting, opening, changing and closing it never schedules an update from inside an update (Lit’s change-in-update)', async ({ page }) => {
+    await page.setViewportSize(WIDE);
+    // `basic` is written open; the others are opened, changed and closed one by one.
+    const fixtures = [spec.fixtures.find((fx) => fx.id === 'basic')!, f('words'), closed('icon'), closed('content'), closed('scrolling')];
+    const production = fs.readFileSync(dist('tanrei.bundle.js'), 'utf8');
+    // Before the bundle: every change-in-update warning is kept with the step it came in, and Lit is made to warn again
+    // the next time (it warns once a page for each message, and the message names only the tag).
+    const lead = `<script>
+      window.step = 'mount';
+      window.seen = [];
+      const warn = console.warn;
+      console.warn = (...args) => {
+        if (String(args[0]).includes('change-in-update')) {
+          window.seen.push(window.step);
+          // Lit records the message after it is written.
+          queueMicrotask(() => globalThis.litIssuedWarnings?.clear());
+        }
+        warn(...args);
+      };
+    </script>`;
+    const markup = await fixturesDocument(spec, { icons: true, fixtures, lead });
+    expect(markup.includes(production), 'the document embeds the production bundle this test replaces').toBe(true);
+    await page.setContent(markup.replace(production, developmentBundle));
+    await page.waitForFunction(() => !!customElements.get('tanrei-dialog'));
+    await expect.poll(() => isOpen(page, 'basic')).toBe(true);
+    // Lit's development build keeps the warnings it issued here, so the page is known to run it.
+    const isDevelopment = await page.evaluate(() => (globalThis as { litIssuedWarnings?: Set<string> }).litIssuedWarnings instanceof Set);
+    expect(isDevelopment, 'the page runs Lit’s development build').toBe(true);
+    for (const { id } of fixtures) {
+      await host(page, id).evaluate(async (el: any, fixture) => {
+        const step = async (name: string, change: () => void) => {
+          (window as any).step = `${fixture} ${name}`;
+          change();
+          await el.updateComplete;
+          await new Promise(requestAnimationFrame);
+          await el.updateComplete;
+        };
+        if (!el.open) await step('open', () => (el.open = true));
+        await step('width', () => (el.width = 'large'));
+        await step('headline', () => (el.headline = `${el.headline} (changed)`));
+        // A child added while it is open: the parts it fills change.
+        await step('content', () => el.append(Object.assign(document.createElement('p'), { textContent: 'More content' })));
+        await step('close', () => (el.open = false));
+      }, id);
+      await expect.poll(() => isOpen(page, id)).toBe(false);
+    }
+    expect(await page.evaluate(() => (window as any).seen)).toEqual([]);
   });
 });
 

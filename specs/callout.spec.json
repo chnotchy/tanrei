@@ -39,13 +39,8 @@
       "optional": true
     },
     {
-      "id": "close",
-      "description": "An icon-only button with the icon set's close glyph at the end of the first row, drawn with the callout's own tokens. The only part of the callout that has states.",
-      "optional": true
-    },
-    {
-      "id": "focus-ring",
-      "description": "Gap-then-ring indicator shown for keyboard focus of the close button, in the color its form gives it so that it shows on that form's fill.",
+      "id": "close-button",
+      "description": "An icon-only Button of the small size showing the close glyph at the end of the first row, in the variant comp.callout.close-button.variant names (tonal in the default system) and, on a filled look, in the tone of that fill: its content color, so that its container is that color made translucent and its glyph is that color. The callout places it and chooses its variant and its tone; everything else it reads from Button's own tokens. The only part of a callout that answers a pointer, a press or focus, and it answers as a Button.",
       "optional": true
     }
   ],
@@ -151,10 +146,7 @@
     }
   ],
   "states": [
-    "enabled",
-    "hovered",
-    "focused",
-    "pressed"
+    "enabled"
   ],
   "behavior": [
     {
@@ -168,7 +160,7 @@
     },
     {
       "id": "CLO-3",
-      "text": "WHILE status is info, warning, error or success THE callout SHALL draw its container, its title, its body and its glyph from the parts of its variant prefixed with the status: for a tonal info callout comp.callout.info.container.color.tonal, comp.callout.info.title.color.tonal, comp.callout.info.body.color.tonal and comp.callout.info.icon.color.tonal; for outlined, and for warning, error and success, their own tokens of the same names (comp.callout.error.icon.color.outlined, comp.callout.success.container.color.tonal, and so on). A status SHALL change these colors, the glyph (CLO-5), the close button's colors (CLO-10) and how a live callout is announced (CLO-21), and nothing else: the callout's size, shape, layout and edge stay those of its variant and size."
+      "text": "WHILE status is info, warning, error or success THE callout SHALL draw its container, its title, its body and its glyph from the parts of its variant prefixed with the status: for a tonal info callout comp.callout.info.container.color.tonal, comp.callout.info.title.color.tonal, comp.callout.info.body.color.tonal and comp.callout.info.icon.color.tonal; for outlined, and for warning, error and success, their own tokens of the same names (comp.callout.error.icon.color.outlined, comp.callout.success.container.color.tonal, and so on). A status SHALL change these colors, the glyph (CLO-5), the tone of the close button (CLO-10) and how a live callout is announced (CLO-21), and nothing else: the callout's size, shape, layout and edge stay those of its variant and size."
     },
     {
       "id": "CLO-4",
@@ -199,7 +191,8 @@
     },
     {
       "id": "CLO-10",
-      "text": "WHILE closable is true THE callout SHALL draw a close button at the end of its first row: an icon-only button, a square of comp.callout.controls.height with comp.callout.controls.shape corners holding the icon set's close glyph at comp.callout.controls.icon.size, with the family and fill of an unselected icon, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, named closeLabel. At rest it SHALL draw comp.callout.close.container.color and its glyph in comp.callout.close.content.color in the tonal look without a status; the tokens prefixed with the status in a tonal status form (comp.callout.close.info.container.color and comp.callout.close.info.content.color for info, and warning's, error's and success's of the same names); and comp.callout.close.outlined.container.color and comp.callout.close.outlined.content.color in the outlined look, in every status. WHILE closable is false THE callout SHALL draw no close button and keep no room for one."
+      "text": "WHILE closable is true THE callout SHALL draw at the end of its first row an icon-only Button of the small size showing the glyph close of the system's icon set and named by closeLabel, in the variant comp.callout.close-button.variant names and, in every look but outlined, in the tone of its form (BTN-45): the body color of that form (comp.callout.body.color.tonal without a status, comp.callout.info.body.color.tonal for info, and so on), the content color of the fill it stands on, so that its container is that color made translucent and its glyph is that color; both given through the channel a Button reads from the component that places it, and otherwise unrestyled: it reads Button's own tokens, answers hover, focus and press as any Button does and keeps its own minimum target (BTN-5). The outlined look has no fill, so its close button takes no tone and is drawn as the variant draws it on the surface the callout sits on. THE callout's container, its text and its glyph SHALL NOT change under a pointer, a press or focus: the callout itself has no states. WHILE closable is false THE callout SHALL draw no close button and keep no room for one.",
+      "verify": "Under the default system the close button is a tanrei-button of the small size, 32 × 32, with no variant of its own: it draws the tonal variant. On a tonal error callout its container is on-error-container at comp.button.tone.container.opacity over error-container and its glyph on-error-container; on an outlined callout it is the tonal Button as it is outside a callout."
     },
     {
       "id": "CLO-11",
@@ -215,28 +208,8 @@
       "text": "WHILE open is false THE callout SHALL draw nothing, take no space and expose nothing to assistive technology, and its content SHALL NOT be reachable by focus; WHEN open changes THE callout SHALL appear or disappear at once, without a motion of its own, and SHALL emit dismiss only for a close the person made (CLO-11), never when the product sets open."
     },
     {
-      "id": "CLO-14",
-      "text": "WHILE the close button is hovered, keyboard-focused or pressed THE callout SHALL render its container, content color and opacity from the component tokens of the highest-precedence active state, in the callout's form (the tokens CLO-10 names, under that state, with or without the form's prefix), with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state. THE callout's container, its text and its glyph SHALL NOT change under a pointer, a press or focus: the callout itself has no states."
-    },
-    {
-      "id": "CLO-15",
-      "text": "WHEN the close button receives keyboard focus THE callout SHALL show the focus ring around it without animation; focus gained by pointer or touch SHALL NOT show it. THE callout SHALL draw the outer stroke of that indicator in its form's focus-ring color: comp.callout.focus-ring.color.tonal or comp.callout.focus-ring.color.outlined without a status, and the token of that name under the status in a status form (comp.callout.info.focus-ring.color.tonal, comp.callout.error.focus-ring.color.outlined, and so on). The widths and the offset SHALL stay the system's (sys.focus.outer-width, sys.focus.inner-width, sys.focus.offset), as SHALL the color of an inner stroke where the system draws one."
-    },
-    {
-      "id": "CLO-16",
-      "text": "WHERE the visual size of the close button is below the minimum target THE callout SHALL extend its hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch."
-    },
-    {
-      "id": "CLO-17",
-      "text": "WHEN the close button is pressed by pointer, touch, Enter or Space THE callout SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
-    },
-    {
-      "id": "CLO-18",
-      "text": "WHILE the close button is pressed THE callout SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container of the button at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; content color, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.callout.motion.feedback-duration with comp.callout.motion.state-easing, fades over comp.callout.motion.state-duration with comp.callout.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced."
-    },
-    {
       "id": "CLO-19",
-      "text": "THE callout SHALL ease its container corners and its close button's corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show the close button's keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README."
+      "text": "THE callout SHALL ease its container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0); a platform that cannot draw it SHALL fall back to a quarter circle and state that in its README. Its close button's corners and its focus indicator are the Button's (BTN-10)."
     },
     {
       "id": "CLO-20",
@@ -254,17 +227,17 @@
     },
     {
       "id": "CLO-23",
-      "text": "WHILE the text size is enlarged THE callout SHALL grow its title and its body with it, keep its paddings and gaps, wrap, and grow in height; it SHALL keep the glyph's box at comp.callout.icon.size and the close button at comp.callout.controls.height, both still centred on the first line (CLO-1), SHALL cut nothing and set no fixed height, SHALL lose no content when the reader raises line height, paragraph spacing, letter spacing or word spacing, and SHALL need no horizontal scrolling at a width of 320 points with text at 200 %.",
+      "text": "WHILE the text size is enlarged THE callout SHALL grow its title and its body with it, keep its paddings and gaps, wrap, and grow in height; it SHALL keep the glyph's box at comp.callout.icon.size and the close button at its own size (a Button's icon-only circle, BTN-12), both still centred on the first line (CLO-1), SHALL cut nothing and set no fixed height, SHALL lose no content when the reader raises line height, paragraph spacing, letter spacing or word spacing, and SHALL need no horizontal scrolling at a width of 320 points with text at 200 %.",
       "verify": "Test the fixtures actions and closable-title-actions at 200 % text in a stage 320 wide: every word and both actions are visible, the actions wrap onto rows of their own, and nothing overlaps the close button."
     },
     {
       "id": "CLO-24",
-      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE callout SHALL draw an edge comp.callout.outline.width wide in the platform's text color inside its container in every variant and status, its title, body and glyph in that text color with the glyph whole (no opacity), links in the platform's link color and still underlined, and the close button's glyph and focus indicator in the platform's own colors for a button and for focus, so that a look whose fill the mode removes is still a bounded block; the status SHALL then rest on the glyph's shape, the title's words and statusLabel.",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE callout SHALL draw an edge comp.callout.outline.width wide in the platform's text color inside its container in every variant and status, its title, body and glyph in that text color with the glyph whole (no opacity), links in the platform's link color and still underlined, and its close button as a Button draws itself there, so that a look whose fill the mode removes is still a bounded block; the status SHALL then rest on the glyph's shape, the title's words and statusLabel.",
       "verify": "On the web, with forced colors emulated: every fixture has a visible edge in CanvasText; none relies on a background color; the four status fixtures are told apart by their glyphs."
     },
     {
       "id": "CLO-25",
-      "text": "WHERE the layout direction is right-to-left THE callout SHALL mirror the order of its content and apply its paddings by logical start and end: the glyph at the right, the text after it, the actions starting at the text's right edge and the close button at the left. A ripple SHALL still grow from the point of contact."
+      "text": "WHERE the layout direction is right-to-left THE callout SHALL mirror the order of its content and apply its paddings by logical start and end: the glyph at the right, the text after it, the actions starting at the text's right edge and the close button at the left."
     },
     {
       "id": "CLO-26",
@@ -273,7 +246,7 @@
     },
     {
       "id": "CLO-27",
-      "text": "WHERE the layout direction is right-to-left THE callout SHALL draw the glyph of its icon slot mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and opacity nor the order CLO-25 gives. THE callout SHALL NOT mirror a glyph itself, SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name, and its own glyphs (the four status glyphs and close) are drawn through the same helper, which mirrors none of them under the default icon set.",
+      "text": "WHERE the layout direction is right-to-left THE callout SHALL draw the glyph of its icon slot mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and opacity nor the order CLO-25 gives. THE callout SHALL NOT mirror a glyph itself, SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name, and its own glyphs (the four status glyphs) are drawn through the same helper, which mirrors none of them under the default icon set; the close button's glyph is the Button's (BTN-19).",
       "verify": "arrow_forward is marked by the default icon set; lightbulb is not. The fixture icon-rtl draws arrow_forward mirrored; tonal-info-rtl draws info unmirrored."
     },
     {
@@ -283,7 +256,7 @@
     },
     {
       "id": "CLO-29",
-      "text": "WHILE the system's icon set cannot yet draw a glyph of the callout (its font is still loading) THE callout SHALL draw nothing in that glyph's place, never the glyph's name as text, SHALL keep the glyph's box, and SHALL draw the glyph once the set can; statusLabel and closeLabel SHALL still reach assistive technology."
+      "text": "WHILE the system's icon set cannot yet draw a glyph the callout draws itself (a status's glyph, or the icon slot's; its font is still loading) THE callout SHALL draw nothing in that glyph's place, never the glyph's name as text, SHALL keep the glyph's box, and SHALL draw the glyph once the set can; statusLabel and closeLabel SHALL still reach assistive technology. The close button's glyph is the Button's to draw."
     },
     {
       "id": "CLO-30",
@@ -320,7 +293,8 @@
       "Do not nest callouts, and do not stack several at the top of a page: two notices of the same weight side by side cancel each other. One callout may hold a list of points.",
       "Forced colors (CLO-24): a tonal callout loses its fill, so every look gains an edge in the text color. Statuses then differ by glyph and words alone.",
       "Web: the body, the title slot and the actions are light-DOM children of `<tanrei-callout>`, so they stay in the document: they are found by search in the page, translated, selected and read without script, and before the element is defined they show as plain blocks in the page's own text styles, without the fill, the glyph and the close button. A title given by the `headline` attribute is not shown until the element is defined; content pages should use the title slot.",
-      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+      "The callout itself has no states: nothing about its container, its text or its glyph answers a pointer, a press or focus. Its close button is a Button, and answers them as every Button does.",
+      "WCAG 1.4.11 (non-text contrast) and 2.4.13 (focus appearance) for the close button: in a filled look it is drawn in the tone of the fill (BTN-45), its glyph in the fill's content color (the body color, held to 4.5:1 on the fill by the token invariants) over a container of that color at comp.button.tone.container.opacity. In the default system the glyph keeps against that blend, in every status, at least 9.5:1 at rest in the light schemes and 7.7:1 in the dark ones, and at least 6.0:1 hovered, focused or pressed in every scheme; the focus indicator's outer stroke, in the same color on the callout's fill, keeps at least 12:1. In the outlined look it is the variant's own Button on the surface, whose glyph the Button's own tokens hold."
     ]
   },
   "tokens": "comp.callout",
@@ -494,7 +468,7 @@
         "status": "info",
         "title": "Experimental"
       },
-      "content": "This behaviour may change before the first release.",
+      "content": "This behaviour may change in a later version.",
       "slots": {
         "icon": "science"
       }
@@ -675,9 +649,9 @@
       "props": {
         "size": "large",
         "status": "warning",
-        "title": "Pre-release: not published yet"
+        "title": "Back up before you migrate"
       },
-      "content": "The package is not available on the registry yet. The install steps below show how it will work after the first release."
+      "content": "The migration rewrites the database in place. The steps below show how to keep a copy you can restore."
     },
     {
       "id": "docs-danger",
@@ -707,7 +681,16 @@
       "events": {
         "dismiss": "dismiss"
       },
-      "notes": "`<tanrei-callout>` with the body as light-DOM children, the glyph in the `icon` slot, the title in the `title` slot (`<p slot=\"title\">`, or `<h3 slot=\"title\">` where it is a heading) or the `headline` attribute (HTML's global `title` attribute would show a tooltip over the whole block, as the snackbar's and the app bar's), and Buttons or links in the `actions` slot. `statusLabel` and `closeLabel` are the `status-label` and `close-label` attributes. `open` is a boolean property that defaults to true; the `open` attribute spells it, and `open=\"false\"` is how markup starts a callout closed. The host is `display: block` with no margin, `role=\"note\"` and `aria-labelledby` naming the title, set through ElementInternals where axe can see it and as attributes otherwise; with `live` the host's role is `status` or `alert` by status, and the announcement is made through a visually hidden live region in the shadow root that exists from the element's first render, so that a callout opened later is announced (CLO-21). `statusLabel` is drawn as visually hidden text before the title in the shadow root, followed by a comma and a space; the glyph is `aria-hidden`. The body takes the form's content color and the size's text style through inherited `color` and `font`, so text placed directly in the element is styled, and a body that is rendered Markdown is wrapped by the product in `<div class=\"tanrei-prose\" data-measure=\"false\">` with the callout's `data-size` (prose re-enters inside a Tanrei element). The glyph's opacity is applied to its color (a mix with transparent), never as an element's `opacity`. The focus indicator's color is the form's `focus-ring-color` custom property, handed to the shared focus primitive (CLO-15). Under `forced-colors: active` the container takes a `CanvasText` border of the outline width (CLO-24). The stylesheet of `@tanrei/web` gives `tanrei-callout:not(:defined)` `display: block`, so the content keeps its place before the element is defined. `dismiss` is a CustomEvent."
+      "parts": {
+        "container": "container",
+        "outline": "container@outline",
+        "icon": "icon",
+        "title": "title",
+        "body": "body",
+        "actions": "actions",
+        "close-button": "close-button"
+      },
+      "notes": "`<tanrei-callout>` with the body as light-DOM children, the glyph in the `icon` slot, the title in the `title` slot (`<p slot=\"title\">`, or `<h3 slot=\"title\">` where it is a heading) or the `headline` attribute (HTML's global `title` attribute would show a tooltip over the whole block, as the snackbar's and the app bar's), and Buttons or links in the `actions` slot. `statusLabel` and `closeLabel` are the `status-label` and `close-label` attributes. `open` is a boolean property that defaults to true; the `open` attribute spells it, and `open=\"false\"` is how markup starts a callout closed. The host is `display: block` with no margin, `role=\"note\"` and `aria-labelledby` naming the title, set through ElementInternals where axe can see it and as attributes otherwise; with `live` the host's role is `status` or `alert` by status, and the announcement is made through a visually hidden live region in the shadow root that exists from the element's first render, so that a callout opened later is announced (CLO-21). `statusLabel` is drawn as visually hidden text before the title in the shadow root, followed by a comma and a space; the glyph is `aria-hidden`. The body takes the form's content color and the size's text style through inherited `color` and `font`, so text placed directly in the element is styled, and a body that is rendered Markdown is wrapped by the product in `<div class=\"tanrei-prose\" data-measure=\"false\">` with the callout's `data-size` (prose re-enters inside a Tanrei element). The glyph's opacity is applied to its color (a mix with transparent), never as an element's `opacity`. The close button is a `<tanrei-button size=\"small\">` with the close glyph in its `icon` slot and `close-label` as its `label`, in the shadow root (part `close-button`); the callout gives it the variant `--tanrei-comp-callout-close-button-variant` names and, in a look with a fill, the tone of its form (the form's `body-color` custom property) through the Button's internal channel, after each update (CLO-10). Under `forced-colors: active` the container takes a `CanvasText` border of the outline width (CLO-24). The stylesheet of `@tanrei/web` gives `tanrei-callout:not(:defined)` `display: block`, so the content keeps its place before the element is defined. `dismiss` is a CustomEvent."
     },
     "swiftui": {
       "status": "planned",

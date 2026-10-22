@@ -116,11 +116,6 @@
           }
         },
         "mark": {
-          "width": {
-            "$type": "dimension",
-            "$description": "The stroke of the check and the dash drawn as paths. No behaviour of the current spec reads it: the mark is a glyph of the icon set (CHK-12). It stays only so that the platforms that still draw them as paths keep building; remove it in the commit that brings the last of them up to date.",
-            "$value": "{tanrei.sys.border.thick}"
-          },
           "size": {
             "$type": "dimension",
             "$description": "The glyph box of the check and the dash (the icon set's check and remove), centered on the box. 20 on an 18 box: a glyph's box is larger than its ink, so the icon set's check drawn at 20 keeps its ink inside the box.",
@@ -527,31 +522,31 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}"
+            "$value": "{tanrei.sys.motion.role.state.compact}"
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
           },
           "selection-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-effects.duration}",
+            "$value": "{tanrei.sys.motion.role.selection.mark}",
             "$description": "How long the box, outline and glyph take to change color, and the glyph to fade in or out, when the condition changes."
           },
           "selection-easing": {
             "$type": "cubicBezier",
-            "$description": "The curve of the colors and the glyph's opacity. An opacity or a color cannot overshoot, so this is an effects curve.",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-effects.easing}"
+            "$description": "The curve of the colors and the glyph's opacity. An opacity or a color cannot overshoot, so this is the curve of a change of state.",
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "mark-scale-duration": {
             "$type": "duration",
             "$description": "How long the glyph takes to grow in from, or shrink out to, mark-enter-scale when the condition changes.",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.duration}",
+            "$value": "{tanrei.sys.motion.role.selection.mark}",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "One product lets its controls' marks settle with a small overshoot (an expressive motion scheme) while their colors must not overshoot at all; the glyph's scale therefore has its own duration and curve, apart from the colors and the opacity.",
@@ -562,7 +557,7 @@
           "mark-scale-easing": {
             "$type": "cubicBezier",
             "$description": "The curve of the glyph's scale. A size may overshoot and settle; this is a spatial curve.",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.easing}",
+            "$value": "{tanrei.sys.motion.easing.spatial}",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "One product lets its controls' marks settle with a small overshoot (an expressive motion scheme) while their colors must not overshoot at all; the glyph's scale therefore has its own duration and curve, apart from the colors and the opacity.",

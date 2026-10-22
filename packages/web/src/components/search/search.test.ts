@@ -297,7 +297,7 @@ test.describe('layout', () => {
 
   test('SRC-16: each suggestion is one row — its minimum height and the target, its paddings, the icon column in every row, the gap, both text roles, the corners — and wraps rather than cuts; right to left mirrors it', async ({ page }) => {
     const [height, pointer, padInline, padBlock, gap, iconSize] = await Promise.all(
-      ['suggestion-container-height', '--tanrei-sys-target-pointer', 'suggestion-container-padding-inline', 'suggestion-container-padding-block', 'suggestion-container-gap', 'suggestion-leading-icon-size'].map((n) =>
+      ['suggestion-container-height-regular', '--tanrei-sys-target-pointer', 'suggestion-container-padding-inline-regular', 'suggestion-container-padding-block-regular', 'suggestion-container-gap-regular', 'suggestion-leading-icon-size-regular'].map((n) =>
         resolveToken(page, n.startsWith('--') ? n : T(n)),
       ),
     );
@@ -346,6 +346,127 @@ test.describe('layout', () => {
     expect(await host(page, 'one').locator('.option-icon').count()).toBe(2);
     const [a, b] = [await bounds(row(page, 'one', 0).locator('.headline')), await bounds(row(page, 'one', 1).locator('.headline'))];
     expect(a.x).toBe(b.x);
+  });
+
+  test('SRC-52: iconSpace — auto keeps the leading icon column, empty, in every row of the view while any suggestion or result has an icon, and none while none has; always in every row; never only in a row that has an icon; the suggestions and the results are decided together; decided again when an icon changes; an unknown value is auto, reported', async ({ page }) => {
+    const seen = warnings(page);
+    const spaced = spec.fixtures.filter((f) => f.id.startsWith('icon-space-'));
+    expect(spaced.map((f) => f.id)).toEqual(['icon-space-auto', 'icon-space-always', 'icon-space-never']);
+    const result = (value: string, headline: string, props: FixtureItem['props'] = {}): FixtureItem => ({ kind: 'result', props: { value, headline, href: `#${value}`, ...props } });
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        ...spaced,
+        { id: 'plain', props: { label: 'Search', expanded: true }, items: [suggestion('a'), suggestion('b')] },
+        { id: 'plain-always', props: { label: 'Search', expanded: true, iconSpace: 'always' }, items: [suggestion('a'), suggestion('b')] },
+        { id: 'mixed', props: { label: 'Search', expanded: true }, items: [suggestion('a', 'a', { leadingIcon: 'history' }), result('r', 'A result')] },
+        { id: 'mixed-never', props: { label: 'Search', expanded: true, iconSpace: 'never' }, items: [suggestion('a', 'a', { leadingIcon: 'history' }), result('r', 'A result')] },
+        { id: 'odd', props: { label: 'Search', expanded: true, iconSpace: 'sometimes' } as Fixture['props'], items: [suggestion('a', 'a', { leadingIcon: 'history' }), suggestion('b')] },
+      ],
+    });
+    const pad = await resolveToken(page, T('suggestion-container-padding-inline-regular'));
+    const size = await resolveToken(page, T('suggestion-leading-icon-size-regular'));
+    const gap = await resolveToken(page, T('suggestion-container-gap-regular'));
+    const none = pad;
+    const kept = pad + size + gap;
+    /** Where a suggestion's headline starts, from its row's start edge. */
+    const at = async (id: string, n: number) => (await bounds(row(page, id, n).locator('.headline'))).x - (await bounds(row(page, id, n))).x;
+    /** Where the first result's headline starts, from its row's start edge. */
+    const resultAt = async (id: string) => {
+      const r = host(page, id).locator('tanrei-search-result').first().locator('.row');
+      return (await bounds(r.locator('.headline'))).x - (await bounds(r)).x;
+    };
+    expect(await host(page, 'icon-space-auto').evaluate((el: any) => el.iconSpace)).toBe('auto');
+    // auto and always: Invoices, which has no icon, starts its headline where the history rows start theirs.
+    for (const id of ['icon-space-auto', 'icon-space-always']) for (const n of [0, 1, 2]) expect(await at(id, n), `${id} ${n}`).toBeCloseTo(kept, 0);
+    await expect(row(page, 'icon-space-auto', 2).locator('.option-icon.empty[aria-hidden="true"]')).toHaveCount(1);
+    // never: Invoices starts at the row's padding; the others after their icon.
+    expect(await at('icon-space-never', 2)).toBeCloseTo(none, 0);
+    expect(await at('icon-space-never', 0)).toBeCloseTo(kept, 0);
+    await expect(row(page, 'icon-space-never', 2).locator('.option-icon')).toHaveCount(0);
+    // The view as a whole: no icon anywhere keeps no column (auto), and every row keeps it (always).
+    for (const n of [0, 1]) {
+      expect(await at('plain', n)).toBeCloseTo(none, 0);
+      expect(await at('plain-always', n)).toBeCloseTo(kept, 0);
+    }
+    // A result keeps the column of the suggestions' icon while auto, and none of its own while never.
+    expect(await resultAt('mixed')).toBeCloseTo(await at('mixed', 0), 0);
+    expect(await resultAt('mixed-never')).toBeCloseTo(none, 0);
+    // An unknown value is auto, reported.
+    expect(await at('odd', 1)).toBeCloseTo(kept, 0);
+    await expect.poll(() => seen.some((w) => w.includes('(SRC-52)') && w.includes('sometimes'))).toBe(true);
+    // Decided again: an icon given to a row of a view without icons, then taken away; iconSpace changed while shown.
+    await host(page, 'plain').evaluate((el) => el.querySelector('tanrei-search-suggestion')!.setAttribute('leading-icon', 'history'));
+    await expect.poll(() => at('plain', 1)).toBeCloseTo(kept, 0);
+    await host(page, 'plain').evaluate((el) => el.querySelector('tanrei-search-suggestion')!.removeAttribute('leading-icon'));
+    await expect.poll(() => at('plain', 1)).toBeCloseTo(none, 0);
+    await host(page, 'icon-space-auto').evaluate((el: any) => (el.iconSpace = 'never'));
+    await expect.poll(() => at('icon-space-auto', 2)).toBeCloseTo(none, 0);
+    await host(page, 'mixed-never').evaluate((el) => el.setAttribute('icon-space', 'auto'));
+    await expect.poll(() => resultAt('mixed-never')).toBeCloseTo(kept, 0);
+  });
+
+  test('SRC-53: a compact search draws every row of its view — a suggestion and a result — from the compact tokens, lower, set in less, a smaller glyph, the same text, as low as its density gives for a mouse and the touch target for touch, the bar unchanged; an unknown density is regular and reported, an added one is drawn from its tokens, and a change is drawn at once', async ({ page, browserName }) => {
+    const seen = warnings(page);
+    const compact = spec.fixtures.find((f) => f.id === 'density-compact')!;
+    const result = (value: string, headline: string): FixtureItem => ({ kind: 'result', props: { value, headline, href: `#${value}`, leadingIcon: 'description' } });
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        compact,
+        { ...compact, id: 'density-regular', props: { ...compact.props, density: 'regular' } },
+        { id: 'density-results', props: { label: 'Search', expanded: true, density: 'compact' }, items: [result('r', 'A result')] },
+        { ...compact, id: 'density-odd', props: { ...compact.props, density: 'huge' } as Fixture['props'] },
+        { ...compact, id: 'density-added', props: { ...compact.props, density: 'roomy' } as Fixture['props'] },
+      ],
+    });
+    const sizes = async (density: string) => {
+      const [height, padBlock, padInline, gap, icon] = await Promise.all(
+        ['suggestion-container-height', 'suggestion-container-padding-block', 'suggestion-container-padding-inline', 'suggestion-container-gap', 'suggestion-leading-icon-size'].map((n) => resolveToken(page, T(`${n}-${density}`))),
+      );
+      return { height, padBlock, padInline, gap, icon };
+    };
+    const [regular, small] = [await sizes('regular'), await sizes('compact')];
+    // The default system's compact row: the tree view's, 32 high with a 20 glyph, 8 from its edges.
+    expect([small.height, small.icon, small.padInline]).toEqual([32, 20, 8]);
+    const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
+    const drawn = async (r: Locator) => {
+      const [b, icon, headline, font] = [await bounds(r), await bounds(r.locator('.option-icon, .icon').first()), await bounds(r.locator('.headline')), await px(r.locator('.headline'), 'font-size')];
+      return { height: b.height, icon: icon.width, start: headline.x - b.x, font };
+    };
+    const first = await drawn(row(page, 'density-compact', 0));
+    const firstRegular = await drawn(row(page, 'density-regular', 0));
+    expect(first.height).toBeCloseTo(small.height, 0);
+    expect(first.height).toBeLessThan(pointer);
+    expect(first.icon).toBeCloseTo(small.icon, 0);
+    expect(first.start).toBeCloseTo(small.padInline + small.icon + small.gap, 0);
+    expect(firstRegular.height).toBeCloseTo(Math.max(regular.height, pointer), 0);
+    // The density never changes a text style; a row with supporting text grows with it.
+    expect(first.font).toBe(firstRegular.font);
+    expect((await bounds(row(page, 'density-compact', 2))).height).toBeGreaterThan(first.height);
+    // A result's row takes the search's density too.
+    const resultRow = await drawn(host(page, 'density-results').locator('tanrei-search-result').first().locator('.row'));
+    expect(resultRow.height).toBeCloseTo(small.height, 0);
+    expect(resultRow.icon).toBeCloseTo(small.icon, 0);
+    // The bar is the bar's, whatever the density.
+    const bar = (id: string) => host(page, id).locator('.bar').first();
+    expect((await bounds(bar('density-compact'))).height).toBeCloseTo((await bounds(bar('density-regular'))).height, 0);
+    // An unknown density is drawn as regular, and a debug build says so.
+    expect((await drawn(row(page, 'density-odd', 0))).height).toBeCloseTo(firstRegular.height, 0);
+    await expect.poll(() => seen.filter((w) => w.includes('SRC-53') && w.includes('"huge"')).length).toBe(1);
+    // A density a design system adds is drawn from its tokens, the default's where it has none.
+    await rootTokens(page, { [T('suggestion-container-height-roomy')]: '64px', [T('suggestion-leading-icon-size-roomy')]: '28px' });
+    await expect.poll(async () => (await drawn(row(page, 'density-added', 0))).height).toBeCloseTo(64, 0);
+    expect((await drawn(row(page, 'density-added', 0))).icon).toBeCloseTo(28, 0);
+    // A change is drawn at once.
+    await host(page, 'density-regular').evaluate((el: any) => (el.density = 'compact'));
+    await expect.poll(async () => (await drawn(row(page, 'density-regular', 0))).height).toBeCloseTo(first.height, 0);
+    // SRC-16: for touch a compact row is the touch target.
+    if (browserName !== 'chromium') return;
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
+    await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
+    await expect.poll(async () => (await drawn(row(page, 'density-compact', 0))).height).toBeCloseTo(await resolveToken(page, '--tanrei-sys-target-touch'), 0);
   });
 
   test('SRC-7: the docked fixture draws the bar 16 from the stage’s top and sides and the view in place under it, offset away, as wide as the bar, on its color, elevation and corners, its content inset by the padding', async ({ page }) => {
@@ -402,7 +523,7 @@ test.describe('layout', () => {
     const content = host(page, 'content').locator('.content');
     await expect(content).toBeVisible();
     expect(await css(content, 'color')).toBe(await resolveColor(page, S('suggestion-headline-color')));
-    expect(await px(content, 'padding-left')).toBe(await resolveToken(page, T('suggestion-container-padding-inline')));
+    expect(await px(content, 'padding-left')).toBe(await resolveToken(page, T('suggestion-container-padding-inline-regular')));
     expect(await px(content, 'font-size')).toBe(await resolveToken(page, '--tanrei-sys-typescale-body-font-size'));
     expect((await bounds(content)).y).toBeGreaterThan((await bounds(row(page, 'content', 0))).y);
     // Content alone is still a view.
@@ -1808,7 +1929,7 @@ test.describe('dialog view', () => {
     expect(await s.locator('.full .scroll').evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
     expect((await bounds(s.locator('.header'))).y).toBe(box.y);
     // A window too short for the offset and one row gives the offset up, down to the margin; a narrow one keeps the margin at each side.
-    const oneRow = (await resolveToken(page, T('header-height'))) + (await resolveToken(page, T('divider-thickness'))) + 2 * (await resolveToken(page, T('view-padding-block'))) + (await resolveToken(page, T('suggestion-container-height')));
+    const oneRow = (await resolveToken(page, T('header-height'))) + (await resolveToken(page, T('divider-thickness'))) + 2 * (await resolveToken(page, T('view-padding-block'))) + (await resolveToken(page, T('suggestion-container-height-regular')));
     const between = Math.round(oneRow + margin + (offset + margin) / 2);
     await page.setViewportSize({ width: 400, height: between });
     await expect.poll(async () => (await bounds(d)).y).toBeCloseTo(between - margin - oneRow, 0);
@@ -1997,7 +2118,7 @@ test.describe('results', () => {
 
   test('SRC-44: a group is its heading and then its results, group.gap from what stands above and below it; without href the heading is a quiet title that takes no input, with one it is a result’s row and its results step in by group.indent, hit areas with them; right to left mirrors the inset', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, reducedMotion: true });
-    const [gap, indent, padInline, padBlock] = await Promise.all(['group-gap', 'group-indent', 'suggestion-container-padding-inline', 'suggestion-container-padding-block'].map((n) => resolveToken(page, T(n))));
+    const [gap, indent, padInline, padBlock] = await Promise.all(['group-gap', 'group-indent', 'suggestion-container-padding-inline-regular', 'suggestion-container-padding-block-regular'].map((n) => resolveToken(page, T(n))));
     // A titled group (docked-results): the title in group-title.typescale and color, inset as a row is.
     const title = host(page, 'docked-results').locator('tanrei-search-result-group .title');
     await expect(title).toHaveText('Messages');
@@ -2159,7 +2280,7 @@ test.describe('results', () => {
 test.describe('status', () => {
   test('SRC-47: the status row is drawn while there is statusText or the search is loading, inset as a suggestion’s row and taking no input: the text in status.typescale and status.color, in status.error.color for an error, and while loading a small loading indicator named by statusText in the text’s place, the row one line high whether or not it shows yet; the results stay usable', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, reducedMotion: true });
-    const [padInline, padBlock] = await Promise.all(['suggestion-container-padding-inline', 'suggestion-container-padding-block'].map((n) => resolveToken(page, T(n))));
+    const [padInline, padBlock] = await Promise.all(['suggestion-container-padding-inline-regular', 'suggestion-container-padding-block-regular'].map((n) => resolveToken(page, T(n))));
     const none = statusRow(page, 'dialog-none');
     await expect(none).toHaveText('No results for tokne');
     expect(await px(none, 'font-size')).toBe(await resolveToken(page, T('status-typescale-font-size')));

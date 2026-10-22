@@ -45,7 +45,7 @@
   }
   /* The close button's room. */
   :where(tanrei-callout[closable]:not(:defined)) {
-    padding-inline-end: calc(var(--tanrei-comp-callout-container-padding-inline-end-with-close) + var(--tanrei-comp-callout-controls-height) + var(--tanrei-comp-callout-container-gap));
+    padding-inline-end: calc(var(--tanrei-comp-callout-container-padding-inline-end-with-close) + var(--tanrei-comp-button-container-height-small) + var(--tanrei-comp-callout-container-gap));
   }
   /* A glyph is a name until its element draws it: the name is not shown. */
   :where(tanrei-callout:not(:defined)) > :where([slot='icon']) {

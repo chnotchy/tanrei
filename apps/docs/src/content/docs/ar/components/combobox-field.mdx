@@ -2,7 +2,7 @@
 title: حقل التحرير والسرد
 description: يتيح للأشخاص العثور على قيمة واحدة بالكتابة، حقلًا من حقول النموذج، وهو مربع تحرير وسرد معه قائمة خيارات تضيق كلما كتبوا فيختارون منها، أو يُدخلون قيمة من عندهم حيث يسمح المنتج بذلك، تحت تسمية تستطيع أن تقول إن الحقل مطلوب أو اختياري، ومعه سطر مساعدة وسبب رفض القيمة.
 translationOf: components/combobox-field.mdx
-sourceHash: 695f5a07f9b3ed6d358dee0d414c102a7c3a5232
+sourceHash: 8e037bc89c7a8786138b8894cd3f7caa3988633c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -47,7 +47,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <TabItem label="Web">
     ```html
     <form>
-      <tanrei-combobox-field name="city" label="المدينة" value="tokyo" requirement="required" required-text="مطلوب"
+      <tanrei-combobox-field name="city" label="المدينة" value="tokyo" required required-text="مطلوب"
         clearable clear-label="مسح المدينة" empty-text="لا توجد نتائج مطابقة">
         <tanrei-option value="kyoto">كيوتو</tanrei-option>
         <tanrei-option value="tokyo">طوكيو</tanrei-option>
@@ -107,14 +107,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ```html
 <!-- حقل التحرير والسرد -->
-<tanrei-combobox-field name="city" label="المدينة" requirement="required" required-text="مطلوب"
+<tanrei-combobox-field name="city" label="المدينة" required required-text="مطلوب"
   supporting-text="المدينة التي يُرسل إليها الطلب." value="tokyo">
   <tanrei-option value="kyoto">كيوتو</tanrei-option>
   <tanrei-option value="tokyo">طوكيو</tanrei-option>
 </tanrei-combobox-field>
 
 <!-- هو نفسه، باليد: خصائص الإطار على الحقل، وكل ما عداها، ومعه الخيارات، على مربع التحرير والسرد -->
-<tanrei-field label="المدينة" requirement="required" required-text="مطلوب" supporting-text="المدينة التي يُرسل إليها الطلب.">
+<tanrei-field label="المدينة" required required-text="مطلوب" supporting-text="المدينة التي يُرسل إليها الطلب.">
   <tanrei-combobox name="city" value="tokyo">
     <tanrei-option value="kyoto">كيوتو</tanrei-option>
     <tanrei-option value="tokyo">طوكيو</tanrei-option>
@@ -123,7 +123,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="حقل فيه مربع تحرير وسرد: الصورة نفسها التي لحقل التحرير والسرد" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="المدينة" requirement="required" required-text="مطلوب" supporting-text="المدينة التي يُرسل إليها الطلب.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="المدينة" required required-text="مطلوب" supporting-text="المدينة التي يُرسل إليها الطلب.">
     <tanrei-combobox value="tokyo" empty-text="لا توجد نتائج مطابقة">
       <tanrei-option value="kyoto">كيوتو</tanrei-option>
       <tanrei-option value="tokyo">طوكيو</tanrei-option>
@@ -161,7 +161,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | الجزء | ما هو |
 | --- | --- |
 | التسمية | صف الحقل فوق الحاوية (في الطراز `stacked`)، أو تسمية مربع التحرير والسرد نفسه عائمة داخلها (في الطرازين `filled` و `outlined`). وهي الاسم المتاح للتقنيات المساعدة، مرسومةً كانت أو مخفيّة بالخاصية `labelHidden` |
-| علامة المطلوب أو الاختياري | بعد التسمية: وسم المطلوب أو نجمة أو لا شيء مع `requirement="required"`، ووسم الاختياري مع القيمة `optional`. والتسمية العائمة تأخذ النجمة |
+| علامة المطلوب أو الاختياري | بعد التسمية: وسم المطلوب أو نجمة أو لا شيء مع `required`، ووسم الاختياري مع القيمة `optional`. والتسمية العائمة تأخذ النجمة |
 | حقل الإدخال | النص: ما يكتبه الشخص ليعثر على خيار، وما دام لا يكتب فهو تسمية الخيار المختار أو القيمة التي من عنده. سطر واحد، يُمرَّر |
 | النص النائب | تلميح يظهر ما دام حقل الإدخال فارغًا. وليس تسمية أبدًا، وليس قيمة أبدًا |
 | أيقونة البداية | رسم الأيقونة (glyph) الذي في المنفذ `leading-icon`، وإلا فرسم الخيار المختار نفسه |
@@ -169,7 +169,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | السهم الصغير (chevron) | يقول إن للحقل قائمة يُنظر فيها، ويفتحها ويغلقها. ولا يدور. احذفه (بجعل `chevron` بالقيمة false) حيث لا توجد اقتراحات إلا لما كُتب |
 | النص المساعد | صف الحقل: سطر من المساعدة. وما دامت `error` بالقيمة true يأخذ `errorText` مكانه (أو يُرسم تحته، حيث يُبقي نظام التصميم الاثنين). وكلاهما يبدأ حيث يبدأ نص حقل الإدخال |
 
-صف التسمية والعلامة وصف النص المساعد هي [للحقل](/ar/components/field/)، مرسومة من رموز تصميم الحقل؛ وكل ما عداها [لمربع التحرير والسرد](/ar/components/combobox/). والطُرُز الثلاثة والأحجام الثلاثة `small` (40) و `medium` (48) و `large` (56) هي ما لحقل النص. والنظام الافتراضي يتضمن الطراز `stacked` وحده.
+صف التسمية والعلامة وصف النص المساعد هي [للحقل](/ar/components/field/)، مرسومة من رموز تصميم الحقل؛ وكل ما عداها [لمربع التحرير والسرد](/ar/components/combobox/). والطُرُز الثلاثة والأحجام الثلاثة `small` (32) و `medium` (40) و `large` (56) هي ما لحقل النص. والنظام الافتراضي يتضمن الطراز `stacked` وحده.
 
 ما دامت القائمة مفتوحة تُرسم التسمية والمساعدة في حالة التركيز مع الصندوق، سواء أكان التركيز على حقل الإدخال أم لا.
 
@@ -215,7 +215,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - العنصران `<tanrei-option>` و `<tanrei-option-group>` بيانات: لا يرسمان شيئًا. وهما العنصران اللذان يحملهما عنصر الاختيار. والخيار الذي قيمته السلسلة الفارغة يُرسم ولا يمكن اختياره، لأن القيمة الفارغة تعني أن لا شيء مختار.
 - جذر الظل (shadow root) في العنصر فيه عنصر `<tanrei-field>` حول عنصر `<tanrei-combobox>`. وفروعك من عناصر `<tanrei-option>` تبقى فروعه هو وتبلغ مربع التحرير والسرد عبر منفذ؛ فلا يُنقل شيء ولا يُنسخ.
-- حقل التحرير والسرد عنصر مرتبط بالنماذج (form-associated): هو عنصر التحكم الوحيد الذي يراه النموذج. يأخذ `name`، ويرسل `value` ولا يرسل أبدًا نص تعديل لم يُعتمد، ويعود عند إعادة الضبط إلى قيمة خاصية HTML `value`، ويبلّغ النموذج بأن القيمة ناقصة ما دامت `requirement="required"` و `value` فارغة. والمفتاح Enter ولا خيار نشط يرسل نموذجه.
+- حقل التحرير والسرد عنصر مرتبط بالنماذج (form-associated): هو عنصر التحكم الوحيد الذي يراه النموذج. يأخذ `name`، ويرسل `value` ولا يرسل أبدًا نص تعديل لم يُعتمد، ويعود عند إعادة الضبط إلى قيمة خاصية HTML `value`، ويبلّغ النموذج بأن القيمة ناقصة ما دامت `required` و `value` فارغة. والمفتاح Enter ولا خيار نشط يرسل نموذجه.
 - الخصائص `value` و `inputValue` و `open` هي خصائص مربع التحرير والسرد في كل لحظة: فكل منها صارت الجديدة سلفًا في كل مستمع.
 - الخاصية `chevron` هي خاصية HTML المعكوسة `no-chevron`، والخاصية `readOnly` هي `readonly`.
 - الحدث `input` هو الحدث الأصلي لعنصر النص. والحدثان `change` و `action` يحملان `detail.value` و `detail.inputValue`. والأحداث الأربعة هي أحداث مربع التحرير والسرد نفسه، وهدفها حقل التحرير والسرد؛ والحدث `toggle` لا يتصاعد.
@@ -270,7 +270,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - حقل الإدخال مربع تحرير وسرد قابل للتحرير له مربع قائمة (listbox). اسمه قيمة `label`، مرسومةً كانت أو مخفيّة، وليس النص النائب أبدًا. يعطيه الحقل لمربع التحرير والسرد، وهذا يحمله على حقل الإدخال الخاص به.
 - النص المساعد أو نص الخطأ المعروض هو وصفه، ويُضاف إليه `optionalText` ما دام الحقل اختياريًّا.
 - الخطأ الذي يظهر والتركيز داخل الحقل يُعلَن مرة واحدة، بتهذيب.
-- يُعرَض للتقنيات المساعدة على أنه غير صالح ما دامت `error` بالقيمة true، وعلى أنه مطلوب ما دامت `requirement` بالقيمة `required`، وعلى أنه للقراءة فقط، وعلى أنه موسَّع ما دامت قائمته مفتوحة.
+- يُعرَض للتقنيات المساعدة على أنه غير صالح ما دامت `error` بالقيمة true، وعلى أنه مطلوب ما دامت `required` معيَّنة، وعلى أنه للقراءة فقط، وعلى أنه موسَّع ما دامت قائمته مفتوحة.
 - يبقى التركيز في حقل الإدخال ما دامت القائمة مفتوحة. والخيار النشط هو فرعه النشط (active descendant)، فلا تقطع الكتابة تحرير النص أبدًا.
 - القائمة مربع قائمة تسمّيه التسمية. ولكل خيار اسمه ووصفه، وهل هو المختار، وهل هو معطَّل، وموضعه بين الخيارات المعروضة. والمجموعة يسمّيها عنوانها.
 - المطابقة تُعلَّم بالوزن، لا باللون وحده أبدًا. والتسمية تُقرأ نصًّا واحدًا.

@@ -16,7 +16,10 @@
 // The Components group is drawn from the specs (lib/listing.mjs, `sidebarTree`): each component in a group of its
 // category, and one a spec marks to be shown on request (`listing`) marked — with the word at the end
 // of its row — and drawn only to a reader who asked for everything with the switch in the drawer's header
-// (ListingSwitch.astro), or whose page it is. Without script every row is drawn.
+// (ListingSwitch.astro), or whose page it is. Beside the switch, the choice of design system (SystemSelect.astro): a
+// component the chosen system does not have is marked with the systems that do not have it, and so is a group none of
+// whose components it has, and neither is drawn under them — unless it is the page being read. Without script every
+// row is drawn.
 //
 // A destination's anchor is in its element's shadow root, so the page as built would hold no link. Each destination therefore holds a plain `<a href>` of its own: until the elements
 // are defined, and where no script runs, those anchors are the sidebar (styles/frame.css draws them as the drawer's
@@ -24,9 +27,10 @@
 // shadow root is the link.
 import { currentHref, frameWords, groupIcon, type Entry } from './frame';
 import { localeBase, strings } from '../../lib/i18n';
-import { ON_REQUEST_ATTR, sidebarTree } from '../../lib/listing.mjs';
-import { listings, statusComponents } from '../../lib/repo';
+import { ABSENT_ATTR, ON_REQUEST_ATTR, sidebarTree } from '../../lib/listing.mjs';
+import { listings, manifests, statusComponents } from '../../lib/repo';
 import ListingSwitch from '../ListingSwitch.astro';
+import SystemSelect from '../SystemSelect.astro';
 
 const route = Astro.locals.starlightRoute as unknown as { sidebar: Entry[]; lang: string };
 const { sidebar } = route;
@@ -35,7 +39,9 @@ const t = strings(route.lang);
 const base = localeBase(Astro);
 // What is drawn: the framework's sidebar with the components grouped by category and marked by their listing. The
 // drawer's `value` and the page's trail still read the framework's own (`sidebar`).
-const drawn = sidebarTree(sidebar, statusComponents, listings, base, (category) => t.category[category] ?? category) as Entry[];
+const drawn = sidebarTree(sidebar, statusComponents, listings, base, (category) => t.category[category] ?? category, manifests) as Entry[];
+/** The mark of an entry that some systems do not have. */
+const absent = (entry: Entry) => (entry.absentFrom?.length ? ` ${ABSENT_ATTR}="${escape(entry.absentFrom.join(' '))}"` : '');
 
 /** Whether the page being read is among a group's entries, at any depth: that group is written open. */
 const holdsCurrent = (entry: Entry): boolean => (entry.type === 'link' ? !!entry.isCurrent : entry.entries.some(holdsCurrent));
@@ -44,14 +50,15 @@ const cells = (entries: Entry[], top: boolean): string =>
   entries
     .map((entry) =>
       entry.type === 'link'
-        ? `<tanrei-navigation-drawer-item label="${escape(entry.label)}" href="${escape(entry.href)}"${top ? ' icon="article"' : ''}${entry.onRequest ? ` ${ON_REQUEST_ATTR} trailing-text="${escape(t.listing.advanced)}"` : entry.badge ? ` trailing-text="${escape(entry.badge.text)}"` : ''}><a href="${escape(entry.href)}"${entry.isCurrent ? ' aria-current="page"' : ''}>${escape(entry.label)}${entry.onRequest ? ` <span class="docs-sidebar-mark">${escape(t.listing.advanced)}</span>` : ''}</a></tanrei-navigation-drawer-item>`
-        : `<tanrei-navigation-drawer-group label="${escape(entry.label)}"${top ? ` icon="${groupIcon(entry, base)}"` : ''}${holdsCurrent(entry) ? ' open' : ''}>${cells(entry.entries, false)}</tanrei-navigation-drawer-group>`,
+        ? `<tanrei-navigation-drawer-item label="${escape(entry.label)}" href="${escape(entry.href)}"${top ? ' icon="article"' : ''}${absent(entry)}${entry.onRequest ? ` ${ON_REQUEST_ATTR} trailing-text="${escape(t.listing.advanced)}"` : entry.badge ? ` trailing-text="${escape(entry.badge.text)}"` : ''}><a href="${escape(entry.href)}"${entry.isCurrent ? ' aria-current="page"' : ''}>${escape(entry.label)}${entry.onRequest ? ` <span class="docs-sidebar-mark">${escape(t.listing.advanced)}</span>` : ''}</a></tanrei-navigation-drawer-item>`
+        : `<tanrei-navigation-drawer-group label="${escape(entry.label)}"${top ? ` icon="${groupIcon(entry, base)}"` : ''}${absent(entry)}${holdsCurrent(entry) ? ' open' : ''}>${cells(entry.entries, false)}</tanrei-navigation-drawer-group>`,
     )
     .join('');
 ---
 
 <tanrei-navigation-drawer slot="navigation" class="docs-sidebar print:hidden" responsive collapsible reveal-selected label={words.siteNavigation} value={currentHref(sidebar)}>
   <tanrei-button slot="header-button" variant="text" label={words.menu}><span slot="icon">menu</span></tanrei-button>
+  <SystemSelect lang={route.lang} into="header" />
   <ListingSwitch lang={route.lang} into="header" />
   <Fragment set:html={cells(drawn, true)} />
 </tanrei-navigation-drawer>

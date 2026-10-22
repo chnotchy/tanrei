@@ -1,4 +1,4 @@
-// <tanrei-list-row>, driven by specs/list-row.spec.json: every behaviour id (LRW-1…15) is cited by a test title, every
+// <tanrei-list-row>, driven by specs/list-row.spec.json: every behaviour id (LRW-1…16) is cited by a test title, every
 // fixture has a baseline, and every length and color is read back from the tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
@@ -152,13 +152,48 @@ test.describe('behavior', () => {
     expect(await css(part(row(page, 'leading-icon'), 'leading-icon'), 'visibility')).toBe('hidden');
   });
 
-  test('LRW-5: without a leading part the text begins at the start padding, and without a trailing part it reaches the end padding', async ({ page }) => {
+  test('LRW-16: without a leading part the text begins at the start padding and without a trailing part it reaches the end padding; where its List asks for it the row keeps a glyph’s room, empty, before its text; standing alone, or drawing a leading part, it keeps none', async ({ page }) => {
     await mount(page);
     const host = row(page, 'one-line');
     const b = await box(host);
     const text = await box(part(host, 'text'));
     near(text.x - b.x, await token(page, T('container-padding-inline-start')), 'start');
     near(b.x + b.width - (text.x + text.width), await token(page, T('container-padding-inline-end')), 'end');
+    await expect(host.locator('.leading-room')).toHaveCount(0);
+    await mountHtml(page, {
+      alone: '<tanrei-list-row headline="About"></tanrei-list-row>',
+      listed: listOf('', [`<tanrei-list-item>${TWO}</tanrei-list-item>`, '<tanrei-list-item><tanrei-list-row headline="About"></tanrei-list-row></tanrei-list-item>', '<tanrei-list-item><tanrei-list-row headline="Mira"><span slot="leading">MO</span></tanrei-list-row></tanrei-list-item>']),
+    });
+    await expect(row(page, 'alone').locator('.leading-room')).toHaveCount(0);
+    const rows = page.locator('[data-fixture="listed"] tanrei-list-row');
+    const kept = rows.nth(1);
+    const room = await box(part(kept, 'leading-room'));
+    near(room.width, await token(page, T('leading-icon-size')), 'the room is a glyph’s box');
+    near((await box(part(kept, 'headline'))).x - (room.x + room.width), await token(page, T('container-gap')), 'the gap after it');
+    near((await box(part(kept, 'headline'))).x, (await box(part(rows.nth(0), 'headline'))).x, 'its headline starts where the glyph row’s does');
+    await expect(part(kept, 'leading-room')).toHaveAttribute('aria-hidden', 'true');
+    expect(await part(kept, 'leading-room').evaluate((el) => [el.childNodes.length, getComputedStyle(el).backgroundColor])).toEqual([0, 'rgba(0, 0, 0, 0)']);
+    // A row with content in its leading slot draws that content and no room besides it.
+    await expect(rows.nth(2).locator('.leading-room')).toHaveCount(0);
+  });
+
+  test('LRW-17: in an item of a list the row draws the list’s density and not its own; taken out of the list it draws its own; a change of the list’s density is drawn at once', async ({ page }) => {
+    await mountHtml(page, {
+      compact: listOf('density="compact"', [`<tanrei-list-item>${TWO.replace('<tanrei-list-row ', '<tanrei-list-row density="regular" ')}</tanrei-list-item>`]),
+      regular: listOf('', [`<tanrei-list-item>${TWO.replace('<tanrei-list-row ', '<tanrei-list-row density="compact" ')}</tanrei-list-item>`]),
+      out: '<div id="out"></div>',
+    });
+    const [regular, compact] = [await token(page, T('container-height-two-line-regular')), await token(page, T('container-height-two-line-compact'))];
+    near((await box(row(page, 'compact'))).height, compact, 'a regular row in a compact list');
+    near((await box(row(page, 'regular'))).height, regular, 'a compact row in a regular list');
+    // Out of the list, its own density.
+    await page.evaluate(() => document.querySelector('#out')!.append(document.querySelector('[data-fixture="compact"] tanrei-list-row')!));
+    await settled(page);
+    near((await box(page.locator('#out tanrei-list-row'))).height, regular, 'standing alone');
+    // The list's density changed: its rows follow at once.
+    await page.evaluate(() => ((document.querySelector('[data-fixture="regular"] tanrei-list') as HTMLElement & { density: string }).density = 'compact'));
+    await settled(page);
+    near((await box(row(page, 'regular'))).height, compact, 'the list made compact');
   });
 
   test('LRW-6: the trailing text, the slot’s content and the glyph, in that order at the end; the value never more than half of the row; the chevron mirrored in right-to-left', async ({ page }) => {

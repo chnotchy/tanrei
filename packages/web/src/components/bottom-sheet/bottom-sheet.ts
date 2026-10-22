@@ -1,25 +1,34 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import {
   AvailabilityController,
-  PressController,
+  BUTTON_VARIANTS,
+  type DividerVisibilityProp,
   SHEET_FLING_VELOCITY,
   SheetDrag,
+  closeModal,
   closeRequestReason,
+  compChoice,
   deepActive,
   focusWithin,
+  giveVariant,
   holdPageScroll,
+  isDividerVisibility,
   keyboardCover,
   modalLayer,
   modalSheetKeys,
   onBackdrop,
+  openModal,
   report,
   returnFocus,
-  syncFocusStyle,
+  syncDividerVisibility,
   watchEscape,
   WordsController,
 } from '../../primitives/index.js';
+import '../button/button.js';
+import '../handle/handle.js';
 import { styles } from './bottom-sheet.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** Standard sits over the lower part of its parent while the content above stays usable; modal dims and blocks the rest of the window. */
 export type TanreiBottomSheetVariant = 'standard' | 'modal';
@@ -27,8 +36,10 @@ export type TanreiBottomSheetVariant = 'standard' | 'modal';
 export type TanreiBottomSheetDetent = 'partial' | 'full';
 /** HTML's `closedby` values: `any` (a drag, Escape, back and the scrim ask to close) or `none` (nothing does). */
 export type TanreiBottomSheetClosedBy = 'any' | 'none' | 'closerequest';
-/** Why the sheet asks to close (BSH-5). The web has no back of its own; Android's back gesture arrives as `back`. */
-export type TanreiBottomSheetCloseReason = 'drag' | 'scrim' | 'escape' | 'back';
+/** Why the sheet asks to close (BSH-5, BSH-29). The web has no back of its own; Android's back gesture arrives as `back`. */
+export type TanreiBottomSheetCloseReason = 'close' | 'drag' | 'scrim' | 'escape' | 'back';
+/** When the divider below the header is drawn (BSH-28): `auto` takes `comp.bottom-sheet.divider.visibility`. */
+export type TanreiBottomSheetDividerVisibility = DividerVisibilityProp;
 
 /** `close`'s detail: why the sheet asks to be closed. */
 export interface TanreiBottomSheetCloseDetail {
@@ -40,6 +51,7 @@ export interface TanreiBottomSheetDetentChangeDetail {
   detent: TanreiBottomSheetDetent;
 }
 
+const PREFIX = '--tanrei-comp-bottom-sheet';
 const VARIANTS: readonly string[] = ['standard', 'modal'];
 const DETENTS: readonly string[] = ['partial', 'full'];
 
@@ -89,9 +101,15 @@ interface Drawn {
  * content's padding, or the content where it lets the drag through) or with the drag handle, a button while there are
  * two heights; the element sets `detent` and fires `detentchange`.
  *
+ * A header below the handle's row holds `headline` (a heading, which names the sheet where `label` is empty) and, while
+ * `closable`, an icon-only `<tanrei-button>` of the small size showing the close glyph, named by `close-label`, in the
+ * variant `comp.bottom-sheet.close-button.variant` names (tonal in the default system), as every host's close button
+ * is; a divider below it as `divider-visibility` says (BSH-28, BSH-29). The header stays while the content scrolls.
+ *
  * Controlled: the sheet never closes itself. While `closedby` is not `none` it fires `close` with a reason — a released
  * drag below its lowest height and, for a modal sheet, a press on the scrim, Escape or the platform's back — and you set
- * `open` to false. A product that does not close it sees it settle back.
+ * `open` to false. The close button fires `close` with the reason `close` whatever `closedby` says. A product that does
+ * not close it sees it settle back.
  *
  * Modal: a native `<dialog>` in the shadow root opened with `showModal()`: in the top layer over `::backdrop` (the scrim),
  * docked to the window's bottom edge, everything else inert, the page held from scrolling and focus kept inside. Focus
@@ -106,13 +124,17 @@ interface Drawn {
  * @tag tanrei-bottom-sheet
  * @slot - The content: it gets `content.color` as its color, and plain text the body role.
  * @csspart container - The sheet: the `<dialog>` of a modal sheet (its `::backdrop` is the scrim), the `<section>` of a standard one.
- * @csspart handle - The drag handle's box: a `<button>` while the sheet has two heights, drawn at rest otherwise.
- * @csspart grip - The grip drawn in the handle's box (hidden from assistive technology).
+ * @csspart handle - The drag handle's box: the `container` of its `<tanrei-handle>`, a button while the sheet has two heights, drawn at rest otherwise.
+ * @csspart grip - The grip drawn in the handle's box: the `line` of its `<tanrei-handle>` (hidden from assistive technology).
+ * @csspart header - The row that holds the headline and the close button, while there is one.
+ * @csspart headline - The headline (a heading).
+ * @csspart close-button - The close button, an icon-only `<tanrei-button>`.
+ * @csspart divider - The hairline below the header, drawn as `divider-visibility` says (hidden from assistive technology).
  * @csspart content - The box that insets, clips and scrolls the content.
- * @fires {CustomEvent<TanreiBottomSheetCloseDetail>} close - The sheet asks to be closed: `detail.reason` is `drag`, `scrim`, `escape` or `back`. Set `open` to false. Only while `closedby` is not `none`.
+ * @fires {CustomEvent<TanreiBottomSheetCloseDetail>} close - The sheet asks to be closed: `detail.reason` is `close` (its close button, whatever `closedby` says), or `drag`, `scrim`, `escape` or `back` (only while `closedby` is not `none`). Set `open` to false.
  * @fires {CustomEvent<TanreiBottomSheetDetentChangeDetail>} detentchange - The person moved the sheet to its other height, by a drag or with the handle: `detail.detent` (and `detent`) is the new one. Not fired when you set `detent`.
  */
-export class TanreiBottomSheet extends LitElement {
+export class TanreiBottomSheet extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'bottom-sheet');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
@@ -136,6 +158,10 @@ export class TanreiBottomSheet extends LitElement {
       converter: { fromAttribute: (value: string | null) => value === null, toAttribute: (value: boolean) => (value ? null : '') },
     },
     label: { type: String },
+    headline: { type: String },
+    closable: { type: Boolean, reflect: true },
+    closeLabel: { type: String, attribute: 'close-label' },
+    dividerVisibility: { type: String, attribute: 'divider-visibility', reflect: true },
     two: { state: true },
   };
 
@@ -164,8 +190,24 @@ export class TanreiBottomSheet extends LitElement {
   /** Insets the content by `container.padding`. False (the `flush` attribute) lets it reach the edges (a list with its own padding). */
   inset = true;
 
-  /** Names the modal dialog, or the standard sheet's region ("Share photo"). Required (BSH-22). */
+  /** Names the modal dialog, or the standard sheet's region ("Share photo"). Required unless `headline` names it (BSH-22). */
   label = '';
+
+  /** What the sheet is about ("Share photo"), drawn in its header; it names the sheet where `label` is empty (BSH-28). */
+  headline = '';
+
+  /** Draws the close button at the end of the header (BSH-29). False by default: the handle and the scrim are the sheet's ways out. Reflected. */
+  closable = false;
+
+  /** The close button's accessible name ("Close sharing"). Required while `closable` (BSH-29). The attribute is `close-label`. */
+  closeLabel = '';
+
+  /**
+   * When the divider below the header is drawn: `always` whenever the header is, `scroll` only while the content is
+   * scrolled from its top; `auto` takes `comp.bottom-sheet.divider.visibility`, the design system's answer (always in the
+   * default system). Reflected as `divider-visibility`.
+   */
+  dividerVisibility: TanreiBottomSheetDividerVisibility = 'auto';
 
   /** BSH-6, BSH-11: whether the content is taller than the partial height (two heights: the handle is a button). */
   private two = false;
@@ -179,6 +221,8 @@ export class TanreiBottomSheet extends LitElement {
   private dragged = false;
   private drag: SheetDrag | null = null;
   private dragOnContent = false;
+  /** BSH-13: the drag began on the handle, which holds the pointer (and its pressed state) while the drag lasts. */
+  private dragOnHandle = false;
   /** The sheet's visible height while it follows a drag. */
   private position = 0;
   private settling: Animation | null = null;
@@ -189,13 +233,6 @@ export class TanreiBottomSheet extends LitElement {
   /** Whether focus was inside a standard sheet that is closing (read before the render makes it inert). */
   private closingWithFocus = false;
   private readonly resize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.measure());
-
-  /** BSH-13…17: the handle's pressed state, press-hold and the answer the system chooses (src/primitives/press.ts). */
-  private readonly press = new PressController(this, {
-    container: () => this.handleButton,
-    holdCarrier: () => this.renderRoot?.querySelector('.hold') ?? null,
-    disabled: () => !this.interactive,
-  });
 
   private get modal(): boolean {
     return this.variant !== 'standard';
@@ -227,16 +264,14 @@ export class TanreiBottomSheet extends LitElement {
     return this.renderRoot?.querySelector<HTMLElement>('.content') ?? null;
   }
 
-  private get handleButton(): HTMLElement | null {
-    return this.renderRoot?.querySelector<HTMLElement>('button.handle') ?? null;
-  }
-
   override connectedCallback() {
     super.connectedCallback();
     window.visualViewport?.addEventListener('resize', this.onViewport);
     window.visualViewport?.addEventListener('scroll', this.onViewport);
     // Moved in the document while open: presented again, in place (as mounted).
     if (this.hasUpdated && this.open && this.modal) this.present(true);
+    // A Button that reconnects lets go of the variant its host gave it; the next update gives it again (BSH-29).
+    if (this.hasUpdated) this.requestUpdate();
   }
 
   override disconnectedCallback() {
@@ -252,12 +287,21 @@ export class TanreiBottomSheet extends LitElement {
 
   // ---- BSH-5: asking to close ----
 
-  /** BSH-5: `close` with the reason, once, while dismissible; a standard sheet answers only a drag. */
+  /** BSH-5: `close` with the reason, once, while dismissible; a standard sheet answers only a drag. BSH-29: the close button asks always. */
   private requestClose(reason: TanreiBottomSheetCloseReason) {
-    if (!this.dismissible || !this.open) return;
-    if (!this.modal && reason !== 'drag') return;
+    if (!this.open) return;
+    if (reason !== 'close') {
+      if (!this.dismissible) return;
+      if (!this.modal && reason !== 'drag') return;
+    }
     this.dispatchEvent(new CustomEvent<TanreiBottomSheetCloseDetail>('close', { detail: { reason } }));
   }
+
+  /** BSH-29: the close button asks once for each activation (a click that ends a drag is swallowed before it). */
+  private readonly onCloseClick = () => {
+    if (this.dragged) return;
+    this.requestClose('close');
+  };
 
   /** BSH-5, BSH-2: Escape asks to close (only the topmost overlay answers it); Tab stays inside. */
   private readonly onKeyDown = (event: KeyboardEvent) => {
@@ -278,7 +322,7 @@ export class TanreiBottomSheet extends LitElement {
     const dialog = this.dialog;
     if (!this.shown || !dialog || dialog.open) return;
     this.requestClose('back');
-    if (this.open && this.modal) dialog.showModal();
+    if (this.open && this.modal) openModal(dialog);
   };
 
   private readonly onClick = (event: MouseEvent) => {
@@ -296,6 +340,8 @@ export class TanreiBottomSheet extends LitElement {
     this.drag = new SheetDrag(event, 'y');
     const content = this.content;
     this.dragOnContent = !!content && event.composedPath().includes(content);
+    const handle = this.renderRoot.querySelector('.handle');
+    this.dragOnHandle = !!handle && this.interactive && event.composedPath().includes(handle);
     // The drag is followed through the window, wherever the pointer goes (pointer capture alone can fail to take).
     this.listenToDrag(true);
   };
@@ -371,14 +417,15 @@ export class TanreiBottomSheet extends LitElement {
     this.cancelSettle();
     this.position = drawn.height - drawn.offset;
     sheet.classList.add('dragging');
-    try {
-      sheet.setPointerCapture?.(event.pointerId);
-    } catch {
-      // A pointer the browser no longer counts as active cannot be captured; the window still follows it.
+    // BSH-13: a drag that began on the handle stays the handle's press, held while the drag lasts (HDL-11): the handle
+    // keeps the pointer. Any other drag is captured by the sheet.
+    if (!this.dragOnHandle) {
+      try {
+        sheet.setPointerCapture?.(event.pointerId);
+      } catch {
+        // A pointer the browser no longer counts as active cannot be captured; the window still follows it.
+      }
     }
-    // BSH-13: a drag that starts on the handle does not leave it pressed. The controller's disconnect is its cancel: it
-    // clears the pressed state and the ripple at once, where a release would hold them for press-hold.
-    if (this.handleButton?.dataset.pressed !== undefined) this.press.hostDisconnected();
     this.place(this.position);
   }
 
@@ -511,12 +558,11 @@ export class TanreiBottomSheet extends LitElement {
 
   // ---- BSH-11: the drag handle ----
 
-  private readonly onHandleClick = () => {
+  /** BSH-11: the handle activated without a drag (HDL-7) moves the sheet to its other height. */
+  private readonly onHandleActivate = () => {
     if (this.dragged || !this.interactive) return;
     this.settleTo(this.resting === 'full' ? 'partial' : 'full');
   };
-
-  private readonly onHandleFocus = () => syncFocusStyle(this, this.handleButton);
 
   // ---- BSH-6, BSH-7, BSH-10: the area, the heights and the keyboard ----
 
@@ -529,8 +575,9 @@ export class TanreiBottomSheet extends LitElement {
     if (!sheet || !content || !partialCap || !fullCap) return;
     if (sheet.getClientRects().length === 0) return;
     const row = this.renderRoot.querySelector('.row')?.getBoundingClientRect().height ?? 0;
+    const header = this.renderRoot.querySelector('.header')?.getBoundingClientRect().height ?? 0;
     const end = Number.parseFloat(getComputedStyle(sheet).paddingBlockEnd) || 0;
-    const natural = row + content.scrollHeight + end;
+    const natural = row + header + content.scrollHeight + end;
     const partial = Math.min(natural, partialCap.getBoundingClientRect().height);
     const full = Math.min(natural, fullCap.getBoundingClientRect().height);
     this.heights = { partial, full, two: full - partial > 0.5 };
@@ -553,7 +600,21 @@ export class TanreiBottomSheet extends LitElement {
     content.dataset.touch = !highest ? 'sheet' : content.scrollTop <= 0 ? 'pan-down' : 'scroll';
   }
 
-  private readonly onScroll = () => this.syncTouch();
+  private readonly onScroll = () => {
+    this.syncTouch();
+    this.syncHeaderDivider();
+  };
+
+  /**
+   * BSH-28: the divider below the header — whenever the header is drawn under always, while the content is scrolled away
+   * from its top under scroll (`scrolled`); at once, without motion.
+   */
+  private syncHeaderDivider() {
+    const header = this.renderRoot?.querySelector<HTMLElement>('.header');
+    const content = this.content;
+    if (header && content) header.classList.toggle('scrolled', content.scrollTop > 0.5);
+    syncDividerVisibility(this, header);
+  }
 
   /** BSH-6, BSH-7: the area ends at the on-screen keyboard, and nothing is under the bottom inset while it is shown. */
   private readonly onViewport = () => {
@@ -595,7 +656,7 @@ export class TanreiBottomSheet extends LitElement {
       dialog.classList.add('instant');
       requestAnimationFrame(() => requestAnimationFrame(() => dialog.classList.remove('instant')));
     }
-    if (!dialog.open) dialog.showModal();
+    openModal(dialog);
     this.shown = true;
     modalLayer.add(this);
     holdPageScroll(this, true);
@@ -618,7 +679,7 @@ export class TanreiBottomSheet extends LitElement {
     holdPageScroll(this, false);
     const hadFocus = this.hasFocus();
     const dialog = this.dialog;
-    if (dialog?.open) dialog.close();
+    if (dialog) void closeModal(dialog);
     if (restore && hadFocus) this.restoreFocus();
     else this.opener = null;
   }
@@ -645,7 +706,21 @@ export class TanreiBottomSheet extends LitElement {
   protected override updated(changed: PropertyValues<this>) {
     this.observe();
     // BSH-22, BSH-11, BSH-25: what a debug build reports.
-    if ((changed.has('label') || changed.has('variant')) && !this.label.trim()) report(this, 'BSH-22', `label is empty, so the ${this.modal ? 'modal dialog' : 'region'} has no accessible name; give it a label`);
+    if ((changed.has('label') || changed.has('headline') || changed.has('variant')) && !this.label.trim() && !this.headline.trim()) {
+      report(this, 'BSH-22', `label and headline are empty, so the ${this.modal ? 'modal dialog' : 'region'} has no accessible name; give it a label or a headline`);
+    }
+    if ((changed.has('closable') || changed.has('closeLabel')) && this.closable && this.words.lacks('closeLabel', this.closeLabel)) {
+      report(this, 'BSH-29', 'close-label is empty, so the close button has no accessible name; give it a close-label');
+    }
+    if ((changed.has('handle') || changed.has('closedBy') || changed.has('closable')) && !this.handle && this.dismissible && !this.closable) {
+      report(this, 'BSH-30', 'it has no drag handle and no close button, so it shows no way out a person can see; set closable (with a close-label) or put a Close button in its content');
+    }
+    if (changed.has('dividerVisibility') && !isDividerVisibility(this.dividerVisibility)) {
+      report(this, 'BSH-28', `divider-visibility "${this.dividerVisibility}" is not a value of the bottom sheet; it is drawn as "auto"`);
+    }
+    // BSH-29: the variant its token names, read at each update (a system switch is seen at the next one).
+    giveVariant(this.renderRoot.querySelector('tanrei-button.close'), compChoice(this, `${PREFIX}-close-button-variant`, BUTTON_VARIANTS));
+    this.syncHeaderDivider();
     if ((changed.has('handleLabel') || changed.has('two' as keyof TanreiBottomSheet) || changed.has('handle')) && this.interactive && this.words.lacks('handleLabel', this.handleLabel)) {
       report(this, 'BSH-11', 'handle-label is empty, so the drag handle has no accessible name; give it a handle-label');
     }
@@ -675,7 +750,7 @@ export class TanreiBottomSheet extends LitElement {
       }
       if (this.open) this.onViewport();
     }
-    if (changed.has('handle') || changed.has('inset')) this.measure();
+    if (changed.has('handle') || changed.has('inset') || changed.has('headline') || changed.has('closable')) this.measure();
     if (this.choosing) this.choosing = false;
     else if (changed.has('detent')) {
       const from = this.movingFrom;
@@ -690,41 +765,48 @@ export class TanreiBottomSheet extends LitElement {
   private observe() {
     const resize = this.resize$;
     if (!resize) return;
-    for (const selector of ['.area', '.content', '.inner', '.row']) {
+    for (const selector of ['.area', '.content', '.inner', '.row', '.header']) {
       const element = this.renderRoot.querySelector(selector);
       if (element) resize.observe(element);
     }
   }
 
+  /**
+   * BSH-11, BSH-12: the drag handle, a Handle drawn with the sheet's tokens (the styles give it them): a button with
+   * the expanded state while the sheet has two heights; at one height drawn at rest and nothing to focus, to a press or
+   * to assistive technology (inert).
+   */
   private handleTemplate() {
-    if (!this.interactive) {
-      // BSH-11: at one height the handle is drawn at rest and is nothing to assistive technology or focus.
-      return html`<div part="handle" class="handle" data-tanrei-shape aria-hidden="true"><span part="grip" class="grip" data-tanrei-shape aria-hidden="true"></span></div>`;
-    }
-    return html`<button
-      part="handle"
+    const interactive = this.interactive;
+    return html`<tanrei-handle
       class="handle"
-      type="button"
-      data-tanrei-shape
-      aria-label=${this.words.get('handleLabel', this.handleLabel) || nothing}
-      aria-expanded=${this.resting === 'full' ? 'true' : 'false'}
-      @click=${this.onHandleClick}
-      @pointerdown=${this.press.onPointerDown}
-      @pointerup=${this.press.release}
-      @pointercancel=${this.press.release}
-      @pointerleave=${this.press.release}
-      @keydown=${this.press.onKeyDown}
-      @keyup=${this.press.onKeyUp}
-      @blur=${this.press.onBlur}
-      @focus=${this.onHandleFocus}
-    >
-      <span part="grip" class="grip" data-tanrei-shape aria-hidden="true"></span><span class="hold"></span>
-    </button>`;
+      exportparts="container: handle, line: grip"
+      revealed
+      label=${interactive ? this.words.get('handleLabel', this.handleLabel) : ''}
+      .expanded=${interactive ? this.resting === 'full' : null}
+      ?inert=${!interactive}
+      aria-hidden=${interactive ? nothing : 'true'}
+      @activate=${this.onHandleActivate}
+    ></tanrei-handle>`;
+  }
+
+  /** BSH-28, BSH-29: the header — the headline and, while closable, the close button; the divider below it. */
+  private headerTemplate() {
+    const headline = this.headline.trim() ? this.headline : '';
+    if (!headline && !this.closable) return nothing;
+    return html`<div part="header" class=${classMap({ header: true, closable: this.closable })} @click=${this.onClickCapture}>
+      ${headline ? html`<h2 part="headline" class="headline">${headline}</h2>` : nothing}
+      ${this.closable
+        ? html`<tanrei-button part="close-button" class="close" size="small" label=${this.words.get('closeLabel', this.closeLabel)} @click=${this.onCloseClick}><span slot="icon">close</span></tanrei-button>`
+        : nothing}
+      <div part="divider" class="divider" aria-hidden="true"></div>
+    </div>`;
   }
 
   private body() {
     return html`
       ${this.handle ? html`<div class="row" @click=${this.onClickCapture}>${this.handleTemplate()}</div>` : nothing}
+      ${this.headerTemplate()}
       <div class="middle">
         <div part="content" class=${classMap({ content: true, inset: this.inset })} data-tanrei-shape @scroll=${this.onScroll} @click=${this.onClickCapture}>
           <div class="inner"><slot @slotchange=${() => this.measure()}></slot></div>
@@ -735,8 +817,9 @@ export class TanreiBottomSheet extends LitElement {
   }
 
   protected override render() {
-    const label = this.label || nothing;
-    const classes = classMap({ sheet: true, standard: !this.modal, 'has-handle': this.handle });
+    // BSH-22, BSH-28: named by label, or by the headline where label is empty.
+    const label = this.label || this.headline.trim() || nothing;
+    const classes = classMap({ sheet: true, standard: !this.modal, 'has-handle': this.handle, 'has-header': !!this.headline.trim() || this.closable });
     const area = html`<div class="area" aria-hidden="true"><div class="cap partial"></div><div class="cap full"></div></div>
       <div class="timing" aria-hidden="true"></div>`;
     if (this.modal) {
@@ -744,6 +827,7 @@ export class TanreiBottomSheet extends LitElement {
       return html`${area}<dialog
           part="container"
           class=${classes}
+          data-tanrei-appear
           data-detent=${this.resting}
           aria-label=${label}
           tabindex="-1"

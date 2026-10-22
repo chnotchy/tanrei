@@ -2,7 +2,7 @@
 title: コールアウト
 description: コンテンツの一部としてその場に残る通知です。注記、注意、理由の説明、問題の要約などを、控えめな塗りまたは枠線で、ステータスがあればその色とグリフで描きます。タイトル、アクション、閉じるボタンを付けられます。
 translationOf: components/callout.mdx
-sourceHash: 320f2641050ceff2eca3845c2bce486e1bb800a0
+sourceHash: 3c436844ceb67c8f97b0d4e71ba26f1cb2c8799a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -17,7 +17,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <DemoFrame label="注記、タイトル付きの注意、アクションと閉じるボタンのある通知" column>
   <tanrei-callout status="info" status-label="情報" style="inline-size: min(100%, 34rem)">Web はこの改訂を描画しています。ほかのプラットフォームは後から続きます。</tanrei-callout>
-  <tanrei-callout status="warning" headline="プレリリース：まだ公開されていません" style="inline-size: min(100%, 34rem)">パッケージはまだレジストリにありません。以下のインストール手順は、最初のリリース後の使い方を示しています。</tanrei-callout>
+  <tanrei-callout status="warning" headline="移行の前にバックアップを取ってください" style="inline-size: min(100%, 34rem)">移行はデータベースをその場で書き換えます。以下の手順で、復元できるコピーを残せます。</tanrei-callout>
   <tanrei-callout id="callout-demo-overview" variant="outlined" headline="このページの新しい版があります" closable close-label="閉じる" style="inline-size: min(100%, 34rem)">再読み込みすると読めます。入力した内容は失われません。<tanrei-button slot="actions" variant="outlined" onclick="this.closest('tanrei-callout').open = false">再読み込み</tanrei-button></tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-overview').open = true">最後のコールアウトをもう一度表示</tanrei-button>
 </DemoFrame>
@@ -52,9 +52,9 @@ Web では `<tanrei-callout>` です。ほかのプラットフォームはま�
 
     <!-- 長文の内容はプローズです。コールアウトのサイズで、行長の制限なしにします。 -->
     <tanrei-callout size="large" status="warning">
-      <h3 slot="title">プレリリース：まだ公開されていません</h3>
+      <h3 slot="title">移行の前にバックアップを取ってください</h3>
       <div class="tanrei-prose" data-size="large" data-measure="false">
-        <p>パッケージはまだレジストリにありません。<a href="/ja/status/">ステータスを見る</a>。</p>
+        <p>移行はデータベースをその場で書き換えます。<a href="#restore">コピーから復元する方法を見る</a>。</p>
         <ul><li>…</li></ul>
       </div>
     </tanrei-callout>
@@ -95,7 +95,7 @@ Web では `<tanrei-callout>` です。ほかのプラットフォームはま�
 
 <DemoFrame label="タイトル、独自のグリフ、アクション、閉じるボタン、large サイズ" plain column>
   <tanrei-callout headline="ヒント" style="inline-size: min(100%, 34rem)"><span slot="icon">lightbulb</span>アクションは有効なままにして、使われたときに何が足りないかを説明します。</tanrei-callout>
-  <tanrei-callout status="info" headline="実験的" style="inline-size: min(100%, 34rem)"><span slot="icon">science</span>この振る舞いは、最初のリリースまでに変わる可能性があります。</tanrei-callout>
+  <tanrei-callout status="info" headline="実験的" style="inline-size: min(100%, 34rem)"><span slot="icon">science</span>この振る舞いは、今後のバージョンで変わる可能性があります。</tanrei-callout>
   <tanrei-callout status="warning" headline="ディスク上のファイルが変更されました" style="inline-size: min(100%, 34rem)">ここには、そのファイルにない編集があります。選ぶまで何も上書きされません。<tanrei-button slot="actions" variant="outlined">ディスクから再読み込み</tanrei-button><tanrei-button slot="actions" variant="text">自分の編集を残す</tanrei-button></tanrei-callout>
   <tanrei-callout id="callout-demo-closable" headline="検索の対象にリリースノートが加わりました" closable close-label="閉じる" style="inline-size: min(100%, 34rem)">閉じるボタンを押すと、コールアウトはすぐに消え、フォーカスは元の場所に戻ります。</tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-closable').open = true">もう一度表示</tanrei-button>
@@ -173,7 +173,7 @@ Web では `<tanrei-callout>` です。ほかのプラットフォームはま�
 
 アクションは、独自の[ボタン](../button/)またはリンクで、1 つか 2 つです。`outlined` か `text` のボタンを使います。`tonal` のボタンは、ステータスのない `tonal` のコールアウトと同じ塗りなので、そこではボタンに見えません。コールアウトはアクションを折り返す行に並べるだけです。アクションが押されても閉じません。
 
-`closable` は閉じるボタンを描きます。名前は `close-label` で付けます。押すと `open` が false になり、`dismiss` が発火します。コールアウトが自分から閉じることはなく、Escape にも応えません。人が閉じたら、そのことを記憶してください。訪れるたびに戻ってくる閉じられるコールアウトは、雑音です。隣のコンテンツに条件を付ける注意は、閉じられるようにしません。
+`closable` は閉じるボタンを描きます。小さなアイコンだけの[ボタン](../button/)で、名前は `close-label` で付け、variant は `--tanrei-comp-callout-close-button-variant` が決めます（既定のシステムでは tonal）。tonal のコールアウトでは、コールアウト自身の文字色で描きます。その色を半透明にした丸の中に、同じ色のグリフを置くので、どのステータスの塗りの上でも見えます。塗りのない outlined のコールアウトでは、ほかの場所と同じボタンのままです。ホバー、フォーカス、押下には、どのボタンとも同じように応えます。押すと `open` が false になり、`dismiss` が発火します。コールアウトが自分から閉じることはなく、Escape にも応えません。人が閉じたら、そのことを記憶してください。訪れるたびに戻ってくる閉じられるコールアウトは、雑音です。隣のコンテンツに条件を付ける注意は、閉じられるようにしません。
 
 ### 何かへの応答として現れる
 
@@ -209,7 +209,7 @@ Web では、ページの読み込み後にスクリプトが追加したライ�
 
 ### 推奨
 
-- ステータスは言葉で伝えます。「警告：まだ公開されていません」ならそれで十分です。警告に付けた「アクセシビリティ」というタイトルには `status-label="警告"` が必要です。
+- ステータスは言葉で伝えます。「警告：先にバックアップを」ならそれで十分です。警告に付けた「アクセシビリティ」というタイトルには `status-label="警告"` が必要です。
 - ステータスは、どこでも同じ意味で使います。助言は成功ではありません。
 - コールアウトをいくつも並べるのではなく、1 つのコールアウトに要点のリストを 1 つ入れます。
 
@@ -232,7 +232,7 @@ Web では、ページの読み込み後にスクリプトが追加したライ�
 - テキストで渡したタイトルはプレーンテキストです。`title` スロットの見出しはレベルを保ちます。
 - フォーカスが止まる位置にはならず、フォーカスを動かすこともありません。Tab は、本文のリンクとコントロール、アクション、閉じるボタンの順に進みます。
 - フォーカスが中にある状態で閉じると、フォーカスは、コールアウトに入る前にあった要素に戻ります。次の Tab は、コールアウトの後にあったものに進みます。
-- 閉じるボタンのヒット領域は最小ターゲットに届き、フォーカスリングはコールアウトの塗りの上で見える色で描きます。
+- 閉じるボタンはボタンです。ヒット領域は最小ターゲットに届きます。tonal のコールアウトでは、グリフとフォーカスリングがコールアウトの文字色になり、既定のシステムのすべてのステータスと配色で、ボタンに対して 6:1 以上を保ちます。
 - 文字を拡大すると、すべてが折り返して大きくなります。グリフと閉じるボタンは 1 行目に残ります。
 - 強制カラーモードでは、どの見た目にも文字色の縁が付き、グリフは不透明度なしで描きます。
 - 右から左のレイアウトでは、グリフが右に、閉じるボタンが左に移ります。アイコンセットが指定するグリフは左右反転し、左から右のタイトルは自身の語順を保ちます。

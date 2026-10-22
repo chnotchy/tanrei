@@ -2,7 +2,7 @@
 title: カラー入力欄
 description: 1 つの色を設定するボックスです。色見本と、読んで、入力して、貼り付けられるテキストの値と、ピッカーを求めるボタンがあります。ラベルの行、補足、エラーテキストは自分では持ちません。行や列がすでに色の名前を示しているところや、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/color-input.mdx
-sourceHash: 5885b9f8c0f343c08541c5f3fa755279bd351aaa
+sourceHash: d34d509c0e3d4ab5d450352da69d5c2088816cda
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -73,7 +73,8 @@ Web では `<tanrei-color-input>` です。ほかのプラットフォームは�
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { ColorInput } from '@tanrei/react';
+    // 上級者向けのコンポーネント（ほかのコンポーネントの部品）は、advanced のエントリーから読み込みます。
+    import { ColorInput } from '@tanrei/react/advanced';
 
     <ColorInput label="プライマリ、トーン 40" value={tone} picker pickerLabel="プライマリ、トーン 40 の色を選択"
       onChange={(event) => setTone(event.currentTarget.value)} />
@@ -86,7 +87,7 @@ Web では `<tanrei-color-input>` です。ほかのプラットフォームは�
 フィールドでカラー入力欄を囲むと、カラーフィールドを自分で書いたものになります。入力欄の `label` は空のままにします。名前はフィールドが与えます。`label`、`error`、`disabled`、必須の指定はフィールドに、`name`、`value`、`invalidText`、ピッカーは入力欄に指定します。
 
 ```html
-<tanrei-field label="ブランドカラー" requirement="required" required-text="必須"
+<tanrei-field label="ブランドカラー" required required-text="必須"
   supporting-text="6 桁の 16 進数で入力します。例：#0f766e">
   <tanrei-color-input name="brand" value="#0f766e"
     invalid-text="6 桁の 16 進数で入力してください。例：#0f766e"
@@ -95,7 +96,7 @@ Web では `<tanrei-color-input>` です。ほかのプラットフォームは�
 ```
 
 <DemoFrame label="フィールドの中のカラー入力欄。見た目はカラーフィールドと同じです" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" requirement="required" required-text="必須" supporting-text="6 桁の 16 進数で入力します。例：#0f766e">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" required required-text="必須" supporting-text="6 桁の 16 進数で入力します。例：#0f766e">
     <tanrei-color-input value="#0f766e" invalid-text="6 桁の 16 進数で入力してください。例：#0f766e" picker picker-label="色を選択"></tanrei-color-input>
   </tanrei-field>
 </DemoFrame>
@@ -128,7 +129,7 @@ Web では `<tanrei-color-input>` です。ほかのプラットフォームは�
 
 ボックスそのものは、単独でも、フィールドの中でも、カラーフィールドでも同じです。説明はカラーフィールドのページに 1 度だけあります。[ボックスのパーツ](/ja/components/color-field/#フィールド)、[値とテキスト](/ja/components/color-field/#値とテキスト)、[ピッカー](/ja/components/color-field/#ピッカー)です。
 
-3 つのバリアントと、3 つのサイズ `small`（40）、`medium`（48）、`large`（56）は、テキスト入力欄のものです。既定のシステムが提供するのは `stacked` だけです。色見本は、テキスト入力欄の先頭のアイコンと同じ場所に、同じ大きさで置かれます。そのため、先頭にアイコンのあるテキスト入力欄の下にカラー入力欄を置くと、先頭側の端がそろいます。
+3 つのバリアントと、3 つのサイズ `small`（32）、`medium`（40）、`large`（56）は、テキスト入力欄のものです。既定のシステムが提供するのは `stacked` だけです。色見本は、テキスト入力欄の先頭のアイコンと同じ場所に、同じ大きさで置かれます。そのため、先頭にアイコンのあるテキスト入力欄の下にカラー入力欄を置くと、先頭側の端がそろいます。
 
 ### フィールドなしで、単独で使う
 
