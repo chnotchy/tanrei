@@ -642,6 +642,10 @@
     {
       "id": "FUP-59",
       "text": "WHILE reorderable is true THE file upload SHALL make its List reorderable (LST-31 to LST-47) — a handle on every row, the whole row dragged by a pointer, the move menu from the handle and the keyboard from the handle — with the nine words given to it as they are given to the file upload, and WHEN the List emits move (LST-33, LST-35, LST-39): WHILE rows is given THE file upload SHALL emit move once with the same from and to and change nothing, the product's file items being the product's to put in their new place; WHILE rows is own THE file upload SHALL put the file in its new place among the files it keeps, draw the rows in the new order, submit the kept files in that order (FUP-49) and emit change exactly once with the files now kept (FUP-47), and SHALL change nothing for a move that would put the row of a refused file among the rows of the files it keeps, or the row of a kept file after a refused one (FUP-45), so that the List takes it as refused (LST-43). WHILE the file upload is disabled THE file upload SHALL change no order and emit no move, as it emits no other event (FUP-28)."
+    },
+    {
+      "id": "FUP-60",
+      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host THE file upload SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on its group (FUP-24) — an id reference by the elements it names in the host's tree or a tree around it, a description after its own — except those the file upload owns (aria-label, aria-labelledby, aria-disabled, aria-required, aria-invalid, aria-errormessage), which it SHALL move and not expose: its name is label, or its Field's (FUP-24, FUP-32), and its states are its props, which its file picker exposes (FPK-17). WHEN the product removes the aria- attribute or its data-aria- twin THE file upload SHALL take it off that element. WHEN the product sets an aria- attribute the file upload owns THE file upload SHALL report it in debug builds."
     }
   ],
   "accessibility": {

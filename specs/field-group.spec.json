@@ -409,6 +409,10 @@
     {
       "id": "FGR-26",
       "text": "IF required and optional are both true THEN THE field group SHALL behave as WHILE required alone is true — it draws the required mark and no optional tag, and says no optionalText — and in debug builds SHALL report that optional is ignored, because a set is never both required and optional."
+    },
+    {
+      "id": "FGR-27",
+      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host THE field group SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role, its group (its radio group WHILE kind is radio-group) — an id reference by the elements it names in the host's tree or a tree around it, a description after its own — except those the field group owns (aria-label, aria-labelledby, aria-disabled, aria-required, aria-invalid, aria-errormessage), which it SHALL move and not expose: its name is label (FGR-10), its disabled, required and invalid states are its props (FGR-14, FGR-25) and its error message is errorText. WHEN the product removes the aria- attribute or its data-aria- twin THE field group SHALL take it off that element. WHEN the product sets an aria- attribute the field group owns THE field group SHALL report it in debug builds."
     }
   ],
   "accessibility": {
