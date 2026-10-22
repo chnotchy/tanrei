@@ -25,6 +25,6 @@ on them is `null`. A `label` given now wins over your `aria-labelledby` and `ari
   Table of contents (on their navigation landmark); the Tag group (on its list); the Handle (on its separator or
   button; `aria-disabled` and `aria-expanded` are its own and reported); and the Calendar, Code block and File picker
   (on their group, which each now becomes while you name it). A name you give counts before a debug build reports a
-  missing one.
+  missing one, on these and on a segment of a Segmented button.
 - **No copy left behind.** When a template stops drawing the element a description was exposed on (a Text input turned
   multi-line), the hidden copy of that description goes with it.
