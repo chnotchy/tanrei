@@ -5,7 +5,9 @@
 //   - a face starts loading before the components are connected, and its file is held back until the test lets it go;
 //   - the `loadingdone` that names it is stopped before any listener of the package hears it — the event WebKit leaves
 //     out, left out everywhere;
-//   - the components are connected, and measure their text in the fallback face (a monospace face, much wider);
+//   - the components are connected, and measure their text in the fallback face — the same font drawn 1.4 times as
+//     large (`size-adjust`), embedded and loaded first, so that the two widths differ alike on every machine (a
+//     system's own monospace face was 256 px where Inter drew 251 on Linux);
 //   - the face is let go: `document.fonts.ready` resolves, and every measurement must be the face's.
 // The face (Inter) covers letters only, so a line of digits — the breadcrumbs' own probe of a line, which an observer of
 // sizes watches — is drawn in the fallback face throughout and cannot report the face's arrival on its own.
@@ -21,6 +23,8 @@ const read = (file: string) => fs.readFileSync(path.join(pkg, file), 'utf8');
 const PAGE = 'http://faces.test/';
 const FACE_FILE = `${PAGE}late.woff2`;
 const FAMILY = 'Tanrei Late';
+/** The fallback: the same font, embedded and loaded before the race, drawn 1.4 times as large. */
+const WIDE = 'Tanrei Wide';
 /** Latin letters only: no digit is drawn in the face. */
 const LETTERS = 'U+0041-005A, U+0061-007A';
 
@@ -50,7 +54,8 @@ test.describe('FacesWatch', () => {
     const held = new Promise<void>((done) => (release = done));
     const font = interFile();
     const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><style>${read('dist/tokens.css')}</style>
-      <style>:root { --tanrei-ref-typeface-plain: "${FAMILY}", monospace; } body { font-family: "${FAMILY}", monospace; line-height: 1.5; }</style></head>
+      <style>@font-face { font-family: "${WIDE}"; src: url(data:font/woff2;base64,${font.toString('base64')}) format("woff2"); size-adjust: 140%; }
+      :root { --tanrei-ref-typeface-plain: "${FAMILY}", "${WIDE}"; } body { font-family: "${FAMILY}", "${WIDE}"; line-height: 1.5; }</style></head>
       <body><main id="host"></main><script type="module">${read('dist/tanrei.bundle.js')}</script></body></html>`;
     await page.addInitScript(SWALLOW_LOADINGDONE, FAMILY);
     await page.route(PAGE, (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: html }));
@@ -61,7 +66,9 @@ test.describe('FacesWatch', () => {
     await page.goto(PAGE);
 
     const before = await page.evaluate(
-      async ({ markup, family, url, letters }) => {
+      async ({ markup, family, wide, url, letters }) => {
+        await document.fonts.load(`16px "${wide}"`, 'a0');
+        await document.fonts.ready;
         await Promise.all(['tanrei-marquee-text', 'tanrei-description-list', 'tanrei-breadcrumbs'].map((tag) => customElements.whenDefined(tag)));
         const face = new FontFace(family, `url(${url})`, { unicodeRange: letters });
         document.fonts.add(face);
@@ -73,7 +80,7 @@ test.describe('FacesWatch', () => {
         await new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)));
         return { status, faceStatus: face.status, statusAfter: document.fonts.status };
       },
-      { markup: MARKUP, family: FAMILY, url: FACE_FILE, letters: LETTERS },
+      { markup: MARKUP, family: FAMILY, wide: WIDE, url: FACE_FILE, letters: LETTERS },
     );
     expect(before, 'the components were connected and measured while the face was loading').toEqual({ status: 'loading', faceStatus: 'loading', statusAfter: 'loading' });
 
