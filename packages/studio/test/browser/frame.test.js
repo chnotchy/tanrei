@@ -42,6 +42,35 @@ studioTest('the handle: a drag and the keys resize the panel, and the width is k
   assert.equal(await width(), before + 44, 'kept across a reload');
 });
 
+studioTest('the width is kept per level: Every token and Source start wider than a width given at Essentials, and each level keeps the one given at it', {}, async ({ page, level }) => {
+  const handle = page.locator('[data-panel-handle]');
+  const width = async () => (await box(page, '[data-inspector]')).width;
+  const essentials = await width();
+  await level('tokens');
+  const tokens = await width();
+  assert.ok(tokens > essentials, `Every token starts wider: ${tokens} > ${essentials}`);
+  await level('source');
+  const source = await width();
+  assert.ok(source > essentials, `Source starts wider: ${source} > ${essentials}`);
+  await level('essentials');
+  await handle.focus();
+  await page.keyboard.press('Home');
+  assert.equal(await width(), 320, 'Essentials at its least');
+  await level('tokens');
+  assert.equal(await width(), tokens, 'Every token keeps its own start');
+  await handle.focus();
+  await page.keyboard.press('ArrowLeft');
+  assert.equal(await width(), tokens + 16, 'and a width given at it');
+  await level('essentials');
+  assert.equal(await width(), 320, 'Essentials keeps the one given at it');
+  await page.reload();
+  await page.waitForSelector('[data-save-state="saved"]');
+  assert.equal(await width(), 320, 'kept across a reload');
+  await level('tokens');
+  assert.equal(await width(), tokens + 16);
+  assert.equal(await handle.evaluate((el) => el.value), tokens + 16, 'the handle says the width of the level shown');
+});
+
 studioTest('undo and redo step through what was committed, and the file follows; ⌘Z and ⇧⌘Z do the same', { layer: { id: 'acme', extends: 'tanrei' } }, async ({ page, saved }) => {
   const undo = page.locator('[data-undo]');
   const redo = page.locator('[data-redo]');

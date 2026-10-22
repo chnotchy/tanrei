@@ -130,7 +130,8 @@
     overflow: hidden;
   }
   /* Every token holds two panes side by side, the tree and the chosen token's editor, and Source the file: their panel
-     starts wider. A width the person gave the panel holds at every level. */
+     starts wider. A width the person gives the panel is kept for the level it was given at (ui.ts `panelWidths`):
+     the other levels keep theirs. */
   .ts[data-level='tokens'] {
     --ts-panel-default: clamp(var(--ts-panel-min), 55vw, 52rem);
   }

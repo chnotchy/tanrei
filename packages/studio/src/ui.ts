@@ -71,8 +71,11 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   let uid = 0;
   let focus: { token?: string; panel?: string } | undefined;
   const tree: TreeState = { query: '', filter: 'all', open: new Set() };
-  /** The width the person gave the panel, in CSS pixels; 0 while it has the frame's own (studio.css). */
-  let panelWidth = 0;
+  /**
+   * The width the person gave the panel at each level, in CSS pixels; a level with none has the frame's own (studio.css),
+   * which is wider for Every token and Source.
+   */
+  const panelWidths: Partial<Record<Level, number>> = {};
   const history = createHistory();
   const linked = address && !adapter;
 
@@ -93,7 +96,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   let mine: Layer | null = null;
   function remember() {
     try {
-      localStorage.setItem(STORE, JSON.stringify(adapter ? { level, contrast, draft, panel: panelWidth } : { layer: mine ?? layer, level, contrast, draft, panel: panelWidth }));
+      localStorage.setItem(STORE, JSON.stringify(adapter ? { level, contrast, draft, panel: panelWidths } : { layer: mine ?? layer, level, contrast, draft, panel: panelWidths }));
     } catch {}
   }
   function recall() {
@@ -101,7 +104,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       const stored = JSON.parse(localStorage.getItem(STORE) ?? 'null');
       if (LEVELS.includes(stored?.level)) level = stored.level;
       if (['standard', 'medium', 'high'].includes(stored?.contrast)) contrast = stored.contrast;
-      if (Number.isFinite(stored?.panel) && stored.panel > 0) panelWidth = stored.panel;
+      for (const [at, px] of Object.entries(stored?.panel ?? {})) if (LEVELS.includes(at) && Number.isFinite(px) && (px as number) > 0) panelWidths[at as Level] = px as number;
       if (!adapter && stored?.layer) layer = studio.fromLayer(stored.layer);
       draft = createSourceDraft(stored?.draft);
     } catch {}
@@ -215,12 +218,18 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   };
   function setPanel(px: number, keep = true) {
     const [least, most] = range();
-    panelWidth = Math.round(Math.min(most, Math.max(least, px)));
-    root.style.setProperty('--ts-panel-width', `${panelWidth}px`);
+    panelWidths[level] = Math.round(Math.min(most, Math.max(least, px)));
+    drawPanelWidth();
     drawHandle();
     if (keep) remember();
   }
-  if (panelWidth) root.style.setProperty('--ts-panel-width', `${panelWidth}px`);
+  /** The level's width, or none: the frame's own for that level. */
+  function drawPanelWidth() {
+    const px = panelWidths[level];
+    if (px) root.style.setProperty('--ts-panel-width', `${px}px`);
+    else root.style.removeProperty('--ts-panel-width');
+  }
+  drawPanelWidth();
   let dragFrom = 0;
   let restoreTo = 0;
   handle.addEventListener('resizestart', () => (dragFrom = panelNow()));
@@ -245,7 +254,8 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     } else setPanel(restoreTo || length('--ts-panel-default'));
   });
   const resized = new ResizeObserver(() => {
-    if (panelWidth && panelWidth > range()[1]) setPanel(panelWidth, false);
+    const px = panelWidths[level];
+    if (px && px > range()[1]) setPanel(px, false);
     else drawHandle();
   });
   resized.observe(layout);
@@ -622,6 +632,10 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     if (!last) last = studio.preview({ id: 'studio-fallback', extends: studio.systems.some((s: Json) => s.id === layer.extends) ? layer.extends : studio.defaultId }) as Json;
     const switched = root.dataset.level !== level;
     root.dataset.level = level;
+    if (switched) {
+      drawPanelWidth();
+      drawHandle();
+    }
     drawLevels();
     // Groups holds some three thousand elements, and a window shows a few hundred of them: a switch to it draws what the
     // window shows before the first paint and the rest as it comes near. Drawn again where the person is (an edit that

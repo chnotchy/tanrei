@@ -10,7 +10,8 @@ page that held it, Foundations › Theme Studio, is now a short page about the t
 - **The frame.** A bar across the top — the host's brand and items, **undo** and **redo**, the file's state — and under
   it the rail of levels, a large preview and, on the right, the panel of what the level edits. Each column scrolls by
   itself. The panel is resized by a handle (Tanrei's Handle: dragged, or from the keyboard — the arrow keys, Home and
-  End, Enter to its least and back), and the width is kept in the browser. In a narrow window the three stand in one
+  End, Enter to its least and back), and the width is kept in the browser, for each level apart: Every token and
+  Source keep their wider start. In a narrow window the three stand in one
   column. The controls are the ones the Studio had; they moved into the frame as they were.
 - **Undo and redo** step through what was committed, from the bar or with ⌘Z and ⇧⌘Z (Ctrl+Z, Ctrl+Shift+Z and Ctrl+Y
   elsewhere); in a field that holds text the keys stay the field's. With a file behind the Studio (`tanrei studio`),
