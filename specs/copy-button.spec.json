@@ -191,7 +191,7 @@
     },
     {
       "id": "CPY-17",
-      "text": "WHILE label, copiedLabel or failedLabel is empty THE copy button SHALL still render and copy, and in debug builds report which is missing: an icon-only button without label has no accessible name, unless the product gives it a name of its own on the element — aria-label, or aria-labelledby naming an element — which it then exposes as its accessible name and does not report missing. WHEN variant or size names a value the Button does not have in the active design system THE copy button SHALL be drawn with its own default for that prop, and in debug builds report the unknown value."
+      "text": "WHILE label, copiedLabel or failedLabel is empty THE copy button SHALL still render and copy, and in debug builds report which is missing: an icon-only button without label has no accessible name, unless the product gives it a name of its own on the element — aria-label, or aria-labelledby naming an element — which it then exposes as its accessible name and does not report missing. WHILE label is not empty THE copy button SHALL expose the name CPY-6 says, over a name the product gives it on the element (aria-label or aria-labelledby). WHEN variant or size names a value the Button does not have in the active design system THE copy button SHALL be drawn with its own default for that prop, and in debug builds report the unknown value."
     },
     {
       "id": "CPY-18",

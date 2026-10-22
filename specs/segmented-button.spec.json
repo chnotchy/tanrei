@@ -220,7 +220,7 @@
     },
     {
       "id": "SEG-20",
-      "text": "WHILE selection is single THE segmented button SHALL expose the set as a radio group named by label and each segment as a radio with its checked state; WHILE selection is multiple THE segmented button SHALL expose the set as a group named by label and each segment as a toggle button with its pressed state, as a toggle Button is; in both, each segment SHALL be named by its own label whether or not it is drawn and expose its position and the number of segments, and the icons, the check, the dividers and the outline SHALL be hidden."
+      "text": "WHILE selection is single THE segmented button SHALL expose the set as a radio group named by label and each segment as a radio with its checked state; WHILE selection is multiple THE segmented button SHALL expose the set as a group named by label and each segment as a toggle button with its pressed state, as a toggle Button is; in both, each segment SHALL be named by its own label whether or not it is drawn, over a name the product gives the segment on the element (aria-label or aria-labelledby) and expose its position and the number of segments, and the icons, the check, the dividers and the outline SHALL be hidden."
     },
     {
       "id": "SEG-21",
