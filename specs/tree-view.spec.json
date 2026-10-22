@@ -8,12 +8,22 @@
   "listing": "default",
   "uses": [
     "loading-indicator",
-    "embedded-text-input"
+    "embedded-text-input",
+    "text-input",
+    "button"
   ],
   "anatomy": [
     {
       "id": "tree",
       "description": "The column that holds the rows, named by its label. It draws no fill, no edge and no space of its own, and does not scroll. One stop in the focus order."
+    },
+    {
+      "id": "filter",
+      "description": "The filter field, while filterable is true and the tree has items: a Text input of type search above the first row, with the search glyph at its start and a clear button at its end while it holds text. Pinned at the top of the scrolling box the tree stands in, above the pinned rows. A stop of its own, before the tree."
+    },
+    {
+      "id": "filter.status",
+      "description": "The line at the top of the results while a filter is applied: how many rows match, in the product's filterCountText, unless filterCountHidden; or, where no row matches, the product's filterEmptyText. Takes no focus and no state."
     },
     {
       "id": "item",
@@ -84,6 +94,10 @@
     {
       "id": "focus-ring",
       "description": "Gap-then-ring indicator shown for keyboard focus of an item, drawn inside its row's container."
+    },
+    {
+      "id": "match",
+      "description": "A run of a row's label that a word of the filter text matched, marked as a search marks a match: a stronger text color, a raised weight and a quiet fill behind it. Read as one text with the label."
     }
   ],
   "props": [
@@ -231,6 +245,83 @@
       "default": "",
       "description": "The words of a loading row (\"Loading…\"), drawn beside its loading indicator and used as the indicator's name. Tanrei ships no words of its own. Required where any item may be loading.",
       "words": "loadingLabel"
+    },
+    {
+      "name": "filterable",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws a filter field above the rows: what a person types there narrows the tree to the rows whose label holds it, opening for the time being the groups that hold them, and the tree comes back as it was when the field is emptied. Off by default: a product that filters on a server, ranks, or matches in another way leaves it off and gives the tree the items that match, as before."
+    },
+    {
+      "name": "filterValue",
+      "type": "string",
+      "default": "",
+      "description": "The filter text: what the filter field holds. The tree sets it when the person types and emits filterChange; the product may set it too (a filter given back when a page is rendered again). Empty, or only white space, applies no filter."
+    },
+    {
+      "name": "filterMode",
+      "type": "enum",
+      "values": [
+        "filter",
+        "highlight"
+      ],
+      "default": "filter",
+      "description": "What a filter does to the rows that do not match. filter: hides them, keeping the groups that hold a match and the whole of a group whose own name matches, so that what is left is what was asked for (a site's sidebar). highlight: hides nothing and marks the matches, opening what holds them, for a structure that is read in its context (a project's files). Both mark the matched words and open, for the time being, what holds a match."
+    },
+    {
+      "name": "filterLabel",
+      "type": "string",
+      "default": "",
+      "description": "Names the filter field for assistive technology, in the product's language: what it narrows (\"Filter navigation\", \"Filter files\"). Required while filterable is true. It names this one field, so it is not one of the product's words set once."
+    },
+    {
+      "name": "filterPlaceholder",
+      "type": "string",
+      "default": "",
+      "words": "filterPlaceholder",
+      "description": "The hint the filter field shows while it is empty (\"Filter\"), in the product's language. Never a replacement for filterLabel. The product's: Tanrei has no words for it. Empty reads the product's words; with neither, the field shows no hint."
+    },
+    {
+      "name": "filterEmptyText",
+      "type": "string",
+      "default": "",
+      "words": "filterEmptyText",
+      "description": "What the tree draws at the top of the results and says while a filter is applied and no row matches (\"No matches\"), in the product's language. The product's: Tanrei has no words for it. Empty reads the product's words; with neither, nothing is drawn in its place and it is reported."
+    },
+    {
+      "name": "filterCountText",
+      "type": "string",
+      "default": "",
+      "words": "filterCountText",
+      "places": [
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "The number of rows that match the filter text."
+        }
+      ],
+      "description": "What the tree draws quietly at the top of the results (TRV-65) and says to assistive technology once the result of a filter has settled (TRV-66), with {count} where the number of rows that match goes (\"Matches: {count}\"), in the product's language. filterCountHidden leaves it undrawn and still said. The product's: Tanrei has no words for it. Empty reads the product's words; with neither, no count is drawn or said and it is reported."
+    },
+    {
+      "name": "filterCountHidden",
+      "type": "boolean",
+      "default": false,
+      "description": "Does not draw the count at the top of the results (TRV-65); it is still said to assistive technology (TRV-66). The words for a filter that matches nothing are drawn either way. A tree whose results are counted elsewhere on the screen, or where the rows left say enough, turns it on."
+    },
+    {
+      "name": "filterClearLabel",
+      "type": "string",
+      "default": "",
+      "words": "clearLabel",
+      "description": "The accessible name of the filter field's clear button (\"Clear\"), in the product's language. Required while the field can hold text. Empty reads the product's words."
+    },
+    {
+      "name": "filterShortcut",
+      "type": "strings",
+      "default": [
+        "/"
+      ],
+      "description": "The key that, pressed while focus is on a row, moves focus to the filter field, in the keyboard shortcut component's key names, one chord ([\"/\"], the default). It is a key of the tree's rows, as F2 is: the tree listens for it nowhere else and draws no hint of it (TRV-62). A product that wants a key for the whole window binds it and asks the tree to focus its filter (TRV-63). An empty list binds nothing, and \"/\" is then typed as any other character (TRV-23)."
     }
   ],
   "items": [
@@ -340,6 +431,10 @@
     {
       "name": "create",
       "description": "The user named the new item in the row the product asked for (TRV-48): carries its label (not empty, with no white space at its ends), whether it is a parent or a leaf, the item it goes under (none for the first level) and the item it follows (none where it is the first). Emitted exactly once; the tree takes its own row away as it emits it, and the product adds the item."
+    },
+    {
+      "name": "filterChange",
+      "description": "The person changed the filter text — typing, deleting, pasting, dictating, an input method committing text, the clear button or Escape; carries the new text. Not emitted when the product sets filterValue."
     }
   ],
   "states": [
@@ -416,7 +511,7 @@
     },
     {
       "id": "TRV-14",
-      "text": "WHERE the platform can search the text of what is shown and reports a match that lies in rows it does not draw (on the web, the browser's find-in-page), WHEN the match is under a closed parent THE tree view SHALL open that parent and every closed parent above it, at once and without the motion of TRV-11, SHALL emit each one's toggle exactly once with true, and SHALL leave bringing the match into view to the platform; it SHALL do so for a disabled parent too, whose rows are still part of the page. On a platform that has no such search or cannot report such a match THE tree view SHALL NOT open anything for it.",
+      "text": "WHERE the platform can search the text of what is shown and reports a match that lies in rows it does not draw (on the web, the browser's find-in-page), WHEN the match is under a closed parent THE tree view SHALL open that parent and every closed parent above it, at once and without the motion of TRV-11, SHALL emit each one's toggle exactly once with true, and SHALL leave bringing the match into view to the platform; it SHALL do so for a disabled parent too, whose rows are still part of the page. On a platform that has no such search or cannot report such a match THE tree view SHALL NOT open anything for it. Rows that a filter hides are not part of what the platform searches (TRV-70).",
       "verify": "On the web, in a browser whose find-in-page reveals content hidden until found: searching for a name that only a closed parent holds opens it and marks the name, and one toggle with true was emitted."
     },
     {
@@ -439,7 +534,7 @@
     },
     {
       "id": "TRV-19",
-      "text": "THE tree view SHALL be one stop in the focus order however many items it shows: Tab SHALL move focus into it to one row — the row that had focus last, or else the first selected item that is shown, or else the first row — and Tab again SHALL leave it; no other row, and nothing inside a row, SHALL be a stop. Focus that enters the tree SHALL NOT change the selection and SHALL NOT open or close anything. WHILE the tree shows no row it SHALL NOT be a stop."
+      "text": "THE tree view SHALL be one stop in the focus order however many items it shows: Tab SHALL move focus into it to one row — the row that had focus last, or else the first selected item that is shown, or else the first row — and Tab again SHALL leave it; no other row, and nothing inside a row, SHALL be a stop. Focus that enters the tree SHALL NOT change the selection and SHALL NOT open or close anything. WHILE the tree shows no row it SHALL NOT be a stop. The filter field (TRV-54) is not a row: WHILE it is drawn it is a stop of its own, before the tree, and TRV-68 says where focus enters while a filter hides the row that had it."
     },
     {
       "id": "TRV-20",
@@ -456,7 +551,7 @@
     },
     {
       "id": "TRV-23",
-      "text": "WHEN the user types printable characters while focus is on a row THE tree view SHALL move focus to the next row that is shown, after the focused one and going on from the first row after the last, whose label begins with the characters typed within one second of each other, compared without regard to case as the platform's locale does; one character typed again SHALL go on to the next such row; IF no label matches THE tree view SHALL keep focus where it is. It SHALL NOT open a closed parent to find a match, SHALL NOT change the selection, and SHALL NOT take a space typed inside such a run as an activation."
+      "text": "WHEN the user types printable characters while focus is on a row THE tree view SHALL move focus to the next row that is shown, after the focused one and going on from the first row after the last, whose label begins with the characters typed within one second of each other, compared without regard to case as the platform's locale does; one character typed again SHALL go on to the next such row; IF no label matches THE tree view SHALL keep focus where it is. It SHALL NOT open a closed parent to find a match, SHALL NOT change the selection, and SHALL NOT take a space typed inside such a run as an activation. WHILE filterable is true the chord of filterShortcut SHALL NOT be taken as type-ahead (TRV-62)."
     },
     {
       "id": "TRV-24",
@@ -502,7 +597,7 @@
     },
     {
       "id": "TRV-33",
-      "text": "WHEN a parent opens or closes, and WHEN the selection changes, THE tree view SHALL let the changed state of the row be the only thing assistive technology is told: it SHALL announce nothing itself, SHALL have no live region, and SHALL NOT move keyboard or screen-reader focus, except as TRV-12 says for a row that goes away and TRV-45 to TRV-48 say for an edit field."
+      "text": "WHEN a parent opens or closes, and WHEN the selection changes, THE tree view SHALL let the changed state of the row be the only thing assistive technology is told: it SHALL announce nothing itself, SHALL have no live region other than the status of a filter (TRV-66), and SHALL NOT move keyboard or screen-reader focus, except as TRV-12 says for a row that goes away and TRV-45 to TRV-48 say for an edit field."
     },
     {
       "id": "TRV-34",
@@ -600,6 +695,90 @@
       "id": "TRV-53",
       "text": "WHILE stickyParents is true and stickyMax is more than 0, and the tree stands in a scrolling box, THE tree view SHALL pin at the top of that box the rows of the open parents that hold the topmost row shown below the pinned rows, one per level in the order of their levels, the innermost stickyMax of them where more parents are open above it, each held in place while what it holds scrolls under it and leaving with its last row; it SHALL pin the rows themselves — the same rows, with their own fill, state, selection, focus, press and the events of a press, never a copy in the accessibility tree — drawn over the rows that scroll under them with comp.tree-view.sticky.container.color under their own fill and a line comp.tree-view.sticky.divider.width wide in comp.tree-view.sticky.divider.color under the last of them. WHEN keyboard focus moves onto a row that lies under the pinned rows THE tree view SHALL have the scrolling box bring that row into view below them by the least distance. A guide line SHALL pass under a pinned row (TRV-8). Nothing about pinning SHALL move by itself: there is no motion to reduce. A tree that stands in no scrolling box of its own, or whose stickyParents is false, SHALL pin nothing. A platform whose scrolling list cannot hold a row in place SHALL draw the pinned rows as an overlay hidden from assistive technology that keeps focus on the real rows, and SHALL say so in its README.",
       "verify": "Test the fixture deep in a scrolling box 200 high: scrolled so that the fifth level's rows are at the top, the rows of the third and the fourth level's parents (stickyMax 2) are pinned at the top, one row high each, and the second level's is not; with stickyMax 3 the second's is pinned too; pressing a pinned parent's chevron closes it; Down Arrow onto a row under the pinned rows scrolls it below them; with stickyParents false nothing is pinned."
+    },
+    {
+      "id": "TRV-54",
+      "text": "WHILE filterable is true and the tree has items THE tree view SHALL draw a filter field above its first row, as wide as the tree, and what stands under it — the status line of TRV-65 while there is one, then its first row — comp.tree-view.filter.gap below it: a Text input component of type search in its default variant and the small size, showing the glyph search of the system's icon set in its leading-icon slot, filterPlaceholder as its placeholder and filterValue as its value, drawn and answering as that text input draws and answers (its own sentences hold, its tokens are its own). WHILE the tree stands in a scrolling box THE tree view SHALL keep the field, and the gap below it, pinned at the top of that box on comp.tree-view.sticky.container.color, with the rows TRV-53 pins directly under it and the edge of TRV-53 drawn under the last of them — under the gap below the field WHILE no row is pinned and rows scroll under it.",
+      "verify": "Fixture filter: a small (32) text input above \"src\", 8 above it; scrolled in a 200-high box, the field stays at the top and the pinned parents stand under it."
+    },
+    {
+      "id": "TRV-55",
+      "text": "WHEN the person changes the filter field's text — by typing, deleting, pasting, cutting, dictating, an input method committing text, the clear button (TRV-64) or Escape (TRV-61, TRV-69) — THE tree view SHALL emit filterChange exactly once per change with the new text, setting filterValue itself first on the web (a controlled platform leaves filterValue to the caller), and SHALL apply the filter to the new text at once. WHEN the product sets filterValue THE tree view SHALL show that text in the field and apply it, and SHALL NOT emit filterChange. WHILE an input method is composing THE tree view SHALL filter by the text the field reports, and SHALL leave the composition, Enter, Escape and the arrow keys to the input method (TXI-4)."
+    },
+    {
+      "id": "TRV-56",
+      "text": "THE tree view SHALL apply a filter WHILE filterable is true and filterValue holds a character that is not white space, and SHALL read the filter text as words: the runs of characters between white space. An item SHALL match WHILE its label (the text of its label slot's content, where the product gave one) contains every word, each anywhere in it and in any order, compared without regard to case, to the width of a character or to the marks on a letter, as the label's language compares (as the combobox compares, CMB-25). THE tree view SHALL compare nothing else of an item — not its supporting text, its trailing text, the text of its trailing content or its value. A disabled item SHALL match as any other item and stay disabled. It SHALL match only the items it holds: the items of a parent that loads them when it opens (TRV-13) are not searched until they are given. THE tree view SHALL NOT fetch, wait, debounce, rank or reorder anything for a filter.",
+      "verify": "Fixture filter (\"tree ts\"): tree-view.ts matches and button.test.ts does not; \"TS TREE\" matches the same row; a unit test holds that a word found only in a supporting text matches nothing."
+    },
+    {
+      "id": "TRV-57",
+      "text": "WHILE a filter is applied and filterMode is filter THE tree view SHALL show, in the order given: each row that matches; each parent's row that holds an item that matches, at any depth; and every item inside a parent whose own row matches, so that a parent found by its name is shown whole. Every other row SHALL be hidden — not drawn, taking no space, not focusable and not exposed to assistive technology — together with what it holds. A hidden item SHALL keep its open, its disabled state and its selection, and WHEN no filter is applied any more every row SHALL be shown as it was.",
+      "verify": "Fixture filter (\"tree ts\" over basic's items): src, components and tree-view.ts are shown; test, package.json and README.md are hidden. Fixture filter-parent (\"styles\"): src is opened for the filter and styles is shown under it, closed as its open says; opening it shows tokens.css and prose.css."
+    },
+    {
+      "id": "TRV-58",
+      "text": "WHILE a filter is applied and filterMode is highlight THE tree view SHALL hide no row, SHALL mark the rows that match (TRV-60), and SHALL open for the filter each parent that holds one (TRV-59).",
+      "verify": "Fixture filter-highlight (\"test\"): every row of basic is drawn; test is open; test and button.test.ts carry a mark."
+    },
+    {
+      "id": "TRV-59",
+      "text": "WHILE a filter is applied THE tree view SHALL draw open, for the filter, each closed parent that holds an item that matches and is shown, at any depth, so that every match is in view without the person opening anything, and SHALL draw every other parent as its open says. Opening a parent for the filter SHALL write nothing to the item's open, SHALL emit no toggle, and SHALL be drawn at once, without the motion of TRV-11; the row SHALL be exposed as expanded while it is drawn open. WHEN the person opens or closes a parent while a filter is applied — by its chevron, its row or an arrow key (TRV-10, TRV-21, TRV-44) — THE tree view SHALL answer as those sentences say, setting open itself on the web and emitting toggle exactly once where open changes, and SHALL stop opening that parent for the filter until the filter text changes. WHEN no filter is applied any more THE tree view SHALL draw every parent as its open says: the parents the filter opened close again, at once, and a parent the person opened or closed stays as the person left it.",
+      "verify": "Fixture filter-highlight: test has no open; it is drawn open and exposed as expanded, and no toggle was emitted. Emptying the field closes it without motion and emits nothing."
+    },
+    {
+      "id": "TRV-60",
+      "text": "WHILE a filter is applied THE tree view SHALL mark, in the label of each row that matches, every run of characters that a word of the filter text matched, as the search marks a match (SRC-43): in comp.tree-view.match.color with its weight raised by comp.tree-view.match.emphasis over the label's, over a fill of comp.tree-view.match.container.color that covers the run's own line boxes, with square corners and no padding; on a selected row in comp.tree-view.match.selected.color over comp.tree-view.match.selected.container.color, so that the fill stands apart from the selected row's own; and on a disabled row in the label's disabled color. A match SHALL be told from the label around it by all three — color, weight and fill — so that it never depends on color alone and is found in every script, also where the reader's font has no weight between regular and bold; the run SHALL wrap with the label as one text. WHERE the platform draws with a person's own forced colors it SHALL draw the run in the platform's colors for marked text (the web's Mark and MarkText). THE tree view SHALL expose the label to assistive technology as one text, with no element, pause or announcement at a run, and SHALL mark it without changing the product's content: where the label is the product's own text in the document (the web), by a highlight of the text's ranges, adding, splitting and removing no node — a highlight draws a color and a fill and no weight, so that there the run is told by its fill and its color.",
+      "verify": "Fixture filter (\"tree ts\"): in tree-view.ts the runs \"tree\" and \"ts\" are drawn over comp.tree-view.match.container.color in comp.tree-view.match.color; the row's text node is the one the product wrote, unsplit. On a selected row the runs are drawn over comp.tree-view.match.selected.container.color, and on a disabled row the run keeps the label's disabled color."
+    },
+    {
+      "id": "TRV-61",
+      "text": "WHILE keyboard focus is in the filter field, a filter is applied and a row shown matches and is not disabled, THE tree view SHALL make the first such row, in the order the rows are drawn, the active match — as soon as there is one, and the new first one whenever the result changes — and SHALL draw it as it draws that row while the row has keyboard focus, its focused tokens and its focus ring (TRV-25), without animation, while focus stays in the field, so that typing goes on editing the filter text; a pointer over a row SHALL NOT make it the active match, and WHILE focus is not in the field no row SHALL be drawn as one. WHILE no input method is composing, WHEN the person presses Enter THE tree view SHALL take the active match as Enter on that row takes it (TRV-22): choose it where it can be chosen, or open or close it where it is a parent that cannot be chosen; and SHALL keep focus in the field; WHEN the person presses Down Arrow THE tree view SHALL move focus to the active match, making it the tree's focused row (TRV-19), and do nothing more. WHILE there is no active match the two keys SHALL do nothing of the tree's own. WHEN the person presses Escape WHILE the field holds text THE tree view SHALL empty it, emit filterChange once with the empty text, and keep focus in the field, as a native search field does; WHEN the person presses Escape WHILE the field is empty THE tree view SHALL return focus to the row that had it before the filter shortcut moved it to the field (TRV-62), and otherwise SHALL do nothing of its own and let the key pass on. Up Arrow, Home, End and the arrow keys along the line SHALL stay the field's.",
+      "verify": "Fixture filter (\"tree ts\"), focus in the field: tree-view.ts is drawn with its focused tokens and its focus ring and the field is its active descendant; Down Arrow moves focus to it and changes no selection. In filter-single, Enter in the field chooses the active match (change). Escape empties the field; a second Escape, after \"/\" was pressed on README.md, returns focus to README.md."
+    },
+    {
+      "id": "TRV-62",
+      "text": "WHILE filterable is true and filterShortcut holds exactly one chord, WHEN the person presses that chord while keyboard focus is on a row and no edit field is open (read as KBS-1 reads a chord; not a key repeating while held, and not during an input-method composition) THE tree view SHALL move focus to the filter field with its text selected, and SHALL NOT take the press as type-ahead (TRV-23). THE tree view SHALL listen for the chord nowhere else, SHALL draw no hint of it, and SHALL expose it as no keyboard shortcut of the field: it is a key of the tree's rows, as F2 is (TRV-45), and a hint would promise it from anywhere. WHILE filterShortcut is empty or holds more than one chord the tree view SHALL bind nothing, reporting more than one chord in debug builds.",
+      "verify": "Fixture filter-empty-field: \"/\" on a row focuses the field; \"/\" with focus outside the tree does nothing of the tree's; the field has no aria-keyshortcuts."
+    },
+    {
+      "id": "TRV-63",
+      "text": "WHEN the product asks the tree view to focus its filter (the platform's method for it) WHILE filterable is true and the field is drawn THE tree view SHALL move focus to the field with its text selected, whether or not filterShortcut is empty, so that a product can bind a key of its own for the whole window."
+    },
+    {
+      "id": "TRV-64",
+      "text": "WHILE the filter field holds text THE tree view SHALL draw, in the field's trailing-icon slot, an icon-only Tanrei Button of the text variant and the small size showing the glyph close of the system's icon set, not mirrored, named by filterClearLabel. WHEN it is activated THE tree view SHALL empty the field, emit filterChange once with the empty text, and move focus to the field. WHILE filterClearLabel is empty and the product's words give none THE tree view SHALL still draw the button, and in debug builds report that it has no accessible name."
+    },
+    {
+      "id": "TRV-65",
+      "text": "WHILE a filter is applied THE tree view SHALL draw a status line at the top of the results, where its first row would stand, the rows following it: filterCountText with its place {count} filled by the number of rows that match WHILE a row matches and filterCountHidden is false, and filterEmptyText WHILE no row matches — in place of the rows WHILE filterMode is filter, all of them hidden, so that the tree shows no row and is no stop in the focus order (TRV-19), and before them WHILE it is highlight. It SHALL draw the line in comp.tree-view.filter.status.typescale and comp.tree-view.filter.status.color, inset as a row's content is (comp.tree-view.container.padding-inline.regular for regular and comp.tree-view.container.padding-inline.compact for compact), wrapping and growing with enlarged text, as text of its own direction (TRV-39), taking no focus and no state, and hidden from assistive technology, which TRV-66 tells the same words. WHILE a row matches and filterCountHidden is true it SHALL draw no line. WHILE the words it would draw are empty and the product's words give none THE tree view SHALL draw nothing in their place and in debug builds report it.",
+      "verify": "Fixture filter (\"tree ts\"): \"Matches: 1\" stands 8 below the field and src follows it. Fixture filter-count-hidden: no line is drawn. Fixture filter-none (\"zzz\"): no row is drawn, the tree is no Tab stop, and \"No matches\" stands under the field."
+    },
+    {
+      "id": "TRV-66",
+      "text": "WHEN the result of a filter changes — the filter text, the items or filterMode change while a filter is applied — and has then stayed as it is for one second (the pause of TRV-23), THE tree view SHALL tell assistive technology once, politely and without moving focus, filterCountText with its place {count} filled by the number of rows that match, or filterEmptyText WHILE no row matches; WHEN no filter is applied any more it SHALL say nothing. It SHALL say them whether or not filterCountHidden is true, through one status of its own that is not drawn (the line of TRV-65 is what is drawn) — on the web an element with the status role and aria-atomic true, beside the tree's element and outside it — which is the only thing the tree view ever announces (TRV-33). WHILE filterCountText is empty and the product's words give none THE tree view SHALL say no count and in debug builds report it.",
+      "verify": "Fixture filter: one second after \"tree ts\" is typed the status holds \"Matches: 1\"; the status itself is not drawn, and it is said with filterCountHidden as well."
+    },
+    {
+      "id": "TRV-67",
+      "text": "THE tree view SHALL change nothing but what it draws for a filter: value, values, every item's open (except where the person opens or closes one, TRV-59) and its labels SHALL stay as they were, and it SHALL keep filterValue no longer than its own lifetime and write it to no storage. A selected item that the filter hides SHALL stay selected, and change SHALL NOT be emitted for it; Shift with the arrows, Shift with Space and Ctrl (Command) with A SHALL act on the rows shown only (TRV-52). WHEN the filter text changes while a filter is applied THE tree view SHALL have the scrolling box that holds it bring the field and the first row shown into view; WHEN no filter is applied any more it SHALL, WHILE keyboard focus is on a row, keep that row where it is in the view, as TRV-12 keeps a parent's row, and SHALL NOT scroll for it otherwise."
+    },
+    {
+      "id": "TRV-68",
+      "text": "WHEN a filter comes to hide the row that has keyboard focus (the product sets filterValue, or changes the items) THE tree view SHALL move focus to the filter field. WHEN focus enters the tree by Tab WHILE a filter is applied and the row that had focus last is hidden THE tree view SHALL give focus to the first row shown that matches and is not disabled (the active match of TRV-61), or else the first row shown, in place of TRV-19's first choice. WHILE an edit field is open on an item, and on the new row of TRV-48, THE tree view SHALL keep that row shown, whether or not it matches, until its field closes, and SHALL then apply the filter to it."
+    },
+    {
+      "id": "TRV-69",
+      "text": "WHILE a filter is applied and keyboard focus is on a row, WHEN the person presses Escape (and no tooltip of TRV-50 is shown) THE tree view SHALL open, as the person would (open set and toggle emitted for each), the parents the filter had opened around that row, so that it stays shown, then empty the filter — setting filterValue to empty and emitting filterChange once — and keep focus on that row, which TRV-67 keeps where it is, so that a person who found an item by the filter sees it among its neighbours.",
+      "verify": "Fixture filter: with focus on tree-view.ts, Escape empties the field, every row of basic is shown, and tree-view.ts keeps focus and its place in the view."
+    },
+    {
+      "id": "TRV-70",
+      "text": "THE tree view SHALL draw every change a filter makes — rows hidden and shown, parents opened for the filter and closed again, the marks — at once, without the motion of TRV-11, whether or not motion is reduced; a parent the person opens or closes during a filter moves as TRV-11 says. Rows the filter hides SHALL NOT be found by the platform's own search of what is shown (on the web, find-in-page), and TRV-14 SHALL NOT open anything for them."
+    },
+    {
+      "id": "TRV-71",
+      "text": "THE tree view SHALL expose the filter field as a search field — on the web an input of type search, which has the searchbox role — named by filterLabel, with filterPlaceholder as its placeholder, controlling the tree (aria-controls on the web), naming the active match of TRV-61 as its active descendant while there is one (aria-activedescendant on the web), so that assistive technology tells which row Enter takes, before the tree in reading order and a stop of its own in the focus order, outside the tree's one stop (TRV-19); each shown item with its level and its position among the shown items of its parent and their number; and the rows the filter hides not at all. WHILE filterable is true and filterLabel is empty THE tree view SHALL still draw the field, and in debug builds report that it has no accessible name. WHEN filterMode names a value the tree view does not define it SHALL filter as filter does, and in debug builds report the unknown value.",
+      "verify": "On the web, fixture filter: one input of type search named \"Filter files\", aria-controls naming the element with the tree role; Tab from the field reaches the tree in one stop; components' group reports one item."
     }
   ],
   "accessibility": {
@@ -664,9 +843,29 @@
       {
         "keys": "Enter / Escape (in an edit field)",
         "action": "Enter gives the name typed (rename, or create for a new row); Escape gives it up. Leaving the field by Tab or a press elsewhere also gives the name. While an input method is composing, both are the input method's."
+      },
+      {
+        "keys": "/ (the filterShortcut chord, on a row)",
+        "action": "WHILE filterable is true: moves focus to the filter field. Not taken as type-ahead."
+      },
+      {
+        "keys": "Enter (in the filter field)",
+        "action": "Takes the first row that matches — the active match, drawn as a focused row and named as the field's active descendant while focus stays in the field — as Enter on that row would: chooses it, or opens or closes a parent that cannot be chosen."
+      },
+      {
+        "keys": "Down Arrow (in the filter field)",
+        "action": "Moves focus to the active match."
+      },
+      {
+        "keys": "Escape (in the filter field)",
+        "action": "With text: empties the field and keeps focus there. Empty: returns focus to the row it came from by \"/\", or passes on."
+      },
+      {
+        "keys": "Escape (on a row, while a filter is applied)",
+        "action": "Empties the filter and keeps focus on the row, which stays in place among its neighbours."
       }
     ],
-    "labeling": "The tree is named by label. An item's label (or the text of its label slot) is its accessible name; its supporting text, the text of its trailing content and its trailing text are its description, in that order. A parent carries the expanded or collapsed state, a loading parent is busy, and in a selectable tree an item that can be chosen carries the selected state. The chevron, the icon and the guide lines are decorative. The words of a loading row are the product's (loadingLabel); Tanrei ships none. The edit field is named by editLabel, the product's words (\"Name\"); a new row is a tree item at its level holding that field.",
+    "labeling": "The tree is named by label. An item's label (or the text of its label slot) is its accessible name; its supporting text, the text of its trailing content and its trailing text are its description, in that order. A parent carries the expanded or collapsed state, a loading parent is busy, and in a selectable tree an item that can be chosen carries the selected state. The chevron, the icon and the guide lines are decorative. The words of a loading row are the product's (loadingLabel); Tanrei ships none. The edit field is named by editLabel, the product's words (\"Name\"); a new row is a tree item at its level holding that field. The filter field is a search field named by filterLabel, the product's words, controlling the tree; its clear button is named by filterClearLabel. The field names the active match as its active descendant. How many rows match is drawn at the top of the results, hidden from assistive technology, and said by a status beside the tree, in the product's filterCountText or filterEmptyText — the one thing the tree announces.",
     "minimumTarget": true,
     "notes": [
       "A tree view is the tree pattern: one stop in the focus order, the arrow keys moving through the rows that are shown, the horizontal arrows opening, closing and stepping between levels. It is the opposite choice from the navigation drawer and the accordion, on purpose. A drawer navigates: its destinations are links and buttons, each its own stop, found by the ways a browser and a screen reader list links, and its groups are disclosures. An accordion folds content: each header is a button and its own stop, and the arrow keys stay the page's. A tree reveals or selects a hierarchy: it may hold hundreds of rows, which no person should have to Tab through, and what it holds are items of one structure, not controls. Use the drawer for the places of a product, the accordion for folded content, and the tree for a structure a person looks through or chooses in.",
@@ -679,7 +878,7 @@
       "WCAG 1.4.1 (use of color): open and closed are told by the chevron's turn and by the expanded state, never by color. Disabled is told by the faded row and by the disabled state.",
       "WCAG 1.4.3 and 1.4.11 (contrast) in the default system: the label is on-surface and the supporting text, trailing text, icon and chevron are on-surface-variant, on the surface the tree stands on; on the selected fill, a layer of that color over the surface, every part is on-secondary-container. Each pair is held to 4.5:1 by the token invariants, the selected text on its fill as it is drawn over each surface role, and the selected fill stands 1.1:1 at least from a hovered row. The guide lines are decorative: the hierarchy is told by the indent and by the structure.",
       "A loading parent is busy and nothing is announced when its items arrive (TRV-13, TRV-33): a person who opened it finds them with the next Down Arrow. A fetch that fails is the product's to say, beside the tree or as an item whose label says it.",
-      "The tree shows what it is given. Filtering is the product's: it gives the tree the items that match and sets open on the parents that hold them, and says how many matched in a status of its own. A part of a name marked as a match is inline content of the label slot.",
+      "With filterable, the tree narrows itself to what a person types: the field is a search field before the tree and a stop of its own, so the tree stays one stop; as in a search, the first row that matches is active as soon as there is one while focus stays in the field — drawn as a focused row and named as the field's active descendant — Enter takes it as Enter on its row would, and Down Arrow moves focus to it; the rows a filter hides are gone from what assistive technology is told, so every level, position and size a person hears is the filter's (WCAG 1.3.1); the parents that hold a match are opened for the time being and closed again when the field is emptied, so a filter never rearranges what a person opened; Escape on a row empties the filter and leaves the person on the item they found, among its neighbours. The count is a status message (WCAG 4.1.3), said politely once typing pauses, and drawn quietly at the top of the results unless the product hides it. Matches are marked as a search marks them — a stronger text color, a raised weight and a quiet fill — never by color alone (WCAG 1.4.1), and in the platform's marked-text colors under forced colors; on the web, where the label is the product's own text, the mark is a highlight of its ranges, which draws the color and the fill but no weight. A product that matches in another way — on a server, by a ranking, by more than the label — leaves filterable off, gives the tree the items that match and sets open on the parents that hold them, and says how many matched in a status of its own, as before.",
       "The tree does not scroll and does not draw only the rows in view: the product places it in its own scrolling box, and gives a parent's items when it opens (expandable, toggle) where the hierarchy is too large to give at once. A platform that builds rows lazily states each item's level, position and set size where the structure no longer gives them.",
       "Web: the items are the product's own nested lists in the document — a `<ul>` of `<li>` elements, each holding its row and, where it is a parent, a `<ul>` of its own — inside `<tanrei-tree-view>`. Without script the page shows the whole hierarchy as the nested list it is, every level shown; with the script the element gives the lists the tree's roles, states and keys. The stylesheet draws the whole look before the element is defined, so nothing moves when it is upgraded.",
       "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
@@ -689,7 +888,8 @@
       "Multiple selection follows the tree pattern: Space and a press toggle one item, Shift with the arrows, Space or a press selects a range from the anchor, Ctrl (Command) with Shift and Home or End to the first or last row, Ctrl (Command) with A everything shown; the tree is multiselectable and every item that can be chosen carries its selected state (TRV-52).",
       "Pinned parent rows (TRV-53) are the rows themselves, not copies: assistive technology meets each once, in its place, and a row the keyboard reaches under them is scrolled into view below them.",
       "With expandable false the tree is a structure always shown whole: no tree item carries an expanded state, and the groups still tell each level (TRV-49).",
-      "With chevron none, open and closed are told by the glyph (folder, folder_open) and by the expanded state, never by color; the arrow keys always open and close, and a parent with no glyph is reported in debug builds because nothing on screen tells its state (WCAG 1.3.1, 1.4.1)."
+      "With chevron none, open and closed are told by the glyph (folder, folder_open) and by the expanded state, never by color; the arrow keys always open and close, and a parent with no glyph is reported in debug builds because nothing on screen tells its state (WCAG 1.3.1, 1.4.1).",
+      "\"/\" on a row moves to the filter, and every other printable character keeps moving by type-ahead (TRV-23), as the tree pattern recommends: the two answer different questions — \"where is the next row that begins so\" and \"show me only what holds this\"."
     ]
   },
   "tokens": "comp.tree-view",
@@ -4582,6 +4782,756 @@
           }
         }
       ]
+    },
+    {
+      "id": "filter-empty-field",
+      "props": {
+        "label": "Project files",
+        "filterable": true,
+        "filterLabel": "Filter files",
+        "filterPlaceholder": "Filter",
+        "filterEmptyText": "No matches",
+        "filterCountText": "Matches: {count}",
+        "filterClearLabel": "Clear"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "src",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "components",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "button.ts"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "checkbox.ts"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tree-view.ts"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "styles"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tokens.css"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "prose.css"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "index.ts"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "test"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "button.test.ts"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "README.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filter",
+      "props": {
+        "label": "Project files",
+        "filterable": true,
+        "filterLabel": "Filter files",
+        "filterPlaceholder": "Filter",
+        "filterEmptyText": "No matches",
+        "filterCountText": "Matches: {count}",
+        "filterClearLabel": "Clear",
+        "filterValue": "tree ts"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "src",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "components",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "button.ts"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "checkbox.ts"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tree-view.ts"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "styles"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tokens.css"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "prose.css"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "index.ts"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "test"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "button.test.ts"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "README.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filter-count-hidden",
+      "props": {
+        "label": "Project files",
+        "filterable": true,
+        "filterLabel": "Filter files",
+        "filterPlaceholder": "Filter",
+        "filterEmptyText": "No matches",
+        "filterCountText": "Matches: {count}",
+        "filterClearLabel": "Clear",
+        "filterValue": "tree ts",
+        "filterCountHidden": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "src",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "components",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "button.ts"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "checkbox.ts"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tree-view.ts"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "styles"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tokens.css"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "prose.css"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "index.ts"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "test"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "button.test.ts"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "README.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filter-parent",
+      "props": {
+        "label": "Project files",
+        "filterable": true,
+        "filterLabel": "Filter files",
+        "filterPlaceholder": "Filter",
+        "filterEmptyText": "No matches",
+        "filterCountText": "Matches: {count}",
+        "filterClearLabel": "Clear",
+        "filterValue": "styles"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "src",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "components",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "button.ts"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "checkbox.ts"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tree-view.ts"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "styles"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tokens.css"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "prose.css"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "index.ts"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "test"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "button.test.ts"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "README.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filter-highlight",
+      "props": {
+        "label": "Project files",
+        "filterable": true,
+        "filterLabel": "Filter files",
+        "filterPlaceholder": "Filter",
+        "filterEmptyText": "No matches",
+        "filterCountText": "Matches: {count}",
+        "filterClearLabel": "Clear",
+        "filterValue": "test",
+        "filterMode": "highlight"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "src",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "components",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "button.ts"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "checkbox.ts"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tree-view.ts"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "styles"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tokens.css"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "prose.css"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "index.ts"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "test"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "button.test.ts"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "README.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filter-none",
+      "props": {
+        "label": "Project files",
+        "filterable": true,
+        "filterLabel": "Filter files",
+        "filterPlaceholder": "Filter",
+        "filterEmptyText": "No matches",
+        "filterCountText": "Matches: {count}",
+        "filterClearLabel": "Clear",
+        "filterValue": "zzz"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "src",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "components",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "button.ts"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "checkbox.ts"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tree-view.ts"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "styles"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tokens.css"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "prose.css"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "index.ts"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "test"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "button.test.ts"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "README.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filter-single",
+      "props": {
+        "label": "Project files",
+        "filterable": true,
+        "filterLabel": "Filter files",
+        "filterPlaceholder": "Filter",
+        "filterEmptyText": "No matches",
+        "filterCountText": "Matches: {count}",
+        "filterClearLabel": "Clear",
+        "selection": "single",
+        "value": "src/components/checkbox.ts",
+        "filterValue": "button"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "src",
+            "value": "src",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "components",
+                "value": "src/components",
+                "icon": "folder",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "button.ts",
+                    "value": "src/components/button.ts",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "checkbox.ts",
+                    "value": "src/components/checkbox.ts",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tree-view.ts",
+                    "value": "src/components/tree-view.ts",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "styles",
+                "value": "src/styles",
+                "icon": "folder"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tokens.css",
+                    "value": "src/styles/tokens.css",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "prose.css",
+                    "value": "src/styles/prose.css",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "index.ts",
+                "value": "src/index.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "test",
+            "value": "test",
+            "icon": "folder"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "button.test.ts",
+                "value": "test/button.test.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json",
+            "value": "package.json",
+            "icon": "draft"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "README.md",
+            "value": "README.md",
+            "icon": "draft"
+          }
+        }
+      ]
     }
   ],
   "platforms": {
@@ -4607,11 +5557,22 @@
         "labelWrap": "label-wrap",
         "supportingWrap": "supporting-wrap",
         "stickyParents": "sticky-parents",
-        "stickyMax": "sticky-max"
+        "stickyMax": "sticky-max",
+        "filterable": "filterable",
+        "filterValue": "filter-value",
+        "filterMode": "filter-mode",
+        "filterLabel": "filter-label",
+        "filterPlaceholder": "filter-placeholder",
+        "filterEmptyText": "filter-empty-text",
+        "filterCountText": "filter-count-text",
+        "filterCountHidden": "filter-count-hidden",
+        "filterClearLabel": "filter-clear-label",
+        "filterShortcut": "filter-shortcut"
       },
       "events": {
         "change": "change",
-        "create": "create"
+        "create": "create",
+        "filterChange": "filterchange"
       },
       "items": {
         "item": {
@@ -4636,7 +5597,7 @@
           "notes": "A native `<li>` whose first child element is its row (a `<span>` or a `<div>`) and whose next child, where it is a parent, is a `<ul>` of its items: `<li data-value=\"src\" data-open><span><i class=\"tanrei-icon\">folder</i>src <small data-supporting-text>what is published</small> <span data-trailing-text>12 files</span></span><ul>…</ul></li>`. The row's text is the label (the label slot: text and inline content); inside the row, an element with `data-supporting-text` holds the supporting text, one with `data-trailing` the trailing slot's content and one with `data-trailing-text` the trailing text; a `.tanrei-icon` element first in the row is the icon. `data-open`, `data-expandable`, `data-loading` and `data-disabled` are boolean attributes of the `<li>`, which the element mirrors as `aria-expanded`, `aria-busy` and `aria-disabled`; the element sets and removes `data-open` itself when the user opens or closes the parent. `toggle` is dispatched on the `<li>` and bubbles, with `detail.open`. `data-open-icon` is an attribute of the `.tanrei-icon` element (`<i class=\"tanrei-icon\" data-open-icon=\"folder_open\">folder</i>`), so that the stylesheet draws the open glyph before the element is defined. `rename` is dispatched on the `<li>` and bubbles, with `detail.label` and `detail.previous`."
         }
       },
-      "notes": "Form: `<tanrei-tree-view>` is a custom element with **no shadow root**, around the product's own nested lists in the light DOM — `<tanrei-tree-view label=\"Project files\" selection=\"single\" value=\"src/index.ts\"><ul><li data-value=\"src\" data-open><span>src</span><ul><li data-value=\"src/index.ts\"><span>index.ts</span></li></ul></li></ul></tanrei-tree-view>` — the third component of this form after the table and the accordion. A hierarchy is a nested list: that is what a Markdown renderer emits, what a crawler and a reader mode keep, and what the page shows where script does not run. Everything drawn comes from one stylesheet, `@tanrei/web/tree-view.css`, whose selectors start at `tanrei-tree-view` and are wrapped in `:where()`; the element adopts the same sheet into the root it is connected to, so it also works inside another component's shadow root. Before the element is defined the stylesheet already draws the whole look: the indent from the nesting depth (a counter-free rule per nesting step through a custom property the nested `ul` raises), the chevron as the row's `::before` in the icon font on an `li` that holds a `ul` or has `data-expandable`, turned under `li[data-open]`, the rows under an `li` without `data-open` not shown, the guide line as the nested `ul`'s `::before`, the selected fill from `aria-selected` once the element has set it and from `[value]` matching only after definition (a selected row is the one thing drawn at upgrade: the product that renders on a server writes `aria-selected=\"true\"` itself to have it in the first frame). Under `@media (scripting: none)` every level is shown and no chevron is drawn: a plain nested list in the tree's type and spacing. The element, once defined, adds what a stylesheet cannot: `role=\"tree\"` and `aria-label` on itself (`aria-multiselectable` for multiple), `role=\"none\"` on each `<ul>` directly inside it and `role=\"group\"` on each nested one, `role=\"treeitem\"`, `aria-expanded`, `aria-selected`, `aria-disabled` and `aria-busy` on each `<li>` (level, set size and position come from the nesting; they are written as `aria-level`, `aria-setsize` and `aria-posinset` only where a product marks a list as partial), the roving `tabindex` (0 on one `<li>`, -1 on the others) with the focus ring drawn on the row by `li:focus-visible > :first-child`, the keys of TRV-20 to TRV-23, the pointer rules of TRV-10 (the chevron's hit area is the row's `::before` box extended by the indent), `change` with `detail.value` or `detail.values`, the shared press primitive on the row (ripple and dim, TRV-29), the loading row (a `<tanrei-loading-indicator size=\"small\">` and the label in an element of its own after the nested list, `aria-hidden` apart from the indicator's name), opening for find-in-page where the browser reports it (closed lists are hidden with `hidden=\"until-found\"` where the browser has it and answered on `beforematch`; elsewhere closed rows are not found, TRV-14), the motion of TRV-11 (the nested list's height from 0 to `auto` under `interpolate-size: allow-keywords` where the browser can, one measured Web Animations run elsewhere, at once where neither is available) and every debug report. A `MutationObserver` on the subtree keeps roles and the tab stop right when the product adds or removes items. `value` and `values` are properties and attributes (`values` as a space-separated list is not taken: a value may hold a space; the attribute is JSON, the property an array). Inside `.tanrei-prose` the element is an island by its tag name (PRS-16). Markdown: the product wraps a nested list in `<tanrei-tree-view>` at build time and wraps each item's own text in its row element (a step of a few lines, shown in the README); Tanrei does not transform content. React: `TreeView` and `TreeItem` render the same elements. `indent` and `icon-gap` take a number of pixels, or `auto` (the default). `guides` takes `none`, `shown` or `hover`; the bare attribute is `shown`. `expandable` and `sticky-parents` are on by default: `expandable=\"false\"` and `sticky-parents=\"false\"` turn them off. `data-supporting-position=\"inline\"` on an `<li>` puts its supporting text after its label. A one-line label is the row's label element (`<bdi>`, `<span>`): a label written as the row's own text wraps, and is reported in debug builds. The full-text tooltip is a `<tanrei-tooltip>` the element puts in the row it shows it for. Pinned rows are the rows themselves, held by `position: sticky` (the element marks the innermost `sticky-max` parents above what is shown). Editing: `edit(item)` opens the edit field on an `<li>` (F2 and a double-click on the label do the same while `editable`); `create({ parent, icon })` adds the new row and returns whether it did; `create` is dispatched on the tree with `detail.label`, `detail.parent`, `detail.within` and `detail.after` (the `<li>` elements, or null). The edit field is a `<tanrei-embedded-text-input>` the element puts in the row and takes away again; its own `change` does not leave the row. The new row is an `<li data-tanrei-new>` of the element's own, as the loading row is."
+      "notes": "Form: `<tanrei-tree-view>` is a custom element with **no shadow root**, around the product's own nested lists in the light DOM — `<tanrei-tree-view label=\"Project files\" selection=\"single\" value=\"src/index.ts\"><ul><li data-value=\"src\" data-open><span>src</span><ul><li data-value=\"src/index.ts\"><span>index.ts</span></li></ul></li></ul></tanrei-tree-view>` — the third component of this form after the table and the accordion. A hierarchy is a nested list: that is what a Markdown renderer emits, what a crawler and a reader mode keep, and what the page shows where script does not run. Everything drawn comes from one stylesheet, `@tanrei/web/tree-view.css`, whose selectors start at `tanrei-tree-view` and are wrapped in `:where()`; the element adopts the same sheet into the root it is connected to, so it also works inside another component's shadow root. Before the element is defined the stylesheet already draws the whole look: the indent from the nesting depth (a counter-free rule per nesting step through a custom property the nested `ul` raises), the chevron as the row's `::before` in the icon font on an `li` that holds a `ul` or has `data-expandable`, turned under `li[data-open]`, the rows under an `li` without `data-open` not shown, the guide line as the nested `ul`'s `::before`, the selected fill from `aria-selected` once the element has set it and from `[value]` matching only after definition (a selected row is the one thing drawn at upgrade: the product that renders on a server writes `aria-selected=\"true\"` itself to have it in the first frame). Under `@media (scripting: none)` every level is shown and no chevron is drawn: a plain nested list in the tree's type and spacing. The element, once defined, adds what a stylesheet cannot: `role=\"tree\"` and `aria-label` on itself (`aria-multiselectable` for multiple), `role=\"none\"` on each `<ul>` directly inside it and `role=\"group\"` on each nested one, `role=\"treeitem\"`, `aria-expanded`, `aria-selected`, `aria-disabled` and `aria-busy` on each `<li>` (level, set size and position come from the nesting; they are written as `aria-level`, `aria-setsize` and `aria-posinset` only where a product marks a list as partial), the roving `tabindex` (0 on one `<li>`, -1 on the others) with the focus ring drawn on the row by `li:focus-visible > :first-child`, the keys of TRV-20 to TRV-23, the pointer rules of TRV-10 (the chevron's hit area is the row's `::before` box extended by the indent), `change` with `detail.value` or `detail.values`, the shared press primitive on the row (ripple and dim, TRV-29), the loading row (a `<tanrei-loading-indicator size=\"small\">` and the label in an element of its own after the nested list, `aria-hidden` apart from the indicator's name), opening for find-in-page where the browser reports it (closed lists are hidden with `hidden=\"until-found\"` where the browser has it and answered on `beforematch`; elsewhere closed rows are not found, TRV-14), the motion of TRV-11 (the nested list's height from 0 to `auto` under `interpolate-size: allow-keywords` where the browser can, one measured Web Animations run elsewhere, at once where neither is available) and every debug report. A `MutationObserver` on the subtree keeps roles and the tab stop right when the product adds or removes items. `value` and `values` are properties and attributes (`values` as a space-separated list is not taken: a value may hold a space; the attribute is JSON, the property an array). Inside `.tanrei-prose` the element is an island by its tag name (PRS-16). Markdown: the product wraps a nested list in `<tanrei-tree-view>` at build time and wraps each item's own text in its row element (a step of a few lines, shown in the README); Tanrei does not transform content. React: `TreeView` and `TreeItem` render the same elements. `indent` and `icon-gap` take a number of pixels, or `auto` (the default). `guides` takes `none`, `shown` or `hover`; the bare attribute is `shown`. `expandable` and `sticky-parents` are on by default: `expandable=\"false\"` and `sticky-parents=\"false\"` turn them off. `data-supporting-position=\"inline\"` on an `<li>` puts its supporting text after its label. A one-line label is the row's label element (`<bdi>`, `<span>`): a label written as the row's own text wraps, and is reported in debug builds. The full-text tooltip is a `<tanrei-tooltip>` the element puts in the row it shows it for. Pinned rows are the rows themselves, held by `position: sticky` (the element marks the innermost `sticky-max` parents above what is shown). Editing: `edit(item)` opens the edit field on an `<li>` (F2 and a double-click on the label do the same while `editable`); `create({ parent, icon })` adds the new row and returns whether it did; `create` is dispatched on the tree with `detail.label`, `detail.parent`, `detail.within` and `detail.after` (the `<li>` elements, or null). The edit field is a `<tanrei-embedded-text-input>` the element puts in the row and takes away again; its own `change` does not leave the row. The new row is an `<li data-tanrei-new>` of the element's own, as the loading row is. Filter (TRV-54 to TRV-71): the element inserts, before its first list, a box of its own (`data-tanrei-filter`) holding a `<tanrei-text-input type=\"search\" size=\"small\">`, the status line (`data-tanrei-filter-status`, hidden from assistive technology) and a visually hidden status (role=\"status\", aria-atomic=\"true\"), and removes it when filterable becomes false; the input carries aria-controls (the tree) and aria-activedescendant (the active match's row), set through the element properties of its native input. It hides a row with an attribute of its own on the `<li>` (`data-tanrei-filtered`, `display: none` in tree-view.css; never `hidden=\"until-found\"`, TRV-70) and opens a parent for the filter with another (`data-tanrei-filter-open`), writing neither `data-open` nor `hidden`, and draws the active match with `data-tanrei-filter-active` on its row. It marks matches with the CSS Custom Highlight API (the named Highlights `tanrei-tree-view-match` and `tanrei-tree-view-match-selected`, of Ranges over the product's text nodes, drawn by `::highlight()`), never by splitting or wrapping the product's text, so that a framework that owns those nodes keeps them; a highlight draws no weight, so the raised weight of TRV-60 is not drawn on the web, and a browser without the API draws no mark (the rows are still filtered). While the filter box is there the tree role is not on the element: a field and a status may not stand inside a tree, so `role=\"tree\"`, its `aria-label` and `aria-multiselectable` move to the first root list (the other root lists are owned through `ariaOwnsElements`), and back to the element when `filterable` becomes false; a product's own `aria-labelledby` on the element is not carried over. The field's `aria-controls` names that list. While a filter is applied the element carries `data-tanrei-filtering` (the highlights' rules apply only then: a highlight's rule is style that every element it names computes) and the pinned box `data-tanrei-sticky` / `data-tanrei-stuck`. A disabled row's runs are in `tanrei-tree-view-match-disabled` or `tanrei-tree-view-match-selected-disabled`, which draw the fill alone. `filter-shortcut` is a space-separated list of chords; filterchange carries detail.value; `focusFilter()` is the method of TRV-63."
     },
     "swiftui": {
       "status": "planned",
@@ -4660,11 +5621,22 @@
         "labelWrap": "labelWrap",
         "supportingWrap": "supportingWrap",
         "stickyParents": "stickyParents",
-        "stickyMax": "stickyMax"
+        "stickyMax": "stickyMax",
+        "filterable": "isFilterable",
+        "filterValue": "filterText",
+        "filterMode": "filterMode",
+        "filterLabel": "filterLabel",
+        "filterPlaceholder": "filterPrompt",
+        "filterEmptyText": "filterEmptyText",
+        "filterCountText": "filterCountText",
+        "filterCountHidden": "isFilterCountHidden",
+        "filterClearLabel": "filterClearLabel",
+        "filterShortcut": "filterShortcut"
       },
       "events": {
         "change": "selection",
-        "create": "onCreate"
+        "create": "onCreate",
+        "filterChange": "filterText"
       },
       "items": {
         "item": {
@@ -4689,7 +5661,7 @@
           "notes": "`TanreiTreeItem(_ title: String, supportingText: String = \"\", trailingText: String = \"\", icon: String? = nil, isExpanded: Binding<Bool>, isExpandable: Bool = false, isLoading: Bool = false) { children }`, tagged with `.tag(value)`; a leaf has an initializer without the binding and the children. Toggling writes the binding, as `TanreiNavigationDrawerGroup` and `TanreiAccordionItem` do. A second initializer takes the label as a `@ViewBuilder` and `trailing:` as another (the slots). `disabled` follows `.disabled(_:)`."
         }
       },
-      "notes": "`TanreiTreeView(_ label: String, selection: Binding<Value?>, density:, showsGuides:, loadingLabel:) { TanreiTreeItem(…) { … } }`, with an initializer taking `Binding<Set<Value>>` for multiple and one without a selection for none, as `TanreiList` spells its three forms; a data-driven initializer takes a collection and a key path to its children, as the platform's outline views do. Built on a lazy stack of rows, not on `List` or `OutlineGroup`, whose rows, disclosure mark and selection are the platform's own look. Not used for the same reason: `DisclosureGroup`. Semantics: no tree trait exists for custom views; each row is one element with the selected trait and a value of expanded or collapsed, in order; on macOS the row also carries its disclosure level through the AppKit accessibility protocol. On iOS the level is not told (TRV-32's fallback), which the README states. Keys (TRV-19 to TRV-23) apply with a hardware keyboard and on macOS; `.focusable()` on the tree with a focused-row state gives the single stop. Not yet built: the shared row model — chevron, expandable, guides none/shown/hover, indent auto or a number, iconSpace, iconGap, highlight, one-line labels and notes with their tooltip, supportingPosition, stickyParents and stickyMax, the multi-select keys (TRV-2 to TRV-8, TRV-43, TRV-44, TRV-49 to TRV-53) — and openIcon (TRV-5), and editing in place — the edit field, rename, the method that opens the field and the one that asks for a new row, create (TRV-45 to TRV-48) — are proposed spellings, decided when the platform is built."
+      "notes": "`TanreiTreeView(_ label: String, selection: Binding<Value?>, density:, showsGuides:, loadingLabel:) { TanreiTreeItem(…) { … } }`, with an initializer taking `Binding<Set<Value>>` for multiple and one without a selection for none, as `TanreiList` spells its three forms; a data-driven initializer takes a collection and a key path to its children, as the platform's outline views do. Built on a lazy stack of rows, not on `List` or `OutlineGroup`, whose rows, disclosure mark and selection are the platform's own look. Not used for the same reason: `DisclosureGroup`. Semantics: no tree trait exists for custom views; each row is one element with the selected trait and a value of expanded or collapsed, in order; on macOS the row also carries its disclosure level through the AppKit accessibility protocol. On iOS the level is not told (TRV-32's fallback), which the README states. Keys (TRV-19 to TRV-23) apply with a hardware keyboard and on macOS; `.focusable()` on the tree with a focused-row state gives the single stop. Not yet built: the shared row model — chevron, expandable, guides none/shown/hover, indent auto or a number, iconSpace, iconGap, highlight, one-line labels and notes with their tooltip, supportingPosition, stickyParents and stickyMax, the multi-select keys (TRV-2 to TRV-8, TRV-43, TRV-44, TRV-49 to TRV-53) — and openIcon (TRV-5), and editing in place — the edit field, rename, the method that opens the field and the one that asks for a new row, create (TRV-45 to TRV-48) — are proposed spellings, decided when the platform is built. Filter (TRV-54 to TRV-71), not built yet: as the navigation drawer's on this platform (the field, the polite announcement, the method that focuses the field)."
     },
     "compose": {
       "status": "planned",
@@ -4713,11 +5685,22 @@
         "labelWrap": "labelWrap",
         "supportingWrap": "supportingWrap",
         "stickyParents": "stickyParents",
-        "stickyMax": "stickyMax"
+        "stickyMax": "stickyMax",
+        "filterable": "filterable",
+        "filterValue": "filterValue",
+        "filterMode": "filterMode",
+        "filterLabel": "filterLabel",
+        "filterPlaceholder": "filterPlaceholder",
+        "filterEmptyText": "filterEmptyText",
+        "filterCountText": "filterCountText",
+        "filterCountHidden": "filterCountHidden",
+        "filterClearLabel": "filterClearLabel",
+        "filterShortcut": "filterShortcut"
       },
       "events": {
         "change": "onValueChange",
-        "create": "onCreate"
+        "create": "onCreate",
+        "filterChange": "onFilterValueChange"
       },
       "items": {
         "item": {
@@ -4742,7 +5725,7 @@
           "notes": "`TanreiTreeItem(label, value = \"\", expanded = false, onExpandedChange = {}, supportingText = \"\", trailingText = \"\", icon = null, expandable = false, loading = false, enabled = true, labelContent = null, trailing = null) { children }` in the tree's scope, with the names of `TanreiNavigationDrawerGroup` and `TanreiAccordionItem`. `enabled` is the inverse flag; `labelContent` and `trailing` are the slots."
         }
       },
-      "notes": "`TanreiTreeView(label, selection, value, onValueChange, …) { TanreiTreeItem(…) { … } }`, controlled; the multiple form takes `values: Set<String>` and `onValuesChange`. The scope flattens the shown items into a `LazyColumn` (the product's scrolling box where it gives none). Semantics: `collectionInfo` on the tree and `collectionItemInfo` on each row, `selected`, `stateDescription` left to the platform's expanded state through `expand()` and `collapse()` actions, `disabled()`; the platform's hierarchical collection flag where the toolkit exposes it, otherwise the level is not told (TRV-32's fallback), which the README states. Keys through `onKeyEvent` on the tree with a `FocusRequester` per shown row and one row in the focus order. Not yet built: the shared row model — chevron, expandable, guides none/shown/hover, indent auto or a number, iconSpace, iconGap, highlight, one-line labels and notes with their tooltip, supportingPosition, stickyParents and stickyMax, the multi-select keys (TRV-2 to TRV-8, TRV-43, TRV-44, TRV-49 to TRV-53) — and openIcon (TRV-5), and editing in place — the edit field, rename, the method that opens the field and the one that asks for a new row, create (TRV-45 to TRV-48) — are proposed spellings, decided when the platform is built."
+      "notes": "`TanreiTreeView(label, selection, value, onValueChange, …) { TanreiTreeItem(…) { … } }`, controlled; the multiple form takes `values: Set<String>` and `onValuesChange`. The scope flattens the shown items into a `LazyColumn` (the product's scrolling box where it gives none). Semantics: `collectionInfo` on the tree and `collectionItemInfo` on each row, `selected`, `stateDescription` left to the platform's expanded state through `expand()` and `collapse()` actions, `disabled()`; the platform's hierarchical collection flag where the toolkit exposes it, otherwise the level is not told (TRV-32's fallback), which the README states. Keys through `onKeyEvent` on the tree with a `FocusRequester` per shown row and one row in the focus order. Not yet built: the shared row model — chevron, expandable, guides none/shown/hover, indent auto or a number, iconSpace, iconGap, highlight, one-line labels and notes with their tooltip, supportingPosition, stickyParents and stickyMax, the multi-select keys (TRV-2 to TRV-8, TRV-43, TRV-44, TRV-49 to TRV-53) — and openIcon (TRV-5), and editing in place — the edit field, rename, the method that opens the field and the one that asks for a new row, create (TRV-45 to TRV-48) — are proposed spellings, decided when the platform is built. Filter (TRV-54 to TRV-71), not built yet: as the navigation drawer's on this platform (the field, the polite announcement, the method that focuses the field)."
     },
     "flutter": {
       "status": "planned",
@@ -4766,11 +5749,22 @@
         "labelWrap": "labelWrap",
         "supportingWrap": "supportingWrap",
         "stickyParents": "stickyParents",
-        "stickyMax": "stickyMax"
+        "stickyMax": "stickyMax",
+        "filterable": "filterable",
+        "filterValue": "filterValue",
+        "filterMode": "filterMode",
+        "filterLabel": "filterLabel",
+        "filterPlaceholder": "filterPlaceholder",
+        "filterEmptyText": "filterEmptyText",
+        "filterCountText": "filterCountText",
+        "filterCountHidden": "filterCountHidden",
+        "filterClearLabel": "filterClearLabel",
+        "filterShortcut": "filterShortcut"
       },
       "events": {
         "change": "onChanged",
-        "create": "onCreate"
+        "create": "onCreate",
+        "filterChange": "onFilterChanged"
       },
       "items": {
         "item": {
@@ -4795,7 +5789,7 @@
           "notes": "`TanreiTreeItem(label:, value: '', supportingText: '', trailingText: '', icon:, expanded: false, onExpansionChanged:, expandable: false, loading: false, enabled: true, labelWidget:, trailing:, children: const [])`, a description of an item and not a widget, as the list's items are; controlled, with the callback name of `TanreiNavigationDrawerGroup`. `labelWidget` and `trailing` are the slots."
         }
       },
-      "notes": "`TanreiTreeView(semanticLabel:, selection:, value:, values:, onChanged:, density:, guides:, loadingLabel:, items: [TanreiTreeItem(…)])`. Not built on the framework's `TreeSliver` or the Material library's `ExpansionTile`, whose rows and marks are their own look; it may read how the framework's tree lays out and reveals rows. Shrink-wrapped by default; a `TanreiTreeView.sliver` form builds rows lazily in the product's scroll view. Semantics: the tree and tree-item roles where the framework has them, with `expanded`, `selected` and `enabled`; otherwise one node per row in order with those flags and no level (TRV-32's fallback), stated in the README. Keys through `Focus` and `Shortcuts` on the tree with one focus node in the traversal order. Not yet built: the shared row model — chevron, expandable, guides none/shown/hover, indent auto or a number, iconSpace, iconGap, highlight, one-line labels and notes with their tooltip, supportingPosition, stickyParents and stickyMax, the multi-select keys (TRV-2 to TRV-8, TRV-43, TRV-44, TRV-49 to TRV-53) — and openIcon (TRV-5), and editing in place — the edit field, rename, the method that opens the field and the one that asks for a new row, create (TRV-45 to TRV-48) — are proposed spellings, decided when the platform is built."
+      "notes": "`TanreiTreeView(semanticLabel:, selection:, value:, values:, onChanged:, density:, guides:, loadingLabel:, items: [TanreiTreeItem(…)])`. Not built on the framework's `TreeSliver` or the Material library's `ExpansionTile`, whose rows and marks are their own look; it may read how the framework's tree lays out and reveals rows. Shrink-wrapped by default; a `TanreiTreeView.sliver` form builds rows lazily in the product's scroll view. Semantics: the tree and tree-item roles where the framework has them, with `expanded`, `selected` and `enabled`; otherwise one node per row in order with those flags and no level (TRV-32's fallback), stated in the README. Keys through `Focus` and `Shortcuts` on the tree with one focus node in the traversal order. Not yet built: the shared row model — chevron, expandable, guides none/shown/hover, indent auto or a number, iconSpace, iconGap, highlight, one-line labels and notes with their tooltip, supportingPosition, stickyParents and stickyMax, the multi-select keys (TRV-2 to TRV-8, TRV-43, TRV-44, TRV-49 to TRV-53) — and openIcon (TRV-5), and editing in place — the edit field, rename, the method that opens the field and the one that asks for a new row, create (TRV-45 to TRV-48) — are proposed spellings, decided when the platform is built. Filter (TRV-54 to TRV-71), not built yet: as the navigation drawer's on this platform (the field, the polite announcement, the method that focuses the field)."
     },
     "react-native": {
       "status": "planned",
@@ -4819,11 +5813,22 @@
         "labelWrap": "labelWrap",
         "supportingWrap": "supportingWrap",
         "stickyParents": "stickyParents",
-        "stickyMax": "stickyMax"
+        "stickyMax": "stickyMax",
+        "filterable": "filterable",
+        "filterValue": "filterValue",
+        "filterMode": "filterMode",
+        "filterLabel": "filterLabel",
+        "filterPlaceholder": "filterPlaceholder",
+        "filterEmptyText": "filterEmptyText",
+        "filterCountText": "filterCountText",
+        "filterCountHidden": "filterCountHidden",
+        "filterClearLabel": "filterClearLabel",
+        "filterShortcut": "filterShortcut"
       },
       "events": {
         "change": "onChange",
-        "create": "onCreate"
+        "create": "onCreate",
+        "filterChange": "onFilterChange"
       },
       "items": {
         "item": {
@@ -4848,7 +5853,7 @@
           "notes": "`<TreeItem label=\"src\" value=\"src\" open={…} onToggle={…}>…</TreeItem>`, with the names of `NavigationDrawerGroup` and `AccordionItem`; controlled when `open` is given, and `defaultOpen` otherwise. The label slot is the `labelContent` prop and the trailing slot the `trailing` prop; its items are `children`."
         }
       },
-      "notes": "`<TreeView accessibilityLabel=\"Project files\" selection=\"single\" value={…} onChange={…}>` with `TreeItem` children; `value` is controlled when given, with `defaultValue` otherwise, and `values` likewise. Rows are views in a column; a `TreeView.Flat` form takes the shown rows as data for the product's `FlatList`. Semantics: `accessibilityState={{ expanded, selected, disabled, busy }}` on each row and the tree and tree item roles where the platform maps them; the level is not told on iOS and Android (TRV-32's fallback), stated in the README. Keys apply where a hardware keyboard is present (and on the web through React Native for Web). Follows the app's direction where an ancestor's is not known. Not yet built: the shared row model — chevron, expandable, guides none/shown/hover, indent auto or a number, iconSpace, iconGap, highlight, one-line labels and notes with their tooltip, supportingPosition, stickyParents and stickyMax, the multi-select keys (TRV-2 to TRV-8, TRV-43, TRV-44, TRV-49 to TRV-53) — and openIcon (TRV-5), and editing in place — the edit field, rename, the method that opens the field and the one that asks for a new row, create (TRV-45 to TRV-48) — are proposed spellings, decided when the platform is built."
+      "notes": "`<TreeView accessibilityLabel=\"Project files\" selection=\"single\" value={…} onChange={…}>` with `TreeItem` children; `value` is controlled when given, with `defaultValue` otherwise, and `values` likewise. Rows are views in a column; a `TreeView.Flat` form takes the shown rows as data for the product's `FlatList`. Semantics: `accessibilityState={{ expanded, selected, disabled, busy }}` on each row and the tree and tree item roles where the platform maps them; the level is not told on iOS and Android (TRV-32's fallback), stated in the README. Keys apply where a hardware keyboard is present (and on the web through React Native for Web). Follows the app's direction where an ancestor's is not known. Not yet built: the shared row model — chevron, expandable, guides none/shown/hover, indent auto or a number, iconSpace, iconGap, highlight, one-line labels and notes with their tooltip, supportingPosition, stickyParents and stickyMax, the multi-select keys (TRV-2 to TRV-8, TRV-43, TRV-44, TRV-49 to TRV-53) — and openIcon (TRV-5), and editing in place — the edit field, rename, the method that opens the field and the one that asks for a new row, create (TRV-45 to TRV-48) — are proposed spellings, decided when the platform is built. Filter (TRV-54 to TRV-71), not built yet: as the navigation drawer's on this platform (the field, the polite announcement, the method that focuses the field)."
     }
   }
 }

@@ -151,8 +151,16 @@
           "prop": "clearLabel"
         },
         {
+          "component": "navigation-drawer",
+          "prop": "filterClearLabel"
+        },
+        {
           "component": "search",
           "prop": "clearLabel"
+        },
+        {
+          "component": "tree-view",
+          "prop": "filterClearLabel"
         }
       ]
     },
@@ -525,6 +533,52 @@
           "name": "count",
           "kind": "number",
           "description": "How many files of the drop were refused."
+        }
+      ]
+    },
+    {
+      "key": "filterCountText",
+      "readers": [
+        {
+          "component": "navigation-drawer",
+          "prop": "filterCountText"
+        },
+        {
+          "component": "tree-view",
+          "prop": "filterCountText"
+        }
+      ],
+      "places": [
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "The number of rows that match the filter text."
+        }
+      ]
+    },
+    {
+      "key": "filterEmptyText",
+      "readers": [
+        {
+          "component": "navigation-drawer",
+          "prop": "filterEmptyText"
+        },
+        {
+          "component": "tree-view",
+          "prop": "filterEmptyText"
+        }
+      ]
+    },
+    {
+      "key": "filterPlaceholder",
+      "readers": [
+        {
+          "component": "navigation-drawer",
+          "prop": "filterPlaceholder"
+        },
+        {
+          "component": "tree-view",
+          "prop": "filterPlaceholder"
         }
       ]
     },

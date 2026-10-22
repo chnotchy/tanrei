@@ -65,6 +65,18 @@
  *   [data-tanrei-tip] (in a row)           the tooltip of a cut label or note, over the text (TRV-50)
  *   data-tanrei-editing (on a row)         its label gives its place to an edit field (TRV-46)
  *   [data-tanrei-edit] (in a row)          the edit field's box, around a <tanrei-embedded-text-input> (TRV-46)
+ *   [data-tanrei-filter] (in the tree)     the filter's box before the first list: the field and the status (TRV-54);
+ *                                          `data-tanrei-sticky` where the tree stands in a scrolling box, and
+ *                                          `data-tanrei-stuck` while rows scroll under it and none is pinned
+ *   [data-tanrei-filter-status]            the status line at the top of the results (TRV-65)
+ *   data-tanrei-filtered (on an li)        a row a filter hides, with what it holds (TRV-57)
+ *   data-tanrei-filter-open (on an li)     a closed parent drawn open for a filter (TRV-59)
+ *   data-tanrei-filter-active (on a row)   the active match, drawn as the row with keyboard focus (TRV-61)
+ *   data-tanrei-filtering (on the tree)    a filter is applied (TRV-56)
+ *   ::highlight(tanrei-tree-view-match)    the runs a filter matched, on a row that is not selected, and
+ *   ::highlight(tanrei-tree-view-match-selected)   on a selected one (TRV-60)
+ *   ::highlight(tanrei-tree-view-match-disabled), ::highlight(tanrei-tree-view-match-selected-disabled)
+ *                                          the same on a disabled row: the fill alone (TRV-60)
  *
  * Every value is a `--tanrei-comp-tree-view-*` token, or the system's focus, target and icon tokens.
  *
@@ -252,14 +264,14 @@
   }
 
   /* ── Open and closed (TRV-9): a closed parent's rows are not drawn and take no space ────────────────────────── */
-  :where(tanrei-tree-view) :where(li:not([data-open])) > :where(ul, ol) {
+  :where(tanrei-tree-view) :where(li:not([data-open], [data-tanrei-filter-open])) > :where(ul, ol) {
     display: none;
   }
   :where(tanrei-tree-view[expandable='false']) :where(li) > :where(ul, ol) {
     display: block;
   }
   /* TRV-14: closed, and still searched by the browser's find-in-page (written by the element where the browser can). */
-  :where(tanrei-tree-view) :where(li:not([data-open])) > :where(ul[hidden='until-found'], ol[hidden='until-found']) {
+  :where(tanrei-tree-view) :where(li:not([data-open], [data-tanrei-filter-open])) > :where(ul[hidden='until-found'], ol[hidden='until-found']) {
     display: block;
     content-visibility: hidden;
   }
@@ -268,6 +280,11 @@
     display: block;
     overflow: clip;
     content-visibility: visible;
+  }
+  /* TRV-57, TRV-70: a row a filter hides, with what it holds: not drawn, taking no space, not focusable, not exposed and
+     not found by the browser's find-in-page. The element's own attribute, so it wins over a product's display. */
+  :where(tanrei-tree-view) :where(li[data-tanrei-filtered]) {
+    display: none !important;
   }
   /* TRV-13, before the element is defined: the room of the loading row it will write, so that nothing moves. */
   :where(tanrei-tree-view:not(:defined)) :where(li[data-loading][data-open]:is([data-expandable], :has(> ul, > ol)))::after {
@@ -487,7 +504,7 @@
     content: 'chevron_right';
     content: 'chevron_right' / '';
   }
-  :where(tanrei-tree-view) :where(li[data-open]) > :where(:first-child:not(ul, ol))::before {
+  :where(tanrei-tree-view) :where(li:is([data-open], [data-tanrei-filter-open])) > :where(:first-child:not(ul, ol))::before {
     rotate: var(--_trv-turn);
   }
   /* At the end: the last column, a gap before it; expand_more, turned a half turn while open (the drawer's and the
@@ -503,7 +520,7 @@
     content: 'expand_more';
     content: 'expand_more' / '';
   }
-  :where(tanrei-tree-view[chevron='end']:not([expandable='false'])) :where(li[data-open]) > :where(:first-child:not(ul, ol))::before {
+  :where(tanrei-tree-view[chevron='end']:not([expandable='false'])) :where(li:is([data-open], [data-tanrei-filter-open])) > :where(:first-child:not(ul, ol))::before {
     rotate: 0.5turn;
   }
   /* None, and a tree that is not expandable: no chevron, no box (TRV-44, TRV-49). */
@@ -644,13 +661,13 @@
      no size (its box keeps its size: icons.css gives it one), and the open glyph is drawn in the box at the box's size.
      (Not pushed out of the box: a clipped run of text still lies where it was laid out, beside the box.) A leaf ignores
      it. */
-  :where(tanrei-tree-view) :where(li[data-open]:not([data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon='']),
-  :where(tanrei-tree-view) :where(li[data-open][data-expandable]) > :where(:first-child:not(ul, ol)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon='']),
+  :where(tanrei-tree-view) :where(li:is([data-open], [data-tanrei-filter-open]):not([data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon='']),
+  :where(tanrei-tree-view) :where(li:is([data-open], [data-tanrei-filter-open])[data-expandable]) > :where(:first-child:not(ul, ol)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon='']),
   :where(tanrei-tree-view[expandable='false']) :where(li:not([data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon='']) {
     font-size: 0;
   }
-  :where(tanrei-tree-view) :where(li[data-open]:not([data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon=''])::before,
-  :where(tanrei-tree-view) :where(li[data-open][data-expandable]) > :where(:first-child:not(ul, ol)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon=''])::before,
+  :where(tanrei-tree-view) :where(li:is([data-open], [data-tanrei-filter-open]):not([data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon=''])::before,
+  :where(tanrei-tree-view) :where(li:is([data-open], [data-tanrei-filter-open])[data-expandable]) > :where(:first-child:not(ul, ol)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon=''])::before,
   :where(tanrei-tree-view[expandable='false']) :where(li:not([data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon=''])::before {
     content: attr(data-open-icon);
     flex: none;
@@ -682,6 +699,84 @@
   }
   :where(tanrei-tree-view) :where(li) > :where(:first-child[data-tanrei-pinned='last']) {
     box-shadow: 0 var(--tanrei-comp-tree-view-sticky-divider-width) 0 0 var(--tanrei-comp-tree-view-sticky-divider-color);
+  }
+
+  /* ── The filter (TRV-54, TRV-60, TRV-65, TRV-66) ──────────────────────────────────────────────────────────── */
+  /* TRV-54: the field above the first row, as wide as the tree, filter.gap above what stands under it; it is a Text
+     input, drawn from its own tokens. Where the tree stands in a scrolling box it stays at the top of it on the pinned
+     rows' ground, the pinned rows under it, and while rows scroll under it with none pinned, the pinned rows' edge is
+     drawn under the gap. */
+  :where(tanrei-tree-view) > :where([data-tanrei-filter]) {
+    display: block;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0 0 var(--tanrei-comp-tree-view-filter-gap);
+    background-color: var(--tanrei-comp-tree-view-sticky-container-color);
+  }
+  :where(tanrei-tree-view) > :where([data-tanrei-filter][data-tanrei-sticky]) {
+    position: sticky;
+    z-index: 3;
+    inset-block-start: 0;
+  }
+  :where(tanrei-tree-view) > :where([data-tanrei-filter][data-tanrei-stuck]) {
+    box-shadow: 0 var(--tanrei-comp-tree-view-sticky-divider-width) 0 0 var(--tanrei-comp-tree-view-sticky-divider-color);
+  }
+  :where(tanrei-tree-view) > :where([data-tanrei-filter]) > :where(tanrei-text-input) {
+    display: block;
+    inline-size: 100%;
+  }
+  /* TRV-66: the status — read, never drawn. */
+  :where(tanrei-tree-view) > :where([data-tanrei-filter]) > :where([data-tanrei-filter-said]) {
+    position: absolute;
+    overflow: hidden;
+    inline-size: 1px;
+    block-size: 1px;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  /* TRV-65: the status line at the top of the results — the count, or the words for none — in filter.status.typescale
+     and filter.status.color, inset as a row's content is; the rows follow it. Text of its own direction (TRV-39). */
+  :where(tanrei-tree-view) > :where([data-tanrei-filter-status]) {
+    display: block;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0 var(--_trv-pad-inline);
+    font: var(--tanrei-comp-tree-view-filter-status-typescale-font);
+    letter-spacing: var(--tanrei-comp-tree-view-filter-status-typescale-letter-spacing);
+    color: var(--tanrei-comp-tree-view-filter-status-color);
+    text-align: var(--_trv-start);
+    unicode-bidi: plaintext;
+    overflow-wrap: anywhere;
+  }
+  :where(tanrei-tree-view) > :where([data-tanrei-filter-status][hidden]) {
+    display: none;
+  }
+  /* TRV-60: a run a word of the filter matched — a highlight of the product's own text, as the search marks a match:
+     its color and its fill, match.color over match.container.color, and on a selected row match.selected.color over
+     match.selected.container.color. A highlight draws no weight (only a color, a fill, a line and a shadow): the raised
+     weight of match.emphasis cannot be drawn on the product's own text without splitting it, and is not drawn here.
+     Said on the row and on what it holds (an engine that does not hand a highlight's style down needs the element that
+     holds the text), and only while a filter is applied (`data-tanrei-filtering` on the
+     tree): a rule for a highlight is a style every element it names computes, and a tree that filters nothing pays
+     nothing for it. */
+  :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol))::highlight(tanrei-tree-view-match),
+  :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol)) *::highlight(tanrei-tree-view-match) {
+    background-color: var(--tanrei-comp-tree-view-match-container-color);
+    color: var(--tanrei-comp-tree-view-match-color);
+  }
+  :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol))::highlight(tanrei-tree-view-match-selected),
+  :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol)) *::highlight(tanrei-tree-view-match-selected) {
+    background-color: var(--tanrei-comp-tree-view-match-selected-container-color);
+    color: var(--tanrei-comp-tree-view-match-selected-color);
+  }
+  /* On a disabled row the fill alone: a highlight that names no color leaves the text in the label's disabled color. */
+  :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol))::highlight(tanrei-tree-view-match-disabled),
+  :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol)) *::highlight(tanrei-tree-view-match-disabled) {
+    background-color: var(--tanrei-comp-tree-view-match-container-color);
+  }
+  :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol))::highlight(tanrei-tree-view-match-selected-disabled),
+  :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol)) *::highlight(tanrei-tree-view-match-selected-disabled) {
+    background-color: var(--tanrei-comp-tree-view-match-selected-container-color);
   }
 
   /* TRV-40: while the icon set cannot draw a glyph, none is drawn and every box is kept. */
@@ -800,7 +895,7 @@
   /* TRV-25: the focus indicator, inside the row's container, so that no neighbour and no scrolling box cuts it; never
      animated, never for a pointer. The outer stroke on the container's edge, the inner stroke (where the system has
      one) within it. */
-  :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol):focus-visible) {
+  :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol):is(:focus-visible, [data-tanrei-filter-active])) {
     --_trv-now-container: var(--_trv-focused-container);
     --_trv-now-label: var(--_trv-focused-label);
     --_trv-now-supporting: var(--_trv-focused-supporting);
@@ -809,7 +904,7 @@
     --_trv-now-chevron: var(--_trv-focused-chevron);
     opacity: var(--tanrei-comp-tree-view-focused-opacity);
   }
-  :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol):focus-visible)::after {
+  :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol):is(:focus-visible, [data-tanrei-filter-active]))::after {
     border: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
     outline: var(--tanrei-sys-focus-inner-width) solid var(--tanrei-sys-color-focus-ring-inner);
     outline-offset: calc((var(--tanrei-sys-focus-outer-width) + var(--tanrei-sys-focus-inner-width)) * -1);
@@ -822,7 +917,7 @@
      data-focus-style (written by the element when focus arrives) where there are none. The container's box is drawn
      in by the halo's reach, and its fill goes on to its edge as the last layer under the halo. */
   @container style(--tanrei-sys-behavior-focus-style: glow) {
-    :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol):focus-visible)::after {
+    :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol):is(:focus-visible, [data-tanrei-filter-active]))::after {
       --_trv-glow: calc((var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) * 2);
       inset: var(--_trv-glow);
       inset-inline-start: calc(var(--_trv-box) + var(--_trv-glow));
@@ -836,7 +931,7 @@
         0 0 0 var(--_trv-glow) var(--_trv-now-container);
     }
   }
-  :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)[data-focus-style='glow']:focus-visible)::after {
+  :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)[data-focus-style='glow']:is(:focus-visible, [data-tanrei-filter-active]))::after {
     --_trv-glow: calc((var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) * 2);
     inset: var(--_trv-glow);
     inset-inline-start: calc(var(--_trv-box) + var(--_trv-glow));
@@ -911,7 +1006,7 @@
      opacity of a row reaches everything the row draws, its container's ring too; so a disabled row that has keyboard
      focus takes the disabled opacity into each of its colors instead, and into the product's trailing content, and
      the row itself is opaque. What it shows is what it showed without focus; only the ring is not faded. */
-  :where(tanrei-tree-view) :where(li[data-disabled]) > :where(:first-child:not(ul, ol):focus-visible) {
+  :where(tanrei-tree-view) :where(li[data-disabled]) > :where(:first-child:not(ul, ol):is(:focus-visible, [data-tanrei-filter-active])) {
     --_trv-fade: calc(var(--tanrei-comp-tree-view-disabled-opacity) * 100%);
     --_trv-now-container: color-mix(in srgb, var(--_trv-disabled-container) var(--_trv-fade), transparent);
     --_trv-now-label: color-mix(in srgb, var(--_trv-disabled-label) var(--_trv-fade), transparent);
@@ -921,7 +1016,7 @@
     --_trv-now-chevron: color-mix(in srgb, var(--_trv-disabled-chevron) var(--_trv-fade), transparent);
     opacity: 1;
   }
-  :where(tanrei-tree-view) :where(li[data-disabled]) > :where(:first-child:not(ul, ol):focus-visible) > :where([data-trailing]) {
+  :where(tanrei-tree-view) :where(li[data-disabled]) > :where(:first-child:not(ul, ol):is(:focus-visible, [data-tanrei-filter-active])) > :where([data-trailing]) {
     color: var(--_trv-disabled-label);
     opacity: var(--tanrei-comp-tree-view-disabled-opacity);
   }
@@ -1018,14 +1113,27 @@
     :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)[data-tanrei-editing]) {
       color: transparent;
     }
-    :where(tanrei-tree-view) :where(li) > :where(:first-child[data-tanrei-pinned]) {
+    :where(tanrei-tree-view) :where(li) > :where(:first-child[data-tanrei-pinned]),
+    :where(tanrei-tree-view) > :where([data-tanrei-filter]) {
       background-color: Canvas;
+    }
+    /* TRV-60: a match in the platform's colors for marked text. */
+    :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol))::highlight(tanrei-tree-view-match),
+    :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol)) *::highlight(tanrei-tree-view-match),
+    :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol))::highlight(tanrei-tree-view-match-selected),
+    :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol)) *::highlight(tanrei-tree-view-match-selected),
+    :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol))::highlight(tanrei-tree-view-match-disabled),
+    :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol)) *::highlight(tanrei-tree-view-match-disabled),
+    :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol))::highlight(tanrei-tree-view-match-selected-disabled),
+    :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol)) *::highlight(tanrei-tree-view-match-selected-disabled) {
+      background-color: Mark;
+      color: MarkText;
     }
     :where(tanrei-tree-view) :where(li) > :where(:first-child[data-tanrei-pinned='last']) {
       box-shadow: none;
       border-block-end: var(--tanrei-comp-tree-view-sticky-divider-width) solid CanvasText;
     }
-    :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol):focus-visible)::after {
+    :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol):is(:focus-visible, [data-tanrei-filter-active]))::after {
       inset: 0;
       inset-inline-start: var(--_trv-box);
       border: var(--tanrei-sys-focus-outer-width) solid Highlight;

@@ -30614,10 +30614,72 @@
             }
           },
           "match": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.1137,
+                  0.1059,
+                  0.1255
+                ],
+                "hex": "#1d1b20",
+                "alpha": 1
+              },
+              "$description": "The text of a match on an option that is not selected (CMB-38): the stronger of the text colors. No hue: a match is not a selection, a choice or a link."
+            },
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.9098,
+                    0.8706,
+                    0.9725
+                  ],
+                  "hex": "#e8def8",
+                  "alpha": 1
+                },
+                "$description": "The fill behind a match on an option that is not selected (CMB-38), as well as its weight and color: the quiet tonal container, as a search's match is filled, so that a match is found in every script, also where the reader's font has no weight between regular and bold."
+              }
+            },
             "emphasis": {
               "$type": "number",
               "$value": 200,
-              "$description": "How much weight the part of an option's label that matched the typed text gains, added to the weight of option.label.typescale. Weight alone: a match is not a selection, a choice or a link, so it takes no color."
+              "$description": "How much weight the part of an option's label that matched the typed text gains, added to the weight of option.label.typescale (CMB-38). One of three marks, with the color and the fill: a match never depends on color alone."
+            },
+            "selected": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1137,
+                    0.098,
+                    0.1686
+                  ],
+                  "hex": "#1d192b",
+                  "alpha": 1
+                },
+                "$description": "The text of a match on the selected option (CMB-38): the selected label's own color."
+              },
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.9961,
+                      0.9686,
+                      1
+                    ],
+                    "hex": "#fef7ff",
+                    "alpha": 1
+                  },
+                  "$description": "The fill behind a match on the selected option (CMB-38): the surface, cut out of the selected fill, so that the match stands apart from the option's own fill as it does on an option that is not selected."
+                }
+              }
             }
           },
           "padding-block": {
@@ -65938,6 +66000,90 @@
             "$value": 1
           }
         },
+        "filter": {
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 12,
+              "unit": "px"
+            },
+            "$description": "Between the filter field and what stands under it: the status line, or the first item (NVD-79). The header's gap stands above the field."
+          },
+          "shortcut": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.2863,
+                  0.2706,
+                  0.3098
+                ],
+                "hex": "#49454f",
+                "alpha": 1
+              },
+              "$description": "The legends' color: as quiet as the placeholder beside them."
+            },
+            "typescale": {
+              "$type": "typography",
+              "$value": {
+                "fontFamily": [
+                  "Roboto",
+                  "system-ui",
+                  "sans-serif"
+                ],
+                "fontSize": {
+                  "value": 12,
+                  "unit": "px"
+                },
+                "fontWeight": 500,
+                "letterSpacing": {
+                  "value": 0.5004,
+                  "unit": "px"
+                },
+                "lineHeight": 1.3333
+              },
+              "$description": "The legends of the key hint at the end of the empty field (NVD-87). The keyboard shortcut component draws no cap there."
+            }
+          },
+          "status": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.2863,
+                  0.2706,
+                  0.3098
+                ],
+                "hex": "#49454f",
+                "alpha": 1
+              },
+              "$description": "Its color: as quiet as a section's heading, on the surface the drawer stands on."
+            },
+            "typescale": {
+              "$type": "typography",
+              "$value": {
+                "fontFamily": [
+                  "Roboto",
+                  "system-ui",
+                  "sans-serif"
+                ],
+                "fontSize": {
+                  "value": 12,
+                  "unit": "px"
+                },
+                "fontWeight": 400,
+                "letterSpacing": {
+                  "value": 0.3996,
+                  "unit": "px"
+                },
+                "lineHeight": 1.3333
+              },
+              "$description": "The line at the top of the results while a filter is applied (NVD-90): how many rows match, or that none does."
+            }
+          }
+        },
         "focused": {
           "opacity": {
             "$type": "number",
@@ -66214,6 +66360,75 @@
                     "unit": "px"
                   },
                   "lineHeight": 1.4286
+                }
+              }
+            }
+          },
+          "match": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.1137,
+                  0.1059,
+                  0.1255
+                ],
+                "hex": "#1d1b20",
+                "alpha": 1
+              },
+              "$description": "The text of a match on a row that is not selected (NVD-85): the stronger of the text colors. No hue: a match is not a selection, a choice or a link."
+            },
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.9098,
+                    0.8706,
+                    0.9725
+                  ],
+                  "hex": "#e8def8",
+                  "alpha": 1
+                },
+                "$description": "The fill behind a match on a row that is not selected (NVD-85), as well as its weight and color: the quiet tonal container, as a search's match is filled, so that a match is found in every script, also where the reader's font has no weight between regular and bold."
+              }
+            },
+            "emphasis": {
+              "$type": "number",
+              "$value": 200,
+              "$description": "How much weight a match gains over the row's label (NVD-85), added to the label typescale's weight."
+            },
+            "selected": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1137,
+                    0.098,
+                    0.1686
+                  ],
+                  "hex": "#1d192b",
+                  "alpha": 1
+                },
+                "$description": "The text of a match on the selected row (NVD-85): the selected label's own color."
+              },
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.9961,
+                      0.9686,
+                      1
+                    ],
+                    "hex": "#fef7ff",
+                    "alpha": 1
+                  },
+                  "$description": "The fill behind a match on the selected row (NVD-85): the surface, cut out of the selected fill, so that the match stands apart from the row's own fill as it does on a row that is not selected."
                 }
               }
             }
@@ -98634,6 +98849,53 @@
             "$value": 0.38
           }
         },
+        "filter": {
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "Between the filter field and what stands under it: the status line, or the first row (TRV-54)."
+          },
+          "status": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.2863,
+                  0.2706,
+                  0.3098
+                ],
+                "hex": "#49454f",
+                "alpha": 1
+              },
+              "$description": "Its color: as quiet as a supporting text, on the surface the tree stands on."
+            },
+            "typescale": {
+              "$type": "typography",
+              "$value": {
+                "fontFamily": [
+                  "Roboto",
+                  "system-ui",
+                  "sans-serif"
+                ],
+                "fontSize": {
+                  "value": 12,
+                  "unit": "px"
+                },
+                "fontWeight": 400,
+                "letterSpacing": {
+                  "value": 0.3996,
+                  "unit": "px"
+                },
+                "lineHeight": 1.3333
+              },
+              "$description": "The line at the top of the results while a filter is applied (TRV-65): how many rows match, or that none does."
+            }
+          }
+        },
         "focused": {
           "opacity": {
             "$type": "number",
@@ -98753,6 +99015,75 @@
               "$value": {
                 "value": 32,
                 "unit": "px"
+              }
+            }
+          }
+        },
+        "match": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.1137,
+                0.1059,
+                0.1255
+              ],
+              "hex": "#1d1b20",
+              "alpha": 1
+            },
+            "$description": "The text of a match on a row that is not selected (TRV-60): the stronger of the text colors. No hue: a match is not a selection, a choice or a link."
+          },
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.9098,
+                  0.8706,
+                  0.9725
+                ],
+                "hex": "#e8def8",
+                "alpha": 1
+              },
+              "$description": "The fill behind a match on a row that is not selected (TRV-60), as well as its weight and color: the quiet tonal container, as a search's match is filled, so that a match is found in every script, also where the reader's font has no weight between regular and bold."
+            }
+          },
+          "emphasis": {
+            "$type": "number",
+            "$value": 100,
+            "$description": "How much weight a match gains over the row's label (TRV-60), added to the label typescale's weight."
+          },
+          "selected": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.1137,
+                  0.098,
+                  0.1686
+                ],
+                "hex": "#1d192b",
+                "alpha": 1
+              },
+              "$description": "The text of a match on the selected row (TRV-60): the selected label's own color."
+            },
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.9961,
+                    0.9686,
+                    1
+                  ],
+                  "hex": "#fef7ff",
+                  "alpha": 1
+                },
+                "$description": "The fill behind a match on the selected row (TRV-60): the surface, cut out of the selected fill, so that the match stands apart from the row's own fill as it does on a row that is not selected."
               }
             }
           }

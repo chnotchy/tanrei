@@ -1,4 +1,4 @@
-// <tanrei-tree-view> and tree-view.css, driven by specs/tree-view.spec.json: every behaviour id (TRV-1…42) is cited by a
+// <tanrei-tree-view> and tree-view.css, driven by specs/tree-view.spec.json: every behaviour id (TRV-1…71) is cited by a
 // test title, every fixture has a baseline, and every length and color is read back from the tokens — never from a
 // number written here. What a tree of thousands costs is measured in tree-view.perf.test.ts.
 import AxeBuilder from '@axe-core/playwright';
@@ -8,6 +8,7 @@ import { appearingFixture } from '../../../test/first-frame.js';
 import { expectFirstFrameAtRest } from '../../../test/frames.js';
 import { drawnOpticalSize, opticalSize } from '../../../test/icons.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
+import { holdClock, releaseClock } from '../../../test/page-clock.js';
 
 const spec = loadSpec('tree-view');
 type P = Page;
@@ -2601,6 +2602,412 @@ test.describe('before the element is defined, without script, in a shadow root',
     });
     await inner.locator('li[data-value="b"] > span').click({ position: { x: 4, y: 10 } });
     expect(await page.evaluate(() => (window as any).movedAtClick as number)).toBe(1);
+  });
+});
+
+// The filter (TRV-54 to TRV-71): a field above the rows that narrows the tree to what is typed. The fixtures filter,
+// filter-parent, filter-highlight, filter-none, filter-count-hidden and filter-empty-field are basic's files with a
+// filter; a test that chooses writes its own lists, with values.
+test.describe('the filter', () => {
+  /** The words every filter of these tests is given, as a product gives them. */
+  const WORDS = { filterable: true, filterLabel: 'Filter files', filterPlaceholder: 'Filter', filterEmptyText: 'No matches', filterCountText: 'Matches: {count}', filterClearLabel: 'Clear' };
+  /** A tree of files with values, to choose in. */
+  const FILES =
+    '<ul><li data-value="src" data-open><span><bdi>src</bdi></span><ul><li data-value="button.ts"><span><bdi>button.ts</bdi></span></li><li data-value="tree-view.ts"><span><bdi>tree-view.ts</bdi></span></li></ul></li>' +
+    '<li data-value="docs"><span><bdi>docs</bdi></span><ul><li data-value="guide.md"><span><bdi>guide.md</bdi></span></li><li data-value="tree.md"><span><bdi>tree.md</bdi></span></li></ul></li><li data-value="README.md"><span><bdi>README.md</bdi></span></li></ul>';
+  const field = (page: P, id: string) => host(page, id).locator(':scope > [data-tanrei-filter] > tanrei-text-input');
+  const input = (page: P, id: string) => field(page, id).locator('input');
+  const line = (page: P, id: string) => host(page, id).locator(':scope > [data-tanrei-filter-status]');
+  const said = (page: P, id: string) => host(page, id).locator(':scope > [data-tanrei-filter] > [role="status"]');
+  /** The labels of the rows drawn now, in order. */
+  const drawnRows = (page: P, id: string) =>
+    host(page, id).evaluate((tree) =>
+      [...tree.querySelectorAll('li:not([data-tanrei-loading]) > :first-child')]
+        .filter((row) => row.checkVisibility())
+        .map((row) => (row.parentElement as Element).getAttribute('data-t')),
+    );
+  /** Every `filterchange` on the page, in order. */
+  const watchFilter = (page: P) =>
+    page.evaluate(() => {
+      const w = window as unknown as { __filter: string[] };
+      w.__filter = [];
+      document.addEventListener('filterchange', (event) => w.__filter.push((event as CustomEvent<{ value: string }>).detail.value));
+    });
+  const filterEvents = (page: P) => page.evaluate(() => (window as unknown as { __filter: string[] }).__filter.splice(0));
+  /** The text of each range this page marks, by highlight. */
+  const marks = (page: P) =>
+    page.evaluate(() => {
+      const registry = (CSS as unknown as { highlights?: Map<string, Set<Range>> }).highlights;
+      const read = (name: string) => [...(registry?.get(name) ?? [])].map((range) => range.toString());
+      return { plain: read('tanrei-tree-view-match'), selected: read('tanrei-tree-view-match-selected'), disabled: read('tanrei-tree-view-match-disabled') };
+    });
+  const setTree = (page: P, id: string, props: Record<string, unknown>) =>
+    host(page, id).evaluate(async (el: HTMLElement & { updateComplete: Promise<unknown> }, p) => {
+      Object.assign(el, p);
+      await el.updateComplete;
+    }, props);
+
+  test('TRV-54: a small text input of type search above the first row, as wide as the tree, filter.gap above the status line; in a scrolling box it stays at the top with the pinned parents under it', async ({ page }) => {
+    await mount(page, { fixtures: some('filter', 'filter-empty-field') });
+    const box = host(page, 'filter').locator(':scope > [data-tanrei-filter]');
+    await expect(field(page, 'filter')).toHaveAttribute('type', 'search');
+    await expect(field(page, 'filter')).toHaveAttribute('size', 'small');
+    await expect(field(page, 'filter').locator('[slot="leading-icon"]')).toHaveText('search');
+    const tree = await edges(host(page, 'filter'));
+    const fieldBox = await edges(field(page, 'filter'));
+    near(fieldBox.left, tree.left);
+    near(fieldBox.right, tree.right);
+    near(fieldBox.height, await resolveToken(page, '--tanrei-comp-input-box-stacked-container-height-small'));
+    const gap = await resolveToken(page, T('filter-gap'));
+    near(await px(box, 'padding-bottom'), gap);
+    near((await edges(line(page, 'filter'))).top, fieldBox.bottom + gap);
+    // The field comes before the first list, and nothing is a row of it.
+    expect(await host(page, 'filter').evaluate((el) => el.firstElementChild?.hasAttribute('data-tanrei-filter') && el.firstElementChild.nextElementSibling?.hasAttribute('data-tanrei-filter-status'))).toBe(true);
+    // In a scrolling box 200 high, scrolled: the field at the box's top, the pinned parent right under it.
+    await page.addStyleTag({ content: '[data-fixture="filter-empty-field"] { block-size: 200px; overflow-y: auto; }' });
+    await setTree(page, 'filter-empty-field', { filterValue: '' });
+    await host(page, 'filter-empty-field').evaluate((el: HTMLElement & { requestUpdate(): void }) => el.requestUpdate());
+    await expect(host(page, 'filter-empty-field').locator(':scope > [data-tanrei-filter]')).toHaveAttribute('data-tanrei-sticky', '');
+    await stage(page, 'filter-empty-field').evaluate((el) => (el.scrollTop = 200));
+    await frame(page);
+    await frame(page);
+    const top = await stage(page, 'filter-empty-field').evaluate((el) => el.getBoundingClientRect().top + el.clientTop + Number.parseFloat(getComputedStyle(el).paddingTop));
+    const sticky = await edges(host(page, 'filter-empty-field').locator(':scope > [data-tanrei-filter]'));
+    near(sticky.top, top);
+    const pinned = host(page, 'filter-empty-field').locator('[data-tanrei-pinned]').first();
+    await expect(pinned).toHaveCount(1);
+    near((await edges(pinned)).top, sticky.bottom);
+    expect(await css(host(page, 'filter-empty-field').locator(':scope > [data-tanrei-filter]'), 'background-color')).toBe(await resolveColor(page, T('sticky-container-color')));
+  });
+
+  test('TRV-55: typing emits filterchange once per change with the text, filterValue set first; a value the product sets is shown and applied, and emits nothing', async ({ page }) => {
+    await mount(page, { fixtures: some('filter-empty-field') });
+    await watchFilter(page);
+    await input(page, 'filter-empty-field').pressSequentially('tre');
+    expect(await filterEvents(page)).toEqual(['t', 'tr', 'tre']);
+    expect(await host(page, 'filter-empty-field').evaluate((el: HTMLElement & { filterValue: string }) => el.filterValue)).toBe('tre');
+    expect(await drawnRows(page, 'filter-empty-field')).toEqual(['src', 'components', 'tree-view.ts']);
+    await setTree(page, 'filter-empty-field', { filterValue: 'README' });
+    expect(await filterEvents(page)).toEqual([]);
+    await expect(input(page, 'filter-empty-field')).toHaveValue('README');
+    expect(await drawnRows(page, 'filter-empty-field')).toEqual(['README.md']);
+  });
+
+  test('TRV-56: every word, anywhere in the label and in any order, without regard to case, width or marks; a supporting text, a trailing text and a value are not compared', async ({ page }) => {
+    await mount(page, {
+      fixtures: [
+        raw('words', { label: 'Words', ...WORDS }, '<ul><li data-value="cv"><span><bdi>Résumé ｆｉｌｅ<small data-supporting-text>about tokens</small></bdi><span data-trailing-text>draft</span></span></li><li data-value="tokens"><span><bdi>Notes</bdi></span></li></ul>'),
+        ...some('filter'),
+      ],
+    });
+    await nameItems(page);
+    const shown = async (text: string) => {
+      await setTree(page, 'words', { filterValue: text });
+      return host(page, 'words').evaluate((el) => [...el.querySelectorAll('li')].filter((li) => li.firstElementChild!.checkVisibility()).length);
+    };
+    expect(await shown('resume')).toBe(1);
+    expect(await shown('FILE résumé')).toBe(1);
+    expect(await shown('tokens')).toBe(0);
+    expect(await shown('draft')).toBe(0);
+    expect(await shown('cv')).toBe(0);
+    await setTree(page, 'filter', { filterValue: 'TS TREE' });
+    expect(await drawnRows(page, 'filter')).toEqual(['src', 'components', 'tree-view.ts']);
+  });
+
+  test('TRV-57: filter shows the matches, the parents that hold them and the whole of a parent found by its name, and hides the rest — not drawn, no space, no focus, not exposed; emptied, every row is as it was', async ({ page }) => {
+    await mount(page, { fixtures: some('filter', 'filter-parent') });
+    expect(await drawnRows(page, 'filter')).toEqual(['src', 'components', 'tree-view.ts']);
+    await expect(item(page, 'filter', 'test')).toHaveAttribute('data-tanrei-filtered', '');
+    expect(await css(item(page, 'filter', 'README.md'), 'display')).toBe('none');
+    // filter-parent ("styles"): src is opened for the filter, styles shown closed, as its open says.
+    expect(await drawnRows(page, 'filter-parent')).toEqual(['src', 'styles']);
+    await expect(row(page, 'filter-parent', 'styles')).toHaveAttribute('aria-expanded', 'false');
+    await row(page, 'filter-parent', 'styles').click();
+    expect(await drawnRows(page, 'filter-parent')).toEqual(['src', 'styles', 'tokens.css', 'prose.css']);
+    await setTree(page, 'filter', { filterValue: '' });
+    expect(await drawnRows(page, 'filter')).toEqual(['src', 'components', 'button.ts', 'checkbox.ts', 'tree-view.ts', 'styles', 'index.ts', 'test', 'package.json', 'README.md']);
+    expect(await host(page, 'filter').locator('[data-tanrei-filtered], [data-tanrei-filter-open]').count()).toBe(0);
+  });
+
+  test('TRV-58: highlight hides nothing, marks the matches and opens the parents that hold them', async ({ page }) => {
+    await mount(page, { fixtures: some('filter-highlight') });
+    expect(await drawnRows(page, 'filter-highlight')).toEqual(['src', 'components', 'button.ts', 'checkbox.ts', 'tree-view.ts', 'styles', 'index.ts', 'test', 'button.test.ts', 'package.json', 'README.md']);
+    await expect(item(page, 'filter-highlight', 'test')).toHaveAttribute('data-tanrei-filter-open', '');
+    const marked = await marks(page);
+    if (await page.evaluate(() => 'highlights' in CSS)) expect(marked.plain.sort()).toEqual(['test', 'test']);
+  });
+
+  test('TRV-59, TRV-70, TRV-14: a parent opened for the filter keeps its open, emits no toggle, is exposed as expanded and is drawn at once; emptied, it closes at once; a parent the person opens meanwhile emits one toggle and stays open', async ({ page }) => {
+    await mount(page, { fixtures: some('filter-empty-field') });
+    await watch(page);
+    await input(page, 'filter-empty-field').fill('test');
+    // TRV-70: drawn at once — no list moves.
+    expect(await moving(page)).toBe(0);
+    await expect(item(page, 'filter-empty-field', 'test')).not.toHaveAttribute('data-open', '');
+    await expect(row(page, 'filter-empty-field', 'test')).toHaveAttribute('aria-expanded', 'true');
+    expect(await events(page)).toEqual([]);
+    // The person opens styles (no match under it) during the filter: one toggle, and it stays open afterwards.
+    await setTree(page, 'filter-empty-field', { filterMode: 'highlight' });
+    await row(page, 'filter-empty-field', 'styles').click({ position: { x: 4, y: 10 } });
+    expect(await events(page)).toEqual(['toggle:styles:true']);
+    // And closes test, which the filter had opened: it closes, and no toggle is emitted (its open did not change).
+    await row(page, 'filter-empty-field', 'test').click({ position: { x: 4, y: 10 } });
+    await settled(page);
+    await expect(row(page, 'filter-empty-field', 'test')).toHaveAttribute('aria-expanded', 'false');
+    expect(await events(page)).toEqual([]);
+    await input(page, 'filter-empty-field').fill('');
+    expect(await moving(page)).toBe(0);
+    expect(await events(page)).toEqual([]);
+    await expect(item(page, 'filter-empty-field', 'styles')).toHaveAttribute('data-open', '');
+    await expect(row(page, 'filter-empty-field', 'test')).toHaveAttribute('aria-expanded', 'false');
+    // The list of a parent that is closed again is searched by find-in-page again (TRV-14), and filtered rows never are.
+    expect(await item(page, 'filter-empty-field', 'test').locator('> ul').getAttribute('hidden')).toBe(await page.evaluate(() => ('onbeforematch' in HTMLElement.prototype ? 'until-found' : null)));
+  });
+
+  test('TRV-60: each run a word matched is a range of the product’s own text in the shared highlight — unsplit — in match.color over match.container.color, a selected row’s in the selected highlight, and a disabled row’s in a highlight that draws the fill alone', async ({ page }) => {
+    await mount(page, {
+      fixtures: [
+        ...some('filter'),
+        raw('chosen', { label: 'Chosen', ...WORDS, selection: 'single', value: 'tree.md', filterValue: 'tree' }, FILES),
+        raw('off', { label: 'Off', ...WORDS, filterValue: 'gone' }, '<ul><li data-disabled><span><bdi>gone.ts</bdi></span></li></ul>'),
+      ],
+    });
+    await nameItems(page);
+    const textNode = host(page, 'filter').locator('li[data-t="tree-view.ts"] bdi');
+    expect(await textNode.evaluate((el) => el.childNodes.length)).toBe(1);
+    test.skip(!(await page.evaluate(() => 'highlights' in CSS)), 'the browser has no highlights: nothing is marked, and the rows are still filtered');
+    const marked = await marks(page);
+    expect(marked.plain).toEqual(expect.arrayContaining(['tree', 'ts', 'tree']));
+    expect(marked.selected).toEqual(['tree']);
+    expect(marked.disabled).toEqual(['gone']);
+    // The disabled one names no color: the run keeps the label's disabled color.
+    const disabledColor = await row(page, 'off', 'gone.ts').evaluate((el) => getComputedStyle(el, '::highlight(tanrei-tree-view-match-disabled)').color);
+    if (disabledColor) expect(disabledColor).toBe(await row(page, 'off', 'gone.ts').evaluate((el) => getComputedStyle(el).color));
+    // The text node is the one the product wrote: the ranges are over it, nothing was split or wrapped.
+    expect(await textNode.evaluate((el) => {
+      const highlight = (CSS as unknown as { highlights: Map<string, Set<Range>> }).highlights.get('tanrei-tree-view-match')!;
+      return [...highlight].filter((range) => range.startContainer === el.firstChild).map((range) => [range.startOffset, range.endOffset]);
+    })).toEqual([[0, 4], [10, 12]]);
+    // The colors of the two highlights are the tokens' (where the engine computes a highlight's style).
+    // The colors of the two highlights are the tokens', said on the row, whose label inherits them (where the engine
+    // computes a highlight's style).
+    const color = await row(page, 'filter', 'tree-view.ts').evaluate((el) => getComputedStyle(el, '::highlight(tanrei-tree-view-match)').backgroundColor);
+    if (color) expect(color).toBe(await resolveColor(page, T('match-container-color')));
+    // Emptied, nothing is marked.
+    await setTree(page, 'filter', { filterValue: '' });
+    await setTree(page, 'chosen', { filterValue: '' });
+    await setTree(page, 'off', { filterValue: '' });
+    expect(await marks(page)).toEqual({ plain: [], selected: [], disabled: [] });
+  });
+
+  test('TRV-61, TRV-71: with focus in the field the first match is the active match — drawn with the focus ring, the field’s active descendant — Down Arrow moves focus to it, Enter chooses it and keeps focus in the field; Escape empties the field, and again returns to the row “/” came from', async ({ page }) => {
+    await mount(page, { fixtures: [raw('files', { label: 'Files', ...WORDS, selection: 'single' }, FILES)] });
+    await nameItems(page);
+    await watch(page);
+    await input(page, 'files').focus();
+    await input(page, 'files').fill('tree');
+    const active = row(page, 'files', 'tree-view.ts');
+    await expect(active).toHaveAttribute('data-tanrei-filter-active', '');
+    expect(await css(active, 'border-top-color', '::after')).toBe(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
+    expect(await input(page, 'files').evaluate((el, r) => (el as HTMLElement & { ariaActiveDescendantElement: Element | null }).ariaActiveDescendantElement === r, await active.elementHandle())).toBe(true);
+    expect(await input(page, 'files').evaluate((el) => (el as HTMLElement & { ariaControlsElements: Element[] }).ariaControlsElements?.[0]?.getAttribute('role'))).toBe('tree');
+    await page.keyboard.press('Enter');
+    expect(await events(page)).toEqual(['change:{"value":"tree-view.ts"}']);
+    expect(await focused(page)).toBe('tanrei-text-input');
+    // A pointer over another match does not make it the active one.
+    await row(page, 'files', 'tree.md').hover();
+    await expect(active).toHaveAttribute('data-tanrei-filter-active', '');
+    await page.keyboard.press('ArrowDown');
+    expect(await focused(page)).toBe('tree-view.ts');
+    await expect(active).not.toHaveAttribute('data-tanrei-filter-active', '');
+    expect(await events(page)).toEqual([]);
+    // "/" on README.md (after emptying), then Escape twice.
+    await input(page, 'files').fill('');
+    await row(page, 'files', 'README.md').focus();
+    await page.keyboard.press('/');
+    expect(await focused(page)).toBe('tanrei-text-input');
+    await page.keyboard.type('docs');
+    await page.keyboard.press('Escape');
+    await expect(input(page, 'files')).toHaveValue('');
+    expect(await focused(page)).toBe('tanrei-text-input');
+    await page.keyboard.press('Escape');
+    expect(await focused(page)).toBe('README.md');
+  });
+
+  test('TRV-62, TRV-23: the chord on a row moves focus to the field with its text selected and is no type-ahead; elsewhere it does nothing of the tree’s; no hint and no keyboard shortcut; two chords bind nothing and are reported', async ({ page }) => {
+    const seen = warnings(page);
+    await mount(page, { fixtures: [raw('slash', { label: 'Slash', ...WORDS, filterValue: 'e' }, '<ul><li><span><bdi>/etc</bdi></span></li><li><span><bdi>else</bdi></span></li></ul>'), raw('two', { label: 'Two', ...WORDS, filterShortcut: ['/', 'f'] }, '<ul><li><span><bdi>one</bdi></span></li></ul>')] });
+    await nameItems(page);
+    await row(page, 'slash', 'else').focus();
+    await page.keyboard.press('/');
+    expect(await focused(page)).toBe('tanrei-text-input');
+    await expect.poll(() => input(page, 'slash').evaluate((el: HTMLInputElement) => [el.selectionStart, el.selectionEnd])).toEqual([0, 1]);
+    await expect(input(page, 'slash')).not.toHaveAttribute('aria-keyshortcuts', /./);
+    expect(await host(page, 'slash').locator('tanrei-keyboard-shortcut').count()).toBe(0);
+    // Elsewhere: typed on the page, nothing of the tree's.
+    await page.evaluate(() => (document.activeElement as HTMLElement).blur());
+    await page.keyboard.press('/');
+    expect(await focused(page)).toBe('body');
+    // Two chords: "/" on a row is type-ahead again (it finds nothing that begins with it there), and it is reported.
+    await row(page, 'two', 'one').focus();
+    await page.keyboard.press('/');
+    expect(await focused(page)).toBe('one');
+    expect(seen.some((text) => text.includes('TRV-62'))).toBe(true);
+  });
+
+  test('TRV-63: focusFilter() moves focus to the field, its text selected, whether or not filterShortcut is empty', async ({ page }) => {
+    await mount(page, { fixtures: [raw('method', { label: 'Method', ...WORDS, filterValue: 'src', filterShortcut: [] }, FILES)] });
+    await host(page, 'method').evaluate((el: HTMLElement & { focusFilter(): void }) => el.focusFilter());
+    expect(await focused(page)).toBe('tanrei-text-input');
+    await expect.poll(() => input(page, 'method').evaluate((el: HTMLInputElement) => [el.selectionStart, el.selectionEnd])).toEqual([0, 3]);
+  });
+
+  test('TRV-64: while the field holds text, a small text Button showing close named filterClearLabel; activating it empties the field, emits filterchange and keeps focus in the field', async ({ page }) => {
+    await mount(page, { fixtures: some('filter', 'filter-empty-field') });
+    await watchFilter(page);
+    expect(await field(page, 'filter-empty-field').locator('[data-tanrei-filter-clear]').count()).toBe(0);
+    const clear = field(page, 'filter').locator('[data-tanrei-filter-clear]');
+    await expect(clear).toHaveAttribute('variant', 'text');
+    await expect(clear).toHaveAttribute('size', 'small');
+    await expect(clear.locator('button')).toHaveAccessibleName('Clear');
+    await expect(clear.locator('[slot="icon"]')).toHaveText('close');
+    await clear.click();
+    expect(await filterEvents(page)).toEqual(['']);
+    await expect(input(page, 'filter')).toHaveValue('');
+    expect(await focused(page)).toBe('tanrei-text-input');
+    await expect(clear).toHaveCount(0);
+  });
+
+  test('TRV-65: the status line at the top of the results — the count, or the words for none in place of the rows (no Tab stop then) — in filter.status’s style and color, inset as a row is, hidden from assistive technology; filterCountHidden draws no count', async ({ page }) => {
+    await mount(page, { fixtures: some('filter', 'filter-none', 'filter-count-hidden', 'filter-highlight') });
+    await expect(line(page, 'filter')).toHaveText('Matches: 1');
+    await expect(line(page, 'filter')).toHaveAttribute('aria-hidden', 'true');
+    await expect(line(page, 'filter-highlight')).toHaveText('Matches: 2');
+    await expect(line(page, 'filter-count-hidden')).toBeHidden();
+    await expect(line(page, 'filter-none')).toHaveText('No matches');
+    expect(await drawnRows(page, 'filter-none')).toEqual([]);
+    expect(await host(page, 'filter-none').locator('[role="treeitem"][tabindex="0"]').count()).toBe(0);
+    expect(await css(line(page, 'filter-none'), 'color')).toBe(await resolveColor(page, T('filter-status-color')));
+    expect(await px(line(page, 'filter-none'), 'font-size')).toBe(await resolveToken(page, T('filter-status-typescale-font-size')));
+    near(await px(line(page, 'filter-none'), 'padding-left'), await resolveToken(page, T('container-padding-inline-regular')));
+    // Without the words, nothing is drawn in their place, and the words are asked for.
+    await setTree(page, 'filter-none', { filterEmptyText: '' });
+    await expect(line(page, 'filter-none')).toBeHidden();
+    expect(await missingWords(page)).toContain('filterEmptyText');
+    await setWords(page, { filterEmptyText: 'Nothing' });
+    await expect(line(page, 'filter-none')).toHaveText('Nothing');
+  });
+
+  test('TRV-66, TRV-33: one second after the result settles its count is said through one status of the tree’s own, not drawn — with filterCountHidden as well; emptied, nothing is said', async ({ page }) => {
+    await mount(page, { fixtures: some('filter-empty-field', 'filter-count-hidden') });
+    await holdClock(page);
+    await input(page, 'filter-empty-field').fill('tree ts');
+    await page.clock.runFor(999);
+    await expect(said(page, 'filter-empty-field')).toHaveText('');
+    await page.clock.runFor(1);
+    await expect(said(page, 'filter-empty-field')).toHaveText('Matches: 1');
+    await input(page, 'filter-empty-field').fill('zzz');
+    await expect(said(page, 'filter-empty-field')).toHaveText('');
+    await page.clock.runFor(1000);
+    await expect(said(page, 'filter-empty-field')).toHaveText('No matches');
+    await input(page, 'filter-empty-field').fill('');
+    await page.clock.runFor(1000);
+    await expect(said(page, 'filter-empty-field')).toHaveText('');
+    await setTree(page, 'filter-count-hidden', { filterValue: 'tree' });
+    await page.clock.runFor(1000);
+    await expect(said(page, 'filter-count-hidden')).toHaveText('Matches: 1');
+    await releaseClock(page);
+    // Read, never drawn; the tree's one live region (the text input's own announcer is the field's).
+    const box = await edges(said(page, 'filter-empty-field'));
+    expect(box.width * box.height).toBeLessThanOrEqual(1);
+    await expect(said(page, 'filter-empty-field')).toHaveAttribute('aria-atomic', 'true');
+    expect(await host(page, 'filter-empty-field').evaluate((el) => el.querySelectorAll('[role="status"], [aria-live]').length)).toBe(1);
+  });
+
+  test('TRV-67: the filter changes no value, values, open or label; a hidden selected item stays selected; Ctrl+A chooses only the rows shown', async ({ page }) => {
+    await mount(page, { fixtures: [raw('many', { label: 'Many', ...WORDS, selection: 'multiple', values: '["README.md"]' }, FILES)] });
+    await nameItems(page);
+    await watch(page);
+    await input(page, 'many').fill('tree');
+    expect(await host(page, 'many').evaluate((el: HTMLElement & { values: string[] }) => el.values)).toEqual(['README.md']);
+    await expect(row(page, 'many', 'README.md')).toHaveAttribute('aria-selected', 'true');
+    await expect(item(page, 'many', 'docs')).not.toHaveAttribute('data-open', '');
+    expect(await events(page)).toEqual([]);
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ControlOrMeta+a');
+    expect(await host(page, 'many').evaluate((el: HTMLElement & { values: string[] }) => [...el.values].sort())).toEqual(['README.md', 'docs', 'src', 'tree-view.ts', 'tree.md'].sort());
+  });
+
+  test('TRV-68, TRV-19: a filter that hides the focused row moves focus to the field; Tab into the tree while the row focused last is hidden goes to the active match; the field is a stop of its own before the tree', async ({ page }) => {
+    await mount(page, { fixtures: [raw('focus', { label: 'Focus', ...WORDS }, FILES)] });
+    await nameItems(page);
+    await row(page, 'focus', 'README.md').focus();
+    await setTree(page, 'focus', { filterValue: 'guide' });
+    expect(await focused(page)).toBe('tanrei-text-input');
+    // On: the field's clear button, then the tree's one stop.
+    await tab(page);
+    expect(await focused(page)).toBe('tanrei-button');
+    await tab(page);
+    expect(await focused(page)).toBe('guide.md');
+    // Back: the field's clear button, then its input — before the tree, stops of their own.
+    await tab(page, { back: true });
+    expect(await focused(page)).toBe('tanrei-button');
+    await tab(page, { back: true });
+    expect(await focused(page)).toBe('tanrei-text-input');
+  });
+
+  test('TRV-69: Escape on a row while a filter is applied empties it; the row keeps focus and its place, and every row is shown again', async ({ page }) => {
+    await mount(page, { fixtures: some('filter') });
+    await watchFilter(page);
+    await row(page, 'filter', 'tree-view.ts').focus();
+    await page.keyboard.press('Escape');
+    expect(await filterEvents(page)).toEqual(['']);
+    expect(await focused(page)).toBe('tree-view.ts');
+    expect(await drawnRows(page, 'filter')).toHaveLength(10);
+    await expect(row(page, 'filter', 'tree-view.ts')).toBeInViewport();
+  });
+
+  test('TRV-69, TRV-67: in a scrolling box the row keeps its place when Escape empties the filter; a row only the filter showed stays shown, its parents opened as the person would open them', async ({ page }) => {
+    await mount(page, { fixtures: [raw('kept', { label: 'Kept', ...WORDS, filterValue: 'guide' }, FILES)] });
+    await nameItems(page);
+    await page.addStyleTag({ content: '[data-fixture="kept"] { block-size: 160px; overflow-y: auto; }' });
+    await watch(page);
+    await row(page, 'kept', 'guide.md').focus();
+    const before = (await edges(row(page, 'kept', 'guide.md'))).top;
+    await page.keyboard.press('Escape');
+    expect(await focused(page)).toBe('guide.md');
+    expect(await events(page)).toEqual(['toggle:docs:true']);
+    await expect(item(page, 'kept', 'docs')).toHaveAttribute('data-open', '');
+    near((await edges(row(page, 'kept', 'guide.md'))).top, before, 1);
+  });
+
+  test('TRV-71: the field is a search box named by filterLabel controlling the tree; a shown row says its place among the shown rows; an empty filterLabel and an unknown filterMode are reported, the field drawn and filtering as filter', async ({ page }) => {
+    const seen = warnings(page);
+    await mount(page, { fixtures: [...some('filter'), raw('odd', { label: 'Odd', ...WORDS, filterLabel: '', filterMode: 'sideways', filterValue: 'tree' }, FILES)] });
+    await nameItems(page);
+    await expect(input(page, 'filter')).toHaveAttribute('type', 'search');
+    await expect(input(page, 'filter')).toHaveAccessibleName('Filter files');
+    await expect(row(page, 'filter', 'tree-view.ts')).toHaveAttribute('aria-setsize', '1');
+    await expect(row(page, 'filter', 'tree-view.ts')).toHaveAttribute('aria-posinset', '1');
+    // The field and the status are not in the tree: the tree is its first list while the field stands in the element.
+    const tree = host(page, 'filter').locator('[role="tree"]');
+    await expect(tree).toHaveCount(1);
+    await expect(tree).toHaveAccessibleName('Project files');
+    expect(await tree.evaluate((el) => el.localName)).toBe('ul');
+    expect(await drawnRows(page, 'odd')).toEqual(['src', 'tree-view.ts', 'docs', 'tree.md']);
+    expect(seen.some((text) => text.includes('TRV-71') && text.includes('filterLabel'))).toBe(true);
+    expect(seen.some((text) => text.includes('TRV-71') && text.includes('sideways'))).toBe(true);
+    // Not filterable any more: the tree is the element again, and no field is drawn.
+    await setTree(page, 'filter', { filterable: false });
+    await expect(host(page, 'filter')).toHaveAttribute('role', 'tree');
+    expect(await host(page, 'filter').locator('[data-tanrei-filter], [data-tanrei-filter-status], [data-tanrei-filtered]').count()).toBe(0);
+  });
+
+  test('TRV-71: no axe violations in the filter fixtures, with focus in a field', async ({ page }) => {
+    await mount(page, { fixtures: some('filter-empty-field', 'filter', 'filter-parent', 'filter-highlight', 'filter-none', 'filter-single', 'filter-count-hidden') });
+    await input(page, 'filter').focus();
+    const results = await new AxeBuilder({ page }).include('.stage').analyze();
+    expect(results.violations, results.violations.map((v) => `${v.id} (${v.nodes.map((n) => n.target.join(' ')).join('; ')})`).join(', ')).toEqual([]);
   });
 });
 

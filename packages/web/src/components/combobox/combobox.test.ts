@@ -269,6 +269,16 @@ const computed = (page: P, names: string[]) =>
     probe.remove();
     return out;
   }, names);
+/** A system color as a background takes it, unforced (Mark is a background's color). */
+const systemBackground = (page: P, name: string) =>
+  page.evaluate((n) => {
+    const probe = document.createElement('div');
+    probe.style.cssText = `forced-color-adjust: none; background-color: ${n}`;
+    document.body.append(probe);
+    const value = getComputedStyle(probe).backgroundColor;
+    probe.remove();
+    return value;
+  }, name);
 const systemColor = (page: P, name: string) =>
   page.evaluate((n) => {
     const probe = document.createElement('div');
@@ -1789,8 +1799,13 @@ test.describe('behavior: the list', () => {
     expect((await foot.textContent())?.trim(), 'an empty name draws nothing').toBe('');
   });
 
-  test('CMB-38: under filter contains with a text typed, the first run of each shown label that matched is drawn heavier by option.match.emphasis, in the label’s own color and with no fill, wrapping with the label as one text; the label’s accessible name is the whole label; under filter none nothing is marked', async ({ page }) => {
-    await mount(page, [...spec.fixtures.filter((f) => ['open-filtered', 'open-filtered-ja', 'stacked-open'].includes(f.id)), fx('none', { filter: 'none', inputValue: 'to', open: true }), fx('marks', { inputValue: 'ogotaa', open: true }, [option('Bogotáa', 'b')])]);
+  test('CMB-38: under filter contains with a text typed, the first run of each shown label that matched is marked as the search marks a match — in option.match.color, heavier by option.match.emphasis, over option.match.container.color, and in the chosen option the selected pair — wrapping with the label as one text; the label’s accessible name is the whole label; under filter none nothing is marked', async ({ page }) => {
+    await mount(page, [
+      ...spec.fixtures.filter((f) => ['open-filtered', 'open-filtered-ja', 'stacked-open'].includes(f.id)),
+      fx('none', { filter: 'none', inputValue: 'to', open: true }),
+      fx('marks', { inputValue: 'ogotaa', open: true }, [option('Bogotáa', 'b')]),
+      fx('chosen', { value: 'tokyo', inputValue: 'to', open: true }),
+    ]);
     const id = 'open-filtered';
     const marked = (fixture: string, label: string) => row(page, fixture, label).locator('.option-label').evaluate((el) => [...el.childNodes].map((node) => (node.nodeName === 'MARK' ? `[${node.textContent}]` : node.nodeType === Node.TEXT_NODE ? node.textContent : '')).join(''));
     expect(await marked(id, 'Toronto'), 'the first run only').toBe('[To]ronto');
@@ -1802,9 +1817,16 @@ test.describe('behavior: the list', () => {
     const label = row(page, id, 'Toronto').locator('.option-label');
     expect(Number(await css(mark, 'font-weight'))).toBe(Number(await css(label, 'font-weight')) + Number(await css(page.locator('html'), T('option-match-emphasis'))));
     expect(Number(await css(page.locator('html'), T('option-match-emphasis')))).toBeGreaterThan(0);
-    expect(await css(mark, 'color')).toBe(await css(label, 'color'));
-    expect(await css(mark, 'background-color')).toBe('rgba(0, 0, 0, 0)');
+    const own = (name: string) => resolveColor(page, `--tanrei-comp-combobox-option-match-${name}`);
+    expect(await css(mark, 'color')).toBe(await own('color'));
+    expect(await css(mark, 'background-color')).toBe(await own('container-color'));
+    expect([await css(mark, 'border-radius'), await css(mark, 'padding')], 'square and unpadded: the fill moves no text').toEqual(['0px', '0px']);
     expect(await css(mark, 'display'), 'one text with the label').toBe('inline');
+    // In the chosen option, whose own fill is the quiet one, the selected pair.
+    const chosen = row(page, 'chosen', 'Tokyo');
+    await expect(chosen).toHaveClass(/selected/);
+    expect(await css(chosen.locator('mark'), 'color')).toBe(await own('selected-color'));
+    expect(await css(chosen.locator('mark'), 'background-color')).toBe(await own('selected-container-color'));
     // One text for assistive technology: the option is named by the whole label.
     expect(await row(page, id, 'Toronto').evaluate((el) => (el.getRootNode() as ShadowRoot).getElementById(el.getAttribute('aria-labelledby')!)!.textContent)).toBe('Toronto');
     // Nothing typed, or the product filters: nothing is marked.
@@ -2428,7 +2450,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   });
 
-  test('CMB-51: in forced colors a floating label and the asterisk after it are drawn in the text color; the container has an edge outline.width wide in the control text color in every variant, in the highlight color at the focused width while focused, and no color of its own shows an error — the invalid state does; the list has an edge in the text color, the active option the highlight colors, the matched run its weight alone, a disabled combobox and a disabled option the disabled text color; the chosen option is shown by its check', async ({ page, browserName }) => {
+  test('CMB-51: in forced colors a floating label and the asterisk after it are drawn in the text color; the container has an edge outline.width wide in the control text color in every variant, in the highlight color at the focused width while focused, and no color of its own shows an error — the invalid state does; the list has an edge in the text color, the active option the highlight colors, the matched run the colors for marked text with its weight raised, a disabled combobox and a disabled option the disabled text color; the chosen option is shown by its check', async ({ page, browserName }) => {
     test.skip(browserName !== 'chromium', 'forced colors are emulated in Chromium');
     await page.emulateMedia({ forcedColors: 'active' });
     await mount(page, [...spec.fixtures.filter((f) => ['stacked-value', 'stacked-error-value', 'filled-value', 'outlined-value', 'stacked-disabled', 'open-supporting-text', 'open-status-error'].includes(f.id))]);
@@ -2458,13 +2480,13 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     expect(await css(active, 'background-color')).toBe(await systemColor(page, 'Highlight'));
     expect(await css(active.locator('.option-label'), 'color')).toBe(await systemColor(page, 'HighlightText'));
     await expect(part(page, id, '.row.selected .check')).toBeVisible();
-    // The matched run: heavier, in its label's color, with no fill.
+    // The matched run: heavier, in the colors for marked text.
     const plain = part(page, id, '.row:not(.active):not(.selected)').first();
     const mark = plain.locator('mark');
-    expect(await css(mark, 'color')).toBe(await css(plain.locator('.option-label'), 'color'));
-    expect(await css(mark, 'background-color')).toBe('rgba(0, 0, 0, 0)');
+    expect(await css(mark, 'color')).toBe(await systemColor(page, 'MarkText'));
+    expect(await css(mark, 'background-color')).toBe(await systemBackground(page, 'Mark'));
     expect(Number(await css(mark, 'font-weight'))).toBeGreaterThan(Number(await css(plain.locator('.option-label'), 'font-weight')));
-    expect(await css(active.locator('mark'), 'color')).toBe(await systemColor(page, 'HighlightText'));
+    expect(await css(active.locator('mark'), 'color')).toBe(await systemColor(page, 'MarkText'));
     // A disabled option, in the disabled text color.
     await set(page, id, { inputValue: 'sys' });
     expect(await css(part(page, id, '.row.d .option-label'), 'color')).toBe(await systemColor(page, 'GrayText'));

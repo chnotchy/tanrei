@@ -1,4 +1,4 @@
-// 112 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
+// 119 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
 // GENERATED FILE — DO NOT EDIT.
 // Source: tokens/ (DTCG 2025.10). Regenerate with `pnpm generate`.
 @file:Suppress("unused", "MagicNumber", "MaxLineLength", "LongParameterList", "LargeClass", "LongMethod")
@@ -3077,7 +3077,11 @@ private object CupertinoSystemSource {
             motionStateDuration = 250,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             optionLabelTypescale = typescale.bodyLarge,
+            optionMatchColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            optionMatchContainerColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
             optionMatchEmphasis = 200f,
+            optionMatchSelectedColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+            optionMatchSelectedContainerColor = TanreiPaint.Role(TanreiColorRole.Surface),
             optionShape = 8.dp,
             optionSupportingTextTypescale = typescale.bodySmall,
             separation = 0f,
@@ -5941,6 +5945,11 @@ private object CupertinoSystemSource {
             containerPaddingBlock = 12.dp,
             containerPaddingInline = 12.dp,
             containerWidth = 240.dp,
+            filterGap = 12.dp,
+            filterShortcutColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
+            filterShortcutTypescale = typescale.labelSmall,
+            filterStatusColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
+            filterStatusTypescale = typescale.bodySmall,
             guideColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
             guideWidth = 1.dp,
             headerColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
@@ -5952,6 +5961,11 @@ private object CupertinoSystemSource {
             itemContainerShape = 10.dp,
             itemGap = 12.dp,
             itemIconIndicatorShape = 9999.dp,
+            itemMatchColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            itemMatchContainerColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
+            itemMatchEmphasis = 200f,
+            itemMatchSelectedColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
+            itemMatchSelectedContainerColor = TanreiPaint.Role(TanreiColorRole.Surface),
             itemSupportingTextTypescale = typescale.bodySmall,
             itemTrailingTextTypescale = typescale.bodySmall,
             motionDisclosureDuration = 400,
@@ -8927,9 +8941,17 @@ private object CupertinoSystemSource {
     fun treeView(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiTreeViewTokens =
         TanreiTreeViewTokens(
             containerShape = 8.dp,
+            filterGap = 8.dp,
+            filterStatusColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
+            filterStatusTypescale = typescale.bodySmall,
             guideColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
             guideWidth = 1.dp,
             iconGap = 12.dp,
+            matchColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            matchContainerColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
+            matchEmphasis = 200f,
+            matchSelectedColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+            matchSelectedContainerColor = TanreiPaint.Role(TanreiColorRole.Surface),
             motionDisclosureDuration = 400,
             motionDisclosureEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             motionFeedbackDuration = 450,

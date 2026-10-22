@@ -4,35 +4,35 @@
   "because": "An imitation preset is held to fidelity to the system it imitates, not to Tanrei's accessibility criteria, in every contrast scheme. These are measurements against the fixed thresholds, kept as information: they are not warnings and not mimicry gaps.",
   "checked": {
     "rolePairs": 642,
-    "componentPairs": 726,
+    "componentPairs": 768,
     "schemes": {
       "light": {
         "rolePairs": 107,
-        "componentPairs": 121
+        "componentPairs": 128
       },
       "light-medium": {
         "rolePairs": 107,
-        "componentPairs": 121
+        "componentPairs": 128
       },
       "light-high": {
         "rolePairs": 107,
-        "componentPairs": 121
+        "componentPairs": 128
       },
       "dark": {
         "rolePairs": 107,
-        "componentPairs": 121
+        "componentPairs": 128
       },
       "dark-medium": {
         "rolePairs": 107,
-        "componentPairs": 121
+        "componentPairs": 128
       },
       "dark-high": {
         "rolePairs": 107,
-        "componentPairs": 121
+        "componentPairs": 128
       }
     }
   },
-  "count": 112,
+  "count": 119,
   "measurements": [
     "[light] on-error on error: 4.03:1 < 4.5:1 (content on filled container)",
     "[light] on-info on info: 4.02:1 < 4.5:1 (content on filled container)",
@@ -138,6 +138,13 @@
     "[dark] success on surface-container-highest: 3.17:1 < 4.5:1 (success-colored text)",
     "[dark] warning on surface-container-highest: 3.17:1 < 4.5:1 (warning-colored text)",
     "[dark] outline on surface-container-highest: 1.29:1 < 3:1 (functional boundary (WCAG 1.4.11))",
+    "[light] comp.navigation-drawer.item.match.selected.color on comp.navigation-drawer.item.match.selected.container.color: 1.00:1 < 4.5:1 (a matched run of a row on the fill a selected one takes)",
+    "[light-medium] comp.navigation-drawer.item.match.selected.color on comp.navigation-drawer.item.match.selected.container.color: 1.00:1 < 4.5:1 (a matched run of a row on the fill a selected one takes)",
+    "[light-high] comp.navigation-drawer.item.match.selected.color on comp.navigation-drawer.item.match.selected.container.color: 1.00:1 < 7:1 (a matched run of a row on the fill a selected one takes)",
+    "[dark-medium] comp.navigation-drawer.item.match.selected.color on comp.navigation-drawer.item.match.selected.container.color: 1.11:1 < 4.5:1 (a matched run of a row on the fill a selected one takes)",
+    "[dark-high] comp.navigation-drawer.item.match.selected.color on comp.navigation-drawer.item.match.selected.container.color: 1.00:1 < 7:1 (a matched run of a row on the fill a selected one takes)",
+    "[light] comp.tree-view.match.selected.color on comp.tree-view.match.selected.container.color: 4.01:1 < 4.5:1 (a matched run of a row on the fill a selected one takes)",
+    "[light] comp.combobox.option.match.selected.color on comp.combobox.option.match.selected.container.color: 4.01:1 < 4.5:1 (a matched run of an option on the fill a selected one takes)",
     "[light] comp.radio-button.unselected.fill.color on comp.radio-button.unselected.ring.color: 1.80:1 < 3:1 (the fill of a radio against the ring it meets, at comp.radio-button.fill.opacity 1 over sys.color.surface and the state layer — WCAG 1.4.11)",
     "[light] comp.radio-button.unselected.hovered.fill.color on comp.radio-button.unselected.hovered.ring.color: 1.80:1 < 3:1 (the fill of a radio against the ring it meets, at comp.radio-button.fill.opacity 1 over sys.color.surface and the state layer — WCAG 1.4.11)",
     "[light] comp.radio-button.unselected.focused.fill.color on comp.radio-button.unselected.focused.ring.color: 1.80:1 < 3:1 (the fill of a radio against the ring it meets, at comp.radio-button.fill.opacity 1 over sys.color.surface and the state layer — WCAG 1.4.11)",

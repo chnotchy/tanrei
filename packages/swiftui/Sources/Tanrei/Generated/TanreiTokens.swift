@@ -5498,7 +5498,11 @@ public struct TanreiComboboxTokens: Sendable, Equatable {
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
   public var optionLabelTypescale: TanreiTextStyle
+  public var optionMatchColor: TanreiPaint
+  public var optionMatchContainerColor: TanreiPaint
   public var optionMatchEmphasis: Double
+  public var optionMatchSelectedColor: TanreiPaint
+  public var optionMatchSelectedContainerColor: TanreiPaint
   public var optionShape: CGFloat
   public var optionSupportingTextTypescale: TanreiTextStyle
   public var separation: Double
@@ -5540,7 +5544,11 @@ public struct TanreiComboboxTokens: Sendable, Equatable {
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
     optionLabelTypescale: TanreiTextStyle,
+    optionMatchColor: TanreiPaint,
+    optionMatchContainerColor: TanreiPaint,
     optionMatchEmphasis: Double,
+    optionMatchSelectedColor: TanreiPaint,
+    optionMatchSelectedContainerColor: TanreiPaint,
     optionShape: CGFloat,
     optionSupportingTextTypescale: TanreiTextStyle,
     separation: Double,
@@ -5577,7 +5585,11 @@ public struct TanreiComboboxTokens: Sendable, Equatable {
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
     self.optionLabelTypescale = optionLabelTypescale
+    self.optionMatchColor = optionMatchColor
+    self.optionMatchContainerColor = optionMatchContainerColor
     self.optionMatchEmphasis = optionMatchEmphasis
+    self.optionMatchSelectedColor = optionMatchSelectedColor
+    self.optionMatchSelectedContainerColor = optionMatchSelectedContainerColor
     self.optionShape = optionShape
     self.optionSupportingTextTypescale = optionSupportingTextTypescale
     self.separation = separation
@@ -11686,6 +11698,11 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   public var containerPaddingBlock: CGFloat
   public var containerPaddingInline: CGFloat
   public var containerWidth: CGFloat
+  public var filterGap: CGFloat
+  public var filterShortcutColor: TanreiPaint
+  public var filterShortcutTypescale: TanreiTextStyle
+  public var filterStatusColor: TanreiPaint
+  public var filterStatusTypescale: TanreiTextStyle
   public var guideColor: TanreiPaint
   public var guideWidth: CGFloat
   public var headerColor: TanreiPaint
@@ -11697,6 +11714,11 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   public var itemContainerShape: CGFloat
   public var itemGap: CGFloat
   public var itemIconIndicatorShape: CGFloat
+  public var itemMatchColor: TanreiPaint
+  public var itemMatchContainerColor: TanreiPaint
+  public var itemMatchEmphasis: Double
+  public var itemMatchSelectedColor: TanreiPaint
+  public var itemMatchSelectedContainerColor: TanreiPaint
   public var itemSupportingTextTypescale: TanreiTextStyle
   public var itemTrailingTextTypescale: TanreiTextStyle
   public var motionDisclosureDuration: Double
@@ -11740,6 +11762,11 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     containerPaddingBlock: CGFloat,
     containerPaddingInline: CGFloat,
     containerWidth: CGFloat,
+    filterGap: CGFloat,
+    filterShortcutColor: TanreiPaint,
+    filterShortcutTypescale: TanreiTextStyle,
+    filterStatusColor: TanreiPaint,
+    filterStatusTypescale: TanreiTextStyle,
     guideColor: TanreiPaint,
     guideWidth: CGFloat,
     headerColor: TanreiPaint,
@@ -11751,6 +11778,11 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     itemContainerShape: CGFloat,
     itemGap: CGFloat,
     itemIconIndicatorShape: CGFloat,
+    itemMatchColor: TanreiPaint,
+    itemMatchContainerColor: TanreiPaint,
+    itemMatchEmphasis: Double,
+    itemMatchSelectedColor: TanreiPaint,
+    itemMatchSelectedContainerColor: TanreiPaint,
     itemSupportingTextTypescale: TanreiTextStyle,
     itemTrailingTextTypescale: TanreiTextStyle,
     motionDisclosureDuration: Double,
@@ -11789,6 +11821,11 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     self.containerPaddingBlock = containerPaddingBlock
     self.containerPaddingInline = containerPaddingInline
     self.containerWidth = containerWidth
+    self.filterGap = filterGap
+    self.filterShortcutColor = filterShortcutColor
+    self.filterShortcutTypescale = filterShortcutTypescale
+    self.filterStatusColor = filterStatusColor
+    self.filterStatusTypescale = filterStatusTypescale
     self.guideColor = guideColor
     self.guideWidth = guideWidth
     self.headerColor = headerColor
@@ -11800,6 +11837,11 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     self.itemContainerShape = itemContainerShape
     self.itemGap = itemGap
     self.itemIconIndicatorShape = itemIconIndicatorShape
+    self.itemMatchColor = itemMatchColor
+    self.itemMatchContainerColor = itemMatchContainerColor
+    self.itemMatchEmphasis = itemMatchEmphasis
+    self.itemMatchSelectedColor = itemMatchSelectedColor
+    self.itemMatchSelectedContainerColor = itemMatchSelectedContainerColor
     self.itemSupportingTextTypescale = itemSupportingTextTypescale
     self.itemTrailingTextTypescale = itemTrailingTextTypescale
     self.motionDisclosureDuration = motionDisclosureDuration
@@ -18547,9 +18589,17 @@ public struct TanreiTreeViewStateTokens: Sendable, Equatable {
 /// Component tokens of tree-view (comp.tree-view).
 public struct TanreiTreeViewTokens: Sendable, Equatable {
   public var containerShape: CGFloat
+  public var filterGap: CGFloat
+  public var filterStatusColor: TanreiPaint
+  public var filterStatusTypescale: TanreiTextStyle
   public var guideColor: TanreiPaint
   public var guideWidth: CGFloat
   public var iconGap: CGFloat
+  public var matchColor: TanreiPaint
+  public var matchContainerColor: TanreiPaint
+  public var matchEmphasis: Double
+  public var matchSelectedColor: TanreiPaint
+  public var matchSelectedContainerColor: TanreiPaint
   public var motionDisclosureDuration: Double
   public var motionDisclosureEasing: TanreiCubicBezier
   public var motionFeedbackDuration: Double
@@ -18573,9 +18623,17 @@ public struct TanreiTreeViewTokens: Sendable, Equatable {
 
   public init(
     containerShape: CGFloat,
+    filterGap: CGFloat,
+    filterStatusColor: TanreiPaint,
+    filterStatusTypescale: TanreiTextStyle,
     guideColor: TanreiPaint,
     guideWidth: CGFloat,
     iconGap: CGFloat,
+    matchColor: TanreiPaint,
+    matchContainerColor: TanreiPaint,
+    matchEmphasis: Double,
+    matchSelectedColor: TanreiPaint,
+    matchSelectedContainerColor: TanreiPaint,
     motionDisclosureDuration: Double,
     motionDisclosureEasing: TanreiCubicBezier,
     motionFeedbackDuration: Double,
@@ -18594,9 +18652,17 @@ public struct TanreiTreeViewTokens: Sendable, Equatable {
     disabled: TanreiTreeViewStateTokens
   ) {
     self.containerShape = containerShape
+    self.filterGap = filterGap
+    self.filterStatusColor = filterStatusColor
+    self.filterStatusTypescale = filterStatusTypescale
     self.guideColor = guideColor
     self.guideWidth = guideWidth
     self.iconGap = iconGap
+    self.matchColor = matchColor
+    self.matchContainerColor = matchContainerColor
+    self.matchEmphasis = matchEmphasis
+    self.matchSelectedColor = matchSelectedColor
+    self.matchSelectedContainerColor = matchSelectedContainerColor
     self.motionDisclosureDuration = motionDisclosureDuration
     self.motionDisclosureEasing = motionDisclosureEasing
     self.motionFeedbackDuration = motionFeedbackDuration

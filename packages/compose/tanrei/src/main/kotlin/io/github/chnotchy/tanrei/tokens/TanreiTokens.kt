@@ -3544,7 +3544,11 @@ public data class TanreiComboboxTokens(
     public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
     public val optionLabelTypescale: TanreiTextStyle,
+    public val optionMatchColor: TanreiPaint,
+    public val optionMatchContainerColor: TanreiPaint,
     public val optionMatchEmphasis: Float,
+    public val optionMatchSelectedColor: TanreiPaint,
+    public val optionMatchSelectedContainerColor: TanreiPaint,
     public val optionShape: Dp,
     public val optionSupportingTextTypescale: TanreiTextStyle,
     public val separation: Float,
@@ -3572,6 +3576,10 @@ public data class TanreiComboboxTokens(
         addAll(groupTitleColor.roles())
         addAll(listColor.roles())
         listElevation.forEach { add(it.role) }
+        addAll(optionMatchColor.roles())
+        addAll(optionMatchContainerColor.roles())
+        addAll(optionMatchSelectedColor.roles())
+        addAll(optionMatchSelectedContainerColor.roles())
         addAll(statusColor.roles())
         addAll(statusErrorColor.roles())
         addAll(variants.referencedRoles())
@@ -7347,6 +7355,11 @@ public data class TanreiNavigationDrawerTokens(
     public val containerPaddingBlock: Dp,
     public val containerPaddingInline: Dp,
     public val containerWidth: Dp,
+    public val filterGap: Dp,
+    public val filterShortcutColor: TanreiPaint,
+    public val filterShortcutTypescale: TanreiTextStyle,
+    public val filterStatusColor: TanreiPaint,
+    public val filterStatusTypescale: TanreiTextStyle,
     public val guideColor: TanreiPaint,
     public val guideWidth: Dp,
     public val headerColor: TanreiPaint,
@@ -7358,6 +7371,11 @@ public data class TanreiNavigationDrawerTokens(
     public val itemContainerShape: Dp,
     public val itemGap: Dp,
     public val itemIconIndicatorShape: Dp,
+    public val itemMatchColor: TanreiPaint,
+    public val itemMatchContainerColor: TanreiPaint,
+    public val itemMatchEmphasis: Float,
+    public val itemMatchSelectedColor: TanreiPaint,
+    public val itemMatchSelectedContainerColor: TanreiPaint,
     public val itemSupportingTextTypescale: TanreiTextStyle,
     public val itemTrailingTextTypescale: TanreiTextStyle,
     public val motionDisclosureDuration: Int,
@@ -7397,9 +7415,15 @@ public data class TanreiNavigationDrawerTokens(
     }
 
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(filterShortcutColor.roles())
+        addAll(filterStatusColor.roles())
         addAll(guideColor.roles())
         addAll(headerColor.roles())
         addAll(headingColor.roles())
+        addAll(itemMatchColor.roles())
+        addAll(itemMatchContainerColor.roles())
+        addAll(itemMatchSelectedColor.roles())
+        addAll(itemMatchSelectedContainerColor.roles())
         addAll(scrimColor.roles())
         addAll(stickyContainerColor.roles())
         addAll(stickyDividerColor.roles())
@@ -11519,9 +11543,17 @@ public data class TanreiTreeViewStateTokens(
 @Immutable
 public data class TanreiTreeViewTokens(
     public val containerShape: Dp,
+    public val filterGap: Dp,
+    public val filterStatusColor: TanreiPaint,
+    public val filterStatusTypescale: TanreiTextStyle,
     public val guideColor: TanreiPaint,
     public val guideWidth: Dp,
     public val iconGap: Dp,
+    public val matchColor: TanreiPaint,
+    public val matchContainerColor: TanreiPaint,
+    public val matchEmphasis: Float,
+    public val matchSelectedColor: TanreiPaint,
+    public val matchSelectedContainerColor: TanreiPaint,
     public val motionDisclosureDuration: Int,
     public val motionDisclosureEasing: TanreiCubicBezier,
     public val motionFeedbackDuration: Int,
@@ -11549,7 +11581,12 @@ public data class TanreiTreeViewTokens(
     }
 
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(filterStatusColor.roles())
         addAll(guideColor.roles())
+        addAll(matchColor.roles())
+        addAll(matchContainerColor.roles())
+        addAll(matchSelectedColor.roles())
+        addAll(matchSelectedContainerColor.roles())
         addAll(stickyContainerColor.roles())
         addAll(stickyDividerColor.roles())
         addAll(conditions.referencedRoles())
