@@ -78,7 +78,7 @@ export interface TanreiMenuContextRequestDetail {
  * Why the menu asks to be closed (MNU-5, MNU-6), by the spec's names. The web has no back gesture of its own: Escape is
  * its close request, so `back` is never sent here.
  */
-export type TanreiMenuCloseReason = 'escape' | 'back' | 'outside' | 'tab' | 'focus-out' | 'item';
+export type TanreiMenuCloseReason = 'escape' | 'back' | 'outside' | 'tab' | 'focus-out' | 'item' | 'anchor-hidden';
 export interface TanreiMenuCloseDetail {
   reason: TanreiMenuCloseReason;
 }
@@ -2435,6 +2435,9 @@ export class TanreiMenu extends TanreiElement {
     followed: () => [this.followedElement, ...this.overlaid().map((submenu) => submenu.rowElement)],
     sized: () => [this.surface, this.scrollBox, ...this.overlaid().flatMap((submenu) => [submenu.surfaceElement, submenu.scrollElement])],
     check: this.follow,
+    // MNU-65: what it is placed against is no longer drawn.
+    anchor: () => this.followedElement,
+    undrawn: () => this.requestClose('anchor-hidden'),
   });
 
   private overlaid(): TanreiSubmenu[] {
@@ -2507,8 +2510,9 @@ export class TanreiMenu extends TanreiElement {
     const active = deepActive();
     if (this.owns(active)) {
       const back = this.focusReturn;
-      if (back) back.focus();
-      else (active as HTMLElement).blur?.();
+      back?.focus();
+      // MNU-65: an anchor that is no longer drawn takes no focus, and focus does not stay in a closed menu.
+      if (this.owns(deepActive())) (active as HTMLElement).blur?.();
     }
     this.asked = null;
     this.returnTo = null;

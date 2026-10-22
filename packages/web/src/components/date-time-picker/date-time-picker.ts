@@ -94,7 +94,7 @@ export type TanreiDateTimePickerLayout = 'auto' | 'vertical' | 'horizontal';
  * without a key (Android's back) arrives as the native dialog's `cancel` and is sent as `back`; one an Escape key caused
  * is sent as `escape`.
  */
-export type TanreiDateTimePickerCloseReason = 'escape' | 'back' | 'outside' | 'tab' | 'focus-out' | 'cancel' | 'confirm' | 'select';
+export type TanreiDateTimePickerCloseReason = 'escape' | 'back' | 'outside' | 'tab' | 'focus-out' | 'cancel' | 'confirm' | 'select' | 'anchor-hidden';
 export interface TanreiDateTimePickerCloseDetail {
   reason: TanreiDateTimePickerCloseReason;
 }
@@ -2154,6 +2154,9 @@ export class TanreiDateTimePicker extends TanreiElement {
     followed: () => [this.anchorElement],
     sized: () => [this.surface, this.renderRoot?.querySelector('.body')],
     check: this.follow,
+    // DTM-51: the anchor of a docked picker is no longer drawn.
+    anchor: () => this.anchorElement,
+    undrawn: () => this.requestClose('anchor-hidden'),
   });
 
   private stopFollowing() {
