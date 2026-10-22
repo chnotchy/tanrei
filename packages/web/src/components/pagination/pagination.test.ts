@@ -7,6 +7,7 @@ import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tab, tabTo } from '../../../test/harness.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { expectAnimated, sampleFrames } from '../../../test/frames.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('pagination');
 type P = Page;
@@ -949,7 +950,7 @@ test.describe('accessibility', () => {
   test('no axe violations in light and dark', async ({ page }) => {
     for (const theme of ['light', 'dark'] as const) {
       await mountFixtures(page, spec, { theme, icons: true });
-      await page.waitForTimeout(400); // colors transition
+      await motionEnded(page);
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
     }
