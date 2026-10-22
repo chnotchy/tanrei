@@ -383,7 +383,7 @@ export class TanreiImagePreview extends TanreiElement {
   private focusLeaves = false;
 
   private readonly children$ = new MutationObserver(() => this.readImages());
-  private readonly resize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.onResize());
+  private readonly resize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.#onResize());
 
   private get dialog(): HTMLDialogElement | null {
     return this.renderRoot?.querySelector('dialog') ?? null;
@@ -642,7 +642,7 @@ export class TanreiImagePreview extends TanreiElement {
     return changed;
   }
 
-  private onResize() {
+  #onResize() {
     if (!this.presented) return;
     // IMP-40: without a motion.
     this.still();
@@ -969,7 +969,7 @@ export class TanreiImagePreview extends TanreiElement {
     const touch = this.touches.get(event.pointerId);
     if (!touch) {
       // IMP-25: a pointer that can hover moves over the preview.
-      if (event.pointerType === 'mouse' && this.controlsHidden) this.onHover(event);
+      if (event.pointerType === 'mouse' && this.controlsHidden) this.#onHover(event);
       return;
     }
     const at = this.point(event);
@@ -1214,7 +1214,7 @@ export class TanreiImagePreview extends TanreiElement {
     this.lastTap = { x, y, time, timer };
   }
 
-  private onHover(event: PointerEvent) {
+  #onHover(event: PointerEvent) {
     const at = this.point(event);
     if (this.hiddenAt && Math.hypot(at.x - this.hiddenAt.x, at.y - this.hiddenAt.y) <= SHEET_TOUCH_SLOP) return;
     this.hiddenAt = null;

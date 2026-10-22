@@ -401,12 +401,12 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
     if (code !== null) this.take(replaceAll(code, cells));
   }
 
-  private onBeforeInput(event: InputEvent) {
+  #onBeforeInput(event: InputEvent) {
     const type = event.inputType;
     // OTC-6: composing text is the input method's, and is read when it is committed.
     if (COMPOSITION_INPUT_TYPES.has(type) || event.isComposing || this.composing) return;
     const known = type.startsWith('insert') || type.startsWith('delete') || type.startsWith('history') || type.startsWith('format');
-    // What is not known is left to the element and read from it afterwards (`onInput`).
+    // What is not known is left to the element and read from it afterwards (`#onInput`).
     if (!known) return;
     // The cells are drawn from the value the element holds, so the native element never edits by itself.
     event.preventDefault();
@@ -427,7 +427,7 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
    * does not let be stopped — is read from the element: a removal as the browser made it, one character as typed, and
    * anything else as a whole text (OTC-11).
    */
-  private onInput(event: Event) {
+  #onInput(event: Event) {
     event.stopPropagation();
     const input = this.input;
     if (!input || this.composing || (event as InputEvent).isComposing) return;
@@ -453,18 +453,18 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
   }
 
   /** The browser's own `change` is not the field's (OTC-13 decides when a value is committed). */
-  private onNativeChange(event: Event) {
+  #onNativeChange(event: Event) {
     event.stopPropagation();
   }
 
   // ─── An input method (OTC-6, OTC-13) ──────────────────────────────────────────────────────────────────────────
 
-  private onCompositionStart() {
+  #onCompositionStart() {
     this.composing = true;
     this.composingText = '';
   }
 
-  private onCompositionUpdate(event: CompositionEvent) {
+  #onCompositionUpdate(event: CompositionEvent) {
     if (!this.composing) return;
     this.composingText = event.data ?? '';
   }
@@ -473,10 +473,10 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
    * The composition ended: what it committed is read character by character, as typed text is; a cancelled one leaves
    * nothing. The engines differ in what follows — an `input` that is no longer composing (Firefox), nothing (Chromium),
    * and the `keydown` of the key that committed it, which no longer says that it composes (WebKit). Each is told by
-   * what it is (`onInput`, `composition.tookKey`), never by a timer: on a busy page an engine reports the next key
+   * what it is (`#onInput`, `composition.tookKey`), never by a timer: on a busy page an engine reports the next key
    * before such a timer runs, and the person's Backspace or Enter after a commit — by a key or by a pointer — was lost.
    */
-  private onCompositionEnd(event: CompositionEvent) {
+  #onCompositionEnd(event: CompositionEvent) {
     if (!this.composing) return;
     this.composing = false;
     this.composingText = '';
@@ -488,7 +488,7 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
 
   // ─── Keys (OTC-8, OTC-9, OTC-10, OTC-13) ──────────────────────────────────────────────────────────────────────
 
-  private onKeyDown(event: KeyboardEvent) {
+  #onKeyDown(event: KeyboardEvent) {
     this.fresh = false;
     if (this.isDisabled) return;
     // OTC-13: a key an input method takes — the one that commits or cancels its text too — is not the field's.
@@ -557,7 +557,7 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
 
   // ─── Focus, presses and the selection (OTC-5, OTC-10, OTC-25) ────────────────────────────────────────────────
 
-  private onFocus() {
+  #onFocus() {
     this.fresh = true;
     // OTC-5: focus that enters by the keyboard, by a Field's label or from the product makes the first empty cell (or
     // the last) active; a press on a cell has chosen already.
@@ -569,7 +569,7 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
     setTimeout(() => this.show());
   }
 
-  private onBlur() {
+  #onBlur() {
     this.focused = false;
     this.fresh = false;
     this.state = { ...this.state, all: false };
@@ -592,7 +592,7 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
    * unseen text is, a selection by dragging or by a second press — is not wanted (OTC-10), so the press is the
    * element's: it focuses the native element itself.
    */
-  private onMouseDown(event: MouseEvent) {
+  #onMouseDown(event: MouseEvent) {
     this.fresh = false;
     if (this.isDisabled) return;
     if (event.button !== 0) {
@@ -617,7 +617,7 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
    * keyboard's "select all" — is select all; any other selection (a part of the text, or the one a browser makes when
    * it focuses an input) is undone: the field has no selection of some cells only.
    */
-  private onSelect() {
+  #onSelect() {
     const input = this.input;
     if (!input || !this.focused || this.composing) return;
     const whole = this.value !== '' && input.selectionStart === 0 && input.selectionEnd === input.value.length;
@@ -626,14 +626,14 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
   }
 
   /** OTC-10: copy takes the whole value, without group marks, whichever cell is active; nothing while mask is set. */
-  private onCopy(event: ClipboardEvent) {
+  #onCopy(event: ClipboardEvent) {
     event.preventDefault();
     if (this.mask || this.isDisabled) return;
     event.clipboardData?.setData('text/plain', this.value);
   }
 
   /** OTC-10: cut takes the whole value and empties the field; while mask is set it gives nothing and changes nothing. */
-  private onCut(event: ClipboardEvent) {
+  #onCut(event: ClipboardEvent) {
     event.preventDefault();
     if (this.mask || this.locked || this.value === '') return;
     event.clipboardData?.setData('text/plain', this.value);
@@ -641,13 +641,13 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
   }
 
   /** OTC-11: pasted text is read whole as one code. Never blocked, masked or not. */
-  private onPaste(event: ClipboardEvent) {
+  #onPaste(event: ClipboardEvent) {
     event.preventDefault();
     this.insert(event.clipboardData?.getData('text/plain') ?? '', true);
   }
 
   /** OTC-11: dropped text is read whole as one code, and the field takes focus as a native input does. */
-  private onDrop(event: DragEvent) {
+  #onDrop(event: DragEvent) {
     event.preventDefault();
     if (this.locked) return;
     this.input?.focus();
@@ -711,21 +711,21 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
           aria-readonly=${this.readOnly ? 'true' : nothing}
           ?readonly=${this.readOnly}
           ?disabled=${disabled}
-          @beforeinput=${this.onBeforeInput}
-          @input=${this.onInput}
-          @change=${this.onNativeChange}
-          @compositionstart=${this.onCompositionStart}
-          @compositionupdate=${this.onCompositionUpdate}
-          @compositionend=${this.onCompositionEnd}
-          @keydown=${this.onKeyDown}
-          @focus=${this.onFocus}
-          @blur=${this.onBlur}
-          @mousedown=${this.onMouseDown}
-          @select=${this.onSelect}
-          @copy=${this.onCopy}
-          @cut=${this.onCut}
-          @paste=${this.onPaste}
-          @drop=${this.onDrop}
+          @beforeinput=${this.#onBeforeInput}
+          @input=${this.#onInput}
+          @change=${this.#onNativeChange}
+          @compositionstart=${this.#onCompositionStart}
+          @compositionupdate=${this.#onCompositionUpdate}
+          @compositionend=${this.#onCompositionEnd}
+          @keydown=${this.#onKeyDown}
+          @focus=${this.#onFocus}
+          @blur=${this.#onBlur}
+          @mousedown=${this.#onMouseDown}
+          @select=${this.#onSelect}
+          @copy=${this.#onCopy}
+          @cut=${this.#onCut}
+          @paste=${this.#onPaste}
+          @drop=${this.#onDrop}
         />
         <div class="row" aria-hidden="true">
           ${groups.map(

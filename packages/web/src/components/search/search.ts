@@ -1010,7 +1010,7 @@ export class TanreiSearch extends TanreiElement {
     }
   }
 
-  private onSlotChange(event: Event) {
+  #onSlotChange(event: Event) {
     const slot = event.target as HTMLSlotElement;
     const elements = slot.assignedElements({ flatten: true });
     if (slot.name === 'leading') this.hasLeading = elements.length > 0;
@@ -1171,7 +1171,7 @@ export class TanreiSearch extends TanreiElement {
       return;
     }
     const row = rowOf(event, this);
-    if (row && this.onResultKeyDown(event, row)) return;
+    if (row && this.#onResultKeyDown(event, row)) return;
     if (event.key !== 'Tab' || this.inline) return;
     const dialog = this.dialog;
     if (this.modal && dialog && this.fullShown) {
@@ -1189,7 +1189,7 @@ export class TanreiSearch extends TanreiElement {
    * there is one). Typing, deleting or pasting moves focus to the input, so that the key edits the value there. Enter is
    * the browser's own activation of the link; the row only shows its press (SRC-19). Returns whether the key was taken.
    */
-  private onResultKeyDown(event: KeyboardEvent, row: TanreiSearchRow): boolean {
+  #onResultKeyDown(event: KeyboardEvent, row: TanreiSearchRow): boolean {
     const plain = !event.altKey && !event.ctrlKey && !event.metaKey;
     if (plain && !event.shiftKey && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
       event.preventDefault();
@@ -1901,9 +1901,9 @@ export class TanreiSearch extends TanreiElement {
           >
             <span class="outline" aria-hidden="true"></span>
             <span class="hold" aria-hidden="true"></span>
-            <span class="leading" ?hidden=${!this.hasLeading}><slot name="leading" @slotchange=${this.onSlotChange}></slot></span>
+            <span class="leading" ?hidden=${!this.hasLeading}><slot name="leading" @slotchange=${this.#onSlotChange}></slot></span>
             ${this.hasLeading ? nothing : glyph} ${this.renderInput('bar', listed && !modal)} ${this.renderHint(this.value !== '')} ${this.renderClear('small')}
-            <span class="trailing" ?hidden=${this.trailingCount === 0}><slot name="trailing" @slotchange=${this.onSlotChange}></slot></span>
+            <span class="trailing" ?hidden=${this.trailingCount === 0}><slot name="trailing" @slotchange=${this.#onSlotChange}></slot></span>
           </div>`}
       <div part="view" class="view" data-tanrei-shape popover=${this.inline ? nothing : 'manual'} role="none" @mousedown=${this.onViewMouseDown}>${modal ? nothing : body}</div>
       ${hung && covered ? html`<div class="scrim" @click=${this.onScrimClick}></div>` : nothing}

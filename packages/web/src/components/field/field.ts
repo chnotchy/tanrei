@@ -297,7 +297,7 @@ export class TanreiField extends TanreiElement {
    * FLD-12: a press on the label, the label glyph or the requirement mark moves focus to the control and does nothing
    * else — it does not activate, switch or change it. Not while disabled (FLD-14).
    */
-  private onLabelPress(event: MouseEvent) {
+  #onLabelPress(event: MouseEvent) {
     if (event.button !== 0 || this.isDisabled) return;
     const control = this.controls[0] as HTMLElement | undefined;
     // The press must not take the focus it has just given (or select the label's text).
@@ -305,12 +305,12 @@ export class TanreiField extends TanreiElement {
     control?.focus?.();
   }
 
-  private onLabelIconSlotChange(event: Event) {
+  #onLabelIconSlotChange(event: Event) {
     this.hasLabelIcon = (event.target as HTMLSlotElement).assignedNodes({ flatten: true }).some((node) => node.nodeType === Node.ELEMENT_NODE || !!node.textContent?.trim());
   }
 
   /** FLD-23: the control was replaced, or came, or left. */
-  private onSlotChange() {
+  #onSlotChange() {
     this.flow();
     this.requestUpdate();
   }
@@ -436,11 +436,11 @@ export class TanreiField extends TanreiElement {
           requiredMark: this.requiredMark,
           requiredText: framed.requiredText,
           optionalText: framed.optionalText,
-          glyph: frameLabelIcon(this.onLabelIconSlotChange),
+          glyph: frameLabelIcon(this.#onLabelIconSlotChange),
           hasGlyph: this.hasLabelIcon,
           labelHidden_: true,
           disabled,
-          onPress: this.onLabelPress,
+          onPress: this.#onLabelPress,
         });
     return html`
       <div class="frame" ?data-error=${this.inError(said)} ?data-disabled=${disabled} ?data-focused=${(this.focused || !!said.drawnFocused) && !disabled}>
@@ -448,11 +448,11 @@ export class TanreiField extends TanreiElement {
           // FLD-29, FLD-30: the value text shares the label's line, at its end — only while the label row is drawn.
           row !== nothing && this.valueText
             ? html`<div class="label-line">
-                ${row}<span part="value-text" class="value-text" ?data-own-direction=${ownDirection(this.valueText.replace(ISOLATED, '')) === 'auto'} aria-hidden="true" aria-disabled=${ifDefined(disabled ? 'true' : undefined)} @mousedown=${this.onLabelPress}>${this.valueText}</span>
+                ${row}<span part="value-text" class="value-text" ?data-own-direction=${ownDirection(this.valueText.replace(ISOLATED, '')) === 'auto'} aria-hidden="true" aria-disabled=${ifDefined(disabled ? 'true' : undefined)} @mousedown=${this.#onLabelPress}>${this.valueText}</span>
               </div>`
             : row
         }
-        <div class="control" ?data-inline=${this.inline}><slot @slotchange=${this.onSlotChange}></slot></div>
+        <div class="control" ?data-inline=${this.inline}><slot @slotchange=${this.#onSlotChange}></slot></div>
         ${help || wrong || this.countText
           ? html`<div class="supporting" style=${ifDefined(inset)}>
               ${help || wrong

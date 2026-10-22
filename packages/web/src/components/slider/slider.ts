@@ -594,7 +594,7 @@ export class TanreiSlider extends TanreiElement {
   };
 
   /** SLD-3, SLD-4 (assistive technology on the web adjusts a slider with these keys): one change, input then change. */
-  private onKeyDown(id: HandleId, event: KeyboardEvent) {
+  #onKeyDown(id: HandleId, event: KeyboardEvent) {
     const step = this.scale.keyStep;
     // SLD-3 / SLD-21: Right and Left are swapped in a right-to-left horizontal slider; Up always increases.
     const mirrored = this.axis === 'horizontal' && this.rtl;
@@ -617,11 +617,11 @@ export class TanreiSlider extends TanreiElement {
   }
 
   /** SLD-15: where style queries are missing, the focus style is read when focus arrives. */
-  private onFocus(event: FocusEvent) {
+  #onFocus(event: FocusEvent) {
     syncFocusStyle(this, event.currentTarget as HTMLElement);
   }
 
-  private onBlur(event: FocusEvent) {
+  #onBlur(event: FocusEvent) {
     delete (event.currentTarget as HTMLElement).dataset.pointerFocus;
   }
 
@@ -797,9 +797,9 @@ export class TanreiSlider extends TanreiElement {
             aria-valuetext=${words}
             aria-orientation=${this.axis}
             aria-disabled=${this.isDisabled ? 'true' : nothing}
-            @keydown=${(event: KeyboardEvent) => this.onKeyDown(id, event)}
-            @focus=${this.onFocus}
-            @blur=${this.onBlur}
+            @keydown=${(event: KeyboardEvent) => this.#onKeyDown(id, event)}
+            @focus=${this.#onFocus}
+            @blur=${this.#onBlur}
           ></div>
           <div part="value-indicator" class="value-indicator" data-tanrei-shape aria-hidden="true"><span class="value-text">${words}</span></div>
         </div>
