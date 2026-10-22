@@ -133,17 +133,11 @@ const room = `--docs-visual-block: ${css(reserve.block)}; --docs-visual-inline: 
   .docs-visual-overlay:empty {
     display: none;
   }
-  /* A preset's scope sets its own color-scheme (following the OS); the stage follows the site's theme instead, and draws
-     the preset's surface (under the Figure's pattern, which is read in the preset's scope too). */
+  /* A preset's scope inherits the site's theme like any other subtree; the stage draws the preset's surface (under the
+     Figure's pattern, which is read in the preset's scope too). */
   .docs-visual-stage[data-tanrei-system] {
     background-color: var(--tanrei-sys-color-surface);
     color: var(--tanrei-sys-color-on-surface);
-  }
-  :global(:root[data-theme='light']) .docs-visual-stage[data-tanrei-system] {
-    color-scheme: light;
-  }
-  :global(:root[data-theme='dark']) .docs-visual-stage[data-tanrei-system] {
-    color-scheme: dark;
   }
   /* Custom elements have no meaningful rendering until they upgrade: they are hidden in the room held for them. */
   .docs-visual-canvas :global(:not(:defined)) {
