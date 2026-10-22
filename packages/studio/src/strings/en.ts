@@ -380,7 +380,7 @@ const en = {
     title: 'Live preview',
     contrast: 'Preview contrast',
     levels: open({ standard: 'Standard', medium: 'Medium', high: 'High' }),
-    stale: 'The layer has a problem (see the checks below). The preview shows the last valid state.',
+    stale: 'The layer has a problem: the checks at the foot of the panel say what. The preview shows the last valid state.',
     emphasized: 'Emphasized',
     emphasizedHelp: 'Text styles drawn with their family’s emphasis step added to the weight (sys.typescale.emphasis.*).',
   },

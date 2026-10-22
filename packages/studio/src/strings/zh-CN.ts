@@ -366,7 +366,7 @@ const zhCN: Dictionary = {
     title: '实时预览',
     contrast: '预览的对比度',
     levels: { standard: '标准', medium: '中', high: '高' },
-    stale: '层有问题（见下方的检查）。预览显示的是最后一个有效的状态。',
+    stale: '层有问题，具体是什么问题，见面板底部的检查。预览显示的是最后一个有效的状态。',
     emphasized: '强调',
     emphasizedHelp: '绘制文本样式时，在字重上加上其字体族的强调级差（sys.typescale.emphasis.*）。',
   },

@@ -360,7 +360,7 @@ const ja: Dictionary = {
     title: 'ライブプレビュー',
     contrast: 'プレビューのコントラスト',
     levels: { standard: '標準', medium: '中', high: '高' },
-    stale: 'レイヤーに問題があります（下のチェックを参照）。プレビューは最後に有効だった状態を表示しています。',
+    stale: 'レイヤーに問題があります。何が問題かは、パネルのいちばん下のチェックに出ています。プレビューは最後に有効だった状態を表示しています。',
     emphasized: '強調',
     emphasizedHelp: '各テキストスタイルを、その系統の強調ステップ（sys.typescale.emphasis.*）を太さに加えて描きます。',
   },

@@ -368,7 +368,7 @@ const es: Dictionary = {
     title: 'Vista previa en vivo',
     contrast: 'Contraste de la vista previa',
     levels: { standard: 'Estándar', medium: 'Medio', high: 'Alto' },
-    stale: 'La capa tiene un problema (consulta las comprobaciones de abajo). La vista previa muestra el último estado válido.',
+    stale: 'La capa tiene un problema: las comprobaciones al pie del panel dicen cuál. La vista previa muestra el último estado válido.',
     emphasized: 'Con énfasis',
     emphasizedHelp: 'Los estilos de texto se dibujan con el paso de énfasis de su familia sumado al peso (sys.typescale.emphasis.*).',
   },
