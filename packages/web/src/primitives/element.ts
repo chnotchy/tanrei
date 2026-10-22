@@ -23,8 +23,9 @@ import { Settle } from './motion.js';
 // `ref.current.focus()` right after mounting) finds a shadow root with nothing in it to delegate to, or a part the
 // element's own `focus()` goes to that is not there yet, and focus lands nowhere. The call is kept, with its options,
 // and given once the first update has ended (`updateComplete`, which a composed element extends to its members) — if
-// the element is still on the page, `blur()` has not been called since, and focus has not moved meanwhile: what has it
-// then is what had it at the call, or nothing but the page. A host that is focusable itself (a `tabindex`) takes the
+// the element is still on the page, `blur()` has not been called since, no later `focus()` kept by another element has
+// taken its place, and focus has not moved meanwhile: what has it then is what had it at the call, or nothing but the
+// page. A script that tries elements in turn until focus lands in one asks `focusKept()` too. A host that is focusable itself (a `tabindex`) takes the
 // focus at once, as before. An override of `focus()` that focuses a part it draws starts with
 // `if (this.keepFocusUntilRendered(options)) return;`; one that ends in `super.focus()` has it already; an override of
 // `blur()` calls `forgetKeptFocus()` (test/kept-focus.test.mjs reads them all).
@@ -40,6 +41,20 @@ function focusedIn(document: Document): Element | null {
 interface KeptFocus {
   options?: FocusOptions;
   was: Element | null;
+}
+
+/**
+ * The focus asked for last, while it is kept: a later `focus()` of another element that is kept too takes its place,
+ * as a later focus that lands would take it from the first.
+ */
+let latest: { element: Element; kept: KeptFocus } | null = null;
+
+/**
+ * Whether `element` holds the focus asked for last, kept until it has drawn: a script that tries elements in turn
+ * until one takes focus (`focus()`, then whether focus is in it) counts this one as taken.
+ */
+export function focusKept(element: Element): boolean {
+  return latest?.element === element;
 }
 
 /**
@@ -74,19 +89,23 @@ export abstract class TanreiElement extends LitElement {
     if (this.hasUpdated) return false;
     const waiting = !!this.keptFocus;
     this.keptFocus = { options, was: focusedIn(this.ownerDocument) };
+    latest = { element: this, kept: this.keptFocus };
     if (!waiting) this.updateComplete.then(() => this.giveKeptFocus(), () => undefined);
     return true;
   }
 
   /** `blur()` gives up a focus kept until the element has drawn. */
   protected forgetKeptFocus() {
+    if (latest?.element === this) latest = null;
     this.keptFocus = null;
   }
 
   private giveKeptFocus() {
     const kept = this.keptFocus;
     this.keptFocus = null;
-    if (!kept || !this.isConnected) return;
+    const last = latest?.kept === kept;
+    if (last) latest = null;
+    if (!kept || !last || !this.isConnected) return;
     const document = this.ownerDocument;
     const now = focusedIn(document);
     const moved = now !== kept.was && now !== null && now !== document.body && now !== document.documentElement;

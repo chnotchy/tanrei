@@ -134,3 +134,21 @@ for (const [tag, markup] of Object.entries(SUBJECTS)) {
     expect([removed.focused, removed.inside], 'a control that left the page takes no focus').toEqual(['body', false]);
   });
 }
+
+test('focus() called on two controls in turn before either has drawn is given to the later one, as a later focus that lands takes it from the first', async ({ page }) => {
+  await load(page, 'tanrei-text-input');
+  const focused = await page.evaluate(async () => {
+    type Updating = HTMLElement & { updateComplete: Promise<unknown> };
+    const stage = document.querySelector<HTMLElement>('#stage')!;
+    stage.innerHTML = '<tanrei-button id="first">First</tanrei-button><tanrei-text-input id="second" label="Second"></tanrei-text-input>';
+    const first = stage.querySelector<Updating>('#first')!;
+    const second = stage.querySelector<Updating>('#second')!;
+    first.focus();
+    second.focus();
+    // The first draws first, and gives nothing: the focus asked for last is the second's.
+    for (const element of [first, second]) await element.updateComplete;
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    return document.activeElement?.id;
+  });
+  expect(focused).toBe('second');
+});

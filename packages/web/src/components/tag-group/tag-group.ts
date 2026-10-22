@@ -2,7 +2,7 @@ import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'l
 import { AvailabilityController, OpenAxesController, Settle, documentPainted, parseValues, report } from '../../primitives/index.js';
 import type { TanreiTagGroupSpacingRegistry } from '../../registry.js';
 import { AXES, DEFAULT_SPACING, styles } from './tag-group.styles.js';
-import { TanreiElement } from '../../primitives/element.js';
+import { TanreiElement, focusKept } from '../../primitives/element.js';
 
 /** The core spacings (tags, chips), plus any a design system's generated `.d.ts` registers. */
 export type TanreiTagGroupSpacing = keyof TanreiTagGroupSpacingRegistry;
@@ -649,7 +649,8 @@ export class TanreiTagGroup extends TanreiElement {
   private focusFirst(candidates: readonly HTMLElement[]): boolean {
     for (const candidate of candidates) {
       candidate.focus();
-      if (holdsFocus(candidate)) {
+      // A chip written a moment ago keeps the focus until it has rendered (src/primitives/element.ts): it is taken.
+      if (holdsFocus(candidate) || focusKept(candidate)) {
         this.focused = candidate;
         return true;
       }
