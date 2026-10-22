@@ -102,6 +102,7 @@ private object M3ExpressiveLikeSystemSource {
             list = list(typescale, elevation),
             loadingIndicator = loadingIndicator(typescale, elevation),
             mainActionButton = mainActionButton(typescale, elevation),
+            marqueeText = marqueeText(typescale, elevation),
             menu = menu(typescale, elevation),
             menubar = menubar(typescale, elevation),
             meter = meter(typescale, elevation),
@@ -5289,6 +5290,21 @@ private object M3ExpressiveLikeSystemSource {
                     ),
                 ),
             ),
+        )
+
+    @Suppress("UNUSED_PARAMETER")
+    fun marqueeText(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiMarqueeTextTokens =
+        TanreiMarqueeTextTokens(
+            fadeExtent = 16.dp,
+            gap = 48.dp,
+            motionEasing = TanreiCubicBezier(x1 = 0f, y1 = 0f, x2 = 1f, y2 = 1f),
+            motionEndPause = 1200,
+            motionReturnDuration = 150,
+            motionReturnEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            motionStartDelay = 300,
+            motionStartPause = 1200,
+            playbackGap = 8.dp,
+            speed = 30f,
         )
 
     @Suppress("UNUSED_PARAMETER")

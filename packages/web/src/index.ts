@@ -368,6 +368,7 @@ export {
   type TanreiSearchToggleDetail,
 } from './components/search/search.js';
 export { TanreiScrollArea, type TanreiScrollAreaEdge, type TanreiScrollAreaScrollEdge } from './components/scroll-area/scroll-area.js';
+export { TanreiMarqueeText, type TanreiMarqueeTextLoop, type TanreiMarqueeTextPausedChangeDetail, type TanreiMarqueeTextTrigger } from './components/marquee-text/marquee-text.js';
 export {
   TanreiStepper,
   type TanreiStepperLayout,

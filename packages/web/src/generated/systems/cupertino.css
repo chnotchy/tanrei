@@ -4418,6 +4418,16 @@
     --tanrei-comp-main-action-button-tonal-pressed-label-color: var(--tanrei-comp-main-action-button-tonal-label-color);
     --tanrei-comp-main-action-button-tonal-pressed-state-layer-color: var(--tanrei-comp-main-action-button-tonal-state-layer-color);
     --tanrei-comp-main-action-button-tonal-state-layer-color: var(--tanrei-comp-main-action-button-tonal-label-color);
+    --tanrei-comp-marquee-text-fade-extent: var(--tanrei-sys-space-space200);
+    --tanrei-comp-marquee-text-gap: var(--tanrei-sys-space-space600);
+    --tanrei-comp-marquee-text-motion-easing: var(--tanrei-sys-motion-easing-linear);
+    --tanrei-comp-marquee-text-motion-end-pause: 1200ms;
+    --tanrei-comp-marquee-text-motion-return-duration: var(--tanrei-sys-motion-role-state-default);
+    --tanrei-comp-marquee-text-motion-return-easing: var(--tanrei-sys-motion-easing-state);
+    --tanrei-comp-marquee-text-motion-start-delay: var(--tanrei-sys-motion-role-show-delay);
+    --tanrei-comp-marquee-text-motion-start-pause: 1200ms;
+    --tanrei-comp-marquee-text-playback-gap: var(--tanrei-sys-space-space100);
+    --tanrei-comp-marquee-text-speed: 30;
     --tanrei-comp-menu-checkbox-item-mark: check;
     --tanrei-comp-menu-container-gap-compact: var(--tanrei-comp-tree-view-container-gap-compact);
     --tanrei-comp-menu-container-gap-regular: var(--tanrei-sys-space-space150);

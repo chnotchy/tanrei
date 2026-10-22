@@ -1906,6 +1906,26 @@
         "flutter": "planned",
         "react-native": "planned"
       }
+    },
+    {
+      "name": "marquee-text",
+      "title": "Marquee text",
+      "category": "communication",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "button"
+      ],
+      "hasSpec": true,
+      "docs": "/components/marquee-text/",
+      "platforms": {
+        "web": "alpha",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
     }
   ],
   "totals": {

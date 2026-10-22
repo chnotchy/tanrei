@@ -6455,6 +6455,24 @@ public data class TanreiMainActionButtonTokens(
     }
 }
 
+/** `comp.marquee-text`. Members are flat tokens, then per-state tokens, then one holder per axis (). */
+@Immutable
+public data class TanreiMarqueeTextTokens(
+    public val fadeExtent: Dp,
+    public val gap: Dp,
+    public val motionEasing: TanreiCubicBezier,
+    public val motionEndPause: Int,
+    public val motionReturnDuration: Int,
+    public val motionReturnEasing: TanreiCubicBezier,
+    public val motionStartDelay: Int,
+    public val motionStartPause: Int,
+    public val playbackGap: Dp,
+    public val speed: Float,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+    }
+}
+
 /**
  * A condition of menu: the key of one entry of [TanreiMenuConditions]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
@@ -11574,6 +11592,7 @@ public data class TanreiSystem(
     public val list: TanreiListTokens,
     public val loadingIndicator: TanreiLoadingIndicatorTokens,
     public val mainActionButton: TanreiMainActionButtonTokens,
+    public val marqueeText: TanreiMarqueeTextTokens,
     public val menu: TanreiMenuTokens,
     public val menubar: TanreiMenubarTokens,
     public val meter: TanreiMeterTokens,
@@ -11663,6 +11682,7 @@ public data class TanreiSystem(
         addAll(list.referencedRoles())
         addAll(loadingIndicator.referencedRoles())
         addAll(mainActionButton.referencedRoles())
+        addAll(marqueeText.referencedRoles())
         addAll(menu.referencedRoles())
         addAll(menubar.referencedRoles())
         addAll(meter.referencedRoles())

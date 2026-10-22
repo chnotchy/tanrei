@@ -5604,6 +5604,19 @@ private let m3ExpressiveLikeMainActionButtonTokens = TanreiMainActionButtonToken
   )
 )
 
+private let m3ExpressiveLikeMarqueeTextTokens = TanreiMarqueeTextTokens(
+  fadeExtent: 16,
+  gap: 48,
+  motionEasing: TanreiCubicBezier(0, 0, 1, 1),
+  motionEndPause: 1200,
+  motionReturnDuration: 150,
+  motionReturnEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  motionStartDelay: 300,
+  motionStartPause: 1200,
+  playbackGap: 8,
+  speed: 30
+)
+
 private let m3ExpressiveLikeMenuTokens = TanreiMenuTokens(
   checkboxItemMark: 1,
   containerShape: 0,
@@ -10050,6 +10063,7 @@ extension TanreiSystem {
     list: m3ExpressiveLikeListTokens,
     loadingIndicator: m3ExpressiveLikeLoadingIndicatorTokens,
     mainActionButton: m3ExpressiveLikeMainActionButtonTokens,
+    marqueeText: m3ExpressiveLikeMarqueeTextTokens,
     menu: m3ExpressiveLikeMenuTokens,
     menubar: m3ExpressiveLikeMenubarTokens,
     meter: m3ExpressiveLikeMeterTokens,

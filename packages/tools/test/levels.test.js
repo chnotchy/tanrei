@@ -201,7 +201,8 @@ test('the repository as it is today: which components are put together and which
   // date-time picker, which named others already, are built from it too.
   // The list row is a single part that uses the Tooltip for a cut text: the fifty-fourth that names another component.
   // The snackbar is a single part that uses the Button for its expand and close buttons: the fifty-fifth.
-  assert.equal(specs.filter((each) => namedComponents(each).length).length, 55);
+  // The marquee text is a single part that uses the Button for its playback control: the fifty-sixth.
+  assert.equal(specs.filter((each) => namedComponents(each).length).length, 56);
   assert.deepEqual(specs.find((each) => each.name === 'text-field').builtFrom, ['field', 'text-input']);
   // The text input uses the Button for its picker button and the Handle for its resize handle; the bottom sheet uses
   // the Handle for its drag handle too (neither is a new name among the fifty-five: both named the Button already).

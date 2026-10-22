@@ -56,6 +56,8 @@ export const englishWords: Readonly<Required<TanreiWords>> = {
   lastPageLabel: "Last page",
   liftedText: "{label} lifted: {position} of {count}",
   loadingLabel: "Loading",
+  marqueePauseLabel: "Pause scrolling text",
+  marqueePlayLabel: "Play scrolling text",
   menubarOverflowLabel: "More",
   minuteLabel: "Minute",
   moveAfterLabel: "Move down",

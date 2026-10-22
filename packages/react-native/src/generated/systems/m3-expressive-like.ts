@@ -8355,6 +8355,18 @@ export const m3ExpressiveLike = {
         },
       },
     },
+    marqueeText: {
+      fadeExtent: 16,
+      gap: 48,
+      motionEasing: [0, 0, 1, 1],
+      motionEndPause: 1200,
+      motionReturnDuration: 150,
+      motionReturnEasing: [0.2, 0, 0, 1],
+      motionStartDelay: 300,
+      motionStartPause: 1200,
+      playbackGap: 8,
+      speed: 30,
+    },
     menu: {
       checkboxItemMark: 1,
       containerShape: 0,

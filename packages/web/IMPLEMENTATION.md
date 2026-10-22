@@ -1536,6 +1536,84 @@ finishes the transitions the flip started (the fade's mask is placed by physical
 **Semantics.** The marks are `aria-hidden` and `pointer-events: none`: presses, hovers and the wheel reach the content
 under them. The area has no words of its own (SCA-17).
 
+## `<tanrei-marquee-text>`
+
+One line of text that does not fit its place and, while its trigger holds, moves sideways at a steady pace to show all
+of it (`specs/marquee-text.spec.json`, MRQ-1…18).
+
+```html
+<tanrei-marquee-text>Track 7 — A very long title that does not fit</tanrei-marquee-text>
+<tanrei-marquee-text trigger="always" playback-control>Now playing: …</tanrei-marquee-text>
+<tanrei-marquee-text loop="bounce" iterations="1">…</tanrei-marquee-text>
+```
+
+| Property / attribute | Type | Default | |
+|---|---|---|---|
+| `trigger` | `hover-or-focus` \| `hover` \| `focus` \| `always` | `hover-or-focus` | when the text moves; anything else is the default, reported (MRQ-15); reflected |
+| `loop` | `repeat` \| `bounce` | `repeat` | repeat: a copy follows a gap behind; bounce: to the end, rest, back; reflected |
+| `speed` | number \| null | `null` | pixels per second; null takes `comp.marquee-text.speed` (30) |
+| `startPause` / `start-pause` | number \| null | `null` | ms resting at the start before each pass; null takes `comp.marquee-text.motion.start-pause` (1200) |
+| `endPause` / `end-pause` | number \| null | `null` | bounce: ms resting with the end in view; null takes `comp.marquee-text.motion.end-pause` |
+| `iterations` | number \| null | `null` | passes a trigger plays; null plays until the trigger ends (without end for `always`) |
+| `paused` | boolean | `false` | holds the motion where it is; reflected |
+| `playbackControl` / `playback-control` | boolean | `false` | with `always`: draws the pause / play button at the line's end |
+| `playLabel` / `play-label`, `pauseLabel` / `pause-label` | string | `""` | the button's names; empty reads `marqueePlayLabel` / `marqueePauseLabel` from the product's words |
+
+Event: `pausedchange` (`detail.paused`), from the playback control only.
+
+**WCAG 2.2.2.** The defaults can conflict with Pause, Stop, Hide: `always` draws no playback control, and a hover or a
+focus plays passes until it ends. With `always`, set `playback-control` or bind the page's own pause control to `paused`
+(a debug build reports a moving line with neither, MRQ-10); with a hover or a focus, set `iterations` so that the motion
+ends within five seconds.
+
+**Fit and measure** (MRQ-1, MRQ-14). Whether the text fits is read from the slotted text's inline box against the
+viewport — when the viewport's size changes (a `ResizeObserver`, which also sees a change of text size through the line's
+height), when the slotted text changes (a `MutationObserver` on the host) and when fonts finish loading (`loadingdone`,
+and `document.fonts.ready` after a read taken while a face was loading: WebKit on Linux does not always fire
+`loadingdone` for a face already loading, and the width read in its fallback face is another); never while the text
+moves. A text that fits is a plain line: no copy, no control, and no trigger starts anything. At rest the track is
+the cut line (`text-overflow: ellipsis`).
+
+**Motion** (MRQ-3…6). A run of passes is one Web Animations API animation of the track's `translate`, and one of the
+viewport's `mask-size` / `mask-position` with the same timing: an iteration is one pass and the rest after it, the
+keyframes holding the pauses, the travel lasting the distance divided by the speed (`easing.linear` between keyframes).
+`always` starts the run with `delay` = the start pause; a hover or a focus waits the start delay on a timer (a pointer
+that passes over the line sets nothing moving) and starts with no delay. When the trigger ends the run is cancelled and
+the text returns over `motion.return-duration` with `motion.return-easing` — a repeat past half its distance goes on to
+where its copy began, which looks the same. A change of speed, a pause, the loop or iterations cuts the run after the
+pass in play (`updateTiming`), and the next is built from the new values. The copy is a clone of the host's children in
+the shadow root (`aria-hidden`, `inert`): a product's styles for its own inline content do not reach it.
+
+**The fade** (MRQ-6). One mask layer, the viewport's box with a band `fade.extent` deep at each side, widened by the band
+(and moved) past each side behind which no text lies hidden; its keyframes move with the text's, the band growing over
+the first `fade.extent` of travel. Without the keyframes (before the run's animation exists, or in a screenshot, which
+cancels an endless animation) the stylesheet draws the look of the rest at the start: only the end edge of the text's
+direction fades. In forced colors there is no mask (`!important`, over the keyframes, MRQ-18).
+
+**Trigger** (MRQ-3, MRQ-9). The area is the nearest ancestor, across shadow roots and slots, that takes presses or focus
+(a link, a button, an element with a `tabindex` or an interactive role, or a custom element whose shadow root holds one),
+else the host. Hover is `pointerenter` of a mouse or a pen, ended by `pointerleave` or `mouseleave` (Chromium does not
+always send `pointerleave` when a mouse leaves); focus is focus within the area on an element that matches
+`:focus-visible`. With `always` the area is the host: a hover or focus within it holds the run (`Animation.pause()`), as
+`paused` does; out of view (an `IntersectionObserver` on the host) or on a hidden page the run is cancelled, and started
+again from the start when it is back.
+
+**Reduced motion** (MRQ-8). No animation. A hover or a focus shows the text a viewport's width at a time — the track's
+`translate` set at once, on a timer of the start pause per view, the last view ending at the text's end — and returns at
+once; `always` rests as the cut line with no control.
+
+**Direction** (MRQ-7, MRQ-16, MRQ-17). The viewport's `dir` is the text's own: the first strong character's (a letter of
+a right-to-left script, or another letter), else the layout direction. The control's place follows the layout
+direction (the host is a flex row). A change of the layout direction (`DirectionController`) rests the line at once and
+measures again.
+
+**Text size** (MRQ-13). The speed is multiplied by the browser's default text size (a probe with `font-size: medium`)
+over 16 px; page zoom already scales CSS pixels.
+
+**Semantics** (MRQ-11). The slotted text is read once where it stands; the line has no role and no `tabindex`; nothing
+is announced. The playback control is a `<tanrei-button variant="text" size="small">` (part `playback`) with the
+`pause` and `play_arrow` glyphs.
+
 ## `<tanrei-carousel>` and `<tanrei-carousel-item>`
 
 A row of visual items that scrolls sideways around one item in focus, each item opening what it shows
