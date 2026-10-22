@@ -470,7 +470,7 @@
     },
     {
       "id": "TAB-62",
-      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the row's host THE tabs SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries the row's role (its tab list) — an id reference by the elements it names in the host's tree or a tree around it. WHEN the product removes the aria- attribute or its data-aria- twin THE tabs SHALL take it off that element. A tab's host carries the tab's role itself, so what the product writes on it is not moved."
+      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the row's host, by the attribute or by the ARIA property that reflects it, THE tabs SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries the row's role (its tab list) — an id reference by the elements it names in the host's tree or a tree around it. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE tabs SHALL take it off that element. A tab's host carries the tab's role itself, so what the product writes on it is not moved."
     }
   ],
   "accessibility": {
