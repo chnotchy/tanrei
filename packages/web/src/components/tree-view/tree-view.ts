@@ -1988,7 +1988,8 @@ export class TanreiTreeView extends TanreiLightElement {
 
   /**
    * TRV-61, TRV-71: the active match is drawn as the row with keyboard focus (`data-tanrei-filter-active` on its row)
-   * while focus is in the field, and the field names it as its active descendant; the field controls the tree.
+   * while focus is in the field, and is not named to assistive technology — no active descendant — until the person
+   * moves to it with Down Arrow, which gives it focus; the field controls the tree.
    */
   private writeActive() {
     const row = this.fieldFocused && this.activeMatch ? rowOf(this.activeMatch) : null;
@@ -2002,11 +2003,10 @@ export class TanreiTreeView extends TanreiLightElement {
     const field = this.filterField;
     if (!field) return;
     void field.updateComplete.then(() => {
-      type Aria = HTMLElement & { ariaControlsElements?: Element[] | null; ariaActiveDescendantElement?: Element | null };
+      type Aria = HTMLElement & { ariaControlsElements?: Element[] | null };
       const native = field.shadowRoot?.querySelector<Aria>('input');
       if (!native) return;
       if ('ariaControlsElements' in native) native.ariaControlsElements = this.semantics ? [this.semantics] : null;
-      if ('ariaActiveDescendantElement' in native) native.ariaActiveDescendantElement = this.filterRow;
     });
   }
 

@@ -17,7 +17,8 @@ long as the filter is there — `open` is not written and no `toggle` fires, so 
 The tree hides what does not match; the drawer's `filterMode` is `filter` (the same, the default) or `highlight` (hide
 nothing, mark the matches). As in
 the search, the first row that matches is ready to take while focus stays in the field: Enter takes it as Enter on its
-row would, and Down Arrow moves focus to it. "/" reaches the field — from anywhere in the window for the drawer, from a
+row would, and Down Arrow moves focus to it. It is drawn as the focused row and not read out until the person moves
+to it: the field names no active descendant. "/" reaches the field — from anywhere in the window for the drawer, from a
 row for the tree (`filterShortcut` changes or removes the key); Escape empties the field. A quiet line at the top of the
 results draws how many rows match (`filterCountText`) or that none does (`filterEmptyText`), and a status says it once
 typing pauses; `filterCountHidden` leaves the count undrawn and still said. The words are the product's: `filterLabel`,

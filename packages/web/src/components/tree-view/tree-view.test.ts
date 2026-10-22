@@ -2779,7 +2779,7 @@ test.describe('the filter', () => {
     expect(filtered.chosen).toEqual(await look('chosen', 'tree.md'));
   });
 
-  test('TRV-61, TRV-71: with focus in the field the first match is the active match — drawn with the focus ring, the field’s active descendant — Down Arrow moves focus to it, Enter chooses it and keeps focus in the field; Escape empties the field, and again returns to the row “/” came from', async ({ page }) => {
+  test('TRV-61, TRV-71: with focus in the field the first match is the active match — drawn with the focus ring, not named as the field’s active descendant — Down Arrow moves focus to it itself, Enter chooses it and keeps focus in the field; Escape empties the field, and again returns to the row “/” came from', async ({ page }) => {
     await mount(page, { fixtures: [raw('files', { label: 'Files', ...WORDS, selection: 'single' }, FILES)] });
     await nameItems(page);
     await watch(page);
@@ -2788,7 +2788,9 @@ test.describe('the filter', () => {
     const active = row(page, 'files', 'tree-view.ts');
     await expect(active).toHaveAttribute('data-tanrei-filter-active', '');
     expect(await css(active, 'border-top-color', '::after')).toBe(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
-    expect(await input(page, 'files').evaluate((el, r) => (el as HTMLElement & { ariaActiveDescendantElement: Element | null }).ariaActiveDescendantElement === r, await active.elementHandle())).toBe(true);
+    // Not read out until the person moves: the field names no active descendant, by reference or by id.
+    expect(await input(page, 'files').evaluate((el) => (el as HTMLElement & { ariaActiveDescendantElement?: Element | null }).ariaActiveDescendantElement ?? null)).toBeNull();
+    await expect(input(page, 'files')).not.toHaveAttribute('aria-activedescendant');
     expect(await input(page, 'files').evaluate((el) => (el as HTMLElement & { ariaControlsElements: Element[] }).ariaControlsElements?.[0]?.getAttribute('role'))).toBe('tree');
     await page.keyboard.press('Enter');
     expect(await events(page)).toEqual(['change:{"value":"tree-view.ts"}']);
