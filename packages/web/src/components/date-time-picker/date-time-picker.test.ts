@@ -1792,6 +1792,11 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     await expect(host(page, 'm').locator('#time-panel')).toHaveAttribute('role', 'tabpanel');
     await expect(host(page, 'm').locator('#time-panel')).toHaveAttribute('aria-labelledby', 'entry-wheels');
     await expect.poll(() => tabOf(page, 'm', 'entry-wheels').getAttribute('aria-controls')).toBe('time-panel');
+    await expect(tabOf(page, 'm', 'entry-dial')).toHaveAttribute('aria-controls', 'time-panel');
+    // The time section is linked to the row as its panel, so the row is a tab list and not the radio group a row
+    // without panels is (TAB-42).
+    await expect(host(page, 'm').locator('tanrei-tabs [part="tablist"]')).toHaveAttribute('role', 'tablist');
+    await expect(host(page, 'm').getByRole('radiogroup')).toHaveCount(0);
     await expect(host(page, 'm').locator('.dial, .rows').first()).toHaveAttribute('aria-hidden', 'true');
     // One tab list and one panel: the entry mode's. The period is a spin button of two values named periodLabel.
     await expect(host(page, 'm').locator('tanrei-tabs')).toHaveCount(1);

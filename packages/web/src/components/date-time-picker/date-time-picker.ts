@@ -70,6 +70,7 @@ import '../button/button.js';
 import '../calendar/calendar.js';
 import type { TanreiCalendar, TanreiCalendarChangeDetail } from '../calendar/calendar.js';
 import { placeMenu } from '../menu/menu.js';
+import type { LinkedTabView, TanreiTabs } from '../tabs/tabs.js';
 import '../tabs/tabs.js';
 import { styles } from './date-time-picker.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
@@ -2347,18 +2348,30 @@ export class TanreiDateTimePicker extends TanreiElement {
     });
   }
 
-  /** DTM-13: the entry-mode tabs control their panel (the row sets none of its own: it has no panels). */
+  /** The entry-mode tabs the time section is linked to as their panel (DTM-13). */
+  private entryRow: TanreiTabs | null = null;
+
+  /**
+   * DTM-13, TAB-42: the time section is the entry-mode tabs' panel. The row holds no panel of its own, so the picker
+   * links the section to it as a Tab view links its panels: the row is then a tab list whose tabs control the section,
+   * and not the radio group a row without panels is.
+   */
+  private readonly timePanelLink: LinkedTabView = ((picker: TanreiDateTimePicker): LinkedTabView => ({
+    get isConnected() {
+      return picker.isConnected;
+    },
+    panelFor: () => picker.renderRoot.querySelector<HTMLElement>('#time-panel'),
+    followTabs() {},
+    rowSelected() {},
+    rowWillSelect() {},
+  }))(this);
+
   private linkPanels() {
-    const link = (tabs: string, panel: string) => {
-      const row = this.renderRoot.querySelector<HTMLElement & { updateComplete: Promise<unknown> }>(tabs);
-      if (!row) return;
-      void row.updateComplete.then(() =>
-        requestAnimationFrame(() => {
-          for (const tab of row.querySelectorAll('tanrei-tab')) hostAria(tab, { 'aria-controls': panel });
-        }),
-      );
-    };
-    link('.entry-tabs', 'time-panel');
+    const row = this.renderRoot.querySelector<TanreiTabs>('.entry-tabs');
+    if (row === this.entryRow) return;
+    this.entryRow?.unlinkView(this.timePanelLink);
+    this.entryRow = row;
+    row?.linkView(this.timePanelLink);
   }
 
   // ── Updates ───────────────────────────────────────────────────────────────────────────────────────────────────────
