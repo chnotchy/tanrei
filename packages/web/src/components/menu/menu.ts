@@ -140,6 +140,12 @@ const DEFAULT_SHORTCUT_VARIANT = 'keycap';
 
 // ── The pointer's path to a submenu (MNU-45) ─────────────────────────────────────────────────────────────────────
 
+/**
+ * MNU-2, MNU-46: the product's cap on a surface's height, read on the surface's twin beside it (`.cap`, the surface's
+ * part name, never drawn), which the product's `::part(surface)` rules reach and the placement never writes.
+ */
+const capOf = (surface: HTMLElement) => surfaceCap((surface.getRootNode() as ShadowRoot).querySelector?.('.cap'));
+
 /** Whether `p` lies in the triangle `a`, `b`, `c` (its edges included). MNU-45: the pointer's path to a submenu. */
 export function inTriangle(p: { x: number; y: number }, a: { x: number; y: number }, b: { x: number; y: number }, c: { x: number; y: number }): boolean {
   const cross = (u: { x: number; y: number }, v: { x: number; y: number }, w: { x: number; y: number }) => (u.x - w.x) * (v.y - w.y) - (v.x - w.x) * (u.y - w.y);
@@ -1137,7 +1143,8 @@ export class TanreiSubmenu extends TanreiMenuRowBase {
     return html`${this.renderRow()}
       <div part="surface" class="surface" data-tanrei-shape popover="manual" role="menu" aria-label=${this.label || nothing}>
         <div part="scroll" class="scroll">${blocksTemplate(this.blocks)}</div>
-      </div>`;
+      </div>
+      <div part="surface" class="cap" aria-hidden="true"></div>`;
   }
 }
 
@@ -1831,7 +1838,7 @@ export class TanreiMenu extends TanreiElement {
     // The surface's size as laid out, fractional (layoutSize): a snapped width would end it up to a pixel off its edge.
     const free = layoutSize(own).width;
     // MNU-46: no taller than the product lets it be (its own `max-block-size` on the surface part), nor than the room.
-    const cap = surfaceCap(own);
+    const cap = capOf(own);
     const height = () => Math.min(naturalHeight(own, scroll), cap);
     let at = placeSubmenu({ ...input, surface: { width: free, height: height() }, lead: lead() });
     if (at.width < free) {
@@ -1841,7 +1848,8 @@ export class TanreiMenu extends TanreiElement {
     }
     own.style.top = `${at.top}px`;
     own.style.left = `${at.left}px`;
-    own.style.maxBlockSize = `${Math.min(at.maxHeight, cap)}px`;
+    // Important: a product's own `::part(surface)` rule would otherwise win over it, room or no room (it is read above).
+    own.style.setProperty('max-block-size', `${Math.min(at.maxHeight, cap)}px`, 'important');
     if (scroll && scroll.scrollTop !== scrolled) scroll.scrollTop = scrolled;
     own.classList.toggle('side-left', at.side === 'left');
     submenu.side = at.side;
@@ -2324,7 +2332,7 @@ export class TanreiMenu extends TanreiElement {
     // The surface's size as laid out, fractional and untouched by the enter motion's scale (layoutSize): a snapped
     // one would put an end-aligned or top-side surface up to a pixel off its anchor.
     // MNU-2: no taller than the product lets it be (its own `max-block-size` on the surface part), nor than the room.
-    const cap = surfaceCap(surface);
+    const cap = capOf(surface);
     const size = { width: layoutSize(surface).width, height: Math.min(naturalHeight(surface, scroll), cap) };
     const viewport = visibleViewport();
     const against = this.placedAgainst() ?? { box: { x: viewport.x + margin, y: viewport.y + margin, width: 0, height: 0 }, point: false };
@@ -2335,7 +2343,8 @@ export class TanreiMenu extends TanreiElement {
       : placeMenu({ anchor: against.box, surface: size, viewport, placement, offset, margin, rtl });
     surface.style.top = `${at.top}px`;
     surface.style.left = `${at.left}px`;
-    surface.style.maxBlockSize = `${Math.min(at.maxHeight, cap)}px`;
+    // Important: a product's own `::part(surface)` rule would otherwise win over it, room or no room (it is read above).
+    surface.style.setProperty('max-block-size', `${Math.min(at.maxHeight, cap)}px`, 'important');
     surface.classList.toggle('side-top', at.side === 'top');
   }
 
@@ -2352,7 +2361,7 @@ export class TanreiMenu extends TanreiElement {
     const viewport = viewportKey();
     // MNU-32: the layout direction is part of where the surface goes — a change of it places the surface again; so is
     // the product's cap on its height, which no size of the surface reports while the cap the placement wrote holds it.
-    const cap = (surface: HTMLElement | null | undefined) => (surface ? surfaceCap(surface) : '');
+    const cap = (surface: HTMLElement | null | undefined) => (surface ? capOf(surface) : '');
     const layout = `${box?.x},${box?.y},${box?.width},${box?.height},${viewport},${scroll?.scrollHeight},${scroll?.scrollWidth},${direction},${cap(this.surface)}`;
     if (layout !== this.lastLayout) {
       this.lastLayout = layout;
@@ -2526,6 +2535,7 @@ export class TanreiMenu extends TanreiElement {
       <div part="surface" class="surface" data-tanrei-shape popover=${this.inline ? nothing : 'manual'} role="none">
         <div part="scroll" class="scroll">${blocksTemplate(this.blocks)}</div>
       </div>
+      <div part="surface" class="cap" aria-hidden="true"></div>
     `;
   }
 }

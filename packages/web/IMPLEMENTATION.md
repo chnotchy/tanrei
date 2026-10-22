@@ -4690,8 +4690,10 @@ shifted along the anchor to stay inside that margin, its height limited to the l
 the room left (the items scroll), and followed while open —
 by events, frame by frame only while something moves (`FollowController`, below). **Your cap** is a `max-block-size`
 on `::part(surface)` (of `tanrei-menu`, or of `tanrei-submenu` for a submenu's surface): it is read as a computed value
-(`surfaceCap()`; a percentage counts against the window), the surface is placed by the capped height, and the inline
-`max-block-size` the placement writes is the smaller of it and the room. A cap changed while the menu is open is seen at
+on the surface's twin — an element beside it with the same part name, never drawn (`.cap`, `display: none !important`),
+so the read never touches the surface — (`surfaceCap()`; a percentage counts against the window), the surface is placed
+by the capped height, and the `max-block-size` the placement writes on it, important so that your `::part` rule does
+not win over the room, is the smaller of your cap and the room. A cap changed while the menu is open is seen at
 the next thing the menu follows (an attribute changed on it or an ancestor, a scroll, a resize). It fades in and grows from the edge facing the anchor over `motion.open-duration` / `-easing`, and fades out
 over `motion.close-duration` / `-easing` (at once under reduced motion). Opening focuses the first enabled item; closing
 returns focus to the anchor when it was inside the menu. It is not modal: no focus trap, nothing inert, no scrim. **A press

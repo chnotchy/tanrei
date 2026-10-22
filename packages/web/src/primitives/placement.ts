@@ -270,26 +270,34 @@ export function visibleViewport(): ViewportBox {
 export const viewportKey = (box: ViewportBox = visibleViewport()) => `${box.x},${box.y},${box.width},${box.height}`;
 
 /**
- * The most a product lets a placed surface be tall (MNU-2, MNU-46): the `max-block-size` the product's own rules give it
- * (`::part(surface)`), read as a computed value with the height the placement writes on the surface taken off, in
- * pixels; Infinity where it sets none. A length the computed value keeps relative (a percentage, a `calc()` with one) is
- * resolved as the surface's own is: on a fixed box, against the window.
+ * The most a product lets a placed surface be tall (MNU-2, MNU-46): the `max-block-size` the product's own rules give
+ * it (`::part(surface)`), as a computed value in pixels; Infinity where it sets none. It is read on `twin`, an element
+ * that carries the surface's part name and is never drawn (`display: none !important` in the component's own sheet),
+ * so that the product's `::part()` rules reach it and the limit the placement writes on the surface itself does not:
+ * taking that limit off the surface to read under it, and putting it back, sends a scrolled list back to its top in
+ * WebKit. A length the computed value keeps relative (a percentage, a `calc()` with one) is resolved as the surface's
+ * own is: against the window, the box a surface in the top layer is sized against.
  */
-export function surfaceCap(surface: HTMLElement): number {
-  const written = surface.style.maxBlockSize;
-  surface.style.maxBlockSize = '';
-  const value = getComputedStyle(surface).maxBlockSize;
-  surface.style.maxBlockSize = written;
+export function surfaceCap(twin: Element | null | undefined): number {
+  if (!twin) return Number.POSITIVE_INFINITY;
+  const value = getComputedStyle(twin).maxBlockSize;
   if (!value || value === 'none') return Number.POSITIVE_INFINITY;
   if (/^-?[\d.]+(e-?\d+)?px$/i.test(value)) return Math.max(0, Number.parseFloat(value));
-  // A fixed box beside the surface, as tall as that length, measures it.
+  // Against the window — the box a surface in the top layer is sized against, whatever its ancestors are.
+  const vertical = getComputedStyle(twin).writingMode.startsWith('vertical');
+  const percent = /^(-?[\d.]+)%$/.exec(value);
+  const root = document.documentElement;
+  if (percent) return Math.max(0, (Number.parseFloat(percent[1]!) / 100) * (vertical ? root.clientWidth : root.clientHeight));
+  // Any other form (a calc() with a percentage): a box in the top layer, as tall as that length, measures it.
   const probe = document.createElement('div');
-  probe.style.cssText = 'position: fixed; inset-block-start: 0; inset-inline-start: 0; inline-size: 0; visibility: hidden; pointer-events: none';
+  probe.setAttribute('popover', 'manual');
+  probe.style.cssText = 'position: fixed; inset: 0 auto auto 0; margin: 0; padding: 0; border: 0; inline-size: 0; visibility: hidden; pointer-events: none';
   probe.style.blockSize = value;
-  (surface.parentNode ?? document.body).appendChild(probe);
+  (twin.parentNode ?? document.body).appendChild(probe);
+  probe.showPopover?.();
   const measured = probe.getBoundingClientRect();
   probe.remove();
-  const size = getComputedStyle(surface).writingMode.startsWith('vertical') ? measured.width : measured.height;
+  const size = vertical ? measured.width : measured.height;
   return Number.isFinite(size) ? Math.max(0, size) : Number.POSITIVE_INFINITY;
 }
 

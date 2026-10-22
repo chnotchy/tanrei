@@ -411,6 +411,19 @@ test.describe('overlay', () => {
     await submenu.evaluate((el: any) => (el.open = true));
     await expect.poll(() => shown(submenu)).toBe(true);
     await expect.poll(async () => (await surfaceBox(submenu)).height).toBeCloseTo(600 * 0.3, 0);
+    await menu(page, 'nested').evaluate((el: any) => (el.open = false));
+    // A calc() with a percentage, as the window resolves it.
+    await page.addStyleTag({ content: `tanrei-menu::part(surface) { max-block-size: calc(50% - 100px); }` });
+    [a, s] = await open('down');
+    expect(s.height).toBeCloseTo(600 / 2 - 100, 0);
+    await menu(page, 'down').evaluate((el: any) => (el.open = false));
+    // A cap larger than the room: the room holds.
+    await page.addStyleTag({ content: `tanrei-menu::part(surface) { max-block-size: 2000px; }` });
+    await page.setViewportSize({ width: 800, height: 300 });
+    const margin = await resolveToken(page, T('surface-viewport-margin'));
+    [a, s] = await open('down');
+    expect(s.y + s.height, 'inside the window’s margin').toBeLessThanOrEqual(300 - margin + 0.5);
+    expect(s.y).toBeCloseTo(a.y + a.height + offset, 0);
   });
 
   test('MNU-4: it fades in and grows from the edge facing the anchor, fades out, and appears and disappears at once where motion is reduced', async ({ page }) => {

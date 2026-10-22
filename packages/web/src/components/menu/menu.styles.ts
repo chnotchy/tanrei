@@ -77,6 +77,11 @@ const on = (state: string) => {
  * divider (MNU-23) or, where the separation is gap, empty space (MNU-36).
  */
 const surface = css`
+  /* MNU-2, MNU-46: the surface's twin, which a product's ::part(surface) rules reach and which is never drawn: the cap
+     on the surface's height is read on it (surfaceCap()). Important, so that no rule of the product's draws it. */
+  .cap {
+    display: none !important;
+  }
   .surface {
     box-sizing: border-box;
     flex-direction: column;
