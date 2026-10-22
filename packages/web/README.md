@@ -87,8 +87,15 @@ exposes them on that element. To keep the control one node for assistive technol
 - A navigation drawer exposes what you write on it on its navigation landmark, or on its dialog while it is a modal
   drawer that is shown; a tab view on the tab list of the row it draws. A tab view linked to tabs placed elsewhere
   draws no row, so what you write on it reaches nothing and is reported: write it on the linked `tanrei-tabs`.
+- The surfaces expose it on their dialog, or their region while they are not modal: the dialog, the modal layer, the
+  image preview, the side sheet, the bottom sheet, the date-time picker and the popover. The breadcrumbs, the
+  pagination and the table of contents expose it on their navigation landmark, a tag group on its list, and a handle
+  on its separator or its button (its `aria-disabled` and `aria-expanded` are its own). A calendar, a code block and a
+  file picker expose it on their group, which each one becomes while it has a name: its `label`, or the one you give.
 - Where a control's `label` is empty, the `aria-label` or the `aria-labelledby` you give it is its name, and a debug
-  build does not report it as unnamed.
+  build does not report it as unnamed. Where its `label` is set (or the label of the Field that frames it), that label
+  is its whole name: your `aria-label` and `aria-labelledby` are kept out, on the controls named by their content (a
+  chip, a main action button) too.
 - An item whose host has a role of its own keeps what it says there: a navigation destination is a list item, so its
   `aria-posinset` and `aria-setsize` stay on its host, and what you write moves to its link or its button. A tab's
   host is the tab itself, so nothing written on a `tanrei-tab` is moved.
