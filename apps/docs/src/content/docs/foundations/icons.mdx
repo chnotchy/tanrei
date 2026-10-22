@@ -37,6 +37,14 @@ import '@tanrei/web/icons.css';
 
 `.tanrei-icon` reads `aria-pressed`, `aria-selected`, `aria-checked` and `aria-current` on any ancestor, or `data-selected` on the icon or an ancestor (`data-selected="false"` opts one icon out). Give an icon `aria-hidden="true"` when text next to it says the same thing, and the control an accessible name when it does not.
 
+The name can also be given in `data-icon`, with the element left empty:
+
+```html
+<span class="tanrei-icon" data-icon="folder"></span>
+```
+
+The glyph is the same, but its name is no longer text on the page: it is not in `textContent` or `innerText`, not in what people copy, and not in the accessible name of the control around it. Use it wherever the name would otherwise be read as text, such as a row in a menu or a list, a table cell, or text a test compares. Size, selection and right-to-left mirroring work exactly as they do for the text form. Keep `aria-hidden="true"` where the text beside the icon says the same thing: Firefox before 128 still reads the name into the accessible name.
+
 On the native platforms the same values arrive with the design system (`system.icon`), together with a small helper that turns *selected* and a size into what the font needs. Tanrei does not ship an icon component yet.
 
 ## An icon set per design system

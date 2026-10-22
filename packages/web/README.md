@@ -83,7 +83,7 @@ runs. Import the stylesheet of each one you use (or link `dist/<name>.css`):
 
 | Stylesheet | Draws |
 |---|---|
-| `icons.css` | `.tanrei-icon`, an icon from the system's icon font |
+| `icons.css` | `.tanrei-icon`, an icon from the system's icon font, named by its text or by `data-icon` |
 | `text.css` | `.tanrei-text-<role>`, the sixteen text styles |
 | `prose.css` | `.tanrei-prose`, long-form text (rendered Markdown, a CMS's content) |
 | `link.css` | `.tanrei-link`, a text link on your own `<a>` |
