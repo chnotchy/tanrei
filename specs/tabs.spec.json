@@ -288,7 +288,7 @@
     },
     {
       "id": "TAB-22",
-      "text": "WHILE a tab's label is empty THE tabs SHALL still render the tab and in debug builds report that it has no accessible name."
+      "text": "WHILE a tab's label is empty and the product gives the tab a name of its own on the element — aria-label, or aria-labelledby naming an element — THE tabs SHALL leave that name to the tab; WHILE a tab's label is empty and the product gives it none THE tabs SHALL still render the tab and in debug builds report that it has no accessible name."
     },
     {
       "id": "TAB-23",

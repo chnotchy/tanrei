@@ -226,7 +226,7 @@
     },
     {
       "id": "FBM-23",
-      "text": "WHILE label is empty, an item's label or icon is empty, or the menu holds fewer than two or more than six items, THE FAB menu SHALL still render, and in debug builds report it."
+      "text": "WHILE label is empty and the product gives the FAB menu a name of its own on the element — aria-label, or aria-labelledby naming an element — THE FAB menu SHALL expose that name as the toggle's accessible name and name the list by the toggle. WHILE label is empty and the product gives it none, an item's label or icon is empty, or the menu holds fewer than two or more than six items, THE FAB menu SHALL still render, and in debug builds report it."
     },
     {
       "id": "FBM-24",

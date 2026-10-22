@@ -172,7 +172,7 @@
     },
     {
       "id": "MAB-16",
-      "text": "IF label is empty THEN THE main action button SHALL draw its collapsed form whatever extended says, and in debug builds report that it has no accessible name; this holds over MAB-15 when it has no icon either."
+      "text": "IF label is empty THEN THE main action button SHALL draw its collapsed form whatever extended says, SHALL expose the name the product gives it on the element — aria-label, or aria-labelledby naming an element — as its accessible name, and WHILE the product gives it none SHALL in debug builds report that it has no accessible name; this holds over MAB-15 when it has no icon either."
     },
     {
       "id": "MAB-17",

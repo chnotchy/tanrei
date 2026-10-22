@@ -253,7 +253,7 @@
     },
     {
       "id": "SLD-19",
-      "text": "THE slider SHALL expose each handle as a slider (the adjustable trait on Apple platforms) named by label, or by startLabel for a range's start handle, with its value, its value text, the lowest and highest value it can take (for a range, bounded by the other handle), its orientation and its disabled state; the tracks, stop dots, container and value indicator SHALL be hidden from assistive technology. WHILE label is empty, or range is true and startLabel is empty, THE slider SHALL still render, and in debug builds report that a handle has no accessible name."
+      "text": "THE slider SHALL expose each handle as a slider (the adjustable trait on Apple platforms) named by label, or by startLabel for a range's start handle, with its value, its value text, the lowest and highest value it can take (for a range, bounded by the other handle), its orientation and its disabled state; the tracks, stop dots, container and value indicator SHALL be hidden from assistive technology. WHILE label is empty and the product gives the slider a name of its own on the element — aria-label, or aria-labelledby naming an element — THE slider SHALL expose that name on each handle whose own label is empty. WHILE label is empty and the product gives it none, or range is true and startLabel is empty, THE slider SHALL still render, and in debug builds report that a handle has no accessible name: one name of the product's does not tell a range's two handles apart."
     },
     {
       "id": "SLD-20",

@@ -163,7 +163,7 @@
     },
     {
       "id": "SWT-16",
-      "text": "WHILE labelHidden is true THE switch SHALL draw no label and SHALL still expose label as its accessible name; WHILE label is empty THE switch SHALL still render, and in debug builds report that it has no accessible name."
+      "text": "WHILE labelHidden is true THE switch SHALL draw no label and SHALL still expose label as its accessible name; WHILE label is empty and the product gives the switch a name of its own on the element — aria-label, or aria-labelledby naming an element — THE switch SHALL expose that name as its accessible name; WHILE label is empty and the product gives it none THE switch SHALL still render, and in debug builds report that it has no accessible name."
     },
     {
       "id": "SWT-17",

@@ -266,7 +266,7 @@
     },
     {
       "id": "SPB-20",
-      "text": "WHILE label or menuLabel is empty THE button with menu SHALL still render, and in debug builds report the half that has no accessible name; WHILE the menu slot holds no item THE button with menu SHALL still emit toggle and draw the trailing half's open form, SHALL present no menu, and in debug builds report the empty menu."
+      "text": "WHILE label is empty and the product gives the button with menu a name of its own on the element — aria-label, or aria-labelledby naming an element — THE button with menu SHALL expose that name as the leading half's accessible name. WHILE label is empty and the product gives it none, or menuLabel is empty, THE button with menu SHALL still render, and in debug builds report the half that has no accessible name; WHILE the menu slot holds no item THE button with menu SHALL still emit toggle and draw the trailing half's open form, SHALL present no menu, and in debug builds report the empty menu."
     },
     {
       "id": "SPB-21",

@@ -278,7 +278,7 @@
     },
     {
       "id": "CHP-26",
-      "text": "WHILE label is empty THE chip SHALL still render, and in debug builds report that it has no accessible name; WHILE kind is input and removeLabel is empty THE chip SHALL report the same of its remove action."
+      "text": "WHILE label is empty and the product gives the chip a name of its own on the element — aria-label, or aria-labelledby naming an element — THE chip SHALL expose that name as its accessible name; WHILE label is empty and the product gives it none THE chip SHALL still render, and in debug builds report that it has no accessible name; WHILE kind is input and removeLabel is empty THE chip SHALL report the same of its remove action."
     },
     {
       "id": "CHP-27",

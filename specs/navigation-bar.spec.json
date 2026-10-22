@@ -265,7 +265,7 @@
     },
     {
       "id": "NVB-20",
-      "text": "WHILE a destination's label is empty THE navigation bar SHALL still render it, and in debug builds report that it has no accessible name."
+      "text": "WHILE a destination's label is empty and the product gives the destination a name of its own on the element — aria-label, or aria-labelledby naming an element — THE navigation bar SHALL expose that name as its accessible name; WHILE a destination's label is empty and the product gives it none THE navigation bar SHALL still render it, and in debug builds report that it has no accessible name."
     },
     {
       "id": "NVB-21",
