@@ -1830,7 +1830,7 @@ test.describe('shortcut', () => {
     expect(await log(page)).toEqual(['open:first']);
     await page.keyboard.press('Meta+k');
     const text = () => seen.filter((w) => w.includes('SRC-39')).join('\n');
-    await expect.poll(text).toContain('another search shown before this one binds the chord "mod+k"');
+    await expect.poll(text).toContain('another search or navigation drawer shown before this one binds the chord "mod+k"');
     expect(text()).toContain('shortcut is empty');
     expect(text()).toContain('holds 2 chords');
     // The hint and the exposed shortcut still say what the product has bound.

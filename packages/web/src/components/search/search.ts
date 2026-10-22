@@ -3,6 +3,8 @@ import { ifDefined } from 'lit/directives/if-defined.js';
 import { html as staticHtml, literal } from 'lit/static-html.js';
 import {
   AvailabilityController,
+  BOUND_CHORDS,
+  type Binding,
   FollowController,
   GlyphDrawnController,
   KeptLengths,
@@ -36,7 +38,11 @@ import {
   trapFocus,
   viewportKey,
   visibleViewport,
+  WAITING_FOR_CHORDS,
   WordsController,
+  chordPressed,
+  readBinding,
+  takesText,
 } from '../../primitives/index.js';
 import '../button/button.js';
 // SRC-37: the shortcut hint is drawn by the keyboard shortcut; SRC-47: the status row's indicator is the loading indicator.
@@ -425,81 +431,8 @@ function rowOf(event: Event, within: Element): TanreiSearchRow | null {
   return null;
 }
 
-// ── The shortcut the search binds (SRC-38, SRC-39) ───────────────────────────────────────────────────────────────────
-
-/** One chord as the search listens for it: its modifiers and its one other key, as `KeyboardEvent.key` names it. */
-interface Binding {
-  id: string;
-  key: string;
-  mod: boolean;
-  ctrl: boolean;
-  alt: boolean;
-  shift: boolean;
-}
-
-/** KBS-1: the named keys, as `KeyboardEvent.key` reports them. */
-const EVENT_KEYS: Record<string, string> = {
-  enter: 'Enter',
-  escape: 'Escape',
-  tab: 'Tab',
-  backspace: 'Backspace',
-  delete: 'Delete',
-  space: ' ',
-  'arrow-up': 'ArrowUp',
-  'arrow-down': 'ArrowDown',
-  'arrow-left': 'ArrowLeft',
-  'arrow-right': 'ArrowRight',
-  home: 'Home',
-  end: 'End',
-  'page-up': 'PageUp',
-  'page-down': 'PageDown',
-  'caps-lock': 'CapsLock',
-  plus: '+',
-  ...Object.fromEntries(Array.from({ length: 24 }, (_, i) => [`f${i + 1}`, `F${i + 1}`])),
-};
-
-/** SRC-38: a chord in the keyboard shortcut's key names (`mod+k`, `/`) as a binding, or null where it is not one chord of modifiers and one key. */
-function readBinding(chord: string): Binding | null {
-  const modifiers = new Set<string>();
-  const others: string[] = [];
-  for (const name of chord.split('+').map((each) => each.trim().toLowerCase())) {
-    if (!name) continue;
-    if (name === 'mod' || name === 'ctrl' || name === 'alt' || name === 'shift') modifiers.add(name);
-    else others.push(name);
-  }
-  if (others.length !== 1) return null;
-  const key = EVENT_KEYS[others[0]] ?? ([...others[0]].length === 1 ? others[0] : null);
-  if (key === null) return null;
-  const [mod, ctrl, alt, shift] = ['mod', 'ctrl', 'alt', 'shift'].map((name) => modifiers.has(name));
-  return { id: [...['mod', 'ctrl', 'alt', 'shift'].filter((name) => modifiers.has(name)), key].join('+'), key, mod, ctrl, alt, shift };
-}
-
-/** SRC-38: whether `event` is that chord, read as KBS-1 reads it: mod is Command under the apple convention and Control otherwise. */
-function chordPressed(event: KeyboardEvent, binding: Binding, convention: KeyboardConvention): boolean {
-  const meta = binding.mod && convention === 'apple';
-  const ctrl = binding.ctrl || (binding.mod && convention !== 'apple');
-  if (event.metaKey !== meta || event.ctrlKey !== ctrl || event.altKey !== binding.alt) return false;
-  const character = [...binding.key].length === 1 && binding.key !== ' ';
-  const letter = character && /[\p{L}\p{N}]/u.test(binding.key);
-  // A named key or a letter is pressed with Shift exactly when the chord names it; a sign that a layout writes with
-  // Shift (?) is what `key` says it is.
-  if (!character || letter ? event.shiftKey !== binding.shift : binding.shift && !event.shiftKey) return false;
-  if (event.key.toLowerCase() === binding.key.toLowerCase()) return true;
-  // Option on a Mac writes another character for the same key: with alt, the key's place decides.
-  return letter && binding.alt && (event.code === `Key${binding.key.toUpperCase()}` || event.code === `Digit${binding.key}`);
-}
-
-/** SRC-38: whether `element` takes text, so that a key without a modifier types there. */
-function takesText(element: Element | null): boolean {
-  if (!element) return false;
-  if (element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement) return true;
-  if (element instanceof HTMLInputElement) return !['button', 'checkbox', 'color', 'file', 'image', 'radio', 'range', 'reset', 'submit'].includes(element.type);
-  return element instanceof HTMLElement && element.isContentEditable;
-}
-
-/** SRC-39: the chord each shown search has bound, and the searches that wait for one another search holds. */
-const BOUND = new Map<string, Element>();
-const WAITING = new Set<{ syncShortcut(): void }>();
+// The shortcut the search binds (SRC-38, SRC-39): read, matched and owned as src/primitives/keyboard-convention.ts says,
+// in the one registry of bound chords that the navigation drawer shares (NVD-87).
 
 /**
  * Lets people search the product from a bar or a compact trigger, and offers suggestions and results while they type in
@@ -1613,31 +1546,31 @@ export class TanreiSearch extends TanreiElement {
   syncShortcut() {
     const chords = chordsOf(this.shortcut);
     let next: Binding | null = null;
-    WAITING.delete(this);
+    WAITING_FOR_CHORDS.delete(this);
     if (this.isConnected && this.bindShortcut && !this.inert_) {
       if (chords.length !== 1) {
         report(this, 'SRC-39', chords.length ? `bindShortcut is set and shortcut holds ${chords.length} chords; a sequence is not bound, so the search listens for nothing` : 'bindShortcut is set and shortcut is empty, so the search listens for nothing');
       } else {
         next = readBinding(chords[0]);
-        const owner = next ? BOUND.get(next.id) : undefined;
+        const owner = next ? BOUND_CHORDS.get(next.id) : undefined;
         if (!next) report(this, 'SRC-39', `the chord "${chords[0]}" is not modifiers and one key; the search listens for nothing`);
         else if (owner && owner !== this) {
-          report(this, 'SRC-39', `another search shown before this one binds the chord "${chords[0]}"; this one binds nothing`);
-          WAITING.add(this);
+          report(this, 'SRC-39', `another search or navigation drawer shown before this one binds the chord "${chords[0]}"; this one binds nothing`);
+          WAITING_FOR_CHORDS.add(this);
           next = null;
         }
       }
     }
     if ((next?.id ?? null) === (this.binding?.id ?? null)) return;
     if (this.binding) {
-      BOUND.delete(this.binding.id);
+      BOUND_CHORDS.delete(this.binding.id);
       window.removeEventListener('keydown', this.onWindowKeyDown);
       this.binding = null;
       // The chord is free: a search that waited for it takes it.
-      for (const waiting of [...WAITING]) waiting.syncShortcut();
+      for (const waiting of [...WAITING_FOR_CHORDS]) waiting.syncShortcut();
     }
     if (next) {
-      BOUND.set(next.id, this);
+      BOUND_CHORDS.set(next.id, this);
       window.addEventListener('keydown', this.onWindowKeyDown);
       this.binding = next;
     }
