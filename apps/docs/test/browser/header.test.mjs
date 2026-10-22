@@ -75,11 +75,22 @@ async function choose(page, id, role, name) {
   await menu.getByRole(role, { name, exact: true }).click();
 }
 
+// Firefox is told to ignore Cross-Origin-Opener-Policy. Every page of the site is sent with
+// `Cross-Origin-Opener-Policy: same-origin` (public/_headers), so Firefox moves the first navigation of each new page,
+// from its about:blank, into a new browsing context group, and on a busy machine Playwright's Firefox (1.63) loses that
+// navigation: the document loads (readyState `complete`, a load in its navigation timing), but `goto` hears neither the
+// commit nor the load and waits out its time, and a page reached some other way answers `evaluate` but not a locator's
+// click. Measured in the CI image on four CPUs: the six languages' pages, each in a new page, lost 6 navigations in 24;
+// this file failed in 6 runs of 10, and with a busy loop beside it in 4 of 6; with the policy ignored it passed in 10
+// of 10, and in 12 of 12 beside the busy loop. Nothing here is about the policy: no page here opens another, and the
+// other engines keep it.
+const LAUNCH = { firefox: { firefoxUserPrefs: { 'browser.tabs.remote.useCrossOriginOpenerPolicy': false } } };
+
 for (const engine of ENGINES) {
   describe(`the header in ${engine}`, () => {
     let browser;
     before(async () => {
-      browser = await playwright[engine].launch();
+      browser = await playwright[engine].launch(LAUNCH[engine]);
     });
     after(async () => {
       await browser?.close();
