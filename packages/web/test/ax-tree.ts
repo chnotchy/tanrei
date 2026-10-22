@@ -7,13 +7,16 @@ import type { Page } from '@playwright/test';
 const STATES = ['checked', 'invalid', 'required', 'disabled', 'orientation', 'focusable'];
 
 /**
- * The tree Chromium computes under the element `selector` finds, without the nodes it ignores: one line per node —
- * role, name, description and states — indented by depth.
+ * The tree Chromium computes under the element `selector` finds — and then, for each of `inside`, the element that
+ * selector finds in the shadow root of the one before, itself included (a modal dialog leaves everything around it out
+ * of the tree) — without the nodes it ignores: one line per node — role, name, description and states — indented by
+ * depth.
  */
-export async function axTree(page: Page, selector: string): Promise<string[]> {
+export async function axTree(page: Page, selector: string, inside: string[] = []): Promise<string[]> {
   const cdp = await page.context().newCDPSession(page);
   await cdp.send('Accessibility.enable');
-  const { result } = await cdp.send('Runtime.evaluate', { expression: `document.querySelector(${JSON.stringify(selector)})` });
+  const expression = inside.reduce((at, each) => `${at}.shadowRoot.querySelector(${JSON.stringify(each)})`, `document.querySelector(${JSON.stringify(selector)})`);
+  const { result } = await cdp.send('Runtime.evaluate', { expression });
   const { node } = await cdp.send('DOM.describeNode', { objectId: result.objectId! });
   const { nodes } = await cdp.send('Accessibility.getFullAXTree');
   await cdp.detach();
@@ -35,7 +38,9 @@ export async function axTree(page: Page, selector: string): Promise<string[]> {
     }
     for (const child of at.childIds ?? []) walk(child, next);
   };
-  for (const child of root.childIds ?? []) walk(child, 0);
+  // Found inside a shadow root, the element is the one a test reads (a modal dialog): it is a line of its own.
+  if (inside.length) walk(root.nodeId, 0);
+  else for (const child of root.childIds ?? []) walk(child, 0);
   return lines;
 }
 

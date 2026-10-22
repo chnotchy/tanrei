@@ -34,6 +34,8 @@
 //                                    On a member that moves the product's ARIA itself (a composed field's control, a
 //                                    Copy button's Button), it writes on the member's host as a product would, and
 //                                    the member moves and exposes it; that write is the component's (`asComponent()`).
+//   new DelegatedAriaWriter()        the same, for a member the template does not draw (the row a tab view places in
+//                                    its light DOM): `writer.write(member, host, own)` after each of the host's updates.
 //
 // A relationship (`aria-labelledby`, `aria-describedby`, `aria-controls`, `aria-details`, `aria-flowto`,
 // `aria-errormessage`) names elements by id. Its ids are looked up in the host's tree (`getRootNode()`) and the elements
@@ -353,7 +355,13 @@ const same = (a: readonly Element[] | null | undefined, b: readonly Element[] | 
  */
 export type OwnAria = Partial<Record<string, string | null | undefined | false>>;
 
-class DelegatedAria extends Directive {
+/**
+ * What `delegatedAria()` does, for one element: the component's own ARIA and the product's from `host`, written on
+ * `element` each time it is called. The directive keeps one for the element it stands on; a component keeps one of its
+ * own for a member its template does not draw — the row a tab view places in its light DOM — and calls `write()` after
+ * each of its updates.
+ */
+export class DelegatedAriaWriter {
   /** The attributes it wrote last, so that one no longer given is taken off. */
   private written = new Set<string>();
   /** The relationships it drew last by element reflection. */
@@ -363,17 +371,9 @@ class DelegatedAria extends Directive {
   private copy: HTMLElement | null = null;
   private readonly copyIds = [`tanrei-described-${++copies}-a`, `tanrei-described-${copies}-b`] as const;
 
-  constructor(part: PartInfo) {
-    super(part);
-    if (part.type !== PartType.ELEMENT) throw new Error('delegatedAria() stands on the element that carries the role: <button ${delegatedAria(this, { … })}>');
-  }
-
-  render(_host: HTMLElement, _own: OwnAria) {
-    return noChange;
-  }
-
-  override update(part: ElementPart, [host, own]: [Delegating, OwnAria]) {
-    const element = part.element as HTMLElement & Record<string, unknown>;
+  write(target: HTMLElement, from: HTMLElement, own: OwnAria = {}) {
+    const element = target as HTMLElement & Record<string, unknown>;
+    const host = from as Delegating;
     const inner = delegates(element);
     const exposed = new Set<string>(delegatedNames(host));
     const values = new Map<string, string>();
@@ -459,7 +459,6 @@ class DelegatedAria extends Directive {
         }
       });
     }
-    return noChange;
   }
 
   /** The description: the component's own ids, then the hidden copy of the product's text (above). */
@@ -486,6 +485,24 @@ class DelegatedAria extends Directive {
 
 /** The copies of descriptions made in this page, for their ids. */
 let copies = 0;
+
+class DelegatedAria extends Directive {
+  private readonly writer = new DelegatedAriaWriter();
+
+  constructor(part: PartInfo) {
+    super(part);
+    if (part.type !== PartType.ELEMENT) throw new Error('delegatedAria() stands on the element that carries the role: <button ${delegatedAria(this, { … })}>');
+  }
+
+  render(_host: HTMLElement, _own: OwnAria) {
+    return noChange;
+  }
+
+  override update(part: ElementPart, [host, own]: [HTMLElement, OwnAria]) {
+    this.writer.write(part.element as HTMLElement, host, own);
+    return noChange;
+  }
+}
 
 /**
  * On the element that carries the role: the component's own ARIA (`own`) and, for every name its class exposes

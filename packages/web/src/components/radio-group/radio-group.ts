@@ -1,6 +1,7 @@
 import { type PropertyDeclarations, type PropertyValues, html } from 'lit';
 import { AvailabilityController } from '../../primitives/availability.js';
-import { ComposedElement, exported, forward } from '../../primitives/composed.js';
+import { ComposedElement, exported, fieldDelegatesAria, forward } from '../../primitives/composed.js';
+import { delegatedAria } from '../../primitives/delegated-aria.js';
 import { FIELD_CONNECT, FIELD_CONTROL, FieldControlController, type FieldConnection } from '../../primitives/field.js';
 import { takeFormDisabled } from '../../primitives/form-disabled.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
@@ -168,8 +169,6 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
 
   /** W6, item 6: a disabled `<fieldset>` around the element, or its own `disabled` attribute, as the platform says it. */
   protected formDisabled = false;
-
-  protected override readonly hostNameSentence = 'RGP-10';
 
   private readonly internals = this.attachInternals();
 
@@ -414,7 +413,6 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
     if (changed.has('readOnly')) for (const option of options) option.requestUpdate();
     this.syncForm(options);
     this.reports(options);
-    void this.exposeReadOnly();
     super.updated(changed);
   }
 
@@ -422,21 +420,6 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
    * What a debug build tells the developer; the group still renders. An unknown value of a frame's prop, missing words
    * and an empty label are the field group's to report (RGP-10, RGP-18, RGP-19: FGR-10, FGR-22, FGR-24).
    */
-  /**
-   * RGP-10, RGP-20: the radio group assistive technology is told of is the field group's own element, which carries the
-   * role's other states; a field group has no read-only state of its own, so the radio group writes `aria-readonly` on
-   * that element once the field group has drawn it.
-   */
-  private async exposeReadOnly() {
-    const frame = this.renderRoot.querySelector<TanreiFieldGroup>('tanrei-field-group');
-    if (!frame) return;
-    await frame.updateComplete;
-    const group = frame.shadowRoot?.querySelector('[role="radiogroup"]');
-    if (!group) return;
-    if (this.readOnly && !this.isDisabled) group.setAttribute('aria-readonly', 'true');
-    else group.removeAttribute('aria-readonly');
-  }
-
   private reports(options: TanreiRadioButton[]) {
     // RGP-12: a set without a radio button still draws its rows.
     if (!options.length) report(this, 'RGP-12', 'the radio group holds no radio button; put tanrei-radio-button elements in its default slot');
@@ -455,14 +438,28 @@ export class TanreiRadioGroup extends ComposedElement implements TanreiRadioButt
   }
 
   // RGP-1: the field group's own element, in its radio-group kind, around the slot the product's radio buttons pass
-  // through — exactly as a product writes a field group of radio buttons. RGP-10: it is the one radio group.
+  // through — exactly as a product writes a field group of radio buttons. RGP-10: it is the one radio group. RGP-20: a
+  // field group has no read-only state of its own, so the radio group gives it `aria-readonly` as a product would,
+  // which the field group exposes on that element beside the product's ARIA (RGP-21).
   protected override render() {
-    return html`<tanrei-field-group part="field-group" exportparts=${GROUP_PARTS.attribute} kind="radio-group" spacing="controls" ${forward(this, GROUP)} .disabled=${this.isDisabled}><slot></slot></tanrei-field-group>`;
+    return html`<tanrei-field-group
+      part="field-group"
+      exportparts=${GROUP_PARTS.attribute}
+      kind="radio-group"
+      spacing="controls"
+      ${delegatedAria(this, { 'aria-readonly': this.readOnly && !this.isDisabled && 'true' })}
+      ${forward(this, GROUP)}
+      .disabled=${this.isDisabled}
+      ><slot></slot
+    ></tanrei-field-group>`;
   }
 }
 
 // Its `disabled` attribute, written while it holds focus, waits until focus has left: a frame at most.
 disabledWaitsWhileFocused(TanreiRadioGroup);
+// RGP-21: the product's ARIA on the host is its field group's radio group's (src/primitives/delegated-aria.ts), but for
+// its name and its states, which are its props (RGP-10, RGP-20).
+fieldDelegatesAria(TanreiRadioGroup, TanreiFieldGroup, 'RGP-21', ['aria-readonly']);
 if (!customElements.get('tanrei-radio-group')) customElements.define('tanrei-radio-group', TanreiRadioGroup);
 
 declare global {

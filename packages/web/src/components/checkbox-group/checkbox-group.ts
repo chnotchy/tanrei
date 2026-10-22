@@ -1,6 +1,7 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { live } from 'lit/directives/live.js';
-import { ComposedElement, exported, forward } from '../../primitives/composed.js';
+import { ComposedElement, exported, fieldDelegatesAria, forward } from '../../primitives/composed.js';
+import { delegatedAria } from '../../primitives/delegated-aria.js';
 import { FIELD_CONNECT, FIELD_CONTROL, FieldControlController, type FieldConnection } from '../../primitives/field.js';
 import { takeFormDisabled } from '../../primitives/form-disabled.js';
 import { report } from '../../primitives/report.js';
@@ -71,7 +72,8 @@ function keepAsking(host: Element, ask: () => void) {
  * text, else `label` as its message. It never sets `error` itself.
  *
  * The element is not focusable itself and has no role: every checkbox is a stop of its own, `focus()` goes to the first
- * enabled one, and the group, its name and its description are the field group's (`label`, never `aria-label`).
+ * enabled one, and the group, its name and its description are the field group's (`label`, never `aria-label`). The
+ * product's ARIA on it is passed on to the field group, which exposes it on its group (CKG-15).
  *
  * @tag tanrei-checkbox-group
  * @slot - The checkboxes of the set, in the order given: `<tanrei-checkbox value="…">` elements.
@@ -179,8 +181,6 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
 
   /** W6, item 6: a disabled `<fieldset>` around the element, or its own `disabled` attribute, as the platform says it. */
   protected formDisabled = false;
-
-  protected override readonly hostNameSentence = 'CKG-9';
 
   private readonly internals = this.attachInternals();
 
@@ -534,7 +534,7 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
           .disabled=${switchable.length === 0}
         ></tanrei-checkbox>`
       : nothing;
-    return html`<tanrei-field-group part="field-group" exportparts=${GROUP_PARTS.attribute} spacing="controls" ${forward(this, GROUP)} .disabled=${this.disabled || this.formDisabled}
+    return html`<tanrei-field-group part="field-group" exportparts=${GROUP_PARTS.attribute} spacing="controls" ${delegatedAria(this, {})} ${forward(this, GROUP)} .disabled=${this.disabled || this.formDisabled}
       >${selectAll}<slot></slot
     ></tanrei-field-group>`;
   }
@@ -542,6 +542,9 @@ export class TanreiCheckboxGroup extends ComposedElement implements TanreiCheckb
 
 // Its `disabled` attribute, written while it holds focus, waits until focus has left: a frame at most.
 disabledWaitsWhileFocused(TanreiCheckboxGroup);
+// CKG-15: the product's ARIA on the host is its field group's group's (src/primitives/delegated-aria.ts), but for its name
+// and its states, which are its props (CKG-9).
+fieldDelegatesAria(TanreiCheckboxGroup, TanreiFieldGroup, 'CKG-15');
 if (!customElements.get('tanrei-checkbox-group')) customElements.define('tanrei-checkbox-group', TanreiCheckboxGroup);
 
 declare global {

@@ -21,7 +21,7 @@ interface Subject {
   sentence: string;
   /** The control with `id="subject"`; `rest` is where the product's ARIA goes. */
   markup: (rest: string) => string;
-  /** From the host down, one selector per shadow root: the element that carries the role. */
+  /** From the host down, one selector per shadow root — `light:` before one that is a light-DOM child instead (a tab view's row) — the element that carries the role. */
   path: string[];
   /** What the component owns: never taken from the host. */
   owns: string[];
@@ -33,6 +33,8 @@ interface Subject {
   namedNodes?: number;
   /** What the component says on its host itself, where the host has a role of its own (a destination is a list item). */
   hostOwn?: string[];
+  /** Its own page for axe: it covers the rest of the page (a modal drawer). */
+  alone?: boolean;
 }
 
 /** A list item's position in its list, which a destination says on its host (NVB-*, NVD-23). */
@@ -40,6 +42,9 @@ const LIST_ITEM = ['aria-posinset', 'aria-setsize'];
 
 /** What a composed field says itself: its name is its Field's label, and its disabled state its own. */
 const FIELD_OWNS = ['aria-label', 'aria-labelledby', 'aria-disabled'];
+
+/** What a field group says itself (FGR-27): its name, its states and its error message are its props. */
+const GROUP_OWNS = [...FIELD_OWNS, 'aria-required', 'aria-invalid', 'aria-errormessage'];
 
 const SUBJECTS: Record<string, Subject> = {
   button: { sentence: 'BTN-46', markup: (rest) => `<tanrei-button id="subject" ${rest}>Send</tanrei-button>`, path: ['button'], owns: ['aria-pressed', 'aria-disabled'] },
@@ -152,6 +157,62 @@ const SUBJECTS: Record<string, Subject> = {
     path: ['[role="tablist"]'],
     owns: [],
   },
+  // The groups: the field group's own group, and the field group the checkbox group and the radio group are made of.
+  'field-group': {
+    sentence: 'FGR-27',
+    markup: (rest) => `<tanrei-field-group id="subject" ${rest} label="Group"><tanrei-checkbox label="One"></tanrei-checkbox></tanrei-field-group>`,
+    path: ['fieldset'],
+    owns: [...GROUP_OWNS],
+  },
+  'checkbox-group': {
+    sentence: 'CKG-15',
+    markup: (rest) => `<tanrei-checkbox-group id="subject" ${rest} label="Group"><tanrei-checkbox value="a" label="One"></tanrei-checkbox></tanrei-checkbox-group>`,
+    path: ['tanrei-field-group', 'fieldset'],
+    owns: [...GROUP_OWNS],
+  },
+  'radio-group': {
+    sentence: 'RGP-21',
+    markup: (rest) => `<tanrei-radio-group id="subject" ${rest} label="Group"><tanrei-radio-button value="a" label="One"></tanrei-radio-button><tanrei-radio-button value="b" label="Two"></tanrei-radio-button></tanrei-radio-group>`,
+    path: ['tanrei-field-group', '[role="radiogroup"]'],
+    owns: [...GROUP_OWNS, 'aria-readonly'],
+  },
+  'chat-composer': {
+    sentence: 'CCM-45',
+    markup: (rest) => `<tanrei-chat-composer id="subject" ${rest} label="Message" send-label="Send"></tanrei-chat-composer>`,
+    path: ['[role="group"]'],
+    owns: ['aria-label', 'aria-labelledby', 'aria-busy', 'aria-disabled', 'aria-invalid', 'aria-errormessage'],
+    ownName: 'Message',
+  },
+  'file-upload': {
+    sentence: 'FUP-60',
+    markup: (rest) => `<tanrei-file-upload id="subject" ${rest} label="Files"></tanrei-file-upload>`,
+    path: ['[role="group"]'],
+    owns: [...GROUP_OWNS],
+    ownName: 'Files',
+  },
+  // A drawer's own host: its navigation landmark, or its dialog while it is a modal drawer that is shown (NVD-78).
+  'navigation-drawer': {
+    sentence: 'NVD-78',
+    markup: (rest) => `<tanrei-navigation-drawer id="subject" ${rest} open label="Side" value="a"><tanrei-navigation-drawer-item value="a" label="Home" icon="home"></tanrei-navigation-drawer-item></tanrei-navigation-drawer>`,
+    path: ['nav'],
+    owns: [],
+  },
+  'navigation-drawer (modal)': {
+    sentence: 'NVD-78',
+    markup: (rest) =>
+      `<tanrei-navigation-drawer id="subject" ${rest} variant="modal" open label="Side" value="a"><tanrei-navigation-drawer-item value="a" label="Home" icon="home"></tanrei-navigation-drawer-item></tanrei-navigation-drawer>`,
+    path: ['dialog'],
+    owns: [],
+    tag: 'tanrei-navigation-drawer',
+    alone: true,
+  },
+  // The tab list of the row the view places in its light DOM (TBV-16), which moves and exposes what the view gives it.
+  'tab-view': {
+    sentence: 'TBV-24',
+    markup: (rest) => `<tanrei-tab-view id="subject" ${rest} value="a"><tanrei-tab-panel value="a" label="Alpha">A</tanrei-tab-panel><tanrei-tab-panel value="b" label="Beta">B</tanrei-tab-panel></tanrei-tab-view>`,
+    path: ['light:tanrei-tabs', '[role="tablist"]'],
+    owns: [],
+  },
 };
 
 /** The states the tests set on a host: each one the component does not own. */
@@ -193,7 +254,7 @@ function read_(page: Page, path: string[], names: string[], hostOwn: string[] = 
     ({ path, names, hostOwn }) => {
       const host = document.querySelector<HTMLElement>('#subject')!;
       let at: Element = host;
-      for (const selector of path) at = at.shadowRoot!.querySelector(selector)!;
+      for (const selector of path) at = selector.startsWith('light:') ? at.querySelector(selector.slice(6))! : at.shadowRoot!.querySelector(selector)!;
       const inner = at as Element & Record<string, unknown>;
       const ids = (property: string) => ((inner[property] as Element[] | null | undefined) ?? []).map((element) => element.id || element.textContent);
       return {
@@ -280,6 +341,7 @@ for (const [name, subject] of Object.entries(SUBJECTS)) {
     await load(page, tag, subject.markup('aria-describedby="described" aria-labelledby="named"'), { withoutReflection: true });
     const said = await read_(page, subject.path, ['aria-label', 'aria-description'], subject.hostOwn);
     if (subject.ownName) expect(said.inner['aria-label'], 'its own label is its whole name').toBe(subject.ownName);
+    else if (subject.owns.includes('aria-labelledby')) expect(said.inner['aria-label'], 'its name is its own: the label’s text is not').not.toBe('Named text');
     else expect(said.inner['aria-label'], 'the label’s text is the name').toBe('Named text');
     expect(said.described, 'the description’s text is the description').toBe(describes ? 'Described text' : '');
     expect(said.ariaOnHost, 'and the host keeps neither').toEqual([]);
@@ -288,7 +350,8 @@ for (const [name, subject] of Object.entries(SUBJECTS)) {
   test(`${subject.sentence} ${name}: the host is no second node in Chromium’s accessibility tree — the name and the description the product gives are the element’s that carries the role, once`, async ({ page, browserName }) => {
     test.skip(browserName !== 'chromium', 'only Chromium gives a test its accessibility tree');
     await load(page, tag, subject.markup('aria-labelledby="named" aria-describedby="described" aria-current="page"'));
-    const tree = await axTree(page, '#stage');
+    // A modal surface leaves the rest of the page out of the tree, the stage and its own host too: read it from itself.
+    const tree = subject.alone ? await axTree(page, '#subject', subject.path) : await axTree(page, '#stage');
     const dump = tree.join('\n');
     const named = subject.ownName || subject.owns.includes('aria-labelledby') ? 0 : (subject.namedNodes ?? 1);
     expect(tree.filter((line) => line.includes('"Named text"')), dump).toHaveLength(named);
@@ -415,6 +478,7 @@ test('a product selects the control by data-aria-*: the selected look of an icon
 
 test('axe reports nothing on controls the product gives aria-* — the hosts carry none, and no element carries an empty aria-errormessage', async ({ page }) => {
   const markup = Object.values(SUBJECTS)
+    .filter((subject) => !subject.alone)
     .map((subject, at) => subject.markup('aria-describedby="described" aria-labelledby="named" aria-current="page" aria-invalid="true" aria-errormessage="error"').replace('id="subject"', `id="subject-${at}"`))
     .join('');
   await load(page, 'tanrei-button', `<main><h1>Controls</h1>${markup}</main>`);
@@ -645,6 +709,13 @@ const UNNAMED: Record<string, Unnamed> = {
     path: ['#row'],
     says: 'no accessible name',
   },
+  // A modal drawer is a dialog (NVD-23): the dialog takes the drawer's name.
+  'navigation-drawer (modal)': {
+    sentence: 'NVD-24',
+    markup: (rest) => `<tanrei-navigation-drawer id="subject" variant="modal" open value="a" ${rest}><tanrei-navigation-drawer-item value="a" label="Home" icon="home"></tanrei-navigation-drawer-item></tanrei-navigation-drawer>`,
+    path: ['dialog'],
+    says: 'dialog without a name',
+  },
 };
 
 /** The element the name is exposed on, from the host `#subject` down one selector per shadow root (Playwright's CSS goes through each). */
@@ -677,3 +748,50 @@ for (const [name, subject] of Object.entries(UNNAMED)) {
     expect(await reports(), 'aria-labelledby: nothing is reported').toEqual([]);
   });
 }
+
+for (const [name, subject] of Object.entries(SUBJECTS).filter(([, each]) => each.alone)) {
+  test(`${subject.sentence} ${name}: axe reports nothing on it with the aria-* the product gives it — its host carries none`, async ({ page }) => {
+    await load(page, subject.tag ?? `tanrei-${name}`, `<main><h1>Controls</h1>${subject.markup('aria-describedby="described" aria-labelledby="named" aria-current="page" aria-invalid="true" aria-errormessage="error"')}</main>`);
+    const result = await new AxeBuilder({ page }).include('#stage').analyze();
+    expect(result.violations.map((violation) => `${violation.id}: ${violation.nodes.map((node) => node.target.join(' > ')).join(', ')}`)).toEqual([]);
+  });
+}
+
+test('TBV-24 tab-view: linked to tabs placed elsewhere, the view draws no row, so the aria-* the product gives it reaches no element: it is moved all the same, reported once each in a debug build, and none reaches the linked tabs', async ({ page }) => {
+  const reported: string[] = [];
+  page.on('console', (message) => {
+    if (message.type() === 'warning' && message.text().includes('(TBV-24)')) reported.push(message.text());
+  });
+  await load(
+    page,
+    'tanrei-tab-view',
+    `<tanrei-tabs id="row" label="Sections" value="a"><tanrei-tab value="a" label="Alpha"></tanrei-tab><tanrei-tab value="b" label="Beta"></tanrei-tab></tanrei-tabs>
+     <tanrei-tab-view id="subject" tabs="row" aria-describedby="described" aria-current="page"><tanrei-tab-panel value="a">A</tanrei-tab-panel><tanrei-tab-panel value="b">B</tanrei-tab-panel></tanrei-tab-view>`,
+  );
+  const said = await page.evaluate(() => {
+    const host = document.querySelector('#subject')!;
+    const row = document.querySelector('#row')!;
+    const list = row.shadowRoot!.querySelector('[role="tablist"]')!;
+    const attributes = (element: Element) => [...element.attributes].map((a) => a.name).filter((name) => name.includes('aria-')).sort();
+    return { host: attributes(host), row: attributes(row), list: { current: list.getAttribute('aria-current'), describedby: list.getAttribute('aria-describedby') }, ownRow: !!host.querySelector('tanrei-tabs') };
+  });
+  expect(said.ownRow, 'linked: no row of its own').toBe(false);
+  expect(said.host, 'moved, so the host is no second node').toEqual(['data-aria-current', 'data-aria-describedby']);
+  expect(said.row, 'the linked tabs are not given it').toEqual([]);
+  expect(said.list).toEqual({ current: null, describedby: null });
+  expect(reported.filter((line) => line.includes('aria-current on the element reaches nothing'))).toHaveLength(1);
+  expect(reported.filter((line) => line.includes('aria-describedby on the element reaches nothing'))).toHaveLength(1);
+});
+
+test('RGP-21 radio-group: its read-only state reaches the radio group through its field group as a product’s aria-readonly would, beside the product’s own ARIA, and leaves with it', async ({ page }) => {
+  await load(page, 'tanrei-radio-group', SUBJECTS['radio-group']!.markup('readonly aria-describedby="described"'));
+  const path = ['tanrei-field-group', '[role="radiogroup"]'];
+  const first = await read_(page, path, ['aria-readonly']);
+  expect(first.inner['aria-readonly']).toBe('true');
+  expect(first.described).toBe('Described text');
+  await page.evaluate(() => ((document.querySelector('#subject') as HTMLElement & { readOnly: boolean }).readOnly = false));
+  await settle(page);
+  const after = await read_(page, path, ['aria-readonly']);
+  expect(after.inner['aria-readonly']).toBeNull();
+  expect(after.described, 'the product’s description stays').toBe('Described text');
+});

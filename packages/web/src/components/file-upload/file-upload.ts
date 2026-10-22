@@ -2,6 +2,7 @@ import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothi
 import { repeat } from 'lit/directives/repeat.js';
 import { AvailabilityController, FieldControlController, FieldProviderController, type FieldState, GROUP_PLACE, type GroupPlace, type PlacingGroup, WordsController, CoalescedSync, countWork, missingValueMessage, report } from '../../primitives/index.js';
 import { ComposedElement, composedHost, exported, forward } from '../../primitives/composed.js';
+import { delegatedAria, delegatesAria } from '../../primitives/delegated-aria.js';
 import { acceptConverter } from '../../primitives/file-format.js';
 import { FILE_ITEM_TAKE_FOCUS, FILE_ITEM_UPDATE, type FileItemGiven, giveFileItem } from '../../primitives/file-item-holder.js';
 import { takeFormDisabled } from '../../primitives/form-disabled.js';
@@ -346,8 +347,6 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
   protected count = 0;
   /** Set by an ancestor `<fieldset disabled>`, or by the element's own attribute (the element's `formDisabledCallback`). */
   protected formDisabled = false;
-
-  protected override readonly hostNameSentence = 'FUP-24';
 
   private readonly internals = this.attachInternals();
 
@@ -1128,7 +1127,7 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
     const name = this.groupName.trim();
     const tile = this.shownForm === 'tile';
     return html`
-      <div class="group" role="group" aria-label=${name || nothing}>
+      <div class="group" role="group" ${delegatedAria(this, { 'aria-label': name })}>
         <tanrei-file-picker
           part="file-picker"
           exportparts=${PICKER_PARTS.attribute}
@@ -1179,6 +1178,13 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
 
 // Its `disabled` attribute, written while it holds focus, waits until focus has left: a frame at most.
 disabledWaitsWhileFocused(TanreiFileUpload);
+// FUP-60: the product's ARIA on the host is its group's (src/primitives/delegated-aria.ts), but for its name and its states,
+// which are its props and its Field's (FUP-24, FUP-32): its file picker exposes them (FPK-17).
+delegatesAria(TanreiFileUpload, {
+  owns: ['aria-label', 'aria-labelledby', 'aria-disabled', 'aria-required', 'aria-invalid', 'aria-errormessage'],
+  sentence: 'FUP-60',
+  instead: { 'aria-label': 'name it with label', 'aria-labelledby': 'name it with label' },
+});
 if (!customElements.get('tanrei-file-upload')) customElements.define('tanrei-file-upload', TanreiFileUpload);
 
 declare global {
