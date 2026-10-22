@@ -30,6 +30,18 @@
       "height": 32,
       "type": "image/png"
     },
+    "https://playwright.dev": {
+      "ok": false,
+      "reason": "image-step-failed"
+    },
+    "https://vitest.dev": {
+      "ok": true,
+      "file": "2547e38238b4f99cd57422e5b249faa9.png",
+      "digest": "2547e38238b4f99cd57422e5b249faa9791ef231ed4473937a502a5fb63abcd7",
+      "width": 32,
+      "height": 32,
+      "type": "image/png"
+    },
     "https://www.designtokens.org": {
       "ok": false,
       "reason": "image-step-failed"
