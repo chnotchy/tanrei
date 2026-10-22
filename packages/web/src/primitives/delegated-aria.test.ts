@@ -1429,3 +1429,37 @@ test('SCA-10 SCA-18 scroll-area: the product’s aria-* on the host is its box�
   const result = await new AxeBuilder({ page }).include('#stage').analyze();
   expect(result.violations.map((violation) => violation.id)).toEqual([]);
 });
+
+test('TOC-40 TOC-41 table-of-contents: with an empty label, a name the product gives names the landmark and the compact row — by that name and the current item it shows — and neither is reported unnamed', async ({ page }) => {
+  const reported = warnings(page, 'TOC-40', 'no name');
+  const list = '<ul><li><a href="#install">Install</a></li><li><a href="#configure">Configure</a></li></ul>';
+  for (const [rest, said] of [
+    ['aria-label="Product name"', 'Product name'],
+    ['aria-labelledby="named"', 'Named text'],
+  ] as const) {
+    await load(page, 'tanrei-table-of-contents', `<tanrei-table-of-contents id="subject" presentation="compact" ${rest}>${list}</tanrei-table-of-contents>`);
+    await expect(page.locator('#subject nav')).toHaveAccessibleName(said);
+    const row = page.locator('#subject [part="disclosure-row"]');
+    await expect(row).toHaveAccessibleName(new RegExp(`^${said}( |$)`));
+    const current = await page.evaluate(() => document.querySelector('#subject')!.shadowRoot!.querySelector('#current')!.textContent ?? '');
+    await expect(row, 'the row’s name holds what it draws').toHaveAccessibleName(current ? `${said} ${current}` : said);
+    expect(await reported(), rest).toEqual([]);
+    const result = await new AxeBuilder({ page }).include('#stage').analyze();
+    expect(result.violations.map((violation) => violation.id)).toEqual([]);
+  }
+  await load(page, 'tanrei-table-of-contents', `<tanrei-table-of-contents id="subject" presentation="compact">${list}</tanrei-table-of-contents>`);
+  expect(await reported(), 'neither: reported').not.toEqual([]);
+});
+
+test('BTN-16 button: with an empty label prop and drawn text, a name the product gives is the name, over the drawn text, as an author’s name is over the content; nothing is reported', async ({ page }) => {
+  const reported = warnings(page, 'BTN-16', '');
+  for (const [rest, said] of [
+    ['aria-label="Send the message"', 'Send the message'],
+    ['aria-labelledby="named"', 'Named text'],
+    ['', 'Send'],
+  ] as const) {
+    await load(page, 'tanrei-button', `<tanrei-button id="subject" ${rest}>Send</tanrei-button>`);
+    await expect(page.locator('#subject button')).toHaveAccessibleName(said);
+    expect(await reported(), rest).toEqual([]);
+  }
+});
