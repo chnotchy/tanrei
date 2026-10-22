@@ -7721,8 +7721,10 @@ over the open and close motion. The slots are not drawn in the header.
 **Keyboard (SRC-12…15).** The WAI-ARIA combobox pattern with list autocomplete and automatic selection: the first
 suggestion is active as soon as the view shows suggestions while the input has focus, and again after typing, deleting,
 moving the caret, new suggestions or focus coming back; Down / Up Arrow move the active suggestion while focus stays in
-the input (Down from none is the first; it stays on the last; Up on the first leaves none); the active row is scrolled
-into view. Enter chooses the active suggestion, or submits. Escape closes the view; closed, it empties a value (one
+the input (Down from none is the first; it stays on the last; Up on the first leaves none), except that the first Down
+Arrow after an automatic choice stays on it and announces it, as Down from the field does in APG's list autocomplete
+example and GitHub's combobox-nav (whose `navigate(1)` starts from the first option while none is `aria-selected`); with
+results and no suggestion it moves focus to the current, first result. The active row is scrolled into view. Enter chooses the active suggestion, or submits. Escape closes the view; closed, it empties a value (one
 `input`), and with none it does nothing and passes on.
 
 **On an on-screen keyboard (SRC-14, SRC-49)** nothing is made active or current by itself, so the keyboard's Search or

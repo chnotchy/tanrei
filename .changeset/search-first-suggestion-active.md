@@ -8,12 +8,13 @@ combobox's list autocomplete with automatic selection. Focus stays in the input.
 names it as its `aria-activedescendant` only once the person moves with an arrow key, so a screen reader does not read a
 suggestion after every key typed. The suggestion becomes active
 again each time the person types, deletes, pastes or moves the caret, and each time the product gives new suggestions,
-the view opens, or focus comes back to the input. Down Arrow goes on to the second suggestion. Up Arrow on the first
+the view opens, or focus comes back to the input. The first Down Arrow stays on it and has it read out; the next goes on
+to the second suggestion. Up Arrow on the first
 leaves none active, and Enter then emits `submit` with the query as typed.
 
 With results and no suggestions, the first result is current while focus stays in the input. It is drawn as a focused
 result, and Enter in the input activates it as Enter on the link does: `select`, then the link is followed unless
-`select` was cancelled. Down Arrow moves focus to the next result. A result is a link, not an option, so it is never the
+`select` was cancelled. The first Down Arrow moves focus to it, and the next ones on through the results. A result is a link, not an option, so it is never the
 input's active descendant, and the status row still says what was found.
 
 What broke: Enter in the input with suggestions or results showing no longer emits `submit` unless the person first

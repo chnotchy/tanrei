@@ -1243,8 +1243,10 @@ export class TanreiSearch extends TanreiElement {
           // SRC-14: the Down Arrow that opens the view moves to its first suggestion, which is read out (as APG's does).
           this.moved = this.active >= 0;
         }
-        // SRC-49: from the current result, on to the one after it (staying on it where it is the only one).
-        else if (this.resultCurrent) this.focusResult(Math.min(1, this.rows.length - 1));
+        // SRC-49: the current result — current without being announced — is where the first press goes: it takes focus.
+        else if (this.resultCurrent) this.focusResult(0);
+        // SRC-14: the suggestion made active automatically is kept and announced by the first press, not skipped.
+        else if (this.active >= 0 && !this.moved) this.setActive(this.active, true);
         else if (this.active < count - 1) this.setActive(this.active + 1, true);
         // SRC-14, SRC-49: with no suggestion to go to — none in the view, or the last one active — on to the first result.
         else this.focusResult(0);

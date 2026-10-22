@@ -1024,22 +1024,31 @@ test.describe('suggestions', () => {
     expect(await told(), 'made active by typing, it is selected but not announced').toBeNull();
     expect(await selected()).toEqual(['true', 'false', 'false']);
     expect(await prop(host(page, 's'), 'value')).toBe('invo');
-    // Deleting.
+    // The first Down Arrow after that stays on the first and announces it; the next goes on to the second.
     await page.keyboard.press('ArrowDown');
+    await expect.poll(told, 'the first press reads the suggestion Enter takes').toBe('option-0');
+    expect(await active()).toBe('option-0');
+    await page.keyboard.press('ArrowDown');
+    await expect.poll(told).toBe('option-1');
+    // Deleting.
     await page.keyboard.press('Backspace');
     await expect.poll(active).toBe('option-0');
+    expect(await told()).toBeNull();
     // Moving the caret.
     await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    await expect.poll(active).toBe('option-1');
     await page.keyboard.press('ArrowLeft');
     await expect.poll(active).toBe('option-0');
     // A change of the suggestions.
     await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    await expect.poll(active).toBe('option-1');
     await host(page, 's').evaluate((el) => el.insertAdjacentHTML('beforeend', '<tanrei-search-suggestion value="x" headline="x"></tanrei-search-suggestion>'));
     await expect.poll(active).toBe('option-0');
     expect(await told()).toBeNull();
     await page.keyboard.press('ArrowDown');
-    await page.keyboard.press('ArrowUp');
-    expect(await told(), 'back on the first by an arrow key: announced').toBe('option-0');
+    expect(await told(), 'on the first by an arrow key: announced').toBe('option-0');
     // Up Arrow on the first gives Enter back to the query as typed: submit, and the view closes (it shows no result).
     await wire(host(page, 's'));
     await page.keyboard.press('ArrowUp');
@@ -1129,7 +1138,11 @@ test.describe('suggestions', () => {
     expect(snapshot).toContain('option "to a" [selected]');
     expect(snapshot).not.toContain('option "to b" [selected]');
     if (browserName === 'chromium') expect(await toldInChromium(page)).toEqual({ field: 'combobox "Search mail"', active: null });
-    // The person moves: each suggestion an arrow key moves to is the active descendant, and is read.
+    // The person moves: the first Down Arrow stays on the first and makes it the active descendant, so it is read; each
+    // suggestion an arrow key moves to after that is read too.
+    await page.keyboard.press('ArrowDown');
+    await expect(field).toHaveAttribute('aria-activedescendant', 'option-0');
+    if (browserName === 'chromium') expect(await toldInChromium(page)).toEqual({ field: 'combobox "Search mail"', active: 'option "to a"' });
     await page.keyboard.press('ArrowDown');
     await expect(field).toHaveAttribute('aria-activedescendant', 'option-1');
     if (browserName === 'chromium') expect(await toldInChromium(page)).toEqual({ field: 'combobox "Search mail"', active: 'option "to b"' });
@@ -2528,9 +2541,11 @@ test.describe('keys through results', () => {
     const field = input(page, 's');
     await field.focus();
     // SRC-14: focus in the input of an open view makes the first suggestion active (not announced until the person
-    // moves); Down Arrow goes on to the second.
+    // moves); the first Down Arrow stays on it and announces it, the next goes on to the second.
     await expect.poll(() => activeOption(page, 's')).toBe('option-0');
     await expect(field).not.toHaveAttribute('aria-activedescendant', /.*/);
+    await page.keyboard.press('ArrowDown');
+    await expect(field).toHaveAttribute('aria-activedescendant', 'option-0');
     await page.keyboard.press('ArrowDown');
     await expect(field).toHaveAttribute('aria-activedescendant', 'option-1');
     expect(await focused(page)).toBe('input@search:inv');
@@ -2560,16 +2575,19 @@ test.describe('keys through results', () => {
     expect(await focused(page)).toBe('input@search:inv');
     await expect(field).toHaveAttribute('aria-activedescendant', 'option-1');
     expect(await prop(host(page, 's'), 'expanded')).toBe(true);
-    // With no suggestion in the view the first result is current while focus stays in the input (SRC-49): Down Arrow
-    // goes on to the one after it, Up Arrow back to it and then to the input with none current; from none, Down Arrow
-    // goes to the first result.
+    // With no suggestion in the view the first result is current while focus stays in the input (SRC-49): the first
+    // Down Arrow moves focus to it — current without being announced, it is where the first press goes — and the next to
+    // the one after it; Up Arrow comes back to it and then to the input with none current; from none, Down Arrow goes to
+    // the first result.
     await mountSite(page, [site('d')]);
     await trigger(page, 'd').click();
     expect(await focused(page)).toBe('input@search:token');
     await expect(heading(page, 'd', '/tokens/')).toHaveAttribute('data-current', '');
     await page.keyboard.press('ArrowDown');
-    expect(await focused(page)).toBe('a@search-result:/tokens/#pipeline');
+    expect(await focused(page)).toBe('a@search-result-group:/tokens/');
     await expect(heading(page, 'd', '/tokens/')).not.toHaveAttribute('data-current', /.*/);
+    await page.keyboard.press('ArrowDown');
+    expect(await focused(page)).toBe('a@search-result:/tokens/#pipeline');
     await page.keyboard.press('ArrowUp');
     expect(await focused(page)).toBe('a@search-result-group:/tokens/');
     await page.keyboard.press('ArrowUp');
@@ -2669,14 +2687,14 @@ test.describe('keys through results', () => {
     await page.keyboard.press('x');
     expect(await focused(page)).toBe('input@search:tokenx');
     expect(await log(page)).toEqual(['input:tokenx']);
-    // Typing made the first result current again (SRC-49): Down Arrow goes on to the second.
+    // Typing made the first result current again (SRC-49): the first Down Arrow moves focus to it.
     await page.keyboard.press('ArrowDown');
-    expect(await focused(page)).toBe('a@search-result:r1');
+    expect(await focused(page)).toBe('a@search-result:r0');
     await page.keyboard.press('Backspace');
     expect(await focused(page)).toBe('input@search:token');
     // Pasting: the key goes to the input (what the clipboard holds is the platform's).
     await page.keyboard.press('ArrowDown');
-    await link(page, 's', 'r1').evaluate((el) => el.dispatchEvent(new KeyboardEvent('keydown', { key: 'v', ctrlKey: true, bubbles: true, composed: true })));
+    await link(page, 's', 'r0').evaluate((el) => el.dispatchEvent(new KeyboardEvent('keydown', { key: 'v', ctrlKey: true, bubbles: true, composed: true })));
     expect(await focused(page)).toBe('input@search:token');
     // The verify: Enter on a result is a native activation of the link — the search follows nothing from script.
     await page.keyboard.press('ArrowDown');
@@ -2694,8 +2712,8 @@ test.describe('keys through results', () => {
     });
     expect(scripted).toBe('function');
     await page.keyboard.press('Enter');
-    expect(await nav(page)).toEqual(['followed:/r1']);
-    expect(await log(page)).toEqual(['select:r1', 'toggle:false:select:false']);
+    expect(await nav(page)).toEqual(['followed:/r0']);
+    expect(await log(page)).toEqual(['select:r0', 'toggle:false:select:false']);
     expect(await page.evaluate(() => (window as any).scripted())).toBe(0);
     // Escape on a result closes the view as from the input, and focus returns to the trigger.
     await trigger(page, 's').click();
