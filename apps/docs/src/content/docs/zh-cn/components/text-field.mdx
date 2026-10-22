@@ -2,7 +2,7 @@
 title: "文本字段"
 description: "让用户输入和编辑文本——单行，或者随文本增高、可手动调整大小的多行——也可以按区域设置的格式逐个单位地输入日期或时间，或者输入代码并按写下的样子原样保存；它带有可以说明必填或选填的标签，以及可选的图标、前缀和后缀、辅助文本、字符计数和选择器按钮。"
 translationOf: components/text-field.mdx
-sourceHash: 4f22e1eae056a96900c6d1583870bd92158822d3
+sourceHash: 411dac5b1d815910bb7364fb17ea79e3abd15352
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="text-field" />
 
 :::note[规格已修订，但尚未在所有平台上实现]
-本页描述的是规格当前所定的文本字段：`stacked` 变体，它是默认变体，标签位于文本字段上方；`filled` 和 `outlined` 只为 Material 和 cupertino 预设保留；高度为 40、48 和 56；带选择器按钮的日期和时间类型；随文本增高、或用调整手柄调整大小的多行文本字段（`resize`）；按分段逐个单位输入的日期或时间；以及把文本字段标记为必填或选填的 `required` 和 `optional`。Web 组件已经全部做到，演示也是如此。文本字段还可以保存代码（`type="code"`，以及决定代码行是否换行的 `wrap`）：Web 已经实现，其他平台都还没有。文本字段是包住一个文本输入框的字段，也就是本页描述的样子：Web 也已经实现，并且在 Web 上 `required` 属性（attribute）已经不存在了。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是上一版——默认为 outlined，高度为 36 和 40，`required` 标志不绘制任何标记，没有 `stacked` 变体，没有日期或时间类型，没有选择器按钮，也没有调整大小的模式——它们的示例展示的也是那一版。
+本页描述的是规格当前所定的文本字段：`stacked` 变体，它是默认变体，标签位于文本字段上方；`filled` 和 `outlined` 只为 Material 和 cupertino 预设保留；高度为 32、40 和 56（标签浮在里面的 filled 或 outlined 文本字段为 40、48 和 56）；带选择器按钮的日期和时间类型；随文本增高、或用调整手柄调整大小的多行文本字段（`resize`）；按分段逐个单位输入的日期或时间；以及把文本字段标记为必填或选填的 `required` 和 `optional`。Web 组件已经全部做到，演示也是如此。文本字段还可以保存代码（`type="code"`，以及决定代码行是否换行的 `wrap`）：Web 已经实现，其他平台都还没有。文本字段是包住一个文本输入框的字段，也就是本页描述的样子：Web 也已经实现，并且在 Web 上 `required` 属性（attribute）已经不存在了。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是上一版——默认为 outlined，高度为 36 和 40，`required` 标志不绘制任何标记，没有 `stacked` 变体，没有日期或时间类型，没有选择器按钮，也没有调整大小的模式——它们的示例展示的也是那一版。
 :::
 
 <DemoFrame label="默认的 Stacked：一个必填的文本字段，以及带选择器按钮的日期" column>
@@ -413,8 +413,6 @@ input.addEventListener('input', () => (field.countText = input.countText));
 - **Fixed** 适合布局不能变动的表单，例如地址块。
 - **调整手柄不靠拖动也能用。** 它是位于末尾边底角的小尺寸[调整手柄](/zh-cn/components/handle/)，在指针移到文本字段上或文本字段获得焦点之前不显示；它也是一个焦点停靠点，由 `resizeLabel` 命名。方向键每次调整一行，Page Up 和 Page Down 每次调整 `minRows` 行，Home 和 End 调到最小和最大高度；点击、Enter 或 Space 让高度贴合文本，如果已经贴合，则回到 `minRows`。`resizeAxis` 为 `both` 时，同一次点击还会让文本字段与所在位置一样宽，再点一次则恢复原来的宽度，所以用指针不拖动也能改变宽度。它的目标是最小目标，尽管它的线条很小。用户改变大小之后，文本字段会触发 `resizeend`，其中带有它显示的行数（在两个方向都能调整时，还有它的宽度），方便你保存用户选定的大小。禁用的文本字段没有调整手柄；只读的文本字段保留它，因为阅读时可能需要更多空间。
 - **文本上方的东西都不会动。** 多行文本字段的第一行就在单行文本字段绘制其文本行的位置，它的图标、前缀和后缀都以这一行为准居中。其余各行都排在下面，所以高度变化时，标签和第一行保持原位。
-
-产品目前还无法得知用户把文本字段调成了多大：调整大小不触发任何事件。
 
 ### 代码
 
