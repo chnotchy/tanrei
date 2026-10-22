@@ -463,7 +463,7 @@
   "behavior": [
     {
       "id": "MNU-1",
-      "text": "WHEN open becomes true THE menu SHALL present its surface in the platform's overlay layer (the web's top layer through the popover API, SwiftUI's popover, Compose's Popup, Flutter's Overlay, React Native's overlay layer that TanreiProvider renders), above other content at comp.menu.surface.elevation, and SHALL move focus to its first enabled item; WHEN open becomes false THE menu SHALL remove the surface and, if focus was inside it, return focus to the anchor (a context menu: to the element MNU-62 names). A menu is an operated overlay, so it takes focus and returns it although it is not modal."
+      "text": "WHEN open becomes true THE menu SHALL present its surface in the platform's overlay layer (the web's top layer through the popover API, SwiftUI's popover, Compose's Popup, Flutter's Overlay, React Native's overlay layer that TanreiProvider renders), above other content at comp.menu.surface.elevation, and SHALL move focus to its first enabled item, wherever that item stands in the surface: inside a group as well, a menu whose every item is in a group included, and a menu the product mounts with open true included; WHEN open becomes false THE menu SHALL remove the surface and, if focus was inside it, return focus to the anchor (a context menu: to the element MNU-62 names). A menu is an operated overlay, so it takes focus and returns it although it is not modal."
     },
     {
       "id": "MNU-2",
