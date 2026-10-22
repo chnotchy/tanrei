@@ -681,7 +681,7 @@ export class TanreiButton extends TanreiElement {
     const reachable = this.reachable;
     const busy = this.busy && !disabled;
     // The product's `aria-description` on the host (a badge's on its anchor, BDG-8) comes first (src/primitives/delegated-aria.ts).
-    const description = [this.link.describe(this.getAttribute('aria-description')), busy ? this.busyLabel : ''].filter(Boolean).join(', ');
+    const description = [this.link.describe(this.getAttribute('data-aria-description')), busy ? this.busyLabel : ''].filter(Boolean).join(', ');
     const tag = link ? literal`a` : literal`button`;
     const iconOnly = !this.hasLabel;
     const trailing = this.hasIcon && this.hasLabel && this.iconPosition === 'trailing';

@@ -319,7 +319,7 @@
       "The handle may be drawn smaller than the minimum target (20 against 48 in the default system): the whole slider takes the press across its axis at the target's size (SLD-7), so every handle keeps its whole target, a range's two handles included, and no target is reported larger than the area that takes the press.",
       "Text size does not change the slider: it has no text of its own except the value indicator, which grows with the text.",
       "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
-      "WHEN the product sets an ARIA state or relationship on the host THE slider SHALL expose it on the element that carries its role (every handle carries them), except those the slider owns (aria-disabled), and the host SHALL carry no name, description or state of its own for it."
+      "WHEN the product sets an aria- attribute on the host THE slider SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role (every handle carries them) — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the slider is invalid — except those the slider owns (aria-disabled), which it SHALL move and not expose. WHEN the product removes the aria- attribute or its data-aria- twin THE slider SHALL take it off that element."
     ]
   },
   "tokens": "comp.slider",

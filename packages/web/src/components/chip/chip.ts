@@ -428,7 +428,7 @@ export class TanreiChip extends TanreiElement {
           data-tanrei-shape
           ${linkAttributes(link)}
           ${delegatedAria(this, {
-            'aria-description': this.link.describe(this.getAttribute('aria-description')),
+            'aria-description': this.link.describe(this.getAttribute('data-aria-description')),
             'aria-pressed': kind === 'filter' && String(this.selected),
             'aria-keyshortcuts': this.removes && !this.disabled && 'Delete Backspace',
           })}

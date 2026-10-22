@@ -238,7 +238,7 @@ export class TanreiCard extends TanreiElement {
         tabindex=${!link && this.active ? '0' : nothing}
         ${delegatedAria(this, {
           'aria-label': this.label,
-          'aria-description': this.link.describe(this.getAttribute('aria-description')),
+          'aria-description': this.link.describe(this.getAttribute('data-aria-description')),
           'aria-disabled': !link && this.interactive && this.disabled && 'true',
         })}
         @pointerdown=${this.press.onPointerDown}

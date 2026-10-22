@@ -1,129 +1,193 @@
-// ARIA set on the host of a component whose role is carried by an element inside it — the native `<button>` of a
-// Button, the `<input>` of a text input — is exposed on that element.
+// ARIA a product sets on the host of a component whose role is carried by an element inside it — the native `<button>`
+// of a Button, the `<input>` of a text input — is moved to `data-aria-*` on the host and exposed on that element.
 //
-// The host of a custom element is a generic box: an `aria-expanded`, an `aria-describedby` or an `aria-label` a
-// product writes on `<tanrei-button>` (React's `aria-*` props, a menu library's `aria-controls`) names, describes or
-// states nothing a person meets, and where the engine keeps the host in the accessibility tree it is a second node
-// with the same name. So a class that carries its role inside takes the product's ARIA off the host and draws it on
-// that element, beside its own:
+// The host of a custom element is a box with no role of its own. Left on it, `aria-label`, `aria-labelledby`,
+// `aria-describedby`, `aria-description`, `aria-current`, `aria-invalid`, `aria-busy`, `aria-controls` and
+// `aria-haspopup` each make the host a second node in Chromium's, Firefox's and WebKit's accessibility trees, with the
+// same name, description or state as the control inside it; neither `role="none"` (attribute or internals) nor
+// `display: contents` removes that node. So every `aria-*` attribute of the list below moves, as the product wrote
+// it, to `data-aria-*` of the same name — `aria-current="page"` becomes `data-aria-current="page"` — and the component
+// exposes it on its control:
 //
-//   delegatesAria(Class, { owns })   after the class is written, before it is defined. Every state and relationship
-//                                    below that the class does not own (`owns`: the ones it says itself and that a
-//                                    product must not override — a toggle's `aria-pressed`, a checkbox's
-//                                    `aria-checked`, `aria-disabled`) is observed on the host, kept by the element and
-//                                    removed from the host, so the host stays a box with no name. The host still
-//                                    answers for it — `getAttribute()`, `hasAttribute()`, `removeAttribute()`,
-//                                    `toggleAttribute()` and the ARIA properties (`ariaExpanded`, `ariaDescribedByElements`
-//                                    …) read and change what it keeps — so a framework that removes an attribute it
-//                                    set, or a frame that removes what it gave (a field's `aria-invalid`, a badge's
-//                                    `aria-description`), is heard.
+//   delegatesAria(Class, { owns })   after the class is written, before it is defined. The host observes every name of
+//                                    the list and its `data-aria-` twin; an `aria-X` written on it — by markup, by
+//                                    `setAttribute()`, by a framework, by an ARIA property (`host.ariaCurrent = …`,
+//                                    `host.ariaDescribedByElements = […]`) — moves to `data-aria-X`. `removeAttribute()`
+//                                    and `toggleAttribute()` of a moved name are overridden so that a framework that
+//                                    takes away the `aria-X` it set (React, Vue, Lit) takes the moved value away too.
+//                                    Nothing else is overridden: `getAttribute('aria-X')` is null and `ariaX` is null,
+//                                    because the host does not have them; the value is `data-aria-X`, and a selector
+//                                    reads `[data-aria-X]`. `owns` names what the component says itself (a toggle's
+//                                    `aria-pressed`, a checkbox's `aria-checked`, `aria-disabled`): those move too, so
+//                                    the host carries nothing, and are not exposed.
 //   delegatedAria(host, own)         on the element that carries the role, in the template: `own` is what the component
 //                                    says itself (`'aria-label': this.label`); an empty value leaves the name to the
 //                                    product's, and an owned name is never the product's. A relationship of its own is
 //                                    ids of its shadow root (`'aria-describedby': 'description'`), joined in front of
-//                                    the product's elements. Nothing else on that element binds a name it writes; an
-//                                    owned name the component does not pass may stay a binding of its own.
+//                                    the product's elements; `null` for a relationship keeps the product's out (a
+//                                    Button's label is its whole name, BTN-16). Nothing else on that element binds a
+//                                    name it writes; an owned name it does not pass may stay a binding of its own.
 //
-// What stays on the host is what the class owns: a product's `aria-pressed` on a Button that is not a toggle names
-// nothing, as on any element without the role. A product's own style or query that selects the host by a delegated
-// attribute (`tanrei-button[aria-expanded="true"]`) no longer matches: it reads the property or `getAttribute()`.
+// A relationship (`aria-labelledby`, `aria-describedby`, `aria-controls`, `aria-details`, `aria-flowto`,
+// `aria-errormessage`) names elements by id. Its ids are looked up in the host's tree (`getRootNode()`) and the elements
+// assigned to the control by ARIA element reflection (`ariaDescribedByElements` …), which may point from a shadow root
+// to an element of its own tree or of a tree around it, never into another component's shadow root (Chrome and Edge
+// 135, Firefox 136, Safari 16.4). While the host names elements, a watch on its tree follows them: an element added
+// later, removed, replaced by another of the same id, or whose text changes, is drawn again. An element that has left
+// the page is taken off the control (the reflected getter leaves it out, but the engine would keep its text).
+// `aria-errormessage` is never written on the control: while the control is invalid (`aria-invalid="true"`) the
+// elements it names join its description, after those of `aria-describedby` — the description a person hears, and no
+// empty `aria-errormessage=""` for a checker to refuse.
 //
-// A relationship (`aria-describedby`, `aria-labelledby`, `aria-controls`, `aria-details`, `aria-errormessage`) names
-// elements by id in the host's tree, which an attribute inside the shadow root cannot reach. It is drawn with ARIA's
-// element reflection (`ariaDescribedByElements` …), which may point from a shadow root to an element of a tree around
-// it (Chrome and Edge 135, Firefox 136, Safari 16.4). Where an engine has no reflection, the text of the elements
-// named stands in their place: the description's after the component's own description, the label's as the name. That
-// text is copied when the element draws, and does not follow later changes; the ids are looked up when it draws, so
-// an element named before it exists is found at the next update.
+// Where an engine has no element reflection, the text of the elements named stands in for them: the label's as the
+// name, the description's (and the error message's) after the component's own description.
 import { noChange } from 'lit';
 import { Directive, type ElementPart, type PartInfo, PartType, directive } from 'lit/directive.js';
 
-/** The states and properties that are delegated, by attribute, with the ARIA reflection property of each. */
-export const DELEGATED_STATES = {
-  'aria-label': 'ariaLabel',
-  'aria-description': 'ariaDescription',
-  'aria-roledescription': 'ariaRoleDescription',
-  'aria-expanded': 'ariaExpanded',
-  'aria-haspopup': 'ariaHasPopup',
-  'aria-pressed': 'ariaPressed',
-  'aria-checked': 'ariaChecked',
-  'aria-disabled': 'ariaDisabled',
-  'aria-invalid': 'ariaInvalid',
-  'aria-required': 'ariaRequired',
-  'aria-readonly': 'ariaReadOnly',
-  'aria-current': 'ariaCurrent',
-  'aria-keyshortcuts': 'ariaKeyShortcuts',
-  'aria-busy': 'ariaBusy',
-} as const;
+/** The states and properties that move, by attribute. (`aria-hidden` is not one: it hides the whole component.) */
+export const DELEGATED_STATES = [
+  'aria-label',
+  'aria-description',
+  'aria-roledescription',
+  'aria-expanded',
+  'aria-haspopup',
+  'aria-pressed',
+  'aria-checked',
+  'aria-selected',
+  'aria-disabled',
+  'aria-invalid',
+  'aria-required',
+  'aria-readonly',
+  'aria-current',
+  'aria-keyshortcuts',
+  'aria-busy',
+  'aria-placeholder',
+] as const;
 
-/** The relationships that are delegated, by attribute, with the element reflection property of each. */
+/** The relationships that move, by attribute, with the element reflection property of each. */
 export const DELEGATED_RELATIONS = {
   'aria-labelledby': 'ariaLabelledByElements',
   'aria-describedby': 'ariaDescribedByElements',
   'aria-controls': 'ariaControlsElements',
   'aria-details': 'ariaDetailsElements',
+  'aria-flowto': 'ariaFlowToElements',
   'aria-errormessage': 'ariaErrorMessageElements',
 } as const;
 
-type StateName = keyof typeof DELEGATED_STATES;
+type StateName = (typeof DELEGATED_STATES)[number];
 type RelationName = keyof typeof DELEGATED_RELATIONS;
 export type DelegatedName = StateName | RelationName;
 
-/** What a host keeps: a state's value, or a relationship's ids (as written) or elements (as given by property). */
-type Kept = Map<DelegatedName, string | readonly Element[]>;
-
-const KEPT = Symbol('tanrei.delegatedAria.kept');
+const ALL: readonly DelegatedName[] = [...DELEGATED_STATES, ...(Object.keys(DELEGATED_RELATIONS) as RelationName[])];
 const NAMES = Symbol('tanrei.delegatedAria.names');
-const REMOVING = Symbol('tanrei.delegatedAria.removing');
+const OWNS = Symbol('tanrei.delegatedAria.owns');
+const GIVEN = Symbol('tanrei.delegatedAria.given');
+const WATCH = Symbol('tanrei.delegatedAria.watch');
 
 interface Delegating extends HTMLElement {
-  [KEPT]?: Kept;
-  [REMOVING]?: Set<string>;
+  /** Elements a relationship was given by property (`host.ariaDescribedByElements = […]`): no id to keep. */
+  [GIVEN]?: Map<RelationName, readonly Element[]>;
+  [WATCH]?: TreeWatch;
   requestUpdate(): void;
 }
 
 const isRelation = (name: string): name is RelationName => name in DELEGATED_RELATIONS;
-const kept = (host: Delegating): Kept => (host[KEPT] ??= new Map());
+const dataName = (name: string) => `data-${name}`;
 
-/** The names a class delegates (all but the ones it owns); empty for a class that does not. */
-export function delegatedNames(host: Element): readonly DelegatedName[] {
-  return (host.constructor as unknown as { [NAMES]?: readonly DelegatedName[] })[NAMES] ?? [];
+/** Whether `element`'s class moves the product's ARIA (`delegatesAria()`). */
+export function delegates(element: Element): boolean {
+  return !!(element.constructor as unknown as { [NAMES]?: unknown })[NAMES];
+}
+
+/** The names a class moves and exposes: every one of the list but those it owns. Empty for a class that does not move. */
+export function delegatedNames(element: Element): readonly DelegatedName[] {
+  return (element.constructor as unknown as { [NAMES]?: readonly DelegatedName[] })[NAMES] ?? [];
+}
+
+/**
+ * The value of `aria-X` a product gave `element`: on a component that moves it, its `data-aria-X`; on any other element,
+ * the attribute itself. For code that reads or takes back what it wrote on an element it does not know (a field's
+ * `aria-invalid`, a tooltip's or a badge's `aria-description`).
+ */
+export function ariaAttribute(element: Element, name: string): string | null {
+  return delegates(element) && (ALL as readonly string[]).includes(name) ? element.getAttribute(dataName(name)) : element.getAttribute(name);
 }
 
 /** Whether this engine has ARIA element reflection for `name`. */
 const reflects = (name: RelationName) => typeof Element !== 'undefined' && DELEGATED_RELATIONS[name] in Element.prototype;
 
-function keep(host: Delegating, name: DelegatedName, value: string | readonly Element[] | null) {
-  const map = kept(host);
-  const before = map.get(name);
-  if (value === null) map.delete(name);
-  else map.set(name, value);
-  if (before !== value) host.requestUpdate();
+/** The elements a relationship of the host names now: given by property, or each id looked up in its tree (those found). */
+function relationElements(host: Delegating, name: RelationName): Element[] {
+  const given = host[GIVEN]?.get(name);
+  const ids = host.getAttribute(dataName(name));
+  if (given && ids === '') return given.filter((element) => element.isConnected);
+  if (!ids) return [];
+  const root = host.getRootNode() as Document | ShadowRoot;
+  return ids
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((id) => root.getElementById?.(id) ?? null)
+    .filter((element): element is HTMLElement => element !== null);
 }
 
 /**
- * Takes a delegated attribute off the host, quietly: its removal is not a product's. Only that removal is ignored —
- * the engine runs the element's other callbacks still waiting (the next attribute of an upgrade) inside it.
+ * Whether the product has named `host` itself — a non-empty `aria-label`, or an `aria-labelledby` that names an element
+ * — for a component whose check for a missing name must count it (BTN-16).
  */
-function takeOff(host: Delegating, name: string, remove: (name: string) => void) {
-  const removing = (host[REMOVING] ??= new Set());
-  removing.add(name);
-  try {
-    remove.call(host, name);
-  } finally {
-    removing.delete(name);
+export function namedByProduct(host: Element): boolean {
+  if (host.getAttribute(dataName('aria-label'))?.trim()) return true;
+  return relationElements(host as Delegating, 'aria-labelledby').length > 0;
+}
+
+/**
+ * While the host names elements, a watch on its tree: an element added, removed or given another id, and a change of
+ * the text of an element it names, update the host. A host that names nothing watches nothing.
+ */
+class TreeWatch {
+  private observer: MutationObserver | null = null;
+  private root: Node | null = null;
+  /** The elements drawn last, whose text is followed. */
+  named: Element[] = [];
+
+  constructor(private readonly host: Delegating) {}
+
+  sync() {
+    const wanted = this.host.isConnected && (Object.keys(DELEGATED_RELATIONS) as RelationName[]).some((name) => this.host.getAttribute(dataName(name)) !== null);
+    const root = wanted ? this.host.getRootNode() : null;
+    if (root === this.root) return;
+    this.observer?.disconnect();
+    this.observer = null;
+    this.root = root;
+    if (!root || typeof MutationObserver === 'undefined') return;
+    this.observer = new MutationObserver((records) => {
+      const touches = records.some(
+        (record) => record.type !== 'characterData' || this.named.some((element) => element.contains(record.target)),
+      );
+      if (touches) this.host.requestUpdate();
+    });
+    this.observer.observe(root, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['id'] });
+  }
+
+  stop() {
+    this.observer?.disconnect();
+    this.observer = null;
+    this.root = null;
   }
 }
 
+const watchOf = (host: Delegating) => (host[WATCH] ??= new TreeWatch(host));
+
 /**
- * Makes `element`'s class delegate the product's ARIA from its host to the element that carries its role
- * (`delegatedAria()`): every name of `DELEGATED_STATES` and `DELEGATED_RELATIONS` but those in `owns`.
+ * Makes `element`'s class move the product's ARIA from its host to `data-aria-*` and expose it on the element that
+ * carries its role (`delegatedAria()`): every name of the list, those in `owns` moved and not exposed.
  */
 export function delegatesAria(element: { prototype: HTMLElement; observedAttributes?: string[] }, { owns = [] }: { owns?: readonly DelegatedName[] } = {}): void {
-  const names = ([...Object.keys(DELEGATED_STATES), ...Object.keys(DELEGATED_RELATIONS)] as DelegatedName[]).filter((name) => !owns.includes(name));
-  const handled = new Set<string>(names);
-  const ctor = element as unknown as Record<symbol, unknown> & { observedAttributes: string[] };
-  ctor[NAMES] = names;
+  const exposed = ALL.filter((name) => !owns.includes(name));
+  const moved = new Set<string>(ALL);
+  const watched = new Set<string>(ALL.map(dataName));
+  const ctor = element as unknown as Record<symbol, unknown>;
+  ctor[NAMES] = exposed;
+  ctor[OWNS] = owns;
 
   // The getter the class inherits (Lit's, or one of its own that adds to it), called for this class.
   let observed: PropertyDescriptor | undefined;
@@ -132,106 +196,88 @@ export function delegatesAria(element: { prototype: HTMLElement; observedAttribu
     configurable: true,
     get(this: unknown) {
       const own = (observed?.get?.call(this) as string[] | undefined) ?? [];
-      return [...own, ...names];
+      return [...own, ...moved, ...watched];
     },
   });
 
+  // The element's own methods as it inherits them (the DOM's), read before two of them are replaced. A module that is
+  // only imported where there is no DOM (a server's render, a test of the manifest in Node) defines the class and calls
+  // none of them.
   const prototype = element.prototype as Delegating & Record<string, unknown>;
-  // The element's own methods as it inherits them (the DOM's), read before they are replaced: a module that is only
-  // imported where there is no DOM (a server's render, a test of the manifest in Node) defines the class and calls none.
-  const { removeAttribute, toggleAttribute, getAttribute, hasAttribute } = element.prototype;
+  const { removeAttribute, toggleAttribute, setAttribute, hasAttribute } = element.prototype;
   const attributeChanged = prototype.attributeChangedCallback as ((name: string, old: string | null, value: string | null) => void) | undefined;
+  const connected = prototype.connectedCallback as (() => void) | undefined;
+  const disconnected = prototype.disconnectedCallback as (() => void) | undefined;
 
   prototype.attributeChangedCallback = function (this: Delegating, name: string, old: string | null, value: string | null) {
-    if (!handled.has(name)) return attributeChanged?.call(this, name, old, value);
-    if (value === null) return this[REMOVING]?.has(name) ? undefined : keep(this, name as DelegatedName, null);
+    if (watched.has(name)) {
+      if (isRelation(name.slice(5))) watchOf(this).sync();
+      this.requestUpdate();
+      return;
+    }
+    if (!moved.has(name)) return attributeChanged?.call(this, name, old, value);
+    // Its own removal below, or the product's of a name already moved: nothing to move.
+    if (value === null) return;
     if (isRelation(name)) {
-      // Set by the property (`ariaDescribedByElements = [...]`), the attribute is empty: the elements are the engine's.
-      const given = value === '' ? ((Object.getOwnPropertyDescriptor(Element.prototype, DELEGATED_RELATIONS[name])?.get?.call(this) as Element[] | null) ?? null) : null;
-      keep(this, name, given ?? value);
-    } else keep(this, name as DelegatedName, value);
-    takeOff(this, name, removeAttribute);
+      // Set by the property (`ariaDescribedByElements = […]`), the attribute is empty: the elements are the engine's.
+      const elements = value === '' ? ((Object.getOwnPropertyDescriptor(Element.prototype, DELEGATED_RELATIONS[name])?.get?.call(this) as Element[] | null) ?? []) : null;
+      const given = (this[GIVEN] ??= new Map());
+      if (elements) given.set(name, elements);
+      else given.delete(name);
+    }
+    setAttribute.call(this, dataName(name), value);
+    removeAttribute.call(this, name);
   };
 
+  // A framework takes away the `aria-X` it set by removing it: the moved value goes with it.
   prototype.removeAttribute = function (this: Delegating, name: string) {
-    const lower = name.toLowerCase();
-    if (handled.has(lower)) keep(this, lower as DelegatedName, null);
+    const lower = String(name).toLowerCase();
+    if (moved.has(lower)) {
+      this[GIVEN]?.delete(lower as RelationName);
+      removeAttribute.call(this, dataName(lower));
+    }
     removeAttribute.call(this, name);
   };
 
   prototype.toggleAttribute = function (this: Delegating, name: string, force?: boolean) {
-    const lower = name.toLowerCase();
-    if (!handled.has(lower)) return toggleAttribute.call(this, name, force);
-    const on = force ?? !kept(this).has(lower as DelegatedName);
+    const lower = String(name).toLowerCase();
+    if (!moved.has(lower)) return toggleAttribute.call(this, name, force);
+    const on = force ?? !hasAttribute.call(this, dataName(lower));
     if (on) this.setAttribute(lower, '');
     else this.removeAttribute(lower);
     return on;
   };
 
-  prototype.getAttribute = function (this: Delegating, name: string) {
-    const lower = name.toLowerCase();
-    if (!handled.has(lower)) return getAttribute.call(this, name);
-    const value = kept(this).get(lower as DelegatedName);
-    return value === undefined ? getAttribute.call(this, name) : typeof value === 'string' ? value : '';
+  prototype.connectedCallback = function (this: Delegating) {
+    connected?.call(this);
+    watchOf(this).sync();
   };
 
-  prototype.hasAttribute = function (this: Delegating, name: string) {
-    const lower = name.toLowerCase();
-    return hasAttribute.call(this, name) || (handled.has(lower) && kept(this).has(lower as DelegatedName));
+  prototype.disconnectedCallback = function (this: Delegating) {
+    disconnected?.call(this);
+    this[WATCH]?.stop();
   };
-
-  for (const name of names) {
-    if (isRelation(name)) {
-      Object.defineProperty(prototype, DELEGATED_RELATIONS[name], {
-        configurable: true,
-        get(this: Delegating) {
-          return relationElements(this, name);
-        },
-        set(this: Delegating, elements: readonly Element[] | null) {
-          keep(this, name, elements ? [...elements] : null);
-        },
-      });
-    } else {
-      Object.defineProperty(prototype, DELEGATED_STATES[name], {
-        configurable: true,
-        get(this: Delegating) {
-          const value = kept(this).get(name);
-          return typeof value === 'string' ? value : null;
-        },
-        set(this: Delegating, value: string | null) {
-          keep(this, name, value === null || value === undefined ? null : String(value));
-        },
-      });
-    }
-  }
-}
-
-/** The elements a kept relationship names: as given, or each id looked up in the host's tree (those found). */
-function relationElements(host: Delegating, name: RelationName): Element[] | null {
-  const value = kept(host).get(name);
-  if (value === undefined) return null;
-  if (typeof value !== 'string') return [...value];
-  const root = host.getRootNode() as Document | ShadowRoot;
-  const found = value
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((id) => root.getElementById?.(id) ?? null)
-    .filter((element): element is HTMLElement => element !== null);
-  return found;
 }
 
 /**
- * Whether the product has named `host` itself — a non-empty `aria-label`, or an `aria-labelledby` that names an element
- * — for a component whose check for a missing name must count it (BTN-16).
+ * Gives `target` — another component that moves the product's ARIA (a Copy button's Button) — the elements of a
+ * relationship, as a product's property would, or takes them away.
  */
-export function namedByProduct(host: Element): boolean {
-  const label = kept(host as Delegating).get('aria-label');
-  if (typeof label === 'string' && label.trim()) return true;
-  return (relationElements(host as Delegating, 'aria-labelledby')?.length ?? 0) > 0;
+function giveElements(target: Element, name: RelationName, elements: readonly Element[] | null) {
+  const host = target as Delegating;
+  const now = host[GIVEN]?.get(name);
+  if (!elements?.length) {
+    if (target.hasAttribute(dataName(name))) target.removeAttribute(name);
+    return;
+  }
+  if (now && same(now, elements) && target.getAttribute(dataName(name)) === '') return;
+  (host[GIVEN] ??= new Map()).set(name, elements);
+  if (target.getAttribute(dataName(name)) === '') host.requestUpdate();
+  else target.setAttribute(dataName(name), '');
 }
 
 /** The text an element stands for where its reference cannot be drawn: its own name, else its text. */
-const textOf = (element: Element) => (element.getAttribute('aria-label') || element.textContent || '').replace(/\s+/g, ' ').trim();
+const textOf = (element: Element) => (ariaAttribute(element, 'aria-label') || element.textContent || '').replace(/\s+/g, ' ').trim();
 
 const same = (a: readonly Element[] | null | undefined, b: readonly Element[] | null | undefined) =>
   (a?.length ?? 0) === (b?.length ?? 0) && (a ?? []).every((element, at) => element === b?.[at]);
@@ -245,7 +291,7 @@ export type OwnAria = Partial<Record<string, string | null | undefined | false>>
 class DelegatedAria extends Directive {
   /** The attributes it wrote last, so that one no longer given is taken off. */
   private written = new Set<string>();
-  /** The relationships it drew last by element reflection, and which update drew them. */
+  /** The relationships it drew last by element reflection. */
   private referenced = new Set<RelationName>();
   private turn = 0;
 
@@ -260,25 +306,33 @@ class DelegatedAria extends Directive {
 
   override update(part: ElementPart, [host, own]: [Delegating, OwnAria]) {
     const element = part.element as HTMLElement & Record<string, unknown>;
-    const delegated = new Set<string>(delegatedNames(host));
-    const store = kept(host);
+    const inner = delegates(element);
+    const exposed = new Set<string>(delegatedNames(host));
     const values = new Map<string, string>();
     // A state: the component's own, else the product's.
     for (const [name, value] of Object.entries(own)) if (value && !isRelation(name)) values.set(name, value);
-    for (const name of delegated) {
+    for (const name of exposed) {
       if (isRelation(name) || values.has(name)) continue;
-      const value = store.get(name as DelegatedName);
-      if (typeof value === 'string') values.set(name, value);
+      const value = host.getAttribute(dataName(name));
+      if (value !== null) values.set(name, value);
     }
-    // A relationship: the component's own ids (in its shadow root) and the product's elements, one list.
-    const referenced = new Map<RelationName, { ids: string; given: Element[] }>();
+    const invalid = values.get('aria-invalid') === 'true';
+    // A relationship: the component's own ids (in its shadow root) and the product's elements, one list. The error
+    // message is never a relationship of the control: while it is invalid, its elements join the description.
+    const product = (name: RelationName) => (exposed.has(name) && own[name] !== null ? relationElements(host, name) : []);
+    const lists = new Map<RelationName, { ids: string; given: Element[] }>();
     for (const name of Object.keys(DELEGATED_RELATIONS) as RelationName[]) {
-      const ids = (own[name] || '') as string;
-      // `null` for a relationship: the component keeps the product's out (a Button's label is its whole name, BTN-16).
-      const overruled = own[name] === null;
-      const given = delegated.has(name) && !overruled ? (relationElements(host, name) ?? []) : [];
-      // A Tanrei element that delegates it takes the elements whatever the engine, and draws them where it can.
-      if (given.length && (reflects(name) || delegatedNames(element).includes(name))) {
+      if (name === 'aria-errormessage') continue;
+      const given = product(name);
+      if (name === 'aria-describedby' && invalid) for (const each of product('aria-errormessage')) if (!given.includes(each)) given.push(each);
+      lists.set(name, { ids: (own[name] || '') as string, given });
+    }
+    const named: Element[] = [];
+    const referenced = new Map<RelationName, { ids: string; given: Element[] }>();
+    for (const [name, { ids, given }] of lists) {
+      named.push(...given);
+      // A Tanrei element that moves it takes the elements whatever the engine, and draws them where it can.
+      if (given.length && (reflects(name) || inner)) {
         referenced.set(name, { ids, given });
         continue;
       }
@@ -288,15 +342,20 @@ class DelegatedAria extends Directive {
       const text = given.map(textOf).filter(Boolean).join(' ');
       if (!text) continue;
       if (name === 'aria-labelledby') values.set('aria-label', text);
-      else if (name === 'aria-describedby' || name === 'aria-errormessage') values.set('aria-description', [values.get('aria-description'), text].filter(Boolean).join(', '));
+      else if (name === 'aria-describedby') values.set('aria-description', [values.get('aria-description'), text].filter(Boolean).join(', '));
     }
-    // What was drawn by reflection and is no longer: taken off (which takes the attribute off too).
-    for (const name of this.referenced) if (!referenced.has(name)) element[DELEGATED_RELATIONS[name]] = null;
+    if (host[WATCH]) host[WATCH].named = named;
+    // What was drawn by reference and is no longer: taken off (which takes the attribute off too).
+    for (const name of this.referenced) {
+      if (referenced.has(name)) continue;
+      if (inner) giveElements(element, name, null);
+      else element[DELEGATED_RELATIONS[name]] = null;
+    }
     for (const name of this.written) {
-      if (!values.has(name) && !referenced.has(name as RelationName) && element.hasAttribute(name)) element.removeAttribute(name);
+      if (!values.has(name) && !referenced.has(name as RelationName) && ariaAttribute(element, name) !== null) element.removeAttribute(name);
     }
     for (const [name, value] of values) {
-      if (element.getAttribute(name) !== value) element.setAttribute(name, value);
+      if (ariaAttribute(element, name) !== value) element.setAttribute(name, value);
     }
     this.written = new Set(values.keys());
     this.referenced = new Set(referenced.keys());
@@ -310,8 +369,8 @@ class DelegatedAria extends Directive {
         for (const [name, { ids, given }] of referenced) {
           const owned = ids.split(/\s+/).filter(Boolean).map((id) => root.getElementById?.(id) ?? null).filter((found): found is HTMLElement => found !== null);
           const next = [...owned, ...given];
-          const property = DELEGATED_RELATIONS[name];
-          if (!same(element[property] as readonly Element[] | null | undefined, next)) element[property] = next;
+          if (inner) giveElements(element, name, next);
+          else if (!same(element[DELEGATED_RELATIONS[name]] as readonly Element[] | null | undefined, next)) element[DELEGATED_RELATIONS[name]] = next;
         }
       });
     }
@@ -320,7 +379,7 @@ class DelegatedAria extends Directive {
 }
 
 /**
- * On the element that carries the role: the component's own ARIA (`own`) and, for every name its class delegates
- * (`delegatesAria()`) that `own` leaves empty, the product's from the host.
+ * On the element that carries the role: the component's own ARIA (`own`) and, for every name its class exposes
+ * (`delegatesAria()`) that `own` leaves empty, the product's, from `data-aria-*` on the host.
  */
 export const delegatedAria = directive(DelegatedAria);
