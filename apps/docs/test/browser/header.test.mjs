@@ -192,7 +192,7 @@ for (const engine of ENGINES) {
       await row.waitFor();
       await choose(page, 'docs-appearance', 'menuitemradio', strings('en').contrastMedium);
       await page.waitForFunction(() => document.querySelector('[data-docs-contrast]').value === 'medium');
-      await row.getByRole('tab', { name: strings('en').contrastHigh }).click();
+      await row.getByRole('radio', { name: strings('en').contrastHigh }).click();
       await page.waitForFunction(() => document.querySelector('tanrei-menu-group.docs-contrast-group').value === 'high');
       assert.equal(await page.evaluate(() => document.documentElement.getAttribute('data-tanrei-contrast')), 'high');
       await context.close();
