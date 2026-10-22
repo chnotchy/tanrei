@@ -744,6 +744,53 @@ test.describe('layout', () => {
     expect(await css(dialog(page, 'basic').locator('.middle'), 'visibility', '::after')).toBe('hidden');
   });
 
+  test('DLG-11: the scrolling part is ::part(scroll) and reaches the container’s edges whatever inline padding ::part(container) is given, never overflowing it; its dividers and focus box follow; a sticky foot’s scroll padding is written on it', async ({ page }) => {
+    await mount(page, [closed('scrolling')]);
+    await page.addStyleTag({ content: 'tanrei-dialog::part(container) { padding-inline: 8px 40px; } tanrei-dialog::part(scroll) { scroll-padding-block-end: 56px; }' });
+    await open(page, 'scrolling');
+    const d = dialog(page, 'scrolling');
+    const scroll = d.locator('.scroll');
+    await expect(scroll).toHaveAttribute('part', 'scroll');
+    expect(await css(scroll, 'scroll-padding-block-end')).toBe('56px');
+    expect(await scroll.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
+    /** Where the scrolling part, the dividers and the focus box stand against the container, at its start and its end. */
+    const geometry = () =>
+      d.evaluate((el) => {
+        const rtl = getComputedStyle(el).direction === 'rtl';
+        const outer = el.getBoundingClientRect();
+        const edges = (box: { left: number; right: number }) => {
+          const left = Math.round(box.left - outer.left);
+          const right = Math.round(outer.right - box.right);
+          return rtl ? [right, left] : [left, right];
+        };
+        const middle = el.querySelector('.middle')!;
+        const m = middle.getBoundingClientRect();
+        const pseudo = (which: string) => {
+          const style = getComputedStyle(middle, which);
+          return edges({ left: m.left + Number.parseFloat(style.left), right: m.right - Number.parseFloat(style.right) });
+        };
+        const s = el.querySelector('.scroll')!;
+        const style = getComputedStyle(s);
+        const inset = (rtl ? [style.paddingRight, style.paddingLeft] : [style.paddingLeft, style.paddingRight]).map((v) => Math.round(Number.parseFloat(v)));
+        return {
+          overflow: el.scrollWidth - el.clientWidth,
+          scroll: edges(s.getBoundingClientRect()),
+          inset,
+          before: pseudo('::before'),
+          after: pseudo('::after'),
+          focus: edges(el.querySelector('.focus')!.getBoundingClientRect()),
+        };
+      });
+    const at = (start: number, end: number) => ({ overflow: 0, scroll: [0, 0], inset: [start, end], before: [0, 0], after: [0, 0], focus: [0, 0] });
+    expect(await geometry()).toEqual(at(8, 40));
+    // A change of padding while it is open is followed, and in right-to-left the start is the right.
+    await page.addStyleTag({ content: 'tanrei-dialog::part(container) { padding-inline: 48px 0px; }' });
+    await expect.poll(geometry).toEqual(at(48, 0));
+    await host(page, 'scrolling').evaluate((el) => el.setAttribute('dir', 'rtl'));
+    await expect.poll(geometry).toEqual(at(48, 0));
+    expect(await d.evaluate((el) => getComputedStyle(el).paddingRight)).toBe('48px');
+  });
+
   test('DLG-24: auto follows comp.dialog.divider.visibility, which follows sys.behavior.divider-visibility; the attribute overrides it; a change is drawn at once; an unknown value is auto and reported', async ({ page }) => {
     const seen = reports(page);
     await mount(page, [closed('scrolling')]);

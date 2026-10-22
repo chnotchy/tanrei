@@ -15206,6 +15206,10 @@
               "name": "supporting-text"
             },
             {
+              "description": "The box between the header and the actions that scrolls the supporting text and the content. It reaches the container's inline edges whatever inline padding `::part(container)` is given, and insets its parts by that padding. A row the product keeps sticky at its foot sets `scroll-padding-block-end` here, so that what focus scrolls into view is not hidden under it.",
+              "name": "scroll"
+            },
+            {
               "description": "The box the custom content is slotted into.",
               "name": "content"
             },

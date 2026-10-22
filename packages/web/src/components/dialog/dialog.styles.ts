@@ -13,6 +13,13 @@ const t = (name: string) => unsafeCSS(T(name));
 /** The window less the margin on each side and the safe area (and, below, the on-screen keyboard). */
 const INLINE_ROOM = `calc(100% - 2 * ${T('container-margin')} - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px))`;
 const BLOCK_ROOM = `calc(100% - 2 * ${T('container-margin')} - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))`;
+/**
+ * The container's inline padding, at each side, as it is drawn: the script writes what it measures on the container
+ * (`syncPadding` in dialog.ts), so a padding the product gives `::part(container)` is the one the scrolling part, its
+ * dividers and its focus box reach through to the container's edges. `container.padding` until it has measured.
+ */
+const PAD_START = `var(--_container-padding-start, ${T('container-padding')})`;
+const PAD_END = `var(--_container-padding-end, ${T('container-padding')})`;
 
 /** A choice of kind of the dialog's, drawn on the `<dialog>` (src/primitives/actions.ts). */
 const whenChosen = (token: string, attribute: string, value: string, rules: (dialog: string) => string) => chosen(`${PREFIX}-${token}`, 'dialog', attribute, value, rules);
@@ -37,7 +44,7 @@ export const styles = css`
     inset: 0 0 var(--_keyboard, 0px) 0;
     margin: auto;
     inline-size: fit-content;
-    min-inline-size: min(max(${t('container-min-width')}, calc(var(--_row, 0px) + 2 * ${t('container-padding')})), ${t('container-max-width')}, ${unsafeCSS(INLINE_ROOM)});
+    min-inline-size: min(max(${t('container-min-width')}, calc(var(--_row, 0px) + ${unsafeCSS(PAD_START)} + ${unsafeCSS(PAD_END)})), ${t('container-max-width')}, ${unsafeCSS(INLINE_ROOM)});
     max-inline-size: min(${t('container-max-width')}, ${unsafeCSS(INLINE_ROOM)});
     block-size: fit-content;
     max-block-size: ${unsafeCSS(BLOCK_ROOM)};
@@ -117,6 +124,26 @@ export const styles = css`
   /* MDL-7: closed, it stays drawn in the top layer until its exit and its scrim's have played (src/primitives/modal-exit.ts). */
   ${modalExitStyles('dialog')}
 
+  /* The container's inline padding at each side, for the script to observe (syncPadding in dialog.ts): a box with no
+     height, as wide as the padding it inherits, at the container's top start corner and never drawn. */
+  .inset-probe {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    box-sizing: content-box;
+    inline-size: 0;
+    block-size: 0;
+    padding: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .inset-probe.start {
+    padding-inline-start: inherit;
+  }
+  .inset-probe.end {
+    padding-inline-end: inherit;
+  }
+
   /* DLG-8: the parts, container.gap apart, the empty ones left out; the actions actions.margin-block-start below. */
   .scroll {
     display: flex;
@@ -157,9 +184,10 @@ export const styles = css`
     min-block-size: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
-    /* The scrolled part runs to the container's edges, so its dividers cross the whole container. */
-    margin-inline: calc(${t('container-padding')} * -1);
-    padding-inline: ${t('container-padding')};
+    /* The scrolled part runs to the container's edges, whatever inline padding the container has, so its dividers cross
+       the whole container and it never overflows it; its parts keep that padding inside it. */
+    margin-inline: calc(${unsafeCSS(PAD_START)} * -1) calc(${unsafeCSS(PAD_END)} * -1);
+    padding-inline: ${unsafeCSS(PAD_START)} ${unsafeCSS(PAD_END)};
   }
 
   /* DLG-10: the actions as a full-width button group (fill): a row the actions share equally — each Button's container
@@ -198,7 +226,7 @@ export const styles = css`
   .middle::after {
     content: '';
     position: absolute;
-    inset-inline: calc(${t('container-padding')} * -1);
+    inset-inline: calc(${unsafeCSS(PAD_START)} * -1) calc(${unsafeCSS(PAD_END)} * -1);
     block-size: ${t('divider-width')};
     background: ${t('divider-color')};
     pointer-events: none;
@@ -331,7 +359,7 @@ export const styles = css`
   .focus {
     position: absolute;
     inset-block: 0;
-    inset-inline: calc(${t('container-padding')} * -1);
+    inset-inline: calc(${unsafeCSS(PAD_START)} * -1) calc(${unsafeCSS(PAD_END)} * -1);
     ${unsafeCSS(cornerRadius('--tanrei-sys-shape-corner-none'))}
     pointer-events: none;
   }
