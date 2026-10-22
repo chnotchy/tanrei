@@ -1,17 +1,20 @@
-// Theme Studio — the page half. One layer, four views of it (the level is a view, never a mode of the file), a live
-// preview, and — when the host gives an adapter — the file that layer lives in.
+// Theme Studio — the page half. One layer: a rail of what it holds, a live preview, a panel that edits what the rail
+// points at, Inspect over that panel (every token, and the file itself), and — when the host gives an adapter — the
+// file that layer lives in.
 import { missingWords, setWords } from '@tanrei/web';
 import { layerParam, packLayer, unpackLayer, withLayer } from './address.js';
-import { ID_PATTERN, LEVELS, stringifyLayer } from './core.js';
+import { ID_PATTERN, stringifyLayer } from './core.js';
 import { createSourceDraft } from './draft.js';
 import { createHistory } from './history.js';
 import { studio } from './data';
 import { type StudioStrings, studioDirection, studioLanguage, studioStrings } from './strings';
-import { type Contrast, type Ctx, type Json, type Layer, type Level, button, codeField, drawnNear, fold, folds, h, isolated, ltr, panel, rename, rich, scrollingList, stateChip, textField, views } from './ui/dom';
-import { essentialsLevel, groupsLevel, groupsPanels } from './ui/levels';
+import { type Contrast, type Ctx, type Json, type Layer, type Place, button, codeField, fold, folds, h, isolated, ltr, panel, rename, rich, scrollingList, stateChip, textField, views } from './ui/dom';
+import { sectionPanels } from './ui/panels';
 import { createPreview } from './ui/preview';
+import { createRail, shuffle } from './ui/rail';
+import { INSPECT, type Inspect, type Pane, PANES, ROWS, type Row, SECTIONS, type Section } from './ui/sections';
 import { sourceLevel } from './ui/source';
-import { type TreeState, tokensLevel } from './ui/tokens';
+import { type TreeState, tokensInspect } from './ui/tokens';
 
 export interface StudioAdapter {
   /** Shown next to the save state: usually the file name. */
@@ -53,8 +56,6 @@ type SaveState = 'saved' | 'unsaved' | 'saving' | 'invalid' | 'conflict' | 'erro
 
 const STORE = `${studio.namespace}-theme-studio`;
 const NS = studio.namespace;
-/** Where the frame lays out its three columns — the rail, the preview and the panel — side by side (studio.css). */
-const WIDE = '(min-width: 64rem)';
 
 export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {}, saveDelay = 600, bar: hosted = {}, address = false }: StudioOptions = {}) {
   // The language the Studio speaks: the one asked for when it is translated, English otherwise (./strings/index.ts).
@@ -63,19 +64,27 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   let layer: Layer = studio.blank();
   /** The layer as it was last COMMITTED: what is saved. `layer` runs ahead of it while a value is typed, stepped or dragged (`preview`). */
   let committed: Layer = layer;
-  let level: Level = 'essentials';
+  /** What the panel edits: a row of the rail, or another of its sections (./ui/sections.ts). */
+  let section: Section = 'color';
+  /** Inspect, open at one of its tabs over the panel, or closed; and the tab it opens at next. */
+  let inspect: Inspect | null = null;
+  let lastInspect: Inspect = 'tokens';
+  /** The rows the shuffle leaves alone. */
+  const locks = new Set<Row>();
   let contrast: Contrast = 'standard';
   let last: Json | null = null; // the last VALID preview: what the scope shows
   let latest: Json = {}; // the latest preview, valid or not: what Export shows
   let refreshers: (() => void)[] = [];
   let uid = 0;
-  let focus: { token?: string; panel?: string } | undefined;
+  /** Where `show` was asked to go, while the panel is drawn there: a token, a panel to scroll to. */
+  let place: Place | undefined;
   const tree: TreeState = { query: '', filter: 'all', open: new Set() };
   /**
-   * The width the person gave the panel at each level, in CSS pixels; a level with none has the frame's own (studio.css),
-   * which is wider for Every token and Source.
+   * The width the person gave the panel's column for what it holds — a section's controls, or Inspect at one of its
+   * tabs — in CSS pixels; one given none has the frame's own (studio.css), which is wider for Inspect's two tabs.
    */
-  const panelWidths: Partial<Record<Level, number>> = {};
+  const panelWidths: Partial<Record<Pane, number>> = {};
+  const pane = (): Pane => inspect ?? 'edit';
   const history = createHistory();
   const linked = address && !adapter;
 
@@ -96,15 +105,18 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   let mine: Layer | null = null;
   function remember() {
     try {
-      localStorage.setItem(STORE, JSON.stringify(adapter ? { level, contrast, draft, panel: panelWidths } : { layer: mine ?? layer, level, contrast, draft, panel: panelWidths }));
+      const view = { section, inspect, locks: [...locks], contrast, draft, panel: panelWidths };
+      localStorage.setItem(STORE, JSON.stringify(adapter ? view : { layer: mine ?? layer, ...view }));
     } catch {}
   }
   function recall() {
     try {
       const stored = JSON.parse(localStorage.getItem(STORE) ?? 'null');
-      if (LEVELS.includes(stored?.level)) level = stored.level;
+      if (SECTIONS.includes(stored?.section)) section = stored.section;
+      if (INSPECT.includes(stored?.inspect)) inspect = lastInspect = stored.inspect;
+      for (const row of Array.isArray(stored?.locks) ? stored.locks : []) if (ROWS.includes(row)) locks.add(row);
       if (['standard', 'medium', 'high'].includes(stored?.contrast)) contrast = stored.contrast;
-      for (const [at, px] of Object.entries(stored?.panel ?? {})) if (LEVELS.includes(at) && Number.isFinite(px) && (px as number) > 0) panelWidths[at as Level] = px as number;
+      for (const [at, px] of Object.entries(stored?.panel ?? {})) if (PANES.includes(at as Pane) && Number.isFinite(px) && (px as number) > 0) panelWidths[at as Pane] = px as number;
       if (!adapter && stored?.layer) layer = studio.fromLayer(stored.layer);
       draft = createSourceDraft(stored?.draft);
     } catch {}
@@ -137,19 +149,21 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     rebuild: () => build(),
     onUpdate: (refresh) => refreshers.push(refresh),
     announce: (message) => (status.textContent = message),
-    setLevel,
+    show,
+    scope: '',
     locked: { id: Boolean(adapter) },
     uid: (prefix) => `${prefix}-${++uid}`,
     get draft() {
       return draft;
     },
-    draftChanged: () => (drawLevels(), remember()),
+    draftChanged: () => (drawFrame(), remember()),
   };
 
-  // ── the frame: what stays while the levels change ─────────────────────────────────────────────
-  // The bar across the top; under it the rail (the levels), the preview, and the panel of what the level edits, with
-  // the handle that resizes the panel between the preview and it. On a narrow screen they stand in one column
-  // (studio.css). The Studio's own chrome is drawn in the default system: the layer being edited is the preview's.
+  // ── the frame: what stays while the panel changes ─────────────────────────────────────────────
+  // The bar across the top; under it the rail (what the layer holds), the preview, and the panel of what the rail points
+  // at, with the handle that resizes the panel between the preview and it. On a narrow screen they stand in one column
+  // (studio.css). The Studio's own chrome is drawn in the default system: the layer being edited is the preview's, and
+  // the rail's samples', which carry the preview's system id.
   root.classList.add('ts', 'not-content');
   root.dataset.studio = '';
   // The Studio's words for Tanrei's components, given once — for the Studio alone: its root carries its
@@ -164,7 +178,16 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   const status = h('p', { class: 'ts-status', role: 'status', 'aria-live': 'polite', 'data-status': true });
   const controls = h('div', { class: 'ts-controls', 'data-controls': true });
   const preview = createPreview(ctx, { contrast, onContrast: (next) => ((contrast = next), update()) });
-  const levels = h('div', { class: 'ts-levels' });
+  ctx.scope = preview.scopeId;
+  const railView = createRail(ctx, {
+    locked: locks,
+    onshow: (next) => show({ section: next }),
+    onlock: (row, held) => {
+      if (held) locks.add(row);
+      else locks.delete(row);
+      remember();
+    },
+  });
   const file = h('div', { class: 'ts-file', 'data-file': true });
   // What changed underneath the person, and the two answers: a live callout (it is announced when it opens).
   const banner = h('tanrei-callout', { class: 'ts-banner', status: 'warning', 'status-label': t.file.states.conflict, live: true, open: 'false', 'data-banner': true });
@@ -173,6 +196,11 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   const a11y = h('div');
   const exportHost = h('div');
   const glyph = (name: string) => h('span', { class: `${studio.tagPrefix}-icon`, slot: 'icon', 'aria-hidden': 'true', translate: 'no' }, name);
+  // The shuffle: every row that is not locked, another of its values, in one step to undo.
+  const shuffleButton = h('tanrei-button', { variant: 'text', size: 'small', label: t.rail.shuffle, title: t.rail.shuffleHelp, onclick: () => shuffleRows(), 'data-shuffle': true }, glyph('shuffle'));
+  // Inspect: over the panel, every token in its tree and the file itself. A toggle: it says whether it is open.
+  const inspectButton = h('tanrei-button', { variant: 'outlined', size: 'small', toggle: true, title: t.inspect.help, 'data-inspect': true }, glyph('data_object'), t.inspect.title) as HTMLElement & { selected: boolean };
+  inspectButton.addEventListener('change', (event) => event.target === inspectButton && show(inspectButton.selected ? { inspect: lastInspect } : { section }));
   // Undo and redo: icon buttons that keep their place in the keyboard's order while there is nothing to do (BTN-38).
   const historyButton = (name: string, label: string, keys: string, act: () => void, attrs: Json) => h('tanrei-button', { variant: 'text', size: 'small', label, title: label, 'aria-keyshortcuts': keys, 'focusable-when-disabled': true, disabled: true, onclick: act, ...attrs }, glyph(name));
   const undoButton = historyButton('undo', t.frame.undo, 'Meta+Z Control+Z', () => undo(), { 'data-undo': true });
@@ -182,12 +210,18 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     { class: `ts-bar${hosted.end?.length ? ' ts-bar-hosted' : ''}`, 'data-bar': true },
     hosted.start?.length ? h('div', { class: 'ts-bar-host' }, hosted.start) : null,
     h('div', { class: 'ts-bar-history', role: 'group', 'aria-label': t.frame.history }, undoButton, redoButton),
+    h('div', { class: 'ts-bar-tools' }, shuffleButton),
     file,
+    h('div', { class: 'ts-bar-tools ts-bar-inspect', 'data-bar-inspect': true }, inspectButton),
     hosted.end?.length ? h('div', { class: 'ts-bar-host ts-bar-end' }, hosted.end) : null,
   );
-  const rail = h('section', { class: 'ts-rail', 'aria-label': t.frame.rail, 'data-rail': true }, levels);
+  const rail = h('nav', { class: 'ts-rail', 'aria-label': t.frame.rail, 'data-rail': true }, railView.el);
+  // Inspect's head, over its two tabs: what it is, which tab, and the way back to the panel.
+  const inspectTabs = views<Inspect>({ label: t.inspect.title, attrs: { 'data-inspect-tabs': true }, options: INSPECT.map((value) => ({ value, label: t.inspect[value] })), value: lastInspect, onchange: (value) => show({ inspect: value }) });
+  const inspectClose = h('tanrei-button', { variant: 'text', size: 'small', label: t.inspect.close, title: t.inspect.close, onclick: () => (show({ section }), inspectButton.focus()), 'data-inspect-close': true }, glyph('close'));
+  const inspectHead = h('div', { class: 'ts-inspect-head', hidden: true, 'data-inspect-head': true }, h('h2', { class: 'ts-eyebrow', text: t.inspect.title }), inspectTabs, inspectClose);
   // The panel scrolls by itself beside the preview; it takes the focus when what had it is drawn again (an undo).
-  const inspector = h('section', { class: 'ts-inspector', 'aria-label': t.frame.panel, tabindex: '-1', 'data-inspector': true }, controls, a11y, exportHost);
+  const inspector = h('section', { class: 'ts-inspector', 'aria-label': t.frame.panel, tabindex: '-1', 'data-inspector': true }, inspectHead, controls, a11y, exportHost);
   const handle = h('tanrei-handle', { class: 'ts-handle', axis: 'horizontal', label: t.frame.resize, 'data-panel-handle': true }) as HTMLElement & { value: number | null; min: number; max: number; valueText: string };
   // The frame is the page's main region; what is announced is said from inside it.
   const layout = h('main', { class: 'ts-frame', 'data-frame': true }, rail, preview.el, handle, inspector, status);
@@ -218,14 +252,14 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   };
   function setPanel(px: number, keep = true) {
     const [least, most] = range();
-    panelWidths[level] = Math.round(Math.min(most, Math.max(least, px)));
+    panelWidths[pane()] = Math.round(Math.min(most, Math.max(least, px)));
     drawPanelWidth();
     drawHandle();
     if (keep) remember();
   }
-  /** The level's width, or none: the frame's own for that level. */
+  /** The width given to what the column holds now, or none: the frame's own for it. */
   function drawPanelWidth() {
-    const px = panelWidths[level];
+    const px = panelWidths[pane()];
     if (px) root.style.setProperty('--ts-panel-width', `${px}px`);
     else root.style.removeProperty('--ts-panel-width');
   }
@@ -254,7 +288,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     } else setPanel(restoreTo || length('--ts-panel-default'));
   });
   const resized = new ResizeObserver(() => {
-    const px = panelWidths[level];
+    const px = panelWidths[pane()];
     if (px && px > range()[1]) setPanel(px, false);
     else drawHandle();
   });
@@ -295,40 +329,48 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   };
   document.addEventListener('keydown', onKey);
 
-  // The four levels are four views of one layer: tabs. They stay while the level changes, so the keyboard keeps its place.
-  // In the rail of a wide frame they stand in a column; above the preview of a narrow one, in a row.
-  const levelTabs = views<Level>({ label: t.levels.label, variant: 'primary', attrs: { 'data-levels': true }, options: (LEVELS as Level[]).map((value) => ({ value, label: t.levels[value] })), value: level, onchange: (value) => setLevel(value) });
-  const wide = matchMedia(WIDE);
-  const orient = () => levelTabs.setAttribute('orientation', wide.matches ? 'vertical' : 'horizontal');
-  orient();
-  wide.addEventListener('change', orient);
   // Said in words wherever the person is: the text they typed at Source is still there, and is not what is saved.
-  const draftBadge = stateChip(() => setLevel('source'), { class: 'ts-draft-badge', 'data-draft-badge': true, title: t.source.draftHelp });
+  const draftBadge = stateChip(() => show({ inspect: 'source' }), { class: 'ts-draft-badge', 'data-draft-badge': true, title: t.source.draftHelp });
   draftBadge.say(t.source.draftBadge, 'warning');
-  const levelHelp = h('p', { class: 'ts-help ts-level-help' });
-  levels.append(levelTabs, levelHelp);
-  function drawLevels() {
-    levelTabs.value = level;
+  /** What the frame says of where the person is: the rail's current row, Inspect open or closed, the draft. */
+  function drawFrame() {
+    railView.select(section);
+    inspectButton.selected = Boolean(inspect);
+    inspectHead.hidden = !inspect;
+    inspectTabs.value = inspect ?? lastInspect;
+    inspector.setAttribute('aria-label', inspect ? t.inspect.title : t.frame.panel);
     // (It keeps focus while it stays: it is taken out only when the draft is gone.)
-    if (draft.pending && !draftBadge.isConnected) levelTabs.after(draftBadge);
+    if (draft.pending && !draftBadge.isConnected) inspectButton.before(draftBadge);
     else if (!draft.pending) draftBadge.remove();
-    levelHelp.textContent = t.levels.help[level];
   }
 
-  function setLevel(next: Level, target?: { token?: string; panel?: string }) {
-    level = next;
-    focus = target;
-    if (target?.token && next === 'tokens' && target.panel !== 'add') Object.assign(tree, { selected: target.token, query: '', filter: 'all' });
+  /** Show a section in the panel, or open Inspect at a tab — at a token, or scrolled to a panel. */
+  function show(to: Place) {
+    place = to;
+    if (to.inspect) {
+      inspect = lastInspect = to.inspect;
+      if (to.token && to.inspect === 'tokens') Object.assign(tree, { selected: to.token, query: '', filter: 'all' });
+    } else {
+      inspect = null;
+      if (to.section) section = to.section;
+    }
     build();
-    const panelKey = target?.panel ?? (target?.token ? 'tree' : undefined);
+    remember();
+    const panelKey = to.panel ?? (to.token && to.inspect === 'tokens' ? 'tree' : undefined);
     if (panelKey) queueMicrotask(() => root.querySelector(`[data-panel="${panelKey}"]`)?.scrollIntoView({ block: 'start', behavior: 'smooth' }));
-    focus = undefined;
+    else inspector.scrollTo({ top: 0 });
+    place = undefined;
+  }
+
+  /** Every row that is not locked, another of its values: one commit, one step to undo. */
+  function shuffleRows() {
+    ctx.commit(shuffle(ctx, committed, locks), { rebuild: true });
+    ctx.announce(locks.size ? t.rail.shuffledKept(locks.size) : t.rail.shuffled);
   }
 
   // ── accessibility ─────────────────────────────────────────────────────────────────────────────
-  /** The contrast pairs and the build's warnings: a panel of every level but Essentials. */
+  /** The contrast pairs and the build's warnings: the panel of the rail's Accessibility. */
   function accessibilityPanel() {
-    if (level === 'essentials') return null;
     const pairs = h('div', { class: 'ts-pairs', 'data-pairs': true });
     const total = h('bdi', { 'data-warnings-count': true });
     // The build's warnings are listed in a fold, written when it first opens; their count is said on it all along.
@@ -362,8 +404,8 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   }
 
   // ── export / save ─────────────────────────────────────────────────────────────────────────────
+  /** The file: its id, the checks, copy and download, and what to do next. Under every panel; the file itself is Source. */
   function exportPanel() {
-    const compact = level === 'essentials';
     const id = textField({ label: ctx.locked.id ? t.file.idLocked : t.export.id, attrs: { disabled: ctx.locked.id, 'data-id': true }, oninput: (value) => {
       const result = studio.setMeta(layer, { id: value.trim() }) as Json;
       // What is wrong with the id is the field's own error, said under it.
@@ -445,18 +487,18 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       { title: adapter ? t.file.title : t.export.title, key: 'export', actions: [filename] },
       h(
         'div',
-        { class: `ts-export-grid${compact || level === 'source' ? ' ts-export-compact' : ''}` },
+        { class: 'ts-export-grid' },
         h(
           'div',
           { class: 'ts-export-side' },
-          h('div', { class: compact ? 'ts-grid-2' : 'ts-stack' }, id, compact ? null : name),
+          h('div', { class: 'ts-stack' }, id, name),
           checks,
           h('div', { class: 'ts-actions' }, copy, download, reset),
-          compact || adapter ? null : h('div', { class: 'ts-next' }, h('p', { class: 'ts-subhead', text: t.export.next }), h('ol', {}, h('li', {}, init), h('li', {}, put), h('li', {}, h('code', { text: 'npx tanrei build' }))), h('p', { class: 'ts-help' }, links.layers ? rich((at) => t.sentences(t.export.authoritative, at(h('a', { href: links.layers, text: t.export.layersLink })))) : t.export.authoritative)),
+          adapter ? null : h('div', { class: 'ts-next' }, h('p', { class: 'ts-subhead', text: t.export.next }), h('ol', {}, h('li', {}, init), h('li', {}, put), h('li', {}, h('code', { text: 'npx tanrei build' }))), h('p', { class: 'ts-help' }, links.layers ? rich((at) => t.sentences(t.export.authoritative, at(h('a', { href: links.layers, text: t.export.layersLink })))) : t.export.authoritative)),
         ),
-        compact || level === 'source' ? null : h('pre', { class: 'ts-json', tabindex: '0', 'aria-label': t.export.jsonLabel }, json),
+        inspect === 'source' ? null : h('pre', { class: 'ts-json', tabindex: '0', 'aria-label': t.export.jsonLabel }, json),
       ),
-      compact ? null : folds({}, importFold),
+      folds({}, importFold),
     );
   }
 
@@ -615,47 +657,28 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     if (latest.model) last = latest;
     if (last) preview.apply(last, contrast);
     preview.stale.hidden = Boolean(latest.model);
+    railView.refresh();
     for (const refresh of refreshers) refresh();
     remember();
   }
 
-  /** The panels still to be drawn after a switch to Groups (ui/dom.ts `drawnNear`); while there are any, the root says `data-drawing`. */
-  let drawing: ReturnType<typeof drawnNear> | undefined;
   function build() {
-    drawing?.stop();
-    drawing = undefined;
-    root.removeAttribute('data-drawing');
     refreshers = [];
     compute();
     if (latest.model) last = latest;
     // A layer that cannot be computed at all still needs controls to fix it: fall back to its base.
     if (!last) last = studio.preview({ id: 'studio-fallback', extends: studio.systems.some((s: Json) => s.id === layer.extends) ? layer.extends : studio.defaultId }) as Json;
-    const switched = root.dataset.level !== level;
-    root.dataset.level = level;
+    const switched = root.dataset.pane !== pane();
+    root.dataset.pane = pane();
+    root.dataset.section = section;
     if (switched) {
       drawPanelWidth();
       drawHandle();
     }
-    drawLevels();
-    // Groups holds some three thousand elements, and a window shows a few hundred of them: a switch to it draws what the
-    // window shows before the first paint and the rest as it comes near. Drawn again where the person is (an edit that
-    // changes which controls exist), or opened at one of its panels, it is drawn whole at once, so that what is looked
-    // at stays where it is.
-    if (switched && level === 'groups' && !focus?.panel) {
-      const now = (drawing = drawnNear([...groupsPanels(ctx), accessibilityPanel, exportPanel], wide.matches ? inspector : null));
-      const holders = [...now.holders];
-      const [exported, accessibility] = [holders.pop()!, holders.pop()!];
-      controls.replaceChildren(...holders);
-      a11y.replaceChildren(accessibility);
-      exportHost.replaceChildren(exported);
-      root.setAttribute('data-drawing', '');
-      now.done.then(() => drawing === now && root.removeAttribute('data-drawing'));
-    } else {
-      const draw = { essentials: essentialsLevel, groups: groupsLevel, tokens: () => tokensLevel(ctx, tree, focus), source: sourceLevel }[level];
-      controls.replaceChildren(...(draw(ctx).filter(Boolean) as HTMLElement[]));
-      a11y.replaceChildren(accessibilityPanel() ?? '');
-      exportHost.replaceChildren(exportPanel());
-    }
+    drawFrame();
+    controls.replaceChildren(...((inspect === 'tokens' ? tokensInspect(ctx, tree) : inspect === 'source' ? sourceLevel(ctx) : sectionPanels(ctx, section, place)).filter(Boolean) as HTMLElement[]));
+    a11y.replaceChildren(!inspect && section === 'a11y' ? accessibilityPanel() : '');
+    exportHost.replaceChildren(exportPanel());
     drawFile();
     update();
   }
@@ -785,11 +808,14 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
 
   // For scripts and agents driving the page: the same layer the controls edit.
   const api = {
-    getState: () => ({ layer: structuredClone(layer), level, contrast, saveState, draft: draft.text, canUndo: history.canUndo, canRedo: history.canRedo }),
+    getState: () => ({ layer: structuredClone(layer), section, inspect, locks: [...locks], contrast, saveState, draft: draft.text, canUndo: history.canUndo, canRedo: history.canRedo }),
     getLayer: () => structuredClone(layer),
     setLayer: (next: Layer) => ctx.commit(studio.fromLayer(next), { rebuild: true }),
     importLayer: (input: string | object) => importLayer(typeof input === 'string' ? input : JSON.stringify(input)),
-    setLevel: (next: Level) => setLevel(next),
+    /** Show a section of the rail in the panel, or open Inspect (`{ inspect: 'tokens' | 'source' }`). */
+    show: (to: Place) => show(to),
+    /** Every row that is not locked, another of its values. */
+    shuffle: () => shuffleRows(),
     setContrast: (next: Contrast) => ((contrast = next), build()),
     undo: () => undo(),
     redo: () => redo(),
@@ -813,7 +839,6 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     save: () => saveNow(),
     destroy: () => {
       stopWatching();
-      drawing?.stop();
       window.clearTimeout(timer);
       cancelAnimationFrame(frame);
       window.clearTimeout(resting);
@@ -822,7 +847,6 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       live = false;
       document.removeEventListener('keydown', onKey);
       removeEventListener('hashchange', onHash);
-      wide.removeEventListener('change', orient);
       resized.disconnect();
     },
   };

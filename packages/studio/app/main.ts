@@ -5,7 +5,7 @@ import '@tanrei/web/tokens.css';
 // - `.tanrei-icon`: the preview draws icons with the system's icon tokens (the font is fonts.generated.css's);
 // - the token tree is a tree view around the Studio's own lists, drawn by its stylesheet;
 // - what opens and closes is an accordion, and a token's facts a description list, each around the Studio's own
-//   elements, drawn by its stylesheet — loaded with the page, so that the first fold a level draws does not give the
+//   elements, drawn by its stylesheet — loaded with the page, so that the first fold a panel draws does not give the
 //   whole document, the preview with it, another sheet to be styled by;
 // - and the Studio's own.
 import '@tanrei/web/icons.css';

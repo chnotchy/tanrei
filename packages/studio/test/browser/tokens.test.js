@@ -22,8 +22,8 @@ const find = async (page, id) => {
   await page.waitForSelector(`[data-token="${id}"]`);
 };
 
-studioTest('the tree only chooses: one tab stop, the arrow keys move, Enter chooses, and the editor is a region named by the token and tied to its row', {}, async ({ page, level }) => {
-  await level('tokens');
+studioTest('the tree only chooses: one tab stop, the arrow keys move, Enter chooses, and the editor is a region named by the token and tied to its row', {}, async ({ page, inspect }) => {
+  await inspect('tokens');
   const tree = page.locator('[data-tree]');
   const pane = page.locator('[data-token-pane]');
   assert.equal(await tree.evaluate((el) => el.localName), 'tanrei-tree-view');
@@ -74,8 +74,8 @@ studioTest('the tree only chooses: one tab stop, the arrow keys move, Enter choo
   assert.ok((await page.locator('[data-tree] [data-group="button"] [data-token]').count()) > 100, 'the tree is as it was left');
 });
 
-studioTest('the editor’s fields are Tanrei’s: a number is pinned, an alias re-pointed, a follower followed, and the token reverted', {}, async ({ page, level, saved, pick, onDisk }) => {
-  await level('tokens');
+studioTest('the editor’s fields are Tanrei’s: a number is pinned, an alias re-pointed, a follower followed, and the token reverted', {}, async ({ page, inspect, saved, pick, onDisk }) => {
+  await inspect('tokens');
   // ── a dimension, pinned with a number field ──
   await find(page, HEIGHT);
   await row(page, HEIGHT).click();
@@ -126,9 +126,9 @@ studioTest('the editor’s fields are Tanrei’s: a number is pinned, an alias r
   assert.equal(await page.locator('[data-search]').evaluate((el) => el.value), '');
 });
 
-studioTest('a mul rule keeps its density, its step and its floor: the editor shows them, and an edit writes them back', {}, async ({ page, level, saved, onDisk }) => {
+studioTest('a mul rule keeps its density, its step and its floor: the editor shows them, and an edit writes them back', {}, async ({ page, inspect, saved, onDisk }) => {
   const ROW = 'tanrei.comp.tree-view.container.height.compact';
-  await level('tokens');
+  await inspect('tokens');
   await find(page, ROW);
   await row(page, ROW).click();
   const pane = editor(page, ROW);
@@ -144,8 +144,8 @@ studioTest('a mul rule keeps its density, its step and its floor: the editor sho
   assert.deepEqual(onDisk().tokens[ROW].derive, { fn: 'mul', of: '{tanrei.dial.size.unit}', by: 9, times: '{tanrei.dial.density}', round: '{tanrei.dial.size.unit}', min: '{tanrei.sys.target.minimum}' }, 'the terms are kept, not dropped');
 });
 
-studioTest('a color is shown as it is typed and saved when it is committed; a half-typed color is never reported invalid', {}, async ({ page, level, saved, onDisk }) => {
-  await level('tokens');
+studioTest('a color is shown as it is typed and saved when it is committed; a half-typed color is never reported invalid', {}, async ({ page, inspect, saved, onDisk }) => {
+  await inspect('tokens');
   await find(page, COLOR);
   await row(page, COLOR).click();
   const color = editor(page, COLOR);
@@ -165,8 +165,8 @@ studioTest('a color is shown as it is typed and saved when it is committed; a ha
   assert.match(await page.locator(`[data-token="${COLOR}"] tanrei-swatch`).evaluate((el) => getComputedStyle(el.shadowRoot.querySelector('.sample')).backgroundImage), /rgb\(15, 118, 110\)/, 'the swatch of the row shows the color');
 });
 
-studioTest('390 wide: the panes stack, choosing moves focus to the editor’s name, and there is a way back to the row', { viewport: { width: 390, height: 844 } }, async ({ page, level, fits }) => {
-  await level('tokens');
+studioTest('390 wide: the panes stack, choosing moves focus to the editor’s name, and there is a way back to the row', { viewport: { width: 390, height: 844 } }, async ({ page, inspect, fits }) => {
+  await inspect('tokens');
   await find(page, SHAPE);
   await row(page, SHAPE).click();
   await page.waitForSelector(`[data-token-pane] [data-editor="${SHAPE}"]`);
@@ -180,8 +180,8 @@ studioTest('390 wide: the panes stack, choosing moves focus to the editor’s na
   assert.equal((await focused(page)).token, SHAPE, 'back on the chosen row');
 });
 
-studioTest('a suggestion that is taken leaves the row of chips, and focus goes to the next one', {}, async ({ page, level }) => {
-  await level('tokens');
+studioTest('a suggestion that is taken leaves the row of chips, and focus goes to the next one', {}, async ({ page, inspect }) => {
+  await inspect('tokens');
   await find(page, 'tanrei.ref.typeface.plain');
   await row(page, 'tanrei.ref.typeface.plain').click();
   const stack = editor(page, 'tanrei.ref.typeface.plain');
@@ -197,8 +197,8 @@ studioTest('a suggestion that is taken leaves the row of chips, and focus goes t
 });
 
 for (const scheme of ['light', 'dark']) {
-  studioTest(`axe: the two panes with a color, a number and an alias being edited, left to right and right to left — ${scheme}`, { colorScheme: scheme }, async ({ page, level, axe }) => {
-    await level('tokens');
+  studioTest(`axe: the two panes with a color, a number and an alias being edited, left to right and right to left — ${scheme}`, { colorScheme: scheme }, async ({ page, inspect, axe }) => {
+    await inspect('tokens');
     for (const dir of ['ltr', 'rtl']) {
       // The docs host the Studio in a right-to-left page for Arabic (its own strings are English and Japanese).
       await page.evaluate((value) => { document.documentElement.dir = value; document.documentElement.lang = value === 'rtl' ? 'ar' : 'en'; }, dir);

@@ -1,8 +1,9 @@
-// Essentials and Groups: the first two views of the layer. Both are made of the same few panels.
+// The panels of the sections the rail lists (./sections.ts): each a panel of what Groups was, or a few of its rows.
 import { HEX_PATTERN } from '../core.js';
-import { type Ctx, type Json, button, choice, codeField, fold, folds, format, h, isolated, linkButton, ltr, panel, placed, rich, short, textField, trim } from './dom';
+import { type Ctx, type Json, type Place, button, choice, codeField, fold, folds, format, h, isolated, linkButton, panel, rich, short, textField } from './dom';
 import { tokenEditor } from './editor';
 import { addPanel, extensionsPanel } from './add';
+import type { Section } from './sections';
 import { behaviourPanel, iconsPanel, shapePanel, typefacesPanel } from './system';
 import { colorWidget, numberWidget } from './widgets';
 import { componentList } from '../listing.js';
@@ -64,31 +65,16 @@ function dialRow(ctx: Ctx, dial: Json, { name, note, reason: withReason, set }: 
   return row;
 }
 
-function dialsPanel(ctx: Ctx) {
+/** Dials, each a number and a slider: all eight, or the few a row of the rail edits (`keys`). */
+function dialsPanel(ctx: Ctx, { keys, title, help, key = 'dials' }: { keys?: string[]; title?: string; help?: string; key?: string } = {}, ...after: HTMLElement[]) {
   const { t, studio } = ctx;
-  const rows = studio.dials(ctx.layer()).map((dial: Json) => {
+  const shown = (dials: Json[]) => (keys ? keys.map((each) => dials.find((dial) => dial.key === each)!).filter(Boolean) : dials);
+  const rows = shown(studio.dials(ctx.layer())).map((dial: Json) => {
     const [name, note] = t.dials.names[dial.key] ?? [dial.key, ''];
     return dialRow(ctx, dial, { name, note, reason: true, set: (value) => studio.setDial(ctx.layer(), dial.id, value) });
   });
-  const resetAll = linkButton(t.resetAll, () => ctx.commit(studio.dials(ctx.layer()).reduce((layer: Json, dial: Json) => studio.setDial(layer, dial.id, dial.base), ctx.layer())), { 'data-reset-dials': true });
-  return panel(ctx, { title: t.dials.title, help: t.dials.help, key: 'dials', actions: [resetAll] }, h('div', { class: 'ts-rows', 'data-dials': true }, rows));
-}
-
-function feelPanel(ctx: Ctx) {
-  const { t, studio } = ctx;
-  const rows = studio.essentials(ctx.layer()).dials.map((dial: Json) => {
-    const [name, note] = t.essentials.names[dial.key];
-    return dialRow(ctx, dial, { name, note, reason: false, set: (value) => studio.setEssential(ctx.layer(), dial.key, value) });
-  });
-  const hint = h('p', { class: 'ts-hint', 'data-link-hint': true });
-  const refresh = () => {
-    const { linked, size } = studio.essentials(ctx.layer());
-    hint.replaceChildren(...placed(linked ? t.essentials.linked : t.essentials.separated, 'size', ltr(`${trim(size.value)}${size.unit}`)));
-  };
-  refresh();
-  ctx.onUpdate(refresh);
-  rows.splice(2, 0, hint); // under Spacing
-  return panel(ctx, { title: t.essentials.feel, key: 'feel' }, h('div', { class: 'ts-rows', 'data-essentials': true }, rows));
+  const resetAll = linkButton(t.resetAll, () => ctx.commit(shown(studio.dials(ctx.layer())).reduce((layer: Json, dial: Json) => studio.setDial(layer, dial.id, dial.base), ctx.layer())), { 'data-reset-dials': key });
+  return panel(ctx, { title: title ?? t.dials.title, help: help ?? t.dials.help, key, actions: [resetAll] }, h('div', { class: 'ts-rows', 'data-dials': key }, rows), ...after);
 }
 
 // ── color ────────────────────────────────────────────────────────────────────────────────────────
@@ -287,6 +273,13 @@ function colorPanel(ctx: Ctx) {
   return panel(ctx, { title: t.color.title, code: 'palettes', help: t.color.help, key: 'color' }, h('div', { class: 'ts-rows', 'data-palettes': true }, studio.paletteRows(ctx.layer()).map((row: Json) => paletteRow(ctx, row))), form);
 }
 
+/** The grays: the palettes surfaces and text take their tones from (`neutral`, and any `neutral-…` a system declares). */
+function neutralPanel(ctx: Ctx) {
+  const { t, studio } = ctx;
+  const rows = (studio.paletteRows(ctx.layer()) as Json[]).filter((row) => row.name === 'neutral' || row.name.startsWith('neutral-'));
+  return panel(ctx, { title: t.rail.rows.neutral, code: 'palettes.neutral', help: t.rail.help.neutral, key: 'neutral' }, h('div', { class: 'ts-rows', 'data-palettes': 'neutral' }, rows.map((row) => paletteRow(ctx, row))));
+}
+
 // ── components ───────────────────────────────────────────────────────────────────────────────────
 const COMMON = ['container.shape', 'container.gap', 'container.height', 'container.padding-inline-start', 'container.padding-inline-end', 'label.typescale', 'outline.width'];
 /** The size the common edits of a component apply to; kept while the controls are redrawn. */
@@ -294,7 +287,7 @@ const commonSize = new Map<string, string>();
 
 /**
  * Per component: what its axes hold now, and the handful of edits people make first. All of them are ordinary tokens.
- * The components are the items of one accordion, and an item is drawn when it first opens: the level costs what it
+ * The components are the items of one accordion, and an item is drawn when it first opens: the panel costs what it
  * shows, however many components the system has (the token tree does the same with its groups).
  *
  * Which components are items is the specs' (`../listing.js`): by default the ones every list shows, and
@@ -431,7 +424,7 @@ function componentBody(ctx: Ctx, component: string, NS: string) {
     h('div', { class: 'ts-common', 'data-common-edits': true }, h('div', { class: 'ts-row-head' }, h('p', { class: 'ts-subhead ts-row-title', text: t.components.common }), picker), picker ? h('p', { class: 'ts-help', text: t.components.commonHelp }) : null, list),
     // Its container's shape where it has one, else the first token it has: a component that draws no box of its own (the
     // Field, whose tokens are the rows around another control's box) has no `container.shape`, and its link chose nothing.
-    h('div', { class: 'ts-row-actions' }, linkButton(t.components.all, () => { const tokens = ctx.view().model.tokens as Json; ctx.setLevel('tokens', { token: tokens[`${prefix}.container.shape`] ? `${prefix}.container.shape` : (Object.keys(tokens).find((id) => id.startsWith(`${prefix}.`)) ?? `${prefix}.container.shape`) }); })),
+    h('div', { class: 'ts-row-actions' }, linkButton(t.components.all, () => { const tokens = ctx.view().model.tokens as Json; ctx.show({ inspect: 'tokens', token: tokens[`${prefix}.container.shape`] ? `${prefix}.container.shape` : (Object.keys(tokens).find((id) => id.startsWith(`${prefix}.`)) ?? `${prefix}.container.shape`) }); })),
   );
 }
 
@@ -477,17 +470,55 @@ function aboutPanel(ctx: Ctx) {
   );
 }
 
-export function essentialsLevel(ctx: Ctx): HTMLElement[] {
+/** The size of what is pressed: density and the size unit, and the least size anything pressable is drawn at. */
+function sizePanel(ctx: Ctx) {
+  const { t, studio } = ctx;
+  const target = `${studio.namespace}.sys.target.minimum`;
+  const least = ctx.view().model.tokens[target] ? fold({ label: h('code', { text: short(target, studio.namespace) }), supporting: h('span', { text: t.rail.target }), attrs: { 'data-target': true } }) : null;
+  least?.addEventListener('toggle', () => least.open && least.children.length === 1 && least.append(tokenEditor(ctx, target, { compact: true })));
+  return dialsPanel(ctx, { keys: ['density', 'size.unit'], title: t.rail.rows.size, help: t.rail.help.size, key: 'size' }, ...(least ? [folds({}, least)] : []));
+}
+
+/**
+ * What the panel holds for a section, panel by panel; null where a panel has nothing to show (a layer that declares
+ * nothing of its own). Accessibility is the frame's (ui.ts): it is a panel of every computation.
+ */
+export function sectionPanels(ctx: Ctx, section: Section, place?: Place): (HTMLElement | null)[] {
   const { t } = ctx;
-  return [basePanel(ctx), brandPanel(ctx), feelPanel(ctx), h('p', { class: 'ts-more' }, rich((at) => t.sentences(t.essentials.more, t.listed(t.listed(at(linkButton(t.levels.groups, () => ctx.setLevel('groups'))), at(linkButton(t.levels.tokens, () => ctx.setLevel('tokens')))), at(linkButton(t.levels.source, () => ctx.setLevel('source')))))))];
+  switch (section) {
+    case 'color':
+      return [brandPanel(ctx)];
+    case 'neutral':
+      return [neutralPanel(ctx)];
+    case 'typeface':
+      return [typefacesPanel(ctx)];
+    case 'size':
+      return [sizePanel(ctx)];
+    case 'radius':
+      return [dialsPanel(ctx, { keys: ['shape.unit'], title: t.rail.rows.radius, help: t.rail.help.radius, key: 'radius' })];
+    case 'smoothing':
+      return [shapePanel(ctx)];
+    case 'icons':
+      return [iconsPanel(ctx)];
+    case 'press':
+      return [behaviourPanel(ctx, { keys: ['pressed-feedback'], title: t.rail.rows.press, key: 'press' })];
+    case 'focus':
+      return [behaviourPanel(ctx, { keys: ['focus-style'], title: t.rail.rows.focus, key: 'focus' })];
+    case 'base':
+      return [basePanel(ctx)];
+    case 'dials':
+      return [dialsPanel(ctx)];
+    case 'palettes':
+      return [colorPanel(ctx)];
+    case 'components':
+      return [componentsPanel(ctx)];
+    case 'behavior':
+      return [behaviourPanel(ctx)];
+    case 'vocabulary':
+      return [extensionsPanel(ctx), addPanel(ctx, place?.panel === 'add' ? place.token : undefined)];
+    case 'about':
+      return [aboutPanel(ctx)];
+    case 'a11y':
+      return [];
+  }
 }
-
-/** The panels of Groups, in their order, each drawn when it is called. `extensionsPanel` is null until the layer has declared something of its own. */
-export function groupsPanels(ctx: Ctx): (() => HTMLElement | null)[] {
-  return [basePanel, dialsPanel, colorPanel, typefacesPanel, iconsPanel, shapePanel, behaviourPanel, componentsPanel, extensionsPanel, addPanel, aboutPanel].map((make) => () => make(ctx));
-}
-export function groupsLevel(ctx: Ctx): HTMLElement[] {
-  return groupsPanels(ctx).map((make) => make()).filter(Boolean) as HTMLElement[];
-}
-
-export { button };

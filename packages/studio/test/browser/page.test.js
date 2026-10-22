@@ -1,7 +1,7 @@
-// The page as a whole: every level, in light and dark, passes axe; nothing scrolls sideways on a phone; the chrome
-// is translated and the vocabulary is not.
+// The page as a whole: every section of the rail and both tabs of Inspect, in light and dark, pass axe; nothing scrolls
+// sideways on a phone; the chrome is translated and the vocabulary is not.
 import assert from 'node:assert/strict';
-import { studioTest, until } from './harness.js';
+import { VIEWS, studioTest, until } from './harness.js';
 
 // A layer with something in every panel: a fixed tone, a pin, an added size and an own token ("Yours", the preview's own rows).
 const layer = {
@@ -20,75 +20,83 @@ const layer = {
 const still = (page) => page.waitForFunction(() => document.getAnimations().every((animation) => animation.playState !== 'running' || animation.effect?.getComputedTiming().iterations === Infinity));
 
 /** Open what a person would open, so that axe, the overflow check and the measure of the targets look at it too. */
-async function unfold(page, level) {
+async function unfold(page, view) {
   try {
-    await unfoldNow(page, level);
+    await unfoldNow(page, view);
   } finally {
     await still(page);
   }
 }
-async function unfoldNow(page, level) {
+/** The folds a person opens in each view (harness.js `VIEWS`). */
+const FOLDS = {
+  palettes: ['[data-palette="primary"] [data-tones] > summary'],
+  typeface: ['[data-typeface="mono"] > summary'],
+  vocabulary: ['[data-extension="tanrei.comp.button.size.3x"] > summary'],
+  components: ['[data-component="button"]:not([open]) > summary', '[data-component="button"] [data-common] > summary'],
+  size: ['[data-target]:not([open]) > summary'],
+};
+async function unfoldNow(page, view) {
   // The two lists that scroll in a box of their own: everything the build reports, and the rules a layer inherits.
-  if (level !== 'essentials') {
+  if (view === 'a11y') {
     await page.locator('[data-warnings-wrap]:not([open]) > summary').click();
     // (The list is written at the fold's `toggle` event, a task after the press.)
     await page.waitForSelector('[data-warnings-wrap] [data-warnings]', { state: 'attached' });
   }
-  if (level === 'tokens') await page.locator('[data-panel="rules"] details:not([open]) > summary').click();
-  if (level === 'groups') {
-    for (const selector of ['[data-palette="primary"] [data-tones] > summary', '[data-typeface="mono"] > summary', '[data-extension="tanrei.comp.button.size.3x"] > summary', '[data-component="button"]:not([open]) > summary', '[data-component="button"] [data-common] > summary']) {
-      // (A component the person left open is still open when the level is drawn again: nothing to press then.)
-      if (await page.locator(selector).count()) await page.locator(selector).first().click();
-      await still(page);
-    }
-    await page.waitForSelector('[data-behavior-hint="pressed-feedback"]:not([hidden])');
+  if (view === 'tokens') await page.locator('[data-panel="rules"] details:not([open]) > summary').click();
+  for (const selector of FOLDS[view] ?? []) {
+    // (A component the person left open is still open when the panel is drawn again: nothing to press then.)
+    if (await page.locator(selector).count()) await page.locator(selector).first().click();
+    await still(page);
   }
-  if (level === 'tokens') {
+  if (view === 'press' || view === 'behavior') await page.waitForSelector('[data-behavior-hint="pressed-feedback"]:not([hidden])');
+  if (view === 'tokens') {
     await page.locator('[data-search] input').fill('pressed-feedback');
     await page.locator('[data-token="tanrei.sys.behavior.pressed-feedback"]').click();
     await page.waitForSelector('[data-editor="tanrei.sys.behavior.pressed-feedback"] [role="tablist"]');
   }
-  if (level === 'source') {
+  if (view === 'source') {
     await page.locator('[data-source]').fill('{ "draft": ');
     await page.waitForSelector('[data-draft-note]:not([hidden])');
   }
 }
 
 for (const scheme of ['light', 'dark']) {
-  studioTest(`axe: no violation at any level, with the folds open — ${scheme}`, { layer, colorScheme: scheme }, async ({ page, level, axe }) => {
+  studioTest(`axe: no violation in any section or tab of Inspect, with the folds open — ${scheme}`, { layer, colorScheme: scheme }, async ({ page, view, section, axe }) => {
     assert.equal(await page.locator('html').getAttribute('data-tanrei-theme'), scheme, 'the app follows the system’s color scheme');
-    for (const name of ['essentials', 'groups', 'tokens', 'source']) {
-      await level(name);
+    for (const name of VIEWS) {
+      await view(name);
       await unfold(page, name);
       await axe('body', `${name} (${scheme})`);
     }
+    await section('a11y');
+    await unfold(page, 'a11y');
     // The list of this layer's warnings has its name, and is a focus stop exactly while it scrolls — in the panel beside
     // the preview its one warning wraps into more lines than the list's box holds (the long list is below).
     const list = await page.locator('[data-warnings]').evaluate((el) => ({ scrolls: el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1, tabindex: el.getAttribute('tabindex'), named: Boolean(el.getAttribute('aria-label')) }));
     assert.deepEqual(list, { scrolls: list.scrolls, tabindex: list.scrolls ? '0' : null, named: true });
   });
 
-  studioTest(`390px: nothing scrolls sideways at any level — ${scheme}`, { layer, colorScheme: scheme, viewport: { width: 390, height: 844 } }, async ({ page, level, fits }) => {
-    for (const name of ['essentials', 'groups', 'tokens', 'source']) {
-      await level(name);
+  studioTest(`390px: nothing scrolls sideways in any section or tab of Inspect — ${scheme}`, { layer, colorScheme: scheme, viewport: { width: 390, height: 844 } }, async ({ page, view, section, fits }) => {
+    for (const name of VIEWS) {
+      await view(name);
       await unfold(page, name);
       await fits('body', `${name} (${scheme})`);
     }
-    // The draft badge (left by Source above) has to fit next to the level switcher too.
-    await level('essentials');
+    // The draft badge (left by Source above) has to fit in the bar too.
+    await section('color');
     assert.ok(await page.locator('[data-draft-badge]').isVisible());
     await fits('body', `the draft badge (${scheme})`);
     // A panel the Studio scrolls to lands below the sticky preview, not under it.
-    await level('groups');
+    await section('icons');
     const landed = await page.evaluate(() => { const el = document.querySelector('[data-panel="icons"]'); el.scrollIntoView({ block: 'start' }); return { top: el.getBoundingClientRect().top, sticky: document.querySelector('.ts-preview').getBoundingClientRect().bottom }; });
     assert.ok(landed.top >= landed.sticky, `a scrolled-to panel is not hidden under the sticky preview: ${JSON.stringify(landed)}`);
   });
 }
 
-studioTest('the theme and language switches: dark is a click away; ja translates the chrome, never the vocabulary; the session survives the reload', { layer }, async ({ page, level }) => {
+studioTest('the theme and language switches: dark is a click away; ja translates the chrome, never the vocabulary; the session survives the reload', { layer }, async ({ page, section }) => {
   await page.locator('#theme').click();
   assert.equal(await page.locator('html').getAttribute('data-tanrei-theme'), 'dark');
-  await level('groups');
+  await section('typeface');
   // The language switch is a select of the offered languages, each under its own name; choosing one reloads the page.
   assert.deepEqual(await page.locator('#lang tanrei-option').evaluateAll((options) => options.map((option) => [option.getAttribute('value'), option.getAttribute('label'), option.lang])), [['en', 'English', 'en'], ['ja', '日本語', 'ja'], ['zh-CN', '简体中文', 'zh-CN'], ['hi', 'हिन्दी', 'hi'], ['es', 'Español', 'es'], ['ar', 'العربية', 'ar']]);
   await page.locator('#lang').evaluate((select) => {
@@ -99,8 +107,10 @@ studioTest('the theme and language switches: dark is a click away; ja translates
   await until(async () => (await page.locator('#session').textContent())?.includes('acme.system.json'), 'the session after the language switch');
   assert.equal(await page.locator('html').getAttribute('lang'), 'ja');
   assert.equal(await page.locator('html').getAttribute('data-tanrei-theme'), 'dark', 'the theme is remembered');
-  assert.equal(await page.locator('[data-studio]').getAttribute('data-level'), 'groups', 'so is the level');
+  assert.equal(await page.locator('[data-studio]').getAttribute('data-section'), 'typeface', 'so is the section');
   assert.match(await page.locator('[data-panel="typefaces"] h2').textContent(), /書体/);
+  assert.equal(await page.locator('[data-rail] [data-row="press"] .ts-rail-label').textContent(), '押したときの表現');
+  await section('behavior');
   assert.match(await page.locator('[data-panel="behavior"] h2').textContent(), /ふるまい/);
   assert.deepEqual(await page.locator('[data-behavior="pressed-feedback"] tanrei-radio-button').evaluateAll((els) => els.map((el) => el.label)), ['overlay', 'ripple', 'dim', 'none'], 'names are vocabulary: not translated');
   assert.match(await page.locator('[data-save-state]').textContent(), /保存済み/);
@@ -110,7 +120,7 @@ studioTest('the two checks above can fail: text the Studio cannot read and a box
   await fits('body', 'before');
   await axe('body', 'before');
   await page.evaluate(() => {
-    const help = document.querySelector('[data-panel="feel"]');
+    const help = document.querySelector('[data-panel="brand"]');
     help.insertAdjacentHTML('beforeend', '<p id="faint" style="color:#bbb;background:#fff">faint</p><div id="wide" style="inline-size:600px;block-size:4px"></div>');
   });
   await assert.rejects(fits('body', 'a wide box'), /wide box.*id="wide"|wide box/);
@@ -120,8 +130,8 @@ studioTest('the two checks above can fail: text the Studio cannot read and a box
 studioTest('the measure of the targets can fail: a control drawn 20 pixels high, and one that a neighbour covers, are both caught', { layer }, async ({ page, targets }) => {
   const before = await targets('before');
   for (const kind of ['summary', 'a.app-brand']) assert.ok(before.some((target) => target.what.startsWith(kind)), `the measure sees a ${kind}`);
-  assert.ok(before.filter((target) => target.what.startsWith('tanrei-tab')).length >= 4, 'and the levels’ tabs');
-  await page.evaluate(() => document.querySelector('[data-panel="feel"]').insertAdjacentHTML('beforeend', '<p><button type="button" class="ts-own" id="low" style="min-block-size: 0; block-size: 20px; padding-block: 0">low</button></p>'));
+  assert.ok(before.filter((target) => target.what.startsWith('button.ts-rail-row')).length >= 9, 'and the rail’s rows');
+  await page.evaluate(() => document.querySelector('[data-panel="brand"]').insertAdjacentHTML('beforeend', '<p><button type="button" class="ts-own" id="low" style="min-block-size: 0; block-size: 20px; padding-block: 0">low</button></p>'));
   await assert.rejects(targets('a low button'), /button\.ts-own «low» [\d.]+×20\b/);
   await page.evaluate(() => {
     const low = document.querySelector('#low');
@@ -155,8 +165,8 @@ studioTest('the preview’s contrast switch changes what the real components dra
 // A layer on "cupertino" inherits a hundred warnings (an imitation is held to its original): the list of
 // them scrolls, so it is a focus stop with a name and the keys scroll it. A list that is all in view is no stop.
 for (const locale of ['en-US', 'ar']) {
-  studioTest(`${locale}: the opened list of the build's warnings scrolls, takes the keyboard's focus under a name, and passes axe`, { layer: { id: 'acme', extends: 'cupertino' }, locale, viewport: { width: 1440, height: 1100 } }, async ({ page, level, axe }) => {
-    await level('groups');
+  studioTest(`${locale}: the opened list of the build's warnings scrolls, takes the keyboard's focus under a name, and passes axe`, { layer: { id: 'acme', extends: 'cupertino' }, locale, viewport: { width: 1440, height: 1100 } }, async ({ page, section, axe }) => {
+    await section('a11y');
     const fold = page.locator('[data-warnings-wrap]');
     const list = page.locator('[data-warnings]');
     await fold.locator('summary').click();
@@ -181,11 +191,11 @@ for (const locale of ['en-US', 'ar']) {
 // the six languages found can break without a word changing: a label that no longer fits a phone, and — in a language
 // written right-to-left — the runs that must stay left-to-right, and the page that must not scroll to the left.
 for (const locale of ['ja', 'es', 'zh-CN', 'hi']) {
-  studioTest(`${locale}: at 390px nothing scrolls sideways at any level, and the bar's three parts stand on one line`, { layer, locale, viewport: { width: 390, height: 844 } }, async ({ page, level, fits }) => {
+  studioTest(`${locale}: at 390px nothing scrolls sideways in any section or tab of Inspect, and the bar's three parts stand on one line`, { layer, locale, viewport: { width: 390, height: 844 } }, async ({ page, view, fits }) => {
     assert.equal(await page.locator('html').getAttribute('lang'), locale);
     assert.equal(await page.locator('#lang').evaluate((select) => select.value), locale);
-    for (const name of ['essentials', 'groups', 'tokens', 'source']) {
-      await level(name);
+    for (const name of VIEWS) {
+      await view(name);
       await unfold(page, name);
       await fits('body', `${name} (${locale})`);
     }
@@ -195,16 +205,16 @@ for (const locale of ['ja', 'es', 'zh-CN', 'hi']) {
   });
 }
 
-studioTest('ar: right-to-left — axe passes and nothing scrolls sideways at 390px at any level; ids, values, ratios, code and JSON stay left-to-right runs', { layer, locale: 'ar', viewport: { width: 390, height: 844 } }, async ({ page, level, fits, axe }) => {
+studioTest('ar: right-to-left — axe passes and nothing scrolls sideways at 390px in any section or tab of Inspect; ids, values, ratios, code and JSON stay left-to-right runs', { layer, locale: 'ar', viewport: { width: 390, height: 844 } }, async ({ page, view, section, inspect, fits, axe }) => {
   assert.deepEqual(await page.locator('html').evaluate((html) => [html.lang, html.dir]), ['ar', 'rtl']);
   // The product's name is one left-to-right run: the mark, then «Tanrei Theme Studio» as it is written.
   const name = await page.locator('.app-brand').evaluate((brand) => { const [first, second] = [brand.querySelector('.app-name').firstChild, brand.querySelector('.app-name span')].map((node) => { const range = document.createRange(); range.selectNodeContents(node); return range.getBoundingClientRect().left; }); return { first, second, mark: brand.querySelector('.app-mark').getBoundingClientRect().left }; });
   assert.ok(name.first < name.second && name.second < name.mark, `«Tanrei» stands left of «Theme Studio», and the mark at the start, on the right: ${JSON.stringify(name)}`);
-  for (const level_ of ['essentials', 'groups', 'tokens', 'source']) {
-    await level(level_);
-    await unfold(page, level_);
-    await fits('body', `${level_} (ar)`);
-    await axe('body', `${level_} (ar)`);
+  for (const name of VIEWS) {
+    await view(name);
+    await unfold(page, name);
+    await fits('body', `${name} (ar)`);
+    await axe('body', `${name} (ar)`);
   }
   // Source: the text is read from the left, with its line numbers before it — on the left.
   const source = await page.evaluate(() => { const area = document.querySelector('[data-source]'); return { direction: getComputedStyle(area).direction, gutter: document.querySelector('.ts-source-gutter').getBoundingClientRect().left, area: area.getBoundingClientRect().left }; });
@@ -212,13 +222,15 @@ studioTest('ar: right-to-left — axe passes and nothing scrolls sideways at 390
   assert.ok(source.gutter < source.area, 'the line numbers stand on the left of the text');
   await page.locator('[data-draft-discard]').click();
 
-  await level('groups');
+  await section('a11y');
   // A threshold is a run of its own: the sign stands before the number, as it is written.
   const threshold = page.locator('[data-pairs] .ts-pair-ratios bdi[dir="ltr"]').filter({ hasText: '≥' }).first();
   assert.match(await threshold.textContent(), /^≥ (3|4\.5):1$/);
   // What the base says of itself is its own sentence, isolated: its full stop stays at its end.
+  await section('base');
   assert.equal(await page.locator('[data-base-description] > bdi').count(), 1);
   // A field of the person's own prose takes the direction of what it holds; an empty one keeps the layout's.
+  await section('behavior');
   const reason = page.locator('[data-group-reason=\"behavior\"] input');
   assert.equal(await reason.getAttribute('dir'), 'auto', 'a reason written in Latin letters is laid out from the left');
   await reason.fill('');
@@ -226,7 +238,7 @@ studioTest('ar: right-to-left — axe passes and nothing scrolls sideways at 390
   assert.equal(await reason.evaluate((input) => getComputedStyle(input).direction), 'rtl');
 
   // A role color's tones: three number fields in a table, inside the pane of a phone — to the left as well.
-  await level('tokens');
+  await inspect('tokens');
   await page.locator('[data-search] input').fill('sys.color.primary');
   await page.locator('[data-token="tanrei.sys.color.primary"] > span').click();
   await page.locator('[data-token-pane] [data-tab="derive"]').click();
@@ -242,7 +254,7 @@ studioTest('ar: right-to-left — axe passes and nothing scrolls sideways at 390
 // Arabic is drawn in the face the app loads for it, not in whatever the platform falls back to; the face is registered
 // for the Arabic subset alone, so Latin text and digits stay Inter's. A label beside a value is words, in the text face;
 // only the value is code.
-studioTest('ar: Arabic text is drawn in Noto Sans Arabic, Latin in Inter; a label beside JSON is in the text face', { layer, locale: 'ar' }, async ({ page, level }) => {
+studioTest('ar: Arabic text is drawn in Noto Sans Arabic, Latin in Inter; a label beside JSON is in the text face', { layer, locale: 'ar' }, async ({ page, inspect }) => {
   const faces = await page.evaluate(async () => {
     await document.fonts.ready;
     const stack = getComputedStyle(document.documentElement).fontFamily;
@@ -255,7 +267,7 @@ studioTest('ar: Arabic text is drawn in Noto Sans Arabic, Latin in Inter; a labe
   assert.match(faces.ranges[0], /U\+600-6FF/i, `its range is Arabic's: ${faces.ranges[0]}`);
   assert.ok(!/U\+0?0?00-00FF|U\+0-FF/i.test(faces.ranges[0]), 'it does not take Latin');
   assert.equal(faces.loaded, true);
-  await level('tokens');
+  await inspect('tokens');
   await page.locator('[data-tree] [role="treeitem"][tabindex="0"]').focus();
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('ArrowDown');
@@ -288,9 +300,10 @@ function measureHints() {
   });
 }
 // A word is as long as its language makes it: a one-character segment, a link of four letters. Every pointer target
-// of the Studio's own controls is measured at each level, on a desktop and on a phone, with the folds open.
+// of the Studio's own controls is measured in each section and tab of Inspect, on a desktop and on a phone, with the
+// folds open.
 for (const locale of ['en-US', 'ja', 'zh-CN', 'hi', 'es', 'ar']) {
-  studioTest(`${locale}: every pointer target of the Studio's own controls is 24 by 24 at least, at 1440 and at 390; every hint fits its field, and the search field's is not its name`, { layer, locale }, async ({ page, level, targets }) => {
+  studioTest(`${locale}: every pointer target of the Studio's own controls is 24 by 24 at least, at 1440 and at 390; every hint fits its field, and the search field's is not its name`, { layer, locale }, async ({ page, view, targets }) => {
     const seen = new Set();
     const hints = async (what) => {
       const found = await page.evaluate(measureHints);
@@ -299,14 +312,14 @@ for (const locale of ['en-US', 'ja', 'zh-CN', 'hi', 'es', 'ar']) {
     };
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: width > 1000 ? 1100 : 844 });
-      for (const name of ['essentials', 'groups', 'tokens', 'source']) {
-        await level(name);
+      for (const name of VIEWS) {
+        await view(name);
         await unfold(page, name);
         const found = await targets(`${name} at ${width} (${locale})`);
         // (Its own controls only: a field, a slider, a radio group, a tag — and now every button, the switch and the
-        // checkbox — are Tanrei's and keep their own minimum. What is left is the levels' tabs, a fold's row, a text
+        // checkbox — are Tanrei's and keep their own minimum. What is left is the rail's rows, a fold's row, a text
         // area, a list that scrolls, a link, the tree's rows.)
-        assert.ok(found.length > 4, `the measure saw the level's controls: ${found.length}`);
+        assert.ok(found.length > 4, `the measure saw the panel's controls: ${found.length}`);
         await hints(`${name} at ${width} (${locale})`);
         if (name === 'tokens') {
           // A role color too: its editor has the tone table, the operation tabs and the list of the other operations.

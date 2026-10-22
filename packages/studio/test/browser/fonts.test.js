@@ -4,8 +4,8 @@
 import assert from 'node:assert/strict';
 import { studioTest, until } from './harness.js';
 
-studioTest('on m3-like the preview draws Roboto and Material Symbols Outlined for real, from this origin — and nothing is called missing', { layer: { id: 'acme', extends: 'm3-like' } }, async ({ page, level, css, lightPane, requests, server }) => {
-  await level('groups');
+studioTest('on m3-like the preview draws Roboto and Material Symbols Outlined for real, from this origin — and nothing is called missing', { layer: { id: 'acme', extends: 'm3-like' } }, async ({ page, section, css, lightPane, requests, server }) => {
+  await section('typeface');
   const headline = lightPane.locator('[data-sample="heading-1"]');
   assert.match(await css(headline, 'font-family'), /^Roboto\b/);
   const icon = lightPane.locator('[data-icon-row="unselected"] .tanrei-icon').first();

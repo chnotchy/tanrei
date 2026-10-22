@@ -60,8 +60,8 @@ function oneAdjustment(seen, what) {
 
 const NEUTRAL = '[data-palette="neutral"] [data-chroma]';
 
-studioTest('twenty presses of Up Arrow on a palette’s chroma are shown as they are made, and computed and written once the keys rest', {}, async ({ page, level, saved }) => {
-  await level('groups');
+studioTest('twenty presses of Up Arrow on a palette’s chroma are shown as they are made, and computed and written once the keys rest', {}, async ({ page, section, saved }) => {
+  await section('neutral');
   await page.locator(`${NEUTRAL} input`).click();
   await watch(page);
   for (let i = 0; i < 20; i += 1) await page.keyboard.press('ArrowUp');
@@ -72,8 +72,8 @@ studioTest('twenty presses of Up Arrow on a palette’s chroma are shown as they
   oneAdjustment(seen, 'twenty presses');
 });
 
-studioTest('a held Up Arrow is shown at every repeat and written when it is released', {}, async ({ page, level, saved, onDisk }) => {
-  await level('groups');
+studioTest('a held Up Arrow is shown at every repeat and written when it is released', {}, async ({ page, section, saved, onDisk }) => {
+  await section('neutral');
   await page.locator(`${NEUTRAL} input`).click();
   await watch(page);
   // The first press, then its repeats: one key held down.
@@ -89,8 +89,8 @@ studioTest('a held Up Arrow is shown at every repeat and written when it is rele
   assert.equal(onDisk().palettes.neutral.source.hue, 0);
 });
 
-studioTest('Enter, or focus leaving the field, writes the steps at once', {}, async ({ page, level, saved }) => {
-  await level('groups');
+studioTest('Enter, or focus leaving the field, writes the steps at once', {}, async ({ page, section, saved }) => {
+  await section('neutral');
   const field = page.locator(`${NEUTRAL} input`);
   await field.click();
   await watch(page);
@@ -111,7 +111,8 @@ studioTest('Enter, or focus leaving the field, writes the steps at once', {}, as
   await saved((layer) => layer.palettes?.neutral?.source?.chroma === 5, 'the steps, when focus left');
 });
 
-studioTest('the arrow keys on a dial’s slider are drawn without computing the layer, and written once they rest', {}, async ({ page, saved }) => {
+studioTest('the arrow keys on a dial’s slider are drawn without computing the layer, and written once they rest', {}, async ({ page, section, saved }) => {
+  await section('radius');
   const slider = page.locator('[data-dial="tanrei.dial.shape.unit"] tanrei-slider');
   const from = await slider.evaluate((el) => el.value);
   await slider.locator('[role="slider"]').focus();

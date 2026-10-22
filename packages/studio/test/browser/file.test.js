@@ -6,7 +6,12 @@ import { studioTest, until } from './harness.js';
 
 const dial = (value, reason = 'Tighter than the default.') => ({ 'tanrei.dial.space.unit': { $value: { value, unit: 'px' }, reason } });
 const state = (page) => page.locator('[data-save-state]').getAttribute('data-save-state');
+/** The dials, in the panel: the rail's Dials, pressed when the panel shows something else. */
+const toDials = async (page) => {
+  if (!(await page.locator('[data-dial="tanrei.dial.space.unit"]').count())) await page.locator('[data-rail] [data-row="dials"]').click();
+};
 const typeSpacing = async (page, value) => {
+  await toDials(page);
   await page.locator('[data-dial="tanrei.dial.space.unit"] tanrei-number-field input').fill(String(value));
   await page.keyboard.press('Tab');
 };
@@ -29,9 +34,8 @@ studioTest('the token leaves the address bar, the event stream opens with a tick
   assert.deepEqual(Object.keys(onDisk()), ['id', 'extends', 'tokens'], 'the file is the layer, nothing else');
 });
 
-studioTest('a save the server refuses (422) is said in the server’s words, and the next good edit is saved', (t) => ({ server: { validate: (layer) => (layer.name === 'No' ? ['the server says: not this name'] : []) } }), async ({ page, level, expected, saved, onDisk }) => {
+studioTest('a save the server refuses (422) is said in the server’s words, and the next good edit is saved', (t) => ({ server: { validate: (layer) => (layer.name === 'No' ? ['the server says: not this name'] : []) } }), async ({ page, expected, saved, onDisk }) => {
   expected.push(/422/);
-  await level('groups');
   await page.locator('[data-name] input').fill('No');
   await page.waitForSelector('[data-save-state="error"]');
   assert.match(await page.locator('[data-file] .ts-error').textContent(), /the server says: not this name/);
@@ -66,6 +70,7 @@ studioTest('409: the file changed underneath an unsaved edit — nothing is over
   await typeSpacing(page, 12);
   await page.waitForSelector('[data-save-state="conflict"]');
   await banner.locator('[data-reload]').click();
+  await toDials(page);
   await page.waitForSelector('[data-save-state="saved"]');
   assert.equal(await page.locator('[data-dial="tanrei.dial.space.unit"] tanrei-number-field input').inputValue(), '6');
   assert.equal(onDisk().tokens['tanrei.dial.space.unit'].reason, 'Edited by hand, again.');
@@ -80,6 +85,7 @@ studioTest('an edit made elsewhere is announced: with nothing unsaved here the S
   assert.match(await banner.textContent(), /The file changed on disk\..*Reload to see it here\./);
   assert.match(await banner.locator('[data-keep-mine]').textContent(), /Keep what is open/);
   await banner.locator('[data-reload]').click();
+  await toDials(page);
   await page.waitForSelector('[data-save-state="saved"]');
   assert.equal(await page.locator('[data-dial="tanrei.dial.space.unit"] tanrei-number-field input').inputValue(), '7');
   // The same layer written again with other whitespace (a formatter): another etag, the same content — not a conflict.
@@ -93,9 +99,10 @@ studioTest('an edit made elsewhere is announced: with nothing unsaved here the S
 });
 
 const house = { id: 'house', name: 'House style', extends: 'm3-like', tokens: { 'tanrei.dial.shape.unit': { $value: { value: 2, unit: 'px' }, reason: 'Sharper corners across every product.' }, 'tanrei.sys.behavior.focus-style': { $value: 1, reason: 'The halo is part of our brand.' } } };
-studioTest('a layer on a LOCAL layer: offered as a base, previewed with the parent’s values, saved — and recomputed when the parent changes on disk', { layer: { id: 'acme', extends: 'house' }, parents: [house] }, async ({ page, level, dir, write, saved, onDisk, css, scope, choose }) => {
-  await level('groups');
+studioTest('a layer on a LOCAL layer: offered as a base, previewed with the parent’s values, saved — and recomputed when the parent changes on disk', { layer: { id: 'acme', extends: 'house' }, parents: [house] }, async ({ page, section, dir, write, saved, onDisk, css, scope, choose }) => {
+  await section('base');
   assert.equal(await page.locator('[data-base]').evaluate((el) => el.value), 'house');
+  await section('behavior');
   assert.equal(await page.locator('[data-behavior="focus-style"]').evaluate((el) => el.value), 'glow', 'the local parent’s choice is what this layer inherits');
   const unit = async () => (await css(scope, '--tanrei-dial-shape-unit')).trim();
   const before = await unit();

@@ -29,7 +29,7 @@ const english = LANGUAGES.en.strings;
 const translated = tags.filter((tag) => LANGUAGES[tag].translated);
 const untranslated = tags.filter((tag) => !LANGUAGES[tag].translated);
 
-/** Every path to a leaf, with the leaf's kind: `levels.help.groups:string`, `typefaces.names.brand:array(2)`, `tokens.count:function(1)`. */
+/** Every path to a leaf, with the leaf's kind: `rail.help.size:string`, `typefaces.names.brand:array(2)`, `tokens.count:function(1)`. */
 const shape = (value, prefix = '') =>
   Array.isArray(value)
     ? [`${prefix}:array(${value.length})`]
@@ -69,6 +69,9 @@ const ASKED = {
   'a11y.nonText': [['≥ 3:1']],
   'export.downloaded': [['acme.system.json']],
   'export.put': [['design/acme.system.json']],
+  'rail.hueChroma': [['0', '0'], ['265', '16']],
+  'rail.size': [['1', '4px'], ['0.85', '4.25px']],
+  'rail.lock': [['Brand color'], ['Gray']],
 };
 
 test('the registry lists six languages, all six are translated, and a switch offers each under its own name', () => {
@@ -211,7 +214,6 @@ test('English says what plain concatenation would, Japanese writes its own sente
     [en.named('Type base', en.dials.value), 'Type base — value'],
     [en.listed(en.color.declared, en.inherited), 'declared palette · inherited'],
     [en.listed(en.changed, en.shape.baseSays('0.6')), 'changed · the base says 0.6'],
-    [en.sentences(en.essentials.more, en.listed(en.listed(en.levels.groups, en.levels.tokens), en.levels.source)), 'Need more? Groups · Every token · Source'],
     [en.color.addedPalette('correct'), 'correct: added by this layer'],
     [en.color.addedPalette('correct'), `correct: ${en.color.added}`],
     [en.tones.toneOf('primary', 40), 'primary — tone 40'],
@@ -238,7 +240,6 @@ test('English says what plain concatenation would, Japanese writes its own sente
     [ja.named('文字の基準サイズ', ja.dials.value), '文字の基準サイズ — 値'],
     [ja.listed(ja.color.declared, ja.inherited), '宣言パレット · 継承'],
     [ja.listed(ja.changed, ja.shape.baseSays('0.6')), '変更済み · ベースの値：0.6'],
-    [ja.sentences(ja.essentials.more, ja.listed(ja.listed(ja.levels.groups, ja.levels.tokens), ja.levels.source)), `もっと細かく：${ja.levels.groups} · ${ja.levels.tokens} · ${ja.levels.source}`],
     [ja.color.addedPalette('correct'), 'correct：このレイヤーで追加'],
     [ja.color.addedPalette('correct'), `correct：${ja.color.added}`],
     [ja.tones.toneOf('primary', 40), 'primary — トーン 40'],
@@ -321,7 +322,7 @@ test('Simplified Chinese has one form for every count, full-width separators and
   assert.equal(zh.source.line(3), '第 3 行');
   assert.equal(zh.labelled(zh.reset, 'primary'), '重置：primary');
   assert.equal(zh.withCount(zh.tokens.more, 60), '显示更多（60）');
-  assert.equal(zh.sentences(zh.essentials.more, zh.levels.groups), `还需要更多？${zh.levels.groups}`, 'no space after a full-width question mark');
+  assert.equal(zh.sentences('还需要更多？', zh.rail.moreTitle), `还需要更多？${zh.rail.moreTitle}`, 'no space after a full-width question mark');
   assert.equal(zh.add.fromSource('large × 1.5'), '克隆自 large × 1.5');
   assert.equal(zh.add.from, '克隆自', 'the same words name the select');
 });
@@ -371,11 +372,11 @@ test('an element put into a sentence stands where the language puts it', async (
   assert.deepEqual(rich((at) => hi.export.put(at(name))), ['फ़ाइल को ', name, ' नाम से सेव करें']);
   assert.deepEqual(rich((at) => en.labelled(en.editor.writes, at(name))), ['writes: ', name]);
   assert.deepEqual(rich((at) => zh.labelled(zh.editor.writes, at(name))), ['写入：', name]);
-  assert.deepEqual(rich((at) => en.sentences(en.essentials.more, en.listed(en.listed(at(name), at(link)), at(other)))), ['Need more? ', name, ' · ', link, ' · ', other]);
-  assert.deepEqual(rich((at) => zh.sentences(zh.essentials.more, zh.listed(zh.listed(at(name), at(link)), at(other)))), ['还需要更多？', name, ' · ', link, ' · ', other]);
+  assert.deepEqual(rich((at) => en.sentences('Need more?', en.listed(en.listed(at(name), at(link)), at(other)))), ['Need more? ', name, ' · ', link, ' · ', other]);
+  assert.deepEqual(rich((at) => zh.sentences('还需要更多？', zh.listed(zh.listed(at(name), at(link)), at(other)))), ['还需要更多？', name, ' · ', link, ' · ', other]);
   assert.deepEqual(rich((at) => en.rules.help(at(name), at(link))).slice(1, 4), [name, ', ', link]);
   assert.deepEqual(rich(() => en.a11y.pass), ['All checks pass'], 'a sentence without an element is itself');
-  assert.deepEqual(placed(en.essentials.separated, 'size', name), ['size.unit was set on its own (', name, '), so Spacing leaves control sizes alone. Watch the warning count.']);
+  assert.deepEqual(placed('size.unit was set on its own ({size}).', 'size', name), ['size.unit was set on its own (', name, ').']);
   assert.deepEqual(placed('no place', 'size', name), ['no place']);
   // No dictionary holds one of the marks `rich` uses for its elements.
   for (const tag of tags) for (const [key, text] of leaves(LANGUAGES[tag].strings)) if (typeof text === 'string') assert.doesNotMatch(text, /[\uE000-\uF8FF]/, `${tag} ${key}`);

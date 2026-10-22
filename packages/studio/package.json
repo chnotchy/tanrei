@@ -2,7 +2,7 @@
   "name": "@tanrei/studio",
   "private": true,
   "version": "0.1.0-next.0",
-  "description": "Tanrei Theme Studio: four views — essentials, groups, every token, source — over one <id>.system.json layer. Mounts in any page; ships a standalone app for `tanrei studio`.",
+  "description": "Tanrei Theme Studio: a rail of what one <id>.system.json layer holds, a live preview, the panel that edits it and Inspect (every token, and the file). Mounts in any page; ships a standalone app for `tanrei studio`.",
   "license": "Apache-2.0",
   "type": "module",
   "exports": {

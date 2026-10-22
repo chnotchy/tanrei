@@ -79,6 +79,9 @@ function measureTargets(min) {
   return found;
 }
 
+/** Everything the panel's column can hold: the rail's sections (src/ui/sections.ts), then Inspect's two tabs. */
+export const VIEWS = ['color', 'neutral', 'typeface', 'size', 'radius', 'smoothing', 'icons', 'press', 'focus', 'base', 'dials', 'palettes', 'components', 'behavior', 'vocabulary', 'about', 'a11y', 'tokens', 'source'];
+
 /**
  * @param {{ layer?: object, parents?: object[], viewport?: { width: number, height: number }, colorScheme?: 'light' | 'dark', locale?: string, server?: object, ready?: boolean }} [options]
  */
@@ -101,12 +104,22 @@ export async function openStudio({ layer = { id: 'acme', extends: 'tanrei' }, pa
   page.on('request', (request) => requests.push(request.url()));
   await page.addInitScript(() => document.addEventListener('securitypolicyviolation', (event) => console.error(`CSP ${event.violatedDirective} ${event.blockedURI}`)));
   await page.goto(server.url);
-  await page.waitForSelector('[data-levels]');
+  await page.waitForSelector('[data-rail] [data-row]');
   if (ready) await page.waitForSelector('[data-save-state="saved"]');
 
   const onDisk = () => JSON.parse(fs.readFileSync(file, 'utf8'));
   const scope = page.locator('[data-scope]');
   const choose = (group, value) => group.locator(`> tanrei-radio-button[data-value="${value}"], > tanrei-tab[data-value="${value}"]`).click();
+  const section = async (name) => {
+    await page.locator(`[data-rail] [data-row="${name}"]`).click();
+    await page.waitForSelector(`[data-studio][data-section="${name}"][data-pane="edit"]`);
+  };
+  const inspect = async (tab) => {
+    if (!(await page.locator('[data-inspect]').evaluate((el) => el.selected))) await page.locator('[data-inspect]').click();
+    await page.waitForSelector('[data-studio][data-pane="tokens"], [data-studio][data-pane="source"]');
+    await choose(page.locator('[data-inspect-tabs]'), tab);
+    await page.waitForSelector(`[data-studio][data-pane="${tab}"]`);
+  };
   return {
     page,
     server,
@@ -122,15 +135,12 @@ export async function openStudio({ layer = { id: 'acme', extends: 'tanrei' }, pa
     darkPane: scope.locator('.ts-pane').nth(1),
     /** One of a radio group's options, or one of a row of tabs: a person presses it, and so does this. */
     choose,
-    /**
-     * Go to a level, and wait until all of it is drawn: Groups draws what the window shows first and the rest soon
-     * after (the root says `data-drawing` meanwhile), and a test reads the whole level. (test/browser/groups-switch.test.js
-     * is about that order itself.)
-     */
-    level: async (name) => {
-      await choose(page.locator('[data-levels]'), name);
-      await page.waitForSelector('[data-studio]:not([data-drawing])', { state: 'attached' });
-    },
+    /** Show a section of the rail in the panel, as a person does: press its row (src/ui/sections.ts names them). */
+    section,
+    /** Open Inspect at one of its tabs (`tokens`, `source`), as a person does: the bar's Inspect, then the tab. */
+    inspect,
+    /** A section, or a tab of Inspect: what the panel's column can hold. */
+    view: (name) => (VIEWS.slice(-2).includes(name) ? inspect(name) : section(name)),
     /** Choose an option of a `<tanrei-select>`, a `<tanrei-combobox>` or a `<tanrei-combobox-field>` as a person does: open it, type towards the option, press it. */
     pick: async (host, label) => {
       const typed = host.locator('input[role="combobox"]');

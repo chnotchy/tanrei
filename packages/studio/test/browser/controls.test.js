@@ -1,7 +1,7 @@
 // The Studio's controls are Tanrei's own components: what each one that
 // replaced a hand-made control is, what it is called, and that the keyboard still works it.
 import assert from 'node:assert/strict';
-import { studioTest, until } from './harness.js';
+import { VIEWS, studioTest, until } from './harness.js';
 
 const layer = {
   id: 'acme',
@@ -21,12 +21,12 @@ const natives = (page) => page.evaluate(() => [...document.querySelectorAll('but
  */
 const codes = (page) => page.evaluate(() => [...document.querySelectorAll('tanrei-text-field[type="code"], tanrei-text-input[type="code"]')].filter((el) => !el.closest('[data-scope]')).map((el) => `${el.multiline ? 'lines' : 'line'}${[...el.attributes].filter((a) => a.name.startsWith('data-') && a.name !== 'data-tanrei-settling').map((a) => `[${a.name}]`).join('')}`));
 
-studioTest('no control is hand-made: at every level, with the folds open, the only native control of the Studio’s own is the Source editor, and what holds JSON is a text field that holds code', { layer }, async ({ page, level }) => {
-  const seen = {};
-  const held = {};
-  for (const name of ['essentials', 'groups', 'tokens', 'source']) {
-    await level(name);
-    await page.waitForSelector(`[data-studio][data-level="${name}"]`);
+studioTest('no control is hand-made: in every section and tab of Inspect, with the folds open, the only native controls of the Studio’s own are the rail’s rows and the Source editor, and what holds JSON is a text field that holds code', { layer }, async ({ page, view }) => {
+  // What each kind of view holds, together: the rail's sections, Inspect's tokens, its Source.
+  const seen = { sections: new Set(), tokens: new Set(), source: new Set() };
+  const held = { sections: new Set(), tokens: new Set(), source: new Set() };
+  for (const name of VIEWS) {
+    await view(name);
     // Open what is drawn on opening: «specVersion and attribution», the import, a rule's row is there already.
     for (const selector of ['[data-about-more] > summary', '.ts-import > summary']) for (const fold of await page.locator(selector).all()) await fold.click();
     // (A fold writes what it holds at its `toggle` event, a task after the press.)
@@ -37,18 +37,20 @@ studioTest('no control is hand-made: at every level, with the folds open, the on
       await page.locator('[data-token-pane] [data-tab="json"]').click();
       await page.waitForSelector('[data-token-pane] tanrei-text-field[type="code"][multiline]');
     }
-    seen[name] = [...new Set(await natives(page))].sort();
-    held[name] = [...new Set(await codes(page))].sort();
+    const kind = name === 'tokens' || name === 'source' ? name : 'sections';
+    for (const each of await natives(page)) seen[kind].add(each);
+    for (const each of await codes(page)) held[kind].add(each);
   }
-  assert.deepEqual(seen.essentials, [], 'Essentials');
-  assert.deepEqual(seen.groups, [], 'Groups');
-  assert.deepEqual(seen.tokens, [], 'Every token');
-  assert.deepEqual(seen.source, ['textarea[data-source]'], 'Source: the layer file, in the Studio’s own editor');
+  const sorted = (set) => [...set].sort();
+  // The rail's rows are buttons of the Studio's own: a row is a name, a value and a sample, more than a Button holds.
+  const RAIL = ['button[data-row]'];
+  assert.deepEqual(sorted(seen.sections), RAIL, 'the sections');
+  assert.deepEqual(sorted(seen.tokens), RAIL, 'Inspect’s tokens');
+  assert.deepEqual(sorted(seen.source), [...RAIL, 'textarea[data-source]'], 'Source: the layer file, in the Studio’s own editor');
   // What was a native text area inside a Field is a text field that holds code, complete by itself: none stands in a Field.
-  assert.deepEqual(held.essentials, [], 'Essentials');
-  assert.deepEqual(held.groups, ['lines', 'lines[data-import]'], 'Groups: the attribution’s sources and the import');
-  assert.deepEqual(held.tokens, ['line[data-rule-match]', 'lines', 'lines[data-import]'], 'Every token: a rule’s pattern, an operation as JSON and a rule’s operation, the import');
-  assert.deepEqual(held.source, ['lines[data-import]'], 'Source: the import');
+  assert.deepEqual(sorted(held.sections), ['lines', 'lines[data-import]'], 'the sections: the attribution’s sources and the import');
+  assert.deepEqual(sorted(held.tokens), ['line[data-rule-match]', 'lines', 'lines[data-import]'], 'Inspect’s tokens: a rule’s pattern, an operation as JSON and a rule’s operation, the import');
+  assert.deepEqual(sorted(held.source), ['lines[data-import]'], 'Source: the import');
   // (The Studio's own tree: a text field's own Field is in its shadow root, and is the text field's.)
   assert.equal(await page.evaluate(() => document.querySelectorAll('tanrei-field tanrei-text-field, tanrei-field tanrei-text-input, tanrei-field textarea').length), 0, 'the Studio frames no text field and no text input with a Field of its own');
   // The standalone app's items of the Studio's bar: its theme button and its language select are Tanrei's too.
@@ -56,14 +58,15 @@ studioTest('no control is hand-made: at every level, with the folds open, the on
   assert.equal(await page.locator('.ts-bar #theme').evaluate((el) => el.localName), 'tanrei-button');
 });
 
-studioTest('an action is a Tanrei button: its drawn word, its whole name where rows share the word, and Enter and Space press it', { layer }, async ({ page, level, saved }) => {
+studioTest('an action is a Tanrei button: its drawn word, its whole name where rows share the word, and Enter and Space press it', { layer }, async ({ page, section, inspect, saved }) => {
   // «Reset» in a dial's row: drawn as one word, named with its dial.
+  await section('dials');
   const space = page.locator('[data-dial="tanrei.dial.space.unit"]');
   const reset = space.locator('tanrei-button.ts-link');
   assert.deepEqual(await reset.evaluate((el) => [el.variant, el.size]), ['text', 'small']);
   assert.deepEqual(await reset.evaluate((el) => [el.textContent, el.childElementCount]), ['Reset', 0], 'the drawn word, and nothing else in the button');
-  assert.equal(await space.getByRole('button', { name: 'Reset: Spacing', exact: true }).count(), 1, 'the name assistive technology is told');
-  assert.deepEqual(await reset.evaluate((el) => [el.label, el.shadowRoot.querySelector('button').getAttribute('aria-label')]), ['Reset: Spacing', 'Reset: Spacing'], 'the name is the button’s label (BTN-16): read and not drawn');
+  assert.equal(await space.getByRole('button', { name: 'Reset: Space unit', exact: true }).count(), 1, 'the name assistive technology is told');
+  assert.deepEqual(await reset.evaluate((el) => [el.label, el.shadowRoot.querySelector('button').getAttribute('aria-label')]), ['Reset: Space unit', 'Reset: Space unit'], 'the name is the button’s label (BTN-16): read and not drawn');
   await reset.focus();
   assert.equal(await reset.evaluate((el) => el.matches(':focus-within') && el.shadowRoot.activeElement?.localName), 'button', 'the button takes the keyboard');
   await page.keyboard.press('Enter');
@@ -77,15 +80,15 @@ studioTest('an action is a Tanrei button: its drawn word, its whole name where r
   assert.equal(await page.getByRole('button', { name: 'Theme: Light', exact: true }).count(), 1);
 
   // The one filled action of the export; the others outlined.
-  await level('groups');
   assert.deepEqual(await page.locator('[data-panel="export"] .ts-export-side .ts-actions tanrei-button').evaluateAll((els) => els.map((el) => el.variant)), ['outlined', 'outlined', 'outlined'], 'with a file attached nothing is the main action');
   // A palette is declared by the button, and by Enter in its name: the form is still a form.
+  await section('palettes');
   const form = page.locator('[data-add-palette]');
   await form.locator('tanrei-text-field input').first().fill('extra');
   await page.keyboard.press('Enter');
   await saved((file) => file.palettes?.extra, 'Enter in the name declares the palette');
   // «N more» under a long flat list is a button that is out of the page while there is nothing more.
-  await level('tokens');
+  await inspect('tokens');
   const more = page.locator('[data-more]');
   assert.equal(await more.evaluate((el) => [el.localName, el.hidden, getComputedStyle(el).display].join()), 'tanrei-button,true,none', 'hidden means not drawn');
   await page.locator('[data-search] input').fill('color');
@@ -97,17 +100,17 @@ studioTest('an action is a Tanrei button: its drawn word, its whole name where r
   await until(async () => (await page.locator('[data-tree] [data-token]').count()) > rows, 'Enter brings the next rows');
 });
 
-studioTest('a state that is pressed is a small chip with its glyph: the count of findings goes to the panel, the draft goes to Source', { layer }, async ({ page, level }) => {
-  await level('groups');
+studioTest('a state that is pressed is a small chip with its glyph: the count of findings goes to Accessibility, the draft goes to Source', { layer }, async ({ page, section, inspect }) => {
   const count = page.locator('[data-a11y-count]');
   assert.deepEqual(await count.evaluate((el) => [el.localName, el.size, el.label, el.querySelector('[slot="icon"]').textContent, el.dataset.state]), ['tanrei-chip', 'small', 'All checks pass', 'check_circle', 'pass']);
   assert.equal(await page.getByRole('button', { name: 'All checks pass', exact: true }).count(), 1);
   await count.focus();
   await page.keyboard.press('Enter');
-  await until(() => page.evaluate(() => { const box = document.querySelector('[data-panel="a11y"]').getBoundingClientRect(); return box.top < innerHeight && box.bottom > 0; }), 'the accessibility panel is brought into view');
+  await until(() => page.evaluate(() => { const box = document.querySelector('[data-panel="a11y"]')?.getBoundingClientRect(); return box && box.top < innerHeight && box.bottom > 0; }), 'the accessibility panel is shown');
+  assert.equal(await page.locator('[data-rail] [data-row="a11y"]').getAttribute('aria-current'), 'true');
 
   // At Source, what the engine refuses is said with the line it is on: the line is a button that puts the caret there.
-  await level('source');
+  await inspect('source');
   const text = `${JSON.stringify({ id: 'acme', extends: 'tanrei', tokens: { 'tanrei.sys.space.nope': { scale: 2 } } }, null, 2)}\n`;
   await page.locator('[data-source]').fill(text);
   const line = page.locator('[data-source-problems] tanrei-button').first();
@@ -117,17 +120,17 @@ studioTest('a state that is pressed is a small chip with its glyph: the count of
   assert.deepEqual(await page.evaluate(() => { const area = document.activeElement; return [area?.matches('[data-source]'), area?.value.slice(area.selectionStart, area.selectionEnd).trim()]; }), [true, '"tanrei.sys.space.nope": {'], 'the line’s button hands the keyboard to the text, with that line selected');
 
   await page.locator('[data-source]').fill('{ "draft": ');
-  await level('essentials');
+  await section('color');
   const draft = page.locator('[data-draft-badge]');
   assert.deepEqual(await draft.evaluate((el) => [el.localName, el.label, el.querySelector('[slot="icon"]').textContent]), ['tanrei-chip', 'Source has invalid edits', 'warning']);
   await draft.focus();
   await page.keyboard.press('Enter');
-  await page.waitForSelector('[data-studio][data-level="source"]');
+  await page.waitForSelector('[data-studio][data-pane="source"]');
   assert.equal(await page.locator('[data-source]').inputValue(), '{ "draft": ');
 });
 
-studioTest('the platform switch is a Switch named with the keyword it writes, the «Emphasized» box a Checkbox, the preview’s toggle a real toggle Button', { layer }, async ({ page, level, saved, lightPane }) => {
-  await level('groups');
+studioTest('the platform switch is a Switch named with the keyword it writes, the «Emphasized» box a Checkbox, the preview’s toggle a real toggle Button', { layer }, async ({ page, section, saved, lightPane }) => {
+  await section('typeface');
   const brand = page.locator('[data-typeface="brand"]');
   const platform = brand.locator('[data-stack-system]');
   assert.equal(await platform.evaluate((el) => el.localName), 'tanrei-switch');
@@ -156,8 +159,8 @@ studioTest('the platform switch is a Switch named with the keyword it writes, th
   assert.deepEqual(await toggle.evaluate((el) => [el.selected, el.shadowRoot.querySelector('button').getAttribute('aria-pressed'), el.textContent.trim().replace(/^favorite\s*/, '')]), [true, 'true', 'Selected'], 'pressed, it is on and says so');
 });
 
-studioTest('a rule’s pattern is a text input in the code face, read from the left; its operation and any JSON are a text field that holds code and says itself what does not parse', { layer }, async ({ page, level, saved }) => {
-  await level('tokens');
+studioTest('a rule’s pattern is a text input in the code face, read from the left; its operation and any JSON are a text field that holds code and says itself what does not parse', { layer }, async ({ page, inspect, saved }) => {
+  await inspect('tokens');
   const rule = page.locator('[data-rule="0"]');
   const pattern = rule.locator('[data-rule-match]');
   // The box alone: its name is read and not drawn, and no row of a Field stands around it.
@@ -189,9 +192,9 @@ studioTest('a rule’s pattern is a text input in the code face, read from the l
   await saved((file) => file.rules?.[0]?.reason === 'Hover is the resting color here.', 'JSON that parses is written');
 });
 
-studioTest('Arabic: a rule’s pattern and JSON are still read from the left, and a button’s name is the dictionary’s whole sentence', { layer, locale: 'ar' }, async ({ page, level }) => {
+studioTest('Arabic: a rule’s pattern and JSON are still read from the left, and a button’s name is the dictionary’s whole sentence', { layer, locale: 'ar' }, async ({ page, section, inspect }) => {
   await page.waitForSelector('.ts[dir="rtl"], [dir="rtl"] .ts, html[dir="rtl"]');
-  await level('tokens');
+  await inspect('tokens');
   const rule = page.locator('[data-rule="0"]');
   assert.equal(await rule.locator('[data-rule-match] input').evaluate((el) => getComputedStyle(el).direction), 'ltr', 'a token id’s letters are Latin: the field lays it out from the left by itself');
   const json = rule.locator('tanrei-text-field[type="code"][multiline] textarea');
@@ -204,7 +207,7 @@ studioTest('Arabic: a rule’s pattern and JSON are still read from the left, an
     await pasted.fill(text);
     assert.deepEqual(await pasted.evaluate((el) => [el.dir, getComputedStyle(el).direction, getComputedStyle(el).textAlign, getComputedStyle(el).unicodeBidi === 'plaintext']), ['ltr', 'ltr', 'left', false], JSON.stringify(text));
   }
-  await level('essentials');
+  await section('dials');
   const reset = page.locator('[data-dial="tanrei.dial.space.unit"] tanrei-button.ts-link');
   const [word, name] = await reset.evaluate((el) => [el.textContent, el.label]);
   assert.ok(name.startsWith(word) && name.length > word.length, `the name opens with the drawn word: «${word}» in «${name}»`);

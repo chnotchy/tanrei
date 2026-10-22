@@ -39,19 +39,6 @@ const en = {
     noResultsHelp: 'Try fewer words, or show all tokens.',
     back: 'Back to the tree',
   },
-  levels: {
-    label: 'How much do you want to see?',
-    essentials: 'Essentials',
-    groups: 'Groups',
-    tokens: 'Every token',
-    source: 'Source',
-    help: open({
-      essentials: 'A base, a brand color and four sliders. Enough for a quick setup — everything else follows.',
-      groups: 'All eight dials, every palette, each component and what your layer adds to the vocabulary.',
-      tokens: 'Every token of this system. Each one offers exactly the operations a layer may write for it.',
-      source: 'The layer file itself. The other three levels are views of this JSON — edit whichever you like.',
-    }),
-  },
   base: {
     title: 'Base system',
     confirm: 'Operations are relative to the base they inherit from. Switch the base and start from its defaults?',
@@ -60,16 +47,6 @@ const en = {
     brand: 'Brand color',
     brandName: 'Primary',
     monochrome: 'monochrome by default — pick a color to give this system a brand',
-    feel: 'Feel',
-    names: open({
-      'type.base': ['Text size', 'every text size follows'],
-      'space.unit': ['Spacing', 'every distance follows'],
-      'shape.unit': ['Roundness', 'every corner follows'],
-      'type.contrast': ['Heading contrast', 'how far headings stand apart from body text'],
-    }),
-    linked: 'Spacing takes control sizes with it (size.unit is {size} now), so a button stays tall enough for its padding — the build checks exactly that. Separate them in Groups.',
-    separated: 'size.unit was set on its own ({size}), so Spacing leaves control sizes alone. Watch the warning count.',
-    more: 'Need more?',
   },
   dials: {
     title: 'Dials',
@@ -465,10 +442,41 @@ const en = {
     redo: 'Redo',
     undone: 'Undone.',
     redone: 'Redone.',
-    rail: 'Levels',
+    rail: 'The theme',
     panel: 'Properties',
     resize: 'Width of the properties panel',
     width: (px: number) => `${px} pixels`,
+  },
+  // The rail (ui/rail.ts): the nine rows of the look, the rest of what a layer holds, the lock and the shuffle.
+  rail: {
+    theme: 'The look',
+    moreTitle: 'More',
+    rows: { color: 'Brand color', neutral: 'Gray', typeface: 'Typeface', size: 'Size', radius: 'Corners', smoothing: 'Corner smoothing', icons: 'Icons', press: 'Press feedback', focus: 'Focus' },
+    more: { base: 'Base system', dials: 'Dials', palettes: 'Palettes', components: 'Components', behavior: 'Behaviour', vocabulary: 'Your vocabulary', about: 'About this layer', a11y: 'Accessibility' },
+    help: {
+      neutral: 'The gray that surfaces, text and outlines take their tones from: a hue with a chroma near zero, or a seed.',
+      size: 'Density sets how tall controls and rows are and the room around their content; the size unit is what their heights are counted in. Nothing pressable is drawn smaller than the least target.',
+      radius: 'Every corner follows this unit: each step of the corner scale is a multiple of it.',
+    },
+    monochrome: 'none (monochrome)',
+    // A palette given as hue and chroma, and the size row's value: the numbers as the file has them.
+    hueChroma: (hue: string, chroma: string) => `hue ${hue} · chroma ${chroma}`,
+    size: (density: string, unit: string) => `density ${density} · ${unit}`,
+    target: 'the least size of anything pressed',
+    lock: (row: string) => `Lock ${row}`,
+    lockHelp: 'A locked row keeps its value when you shuffle.',
+    shuffle: 'Shuffle',
+    shuffleHelp: 'Give every row that is not locked another value. Undo takes it back.',
+    shuffled: 'Every row was shuffled.',
+    shuffledKept: (count: number) => (count === 1 ? 'Shuffled. 1 locked row kept its value.' : `Shuffled. ${count} locked rows kept their values.`),
+  },
+  // Inspect: over the panel, every token in its tree and the layer file itself.
+  inspect: {
+    title: 'Inspect',
+    help: 'Every token of the system, and the layer file itself',
+    tokens: 'Tokens',
+    source: 'Source',
+    close: 'Close Inspect',
   },
   // The layer of a link, shown in the place of the one this browser kept (ui.ts `showShared`).
   shared: {

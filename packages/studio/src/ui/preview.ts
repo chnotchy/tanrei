@@ -28,7 +28,8 @@ export function createPreview(ctx: Ctx, { contrast, onContrast }: { contrast: Co
   const scopeId = `studio-preview-${++scopes}`;
   const sheet = h('style', { 'data-sheet': true });
   const stale = h('p', { class: 'ts-stale', hidden: true, text: t.preview.stale, 'data-stale': true });
-  const badge = stateChip(() => ctx.root.querySelector('[data-panel="a11y"]')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), { 'data-a11y-count': true });
+  // The count of warnings, and the way to them: the rail's Accessibility, in the panel.
+  const badge = stateChip(() => ctx.show({ section: 'a11y' }), { 'data-a11y-count': true });
   const scope = h('div', { class: 'ts-scope', 'data-scope': true, [`data-${NS}-system`]: scopeId, [`data-${NS}-contrast`]: contrast });
   const v = (id: string) => `var(${studio.cssVar(id)})`;
   const font = (id: string) => `font: var(${studio.cssVar(id)}-font); letter-spacing: var(${studio.cssVar(id)}-letter-spacing);`;
