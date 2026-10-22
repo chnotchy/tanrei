@@ -882,7 +882,9 @@ test.describe('without tabs, and odd panels', () => {
     await mountFixtures(page, spec, { fixtures: [fixture('empty', [], { label: 'Project' })] });
     await expect(ownRow(page, 'empty')).toHaveCount(1);
     await expect(ownRow(page, 'empty').locator('tanrei-tab')).toHaveCount(0);
-    await expect(page.getByRole('tablist', { name: 'Project' })).toHaveCount(1);
+    // A row with no panel is not a tab list (TAB-42): the empty row is a radio group, still named by the view's label.
+    await expect(page.getByRole('radiogroup', { name: 'Project' })).toHaveCount(1);
+    await expect(page.getByRole('tablist')).toHaveCount(0);
     await expect.poll(() => seen.some((w) => /it holds no <tanrei-tab-panel>, so its own row has no tab \(TBV-14\)/.test(w))).toBe(true);
   });
 

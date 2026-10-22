@@ -393,13 +393,13 @@ Set `orientation` to `vertical` to stack the tabs in a column at the start edge,
 
 ### What the component handles
 
-- The row is exposed as a tab list named by its `label`. Each tab has the tab role, its selected state, its position and the number of tabs, and is named by its label, whether or not the label is drawn.
+- A row with panels is exposed as a tab list named by its `label`. Each tab has the tab role, its selected state, its position and the number of tabs, and is named by its label, whether or not the label is drawn.
 - The selected tab's panel is exposed as a tab panel, named by its tab and associated with it where the platform can express that. The other panels are hidden from view and from assistive technology. A panel with nothing focusable in it is made focusable itself, so that Tab reaches it.
 - The row is one Tab stop: the selected tab. Right and Left Arrow move to the next and previous enabled tab, wrapping at the ends, and select it. They are swapped in right-to-left layouts. Home and End go to the first and last enabled tab. Enter and Space select the focused tab. Tab moves from the selected tab into its panel.
 - Disabled tabs are skipped by the arrow keys, are never the Tab stop, and are announced as disabled.
 - The focus ring surrounds the box the indicator has on the focused tab, in its shape, and is held inside the track, so a row that scrolls cannot clip it. It shows for keyboard focus only.
 - Tabs touch their neighbours, so a tab narrower than the minimum target grows to it in width. A row lower than the target (the small size) is not made taller: its tabs answer a press a little above and below the row, and yield to a control that stands there.
-- A row without panels is still a tab list named by its `label`, and its tabs say that they control nothing. The selected state of a tab is what assistive technology is told; what the choice changes below the row is yours to draw. Tab moves from the selected tab to whatever follows the row.
+- A row without panels is one choice among a few, and is exposed as one: a radio group named by its `label`, each tab a radio button, the selected one checked. A tab list would tell a screen reader user that a panel follows. Every arrow key moves to the next or previous enabled tab and selects it, in either orientation, as in a radio group. What the choice changes below the row is yours to draw. Tab moves from the selected tab to whatever follows the row. The row becomes a tab list as soon as it has a panel.
 - With forced colors the indicator is a filled highlight in every variant, with or without the track, so a tonal row shows its selection as plainly as a primary one.
 - Larger text never hides a label from assistive technology. A tab that hugs its content grows wider and the row scrolls. A tab that shares the row truncates its label, which stays its accessible name and is shown whole where the platform can.
 - Icons, the track, the indicator, the underline and the divider are hidden from assistive technology. The covered copy of each label under the indicator is decorative, so each label is announced once.
@@ -410,6 +410,7 @@ Set `orientation` to `vertical` to stack the tabs in a column at the start edge,
 Known platform gaps:
 
 - SwiftUI, Compose and React Native have no tab panel role. The selected panel follows the row in reading order.
+- SwiftUI, Compose, Flutter and React Native still expose a row without panels as tabs, not as a radio group.
 - SwiftUI has no tab list or tab role either. The row is a container named by `label` with the tab bar trait, and each tab is a button with the selected trait. On iOS, VoiceOver states a tab's position from the tab bar trait; elsewhere the position is the tab's value ("2 of 3"), in English only.
 - SwiftUI cannot associate the panel with its tab, and cannot tell whether a panel holds anything focusable, so a panel with nothing focusable is not made a Tab stop.
 - Compose has no tab list role. The row is a selectable group named by `contentDescription` and carries the number of tabs as collection info. Each tab has the tab role, its selected state and its position.

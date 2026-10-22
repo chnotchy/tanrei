@@ -51,9 +51,12 @@ export interface TanreiTabsChangeDetail {
 /**
  * @internal What a linked `<tanrei-tab-view>` offers the row it is linked to (TAB-13, TBV-2, TBV-9): its panel of a
  * value, and a call when the row's selection, its tabs or its panels may have changed. The view links itself with
- * `linkView()`; nothing else implements it.
+ * `linkView()`. The one other holder of panels is a Tanrei element that draws a row together with the panel it
+ * switches (the date-time picker's entry-mode tabs, DTM-13), which links that panel the same way (TAB-42).
  */
-export interface LinkedTabView extends HTMLElement {
+export interface LinkedTabView {
+  /** Whether the holder is in the document: the row uses its panels only while it is. */
+  readonly isConnected: boolean;
   /** The view's panel of `value` — the first with it — or null. */
   panelFor(value: string): HTMLElement | null;
   /**
@@ -95,6 +98,8 @@ interface TabContext {
   vertical: boolean;
   /** The selected tab is disabled, so the indicator is drawn in its disabled color wherever it passes (TAB-6). */
   pillDisabled: boolean;
+  /** TAB-42: the row has no panel, so it is a radio group and the tab a radio, checked while it is selected. */
+  choice: boolean;
 }
 
 /** A box in a tab's own coordinates (or the row's), in CSS px. */
@@ -279,7 +284,8 @@ const SLIDE = 'tanrei-tabs-slide';
  * is the Tab stop, and answers its activation.
  *
  * The host carries the tab's semantics — the tab role, its selected state, its position, the number of tabs and its
- * name, its label whether or not the label is drawn — and takes focus itself.
+ * name, its label whether or not the label is drawn — and takes focus itself. In a row without panels it is a radio,
+ * checked while it is selected (TAB-42).
  *
  * A label that does not fit its tab (a row that fills) is truncated with an ellipsis and shown whole in a plain tooltip on
  * hover and keyboard focus; it stays the tab's whole accessible name, and the tooltip is not exposed a second time.
@@ -320,7 +326,7 @@ export class TanreiTab extends TanreiElement {
   disabled = false;
 
   /** What the row says about this tab. */
-  private context: TabContext = { selected: false, tabStop: false, position: 0, size: 0, secondary: false, fill: false, vertical: false, pillDisabled: false };
+  private context: TabContext = { selected: false, tabStop: false, position: 0, size: 0, secondary: false, fill: false, vertical: false, pillDisabled: false, choice: false };
 
   /** TAB-23: whether a row has told this tab what it is since the tab was last connected. */
   private told = false;
@@ -677,12 +683,14 @@ export class TanreiTab extends TanreiElement {
     else if (reported) {
       // Measured in the coming frame.
     } else if (['label', 'icon', 'labelHidden'].some((key) => changed.has(key as keyof TanreiTab)) || (this.labelRoomChanged(changed) && !this.labelDeferred)) this.measureTruncation();
-    const { selected, tabStop, position, size } = this.context;
+    const { selected, tabStop, position, size, choice } = this.context;
     // TAB-2, TAB-12, TAB-13: the tab role, its selection, position and name; one Tab stop per row; a disabled tab takes
-    // no focus at all, so a pointer cannot focus it either.
+    // no focus at all, so a pointer cannot focus it either. TAB-42: in a row without panels, the radio role and its
+    // checked state instead.
     hostAria(this, {
-      role: 'tab',
-      'aria-selected': String(selected),
+      role: choice ? 'radio' : 'tab',
+      'aria-selected': choice ? null : String(selected),
+      'aria-checked': choice ? String(selected) : null,
       'aria-disabled': this.disabled ? 'true' : null,
       'aria-label': this.label || null,
       'aria-posinset': position ? String(position) : null,
@@ -813,6 +821,9 @@ export class TanreiTabPanel extends TanreiElement {
  * selects the first enabled tab. The row sets it when a tab is activated — by pointer, touch, Enter, Space, or the arrow
  * keys, which select the tab they reach (automatic activation) — and then fires `change`.
  *
+ * A row with panels is a tab list. A row without them — one choice among a few, whose result the product draws on
+ * `change` — is a radio group named by `label`, its tabs radios, and every arrow key moves and selects (TAB-42).
+ *
  * Three variants say how much the selection weighs — `primary`, `secondary`, and `tonal`, the quiet row whose indicator
  * is a soft layer under a darker label — and are one control in everything else. `size` is the row's height (`medium`,
  * the default, and `small`, which stands in a header beside small controls: it stays as low as it is, and a press just
@@ -843,7 +854,7 @@ export class TanreiTabPanel extends TanreiElement {
  *
  * @tag tanrei-tabs
  * @slot - `<tanrei-tab>` children (the tabs) and `<tanrei-tab-panel>` children (the panels).
- * @csspart tablist - The row that holds the tabs: the tab list.
+ * @csspart tablist - The row that holds the tabs: the tab list, or the radio group of a row without panels (TAB-42).
  * @csspart scroller - The box that lays the tabs out and scrolls them sideways (up and down in a vertical row) when they do not fit; it is also the track.
  * @csspart track - The constant background of the whole row (the same element as `scroller`): its color and its corners.
  * @csspart divider - The line along the bottom of the whole row (along its end edge in a vertical row).
@@ -1164,6 +1175,17 @@ export class TanreiTabs extends TanreiElement {
     return [...this.children].filter((child): child is TanreiTabPanel => child instanceof TanreiTabPanel);
   }
 
+  /**
+   * TAB-13, TAB-42: whether the row has a panel — one of its own, or, where a Tab view (or the element that draws the
+   * row with its panel) is linked, its panel of one of the tabs' values. A row with none is a radio group.
+   */
+  private holdsPanel(view: LinkedTabView | null, panels: TanreiTabPanel[], tabs: TanreiTab[]): boolean {
+    return view ? tabs.some((tab) => !!tab.value && !!view.panelFor(tab.value)) : panels.length > 0;
+  }
+
+  /** TAB-42: the row has no panel, so it is exposed as a radio group — as it was last drawn. */
+  private choice = false;
+
   private get scroller(): HTMLElement | null {
     return this.renderRoot?.querySelector<HTMLElement>('.scroller') ?? null;
   }
@@ -1418,17 +1440,17 @@ export class TanreiTabs extends TanreiElement {
   /**
    * TAB-12: Right and Left Arrow move to the next and previous enabled tab, wrapping (mirrored in right-to-left), Home and
    * End to the first and last; each move selects the tab it reaches. Disabled tabs are skipped (TAB-2). TAB-54: in a
-   * column Down and Up Arrow do, and Right and Left do nothing.
+   * column Down and Up Arrow do, and Right and Left do nothing. TAB-42: in a row without panels, a radio group, every
+   * arrow moves, in either orientation.
    */
   private readonly onKeyDown = (event: KeyboardEvent) => {
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     const tab = this.tabOf(event);
     if (!tab || event.composedPath()[0] !== tab) return;
-    const keys: Record<string, string> = this.vertical
-      ? { ArrowDown: 'ArrowDown', ArrowUp: 'ArrowUp', Home: 'Home', End: 'End' }
-      : rtlOf(this)
-        ? { ArrowRight: 'ArrowUp', ArrowLeft: 'ArrowDown', Home: 'Home', End: 'End' }
-        : { ArrowRight: 'ArrowDown', ArrowLeft: 'ArrowUp', Home: 'Home', End: 'End' };
+    const across = rtlOf(this) ? { ArrowRight: 'ArrowUp', ArrowLeft: 'ArrowDown' } : { ArrowRight: 'ArrowDown', ArrowLeft: 'ArrowUp' };
+    const along = { ArrowDown: 'ArrowDown', ArrowUp: 'ArrowUp' };
+    const ends = { Home: 'Home', End: 'End' };
+    const keys: Record<string, string> = this.choice ? { ...across, ...along, ...ends } : this.vertical ? { ...along, ...ends } : { ...across, ...ends };
     const key = keys[event.key];
     if (!key) return;
     const tabs = this.tabs;
@@ -1520,9 +1542,16 @@ export class TanreiTabs extends TanreiElement {
     for (const panel of panels) if (!panelOfValue.has(panel.value)) panelOfValue.set(panel.value, panel);
     const ownPanelOf = (tab: TanreiTab) => (tab.value ? panelOfValue.get(tab.value) : undefined);
     const panelOf = (tab: TanreiTab) => (view ? (tab.value ? (view.panelFor(tab.value) ?? undefined) : undefined) : ownPanelOf(tab));
+    // TAB-42: a row without panels is a radio group of radios; it becomes a tab list the moment it has a panel, and the
+    // row's own role is drawn again for it.
+    const choice = !this.holdsPanel(view, panels, tabs);
+    if (choice !== this.choice) {
+      this.choice = choice;
+      this.requestUpdate();
+    }
     const appearing: TanreiTab[] = [];
     tabs.forEach((tab, index) => {
-      if (tab.setTabsContext({ selected: tab === selected, tabStop: tab === stop, position: index + 1, size: tabs.length, secondary, fill, vertical, pillDisabled })) appearing.push(tab);
+      if (tab.setTabsContext({ selected: tab === selected, tabStop: tab === stop, position: index + 1, size: tabs.length, secondary, fill, vertical, pillDisabled, choice })) appearing.push(tab);
       hostAria(tab, { 'aria-controls': panelOf(tab)?.id ?? null });
     });
     // TAB-23: a tab that appears — every tab in the row's first frame, or one added to the row — is drawn as it is at
@@ -2606,8 +2635,11 @@ export class TanreiTabs extends TanreiElement {
   }
 
   protected override render() {
+    // TAB-13, TAB-42, TAB-55: a tab list while the row has a panel, vertical in a column; a radio group, whose arrows do
+    // not depend on the orientation, while it has none.
+    const choice = (this.choice = !this.holdsPanel(this.linkedView, this.panels, this.tabs));
     return html`
-      <div part="tablist" class="row" role="tablist" aria-label=${this.label || nothing} aria-orientation=${this.vertical ? 'vertical' : nothing}>
+      <div part="tablist" class="row" role=${choice ? 'radiogroup' : 'tablist'} aria-label=${this.label || nothing} aria-orientation=${this.vertical && !choice ? 'vertical' : nothing}>
         <div part="divider" class="divider" aria-hidden="true"></div>
         <div part="scroller track" class="scroller" data-tanrei-shape><div class="tabs"><slot></slot></div></div>
       </div>
