@@ -378,6 +378,98 @@ test.describe('overlay', () => {
     expect(await focused(page)).toBe('Item 8');
   });
 
+  test('MNU-2: placed inside the visible part of the window — above the on-screen keyboard, which shrinks the visual viewport and not the layout one, and below a visual viewport scrolled down — and placed again when it changes', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 700 });
+    await mountFixtures(page, spec, { fixtures: [overlay('edit', EDIT)] });
+    await page.addStyleTag({ content: `#a-edit { position: fixed; top: 380px; left: 300px; inline-size: 200px; }` });
+    await wire(page);
+    const [offset, margin] = await Promise.all([resolveToken(page, T('surface-offset')), resolveToken(page, T('surface-viewport-margin'))]);
+    // The visual viewport as the keyboard leaves it (the layout viewport keeps its size); the real one again with none.
+    const visual = (box: { top: number; height: number } | null) =>
+      page.evaluate((b) => {
+        const real = (window as any).__realViewport ?? ((window as any).__realViewport = window.visualViewport);
+        const fake = b && { offsetTop: b.top, offsetLeft: 0, height: b.height, width: window.innerWidth, scale: 1, addEventListener() {}, removeEventListener() {} };
+        Object.defineProperty(window, 'visualViewport', { configurable: true, get: () => fake ?? real });
+        window.dispatchEvent(new Event('resize'));
+      }, box);
+    const placed = async () => {
+      const box = await bounds(surface(page, 'edit'));
+      return { top: box.y, bottom: box.y + box.height };
+    };
+    await menu(page, 'edit').evaluate((el: any) => (el.open = true));
+    await expect.poll(() => isOpen(page, 'edit')).toBe(true);
+    await motionEnded(page);
+    const a = await bounds(anchor(page, 'edit'));
+    expect((await placed()).top, 'below the anchor while the window has room').toBeCloseTo(a.y + a.height + offset, 0);
+    // The keyboard covers all but the top 450 pixels: below the anchor there is no room left, so it flips above.
+    await visual({ top: 0, height: 450 });
+    await expect.poll(async () => (await placed()).bottom).toBeCloseTo(a.y - offset, 0);
+    await expect(surface(page, 'edit')).toHaveClass(/side-top/);
+    // The visual viewport scrolled down by 300 as well (iOS moves it to keep a field in view): the room above starts
+    // there, and the surface, taller than it, is limited to it and scrolls.
+    await visual({ top: 300, height: 150 });
+    await expect.poll(async () => (await placed()).top).toBeGreaterThanOrEqual(300 + margin - 0.5);
+    expect((await placed()).bottom, 'still above the anchor').toBeCloseTo(a.y - offset, 0);
+    expect(await menu(page, 'edit').locator('.scroll').evaluate((el) => el.scrollHeight > el.clientHeight), 'its items scroll').toBe(true);
+    // The keyboard hides: back below the anchor.
+    await visual(null);
+    await expect.poll(async () => (await placed()).top).toBeCloseTo(a.y + a.height + offset, 0);
+    await expect(surface(page, 'edit')).not.toHaveClass(/side-top/);
+  });
+
+  test('MNU-2, MNU-46: no taller than the product lets its surface be — its own max-block-size on the surface part, in pixels or a percentage — scrolled beyond it, and placed by that height, as a submenu is', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 600 });
+    const long = Array.from({ length: 16 }, (_, n) => it(`Item ${n + 1}`));
+    await mountFixtures(page, spec, { fixtures: [overlay('down', long), overlay('up', long, { placement: 'top-start' }), overlay('nested', [sub('More', long), it('Last')])] });
+    await page.addStyleTag({
+      content: `#a-down { position: fixed; top: 40px; left: 40px; } #a-up { position: fixed; top: 560px; left: 300px; } #a-nested { position: fixed; top: 40px; left: 400px; }
+        tanrei-menu::part(surface) { max-block-size: 150px; } tanrei-submenu::part(surface) { max-block-size: 30%; }`,
+    });
+    await wire(page);
+    const offset = await resolveToken(page, T('surface-offset'));
+    const open = async (id: string) => {
+      await menu(page, id).evaluate((el: any) => (el.open = true));
+      await expect.poll(() => isOpen(page, id)).toBe(true);
+      await motionEnded(page);
+      return [await bounds(anchor(page, id)), await bounds(surface(page, id))] as const;
+    };
+    let [a, s] = await open('down');
+    expect(s.height, 'the room below is larger: the product’s cap holds it').toBeCloseTo(150, 0);
+    expect(s.y).toBeCloseTo(a.y + a.height + offset, 0);
+    expect(await menu(page, 'down').locator('.scroll').evaluate((el) => el.scrollHeight > el.clientHeight), 'its items scroll').toBe(true);
+    await menu(page, 'down').evaluate((el: any) => (el.open = false));
+    // Above its anchor, its bottom edge stands the offset above the anchor at the capped height.
+    [a, s] = await open('up');
+    expect(s.height).toBeCloseTo(150, 0);
+    expect(s.y + s.height).toBeCloseTo(a.y - offset, 0);
+    // The product changes its cap while the menu is open: placed again by the new one.
+    await page.addStyleTag({ content: `tanrei-menu::part(surface) { max-block-size: 100px; }` });
+    await menu(page, 'up').evaluate((el) => el.setAttribute('data-capped', ''));
+    await expect.poll(async () => (await bounds(surface(page, 'up'))).height).toBeCloseTo(100, 0);
+    s = await bounds(surface(page, 'up'));
+    expect(s.y + s.height).toBeCloseTo(a.y - offset, 0);
+    await menu(page, 'up').evaluate((el: any) => (el.open = false));
+    // A submenu's surface, by a percentage of the window's height.
+    await open('nested');
+    const submenu = labelled(page, 'nested', 'More');
+    await submenu.evaluate((el: any) => (el.open = true));
+    await expect.poll(() => shown(submenu)).toBe(true);
+    await expect.poll(async () => (await surfaceBox(submenu)).height).toBeCloseTo(600 * 0.3, 0);
+    await menu(page, 'nested').evaluate((el: any) => (el.open = false));
+    // A calc() with a percentage, as the window resolves it.
+    await page.addStyleTag({ content: `tanrei-menu::part(surface) { max-block-size: calc(50% - 100px); }` });
+    [a, s] = await open('down');
+    expect(s.height).toBeCloseTo(600 / 2 - 100, 0);
+    await menu(page, 'down').evaluate((el: any) => (el.open = false));
+    // A cap larger than the room: the room holds.
+    await page.addStyleTag({ content: `tanrei-menu::part(surface) { max-block-size: 2000px; }` });
+    await page.setViewportSize({ width: 800, height: 300 });
+    const margin = await resolveToken(page, T('surface-viewport-margin'));
+    [a, s] = await open('down');
+    expect(s.y + s.height, 'inside the window’s margin').toBeLessThanOrEqual(300 - margin + 0.5);
+    expect(s.y).toBeCloseTo(a.y + a.height + offset, 0);
+  });
+
   test('MNU-4: it fades in and grows from the edge facing the anchor, fades out, and appears and disappears at once where motion is reduced', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [overlay('edit', EDIT)] });
     await wire(page);

@@ -387,7 +387,7 @@
     },
     {
       "id": "POP-36",
-      "text": "WHILE the on-screen keyboard is shown THE popover SHALL take the keyboard's top edge as an edge of the window's safe area (POP-5): it SHALL flip, shift or shorten so that no part of it is under the keyboard, and SHALL scroll the focused element into the room left; WHEN the keyboard hides it SHALL take its place again by POP-5. It SHALL move as the platform moves content for its keyboard, and at once where motion is reduced."
+      "text": "WHILE the on-screen keyboard is shown THE popover SHALL take the keyboard's top edge as an edge of the window's safe area (POP-5), and SHALL keep to the visible part of the window wherever that is smaller than the window: it SHALL flip, shift or shorten so that no part of it is under the keyboard, and SHALL scroll the focused element into the room left; WHEN the keyboard hides it SHALL take its place again by POP-5. It SHALL move as the platform moves content for its keyboard, and at once where motion is reduced."
     },
     {
       "id": "POP-37",

@@ -235,3 +235,201 @@ export const choiceAttribute = {
 
 /** A set length used as given (finite, not negative); anything else takes the token (TIP-17, TIP-24, POP-4). */
 export const usableLength = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value) && value >= 0;
+
+// ── The window a placed surface is kept in ───────────────────────────────────────────────────────────────────────────
+
+/** A box in the window, in the coordinates of `getBoundingClientRect()` and of a fixed box. */
+export interface ViewportBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/**
+ * The visible part of the window, above the on-screen keyboard (MNU-2, SEL-24, CMB-22, POP-36, DTM-2), in the layout
+ * viewport's coordinates — those `getBoundingClientRect()` gives and a fixed box is placed in. It is the visual viewport
+ * where the browser has one, within the layout viewport: the on-screen keyboard shrinks the visual viewport and not the
+ * layout one (iOS Safari, and every browser whose keyboard resizes the visual viewport only), so a surface placed in the
+ * layout viewport opens under the keyboard; a pinch-zoomed page shows only the part the visual viewport covers. With no
+ * visual viewport it is the layout viewport, scroll bars left out.
+ */
+export function visibleViewport(): ViewportBox {
+  const root = document.documentElement;
+  const [width, height] = [root.clientWidth, root.clientHeight];
+  const visual = typeof window === 'undefined' ? null : window.visualViewport;
+  if (!visual) return { x: 0, y: 0, width, height };
+  const x = between(visual.offsetLeft, 0, width);
+  const y = between(visual.offsetTop, 0, height);
+  const right = between(visual.offsetLeft + visual.width, x, width);
+  const bottom = between(visual.offsetTop + visual.height, y, height);
+  return { x, y, width: right - x, height: bottom - y };
+}
+
+/** The visible part of the window as one comparable string: what a placement that depends on it compares. */
+export const viewportKey = (box: ViewportBox = visibleViewport()) => `${box.x},${box.y},${box.width},${box.height}`;
+
+/**
+ * The most a product lets a placed surface be tall (MNU-2, MNU-46): the `max-block-size` the product's own rules give
+ * it (`::part(surface)`), as a computed value in pixels; Infinity where it sets none. It is read on `twin`, an element
+ * that carries the surface's part name and is never drawn (`display: none !important` in the component's own sheet),
+ * so that the product's `::part()` rules reach it and the limit the placement writes on the surface itself does not:
+ * taking that limit off the surface to read under it, and putting it back, sends a scrolled list back to its top in
+ * WebKit. A length the computed value keeps relative (a percentage, a `calc()` with one) is resolved as the surface's
+ * own is: against the window, the box a surface in the top layer is sized against.
+ */
+export function surfaceCap(twin: Element | null | undefined): number {
+  if (!twin) return Number.POSITIVE_INFINITY;
+  const value = getComputedStyle(twin).maxBlockSize;
+  if (!value || value === 'none') return Number.POSITIVE_INFINITY;
+  if (/^-?[\d.]+(e-?\d+)?px$/i.test(value)) return Math.max(0, Number.parseFloat(value));
+  // Against the window — the box a surface in the top layer is sized against, whatever its ancestors are.
+  const vertical = getComputedStyle(twin).writingMode.startsWith('vertical');
+  const percent = /^(-?[\d.]+)%$/.exec(value);
+  const root = document.documentElement;
+  if (percent) return Math.max(0, (Number.parseFloat(percent[1]!) / 100) * (vertical ? root.clientWidth : root.clientHeight));
+  // Any other form (a calc() with a percentage): a box in the top layer, as tall as that length, measures it.
+  const probe = document.createElement('div');
+  probe.setAttribute('popover', 'manual');
+  probe.style.cssText = 'position: fixed; inset: 0 auto auto 0; margin: 0; padding: 0; border: 0; inline-size: 0; visibility: hidden; pointer-events: none';
+  probe.style.blockSize = value;
+  (twin.parentNode ?? document.body).appendChild(probe);
+  probe.showPopover?.();
+  const measured = probe.getBoundingClientRect();
+  probe.remove();
+  const size = vertical ? measured.width : measured.height;
+  return Number.isFinite(size) ? Math.max(0, size) : Number.POSITIVE_INFINITY;
+}
+
+// ── A menu's kind of surface: below or above its anchor, beside its parent surface, at a point ─────────────────────
+
+/** The four placements of a menu's kind of surface (MNU-2, DTM-2): a side of the anchor, and the edge it is aligned by. */
+export type MenuPlacement = 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
+
+export interface MenuBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/** The window as a placement takes it: the visible part of it (`visibleViewport()`), or a box from the origin. */
+export type PlacementViewport = { x?: number; y?: number; width: number; height: number };
+
+/** `place` run in coordinates whose origin is the viewport's corner, its `top` and `left` given back in the window's. */
+function inViewport<T extends { top: number; left: number }>(viewport: PlacementViewport, place: (shift: (box: MenuBox) => MenuBox, size: { width: number; height: number }) => T): T {
+  const [x, y] = [viewport.x ?? 0, viewport.y ?? 0];
+  const at = place((box) => ({ x: box.x - x, y: box.y - y, width: box.width, height: box.height }), { width: viewport.width, height: viewport.height });
+  return { ...at, top: at.top + y, left: at.left + x };
+}
+
+/**
+ * Where the surface goes (MNU-2, DTM-2): `offset` from the anchor on the placement's side, flipped to the other side
+ * when this one has less room than the surface needs within `margin` of the viewport's edge and the other has more;
+ * aligned by its start or end edge with the anchor's (mirrored in right-to-left), then shifted along the anchor to stay
+ * `margin` inside the viewport; its height limited to the room left. `viewport` is the visible part of the window
+ * (`visibleViewport()`); coordinates are the window's (`left` is physical). A surface the product caps is given at its
+ * capped height (`surfaceCap()`).
+ */
+export function placeMenu(input: { anchor: MenuBox; surface: { width: number; height: number }; viewport: PlacementViewport; placement: MenuPlacement; offset: number; margin: number; rtl: boolean }) {
+  return inViewport(input.viewport, (shift, viewport) => {
+    const { surface, placement, offset, margin, rtl } = input;
+    const anchor = shift(input.anchor);
+    let side: 'top' | 'bottom' = placement.startsWith('top') ? 'top' : 'bottom';
+    const edge = placement.endsWith('end') ? 'end' : 'start';
+    const below = viewport.height - margin - (anchor.y + anchor.height + offset);
+    const above = anchor.y - offset - margin;
+    if (side === 'bottom' && below < surface.height && above > below) side = 'top';
+    else if (side === 'top' && above < surface.height && below > above) side = 'bottom';
+    const room = Math.max(0, side === 'bottom' ? below : above);
+    const height = Math.min(surface.height, room);
+    const top = side === 'bottom' ? anchor.y + anchor.height + offset : anchor.y - offset - height;
+    // The start edge is the left one in left-to-right.
+    const alignLeft = (edge === 'start') !== rtl;
+    const wanted = alignLeft ? anchor.x : anchor.x + anchor.width - surface.width;
+    const left = Math.max(margin, Math.min(wanted, viewport.width - margin - surface.width));
+    return { top, left, maxHeight: room, side };
+  });
+}
+
+/**
+ * Where the surface of a context menu goes from the point it was asked for at (MNU-61): with no offset, a corner on the
+ * point — the block-start corner for a `bottom-*` placement, the block-end one for `top-*`, the inline-start one for
+ * `*-start` (mirrored in right-to-left) — flipped to the other side of the point, along each axis by itself, where its
+ * side has less room than the surface needs within `margin` of the viewport's edge and the other side has more; then
+ * shifted to stay `margin` inside the viewport, its height limited to the room left. Coordinates are the window's.
+ */
+export function placeAtPoint(input: { point: { x: number; y: number }; surface: { width: number; height: number }; viewport: PlacementViewport; placement: MenuPlacement; margin: number; rtl: boolean }) {
+  return inViewport(input.viewport, (shift, viewport) => {
+    const { surface, placement, margin, rtl } = input;
+    const point = shift({ ...input.point, width: 0, height: 0 });
+    let side: 'top' | 'bottom' = placement.startsWith('top') ? 'top' : 'bottom';
+    const below = viewport.height - margin - point.y;
+    const above = point.y - margin;
+    if (side === 'bottom' && below < surface.height && above > below) side = 'top';
+    else if (side === 'top' && above < surface.height && below > above) side = 'bottom';
+    const room = Math.max(0, side === 'bottom' ? below : above);
+    const height = Math.min(surface.height, room);
+    const top = side === 'bottom' ? point.y : point.y - height;
+    // Along the line: the surface runs to the right of the point where its start is the left (left-to-right, `*-start`).
+    let rightward = placement.endsWith('end') === rtl;
+    const right = viewport.width - margin - point.x;
+    const left = point.x - margin;
+    if (rightward && right < surface.width && left > right) rightward = false;
+    else if (!rightward && left < surface.width && right > left) rightward = true;
+    const wanted = rightward ? point.x : point.x - surface.width;
+    return { top, left: Math.max(margin, Math.min(wanted, viewport.width - margin - surface.width)), maxHeight: room, side };
+  });
+}
+
+/**
+ * Where a submenu's surface goes (MNU-46, MNU-47): beside the surface that holds its item (`parent`), `offset` from that
+ * surface's inline-end edge — or from the side `prefer` names, the side its parent surface was itself placed on — and on
+ * the other side when this one has less room than the surface needs within `margin` of the viewport's edge and the
+ * other has more. Where the side it is on has room for `minWidth` but not for the surface, the surface is narrowed to
+ * the room. Where neither side has room for `minWidth` it is laid over `parent`: on the side with more room, as far
+ * towards it as the margin allows, as wide as leaves `touch` of the parent uncovered on its other side and never
+ * narrower than `minWidth`. Its first row (`lead` below its own block-start edge) is level with the item's `row`, then
+ * it is shifted along the block axis to stay `margin` inside the viewport, its height limited to the room.
+ * Coordinates are the window's (`left` and `side` are physical).
+ */
+export function placeSubmenu(input: {
+  parent: MenuBox;
+  row: MenuBox;
+  surface: { width: number; height: number };
+  lead: number;
+  viewport: PlacementViewport;
+  offset: number;
+  margin: number;
+  minWidth: number;
+  touch: number;
+  rtl: boolean;
+  prefer?: 'left' | 'right' | null;
+}) {
+  return inViewport(input.viewport, (shift, viewport) => {
+    const { surface, lead, offset, margin, minWidth, touch, rtl, prefer } = input;
+    const [parent, row] = [shift(input.parent), shift(input.row)];
+    const rooms = { right: viewport.width - margin - (parent.x + parent.width + offset), left: parent.x - offset - margin };
+    let side: 'left' | 'right' = prefer ?? (rtl ? 'left' : 'right');
+    const other = side === 'right' ? 'left' : 'right';
+    if (rooms[side] < surface.width && rooms[other] > rooms[side]) side = other;
+    let width = surface.width;
+    let left: number;
+    const overlap = rooms[side] < Math.min(minWidth, surface.width);
+    if (overlap) {
+      // MNU-47: over the parent, from the viewport's margin on that side back towards the parent's far edge.
+      const edge = side === 'right' ? viewport.width - margin : margin;
+      const kept = side === 'right' ? parent.x + touch : parent.x + parent.width - touch;
+      const free = side === 'right' ? edge - kept : kept - edge;
+      width = Math.min(Math.max(minWidth, Math.min(surface.width, free)), Math.max(0, viewport.width - 2 * margin));
+      left = side === 'right' ? edge - width : edge;
+    } else {
+      width = Math.min(surface.width, rooms[side]);
+      left = side === 'right' ? parent.x + parent.width + offset : parent.x - offset - width;
+    }
+    const room = Math.max(0, viewport.height - 2 * margin);
+    const height = Math.min(surface.height, room);
+    const top = Math.max(margin, Math.min(row.y - lead, viewport.height - margin - height));
+    return { top, left, width, maxHeight: room, side, overlap };
+  });
+}
