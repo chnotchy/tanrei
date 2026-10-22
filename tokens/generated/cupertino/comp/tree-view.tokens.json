@@ -475,45 +475,6 @@
               "$description": "Its color: as quiet as a supporting text, on the surface the tree stands on."
             }
           }
-        },
-        "match": {
-          "$extensions": {
-            "dev.tanrei.vocabulary": {
-              "rationale": "One product marks, in each row a filter leaves or keeps, the letters that answered what was typed, as its search marks a match in a passage: how strongly — the text color, the added weight and the fill behind them — is its choice, apart from the selected fill and the state layers, and the selected row needs a fill of its own, because the quiet fill it is drawn with would hide a match drawn in that same fill.",
-              "since": "0.1.0"
-            }
-          },
-          "emphasis": {
-            "$type": "number",
-            "$value": "{tanrei.sys.typescale.emphasis.body}",
-            "$description": "How much weight a match gains over the row's label (TRV-60), added to the label typescale's weight."
-          },
-          "color": {
-            "$type": "color",
-            "$value": "{tanrei.comp.tree-view.unselected.label.color}",
-            "$description": "The text of a match on a row that is not selected (TRV-60): the stronger of the text colors. No hue: a match is not a selection, a choice or a link."
-          },
-          "container": {
-            "color": {
-              "$type": "color",
-              "$value": "{tanrei.sys.color.secondary-container}",
-              "$description": "The fill behind a match on a row that is not selected (TRV-60), as well as its weight and color: the quiet tonal container, as a search's match is filled, so that a match is found in every script, also where the reader's font has no weight between regular and bold."
-            }
-          },
-          "selected": {
-            "color": {
-              "$type": "color",
-              "$value": "{tanrei.comp.tree-view.selected.label.color}",
-              "$description": "The text of a match on the selected row (TRV-60): the selected label's own color."
-            },
-            "container": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.sys.color.surface}",
-                "$description": "The fill behind a match on the selected row (TRV-60): the surface, cut out of the selected fill, so that the match stands apart from the row's own fill as it does on a row that is not selected."
-              }
-            }
-          }
         }
       }
     }

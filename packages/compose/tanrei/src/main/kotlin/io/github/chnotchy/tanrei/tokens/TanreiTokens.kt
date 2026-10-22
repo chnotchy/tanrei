@@ -11549,11 +11549,6 @@ public data class TanreiTreeViewTokens(
     public val guideColor: TanreiPaint,
     public val guideWidth: Dp,
     public val iconGap: Dp,
-    public val matchColor: TanreiPaint,
-    public val matchContainerColor: TanreiPaint,
-    public val matchEmphasis: Float,
-    public val matchSelectedColor: TanreiPaint,
-    public val matchSelectedContainerColor: TanreiPaint,
     public val motionDisclosureDuration: Int,
     public val motionDisclosureEasing: TanreiCubicBezier,
     public val motionFeedbackDuration: Int,
@@ -11583,10 +11578,6 @@ public data class TanreiTreeViewTokens(
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
         addAll(filterStatusColor.roles())
         addAll(guideColor.roles())
-        addAll(matchColor.roles())
-        addAll(matchContainerColor.roles())
-        addAll(matchSelectedColor.roles())
-        addAll(matchSelectedContainerColor.roles())
         addAll(stickyContainerColor.roles())
         addAll(stickyDividerColor.roles())
         addAll(conditions.referencedRoles())

@@ -26821,11 +26821,6 @@ class TanreiTreeViewTokens {
     required this.guideColor,
     required this.guideWidth,
     required this.iconGap,
-    required this.matchColor,
-    required this.matchContainerColor,
-    required this.matchEmphasis,
-    required this.matchSelectedColor,
-    required this.matchSelectedContainerColor,
     required this.motionDisclosureDuration,
     required this.motionDisclosureEasing,
     required this.motionFeedbackDuration,
@@ -26858,16 +26853,6 @@ class TanreiTreeViewTokens {
   final double guideWidth;
   /// `comp.tree-view.icon-gap`
   final double iconGap;
-  /// `comp.tree-view.match-color`
-  final TanreiPaint matchColor;
-  /// `comp.tree-view.match-container-color`
-  final TanreiPaint matchContainerColor;
-  /// `comp.tree-view.match-emphasis`
-  final double matchEmphasis;
-  /// `comp.tree-view.match-selected-color`
-  final TanreiPaint matchSelectedColor;
-  /// `comp.tree-view.match-selected-container-color`
-  final TanreiPaint matchSelectedContainerColor;
   /// `comp.tree-view.motion-disclosure-duration`
   final int motionDisclosureDuration;
   /// `comp.tree-view.motion-disclosure-easing`
@@ -26910,11 +26895,6 @@ class TanreiTreeViewTokens {
     TanreiPaint? guideColor,
     double? guideWidth,
     double? iconGap,
-    TanreiPaint? matchColor,
-    TanreiPaint? matchContainerColor,
-    double? matchEmphasis,
-    TanreiPaint? matchSelectedColor,
-    TanreiPaint? matchSelectedContainerColor,
     int? motionDisclosureDuration,
     TanreiCubicBezier? motionDisclosureEasing,
     int? motionFeedbackDuration,
@@ -26939,11 +26919,6 @@ class TanreiTreeViewTokens {
         guideColor: guideColor ?? this.guideColor,
         guideWidth: guideWidth ?? this.guideWidth,
         iconGap: iconGap ?? this.iconGap,
-        matchColor: matchColor ?? this.matchColor,
-        matchContainerColor: matchContainerColor ?? this.matchContainerColor,
-        matchEmphasis: matchEmphasis ?? this.matchEmphasis,
-        matchSelectedColor: matchSelectedColor ?? this.matchSelectedColor,
-        matchSelectedContainerColor: matchSelectedContainerColor ?? this.matchSelectedContainerColor,
         motionDisclosureDuration: motionDisclosureDuration ?? this.motionDisclosureDuration,
         motionDisclosureEasing: motionDisclosureEasing ?? this.motionDisclosureEasing,
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,

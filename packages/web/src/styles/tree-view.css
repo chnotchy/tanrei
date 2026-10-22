@@ -72,11 +72,6 @@
  *   data-tanrei-filtered (on an li)        a row a filter hides, with what it holds (TRV-57)
  *   data-tanrei-filter-open (on an li)     a closed parent drawn open for a filter (TRV-59)
  *   data-tanrei-filter-active (on a row)   the active match, drawn as the row with keyboard focus (TRV-61)
- *   data-tanrei-filtering (on the tree)    a filter is applied (TRV-56)
- *   ::highlight(tanrei-tree-view-match)    the runs a filter matched, on a row that is not selected, and
- *   ::highlight(tanrei-tree-view-match-selected)   on a selected one (TRV-60)
- *   ::highlight(tanrei-tree-view-match-disabled), ::highlight(tanrei-tree-view-match-selected-disabled)
- *                                          the same on a disabled row: the fill alone (TRV-60)
  *
  * Every value is a `--tanrei-comp-tree-view-*` token, or the system's focus, target and icon tokens.
  *
@@ -701,7 +696,7 @@
     box-shadow: 0 var(--tanrei-comp-tree-view-sticky-divider-width) 0 0 var(--tanrei-comp-tree-view-sticky-divider-color);
   }
 
-  /* ── The filter (TRV-54, TRV-60, TRV-65, TRV-66) ──────────────────────────────────────────────────────────── */
+  /* ── The filter (TRV-54, TRV-65, TRV-66) ────────────────────────────────────────────────────────────────────── */
   /* TRV-54: the field above the first row, as wide as the tree, filter.gap above what stands under it; it is a Text
      input, drawn from its own tokens. Where the tree stands in a scrolling box it stays at the top of it on the pinned
      rows' ground, the pinned rows under it, and while rows scroll under it with none pinned, the pinned rows' edge is
@@ -751,34 +746,6 @@
   :where(tanrei-tree-view) > :where([data-tanrei-filter-status][hidden]) {
     display: none;
   }
-  /* TRV-60: a run a word of the filter matched — a highlight of the product's own text, as the search marks a match:
-     its color and its fill, match.color over match.container.color, and on a selected row match.selected.color over
-     match.selected.container.color. A highlight draws no weight (only a color, a fill, a line and a shadow): the raised
-     weight of match.emphasis cannot be drawn on the product's own text without splitting it, and is not drawn here.
-     Said on the row and on what it holds (an engine that does not hand a highlight's style down needs the element that
-     holds the text), and only while a filter is applied (`data-tanrei-filtering` on the
-     tree): a rule for a highlight is a style every element it names computes, and a tree that filters nothing pays
-     nothing for it. */
-  :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol))::highlight(tanrei-tree-view-match),
-  :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol)) *::highlight(tanrei-tree-view-match) {
-    background-color: var(--tanrei-comp-tree-view-match-container-color);
-    color: var(--tanrei-comp-tree-view-match-color);
-  }
-  :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol))::highlight(tanrei-tree-view-match-selected),
-  :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol)) *::highlight(tanrei-tree-view-match-selected) {
-    background-color: var(--tanrei-comp-tree-view-match-selected-container-color);
-    color: var(--tanrei-comp-tree-view-match-selected-color);
-  }
-  /* On a disabled row the fill alone: a highlight that names no color leaves the text in the label's disabled color. */
-  :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol))::highlight(tanrei-tree-view-match-disabled),
-  :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol)) *::highlight(tanrei-tree-view-match-disabled) {
-    background-color: var(--tanrei-comp-tree-view-match-container-color);
-  }
-  :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol))::highlight(tanrei-tree-view-match-selected-disabled),
-  :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol)) *::highlight(tanrei-tree-view-match-selected-disabled) {
-    background-color: var(--tanrei-comp-tree-view-match-selected-container-color);
-  }
-
   /* TRV-40: while the icon set cannot draw a glyph, none is drawn and every box is kept. */
   :where(tanrei-tree-view[data-glyphs='pending']) :where(li) > :where(:first-child:not(ul, ol))::before,
   :where(tanrei-tree-view[data-glyphs='pending']) :where(li) > :where(:first-child:not(ul, ol)) > :where(.tanrei-icon) {
@@ -1116,18 +1083,6 @@
     :where(tanrei-tree-view) :where(li) > :where(:first-child[data-tanrei-pinned]),
     :where(tanrei-tree-view) > :where([data-tanrei-filter]) {
       background-color: Canvas;
-    }
-    /* TRV-60: a match in the platform's colors for marked text. */
-    :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol))::highlight(tanrei-tree-view-match),
-    :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol)) *::highlight(tanrei-tree-view-match),
-    :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol))::highlight(tanrei-tree-view-match-selected),
-    :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol)) *::highlight(tanrei-tree-view-match-selected),
-    :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol))::highlight(tanrei-tree-view-match-disabled),
-    :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol)) *::highlight(tanrei-tree-view-match-disabled),
-    :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol))::highlight(tanrei-tree-view-match-selected-disabled),
-    :where(tanrei-tree-view[data-tanrei-filtering]) :where(li) > :where(:first-child:not(ul, ol)) *::highlight(tanrei-tree-view-match-selected-disabled) {
-      background-color: Mark;
-      color: MarkText;
     }
     :where(tanrei-tree-view) :where(li) > :where(:first-child[data-tanrei-pinned='last']) {
       box-shadow: none;

@@ -1,4 +1,4 @@
-// 119 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
+// 118 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
 // GENERATED FILE — DO NOT EDIT.
 // Source: tokens/ (DTCG 2025.10). Regenerate with `pnpm generate`.
 // System values of "cupertino". Generated the same way for every system; the types are in TanreiTokens.swift.
@@ -9618,11 +9618,6 @@ private let cupertinoTreeViewTokens = TanreiTreeViewTokens(
   guideColor: .role(.outlineVariant),
   guideWidth: 1,
   iconGap: 12,
-  matchColor: .role(.onSurface),
-  matchContainerColor: .role(.secondaryContainer),
-  matchEmphasis: 200,
-  matchSelectedColor: .role(.onSecondaryContainer),
-  matchSelectedContainerColor: .role(.surface),
   motionDisclosureDuration: 400,
   motionDisclosureEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionFeedbackDuration: 450,

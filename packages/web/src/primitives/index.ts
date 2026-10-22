@@ -65,7 +65,7 @@
 //                 default-button. Imported from their own modules, not from here.
 //   values      — parseValues(): the `values` attribute of a selection of several values (list, segmented button)
 //   filter      — fold(), filterWords(), wordRuns(), matchRun(): how a typed text is compared with a label and which runs
-//                 of it answered (CMB-25, CMB-38, NVD-81, NVD-85, TRV-56, TRV-60)
+//                 of it answered (CMB-25, CMB-38, NVD-81, NVD-85, TRV-56)
 //   keyboard-convention — whose keyboard a keyboard shortcut writes (KBS-2): the ambient `data-tanrei-keyboard-convention`
 //                 across shadow roots, the platform's, one page-wide watcher; the chords' attribute converter; and the
 //                 internal event a keyboard shortcut tells its host with (KBS-12, a menu item's aria-keyshortcuts)

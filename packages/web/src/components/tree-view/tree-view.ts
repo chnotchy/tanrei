@@ -17,7 +17,7 @@ import {
   styleQueries,
   syncFocusStyle,
 } from '../../primitives/index.js';
-import { FILTER_SETTLE_MS, type Run, filterWords, wordRuns } from '../../primitives/filter.js';
+import { FILTER_SETTLE_MS, filterWords, wordRuns } from '../../primitives/filter.js';
 import { fillPlaces } from '../../primitives/places.js';
 import { PendingGlyphs, isGlyphProbe } from '../../primitives/glyph-pending.js';
 import { type CutTextContent, CutTextTip, isCut } from '../../primitives/cut-text.js';
@@ -51,8 +51,6 @@ export interface TanreiTreeViewChangeDetail {
   value?: string | null;
   values?: string[];
 }
-/** What a filter does to the rows that do not match (TRV-57, TRV-58): hides them, or only marks the matches. */
-export type TanreiTreeViewFilterMode = 'filter' | 'highlight';
 /** What `filterchange` carries: the filter text the person left in the field (which `filterValue` already holds). */
 export interface TanreiTreeViewFilterChangeDetail {
   value: string;
@@ -157,14 +155,6 @@ const FILTER_SAID = 'data-tanrei-filter-said';
 const FILTERED = 'data-tanrei-filtered';
 const FILTER_OPEN = 'data-tanrei-filter-open';
 const FILTER_ACTIVE = 'data-tanrei-filter-active';
-/**
- * TRV-60: the highlights every tree of a document marks its matches in — on a row that is not selected, and on a selected
- * one; and the same two for a disabled row, which draw the fill alone so that the run keeps the label's disabled color.
- */
-const MATCH = 'tanrei-tree-view-match';
-const MATCH_SELECTED = 'tanrei-tree-view-match-selected';
-const MATCH_DISABLED = 'tanrei-tree-view-match-disabled';
-const MATCH_SELECTED_DISABLED = 'tanrei-tree-view-match-selected-disabled';
 /** The parts of a row that are not its label. */
 const PARTS = '.tanrei-icon, [data-supporting-text], [data-trailing], [data-trailing-text], [data-tanrei-loading-box], .ripple, [data-tanrei-tip]';
 /** What an item says: a change of any is read again. */
@@ -357,19 +347,19 @@ let descriptions = 0;
  * under it, so what changes while the tree is used is said on the row: one row's change styles that row alone. A
  * server that draws the selection in the first frame writes `aria-selected="true"` on the row.
  *
- * @tag tanrei-tree-view
- * @slot - The items: the product's own nested lists (`<ul>` of `<li>`). They are children in the document, not slotted nodes: the element has no shadow root.
- * @fires {CustomEvent<TanreiTreeViewChangeDetail>} change - The user changed the selection: `detail.value` (single) or `detail.values` (multiple) after the change.
- * @fires {CustomEvent<TanreiTreeViewToggleDetail>} toggle - Dispatched on an item's `<li>` (it bubbles): the user, or the browser's find-in-page, opened or closed it; `detail.open` is its new state. The moment to give the items of an `data-expandable` parent.
- * @fires {CustomEvent<TanreiTreeViewRenameDetail>} rename - Dispatched on an item's `<li>` (it bubbles): the user gave it a new name in place; `detail.label` is the name (trimmed, not empty, not the old one) and `detail.previous` the label it had. The tree changes no label: set it to rename the item.
  * Filter (TRV-54 to TRV-71): with `filterable`, the element puts a box of its own before its first list — the filter
  * field (a `<tanrei-text-input type="search">`, `[data-tanrei-filter]`), and after it the status line
  * (`[data-tanrei-filter-status]`, hidden from assistive technology) — and takes them away again. It writes on the
  * product's items only attributes of its own: `data-tanrei-filtered` on an `<li>` a filter hides, and
  * `data-tanrei-filter-open` on a closed parent it draws open (never `data-open` or `hidden`), and
- * `data-tanrei-filter-active` on the active match's row; and marks matches with the CSS Custom Highlight API (the
- * highlights `tanrei-tree-view-match` and `tanrei-tree-view-match-selected`), never by touching the product's text.
+ * `data-tanrei-filter-active` on the active match's row. It marks no match: the rows a filter leaves are the answer,
+ * and the product's text is never touched (TRV-60).
  *
+ * @tag tanrei-tree-view
+ * @slot - The items: the product's own nested lists (`<ul>` of `<li>`). They are children in the document, not slotted nodes: the element has no shadow root.
+ * @fires {CustomEvent<TanreiTreeViewChangeDetail>} change - The user changed the selection: `detail.value` (single) or `detail.values` (multiple) after the change.
+ * @fires {CustomEvent<TanreiTreeViewToggleDetail>} toggle - Dispatched on an item's `<li>` (it bubbles): the user, or the browser's find-in-page, opened or closed it; `detail.open` is its new state. The moment to give the items of an `data-expandable` parent.
+ * @fires {CustomEvent<TanreiTreeViewRenameDetail>} rename - Dispatched on an item's `<li>` (it bubbles): the user gave it a new name in place; `detail.label` is the name (trimmed, not empty, not the old one) and `detail.previous` the label it had. The tree changes no label: set it to rename the item.
  * @fires {CustomEvent<TanreiTreeViewFilterChangeDetail>} filterchange - The person changed the filter text (typing, deleting, pasting, an input method, the clear button, Escape): `detail.value` (and `filterValue`) is the new text. Not fired when the product sets `filterValue`.
  * @fires {CustomEvent<TanreiTreeViewCreateDetail>} create - The user named the new item `create()` asked for: `detail.label`, `detail.parent`, and the `<li>` it goes under (`detail.within`, null at the first level) and follows (`detail.after`, null where it is first). The tree's own row is gone; add the item, and the tree moves focus to it.
  */
@@ -412,7 +402,6 @@ export class TanreiTreeView extends TanreiLightElement {
     loadingLabel: { type: String, attribute: 'loading-label' },
     filterable: { type: Boolean, reflect: true },
     filterValue: { type: String, attribute: 'filter-value' },
-    filterMode: { type: String, attribute: 'filter-mode', reflect: true, useDefault: true },
     filterLabel: { type: String, attribute: 'filter-label' },
     filterPlaceholder: { type: String, attribute: 'filter-placeholder' },
     filterEmptyText: { type: String, attribute: 'filter-empty-text' },
@@ -488,9 +477,6 @@ export class TanreiTreeView extends TanreiLightElement {
 
   /** The filter text (TRV-55): what the field holds. The tree sets it as the person types, then fires `filterchange`; set it yourself to give a filter back (no event). Empty, or white space, applies none. */
   filterValue = '';
-
-  /** What a filter does to the rows that do not match: `filter` (the default) hides them; `highlight` hides nothing and marks the matches (TRV-57, TRV-58). Anything else is `filter`, reported. */
-  filterMode: TanreiTreeViewFilterMode = 'filter';
 
   /** Names the filter field for assistive technology ("Filter files"): your words. Required while `filterable`. */
   filterLabel = '';
@@ -578,10 +564,8 @@ export class TanreiTreeView extends TanreiLightElement {
     this.heldRow = null;
     clearTimeout(this.leftTimer);
     this.left = null;
-    // TRV-60, TRV-66: out of the page, it marks and says nothing.
+    // TRV-66: out of the page, it says nothing.
     clearTimeout(this.sayTimer);
-    this.filter = { ...this.filter, runs: new Map() };
-    this.renderMarks();
   }
 
   /**
@@ -964,8 +948,6 @@ export class TanreiTreeView extends TanreiLightElement {
     for (const item of before) if (!now.has(item) && item.isConnected) this.readSelected(item as Item);
     for (const item of now) this.readSelected(item as Item);
     this.readStop();
-    // TRV-60: a match on a row that is selected now, or no longer, is marked in the other highlight.
-    if (this.filter.applied) this.renderMarks();
   }
 
   /** TRV-15: a value that names no item selects nothing; two items with one value are both selected. A debug build says each. */
@@ -1599,15 +1581,8 @@ export class TanreiTreeView extends TanreiLightElement {
   /** TRV-66: the result being waited for, and the timer of its pause. */
   private saidFor = '';
   private sayTimer: ReturnType<typeof setTimeout> | undefined;
-  /** TRV-60: this tree's ranges in each shared highlight, by its name. */
-  private marked = new Map<string, Range[]>();
   /** TRV-71: the native input the field's semantics are written on, and what was written. */
   private filterRow: HTMLElement | null = null;
-
-  /** TRV-71: the mode a filter is drawn in — filter or highlight; anything else is filter. */
-  private get filterModeAs(): TanreiTreeViewFilterMode {
-    return this.filterMode === 'highlight' ? 'highlight' : 'filter';
-  }
 
   /** The active match of TRV-61: the first row shown that matches and is not disabled. */
   private get activeMatch(): Item | null {
@@ -1830,8 +1805,8 @@ export class TanreiTreeView extends TanreiLightElement {
   /**
    * TRV-56 to TRV-59, TRV-68: the filter of filterValue over every item the tree holds — read or not, under a closed
    * parent or not — written on the items: the rows a filter hides (`data-tanrei-filtered`), the closed parents it draws
-   * open (`data-tanrei-filter-open`, at once, with no toggle and no `data-open`); then the marks, the status line, the
-   * status, the active match, the focus and the scroll.
+   * open (`data-tanrei-filter-open`, at once, with no toggle and no `data-open`); then the status line, the status, the
+   * active match, the focus and the scroll. No match is marked (TRV-60).
    */
   private applyFilter() {
     const words = this.filterWordsNow();
@@ -1852,8 +1827,6 @@ export class TanreiTreeView extends TanreiLightElement {
     const keptTop = kept ? kept.getBoundingClientRect().top : null;
     const next = words.length ? this.reckonFilter(words) : NO_FILTER;
     this.filter = next;
-    // TRV-60: the marks' colors are drawn only while a filter is applied (tree-view.css).
-    mark(this, 'data-tanrei-filtering', next.applied ? '' : null);
     for (const item of before.hidden) if (!next.hidden.has(item)) item.removeAttribute(FILTERED);
     for (const item of next.hidden) mark(item, FILTERED, '');
     for (const item of before.opened) {
@@ -1874,7 +1847,6 @@ export class TanreiTreeView extends TanreiLightElement {
       this.readStop();
       this.schedulePin();
     }
-    this.renderMarks();
     this.writeStatus();
     this.writeActive();
     // TRV-68: a filter that came to hide the row that has keyboard focus gives focus to the field.
@@ -1896,39 +1868,32 @@ export class TanreiTreeView extends TanreiLightElement {
   private reckonFilter(words: string[]): TreeFilter {
     const items = [...this.querySelectorAll<Item>('li')].filter((li) => isItem(li) && li.closest(TAG) === this);
     const matches = new Set<Item>();
-    const runs = new Map<Item, readonly Run[]>();
     for (const item of items) {
       const row = rowOf(item);
-      if (!row) continue;
-      const found = wordRuns(labelTextNodes(row).map((node) => node.data).join(''), words);
-      if (!found) continue;
-      matches.add(item);
-      runs.set(item, found);
+      if (row && wordRuns(labelTextNodes(row).map((node) => node.data).join(''), words)) matches.add(item);
     }
     const ancestors = (item: Element) => {
       const above: Item[] = [];
       for (let at = this.parentOf(item); at; at = this.parentOf(at)) above.push(at);
       return above;
     };
-    const hidden = new Set<Item>();
-    if (this.filterModeAs === 'filter') {
-      // TRV-57: each match, each parent that holds one, and the whole of a parent found by its own name; TRV-68: the
-      // row whose name is edited, and the new row's parents, until the field closes.
-      const shown = new Set<Item>();
-      const keep = (item: Item) => {
-        shown.add(item);
-        for (const above of ancestors(item)) shown.add(above);
-      };
-      for (const item of matches) {
-        keep(item);
-        const list = listOf(item);
-        if (list && isParent(item)) for (const inner of list.querySelectorAll<Item>('li')) if (isItem(inner)) shown.add(inner);
-      }
-      const editing = this.editing;
-      if (editing?.item) keep(editing.item);
-      if (editing && !editing.item) for (const above of ancestors(editing.li)) keep(above);
-      for (const item of items) if (!shown.has(item)) hidden.add(item);
+    // TRV-57: each match, each parent that holds one, and the whole of a parent found by its own name; TRV-68: the row
+    // whose name is edited, and the new row's parents, until the field closes.
+    const shown = new Set<Item>();
+    const keep = (item: Item) => {
+      shown.add(item);
+      for (const above of ancestors(item)) shown.add(above);
+    };
+    for (const item of matches) {
+      keep(item);
+      const list = listOf(item);
+      if (list && isParent(item)) for (const inner of list.querySelectorAll<Item>('li')) if (isItem(inner)) shown.add(inner);
     }
+    const editing = this.editing;
+    if (editing?.item) keep(editing.item);
+    if (editing && !editing.item) for (const above of ancestors(editing.li)) keep(above);
+    const hidden = new Set<Item>();
+    for (const item of items) if (!shown.has(item)) hidden.add(item);
     // TRV-59: each closed parent that holds a match, drawn open for the filter — unless the person opened or closed it.
     const opened = new Set<Item>();
     if (this.expandable) {
@@ -1937,7 +1902,7 @@ export class TanreiTreeView extends TanreiLightElement {
         for (const above of ancestors(item)) if (!above.hasAttribute('data-open') && !this.toggledInFilter.has(above)) opened.add(above);
       }
     }
-    return { applied: true, matches, hidden, opened, runs, active: null };
+    return { applied: true, matches, hidden, opened, active: null };
   }
 
   /** TRV-61: the first row shown that matches and is not disabled, in the order drawn (read once the rows are written). */
@@ -1977,40 +1942,6 @@ export class TanreiTreeView extends TanreiLightElement {
     for (const row of rows) this.positioned.add(row);
   }
 
-  /**
-   * TRV-60: every run a word matched, marked by a highlight of its text's ranges — the product's own text nodes, none
-   * added, split or removed — in one of two highlights shared by every tree of the document: on a row that is not
-   * selected, and on a selected one. A highlight draws a color and a fill and no weight: the raised weight of the spec
-   * (comp.tree-view.match.emphasis) is not drawn on the web. Where the browser has no highlights nothing is marked, and
-   * the filter works all the same.
-   */
-  private renderMarks() {
-    const registry = highlightRegistry();
-    if (!registry) return;
-    const now = new Map<string, Range[]>([MATCH, MATCH_SELECTED, MATCH_DISABLED, MATCH_SELECTED_DISABLED].map((name) => [name, []]));
-    for (const [item, runs] of this.filter.runs) {
-      const row = rowOf(item);
-      if (!row || !item.isConnected) continue;
-      const ranges = rangesOf(labelTextNodes(row), runs);
-      const selected = row.getAttribute('aria-selected') === 'true';
-      const name = isDisabled(item) ? (selected ? MATCH_SELECTED_DISABLED : MATCH_DISABLED) : selected ? MATCH_SELECTED : MATCH;
-      now.get(name)!.push(...ranges);
-    }
-    const write = (name: string, before: Range[], now: Range[]) => {
-      let highlight = registry.get(name);
-      if (!highlight && !now.length) return;
-      if (!highlight) {
-        highlight = new Highlight();
-        registry.set(name, highlight);
-      }
-      for (const range of before) highlight.delete(range);
-      for (const range of now) highlight.add(range);
-      if (!highlight.size) registry.delete(name);
-    };
-    for (const [name, ranges] of now) write(name, this.marked.get(name) ?? [], ranges);
-    this.marked = now;
-  }
-
   /** TRV-65: the status line's words now — the count, or the words for none; empty while it draws none. */
   private lineText(): string {
     const { applied, matches } = this.filter;
@@ -2041,7 +1972,7 @@ export class TanreiTreeView extends TanreiLightElement {
       line.toggleAttribute('hidden', !text);
     }
     const { applied, matches } = this.filter;
-    const result = applied ? [this.filterKey, this.filterModeAs, matches.size, ...[...matches].map((item) => labelOf(item))].join('\u0001') : '';
+    const result = applied ? [this.filterKey, matches.size, ...[...matches].map((item) => labelOf(item))].join('\u0001') : '';
     if (result === this.saidFor) return;
     this.saidFor = result;
     clearTimeout(this.sayTimer);
@@ -2083,7 +2014,6 @@ export class TanreiTreeView extends TanreiLightElement {
   private reportFilter() {
     if (!this.filterBox) return;
     if (!this.filterLabel.trim()) report(this, 'TRV-71', 'filterable is true and filterLabel is empty, so the filter field has no accessible name; give it one in the product’s language');
-    if (this.filterMode !== 'filter' && this.filterMode !== 'highlight') report(this, 'TRV-71', `filterMode "${this.filterMode}" is not a value the tree view defines; it filters as "filter"`);
     if (chordsOf(this.filterShortcut).length > 1) report(this, 'TRV-62', `filterShortcut holds ${chordsOf(this.filterShortcut).length} chords; a sequence is not bound, so the rows answer no chord for the field`);
     if (!this.words.get('filterPlaceholder', this.filterPlaceholder)) this.words.missing('filterPlaceholder', { id: 'TRV-54', effect: 'the empty filter field shows no hint' });
     if (this.filterValue && this.words.lacks('clearLabel', this.filterClearLabel)) report(this, 'TRV-64', 'filterClearLabel is empty and the product’s words give none, so the clear button has no accessible name; give it one in the product’s language');
@@ -2633,19 +2563,18 @@ export class TanreiTreeView extends TanreiLightElement {
   ];
 }
 
-/** TRV-56…59: what a filter does now — the items that match, the rows it hides, the parents it opens, the runs it marks. */
+/** TRV-56…59: what a filter does now — the items that match, the rows it hides, the parents it opens. */
 interface TreeFilter {
   applied: boolean;
   matches: Set<Item>;
   hidden: Set<Item>;
   opened: Set<Item>;
-  runs: Map<Item, readonly Run[]>;
   /** TRV-61: the first row shown that matches and is not disabled. */
   active: Item | null;
 }
-const NO_FILTER: TreeFilter = { applied: false, matches: new Set(), hidden: new Set(), opened: new Set(), runs: new Map(), active: null };
+const NO_FILTER: TreeFilter = { applied: false, matches: new Set(), hidden: new Set(), opened: new Set(), active: null };
 
-/** TRV-56, TRV-60: the label's own text nodes, in order — the row's text that is not one of its other parts. */
+/** TRV-56: the label's own text nodes, in order — the row's text that is not one of its other parts. */
 function labelTextNodes(row: Element): Text[] {
   const nodes: Text[] = [];
   const walk = (node: Node) => {
@@ -2658,40 +2587,6 @@ function labelTextNodes(row: Element): Text[] {
   };
   for (const child of row.childNodes) walk(child);
   return nodes;
-}
-
-/** TRV-60: the runs of a label (offsets into its text nodes joined) as ranges over those nodes; a run may cross nodes. */
-function rangesOf(nodes: Text[], runs: readonly Run[]): Range[] {
-  const starts: number[] = [];
-  let at = 0;
-  for (const node of nodes) {
-    starts.push(at);
-    at += node.data.length;
-  }
-  const place = (offset: number, end: boolean): [Text, number] | null => {
-    for (let index = 0; index < nodes.length; index += 1) {
-      const start = starts[index];
-      const stop = start + nodes[index].data.length;
-      if (end ? offset > start && offset <= stop : offset >= start && offset < stop) return [nodes[index], offset - start];
-    }
-    return null;
-  };
-  const ranges: Range[] = [];
-  for (const [start, end] of runs) {
-    const from = place(start, false);
-    const to = place(end, true);
-    if (!from || !to) continue;
-    const range = new Range();
-    range.setStart(from[0], from[1]);
-    range.setEnd(to[0], to[1]);
-    ranges.push(range);
-  }
-  return ranges;
-}
-
-/** TRV-60: the document's highlights, where the browser has them. */
-function highlightRegistry(): HighlightRegistry | null {
-  return typeof CSS !== 'undefined' && 'highlights' in CSS && typeof Highlight === 'function' ? CSS.highlights : null;
 }
 
 /** The nodes of a row that are its label: what is not one of its other parts (TRV-6). */

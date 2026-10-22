@@ -5749,11 +5749,6 @@ export interface TanreiTreeViewTokens {
   readonly guideWidth: number;
   readonly hoveredOpacity: number;
   readonly iconGap: number;
-  readonly matchColor: TanreiPaint;
-  readonly matchContainerColor: TanreiPaint;
-  readonly matchEmphasis: number;
-  readonly matchSelectedColor: TanreiPaint;
-  readonly matchSelectedContainerColor: TanreiPaint;
   readonly motionDisclosureDuration: number;
   readonly motionDisclosureEasing: TanreiCubicBezier;
   readonly motionFeedbackDuration: number;

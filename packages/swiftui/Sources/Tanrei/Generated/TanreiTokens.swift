@@ -18595,11 +18595,6 @@ public struct TanreiTreeViewTokens: Sendable, Equatable {
   public var guideColor: TanreiPaint
   public var guideWidth: CGFloat
   public var iconGap: CGFloat
-  public var matchColor: TanreiPaint
-  public var matchContainerColor: TanreiPaint
-  public var matchEmphasis: Double
-  public var matchSelectedColor: TanreiPaint
-  public var matchSelectedContainerColor: TanreiPaint
   public var motionDisclosureDuration: Double
   public var motionDisclosureEasing: TanreiCubicBezier
   public var motionFeedbackDuration: Double
@@ -18629,11 +18624,6 @@ public struct TanreiTreeViewTokens: Sendable, Equatable {
     guideColor: TanreiPaint,
     guideWidth: CGFloat,
     iconGap: CGFloat,
-    matchColor: TanreiPaint,
-    matchContainerColor: TanreiPaint,
-    matchEmphasis: Double,
-    matchSelectedColor: TanreiPaint,
-    matchSelectedContainerColor: TanreiPaint,
     motionDisclosureDuration: Double,
     motionDisclosureEasing: TanreiCubicBezier,
     motionFeedbackDuration: Double,
@@ -18658,11 +18648,6 @@ public struct TanreiTreeViewTokens: Sendable, Equatable {
     self.guideColor = guideColor
     self.guideWidth = guideWidth
     self.iconGap = iconGap
-    self.matchColor = matchColor
-    self.matchContainerColor = matchContainerColor
-    self.matchEmphasis = matchEmphasis
-    self.matchSelectedColor = matchSelectedColor
-    self.matchSelectedContainerColor = matchSelectedContainerColor
     self.motionDisclosureDuration = motionDisclosureDuration
     self.motionDisclosureEasing = motionDisclosureEasing
     self.motionFeedbackDuration = motionFeedbackDuration

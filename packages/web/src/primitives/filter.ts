@@ -1,5 +1,5 @@
 // How a typed text is compared with a label, and which runs of the label answered it: the combobox's filter (CMB-25,
-// CMB-29, CMB-38) and the filter field of the navigation drawer and the tree view (NVD-81, NVD-85, TRV-56, TRV-60).
+// CMB-29, CMB-38) and the filter field of the navigation drawer and the tree view (NVD-81, NVD-85, TRV-56).
 //
 // Without regard to case, to the width of a character or to the marks on a letter: each letter with the marks that
 // follow it is folded by itself — its compatibility form (a full-width "ｔ" is "t", a half-width "ｶ" is "カ"), without
@@ -68,7 +68,7 @@ export function filterWords(text: string): string[] {
 export type Run = readonly [number, number];
 
 /**
- * NVD-81, NVD-85, TRV-56, TRV-60: whether `label` holds every word — each anywhere in it, in any order — and, where it
+ * NVD-81, NVD-85, TRV-56: whether `label` holds every word — each anywhere in it, in any order — and, where it
  * does, every run of the label that a word matched, merged where they touch or overlap, in order. Null where a word is
  * missing. `folded` may be given where the caller keeps the label folded.
  */

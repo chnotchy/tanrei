@@ -516,7 +516,6 @@ export function auditInvariants(model) {
     [comp('search.result.mark.color'), comp('search.result.mark.container.color'), TEXT, 'a match on its fill'],
     ...[
       ['navigation-drawer.item.match', 'a matched run of a row'],
-      ['tree-view.match', 'a matched run of a row'],
       ['combobox.option.match', 'a matched run of an option'],
     ].flatMap(([match, what]) => [
       [comp(`${match}.color`), comp(`${match}.container.color`), TEXT, `${what} on its fill`],
