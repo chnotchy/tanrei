@@ -176,7 +176,7 @@
   ],
   "scripts": {
     "generate": "cem analyze",
-    "build": "tsc -p tsconfig.json && node scripts/build.js",
+    "build": "tsc -p tsconfig.json && node scripts/build.js && node ../tools/src/cli.js syntax",
     "test": "playwright test",
     "test:ci-like": "bash ../../scripts/ci-like.sh",
     "test:node": "node ../tools/src/run-node-tests.js \"src/links/node/test/*.test.mjs\" \"test/*.test.mjs\"",
