@@ -50,6 +50,10 @@ describe("a page's sources", () => {
     }
   });
 
+  test('of Theme Studio’s page, in every language, are the component that writes it', () => {
+    for (const prefix of ['', ...languages.map((dir) => `/${dir}`)]) assert.deepEqual(pageSources(`${prefix}/studio/`, where), ['apps/docs/src/components/StudioPage.astro']);
+  });
+
   test('of a translation that does not exist yet are the English page it shows; an address with no page has none', () => {
     const root = tempDir('docs-lastmod-sources');
     fs.mkdirSync(path.join(root, 'content/ja/foundations'), { recursive: true });
