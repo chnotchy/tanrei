@@ -14,6 +14,7 @@ import {
   styleQueries,
   syncFocusStyle,
 } from '../../primitives/index.js';
+import { FacesWatch } from '../../primitives/faces.js';
 import { DRAWN_WIDTH } from '../../primitives/glyph.js';
 import { debugBuild } from '../../primitives/report.js';
 import type { TanreiAccordionDensityRegistry, TanreiAccordionVariantRegistry } from '../../registry.js';
@@ -167,12 +168,12 @@ function glyphProbe(): HTMLElement {
   probe.textContent = 'expand_more';
   return probe;
 }
-/** The accordions on the page, told when the set of fonts says a load is over. */
+/** The accordions on the page, told when a face's load is over (one watch of the page's fonts for them all). */
 const connected = new Set<TanreiAccordion>();
-const fontsChanged = () => {
+const faces = new FacesWatch(() => {
   drawable.clear();
   for (const accordion of connected) accordion.readGlyphs();
-};
+});
 
 let groups = 0;
 let descriptions = 0;
@@ -301,11 +302,8 @@ export class TanreiAccordion extends TanreiLightElement {
     for (const [type, listener] of this.listeners) this.addEventListener(type, listener, true);
     this.observed = new WeakSet();
     this.mutations?.observe(this, { childList: true });
-    if (!connected.size) {
-      document.fonts?.addEventListener('loadingdone', fontsChanged);
-      document.fonts?.addEventListener('loadingerror', fontsChanged);
-    }
     connected.add(this);
+    faces.connect();
     if (this.hasUpdated) this.read();
   }
 
@@ -314,10 +312,7 @@ export class TanreiAccordion extends TanreiLightElement {
     for (const [type, listener] of this.listeners) this.removeEventListener(type, listener, true);
     this.mutations?.disconnect();
     connected.delete(this);
-    if (!connected.size) {
-      document.fonts?.removeEventListener('loadingdone', fontsChanged);
-      document.fonts?.removeEventListener('loadingerror', fontsChanged);
-    }
+    if (!connected.size) faces.disconnect();
     this.glyphSizes?.disconnect();
     this.glyphProbe?.remove();
     this.glyphProbe = null;
@@ -535,6 +530,8 @@ export class TanreiAccordion extends TanreiLightElement {
       const probe = this.glyphProbe ?? this.appendChild(glyphProbe());
       // (An accordion that is not drawn measures nothing: it is asked again when it is.)
       const width = probe.getBoundingClientRect().width;
+      // After the layout the read forced: the icon face the probe first asked for in it is loading now.
+      faces.measured();
       drawn = width <= EM * DRAWN_WIDTH;
       if (drawn && width > 0) drawable.add(family);
       else if (!this.glyphProbe) {

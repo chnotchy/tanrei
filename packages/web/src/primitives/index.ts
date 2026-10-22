@@ -13,6 +13,8 @@
 //   behavior    — reading a choice of kind from the cascade
 //   icon        — styles/icons.ts: `iconGlyph()` (a component's own icon, drawn as icons.css draws `.tanrei-icon`)
 //   glyph       — GlyphDrawnController: `data-drawn` on a component's glyph while the icon set can draw it (CHK-19, MNU-30, SNK-26)
+//   faces       — FacesWatch: what measures text measures it again when a face arrives, and once the faces are ready
+//                 after a measurement taken while one loaded (one watch of the page's fonts for every host)
 //   glyph-pending — PendingGlyphs: `data-glyphs="pending"` on a light-DOM component whose glyphs a stylesheet draws, while the icon set cannot (TRV-40)
 //   glyph-mirror — GlyphMirrorController: `data-tanrei-mirrored` on a component's own glyphs and on the glyphs in its slots
 //                 whose name the active icon set mirrors in right-to-left (BTN-19); the styles are
@@ -181,6 +183,7 @@ export { OUTSIDE_FOCUS_ORDER } from './focus-order.js';
 export { DIRECTION_PROBE, DirectionController, directionProbeStyles } from './direction.js';
 export { lineArrow } from './disclosure.js';
 export { PendingGlyphs, isGlyphProbe } from './glyph-pending.js';
+export { FacesWatch, type FacesChanged } from './faces.js';
 export { FollowController, type FollowOptions, anchorUndrawn } from './follow.js';
 export {
   ANCHORED_PLACEMENTS,
