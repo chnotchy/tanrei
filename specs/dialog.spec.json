@@ -35,6 +35,11 @@
       "description": "The question or statement the dialog is about, aligned to the start. It is the dialog's accessible name."
     },
     {
+      "id": "scroll",
+      "description": "The area between the header and the actions that holds the supporting text and the content, and scrolls them when the dialog does not fit (DLG-11). It reaches the container's inline edges whatever inline padding the container has, so the dividers cross the whole container and nothing overflows it; inside, it insets its parts by that same padding.",
+      "optional": true
+    },
+    {
       "id": "supporting-text",
       "description": "What will happen, or what the person needs to know to decide. It is the dialog's accessible description.",
       "optional": true

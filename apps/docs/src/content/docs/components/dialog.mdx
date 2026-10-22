@@ -222,6 +222,12 @@ Use a snackbar to report what just happened, with an optional Undo, instead of a
 
 When the parts do not fit in the window, the header and the actions stay in place and the supporting text and the content scroll between them. A hairline divider rules the header off from them and another the actions, for as long as they scroll, their top included. Set `dividerVisibility` to `scroll` (`divider-visibility` on the web) to draw each divider only while something is scrolled out of view beyond it; `cupertino` and `m3-like` choose that for every dialog. When large text leaves no room even for that, the whole dialog scrolls, with no divider.
 
+On the web, the part that scrolls is `::part(scroll)`. Whatever inline padding you give `::part(container)`, the scrolling part reaches the container's edges and keeps that padding inside, so its dividers still cross the whole dialog and nothing overflows it. If your content keeps a row stuck to its foot with `position: sticky`, tell the scrolling part how tall that row is, so that a field scrolled into view as it takes focus is not left underneath it:
+
+```css
+tanrei-dialog::part(scroll) { scroll-padding-block-end: 56px; }
+```
+
 A headline with no supporting text is allowed: a question in the headline, with its answers, is a dialogue. What a dialog cannot be is a statement with nothing to answer.
 
 ### The actions
@@ -351,3 +357,4 @@ Known platform gaps:
 - Give every dialog a visible way out, a dismissive action such as Cancel, even when `dismissible` is false.
 - On React Native, pass `initialFocusRef`. After the dialog closes, move focus back to its opener yourself if the platform does not.
 - On SwiftUI for macOS, attach `.tanreiDialog` to the window's root view, so the scrim covers the whole window.
+- On the web, if your content keeps a sticky row at its foot, set `scroll-padding-block-end` on `::part(scroll)` to that row's height, so that the element with focus is never hidden under it.
