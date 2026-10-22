@@ -105,6 +105,7 @@ const ARRANGEMENTS = ['fill', 'end'] as const;
  * @csspart header - The row that holds the icon and the headline.
  * @csspart headline - The headline.
  * @csspart supporting-text - The supporting text.
+ * @csspart scroll - The box between the header and the actions that scrolls the supporting text and the content. It reaches the container's inline edges whatever inline padding `::part(container)` is given, and insets its parts by that padding. A row the product keeps sticky at its foot sets `scroll-padding-block-end` here, so that what focus scrolls into view is not hidden under it.
  * @csspart content - The box the custom content is slotted into.
  * @csspart actions - The row (or column) of actions.
  * @fires {CustomEvent<TanreiDialogDismissDetail>} cancel - Escape, back or a press on the scrim asked to close it (only while `closedby` is not `none`): `detail.reason` is `escape`, `back` or `scrim`. Cancelable: `preventDefault()` keeps it open.
@@ -455,6 +456,7 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
     const dialog = this.dialog;
     if (!dialog) return;
     this.applyChoices(dialog);
+    this.syncPadding(dialog);
     this.placeActions(dialog);
     dialog.classList.remove('whole');
     const scroll = this.renderRoot.querySelector<HTMLElement>('.scroll');
@@ -478,6 +480,23 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
     const { row, changed } = this.placement.measure(box, dialog.dataset.arrangement === 'end' ? 'packed' : 'fill');
     dialog.style.setProperty('--_row', `${row}px`);
     if (changed) this.assign();
+  }
+
+  /**
+   * The container's inline padding as drawn, which the scrolling part, its dividers and its focus box reach through to
+   * the container's edges (`--_container-padding-start`, `--_container-padding-end`): measured rather than read from
+   * `container.padding`, so a padding the product gives `::part(container)` is followed and nothing overflows it. Two
+   * probes inherit the padding of one side each and are observed (`firstUpdated`), so a change of either, even one that
+   * leaves every box the same size (padding moved from one side to the other), lays the dialog out again.
+   */
+  private syncPadding(dialog: HTMLDialogElement) {
+    const style = getComputedStyle(dialog);
+    const rtl = style.direction === 'rtl';
+    const sides = { start: rtl ? style.paddingRight : style.paddingLeft, end: rtl ? style.paddingLeft : style.paddingRight };
+    for (const [side, value] of Object.entries(sides)) {
+      const name = `--_container-padding-${side}`;
+      if (dialog.style.getPropertyValue(name) !== value) dialog.style.setProperty(name, value);
+    }
   }
 
   private syncDividers() {
@@ -511,6 +530,8 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
   protected override firstUpdated() {
     const dialog = this.dialog;
     if (dialog) this.resize$?.observe(dialog);
+    // syncPadding: each probe is as wide as the container's padding at one side, so any change of it is observed.
+    for (const probe of this.renderRoot.querySelectorAll('.inset-probe')) this.resize$?.observe(probe, { box: 'border-box' });
   }
 
   protected override updated(changed: PropertyValues<this>) {
@@ -573,7 +594,7 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
           </div>
         </div>
         <div class="middle" ?hidden=${!middle}>
-          <div class="scroll" data-tanrei-shape @scroll=${this.onScroll}>
+          <div part="scroll" class="scroll" data-tanrei-shape @scroll=${this.onScroll}>
             ${supporting ? html`<p id="supporting" part="supporting-text" class="supporting">${this.supportingText}</p>` : nothing}
             <div part="content" class="content" ?hidden=${!this.filled.content}><slot></slot></div>
           </div>
@@ -582,6 +603,7 @@ export class TanreiDialog extends TanreiElement implements VariantHost {
         <div part="actions" class="actions" ?hidden=${!this.filled.actions}>
           <slot name="actions-first"></slot><slot name="actions-between"></slot><slot name="actions-last"></slot>
         </div>
+        <span class="inset-probe start" aria-hidden="true"></span><span class="inset-probe end" aria-hidden="true"></span>
       </dialog>
     `;
   }

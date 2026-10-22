@@ -6484,8 +6484,12 @@ the dialog is taller than the window less the margins, the supporting text and t
 the actions, with a `divider.width` line in `divider.color` across the container below the headline and another above the
 actions — both for as long as that part scrolls under `always`, and under `scroll` the first only once scrolled and the
 second only while more lies below (DLG-24); when the scrolled part would have less than a line of room, the whole dialog
-scrolls instead, with no divider. Everything is logical, so RTL mirrors. Parts: `container`, `icon`, `headline`, `supporting-text`, `content`,
-`actions`.
+scrolls instead, with no divider. Everything is logical, so RTL mirrors. The scrolled part (`scroll`) reaches the
+container's inline edges through its padding, and insets its parts by it, at each side: the dialog measures the padding the
+container is drawn with (two hidden probes inherit it, one side each, and are observed), so a product that changes
+`::part(container)`'s `padding-inline` moves the scrolled part, its dividers and its focus box with it and nothing overflows.
+A row the product keeps sticky at the foot of its content is its own to clear: `::part(scroll) { scroll-padding-block-end }`.
+Parts: `container`, `header`, `icon`, `headline`, `scroll`, `supporting-text`, `content`, `actions`.
 
 ## `<tanrei-bottom-sheet>`
 
