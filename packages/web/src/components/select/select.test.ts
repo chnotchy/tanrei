@@ -970,6 +970,32 @@ test.describe('behavior: the list', () => {
     expect((await read(page, 'one')).open).toBe(false);
   });
 
+  test('SEL-24: the list stays inside the visible part of the window — above the on-screen keyboard, and below a visual viewport scrolled down, as iOS leaves it to keep a field in view — and is whole again when that changes', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 700 });
+    await mount(page, [fx('one', { value: 'fr' })]);
+    await page.evaluate(() => document.body.insertAdjacentHTML('afterbegin', '<div style="block-size: 300px"></div>'));
+    await container(page, 'one').click();
+    await shownList(page, 'one').toBe(true);
+    await grownIn(page, 'one');
+    const margin = await token(page, 'list-viewport-margin');
+    const before = await box(part(page, 'one', '.list'));
+    const visual = (b: { top: number; height: number } | null) =>
+      page.evaluate((v) => {
+        const real = (window as any).__realViewport ?? ((window as any).__realViewport = window.visualViewport);
+        const fake = v && { offsetTop: v.top, offsetLeft: 0, height: v.height, width: window.innerWidth, scale: 1, addEventListener() {}, removeEventListener() {} };
+        Object.defineProperty(window, 'visualViewport', { configurable: true, get: () => fake ?? real });
+        window.dispatchEvent(new Event('resize'));
+      }, b);
+    await visual({ top: 200, height: 250 });
+    await expect.poll(async () => ((l) => l.y + l.height)(await box(part(page, 'one', '.list')))).toBeLessThanOrEqual(450 - margin + 0.6);
+    expect((await box(part(page, 'one', '.list'))).y, 'below the top of what is visible').toBeGreaterThanOrEqual(200 + margin - 0.6);
+    expect((await read(page, 'one')).shown, 'still open').toBe(true);
+    // The keyboard hides: whole again, on the side it took while that side has room (POP-5).
+    await visual(null);
+    await expect.poll(async () => (await box(part(page, 'one', '.list'))).height).toBeCloseTo(before.height, 1);
+    expect((await box(part(page, 'one', '.list'))).y).toBeGreaterThanOrEqual(margin - 0.6);
+  });
+
   test('SEL-25: the list is filled with list.color, raised by list.elevation, rounded by list.shape and insets its options by its paddings; it is as wide as its options need, never narrower than its container or list.min-width, never wider than list.max-width past a narrower container, and never wider than the window allows; as tall as its options up to list.max-height, scrolling beyond that, vertically only; opened with a chosen option, the whole of that option is in view', async ({ page }) => {
     const LONG = 'Every project, priority support, single sign-on and an audit log kept for a year';
     await mount(page, [

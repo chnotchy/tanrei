@@ -29,10 +29,13 @@ import {
   modalLayer,
   naturalHeight,
   notifyItemUpdate,
+  placeMenu,
   platformConvention,
   report,
   syncFocusStyle,
   trapFocus,
+  viewportKey,
+  visibleViewport,
   WordsController,
 } from '../../primitives/index.js';
 import '../button/button.js';
@@ -40,7 +43,6 @@ import '../button/button.js';
 import '../keyboard-shortcut/keyboard-shortcut.js';
 import type { TanreiKeyboardShortcut } from '../keyboard-shortcut/keyboard-shortcut.js';
 import '../loading-indicator/loading-indicator.js';
-import { placeMenu } from '../menu/menu.js';
 import { pressDefaultButton } from '../../primitives/default-button.js';
 import { takeFormDisabled } from '../../primitives/form-disabled.js';
 import { AXES, groupStyles, rowStyles, styles, suggestionStyles } from './search.styles.js';
@@ -1437,14 +1439,12 @@ export class TanreiSearch extends TanreiElement {
     const margin = Number.parseFloat(style.scrollMarginBlockEnd) || 0;
     const box = bar.getBoundingClientRect();
     view.style.inlineSize = `${box.width}px`;
-    // The on-screen keyboard: the part of the layout viewport the visual viewport no longer covers.
-    const visual = window.visualViewport;
-    const height = Math.min(document.documentElement.clientHeight, visual ? visual.offsetTop + visual.height : Number.POSITIVE_INFINITY);
     const at = placeMenu({
       anchor: box,
       // SRC-14: measured capped, so following the bar never loses the active suggestion.
       surface: { width: box.width, height: naturalHeight(view, view.querySelector<HTMLElement>('.scroll')) },
-      viewport: { width: document.documentElement.clientWidth, height },
+      // The visible part of the window: above the on-screen keyboard.
+      viewport: visibleViewport(),
       placement: 'bottom-start',
       offset,
       margin,
@@ -1460,8 +1460,7 @@ export class TanreiSearch extends TanreiElement {
   private readonly follow = (): boolean => {
     const box = this.barElement?.getBoundingClientRect();
     const scroll = this.view?.querySelector<HTMLElement>('.scroll');
-    const visual = window.visualViewport;
-    const layout = `${box?.x},${box?.y},${box?.width},${box?.height},${document.documentElement.clientWidth},${document.documentElement.clientHeight},${visual?.height},${visual?.offsetTop},${scroll?.scrollHeight}`;
+    const layout = `${box?.x},${box?.y},${box?.width},${box?.height},${viewportKey()},${scroll?.scrollHeight}`;
     if (layout === this.lastLayout) return false;
     this.lastLayout = layout;
     this.place();

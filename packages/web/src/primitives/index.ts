@@ -117,7 +117,9 @@
 //                 under it (a navigation drawer's group, NVD-45; an accordion's header, ACC-11)
 //   placement   — placeAnchored(): where a surface that opens beside a control goes (the thirteen placements, offsets,
 //                 flipping, shifting, holding, the arrow's point: TIP-9, TIP-22…25, POP-2…5); anchorGone() (the anchor
-//                 removed, hidden or out of sight); the attributes of `offset`, `cross-offset` and a true/false/unset choice
+//                 removed, hidden or out of sight); the attributes of `offset`, `cross-offset` and a true/false/unset choice;
+//                 visibleViewport() (the visible part of the window, above the on-screen keyboard); placeMenu(),
+//                 placeAtPoint() and placeSubmenu() (a menu's kind of surface: MNU-2, MNU-46, MNU-47, MNU-61, DTM-2)
 //   arrow       — arrowStyles(), shadowLayers(), shadeFilter() and shadeOn(): the arrow of an anchored surface, one shape with it
 //                 under one elevation (TIP-25, POP-10); arrowOutlineStyles(): its outline in forced colors (POP-32)
 //   compact-sheet — CompactWindow, compactProbeStyles() and sheetLookStyles(): a compact window, and the bottom sheet's
@@ -186,14 +188,23 @@ export {
   type AnchoredPlace,
   type AnchoredPlacement,
   type AnchoredSide,
+  type MenuBox,
+  type MenuPlacement,
   type NamedSide,
+  type PlacementViewport,
+  type ViewportBox,
   anchorGone,
   anchorOutOfSight,
   choiceAttribute,
   crossOffsetAttribute,
   numericAttribute,
   placeAnchored,
+  placeAtPoint,
+  placeMenu,
+  placeSubmenu,
   usableLength,
+  viewportKey,
+  visibleViewport,
 } from './placement.js';
 export { type ArrowStyleOptions, type ShadowLayer, arrowOutlineStyles, arrowStyles, shadeFilter, shadeOn, shadowLayers } from './arrow.js';
 export { CompactWindow, type SheetLookOptions, compactProbeStyles, sheetLookStyles } from './compact-sheet.js';

@@ -334,6 +334,45 @@ test.describe('overlay', () => {
     expect(await focused(page)).toBe('Item 8');
   });
 
+  test('MNU-2: placed inside the visible part of the window — above the on-screen keyboard, which shrinks the visual viewport and not the layout one, and below a visual viewport scrolled down — and placed again when it changes', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 700 });
+    await mountFixtures(page, spec, { fixtures: [overlay('edit', EDIT)] });
+    await page.addStyleTag({ content: `#a-edit { position: fixed; top: 380px; left: 300px; inline-size: 200px; }` });
+    await wire(page);
+    const [offset, margin] = await Promise.all([resolveToken(page, T('surface-offset')), resolveToken(page, T('surface-viewport-margin'))]);
+    // The visual viewport as the keyboard leaves it (the layout viewport keeps its size); the real one again with none.
+    const visual = (box: { top: number; height: number } | null) =>
+      page.evaluate((b) => {
+        const real = (window as any).__realViewport ?? ((window as any).__realViewport = window.visualViewport);
+        const fake = b && { offsetTop: b.top, offsetLeft: 0, height: b.height, width: window.innerWidth, scale: 1, addEventListener() {}, removeEventListener() {} };
+        Object.defineProperty(window, 'visualViewport', { configurable: true, get: () => fake ?? real });
+        window.dispatchEvent(new Event('resize'));
+      }, box);
+    const placed = async () => {
+      const box = await bounds(surface(page, 'edit'));
+      return { top: box.y, bottom: box.y + box.height };
+    };
+    await menu(page, 'edit').evaluate((el: any) => (el.open = true));
+    await expect.poll(() => isOpen(page, 'edit')).toBe(true);
+    await motionEnded(page);
+    const a = await bounds(anchor(page, 'edit'));
+    expect((await placed()).top, 'below the anchor while the window has room').toBeCloseTo(a.y + a.height + offset, 0);
+    // The keyboard covers all but the top 450 pixels: below the anchor there is no room left, so it flips above.
+    await visual({ top: 0, height: 450 });
+    await expect.poll(async () => (await placed()).bottom).toBeCloseTo(a.y - offset, 0);
+    await expect(surface(page, 'edit')).toHaveClass(/side-top/);
+    // The visual viewport scrolled down by 300 as well (iOS moves it to keep a field in view): the room above starts
+    // there, and the surface, taller than it, is limited to it and scrolls.
+    await visual({ top: 300, height: 150 });
+    await expect.poll(async () => (await placed()).top).toBeGreaterThanOrEqual(300 + margin - 0.5);
+    expect((await placed()).bottom, 'still above the anchor').toBeCloseTo(a.y - offset, 0);
+    expect(await menu(page, 'edit').locator('.scroll').evaluate((el) => el.scrollHeight > el.clientHeight), 'its items scroll').toBe(true);
+    // The keyboard hides: back below the anchor.
+    await visual(null);
+    await expect.poll(async () => (await placed()).top).toBeCloseTo(a.y + a.height + offset, 0);
+    await expect(surface(page, 'edit')).not.toHaveClass(/side-top/);
+  });
+
   test('MNU-4: it fades in and grows from the edge facing the anchor, fades out, and appears and disappears at once where motion is reduced', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [overlay('edit', EDIT)] });
     await wire(page);

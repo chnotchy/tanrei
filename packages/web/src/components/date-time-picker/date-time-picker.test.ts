@@ -233,6 +233,29 @@ test.describe('presentation, focus and closing', () => {
     expect((await rect(s)).height % 1, 'the picker is not a whole number of pixels tall').not.toBeCloseTo(0, 1);
   });
 
+  test('DTM-2: a docked picker stays inside the visible part of the window — above the on-screen keyboard, which shrinks the visual viewport and not the layout one — and takes its place again when the keyboard hides', async ({ page }) => {
+    await mount(page, [docked('d', { value: '2026-09-17' })]);
+    await opener(page, 'd').evaluate((el) => ((el as HTMLElement).style.cssText = 'position: fixed; top: 260px; left: 8px;'));
+    await open(page, 'd');
+    const s = surface(page, 'd');
+    const before = await bounds(s);
+    const vm = await resolveToken(page, T('docked-viewport-margin'));
+    // The keyboard: the visual viewport loses its lower 360 pixels (the layout viewport keeps its size).
+    const keyboard = (covers: number) =>
+      page.evaluate((cover) => {
+        const real = (window as any).__realViewport ?? ((window as any).__realViewport = window.visualViewport);
+        const fake = { height: window.innerHeight - cover, width: window.innerWidth, offsetTop: 0, offsetLeft: 0, scale: 1, addEventListener() {}, removeEventListener() {} };
+        Object.defineProperty(window, 'visualViewport', { configurable: true, get: () => (cover ? fake : real) });
+        window.dispatchEvent(new Event('resize'));
+      }, covers);
+    expect(before.y + before.height, 'below the keyboard’s top edge before it shows').toBeGreaterThan(360);
+    await keyboard(360);
+    await expect.poll(async () => ((b) => b.y + b.height)(await bounds(s))).toBeLessThanOrEqual(360 - vm + 0.5);
+    expect((await bounds(s)).y).toBeGreaterThanOrEqual(vm - 0.5);
+    await keyboard(0);
+    await expect.poll(() => bounds(s)).toEqual(before);
+  });
+
   test('DTM-2: placed again as the page moves or the window resizes, a scrolled body keeps its offset and the focused day stays in view', async ({ page }) => {
     await mount(page, [docked('d', { value: '2026-09-17' })]);
     // The anchor at the top of the page, so that the picker opens below it, taller than the room there.

@@ -50,6 +50,7 @@ import {
   periodNames,
   periodOf,
   periodPlace,
+  placeMenu,
   report,
   roundDown,
   shownHour12,
@@ -62,6 +63,8 @@ import {
   timeText,
   trapFocus,
   unitName,
+  viewportKey,
+  visibleViewport,
   watchEscape,
   type WordKey,
   WordsController,
@@ -69,7 +72,6 @@ import {
 import '../button/button.js';
 import '../calendar/calendar.js';
 import type { TanreiCalendar, TanreiCalendarChangeDetail } from '../calendar/calendar.js';
-import { placeMenu } from '../menu/menu.js';
 import '../tabs/tabs.js';
 import { styles } from './date-time-picker.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
@@ -2107,7 +2109,10 @@ export class TanreiDateTimePicker extends TanreiElement {
 
   // ── Presenting (DTM-1 … DTM-4, DTM-9, DTM-35 … DTM-37) ────────────────────────────────────────────────────────────
 
-  /** DTM-2, DTM-36: a docked picker below its anchor (flipped, shifted, its height limited to the room), following it. */
+  /**
+   * DTM-2, DTM-36: a docked picker below its anchor (flipped, shifted, its height limited to the room), following it,
+   * inside the visible part of the window: above the on-screen keyboard.
+   */
   private place() {
     const surface = this.surface;
     if (!surface || this.inline || !this.shown || this.modal) return;
@@ -2119,10 +2124,10 @@ export class TanreiDateTimePicker extends TanreiElement {
     // surface itself where everything scrolls together.
     const scroller = surface.classList.contains('whole') ? surface : surface.querySelector<HTMLElement>('.body');
     const size = { width: layoutSize(surface).width, height: naturalHeight(surface, scroller) };
-    const box = this.anchorElement?.getBoundingClientRect() ?? { x: margin, y: margin, width: 0, height: 0 };
-    const viewport = { width: document.documentElement.clientWidth, height: document.documentElement.clientHeight };
+    const viewport = visibleViewport();
+    const box = this.anchorElement?.getBoundingClientRect() ?? { x: viewport.x + margin, y: viewport.y + margin, width: 0, height: 0 };
     const at = placeMenu({ anchor: box, surface: size, viewport, placement: 'bottom-start', offset, margin, rtl: getComputedStyle(this).direction === 'rtl' });
-    const left = size.width > viewport.width - 2 * margin ? Math.max(0, (viewport.width - size.width) / 2) : at.left;
+    const left = size.width > viewport.width - 2 * margin ? viewport.x + Math.max(0, (viewport.width - size.width) / 2) : at.left;
     surface.style.top = `${at.top}px`;
     surface.style.left = `${left}px`;
     surface.style.maxBlockSize = `${at.maxHeight}px`;
@@ -2137,7 +2142,7 @@ export class TanreiDateTimePicker extends TanreiElement {
     const box = this.anchorElement?.getBoundingClientRect();
     const body = this.renderRoot.querySelector<HTMLElement>('.body');
     // DTM-41: the layout direction too — the start edges are aligned (DTM-2), so a change of it places the container again.
-    const layout = `${box?.x},${box?.y},${box?.width},${box?.height},${document.documentElement.clientWidth},${document.documentElement.clientHeight},${body?.scrollHeight},${getComputedStyle(this).direction}`;
+    const layout = `${box?.x},${box?.y},${box?.width},${box?.height},${viewportKey()},${body?.scrollHeight},${getComputedStyle(this).direction}`;
     if (layout === this.lastLayout) return false;
     this.lastLayout = layout;
     this.place();

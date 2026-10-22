@@ -24437,45 +24437,6 @@
       "declarations": [
         {
           "kind": "function",
-          "name": "placeMenu",
-          "parameters": [
-            {
-              "name": "input",
-              "type": {
-                "text": "{ anchor: MenuBox; surface: { width: number; height: number }; viewport: { width: number; height: number }; placement: TanreiMenuPlacement; offset: number; margin: number; rtl: boolean }"
-              }
-            }
-          ],
-          "description": "Where the surface goes (MNU-2): `offset` from the anchor on the placement's side, flipped to the other side when this\none has less room than the surface needs within `margin` of the viewport's edge and the other has more; aligned by its\nstart or end edge with the anchor's (mirrored in right-to-left), then shifted along the anchor to stay `margin` inside\nthe viewport; its height limited to the room left. Coordinates are the viewport's (`left` is physical)."
-        },
-        {
-          "kind": "function",
-          "name": "placeAtPoint",
-          "parameters": [
-            {
-              "name": "input",
-              "type": {
-                "text": "{ point: { x: number; y: number }; surface: { width: number; height: number }; viewport: { width: number; height: number }; placement: TanreiMenuPlacement; margin: number; rtl: boolean }"
-              }
-            }
-          ],
-          "description": "Where the surface of a context menu goes from the point it was asked for at (MNU-61): with no offset, a corner on the\npoint — the block-start corner for a `bottom-*` placement, the block-end one for `top-*`, the inline-start one for\n`*-start` (mirrored in right-to-left) — flipped to the other side of the point, along each axis by itself, where its\nside has less room than the surface needs within `margin` of the viewport's edge and the other side has more; then\nshifted to stay `margin` inside the viewport, its height limited to the room left. Coordinates are the viewport's."
-        },
-        {
-          "kind": "function",
-          "name": "placeSubmenu",
-          "parameters": [
-            {
-              "name": "input",
-              "type": {
-                "text": "{\n  parent: MenuBox;\n  row: MenuBox;\n  surface: { width: number; height: number };\n  lead: number;\n  viewport: { width: number; height: number };\n  offset: number;\n  margin: number;\n  minWidth: number;\n  touch: number;\n  rtl: boolean;\n  prefer?: 'left' | 'right' | null;\n}"
-              }
-            }
-          ],
-          "description": "Where a submenu's surface goes (MNU-46, MNU-47): beside the surface that holds its item (`parent`), `offset` from that\nsurface's inline-end edge — or from the side `prefer` names, the side its parent surface was itself placed on — and on\nthe other side when this one has less room than the surface needs within `margin` of the viewport's edge and the\nother has more. Where the side it is on has room for `minWidth` but not for the surface, the surface is narrowed to\nthe room. Where neither side has room for `minWidth` it is laid over `parent`: on the side with more room, as far\ntowards it as the margin allows, as wide as leaves `touch` of the parent uncovered on its other side and never\nnarrower than `minWidth`. Its first row (`lead` below its own block-start edge) is level with the item's `row`, then\nit is shifted along the block axis to stay `margin` inside the viewport, its height limited to the room.\nCoordinates are the viewport's (`left` and `side` are physical)."
-        },
-        {
-          "kind": "function",
           "name": "inTriangle",
           "return": {
             "type": {
@@ -26545,11 +26506,7 @@
         },
         {
           "kind": "variable",
-          "name": "viewport",
-          "type": {
-            "text": "object"
-          },
-          "default": "{ width: document.documentElement.clientWidth, height: document.documentElement.clientHeight }"
+          "name": "viewport"
         },
         {
           "kind": "variable",
@@ -26573,30 +26530,6 @@
         }
       ],
       "exports": [
-        {
-          "kind": "js",
-          "name": "placeMenu",
-          "declaration": {
-            "name": "placeMenu",
-            "module": "src/components/menu/menu.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "placeAtPoint",
-          "declaration": {
-            "name": "placeAtPoint",
-            "module": "src/components/menu/menu.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "placeSubmenu",
-          "declaration": {
-            "name": "placeSubmenu",
-            "module": "src/components/menu/menu.ts"
-          }
-        },
         {
           "kind": "js",
           "name": "inTriangle",

@@ -2893,8 +2893,8 @@ What the web does in its own way, and what it cannot do:
   excepted), and does not match a Hangul syllable by its first consonant or kana by its reading.
 - **A placeholder's own direction** (CMB-55) is drawn where the engine styles a placeholder's bidi (Chromium,
   WebKit); Firefox applies no `unicode-bidi` to it, and lays a hint out by the input's direction.
-- **The keyboard's top edge** (CMB-58) is the visual viewport's lower edge, where a browser reports one
-  (`keyboardCover()`, as a popover's).
+- **The keyboard's top edge** (CMB-58) is the visual viewport's lower edge, where a browser reports one: the list is
+  kept in the visible part of the window (`visibleViewport()`, as a popover's).
 - **Before the element is defined** its options are running text in the page: hide `tanrei-combobox:not(:defined) > *` and reserve the block size.
 - **Choices of kind** are read from the cascade: the separation by a style query, with `data-separation` written by
   the element where a browser has none; the focus style when focus arrives (`data-focus-style`, on the box and on the
@@ -4682,9 +4682,12 @@ a new tab by a modified or a middle click and the status bar are the browser's o
 **The overlay (MNU-1…5, MNU-25).** The surface is a `popover="manual"` element in the menu's shadow root, shown in the
 top layer. It is placed **by script**, not with CSS anchor positioning (the spec's web note names that, with a script
 fallback; one placement function everywhere keeps the flip, the shift and the room-limited height identical in every
-engine): `surface.offset` from the anchor on the placement's side, flipped when
-that side has less room than the surface within `surface.viewport-margin` and the other has more, shifted along the
-anchor to stay inside that margin, its height limited to the room left (the items scroll), and followed while open —
+engine — `placeMenu()`, `placeAtPoint()` and `placeSubmenu()` in `src/primitives/placement.ts`): `surface.offset` from
+the anchor on the placement's side, flipped when that side has less room than the surface within
+`surface.viewport-margin` of the **visible part of the window** (`visibleViewport()`: the visual viewport within the
+layout one, so above an on-screen keyboard, which on iOS shrinks only the visual viewport) and the other has more,
+shifted along the anchor to stay inside that margin, its height limited to the room left (the items scroll), and
+followed while open —
 by events, frame by frame only while something moves (`FollowController`, below). It fades in and grows from the edge facing the anchor over `motion.open-duration` / `-easing`, and fades out
 over `motion.close-duration` / `-easing` (at once under reduced motion). Opening focuses the first enabled item; closing
 returns focus to the anchor when it was inside the menu. It is not modal: no focus trap, nothing inert, no scrim. **A press
@@ -5709,8 +5712,8 @@ In order: the side and alignment `placement` names; `offset`, then `crossOffset`
 preferred one has no room; **limited to the room** of the side with more where neither has enough (the content then
 scrolls; a tooltip is never limited); shifted along its side to stay `window-margin` inside the window; and, where the
 room is less than its least size (its least width; its header and actions), moved back over the anchor, still inside the
-margin, with no arrow. The window is less its safe-area insets and less the part the on-screen keyboard covers (the
-visual viewport), and what has focus is scrolled into the room left. It follows its anchor with `FollowController` — by
+margin, with no arrow. The window is its visible part (`visibleViewport()`: the visual viewport within the layout one —
+above the on-screen keyboard, and only what a visual viewport scrolled or zoomed shows) less its safe-area insets, and what has focus is scrolled into the room left. It follows its anchor with `FollowController` — by
 events, no frame at rest — and keeps the side it is on while that side has room. The anchor removed, hidden or wholly
 out of sight (also inside a scrolling ancestor): `close`, reason `anchor-hidden`, once each time it goes.
 
@@ -6301,9 +6304,9 @@ trapped, centred at least `modal.container.margin` from the edges and above the 
 modal surface does (`appearStyles()` and `AppearController`, role modal, from its centre: `sys.motion.appear.*` over the
 modal open and close motions, turned round from what it shows, at once before the first paint) and only fades where
 motion is reduced. A docked picker is a manual popover
-placed by script with the menu's `placeMenu`: `docked.offset` below its
+placed by script with the menu's `placeMenu()` (`src/primitives/placement.ts`): `docked.offset` below its
 anchor with the start edges aligned, flipped above when there is more room there, shifted to stay
-`docked.viewport-margin` inside the viewport, its height limited to the room, following the anchor (by events, `FollowController`); it
+`docked.viewport-margin` inside the visible part of the window (above an on-screen keyboard), its height limited to the room, following the anchor (by events, `FollowController`); it
 grows from the edge that faces the anchor and fades out (at once where motion is reduced). It traps nothing: Tab out of
 it asks to close (`tab`) and focus goes on from its anchor; focus moving elsewhere asks to close (`focus-out`); a press
 outside it and its anchor asks to close (`outside`) **and also reaches the element under it**, as the menu's does. Both
@@ -8136,7 +8139,7 @@ own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them kn
 | `GlyphMirrorController` (`glyph-mirror.ts`) | `data-tanrei-mirrored` on each glyph whose name the active icon set mirrors in right-to-left, or whose `data-mirror` says `always` (never with `never`): after each render, on `slotchange`, when a slotted glyph's text or `data-mirror` changes, when the root switches the system. `iconGlyph()` draws the mark under `:dir(rtl)`; the component mirrors nothing itself (BTN-19) | `drawn`: a selector for the `iconGlyph()` boxes whose name the component writes; `slots`: a selector for the slots that take the product's glyph (each inside an `iconGlyph()` box) |
 | `GlyphDrawnController` (`glyph.ts`) | `data-drawn` on each glyph box while the icon set can draw its ligature (its text is at most `DRAWN_WIDTH` × the box), re-read when the text's width changes (the font arrives, a system switch) and after each render; running transitions end when a glyph becomes drawable (CHK-19) | the glyph boxes (styled by `iconGlyph()`, each holding one inline-block text element); hide a glyph box without `data-drawn` |
 | `VisibilityController` | `visible`: false while the host is scrolled out of view or hidden, so a running animation pauses | render `animation-play-state: paused` while it is false |
-| `placeAnchored()`, `anchorGone()`, `numericAttribute` / `crossOffsetAttribute` / `choiceAttribute` (`placement.ts`) | where a surface that opens beside a control goes, as numbers: the thirteen placements, the offsets, flipping, shifting, holding, the side kept, the arrow's point, `fits` and `room` for a surface that can be limited (TIP-9, TIP-22…25, POP-2…5); whether an anchor is removed, hidden or out of sight; the attributes of `offset`, `cross-offset` and a true / false / unset choice | the boxes, the placement, what an unknown one falls back to, `auto`'s order and alignment |
+| `placeAnchored()`, `anchorGone()`, `numericAttribute` / `crossOffsetAttribute` / `choiceAttribute`, `visibleViewport()` / `viewportKey()`, `placeMenu()` / `placeAtPoint()` / `placeSubmenu()` (`placement.ts`) | where a surface that opens beside a control goes, as numbers: the thirteen placements, the offsets, flipping, shifting, holding, the side kept, the arrow's point, `fits` and `room` for a surface that can be limited (TIP-9, TIP-22…25, POP-2…5); whether an anchor is removed, hidden or out of sight; the attributes of `offset`, `cross-offset` and a true / false / unset choice; the visible part of the window, above the on-screen keyboard (the visual viewport within the layout one); where a menu's kind of surface goes — below or above its anchor, at a point, beside its parent surface (MNU-2, MNU-46, MNU-47, MNU-61, DTM-2, SRC-7) | the boxes, the placement, what an unknown one falls back to, `auto`'s order and alignment |
 | `AnchoredSurfaceController`, `anchoredSurfaceStyles()` (`anchored.ts`) | a surface presented in the top layer (or in place), placed with `placeAnchored()`, limited to the room or moved back over its anchor, following it (`FollowController`), with the arrow's point, the elevation's layers for the shade, the one appearance (`appearStyles()` with role `anchored` and origin `anchor`, its `AppearController`: grown from the middle of the edge that faces the anchor, left the same way back, a surface still leaving put back into the top layer where its exit had got to — `keep()` — and one just placed started from the side it was placed on — `drawAtOnce()`; in place for a fixture it is whole at once), and the on-screen keyboard as an edge (POP-1…5, POP-7, POP-8, POP-26, POP-27, POP-36). It writes `--_anchored-max-inline`, `--_anchored-max-block` and `--_anchored-anchor-inline`, `data-side` and `data-held` on the placed box, and the arrow's elevation filter there (`shadeOn()`), never on what moves | the placed box, the wrapper that moves and the painted box; the anchor; the props; the component's tokens as CSS expressions; `gone()` for an anchor out of sight; `least()`, `arrange()` |
 | `arrowStyles()`, `shadowLayers()`, `shadeFilter()`, `shadeOn()`, `arrowOutlineStyles()` (`arrow.ts`) | the arrow of an anchored surface on the edge that faces the anchor, one shape with the painted box under one elevation (an SVG filter made from the resolved `box-shadow`, set on the placed box by `shadeOn()`: the element that moves keeps `filter` for the appearance's blur), and its outline in forced colors (TIP-25, POP-10, POP-32) | the selectors, the arrow's measures, the fill and the elevation |
 | `DismissController`, `registerOverlay()`, `logicalAncestors()`, `overlayDepth()` (`dismiss.ts`) | Escape (the topmost surface alone, at the surface's edge, after everything inside heard the key), a press outside and focus leaving ask the host to close, once for one act; an overlay knows what opened it, so that "inside" follows the opener and not the document (POP-21, POP-23, POP-24) | the anchor and opener (`related`), `request(reason)`, `tab(event)`; each overlay's `openers`, `open`, `close` |
