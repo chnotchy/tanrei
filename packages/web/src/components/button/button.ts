@@ -19,6 +19,7 @@ import {
   afterClick,
   delegatedAria,
   delegatesAria,
+  namedByProduct,
   endsWaiting,
   linkAttributes,
   markPassingSubmitter,
@@ -629,7 +630,7 @@ export class TanreiButton extends TanreiElement {
     // BTN-16, BTN-17: an icon alone is not a name, and a button with neither label nor icon shows nothing. It still renders.
     if (!this.hasLabel && !this.hasIcon) report(this, 'BTN-17', 'it has neither a label nor an icon; give it one');
     // A button its host keeps from assistive technology needs no name there (a number field's unnamed stepper, NUM-44).
-    else if (!this.hasLabel && !this.label && this.getAttribute('aria-hidden') !== 'true') report(this, 'BTN-16', 'it is icon-only and label is empty, so it has no accessible name; give it a label');
+    else if (!this.hasLabel && !this.label && !namedByProduct(this) && this.getAttribute('aria-hidden') !== 'true') report(this, 'BTN-16', 'it is icon-only and label is empty, so it has no accessible name; give it a label');
   }
 
   /** BTN-33: a type the button does not define, and a type a toggle or a link ignores. Each once. */
@@ -701,6 +702,8 @@ export class TanreiButton extends TanreiElement {
         tabindex=${this.outsideFocusOrder ? '-1' : link && reachable ? '0' : nothing}
         ${delegatedAria(this, {
           'aria-label': this.label,
+          // BTN-16: a label given is the whole name, over the product's aria-labelledby.
+          'aria-labelledby': this.label ? null : undefined,
           'aria-description': description,
           'aria-pressed': this.toggle && String(this.selected),
           'aria-disabled': !link && reachable && 'true',

@@ -220,13 +220,26 @@ function relationElements(host: Delegating, name: RelationName): Element[] | nul
   return found;
 }
 
+/**
+ * Whether the product has named `host` itself — a non-empty `aria-label`, or an `aria-labelledby` that names an element
+ * — for a component whose check for a missing name must count it (BTN-16).
+ */
+export function namedByProduct(host: Element): boolean {
+  const label = kept(host as Delegating).get('aria-label');
+  if (typeof label === 'string' && label.trim()) return true;
+  return (relationElements(host as Delegating, 'aria-labelledby')?.length ?? 0) > 0;
+}
+
 /** The text an element stands for where its reference cannot be drawn: its own name, else its text. */
 const textOf = (element: Element) => (element.getAttribute('aria-label') || element.textContent || '').replace(/\s+/g, ' ').trim();
 
 const same = (a: readonly Element[] | null | undefined, b: readonly Element[] | null | undefined) =>
   (a?.length ?? 0) === (b?.length ?? 0) && (a ?? []).every((element, at) => element === b?.[at]);
 
-/** What the component says itself on the element: a name's value, or nothing (empty, null, undefined, false). */
+/**
+ * What the component says itself on the element: a name's value, or nothing (empty, undefined, false) — and then the
+ * product's. `null` is nothing too for a state; for a relationship it keeps the product's out as well.
+ */
 export type OwnAria = Partial<Record<string, string | null | undefined | false>>;
 
 class DelegatedAria extends Directive {
@@ -261,7 +274,9 @@ class DelegatedAria extends Directive {
     const referenced = new Map<RelationName, { ids: string; given: Element[] }>();
     for (const name of Object.keys(DELEGATED_RELATIONS) as RelationName[]) {
       const ids = (own[name] || '') as string;
-      const given = delegated.has(name) ? (relationElements(host, name) ?? []) : [];
+      // `null` for a relationship: the component keeps the product's out (a Button's label is its whole name, BTN-16).
+      const overruled = own[name] === null;
+      const given = delegated.has(name) && !overruled ? (relationElements(host, name) ?? []) : [];
       // A Tanrei element that delegates it takes the elements whatever the engine, and draws them where it can.
       if (given.length && (reflects(name) || delegatedNames(element).includes(name))) {
         referenced.set(name, { ids, given });

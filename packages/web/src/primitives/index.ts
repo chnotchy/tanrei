@@ -176,7 +176,7 @@ export { type Point, type RippleTokens, fadeRipple, rippleStyles, startRipple } 
 export { type StatePaints, type StateSelector, stateRules } from './states.js';
 export { arcStyles } from './arc.js';
 export { RANGE_SIZES, RANGE_VARIANTS, rangeAxes, rangeClasses, rangeOf, rangeTrackStyles, renderRangeBar, renderRangeRing } from './range-track.js';
-export { DELEGATED_RELATIONS, DELEGATED_STATES, type DelegatedName, type OwnAria, delegatedAria, delegatedNames, delegatesAria } from './delegated-aria.js';
+export { DELEGATED_RELATIONS, DELEGATED_STATES, type DelegatedName, type OwnAria, delegatedAria, delegatedNames, delegatesAria, namedByProduct } from './delegated-aria.js';
 export { OUTSIDE_FOCUS_ORDER } from './focus-order.js';
 export { DIRECTION_PROBE, DirectionController, directionProbeStyles } from './direction.js';
 export { lineArrow } from './disclosure.js';

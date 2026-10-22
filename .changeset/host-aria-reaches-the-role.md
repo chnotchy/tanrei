@@ -19,3 +19,7 @@ with the same name in the accessibility tree. The element still answers for them
 `ariaDescribedByElements`, …) read and change what it keeps — but a stylesheet or a query that selects the host by one
 of those attributes (`tanrei-button[aria-expanded="true"]`) no longer matches it. The internal `forwardedDescription`
 and `forwardedInvalid` properties of Button and Main action button are removed.
+
+An icon-only Button with an empty `label` that the product names with `aria-label` or `aria-labelledby` on the element
+is named by it and no longer reported as nameless in debug builds (BTN-16); a `label` given is still the whole name,
+over the product's `aria-labelledby`.

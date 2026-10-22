@@ -19,6 +19,8 @@ interface Subject {
   path: string[];
   /** What the component owns: never taken from the host. */
   owns: string[];
+  /** A name it gives itself that is its whole name, over the product's aria-labelledby (a Button's label, BTN-16). */
+  ownName?: string;
 }
 
 const SUBJECTS: Record<string, Subject> = {
@@ -29,7 +31,7 @@ const SUBJECTS: Record<string, Subject> = {
     owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-disabled'],
   },
   'main-action-button': { markup: (rest) => `<tanrei-main-action-button id="subject" ${rest} label="New"><span slot="icon">add</span></tanrei-main-action-button>`, path: ['button'], owns: ['aria-disabled'] },
-  'copy-button': { markup: (rest) => `<tanrei-copy-button id="subject" ${rest} value="a" label="Copy" copied-label="Copied"></tanrei-copy-button>`, path: ['tanrei-button', 'button'], owns: ['aria-pressed', 'aria-disabled'] },
+  'copy-button': { markup: (rest) => `<tanrei-copy-button id="subject" ${rest} value="a" label="Copy" copied-label="Copied"></tanrei-copy-button>`, path: ['tanrei-button', 'button'], owns: ['aria-pressed', 'aria-disabled'], ownName: 'Copy' },
   chip: { markup: (rest) => `<tanrei-chip id="subject" ${rest} label="Chip"></tanrei-chip>`, path: ['.container'], owns: ['aria-pressed', 'aria-disabled'] },
   card: { markup: (rest) => `<tanrei-card id="subject" ${rest} interactive label="Card">Card</tanrei-card>`, path: ['.container'], owns: ['aria-disabled'] },
   checkbox: { markup: (rest) => `<tanrei-checkbox id="subject" ${rest} label="Checkbox"></tanrei-checkbox>`, path: ['input'], owns: ['aria-checked', 'aria-pressed', 'aria-disabled'] },
@@ -150,7 +152,8 @@ for (const [name, subject] of Object.entries(SUBJECTS)) {
   test(`${name}: where the engine has no ARIA element reflection, the text of the elements named stands in for them`, async ({ page }) => {
     await load(page, `tanrei-${name}`, subject.markup('aria-describedby="described" aria-labelledby="named"'), { withoutReflection: true });
     const said = await read_(page, subject.path, ['aria-label', 'aria-description']);
-    expect(said.inner['aria-label'], 'the label’s text is the name').toBe('Named text');
+    if (subject.ownName) expect(said.inner['aria-label'], 'its own label is its whole name').toBe(subject.ownName);
+    else expect(said.inner['aria-label'], 'the label’s text is the name').toBe('Named text');
     expect(said.inner['aria-description'] ?? '', 'the description’s text is in the description').toContain('Described text');
     expect(said.onHost, 'and the host keeps neither').toEqual([]);
   });
