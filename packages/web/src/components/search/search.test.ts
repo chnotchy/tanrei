@@ -2250,12 +2250,12 @@ test.describe('results', () => {
     expect(await css(two, 'transition-property')).not.toContain('outline');
     // Pressed over focused, at once (SRC-19, SRC-20): by Enter, held for press-hold, and by pointer.
     const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
+    // Read in the task that presses: the press is held for press-hold, which a loaded machine spends before a second read.
     const pressed = await two.evaluate((el) => {
       el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, composed: true }));
-      return (el as HTMLElement).dataset.pressed;
+      return [(el as HTMLElement).dataset.pressed, getComputedStyle(el.querySelector('.headline')!).color];
     });
-    expect(pressed).toBe('overlay');
-    await expect.poll(() => css(headline, 'color')).toBe('rgb(200, 0, 0)');
+    expect(pressed).toEqual(['overlay', 'rgb(200, 0, 0)']);
     await expect.poll(() => two.getAttribute('data-pressed'), { timeout: hold + 2000 }).toBeNull();
     await two.hover();
     await page.mouse.down();
