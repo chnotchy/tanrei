@@ -22,13 +22,15 @@ const lastmod = sitemapLastmod({
   contentDir: path.relative(repoRoot, fileURLToPath(new URL('./src/content/docs', import.meta.url))).split(path.sep).join('/'),
   languages: translations.map(({ dir }) => dir),
 });
+// The names and the site's address (tanrei.config.json).
+const config = JSON.parse(fs.readFileSync(new URL('../../tanrei.config.json', import.meta.url), 'utf8'));
 // The generated status file: a row for each component, with the address of its page (written from specs/).
 const status = JSON.parse(fs.readFileSync(new URL('../../docs/status/status.json', import.meta.url), 'utf8'));
 // The shipped systems, each of which has its components manifest (tokens/generated/<id>/components.json), and the
 // default one, named by the configuration: the systems the lists of components can show, and the one they show first.
 const generated = new URL('../../tokens/generated/', import.meta.url);
 const systems = fs.readdirSync(generated).filter((id) => fs.existsSync(new URL(`${id}/components.json`, generated))).sort();
-const defaultSystem = JSON.parse(fs.readFileSync(new URL('../../tanrei.config.json', import.meta.url), 'utf8')).namespace;
+const defaultSystem = config.namespace;
 
 // Applies the reader's stored contrast choice before first paint. The attribute
 // lives on <html> because component tokens are resolved at :root.
@@ -36,9 +38,10 @@ const contrastBootstrap = `try{var c=localStorage.getItem('tanrei-docs-contrast'
 
 // The public URL (Cloudflare Pages, custom domain), from tanrei.config.json. Gives every page its canonical URL, the
 // sitemap and robots.txt (src/pages/robots.txt.ts).
-const { site } = JSON.parse(fs.readFileSync(new URL('../../tanrei.config.json', import.meta.url), 'utf8'));
+const { site } = config;
 if (!site) throw new Error('tanrei.config.json has no "site": the address of the docs site');
-const title = 'Tanrei';
+// The site's title: the system's name.
+const title = config.name;
 
 // The brand page took the place of the principles page: its old address, in every language, leads there.
 const moved = Object.fromEntries(['', ...translations.map(({ dir }) => dir)].map((dir) => [`${dir ? `/${dir}` : ''}/foundations/principles`, `${dir ? `/${dir}` : ''}/foundations/brand/`]));
