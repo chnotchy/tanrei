@@ -166,7 +166,7 @@ test.describe('behavior', () => {
     expect(await log(page)).toEqual([]);
     await expect(toggle(page, 'off')).toBeDisabled();
     await expect(host(page, 'off').getByRole('button', { name: 'Create', disabled: true })).toHaveCount(1);
-    expect(await focused(page)).not.toBe('button.toggle');
+    expect(await focused(page)).not.toBe('button#toggle');
     expect(await shown(page, 'off')).toBe(false);
     await expect(toggle(page, 'off')).toHaveAttribute('aria-expanded', 'false');
     await expect(toggle(page, 'off')).not.toHaveClass(/open/);
@@ -247,7 +247,7 @@ test.describe('behavior', () => {
     expect(await cssOf(box(page, 'menu', 'Document'), 'outline-style')).toBe('none');
     expect(await cssOf(toggle(page, 'menu'), 'outline-style')).toBe('none');
     await page.keyboard.press('Escape');
-    await expect.poll(() => focused(page)).toBe('button.toggle');
+    await expect.poll(() => focused(page)).toBe('button#toggle');
 
     await page.locator('#before').focus();
     await tabTo(page, toggle(page, 'menu'));
@@ -480,7 +480,7 @@ test.describe('behavior', () => {
     // Closing (Escape): the items leave and focus returns to the toggle.
     await page.keyboard.press('Escape');
     await expect.poll(() => shown(page, 'menu')).toBe(false);
-    expect(await focused(page)).toBe('button.toggle');
+    expect(await focused(page)).toBe('button#toggle');
     // Up Arrow opens with focus on the last item, the one nearest the toggle.
     await page.keyboard.press('ArrowUp');
     await expect.poll(() => focused(page)).toBe('item[Upload]');
@@ -541,7 +541,7 @@ test.describe('behavior', () => {
     await page.keyboard.press('ArrowDown');
     await page.keyboard.press('Escape');
     expect(await log(page)).toEqual(['toggle:true', 'close:escape']);
-    expect(await focused(page)).toBe('button.toggle');
+    expect(await focused(page)).toBe('button#toggle');
 
     await open();
     await page.locator('#after').click();
@@ -587,7 +587,7 @@ test.describe('behavior', () => {
       await activate();
       await expect.poll(() => log(page), how).toEqual(['toggle:true', 'item:Folder', 'host-click:Folder', 'close:item']);
       await expect.poll(() => shown(page, 'menu'), how).toBe(false);
-      expect(await focused(page), how).toBe('button.toggle');
+      expect(await focused(page), how).toBe('button#toggle');
     }
   });
 
@@ -1125,7 +1125,7 @@ test.describe('accessibility', () => {
     await surround(page);
     await page.locator('#before').focus();
     await tab(page);
-    expect(await focused(page)).toBe('button.toggle');
+    expect(await focused(page)).toBe('button#toggle');
     await tab(page);
     expect(await focused(page)).toBe('button#after');
     expect(await host(page, 'menu').evaluate((el) => [...el.querySelectorAll('tanrei-fab-menu-item')].map((it) => it.getAttribute('tabindex')))).toEqual(['-1', '-1', '-1']);
