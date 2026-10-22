@@ -2,13 +2,15 @@
 // the host and is exposed on that element (src/primitives/delegated-aria.ts; each spec's accessibility notes, "WHEN the
 // product sets an aria- attribute on the host"): states as attributes, id references by ARIA element reflection (and,
 // where an engine has none, the text of what they name), the error message in the description while invalid. What the
-// component owns moves too and is not exposed. The host carries no aria-* of the product's, and getAttribute('aria-X')
-// on it is null: the value is data-aria-X.
+// component owns moves too, is not exposed and is reported in a debug build. The host carries no aria-* of the
+// product's, and getAttribute('aria-X') on it is null: the value is data-aria-X. Each control is a subject in every
+// engine; a composed field passes the product's ARIA on to its control, and a Lit product's bindings are followed.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { buildSync } from 'esbuild';
 import { axTree } from '../../test/ax-tree.js';
 
 const web = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -23,7 +25,19 @@ interface Subject {
   owns: string[];
   /** A name it gives itself that is its whole name, over the product's aria-labelledby (a Button's label, BTN-16). */
   ownName?: string;
+  /** The tag of the subject, where the page is loaded for another (a segment, in its set): `tanrei-<name>` otherwise. */
+  tag?: string;
+  /** How many nodes the product's name names: one, or more where the component names a part by the control (a group's list). */
+  namedNodes?: number;
+  /** What the component says on its host itself, where the host has a role of its own (a destination is a list item). */
+  hostOwn?: string[];
 }
+
+/** A list item's position in its list, which a destination says on its host (NVB-*, NVD-23). */
+const LIST_ITEM = ['aria-posinset', 'aria-setsize'];
+
+/** What a composed field says itself: its name is its Field's label, and its disabled state its own. */
+const FIELD_OWNS = ['aria-label', 'aria-labelledby', 'aria-disabled'];
 
 const SUBJECTS: Record<string, Subject> = {
   button: { markup: (rest) => `<tanrei-button id="subject" ${rest}>Send</tanrei-button>`, path: ['button'], owns: ['aria-pressed', 'aria-disabled'] },
@@ -54,6 +68,88 @@ const SUBJECTS: Record<string, Subject> = {
   search: { markup: (rest) => `<tanrei-search id="subject" ${rest} label="Search"></tanrei-search>`, path: ['input'], owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-keyshortcuts', 'aria-disabled'] },
   'number-input': { markup: (rest) => `<tanrei-number-input id="subject" ${rest} label="Number" increment-label="More" decrement-label="Less"></tanrei-number-input>`, path: ['input'], owns: ['aria-disabled'] },
   'color-input': { markup: (rest) => `<tanrei-color-input id="subject" ${rest} label="Color" value="#0f766e"></tanrei-color-input>`, path: ['input'], owns: ['aria-disabled'] },
+  // A composed field passes the product's ARIA on to its control, which moves and exposes it; its name is label.
+  'text-field': { markup: (rest) => `<tanrei-text-field id="subject" ${rest} label="Text"></tanrei-text-field>`, path: ['tanrei-text-input', 'input'], owns: [...FIELD_OWNS], ownName: 'Text' },
+  'number-field': {
+    markup: (rest) => `<tanrei-number-field id="subject" ${rest} label="Number" increment-label="More" decrement-label="Less"></tanrei-number-field>`,
+    path: ['tanrei-number-input', 'input'],
+    owns: [...FIELD_OWNS],
+    ownName: 'Number',
+  },
+  'select-field': {
+    markup: (rest) => `<tanrei-select-field id="subject" ${rest} label="Select"><tanrei-option value="a">Alpha</tanrei-option></tanrei-select-field>`,
+    path: ['tanrei-select', '[role="combobox"]'],
+    owns: [...FIELD_OWNS, 'aria-haspopup', 'aria-expanded', 'aria-controls'],
+    ownName: 'Select',
+  },
+  'combobox-field': {
+    markup: (rest) => `<tanrei-combobox-field id="subject" ${rest} label="Combobox"><tanrei-option value="a">Alpha</tanrei-option></tanrei-combobox-field>`,
+    path: ['tanrei-combobox', 'input'],
+    owns: [...FIELD_OWNS, 'aria-haspopup', 'aria-expanded', 'aria-controls'],
+    ownName: 'Combobox',
+  },
+  'color-field': { markup: (rest) => `<tanrei-color-field id="subject" ${rest} label="Color" value="#0f766e"></tanrei-color-field>`, path: ['tanrei-color-input', 'input'], owns: [...FIELD_OWNS], ownName: 'Color' },
+  'slider-field': { markup: (rest) => `<tanrei-slider-field id="subject" ${rest} label="Slider" value="40"></tanrei-slider-field>`, path: ['tanrei-slider', '[role="slider"]'], owns: [...FIELD_OWNS], ownName: 'Slider' },
+  'chip-field': { markup: (rest) => `<tanrei-chip-field id="subject" ${rest} label="Chips" remove-label="Remove {entry}"></tanrei-chip-field>`, path: ['tanrei-text-input', 'input'], owns: [...FIELD_OWNS], ownName: 'Chips' },
+  'one-time-code-field': { markup: (rest) => `<tanrei-one-time-code-field id="subject" ${rest} label="Code"></tanrei-one-time-code-field>`, path: ['tanrei-one-time-code-input', 'input'], owns: [...FIELD_OWNS], ownName: 'Code' },
+  // ETI-13: its name, its description and its states reach it as props.
+  'embedded-text-input': {
+    markup: (rest) => `<tanrei-embedded-text-input id="subject" ${rest} label="Message"></tanrei-embedded-text-input>`,
+    path: ['input'],
+    owns: ['aria-label', 'aria-labelledby', 'aria-description', 'aria-describedby', 'aria-errormessage', 'aria-invalid', 'aria-required', 'aria-readonly', 'aria-disabled'],
+    ownName: 'Message',
+  },
+  'one-time-code-input': { markup: (rest) => `<tanrei-one-time-code-input id="subject" ${rest} label="Code"></tanrei-one-time-code-input>`, path: ['input'], owns: ['aria-disabled'] },
+  segment: {
+    markup: (rest) => `<tanrei-segmented-button label="View"><tanrei-segment id="subject" ${rest} value="a" label="Alpha"></tanrei-segment><tanrei-segment value="b" label="Beta"></tanrei-segment></tanrei-segmented-button>`,
+    path: ['button'],
+    owns: ['aria-checked', 'aria-pressed', 'aria-disabled'],
+    tag: 'tanrei-segment',
+  },
+  'fab-menu': {
+    markup: (rest) =>
+      `<tanrei-fab-menu id="subject" ${rest} label="Create" inline><span slot="icon">add</span><tanrei-fab-menu-item label="Edit" icon="edit"></tanrei-fab-menu-item><tanrei-fab-menu-item label="Mail" icon="mail"></tanrei-fab-menu-item></tanrei-fab-menu>`,
+    path: ['button'],
+    owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-disabled'],
+  },
+  // The current destination is the component's own: the subject is never the bar's or the drawer's value.
+  'navigation-bar-item': {
+    markup: (rest) =>
+      `<tanrei-navigation-bar label="Main" value="b"><tanrei-navigation-bar-item id="subject" ${rest} value="a" label="Home" icon="home"></tanrei-navigation-bar-item><tanrei-navigation-bar-item value="b" label="Mail" icon="mail"></tanrei-navigation-bar-item></tanrei-navigation-bar>`,
+    path: ['[part="cell"]'],
+    owns: ['aria-current', 'aria-disabled'],
+    hostOwn: LIST_ITEM,
+  },
+  'navigation-drawer-item': {
+    markup: (rest) =>
+      `<tanrei-navigation-drawer open label="Side" value="b"><tanrei-navigation-drawer-item id="subject" ${rest} value="a" label="Home" icon="home"></tanrei-navigation-drawer-item><tanrei-navigation-drawer-item value="b" label="Mail" icon="mail"></tanrei-navigation-drawer-item></tanrei-navigation-drawer>`,
+    path: ['[part="cell"]'],
+    owns: ['aria-current', 'aria-disabled'],
+    hostOwn: LIST_ITEM,
+  },
+  // The rail: the drawer's collapsed form draws the same item as an icon cell.
+  'navigation-drawer-item (collapsed)': {
+    markup: (rest) =>
+      `<tanrei-navigation-drawer open collapsible label="Rail" value="b"><tanrei-navigation-drawer-item id="subject" ${rest} value="a" label="Home" icon="home"></tanrei-navigation-drawer-item><tanrei-navigation-drawer-item value="b" label="Mail" icon="mail"></tanrei-navigation-drawer-item></tanrei-navigation-drawer>`,
+    path: ['[part="cell"]'],
+    owns: ['aria-current', 'aria-disabled'],
+    tag: 'tanrei-navigation-drawer-item',
+    hostOwn: LIST_ITEM,
+  },
+  'navigation-drawer-group': {
+    markup: (rest) =>
+      `<tanrei-navigation-drawer open label="Groups" value="b"><tanrei-navigation-drawer-group id="subject" ${rest} label="Projects" icon="folder" open><tanrei-navigation-drawer-item value="b" label="Atlas" icon="deployed_code"></tanrei-navigation-drawer-item></tanrei-navigation-drawer-group></tanrei-navigation-drawer>`,
+    path: ['#row'],
+    owns: ['aria-current', 'aria-expanded', 'aria-controls', 'aria-disabled'],
+    // Its list is named by its row (NVD-44).
+    namedNodes: 2,
+    hostOwn: LIST_ITEM,
+  },
+  tabs: {
+    markup: (rest) => `<tanrei-tabs id="subject" ${rest} label="Sections" value="a"><tanrei-tab value="a" label="Alpha"></tanrei-tab><tanrei-tab value="b" label="Beta"></tanrei-tab></tanrei-tabs>`,
+    path: ['[role="tablist"]'],
+    owns: [],
+  },
 };
 
 /** The states the tests set on a host: each one the component does not own. */
@@ -90,9 +186,9 @@ const settle = (page: Page) =>
   });
 
 /** What the element that carries the role says, and what the host carries. */
-function read_(page: Page, path: string[], names: string[]) {
+function read_(page: Page, path: string[], names: string[], hostOwn: string[] = []) {
   return page.evaluate(
-    ({ path, names }) => {
+    ({ path, names, hostOwn }) => {
       const host = document.querySelector<HTMLElement>('#subject')!;
       let at: Element = host;
       for (const selector of path) at = at.shadowRoot!.querySelector(selector)!;
@@ -111,12 +207,12 @@ function read_(page: Page, path: string[], names: string[]) {
         controls: ids('ariaControlsElements'),
         errormessage: inner.getAttribute('aria-errormessage'),
         // What the host carries: no aria-* of the product's, and each one moved to data-aria-*.
-        ariaOnHost: [...host.attributes].map((a) => a.name).filter((name) => name.startsWith('aria-')),
+        ariaOnHost: [...host.attributes].map((a) => a.name).filter((name) => name.startsWith('aria-') && !hostOwn.includes(name)),
         data: Object.fromEntries([...host.attributes].filter((a) => a.name.startsWith('data-aria-')).map((a) => [a.name, a.value])),
         getAttribute: Object.fromEntries(names.map((name) => [name, host.getAttribute(name)])),
       };
     },
-    { path, names },
+    { path, names, hostOwn },
   );
 }
 
@@ -126,19 +222,22 @@ for (const [name, subject] of Object.entries(SUBJECTS)) {
     .map(([state, value]) => `${state}="${value}"`)
     .join(' ');
   const names = [...new Set([...Object.keys(STATES), 'aria-describedby', 'aria-controls', ...subject.owns])];
+  const tag = subject.tag ?? `tanrei-${name}`;
+  // A description given by the product reaches the element unless the component owns it (an embedded text input's is its prop).
+  const describes = !subject.owns.includes('aria-describedby');
 
   test(`${name}: the product's aria-* on the host moves to data-aria-* and is exposed on the element that carries the role; what the component owns moves and is not exposed`, async ({ page }) => {
     const owned = subject.owns.map((state) => `${state}="${state === 'aria-disabled' ? 'true' : 'mixed'}"`).join(' ');
-    const relations = subject.owns.includes('aria-controls') ? 'aria-describedby="described"' : 'aria-describedby="described" aria-controls="controlled"';
-    await load(page, `tanrei-${name}`, subject.markup(`${written} ${relations} ${owned}`));
-    const before = await read_(page, subject.path, names);
+    const relations = [describes && 'aria-describedby="described"', !subject.owns.includes('aria-controls') && 'aria-controls="controlled"'].filter(Boolean).join(' ');
+    await load(page, tag, subject.markup(`${written} ${relations} ${owned}`));
+    const before = await read_(page, subject.path, names, subject.hostOwn);
     for (const [state, value] of Object.entries(states)) expect(before.inner[state], `${state} is the element's`).toBe(value);
-    expect(before.described, 'aria-describedby reaches the element').toBe('Described text');
+    expect(before.described, 'aria-describedby reaches the element').toBe(describes ? 'Described text' : '');
     if (!subject.owns.includes('aria-controls')) expect(before.controls, 'aria-controls reaches the element by reflection').toEqual(['controlled']);
     for (const state of subject.owns) expect(before.inner[state], `${state} is the component's own`).not.toBe(state === 'aria-disabled' ? 'true' : 'mixed');
     expect(before.ariaOnHost, 'the host carries no aria-* of the product’s').toEqual([]);
     for (const [state, value] of Object.entries(states)) expect(before.data[`data-${state}`], `${state} moved as written`).toBe(value);
-    expect(before.data['data-aria-describedby']).toBe('described');
+    expect(before.data['data-aria-describedby']).toBe(describes ? 'described' : 'mixed');
     for (const state of subject.owns) expect(before.data[`data-${state}`], `${state} moved too`).toBeDefined();
     for (const each of names) expect(before.getAttribute[each], `getAttribute('${each}') is null: the host does not have it`).toBeNull();
 
@@ -151,13 +250,13 @@ for (const [name, subject] of Object.entries(SUBJECTS)) {
       host.ariaDescribedByElements = [document.querySelector('#other')!];
     });
     await settle(page);
-    const after = await read_(page, subject.path, names);
+    const after = await read_(page, subject.path, names, subject.hostOwn);
     if ('aria-keyshortcuts' in states) expect(after.inner['aria-keyshortcuts'], 'a changed state follows').toBe('Alt+J');
     expect(after.inner['aria-invalid'], 'removeAttribute of the moved name takes it off the element').not.toBe('true');
     expect(after.data['data-aria-invalid'], '…and off the host').toBeUndefined();
     expect(after.inner['aria-current'], 'toggleAttribute(name, false) takes it off').toBeNull();
     expect(after.data['data-aria-current']).toBeUndefined();
-    expect(after.described, 'elements given by property').toBe('Other text');
+    expect(after.described, 'elements given by property').toBe(describes ? 'Other text' : '');
     expect(after.ariaOnHost).toEqual([]);
 
     // The property, and the moved attribute removed by the product itself.
@@ -167,7 +266,7 @@ for (const [name, subject] of Object.entries(SUBJECTS)) {
       host.removeAttribute('data-aria-describedby');
     });
     await settle(page);
-    const last = await read_(page, subject.path, names);
+    const last = await read_(page, subject.path, names, subject.hostOwn);
     if ('aria-current' in states) expect(last.inner['aria-current'], 'a state set by its property moves too').toBe('page');
     expect(last.data['data-aria-current']).toBe('page');
     expect(last.described, 'data-aria-* removed by the product takes it off').toBe('');
@@ -176,12 +275,42 @@ for (const [name, subject] of Object.entries(SUBJECTS)) {
   });
 
   test(`${name}: where the engine has no ARIA element reflection, the text of the elements named stands in for them`, async ({ page }) => {
-    await load(page, `tanrei-${name}`, subject.markup('aria-describedby="described" aria-labelledby="named"'), { withoutReflection: true });
-    const said = await read_(page, subject.path, ['aria-label', 'aria-description']);
+    await load(page, tag, subject.markup('aria-describedby="described" aria-labelledby="named"'), { withoutReflection: true });
+    const said = await read_(page, subject.path, ['aria-label', 'aria-description'], subject.hostOwn);
     if (subject.ownName) expect(said.inner['aria-label'], 'its own label is its whole name').toBe(subject.ownName);
     else expect(said.inner['aria-label'], 'the label’s text is the name').toBe('Named text');
-    expect(said.described, 'the description’s text is the description').toBe('Described text');
+    expect(said.described, 'the description’s text is the description').toBe(describes ? 'Described text' : '');
     expect(said.ariaOnHost, 'and the host keeps neither').toEqual([]);
+  });
+
+  test(`${name}: the host is no second node in Chromium’s accessibility tree — the name and the description the product gives are the element’s that carries the role, once`, async ({ page, browserName }) => {
+    test.skip(browserName !== 'chromium', 'only Chromium gives a test its accessibility tree');
+    await load(page, tag, subject.markup('aria-labelledby="named" aria-describedby="described" aria-current="page"'));
+    const tree = await axTree(page, '#stage');
+    const dump = tree.join('\n');
+    const named = subject.ownName || subject.owns.includes('aria-labelledby') ? 0 : (subject.namedNodes ?? 1);
+    expect(tree.filter((line) => line.includes('"Named text"')), dump).toHaveLength(named);
+    expect(tree.filter((line) => line.includes('Described text')), dump).toHaveLength(describes ? 1 : 0);
+    expect(tree.filter((line) => /^\s*generic "[^"]|^\s*generic "[^"]*" \(/.test(line)), 'no node without a role has a name or a description').toEqual([]);
+  });
+
+  test(`${name}: in a debug build, each name the component owns that the product sets is reported, once; a name it exposes is not`, async ({ page }) => {
+    const reported: string[] = [];
+    page.on('console', (message) => {
+      if (message.type() === 'warning' && message.text().includes("is the component's own to say")) reported.push(message.text());
+    });
+    const owned = subject.owns.map((state) => `${state}="${state === 'aria-disabled' ? 'true' : 'mixed'}"`).join(' ');
+    await load(page, tag, subject.markup(`${written} ${owned}`));
+    // Set again by the product after it has drawn: still once.
+    await page.evaluate((owns) => {
+      const host = document.querySelector('#subject')!;
+      for (const state of owns) host.setAttribute(state, 'false');
+    }, subject.owns);
+    await settle(page);
+    const said = (state: string) => reported.filter((line) => line.includes(`<${tag}>: ${state} on the element`));
+    for (const state of subject.owns) expect(said(state), `${state} is reported once`).toHaveLength(1);
+    for (const state of Object.keys(states)) expect(said(state), `${state} is exposed, not reported`).toEqual([]);
+    expect(reported.filter((line) => !line.includes(`<${tag}>`)), 'what a component writes on a member it holds is not the product’s').toEqual([]);
   });
 }
 
@@ -304,4 +433,127 @@ test('a name given by aria-labelledby and a description given by aria-describedb
   await expect(page.locator('#subject').getByRole('button')).toHaveAccessibleDescription('Described text Error text');
   await page.evaluate(() => (document.querySelector('#described')!.textContent = 'Described again'));
   await expect(page.locator('#subject').getByRole('button')).toHaveAccessibleDescription('Described again Error text');
+});
+
+/** Reads, from the host `#<id>` down one selector per shadow root, what the element that carries the role says. */
+const said = (page: Page, id: string, path: string[]) =>
+  page.evaluate(
+    ({ id, path }) => {
+      const host = document.getElementById(id)!;
+      let at: Element = host;
+      for (const selector of path) at = at.shadowRoot!.querySelector(selector)!;
+      const root = at.getRootNode() as ShadowRoot;
+      const described = (at.getAttribute('aria-describedby') ?? '')
+        .split(/\s+/)
+        .filter(Boolean)
+        .map((each) => (root.getElementById(each)?.textContent ?? '').trim());
+      return {
+        label: at.getAttribute('aria-label'),
+        busy: at.getAttribute('aria-busy'),
+        required: at.getAttribute('aria-required'),
+        haspopup: at.getAttribute('aria-haspopup'),
+        expanded: at.getAttribute('aria-expanded'),
+        // The whole description: the element's own aria-description, then what its aria-describedby names.
+        description: [at.getAttribute('aria-description') ?? '', ...described].filter(Boolean).join(' '),
+        host: [...host.attributes].filter((a) => a.name.startsWith('aria-') || a.name.startsWith('data-aria-')).map((a) => `${a.name}=${a.value}`).sort(),
+      };
+    },
+    { id, path },
+  );
+
+test('a composed field passes the product’s description on beside its Field’s, and the Field keeps what it wrote when the field draws again', async ({ page }) => {
+  await load(page, 'tanrei-text-field', '<tanrei-text-field id="subject" label="Name" supporting-text="Help words" aria-description="Product words" aria-describedby="described"></tanrei-text-field>');
+  const path = ['tanrei-text-input', 'input'];
+  const first = await said(page, 'subject', path);
+  for (const words of ['Help words', 'Product words', 'Described text']) expect(first.description, words).toContain(words);
+  expect(first.label, 'its name is its label').toBe('Name');
+  expect(first.host).toEqual(['data-aria-describedby=described', 'data-aria-description=Product words']);
+  // It draws again (another label): the Field's description and the product's are both still there.
+  await page.evaluate(() => ((document.querySelector('#subject') as HTMLElement & { label: string }).label = 'Full name'));
+  await settle(page);
+  const again = await said(page, 'subject', path);
+  for (const words of ['Help words', 'Product words', 'Described text']) expect(again.description, words).toContain(words);
+  expect(again.label).toBe('Full name');
+  await page.evaluate(() => document.querySelector('#subject')!.removeAttribute('aria-description'));
+  await settle(page);
+  const taken = await said(page, 'subject', path);
+  expect(taken.description, 'the product’s words go').not.toContain('Product words');
+  expect(taken.description, 'the Field’s stay').toContain('Help words');
+});
+
+test('a search drawn as an icon writes what its trigger says on its Button’s host, which moves it and exposes it on its native button; nothing is reported', async ({ page }) => {
+  const reported: string[] = [];
+  page.on('console', (message) => {
+    if (message.type() === 'warning' && message.text().includes("is the component's own to say")) reported.push(message.text());
+  });
+  await load(page, 'tanrei-search', '<tanrei-search id="subject" bar="icon" label="Search the docs" aria-describedby="described"></tanrei-search>');
+  const trigger = await page.evaluate(() => {
+    const button = document.querySelector('#subject')!.shadowRoot!.querySelector('tanrei-button.trigger-icon')!;
+    return [...button.attributes].filter((a) => a.name.startsWith('aria-') || a.name.startsWith('data-aria-')).map((a) => `${a.name}=${a.value}`).sort();
+  });
+  expect(trigger, 'on the Button’s host, moved as a product’s').toEqual(['data-aria-describedby=', 'data-aria-expanded=false', 'data-aria-haspopup=dialog']);
+  const native = await page.evaluate(() => {
+    const button = document.querySelector('#subject')!.shadowRoot!.querySelector('tanrei-button.trigger-icon')!.shadowRoot!.querySelector('button')!;
+    const root = button.getRootNode() as ShadowRoot;
+    return {
+      haspopup: button.getAttribute('aria-haspopup'),
+      expanded: button.getAttribute('aria-expanded'),
+      label: button.getAttribute('aria-label'),
+      described: (button.getAttribute('aria-describedby') ?? '')
+        .split(/\s+/)
+        .filter(Boolean)
+        .map((id) => root.getElementById(id)?.textContent)
+        .join(' '),
+    };
+  });
+  expect(native).toEqual({ haspopup: 'dialog', expanded: 'false', label: 'Search the docs', described: 'Described text' });
+  expect(reported).toEqual([]);
+});
+
+/** Lit as a product imports it, built for a page: `window.__lit` holds `html`, `render` and `nothing`. */
+let litBundle: string | undefined;
+const lit = () =>
+  (litBundle ??= buildSync({
+    stdin: { contents: "import { html, render, nothing } from 'lit';\nwindow.__lit = { html, render, nothing };\n", resolveDir: web, loader: 'js' },
+    bundle: true,
+    write: false,
+    format: 'iife',
+  }).outputFiles[0]!.text);
+
+test('a Lit product’s bindings take away what they wrote: an attribute bound to nothing, and a boolean attribute (?aria-busy) turned off — on a control and on a composed field', async ({ page }) => {
+  await load(page, 'tanrei-text-field', '<div id="lit"></div>');
+  await page.addScriptTag({ content: lit() });
+  const draw = (label: string | null, on: boolean) =>
+    page.evaluate(
+      async ({ label, on }) => {
+        type Lit = { html: (strings: TemplateStringsArray, ...values: unknown[]) => unknown; render: (value: unknown, into: Element) => void; nothing: unknown };
+        const { html, render, nothing } = (window as unknown as { __lit: Lit }).__lit;
+        render(
+          html`<tanrei-button id="subject" aria-label=${label ?? nothing} aria-describedby=${label ? 'described' : nothing} ?aria-busy=${on}></tanrei-button
+            ><tanrei-text-field id="field" label="Name" aria-describedby=${label ? 'described' : nothing} ?aria-required=${on}></tanrei-text-field>`,
+          document.querySelector('#lit')!,
+        );
+        for (const element of document.querySelectorAll<HTMLElement & { updateComplete?: Promise<unknown> }>('#subject, #field')) await element.updateComplete;
+      },
+      { label, on },
+    );
+  await draw('Send the report', true);
+  await settle(page);
+  const button = await said(page, 'subject', ['button']);
+  expect(button.host).toEqual(['data-aria-busy=', 'data-aria-describedby=described', 'data-aria-label=Send the report']);
+  expect([button.label, button.busy, button.description]).toEqual(['Send the report', '', 'Described text']);
+  const field = await said(page, 'field', ['tanrei-text-input', 'input']);
+  expect(field.host).toEqual(['data-aria-describedby=described', 'data-aria-required=']);
+  expect(field.required).toBe('');
+  expect(field.description).toContain('Described text');
+
+  await draw(null, false);
+  await settle(page);
+  const gone = await said(page, 'subject', ['button']);
+  expect(gone.host, 'nothing and a boolean attribute turned off take the moved values away').toEqual([]);
+  expect([gone.label, gone.busy, gone.description]).toEqual([null, null, '']);
+  const fieldGone = await said(page, 'field', ['tanrei-text-input', 'input']);
+  expect(fieldGone.host).toEqual([]);
+  expect(fieldGone.required).toBeNull();
+  expect(fieldGone.description).not.toContain('Described text');
 });
