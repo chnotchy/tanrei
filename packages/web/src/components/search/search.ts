@@ -420,6 +420,13 @@ export class TanreiSearchResultGroup extends TanreiSearchRow {
   }
 }
 
+/**
+ * SRC-14: a press by this pointer type brings up an on-screen keyboard when it focuses a text field — a finger or a pen.
+ * What the press was is the one thing all three engines tell for certain: `(pointer: coarse)` describes the primary
+ * pointer only (a laptop with a touch screen has a fine one), and the VirtualKeyboard API is Chromium's alone.
+ */
+const brings = (pointerType: string) => pointerType === 'touch' || pointerType === 'pen';
+
 /** A result or a linked group heading in `event`'s path whose own row the event came from, or null. */
 function rowOf(event: Event, within: Element): TanreiSearchRow | null {
   const path = event.composedPath();
@@ -730,6 +737,14 @@ export class TanreiSearch extends TanreiElement {
   protected resultCurrent = false;
   /** SRC-14, SRC-49: focus is in an input of the search (the bar's or the header's), where its keys are answered. */
   protected typing = false;
+  /**
+   * SRC-14, SRC-49: the person types on an on-screen keyboard — the input took focus from a touch or a pen — so nothing is
+   * made current by itself and the keyboard's Search key submits the text as typed. An arrow or caret key (a hardware
+   * keyboard's) or a mouse press on the input ends it.
+   */
+  private onScreenKeyboard = false;
+  /** SRC-14: the pointer type of the last press inside the search, until focus takes it, the next frame, or focus leaves the search. */
+  private pressPointer = '';
   protected hasLeading = false;
   protected trailingCount = 0;
   /** The default slot holds the product's own content (anything but the suggestions). */
@@ -788,6 +803,10 @@ export class TanreiSearch extends TanreiElement {
     this.addEventListener('keydown', this.onHostKeyDown);
     this.addEventListener('focusout', this.onFocusOut);
     this.addEventListener('focusin', this.onFocusIn);
+    // SRC-14: what pressed last, read when that press gives the input focus — at once (the bar, the input) or as the
+    // view it opened renders (a trigger), which is before the next frame; a press that gave no focus is forgotten then.
+    this.addEventListener('pointerdown', (event: PointerEvent) => (this.pressPointer = event.pointerType), { capture: true });
+    for (const type of ['click', 'pointercancel']) this.addEventListener(type, () => requestAnimationFrame(() => (this.pressPointer = '')));
     this.addEventListener('tanrei-search-suggestion-update', () => this.readChildren());
     // The results draw themselves and hold no listener: the search answers every one of them from here, however many.
     this.addEventListener('click', this.onResultClick);
@@ -1147,7 +1166,7 @@ export class TanreiSearch extends TanreiElement {
    * with none the first result; otherwise nothing is.
    */
   private firstCurrent(keepMoved = false) {
-    const now = this.expanded && !this.inert_ && this.typing && !this.composing;
+    const now = this.expanded && !this.inert_ && this.typing && !this.composing && !this.onScreenKeyboard;
     if (now && this.suggestions.length > 0) {
       if (this.active !== 0 || this.resultCurrent) this.setActive(0, false);
       // SRC-14: made active again automatically, it is not read out until the person moves — unless this only confirms
@@ -1214,6 +1233,8 @@ export class TanreiSearch extends TanreiElement {
     const input = event.target as HTMLInputElement;
     if (event.isComposing || event.keyCode === 229 || this.composing) return;
     const count = this.suggestions.length;
+    // SRC-14: only a hardware keyboard has the arrow and caret keys: automatic selection is back.
+    if (['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) this.onScreenKeyboard = false;
     switch (event.key) {
       case 'ArrowDown':
         event.preventDefault();
@@ -1407,8 +1428,10 @@ export class TanreiSearch extends TanreiElement {
 
   /** SRC-6: focus moving out of the search closes the docked view. */
   private readonly onFocusOut = (event: FocusEvent) => {
-    if (!this.expanded || this.inline || this.modal) return;
     const to = event.relatedTarget as Node | null;
+    // SRC-14: focus that leaves the search ends what its last press was: focus coming back by Tab is the keyboard's.
+    if (to && to !== this && !this.contains(to) && !this.renderRoot.contains(to)) this.pressPointer = '';
+    if (!this.expanded || this.inline || this.modal) return;
     // Focus that goes nowhere (a press on the page) is the press's to answer; a window switch keeps the view.
     if (!to || to === this || this.contains(to) || this.renderRoot.contains(to)) return;
     this.collapse('focus-out');
@@ -1430,8 +1453,11 @@ export class TanreiSearch extends TanreiElement {
   private readonly onInputFocus = (event: FocusEvent) => {
     // SRC-18: where style queries are missing, the focus style is read when focus arrives (the glow).
     if (event.target === this.barInput) syncFocusStyle(this, this.barElement);
-    // SRC-14, SRC-49: focus coming back to the input makes the first suggestion active, or the first result current.
+    // SRC-14, SRC-49: focus coming back to the input makes the first suggestion active, or the first result current —
+    // unless a touch or a pen gave it focus, which brings up an on-screen keyboard.
     this.typing = true;
+    this.onScreenKeyboard = brings(this.pressPointer);
+    this.pressPointer = '';
     this.firstCurrent();
   };
 
@@ -1441,8 +1467,12 @@ export class TanreiSearch extends TanreiElement {
     this.noneCurrent();
   };
 
-  /** SRC-14: a press in the input moves the caret, which makes the first suggestion active again. */
-  private readonly onInputPointerDown = () => {
+  /**
+   * SRC-14: a press in the input moves the caret, which makes the first suggestion active again — by a mouse; a touch or
+   * a pen brings up the on-screen keyboard, where nothing is made active by itself.
+   */
+  private readonly onInputPointerDown = (event: PointerEvent) => {
+    this.onScreenKeyboard = brings(event.pointerType);
     this.firstCurrent();
   };
 

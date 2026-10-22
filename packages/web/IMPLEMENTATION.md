@@ -7725,6 +7725,16 @@ the input (Down from none is the first; it stays on the last; Up on the first le
 into view. Enter chooses the active suggestion, or submits. Escape closes the view; closed, it empties a value (one
 `input`), and with none it does nothing and passes on.
 
+**On an on-screen keyboard (SRC-14, SRC-49)** nothing is made active or current by itself, so the keyboard's Search or
+Go key submits the text as typed. The search tells the keyboard by the press that gave the input focus: it records the
+`pointerType` of the last press inside it (a capturing `pointerdown` on the host), reads it when the input takes focus —
+at once for a press on the bar or the input, as the view renders for a trigger — and forgets it a frame after the press's
+`click` or when focus leaves the search, so that focus by Tab is the keyboard's. A press on the focused input decides
+again (`touch` and `pen` bring up an on-screen keyboard, `mouse` does not), and an arrow key, Home or End — keys an
+on-screen keyboard does not have — brings automatic selection back. Not `(pointer: coarse)`: it describes the primary
+pointer, which is fine on a laptop with a touch screen and coarse on a tablet with a keyboard attached; not the
+VirtualKeyboard API, which only Chromium has.
+
 **Semantics (SRC-24).** The input is a native `type="search"` (a searchbox) with `enterkeyhint="search"` and `dir="auto"`,
 named by `aria-label` from `label`, never by the placeholder. While the view shows suggestions it is a `combobox` with
 `aria-autocomplete="list"`, `aria-expanded="true"`, `aria-controls` naming the `listbox` (named by `label`) and

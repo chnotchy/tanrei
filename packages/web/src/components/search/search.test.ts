@@ -3181,6 +3181,91 @@ test.describe('site search: reach and cost', () => {
   });
 });
 
+test.describe('on-screen keyboard', () => {
+  test('SRC-14, SRC-49: typed on an on-screen keyboard — the input focused by a touch — nothing is made current by itself, and its Search key submits the text as typed; an arrow or caret key (a hardware keyboard’s) or a mouse press brings automatic selection back, and a touch on the focused input ends it again', async ({ browser }) => {
+    // A touch device, as Playwright emulates one in every engine: a tap is a press whose pointerType is touch.
+    const context = await browser.newContext({ hasTouch: true, viewport: { width: 480, height: 640 } });
+    const page = await context.newPage();
+    await mountSite(page, [live('s', { value: 'inv' }), site('d')]);
+    const s = host(page, 's');
+    const field = input(page, 's');
+    const active = () => activeOption(page, 's');
+    await field.tap();
+    await expect(field).toBeFocused();
+    await page.keyboard.type('o');
+    await expect.poll(() => prop(s, 'expanded')).toBe(true);
+    await expect(row(page, 's', 0)).toBeVisible();
+    expect(await active(), 'typed on the on-screen keyboard: none active').toBeNull();
+    await expect(field).not.toHaveAttribute('aria-activedescendant', /.*/);
+    // New suggestions from the product: still none.
+    await s.evaluate((el) => el.insertAdjacentHTML('beforeend', '<tanrei-search-suggestion value="x" headline="x"></tanrei-search-suggestion>'));
+    await settled(s);
+    expect(await active()).toBeNull();
+    // The keyboard's Search key submits the text as typed.
+    await wire(s);
+    await page.keyboard.press('Enter');
+    expect(await log(page)).toEqual(['submit:invo', 'toggle:false:submit:false']);
+    // A hardware keyboard's Down Arrow: the first is active, and read out; typing makes the first active again.
+    await page.keyboard.press('ArrowDown');
+    await expect.poll(active).toBe('option-0');
+    await expect(field).toHaveAttribute('aria-activedescendant', 'option-0');
+    await page.keyboard.type('i');
+    await expect.poll(active).toBe('option-0');
+    // A touch on the focused input brings the on-screen keyboard back: none active as the person types.
+    await field.tap();
+    await page.keyboard.type('c');
+    await expect.poll(() => prop(s, 'value')).toBe('invoic');
+    expect(await active()).toBeNull();
+    // A caret key is a hardware keyboard's: the first is active again.
+    await page.keyboard.press('ArrowLeft');
+    await expect.poll(active).toBe('option-0');
+    // A mouse press on the input: automatic selection, as with a hardware keyboard.
+    await field.tap();
+    await page.keyboard.type('e');
+    expect(await active()).toBeNull();
+    await field.click();
+    await expect.poll(active).toBe('option-0');
+    await page.keyboard.press('Escape');
+    // A site search opened by a touch on its trigger: no result is current, and the Search key submits; the view, showing
+    // results, stays. A caret key makes the first result current.
+    const d = host(page, 'd');
+    await trigger(page, 'd').tap();
+    await expect(headerInput(page, 'd')).toBeFocused();
+    await expect(heading(page, 'd', '/tokens/')).not.toHaveAttribute('data-current', /.*/);
+    await wire(d);
+    await page.keyboard.press('Enter');
+    expect(await log(page)).toEqual(['submit:token']);
+    expect(await prop(d, 'expanded')).toBe(true);
+    await page.keyboard.press('End');
+    await expect(heading(page, 'd', '/tokens/')).toHaveAttribute('data-current', '');
+    await context.close();
+  });
+
+  test('SRC-14: focus by the keyboard after a touch elsewhere in the search is the keyboard’s — the first suggestion is active — because focus that left the search forgot the touch', async ({ browser }) => {
+    const context = await browser.newContext({ hasTouch: true, viewport: { width: 480, height: 640 } });
+    const page = await context.newPage();
+    await mountSite(page, [mail('s', { expanded: true })]);
+    const field = input(page, 's');
+    // A touch inside the search — on a result, which it chooses and closes the view — then focus leaves the search.
+    await link(page, 's', 'm-2').tap();
+    await expect.poll(() => prop(host(page, 's'), 'expanded')).toBe(false);
+    await page.locator('#after').focus();
+    // Focus by the keyboard, and then the product opens the view (Tab inside the docked view would close it, SRC-6).
+    await tabTo(page, field);
+    await expect(field).toBeFocused();
+    await host(page, 's').evaluate((el: any) => (el.expanded = true));
+    await expect.poll(() => activeOption(page, 's')).toBe('option-0');
+    // Focus by a touch on the bar itself (not the input): the on-screen keyboard.
+    await page.locator('#after').focus();
+    await bar(page, 's').tap({ position: { x: 4, y: 4 } });
+    await expect(field).toBeFocused();
+    await page.keyboard.type('o');
+    await expect.poll(() => prop(host(page, 's'), 'value')).toMatch(/o$/);
+    expect(await activeOption(page, 's')).toBeNull();
+    await context.close();
+  });
+});
+
 test.describe('fixtures', () => {
   test.beforeEach(async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, reducedMotion: true });
