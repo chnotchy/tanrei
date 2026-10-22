@@ -1090,6 +1090,11 @@ const STAGING: Record<string, Staging> = {
   meter: {
     css: () => `[data-fixture^='linear'] { inline-size: 160px; }`,
   },
+  // A ticker has no text style of its own (NTK-1): it is staged as a dashboard's figure, in a heading's style and the
+  // surface's text color, which it takes from its stage.
+  'number-ticker': {
+    css: () => `.stage:has(> tanrei-number-ticker) { font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing); color: var(--tanrei-sys-color-on-surface); }`,
+  },
   // A scroll area is as large as its layout gives it (SCA-1): its stage gives it a box 280 × 160, and the fixture's text
   // is content that does not fit it — twenty-four lines of "Long content", or a row of twelve tiles that cannot wrap
   // ("A wide row") — every other row on a container color, so that a mark over it shows. Once staged, the box is

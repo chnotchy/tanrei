@@ -7400,6 +7400,21 @@ public data class TanreiNumberInputTokens(
     }
 }
 
+/** `comp.number-ticker`. Members are flat tokens, then per-state tokens, then one holder per axis (). */
+@Immutable
+public data class TanreiNumberTickerTokens(
+    public val animation: Float,
+    public val blurSlideDistance: Dp,
+    public val blurRadius: Dp,
+    public val motionDuration: Int,
+    public val motionEasing: TanreiCubicBezier,
+    public val motionReducedDuration: Int,
+    public val motionStagger: Int,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+    }
+}
+
 /**
  * A condition of one-time-code-input: the key of one entry of [TanreiOneTimeCodeInputConditions]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
@@ -11566,6 +11581,7 @@ public data class TanreiSystem(
     public val navigationBar: TanreiNavigationBarTokens,
     public val navigationDrawer: TanreiNavigationDrawerTokens,
     public val numberInput: TanreiNumberInputTokens,
+    public val numberTicker: TanreiNumberTickerTokens,
     public val oneTimeCodeInput: TanreiOneTimeCodeInputTokens,
     public val pageHeader: TanreiPageHeaderTokens,
     public val pagination: TanreiPaginationTokens,
@@ -11654,6 +11670,7 @@ public data class TanreiSystem(
         addAll(navigationBar.referencedRoles())
         addAll(navigationDrawer.referencedRoles())
         addAll(numberInput.referencedRoles())
+        addAll(numberTicker.referencedRoles())
         addAll(oneTimeCodeInput.referencedRoles())
         addAll(pageHeader.referencedRoles())
         addAll(pagination.referencedRoles())

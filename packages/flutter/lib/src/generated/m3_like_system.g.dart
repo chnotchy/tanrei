@@ -6705,6 +6705,15 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     stepperGap: 0.0,
     stepperInset: 4.0,
   ),
+  numberTicker: TanreiNumberTickerTokens(
+    animation: 0.0,
+    blurSlideDistance: 8.0,
+    blurRadius: 8.0,
+    motionDuration: 500,
+    motionEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1.0),
+    motionReducedDuration: 100,
+    motionStagger: 50,
+  ),
   oneTimeCodeInput: TanreiOneTimeCodeInputTokens(
     caretWidth: 2.0,
     containerGap: 6.0,
