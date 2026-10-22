@@ -6,15 +6,16 @@
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //
-// It reads `dist/` (the site) and the generated manifests, and serves the site itself on a free port.
+// It reads `dist/` (the site) and the generated manifests, and serves the site itself on a free port, as the host does
+// (host.mjs).
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import http from 'node:http';
 import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
 import { watchNetwork } from './network-quiet.mjs';
+import { serveDist } from './host.mjs';
 
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
@@ -24,28 +25,19 @@ const DEFAULT = JSON.parse(fs.readFileSync(path.join(repo, 'tanrei.config.json')
 const manifestOf = (id) => JSON.parse(fs.readFileSync(path.join(repo, `tokens/generated/${id}/components.json`), 'utf8'));
 const presets = fs.readdirSync(path.join(repo, 'tokens/generated')).filter((id) => id !== DEFAULT && fs.existsSync(path.join(repo, `tokens/generated/${id}/components.json`)));
 
-const TYPES = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.txt': 'text/plain', '.xml': 'application/xml', '.wasm': 'application/wasm', '.webp': 'image/webp' };
-let server;
+let host;
 let origin;
 let browser;
 
 before(async () => {
-  server = http.createServer((request, response) => {
-    let file = path.join(dist, decodeURIComponent(new URL(request.url, 'http://localhost').pathname));
-    if (!file.startsWith(dist)) return response.writeHead(403).end();
-    if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, 'index.html');
-    if (!fs.existsSync(file)) return response.writeHead(404).end();
-    response.writeHead(200, { 'content-type': TYPES[path.extname(file)] ?? 'application/octet-stream' });
-    fs.createReadStream(file).pipe(response);
-  });
-  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
-  origin = `http://127.0.0.1:${server.address().port}`;
+  host = await serveDist(dist);
+  origin = host.origin;
   browser = await chromium.launch();
 });
 
 after(async () => {
   await browser?.close();
-  await new Promise((resolve) => (server ? server.close(resolve) : resolve()));
+  await host?.close();
 });
 
 /** A page at `width`, loaded and quiet; the context (and its storage) is the caller's to close. */

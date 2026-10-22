@@ -9,15 +9,15 @@
 //
 // The page is loaded twice: once with every script refused (the elements are never defined: what a reader sees
 // before they are), and once as it is, until the drawer, the button, the select and the switch are defined.
-// It reads `dist/` and serves it on a free port the way a static host does.
+// It reads `dist/` and serves it on a free port the way the host does (host.mjs).
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import http from 'node:http';
 import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
 import { watchNetwork } from './network-quiet.mjs';
+import { serveDist } from './host.mjs';
 
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
@@ -30,28 +30,19 @@ const WIDTHS = [1440, 1000];
 /** How far apart, in CSS pixels, a stand-in's box and the drawn box may be: what rounding to the device pixel moves. */
 const ROUNDING = 0.5;
 
-const TYPES = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.txt': 'text/plain', '.xml': 'application/xml', '.wasm': 'application/wasm', '.webp': 'image/webp' };
-let server;
+let host;
 let origin;
 let browser;
 
 before(async () => {
-  server = http.createServer((request, response) => {
-    let file = path.join(dist, decodeURIComponent(new URL(request.url, 'http://localhost').pathname));
-    if (!file.startsWith(dist)) return response.writeHead(403).end();
-    if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, 'index.html');
-    if (!fs.existsSync(file)) return response.writeHead(404).end();
-    response.writeHead(200, { 'content-type': TYPES[path.extname(file)] ?? 'application/octet-stream' });
-    fs.createReadStream(file).pipe(response);
-  });
-  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
-  origin = `http://127.0.0.1:${server.address().port}`;
+  host = await serveDist(dist);
+  origin = host.origin;
   browser = await chromium.launch();
 });
 
 after(async () => {
   await browser?.close();
-  await new Promise((resolve) => (server ? server.close(resolve) : resolve()));
+  await host?.close();
 });
 
 /** In the page: the boxes of the sidebar's header controls and the tops of its first top-level rows that are drawn. */

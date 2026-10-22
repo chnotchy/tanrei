@@ -36,10 +36,17 @@ function windowStage(canvas: HTMLElement, handle: HTMLElement | null) {
   // a window loading as the reader scrolls never takes the focus from the page, and is let go once what it draws has
   // opened. Each load of it (a "draw again") is held the same way.
   if (frame) {
+    // A frame the browser refused to draw holds an error page of another origin: its window is there, but reading
+    // anything of it throws. Such a frame draws nothing that could take the focus, and is let go at once.
     const release = () => {
-      const view = frame.contentWindow;
-      const later = (callback: () => void) => (view ? view.requestAnimationFrame(() => view.requestAnimationFrame(() => view.setTimeout(callback, 200))) : callback());
-      later(() => frame.removeAttribute('inert'));
+      const free = () => frame.removeAttribute('inert');
+      try {
+        const view = frame.contentWindow;
+        if (!view) return free();
+        view.requestAnimationFrame(() => view.requestAnimationFrame(() => view.setTimeout(free, 200)));
+      } catch {
+        free();
+      }
     };
     frame.addEventListener('load', release);
     // A fixture that is not presented stands in a frame of its stage's size, read from its baseline. Text set on
