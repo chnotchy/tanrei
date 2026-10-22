@@ -1,6 +1,6 @@
 import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, focusGlow, focusGlowEnds, iconGlyph, minimumTarget, stateRules } from '../../primitives/index.js';
-import { INPUT_BOX, TRIGGER_SIZE_MEMBERS, floatingLabelStyles, floatingLabelText, triggerEdgeStyles, triggerOn, triggerTokens } from '../../primitives/field-trigger.js';
+import { INPUT_BOX, TRIGGER_SIZE_MEMBERS, floatingLabelStyles, floatingLabelText, stackedBoxStyles, triggerEdgeStyles, triggerOn, triggerTokens } from '../../primitives/field-trigger.js';
 import { optionListStyles, optionVariantRules } from '../../primitives/option-list.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
@@ -42,7 +42,7 @@ export const PREFIX = '--tanrei-comp-combobox';
 const P = unsafeCSS(PREFIX);
 /** The box is drawn from the one set of tokens every input box is drawn from; `PREFIX` is what this component alone draws. */
 const B = unsafeCSS(INPUT_BOX);
-const STATE_MOTION = `var(${INPUT_BOX}-motion-state-duration) var(${INPUT_BOX}-motion-state-easing)`;
+const STATE_MOTION = `var(--_state-duration) var(${INPUT_BOX}-motion-state-easing)`;
 const motion = unsafeCSS(STATE_MOTION);
 // The field's token blocks: per variant both looks' parts in every state, per size the members of the size axis, which
 // look is painted (CMB-10), and each state's paint (CMB-15).
@@ -102,6 +102,7 @@ export const styles = css`
   ${unsafeCSS(CORE_VARIANTS.filter((v) => v !== DEFAULT_VARIANT).map((v) => variantBlock(v, `:host([variant='${v}'])`)).join('\n'))}
   ${unsafeCSS(lookBlock('plain', '.field'))}
   ${unsafeCSS(lookBlock('error', '.field[data-error]'))}
+  ${stackedBoxStyles()}
 
   .field {
     ${unsafeCSS(paint('-r', ''))}
@@ -264,7 +265,7 @@ export const styles = css`
   /* CMB-18, CMB-19: the glyphs, at the size's icon size in the family and fill of an unselected icon, colored by
      their part. CMB-54: iconGlyph() mirrors the glyph GlyphMirrorController marked, in right-to-left, in its own box;
      the chevron is never marked. */
-  ${iconGlyph('.icon', { size: '--_icon', selected: '.never-selected', duration: `${INPUT_BOX}-motion-state-duration`, easing: `${INPUT_BOX}-motion-state-easing` })}
+  ${iconGlyph('.icon', { size: '--_icon', selected: '.never-selected', duration: '--_state-duration', easing: `${INPUT_BOX}-motion-state-easing` })}
   .icon {
     position: relative;
     display: none;
@@ -415,8 +416,8 @@ export const styles = css`
   .status[data-shown] {
     margin-block-end: var(${P}-list-padding-block);
     margin-inline: var(${P}-list-padding-inline);
-    padding-block: var(${P}-option-padding-block);
-    padding-inline: var(${P}-option-padding-inline);
+    padding-block: var(${P}-option-padding-block-regular);
+    padding-inline: var(${P}-option-padding-inline-regular);
   }
   .list.bare > .status[data-shown] {
     margin-block-start: var(${P}-list-padding-block);

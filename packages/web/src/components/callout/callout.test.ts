@@ -5,7 +5,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, iconFaceArrives, loadSpec, mountFixtures, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { type Fixture, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('callout');
 type P = Page;
@@ -37,12 +38,15 @@ const OWN: Record<string, string> = {
   '.body slot': '.text > .body > slot',
   '.actions': '.text > .actions',
   '.end': '.container > .end',
-  '.close': '.end > .close',
-  '.glyph': '.end > .close > .glyph',
+  '.close': '.end > tanrei-button.close',
 };
 const part = (page: P, id: string, selector: string) => host(page, id).locator(OWN[selector] ?? selector);
 const container = (page: P, id: string) => part(page, id, '.container');
+/** The close button: a Tanrei Button in the callout's shadow root, and the container its own shadow root draws. */
 const close = (page: P, id: string) => part(page, id, '.close');
+const closeBox = (page: P, id: string) => close(page, id).locator('[part="container"]');
+/** Button's small size, which the close button keeps (CLO-10). */
+const SMALL = '--tanrei-comp-button-container-height-small';
 const T = (name: string) => `--tanrei-comp-callout-${name}`;
 const token = (page: P, name: string) => resolveToken(page, T(name));
 const box = async (locator: Locator) => (await locator.boundingBox())!;
@@ -95,6 +99,20 @@ const sameColor = (actual: number[], expected: number[], message = '') => {
   for (let i = 0; i < 4; i++) expect(Math.abs(actual[i] - expected[i]), `${message}: ${actual.join(',')} ≈ ${expected.join(',')}`).toBeLessThanOrEqual(2);
 };
 const tokenColor = (page: P, name: string) => colorOf(page, `var(${T(name)})`);
+/** A color expression as the page computes it, as a background (the serialization a computed background-color has). */
+const computed = (page: P, expression: string) =>
+  page.evaluate((e) => {
+    const probe = document.createElement('div');
+    probe.style.cssText = 'position:absolute;visibility:hidden';
+    probe.style.backgroundColor = e;
+    document.body.append(probe);
+    const value = getComputedStyle(probe).backgroundColor;
+    probe.remove();
+    return value;
+  }, expression);
+/** BTN-45: the tone's color at an opacity, and laid over a color at a state's layer opacity. */
+const toneAt = (tone: string, opacity: string) => `color-mix(in srgb, ${tone} calc(var(${opacity}) * 100%), transparent)`;
+const toneOver = (base: string, tone: string, state: 'hover' | 'focus' | 'pressed') => `color-mix(in srgb, ${base}, ${tone} calc(var(--tanrei-sys-state-${state}-state-layer-opacity) * 100%))`;
 /** A part's token in a form: `info-body-color-tonal`, or `body-color-tonal` without a status. */
 const formToken = (status: string, partName: string, variant: string) => `${status === 'default' ? '' : `${status}-`}${partName}-color-${variant}`;
 /** The glyph's color as drawn: its form's icon color at icon.opacity. */
@@ -159,9 +177,10 @@ test.describe('behavior', () => {
       fx('status', { status: 'info', statusLabel: 'Information' }, 'One line.'),
       ...spec.fixtures.filter((f) => ['long-title', 'long-body', 'closable'].includes(f.id)),
     ]);
-    const [padBlock, padInline, padClose, gap, iconSize, iconGap, controls] = await Promise.all(
-      ['container-padding-block', 'container-padding-inline', 'container-padding-inline-end-with-close', 'container-gap', 'icon-size', 'icon-gap', 'controls-height'].map((n) => token(page, n)),
+    const [padBlock, padInline, padClose, gap, iconSize, iconGap] = await Promise.all(
+      ['container-padding-block', 'container-padding-inline', 'container-padding-inline-end-with-close', 'container-gap', 'icon-size', 'icon-gap'].map((n) => token(page, n)),
     );
+    const small = await resolveToken(page, SMALL);
     const body = await role(page, 'body-typescale-medium');
     // CLO-1's verify: one line of body text — the paddings and one line; the text at the start padding.
     const one = await box(host(page, 'one'));
@@ -186,7 +205,7 @@ test.describe('behavior', () => {
     const button = await box(close(page, 'closable'));
     near(button.x + button.width, closable.x + closable.width - padClose, 'the end padding after the close button');
     near((await box(part(page, 'closable', '.text'))).x + (await box(part(page, 'closable', '.text'))).width, button.x - gap, 'container.gap before the close button');
-    near(button.height, controls, 'controls.height');
+    near(button.height, small, 'the small Button');
     near(closable.height, one.height, 'a close button does not make the row taller');
     // However tall the text grows, the glyph and the close button stay centred on its first line.
     const first = (await lines(part(page, 'long-title', '.headline')))[0];
@@ -513,39 +532,57 @@ test.describe('behavior', () => {
         let active: Element | null = document.activeElement;
         const top = active;
         while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
-        return top?.localName === 'tanrei-button' ? (top.textContent ?? '').trim() : active?.classList.contains('close') ? 'close' : (active?.localName ?? '');
+        const own = top?.shadowRoot?.activeElement;
+        return top?.localName === 'tanrei-button' ? (top.textContent ?? '').trim() : own?.classList.contains('close') ? 'close' : (active?.localName ?? '');
       }));
     }
     expect(order).toEqual(['First', 'Second', 'close']);
   });
 
-  test('CLO-10: closable draws an icon-only close button at the end of the first row — a square of controls.height on controls.shape with the close glyph at controls.icon.size, named closeLabel — in its form’s resting colors: the tonal look’s by status, the outlined look’s in every status; not closable, no button and no room for one', async ({
+  test('CLO-10: closable draws at the end of the first row an icon-only Button of the small size with the close glyph, named closeLabel, in close-button.variant given through the Button’s channel and, in every look but outlined, in the tone of the form — its container the form’s body color made translucent, its glyph that color; the outlined look’s is the Button as it is outside; not closable, no button and no room for one', async ({
     page,
   }) => {
-    const forms = [...FORMS.map((status) => ({ id: `tonal-${status}`, variant: 'tonal', status, form: status === 'default' ? '' : `${status}-` })), ...FORMS.map((status) => ({ id: `outlined-${status}`, variant: 'outlined', status, form: 'outlined-' }))];
+    const forms = [...FORMS.map((status) => ({ id: `tonal-${status}`, variant: 'tonal', status })), ...FORMS.map((status) => ({ id: `outlined-${status}`, variant: 'outlined', status }))];
     await mount(page, [...forms.map(({ id, variant, status }) => fx(id, { variant, status, title: 'A title', closable: true, closeLabel: 'Close' }, 'The body.')), fx('plain', {}, 'The body.')]);
-    const [height, iconSize] = [await token(page, 'controls-height'), await token(page, 'controls-icon-size')];
-    for (const { id, form } of forms) {
+    expect(await page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), T('close-button-variant'))).toBe('tonal');
+    const small = await resolveToken(page, SMALL);
+    await page.mouse.move(0, 0);
+    for (const { id, variant, status } of forms) {
       const button = close(page, id);
-      const b = await box(button);
-      near(b.width, height, `${id} square`);
-      near(b.height, height, `${id} square`);
-      expect(await button.getAttribute('aria-label')).toBe('Close');
-      expect(await button.evaluate((el) => el.localName)).toBe('button');
-      expect(await button.getAttribute('data-tanrei-shape')).not.toBeNull();
-      // controls.shape: the full step, so a circle — a radius of at least half the square.
-      expect(Number.parseFloat(await css(button, 'border-top-left-radius')), `${id} corners`).toBeGreaterThanOrEqual(height / 2);
-      expect((await css(button, '--tanrei-corner-radius')).trim()).toBe((await page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n), T('controls-shape'))).trim());
-      expect(await button.locator('.ink').textContent()).toBe('close');
-      expect(await button.locator('.glyph').getAttribute('aria-hidden')).toBe('true');
-      near((await box(button.locator('.glyph'))).width, iconSize, `${id} glyph`);
-      sameColor(await painted(button, 'background-color'), await tokenColor(page, `close-${form}container-color`), `${id} container`);
-      sameColor(await painted(button, 'color'), await tokenColor(page, `close-${form}content-color`), `${id} content`);
+      // A Button, with no variant of its own: the callout gives it, and the Button draws it from its own tokens.
+      expect(await button.evaluate((el) => [el.localName, el.getAttribute('size'), el.hasAttribute('variant'), el.querySelector('[slot="icon"]')?.textContent, el.getAttribute('part'), el.getAttribute('label')]), id).toEqual(['tanrei-button', 'small', false, 'close', 'close-button', 'Close']);
+      const b = await box(closeBox(page, id));
+      near(b.width, small, `${id}: the small Button’s circle`);
+      near(b.height, small, `${id}: the small Button’s circle`);
       // At the end of the first row.
       near(centre(b), centre((await lines(part(page, id, '.headline')))[0]), `${id}: on the first line`, 1);
       expect(b.x).toBeGreaterThan((await box(part(page, id, '.text'))).x + (await box(part(page, id, '.text'))).width);
+      const paint = () => closeBox(page, id).evaluate((el) => [getComputedStyle(el).backgroundColor, getComputedStyle(el.querySelector('.icon')!).color]);
+      if (variant === 'outlined') {
+        // No fill under it: no tone, and the tonal Button as it is drawn outside a callout.
+        expect(await closeBox(page, id).getAttribute('data-tone'), id).toBeNull();
+        await expect.poll(paint, { message: id }).toEqual([await resolveColor(page, '--tanrei-comp-button-tonal-container-color'), await computed(page, 'var(--tanrei-comp-button-tonal-icon-color)')]);
+      } else {
+        // The tone of the form: its body color, the fill's content color (BTN-45).
+        const tone = `var(${T(formToken(status, 'body', 'tonal'))})`;
+        expect(await closeBox(page, id).getAttribute('data-tone'), id).toBe('');
+        await expect.poll(paint, { message: id }).toEqual([await computed(page, toneAt(tone, '--tanrei-comp-button-tone-container-opacity')), await computed(page, tone)]);
+        expect((await paint())[0], `${id}: not the tonal Button’s own container`).not.toBe(await resolveColor(page, '--tanrei-comp-button-tonal-container-color'));
+      }
     }
     await expect(page.getByRole('button', { name: 'Close' })).toHaveCount(forms.length);
+    // A system's choice of variant reaches it through the same channel, at the next update: text, a bare glyph in the tone.
+    await override(page, { [T('close-button-variant')]: 'text' });
+    await host(page, 'tonal-error').evaluate((el: HTMLElement & { headline: string }) => (el.headline = 'Another title'));
+    await expect.poll(() => closeBox(page, 'tonal-error').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await resolveColor(page, '--tanrei-comp-button-text-container-color'));
+    expect(await closeBox(page, 'tonal-error').evaluate((el) => getComputedStyle(el.querySelector('.icon')!).color)).toBe(await computed(page, `var(${T('error-body-color-tonal')})`));
+    // A status changed while shown: the tone follows.
+    await override(page, { [T('close-button-variant')]: '' });
+    await host(page, 'tonal-error').evaluate((el: HTMLElement & { status: string }) => (el.status = 'success'));
+    await expect.poll(() => closeBox(page, 'tonal-error').evaluate((el) => getComputedStyle(el.querySelector('.icon')!).color)).toBe(await computed(page, `var(${T('success-body-color-tonal')})`));
+    // Moved in the page: the Button let go of what it was given when it disconnected; the callout gives it again.
+    await host(page, 'tonal-info').evaluate((el) => el.parentElement!.append(el));
+    await expect.poll(() => closeBox(page, 'tonal-info').getAttribute('data-tone')).toBe('');
     // Not closable: no button, and the text runs to the end padding.
     expect(await close(page, 'plain').count()).toBe(0);
     expect(await part(page, 'plain', '.end').count()).toBe(0);
@@ -624,7 +661,6 @@ test.describe('behavior', () => {
     await page.evaluate(() => document.getElementById('before')!.remove());
     await page.keyboard.press('Enter');
     await expect(host(page, id)).toBeHidden();
-    expect(await focused(page)).not.toContain('close');
     expect(await page.evaluate(() => document.activeElement === document.body || document.activeElement === null)).toBe(true);
     // Closed while focus is elsewhere: focus stays where it is.
     await mountAround();
@@ -679,272 +715,72 @@ test.describe('behavior', () => {
     expect(await dismissed(page)).toBe(0);
   });
 
-  test('CLO-14: the close button paints its container, content color and opacity from the highest-precedence state’s tokens in the callout’s form — pressed over focused over hovered; focus by pointer does not select focused; the callout’s container, text and glyph do not change under a pointer, a press or focus', async ({
+  test('CLO-10: the close button answers hover, focus and press as a Button on the tone does — the tone laid over its container at the system’s state-layer opacities — and keeps its own focus ring and minimum target; the callout’s container, text and glyph do not change under a pointer, a press or focus', async ({
     page,
-    browserName,
   }) => {
-    const forms = [{ id: 'tonal', props: {}, form: '' }, { id: 'tonal-error', props: { status: 'error' }, form: 'error-' }, { id: 'outlined-info', props: { variant: 'outlined', status: 'info' }, form: 'outlined-' }];
-    await mount(page, forms.map(({ id, props }) => fx(id, { ...props, title: 'A title', closable: true, closeLabel: 'Close' }, 'The body.')));
+    await mount(page, [fx('tonal-error', { status: 'error', title: 'A title', closable: true, closeLabel: 'Close' }, 'The body.')]);
     await page.evaluate(() => document.querySelector('main')!.insertAdjacentHTML('afterbegin', '<button id="start">start</button>'));
-    // Three states that cannot be mistaken for each other, in every form; the pressed tokens on the whole container.
-    const colors: Record<string, string> = { '--tanrei-sys-behavior-pressed-feedback': 'overlay' };
-    const expected: Record<string, number[]> = {};
-    forms.forEach(({ form }, f) => {
-      ['hovered', 'focused', 'pressed'].forEach((state, s) => {
-        colors[T(`close-${state}-${form}container-color`)] = `rgb(${10 + f}, ${20 + s}, 200)`;
-        colors[T(`close-${state}-${form}content-color`)] = `rgb(${200 + f}, ${100 + s}, 10)`;
-        expected[`${form}${state}-container`] = [10 + f, 20 + s, 200, 255];
-        expected[`${form}${state}-content`] = [200 + f, 100 + s, 10, 255];
-      });
+    const id = 'tonal-error';
+    const tone = `var(${T('error-body-color-tonal')})`;
+    const rest = toneAt(tone, '--tanrei-comp-button-tone-container-opacity');
+    const bg = () => closeBox(page, id).evaluate((el) => getComputedStyle(el).backgroundColor);
+    const callout = async () => ({ container: await painted(container(page, id), 'background-color'), title: await painted(part(page, id, '.headline'), 'color'), body: await painted(part(page, id, '.body'), 'color'), icon: await painted(part(page, id, '.icon'), 'color') });
+    const before = await callout();
+    await expect.poll(bg).toBe(await computed(page, rest));
+    // Hovered: the Button's own answer on the tone. (No state token of the callout's own is read: it has none.)
+    await close(page, id).hover();
+    await expect.poll(bg).toBe(await computed(page, toneOver(rest, tone, 'hover')));
+    expect(await callout(), 'the callout under the pointer').toEqual(before);
+    await page.mouse.move(0, 0);
+    await expect.poll(bg).toBe(await computed(page, rest));
+    // Focused by the keyboard: the Button's focus ring, its outer stroke in the tone.
+    await page.locator('#start').focus();
+    await tabTo(page, close(page, id));
+    await expect.poll(bg).toBe(await computed(page, toneOver(rest, tone, 'focus')));
+    expect(await closeBox(page, id).evaluate((el) => getComputedStyle(el).outlineStyle)).toBe('solid');
+    expect(await closeBox(page, id).evaluate((el) => getComputedStyle(el).outlineColor)).toBe(await computed(page, tone));
+    expect(await callout(), 'the callout while its close button is focused').toEqual(before);
+    // The Button's own minimum target: its hit area reaches sys.target.pointer around the 32 × 32 circle.
+    const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
+    const area = await closeBox(page, id).evaluate((el) => {
+      const s = getComputedStyle(el, '::before');
+      return [Number.parseFloat(s.width), Number.parseFloat(s.height)];
     });
-    await override(page, { ...colors, [T('hovered-opacity')]: '0.9', [T('focused-opacity')]: '0.8', [T('pressed-opacity')]: '0.7' });
-    const paints = async (id: string) => ({ container: await painted(close(page, id), 'background-color'), content: await painted(close(page, id), 'color'), opacity: await css(close(page, id), 'opacity') });
-    const is = (id: string, form: string, state: string, opacity: string) =>
-      expect
-        .poll(async () => {
-          const p = await paints(id);
-          return [p.container.join(','), p.content.join(','), p.opacity];
-        }, { message: `${id} ${state}` })
-        .toEqual([expected[`${form}${state}-container`].join(','), expected[`${form}${state}-content`].join(','), opacity]);
-    for (const { id, form } of forms) {
-      const callout = { container: await painted(container(page, id), 'background-color'), title: await painted(part(page, id, '.headline'), 'color'), body: await painted(part(page, id, '.body'), 'color'), icon: await painted(part(page, id, '.icon'), 'color') };
-      const same = async (when: string) =>
-        expect({ container: await painted(container(page, id), 'background-color'), title: await painted(part(page, id, '.headline'), 'color'), body: await painted(part(page, id, '.body'), 'color'), icon: await painted(part(page, id, '.icon'), 'color') }, `${id}: the callout is as it was while ${when}`).toEqual(callout);
-      const rest = await paints(id);
-      // Hovered.
-      await close(page, id).hover();
-      await is(id, form, 'hovered', '0.9');
-      await same('hovered');
-      // Pressed over hovered — and focus gained by this pointer press does not select the focused state.
-      await page.mouse.down();
-      await is(id, form, 'pressed', '0.7');
-      await same('pressed');
-      // (The press is let go outside the button, so it is not a click and the callout stays.)
-      await page.mouse.move(0, 0);
-      await page.mouse.up();
-      await expect.poll(async () => (await paints(id)).container.join(','), { message: `${id}: back at rest, not focused` }).toBe(rest.container.join(','));
-      expect(await close(page, id).evaluate((el) => el.matches(':focus-visible'))).toBe(false);
-      // Focused by the keyboard.
-      await page.locator('#start').focus();
-      await tabTo(page, close(page, id));
-      await is(id, form, 'focused', '0.8');
-      await same('focused');
-      // Focused over hovered.
-      await close(page, id).hover();
-      await is(id, form, 'focused', '0.8');
-      // Pressed over focused. (Safari takes focus from a button on mouse down, which is its own answer.)
-      if (browserName !== 'webkit') {
-        await page.mouse.down();
-        await is(id, form, 'pressed', '0.7');
-        await page.mouse.move(0, 0);
-        await page.mouse.up();
-      }
-      await page.mouse.move(0, 0);
-      // The callout itself has no hover.
-      await part(page, id, '.body').hover();
-      await same('the pointer is over it');
-      await page.mouse.move(0, 0);
-      await page.locator('#start').focus();
-    }
+    for (const side of area) near(side, Math.max(pointer, await resolveToken(page, SMALL)), 'the Button’s minimum target');
+    // The callout itself has no hover.
+    await page.locator('#start').focus();
+    await part(page, id, '.body').hover();
+    expect(await callout(), 'the callout under the pointer on its text').toEqual(before);
+    // Nothing of the callout's own is drawn for the close button: no ripple, no hold, no shape of its own.
+    expect(await host(page, id).evaluate((el) => el.shadowRoot!.querySelectorAll('.ripple, .hold, .glyph, button').length)).toBe(0);
   });
 
-  test('CLO-15: keyboard focus on the close button shows the focus ring without animation, its outer stroke in the form’s focus-ring color and the system’s widths, offset and inner stroke; focus by pointer shows none', async ({ page, browserName }) => {
-    const forms = [
-      { id: 'tonal', props: {}, name: 'focus-ring-color-tonal' },
-      { id: 'tonal-info', props: { status: 'info' }, name: 'info-focus-ring-color-tonal' },
-      { id: 'outlined', props: { variant: 'outlined' }, name: 'focus-ring-color-outlined' },
-      { id: 'outlined-error', props: { variant: 'outlined', status: 'error' }, name: 'error-focus-ring-color-outlined' },
-    ];
-    await mount(page, forms.map(({ id, props }) => fx(id, { ...props, title: 'A title', closable: true, closeLabel: 'Close' }, 'The body.')));
+  test('CLO-10: under cupertino, which draws no state layer, the toned close button is a bare glyph that stays at rest under the pointer and keyboard focus, as the preset’s close button was', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, system: 'cupertino', fixtures: [fx('c', { status: 'warning', title: 'A title', closable: true, closeLabel: 'Close' }, 'The body.')] });
     await page.evaluate(() => document.querySelector('main')!.insertAdjacentHTML('afterbegin', '<button id="start">start</button>'));
-    const sys = (name: string) => resolveToken(page, `--tanrei-sys-focus-${name}`);
-    const [outer, inner, offset] = [await sys('outer-width'), await sys('inner-width'), await sys('offset')];
-    await override(page, Object.fromEntries(forms.map(({ name }, i) => [T(name), `rgb(${30 + i}, 60, 90)`])));
-    for (const [i, { id }] of forms.entries()) {
-      const button = close(page, id);
-      // By pointer: no indicator.
-      if (browserName !== 'webkit') {
-        await button.hover();
-        await page.mouse.down();
-        expect(await css(button, 'outline-style'), `${id}: no ring by pointer`).toBe('none');
-        await page.mouse.move(0, 0);
-        await page.mouse.up();
-      }
-      await page.locator('#start').focus();
-      await tabTo(page, button);
-      expect(await css(button, 'outline-style')).toBe('solid');
-      near(Number.parseFloat(await css(button, 'outline-width')), outer, `${id} outer width`);
-      near(Number.parseFloat(await css(button, 'outline-offset')), offset + inner, `${id} offset`);
-      sameColor(await painted(button, 'outline-color'), [30 + i, 60, 90, 255], `${id}: the form’s focus-ring color`);
-      // The inner stroke is the system's.
-      const after = await button.evaluate((el) => {
-        const s = getComputedStyle(el, '::after');
-        return { width: s.borderTopWidth, style: s.borderTopStyle };
-      });
-      near(Number.parseFloat(after.width), inner, `${id} inner width`);
-      sameColor(await painted(button, 'border-top-color', '::after'), await colorOf(page, 'var(--tanrei-sys-color-focus-ring-inner)'), `${id}: the system’s inner stroke`);
-      // Never animated.
-      expect(await css(button, 'transition-property')).not.toMatch(/outline|all/);
-    }
+    expect(await page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), T('close-button-variant'))).toBe('text');
+    // The text variant's container is none; on cupertino's tone no layer is laid over it in any state (its alpha stays 0).
+    const alpha = async () => (await painted(closeBox(page, 'c'), 'background-color'))[3];
+    await expect.poll(alpha).toBe(0);
+    await close(page, 'c').hover();
+    await expect.poll(() => closeBox(page, 'c').evaluate((el) => el.matches(':hover'))).toBe(true);
+    // Whatever the hover started has ended: the color it rests at is the hovered one.
+    await motionEnded(close(page, 'c'));
+    expect(await alpha(), 'no hover layer').toBe(0);
+    await page.mouse.move(0, 0);
+    await page.locator('#start').focus();
+    await tabTo(page, close(page, 'c'));
+    expect(await closeBox(page, 'c').evaluate((el) => el.matches(':focus-visible'))).toBe(true);
+    await motionEnded(close(page, 'c'));
+    expect(await alpha(), 'no focus layer').toBe(0);
+    expect(await closeBox(page, 'c').evaluate((el) => getComputedStyle(el.querySelector('.icon')!).color)).toBe(await computed(page, `var(${T('warning-body-color-tonal')})`));
   });
 
-  test('CLO-16: the close button’s hit area reaches the minimum target on both axes, for a fine pointer and for touch, without changing its visual size', async ({ page }) => {
+  test('CLO-19: the container’s corners are eased by sys.shape.corner-smoothing through the shared rule; the close button’s corners and its focus indicator are the Button’s', async ({ page }) => {
     await mountSpec(page, 'closable');
-    const button = close(page, 'closable');
-    const [height, pointer, touch] = [await token(page, 'controls-height'), await resolveToken(page, '--tanrei-sys-target-pointer'), await resolveToken(page, '--tanrei-sys-target-touch')];
-    const area = () =>
-      button.evaluate((el) => {
-        const s = getComputedStyle(el, '::before');
-        return [Number.parseFloat(s.width), Number.parseFloat(s.height)];
-      });
-    const visual = await box(button);
-    for (const side of await area()) near(side, Math.max(height, pointer), 'the pointer target');
-    // Touch: the rule for a coarse pointer names the touch target.
-    const coarse = await host(page, 'closable').evaluate((el) => {
-      const found: string[] = [];
-      for (const sheet of el.shadowRoot!.adoptedStyleSheets) for (const rule of sheet.cssRules) if (rule instanceof CSSMediaRule && rule.conditionText.includes('pointer: coarse')) found.push(rule.cssText);
-      return found.join('\n');
-    });
-    expect(coarse).toContain('.close::before');
-    expect(coarse).toContain('--tanrei-sys-target-touch');
-    expect(Math.max(height, touch)).toBeGreaterThanOrEqual(height);
-    // The hit area is centred on the button and takes no room: the button is still its visual size.
-    near(visual.width, height, 'visual size');
-    near(visual.height, height, 'visual size');
-    expect(await button.evaluate((el) => getComputedStyle(el, '::before').position)).toBe('absolute');
-    // A press just outside the visual box, inside the target, still closes it.
-    if (pointer > height) {
-      await page.mouse.click(visual.x + visual.width / 2, visual.y - (pointer - height) / 2 + 1);
-      await expect(host(page, 'closable')).toBeHidden();
-    }
-  });
-
-  test('CLO-17: a press on the close button, by pointer or key, shows the pressed state without delay and keeps it for at least press-hold, even when the press ends at once', async ({ page }) => {
-    await mountSpec(page, 'closable');
-    const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
-    expect(hold).toBeGreaterThan(0);
-    for (const how of ['pointer', 'Enter', ' '] as const) {
-      // The press and its end in one task: the state is there at once, and is still there a press-hold later.
-      const held = await close(page, 'closable').evaluate(
-        (el, [input, ms]) =>
-          new Promise<{ immediate: string | undefined; kept: number }>((resolve) => {
-            const r = el.getBoundingClientRect();
-            const at = { clientX: r.left + r.width / 2, clientY: r.top + r.height / 2, bubbles: true, composed: true };
-            const start = performance.now();
-            if (input === 'pointer') el.dispatchEvent(new PointerEvent('pointerdown', { ...at, button: 0, pointerType: 'mouse' }));
-            else el.dispatchEvent(new KeyboardEvent('keydown', { key: input, bubbles: true, composed: true }));
-            const immediate = el.dataset.pressed;
-            if (input === 'pointer') el.dispatchEvent(new PointerEvent('pointerup', { ...at, button: 0, pointerType: 'mouse' }));
-            else el.dispatchEvent(new KeyboardEvent('keyup', { key: input, bubbles: true, composed: true }));
-            const stillThere = el.dataset.pressed;
-            const look = () => {
-              if (el.dataset.pressed === undefined) resolve({ immediate: immediate && stillThere, kept: performance.now() - start });
-              else if (performance.now() - start > ms * 20 + 2000) resolve({ immediate, kept: Number.POSITIVE_INFINITY });
-              else setTimeout(look, 1);
-            };
-            look();
-          }),
-        [how, hold] as const,
-      );
-      expect(held.immediate, `${how}: pressed without delay, and still pressed when the press ends`).toBeTruthy();
-      expect(held.kept, `${how}: kept for press-hold`).toBeGreaterThanOrEqual(hold - 1);
-      expect(held.kept).toBeLessThan(hold * 20 + 2000);
-    }
-  });
-
-  test('CLO-18: the close button answers a press as sys.behavior.pressed-feedback names — overlay, ripple from the point of contact (the centre for a key), dim, none — the ripple over motion.feedback-duration, whole where motion is reduced', async ({ page }) => {
-    for (const reduced of [false, true]) {
-      await mount(page, [fx('c', { status: 'info', title: 'A title', closable: true, closeLabel: 'Close' }, 'The body.')], { reducedMotion: reduced });
-      await override(page, {
-        [T('close-pressed-info-container-color')]: 'rgb(1, 2, 3)',
-        [T('close-pressed-info-content-color')]: 'rgb(4, 5, 6)',
-        [T('pressed-opacity')]: '0.5',
-        [T('close-info-container-color')]: 'rgb(9, 9, 9)',
-      });
-      const button = close(page, 'c');
-      const press = (key: string | null, dx = 4, dy = 6) =>
-        button.evaluate(
-          (el, [k, x, y]) => {
-            const r = el.getBoundingClientRect();
-            if (k === null) el.dispatchEvent(new PointerEvent('pointerdown', { clientX: r.left + (x as number), clientY: r.top + (y as number), button: 0, pointerType: 'mouse', bubbles: true, composed: true }));
-            else el.dispatchEvent(new KeyboardEvent('keydown', { key: k as string, bubbles: true, composed: true }));
-          },
-          [key, dx, dy] as const,
-        );
-      const release = () =>
-        button.evaluate(async (el) => {
-          el.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, composed: true }));
-          el.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter', bubbles: true, composed: true }));
-          await new Promise<void>((resolve) => {
-            const look = () => (el.dataset.pressed === undefined && !el.querySelector('.ripple') ? resolve() : setTimeout(look, 10));
-            look();
-          });
-          // …and back at rest: the state's transition out has ended.
-          await Promise.allSettled(el.getAnimations().map((animation) => animation.finished));
-        });
-      const feedback = (name: string) => override(page, { '--tanrei-sys-behavior-pressed-feedback': name });
-      // overlay: the pressed tokens on the whole container at once.
-      await feedback('overlay');
-      await press(null);
-      expect(await button.getAttribute('data-pressed')).toBe('overlay');
-      sameColor(await painted(button, 'background-color'), [1, 2, 3, 255], 'overlay container');
-      sameColor(await painted(button, 'color'), [4, 5, 6, 255], 'overlay content');
-      expect(await css(button, 'opacity')).toBe('0.5');
-      expect(await button.locator('.ripple').count()).toBe(0);
-      await release();
-      // ripple: the container color stays, the layer brings the pressed color from the point of contact.
-      await feedback('ripple');
-      await press(null, 4, 6);
-      expect(await button.getAttribute('data-pressed')).toBe('ripple');
-      sameColor(await painted(button, 'background-color'), [9, 9, 9, 255], 'ripple: the container stays');
-      sameColor(await painted(button, 'color'), [4, 5, 6, 255], 'ripple content');
-      expect(await css(button, 'opacity')).toBe('0.5');
-      const ripple = button.locator('.ripple');
-      sameColor(await painted(ripple, 'background-color'), [1, 2, 3, 255], 'the ripple is the pressed container color');
-      expect(await ripple.evaluate((el) => [el.style.getPropertyValue('--_x'), el.style.getPropertyValue('--_y')])).toEqual(['4px', '6px']);
-      const motion = await ripple.evaluate((el) => {
-        const s = getComputedStyle(el);
-        return { name: s.animationName, duration: Number.parseFloat(s.animationDuration) * 1000, fade: Number.parseFloat(s.transitionDuration) * 1000 };
-      });
-      if (reduced) expect(motion.name, 'whole at once where motion is reduced').toBe('none');
-      else {
-        expect(motion.name).toBe('ripple-grow');
-        near(motion.duration, await resolveToken(page, T('motion-feedback-duration'), 'duration'), 'grows over feedback-duration', 1);
-        near(motion.fade, await resolveToken(page, T('motion-state-duration'), 'duration'), 'fades over state-duration', 1);
-      }
-      await release();
-      // …and from the centre for a key.
-      await press('Enter');
-      const size = await box(button);
-      const origin = await button.locator('.ripple').evaluate((el) => [Number.parseFloat(el.style.getPropertyValue('--_x')), Number.parseFloat(el.style.getPropertyValue('--_y'))]);
-      near(origin[0], size.width / 2, 'from the centre');
-      near(origin[1], size.height / 2, 'from the centre');
-      await release();
-      // dim: the pressed opacity and content, no layer, the container as it was.
-      await feedback('dim');
-      await press(null);
-      expect(await button.getAttribute('data-pressed')).toBe('dim');
-      expect(await css(button, 'opacity')).toBe('0.5');
-      sameColor(await painted(button, 'background-color'), [9, 9, 9, 255], 'dim: the container stays');
-      expect(await button.locator('.ripple').count()).toBe(0);
-      await release();
-      // none: nothing answers.
-      await feedback('none');
-      const before = [await painted(button, 'background-color'), await painted(button, 'color'), await css(button, 'opacity')];
-      await press(null);
-      expect(await button.getAttribute('data-pressed')).toBe('none');
-      expect([await painted(button, 'background-color'), await painted(button, 'color'), await css(button, 'opacity')]).toEqual(before);
-      expect(await button.locator('.ripple').count()).toBe(0);
-      await release();
-    }
-  });
-
-  test('CLO-19: the container’s and the close button’s corners are eased by sys.shape.corner-smoothing through the shared rule, and the close button’s keyboard focus is drawn as sys.behavior.focus-style names — a ring, or a glow', async ({ page }) => {
-    await mountSpec(page, 'closable');
-    await page.evaluate(() => document.querySelector('main')!.insertAdjacentHTML('afterbegin', '<button id="start">start</button>'));
-    const button = close(page, 'closable');
-    for (const el of [container(page, 'closable'), button]) expect(await el.getAttribute('data-tanrei-shape')).not.toBeNull();
-    // The amount reaches both boxes: the radius the shared rule draws grows with it.
+    expect(await container(page, 'closable').getAttribute('data-tanrei-shape')).not.toBeNull();
+    expect(await closeBox(page, 'closable').getAttribute('data-tanrei-shape')).not.toBeNull();
+    // The amount reaches the container: the radius the shared rule draws grows with it.
     const radius = async (el: Locator) => Number.parseFloat(await css(el, 'border-top-left-radius'));
     await override(page, { '--tanrei-sys-shape-corner-smoothing': '0' });
     const round = await radius(container(page, 'closable'));
@@ -955,16 +791,8 @@ test.describe('behavior', () => {
     // quarter circle of the token's radius (the first value).
     if (curve && curve !== 'round') expect(smooth).toBeGreaterThan(round);
     else near(smooth, round, 'a quarter circle where the curve cannot be drawn');
-    // focus-style: ring is an outline; glow is a halo and no outline.
-    await page.locator('#start').focus();
-    await tabTo(page, button);
-    expect(await painted(button, 'outline-color')).not.toEqual([0, 0, 0, 0]);
-    expect(await button.evaluate((el) => getComputedStyle(el, '::after').boxShadow)).toBe('none');
-    await page.locator('#start').focus();
-    await override(page, { '--tanrei-sys-behavior-focus-style': 'glow' });
-    await tabTo(page, button);
-    expect((await painted(button, 'outline-color'))[3], 'no ring under glow').toBe(0);
-    expect(await button.evaluate((el) => getComputedStyle(el, '::after').boxShadow)).not.toBe('none');
+    // The close button's corners are the Button's own: a circle of its small size.
+    expect((await css(closeBox(page, 'closable'), '--tanrei-corner-radius')).trim()).toBe((await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--tanrei-comp-button-container-shape'))).trim());
   });
 
   test('CLO-20: not live, the callout is a note, named by its title or else by statusLabel, read where it stands; statusLabel is text before the title and the body that is not drawn, and is ignored without a status; it is not announced when shown or changed, moves no focus and is no stop in the focus order', async ({
@@ -978,7 +806,7 @@ test.describe('behavior', () => {
     const caution = host(page, 'docs-caution');
     expect(await caution.getAttribute('role')).toBe('note');
     expect(await caution.getAttribute('aria-live')).toBeNull();
-    await expect(page.getByRole('note', { name: 'Pre-release: not published yet' })).toHaveCount(1);
+    await expect(page.getByRole('note', { name: 'Back up before you migrate' })).toHaveCount(1);
     // Named by the product's title where it is in the slot, by statusLabel without a title, by nothing otherwise.
     const slotTitle = host(page, 'title-slot').locator('> [slot="title"]');
     expect(await host(page, 'title-slot').getAttribute('aria-labelledby')).toBe(await slotTitle.getAttribute('id'));
@@ -1221,7 +1049,7 @@ test.describe('behavior', () => {
     await page.addStyleTag({ content: 'html { font-size: 200%; } main { display: block !important; } .stage { box-sizing: border-box; inline-size: 320px !important; }' });
     await frames(page);
     // The tokens as they resolve now: the system's lengths are the reader's (rem), so a padding is still its token.
-    const [iconSize, controls, padBlock] = [await token(page, 'icon-size'), await token(page, 'controls-height'), await token(page, 'container-padding-block')];
+    const [iconSize, small, padBlock] = [await token(page, 'icon-size'), await resolveToken(page, SMALL), await token(page, 'container-padding-block')];
     near(Number.parseFloat((await textStyle(part(page, 'actions', '.body'))).fontSize), 2 * Number.parseFloat(normal.fontSize), 'the body grows');
     near(Number.parseFloat((await textStyle(part(page, 'actions', '.headline'))).fontSize), 2 * Number.parseFloat(normalTitle.fontSize), 'the title grows');
     // No horizontal scrolling: nothing of the callout's own is wider than the stage, and with actions that fit its
@@ -1264,10 +1092,11 @@ test.describe('behavior', () => {
     // Both actions are visible, on rows of their own.
     const [a, b] = [await box(host(page, 'actions').locator('> [slot="actions"]').nth(0)), await box(host(page, 'actions').locator('> [slot="actions"]').nth(1))];
     expect(b.y).toBeGreaterThanOrEqual(a.y + a.height);
-    // The close button keeps controls.height on the first line, and nothing overlaps it.
-    const button = await box(close(page, 'closable-title-actions'));
-    near(button.width, controls, 'the close button');
-    near(button.height, controls, 'the close button');
+    // The close button keeps its own size (a Button's: rem, so it follows the root's font size, BTN-12) on the first
+    // line, and nothing overlaps it.
+    const button = await box(closeBox(page, 'closable-title-actions'));
+    near(button.width, small, 'the close button');
+    near(button.height, small, 'the close button');
     near(centre(button), centre((await lines(part(page, 'closable-title-actions', '.headline')))[0]), 'the close button on the first line', 1.5);
     for (const selector of ['.headline', '.body slot']) for (const line of await lines(part(page, 'closable-title-actions', selector))) expect(line.right, `${selector} does not run under the close button`).toBeLessThanOrEqual(button.x + 0.5);
     // Text spacing (WCAG 1.4.12): nothing is lost.
@@ -1421,7 +1250,7 @@ test.describe('behavior', () => {
         sameColor(glyph, canvasText, `${id} glyph`);
         expect(glyph[3], `${id}: the glyph whole`).toBe(255);
       }
-      if (await close(page, id).count()) sameColor(await painted(close(page, id), 'color'), buttonText, `${id}: the close button’s glyph`);
+      if (await close(page, id).count()) sameColor(await painted(closeBox(page, id).locator('.icon'), 'color'), buttonText, `${id}: the close button’s glyph, as a Button draws it`);
     }
     // Nothing moves: the edge is inside the container's size.
     const after = await geometry();
@@ -1440,13 +1269,13 @@ test.describe('behavior', () => {
     await page.emulateMedia({ forcedColors: 'none' });
   });
 
-  test('CLO-25: in right-to-left the order mirrors and the paddings follow the logical start and end — the glyph at the right, the text after it, the actions starting at the text’s right edge, the close button at the left; a ripple still grows from the point of contact', async ({
+  test('CLO-25: in right-to-left the order mirrors and the paddings follow the logical start and end — the glyph at the right, the text after it, the actions starting at the text’s right edge, the close button at the left', async ({
     page,
   }) => {
     await mountSpec(page, 'closable-actions-rtl', 'tonal-info-rtl');
     const id = 'closable-actions-rtl';
     const [padInline, padClose, iconGap, gap] = await Promise.all(['container-padding-inline', 'container-padding-inline-end-with-close', 'icon-gap', 'container-gap'].map((n) => token(page, n)));
-    const [h, icon, text, button] = [await box(host(page, id)), await box(part(page, id, '.icon')), await box(part(page, id, '.text')), await box(close(page, id))];
+    const [h, icon, text, button] = [await box(host(page, id)), await box(part(page, id, '.icon')), await box(part(page, id, '.text')), await box(closeBox(page, id))];
     near(icon.x + icon.width, h.x + h.width - padInline, 'the glyph at the right, after the start padding');
     near(text.x + text.width, icon.x - iconGap, 'the text after the glyph');
     near(button.x, h.x + padClose, 'the close button at the left, before the nearer padding');
@@ -1457,13 +1286,6 @@ test.describe('behavior', () => {
     expect(second.x + second.width).toBeLessThan(first.x);
     // The title's and the body's lines begin at the right.
     near((await lines(part(page, id, '.headline')))[0].right, text.x + text.width, 'the title’s line at the right');
-    // A ripple from the point of contact, not mirrored.
-    await override(page, { '--tanrei-sys-behavior-pressed-feedback': 'ripple' });
-    await close(page, id).evaluate((el) => {
-      const r = el.getBoundingClientRect();
-      el.dispatchEvent(new PointerEvent('pointerdown', { clientX: r.left + 5, clientY: r.top + 7, button: 0, pointerType: 'mouse', bubbles: true, composed: true }));
-    });
-    expect(await close(page, id).locator('.ripple').evaluate((el) => [el.style.getPropertyValue('--_x'), el.style.getPropertyValue('--_y')])).toEqual(['5px', '7px']);
   });
 
   test('CLO-26: the direction is the nearest ancestor’s, not the root’s and not a setting of the callout’s own; when it changes while the callout is shown it is drawn for the new direction at once, without a motion, keeping its open state and its focus', async ({ page }) => {
@@ -1479,15 +1301,16 @@ test.describe('behavior', () => {
     await tabTo(page, close(page, id));
     await stage(page, id).evaluate((el) => el.setAttribute('dir', 'rtl'));
     expect(await side(id)).toBe('rtl');
-    const [h, button] = [await box(host(page, id)), await box(close(page, id))];
+    const [h, button] = [await box(host(page, id)), await box(closeBox(page, id))];
     near(button.x, h.x + (await token(page, 'container-padding-inline-end-with-close')), 'the close button at the left');
     expect(await host(page, id).evaluate((el) => [...el.getAnimations({ subtree: true }), ...el.shadowRoot!.getAnimations()].filter((a) => !(a as CSSTransition).transitionProperty?.includes('color')).length), 'no motion').toBe(0);
     expect(await host(page, id).evaluate((el: HTMLElement & { open: boolean }) => el.open)).toBe(true);
-    expect(await focused(page)).toContain('close');
+    const onClose = () => close(page, id).evaluate((el) => (el.getRootNode() as ShadowRoot).activeElement === el);
+    expect(await onClose()).toBe(true);
     // And back.
     await stage(page, id).evaluate((el) => el.removeAttribute('dir'));
     expect(await side(id)).toBe('ltr');
-    expect(await focused(page)).toContain('close');
+    expect(await onClose()).toBe(true);
   });
 
   test('CLO-27: in right-to-left the icon helper mirrors a glyph of the icon slot that the icon set marks, or the product forces, inside its own box, and not one the product forbids or an unmarked one; the callout’s own glyphs are not mirrored, nor an image, nor anything in left-to-right', async ({
@@ -1509,7 +1332,7 @@ test.describe('behavior', () => {
     expect(await transform(glyph('icon-rtl'))).toBe(MIRRORED);
     expect(await transform(part(page, 'tonal-info-rtl', '.icon'))).toBe('none');
     expect(await transform(part(page, 'closable-actions-rtl', '.icon'))).toBe('none');
-    expect(await transform(part(page, 'closable-actions-rtl', '.glyph'))).toBe('none');
+    expect(await transform(close(page, 'closable-actions-rtl').locator('[slot="icon"]'))).toBe('none');
     expect(await transform(glyph('unmarked'))).toBe('none');
     expect(await transform(glyph('forced'))).toBe(MIRRORED);
     expect(await transform(glyph('forbidden'))).toBe('none');
@@ -1566,7 +1389,8 @@ test.describe('behavior', () => {
     await mountSpec(page, 'closable-outlined-info', 'icon');
     const family = await withoutIconFont(page);
     const id = 'closable-outlined-info';
-    const glyphs = [part(page, id, '.icon'), close(page, id).locator('.glyph'), part(page, 'icon', '.icon')];
+    // The callout's own glyphs; the close button's is the Button's.
+    const glyphs = [part(page, id, '.icon'), part(page, 'icon', '.icon')];
     const size = await token(page, 'icon-size');
     for (const glyph of glyphs) {
       await expect.poll(() => glyph.getAttribute('data-drawn')).toBeNull();
@@ -1651,7 +1475,7 @@ test.describe('behavior', () => {
     for (const id of ['no-words', 'no-name', 'no-status', 'fine']) await expect(host(page, id)).toBeVisible();
     await expect(part(page, 'no-words', '.icon .ink')).toHaveText('warning');
     await expect(close(page, 'no-name')).toBeVisible();
-    expect(await close(page, 'no-name').getAttribute('aria-label')).toBeNull();
+    expect(await closeBox(page, 'no-name').getAttribute('aria-label')).toBeNull();
     expect(await part(page, 'no-status', '.status-label').count()).toBe(0);
     await expect.poll(() => seen.filter((w) => w.includes('CLO-31')).length).toBeGreaterThanOrEqual(4);
     const of = (id: string) => seen.filter((w) => w.includes('CLO-31')).join('\n');
@@ -1731,7 +1555,7 @@ test.describe('fixtures', () => {
       expect(await close(page, f.id).count(), `${f.id} close`).toBe(f.props.closable ? 1 : 0);
       if (f.content) await expect(host(page, f.id)).toContainText(f.content);
       // Every glyph is drawn by the icon set.
-      for (const glyph of await host(page, f.id).locator('.lead > .icon, .end > .close > .glyph').all()) if (await glyph.isVisible()) await expect.poll(() => glyph.getAttribute('data-drawn'), { message: f.id }).not.toBeNull();
+      for (const glyph of await host(page, f.id).locator('.lead > .icon').all()) if (await glyph.isVisible()) await expect.poll(() => glyph.getAttribute('data-drawn'), { message: f.id }).not.toBeNull();
     }
   });
 

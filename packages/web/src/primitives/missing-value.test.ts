@@ -32,7 +32,7 @@ async function withoutBrowserWords(page: P) {
 }
 
 for (const { spec, label, items, framed } of SUBJECTS) {
-  const fixture = (id: string, props: Fixture['props']): Fixture => ({ id, props: { label, requirement: 'required', ...props }, ...(items ? { items } : {}) });
+  const fixture = (id: string, props: Fixture['props']): Fixture => ({ id, props: { label, required: true, ...props }, ...(items ? { items } : {}) });
 
   test(`${spec.name}: a required value that is missing is told to the form in the browser’s own words, in the browser’s language — not in words of Tanrei’s`, async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [fixture('plain', { requiredText: 'Needed' })] });

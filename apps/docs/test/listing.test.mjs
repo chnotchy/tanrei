@@ -12,9 +12,10 @@ import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 register('./vite-shim.mjs', import.meta.url);
-const { LISTING_ATTR, LISTING_EVERYTHING, LISTING_KEY, ON_REQUEST_ATTR, componentPages, isOnRequest, listedFirst, listingBootstrap, shownIn, sidebarSlugs, sidebarTree, usedIn } = await import('../src/lib/listing.mjs');
+const { ABSENT_ATTR, LISTING_ATTR, LISTING_EVERYTHING, LISTING_KEY, ON_REQUEST_ATTR, SYSTEM_ATTR, SYSTEM_ONLY_ATTR, SYSTEM_RULE_ID, SYSTEM_SYNC_KEY, absentFrom, componentPages, groupOf, isOnRequest, listedFirst, listingBootstrap, shownIn, shownUnder, sidebarSlugs, sidebarTree, systemBootstrap, usedIn } = await import('../src/lib/listing.mjs');
 const { aroundPlace, listingFacts } = await import('../src/lib/page-head.ts');
-const { levelRole, levels, listings, statusComponents } = await import('../src/lib/repo.ts');
+const { levelRole, levels, listings, manifests, statusComponents } = await import('../src/lib/repo.ts');
+const { tabsKey } = await import('../src/components/tabs/keys.mjs');
 const { pageGroup } = await import('../src/lib/search.mjs');
 const { strings } = await import('../src/lib/i18n.ts');
 const { source, translations } = await import('../i18n/locales.mjs');
@@ -65,12 +66,16 @@ describe('the sidebar', () => {
     assert.equal(new Set(slugs).size, slugs.length);
     for (const slug of slugs.slice(1)) assert.ok(hasPage(slug.slice('components/'.length)), `${slug}: no page`);
   });
-  test('runs category by category, in the inventory’s order within each', () => {
+  test('runs category by category, in the inventory’s order within each, and then a group for each layer that holds components', () => {
     const rows = componentPages(statusComponents);
-    const categories = rows.map((row) => row.category);
+    const categories = rows.map(groupOf);
     assert.deepEqual([...new Set(categories)].flatMap((category) => categories.filter((other) => other === category)), categories, 'a category is one run');
+    // A component that lives in a layer stands in that layer's group, after every category.
+    assert.equal(groupOf(rows.find((row) => row.name === 'fab-menu')), 'layer:m3-like');
+    const first = categories.findIndex((group) => group.startsWith('layer:'));
+    assert.ok(first > 0 && categories.slice(first).every((group) => group.startsWith('layer:')));
     for (const category of new Set(categories)) {
-      const run = rows.filter((row) => row.category === category).map((row) => row.name);
+      const run = rows.filter((row) => groupOf(row) === category).map((row) => row.name);
       assert.deepEqual(run, statusComponents.filter((row) => run.includes(row.name)).map((row) => row.name));
     }
   });
@@ -94,7 +99,8 @@ describe('the sidebar', () => {
       for (const group of groups) {
         for (const link of group.entries) {
           const spec = specOf(link.label.slice('components/'.length));
-          assert.equal(group.label, words[spec.category], `${lang}: ${spec.name}`);
+          assert.equal(group.label, words[spec.layer ? `layer:${spec.layer}` : spec.category], `${lang}: ${spec.name}`);
+          assert.ok(group.label, `${lang}: ${spec.name} has a group named in the page's language`);
         }
       }
       // Every page is still there, once.
@@ -120,7 +126,7 @@ describe('the sidebar', () => {
   });
   test('is drawn from that tree, a marked row with the attribute the switch reads and the word at its end', () => {
     const text = read('src/components/frame/Sidebar.astro');
-    assert.match(text, /const drawn = sidebarTree\(sidebar, statusComponents, listings, base, \(category\) => t\.category\[category\] \?\? category\)/);
+    assert.match(text, /const drawn = sidebarTree\(sidebar, statusComponents, listings, base, \(category\) => t\.category\[category\] \?\? category, manifests\)/);
     assert.match(text, /<Fragment set:html=\{cells\(drawn, true\)\} \/>/);
     assert.match(text, /entry\.onRequest \? ` \$\{ON_REQUEST_ATTR\} trailing-text="\$\{escape\(t\.listing\.advanced\)\}"`/);
     assert.match(text, /<ListingSwitch lang=\{route\.lang\} into="header" \/>/);
@@ -132,9 +138,9 @@ describe('the sidebar', () => {
 describe('the index of components', () => {
   const text = read('src/components/ComponentIndex.astro');
   test('draws every row of the status file, marks the ones shown on request, and says each one’s level', () => {
-    assert.match(text, /statusComponents\.filter\(\(c\) => c\.category === category\)\.map\(/);
+    assert.match(text, /statusComponents\.filter\(\(c\) => groupOf\(c\) === category\)\.map\(/);
     assert.match(text, /const onRequest = isOnRequest\(c, listings\);/);
-    assert.match(text, /<tanrei-list-item href=\{href\} \{\.\.\.marked\(onRequest\)\}>/);
+    assert.match(text, /<tanrei-list-item href=\{href\} \{\.\.\.marked\(onRequest\)\} \{\.\.\.absent\(absentFrom\(c\.name, manifests\)\)\}>/);
     assert.match(text, /<span class="title">\{c\.title\}<\/span>/);
     assert.match(text, /const meta = `\$\{shipped\}\/\$\{platforms\.length\} · \$\{\(role && t\.level\[role\]\) \?\? c\.level\}`;/);
     assert.match(text, /<ListingSwitch lang=\{lang\} \/>/);
@@ -185,6 +191,111 @@ describe('the switch', () => {
     assert.match(text, new RegExp(`:root\\[${LISTING_ATTR}='listed'\\] \\[${ON_REQUEST_ATTR}\\] \\{\\s*display: none;`));
     // No other rule of the site hides a marked row.
     for (const file of ['src/styles/frame.css', 'src/styles/tanrei-theme.css', 'src/components/ComponentIndex.astro', 'src/components/frame/Sidebar.astro']) assert.doesNotMatch(read(file), /\[data-docs-on-request\][^{]*\{[^}]*display: none/, file);
+  });
+});
+
+describe('the choice of design system', () => {
+  /** Every shipped system's components manifest, read from disk: what the lists are compared with. */
+  const generated = here('../../../tokens/generated/');
+  const onDisk = fs.readdirSync(generated).filter((id) => fs.existsSync(`${generated}${id}/components.json`)).map((id) => JSON.parse(fs.readFileSync(`${generated}${id}/components.json`, 'utf8')));
+  const DEFAULT = JSON.parse(fs.readFileSync(here('../../../tanrei.config.json'), 'utf8')).namespace;
+  const pages = componentPages(statusComponents);
+  const names = (rows) => rows.map((row) => row.name);
+
+  test('reads every shipped system’s manifest, the default system first', () => {
+    assert.deepEqual(manifests.map((manifest) => manifest.system).sort(), onDisk.map((manifest) => manifest.system).sort());
+    assert.equal(manifests[0].system, DEFAULT);
+    assert.ok(manifests.length > 1, 'the premise: there are presets');
+  });
+  test('a list under a system leaves out exactly what its manifest says it does not have', () => {
+    for (const manifest of onDisk) {
+      const out = new Set(manifest.omitted.map((entry) => entry.name));
+      assert.deepEqual(names(shownUnder(pages, manifests, manifest.system)), names(pages).filter((name) => !out.has(name)), manifest.system);
+      for (const row of statusComponents) assert.equal(absentFrom(row.name, manifests).includes(manifest.system), out.has(row.name), `${manifest.system}: ${row.name}`);
+    }
+  });
+  test('selecting m3-like shows the FAB menu and the segmented button; the default system shows neither', () => {
+    for (const name of ['fab-menu', 'segmented-button']) {
+      assert.ok(names(shownUnder(pages, manifests, 'm3-like')).includes(name), `m3-like: ${name}`);
+      assert.ok(!names(shownUnder(pages, manifests, DEFAULT)).includes(name), `${DEFAULT}: ${name}`);
+    }
+    assert.ok(!names(shownUnder(pages, manifests, 'cupertino')).includes('fab-menu') && names(shownUnder(pages, manifests, 'cupertino')).includes('segmented-button'));
+  });
+
+  /** The sidebar as the framework gives it, the index first, with `current` as the page being read. */
+  const given = (current) => [{ type: 'group', label: 'Components', collapsed: false, entries: sidebarSlugs(statusComponents).map((slug) => ({ type: 'link', label: slug, href: `/${slug}/`, isCurrent: slug === current })) }];
+  const links = (entries) => entries.flatMap((entry) => (entry.type === 'link' ? [entry] : links(entry.entries)));
+  test('the sidebar marks each component with the systems that do not have it, and a group none of whose components a system has', () => {
+    const [components] = sidebarTree(given('components'), statusComponents, listings, '', (category) => category, manifests);
+    for (const link of links(components.entries).slice(1)) assert.deepEqual(link.absentFrom ?? [], absentFrom(link.label.slice('components/'.length), manifests), link.label);
+    const fab = components.entries.find((entry) => entry.type === 'group' && entry.entries.some((child) => child.href === '/components/fab-menu/'));
+    assert.ok(fab.absentFrom?.includes(DEFAULT), 'the layer’s group is not drawn under the default system');
+    for (const group of components.entries.filter((entry) => entry.type === 'group')) {
+      const every = manifests.map((manifest) => manifest.system).filter((id) => group.entries.every((child) => (child.absentFrom ?? []).includes(id)));
+      assert.deepEqual(group.absentFrom ?? [], every, group.label);
+    }
+    // Without the manifests nothing is marked.
+    const [bare] = sidebarTree(given('components'), statusComponents, listings, '', (category) => category);
+    assert.ok(links(bare.entries).every((link) => !link.absentFrom));
+  });
+  test('the page being read stays in the sidebar whatever system is chosen, and so does its group', () => {
+    const [components] = sidebarTree(given('components/fab-menu'), statusComponents, listings, '', (category) => category, manifests);
+    const own = links(components.entries).find((link) => link.isCurrent);
+    assert.equal(own.href, '/components/fab-menu/');
+    assert.equal(own.absentFrom, undefined);
+    assert.equal(components.entries.find((entry) => entry.type === 'group' && entry.entries.includes(own)).absentFrom, undefined);
+  });
+
+  /** The head's script, run with a storage that holds `stored` (or throws): the attribute it leaves, and the rule it writes. */
+  const after = (stored) => {
+    const attributes = {};
+    const head = [];
+    const document = { documentElement: { setAttribute: (name, value) => (attributes[name] = value) }, createElement: () => ({}), head: { appendChild: (node) => head.push(node) } };
+    const localStorage = { getItem: (key) => (stored instanceof Error ? (() => { throw stored; })() : key === tabsKey(SYSTEM_SYNC_KEY) ? stored : null) };
+    new Function('document', 'localStorage', systemBootstrap(tabsKey(SYSTEM_SYNC_KEY), manifests.map((manifest) => manifest.system), DEFAULT))(document, localStorage);
+    return { system: attributes[SYSTEM_ATTR], rule: head[0] };
+  };
+  test('the head’s script names the system the reader chose, and the default one on a first visit, a blocked storage or an unknown value', () => {
+    assert.equal(after(null).system, DEFAULT);
+    assert.equal(after('m3-like').system, 'm3-like');
+    assert.equal(after('not-a-system').system, DEFAULT);
+    assert.equal(after('"]{}*{display:none}').system, DEFAULT, 'nothing stored writes a rule of its own');
+    assert.equal(after(new Error('blocked')).system, DEFAULT);
+    const { rule } = after('cupertino');
+    assert.equal(rule.id, SYSTEM_RULE_ID);
+    assert.equal(rule.textContent, `[${ABSENT_ATTR}~="cupertino"],[${SYSTEM_ONLY_ATTR}]:not([${SYSTEM_ONLY_ATTR}="cupertino"]){display:none}`);
+  });
+  test('the choice is kept under the key a set of tabs with syncKey "system" keeps its choice under, read before the first paint', () => {
+    assert.match(read('astro.config.mjs'), /\{ tag: 'script', content: systemBootstrap\(tabsKey\(SYSTEM_SYNC_KEY\), systems, defaultSystem\) \}/);
+    const text = read('src/components/SystemSelect.astro');
+    assert.match(text, /localStorage\.setItem\(tabsKey\(SYSTEM_SYNC_KEY\), control\.value\)/);
+    assert.match(text, /<tanrei-select-field class="docs-system" slot=\{Astro\.props\.into\} size="small" label=\{t\.system\.choice\}/);
+    assert.match(text, /manifests\.map\(\(manifest\) => <tanrei-option value=\{manifest\.system\} supporting-text=\{manifest\.name\}>\{manifest\.system\}<\/tanrei-option>\)/);
+  });
+  test('is the same control in the sidebar and on the index, beside the switch, and the index says what the chosen system does not have', () => {
+    assert.match(read('src/components/frame/Sidebar.astro'), /<SystemSelect lang=\{route\.lang\} into="header" \/>\s*<ListingSwitch lang=\{route\.lang\} into="header" \/>/);
+    const index = read('src/components/ComponentIndex.astro');
+    assert.match(index, /<SystemSelect lang=\{lang\} \/>\s*<ListingSwitch lang=\{lang\} \/>/);
+    assert.match(index, /manifests\.filter\(\(manifest\) => manifest\.omitted\.length > 0\)\.map\(\(manifest\) => \(\s*<p class="absent" \{\.\.\.\{ \[SYSTEM_ONLY_ATTR\]: manifest\.system \}\}>/);
+  });
+  test('its words are in the six languages, each sentence with its places', () => {
+    const places = { choice: [], notIn: ['system'], insteadUse: ['component', 'components'], noteTitle: [], has: ['systems', 'entries'], lacks: ['systems'], livesIn: ['layer'], leftOutBy: ['layer'], use: ['components'], take: ['guide'], guide: [], layerFile: [], yourCode: [] };
+    for (const lang of languages) {
+      const words = strings(lang).system;
+      for (const [key, want] of Object.entries(places)) {
+        assert.ok(String(words[key] ?? '').trim(), `${lang}: system.${key}`);
+        assert.deepEqual([...words[key].matchAll(/\{(\w+)\}/g)].map((match) => match[1]).sort(), [...want].sort(), `${lang}: system.${key}`);
+        if (lang !== source.lang) assert.notEqual(words[key], strings(source.lang).system[key], `${lang}: system.${key} is not translated`);
+      }
+    }
+  });
+  test('no source of the lists writes the name of a system, or of a component a system does not have', () => {
+    const files = ['astro.config.mjs', 'src/lib/listing.mjs', 'src/lib/list-filter.ts', 'src/lib/systems.ts', 'src/components/SystemSelect.astro', 'src/components/ComponentIndex.astro', 'src/components/frame/Sidebar.astro', 'src/components/ComponentAvailability.astro', 'src/components/PresetFacts.astro'];
+    const left = [...new Set(onDisk.flatMap((manifest) => manifest.omitted.map((entry) => entry.name)))];
+    for (const file of files) {
+      const text = read(file).replace(/^\s*(\/\/|\*|\/\*).*$/gm, '');
+      for (const name of [...onDisk.map((manifest) => manifest.system), ...left]) assert.doesNotMatch(text, new RegExp(`['"\`/]${name}['"\`/]`), `${file}: names ${name}`);
+    }
   });
 });
 

@@ -5,6 +5,7 @@ import { AvailabilityController, LinkController, OpenAxesController, PressContro
 import type { TanreiCardVariantRegistry } from '../../registry.js';
 import { AXES, styles } from './card.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core variants (elevated, filled, outlined), plus any a design system's generated `.d.ts` registers. */
 export type TanreiCardVariant = keyof TanreiCardVariantRegistry;
@@ -37,7 +38,7 @@ export type TanreiCardVariant = keyof TanreiCardVariantRegistry;
  * @csspart outline - The outlined variant's edge, drawn above the content.
  * @fires click - An interactive card or a link card was activated by pointer, touch, keyboard or assistive technology. A link card fires it before the browser follows the address; `preventDefault()` cancels the navigation.
  */
-export class TanreiCard extends LitElement {
+export class TanreiCard extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'card');
   static override styles = [styles, hiddenHost];
 
@@ -164,12 +165,12 @@ export class TanreiCard extends LitElement {
   }
 
   /** CRD-10: where style queries are missing, the focus style is read when focus arrives. */
-  private onFocus() {
+  #onFocus() {
     syncFocusStyle(this, this.container);
   }
 
   /** CRD-1: Enter activates on key-down and Space on key-up, as a native button does. */
-  private onKeyDown(event: KeyboardEvent) {
+  #onKeyDown(event: KeyboardEvent) {
     if (!this.active || event.target !== this.container) return;
     this.press.onKeyDown(event);
     // CRD-20: a link card's keys are the anchor's own — Enter fires its click and follows it, Space scrolls the page.
@@ -183,14 +184,14 @@ export class TanreiCard extends LitElement {
     }
   }
 
-  private onKeyUp(event: KeyboardEvent) {
+  #onKeyUp(event: KeyboardEvent) {
     this.press.onKeyUp(event);
     if (event.key !== ' ' || !this.spaceDown) return;
     this.spaceDown = false;
     if (this.active) this.container?.click();
   }
 
-  private onBlur() {
+  #onBlur() {
     // A Space whose key-up arrives somewhere else does not activate, as on a native button.
     this.spaceDown = false;
     this.press.onBlur();
@@ -242,10 +243,10 @@ export class TanreiCard extends LitElement {
         @pointerup=${this.press.release}
         @pointercancel=${this.press.release}
         @pointerleave=${this.press.release}
-        @keydown=${this.onKeyDown}
-        @keyup=${this.onKeyUp}
-        @blur=${this.onBlur}
-        @focus=${this.onFocus}
+        @keydown=${this.#onKeyDown}
+        @keyup=${this.#onKeyUp}
+        @blur=${this.#onBlur}
+        @focus=${this.#onFocus}
       >
         <div part="content" class="clip"><slot @slotchange=${this.inspectContent}></slot></div>
         <span part="outline" class="outline" aria-hidden="true"></span>

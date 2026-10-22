@@ -1,9 +1,10 @@
 import { css, unsafeCSS } from 'lit';
 import type { OpenAxis } from '../../primitives/index.js';
 
-// Every value is a token (tokens/comp/tag-group.tokens.json): two distances for each spacing, and nothing else. The
-// group draws nothing of its own (TGR-1) — no container, no fill, no edge, no padding, no label — and has no state, so
-// there is no state rule, no focus indicator, no target and no motion here.
+// Every value is a token (tokens/comp/tag-group.tokens.json): two distances for each spacing, and the time and curve of
+// a member's move. The group draws nothing of its own (TGR-1) — no container, no fill, no edge, no padding, no label —
+// and has no state, so there is no state rule, no focus indicator and no target here; the move (TGR-10) is the
+// element's script, which reads its timing from the list.
 export const PREFIX = '--tanrei-comp-tag-group';
 /** The values of `spacing` every design system has. A layer may add more; those get their styles on demand. */
 export const CORE_SPACINGS = ['tags', 'chips'] as const;
@@ -61,6 +62,11 @@ export const styles = css`
        elements, not a styling API. A chip reads it to end its hit area half a gap past its visible edge, so that the
        areas of two chips narrower than the target meet at the middle of the gap (chip.styles.ts). */
     --tanrei-set-gap: var(--_set-gap);
+    /* TGR-10: the time and the curve of a member's move as the cascade computes them, for the script that moves the
+       members (a duration token is an expression: it is computed through a real property, here one that moves nothing). */
+    transition-property: none;
+    transition-duration: var(--tanrei-comp-tag-group-motion-move-duration);
+    transition-timing-function: var(--tanrei-comp-tag-group-motion-move-easing);
   }
   /* TGR-5: the distance between two lines is handed on only while there are two lines — the custom state the element
      sets when its members wrap — so that the chips of a set on one line keep their whole target above and below. A

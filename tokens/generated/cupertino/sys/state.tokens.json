@@ -17,18 +17,18 @@
           }
         },
         "hover-state-layer-opacity": {
-          "$value": 0.08,
+          "$value": 0,
           "$extensions": {
             "dev.tanrei.derive": {
-              "fixed": "An opacity is a proportion; no dial scales it."
+              "fixed": "Apple platforms draw no state layer: a control is not tinted under the pointer. The rules below keep every container at rest; this keeps a color known only where a control is drawn (a Button's tone on a colored surface, a carousel item over its image) at rest too."
             }
           }
         },
         "focus-state-layer-opacity": {
-          "$value": 0.1,
+          "$value": 0,
           "$extensions": {
             "dev.tanrei.derive": {
-              "fixed": "An opacity is a proportion; no dial scales it."
+              "fixed": "Apple platforms show keyboard focus by the focus ring alone, with no layer over the control, for a color known only where a control is drawn as for every other."
             }
           }
         },

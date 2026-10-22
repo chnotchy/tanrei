@@ -1,10 +1,11 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, css, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, css, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { wordPlaces } from '../../generated/words.js';
 import { exported } from '../../primitives/composed.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
+  AppearController,
   AvailabilityController,
   BUTTON_VARIANTS,
   GlyphDrawnController,
@@ -12,14 +13,17 @@ import {
   SHEET_TOUCH_SLOP,
   SystemWatchController,
   WordsController,
+  closeModal,
   closeRequestReason,
   compChoice,
   deepActive,
   focusOverlay,
   giveVariant,
   holdPageScroll,
+  isLeaving,
   modalLayer,
   modalSheetKeys,
+  openModal,
   report,
   returnFocus,
   stoppedBefore,
@@ -32,6 +36,7 @@ import { fillPlaces, reportPlaces } from '../../primitives/places.js';
 import { TanreiButton } from '../button/button.js';
 import '../skeleton/skeleton.js';
 import { styles } from './image-preview.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** Why the preview asks to close (IMP-5): its close control, Escape, the platform's back, or the downward drag by touch. */
 export type TanreiImagePreviewCloseReason = 'button' | 'escape' | 'back' | 'swipe';
@@ -164,7 +169,7 @@ const numberOrNull = {
  *
  * @tag tanrei-image-preview-item
  */
-export class TanreiImagePreviewItem extends LitElement {
+export class TanreiImagePreviewItem extends TanreiElement {
   static override styles = css`
     :host {
       display: none !important;
@@ -248,7 +253,7 @@ export class TanreiImagePreviewItem extends LitElement {
  * @fires {CustomEvent<TanreiImagePreviewControlsHiddenChangeDetail>} controlshiddenchange - The person hid or showed the controls: `detail.hidden`. Not fired when you set `controlsHidden`.
  * @fires {CustomEvent<TanreiImagePreviewLoadErrorDetail>} loaderror - The source of an image the preview asked for did not load: `detail.index`. Once for each source that fails.
  */
-export class TanreiImagePreview extends LitElement {
+export class TanreiImagePreview extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'image-preview');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
@@ -356,6 +361,11 @@ export class TanreiImagePreview extends LitElement {
   private opener: Element | null = null;
   /** Presented: in the top layer. */
   private presented = false;
+  /**
+   * IMP-33: the image's appearance, opened and closed (src/primitives/motion.ts): made at once before the first paint
+   * (MOT-4), turned round from what it shows (MOT-2). The pages are what appears; the container fades round them.
+   */
+  private readonly appear = new AppearController(this, { motion: () => this.pagesElement });
   /** IMP-43: an opening with nothing to show was reported, until there is something. */
   private reportedEmpty = false;
 
@@ -373,7 +383,7 @@ export class TanreiImagePreview extends LitElement {
   private focusLeaves = false;
 
   private readonly children$ = new MutationObserver(() => this.readImages());
-  private readonly resize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.onResize());
+  private readonly resize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.#onResize());
 
   private get dialog(): HTMLDialogElement | null {
     return this.renderRoot?.querySelector('dialog') ?? null;
@@ -632,7 +642,7 @@ export class TanreiImagePreview extends LitElement {
     return changed;
   }
 
-  private onResize() {
+  #onResize() {
     if (!this.presented) return;
     // IMP-40: without a motion.
     this.still();
@@ -792,7 +802,8 @@ export class TanreiImagePreview extends LitElement {
   };
 
   private readonly onPagesSettled = (event: TransitionEvent) => {
-    if (event.propertyName !== 'translate') return;
+    // A page's settle (IMP-18, IMP-20), not the pages' own appearance (which may travel, IMP-33).
+    if (event.propertyName !== 'translate' || event.target === event.currentTarget) return;
     this.pagesElement?.classList.remove('settling');
   };
 
@@ -885,7 +896,7 @@ export class TanreiImagePreview extends LitElement {
     const dialog = this.dialog;
     if (!this.presented || !dialog || dialog.open) return;
     this.requestClose('back');
-    if (this.open && this.presented) dialog.showModal();
+    if (this.open && this.presented) openModal(dialog);
   };
 
   /** IMP-25: focus that reaches a control shows the controls. IMP-26, IMP-27: the focus style of the stage and of the caption, where style queries are missing. */
@@ -958,7 +969,7 @@ export class TanreiImagePreview extends LitElement {
     const touch = this.touches.get(event.pointerId);
     if (!touch) {
       // IMP-25: a pointer that can hover moves over the preview.
-      if (event.pointerType === 'mouse' && this.controlsHidden) this.onHover(event);
+      if (event.pointerType === 'mouse' && this.controlsHidden) this.#onHover(event);
       return;
     }
     const at = this.point(event);
@@ -1203,7 +1214,7 @@ export class TanreiImagePreview extends LitElement {
     this.lastTap = { x, y, time, timer };
   }
 
-  private onHover(event: PointerEvent) {
+  #onHover(event: PointerEvent) {
     const at = this.point(event);
     if (this.hiddenAt && Math.hypot(at.x - this.hiddenAt.x, at.y - this.hiddenAt.y) <= SHEET_TOUCH_SLOP) return;
     this.hiddenAt = null;
@@ -1302,7 +1313,11 @@ export class TanreiImagePreview extends LitElement {
     this.pagesElement?.classList.remove('settling');
     this.pagesElement?.style.removeProperty('--_drag-x');
     this.pagesElement?.style.removeProperty('--_drag-y');
-    if (!dialog.open) dialog.showModal();
+    // IMP-33: opened modally — or, still leaving, taken back where the image's exit has got to (MOT-2): the image is
+    // drawn as it was shown while the dialog changes hands (src/primitives/modal-exit.ts).
+    if (isLeaving(dialog)) this.appear.keep(() => openModal(dialog));
+    else openModal(dialog);
+    this.appear.enter();
     this.presented = true;
     modalLayer.add(this);
     holdPageScroll(this, true);
@@ -1333,7 +1348,10 @@ export class TanreiImagePreview extends LitElement {
     modalLayer.delete(this);
     holdPageScroll(this, false);
     const dialog = this.dialog;
-    if (dialog?.open) dialog.close();
+    // IMP-4, IMP-33: no longer modal at once — the page and focus are given back now — and drawn in the top layer until
+    // it has faded (closeModal), in every engine, the image going back the way it came.
+    if (dialog) void closeModal(dialog);
+    void this.appear.exit(!this.isConnected);
     const opener = this.opener;
     this.opener = null;
     if (restore) returnFocus(opener, this);
@@ -1529,12 +1547,13 @@ export class TanreiImagePreview extends LitElement {
     </div>`;
   }
 
+  /** IMP-8: the bar's three controls are small, as every host's close button is; IMP-10: previous and next are medium. */
   private control(control: Control, glyph: string, label: string) {
     return html`<tanrei-button
       part=${control}
       exportparts=${BUTTON_PARTS[control].attribute}
       class=${control}
-      size="medium"
+      size=${control === 'previous' || control === 'next' ? 'medium' : 'small'}
       label=${label}
       ?disabled=${this.disabledNow(control)}
       @click=${this.onControl(control)}
@@ -1555,6 +1574,7 @@ export class TanreiImagePreview extends LitElement {
     return html`<dialog
       part="container"
       class=${classMap({ container: true, 'controls-hidden': this.controlsHidden, captioned: !!caption })}
+      data-tanrei-appear
       aria-label=${this.label.trim() ? this.label : nothing}
       tabindex="-1"
       @keydown=${this.onKeyDown}
@@ -1566,7 +1586,7 @@ export class TanreiImagePreview extends LitElement {
       @pointermove=${this.onPointerMove}
     >
       <div class="surface"></div>
-      <div class="pages" @transitionend=${this.onPagesSettled} @transitioncancel=${this.onPagesSettled}>
+      <div class="pages" data-tanrei-appear @transitionend=${this.onPagesSettled} @transitioncancel=${this.onPagesSettled}>
         ${repeat(
           three,
           (at) => this.images[at].element,

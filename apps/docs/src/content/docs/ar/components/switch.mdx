@@ -2,7 +2,7 @@
 title: مفتاح التبديل
 description: يفعّل إعدادًا واحدًا أو يوقفه، ويسري ذلك فورًا.
 translationOf: components/switch.mdx
-sourceHash: 7fe7d717955307e35dbb07daa20092587a8b1a83
+sourceHash: 2da2b39034e7ee88a01f032d190b734152fcac50
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -21,9 +21,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <DemoFrame label="موقوف ومفعَّل">
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space150)">
-    <tanrei-switch selected label="Wi-Fi"></tanrei-switch>
+    <tanrei-switch checked label="Wi-Fi"></tanrei-switch>
     <tanrei-switch label="Bluetooth"></tanrei-switch>
-    <tanrei-switch selected selected-icon="check" label="وضع الطيران"></tanrei-switch>
+    <tanrei-switch checked checked-icon="check" label="وضع الطيران"></tanrei-switch>
   </div>
 </DemoFrame>
 
@@ -33,15 +33,15 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <TabItem label="Web">
     ```html
     <tanrei-switch label="Wi-Fi"></tanrei-switch>
-    <tanrei-switch selected label="Bluetooth"></tanrei-switch>
+    <tanrei-switch checked label="Bluetooth"></tanrei-switch>
 
     <!-- رسم في المقبض: اسم من مجموعة الأيقونات، لوضع التفعيل، ولوضع الإيقاف إن أردت. -->
-    <tanrei-switch selected selected-icon="check" unselected-icon="close" label="وضع الطيران"></tanrei-switch>
+    <tanrei-switch checked checked-icon="check" unchecked-icon="close" label="وضع الطيران"></tanrei-switch>
 
     <script type="module">
       import '@tanrei/web/components/switch';
-      // يبدّل العنصر قيمة selected بنفسه قبل أن يُصدر change.
-      document.querySelector('tanrei-switch').addEventListener('change', (e) => setWifi(e.detail.selected));
+      // يبدّل العنصر قيمة checked بنفسه قبل أن يُصدر change.
+      document.querySelector('tanrei-switch').addEventListener('change', (e) => setWifi(e.detail.checked));
     </script>
     ```
   </TabItem>
@@ -49,8 +49,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     ```tsx
     import { Switch } from '@tanrei/react';
 
-    <Switch selected={wifi} label="Wi-Fi" onChange={(e) => setWifi(e.detail.selected)} />
-    <Switch selected={airplane} selectedIcon="check" label="وضع الطيران" onChange={(e) => setAirplane(e.detail.selected)} />
+    <Switch checked={wifi} label="Wi-Fi" onChange={(e) => setWifi(e.detail.checked)} />
+    <Switch checked={airplane} checkedIcon="check" label="وضع الطيران" onChange={(e) => setAirplane(e.detail.checked)} />
     ```
   </TabItem>
   <TabItem label="SwiftUI">
@@ -113,17 +113,18 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <DemoFrame label="الموضعان والأيقونات والتعطيل" plain>
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space150)">
     <tanrei-switch label="موقوف"></tanrei-switch>
-    <tanrei-switch selected label="مفعَّل"></tanrei-switch>
+    <tanrei-switch checked label="مفعَّل"></tanrei-switch>
   </div>
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space150)">
-    <tanrei-switch selected-icon="check" unselected-icon="close" label="موقوف، مع أيقونتين"></tanrei-switch>
-    <tanrei-switch selected selected-icon="check" label="مفعَّل، مع أيقونة"></tanrei-switch>
+    <tanrei-switch checked-icon="check" unchecked-icon="close" label="موقوف، مع أيقونتين"></tanrei-switch>
+    <tanrei-switch checked checked-icon="check" label="مفعَّل، مع أيقونة"></tanrei-switch>
   </div>
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space150)">
     <tanrei-switch disabled label="معطَّل، موقوف"></tanrei-switch>
-    <tanrei-switch disabled selected label="معطَّل، مفعَّل"></tanrei-switch>
+    <tanrei-switch disabled checked label="معطَّل، مفعَّل"></tanrei-switch>
   </div>
-  <tanrei-switch selected label-hidden label="Wi-Fi"></tanrei-switch>
+  <tanrei-switch readonly checked label="للقراءة فقط، مشغَّل"></tanrei-switch>
+  <tanrei-switch checked label-hidden label="Wi-Fi"></tanrei-switch>
 </DemoFrame>
 
 المقبض دائرة في كل وضع، برسم أو من دونه. النقرة تبدّله، فينزلق المقبض إلى الطرف الآخر ويتغير معه مقاسه وكل لون يختلف بين الإيقاف والتفعيل. والسحب على طول المسار يحمل المقبض مع الإصبع ويرسم المظاهر البينية نفسها، بلا عتبة. ويتغير مفتاح التبديل حين يُفلَت السحب: إلى الجهة الأقرب إلى المقبض، أو الجهة التي تتجه إليها الدفعة السريعة (fling). والسحب الذي يُلغى، بالمفتاح Escape أو من المنصة، لا يغيّر شيئًا.
@@ -146,7 +147,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### الأيقونات في المقبض
 
-تسمّي الخاصيتان `selectedIcon` و `unselectedIcon` رسمًا من مجموعة أيقونات النظام للمقبض، فيسهل التفريق بين الموضعين بنظرة. علامة الصح لوضع التفعيل هي الاختيار الشائع؛ واترك `unselectedIcon` فارغة لتعلّم وضع التفعيل وحده. الأيقونات زينة: الحالة تُعلَن من مفتاح التبديل نفسه، لا من الرسم أبدًا.
+تسمّي الخاصيتان `checkedIcon` و `uncheckedIcon` رسمًا من مجموعة أيقونات النظام للمقبض، فيسهل التفريق بين الموضعين بنظرة. علامة الصح لوضع التفعيل هي الاختيار الشائع؛ واترك `uncheckedIcon` فارغة لتعلّم وضع التفعيل وحده. الأيقونات زينة: الحالة تُعلَن من مفتاح التبديل نفسه، لا من الرسم أبدًا.
 
 الرسم دائمًا رسم مجموعة الأيقونات، مرسومًا بعائلة موضع مفتاح التبديل وتعبئته. وله وزن خاص به أثقل من سائر أيقونات النظام (500 في النظام الافتراضي حيث الأيقونات 300)، لأن الخط بوزن الأيقونات يكون عند مقاس المقبض بعرض أقل من بكسل واحد. ومقاسه لا يتغير، والإعداد الجاهز يحتفظ بوزن أيقوناته. لا يرسم مفتاح التبديل علامة صح ولا علامة خطأ خاصة به؛ والمنتج الذي يريد علامة مختلفة يختار مجموعة أيقونات مختلفة. وما دام خط الأيقونات قيد التحميل يحتفظ المقبض بالمقاس الذي له مع الرسم ولا يعرض شيئًا مكانه، ولا يعرض اسم الرسم نصًّا أبدًا. ويظهر الرسم فور أن يستطيع الخط عرضه.
 
@@ -157,6 +158,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### المقبض نفسه كما في علامات التبويب
 
 يشترك مفتاح التبديل و[علامات التبويب](/ar/components/tabs/) في نموذج واحد: مقبض على مسار ينزلق إلى ما اختير ويتبع الإصبع. لمفتاح التبديل حالتان غير متكافئتين، فيختلف مساره وحدّه ومقبضه بين الإيقاف والتفعيل. أما علامات التبويب فتعرض خيارين متكافئين أو أكثر، فلا يتغير مسارها أبدًا. استخدم مفتاح التبديل لإعداد مفعَّل أو موقوف، وعلامات التبويب للاختيار بين العروض.
+
+### للقراءة فقط
+
+يعرض مفتاح التبديل الذي للقراءة فقط إعدادًا يستطيع الشخص قراءته ولا يستطيع تغييره، مثل إعداد تثبّته سياسة، أو إعداد لا يغيّره إلا المسؤول. يبقى في ترتيب التركيز، ويُعلَن عنه بحالته وبأنه للقراءة فقط، ويُرسَل مع نموذجه. يبدو مثل مفتاح مفعّل من دون استجابة التمرير والضغط، ولا يمكن سحب مقبضه. اذكر بجانبه لماذا لا يمكن تغييره. استخدم `disabled` حين لا ينطبق الإعداد أصلًا.
 
 ### افعل
 
@@ -182,6 +187,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - السحب على طول المسار يحمل المقبض ويبدّل عند الإفلات. وليس هو الطريقة الوحيدة أبدًا: النقرة، والنقر على التسمية، والمفتاح Space كلها تبدّله. وحين يعمل قارئ الشاشة يكون السحب بإصبع واحدة للقارئ، ويُبدَّل مفتاح التبديل بتفعيل القارئ.
 - في أثناء السحب قد يبدو مفتاح التبديل مفعَّلًا جزئيًّا، لكن حالته، والقيمة التي كان سيرسلها مع نموذج، تبقيان كما كانتا. ويُعلَن التغيّر مرة واحدة، حين يُحدثه الإفلات.
 - المفتاح Space يبدّله. والمفتاح Enter لا يبدّله إلا حيث تفعّل المنصة أي عنصر تحكم عليه التركيز بالمفتاح Enter (Android و tvOS)؛ أما على الويب فالمفتاح Enter يرسل النموذج.
+- ما دامت `readOnly` مضبوطة يبقى قابلًا للتركيز ويُعلَن عنه بأنه للقراءة فقط إلى جانب حالته. لا يغيّره نقر ولا سحب ولا المفتاح Space ولا نقرة على التسمية ولا `click()`، ولا يُظهر استجابة للتمرير أو الضغط. وعلى الويب تبقى قيمته تُرسَل. لا تنطبق `readonly` في HTML على العنصر الأصلي لمفتاح التبديل، فيتولى المكوّن ذلك بنفسه.
 - في التخطيط من اليمين إلى اليسار تنعكس مواضع المقبض ومسافة حركته والتسمية. ويظل السحب يحمل المقبض إلى حيث المؤشر.
 - يعرض مؤشر التركيز لتركيز لوحة المفاتيح فقط.
 - التسمية الناقصة يُبلَّغ عنها في بنيات التنقيح (debug).
@@ -189,6 +195,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 فجوات معروفة في المنصات:
 
 - تقدّم SwiftUI و Compose و Flutter و React Native المراجعة السابقة: يستجيب مفتاح التبديل للنقرة ولا يتبع أي سحب، ورسومه لا تُرسم بعد بالوزن الخاص بالعلامة.
+- `readOnly` موجودة على الويب وحده حتى الآن: لا تملكها SwiftUI و Compose و Flutter و React Native بعد.
 
 ### ما عليك فعله
 

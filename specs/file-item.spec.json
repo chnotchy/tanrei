@@ -1047,6 +1047,18 @@
         "remove": "remove",
         "retry": "retry"
       },
+      "parts": {
+        "container": "container",
+        "media": "media",
+        "icon": "icon",
+        "preview": "preview",
+        "headline": "headline",
+        "supporting-text": "supporting-text",
+        "status-icon": "status-icon",
+        "progress": "progress",
+        "action": "action",
+        "focus-ring": "container@focus-ring"
+      },
       "notes": "The shadow-root form: a part with states and actions of its own. Class `TanreiFileItem`; React `FileItem`. `<tanrei-file-item name=\"brief.pdf\" size-text=\"820 KB\" remove-label=\"Remove\"></tanrei-file-item>`; a tile: `<tanrei-file-item form=\"tile\" preview width=\"160\" height=\"90\" name=\"floor-plan.png\"></tanrei-file-item>`. Attributes `media-type`, `format-text`, `size-text`, `status-text`, `error-text`, `preview-src`, `name-hidden`, `target-label`, `remove-label`, `retry-label`, `readonly`; `progress` absent for null; `width` and `height` are numbers of CSS pixels, as an image's, and are the box of the tile alone. **The file**: the property `file` (a `File` or null, never an attribute) is the platform's handle. With `preview` and an image kind and no `preview-src`, the element creates one object URL for it when it first comes near the viewport (an `IntersectionObserver`), gives it to its own `<img part=\"preview\" alt=\"\" decoding=\"async\">` and to nothing else, and revokes it in `disconnectedCallback`, when `file` is set again and when `preview`, `preview-src` or the kind stops asking for it (FIT-7); reconnected, it makes a new one when it is next in view. `name` and `media-type` left empty are read from `file.name` and `file.type` (FIT-33). `file` is also what a File upload submits for the item (FUP-31). **The body** is `<div part=\"container\">`, or `<button part=\"container\">` with `interactive`, or `<a part=\"container\" href>` with `href` (the shared link primitive; web-only `rel` and `download` are forwarded to the anchor, and `download` is how a link saves the file in place of opening it); the two actions are native buttons beside it in the shadow root, with `aria-label` — the product's sentence with the file's name filled in — never inside it. In a tile the actions are placed over the box and come after the body in the DOM, so the order of focus is the order read. `click`, `remove` and `retry` are CustomEvents that bubble and are composed, with `detail.value`; `click` is cancelable for a link. The host has `role=\"group\"` and `aria-label` from `name`; a File upload that holds it sets `role=\"listitem\"` on it through an internal channel that is not part of its public surface (FIT-19). The cut of a tile's name (FIT-9) is two spans — the start, which shrinks with an ellipsis, and the ending, which does not — inside one `<bdi>`. Parts: `container`, `media`, `icon`, `preview`, `headline`, `supporting-text`, `status-icon`, `progress`, `action`. The bar is `<tanrei-progress-indicator>` (the small linear one), drawn from this component's own bar tokens. No form participation: a file item submits nothing; what holds it does."
     },
     "swiftui": {

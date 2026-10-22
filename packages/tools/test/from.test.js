@@ -256,8 +256,8 @@ test('the one-time-code field is the first composed field: every entry forwarded
   }
   // The cross-references read it resolved: its fixtures are held to its members' props.
   assert.deepEqual(specProblems('specs/one-time-code-field.spec.json', written), []);
-  const wrong = { ...written, fixtures: [{ ...written.fixtures[0], props: { ...written.fixtures[0].props, requirement: 'sometimes' } }, ...written.fixtures.slice(1)] };
-  assert.match(specProblems('specs/one-time-code-field.spec.json', wrong).join('\n'), /fixture "supporting" sets requirement="sometimes", not a declared value/);
+  const wrong = { ...written, fixtures: [{ ...written.fixtures[0], props: { ...written.fixtures[0].props, requiredMark: 'sometimes' } }, ...written.fixtures.slice(1)] };
+  assert.match(specProblems('specs/one-time-code-field.spec.json', wrong).join('\n'), /fixture "supporting" sets requiredMark="sometimes", not a declared value/);
   // The control it frames is listed only on request from this day on: the first. The file picker is the second
   //: a base member of the file upload, which is listed. The text input is the third:
   // the control of the text field, which is listed.
@@ -516,8 +516,8 @@ test('the radio group\'s twenty fixtures each name a twin among the field group\
     const twin = fieldGroup.fixtures.find((f) => f.id === `radio-buttons-${fixture.id}`);
     assert.equal(twin.props.kind, 'radio-group', fixture.id);
     assert.equal(twin.items.length, fixture.items.length, fixture.id);
-    // The one the group's value names is the one written selected by hand.
-    assert.deepEqual(twin.items.filter((item) => item.props.selected).map((item) => item.props.value), fixture.props.value ? [fixture.props.value] : [], fixture.id);
+    // The one the group's value names is the one written checked by hand.
+    assert.deepEqual(twin.items.filter((item) => item.props.checked).map((item) => item.props.value), fixture.props.value ? [fixture.props.value] : [], fixture.id);
   }
   assert.deepEqual(twinItemProblems(specs).filter((line) => line.includes('radio-group')), []);
 });

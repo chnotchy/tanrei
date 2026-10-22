@@ -2,7 +2,7 @@
 title: फ़ाइल अपलोड
 description: लोगों को फ़ाइल पिकर से फ़ाइलें चुनने देता है और जो चुना गया उसे फ़ाइल आइटम के रूप में दिखाता है, पंक्तियों के कॉलम में या टाइल की क़तार में। फ़ॉर्म में रखने पर वह चुनी गई फ़ाइलें अपने पास रखता है और बिना किसी कोड के उन्हें सबमिट करता है; जो प्रॉडक्ट फ़ाइलें ख़ुद भेजता है, वह फ़ाइल आइटम ख़ुद देता है। वह ख़ुद कभी कुछ अपलोड नहीं करता।
 translationOf: components/file-upload.mdx
-sourceHash: 67264060c8d6ff2b2e7ccea18067fef9dac9238e
+sourceHash: b2debb12c2d70ab0dd1bea4e0b4c51c55b599528
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -402,7 +402,7 @@ React में यही तीनों ref पर मिलते हैं: 
 जब फ़ॉर्म लेबल, सहायता, त्रुटि या ज़रूरी का निशान दिखाता है, तब फ़ाइल अपलोड को किसी [फ़ील्ड](/hi/components/field/) में रखें। फ़ील्ड उन्हें दिखाता है और फ़ाइल अपलोड को देता है।
 
 ```html
-<tanrei-field label="अटैचमेंट" requirement="required" required-text="ज़रूरी"
+<tanrei-field label="अटैचमेंट" required required-text="ज़रूरी"
               error error-text="10 MB या उससे छोटी PDF चुनें।">
   <tanrei-file-upload name="attachment" accept=".pdf" max-size="10000000"
                       constraints-text="PDF, 10 MB तक" remove-label="{name} हटाएँ">

@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import {
   AvailabilityController,
@@ -15,6 +15,7 @@ import {
 } from '../../primitives/index.js';
 import type { TanreiEmptyStateSizeRegistry } from '../../registry.js';
 import { ALIGNMENTS, AXES, styles } from './empty-state.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core sizes (medium, large), plus any a design system's generated `.d.ts` registers. */
 export type TanreiEmptyStateSize = keyof TanreiEmptyStateSizeRegistry;
@@ -61,7 +62,7 @@ const ACTION_PLACE: GroupPlace = { variant: 'standard', first: true, last: true 
  * @csspart description - The description.
  * @csspart actions - The row of actions.
  */
-export class TanreiEmptyState extends LitElement implements PlacingGroup {
+export class TanreiEmptyState extends TanreiElement implements PlacingGroup {
   private readonly availability = new AvailabilityController(this, 'empty-state');
   static override styles = styles;
 

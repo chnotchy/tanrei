@@ -2,7 +2,7 @@
 title: Chip
 description: Un control pequeño con etiqueta que va en una fila, para una acción sugerida o un enlace a algún sitio, un filtro que está activado o desactivado, o un elemento que la persona introdujo y puede quitar.
 translationOf: components/chip.mdx
-sourceHash: 37e38aec32b4906b81c9cd245bc9a0ee1ec6e828
+sourceHash: 035fe677407860928287282c7aaf348c8224ccac
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -44,8 +44,8 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
       <img slot="avatar" src="ada.jpg" alt="" />
     </tanrei-chip>
 
-    <!-- Quitar un filtro aplicado no pierde nada: desactiva el aspecto destructivo. -->
-    <tanrei-chip kind="input" label="Menos de 30 min" remove-label="Quitar Menos de 30 min" no-destructive-remove></tanrei-chip>
+    <!-- Quitar un archivo adjunto lo pierde: da a la acción de quitar el aspecto destructivo. -->
+    <tanrei-chip kind="input" label="report.pdf" remove-label="Quitar report.pdf" destructive-remove></tanrei-chip>
 
     <script type="module">
       import '@tanrei/web/components/chip';
@@ -64,7 +64,7 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
     <Chip label="Cómo llegar" href="https://example.com/map" target="new" targetLabel="se abre en una pestaña nueva" />
     <Chip kind="filter" selected={vegetarian} label="Vegetariano" onChange={(e) => setVegetarian(e.detail.selected)} />
     <Chip kind="input" label="Ada Lovelace" removeLabel="Quitar a Ada Lovelace" onRemove={() => removeRecipient(ada)} />
-    <Chip kind="input" label="Menos de 30 min" removeLabel="Quitar Menos de 30 min" destructiveRemove={false} onRemove={clearTimeFilter} />
+    <Chip kind="input" label="report.pdf" removeLabel="Quitar report.pdf" destructiveRemove onRemove={() => removeAttachment(report)} />
     ```
   </TabItem>
   <TabItem label="SwiftUI">
@@ -147,9 +147,9 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
   <tanrei-chip kind="filter" selected disabled label="Vegetariano"></tanrei-chip>
 </DemoFrame>
 
-<DemoFrame label="Acciones de quitar: destructiva (predeterminada) y simple; pasa el cursor por encima o dales el foco" plain>
-  <tanrei-chip kind="input" label="Ada Lovelace" remove-label="Quitar a Ada Lovelace"></tanrei-chip>
-  <tanrei-chip kind="input" label="Menos de 30 min" remove-label="Quitar Menos de 30 min" no-destructive-remove></tanrei-chip>
+<DemoFrame label="Acciones de quitar: simple (predeterminada) y destructiva; pasa el cursor por encima o dales el foco" plain>
+  <tanrei-chip kind="input" label="Menos de 30 min" remove-label="Quitar Menos de 30 min"></tanrei-chip>
+  <tanrei-chip kind="input" label="report.pdf" remove-label="Quitar report.pdf" destructive-remove></tanrei-chip>
 </DemoFrame>
 
 <DemoFrame label="Chips de enlace: aquí, en una pestaña nueva, deshabilitado" plain>
@@ -213,7 +213,7 @@ Un control con destino es un enlace. Un chip de acción que solo lleva a la pers
 
 Un chip de entrada termina con una acción de quitar: el glifo `cancel` con relleno sobre un contenedor redondo un poco mayor que él, que se ve como un anillo alrededor del glifo al pasar el cursor, con el foco y al pulsar. En el sistema predeterminado, el contenedor redondo es concéntrico con el extremo redondeado del chip, y queda tan lejos del extremo como de la parte superior y de la inferior. No ocupa espacio propio, así que no hace el chip más ancho ni más alto. La acción de quitar es un botón aparte con su propio nombre, sus propios estados al pasar el cursor, de foco y de pulsación, y su propia área de pulsación, que se extiende hacia fuera y nunca cubre la etiqueta. Al pulsarla, o al pulsar Retroceso o Supr mientras el chip tiene el foco, se pide quitar el chip. **El chip nunca se quita a sí mismo.** Tu código quita el elemento y mueve el foco: al chip siguiente, al anterior o al campo al que pertenecen los chips.
 
-De forma predeterminada, la acción de quitar se presenta como destructiva (`destructiveRemove`, activado salvo que lo desactives). En reposo se ve como se vería sin el indicador. Mientras tiene el cursor encima, el foco o está pulsada, su glifo y su capa de estado toman el color de error. Desactívalo para una eliminación que no pierde nada, como un filtro aplicado que la persona puede volver a añadir. En la web el atributo es el inverso, `no-destructive-remove`, porque un atributo booleano de HTML no puede ser true de forma predeterminada. El indicador cambia los colores y nada más, y se ignora en los demás tipos.
+La acción de quitar puede presentarse como destructiva (`destructiveRemove`, desactivado de forma predeterminada). En reposo se ve como se vería sin el indicador. Mientras tiene el cursor encima, el foco o está pulsada, su glifo y su capa de estado toman el color de error. La mayoría de las eliminaciones quitan algo que la persona puede recuperar en un paso, como un filtro aplicado o un término de búsqueda, así que la acción de quitar es simple salvo que actives el indicador. Actívalo donde quitar haga perder algo que no se recupera en un paso, como un archivo adjunto o un destinatario ya invitado. En la web el atributo es `destructive-remove`. El indicador cambia los colores y nada más, y se ignora en los demás tipos.
 
 Un chip de entrada que ahora no se puede quitar, como un elemento de un campo de solo lectura, no dibuja la acción de quitar: define `removable` como false. No queda ahí una acción que no hace nada, Retroceso y Supr no piden nada, y el chip lleva el margen interior de un chip sin esa acción. En la web el atributo es el inverso, `not-removable`. Se ignora en los demás tipos.
 
@@ -224,7 +224,7 @@ Un chip de entrada que ahora no se puede quitar, como un elemento de un campo de
 - Mantén las etiquetas cortas, de una a tres palabras. Un chip se queda en una sola línea y corta su etiqueta con puntos suspensivos solo cuando el diseño le da demasiado poco ancho.
 - Usa una sola variante para una fila de chips.
 - Nombra el elemento en la etiqueta de quitar: «Quitar a Ada Lovelace», no «Quitar».
-- Conserva el aspecto destructivo de la acción de quitar donde quitar haga perder lo que la persona introdujo, como un destinatario o una etiqueta. Desactívalo donde la eliminación sea inofensiva.
+- Da a la acción de quitar el aspecto destructivo solo donde quitar haga perder algo que no se recupera en un paso, como un archivo adjunto. Déjala simple donde el elemento vuelve en un paso, como un filtro o un término de búsqueda.
 - En la web, pon la fila de chips en un [grupo de tags](/es/components/tag-group/): los coloca en líneas, de modo que el que no cabe en una pasa a la siguiente, mantiene la distancia entre ellos y los expone como una sola lista. En las demás plataformas, y en una fila con desplazamiento, dispón tú los chips.
 
 ### Evita

@@ -2,7 +2,7 @@
 title: Campo de control deslizante
 description: Permite elegir un valor, o un intervalo de valores, en una escala como un campo completo. La pista bajo una etiqueta, con el valor dicho con palabras al final de la fila de la etiqueta, una línea de ayuda y el motivo por el que se rechazó un valor.
 translationOf: components/slider-field.mdx
-sourceHash: aca0aa027643e61ad36b67061cf3f29cb00b8569
+sourceHash: dd20a710a125f8735c730d58cb45fb0697ecea0e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -132,8 +132,8 @@ Lo que cambia un nivel más abajo es dónde se dicen las cosas. `name`, `value` 
 ## Especificaciones
 
 <DemoFrame label="Obligatorio con la palabra del producto, opcional, en error y deshabilitado" plain column>
-  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" requirement="required" required-text="Obligatorio" value="40"></tanrei-slider-field>
-  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" requirement="optional" optional-text="Opcional" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" required required-text="Obligatorio" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" optional optional-text="Opcional" value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" supporting-text="Se aplica a las alertas y al contenido multimedia." error error-text="Elige un nivel superior a 0." value="0"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" supporting-text="Se aplica a las alertas y al contenido multimedia." disabled value="40"></tanrei-slider-field>
 </DemoFrame>
@@ -142,7 +142,7 @@ Lo que cambia un nivel más abajo es dónde se dicen las cosas. `name`, `value` 
 
 | Aspecto | Del campo | Del control deslizante |
 | --- | --- | --- |
-| Propiedades | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `value`, `startValue`, `range`, `min`, `max`, `step`, `origin`, `stops`, `size`, `valueIndicator`, `valueText`, `startValueText`, `startLabel` y `endLabel`, que es el `label` del control deslizante |
+| Propiedades | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText` | `value`, `startValue`, `range`, `min`, `max`, `step`, `origin`, `stops`, `size`, `valueIndicator`, `valueText`, `startValueText`, `startLabel` y `endLabel`, que es el `label` del control deslizante |
 | Eventos | — | `input`, `change` |
 | Slots | `label-icon` | — |
 | Tokens | `comp.field.*` | `comp.slider.*` |
@@ -151,7 +151,7 @@ Una propiedad es propia del campo de control deslizante: `valueHidden`. Y una pr
 
 El control deslizante tiene un `disabled` y un `orientation` propios. Ninguno de los dos es una propiedad del campo de control deslizante: el `disabled` del campo deshabilita el control deslizante, para que la etiqueta y el texto del valor lo sigan, y la pista siempre va en la dirección en línea: un campo de control deslizante no tiene orientación vertical.
 
-Un control deslizante siempre tiene un valor, así que `requirement` no significa aquí «no vacío». Un formulario que marca cada control como obligatorio u opcional marca también este; lo que rechaza (un nivel de 0, un intervalo demasiado estrecho) te corresponde decirlo a ti con `error` y `errorText`. Un error no cambia nada de la pista: lo transmiten las palabras y el estado no válido.
+Un control deslizante siempre tiene un valor, así que `required` no significa aquí «no vacío». Un formulario que marca cada control como obligatorio u opcional marca también este; lo que rechaza (un nivel de 0, un intervalo demasiado estrecho) te corresponde decirlo a ti con `error` y `errorText`. Un error no cambia nada de la pista: lo transmiten las palabras y el estado no válido.
 
 Lo que hacen los tiradores (el arrastre, las teclas, los pasos, el indicador de valor) está en la [página del control deslizante](/es/components/slider/). Lo que hace el marco (la marca de obligatorio, el texto del valor, la ayuda, el error y cómo se anuncia) está en la [página del campo](/es/components/field/).
 

@@ -1,0 +1,298 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "handle",
+  "title": "Handle",
+  "summary": "The mark a person drags, or moves from the keyboard, to change the size of what it stands on — a sheet, a field, a pane, a preview frame: a short capsule for one axis, a quarter-circle arc for two; it tells its owner how far it was moved and never sizes anything itself.",
+  "category": "containment",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The box the line is drawn in: a pill across the line for one axis, a square at its corner for two. It carries hover, focus and press, and draws nothing at rest."
+    },
+    {
+      "id": "line",
+      "description": "The drawn mark: a capsule with round ends across the axis it resizes (a horizontal capsule for a handle that changes a height), or a quarter of a circle with round ends that bows toward its corner for a handle that changes both. A drawn line, never a glyph of the icon set."
+    },
+    {
+      "id": "target",
+      "description": "The hit area: at least the minimum target, centred on the line, reaching past the box the handle stands on where it must. It is not drawn."
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator around the container, shown for keyboard focus.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "axis",
+      "type": "enum",
+      "values": ["vertical", "horizontal", "both"],
+      "default": "vertical",
+      "description": "Which size the handle changes. vertical: a height — the line lies across it, horizontal (a sheet's top, a field's bottom edge). horizontal: a width — the line stands upright (a pane's or a frame's end edge). both: a height and a width at once — the line is an arc at a corner (a field's or a frame's bottom-end corner)."
+    },
+    {
+      "name": "corner",
+      "type": "enum",
+      "values": ["bottom-end", "bottom-start", "top-end", "top-start"],
+      "default": "bottom-end",
+      "description": "The corner an arc bows toward while axis is both, in logical terms: end is the right in a left-to-right layout and the left in a right-to-left one. Ignored for one axis."
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": ["small", "medium"],
+      "default": "medium",
+      "description": "medium for a sheet, a pane or a frame; small for the corner of a text field, where a large mark would cover the text. The hit area meets the minimum target at both sizes. A design system may add values.",
+      "axis": "tanrei.comp.handle.size"
+    },
+    {
+      "name": "value",
+      "type": "number",
+      "default": null,
+      "description": "The size the handle stands for, as its owner counts it (lines, pixels, a percentage), told to assistive technology. Null exposes the handle as a button with no value: a handle that switches between sizes its owner knows (a sheet's two heights) rather than one that sets a size."
+    },
+    {
+      "name": "min",
+      "type": "number",
+      "default": 0,
+      "description": "The least value, told to assistive technology with value. Ignored while value is null."
+    },
+    {
+      "name": "max",
+      "type": "number",
+      "default": 100,
+      "description": "The greatest value, told to assistive technology with value. Ignored while value is null."
+    },
+    {
+      "name": "valueText",
+      "type": "string",
+      "default": "",
+      "description": "The value in the product's words (\"6 lines\", \"390 by 844\"), read in place of the number. Empty reads the number."
+    },
+    {
+      "name": "expanded",
+      "type": "boolean",
+      "default": null,
+      "description": "While value is null: whether what the handle switches is at its larger size, told to assistive technology as the button's expanded state. Null tells no such state."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name, in the product's words, saying what it resizes (\"Resize message\", \"Resize preview\"). Never drawn. Required: a handle without a name is still drawn and reported in debug builds."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws the handle as unavailable; it takes no input and no focus."
+    },
+    {
+      "name": "revealed",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws the line at rest. False (the default) keeps the handle out of sight until it is used: it appears while a fine pointer is over it, while it has keyboard focus and while a press or a drag holds it, and it is always drawn where the primary pointer cannot hover (a touch screen). Set it where the handle must be seen to be found (a sheet's grip, which tells that the sheet can be pulled), or while a pointer is over what the handle stands on."
+    }
+  ],
+  "events": [
+    {
+      "name": "resizeStart",
+      "description": "A drag began: a press on the target moved past the platform's touch slop. Carries pointerType (mouse, touch or pen)."
+    },
+    {
+      "name": "resize",
+      "description": "The drag moved; emitted in every frame it moves. Carries inline and block, the distance from the press in pixels: inline positive toward the end edge (to the right in a left-to-right layout, to the left in a right-to-left one), block positive downward."
+    },
+    {
+      "name": "resizeEnd",
+      "description": "The drag ended, once: the press was released, or cancelled by the platform. Carries inline and block as resize does, and cancelled (true when the platform cancelled the press)."
+    },
+    {
+      "name": "step",
+      "description": "A key or an assistive-technology adjustment asked for a change. Carries axis (inline or block), direction (1 downward or toward the end edge, −1 upward or toward the start edge) and amount (one, large, or limit — limit with direction −1 for Home and 1 for End, the owner's least and greatest size)."
+    },
+    {
+      "name": "activate",
+      "description": "The handle was pressed and released without a drag, or Enter or Space was pressed while it had keyboard focus. Its owner switches between sizes it knows."
+    }
+  ],
+  "states": ["enabled", "disabled", "hovered", "focused", "pressed"],
+  "behavior": [
+    {
+      "id": "HDL-1",
+      "text": "WHILE axis is vertical or horizontal THE handle SHALL draw its line as a capsule with round ends, comp.handle.line.length.medium long and comp.handle.line.thickness.medium thick for size medium (and so on for each size), lying across the axis it resizes — horizontal WHILE axis is vertical, upright WHILE axis is horizontal — centred in its container, in the line color of its state (comp.handle.standard.line.color at rest)."
+    },
+    {
+      "id": "HDL-2",
+      "text": "WHILE axis is both THE handle SHALL draw its line as a quarter of a circle with round ends, comp.handle.arc.radius.medium in radius and comp.handle.line.thickness.medium thick for size medium (and so on), bowed toward its corner: its centre lies comp.handle.arc.radius.medium plus comp.handle.inset in from both edges of that corner, so that the middle of the stroke comes within comp.handle.inset of each edge and the arc shares its centre with a corner of that radius; it SHALL be drawn in the line color of its state."
+    },
+    {
+      "id": "HDL-3",
+      "text": "THE handle SHALL lay out its container — WHILE axis is vertical, comp.handle.container.length.medium wide and comp.handle.container.breadth.medium high for size medium (and so on); WHILE axis is horizontal, the same turned a quarter turn; WHILE axis is both, a square of comp.handle.container.breadth.medium on each side at its corner — with comp.handle.container.shape corners, filled with the container color of its state (comp.handle.standard.container.color at rest, which is clear in the default system), and SHALL take no other room: it is placed by the component it stands on, or by the product, and draws no elevation."
+    },
+    {
+      "id": "HDL-4",
+      "text": "WHILE a fine pointer is over the handle, or a press or a drag holds it, THE handle SHALL draw its line comp.handle.line.active-thickness.medium thick for size medium (and so on) and, WHILE axis is vertical or horizontal, comp.handle.line.active-length.medium long (and so on), growing about its centre, and its arc at the same radius, and SHALL draw line, container and opacity from the component tokens of the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state. WHEN it changes between these forms THE handle SHALL move its length and thickness, and its colors, over comp.handle.motion.state-duration with comp.handle.motion.state-easing, and SHALL make the change at once where motion is reduced."
+    },
+    {
+      "id": "HDL-5",
+      "text": "THE handle SHALL give its target at least sys.target.touch on each side for touch input and sys.target.pointer for fine pointers, centred on its container, reaching past the box it stands on where it must, without changing its drawn size or its owner's layout; a platform that cannot tell the input type SHALL use sys.target.touch. WHILE a fine pointer is over the target THE handle SHALL show the platform's resize cursor for its axis: a vertical double arrow WHILE axis is vertical, a horizontal one WHILE it is horizontal, and WHILE it is both the diagonal one that runs through its corner (from top-left to bottom-right for a bottom-end corner in a left-to-right layout), where the platform has one."
+    },
+    {
+      "id": "HDL-6",
+      "text": "WHEN a press that began on the target moves farther than the platform's touch slop THE handle SHALL emit resizeStart once with the press's pointer type, then resize with the distance from the press in every frame the press moves, and resizeEnd once WHEN the press is released or the platform cancels it; it SHALL follow the press without a motion of its own, SHALL keep receiving the press wherever it moves — past the window's edge, and over an embedded document, which takes no input while the drag lasts — SHALL NOT select text, scroll the page, move a caret or take focus because of the press or the drag (focus stays in what the person was working in: a field keeps its caret while its handle is dragged), and SHALL change no size itself: its owner sizes what it stands on from the distances (a sheet, a field, a frame)."
+    },
+    {
+      "id": "HDL-7",
+      "text": "WHEN a press on the target is released without having moved farther than the touch slop, or Enter or Space is pressed while the handle has keyboard focus, THE handle SHALL emit activate once and no resize; its owner switches between sizes it knows (a sheet's two heights, a field's own height and the height its text needs, a frame's whole width and the width it had), so that no size it offers depends on a drag (WCAG 2.5.7)."
+    },
+    {
+      "id": "HDL-8",
+      "text": "THE handle SHALL be one focus stop, and SHALL be exposed WHILE value is not null as a focusable separator — the platform's adjustable trait where it has no separator — named by label, with value as its value, min and max as its least and greatest, valueText as its value text where it is not empty, and an orientation that is its line's (horizontal WHILE axis is vertical or both, vertical WHILE axis is horizontal); and WHILE value is null as a button named by label, with the expanded state WHILE expanded is not null. Its line and container SHALL be hidden from assistive technology. WHILE label is empty THE handle SHALL still render and work, and in debug builds report that it has no accessible name."
+    },
+    {
+      "id": "HDL-9",
+      "text": "WHILE the handle has keyboard focus and value is not null THE handle SHALL emit step for the arrow keys of its axis — Up Arrow and Down Arrow WHILE axis is vertical, Left Arrow and Right Arrow WHILE it is horizontal, all four WHILE it is both — with the axis they move along and the direction they point (Down 1, Up −1; the arrow toward the end edge 1, the other −1), amount large WHILE Shift is held and amount one otherwise; Page Down and Page Up SHALL emit the same as Shift with Down Arrow and Up Arrow WHILE axis is vertical or both, and as Shift with the arrows toward the end and the start edge WHILE it is horizontal; Home SHALL emit step with amount limit and direction −1 and End with amount limit and direction 1, along its axis (the block axis WHILE axis is both), following the window splitter pattern, where Home gives what it stands on its least size and End its greatest. The handle SHALL change nothing itself, and SHALL let every other key reach its owner."
+    },
+    {
+      "id": "HDL-10",
+      "text": "WHEN assistive technology increments or decrements the handle (a vertical swipe on an adjustable element, the platform's increment and decrement actions) WHILE value is not null THE handle SHALL emit step with amount one, direction 1 for an increment and −1 for a decrement, along the block axis WHILE axis is vertical or both and the inline axis WHILE it is horizontal; its owner, which knows whether its size grows downward or upward, changes value accordingly."
+    },
+    {
+      "id": "HDL-11",
+      "text": "WHEN the handle is pressed by pointer, touch, Enter or Space THE handle SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner, and for as long as a drag lasts."
+    },
+    {
+      "id": "HDL-12",
+      "text": "WHILE pressed THE handle SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; line, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.handle.motion.feedback-duration with comp.handle.motion.state-easing, fades over comp.handle.motion.state-duration with comp.handle.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced."
+    },
+    {
+      "id": "HDL-13",
+      "text": "THE handle SHALL ease its container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README."
+    },
+    {
+      "id": "HDL-14",
+      "text": "WHEN the handle receives keyboard focus THE handle SHALL show the focus ring around its container, sys.focus.offset outside it, without animation; focus gained by pointer or touch SHALL NOT show it."
+    },
+    {
+      "id": "HDL-15",
+      "text": "WHILE disabled is true THE handle SHALL draw its line and container from its disabled tokens, SHALL NOT be focusable, SHALL take no press, emit no event and show no resize cursor, and SHALL expose the disabled state to assistive technology."
+    },
+    {
+      "id": "HDL-16",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE handle SHALL draw its line in the platform's button-text color, in the platform's highlight color while a fine pointer is over it or a press holds it, and in the platform's disabled-text color WHILE disabled is true, and its focus indicator in the platform's highlight color; it SHALL draw no container fill."
+    },
+    {
+      "id": "HDL-17",
+      "text": "WHERE the layout direction is right-to-left THE handle SHALL place an arc's end corners at the left (a bottom-end arc bows toward the bottom-left), mirror the diagonal resize cursor with it, and take the arrow toward the end edge as Left Arrow (HDL-9) and the inline distance of resize as positive toward the left (HDL-6); a capsule SHALL be drawn as in a left-to-right layout."
+    },
+    {
+      "id": "HDL-18",
+      "text": "THE handle SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the handle is shown THE handle SHALL draw itself for the new direction at once, without a motion of its own.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "HDL-19",
+      "text": "WHILE the text size is enlarged THE handle SHALL keep its line, its container and its target at the sizes of its size: it is a mark on an edge, enlarged with the page and not with the text."
+    },
+    {
+      "id": "HDL-20",
+      "text": "WHEN size names a value that the active design system does not have, or axis or corner a value the component does not define, THE handle SHALL render with the default value (medium, vertical, bottom-end), and in debug builds report the unknown value."
+    },
+    {
+      "id": "HDL-21",
+      "text": "THE handle SHALL have no words of its own and SHALL read none of the product's words: label and valueText are about the one thing this handle resizes, and are the instance's alone."
+    },
+    {
+      "id": "HDL-22",
+      "text": "WHEN value, min, max, valueText or expanded changes THE handle SHALL expose the new value at once and SHALL NOT announce it by itself: a separator's value is read by assistive technology as it changes, as a slider's is."
+    },
+    {
+      "id": "HDL-23",
+      "text": "WHILE revealed is false and the primary pointer can hover THE handle SHALL draw neither its line nor its container at rest, and SHALL draw them as its state says WHILE a fine pointer is over its target, WHILE it has keyboard focus and WHILE a press or a drag holds it; WHEN it comes into sight or goes out of it THE handle SHALL fade its line and container over comp.handle.motion.state-duration with comp.handle.motion.state-easing, at once where motion is reduced, and SHALL go out of sight only once the press-hold of HDL-11 has passed."
+    },
+    {
+      "id": "HDL-24",
+      "text": "WHILE the handle is out of sight THE handle SHALL keep everything else it is — one stop in the focus order, its target, its resize cursor (HDL-5), its accessible name, role and value (HDL-8), its drag, its keys and its activation — so that a keyboard finds it by Tab and is shown it with its focus ring at once (WCAG 2.4.7, and 2.4.11: what has focus is in sight), a fine pointer is shown it by the resize cursor and the line as it comes over the target, and no size depends on finding it by a drag (WCAG 2.5.7, HDL-7).",
+      "verify": "Tab to a handle that is out of sight: it takes focus, and its line and its focus ring are drawn. Take a mouse over it: the line is drawn and the cursor is the resize cursor. Take the mouse away while it has no keyboard focus: nothing is drawn."
+    },
+    {
+      "id": "HDL-25",
+      "text": "WHERE the primary pointer cannot hover (a touch screen), and WHILE revealed is true, THE handle SHALL draw its line at rest: a mark that shows only under a hovering pointer would never be found by a finger, and a press on its unseen target would take a touch meant for what lies under it."
+    }
+  ],
+  "accessibility": {
+    "role": "separator (focusable, with a value) while value is set; button while value is null",
+    "keyboard": [
+      { "keys": "Tab", "action": "Moves focus to the handle; it is one stop, also while it is out of sight, and comes into sight with its focus ring." },
+      { "keys": "Arrow keys of its axis", "action": "Ask the owner for one step along the axis (step, amount one). Shift asks for a large step." },
+      { "keys": "Page Up / Page Down", "action": "Ask for a large step along the block axis (the inline axis for a handle that changes a width)." },
+      { "keys": "Home / End", "action": "Ask for the owner's least and greatest size (step, amount limit), as a window splitter does." },
+      { "keys": "Enter or Space", "action": "Activates the handle (activate): the owner switches between the sizes it knows." }
+    ],
+    "labeling": "Named by label, which says what it resizes, in the product's words; required. A handle with a value is a focusable separator with its value, least and greatest value and value text; a handle without one is a button, with the expanded state where its owner gives one. The line is hidden.",
+    "minimumTarget": true,
+    "notes": [
+      "Window splitter pattern (WAI-ARIA Authoring Practices): a focusable separator with aria-valuenow, aria-valuemin and aria-valuemax, arrow keys of its orientation, Enter to collapse and restore, Home and End to the least and greatest size. The handle emits the request and its owner keeps the value, so a sheet, a field and a frame each say what a step is.",
+      "Dragging movements (WCAG 2.5.7): every owner gives a size reachable without a drag through activate (HDL-7) — a field's height its text needs, a sheet's other height, a frame's whole width.",
+      "A handle changes a size, never a place. A reorder handle (the list's six dots, a button that opens a move menu) is another control with other keys; the two are told apart by shape: a line is a size, dots are a place.",
+      "Out of sight until used (HDL-23 to HDL-25). Focus visible (WCAG 2.4.7) and focus not obscured (2.4.11) ask that a keyboard user sees what has focus: the handle comes into sight with its focus ring the moment Tab reaches it. A fine pointer is told it is there by the resize cursor and the line as it comes over it. Nothing is hidden from assistive technology, and the size it offers never depends on finding it by a drag (2.5.7). A touch screen has no hover, so there it is always drawn; an owner that needs it seen at rest everywhere sets revealed (a sheet's grip)."
+    ]
+  },
+  "tokens": "comp.handle",
+  "fixtures": [
+    { "id": "default", "props": { "label": "Resize sheet" } },
+    { "id": "revealed", "props": { "revealed": true, "label": "Resize sheet" } },
+    { "id": "horizontal", "props": { "axis": "horizontal", "value": 50, "revealed": true, "label": "Resize preview" } },
+    { "id": "both-bottom-end", "props": { "axis": "both", "value": 6, "min": 3, "max": 12, "valueText": "6 lines", "revealed": true, "label": "Resize message" } },
+    { "id": "both-bottom-start", "props": { "axis": "both", "corner": "bottom-start", "value": 6, "revealed": true, "label": "Resize message" } },
+    { "id": "both-top-end", "props": { "axis": "both", "corner": "top-end", "value": 6, "revealed": true, "label": "Resize message" } },
+    { "id": "both-top-start", "props": { "axis": "both", "corner": "top-start", "value": 6, "revealed": true, "label": "Resize message" } },
+    { "id": "small", "props": { "size": "small", "value": 4, "revealed": true, "label": "Resize message" } },
+    { "id": "small-horizontal", "props": { "size": "small", "axis": "horizontal", "value": 4, "revealed": true, "label": "Resize message" } },
+    { "id": "small-both", "props": { "size": "small", "axis": "both", "value": 4, "revealed": true, "label": "Resize message" } },
+    { "id": "button-expanded", "props": { "expanded": true, "revealed": true, "label": "Sheet height" } },
+    { "id": "disabled", "props": { "disabled": true, "value": 50, "revealed": true, "label": "Resize preview" } },
+    { "id": "rtl-both", "direction": "rtl", "props": { "axis": "both", "value": 6, "revealed": true, "label": "Resize message" } }
+  ],
+  "platforms": {
+    "web": {
+      "status": "alpha",
+      "name": "tanrei-handle",
+      "props": { "axis": "axis", "corner": "corner", "size": "size", "value": "value", "min": "min", "max": "max", "valueText": "valueText", "expanded": "expanded", "label": "label", "disabled": "disabled", "revealed": "revealed" },
+      "events": { "resizeStart": "resizestart", "resize": "resize", "resizeEnd": "resizeend", "step": "step", "activate": "activate" },
+      "notes": "`<tanrei-handle axis corner size value min max value-text expanded label disabled revealed>`. The shadow root holds one focusable element: `role=\"separator\"` with `aria-valuenow`/`aria-valuemin`/`aria-valuemax`/`aria-valuetext` and `aria-orientation` while `value` is set, a `<button>` with `aria-expanded` while it is not. The capsule is a box with round ends, the arc an SVG circle drawn a quarter of the way round by its dash; both are `aria-hidden`. Out of sight (HDL-23) is `opacity: 0` on the box and the line, under `@media (hover: hover)` only (HDL-25). The drag uses Pointer Events with `setPointerCapture` and `touch-action: none` on the target, and a pointer press refuses its `mousedown`, so that it takes no focus and selects nothing; an owner that holds an iframe sets `pointer-events: none` on it between resizestart and resizeend (HDL-6). Events are `CustomEvent`s that bubble out of the shadow root: `resizestart` `{ pointerType }`, `resize` `{ inline, block }`, `resizeend` `{ inline, block, cancelled }`, `step` `{ axis, direction, amount }`, `activate` (no detail)."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiHandle",
+      "props": { "axis": "axis", "corner": "corner", "size": "size", "value": "value", "min": "range.lowerBound", "max": "range.upperBound", "valueText": "valueText", "expanded": "isExpanded", "label": "label", "disabled": "disabled", "revealed": "revealed" },
+      "events": { "resizeStart": "onResizeStart", "resize": "onResize", "resizeEnd": "onResizeEnd", "step": "onStep", "activate": "onActivate" },
+      "notes": "A `DragGesture(minimumDistance:)` with the platform's slop; `accessibilityAdjustableAction` for HDL-10 while `value` is set, the button trait while it is not. The resize cursor is `NSCursor` on macOS and the pointer style on iPadOS. Out of sight (HDL-23) only where a pointer hovers (macOS, iPadOS with a pointer); on a touch screen the line is always drawn (HDL-25)."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiHandle",
+      "props": { "axis": "axis", "corner": "corner", "size": "size", "value": "value", "min": "valueRange.start", "max": "valueRange.endInclusive", "valueText": "valueText", "expanded": "expanded", "label": "label", "disabled": "enabled", "revealed": "revealed" },
+      "events": { "resizeStart": "onResizeStart", "resize": "onResize", "resizeEnd": "onResizeEnd", "step": "onStep", "activate": "onActivate" },
+      "notes": "`enabled` is the inverse of disabled. `Modifier.pointerInput` with `detectDragGestures`; semantics `progressBarRangeInfo` and `setProgress` while `value` is set, `Role.Button` while it is not; `pointerHoverIcon` for the cursor on desktop. Out of sight (HDL-23) only where a pointer hovers (a desktop window, a mouse); on a touch screen the line is always drawn (HDL-25)."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiHandle",
+      "props": { "axis": "axis", "corner": "corner", "size": "size", "value": "value", "min": "min", "max": "max", "valueText": "valueText", "expanded": "expanded", "label": "label", "disabled": "enabled", "revealed": "revealed" },
+      "events": { "resizeStart": "onResizeStart", "resize": "onResize", "resizeEnd": "onResizeEnd", "step": "onStep", "activate": "onActivate" },
+      "notes": "`enabled` is the inverse of disabled. A `GestureDetector` with pan callbacks; `Semantics(slider: true, value:, increasedValue:, onIncrease:)` while `value` is set, `button: true` while it is not; `MouseRegion(cursor:)` for the resize cursor. Out of sight (HDL-23) only where a pointer hovers (a desktop or web target with a mouse); on a touch screen the line is always drawn (HDL-25)."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "Handle",
+      "props": { "axis": "axis", "corner": "corner", "size": "size", "value": "value", "min": "min", "max": "max", "valueText": "valueText", "expanded": "expanded", "label": "label", "disabled": "disabled", "revealed": "revealed" },
+      "events": { "resizeStart": "onResizeStart", "resize": "onResize", "resizeEnd": "onResizeEnd", "step": "onStep", "activate": "onActivate" },
+      "notes": "A `PanResponder` (or Gesture Handler where the product has it); `accessibilityRole=\"adjustable\"` with `accessibilityActions` increment and decrement while `value` is set, `button` while it is not. A touch screen has no hover, so the line is always drawn there (HDL-25); where a pointer hovers (react-native-web, Windows, macOS) it is out of sight as HDL-23 says."
+    }
+  }
+}

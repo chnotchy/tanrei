@@ -130,7 +130,7 @@ for (const [id, name, control, sent] of [
   ['CHK-1', 'a checkbox', '<tanrei-checkbox id="c" name="c" label="Checkbox" checked></tanrei-checkbox>', 'c=on'],
   ['CKG-8', 'a checkbox of a checkbox group', '<tanrei-checkbox-group name="c" label="Group"><tanrei-checkbox id="c" value="on" label="Checkbox" checked></tanrei-checkbox></tanrei-checkbox-group>', 'c=on'],
   ['RAD-1', 'a radio button', '<tanrei-radio-button id="c" name="c" value="a" label="Radio" checked></tanrei-radio-button>', 'c=a'],
-  ['SWT-1', 'a switch', '<tanrei-switch id="c" name="c" label="Switch" selected></tanrei-switch>', 'c=on'],
+  ['SWT-1', 'a switch', '<tanrei-switch id="c" name="c" label="Switch" checked></tanrei-switch>', 'c=on'],
 ] as const) {
   test(`BTN-30, ${id}: Enter in ${name} presses the form’s default button — a disabled one stops it, and only a form with no submit button is asked directly — and does not switch the control`, async ({ page }) => {
     await holdsTheRule(page, control, { sent, event: null });

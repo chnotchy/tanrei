@@ -15,7 +15,7 @@
 //   exported()       — a member's documented parts as an `exportparts` value, from the list its class keeps (W4).
 //
 // The element writes no custom property and reads no token of a member (W3): nothing here touches a style.
-import { type CSSResultGroup, LitElement, type PropertyDeclarations, type PropertyValues, type TemplateResult, css, html, nothing } from 'lit';
+import { type CSSResultGroup, type PropertyDeclarations, type PropertyValues, type TemplateResult, css, html, nothing } from 'lit';
 import { FIELD_CONTROL } from './field.js';
 import { takeFormDisabled } from './form-disabled.js';
 import { type FormEntry, type FormWord, formSaysOf } from './form-says.js';
@@ -23,6 +23,7 @@ import { hiddenHost } from './hidden.js';
 import { report } from './report.js';
 import { disabledWaitsWhileFocused } from './disabled-while-focused.js';
 import { wantsAutofocus } from './autofocus.js';
+import { TanreiElement } from './element.js';
 
 export { forward } from './forward.js';
 
@@ -100,7 +101,7 @@ function passAsking(host: Element, members: () => Element[]) {
  * `<label for>` — moves focus to the control, and `autofocus` on the host reaches the control when the element first
  * renders.
  */
-export abstract class ComposedElement extends LitElement {
+export abstract class ComposedElement extends TanreiElement {
   static override styles: CSSResultGroup = [composedHost, hiddenHost];
 
   /** W7: the member focus goes to, once rendered. */

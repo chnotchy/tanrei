@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { loadSpecs } from '../src/conventions.js';
 import { statusFiles } from '../src/status.js';
-import { emitWordsTs, productWords } from '../src/words.js';
+import { emitWordPackTs, emitWordsTs, productWords, readWordPack, wordPackProblems } from '../src/words.js';
 
 const spec = (name, props, items) => ({ name, props, ...(items ? { items } : {}) });
 const text = (name, words) => ({ name, type: 'string', default: '', ...(words ? { words } : {}) });
@@ -37,7 +37,7 @@ test("the generated list holds every `words` field of the repository's specs, an
   assert.equal(keys.reduce((n, k) => n + k.readers.length, 0), marked.length);
   assert.deepEqual(keys.map((k) => k.key), [...new Set(marked.map((prop) => prop.words))].sort());
   for (const { key } of keys) assert.ok(files['packages/web/src/generated/words.ts'].includes(`  ${key}?: string;`), key);
-  // Tanrei ships no words: the file names keys and props, and gives no value for any of them.
+  // The type names keys and props, and gives no value for any of them.
   assert.doesNotMatch(files['packages/web/src/generated/words.ts'], /\?: string = |: '[^']*',\n\};/);
 });
 
@@ -95,4 +95,33 @@ test("the repository's words: which keys have places, and each is what its reade
     for (const reader of readers) assert.deepEqual(props.get(`${reader.component}.${reader.prop}`).places, places, `${key}: ${reader.component}.${reader.prop}`);
     assert.ok(files['packages/web/src/generated/words.ts'].includes(`  ${key}: [${places.map((p) => `{ name: '${p.name}', kind: '${p.kind}'${p.required ? ', required: true' : ''} }`).join(', ')}],`), key);
   }
+});
+
+test('the English word pack: a key without its word, a word without its key and a word that does not keep its places are problems', () => {
+  const count = { name: 'count', kind: 'number', description: 'How many.' };
+  const entry = { name: 'entry', kind: 'text', description: 'The entry.', required: true };
+  const words = productWords([spec('chip-field', [text('clearLabel', 'clearLabel'), { ...text('removeLabel', 'entryRemoveLabel'), places: [entry] }, { ...text('addedCountText', 'entriesAddedText'), places: [count] }])]);
+  const whole = { clearLabel: 'Clear', entryRemoveLabel: 'Remove {entry}', entriesAddedText: 'Added: {count}' };
+  assert.deepEqual(wordPackProblems(words, whole, 'en.json'), []);
+  // A place may be left out where the key does not need it.
+  assert.deepEqual(wordPackProblems(words, { ...whole, entriesAddedText: 'Added' }, 'en.json'), []);
+  assert.deepEqual(wordPackProblems(words, { entryRemoveLabel: 'Remove', entriesAddedText: 'Added: {cuont} }', extra: 'Extra', clearLabel: ' ' }, 'en.json'), [
+    'en.json: no word for "clearLabel", a key of the product\'s words: write its English word',
+    'en.json: "entriesAddedText" writes {cuont}, which is not a place of it ({count})',
+    'en.json: "entriesAddedText" has a brace that opens or closes nothing; a brace is written twice',
+    'en.json: "entryRemoveLabel" is without the place {entry}, which it needs',
+    'en.json: "extra" is not a key of the product\'s words (docs/status/words.json): remove it',
+  ]);
+  const ts = emitWordPackTs(words, whole, 'acme');
+  assert.match(ts, /^\/\/ GENERATED FILE — DO NOT EDIT\./);
+  assert.match(ts, /import type \{ AcmeWords \} from '\.\/words\.js';/);
+  // Typed as the whole set, so a key without a word fails the type check too; in the order of the list.
+  assert.match(ts, /export const englishWords: Readonly<Required<AcmeWords>> = \{\n {2}clearLabel: "Clear",\n {2}entriesAddedText: "Added: \{count\}",\n {2}entryRemoveLabel: "Remove \{entry\}",\n\};/);
+});
+
+test("the repository's English word pack has a word for every key, and the web's module holds each", () => {
+  assert.deepEqual(wordPackProblems(), []);
+  const pack = readWordPack();
+  const module = statusFiles()['packages/web/src/generated/words-en.ts'];
+  for (const { key } of productWords()) assert.ok(module.includes(`  ${key}: ${JSON.stringify(pack[key])},`), key);
 });

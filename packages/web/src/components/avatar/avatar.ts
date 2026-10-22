@@ -6,6 +6,7 @@ import { AvailabilityController, GlyphDrawnController, GlyphMirrorController, Op
 import { fillPlaces, placeFaults, reportPlaces } from '../../primitives/places.js';
 import type { TanreiAvatarShapeRegistry, TanreiAvatarSizeRegistry } from '../../registry.js';
 import { AXES, GROUP_AXES, groupStyles, styles } from './avatar.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core sizes (small, medium, large), plus any a design system's generated `.d.ts` registers. */
 export type TanreiAvatarSize = keyof TanreiAvatarSizeRegistry;
@@ -56,7 +57,7 @@ function characters(text: string): string[] {
  * @csspart label - The initials.
  * @csspart icon - The box the glyph is drawn in.
  */
-export class TanreiAvatar extends LitElement {
+export class TanreiAvatar extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'avatar');
   static override styles = styles;
 
@@ -74,6 +75,7 @@ export class TanreiAvatar extends LitElement {
     hasIcon: { state: true },
     loaded: { state: true },
     failed: { state: true },
+    atOnce: { state: true },
   };
 
   /** The address of the picture. Empty, or a picture that has not loaded or cannot be loaded, draws the fallback: initials where the product gave some, otherwise a glyph. */
@@ -111,6 +113,16 @@ export class TanreiAvatar extends LitElement {
   protected loaded = false;
   /** AVT-4: whether the picture of `src` could not be loaded; it is not asked for again. */
   protected failed = false;
+  /** AVT-4: whether the picture of `src` took the fallback's place at once rather than by the cross-fade. */
+  protected atOnce = false;
+
+  /**
+   * AVT-4: the picture elements whose picture the browser already held when their address was set — `complete` at
+   * once, from its list of available images (HTML's "update the image data") — and so are drawn without the cross-fade.
+   * Only that moment says so: later, every loaded picture is complete.
+   */
+  private readonly held = new WeakSet<HTMLImageElement>();
+  private readonly asked = new WeakSet<HTMLImageElement>();
 
   /** AVT-22: sizes and shapes a design system adds, and a value the active system does not have (src/primitives/axes.ts). */
   private readonly axes = new OpenAxesController(this, { component: 'avatar', behavior: 'AVT-22', axes: AXES });
@@ -142,14 +154,17 @@ export class TanreiAvatar extends LitElement {
   private readonly onSlotChange = () => this.scan();
 
   /**
-   * AVT-4: the picture has arrived. It is drawn in the fallback's place once it can be painted (decoded), so that no
-   * frame shows the box with neither; the `keyed()` element is this address's own, so a picture that arrives after
-   * `src` changed is not this one.
+   * AVT-4: the picture has arrived. It fades in over the fallback once it can be painted (decoded), so that no frame
+   * shows the box with neither, and takes its place at once where the browser already held it (one that arrives while
+   * the avatar settles is drawn at once by the settling rule, MOT-3); the `keyed()` element is this address's own, so
+   * a picture that arrives after `src` changed is not this one.
    */
   private readonly onLoad = (event: Event) => {
     const image = event.currentTarget as HTMLImageElement;
     const show = () => {
-      if (image.isConnected && image.getAttribute('src') === this.address) this.loaded = true;
+      if (!image.isConnected || image.getAttribute('src') !== this.address) return;
+      this.atOnce = this.held.has(image);
+      this.loaded = true;
     };
     if (typeof image.decode === 'function') image.decode().then(show, show);
     else show();
@@ -174,11 +189,18 @@ export class TanreiAvatar extends LitElement {
     if (changed.has('src')) {
       this.loaded = false;
       this.failed = false;
+      this.atOnce = false;
     }
   }
 
   protected override updated(changed: PropertyValues) {
     const has = (name: string) => changed.has(name);
+    // AVT-4: a picture element just given its address is complete now only if the browser already held its picture.
+    const image = this.renderRoot.querySelector<HTMLImageElement>('img.image');
+    if (image && !this.asked.has(image)) {
+      this.asked.add(image);
+      if (image.complete && image.naturalWidth > 0) this.held.add(image);
+    }
     const label = (this.label ?? '').trim();
     // AVT-9, AVT-19: one image named by label — whatever it draws — unless it is decorative (a member of a group is
     // always named); without a name it exposes nothing. AVT-8: inside a link or a Button the name is that element's.
@@ -205,16 +227,17 @@ export class TanreiAvatar extends LitElement {
     const address = this.address;
     const asked = address !== '' && !this.failed;
     const pictured = asked && this.loaded;
-    const initials = pictured ? '' : this.drawnInitials;
-    // AVT-2: exactly one of three — the picture once it has loaded, else the initials, else a glyph.
-    const glyph = !pictured && initials === '';
+    const initials = this.drawnInitials;
+    // AVT-2: exactly one of three — the picture once it has loaded, else the initials, else a glyph. Under a picture
+    // that has loaded the fallback stays, faded out (`gone`), so that the picture's arrival is one cross-fade (AVT-4).
+    const glyph = initials === '';
     // AVT-6: the product's glyph, or the system's for the shape.
     const own = glyph && !this.hasIcon ? (this.shape === 'square' ? SYSTEM_GLYPHS.thing : SYSTEM_GLYPHS.person) : '';
     // AVT-5, AVT-6, AVT-9: nothing that is drawn is read — the name is the host's.
     return html`
-      <span part="container" class="container ${classMap({ member: this.member, pictured })}" data-tanrei-shape aria-hidden="true">
-        ${initials ? html`<span part="label" class="label">${initials}</span>` : nothing}
-        <span part="icon" class="icon ${classMap({ own: !!own })}" ?hidden=${!glyph}
+      <span part="container" class="container ${classMap({ member: this.member, pictured, 'at-once': this.atOnce })}" data-tanrei-shape aria-hidden="true">
+        ${initials ? html`<span part="label" class="label ${classMap({ gone: pictured })}">${initials}</span>` : nothing}
+        <span part="icon" class="icon ${classMap({ own: !!own, gone: pictured })}" ?hidden=${!glyph}
           >${own ? html`<span class="ink">${own}</span>` : nothing}<slot name="icon" @slotchange=${this.onSlotChange}></slot
         ></span>
         ${asked
@@ -261,7 +284,7 @@ export class TanreiAvatar extends LitElement {
  * @csspart overflow - The box that counts the members not drawn.
  * @csspart label - The count in the overflow box.
  */
-export class TanreiAvatarGroup extends LitElement {
+export class TanreiAvatarGroup extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'avatar');
   private readonly words = new WordsController(this);
   static override styles = groupStyles;

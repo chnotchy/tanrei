@@ -99,16 +99,6 @@
             "close-easing": {
               "$type": "cubicBezier",
               "$value": "{tanrei.comp.modal-layer.motion.exit-easing}"
-            },
-            "enter-scale": {
-              "$type": "number",
-              "$value": 0.95,
-              "$description": "The size a modal picker grows from, as a fraction of its own, while it fades in. 1 fades without growing.",
-              "$extensions": {
-                "dev.tanrei.derive": {
-                  "fixed": "A proportion of the picker's own size; no dial scales it."
-                }
-              }
             }
           }
         },
@@ -140,19 +130,19 @@
           "motion": {
             "open-duration": {
               "$type": "duration",
-              "$value": "{tanrei.sys.motion.duration.short4}"
+              "$value": "{tanrei.sys.motion.role.appear.anchored.enter}"
             },
             "open-easing": {
               "$type": "cubicBezier",
-              "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+              "$value": "{tanrei.sys.motion.easing.enter}"
             },
             "close-duration": {
               "$type": "duration",
-              "$value": "{tanrei.sys.motion.duration.short2}"
+              "$value": "{tanrei.sys.motion.role.appear.anchored.exit}"
             },
             "close-easing": {
               "$type": "cubicBezier",
-              "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}"
+              "$value": "{tanrei.sys.motion.easing.exit}"
             }
           }
         },
@@ -307,7 +297,10 @@
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
-                  "by": 12
+                  "by": 12,
+                  "times": "{tanrei.dial.density}",
+                  "round": "{tanrei.dial.size.unit}",
+                  "min": "{tanrei.sys.target.minimum}"
                 }
               }
             }
@@ -434,7 +427,10 @@
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
-                  "by": 12
+                  "by": 12,
+                  "times": "{tanrei.dial.density}",
+                  "round": "{tanrei.dial.size.unit}",
+                  "min": "{tanrei.sys.target.minimum}"
                 }
               }
             },
@@ -669,12 +665,12 @@
         "motion": {
           "dial-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.medium1}",
+            "$value": "{tanrei.sys.motion.role.selection.travel}",
             "$description": "How long the dial takes to change from hours to minutes (and back), and the handle to travel to a value set from a selector."
           },
           "dial-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.spatial}"
           },
           "wheel-duration": {
             "$type": "duration",
@@ -687,15 +683,15 @@
           },
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}"
+            "$value": "{tanrei.sys.motion.role.state.compact}"
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
           }
         },

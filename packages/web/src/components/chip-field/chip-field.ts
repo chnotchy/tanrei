@@ -11,12 +11,12 @@ import { fillPlaces, placeFaults, reportPlaces } from '../../primitives/places.j
 import { report } from '../../primitives/report.js';
 import { WordsController } from '../../primitives/words.js';
 import { TanreiChip } from '../chip/chip.js';
-import { TanreiField, type TanreiFieldRequiredMark, type TanreiFieldRequirement } from '../field/field.js';
+import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
 import { TanreiTextInput, type TanreiTextInputActionDetail, type TanreiTextInputSize, type TanreiTextInputType, type TanreiTextInputVariant } from '../text-input/text-input.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 
 // The members' own types are the chip field's for what it takes from them.
-export type { TanreiFieldRequiredMark, TanreiFieldRequirement, TanreiTextInputActionDetail, TanreiTextInputSize, TanreiTextInputType, TanreiTextInputVariant };
+export type { TanreiFieldRequiredMark, TanreiTextInputActionDetail, TanreiTextInputSize, TanreiTextInputType, TanreiTextInputVariant };
 
 /** Why a candidate entry was refused: the product's check, the same text already in the list, or a full list. */
 export type TanreiChipFieldRejectReason = 'invalid' | 'duplicate' | 'limit';
@@ -46,7 +46,7 @@ export interface TanreiChipFieldRejectDetail {
 }
 
 /** CHF-1: the props that are the Field's, given to it unchanged. `disabled`, `error` and `errorText` are the Field's too, each joined with what the chip field holds (W2, W6). */
-const FIELD = ['label', 'labelHidden', 'supportingText', 'requirement', 'requiredMark', 'requiredText', 'optionalText'] as const;
+const FIELD = ['label', 'labelHidden', 'supportingText', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'] as const;
 /** CHF-1: the props that are the Text input's, given to it unchanged. `type`, `placeholder` and `inputValue` are its too (CHF-26, CHF-17, CHF-3). */
 const INPUT = ['variant', 'size', 'readOnly', 'autocomplete'] as const;
 
@@ -58,7 +58,7 @@ const LINE_TYPES: readonly string[] = ['text', 'email', 'tel', 'url'];
  * the stacked look and the Text input's in a floating one, never both (FLD-25): each under its member's name, and
  * bare from both. The Chip's leave under the prefix `entry-` — its `label` is a third thing, drawn beside the others.
  * Left out, because a chip field never draws them: the Field's count; the Text input's segments, affixes, icons,
- * picker button and grip (none is forwarded); the Chip's icon, check and avatar (CHF-2).
+ * picker button and resize handle (none is forwarded); the Chip's icon, check and avatar (CHF-2).
  */
 const FIELD_PARTS = exported(TanreiField, { label: { as: 'field-label', bare: true }, 'requirement-label': { as: 'field-requirement-label', bare: true } }, ['counter', 'value-text']);
 const INPUT_PARTS = exported(TanreiTextInput, { label: { as: 'text-input-label', bare: true }, 'requirement-label': { as: 'text-input-requirement-label', bare: true } }, [
@@ -68,7 +68,7 @@ const INPUT_PARTS = exported(TanreiTextInput, { label: { as: 'text-input-label',
   'leading-icon',
   'trailing-icon',
   'picker-button',
-  'resize-grip',
+  'resize-handle',
 ]);
 const CHIP_PARTS = exported(TanreiChip, { container: { as: 'entry-container' }, label: { as: 'entry-label' }, remove: { as: 'entry-remove' } }, ['icon', 'check', 'avatar']);
 
@@ -132,7 +132,7 @@ const WORD_PROPS = { entryRemoveLabel: 'removeLabel', entryAddedText: 'addedText
  * `value` is an array of strings (assign a new array to change it); the `value` attribute is read once, as a JSON
  * array. `inputValue` is the text being typed. Form-associated: it submits one value per entry under `name` — none
  * while the list is empty, never the typed text —, resets to the list it was first given, is restored on navigation,
- * follows a disabled `<fieldset>`, and reports a missing value while `requirement` is `required` and the list is empty.
+ * follows a disabled `<fieldset>`, and reports a missing value while `required` is set and the list is empty.
  *
  * The element is not focusable itself and has no role: `focus()` goes to the typing part, and its name is `label`.
  *
@@ -142,7 +142,7 @@ const WORD_PROPS = { entryRemoveLabel: 'removeLabel', entryAddedText: 'addedText
  * @csspart text-input - The control: the `<tanrei-text-input>` it is built from.
  * @csspart chip - One entry: a `<tanrei-chip>` it is built from.
  * @exportparts tanrei-field label: field-label, label, requirement-label: field-requirement-label, requirement-label, -counter, -value-text
- * @exportparts tanrei-text-input label: text-input-label, label, requirement-label: text-input-requirement-label, requirement-label, -segment, -prefix, -suffix, -leading-icon, -trailing-icon, -picker-button, -resize-grip
+ * @exportparts tanrei-text-input label: text-input-label, label, requirement-label: text-input-requirement-label, requirement-label, -segment, -prefix, -suffix, -leading-icon, -trailing-icon, -picker-button, -resize-handle
  * @exportparts tanrei-chip container: entry-container, label: entry-label, remove: entry-remove, -icon, -check, -avatar
  * @attr {string} form - The id of the form the chip field belongs to, where it stands outside it: the platform's own attribute, which then wins over a form around it. The `form` property is read-only and returns the form element.
  * @fires {CustomEvent<TanreiChipFieldChangeDetail>} change - The list changed by the person: an entry was made, several were made from pasted text, one was removed, or one was taken back to be changed. `detail.value` (and the element's `value`) is the new list, `detail.added` and `detail.removed` what the act added and took away. Never fired when the product sets `value`, nor for typed text.
@@ -207,7 +207,8 @@ export class TanreiChipField extends ComposedElement {
     errorText: { type: String, attribute: 'error-text' },
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
-    requirement: { type: String, reflect: true },
+    required: { type: Boolean, reflect: true },
+    optional: { type: Boolean, reflect: true },
     requiredMark: { type: String, attribute: 'required-mark', reflect: true },
     requiredText: { type: String, attribute: 'required-text' },
     optionalText: { type: String, attribute: 'optional-text' },
@@ -310,8 +311,11 @@ export class TanreiChipField extends ComposedElement {
   /** @from tanrei-field.disabled */
   disabled = false;
 
-  /** @from tanrei-field.requirement */
-  requirement: TanreiFieldRequirement = 'none';
+  /** @from tanrei-field.required */
+  required = false;
+
+  /** @from tanrei-field.optional */
+  optional = false;
 
   /** @from tanrei-field.requiredMark */
   requiredMark: TanreiFieldRequiredMark = 'auto';
@@ -377,7 +381,7 @@ export class TanreiChipField extends ComposedElement {
     // CHF-4: focus left the chip field — a move between the typing part and an entry never arrives here, since both
     // are the element itself to a listener on it. Heard on its way in (capturing), before the Text input hears that
     // it lost focus: the text that became an entry is gone from it by then, and it has no change of its own to tell.
-    this.addEventListener('blur', (event) => this.onLeave(event), true);
+    this.addEventListener('blur', (event) => this.#onLeave(event), true);
   }
 
   private get input(): TanreiTextInput | null {
@@ -488,7 +492,7 @@ export class TanreiChipField extends ComposedElement {
       for (const entry of this.list) data.append(this.name, entry);
       this.internals.setFormValue(data, JSON.stringify(this.list));
     }
-    if (this.requirement === 'required' && this.list.length === 0 && !this.inert_) {
+    if (this.required && this.list.length === 0 && !this.inert_) {
       const message = missingValueMessage('text', { errorText: this.errorText, requiredText: this.words.get('requiredText', this.requiredText), label: this.label });
       const anchor = this.native;
       if (anchor) this.internals.setValidity({ valueMissing: true }, message, anchor);
@@ -594,7 +598,7 @@ export class TanreiChipField extends ComposedElement {
     capture: true,
     handleEvent: (event: KeyboardEvent) => {
       if (!this.fromTyping(event) || event.isComposing || this.composing || event.keyCode === 229) return;
-      if (event.key !== 'Enter') return this.onTypingKey(event);
+      if (event.key !== 'Enter') return this.#onTypingKey(event);
       if (this.inert_ || this.readOnly || this.inputValue === '') return;
       event.preventDefault();
       event.stopPropagation();
@@ -607,7 +611,7 @@ export class TanreiChipField extends ComposedElement {
    * starts moves focus to the last entry and removes nothing. Never for the repeats of a held key, and never while
    * the list is empty.
    */
-  private onTypingKey(event: KeyboardEvent) {
+  #onTypingKey(event: KeyboardEvent) {
     if (event.repeat || this.inert_ || this.list.length === 0) return;
     if (event.key !== 'Backspace' && event.key !== (this.rtl ? 'ArrowRight' : 'ArrowLeft')) return;
     if (event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return;
@@ -622,7 +626,7 @@ export class TanreiChipField extends ComposedElement {
    * Where it holds a line break or a separator, it is read with the text already there as a row of candidates, each
    * offered; text that holds neither is the Text input's own to take.
    */
-  private onBeforeInput(event: InputEvent) {
+  #onBeforeInput(event: InputEvent) {
     if (!this.fromTyping(event) || this.inert_ || this.readOnly || event.isComposing || this.composing) return;
     if (event.inputType !== 'insertFromPaste' && event.inputType !== 'insertFromDrop') return;
     const data = event.data ?? event.dataTransfer?.getData('text/plain') ?? '';
@@ -640,7 +644,7 @@ export class TanreiChipField extends ComposedElement {
    * text before it is offered and the text after it stays typed; filled-in text is offered whole (CHF-8). CHF-6: an
    * edit of the text ends the entry error.
    */
-  private onInput(event: Event) {
+  #onInput(event: Event) {
     if (!this.fromTyping(event)) return;
     if ((event as InputEvent).isComposing || this.composing) return;
     const text = this.inputValue;
@@ -658,11 +662,11 @@ export class TanreiChipField extends ComposedElement {
     this.offer(text, { tail: TYPED.test((event as InputEvent).inputType ?? '') });
   }
 
-  private onCompositionStart(event: Event) {
+  #onCompositionStart(event: Event) {
     if (this.fromTyping(event)) this.composing = true;
   }
 
-  private onCompositionEnd(event: Event) {
+  #onCompositionEnd(event: Event) {
     if (this.fromTyping(event)) this.composing = false;
   }
 
@@ -670,7 +674,7 @@ export class TanreiChipField extends ComposedElement {
    * CHF-4: focus left the chip field for another part of the product: what was typed is offered. Not when the window
    * itself lost focus, and never bringing focus back.
    */
-  private onLeave(event: FocusEvent) {
+  #onLeave(event: FocusEvent) {
     const to = event.relatedTarget;
     if (to instanceof Node && (to === this || this.contains(to))) return;
     if (!to && !this.ownerDocument.hasFocus()) return;
@@ -683,7 +687,7 @@ export class TanreiChipField extends ComposedElement {
   }
 
   /** CHF-16: the Text input's own `change` — of its text — is not the chip field's, whose `change` is of the list. */
-  private onMemberEvent(event: Event) {
+  #onMemberEvent(event: Event) {
     if (event.target === this.input) event.stopPropagation();
   }
 
@@ -697,7 +701,7 @@ export class TanreiChipField extends ComposedElement {
   };
 
   /** CHF-13: the keys among the entries. Each arrow moves the way it points; nothing is activated or removed here. */
-  private onEntryKey(event: KeyboardEvent) {
+  #onEntryKey(event: KeyboardEvent) {
     this.key = '';
     const chips = this.chips;
     const index = chips.findIndex((chip) => chip === event.target);
@@ -765,7 +769,7 @@ export class TanreiChipField extends ComposedElement {
    * first, while the chip is still there: after Backspace to the entry before, or the one after where it was the
    * first; after Delete or the remove action to the entry after; to the typing part where there is none.
    */
-  private onEntryRemove(event: Event) {
+  #onEntryRemove(event: Event) {
     event.stopPropagation();
     const key = this.key;
     this.key = '';
@@ -789,7 +793,7 @@ export class TanreiChipField extends ComposedElement {
    * it is refused nothing more happens. Then the entry leaves the list and its text stands in the typing part, with
    * focus and the caret at its end, and `change` is fired once.
    */
-  private onEntryClick(event: Event) {
+  #onEntryClick(event: Event) {
     if (this.inert_ || this.readOnly) return;
     const index = this.chips.indexOf(event.currentTarget as TanreiChip);
     const entry = this.list[index];
@@ -925,9 +929,9 @@ export class TanreiChipField extends ComposedElement {
                   .removeLabel=${this.removeName(sentence, entry)}
                   .disabled=${inert}
                   .removable=${!this.readOnly}
-                  @keydown=${this.onEntryKey}
-                  @click=${this.onEntryClick}
-                  @remove=${this.onEntryRemove}
+                  @keydown=${this.#onEntryKey}
+                  @click=${this.#onEntryClick}
+                  @remove=${this.#onEntryRemove}
                 ></tanrei-chip
               ></div>`,
           )}</div
@@ -948,13 +952,13 @@ export class TanreiChipField extends ComposedElement {
           .placeholder=${this.list.length ? '' : this.placeholder}
           .value=${live(this.inputValue)}
           @keydown=${this.onTypingKeyFirst}
-          @beforeinput=${this.onBeforeInput}
-          @input=${this.onInput}
-          @compositionstart=${this.onCompositionStart}
-          @compositionend=${this.onCompositionEnd}
-          @change=${this.onMemberEvent}
-          @pickerrequest=${this.onMemberEvent}
-          @entryerror=${this.onMemberEvent}
+          @beforeinput=${this.#onBeforeInput}
+          @input=${this.#onInput}
+          @compositionstart=${this.#onCompositionStart}
+          @compositionend=${this.#onCompositionEnd}
+          @change=${this.#onMemberEvent}
+          @pickerrequest=${this.#onMemberEvent}
+          @entryerror=${this.#onMemberEvent}
           >${entries}</tanrei-text-input
         ></tanrei-field
       ><span class="announcer" aria-live="polite"></span>`;

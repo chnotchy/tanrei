@@ -74,7 +74,8 @@ The layer draws nothing of its own but the dim. Your content keeps its own color
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { ModalLayer } from '@tanrei/react';
+    // An advanced component — a building block of others — is imported from the advanced entry.
+    import { ModalLayer } from '@tanrei/react/advanced';
 
     <ModalLayer open={open} label="Commands" onClose={() => setOpen(false)}>
       <CommandPalette />
@@ -103,13 +104,12 @@ A product sets the layer's tokens in its layer file, and every modal surface fol
 {
   "tokens": {
     "tanrei.comp.modal-layer.scrim.color": { "$value": "{tanrei.sys.color.scrim}" },
-    "tanrei.comp.modal-layer.scrim.blur": { "$value": { "value": 8, "unit": "px" }, "reason": "Our modal surfaces frost what lies behind them." },
-    "tanrei.comp.modal-layer.motion.enter-duration": { "$value": "{tanrei.sys.motion.duration.medium4}" }
+    "tanrei.comp.modal-layer.scrim.blur": { "$value": { "value": 8, "unit": "px" }, "reason": "Our modal surfaces frost what lies behind them." }
   }
 }
 ```
 
-The dim's opacity is the alpha of its color: change the color, or the system's `scrim` role, to make it lighter or darker. To set one surface apart, set that surface's own token instead (`comp.dialog.scrim.color`, `comp.side-sheet.motion.enter-duration`). It points to the layer's until you do.
+The dim's opacity is the alpha of its color: change the color, or the system's `scrim` role, to make it lighter or darker. To set one surface apart, set that surface's own token instead (`comp.dialog.scrim.color`, `comp.dialog.motion.enter-duration`). It points to the layer's until you do.
 
 ## Specs
 

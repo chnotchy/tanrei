@@ -153,3 +153,12 @@ test('a zero dimension is written 0px, so calc() and min() over it stay valid', 
   assert.match(css, /--tanrei-comp-slider-handle-outline-width: 0px;/);
   assert.doesNotMatch(css, /--tanrei-comp-slider-handle-outline-width: 0;/);
 });
+
+test('a corner inside another (a sub of a shape) gets a -pill companion of 0; a sub that is a gap gets none', async () => {
+  const model = await (await resolveSystem({ system: 'tanrei' })).model();
+  const base = blocks(emitCss(model))[':root, [data-tanrei-contrast]'];
+  assert.equal(base['--tanrei-comp-menu-container-shape-pill'], '0', 'the row inside the sheet: a corner, never the full step');
+  // The room a neighbour's target needs beyond what a small Button draws: a gap, no corner.
+  assert.equal(base['--tanrei-comp-button-group-standard-gap'], 'max(0px, calc(var(--tanrei-sys-target-touch) - var(--tanrei-comp-button-container-height-small)))');
+  for (const gap of ['button-group-standard-gap', 'toolbar-container-gap-docked', 'search-container-gap']) assert.equal(base[`--tanrei-comp-${gap}-pill`], undefined, gap);
+});

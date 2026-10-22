@@ -7,6 +7,7 @@ import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tab, tabTo } from '../../../test/harness.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { settledCss } from '../../../test/motions.js';
+import { expectAnimated, sampleFrames } from '../../../test/frames.js';
 
 const spec = loadSpec('pagination');
 type P = Page;
@@ -787,7 +788,7 @@ test.describe('states', () => {
     await expect(g).toHaveAttribute('data-focus-style', 'glow');
   });
 
-  test('PGN-18: an item changes between states over the state motion, at once where motion is reduced; a new current page is drawn at once', async ({ page }) => {
+  test('PGN-18: an item changes between states over the state motion, and at once where motion is reduced', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [fixture('default')] });
     const duration = await resolveToken(page, T('motion-state-duration'), 'duration');
     const b = pageItem(page, 'default', 3);
@@ -797,17 +798,92 @@ test.describe('states', () => {
       expect(properties, p).toContain(p);
       expect(durations[properties.indexOf(p) % durations.length], p).toBe(duration);
     }
-    // A new page: no item recolors over a motion — the old current page loses its fill at once.
-    await override(page, { [T('motion-state-duration')]: '60000ms' });
-    await page.mouse.move(0, 0);
-    await host(page, 'default').evaluate((el: any) => (el.page = 4));
-    await settle(page, 'default');
-    const moving = await host(page, 'default').evaluate((el) => [...el.shadowRoot!.querySelectorAll('.row .item')].flatMap((i) => i.getAnimations()).length);
-    expect(moving).toBe(0);
-    expect(await css(pageItem(page, 'default', 1), 'background-color')).toBe(await resolveColor(page, T('item-container-color')));
-    expect(await css(pageItem(page, 'default', 4), 'background-color')).toBe(await resolveColor(page, T('current-container-color')));
     await page.emulateMedia({ reducedMotion: 'reduce' });
     expect(await css(b, 'transition-duration')).toBe('0s');
+  });
+
+  test('PGN-18: a new current page — in every fixture that draws more than one page, the item that was current and the item that becomes current change between their states over the state motion', async ({ page }) => {
+    const all = spec.fixtures.filter((f) => Number(f.props?.count) > 1);
+    expect(all.length).toBe(spec.fixtures.length - 1);
+    await mountFixtures(page, spec, { icons: true, fixtures: all });
+    await page.mouse.move(0, 0);
+    for (const f of all) {
+      const el = host(page, f.id);
+      // The nearest page shown whose item, and the current one's, keep their places in the row — or, where every page
+      // shown moves the row (the middle of it), the nearest one of which either keeps its place: an item the row uses
+      // for another page is drawn at once (the next test). The compact form draws no pages: its previous control
+      // changes state instead (enabled, or disabled on page 1).
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      const chosen = await el.evaluate(async (pagination: any) => {
+        const at = () => [...pagination.shadowRoot.querySelectorAll('.row > li')].map((li: Element) => li.querySelector('.item:not(.control)')?.getAttribute('data-page') ?? null);
+        const from = pagination.page as number;
+        const before = at();
+        if (!before.some(Boolean)) return { to: from === 1 ? 2 : 1, was: '.row .item[data-control="previous"]', now: '' };
+        const shown = before.filter(Boolean).map(Number).filter((n) => n !== from).sort((a, b) => Math.abs(a - from) - Math.abs(b - from));
+        const kept: { to: number; was: string; now: string }[] = [];
+        for (const to of shown) {
+          pagination.page = to;
+          await pagination.updateComplete;
+          const after = at();
+          pagination.page = from;
+          await pagination.updateComplete;
+          const keeps = (n: number) => before.indexOf(String(n)) === after.indexOf(String(n));
+          const item = (n: number) => `.row .item:not(.control)[data-page="${n}"]`;
+          if (keeps(from) || keeps(to)) kept.push({ to, was: keeps(from) ? item(from) : '', now: keeps(to) ? item(to) : '' });
+        }
+        return kept.find((each) => each.was && each.now) ?? kept[0] ?? null;
+      });
+      expect(chosen, f.id).not.toBeNull();
+      await el.evaluate((pagination: HTMLElement, c) => {
+        pagination.dataset.was = c!.was;
+        pagination.dataset.now = c!.now;
+        return new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)));
+      }, chosen);
+      await page.emulateMedia({ reducedMotion: 'no-preference' });
+      const seen = await sampleFrames(el, () => el.evaluate((pagination: any, to) => (pagination.page = to), chosen!.to), {
+        elements: false,
+        probe: (root) => {
+          // What the item draws — its fill, its number's or arrow's color, its opacity — as one number that changes
+          // whenever any of them does.
+          const read = (selector: string | undefined) => {
+            const item = selector ? root.shadowRoot!.querySelector(selector) : null;
+            if (!item) return 0;
+            const c = getComputedStyle(item);
+            const glyph = item.querySelector('.glyph');
+            const drawn = `${c.backgroundColor} ${c.color} ${c.opacity} ${glyph ? getComputedStyle(glyph).color : ''}`;
+            return (drawn.match(/[\d.]+/g) ?? []).reduce((sum, n, i) => sum + Number(n) * (i + 1), 0);
+          };
+          return { was: read((root as HTMLElement).dataset.was), now: read((root as HTMLElement).dataset.now) };
+        },
+      });
+      if (chosen!.was) expectAnimated(seen, 'was');
+      if (chosen!.now) expectAnimated(seen, 'now');
+      await expect(el, f.id).toHaveJSProperty('page', chosen!.to);
+    }
+  });
+
+  test('PGN-18: an item the row uses for another page is drawn as that page at once', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('default')] });
+    await page.mouse.move(0, 0);
+    const el = host(page, 'default');
+    expect(await pages(page, 'default')).toEqual(['1', '2', '3', '4', '5', '…', '10']);
+    // Page 6 draws 1 … 5 6 7 … 10: the item in the fourth place of the pages, which drew page 4, draws the current page
+    // 6; the first keeps page 1 and loses its fill over the motion.
+    const seen = await sampleFrames(el, () => el.evaluate((pagination: any) => (pagination.page = 6)), {
+      elements: false,
+      probe: (root) => {
+        const read = (selector: string) => {
+          const item = root.shadowRoot!.querySelector(selector)!;
+          return `${item.getAttribute('data-page')} ${getComputedStyle(item).backgroundColor}`;
+        };
+        const fill = (getComputedStyle(root.shadowRoot!.querySelector('.row > li:nth-child(2) .item')!).backgroundColor.match(/[\d.]+/g) ?? []).map(Number);
+        return { first: fill.reduce((sum, n, i) => sum + n * (i + 1), 0), fourth: read('.row > li:nth-child(5) .item') };
+      },
+    });
+    expect(await pages(page, 'default')).toEqual(['1', '…', '5', '6', '7', '…', '10']);
+    expectAnimated(seen, 'first');
+    const fourth = [seen.before, ...seen.frames, seen.rest].map((frame) => frame.probe.fourth).filter((value, i, all) => i === 0 || value !== all[i - 1]);
+    expect(fourth).toEqual([`4 ${await resolveColor(page, T('item-container-color'))}`, `6 ${await resolveColor(page, T('current-container-color'))}`]);
   });
 
   test('PGN-20: an item smaller than the minimum target reaches it on both axes — touch and fine pointer — without changing its size, and toward a neighbour no further than half the gap', async ({ page, browserName }) => {

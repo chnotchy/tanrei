@@ -60,17 +60,17 @@
           },
           "gap": {
             "$type": "dimension",
-            "$value": "{tanrei.sys.space.space50}",
-            "$description": "Between two controls of the bar. With the Buttons' own targets (BTN-5) it keeps each whole target apart from the next in the default system."
+            "$value": "{tanrei.sys.space.space150}",
+            "$description": "Between two controls of the bar. With the small Buttons' own targets (BTN-5) it keeps each whole pointer target apart from the next in the default system: 32 and 12 make sys.target.pointer's 44."
           },
           "button": {
             "variant": {
               "$type": "number",
               "$value": 4,
-              "$description": "The Button variant of the bar's controls — zoom out, zoom in and close — icon-only medium Buttons (IMP-8). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name.",
+              "$description": "The Button variant of the bar's controls — zoom out, zoom in and close — icon-only small Buttons (IMP-8): tonal in the default system, as every host's close button is, and the zoom controls beside it drawn the same way. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name.",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "One product decides once how the controls of its previews stand out: bare glyphs on a solid bar, or filled controls on a bar that lets the picture through."
+                  "rationale": "One product decides once how the controls of its previews stand out: tonal controls that read as controls on any bar, bare glyphs on a solid bar, or filled controls on a bar that lets the picture through."
                 },
                 "dev.tanrei.enum": {
                   "values": [
@@ -82,7 +82,7 @@
                   ]
                 },
                 "dev.tanrei.derive": {
-                  "fixed": "A choice of kind; no dial scales it."
+                  "fixed": "Apple's photo viewer draws its bar controls as bare glyphs. Keeps the preset's look; the change to tonal controls is the default system's."
                 }
               }
             }
@@ -235,16 +235,6 @@
             "$type": "cubicBezier",
             "$value": "{tanrei.comp.modal-layer.motion.enter-easing}"
           },
-          "enter-scale": {
-            "$type": "number",
-            "$value": 0.95,
-            "$description": "The size the picture grows from, as a fraction of its size at fit, while the preview fades in. 1 fades without growing.",
-            "$extensions": {
-              "dev.tanrei.derive": {
-                "fixed": "A proportion of the picture's own size; no dial scales it."
-              }
-            }
-          },
           "exit-duration": {
             "$type": "duration",
             "$value": "{tanrei.comp.modal-layer.motion.exit-duration}"
@@ -283,12 +273,12 @@
           },
           "controls-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$value": "{tanrei.sys.motion.role.state.large}",
             "$description": "The fade of the bar, the previous and next controls and the caption when they are hidden or shown."
           },
           "controls-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           }
         }
       }

@@ -1,6 +1,6 @@
 ---
 title: Popover
-description: Shows content a person can read and operate on a small surface that opens beside the control they pressed and stays with it, without dimming or blocking the rest of the page.
+description: Shows content a person can read and operate on a small surface that opens beside the control they pressed and stays with it, without dimming or blocking the rest of the page; in a compact window, in a modal surface with the bottom sheet's appearance.
 ---
 
 import { Tabs, TabItem } from '../../../components/tabs';
@@ -26,13 +26,13 @@ import DemoFrame from '../../../components/DemoFrame.astro';
   </tanrei-popover>
 </DemoFrame>
 
-Use a popover for content a person works with beside the control that opened it: a few settings, a short form, a share panel, a note that needs a link or a button. The rest of the page stays usable around it.
+Use a popover for content a person works with beside the control that opened it: a few settings, a short form, a share panel, a note that needs a link or a button. The rest of the page stays usable around it. In a compact window it takes the bottom sheet's appearance at the bottom of the window instead, as every popover and dialog of Tanrei does there.
 
 ### Usage
 
 The control is yours. On the web you name it with `anchor`, the id of the element the popover stands beside. That element is also the opener: the popover tells assistive technology that it opens a dialog and whether that dialog is open, and gives focus back to it. Where a field anchors the surface and a button inside the field opens it, name the button with `opener`.
 
-A popover is controlled, as a menu is. You set `open` when the opener is pressed and set it back to false when the popover emits `close`. It never opens by itself, on hover, on focus or after a time. `close` carries a reason: `escape`, `outside`, `focus-out`, `close` (its close button) or `anchor-hidden`. An action never closes the popover; your handler does.
+A popover is controlled, as a menu is. You set `open` when the opener is pressed and set it back to false when the popover emits `close`. It never opens by itself, on hover, on focus or after a time. `close` carries a reason: `escape`, `outside`, `focus-out`, `close` (its close button) or `anchor-hidden`. As a sheet in a compact window it sends `outside` for a press on its scrim, and never `focus-out` or `anchor-hidden`. An action never closes the popover; your handler does.
 
 Give it a name: `headline` where it draws one, `label` where it does not.
 
@@ -142,17 +142,33 @@ Set `inset` to false (`no-inset` on the web) for content that pads itself or rea
 | Actions | Tanrei Buttons in the `actions` slot, each marked `confirming` or `dismissive` where it is one. They are placed as a Button group places them, and stack when a label no longer fits |
 | Arrow | An optional triangle that points at the anchor. `arrow` turns it on for one popover; `comp.popover.arrow.visible` turns it on for a whole design system |
 
-An action without a `variant` takes `comp.popover.actions.variant` (tonal in the default system). The close button is an icon-only small Button in `comp.popover.close-button.variant`.
+An action without a `variant` takes `comp.popover.actions.variant` (tonal in the default system). The close button is an icon-only small Button in `comp.popover.close-button.variant`: tonal in the default system, as every close button in Tanrei is, so that it reads as a control on any content. The m3-like and cupertino presets keep their bare glyph (text).
 
 ### Motion
 
-The popover fades in and grows from the edge that faces the anchor, and fades out. A motion that is interrupted turns round from where it is. Where motion is reduced it appears and disappears at once.
+The popover appears as every surface in Tanrei appears: it fades in and grows a little (from 96 % in the default system) from the middle of the edge that faces the anchor, and leaves the same way back, a little faster. A motion that is interrupted turns round from where it is. Where motion is reduced it only fades. Under the m3-like preset it unfolds from that edge instead, as Material's menus do. A popover written open in the page's markup is there from the first frame, without a motion.
+
+### In a compact window
+
+In a window narrower than `comp.popover.compact.window-width` (600 in the default system), a popover takes the bottom sheet's appearance. This is Tanrei's rule for every popover and every dialog in a compact window. You still open the same popover with the same props and events; only how it is drawn changes.
+
+- It sits at the bottom edge of the window, as wide as the window up to `comp.bottom-sheet.container.max-width`, in the bottom sheet's color and elevation. Its top corners take `comp.bottom-sheet.container.shape` and its bottom corners are square. It sits above the on-screen keyboard.
+- It is as tall as its parts, and never taller than the window less `comp.bottom-sheet.container.margin-block-start` at the top. Beyond that, the content scrolls between the header and the actions.
+- It has no arrow and no drag handle, and it does not follow a drag. `placement`, `offset`, `crossOffset` and `width` do not apply.
+- It is modal: the bottom sheet's scrim dims the page, everything behind it is inert, and focus stays inside it. Escape, back, a press on the scrim and the close button close it.
+- It slides up from the bottom edge with the bottom sheet's motion and slides back down when it closes. Where motion is reduced it fades in place.
+- When the window crosses the width while the popover is open, it changes form at once, without motion, and keeps focus where it was.
+
+Set `compactPresentation` to `own` (`compact-presentation="own"` on the web) to keep one popover beside its anchor in every window, for a surface that must stay next to what it belongs to. A popover with `initialFocus="anchor"` always stays beside its anchor, because the field the person is typing in must stay usable. A design system that never wants sheets sets `comp.popover.compact.window-width` to 0.
+
+Menus are not popovers here: a menu, a select's or a combobox's list and a button's menu stay beside their control in every window.
 
 <ComponentSpecs name="popover" />
 
 ### What the web draws differently
 
 - The popover is a `popover="manual"` element in the top layer. Inside a modal `<dialog>` it must be a descendant of that dialog to be operable there.
+- In a compact window the sheet is a native `<dialog>` opened with `showModal()`, and its scrim is the dialog's `::backdrop`.
 - A press outside closes the popover and also reaches the element under it.
 - The web has no back gesture of its own, so `close` never carries the reason `back`.
 - `anchorElement` and `openerElement` are properties for an element that an id cannot reach, such as one in another shadow root.
@@ -169,7 +185,7 @@ The popover fades in and grows from the edge that faces the anchor, and fades ou
 | Opened by | Hover, keyboard focus, long-press | A press on its opener | A press on its anchor | The product |
 | Holds | A description of its anchor | Content a person operates | Items only | A decision |
 | Takes focus | Never | Yes, and returns it | Yes, and returns it | Yes, and keeps it |
-| Blocks the page | No | No | No | Yes |
+| Blocks the page | No | No (yes as a sheet in a compact window) | No | Yes |
 
 1. If it only says what the control is, and nothing in it can be pressed, it is a tooltip.
 2. If it is a list of commands or choices, it is a menu.
@@ -182,6 +198,7 @@ The popover fades in and grows from the edge that faces the anchor, and fades ou
 - Keep the content short. One task, a few fields at most.
 - Add `closable` when the popover is large enough to cover what a person would press outside it, and for touch, where there is no Escape.
 - Use `width="anchor"` and `initialFocus="anchor"` for a surface under a field the person is typing in.
+- Set `compactPresentation` to `own` only for a popover that must stay beside what it belongs to in a compact window, such as a note beside the word it explains.
 - Keep action labels short. A label wider than the popover does not wrap.
 
 ### Don't
@@ -198,13 +215,14 @@ The popover fades in and grows from the edge that faces the anchor, and fades ou
 ### What the component handles
 
 - The container is a dialog that is not modal, named by `headline` or by `label`. Nothing outside it is hidden or made inert.
+- As a sheet in a compact window, the container is a modal dialog: everything outside it is inert, and Tab and Shift+Tab wrap inside it. Closing returns focus to the opener.
 - The opener exposes that it opens a dialog and whether that dialog is open. Its own name and role do not change.
 - Opening moves focus to the element you marked, or to the container, so that the popover's name is read first. The focus indicator shows on the container only when the popover was opened from the keyboard.
 - The popover comes directly after its opener in the Tab order, wherever it is in the document. Tab from its last element moves on to what follows the opener, which closes it. Focus is never kept in.
 - Escape closes only the topmost overlay, and goes no further: a dialog the popover stands in stays open.
 - Closing returns focus to the opener if focus was inside the popover. If the person moved focus elsewhere, it stays there.
 - An overlay opened from inside the popover, such as a menu or a tooltip, belongs to it: a press or focus in it does not close the popover.
-- At 200% text the popover wraps, grows to its limits and scrolls. In a window 320 wide it is the window's width less the margins.
+- At 200% text the popover wraps, grows to its limits and scrolls. In a compact window it is a sheet across the window's width. A popover that keeps its own presentation is, in a window 320 wide, the window's width less the margins.
 
 ### What you need to do
 

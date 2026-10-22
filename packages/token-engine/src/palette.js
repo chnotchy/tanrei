@@ -81,11 +81,27 @@ export function createPaletteEngine({ Hct, TonalPalette, namespace: NS = 'tanrei
     for (const [id, decl] of Object.entries(system.vocabulary ?? {})) {
       if (decl.kind !== 'token' || !id.startsWith(SYS_COLOR)) continue;
       const role = id.slice(SYS_COLOR.length);
-      if (table.has(role)) continue; // core has adopted it since; system.js reports that
+      if (table.has(role)) throw new SystemError(`${id}: "${role}" is a core color role; a layer declares only what the core lacks: delete this declaration, and write its value under "tokens"`);
       if (decl.type !== 'color') throw new Error(`${id}: a color role is declared with "$type": "color"`);
       table.set(role, { rationale: decl.rationale, template: null, declared: true, extension: { declaredBy: decl.declaredBy, onRole: decl.onRole } });
     }
     return table;
+  }
+
+  /** The color `{<ns>.ref.palette.<palette>.<tone>}` names (`target` without the braces); `where` is the token that names it. */
+  function paletteToneColor(palettes, target, where) {
+    const [p, t] = target.slice(REF_PALETTE.length).split('.');
+    if (!palettes[p]) throw new SystemError(`${where}: {${target}} names the palette "${p}", which this system does not declare`);
+    return argbToRgb(palettes[p].tone(Number(t)));
+  }
+
+  /** The color of a role that holds a value rather than an alias: a palette tone `{p,t}` or an alpha `{alpha,a}`. */
+  function valueColor(palettes, def) {
+    if (def.alpha) {
+      const c = def.alpha === 'white' ? 1 : 0;
+      return { r: c, g: c, b: c, a: def.a / 100 };
+    }
+    return argbToRgb(palettes[def.p].tone(def.t));
   }
 
   /** Resolve every color role of a system for one scheme → `{ role: {p,t} | {alpha,a} | {ref} }`. */
@@ -121,11 +137,7 @@ export function createPaletteEngine({ Hct, TonalPalette, namespace: NS = 'tanrei
     const pending = new Map(picks.map((pick) => [pick.role, pick]));
     const colorOf = (ref, trail) => {
       const target = ref.slice(1, -1);
-      if (target.startsWith(REF_PALETTE)) {
-        const [p, t] = target.slice(REF_PALETTE.length).split('.');
-        if (!palettes[p]) throw new SystemError(`${trail.at(-1)}: {${target}} names the palette "${p}", which this system does not declare`);
-        return argbToRgb(palettes[p].tone(Number(t)));
-      }
+      if (target.startsWith(REF_PALETTE)) return paletteToneColor(palettes, target, trail.at(-1));
       if (!target.startsWith(SYS_COLOR)) throw new SystemError(`${trail.at(-1)}: "contrast-pick" on a color role chooses among color roles and ${REF_PALETTE}<palette>.<tone> — {${target}} is neither`);
       const role = target.slice(SYS_COLOR.length);
       if (trail.includes(target)) throw new SystemError(`cycle: ${[...trail, target].join(' → ')}`);
@@ -133,8 +145,7 @@ export function createPaletteEngine({ Hct, TonalPalette, namespace: NS = 'tanrei
       const def = out[role];
       if (!def) throw new SystemError(`${trail.at(-1)}: unknown color role {${target}}`);
       if (def.ref) return colorOf(def.ref, [...trail, target]);
-      if (def.alpha) return { r: def.alpha === 'white' ? 1 : 0, g: def.alpha === 'white' ? 1 : 0, b: def.alpha === 'white' ? 1 : 0, a: def.a / 100 };
-      return argbToRgb(palettes[def.p].tone(def.t));
+      return valueColor(palettes, def);
     };
     function decide({ role, id, rule }, trail = []) {
       checkContrastPick(rule, id);
@@ -204,9 +215,13 @@ export function createPaletteEngine({ Hct, TonalPalette, namespace: NS = 'tanrei
         const roleColor = (role, trail = []) => {
           const def = resolved[scheme][role];
           if (!def) throw new Error(`unknown color role "${role}"`);
-          if (def.ref) return roleColor(def.ref.slice(1, -1).slice(SYS_COLOR.length), [...trail, role]);
-          if (def.alpha) return { r: def.alpha === 'white' ? 1 : 0, g: def.alpha === 'white' ? 1 : 0, b: def.alpha === 'white' ? 1 : 0, a: def.a / 100 };
-          return argbToRgb(palettes[def.p].tone(def.t));
+          if (def.ref) {
+            const target = def.ref.slice(1, -1);
+            // A contrast-pick on a role aliases its winner, which is another role or a palette tone.
+            if (target.startsWith(REF_PALETTE)) return paletteToneColor(palettes, target, `${SYS_COLOR}${role}`);
+            return roleColor(target.slice(SYS_COLOR.length), [...trail, role]);
+          }
+          return valueColor(palettes, def);
         };
         const toneColor = (palette, tone, id = '?') => {
           if (!palettes[palette]) throw new SystemError(`${id}: unknown palette "${palette}". Declared: ${Object.keys(palettes).join(', ')}.`);

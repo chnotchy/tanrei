@@ -1,5 +1,5 @@
 // The tests every region of destinations whose item is `NavigationDestination` shares (a navigation bar, NVB-*): activation,
-// selection, the states and the press, focus, the item's geometry, labels, icon, badge and semantics. Each component's
+// selection, the states and the press, focus, labels, icon, badge and semantics. Each component's
 // own test file calls `destinationSuite()` with the behaviour ids its spec gives each sentence — written out there, so
 // the parity check finds every id in that file — and tests what only it has (its layout, its insets) itself.
 import AxeBuilder from '@axe-core/playwright';
@@ -21,7 +21,6 @@ export interface DestinationIds {
   pressHold: string;
   feedback: string;
   cornersAndFocusStyle: string;
-  item: string;
   labels: string;
   icon: string;
   selection: string;
@@ -43,10 +42,10 @@ export interface DestinationSuiteOptions {
   /** How many destinations the region is made for. */
   range: readonly [number, number];
   /**
-   * The shared sentences the component's spec words its own way, which its own test file tests instead: a bar's item is a
-   * pill around the icon and the label (NVB-12), and its indicator slides rather than grows (NVB-15).
+   * The shared sentences the component's spec words its own way, which its own test file tests instead: a bar's indicator
+   * slides rather than grows (NVB-15).
    */
-  own?: readonly ('item' | 'selection')[];
+  own?: readonly 'selection'[];
 }
 
 export const destination = (value: string, label: string, icon: string, props: FixtureItem['props'] = {}): FixtureItem => ({ kind: 'destination', props: { value, label, icon, ...props } });
@@ -71,7 +70,7 @@ const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(d
 
 export function destinationSuite({ spec, tag, itemTag, ids, lines, range, own = [] }: DestinationSuiteOptions) {
   const prefix = `--tanrei-comp-${spec.name}`;
-  const shared = (sentence: 'item' | 'selection') => (own.includes(sentence) ? test.skip : test);
+  const shared = (sentence: 'selection') => (own.includes(sentence) ? test.skip : test);
   const T = (name: string) => `${prefix}-${name}`;
   const region = (page: P, id: string) => page.locator(`[data-fixture="${id}"] ${tag}`);
   const item = (page: P, id: string, n: number) => region(page, id).locator(itemTag).nth(n);
@@ -434,31 +433,6 @@ export function destinationSuite({ spec, tag, itemTag, ids, lines, range, own = 
   });
 
   test.describe('destinations: drawing', () => {
-    shared('item')(`${ids.item}: an item container item.container.width × height with its corners, the icon centred in it, the label item.gap below, centred, ${lines === 1 ? 'on one line' : 'on at most two lines'} cut with an ellipsis; the two centred as a group`, async ({ page }) => {
-      const long = 'A destination whose name is far too long to fit';
-      await mount(page, [...spec.fixtures.filter((f) => f.id === 'four-destinations'), fixture('long', [destination('a', long, 'inbox'), ...FOUR.slice(1)], { value: 'a' })]);
-      const [width, height, radius, gap] = await Promise.all([T('item-container-width'), T('item-container-height'), T('item-container-shape'), T('item-gap')].map((n) => resolveToken(page, n)));
-      for (const n of [0, 1]) {
-        const [c, icon, label, own] = await Promise.all([container(page, 'four-destinations', n), item(page, 'four-destinations', n).locator('.icon'), item(page, 'four-destinations', n).locator('.label'), cell(page, 'four-destinations', n)].map(bounds));
-        expect([c.width, c.height]).toEqual([width, height]);
-        expect(Number.parseFloat(await css(container(page, 'four-destinations', n), 'border-top-left-radius'))).toBeCloseTo(radius, 1);
-        expect(icon.x + icon.width / 2).toBeCloseTo(c.x + c.width / 2, 0);
-        expect(icon.y + icon.height / 2).toBeCloseTo(c.y + c.height / 2, 0);
-        expect(label.y - (c.y + c.height)).toBeCloseTo(gap, 0);
-        expect(label.x + label.width / 2).toBeCloseTo(own.x + own.width / 2, 0);
-        expect(c.x + c.width / 2).toBeCloseTo(own.x + own.width / 2, 0);
-        expect((c.y + label.y + label.height) / 2).toBeCloseTo(own.y + own.height / 2, 0);
-      }
-      const label = item(page, 'long', 0).locator('.label');
-      const cut = await label.evaluate((el) => ({ over: el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth, lines: Math.round(el.getBoundingClientRect().height / Number.parseFloat(getComputedStyle(el).lineHeight)) }));
-      expect(cut).toEqual({ over: true, lines });
-      const [text, own] = [await bounds(label), await bounds(cell(page, 'long', 0))];
-      expect(text.x).toBeGreaterThanOrEqual(own.x - 0.5);
-      expect(text.x + text.width).toBeLessThanOrEqual(own.x + own.width + 0.5);
-      // The whole name stays the accessible name.
-      await expect(region(page, 'long').getByRole('button', { name: long })).toHaveCount(1);
-    });
-
     test(`${ids.labels}: always draws every label, selected only the selected one's, never none; a destination without its label centres its item container, and every label stays its accessible name`, async ({ page }) => {
       await mount(page, spec.fixtures.filter((f) => f.id === 'four-destinations' || f.id === 'labels-selected' || f.id === 'labels-never'));
       const shown = (id: string, n: number) => item(page, id, n).locator('.label-box').evaluate((el) => el.getBoundingClientRect().height > 0 && getComputedStyle(el).opacity === '1');

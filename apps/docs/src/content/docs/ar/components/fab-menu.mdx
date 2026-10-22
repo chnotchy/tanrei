@@ -2,7 +2,7 @@
 title: قائمة FAB
 description: تفتح قائمة قصيرة من الإجراءات المترابطة من زر تبديل مرسوم بهيئة زر إجراء رئيسي مطويّ، يتحول إلى زر إغلاق القائمة ما دامت الإجراءات ظاهرة.
 translationOf: components/fab-menu.mdx
-sourceHash: 58f96ca923cd7e3ad7e31daa132c68b5a1f378d2
+sourceHash: 69aa6940fe6898a0910d96030f32d6cbf477668a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -15,9 +15,6 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <ComponentAvailability name="fab-menu" />
 
-:::note[ليست في نظام Tanrei]
-نظام Tanrei الافتراضي لا يتضمن قائمة FAB، وكذلك cupertino، لأن Apple ليس لديها زر إجراء عائم؛ أما إعدادات Material الجاهزة فتتضمنها. في Tanrei، استخدم [زر الإجراء الرئيسي](/ar/components/main-action-button/) يفتح [لوحة سفلية](/ar/components/bottom-sheet/) من الإجراءات. ويبقى المكوّن يعمل تحت كل نظام، مع تحذير في أثناء التطوير حيث يستبعده النظام. العروض التوضيحية في هذه الصفحة مرسومة تحت الإعداد الجاهز `m3-like`، وهو نظام يتضمنها.
-:::
 
 <DemoFrame label="مغلقة ومفتوحة" system="m3-like">
   {/* العناصر المفتوحة تُرسم في مكانها فوق زر التبديل ولا تحرّك أي تخطيط (FBM-12, FBM-13): احجز ارتفاعها — ثلاثة عناصر، والفجوات بينها، والإزاحة عن زر التبديل — ليتسع لها الإطار، وحاذِ زرَّي التبديل على امتداد الأسفل. */}
@@ -61,7 +58,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </style>
 
     <script type="module">
-      import '@tanrei/web/components/fab-menu';
+      // تعيش قائمة FAB في طبقة m3-like: يسجّلها مدخل نظام من أنظمة m3-like مع سائر المكوّنات.
+      import '@tanrei/web/m3-like';
       const fabMenu = document.querySelector('tanrei-fab-menu');
       // زر التبديل يطلب الفتح أو الإغلاق؛ وأنت تضبط open.
       fabMenu.addEventListener('toggle', (e) => (fabMenu.open = e.detail.open));
@@ -74,7 +72,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { FabMenu, FabMenuItem } from '@tanrei/react';
+    // تعيش قائمة FAB في طبقة m3-like: تجدها في مداخل الأنظمة التي تتضمّنها (m3-like وm3-expressive-like)، وفي /all.
+    import { FabMenu, FabMenuItem } from '@tanrei/react/m3-like';
 
     <FabMenu
       className="primary-action"

@@ -35,7 +35,7 @@ const SUBJECTS: Record<string, (rest: string) => string> = {
   'tanrei-combobox-field': (rest) => `<tanrei-combobox-field label="Combobox" value="a" ${rest}>${OPTIONS}</tanrei-combobox-field>`,
   'tanrei-checkbox': (rest) => `<tanrei-checkbox label="Checkbox" checked ${rest}></tanrei-checkbox>`,
   'tanrei-checkbox-group': (rest) => `<tanrei-checkbox-group label="Checkbox group" ${rest}><tanrei-checkbox value="a" label="Alpha" checked></tanrei-checkbox><tanrei-checkbox value="b" label="Beta"></tanrei-checkbox></tanrei-checkbox-group>`,
-  'tanrei-switch': (rest) => `<tanrei-switch label="Switch" selected ${rest}></tanrei-switch>`,
+  'tanrei-switch': (rest) => `<tanrei-switch label="Switch" checked ${rest}></tanrei-switch>`,
   'tanrei-slider': (rest) => `<tanrei-slider label="Slider" value="40" ${rest}></tanrei-slider>`,
   'tanrei-slider-field': (rest) => `<tanrei-slider-field label="Slider" value="40" ${rest}></tanrei-slider-field>`,
   'tanrei-radio-button': (rest) => `<tanrei-radio-button label="Radio" value="a" checked ${rest}></tanrei-radio-button>`,

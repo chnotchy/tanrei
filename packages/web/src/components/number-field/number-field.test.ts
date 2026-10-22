@@ -65,7 +65,7 @@ test.describe('behavior', () => {
   test('NUM-47: it is a Field that frames one number input, and nothing else — its shadow root holds the two members’ own elements, each prop is on the member it is from and the input’s own label, labelHidden, error and disabled are never set; the label-icon slot is the Field’s; it emits its input’s events as its own, each once; it draws no part, holds no state, has no token and writes no custom property', async ({ page }) => {
     await mountHtml(
       page,
-      `<${TAG} id="plain" label="Width" label-hidden error disabled supporting-text="Help." error-text="Wrong." requirement="required" required-mark="asterisk" required-text="Required" optional-text="Optional" variant="outlined" size="large" value="12.5" placeholder="0" readonly min="1" max="99" step="0.5" no-steppers increment-label="More" decrement-label="Less" prefix-text="~" suffix-text="px" value-text="twelve and a half pixels" align="end" min-fraction-digits="1" max-fraction-digits="2" locale="de-DE" invalid-text="Not a number.">
+      `<${TAG} id="plain" label="Width" label-hidden error disabled supporting-text="Help." error-text="Wrong." required required-mark="asterisk" required-text="Required" optional-text="Optional" variant="outlined" size="large" value="12.5" placeholder="0" readonly min="1" max="99" step="0.5" no-steppers increment-label="More" decrement-label="Less" prefix-text="~" suffix-text="px" value-text="twelve and a half pixels" align="end" min-fraction-digits="1" max-fraction-digits="2" locale="de-DE" invalid-text="Not a number.">
          <span slot="label-icon">timer</span>
        </${TAG}>
        <${TAG} id="events" label="Quantity" ${STEPPERS}></${TAG}>`,
@@ -82,7 +82,7 @@ test.describe('behavior', () => {
         root: [...root.childNodes].filter(drawn).map((node) => (node as Element).localName ?? '#text'),
         inFrame: [...frame!.childNodes].filter(drawn).map((node) => ((node as Element).localName === 'slot' ? `slot ${(node as HTMLSlotElement).name} → ${(node as Element).slot}` : ((node as Element).localName ?? '#text'))),
         inInput: [...input.childNodes].filter(drawn).length,
-        frame: ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'disabled', 'requirement', 'requiredMark', 'requiredText', 'optionalText'].map((name) => framing[name]),
+        frame: ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'disabled', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'].map((name) => framing[name]),
         input: ['variant', 'size', 'value', 'placeholder', 'readOnly', 'min', 'max', 'step', 'noSteppers', 'incrementLabel', 'decrementLabel', 'prefixText', 'suffixText', 'valueText', 'align', 'minFractionDigits', 'maxFractionDigits', 'locale', 'invalidText'].map((name) => input[name]),
         // The four props both members have are the Field's: the input's own are never set by the element.
         own: ['label', 'labelHidden', 'error', 'disabled'].map((name) => input[name]),
@@ -97,7 +97,7 @@ test.describe('behavior', () => {
     expect(built.root, 'one member in the shadow root, and no text').toEqual(['tanrei-field']);
     expect(built.inFrame, 'the Field holds the passing slot of its glyph and its one control').toEqual(['slot label-icon → label-icon', 'tanrei-number-input']);
     expect(built.inInput, 'the input holds nothing: it has no slot').toBe(0);
-    expect(built.frame, 'ten props to the Field').toEqual(['Width', true, 'Help.', 'Wrong.', true, true, 'required', 'asterisk', 'Required', 'Optional']);
+    expect(built.frame, 'eleven props to the Field').toEqual(['Width', true, 'Help.', 'Wrong.', true, true, true, false, 'asterisk', 'Required', 'Optional']);
     expect(built.input, 'nineteen to the number input').toEqual(['outlined', 'large', 12.5, '0', true, 1, 99, 0.5, true, 'More', 'Less', '~', 'px', 'twelve and a half pixels', 'end', 1, 2, 'de-DE', 'Not a number.']);
     expect(built.own, 'the input’s own label, labelHidden, error and disabled').toEqual(['', false, false, false]);
     expect(built.inputHasName).toBe(false);
@@ -166,8 +166,8 @@ test.describe('behavior', () => {
   test('NUM-47: what it shows is what the pair does — the Field’s label row and requirement mark above a stacked box; in a floating look no label row, the name floated in the box with the Field’s asterisk; the supporting row from the box’s inline padding, with steppers too; an error on the box and in the row, and the steppers not in error; a text that is not a number shown with the input’s words in the Field’s row', async ({ page }) => {
     await mountHtml(
       page,
-      `<${TAG} id="stacked" style="inline-size: 280px" label="Quantity" requirement="required" required-mark="tag" required-text="Required" supporting-text="Up to 99 per order." value="12" ${STEPPERS}></${TAG}>
-       <${TAG} id="floating" style="inline-size: 280px" variant="filled" label="Quantity" requirement="required" required-text="Required" supporting-text="Up to 99 per order." ${STEPPERS}></${TAG}>
+      `<${TAG} id="stacked" style="inline-size: 280px" label="Quantity" required required-mark="tag" required-text="Required" supporting-text="Up to 99 per order." value="12" ${STEPPERS}></${TAG}>
+       <${TAG} id="floating" style="inline-size: 280px" variant="filled" label="Quantity" required required-text="Required" supporting-text="Up to 99 per order." ${STEPPERS}></${TAG}>
        <${TAG} id="wrong" style="inline-size: 280px" label="Quantity" error error-text="Order at least 1." value="0" ${STEPPERS}></${TAG}>
        <${TAG} id="entry" style="inline-size: 280px" label="Quantity" supporting-text="Up to 99 per order." error-text="Order at least 1." invalid-text="Enter a number." ${STEPPERS}></${TAG}>`,
       'm3-like',
@@ -218,7 +218,7 @@ test.describe('behavior', () => {
     await mountHtml(
       page,
       `<form id="form"><fieldset id="set">
-         <${TAG} id="n" name="weight" label="Weight" value="1.5" locale="de-DE" requirement="required" required-text="Required" invalid-text="Zahl eingeben." ${STEPPERS}></${TAG}>
+         <${TAG} id="n" name="weight" label="Weight" value="1.5" locale="de-DE" required required-text="Required" invalid-text="Zahl eingeben." ${STEPPERS}></${TAG}>
          <${TAG} id="none" name="none" label="None" ${STEPPERS}></${TAG}>
          <${TAG} id="off" name="off" label="Off" value="3" disabled ${STEPPERS}></${TAG}>
          <${TAG} id="ro" name="fixed" label="Fixed" value="7" readonly></${TAG}>
@@ -323,7 +323,7 @@ test.describe('behavior', () => {
       for (const native of [HTMLInputElement, HTMLSelectElement, HTMLTextAreaElement]) Object.defineProperty(native.prototype, 'validationMessage', { get: () => '', configurable: true });
     });
     await page.goto('about:blank');
-    await mountHtml(page, `<${TAG} id="own" label="Quantity" requirement="required" required-text="Needed" no-steppers></${TAG}><${TAG} id="named" label="Quantity" requirement="required" no-steppers></${TAG}>`);
+    await mountHtml(page, `<${TAG} id="own" label="Quantity" required required-text="Needed" no-steppers></${TAG}><${TAG} id="named" label="Quantity" required no-steppers></${TAG}>`);
     const message = (id: string) => one(page, id).evaluate((el) => [(el as unknown as HTMLInputElement).validity.valueMissing, (el as unknown as HTMLInputElement).validationMessage]);
     expect(await message('own')).toEqual([true, 'Needed']);
     expect(await message('named')).toEqual([true, 'Quantity']);
@@ -336,7 +336,7 @@ test.describe('behavior', () => {
     await mountHtml(
       page,
       `<button id="before">Before</button>
-       <form id="form"><${TAG} id="n" name="n" style="inline-size: 280px" label="Quantity" supporting-text="Up to 99 per order." requirement="required" required-text="Required" value="5" ${STEPPERS}></${TAG}></form>
+       <form id="form"><${TAG} id="n" name="n" style="inline-size: 280px" label="Quantity" supporting-text="Up to 99 per order." required required-text="Required" value="5" ${STEPPERS}></${TAG}></form>
        <${TAG} id="floating" style="inline-size: 280px" variant="outlined" label="Quantity" ${STEPPERS}></${TAG}>
        <button id="after">After</button>`,
       'm3-like',
@@ -395,7 +395,7 @@ test.describe('behavior', () => {
     await mountHtml(
       page,
       `<tanrei-field id="outer" label="Outer" supporting-text="Outer help."><${TAG} id="inner" label="Inner" supporting-text="Inner help." ${STEPPERS}></${TAG}></tanrei-field>
-       <tanrei-field-group id="group" label="Size" error error-text="Group error" requirement="required" required-text="Required"><${TAG} id="grouped" name="grouped" label="Width" supporting-text="Help." value="12" ${STEPPERS}></${TAG}></tanrei-field-group>`,
+       <tanrei-field-group id="group" label="Size" error error-text="Group error" required required-text="Required"><${TAG} id="grouped" name="grouped" label="Width" supporting-text="Help." value="12" ${STEPPERS}></${TAG}></tanrei-field-group>`,
     );
     // Both frames are drawn, and the number field keeps its own name and description.
     await expect(one(page, 'outer').locator('.frame > .label-row > .label').first()).toHaveText('Outer');
@@ -425,9 +425,9 @@ test.describe('behavior', () => {
     const seen = warnings(page);
     await mountHtml(
       page,
-      `<${TAG} id="wordless" label="Quantity" requirement="required" value="1"></${TAG}>
-       <${TAG} id="optional" label="Quantity" requirement="optional" no-steppers></${TAG}>
-       <${TAG} id="own" label="Quantity" requirement="required" required-text="Needed" increment-label="More" decrement-label="Fewer" value="1"></${TAG}>`,
+      `<${TAG} id="wordless" label="Quantity" required value="1"></${TAG}>
+       <${TAG} id="optional" label="Quantity" optional no-steppers></${TAG}>
+       <${TAG} id="own" label="Quantity" required required-text="Needed" increment-label="More" decrement-label="Fewer" value="1"></${TAG}>`,
     );
     const names = (id: string) => one(page, id).evaluate((el) => [...el.shadowRoot!.querySelector('tanrei-number-input')!.shadowRoot!.querySelectorAll('tanrei-button')].map((button) => button.shadowRoot!.querySelector('button')!.getAttribute('aria-label')));
     const tag = (id: string) => field(one(page, id)).locator('tanrei-tag');

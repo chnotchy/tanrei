@@ -2,7 +2,7 @@
 title: "文件上传"
 description: "让用户通过文件选择器选择文件，并把选中的文件显示为文件项：以行排成一列，或以图块排成一排。放进表单时，它保留已选的文件，无需代码即可提交；自己发送文件的产品则自己给出文件项。它自己绝不上传任何东西。"
 translationOf: components/file-upload.mdx
-sourceHash: 67264060c8d6ff2b2e7ccea18067fef9dac9238e
+sourceHash: b2debb12c2d70ab0dd1bea4e0b4c51c55b599528
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -402,7 +402,7 @@ upload.clear();
 表单要显示标签、帮助文本、错误或必填标记时，把文件上传放进[字段](/zh-cn/components/field/)。字段绘制它们，并把它们交给文件上传。
 
 ```html
-<tanrei-field label="附件" requirement="required" required-text="必填"
+<tanrei-field label="附件" required required-text="必填"
               error error-text="请选择不超过 10 MB 的 PDF。">
   <tanrei-file-upload name="attachment" accept=".pdf" max-size="10000000"
                       constraints-text="PDF，不超过 10 MB" remove-label="移除 {name}">

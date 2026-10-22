@@ -67,3 +67,11 @@ export const settledCss = (target: Locator, property: string, pseudo?: string): 
     },
     [property, pseudo ?? null] as const,
   );
+
+/**
+ * How many motions `target` has now — its own, its subtree's and those in every shadow root inside it — counting those
+ * running, paused or waiting for their delay: "nothing moves" is 0. Asking flushes style, so a motion the last change
+ * starts is counted.
+ */
+export const motionCount = (target: Locator): Promise<number> =>
+  target.evaluate((given, source) => ((0, eval)(source) as (root: Element) => Animation[])(given).length, EVERY_ANIMATION);

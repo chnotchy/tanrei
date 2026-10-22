@@ -12,9 +12,10 @@ import resolver from '../../../tokens/tanrei.resolver.json';
 // The generated status file, written from the specs: each component's level, listing and members (./listing.js).
 import status from '../../../docs/status/status.json';
 // The build's own emitter and invariants; their filesystem-bound import is swapped by ../vite-plugin.js.
-import { emitCss, idToVar } from '@tanrei/tokens-build/emit/css';
+import { declarations, emitCss, idToVar } from '@tanrei/tokens-build/emit/css';
 import { cssColor } from '@tanrei/tokens-build/pure';
-import { checkInvariants, contrast } from '@tanrei/tokens-build/invariants';
+import { heldComponents, outsideStandIns, sheetAvailability } from '@tanrei/tokens-build/layers';
+import { checkInvariants, contrast, targetFloors } from '@tanrei/tokens-build/invariants';
 import { createStudio } from './core.js';
 import { catalogOf } from './listing.js';
 
@@ -22,6 +23,8 @@ type Json = Record<string, any>;
 
 const tokenFiles = import.meta.glob<Json>('../../../tokens/{dial,ref,sys,comp}/*.tokens.json', { eager: true, import: 'default' });
 const layerFiles = import.meta.glob<Json>('../../../tokens/systems/*.system.json', { eager: true, import: 'default' });
+// The documents of the components that live in a layer, read by the systems that have them.
+const heldFiles = import.meta.glob<Json>('../../../tokens/systems/*/comp/*.tokens.json', { eager: true, import: 'default' });
 
 // The hand-authored sources the default resolver names, keyed exactly as the build keys them.
 const byRef = Object.fromEntries(Object.entries(tokenFiles).map(([file, doc]) => [file.split('/tokens/').pop()!, doc]));
@@ -31,6 +34,7 @@ const sources = Object.fromEntries(
     .filter((ref: string) => !ref.startsWith('generated/'))
     .map((ref: string) => [ref, byRef[ref]]),
 );
+for (const [file, doc] of Object.entries(heldFiles)) sources[file.split('/tokens/').pop()!] = doc;
 const layers = Object.fromEntries(Object.values(layerFiles).map((layer) => [layer.id, layer]));
 
 export const studio = createStudio({
@@ -43,10 +47,15 @@ export const studio = createStudio({
   // Full JSON-Schema validation against tokens/schema/system.schema.json, in the browser.
   validateSchema: (layer: object) => (validate(layer) ? [] : (validate.errors ?? []).map((e: Json) => `${e.instancePath || '/'} ${e.message}`)),
   emitCss,
+  heldComponents,
+  outsideStandIns,
+  sheetAvailability,
   checkInvariants,
+  targetFloors,
   contrast,
   idToVar,
   cssColor,
+  declarations,
   catalog: catalogOf(status),
 });
 export type Studio = typeof studio;

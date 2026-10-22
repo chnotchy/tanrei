@@ -9,7 +9,7 @@ import { REPO_ROOT, TOKENS_DIR } from '../src/model.js';
 import { generateSchemeFiles, loadSystem, sourceFiles } from '../src/scheme.js';
 
 const sources = sourceFiles(REPO_ROOT);
-const root = loadSystem(REPO_ROOT);
+const root = loadSystem(REPO_ROOT, 'core');
 const values = (docs) => {
   const out = new Map();
   for (const doc of Object.values(docs)) for (const { id, token } of walkTokens(doc)) out.set(id, token.$value);
@@ -116,7 +116,7 @@ test('a color role cannot hold a literal', async () => {
   const { buildBundle, layerChain } = await import('../src/bundle.js');
   const { REPO_ROOT } = await import('../src/model.js');
   const { loadSystem } = await import('../src/scheme.js');
-  const layers = { tanrei: loadSystem(REPO_ROOT), acme: { id: 'acme', extends: 'tanrei', tokens: { 'tanrei.sys.color.primary': { $value: { colorSpace: 'srgb', components: [1, 0, 0], alpha: 1 }, reason: 'Brand red, straight from the guideline.' } } } };
+  const layers = { core: loadSystem(REPO_ROOT, 'core'), tanrei: loadSystem(REPO_ROOT, 'tanrei'), acme: { id: 'acme', extends: 'tanrei', tokens: { 'tanrei.sys.color.primary': { $value: { colorSpace: 'srgb', components: [1, 0, 0], alpha: 1 }, reason: 'Brand red, straight from the guideline.' } } } };
   assert.throws(() => buildBundle(REPO_ROOT, layerChain('acme', (id) => layers[id])), /a color role cannot hold a literal/);
 });
 
@@ -125,7 +125,7 @@ test('a palette can fix single tones to exact colors; every other tone is still 
   const { REPO_ROOT } = await import('../src/model.js');
   const { loadSystem } = await import('../src/scheme.js');
   const tones = { 45: '#123456' };
-  const layers = { tanrei: loadSystem(REPO_ROOT), acme: { id: 'acme', extends: 'tanrei', palettes: { accent: { description: 'Brand blue, fixed by the guideline.', source: { seed: '#30a3f0', tones }, roles: 'intent' } } } };
+  const layers = { core: loadSystem(REPO_ROOT, 'core'), tanrei: loadSystem(REPO_ROOT, 'tanrei'), acme: { id: 'acme', extends: 'tanrei', palettes: { accent: { description: 'Brand blue, fixed by the guideline.', source: { seed: '#30a3f0', tones }, roles: 'intent' } } } };
   const plain = { ...layers, acme: { ...layers.acme, palettes: { accent: { ...layers.acme.palettes.accent, source: { seed: '#30a3f0' } } } } };
   const paletteOf = (set) => buildBundle(REPO_ROOT, layerChain('acme', (id) => set[id])).files['generated/ref.palette.tokens.json'].tanrei.ref.palette.accent;
   assert.equal(paletteOf(layers)['45'].$value.hex.toLowerCase(), '#123456');

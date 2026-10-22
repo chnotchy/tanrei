@@ -2,6 +2,14 @@
   "version": 1,
   "links": {},
   "icons": {
+    "https://developer.mozilla.org": {
+      "ok": true,
+      "file": "a8284c0ad95aa54bae8a5de63f15bee7.png",
+      "digest": "a8284c0ad95aa54bae8a5de63f15bee79b38f2ffa93db80010d534800cc69024",
+      "width": 32,
+      "height": 32,
+      "type": "image/png"
+    },
     "https://fonts.google.com": {
       "ok": false,
       "reason": "not-a-picture"
@@ -25,6 +33,14 @@
     "https://www.designtokens.org": {
       "ok": false,
       "reason": "image-step-failed"
+    },
+    "https://www.w3.org": {
+      "ok": true,
+      "file": "3df1980dbadcb66ef295e0932b93be54.png",
+      "digest": "3df1980dbadcb66ef295e0932b93be54c61f62954eb4f2c2087f7ccaed93d721",
+      "width": 32,
+      "height": 32,
+      "type": "image/png"
     }
   }
 }

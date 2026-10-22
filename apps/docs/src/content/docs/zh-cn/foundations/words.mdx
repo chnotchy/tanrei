@@ -1,16 +1,16 @@
 ---
 title: 文字
-description: Tanrei 不自带任何文字。组件绘制或朗读的每一个标签、名称和消息，都是你的产品的——写在组件上，或者为整个产品只给一次。
+description: 组件没有自己的文字。组件绘制或朗读的每一个标签、名称和消息，都是你的产品的——写在组件上，为整个产品只给一次，或者取自你导入的英语文字包。
 translationOf: foundations/words.mdx
-sourceHash: 2e2cdc9a6fac5336bbdea998f043a08a73daa2cb
+sourceHash: cde7229312c583aa11ef0dc7634daa997d078d17
 ---
 
 import ProductWordKeys from '../../../../components/ProductWordKeys.astro';
 import DemoFrame from '../../../../components/DemoFrame.astro';
 
-**Tanrei 不自带任何文字。** 没有哪个组件带有任何语言的默认文本：没有“必填”，没有“关闭”，也没有“确定”。组件绘制或朗读的文字，都是你的产品写的。
+**组件没有自己的文字。** 没有哪个组件带有任何语言的默认文本：没有“必填”，没有“关闭”，也没有“确定”。组件绘制或朗读的文字，都是你的产品给出的：要么是你自己写的，要么取自你导入的[英语文字包](#英语文字包)。
 
-默认值会掩盖它自己造成的失败。一个日语产品漏写了一个词，自己的文字旁边就会出现英语，而且没有任何东西报告这一点。英语产品同样有自己的说法（“Mandatory”“Done”“Nothing found”）。所以组件没有可以退而使用的文字，缺了哪一个，它会告诉你。
+默认值会掩盖它自己造成的失败。一个日语产品漏写了一个词，自己的文字旁边就会出现英语，而且没有任何东西报告这一点。英语产品同样有自己的说法（“Mandatory”“Done”“Nothing found”）。所以组件没有可以退而使用的文字，缺了哪一个，它会告诉你。英语文字包不是这样的后备：除了你自己的导入，没有任何东西会应用它。
 
 ## 文字从哪里来
 
@@ -19,10 +19,27 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | 地方 | 它给出什么 | 示例 |
 | --- | --- | --- |
 | **组件自身** | 只与这一个组件有关的文字，以及这一个组件说法不同的文字 | `label`、`error-text`；`close-label="关闭筛选条件"` |
-| **你的产品的文字** | 这个部件无论画在哪里，你的说法都一样的文字，每种语言只给一次 | `requiredText`、`closeLabel`、`previousMonthLabel` |
+| **你的产品的文字** | 这个部件无论画在哪里，你的说法都一样的文字，每种语言只给一次，或者取自你导入的英语文字包 | `requiredText`、`closeLabel`、`previousMonthLabel` |
 | **平台** | 浏览器已经用读者的语言备好的东西 | 月份和星期的名称、数字、“上午”、缺少值时浏览器自己的提示 |
 
 这三处之后就什么都没有了：没有后备语言，也没有“暂时先用英语”。
+
+## 英语文字包
+
+Tanrei 为你写好了一组产品的文字：每个键都有一个平实、中性的英语文字，例如“Required”“Close”和“Previous month”。导入一次即可：
+
+```js
+import '@tanrei/web/words/en';
+```
+
+它给出整个页面的文字，就像调用一次 `setWords()` 一样。不会有任何东西替你导入它：`@tanrei/web` 不会，`@tanrei/react` 不会，组件不会，页面的 `lang` 也不会。每个键在包中的文字，列在[键的表格](#键)里。
+
+- **你自己的文字仍然优先。** 在导入之后调用 `setWords()`，你给出的键会替换包中的文字；写在组件上的文字又优先于这两者。导入在运行时会给出每一个键，所以在它之前给出的文字会被替换。
+- **从它的文字开始。** 这个模块也把这些文字作为值导出：`import { englishWords } from '@tanrei/web/words/en'`。
+- **在其他语言的产品里**，你那种语言的文字组里没有的键，会从页面的文字组里读取——导入了这个包，那就是英语。只有在你没写的键用英语也合适的地方，才导入它；不导入的话，缺少的文字会被报告。
+- **它不会掩盖不该掩盖的东西。** 导入这个包之后，每个键都有文字，所以 `missingWords()` 为空。要找出你的产品自己还没写的文字，请在不导入这个包的测试里调用它。
+
+在 React 中，导入也是同样的一行，写在最先渲染的模块里。
 
 ## 把产品的文字只给一次
 
@@ -45,13 +62,13 @@ setWords({
 组件上的属性总是优先于产品的文字：
 
 <DemoFrame label="写在组件自身上的文字：其中一个字段的说法不同" plain column>
-  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="邮箱" requirement="required" required-text="必填"></tanrei-text-field>
-  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="公司" requirement="required" required-text="开具发票需要"></tanrei-text-field>
+  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="邮箱" required required-text="必填"></tanrei-text-field>
+  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="公司" required required-text="开具发票需要"></tanrei-text-field>
 </DemoFrame>
 
 ```html
-<tanrei-text-field label="邮箱" requirement="required" required-text="必填"></tanrei-text-field>
-<tanrei-text-field label="公司" requirement="required" required-text="开具发票需要"></tanrei-text-field>
+<tanrei-text-field label="邮箱" required required-text="必填"></tanrei-text-field>
+<tanrei-text-field label="公司" required required-text="开具发票需要"></tanrei-text-field>
 ```
 
 ## 不止一种语言
@@ -106,7 +123,7 @@ setWords({ movedText: '{headline}：{count} 件中 {position} 番目' }, { lang:
 
 ## 缺少文字时让测试失败
 
-`missingWords()` 返回自页面加载以来被需要、却没有人给出的键。在一个把你的产品走一遍的测试的末尾调用它。
+`missingWords()` 返回自页面加载以来被需要、却没有人给出的键。在一个把你的产品走一遍的测试的末尾调用它。导入了英语文字包的页面不会缺少任何文字。
 
 ```js
 import { missingWords } from '@tanrei/web';
@@ -123,7 +140,7 @@ test('产品需要的每个文字都已给出', async () => {
 
 ## 键
 
-所有的键、读取它们的属性，以及组件在句子里填入的占位标记。大多数键与它的属性同名。有三个不同：复制按钮的 `label` 和 `failedLabel` 读取 `copyLabel` 和 `copyFailedLabel`，面包屑的 `overflowLabel` 读取 `breadcrumbsOverflowLabel`。
+所有的键、读取它们的属性、组件在句子里填入的占位标记，以及它在英语文字包中的文字。大多数键与它的属性同名。有三个不同：复制按钮的 `label` 和 `failedLabel` 读取 `copyLabel` 和 `copyFailedLabel`，面包屑的 `overflowLabel` 读取 `breadcrumbsOverflowLabel`。
 
 <ProductWordKeys />
 
@@ -131,4 +148,4 @@ test('产品需要的每个文字都已给出', async () => {
 
 ## 其他平台
 
-这条规则在每个平台上都相同。目前只有 Web 已经实现；SwiftUI、Jetpack Compose、Flutter 和 React Native 将按各自的惯用方式接受产品的文字。
+这条规则在每个平台上都相同。目前只有 Web 已经实现；SwiftUI、Jetpack Compose、Flutter 和 React Native 将按各自的惯用方式接受产品的文字，以及同一个英语文字包。

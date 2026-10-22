@@ -1,10 +1,12 @@
-// What an agent should read once. The philosophy is a summary of how Tanrei decides its tokens; the schema and
-// the shipped layers are served as they are on disk.
+// What an agent should read once. The philosophy is a summary of how Tanrei decides its tokens; the schema, the
+// shipped layers and their components manifests are served as they are on disk.
 import fs from 'node:fs';
 import path from 'node:path';
-import { REPO_ROOT, ToolError, shippedLayer, shippedSystems } from './systems.js';
+import { COMPONENTS_URI, componentsResource } from './components.js';
+import { DEFAULT_SYSTEM, REPO_ROOT, ToolError, listedSystems, shippedLayer, shippedSystems } from './systems.js';
 
 export const INSTRUCTIONS = `Tanrei is a small, simply named core vocabulary of design tokens shipped to five platforms, which any design system can reproduce exactly: a design system is a layer file (<id>.system.json) that changes VALUES and, where the core has no word for something, EXTENDS the vocabulary.
+Components: first call list_components to settle the system, and use no component it does not list (omitted says what to use instead); when asked to rebuild a product with Tanrei, use system=${DEFAULT_SYSTEM}. get_component gives a component's props and its EARS rules; check_usage checks code before it is kept.
 Hard rules:
 - Values first. Find the existing token with search_tokens and change it in the layer, in this order of preference: set a dial, "scale" an inherited rule, re-point an alias, replace "derive", and only then pin a literal "$value" — a pinned literal needs a "reason" (8+ characters). New color families are declared under "palettes" with "roles": "intent". Never edit generated files.
 - If the word really is missing, add it — in the layer, under "vocabulary", with a "rationale" (8+ characters): a step in a series, a value on a component axis (a size, a variant), or the layer's own token in its own namespace ("<layer id>.comp.…"). propose_extension writes and verifies the declaration. Additive only: never re-declare, remove or retype what exists (change its value under "tokens"); interaction states are not extensible; nothing in tanrei.* may reference a layer's own token.
@@ -28,12 +30,12 @@ nor because a component uses it today. Core changes happen only in the Tanrei re
 Four tiers, one reference order: \`dial < ref < sys < comp\`. Components read \`comp\` tokens only. Seven numeric dials sit
 under everything: type.base 16px, type.contrast 1, space.unit 8px, size.unit 4px, shape.unit 2px, stroke.unit 1px,
 motion.unit 50ms. Color seeds are palette declarations, not dials. Every value is one of three kinds:
-- **derived** — a rule in a closed language: \`mul\`, \`scale\`, \`clamp\`, \`em\`; \`tone\`, \`alpha\`, \`contrast-pick\` for color roles; \`mix\`, \`alpha\`, \`tone\`,
-  \`contrast-pick\` ({ on, from: […] } → the most readable candidate, per scheme) for per-state component colors. No addition, conditionals or user functions.
+- **derived** — a rule in a closed language: \`mul\` ({ of, by, exp?, times?, round?, min? } → max(min, round(of × by^exp × times, round)): times a number token such as a density, round a step, ties upward, min a floor after rounding), \`scale\`, \`clamp\`, \`sub\` ({ of, by } → max(0, of − by): a corner inside another at an inset), \`pad\` ({ of, height, by? } → max(0, of × by + (height − height₁) / 2), by being 1 unless a scale multiplies it and height₁ being the height with every times at 1 and no min: a block padding that gives up or takes half of what its box's height lost or gained), \`em\`; \`tone\`, \`alpha\`, \`contrast-pick\` for color roles; \`mix\`, \`alpha\`, \`tone\`,
+  \`contrast-pick\` ({ on, from: […] } → the most readable candidate, per scheme) for per-state component colors. No other arithmetic, conditionals or user functions.
 - **fixed** — a literal with a stated reason, exempt from the dials.   - **alias** — a reference that can be re-pointed.
 
 ## A design system is a layer
-\`<id>.system.json\`: \`id\`, \`extends\` (every chain ends at the root \`tanrei\`), \`vocabulary\`, \`palettes\`, \`tokens\`, \`rules\`.
+\`<id>.system.json\`: \`id\`, \`extends\` (every chain ends at the root \`core\`; the default system \`tanrei\` extends it), \`vocabulary\`, \`palettes\`, \`tokens\`, \`rules\`.
 **Values first.** Operations under \`tokens\`, keyed by an existing token id — prefer the earliest that does the job:
 1. set a dial        \`"tanrei.dial.type.base": { "$value": { "value": 17, "unit": "px" }, "reason": "…" }\`
 2. scale             \`{ "scale": 2 }\` — N × the inherited rule or alias, still following its dial
@@ -63,10 +65,10 @@ available as $1, $2…. An explicit \`tokens\` entry beats a pattern; fewer wild
 
 ## Accessibility
 The ruler never changes, for core and extensions alike: text 4.5:1 (7:1 in high contrast), non-text and focus 3:1, and a
-control's height must hold its content. These are constants in code. In the root system a violation fails the build; in
+control's height must hold its content. These are constants in code. In the default system a violation fails the build; in
 a product layer it is a warning — printed, written to a11y-report.json, stamped into every generated file. An imitation
 preset is held to fidelity to its original, not to Tanrei's accessibility criteria, in every contrast scheme: its
-contrast is reported as measurements, not warnings; a structural or functional failure fails its build, as in the root.
+contrast is reported as measurements, not warnings; a structural or functional failure fails its build, as in the default system.
 
 ## Workflow for a product
 search_tokens → explain_token (\`howToChange\`, \`howToExtend\`) → propose_extension if a word is missing → edit the layer →
@@ -83,6 +85,7 @@ export function listResources() {
       const layer = shippedLayer(id);
       return { uri: `tanrei://systems/${id}`, name: `System layer: ${id}`, description: `${layer.name ?? id}${layer.extends ? ` (extends ${layer.extends})` : ' (root)'} — the layer file as authored. A worked example of every operation.`, mimeType: 'application/json' };
     }),
+    ...listedSystems().map((id) => ({ uri: `tanrei://components/${id}`, name: `Components: ${id}`, description: `The components manifest of "${id}": every component it ships with the module that registers it, those it does not have with what to use instead, and the variant values it leaves out.`, mimeType: 'application/json' })),
   ];
 }
 
@@ -91,5 +94,7 @@ export function readResource(uri) {
   if (uri === 'tanrei://schema/system') return { uri, mimeType: 'application/schema+json', text: fs.readFileSync(path.join(REPO_ROOT, 'tokens/schema/system.schema.json'), 'utf8') };
   const id = SYSTEM_URI.exec(uri)?.[1];
   if (id && shippedSystems().includes(id)) return { uri, mimeType: 'application/json', text: fs.readFileSync(path.join(REPO_ROOT, 'tokens/systems', `${id}.system.json`), 'utf8') };
+  const manifest = componentsResource(COMPONENTS_URI.exec(uri)?.[1]);
+  if (manifest) return { uri, mimeType: 'application/json', text: JSON.stringify(manifest) };
   throw new ToolError(`unknown resource ${uri}. Known: ${listResources().map((r) => r.uri).join(', ')}`);
 }

@@ -1,0 +1,153 @@
+---
+title: Texto en marquesina
+description: Una línea de texto que no cabe en su sitio. En reposo se corta con puntos suspensivos, y mientras dura su activador se desplaza de lado a un ritmo constante para mostrarse entera. Solo se mueve cuando el texto desborda, nunca donde el movimiento está reducido, y se lee una vez, entero.
+translationOf: components/marquee-text.mdx
+sourceHash: dc5686cec00458180eb8990a3c8f28e770f7fd10
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="marquee-text" />
+
+<DemoFrame label="Un título que no cabe y otro que sí">
+  <tanrei-marquee-text style="inline-size: min(100%, 14rem)">Pista 7 — Un título muy largo que no cabe en la fila en la que está</tanrei-marquee-text>
+  <tanrei-marquee-text style="inline-size: min(100%, 14rem)">Título corto</tanrei-marquee-text>
+</DemoFrame>
+
+Un texto en marquesina es una línea del texto del producto en un sitio demasiado estrecho para ella. En reposo se lee como cualquier línea cortada: empieza en el inicio de la línea y termina con puntos suspensivos donde se corta. Mientras dura su activador (de forma predeterminada, mientras el puntero está encima o el control en el que está tiene el foco del teclado), se desplaza de lado a un ritmo constante, expresado en píxeles por segundo, de modo que cada parte del texto pasa por la vista; luego vuelve a su inicio y se detiene. Pon el puntero sobre la primera línea de arriba. La segunda cabe, así que nunca se mueve: un texto en marquesina cuyo texto cabe es una línea de texto sin más.
+
+Encaja en los sitios donde una línea tiene un ancho fijo y su texto suele ser corto, pero a veces no lo es: el título de una fila de lista, una etiqueta de una barra o un panel de navegación, un chip, el nombre de lo que se está reproduciendo, una celda de una tabla. Donde una línea cortada basta casi siempre, la otra opción es dejarla cortada y dar el texto completo en un [tooltip](/es/components/tooltip/), que lo muestra entero de una vez y no mueve nada.
+
+### Uso
+
+Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose, Flutter y React Native están previstos: todavía no ofrecen un texto en marquesina.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- Lo predeterminado: se mueve mientras el puntero está sobre la línea o sobre el control en el que está, o mientras ese control tiene el foco del teclado. -->
+    <tanrei-marquee-text>Pista 7 — Un título muy largo que no cabe en la fila en la que está</tanrei-marquee-text>
+
+    <!-- Va hasta su final y vuelve, una vez por cada paso del cursor o cada foco. -->
+    <tanrei-marquee-text loop="bounce" iterations="1">…</tanrei-marquee-text>
+
+    <!-- El nombre de lo que se reproduce: se mueve solo, con su propio botón de pausa. -->
+    <tanrei-marquee-text trigger="always" playback-control play-label="Reproducir el texto en movimiento" pause-label="Pausar el texto en movimiento">
+      Reproduciendo ahora: un título muy largo de una canción de un artista con un nombre largo
+    </tanrei-marquee-text>
+
+    <script type="module">
+      import '@tanrei/web/components/marquee-text';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { MarqueeText } from '@tanrei/react';
+
+    <MarqueeText>{track.title}</MarqueeText>
+
+    <MarqueeText loop="bounce" iterations={1}>{track.title}</MarqueeText>
+
+    {/* Se mueve solo; el control propio de la página que pausa todo lo que se mueve fija paused. */}
+    <MarqueeText trigger="always" paused={motionPaused}>
+      {`Reproduciendo ahora: ${track.title}`}
+    </MarqueeText>
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<ComponentSpecs name="marquee-text" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un texto en marquesina donde una línea debe seguir siendo una sola, con un ancho que fija el diseño, y alguien necesita a veces la parte cortada: el título largo de una canción en una fila de una lista de reproducción, la etiqueta de un destino que un idioma alarga, un chip que contiene un nombre. La línea conserva su altura y su sitio, y muestra el resto solo cuando se le pide.
+
+No lo uses para un texto que alguien deba leer entero para actuar: una advertencia, un error, las condiciones de una elección, un importe, una instrucción. El texto en movimiento es lento de leer y fácil de pasar por alto. Dale a ese texto las líneas que necesite y deja que salte de línea.
+
+### Cómo elegir el activador
+
+| Activador | Para qué |
+| --- | --- |
+| `hover-or-focus` | El predeterminado y la opción correcta casi siempre: la línea se mueve cuando alguien la señala con el puntero o llega con el teclado al control en el que está, así que ambos ven lo mismo. |
+| `hover` | Una lista larga que quienes usan el teclado recorren deprisa, donde que el título de cada fila empiece a moverse al pasar el foco distraería más de lo que ayuda. |
+| `focus` | Una línea en una superficie que se usa sobre todo con el teclado o con un mando a distancia, donde el paso del cursor no significa nada. |
+| `always` | El nombre de lo que se reproduce, y líneas parecidas que se miran de reojo más que señalarse. Se mueve sola desde que se muestra y necesita una forma de pausarla (consulta Accesibilidad). |
+
+El área del activador es el control en el que está la línea (una fila, un chip, un destino), no solo la línea: con el puntero en cualquier punto de la fila, su título se mueve. Como paso del cursor solo cuenta un puntero preciso, como un ratón o un lápiz; un toque no inicia el movimiento.
+
+### repeat o bounce
+
+- **`repeat`** (el predeterminado) mueve el texto hacia su inicio hasta que su final ha pasado, con una copia que lo sigue a cierta distancia, de modo que la línea nunca se vacía y vuelve a quedar como empezó. Se lee como un rótulo de noticias y conviene a una línea que se mueve durante un rato.
+- **`bounce`** mueve el texto hasta que su final queda a la vista, se detiene ahí y lo devuelve. No dibuja copia, así que el final y el inicio nunca se ven uno al lado del otro. Conviene a una línea que se mueve una vez, para echar un vistazo breve a su final.
+
+Ambos mueven el texto en la dirección en que está escrito: hacia la izquierda un texto de izquierda a derecha, hacia la derecha uno de derecha a izquierda, sea cual sea la página que lo rodea.
+
+### Velocidad y pausas
+
+- **`speed`** se da en píxeles por segundo, no como el tiempo de una pasada entera, así que un título largo y uno corto se mueven al mismo ritmo. Déjalo en manos del token `comp.marquee-text.speed`, para que todas las líneas en movimiento del producto mantengan un mismo ritmo. Cuando el tamaño del texto se amplía, la velocidad crece con el texto y pasan los mismos caracteres por segundo en cualquier tamaño.
+- **`startPause`** es cuánto descansa el texto en su inicio antes de cada pasada, para que se pueda leer cómo empieza. Con `trigger="always"` es también la espera antes de la primera pasada.
+- **`endPause`**, con `bounce`, es cuánto descansa el texto con su final a la vista antes de volver.
+- **`iterations`** es cuántas pasadas reproduce un activador antes de que el texto descanse en su inicio. Si se deja en null, las pasadas siguen hasta que el puntero se va o el foco se mueve a otro sitio, y con `always`, mientras la línea se muestre. Un número que mantenga el movimiento corto es lo que hace accesible un activador de cursor o de foco (más abajo).
+
+Las pausas son tiempos de lectura. Los ajustes de movimiento del producto, que aceleran o ralentizan las animaciones, no las acortan.
+
+### Contenido
+
+Mantén el texto lo bastante corto como para que rara vez haga falta verlo moverse: la marquesina es para el título ocasional más largo que los demás, no una forma de meter una frase en un chip. Pon al principio lo que distingue unos elementos de otros, donde se lee sin movimiento. El texto puede tener contenido en línea, como un fragmento en negrita; siempre es una sola línea.
+
+### Recomendado
+
+- Coloca la línea dentro del control que alguien señala o enfoca, para que el área del activador sea toda la fila.
+- Fija `iterations` para que cada paso del cursor o cada foco reproduzca un recorrido corto y se detenga.
+- Dale a una línea con `trigger="always"` una forma de pausarla: su propio control de reproducción, o el control del producto que pausa todo lo que se mueve en la página.
+
+### Evita
+
+- No lo uses para un texto que alguien deba leer entero para actuar. Dale a ese texto sus propias líneas.
+- No pongas varias líneas que se mueven todo el tiempo en una misma pantalla. Una línea en movimiento atrae la mirada; varias compiten entre sí y con todo lo demás de la pantalla.
+- No conviertas la propia línea en un botón o un enlace para iniciar el movimiento. Es texto; lo que se pulsa es el control que la rodea.
+- No acortes las pausas para que un texto largo quepa en un recorrido corto. Acorta el texto o muéstralo entero de otra forma.
+
+## Accesibilidad
+
+<ComponentAccessibility name="marquee-text" />
+
+### Los valores predeterminados pueden chocar con WCAG 2.2.2
+
+[Pause, Stop, Hide](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html) (WCAG 2.2.2, nivel A) pide que un movimiento que empieza solo, dura más de cinco segundos y se presenta junto a otro contenido pueda pausarse, detenerse u ocultarse. Los valores predeterminados de Tanrei no lo cumplen por sí solos, en dos puntos, y el producto decide cómo cumplirlo.
+
+1. **`trigger="always"` no dibuja ningún control de reproducción de forma predeterminada** (`playbackControl` es false). Una línea que se mueve todo el tiempo durante más de cinco segundos junto a otro contenido necesita una forma de pausarla. Fija `playbackControl`, y la línea dibuja al final un botón de pausa y reproducción solo con icono, con el nombre de `pauseLabel` y `playLabel` o de las palabras del producto `marqueePauseLabel` y `marqueePlayLabel`; o vincula a `paused` el control propio del producto que pausa todo lo que se mueve en la página. Las compilaciones de depuración notifican una línea que se mueve todo el tiempo sin ninguna de las dos cosas.
+2. **Con `hover`, `focus` y `hover-or-focus`, si `iterations` es null, las pasadas siguen hasta que el puntero se va o el foco se mueve a otro sitio.** El documento Understanding de WCAG considera que un movimiento iniciado por el paso del cursor o por el foco empieza automáticamente, y dice que un movimiento que solo se detiene cuando el foco se va no es una forma de detenerlo. Para cumplir 2.2.2, fija `iterations` de modo que el movimiento termine en cinco segundos o menos. Con un texto largo, una sola pasada ya puede durar más: acorta el texto o sube la velocidad, o muestra el texto completo de otra forma.
+
+La línea retiene su movimiento donde está mientras el puntero está encima o el foco está dentro, y también mientras está fuera de la vista o su página está oculta. Eso la hace más fácil de leer, pero no es una forma de detenerla.
+
+### De qué se encarga el componente
+
+- Solo se mueve cuando el texto no cabe. Una línea cuyo texto cabe dibuja texto sin más y no inicia nada.
+- Donde el movimiento está reducido (WCAG 2.3.3), nunca se mueve. Al pasar el cursor o recibir el foco, muestra la parte oculta un tramo del ancho de la línea cada vez, sin movimiento, deteniéndose en cada vista, de modo que cada parte del texto se puede ver; una línea con `trigger="always"` descansa cortada y no dibuja el control de reproducción.
+- La tecnología de apoyo lee el texto una vez, entero, como texto, donde está la línea. La copia, los puntos suspensivos y el desvanecido están ocultos para ella, y el movimiento no cambia nada de lo que lee ni anuncia nada.
+- La línea no es una parada de foco. El tabulador llega al control en el que está, y al control de reproducción mientras se dibuja.
+- El control de reproducción es un botón de la variante text y el tamaño small, con el glifo de pausa del conjunto de iconos mientras el texto se mueve y el de reproducir mientras está en pausa. Enter o Espacio lo alternan, el foco se queda en él y emite `pausedChange`. Su objetivo cumple el mínimo.
+- En un diseño de derecha a izquierda, el control de reproducción está en el extremo izquierdo de la línea; el texto se mueve según su propia dirección.
+- Con colores forzados, el texto toma el color que la plataforma da al elemento que lo rodea, y sus bordes se recortan en lugar de desvanecerse.
+- No tiene palabras propias. Un control de reproducción sin nombre ni en la instancia ni en las palabras del producto se dibuja igualmente y se notifica en las compilaciones de depuración; también se notifican un `trigger` o un `loop` desconocidos y una velocidad, una pausa o un número fuera de rango.
+
+El componente web no es el elemento HTML `<marquee>`. Ese elemento está [obsoleto](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/marquee), ignora el movimiento reducido y no se puede pausar.
+
+### Qué debes hacer tú
+
+- Cumple WCAG 2.2.2 como se indica arriba: una forma de pausar cada línea con `trigger="always"`, y un valor de `iterations` que termine en cinco segundos o menos el movimiento de un paso del cursor o de un foco.
+- Dale al control de reproducción sus dos nombres, en la instancia o una sola vez en las palabras del producto, en el idioma de la página: «Pausar el texto en movimiento» y «Reproducir el texto en movimiento» dicen lo que hace el botón.
+- No pongas en una marquesina un texto que haya que leer entero: una línea cortada lo oculta a quien nunca activa el movimiento.
+- Limítate a una línea que se mueva todo el tiempo por pantalla, y ninguna junto a un texto largo que alguien esté leyendo.

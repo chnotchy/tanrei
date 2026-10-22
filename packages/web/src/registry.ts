@@ -33,6 +33,12 @@ export interface TanreiProgressIndicatorSizeRegistry {
   large: true;
 }
 
+export interface TanreiMeterSizeRegistry {
+  small: true;
+  medium: true;
+  large: true;
+}
+
 export interface TanreiLoadingIndicatorSizeRegistry {
   small: true;
   medium: true;
@@ -195,6 +201,31 @@ export interface TanreiListRowDensityRegistry {
   compact: true;
 }
 
+export interface TanreiListDensityRegistry {
+  regular: true;
+  compact: true;
+}
+
+export interface TanreiMenuDensityRegistry {
+  regular: true;
+  compact: true;
+}
+
+export interface TanreiSelectDensityRegistry {
+  regular: true;
+  compact: true;
+}
+
+export interface TanreiComboboxDensityRegistry {
+  regular: true;
+  compact: true;
+}
+
+export interface TanreiSearchDensityRegistry {
+  regular: true;
+  compact: true;
+}
+
 export interface TanreiPageHeaderSizeRegistry {
   small: true;
   medium: true;
@@ -231,6 +262,11 @@ export interface TanreiSwatchSizeRegistry {
   small: true;
   medium: true;
   large: true;
+}
+
+export interface TanreiHandleSizeRegistry {
+  small: true;
+  medium: true;
 }
 
 export interface TanreiSwatchShapeRegistry {

@@ -16,7 +16,7 @@ leavesNothingBehind(after); // whatever tempDir() made is removed, and the file 
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const acme = JSON.parse(fs.readFileSync(path.join(here, 'fixtures/acme.system.json'), 'utf8'));
-const chainOf = (...layers) => layerChain(layers.at(-1).id, (id) => (id === 'tanrei' ? loadSystem(REPO_ROOT) : layers.find((l) => l.id === id)));
+const chainOf = (...layers) => layerChain(layers.at(-1).id, (id) => (['core', 'tanrei'].includes(id) ? loadSystem(REPO_ROOT, id) : layers.find((l) => l.id === id)));
 const build = (...layers) => buildBundle(REPO_ROOT, chainOf(...layers));
 const layer = (extra) => ({ id: 'acme', name: 'Acme', extends: 'tanrei', ...extra });
 
@@ -76,7 +76,9 @@ test('all three kinds of extension become ordinary tokens, read back through a s
   assert.deepEqual(value('tanrei.comp.button.container.height.large'), { value: 56, unit: 'px' });
   assert.deepEqual(checkInvariants(model), []);
   const css = emitCss(model, { scope: 'acme' });
-  assert.match(css, /--tanrei-comp-button-container-height-3x: round\(nearest, calc\(var\(--tanrei-dial-size-unit\) \* 21\), 0\.25px\);/);
+  // The large Button reads the ladder's large step with the minimum target as its floor; the size cloned from it
+  // scales that and keeps the floor.
+  assert.match(css, /--tanrei-comp-button-container-height-3x: max\(var\(--tanrei-sys-target-minimum\), round\(nearest, calc\(var\(--tanrei-sys-control-height-large\) \* 1\.5\), 0\.25px\)\);/);
   assert.match(css, /--tanrei-comp-button-danger-hovered-container-color: color-mix\(/);
   assert.match(css, /--acme-comp-rating-star-size: round\(nearest, calc\(var\(--tanrei-dial-size-unit\) \* 5\), 0\.25px\);/);
 });
@@ -98,7 +100,9 @@ test('what a layer may not do', () => {
   const cases = [
     [layer({ tokens: { 'tanrei.sys.space.space950': { scale: 2 } } }), /unknown token.*declare it under "vocabulary"/s, 'a value for something that does not exist'],
     [layer({ vocabulary: { 'tanrei.sys.space.space950': { $type: 'dimension', rationale: 'x' } } }), /needs a "rationale"/, 'an extension without a reason'],
-    [layer({ vocabulary: { 'tanrei.sys.space.space100': { $type: 'number', rationale } } }), /core now has this id as "dimension"/, 'retyping core'],
+    [layer({ vocabulary: { 'tanrei.sys.space.space100': { $type: 'number', rationale } } }), /the core has this id as "dimension"/, 'retyping core'],
+    [layer({ vocabulary: { 'tanrei.sys.space.space100': { $type: 'dimension', rationale, derive: { fn: 'mul', of: '{tanrei.dial.space.unit}', by: 1 } } } }), /tanrei\.sys\.space\.space100: a core token; a layer declares only what the core lacks/, 'declaring a core token'],
+    [layer({ vocabulary: { 'tanrei.sys.color.primary': { $type: 'color', rationale, derive: { fn: 'tone', palette: 'primary', tone: { light: [40], dark: [80] } } } } }), /tanrei\.sys\.color\.primary: "primary" is a core color role; a layer declares only what the core lacks/, 'declaring a core color role'],
     [layer({ vocabulary: { 'other.comp.thing.size': { $type: 'dimension', rationale, $value: '{tanrei.sys.space.space100}' } } }), /its own namespace — "acme\.…"/, 'someone else’s namespace'],
     [layer({ vocabulary: { 'tanrei.comp.button.size.huge': { from: 'gigantic', rationale } } }), /"from" must be an existing size/, 'cloning from nothing'],
     [layer({ vocabulary: { 'tanrei.comp.button.variant.hovered': { from: 'filled', rationale } } }), /interaction state; states are not extensible/, 'a state is not a variant'],

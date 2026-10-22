@@ -12,6 +12,8 @@ export interface FixtureDocument {
   stages: { id: string; html: string }[];
   /** The step the staging takes in script once the component is defined, as a module's source. */
   after?: string;
+  /** The system the stages are drawn under, where it is not the default: a component that lives in a layer is drawn under that layer's. */
+  system?: string;
   /** The size of each stage that has a baseline, in CSS pixels. */
   sizes: Record<string, { width: number; height: number }>;
 }

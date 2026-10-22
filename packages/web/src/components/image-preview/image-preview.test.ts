@@ -173,11 +173,6 @@ const stopped = async (page: P) => {
     )
     .toBe(true);
 };
-/**
- * Whether the engine can hold a closed dialog where it was — displayed, in the top layer — while it fades (the
- * `overlay` property). Where it cannot, a closed preview is gone at once, as a closed Dialog is.
- */
-const fadesOut = (page: P) => page.evaluate(() => CSS.supports('overlay', 'auto'));
 const centre = (box: Box) => ({ x: box.x + box.width / 2, y: box.y + box.height / 2 });
 const style = (page: P, selector: string, property: string) => part(page, selector).first().evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
 const px = (page: P, name: string) => resolveToken(page, name);
@@ -521,7 +516,7 @@ test.describe('the modal layer', () => {
 });
 
 test.describe('the bar, the count and the controls', () => {
-  test('IMP-8: the bar across the top is at least bar.height tall on bar.container.color, the count at its start and zoom out, zoom in and close at its end, bar.gap apart and bar.padding-inline from the sides, centred; each an icon-only medium Button named by its label, in the variant the token names through the Button’s channel', async ({ page }) => {
+  test('IMP-8: the bar across the top is at least bar.height tall on bar.container.color, the count at its start and zoom out, zoom in and close at its end, bar.gap apart and bar.padding-inline from the sides, centred; each an icon-only small Button named by its label, 32 × 32 and alike, in the variant the token names (tonal in the default system) through the Button’s channel', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, fx({ index: 1 }));
     const bar = (await part(page, '.bar').boundingBox())!;
@@ -546,22 +541,44 @@ test.describe('the bar, the count and the controls', () => {
       }),
     );
     expect(drawn).toEqual([
-      { size: 'medium', own: null, given: 'text', name: 'Zoom out', glyph: 'zoom_out', text: 'zoom_out' },
-      { size: 'medium', own: null, given: 'text', name: 'Zoom in', glyph: 'zoom_in', text: 'zoom_in' },
-      { size: 'medium', own: null, given: 'text', name: 'Close', glyph: 'close', text: 'close' },
+      { size: 'small', own: null, given: 'tonal', name: 'Zoom out', glyph: 'zoom_out', text: 'zoom_out' },
+      { size: 'small', own: null, given: 'tonal', name: 'Zoom in', glyph: 'zoom_in', text: 'zoom_in' },
+      { size: 'small', own: null, given: 'tonal', name: 'Close', glyph: 'close', text: 'close' },
     ]);
-    // The verify: a system that sets the variant to tonal.
-    await override(page, { [T('bar-button-variant')]: 'tonal' });
-    await settled(page);
-    await expect.poll(() => control(page, 'close').evaluate((el) => el.shadowRoot!.querySelector('button')!.dataset.hostVariant)).toBe('tonal');
+    // The three are alike: the small Button's 32 × 32 in the default system, each drawing the tonal container.
+    const small = await px(page, '--tanrei-comp-button-container-height-small');
+    expect(small).toBe(32);
+    for (const box of [out, into, close]) expect([box.width, box.height]).toEqual([small, small]);
+    // Zoom out is disabled at fit (IMP-13): the tonal variant's disabled container.
     const tonal = await resolveColor(page, '--tanrei-comp-button-tonal-container-color');
-    await expect.poll(() => control(page, 'close').evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('button')!).backgroundColor)).toBe(tonal);
+    const fill = (name: string) => control(page, name).evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('button')!).backgroundColor);
+    for (const name of ['zoom-in', 'close'] as const) await expect.poll(() => fill(name), name).toBe(tonal);
+    expect(await fill('zoom-out')).toBe(await resolveColor(page, '--tanrei-comp-button-tonal-disabled-container-color'));
+    // The verify: a system that sets the variant to text.
+    await override(page, { [T('bar-button-variant')]: 'text' });
+    await settled(page);
+    await expect.poll(() => control(page, 'close').evaluate((el) => el.shadowRoot!.querySelector('button')!.dataset.hostVariant)).toBe('text');
+    const text = await resolveColor(page, '--tanrei-comp-button-text-container-color');
+    await expect.poll(() => control(page, 'close').evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('button')!).backgroundColor)).toBe(text);
     expect(seen.filter((text) => text.includes('IMP-8'))).toEqual([]);
     // An empty name: the control is still drawn, and reported.
     await mount(page, fx({ closeLabel: '' }));
     expect((await control(page, 'close').boundingBox())!.width).toBeGreaterThan(0);
     expect(await missingWords(page)).toContain('closeLabel');
     expect(seen.some((text) => text.includes('IMP-8') && text.includes('close-label'))).toBe(true);
+  });
+
+  test('IMP-8: the presets keep the bare glyphs they inherited — m3-like, m3-expressive-like and cupertino give the bar’s three controls the text variant, at their own small Button size', async ({ page }) => {
+    for (const system of ['m3-like', 'm3-expressive-like', 'cupertino'] as const) {
+      await mount(page, fx({ index: 1 }), { system });
+      const small = await px(page, '--tanrei-comp-button-container-height-small');
+      const text = await resolveColor(page, '--tanrei-comp-button-text-container-color');
+      for (const name of ['zoom-out', 'zoom-in', 'close'] as const) {
+        await expect.poll(() => control(page, name).evaluate((el) => el.shadowRoot!.querySelector('button')!.dataset.hostVariant), `${system} ${name}`).toBe('text');
+        expect(await control(page, name).evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('button')!).backgroundColor), `${system} ${name}`).toBe(text);
+        expect((await control(page, name).boundingBox())!.height, `${system} ${name}`).toBeCloseTo(small, 1);
+      }
+    }
   });
 
   test('IMP-9: with two or more images the count is drawn at the bar’s start — countText with its two places filled in the digits of the product’s locale — in its role and color, wrapping and growing the bar, and takes no focus; one image draws none, and an empty countText draws none and is reported', async ({ page }) => {
@@ -1422,10 +1439,9 @@ test.describe('moving between images', () => {
     seen = await look(page);
     expect(seen.open).toBe(false);
     expect(seen.modal).toBe(false);
-    if (await fadesOut(page)) {
-      near(seen.image!.y - from.image!.y, 220, 'held where it was left while it fades', 2);
-      await expect.poll(async () => (await begun(page, 'dialog')).map((transition) => transition.property)).toContain('opacity');
-    } else expect(await style(page, 'dialog', 'display'), 'gone at once where a closed dialog cannot be held').toBe('none');
+    // Held where it was left while it fades, drawn in the top layer in every engine (MDL-7).
+    near(seen.image!.y - from.image!.y, 220, 'held where it was left while it fades', 2);
+    await expect.poll(async () => (await begun(page, 'dialog')).map((transition) => transition.property)).toContain('opacity');
     // Opened again, nothing of the drag is left.
     await override(page, { [T('motion-exit-duration')]: '0ms' });
     await set(page, { open: true });
@@ -2081,19 +2097,25 @@ test.describe('loading and failure', () => {
 });
 
 test.describe('motion', () => {
-  test('IMP-33: opening, the container, the bar, the controls and the caption fade in while the image grows about the centre of the fit area from enter-scale, over the enter motion; closing, all of it fades out over the exit motion; the image is never flown from anywhere', async ({ page }) => {
+  test('IMP-33: opening, the container, the bar, the controls and the caption fade in while the image appears as every modal surface does — from opacity 0 and scale 0.96 under the default system, about the centre of the fit area — over the enter motion; closing, all of it fades out over the exit motion while the image goes back the same way; the image is never flown from anywhere', async ({ page }) => {
     await mount(page, fx({ open: false, index: 1 }));
     await override(page, { [T('motion-enter-duration')]: '2000ms', [T('motion-exit-duration')]: '1500ms' });
+    // What each motion is expected to run for: the component's tokens, as just set, read back.
+    const enter = await ms(page, T('motion-enter-duration'));
+    const exit = await ms(page, T('motion-exit-duration'));
     // What opening begins is kept as the engine announces it, with the values it runs between: asked for after the two
     // frames `settled` waits, and again in a third question, a motion of 2 s is over on a runner that draws slowly.
     await watchRuns(page);
     await set(page, { open: true });
     await settled(page);
-    await expect.poll(() => begun(page, 'dialog')).toEqual(expect.arrayContaining([{ property: 'opacity', duration: 2000 }]));
-    await expect.poll(() => begun(page, '.pages')).toEqual([{ property: 'scale', duration: 2000 }]);
-    const growing = { ...(await runs(page, '.pages'))[0], origin: await style(page, '.pages', 'transform-origin') };
-    expect(growing.from).toBe(String(await page.evaluate((name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim(), T('motion-enter-scale'))));
+    await expect.poll(() => begun(page, 'dialog')).toEqual(expect.arrayContaining([{ property: 'opacity', duration: enter }]));
+    await expect.poll(() => begun(page, '.pages')).toEqual(expect.arrayContaining([{ property: 'opacity', duration: enter }, { property: 'scale', duration: enter }]));
+    const pagesRuns = await runs(page, '.pages');
+    const growing = { ...pagesRuns.find((run) => run.property === 'scale')!, origin: await style(page, '.pages', 'transform-origin') };
+    // From where the appearance starts it (sys.motion.appear.*), to whole.
+    expect(growing.from).toBe(String(await page.evaluate((name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim(), '--tanrei-sys-motion-appear-scale')));
     expect(growing.to).toBe('none');
+    expect(pagesRuns.find((run) => run.property === 'opacity')).toMatchObject({ from: '0', to: '1' });
     const seen = await look(page);
     const origin = growing.origin.split(' ').map(Number.parseFloat);
     near(origin[0], centre(seen.fit).x, 'about the centre of the fit area, across');
@@ -2107,13 +2129,14 @@ test.describe('motion', () => {
     await watchRuns(page);
     await set(page, { open: false });
     await settled(page);
-    if (await fadesOut(page)) await expect.poll(() => begun(page, 'dialog')).toEqual(expect.arrayContaining([{ property: 'opacity', duration: 1500 }]));
-    else expect(await style(page, 'dialog', 'display'), 'gone at once where a closed dialog cannot be held').toBe('none');
+    await expect.poll(() => begun(page, 'dialog')).toEqual(expect.arrayContaining([{ property: 'opacity', duration: exit }]));
     expect(await style(page, 'dialog', 'transition-duration')).toBe('1.5s');
-    expect(await running(page, '.pages')).toEqual([]);
+    // The image goes back the same way, over the exit motion, while the closed dialog is held in the top layer as it
+    // fades, in every engine (MDL-7).
+    await expect.poll(() => begun(page, '.pages')).toEqual(expect.arrayContaining([{ property: 'opacity', duration: exit }, { property: 'scale', duration: exit }]));
   });
 
-  test('IMP-34: where motion is reduced it opens and closes by fading without growing, a step of the zoom, a change of image and the controls change at once, an image still follows a finger, and a released drag settles at once', async ({ page }) => {
+  test('IMP-34: where motion is reduced it opens and closes by fading — the image over sys.motion.role.reduced, without growing — a step of the zoom, a change of image and the controls change at once, an image still follows a finger, and a released drag settles at once', async ({ page }) => {
     await mount(page, fx({ open: false, index: 1 }), { reducedMotion: true });
     await override(page, { [T('motion-enter-duration')]: '2000ms' });
     await watchRuns(page);
@@ -2121,7 +2144,7 @@ test.describe('motion', () => {
     await settled(page);
     await expect.poll(() => begun(page, 'dialog')).toEqual(expect.arrayContaining([{ property: 'opacity', duration: 2000 }]));
     // (The engine announces what one change starts together: a growth would be in the list by now.)
-    expect(await begun(page, '.pages'), 'without growing').toEqual([]);
+    expect((await begun(page, '.pages')).filter((run) => !['display', 'overlay'].includes(run.property)), 'the image only fades, without growing').toEqual([{ property: 'opacity', duration: await ms(page, '--tanrei-sys-motion-role-reduced') }]);
     await override(page, { [T('motion-enter-duration')]: '0ms' });
     await rest(page);
     await control(page, 'zoom-in').click();
@@ -2345,7 +2368,8 @@ test.describe('direction, colors, text size and the window', () => {
     const button = (await control(page, 'close').boundingBox())!;
     const alone = await page.evaluate(async () => {
       const own = document.createElement('tanrei-button') as HTMLElement & { updateComplete: Promise<unknown> };
-      own.setAttribute('variant', 'text');
+      own.setAttribute('variant', 'tonal');
+      own.setAttribute('size', 'small');
       own.setAttribute('label', 'Close');
       own.innerHTML = '<span slot="icon">close</span>';
       document.querySelector('.stage')!.append(own);
