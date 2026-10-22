@@ -2,7 +2,7 @@
 title: "导航抽屉"
 description: "在起始侧边缘的一块面板里，按分区和分组列出产品的目的地：在大屏幕上位于内容旁边，在 compact 屏幕上盖在内容之上，还可以收起为一列图标。"
 translationOf: components/navigation-drawer.mdx
-sourceHash: 3ba3a770d8692b06645c928a298745cf1ac905f7
+sourceHash: 6b5906890ce701b55375672b7848c317fc45c977
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -21,12 +21,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <DemoFrame label="带两个分区的标准抽屉">
   <tanrei-navigation-drawer open value="inbox" label="邮件" style="block-size: 26rem">
-    <tanrei-navigation-drawer-section heading="邮件">
+    <tanrei-navigation-drawer-section headline="邮件">
       <tanrei-navigation-drawer-item value="inbox" label="收件箱" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
       <tanrei-navigation-drawer-item value="sent" label="已发送" icon="send"></tanrei-navigation-drawer-item>
       <tanrei-navigation-drawer-item value="drafts" label="草稿箱" icon="draft"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-section>
-    <tanrei-navigation-drawer-section heading="标签" divider>
+    <tanrei-navigation-drawer-section headline="标签" divider>
       <tanrei-navigation-drawer-item value="work" label="工作" icon="label" trailing-text="新"></tanrei-navigation-drawer-item>
       <tanrei-navigation-drawer-item value="family" label="家庭" icon="label"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-section>
@@ -65,7 +65,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <DemoFrame label="紧凑的抽屉，供用指针操作的工具使用：32 高的行和 16 的字形，每个嵌套图标都对齐到其分组标签的起点" plain>
   <tanrei-navigation-drawer open density="compact" value="tree-view" label="Workspace" style="block-size: 22rem">
     <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
-    <tanrei-navigation-drawer-section heading="Projects">
+    <tanrei-navigation-drawer-section headline="Projects">
       <tanrei-navigation-drawer-group label="Tanrei" icon="folder" open>
         <tanrei-navigation-drawer-item value="tokens" label="Tokens" icon="palette" trailing-text="412"></tanrei-navigation-drawer-item>
         <tanrei-navigation-drawer-group label="Components" icon="widgets" open>
@@ -97,7 +97,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### 用法
 
-导航抽屉有五种项。`destination`（目的地）是一行，包含可选的图标、标签，以及行末可选的后置内容；带 `href` 时它是链接。`group`（分组）也是一行，用来展开和折叠它里面的目的地和分组。`section`（分区）把目的地和分组归在一个可选的 `heading` 之下，前面可以加一条可选的 `divider`；分区不能嵌套，分组里也不能放分区。`header-button`（第一个是菜单按钮）和 `main-action` 位于页眉。在 Web 上，它们是 `<tanrei-navigation-drawer-item>`、`<tanrei-navigation-drawer-group>` 和 `<tanrei-navigation-drawer-section>` 子元素，以及放在 `header-button` 和 `main-action` 插槽里的纯图标 `<tanrei-button>` 和一个 `<tanrei-main-action-button>`。待跟进的平台按各自的惯用方式接收目的地和分区：在 SwiftUI 上是 `TanreiNavigationDrawerItem` 和 `TanreiNavigationDrawerSection` 视图，在 Compose 上是同名的调用，在 Flutter 上是 `children:` 中的 `TanreiNavigationDrawerDestination` 和 `TanreiNavigationDrawerSection` 对象，在 React Native 上是 `items` 数组中的目的地条目和分区条目，其中分区靠它自己的 `items` 来区分。
+导航抽屉有五种项。`destination`（目的地）是一行，包含可选的图标、标签，以及行末可选的后置内容；带 `href` 时它是链接。`group`（分组）也是一行，用来展开和折叠它里面的目的地和分组。`section`（分区）把目的地和分组归在一个可选的 `title`（Web 上为 `headline`） 之下，前面可以加一条可选的 `divider`；分区不能嵌套，分组里也不能放分区。`header-button`（第一个是菜单按钮）和 `main-action` 位于页眉。在 Web 上，它们是 `<tanrei-navigation-drawer-item>`、`<tanrei-navigation-drawer-group>` 和 `<tanrei-navigation-drawer-section>` 子元素，以及放在 `header-button` 和 `main-action` 插槽里的纯图标 `<tanrei-button>` 和一个 `<tanrei-main-action-button>`。待跟进的平台按各自的惯用方式接收目的地和分区：在 SwiftUI 上是 `TanreiNavigationDrawerItem` 和 `TanreiNavigationDrawerSection` 视图，在 Compose 上是同名的调用，在 Flutter 上是 `children:` 中的 `TanreiNavigationDrawerDestination` 和 `TanreiNavigationDrawerSection` 对象，在 React Native 上是 `items` 数组中的目的地条目和分区条目，其中分区靠它自己的 `items` 来区分。
 
 选择属于抽屉，以目的地的值来表示，无论这个目的地位于何处。`change` 和 `reselect` 的工作方式与导航栏相同。Compose 没有抽屉级别的值：由你把当前项标记为 `selected`，它的 `onClick` 同时充当 change 和 reselect。Flutter 按索引选择，索引按阅读顺序跨各个分区连续计数。
 
@@ -123,11 +123,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
     <!-- 模态：shadow root 中的一个 <dialog>，用 showModal() 打开。标准抽屉是一个由 label 命名的 <nav>。 -->
     <tanrei-navigation-drawer variant="modal" label="邮件" value="inbox">
-      <tanrei-navigation-drawer-section heading="邮件">
+      <tanrei-navigation-drawer-section headline="邮件">
         <tanrei-navigation-drawer-item value="inbox" label="收件箱" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
         <tanrei-navigation-drawer-item value="sent" label="已发送" icon="send"></tanrei-navigation-drawer-item>
       </tanrei-navigation-drawer-section>
-      <tanrei-navigation-drawer-section heading="标签" divider>
+      <tanrei-navigation-drawer-section headline="标签" divider>
         <tanrei-navigation-drawer-item value="work" label="工作" icon="label" trailing-text="新"></tanrei-navigation-drawer-item>
       </tanrei-navigation-drawer-section>
     </tanrei-navigation-drawer>
@@ -200,7 +200,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       onChange={(e) => setFolder(e.detail.value)}
       onClose={() => setOpen(false)}
     >
-      <NavigationDrawerSection heading="邮件">
+      <NavigationDrawerSection headline="邮件">
         <NavigationDrawerItem value="inbox" label="收件箱" icon="inbox" trailingText="24" />
         <NavigationDrawerItem value="sent" label="已发送" icon="send" />
       </NavigationDrawerSection>

@@ -2,7 +2,7 @@
 title: Botón con menú
 description: Realiza una acción principal con una sola pulsación y ofrece acciones relacionadas en un menú desde un segundo botón unido a su lado.
 translationOf: components/button-with-menu.mdx
-sourceHash: 52a376bf9ba1224db956bf1d3bb5f7de5f2ab5f9
+sourceHash: b2cc3ce77b318949d05a451ba15d953c237f71ee
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -284,6 +284,20 @@ De forma predeterminada, la mitad final contiene el chevron en un cuadrado de la
 
 Una mitad final estrecha se dibuja más estrecha que el objetivo mínimo, pero su área de pulsación no lo es: el objetivo se extiende hacia fuera, más allá del borde de fin. Déjale espacio ahí, como junto a un Button estrecho de solo icono.
 
+### Acciones destructivas
+
+Pon `destructive` en un botón con menú cuya acción principal borra o descarta algo que quizá no se pueda recuperar: Eliminar, con «Eliminar todas las versiones» en su menú. Las dos mitades conservan el énfasis de la variante y toman en él el color de error, como lo hace un [botón](/es/components/button/#acciones-destructivas) destructivo de la misma variante. Uno filled se rellena con el color de error y uno tonal con el contenedor de error; uno elevated u outlined dibuja la etiqueta y el chevron en el color de error, y uno outlined también el borde y el divisor. Deshabilitado, se ve como cualquier botón con menú deshabilitado de su variante.
+
+`destructive` marca solo las dos mitades, nunca los elementos del menú. Una opción del menú puede borrar algo que la acción principal no borra, o al revés, así que da a cada elemento que borra su propio `destructive`.
+
+<DemoFrame label="Botones con menú destructivos, en cada variante y con separación" plain>
+  <tanrei-button-with-menu destructive label="Eliminar" menu-label="Más opciones de eliminación"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="tonal" destructive label="Eliminar" menu-label="Más opciones de eliminación"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="elevated" destructive label="Eliminar" menu-label="Más opciones de eliminación"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" destructive label="Eliminar" menu-label="Más opciones de eliminación"></tanrei-button-with-menu>
+  <tanrei-button-with-menu separation="gap" destructive label="Eliminar" menu-label="Más opciones de eliminación"></tanrei-button-with-menu>
+</DemoFrame>
+
 ## Especificaciones
 
 <DemoFrame label="Tamaños, un icono, abierto y deshabilitado" plain>
@@ -387,6 +401,7 @@ Usa la apertura al pasar el cursor donde un puntero sea habitual y un menú que 
 - El divisor es decoración: queda oculto para la tecnología de apoyo y no recibe pulsaciones. Las dos mitades son dos botones tanto si entre ellas hay una línea como si hay una separación.
 - En el sistema predeterminado, el contorno de la variante outlined y el divisor de las variantes outlined, tonal y elevated son la línea fina, que es discreta a propósito: la mitad inicial se identifica por su etiqueta y la mitad final, por su chevron. El divisor de la variante filled es más marcado, porque una línea fina no se ve sobre ese relleno.
 - La etiqueta nunca se trunca. Con tamaños de texto mayores salta de línea, y las dos mitades crecen juntas en altura.
+- `destructive` añade un color y nada más: las dos mitades conservan sus roles, nombres, estados y teclas, porque la web no tiene ningún rol ni estado para una acción destructiva. En SwiftUI, donde existe uno, la mitad inicial toma el rol destructivo.
 - Un botón con menú deshabilitado expone las dos mitades como deshabilitadas, las saca del orden del foco, no presenta ningún menú y dibuja su forma cerrada, diga lo que diga `open`.
 - Las compilaciones de depuración avisan de una etiqueta o una etiqueta de menú ausentes, y de un menú sin elementos.
 
@@ -402,6 +417,7 @@ Carencias conocidas por plataforma:
 ### Qué debes hacer tú
 
 - Escribe las dos etiquetas. Un chevron por sí solo no es un nombre, y «Más» junto a «Guardar» no dice qué contiene el menú.
+- En un botón con menú destructivo, haz que la etiqueta diga qué se destruye («Eliminar proyecto», no «Aceptar»): el color de error solo se lo dice a quien lo ve (WCAG 1.4.1, uso del color).
 - En la web, Compose y React Native, define `open` desde el evento toggle y ponlo en false desde el evento close. El botón con menú solo pide. Con `hoverOpen`, el paso del cursor pide mediante el mismo evento toggle.
 - No muevas el foco tú cuando el menú se cierre. El botón con menú lo devuelve a la mitad final.
 - Dale una etiqueta a cada elemento del menú, incluidos los que muestran un icono.

@@ -2,7 +2,7 @@
 title: "带菜单的按钮"
 description: "按一次即可执行主操作，并通过旁边与之相连的第二个按钮，在菜单中提供相关的操作。"
 translationOf: components/button-with-menu.mdx
-sourceHash: 52a376bf9ba1224db956bf1d3bb5f7de5f2ab5f9
+sourceHash: b2cc3ce77b318949d05a451ba15d953c237f71ee
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -284,6 +284,20 @@ Material 3 把对应的组件称为 split button；在 m3-like 预设中，带�
 
 窄的后半边画出来比最小目标窄，但点击区域并不窄：目标向外延伸，越过末尾侧的边缘。请在那里为它留出空间，就像在 narrow 纯图标 Button 旁边一样。
 
+### 破坏性操作
+
+如果带菜单的按钮的主操作会删除或丢弃一些可能无法找回的东西（删除，菜单里还有“删除所有版本”），就给它设置 `destructive`。两个半边都保持其变体的强调程度，并在其中使用错误色，就像同一变体的破坏性[按钮](/zh-cn/components/button/#破坏性操作)一样。Filled 用错误色填充，Tonal 用错误容器色填充；Elevated 和 Outlined 用错误色绘制标签和箭头，Outlined 的边框和分隔线也用这个颜色。禁用时，它与同一变体的任何禁用的带菜单的按钮看起来一样。
+
+`destructive` 只标记两个半边，从不标记菜单项。菜单中的某个选项可能会删除主操作不删除的东西，反之亦然，所以请给每个会删除东西的菜单项单独设置 `destructive`。
+
+<DemoFrame label="破坏性的带菜单的按钮：各个变体，以及以间隙连接的" plain>
+  <tanrei-button-with-menu destructive label="删除" menu-label="更多删除选项"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="tonal" destructive label="删除" menu-label="更多删除选项"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="elevated" destructive label="删除" menu-label="更多删除选项"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" destructive label="删除" menu-label="更多删除选项"></tanrei-button-with-menu>
+  <tanrei-button-with-menu separation="gap" destructive label="删除" menu-label="更多删除选项"></tanrei-button-with-menu>
+</DemoFrame>
+
 ## 规格
 
 <DemoFrame label="尺寸、图标、打开和禁用" plain>
@@ -387,6 +401,7 @@ Material 3 把对应的组件称为 split button；在 m3-like 预设中，带�
 - 分隔线是装饰：它对辅助技术隐藏，也不接收按下。无论中间是一条线还是一条间隙，两个半边都是两个按钮。
 - 在默认系统中，outlined 变体的轮廓，以及 outlined、tonal 和 elevated 变体的分隔线，都是细线，有意画得很淡：前半边靠它的标签来辨认，后半边靠它的箭头来辨认。filled 变体上的分隔线更醒目，因为在那种填充上看不见细线。
 - 标签绝不截断。文本放大时它会换行，两个半边一起增高。
+- `destructive` 只增加颜色，不增加别的：Web 没有表示破坏性操作的角色或状态，所以两个半边的角色、名称、状态和按键都保持不变。在有破坏性角色的 SwiftUI 上，前半边获得这个角色。
 - 禁用的带菜单的按钮把两个半边都暴露为禁用，把它们移出焦点顺序，不呈现菜单，并且无论 `open` 是什么，都画成关闭的形态。
 - 缺少标签或菜单标签，以及菜单里没有任何项，都会在调试构建中报告。
 
@@ -402,6 +417,7 @@ Material 3 把对应的组件称为 split button；在 m3-like 预设中，带�
 ### 需要你做的事
 
 - 两个标签都要写。单独一个箭头不是名称，“保存”旁边的“更多”也没有说明菜单里有什么。
+- 对于破坏性的带菜单的按钮，要让标签说明删除的是什么（“删除项目”，而不是“确定”）：错误色只能告诉看得见它的人（WCAG 1.4.1，颜色的使用）。
 - 在 Web、Compose 和 React Native 上，根据 toggle 事件设置 `open`，并根据 close 事件把它设为 false。带菜单的按钮只是发出请求。设置了 `hoverOpen` 时，悬停也通过同一个 toggle 事件发出请求。
 - 菜单关闭时不要自己移动焦点。带菜单的按钮会把焦点交还给后半边。
 - 给每个菜单项一个标签，包括显示图标的项。

@@ -43,7 +43,11 @@ export const styles = css`
 
   /* ETI-10: the box whose block size is the animated one (src/primitives/auto-height.ts) — at rest as tall as the
      native element, and the height the host has at every frame of a motion. It clips only while it moves: the native
-     element has its end height at once, and the box uncovers it. */
+     element has its end height at once, and the box uncovers it.
+     ETI-8: it clips without becoming a scroll container (\`clip\`, not \`hidden\`). A box that hides what overflows it
+     can still be scrolled, and the browser scrolls it to reveal a caret on a line it does not hold yet: the first line
+     left the top edge by a line at the first frame of a typed line break. \`hidden\` stays only for a browser that does
+     not know \`clip\` (Safari before 16), which drops the second declaration. */
   .box {
     position: relative;
     display: block;
@@ -51,6 +55,7 @@ export const styles = css`
   }
   .box[data-resizing] {
     overflow: hidden;
+    overflow: clip;
     transition: block-size ${t('motion-resize-duration')} ${t('motion-resize-easing')};
   }
   /* ETI-9: where motion is reduced the height changes at once (the routine starts no motion either). */

@@ -30,10 +30,10 @@
   ],
   "props": [
     {
-      "name": "selected",
+      "name": "value",
       "type": "string",
       "default": null,
-      "description": "The value of the selected tab, whose panel is shown. The Tab view keeps it equal to its tabs' selected, whether it draws them or is linked to them. null shows the panel of the tab the tabs select while theirs is null (the first enabled tab)."
+      "description": "The value of the selected tab, whose panel is shown. The Tab view keeps it equal to its tabs' value, whether it draws them or is linked to them. null shows the panel of the tab the tabs select while theirs is null (the first enabled tab)."
     },
     {
       "name": "variant",
@@ -154,7 +154,7 @@
   "events": [
     {
       "name": "change",
-      "description": "The user selected another panel; carries its value, which selected and the tabs' selected now hold. The Tab view announces every selection made on its own row and every swipe. While it is linked, a selection made on the linked tabs is announced by their own change instead, so every selection is announced once."
+      "description": "The user selected another panel; carries its value, which value and the tabs' value now hold. The Tab view announces every selection made on its own row and every swipe. While it is linked, a selection made on the linked tabs is announced by their own change instead, so every selection is announced once."
     }
   ],
   "states": [
@@ -165,12 +165,12 @@
   "behavior": [
     {
       "id": "TBV-1",
-      "text": "THE Tab view SHALL show the panel whose value is the value of its tabs' selected tab, its tabs being the row it draws itself (TBV-16) or the row it is linked to (TBV-17) (TAB-11: the first enabled tab while their selected is null), and hide every other panel; THE Tab view SHALL keep its own selected equal to its tabs' selected, and WHEN either of them is set THE Tab view SHALL set the other to the same value without emitting change.",
-      "verify": "Fixtures: each renders a Tab view 360 wide with the fixture's props, holding the fixture's panels in order; while the fixture leaves tabs empty the view draws its own row from them. A fixture that sets tabs renders the tabs fixture `primary` (Overview, Activity, Settings; 360 wide) above the view, its selected set to the fixture's, and links the view to it by that name (on a platform that links by an object, through a link made for the fixture). Each panel shows its content as body text (sys.typescale.body) inside sys.space.space200 of padding, which is the fixture's content, not the Tab view's."
+      "text": "THE Tab view SHALL show the panel whose value is the value of its tabs' selected tab, its tabs being the row it draws itself (TBV-16) or the row it is linked to (TBV-17) (TAB-11: the first enabled tab while their value is null), and hide every other panel; THE Tab view SHALL keep its own value equal to its tabs' value, and WHEN either of them is set THE Tab view SHALL set the other to the same value without emitting change.",
+      "verify": "Fixtures: each renders a Tab view 360 wide with the fixture's props, holding the fixture's panels in order; while the fixture leaves tabs empty the view draws its own row from them. A fixture that sets tabs renders the tabs fixture `primary` (Overview, Activity, Settings; 360 wide) above the view, its value set to the fixture's, and links the view to it by that name (on a platform that links by an object, through a link made for the fixture). Each panel shows its content as body text (sys.typescale.body) inside sys.space.space200 of padding, which is the fixture's content, not the Tab view's."
     },
     {
       "id": "TBV-2",
-      "text": "WHEN its tabs' selected changes while their indicatorOffset is 0 (the user selected a tab, by activating it or by releasing a drag across the row on it, TAB-1, TAB-12 and TAB-29, or the product set it) THE Tab view SHALL switch from the shown panel to the newly selected tab's panel as TBV-5 and TBV-6 say, in the form its transition names (TBV-22); WHILE it is linked THE Tab view SHALL NOT emit change for that selection, which the linked tabs have announced themselves, and WHILE it draws its own row it SHALL announce it as TBV-18 says. WHERE their selected changes because they follow a choice of their group that was made on another member, or one restored from storage, THE Tab view SHALL show the panel at once instead, as TBV-20 says."
+      "text": "WHEN its tabs' value changes while their indicatorOffset is 0 (the user selected a tab, by activating it or by releasing a drag across the row on it, TAB-1, TAB-12 and TAB-29, or the product set it) THE Tab view SHALL switch from the shown panel to the newly selected tab's panel as TBV-5 and TBV-6 say, in the form its transition names (TBV-22); WHILE it is linked THE Tab view SHALL NOT emit change for that selection, which the linked tabs have announced themselves, and WHILE it draws its own row it SHALL announce it as TBV-18 says. WHERE their value changes because they follow a choice of their group that was made on another member, or one restored from storage, THE Tab view SHALL show the panel at once instead, as TBV-20 says."
     },
     {
       "id": "TBV-3",
@@ -178,7 +178,7 @@
     },
     {
       "id": "TBV-4",
-      "text": "WHEN the user releases a drag the Tab view has taken THE Tab view SHALL commit it if p is at least 0.5 or the release is a fling toward the tab, and cancel it otherwise, a fling away from the tab always cancelling; a fling is a release faster than the platform's minimum fling velocity (Android's ViewConfiguration.getScaledMinimumFlingVelocity, Flutter's kMinFlingVelocity) or, where the platform names none (the web, SwiftUI, React Native), 0.5 points per millisecond. A release's velocity is the pointer's over its last moves: WHERE the pointer has not moved for longer than the time after which the platform's velocity tracker takes a pointer as stopped (40 milliseconds in Android's VelocityTracker, Jetpack Compose's VelocityTracker and Flutter's VelocityTracker) or, where the platform names none (the web, SwiftUI, React Native), 40 milliseconds before the release THE Tab view SHALL take the release as having no velocity, so that a drag that stops where it is wanted and is let go there is no fling, however fast it moved before it stopped. To commit THE Tab view SHALL set its selected and its tabs' selected to that tab's value and emit change exactly once with it, re-express indicatorOffset from the new tab (1 − p toward the tab it left) in the same frame, and finish the switch while bringing indicatorOffset to 0 over comp.tab-view.motion.switch-duration with comp.tab-view.motion.switch-easing, starting from where the release left them. To cancel THE Tab view SHALL bring the switch back to p = 0 and indicatorOffset to 0 over the same motion and emit nothing."
+      "text": "WHEN the user releases a drag the Tab view has taken THE Tab view SHALL commit it if p is at least 0.5 or the release is a fling toward the tab, and cancel it otherwise, a fling away from the tab always cancelling; a fling is a release faster than the platform's minimum fling velocity (Android's ViewConfiguration.getScaledMinimumFlingVelocity, Flutter's kMinFlingVelocity) or, where the platform names none (the web, SwiftUI, React Native), 0.5 points per millisecond. A release's velocity is the pointer's over its last moves: WHERE the pointer has not moved for longer than the time after which the platform's velocity tracker takes a pointer as stopped (40 milliseconds in Android's VelocityTracker, Jetpack Compose's VelocityTracker and Flutter's VelocityTracker) or, where the platform names none (the web, SwiftUI, React Native), 40 milliseconds before the release THE Tab view SHALL take the release as having no velocity, so that a drag that stops where it is wanted and is let go there is no fling, however fast it moved before it stopped. To commit THE Tab view SHALL set its value and its tabs' value to that tab's value and emit change exactly once with it, re-express indicatorOffset from the new tab (1 − p toward the tab it left) in the same frame, and finish the switch while bringing indicatorOffset to 0 over comp.tab-view.motion.switch-duration with comp.tab-view.motion.switch-easing, starting from where the release left them. To cancel THE Tab view SHALL bring the switch back to p = 0 and indicatorOffset to 0 over the same motion and emit nothing."
     },
     {
       "id": "TBV-5",
@@ -199,7 +199,7 @@
     },
     {
       "id": "TBV-9",
-      "text": "THE Tab view SHALL expose the shown panel with the tab panel role, named by its tab and associated with it where the platform can express that (the tab controls the panel; the panel is labelled by the tab), whether the tab is in the row it draws itself or in the row it is linked to, SHALL hide every other panel from assistive technology and from focus, including a panel that a switch or a drag still draws, SHALL move that exposure to the new panel when selected changes rather than when the switch's drawing ends, and SHALL make a shown panel with no focusable content itself focusable so that Tab reaches it."
+      "text": "THE Tab view SHALL expose the shown panel with the tab panel role, named by its tab and associated with it where the platform can express that (the tab controls the panel; the panel is labelled by the tab), whether the tab is in the row it draws itself or in the row it is linked to, SHALL hide every other panel from assistive technology and from focus, including a panel that a switch or a drag still draws, SHALL move that exposure to the new panel when value changes rather than when the switch's drawing ends, and SHALL make a shown panel with no focusable content itself focusable so that Tab reaches it."
     },
     {
       "id": "TBV-10",
@@ -219,7 +219,7 @@
     },
     {
       "id": "TBV-14",
-      "text": "WHEN tabs names a row that is not there (on a platform that links by an object, a link that no row uses) THE Tab view SHALL show the panel whose value equals selected (the first panel while selected is null), take no drag, expose no panel with the tab panel role, draw no row of its own (TBV-17), and in debug builds report that its panels have no tabs; WHEN the selected tab has no panel THE Tab view SHALL show none and in debug builds report the value. WHILE the Tab view draws its own row and holds no panel THE Tab view SHALL draw that row with no tab and in debug builds report that it has no panels."
+      "text": "WHEN tabs names a row that is not there (on a platform that links by an object, a link that no row uses) THE Tab view SHALL show the panel whose value equals the view's value (the first panel while the view's value is null), take no drag, expose no panel with the tab panel role, draw no row of its own (TBV-17), and in debug builds report that its panels have no tabs; WHEN the selected tab has no panel THE Tab view SHALL show none and in debug builds report the value. WHILE the Tab view draws its own row and holds no panel THE Tab view SHALL draw that row with no tab and in debug builds report that it has no panels."
     },
     {
       "id": "TBV-15",
@@ -227,16 +227,16 @@
     },
     {
       "id": "TBV-16",
-      "text": "WHILE tabs is empty THE Tab view SHALL draw its own row of Tabs above its container (TBV-11) and be linked to that row as it would be to a row placed elsewhere: one tab for each panel that TBV-15 shows, in the panels' order, whose value, label, icon, labelHidden and disabled are the panel's; the row's variant, size, track, fullWidth, label, group and rememberAs SHALL be the Tab view's own, its transition what TBV-23 says, and its selected the Tab view's selected. The row SHALL be a Tabs in every respect, drawn from the tabs' tokens of its variant and size with every TAB behaviour (among them the press answer of TAB-8 to TAB-10, the keyboard of TAB-12, the names of TAB-13 and TAB-22, and the indicator of TAB-17 and TAB-26), and SHALL change in the same frame as the panels it is drawn from are added, removed, reordered or given another value, label, icon, labelHidden or disabled.",
+      "text": "WHILE tabs is empty THE Tab view SHALL draw its own row of Tabs above its container (TBV-11) and be linked to that row as it would be to a row placed elsewhere: one tab for each panel that TBV-15 shows, in the panels' order, whose value, label, icon, labelHidden and disabled are the panel's; the row's variant, size, track, fullWidth, label, group and rememberAs SHALL be the Tab view's own, its transition what TBV-23 says, and its value the Tab view's value. The row SHALL be a Tabs in every respect, drawn from the tabs' tokens of its variant and size with every TAB behaviour (among them the press answer of TAB-8 to TAB-10, the keyboard of TAB-12, the names of TAB-13 and TAB-22, and the indicator of TAB-17 and TAB-26), and SHALL change in the same frame as the panels it is drawn from are added, removed, reordered or given another value, label, icon, labelHidden or disabled.",
       "verify": "Fixtures `default` to `tall-panel` draw the row from their panels; `secondary-fill`, `icons` and `disabled-tab` show that the view's variant, fullWidth and label and each panel's icon and disabled reach the row. A test gives a panel another label and icon and sees its tab change in the same frame, the panel's content and scroll position kept (TBV-12)."
     },
     {
       "id": "TBV-17",
-      "text": "WHILE tabs names a row THE Tab view SHALL draw no row of its own, whether or not the named row is there (TBV-14), and SHALL use none of its variant, size, track, fullWidth, label, group and rememberAs or of its panels' label, icon, labelHidden and disabled, which the linked row's own props and tabs replace; WHEN tabs names a row while variant, size, track, fullWidth, label, group or rememberAs differ from their defaults THE Tab view SHALL in debug builds report that they apply only to a row it draws itself. WHEN tabs changes from empty to a row, or back, THE Tab view SHALL remove or draw its own row at once, keep its selected (giving it to the newly linked row, or taking that row's while its own is null) and show the selected tab's panel at once (TBV-6)."
+      "text": "WHILE tabs names a row THE Tab view SHALL draw no row of its own, whether or not the named row is there (TBV-14), and SHALL use none of its variant, size, track, fullWidth, label, group and rememberAs or of its panels' label, icon, labelHidden and disabled, which the linked row's own props and tabs replace; WHEN tabs names a row while variant, size, track, fullWidth, label, group or rememberAs differ from their defaults THE Tab view SHALL in debug builds report that they apply only to a row it draws itself. WHEN tabs changes from empty to a row, or back, THE Tab view SHALL remove or draw its own row at once, keep its value (giving it to the newly linked row, or taking that row's while its own is null) and show the selected tab's panel at once (TBV-6)."
     },
     {
       "id": "TBV-18",
-      "text": "WHILE the Tab view draws its own row, WHEN the user selects another tab on that row (TAB-1, TAB-12, TAB-29) THE Tab view SHALL set its selected to that tab's value and emit change exactly once with it, in the same frame as the row sets its own selected, and SHALL NOT let the row's own change reach the product as a second announcement; together with TBV-4 every selection a person makes on a Tab view with its own row, by a tab or by a swipe, SHALL be announced once, by the Tab view.",
+      "text": "WHILE the Tab view draws its own row, WHEN the user selects another tab on that row (TAB-1, TAB-12, TAB-29) THE Tab view SHALL set its value to that tab's value and emit change exactly once with it, in the same frame as the row sets its own value, and SHALL NOT let the row's own change reach the product as a second announcement; together with TBV-4 every selection a person makes on a Tab view with its own row, by a tab or by a swipe, SHALL be announced once, by the Tab view.",
       "verify": "Test: a listener on the Tab view's parent hears exactly one change for a tab tapped on the view's own row, one for each arrow key that selects a tab on it, one for a drag across the row released on another tab, one for a committed swipe, and none for a selection set by the product, for a cancelled swipe or for a drag across the row that returns to the selected tab."
     },
     {
@@ -246,7 +246,7 @@
     },
     {
       "id": "TBV-20",
-      "text": "WHEN its tabs' selected changes because their group's choice was made on another member or restored from storage (TAB-36, TAB-38, TAB-39) THE Tab view SHALL show the newly selected tab's panel at once, with none of the travel, fade and blur of TBV-5 and without the motion of TBV-6 or TBV-7, SHALL take that panel's height in the same frame (TBV-11), SHALL keep the panel it hides and its state (TBV-12), SHALL move the panels' exposure to assistive technology in that frame (TBV-9), and SHALL emit no change. WHERE that hides the panel that holds keyboard focus THE Tab view SHALL move focus to its tabs' selected tab as TBV-10 says, without scrolling anything to show it. WHERE the Tab view follows a swipe when the choice changes THE Tab view SHALL end the swipe without committing it, emit nothing for it, and show the chosen panel at rest. THE Tab view a person selected on SHALL switch as TBV-2 and TBV-6 say and announce the selection once (TBV-18, or the linked tabs' change).",
+      "text": "WHEN its tabs' value changes because their group's choice was made on another member or restored from storage (TAB-36, TAB-38, TAB-39) THE Tab view SHALL show the newly selected tab's panel at once, with none of the travel, fade and blur of TBV-5 and without the motion of TBV-6 or TBV-7, SHALL take that panel's height in the same frame (TBV-11), SHALL keep the panel it hides and its state (TBV-12), SHALL move the panels' exposure to assistive technology in that frame (TBV-9), and SHALL emit no change. WHERE that hides the panel that holds keyboard focus THE Tab view SHALL move focus to its tabs' selected tab as TBV-10 says, without scrolling anything to show it. WHERE the Tab view follows a swipe when the choice changes THE Tab view SHALL end the swipe without committing it, emit nothing for it, and show the chosen panel at rest. THE Tab view a person selected on SHALL switch as TBV-2 and TBV-6 say and announce the selection once (TBV-18, or the linked tabs' change).",
       "verify": "Fixtures `shared-choice` (Web, React, SwiftUI, Flutter; Flutter selected; panels of one, two, five and two lines of text at 360 wide, more or less) and `shared-choice-lacking` (Web, React; React selected) name the group the tabs' fixtures of the same ids name. A test stages the two one under the other with motion not reduced and selects Web on the first: in the next frame the second shows its Web panel whole, at rest, sharp and at full opacity, as tall as that panel, while the first is part of the way through its switch; the second has emitted nothing. Selecting SwiftUI on the first leaves the second on its panel."
     },
     {
@@ -261,7 +261,7 @@
     },
     {
       "id": "TBV-23",
-      "text": "WHERE motion is reduced THE Tab view SHALL draw the form slide as TBV-7 says, the form fade as TBV-22 says, and the form none as none: reduced motion SHALL never add a motion that transition took away. WHILE the Tab view draws its own row (TBV-16) and the form is none, THE Tab view SHALL give that row the tabs' transition none (TAB-43), so that the indicator is on the new tab in the frame the new panel is shown and nothing is left traveling over a view that has already changed; WHILE the form is slide or fade the row's transition SHALL be auto, the tabs' own answer (comp.tabs.motion.transition). THE Tab view SHALL NOT set the transition of a row it is linked to (TBV-17), which has its own. WHEN transition changes while a switch is drawn THE Tab view SHALL end that switch at once, as if it had finished (TBV-6), and SHALL draw the next one in the new form; changing transition SHALL NOT change selected, the shown panel, keyboard focus or what is emitted.",
+      "text": "WHERE motion is reduced THE Tab view SHALL draw the form slide as TBV-7 says, the form fade as TBV-22 says, and the form none as none: reduced motion SHALL never add a motion that transition took away. WHILE the Tab view draws its own row (TBV-16) and the form is none, THE Tab view SHALL give that row the tabs' transition none (TAB-43), so that the indicator is on the new tab in the frame the new panel is shown and nothing is left traveling over a view that has already changed; WHILE the form is slide or fade the row's transition SHALL be auto, the tabs' own answer (comp.tabs.motion.transition). THE Tab view SHALL NOT set the transition of a row it is linked to (TBV-17), which has its own. WHEN transition changes while a switch is drawn THE Tab view SHALL end that switch at once, as if it had finished (TBV-6), and SHALL draw the next one in the new form; changing transition SHALL NOT change value, the shown panel, keyboard focus or what is emitted.",
       "verify": "Test the fixture tonal-no-track-no-transition: the view's own row has transition none, and a selection moves its indicator in one frame. Test fade and slide: the row's transition is auto. Test no-transition with reduced motion emulated: nothing fades. Test default with reduced motion emulated: the panels crossfade, as before."
     }
   ],
@@ -285,7 +285,7 @@
       "The swipe of the view and the drag across its tabs are one gesture in two places (TBV-3, TBV-4; TAB-28 to TAB-30): the tabs' active indicator follows the finger, the selection is made on release, from halfway or by a fling, a cancelled gesture returns the indicator, nothing is announced before the release, and under reduced motion the indicator still follows the finger and lands at once. They differ in reach. A swipe of the view moves to the neighbouring panel, and the panels travel with the finger. A drag across the row can pass several tabs, so the panels wait: the shown panel stays at rest during the drag, and the release switches to the chosen tab's panel as any selected tab does (TBV-2, TBV-6), its switch and the indicator's settling running over equal times.",
       "One declaration makes the tab and its view: while the Tab view draws its own row, each panel carries its tab's label, icon, labelHidden and disabled, so the tabs and the panels cannot fall out of step. Its row is a Tabs, not a look-alike: the same tokens, the same variants and the same behaviours, so a system that restyles the tabs restyles the Tab view's row too.",
       "Linked, for tabs placed elsewhere: a product whose tabs sit in a top app bar or a sticky header, apart from their content, sets tabs to name that row, and the Tab view draws none. The linked row names the panels, and its own props decide its look. The Tab view must then follow its tabs in reading order, so that Tab moves from the selected tab into the panel; a Tab view with its own row meets that by construction.",
-      "Selection belongs to the Tab view and its tabs together: they hold the same selected, and each selection is announced once. With its own row, the Tab view announces every selection (TBV-18). Linked, the component the person used announces it: the linked tabs' change for a tab, the Tab view's change for a swipe; a product that keeps the selection itself updates it from both.",
+      "Selection belongs to the Tab view and its tabs together: they hold the same value, and each selection is announced once. With its own row, the Tab view announces every selection (TBV-18). Linked, the component the person used announces it: the linked tabs' change for a tab, the Tab view's change for a swipe; a product that keeps the selection itself updates it from both.",
       "The panels' role, name and association are the Tab view's; the tabs' own panels (TAB-13) are for a row without a Tab view. Web: `tanrei-tab-panel` children of `tanrei-tab-view` get role tabpanel, aria-labelledby and the tab's aria-controls, and the view's own row is in the same tree as its panels so that these references resolve. SwiftUI, Compose, Flutter and React Native have no association between a tab and its panel; there each panel is named by its tab (Flutter exposes its tab panel role) and follows the row in reading order, and each README says so.",
       "A panel that is not shown stays in place, hidden, with its state. A product whose panels are costly renders their content when their tab is first selected; the Tab view has no lazy mode of its own yet (it can be added as a prop without breaking this spec).",
       "A tab of the Tab view's own row carries what a tab of the Tabs carries, and nothing more: the Tabs have no badge, so neither does a panel. A product that marks a tab with a badge writes its row itself and links it; a badge on the Tabs would reach the panel as one more tab prop.",
@@ -337,7 +337,7 @@
       "id": "second-selected",
       "props": {
         "label": "Project",
-        "selected": "activity"
+        "value": "activity"
       },
       "items": [
         {
@@ -472,7 +472,7 @@
       "id": "tall-panel",
       "props": {
         "label": "Project",
-        "selected": "settings"
+        "value": "settings"
       },
       "items": [
         {
@@ -534,7 +534,7 @@
       "id": "missing-panel",
       "props": {
         "tabs": "project-tabs",
-        "selected": "activity"
+        "value": "activity"
       },
       "items": [
         {
@@ -557,7 +557,7 @@
       "id": "shared-choice",
       "props": {
         "label": "Platform",
-        "selected": "flutter",
+        "value": "flutter",
         "group": "fixture-platform"
       },
       "items": [
@@ -599,7 +599,7 @@
       "id": "shared-choice-lacking",
       "props": {
         "label": "Platform",
-        "selected": "react",
+        "value": "react",
         "group": "fixture-platform"
       },
       "items": [
@@ -835,7 +835,7 @@
       "status": "lagging",
       "name": "tanrei-tab-view",
       "props": {
-        "selected": "value",
+        "value": "value",
         "variant": "variant",
         "fullWidth": "fullWidth",
         "label": "label",
@@ -869,7 +869,7 @@
       "status": "planned",
       "name": "TanreiTabView",
       "props": {
-        "selected": "selection",
+        "value": "selection",
         "variant": "variant",
         "fullWidth": "fullWidth",
         "label": "label",
@@ -897,13 +897,13 @@
           "notes": "`TanreiTabPanel(_ title:, icon:) { … }.tag(value)` in the view's builder, as the tabs' `TanreiTab` is; `.labelStyle(.iconOnly)` is labelHidden and `.disabled(_:)` is disabled. A linked view's panels may omit the title: `TanreiTabPanel { … }.tag(value)`."
         }
       },
-      "notes": "Its own row: `TanreiTabView(selection: Binding<V>, variant:, fullWidth:, label:, swipeable:) { TanreiTabPanel … }`; the view draws a `TanreiTabs` above its panels and links it through a `TanreiTabLink` of its own. Linked: `TanreiTabView(selection:, link: TanreiTabLink, swipeable:) { … }`, a second initializer without the row's parameters, so that a view cannot be given both; the link is an observable object the product creates once and passes to its tabs too (`TanreiTabs(…, link:)`), through which the tabs report their order and disabled tabs and read the indicator offset. Writing the binding is change: a tab on the view's own row and a swipe write it; a linked row writes it through its own binding. The drag is a `DragGesture` on the panels that yields to vertical scrolling; the blur is `.blur(radius:)`, converted from the token's standard deviation. SwiftUI's page-style `TabView` is a full-width pager without a tab row, so it is not this component. A shared choice has no parameter here: views given the same `Binding` show the same choice, and the product remembers it in `@AppStorage`, as the tabs' mapping says. A view whose selection changes that way switches as TBV-2 says for a selected the product sets, with its motion: this platform cannot tell a view that follows from one the product set, so TBV-20 and TBV-21 are not reached here, and the README says so. Not built on this platform yet: `size` and `track` are the row's, with the Tabs' meaning and type; `transition` (`.auto`, `.slide`, `.fade`, `.none`) is the form of a switch (TBV-22): fade is the crossfade the view already draws where motion is reduced, none the change at once it already draws for a choice made elsewhere (TBV-20), and under none the view's own row is given the tabs' transition none (TBV-23)."
+      "notes": "Its own row: `TanreiTabView(selection: Binding<V>, variant:, fullWidth:, label:, swipeable:) { TanreiTabPanel … }`; the view draws a `TanreiTabs` above its panels and links it through a `TanreiTabLink` of its own. Linked: `TanreiTabView(selection:, link: TanreiTabLink, swipeable:) { … }`, a second initializer without the row's parameters, so that a view cannot be given both; the link is an observable object the product creates once and passes to its tabs too (`TanreiTabs(…, link:)`), through which the tabs report their order and disabled tabs and read the indicator offset. Writing the binding is change: a tab on the view's own row and a swipe write it; a linked row writes it through its own binding. The drag is a `DragGesture` on the panels that yields to vertical scrolling; the blur is `.blur(radius:)`, converted from the token's standard deviation. SwiftUI's page-style `TabView` is a full-width pager without a tab row, so it is not this component. A shared choice has no parameter here: views given the same `Binding` show the same choice, and the product remembers it in `@AppStorage`, as the tabs' mapping says. A view whose selection changes that way switches as TBV-2 says for a value the product sets, with its motion: this platform cannot tell a view that follows from one the product set, so TBV-20 and TBV-21 are not reached here, and the README says so. Not built on this platform yet: `size` and `track` are the row's, with the Tabs' meaning and type; `transition` (`.auto`, `.slide`, `.fade`, `.none`) is the form of a switch (TBV-22): fade is the crossfade the view already draws where motion is reduced, none the change at once it already draws for a choice made elsewhere (TBV-20), and under none the view's own row is given the tabs' transition none (TBV-23)."
     },
     "compose": {
       "status": "planned",
       "name": "TanreiTabView",
       "props": {
-        "selected": "selectedValue",
+        "value": "selectedValue",
         "variant": "variant",
         "fullWidth": "fullWidth",
         "label": "contentDescription",
@@ -931,13 +931,13 @@
           "notes": "`TanreiTabPanel(value, label, icon, labelHidden, enabled) { … }` called in the `TanreiTabView { }` content, a scope that collects the panels (as a lazy list's content does) so that the row can be drawn from their labels before a panel is composed. `enabled` is the inverse flag."
         }
       },
-      "notes": "Its own row: `TanreiTabView(selectedValue, onSelectedValueChange, modifier, variant, fullWidth, contentDescription, swipeable) { TanreiTabPanel(…) { … } }`; the view composes a `TanreiTabs` above its panels, linked through a link it remembers itself. Linked: an overload `TanreiTabView(selectedValue, onSelectedValueChange, link, modifier, swipeable) { … }` without the row's parameters, with `val link = rememberTanreiTabLink()` passed to `TanreiTabs(…, link = link)` too; the tabs read the indicator offset from it as a frame-time lambda, so a drag does not recompose the row. State hoisting: the caller keeps `selectedValue`; with its own row the view calls `onSelectedValueChange` for a tab and for a swipe, and linked the caller moves it from both components' callbacks. Not `HorizontalPager`: the travel is a short offset, not a scroll, and hidden panels stay composed (TBV-12). The blur is `Modifier.blur`, which draws nothing below Android 12; there the switch has no blur, as the README says. A shared choice has no parameter here: views given the same hoisted `selectedValue` show the same choice, and the caller remembers it in its own store, as the tabs' mapping says. A view whose `selectedValue` changes that way switches as TBV-2 says for a selected the product sets, with its motion: this platform cannot tell a view that follows from one the product set, so TBV-20 and TBV-21 are not reached here, and the README says so. Not built on this platform yet: `size` and `track` are the row's, with the Tabs' meaning and type; `transition` (`Auto`, `Slide`, `Fade`, `None`) is the form of a switch (TBV-22): fade is the crossfade the view already draws where motion is reduced, none the change at once it already draws for a choice made elsewhere (TBV-20), and under none the view's own row is given the tabs' transition none (TBV-23)."
+      "notes": "Its own row: `TanreiTabView(selectedValue, onSelectedValueChange, modifier, variant, fullWidth, contentDescription, swipeable) { TanreiTabPanel(…) { … } }`; the view composes a `TanreiTabs` above its panels, linked through a link it remembers itself. Linked: an overload `TanreiTabView(selectedValue, onSelectedValueChange, link, modifier, swipeable) { … }` without the row's parameters, with `val link = rememberTanreiTabLink()` passed to `TanreiTabs(…, link = link)` too; the tabs read the indicator offset from it as a frame-time lambda, so a drag does not recompose the row. State hoisting: the caller keeps `selectedValue`; with its own row the view calls `onSelectedValueChange` for a tab and for a swipe, and linked the caller moves it from both components' callbacks. Not `HorizontalPager`: the travel is a short offset, not a scroll, and hidden panels stay composed (TBV-12). The blur is `Modifier.blur`, which draws nothing below Android 12; there the switch has no blur, as the README says. A shared choice has no parameter here: views given the same hoisted `selectedValue` show the same choice, and the caller remembers it in its own store, as the tabs' mapping says. A view whose `selectedValue` changes that way switches as TBV-2 says for a value the product sets, with its motion: this platform cannot tell a view that follows from one the product set, so TBV-20 and TBV-21 are not reached here, and the README says so. Not built on this platform yet: `size` and `track` are the row's, with the Tabs' meaning and type; `transition` (`Auto`, `Slide`, `Fade`, `None`) is the form of a switch (TBV-22): fade is the crossfade the view already draws where motion is reduced, none the change at once it already draws for a choice made elsewhere (TBV-20), and under none the view's own row is given the tabs' transition none (TBV-23)."
     },
     "flutter": {
       "status": "planned",
       "name": "TanreiTabView",
       "props": {
-        "selected": "value",
+        "value": "value",
         "variant": "variant",
         "fullWidth": "isScrollable",
         "label": "semanticLabel",
@@ -965,13 +965,13 @@
           "notes": "`TanreiTabPanel<T>(value:, label:, icon:, labelHidden:, enabled:, child:)` entries of the view's `panels:` list, as the bar's `TanreiTab<T>` entries are; `enabled` is the inverse flag."
         }
       },
-      "notes": "Its own row: `TanreiTabView<T>(value:, onChanged:, variant:, isScrollable:, semanticLabel:, swipeable:, panels: [TanreiTabPanel<T>(…)])`; the view builds a `TanreiTabBar<T>` above its panels, linked through a `TanreiTabLink<T>` of its own. `isScrollable` is the inverse of fullWidth and defaults to true (hug), as on the bar. Linked: `TanreiTabView<T>.linked(link:, value:, onChanged:, swipeable:, panels:)`, a named constructor without the row's parameters, with the `TanreiTabLink<T>` the product creates and passes to `TanreiTabBar(…, link:)` too, as Flutter's `TabController` is shared by a `TabBar` and a `TabBarView`. It replaces the existing `TanreiTabBarView`, which named only the content; its `semanticLabels` give way to the tabs, through which each panel is named by its tab with Flutter's tab panel role. The blur is an `ImageFiltered` blur, converted from the token's standard deviation. A shared choice has no parameter here: views given the same `value` from one piece of the product's state show the same choice, and the product remembers it in its own store, as the bar' mapping says. A view whose `value` changes that way switches as TBV-2 says for a selected the product sets, with its motion: this platform cannot tell a view that follows from one the product set, so TBV-20 and TBV-21 are not reached here, and the README says so. Not built on this platform yet: `size` and `track` are the row's, with the Tabs' meaning and type; `transition` (`auto`, `slide`, `fade`, `none`) is the form of a switch (TBV-22): fade is the crossfade the view already draws where motion is reduced, none the change at once it already draws for a choice made elsewhere (TBV-20), and under none the view's own row is given the tabs' transition none (TBV-23)."
+      "notes": "Its own row: `TanreiTabView<T>(value:, onChanged:, variant:, isScrollable:, semanticLabel:, swipeable:, panels: [TanreiTabPanel<T>(…)])`; the view builds a `TanreiTabBar<T>` above its panels, linked through a `TanreiTabLink<T>` of its own. `isScrollable` is the inverse of fullWidth and defaults to true (hug), as on the bar. Linked: `TanreiTabView<T>.linked(link:, value:, onChanged:, swipeable:, panels:)`, a named constructor without the row's parameters, with the `TanreiTabLink<T>` the product creates and passes to `TanreiTabBar(…, link:)` too, as Flutter's `TabController` is shared by a `TabBar` and a `TabBarView`. It replaces the existing `TanreiTabBarView`, which named only the content; its `semanticLabels` give way to the tabs, through which each panel is named by its tab with Flutter's tab panel role. The blur is an `ImageFiltered` blur, converted from the token's standard deviation. A shared choice has no parameter here: views given the same `value` from one piece of the product's state show the same choice, and the product remembers it in its own store, as the bar' mapping says. A view whose `value` changes that way switches as TBV-2 says for a value the product sets, with its motion: this platform cannot tell a view that follows from one the product set, so TBV-20 and TBV-21 are not reached here, and the README says so. Not built on this platform yet: `size` and `track` are the row's, with the Tabs' meaning and type; `transition` (`auto`, `slide`, `fade`, `none`) is the form of a switch (TBV-22): fade is the crossfade the view already draws where motion is reduced, none the change at once it already draws for a choice made elsewhere (TBV-20), and under none the view's own row is given the tabs' transition none (TBV-23)."
     },
     "react-native": {
       "status": "planned",
       "name": "TabView",
       "props": {
-        "selected": "value",
+        "value": "value",
         "variant": "variant",
         "fullWidth": "fullWidth",
         "label": "accessibilityLabel",
@@ -999,7 +999,7 @@
           "notes": "`<TabPanel value=\"overview\" label=\"Overview\" icon=\"dashboard\">…</TabPanel>` children of `<TabView>`; `labelHidden` and `disabled` as on the row's `Tab`."
         }
       },
-      "notes": "Its own row: `<TabView value onValueChange variant fullWidth accessibilityLabel swipeable>` with `<TabPanel>` children; the view renders a `<Tabs>` above its panels from their props, linked through a link of its own. Linked: `<TabView value onValueChange link swipeable>`, where `const link = useTabLink()` is passed to `<Tabs link={link}>` too and carries the indicator offset as an animated value, so a drag does not re-render the row; the props type is a union, so that `link` and the row's props cannot be given together. Controlled: with its own row the view calls `onValueChange` for a tab and for a swipe; linked, the caller moves `value` from both components' callbacks. React Native has no tab panel role and cannot blur a view without a native module, so the switch draws its travel and fade only, as the README says. A shared choice has no prop here: views given the same controlled `value` show the same choice, and the product remembers it in its own store, as the tabs' mapping says. A view whose `value` changes that way switches as TBV-2 says for a selected the product sets, with its motion: this platform cannot tell a view that follows from one the product set, so TBV-20 and TBV-21 are not reached here, and the README says so. Not built on this platform yet: `size` and `track` are the row's, with the Tabs' meaning and type; `transition` (`\"auto\"`, `\"slide\"`, `\"fade\"`, `\"none\"`) is the form of a switch (TBV-22): fade is the crossfade the view already draws where motion is reduced, none the change at once it already draws for a choice made elsewhere (TBV-20), and under none the view's own row is given the tabs' transition none (TBV-23)."
+      "notes": "Its own row: `<TabView value onValueChange variant fullWidth accessibilityLabel swipeable>` with `<TabPanel>` children; the view renders a `<Tabs>` above its panels from their props, linked through a link of its own. Linked: `<TabView value onValueChange link swipeable>`, where `const link = useTabLink()` is passed to `<Tabs link={link}>` too and carries the indicator offset as an animated value, so a drag does not re-render the row; the props type is a union, so that `link` and the row's props cannot be given together. Controlled: with its own row the view calls `onValueChange` for a tab and for a swipe; linked, the caller moves `value` from both components' callbacks. React Native has no tab panel role and cannot blur a view without a native module, so the switch draws its travel and fade only, as the README says. A shared choice has no prop here: views given the same controlled `value` show the same choice, and the product remembers it in its own store, as the tabs' mapping says. A view whose `value` changes that way switches as TBV-2 says for a value the product sets, with its motion: this platform cannot tell a view that follows from one the product set, so TBV-20 and TBV-21 are not reached here, and the README says so. Not built on this platform yet: `size` and `track` are the row's, with the Tabs' meaning and type; `transition` (`\"auto\"`, `\"slide\"`, `\"fade\"`, `\"none\"`) is the form of a switch (TBV-22): fade is the crossfade the view already draws where motion is reduced, none the change at once it already draws for a choice made elsewhere (TBV-20), and under none the view's own row is given the tabs' transition none (TBV-23)."
     }
   }
 }

@@ -7,6 +7,7 @@ import type { TanreiTooltip } from '../tooltip/tooltip.js';
 import { AXES as BUTTON_AXES } from '../button/button.styles.js';
 import { styles } from './copy-button.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The Button variant it is drawn as: the Button's own values. */
 export type TanreiCopyButtonVariant = keyof TanreiButtonVariantRegistry;
@@ -72,7 +73,7 @@ const DEFAULT_SIZE = 'medium';
  * @fires {CustomEvent<TanreiCopyButtonCopiedDetail>} copied - The browser confirmed that the text is on the clipboard; `detail.text` is the text.
  * @fires {CustomEvent<TanreiCopyButtonCopyFailedDetail>} copyfailed - The browser refused the copy or has no clipboard to write to; `detail.reason` is its reason, where it gave one.
  */
-export class TanreiCopyButton extends LitElement {
+export class TanreiCopyButton extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'copy-button');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
@@ -244,7 +245,7 @@ export class TanreiCopyButton extends LitElement {
   }
 
   /** CPY-2: an activation — by pointer, touch, Enter, Space or assistive technology, all of which click the Button. */
-  private onClick() {
+  #onClick() {
     if (this.disabled || this.pending) return;
     // CPY-5: every activation is announced anew.
     for (const role of ['status', 'alert'] as const) {
@@ -360,7 +361,7 @@ export class TanreiCopyButton extends LitElement {
         label=${this.iconOnly ? this.words.get('copyLabel', this.label) : nothing}
         ?disabled=${this.disabled}
         data-form=${this.form}
-        @click=${this.onClick}
+        @click=${this.#onClick}
       >
         <span slot="icon" class="glyph"><span class="ink">${GLYPHS[this.form]}</span></span>
         ${this.iconOnly ? nothing : html`<span class="labels" ?data-fit=${this.labelWidth === 'fit'} style=${this.labelWidth === 'fit' && this.fitted !== undefined ? `inline-size: ${this.fitted}px` : ''}>${text('label', this.words.get('copyLabel', this.label))}${text('copied', this.words.get('copiedLabel', this.copiedLabel))}${text('failed', this.words.get('copyFailedLabel', this.failedLabel))}</span>`}

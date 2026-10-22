@@ -2,7 +2,7 @@
 title: Indicador de progreso
 description: Muestra cuánto ha avanzado una tarea, o que está en curso cuando no se sabe cuánto, en forma de barra o de anillo.
 translationOf: components/progress-indicator.mdx
-sourceHash: f486cb2aed81fdd7e8f613cede165ad08fad7a23
+sourceHash: 7a2f831964be9fb1473847365cd287574d956952
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -188,7 +188,7 @@ El sistema de diseño elige una vez para todos los componentes que tienen esta e
 ### Evita
 
 - No uses el color para informar de un fallo. Una barra roja no le dice nada a quien no puede ver el color; detén el indicador y muestra un mensaje junto a él.
-- No lo uses como medidor de un nivel, como el almacenamiento usado o la seguridad de una contraseña. Eso es un medidor (meter), que es un componente distinto.
+- No lo uses como medidor de un nivel, como el almacenamiento usado o la seguridad de una contraseña. Eso es un [medidor](/es/components/meter/) (meter), que es un componente distinto.
 - No dejes que el valor retroceda ni que salte al final antes de que la tarea haya terminado. La barra es una promesa sobre la espera que queda.
 - No muestres varios indicadores para una sola tarea. Muestra uno para el conjunto, o uno por cada elemento que le importe a la persona.
 

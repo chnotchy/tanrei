@@ -32,18 +32,25 @@ const P = INPUT_BOX;
 export const TRIGGER_STATES = { '': '-r', hovered: '-h', focused: '-f', disabled: '-d' } as const;
 /** The two looks of each variant: the plain parts, and their `error.` twins while error is true. */
 export const TRIGGER_LOOKS = { plain: '', error: 'error-' } as const;
-/** The members of the size axis. Text styles are used whole: font and tracking. */
+/**
+ * The members of the size axis. Text styles are used whole: font and tracking. A stacked box has a height and a block
+ * padding of its own, as tall as a Button of the same size (`stackedBoxStyles()`); a box that floats its label reads
+ * `height` and `pad-block`.
+ */
 export const TRIGGER_SIZE_MEMBERS = {
   height: 'container-height',
+  'stacked-height': 'stacked-container-height',
   pad: 'container-padding-inline',
   'pad-icon': 'container-padding-inline-with-icon',
   'pad-block': 'container-padding-block',
+  'stacked-pad-block': 'stacked-container-padding-block',
   'pad-label': 'container-padding-block-with-label',
   gap: 'container-gap',
   label: 'label-typescale',
   floated: 'label-floated-typescale',
   input: 'input-typescale',
   icon: 'icon-size',
+  'state-duration': 'motion-state-duration',
 } as const;
 const TYPESCALES = new Set(['label-typescale', 'label-floated-typescale', 'input-typescale']);
 
@@ -122,6 +129,18 @@ const STACKED = ".field[data-layout='stacked']";
 const FLOATED = `.field:not([data-layout='stacked'])${FLOAT}`;
 
 /**
+ * A stacked box is as tall as a Button of the same size, with the block padding that leaves room for its line in that
+ * height (SEL-1, CMB-1, NMI-1, CLI-1): everything that reads `--_height` and `--_pad-block` inside a stacked field reads
+ * the stacked box's own. A filled or an outlined box keeps the taller height, which holds the label floated in it.
+ */
+export const stackedBoxStyles = (): CSSResult =>
+  unsafeCSS(`
+  ${STACKED} {
+    --_height: var(--_stacked-height);
+    --_pad-block: var(--_stacked-pad-block);
+  }`);
+
+/**
  * The label of a filled or outlined field (SEL-15, CMB-8): it rests centred in the container in label.typescale, and
  * floats — onto the outline's top edge, or to the top of a filled container — in label.floated-typescale. A label that
  * does not fit in the width it is given wraps, and is never cut. It moves and resizes over motion.label-*, and
@@ -132,7 +151,7 @@ const FLOATED = `.field:not([data-layout='stacked'])${FLOAT}`;
  * `--_pad-label`, `--_height`, `--_ow`, `--_l`, `--_ra`, the three lines and the label's two text styles).
  */
 export function floatingLabelStyles(): CSSResult {
-  const motion = `var(${P}-motion-state-duration) var(${P}-motion-state-easing)`;
+  const motion = `var(--_state-duration) var(${P}-motion-state-easing)`;
   return unsafeCSS(`
   .floating,
   .measure {
@@ -152,7 +171,7 @@ export function floatingLabelStyles(): CSSResult {
     transition-property: inset-block-start, inset-inline-start, translate, font-size, line-height, letter-spacing, max-inline-size, color;
     transition-duration:
       var(${P}-motion-label-duration), var(${P}-motion-label-duration), var(${P}-motion-label-duration), var(${P}-motion-label-duration),
-      var(${P}-motion-label-duration), var(${P}-motion-label-duration), var(${P}-motion-label-duration), var(${P}-motion-state-duration);
+      var(${P}-motion-label-duration), var(${P}-motion-label-duration), var(${P}-motion-label-duration), var(--_state-duration);
     transition-timing-function:
       var(${P}-motion-label-easing), var(${P}-motion-label-easing), var(${P}-motion-label-easing), var(${P}-motion-label-easing),
       var(${P}-motion-label-easing), var(${P}-motion-label-easing), var(${P}-motion-label-easing), var(${P}-motion-state-easing);
@@ -239,7 +258,7 @@ export function floatingLabelStyles(): CSSResult {
  * Reads `--_ow`, `--_iw`, `--_o`, `--_i`, `--_pad`, `--_end`, `--_float-widest` and the floated text style.
  */
 export function triggerEdgeStyles(): CSSResult {
-  const motion = `var(${P}-motion-state-duration) var(${P}-motion-state-easing)`;
+  const motion = `var(--_state-duration) var(${P}-motion-state-easing)`;
   return unsafeCSS(`
   .edge {
     position: absolute;

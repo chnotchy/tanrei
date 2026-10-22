@@ -2,7 +2,7 @@
 title: "复选框"
 description: "让用户打开或关闭一个独立的选项，显示只有部分打开的父级选项，并标出必选却尚未选择的选项。"
 translationOf: components/checkbox.mdx
-sourceHash: 5f5b384760649426cba12f3085fb27fa6c7a5c97
+sourceHash: 41115adc606cd77721bfa14586382e10f63283dc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -148,6 +148,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-checkbox disabled checked label="禁用，选中"></tanrei-checkbox>
     <tanrei-checkbox disabled indeterminate label="禁用，半选"></tanrei-checkbox>
   </div>
+  <tanrei-checkbox readonly checked label="只读，已选中"></tanrei-checkbox>
   <tanrei-checkbox checked label-hidden label="选择此行"></tanrei-checkbox>
 </DemoFrame>
 
@@ -164,6 +165,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 复选框用于彼此独立的选项：用户可以任选若干项（也可以一项都不选）的列表，或者像同意条款这样单独的“是或否”。选择在用户确认时生效，例如提交表单或保存。复选框也用来选择表格中的行或列表中的项。
 
 半选状态属于子项只有部分被选中的父级复选框，例如列表上方的“全选”。它不是用户可以选择的第三种答案。
+
+### 只读
+
+只读复选框显示一个可以阅读但不能更改的答案，例如提交订单前的确认步骤，或只有部分人可以更改的设置。它留在焦点顺序中，会连同状态一起被读作只读，并随表单提交。它看起来与启用的复选框相同，只是没有悬停和按下的反馈，这样它读起来是一个答案，而不是不可用的东西。选项根本不适用时，请使用 `disabled`；没有人需要到达它时，请把答案写成文字。
 
 ### 复选框、单选按钮还是开关
 
@@ -197,6 +202,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 标签就是无障碍名称，无论它是画出来的，还是用 `labelHidden` 隐藏的。画出来的文本对辅助技术隐藏，所以名称只读一次。
 - 点击或轻点标签会切换复选框。标签是点击区域的一部分，点击区域满足最小目标。
 - Space 切换它。Enter 只在平台用 Enter 激活任何获得焦点的控件时（Android、tvOS）才切换它；在 Web 上，Enter 提交表单。
+- 设置 `readOnly` 时，它仍可获得焦点，并在状态之外被读作只读。按下、Space、点击标签或 `click()` 都不会改变它，也没有悬停和按下的反馈。在 Web 上它的值照常提交，必填时也不会报告缺少值。HTML 的 `readonly` 对复选框无效，所以由组件自己完成这些。
 - 它只在键盘聚焦时，围绕方框显示焦点指示。
 - 对勾和横线对辅助技术隐藏。选中和混合是根据状态朗读的，绝不根据图标的名称。
 - 在减弱动态效果时，新的状态会在变化后的第一帧完整画出，绝不延迟，也不会只画一半。变化过程中再次变化时，从那一刻已经画出的样子继续。
@@ -207,6 +213,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 已知的平台差距：
 
 - SwiftUI、Compose、Flutter 和 React Native 仍然用各自的标记绘制对勾和横线，并以各自的方式做动画，没有标记自己的字重，方框也不是一个形状。
+- `readOnly` 目前只在 Web 上提供：SwiftUI、Compose、Flutter 和 React Native 还没有。
 - 在 `m3-like` 下，对勾是图标集里的图标，一边淡入一边放大；而 Material 是一笔一笔地画出自己的对勾，并把它弯折成横线（模仿差距 `checkbox-mark-drawn-on`）。
 
 ### 需要你做的事

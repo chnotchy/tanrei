@@ -2,7 +2,7 @@
 title: حقل إدخال الرمز لمرة واحدة
 description: يأخذ رمزًا قصيرًا أُرسل إلى الشخص، كرمز تسجيل الدخول أو رمز التحقق، قيمةً نصية واحدة مرسومة في خانات منفصلة، فيُرى طوله وما بقي منه ناقصًا، وتستطيع المنصة أن تملأه في خطوة واحدة.
 translationOf: components/one-time-code-input.mdx
-sourceHash: 175113d67562d2edbe7ef3a1d76bd1851bb3e2aa
+sourceHash: c820388188c64d7d53434e6c907a565d8d10ab67
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -45,7 +45,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-field label="رمز التحقق"
         supporting-text="أدخِل الرمز المكوّن من 6 أرقام الذي أرسلناه إلى هاتفك."
         error-text="الرمز غير صحيح. تحقق من الرسالة وحاول مرة أخرى."
-        requirement="required" required-text="مطلوب">
+        required required-text="مطلوب">
         <tanrei-one-time-code-input name="code" group-size="3"></tanrei-one-time-code-input>
       </tanrei-field>
     </form>
@@ -70,7 +70,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Field, OneTimeCodeInput } from '@tanrei/react';
+    // يُستورد المكوّن المتقدّم، وهو جزء تُبنى منه مكوّنات أخرى، من المدخل advanced.
+    import { Field } from '@tanrei/react';
+    import { OneTimeCodeInput } from '@tanrei/react/advanced';
 
     <Field label="رمز التحقق" error={wrong}
       supportingText="أدخِل الرمز المكوّن من 6 أرقام الذي أرسلناه إلى هاتفك."
@@ -207,5 +209,5 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - أعطِ عنصر التحكم اسمًا: تسمية الحقل المحيط به، أو `label` الخاصة به حيث تكون التسمية المرئية في مكان آخر، وبالكلمات نفسها.
 - قل بالكلمات ما المنتظر: كم حرفًا، وإلى أين أُرسل الرمز. فالخانات لا تُظهر الطول إلا لمن يراها.
-- قل إن الرمز خاطئ أو منتهي الصلاحية أو مطلوب بالخصائص `errorText` و `supportingText` و `requirement` في الحقل. واللون ليس الدليل الوحيد أبدًا.
+- قل إن الرمز خاطئ أو منتهي الصلاحية أو مطلوب بالخصائص `errorText` و `supportingText` و `required` في الحقل. واللون ليس الدليل الوحيد أبدًا.
 - حيث يكون وقت إدخال الرمز محدودًا، قل ذلك، وأتِح للشخص أن يطلب وقتًا إضافيًّا أو رمزًا جديدًا.

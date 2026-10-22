@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import {
@@ -12,6 +12,7 @@ import {
 } from '../../primitives/index.js';
 import { AXES, CORE_SIZES, heightProbe, styles } from './app-bar.styles.js';
 import { ownDirection } from '../../styles/product-text.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core sizes (small, large), plus any a design system adds: a size other than small has a title row that collapses. */
 export type TanreiAppBarSize = 'small' | 'large' | (string & {});
@@ -82,7 +83,7 @@ const clamp = (value: number, low: number, high: number) => Math.min(high, Math.
  * @csspart expanded - A large bar's own title row, under the top row, which collapses as the content scrolls.
  * @csspart outline - The bar's bottom edge.
  */
-export class TanreiAppBar extends LitElement {
+export class TanreiAppBar extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'app-bar');
   static override styles = styles;
 
@@ -339,7 +340,7 @@ export class TanreiAppBar extends LitElement {
   }
 
   /** APB-4, APB-13: which slots hold items; more than one navigation item or three actions still render, and are reported. */
-  private onSlotChange(event: Event) {
+  #onSlotChange(event: Event) {
     const slot = event.target as HTMLSlotElement;
     const items = slot.assignedElements();
     if ((BRAND_SLOTS as readonly string[]).includes(slot.name)) {
@@ -431,7 +432,7 @@ export class TanreiAppBar extends LitElement {
     // APB-21, APB-22: the slots stay, so that the bar hears what they hold; the ones not shown are in no box. The images
     // are the picture of one link (or one image) named by brand-label.
     // APB-24: a lockup's symbol stands at the wordmark's height.
-    const images = html`<span class=${classMap({ images: true, lockup: shown.length > 1 })}>${BRAND_SLOTS.map((name) => html`<slot name=${name} ?hidden=${!shown.includes(name)} @slotchange=${this.onSlotChange}></slot>`)}</span>`;
+    const images = html`<span class=${classMap({ images: true, lockup: shown.length > 1 })}>${BRAND_SLOTS.map((name) => html`<slot name=${name} ?hidden=${!shown.includes(name)} @slotchange=${this.#onSlotChange}></slot>`)}</span>`;
     const label = this.brandLabel.trim() || nothing;
     const brand = !hasBrand
       ? html`<span class="brand" hidden>${images}</span>`
@@ -445,13 +446,13 @@ export class TanreiAppBar extends LitElement {
           class=${classMap({ row: true, center: this.center, 'has-navigation': this.hasNavigation, 'has-brand': hasBrand, 'has-actions': this.hasActions })}
         >
           <div class="lead">
-            <div class="navigation"><slot name="navigation" @slotchange=${this.onSlotChange}></slot></div>
+            <div class="navigation"><slot name="navigation" @slotchange=${this.#onSlotChange}></slot></div>
             ${brand}
           </div>
           <div class="title-area" style=${styleMap({ opacity: expands && covered < 1 ? String(covered) : null })}>
             ${topTitle ? this.titleBlock(topHidden) : nothing}
           </div>
-          <div class="actions"><slot name="actions" @slotchange=${this.onSlotChange}></slot></div>
+          <div class="actions"><slot name="actions" @slotchange=${this.#onSlotChange}></slot></div>
         </div>
         ${showsExpanded
           ? html`<div part="expanded" class="expanded" aria-hidden=${covered >= 1 ? 'true' : nothing}>

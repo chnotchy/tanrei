@@ -2,7 +2,7 @@
 title: Entrada de texto
 description: La caja en la que se escribe, y todo lo que se escribe en ella (una línea o varias, una fecha o una hora, código), sin fila de etiqueta, ayuda ni texto de error propios. Para un lugar cuya etiqueta está en otra parte, o dentro de un campo que el producto compone por su cuenta.
 translationOf: components/text-input.mdx
-sourceHash: 06b01bf09709b58b9d0db57bc6adde3c204610d9
+sourceHash: 0010bbce8df9402be23fc43b87feaec5e7a469c7
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -76,7 +76,8 @@ En la web es `<tanrei-text-input>`. Las demás plataformas todavía no la han im
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { TextInput } from '@tanrei/react';
+    // Un componente avanzado —una pieza de la que se construyen otros— se importa desde la entrada advanced.
+    import { TextInput } from '@tanrei/react/advanced';
 
     <TextInput name="q" type="search" label="Filtrar tokens" placeholder="Filtrar tokens"
       value={query} onInput={(event) => setQuery(event.currentTarget.value)} />
@@ -89,14 +90,14 @@ En la web es `<tanrei-text-input>`. Las demás plataformas todavía no la han im
 Un campo alrededor de una entrada de texto es un campo de texto escrito por extenso. Deja vacío el `label` de la entrada: el campo le da nombre. `label`, `error`, `disabled` y la obligatoriedad se indican en el campo; `name`, `value` y todo lo que tiene que ver con escribir, en la entrada.
 
 ```html
-<tanrei-field label="Correo electrónico" requirement="required" required-text="Obligatorio"
+<tanrei-field label="Correo electrónico" required required-text="Obligatorio"
   supporting-text="Solo lo usamos para iniciar tu sesión.">
   <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input>
 </tanrei-field>
 ```
 
 <DemoFrame label="Un campo con una entrada de texto dentro: la misma imagen que un campo de texto" column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Correo electrónico" requirement="required" required-text="Obligatorio" supporting-text="Solo lo usamos para iniciar tu sesión.">
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Correo electrónico" required required-text="Obligatorio" supporting-text="Solo lo usamos para iniciar tu sesión.">
     <tanrei-text-input type="email"></tanrei-text-input>
   </tanrei-field>
 </DemoFrame>
@@ -153,7 +154,7 @@ Lo que ocurre en la caja es lo mismo sin nada más, enmarcada y en un campo de t
 - **Una fecha o una hora a medio rellenar**, o con un valor que no está disponible, dibuja la caja en error y emite `entryError`. `invalidText` o `unavailableText` se añade a la descripción de la entrada; nada lo dibuja.
 - **El recuento** se lleva, se describe y se anuncia, y no se dibuja. `countText` es el recuento como texto («12/40»), para que lo dibujes tú.
 - **La obligatoriedad** la dice un campo. Una entrada sin nada más no tiene ningún ajuste de obligatoriedad: donde el formulario necesite una respuesta, valídala tú.
-- **Pequeña** (40, con texto de 14) es para una entrada en una barra de aplicación, una barra de herramientas o una fila densa de controles: queda a la misma altura que un [selector](/es/components/select/) pequeño o un botón pequeño. `medium` (48) y `large` (56) son para formularios. Su área de toque cumple el objetivo mínimo en todos los tamaños.
+- **Pequeña** (32, con texto de 14) es para una entrada en una barra de aplicación, una barra de herramientas o una fila densa de controles: queda a la misma altura que un [selector](/es/components/select/) pequeño o un botón pequeño. `medium` (40) y `large` (56) son para formularios. Su área de toque cumple el objetivo mínimo en todos los tamaños.
 - **Un prefijo en una página de derecha a izquierda.** El valor de una entrada de correo electrónico, URL, teléfono, número o contraseña se escribe de izquierda a derecha. Junto a un prefijo se coloca pegado a él, de modo que `https://` y la dirección se leen como una sola cadena también en una página de derecha a izquierda; sin prefijo queda en el borde de inicio de la entrada.
 
 ### Lo que ya se introdujo
@@ -179,7 +180,7 @@ La entrada no da a estos elementos ningún rol, ningún lugar en el orden del fo
 - `input` y `change` son eventos compuestos. `action` es un CustomEvent cancelable: cancélalo para que Enter no envíe el formulario. `pickerrequest` y `entryerror` son CustomEvents cuyo `detail` contiene `{ value, type, min, max }` y `{ reason, text }`. Sus tipos son `TanreiTextInputActionDetail`, `TanreiTextInputPickerRequestDetail` y `TanreiTextInputEntryErrorDetail`.
 - `countText` es una propiedad de solo lectura, nueva después de cada cambio del valor. No tiene atributo.
 - Los atributos van en kebab-case, como `label-hidden`, `min-rows`, `prefix-text` y `no-wrap`, que es `wrap` puesto en false. `readonly`, `maxlength`, `autocomplete`, `min` y `max` conservan los nombres de HTML.
-- Partes: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `entries`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-grip`.
+- Partes: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `entries`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-handle`.
 - Slots: `leading-icon`, `trailing-icon` y `entries`. Un icono final puede ser tu propio Button de solo icono. La parte `entries` no tiene caja propia: sus elementos están en las propias líneas de la caja.
 - `resize-label` y `segment-empty-text`, si se dejan vacíos, se leen de los textos del producto (`setWords()`).
 - Antes de que el elemento esté definido no tiene tamaño. Reserva la altura de la caja.

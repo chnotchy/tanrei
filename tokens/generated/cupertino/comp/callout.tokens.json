@@ -7,44 +7,7 @@
             "rationale": "One product puts notices in the flow of its content that stay there: a note beside the paragraph it qualifies, a caution above a procedure, the reason a page is not what the reader expects, a summary of what is wrong with a form, a notice at the top of a screen that something changed underneath the person's work. It draws most of them as a quiet tinted block, some as an outline where a fill would weigh on a dense page or vanish on a tinted surface; it shows information, a warning, an error and a success in that status's colors beside the neutral ones; some have a title, some one or two actions, and some can be closed.",
             "since": "0.1.0"
           },
-          "dev.tanrei.states": {
-            "variants": [
-              "close"
-            ],
-            "states": [
-              "hovered",
-              "focused",
-              "pressed"
-            ],
-            "perVariant": {
-              "container.color": "color",
-              "content.color": "color",
-              "state-layer.color": "color",
-              "info.container.color": "color",
-              "info.content.color": "color",
-              "info.state-layer.color": "color",
-              "warning.container.color": "color",
-              "warning.content.color": "color",
-              "warning.state-layer.color": "color",
-              "error.container.color": "color",
-              "error.content.color": "color",
-              "error.state-layer.color": "color",
-              "success.container.color": "color",
-              "success.content.color": "color",
-              "success.state-layer.color": "color",
-              "outlined.container.color": "color",
-              "outlined.content.color": "color",
-              "outlined.state-layer.color": "color"
-            },
-            "perComponent": {
-              "opacity": "number"
-            }
-          },
           "dev.tanrei.axes": {
-            "control": {
-              "default": "close",
-              "from": "states"
-            },
             "size": {
               "default": "medium",
               "values": [
@@ -67,32 +30,27 @@
                 "title.color",
                 "body.color",
                 "icon.color",
-                "focus-ring.color",
                 "info.container.color",
                 "info.title.color",
                 "info.body.color",
                 "info.icon.color",
-                "info.focus-ring.color",
                 "warning.container.color",
                 "warning.title.color",
                 "warning.body.color",
                 "warning.icon.color",
-                "warning.focus-ring.color",
                 "error.container.color",
                 "error.title.color",
                 "error.body.color",
                 "error.icon.color",
-                "error.focus-ring.color",
                 "success.container.color",
                 "success.title.color",
                 "success.body.color",
-                "success.icon.color",
-                "success.focus-ring.color"
+                "success.icon.color"
               ]
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a callout reads: its padding, corners and the gaps between its parts; the outlined look's edge; the glyph's size, gap and opacity; the text styles of the title and the body at each size; for each look (tonal, outlined), without a status and in each status (info, warning, error, success), the fill, the title's and the body's colors, the glyph's color and the color of the focus indicator on that fill; and, for the close button, its size, shape and glyph size and, in each state and form, its container, content and state-layer colors.",
+            "usage": "Everything a callout reads: its padding, corners and the gaps between its parts; the outlined look's edge; the glyph's size, gap and opacity; the text styles of the title and the body at each size; for each look (tonal, outlined), without a status and in each status (info, warning, error, success), the fill, the title's and the body's colors and the glyph's color; and the close button's variant. The close button is a Tanrei Button with Button's own tokens: the callout names its variant, and on a filled look gives it the body color of its form as its tone.",
             "rules": [
               "A callout is part of the content and stays: a note, a caution, the reason for something, a summary of errors. A message that reports what the app just did and then goes is a snackbar; a choice the person must make before going on is a dialog; a word that names a state is a tag.",
               "A notice for a whole page or screen (often called a banner) is a callout the product places above that region's content, usually live and with an action or a close button. It is not another component, and there is no banner look.",
@@ -100,9 +58,10 @@
               "A status is never shown by color alone: the glyph gives it a shape, and the title says it, or statusLabel adds it in words for assistive technology.",
               "Use the four statuses for what they mean everywhere in the system. Advice (a tip) is not a success and a reminder is not a warning: use the default form with a glyph of your own and say the kind in the title.",
               "Tonal is the default. Use outlined where a fill would vanish (on a tinted surface, inside a filled card) or where many callouts sit close together.",
-              "A look's tokens end in its name, after the status when there is one: container.color.tonal, error.container.color.tonal. The close button's carry the form as a prefix after the state: close.hovered.error.container.color.",
+              "A look's tokens end in its name, after the status when there is one: container.color.tonal, error.container.color.tonal.",
               "The actions are the product's own Buttons and links placed in the actions slot; the callout only lays them out. Prefer outlined or text Buttons, whose labels sit on the callout's own fill in every form; at most two.",
               "The body is the product's content. Long-form blocks inside it are prose, at the callout's size and without a measure of their own.",
+              "Its close button is a small icon-only Tanrei Button. Re-value comp.callout.close-button.variant in a layer to change it in every callout of a product; on a filled look it is drawn in the body color of the callout's form (a tone), so recoloring the body recolors it too.",
               "Restyle through these tokens in a layer; never draw a tinted box by hand."
             ]
           }
@@ -269,24 +228,27 @@
             "$description": "Between two actions, along the row and between rows when they wrap."
           }
         },
-        "focus-ring": {
-          "$extensions": {
-            "dev.tanrei.vocabulary": {
-              "rationale": "One product whose focus color is tuned for its surfaces still shows keyboard focus on a callout's fill, which is not one of them, so the indicator's color on each fill is the callout's to say.",
-              "since": "0.1.0"
-            }
-          },
-          "color": {
-            "$description": "The outer stroke of the close button's focus indicator, per look, without a status.",
-            "tonal": {
-              "$type": "color",
-              "$value": "{tanrei.comp.callout.body.color.tonal}",
-              "$description": "On the tonal container the indicator takes the container's content color, which every system holds against it."
-            },
-            "outlined": {
-              "$type": "color",
-              "$value": "{tanrei.sys.color.focus-ring}",
-              "$description": "The outlined look sits on a surface, where the system's own focus color is held."
+        "close-button": {
+          "variant": {
+            "$type": "number",
+            "$value": 4,
+            "$description": "The Button variant of the close button, an icon-only small Button (CLO-10). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name. On a filled look the Button draws it in the tone of the callout's form (BTN-45).",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides once how the close control of its notices stands: a tonal button that reads as a control on the notice's fill, or a bare glyph that leaves the notice to its text."
+              },
+              "dev.tanrei.enum": {
+                "values": [
+                  "filled",
+                  "tonal",
+                  "elevated",
+                  "outlined",
+                  "text"
+                ]
+              },
+              "dev.tanrei.derive": {
+                "fixed": "Keeps the bare close glyph this preset draws on a notice; the change to a tonal close button is the default system's."
+              }
             }
           }
         },
@@ -341,19 +303,6 @@
                 "$type": "color",
                 "$value": "{tanrei.sys.color.info}",
                 "$description": "The status glyph, in the status's own color, drawn at icon.opacity: the only place an outlined callout shows its status."
-              }
-            }
-          },
-          "focus-ring": {
-            "color": {
-              "tonal": {
-                "$type": "color",
-                "$value": "{tanrei.comp.callout.info.body.color.tonal}",
-                "$description": "On a status's container the indicator takes that container's content color, which every system holds against it."
-              },
-              "outlined": {
-                "$type": "color",
-                "$value": "{tanrei.comp.callout.focus-ring.color.outlined}"
               }
             }
           }
@@ -411,19 +360,6 @@
                 "$description": "The status glyph, in the status's own color, drawn at icon.opacity: the only place an outlined callout shows its status."
               }
             }
-          },
-          "focus-ring": {
-            "color": {
-              "tonal": {
-                "$type": "color",
-                "$value": "{tanrei.comp.callout.warning.body.color.tonal}",
-                "$description": "On a status's container the indicator takes that container's content color, which every system holds against it."
-              },
-              "outlined": {
-                "$type": "color",
-                "$value": "{tanrei.comp.callout.focus-ring.color.outlined}"
-              }
-            }
           }
         },
         "error": {
@@ -477,19 +413,6 @@
                 "$type": "color",
                 "$value": "{tanrei.sys.color.error}",
                 "$description": "The status glyph, in the status's own color, drawn at icon.opacity: the only place an outlined callout shows its status."
-              }
-            }
-          },
-          "focus-ring": {
-            "color": {
-              "tonal": {
-                "$type": "color",
-                "$value": "{tanrei.comp.callout.error.body.color.tonal}",
-                "$description": "On a status's container the indicator takes that container's content color, which every system holds against it."
-              },
-              "outlined": {
-                "$type": "color",
-                "$value": "{tanrei.comp.callout.focus-ring.color.outlined}"
               }
             }
           }
@@ -547,205 +470,6 @@
                 "$description": "The status glyph, in the status's own color, drawn at icon.opacity: the only place an outlined callout shows its status."
               }
             }
-          },
-          "focus-ring": {
-            "color": {
-              "tonal": {
-                "$type": "color",
-                "$value": "{tanrei.comp.callout.success.body.color.tonal}",
-                "$description": "On a status's container the indicator takes that container's content color, which every system holds against it."
-              },
-              "outlined": {
-                "$type": "color",
-                "$value": "{tanrei.comp.callout.focus-ring.color.outlined}"
-              }
-            }
-          }
-        },
-        "controls": {
-          "height": {
-            "$type": "dimension",
-            "$value": {
-              "value": 32,
-              "unit": "px"
-            },
-            "$description": "The side of the close button's square. Its hit area meets the minimum target.",
-            "$extensions": {
-              "dev.tanrei.derive": {
-                "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 8
-              }
-            }
-          },
-          "shape": {
-            "$type": "dimension",
-            "$value": "{tanrei.sys.shape.corner.full}",
-            "$description": "The corners of the close button's state layer: a circle in the default system, as an icon-only button."
-          },
-          "icon": {
-            "size": {
-              "$type": "dimension",
-              "$value": "{tanrei.sys.icon.small}",
-              "$description": "The close glyph: the size of the callout's own glyph."
-            }
-          }
-        },
-        "close": {
-          "$description": "The close button: an icon-only button at the end of the first row, drawn only where the product makes the callout closable. Its forms carry the prefix of the callout's form: none for the tonal look without a status, the status for a tonal status form, and outlined for the outlined look in every status.",
-          "container": {
-            "color": {
-              "$type": "color",
-              "$value": {
-                "colorSpace": "srgb",
-                "components": [
-                  0,
-                  0,
-                  0
-                ],
-                "alpha": 0,
-                "hex": "#000000"
-              },
-              "$extensions": {
-                "dev.tanrei.derive": {
-                  "fixed": "The close button draws no fill at rest; its states draw the state layer."
-                }
-              }
-            }
-          },
-          "content": {
-            "color": {
-              "$type": "color",
-              "$value": "{tanrei.comp.callout.body.color.tonal}",
-              "$description": "The glyph on the tonal container, in that container's content color."
-            }
-          },
-          "state-layer": {
-            "color": {
-              "$type": "color",
-              "$value": "{tanrei.comp.callout.close.content.color}"
-            }
-          },
-          "info": {
-            "container": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.callout.close.container.color}",
-                "$description": "No fill at rest, as in the default form."
-              }
-            },
-            "content": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.sys.color.on-info-container}"
-              }
-            },
-            "state-layer": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.callout.close.info.content.color}"
-              }
-            }
-          },
-          "warning": {
-            "container": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.callout.close.container.color}",
-                "$description": "No fill at rest, as in the default form."
-              }
-            },
-            "content": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.sys.color.on-warning-container}"
-              }
-            },
-            "state-layer": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.callout.close.warning.content.color}"
-              }
-            }
-          },
-          "error": {
-            "container": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.callout.close.container.color}",
-                "$description": "No fill at rest, as in the default form."
-              }
-            },
-            "content": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.sys.color.on-error-container}"
-              }
-            },
-            "state-layer": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.callout.close.error.content.color}"
-              }
-            }
-          },
-          "success": {
-            "container": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.callout.close.container.color}",
-                "$description": "No fill at rest, as in the default form."
-              }
-            },
-            "content": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.sys.color.on-success-container}"
-              }
-            },
-            "state-layer": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.callout.close.success.content.color}"
-              }
-            }
-          },
-          "outlined": {
-            "container": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.callout.close.container.color}",
-                "$description": "No fill at rest, as in the default form."
-              }
-            },
-            "content": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.sys.color.on-surface-variant}",
-                "$description": "A glyph beside the text, quieter than the text, as an icon-only button on a surface."
-              }
-            },
-            "state-layer": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.callout.close.outlined.content.color}"
-              }
-            }
-          }
-        },
-        "motion": {
-          "state-duration": {
-            "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}"
-          },
-          "state-easing": {
-            "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
-          },
-          "feedback-duration": {
-            "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
-            "$description": "How long the answer to a press on the close button takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
           }
         }
       }

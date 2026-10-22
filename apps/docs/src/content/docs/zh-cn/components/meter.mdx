@@ -1,0 +1,170 @@
+---
+title: "计量条"
+description: "以条形或圆环显示一个已知的值在已知范围中的位置，例如已用存储空间、电池电量、配额用量或密码强度。外观与进度指示器相同，但不表示有任何事情正在进行。"
+translationOf: components/meter.mdx
+sourceHash: a9d8ef1942e071884710cdc52bdb78d45aadfb32
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="meter" />
+
+<DemoFrame label="线性和环形">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter value="0.62" label="已用存储空间" value-text="已用 9.3 GB，共 15 GB"></tanrei-meter>
+    <tanrei-meter value="37" max="50" label="已占座位" value-text="已占 37 个，共 50 个座位"></tanrei-meter>
+  </div>
+  <tanrei-meter variant="circular" value="0.62" label="电池"></tanrei-meter>
+  <tanrei-meter variant="circular" size="large" value="0.15" status="warning" label="电池" value-text="电量低：15%"></tanrei-meter>
+</DemoFrame>
+
+### 用法
+
+Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter 和 React Native 尚在计划中：它们还没有提供计量条。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-meter value="0.62" label="已用存储空间" value-text="已用 9.3 GB，共 15 GB"></tanrei-meter>
+    <tanrei-meter value="37" max="50" label="已占座位" value-text="已占 37 个，共 50 个座位"></tanrei-meter>
+
+    <!-- 值意味着什么由产品决定，并且也要用文字说出来。 -->
+    <tanrei-meter value="0.85" status="warning" label="已用存储空间" value-text="即将用满：已用 12.8 GB，共 15 GB"></tanrei-meter>
+
+    <tanrei-meter variant="circular" size="small" value="0.62" label="电池"></tanrei-meter>
+
+    <script type="module">
+      import '@tanrei/web/components/meter';
+      const meter = document.querySelector('tanrei-meter');
+      meter.value = used / quota;
+      meter.status = used / quota > 0.8 ? 'warning' : 'default';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Meter } from '@tanrei/react';
+
+    <Meter value={used / quota} label="已用存储空间" valueText={`已用 ${usedText}，共 ${quotaText}`} />
+    <Meter value={seats} max={50} label="已占座位" valueText={`已占 ${seats} 个，共 50 个座位`} />
+    <Meter
+      value={used / quota}
+      status={used / quota > 0.8 ? 'warning' : 'default'}
+      label="已用存储空间"
+      valueText={used / quota > 0.8 ? `即将用满：已用 ${usedText}，共 ${quotaText}` : `已用 ${usedText}，共 ${quotaText}`}
+    />
+    <Meter variant="circular" size="small" value={charge} label="电池" />
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="语义状态：default、info、success、warning、error" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter value="0.62" label="Default"></tanrei-meter>
+    <tanrei-meter value="0.4" status="info" label="Info"></tanrei-meter>
+    <tanrei-meter value="0.9" status="success" label="Success"></tanrei-meter>
+    <tanrei-meter value="0.85" status="warning" label="Warning"></tanrei-meter>
+    <tanrei-meter value="0.98" status="error" label="Error"></tanrei-meter>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="各种尺寸、范围的两端，以及自定义范围" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter size="small" value="0.62" label="Small"></tanrei-meter>
+    <tanrei-meter size="medium" value="0.62" label="Medium"></tanrei-meter>
+    <tanrei-meter size="large" value="0.62" label="Large"></tanrei-meter>
+    <tanrei-meter value="0" label="空"></tanrei-meter>
+    <tanrei-meter value="1" label="已满"></tanrei-meter>
+    <tanrei-meter value="37" max="50" value-text="已占 37 个，共 50 个座位" label="已占座位"></tanrei-meter>
+  </div>
+  <tanrei-meter variant="circular" size="small" value="0.62" label="Small"></tanrei-meter>
+  <tanrei-meter variant="circular" size="medium" value="0.62" label="Medium"></tanrei-meter>
+  <tanrei-meter variant="circular" size="large" value="0.62" label="Large"></tanrei-meter>
+</DemoFrame>
+
+<DemoFrame label="分隔方式：divider（默认系统的选择）和 gap" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter separation="divider" value="0.62" label="Divider"></tanrei-meter>
+    <tanrei-meter separation="gap" value="0.62" label="Gap"></tanrei-meter>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="meter" />
+
+## 指南
+
+### 何时使用
+
+当你要显示某个量在一个有真实最小值和最大值的范围中处于什么位置时，使用计量条：配额中已用的存储空间、电池电量、房间里已占的座位、新密码的强度。它显示的是一个水平；没有任何事情正在进行，也没有任何事情会结束。
+
+对于正在运行的任务，例如上传、导入、耗时较长的保存，请改用[进度指示器](/zh-cn/components/progress-indicator/)。两者外观相同，但辅助技术会告诉用户某件事正在进行，而计量条绝不能这样说。没有有意义的最大值的值，例如消息数量，两者都不适用：请用文本显示。
+
+### 如何选择变体
+
+| 变体 | 用途 |
+| --- | --- |
+| 线性 | 属于某个页面或某个区域的水平：设置页上的存储空间、卡片里的配额、套餐列表中的一行。条形会占满布局分配给它的宽度。 |
+| 环形 | 空间紧凑的地方，以及文本旁边的水平：状态栏里的电池、设备列表中的一行。圆环的尺寸是固定的。 |
+
+### 如何选择尺寸
+
+| 尺寸 | 默认系统中的条形粗细 / 圆环尺寸 | 用途 |
+| --- | --- | --- |
+| Small | 2 / 16 | 紧凑的行、小号文本旁边。 |
+| Medium | 4 / 24 | 大多数地方。这是默认尺寸。 |
+| Large | 8 / 40 | 整个视图所围绕的那一个水平，例如账户的存储空间页面。 |
+
+尺寸、轨道和默认颜色与进度指示器相同，因此计量条和进度指示器并排放置时也能保持一致。设计系统可以通过计量条自己的令牌，只改变计量条。
+
+### 如何选择语义状态
+
+计量条不决定一个值意味着什么。值越多越好还是越坏，是你的产品才知道的事：存储空间快满了是 warning，密码接近最高强度是 success。请自己计算语义状态并传入。语义状态的名称与标签和消息条所用的相同。
+
+| 语义状态 | 用途 |
+| --- | --- |
+| Default | 不需要任何说明的水平。大多数计量条都保持这个状态。 |
+| Info | 值得知道、但不要求任何操作的水平，例如即将重置的配额。 |
+| Success | 处于应有位置的水平，例如强度高的密码。 |
+| Warning | 很快就需要注意的水平，例如快用满的存储空间或电量低的电池。 |
+| Error | 已经妨碍了某件事的水平，例如已经用满的存储空间。 |
+
+语义状态只改变指示部分的颜色，不改变其他任何东西。请同时用文字说明它的含义：写在值文本里，以及计量条旁边的文字里。
+
+### 建议
+
+- 给它一个说明测量对象的标签：“已用存储空间”，而不是“计量条”。如果旁边显示了说明文字，请使用相同的措辞。
+- 当百分比不是自然的读法时，使用值文本：“已用 9.3 GB，共 15 GB”“已占 37 个，共 50 个座位”“强”。
+- 当语义状态有含义时，也把它写进值文本：“即将用满：已用 12.8 GB，共 15 GB”。
+
+### 不建议
+
+- 不要把它用于正在运行的任务。那是进度指示器。
+- 不要只依靠语义状态的颜色。看不到颜色的人也必须能得知存储空间快满了。
+- 不要显示范围之外的值。计量条会把它限制在范围内再绘制和公开，用户听到的数字就不是你手上的那个数字了。
+
+## 无障碍
+
+<ComponentAccessibility name="meter" />
+
+### 组件负责的部分
+
+- 它公开计量条（meter）角色，以标签作为名称，并公开范围、当前值（限制在范围内）以及值文本（如果有）。它从不表示自己处于忙碌状态，也不表示有任务正在进行。
+- 它永远不可获得焦点，也不会主动播报自己的变化。辅助技术会在用户到达它时读出当前值。
+- 语义状态从不被单独播报：它只改变颜色。
+- 值变化时，指示部分的末端会移动；语义状态变化时，颜色会渐变。在请求减弱动态效果时，末端立即移动，只有颜色渐变。
+- 在强制颜色模式下，无论语义状态如何，轨道都变成一条细的边线，指示部分则被填充，两者都使用文本颜色绘制，因此仍可以从指示部分结束的位置读出值。
+- 空标签、范围之外的值、不是数字的值，以及未知的 `size`、`variant`、`separation` 或 `status`，都会在调试构建中报告。
+
+### 你需要做的
+
+- 用文字说明语义状态的含义：写在值文本里，以及计量条旁边的文字里。
+- 重要的变化（例如存储空间已满）要由你自己告知：用实时区域中的消息，或用户会看到的通知。计量条不会说出来。
+- 如果你更改了指示部分的颜色（默认颜色和四种语义状态），请让每一种颜色相对于轨道和其背后的表面都至少保持 3:1。值是从指示部分与轨道相接的位置读出的。默认系统中，这五种颜色在浅色下都高于 4.6:1，在深色下都高于 7.3:1。

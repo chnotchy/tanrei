@@ -5,6 +5,7 @@ import { AvailabilityController, BUTTON_VARIANTS, compChoice, DIRECTION_PROBE, D
 import { TanreiButton } from '../button/button.js';
 import { CarouselGeometry, type TanreiCarouselHeroAlignment } from './carousel-geometry.js';
 import { carouselStyles, itemStyles } from './carousel.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 export type { TanreiCarouselHeroAlignment } from './carousel-geometry.js';
 
@@ -99,7 +100,7 @@ interface ItemPlacement {
  * @csspart state-layer - The layer over the content that shows hover, focus and press (CRL-16).
  * @fires click - The item was activated by pointer, touch, keyboard or assistive technology.
  */
-export class TanreiCarouselItem extends LitElement {
+export class TanreiCarouselItem extends TanreiElement {
   static override styles = [itemStyles, hiddenHost];
 
   // `element.focus()` focuses the item's button; the carousel moves focus between items this way.
@@ -160,12 +161,12 @@ export class TanreiCarouselItem extends LitElement {
   }
 
   /** CRL-7: where style queries are missing, the focus style is read when focus arrives. */
-  private onFocus() {
+  #onFocus() {
     syncFocusStyle(this, this.container);
   }
 
   /** CRL-1: Enter activates on key-down and Space on key-up, as a native button does. */
-  private onKeyDown(event: KeyboardEvent) {
+  #onKeyDown(event: KeyboardEvent) {
     if (event.target !== this.container) return;
     this.press.onKeyDown(event);
     if (event.key === 'Enter') {
@@ -177,14 +178,14 @@ export class TanreiCarouselItem extends LitElement {
     }
   }
 
-  private onKeyUp(event: KeyboardEvent) {
+  #onKeyUp(event: KeyboardEvent) {
     this.press.onKeyUp(event);
     if (event.key !== ' ' || !this.spaceDown) return;
     this.spaceDown = false;
     this.container?.click();
   }
 
-  private onBlur() {
+  #onBlur() {
     // A Space whose key-up arrives somewhere else does not activate, as on a native button.
     this.spaceDown = false;
     this.press.onBlur();
@@ -223,10 +224,10 @@ export class TanreiCarouselItem extends LitElement {
         @pointerup=${this.press.release}
         @pointercancel=${this.press.release}
         @pointerleave=${this.press.release}
-        @keydown=${this.onKeyDown}
-        @keyup=${this.onKeyUp}
-        @blur=${this.onBlur}
-        @focus=${this.onFocus}
+        @keydown=${this.#onKeyDown}
+        @keyup=${this.#onKeyUp}
+        @blur=${this.#onBlur}
+        @focus=${this.#onFocus}
       >
         <div class="clip" aria-hidden="true">
           <div part="content" class="content"><slot @slotchange=${this.inspectContent}></slot></div>
@@ -280,7 +281,7 @@ type Motion = 'scroll' | 'autoplay';
  * @exportparts tanrei-button container: next-container, label: next-label, icon: next-icon
  * @fires {CustomEvent<TanreiCarouselPausedChangeDetail>} pausedchange - The person paused or played autoplay with the playback control; `detail.paused` is the new value. Not fired when `paused` is set, nor for a hold.
  */
-export class TanreiCarousel extends LitElement {
+export class TanreiCarousel extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'carousel');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);

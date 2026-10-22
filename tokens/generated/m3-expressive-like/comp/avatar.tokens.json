@@ -34,7 +34,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything an avatar reads: per size, the side of its box, the text style of its initials, the size of its fallback glyph and how far the avatars of a group overlap; per shape, the box's corners; the quiet fill behind a fallback and a loading picture; the color of the initials and of the glyph; and the gap a group draws around each of its avatars.",
+            "usage": "Everything an avatar reads: per size, the side of its box, the text style of its initials, the size of its fallback glyph and how far the avatars of a group overlap; per shape, the box's corners; the quiet fill behind a fallback and a loading picture; the color of the initials and of the glyph; the gap a group draws around each of its avatars; and the cross-fade in which a picture that has arrived takes the fallback’s place.",
             "rules": [
               "An avatar stands for a person, or for a team, a project or another thing people act as. It is a picture, not a control: it takes no press and no focus and has no states. An avatar that goes somewhere or opens something is placed inside a link or a Button, which draws the states.",
               "Give label the name it stands for. Beside a visible name set decorative, so the name is not read twice; alone, the label is its accessible name.",
@@ -146,6 +146,18 @@
             "$type": "color",
             "$value": "{tanrei.sys.color.on-surface-variant}",
             "$description": "The color of the fallback glyph: the initials' color."
+          }
+        },
+        "motion": {
+          "picture-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.role.state.default}",
+            "$description": "How long a picture that has arrived takes to fade in over the fallback, which fades out beneath it: a change of what a medium-sized box draws in place. A picture the platform already holds is drawn at once."
+          },
+          "picture-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.state}",
+            "$description": "The curve of that cross-fade: a change of opacity in place."
           }
         },
         "group": {

@@ -2,7 +2,7 @@
 title: Cuadro combinado
 description: La caja en la que se escribe para encontrar un valor, y la lista de opciones que abre, sin fila de etiqueta, ayuda ni texto de error propios. Para un lugar cuya etiqueta está en otra parte, o dentro de un campo que el producto compone por su cuenta.
 translationOf: components/combobox.mdx
-sourceHash: 5ae9d9248515d491b9f784d4e648e502d7e560a1
+sourceHash: 20505447c5a948a07d010334c0b1c6d27b691e0b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -87,7 +87,8 @@ En la web es `<tanrei-combobox>`, con elementos `<tanrei-option>` como hijos, lo
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Combobox, Option } from '@tanrei/react';
+    // Un componente avanzado —una pieza de la que se construyen otros— se importa desde la entrada advanced.
+    import { Combobox, Option } from '@tanrei/react/advanced';
 
     <Combobox label="Persona asignada, notas de la versión" value={assignee} onChange={(event) => setAssignee(event.detail.value)}>
       <Option value="aiko">Aiko Tanaka</Option>
@@ -104,7 +105,7 @@ Lo que ocurre en la caja y en la lista es lo mismo sin nada más, enmarcado y en
 Un campo alrededor de un cuadro combinado es un campo de cuadro combinado escrito por extenso. Deja vacío el `label` del cuadro combinado: el campo le da nombre. `label`, `error`, `disabled` y la obligatoriedad se indican en el campo; `name`, `value`, las opciones y todo lo que tiene que ver con escribir, en el cuadro combinado.
 
 ```html
-<tanrei-field label="Ciudad" requirement="required" required-text="Obligatorio"
+<tanrei-field label="Ciudad" required required-text="Obligatorio"
   supporting-text="Adónde se envía el pedido.">
   <tanrei-combobox name="city" value="tokyo">
     <tanrei-option value="kyoto">Kioto</tanrei-option>
@@ -114,7 +115,7 @@ Un campo alrededor de un cuadro combinado es un campo de cuadro combinado escrit
 ```
 
 <DemoFrame label="Un campo con un cuadro combinado dentro: la misma imagen que un campo de cuadro combinado" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Ciudad" requirement="required" required-text="Obligatorio" supporting-text="Adónde se envía el pedido.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Ciudad" required required-text="Obligatorio" supporting-text="Adónde se envía el pedido.">
     <tanrei-combobox value="tokyo" empty-text="Sin coincidencias">
       <tanrei-option value="kyoto">Kioto</tanrei-option>
       <tanrei-option value="tokyo">Tokio</tanrei-option>
@@ -163,7 +164,7 @@ Una pulsación en la etiqueta del campo lleva el foco al campo de entrada y no a
 | Contiene | El valor, el texto, si la lista está abierta, su lugar en un formulario, los eventos | Nada |
 | Dice a la tecnología de apoyo | Que es un cuadro combinado con una lista, expandido o no, y qué opción es la activa | El nombre, la ayuda o el texto de error, obligatorio, no válido, deshabilitado |
 
-Las tres variantes y los tres tamaños, `small` (40), `medium` (48) y `large` (56), son los de la entrada de texto: un cuadro combinado y una entrada de texto puestos uno al lado del otro comparten todas sus líneas. El sistema predeterminado solo incluye `stacked`.
+Las tres variantes y los tres tamaños, `small` (32), `medium` (40) y `large` (56), son los de la entrada de texto: un cuadro combinado y una entrada de texto puestos uno al lado del otro comparten todas sus líneas. El sistema predeterminado solo incluye `stacked`.
 
 ### Sin nada más, sin un campo
 
@@ -171,6 +172,12 @@ Las tres variantes y los tres tamaños, `small` (40), `medium` (48) y `large` (5
 - **Un error** es `error`, que defines tú: la caja se dibuja en su estado de error y se expone como no válida. El cuadro combinado no tiene texto de error. Di con palabras qué está mal junto a él, o enmárcalo.
 - **La obligatoriedad** la dice un campo. Un cuadro combinado sin nada más no tiene ningún ajuste de obligatoriedad: donde el formulario necesite una respuesta, valídala tú.
 - **Un texto que no nombra ninguna opción** se abandona cuando la persona sale, a menos que `allowCustomValue` esté activado. Nunca es un error propio del cuadro combinado.
+
+### Los glifos de la lista
+
+El glifo de una opción está en una columna delante de su etiqueta. `iconSpace` decide dónde se guarda esa columna en una opción sin glifo. `auto` (predeterminado) la guarda en una sección en la que otra opción tiene glifo, para que las etiquetas de la sección empiecen en una misma línea, y no la guarda en una sección sin glifos; una sección es un grupo, o una serie de opciones seguidas fuera de cualquier grupo. `always` la guarda en todas las opciones, y `never` solo en una opción que tiene glifo. El [menú](/es/components/menu/) tiene el mismo `iconSpace`, con los mismos valores y el mismo valor predeterminado. Solo cuentan las opciones que el filtro muestra.
+
+`density` fija cuánto espacio ocupa una opción: `regular` (el valor por defecto, de 48 de alto) o `compact` (de 32 de alto con glifos de 20, la fila compacta del [menú](/es/components/menu/)), para una herramienta que se usa con el ratón y cuyas listas son largas. El texto conserva su tamaño, y el contenedor es el de `size` sea cual sea la densidad. Con el tacto una opción nunca es más baja que el objetivo táctil.
 
 <ComponentSpecs name="combobox" />
 
@@ -212,7 +219,7 @@ Las tres variantes y los tres tamaños, `small` (40), `medium` (48) y `large` (5
 - No uses el marcador de posición como etiqueta. Desaparece en cuanto alguien escribe, y nunca es el nombre.
 - No definas `label`, `error` ni `disabled` en un cuadro combinado que está dentro de un campo. Indícalos en el campo, para que la etiqueta y la ayuda los sigan.
 - No pongas un campo de cuadro combinado dentro de un campo. Ya es un campo; el control que un campo enmarca es el cuadro combinado.
-- No escribas `supporting-text`, `error-text` ni `requirement` en un cuadro combinado. Son de un campo, y un cuadro combinado no dibuja ninguno de ellos.
+- No escribas `supporting-text`, `error-text`, `required` ni `optional` en un cuadro combinado. Son de un campo, y un cuadro combinado no dibuja ninguno de ellos.
 
 ## Accesibilidad
 

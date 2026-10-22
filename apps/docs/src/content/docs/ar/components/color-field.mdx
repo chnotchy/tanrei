@@ -2,7 +2,7 @@
 title: حقل اللون
 description: يتيح للناس تعيين لون واحد حقلًا من حقول النموذج، بقيمة نصية يقرؤونها ويكتبونها ويلصقونها، وعيّنة منها بجانب النص، وزر يطلب منتقيًا. وهو يُرسم ويُقاس كما يُرسم ويُقاس حقل النص.
 translationOf: components/color-field.mdx
-sourceHash: c2d03843c22e17c381fe97ae9eae9f18542ab6d5
+sourceHash: 86c3e71976d4488f85216a9391b0e4d6a8b9d83f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -39,7 +39,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     ```html
     <form>
       <tanrei-color-field name="brand" label="لون العلامة التجارية" value="#0f766e"
-        requirement="required" required-text="مطلوب"
+        required required-text="مطلوب"
         supporting-text="ستة أرقام سداسية عشرية، مثل &lrm;#0f766e."
         invalid-text="أدخِل ستة أرقام سداسية عشرية، مثل &lrm;#0f766e."
         picker picker-label="اختيار لون"></tanrei-color-field>
@@ -80,7 +80,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 الحقل نفسه مكتوبًا باليد من عضويه هو الصورة نفسها، ومربع النص (text box) نفسه عند التقنيات المساعدة، بالاسم والوصف والحالات نفسها:
 
 ```html
-<tanrei-field label="لون العلامة التجارية" requirement="required" required-text="مطلوب"
+<tanrei-field label="لون العلامة التجارية" required required-text="مطلوب"
   supporting-text="ستة أرقام سداسية عشرية، مثل &lrm;#0f766e.">
   <tanrei-color-input name="brand" value="#0f766e"
     invalid-text="أدخِل ستة أرقام سداسية عشرية، مثل &lrm;#0f766e."
@@ -89,7 +89,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="الحقل نفسه مكتوبًا باليد: حقل بداخله حقل إدخال اللون" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="لون العلامة التجارية" requirement="required" required-text="مطلوب" supporting-text="ستة أرقام سداسية عشرية، مثل &lrm;#0f766e.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="لون العلامة التجارية" required required-text="مطلوب" supporting-text="ستة أرقام سداسية عشرية، مثل &lrm;#0f766e.">
     <tanrei-color-input value="#0f766e" invalid-text="أدخِل ستة أرقام سداسية عشرية، مثل &lrm;#0f766e." picker picker-label="اختيار لون"></tanrei-color-input>
   </tanrei-field>
 </DemoFrame>
@@ -107,7 +107,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## المواصفات
 
 <DemoFrame label="حقل لون فارغ، وأبيض، وأسود، وحقل بالحجم large، وحقل معطَّل، ثم الصندوق وحده، أي حقل إدخال اللون، في صف يسمّي لونه" plain column>
-  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="لون التمييز" requirement="optional" optional-text="اختياري"></tanrei-color-field>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="لون التمييز" optional optional-text="اختياري"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="خلفية الصفحة" value="#ffffff"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="النص" value="#000000"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="لون العلامة التجارية" value="#0f766e" size="large" picker picker-label="اختيار لون"></tanrei-color-field>
@@ -120,13 +120,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | الجزء | ما هو |
 | --- | --- |
 | التسمية | فوق الحاوية (في الطراز `stacked`) حيث يرسمها الحقل، أو عائمة داخلها (في الطرازين `filled` و `outlined`) حيث يرسمها حقل إدخال اللون. وهي الاسم المتاح للتقنيات المساعدة، سواء رُسمت أم أُخفيت بالخاصية `labelHidden` |
-| علامة المطلوب أو الاختياري | بعد التسمية: وسم المطلوب أو نجمة أو لا شيء حين تكون `requirement="required"`، ووسم الاختياري حين تكون `optional` |
+| علامة المطلوب أو الاختياري | بعد التسمية: وسم المطلوب أو نجمة أو لا شيء حين تكون `required`، ووسم الاختياري حين تكون `optional` |
 | مربع اللون | عيّنة من القيمة في بداية الحاوية: مربع صغير معبَّأ بلون القيمة بالضبط، داخل خط رفيع. وحين يكون الحقل فارغًا فهو الخط الرفيع وحده. وليس عنصر تحكم |
 | حقل الإدخال | القيمة نصًّا. سطر واحد، يُمرَّر |
 | زر المنتقي | مع `picker`: زر من الطراز text بأيقونة وحدها في النهاية، تسمّيه الخاصية `pickerLabel` |
 | النص المساعد | سطر مساعدة، يبدأ حيث يبدأ نص القيمة، بعد مربع اللون. وما دام الحقل في حالة الخطأ يأخذ نص الخطأ مكانه (أو يُرسم تحته، حيث يُبقي نظام التصميم الاثنين)، وهو `errorText` ما دامت `error` بالقيمة true، و `invalidText` ما دام النص المعتمد ليس لونًا، أو `errorText` حيث تكون `invalidText` فارغة |
 
-الطُرُز الثلاثة والأحجام الثلاثة، `small` (40) و `medium` (48) و `large` (56)، هي طُرُز حقل النص وأحجامه. والنظام الافتراضي يتضمن الطراز `stacked` وحده. ويقف مربع اللون حيث تقف أيقونة البداية في حقل النص، بحجم تلك الأيقونة، فحقل اللون الذي تحت حقل نص له أيقونة بداية يشاركه حواف البداية.
+الطُرُز الثلاثة والأحجام الثلاثة، `small` (32) و `medium` (40) و `large` (56)، هي طُرُز حقل النص وأحجامه. والنظام الافتراضي يتضمن الطراز `stacked` وحده. ويقف مربع اللون حيث تقف أيقونة البداية في حقل النص، بحجم تلك الأيقونة، فحقل اللون الذي تحت حقل نص له أيقونة بداية يشاركه حواف البداية.
 
 لا يُمزج شيء في مربع اللون: لا تحويم، ولا صبغة خطأ، ولا ظل. العيّنة التي تتغيّر تحت مؤشر الإدخال عيّنة خاطئة. وحين يكون الحقل معطَّلًا تُرسم تعبئة المربع أبهت وتبقى حافته.
 
@@ -159,7 +159,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### ما يعطيه كل عضو
 
-- **من الحقل**: الخصائص `label` و `labelHidden` و `supportingText` و `errorText` و `error` و `disabled` و `requirement` و `requiredMark` و `requiredText` و `optionalText`؛ والمنفذ (slot) `label-icon`؛ ورموز التصميم `comp.field.*`.
+- **من الحقل**: الخصائص `label` و `labelHidden` و `supportingText` و `errorText` و `error` و `disabled` و `required` و `optional` و `requiredMark` و `requiredText` و `optionalText`؛ والمنفذ (slot) `label-icon`؛ ورموز التصميم `comp.field.*`.
 - **من حقل إدخال اللون**: الخصائص `variant` و `size` و `value` و `invalidText` و `picker` و `pickerLabel`؛ والأحداث `input` و `change` و `pickerRequest` و `entryError`؛ ورموز التصميم `comp.input-box.*` للصندوق، وهي التي يقرؤها كل صندوق إدخال، و `comp.color-input.*` لمربع اللون.
 
 لحقل إدخال اللون `label` و `labelHidden` و `error` و `disabled` خاصة به. وهي ليست ما يعيّنه حقل اللون: فالخاصية `label` فيه هي تسمية الحقل، وهي تسمّي حقل الإدخال، وفي الحقل من الطراز filled أو outlined هي ما يعوم في الصندوق.
@@ -178,7 +178,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### ما يرسمه الويب بطريقة مختلفة
 
 - جذر الظل (shadow root) في العنصر فيه عنصر `<tanrei-field>` بداخله عنصر `<tanrei-color-input>`، ولا شيء غيرهما. واستيراد العنصر يعرّف الاثنين.
-- حقل اللون عنصر مرتبط بالنماذج (form-associated). يأخذ `name` ويرسل `value`: اللون، أو سلسلة فارغة. ويعود عند إعادة الضبط إلى قيمة خاصية HTML `value`، ويبلّغ النموذج بأن القيمة ناقصة ما دامت `requirement="required"` و `value` فارغة، وبأن الإدخال غير صالح ما دام خطأ الإدخال قائمًا. وعضواه لا يضيفان أي مُدخلة (entry) إلى النموذج.
+- حقل اللون عنصر مرتبط بالنماذج (form-associated). يأخذ `name` ويرسل `value`: اللون، أو سلسلة فارغة. ويعود عند إعادة الضبط إلى قيمة خاصية HTML `value`، ويبلّغ النموذج بأن القيمة ناقصة ما دامت `required` و `value` فارغة، وبأن الإدخال غير صالح ما دام خطأ الإدخال قائمًا. وعضواه لا يضيفان أي مُدخلة (entry) إلى النموذج.
 - الخاصية `value` هي دائمًا قيمة حقل إدخال اللون: فالقيمة التي تُعيَّن `0F766E` تُقرأ `#0f766e`، والتي ليست لونًا تُقرأ سلسلة فارغة.
 - الحدثان `input` و `change` حدثان عاديان: اقرأ `value` من العنصر. أما `pickerrequest` و `entryerror` فمن النوع CustomEvent، الأول مع `detail.value` والثاني مع `detail.text` و `detail.message`. وهما حدثا حقل إدخال اللون نفسه، وهدفهما العنصر. و `detail.message` هي `invalidText`، وتكون فارغة حيث لم تعطِ نصًّا، حتى حين يعرض الحقل `errorText` مكانها.
 - الأجزاء: `field` و `color-input` هما العضوان. وأجزاؤهما لها هنا الأسماء نفسها التي لها في المستوى الأدنى: `label-icon`، `supporting-text`؛ `container`، `outline`، `active-indicator`، `swatch`، `input`، `picker-button`. والجزءان `label` و `requirement-label` هما المرسومان، أيًّا كان العضو الذي يرسمهما؛ أما `field-label` و `color-input-label` و `field-requirement-label` و `color-input-requirement-label` فتسمّي ما يخص عضوًا واحدًا.
@@ -214,7 +214,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### لا تفعل
 
 - لا تعرِّف اللون بمربع اللون وحده. القيمة نص؛ ومن لا يستطيع التمييز بين عيّنتين يقرأ قيمتين مختلفتين.
-- لا تعامل `value` الفارغة على أنها خطأ بنفسها. الخاصية `requirement` لا تتحقق من شيء أبدًا.
+- لا تعامل `value` الفارغة على أنها خطأ بنفسها. الخاصية `required` لا تتحقق من شيء أبدًا.
 - لا تضبط `aria-invalid` ولا `error` ما دام الشخص يكتب. انتظر `change` أو `entryerror`.
 - لا تضع حقل لون داخل حقل. فهو حقل أصلًا؛ وعنصر التحكم الذي يؤطّره الحقل هو [حقل إدخال اللون](/ar/components/color-input/).
 
@@ -226,7 +226,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - حقل الإدخال حقل نص. اسمه قيمة `label`، مرسومةً أو مخفية، وقيمته النص الذي يعرضه.
 - النص المساعد أو نص الخطأ المعروض هو وصفه، ومعه `optionalText` ما دام الحقل اختياريًّا.
-- يُعرض على أنه غير صالح ما دامت `error` بالقيمة true أو ما دام خطأ إدخال قائمًا، وعلى أنه مطلوب ما دامت `requirement` بالقيمة `required`.
+- يُعرض على أنه غير صالح ما دامت `error` بالقيمة true أو ما دام خطأ إدخال قائمًا، وعلى أنه مطلوب ما دامت `required` معيَّنة.
 - الخطأ الذي يظهر والتركيز على الحقل يُعلَن مرة واحدة، بتهذيب. ولا يأخذ التركيز أبدًا.
 - مربع اللون زخرفي ومخفي عن التقنيات المساعدة: نص القيمة هو الذي يقول اللون.
 - زر المنتقي زر مستقل، تسمّيه الخاصية `pickerLabel`، ويُعرض على أنه يفتح مربع حوار. وهو موضع توقف للتركيز بعد حقل الإدخال. والتركيز الذي يُعطى للحقل نفسه يذهب دائمًا إلى حقل الإدخال.

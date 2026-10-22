@@ -282,6 +282,20 @@ By default the trailing half holds the chevron in a square of the button's heigh
 
 A narrow trailing half is drawn narrower than the minimum target, but its hit area is not: the target reaches outward, past the end edge. Leave room for it there, as beside a narrow icon-only Button.
 
+### Destructive actions
+
+Set `destructive` on a button with menu whose main action deletes or discards something a person may not get back: Delete, with "Delete all versions" in its menu. Both halves keep the emphasis of the variant and take the error color in it, as a destructive [Button](/components/button/#destructive-actions) of the same variant does. A filled one is filled with the error color and a tonal one with the error container; an elevated or outlined one draws its label and chevron in the error color, and an outlined one its edge and divider too. Disabled, it looks like any disabled button with menu of its variant.
+
+`destructive` marks the two halves only, never the menu's items. An option in the menu may delete where the main action does not, or the reverse, so give each item that deletes its own `destructive`.
+
+<DemoFrame label="Destructive, in each variant, and with a gap" plain>
+  <tanrei-button-with-menu destructive label="Delete" menu-label="More delete options"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="tonal" destructive label="Delete" menu-label="More delete options"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="elevated" destructive label="Delete" menu-label="More delete options"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" destructive label="Delete" menu-label="More delete options"></tanrei-button-with-menu>
+  <tanrei-button-with-menu separation="gap" destructive label="Delete" menu-label="More delete options"></tanrei-button-with-menu>
+</DemoFrame>
+
 ## Specs
 
 <DemoFrame label="Sizes, an icon, open and disabled" plain>
@@ -385,6 +399,7 @@ Use hover opening where a pointer is common and a menu that appears on its own i
 - The divider is decoration: it is hidden from assistive technology and takes no press. The two halves are two buttons whether a line or a gap is between them.
 - In the default system the outline of the outlined variant, and the divider of the outlined, tonal and elevated variants, are the hairline, which is deliberately quiet: the leading half is identified by its label and the trailing half by its chevron. The divider on the filled variant is stronger, because a hairline cannot be seen on that fill.
 - The label never truncates. At larger text sizes it wraps, and both halves grow in height together.
+- `destructive` adds a color and nothing else: both halves keep their roles, names, states and keys, because the web has no role or state for a destructive action. On SwiftUI, where one exists, the leading half takes the destructive role.
 - A disabled button with menu exposes both halves as disabled, takes them out of the focus order, presents no menu and draws its closed form, whatever `open` says.
 - Debug builds report a missing label or menu label, and a menu with no items.
 
@@ -400,6 +415,7 @@ Known platform gaps:
 ### What you need to do
 
 - Write both labels. A chevron alone is not a name, and "More" beside "Save" does not say what the menu holds.
+- On a destructive button with menu, let the label say what is destroyed ("Delete project", not "OK"): the error color tells only the people who see it (WCAG 1.4.1, use of color).
 - On the web, Compose and React Native, set `open` from the toggle event and to false from the close event. The button with menu only asks. With `hoverOpen`, hover asks through the same toggle event.
 - Do not move focus yourself when the menu closes. The button with menu returns it to the trailing half.
 - Give every menu item a label, including items that show an icon.

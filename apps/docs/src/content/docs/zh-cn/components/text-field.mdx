@@ -2,7 +2,7 @@
 title: "文本字段"
 description: "让用户输入和编辑文本——单行，或者随文本增高、可手动调整大小的多行——也可以按区域设置的格式逐个单位地输入日期或时间，或者输入代码并按写下的样子原样保存；它带有可以说明必填或选填的标签，以及可选的图标、前缀和后缀、辅助文本、字符计数和选择器按钮。"
 translationOf: components/text-field.mdx
-sourceHash: 80bd2e5b7b0fc36f83a6afdc3f7a86a3bbcf37b1
+sourceHash: f108ac8d052ea1953cbb471dc7611d237bf1bae7
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,11 +16,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="text-field" />
 
 :::note[规格已修订，但尚未在所有平台上实现]
-本页描述的是规格当前所定的文本字段：`stacked` 变体，它是默认变体，标签位于文本字段上方；`filled` 和 `outlined` 只为 Material 和 cupertino 预设保留；高度为 40、48 和 56；带选择器按钮的日期和时间类型；随文本增高、或用调整手柄调整大小的多行文本字段（`resize`）；按分段逐个单位输入的日期或时间；以及 `requirement`，它把文本字段标记为必填或选填，并取代 `required` 标志。Web 组件已经全部做到，演示也是如此。文本字段还可以保存代码（`type="code"`，以及决定代码行是否换行的 `wrap`）：Web 已经实现，其他平台都还没有。文本字段是包住一个文本输入框的字段，也就是本页描述的样子：Web 也已经实现，并且在 Web 上 `required` 属性（attribute）已经不存在了。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是上一版——默认为 outlined，高度为 36 和 40，`required` 标志不绘制任何标记，没有 `stacked` 变体，没有日期或时间类型，没有选择器按钮，也没有调整大小的模式——它们的示例展示的也是那一版。
+本页描述的是规格当前所定的文本字段：`stacked` 变体，它是默认变体，标签位于文本字段上方；`filled` 和 `outlined` 只为 Material 和 cupertino 预设保留；高度为 40、48 和 56；带选择器按钮的日期和时间类型；随文本增高、或用调整手柄调整大小的多行文本字段（`resize`）；按分段逐个单位输入的日期或时间；以及把文本字段标记为必填或选填的 `required` 和 `optional`。Web 组件已经全部做到，演示也是如此。文本字段还可以保存代码（`type="code"`，以及决定代码行是否换行的 `wrap`）：Web 已经实现，其他平台都还没有。文本字段是包住一个文本输入框的字段，也就是本页描述的样子：Web 也已经实现，并且在 Web 上 `required` 属性（attribute）已经不存在了。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是上一版——默认为 outlined，高度为 36 和 40，`required` 标志不绘制任何标记，没有 `stacked` 变体，没有日期或时间类型，没有选择器按钮，也没有调整大小的模式——它们的示例展示的也是那一版。
 :::
 
 <DemoFrame label="默认的 Stacked：一个必填的文本字段，以及带选择器按钮的日期" column>
-  <tanrei-text-field label="邮箱" type="email" requirement="required" required-text="必填" supporting-text="仅用于登录。"></tanrei-text-field>
+  <tanrei-text-field label="邮箱" type="email" required required-text="必填" supporting-text="仅用于登录。"></tanrei-text-field>
   <tanrei-text-field label="开始日期" type="date" locale="zh-CN" value="2026-09-27" picker picker-label="选择开始日期" segment-empty-text="未填写"></tanrei-text-field>
 </DemoFrame>
 
@@ -36,9 +36,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <TabItem label="Web">
     ```html
     <form>
-      <tanrei-text-field name="email" label="邮箱" type="email" autocomplete="email" requirement="required" required-text="必填"
+      <tanrei-text-field name="email" label="邮箱" type="email" autocomplete="email" required required-text="必填"
         supporting-text="仅用于登录。"></tanrei-text-field>
-      <tanrei-text-field name="company" label="公司" requirement="optional" optional-text="选填"></tanrei-text-field>
+      <tanrei-text-field name="company" label="公司" optional optional-text="选填"></tanrei-text-field>
       <!-- 随文本从 3 行增高到 8 行，之后滚动。 -->
       <tanrei-text-field name="message" label="消息" multiline min-rows="3" max-rows="8"></tanrei-text-field>
       <!-- 用调整手柄手动调整大小。 -->
@@ -93,7 +93,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       value={email}
       onInput={(e) => setEmail(e.currentTarget.value)}
       onChange={() => save(email)}
-      requirement="required"
+      required
       requiredText="必填"
       error={submitted && !isValid(email)}
       errorText="请输入完整的邮箱地址。"
@@ -205,14 +205,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 用它的两个成员手写出来的同一个字段，画面是一样的，对辅助技术来说也是同一个文本框，名称、描述和状态都相同：
 
 ```html
-<tanrei-field label="邮箱" requirement="required" required-text="必填"
+<tanrei-field label="邮箱" required required-text="必填"
   supporting-text="仅用于登录。">
   <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input>
 </tanrei-field>
 ```
 
 <DemoFrame label="手写出来的同一个字段：里面放着一个文本输入框的字段" column>
-  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="邮箱" requirement="required" required-text="必填" supporting-text="仅用于登录。">
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="邮箱" required required-text="必填" supporting-text="仅用于登录。">
     <tanrei-text-input type="email"></tanrei-text-input>
   </tanrei-field>
 </DemoFrame>
@@ -256,9 +256,9 @@ input.addEventListener('input', () => (field.countText = input.countText));
 </DemoFrame>
 
 <DemoFrame label="必填和选填：小标签，以及星号" plain column>
-  <tanrei-text-field label="邮箱" type="email" requirement="required" required-text="必填"></tanrei-text-field>
-  <tanrei-text-field label="公司" requirement="optional" optional-text="选填"></tanrei-text-field>
-  <tanrei-text-field label="邮箱" type="email" requirement="required" required-mark="asterisk"></tanrei-text-field>
+  <tanrei-text-field label="邮箱" type="email" required required-text="必填"></tanrei-text-field>
+  <tanrei-text-field label="公司" optional optional-text="选填"></tanrei-text-field>
+  <tanrei-text-field label="邮箱" type="email" required required-mark="asterisk"></tanrei-text-field>
 </DemoFrame>
 
 <DemoFrame label="多行：随文本增高、用调整手柄调整大小（向下，以及双向）、固定" plain column>
@@ -296,7 +296,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 | 方面 | 来自字段 | 来自文本输入框 |
 | --- | --- | --- |
-| 属性 | `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`requirement`、`requiredMark`、`requiredText`、`optionalText` | 其余的每一个：`variant`、`size`、`type`、`value`、`placeholder`、`readOnly`、行数和调整大小、`wrap`、`maxLength`、`counter`、前缀和后缀、`autocomplete`，以及日期或时间的一切 |
+| 属性 | `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`required`、`optional`、`requiredMark`、`requiredText`、`optionalText` | 其余的每一个：`variant`、`size`、`type`、`value`、`placeholder`、`readOnly`、行数和调整大小、`wrap`、`maxLength`、`counter`、前缀和后缀、`autocomplete`，以及日期或时间的一切 |
 | 事件 | — | `input`、`change`、`action`、`pickerRequest`、`entryError` |
 | 插槽 | `label-icon` | `leading-icon`、`trailing-icon` |
 | 令牌 | `comp.field.*` | 方框用 `comp.input-box.*`，每一种输入方框都读取它；只有文本输入框才绘制的部分用 `comp.text-input.*` |
@@ -318,12 +318,12 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 - 这个元素的 shadow root 里有一个 `<tanrei-field>`，其中放着一个 `<tanrei-text-input>`，此外什么都没有。导入这个元素，两个成员也随之完成定义。
 - 这个元素是一个块，会填满所在的地方，而不是一个和浏览器自己的文本输入框一样宽的行内方框。
-- 这个元素是与表单关联的元素。它接受 `name` 和 `form`，提交它的值——禁用时什么都不提交——重置为 `value` 属性（attribute）的值，在导航时恢复，跟随被禁用的 `<fieldset>`；`requirement` 为 `required` 而它为空时，报告缺少值。它的两个成员不向表单添加任何条目。在单行的字段里按 Enter 会按下元素所在表单的默认按钮；取消 `action` 可以阻止这一点。
+- 这个元素是与表单关联的元素。它接受 `name` 和 `form`，提交它的值——禁用时什么都不提交——重置为 `value` 属性（attribute）的值，在导航时恢复，跟随被禁用的 `<fieldset>`；设置了 `required` 而它为空时，报告缺少值。它的两个成员不向表单添加任何条目。在单行的字段里按 Enter 会按下元素所在表单的默认按钮；取消 `action` 可以阻止这一点。
 - `input`、`change`、`action`、`pickerrequest` 和 `entryerror` 是文本输入框自己的事件。它们的目标是这个元素，在每个监听器里 `event.target.value` 都是新的值。detail 的类型是输入框的：`TanreiTextInputActionDetail`、`TanreiTextInputPickerRequestDetail` 和 `TanreiTextInputEntryErrorDetail`。
-- 部件：`field` 和 `text-input` 是两个成员。成员自己的部件在这里的名称与下一层相同：`label-icon`、`supporting-text`、`counter`；`container`、`outline`、`active-indicator`、`input`、`segment`、`prefix`、`suffix`、`leading-icon`、`trailing-icon`、`picker-button`、`resize-grip`。`label` 和 `requirement-label` 是画出来的那一个，无论由哪个成员绘制；`field-label`、`text-input-label`、`field-requirement-label` 和 `text-input-requirement-label` 指的是某一个成员的。
+- 部件：`field` 和 `text-input` 是两个成员。成员自己的部件在这里的名称与下一层相同：`label-icon`、`supporting-text`、`counter`；`container`、`outline`、`active-indicator`、`input`、`segment`、`prefix`、`suffix`、`leading-icon`、`trailing-icon`、`picker-button`、`resize-handle`。`label` 和 `requirement-label` 是画出来的那一个，无论由哪个成员绘制；`field-label`、`text-input-label`、`field-requirement-label` 和 `text-input-requirement-label` 指的是某一个成员的。
 - 这个元素自己不能获得焦点，也没有角色：`focus()` 会把焦点交给输入框。按标签行、方框或浮动标签，都会让输入框获得焦点。按帮助文本、错误文本、计数，或者某一行与方框之间的空隙，什么都不会发生。
 - 用 `label` 为它命名——不该绘制标签的地方再加上 `label-hidden`——绝不要用 `aria-label`，它在这里不为任何东西命名。
-- 属性（attribute）就是成员自己的那些：用 kebab-case 书写，例如 `supporting-text`、`error-text`、`min-rows` 和 `no-wrap`，只有 `readonly`、`maxlength`、`autocomplete`、`min` 和 `max` 例外。没有 `required` 属性（attribute）：请写 `requirement="required"`。
+- 属性（attribute）就是成员自己的那些：用 kebab-case 书写，例如 `supporting-text`、`error-text`、`min-rows` 和 `no-wrap`，只有 `readonly`、`maxlength`、`autocomplete`、`min` 和 `max` 例外。没有 `required` 属性（attribute）：请写 `required`。
 - 在元素定义之前，它没有尺寸。请预留高度。
 
 ## 指南
@@ -344,7 +344,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 在所有系统里，包括各个预设，默认都是 stacked。想要 Material 式浮动标签的 Material 产品，可以把文本字段的 `variant` 设为 `outlined` 或 `filled`。在 Tanrei 系统下，`filled` 和 `outlined` 仍然可用，但开发时会给出警告。
 
-`medium`（48）是紧凑的文本字段，`large`（56）是标准的文本字段。筛选条件和密集的设置界面使用 `medium`，登录和结账表单使用 `large`。`small`（40）是小号下拉选择框的高度，用于应用栏、工具栏或一排紧凑控件中的文本字段，此时输入文本为 14。在默认系统中，另外两种尺寸的输入文本都是 16。高度是最小值：文本放大时，文本字段会随之增高，点击区域也始终满足最小目标尺寸。
+`medium`（40）是紧凑的文本字段，`large`（56）是标准的文本字段。筛选条件和密集的设置界面使用 `medium`，登录和结账表单使用 `large`。`small`（32）是小号下拉选择框的高度，用于应用栏、工具栏或一排紧凑控件中的文本字段，此时输入文本为 14。在默认系统中，另外两种尺寸的输入文本都是 16。高度是最小值：文本放大时，文本字段会随之增高，点击区域也始终满足最小目标尺寸。
 
 ### 标签和占位符
 
@@ -354,7 +354,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 ### 必填和选填
 
-`requirement` 说明表单对一个文本字段的要求：`none`（默认）、`required` 或 `optional`。它是一项有三个值的设置，因为一个文本字段不可能既必填又选填。
+`required` 和 `optional` 说明表单对一个文本字段的要求：`required` 表示必须填写，`optional` 表示可以不填。一个文本字段不可能既必填又选填：两者都设置时它是必填的。
 
 - **必填**会把文本字段暴露为必填，并在标签旁边绘制必填标记。
 - **选填**会绘制选填小标签，并把它的文字加入文本字段的描述。
@@ -365,7 +365,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 在一个表单里，标记两者中较少的那一种：大多数文本字段必填时，标记选填的；反之亦然。如果使用星号——filled 或 outlined 文本字段对必填字段总是使用星号——请在表单中靠近顶部的地方说明一次它的含义（“* 必填”）：星号是一种惯例，而不是文字，并非人人都知道。
 
-`requirement` 取代了上一版的 `required` 标志。在 Web 上，`required` 属性无论是 attribute 还是 property 都已经不存在：请写 `requirement="required"`。原来必填的文本字段现在还会显示一个标记：不想要标记的地方，把 `requiredMark` 设为 `none`。
+必填的文本字段会显示一个标记：不想要标记的地方，把 `requiredMark` 设为 `none`。
 
 ### 帮助文本和错误文本
 
@@ -459,7 +459,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 - 把不属于值的固定文本放进 `prefixText` 和 `suffixText`：货币符号、单位。
 - 清除或显示密码之类的操作，以你自己的纯图标的 Button 放进后置插槽，并给它自己的名称。选择器按钮是文本字段唯一内建的操作，它排在你的按钮之后。
 - 可能写到好几行的文本使用 `multiline`。默认情况下，它从 `minRows` 增高到 `maxRows`，之后滚动。
-- 在表单要求填写的文本字段上设置 `requirement`，并且在提交表单时，仍然要在 `errorText` 中说明缺了什么。
+- 在表单要求填写的文本字段上设置 `required`，并且在提交表单时，仍然要在 `errorText` 中说明缺了什么。
 - 由机器读取的值——匹配模式、密钥、一小段配置——使用 `type="code"`，并在标签和 `supportingText` 里说明它必须是什么。
 
 ### 避免
@@ -469,7 +469,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 - 不要在一个表单里混用不同的变体。
 - 不要把文本字段放进字段。它已经是一个字段；调试构建会报告这一点。字段框住的控件是文本输入框。
 - 不要用 `text` 文本字段加上自己的解析来处理日期。请使用 `date`，这样区域设置的顺序、分段的按键和输入错误都是现成的。
-- 不要在设置 `requirement` 的同时，还在标签里写“（必填）”。标记已经说明了这一点，屏幕阅读器会读两遍。
+- 不要在设置 `required` 的同时，还在标签里写“（必填）”。标记已经说明了这一点，屏幕阅读器会读两遍。
 - 不要让手动调整大小的文本字段成为看到长文本的唯一途径。给它足够的 `minRows`，让它一出现就好用。
 - 不要仅仅为了显示一个不能更改的值而禁用文本字段。请使用 `readOnly`，这样用户仍然可以聚焦、选择并复制它。
 - 不要用 `::part(input)` 或你自己的样式从外部给文本字段设置代码字体，也不要给这个元素加上 `dir` 或 `spellcheck`。请使用 `type="code"`：只换字体的话，文本字段看起来没问题，却仍然会更正键入的内容。
@@ -528,7 +528,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 - 写一个说明这个值是什么的标签，即使把它隐藏起来，也要保留它。
 - 编写说明如何改正这个值的错误文本，并自己设置 `error`。在 SwiftUI 和 React Native 上，这段文本是用户听到错误的唯一途径。对于日期或时间文本字段，还要编写 `invalidText` 和 `unavailableText`，并给出 `segmentEmptyText`：没有它，空的分段朗读时不带任何值。
 - 用你的产品所用的语言给选择器按钮设置 `pickerLabel`，并在 `pickerRequest` 时打开选择器。
-- 设置 `requirement`，并给出 `requiredText` 和 `optionalText`：写在文本字段上，或者用 `setWords({ requiredText, optionalText })` 为整个产品只给一次；`resizeLabel` 和 `segmentEmptyText` 也可以这样给。在 Web 上，Tanrei 不自带任何文字；缺少的文字会在开发时报告。参见[产品的文字](/zh-cn/foundations/words/)。在 SwiftUI、Compose、Flutter 和 React Native 跟上之前，它们的文本字段不绘制任何标记，SwiftUI 和 React Native 也不朗读必填状态：在这些平台上，请在标签里写明“必填”。
+- 设置 `required`，并给出 `requiredText` 和 `optionalText`：写在文本字段上，或者用 `setWords({ requiredText, optionalText })` 为整个产品只给一次；`resizeLabel` 和 `segmentEmptyText` 也可以这样给。在 Web 上，Tanrei 不自带任何文字；缺少的文字会在开发时报告。参见[产品的文字](/zh-cn/foundations/words/)。在 SwiftUI、Compose、Flutter 和 React Native 跟上之前，它们的文本字段不绘制任何标记，SwiftUI 和 React Native 也不朗读必填状态：在这些平台上，请在标签里写明“必填”。
 - 用 `resizeLabel` 为调整手柄命名。没有它，调整手柄仍然会绘制，也能使用，但没有名称。
 - 把单位或货币放进 `prefixText` 或 `suffixText`，而不是放进值里，这样它会和值一起朗读，而不需要用户输入。
 - 对于代码字段，在 `label` 和 `supportingText` 里说明代码必须是什么（“Webhook 请求体”“JSON”），并在 `errorText` 里说明它错在哪里：文本字段并不认识这种语言。

@@ -2,7 +2,7 @@
 title: Grupo de campos
 description: Da nombre a un conjunto de controles que responden a una misma pregunta (casillas de verificación, interruptores o campos que van juntos), con una etiqueta que puede decir si el conjunto es obligatorio u opcional, una descripción y un único error para el conjunto, y dispone los controles en una columna o en una fila.
 translationOf: components/field-group.mdx
-sourceHash: 6825a01b24b1fc9701b16dd5130baba7634da638
+sourceHash: ec4bcb123ec8e843f4501f71bdaee22bc494365f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="field-group" />
 
 <DemoFrame label="Un conjunto de casillas de verificación con un nombre, una descripción y una marca de obligatoriedad" column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Avísame por" supporting-text="Elige todas las opciones que correspondan." requirement="required" required-text="Obligatorio">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Avísame por" supporting-text="Elige todas las opciones que correspondan." required required-text="Obligatorio">
     <tanrei-checkbox label="Correo electrónico" checked></tanrei-checkbox>
     <tanrei-checkbox label="Mensaje de texto"></tanrei-checkbox>
     <tanrei-checkbox label="Notificación push"></tanrei-checkbox>
@@ -34,7 +34,7 @@ En la web es `<tanrei-field-group>`. Las demás plataformas todavía no lo han i
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-field-group label="Avísame por" supporting-text="Elige todas las opciones que correspondan." requirement="required" required-text="Obligatorio"
+    <tanrei-field-group label="Avísame por" supporting-text="Elige todas las opciones que correspondan." required required-text="Obligatorio"
                         error error-text="Elige al menos una forma de contacto.">
       <tanrei-checkbox name="notify" value="email" label="Correo electrónico"></tanrei-checkbox>
       <tanrei-checkbox name="notify" value="text" label="Mensaje de texto"></tanrei-checkbox>
@@ -43,8 +43,8 @@ En la web es `<tanrei-field-group>`. Las demás plataformas todavía no lo han i
 
     <!-- Campos que van juntos. -->
     <tanrei-field-group label="Dirección de envío" spacing="fields">
-      <tanrei-text-field label="Calle" requirement="required" required-text="Obligatorio"></tanrei-text-field>
-      <tanrei-text-field label="Ciudad" requirement="required" required-text="Obligatorio"></tanrei-text-field>
+      <tanrei-text-field label="Calle" required required-text="Obligatorio"></tanrei-text-field>
+      <tanrei-text-field label="Ciudad" required required-text="Obligatorio"></tanrei-text-field>
     </tanrei-field-group>
 
     <script type="module">
@@ -67,7 +67,7 @@ En la web es `<tanrei-field-group>`. Las demás plataformas todavía no lo han i
 ## Especificaciones
 
 <DemoFrame label="Un error para el conjunto, una fila, interruptores y campos que van juntos" plain column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Avísame por" supporting-text="Elige todas las opciones que correspondan." requirement="required" required-text="Obligatorio" error error-text="Elige al menos una forma de contacto.">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Avísame por" supporting-text="Elige todas las opciones que correspondan." required required-text="Obligatorio" error error-text="Elige al menos una forma de contacto.">
     <tanrei-checkbox label="Correo electrónico"></tanrei-checkbox>
     <tanrei-checkbox label="Mensaje de texto"></tanrei-checkbox>
   </tanrei-field-group>
@@ -76,8 +76,8 @@ En la web es `<tanrei-field-group>`. Las demás plataformas todavía no lo han i
     <tanrei-checkbox label="SMS"></tanrei-checkbox>
     <tanrei-checkbox label="Push"></tanrei-checkbox>
   </tanrei-field-group>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Privacidad" supporting-text="Solo se aplican a este dispositivo." requirement="optional" optional-text="Opcional">
-    <tanrei-switch label="Compartir datos de uso" selected></tanrei-switch>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Privacidad" supporting-text="Solo se aplican a este dispositivo." optional optional-text="Opcional">
+    <tanrei-switch label="Compartir datos de uso" checked></tanrei-switch>
     <tanrei-switch label="Mostrar mi estado"></tanrei-switch>
   </tanrei-field-group>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Ciudad y código postal" spacing="fields" orientation="horizontal">
@@ -101,17 +101,17 @@ En la web es `<tanrei-field-group>`. Las demás plataformas todavía no lo han i
 
 ### Un conjunto de botones de opción: `kind`
 
-Un grupo no tiene estado obligatorio ni estado no válido, así que un grupo de campos dice la obligatoriedad con palabras y marca sus casillas de verificación como no válidas una a una. Un conjunto de botones de opción es distinto: es obligatorio y no válido como un todo. `kind="radio-group"` le dice al grupo de campos que su conjunto son los botones de opción de un mismo grupo, y entonces es su grupo de botones de opción para la tecnología de apoyo —obligatorio mientras `requirement` es `required`, no válido mientras `error` es true, y dice su orientación—, y `requiredText` deja de formar parte de su descripción, porque ya lo dice el estado.
+Un grupo no tiene estado obligatorio ni estado no válido, así que un grupo de campos dice la obligatoriedad con palabras y marca sus casillas de verificación como no válidas una a una. Un conjunto de botones de opción es distinto: es obligatorio y no válido como un todo. `kind="radio-group"` le dice al grupo de campos que su conjunto son los botones de opción de un mismo grupo, y entonces es su grupo de botones de opción para la tecnología de apoyo —obligatorio mientras `required` está activado, no válido mientras `error` es true, y dice su orientación—, y `requiredText` deja de formar parte de su descripción, porque ya lo dice el estado.
 
 ```html
-<tanrei-field-group kind="radio-group" label="Entrega" requirement="required" required-text="Obligatorio">
+<tanrei-field-group kind="radio-group" label="Entrega" required required-text="Obligatorio">
   <tanrei-radio-button name="delivery" value="standard" label="Estándar, de 3 a 5 días" checked></tanrei-radio-button>
   <tanrei-radio-button name="delivery" value="express" label="Exprés, al día siguiente"></tanrei-radio-button>
 </tanrei-field-group>
 ```
 
 <DemoFrame label="Un grupo de campos cuyo tipo es radio-group, alrededor de botones de opción con un mismo nombre" column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="Entrega" requirement="required" required-text="Obligatorio">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="Entrega" required required-text="Obligatorio">
     <tanrei-radio-button name="delivery-kind" value="standard" label="Estándar, de 3 a 5 días" checked></tanrei-radio-button>
     <tanrei-radio-button name="delivery-kind" value="express" label="Exprés, al día siguiente"></tanrei-radio-button>
   </tanrei-field-group>
@@ -128,7 +128,7 @@ Un conjunto es alto y se lee desde arriba, así que dos cosas no están donde es
 - La descripción va debajo de la etiqueta, antes de los controles, y se queda mientras el grupo está en error. «Elige todas las opciones que correspondan» debe leerse antes que las opciones, y es lo que la persona vuelve a necesitar cuando la respuesta se rechaza.
 - El texto de error es una fila propia, debajo del último control.
 
-La etiqueta, el tag de obligatoriedad y el asterisco son los del campo.
+La etiqueta, el tag de obligatoriedad y el asterisco son los del campo. También lo son `required` y `optional`, que dicen qué pide el formulario del conjunto: con ambos, el conjunto es obligatorio.
 
 ### Disposición
 

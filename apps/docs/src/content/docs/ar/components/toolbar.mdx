@@ -1,8 +1,8 @@
 ---
 title: شريط الأدوات
-description: يحمل صفًّا قصيرًا من الإجراءات للشاشة الحالية أو للتحديد الحالي، راسيًا على امتداد الحافة السفلية أو عائمًا فوق المحتوى. وهو موضع توقف واحد للمفتاح Tab، ومفاتيح الأسهم تنقل بين إجراءاته.
+description: يجمع مجموعة من عناصر التحكم المترابطة في موضع توقف واحد للمفتاح Tab، ضمن المحتوى حيث يحتاج إليه، أو راسيًا على امتداد الحافة السفلية، أو عائمًا فوق المحتوى. تنقل مفاتيح الأسهم بين عناصر التحكم فيه، وما لا تتسع له المساحة ينتقل إلى قائمة الفائض.
 translationOf: components/toolbar.mdx
-sourceHash: 208b8298cc2fa085a6bfd76cf0992d8e087dc579
+sourceHash: a8432aa4140d0470d37330b77fd6878ea1e55585
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -15,69 +15,112 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <ComponentAvailability name="toolbar" />
 
-<DemoFrame label="راسٍ وعائم" column>
-  <tanrei-toolbar label="إجراءات الرسالة" style="inline-size: 22rem">
+<DemoFrame label="ضمن المحتوى، وراسٍ، وعائم" column>
+  <tanrei-toolbar label="التنسيق">
+    <tanrei-toolbar-group label="نمط النص">
+      <tanrei-button variant="text" toggle selected label="غامق"><span slot="icon">format_bold</span></tanrei-button>
+      <tanrei-button variant="text" toggle label="مائل"><span slot="icon">format_italic</span></tanrei-button>
+      <tanrei-button variant="text" toggle label="تسطير"><span slot="icon">format_underlined</span></tanrei-button>
+    </tanrei-toolbar-group>
+    <tanrei-toolbar-group>
+      <tanrei-button variant="text" label="إدراج رابط"><span slot="icon">link</span></tanrei-button>
+      <tanrei-button variant="text" label="إدراج صورة"><span slot="icon">image</span></tanrei-button>
+    </tanrei-toolbar-group>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="docked" label="إجراءات الرسالة" style="inline-size: 22rem">
     <tanrei-button variant="text" label="أرشفة"><span slot="icon">archive</span></tanrei-button>
     <tanrei-button variant="text" label="حذف"><span slot="icon">delete</span></tanrei-button>
     <tanrei-button variant="text" label="تمييز كغير مقروءة"><span slot="icon">mark_email_unread</span></tanrei-button>
     <tanrei-button variant="text" label="نقل"><span slot="icon">drive_file_move</span></tanrei-button>
   </tanrei-toolbar>
-  <tanrei-toolbar variant="floating" label="التنسيق">
-    <tanrei-button variant="text" toggle selected label="غامق"><span slot="icon">format_bold</span></tanrei-button>
-    <tanrei-button variant="text" toggle label="مائل"><span slot="icon">format_italic</span></tanrei-button>
-    <tanrei-button variant="text" toggle label="تسطير"><span slot="icon">format_underlined</span></tanrei-button>
-    <tanrei-button variant="text" label="إدراج رابط"><span slot="icon">link</span></tanrei-button>
+  <tanrei-toolbar variant="floating" label="أدوات الرسم">
+    <tanrei-button variant="text" label="قلم"><span slot="icon">edit</span></tanrei-button>
+    <tanrei-button variant="text" label="قلم تمييز"><span slot="icon">ink_highlighter</span></tanrei-button>
+    <tanrei-button variant="text" label="ممحاة"><span slot="icon">ink_eraser</span></tanrei-button>
+    <tanrei-button variant="filled" label="تم"><span slot="icon">check</span></tanrei-button>
   </tanrei-toolbar>
 </DemoFrame>
 
 ### الاستخدام
 
-يحمل شريط الأدوات نوعين من العناصر: النوع `action`، وهو [Button](/ar/components/button/) من Tanrei له أيقونة وليس له تسمية ظاهرة (وزر التبديل مثل «غامق» واحد منها ضُبطت فيه الخاصية `toggle`)، والنوع `button`، وهو Button من Tanrei له تسمية ظاهرة. وهي مكوّنات من عندك، لكل منها تسميته ونقرته وحالته. يرتّبها شريط الأدوات بترتيب القراءة وينقل تركيز لوحة المفاتيح بينها. ولا يغيّر مظهرها أبدًا، فالزر Button بأيقونة فقط يبدو في شريط الأدوات ويتصرف كما في أي مكان آخر. تأخذها كل منصة كما تأخذ العناصر الفرعية المتكررة: عناصر فرعية على الويب، وباني عرض على SwiftUI، واستدعاءات في دالة المحتوى على Compose، وقائمة `children` على Flutter، وعناصر فرعية على React Native.
+يجمع شريط الأدوات مجموعة من عناصر التحكم المترابطة: إجراءات، وأزرار تبديل، وزرًّا يفتح قائمة خيارات، و[زرًّا مع قائمة](/ar/components/button-with-menu/). وعناصره هي أزرار [Button](/ar/components/button/) وأزرار مع قائمة من Tanrei من عندك، لكل منها تسميته ونقرته وحالته. يرتّبها شريط الأدوات بترتيب القراءة، ويفصل المجموعات بعضها عن بعض، وينقل تركيز لوحة المفاتيح بينها، ويخفي ما لا تتسع له المساحة في قائمة الفائض. ولا يغيّر مظهرها أبدًا، فالزر Button بأيقونة فقط يبدو في شريط الأدوات ويتصرف كما في أي مكان آخر.
+
+وله ستة أنواع من العناصر:
+
+- النوع `action`: زر Button بأيقونة فقط. وزر التبديل مثل «غامق» واحد منها ضُبطت فيه الخاصية `toggle`.
+- النوع `button`: زر Button له تسمية ظاهرة، وقد يكون زر تبديل أيضًا، مثل عامل تصفية يعمل أو لا يعمل.
+- النوع `menu-button`: زر Button رُبطت به [قائمة خيارات](/ar/components/menu/) من Tanrei، مثل «ترتيب» أو «إدراج». القائمة قائمتك وتقف بجانب زرها. ولا يتولى شريط الأدوات ترتيبها.
+- النوع `button-with-menu`: إجراء رئيسي مع قائمة بإجراءات مرتبطة به. وكل نصف منه موضع توقف خاص لمفاتيح الأسهم.
+- النوع `group`: سلسلة من العناصر المترابطة، مثل «غامق» و«مائل» و«تسطير». لا ترسم شيئًا من عندها. أعطها الخاصية `label` حين يكون للتجميع معنى عند الشخص، مثل «نمط النص».
+- النوع `separator`: خط بين عنصرين ليسا في مجموعات. وهو على الويب [فاصل](/ar/components/divider/) يرسمه شريط الأدوات كما يرسم الخط بين مجموعتين.
+
+**ضمن المحتوى (inline، الافتراضي).** يقف شريط الأدوات ضمن المحتوى حيث يضعه تخطيطك، في المحتوى الذي يعمل عليه: فوق جدول، أو في أعلى محرِّر، أو بجانب قائمة صفًّا من عوامل التصفية. وطوله بقدر ما تحتاج إليه عناصره، ولا يزيد أبدًا على ما يسمح به التخطيط. وليس له في النظام الافتراضي سطح ولا ظل ولا حافة من عنده، ويصطف طرفاه مع المحتوى المحيط به.
 
 **الراسي (docked).** يمتد شريط الأدوات الراسي على الحافة السفلية للشاشة. يصل لونه إلى ما تحت مؤشر الشاشة الرئيسية أو شريط الإيماءات، وتبقى عناصره فوقه وداخل الهوامش الجانبية (insets). يقرأ الويب `env(safe-area-inset-bottom)`، ويضع SwiftUI الشريط بواسطة `.safeAreaInset(edge: .bottom)`، ويأخذ Compose القيمة `windowInsets` (أشرطة التنقل افتراضيًّا)، ويقرأ Flutter الحشو السفلي من `MediaQuery`. ويأخذ React Native هوامشه من الخاصية `insets` على شريط الأدوات أو من `TanreiProvider`، لأن Tanrei لا يعتمد على أي حزمة للمنطقة الآمنة.
 
 **العائم (floating).** شريط الأدوات العائم لا يحدد موضعه بنفسه، كما لا يفعل [زر الإجراء الرئيسي](/ar/components/main-action-button/). تخطيطك هو الذي يضعه، في الوسط فوق أسفل المحتوى عادةً، أو بجانب حافة النهاية للمحتوى حين يكون عموديًّا.
 
-تعرض عيّنتا Web و React المواصفة الحالية. أما SwiftUI و Compose و Flutter و React Native فمتأخرة: ما زالت تقدّم المراجعة السابقة لشريط الأدوات وللزر، وفيها الإجراء بأيقونة فقط زر أيقونة مستقل. وتعرض عيّناتها تلك المراجعة إلى أن تلحق بالمواصفة.
+تعرض عيّنتا Web و React المواصفة الحالية. أما SwiftUI و Compose و Flutter و React Native فمتأخرة. ما زالت تقدّم المراجعة السابقة لشريط الأدوات وللزر، وفيها شريط الأدوات راسٍ ما لم تقل غير ذلك، ولا يحمل إلا أزرار Button، ويمرّر ما لا تتسع له المساحة، والإجراء بأيقونة فقط زر أيقونة مستقل. وتعرض عيّناتها تلك المراجعة إلى أن تلحق بالمواصفة.
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-toolbar label="إجراءات الرسالة">
-      <tanrei-button variant="text" label="أرشفة"><span slot="icon">archive</span></tanrei-button>
-      <tanrei-button variant="text" label="حذف"><span slot="icon">delete</span></tanrei-button>
-      <tanrei-button variant="text" label="نقل"><span slot="icon">drive_file_move</span></tanrei-button>
-      <tanrei-button variant="filled">رد</tanrei-button>
+    <tanrei-toolbar label="التنسيق" overflow-label="خيارات تنسيق إضافية">
+      <tanrei-toolbar-group label="نمط النص">
+        <tanrei-button variant="text" toggle selected label="غامق"><span slot="icon">format_bold</span></tanrei-button>
+        <tanrei-button variant="text" toggle label="مائل"><span slot="icon">format_italic</span></tanrei-button>
+      </tanrei-toolbar-group>
+      <tanrei-toolbar-group>
+        <tanrei-button variant="text" label="إدراج رابط"><span slot="icon">link</span></tanrei-button>
+        <tanrei-button variant="text" id="insert" label="إدراج"><span slot="icon">add</span></tanrei-button>
+        <tanrei-menu anchor="insert">
+          <tanrei-menu-item label="جدول"></tanrei-menu-item>
+          <tanrei-menu-item label="خط أفقي"></tanrei-menu-item>
+        </tanrei-menu>
+      </tanrei-toolbar-group>
+      <tanrei-divider></tanrei-divider>
+      <tanrei-button variant="filled" toolbar-overflow="never">نشر</tanrei-button>
     </tanrei-toolbar>
 
-    <!-- عائم وعمودي: الصفحة هي التي تضعه. -->
-    <tanrei-toolbar variant="floating" orientation="vertical" label="عناصر تحكم الخريطة" class="map-controls">
-      <tanrei-button variant="text" label="تكبير"><span slot="icon">add</span></tanrei-button>
-      <tanrei-button variant="text" label="تصغير"><span slot="icon">remove</span></tanrei-button>
+    <!-- راسٍ على امتداد الحافة السفلية للشاشة. -->
+    <tanrei-toolbar variant="docked" label="إجراءات الرسالة">
+      <tanrei-button variant="text" label="أرشفة"><span slot="icon">archive</span></tanrei-button>
+      <tanrei-button variant="text" label="حذف"><span slot="icon">delete</span></tanrei-button>
+      <tanrei-button variant="filled">رد</tanrei-button>
     </tanrei-toolbar>
 
     <script type="module">
       import '@tanrei/web/components/toolbar';
       import '@tanrei/web/components/button';
+      import '@tanrei/web/components/divider';
+      import '@tanrei/web/components/menu';
       // العناصر عناصرك: شريط الأدوات لا يضيف أحداثًا من عنده.
-      document.querySelector('[label="أرشفة"]').addEventListener('click', archive);
+      document.querySelector('[label="إدراج رابط"]').addEventListener('click', insertLink);
+      const insert = document.querySelector('tanrei-menu[anchor="insert"]');
+      document.querySelector('#insert').addEventListener('click', () => (insert.open = !insert.open));
+      insert.addEventListener('close', () => (insert.open = false));
     </script>
     ```
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Button, Toolbar } from '@tanrei/react';
+    import { Button, Divider, Toolbar, ToolbarGroup } from '@tanrei/react';
 
-    <Toolbar label="إجراءات الرسالة">
-      <Button variant="text" label="أرشفة" onClick={archive}><span slot="icon">archive</span></Button>
-      <Button variant="text" label="حذف" onClick={remove}><span slot="icon">delete</span></Button>
-      <Button variant="text" label="نقل" onClick={move}><span slot="icon">drive_file_move</span></Button>
-      <Button variant="filled" onClick={reply}>رد</Button>
+    <Toolbar label="التنسيق" overflowLabel="خيارات تنسيق إضافية">
+      <ToolbarGroup label="نمط النص">
+        <Button variant="text" toggle selected={bold} label="غامق" onChange={(e) => setBold(e.detail.selected)}><span slot="icon">format_bold</span></Button>
+        <Button variant="text" toggle selected={italic} label="مائل" onChange={(e) => setItalic(e.detail.selected)}><span slot="icon">format_italic</span></Button>
+      </ToolbarGroup>
+      <ToolbarGroup>
+        <Button variant="text" label="إدراج رابط" onClick={insertLink}><span slot="icon">link</span></Button>
+      </ToolbarGroup>
+      <Divider />
+      <Button variant="filled" toolbar-overflow="never" onClick={publish}>نشر</Button>
     </Toolbar>
 
-    <Toolbar variant="floating" label="التنسيق">
-      <Button variant="text" toggle selected={bold} label="غامق" onChange={(e) => setBold(e.detail.selected)}><span slot="icon">format_bold</span></Button>
-      <Button variant="text" label="إدراج رابط" onClick={insertLink}><span slot="icon">link</span></Button>
+    <Toolbar variant="docked" label="إجراءات الرسالة">
+      <Button variant="text" label="أرشفة" onClick={archive}><span slot="icon">archive</span></Button>
+      <Button variant="filled" onClick={reply}>رد</Button>
     </Toolbar>
     ```
   </TabItem>
@@ -180,32 +223,50 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="عنصر من النوع button، وعنصر واحد، وعنصر معطَّل، وإجراء من الطراز filled، وشريط عمودي" plain column>
-  <tanrei-toolbar label="إنشاء رسالة" style="inline-size: 22rem">
+<DemoFrame label="مجموعات وفاصل، وزر قائمة خيارات، وزر مع قائمة، وأزرار تبديل لها تسميات، وقائمة الفائض" plain column>
+  <tanrei-toolbar label="إجراءات المستند">
+    <tanrei-button variant="text" label="تراجع"><span slot="icon">undo</span></tanrei-button>
+    <tanrei-button variant="text" label="إعادة"><span slot="icon">redo</span></tanrei-button>
+    <tanrei-divider></tanrei-divider>
+    <tanrei-button variant="text" id="toolbar-demo-sort" label="ترتيب"><span slot="icon">sort</span></tanrei-button>
+    <tanrei-menu anchor="toolbar-demo-sort">
+      <tanrei-menu-item label="الاسم"></tanrei-menu-item>
+      <tanrei-menu-item label="تاريخ التعديل"></tanrei-menu-item>
+    </tanrei-menu>
+    <tanrei-button-with-menu label="حفظ" menu-label="خيارات حفظ إضافية" variant="tonal">
+      <tanrei-menu-item slot="menu" label="حفظ باسم"></tanrei-menu-item>
+    </tanrei-button-with-menu>
+  </tanrei-toolbar>
+  <tanrei-toolbar label="عوامل التصفية">
+    <tanrei-button variant="outlined" toggle selected>المفتوحة</tanrei-button>
+    <tanrei-button variant="outlined" toggle>المسندة إليّ</tanrei-button>
+    <tanrei-button variant="outlined" toggle>ذات المرفقات</tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar label="إجراءات الرسالة" overflow-label="إجراءات إضافية" style="inline-size: 15rem">
+    <tanrei-button variant="text" label="أرشفة"><span slot="icon">archive</span></tanrei-button>
+    <tanrei-button variant="text" label="حذف"><span slot="icon">delete</span></tanrei-button>
+    <tanrei-button variant="text" label="تمييز كغير مقروءة"><span slot="icon">mark_email_unread</span></tanrei-button>
+    <tanrei-button variant="text" label="نقل"><span slot="icon">drive_file_move</span></tanrei-button>
+    <tanrei-button variant="text" label="تصنيف"><span slot="icon">label</span></tanrei-button>
+    <tanrei-button variant="text" label="وضع علامة"><span slot="icon">flag</span></tanrei-button>
+    <tanrei-button variant="text" label="تأجيل"><span slot="icon">snooze</span></tanrei-button>
+    <tanrei-button variant="text" label="طباعة"><span slot="icon">print</span></tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="docked" label="إنشاء رسالة" style="inline-size: 22rem">
     <tanrei-button variant="text" label="إرفاق ملف"><span slot="icon">attach_file</span></tanrei-button>
     <tanrei-button variant="text" label="إدراج صورة"><span slot="icon">image</span></tanrei-button>
     <tanrei-button variant="text" label="إدراج رابط"><span slot="icon">link</span></tanrei-button>
     <tanrei-button variant="filled">إرسال</tanrei-button>
   </tanrei-toolbar>
-  <tanrei-toolbar label="رد" style="inline-size: 22rem">
-    <tanrei-button variant="tonal">رد</tanrei-button>
-  </tanrei-toolbar>
-  <tanrei-toolbar label="إجراءات الرسالة" style="inline-size: 22rem">
-    <tanrei-button variant="text" label="أرشفة"><span slot="icon">archive</span></tanrei-button>
-    <tanrei-button variant="text" label="حذف" disabled><span slot="icon">delete</span></tanrei-button>
-    <tanrei-button variant="text" label="تمييز كغير مقروءة"><span slot="icon">mark_email_unread</span></tanrei-button>
-    <tanrei-button variant="text" label="نقل"><span slot="icon">drive_file_move</span></tanrei-button>
-  </tanrei-toolbar>
-  <tanrei-toolbar variant="floating" label="أدوات الرسم">
-    <tanrei-button variant="text" label="قلم"><span slot="icon">edit</span></tanrei-button>
-    <tanrei-button variant="text" label="قلم تمييز"><span slot="icon">ink_highlighter</span></tanrei-button>
-    <tanrei-button variant="text" label="ممحاة"><span slot="icon">ink_eraser</span></tanrei-button>
-    <tanrei-button variant="filled" label="تم"><span slot="icon">check</span></tanrei-button>
-  </tanrei-toolbar>
   <tanrei-toolbar variant="floating" orientation="vertical" label="عناصر تحكم الخريطة">
-    <tanrei-button variant="text" label="تكبير"><span slot="icon">add</span></tanrei-button>
-    <tanrei-button variant="text" label="تصغير"><span slot="icon">remove</span></tanrei-button>
-    <tanrei-button variant="text" label="موقعي"><span slot="icon">my_location</span></tanrei-button>
+    <tanrei-toolbar-group label="التكبير والتصغير">
+      <tanrei-button variant="text" label="تكبير"><span slot="icon">add</span></tanrei-button>
+      <tanrei-button variant="text" label="تصغير"><span slot="icon">remove</span></tanrei-button>
+    </tanrei-toolbar-group>
+    <tanrei-toolbar-group>
+      <tanrei-button variant="text" label="موقعي"><span slot="icon">my_location</span></tanrei-button>
+      <tanrei-button variant="text" label="الطبقات"><span slot="icon">layers</span></tanrei-button>
+    </tanrei-toolbar-group>
   </tanrei-toolbar>
 </DemoFrame>
 
@@ -215,20 +276,21 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### متى يُستخدم
 
-استخدم شريط الأدوات لبضعة إجراءات على ما هو أمام الشخص: «أرشفة» و«حذف» و«نقل» لرسالة مفتوحة؛ «غامق» و«مائل» و«رابط» في محرِّر؛ قلم وممحاة في تطبيق رسم؛ التكبير والموقع على خريطة. تعمل الإجراءات على الشاشة الحالية أو التحديد الحالي، لا على المكان الذي يذهب إليه الشخص بعد ذلك.
+استخدم شريط الأدوات لمجموعة من عناصر التحكم تعمل على ما هو أمام الشخص: «غامق» و«مائل» و«رابط» فوق محرِّر؛ «تصفية» و«ترتيب» و«تنزيل» فوق جدول؛ «أرشفة» و«حذف» و«نقل» لرسالة مفتوحة؛ قلم وممحاة فوق رسم؛ التكبير والموقع على خريطة. تعمل عناصر التحكم على المحتوى الحالي أو التحديد الحالي، لا على المكان الذي يذهب إليه الشخص بعد ذلك.
 
 لعنوان الشاشة وطريق الرجوع وإجراء عام أو اثنين، استخدم [شريط التطبيق](/ar/components/app-bar/) في الأعلى. وللانتقال بين الوجهات العليا في التطبيق، استخدم [شريط التنقل](/ar/components/navigation-bar/). لا يجتمع شريط أدوات راسٍ وشريط تنقل في شاشة واحدة أبدًا: كلاهما يطالب بالحافة السفلية.
 
-### راسٍ أم عائم
+### ضمن المحتوى أم راسٍ أم عائم
 
 | الطراز (variant) | موضعه | العناصر | يُستخدم لـ |
 | --- | --- | --- | --- |
-| راسٍ (الافتراضي) | على امتداد الحافة السفلية، ملاصقًا لها، ولونه يصل إلى ما تحت شريط النظام | موزَّعة على العرض، بينها مسافات متساوية | إجراءات شاشة تفاصيل: رسالة مفتوحة، صورة، مستند |
-| عائم | سطح مرتفع مستدير الزوايا فوق المحتوى، يضعه تخطيطك | متقاربة، بالطول الذي تحتاج إليه، وكل منها يحتفظ بحيّز لهدف اللمس الخاص به | أدوات فوق محتوى ينبغي أن يبقى ظاهرًا حولها: محرِّر، لوحة رسم، خريطة |
+| ضمن المحتوى (الافتراضي) | في مكانه داخل المحتوى، حيث يضعه تخطيطك، بلا سطح خاص به في النظام الافتراضي | متقاربة، بالطول الذي تحتاج إليه، وكل منها يحتفظ بحيّز لهدف اللمس الخاص به | عناصر التحكم في جزء من الصفحة: تنسيق محرِّر، إجراءات جدول، صف من عوامل التصفية |
+| راسٍ | على امتداد الحافة السفلية، ملاصقًا لها، ولونه يصل إلى ما تحت شريط النظام | موزَّعة على العرض، بينها مسافات متساوية | إجراءات شاشة تفاصيل على الهاتف: رسالة مفتوحة، صورة، مستند |
+| عائم | سطح مرتفع مستدير الزوايا فوق المحتوى، يضعه تخطيطك | متقاربة، بالطول الذي تحتاج إليه، وكل منها يحتفظ بحيّز لهدف اللمس الخاص به | أدوات فوق محتوى ينبغي أن يبقى ظاهرًا حولها: لوحة رسم، خريطة |
 
-شريط الأدوات الراسي أفقي دائمًا. والعائم قد يكون عموديًّا، بجانب المحتوى على شاشة كبيرة، كعناصر تحكم الخريطة. ويستطيع المنتج الواحد أن يُرسي شريط أدواته في بعض الشاشات ويجعله عائمًا في غيرها. والطراز الذي يضيفه نظام تصميم يأخذ بنية الراسي بقيمه هو.
+شريط الأدوات الراسي أفقي دائمًا. أما الذي ضمن المحتوى والعائم فقد يكون كل منهما عموديًّا، بجانب المحتوى. ويستطيع المنتج الواحد أن يضع شريط أدوات ضمن المحتوى في شاشة، ويُرسي آخر في شاشة ثانية، ويجعل ثالثًا عائمًا في شاشة ثالثة. والطراز الذي يضيفه نظام تصميم يأخذ بنية الشريط الذي ضمن المحتوى بقيمه هو.
 
-يوزّع شريط الأدوات الراسي عناصره على العرض ولا يقرّب بينها أبدًا أكثر من فجوته (16 في النظام الافتراضي). أما العائم فيضمّ عناصره: فجوته في النظام الافتراضي 0، ولا يتباعد الجاران إلا بالقدر الذي يحتاج إليه كل منهما ليحتفظ بهدف لمس خاص به على امتداد الصف. فالأزرار الكبيرة تتلامس، والمتوسطة تتباعد بمقدار 8، والصغيرة بمقدار 16. ولا يوسّع شريط الأدوات عنصرًا ولا يغيّر مظهره ليفعل ذلك، والتباعد واحد للفأرة واللمس.
+يوزّع شريط الأدوات الراسي عناصره على العرض ولا يقرّب بينها أبدًا أكثر من فجوته (16 في النظام الافتراضي). أما الذي ضمن المحتوى والعائم فيضمّان عناصرهما: لا يتباعد الجاران إلا بالقدر الذي يحتاج إليه كل منهما ليحتفظ بهدف لمس خاص به على امتداد الصف، ولا يتقاربان أبدًا أكثر من الفجوة (4 ضمن المحتوى و0 للعائم في النظام الافتراضي). فالأزرار الكبيرة تتلامس، والمتوسطة تتباعد بمقدار 8، والصغيرة بمقدار 16. ولا يوسّع شريط الأدوات عنصرًا ولا يغيّر مظهره ليفعل ذلك، والتباعد واحد للفأرة واللمس.
 
 <DemoFrame label="عائم: عناصر صغيرة ومتوسطة وكبيرة، وعناصر ضيقة وعريضة" plain column>
   <tanrei-toolbar variant="floating" label="التنسيق، صغير">
@@ -259,18 +321,30 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - استخدم لمعظم الإجراءات [أزرارًا](/ar/components/button/) بأيقونة فقط من الطراز `text`. وأعطِ الإجراء الوحيد الذي يقود إليه شريط الأدوات، مثل «إرسال» أو «تم»، وزنًا أكبر: زرًّا بأيقونة فقط من الطراز filled، ربما بالعرض `wide`، أو زرًّا من الطراز filled له تسمية ظاهرة حين تكون الكلمة أوضح من الأيقونة.
 - الزر بأيقونة فقط وبالعرض `narrow` يناسب شريط أدوات فيه إجراءات صغيرة كثيرة. يُرسم أضيق من هدفه، ويُبقي شريط الأدوات حيّزًا للهدف بينه وبين جيرانه.
-- اجعل الإجراء الذي يشغّل شيئًا ويوقفه («غامق»، «كتم») زرًّا بأيقونة فقط مع `toggle`. يحتفظ بحالة التحديد الخاصة به وبإعلانه هو.
+- اجعل الإجراء الذي يشغّل شيئًا ويوقفه («غامق»، «كتم») زرًّا بأيقونة فقط مع `toggle`. وعامل التصفية الذي يعمل أو لا يعمل زرٌّ له تسمية ظاهرة مع `toggle`. يحتفظ كل منهما بحالة التحديد الخاصة به وبإعلانه هو.
+- لعنصر تحكم يتيح الاختيار بين عدة أوامر، اربط [قائمة خيارات](/ar/components/menu/) بزر Button في شريط الأدوات. ولإجراء رئيسي له تنويعات، مثل «حفظ» و«حفظ باسم»، استخدم [زرًّا مع قائمة](/ar/components/button-with-menu/).
 - أبقِ الترتيب ثابتًا. يجد الناس الإجراءات بمواضعها، وشريط الأدوات الذي تتنقل عناصره بين الشاشات صعب التعلّم.
-- شريط الأدوات الذي فيه عنصر واحد يوسّطه. فكّر هل مكان ذلك العنصر في المحتوى.
+- شريط الأدوات الراسي الذي فيه عنصر واحد يوسّطه. فكّر هل مكان ذلك العنصر في المحتوى.
+
+### المجموعات والفواصل
+
+ضع العناصر المترابطة في مجموعة: «غامق» و«مائل» و«تسطير»؛ «تراجع» و«إعادة»؛ «تكبير» و«تصغير». يفصل شريط الأدوات بين مجموعتين، وبين مجموعة وعنصر خارج أي مجموعة، كما يفصل نظام التصميم بين الأجزاء في غير هذا الموضع: في النظام الافتراضي بخط قصير و8 من المسافة على كل جانب، أو، تحت نظام تصميم يفصل بالمسافة، بمسافة فارغة مقدارها 16 بلا خط. لا تضبط الخاصية `separation` على شريط أدوات إلا لسبب يخصه. وعنصر الفاصل يرسم الخط نفسه بين عنصرين ليسا في مجموعات.
+
+لا يرسم شريط الأدوات خطًّا عند أي من طرفيه أبدًا، ولا خطين متجاورين. أعطِ المجموعة الخاصية `label` حين يكون للتجميع معنى عند الشخص («نمط النص»)، كي يسمّيها قارئ الشاشة. ومن غير تسمية، تفصل المجموعة عناصرها ولا تقول شيئًا.
 
 ### حين لا تتسع المساحة للعناصر
 
-لا يلفّ شريط الأدوات عنصرًا إلى سطر آخر ولا يصغّره ولا يخفيه أبدًا. إن احتاجت العناصر إلى حيّز أكبر مما عنده، صار الصف قابلًا للتمرير ليبقى كل عنصر في المتناول، وتخبرك بنيات التنقيح (debug) بذلك. ضع الإجراءات الزائدة في [قائمة خيارات](/ar/components/menu/) إضافية (overflow) من عندك، مرتكزة على زر أيقونة «خيارات إضافية» في نهاية شريط الأدوات.
+لا يلفّ شريط الأدوات عنصرًا إلى سطر آخر ولا يصغّره أبدًا. وحين تحتاج عناصره إلى حيّز أكبر مما عنده، يخفي عناصر من النهاية، واحدًا بعد واحد، ويُظهر زر الفائض (overflow) بعد آخر عنصر باقٍ. يفتح الزر قائمة خيارات بالعناصر المخفية، بترتيبها، مع تسمياتها وأيقوناتها وحالاتها: الإجراء عنصر قائمة، وزر التبديل عنصر خانة اختيار، وزر قائمة الخيارات قائمة فرعية، والزر مع قائمة إجراؤه الرئيسي تليه قائمة فرعية. واختيار أحدها يفعل بالضبط ما يفعله العنصر المخفي. سمِّ زر الفائض بالخاصية `overflow-label` («إجراءات إضافية»)، أو مرة واحدة للمنتج كله بواسطة `setWords({ toolbarOverflowLabel: … })`.
+
+علِّم العنصر الذي يجب أن يبقى، مثل «إرسال» أو «تم»، بالقيمة `toolbar-overflow="never"`: فيخفي شريط الأدوات العناصر التي قبله بدلًا منه. وإن ظل ما لا يُخفى أبدًا لا تتسع له المساحة، صار باقي الصف قابلًا للتمرير. ولإبقاء كل العناصر في الصف وتمريرها بدل إخفاء أي منها، اضبط `overflow="scroll"`.
+
+ما يُخفى يتقرر قبل أن يُرسم شريط الأدوات، ثم من جديد في الإطار الذي يتغير فيه طوله، فلا يُرسم عنصر ثم يُخفى أبدًا، ولا يقفز الصف أبدًا.
 
 ### افعل
 
-- سمِّ شريط الأدوات بما تفعله إجراءاته: «التنسيق»، «إجراءات الرسالة».
+- سمِّ شريط الأدوات بما تفعله عناصر التحكم فيه: «التنسيق»، «إجراءات الرسالة».
 - عطِّل الإجراء الذي لا ينطبق الآن بدل أن تزيله، فلا تتحرك الإجراءات الأخرى.
+- رتّب العناصر بحيث يأتي أولًا ما يحتاج إليه الناس أكثر: شريط الأدوات يخفي من النهاية.
 - ضع شريط الأدوات العائم بعيدًا عن المحتوى الذي يحتاج الناس إلى رؤيته وهم يستخدمونه، وبعيدًا عن شريط التنقل وهامش النظام.
 
 ### لا تفعل
@@ -278,7 +352,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - لا تضع في شريط الأدوات حقل نص ولا شريط تمرير ولا مجموعة رقاقات. كل منها يحتاج إلى مفاتيح الأسهم التي يستخدمها شريط الأدوات لنقل التركيز. البحث مكانه شريط التطبيق أو الصفحة.
 - لا تستخدم شريط أدوات راسيًا وشريط تنقل في الشاشة نفسها.
 - لا تغيّر مظهر العناصر ليبدو شريط الأدوات مؤكَّدًا. اختر للأزرار الطراز tonal أو filled.
-- لا تضع وجهات تنقل في شريط الأدوات. عناصره إجراءات.
+- لا تضع وجهات تنقل في شريط الأدوات. عناصره عناصر تحكم تعمل على المحتوى.
 
 ## إمكانية الوصول
 
@@ -287,22 +361,29 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### ما يتكفل به المكوّن
 
 - شريط الأدوات موضع توقف واحد للمفتاح Tab، وفق نمط toolbar في WAI-ARIA. يدخله المفتاح Tab عند العنصر الذي كان عليه تركيز لوحة المفاتيح آخر مرة، وإلا فعند أول عنصر غير معطَّل، وتخرج منه ضغطة Tab التالية. فشريط تنسيق فيه ثمانية أزرار تبديل يُعبَر بضغطة Tab واحدة، لا بثمانٍ.
-- في داخله، تنقل مفاتيح الأسهم الموافقة لمحوره إلى العنصر التالي أو السابق وتدور عند الطرفين: السهم الأيمن والسهم الأيسر في شريط أدوات أفقي، والسهم السفلي والسهم العلوي في العمودي. وينقل المفتاحان Home و End إلى العنصر الأول والأخير. وفي تخطيط من اليمين إلى اليسار ينقل السهم الأيسر إلى العنصر التالي.
+- في داخله، تنقل مفاتيح الأسهم الموافقة لمحوره إلى العنصر التالي أو السابق وتدور عند الطرفين: السهم الأيمن والسهم الأيسر في شريط أدوات أفقي، والسهم السفلي والسهم العلوي في العمودي. وينقل المفتاحان Home و End إلى العنصر الأول والأخير. وفي تخطيط من اليمين إلى اليسار ينقل السهم الأيسر إلى العنصر التالي. وعناصر المجموعة هي عناصر شريط الأدوات، وكل نصف من الزر مع قائمة موضع توقف خاص به، وتُتخطّى الفواصل، وزر الفائض هو آخر موضع توقف.
 - نقل التركيز لا يفعّل عنصرًا أبدًا. يعمل المفتاحان Enter و Space على العنصر الذي عليه التركيز كما يعمل ذلك العنصر، فزر التبديل يبدّل كعادته.
+- ما دامت قائمة خيارات مربوطة بعنصر مفتوحة، فالمفاتيح لها. وحين تُغلق يعود التركيز إلى العنصر الذي فُتحت منه.
+- حين يُخفى العنصر الذي عليه التركيز لأن شريط الأدوات ضاق، ينتقل التركيز إلى زر الفائض.
 - تتخطى مفاتيح الأسهم العناصر المعطَّلة، ولا تكون هذه موضع توقف للمفتاح Tab أبدًا، لأن الزر المعطَّل لا يقبل التركيز.
 - التركيز المتنقل هو نفسه الذي تستخدمه القائمة وقائمة الخيارات وعلامات التبويب على كل منصة.
 - يُعرَّف شريط الأدوات للتقنيات المساعدة شريطَ أدوات (toolbar) تسمّيه الخاصية `label`، مع اتجاهه، حيث للمنصة دور toolbar (الويب و React Native). وليس في SwiftUI و Compose و Flutter دور كهذا: هناك هو مجموعة تسمّيها الخاصية `label` وتحوي عناصره بالترتيب.
+- تُعرَّف المجموعة التي لها `label` مجموعةً بذلك الاسم. وتُعرَّف الخطوط بين المجموعات فواصلَ (separators).
+- يُعرَّف زر الفائض زرًّا يفتح قائمة خيارات، مع حالة توسّعه، وتحوي قائمته كل عنصر مخفي باسمه وحالته.
 - يحتفظ كل عنصر باسمه ودوره وحالته وهدفه. لا يضيف شريط الأدوات إليها شيئًا ولا يغيّر مظهرها أبدًا.
-- لا تتداخل مساحات اللمس بين عنصرين أبدًا. في الشريط الراسي تلتقي في منتصف الفجوة، وفجوة النظام الافتراضي (16) واسعة بما يكفي ليحتفظ كل عنصر بهدف اللمس 48 كاملًا هناك أيضًا؛ ونظام التصميم الذي فجوته أضيق يضيّق الأهداف بين العناصر. وفي الشريط العائم تتباعد العناصر بالقدر الكافي فقط ليحتفظ كل منها بطول هدف لمس خاص به على امتداد الصف، أيًّا كان المؤشر، فلا يضغط الجيران زرًّا ضيقًا أو صغيرًا أبدًا. وعلى الجانب الذي لا جار فيه يحتفظ العنصر بهدفه كاملًا.
-- حين يكون العنصر الذي يستقبل تركيز لوحة المفاتيح خارج المجال المرئي بفعل التمرير، يمرّره شريط الأدوات حتى يظهر كاملًا.
+- لا تتداخل مساحات اللمس بين عنصرين أبدًا. في الشريط الراسي تلتقي في منتصف الفجوة، وفجوة النظام الافتراضي (16) واسعة بما يكفي ليحتفظ كل عنصر بهدف اللمس 48 كاملًا هناك أيضًا؛ ونظام التصميم الذي فجوته أضيق يضيّق الأهداف بين العناصر. وفي الشريط الذي ضمن المحتوى والعائم تتباعد العناصر بالقدر الكافي فقط ليحتفظ كل منها بطول هدف لمس خاص به على امتداد الصف، أيًّا كان المؤشر، فلا يضغط الجيران زرًّا ضيقًا أو صغيرًا أبدًا. وعلى الجانب الذي لا جار فيه يحتفظ العنصر بهدفه كاملًا.
+- حين تكون قيمة `overflow` هي `scroll` ويكون العنصر الذي يستقبل تركيز لوحة المفاتيح خارج المجال المرئي بفعل التمرير، يمرّره شريط الأدوات حتى يظهر كاملًا.
 - عند أحجام النص الأكبر يكبر شريط الأدوات في الاتجاه المتعامد مع محوره ليسع عناصره. ولا يكبّرها هي.
-- تبلّغ بنيات التنقيح عن `label` مفقودة، وشريط أدوات بلا عناصر، وعنصر ليس Button من Tanrei، وشريط راسٍ ضُبط عموديًّا، وعناصر لا تتسع لها المساحة، وطراز أو اتجاه غير معروف.
+- تبلّغ بنيات التنقيح عن `label` مفقودة، وشريط أدوات بلا عناصر، وعنصر ليس من أي من أنواعه، وشريط راسٍ ضُبط عموديًّا، واسم مفقود لزر الفائض، وقيمة غير معروفة للطراز أو الاتجاه أو `overflow` أو `separation`.
 
 فجوات معروفة في المنصات:
 
 - ليس في SwiftUI و Compose و Flutter دور toolbar. يسمع قارئ الشاشة مجموعة لها اسم، لا شريط أدوات، وملف README في كل حزمة يقول ذلك. ولا تعرِّف المجموعة اتجاهها.
+- منصات SwiftUI و Compose و Flutter و React Native متأخرة: ليس فيها الطراز الذي ضمن المحتوى، ولا مجموعات ولا فواصل، ولا قائمة الفائض، ولا تقبل عناصرَ إلا أزرار Button.
 - على الويب: يقرأ الشريط الراسي `env(safe-area-inset-bottom)`، وقيمته صفر ما لم يكن في وسم viewport meta للصفحة `viewport-fit=cover`.
-- على الويب: حين تكون العناصر قابلة للتمرير، يُقصّ كل ما يتجاوز شريط الأدوات من العنصر في الاتجاه المتعامد مع محوره: مساحة لمسه، وحلقة تركيزه أو توهّجه، وظل الزر من الطراز elevated. ولا يظهر شريط تمرير الصفحة.
+- على الويب: تُفتح قائمة الفائض لشريط أدوات عمودي تحت زر الفائض، لا بجانبه، لأن قائمة الخيارات ليس لها موضع جانبي.
+- على الويب: يقيس الشريط الذي ضمن المحتوى والعائم الحيّز الذي يمكنه أن يأخذه من عنصره الأب. والشريط الذي يحدد حيّزه أشقاؤه في صف flex، لا أبوه، لا يقرر ما يتسع إلا حين يتغير حجم أبيه أو حجم عناصره.
+- على الويب: حين تكون العناصر قابلة للتمرير، يُقصّ كل ما يتجاوز شريط الأدوات من العنصر في الاتجاه المتعامد مع محوره: مساحة لمسه، وحلقة تركيزه أو توهّجه، وظل الزر من الطراز elevated. ولا يظهر شريط تمرير.
 - على SwiftUI موضع توقف المفتاح Tab الواحد مجموعة تركيز للوحة المفاتيح: ينتقل Full Keyboard Access بين عناصرها بمفاتيح الأسهم ويخرج منها بالمفتاح Tab. المفاتيح مختبَرة في صورة قواعد، لا بلوحة مفاتيح حقيقية بعد.
 - على SwiftUI: حين تكون العناصر قابلة للتمرير، تتوقف مساحة لمس العنصر الطرفي عند حافة شريط الأدوات. وحين يجعل تغيّر الحجم العناصر تبدأ التمرير أو تكفّ عنه، يُعاد إنشاؤها، فيفقد العنصر تركيز لوحة المفاتيح أو ضغطة جارية.
 - على React Native لا يعمل موضع توقف المفتاح Tab ومفاتيح الأسهم إلا حيث توصَل لوحة مفاتيح فعلية، كما في صف علامات التبويب.
@@ -312,8 +393,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### ما عليك فعله
 
-- أعطِ شريط الأدوات الخاصية `label`، وأعطِ كل عنصر تسميته بلغة منتجك، ومن ذلك الإجراءات بأيقونة فقط.
-- لا تضع فيه إلا أزرار Button من Tanrei، بأيقونة فقط أو بتسمية ظاهرة.
+- أعطِ شريط الأدوات الخاصية `label`، وأعطِ كل عنصر تسميته بلغة منتجك، ومن ذلك الإجراءات بأيقونة فقط، وأعطِ زر الفائض اسمًا بالخاصية `overflow-label` أو بكلمات منتجك.
+- لا تضع فيه إلا أزرار Button وأزرارًا مع قائمة من Tanrei، منفردة أو في مجموعات أو مع قوائم خيارات مربوطة بها.
 - حين لا ينطبق إجراء فعطِّله، وقل السبب بالقرب منه حين لا يكون واضحًا.
-- وفِّر قائمة الخيارات الإضافية بنفسك حين لا تتسع المساحة للإجراءات.
+- افتح قائمة الخيارات الخاصة بزر قائمة الخيارات وأغلقها بنفسك، كما تفعل مع أي قائمة خيارات.
 - ضع شريط الأدوات العائم بحيث لا يغطي محتوى ما زال مطلوبًا وشريط الأدوات مفتوح.

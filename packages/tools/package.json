@@ -13,6 +13,7 @@
     "test": "node src/run-node-tests.js"
   },
   "dependencies": {
+    "acorn": "^8.18.0",
     "ajv": "^8.20.0",
     "harfbuzzjs": "1.6.2",
     "wawoff2": "2.0.1",

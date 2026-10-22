@@ -128,6 +128,10 @@ The revision that gave the radio button its present sizes and a ring that thicke
     <tanrei-radio-button name="specs-disabled" value="unselected" disabled label="Disabled, unselected"></tanrei-radio-button>
     <tanrei-radio-button name="specs-disabled" value="selected" disabled checked label="Disabled, selected"></tanrei-radio-button>
   </div>
+  <div role="radiogroup" aria-label="Read-only" aria-readonly="true" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-radio-button name="specs-readonly" value="unselected" readonly label="Read-only, unselected"></tanrei-radio-button>
+    <tanrei-radio-button name="specs-readonly" value="selected" readonly checked label="Read-only, selected"></tanrei-radio-button>
+  </div>
   <div role="radiogroup" aria-label="Label hidden">
     <tanrei-radio-button name="specs-hidden" value="weekly" checked label-hidden label="Weekly"></tanrei-radio-button>
   </div>
@@ -181,6 +185,7 @@ A group can start with one option selected when that option is a safe and likely
 - The label is the accessible name, whether it is drawn or hidden with `labelHidden`. The drawn text is hidden from assistive technology, so the name is read once.
 - A group has one tab stop: the selected option, or the first enabled one while none is selected. The arrow keys move to the next or previous enabled option and select it, wrapping at the ends; Left and Right swap in a right-to-left layout.
 - Space selects the focused option. Enter selects it only where the platform activates any focused control with Enter (Android, tvOS); on the web, Enter submits the form.
+- While `readOnly` is set, or while the radio group around it is read-only, an option stays focusable and the arrow keys still reach it, but nothing selects it: not a press, Space, a click on the label, `click()` or an arrow key that lands on it. It shows no hover or press feedback. The radio role has no read-only state, so the group says it.
 - Selecting an option unselects the others. Only the option that became selected reports the change, and activating the selected option does nothing.
 - A click or tap on the label selects the option. The label is part of the hit area, and the hit area meets the minimum target. Each option reserves the target's height in layout, so stacked options keep whole, separate targets.
 - The selection is carried by the ring alone: the selected ring holds 3:1 against every surface in the default system, and it is two and a half times as thick as the unselected one. The translucent fill is not counted for that, but it is held 3:1 apart from the ring it meets, in every state, on every surface and in every scheme (WCAG 1.4.11), so the center of the chosen option is seen as well.
@@ -191,12 +196,14 @@ A group can start with one option selected when that option is a safe and likely
 Known platform gaps:
 
 - SwiftUI, Compose, Flutter and React Native still draw the previous radio button, with a dot and at the previous sizes, do not yet draw the ring and the fill as one shape, and do not reserve the target's height in layout, so stacked options with no gap share target area.
+- `readOnly` is on the web only so far: SwiftUI, Compose, Flutter and React Native do not have it yet.
 - Under `m3-like`, the selected dot fades in at its full size, where Material scales it in from the center (mimicry gap `radio-dot-scale-in`).
 
 ### What you need to do
 
 - Name the group with the question it answers. On the web, wrap the options in an element with `role="radiogroup"` and `aria-labelledby`, or in a `<fieldset>` with a `<legend>`. In Flutter, set `semanticLabel` on `TanreiRadioGroup`; in React Native, set `accessibilityLabel` on `RadioGroup`.
 - Form the group in the platform's way, so the keys and the position work: one `name` on the web, `Modifier.selectableGroup()` on the parent in Compose, `TanreiRadioGroup` in Flutter and `RadioGroup` in React Native.
+- Where you group options by `name` yourself and make each one read-only, say it on the container: `aria-readonly="true"` beside `role="radiogroup"`. A [radio group](/components/radio-group/) with `readOnly` does this for you.
 - If the question is required and left unanswered, show the message on the group: a [radio group](/components/radio-group/) in error draws its error text and puts every radio button in its error form. For options grouped without one, set `error` on each radio button: the ring and the dot take the error color, as a checkbox's box does. A disabled option shows no error color.
 - A radio button in error is not exposed as invalid, because its role has no such state. The group says it: a radio group is invalid and described by its error text. Where you group the options yourself, say the error in words beside them.
 - If you restyle the ring and the fill in your own layer, keep the ring strong enough to show the selection on its own. The build does not check it.

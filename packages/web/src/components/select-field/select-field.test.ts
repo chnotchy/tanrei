@@ -89,7 +89,7 @@ test.describe('behavior', () => {
   test('SEF-1: it is a Field that frames one select, and nothing else — its shadow root holds the two members’ own elements, each prop is on the member it is from and the select’s own label, labelHidden, error and disabled are never set; the label-icon slot is the Field’s, the leading-icon slot and the default slot the select’s; it draws no part, has no token and writes no custom property', async ({ page }) => {
     await mountHtml(
       page,
-      `<${TAG} id="plain" label="Country" label-hidden error disabled supporting-text="Help." error-text="No." requirement="required" required-mark="asterisk" required-text="Required" optional-text="Optional" variant="outlined" size="large" value="jp" placeholder="Choose" readonly separation="gap">
+      `<${TAG} id="plain" label="Country" label-hidden error disabled supporting-text="Help." error-text="No." required required-mark="asterisk" required-text="Required" optional-text="Optional" variant="outlined" size="large" value="jp" placeholder="Choose" readonly separation="gap">
          ${OPTIONS}<span slot="label-icon">public</span><span slot="leading-icon">flag</span>
        </${TAG}>`,
     );
@@ -106,7 +106,7 @@ test.describe('behavior', () => {
         inFrame: [...frame!.childNodes].filter(isDrawn).map(named),
         inSelect: [...control.childNodes].filter(isDrawn).map(named),
         parts: [frame!.getAttribute('part'), control.getAttribute('part')],
-        field: Object.fromEntries(['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'disabled', 'requirement', 'requiredMark', 'requiredText', 'optionalText'].map((name) => [name, framing[name]])),
+        field: Object.fromEntries(['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'disabled', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'].map((name) => [name, framing[name]])),
         select: Object.fromEntries(['variant', 'size', 'value', 'placeholder', 'readOnly', 'open', 'separation'].map((name) => [name, control[name]])),
         // The select's own four: as a select has them by default, whatever the element was given.
         own: Object.fromEntries(['label', 'labelHidden', 'error', 'disabled', 'name'].map((name) => [name, control[name]])),
@@ -123,7 +123,7 @@ test.describe('behavior', () => {
     expect(built.inFrame).toEqual(['slot label-icon → label-icon', 'tanrei-select']);
     expect(built.inSelect).toEqual(['slot (default) → (default)', 'slot leading-icon → leading-icon']);
     expect(built.parts).toEqual(['field', 'select']);
-    expect(built.field).toEqual({ label: 'Country', labelHidden: true, supportingText: 'Help.', errorText: 'No.', error: true, disabled: true, requirement: 'required', requiredMark: 'asterisk', requiredText: 'Required', optionalText: 'Optional' });
+    expect(built.field).toEqual({ label: 'Country', labelHidden: true, supportingText: 'Help.', errorText: 'No.', error: true, disabled: true, required: true, optional: false, requiredMark: 'asterisk', requiredText: 'Required', optionalText: 'Optional' });
     expect(built.select).toEqual({ variant: 'outlined', size: 'large', value: 'jp', placeholder: 'Choose', readOnly: true, open: false, separation: 'gap' });
     expect(built.own).toEqual({ label: '', labelHidden: false, error: false, disabled: false, name: '' });
     expect(built.ownAttributes).toEqual([]);
@@ -308,8 +308,8 @@ test.describe('behavior', () => {
     await mountHtml(
       page,
       `<button id="elsewhere">Elsewhere</button>
-       <${TAG} id="stacked" label="Language" value="ja" requirement="required" required-text="Required" supporting-text="Applies to this device." style="inline-size: 280px"><tanrei-option value="en">English</tanrei-option><tanrei-option value="ja">日本語</tanrei-option><span slot="leading-icon">translate</span><span slot="label-icon">public</span></${TAG}>
-       <${TAG} id="outlined" variant="outlined" label="Country" requirement="required" required-text="Required" style="inline-size: 280px">${OPTIONS}</${TAG}>`,
+       <${TAG} id="stacked" label="Language" value="ja" required required-text="Required" supporting-text="Applies to this device." style="inline-size: 280px"><tanrei-option value="en">English</tanrei-option><tanrei-option value="ja">日本語</tanrei-option><span slot="leading-icon">translate</span><span slot="label-icon">public</span></${TAG}>
+       <${TAG} id="outlined" variant="outlined" label="Country" required required-text="Required" style="inline-size: 280px">${OPTIONS}</${TAG}>`,
       'm3-like',
     );
     const stacked = one(page, 'stacked');
@@ -367,7 +367,7 @@ test.describe('behavior', () => {
   test('SEF-2: in a form it is the one control the form sees — its name, its select’s value, reset to the value it was first given and restored, submitted while read-only and left out while disabled or in a disabled fieldset; it reports what its select reports, a missing value while requirement is required and the value is empty, and the form’s report focuses its select’s container; its members take no part in the form', async ({ page }) => {
     await mountHtml(
       page,
-      `<form id="form"><fieldset id="set"><${TAG} id="f" name="country" label="Country" value="fr" requirement="required" required-text="Required"><tanrei-option value="">None</tanrei-option>${OPTIONS}</${TAG}></fieldset><button id="send">Send</button></form>
+      `<form id="form"><fieldset id="set"><${TAG} id="f" name="country" label="Country" value="fr" required required-text="Required"><tanrei-option value="">None</tanrei-option>${OPTIONS}</${TAG}></fieldset><button id="send">Send</button></form>
        <script>window.submitted = 0; document.getElementById('form').addEventListener('submit', (event) => { event.preventDefault(); window.submitted++; });</script>`,
     );
     const el = one(page, 'f');
@@ -409,7 +409,7 @@ test.describe('behavior', () => {
     // message of the report stays open below the control while focus stays in it and no input is heard — a value set
     // by a script is none — and takes a press on what it covers, here the button below the field; it does the same
     // below the platform's own input.)
-    await set({ requirement: 'none' });
+    await set({ required: false, optional: false });
     expect(await el.evaluate((node) => (node as unknown as HTMLSelectElement).checkValidity())).toBe(true);
     await page.evaluate(() => document.querySelector<HTMLFormElement>('#form')!.requestSubmit());
     expect(await page.evaluate(() => (window as unknown as { submitted: number }).submitted)).toBe(1);
@@ -474,9 +474,9 @@ test.describe('behavior', () => {
     const seen = warnings(page);
     await mountHtml(
       page,
-      `<${TAG} id="required" label="Country" requirement="required">${OPTIONS}</${TAG}>
-       <${TAG} id="optional" label="Region" requirement="optional">${OPTIONS}</${TAG}>
-       <${TAG} id="own" label="City" requirement="required" required-text="Needed">${OPTIONS}</${TAG}>`,
+      `<${TAG} id="required" label="Country" required>${OPTIONS}</${TAG}>
+       <${TAG} id="optional" label="Region" optional>${OPTIONS}</${TAG}>
+       <${TAG} id="own" label="City" required required-text="Needed">${OPTIONS}</${TAG}>`,
     );
     // No words given: the asterisk in the tag's place, no optional tag; the Field says what it lacks, the element nothing.
     await expect(field(one(page, 'required')).locator('.requirement-tag')).toHaveCount(0);
@@ -517,10 +517,10 @@ test.describe('accessibility', () => {
     await mountFixtures(page, spec, { icons: true });
     for (const f of spec.fixtures) {
       const said = await trigger(host(page, f.id)).evaluate((el) => [el.getAttribute('role'), el.getAttribute('aria-label'), el.getAttribute('aria-haspopup'), el.getAttribute('aria-required'), el.getAttribute('aria-invalid'), el.getAttribute('aria-readonly'), el.getAttribute('aria-disabled'), el.getAttribute('aria-expanded')]);
-      expect(said, f.id).toEqual(['combobox', String(f.props.label), 'listbox', f.props.requirement === 'required' ? 'true' : null, f.props.error ? 'true' : null, f.props.readOnly ? 'true' : null, f.props.disabled ? 'true' : null, f.props.open && !f.props.disabled ? 'true' : 'false']);
+      expect(said, f.id).toEqual(['combobox', String(f.props.label), 'listbox', f.props.required ? 'true' : null, f.props.error ? 'true' : null, f.props.readOnly ? 'true' : null, f.props.disabled ? 'true' : null, f.props.open && !f.props.disabled ? 'true' : 'false']);
       expect(await host(page, f.id).evaluate((el) => [el.getAttribute('role'), el.getAttribute('aria-label'), el.getAttribute('tabindex')]), f.id).toEqual([null, null, null]);
       const shownText = f.props.error && f.props.errorText ? f.props.errorText : f.props.supportingText;
-      const described = [shownText, f.props.requirement === 'optional' ? f.props.optionalText : ''].filter(Boolean).join(' ');
+      const described = [shownText, f.props.optional && !f.props.required ? f.props.optionalText : ''].filter(Boolean).join(' ');
       expect(await select(host(page, f.id)).evaluate((el) => el.shadowRoot!.querySelector('#description')?.textContent ?? ''), `${f.id}: the description`).toBe(described);
     }
   });

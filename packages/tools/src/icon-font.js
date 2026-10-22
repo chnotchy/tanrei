@@ -1,6 +1,6 @@
-// An icon font cut down to the glyphs a site draws, built with HarfBuzz (its WebAssembly build: no Python, no native
-// code) — for our own sites, which register Material Symbols from a development-only @fontsource package
-// (font-faces.js). The full file of Material Symbols Rounded is 5.4 MB, every glyph at every value of four axes; a page
+// An icon font cut down to the glyphs a site draws (and a text font to the characters it draws: `subsetText()`),
+// built with HarfBuzz (its WebAssembly build: no Python, no native code) — for our own sites, which register Material
+// Symbols from a development-only @fontsource package (font-faces.js). The full file of Material Symbols Rounded is 5.4 MB, every glyph at every value of four axes; a page
 // of the docs draws a few dozen of them at the values the tokens name.
 //
 // What a ligature icon font needs, and why each step is here:
@@ -127,7 +127,25 @@ export async function subsetIconFont(bytes, names, { pin = {}, ranges = {}, form
     for (const ch of name) codepoints.add(ch.codePointAt(0));
   }
   if (unknown.length) throw new Error(`icon-font: the font draws no glyph named ${unknown.map((n) => `"${n}"`).join(', ')}`);
+  return subset(ttf, { codepoints, glyphs, features: LIGATURE_FEATURES, closure: false, pin, ranges, format });
+}
 
+/**
+ * A text font cut down to the characters `codepoints` — every axis kept whole, the layout features as HarfBuzz keeps
+ * them by default (and the glyphs they reach), so the characters are drawn as the full file draws them. For a family
+ * split into many files by Unicode range (Noto Sans JP: about 120), where a page that draws a few of its characters
+ * would otherwise take each whole file one of them is in (font-faces.js, `writeTextSubsets()`).
+ * @param {Uint8Array | Buffer} bytes the font (WOFF2 or TrueType)
+ * @param {Iterable<number>} codepoints
+ * @param {{ format?: 'woff2' | 'sfnt' }} [options]
+ * @returns {Promise<Uint8Array>}
+ */
+export async function subsetText(bytes, codepoints, { format = 'woff2' } = {}) {
+  return subset(await sfnt(bytes), { codepoints: new Set(codepoints), format });
+}
+
+/** One HarfBuzz subset of `ttf`: these characters (and these glyphs), at these axis cuts. */
+async function subset(ttf, { codepoints, glyphs = [], features, closure = true, pin = {}, ranges = {}, format }) {
   const hb = await subsetter();
   const heap = () => new Uint8Array(hb.memory.buffer);
   const pointer = hb.malloc(ttf.byteLength);
@@ -142,23 +160,25 @@ export async function subsetIconFont(bytes, names, { pin = {}, ranges = {}, form
     for (const codepoint of codepoints) hb.hb_set_add(unicodes, codepoint);
     const gids = hb.hb_subset_input_glyph_set(input);
     for (const gid of glyphs) hb.hb_set_add(gids, gid);
-    const features = hb.hb_subset_input_set(input, HB_SUBSET_SETS_LAYOUT_FEATURE_TAG);
-    hb.hb_set_clear(features);
-    for (const feature of LIGATURE_FEATURES) hb.hb_set_add(features, tag(feature));
-    hb.hb_subset_input_set_flags(input, hb.hb_subset_input_get_flags(input) | HB_SUBSET_FLAGS_NO_LAYOUT_CLOSURE);
+    if (features) {
+      const kept = hb.hb_subset_input_set(input, HB_SUBSET_SETS_LAYOUT_FEATURE_TAG);
+      hb.hb_set_clear(kept);
+      for (const feature of features) hb.hb_set_add(kept, tag(feature));
+    }
+    if (!closure) hb.hb_subset_input_set_flags(input, hb.hb_subset_input_get_flags(input) | HB_SUBSET_FLAGS_NO_LAYOUT_CLOSURE);
     for (const [axis, value] of Object.entries(pin)) {
       if (!hb.hb_subset_input_pin_axis_location(input, face, tag(axis), value)) throw new Error(`icon-font: cannot pin ${axis} at ${value}`);
     }
     for (const [axis, [min, max]] of Object.entries(ranges)) {
       if (!hb.hb_subset_input_set_axis_range(input, face, tag(axis), min, max, Number.NaN)) throw new Error(`icon-font: cannot cut ${axis} to ${min}–${max}`);
     }
-    const subset = hb.hb_subset_or_fail(face, input);
-    if (!subset) throw new Error('icon-font: hb_subset_or_fail failed');
-    const result = hb.hb_face_reference_blob(subset);
+    const cut = hb.hb_subset_or_fail(face, input);
+    if (!cut) throw new Error('icon-font: hb_subset_or_fail failed');
+    const result = hb.hb_face_reference_blob(cut);
     const offset = hb.hb_blob_get_data(result, 0);
     const out = heap().slice(offset, offset + hb.hb_blob_get_length(result));
     hb.hb_blob_destroy(result);
-    hb.hb_face_destroy(subset);
+    hb.hb_face_destroy(cut);
     if (!out.byteLength) throw new Error('icon-font: the subset is empty');
     return format === 'sfnt' ? out : await woff2('compress', out);
   } finally {

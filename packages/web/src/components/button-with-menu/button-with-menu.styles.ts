@@ -21,6 +21,11 @@ const STATES = { '': '', hovered: '-h', focused: '-f', pressed: '-p', disabled: 
 // SPB-26: the elevation is read as its `-inset-ring` companion (the emitter's): the same layers, the ring drawn inside.
 // SPB-31: the divider's color is a part of the variant too, read at rest and when disabled.
 const PARTS = { c: 'container-color', l: 'label-color', o: 'outline-color', e: 'container-elevation-inset-ring', d: 'divider-color' } as const;
+/**
+ * SPB-34: the parts a destructive button with menu reads from its variant's `destructive.` parts, in each state. Its
+ * elevation stays the variant's.
+ */
+const DESTRUCTIVE_PARTS = { c: 'container-color', l: 'label-color', o: 'outline-color', d: 'divider-color' } as const;
 /** The members of the size axis (`dev.tanrei.axes.size.members`). */
 const SIZE_MEMBERS = {
   height: 'container-height',
@@ -47,6 +52,17 @@ const variantBlock = (variant: string, selector: string, fallback: string | null
     .flatMap(([state, suffix]) => Object.entries(PARTS).map(([key, part]) => `  --_${key}${suffix}: ${ref((v) => `${PREFIX}-${v}-${state ? `${state}-` : ''}${part}`, variant, fallback)};`))
     .join('\n')}\n}`;
 
+// SPB-34: a destructive host reads the same private properties from its variant's destructive parts
+// (`<variant>-<state>-destructive-<part>`). Its selector is the variant's with [destructive], so it wins over it.
+const destructiveBlock = (variant: string, selector: string, fallback: string | null = null) =>
+  `${selector} {\n${Object.entries(STATES)
+    .flatMap(([state, suffix]) =>
+      Object.entries(DESTRUCTIVE_PARTS).map(([key, part]) => `  --_${key}${suffix}: ${ref((v) => `${PREFIX}-${v}-${state ? `${state}-` : ''}destructive-${part}`, variant, fallback)};`),
+    )
+    .join('\n')}\n}`;
+/** The selector of a variant's destructive look: the variant's own, with [destructive]. */
+const destructiveOf = (selector: string) => selector.replace(/\)$/, '[destructive])');
+
 // The label's text role is used whole.
 const sizeBlock = (size: string, selector: string, fallback: string | null = null) =>
   `${selector} {\n${Object.entries(SIZE_MEMBERS)
@@ -63,7 +79,8 @@ const sizeBlock = (size: string, selector: string, fallback: string | null = nul
  */
 export const AXES: readonly OpenAxis[] = [
   { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-container-height-${value}` },
-  { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => variantBlock(value, selector, DEFAULT_VARIANT), probe: (value) => `${PREFIX}-${value}-container-color` },
+  { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => `${variantBlock(value, selector, DEFAULT_VARIANT)}\n${destructiveBlock(value, destructiveOf(selector), DEFAULT_VARIANT)}`,
+    probe: (value) => `${PREFIX}-${value}-container-color` },
 ];
 
 /**
@@ -105,6 +122,11 @@ export const styles = css`
   ${unsafeCSS(CORE_SIZES.filter((size) => size !== DEFAULT_SIZE).map((size) => sizeBlock(size, `:host([size='${size}'])`)).join('\n'))}
   ${unsafeCSS(variantBlock(DEFAULT_VARIANT, ':host'))}
   ${unsafeCSS(CORE_VARIANTS.filter((v) => v !== DEFAULT_VARIANT).map((v) => variantBlock(v, `:host([variant='${v}'])`)).join('\n'))}
+  /* SPB-34: a destructive button with menu draws both halves, and the divider, from its variant's destructive parts. The
+     menu's items are the product's own elements, slotted into the menu: these private properties never reach them, so
+     an item is drawn destructive by its own destructive alone. */
+  ${unsafeCSS(destructiveBlock(DEFAULT_VARIANT, ':host([destructive])'))}
+  ${unsafeCSS(CORE_VARIANTS.filter((v) => v !== DEFAULT_VARIANT).map((v) => destructiveBlock(v, destructiveOf(`:host([variant='${v}'])`))).join('\n'))}
 
   /* SPB-30: the separation it draws — its attribute's, else comp.button-with-menu.container.separation's. */
   ${separationHost(`${PREFIX}-container-separation`)}

@@ -63,7 +63,8 @@ test('the vocabulary declares the per-scheme paint; the default system uses it f
   assert.match(vocabulary, /public enum class TanreiScheme\(public val key: String\) \{\n {4}Light\("light"\),/);
   // The default system values the bar, the message, the glyph and the edge of each inverse status form by a
   // `tone` rule (the other theme's tones), so those sixteen and every color that follows them — the title, the focus
-  // indicator, the action and the close button in each state — are per-scheme paints: 116 of the snackbar's, no other.
+  // indicator and the action in each state — are per-scheme paints: 72 of the snackbar's, no other. (The expand and
+  // close buttons have no colors of their own: they are Buttons in the form's tone.)
   const ir = buildIR(await shipped());
   const perScheme = Object.entries(ir.componentTokens).flatMap(([component, tokens]) => tokens.filter((token) => token.paint?.kind === 'scheme').map((token) => [component, token.id]));
   // Seven of the code block's syntax colors are tones of palettes the default system declares for syntax.
@@ -76,8 +77,8 @@ test('the vocabulary declares the per-scheme paint; the default system uses it f
   assert.deepEqual(perScheme.filter(([component, id]) => component !== 'snackbar' && component !== 'code-block' && !CHECKED_FILL.test(id)), []);
   assert.deepEqual(snackbar.filter(([, id]) => !/\.inverse-(info|warning|error|success)\./.test(id)), []);
   assert.deepEqual(code.filter(([, id]) => !SYNTAX.test(id)), []);
-  assert.deepEqual([snackbar.length, code.length], [116, 7]);
-  assert.equal(values.match(/TanreiPaint\.Scheme\(/g).length, 158);
+  assert.deepEqual([snackbar.length, code.length], [72, 7]);
+  assert.equal(values.match(/TanreiPaint\.Scheme\(/g).length, 114);
 });
 
 test('every generic class the IR can answer has a decided platform font; an undecided one stops the emitter by name', async () => {
@@ -141,8 +142,9 @@ test('corner smoothing is a required Float on TanreiShape, 0 for the default sys
   assert.match(values, /cornerSmoothing = 0f,/);
   assert.doesNotMatch(vocabulary, /TanreiCornerStyle|cornerStyle/);
   // `separation` is the third choice of kind (divider | gap); `link-underline` the fourth
-  // (always | hover | never); `divider-visibility` (always | scroll) sorts first.
-  assert.match(vocabulary, /public data class TanreiBehavior\(\n {4}public val dividerVisibility: TanreiDividerVisibility,\n {4}public val focusStyle: TanreiFocusStyle,\n {4}public val linkUnderline: TanreiLinkUnderline,\n {4}public val pressedFeedback: TanreiPressedFeedback,\n {4}public val requirementMark: TanreiRequirementMark,\n {4}public val separation: TanreiSeparation,\n\)/);
+  // (always | hover | never); `appearance` (fade-scale | fade | fade-slide | blur-slide | unfold) sorts first;
+  // `scroll-edge` (shadow | fade | line | blur) is what marks a scrolling box's edge.
+  assert.match(vocabulary, /public data class TanreiBehavior\(\n {4}public val appearance: TanreiAppearance,\n {4}public val dividerVisibility: TanreiDividerVisibility,\n {4}public val focusStyle: TanreiFocusStyle,\n {4}public val linkUnderline: TanreiLinkUnderline,\n {4}public val pressedFeedback: TanreiPressedFeedback,\n {4}public val requirementMark: TanreiRequirementMark,\n {4}public val scrollEdge: TanreiScrollEdge,\n {4}public val separation: TanreiSeparation,\n\)/);
   const out = buildIR(await shipped());
   out.cornerSmoothing = 1.5;
   assert.throws(() => emitKotlin(out), /corner-smoothing must be a number in \[0, 1\], got 1\.5/);

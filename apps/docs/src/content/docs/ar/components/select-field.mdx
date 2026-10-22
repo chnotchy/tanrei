@@ -2,7 +2,7 @@
 title: حقل الاختيار
 description: يتيح للأشخاص اختيار قيمة واحدة من قائمة مغلقة، حقلًا كاملًا من حقول النموذج، فيه تسمية تستطيع أن تقول إن الحقل مطلوب أو اختياري، ومشغِّل يعرض الخيار المختار ويفتح قائمة بالخيارات، وسطر مساعدة أو خطأ تحته، وكلها مربوطة معًا للتقنيات المساعدة وتشارك في النموذج عنصر تحكم واحدًا.
 translationOf: components/select-field.mdx
-sourceHash: 5623cc0f00e2618e6c0495cbfb3ff9ec11643515
+sourceHash: c59acbc263b452b95f47f54facb5c9bd12df3fbc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="select-field" />
 
 <DemoFrame label="حقل اختيار مطلوب، وآخر خياراته في مجموعات ومعه رسم أيقونة يدل على الحقل" column>
-  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="البلد" requirement="required" required-text="مطلوب" placeholder="اختر بلدًا" supporting-text="البلد الذي تُوجَّه إليه فواتيرك.">
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="البلد" required required-text="مطلوب" placeholder="اختر بلدًا" supporting-text="البلد الذي تُوجَّه إليه فواتيرك.">
     <tanrei-option value="ca">كندا</tanrei-option>
     <tanrei-option value="fr">فرنسا</tanrei-option>
     <tanrei-option value="jp">اليابان</tanrei-option>
@@ -46,7 +46,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <TabItem label="Web">
     ```html
     <form>
-      <tanrei-select-field name="country" label="البلد" value="jp" requirement="required" required-text="مطلوب"
+      <tanrei-select-field name="country" label="البلد" value="jp" required required-text="مطلوب"
         supporting-text="البلد الذي تُوجَّه إليه فواتيرك.">
         <tanrei-option value="ca">كندا</tanrei-option>
         <tanrei-option value="jp">اليابان</tanrei-option>
@@ -82,7 +82,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     ```tsx
     import { Option, SelectField } from '@tanrei/react';
 
-    <SelectField label="البلد" value={country} requirement="required" requiredText="مطلوب" onChange={(event) => setCountry(event.currentTarget.value)}>
+    <SelectField label="البلد" value={country} required requiredText="مطلوب" onChange={(event) => setCountry(event.currentTarget.value)}>
       <Option value="ca">كندا</Option>
       <Option value="jp">اليابان</Option>
     </SelectField>
@@ -95,7 +95,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 الحقل نفسه مكتوبًا باليد من عضويه هو الصورة نفسها، وعنصر التحكم نفسه عند التقنيات المساعدة:
 
 ```html
-<tanrei-field label="البلد" requirement="required" required-text="مطلوب"
+<tanrei-field label="البلد" required required-text="مطلوب"
   supporting-text="البلد الذي تُوجَّه إليه فواتيرك.">
   <tanrei-select name="country" placeholder="اختر بلدًا">
     <tanrei-option value="jp">اليابان</tanrei-option>
@@ -105,7 +105,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="الحقل نفسه مكتوبًا باليد: حقل بداخله عنصر اختيار" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="البلد" requirement="required" required-text="مطلوب" supporting-text="البلد الذي تُوجَّه إليه فواتيرك.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="البلد" required required-text="مطلوب" supporting-text="البلد الذي تُوجَّه إليه فواتيرك.">
     <tanrei-select placeholder="اختر بلدًا">
       <tanrei-option value="jp">اليابان</tanrei-option>
       <tanrei-option value="ke">كينيا</tanrei-option>
@@ -132,7 +132,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-option value="team" supporting-text="مشاريع بلا حد وأدوار مشتركة">الفرق</tanrei-option>
     <tanrei-option value="enterprise" supporting-text="تسجيل دخول موحَّد وسجل تدقيق" disabled>المؤسسات</tanrei-option>
   </tanrei-select-field>
-  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="المنطقة" requirement="optional" optional-text="اختياري" placeholder="أي منطقة">
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="المنطقة" optional optional-text="اختياري" placeholder="أي منطقة">
     <tanrei-option value="emea">أوروبا والشرق الأوسط وأفريقيا</tanrei-option><tanrei-option value="apac">آسيا والمحيط الهادئ</tanrei-option>
   </tanrei-select-field>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="البلد" value="ke" error error-text="لا نستطيع الشحن إلى هذا البلد بعد. اختر بلدًا آخر.">
@@ -150,7 +150,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="البلد" value="jp" supporting-text="البلد الذي تُوجَّه إليه فواتيرك.">
     <tanrei-option value="jp">اليابان</tanrei-option><tanrei-option value="ke">كينيا</tanrei-option>
   </tanrei-select-field>
-  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="البلد" requirement="required" required-text="مطلوب">
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="البلد" required required-text="مطلوب">
     <tanrei-option value="jp">اليابان</tanrei-option><tanrei-option value="ke">كينيا</tanrei-option>
   </tanrei-select-field>
 </DemoFrame>
@@ -159,7 +159,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 | الجانب | من الحقل | من عنصر الاختيار |
 | --- | --- | --- |
-| الخصائص | `label`، `labelHidden`، `supportingText`، `errorText`، `error`، `disabled`، `requirement`، `requiredMark`، `requiredText`، `optionalText` | `variant`، `size`، `value`، `placeholder`، `readOnly`، `open`، `separation` |
+| الخصائص | `label`، `labelHidden`، `supportingText`، `errorText`، `error`، `disabled`، `required`، `optional`، `requiredMark`، `requiredText`، `optionalText` | `variant`، `size`، `value`، `placeholder`، `readOnly`، `open`، `separation`، `iconSpace`، `status`، `statusText`، `emptyText` |
 | الأحداث | — | `change`، `toggle` |
 | المنافذ (slots) | `label-icon` | `leading-icon`، والخيارات |
 | رموز التصميم | `comp.field.*` | `comp.input-box.*` للصندوق، وهي التي يقرؤها كل صندوق إدخال؛ و `comp.select.*` للقائمة |
@@ -185,9 +185,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - جذر الظل (shadow root) في العنصر فيه عنصر `<tanrei-field>` بداخله عنصر `<tanrei-select>`، ولا شيء غيرهما. واستيراد العنصر يعرّف الاثنين.
 - الخيارات تبقى فروعك أنت لعنصر `<tanrei-select-field>`. ولا تُنقل ولا تُنسخ أبدًا: تصل إلى عنصر الاختيار الداخلي عبر منفذ، وعنصر الاختيار يقرؤها من جديد حين تتغيّر. واستبدالها باليد (`replaceChildren()`) يعمل كما يعمل على عنصر اختيار.
-- العنصر مرتبط بالنماذج (form-associated). يأخذ `name` و `form`، ويرسل القيمة وحدها، ولا يرسل شيئًا وهو معطَّل، ويظل يرسلها وهو للقراءة فقط، ويعود عند إعادة الضبط إلى قيمة خاصية HTML (attribute) `value`، ويتبع عنصر `<fieldset>` المعطَّل، ويبلّغ بأن القيمة ناقصة ما دامت `requirement` بالقيمة `required` والقيمة فارغة. وعضواه لا يضيفان أي مُدخلة (entry) إلى النموذج.
+- العنصر مرتبط بالنماذج (form-associated). يأخذ `name` و `form`، ويرسل القيمة وحدها، ولا يرسل شيئًا وهو معطَّل، ويظل يرسلها وهو للقراءة فقط، ويعود عند إعادة الضبط إلى قيمة خاصية HTML (attribute) `value`، ويتبع عنصر `<fieldset>` المعطَّل، ويبلّغ بأن القيمة ناقصة ما دامت `required` معيَّنة والقيمة فارغة. وعضواه لا يضيفان أي مُدخلة (entry) إلى النموذج.
 - الحدث `change` هو حدث عنصر الاختيار، وهو يعبر حدود جذر الظل (composed) ويتصاعد (bubbles). والحدث `toggle` هو حدث عنصر الاختيار من النوع CustomEvent ومعه `detail.open` و `detail.reason`: يعبر حدود جذر الظل ولا يتصاعد، فيُسمع على العنصر ولا يسمعه أبدًا عنصر سلف مثل `<details>`. وهدفهما هو العنصر، و `event.target.value` و `event.target.open` جديدتان في كل مستمع.
-- الأجزاء: `field` و `select` هما العضوان. وأجزاؤهما لها هنا الأسماء نفسها التي لها في المستوى الأدنى: `label-icon`، `supporting-text`؛ `container`، `outline`، `active-indicator`، `value`، `placeholder`، `leading-icon`، `chevron`، `list`، `option`، `option-label`، `option-supporting-text`، `option-leading-icon`، `mark`، `group`، `group-title`، `divider`. والجزآن `label` و `requirement-label` هما المرسوم من الاثنين، أي صف الحقل أو التسمية العائمة في عنصر الاختيار، والأجزاء `field-label` و `select-label` و `field-requirement-label` و `select-requirement-label` تسمّي ما لعضو واحد وحده.
+- الأجزاء: `field` و `select` هما العضوان. وأجزاؤهما لها هنا الأسماء نفسها التي لها في المستوى الأدنى: `label-icon`، `supporting-text`؛ `container`، `outline`، `active-indicator`، `value`، `placeholder`، `leading-icon`، `chevron`، `list`، `option`، `option-label`، `option-supporting-text`، `option-leading-icon`، `mark`، `group`، `group-title`، `divider`، `status`. والجزآن `label` و `requirement-label` هما المرسوم من الاثنين، أي صف الحقل أو التسمية العائمة في عنصر الاختيار، والأجزاء `field-label` و `select-label` و `field-requirement-label` و `select-requirement-label` تسمّي ما لعضو واحد وحده.
 - العنصر نفسه غير قابل للتركيز: فالدالة `focus()` تذهب إلى المشغِّل، وعنصر `<label for>` من عند الصفحة ينقل التركيز إليه. والضغط على صف التسمية ينقل التركيز إلى المشغِّل ولا يفتح شيئًا؛ والضغط على المشغِّل يفتح القائمة؛ والضغط على المساعدة لا يفعل شيئًا.
 - ليس للعنصر دور. سمِّه بالخاصية `label`، ومعها `label-hidden` حيث تُرسم التسمية في مكان آخر، ولا تسمِّه أبدًا بالخاصية `aria-label`، فهي لا تسمّي شيئًا هنا.
 - خصائص HTML هي خصائص العضوين نفسها: `label-hidden`، `supporting-text`، `error-text`، `required-mark`، `required-text`، `optional-text`، `readonly`.
@@ -219,7 +219,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### ما يتكفل به المكوّن
 
 - هو مربع تحرير وسرد (combobox) واحد غير قابل للتحرير، وهو مشغِّل عنصر الاختيار. اسمه `label`، مرسومةً كانت أو غير مرسومة؛ ووصفه النص المساعد أو نص الخطأ المعروض، ومعه نص الاختياري ما دام الحقل اختياريًّا.
-- يُعرَض للتقنيات المساعدة على أنه غير صالح ما دامت `error` بالقيمة true، وعلى أنه مطلوب ما دامت `requirement` بالقيمة `required`، وعلى أنه معطَّل ما دامت `disabled` بالقيمة true، وعلى أنه للقراءة فقط ما دامت `readOnly` بالقيمة true، وعلى أنه موسَّع ما دامت قائمته مفتوحة.
+- يُعرَض للتقنيات المساعدة على أنه غير صالح ما دامت `error` بالقيمة true، وعلى أنه مطلوب ما دامت `required` معيَّنة، وعلى أنه معطَّل ما دامت `disabled` بالقيمة true، وعلى أنه للقراءة فقط ما دامت `readOnly` بالقيمة true، وعلى أنه موسَّع ما دامت قائمته مفتوحة.
 - الاسم والوصف والحالات مربوطة به تمامًا كما يربطها الحقل بأي عنصر تحكم يؤطّره. والحقل المكتوب باليد، في المستوى الأدنى، هو عنصر التحكم نفسه.
 - التسمية المرسومة، وعلامة المطلوب أو الاختياري، ورسوم الأيقونات لا تُعرَض للتقنيات المساعدة مرة ثانية.
 - هو موضع توقف واحد للمفتاح Tab. والضغط على التسمية ينقل التركيز إلى المشغِّل ولا يفتح شيئًا؛ والضغط على المساعدة لا يفعل شيئًا.

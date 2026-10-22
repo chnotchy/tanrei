@@ -1,13 +1,31 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { hiddenHost } from '../../primitives/hidden.js';
-import { AvailabilityController, GlyphDrawnController, PressController, SystemWatchController, compChoice, modalLayer, report, styleQueries, syncFocusStyle, WordsController } from '../../primitives/index.js';
-import { INVERSE, INVERSE_PROPERTY, INVERSE_TOKEN, STATUSES, hostStyles, styles } from './snackbar.styles.js';
+import {
+  AvailabilityController,
+  BUTTON_VARIANTS,
+  GlyphDrawnController,
+  PressController,
+  SystemWatchController,
+  compChoice,
+  giveTone,
+  giveVariant,
+  modalLayer,
+  report,
+  styleQueries,
+  syncFocusStyle,
+  WordsController,
+} from '../../primitives/index.js';
+import '../button/button.js';
+import { BUTTON_TONE, INVERSE, INVERSE_PROPERTY, INVERSE_TOKEN, STATUSES, hostStyles, styles } from './snackbar.styles.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** How long a snackbar stays by itself: auto is short without an action and indefinite with one (WCAG 2.2.1). */
 export type TanreiSnackbarDuration = 'auto' | 'short' | 'long' | 'indefinite';
 /** The form of a snackbar: the neutral bar, or a status form with its glyph (SNK-21). */
 export type TanreiSnackbarStatus = 'default' | 'info' | 'warning' | 'error' | 'success';
+/** Where the host places a snackbar: the bottom edge, centred (SNK-13), or the top edge at the end side (SNK-35). */
+export type TanreiSnackbarPlacement = 'bottom' | 'top-end';
 /** Why a snackbar closed without its action. */
 export type TanreiSnackbarDismissReason = 'close' | 'escape' | 'timeout' | 'host';
 /** What `dismiss` carries. */
@@ -31,6 +49,8 @@ export interface TanreiSnackbarOptions {
   closeLabel?: string;
   expandLabel?: string;
   duration?: TanreiSnackbarDuration;
+  /** Where it stands (SNK-35): left out, the host's own `placement`. */
+  placement?: TanreiSnackbarPlacement;
 }
 /** How a snackbar the host showed closed: with its action, or dismissed and why. */
 export type TanreiSnackbarResult = { result: 'action' } | { result: 'dismiss'; reason: TanreiSnackbarDismissReason };
@@ -60,9 +80,9 @@ const lines = (el: HTMLElement | null | undefined) => {
 const cut = (el: HTMLElement | null | undefined) => !!el && el.scrollHeight > el.clientHeight + 0.5;
 
 /**
- * Tells a person briefly, at the bottom edge of the screen, what the app just did or what happened (neutrally, or as
- * information, a warning, an error or a success), with at most one action, without taking focus or interrupting their
- * work.
+ * Tells a person briefly, at the bottom edge of the screen or at its top end, what the app just did or what happened
+ * (neutrally, or as information, a warning, an error or a success), with at most one action, without taking focus or
+ * interrupting their work.
  *
  * Contract: specs/snackbar.spec.json. Shown by a `<tanrei-snackbar-host>` (`host.show({ message, action })`), which
  * queues, places, times, announces and closes it. Drawn outside a host (a documentation page, a test) it is drawn in
@@ -73,11 +93,12 @@ const cut = (el: HTMLElement | null | undefined) => !!el && el.scrollHeight > el
  * chooses (`--tanrei-comp-snackbar-container-inverse`, off in the default system). That and its `status` make its form,
  * one of ten, and the form changes colors only (SNK-30).
  *
- * The action, the expand button and the close button are the snackbar's own controls, drawn from
- * `--tanrei-comp-snackbar-action-*` and `-close-*` tokens per state and form; the bar from
- * `--tanrei-comp-snackbar-container-*`, or its form's `-<status>-*`, `-inverse-*` or `-inverse-<status>-*`. The keyboard
- * focus indicator's outer stroke is the form's `-focus-ring-color` (SNK-3). The content is aligned to the top of the bar
- * (SNK-29).
+ * The action is the snackbar's own control, drawn from `--tanrei-comp-snackbar-action-*` tokens per state and form; the
+ * bar from `--tanrei-comp-snackbar-container-*`, or its form's `-<status>-*`, `-inverse-*` or `-inverse-<status>-*`. The
+ * expand and close buttons are icon-only `<tanrei-button>`s of the small size (SNK-34), in the variant
+ * `--tanrei-comp-snackbar-close-button-variant` names and in the form's tone: its message color and its focus color,
+ * which they draw their glyph, their circle and their states in (BTN-45). The keyboard focus indicator's outer stroke is
+ * the form's `-focus-ring-color` (SNK-3). The content is aligned to the top of the bar (SNK-29).
  *
  * `title` is the `headline` property and attribute, because HTML's global `title` would show a tooltip over the bar.
  *
@@ -88,13 +109,13 @@ const cut = (el: HTMLElement | null | undefined) => !!el && el.scrollHeight > el
  * @csspart title - The title.
  * @csspart supporting-text - The message.
  * @csspart action - The action button.
- * @csspart expand - The expand button, while the text is longer than its collapsed limit.
- * @csspart close - The close button.
+ * @csspart expand - The expand button, while the text is longer than its collapsed limit: a `<tanrei-button>` (its own parts are `container` and `icon`).
+ * @csspart close - The close button: a `<tanrei-button>` (its own parts are `container` and `icon`).
  * @fires action - The action was activated; the snackbar closes.
  * @fires {CustomEvent<TanreiSnackbarDismissDetail>} dismiss - The snackbar closed without its action: `detail.reason` is `close`, `escape`, `timeout` or `host`.
  * @fires {CustomEvent<TanreiSnackbarExpandedChangeDetail>} expandedchange - The person expanded or collapsed the text with the expand button: `detail.expanded` is the new value. Not fired when the product sets `expanded`.
  */
-export class TanreiSnackbar extends LitElement {
+export class TanreiSnackbar extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'snackbar');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
@@ -112,6 +133,7 @@ export class TanreiSnackbar extends LitElement {
     expanded: { type: Boolean, reflect: true },
     expandLabel: { type: String, attribute: 'expand-label' },
     duration: { type: String, reflect: true },
+    placement: { type: String, reflect: true },
     stacked: { state: true },
     expandable: { state: true },
     scrolls: { state: true },
@@ -154,6 +176,14 @@ export class TanreiSnackbar extends LitElement {
   /** How long it stays by itself: `auto` is short without an action and indefinite with one. */
   duration: TanreiSnackbarDuration = 'auto';
 
+  /**
+   * Where its host places it: `bottom`, centred at the bottom edge (SNK-13), or `top-end`, at the top edge on the end side
+   * — the top right in a left-to-right layout, the top left in a right-to-left one, and across the top of a compact
+   * window (SNK-35). It enters from that edge (SNK-36) and, expanding, keeps that edge in place (SNK-24, SNK-37). An
+   * unknown value is `bottom`. Drawn in place, `top-end` stands at the end of the width it is given (SNK-19).
+   */
+  placement: TanreiSnackbarPlacement = 'bottom';
+
   /** SNK-16: the action on its own row. */
   private stacked = false;
   /** SNK-23: the title or the message is longer than its collapsed limit, so the expand button is drawn. */
@@ -162,11 +192,12 @@ export class TanreiSnackbar extends LitElement {
   private scrolls = false;
 
   private readonly actionPress = this.press('.action');
-  private readonly expandPress = this.press('.expand');
-  private readonly closePress = this.press('.close');
 
-  /** SNK-26: each glyph box carries `data-drawn` while the icon set can draw its ligature; until then it draws nothing. */
-  protected readonly glyphs = new GlyphDrawnController(this, () => this.renderRoot?.querySelectorAll<HTMLElement>('.status, .icon') ?? []);
+  /**
+   * SNK-26: each glyph box — the status glyph, and the glyph it gives the expand and close Buttons — carries `data-drawn`
+   * while the icon set can draw its ligature; until then it draws nothing.
+   */
+  protected readonly glyphs = new GlyphDrawnController(this, () => this.renderRoot?.querySelectorAll<HTMLElement>('.status, .glyph') ?? []);
 
   private readonly resize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.layout());
   /** Set once it has emitted how it closed: a snackbar closes once. */
@@ -292,6 +323,7 @@ export class TanreiSnackbar extends LitElement {
     const message = this.renderRoot?.querySelector<HTMLElement>('.message');
     const action = this.renderRoot?.querySelector<HTMLElement>('.action');
     if (!bar || !text || !message) return;
+    this.giveButtons();
     // SNK-24: while the bar grows or shrinks its height is the motion's, not its content's: measured when it ends.
     if (bar.classList.contains('resizing')) return;
     bar.classList.remove('stacked', 'expanded');
@@ -306,7 +338,10 @@ export class TanreiSnackbar extends LitElement {
     if (scrolls !== this.scrolls) this.scrolls = scrolls;
   }
 
-  /** SNK-24: grows or shrinks the bar from its height before, keeping its bottom edge where a host places it. */
+  /**
+   * SNK-24, SNK-37: grows or shrinks the bar from its height before, keeping in place the edge a host places it at — the
+   * host is fixed to the bottom edge or to the top one (snackbar.styles.ts), so the bar's height alone moves.
+   */
   private resize(from: number) {
     const bar = this.renderRoot.querySelector<HTMLElement>('.bar');
     const probe = this.renderRoot.querySelector('.expand-timing');
@@ -361,8 +396,40 @@ export class TanreiSnackbar extends LitElement {
     }
   }
 
+  /**
+   * SNK-34: the expand and close Buttons, given through the Button's internal channel the variant the snackbar's token
+   * names — read now, so a system switch is seen at the next render or layout — and the tone of the form, which is the
+   * same two custom properties in every form: each form's block sets them on the bar (snackbar.styles.ts), so a change of
+   * form recolors the Buttons with no word to them.
+   */
+  private giveButtons() {
+    const variant = compChoice(this, '--tanrei-comp-snackbar-close-button-variant', BUTTON_VARIANTS);
+    for (const button of this.renderRoot?.querySelectorAll('tanrei-button.expand, tanrei-button.close') ?? []) {
+      giveVariant(button, variant);
+      giveTone(button, BUTTON_TONE);
+    }
+  }
+
+  /**
+   * SNK-24: the expand Button says whether the text is expanded and which text it shows and hides, on the native button
+   * it draws in its shadow root — what is focused and read. The text is in this shadow root, so it is named as an
+   * element (`ariaControlsElements`), which may point into a shadow-including ancestor's tree; an id may not.
+   */
+  private async stateExpand() {
+    const button = this.renderRoot.querySelector<HTMLElement & { updateComplete?: Promise<unknown> }>('tanrei-button.expand');
+    if (!button) return;
+    await button.updateComplete;
+    const native = button.shadowRoot?.querySelector<HTMLElement>('button, [role="button"]');
+    if (!native || !button.isConnected) return;
+    native.setAttribute('aria-expanded', String(this.showsExpanded));
+    const text = this.renderRoot.querySelector('.text');
+    if ('ariaControlsElements' in native) (native as unknown as { ariaControlsElements: Element[] | null }).ariaControlsElements = text ? [text] : null;
+  }
+
   protected override updated(changed: PropertyValues<this>) {
     const has = (name: string) => changed.has(name as keyof TanreiSnackbar);
+    if (has('expanded') || has('expandable')) void this.stateExpand();
+    // SNK-34: layout() gives a Button drawn in this render its variant and tone, before it first draws itself.
     if (['message', 'headline', 'action', 'status', 'closable', 'expanded', 'stacked', 'expandable'].some(has)) this.layout();
     if (has('expanded') || has('expandable')) {
       if (!this.showsExpanded) this.renderRoot.querySelector('.text')?.scrollTo({ top: 0 });
@@ -387,15 +454,13 @@ export class TanreiSnackbar extends LitElement {
     }
   }
 
-  private control(name: 'action' | 'expand' | 'close', press: PressController, onClick: () => void, content: unknown, attributes: { label?: string; expanded?: boolean } = {}) {
+  /** SNK-15: the action, the snackbar's own control. */
+  private control(name: 'action', press: PressController, onClick: () => void, content: unknown) {
     return html`<button
       part=${name}
       class="control ${name}"
       type="button"
       data-tanrei-shape
-      aria-label=${attributes.label || nothing}
-      aria-expanded=${attributes.expanded === undefined ? nothing : String(attributes.expanded)}
-      aria-controls=${attributes.expanded === undefined ? nothing : 'text'}
       @click=${onClick}
       @focus=${this.onFocus}
       @pointerdown=${press.onPointerDown}
@@ -415,7 +480,9 @@ export class TanreiSnackbar extends LitElement {
     const headline = this.headline.trim();
     const form = this.form;
     const expanded = this.showsExpanded;
-    const glyph = (name: string) => html`<span class="icon hold" aria-hidden="true"><span class="ink">${name}</span></span>`;
+    /** SNK-34: an icon-only Button of the small size, its glyph given in a box GlyphDrawnController watches (SNK-26). */
+    const button = (name: 'expand' | 'close', glyph: string, label: string, onClick: () => void) =>
+      html`<tanrei-button part=${name} class=${name} size="small" label=${label} @click=${onClick}><span slot="icon" class="glyph"><span class="ink">${glyph}</span></span></tanrei-button>`;
     return html`
       <div
         part="container"
@@ -441,8 +508,8 @@ export class TanreiSnackbar extends LitElement {
         </div>
         <span class="focus" data-tanrei-shape></span>
         ${action ? this.control('action', this.actionPress, this.onAction, html`<span class="hold">${action}</span>`) : nothing}
-        ${this.expandable ? this.control('expand', this.expandPress, this.onExpand, glyph(expanded ? CONTROL_GLYPHS.collapse : CONTROL_GLYPHS.expand), { label: this.words.get('expandLabel', this.expandLabel), expanded }) : nothing}
-        ${this.closable ? this.control('close', this.closePress, this.onClose, glyph(CONTROL_GLYPHS.close), { label: this.words.get('closeLabel', this.closeLabel) }) : nothing}
+        ${this.expandable ? button('expand', expanded ? CONTROL_GLYPHS.collapse : CONTROL_GLYPHS.expand, this.words.get('expandLabel', this.expandLabel), this.onExpand) : nothing}
+        ${this.closable ? button('close', CONTROL_GLYPHS.close, this.words.get('closeLabel', this.closeLabel), this.onClose) : nothing}
       </div>
       <span class="timing" aria-hidden="true"></span>
       <span class="expand-timing" aria-hidden="true"></span>
@@ -456,7 +523,9 @@ interface Request {
 }
 
 /**
- * Shows snackbars, one at a time, in the order they were asked for (SNK-12), at the bottom of the window (SNK-13).
+ * Shows snackbars, one at a time, in the order they were asked for (SNK-12), at the bottom of the window (SNK-13) or,
+ * with `placement="top-end"`, at its top end (SNK-35) — below a sticky header of `<tanrei-app-shell>`, whose height it
+ * reads from `--tanrei-app-shell-scroll-offset` on the document's root.
  * Place it once, as the last element of the page: its place in the focus order is where a snackbar's controls are
  * (SNK-11). It holds the two live regions their messages are announced in (SNK-10) — polite (`role="status"`) for the
  * default, info and success forms, assertive (`role="alert"`) for warning and error — so it must be in the document
@@ -468,8 +537,18 @@ interface Request {
  * @tag tanrei-snackbar-host
  * @slot - The snackbar being shown (the host puts it there).
  */
-export class TanreiSnackbarHost extends LitElement {
+export class TanreiSnackbarHost extends TanreiElement {
   static override styles = [hostStyles, hiddenHost];
+
+  static override properties: PropertyDeclarations = {
+    placement: { type: String, reflect: true },
+  };
+
+  /**
+   * Where it places every snackbar whose `show()` options name no `placement` (SNK-35): `bottom`, the default, or
+   * `top-end`. A product chooses one place for its snackbars.
+   */
+  placement: TanreiSnackbarPlacement = 'bottom';
 
   private readonly queue: Request[] = [];
   private current: { request: Request; snackbar: TanreiSnackbar } | null = null;
@@ -536,8 +615,8 @@ export class TanreiSnackbarHost extends LitElement {
     const request = this.queue.shift();
     if (!request) return;
     const snackbar = document.createElement('tanrei-snackbar');
-    const { message, title = '', action = '', status = 'default', statusLabel = '', inverse = null, closable = false, closeLabel = '', expandLabel = '', duration = 'auto' } = request.options;
-    Object.assign(snackbar, { message, headline: title, action, status, statusLabel, inverse, closable, closeLabel, expandLabel, duration });
+    const { message, title = '', action = '', status = 'default', statusLabel = '', inverse = null, closable = false, closeLabel = '', expandLabel = '', duration = 'auto', placement = this.placement } = request.options;
+    Object.assign(snackbar, { message, headline: title, action, status, statusLabel, inverse, closable, closeLabel, expandLabel, duration, placement });
     snackbar.setAttribute('popover', 'manual');
     this.current = { request, snackbar };
     snackbar.addEventListener('action', this.onSettled);
@@ -550,7 +629,8 @@ export class TanreiSnackbarHost extends LitElement {
     await snackbar.updateComplete;
     if (this.current?.snackbar !== snackbar) return;
     snackbar.showPopover();
-    // SNK-17: it rises in while fading in (only fades where motion is reduced).
+    // SNK-17, SNK-36: it rises in from below, or descends from above at the top end, while fading in (only fades where
+    // motion is reduced).
     snackbar.classList.add('entering');
     void Promise.allSettled(snackbar.getAnimations().map((a) => a.finished)).then(() => snackbar.classList.remove('entering'));
     this.announce(snackbar.announcement, snackbar.assertive);

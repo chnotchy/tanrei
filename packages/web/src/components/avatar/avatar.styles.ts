@@ -183,13 +183,35 @@ export const styles = css`
     object-fit: cover;
     object-position: center;
     visibility: hidden;
+    opacity: 0;
     forced-color-adjust: none;
     /* The picture is not a second thing to drag or to press inside a link (AVT-8). */
     -webkit-user-drag: none;
     -webkit-touch-callout: none;
   }
+
+  /* AVT-4: the picture that has loaded fades in while the fallback fades out beneath it — one cross-fade of opacity
+     over motion.picture-duration on motion.picture-easing, so a transparent picture never shows the fallback leave at
+     its end. Only the way in moves: a new src draws the fallback again at once (no transition on the way back). The
+     fallback ends hidden, so nothing of it is drawn under the picture at rest (AVT-2, AVT-3). A picture the browser
+     already held is drawn at once (\`at-once\`). Reduced motion keeps the cross-fade: it is all opacity (MOT-6). */
   .image.loaded {
     visibility: visible;
+    opacity: 1;
+  }
+  .gone {
+    visibility: hidden;
+    opacity: 0;
+  }
+  .image.loaded,
+  .gone {
+    transition-property: opacity, visibility;
+    transition-duration: ${t('motion-picture-duration')};
+    transition-timing-function: ${t('motion-picture-easing')};
+  }
+  .at-once .image,
+  .at-once .gone {
+    transition-property: none;
   }
 `;
 

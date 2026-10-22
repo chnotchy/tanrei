@@ -2,7 +2,7 @@
 title: セグメントボタン
 description: 関連する 2〜5 個の選択肢を、つながったセグメントとして横に並べた 1 つのコントロールです。1 つ、または複数を選べます。
 translationOf: components/segmented-button.mdx
-sourceHash: 064c374a356e8a7e012dab0484023992e0c8168c
+sourceHash: 6af9719e03456372600f15965041cf5525e4cc2b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -14,10 +14,6 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## 概要
 
 <ComponentAvailability name="segmented-button" />
-
-:::note[Tanrei システムでは提供しません]
-既定の Tanrei システムはセグメントボタンを提供しません。Material と cupertino のプリセットでは提供します。Tanrei では、複数の選択肢から 1 つを選ぶ場面には、下の内容が変わるなら[タブ](/ja/components/tabs/)を、値を設定するなら[ラジオボタン](/ja/components/radio-button/)を使います。それぞれが独立してオン・オフするボタンを並べる場面には[ボタングループ](/ja/components/button-group/)を使います。コンポーネント自体はどのシステムでも動作しますが、提供しないシステムでは開発時に警告が出ます。このページのデモは、これを提供する `m3-like` プリセットで表示しています。
-:::
 
 <DemoFrame label="単一選択、アイコン付き、アイコンのみ" system="m3-like">
   <tanrei-segmented-button label="期間" value="week">
@@ -67,7 +63,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Segment, SegmentedButton } from '@tanrei/react';
+    // 既定のシステムはセグメントボタンを持ちません。m3-like、m3-expressive-like、cupertino のエントリーと /all にあります。
+    import { Segment, SegmentedButton } from '@tanrei/react/m3-like';
 
     // detail は、単一選択では { value }、複数選択では { values } です。
     <SegmentedButton label="期間" value={range} onChange={(e) => 'value' in e.detail && setRange(e.detail.value)}>

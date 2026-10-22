@@ -5,17 +5,16 @@
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //
-// It reads `dist/` and serves it on a free port the way a static host does (text compressed with Brotli).
+// It reads `dist/` and serves it on a free port the way the host does (host.mjs) (text compressed with Brotli).
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import http from 'node:http';
 import path from 'node:path';
-import zlib from 'node:zlib';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
 import { iconFont } from '../../../../packages/tools/src/icon-font.js';
 import { watchNetwork } from './network-quiet.mjs';
+import { serveDist } from './host.mjs';
 
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
@@ -63,34 +62,19 @@ function undrawn(family, words) {
 
 // ── A static host ────────────────────────────────────────────────────────────────────────────────────────────────
 
-const TYPES = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.avif': 'image/avif', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.txt': 'text/plain', '.xml': 'application/xml', '.wasm': 'application/wasm' };
-const packed = new Map();
-let server;
+let host;
 let origin;
 let browser;
 
 before(async () => {
-  server = http.createServer((request, response) => {
-    let file = path.join(dist, decodeURIComponent(new URL(request.url, 'http://localhost').pathname));
-    if (!file.startsWith(dist)) return response.writeHead(403).end();
-    if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, 'index.html');
-    if (!fs.existsSync(file)) return response.writeHead(404).end();
-    const type = TYPES[path.extname(file)] ?? 'application/octet-stream';
-    if (/^(text\/|application\/(json|xml)|image\/svg)/.test(type) && /\bbr\b/.test(request.headers['accept-encoding'] ?? '')) {
-      if (!packed.has(file)) packed.set(file, zlib.brotliCompressSync(fs.readFileSync(file), { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 5 } }));
-      return response.writeHead(200, { 'content-type': type, 'content-encoding': 'br' }).end(packed.get(file));
-    }
-    response.writeHead(200, { 'content-type': type });
-    fs.createReadStream(file).pipe(response);
-  });
-  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
-  origin = `http://127.0.0.1:${server.address().port}`;
+  host = await serveDist(dist, { brotli: true });
+  origin = host.origin;
   browser = await chromium.launch();
 });
 
 after(async () => {
   await browser?.close();
-  await new Promise((resolve) => (server ? server.close(resolve) : resolve()));
+  await host?.close();
 });
 
 // ── The tests ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -169,13 +153,19 @@ async function transfer(url) {
     const { cdp, quiet } = await watchNetwork(page);
     await cdp.send('Network.setCacheDisabled', { cacheDisabled: true });
     const requests = new Map();
+    // What a file weighs on the wire, less its response's head: this server speaks HTTP/1.1 and writes every header of
+    // every response in full, where the host's HTTP/2 and HTTP/3 send a header it sent before on the connection in a
+    // few bytes — the host's headers (the content security policy is 400 bytes) would otherwise count about 60 KB.
+    const heads = new Map();
+    cdp.on('Network.responseReceivedExtraInfo', (event) => heads.set(event.requestId, event.headersText?.length ?? 0));
     cdp.on('Network.responseReceived', (event) => requests.set(event.requestId, { url: event.response.url, bytes: 0 }));
-    cdp.on('Network.loadingFinished', (event) => requests.has(event.requestId) && (requests.get(event.requestId).bytes = event.encodedDataLength));
+    cdp.on('Network.loadingFinished', (event) => requests.has(event.requestId) && (requests.get(event.requestId).bytes = event.encodedDataLength - (heads.get(event.requestId) ?? 0)));
     await page.goto(origin + url, { waitUntil: 'load' });
     await quiet();
     const list = [...requests.values()];
     const sum = (rows) => rows.reduce((total, row) => total + row.bytes, 0);
-    return { total: sum(list), icons: sum(list.filter((row) => /material-symbols/.test(row.url))), largest: list.sort((a, b) => b.bytes - a.bytes).slice(0, 5).map((row) => `${Math.round(row.bytes / 1024)} KB ${row.url.replace(origin, '')}`) };
+    const drawn = await page.evaluate(() => [...document.fonts].filter((face) => face.status === 'loaded').map((face) => face.family.replace(/["']/g, '')));
+    return { total: sum(list), icons: sum(list.filter((row) => /material-symbols/.test(row.url))), largest: list.sort((a, b) => b.bytes - a.bytes).slice(0, 5).map((row) => `${Math.round(row.bytes / 1024)} KB ${row.url.replace(origin, '')}`), files: list.map((row) => row.url.replace(/^.*\//, '')), drawn };
   } finally {
     await context.close();
   }
@@ -190,6 +180,25 @@ describe('what a page transfers', () => {
       assert.ok(icons > 0 && icons < 200 * 1024, `${url}: the icon files are ${Math.round(icons / 1024)} KB`);
     });
   }
+});
+
+// Noto Sans JP comes in about 120 files by Unicode range, each taken whole for any one of its characters: the Button
+// page's guideline quotes 保存 and デプロイ, and its six characters took 107 KB of three files. A page not in Japanese
+// draws them from the site's cut of the family (font-faces.js --text-cut), a page in Japanese from the family's files.
+describe('the Japanese a page quotes', () => {
+  const slice = /^noto-sans-jp-\d+-wght-normal\./;
+  const cut = /^noto-sans-jp-cut-\d+\.generated\./;
+  test('on a page not in Japanese, is drawn from the cut: none of the family’s own files', async () => {
+    const { files, drawn } = await transfer('/components/button/');
+    assert.deepEqual(files.filter((file) => slice.test(file)), []);
+    assert.ok(files.some((file) => cut.test(file)), files.join(', '));
+    assert.ok(drawn.includes('Noto Sans JP Cut'), drawn.join(', '));
+  });
+  test('on a page in Japanese, is drawn from the family’s own files, and the cut is not asked for', async () => {
+    const { files } = await transfer('/ja/components/button/');
+    assert.deepEqual(files.filter((file) => cut.test(file)), []);
+    assert.ok(files.some((file) => slice.test(file)), files.join(', '));
+  });
 });
 
 describe('the Theme Studio page', () => {

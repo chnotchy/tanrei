@@ -84,7 +84,10 @@
    their Japanese forms and leave the rest to another font, two designs in one line; for Hindi and Arabic it has
    nothing, and the reader gets whatever comes last. "A product adds the family of each further script it ships"
    (ref.typeface.brand): the docs do that here, for the page's language, with the faces the reader's system already
-   has — no font is downloaded for them. Inter stays first, for Latin text and Western digits. */
+   has — no font is downloaded for them. Inter stays first, for Latin text and Western digits. On a page in English or
+   Spanish, the Japanese it quotes is drawn from the site's cut of Noto Sans JP, named before it in each stack
+   (fonts.generated.css: packages/tools/src/font-faces.js --text-cut): the same glyphs, without a whole file of the
+   family for each character. These rules come after that one and replace the stacks it sets. */
 :root[lang^='zh'] {
   --docs-script-faces: 'PingFang SC', 'Noto Sans SC', 'Noto Sans CJK SC', 'Source Han Sans SC', 'Microsoft YaHei';
 }

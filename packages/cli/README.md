@@ -1,10 +1,15 @@
 # @tanrei/cli
 
-> **Pre-release.** Nothing has been released: `@tanrei/cli` is not on npm yet, so `npx tanrei` works only after you build and install it from source. Documentation, with the from-source steps: <https://tanrei.chnotchy.com/getting-started/your-design-system/>.
+<!-- tanrei:status -->
+<!-- Written by `pnpm generate` (packages/tools/src/readme.js) from the specs and tanrei.config.json: edit those, not this block. -->
+> **Prerelease.** `0.1.0-next.0` is published under the npm dist-tag `next`: until `0.1.0`, install `@tanrei/cli@next`. During the 0.x prereleases backward compatibility is not kept: any prerelease may break anything, with no deprecation period first, and its changeset says what broke.
+
+<!-- /tanrei:status -->
 
 Build your own design system on [Tanrei](https://github.com/chnotchy/tanrei): **one layer file in, tokens and code for every platform out.** Change a value, run one command, and the web, SwiftUI, Jetpack Compose, Flutter and React Native all move in the same pull request.
 
 ```bash
+npm install --save-dev @tanrei/cli
 npx tanrei init acme --extends tanrei   # or m3-like, m3-expressive-like, cupertino
 npx tanrei build
 ```
@@ -49,7 +54,7 @@ npx tanrei build
 
 | Output | What you get | Use it with |
 |---|---|---|
-| `tokens` | A self-contained **DTCG 2025.10** bundle with a standard resolver, the recipe that produced it, and `a11y-report.json` | any design-token tool, Figma/Penpot importers, AI agents |
+| `tokens` | A self-contained **DTCG 2025.10** bundle with a standard resolver, the recipe that produced it, `a11y-report.json`, and `components.json` — the components the system ships, with the module that registers each, and those it does not have, with what to use instead | any design-token tool, Figma/Penpot importers, AI agents |
 | `web` | `acme.css`, scoped to `[data-tanrei-system="acme"]` | `@tanrei/web` |
 | `tailwind` | `acme.tailwind.css` — a Tailwind CSS v4 `@theme` mapped onto Tanrei's variables | Tailwind v4 |
 | `shadcn` | `acme.shadcn.css` — shadcn/ui's variables mapped onto Tanrei's roles | shadcn/ui |
@@ -70,9 +75,10 @@ The vocabulary *types* always come from the library; a build only writes your sy
 | `tanrei explain <token-id>` | the value (a choice of kind by its name), which layer or pattern rule gives it — every matching rule, with the one that wins and why — and what a layer may write for it |
 | `tanrei studio [--config tanrei.json] [--port <n>] [--no-open]` | serve [Theme Studio](../studio/README.md) on `127.0.0.1` (a random free port unless `--port` is given) and open it in the browser (`--no-open` prints the link only). It edits the layer file `tanrei.json` names in place — saves are atomic, conditional and refused when the engine would refuse the layer — and its build writes the configured outputs. Local only; the link carries a one-time key. Ctrl+C stops it |
 | `tanrei systems` | the systems that ship with this version, with the font families each one names |
+| `tanrei audit <file\|dir\|glob…> [--system <id\|layer file>] [--format text\|json]` | what your code uses that the system does not have, each at its file, line and column with what to write instead: an element (in markup, a template, JSX, a string, an imported React wrapper, a CSS selector) of a component the system does not have, an import from an entry that does not fit the system (`@tanrei/react/all` or `@tanrei/web/m3-like` in a product of the default system), a written `variant="…"` it leaves out. The system is `--system`, else the product's (`tanrei.json`), else `tanrei`. A directory is read for script, markup and stylesheets, without `node_modules` and hidden directories; quote a glob. Comments are skipped; a variant held in a variable is not seen. Exit 0: nothing found; 1: something found (CI); 2: it could not run |
 
 ## Accessibility
 
-Contrast thresholds and structural checks are constants. In your layer a violation is a **warning**, never silent: it is printed, written to `a11y-report.json`, and stamped at the top of every generated file.
+Contrast thresholds and structural checks are constants. In your layer a violation is a **warning**, never silent: it is printed, written to `a11y-report.json`, and stamped at the top of every generated file. The report also records how many contrast pairs were checked in each scheme (`checked`): the pairs of color roles, and the pairs of a component's own colors.
 
 The shipped imitation presets (`m3-like`, `m3-expressive-like`, `cupertino`) are held to fidelity to the systems they imitate, not to Tanrei's accessibility criteria, in every contrast scheme: what the fixed ruler measures in a preset is recorded as information, not as a warning. Your layer is a product layer, whatever it extends, so a layer built on a preset is warned about what it inherits from it too.

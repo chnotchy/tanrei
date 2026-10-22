@@ -20,7 +20,7 @@
     },
     {
       "id": "text-input",
-      "description": "The text input, as the Field's one control: the box and everything typed in it, the icons, the prefix and the suffix, the segments of a date, the picker button, the resize grip, and the label that floats in the box in the looks that float one."
+      "description": "The text input, as the Field's one control: the box and everything typed in it, the icons, the prefix and the suffix, the segments of a date, the picker button, the resize handle, and the label that floats in the box in the looks that float one."
     }
   ],
   "props": [
@@ -77,9 +77,13 @@
       "from": "text-input.readOnly"
     },
     {
-      "name": "requirement",
-      "from": "field.requirement",
+      "name": "required",
+      "from": "field.required",
       "note": "The Field exposes its text input as required (FLD-10, TXI-23)."
+    },
+    {
+      "name": "optional",
+      "from": "field.optional"
     },
     {
       "name": "requiredMark",
@@ -223,6 +227,10 @@
     {
       "name": "entryError",
       "from": "text-input.entryError"
+    },
+    {
+      "name": "resizeEnd",
+      "from": "text-input.resizeEnd"
     }
   ],
   "states": [
@@ -235,17 +243,17 @@
   "behavior": [
     {
       "id": "TXF-62",
-      "text": "THE text field SHALL be a Field that frames one text input, and nothing else. It SHALL give label, labelHidden, supportingText, errorText, error, disabled, requirement, requiredMark, requiredText and optionalText to its Field and every other prop to its text input, each unchanged; SHALL hold the label-icon slot for its Field and the leading-icon and trailing-icon slots for its text input; and SHALL emit its text input's events as its own, each once. THE text field SHALL be as wide as the place it stands in, and its text input SHALL fill it: it is a block with no width of its own, as its Field is (FLD-1), around a control that fills the width it is given (TXI-63). It SHALL draw no part of its own, have no token of its own and hold no state of its own but the count it carries from one member to the other (TXF-67): what it shows, how it behaves and what it exposes to assistive technology SHALL be exactly what that Field and that text input do when a product places the one in the other (FLD-1 to FLD-28; TXI-1 to TXI-63), with the Field given the input's count — the label row and its requirement mark (FLD-2 to FLD-6), or the label that floats in the box with the Field's row left out (FLD-25, TXI-13, TXI-50); the supporting row, the error and the count (FLD-7 to FLD-9, FLD-26, FLD-27, TXI-19, TXF-67); the name, the description and the states (FLD-10, FLD-11, FLD-14, TXI-23); and a date's entry error shown in the Field's row (FLD-28, TXI-30).",
+      "text": "THE text field SHALL be a Field that frames one text input, and nothing else. It SHALL give label, labelHidden, supportingText, errorText, error, disabled, required, optional, requiredMark, requiredText and optionalText to its Field and every other prop to its text input, each unchanged; SHALL hold the label-icon slot for its Field and the leading-icon and trailing-icon slots for its text input; and SHALL emit its text input's events as its own, each once. THE text field SHALL be as wide as the place it stands in, and its text input SHALL fill it: it is a block with no width of its own, as its Field is (FLD-1), around a control that fills the width it is given (TXI-63). It SHALL draw no part of its own, have no token of its own and hold no state of its own but the count it carries from one member to the other (TXF-67): what it shows, how it behaves and what it exposes to assistive technology SHALL be exactly what that Field and that text input do when a product places the one in the other (FLD-1 to FLD-28; TXI-1 to TXI-63), with the Field given the input's count — the label row and its requirement mark (FLD-2 to FLD-6), or the label that floats in the box with the Field's row left out (FLD-25, TXI-13, TXI-50); the supporting row, the error and the count (FLD-7 to FLD-9, FLD-26, FLD-27, TXI-19, TXF-67); the name, the description and the states (FLD-10, FLD-11, FLD-14, TXI-23); and a date's entry error shown in the Field's row (FLD-28, TXI-30).",
       "verify": "The twin test: every fixture of the text field has a twin, the Field's fixture text-<id>, a Field around a text input written by hand with the same values, and with the count text the text field fills (TXF-67) written by hand; on every platform that draws both, the two are the same picture and the same accessibility tree. A difference is a finding in a member or in the exchange between them (TXI-62), never a baseline to update."
     },
     {
       "id": "TXF-63",
       "text": "WHERE the platform has forms (the web) THE text field SHALL be the one control the form sees: it SHALL take name, submit its text input's value, reset to the value it was first given, restore it on navigation, report to the form's constraint validation exactly what its text input would report there (TXI-23, TXI-30), and be left out WHILE disabled is true or a disabled group of the form holds it; its text input and its Field SHALL take no part in the form themselves. WHEN the action key asks for the form's submission (TXI-3) the form asked SHALL be the text field's own.",
-      "verify": "Unit, on the web: a form with one text field submits one entry under the field's name; reset and restore reach the text input; requirement required with an empty value reports valueMissing on the text field and focuses its text input when the form reports it; Enter in the text input presses the form's default button (BTN-30)."
+      "verify": "Unit, on the web: a form with one text field submits one entry under the field's name; reset and restore reach the text input; required true with an empty value reports valueMissing on the text field and focuses its text input when the form reports it; Enter in the text input presses the form's default button (BTN-30)."
     },
     {
       "id": "TXF-64",
-      "text": "WHEN the text field is given focus — by the product, by a press on any part of it that FLD-12 or TXI-8 gives to the input, or by a form that reports its validity — THE text field SHALL pass the focus to its text input (in a date, time or date-time field, to the segment TXI-43 names) and SHALL add no stop to the focus order: the stops inside it are its text input's, in that input's order (an interactive slot element, the picker button, the resize grip). WHILE focus is anywhere inside it THE text field SHALL count as focused for its Field (FLD-13)."
+      "text": "WHEN the text field is given focus — by the product, by a press on any part of it that FLD-12 or TXI-8 gives to the input, or by a form that reports its validity — THE text field SHALL pass the focus to its text input (in a date, time or date-time field, to the segment TXI-43 names) and SHALL add no stop to the focus order: the stops inside it are its text input's, in that input's order (an interactive slot element, the picker button, the resize handle). WHILE focus is anywhere inside it THE text field SHALL count as focused for its Field (FLD-13)."
     },
     {
       "id": "TXF-65",
@@ -968,7 +976,7 @@
       "props": {
         "variant": "stacked",
         "label": "Email",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required"
       },
       "twin": "field.text-stacked-required"
@@ -978,7 +986,7 @@
       "props": {
         "variant": "stacked",
         "label": "Company",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "Optional"
       },
       "twin": "field.text-stacked-optional"
@@ -988,7 +996,7 @@
       "props": {
         "variant": "stacked",
         "label": "Email",
-        "requirement": "required",
+        "required": true,
         "requiredMark": "asterisk"
       },
       "twin": "field.text-stacked-required-asterisk"
@@ -998,7 +1006,7 @@
       "props": {
         "variant": "stacked",
         "label": "氏名",
-        "requirement": "required",
+        "required": true,
         "requiredText": "必須",
         "value": "山田 太郎"
       },
@@ -1009,7 +1017,7 @@
       "props": {
         "variant": "stacked",
         "label": "会社名",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "任意"
       },
       "twin": "field.text-stacked-optional-ja"
@@ -1019,7 +1027,7 @@
       "props": {
         "variant": "stacked",
         "label": "Display name",
-        "requirement": "required",
+        "required": true,
         "value": "Ada Lovelace",
         "requiredText": "Required"
       },
@@ -1033,7 +1041,7 @@
       "props": {
         "variant": "stacked",
         "label": "Email",
-        "requirement": "required",
+        "required": true,
         "error": true,
         "errorText": "Enter your email address.",
         "requiredText": "Required"
@@ -1045,7 +1053,7 @@
       "props": {
         "variant": "stacked",
         "label": "Email",
-        "requirement": "required",
+        "required": true,
         "value": "ada@example.com",
         "disabled": true,
         "requiredText": "Required"
@@ -1058,7 +1066,7 @@
       "props": {
         "variant": "stacked",
         "label": "אימייל",
-        "requirement": "required",
+        "required": true,
         "requiredText": "חובה"
       },
       "twin": "field.text-stacked-required-rtl"
@@ -1068,7 +1076,7 @@
       "props": {
         "variant": "outlined",
         "label": "Email",
-        "requirement": "required",
+        "required": true,
         "requiredText": "Required"
       },
       "twin": "field.text-outlined-required"
@@ -1078,7 +1086,7 @@
       "props": {
         "variant": "outlined",
         "label": "Company",
-        "requirement": "optional",
+        "optional": true,
         "optionalText": "Optional"
       },
       "twin": "field.text-outlined-optional"
@@ -1325,7 +1333,7 @@
         "minRows": 3,
         "label": "الطبقة",
         "value": "{\n  \"id\": \"acme\",\n  \"extends\": \"tanrei\"\n}",
-        "requirement": "required",
+        "required": true,
         "requiredText": "مطلوب",
         "supportingText": "الصق ملف الطبقة هنا.",
         "maxLength": 200,
@@ -1422,7 +1430,8 @@
         "error": "error",
         "disabled": "disabled",
         "readOnly": "readOnly",
-        "requirement": "requirement",
+        "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1455,9 +1464,44 @@
         "change": "change",
         "action": "action",
         "pickerRequest": "pickerrequest",
-        "entryError": "entryerror"
+        "entryError": "entryerror",
+        "resizeEnd": "resizeend"
       },
-      "notes": "The tag is `tanrei-text-field`, the class `TanreiTextField`, the React name `TextField`. Members: `<tanrei-field>` holding one `<tanrei-text-input>` in its default slot; the product places none. The host is `display: block`, as wide as its place, and the input fills it (TXF-62). Value member: `tanrei-text-input`. The host is the form's element — `name`, the value and its state, validity anchored on the input, reset to the `value` attribute, restore, `form`, a disabled fieldset — and the input inside has no `name`. Props, set as properties on the member each is from. On the Field: `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText`. On the text input: `variant`, `size`, `type`, `value`, `placeholder`, `readOnly`, `multiline`, `minRows`, `maxRows`, `resize`, `resizeAxis`, `resizeLabel`, `noWrap` (the inverse of `wrap`, attribute `no-wrap`), `maxLength`, `counter`, `prefixText`, `suffixText`, `autocomplete`, `locale`, `min`, `max`, `disabledDates`, `invalidText`, `unavailableText`, `segmentEmptyText`, `picker`, `pickerLabel`. Attributes are the members' own: kebab-case, except `readonly`, `maxlength`, `autocomplete`, `min` and `max`. Props of one name on both members — `label`, `labelHidden`, `error`, `disabled` — are the Field's; the input's are never set by the element and reach the input through the connection. Events: `input`, `change`, `action`, `pickerrequest`, `entryerror` are the text input's own composed events and leave by themselves, with the host as their target and `value` already new; `action` stays cancelable. None is stopped and none is copied. Slots: `label-icon` is passed to the Field, `leading-icon` and `trailing-icon` to the text input, each by a slot element of the same name rendered only while the host has a child for it; the product's own Button in `trailing-icon` stays the product's element. Parts: the member hosts are `field` and `text-input`. Exported from the Field: `label`, `label-icon`, `requirement-label`, `supporting-text`, `counter`. Exported from the text input: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-grip`. Two names collide, `label` and `requirement-label`. Each is exported with its member's name before it, always (`field-label`, `text-input-label`, `field-requirement-label`, `text-input-requirement-label`), and under the bare name from both members as well, because the two are one thing to a person and are never drawn at once: FLD-25 is the sentence that holds it — while its control draws the label itself the Field draws no label row and no requirement tag, and a stacked input draws neither (TXI-13, TXI-50). So `tanrei-text-field::part(label)` keeps meaning the drawn label. Focus: the shadow root does not delegate. `focus()` and `blur()` call the text input's; a press on the label row — the label, its glyph, the requirement mark — focuses the input by FLD-12, the Field's own sentence (the Field calls `focus()` on its control, which stands beside it in the same tree); a press on the box, and on a label that floats in it, by TXI-8; and a press on the supporting row — the help, the error text, the count — or on the gap between a row and the box does nothing (FLD-12). The connection is the Field's with its control, in both directions (FLD-25, FLD-26, FLD-28, TXI-62); the element takes no part in it. A member's prop it sets itself (`fills`): the Field's `countText`, from the text input's read-only `countText` after each of the input's updates, in the same task (TXF-67). Parts and tokens of its own: none. The element writes no custom property: `--tanrei-comp-field-*`, `--tanrei-comp-input-box-*` and `--tanrei-comp-text-input-*` reach the members by inheritance, and one text field is set apart by setting any of them on the element. What its twin cannot do that it does: keep the Field's count text equal to the input's count as the person types (TXF-67); nothing else. The twin: `<tanrei-field label=\"Email\" supporting-text=\"We never share your address.\" requirement=\"required\"><tanrei-text-input name=\"email\" type=\"email\" autocomplete=\"email\"></tanrei-text-input></tanrei-field>`. There is no `required` attribute, only `requirement=\"required\"`: a prop of the element's own would be the one thing it does not forward. Its Field draws the help and the error text together (FLD-7, FLD-31), and the five fixtures *-supporting-error* hold the pair to its twin."
+      "parts": {
+        "field": "field",
+        "field.label": "field-label",
+        "field.label-icon": "label-icon",
+        "field.requirement-label": "field-requirement-label",
+        "field.value-text": {
+          "noBox": "A text field's value is in its input: the frame draws no value text, and does not export the part."
+        },
+        "field.control": "text-input",
+        "field.supporting-text": "supporting-text",
+        "field.error-text": "error-text",
+        "field.counter": "counter",
+        "text-input": "text-input",
+        "text-input.container": "container",
+        "text-input.active-indicator": "active-indicator",
+        "text-input.outline": "outline",
+        "text-input.label": "text-input-label",
+        "text-input.required-asterisk": "text-input-requirement-label",
+        "text-input.input": "input",
+        "text-input.segment": "segment",
+        "text-input.placeholder": {
+          "noBox": "The browser draws the placeholder in the input's text box (::placeholder), which has no box of its own to measure."
+        },
+        "text-input.prefix": "prefix",
+        "text-input.suffix": "suffix",
+        "text-input.leading-icon": "leading-icon",
+        "text-input.trailing-icon": "trailing-icon",
+        "text-input.picker-button": "picker-button",
+        "text-input.resize-handle": "resize-handle",
+        "text-input.caret": {
+          "noBox": "The browser draws the caret in the input's text: it has no element to measure."
+        },
+        "text-input.entries": "entries"
+      },
+      "notes": "The tag is `tanrei-text-field`, the class `TanreiTextField`, the React name `TextField`. Members: `<tanrei-field>` holding one `<tanrei-text-input>` in its default slot; the product places none. The host is `display: block`, as wide as its place, and the input fills it (TXF-62). Value member: `tanrei-text-input`. The host is the form's element — `name`, the value and its state, validity anchored on the input, reset to the `value` attribute, restore, `form`, a disabled fieldset — and the input inside has no `name`. Props, set as properties on the member each is from. On the Field: `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText`. On the text input: `variant`, `size`, `type`, `value`, `placeholder`, `readOnly`, `multiline`, `minRows`, `maxRows`, `resize`, `resizeAxis`, `resizeLabel`, `noWrap` (the inverse of `wrap`, attribute `no-wrap`), `maxLength`, `counter`, `prefixText`, `suffixText`, `autocomplete`, `locale`, `min`, `max`, `disabledDates`, `invalidText`, `unavailableText`, `segmentEmptyText`, `picker`, `pickerLabel`. Attributes are the members' own: kebab-case, except `readonly`, `maxlength`, `autocomplete`, `min` and `max`. Props of one name on both members — `label`, `labelHidden`, `error`, `disabled` — are the Field's; the input's are never set by the element and reach the input through the connection. Events: `input`, `change`, `action`, `pickerrequest`, `entryerror` are the text input's own composed events and leave by themselves, with the host as their target and `value` already new; `action` stays cancelable. None is stopped and none is copied. Slots: `label-icon` is passed to the Field, `leading-icon` and `trailing-icon` to the text input, each by a slot element of the same name rendered only while the host has a child for it; the product's own Button in `trailing-icon` stays the product's element. Parts: the member hosts are `field` and `text-input`. Exported from the Field: `label`, `label-icon`, `requirement-label`, `supporting-text`, `counter`. Exported from the text input: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-handle`. Two names collide, `label` and `requirement-label`. Each is exported with its member's name before it, always (`field-label`, `text-input-label`, `field-requirement-label`, `text-input-requirement-label`), and under the bare name from both members as well, because the two are one thing to a person and are never drawn at once: FLD-25 is the sentence that holds it — while its control draws the label itself the Field draws no label row and no requirement tag, and a stacked input draws neither (TXI-13, TXI-50). So `tanrei-text-field::part(label)` keeps meaning the drawn label. Focus: the shadow root does not delegate. `focus()` and `blur()` call the text input's; a press on the label row — the label, its glyph, the requirement mark — focuses the input by FLD-12, the Field's own sentence (the Field calls `focus()` on its control, which stands beside it in the same tree); a press on the box, and on a label that floats in it, by TXI-8; and a press on the supporting row — the help, the error text, the count — or on the gap between a row and the box does nothing (FLD-12). The connection is the Field's with its control, in both directions (FLD-25, FLD-26, FLD-28, TXI-62); the element takes no part in it. A member's prop it sets itself (`fills`): the Field's `countText`, from the text input's read-only `countText` after each of the input's updates, in the same task (TXF-67). Parts and tokens of its own: none. The element writes no custom property: `--tanrei-comp-field-*`, `--tanrei-comp-input-box-*` and `--tanrei-comp-text-input-*` reach the members by inheritance, and one text field is set apart by setting any of them on the element. What its twin cannot do that it does: keep the Field's count text equal to the input's count as the person types (TXF-67); nothing else. The twin: `<tanrei-field label=\"Email\" supporting-text=\"We never share your address.\" required><tanrei-text-input name=\"email\" type=\"email\" autocomplete=\"email\"></tanrei-text-input></tanrei-field>`. Its Field draws the help and the error text together (FLD-7, FLD-31), and the five fixtures *-supporting-error* hold the pair to its twin."
     },
     "swiftui": {
       "status": "lagging",
@@ -1475,7 +1519,8 @@
         "error": "error",
         "disabled": "disabled",
         "readOnly": "readOnly",
-        "requirement": "requirement",
+        "required": "isRequired",
+        "optional": "isOptional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1508,9 +1553,10 @@
         "change": "onCommit",
         "action": "onSubmit",
         "pickerRequest": "onPickerRequest",
-        "entryError": "onEntryError"
+        "entryError": "onEntryError",
+        "resizeEnd": "onResizeEnd"
       },
-      "notes": "Lagging: this platform draws the text field as one view that draws its own frame, written against the token group `comp.text-field`, which the tokens do not have. It owes, first, its sources moved to the generated names of `comp.input-box`, `comp.text-input` and `comp.field`: they do not compile until then. Then the split: the text input as a view of its own, and the text field as the Field around it. Its names and its props stay. What it does today: `text: Binding<String>` (as `TextField`); every edit writes the binding, which is the input event. `password` draws a `SecureField`; `multiline` is `TextField(axis: .vertical)` with `.lineLimit(minRows...maxRows)` — not `TextEditor`, which has no prompt and does not grow. `labelHidden` follows the `.labelsHidden()` environment; `disabled` follows `.disabled(_:)`; `action` is the `onSubmit:` parameter, called after the commit (TXI-3); an enclosing `.onSubmit` modifier still fires, but before the commit, because SwiftUI runs the outer handler first. `onCommit` is Tanrei's own parameter (SwiftUI deprecated its own), called when focus leaves with a changed value. `type` maps to `.keyboardType`, `.textInputAutocapitalization`, `.autocorrectionDisabled` and `.submitLabel`; `autocomplete` maps HTML names to `UITextContentType`. `locale` follows the `\\.locale` environment when not given. The picker button is shown when an `onPickerRequest:` closure is given (a nil closure is picker false); the product presents the picker and writes the binding. Not built on this platform yet: `requirement` in place of the required flag; the resize modes and the grip (TXI-37–TXI-41), the segmented date and time row (TXI-42–TXI-47) and the requirement label (FLD-4, FLD-5, TXI-50). The platform proposes its own idiom for the segments when it catches up — each unit focusable and adjustable on its own, with the same value and events. Not built on this platform yet: the words props have no defaults, and the product's words are read from the `\\.tanreiWords` environment value. Not built on this platform yet, for type code: `.autocorrectionDisabled()`, `.textInputAutocapitalization(.never)`, `.keyboardType(.asciiCapable)`, a monospaced design of the input's size, and `.environment(\\.layoutDirection, .leftToRight)` on the input row alone; smart quotes, smart dashes and smart insert and delete are traits of the UIKit and AppKit text view (`smartQuotesType`, `smartDashesType`, `smartInsertDeleteType`, `isAutomaticQuoteSubstitutionEnabled`), so a code field is drawn on that view where SwiftUI's `TextField` gives no access to them; `wrap: false` needs that view too (a text container that does not track the view's width, in a scroll view), because `TextField(axis: .vertical)` always wraps. Not built on this platform yet: the count said as the product's sentence (counterText, counterNoLimitText, TXI-19); today the digits are said. Not built on this platform yet: comp.field.error-text.placement — the error text takes the help's place under every system, which is replace, the default; append, which keeps the help and draws the error text below it, is not drawn (FLD-7, FLD-31). Not built on this platform yet: size small (40), and in a right-to-left layout the value of an always left-to-right type beside its prefix (TXI-67)."
+      "notes": "Lagging: this platform draws the text field as one view that draws its own frame, written against the token group `comp.text-field`, which the tokens do not have. It owes, first, its sources moved to the generated names of `comp.input-box`, `comp.text-input` and `comp.field`: they do not compile until then. Then the split: the text input as a view of its own, and the text field as the Field around it. Its names and its props stay. What it does today: `text: Binding<String>` (as `TextField`); every edit writes the binding, which is the input event. `password` draws a `SecureField`; `multiline` is `TextField(axis: .vertical)` with `.lineLimit(minRows...maxRows)` — not `TextEditor`, which has no prompt and does not grow. `labelHidden` follows the `.labelsHidden()` environment; `disabled` follows `.disabled(_:)`; `action` is the `onSubmit:` parameter, called after the commit (TXI-3); an enclosing `.onSubmit` modifier still fires, but before the commit, because SwiftUI runs the outer handler first. `onCommit` is Tanrei's own parameter (SwiftUI deprecated its own), called when focus leaves with a changed value. `type` maps to `.keyboardType`, `.textInputAutocapitalization`, `.autocorrectionDisabled` and `.submitLabel`; `autocomplete` maps HTML names to `UITextContentType`. `locale` follows the `\\.locale` environment when not given. The picker button is shown when an `onPickerRequest:` closure is given (a nil closure is picker false); the product presents the picker and writes the binding. Not built on this platform yet: the optional flag (`optional`) beside the required flag; the resize modes and the handle (TXI-37–TXI-41, TXI-69), the segmented date and time row (TXI-42–TXI-47) and the requirement label (FLD-4, FLD-5, TXI-50). The platform proposes its own idiom for the segments when it catches up — each unit focusable and adjustable on its own, with the same value and events. Not built on this platform yet: the words props have no defaults, and the product's words are read from the `\\.tanreiWords` environment value. Not built on this platform yet, for type code: `.autocorrectionDisabled()`, `.textInputAutocapitalization(.never)`, `.keyboardType(.asciiCapable)`, a monospaced design of the input's size, and `.environment(\\.layoutDirection, .leftToRight)` on the input row alone; smart quotes, smart dashes and smart insert and delete are traits of the UIKit and AppKit text view (`smartQuotesType`, `smartDashesType`, `smartInsertDeleteType`, `isAutomaticQuoteSubstitutionEnabled`), so a code field is drawn on that view where SwiftUI's `TextField` gives no access to them; `wrap: false` needs that view too (a text container that does not track the view's width, in a scroll view), because `TextField(axis: .vertical)` always wraps. Not built on this platform yet: the count said as the product's sentence (counterText, counterNoLimitText, TXI-19); today the digits are said. Not built on this platform yet: comp.field.error-text.placement — the error text takes the help's place under every system, which is replace, the default; append, which keeps the help and draws the error text below it, is not drawn (FLD-7, FLD-31). Not built on this platform yet: size small (40), and in a right-to-left layout the value of an always left-to-right type beside its prefix (TXI-67)."
     },
     "compose": {
       "status": "lagging",
@@ -1528,7 +1574,8 @@
         "error": "isError",
         "disabled": "enabled",
         "readOnly": "readOnly",
-        "requirement": "requirement",
+        "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1561,9 +1608,10 @@
         "change": "onCommit",
         "action": "keyboardActions",
         "pickerRequest": "onPickerRequest",
-        "entryError": "onEntryError"
+        "entryError": "onEntryError",
+        "resizeEnd": "onResizeEnd"
       },
-      "notes": "Lagging: this platform draws the text field as one view that draws its own frame, written against the token group `comp.text-field`, which the tokens do not have. It owes, first, its sources moved to the generated names of `comp.input-box`, `comp.text-input` and `comp.field`: they do not compile until then. Then the split: the text input as a view of its own, and the text field as the Field around it. Its names and its props stay. What it does today: Compose idiom (as `TextField`): `value` / `onValueChange`, with a `TextFieldValue` overload for products that manage selection and composition themselves; `enabled` and `singleLine` are inverse flags; `isError`, `readOnly`, `minLines`, `maxLines`, `prefix` and `suffix` keep Compose's names. Built on `BasicTextField`. `type` maps to `KeyboardOptions` (keyboard type, capitalization, autocorrect, IME action) and, for password, `PasswordVisualTransformation`; `autocomplete` maps to `ContentType` semantics. `onCommit` is Tanrei's own callback, called when focus leaves with a changed value or the IME action commits. `locale` defaults to the current configuration's locale. The picker button is shown when `onPickerRequest` is not null (null is picker false); `pickerContentDescription` follows Compose's naming for an icon's accessible name. Not built on this platform yet: `requirement` in place of the required flag; the resize modes and the grip (TXI-37–TXI-41), the segmented date and time row (TXI-42–TXI-47) and the requirement label (FLD-4, FLD-5, TXI-50). The platform proposes its own idiom for the segments when it catches up — each unit focusable and adjustable on its own, with the same value and events. Not built on this platform yet: the words props have no defaults, and the product's words are read from `LocalTanreiWords`. Not built on this platform yet, for type code: `KeyboardOptions(capitalization = KeyboardCapitalization.None, autoCorrectEnabled = false, keyboardType = KeyboardType.Ascii)`, `TextStyle(textDirection = TextDirection.Ltr, textAlign = TextAlign.Left, fontFamily = …, fontFeatureSettings = \"liga 0\")` on the input row inside `CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr)`; `softWrap = false` puts the `BasicTextField` in a `horizontalScroll` that follows the cursor's rectangle. Not built on this platform yet: the count said as the product's sentence (counterText, counterNoLimitText, TXI-19); today the digits are said. Not built on this platform yet: comp.field.error-text.placement — the error text takes the help's place under every system, which is replace, the default; append, which keeps the help and draws the error text below it, is not drawn (FLD-7, FLD-31). Not built on this platform yet: size small (40), and in a right-to-left layout the value of an always left-to-right type beside its prefix (TXI-67)."
+      "notes": "Lagging: this platform draws the text field as one view that draws its own frame, written against the token group `comp.text-field`, which the tokens do not have. It owes, first, its sources moved to the generated names of `comp.input-box`, `comp.text-input` and `comp.field`: they do not compile until then. Then the split: the text input as a view of its own, and the text field as the Field around it. Its names and its props stay. What it does today: Compose idiom (as `TextField`): `value` / `onValueChange`, with a `TextFieldValue` overload for products that manage selection and composition themselves; `enabled` and `singleLine` are inverse flags; `isError`, `readOnly`, `minLines`, `maxLines`, `prefix` and `suffix` keep Compose's names. Built on `BasicTextField`. `type` maps to `KeyboardOptions` (keyboard type, capitalization, autocorrect, IME action) and, for password, `PasswordVisualTransformation`; `autocomplete` maps to `ContentType` semantics. `onCommit` is Tanrei's own callback, called when focus leaves with a changed value or the IME action commits. `locale` defaults to the current configuration's locale. The picker button is shown when `onPickerRequest` is not null (null is picker false); `pickerContentDescription` follows Compose's naming for an icon's accessible name. Not built on this platform yet: the optional flag (`optional`) beside the required flag; the resize modes and the handle (TXI-37–TXI-41, TXI-69), the segmented date and time row (TXI-42–TXI-47) and the requirement label (FLD-4, FLD-5, TXI-50). The platform proposes its own idiom for the segments when it catches up — each unit focusable and adjustable on its own, with the same value and events. Not built on this platform yet: the words props have no defaults, and the product's words are read from `LocalTanreiWords`. Not built on this platform yet, for type code: `KeyboardOptions(capitalization = KeyboardCapitalization.None, autoCorrectEnabled = false, keyboardType = KeyboardType.Ascii)`, `TextStyle(textDirection = TextDirection.Ltr, textAlign = TextAlign.Left, fontFamily = …, fontFeatureSettings = \"liga 0\")` on the input row inside `CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr)`; `softWrap = false` puts the `BasicTextField` in a `horizontalScroll` that follows the cursor's rectangle. Not built on this platform yet: the count said as the product's sentence (counterText, counterNoLimitText, TXI-19); today the digits are said. Not built on this platform yet: comp.field.error-text.placement — the error text takes the help's place under every system, which is replace, the default; append, which keeps the help and draws the error text below it, is not drawn (FLD-7, FLD-31). Not built on this platform yet: size small (40), and in a right-to-left layout the value of an always left-to-right type beside its prefix (TXI-67)."
     },
     "flutter": {
       "status": "lagging",
@@ -1581,7 +1629,8 @@
         "error": "isError",
         "disabled": "enabled",
         "readOnly": "readOnly",
-        "requirement": "requirement",
+        "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1614,9 +1663,10 @@
         "change": "onCommit",
         "action": "onSubmitted",
         "pickerRequest": "onPickerRequest",
-        "entryError": "onEntryError"
+        "entryError": "onEntryError",
+        "resizeEnd": "onResizeEnd"
       },
-      "notes": "Lagging: this platform draws the text field as one view that draws its own frame, written against the token group `comp.text-field`, which the tokens do not have. It owes, first, its sources moved to the generated names of `comp.input-box`, `comp.text-input` and `comp.field`: they do not compile until then. Then the split: the text input as a view of its own, and the text field as the Field around it. Its names and its props stay. What it does today: Flutter idiom (as `TextField` and `InputDecoration`): the value lives in a `TextEditingController` (or an internal one with `initialValue`); `labelText`, `hintText`, `helperText`, `errorText`, `prefixText`, `suffixText`, `minLines`, `maxLines`, `maxLength`, `readOnly`, `enabled` and `autofillHints` keep Flutter's names, `enabled` being the inverse flag. `isRequired` and `showCounter` avoid Dart's `required` keyword and Flutter's own counter, which Tanrei replaces (it counts grapheme clusters with `characters`). `maxRows: 0` is `maxLines: null`. `type` maps to `keyboardType`, `obscureText`, `autocorrect`, `textCapitalization` and `textInputAction`. `onCommit` is Tanrei's own callback, called when focus leaves with a changed value. `locale` defaults to `Localizations.localeOf(context)`. The picker button is shown when `onPickerRequest` is not null (null is picker false). Not built on this platform yet: `requirement` in place of the required flag; the resize modes and the grip (TXI-37–TXI-41), the segmented date and time row (TXI-42–TXI-47) and the requirement label (FLD-4, FLD-5, TXI-50). The platform proposes its own idiom for the segments when it catches up — each unit focusable and adjustable on its own, with the same value and events. Not built on this platform yet: the words props have no defaults, and the product's words are read from the `TanreiWords` inherited widget, which the app fills from its own localizations. Not built on this platform yet, for type code: `autocorrect: false`, `enableSuggestions: false`, `textCapitalization: TextCapitalization.none`, `smartDashesType: SmartDashesType.disabled`, `smartQuotesType: SmartQuotesType.disabled`, `spellCheckConfiguration: const SpellCheckConfiguration.disabled()`, `textDirection: TextDirection.ltr`, `textAlign: TextAlign.left`, a `TextStyle` with the code family and `fontFeatures: [FontFeature.disable('liga')]`, the input row in a `Directionality(textDirection: TextDirection.ltr)`; `softWrap: false` is an `EditableText` of unbounded width in a horizontal `Scrollable` that keeps the caret in view, because a multi-line `TextField` always wraps. Not built on this platform yet: `helperText` stays while the field is in error and `errorText` is drawn below it (FLD-7, FLD-31), unlike `InputDecoration`; today the error text takes the help's place. Not built on this platform yet: the count said as the product's sentence (counterText, counterNoLimitText, TXI-19); today the digits are said. Not built on this platform yet: comp.field.error-text.placement (FLD-7, FLD-31), size small (40), and in a right-to-left layout the value of an always left-to-right type beside its prefix (TXI-67)."
+      "notes": "Lagging: this platform draws the text field as one view that draws its own frame, written against the token group `comp.text-field`, which the tokens do not have. It owes, first, its sources moved to the generated names of `comp.input-box`, `comp.text-input` and `comp.field`: they do not compile until then. Then the split: the text input as a view of its own, and the text field as the Field around it. Its names and its props stay. What it does today: Flutter idiom (as `TextField` and `InputDecoration`): the value lives in a `TextEditingController` (or an internal one with `initialValue`); `labelText`, `hintText`, `helperText`, `errorText`, `prefixText`, `suffixText`, `minLines`, `maxLines`, `maxLength`, `readOnly`, `enabled` and `autofillHints` keep Flutter's names, `enabled` being the inverse flag. `isRequired` and `showCounter` avoid Dart's `required` keyword and Flutter's own counter, which Tanrei replaces (it counts grapheme clusters with `characters`). `maxRows: 0` is `maxLines: null`. `type` maps to `keyboardType`, `obscureText`, `autocorrect`, `textCapitalization` and `textInputAction`. `onCommit` is Tanrei's own callback, called when focus leaves with a changed value. `locale` defaults to `Localizations.localeOf(context)`. The picker button is shown when `onPickerRequest` is not null (null is picker false). Not built on this platform yet: the optional flag (`optional`) beside the required flag; the resize modes and the handle (TXI-37–TXI-41, TXI-69), the segmented date and time row (TXI-42–TXI-47) and the requirement label (FLD-4, FLD-5, TXI-50). The platform proposes its own idiom for the segments when it catches up — each unit focusable and adjustable on its own, with the same value and events. Not built on this platform yet: the words props have no defaults, and the product's words are read from the `TanreiWords` inherited widget, which the app fills from its own localizations. Not built on this platform yet, for type code: `autocorrect: false`, `enableSuggestions: false`, `textCapitalization: TextCapitalization.none`, `smartDashesType: SmartDashesType.disabled`, `smartQuotesType: SmartQuotesType.disabled`, `spellCheckConfiguration: const SpellCheckConfiguration.disabled()`, `textDirection: TextDirection.ltr`, `textAlign: TextAlign.left`, a `TextStyle` with the code family and `fontFeatures: [FontFeature.disable('liga')]`, the input row in a `Directionality(textDirection: TextDirection.ltr)`; `softWrap: false` is an `EditableText` of unbounded width in a horizontal `Scrollable` that keeps the caret in view, because a multi-line `TextField` always wraps. Not built on this platform yet: `helperText` stays while the field is in error and `errorText` is drawn below it (FLD-7, FLD-31), unlike `InputDecoration`; today the error text takes the help's place. Not built on this platform yet: the count said as the product's sentence (counterText, counterNoLimitText, TXI-19); today the digits are said. Not built on this platform yet: comp.field.error-text.placement (FLD-7, FLD-31), size small (40), and in a right-to-left layout the value of an always left-to-right type beside its prefix (TXI-67)."
     },
     "react-native": {
       "status": "lagging",
@@ -1634,7 +1684,8 @@
         "error": "error",
         "disabled": "disabled",
         "readOnly": "readOnly",
-        "requirement": "requirement",
+        "required": "required",
+        "optional": "optional",
         "requiredMark": "requiredMark",
         "requiredText": "requiredText",
         "optionalText": "optionalText",
@@ -1667,9 +1718,10 @@
         "change": "onEndEditing",
         "action": "onSubmitEditing",
         "pickerRequest": "onPickerRequest",
-        "entryError": "onEntryError"
+        "entryError": "onEntryError",
+        "resizeEnd": "onResizeEnd"
       },
-      "notes": "Lagging: this platform draws the text field as one view that draws its own frame, written against the token group `comp.text-field`, which the tokens do not have. It owes, first, its sources moved to the generated names of `comp.input-box`, `comp.text-input` and `comp.field`: they do not compile until then. Then the split: the text input as a view of its own, and the text field as the Field around it. Its names and its props stay. What it does today: React Native idiom (as `TextInput`): `value` / `onChangeText`, `onEndEditing` for a commit, `onSubmitEditing` for the action key; `multiline`, `readOnly`, `maxLength` and `autoComplete` keep `TextInput`'s names. `type` maps to `keyboardType`, `secureTextEntry`, `autoCapitalize`, `autoCorrect`, `inputMode` and `returnKeyType`. A controlled `value` echoed back during a composition must not reset it (TXI-4). React Native gives JavaScript no signal that a composition is in progress, so the component cannot defer a write the product makes mid-composition; echoing the value back is safe. For date, time and date-time, `onChangeText` receives the value (ISO 8601 or empty), not the text as typed (TXI-29). The picker button is shown when `onPickerRequest` is given (undefined is picker false). Locale data needs `Intl` with `formatToParts`, which Hermes has only in part. Not built on this platform yet: `requirement` in place of the required flag; the resize modes and the grip (TXI-37–TXI-41), the segmented date and time row (TXI-42–TXI-47) and the requirement label (FLD-4, FLD-5, TXI-50). The platform proposes its own idiom for the segments when it catches up — each unit focusable and adjustable on its own, with the same value and events. Not built on this platform yet: the words props have no defaults, and the product's words are read from the `TanreiWordsProvider` context. Not built on this platform yet, for type code: `autoCorrect={false}`, `autoCapitalize=\"none\"`, `spellCheck={false}`, `autoComplete=\"off\"`, `smartInsertDelete={false}`, `keyboardType=\"ascii-capable\"` on iOS and `\"visible-password\"` on Android only where suggestions cannot be turned off otherwise, `style={{ writingDirection: 'ltr', textAlign: 'left', fontFamily: … }}`, the input row with `direction: 'ltr'`. `TextInput` has no multi-line form that does not wrap: `wrap={false}` needs a native text view, and until one exists the field wraps and its README says so. Not built on this platform yet: the count said as the product's sentence (counterText, counterNoLimitText, TXI-19); today the digits are said. Not built on this platform yet: comp.field.error-text.placement — the error text takes the help's place under every system, which is replace, the default; append, which keeps the help and draws the error text below it, is not drawn (FLD-7, FLD-31). Not built on this platform yet: size small (40), and in a right-to-left layout the value of an always left-to-right type beside its prefix (TXI-67)."
+      "notes": "Lagging: this platform draws the text field as one view that draws its own frame, written against the token group `comp.text-field`, which the tokens do not have. It owes, first, its sources moved to the generated names of `comp.input-box`, `comp.text-input` and `comp.field`: they do not compile until then. Then the split: the text input as a view of its own, and the text field as the Field around it. Its names and its props stay. What it does today: React Native idiom (as `TextInput`): `value` / `onChangeText`, `onEndEditing` for a commit, `onSubmitEditing` for the action key; `multiline`, `readOnly`, `maxLength` and `autoComplete` keep `TextInput`'s names. `type` maps to `keyboardType`, `secureTextEntry`, `autoCapitalize`, `autoCorrect`, `inputMode` and `returnKeyType`. A controlled `value` echoed back during a composition must not reset it (TXI-4). React Native gives JavaScript no signal that a composition is in progress, so the component cannot defer a write the product makes mid-composition; echoing the value back is safe. For date, time and date-time, `onChangeText` receives the value (ISO 8601 or empty), not the text as typed (TXI-29). The picker button is shown when `onPickerRequest` is given (undefined is picker false). Locale data needs `Intl` with `formatToParts`, which Hermes has only in part. Not built on this platform yet: the optional flag (`optional`) beside the required flag; the resize modes and the handle (TXI-37–TXI-41, TXI-69), the segmented date and time row (TXI-42–TXI-47) and the requirement label (FLD-4, FLD-5, TXI-50). The platform proposes its own idiom for the segments when it catches up — each unit focusable and adjustable on its own, with the same value and events. Not built on this platform yet: the words props have no defaults, and the product's words are read from the `TanreiWordsProvider` context. Not built on this platform yet, for type code: `autoCorrect={false}`, `autoCapitalize=\"none\"`, `spellCheck={false}`, `autoComplete=\"off\"`, `smartInsertDelete={false}`, `keyboardType=\"ascii-capable\"` on iOS and `\"visible-password\"` on Android only where suggestions cannot be turned off otherwise, `style={{ writingDirection: 'ltr', textAlign: 'left', fontFamily: … }}`, the input row with `direction: 'ltr'`. `TextInput` has no multi-line form that does not wrap: `wrap={false}` needs a native text view, and until one exists the field wraps and its README says so. Not built on this platform yet: the count said as the product's sentence (counterText, counterNoLimitText, TXI-19); today the digits are said. Not built on this platform yet: comp.field.error-text.placement — the error text takes the help's place under every system, which is replace, the default; append, which keeps the help and draws the error text below it, is not drawn (FLD-7, FLD-31). Not built on this platform yet: size small (40), and in a right-to-left layout the value of an always left-to-right type beside its prefix (TXI-67)."
     }
   }
 }

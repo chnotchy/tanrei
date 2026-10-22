@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { opticalSize } from '../../../test/icons.js';
 import { motionEnded } from '../../../test/motions.js';
+import { allSettled } from '../../../test/settled.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { MIRRORED, anchorOf, container, countClicks, expectDisabledLink, expectDrawnAlike, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, markOf, painted, settledPaint, warnings } from '../../../test/links.js';
 
@@ -314,7 +315,7 @@ test.describe('press, feedback, corners and focus style', () => {
     // It grows over comp.button.motion.feedback-duration with motion.state-easing, and will fade over motion.state-duration.
     const motion = await ripple.evaluate((el) => { const s = getComputedStyle(el); return { grow: Number.parseFloat(s.animationDuration) * 1000, curve: s.animationTimingFunction, fade: Number.parseFloat(s.transitionDuration) * 1000, fades: s.transitionProperty }; });
     const easing = await inner(page, 'filled-medium').evaluate((el) => getComputedStyle(el).transitionTimingFunction.split(/,\s*(?=cubic|ease|linear)/)[0]);
-    expect(motion).toEqual({ grow: await resolveToken(page, '--tanrei-comp-button-motion-feedback-duration', 'duration'), curve: easing, fade: await resolveToken(page, '--tanrei-comp-button-motion-state-duration', 'duration'), fades: 'opacity' });
+    expect(motion).toEqual({ grow: await resolveToken(page, '--tanrei-comp-button-motion-feedback-duration', 'duration'), curve: easing, fade: await resolveToken(page, '--tanrei-comp-button-motion-state-duration-medium', 'duration'), fades: 'opacity' });
     // …clipped to the container shape, under the label, and the container itself does not switch at once.
     expect(layer.radius).toBeGreaterThanOrEqual(box.height / 2 - 1);
     expect(layer).toMatchObject({ hidden: 'true', behindLabel: '-1' });
@@ -329,11 +330,11 @@ test.describe('press, feedback, corners and focus style', () => {
 
   test('BTN-9 ripple: the COMPONENT token decides the growth; the fade starts when the press and press-hold are over, not when the growth is', async ({ page }) => {
     await mountFixtures(page, spec, { system: 'm3-like' });
-    // A growth far longer than any press below — set where a design system sets it. sys.motion.duration.long1, which
+    // A growth far longer than any press below — set where a design system sets it. sys.motion.role.feedback, which
     // the token aliases by default, is moved the other way to prove the component does not read it.
     await rootTokens(page, {
       '--tanrei-comp-button-motion-feedback-duration': '40000ms',
-      '--tanrei-sys-motion-duration-long1': '1ms',
+      '--tanrei-sys-motion-role-feedback': '1ms',
       // Long enough for the driver to send the release before the hold, which counts from the press, is over.
       '--tanrei-sys-motion-duration-press-hold': '4000ms',
     });
@@ -1514,7 +1515,7 @@ test.describe('in a form', () => {
   const FIELD = (id: string, rest = '') => `<tanrei-text-field id="${id}" name="${id}" label="${id}" ${rest}></tanrei-text-field>`;
 
   test('BTN-27: a submit button asks its form to submit after click, exactly once — by a pointer, Enter, Space and element.click() — with the form’s validation first; a cancelled click validates and sends nothing; a button without type does nothing to the form; the submission is not held for press-hold', async ({ page }) => {
-    await mountForm(page, `<form id="f">${FIELD('who', 'requirement="required"')}<tanrei-button id="send" type="submit">Send</tanrei-button><tanrei-button id="plain">Other</tanrei-button></form>`);
+    await mountForm(page, `<form id="f">${FIELD('who', 'required')}<tanrei-button id="send" type="submit">Send</tanrei-button><tanrei-button id="plain">Other</tanrei-button></form>`);
     // The required field is empty: click, the field is told it is invalid (the platform shows its message), no submit.
     await press(page, 'send');
     expect(await log(page)).toEqual(['click:send', 'invalid:who']);
@@ -1591,7 +1592,7 @@ test.describe('in a form', () => {
   test('BTN-28: a reset button asks its form to reset after click — one reset event, then every control at its initial value — validates and submits nothing; a cancelled reset or a cancelled click leaves the values', async ({ page }) => {
     await mountForm(
       page,
-      `<form id="f">${FIELD('who', 'value="Ada" requirement="required"')}<tanrei-checkbox id="agree" name="agree" label="Agree"></tanrei-checkbox><input id="plain" name="plain" value="native" aria-label="Plain" />
+      `<form id="f">${FIELD('who', 'value="Ada" required')}<tanrei-checkbox id="agree" name="agree" label="Agree"></tanrei-checkbox><input id="plain" name="plain" value="native" aria-label="Plain" />
         <tanrei-button id="clear" type="reset" name="intent" value="clear">Clear</tanrei-button></form>`,
     );
     const change = () =>
@@ -2434,15 +2435,7 @@ test.describe('destructive', () => {
     expect(outlined.shadow).toContain(await resolveColor(page, T('outlined-disabled-outline-color')));
   });
 
-  test('BTN-40: a link button, and a dialog’s action that takes the dialog’s variant, take destructive as any Button does', async ({ page }) => {
-    await mountFixtures(page, spec, {
-      fixtures: [
-        { id: 'link', props: { variant: 'outlined', destructive: true, href: '/somewhere/' }, content: 'Delete' },
-        { id: 'plain', props: { variant: 'outlined', destructive: true }, content: 'Delete' },
-      ],
-    });
-    expect(await inner(page, 'link').evaluate((el) => el.tagName)).toBe('A');
-    expect(await look(page, 'link')).toEqual(await look(page, 'plain'));
+  test('BTN-40: a dialog’s action that takes the dialog’s variant takes destructive as any Button does', async ({ page }) => {
     // In a dialog an action without a variant takes the dialog's (DLG-20), and keeps its destructive.
     const drawn = await page.evaluate(async () => {
       await customElements.whenDefined('tanrei-dialog');
@@ -2489,5 +2482,269 @@ test.describe('destructive', () => {
     expect(await attributes('destructive')).toEqual(await attributes('plain'));
     expect(await page.locator('[data-fixture="destructive"]').ariaSnapshot()).toBe(await page.locator('[data-fixture="plain"]').ariaSnapshot());
     await expect(page.locator(button('destructive')).getByRole('button', { name: 'Delete project' })).toHaveCount(1);
+  });
+
+  // BTN-43: a link only leads somewhere; the action that deletes is the one at its destination. Each link with
+  // destructive has a twin, the same link without it, and is compared with that twin rather than with a token, so
+  // the test says "drawn as the link of its variant" in every engine and under every system.
+  const LINKS = VARIANTS.flatMap((variant) => [
+    { id: `${variant}-link-destructive`, props: { variant, destructive: true, href: '#delete-account' }, content: 'Delete account' },
+    { id: `${variant}-link`, props: { variant, href: '#delete-account' }, content: 'Delete account' },
+  ]);
+
+  test('BTN-43: a link ignores destructive — in each variant it is drawn as the same link without it, and its anchor carries the same attributes — and a debug build reports it once per button', async ({ page }) => {
+    const seen = warnings(page);
+    await mountFixtures(page, spec, { fixtures: LINKS });
+    const attributes = (id: string) => inner(page, id).evaluate((el) => el.getAttributeNames().filter((name) => !['class', 'style'].includes(name)).sort().map((name) => `${name}=${el.getAttribute(name)}`));
+    for (const variant of VARIANTS) {
+      const id = `${variant}-link-destructive`;
+      expect(await inner(page, id).evaluate((el) => el.tagName), id).toBe('A');
+      expect(await look(page, id), id).toEqual(await look(page, `${variant}-link`));
+      // Not the destructive parts: in the default system each variant's destructive container or label is another color.
+      const drawn = await look(page, id);
+      const destructive = await Promise.all(['container', 'label'].map((part) => resolveColor(page, T(`${variant}-destructive-${part}-color`))));
+      expect([drawn.background, drawn.color], id).not.toEqual(destructive);
+      expect(await attributes(id), id).toEqual(await attributes(`${variant}-link`));
+    }
+    expect(await page.locator('[data-fixture="filled-link-destructive"]').ariaSnapshot()).toBe(await page.locator('[data-fixture="filled-link"]').ariaSnapshot());
+    await expect.poll(() => seen.filter((w) => w.includes('(BTN-43)')).length).toBe(VARIANTS.length);
+    expect(seen.find((w) => w.includes('(BTN-43)'))).toContain('a link only leads somewhere');
+    // Drawn again — its label, then its destination changed — it says nothing more: once per button.
+    const host = page.locator(button('filled-link-destructive'));
+    await host.evaluate(async (el: HTMLElement & { label: string; href: string; updateComplete: Promise<unknown> }) => {
+      el.label = 'Delete your account';
+      await el.updateComplete;
+      el.href = '#delete-account-now';
+      await el.updateComplete;
+    });
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    expect(seen.filter((w) => w.includes('(BTN-43)')).length).toBe(VARIANTS.length);
+  });
+
+  test('BTN-43, BTN-3: hovered, pressed and keyboard-focused, a link with destructive renders from the plain parts of that state', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: LINKS });
+    for (const variant of ['outlined', 'filled'] as const) {
+      const id = `${variant}-link-destructive`;
+      const target = page.locator(button(id));
+      // A press is let go where it began, and its click cancelled: nothing is followed.
+      await target.evaluate((el) => el.addEventListener('click', (event) => event.preventDefault()));
+      const bg = () => css(page, id, 'background-color');
+      await page.mouse.move(1, 1);
+      await target.hover();
+      await expect.poll(bg, `${id} hovered`).toBe(await resolveColor(page, T(`${variant}-hovered-container-color`)));
+      expect(await css(page, id, 'color'), `${id} hovered`).toBe(await resolveColor(page, T(`${variant}-hovered-label-color`)));
+      await page.mouse.down();
+      await expect.poll(bg, `${id} pressed`).toBe(await resolveColor(page, T(`${variant}-pressed-container-color`)));
+      await page.mouse.up();
+      await page.mouse.move(1, 1);
+      await page.locator('body').click({ position: { x: 1, y: 1 } });
+      await tabTo(page, target);
+      await expect.poll(bg, `${id} focused`).toBe(await resolveColor(page, T(`${variant}-focused-container-color`)));
+      expect(await css(page, id, 'color'), `${id} focused`).toBe(await resolveColor(page, T(`${variant}-focused-label-color`)));
+      await page.locator('body').click({ position: { x: 1, y: 1 } });
+    }
+  });
+
+  test('BTN-43, BTN-26: a destructive button whose href is refused is no link, and is drawn as a destructive button; a disabled destructive link as a disabled link', async ({ page }) => {
+    const seen = warnings(page);
+    await mountFixtures(page, spec, {
+      fixtures: [
+        { id: 'refused', props: { variant: 'outlined', destructive: true, href: 'javascript:void(0)' }, content: 'Delete' },
+        { id: 'plain', props: { variant: 'outlined', destructive: true }, content: 'Delete' },
+        { id: 'disabled-link-destructive', props: { variant: 'filled', destructive: true, href: '#delete-account', disabled: true }, content: 'Delete account' },
+        { id: 'disabled-link', props: { variant: 'filled', href: '#delete-account', disabled: true }, content: 'Delete account' },
+      ],
+    });
+    expect(await inner(page, 'refused').evaluate((el) => el.tagName)).toBe('BUTTON');
+    expect(await look(page, 'refused')).toEqual(await look(page, 'plain'));
+    expect(await look(page, 'disabled-link-destructive')).toEqual(await look(page, 'disabled-link'));
+    // The disabled link is still a link, and is told so; the refused address is no link, and is told nothing of BTN-43.
+    await expect.poll(() => seen.filter((w) => w.includes('(BTN-43)')).length).toBe(1);
+    expect(seen.filter((w) => w.includes('(BTN-26)')).length).toBe(1);
+  });
+});
+
+// BTN-45: a host that draws a Button on a colored surface of its own gives it a tone through the internal channel. The
+// test is the host: an element that answers HOST_TONE for its children (a child in its light DOM asks when it
+// connects), drawn on the error container and giving its content color, and the push a host makes for a Button in its
+// shadow root (giveTone, through the item's controller). Every expected color is the expression BTN-45 names, resolved
+// by the page itself, so the test holds in every engine and under every system it mounts.
+test.describe('a tone a host gives (BTN-45)', () => {
+  type P = import('@playwright/test').Page;
+  const T = 'var(--tanrei-sys-color-on-error-container)';
+  const OPACITY = '--tanrei-comp-button-tone-container-opacity';
+  const of = (color: string, opacity: string) => `color-mix(in srgb, ${color} calc(var(${opacity}) * 100%), transparent)`;
+  const over = (base: string, state: 'hover' | 'focus' | 'pressed') => `color-mix(in srgb, ${base}, ${T} calc(var(--tanrei-sys-state-${state}-state-layer-opacity) * 100%))`;
+  const REST = of(T, OPACITY);
+  /** A color expression as the page computes it, read on the host's own surface. */
+  const color = (page: P, expression: string) =>
+    page.evaluate((e) => {
+      const probe = document.createElement('div');
+      probe.style.cssText = 'position:absolute;visibility:hidden';
+      probe.style.backgroundColor = e;
+      document.querySelector('test-tone-host')!.append(probe);
+      const value = getComputedStyle(probe).backgroundColor;
+      probe.remove();
+      return value;
+    }, expression);
+  const toned = (page: P, id: string) => page.locator(`test-tone-host tanrei-button#${id}`);
+  const inner = (page: P, id: string) => toned(page, id).locator('[part="container"]');
+  const css = (page: P, id: string, property: string) => inner(page, id).evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
+  const glyph = (page: P, id: string) => inner(page, id).locator('.icon').evaluate((el) => getComputedStyle(el).color);
+  const giveTone = (page: P, id: string, tone: { color: string; focus?: string } | null) =>
+    page.locator(`tanrei-button#${id}`).evaluate((el, t) => (el as unknown as Record<symbol, { giveTone(tone: unknown): void }>)[Symbol.for('tanrei.group-item')].giveTone(t), tone);
+
+  /** The host, defined before its children connect, and Buttons in it. */
+  const mount = async (page: P, buttons: string) => {
+    await page.evaluate(
+      ([tone, markup]) => {
+        if (!customElements.get('test-tone-host'))
+          customElements.define(
+            'test-tone-host',
+            class extends HTMLElement {
+              [Symbol.for('tanrei.host-tone')]() {
+                return { color: tone };
+              }
+            },
+          );
+        document.querySelector('main')!.insertAdjacentHTML('afterbegin', `<test-tone-host style="display:flex;gap:16px;padding:16px;background:var(--tanrei-sys-color-error-container)">${markup}</test-tone-host>`);
+      },
+      [T, buttons] as const,
+    );
+  };
+  const close = (id: string, attributes = 'variant="tonal"') => `<tanrei-button id="${id}" ${attributes} size="small" label="Close"><span slot="icon">close</span></tanrei-button>`;
+  /** The same Button outside any host. */
+  const outside = (page: P, id: string, attributes: string) => page.locator('main').evaluate((main, markup) => main.insertAdjacentHTML('beforeend', markup), close(id, attributes));
+
+  test('BTN-45: the label, icon and state layer take the tone’s color and the container, where the variant draws one, the tone at tone.container.opacity — in place of the variant’s own — and nothing else of the button changes', async ({ page }) => {
+    await mount(page, close('tonal') + close('filled', 'variant="filled"') + close('elevated', 'variant="elevated"') + close('text', 'variant="text"') + close('outlined', 'variant="outlined"'));
+    const rest = await color(page, REST);
+    for (const id of ['tonal', 'filled', 'elevated']) {
+      expect(await css(page, id, 'background-color'), id).toBe(rest);
+      expect(await css(page, id, 'background-color'), id).not.toBe(await resolveColor(page, `--tanrei-comp-button-${id}-container-color`));
+    }
+    for (const id of ['tonal', 'filled', 'elevated', 'text', 'outlined']) {
+      expect(await glyph(page, id), id).toBe(await color(page, T));
+      // Its own size: small is 32 × 32 in the default system.
+      const box = (await inner(page, id).boundingBox())!;
+      expect([box.width, box.height], id).toEqual([32, 32]);
+    }
+    // The variants that draw no container at rest draw none on a tone either; an outlined edge takes the tone's
+    // translucent color in place of its own.
+    expect(await css(page, 'text', 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-button-text-container-color'));
+    expect(await css(page, 'outlined', 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-button-outlined-container-color'));
+    expect(await css(page, 'outlined', 'box-shadow')).toContain(rest);
+    // The elevation is the variant's own: the same layers after the outline as an elevated button's outside the host.
+    const layers = (value: string) => value.split(/,\s*(?![^(]*\))/).slice(1).join(', ');
+    await outside(page, 'plain-elevated', 'variant="elevated"');
+    const plain = await page.locator('#plain-elevated [part="container"]').evaluate((el) => getComputedStyle(el).boxShadow);
+    expect(layers(await css(page, 'elevated', 'box-shadow'))).toBe(layers(plain));
+    // Not part of the public surface: nothing on the element itself says it — its attributes are those of the same
+    // Button outside a host, and it carries no style of its own.
+    await outside(page, 'plain-tonal', 'variant="tonal"');
+    // The Button just put in the page settles for two frames (data-tanrei-settling, MOT-3): what it carries at rest is
+    // compared, as the toned one is.
+    await allSettled(page);
+    const own = (selector: string) => page.locator(selector).evaluate((el) => [el.getAttributeNames().filter((name) => name !== 'id').sort(), (el as HTMLElement).style.length]);
+    expect(await own('test-tone-host #tonal')).toEqual(await own('#plain-tonal'));
+    expect(await inner(page, 'tonal').getAttribute('data-tone')).toBe('');
+  });
+
+  test('BTN-45: hovered, focused and pressed, the tone is laid over the resting container at the system’s state-layer opacity of the state (three different colors under acme), and the focus ring’s outer stroke is the tone’s', async ({ page }) => {
+    test.setTimeout(120_000);
+    await mountFixtures(page, spec, { system: 'acme', systemCss: await acmeSystemCss(), fixtures: [] });
+    await mount(page, close('tonal') + close('text', 'variant="text"'));
+    const bg = () => css(page, 'tonal', 'background-color');
+    const [rest, hovered, focused, down] = await Promise.all([color(page, REST), color(page, over(REST, 'hover')), color(page, over(REST, 'focus')), color(page, over(REST, 'pressed'))]);
+    // The point of the fixture system: no two of them are equal, so the assertions below cannot pass by accident.
+    expect(new Set([rest, hovered, focused, down]).size).toBe(4);
+    expect(await bg()).toBe(rest);
+
+    await toned(page, 'tonal').hover();
+    await expect.poll(bg).toBe(hovered);
+    await page.mouse.move(1, 1);
+    await expect.poll(bg).toBe(rest);
+    await tabTo(page, toned(page, 'tonal'));
+    await expect.poll(bg).toBe(focused);
+    // acme draws keyboard focus as a glow: its outer color is the tone's.
+    expect(await inner(page, 'tonal').evaluate((el) => getComputedStyle(el, '::after').boxShadow)).toContain(await color(page, T));
+    await page.keyboard.down('Space');
+    await expect.poll(bg).toBe(down);
+    await page.keyboard.up('Space');
+    await expect.poll(bg).toBe(focused);
+
+    // A text button: the hover layer over no container.
+    await toned(page, 'text').hover();
+    await expect.poll(() => css(page, 'text', 'background-color')).toBe(await color(page, over('var(--tanrei-comp-button-text-container-color)', 'hover')));
+  });
+
+  test('BTN-45: a host may give the focus indicator’s color on its surface; disabled, the tone is drawn at the disabled opacities', async ({ page }) => {
+    await mount(page, close('tonal') + close('own', 'variant="tonal"') + close('off', 'variant="tonal" disabled'));
+    // The ring's outer stroke is the tone's color where the host names no focus color…
+    await tabTo(page, toned(page, 'own'));
+    await expect.poll(() => css(page, 'own', 'outline-color')).toBe(await color(page, T));
+    // …and the one it names where it does.
+    await giveTone(page, 'tonal', { color: T, focus: 'var(--tanrei-sys-color-error)' });
+    await tabTo(page, toned(page, 'tonal'));
+    await expect.poll(() => css(page, 'tonal', 'outline-color')).toBe(await color(page, 'var(--tanrei-sys-color-error)'));
+    expect(await css(page, 'off', 'background-color')).toBe(await color(page, of(T, '--tanrei-sys-state-disabled-container-opacity')));
+    expect(await glyph(page, 'off')).toBe(await color(page, of(T, '--tanrei-sys-state-disabled-content-opacity')));
+  });
+
+  test('BTN-45: under a system that answers a press with a ripple, the ripple is the tone’s pressed color', async ({ page }) => {
+    await mountFixtures(page, spec, { system: 'm3-like', fixtures: [] });
+    await mount(page, close('tonal'));
+    const box = (await inner(page, 'tonal').boundingBox())!;
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await expect.poll(() => css(page, 'tonal', 'background-color')).toBe(await color(page, over(REST, 'hover')));
+    await page.mouse.down();
+    const ripple = inner(page, 'tonal').locator('.ripple');
+    await expect(ripple).toHaveCount(1);
+    expect(await ripple.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await color(page, over(REST, 'pressed')));
+    await page.mouse.up();
+  });
+
+  test('BTN-45: without a tone — the host taking it away, or a parent that gives none — the button is drawn as outside a host; a toggle and a destructive button keep their looks', async ({ page }) => {
+    await mount(page, close('tonal') + close('toggle', 'variant="tonal" toggle') + close('destructive', 'variant="tonal" destructive'));
+    const token = (name: string) => resolveColor(page, `--tanrei-comp-button-${name}`);
+    expect(await css(page, 'toggle', 'background-color')).toBe(await token('tonal-unselected-container-color'));
+    expect(await css(page, 'destructive', 'background-color')).toBe(await token('tonal-destructive-container-color'));
+    expect(await css(page, 'tonal', 'background-color')).toBe(await color(page, REST));
+    await giveTone(page, 'tonal', null);
+    await expect.poll(() => css(page, 'tonal', 'background-color')).toBe(await token('tonal-container-color'));
+    expect(await glyph(page, 'tonal')).toBe(await token('tonal-icon-color'));
+    expect(await inner(page, 'tonal').evaluate((el) => [el.hasAttribute('data-tone'), el.style.getPropertyValue('--_tone')])).toEqual([false, '']);
+    // Given again, then moved out of the host: it asks the parent it now has, which gives none.
+    await giveTone(page, 'tonal', { color: T });
+    await expect.poll(() => css(page, 'tonal', 'background-color')).toBe(await color(page, REST));
+    await toned(page, 'tonal').evaluate((el) => document.querySelector('main')!.append(el));
+    const moved = page.locator('main > tanrei-button#tonal [part="container"]');
+    await expect.poll(() => moved.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await token('tonal-container-color'));
+  });
+
+  test('BTN-43, BTN-45: a link with destructive is drawn on the tone, as the same link without it is', async ({ page }) => {
+    const link = (id: string, attributes: string) => `<tanrei-button id="${id}" variant="tonal" size="small" href="#account" label="Account" ${attributes}><span slot="icon">manage_accounts</span></tanrei-button>`;
+    await mount(page, link('link', '') + link('link-destructive', 'destructive'));
+    expect(await inner(page, 'link-destructive').evaluate((el) => el.tagName)).toBe('A');
+    expect(await css(page, 'link-destructive', 'background-color')).toBe(await color(page, REST));
+    expect(await glyph(page, 'link-destructive')).toBe(await color(page, T));
+    expect(await css(page, 'link-destructive', 'background-color')).toBe(await css(page, 'link', 'background-color'));
+  });
+
+  test('BTN-45: in forced colors a toned button is drawn as any button is — in the system’s colors, with its border', async ({ page, browserName }) => {
+    await mount(page, close('tonal'));
+    await outside(page, 'plain-tonal', 'variant="tonal"');
+    await page.emulateMedia({ forcedColors: 'active' });
+    // WebKit matches the media query when it is emulated but forces no colors: there only the border is compared.
+    const forces = browserName !== 'webkit';
+    const drawn = (selector: string) =>
+      page.locator(selector).evaluate((el, all) => {
+        const s = getComputedStyle(el);
+        const border = [s.borderTopStyle, s.borderTopColor];
+        return all ? [...border, s.color, getComputedStyle(el.querySelector('.icon')!).color] : border;
+      }, forces);
+    const plain = await drawn('#plain-tonal [part="container"]');
+    expect(plain[0]).toBe('solid');
+    expect(await drawn('test-tone-host #tonal [part="container"]')).toEqual(plain);
   });
 });

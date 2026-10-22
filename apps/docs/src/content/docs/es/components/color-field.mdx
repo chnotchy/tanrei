@@ -2,7 +2,7 @@
 title: Campo de color
 description: Permite definir un color como un campo de formulario (un valor de texto que se puede leer, escribir y pegar, una muestra del color junto al texto y un botón que pide un selector) que tiene el aspecto y las medidas de un campo de texto.
 translationOf: components/color-field.mdx
-sourceHash: c2d03843c22e17c381fe97ae9eae9f18542ab6d5
+sourceHash: 86c3e71976d4488f85216a9391b0e4d6a8b9d83f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -39,7 +39,7 @@ En la web es `<tanrei-color-field>`. Las demás plataformas todavía no lo han i
     ```html
     <form>
       <tanrei-color-field name="brand" label="Color de marca" value="#0f766e"
-        requirement="required" required-text="Obligatorio"
+        required required-text="Obligatorio"
         supporting-text="Seis dígitos hexadecimales, como #0f766e."
         invalid-text="Introduce seis dígitos hexadecimales, como #0f766e."
         picker picker-label="Elegir color"></tanrei-color-field>
@@ -80,7 +80,7 @@ En la web es `<tanrei-color-field>`. Las demás plataformas todavía no lo han i
 El mismo campo, escrito a mano a partir de sus dos miembros, da la misma imagen y es, para la tecnología de apoyo, el mismo cuadro de texto con el mismo nombre, la misma descripción y los mismos estados:
 
 ```html
-<tanrei-field label="Color de marca" requirement="required" required-text="Obligatorio"
+<tanrei-field label="Color de marca" required required-text="Obligatorio"
   supporting-text="Seis dígitos hexadecimales, como #0f766e.">
   <tanrei-color-input name="brand" value="#0f766e"
     invalid-text="Introduce seis dígitos hexadecimales, como #0f766e."
@@ -89,7 +89,7 @@ El mismo campo, escrito a mano a partir de sus dos miembros, da la misma imagen 
 ```
 
 <DemoFrame label="El mismo campo escrito a mano: un campo con una entrada de color dentro" column>
-  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Color de marca" requirement="required" required-text="Obligatorio" supporting-text="Seis dígitos hexadecimales, como #0f766e.">
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Color de marca" required required-text="Obligatorio" supporting-text="Seis dígitos hexadecimales, como #0f766e.">
     <tanrei-color-input value="#0f766e" invalid-text="Introduce seis dígitos hexadecimales, como #0f766e." picker picker-label="Elegir color"></tanrei-color-input>
   </tanrei-field>
 </DemoFrame>
@@ -107,7 +107,7 @@ Lo que cambia un nivel más abajo es dónde se dice cada cosa. `name` y `value` 
 ## Especificaciones
 
 <DemoFrame label="Un campo de color vacío, blanco, negro, uno grande, uno deshabilitado, y la caja sola, una entrada de color, en una fila que nombra su color" plain column>
-  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Color de acento" requirement="optional" optional-text="Opcional"></tanrei-color-field>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Color de acento" optional optional-text="Opcional"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Fondo de la página" value="#ffffff"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Texto" value="#000000"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Color de marca" value="#0f766e" size="large" picker picker-label="Elegir color"></tanrei-color-field>
@@ -120,13 +120,13 @@ Lo que cambia un nivel más abajo es dónde se dice cada cosa. `name` y `value` 
 | Parte | Qué es |
 | --- | --- |
 | Etiqueta | Encima del contenedor (`stacked`), donde la dibuja el campo, o flotando dentro de él (`filled`, `outlined`), donde la dibuja la entrada de color. Es el nombre accesible, tanto si se dibuja como si se oculta con `labelHidden` |
-| Marca de obligatoriedad | Después de la etiqueta: el tag de obligatoriedad en su forma de obligatorio, un asterisco o nada con `requirement="required"`; el tag de obligatoriedad en su forma de opcional con `optional` |
+| Marca de obligatoriedad | Después de la etiqueta: el tag de obligatoriedad en su forma de obligatorio, un asterisco o nada con `required`; el tag de obligatoriedad en su forma de opcional con `optional` |
 | Muestra | Una muestra del valor al inicio del contenedor: un cuadrado pequeño relleno exactamente con el color del valor, dentro de una línea fina. Vacía, es solo la línea fina. No es un control |
 | Entrada | El valor como texto. Una sola línea, que se desplaza |
 | Botón del selector | Con `picker`: un botón de la variante `text` y de solo icono al final, que recibe su nombre de `pickerLabel` |
 | Texto de apoyo | Una línea de ayuda, que empieza donde empieza el texto del valor, después de la muestra. Mientras el campo está en error, el texto de error ocupa su lugar (o va debajo de ella, donde el sistema de diseño conserva las dos), y es `errorText` mientras `error` es true e `invalidText` mientras el texto confirmado no es un color, o `errorText` donde `invalidText` está vacío |
 
-Las tres variantes y los tres tamaños, `small` (40), `medium` (48) y `large` (56), son los del campo de texto. El sistema predeterminado solo incluye `stacked`. La muestra está donde está el icono inicial de un campo de texto, con el tamaño de ese icono, de modo que un campo de color situado debajo de un campo de texto con icono inicial comparte con él los bordes de inicio.
+Las tres variantes y los tres tamaños, `small` (32), `medium` (40) y `large` (56), son los del campo de texto. El sistema predeterminado solo incluye `stacked`. La muestra está donde está el icono inicial de un campo de texto, con el tamaño de ese icono, de modo que un campo de color situado debajo de un campo de texto con icono inicial comparte con él los bordes de inicio.
 
 Nada se mezcla con la muestra: ni el paso del cursor, ni un tinte de error, ni una sombra. Una muestra que cambia bajo el puntero es una muestra incorrecta. Deshabilitada, su relleno se dibuja más tenue y su borde se conserva.
 
@@ -159,7 +159,7 @@ Con el botón del selector visible, una pulsación en la muestra abre el selecto
 
 ### Qué aporta cada miembro
 
-- **Del campo**: las propiedades `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText` y `optionalText`; el slot `label-icon`; los tokens `comp.field.*`.
+- **Del campo**: las propiedades `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText` y `optionalText`; el slot `label-icon`; los tokens `comp.field.*`.
 - **De la entrada de color**: las propiedades `variant`, `size`, `value`, `invalidText`, `picker` y `pickerLabel`; los eventos `input`, `change`, `pickerRequest` y `entryError`; los tokens `comp.input-box.*` para la caja, que leen todas las cajas de entrada, y `comp.color-input.*` para la muestra.
 
 La entrada de color tiene un `label`, un `labelHidden`, un `error` y un `disabled` propios. No son los que define el campo de color: su `label` es el del campo, que da nombre a la entrada y que, en un campo filled u outlined, es lo que flota en la caja.
@@ -178,7 +178,7 @@ El campo de color no tiene ningún token propio. Su caja lee los [tokens de la e
 ### Qué dibuja la web de otra manera
 
 - El shadow root del elemento contiene un `<tanrei-field>` con un `<tanrei-color-input>` dentro, y nada más. Importar el elemento define ambos.
-- El campo de color es un elemento asociado a formularios. Recibe `name` y envía `value`: el color, o una cadena vacía. Se restablece al valor del atributo `value`, y notifica al formulario que falta un valor mientras `requirement="required"` y `value` está vacío, y que la entrada es incorrecta mientras dura un error de entrada. Sus dos miembros no añaden ninguna entrada al formulario.
+- El campo de color es un elemento asociado a formularios. Recibe `name` y envía `value`: el color, o una cadena vacía. Se restablece al valor del atributo `value`, y notifica al formulario que falta un valor mientras `required` y `value` está vacío, y que la entrada es incorrecta mientras dura un error de entrada. Sus dos miembros no añaden ninguna entrada al formulario.
 - `value` es siempre el de la entrada de color: un valor definido como `0F766E` se lee de vuelta como `#0f766e`, y uno que no es un color, como una cadena vacía.
 - `input` y `change` son eventos simples: lee `value` del elemento. `pickerrequest` y `entryerror` son CustomEvents, el primero con `detail.value` y el segundo con `detail.text` y `detail.message`. Son los eventos propios de la entrada de color, con el elemento como destino. `detail.message` es `invalidText`, y está vacío donde no diste ninguno, también mientras el campo muestra `errorText` en su lugar.
 - Partes: `field` y `color-input` son los dos miembros. Sus propias partes tienen aquí los mismos nombres que un nivel más abajo: `label-icon`, `supporting-text`; `container`, `outline`, `active-indicator`, `swatch`, `input`, `picker-button`. `label` y `requirement-label` son las que se dibujan, sea cual sea el miembro que las dibuja; `field-label`, `color-input-label`, `field-requirement-label` y `color-input-requirement-label` nombran las de un solo miembro.
@@ -214,7 +214,7 @@ Para un color que se muestra y no se edita, dibuja una muestra con su valor o su
 ### Evita
 
 - No distingas un color solo por la muestra. El valor es texto; una persona que no puede distinguir dos muestras lee dos valores distintos.
-- No trates un `value` vacío como un error por sí mismo. `requirement` nunca valida.
+- No trates un `value` vacío como un error por sí mismo. `required` nunca valida.
 - No definas `aria-invalid` ni `error` mientras la persona escribe. Espera a `change` o a `entryerror`.
 - No pongas un campo de color dentro de un campo. Ya es un campo; el control que un campo enmarca es la [entrada de color](/es/components/color-input/).
 
@@ -226,7 +226,7 @@ Para un color que se muestra y no se edita, dibuja una muestra con su valor o su
 
 - La entrada es un campo de texto. Su nombre es `label`, tanto si se dibuja como si se oculta, y su valor es el texto que muestra.
 - El texto de apoyo o de error que se muestra es su descripción, con `optionalText` mientras el campo es opcional.
-- Se expone como no válido mientras `error` es true o dura un error de entrada, y como obligatorio mientras `requirement` es `required`.
+- Se expone como no válido mientras `error` es true o dura un error de entrada, y como obligatorio mientras `required` está activado.
 - Un error que aparece mientras el campo tiene el foco se anuncia una vez, de forma cortés. Nunca le quita el foco.
 - La muestra es decorativa y queda oculta para la tecnología de apoyo: el texto del valor dice el color.
 - El botón del selector es un botón aparte, que recibe su nombre de `pickerLabel` y se expone como un botón que abre un diálogo. Es una parada del foco después de la entrada. El foco que se da al propio campo va siempre a la entrada.

@@ -56,7 +56,8 @@
                 "container.gap",
                 "label.typescale",
                 "icon.size",
-                "check.size"
+                "check.size",
+                "motion.state-duration"
               ]
             },
             "condition": {
@@ -193,10 +194,30 @@
               "$extensions": {}
             },
             "medium": {
-              "$value": "{tanrei.sys.space.space75}"
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space75}",
+                  "height": "{tanrei.comp.segmented-button.container.height.medium}"
+                }
+              }
             },
             "large": {
-              "$value": "{tanrei.sys.space.space75}"
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space75}",
+                  "height": "{tanrei.comp.segmented-button.container.height.large}"
+                }
+              }
             }
           },
           "gap": {
@@ -361,25 +382,34 @@
         "motion": {
           "state-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}"
+            "$description": "How long a change of state takes. It follows the size (small over the compact role, medium over the default role, large over the large role): a smaller control changes state sooner.",
+            "small": {
+              "$value": "{tanrei.sys.motion.role.state.compact}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.motion.role.state.default}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.motion.role.state.large}"
+            }
           },
           "state-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           },
           "feedback-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$value": "{tanrei.sys.motion.role.feedback}",
             "$description": "How long the ripple takes to spread."
           },
           "selection-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-effects.duration}",
+            "$value": "{tanrei.sys.motion.role.selection.mark}",
             "$description": "The check appearing or leaving and the segment changing to or from the selected colors."
           },
           "selection-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.spring.standard.fast-effects.easing}"
+            "$value": "{tanrei.sys.motion.easing.state}"
           }
         }
       }

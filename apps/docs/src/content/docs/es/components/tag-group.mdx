@@ -2,7 +2,7 @@
 title: Grupo de tags
 description: Dispone un conjunto de tags o de chips en una o en varias líneas, con la separación que corresponde a lo que contiene, y expone el conjunto como una sola lista con nombre. Los miembros siguen siendo lo que son, y cuando se quita un chip el foco pasa al siguiente.
 translationOf: components/tag-group.mdx
-sourceHash: dfd5a40f6573b0faf035063e9e49568a6050b0e4
+sourceHash: 244216f99f145c63ac5a62ba10e948f72502850f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -119,7 +119,8 @@ En la web es `<tanrei-tag-group>`. Las demás plataformas todavía no lo han imp
 | Tags estáticos: las categorías de un artículo, los valores que puede tomar un ajuste, una fila de estados | Un grupo de tags con `spacing="tags"`. |
 | Tags que llevan a la página de cada tag | Un grupo de tags formado por chips con `href`. Un tag es texto y no puede ser un enlace. |
 | Filtros encima de una lista, sugerencias bajo un campo, elementos que la persona introdujo | Un grupo de tags formado por chips. |
-| Una fila larga de filtros que debería costar una sola pulsación de Tab para cruzarla | Una [barra de herramientas](/es/components/toolbar/) de botones conmutadores (más abajo). |
+| Filtros que funcionan como un solo control: uno activado a la vez, o varios, que se cruzan con una sola pulsación de Tab | Un grupo de tags formado por chips de filtro con `selection` (más abajo). |
+| Una fila de botones conmutadores que debe quedarse en una sola línea | Una [barra de herramientas](/es/components/toolbar/). |
 | De dos a cuatro acciones distintas | Un [grupo de botones](/es/components/button-group/). |
 | Una elección entre varias | Un [grupo de botones de opción](/es/components/radio-group/), unas [pestañas](/es/components/tabs/) o un [botón segmentado](/es/components/segmented-button/). |
 | Controles que necesitan una etiqueta visible, una marca de obligatoriedad y un error | Un [grupo de campos](/es/components/field-group/). |
@@ -147,37 +148,78 @@ Un sistema de diseño puede añadir valores de `spacing`.
 - Da a todos los miembros el mismo tamaño. Los miembros de tamaños distintos se centran en su línea.
 - Un grupo sin ningún miembro no dibuja nada y no ocupa espacio. Una publicación sin tags no necesita ningún caso especial.
 
-### Una sola parada de tabulación para una fila de filtros
-
-Un grupo de tags da a cada chip su propia parada de tabulación, como la tiene cada botón de un grupo de botones, y la persona recorre los chips con Tab. Donde una fila larga de filtros deba costar una sola pulsación de Tab para cruzarla, pon en su lugar los filtros en una [barra de herramientas](/es/components/toolbar/) como botones conmutadores. La barra de herramientas es una sola parada de tabulación, las teclas de flecha se mueven entre sus botones, y cada botón conserva su propio estado pulsado. Una barra de herramientas es una sola fila: no salta de línea.
-
-<DemoFrame label="Filtros como una sola parada de tabulación: una barra de herramientas de botones conmutadores">
-  <tanrei-toolbar class="not-content" label="Filtros">
-    <tanrei-button variant="outlined" toggle selected label="Abiertas"></tanrei-button>
-    <tanrei-button variant="outlined" toggle label="Asignadas a mí"></tanrei-button>
-    <tanrei-button variant="outlined" toggle label="Pendientes de revisión"></tanrei-button>
-  </tanrei-toolbar>
-</DemoFrame>
-
-```html
-<tanrei-toolbar label="Filtros">
-  <tanrei-button variant="outlined" toggle selected label="Abiertas"></tanrei-button>
-  <tanrei-button variant="outlined" toggle label="Asignadas a mí"></tanrei-button>
-  <tanrei-button variant="outlined" toggle label="Pendientes de revisión"></tanrei-button>
-</tanrei-toolbar>
-```
-
 ### La etiqueta
 
 `label` da nombre al conjunto para la tecnología de apoyo: «Etiquetas», «Filtros». No se dibuja. Donde el conjunto necesite un nombre visible, escribe antes de él tu propio encabezado o texto, y da `label` de todos modos.
 
 ### Selección
 
-El grupo no guarda ningún valor. Cada chip de filtro guarda su propio `selected`, y puede haber varios activados a la vez. Para un solo filtro a la vez, desactiva tú los demás cuando se active uno.
+De forma predeterminada, el grupo no guarda ningún valor. Cada chip de filtro guarda su propio `selected`, y cada chip es su propia parada de tabulación.
+
+Define `selection` cuando los filtros funcionen como un solo control. Da a cada chip de filtro un `value`; el grupo dice entonces qué chips están activados.
+
+- `selection="single"`: como mucho un chip está activado, y lo nombra `value`. Activar un chip desactiva los demás. Desactivar el chip activado no deja ninguno activado, y `value` es `null`, porque cada chip es un conmutador.
+- `selection="multiple"`: puede haber cualquier número activados, y los nombra `values`.
+
+Cuando la persona cambia un chip, el grupo define `value` o `values` y emite un solo `change` con `detail.value` o `detail.values`. El `change` del propio chip se detiene en el grupo. Definir tú `value` o `values` cambia los chips y no emite nada.
+
+Con una selección, el conjunto es una sola parada de tabulación: el chip que tuvo el foco por última vez; si no, el primer chip activado; si no, el primer chip. Las teclas de flecha se mueven entre los chips en la dirección a la que apuntan, también en un diseño de derecha a izquierda, e Inicio y Fin van al primero y al último. No cambian nada, y el foco no pasa del último chip al primero. Espacio cambia el chip que tiene el foco.
+
+<DemoFrame label="Un solo orden a la vez, y varios filtros">
+  <tanrei-tag-group class="not-content" label="Ordenar por" selection="single" value="updated">
+    <tanrei-chip kind="filter" label="Más recientes" value="newest"></tanrei-chip>
+    <tanrei-chip kind="filter" label="Actualizados recientemente" value="updated"></tanrei-chip>
+    <tanrei-chip kind="filter" label="Más comentados" value="comments"></tanrei-chip>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" label="Filtros" selection="multiple" values="open review">
+    <tanrei-chip kind="filter" label="Abiertas" value="open"></tanrei-chip>
+    <tanrei-chip kind="filter" label="Asignadas a mí" value="assigned"></tanrei-chip>
+    <tanrei-chip kind="filter" label="Pendientes de revisión" value="review"></tanrei-chip>
+    <tanrei-chip kind="filter" label="Bloqueadas" value="blocked"></tanrei-chip>
+  </tanrei-tag-group>
+</DemoFrame>
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-tag-group id="filters" label="Filtros" selection="multiple" values="open">
+      <tanrei-chip kind="filter" label="Abiertas" value="open"></tanrei-chip>
+      <tanrei-chip kind="filter" label="Asignadas a mí" value="assigned"></tanrei-chip>
+      <tanrei-chip kind="filter" label="Pendientes de revisión" value="review"></tanrei-chip>
+    </tanrei-tag-group>
+
+    <script type="module">
+      document.querySelector('#filters').addEventListener('change', (event) => {
+        // detail.values: los valores de los chips que ahora están activados, que el grupo ya guarda.
+        applyFilters(event.detail.values);
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Chip, TagGroup } from '@tanrei/react';
+
+    <TagGroup label="Ordenar por" selection="single" value={order} onChange={(event) => setOrder(event.detail.value)}>
+      <Chip kind="filter" label="Más recientes" value="newest" />
+      <Chip kind="filter" label="Actualizados recientemente" value="updated" />
+      <Chip kind="filter" label="Más comentados" value="comments" />
+    </TagGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+Una selección contiene solo chips de filtro. Los demás chips del conjunto, como un chip «Añadir» o los elementos introducidos, se alcanzan con las mismas teclas de flecha y funcionan como siempre. Un elemento introducido se sigue quitando con Retroceso o Supr, y el chip que recibe entonces el foco pasa a ser la parada de tabulación del conjunto.
+
+Cuando quitas un chip de filtro, el grupo deja `value` y `values` como están. Cámbialos tú si el filtro también debe desaparecer.
+
+Una elección que siempre debe tener exactamente una respuesta, sin forma de borrarla, es un [botón segmentado](/es/components/segmented-button/) o un [grupo de botones de opción](/es/components/radio-group/).
 
 ### Quitar un chip
 
 Un chip pide que lo quiten y tú lo quitas. Si el foco estaba en ese chip o en su acción de quitar, el grupo pone el foco en el chip que lo seguía, o en el anterior cuando no lo sigue ninguno. Una persona que quita varios elementos seguidos continúa desde donde estaba.
+
+La acción de quitar de un chip es simple salvo que actives `destructiveRemove` en ese chip, y el grupo no la cambia. Actívalo solo donde quitar haga perder algo que no se recupera en un paso, como un archivo adjunto; un filtro aplicado o un término de búsqueda vuelve en un paso.
 
 Dos cosas siguen siendo tuyas:
 
@@ -205,8 +247,9 @@ Dos cosas siguen siendo tuyas:
 - El conjunto se expone como una sola lista, que recibe su nombre de `label`. Cada miembro es un elemento de ella: un tag se lee como su texto, un chip como su botón o su enlace con su estado, y un chip de entrada con su acción de quitar al lado.
 - Una lista dice a la persona cuántos miembros hay y en cuál de ellos está: «lista, 4 elementos».
 - Los miembros se leen y reciben el foco en el orden dado, también en un diseño de derecha a izquierda.
-- Cada chip es una parada propia en el orden del foco, y un chip de entrada una sola: Tab salta su acción de quitar, y Retroceso o Supr sobre el chip lo quitan. El grupo no recibe el foco ni gestiona ninguna tecla.
-- Después de quitar un chip que tenía el foco, el foco pasa al chip siguiente, nunca a una acción de quitar.
+- Sin una selección, cada chip es una parada propia en el orden del foco, y un chip de entrada una sola: Tab salta su acción de quitar, y Retroceso o Supr sobre el chip lo quitan. El grupo no recibe el foco ni gestiona ninguna tecla.
+- Con una selección, el conjunto es una sola parada. Las teclas de flecha, Inicio y Fin se mueven entre sus chips, y cada chip de filtro sigue diciendo si está pulsado o no. El grupo sigue siendo una lista, así que un lector de pantalla sigue diciendo cuántos chips hay.
+- Después de quitar un chip que tenía el foco, el foco pasa al chip siguiente, nunca a una acción de quitar. Con una selección, ese chip pasa a ser la parada del conjunto.
 - Un grupo vacío no expone nada: ni una lista vacía ni un nombre.
 - Con el texto al 200%, los miembros crecen y ocupan más líneas. Nada se corta y nada se desplaza hacia los lados.
 - Con colores forzados, el grupo sigue sin dibujar nada. Los miembros dibujan sus propios bordes.
@@ -227,11 +270,10 @@ Carencias conocidas en la web:
   }
   ```
 
-- No se ofrecen teclas de flecha entre los chips de un conjunto: cada chip es una parada de tabulación. Una fila larga de filtros que deba ser una sola parada es una [barra de herramientas](/es/components/toolbar/) de botones conmutadores, como se muestra en «Una sola parada de tabulación para una fila de filtros».
-
 ### Qué debes hacer tú
 
 - Da al grupo un `label`. El componente no aporta textos propios.
 - Da a cada chip de entrada un `removeLabel` que nombre el elemento.
+- Con una selección, da a cada chip de filtro un `value`, único en el conjunto. Un chip de filtro sin él queda fuera de la selección, y una compilación de depuración lo notifica.
 - Quita un chip cuando emita `remove`, y mueve tú el foco cuando se haya ido el último.
 - Di un estado con las palabras de cada tag. El color por sí solo nunca lo dice.

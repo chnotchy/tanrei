@@ -1,0 +1,185 @@
+---
+title: Handle
+description: The mark a person drags, or moves from the keyboard, to change the size of what it stands on — a sheet, a field, a pane, a preview frame. A short line for one direction, a quarter-circle arc for two. It reports how far it was moved; its owner does the sizing.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="handle" />
+
+<DemoFrame label="A handle that changes a height, one that changes a width, and one in a corner that changes both">
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle label="Resize notes" value="4" min="2" max="12" value-text="4 lines" revealed style="justify-self: center; align-self: end"></tanrei-handle>
+  </div>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle axis="horizontal" label="Resize preview" value="50" revealed style="justify-self: end; align-self: center"></tanrei-handle>
+  </div>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle axis="both" label="Resize message" value="6" min="3" max="12" value-text="6 lines" revealed style="justify-self: end; align-self: end"></tanrei-handle>
+  </div>
+</DemoFrame>
+
+A handle sits on an edge or a corner of something whose size a person may change: the top of a sheet, the bottom corner of a text field, the edge of a pane or of a preview. Dragged, it reports how far it moved; moved from the keyboard, it reports which step was asked for; pressed without a drag, it reports that. It never resizes anything itself. What it stands on keeps the size, decides what one step is, and gives the size back to the handle so that assistive technology can read it.
+
+On the web it is `<tanrei-handle>`. The other platforms have not implemented it yet.
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <div class="notes">
+      <textarea aria-label="Notes"></textarea>
+      <!-- At the bottom edge: it changes the height. Its value is the owner's, in the owner's unit. -->
+      <tanrei-handle label="Resize notes" value="4" min="2" max="12" value-text="4 lines"></tanrei-handle>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/handle';
+      const handle = document.querySelector('.notes tanrei-handle');
+      const notes = document.querySelector('.notes textarea');
+      const lineHeight = 24;
+      let start = 0;
+      const show = (lines) => {
+        lines = Math.min(12, Math.max(2, Math.round(lines)));
+        notes.rows = lines;
+        handle.value = lines;
+        handle.valueText = `${lines} lines`;
+      };
+      handle.addEventListener('resizestart', () => (start = notes.rows));
+      // The distance from the press, in pixels: block is positive downward.
+      handle.addEventListener('resize', (e) => show(start + e.detail.block / lineHeight));
+      // One step is one line here; Home and End ask for the least and the greatest.
+      handle.addEventListener('step', (e) => {
+        const { direction, amount } = e.detail;
+        show(amount === 'limit' ? (direction < 0 ? 2 : 12) : notes.rows + direction * (amount === 'large' ? 3 : 1));
+      });
+      // Pressed without a drag: switch between the two sizes you know, so that no size needs a drag.
+      handle.addEventListener('activate', () => show(notes.rows < 12 ? 12 : 2));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Handle } from '@tanrei/react';
+
+    <Handle
+      label="Resize notes"
+      value={rows}
+      min={2}
+      max={12}
+      valueText={`${rows} lines`}
+      onResizestart={() => setStart(rows)}
+      onResize={(e) => setRows(clamp(start + e.detail.block / 24))}
+      onStep={(e) => setRows(stepped(rows, e.detail))}
+      onActivate={() => setRows(rows < 12 ? 12 : 2)}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Out of sight until used: point at it, or move to it with Tab" plain>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle label="Resize panel" value="30" style="justify-self: center; align-self: end"></tanrei-handle>
+  </div>
+  <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-small) + var(--tanrei-comp-handle-inset))">
+    <tanrei-handle axis="both" size="small" label="Resize comment" value="3" style="justify-self: end; align-self: end"></tanrei-handle>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="handle" />
+
+## Guidelines
+
+### When to use
+
+Use a handle where a person should be able to give something the size they want: a field for a long answer, a sheet over a map, a side panel, a preview of a page at another width.
+
+| You need | Use |
+| --- | --- |
+| To move an item to another place in a list | The [list](/components/list/)'s reorder handle, which is drawn with dots. A line changes a size; dots move a place. |
+| A choice between a few fixed sizes, and nothing between them | A [segmented button](/components/segmented-button/) or a [button](/components/button/) that switches them. |
+| A sheet that rises from the bottom edge | The [bottom sheet](/components/bottom-sheet/), which draws its own drag handle. |
+
+### Its forms
+
+| `axis` | Drawn as | Stands on |
+| --- | --- | --- |
+| `vertical` (default) | A short horizontal line | A bottom or top edge: it changes a height. |
+| `horizontal` | A short upright line | A start or end edge: it changes a width. |
+| `both` | A quarter-circle arc, bowed toward `corner` | A corner: it changes a height and a width at once. |
+
+`corner` is written in logical terms: `end` is the right in a left-to-right layout and the left in a right-to-left one, so a `bottom-end` arc follows the page's direction by itself.
+
+| `size` | Use for |
+| --- | --- |
+| `medium` (default) | A sheet, a pane, a frame. |
+| `small` | A text field's corner, where a larger mark would cover the text. |
+
+Both sizes keep the minimum target. The hit area reaches past what the handle stands on where it must, without changing what is drawn.
+
+### What it tells you, and what you do
+
+| Event | When | What you do |
+| --- | --- | --- |
+| `resizestart` | A drag began: the press moved past the touch slop. | Remember the size at the start. Turn off `pointer-events` on any iframe in what you resize. |
+| `resize` | Each frame the drag moves. `inline` and `block` are the distance from the press, in pixels: `inline` toward the end edge, `block` downward. | Set the size: the start size plus the distance, in your own unit, within your limits. |
+| `resizeend` | The drag ended, once. `cancelled` is true when the platform cancelled it. | Keep the size, or put it back if it was cancelled. Turn the iframes back on. |
+| `step` | A key asked for a change: `axis`, `direction` (1 or −1) and `amount` (`one`, `large`, or `limit` for Home and End). | Decide what one step is — a line, 1 or 10 pixels, 5 percent — and change the size by it. |
+| `activate` | Pressed and released without a drag, or Enter or Space. | Switch between two sizes you know: the height its text needs and the smallest one, the whole width and the width it had. |
+
+After each change, give the handle the new size as `value` (with `min`, `max` and, where a number does not say it, `valueText`). That is what assistive technology reads. A handle without a `value` is a button: use that form where the handle only switches between sizes you know, and give it `expanded`.
+
+### Out of sight until it is used
+
+A handle is quiet: at rest nothing is drawn, so that what it stands on is seen and not its tools. It comes into sight when a mouse is over it, when keyboard focus reaches it and while it is pressed or dragged. Over it, the pointer also takes the resize cursor. On a touch screen, which has no hover, it is always drawn.
+
+Set `revealed` where the handle must be seen to be found: a sheet's grip, which says that the sheet can be pulled. Set it too while the pointer is over what the handle stands on, if you want the handle shown then (a field that shows its corner handle while it is pointed at).
+
+### Placing it
+
+The handle takes the room of its own box and nothing more: you place it on the edge or the corner. Put a line in the middle of its edge. Put an arc in its corner, and give that corner a radius of `arc.radius` plus `inset`, so that the arc and the corner share one centre.
+
+### Do
+
+- Give every handle a `label` that says what it resizes: "Resize notes", "Resize preview".
+- Give it back the size as `value` after every change, with `valueText` in your unit.
+- Answer `activate` with a size that needs no drag.
+- Keep a resized size until the person changes it again.
+
+### Don't
+
+- Don't use a handle to move something to another place.
+- Don't resize something below the size its content needs to be used, or a page beyond the width that makes it scroll sideways.
+- Don't put the handle on a text the person is reading; it is a mark on an edge.
+
+## Accessibility
+
+<ComponentAccessibility name="handle" />
+
+### What the component handles
+
+- With a `value`, it is a focusable separator — the window splitter of the ARIA Authoring Practices — named by `label`, with its value, range and value text, and the orientation of its line. Without one, it is a button, with the expanded state where you give one.
+- It is one stop of the focus order, also while it is out of sight. Keyboard focus brings it into sight with its focus ring at once, so a keyboard user always sees where focus is.
+- The arrow keys of its axis ask for one step, Shift with an arrow and Page Up and Page Down for a large one, Home and End for the least and the greatest size. Enter and Space activate it. Every other key goes on to you.
+- A press takes no focus and selects no text, so a field keeps its caret while its handle is dragged. The drag follows the pointer past the window's edge.
+- Pressed without a drag, it activates, so every size you offer can be reached with one click or tap.
+- With enlarged text it keeps its size: it is a mark on an edge, not text.
+- In forced-colors mode the line takes the button text color, the highlight color while it is pointed at or pressed, and the disabled text color while it is disabled.
+- In a right-to-left layout an arc's end corners are at the left, its diagonal cursor turns with it, Left Arrow points toward the end edge, and `inline` is positive toward the left.
+
+### What you need to do
+
+- Give a `label`. Without one the handle is still drawn and works, and a debug build reports it.
+- Keep `value`, `min`, `max` and `valueText` up to date, in the unit people know.
+- Answer `activate` with a size that needs no drag. Dragging alone is not enough for a person who cannot drag.
+- While a drag lasts, keep any iframe in what you resize from taking the pointer (`pointer-events: none`), or the drag stops when the pointer passes over it.
+- Make sure the content still works at every size you allow.

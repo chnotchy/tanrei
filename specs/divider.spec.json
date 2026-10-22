@@ -342,6 +342,9 @@
         "wavelength": "wavelength",
         "decorative": "decorative"
       },
+      "parts": {
+        "line": "line"
+      },
       "notes": "Not an `<hr>`: an hr is horizontal only and always a separator. The host takes `role=\"separator\"` and `aria-orientation` when `decorative` is false (set to false by `decorative=\"false\"` or the property), and `aria-hidden=\"true\"` otherwise. Attributes are `line-style`, `line-cap`, `inset-length`, `dash-length`, `gap`, `amplitude` and `wavelength`; the lengths are numbers of CSS px. A solid line stays a border (DIV-8). A dotted or dashed line is not `border-style: dotted | dashed`, whose dash lengths and spacing each engine chooses and which has no round cap: it is drawn from the tokens (for example a mask repeated with `mask-repeat: space` over a box one gap longer than the line, which places whole dashes at both ends and widens the gaps as DIV-10 and DIV-11 say). A wavy line cannot be a border at all: it is an SVG path of arcs in the shadow root, measured on resize (DIV-12). In forced-colors mode every style is drawn in the system's text color, as the border is."
     },
     "swiftui": {

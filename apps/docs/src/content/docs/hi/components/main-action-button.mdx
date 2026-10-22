@@ -2,7 +2,7 @@
 title: मुख्य ऐक्शन बटन
 description: स्क्रीन की अकेली सबसे महत्वपूर्ण क्रिया करता है, कॉन्टेंट के ऊपर तैरते एक उठे हुए कंटेनर पर, अपना नाम पूरा लिखकर या सिमटकर सिर्फ़ अपने आइकन के साथ।
 translationOf: components/main-action-button.mdx
-sourceHash: 100851dcd58588339815b7cf46318e4f1a9950e2
+sourceHash: 4ea11cf1c96e665e4d8a7ce5bde60156fedc09b3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -92,6 +92,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - Material 3 के FAB, small FAB और large FAB क्रमशः medium, small और large साइज़ के सिमटे हुए मुख्य ऐक्शन बटन हैं। उसका extended FAB फैला हुआ रूप है।
 - Compose का `expanded` (`ExtendedFloatingActionButton` पर) और Flutter का `isExtended` (`FloatingActionButton.extended` पर) `extended` हैं।
 - Material 3 के primary, secondary, tertiary और surface FAB रंग `filled`, `tonal` और `surface` वेरिएंट पर, और उन मानों पर मैप होते हैं जिन्हें कोई प्रीसेट जोड़ता है। m3-like प्रीसेट Material के गोल-चौकोर कोने और 56 / 96 की ऊँचाइयाँ इसी कंपोनेंट के टोकन के ज़रिए बनाता है।
+- Material की भाषा में मुख्य ऐक्शन बटन ही FAB है। Material का FAB मेन्यू [FAB मेन्यू](/hi/components/fab-menu/) है, जो m3-like लेयर का कंपोनेंट है: यह उन सिस्टम में होता है जो इस लेयर से आगे बढ़ते हैं।
 
 ## स्पेक
 
@@ -127,7 +128,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - जो क्रिया किसी फ़ॉर्म, डायलॉग या कॉन्टेंट के किसी एक आइटम की है, उसके लिए वहीं [बटन](/hi/components/button/) इस्तेमाल करें जहाँ वह कॉन्टेंट है।
 - मौजूदा स्क्रीन या चयन पर कई क्रियाओं के लिए [टूलबार](/hi/components/toolbar/) इस्तेमाल करें।
-- जब मुख्य क्रिया कुछ संबंधित रूपों में आती हो (नया दस्तावेज़, फ़ोल्डर या अपलोड), तो मुख्य ऐक्शन बटन से एक [बॉटम शीट](/hi/components/bottom-sheet/) खुलवाएँ जिसमें उनकी सूची हो। [FAB मेन्यू](/hi/components/fab-menu/) यह काम उन प्रीसेट में करता है जो उसे देते हैं; डिफ़ॉल्ट सिस्टम नहीं देता।
+- जब मुख्य क्रिया कुछ संबंधित रूपों में आती हो (नया दस्तावेज़, फ़ोल्डर या अपलोड), तो मुख्य ऐक्शन बटन से एक [बॉटम शीट](/hi/components/bottom-sheet/) खुलवाएँ जिसमें उनकी सूची हो। [FAB मेन्यू](/hi/components/fab-menu/) यह काम m3-like लेयर के सिस्टम में करता है, जहाँ वह रहता है; डिफ़ॉल्ट सिस्टम में यह नहीं है।
 - यह एक क्रिया करता है और कोई गंतव्य नहीं लेता। जो कंट्रोल लोगों को सिर्फ़ कहीं और ले जाता है, वह लिंक है: `href` वाला [बटन](/hi/components/button/)।
 
 ### फैला हुआ या सिमटा हुआ

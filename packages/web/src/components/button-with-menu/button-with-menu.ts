@@ -19,6 +19,7 @@ import type { TanreiButtonWithMenuSizeRegistry, TanreiButtonWithMenuVariantRegis
 import { TanreiMenu, type TanreiMenuCloseDetail, type TanreiMenuCloseReason } from '../menu/menu.js';
 import { AXES, TRAILING_WIDTHS, styles } from './button-with-menu.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { TanreiElement } from '../../primitives/element.js';
 
 /** The core variants (filled, tonal, elevated, outlined), plus any a design system's generated `.d.ts` registers. */
 export type TanreiButtonWithMenuVariant = keyof TanreiButtonWithMenuVariantRegistry;
@@ -39,6 +40,19 @@ export interface TanreiButtonWithMenuCloseDetail {
 
 /** The menu's item kinds, as the menu spec defines them: what the menu slot presents. */
 const MENU_CONTENT = 'tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu';
+
+/**
+ * SPB-33: the internal channel by which a component that keeps one Tab stop among its items makes each half a stop of
+ * its own (a toolbar, TBR-25): which half is its Tab stop (0 the leading, 1 the trailing, null neither), and the two
+ * halves to move focus to. Not part of the public surface.
+ */
+export const ROVING_HALVES = Symbol.for('tanrei.roving-halves');
+export interface RovingHalves {
+  /** The two halves, leading first; empty before the first render. */
+  halves(): HTMLElement[];
+  /** Which half is the Tab stop: 0, 1, null for neither, or undefined to leave both in the Tab order (SPB-17). */
+  setStop(stop: 0 | 1 | null | undefined): void;
+}
 
 /** SPB-22: the pointers that hover — a mouse, a trackpad, a pen. Touch, and what a platform synthesises from it, never do. */
 const hovers = (event: PointerEvent) => event.pointerType === 'mouse' || event.pointerType === 'pen';
@@ -106,7 +120,7 @@ class JoinedHalf extends GroupItemController {
  * @fires {CustomEvent<TanreiButtonWithMenuToggleDetail>} toggle - The trailing half asks to open or close the menu — by a press, a key or, with `hover-open`, a hover: `detail.open` is the value asked for. Set `open` to it.
  * @fires {CustomEvent<TanreiButtonWithMenuCloseDetail>} close - The menu asks to be closed: `detail.reason` is `escape`, `outside`, `tab`, `focus-out` or `item`. Set `open` to false.
  */
-export class TanreiButtonWithMenu extends LitElement {
+export class TanreiButtonWithMenu extends TanreiElement {
   private readonly availability = new AvailabilityController(this, 'button-with-menu');
   static override styles = [styles, hiddenHost];
 
@@ -116,6 +130,7 @@ export class TanreiButtonWithMenu extends LitElement {
 
   static override properties: PropertyDeclarations = {
     variant: { type: String, reflect: true },
+    destructive: { type: Boolean, reflect: true },
     size: { type: String, reflect: true },
     separation: { type: String, reflect: true },
     trailingWidth: { type: String, reflect: true, attribute: 'trailing-width' },
@@ -131,10 +146,19 @@ export class TanreiButtonWithMenu extends LitElement {
     menuChildren: { state: true },
     turning: { state: true },
     fromHover: { state: true },
+    rovingStop: { state: true },
   };
 
   /** Emphasis, as Button's variants of the same names. */
   variant: TanreiButtonWithMenuVariant = 'filled';
+
+  /**
+   * SPB-34, SPB-35: the main action deletes or discards something a person may not get back. Both halves keep their
+   * variant's emphasis in the error role's color, as a destructive Button does; nothing more is exposed to assistive
+   * technology, so the label says what is destroyed. The menu's items are not marked by it: an item that deletes
+   * carries its own `destructive`.
+   */
+  destructive = false;
 
   /** Visual height (small 32 / medium 40 / large 56 in the default system), Button's heights. The hit areas always meet the minimum target. */
   size: TanreiButtonWithMenuSize = 'medium';
@@ -190,6 +214,17 @@ export class TanreiButtonWithMenu extends LitElement {
 
   /** SPB-22: the menu is open from hover — presented without taking focus, closed when the pointer leaves (SPB-23). */
   protected fromHover = false;
+
+  /** SPB-33: which half the component that places it made its Tab stop; undefined while none does (both are stops, SPB-17). */
+  protected rovingStop: 0 | 1 | null | undefined = undefined;
+
+  /** @internal SPB-33: the channel a toolbar makes each half a stop of its own by (TBR-25). */
+  [ROVING_HALVES]: RovingHalves = {
+    halves: () => [...(this.renderRoot?.querySelectorAll<HTMLElement>('.row > button') ?? [])],
+    setStop: (stop) => {
+      this.rovingStop = stop;
+    },
+  };
 
   /** Counts the turns, so that a turn replaced by the next ends nothing. */
   private turn = 0;
@@ -626,7 +661,8 @@ export class TanreiButtonWithMenu extends LitElement {
     const open = this.openForm;
     // SPB-3, SPB-15, SPB-20: the menu is presented while open, enabled and holding an item.
     const presented = open && this.hasItems;
-    // SPB-17: two native buttons in reading order, each its own tab stop, and no element of its own around them. The
+    // SPB-17: two native buttons in reading order, each its own tab stop — unless the component that places it keeps one
+    // Tab stop among its items and says which half it is (SPB-33) — and no element of its own around them. The
     // leading half is named by its label; the trailing half by menuLabel, and the menu tells it that it opens a menu,
     // whether it is open and which (aria-haspopup, aria-expanded, aria-controls). The icon and the chevron are hidden.
     // SPB-21: the closed glyph is the chevron slot's, or the icon set's expand_more when it is empty; with a chevron-open
@@ -639,6 +675,7 @@ export class TanreiButtonWithMenu extends LitElement {
           type="button"
           data-tanrei-shape
           class=${classMap({ leading: true, 'with-icon': this.iconChildren.length > 0, ...this.leadingPlace.classes() })}
+          tabindex=${this.rovingStop === undefined ? nothing : this.rovingStop === 0 ? '0' : '-1'}
           ?disabled=${this.disabled}
           @pointerdown=${this.onHalfPointerDown}
           @pointerup=${this.leadingPress.release}
@@ -660,6 +697,7 @@ export class TanreiButtonWithMenu extends LitElement {
           data-tanrei-shape
           class=${classMap({ trailing: true, open, swap, turning: this.turning, ...this.trailingPlace.classes() })}
           aria-label=${this.menuLabel || nothing}
+          tabindex=${this.rovingStop === undefined ? nothing : this.rovingStop === 1 ? '0' : '-1'}
           ?disabled=${this.disabled}
           @click=${this.onTrailingClick}
           @pointerdown=${this.onHalfPointerDown}

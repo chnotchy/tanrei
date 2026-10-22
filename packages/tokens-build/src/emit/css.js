@@ -1,3 +1,4 @@
+import { ruleDependencies } from '@tanrei/token-engine';
 import { CONFIG } from '../config.js';
 import { GENERATED_HEADER, cssColor, kebab, typeFamily } from '../pure.js';
 
@@ -40,15 +41,63 @@ function shadow(token) {
 // Runtime dials: a `mul` rule is emitted as the same arithmetic in CSS, so overriding a
 // `--tanrei-dial-*` property moves every derived token live. Rounding mirrors the build (0.25px, 1ms),
 // which keeps build-time and runtime results identical at a 16px root. Tone mapping cannot run in CSS,
-// so colors stay build-time values.
-function derivedExpression(rule, type) {
+// so colors stay build-time values. A `sub` rule is the same subtraction, held at zero, so that an inner corner
+// follows an outer one a product sets at runtime; both of its terms are already on the build's step.
+// A `mul` with `times`, `round` and `min` is `max(min, round(nearest, calc(of * by * times), round))`, the engine's
+// order: rounded to the step, ties upward, then floored. A `pad` is `max(0px, round(nearest, calc(of + (height -
+// height₁) / 2), 0.25px))`, where height₁ is the height's own expression with every `times` read as 1 and no `min`
+// (`unscaledExpression`), so a padding follows a density, a floor or a size unit set at runtime with its box; with a
+// `by` (a padding a layer scaled), `of` is `of × by` on the 0.25px step.
+const zeroOf = (type) => (type === 'number' ? '0' : type === 'duration' ? '0ms' : '0px');
+const refOf = (v) => ref(v.slice(1, -1));
+function derivedExpression(rule, type, tokens, { read = refOf, unscaling = false } = {}) {
+  if (rule?.fn === 'sub') return `max(${zeroOf(type)}, calc(${read(rule.of)} - ${read(rule.by)}))`;
+  if (rule?.fn === 'pad') {
+    // The padding before its box moved: `of`, or `of × by` on the engine's 0.25px step.
+    const of = rule.by === undefined || rule.by === 1 ? read(rule.of) : `round(nearest, calc(${read(rule.of)} * ${rule.by}), 0.25px)`;
+    if (unscaling) return of;
+    if (!tokens) throw new Error(`css: a "pad" rule is written over the height's own expression, and no tokens were given to read it from (${rule.height})`);
+    return `max(${zeroOf(type)}, round(nearest, calc(${of} + (${read(rule.height)} - ${unscaledExpression(rule.height.slice(1, -1), tokens)}) / 2), 0.25px))`;
+  }
   if (!rule || rule.fn !== 'mul') return null;
-  const of = ref(rule.of.slice(1, -1));
-  if (rule.by === 1 && rule.exp === undefined) return of;
-  const exponent = typeof rule.exp === 'string' ? ref(rule.exp.slice(1, -1)) : rule.exp;
+  const of = read(rule.of);
+  const times = rule.times !== undefined && !unscaling ? read(rule.times) : null;
+  const min = rule.min !== undefined && !unscaling ? read(rule.min) : null;
+  const floored = (expression) => (min ? `max(${min}, ${expression})` : expression);
+  if (rule.by === 1 && rule.exp === undefined && !times && rule.round === undefined) return floored(of);
+  const exponent = typeof rule.exp === 'string' ? read(rule.exp) : rule.exp;
   const coefficient = rule.exp === undefined ? String(rule.by) : `pow(${rule.by}, ${exponent})`;
-  if (type === 'number') return `calc(${of} * ${coefficient})`;
-  return `round(nearest, calc(${of} * ${coefficient}), ${type === 'duration' ? '1ms' : '0.25px'})`;
+  // A density is a decimal no engine holds exactly — 0.95 is 0.9499999… in the 32-bit floats Firefox computes lengths
+  // in — so a product that is a tie in decimal arithmetic (4 × 10 × 0.95 = 38, half way between 36 and 40) can land a
+  // hair under it and round down where the engine, which rounds the decimal value, rounds up. A ten-thousandth of the
+  // unit lifts it over the tie in every engine, and moves nothing else: a product off a tie is further than that from one.
+  const tie = times && (rule.round !== undefined || type !== 'number') ? [type === 'duration' ? '0.0001ms' : type === 'number' ? '0.0001' : '0.0001px'] : [];
+  const product = `calc(${[[of, ...(rule.by === 1 && rule.exp === undefined ? [] : [coefficient]), ...(times ? [times] : [])].join(' * '), ...tie].join(' + ')})`;
+  if (rule.round !== undefined) return floored(`round(nearest, ${product}, ${read(rule.round)})`);
+  if (type === 'number') return floored(product);
+  return floored(`round(nearest, ${product}, ${type === 'duration' ? '1ms' : '0.25px'})`);
+}
+
+/** Whether a token's value depends on a `times`, a `min` or a `pad` anywhere below it: what `pad` must unscale. */
+function scales(id, tokens, seen = new Set()) {
+  const token = tokens[id];
+  if (!token || seen.has(id)) return false;
+  seen.add(id);
+  if (token.alias) return scales(token.alias, tokens, seen);
+  const rule = token.derive;
+  if (!rule || 'fixed' in rule || token.type === 'typography') return false;
+  if (rule.fn === 'pad' || (rule.fn === 'mul' && (rule.times !== undefined || rule.min !== undefined))) return true;
+  return ruleDependencies(rule).some((dep) => scales(dep, tokens, seen));
+}
+
+/** A token's expression with every `times` read as 1 and no `min`: `var()` where nothing below it scales. */
+function unscaledExpression(id, tokens) {
+  if (!scales(id, tokens)) return ref(id);
+  const token = tokens[id];
+  if (token.alias) return unscaledExpression(token.alias, tokens);
+  const written = derivedExpression(token.derive, token.type, tokens, { read: (v) => unscaledExpression(v.slice(1, -1), tokens), unscaling: true });
+  if (!written) throw new Error(`css: ${id} follows a density or a floor through a "${token.derive.fn}" rule, which CSS cannot write; a "pad" cannot measure its height from it`);
+  return written;
 }
 
 // A computed color is emitted as the same computation over role variables, so it follows the scheme,
@@ -61,8 +110,12 @@ function colorExpression(rule) {
   return null;
 }
 
-/** One token → one or more `[name, value]` declarations. */
-function declarations(token) {
+/**
+ * One token → one or more `[name, value]` declarations. Exported for Theme Studio, which writes a dragged dial — and
+ * the few declarations that follow it as literals — the way this emitter writes them, without emitting the sheet.
+ * `tokens` (the model's, by id) is what a `pad` reads its height's rules from; nothing else needs it.
+ */
+export function declarations(token, tokens) {
   const name = idToVar(token.id);
   if (token.alias && token.type !== 'typography') return [[name, ref(token.alias)]];
   // A choice of kind reaches CSS as its NAME — `--tanrei-sys-behavior-pressed-feedback: ripple` — so
@@ -73,7 +126,7 @@ function declarations(token) {
     if (typeof chosen !== 'string') throw new Error(`css: ${token.id}: ${JSON.stringify(token.value)} is not an index into dev.tanrei.enum.values`);
     return [[name, chosen]];
   }
-  const live = token.type !== 'typography' && derivedExpression(token.derive, token.type);
+  const live = token.type !== 'typography' && derivedExpression(token.derive, token.type, tokens);
   if (live) return [[name, live]];
   switch (token.type) {
     case 'color':
@@ -101,7 +154,7 @@ function declarations(token) {
       }
       const v = token.value;
       const family = token.partialAlias?.fontFamily ? ref(token.partialAlias.fontFamily) : fontFamily(v.fontFamily);
-      const size = derivedExpression(token.derive?.fontSize, 'dimension') ?? `${+(v.fontSize.value / 16).toFixed(4)}rem`;
+      const size = derivedExpression(token.derive?.fontSize, 'dimension', tokens) ?? `${+(v.fontSize.value / 16).toFixed(4)}rem`;
       // em keeps tracking proportional if a consumer overrides the size.
       const tracking = v.letterSpacing.value === 0 ? '0' : `${+(v.letterSpacing.value / v.fontSize.value).toFixed(4)}em`;
       // Emphasis is a weight step, not a role: `<role>-font-weight-emphasized` is the role's weight plus
@@ -127,14 +180,31 @@ function declarations(token) {
 // a circle. CSS cannot tell a box its radius was clamped, but the build knows which shape tokens are the full step: every
 // comp token whose alias chain reaches `sys.shape.corner.*` gets a companion `<name>-pill` — 1 when the chain passes
 // through `corner.full`, else 0 — which the web's one corner rule reads to draw that box round whatever the smoothing.
+// A corner derived by `sub` (one inside another, less the inset) is not the full step, and neither is a token that
+// aliases one: 0. A `sub` that is no corner — a gap, the room a target needs beyond what a control draws — has no
+// companion: only a `sub` whose operand is a shape (a corner inside another) is one.
 const CORNER = `${CONFIG.namespace}.sys.shape.corner.`;
 const FULL = `${CORNER}full`;
+/** Whether a token is a corner: a step of sys.shape, or a token whose alias chain or `sub` reaches one. */
+function isShape(id, tokens, seen = new Set()) {
+  if (id.startsWith(`${CONFIG.namespace}.sys.shape.`)) return true;
+  const token = tokens[id];
+  if (!token || seen.has(id)) return false;
+  seen.add(id);
+  if (token.alias) return isShape(token.alias, tokens, seen);
+  return token.derive?.fn === 'sub' && isShape(token.derive.of.slice(1, -1), tokens, seen);
+}
 function cornerCompanion(token, tokens) {
-  if (token.path[0] !== 'comp' || token.type !== 'dimension' || !token.alias) return [];
+  if (token.path[0] !== 'comp' || token.type !== 'dimension') return [];
+  const name = `${idToVar(token.id)}-pill`;
+  const innerCorner = (t) => t?.derive?.fn === 'sub' && isShape(t.derive.of.slice(1, -1), tokens);
+  if (innerCorner(token)) return [[name, '0']];
+  if (!token.alias) return [];
   const chain = [];
   for (let id = token.alias; id && !chain.includes(id); id = tokens[id]?.alias) chain.push(id);
+  if (chain.some((id) => innerCorner(tokens[id]))) return [[name, '0']];
   if (!chain.some((id) => id.startsWith(CORNER))) return [];
-  return [[`${idToVar(token.id)}-pill`, chain.includes(FULL) ? '1' : '0']];
+  return [[name, chain.includes(FULL) ? '1' : '0']];
 }
 
 // A ring drawn inside (SPB-26): an elevation's ring — the layer with no offset, no blur and a positive spread — is cast
@@ -154,6 +224,12 @@ function insetRingCompanion(token) {
 const unavailableValue = ({ components, variants }) =>
   JSON.stringify([...components, ...Object.entries(variants).flatMap(([component, values]) => values.map((v) => `${component}:${v}`))].join(' '));
 
+/** What lives in a layer the system does not extend: `component=layer`, space-separated, in one string. */
+const outsideValue = (outside) => JSON.stringify(Object.entries(outside).map(([component, layer]) => `${component}=${layer}`).join(' '));
+
+/** What the system uses instead: `component=replacement,replacement`, space-separated, in one string. */
+const replacementValue = (replacements) => JSON.stringify(Object.entries(replacements).map(([entry, uses]) => `${entry}=${uses.join(',')}`).join(' '));
+
 const block = (selector, decls, indent = '') =>
   `${indent}${selector} {\n${decls.map(([n, v]) => `${indent}  ${n}: ${v};`).join('\n')}\n${indent}}`;
 
@@ -162,13 +238,17 @@ function colorValue(token) {
 }
 
 /**
- * @param {{ scope?: string, unavailable?: { components: string[], variants: Record<string, string[]> } }} [options]
+ * @param {{ scope?: string, unavailable?: { components: string[], variants: Record<string, string[]> }, outside?: Record<string, string>, replacements?: Record<string, string[]> }} [options]
  *   `scope` = a system id: the sheet then applies inside `[data-tanrei-system="<id>"]` instead of `:root`, so several
  *   systems can coexist on one page. `unavailable` = what the system does not ship, declared as one string
  *   property (`component` or `component:variant`, space-separated) that a component reads to warn in development. It is
- *   declared even when empty, so a preset's empty list overrides the default system's inherited one.
+ *   declared even when empty, so a preset's empty list overrides the default system's inherited one. `outside` = the
+ *   components that live in a layer the system does not extend (component → that layer), declared the same way: the
+ *   system's sheet has no tokens for them, and a component used there says so. `replacements` = what the system uses
+ *   instead of a component it does not have (component → components, the manifest's `insteadUse`), declared the same
+ *   way, so that the report names them.
  */
-export function emitCss(model, { scope, unavailable } = {}) {
+export function emitCss(model, { scope, unavailable, outside, replacements } = {}) {
   const NS = CONFIG.namespace;
   const S = scope ? `[data-${NS}-system="${scope}"]` : ':root';
   const pair = (light, dark) => (light === dark ? light : `light-dark(${light}, ${dark})`);
@@ -188,7 +268,7 @@ export function emitCss(model, { scope, unavailable } = {}) {
   for (const token of Object.values(model.tokens)) {
     if (token.path[0] === 'sys' && token.path[1] === 'color') continue;
     if (perScheme.includes(token.id)) base.push(componentLevel('').find(([name]) => name === idToVar(token.id)));
-    else base.push(...declarations(token), ...cornerCompanion(token, model.tokens), ...insetRingCompanion(token));
+    else base.push(...declarations(token, model.tokens), ...cornerCompanion(token, model.tokens), ...insetRingCompanion(token));
   }
 
   const roles = Object.keys(model.colors.light);
@@ -209,13 +289,22 @@ export function emitCss(model, { scope, unavailable } = {}) {
   // A system scope takes a contrast set on itself, inside itself, or — unless it says otherwise — around itself
   // (a page-wide contrast switch on <html> must reach a preset mounted further down).
   const scoped = (level) => [`${S}${attr('contrast', level)}`, `${S} ${attr('contrast', level)}`, `${attr('contrast', level)} ${S}:not([data-${NS}-contrast])`].join(', ');
+  // The page's colour scheme is declared once, on the root: both themes, following the OS until data-${NS}-theme forces
+  // one. A system scope declares none, so it inherits the scheme around it — a preset placed under a forced theme
+  // draws in that theme, as any other subtree does — and a subtree switches it with data-${NS}-theme.
+  const own = [
+    ...(scope ? [] : [['color-scheme', 'light dark']]),
+    ...(unavailable ? [[`${PREFIX}-unavailable`, unavailableValue(unavailable)]] : []),
+    ...(outside ? [[`${PREFIX}-unavailable-layer`, outsideValue(outside)]] : []),
+    ...(replacements ? [[`${PREFIX}-unavailable-replacement`, replacementValue(replacements)]] : []),
+  ];
   return [
     `/* ${GENERATED_HEADER.join(' ')} */`,
     `@layer ${NS}.tokens {`,
     // Custom properties resolve their var() references where they are declared. Declaring the whole
     // set again on a contrast scope makes component tokens pick up that scope's system colors, so
     // data-${NS}-contrast works on a subtree and not only on <html>.
-    block(S, [['color-scheme', 'light dark'], ...(unavailable ? [[`${PREFIX}-unavailable`, unavailableValue(unavailable)]] : [])], '  '),
+    ...own.length ? [block(S, own, '  ')] : [],
     block(scope ? `${S}, ${S} [data-${NS}-contrast]` : `:root, [data-${NS}-contrast]`, [...base, ...standard.slice(0, roles.length)], '  '),
     '',
     `  /* Theme follows the OS by default; force it per subtree with data-${NS}-theme. */`,

@@ -1,0 +1,168 @@
+---
+title: Meter
+description: Shows where a known value stands in a known range — storage used, a battery's charge, a quota, the strength of a password — as a bar or a ring that looks like the progress indicator, without saying that anything is under way.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="meter" />
+
+<DemoFrame label="Linear and circular">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter value="0.62" label="Storage used" value-text="9.3 GB of 15 GB"></tanrei-meter>
+    <tanrei-meter value="37" max="50" label="Seats taken" value-text="37 of 50 seats"></tanrei-meter>
+  </div>
+  <tanrei-meter variant="circular" value="0.62" label="Battery"></tanrei-meter>
+  <tanrei-meter variant="circular" size="large" value="0.15" status="warning" label="Battery" value-text="Low: 15%"></tanrei-meter>
+</DemoFrame>
+
+### Usage
+
+The Web and React samples show the current spec. SwiftUI, Compose, Flutter and React Native are planned: they do not ship a meter yet.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-meter value="0.62" label="Storage used" value-text="9.3 GB of 15 GB"></tanrei-meter>
+    <tanrei-meter value="37" max="50" label="Seats taken" value-text="37 of 50 seats"></tanrei-meter>
+
+    <!-- The product decides what the value means, and says it in words too. -->
+    <tanrei-meter value="0.85" status="warning" label="Storage used" value-text="Almost full: 12.8 GB of 15 GB"></tanrei-meter>
+
+    <tanrei-meter variant="circular" size="small" value="0.62" label="Battery"></tanrei-meter>
+
+    <script type="module">
+      import '@tanrei/web/components/meter';
+      const meter = document.querySelector('tanrei-meter');
+      meter.value = used / quota;
+      meter.status = used / quota > 0.8 ? 'warning' : 'default';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Meter } from '@tanrei/react';
+
+    <Meter value={used / quota} label="Storage used" valueText={`${usedText} of ${quotaText}`} />
+    <Meter value={seats} max={50} label="Seats taken" valueText={`${seats} of 50 seats`} />
+    <Meter
+      value={used / quota}
+      status={used / quota > 0.8 ? 'warning' : 'default'}
+      label="Storage used"
+      valueText={used / quota > 0.8 ? `Almost full: ${usedText} of ${quotaText}` : `${usedText} of ${quotaText}`}
+    />
+    <Meter variant="circular" size="small" value={charge} label="Battery" />
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Statuses: default, info, success, warning, error" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter value="0.62" label="Default"></tanrei-meter>
+    <tanrei-meter value="0.4" status="info" label="Info"></tanrei-meter>
+    <tanrei-meter value="0.9" status="success" label="Success"></tanrei-meter>
+    <tanrei-meter value="0.85" status="warning" label="Warning"></tanrei-meter>
+    <tanrei-meter value="0.98" status="error" label="Error"></tanrei-meter>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="Sizes, ends of the range and a custom range" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter size="small" value="0.62" label="Small"></tanrei-meter>
+    <tanrei-meter size="medium" value="0.62" label="Medium"></tanrei-meter>
+    <tanrei-meter size="large" value="0.62" label="Large"></tanrei-meter>
+    <tanrei-meter value="0" label="Empty"></tanrei-meter>
+    <tanrei-meter value="1" label="Full"></tanrei-meter>
+    <tanrei-meter value="37" max="50" value-text="37 of 50 seats" label="Seats taken"></tanrei-meter>
+  </div>
+  <tanrei-meter variant="circular" size="small" value="0.62" label="Small"></tanrei-meter>
+  <tanrei-meter variant="circular" size="medium" value="0.62" label="Medium"></tanrei-meter>
+  <tanrei-meter variant="circular" size="large" value="0.62" label="Large"></tanrei-meter>
+</DemoFrame>
+
+<DemoFrame label="Separation: divider (the default system's choice) and gap" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-meter separation="divider" value="0.62" label="Divider"></tanrei-meter>
+    <tanrei-meter separation="gap" value="0.62" label="Gap"></tanrei-meter>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="meter" />
+
+## Guidelines
+
+### When to use
+
+Use a meter to show where a quantity stands in a range that has a real minimum and maximum: storage used of a quota, a battery's charge, seats taken in a room, how strong a new password is. It shows a level; nothing is under way and nothing will finish.
+
+For a task that is running — an upload, an import, a long save — use a [progress indicator](/components/progress-indicator/) instead. It looks the same, but assistive technology tells people that something is in progress, and a meter must not. A value with no meaningful maximum, such as a count of messages, is neither: show it as text.
+
+### Choosing a variant
+
+| Variant | Use for |
+| --- | --- |
+| Linear | A level that belongs to a page or a section: storage on a settings page, a quota in a card, a row in a list of plans. The bar fills the width its layout gives it. |
+| Circular | Tight places and a level next to text: a battery in a status bar, a row of devices. The ring has a fixed size. |
+
+### Choosing a size
+
+| Size | Bar thickness / ring size in the default system | Use for |
+| --- | --- | --- |
+| Small | 2 / 16 | Dense rows, next to small text. |
+| Medium | 4 / 24 | Most places. The default. |
+| Large | 8 / 40 | The one level a view is about, such as the storage page of an account. |
+
+The sizes, the track and the default color are the progress indicator's, so a meter and a progress indicator side by side match. A design system can set the meter apart through its own tokens.
+
+### Choosing a status
+
+The meter does not decide what a value means. Whether more is better or worse is your product's knowledge: storage nearly full is a warning, a password nearly at full strength is a success. Compute the status yourself and pass it in. The statuses have the names the tag and the snackbar use.
+
+| Status | Use for |
+| --- | --- |
+| Default | A level that needs no comment. Most meters stay here. |
+| Info | A level worth knowing about that asks for nothing, such as a quota that renews soon. |
+| Success | A level that is where it should be, such as a strong password. |
+| Warning | A level that needs attention soon, such as storage almost full or a low battery. |
+| Error | A level that already stops something, such as storage that is full. |
+
+A status changes the color of the indicator and nothing else. Say what it means in words as well: in the value text, and in the text beside the meter.
+
+### Do
+
+- Give it a label that says what is measured: "Storage used", not "Meter". If a caption is shown next to it, use the same words.
+- Use a value text when a percentage is not the natural reading: "9.3 GB of 15 GB", "37 of 50 seats", "Strong".
+- When the status means something, put it in the value text too: "Almost full: 12.8 GB of 15 GB".
+
+### Don't
+
+- Don't use it for a task that is running. That is a progress indicator.
+- Don't rely on the color of a status alone. Someone who cannot see the color must still learn that the storage is almost full.
+- Don't show a value outside the range. The meter draws and exposes it clamped to the range, so the number a person hears would not be the one you have.
+
+## Accessibility
+
+<ComponentAccessibility name="meter" />
+
+### What the component handles
+
+- It exposes the meter role with the label as its name, the range, the current value (clamped to the range) and the value text when there is one. It never says that it is busy or that a task is in progress.
+- It is never focusable, and it does not announce its changes. Assistive technology reads the current value when the person reaches it.
+- A status is never announced on its own: it changes only the color.
+- A change of value moves the end of the indicator and a change of status fades its color. When reduced motion is requested, the end moves at once and only the color fades.
+- With forced colors, the track becomes a thin edge and the indicator is filled, both in the text color, whatever the status, so the value is still read where the indicator ends.
+- An empty label, a value outside the range, a value that is not a number and an unknown `size`, `variant`, `separation` or `status` are reported in debug builds.
+
+### What you need to do
+
+- Say what a status means in words: in the value text, and in the text beside the meter.
+- Announce a change that matters yourself, such as storage becoming full: a message in a live region or a notice the person will meet. The meter will not say it.
+- Keep every indicator color — the default and the four statuses — at least 3:1 against the track and against the surface behind it if you change them. The value is read where the indicator meets the track. The default system holds all five above 4.6:1 in light and 7.3:1 in dark.

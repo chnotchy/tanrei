@@ -1,0 +1,138 @@
+---
+title: Number ticker
+description: Shows a number that changes — a count, a price, a score, a figure on a dashboard — by moving each changed digit to its new value, so that a person sees that it changed, which way and roughly by how much, while assistive technology is told only the value it settles on.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="number-ticker" />
+
+<DemoFrame label="Figures that rise to their values when they come into view">
+  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+    <tanrei-number-ticker start-value="0" value="1234" label="Orders"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="0" value="98400" number-style="currency" currency="USD" fraction-digits="0" label="Revenue"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="0" value="0.426" number-style="percent" fraction-digits="1" label="Conversion"></tanrei-number-ticker>
+  </div>
+</DemoFrame>
+
+### Usage
+
+The Web and React samples show the current spec. SwiftUI, Compose, Flutter and React Native are planned: they do not ship a number ticker yet.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-number-ticker value="1234" label="Orders"></tanrei-number-ticker>
+    <tanrei-number-ticker value="98400" number-style="currency" currency="USD" label="Revenue"></tanrei-number-ticker>
+
+    <!-- A dashboard's figure rises from 0 the first time it comes into view. -->
+    <tanrei-number-ticker start-value="0" value="0.426" number-style="percent" fraction-digits="1"></tanrei-number-ticker>
+
+    <!-- A count the person changes: told once each change settles. -->
+    <tanrei-number-ticker value="2" live="polite" label="Items in cart"></tanrei-number-ticker>
+
+    <script type="module">
+      import '@tanrei/web/components/number-ticker';
+      const ticker = document.querySelector('tanrei-number-ticker');
+      ticker.value = orders.length;
+      ticker.addEventListener('settle', (event) => console.log('now showing', event.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { NumberTicker } from '@tanrei/react';
+
+    <NumberTicker value={orders.length} label="Orders" />
+    <NumberTicker value={revenue} numberStyle="currency" currency="USD" label="Revenue" />
+    <NumberTicker startValue={0} value={0.426} numberStyle="percent" fractionDigits={1} />
+    <NumberTicker value={count} live="polite" label="Items in cart" onSettle={(event) => setShown(event.detail.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Animations: slide (the default system's), blur, blur-slide and flip" plain>
+  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+    <tanrei-number-ticker start-value="1180" value="1234" animation="slide" label="Slide"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="1180" value="1234" animation="blur" label="Blur"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="1180" value="1234" animation="blur-slide" label="Blur slide"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="1180" value="1234" animation="flip" label="Flip"></tanrei-number-ticker>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="Trend: auto (19 to 20 moves both digits up) and digit (the ones go down from 9 to 0)" plain>
+  <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
+    <tanrei-number-ticker start-value="19" value="20" trend="auto" label="Auto"></tanrei-number-ticker>
+    <tanrei-number-ticker start-value="19" value="20" trend="digit" label="Digit"></tanrei-number-ticker>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="number-ticker" />
+
+## Guidelines
+
+### When to use
+
+Use a number ticker for a number that changes while a person looks at it, where the change itself is worth seeing: a count that goes up as orders arrive, a price that moves, a score, the figures of a dashboard that rise to their values when the page opens. The motion shows that the number changed, which way, and roughly by how much.
+
+A number that changes rarely, or that nobody watches change, is plain text. A level in a known range — storage used of a quota — is a [meter](/components/meter/). Times and dates are not numbers: write them with the platform's date and time formatting.
+
+### How the number is written
+
+The ticker has no words and no number rules of its own. The platform's number formatter writes it in the reader's language: the group and decimal separators, the currency symbol, the percent sign, the short form of a large number (1.2K, 1.2万), and the digits themselves (١٢٣٤ in Arabic as Egypt writes it). Choose a style (decimal, percent, currency or unit), a currency code or a unit, compact notation, a fixed number of fraction digits and when to write a sign; the ticker takes the language of where it stands unless you give one.
+
+It has no font, size or color either: it is drawn in the text style of where you place it, in figures of equal width so that the number does not shift as its digits change. It can be the large figure of a dashboard card or a count inside a sentence.
+
+### Choosing an animation
+
+| Animation | Use for |
+| --- | --- |
+| Slide | Most numbers. Each changed digit's column rolls to its new digit. The default system's choice. |
+| Blur | A quieter change: the old digit blurs out as the new one comes into focus. |
+| Blur slide | The same, with the digits moving a short way in the direction of the change. |
+| Flip | A split-flap board: departures, a countdown, a product whose look is mechanical. |
+| None | A number that must change at once. |
+
+Keep one animation across your product: set it once for the design system (`comp.number-ticker.animation`) rather than on each ticker.
+
+### Choosing a trend
+
+By default every changed digit moves the way the whole number moved: up when it grew, down when it shrank, so that 19 to 20 moves both digits up. That reads as one change of one number. Choose `digit` when each place means something by itself — each digit then moves by its own change, so the ones go down from 9 to 0. `up` and `down` force one way, for a number that only ever counts one way.
+
+### Do
+
+- Place it in text, or give its container the text style you want it in. It takes everything from there.
+- Give a label when nothing visible beside the number says what it is: "Revenue", "Orders".
+- Leave live off for figures that change on their own. Turn it on only for a number the person is waiting for or changing.
+- Use the start value on a dashboard so its figures rise once, the first time they are seen.
+
+### Don't
+
+- Don't color a rise green or a fall red through the ticker: it has no such colors. If a change means something, say it beside the number — a tag, a word, an arrow with a label.
+- Don't update a number many times a second. Each change takes the motion's duration; a stream of changes reads as noise. Update it at the pace a person can follow.
+- Don't use it for time. A clock's digits roll over at 59, not at 9.
+
+## Accessibility
+
+<ComponentAccessibility name="number-ticker" />
+
+### What the component handles
+
+- Assistive technology reads one text: the label, then the number as the formatter writes it. The drawn digits are hidden, so the number is never read digit by digit or as the digits passing through their windows.
+- By default nothing is announced: most figures are not the point of the moment. With live set to polite, the number is announced politely once each change has settled, never a value it passes through and never one a later change replaced.
+- When reduced motion is requested, the new number is there at once, the old one fading out briefly.
+- It takes the language and the direction of where it stands, and writes the number again at once when either changes.
+- An unknown animation, trend, style, notation, sign display or live value, a duration that is not positive, a currency or unit the formatter does not know and a value that is not a number are reported in debug builds.
+
+### What you need to do
+
+- If your product updates a number by itself again and again next to other content, give people a way to pause the updates or to choose how often they come (WCAG 2.2.2 Pause, Stop, Hide).
+- Say what a change means in words where it matters. The motion shows that it changed; it does not say whether that is good or bad.

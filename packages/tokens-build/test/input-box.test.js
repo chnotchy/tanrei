@@ -3,12 +3,14 @@
 // here, on the token sources as written:
 //
 //   the looks agree   a reader whose own group still declares looks, for parts of its own (a select's and a
-//                     combobox's options, a text input's grip), declares the box's looks, in the box's order and
+//                     combobox's options), declares the box's looks, in the box's order and
 //                     with the box's default — so that a layer that adds a look to the box is told to
 //                     add it there too, and no reader offers a look the box cannot be drawn in;
 //   the states        the box has no pressed state (no box is drawn pressed), and a reader with a list has it, for
 //                     its rows;
-//   the sizes         the box alone has a size axis: no reader declares one, so a size is a measure of the box.
+//   the sizes         the box alone has a size axis: no reader declares one, so a size is a measure of the box;
+//   the heights       a stacked box is as tall as a Button of the same size in the default system (an invariant), and
+//                     a preset keeps its own.
 //
 // That no reader's group repeats a name of the box is a rule of `validate` (packages/tools/src/checks.js,
 // `validateSharedSets`), tested with the tools.
@@ -16,7 +18,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
-import { CONFIG, REPO_ROOT } from '../src/model.js';
+import { checkInvariants } from '../src/invariants.js';
+import { CONFIG, REPO_ROOT, buildModel } from '../src/model.js';
 
 const BOX = 'input-box';
 const extension = (name) => `dev.${CONFIG.namespace}.${name}`;
@@ -42,9 +45,9 @@ test('the box names its readers, and each of them has a document', () => {
 
 test('a reader that declares looks for parts of its own declares the box\'s looks, in its order, with its default', () => {
   const declaring = readers.filter((reader) => groupOf(reader).$extensions[extension('states')]);
-  // The select's and the combobox's options and the text input's resize grip are colored per look; a number input's
-  // steppers and a color input's swatch are not.
-  assert.deepEqual(declaring, ['text-input', 'select', 'combobox']);
+  // The select's and the combobox's options are colored per look; a text input's resize handle is a Handle, drawn from
+  // its own tokens, and a number input's steppers and a color input's swatch are not.
+  assert.deepEqual(declaring, ['select', 'combobox']);
   assert.deepEqual(readers.flatMap((reader) => lookProblems(reader, groupOf(reader))), []);
 });
 
@@ -67,4 +70,32 @@ test('a size is a measure of the box: the box alone declares the size axis, with
   assert.equal(box.$extensions[extension('axes')].size.default, 'medium');
   for (const reader of readers) assert.equal(groupOf(reader).$extensions[extension('axes')]?.size, undefined, `comp.${reader} declares a size axis of its own`);
   for (const size of box.$extensions[extension('axes')].size.values) assert.ok(box.container.height[size], `the box has no height at ${size}`);
+});
+
+test('a stacked box is as tall as a Button of the same size; a box that floats its label keeps the taller height', async () => {
+  const model = await buildModel();
+  const px = (id) => model.tokens[`${CONFIG.namespace}.comp.${id}`].value.value;
+  for (const [size, height] of [['small', 32], ['medium', 40], ['large', 56]]) {
+    assert.equal(px(`${BOX}.stacked.container.height.${size}`), height, size);
+    assert.equal(px(`button.container.height.${size}`), height, size);
+  }
+  assert.deepEqual(['small', 'medium', 'large'].map((size) => px(`${BOX}.container.height.${size}`)), [40, 48, 56]);
+  // A line of the size's input text fits in the stacked height, with the stacked padding above and below it.
+  for (const size of ['small', 'medium', 'large']) {
+    const type = model.tokens[`${CONFIG.namespace}.comp.${BOX}.input.typescale.${size}`].value;
+    const line = type.lineHeight * type.fontSize.value;
+    assert.ok(2 * px(`${BOX}.stacked.container.padding-block.${size}`) + line <= px(`${BOX}.stacked.container.height.${size}`), `${size}: the padding and a line overflow the height`);
+  }
+});
+
+test('the invariant refuses a stacked height that is not the Button\'s, in the default system only', async () => {
+  const model = await buildModel();
+  const id = `${CONFIG.namespace}.comp.${BOX}.stacked.container.height.medium`;
+  const moved = { ...model, tokens: { ...model.tokens, [id]: { ...model.tokens[id], value: { value: 48, unit: 'px' } } } };
+  const about = (failures) => failures.filter((f) => f.includes('as tall as a Button of the same size'));
+  assert.deepEqual(about(checkInvariants(model)), []);
+  const failures = about(checkInvariants(moved));
+  assert.equal(failures.length, 1, failures.join('\n'));
+  assert.match(failures[0], /^comp\.input-box\.stacked\.container\.height\.medium: 48px, but .* comp\.button\.container\.height\.medium is 40px/);
+  assert.deepEqual(about(checkInvariants({ ...moved, system: 'm3-like' })), []);
 });

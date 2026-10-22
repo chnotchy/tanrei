@@ -1,0 +1,16 @@
+<!doctype html>
+<!-- <tanrei-carousel> in a comment is not markup -->
+<script type="module">
+  // import '@tanrei/web/all';
+  import '@tanrei/web';
+  import '@tanrei/web/components/segmented-button';
+</script>
+<style>
+  /* tanrei-fab-menu { } in a comment */
+  tanrei-segmented-button,
+  .card > tanrei-fab-menu::part(toggle) { margin: 0; }
+  tanrei-text-field::part(tanrei-fab-menu) { margin: 0; }
+</style>
+<tanrei-text-field variant=outlined label="Name"></tanrei-text-field>
+<tanrei-segmented-button label="Range"></tanrei-segmented-button>
+<tanrei-button variant="tonal">Save</tanrei-button>

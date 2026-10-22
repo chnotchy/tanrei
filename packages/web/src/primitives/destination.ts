@@ -12,6 +12,7 @@ import { rippleStyles } from './ripple.js';
 import { report } from './report.js';
 import { markConditionChange, conditionBlock } from './selection.js';
 import { stateRules } from './states.js';
+import { TanreiElement } from './element.js';
 
 /**
  * The destinations of a navigation region (a navigation bar, NVB-*; a navigation drawer, NVD-*): places a person goes
@@ -383,8 +384,8 @@ export function destinationStyles(
     cursor: default;
   }
 
-  /* The item container: comp.<name>.item.container.width × height with its corners, the icon centred in it. Its own
-     stacking context: the indicator, then the ripple, then the icon. */
+  /* The item container: its corners, the icon centred in it; its size is the component's (a bar's is the whole cell less
+     its inset). Its own stacking context: the indicator, then the ripple, then the icon. */
   .container {
     box-sizing: border-box;
     position: relative;
@@ -393,8 +394,6 @@ export function destinationStyles(
     flex: none;
     align-items: center;
     justify-content: center;
-    inline-size: ${t('item-container-width')};${shareWidth ? '\n    max-inline-size: 100%;' : ''}
-    block-size: ${t('item-container-height')};
     ${cornerRadius(`${prefix}-item-container-shape`)}
   }
   /* The active indicator and the state layer: the item container's color in the current condition and state. It grows
@@ -521,7 +520,7 @@ let ids = 0;
  * cell's layout in the region) and nothing else. The region tells it whether it is selected, its position and whether
  * its label is drawn; it fires `DESTINATION_UPDATE` when a prop the region reads changes.
  */
-export class NavigationDestination extends LitElement implements Destination {
+export class NavigationDestination extends TanreiElement implements Destination {
   static override shadowRootOptions: ShadowRootInit = { ...LitElement.shadowRootOptions, delegatesFocus: true };
 
   static override properties: PropertyDeclarations = {

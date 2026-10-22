@@ -2,7 +2,7 @@
 title: Lista
 description: Contiene un conjunto de elementos propios del producto (filas, mosaicos, tarjetas, archivos) en una columna, una fila o filas que se ajustan formando una cuadrícula. Las personas los leen, los abren uno a uno, eligen entre ellos o los arrastran a otro orden.
 translationOf: components/list.mdx
-sourceHash: a7c35532dba932b8eb282a4f36d7986db3c048ce
+sourceHash: 4fa8bead8fc1a1fecac07a97a78431a6c96183e9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -250,6 +250,20 @@ Una lista puede mezclar elementos estáticos, interactivos y de enlace. Una list
 
 Las teclas de flecha solo mueven el foco; la selección cambia cuando la persona pulsa Espacio o Intro, o toca el elemento. Una opción seleccionada se dibuja con el relleno de selección y una marca de verificación al final, y el espacio de la marca se reserva en todas las opciones, para que el contenido quede alineado.
 
+### Filas con glifo y sin él
+
+Cuando los elementos contienen [filas de lista](/es/components/list-row/) y solo algunas de esas filas tienen un glifo inicial (`leadingIcon`), `iconSpace` decide dónde empiezan su texto las demás:
+
+| iconSpace | Una fila sin glifo |
+| --- | --- |
+| `auto` (predeterminado) | Guarda el espacio del glifo, vacío, mientras otra fila de la lista dibuja un glifo, de modo que todos los titulares empiezan en una misma línea. En una lista en la que ninguna fila dibuja un glifo, los textos empiezan al inicio de la fila. |
+| `always` | Guarda el espacio en todas las filas, aunque ninguna dibuje un glifo. |
+| `never` | No guarda espacio: su texto empieza al inicio de la fila. |
+
+La lista decide por todas sus filas a la vez, en cualquier disposición y modo. Un avatar, una imagen o un control en la ranura `leading` de una fila no cuenta y no guarda espacio a su lado, porque su tamaño lo decides tú y cambia de una fila a otra. El [menú](/es/components/menu/), la [vista de árbol](/es/components/tree-view/) y el [panel de navegación](/es/components/navigation-drawer/) tienen el mismo `iconSpace`, con los mismos valores y el mismo valor predeterminado.
+
+`density` fija cuánto espacio ocupa un elemento: `regular` (el valor por defecto) o `compact`, para una herramienta que se usa con el ratón y en la que se recorren muchos elementos. En una lista compacta una acción, un enlace o una opción de texto simple mide 32 de alto, y cada [fila de lista](/es/components/list-row/) de un elemento se dibuja compacta sea cual sea su propio `density`, de modo que las filas de una lista tienen una sola densidad. Con el tacto un elemento nunca es más bajo que el objetivo táctil.
+
 ### Recomendado
 
 - Da a una lista seleccionable un `label` que diga qué son las opciones, y a una lista reordenable uno que diga qué son los elementos.
@@ -275,7 +289,7 @@ Las teclas de flecha solo mueven el foco; la selección cambia cuando la persona
 - Un elemento arrastrado sigue al puntero con el relleno y la sombra de arrastre; los demás se apartan con el movimiento de reordenación. Con movimiento reducido, todo salvo el elemento bajo el puntero se mueve al instante. En colores forzados, el elemento arrastrado se contornea con el color de resaltado.
 - Escape devuelve un elemento arrastrado y no cierra además el diálogo en que está la lista. Una pulsación larga sobre un elemento no abre ningún menú del navegador.
 - Un elemento interactivo, un enlace o una opción alcanza al menos el objetivo mínimo, su anillo de foco se dibuja por dentro y crece con el texto más grande.
-- Las compilaciones de depuración informan de un elemento sin nombre, una lista seleccionable o reordenable sin etiqueta, una opción con un valor vacío o repetido, una selección que no nombra ninguna opción, un control dentro de un elemento interactivo o una opción, una palabra que nadie dio y `reorderable` en una lista seleccionable.
+- Las compilaciones de depuración informan de un elemento sin nombre, una lista seleccionable o reordenable sin etiqueta, una opción con un valor vacío o repetido, una selección que no nombra ninguna opción, un control dentro de un elemento interactivo o una opción, una palabra que nadie dio, `reorderable` en una lista seleccionable y un `iconSpace` que la lista no define.
 
 Limitaciones conocidas de las plataformas:
 

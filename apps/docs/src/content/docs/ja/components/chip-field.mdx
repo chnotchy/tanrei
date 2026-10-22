@@ -2,7 +2,7 @@
 title: チップフィールド
 description: メールアドレス、電話番号、キーワードのような短いテキストを、1 つのフィールドに続けて入力してもらい、リストとして受け取ります。プロダクトのチェックが受け付けたテキストはチップになり、取り除くことも、入力部分に戻して直すこともできます。フィールドの値は、このリスト 1 つです。
 translationOf: components/chip-field.mdx
-sourceHash: 57a522628aedb8d06ff28bc67b67f0e5ab5b3ccd
+sourceHash: c40811ad47af7b7bc1c71ac68bdfe8da9010cbbf
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -137,7 +137,7 @@ Tanrei は、メールアドレスや電話番号が何であるかを知りま�
 ## 仕様
 
 <DemoFrame label="必須、読み取り専用、無効、Enter だけでエントリを作るキーワード" plain column>
-  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="宛先" type="email" requirement="required" required-text="必須" remove-label="{entry} を取り除く" value='["ada@example.com"]'></tanrei-chip-field>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="宛先" type="email" required required-text="必須" remove-label="{entry} を取り除く" value='["ada@example.com"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="宛先" type="email" readonly remove-label="{entry} を取り除く" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="宛先" type="email" disabled remove-label="{entry} を取り除く" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="著者" remove-label="{entry} を取り除く" supporting-text="名前を 1 件入力するごとに Enter を押してください。" value='["Lovelace, Ada","Hopper, Grace"]'></tanrei-chip-field>
@@ -147,12 +147,12 @@ Tanrei は、メールアドレスや電話番号が何であるかを知りま�
 
 | 観点 | フィールドから | テキスト入力欄から | チップフィールド自身 |
 | --- | --- | --- | --- |
-| プロパティ | `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`requirement`、`requiredMark`、`requiredText`、`optionalText` | `variant`、`size`、`type`、`placeholder`、`readOnly`、`autocomplete`、`inputValue`（テキスト入力欄の `value`） | `value`、`separators`、`maxEntries`、`invalidText`、`duplicateText`、`limitText`、`removeLabel`、`addedText`、`addedCountText`、`removedText` |
+| プロパティ | `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`required`、`optional`、`requiredMark`、`requiredText`、`optionalText` | `variant`、`size`、`type`、`placeholder`、`readOnly`、`autocomplete`、`inputValue`（テキスト入力欄の `value`） | `value`、`separators`、`maxEntries`、`invalidText`、`duplicateText`、`limitText`、`removeLabel`、`addedText`、`addedCountText`、`removedText` |
 | イベント | — | `input`、`action` | `change`、`check`、`reject` |
 | スロット | `label-icon` | — | — |
 | トークン | `comp.field.*` | ボックスは `comp.input-box.*`。エントリを置く場所は `comp.text-input.*` | なし。エントリは `comp.chip.*` を読みます |
 
-- **エントリは小さいチップ**です。ボックスのサイズがどちらでも変わりません。長いエントリは 1 行を占め、チップが省略記号で切ります。切っても、テキスト全体が名前であり、値です。
+- **エントリは小さいチップ**です。ボックスのサイズがどちらでも変わりません。長いエントリは 1 行を占め、チップが省略記号で切ります。切っても、テキスト全体が名前であり、値です。取り除くアクションは、チップの既定と同じ通常の見た目です。取り除いたエントリは、もう一度入力できます。
 - **プレースホルダー**は、リストが空の間だけ表示します。
 - **読み取り専用**では、エントリへ移って読むことができ、リストは送信されます。エントリを作ること、取り除くこと、入力部分に戻すことはできません。チップは取り除くアクションなしで描きます。フィールドはチップの最後の行で終わり、入力のための場所を残しません。無効なフィールドはその場所を残し、もう一度有効になったときに同じ形になるようにします。
 - **無効**では、フィールド、ボックス、すべてのチップが無効になり、何も送信しません。
@@ -174,7 +174,7 @@ Tanrei は、メールアドレスや電話番号が何であるかを知りま�
 
 - 要素のシャドウルートにあるのは、`<tanrei-text-input>` を入れた `<tanrei-field>` と、テキスト入力欄の `entries` スロットに入る、エントリごとの `<tanrei-chip>` です。要素をインポートすると、3 つとも定義されます。
 - `value` は配列のプロパティです。変えるときは、新しい配列を代入します。`value` 属性は、文字列の JSON 配列として 1 度だけ読み、フォームをリセットしたときに戻る値になります。`separators` も配列で、属性は JSON 配列です。
-- 要素はフォームに関連付けられます。`name` のもとに、エントリごとに 1 つの値を順番に送信します。リストが空の間と、フィールドが無効の間は、何も送信しません。入力中のテキストを送信することはありません。無効な `<fieldset>` に従い、ページを移動して戻ると復元されます。`requirement` が `required` でリストが空の間は、値がないことを報告します。
+- 要素はフォームに関連付けられます。`name` のもとに、エントリごとに 1 つの値を順番に送信します。リストが空の間と、フィールドが無効の間は、何も送信しません。入力中のテキストを送信することはありません。無効な `<fieldset>` に従い、ページを移動して戻ると復元されます。`required` が設定されていてリストが空の間は、値がないことを報告します。
 - `change`、`check`、`reject` は、この要素が発生させる CustomEvent です。`detail` はそれぞれ `{ value, added, removed }`、`{ text, values }`、`{ text, reason, message }` です。`check` はキャンセルでき、イベントが返った時点で答えを読みます。あとから出した答えは読みません。
 - `input` と `action` は、テキスト入力欄のイベントです。`action` が発生するのは、入力部分が空のときに Enter を押した場合だけで、続いてフォームの送信を求めます。テキストがあるときの Enter はエントリを作ります。このキーは、テキスト入力欄に届く前に止めるので、バブリングの段階で待つ `keydown` のリスナーには届きません。
 - パーツ: `field`、`text-input`、`chip` が構成要素です。フィールドとテキスト入力欄のパーツは、同じ名前のままです（`label`、`supporting-text`、`container`、`input`、`entries` など）。チップのパーツは `entry-container`、`entry-label`、`entry-remove` です。

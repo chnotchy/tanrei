@@ -2,7 +2,7 @@
 title: चेकबॉक्स ग्रुप
 description: ऐसा एक सवाल पूछता है जिसके, एक साथ दिखाए गए थोड़े-से विकल्पों में से, कई जवाब हो सकते हैं — एक लेबल के नीचे चेकबॉक्स का एक सेट, एक विवरण और एक त्रुटि के साथ, जो चेक किए गए मानों की लिस्ट एक नाम से रखता है और ऐसा चेकबॉक्स साथ ला सकता है जो उन सबको चेक कर देता है।
 translationOf: components/checkbox-group.mdx
-sourceHash: ea8d81d4935124793d854ad0c9c264e59b596578
+sourceHash: 320c2d0f75bef6bb336ea072b1aef4b74ee7cd0e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="checkbox-group" />
 
 <DemoFrame label="एक चेकबॉक्स ग्रुप, और एक जिसमें सबको चेक करने वाला चेकबॉक्स है" column>
-  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।" requirement="required" required-text="ज़रूरी">
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।" required required-text="ज़रूरी">
     <tanrei-checkbox value="email" label="ईमेल" checked></tanrei-checkbox>
     <tanrei-checkbox value="text" label="SMS"></tanrei-checkbox>
     <tanrei-checkbox value="push" label="पुश सूचना"></tanrei-checkbox>
@@ -48,7 +48,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <form>
       <tanrei-checkbox-group name="notify" label="सूचना कैसे भेजें"
         supporting-text="जो भी लागू हों, सभी चुनें।"
-        requirement="required" required-text="ज़रूरी"
+        required required-text="ज़रूरी"
         error-text="सूचना भेजने का कम से कम एक तरीक़ा चुनें।">
         <tanrei-checkbox value="email" label="ईमेल" checked></tanrei-checkbox>
         <tanrei-checkbox value="text" label="SMS"></tanrei-checkbox>
@@ -108,7 +108,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ```html
 <tanrei-field-group label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।"
-                    requirement="required" required-text="ज़रूरी">
+                    required required-text="ज़रूरी">
   <tanrei-checkbox name="notify" value="email" label="ईमेल" checked></tanrei-checkbox>
   <tanrei-checkbox name="notify" value="text" label="SMS"></tanrei-checkbox>
   <tanrei-checkbox name="notify" value="push" label="पुश सूचना"></tanrei-checkbox>
@@ -116,7 +116,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ```
 
 <DemoFrame label="वही सेट हाथ से लिखा हुआ: एक फ़ील्ड ग्रुप, जिसके भीतर चेकबॉक्स हैं" column>
-  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।" requirement="required" required-text="ज़रूरी">
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।" required required-text="ज़रूरी">
     <tanrei-checkbox name="notify" value="email" label="ईमेल" checked></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="text" label="SMS"></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="push" label="पुश सूचना"></tanrei-checkbox>
@@ -154,7 +154,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-checkbox value="m" label="M" checked></tanrei-checkbox>
     <tanrei-checkbox value="l" label="L"></tanrei-checkbox>
   </tanrei-checkbox-group>
-  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।" requirement="required" required-text="ज़रूरी" error error-text="इस नंबर पर SMS नहीं भेजे जा सकते। कोई दूसरा तरीक़ा चुनें, या नंबर बदलें।">
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।" required required-text="ज़रूरी" error error-text="इस नंबर पर SMS नहीं भेजे जा सकते। कोई दूसरा तरीक़ा चुनें, या नंबर बदलें।">
     <tanrei-checkbox value="email" label="ईमेल"></tanrei-checkbox>
     <tanrei-checkbox value="text" label="SMS" checked></tanrei-checkbox>
     <tanrei-checkbox value="push" label="पुश सूचना"></tanrei-checkbox>
@@ -174,7 +174,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 | पहलू | फ़ील्ड ग्रुप से | चेकबॉक्स से | ग्रुप का अपना |
 | --- | --- | --- | --- |
-| प्रॉपर्टी | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText`, `orientation` | हर चेकबॉक्स के `value`, `label` और `disabled`, चेकबॉक्स पर | `value`, `selectAllLabel` |
+| प्रॉपर्टी | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `required`, `optional`, `requiredMark`, `requiredText`, `optionalText`, `orientation` | हर चेकबॉक्स के `value`, `label` और `disabled`, चेकबॉक्स पर | `value`, `selectAllLabel` |
 | इवेंट | — | कोई नहीं: ग्रुप के भीतर का चेकबॉक्स अपना कुछ फ़ायर नहीं करता | `change` |
 | टोकन | `comp.field-group.*` | `comp.checkbox.*` | कोई नहीं |
 
@@ -201,7 +201,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - एलिमेंट के शैडो रूट में एक `<tanrei-field-group>` रहता है, जिसके भीतर सबको चेक करने वाला चेकबॉक्स है, जब तक `select-all-label` दिया गया है, और एक स्लॉट। चेकबॉक्स आपके अपने चाइल्ड रहते हैं। एलिमेंट को इंपोर्ट करने से दोनों सदस्य डिफ़ाइन हो जाते हैं।
 - `value` सिर्फ़ प्रॉपर्टी है: एक ऐरे, जो भीतर आते और बाहर जाते समय कॉपी होता है। `value` ऐट्रिब्यूट नहीं है, क्योंकि ऐट्रिब्यूट में लिस्ट को ऐसा सेपरेटर चाहिए जो किसी मान में भी हो सकता है, और HTML के पास इसका रूप पहले से है: हर चाइल्ड पर `checked`।
 - जिस चेकबॉक्स पर न `value` ऐट्रिब्यूट है और न कोई मान सेट है, उसका कोई मान नहीं है: अकेला चेकबॉक्स जो "on" सबमिट करता है, वह ग्रुप में नहीं पढ़ा जाता। वह चेक नहीं किया हुआ दिखाया जाता है, और डीबग बिल्ड उसकी रिपोर्ट करता है।
-- यह फ़ॉर्म से जुड़ा एलिमेंट है। वह `name` और `form` लेता है, और हर मान के लिए `name` से एक एंट्री सबमिट करता है, वही जो एक ही नाम के नेटिव चेकबॉक्स सबमिट करते हैं। उसके चेकबॉक्स कुछ सबमिट नहीं करते, उन पर चाहे जो `name` हो। रीसेट होने पर वह अपने पहले मान पर लौटता है, अक्षम `<fieldset>` के साथ अक्षम होता है, और जब तक `requirement` का मान `required` है और लिस्ट ख़ाली है, फ़ॉर्म को बताता है कि मान नहीं है। संदेश `error-text` है, वह न हो तो ज़रूरी का टेक्स्ट, वह भी न हो तो `label`: `error-text` शुरू से दें, सिर्फ़ तब नहीं जब `error` सेट हो।
+- यह फ़ॉर्म से जुड़ा एलिमेंट है। वह `name` और `form` लेता है, और हर मान के लिए `name` से एक एंट्री सबमिट करता है, वही जो एक ही नाम के नेटिव चेकबॉक्स सबमिट करते हैं। उसके चेकबॉक्स कुछ सबमिट नहीं करते, उन पर चाहे जो `name` हो। रीसेट होने पर वह अपने पहले मान पर लौटता है, अक्षम `<fieldset>` के साथ अक्षम होता है, और जब तक `required` सेट है और लिस्ट ख़ाली है, फ़ॉर्म को बताता है कि मान नहीं है। संदेश `error-text` है, वह न हो तो ज़रूरी का टेक्स्ट, वह भी न हो तो `label`: `error-text` शुरू से दें, सिर्फ़ तब नहीं जब `error` सेट हो।
 - `change` एक CustomEvent है, जिसका `detail.value` लिस्ट की एक कॉपी है; उससे पहले `input` फ़ायर होता है। ग्रुप के भीतर के किसी चेकबॉक्स पर लगा लिसनर दोनों में से कोई नहीं सुनता।
 - भाग: `field-group` फ़्रेम है, और उसके भागों के नाम यहाँ वही हैं जो एक स्तर नीचे हैं: `label`, `requirement-label`, `supporting-text`, `error-text`। `select-all` सबको चेक करने वाला चेकबॉक्स है, और उसके भाग `select-all-container`, `select-all-box`, `select-all-mark` और `select-all-label` हैं। आपके अपने चेकबॉक्स को स्टाइल वैसे ही दिया जाता है जैसे कहीं भी, `tanrei-checkbox::part(…)` से।
 - एलिमेंट पर ख़ुद फ़ोकस नहीं जा सकता। `focus()` पहले सक्षम चेकबॉक्स पर जाता है, और पेज का अपना `<label for>` फ़ोकस वहीं ले जाता है।

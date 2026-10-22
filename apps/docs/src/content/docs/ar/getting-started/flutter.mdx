@@ -2,15 +2,15 @@
 title: Flutter
 description: أضف Tanrei إلى تطبيق Flutter.
 translationOf: getting-started/flutter.mdx
-sourceHash: 6acea5bb31fd86ae29f31dcab38bc245008b152b
+sourceHash: c647a8ce01e41a5d752e397bd42075b18baede2c
 ---
 
 import Callout from '../../../../components/Callout.astro';
-import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 الحزمة `tanrei` مكتوبة بلغة Dart وحدها. توفّر عناصر واجهة (widgets) و `TanreiTheme` موروثًا وثوابت رموز (tokens) مولَّدة، ولا تعتمد على `MaterialApp` ولا على `CupertinoApp`؛ فهي تعمل داخل أيٍّ منهما، أو داخل `WidgetsApp` مجرّد.
 
-<PreReleaseNotice registry="pub.dev" pkg="tanrei" />
+<ReleaseNotice platform="flutter" registry="pub.dev" pkg="tanrei" />
 
 ## التثبيت
 
@@ -28,7 +28,7 @@ flutter pub add "tanrei:{path: ../tanrei/packages/flutter}"
 
 والأمر `flutter pub add "tanrei:{git: {url: https://github.com/chnotchy/tanrei, path: packages/flutter}}"` يتبع المستودع بدلًا من نسخة محلية مستنسخة.
 
-### بعد الإصدار الأول
+### بعد نشرها
 
 ```sh
 flutter pub add tanrei
