@@ -21,7 +21,7 @@ declare module '../vocabulary' {
 
 export const cupertino = {
   id: "cupertino",
-  dials: { motionUnit: 50, shapeUnit: 2, sizeUnit: 4, spaceUnit: 8, strokeUnit: 1, typeBase: 16, typeContrast: 1 },
+  dials: { density: 1, motionUnit: 50, shapeUnit: 2, sizeUnit: 4, spaceUnit: 8, strokeUnit: 1, typeBase: 16, typeContrast: 1 },
   intents: ["error", "info", "primary", "secondary", "success", "warning"],
   colors: {
     light: {
@@ -595,7 +595,7 @@ export const cupertino = {
     breakpoint: { expanded: 1024, medium: 600 },
     focus: { innerWidth: 0, offset: 1, outerWidth: 3 },
     icon: { extraSmall: 16, large: 32, medium: 24, small: 20 },
-    target: { pointer: 44, spacing: 8, touch: 48 },
+    target: { minimum: 28, pointer: 44, spacing: 8, touch: 48 },
   },
   typefaces: {
     brand: {

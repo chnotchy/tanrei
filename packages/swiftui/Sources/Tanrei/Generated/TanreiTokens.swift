@@ -571,6 +571,7 @@ public struct TanreiMeasure: Sendable, Equatable {
   public var iconLarge: CGFloat
   public var iconMedium: CGFloat
   public var iconSmall: CGFloat
+  public var targetMinimum: CGFloat
   public var targetPointer: CGFloat
   public var targetSpacing: CGFloat
   public var targetTouch: CGFloat
@@ -589,6 +590,7 @@ public struct TanreiMeasure: Sendable, Equatable {
     iconLarge: CGFloat,
     iconMedium: CGFloat,
     iconSmall: CGFloat,
+    targetMinimum: CGFloat,
     targetPointer: CGFloat,
     targetSpacing: CGFloat,
     targetTouch: CGFloat,
@@ -605,6 +607,7 @@ public struct TanreiMeasure: Sendable, Equatable {
     self.iconLarge = iconLarge
     self.iconMedium = iconMedium
     self.iconSmall = iconSmall
+    self.targetMinimum = targetMinimum
     self.targetPointer = targetPointer
     self.targetSpacing = targetSpacing
     self.targetTouch = targetTouch
@@ -625,6 +628,7 @@ public struct TanreiMeasure: Sendable, Equatable {
     case "icon-large": return iconLarge
     case "icon-medium": return iconMedium
     case "icon-small": return iconSmall
+    case "target-minimum": return targetMinimum
     case "target-pointer": return targetPointer
     case "target-spacing": return targetSpacing
     case "target-touch": return targetTouch

@@ -196,10 +196,34 @@
             "$type": "dimension",
             "$description": "Space above and below a cell's content, per density. A row is as tall as its tallest cell: this padding twice and the lines of that cell's text. The table has no row height of its own.",
             "regular": {
-              "$value": "{tanrei.sys.space.space150}"
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.sys.space.space150}",
+                  "by": 1,
+                  "times": "{tanrei.dial.density}",
+                  "round": "{tanrei.sys.space.space25}"
+                }
+              }
             },
             "compact": {
-              "$value": "{tanrei.sys.space.space75}"
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.sys.space.space75}",
+                  "by": 1,
+                  "times": "{tanrei.dial.density}",
+                  "round": "{tanrei.sys.space.space25}"
+                }
+              }
             }
           },
           "padding-inline": {

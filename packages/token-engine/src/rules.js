@@ -5,11 +5,12 @@
 //                                                        min is a floor applied after rounding, absent = none)
 //   scale  { base: "{id}", ratio: n, step: n }       → base × ratio^step
 //   clamp  { of: "{id}", min: n, max: n }
-//   pad    { of: "{id}", height: "{id}" }            → max(0, of + (height − height₁) / 2), on 0.25px: the block padding
-//                                                       of a box whose height follows a density — it gives up half of
-//                                                       what the height lost and takes half of what it gained, so the
-//                                                       box stays 2 × padding + one line. height₁ is the height with
-//                                                       every `times` read as 1 and no `min` (`unscaledLookup`)
+//   pad    { of: "{id}", height: "{id}", by?: n }    → max(0, of × by + (height − height₁) / 2), on 0.25px: the block
+//                                                       padding of a box whose height follows a density — it gives up
+//                                                       half of what the height lost and takes half of what it gained,
+//                                                       so the box stays 2 × padding + one line. height₁ is the height
+//                                                       with every `times` read as 1 and no `min` (`unscaledLookup`);
+//                                                       by (absent = 1) is what a layer's `scale` multiplies
 //   sub    { of: "{id}", by: "{id}" }                → max(0, of − by), in of's unit: an inner corner inside an outer
 //                                                       one at an inset (the concentric radius); never below zero
 //   em     { by: n }                                  → this token's fontSize × by   (typography.letterSpacing only)
@@ -53,7 +54,7 @@ export function roundToStep(value, step) {
 export function ruleDependencies(rule) {
   if (!rule || typeof rule !== 'object' || 'fixed' in rule) return [];
   if (!('fn' in rule)) return Object.values(rule).flatMap(ruleDependencies); // composite: keyed by sub-field
-  // numeric: of, base, exp · mul { times, round, min } · pad { of, height } · sub { of, by } · pick { by, values{} } · color: mix { base, with, amount }, alpha { of, amount }, contrast-pick { on, from[] }
+  // numeric: of, base, exp · mul { times, round, min } · pad { of, height } (its by is a number) · sub { of, by } · pick { by, values{} } · color: mix { base, with, amount }, alpha { of, amount }, contrast-pick { on, from[] }
   const picked = rule.fn === 'pick' && rule.values && typeof rule.values === 'object' ? Object.values(rule.values) : [];
   return [rule.of, rule.base, rule.exp, rule.by, rule.times, rule.round, rule.min, rule.height, rule.with, rule.amount, rule.on, ...(Array.isArray(rule.from) ? rule.from : []), ...picked].filter(isRef).map(refId);
 }
@@ -111,12 +112,14 @@ export function evaluateNumeric(rule, lookup, ctx) {
     case 'pad': {
       if (!isRef(rule.of) || !isRef(rule.height)) throw new Error('"pad" needs "of" and "height", each a token as "{id}"');
       const of = lookup(refId(rule.of));
+      if (rule.by !== undefined && !(typeof rule.by === 'number' && rule.by >= 0)) throw new Error(`"pad" by must be a number of zero or more; it is ${JSON.stringify(rule.by)}`);
+      const base = rule.by === undefined ? of.value : roundTo(of.value * rule.by, ROUND[ctx.type] ?? ROUND.number);
       // Where no height has moved, nothing has been given up or taken.
-      if (ctx.unscaling) return { value: of.value, unit: of.unit };
+      if (ctx.unscaling) return { value: base, unit: of.unit };
       if (typeof ctx.unscaled !== 'function') throw new Error('"pad" needs the height its rule gives with "times" at 1 and no "min" (ctx.unscaled; see unscaledLookup)');
       const [height, height1] = [lookup(refId(rule.height)), ctx.unscaled(refId(rule.height))];
       sameUnit('pad', 'height', rule, height, of);
-      return { value: Math.max(0, roundTo(of.value + (height.value - height1.value) / 2, ROUND[ctx.type] ?? ROUND.number)), unit: of.unit };
+      return { value: Math.max(0, roundTo(base + (height.value - height1.value) / 2, ROUND[ctx.type] ?? ROUND.number)), unit: of.unit };
     }
     case 'scale': {
       const base = lookup(refId(rule.base));

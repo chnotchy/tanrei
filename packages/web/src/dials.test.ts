@@ -24,6 +24,11 @@ const DIAL_SETS: Record<string, Record<string, [number, string]>> = {
   larger: { 'type.base': [18, 'px'], 'space.unit': [10, 'px'], 'size.unit': [5, 'px'] },
   'dense and sharp': { 'type.base': [14, 'px'], 'space.unit': [6, 'px'], 'shape.unit': [1, 'px'], 'motion.unit': [35, 'ms'] },
   'strong hierarchy': { 'type.contrast': [1.2, ''], 'shape.unit': [3.5, 'px'], 'stroke.unit': [1.5, 'px'] },
+  // The density moves heights on the size unit's grid, never below the minimum target, and the paddings with them.
+  // 0.95 puts many heights on a tie of the 4px grid (4 × 10 × 0.95 = 38), which every engine rounds upward.
+  denser: { density: [0.95, ''] },
+  dense: { density: [0.85, ''] },
+  'roomier, on another grid': { density: [1.3, ''], 'size.unit': [4.5, 'px'] },
 };
 
 for (const [label, dials] of Object.entries(DIAL_SETS)) {

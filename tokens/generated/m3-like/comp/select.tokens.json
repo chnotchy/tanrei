@@ -215,7 +215,17 @@
             "$type": "dimension",
             "$description": "Padding above and below an option's content.",
             "regular": {
-              "$value": "{tanrei.sys.space.space100}"
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space100}",
+                  "height": "{tanrei.comp.select.option.height.regular}"
+                }
+              }
             },
             "compact": {
               "$value": "{tanrei.comp.menu.container.padding-block.compact}"

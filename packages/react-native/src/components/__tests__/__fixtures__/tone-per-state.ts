@@ -21,7 +21,7 @@ declare module '@tanrei/react-native' {
 
 export const tonePerState = {
   id: "tone-per-state",
-  dials: { motionUnit: 50, shapeUnit: 2, sizeUnit: 4, spaceUnit: 8, strokeUnit: 1, typeBase: 16, typeContrast: 1 },
+  dials: { density: 1, motionUnit: 50, shapeUnit: 2, sizeUnit: 4, spaceUnit: 8, strokeUnit: 1, typeBase: 16, typeContrast: 1 },
   intents: ["accent", "brand", "error", "info", "primary", "secondary", "success", "warning"],
   colors: {
     light: {
@@ -604,7 +604,7 @@ export const tonePerState = {
     breakpoint: { expanded: 1024, medium: 600 },
     focus: { innerWidth: 0, offset: 2, outerWidth: 2 },
     icon: { extraSmall: 16, large: 32, medium: 24, small: 20 },
-    target: { pointer: 44, spacing: 8, touch: 48 },
+    target: { minimum: 32, pointer: 44, spacing: 8, touch: 48 },
   },
   typefaces: {
     brand: {

@@ -126,6 +126,24 @@ studioTest('the editor’s fields are Tanrei’s: a number is pinned, an alias r
   assert.equal(await page.locator('[data-search]').evaluate((el) => el.value), '');
 });
 
+studioTest('a mul rule keeps its density, its step and its floor: the editor shows them, and an edit writes them back', {}, async ({ page, level, saved, onDisk }) => {
+  const ROW = 'tanrei.comp.tree-view.container.height.compact';
+  await level('tokens');
+  await find(page, ROW);
+  await row(page, ROW).click();
+  const pane = editor(page, ROW);
+  // The summary says the rule in the order the engine applies it.
+  assert.match(await page.locator('[data-token-pane] [data-facts]').textContent(), /= max\(sys\.target\.minimum, round\(dial\.size\.unit × 8 × dial\.density, dial\.size\.unit\)\)/);
+  await pane.locator('[data-tab="derive"]').click();
+  for (const [term, id] of [['times', 'tanrei.dial.density'], ['round', 'tanrei.dial.size.unit'], ['min', 'tanrei.sys.target.minimum']]) {
+    assert.equal(await pane.locator(`[data-term="${term}"]`).evaluate((el) => el.value), id, `${term} is shown as written`);
+  }
+  await pane.locator('tanrei-number-field input').fill('9');
+  await page.keyboard.press('Tab');
+  await saved((layer) => layer.tokens?.[ROW]?.derive?.by === 9, 'the edited rule');
+  assert.deepEqual(onDisk().tokens[ROW].derive, { fn: 'mul', of: '{tanrei.dial.size.unit}', by: 9, times: '{tanrei.dial.density}', round: '{tanrei.dial.size.unit}', min: '{tanrei.sys.target.minimum}' }, 'the terms are kept, not dropped');
+});
+
 studioTest('a color is shown as it is typed and saved when it is committed; a half-typed color is never reported invalid', {}, async ({ page, level, saved, onDisk }) => {
   await level('tokens');
   await find(page, COLOR);

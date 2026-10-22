@@ -141,7 +141,22 @@ function scaleNode(node, factor, id, type) {
     ext[DERIVE] = { fn: 'mul', of: node.$value, by: factor };
     node.$value = null; // computed by resolveNumericTokens
   } else if (ext[DERIVE]?.fn === 'mul') ext[DERIVE] = { ...ext[DERIVE], by: ext[DERIVE].by * factor };
+  // A padding that follows its box's height: the padding scales, and still gives up or takes half of what its box does.
+  else if (ext[DERIVE]?.fn === 'pad') ext[DERIVE] = { ...ext[DERIVE], by: (ext[DERIVE].by ?? 1) * factor };
   else throw new SystemError(`${id}: cannot scale a fixed value — give this member a value under "tokens"`);
+}
+
+/**
+ * A cloned member's `pad` measures the height of its own size: a padding cloned from `large` that read
+ * `<component>.container.height.large` reads `<component>.container.height.<value>`, the height cloned beside it.
+ */
+function repointPad(node, componentPath, members, from, value) {
+  const rule = node.$extensions?.[DERIVE];
+  if (rule?.fn !== 'pad' || !isRef(rule.height)) return;
+  const prefix = `${componentPath.join('.')}.`;
+  const height = rule.height.slice(1, -1);
+  const member = members.find((m) => height === `${prefix}${m}.${from}`);
+  if (member) node.$extensions[DERIVE] = { ...rule, height: `{${prefix}${member}.${value}}` };
 }
 
 /** Every token under `node`, with its path relative to it and its inherited `$type`. */
@@ -191,6 +206,7 @@ function addAxisValue(docs, id, decl) {
       if (!group || !isToken(group[decl.from])) throw new SystemError(`${id}: axis member "${member}" has no "${decl.from}"`);
       const copy = clone(group[decl.from]);
       const factor = typeof decl.scale === 'object' ? decl.scale[member] : decl.scale;
+      repointPad(copy, componentPath, declared.members, decl.from, value);
       scaleNode(copy, factor, `${componentPath.join('.')}.${member}.${value}`, copy.$type ?? group.$type);
       stamp(copy, decl);
       group[value] = copy;

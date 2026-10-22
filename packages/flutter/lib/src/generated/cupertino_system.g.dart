@@ -455,6 +455,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     iconLarge: 32.0,
     iconMedium: 24.0,
     iconSmall: 20.0,
+    targetMinimum: 28.0,
     targetPointer: 44.0,
     targetSpacing: 8.0,
     targetTouch: 48.0,

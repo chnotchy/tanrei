@@ -10,7 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { CONFIG } from './config.js';
-import { COMPONENTS_HELD_IN_EVERY_SCHEME } from './invariants.js';
+import { COMPONENTS_HELD_IN_EVERY_SCHEME, targetFloors } from './invariants.js';
 import { TokenReadError, readBundle } from './reader.js';
 import { SCHEMES } from './scheme.js';
 
@@ -210,6 +210,25 @@ export async function buildModelFromBundle(files, systemId = NS, resolver, { col
   return modelFrom(resolver ?? readBundle(files, systemId), systemId, componentDeclarations(null, systemId, (name) => files[name]), colorsFrom);
 }
 
+/**
+ * The heights the core vocabulary floors at sys.target.minimum (`targetFloors`), read once from Tanrei's own component
+ * documents — those in tokens/comp/ and those its layers hold — whatever system a model is of: a layer that replaces
+ * such a height's rule is still held to the floor by the target-floor check.
+ */
+let floors;
+export function coreTargetFloors() {
+  if (floors) return floors;
+  const documents = [];
+  const read = (dir) => {
+    if (!fs.existsSync(dir)) return;
+    for (const name of fs.readdirSync(dir)) if (name.endsWith('.tokens.json')) documents.push(JSON.parse(fs.readFileSync(path.join(dir, name), 'utf8')));
+  };
+  read(path.join(TOKENS_DIR, 'comp'));
+  const systems = path.join(TOKENS_DIR, 'systems');
+  if (fs.existsSync(systems)) for (const entry of fs.readdirSync(systems, { withFileTypes: true })) if (entry.isDirectory()) read(path.join(systems, entry.name, 'comp'));
+  return (floors = targetFloors(documents));
+}
+
 function modelFrom(resolver, systemId, components, colorsFrom) {
   const base = resolver.apply({ scheme: 'light' });
   if (colorsFrom) return partialModel(base, systemId, components, colorsFrom.colors);
@@ -230,7 +249,7 @@ function modelFrom(resolver, systemId, components, colorsFrom) {
     }
   }
   assertEveryRole(colors);
-  return { system: systemId, schemes: SCHEMES, tokens, colors, componentColors, components };
+  return { system: systemId, schemes: SCHEMES, tokens, colors, componentColors, components, floored: coreTargetFloors() };
 }
 
 const SYS_COLOR = `${NS}.sys.color.`;
@@ -262,7 +281,7 @@ function assertEveryRole(colors) {
 function partialModel(base, systemId, components, colors, otherSchemes = {}) {
   const tokens = simplifyAll(base);
   const light = Object.fromEntries(Object.entries(tokens).filter(([id, t]) => id.startsWith(COMP) && t.type === 'color'));
-  return { system: systemId, schemes: SCHEMES, tokens, colors, componentColors: { ...otherSchemes, light }, components, partial: true };
+  return { system: systemId, schemes: SCHEMES, tokens, colors, componentColors: { ...otherSchemes, light }, components, partial: true, floored: coreTargetFloors() };
 }
 
 // ── What the invariants read ─────────────────────────────────────────────

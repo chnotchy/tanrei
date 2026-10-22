@@ -3941,7 +3941,7 @@
               "value": 8,
               "unit": "px"
             },
-            "$description": "Space between the visible bounds of two items of a standard group, side by side or one above the other. Neighbouring hit areas meet at the middle of it (BGR-4), so it is what keeps each item's target whole: at sys.target.touch minus an item's width (in a row) or height (in a column) or more, the item keeps its full target between neighbours. The default system's 16 is 48 minus its narrowest and lowest item (a small icon-only Button, 32)."
+            "$description": "Space between the visible bounds of two items of a standard group, side by side or one above the other. Neighbouring hit areas meet at the middle of it (BGR-4), so it is what keeps each item's target whole: it is the room a neighbour's target needs beyond what the narrowest and lowest item draws — sys.target.touch less a small icon-only Button's side, never below zero. 48 − 32 = 16 in the default system."
           }
         }
       },
@@ -73598,7 +73598,7 @@
               "value": 8,
               "unit": "px"
             },
-            "$description": "Between the bar's elements (glyph or leading button, input, the first action button) and the full-screen header's (back button, input, clear button). Neighbouring hit areas meet at the middle of it (SRC-25), so it is what keeps an icon button's target whole on the side where it meets the input: at sys.target.touch minus a button's width or more, the button keeps its full target there. The default system's 16 is 48 minus the narrowest button there (the bar's small clear button, 32). The action buttons stand button-gap from one another instead."
+            "$description": "Between the bar's elements (glyph or leading button, input, the first action button) and the full-screen header's (back button, input, clear button). Neighbouring hit areas meet at the middle of it (SRC-25), so it is what keeps an icon button's target whole on the side where it meets the input: at sys.target.touch minus a button's width or more, the button keeps its full target there. So it is derived as sys.target.touch less the narrowest button there (the bar's small clear button), never below zero: 48 − 32 = 16 in the default system. The action buttons stand button-gap from one another instead."
           },
           "height": {
             "$type": "dimension",
@@ -99973,6 +99973,10 @@
       }
     },
     "dial": {
+      "density": {
+        "$type": "number",
+        "$value": 1
+      },
       "motion": {
         "unit": {
           "$type": "duration",
@@ -104713,6 +104717,45 @@
           "$description": "Something needs attention before it becomes an error: caution banners, risky choices."
         }
       },
+      "control": {
+        "height": {
+          "extra-large": {
+            "$type": "dimension",
+            "$value": {
+              "value": 72,
+              "unit": "px"
+            }
+          },
+          "extra-small": {
+            "$type": "dimension",
+            "$value": {
+              "value": 24,
+              "unit": "px"
+            }
+          },
+          "large": {
+            "$type": "dimension",
+            "$value": {
+              "value": 56,
+              "unit": "px"
+            }
+          },
+          "medium": {
+            "$type": "dimension",
+            "$value": {
+              "value": 40,
+              "unit": "px"
+            }
+          },
+          "small": {
+            "$type": "dimension",
+            "$value": {
+              "value": 32,
+              "unit": "px"
+            }
+          }
+        }
+      },
       "elevation": {
         "level0": {
           "$type": "shadow",
@@ -106193,6 +106236,14 @@
         }
       },
       "target": {
+        "minimum": {
+          "$type": "dimension",
+          "$value": {
+            "value": 32,
+            "unit": "px"
+          },
+          "$description": "The least height — and, for an icon-only control, width — at which anything a person presses is drawn."
+        },
         "pointer": {
           "$type": "dimension",
           "$value": {

@@ -46,15 +46,18 @@ function shadow(token) {
 // A `mul` with `times`, `round` and `min` is `max(min, round(nearest, calc(of * by * times), round))`, the engine's
 // order: rounded to the step, ties upward, then floored. A `pad` is `max(0px, round(nearest, calc(of + (height -
 // height₁) / 2), 0.25px))`, where height₁ is the height's own expression with every `times` read as 1 and no `min`
-// (`unscaledExpression`), so a padding follows a density, a floor or a size unit set at runtime with its box.
+// (`unscaledExpression`), so a padding follows a density, a floor or a size unit set at runtime with its box; with a
+// `by` (a padding a layer scaled), `of` is `of × by` on the 0.25px step.
 const zeroOf = (type) => (type === 'number' ? '0' : type === 'duration' ? '0ms' : '0px');
 const refOf = (v) => ref(v.slice(1, -1));
 function derivedExpression(rule, type, tokens, { read = refOf, unscaling = false } = {}) {
   if (rule?.fn === 'sub') return `max(${zeroOf(type)}, calc(${read(rule.of)} - ${read(rule.by)}))`;
   if (rule?.fn === 'pad') {
-    if (unscaling) return read(rule.of);
+    // The padding before its box moved: `of`, or `of × by` on the engine's 0.25px step.
+    const of = rule.by === undefined || rule.by === 1 ? read(rule.of) : `round(nearest, calc(${read(rule.of)} * ${rule.by}), 0.25px)`;
+    if (unscaling) return of;
     if (!tokens) throw new Error(`css: a "pad" rule is written over the height's own expression, and no tokens were given to read it from (${rule.height})`);
-    return `max(${zeroOf(type)}, round(nearest, calc(${read(rule.of)} + (${read(rule.height)} - ${unscaledExpression(rule.height.slice(1, -1), tokens)}) / 2), 0.25px))`;
+    return `max(${zeroOf(type)}, round(nearest, calc(${of} + (${read(rule.height)} - ${unscaledExpression(rule.height.slice(1, -1), tokens)}) / 2), 0.25px))`;
   }
   if (!rule || rule.fn !== 'mul') return null;
   const of = read(rule.of);
@@ -64,7 +67,12 @@ function derivedExpression(rule, type, tokens, { read = refOf, unscaling = false
   if (rule.by === 1 && rule.exp === undefined && !times && rule.round === undefined) return floored(of);
   const exponent = typeof rule.exp === 'string' ? read(rule.exp) : rule.exp;
   const coefficient = rule.exp === undefined ? String(rule.by) : `pow(${rule.by}, ${exponent})`;
-  const product = `calc(${[of, ...(rule.by === 1 && rule.exp === undefined ? [] : [coefficient]), ...(times ? [times] : [])].join(' * ')})`;
+  // A density is a decimal no engine holds exactly — 0.95 is 0.9499999… in the 32-bit floats Firefox computes lengths
+  // in — so a product that is a tie in decimal arithmetic (4 × 10 × 0.95 = 38, half way between 36 and 40) can land a
+  // hair under it and round down where the engine, which rounds the decimal value, rounds up. A ten-thousandth of the
+  // unit lifts it over the tie in every engine, and moves nothing else: a product off a tie is further than that from one.
+  const tie = times && (rule.round !== undefined || type !== 'number') ? [type === 'duration' ? '0.0001ms' : type === 'number' ? '0.0001' : '0.0001px'] : [];
+  const product = `calc(${[[of, ...(rule.by === 1 && rule.exp === undefined ? [] : [coefficient]), ...(times ? [times] : [])].join(' * '), ...tie].join(' + ')})`;
   if (rule.round !== undefined) return floored(`round(nearest, ${product}, ${read(rule.round)})`);
   if (type === 'number') return floored(product);
   return floored(`round(nearest, ${product}, ${type === 'duration' ? '1ms' : '0.25px'})`);
@@ -173,17 +181,28 @@ export function declarations(token, tokens) {
 // comp token whose alias chain reaches `sys.shape.corner.*` gets a companion `<name>-pill` — 1 when the chain passes
 // through `corner.full`, else 0 — which the web's one corner rule reads to draw that box round whatever the smoothing.
 // A corner derived by `sub` (one inside another, less the inset) is not the full step, and neither is a token that
-// aliases one: 0.
+// aliases one: 0. A `sub` that is no corner — a gap, the room a target needs beyond what a control draws — has no
+// companion: only a `sub` whose operand is a shape (a corner inside another) is one.
 const CORNER = `${CONFIG.namespace}.sys.shape.corner.`;
 const FULL = `${CORNER}full`;
+/** Whether a token is a corner: a step of sys.shape, or a token whose alias chain or `sub` reaches one. */
+function isShape(id, tokens, seen = new Set()) {
+  if (id.startsWith(`${CONFIG.namespace}.sys.shape.`)) return true;
+  const token = tokens[id];
+  if (!token || seen.has(id)) return false;
+  seen.add(id);
+  if (token.alias) return isShape(token.alias, tokens, seen);
+  return token.derive?.fn === 'sub' && isShape(token.derive.of.slice(1, -1), tokens, seen);
+}
 function cornerCompanion(token, tokens) {
   if (token.path[0] !== 'comp' || token.type !== 'dimension') return [];
   const name = `${idToVar(token.id)}-pill`;
-  if (token.derive?.fn === 'sub') return [[name, '0']];
+  const innerCorner = (t) => t?.derive?.fn === 'sub' && isShape(t.derive.of.slice(1, -1), tokens);
+  if (innerCorner(token)) return [[name, '0']];
   if (!token.alias) return [];
   const chain = [];
   for (let id = token.alias; id && !chain.includes(id); id = tokens[id]?.alias) chain.push(id);
-  if (chain.some((id) => tokens[id]?.derive?.fn === 'sub')) return [[name, '0']];
+  if (chain.some((id) => innerCorner(tokens[id]))) return [[name, '0']];
   if (!chain.some((id) => id.startsWith(CORNER))) return [];
   return [[name, chain.includes(FULL) ? '1' : '0']];
 }

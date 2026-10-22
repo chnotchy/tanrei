@@ -7879,11 +7879,12 @@
       "$description": "Dials: the few numbers a whole system is derived from. Change one and every token derived from it follows on every platform; tokens marked fixed do not. Color seeds are not dials — they are palette declarations in tokens/systems/.",
       "$extensions": {
         "dev.tanrei.llm": {
-          "usage": "Seven numbers the whole system is derived from. To make everything larger, roomier, rounder, bolder or slower, change a dial in your layer file instead of editing the tokens derived from it.",
+          "usage": "Eight numbers the whole system is derived from. To make everything larger, roomier, denser, rounder, bolder or slower, change a dial in your layer file instead of editing the tokens derived from it.",
           "rules": [
             "Set a dial with {\"$value\": …, \"reason\": \"…\"} in a layer; never in component code.",
             "A color is not a dial: declare or re-seed a palette under \"palettes\".",
-            "Changing space.unit without size.unit can make controls too small for their padding; the build reports it."
+            "Changing space.unit without size.unit can make controls too small for their padding; the build reports it.",
+            "density is a plain number, 1 by default: below 1 controls and rows are drawn closer, above 1 they get more room. Heights stay on the size unit's grid and never go below sys.target.minimum; it moves heights, block paddings and the gaps between rows only, never text, glyphs, corners or the room across a row."
           ]
         }
       },
@@ -7939,6 +7940,16 @@
               "rationale": "One product sets the scale of control heights, icon sizes and hit targets together.",
               "since": "0.1.0"
             }
+          }
+        }
+      },
+      "density": {
+        "$type": "number",
+        "$value": 1,
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product decides once how much room its controls and rows take around their content: a tool looked through all day draws them closer, a product used mostly by touch gives them more.",
+            "since": "0.1.0"
           }
         }
       },

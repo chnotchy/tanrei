@@ -113,8 +113,9 @@
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 8
+                  "of": "{tanrei.sys.control.height.small}",
+                  "by": 1,
+                  "min": "{tanrei.sys.target.minimum}"
                 }
               }
             },
@@ -126,8 +127,9 @@
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 10
+                  "of": "{tanrei.sys.control.height.medium}",
+                  "by": 1,
+                  "min": "{tanrei.sys.target.minimum}"
                 }
               }
             },
@@ -139,8 +141,9 @@
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 14
+                  "of": "{tanrei.sys.control.height.large}",
+                  "by": 1,
+                  "min": "{tanrei.sys.target.minimum}"
                 }
               }
             }
@@ -287,13 +290,43 @@
             "$type": "dimension",
             "$description": "Vertical padding. Heights are minimums, so this only shows when the label wraps or text is enlarged.",
             "small": {
-              "$value": "{tanrei.sys.space.space75}"
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space75}",
+                  "height": "{tanrei.comp.button.container.height.small}"
+                }
+              }
             },
             "medium": {
-              "$value": "{tanrei.sys.space.space75}"
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space75}",
+                  "height": "{tanrei.comp.button.container.height.medium}"
+                }
+              }
             },
             "large": {
-              "$value": "{tanrei.sys.space.space75}"
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space75}",
+                  "height": "{tanrei.comp.button.container.height.large}"
+                }
+              }
             }
           }
         },

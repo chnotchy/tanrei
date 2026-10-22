@@ -5,7 +5,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import Ajv2020 from 'ajv/dist/2020.js';
-import { checkInvariants, contrast } from '@tanrei/tokens-build/invariants';
+import { checkInvariants, contrast, targetFloors } from '@tanrei/tokens-build/invariants';
 import { declarations, emitCss, idToVar } from '@tanrei/tokens-build/emit/css';
 import { cssColor } from '@tanrei/tokens-build/pure';
 import { heldComponents, outsideStandIns, sheetAvailability } from '@tanrei/tokens-build/layers';
@@ -46,6 +46,7 @@ export const studio = createStudio({
   outsideStandIns,
   sheetAvailability,
   checkInvariants,
+  targetFloors,
   contrast,
   idToVar,
   cssColor,

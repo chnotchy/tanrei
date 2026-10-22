@@ -184,10 +184,30 @@
               "$extensions": {}
             },
             "medium": {
-              "$value": "{tanrei.sys.space.space75}"
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space75}",
+                  "height": "{tanrei.comp.button-with-menu.container.height.medium}"
+                }
+              }
             },
             "large": {
-              "$value": "{tanrei.sys.space.space75}"
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "pad",
+                  "of": "{tanrei.sys.space.space75}",
+                  "height": "{tanrei.comp.button-with-menu.container.height.large}"
+                }
+              }
             }
           },
           "gap": {

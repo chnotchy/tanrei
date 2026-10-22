@@ -26,6 +26,7 @@ const sources = {
       'padding-block': { $value: px(8), $extensions: derive({ fn: 'pad', of: '{tanrei.sys.space.space75}', height: '{tanrei.comp.button.row-height}' }) },
       gap: { $value: px(6), $extensions: derive({ fn: 'mul', of: '{tanrei.sys.space.space75}', by: 1, times: DENSITY, round: '{tanrei.sys.space.space25}' }) },
       'fixed-padding': { $value: px(6), $extensions: derive({ fn: 'pad', of: '{tanrei.sys.space.space75}', height: '{tanrei.sys.target.minimum}' }) },
+      'scaled-padding': { $value: px(9), $extensions: derive({ fn: 'pad', of: '{tanrei.sys.space.space75}', height: '{tanrei.comp.button.large-height}', by: 1.5 }) },
     } } },
   },
 };
@@ -45,10 +46,10 @@ const tokens = modelTokens(sources);
 const written = (id) => declarations(tokens[id], tokens)[0][1];
 
 test('mul: times, round and min are written in the engine’s order — rounded to the step, then floored', () => {
-  assert.equal(written('tanrei.comp.button.large-height'), 'max(var(--tanrei-sys-target-minimum), round(nearest, calc(var(--tanrei-dial-size-unit) * 14 * var(--tanrei-dial-density)), var(--tanrei-dial-size-unit)))');
-  assert.equal(written('tanrei.sys.control.height.small'), 'round(nearest, calc(var(--tanrei-dial-size-unit) * 8 * var(--tanrei-dial-density)), var(--tanrei-dial-size-unit))', 'times and round, no floor');
+  assert.equal(written('tanrei.comp.button.large-height'), 'max(var(--tanrei-sys-target-minimum), round(nearest, calc(var(--tanrei-dial-size-unit) * 14 * var(--tanrei-dial-density) + 0.0001px), var(--tanrei-dial-size-unit)))');
+  assert.equal(written('tanrei.sys.control.height.small'), 'round(nearest, calc(var(--tanrei-dial-size-unit) * 8 * var(--tanrei-dial-density) + 0.0001px), var(--tanrei-dial-size-unit))', 'times and round, no floor');
   assert.equal(written('tanrei.comp.button.height'), 'max(var(--tanrei-sys-target-minimum), var(--tanrei-sys-control-height-small))', 'a floored alias of a step');
-  assert.equal(written('tanrei.comp.button.gap'), 'round(nearest, calc(var(--tanrei-sys-space-space75) * var(--tanrei-dial-density)), var(--tanrei-sys-space-space25))', 'a coefficient of 1 is left out');
+  assert.equal(written('tanrei.comp.button.gap'), 'round(nearest, calc(var(--tanrei-sys-space-space75) * var(--tanrei-dial-density) + 0.0001px), var(--tanrei-sys-space-space25))', 'a coefficient of 1 is left out');
 });
 
 test('mul without the new terms is written as before', () => {
@@ -58,7 +59,7 @@ test('mul without the new terms is written as before', () => {
   assert.equal(only({ fn: 'mul', of: '{tanrei.dial.density}', by: 2 }, 'number'), 'calc(var(--tanrei-dial-density) * 2)');
   assert.equal(only({ fn: 'mul', of: UNIT, by: 1, min: MINIMUM }), 'max(var(--tanrei-sys-target-minimum), var(--tanrei-dial-size-unit))', 'min alone');
   assert.equal(only({ fn: 'mul', of: UNIT, by: 11, round: UNIT }), 'round(nearest, calc(var(--tanrei-dial-size-unit) * 11), var(--tanrei-dial-size-unit))', 'round alone');
-  assert.equal(only({ fn: 'mul', of: UNIT, by: 8, times: DENSITY }), 'round(nearest, calc(var(--tanrei-dial-size-unit) * 8 * var(--tanrei-dial-density)), 0.25px)', 'times alone');
+  assert.equal(only({ fn: 'mul', of: UNIT, by: 8, times: DENSITY }), 'round(nearest, calc(var(--tanrei-dial-size-unit) * 8 * var(--tanrei-dial-density) + 0.0001px), 0.25px)', 'times alone');
 });
 
 test('pad: written over the height and the height’s own expression unscaled, through its alias', () => {
@@ -68,6 +69,11 @@ test('pad: written over the height and the height’s own expression unscaled, t
   );
   assert.equal(written('tanrei.comp.button.fixed-padding'), 'max(0px, round(nearest, calc(var(--tanrei-sys-space-space75) + (var(--tanrei-sys-target-minimum) - var(--tanrei-sys-target-minimum)) / 2), 0.25px))', 'a height nothing scales is its own height₁');
   assert.throws(() => declarations(tokens['tanrei.comp.button.padding-block'])[0][1], /no tokens were given/);
+  assert.equal(
+    written('tanrei.comp.button.scaled-padding'),
+    'max(0px, round(nearest, calc(round(nearest, calc(var(--tanrei-sys-space-space75) * 1.5), 0.25px) + (var(--tanrei-comp-button-large-height) - round(nearest, calc(var(--tanrei-dial-size-unit) * 14), var(--tanrei-dial-size-unit))) / 2), 0.25px))',
+    'a padding a layer scaled: of × by on the 0.25px step, then what its box gave up or took',
+  );
 });
 
 /**
@@ -109,5 +115,13 @@ test('the written CSS gives the engine’s values, across densities, floors and 
       }
     }
   }
-  assert.equal(compared, 6 * 4 * 2 * 8, 'eight derived tokens in each of 48 settings');
+  assert.equal(compared, 6 * 4 * 2 * 9, 'nine derived tokens in each of 48 settings');
+});
+
+test('a tie rounds upward where the browser holds the density as a 32-bit float, as Firefox does', () => {
+  // 4 × 10 × 0.95 is 38 in decimal, half way between 36 and 40; in a 32-bit float 0.95 is 0.94999998…
+  const expression = declarations({ id: 'tanrei.comp.x.y', type: 'dimension', path: ['comp', 'x', 'y'], derive: { fn: 'mul', of: UNIT, by: 10, times: DENSITY, round: UNIT } }, tokens)[0][1];
+  const values = { '--tanrei-dial-size-unit': 4, '--tanrei-dial-density': Math.fround(0.95) };
+  assert.equal(evaluateCss(expression, (name) => values[name]), 40, expression);
+  assert.equal(evaluateCss(expression.replace(' + 0.0001px', ''), (name) => values[name]), 36, 'without the lift it would round down');
 });
