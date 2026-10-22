@@ -1116,3 +1116,281 @@ test('TAB-22 TAB-62 tab: its host is the tab, and while its label is set the pro
   expect((await host()).labelledBy, 'given back by reference').toEqual(['named']);
   expect((await host()).attributes, 'and the tab’s own aria-label is gone').not.toHaveProperty('aria-label');
 });
+
+/** A host that carries its role itself and names itself, so that it holds the product's name while it does (`nameHost()`). */
+interface Holding {
+  /** The id of its spec's sentence that says so. */
+  sentence: string;
+  /** The page, with the subject `#subject`; `rest` is its own name's attribute (`label="Own"`) and the product's ARIA. */
+  markup: (rest: string) => string;
+  /** The attribute and the property its own name comes from, where it is not `label` (a callout's headline). */
+  prop?: string;
+  /** Its report of a missing name, where it has one: its id and what it says. */
+  report?: { id: string; says: string };
+}
+
+const MENU = (item: string) => `<tanrei-menu open>${item}<tanrei-menu-item label="Copy"></tanrei-menu-item></tanrei-menu>`;
+const TREE = `<ul><li data-value="a"><span>Alpha</span></li><li data-value="b"><span>Beta</span></li></ul>`;
+const BOLD = `<tanrei-button label="Bold"><span slot="icon">format_bold</span></tanrei-button>`;
+
+const HOLDING: Record<string, Holding> = {
+  'loading-indicator': { sentence: 'LDG-18', markup: (rest) => `<tanrei-loading-indicator id="subject" show-delay="0" ${rest}></tanrei-loading-indicator>`, report: { id: 'LDG-10', says: 'no accessible name' } },
+  'progress-indicator': { sentence: 'PRG-18', markup: (rest) => `<tanrei-progress-indicator id="subject" value="0.4" ${rest}></tanrei-progress-indicator>`, report: { id: 'PRG-15', says: 'no accessible name' } },
+  meter: { sentence: 'MTR-16', markup: (rest) => `<tanrei-meter id="subject" value="0.4" ${rest}></tanrei-meter>`, report: { id: 'MTR-14', says: 'no accessible name' } },
+  menubar: {
+    sentence: 'MBR-48',
+    markup: (rest) => `<tanrei-menubar id="subject" ${rest}><tanrei-menubar-menu label="File"><tanrei-menu-item label="New"></tanrei-menu-item></tanrei-menubar-menu></tanrei-menubar>`,
+    report: { id: 'MBR-20', says: 'no accessible name' },
+  },
+  'menubar-item': {
+    sentence: 'MBR-48',
+    markup: (rest) => `<tanrei-menubar label="Application"><tanrei-menubar-menu label="File"><tanrei-menu-item label="New"></tanrei-menu-item></tanrei-menubar-menu><tanrei-menubar-item id="subject" ${rest}></tanrei-menubar-item></tanrei-menubar>`,
+    report: { id: 'MBR-44', says: 'bar item has no accessible name' },
+  },
+  toolbar: { sentence: 'TBR-26', markup: (rest) => `<tanrei-toolbar id="subject" ${rest}>${BOLD}</tanrei-toolbar>`, report: { id: 'TBR-12', says: 'no accessible name' } },
+  // A group the product names is a named group (TBR-26).
+  'toolbar-group': { sentence: 'TBR-26', markup: (rest) => `<tanrei-toolbar label="Format"><tanrei-toolbar-group id="subject" ${rest}>${BOLD}</tanrei-toolbar-group></tanrei-toolbar>` },
+  'button-group': { sentence: 'BGR-25', markup: (rest) => `<tanrei-button-group id="subject" ${rest}><tanrei-button>One</tanrei-button><tanrei-button>Two</tanrei-button></tanrei-button-group>` },
+  stepper: {
+    sentence: 'SPR-28',
+    markup: (rest) => `<tanrei-stepper id="subject" value="a" ${rest}><tanrei-stepper-step value="a" label="Account"></tanrei-stepper-step><tanrei-stepper-step value="b" label="Payment"></tanrei-stepper-step></tanrei-stepper>`,
+    report: { id: 'SPR-21', says: 'no accessible name' },
+  },
+  'segmented-button': {
+    sentence: 'SEG-29',
+    markup: (rest) => `<tanrei-segmented-button id="subject" ${rest}><tanrei-segment value="a" label="Alpha"></tanrei-segment><tanrei-segment value="b" label="Beta"></tanrei-segment></tanrei-segmented-button>`,
+    report: { id: 'SEG-22', says: 'set has no accessible name' },
+  },
+  'navigation-bar': {
+    sentence: 'NVB-34',
+    markup: (rest) =>
+      `<tanrei-navigation-bar id="subject" value="a" ${rest}><tanrei-navigation-bar-item value="a" label="Mail" icon="mail"></tanrei-navigation-bar-item><tanrei-navigation-bar-item value="b" label="Chat" icon="chat"></tanrei-navigation-bar-item></tanrei-navigation-bar>`,
+  },
+  // An image the product names is a named image (AVT-24, SWC-20).
+  avatar: { sentence: 'AVT-24', markup: (rest) => `<tanrei-avatar id="subject" initials="AL" ${rest}></tanrei-avatar>`, report: { id: 'AVT-9', says: 'has no name' } },
+  'avatar-group': {
+    sentence: 'AVT-24',
+    markup: (rest) => `<tanrei-avatar-group id="subject" ${rest}><tanrei-avatar label="Ada" initials="A"></tanrei-avatar><tanrei-avatar label="Grace" initials="G"></tanrei-avatar></tanrei-avatar-group>`,
+    report: { id: 'AVT-19', says: 'without a group’s name' },
+  },
+  swatch: { sentence: 'SWC-20', markup: (rest) => `<tanrei-swatch id="subject" color="#0f766e" label-hidden ${rest}></tanrei-swatch>`, report: { id: 'SWC-12', says: 'without a name' } },
+  'fab-menu-item': {
+    sentence: 'FBM-28',
+    markup: (rest) =>
+      `<tanrei-fab-menu inline open label="Create"><span slot="icon">add</span><tanrei-fab-menu-item id="subject" icon="edit" ${rest}></tanrei-fab-menu-item><tanrei-fab-menu-item label="Mail" icon="mail"></tanrei-fab-menu-item></tanrei-fab-menu>`,
+    report: { id: 'FBM-23', says: 'item has no accessible name' },
+  },
+  'menu-item': { sentence: 'MNU-65', markup: (rest) => MENU(`<tanrei-menu-item id="subject" ${rest}></tanrei-menu-item>`), report: { id: 'MNU-26', says: 'item has no accessible name' } },
+  'menu-checkbox-item': { sentence: 'MNU-65', markup: (rest) => MENU(`<tanrei-menu-checkbox-item id="subject" ${rest}></tanrei-menu-checkbox-item>`), report: { id: 'MNU-26', says: 'item has no accessible name' } },
+  submenu: { sentence: 'MNU-65', markup: (rest) => MENU(`<tanrei-submenu id="subject" ${rest}><tanrei-menu-item label="Deeper"></tanrei-menu-item></tanrei-submenu>`), report: { id: 'MNU-26', says: 'item has no accessible name' } },
+  'menu-group': { sentence: 'MNU-65', markup: (rest) => MENU(`<tanrei-menu-group id="subject" ${rest}><tanrei-menu-item label="Cut"></tanrei-menu-item></tanrei-menu-group>`) },
+  list: {
+    sentence: 'LST-52',
+    markup: (rest) => `<tanrei-list id="subject" selection="single" ${rest}><tanrei-list-item value="a" label="Alpha"></tanrei-list-item><tanrei-list-item value="b" label="Beta"></tanrei-list-item></tanrei-list>`,
+    report: { id: 'LST-18', says: 'no accessible name' },
+  },
+  // While its label is empty, the product's name is the option's over the text of its content (LST-19).
+  'list-item (option)': {
+    sentence: 'LST-52',
+    markup: (rest) => `<tanrei-list selection="single" label="Things"><tanrei-list-item id="subject" value="a" ${rest}>Alpha</tanrei-list-item><tanrei-list-item value="b">Beta</tanrei-list-item></tanrei-list>`,
+  },
+  callout: { sentence: 'CLO-32', prop: 'headline', markup: (rest) => `<tanrei-callout id="subject" open ${rest}>Body text</tanrei-callout>` },
+  'tree-view': { sentence: 'TRV-54', markup: (rest) => `<tanrei-tree-view id="subject" ${rest}>${TREE}</tanrei-tree-view>`, report: { id: 'TRV-32', says: 'tree has no accessible name' } },
+};
+
+/** The naming attributes on the host `#subject`, held and not. */
+const naming = (page: Page) =>
+  page.evaluate(() => {
+    const host = document.querySelector('#subject')!;
+    return Object.fromEntries([...host.attributes].filter((a) => a.name.includes('aria-label')).map((a) => [a.name, a.value]));
+  });
+
+/** The warnings of a debug build that cite `id` and say `says`, from the page's console. */
+function warnings(page: Page, id: string, says: string) {
+  const seen: string[] = [];
+  page.on('console', (message) => {
+    if (message.type() === 'warning' && message.text().includes(`(${id})`) && message.text().includes(says)) seen.push(message.text());
+  });
+  return async () => {
+    await settle(page);
+    return seen.splice(0);
+  };
+}
+
+for (const [name, subject] of Object.entries(HOLDING)) {
+  const prop = subject.prop ?? 'label';
+  test(`${subject.sentence} ${name}: its host carries its role, and while its own name is set the product’s aria-label and aria-labelledby on it are held, so that its own is its whole name; emptied, they are given back as written and name it, not reported missing; taken away while held, they are gone`, async ({ page, browserName }) => {
+    const host = page.locator('#subject');
+    const own = async (to: string) => {
+      await page.evaluate(([prop, to]) => ((document.querySelector('#subject') as unknown as Record<string, string>)[prop] = to), [prop, to]);
+      await settle(page);
+    };
+    const reports = subject.report ? warnings(page, subject.report.id, subject.report.says) : null;
+
+    await load(page, 'tanrei-list', subject.markup(`${prop}="Own" aria-label="Product name" aria-labelledby="named"`));
+    await expect(host, 'its own name is its whole name').toHaveAccessibleName('Own');
+    expect(await naming(page), 'the product’s are held as their twins').toEqual({ 'aria-label': 'Own', 'data-aria-label': 'Product name', 'data-aria-labelledby': 'named' });
+    if (browserName === 'chromium') {
+      const tree = await axTree(page, '#stage');
+      expect(tree.filter((line) => line.includes('"Product name"') || line.includes('"Named text"')), tree.join('\n')).toEqual([]);
+    }
+    await own('');
+    expect(await naming(page), 'emptied: given back as written').toEqual({ 'aria-label': 'Product name', 'aria-labelledby': 'named' });
+    await expect(host, 'the platform’s precedence: aria-labelledby').toHaveAccessibleName('Named text');
+    await own('Own');
+    expect(await naming(page), 'set again: held again').toEqual({ 'aria-label': 'Own', 'data-aria-label': 'Product name', 'data-aria-labelledby': 'named' });
+    await expect(host).toHaveAccessibleName('Own');
+    await page.evaluate(() => {
+      const element = document.querySelector('#subject') as HTMLElement;
+      element.ariaLabel = null;
+      element.removeAttribute('aria-labelledby');
+    });
+    await settle(page);
+    expect(await naming(page), 'taken away while held, by the property and by the attribute').toEqual({ 'aria-label': 'Own' });
+    await own('');
+    expect(await naming(page), 'and nothing is given back').toEqual({});
+    if (reports) await reports();
+
+    // Named by the product alone from the start: the name is the product's, and nothing is reported missing.
+    await load(page, 'tanrei-list', subject.markup('aria-label="Product name"'));
+    await expect(host).toHaveAccessibleName('Product name');
+    expect(await naming(page)).toEqual({ 'aria-label': 'Product name' });
+    if (reports) expect(await reports(), 'named by the product: nothing is reported').toEqual([]);
+    const result = await new AxeBuilder({ page }).include('#stage').analyze();
+    expect(result.violations.map((violation) => `${violation.id}: ${violation.nodes.map((node) => node.target.join(' > ')).join(', ')}`)).toEqual([]);
+    if (reports) {
+      await load(page, 'tanrei-list', subject.markup(''));
+      expect(await reports(), 'neither: the missing name is reported').not.toEqual([]);
+    }
+  });
+}
+
+/** A host that carries its role in one state and none in another, where a name would stand on nothing. */
+interface Nameless {
+  sentence: string;
+  /** The page with the subject `#subject` in the state that carries no name; `rest` is the product's ARIA. */
+  markup: (rest: string) => string;
+  /** Puts it in the state in which it carries its role. */
+  expose: string;
+}
+
+const NAMELESS: Record<string, Nameless> = {
+  'loading-indicator (waiting)': { sentence: 'LDG-18', markup: (rest) => `<tanrei-loading-indicator id="subject" show-delay="100000" ${rest}></tanrei-loading-indicator>`, expose: '' },
+  'avatar (decorative)': { sentence: 'AVT-24', markup: (rest) => `<tanrei-avatar id="subject" initials="AL" decorative ${rest}></tanrei-avatar>`, expose: 'decorative' },
+  'swatch (its text drawn)': { sentence: 'SWC-20', markup: (rest) => `<tanrei-swatch id="subject" color="#0f766e" label="Teal" ${rest}></tanrei-swatch>`, expose: 'label' },
+  'callout (closed)': { sentence: 'CLO-32', markup: (rest) => `<tanrei-callout id="subject" open="false" ${rest}>Body text</tanrei-callout>`, expose: 'open' },
+  'menu (closed)': { sentence: 'MNU-65', markup: (rest) => `<tanrei-menu id="subject" ${rest}><tanrei-menu-item label="Cut"></tanrei-menu-item></tanrei-menu>`, expose: 'open' },
+};
+
+for (const [name, subject] of Object.entries(NAMELESS)) {
+  test(`${subject.sentence} ${name}: with no role a name could stand on, the host holds the product’s name, and gives it back once it carries its role`, async ({ page }) => {
+    await load(page, 'tanrei-list', subject.markup('aria-label="Product name"'));
+    expect(await naming(page), 'held').toEqual({ 'data-aria-label': 'Product name' });
+    const result = await new AxeBuilder({ page }).include('#stage').analyze();
+    expect(result.violations.map((violation) => violation.id)).toEqual([]);
+    if (!subject.expose) return;
+    await page.evaluate((expose) => {
+      const element = document.querySelector('#subject') as unknown as Record<string, unknown>;
+      if (expose === 'decorative') element.decorative = false;
+      else if (expose === 'label') {
+        element.label = '';
+        element.labelHidden = true;
+      } else element[expose] = true;
+    }, subject.expose);
+    await settle(page);
+    expect(await naming(page), 'given back').toEqual({ 'aria-label': 'Product name' });
+    await expect(page.locator('#subject')).toHaveAccessibleName('Product name');
+  });
+}
+
+test('MNU-24 MNU-65 menu: an anchored menu is named by its anchor, over the product’s name, which it holds; closed, it still holds it', async ({ page }) => {
+  await load(page, 'tanrei-menu', `<button id="opener" type="button">Open</button><tanrei-menu id="subject" anchor="opener" open aria-label="Product name" aria-labelledby="named"><tanrei-menu-item label="Cut"></tanrei-menu-item></tanrei-menu>`);
+  const host = () =>
+    page.evaluate(() => {
+      const menu = document.querySelector('#subject')!;
+      return Object.fromEntries([...menu.attributes].filter((a) => a.name.includes('aria-label')).map((a) => [a.name, a.value]));
+    });
+  await expect(page.locator('#subject')).toHaveAccessibleName('Open');
+  expect(await host()).toEqual({ 'aria-labelledby': 'opener', 'data-aria-label': 'Product name', 'data-aria-labelledby': 'named' });
+  await page.evaluate(() => ((document.querySelector('#subject') as HTMLElement & { open: boolean }).open = false));
+  await settle(page);
+  expect(await host(), 'closed: no name, the product’s held').toEqual({ 'data-aria-label': 'Product name', 'data-aria-labelledby': 'named' });
+});
+
+/** An element whose role is carried by its host in one mode and inside in another (LST-52, MNU-66). */
+interface Moded {
+  sentence: string;
+  markup: (rest: string) => string;
+  /** From the host down, the element that carries the role in the mode that moves. */
+  path: string[];
+  /** Turns the mode that moves on (true) or off (false). */
+  mode: (element: HTMLElement & Record<string, unknown>, on: boolean) => void;
+  /** Its own name in either mode. */
+  own: string;
+}
+
+const MODED: Record<string, Moded> = {
+  'list-item (interactive)': {
+    sentence: 'LST-52',
+    markup: (rest) => `<tanrei-list label="Things"><tanrei-list-item id="subject" interactive label="Own" ${rest}>Alpha</tanrei-list-item><tanrei-list-item interactive>Beta</tanrei-list-item></tanrei-list>`,
+    path: ['[part="container"]'],
+    mode: (element, on) => (element.interactive = on),
+    own: 'Own',
+  },
+  'list-item (link)': {
+    sentence: 'LST-52',
+    markup: (rest) => `<tanrei-list label="Things"><tanrei-list-item id="subject" href="#a" label="Own" ${rest}>Alpha</tanrei-list-item><tanrei-list-item href="#b">Beta</tanrei-list-item></tanrei-list>`,
+    path: ['[part="container"]'],
+    mode: (element, on) => (on ? element.setAttribute('href', '#a') : element.removeAttribute('href')),
+    own: 'Own',
+  },
+  'menu-item (link)': {
+    sentence: 'MNU-66',
+    markup: (rest) => MENU(`<tanrei-menu-item id="subject" href="#a" label="Own" ${rest}></tanrei-menu-item>`),
+    path: ['[part="container"]'],
+    mode: (element, on) => (on ? element.setAttribute('href', '#a') : element.removeAttribute('href')),
+    own: 'Own',
+  },
+  'list (reorderable)': {
+    sentence: 'LST-52',
+    markup: (rest) => `<tanrei-list id="subject" reorderable label="Own" drag-handle-label="Move {label}" ${rest}><tanrei-list-item>Alpha</tanrei-list-item><tanrei-list-item>Beta</tanrei-list-item></tanrei-list>`,
+    path: ['[part="items"]'],
+    mode: (element, on) => (element.reorderable = on),
+    own: 'Own',
+  },
+};
+
+for (const [name, subject] of Object.entries(MODED)) {
+  test(`${subject.sentence} ${name}: while the role is carried inside, the product’s aria-* on the host is moved to data-aria-* and exposed there, its own name over the product’s; out of that mode it is given back to the host, which carries its role, and moved again when the mode comes back`, async ({ page }) => {
+    const carrier = () => exposedOn(page, subject.path);
+    const host = page.locator('#subject');
+    const aria = () =>
+      page.evaluate(() => {
+        const element = document.querySelector('#subject')!;
+        return Object.fromEntries([...element.attributes].filter((a) => /^(data-)?aria-(label|describedby|invalid)/.test(a.name)).map((a) => [a.name, a.value]));
+      });
+    const mode = async (on: boolean) => {
+      await host.evaluate(subject.mode, on);
+      await settle(page);
+    };
+    await load(page, 'tanrei-list', subject.markup('aria-label="Product name" aria-describedby="described" aria-invalid="true"'));
+    expect(await aria(), 'moved').toEqual({ 'data-aria-label': 'Product name', 'data-aria-describedby': 'described', 'data-aria-invalid': 'true' });
+    await expect(carrier(), 'its own name is its whole name').toHaveAccessibleName(subject.own);
+    await expect(carrier()).toHaveAccessibleDescription(/Described text/);
+    // Out of the mode: given back, and the host — which carries its role now — holds the name under its own.
+    await mode(false);
+    expect(await aria(), 'given back').toMatchObject({ 'aria-describedby': 'described', 'aria-invalid': 'true' });
+    expect(Object.keys(await aria()).filter((name) => name.startsWith('data-') && name !== 'data-aria-label'), 'nothing stays moved but a name the host holds').toEqual([]);
+    await expect(host, 'the host carries the product’s description').toHaveAccessibleDescription(/Described text/);
+    // Back in the mode: moved again, the host’s own name taken off it.
+    await mode(true);
+    expect(await aria(), 'moved again').toEqual({ 'data-aria-label': 'Product name', 'data-aria-describedby': 'described', 'data-aria-invalid': 'true' });
+    await expect(carrier()).toHaveAccessibleName(subject.own);
+    // Its own name emptied: the product’s.
+    await host.evaluate((element) => ((element as unknown as { label: string }).label = ''));
+    await settle(page);
+    await expect(carrier(), 'emptied: the product’s name, over the text of its content').toHaveAccessibleName('Product name');
+    const result = await new AxeBuilder({ page }).include('#stage').analyze();
+    expect(result.violations.map((violation) => `${violation.id}: ${violation.nodes.map((node) => node.target.join(' > ')).join(', ')}`)).toEqual([]);
+  });
+}

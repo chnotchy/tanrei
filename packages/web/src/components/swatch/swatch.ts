@@ -4,6 +4,7 @@ import { AvailabilityController, OpenAxesController, hostAria, report } from '..
 import type { TanreiSwatchShapeRegistry, TanreiSwatchSizeRegistry } from '../../registry.js';
 import { AXES, styles } from './swatch.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
 
 /** The core sizes (small, medium, large), plus any a design system's generated `.d.ts` registers. */
 export type TanreiSwatchSize = keyof TanreiSwatchSizeRegistry;
@@ -108,15 +109,20 @@ export class TanreiSwatch extends TanreiElement {
     // SWC-9: with its text drawn, the swatch is that text (the sample is hidden in the template). SWC-10: with the
     // label hidden, one image named by label (supportingText where there is none) and described by supportingText.
     // SWC-11, SWC-12: decorative, or with no name, it exposes nothing.
-    const image = this.labelHidden && !this.decorative && !nameless;
-    const hidden = this.decorative || nameless;
+    // SWC-20: where it draws its sample alone — the label hidden, or no text to draw — it is an image, named by its own
+    // text over the product's name, and by the product's name where it has no text; drawing its text, or decorative, it
+    // has no role, and the product's name is held.
+    const sampleAlone = !this.decorative && (this.labelHidden || nameless);
+    nameHost(this, sampleAlone ? name || supporting : null);
+    const productNamed = sampleAlone && nameless && namedByProduct(this);
+    const image = sampleAlone && (!nameless || productNamed);
+    const hidden = this.decorative || (nameless && !productNamed);
     hostAria(this, {
       role: image ? 'img' : null,
-      'aria-label': image ? name || supporting : null,
       'aria-description': image && name && supporting ? supporting : null,
       'aria-hidden': hidden ? 'true' : null,
     });
-    if ((changed.has('label') || changed.has('supportingText') || changed.has('decorative')) && nameless && !this.decorative) {
+    if ((changed.has('label') || changed.has('supportingText') || changed.has('decorative')) && nameless && !this.decorative && !productNamed) {
       report(this, 'SWC-12', 'a color is shown without a name, so the swatch exposes nothing; give it a label, or set decorative beside that name in text');
     }
   }
@@ -138,6 +144,8 @@ export class TanreiSwatch extends TanreiElement {
   }
 }
 
+// SWC-20: the host carries its role, and holds the product's name while its text names it.
+holdsProductName(TanreiSwatch);
 if (!customElements.get('tanrei-swatch')) customElements.define('tanrei-swatch', TanreiSwatch);
 
 declare global {

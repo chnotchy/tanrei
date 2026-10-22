@@ -17,6 +17,7 @@ import { ownDirection } from '../../styles/product-text.js';
 import { TanreiBadge } from '../badge/badge.js';
 import { barStyles, itemStyles } from './navigation-bar.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
 
 export type { TanreiLabelVisibility, TanreiNavigationChangeDetail } from '../../primitives/index.js';
 
@@ -347,8 +348,12 @@ export class TanreiNavigationBar extends TanreiElement {
   }
 
   protected override updated(changed: PropertyValues<this>) {
-    // NVB-19: a navigation landmark named by the bar's label.
-    if (changed.has('label') || !this.hasAttribute('role')) hostAria(this, { role: 'navigation', 'aria-label': this.label || null });
+    // NVB-19: a navigation landmark named by the bar's label. NVB-34: its label is its whole name over the product's,
+    // which names it while the label is empty.
+    if (changed.has('label') || !this.hasAttribute('role')) {
+      nameHost(this, this.label);
+      hostAria(this, { role: 'navigation' });
+    }
   }
 
   /**
@@ -612,6 +617,8 @@ if (!customElements.get('tanrei-badge')) customElements.define('tanrei-badge', T
 // current page and the disabled state are its own (NVB-2, NVB-30).
 delegatesAria(TanreiNavigationBarItem, { owns: ['aria-current', 'aria-disabled'], sentence: 'NVB-34' });
 if (!customElements.get('tanrei-navigation-bar-item')) customElements.define('tanrei-navigation-bar-item', TanreiNavigationBarItem);
+// NVB-34: the bar's host carries its landmark, and holds the product's name while its label names it.
+holdsProductName(TanreiNavigationBar);
 if (!customElements.get('tanrei-navigation-bar')) customElements.define('tanrei-navigation-bar', TanreiNavigationBar);
 
 declare global {

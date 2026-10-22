@@ -44,6 +44,7 @@ import type { TanreiKeyboardShortcut } from '../keyboard-shortcut/keyboard-short
 import { AXES, groupStyles, itemStyles, menuStyles, submenuStyles } from './menu.styles.js';
 import type { TanreiMenuDensityRegistry } from '../../registry.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DelegatedAriaWriter, delegatesAria, holdsProductName, nameHost, namedByProduct, syncDelegation } from '../../primitives/delegated-aria.js';
 
 /** Where the surface goes against the anchor. A closed set; an unknown value is drawn as `bottom-start` (MNU-14). */
 export type TanreiMenuPlacement = 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
@@ -315,6 +316,9 @@ function blocksTemplate(blocks: readonly Element[]) {
       html`${i > 0 ? html`<div part="divider" class="divider" role="separator"></div><div class="gap"></div>` : nothing}<div part="tile" class="tile" data-tanrei-shape>${Array.from({ length: count }, () => html`<slot></slot>`)}</div>`,
   );
 }
+
+/** MNU-66: what an item's host says itself while it carries its role, taken away when a link item's anchor carries it. */
+const ITEM_HOST_ARIA = ['aria-checked', 'aria-disabled', 'aria-description', 'aria-keyshortcuts', 'aria-current', 'aria-haspopup', 'aria-expanded'];
 
 /**
  * What every row of a menu is (the spec's `item`, `checkbox-item`, `radio-item` and `submenu` kinds): a label, optional
@@ -643,6 +647,19 @@ export abstract class TanreiMenuRowBase extends TanreiElement {
 
   protected override willUpdate(_changed: PropertyValues<this>) {
     this.hadFocus = this.hasUpdated && this.focused;
+    // MNU-66: a link item's role is carried by its anchor: what the product writes on the host is moved there.
+    syncDelegation(this, ITEM_HOST_ARIA);
+  }
+
+  /** MNU-66: what writes a link item's semantics and the product's ARIA on its anchor; one for each anchor drawn. */
+  private linkAria: { anchor: HTMLElement; writer: DelegatedAriaWriter } | null = null;
+
+  private anchorAria(anchor: HTMLElement | null): DelegatedAriaWriter | null {
+    if (this.linkAria?.anchor !== anchor) {
+      this.linkAria?.writer.detach();
+      this.linkAria = anchor ? { anchor, writer: new DelegatedAriaWriter() } : null;
+    }
+    return this.linkAria?.writer ?? null;
   }
 
   protected override firstUpdated() {
@@ -656,7 +673,6 @@ export abstract class TanreiMenuRowBase extends TanreiElement {
       role: this.itemRole,
       'aria-checked': this.markKind ? String(this.isChecked) : null,
       'aria-disabled': this.disabled ? 'true' : null,
-      'aria-label': this.label || null,
       'aria-description': description || null,
       'aria-keyshortcuts': shortcut,
       'aria-posinset': this.context.position ? String(this.context.position) : null,
@@ -665,14 +681,19 @@ export abstract class TanreiMenuRowBase extends TanreiElement {
     };
     // MNU-53: a link item is exposed once, on its anchor — the menu item role with everything a menu item says; the
     // role and the disabled state there are the link primitive's (`linkAttributes()`). The host is then nothing: no
-    // role, no name, and not focusable itself.
+    // role, no name, and not focusable itself. MNU-66: what the product writes on the host is exposed there too, the
+    // label the whole name over the product's.
     const anchor = this.linkForm ? this.rowElement : null;
-    const none = Object.fromEntries(Object.keys(semantics).map((name) => [name, null]));
     if (anchor) {
       const { role: _role, 'aria-disabled': _disabled, ...own } = semantics;
-      hostAria(anchor, own);
+      this.anchorAria(anchor)!.write(anchor, this, { ...own, 'aria-label': this.label });
+      hostAria(this, { role: null, 'aria-posinset': null, 'aria-setsize': null });
+    } else {
+      this.anchorAria(null);
+      // MNU-65: the host is the item. Its label is its whole name over the product's, which names it while it is empty.
+      nameHost(this, this.label);
+      hostAria(this, semantics);
     }
-    hostAria(this, anchor ? none : semantics);
     // MNU-7: every item takes focus from the menu (arrow keys, the pointer) and none is a Tab stop — the host, or the
     // anchor of a link item (its `tabindex` is in the template).
     const wasHost = this.matches(':focus') && !this.shadowRoot?.activeElement;
@@ -693,7 +714,7 @@ export abstract class TanreiMenuRowBase extends TanreiElement {
     }
     this.syncMark();
     // MNU-26: an item without a label still renders; a debug build says it has no name.
-    if (changed.has('label') && !this.label.trim()) report(this, 'MNU-26', 'label is empty, so the item has no accessible name; give it a label');
+    if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'MNU-26', 'label is empty, so the item has no accessible name; give it a label');
     // MNU-31: a shortcut and trailing text both given draw the shortcut, and a debug build says so.
     if (this.hasShortcut && this.trailingText && [...changed.keys()].some((key) => key === 'shortcut' || key === 'trailingText')) {
       report(this, 'MNU-31', `the item "${this.label}" has both a shortcut and trailing text; the shortcut is drawn and the trailing text is not`);
@@ -1285,7 +1306,10 @@ export class TanreiMenuGroup extends TanreiElement {
   protected override updated(changed: PropertyValues<this>) {
     const { nested } = this.nesting;
     // MNU-24: a group named by its title; MNU-29: a group in a group is drawn as its outer group's items.
-    hostAria(this, { role: nested ? 'none' : 'group', 'aria-label': !nested && this.label ? this.label : null });
+    // MNU-65: its title is its whole name over the product's, which names it while it has none; nested, it is nothing,
+    // and the product's is held.
+    nameHost(this, nested ? null : this.label);
+    hostAria(this, { role: nested ? 'none' : 'group' });
     if (this.hasUpdated && (changed.has('label') || changed.has('value') || changed.has('markIcon'))) notifyItemUpdate(this, 'tanrei-menu-item-update');
   }
 
@@ -2597,12 +2621,12 @@ export class TanreiMenu extends TanreiElement {
     // Each child in its own slot (MNU-23, MNU-36: the divider and the gap are drawn between the slots).
     assignBlocks(this.renderRoot, this.blocks);
     const anchor = this.anchorElement;
-    // MNU-24: the menu role while open, named by its anchor.
-    hostAria(this, {
-      role: this.open ? 'menu' : null,
-      // MNU-63: a context menu is not named by its area; it keeps the name the product gives it.
-      'aria-labelledby': this.open && !this.isContext && anchor?.id && anchor.getRootNode() === this.getRootNode() ? anchor.id : null,
-    });
+    // MNU-24: the menu role while open, named by its anchor. MNU-63: a context menu is not named by its area; it keeps
+    // the name the product gives it. MNU-65: its anchor is its whole name over the product's; closed, the product's is
+    // held.
+    const by = !this.isContext && anchor?.id && anchor.getRootNode() === this.getRootNode() ? anchor.id : '';
+    nameHost(this, this.open ? by : null, 'aria-labelledby');
+    hostAria(this, { role: this.open ? 'menu' : null });
     this.syncAnchor();
     if (changed.has('open') || changed.has('inline')) {
       this.closeRequested = false;
@@ -2622,6 +2646,12 @@ export class TanreiMenu extends TanreiElement {
   }
 }
 
+// MNU-65: the hosts carry their roles, and hold the product's name while they name themselves. MNU-66: a link item's
+// anchor carries its role, and what the product writes on the host is moved there in that mode alone.
+holdsProductName(TanreiMenuRowBase);
+delegatesAria(TanreiMenuItem, { sentence: 'MNU-66', owns: ['aria-disabled', 'aria-current', 'aria-keyshortcuts'], when: (host) => (host as TanreiMenuItem).isLink });
+holdsProductName(TanreiMenuGroup);
+holdsProductName(TanreiMenu);
 if (!customElements.get('tanrei-menu-item')) customElements.define('tanrei-menu-item', TanreiMenuItem);
 if (!customElements.get('tanrei-menu-checkbox-item')) customElements.define('tanrei-menu-checkbox-item', TanreiMenuCheckboxItem);
 if (!customElements.get('tanrei-menu-radio-item')) customElements.define('tanrei-menu-radio-item', TanreiMenuRadioItem);

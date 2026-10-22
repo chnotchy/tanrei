@@ -5,6 +5,7 @@ import { hiddenHost } from '../../primitives/hidden.js';
 import { FORWARDED_ROWS, type TanreiMenu, type TanreiMenuBarChannel, type TanreiMenuCloseDetail, type TanreiSubmenuToggleDetail } from '../menu/menu.js';
 import { barStyles, itemStyles, menuStyles } from './menubar.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
 
 /** What a bar menu's `toggle` carries: its new `open`. */
 export interface TanreiMenubarMenuToggleDetail {
@@ -759,14 +760,17 @@ export class TanreiMenubarItem extends TanreiElement {
       'aria-setsize': size ? String(size) : null,
       tabindex: stop ? '0' : '-1',
     };
-    const nothingSaid = { role: 'none', 'aria-disabled': null, 'aria-label': null, 'aria-posinset': null, 'aria-setsize': null, tabindex: null };
+    const nothingSaid = { role: 'none', 'aria-disabled': null, 'aria-posinset': null, 'aria-setsize': null, tabindex: null };
+    // MBR-48: an action's label is its whole name over the product's, which names it while the label is empty; folded,
+    // or a link item's host, it is nothing, and the product's name is held.
+    nameHost(this, folded || anchor ? null : this.label);
     if (folded) {
       hostAria(this, { ...nothingSaid, 'data-tanrei-folded': '', 'data-tanrei-focus': null });
       if (anchor) hostAria(anchor, { ...said, 'aria-posinset': null, 'aria-setsize': null, tabindex: '-1' });
     } else if (anchor) {
       hostAria(this, { ...nothingSaid, 'data-tanrei-folded': null });
       hostAria(anchor, said);
-    } else hostAria(this, { ...said, 'aria-label': this.label || null, 'data-tanrei-folded': null, 'data-tanrei-focus': null });
+    } else hostAria(this, { ...said, 'data-tanrei-folded': null, 'data-tanrei-focus': null });
     if (anchor) {
       // MBR-37: what a new context is said with — the description, unless the product wrote its own on the anchor — and
       // no handle for the page it opens to the one that opened it.
@@ -789,7 +793,7 @@ export class TanreiMenubarItem extends TanreiElement {
 
   /** What a debug build is told of a bar item the element survives (MBR-38, MBR-39, MBR-44, MBR-45); the link primitive says the rest. */
   private check(anchor: HTMLAnchorElement | null) {
-    if (!this.label.trim()) report(this, 'MBR-44', 'label is empty, so the bar item has no accessible name; give an action a label ("Run"), a link item\'s anchor its text');
+    if (!this.label.trim() && !(!anchor && namedByProduct(this))) report(this, 'MBR-44', 'label is empty, so the bar item has no accessible name; give an action a label ("Run"), a link item\'s anchor its text');
     if (!anchor) {
       if (this.hasAttribute('href')) report(this, 'MBR-45', 'href is written on the element, which holds no anchor; it is ignored and the bar item is an action — a link item is the product\'s own anchor inside the element, <tanrei-menubar-item><a href="…">…</a></tanrei-menubar-item>, so that the link exists before the element is defined');
       return;
@@ -1618,9 +1622,11 @@ export class TanreiMenubar extends TanreiElement {
 
   protected override updated(changed: PropertyValues<this>) {
     // MBR-19: a menubar named by its label, horizontal; each title says the rest about itself.
-    hostAria(this, { role: 'menubar', 'aria-label': this.label || null, 'aria-orientation': 'horizontal' });
+    // MBR-48: its label is its whole name over the product's, which names it while the label is empty.
+    nameHost(this, this.label);
+    hostAria(this, { role: 'menubar', 'aria-orientation': 'horizontal' });
     // MBR-20: a bar without a label still renders and works; a debug build says it has no name.
-    if (changed.has('label') && !this.label.trim()) report(this, 'MBR-20', 'label is empty, so the menubar has no accessible name; give it a label ("Application menu")');
+    if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'MBR-20', 'label is empty, so the menubar has no accessible name; give it a label ("Application menu")');
     // MBR-21, MBR-22: the menus in the row and the folded ones, each where it is drawn now, none of them moved.
     const row = this.renderRoot.querySelector<HTMLSlotElement>('slot.row');
     const visible = this.visible;
@@ -1701,6 +1707,9 @@ function isRow(child: Element): child is Row {
 }
 
 if (!customElements.get('tanrei-menubar-menu')) customElements.define('tanrei-menubar-menu', TanreiMenubarMenu);
+// MBR-48: the hosts carry their roles, and hold the product's name while their labels name them.
+holdsProductName(TanreiMenubarItem);
+holdsProductName(TanreiMenubar);
 if (!customElements.get('tanrei-menubar-item')) customElements.define('tanrei-menubar-item', TanreiMenubarItem);
 if (!customElements.get('tanrei-menubar')) customElements.define('tanrei-menubar', TanreiMenubar);
 

@@ -10,6 +10,7 @@ import '../loading-indicator/loading-indicator.js';
 import { TanreiEmbeddedTextInput } from '../embedded-text-input/embedded-text-input.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
+import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
 
 /** Whether people choose items: none (read and opened), single (one item), multiple (any number, each by itself). */
 export type TanreiTreeViewSelection = 'none' | 'single' | 'multiple';
@@ -508,9 +509,10 @@ export class TanreiTreeView extends TanreiLightElement {
     if (changed.has('stickyParents') || changed.has('stickyMax')) this.watchScroll();
     if (changed.has('label') || !this.named) {
       this.named = true;
-      mark(this, 'aria-label', this.label || null);
+      // TRV-54: its label is its whole name over the product's, which names it while the label is empty.
+      nameHost(this, this.label);
       // TRV-32: still rendered; a debug build says that the tree has no accessible name.
-      if (!this.label && !this.hasAttribute('aria-labelledby')) report(this, 'TRV-32', 'the tree has no accessible name; give it a label');
+      if (!this.label && !namedByProduct(this)) report(this, 'TRV-32', 'the tree has no accessible name; give it a label');
     }
     // (No property changed: the product's words did — src/primitives/words.ts.)
     if (changed.has('loadingLabel') || changed.size === 0) for (const loader of this.querySelectorAll<HTMLLIElement>(`li[${LOADING}]`)) this.writeLoader(loader);
@@ -1949,6 +1951,8 @@ function order(part: Element): number {
 // would otherwise drop their modules as having no side effects.
 if (!customElements.get('tanrei-embedded-text-input')) customElements.define('tanrei-embedded-text-input', TanreiEmbeddedTextInput);
 if (!customElements.get('tanrei-tooltip')) customElements.define('tanrei-tooltip', TanreiTooltip);
+// TRV-54: the host carries the tree role, and holds the product's name while its label names it.
+holdsProductName(TanreiTreeView);
 if (!customElements.get('tanrei-tree-view')) customElements.define('tanrei-tree-view', TanreiTreeView);
 
 declare global {
