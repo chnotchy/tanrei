@@ -1,5 +1,5 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
-import { AvailabilityController, FieldControlController, report, syncFocusStyle } from '../../primitives/index.js';
+import { AvailabilityController, FieldControlController, delegatedAria, delegatesAria, report, syncFocusStyle } from '../../primitives/index.js';
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { takeFormDisabled } from '../../primitives/form-disabled.js';
@@ -704,11 +704,13 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
           autocorrect="off"
           spellcheck="false"
           enterkeyhint="done"
-          aria-label=${name || nothing}
-          aria-description=${description || nothing}
-          aria-invalid=${this.isError ? 'true' : nothing}
-          aria-required=${this.field.required ? 'true' : nothing}
-          aria-readonly=${this.readOnly ? 'true' : nothing}
+          ${delegatedAria(this, {
+            'aria-label': name,
+            'aria-description': description,
+            'aria-invalid': this.isError && 'true',
+            'aria-required': this.field.required && 'true',
+            'aria-readonly': this.readOnly && 'true',
+          })}
           ?readonly=${this.readOnly}
           ?disabled=${disabled}
           @beforeinput=${this.#onBeforeInput}
@@ -742,6 +744,8 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
 disabledWaitsWhileFocused(TanreiOneTimeCodeInput);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiOneTimeCodeInput);
+// The product's ARIA on the host is the input's (src/primitives/delegated-aria.ts); the disabled state is its own.
+delegatesAria(TanreiOneTimeCodeInput, { owns: ['aria-disabled'] });
 if (!customElements.get('tanrei-one-time-code-input')) customElements.define('tanrei-one-time-code-input', TanreiOneTimeCodeInput);
 
 declare global {

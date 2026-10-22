@@ -195,7 +195,8 @@
     "notes": [
       "One level down is the same thing: a Field with a select in it, holding the same options. Every fixture has that pair as its twin, and the accessibility tree of the two is the same (SEF-1).",
       "On the web the two members stand in the select field's own shadow root, so the form meets the select field and not the select (SEF-2), focus passes through to the trigger (SEF-3), and the options, which stay the product's children, reach the select through a slot and are read by it as data.",
-      "A select with no visible label of its own — in a header, a toolbar, a column of a table — is the bare select, named by its own label, not a select field with labelHidden."
+      "A select with no visible label of its own — in a header, a toolbar, a column of a table — is the bare select, named by its own label, not a select field with labelHidden.",
+      "WHEN the product sets an aria- attribute on the host THE select field SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the select field is invalid — except those the select field owns (aria-label, aria-labelledby, aria-disabled, aria-haspopup, aria-expanded, aria-controls), which it SHALL move and not expose: its name is label (SEF-1). WHEN the product removes the aria- attribute or its data-aria- twin THE select field SHALL take it off that element. WHEN the product sets an aria- attribute the select field owns THE select field SHALL report it in debug builds."
     ]
   },
   "tokens": "comp.field",

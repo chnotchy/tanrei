@@ -241,7 +241,8 @@
       "One level down is the same thing: a Field with a combobox in it, holding the same options. Every fixture has that pair as its twin, and the accessibility tree of the two is the same (CBF-1).",
       "The options are the product's, and they are the combobox's: the combobox field passes them on and does nothing with them (CBF-2). Value, text and open are the combobox's too, and the combobox field keeps no second copy that could disagree with it (CBF-3).",
       "On the web the two members stand in the combobox field's own shadow root, so the form meets the combobox field and not the combobox (CBF-4); focus passes through to the input (CBF-5); and the product's option elements stay its own children, read by the combobox through a slot.",
-      "A list is not a second thing the component reports: choosing an option is setting its one value, so the combobox field is composed, not a feature."
+      "A list is not a second thing the component reports: choosing an option is setting its one value, so the combobox field is composed, not a feature.",
+      "WHEN the product sets an aria- attribute on the host THE combobox field SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the combobox field is invalid — except those the combobox field owns (aria-label, aria-labelledby, aria-disabled, aria-haspopup, aria-expanded, aria-controls), which it SHALL move and not expose: its name is label (CBF-1). WHEN the product removes the aria- attribute or its data-aria- twin THE combobox field SHALL take it off that element. WHEN the product sets an aria- attribute the combobox field owns THE combobox field SHALL report it in debug builds."
     ]
   },
   "tokens": "comp.field",

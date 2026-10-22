@@ -2,7 +2,8 @@ import { type PropertyDeclarations, type PropertyValues, css, html, nothing } fr
 import { live } from 'lit/directives/live.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { wordPlaces } from '../../generated/words.js';
-import { ComposedElement, composedHost, exported, forward } from '../../primitives/composed.js';
+import { ComposedElement, composedHost, exported, fieldDelegatesAria, forward } from '../../primitives/composed.js';
+import { delegatedAria } from '../../primitives/delegated-aria.js';
 import { takeFormDisabled } from '../../primitives/form-disabled.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { ambientLocale } from '../../primitives/locale-date.js';
@@ -355,8 +356,6 @@ export class TanreiChipField extends ComposedElement {
 
   /** W6, item 6: a disabled `<fieldset>` around the element, or its own `disabled` attribute, as the platform says it. */
   protected formDisabled = false;
-
-  protected override readonly hostNameSentence = 'CHF-21';
 
   private readonly internals = this.attachInternals();
 
@@ -948,6 +947,7 @@ export class TanreiChipField extends ComposedElement {
           part="text-input"
           exportparts=${INPUT_PARTS.attribute}
           ${forward(this, INPUT)}
+          ${delegatedAria(this, {})}
           .type=${LINE_TYPES.includes(this.type) ? this.type : 'text'}
           .placeholder=${this.list.length ? '' : this.placeholder}
           .value=${live(this.inputValue)}
@@ -967,6 +967,8 @@ export class TanreiChipField extends ComposedElement {
 
 // Its `disabled` attribute, written while it holds focus, waits until focus has left: a frame at most.
 disabledWaitsWhileFocused(TanreiChipField);
+// CHF-21: the product's ARIA on the host is its typing part's (src/primitives/delegated-aria.ts), but for its name, which is label.
+fieldDelegatesAria(TanreiChipField, TanreiTextInput, 'CHF-21');
 if (!customElements.get('tanrei-chip-field')) customElements.define('tanrei-chip-field', TanreiChipField);
 
 declare global {

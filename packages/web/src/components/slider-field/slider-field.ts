@@ -1,5 +1,6 @@
 import { type PropertyDeclarations, type PropertyValues, css, html } from 'lit';
-import { ComposedControl, type ValueMember, composedHost, exported, forward } from '../../primitives/composed.js';
+import { ComposedControl, type ValueMember, composedHost, exported, forward, fieldDelegatesAria } from '../../primitives/composed.js';
+import { delegatedAria } from '../../primitives/delegated-aria.js';
 import type { FormEntry } from '../../primitives/form-says.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { report } from '../../primitives/report.js';
@@ -238,8 +239,6 @@ export class TanreiSliderField extends ComposedControl<number> {
   /** Does not draw the value at the end of the label row (`value-hidden`). For a slider set by feel, whose number means nothing to the person (a volume, a brightness). The handle still says its value to assistive technology, and `value-indicator` still shows it. */
   valueHidden = false;
 
-  protected override readonly hostNameSentence = 'SLF-5';
-
   /** W5, for the second value of a range: the start value last set on the element, while the Slider has not taken it. */
   private startGiven: number | undefined;
   private startPending = false;
@@ -308,11 +307,13 @@ export class TanreiSliderField extends ComposedControl<number> {
   // 2); it stands in a shadow root, outside every form, and submits nothing itself.
   protected override render() {
     return html`<tanrei-field part="field" exportparts=${FIELD_PARTS.attribute} ${forward(this, FIELD)} .disabled=${this.disabled || this.formDisabled}
-      >${this.pass('label-icon')}<tanrei-slider part="slider" exportparts=${SLIDER_PARTS.attribute} ${forward(this, SLIDER)} .label=${this.range ? this.endLabel : ''} .name=${this.name}></tanrei-slider
+      >${this.pass('label-icon')}<tanrei-slider part="slider" exportparts=${SLIDER_PARTS.attribute} ${delegatedAria(this, {})} ${forward(this, SLIDER)} .label=${this.range ? this.endLabel : ''} .name=${this.name}></tanrei-slider
     ></tanrei-field>`;
   }
 }
 
+// SLF-5: the product's ARIA on the host is its control's (src/primitives/delegated-aria.ts), but for its name, which is label.
+fieldDelegatesAria(TanreiSliderField, TanreiSlider, 'SLF-5');
 if (!customElements.get('tanrei-slider-field')) customElements.define('tanrei-slider-field', TanreiSliderField);
 
 declare global {

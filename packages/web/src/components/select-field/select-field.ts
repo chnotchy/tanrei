@@ -1,5 +1,6 @@
 import { type PropertyDeclarations, type PropertyValues, css, html } from 'lit';
-import { ComposedControl, type ValueMember, composedHost, exported, forward } from '../../primitives/composed.js';
+import { ComposedControl, type ValueMember, composedHost, exported, forward, fieldDelegatesAria } from '../../primitives/composed.js';
+import { delegatedAria } from '../../primitives/delegated-aria.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { OPTION_GROUP_TAG, OPTION_TAG } from '../../primitives/option-list.js';
 import { report } from '../../primitives/report.js';
@@ -243,8 +244,6 @@ export class TanreiSelectField extends ComposedControl<string> {
   /** @from tanrei-select.emptyText */
   emptyText = '';
 
-  protected override readonly hostNameSentence = 'SEF-1';
-
   private get select(): TanreiSelect | null {
     return this.renderRoot?.querySelector<TanreiSelect>('tanrei-select') ?? null;
   }
@@ -290,13 +289,15 @@ export class TanreiSelectField extends ComposedControl<string> {
   // No text stands between the tags: the Field's control is its one child without a slot.
   protected override render() {
     return html`<tanrei-field part="field" exportparts=${FIELD_PARTS.attribute} ${forward(this, FIELD)} .disabled=${this.disabled || this.formDisabled}
-      >${this.pass('label-icon')}<tanrei-select part="select" exportparts=${SELECT_PARTS.attribute} ${forward(this, SELECT)} .inline=${this.hasAttribute('inline')}
+      >${this.pass('label-icon')}<tanrei-select part="select" exportparts=${SELECT_PARTS.attribute} ${delegatedAria(this, {})} ${forward(this, SELECT)} .inline=${this.hasAttribute('inline')}
         ><slot></slot>${this.pass('leading-icon')}</tanrei-select
       ></tanrei-field
     >`;
   }
 }
 
+// SEF-1: the product's ARIA on the host is its control's (src/primitives/delegated-aria.ts), but for its name, which is label.
+fieldDelegatesAria(TanreiSelectField, TanreiSelect, 'SEF-1');
 if (!customElements.get('tanrei-select-field')) customElements.define('tanrei-select-field', TanreiSelectField);
 
 declare global {

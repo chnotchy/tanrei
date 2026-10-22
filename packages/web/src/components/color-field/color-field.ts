@@ -1,5 +1,6 @@
 import { type PropertyDeclarations, css, html } from 'lit';
-import { ComposedControl, type ValueMember, composedHost, exported, forward } from '../../primitives/composed.js';
+import { ComposedControl, type ValueMember, composedHost, exported, forward, fieldDelegatesAria } from '../../primitives/composed.js';
+import { delegatedAria } from '../../primitives/delegated-aria.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
 import {
@@ -182,8 +183,6 @@ export class TanreiColorField extends ComposedControl<string> {
   /** @from tanrei-color-input.pickerLabel */
   pickerLabel = '';
 
-  protected override readonly hostNameSentence = 'CLF-43';
-
   protected override get valueMember(): ValueMember<string> | null {
     return this.renderRoot?.querySelector<TanreiColorInput>('tanrei-color-input') ?? null;
   }
@@ -209,11 +208,13 @@ export class TanreiColorField extends ComposedControl<string> {
   // a slot.
   protected override render() {
     return html`<tanrei-field part="field" exportparts=${FIELD_PARTS.attribute} ${forward(this, FIELD)} .disabled=${this.disabled || this.formDisabled}
-      >${this.pass('label-icon')}<tanrei-color-input part="color-input" exportparts=${INPUT_PARTS.attribute} ${forward(this, INPUT)}></tanrei-color-input
+      >${this.pass('label-icon')}<tanrei-color-input part="color-input" exportparts=${INPUT_PARTS.attribute} ${delegatedAria(this, {})} ${forward(this, INPUT)}></tanrei-color-input
     ></tanrei-field>`;
   }
 }
 
+// CLF-43: the product's ARIA on the host is its control's (src/primitives/delegated-aria.ts), but for its name, which is label.
+fieldDelegatesAria(TanreiColorField, TanreiColorInput, 'CLF-43');
 if (!customElements.get('tanrei-color-field')) customElements.define('tanrei-color-field', TanreiColorField);
 
 declare global {

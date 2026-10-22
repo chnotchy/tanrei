@@ -1,5 +1,6 @@
 import { type PropertyDeclarations, css, html } from 'lit';
-import { ComposedControl, type ValueMember, composedHost, exported, forward } from '../../primitives/composed.js';
+import { ComposedControl, type ValueMember, composedHost, exported, forward, fieldDelegatesAria } from '../../primitives/composed.js';
+import { delegatedAria } from '../../primitives/delegated-aria.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
 import {
@@ -270,8 +271,6 @@ export class TanreiNumberField extends ComposedControl<number | null> {
   /** @from tanrei-number-input.invalidText */
   invalidText = '';
 
-  protected override readonly hostNameSentence = 'NUM-47';
-
   private get input(): TanreiNumberInput | null {
     return this.renderRoot?.querySelector<TanreiNumberInput>('tanrei-number-input') ?? null;
   }
@@ -305,11 +304,13 @@ export class TanreiNumberField extends ComposedControl<number | null> {
   // without a slot.
   protected override render() {
     return html`<tanrei-field part="field" exportparts=${FIELD_PARTS.attribute} ${forward(this, FIELD)} .disabled=${this.disabled || this.formDisabled}
-      >${this.pass('label-icon')}<tanrei-number-input part="number-input" exportparts=${INPUT_PARTS.attribute} ${forward(this, INPUT)}></tanrei-number-input
+      >${this.pass('label-icon')}<tanrei-number-input part="number-input" exportparts=${INPUT_PARTS.attribute} ${delegatedAria(this, {})} ${forward(this, INPUT)}></tanrei-number-input
     ></tanrei-field>`;
   }
 }
 
+// NUM-47: the product's ARIA on the host is its control's (src/primitives/delegated-aria.ts), but for its name, which is label.
+fieldDelegatesAria(TanreiNumberField, TanreiNumberInput, 'NUM-47');
 if (!customElements.get('tanrei-number-field')) customElements.define('tanrei-number-field', TanreiNumberField);
 
 declare global {
