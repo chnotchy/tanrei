@@ -14,8 +14,10 @@
 //                                    `setAttribute()`, by a framework, by an ARIA property (`host.ariaCurrent = …`,
 //                                    `host.ariaDescribedByElements = […]`) — moves to `data-aria-X`. `removeAttribute()`
 //                                    and `toggleAttribute()` of a moved name are overridden so that a framework that
-//                                    takes away the `aria-X` it set (React, Vue, Lit) takes the moved value away too.
-//                                    Nothing else is overridden: `getAttribute('aria-X')` is null and `ariaX` is null,
+//                                    takes away the `aria-X` it set (React, Vue, Lit) takes the moved value away too,
+//                                    and the setter of each name's ARIA property, so that `host.ariaX = null` (Lit's
+//                                    `.ariaX=${nothing}`) takes it away as well. Nothing else is overridden, getters
+//                                    neither: `getAttribute('aria-X')` is null and `ariaX` is null,
 //                                    because the host does not have them; the value is `data-aria-X`, and a selector
 //                                    reads `[data-aria-X]`. `owns` names what the component says itself (a toggle's
 //                                    `aria-pressed`, a checkbox's `aria-checked`, `aria-disabled`): those move too, so
@@ -101,15 +103,39 @@ type RelationName = keyof typeof DELEGATED_RELATIONS;
 export type DelegatedName = StateName | RelationName;
 
 const ALL: readonly DelegatedName[] = [...DELEGATED_STATES, ...(Object.keys(DELEGATED_RELATIONS) as RelationName[])];
+
+/** The ARIA property that reflects each name (ARIA's reflection: `aria-roledescription` is `ariaRoleDescription`). */
+const ARIA_PROPERTIES: Record<DelegatedName, string> = {
+  'aria-label': 'ariaLabel',
+  'aria-description': 'ariaDescription',
+  'aria-roledescription': 'ariaRoleDescription',
+  'aria-expanded': 'ariaExpanded',
+  'aria-haspopup': 'ariaHasPopup',
+  'aria-pressed': 'ariaPressed',
+  'aria-checked': 'ariaChecked',
+  'aria-selected': 'ariaSelected',
+  'aria-disabled': 'ariaDisabled',
+  'aria-invalid': 'ariaInvalid',
+  'aria-required': 'ariaRequired',
+  'aria-readonly': 'ariaReadOnly',
+  'aria-current': 'ariaCurrent',
+  'aria-keyshortcuts': 'ariaKeyShortcuts',
+  'aria-busy': 'ariaBusy',
+  'aria-placeholder': 'ariaPlaceholder',
+  ...DELEGATED_RELATIONS,
+};
 const NAMES = Symbol('tanrei.delegatedAria.names');
 const OWNS = Symbol('tanrei.delegatedAria.owns');
 const GIVEN = Symbol('tanrei.delegatedAria.given');
 const WATCH = Symbol('tanrei.delegatedAria.watch');
+const SET = Symbol('tanrei.delegatedAria.set');
 
 interface Delegating extends HTMLElement {
   /** Elements a relationship was given by property (`host.ariaDescribedByElements = […]`): no id to keep. */
   [GIVEN]?: Map<RelationName, readonly Element[]>;
   [WATCH]?: TreeWatch;
+  /** Elements a relationship's property setter was given, until the attribute it writes is moved. */
+  [SET]?: Map<RelationName, readonly Element[]>;
   requestUpdate(): void;
 }
 
@@ -227,6 +253,17 @@ class TreeWatch {
 
 const watchOf = (host: Delegating) => (host[WATCH] ??= new TreeWatch(host));
 
+/** The setter of each name's ARIA property as the platform has it (`Element.prototype`), where it has one. */
+const platformSetters = new Map<DelegatedName, (value: unknown) => void>(
+  typeof Element === 'undefined'
+    ? []
+    : ALL.flatMap((name) => {
+        const set = Object.getOwnPropertyDescriptor(Element.prototype, ARIA_PROPERTIES[name])?.set;
+        return set ? [[name, set] as const] : [];
+      }),
+);
+
+
 /** What `delegatesAria()` is told. */
 export interface DelegatesAriaOptions {
   /** What the component says itself: moved, never exposed, and reported where the product sets it. */
@@ -286,11 +323,22 @@ export function delegatesAria(element: { prototype: HTMLElement; observedAttribu
       report(this, sentence, `${name} on the element is the component's own to say, so it is moved to data-${name} and not exposed${hint ? `; ${hint}` : ''}`);
     }
     if (isRelation(name)) {
-      // Set by the property (`ariaDescribedByElements = […]`), the attribute is empty: the elements are the engine's.
-      const elements = value === '' ? ((Object.getOwnPropertyDescriptor(Element.prototype, DELEGATED_RELATIONS[name])?.get?.call(this) as Element[] | null) ?? []) : null;
+      // Set by the property (`ariaDescribedByElements = […]`), the attribute is empty: the elements are those its setter
+      // was given (the engine's getter leaves out every one outside the host's tree, all of them while it is not in
+      // the page yet: a template's clone), else the engine's.
+      const set = this[SET]?.get(name);
+      this[SET]?.delete(name);
+      const elements = value === '' ? (set ?? (Object.getOwnPropertyDescriptor(Element.prototype, DELEGATED_RELATIONS[name])?.get?.call(this) as Element[] | null) ?? []) : null;
       const given = (this[GIVEN] ??= new Map());
-      if (elements) given.set(name, elements);
+      if (elements) given.set(name, [...elements]);
       else given.delete(name);
+      setAttribute.call(this, dataName(name), value);
+      // The engine's own list is cleared with the attribute (Firefox keeps it when only the attribute is removed, and
+      // the host would be a second node with its description).
+      const clear = platformSetters.get(name);
+      if (elements && clear) clear.call(this, null);
+      else removeAttribute.call(this, name);
+      return;
     }
     setAttribute.call(this, dataName(name), value);
     removeAttribute.call(this, name);
@@ -314,6 +362,26 @@ export function delegatesAria(element: { prototype: HTMLElement; observedAttribu
     else this.removeAttribute(lower);
     return on;
   };
+
+  // An ARIA property set on the host (`host.ariaLabel = …`, Lit's `.ariaLabel=${…}`) writes the attribute, which moves; set
+  // to null it would take away an attribute already gone, so nothing would follow: null (or an empty list of elements)
+  // takes the moved value away as removing the attribute does. Only the setters are the component's; a getter is the
+  // platform's, and reads nothing on the host, which carries nothing.
+  for (const name of ALL) {
+    const set = platformSetters.get(name);
+    if (!set) continue;
+    Object.defineProperty(element.prototype, ARIA_PROPERTIES[name], {
+      configurable: true,
+      enumerable: true,
+      get: Object.getOwnPropertyDescriptor(Element.prototype, ARIA_PROPERTIES[name])?.get,
+      set(this: Delegating, value: unknown) {
+        if (value === null || value === undefined || (Array.isArray(value) && value.length === 0)) return this.removeAttribute(name);
+        // The elements, for the move: an engine may run it after this setter has returned (Firefox).
+        if (isRelation(name)) (this[SET] ??= new Map()).set(name, [...(value as Iterable<Element>)]);
+        set.call(this, value);
+      },
+    });
+  }
 
   prototype.connectedCallback = function (this: Delegating) {
     connected?.call(this);

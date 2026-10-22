@@ -218,6 +218,9 @@ const SUBJECTS: Record<string, Subject> = {
 /** The states the tests set on a host: each one the component does not own. */
 const STATES: Record<string, string> = { 'aria-expanded': 'false', 'aria-haspopup': 'dialog', 'aria-current': 'page', 'aria-keyshortcuts': 'Alt+K', 'aria-invalid': 'true' };
 
+/** The ARIA property that reflects each of those states. */
+const PROPERTIES: Record<string, string> = { 'aria-expanded': 'ariaExpanded', 'aria-haspopup': 'ariaHasPopup', 'aria-current': 'ariaCurrent', 'aria-keyshortcuts': 'ariaKeyShortcuts', 'aria-invalid': 'ariaInvalid' };
+
 const document_ = (body: string) => `<!doctype html>
 <html lang="en"><head><meta charset="utf-8" /><style>${read('dist/tokens.css')}</style></head>
 <body><p id="described">Described text</p><p id="other">Other text</p><p id="named">Named text</p><div id="controlled">Controlled</div>
@@ -335,6 +338,48 @@ for (const [name, subject] of Object.entries(SUBJECTS)) {
     expect(last.described, 'data-aria-* removed by the product takes it off').toBe('');
     expect(last.inner['aria-describedby'], 'no reference is left behind').toBeNull();
     expect(last.ariaOnHost).toEqual([]);
+  });
+
+  test(`${subject.sentence} ${name}: an ARIA property set on the host moves as its attribute does, and set to null takes it off the element that carries the role; the getter reads nothing on the host`, async ({ page }) => {
+    await load(page, tag, subject.markup(''));
+    const properties = Object.fromEntries(Object.entries(states).map(([state, value]) => [PROPERTIES[state]!, value]));
+    const set = (to: 'values' | 'null' | 'read') =>
+      page.evaluate(
+        ({ properties, describes, to }) => {
+          const host = document.querySelector('#subject') as unknown as Record<string, unknown>;
+          if (to !== 'read') {
+            for (const [property, value] of Object.entries(properties)) host[property] = to === 'values' ? value : null;
+            if (describes) host.ariaDescribedByElements = to === 'values' ? [document.querySelector('#described')] : null;
+          }
+          return Object.fromEntries([...Object.keys(properties), 'ariaDescribedByElements'].map((property) => [property, host[property] ?? null]));
+        },
+        { properties, describes, to },
+      );
+    const read = async () => {
+      await settle(page);
+      return read_(page, subject.path, names, subject.hostOwn);
+    };
+    await set('values');
+    const given = await read();
+    // Read once the move has run (Firefox runs it after the setter has returned).
+    const getters = await set('read');
+    for (const [property, value] of Object.entries(getters)) expect(value, `host.${property} reads nothing: the host carries nothing`).toBeNull();
+    for (const [state, value] of Object.entries(states)) {
+      expect(given.inner[state], `${state} set by its property is the element's`).toBe(value);
+      expect(given.data[`data-${state}`], `${state} moved`).toBe(value);
+    }
+    expect(given.described, 'aria-describedby set by its property').toBe(describes ? 'Described text' : '');
+    expect(given.ariaOnHost).toEqual([]);
+
+    await set('null');
+    const taken = await read();
+    for (const state of Object.keys(states)) {
+      expect(taken.inner[state], `${state} set to null leaves the element`).not.toBe(states[state]);
+      expect(taken.data[`data-${state}`], `${state} set to null leaves the host`).toBeUndefined();
+    }
+    expect(taken.described, 'ariaDescribedByElements set to null takes the description away').toBe('');
+    expect(taken.data['data-aria-describedby']).toBeUndefined();
+    expect(taken.ariaOnHost).toEqual([]);
   });
 
   test(`${subject.sentence} ${name}: where the engine has no ARIA element reflection, the text of the elements named stands in for them`, async ({ page }) => {
@@ -625,6 +670,48 @@ test('a Lit product’s bindings take away what they wrote: an attribute bound t
   expect(fieldGone.host).toEqual([]);
   expect(fieldGone.required).toBeNull();
   expect(fieldGone.description).not.toContain('Described text');
+});
+
+test('BTN-46 TXF-68: a Lit product’s property bindings (.ariaLabel, .ariaBusy, .ariaDescribedByElements) move as attributes do, and bound to nothing or null take the moved values away — on a control and on a composed field', async ({ page }) => {
+  await load(page, 'tanrei-text-field', '<div id="lit"></div>');
+  await page.addScriptTag({ content: lit() });
+  const draw = (on: 'values' | 'nothing' | 'null') =>
+    page.evaluate(
+      async (on) => {
+        type Lit = { html: (strings: TemplateStringsArray, ...values: unknown[]) => unknown; render: (value: unknown, into: Element) => void; nothing: unknown };
+        const { html, render, nothing } = (window as unknown as { __lit: Lit }).__lit;
+        const gone = on === 'nothing' ? nothing : null;
+        const described = on === 'values' ? [document.querySelector('#described')] : gone;
+        render(
+          html`<tanrei-button id="subject" .ariaLabel=${on === 'values' ? 'Send the report' : gone} .ariaBusy=${on === 'values' ? 'true' : gone} .ariaDescribedByElements=${described}></tanrei-button
+            ><tanrei-text-field id="field" label="Name" .ariaRequired=${on === 'values' ? 'true' : gone} .ariaDescribedByElements=${described}></tanrei-text-field>`,
+          document.querySelector('#lit')!,
+        );
+        for (const element of document.querySelectorAll<HTMLElement & { updateComplete?: Promise<unknown> }>('#subject, #field')) await element.updateComplete;
+      },
+      on,
+    );
+  for (const off of ['nothing', 'null'] as const) {
+    await draw('values');
+    await settle(page);
+    const button = await said(page, 'subject', ['button']);
+    expect(button.host).toEqual(['data-aria-busy=true', 'data-aria-describedby=', 'data-aria-label=Send the report']);
+    expect([button.label, button.busy, button.description]).toEqual(['Send the report', 'true', 'Described text']);
+    const field = await said(page, 'field', ['tanrei-text-input', 'input']);
+    expect(field.host).toEqual(['data-aria-describedby=', 'data-aria-required=true']);
+    expect(field.required).toBe('true');
+    expect(field.description).toContain('Described text');
+
+    await draw(off);
+    await settle(page);
+    const gone = await said(page, 'subject', ['button']);
+    expect(gone.host, `bound to ${off}, the moved values go`).toEqual([]);
+    expect([gone.label, gone.busy, gone.description]).toEqual([null, null, '']);
+    const fieldGone = await said(page, 'field', ['tanrei-text-input', 'input']);
+    expect(fieldGone.host).toEqual([]);
+    expect(fieldGone.required).toBeNull();
+    expect(fieldGone.description).not.toContain('Described text');
+  }
 });
 
 interface Unnamed {

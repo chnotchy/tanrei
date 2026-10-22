@@ -70,7 +70,8 @@ exposes them on that element. To keep the control one node for assistive technol
 - Select it by the moved name: `tanrei-button[data-aria-current="page"]`. `getAttribute('aria-current')` on it is
   `null`, and so is the `ariaCurrent` property; read `data-aria-current`.
 - Removing the `aria-*` attribute you set (`removeAttribute`, `toggleAttribute`, or a React, Vue or Lit binding set to
-  nothing) takes the moved value away; you may also remove `data-aria-*` yourself.
+  nothing) takes the moved value away, and so does setting its ARIA property to `null` (`el.ariaLabel = null`,
+  `el.ariaDescribedByElements = null`, Lit's `.ariaLabel=${nothing}`); you may also remove `data-aria-*` yourself.
 - An id reference (`aria-labelledby`, `aria-describedby`, `aria-controls`, `aria-details`, `aria-errormessage`) must
   name an element in the same tree as the control, or in a tree around it (the shadow root of a component that holds
   it), never inside another component's shadow root. It follows the element as it is added, removed or changed.
