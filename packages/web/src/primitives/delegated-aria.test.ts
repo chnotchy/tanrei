@@ -562,3 +562,118 @@ test('a Lit product’s bindings take away what they wrote: an attribute bound t
   expect(fieldGone.required).toBeNull();
   expect(fieldGone.description).not.toContain('Described text');
 });
+
+interface Unnamed {
+  /** The id of the sentence that asks for the report of a missing name. */
+  sentence: string;
+  /** The control with `id="subject"` and no label; `rest` is where the product's name goes. */
+  markup: (rest: string) => string;
+  /** From the host down, one selector per shadow root: the element the name is exposed on (none: the host is it). */
+  path: string[];
+  /** What the report of the missing name says. */
+  says: string;
+  /** Another element of the same shadow root that the product's name reaches through the first (an open FAB menu's list, named by its toggle). */
+  also?: string;
+}
+
+/** Controls whose report of a missing name counts the name the product gives on the element, as BTN-16 does. */
+const UNNAMED: Record<string, Unnamed> = {
+  'text-input': { sentence: 'TXI-23', markup: (rest) => `<tanrei-text-input id="subject" ${rest}></tanrei-text-input>`, path: ['input'], says: 'no accessible name' },
+  checkbox: { sentence: 'CHK-16', markup: (rest) => `<tanrei-checkbox id="subject" ${rest}></tanrei-checkbox>`, path: ['input'], says: 'no accessible name' },
+  'radio-button': {
+    sentence: 'RAD-18',
+    markup: (rest) => `<tanrei-radio-group label="Group"><tanrei-radio-button id="subject" value="a" ${rest}></tanrei-radio-button><tanrei-radio-button value="b" label="Beta"></tanrei-radio-button></tanrei-radio-group>`,
+    path: ['input'],
+    says: 'no accessible name',
+  },
+  switch: { sentence: 'SWT-16', markup: (rest) => `<tanrei-switch id="subject" ${rest}></tanrei-switch>`, path: ['input'], says: 'no accessible name' },
+  slider: { sentence: 'SLD-19', markup: (rest) => `<tanrei-slider id="subject" value="40" ${rest}></tanrei-slider>`, path: ['[role="slider"]'], says: 'no accessible name' },
+  select: { sentence: 'SEL-11', markup: (rest) => `<tanrei-select id="subject" ${rest}><tanrei-option value="a">Alpha</tanrei-option></tanrei-select>`, path: ['[role="combobox"]'], says: 'no accessible name' },
+  'color-input': { sentence: 'CLI-11', markup: (rest) => `<tanrei-color-input id="subject" value="#0f766e" ${rest}></tanrei-color-input>`, path: ['input'], says: 'no accessible name' },
+  'number-input': { sentence: 'NMI-12', markup: (rest) => `<tanrei-number-input id="subject" increment-label="More" decrement-label="Less" ${rest}></tanrei-number-input>`, path: ['input'], says: 'no accessible name' },
+  combobox: { sentence: 'CMB-12', markup: (rest) => `<tanrei-combobox id="subject" ${rest}><tanrei-option value="a">Alpha</tanrei-option></tanrei-combobox>`, path: ['input'], says: 'no accessible name' },
+  'one-time-code-input': { sentence: 'OTC-22', markup: (rest) => `<tanrei-one-time-code-input id="subject" ${rest}></tanrei-one-time-code-input>`, path: ['input'], says: 'no accessible name' },
+  search: { sentence: 'SRC-27', markup: (rest) => `<tanrei-search id="subject" ${rest}></tanrei-search>`, path: ['input'], says: 'search field has no accessible name' },
+  chip: { sentence: 'CHP-26', markup: (rest) => `<tanrei-chip id="subject" ${rest}></tanrei-chip>`, path: ['.container'], says: 'chip has no accessible name' },
+  card: { sentence: 'CRD-14', markup: (rest) => `<tanrei-card id="subject" interactive ${rest}>Content</tanrei-card>`, path: ['.container'], says: 'has no label' },
+  'copy-button': {
+    sentence: 'CPY-17',
+    markup: (rest) => `<tanrei-copy-button id="subject" value="a" icon-only copied-label="Copied" failed-label="Failed" ${rest}></tanrei-copy-button>`,
+    path: ['tanrei-button', 'button'],
+    says: 'icon-only button has no accessible name',
+  },
+  'main-action-button': { sentence: 'MAB-16', markup: (rest) => `<tanrei-main-action-button id="subject" ${rest}><span slot="icon">add</span></tanrei-main-action-button>`, path: ['button'], says: 'no accessible name' },
+  'button-with-menu': {
+    sentence: 'SPB-20',
+    markup: (rest) => `<tanrei-button-with-menu id="subject" menu-label="More" ${rest}><tanrei-menu-item label="One"></tanrei-menu-item></tanrei-button-with-menu>`,
+    path: ['button.leading'],
+    says: 'leading half has no accessible name',
+  },
+  'fab-menu': {
+    sentence: 'FBM-23',
+    markup: (rest) =>
+      `<tanrei-fab-menu id="subject" inline open ${rest}><span slot="icon">add</span><tanrei-fab-menu-item label="Edit" icon="edit"></tanrei-fab-menu-item><tanrei-fab-menu-item label="Mail" icon="mail"></tanrei-fab-menu-item></tanrei-fab-menu>`,
+    path: ['button'],
+    says: 'toggle and the list have no accessible name',
+    also: '[role="menu"]',
+  },
+  // The host of a tab is the tab: the name is the host's own.
+  tab: {
+    sentence: 'TAB-22',
+    markup: (rest) => `<tanrei-tabs label="Sections" value="a"><tanrei-tab id="subject" value="a" icon="home" ${rest}></tanrei-tab><tanrei-tab value="b" label="Beta"></tanrei-tab></tanrei-tabs>`,
+    path: [],
+    says: 'no accessible name',
+  },
+  'navigation-bar-item': {
+    sentence: 'NVB-20',
+    markup: (rest) =>
+      `<tanrei-navigation-bar label="Main" value="b"><tanrei-navigation-bar-item id="subject" value="a" icon="home" ${rest}></tanrei-navigation-bar-item><tanrei-navigation-bar-item value="b" label="Mail" icon="mail"></tanrei-navigation-bar-item><tanrei-navigation-bar-item value="c" label="Chat" icon="chat"></tanrei-navigation-bar-item></tanrei-navigation-bar>`,
+    path: ['[part="cell"]'],
+    says: 'no accessible name',
+  },
+  'navigation-drawer-item': {
+    sentence: 'NVD-24',
+    markup: (rest) =>
+      `<tanrei-navigation-drawer open label="Side" value="b"><tanrei-navigation-drawer-item id="subject" value="a" icon="home" ${rest}></tanrei-navigation-drawer-item><tanrei-navigation-drawer-item value="b" label="Mail" icon="mail"></tanrei-navigation-drawer-item></tanrei-navigation-drawer>`,
+    path: ['[part="cell"]'],
+    says: 'no accessible name',
+  },
+  'navigation-drawer-group': {
+    sentence: 'NVD-46',
+    markup: (rest) =>
+      `<tanrei-navigation-drawer open label="Groups" value="b"><tanrei-navigation-drawer-group id="subject" icon="folder" open ${rest}><tanrei-navigation-drawer-item value="b" label="Atlas" icon="deployed_code"></tanrei-navigation-drawer-item></tanrei-navigation-drawer-group></tanrei-navigation-drawer>`,
+    path: ['#row'],
+    says: 'no accessible name',
+  },
+};
+
+/** The element the name is exposed on, from the host `#subject` down one selector per shadow root (Playwright's CSS goes through each). */
+const exposedOn = (page: Page, path: string[]) => path.reduce((at, selector) => at.locator(selector).first(), page.locator('#subject'));
+
+for (const [name, subject] of Object.entries(UNNAMED)) {
+  test(`${subject.sentence} ${name}: with an empty label, the name the product gives the element — aria-label, or aria-labelledby naming an element — is its accessible name and nothing is reported missing; with neither, it is reported`, async ({ page }) => {
+    const reported: string[] = [];
+    page.on('console', (message) => {
+      if (message.type() === 'warning' && message.text().includes(`(${subject.sentence})`) && message.text().includes(subject.says)) reported.push(message.text());
+    });
+    // What was reported since the page was loaded, after a turn for a report that would come late.
+    const reports = async () => {
+      await settle(page);
+      return reported.splice(0);
+    };
+    const also = () => exposedOn(page, [...subject.path.slice(0, -1), subject.also!]);
+
+    await load(page, 'tanrei-navigation-drawer', subject.markup(''));
+    expect(await reports(), 'neither: the missing name is reported').not.toEqual([]);
+
+    await load(page, 'tanrei-navigation-drawer', subject.markup('aria-label="Product name"'));
+    await expect(exposedOn(page, subject.path)).toHaveAccessibleName('Product name');
+    if (subject.also) await expect(also()).toHaveAccessibleName('Product name');
+    expect(await reports(), 'aria-label: nothing is reported').toEqual([]);
+
+    await load(page, 'tanrei-navigation-drawer', subject.markup('aria-labelledby="named"'));
+    await expect(exposedOn(page, subject.path)).toHaveAccessibleName('Named text');
+    if (subject.also) await expect(also()).toHaveAccessibleName('Named text');
+    expect(await reports(), 'aria-labelledby: nothing is reported').toEqual([]);
+  });
+}

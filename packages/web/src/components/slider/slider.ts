@@ -1,6 +1,6 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, type TemplateResult, html, nothing } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
-import { AvailabilityController, DIRECTION_PROBE, DirectionController, FieldControlController, OpenAxesController, PressController, layoutSize, report, syncFocusStyle, delegatedAria, delegatesAria } from '../../primitives/index.js';
+import { AvailabilityController, DIRECTION_PROBE, DirectionController, FieldControlController, OpenAxesController, PressController, layoutSize, report, syncFocusStyle, delegatedAria, namedByProduct, delegatesAria } from '../../primitives/index.js';
 import type { TanreiSliderSizeRegistry } from '../../registry.js';
 import { takeFormDisabled } from '../../primitives/form-disabled.js';
 import { FormSays } from '../../primitives/form-says.js';
@@ -396,7 +396,7 @@ export class TanreiSlider extends TanreiElement {
     }
     if (['value', 'startValue', 'min', 'max', 'step', 'origin', 'range'].some((key) => changed.has(key as keyof TanreiSlider))) this.reportValues();
     // SLD-19: a slider without a name still renders; a debug build says what is missing.
-    if (changed.has('label') && !this.label.trim() && !this.field.label) report(this, 'SLD-19', 'label is empty, so the slider has no accessible name; give it a label');
+    if (changed.has('label') && !this.label.trim() && !this.field.label && !namedByProduct(this)) report(this, 'SLD-19', 'label is empty, so the slider has no accessible name; give it a label');
     if ((changed.has('startLabel') || changed.has('range')) && this.range && !this.startLabel.trim()) {
       report(this, 'SLD-19', 'startLabel is empty, so the range’s start handle has no accessible name; give it a start-label');
     }

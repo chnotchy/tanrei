@@ -14,7 +14,7 @@ import {
   report,
   syncFocusStyle,
   syncSeparation,
-  delegatedAria,
+  delegatedAria, namedByProduct,
   delegatesAria,
 } from '../../primitives/index.js';
 import type { TanreiButtonWithMenuSizeRegistry, TanreiButtonWithMenuVariantRegistry } from '../../registry.js';
@@ -653,7 +653,7 @@ export class TanreiButtonWithMenu extends TanreiElement {
     // SPB-23: a menu that opened from hover after the pointer had already left starts its grace at once.
     if (changed.has('fromHover')) this.startCloseGrace();
     // SPB-20: a half without a name still renders; a debug build says so (the empty menu: checkEmptyMenu()).
-    if (changed.has('label') && !this.label.trim()) report(this, 'SPB-20', 'label is empty, so the leading half has no accessible name; give it a label');
+    if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'SPB-20', 'label is empty, so the leading half has no accessible name; give it a label');
     if (changed.has('menuLabel') && !this.menuLabel.trim()) {
       report(this, 'SPB-20', 'menuLabel is empty, so the trailing half has no accessible name; say what the menu offers ("More save options")');
     }

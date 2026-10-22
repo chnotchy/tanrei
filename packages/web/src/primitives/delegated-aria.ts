@@ -174,11 +174,17 @@ function relationElements(host: Delegating, name: RelationName): Element[] {
 
 /**
  * Whether the product has named `host` itself — a non-empty `aria-label`, or an `aria-labelledby` that names an element
- * — for a component whose check for a missing name must count it (BTN-16).
+ * — for a component whose check for a missing name must count it (BTN-16, TXI-23, TAB-22…). On a component that moves
+ * the product's ARIA it reads `data-aria-*`; on one whose host carries its role itself (a tab), the attributes, or the
+ * elements given by property (`host.ariaLabelledByElements`).
  */
 export function namedByProduct(host: Element): boolean {
-  if (host.getAttribute(dataName('aria-label'))?.trim()) return true;
-  return relationElements(host as Delegating, 'aria-labelledby').length > 0;
+  if (ariaAttribute(host, 'aria-label')?.trim()) return true;
+  if (delegates(host)) return relationElements(host as Delegating, 'aria-labelledby').length > 0;
+  const given = reflects('aria-labelledby') ? (host as Element & { ariaLabelledByElements?: readonly Element[] | null }).ariaLabelledByElements : null;
+  if (given?.some((element) => element.isConnected)) return true;
+  const root = host.getRootNode() as Document | ShadowRoot;
+  return (host.getAttribute('aria-labelledby') ?? '').split(/\s+/).some((id) => !!id && !!root.getElementById?.(id));
 }
 
 /**

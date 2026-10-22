@@ -12,7 +12,7 @@ import {
   supportedLocale,
   syncFocusStyle,
   WordsController,
-  delegatedAria,
+  delegatedAria, namedByProduct,
   delegatesAria,
 } from '../../primitives/index.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
@@ -936,7 +936,7 @@ export class TanreiNumberInput extends TanreiElement {
   private reports(changed: PropertyValues) {
     if (!this.isConnected) return;
     // NMI-12: an input no Field names, with no label of its own, still renders. (A Field with an empty label says so itself: FLD-10.)
-    if (!this.label.trim() && !this.frame.state) report(this, 'NMI-12', 'label is empty and no field frames it, so the number input has no accessible name; put it in a field with a label, or give it a label');
+    if (!this.label.trim() && !this.frame.state && !namedByProduct(this)) report(this, 'NMI-12', 'label is empty and no field frames it, so the number input has no accessible name; put it in a field with a label, or give it a label');
     // NMI-44: a stepper nobody named is kept from assistive technology, and said to the developer.
     if (this.steppers && !this.words.get('incrementLabel', this.incrementLabel)) {
       this.words.missing('incrementLabel', { id: 'NMI-44', effect: 'the stepper that steps up has no name and is kept from assistive technology; the spin button still steps' });

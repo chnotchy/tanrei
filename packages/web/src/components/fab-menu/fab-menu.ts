@@ -11,7 +11,7 @@ import {
   RovingKeys,
   afterClick,
   deepActive,
-  delegatedAria,
+  delegatedAria, namedByProduct,
   delegatesAria,
   hostAria,
   report,
@@ -582,7 +582,7 @@ export class TanreiFabMenu extends TanreiElement {
 
   protected override updated(changed: PropertyValues<this>) {
     // FBM-23: a FAB menu without a label still renders; a debug build says it has no accessible name.
-    if (changed.has('label') && !this.label.trim()) report(this, 'FBM-23', 'label is empty, so the toggle and the list have no accessible name; give it a label ("Create")');
+    if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'FBM-23', 'label is empty, so the toggle and the list have no accessible name; give it a label ("Create")');
     if (this.turning && (changed.has('open') || changed.has('disabled'))) this.startTurn();
     if (changed.has('open') || changed.has('disabled') || changed.has('inline')) {
       this.closeRequested = false;
@@ -618,10 +618,12 @@ export class TanreiFabMenu extends TanreiElement {
   protected override render() {
     const open = this.openForm;
     // FBM-20: a button named by label that opens a menu and says whether it is open; the list a menu named by label.
-    // The glyphs are hidden.
+    // The glyphs are hidden. FBM-23: while label is empty, the name the product gives the element is the toggle's, and
+    // the list is named by the toggle.
     return html`
       <button
         part="container"
+        id="toggle"
         type="button"
         class=${classMap({ toggle: true, open, turning: this.turning })}
         data-tanrei-shape
@@ -651,6 +653,7 @@ export class TanreiFabMenu extends TanreiElement {
         class=${classMap({ list: true, inline: this.inline, presented: open })}
         role="menu"
         aria-label=${this.label || nothing}
+        aria-labelledby=${!this.label && namedByProduct(this) ? 'toggle' : nothing}
         popover=${this.inline ? nothing : 'manual'}
       >
         <slot></slot>

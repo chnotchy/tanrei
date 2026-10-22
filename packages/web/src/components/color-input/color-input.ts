@@ -1,6 +1,6 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
-import { AvailabilityController, FieldControlController, type FieldSays, GlyphDrawnController, NativeTextController, OpenAxesController, hostAria, report, syncFocusStyle, delegatedAria, delegatesAria } from '../../primitives/index.js';
+import { AvailabilityController, FieldControlController, type FieldSays, GlyphDrawnController, NativeTextController, OpenAxesController, hostAria, report, syncFocusStyle, delegatedAria, namedByProduct, delegatesAria } from '../../primitives/index.js';
 import { FloatingLabelController, floatingAsterisk, floatingLabel, triggerEdges } from '../../primitives/field-trigger.js';
 import type { TanreiInputBoxSizeRegistry, TanreiInputBoxVariantRegistry } from '../../registry.js';
 import '../button/button.js';
@@ -732,7 +732,7 @@ export class TanreiColorInput extends TanreiElement {
   private reports() {
     if (!this.isConnected) return;
     // CLI-11: an input no Field names, with no label of its own, still renders. (A Field with an empty label says so itself: FLD-10.)
-    if (!this.label.trim() && !this.frame.state) report(this, 'CLI-11', 'label is empty and no field frames it, so the color input has no accessible name; put it in a field with a label, or give it a label');
+    if (!this.label.trim() && !this.frame.state && !namedByProduct(this)) report(this, 'CLI-11', 'label is empty and no field frames it, so the color input has no accessible name; put it in a field with a label, or give it a label');
     if (this.picker && !this.pickerLabel.trim()) report(this, 'CLI-27', 'pickerLabel is empty, so the picker button has no accessible name; give it one in the product’s language');
     // CLI-20: framed, the Field reports a refusal it has no words for (FLD-28).
     if (this.entryError && !this.invalidText && !this.frame.framed) report(this, 'CLI-20', 'the text is not a color and invalidText does not say so; give the color input an invalidText that says the form the value takes');

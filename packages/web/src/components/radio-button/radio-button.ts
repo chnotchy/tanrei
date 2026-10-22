@@ -1,7 +1,7 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { live } from 'lit/directives/live.js';
 import { hiddenHost } from '../../primitives/hidden.js';
-import { AvailabilityController, PressController, SelectionController, markConditionChange, report, selectionRippleOrigin, syncFocusStyle, delegatedAria, delegatesAria } from '../../primitives/index.js';
+import { AvailabilityController, PressController, SelectionController, markConditionChange, report, selectionRippleOrigin, syncFocusStyle, delegatedAria, namedByProduct, delegatesAria } from '../../primitives/index.js';
 import { styles } from './radio-button.styles.js';
 import { FocusedStop, disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
@@ -387,7 +387,7 @@ export class TanreiRadioButton extends TanreiElement {
       report(this, 'RAD-25', 'the radio button stands in no group: put it in a tanrei-radio-group, or give the options that exclude each other one name');
     }
     // RAD-18: an option without a name still renders; a debug build says what is missing.
-    if (changed.has('label') && !this.label && !this.selection.field.label) report(this, 'RAD-18', 'label is empty, so the radio button has no accessible name; give it a label');
+    if (changed.has('label') && !this.label && !this.selection.field.label && !namedByProduct(this)) report(this, 'RAD-18', 'label is empty, so the radio button has no accessible name; give it a label');
   }
 
   protected override render() {

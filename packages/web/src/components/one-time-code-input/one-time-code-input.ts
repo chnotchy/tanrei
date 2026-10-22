@@ -1,5 +1,5 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
-import { AvailabilityController, FieldControlController, delegatedAria, delegatesAria, report, syncFocusStyle } from '../../primitives/index.js';
+import { AvailabilityController, FieldControlController, delegatedAria, namedByProduct, delegatesAria, report, syncFocusStyle } from '../../primitives/index.js';
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { takeFormDisabled } from '../../primitives/form-disabled.js';
@@ -304,7 +304,7 @@ export class TanreiOneTimeCodeInput extends TanreiElement {
       } else this.state = settle({ ...this.state, value }, this.cells);
     }
     // OTC-22: a field without a name still renders; a debug build says what is missing.
-    if ((changed.has('label') || !this.hasUpdated) && !this.label.trim() && !this.field.label) {
+    if ((changed.has('label') || !this.hasUpdated) && !this.label.trim() && !this.field.label && !namedByProduct(this)) {
       report(this, 'OTC-22', 'label is empty and no field frames it, so the one-time-code input has no accessible name; put it in a field with a label, or give it a label');
     }
     // OTC-20: a disabled field has no focus and no active cell (a native element that is disabled while it has focus

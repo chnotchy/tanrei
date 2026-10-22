@@ -16,7 +16,7 @@ import {
   report,
   selectionRippleOrigin,
   syncFocusStyle,
-  delegatedAria,
+  delegatedAria, namedByProduct,
   delegatesAria,
 } from '../../primitives/index.js';
 import type { TanreiChipSizeRegistry, TanreiChipVariantRegistry } from '../../registry.js';
@@ -388,7 +388,7 @@ export class TanreiChip extends TanreiElement {
       report(this, 'CHP-7', `kind "${this.kind}" is not a kind of chip; it is drawn and behaves as "action"`);
     }
     // CHP-26: the label is the name, and an input chip's remove action is named by removeLabel. It still renders; a debug build says what is missing.
-    if (changed.has('label') && !this.label) report(this, 'CHP-26', 'label is empty, so the chip has no accessible name; give it a label');
+    if (changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'CHP-26', 'label is empty, so the chip has no accessible name; give it a label');
     if ((changed.has('removeLabel') || changed.has('kind') || changed.has('removable')) && this.removes && !this.removeLabel) {
       report(this, 'CHP-26', 'removeLabel is empty, so the remove action has no accessible name; give it one that names the item');
     }

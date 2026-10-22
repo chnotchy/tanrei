@@ -4,7 +4,7 @@ import { html, literal } from 'lit/static-html.js';
 import { iconGlyph } from '../styles/icons.js';
 import { ownDirection } from '../styles/product-text.js';
 import { cornerRadius, shape } from '../styles/shape.js';
-import { delegatedAria } from './delegated-aria.js';
+import { delegatedAria, namedByProduct } from './delegated-aria.js';
 import { focusRing, syncFocusStyle } from './focus-ring.js';
 import { LinkController, linkAttributes, readDestination } from './link.js';
 import { PressController, type PressedBy, pressHold } from './press.js';
@@ -266,7 +266,7 @@ export class DestinationsController<T extends Destination> implements ReactiveCo
       this.reportOnce(seen, ids.duplicate, `the value "${repeated}" is given to more than one destination; the first of them is the one it selects`);
     }
     for (const item of items) {
-      if (!item.label.trim()) this.reportOnce(seen, ids.emptyLabel, `a destination (value "${item.value}") has an empty label, so it has no accessible name; give it a label`);
+      if (!item.label.trim() && !namedByProduct(item)) this.reportOnce(seen, ids.emptyLabel, `a destination (value "${item.value}") has an empty label, so it has no accessible name; give it a label`);
     }
     if (range && ids.count && items.length && (items.length < range[0] || items.length > range[1])) {
       this.reportOnce(seen, ids.count, `it holds ${items.length} destinations; it is made for ${range[0]} to ${range[1]}`);

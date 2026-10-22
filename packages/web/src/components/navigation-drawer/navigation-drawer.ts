@@ -13,7 +13,7 @@ import {
   PressController,
   badgeDescription,
   deepActive,
-  delegatedAria,
+  delegatedAria, namedByProduct,
   delegatesAria,
   findInteractive,
   holdPageScroll,
@@ -1115,7 +1115,7 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
     // NVD-68: without a chevron, a group that has no icon shows nothing on screen of being open or closed.
     if (this.context.chevron === 'none' && this.context.expandable && !this.icon && !this.openIcon && this.hasUpdated) report(this, 'NVD-68', `the group "${this.label}" has no icon and no openIcon while chevron is none, so nothing on screen shows whether it is open; give it an icon`);
     // NVD-46: a group without a label is a button and a list without a name.
-    if (changed.has('label') && !this.label.trim()) report(this, 'NVD-46', 'label is empty, so the group has no accessible name; give it a label');
+    if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'NVD-46', 'label is empty, so the group has no accessible name; give it a label');
     // The value as it was given, for a selector or a product that reads it; an href is not written back as one.
     if (changed.has('value')) {
       if (this.given) {
