@@ -11,7 +11,7 @@
 //
 // The probe reads the surface's motion element — the first element carrying `data-tanrei-appear` (which the
 // controller sets on it) in the root, through shadow roots — so a test names no part of a component's shadow root.
-import { type Page, expect } from '@playwright/test';
+import { type Locator, type Page, expect } from '@playwright/test';
 import type { Frame, Frames, Probe } from './frames.js';
 
 /**
@@ -110,3 +110,79 @@ export function expectExitEnd(seen: Frames, { duration, easing, tolerance = 0.01
   const bound = lastFrameLeft(duration, easing) * (opacities[0] ?? 1);
   expect(lastDrawn, `the last frame of the exit leaves ${lastDrawn} of the opacity: at most ${bound.toFixed(3)} (+${tolerance}) for ${duration} ms on cubic-bezier(${easing.join(', ')})`).toBeLessThanOrEqual(bound + tolerance);
 }
+
+/** What `turnHeld()` read: the surface held, and turned round. */
+export interface Turn {
+  /** Its opacity and its scale on each axis where its motion was held. */
+  held: { opacity: number; sx: number; sy: number };
+  /** The same, read in the task that turned it, before a frame has passed. */
+  turned: { opacity: number; sx: number; sy: number };
+  /** The properties of the appearance's transitions it carries once turned, sorted: one the turn left beside the one that replaced it is listed twice. */
+  moving: string[];
+  /** Those of them that were there before the turn — the motions it turned from, still there — as `listed` names them. */
+  kept: string[];
+  /** Every animation it carries once turned — property, pseudo-element, state, keyframes — for a failure message. */
+  listed: string;
+}
+
+/**
+ * A surface turned round carries the motions it turns to and none of those it turns from (MOT-2): no transition from
+ * before the turn is left, and no property has two. `opacity` and `scale` are always among them: they draw something
+ * under every appearance (the distance and the blur may be nothing, and then a transition of theirs moves nothing).
+ */
+export function expectTurnedAlone(turn: Turn): void {
+  expect(turn.kept, turn.listed).toEqual([]);
+  expect(turn.moving, turn.listed).toEqual([...new Set(turn.moving)]);
+  expect(turn.moving, turn.listed).toEqual(expect.arrayContaining(['opacity', 'scale']));
+}
+
+/**
+ * Turns the surface of `host` round where its motion is held (MOT-2): holds every transition of the appearance on its
+ * motion element (the first element carrying `data-tanrei-appear` in its shadow root) at half its length, sets the
+ * host's `open` to `to`, and reads in the same task, before a frame has passed. The transitions it carries then are
+ * left paused. A turn is read where the motion is held, not where a clock has let it get to, so a slow machine reads
+ * the same turn as a fast one.
+ */
+export const turnHeld = (host: Locator, to: boolean): Promise<Turn> =>
+  host.evaluate(async (el, open) => {
+    const find = (node: ParentNode): HTMLElement | null => {
+      for (const child of Array.from(node.children)) {
+        if (child.hasAttribute('data-tanrei-appear')) return child as HTMLElement;
+        const inside = (child.shadowRoot && find(child.shadowRoot)) || find(child);
+        if (inside) return inside;
+      }
+      return null;
+    };
+    const motion = (el.shadowRoot && find(el.shadowRoot)) || find(el);
+    if (!motion) throw new Error(`no element with data-tanrei-appear in ${el.localName}`);
+    const APPEAR = ['opacity', 'scale', 'translate', 'filter', 'transform'];
+    const read = () => {
+      const style = getComputedStyle(motion);
+      const [sx = '1', sy = sx] = style.scale === 'none' ? [] : style.scale.split(' ');
+      return { opacity: Number(style.opacity), sx: Number(sx), sy: Number(sy) };
+    };
+    const own = () => motion.getAnimations().filter((animation) => APPEAR.includes((animation as CSSTransition).transitionProperty));
+    const describe = (animation: Animation) => {
+      const effect = animation.effect as KeyframeEffect | null;
+      const property = (animation as CSSTransition).transitionProperty ?? (animation as CSSAnimation).animationName ?? animation.id;
+      const values = effect?.getKeyframes().map((keyframe) => String(keyframe[property] ?? '')) ?? [];
+      return `${property} ${JSON.stringify(effect?.pseudoElement ?? null)} ${animation.playState} ${values.join(' → ')}`;
+    };
+    const before = own();
+    for (const animation of before) {
+      animation.pause();
+      animation.currentTime = Number(animation.effect!.getComputedTiming().endTime) / 2;
+    }
+    const held = read();
+    Object.assign(el, { open });
+    await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete;
+    const turned = own();
+    for (const animation of turned) animation.pause();
+    return {
+      held,
+      turned: read(),
+      moving: turned.map((animation) => (animation as CSSTransition).transitionProperty).sort(),
+      kept: turned.filter((animation) => before.includes(animation)).map(describe),
+      listed: motion.getAnimations().map(describe).join('; '),
+    };
+  }, to);
