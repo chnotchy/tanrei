@@ -10,7 +10,6 @@
 // each platform from the status file. English only: a spec is written in English, and the site shows it as written in
 // every language.
 import { strings } from './i18n';
-import { specOfPage } from './page-head';
 import { usedIn } from './listing.mjs';
 import {
   componentTokenSources,
@@ -424,13 +423,4 @@ export function llmsFull(site: URL): string {
   // Each page's headings one level down, so that the file has one title.
   const pages = defaultManifest.components.map((component) => componentMarkdown(component.name, site).replace(/^(#{1,5}) /gm, '#$1 '));
   return `${head}\n\n${pages.join('\n')}`;
-}
-
-/**
- * The Markdown version of a page of the site, by the page's id (`components/button`, `ja/components/button`): a
- * component's page has one, in English; no other page has.
- */
-export function markdownAlternate(id: string): string | undefined {
-  const spec = specOfPage(id);
-  return spec ? markdownPath(spec.name) : undefined;
 }

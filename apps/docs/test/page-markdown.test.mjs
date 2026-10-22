@@ -35,6 +35,11 @@ describe("a page's Markdown is beside it", () => {
     assert.equal(markdownPathOf('/', languages), '/index.md');
     for (const dir of languages) assert.equal(markdownPathOf(`/${dir}/`, languages), `/${dir}/index.md`, dir);
   });
+  test("the head links every page the search reads to it, and no other (Head.astro)", () => {
+    const head = fs.readFileSync(here('../src/components/frame/Head.astro'), 'utf8');
+    assert.match(head, /route\.entry\.data\.pagefind === false \? undefined : markdownPathOf\(Astro\.url\.pathname, translations\.map/);
+    assert.match(head, /<link rel="alternate" type="text\/markdown" href=\{markdown\} \/>/);
+  });
 });
 
 describe('reading the built page', () => {
