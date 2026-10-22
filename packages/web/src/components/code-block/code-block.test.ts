@@ -2,6 +2,8 @@
 // every fixture has a baseline, and every length and color is read back from the tokens — never from a number written
 // here. The code is the product's own `<pre><code>` in the light DOM (the harness writes it from the fixture's `code`
 // or its runs); the tests of what a fixture cannot hold — a width, a press, a selection — give the stage their own.
+// COD-34: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

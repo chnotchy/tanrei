@@ -300,6 +300,10 @@
     {
       "id": "BSH-30",
       "text": "WHILE handle is false, dismissible is true and closable is false THE bottom sheet SHALL still render, and in debug builds report that it shows no way out a person can see: a drag, Escape and the scrim still close it, but nothing on screen says so to a person who cannot drag."
+    },
+    {
+      "id": "BSH-31",
+      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE bottom sheet SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on its container (BSH-22) — its dialog WHILE variant is modal, its region otherwise — an id reference by the elements it names in the host's tree or a tree around it, a description after its own. WHILE label or headline is not empty it is the container's name (BSH-22), over a name given so; WHILE both are empty, a name given so is the container's name and SHALL NOT be reported as having none in debug builds. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE bottom sheet SHALL take it off that element."
     }
   ],
   "accessibility": {

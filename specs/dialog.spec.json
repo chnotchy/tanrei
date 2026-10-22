@@ -307,6 +307,10 @@
       "id": "DLG-28",
       "text": "THE dialog SHALL draw no close button in its header: a dialog asks for a decision, and its way out without one is its dismissive action and, WHILE dismissible is true, Escape, the platform's back and the scrim (DLG-5). THE dialog SHALL have no prop that draws one; WHERE a platform can be given a property the dialog does not define and the product gives one that asks for a close button (the web's closable and close-label attributes), THE dialog SHALL draw nothing for it and in debug builds SHALL report that a dialog has no close button.",
       "verify": "No fixture draws a close button. On the web a dialog given closable and close-label draws no Button in its header, and a debug build reports it."
+    },
+    {
+      "id": "DLG-29",
+      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE dialog SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on its dialog (DLG-14) — an id reference by the elements it names in the host's tree or a tree around it, a description after its own. WHILE headline is not empty it is the dialog's name, over a name given so; WHILE headline is empty, a name given so is the dialog's name and SHALL NOT be reported as having none in debug builds. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE dialog SHALL take it off that element."
     }
   ],
   "accessibility": {

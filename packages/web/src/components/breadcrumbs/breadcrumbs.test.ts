@@ -1,6 +1,8 @@
 // <tanrei-breadcrumbs> and breadcrumbs.css, driven by specs/breadcrumbs.spec.json: every behaviour id (BRC-1…29) is
 // cited by a test title, every fixture has a baseline, and every length and color is read back from the tokens — never
 // from a number written here (the numbers of a `verify` are the spec's own, for the default system).
+// BRC-31: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

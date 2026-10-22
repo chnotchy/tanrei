@@ -2,6 +2,8 @@
 // test title, every fixture has a baseline (a modal one is the window — 480 × 720, or 800 × 640 for a horizontal layout —
 // since the picker and its scrim are in the top layer; a docked one is drawn in place with the `inline` test attribute),
 // and every value is read back from the tokens — never from a number written here.
+// DTM-51: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, pickerWindow, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens } from '../../../test/harness.js';

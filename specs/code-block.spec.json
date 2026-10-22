@@ -418,6 +418,10 @@
       "id": "COD-33",
       "text": "WHILE addedLines or removedLines names a line THE code block SHALL highlight the code as the two texts it holds: the lines that are not removed, in order, are read as one text — the code as it is after the change, which is what is copied (COD-11) — and color the lines that are not removed; the lines that are not added, in order, are read as another — the code as it was before — and color the removed lines. A highlighted line and an added or a removed line SHALL keep the colors of their runs over the band and beside the bar and the sign (COD-15, COD-16).",
       "verify": "The fixture auto-marked removes a line that opens a string and adds the line that replaces it; a test reads the line after them in the colors it has in the code without the removed line."
+    },
+    {
+      "id": "COD-34",
+      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE code block SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on its body, which SHALL be a group WHILE it has a name: its title or label, or one given so — an id reference by the elements it names in the host's tree or a tree around it, a description after its own. WHILE the title or label is not empty it is the body's name, over a name given so; a name given so SHALL count as the body's name for the report of COD-25. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE code block SHALL take it off that element."
     }
   ],
   "accessibility": {
