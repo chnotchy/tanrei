@@ -3,7 +3,7 @@ import { type ShadowLayer, shadeOn, shadowLayers } from './arrow.js';
 import { FollowController } from './follow.js';
 import { deepActive } from './modal.js';
 import { AppearController, type AppearTiming, appearStyles } from './motion.js';
-import { type AnchoredArrow, type AnchoredPlace, type AnchoredPlacement, type AnchoredSide, ANCHORED_PLACEMENTS, type NamedSide, anchorGone, placeAnchored, usableLength } from './placement.js';
+import { type AnchoredArrow, type AnchoredPlace, type AnchoredPlacement, type AnchoredSide, ANCHORED_PLACEMENTS, type NamedSide, anchorGone, placeAnchored, usableLength, visibleViewport } from './placement.js';
 import { keyboardCover } from './sheet.js';
 
 // A surface that opens beside a control and stays with it (a popover, POP-1 to POP-5, POP-7, POP-8, POP-10, POP-26,
@@ -217,7 +217,10 @@ export class AnchoredSurfaceController implements ReactiveController {
     return !!this.options.inline?.();
   }
 
-  /** The window the surface is kept in — less its safe-area insets and the on-screen keyboard — or, in place, the box it is positioned in. */
+  /**
+   * The window the surface is kept in — its visible part (`visibleViewport()`: above the on-screen keyboard), less its
+   * safe-area insets — or, in place, the box it is positioned in.
+   */
   private frame(surface: HTMLElement, style: CSSStyleDeclaration) {
     const root = document.documentElement;
     if (this.inline) {
@@ -230,9 +233,12 @@ export class AnchoredSurfaceController implements ReactiveController {
       return { x: box.x + parent.clientLeft, y: box.y + parent.clientTop, width: parent.clientWidth, height: parent.clientHeight, cover: 0, shift };
     }
     const [top, bottom, left, right] = [px(style.outlineOffset), px(style.scrollPaddingBlockEnd), px(style.scrollPaddingInlineStart), px(style.scrollPaddingInlineEnd)];
-    // POP-36: the keyboard's top edge is an edge of the window.
-    const cover = keyboardCover();
-    return { x: left, y: top, width: root.clientWidth - left - right, height: root.clientHeight - top - Math.max(bottom, cover), cover, shift: { x: 0, y: 0 } };
+    // POP-36, SEL-24, CMB-22: the visible part of the window — the keyboard's top edge is an edge of it — less the
+    // safe-area insets of the layout viewport's own edges.
+    const view = visibleViewport();
+    const [x, y] = [Math.max(view.x, left), Math.max(view.y, top)];
+    const [end, foot] = [Math.min(view.x + view.width, root.clientWidth - right), Math.min(view.y + view.height, root.clientHeight - bottom)];
+    return { x, y, width: Math.max(0, end - x), height: Math.max(0, foot - y), cover: keyboardCover(), shift: { x: 0, y: 0 } };
   }
 
   /** What the placement was made for, as one comparable string. */

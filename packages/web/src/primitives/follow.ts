@@ -146,6 +146,9 @@ export class FollowController implements ReactiveController {
   /** One check; what is watched is read again after it, and each followed element's box is taken as its place. */
   private run(): boolean {
     const changed = this.options.check();
+    // What the check wrote on what is watched (the surface's place, its cap read and put back) is the component's own,
+    // not a move: an attribute record it left would ask for the next frame, and that frame's check for the one after.
+    this.attributes?.takeRecords();
     if (!this.active) return changed;
     const followed = [...this.options.followed()].filter((element): element is Element => !!element);
     const sized = [...(this.options.sized?.() ?? [])].filter((element): element is Element => !!element);

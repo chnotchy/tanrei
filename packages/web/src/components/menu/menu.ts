@@ -29,14 +29,22 @@ import {
   hostAria,
   linkAttributes,
   layoutSize,
+  type MenuBox,
+  type MenuPlacement,
   naturalHeight,
   notifyItemUpdate,
+  placeAtPoint,
+  placeMenu,
+  placeSubmenu,
   registerOverlay,
   report,
   styleQueries,
+  surfaceCap,
   swallowRelease,
   syncFocusStyle,
   syncSeparation,
+  viewportKey,
+  visibleViewport,
 } from '../../primitives/index.js';
 // MNU-31: an item draws its shortcut with the keyboard shortcut, which the menu defines wherever it is imported.
 import '../keyboard-shortcut/keyboard-shortcut.js';
@@ -46,7 +54,7 @@ import type { TanreiMenuDensityRegistry } from '../../registry.js';
 import { TanreiElement } from '../../primitives/element.js';
 
 /** Where the surface goes against the anchor. A closed set; an unknown value is drawn as `bottom-start` (MNU-14). */
-export type TanreiMenuPlacement = 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
+export type TanreiMenuPlacement = MenuPlacement;
 const PLACEMENTS: readonly TanreiMenuPlacement[] = ['bottom-start', 'bottom-end', 'top-start', 'top-end'];
 
 /**
@@ -130,114 +138,13 @@ const SHORTCUT_VARIANT = '--tanrei-comp-menu-shortcut-variant';
 /** The keyboard shortcut's default form, which an empty choice falls back to. */
 const DEFAULT_SHORTCUT_VARIANT = 'keycap';
 
-// ── Placement (MNU-2): a pure function of the anchor's box, the surface's size and the viewport ─────────────────────
-
-export interface MenuBox {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
+// ── The pointer's path to a submenu (MNU-45) ─────────────────────────────────────────────────────────────────────
 
 /**
- * Where the surface goes (MNU-2): `offset` from the anchor on the placement's side, flipped to the other side when this
- * one has less room than the surface needs within `margin` of the viewport's edge and the other has more; aligned by its
- * start or end edge with the anchor's (mirrored in right-to-left), then shifted along the anchor to stay `margin` inside
- * the viewport; its height limited to the room left. Coordinates are the viewport's (`left` is physical).
+ * MNU-2, MNU-46: the product's cap on a surface's height, read on the surface's twin beside it (`.cap`, the surface's
+ * part name, never drawn), which the product's `::part(surface)` rules reach and the placement never writes.
  */
-export function placeMenu(input: { anchor: MenuBox; surface: { width: number; height: number }; viewport: { width: number; height: number }; placement: TanreiMenuPlacement; offset: number; margin: number; rtl: boolean }) {
-  const { anchor, surface, viewport, placement, offset, margin, rtl } = input;
-  let side: 'top' | 'bottom' = placement.startsWith('top') ? 'top' : 'bottom';
-  const edge = placement.endsWith('end') ? 'end' : 'start';
-  const below = viewport.height - margin - (anchor.y + anchor.height + offset);
-  const above = anchor.y - offset - margin;
-  if (side === 'bottom' && below < surface.height && above > below) side = 'top';
-  else if (side === 'top' && above < surface.height && below > above) side = 'bottom';
-  const room = Math.max(0, side === 'bottom' ? below : above);
-  const height = Math.min(surface.height, room);
-  const top = side === 'bottom' ? anchor.y + anchor.height + offset : anchor.y - offset - height;
-  // The start edge is the left one in left-to-right.
-  const alignLeft = (edge === 'start') !== rtl;
-  const wanted = alignLeft ? anchor.x : anchor.x + anchor.width - surface.width;
-  const left = Math.max(margin, Math.min(wanted, viewport.width - margin - surface.width));
-  return { top, left, maxHeight: room, side };
-}
-
-/**
- * Where the surface of a context menu goes from the point it was asked for at (MNU-61): with no offset, a corner on the
- * point — the block-start corner for a `bottom-*` placement, the block-end one for `top-*`, the inline-start one for
- * `*-start` (mirrored in right-to-left) — flipped to the other side of the point, along each axis by itself, where its
- * side has less room than the surface needs within `margin` of the viewport's edge and the other side has more; then
- * shifted to stay `margin` inside the viewport, its height limited to the room left. Coordinates are the viewport's.
- */
-export function placeAtPoint(input: { point: { x: number; y: number }; surface: { width: number; height: number }; viewport: { width: number; height: number }; placement: TanreiMenuPlacement; margin: number; rtl: boolean }) {
-  const { point, surface, viewport, placement, margin, rtl } = input;
-  let side: 'top' | 'bottom' = placement.startsWith('top') ? 'top' : 'bottom';
-  const below = viewport.height - margin - point.y;
-  const above = point.y - margin;
-  if (side === 'bottom' && below < surface.height && above > below) side = 'top';
-  else if (side === 'top' && above < surface.height && below > above) side = 'bottom';
-  const room = Math.max(0, side === 'bottom' ? below : above);
-  const height = Math.min(surface.height, room);
-  const top = side === 'bottom' ? point.y : point.y - height;
-  // Along the line: the surface runs to the right of the point where its start is the left (left-to-right, `*-start`).
-  let rightward = placement.endsWith('end') === rtl;
-  const right = viewport.width - margin - point.x;
-  const left = point.x - margin;
-  if (rightward && right < surface.width && left > right) rightward = false;
-  else if (!rightward && left < surface.width && right > left) rightward = true;
-  const wanted = rightward ? point.x : point.x - surface.width;
-  return { top, left: Math.max(margin, Math.min(wanted, viewport.width - margin - surface.width)), maxHeight: room, side };
-}
-
-/**
- * Where a submenu's surface goes (MNU-46, MNU-47): beside the surface that holds its item (`parent`), `offset` from that
- * surface's inline-end edge — or from the side `prefer` names, the side its parent surface was itself placed on — and on
- * the other side when this one has less room than the surface needs within `margin` of the viewport's edge and the
- * other has more. Where the side it is on has room for `minWidth` but not for the surface, the surface is narrowed to
- * the room. Where neither side has room for `minWidth` it is laid over `parent`: on the side with more room, as far
- * towards it as the margin allows, as wide as leaves `touch` of the parent uncovered on its other side and never
- * narrower than `minWidth`. Its first row (`lead` below its own block-start edge) is level with the item's `row`, then
- * it is shifted along the block axis to stay `margin` inside the viewport, its height limited to the room.
- * Coordinates are the viewport's (`left` and `side` are physical).
- */
-export function placeSubmenu(input: {
-  parent: MenuBox;
-  row: MenuBox;
-  surface: { width: number; height: number };
-  lead: number;
-  viewport: { width: number; height: number };
-  offset: number;
-  margin: number;
-  minWidth: number;
-  touch: number;
-  rtl: boolean;
-  prefer?: 'left' | 'right' | null;
-}) {
-  const { parent, row, surface, lead, viewport, offset, margin, minWidth, touch, rtl, prefer } = input;
-  const rooms = { right: viewport.width - margin - (parent.x + parent.width + offset), left: parent.x - offset - margin };
-  let side: 'left' | 'right' = prefer ?? (rtl ? 'left' : 'right');
-  const other = side === 'right' ? 'left' : 'right';
-  if (rooms[side] < surface.width && rooms[other] > rooms[side]) side = other;
-  let width = surface.width;
-  let left: number;
-  const overlap = rooms[side] < Math.min(minWidth, surface.width);
-  if (overlap) {
-    // MNU-47: over the parent, from the viewport's margin on that side back towards the parent's far edge.
-    const edge = side === 'right' ? viewport.width - margin : margin;
-    const kept = side === 'right' ? parent.x + touch : parent.x + parent.width - touch;
-    const free = side === 'right' ? edge - kept : kept - edge;
-    width = Math.min(Math.max(minWidth, Math.min(surface.width, free)), Math.max(0, viewport.width - 2 * margin));
-    left = side === 'right' ? edge - width : edge;
-  } else {
-    width = Math.min(surface.width, rooms[side]);
-    left = side === 'right' ? parent.x + parent.width + offset : parent.x - offset - width;
-  }
-  const room = Math.max(0, viewport.height - 2 * margin);
-  const height = Math.min(surface.height, room);
-  const top = Math.max(margin, Math.min(row.y - lead, viewport.height - margin - height));
-  return { top, left, width, maxHeight: room, side, overlap };
-}
+const capOf = (surface: HTMLElement) => surfaceCap((surface.getRootNode() as ShadowRoot).querySelector?.('.cap'));
 
 /** Whether `p` lies in the triangle `a`, `b`, `c` (its edges included). MNU-45: the pointer's path to a submenu. */
 export function inTriangle(p: { x: number; y: number }, a: { x: number; y: number }, b: { x: number; y: number }, c: { x: number; y: number }): boolean {
@@ -1236,7 +1143,8 @@ export class TanreiSubmenu extends TanreiMenuRowBase {
     return html`${this.renderRow()}
       <div part="surface" class="surface" data-tanrei-shape popover="manual" role="menu" aria-label=${this.label || nothing}>
         <div part="scroll" class="scroll">${blocksTemplate(this.blocks)}</div>
-      </div>`;
+      </div>
+      <div part="surface" class="cap" aria-hidden="true"></div>`;
   }
 }
 
@@ -1900,7 +1808,7 @@ export class TanreiMenu extends TanreiElement {
     this.presentSubmenus();
   }
 
-  /** MNU-46, MNU-47: places a submenu's surface against its item, in viewport coordinates. */
+  /** MNU-46, MNU-47: places a submenu's surface against its item, inside the visible part of the window. */
   private placeSubmenu(submenu: TanreiSubmenu) {
     const own = submenu.surfaceElement;
     const row = submenu.rowElement;
@@ -1920,7 +1828,7 @@ export class TanreiMenu extends TanreiElement {
     const scroll = submenu.scrollElement;
     const scrolled = scroll?.scrollTop ?? 0;
     own.style.inlineSize = '';
-    const viewport = { width: document.documentElement.clientWidth, height: document.documentElement.clientHeight };
+    const viewport = visibleViewport();
     const rtl = getComputedStyle(submenu).direction === 'rtl';
     // MNU-46: a submenu opened from a surface placed on the other side tries that side first.
     const prefer = level instanceof TanreiSubmenu ? level.side : null;
@@ -1929,15 +1837,19 @@ export class TanreiMenu extends TanreiElement {
     const lead = () => (first ? first.getBoundingClientRect().top - own.getBoundingClientRect().top + (submenu.scrollElement?.scrollTop ?? 0) : 0);
     // The surface's size as laid out, fractional (layoutSize): a snapped width would end it up to a pixel off its edge.
     const free = layoutSize(own).width;
-    let at = placeSubmenu({ ...input, surface: { width: free, height: naturalHeight(own, scroll) }, lead: lead() });
+    // MNU-46: no taller than the product lets it be (its own `max-block-size` on the surface part), nor than the room.
+    const cap = capOf(own);
+    const height = () => Math.min(naturalHeight(own, scroll), cap);
+    let at = placeSubmenu({ ...input, surface: { width: free, height: height() }, lead: lead() });
     if (at.width < free) {
       // Narrowed, its items wrap: it is placed again at the height that gives.
       own.style.inlineSize = `${at.width}px`;
-      at = placeSubmenu({ ...input, surface: { width: layoutSize(own).width, height: naturalHeight(own, scroll) }, lead: lead() });
+      at = placeSubmenu({ ...input, surface: { width: layoutSize(own).width, height: height() }, lead: lead() });
     }
     own.style.top = `${at.top}px`;
     own.style.left = `${at.left}px`;
-    own.style.maxBlockSize = `${at.maxHeight}px`;
+    // Important: a product's own `::part(surface)` rule would otherwise win over it, room or no room (it is read above).
+    own.style.setProperty('max-block-size', `${Math.min(at.maxHeight, cap)}px`, 'important');
     if (scroll && scroll.scrollTop !== scrolled) scroll.scrollTop = scrolled;
     own.classList.toggle('side-left', at.side === 'left');
     submenu.side = at.side;
@@ -2447,7 +2359,7 @@ export class TanreiMenu extends TanreiElement {
     return this.positionAnchor ?? this.anchorElement;
   }
 
-  /** MNU-2, MNU-61: places the surface against the anchor, or at the point a context menu was asked for, in viewport coordinates. */
+  /** MNU-2, MNU-61: places the surface against the anchor, or at the point a context menu was asked for, inside the visible part of the window. */
   private place() {
     const surface = this.surface;
     const scroll = this.scrollBox;
@@ -2457,9 +2369,11 @@ export class TanreiMenu extends TanreiElement {
     const margin = Number.parseFloat(style.scrollMarginBlockEnd) || 0;
     // The surface's size as laid out, fractional and untouched by the enter motion's scale (layoutSize): a snapped
     // one would put an end-aligned or top-side surface up to a pixel off its anchor.
-    const size = { width: layoutSize(surface).width, height: naturalHeight(surface, scroll) };
-    const against = this.placedAgainst() ?? { box: { x: margin, y: margin, width: 0, height: 0 }, point: false };
-    const viewport = { width: document.documentElement.clientWidth, height: document.documentElement.clientHeight };
+    // MNU-2: no taller than the product lets it be (its own `max-block-size` on the surface part), nor than the room.
+    const cap = capOf(surface);
+    const size = { width: layoutSize(surface).width, height: Math.min(naturalHeight(surface, scroll), cap) };
+    const viewport = visibleViewport();
+    const against = this.placedAgainst() ?? { box: { x: viewport.x + margin, y: viewport.y + margin, width: 0, height: 0 }, point: false };
     const rtl = getComputedStyle(this).direction === 'rtl';
     const placement = this.effectivePlacement;
     const at = against.point
@@ -2467,7 +2381,8 @@ export class TanreiMenu extends TanreiElement {
       : placeMenu({ anchor: against.box, surface: size, viewport, placement, offset, margin, rtl });
     surface.style.top = `${at.top}px`;
     surface.style.left = `${at.left}px`;
-    surface.style.maxBlockSize = `${at.maxHeight}px`;
+    // Important: a product's own `::part(surface)` rule would otherwise win over it, room or no room (it is read above).
+    surface.style.setProperty('max-block-size', `${Math.min(at.maxHeight, cap)}px`, 'important');
     surface.classList.toggle('side-top', at.side === 'top');
   }
 
@@ -2481,9 +2396,11 @@ export class TanreiMenu extends TanreiElement {
     const box = this.placedAgainst()?.box;
     const scroll = this.scrollBox;
     const direction = getComputedStyle(this).direction;
-    const viewport = `${document.documentElement.clientWidth},${document.documentElement.clientHeight}`;
-    // MNU-32: the layout direction is part of where the surface goes — a change of it places the surface again.
-    const layout = `${box?.x},${box?.y},${box?.width},${box?.height},${viewport},${scroll?.scrollHeight},${scroll?.scrollWidth},${direction}`;
+    const viewport = viewportKey();
+    // MNU-32: the layout direction is part of where the surface goes — a change of it places the surface again; so is
+    // the product's cap on its height, which no size of the surface reports while the cap the placement wrote holds it.
+    const cap = (surface: HTMLElement | null | undefined) => (surface ? capOf(surface) : '');
+    const layout = `${box?.x},${box?.y},${box?.width},${box?.height},${viewport},${scroll?.scrollHeight},${scroll?.scrollWidth},${direction},${cap(this.surface)}`;
     if (layout !== this.lastLayout) {
       this.lastLayout = layout;
       this.place();
@@ -2504,7 +2421,7 @@ export class TanreiMenu extends TanreiElement {
         changed = true;
         break;
       }
-      const placed = `${row.x},${row.y},${row.width},${row.height},${parent.x},${parent.y},${parent.width},${parent.height},${viewport},${own?.scrollHeight},${own?.scrollWidth},${direction}`;
+      const placed = `${row.x},${row.y},${row.width},${row.height},${parent.x},${parent.y},${parent.width},${parent.height},${viewport},${own?.scrollHeight},${own?.scrollWidth},${direction},${cap(submenu.surfaceElement)}`;
       if (placed === submenu.lastLayout) continue;
       submenu.lastLayout = placed;
       this.placeSubmenu(submenu);
@@ -2656,6 +2573,7 @@ export class TanreiMenu extends TanreiElement {
       <div part="surface" class="surface" data-tanrei-shape popover=${this.inline ? nothing : 'manual'} role="none">
         <div part="scroll" class="scroll">${blocksTemplate(this.blocks)}</div>
       </div>
+      <div part="surface" class="cap" aria-hidden="true"></div>
     `;
   }
 }
