@@ -9,7 +9,7 @@
 //   (a value that follows a choice of kind — a `pick` rule — follows the choice the chain makes; a `$value` pins it)
 //   { "scale": n }                           n × whatever was inherited, without restating it (still dial-driven)
 import { SystemError } from './errors.js';
-import { DERIVE, ENUM, evaluateNumeric, ruleDependencies, walkTokens } from './rules.js';
+import { DERIVE, ENUM, evaluateNumeric, ruleDependencies, unscaledLookup, walkTokens } from './rules.js';
 import { expandStateVocabulary, isColorRule } from './states.js';
 import { collectVocabulary, isHeldDocument, materializeVocabulary } from './vocabulary.js';
 
@@ -268,7 +268,7 @@ export function resolveNumericTokens(sources, system) {
           if (rule.fontSize) token.$value.fontSize = evaluateNumeric(rule.fontSize, lookup, { type: 'dimension' });
           if (rule.letterSpacing) token.$value.letterSpacing = evaluateNumeric(rule.letterSpacing, lookup, { type: 'dimension', fontSize: token.$value.fontSize.value });
         } else {
-          const result = evaluateNumeric(rule, lookup, { type });
+          const result = evaluateNumeric(rule, lookup, { type, unscaled });
           token.$value = type === 'number' ? result.value : result;
         }
       }
@@ -278,6 +278,14 @@ export function resolveNumericTokens(sources, system) {
     // A choice of kind answers with its names too, for a value that follows it (`pick`).
     return typeof v === 'number' ? { value: v, names: token.$extensions?.[ENUM]?.values } : v;
   };
+  // What a `pad` measures from: each height as its rule gives it with every `times` read as 1 and no `min`.
+  const unscaled = unscaledLookup((id) => {
+    const entry = index.get(id);
+    if (!entry) return { value: resolve(id) }; // a color, or an unknown token, which resolve names
+    const rule = entry.token.$extensions?.[DERIVE];
+    if (isRef(entry.token.$value)) return { alias: refId(entry.token.$value) };
+    return rule && !('fixed' in rule) && entry.type !== 'typography' ? { rule, type: entry.type } : { value: resolve(id) };
+  });
   for (const id of index.keys()) resolve(id);
   // Touch ruleDependencies so unknown references inside unused fields still surface.
   for (const [id, { token }] of index) for (const dep of ruleDependencies(token.$extensions?.[DERIVE])) if (!index.has(dep) && !isColorRef(dep)) throw new SystemError(`${id}: rule references unknown token {${dep}}`);
