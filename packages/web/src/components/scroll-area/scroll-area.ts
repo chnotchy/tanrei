@@ -13,6 +13,7 @@ import {
   tabbables,
 } from '../../primitives/index.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/delegated-aria.js';
 import { CHOICE, EDGES, type Edge, FORMS, LAYERS, SCROLL_EDGES, styles } from './scroll-area.styles.js';
 
 /** How an edge shows that content lies beyond it; `auto` takes the design system's answer (`comp.scroll-area.scroll-edge`). */
@@ -91,6 +92,8 @@ export class TanreiScrollArea extends TanreiElement {
 
   /** Whether the content does not fit, in either direction. */
   private scrolls = false;
+  /** Whether the box's fit has been read once (SCA-18). */
+  private sized = false;
 
   /** The sizes of the box's scroll bars as last written (left, right, bottom). */
   private bars = '';
@@ -190,8 +193,16 @@ export class TanreiScrollArea extends TanreiElement {
     }
     if (changed.has('edges')) this.writeEdges();
     // SCA-10: a focus stop with no name still takes focus, and says so in debug builds.
-    if (((changed as Map<string, unknown>).has('focusStop') || changed.has('label')) && this.focusStop && !this.label) {
+    if (((changed as Map<string, unknown>).has('focusStop') || changed.has('label')) && this.focusStop && !this.label && !namedByProduct(this)) {
       report(this, 'SCA-10', 'the content scrolls and nothing inside it takes focus, so the box is a focus stop of its own, a region — but label is empty and the region has no accessible name; give it a label');
+    }
+    this.checkProductName();
+  }
+
+  /** SCA-18: a name the product gives has no element to stand on while the box is no region — once its fit is known. */
+  private checkProductName() {
+    if (this.sized && !this.focusStop && namedByProduct(this)) {
+      report(this, 'SCA-18', 'the name given on the element (aria-label or aria-labelledby) names nothing while the box is not a focus stop: it is a region only while the content scrolls and nothing inside takes focus (SCA-10); name what is inside, or give the box a label for when it is one');
     }
   }
 
@@ -246,6 +257,10 @@ export class TanreiScrollArea extends TanreiElement {
       frame?.style.setProperty('--_bar-bottom', bars[2]);
     }
     this.edgesChanged();
+    if (!this.sized) {
+      this.sized = true;
+      this.checkProductName();
+    }
   };
 
   private edgesChanged() {
@@ -309,7 +324,7 @@ export class TanreiScrollArea extends TanreiElement {
         class="scroll"
         tabindex=${stop ? '0' : nothing}
         role=${stop ? 'region' : nothing}
-        aria-label=${stop && this.label ? this.label : nothing}
+        ${delegatedAria(this, { 'aria-label': stop ? this.label : null })}
         @focus=${this.onFocus}
         @focusin=${this.onFocusIn}
         @scrollend=${this.onScrollEnd}
@@ -319,6 +334,8 @@ export class TanreiScrollArea extends TanreiElement {
   }
 }
 
+// SCA-18: the product's ARIA on the host is its box's, and a name only while the box is a region.
+delegatesAria(TanreiScrollArea, { sentence: 'SCA-18' });
 if (!customElements.get('tanrei-scroll-area')) customElements.define('tanrei-scroll-area', TanreiScrollArea);
 
 declare global {

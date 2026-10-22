@@ -1394,3 +1394,38 @@ for (const [name, subject] of Object.entries(MODED)) {
     expect(result.violations.map((violation) => `${violation.id}: ${violation.nodes.map((node) => node.target.join(' > ')).join(', ')}`)).toEqual([]);
   });
 }
+
+test('FLD-33 field: the product’s aria-* on the field’s host is moved, exposed on no element — its control keeps its own name and description — and reported once each in a debug build', async ({ page }) => {
+  const reported = warnings(page, 'FLD-33', 'reaches no element');
+  await load(page, 'tanrei-field', `<tanrei-field id="subject" label="Name" supporting-text="Help" aria-label="Product name" aria-describedby="described" aria-current="page"><tanrei-text-input></tanrei-text-input></tanrei-field>`);
+  const aria = await page.evaluate(() => Object.fromEntries([...document.querySelector('#subject')!.attributes].filter((a) => a.name.includes('aria-')).map((a) => [a.name, a.value])));
+  expect(aria).toEqual({ 'data-aria-label': 'Product name', 'data-aria-describedby': 'described', 'data-aria-current': 'page' });
+  const input = page.locator('#subject tanrei-text-input input');
+  await expect(input).toHaveAccessibleName('Name');
+  await expect(input).not.toHaveAccessibleDescription(/Described text/);
+  await expect(input).not.toHaveAttribute('aria-current');
+  expect((await reported()).map((each) => each.match(/aria-[a-z]+/)?.[0]).sort()).toEqual(['aria-current', 'aria-describedby', 'aria-label']);
+  const result = await new AxeBuilder({ page }).include('#stage').analyze();
+  expect(result.violations.map((violation) => violation.id)).toEqual([]);
+});
+
+test('SCA-10 SCA-18 scroll-area: the product’s aria-* on the host is its box’s; its name names the box while it is a focus stop and a region, and names nothing — reported in a debug build — while it is not', async ({ page }) => {
+  const missing = warnings(page, 'SCA-10', 'no accessible name');
+  const nameless = warnings(page, 'SCA-18', 'names nothing');
+  const long = Array.from({ length: 30 }, (_, i) => `<p>Line ${i + 1}</p>`).join('');
+  await load(page, 'tanrei-scroll-area', `<tanrei-scroll-area id="subject" style="block-size: 80px; inline-size: 200px" aria-label="Product name" aria-describedby="described">${long}</tanrei-scroll-area>`);
+  const box = page.locator('#subject [part="container"]');
+  await expect(box).toHaveAttribute('role', 'region');
+  await expect(box, 'a focus stop: the region is named by the product').toHaveAccessibleName('Product name');
+  await expect(box).toHaveAccessibleDescription(/Described text/);
+  expect(await missing(), 'named by the product: not reported').toEqual([]);
+  expect(await nameless()).toEqual([]);
+  // The content fits: no focus stop, no role, and no name on the box.
+  await page.evaluate(() => (document.querySelector('#subject')!.innerHTML = '<p>Short</p>'));
+  await settle(page);
+  await expect(box).not.toHaveAttribute('role');
+  await expect(box).not.toHaveAttribute('aria-label');
+  expect(await nameless(), 'a name on nothing is reported').not.toEqual([]);
+  const result = await new AxeBuilder({ page }).include('#stage').analyze();
+  expect(result.violations.map((violation) => violation.id)).toEqual([]);
+});
