@@ -360,6 +360,11 @@
         "label": "label",
         "valueText": "valueText"
       },
+      "parts": {
+        "track": "track",
+        "indicator": "indicator",
+        "stop-indicator": "stop-indicator"
+      },
       "notes": "As a native `<progress>`: no `value` attribute (or removing it) is indeterminate. `valueText` is the `value-text` attribute. The host carries `role=\"progressbar\"` and the aria-value attributes. `separation` is an attribute (`auto`, `divider`, `gap`); auto reads the name in `--tanrei-comp-progress-indicator-track-separation`."
     },
     "swiftui": {

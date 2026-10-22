@@ -625,6 +625,17 @@
         "dismiss": "dismiss",
         "toggle": "expandedchange"
       },
+      "parts": {
+        "container": "container",
+        "outline": "container@outline",
+        "icon": "icon",
+        "title": "title",
+        "supporting-text": "supporting-text",
+        "action": "action",
+        "expand": "expand",
+        "close": "close",
+        "focus-ring": "action@focus-ring"
+      },
       "notes": "`title` is the `headline` property and attribute, because HTML's global `title` attribute would show a tooltip over the whole bar (as the app bar's). `closeLabel`, `statusLabel` and `expandLabel` are the `close-label`, `status-label` and `expand-label` attributes. `inverse` is a property that is `true`, `false` or `null` (the default); the `inverse` attribute sets it: absent is null, present (empty or `true`) is true, and `inverse=\"false\"` is false, the one way to refuse a system whose choice is on. While it is null the snackbar reads `--tanrei-comp-snackbar-container-inverse` from the cascade, which carries the choice's name (SNK-30). The opacities of SNK-21, SNK-31, SNK-32 and SNK-33 are applied to the color of the part they name (a mix of that color with transparent), never as an element's `opacity`, so nothing else fades with it; a status form's edge is a shadow layer of its own before the elevation's, and the tonal layer lies inside the action, under its label. The focus indicator's color is the form's `focus-ring-color` custom property, handed to the shared focus primitive (SNK-3). The expand and close buttons are `<tanrei-button size=\"small\">` elements in the snackbar's shadow root, given the variant `--tanrei-comp-snackbar-close-button-variant` names and the form's tone through the Button's internal channel (SNK-34); the expand button's expanded state and the text it controls are written on the Button's own native button (`aria-expanded`, and `ariaControlsElements`, since an id cannot be named across the Button's shadow root). `dismiss` is a CustomEvent whose `detail.reason` is the reason. `toggle` is the `expandedchange` CustomEvent, whose `detail.expanded` is the new value, because a popover element already fires a native `toggle` when it is shown and hidden. The host (`<tanrei-snackbar-host>`) queues and places snackbars; `show(options)` takes `title`, `status`, `statusLabel`, `inverse` and `expandLabel` as well; see the accessibility notes. `placement` is the `placement` attribute of `<tanrei-snackbar>` and of `<tanrei-snackbar-host>`: the host's is the placement of each snackbar whose `show()` options name none (SNK-35). What the frame keeps over the top of the area is `--tanrei-app-shell-scroll-offset` on the document's root, which `<tanrei-app-shell>` sets to its sticky header's height (APS-17) and a product's own frame may set; the safe area is `env(safe-area-inset-*)`. A compact window is one narrower than `--tanrei-comp-snackbar-breakpoint-medium`, read by the stylesheet itself, with no listener. Snapshot harness: each fixture is a `<tanrei-snackbar>` rendered outside a host (SNK-19), on a 400 px wide stage; `expanded-scrolls` on a stage 400 × 240, and `top-end` and `top-end-rtl` on a stage 720 wide, wider than a compact window."
     },
     "swiftui": {

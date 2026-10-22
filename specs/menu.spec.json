@@ -2623,6 +2623,23 @@
           "notes": "The title is the `label` attribute, as `<optgroup label>`: a `title` attribute would also draw the browser's tooltip. The group sets its own `value` before firing `change`."
         }
       },
+      "parts": {
+        "surface": "surface",
+        "container": "tanrei-menu-item container",
+        "mark": "tanrei-menu-checkbox-item mark",
+        "leading-icon": "tanrei-menu-item leading-icon",
+        "label": "tanrei-menu-item label",
+        "supporting-text": "tanrei-menu-item supporting-text",
+        "trailing-text": "tanrei-menu-item trailing-text",
+        "shortcut": "tanrei-menu-item shortcut",
+        "trailing-icon": "tanrei-menu-item trailing-icon",
+        "submenu-indicator": "tanrei-submenu submenu-indicator",
+        "submenu": "tanrei-submenu surface",
+        "group": "tanrei-menu-group",
+        "group-title": "tanrei-menu-group title",
+        "divider": "divider",
+        "focus-ring": "tanrei-menu-item container@focus-ring"
+      },
       "notes": "`tanrei-menu` (open, placement, separation, and `anchor`: the id of the anchor element, as the HTML anchor attribute) holds `tanrei-menu-item`, `tanrei-menu-checkbox-item`, `tanrei-menu-radio-item`, `tanrei-submenu` and `tanrei-menu-group` children; item attributes are kebab-case (`supporting-text`, `leading-icon`, `trailing-icon`, `trailing-text`, `mark-icon`). `click`, `change` and `toggle` fire on the item or group and bubble, so one listener on the menu can take them all. The surface is a manual popover in the top layer, placed with CSS anchor positioning and a script fallback where the browser has none; each submenu's surface is a popover of its own, placed against its `tanrei-submenu` the same way. The menu implements its own light dismiss so that it can emit `close` with a reason, and treats every surface of its tree as inside. A press outside also reaches the element under it. It sets `aria-haspopup=\"menu\"`, `aria-controls` and `aria-expanded` on the anchor element, and the same three on each submenu item's row. The `inline` attribute, for tests, draws the open surface in place, with each open submenu beside it (MNU-19). The mark is the `mark` part: the box or the ring of a control look, drawn by the menu's own styles from `--tanrei-comp-menu-control-*`, or the icon helper's glyph (MNU-22, MNU-38). The submenu indicator is the icon helper's `chevron_right` in the `submenu-indicator` part. A group's title is inset by `--tanrei-comp-menu-group-title-padding-inline-regular` from the rows' edges (MNU-28). The link item is not built on this platform yet: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. A link item's `current` writes `aria-current=\"page\"` on its anchor and draws the row from the current condition (MNU-58). Under gap each group, and each run of items outside a group, is a `.tile` (part `tile`) of its own inside the scroll box; under divider the tiles are boxes with no look (MNU-36). `trigger` is the `trigger` attribute; with `context`, `anchor` names the area. `contextRequest` is `contextrequest`, a cancelable event whose `detail` is `{ x, y, element, input }`: client coordinates, the element under the pointer or with focus, and `pointer`, `long-press` or `keyboard`. The menu listens on the area for `contextmenu` (a secondary click, Android's long press, the context-menu command of assistive technology) and cancels it unless the product cancels the request; for a touch or a pen held still, which WebKit on iOS answers with no `contextmenu`; and for Shift+F10 and the ContextMenu key on `keydown`, whose own `contextmenu` it then cancels. After a long press the release of that press, and its click, go no further. On iOS a long press may also select text: an area whose text is not to be selected says so in its own styles (`user-select`, `-webkit-touch-callout`)."
     },
     "swiftui": {

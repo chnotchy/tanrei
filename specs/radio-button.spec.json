@@ -350,6 +350,13 @@
       "events": {
         "change": "change"
       },
+      "parts": {
+        "container": "container",
+        "ring": "ring",
+        "fill": "fill",
+        "label": "label",
+        "focus-ring": "ring@focus-ring"
+      },
       "notes": "Form-associated, with the native radio's idiom: a group is the options with one `name` under the same form (or the same root without a form); the options manage the arrow keys and the single tab stop among themselves. A `tanrei-radio-group` is the usual group: inside one the option needs no `name`, takes `checked`, its tab stop and its position from the group and submits nothing itself (RAD-25). Options grouped by `name` alone are wrapped by the product in an element with role radiogroup and a name. `labelHidden` is the `label-hidden` attribute. `error` is a reflected boolean attribute. The option asks the frame around it as a checkbox does (`FieldControlController` with `errorCondition: true`, `takes: 'all'`), and draws its error form while `error` or the frame's `invalid` holds (`data-error` on `.root`); it writes no `aria-invalid`, and in a group in error it takes no description from the group's frame — it names itself, and its group says the error (RAD-26); alone in a Field it takes its name and description from the Field as any control does. Under `forced-colors: active` the error forms are the plain ones (RAD-27). `readOnly` is the `readonly` attribute (HTML's name; the native attribute does not apply to a radio button, so the option cancels the activation itself and writes no ARIA state, the radio role having none). In a `tanrei-radio-group` it is also read-only while the group is, without its own `readOnly` changing."
     },
     "swiftui": {

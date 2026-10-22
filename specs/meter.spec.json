@@ -346,6 +346,11 @@
         "label": "label",
         "valueText": "valueText"
       },
+      "parts": {
+        "track": "track",
+        "indicator": "indicator",
+        "stop-indicator": "stop-indicator"
+      },
       "notes": "Drawn as the progress indicator is (the two share the drawing code; the meter never runs the indeterminate animation). The host carries `role=\"meter\"`, `aria-valuemin`, `aria-valuemax`, `aria-valuenow`, `aria-label` and `aria-valuetext` while `value-text` is set. `separation` and `status` are attributes; `auto` reads the name in `--tanrei-comp-meter-track-separation`."
     },
     "swiftui": {

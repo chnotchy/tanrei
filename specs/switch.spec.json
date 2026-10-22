@@ -322,6 +322,15 @@
       "events": {
         "change": "change"
       },
+      "parts": {
+        "track": "track",
+        "outline": "track@outline",
+        "handle": "handle",
+        "container": "container",
+        "icon": "icon",
+        "label": "label",
+        "focus-ring": "track@focus-ring"
+      },
       "notes": "Form-associated: submits its `value` (default \"on\") under `name` while checked, as a native checkbox does; those are web attributes, not spec props. It switches its own `checked` before firing `change` (and `input`). Attributes are `label-hidden`, `checked-icon` and `unchecked-icon`. A drag (SWT-19 to SWT-21) is followed with Pointer Events on the track: `setPointerCapture` once the drag is taken, `pointermove` placing the handle, `pointerup` choosing the side, and `pointercancel`, `lostpointercapture` or Escape cancelling; the `click` that follows a taken drag is swallowed, `aria-checked` and the form value are written only on the release, and `touch-action: pan-y` on the track leaves vertical drags to the page. The in-between look is one progress from 0 to 1 in a registered custom property (`@property`, a `<number>`): every color that differs is `color-mix()` of the two conditions' tokens by it, the handle's size and place are `calc()` of it, and the two glyphs' opacities are it and its complement. A drag writes the property in each frame, and a tap transitions the same property (SWT-13), so both draw the same looks. `readOnly` is the `readonly` attribute (HTML's name; the native attribute does not apply to a checkbox, so the element cancels the activation and the drag itself and writes `aria-readonly` on its native checkbox)."
     },
     "swiftui": {

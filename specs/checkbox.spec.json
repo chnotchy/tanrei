@@ -331,6 +331,14 @@
       "events": {
         "change": "change"
       },
+      "parts": {
+        "container": "container",
+        "box": "box",
+        "outline": "box@outline",
+        "mark": "mark",
+        "label": "label",
+        "focus-ring": "box@focus-ring"
+      },
       "notes": "Form-associated (ElementInternals): it takes part in a form with `name` and `value` (default \"on\"), resets with it, and honours `required` as the native checkbox does; those three are web attributes, not spec props. It switches its own `checked` before firing `change` (and `input`), as a native checkbox does. `labelHidden` is the `label-hidden` attribute. Inside a `tanrei-checkbox-group` (found with `closest()` when it connects) it takes `checked` from the group, ignores `name` and `required`, submits nothing and fires no `input` or `change` of its own (CHK-23); a `value` attribute it does not carry is no value there, not \"on\". `readOnly` is the `readonly` attribute (HTML's name; the native attribute does not apply to a checkbox, so the element cancels the activation itself and writes `aria-readonly` on its native checkbox)."
     },
     "swiftui": {

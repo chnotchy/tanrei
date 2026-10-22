@@ -412,6 +412,12 @@
       "events": {
         "click": "click"
       },
+      "parts": {
+        "container": "container",
+        "icon": "icon",
+        "label": "label",
+        "focus-ring": "container@focus-ring"
+      },
       "notes": "The icon is the `icon` slot (a glyph of the icon font). `extended` is a boolean property that defaults to true; its attribute is the inverse `collapsed`, because an HTML boolean attribute cannot default to true. `iconPosition` is the `icon-position` attribute. The host has no `aria-expanded` or `aria-pressed` (MAB-20). The element is inline; the page positions it (for example with `position: fixed` or a sticky container). `fullWidth` is the `full-width` attribute: the host is then a block-level flex box as wide as its container, and the native `<button>` fills it (MAB-24)."
     },
     "swiftui": {
