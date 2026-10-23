@@ -8,7 +8,7 @@ import { type Contrast, type Ctx, type Json, cssColor, format, choice, h, ltr, r
 /** Text styles by level: a heading of each face, running text, a label, code. Roles a layer adds follow. */
 const RAMP = ['heading-1', 'heading-3', 'body', 'label', 'code'];
 /** The same icons, unselected and selected: what the system's icon set, weight and fills make of them. */
-const ICON_SET = ['home', 'favorite', 'bookmark', 'notifications', 'settings'];
+const SAMPLE_ICONS = ['home', 'favorite', 'bookmark', 'notifications', 'settings'];
 const SPACES = ['space50', 'space100', 'space200', 'space300', 'space400'];
 const CORNERS = ['extra-small', 'small', 'medium', 'large', 'extra-large'];
 const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
@@ -74,7 +74,7 @@ export function createPreview(ctx: Ctx, { contrast, onContrast }: { contrast: Co
     };
     const icons = h('div', { class: 'ts-buttons', 'data-sample': 'icons' }, h(Tag, {}, icon('add', { slot: 'icon' }), t.sample.withIcon), h(Tag, { variant: 'tonal', size: 'small' }, icon('edit', { slot: 'icon' }), t.sample.edit), toggle(false), toggle(true));
     // `data-selected` on a region selects every icon in it (icons.css): the family of that state AND its fill.
-    const iconRow = (selected: boolean) => h('div', { class: 'ts-icon-row', 'data-icon-row': selected ? 'selected' : 'unselected', 'data-selected': selected ? 'true' : undefined }, h('span', { class: 'ts-icon-row-label', style: font(`${typescale}label-small`), text: selected ? t.sample.selected : t.sample.unselected }), ICON_SET.map((name) => icon(name)));
+    const iconRow = (selected: boolean) => h('div', { class: 'ts-icon-row', 'data-icon-row': selected ? 'selected' : 'unselected', 'data-selected': selected ? 'true' : undefined }, h('span', { class: 'ts-icon-row-label', style: font(`${typescale}label-small`), text: selected ? t.sample.selected : t.sample.unselected }), SAMPLE_ICONS.map((name) => icon(name)));
     const iconSet = h('div', { class: 'ts-icon-set', 'data-sample': 'icon-set' }, iconRow(false), iconRow(true));
     return h(
       'div',

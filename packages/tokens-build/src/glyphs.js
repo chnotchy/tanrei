@@ -11,7 +11,7 @@ import { REPO_ROOT } from './model.js';
 
 export const COMPONENT_GLYPHS = 'packages/web/src/generated/glyphs.json';
 
-/** The glyph names the components may draw (an upper bound: see the list's own note), or null where no list is at hand. */
+/** The glyph names the components may draw (the list says where they are read from), or null where no list is at hand. */
 export function componentGlyphs(root = REPO_ROOT) {
   const file = path.join(root, COMPONENT_GLYPHS);
   return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')).glyphs : null;

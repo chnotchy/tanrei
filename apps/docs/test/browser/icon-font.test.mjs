@@ -82,14 +82,14 @@ after(async () => {
 describe('every icon of the built pages is a glyph of the cut-down file', { concurrency: 4 }, () => {
   test('the icon words written into every page, in every language', () => {
     // An icon written as markup: a bare `.tanrei-icon`, a glyph attribute (`icon`, `leading-icon`, `glyph`…), the
-    // text of a glyph slot (`slot="icon"`, `slot="leading-icon"`, `slot="chevron"`…).
+    // text of a glyph slot (`slot="icon"`, `slot="leading-icon"`, `slot="chevron"`, `slot="media"`…).
     const words = new Map();
     for (const [url, file] of pages) {
       const html = fs.readFileSync(file, 'utf8');
       const add = (word) => (words.get(word) ?? words.set(word, new Set()).get(word)).add(url);
       for (const m of html.matchAll(/<[a-z][\w-]*\s[^>]*?class="[^"]*\btanrei-icon\b[^"]*"[^>]*>\s*([^<]*?)\s*</g)) add(m[1]);
       for (const m of html.matchAll(/\s(?:icon|glyph|[a-z]+(?:-[a-z]+)*-icon)="([a-z0-9_]+)"/g)) add(m[1]);
-      for (const m of html.matchAll(/<[a-z][\w-]*\s[^>]*?\bslot="(?:icon|[a-z-]+-icon|chevron|chevron-open)"[^>]*>\s*([a-z0-9_]+)\s*</g)) add(m[1]);
+      for (const m of html.matchAll(/<[a-z][\w-]*\s[^>]*?\bslot="(?:icon|[a-z-]+-icon|chevron|chevron-open|media)"[^>]*>\s*([a-z0-9_]+)\s*</g)) add(m[1]);
     }
     assert.ok(words.size > 50, `found ${words.size} icon words`);
     for (const family of FAMILIES) {
