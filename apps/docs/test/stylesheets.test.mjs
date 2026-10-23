@@ -8,7 +8,7 @@
 // element without it takes whatever copy another bundle brings — Theme Studio's carries the Tree view's and the
 // Accordion's, in `tanrei.components`. That is how the Tree view's page came to draw the chevron under the icon.
 //
-// What the page then draws is asked of a browser in test/browser/previews.test.mjs; this holds the cause.
+// What the page then draws is asked of a browser in test/browser/previews.mjs; this holds the cause.
 //
 //   pnpm --filter @tanrei/docs test:node
 import assert from 'node:assert/strict';
