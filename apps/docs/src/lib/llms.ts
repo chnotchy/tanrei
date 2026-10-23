@@ -102,8 +102,13 @@ export function pageGroups(entries: { id: string; data: { title: string; descrip
 
 /** Text for one cell of a Markdown table: on one line, with its pipes escaped. */
 const cell = (text: string | undefined) => (text ?? '').replace(/\s*\n\s*/g, ' ').replace(/\|/g, '\\|').trim() || '—';
+/**
+ * Text that reads as written: a `<` outside a code span is escaped, so a placeholder of a spec's text
+ * (`comp.tag.<variant>.…`) is not read as an HTML tag. A code span keeps its `<`, since nothing is parsed inside one.
+ */
+const literal = (text: string) => text.replace(/(`+)[\s\S]*?\1|</g, (match) => (match === '<' ? '\\<' : match));
 /** Text on one line: a list item or a link's note. */
-const line = (text: string | undefined) => (text ?? '').replace(/\s*\n\s*/g, ' ').trim();
+const line = (text: string | undefined) => literal((text ?? '').replace(/\s*\n\s*/g, ' ').trim());
 const code = (text: string) => `\`${text}\``;
 const table = (head: string[], rows: string[][]) =>
   [`| ${head.join(' | ')} |`, `| ${head.map(() => '---').join(' | ')} |`, ...rows.map((row) => `| ${row.map(cell).join(' | ')} |`)].join('\n');

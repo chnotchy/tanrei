@@ -32,6 +32,10 @@ const manifests = new Map(
     .map((entry) => [entry.name, readJson(`tokens/generated/${entry.name}/components.json`)]),
 );
 const defaultId = config.namespace;
+/** A spec's text as a page writes it: on one line, with a `<` outside a code span escaped. */
+const asWritten = (text) => text.replace(/\s*\n\s*/g, ' ').trim().replace(/(`+)[\s\S]*?\1|</g, (match) => (match === '<' ? '\\<' : match));
+/** The text of a page outside its code spans and fenced blocks. */
+const prose = (text) => text.replace(/^```[\s\S]*?^```/gm, '').replace(/(`+)[\s\S]*?\1/g, '');
 
 /** The English pages of the site's content, with the title and description of their front matter. */
 function contentEntries() {
@@ -162,7 +166,9 @@ describe("a component's page as Markdown", () => {
       assert.equal(text.split('\n')[0], `# ${spec.title}`);
       const ids = [...text.matchAll(/^- \*\*([A-Z][A-Z0-9]*-\d+)\*\* /gm)].map((match) => match[1]);
       assert.deepEqual(ids, spec.behavior.map((rule) => rule.id));
-      for (const rule of spec.behavior) assert.ok(text.includes(`**${rule.id}** ${rule.text.replace(/\s*\n\s*/g, ' ').trim()}`), rule.id);
+      for (const rule of spec.behavior) assert.ok(text.includes(`**${rule.id}** ${asWritten(rule.text)}`), rule.id);
+      // No text of a spec opens an HTML tag, a comment or an autolink: a reader sees every `<` it writes.
+      for (const [opening] of prose(text).matchAll(/(?<!\\)<[A-Za-z/!?][^\s>]*/g)) assert.fail(`${row.name}: ${opening} reads as HTML`);
       // Every prop of the spec has its row (a forwarded one too).
       for (const prop of spec.props) assert.match(text, new RegExp(`^\\| \`${prop.name}\` \\|`, 'm'), prop.name);
       // A row of a table has as many cells as its head: no text of a spec breaks one.
@@ -183,12 +189,18 @@ describe("a component's page as Markdown", () => {
         assert.ok(row, `${omitted.name} in ${id}`);
         for (const instead of omitted.insteadUse ?? []) assert.ok(row.includes(specs.get(instead).title), `${omitted.name} in ${id}: names ${instead}`);
         if (omitted.insteadUse?.length) assert.ok(row.includes('Instead use: '), `${omitted.name} in ${id}`);
-        if (omitted.reason) assert.ok(row.includes(omitted.reason.replace(/\s*\n\s*/g, ' ').replace(/\|/g, '\\|').trim()), `${omitted.name} in ${id}: says why`);
+        if (omitted.reason) assert.ok(row.includes(asWritten(omitted.reason).replace(/\|/g, '\\|')), `${omitted.name} in ${id}: says why`);
         if (omitted.providedBy && omitted.insteadUse?.length) seen += 1;
       }
     }
     // The case that once said only where the component lives: a component of another layer with its stand-ins.
     assert.ok(seen > 0);
+  });
+
+  test("a placeholder in a spec's text is written so that it is not read as an HTML tag", () => {
+    const text = componentMarkdown('tag', site);
+    assert.ok(text.includes('comp.tag.\\<variant>.disabled.container.color'));
+    assert.ok(!/(?<!\\)<variant>/.test(prose(text)));
   });
 
   test("the stand-ins are said for a component of another layer as for one a layer left out", () => {
