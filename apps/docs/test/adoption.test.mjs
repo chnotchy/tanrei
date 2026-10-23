@@ -168,7 +168,7 @@ describe('each adoption', () => {
     said(['emphasizedToggle']);
   });
   test('a control that can do nothing without script is not drawn where none runs, and holds its room until it is defined', () => {
-    for (const [file, name] of [['components/ContrastSwitch.astro', '.docs-contrast'], ['components/tokens/Typescale.astro', '.flip'], ['components/ListingSwitch.astro', '.docs-listing'], ['components/visuals/SystemSwitch.astro', '.docs-system-switch']]) {
+    for (const [file, name] of [['components/ContrastSwitch.astro', '.docs-contrast'], ['components/tokens/Typescale.astro', '.flip'], ['components/ListingSwitch.astro', '.docs-listing'], ['components/visuals/SystemSwitch.astro', '.docs-system-switch'], ['components/frame/PageActions.astro', '.docs-page-actions']]) {
       const text = read(file);
       const escaped = name.replace('.', '\\.');
       // Written with `:not(:defined)`, as the rule that holds the room is: a rule of the class alone would lose to it.

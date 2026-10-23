@@ -19,7 +19,11 @@
 //                     one run of text, which the meta line draws as text, not as a glyph beside its label (an item
 //                     with an element inside is laid out as one). No other date: a page says when it last
 //                     changed, not when it was first written. A page no commit holds yet has no meta line. The
-//                     search does not index it: a date is not what a reader searches a page for.
+//                     search does not index it: a date is not what a reader searches a page for;
+//   the actions       on every page that has its Markdown beside it: copy it, view it, open it in a chat, add the MCP
+//                     server to an editor (PageActions.astro), beside the title while the head is wide and under its
+//                     text while it is narrow (PGH-10). They are no text of the page: neither the search nor the page's
+//                     Markdown reads them.
 //
 // Under the head of a component's page stand the facts of its spec — category, token namespace, its level and,
 // where it is built from other components, their names, each a link to its page — as Tanrei's
@@ -43,6 +47,7 @@ import { readerDayScript } from '../../lib/reader-day.mjs';
 import { lastUpdated } from 'virtual:tanrei-docs/last-updated';
 import { aroundPlace, isNotFoundPage, levelFacts, listingFacts, specOfPage } from '../../lib/page-head';
 import Callout from '../Callout.astro';
+import PageActions from './PageActions.astro';
 
 const route = Astro.locals.starlightRoute;
 const words = frameWords(Astro);
@@ -62,6 +67,8 @@ const indexOnRequest = listingOf?.onRequest ? `onrequest:${t.listing.advanced}` 
 const levels = route.hasSidebar ? trail(route.sidebar as unknown as Entry[]) : [];
 // The page that was not found has no head: the empty state in its main region holds its heading (components/NotFound.astro).
 const head = !isNotFoundPage(route.id);
+// A page the search reads has its Markdown beside it (lib/page-markdown.mjs), and the actions that copy and open it.
+const actions = head && route.entry.data.pagefind !== false;
 ---
 
 {head && (
@@ -78,11 +85,15 @@ const head = !isNotFoundPage(route.id);
       <time datetime={updated.datetime} data-day={updated.text}>{beforeDate}{updated.text}{afterDate}</time>
     </div>
   )}
+  {actions && <PageActions />}
 </tanrei-page-header>
 )}
 {/* The reader's own day in place of the UTC day, before the first frame: inline, right after the head, which it finds
     as the element before it (src/lib/reader-day.mjs). Without script the UTC day stays. */}
 {head && updated && <script is:inline set:html={readerDayScript} />}
+{/* The snackbars the actions say what they copied in (components/frame/PageActions.astro): defined by that script when
+    the actions are first about to be used, not with the page. */}
+{actions && <tanrei-snackbar-host class="docs-snackbars" data-define-on-use data-pagefind-ignore></tanrei-snackbar-host>}
 {listingOf?.onRequest && (
   <Callout type="note" title={t.listing.advanced}>
     {listingOf.placedInstead.length > 0 && (

@@ -1,0 +1,175 @@
+---
+// The actions for the whole page, in the page header's actions part (PGH-10, PGH-11: beside the title while the head is
+// wide, under its text while it is narrow): Tanrei's Button with menu (specs/button-with-menu.spec.json), whose main
+// action copies the page as Markdown — the page's own `<path>.md` (lib/page-markdown.mjs) — and whose menu holds, in two
+// groups:
+//
+//   the page          View as Markdown, Open in ChatGPT, Open in Claude: links, each to a new tab. The two chats start
+//                     with a question in the page's language that asks the assistant to read the page's Markdown by its
+//                     address on the site, so a reader asks about the page without an assistant of the site's own;
+//   the MCP server    Add to Cursor and Add to VS Code, the editors' own links that install the server, and an action
+//                     that copies the command that adds it in Claude Code — the server the page on AI agents gives
+//                     (lib/page-actions.ts).
+//
+// What is copied is said by a Snackbar (SNK-10: a live region, so a screen reader hears it), and the main action's glyph
+// is a check while it shows; a copy that fails says so and where to go instead. The page's Markdown is fetched as the
+// press is handled and handed to the clipboard as a promise (`ClipboardItem`), so that a browser that lets a page write
+// to the clipboard only while it handles a press (Safari) still does; a browser without one is handed the text once it
+// has arrived.
+//
+// Until the element is defined its room is held by its stylesheet below, from the component's own tokens and its label,
+// so nothing in the head moves when it is drawn; where no script runs it is not drawn, and a link to the page's Markdown
+// stands in its place (the one action that needs no script). The words are the dictionary's (`pageActions`, the six
+// languages). Nothing here is text of the page: the part is left out of the search and of the page's Markdown.
+import { strings } from '../../lib/i18n';
+import { markdownPathOf } from '../../lib/page-markdown.mjs';
+import { claudeCodeCommand, pageActionHrefs } from '../../lib/page-actions';
+import { translations } from '../../../i18n/locales.mjs';
+import config from '../../../../../tanrei.config.json';
+
+const route = Astro.locals.starlightRoute;
+const t = strings(route.lang);
+const w = t.pageActions;
+const markdown = markdownPathOf(Astro.url.pathname, translations.map(({ dir }) => dir));
+const hrefs = pageActionHrefs(markdown, Astro.site ?? config.site, w.ask);
+---
+
+<div data-part="actions" data-pagefind-ignore>
+  <tanrei-button-with-menu
+    class="docs-page-actions"
+    variant="outlined"
+    size="small"
+    label={w.copy}
+    menu-label={w.more}
+    data-markdown={hrefs.markdown}
+    data-copied={w.copiedMessage}
+    data-copy-failed={w.copyFailed}
+    data-error={w.error}
+  >
+    <span slot="icon" class="docs-page-actions-icon" data-pagefind-ignore>content_copy</span>
+    <tanrei-menu-group slot="menu">
+      <tanrei-menu-item label={w.view} supporting-text={w.viewNote} leading-icon="article" href={hrefs.markdown} target="new" target-label={t.opensInNewTab} />
+      <tanrei-menu-item label={w.chatgpt} supporting-text={w.askNote} leading-icon="chat" href={hrefs.chatgpt} target="new" target-label={t.opensInNewTab} />
+      <tanrei-menu-item label={w.claude} supporting-text={w.askNote} leading-icon="chat" href={hrefs.claude} target="new" target-label={t.opensInNewTab} />
+    </tanrei-menu-group>
+    <tanrei-menu-group slot="menu" label={w.mcp}>
+      <tanrei-menu-item label={w.cursor} supporting-text={w.installNote} leading-icon="extension" href={hrefs.cursor} />
+      <tanrei-menu-item label={w.vscode} supporting-text={w.installNote} leading-icon="extension" href={hrefs.vscode} />
+      <tanrei-menu-item class="docs-copy-command" label={w.claudeCode} supporting-text={w.claudeCodeNote} leading-icon="terminal" data-command={claudeCodeCommand} data-copied={w.commandCopied} data-copy-failed={w.commandFailed} />
+    </tanrei-menu-group>
+  </tanrei-button-with-menu>
+  <a class="tanrei-link docs-page-markdown" href={hrefs.markdown}>{w.view}</a>
+</div>
+
+<script>
+  import '@tanrei/web/components/button-with-menu';
+  import '@tanrei/web/components/menu';
+
+  type Actions = HTMLElement & { open: boolean };
+  type Host = HTMLElement & { show(options: { message: string; status?: 'default' | 'error'; statusLabel?: string }): Promise<unknown> };
+
+  // The snackbars' host: one for the page, standing after its head (PageTitle.astro). It is defined when a reader is
+  // first about to use the actions — a pointer over them, or focus in them — so that its live regions are in the
+  // document before the first message is put in one (SNK-10), and a page that is never copied from never loads it.
+  const host = () => document.querySelector<Host>('tanrei-snackbar-host.docs-snackbars');
+  let defined: Promise<unknown> | undefined;
+  const defineHost = () => (defined ??= import('@tanrei/web/components/snackbar').then(() => customElements.whenDefined('tanrei-snackbar-host')));
+
+  /** Says how a copy went, and keeps the main action's glyph a check while the message shows. */
+  async function tell(ok: boolean, from: HTMLElement, actions: Actions) {
+    const firstUse = !customElements.get('tanrei-snackbar-host');
+    await defineHost();
+    // A live region that has just entered the document is not heard yet: it is given two frames before it speaks.
+    if (firstUse) await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    const glyph = actions.querySelector('.docs-page-actions-icon');
+    if (ok && glyph) glyph.textContent = 'check';
+    await host()?.show(ok ? { message: from.dataset.copied ?? '' } : { message: from.dataset.copyFailed ?? '', status: 'error', statusLabel: actions.dataset.error ?? '' });
+    if (glyph) glyph.textContent = 'content_copy';
+  }
+
+  /**
+   * Writes text to the clipboard. The text may still be on its way: it is handed over as a promise while the press is
+   * being handled, which a browser that lets a page write only then (Safari) needs; a browser without `ClipboardItem`,
+   * or one that refuses a promise in it, is handed the text once it has arrived.
+   */
+  async function copy(text: Promise<string>) {
+    if (typeof ClipboardItem !== 'undefined' && navigator.clipboard?.write) {
+      try {
+        await navigator.clipboard.write([new ClipboardItem({ 'text/plain': text.then((value) => new Blob([value], { type: 'text/plain' })) })]);
+        return;
+      } catch (error) {
+        // Where the text itself did not arrive, nothing else will copy it.
+        if (await text.then(() => false, () => true)) throw error;
+      }
+    }
+    await navigator.clipboard.writeText(await text);
+  }
+
+  const markdownOf = (address: string) =>
+    fetch(address).then((response) => {
+      if (!response.ok) throw new Error(`${address}: ${response.status}`);
+      return response.text();
+    });
+
+  for (const actions of document.querySelectorAll<Actions>('tanrei-button-with-menu.docs-page-actions')) {
+    actions.addEventListener('pointerenter', defineHost, { once: true });
+    actions.addEventListener('focusin', defineHost, { once: true });
+    // The product sets `open` from both of the element's events: the trailing half asks, and the menu asks to close.
+    // (Its `toggle` is a CustomEvent, not the popover's ToggleEvent that the DOM's own types name.)
+    actions.addEventListener('toggle', (event: Event) => {
+      actions.open = (event as CustomEvent<{ open: boolean }>).detail.open;
+    });
+    actions.addEventListener('close', () => {
+      actions.open = false;
+    });
+    // The main action: of the presses inside, only the leading half's click reaches the element.
+    actions.addEventListener('click', () => {
+      copy(markdownOf(actions.dataset.markdown ?? '')).then(() => tell(true, actions, actions), () => tell(false, actions, actions));
+    });
+    const command = actions.querySelector<HTMLElement>('.docs-copy-command');
+    command?.addEventListener('click', () => {
+      copy(Promise.resolve(command.dataset.command ?? '')).then(() => tell(true, command, actions), () => tell(false, command, actions));
+    });
+  }
+</script>
+
+<style is:global>
+  /* The button with menu until it is defined: its room, from its own tokens at the small size and its label (the
+     element's attribute), so that nothing in the head moves when it is drawn — the leading half (its padding with an
+     icon and the rounded end's inset, the icon, the gap, the label, its end padding) and the trailing half (the
+     chevron between its padding, and the rounded end's inset). What it holds is not drawn before it is: a glyph's name
+     is no word, and the menu's items are drawn in the menu. */
+  .docs-page-actions:not(:defined) {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    max-inline-size: 100%;
+    block-size: var(--tanrei-comp-button-with-menu-container-height-small);
+    padding-inline: calc(var(--tanrei-comp-button-with-menu-leading-padding-inline-start-with-icon-small) + var(--tanrei-comp-button-with-menu-container-outer-inset) + var(--tanrei-comp-button-with-menu-icon-size-small) + var(--tanrei-comp-button-with-menu-container-gap-small))
+      calc(var(--tanrei-comp-button-with-menu-leading-padding-inline-end-small) + 2 * var(--tanrei-comp-button-with-menu-trailing-padding-inline-small) + var(--tanrei-comp-button-with-menu-icon-size-small) + var(--tanrei-comp-button-with-menu-container-outer-inset));
+    font: var(--tanrei-comp-button-with-menu-label-typescale-small-font);
+    letter-spacing: var(--tanrei-comp-button-with-menu-label-typescale-small-letter-spacing);
+    white-space: nowrap;
+    visibility: hidden;
+  }
+  .docs-page-actions:not(:defined)::before {
+    content: attr(label);
+  }
+  .docs-page-actions:not(:defined) > :where([slot]) {
+    display: none;
+  }
+  /* Where a script runs, the link to the page's Markdown is the menu's first item, and is not drawn here. */
+  .docs-page-markdown {
+    display: none;
+  }
+  /* Where none runs the menu can do nothing: it is not drawn and takes no room, and the one action that needs no
+     script, the link to the page's Markdown, stands in its place. */
+  @media (scripting: none) {
+    .docs-page-actions:not(:defined) {
+      display: none;
+    }
+    .docs-page-markdown {
+      display: inline;
+    }
+  }
+</style>
