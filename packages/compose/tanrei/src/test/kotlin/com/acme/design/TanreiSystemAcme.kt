@@ -7025,6 +7025,7 @@ private object AcmeSystemSource {
             statusColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             statusErrorColor = TanreiPaint.Role(TanreiColorRole.Error),
             statusTypescale = typescale.bodySmall,
+            suggestionCompletionEmphasis = 300f,
             suggestionContainerShape = 4.dp,
             suggestionHeadlineTypescale = typescale.body,
             suggestionSupportingTextTypescale = typescale.bodySmall,

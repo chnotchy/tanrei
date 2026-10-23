@@ -34,6 +34,6 @@ const withSearchMarks = /* @__PURE__ */ withMarks<SearchMarks>([], ['form']);
  * Events:
  * - `onToggle` (`toggle`) — The search opened or closed its view: `detail.expanded` (and the element's `expanded`) is the new value, and `detail.reason` says why it closed (`escape`, `back`, `select`, `submit`, `outside`, `tab`, `focus-out`, `shortcut`), or `null` when it opened.
  * - `onSelect` (`select`) — The person chose a suggestion, or activated a result in place (without a modifier key, in the same window): `detail.value` is its value. The search does not change `value`; set the value you want. For a result it is fired before the browser follows the link and is cancelable: cancelling it keeps the link from being followed, so that a router can take it. A result opened in a new tab (a modifier key, the middle button, `target="new"`) fires nothing.
- * - `onSubmit` (`submit`) — The action key (Enter, Search) was pressed with no suggestion active and no result current: `detail.value`. Cancelable: cancelling it keeps an enclosing form from being submitted.
+ * - `onSubmit` (`submit`) — The action key (Enter, Search) was pressed on the query row, or with no row active and no result current, or the query row was pressed: `detail.value` (an inline completion shown is accepted first, with its own `input`). Cancelable: cancelling it keeps an enclosing form from being submitted.
  */
 export const Search: Marked<typeof SearchElement, SearchMarks> = /* @__PURE__ */ withSearchMarks(SearchElement);

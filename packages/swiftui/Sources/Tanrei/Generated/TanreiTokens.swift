@@ -13745,6 +13745,7 @@ public struct TanreiSearchTokens: Sendable, Equatable {
   public var statusColor: TanreiPaint
   public var statusErrorColor: TanreiPaint
   public var statusTypescale: TanreiTextStyle
+  public var suggestionCompletionEmphasis: Double
   public var suggestionContainerShape: CGFloat
   public var suggestionHeadlineTypescale: TanreiTextStyle
   public var suggestionSupportingTextTypescale: TanreiTextStyle
@@ -13808,6 +13809,7 @@ public struct TanreiSearchTokens: Sendable, Equatable {
     statusColor: TanreiPaint,
     statusErrorColor: TanreiPaint,
     statusTypescale: TanreiTextStyle,
+    suggestionCompletionEmphasis: Double,
     suggestionContainerShape: CGFloat,
     suggestionHeadlineTypescale: TanreiTextStyle,
     suggestionSupportingTextTypescale: TanreiTextStyle,
@@ -13866,6 +13868,7 @@ public struct TanreiSearchTokens: Sendable, Equatable {
     self.statusColor = statusColor
     self.statusErrorColor = statusErrorColor
     self.statusTypescale = statusTypescale
+    self.suggestionCompletionEmphasis = suggestionCompletionEmphasis
     self.suggestionContainerShape = suggestionContainerShape
     self.suggestionHeadlineTypescale = suggestionHeadlineTypescale
     self.suggestionSupportingTextTypescale = suggestionSupportingTextTypescale

@@ -6828,6 +6828,7 @@ private object CupertinoSystemSource {
             statusColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             statusErrorColor = TanreiPaint.Role(TanreiColorRole.Error),
             statusTypescale = typescale.bodySmall,
+            suggestionCompletionEmphasis = 200f,
             suggestionContainerShape = 8.dp,
             suggestionHeadlineTypescale = typescale.body,
             suggestionSupportingTextTypescale = typescale.bodySmall,

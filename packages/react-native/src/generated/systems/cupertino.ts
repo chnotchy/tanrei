@@ -8936,6 +8936,7 @@ export const cupertino = {
       statusColor: { kind: "role", role: "onSurfaceVariant" },
       statusErrorColor: { kind: "role", role: "error" },
       statusTypescale: "bodySmall",
+      suggestionCompletionEmphasis: 200,
       suggestionContainerShape: 8,
       suggestionHeadlineTypescale: "body",
       suggestionSupportingTextTypescale: "bodySmall",

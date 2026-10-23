@@ -8581,6 +8581,7 @@ public data class TanreiSearchTokens(
     public val statusColor: TanreiPaint,
     public val statusErrorColor: TanreiPaint,
     public val statusTypescale: TanreiTextStyle,
+    public val suggestionCompletionEmphasis: Float,
     public val suggestionContainerShape: Dp,
     public val suggestionHeadlineTypescale: TanreiTextStyle,
     public val suggestionSupportingTextTypescale: TanreiTextStyle,

@@ -21,6 +21,7 @@ import {
 } from '../../../test/harness.js';
 import { opticalSize } from '../../../test/icons.js';
 import { motionEnded } from '../../../test/motions.js';
+import { holdClock } from '../../../test/page-clock.js';
 
 const spec = loadSpec('search');
 type P = Page;
@@ -484,7 +485,9 @@ test.describe('layout', () => {
     expect(await css(view(page, 'docked'), 'box-shadow')).toBe(await shadowOf(page, `var(${T('view-container-elevation')})`));
     expect(await px(view(page, 'docked'), 'border-top-left-radius')).toBe(await resolveToken(page, T('view-container-shape')));
     expect(await css(view(page, 'docked'), 'overflow')).toBe('hidden');
-    const first = await bounds(row(page, 'docked', 0));
+    // The first row of the view: the query row (SRC-57).
+    const first = await bounds(host(page, 'docked').locator('.listbox .option').first());
+    expect(await host(page, 'docked').locator('.listbox .option').first().getAttribute('id')).toBe('query-row');
     expect(first.y - v.y).toBeCloseTo(await resolveToken(page, T('view-padding-block')), 1);
     expect(first.x - v.x).toBeCloseTo(await resolveToken(page, T('view-padding-inline')), 1);
   });
@@ -722,11 +725,8 @@ test.describe('opening and closing', () => {
     };
     await closes('escape', () => page.keyboard.press('Escape'));
     await closes('select', () => row(page, 's', 1).click());
-    // SRC-14: the first suggestion is active from the moment the view shows it; Up Arrow gives Enter back to the query.
-    await closes('submit', async () => {
-      await page.keyboard.press('ArrowUp');
-      await page.keyboard.press('Enter');
-    });
+    // SRC-14, SRC-57: the query row is current from the moment the view shows suggestions: Enter searches for the query.
+    await closes('submit', () => page.keyboard.press('Enter'));
     // A press outside also reaches the element under it (the button above the bar: the open view covers the one after it).
     await page.evaluate(() => document.querySelector('#before')!.addEventListener('click', () => (window as any).log.push('before:click')));
     await closes('outside', () => page.locator('#before').click());
@@ -907,7 +907,7 @@ test.describe('opening and closing', () => {
     expect(await prop(host(page, 'bar-value'), 'value')).toBe('');
   });
 
-  test('SRC-13: the action key with no suggestion active emits submit once, then closes the view (toggle follows submit), then submits the form unless submit was cancelled', async ({ page }) => {
+  test('SRC-13: the action key with the query row active, or none, emits submit once, then closes the view (toggle follows submit), then submits the form unless submit was cancelled', async ({ page }) => {
     await mount(page, [live('s', { value: 'inv', name: 'q' })]);
     await page.evaluate(() => {
       const search = document.querySelector('tanrei-search')!;
@@ -923,8 +923,7 @@ test.describe('opening and closing', () => {
     await wire(s);
     await input(page, 's').focus();
     await page.keyboard.press('ArrowDown');
-    // SRC-14: the view opens with its first suggestion active; Up Arrow on it leaves none, and Enter submits.
-    await page.keyboard.press('ArrowUp');
+    // SRC-14, SRC-57: the view opens with the query row current: Enter searches for the query as typed.
     await page.keyboard.press('Enter');
     expect(await log(page)).toEqual(['toggle:true:null:true', 'submit:inv', 'toggle:false:submit:false', 'form:inv']);
     // Collapsed: submit only. Cancelled: no form submission.
@@ -987,102 +986,219 @@ test.describe('opening and closing', () => {
 });
 
 test.describe('suggestions', () => {
-  test('SRC-14: the first suggestion is active from the moment the view shows it, focus staying in the input — Enter chooses it in one press; Down and Up Arrow move from there, stopping on the last, none above the first (Enter then submits the query as typed); typing, moving the caret or new suggestions make the first active again, unannounced until an arrow key moves', async ({ page }) => {
+  test('SRC-14, SRC-57, SRC-13, SRC-15: with queryRow first (the default) the query row is current from the moment the view shows suggestions, so Enter searches for the query as typed; the arrow keys go through the rows from there — the first Down Arrow to the first suggestion — each suggestion shown in the input without changing the value or emitting input, and round at both ends; the query comes back on the query row; Enter on a suggestion chooses it; an edit of the suggestion shown makes it the value; a caret move leaves the row; closing or leaving shows the value again', async ({ page }) => {
     await mount(page, [live('s', { value: 'inv' })]);
+    const s = host(page, 's');
     const field = input(page, 's');
+    await wire(s);
     await field.focus();
     const active = () => activeOption(page, 's');
-    const told = () => toldOption(page, 's');
-    const selected = () => host(page, 's').evaluate((el) => [...el.shadowRoot!.querySelectorAll('[role="option"]')].map((o) => o.getAttribute('aria-selected')));
+    const selected = () => s.evaluate((el) => [...el.shadowRoot!.querySelectorAll('[role="option"]')].map((o) => o.getAttribute('aria-selected')));
+    const now = async () => [await active(), await shown(field)];
     expect(await active(), 'closed: nothing is active').toBeNull();
-    await page.keyboard.press('ArrowDown'); // opens, with the first active at once
-    await expect.poll(active).toBe('option-0');
-    expect(await told(), 'the Down Arrow that opened the view moved to the first: it is announced').toBe('option-0');
-    expect(await selected(), 'the active option is the selected one, and only it').toEqual(['true', 'false', 'false']);
+    // The Down Arrow that opens the view only opens it: the query row is current, and an arrow key made it so.
     await page.keyboard.press('ArrowDown');
-    await expect.poll(active, 'Down Arrow goes on to the second').toBe('option-1');
-    expect(await told(), 'the suggestion an arrow key moves to is announced').toBe('option-1');
+    await expect.poll(active).toBe('query');
+    expect(await toldOption(page, 's'), 'read at once').toBe('query');
+    expect(await selected(), 'the active option is the selected one, and only it').toEqual(['true', 'false', 'false', 'false']);
+    expect(await shown(field)).toBe('inv');
+    // Down Arrow goes on to the next row: the first suggestion, shown in the input; the value stays the query.
     await page.keyboard.press('ArrowDown');
+    expect(await now()).toEqual(['option-0', 'invoices']);
+    expect([await toldOption(page, 's'), await prop(s, 'value')]).toEqual(['option-0', 'inv']);
     await page.keyboard.press('ArrowDown');
-    await expect.poll(active, 'staying on the last').toBe('option-2');
+    expect(await now()).toEqual(['option-1', 'invoice template']);
+    await page.keyboard.press('ArrowDown');
+    expect(await now()).toEqual(['option-2', 'Invoices']);
+    // Round at the end: the query row again, with the query as typed in the input.
+    await page.keyboard.press('ArrowDown');
+    expect([...(await now()), await toldOption(page, 's')]).toEqual(['query', 'inv', 'query']);
+    // Round at the start: Up Arrow on the query row goes to the last suggestion.
     await page.keyboard.press('ArrowUp');
-    await expect.poll(active).toBe('option-1');
-    await page.keyboard.press('ArrowUp');
-    await expect.poll(active).toBe('option-0');
-    await page.keyboard.press('ArrowUp');
-    await expect.poll(active, 'Up Arrow on the first leaves none').toBeNull();
-    expect(await selected()).toEqual(['false', 'false', 'false']);
-    await page.keyboard.press('ArrowUp');
-    await expect.poll(active).toBeNull();
+    expect(await now()).toEqual(['option-2', 'Invoices']);
+    for (const key of ['ArrowUp', 'ArrowUp', 'ArrowUp']) await page.keyboard.press(key);
+    expect(await now()).toEqual(['query', 'inv']);
+    expect((await log(page)).filter((e) => e.startsWith('input')), 'moving through the rows changes no value').toEqual([]);
     await expect(field).toBeFocused();
-    await page.keyboard.press('ArrowDown');
-    await expect.poll(active, 'with none active, Down Arrow makes the first active').toBe('option-0');
-    // Typing goes on editing the value and makes the first active again. (Up Arrow with none active was the input's own
-    // and moved the caret to the start: it is put back at the end.)
-    await field.evaluate((el: HTMLInputElement) => el.setSelectionRange(el.value.length, el.value.length));
-    await page.keyboard.press('ArrowDown');
-    await expect.poll(active).toBe('option-1');
-    await page.keyboard.type('o');
-    await expect.poll(active).toBe('option-0');
-    expect(await told(), 'made active by typing, it is selected but not announced').toBeNull();
-    expect(await selected()).toEqual(['true', 'false', 'false']);
-    expect(await prop(host(page, 's'), 'value')).toBe('invo');
-    // The first Down Arrow after that stays on the first and announces it; the next goes on to the second.
-    await page.keyboard.press('ArrowDown');
-    await expect.poll(told, 'the first press reads the suggestion Enter takes').toBe('option-0');
-    expect(await active()).toBe('option-0');
-    await page.keyboard.press('ArrowDown');
-    await expect.poll(told).toBe('option-1');
-    // Deleting.
-    await page.keyboard.press('Backspace');
-    await expect.poll(active).toBe('option-0');
-    expect(await told()).toBeNull();
-    // Moving the caret.
+    // Enter on the query row searches for the query as typed: submit, then the view closes (it shows no result).
+    await page.keyboard.press('Enter');
+    expect(await log(page)).toEqual(['toggle:true:null:true', 'submit:inv', 'toggle:false:submit:false']);
+    // On a suggestion, Enter chooses it: select with its value; the value is the product's to set, and the input shows it.
     await page.keyboard.press('ArrowDown');
     await page.keyboard.press('ArrowDown');
-    await expect.poll(active).toBe('option-1');
+    await page.keyboard.press('ArrowDown');
+    expect(await shown(field)).toBe('invoice template');
+    await page.evaluate(() => ((window as any).log.length = 0));
+    await page.keyboard.press('Enter');
+    expect(await log(page)).toEqual(['select:invoice template', 'toggle:false:select:false']);
+    await expect.poll(() => shown(field), 'closed: the value again').toBe('inv');
+    // A caret move leaves the row as it is; an edit of the suggestion shown makes that text, edited, the value.
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    expect(await now()).toEqual(['option-0', 'invoices']);
     await page.keyboard.press('ArrowLeft');
-    await expect.poll(active).toBe('option-0');
-    // A change of the suggestions.
-    await page.keyboard.press('ArrowDown');
-    await page.keyboard.press('ArrowDown');
-    await expect.poll(active).toBe('option-1');
-    await host(page, 's').evaluate((el) => el.insertAdjacentHTML('beforeend', '<tanrei-search-suggestion value="x" headline="x"></tanrei-search-suggestion>'));
-    await expect.poll(active).toBe('option-0');
-    expect(await told()).toBeNull();
-    await page.keyboard.press('ArrowDown');
-    expect(await told(), 'on the first by an arrow key: announced').toBe('option-0');
-    // Up Arrow on the first gives Enter back to the query as typed: submit, and the view closes (it shows no result).
-    await wire(host(page, 's'));
-    await page.keyboard.press('ArrowUp');
-    await page.keyboard.press('Enter');
-    expect(await log(page)).toEqual(['submit:inv', 'toggle:false:submit:false']);
-    // Typing opens the view again with the first active, and one Enter chooses it.
+    expect(await active(), 'a caret move leaves the row').toBe('option-0');
+    // (End moves no caret in a field on every platform: the caret is put at the end by the test.)
     await field.evaluate((el: HTMLInputElement) => el.setSelectionRange(el.value.length, el.value.length));
-    await page.keyboard.type('o');
-    await expect.poll(active).toBe('option-0');
-    await page.keyboard.press('Enter');
-    expect(await log(page)).toEqual(['submit:inv', 'toggle:false:submit:false', 'toggle:true:null:true', 'input:invo', 'select:invoices', 'toggle:false:select:false']);
-    // The product opening the view while the input has focus makes the first active too; focus leaving the input leaves
-    // none, and coming back makes the first active again.
-    await host(page, 's').evaluate((el) => ((el as any).expanded = true));
-    await expect.poll(active).toBe('option-0');
+    await page.evaluate(() => ((window as any).log.length = 0));
+    await page.keyboard.press('Backspace');
+    expect(await log(page)).toEqual(['input:invoice']);
+    await expect.poll(active, 'an edit makes the query row current').toBe('query');
+    expect(await toldOption(page, 's'), 'made current by the search: not read until typing pauses').toBeNull();
+    await expect(queryRow(page, 's').locator('.headline')).toHaveText('invoice');
+    // Escape closes, and the input shows the value as typed; so does focus leaving the input.
+    await page.keyboard.press('ArrowDown');
+    expect(await shown(field)).toBe('invoices');
+    await page.keyboard.press('Escape');
+    await expect.poll(() => shown(field)).toBe('invoice');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    expect(await shown(field)).toBe('invoices');
     await field.evaluate((el) => el.blur());
-    await expect.poll(() => row(page, 's', 0).getAttribute('data-active')).toBeNull();
+    await expect.poll(() => shown(field)).toBe('invoice');
+    await expect.poll(active, 'without focus nothing is current').toBeNull();
+    // The product opening the view while the input has focus makes the query row current, as focus coming back does.
     await field.focus();
-    await expect.poll(active).toBe('option-0');
-    await expect(row(page, 's', 0)).toHaveAttribute('data-active', '');
-    expect(await told()).toBeNull();
+    await expect.poll(active).toBe('query');
+    expect(await prop(s, 'value')).toBe('invoice');
   });
 
-  test('SRC-14, TXI-4: while an input method composes no suggestion is active and Enter, Escape and the arrow keys are its own — the Enter that confirms a conversion chooses and submits nothing; when it ends the first is active, and the next Enter chooses it', async ({ page }) => {
+  test('SRC-14, SRC-57: with wrap false the arrow keys stop at the ends; with an empty value no query row is drawn and the input itself is the first place, as with queryRow none', async ({ page }) => {
+    await mount(page, [live('stop', { value: 'inv', wrap: false }), live('empty', { value: '' })]);
+    const stop = input(page, 'stop');
+    await stop.focus();
+    await page.keyboard.press('ArrowDown');
+    await expect.poll(() => activeOption(page, 'stop')).toBe('query');
+    expect(await host(page, 'stop').evaluate((el) => [el.hasAttribute('no-wrap'), (el as any).wrap])).toEqual([true, false]);
+    await page.keyboard.press('ArrowUp');
+    expect(await activeOption(page, 'stop'), 'Up Arrow on the query row stays').toBe('query');
+    for (let n = 0; n < 5; n++) await page.keyboard.press('ArrowDown');
+    expect([await activeOption(page, 'stop'), await shown(stop)], 'Down Arrow on the last stays').toEqual(['option-2', 'Invoices']);
+    await page.keyboard.press('Escape');
+    // No query: no query row, nothing active, Enter submits the empty value; the input is a place of the cycle.
+    const empty = input(page, 'empty');
+    await empty.focus();
+    await page.keyboard.press('ArrowDown');
+    await expect.poll(() => prop(host(page, 'empty'), 'expanded')).toBe(true);
+    await expect(queryRow(page, 'empty')).toHaveCount(0);
+    expect([await activeOption(page, 'empty'), await toldOption(page, 'empty')]).toEqual([null, null]);
+    await page.keyboard.press('ArrowDown');
+    expect([await activeOption(page, 'empty'), await shown(empty)]).toEqual(['option-0', 'invoices']);
+    await page.keyboard.press('ArrowUp');
+    expect([await activeOption(page, 'empty'), await shown(empty)], 'back to the input’s place').toEqual([null, '']);
+    await page.keyboard.press('ArrowUp');
+    expect(await activeOption(page, 'empty'), 'round, from the input to the last').toBe('option-2');
+  });
+
+  test('SRC-14, SRC-13: with queryRow none no row is current until the person moves, so Enter searches for the query as typed; the input itself is the place before the first suggestion — Down Arrow from it to the first, which it shows in the input, Up Arrow on the first back to it with the value — and the cycle goes round through it, or stops at the ends with wrap false', async ({ page }) => {
+    await mount(page, [live('n', { value: 'inv', queryRow: 'none' }), live('stop', { value: 'inv', queryRow: 'none', wrap: false })]);
+    const s = host(page, 'n');
+    const field = input(page, 'n');
+    await wire(s);
+    await field.focus();
+    const now = async () => [await activeOption(page, 'n'), await shown(field)];
+    await page.keyboard.press('ArrowDown');
+    await expect.poll(() => prop(s, 'expanded')).toBe(true);
+    await expect(queryRow(page, 'n')).toHaveCount(0);
+    expect([...(await now()), await toldOption(page, 'n')], 'no row is current').toEqual([null, 'inv', null]);
+    await expect(page.getByRole('listbox', { name: 'Search mail' }).getByRole('option')).toHaveCount(3);
+    await page.keyboard.press('Enter');
+    expect(await log(page)).toEqual(['toggle:true:null:true', 'submit:inv', 'toggle:false:submit:false']);
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    expect([...(await now()), await toldOption(page, 'n'), await prop(s, 'value')]).toEqual(['option-0', 'invoices', 'option-0', 'inv']);
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    expect(await now()).toEqual(['option-2', 'Invoices']);
+    await page.keyboard.press('ArrowDown');
+    expect([...(await now()), await toldOption(page, 'n')], 'round: the input’s own place, the value as typed').toEqual([null, 'inv', null]);
+    await page.keyboard.press('ArrowDown');
+    expect(await now()).toEqual(['option-0', 'invoices']);
+    await page.keyboard.press('ArrowUp');
+    expect(await now(), 'Up Arrow on the first: the input’s place').toEqual([null, 'inv']);
+    await page.keyboard.press('ArrowUp');
+    expect(await now(), 'round: from the input’s place to the last').toEqual(['option-2', 'Invoices']);
+    // Typing makes no row current: Enter is the query's again.
+    await page.keyboard.press('End');
+    await page.keyboard.type('x');
+    await expect.poll(() => prop(s, 'value')).toBe('Invoicesx');
+    expect(await activeOption(page, 'n')).toBeNull();
+    await page.keyboard.press('Escape');
+    // wrap false: Up Arrow from the input's place does nothing, and Down Arrow stops on the last.
+    const stop = input(page, 'stop');
+    await stop.focus();
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowUp');
+    expect(await activeOption(page, 'stop')).toBeNull();
+    for (let n = 0; n < 5; n++) await page.keyboard.press('ArrowDown');
+    expect(await activeOption(page, 'stop')).toBe('option-2');
+    for (let n = 0; n < 5; n++) await page.keyboard.press('ArrowUp');
+    expect([await activeOption(page, 'stop'), await shown(stop)], 'stops at the input’s place').toEqual([null, 'inv']);
+  });
+
+  test('SRC-24, SRC-57: a row the search made current is announced once it has stayed current for 500 ms with nothing typed — each key takes the name away and starts the pause again — and a row an arrow key moves to is announced at once; the query row is selected, and Enter takes it, all along', async ({ page }) => {
+    // The spec's pause: 500 milliseconds (SRC-24).
+    const pause = 500;
+    await mount(page, [live('s', { value: 'inv' }), live('n', { value: 'inv', queryRow: 'none' })]);
+    const s = host(page, 's');
+    const field = input(page, 's');
+    await holdClock(page);
+    await field.focus();
+    await page.keyboard.press('End');
+    await page.keyboard.type('o');
+    await settled(s);
+    expect([await activeOption(page, 's'), await toldOption(page, 's')], 'current at once, not announced').toEqual(['query', null]);
+    await expect(queryRow(page, 's')).toHaveAttribute('aria-selected', 'true');
+    await page.clock.runFor(pause - 1);
+    await settled(s);
+    expect(await toldOption(page, 's'), 'not before the pause').toBeNull();
+    await page.keyboard.type('i');
+    await settled(s);
+    await page.clock.runFor(pause - 1);
+    await settled(s);
+    expect(await toldOption(page, 's'), 'the key started the pause again').toBeNull();
+    await page.clock.runFor(1);
+    await settled(s);
+    expect(await toldOption(page, 's'), 'announced once typing paused').toBe('query');
+    await page.keyboard.press('Backspace');
+    await settled(s);
+    expect(await toldOption(page, 's'), 'a deletion takes the name away at once').toBeNull();
+    // An arrow key: at once, and back on the query row by an arrow key, at once too.
+    await page.keyboard.press('ArrowDown');
+    await settled(s);
+    expect(await toldOption(page, 's')).toBe('option-0');
+    await page.keyboard.press('ArrowUp');
+    await settled(s);
+    expect(await toldOption(page, 's')).toBe('query');
+    // The product's new suggestions make the query row current anew: announced after the pause again.
+    await s.evaluate((el) => el.insertAdjacentHTML('beforeend', '<tanrei-search-suggestion value="x" headline="invox"></tanrei-search-suggestion>'));
+    await settled(s);
+    expect(await toldOption(page, 's')).toBeNull();
+    await page.clock.runFor(pause);
+    await settled(s);
+    expect(await toldOption(page, 's')).toBe('query');
+    // Enter takes the query row before it is announced.
+    await wire(s);
+    await page.keyboard.type('c');
+    await page.keyboard.press('Enter');
+    expect(await log(page)).toEqual(['input:invoc', 'submit:invoc', 'toggle:false:submit:false']);
+    // With queryRow none nothing is current, so nothing waits to be announced.
+    const other = input(page, 'n');
+    await other.focus();
+    await page.keyboard.type('o');
+    await page.clock.runFor(pause);
+    await settled(host(page, 'n'));
+    expect([await activeOption(page, 'n'), await toldOption(page, 'n')]).toEqual([null, null]);
+  });
+
+  test('SRC-14, TXI-4: while an input method composes no row is current and Enter, Escape and the arrow keys are its own — the Enter that confirms a conversion chooses and submits nothing; when it ends the query row is current again, and the next Enter searches for the committed text; a composition begun on a suggestion shown in the input edits that text', async ({ page }) => {
     await mount(page, [live('s', { value: 'にほ' }, [suggestion('nihongo', '日本語'), suggestion('nihon', '日本')])]);
     const s = host(page, 's');
     const field = input(page, 's');
     await field.focus();
     await page.keyboard.press('ArrowDown');
     const active = () => activeOption(page, 's');
-    await expect.poll(active).toBe('option-0');
+    await expect.poll(active).toBe('query');
     await wire(s);
     // A composition as the platform reports it: compositionstart, then the element's text and an input that composes.
     await field.evaluate((el: HTMLInputElement) => {
@@ -1090,7 +1206,8 @@ test.describe('suggestions', () => {
       el.value = 'にほん';
       el.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true, isComposing: true, inputType: 'insertCompositionText', data: 'にほん' }));
     });
-    await expect.poll(active, 'composing: none active').toBeNull();
+    await expect.poll(active, 'composing: none current').toBeNull();
+    expect(await toldOption(page, 's')).toBeNull();
     // Every key while composing is the input method's: as Chromium and Firefox send it (isComposing), and as WebKit sends
     // the Enter that confirms, after compositionend, with the key code 229.
     const composingKey = (key: string, isComposing: boolean) =>
@@ -1103,22 +1220,41 @@ test.describe('suggestions', () => {
         [key, isComposing] as const,
       );
     for (const key of ['ArrowDown', 'ArrowUp', 'Escape', 'Enter']) expect(await composingKey(key, true), key).toBe(false);
+    expect(await shown(field), 'the composition’s text is left alone').toBe('にほん');
     await field.evaluate((el: HTMLInputElement) => {
       el.value = '日本';
       el.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true, isComposing: true, inputType: 'insertCompositionText', data: '日本' }));
       el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, composed: true, data: '日本' }));
     });
     expect(await composingKey('Enter', false), 'the confirming Enter as WebKit sends it').toBe(false);
-    // The committed composition reaches the search in an input of its own: then the first is active again.
-    await expect.poll(active).toBe('option-0');
+    // The committed composition reaches the search in an input of its own: then the query row is current again.
+    await expect.poll(active).toBe('query');
     expect(await prop(s, 'value')).toBe('日本');
     expect((await log(page)).filter((e) => !e.startsWith('input')), 'nothing chosen, submitted or closed').toEqual([]);
     expect(await prop(s, 'expanded')).toBe(true);
+    // On a suggestion shown in the input, a composition edits that text: it becomes the value.
+    await page.keyboard.press('ArrowDown');
+    expect(await shown(field)).toBe('日本語');
+    await field.evaluate((el: HTMLInputElement) => {
+      el.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, composed: true }));
+      el.value = '日本語が';
+      el.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true, isComposing: true, inputType: 'insertCompositionText', data: 'が' }));
+    });
+    await expect.poll(() => prop(s, 'value')).toBe('日本語が');
+    expect([await active(), await shown(field)]).toEqual([null, '日本語が']);
+    await field.evaluate((el: HTMLInputElement) => {
+      el.value = '日本語';
+      el.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true, isComposing: true, inputType: 'insertCompositionText', data: '' }));
+      el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, composed: true, data: '' }));
+    });
+    await expect.poll(active).toBe('query');
+    expect(await prop(s, 'value')).toBe('日本語');
+    await page.evaluate(() => ((window as any).log.length = 0));
     await page.keyboard.press('Enter');
-    expect((await log(page)).filter((e) => !e.startsWith('input'))).toEqual(['select:nihongo', 'toggle:false:select:false']);
+    expect((await log(page)).filter((e) => !e.startsWith('input'))).toEqual(['submit:日本語', 'toggle:false:submit:false']);
   });
 
-  test('SRC-14, SRC-24: the first suggestion, made active as the view shows it while the person types, is selected but not announced — the input names no active descendant — and the suggestion an arrow key moves to is; measured in Chromium’s accessibility tree, where a real composition also makes none active until it is confirmed', async ({ page, browserName }) => {
+  test('SRC-14, SRC-24, SRC-57: Chromium’s accessibility tree — the query row, made current as the person types, is the active descendant once typing pauses and not after the key; the row an arrow key moves to at once; a real composition makes none current until it is confirmed', async ({ page, browserName }) => {
     await mount(page, [live('s', { value: '' }, [])]);
     const s = host(page, 's');
     const field = input(page, 's');
@@ -1132,39 +1268,39 @@ test.describe('suggestions', () => {
       });
     });
     await page.keyboard.type('to');
-    await expect.poll(() => activeOption(page, 's')).toBe('option-0');
+    await expect.poll(() => activeOption(page, 's')).toBe('query');
     await expect(field).toHaveAttribute('role', 'combobox');
     await expect(field).toHaveAttribute('aria-expanded', 'true');
-    // Selected, so that what Enter takes is in the tree; not the active descendant, so that nothing is read per key.
-    await expect(field).not.toHaveAttribute('aria-activedescendant', /.*/);
+    // Selected, so that what Enter takes is in the tree; the active descendant once typing has paused.
     const snapshot = await s.locator('[role="listbox"]').ariaSnapshot();
-    expect(snapshot).toContain('option "to a" [selected]');
-    expect(snapshot).not.toContain('option "to b" [selected]');
-    if (browserName === 'chromium') expect(await toldInChromium(page)).toEqual({ field: 'combobox "Search mail"', active: null });
-    // The person moves: the first Down Arrow stays on the first and makes it the active descendant, so it is read; each
-    // suggestion an arrow key moves to after that is read too.
+    expect(snapshot).toContain('option "to" [selected]');
+    expect(snapshot).not.toContain('option "to a" [selected]');
+    await expect.poll(() => toldOption(page, 's')).toBe('query');
+    if (browserName === 'chromium') expect(await toldInChromium(page)).toEqual({ field: 'combobox "Search mail"', active: 'option "to"' });
+    // The person moves: each row an arrow key moves to is read at once.
     await page.keyboard.press('ArrowDown');
-    await expect.poll(() => toldOption(page, 's')).toBe('option-0');
+    expect(await toldOption(page, 's')).toBe('option-0');
     if (browserName === 'chromium') expect(await toldInChromium(page)).toEqual({ field: 'combobox "Search mail"', active: 'option "to a"' });
     await page.keyboard.press('ArrowDown');
-    await expect.poll(() => toldOption(page, 's')).toBe('option-1');
+    expect(await toldOption(page, 's')).toBe('option-1');
     if (browserName === 'chromium') expect(await toldInChromium(page)).toEqual({ field: 'combobox "Search mail"', active: 'option "to b"' });
     await page.keyboard.press('ArrowUp');
-    await expect.poll(() => toldOption(page, 's')).toBe('option-0');
-    if (browserName === 'chromium') expect(await toldInChromium(page)).toEqual({ field: 'combobox "Search mail"', active: 'option "to a"' });
-    // Typing again: the new first is active and selected, and nothing is read for it.
+    await page.keyboard.press('ArrowUp');
+    expect(await toldOption(page, 's')).toBe('query');
+    // Typing again: the query row is current and selected, and nothing is read for it until typing pauses.
+    await page.keyboard.press('End');
     await page.keyboard.type('k');
-    await expect.poll(() => activeOption(page, 's')).toBe('option-0');
-    await expect(field).not.toHaveAttribute('aria-activedescendant', /.*/);
+    await expect.poll(() => activeOption(page, 's')).toBe('query');
+    expect(await toldOption(page, 's')).toBeNull();
     if (browserName !== 'chromium') return;
     expect(await toldInChromium(page)).toEqual({ field: 'combobox "Search mail"', active: null });
     const cdp = await page.context().newCDPSession(page);
     for (const text of ['け', 'けん']) await cdp.send('Input.imeSetComposition', { text, selectionStart: text.length, selectionEnd: text.length });
     await expect.poll(() => activeOption(page, 's'), 'composing: none').toBeNull();
     await cdp.send('Input.insertText', { text: '検' });
-    await expect.poll(() => activeOption(page, 's'), 'confirmed: the first again').toBe('option-0');
-    await expect(field).not.toHaveAttribute('aria-activedescendant', /.*/);
+    await expect.poll(() => activeOption(page, 's'), 'confirmed: the query row again').toBe('query');
     expect(await prop(s, 'value')).toBe('tok検');
+    await expect.poll(() => toldInChromium(page)).toEqual({ field: 'combobox "Search mail"', active: 'option "tok検"' });
   });
 
   test('SRC-24: each option’s id is its suggestion element’s own, not its place — suggestions the product replaces are new options for the input to name, and an element the product moves keeps its option’s id; names and descriptions resolve', async ({ page }) => {
@@ -1172,15 +1308,16 @@ test.describe('suggestions', () => {
     const s = host(page, 's');
     const field = input(page, 's');
     await field.focus();
-    await page.keyboard.press('ArrowDown'); // opens, the first named
+    await page.keyboard.press('ArrowDown'); // opens, the query row named
+    await page.keyboard.press('ArrowDown'); // the first suggestion
     const named = () => field.getAttribute('aria-activedescendant');
-    const ids = () => s.evaluate((el) => [...el.shadowRoot!.querySelectorAll('.option')].map((option) => option.id));
+    const ids = () => s.evaluate((el) => [...el.shadowRoot!.querySelectorAll('.option:not(.query)')].map((option) => option.id));
     const before = await ids();
     expect(new Set(before).size).toBe(3);
     expect(await named()).toBe(before[0]);
     await expect(page.getByRole('option', { name: 'Invoices', exact: true })).toHaveAccessibleDescription('Folder · 24 messages');
     // The product replaces the suggestions while the first is active: none of the new options takes an old id, so the
-    // option the input names next is a new one, which a screen reader reads as new.
+    // option the input names next is a new one, which a screen reader reads as new. (The query row is current again.)
     await s.evaluate((el) => {
       el.querySelectorAll('tanrei-search-suggestion').forEach((each) => each.remove());
       el.insertAdjacentHTML('beforeend', '<tanrei-search-suggestion value="n1" headline="new one" supporting-text="first"></tanrei-search-suggestion><tanrei-search-suggestion value="n2" headline="new two"></tanrei-search-suggestion>');
@@ -1239,7 +1376,7 @@ test.describe('suggestions', () => {
     });
     await input(page, 's').focus();
     await page.keyboard.press('ArrowDown');
-    // The view opens with the first suggestion active (SRC-14): the second is at rest.
+    // The view opens with the query row active (SRC-14, SRC-57): the suggestions are at rest.
     const r = row(page, 's', 1);
     const headline = r.locator('.headline');
     expect(await css(headline, 'color')).toBe(await resolveColor(page, S('suggestion-headline-color')));
@@ -1247,7 +1384,8 @@ test.describe('suggestions', () => {
     await r.hover();
     await expect.poll(() => css(headline, 'color')).toBe('rgb(0, 0, 200)');
     expect(await css(r, 'background-color')).toBe(await resolveColor(page, S('hovered-suggestion-container-color')));
-    expect(await toldOption(page, 's'), 'the pointer made nothing active').toBe('option-0');
+    expect(await toldOption(page, 's'), 'the pointer made nothing active').toBe('query');
+    await page.keyboard.press('ArrowDown');
     await page.keyboard.press('ArrowDown');
     await expect.poll(() => css(headline, 'color')).toBe('rgb(0, 200, 0)');
     expect(await css(r, 'background-color')).toBe(await resolveColor(page, S('focused-suggestion-container-color')));
@@ -1281,16 +1419,298 @@ test.describe('suggestions', () => {
     }, hold);
     expect(timing.at).toBe('overlay');
     expect(timing.released).toBeGreaterThanOrEqual(hold - 5);
-    // A suggestion by Enter: pressed at once (the view opens with the first active, SRC-14).
+    // A suggestion by Enter, and the query row by Enter: pressed at once, read in the task that presses.
     await input(page, 's').focus();
     await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
     await expect.poll(() => toldOption(page, 's')).toBe('option-0');
-    const pressed = await host(page, 's').evaluate((el) => {
-      const input = el.shadowRoot!.querySelector('.bar .input')!;
-      input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, composed: true }));
-      return (el.shadowRoot!.querySelector('.option[data-index="0"]') as HTMLElement).dataset.pressed;
+    const press = (selector: string) =>
+      host(page, 's').evaluate((el, at) => {
+        const input = el.shadowRoot!.querySelector('.bar .input')!;
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, composed: true }));
+        return (el.shadowRoot!.querySelector(at) as HTMLElement).dataset.pressed;
+      }, selector);
+    expect(await press('.option[data-index="0"]')).toBe('overlay');
+    await page.keyboard.press('ArrowDown');
+    await expect.poll(() => toldOption(page, 's')).toBe('query');
+    expect(await press('#query-row'), 'the query row').toBe('overlay');
+  });
+
+  test('SRC-57, SRC-52, SRC-16, SRC-2: the query row is a suggestion’s row of the search’s own, first in the listbox: the icon set’s search glyph in the leading icon column, at the suggestion’s icon size and never mirrored, the value as its headline and queryRowText as its supporting text and description, every row keeping the icon column so the headlines align; a press on it submits, focus staying in the input; it is not drawn with queryRow none, an empty value or no suggestion; an unknown queryRow is drawn as first and reported', async ({ page }) => {
+    const seen = warnings(page);
+    await mount(page, [
+      live('s', { value: 'inv', queryRowText: 'Search all mail' }, [suggestion('invoices'), suggestion('receipts', 'receipts', { supportingText: 'Folder' })]),
+      live('odd', { value: 'inv', queryRow: 'sideways' }),
+    ]);
+    const s = host(page, 's');
+    const field = input(page, 's');
+    await field.focus();
+    await page.keyboard.press('ArrowDown');
+    const q = queryRow(page, 's');
+    await expect(q).toHaveAttribute('role', 'option');
+    expect(await s.evaluate((el) => [...el.shadowRoot!.querySelectorAll('[role="option"]')].map((o) => o.id === 'query-row')), 'the first option').toEqual([true, false, false]);
+    const glyph = q.locator('.query-glyph');
+    await expect(glyph).toHaveText('search');
+    await expect(glyph).toHaveAttribute('aria-hidden', 'true');
+    await expect(glyph).toHaveAttribute('data-drawn', '');
+    expect((await bounds(glyph)).width).toBeCloseTo(await resolveToken(page, T('suggestion-leading-icon-size-regular')), 1);
+    await expect(q.locator('.headline')).toHaveText('inv');
+    await expect(q.locator('.supporting')).toHaveText('Search all mail');
+    await expect(page.getByRole('option', { name: 'inv', exact: true })).toHaveAccessibleDescription('Search all mail');
+    // A suggestion's row: the same paddings, height, gap and corners, and the suggestion's text roles.
+    for (const property of ['padding-top', 'padding-bottom', 'padding-left', 'padding-right', 'column-gap', 'min-height', 'border-top-left-radius']) {
+      expect(await css(q, property), property).toBe(await css(row(page, 's', 0), property));
+    }
+    for (const property of ['font-size', 'font-weight', 'color']) expect(await css(q.locator('.headline'), property), property).toBe(await css(row(page, 's', 1).locator('.headline'), property));
+    // The suggestions have no icon of their own, and keep the column: the headlines start on one line (SRC-52).
+    await expect(row(page, 's', 0).locator('.option-icon.empty')).toHaveCount(1);
+    expect((await bounds(q.locator('.headline'))).x).toBeCloseTo((await bounds(row(page, 's', 0).locator('.headline'))).x, 1);
+    // Never mirrored (SRC-2): in a right-to-left layout neither flipped nor scaled.
+    await page.evaluate(() => (document.documentElement.dir = 'rtl'));
+    expect(await css(glyph, 'transform')).toBe('none');
+    await expect(glyph).not.toHaveAttribute('data-tanrei-mirrored', /.*/);
+    await page.evaluate(() => (document.documentElement.dir = 'ltr'));
+    // A press submits the value as typed, focus staying in the input; it never selects.
+    await wire(s);
+    await q.click();
+    expect(await log(page)).toEqual(['submit:inv', 'toggle:false:submit:false']);
+    await expect(field).toBeFocused();
+    // An empty value: no query row, and the column goes with it where no suggestion has an icon.
+    await s.evaluate((el: any) => (el.value = ''));
+    await page.keyboard.press('ArrowDown');
+    await expect.poll(() => prop(s, 'expanded')).toBe(true);
+    await expect(q).toHaveCount(0);
+    await expect(s.locator('.option-icon')).toHaveCount(0);
+    // No suggestion: no listbox, so no query row.
+    await s.evaluate((el: any) => {
+      el.value = 'inv';
+      el.querySelectorAll('tanrei-search-suggestion').forEach((n: Element) => n.remove());
     });
-    expect(pressed).toBe('overlay');
+    await settled(s);
+    await expect(q).toHaveCount(0);
+    // An unknown queryRow: drawn as first, and reported.
+    await input(page, 'odd').focus();
+    await page.keyboard.press('ArrowDown');
+    await expect(queryRow(page, 'odd')).toHaveCount(1);
+    await expect.poll(() => seen.some((w) => w.includes('SRC-57') && w.includes('"sideways"'))).toBe(true);
+  });
+
+  test('SRC-55, SRC-24: with inlineCompletion the query is completed in the input from the first suggestion that begins with it — the rest selected after the caret, the value unchanged and no input — and the query row shows the completed text; not after Backspace, Delete, a cut or a paste, nor while an input method composes; a caret move accepts it (input once), Backspace takes it away (no input), Enter accepts it and submits; a suggestion an arrow key reaches is shown in its place, and the completion comes back on the query row; leaving takes it away', async ({ page }) => {
+    await mount(page, [live('s', { value: '', inlineCompletion: true }, [])]);
+    const s = host(page, 's');
+    const field = input(page, 's');
+    await wire(s);
+    // The product answers each input with the queries that begin with the text, as a search's completions are.
+    await s.evaluate((el) => {
+      const words = ['invoices', 'invoice template', 'inventory', 'Ｉｎｖｅｓｔ'];
+      el.addEventListener('input', () => {
+        const value = ((el as any).value as string).toLowerCase();
+        el.querySelectorAll('tanrei-search-suggestion').forEach((n) => n.remove());
+        for (const word of value ? words.filter((w) => w.normalize('NFKC').toLowerCase().startsWith(value)) : []) el.insertAdjacentHTML('beforeend', `<tanrei-search-suggestion value="${word}" headline="${word}"></tanrei-search-suggestion>`);
+      });
+    });
+    const selection = () => field.evaluate((el: HTMLInputElement) => [el.value, el.selectionStart, el.selectionEnd]);
+    const inputs = async () => (await log(page)).filter((e) => e.startsWith('input'));
+    await field.focus();
+    await page.keyboard.type('i');
+    await expect.poll(selection, 'completed from the first that begins with it, the rest selected').toEqual(['invoices', 1, 8]);
+    expect(await prop(s, 'value'), 'the value is what was typed').toBe('i');
+    expect(await inputs(), 'the completion fires nothing').toEqual(['input:i']);
+    await expect(field).toHaveAttribute('aria-autocomplete', 'both');
+    await expect(queryRow(page, 's').locator('.headline')).toHaveText('invoices');
+    await expect(queryRow(page, 's').locator('.completion')).toHaveText('nvoices');
+    expect(await activeOption(page, 's')).toBe('query');
+    // Typing replaces the completion and goes on from what was typed.
+    await page.keyboard.type('n');
+    await expect.poll(selection).toEqual(['invoices', 2, 8]);
+    expect(await prop(s, 'value')).toBe('in');
+    // Backspace takes the completion away and nothing else; nothing is completed again until the person types.
+    await page.keyboard.press('Backspace');
+    await expect.poll(selection).toEqual(['in', 2, 2]);
+    expect([await prop(s, 'value'), await inputs()]).toEqual(['in', ['input:i', 'input:in']]);
+    await s.evaluate((el) => el.insertAdjacentHTML('beforeend', '<tanrei-search-suggestion value="inn" headline="inn"></tanrei-search-suggestion>'));
+    await settled(s);
+    expect(await selection(), 'new suggestions after a deletion complete nothing').toEqual(['in', 2, 2]);
+    await page.keyboard.press('Backspace');
+    await expect.poll(() => prop(s, 'value')).toBe('i');
+    expect(await selection(), 'a deletion is never completed').toEqual(['i', 1, 1]);
+    // Typing completes again; a caret move accepts the completion: the completed text is the value, and input fires once.
+    await page.keyboard.type('n');
+    await expect.poll(selection).toEqual(['invoices', 2, 8]);
+    await page.keyboard.press('ArrowRight');
+    expect(await prop(s, 'value')).toBe('invoices');
+    expect((await inputs()).at(-1)).toBe('input:invoices');
+    expect(await selection(), 'the caret moved as the key moves it').toEqual(['invoices', 8, 8]);
+    await expect(queryRow(page, 's').locator('.completion')).toHaveCount(0);
+    // A suggestion an arrow key reaches is shown in the input; back on the query row the completion is shown again.
+    await page.keyboard.press('ControlOrMeta+a');
+    await page.keyboard.press('Backspace');
+    await page.keyboard.type('inv');
+    await expect.poll(selection).toEqual(['invoices', 3, 8]);
+    await page.keyboard.press('ArrowDown');
+    expect([await activeOption(page, 's'), ...(await selection())]).toEqual(['option-0', 'invoices', 8, 8]);
+    await page.keyboard.press('ArrowDown');
+    expect((await selection())[0]).toBe('invoice template');
+    await page.keyboard.press('ArrowUp');
+    await page.keyboard.press('ArrowUp');
+    expect([await activeOption(page, 's'), ...(await selection())], 'the completion again').toEqual(['query', 'invoices', 3, 8]);
+    expect(await prop(s, 'value')).toBe('inv');
+    // Enter accepts the completion and searches for the completed query.
+    await page.evaluate(() => ((window as any).log.length = 0));
+    await page.keyboard.type('e');
+    await expect.poll(selection).toEqual(['inventory', 4, 9]);
+    await page.keyboard.press('Enter');
+    expect(await log(page)).toEqual(['input:inve', 'input:inventory', 'submit:inventory', 'toggle:false:submit:false']);
+    // A paste is never completed.
+    await page.keyboard.press('ControlOrMeta+a');
+    await page.keyboard.press('Backspace');
+    await field.evaluate((el: HTMLInputElement) => {
+      el.value = 'inv';
+      el.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true, inputType: 'insertFromPaste', data: 'inv' }));
+    });
+    await settled(s);
+    await expect.poll(() => prop(s, 'value')).toBe('inv');
+    expect(await selection(), 'a paste').toEqual(['inv', 3, 3]);
+    // Compared as the combobox compares (CMB-25): case and width are not told apart, and what was typed is kept as typed.
+    await page.keyboard.press('ControlOrMeta+a');
+    await page.keyboard.press('Backspace');
+    await page.keyboard.type('INVE');
+    await expect.poll(selection).toEqual(['INVEntory', 4, 9]);
+    await page.keyboard.type('s');
+    await expect.poll(selection, 'a full-width headline completes a typed text, the typed letters as typed').toEqual(['INVEsｔ', 5, 6]);
+    // While an input method composes nothing is completed; the committed text is completed.
+    await page.keyboard.press('ControlOrMeta+a');
+    await page.keyboard.press('Backspace');
+    await field.evaluate((el: HTMLInputElement) => {
+      el.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, composed: true }));
+      el.value = 'invo';
+      el.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true, isComposing: true, inputType: 'insertCompositionText', data: 'invo' }));
+    });
+    await settled(s);
+    expect(await selection(), 'composing: nothing completed').toEqual(['invo', 4, 4]);
+    await field.evaluate((el: HTMLInputElement) => el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, composed: true, data: 'invo' })));
+    await expect.poll(selection, 'committed: completed').toEqual(['invoices', 4, 8]);
+    // Leaving the input takes the completion away: the value as typed.
+    await field.evaluate((el) => el.blur());
+    await expect.poll(selection).toEqual(['invo', 4, 4]);
+    expect(await prop(s, 'value')).toBe('invo');
+  });
+
+  /** Mounts a search with inline completion whose product answers each input with the queries that begin with it. */
+  async function completing(page: P) {
+    await mount(page, [live('s', { value: '', inlineCompletion: true }, [])]);
+    const s = host(page, 's');
+    const field = input(page, 's');
+    await wire(s);
+    await s.evaluate((el) => {
+      const words = ['invoices', 'inventory'];
+      el.addEventListener('input', () => {
+        const value = ((el as any).value as string).toLowerCase();
+        el.querySelectorAll('tanrei-search-suggestion').forEach((n) => n.remove());
+        for (const word of value ? words.filter((w) => w.startsWith(value)) : []) el.insertAdjacentHTML('beforeend', `<tanrei-search-suggestion value="${word}" headline="${word}"></tanrei-search-suggestion>`);
+      });
+    });
+    const selection = () => field.evaluate((el: HTMLInputElement) => [el.value, el.selectionStart, el.selectionEnd]);
+    const inputs = async () => (await log(page)).filter((e) => e.startsWith('input'));
+    return { s, field, selection, inputs };
+  }
+
+  test('SRC-55 (TXI-4): an input method that begins to compose over a completion and is cancelled before it inserted anything takes the completion away as Backspace does — the value as typed, no input, nothing completed until the next insertion; one whose first text replaces the completion goes on from the value as typed', async ({ page }) => {
+    const { s, field, selection, inputs } = await completing(page);
+    await field.focus();
+    await page.keyboard.type('i');
+    await expect.poll(selection).toEqual(['invoices', 1, 8]);
+    // Begun over the completion — the search renders between the start and the end, as an input method's events come
+    // in tasks of their own — and cancelled with nothing inserted.
+    await field.evaluate((el) => el.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, composed: true, data: '' })));
+    await settled(s);
+    expect(await selection(), 'the completion stays in the element until the input method replaces it').toEqual(['invoices', 1, 8]);
+    await field.evaluate((el) => el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, composed: true, data: '' })));
+    await expect.poll(selection, 'the value as typed, the caret at its end').toEqual(['i', 1, 1]);
+    await settled(s);
+    expect([await prop(s, 'value'), await inputs()], 'no input').toEqual(['i', ['input:i']]);
+    await expect(queryRow(page, 's').locator('.headline')).toHaveText('i');
+    await expect(queryRow(page, 's').locator('.completion')).toHaveCount(0);
+    expect(await activeOption(page, 's'), 'the query row is current again').toBe('query');
+    // Nothing is completed again until the person inserts text: new suggestions complete nothing…
+    await s.evaluate((el) => el.insertAdjacentHTML('beforeend', '<tanrei-search-suggestion value="ink" headline="ink"></tanrei-search-suggestion>'));
+    await settled(s);
+    expect(await selection()).toEqual(['i', 1, 1]);
+    // …and typing does.
+    await page.keyboard.type('n');
+    await expect.poll(selection).toEqual(['invoices', 2, 8]);
+    // A composition whose first text replaces the completion: the value follows the input method, and its commit is
+    // completed from the value as typed.
+    await field.evaluate((el: HTMLInputElement) => el.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, composed: true, data: '' })));
+    await settled(s);
+    await field.evaluate((el: HTMLInputElement) => {
+      el.setRangeText('v', 2, 8, 'end');
+      el.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true, isComposing: true, inputType: 'insertCompositionText', data: 'v' }));
+    });
+    await settled(s);
+    expect([await prop(s, 'value'), ...(await selection())]).toEqual(['inv', 'inv', 3, 3]);
+    await field.evaluate((el: HTMLInputElement) => el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, composed: true, data: 'v' })));
+    await expect.poll(selection, 'committed: completed').toEqual(['invoices', 3, 8]);
+    expect([await prop(s, 'value'), (await inputs()).at(-1)]).toEqual(['inv', 'input:inv']);
+  });
+
+  test('SRC-55 (TXI-4): a real input method over a completion (Chromium): its first text replaces the completion, a cancel brings the value as typed back and never the completed text, and a commit is completed from the value', async ({ page, browserName }) => {
+    test.skip(browserName !== 'chromium', 'only Chromium drives an input method from a test (CDP Input.imeSetComposition)');
+    const { s, field, selection, inputs } = await completing(page);
+    await field.focus();
+    await page.keyboard.type('i');
+    await expect.poll(selection).toEqual(['invoices', 1, 8]);
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send('Input.imeSetComposition', { text: 'n', selectionStart: 1, selectionEnd: 1 });
+    await expect.poll(selection, 'the first text replaced the completion').toEqual(['in', 2, 2]);
+    expect(await prop(s, 'value')).toBe('in');
+    // Cancelled: the input method takes its text away, and the value is what was typed before it.
+    await cdp.send('Input.imeSetComposition', { text: '', selectionStart: 0, selectionEnd: 0 });
+    await expect.poll(() => prop(s, 'value')).toBe('i');
+    await settled(s);
+    expect((await inputs()).at(-1)).toBe('input:i');
+    expect(await inputs(), 'the completed text was never the value').not.toContain('input:invoices');
+    // Committed: completed from the value as typed.
+    await cdp.send('Input.imeSetComposition', { text: 'n', selectionStart: 1, selectionEnd: 1 });
+    await cdp.send('Input.insertText', { text: 'n' });
+    await expect.poll(selection, 'committed: completed').toEqual(['invoices', 2, 8]);
+    expect(await prop(s, 'value')).toBe('in');
+    await cdp.detach();
+  });
+
+  test('SRC-56: a query suggestion whose headline begins with the value draws the rest — its completion — with the headline’s weight raised by suggestion.completion.emphasis, in the headline’s color and with no fill, compared without regard to case or width; one that does not begin with it is drawn plain; the query row draws the value plain; the headline is read whole', async ({ page }) => {
+    await mount(page, [live('s', { value: 'Inv', expanded: true, inline: true }, [suggestion('invoices'), suggestion('my invoices'), suggestion('ｉｎｖｅｓｔ'), suggestion('inv')])]);
+    const s = host(page, 's');
+    const completion = (n: number) => row(page, 's', n).locator('.completion');
+    await expect(completion(0)).toHaveText('oices');
+    await expect(row(page, 's', 0).locator('.headline')).toHaveText('invoices');
+    await expect(completion(1), 'does not begin with the value').toHaveCount(0);
+    await expect(completion(2), 'width is not told apart').toHaveText('ｅｓｔ');
+    await expect(completion(3), 'nothing is added').toHaveCount(0);
+    await expect(queryRow(page, 's').locator('.completion'), 'the query row is the value').toHaveCount(0);
+    // The token is derived from the body family's emphasis step (three of them in the default system): its value is
+    // read through a real property, as the cascade resolves it.
+    const emphasis = await page.evaluate(() => {
+      const probe = document.createElement('div');
+      probe.style.fontWeight = 'calc(1 + var(--tanrei-comp-search-suggestion-completion-emphasis))';
+      document.body.append(probe);
+      const value = Number(getComputedStyle(probe).fontWeight) - 1;
+      probe.remove();
+      return value;
+    });
+    const headline = Number(await css(row(page, 's', 0).locator('.headline'), 'font-weight'));
+    expect(headline).toBe(Number(await token(page, '--tanrei-sys-typescale-body-font-weight')));
+    expect(emphasis, 'heavier than the body family’s one emphasis step: weight alone tells it apart').toBeGreaterThan(Number(await token(page, '--tanrei-sys-typescale-emphasis-body')));
+    expect(Number(await css(completion(0), 'font-weight'))).toBe(headline + emphasis);
+    expect(await css(completion(0), 'color')).toBe(await css(row(page, 's', 0).locator('.headline'), 'color'));
+    expect(await css(completion(0), 'background-color')).toBe('rgba(0, 0, 0, 0)');
+    // One text: the completion moves no letter, wraps with the headline, and is read as part of it.
+    expect(await completion(0).evaluate((el) => getComputedStyle(el).display)).toBe('inline');
+    await expect(page.getByRole('option', { name: 'invoices', exact: true })).toHaveCount(1);
+    // The value changes: the completions follow it.
+    await s.evaluate((el: any) => (el.value = 'invoice'));
+    await expect(completion(0)).toHaveText('s');
+    await expect(completion(2)).toHaveCount(0);
   });
 });
 
@@ -1410,17 +1830,17 @@ test.describe('states', () => {
     // The ring on the active row by default…
     await mount(page, [live('s', { value: 'inv' })]);
     await input(page, 's').focus();
-    await page.keyboard.press('ArrowDown'); // opens, with the first active (SRC-14)
-    await expect.poll(() => css(row(page, 's', 0), 'outline-style')).toBe('solid');
-    expect(await css(row(page, 's', 0), 'outline-color')).toBe(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
+    await page.keyboard.press('ArrowDown'); // opens, with the query row active (SRC-14, SRC-57)
+    await expect.poll(() => css(queryRow(page, 's'), 'outline-style')).toBe('solid');
+    expect(await css(queryRow(page, 's'), 'outline-color')).toBe(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
     // …the glow under acme, read from the cascade (and, without style queries, from data-focus-style).
     await mount(page, [live('s', { value: 'inv' })], { system: 'acme', systemCss: await acmeSystemCss() });
     await input(page, 's').focus();
     await page.keyboard.press('ArrowDown');
     const ring = await resolveColor(page, '--tanrei-sys-color-focus-ring');
-    await expect.poll(() => css(row(page, 's', 0), 'box-shadow', '::after')).toContain(ring);
-    expect(await css(row(page, 's', 0), 'outline-color')).toBe('rgba(0, 0, 0, 0)');
-    expect(await row(page, 's', 0).getAttribute('data-focus-style')).toBe('glow');
+    await expect.poll(() => css(queryRow(page, 's'), 'box-shadow', '::after')).toContain(ring);
+    expect(await css(queryRow(page, 's'), 'outline-color')).toBe('rgba(0, 0, 0, 0)');
+    expect(await queryRow(page, 's').getAttribute('data-focus-style')).toBe('glow');
     expect(await bar(page, 's').getAttribute('data-focus-style')).toBe('glow');
     void browserName;
   });
@@ -1541,13 +1961,17 @@ test.describe('accessibility', () => {
     await expect(combo).toHaveAttribute('aria-controls', 'listbox');
     const listbox = page.getByRole('listbox', { name: 'Search mail' });
     await expect(listbox).toHaveCount(1);
-    await expect(listbox.getByRole('option')).toHaveCount(3);
+    // The query row first (SRC-57), then the three suggestions.
+    await expect(listbox.getByRole('option')).toHaveCount(4);
+    await expect(listbox.getByRole('option').first()).toHaveAccessibleName('inv');
     const folder = page.getByRole('option', { name: 'Invoices', exact: true });
     await expect(folder).toHaveAccessibleDescription('Folder · 24 messages');
-    // SRC-14: the Down Arrow that opened the view moved to the first suggestion: it is the active descendant.
-    await expect.poll(() => toldOption(page, 's')).toBe('option-0');
-    await expect(page.getByRole('option', { name: 'invoices', exact: true })).toHaveAttribute('aria-selected', 'true');
-    expect(await host(page, 's').locator('.option-icon[aria-hidden="true"]').count()).toBe(3);
+    // SRC-14: the Down Arrow that opened the view made the query row current: it is the active descendant.
+    await expect.poll(() => toldOption(page, 's')).toBe('query');
+    await expect(page.getByRole('option', { name: 'inv', exact: true })).toHaveAttribute('aria-selected', 'true');
+    // The completion drawn heavier is read as part of the headline (SRC-56).
+    await expect(page.getByRole('option', { name: 'invoices', exact: true })).toHaveAttribute('aria-selected', 'false');
+    expect(await host(page, 's').locator('.option-icon[aria-hidden="true"]').count()).toBe(4);
     // Closed: a search field again.
     await page.keyboard.press('Escape');
     await expect(page.getByRole('combobox')).toHaveCount(0);
@@ -1583,7 +2007,11 @@ test.describe('accessibility', () => {
     await mount(page, [live('s', { value: 'inv' })]);
     await wire(host(page, 's'));
     await tabTo(page, input(page, 's'));
-    // Down opens with the first suggestion active (SRC-14): one Enter chooses it.
+    // Down opens with the query row current (SRC-14, SRC-57): one Enter searches for the query. Down again reaches the
+    // first suggestion, which Enter chooses.
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('ArrowDown');
     await page.keyboard.press('ArrowDown');
     await page.keyboard.press('Enter');
     await input(page, 's').focus();
@@ -1592,6 +2020,9 @@ test.describe('accessibility', () => {
     await page.keyboard.press('Escape');
     await page.keyboard.press('Escape');
     expect(await log(page)).toEqual([
+      'toggle:true:null:true',
+      'submit:inv',
+      'toggle:false:submit:false',
       'toggle:true:null:true',
       'select:invoices',
       'toggle:false:select:false',
@@ -1630,8 +2061,14 @@ const mail = (id: string, props: Fixture['props'] = {}, items: FixtureItem[] = M
 const result = (value: string, headline = value, props: FixtureItem['props'] = {}): FixtureItem => ({ kind: 'result', props: { value, headline, href: `/${value}`, ...props } });
 const trigger = (page: P, id: string) => host(page, id).locator('.trigger');
 const hint = (page: P, id: string) => host(page, id).locator('tanrei-keyboard-shortcut.hint');
+/** A result's row as it is drawn (its box, states and press), in the result's shadow root. */
 const link = (page: P, id: string, value: string) => host(page, id).locator(`tanrei-search-result[value="${value}"] .row`);
+/** A linked group heading's row as it is drawn. */
 const heading = (page: P, id: string, value: string) => host(page, id).locator(`tanrei-search-result-group[value="${value}"] .group > .row`);
+/** A result's control: its own `<a>` (or `<button>`), its child in the document, which takes focus and is the link (SRC-50). */
+const anchor = (page: P, id: string, value: string) => host(page, id).locator(`tanrei-search-result[value="${value}"] > :is(a, button)`);
+/** A linked group heading's control. */
+const headingAnchor = (page: P, id: string, value: string) => host(page, id).locator(`tanrei-search-result-group[value="${value}"] > :is(a, button)`);
 const statusRow = (page: P, id: string) => host(page, id).locator('.status');
 const settled = (locator: Locator) => locator.evaluate((el) => (el as any).updateComplete);
 /** Mounts as `mount()` does, with a text field on the page, and keeps links from leaving it: what a click did is in `nav`. */
@@ -1661,41 +2098,57 @@ const focused = (page: P) =>
     let active: Element | null = document.activeElement;
     while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
     const root = active?.getRootNode();
-    return active ? `${active.localName}${root instanceof ShadowRoot ? `@${root.host.localName.replace('tanrei-search', 'search')}:${(root.host as any).value ?? ''}` : active.id ? `#${active.id}` : ''}` : null;
+    // A result's control is its own child (SRC-50): it is told by the result it belongs to, as an element of a shadow root is.
+    const owner = root instanceof ShadowRoot ? root.host : active?.parentElement?.localName.startsWith('tanrei-search-result') ? active.parentElement : null;
+    return active ? `${active.localName}${owner ? `@${owner.localName.replace('tanrei-search', 'search')}:${(owner as any).value ?? ''}` : active.id ? `#${active.id}` : ''}` : null;
   });
 const toggles = async (page: P) => (await log(page)).filter((entry) => entry.startsWith('toggle'));
-/** The active suggestion — the option drawn active, whether or not it is announced — by its place (`option-<n>`), or null. */
+/**
+ * The active option — the one drawn active, whether or not it is announced — as `query` for the query row (SRC-57) and
+ * by its suggestion's place (`option-<n>`) otherwise, or null: none, the input's own place.
+ */
 const activeOption = (page: P, id: string) =>
   host(page, id).evaluate((el) => {
     const option = el.shadowRoot!.querySelector<HTMLElement>('.option[data-active]');
-    return option ? `option-${option.dataset.index}` : null;
+    return option ? (option.id === 'query-row' ? 'query' : `option-${option.dataset.index}`) : null;
   });
 /**
- * The suggestion the input names as its active descendant — the one assistive technology reads — by its place
- * (`option-<n>`), or null: none named. The id it names is the suggestion element's own (SRC-24).
+ * The option the input names as its active descendant — the one assistive technology reads — as `activeOption` says
+ * it, or null: none named. The id a suggestion's option has is its element's own (SRC-24).
  */
 const toldOption = (page: P, id: string, place: 'bar' | 'header' = 'bar') =>
   host(page, id).evaluate((el, at) => {
     const named = el.shadowRoot!.querySelector(`.${at} .input`)?.getAttribute('aria-activedescendant');
     if (!named) return null;
     const option = el.shadowRoot!.getElementById(named);
-    return option ? `option-${option.dataset.index}` : `missing:${named}`;
+    return option ? (option.id === 'query-row' ? 'query' : `option-${option.dataset.index}`) : `missing:${named}`;
   }, place);
+/** The text the input shows now — the value, a suggestion an arrow key reached (SRC-14), or the value with its completion (SRC-55). */
+const shown = (field: Locator) => field.evaluate((el: HTMLInputElement) => el.value);
+/** The query row's option (SRC-57). */
+const queryRow = (page: P, id: string) => host(page, id).locator('#query-row');
+/** The element the input names as its active descendant (element reflection): its tag and its `href`, or null. */
+const activeDescendant = (field: Locator) =>
+  field.evaluate((el: HTMLInputElement) => {
+    const active = el.ariaActiveDescendantElement;
+    return active ? `${active.localName} ${active.getAttribute('href') ?? ''}`.trim() : null;
+  });
 /**
  * What Chromium's accessibility tree tells assistive technology of the focused field: its role and name, and the node
- * it names as its active descendant (null: none, so nothing is read for it).
+ * it names as its active descendant (null: none, so nothing is read for it); and every node named `name` — one link and
+ * nothing else is the current result said once.
  */
-async function toldInChromium(page: P) {
+async function toldInChromium(page: P, name = '') {
   const cdp = await page.context().newCDPSession(page);
   await cdp.send('Accessibility.enable');
   const { nodes } = await cdp.send('Accessibility.getFullAXTree');
   await cdp.detach();
   const byNode = new Map(nodes.map((node) => [node.backendDOMNodeId, node]));
-  const said = (node: (typeof nodes)[number]) => `${String(node.role?.value)} "${String(node.name?.value ?? '')}"`;
+  const said = (node: (typeof nodes)[number]) => `${String(node.role?.value)} "${String(node.name?.value ?? '')}"${node.description?.value ? ` (${String(node.description.value)})` : ''}`;
   const field = nodes.find((node) => !node.ignored && ['searchbox', 'combobox'].includes(String(node.role?.value)) && (node.properties ?? []).some((property) => property.name === 'focused' && property.value.value === true));
   const relation = field?.properties?.find((property) => property.name === 'activedescendant');
   const active = relation ? byNode.get(relation.value.relatedNodes?.[0]?.backendDOMNodeId) : undefined;
-  return { field: field ? said(field) : null, active: active ? said(active) : null };
+  return { field: field ? said(field) : null, active: active ? said(active) : null, ...(name ? { named: nodes.filter((node) => !node.ignored && node.name?.value === name).map(said).sort() } : {}) };
 }
 
 test.describe('trigger', () => {
@@ -2219,7 +2672,7 @@ test.describe('results', () => {
     // The whole row is the hit area, as wide as the view's content.
     expect((await bounds(r)).width).toBe((await bounds(option)).width);
     // The column is kept in a row without an icon while another row has one, and dropped when none has.
-    await mountSite(page, [mail('some', { expanded: true }, [suggestion('a'), result('one', 'One', { leadingIcon: 'mail' }), result('two', 'Two')]), mail('none', { expanded: true }, [suggestion('a'), result('one', 'One')])]);
+    await mountSite(page, [mail('some', { expanded: true }, [suggestion('a'), result('one', 'One', { leadingIcon: 'mail' }), result('two', 'Two')]), mail('none', { expanded: true, queryRow: 'none' }, [suggestion('a'), result('one', 'One')])]);
     await expect(row(page, 'some', 0).locator('.option-icon')).toHaveCount(1);
     await expect(link(page, 'some', 'two').locator('.icon.empty')).toHaveCount(1);
     expect((await bounds(link(page, 'some', 'two').locator('.headline'))).x).toBe((await bounds(link(page, 'some', 'one').locator('.headline'))).x);
@@ -2243,7 +2696,7 @@ test.describe('results', () => {
     await page.mouse.move(0, 0);
     await input(page, 'some').focus();
     for (const key of ['ArrowDown', 'ArrowDown', 'ArrowDown']) await page.keyboard.press(key);
-    await expect(two).toBeFocused();
+    await expect(anchor(page, 'some', 'two')).toBeFocused();
     await expect.poll(() => css(headline, 'color')).toBe('rgb(0, 200, 0)');
     expect(await css(two, 'background-color')).toBe(await resolveColor(page, S('focused-suggestion-container-color')));
     // The ring: inside the row, never transitioned.
@@ -2305,7 +2758,7 @@ test.describe('results', () => {
     // Exposed as one text, the result's description; the headline is never marked; nothing is trimmed or shortened.
     const whole = 'Tokens of the button: its heights, corners and colors in each state, and the motion that takes one to the next.';
     await expect(page.getByRole('link', { name: 'Button', exact: true }).first()).toHaveAccessibleDescription(whole);
-    await expect(slotted).toHaveAttribute('aria-description', whole);
+    await expect(anchor(page, 's', 'slotted')).toHaveAttribute('aria-description', whole);
     await expect(own.locator('.headline mark')).toHaveCount(0);
     expect(await own.locator('.excerpt').evaluate((el) => el.textContent)).toBe(runs.join(''));
     expect(await css(own.locator('.excerpt'), 'unicode-bidi')).toBe('plaintext');
@@ -2323,8 +2776,11 @@ test.describe('results', () => {
     expect([await lines(own.locator('.excerpt')), await bounds(own), await bounds(slotted)]).toEqual(before);
     // The product's content replaces the runs, and is followed as it changes.
     await host(page, 's').evaluate((el) => (el.querySelector('[value="plain"]')!.innerHTML = 'Now <mark>marked</mark> by the product.'));
-    await expect(link(page, 's', 'plain')).toHaveAttribute('aria-description', 'Now marked by the product.');
-    await expect(link(page, 's', 'plain').locator('slot')).toHaveCount(1);
+    await expect(anchor(page, 's', 'plain')).toHaveAttribute('aria-description', 'Now marked by the product.');
+    await expect(link(page, 's', 'plain').locator('.excerpt slot')).toHaveCount(1);
+    // The product's content that replaced every child took the control with it: the result made it again, and it is still the link.
+    await expect(anchor(page, 's', 'plain')).toHaveAttribute('href', '/plain');
+    await expect(page.getByRole('link', { name: 'Plain', exact: true })).toHaveCount(1);
   });
 
   test('SRC-44: a group is its heading and then its results, group.gap from what stands above and below it; without href the heading is a quiet title that takes no input, with one it is a result’s row and its results step in by group.indent, hit areas with them; right to left mirrors the inset', async ({ page }) => {
@@ -2384,7 +2840,7 @@ test.describe('results', () => {
     await host(page, 'g').evaluate((el) =>
       el.insertAdjacentHTML('beforeend', '<tanrei-search-result-group value="/x/" headline="Page" href="/x/">A page about <mark>tokens</mark>.<tanrei-search-result value="/x/#y" headline="Part" href="/x/#y"></tanrei-search-result></tanrei-search-result-group>'),
     );
-    await expect(heading(page, 'g', '/x/')).toHaveAttribute('aria-description', 'A page about tokens.');
+    await expect(headingAnchor(page, 'g', '/x/')).toHaveAttribute('aria-description', 'A page about tokens.');
     expect(await css(host(page, 'g').locator('tanrei-search-result-group[value="/x/"] > mark'), 'color')).toBe(await resolveColor(page, T('result-mark-color')));
     await expect(link(page, 'g', '/x/#y')).toBeVisible();
   });
@@ -2406,15 +2862,17 @@ test.describe('results', () => {
       await page.evaluate(() => ((window as any).nav.length = 0));
     };
     await open();
-    const pipeline = link(page, 's', '/tokens/#pipeline');
+    const pipeline = anchor(page, 's', '/tokens/#pipeline');
     expect(await pipeline.evaluate((el) => [el.localName, el.getAttribute('href'), el.getAttribute('target'), el.getAttribute('rel'), el.getAttribute('role')])).toEqual(['a', '/tokens/#pipeline', null, null, null]);
-    expect(await heading(page, 's', '/tokens/').evaluate((el) => [el.localName, el.getAttribute('href')])).toEqual(['a', '/tokens/']);
+    expect(await headingAnchor(page, 's', '/tokens/').evaluate((el) => [el.localName, el.getAttribute('href')])).toEqual(['a', '/tokens/']);
+    // The link covers its whole row, which draws it: a press anywhere on the row is a press on the link.
+    expect(await bounds(pipeline)).toEqual(await bounds(link(page, 's', '/tokens/#pipeline')));
     // A new context: no handle to the page that opened it, said after the excerpt, and no mark drawn for it.
-    const ext = link(page, 's', 'ext');
+    const ext = anchor(page, 's', 'ext');
     expect(await ext.evaluate((el) => [el.getAttribute('target'), el.getAttribute('rel')])).toEqual(['_blank', 'noopener']);
     await expect(ext).toHaveAttribute('aria-description', 'What changed in 2.0., opens in a new tab');
-    await expect(ext.locator('.icon')).toHaveCount(1);
-    expect(await ext.evaluate((el) => el.textContent)).not.toContain('open_in_new');
+    await expect(link(page, 's', 'ext').locator('.icon')).toHaveCount(1);
+    expect(await link(page, 's', 'ext').evaluate((el) => el.textContent)).not.toContain('open_in_new');
     // In place, by a press: select with its value, then the link is followed, then the view closes (toggle follows select).
     await pipeline.click();
     expect(await log(page)).toEqual(['select:/tokens/#pipeline', 'toggle:false:select:false']);
@@ -2449,14 +2907,14 @@ test.describe('results', () => {
     await pipeline.evaluate((el) => el.dispatchEvent(new MouseEvent('auxclick', { bubbles: true, composed: true, cancelable: true, button: 1 })));
     expect([await log(page), await prop(s, 'expanded')]).toEqual([[], true]);
     // Without an href it is a button, for which select is all that happens — by a press, Enter or Space.
-    const plain = link(page, 's', 'plain');
+    const plain = anchor(page, 's', 'plain');
     expect(await plain.evaluate((el) => [el.localName, el.getAttribute('type'), el.hasAttribute('href')])).toEqual(['button', 'button', false]);
     await expect(plain).toHaveAttribute('aria-description', 'Runs in the product.');
     await plain.focus();
     await page.keyboard.press('Space');
     expect(await log(page)).toEqual(['select:plain', 'toggle:false:select:false']);
     // An address that names a script is no destination: a button too.
-    expect(await link(page, 's', 'script').evaluate((el) => [el.localName, el.hasAttribute('href')])).toEqual(['button', false]);
+    expect(await anchor(page, 's', 'script').evaluate((el) => [el.localName, el.hasAttribute('href')])).toEqual(['button', false]);
   });
 
   test('SRC-46: the view’s content is laid out from top to bottom as the suggestions, the status row, the results and groups in the product’s order, then the default slot’s content — whatever the order of the children — and an absent part takes no room', async ({ page }) => {
@@ -2576,80 +3034,111 @@ test.describe('status', () => {
 });
 
 test.describe('keys through results', () => {
-  test('SRC-14, SRC-49: Down Arrow walks the suggestions with focus in the input and then moves real focus to the first result and on through the results, across groups — a linked heading counts, a title does not — staying on the last; Up Arrow comes back, from the first result to the input with the last suggestion active', async ({ page }) => {
-    await mountSite(page, [
-      mail('s', { expanded: true }, [
-        suggestion('one'),
-        suggestion('two'),
-        { kind: 'result-group', props: { headline: 'Pages', value: '/p/', href: '/p/' }, items: [result('p1', 'Part 1'), result('p2', 'Part 2')] },
-        { kind: 'result-group', props: { headline: 'People' }, items: [result('ann', 'Ann')] },
-        result('last', 'Last'),
-      ]),
-    ]);
+  test('SRC-14, SRC-49: the arrow keys’ cycle is the query row, the suggestions with focus in the input, then the results by real focus, across groups — a linked heading counts, a title does not — and round: Down Arrow on the last result back to the query row in the input, Up Arrow on the query row to the last result; Up Arrow on the first result back to the last suggestion; with queryRow none the input’s place stands first; with wrap false the ends stop', async ({ page }) => {
+    const items = [
+      suggestion('one'),
+      suggestion('two'),
+      { kind: 'result-group', props: { headline: 'Pages', value: '/p/', href: '/p/' }, items: [result('p1', 'Part 1'), result('p2', 'Part 2')] },
+      { kind: 'result-group', props: { headline: 'People' }, items: [result('ann', 'Ann')] },
+      result('last', 'Last'),
+    ] satisfies FixtureItem[];
+    await mountSite(page, [mail('s', { expanded: true }, items), mail('n', { expanded: true, queryRow: 'none' }, items), mail('stop', { expanded: true, wrap: false }, items)]);
     const field = input(page, 's');
     await field.focus();
-    // SRC-14: focus in the input of an open view makes the first suggestion active (not announced until the person
-    // moves); the first Down Arrow stays on it and announces it, the next goes on to the second.
-    await expect.poll(() => activeOption(page, 's')).toBe('option-0');
-    await expect(field).not.toHaveAttribute('aria-activedescendant', /.*/);
-    await page.keyboard.press('ArrowDown');
-    await expect.poll(() => toldOption(page, 's')).toBe('option-0');
-    await page.keyboard.press('ArrowDown');
-    await expect.poll(() => toldOption(page, 's')).toBe('option-1');
-    expect(await focused(page)).toBe('input@search:inv');
-    // With suggestions in the view no result is current: the first suggestion is the first row.
+    // SRC-14: focus in the input of an open view makes the query row current; with suggestions no result is.
+    await expect.poll(() => activeOption(page, 's')).toBe('query');
     await expect(host(page, 's').locator('tanrei-search-result-group .row[data-current], tanrei-search-result .row[data-current]')).toHaveCount(0);
-    // The last suggestion is active: on to the first result — the linked heading — by real focus.
+    await page.keyboard.press('ArrowDown');
+    expect([await toldOption(page, 's'), await shown(field)]).toEqual(['option-0', 'one']);
+    await page.keyboard.press('ArrowDown');
+    expect([await toldOption(page, 's'), await focused(page)]).toEqual(['option-1', 'input@search:inv']);
+    // The last suggestion is active: on to the first result — the linked heading — by real focus; the input shows the value.
     await page.keyboard.press('ArrowDown');
     expect(await focused(page)).toBe('a@search-result-group:/p/');
+    expect(await shown(field)).toBe('inv');
     await expect(field).not.toHaveAttribute('aria-activedescendant', /.*/);
     await expect(host(page, 's').locator('.option[data-active]')).toHaveCount(0);
     const visited: (string | null)[] = [];
-    for (let presses = 0; presses < 5; presses++) {
+    for (let presses = 0; presses < 4; presses++) {
       await page.keyboard.press('ArrowDown');
       visited.push(await focused(page));
     }
-    // Across groups; the title "People" is not a stop; it stays on the last.
-    expect(visited).toEqual(['a@search-result:p1', 'a@search-result:p2', 'a@search-result:ann', 'a@search-result:last', 'a@search-result:last']);
+    // Across groups; the title "People" is not a stop.
+    expect(visited).toEqual(['a@search-result:p1', 'a@search-result:p2', 'a@search-result:ann', 'a@search-result:last']);
     // The view is still open, and the focus ring is inside the focused row.
     expect(await popoverOpen(view(page, 's'))).toBe(true);
     expect(await css(link(page, 's', 'last'), 'outline-style')).toBe('solid');
+    // Round at the end: back to the input, the query row current — moved to by an arrow key, so read at once.
+    await page.keyboard.press('ArrowDown');
+    expect(await focused(page)).toBe('input@search:inv');
+    expect([await activeOption(page, 's'), await toldOption(page, 's')]).toEqual(['query', 'query']);
+    // Round at the start: Up Arrow on the query row moves focus to the last result.
+    await page.keyboard.press('ArrowUp');
+    expect(await focused(page)).toBe('a@search-result:last');
     for (const expected of ['a@search-result:ann', 'a@search-result:p2', 'a@search-result:p1', 'a@search-result-group:/p/']) {
       await page.keyboard.press('ArrowUp');
       expect(await focused(page)).toBe(expected);
     }
-    // From the first result back to the input, the last suggestion active.
+    // From the first result back to the input, the last suggestion active and shown.
     await page.keyboard.press('ArrowUp');
     expect(await focused(page)).toBe('input@search:inv');
-    await expect.poll(() => toldOption(page, 's')).toBe('option-1');
+    expect([await toldOption(page, 's'), await shown(field)]).toEqual(['option-1', 'two']);
     expect(await prop(host(page, 's'), 'expanded')).toBe(true);
+    // queryRow none: the input's place first — Down Arrow on the last result back to it, with nothing current.
+    const other = input(page, 'n');
+    await other.focus();
+    expect(await activeOption(page, 'n')).toBeNull();
+    await page.keyboard.press('ArrowUp');
+    expect(await focused(page), 'round, from the input’s place to the last result').toBe('a@search-result:last');
+    await page.keyboard.press('ArrowDown');
+    expect(await focused(page)).toBe('input@search:inv');
+    expect([await activeOption(page, 'n'), await shown(other)]).toEqual([null, 'inv']);
+    await page.keyboard.press('ArrowDown');
+    expect(await activeOption(page, 'n')).toBe('option-0');
+    // wrap false: the last result and the query row are the ends.
+    await input(page, 'stop').focus();
+    await page.keyboard.press('ArrowUp');
+    expect([await focused(page), await activeOption(page, 'stop')]).toEqual(['input@search:inv', 'query']);
+    for (let presses = 0; presses < 9; presses++) await page.keyboard.press('ArrowDown');
+    expect(await focused(page)).toBe('a@search-result:last');
     // With no suggestion in the view the first result is current while focus stays in the input (SRC-49): the first
-    // Down Arrow moves focus to it — current without being announced, it is where the first press goes — and the next to
-    // the one after it; Up Arrow comes back to it and then to the input with none current; from none, Down Arrow goes to
-    // the first result.
-    await mountSite(page, [site('d')]);
+    // Down Arrow moves focus to the second, Up Arrow from there to the first, and from it round to the last.
+    await mountSite(page, [site('d'), site('dstop', { wrap: false })]);
     await trigger(page, 'd').click();
     expect(await focused(page)).toBe('input@search:token');
     await expect(heading(page, 'd', '/tokens/')).toHaveAttribute('data-current', '');
     await page.keyboard.press('ArrowDown');
-    expect(await focused(page)).toBe('a@search-result-group:/tokens/');
-    await expect(heading(page, 'd', '/tokens/')).not.toHaveAttribute('data-current', /.*/);
-    await page.keyboard.press('ArrowDown');
     expect(await focused(page)).toBe('a@search-result:/tokens/#pipeline');
-    await page.keyboard.press('ArrowUp');
-    expect(await focused(page)).toBe('a@search-result-group:/tokens/');
-    await page.keyboard.press('ArrowUp');
-    expect(await focused(page)).toBe('input@search:token');
     await expect(heading(page, 'd', '/tokens/')).not.toHaveAttribute('data-current', /.*/);
-    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowUp');
     expect(await focused(page)).toBe('a@search-result-group:/tokens/');
+    await page.keyboard.press('ArrowUp');
+    expect(await focused(page), 'round, from the first result to the last').toBe('a@search-result:/components/button/');
+    await page.keyboard.press('ArrowDown');
+    expect(await focused(page), 'round, from the last result to the first').toBe('a@search-result-group:/tokens/');
     // The arrows never reach the status row or the product's own content.
     await host(page, 'd').evaluate((el) => el.insertAdjacentHTML('beforeend', '<button id="more" type="button">Load more</button>'));
-    for (let presses = 0; presses < 6; presses++) await page.keyboard.press('ArrowDown');
+    for (let presses = 0; presses < 3; presses++) await page.keyboard.press('ArrowDown');
     expect(await focused(page)).toBe('a@search-result:/components/button/');
+    await page.keyboard.press('Escape');
+    // Up Arrow in the input on the current first result goes round to the last, too; with wrap false it does nothing.
+    await trigger(page, 'd').click();
+    await page.keyboard.press('ArrowUp');
+    expect(await focused(page)).toBe('a@search-result:/components/button/');
+    await page.keyboard.press('Escape');
+    await trigger(page, 'dstop').click();
+    await page.keyboard.press('ArrowUp');
+    expect(await focused(page)).toBe('input@search:token');
+    await expect(heading(page, 'dstop', '/tokens/')).toHaveAttribute('data-current', '');
+    for (let presses = 0; presses < 6; presses++) await page.keyboard.press('ArrowDown');
+    expect(await focused(page), 'stops on the last').toBe('a@search-result:/components/button/');
+    for (let presses = 0; presses < 6; presses++) await page.keyboard.press('ArrowUp');
+    expect(await focused(page), 'stops on the first').toBe('a@search-result-group:/tokens/');
   });
 
-  test('SRC-49, SRC-42, SRC-50: with results and no suggestion the first result is current from the moment the view shows it — drawn as focused while focus stays in the input, never an active descendant — and one Enter there activates it as Enter on it does: select, then the link followed unless select was cancelled; Up Arrow leaves none, and Enter submits; while an input method composes none is current', async ({ page }) => {
+  test('SRC-49, SRC-42, SRC-50, SRC-24: with results and no suggestion the first result is current from the moment the view shows it — drawn as focused while focus stays in the input, its own link the input’s active descendant once it has stayed current for 500 ms with nothing typed, said once — and one Enter there activates it as Enter on it does: select, then the link followed unless select was cancelled; while an input method composes, or focus is elsewhere, none is current', async ({ page, browserName }) => {
+    // The spec's pause: 500 milliseconds (SRC-24, SRC-50).
+    const pause = 500;
     await mountSite(page, [site('s'), site('b', {}, [{ kind: 'result', props: { value: 'cmd', headline: 'A command' } }, result('after', 'After')])]);
     const s = host(page, 's');
     await override(page, { [S('focused-suggestion-headline-color')]: 'rgb(0, 200, 0)' });
@@ -2663,40 +3152,59 @@ test.describe('keys through results', () => {
     expect(await css(first, 'outline-style')).toBe('solid');
     expect(await px(first, 'outline-offset')).toBeLessThan(0);
     await expect(link(page, 's', '/tokens/#pipeline')).not.toHaveAttribute('data-current', /.*/);
-    // Not an active descendant, and the input stays a search box (SRC-50); the status row says what was found (SRC-48).
-    await expect(field).not.toHaveAttribute('aria-activedescendant', /.*/);
+    // Its own link becomes the input's active descendant once the pause has passed — the input stays a search box
+    // (SRC-50): assistive technology reads what Enter will open, from the one node there is for it.
+    await expect.poll(() => activeDescendant(field)).toBe('a /tokens/');
     await expect(field).not.toHaveAttribute('role', /.*/);
     await expect(page.getByRole('searchbox', { name: 'Search the docs' })).toHaveCount(1);
+    if (browserName === 'chromium') {
+      expect(await toldInChromium(page, 'Design tokens')).toEqual({
+        field: 'searchbox "Search the docs"',
+        active: 'link "Design tokens" (Colors, sizes and motion as tokens, in three tiers.)',
+        named: ['group "Design tokens"', 'link "Design tokens" (Colors, sizes and motion as tokens, in three tiers.)'],
+      });
+    }
+    // Typing: current at once, named only once the pause has passed, on the page's clock.
+    await holdClock(page);
+    await page.keyboard.press('End');
+    await page.keyboard.type('s');
+    await settled(s);
+    await expect(first).toHaveAttribute('data-current', '');
+    expect(await activeDescendant(field), 'a key takes the name away at once').toBeNull();
+    await page.clock.runFor(pause - 1);
+    await settled(s);
+    expect(await activeDescendant(field), 'not before the pause').toBeNull();
+    await page.clock.runFor(1);
+    await settled(s);
+    expect(await activeDescendant(field), 'named once typing paused').toBe('a /tokens/');
+    await page.keyboard.press('Backspace');
+    await page.clock.runFor(pause);
+    await settled(s);
     // One Enter: select, then the browser follows the link, then the view closes.
     await wire(s);
     await page.keyboard.press('Enter');
     expect(await nav(page)).toEqual(['followed:/tokens/']);
     expect(await log(page)).toEqual(['select:/tokens/', 'toggle:false:select:false']);
-    // A router that cancels select keeps the link from being followed.
+    // A router that cancels select keeps the link from being followed — Enter takes it before it is announced.
     await page.evaluate(() => ((window as any).nav.length = 0));
     await trigger(page, 's').click();
     await expect(first).toHaveAttribute('data-current', '');
+    expect(await activeDescendant(field)).toBeNull();
     await wire(s);
     await s.evaluate((el) => el.addEventListener('select', (e) => e.preventDefault(), { once: true }));
     await page.keyboard.press('Enter');
     expect(await nav(page)).toEqual(['cancelled']);
     expect(await log(page)).toEqual(['select:/tokens/', 'toggle:false:select:false']);
-    // Up Arrow leaves none current: Enter submits the query as typed, and the view, showing results, stays.
+    // While an input method composes none is current, and its Enter is its own.
     await trigger(page, 's').click();
     await wire(s);
-    await page.keyboard.press('ArrowUp');
-    await expect(first).not.toHaveAttribute('data-current', /.*/);
-    await page.keyboard.press('Enter');
-    expect(await log(page)).toEqual(['submit:token']);
-    // Typing makes the first current again; while an input method composes none is.
-    await page.keyboard.type('s');
-    await expect(first).toHaveAttribute('data-current', '');
     await field.evaluate((el: HTMLInputElement) => {
       el.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, composed: true }));
-      el.value = 'tokensか';
+      el.value = 'tokenか';
       el.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true, isComposing: true, inputType: 'insertCompositionText', data: 'か' }));
     });
     await expect(first).not.toHaveAttribute('data-current', /.*/);
+    expect(await activeDescendant(field)).toBeNull();
     const enter = await field.evaluate((el) => {
       const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, composed: true, cancelable: true, isComposing: true, keyCode: 229 });
       el.dispatchEvent(event);
@@ -2704,15 +3212,22 @@ test.describe('keys through results', () => {
     });
     expect(enter, 'the Enter that confirms a conversion is the input method’s').toBe(false);
     await field.evaluate((el: HTMLInputElement) => el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, composed: true, data: 'か' })));
+    await page.clock.runFor(1);
     await expect(first).toHaveAttribute('data-current', '');
-    expect((await log(page)).filter((e) => !e.startsWith('input')), 'nothing followed, chosen or submitted while composing').toEqual(['submit:token']);
-    // Focus leaving the input — to the back button — leaves none current.
+    expect((await log(page)).filter((e) => !e.startsWith('input')), 'nothing followed, chosen or submitted while composing').toEqual([]);
+    // Focus leaving the input — to the back button — leaves none current, and names none.
+    await page.clock.runFor(pause);
     await tab(page, { back: true });
     await expect(s.locator('.header .back button')).toBeFocused();
     await expect(first).not.toHaveAttribute('data-current', /.*/);
+    expect(await activeDescendant(field)).toBeNull();
     await page.keyboard.press('Escape');
-    // A result without href is a button: Enter in the input is its activation, for which select is all that happens.
+    // A result without href is a button: the input names it as it names a link, and Enter in the input is its
+    // activation, for which select is all that happens.
     await trigger(page, 'b').click();
+    await page.clock.runFor(pause);
+    await settled(host(page, 'b'));
+    expect(await activeDescendant(headerInput(page, 'b'))).toBe('button');
     await wire(host(page, 'b'));
     await page.keyboard.press('Enter');
     expect(await log(page)).toEqual(['select:cmd', 'toggle:false:select:false']);
@@ -2759,11 +3274,13 @@ test.describe('keys through results', () => {
       expect(await prop(s, 'expanded')).toBe(true);
       await page.keyboard.press('Escape');
     }
-    // With nothing current (Up Arrow on the first) the modified Enter opens nothing.
+    // With nothing current — while an input method composes (SRC-14) — the modified Enter opens nothing.
     await trigger(page, 's').click();
-    await page.keyboard.press('ArrowUp');
-    await page.keyboard.press('Control+Enter');
-    await page.keyboard.press('Shift+Enter');
+    await headerInput(page, 's').evaluate((el: HTMLInputElement) => {
+      el.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, composed: true }));
+      for (const [key, ctrlKey, shiftKey] of [['Enter', true, false], ['Enter', false, true]] as const) el.dispatchEvent(new KeyboardEvent('keydown', { key, ctrlKey, shiftKey, bubbles: true, composed: true, cancelable: true, isComposing: true, keyCode: 229 }));
+      el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, composed: true, data: '' }));
+    });
     expect(await opened()).toEqual([]);
     await page.keyboard.press('Escape');
     // A current result without a destination (a button) has nowhere to open.
@@ -2781,7 +3298,8 @@ test.describe('keys through results', () => {
     await trigger(page, 's').click();
     await wire(s);
     const scroll = s.locator('.full .scroll');
-    for (let presses = 0; presses < 12; presses++) await page.keyboard.press('ArrowDown');
+    // From the first, current while focus is in the input (SRC-49), eleven presses reach the twelfth.
+    for (let presses = 0; presses < 11; presses++) await page.keyboard.press('ArrowDown');
     expect(await focused(page)).toBe('a@search-result:r11');
     expect(await scroll.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
     const [room, last] = [await bounds(scroll), await bounds(link(page, 's', 'r11'))];
@@ -2791,9 +3309,9 @@ test.describe('keys through results', () => {
     await page.keyboard.press('x');
     expect(await focused(page)).toBe('input@search:tokenx');
     expect(await log(page)).toEqual(['input:tokenx']);
-    // Typing made the first result current again (SRC-49): the first Down Arrow moves focus to it.
+    // Typing made the first result current again (SRC-49): the first Down Arrow moves focus to the second.
     await page.keyboard.press('ArrowDown');
-    expect(await focused(page)).toBe('a@search-result:r0');
+    expect(await focused(page)).toBe('a@search-result:r1');
     await page.keyboard.press('Backspace');
     expect(await focused(page)).toBe('input@search:token');
     // Pasting: the key goes to the input (what the clipboard holds is the platform's).
@@ -2816,8 +3334,8 @@ test.describe('keys through results', () => {
     });
     expect(scripted).toBe('function');
     await page.keyboard.press('Enter');
-    expect(await nav(page)).toEqual(['followed:/r0']);
-    expect(await log(page)).toEqual(['select:r0', 'toggle:false:select:false']);
+    expect(await nav(page)).toEqual(['followed:/r1']);
+    expect(await log(page)).toEqual(['select:r1', 'toggle:false:select:false']);
     expect(await page.evaluate(() => (window as any).scripted())).toBe(0);
     // Escape on a result closes the view as from the input, and focus returns to the trigger.
     await trigger(page, 's').click();
@@ -2848,7 +3366,8 @@ test.describe('keys through results', () => {
     const d = host(page, 'd');
     const open = async () => {
       await input(page, 'd').focus();
-      await page.keyboard.press('ArrowDown'); // opens, with its one suggestion active (SRC-14)
+      await page.keyboard.press('ArrowDown'); // opens, with the query row current (SRC-14, SRC-57)
+      await page.keyboard.press('ArrowDown'); // its one suggestion
       await page.keyboard.press('ArrowDown');
       expect(await focused(page)).toBe('a@search-result:m-1');
       await wire(d);
@@ -2898,7 +3417,7 @@ test.describe('results: semantics and the product’s data', () => {
       const inner = group.shadowRoot!.querySelector('.group')!;
       return {
         items: [...el.querySelectorAll(':scope > [slot="result"]')].map((item) => `${item.localName}:${item.getAttribute('role')}`),
-        group: [inner.getAttribute('role'), inner.getAttribute('aria-label'), [...inner.children].map((child) => child.getAttribute('role') ?? child.localName)],
+        group: [inner.getAttribute('role'), inner.getAttribute('aria-label'), [...inner.children].map((child) => child.getAttribute('role') ?? child.querySelector('slot')?.assignedElements()[0]?.localName)],
         parts: [...group.querySelectorAll('tanrei-search-result')].map((item) => item.getAttribute('role')),
         icons: [...el.querySelectorAll('tanrei-search-result')].every((item) => item.shadowRoot!.querySelector('.icon')?.getAttribute('aria-hidden') === 'true'),
         options: [el, ...el.querySelectorAll('*')].flatMap((item) => [...(item.shadowRoot?.querySelectorAll('[role="option"]') ?? [])]).length,
@@ -2911,10 +3430,11 @@ test.describe('results: semantics and the product’s data', () => {
       icons: true,
       options: 0,
     });
-    await expect(page.getByRole('group', { name: 'Design tokens' }).getByRole('link')).toHaveCount(1);
-    // A focused result is never the input's active descendant.
+    // The linked heading is one link, the group's own child slotted into the heading's row.
+    await expect(page.getByRole('link', { name: 'Design tokens', exact: true })).toHaveCount(1);
+    // A focused result is never the input's active descendant: it has real focus.
     await page.keyboard.press('ArrowDown');
-    await expect(headerInput(page, 's')).not.toHaveAttribute('aria-activedescendant', /.*/);
+    expect(await activeDescendant(headerInput(page, 's'))).toBeNull();
     const axe = await new AxeBuilder({ page }).include('tanrei-search').analyze();
     expect(axe.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`)).toEqual([]);
     await page.keyboard.press('Escape');
@@ -2923,7 +3443,7 @@ test.describe('results: semantics and the product’s data', () => {
     await page.keyboard.press('ArrowDown');
     const combo = page.getByRole('combobox', { name: 'Search the mail' });
     await expect(combo).toHaveAttribute('aria-controls', 'listbox');
-    await expect(page.getByRole('listbox', { name: 'Search the mail' }).getByRole('option')).toHaveCount(1);
+    await expect(page.getByRole('listbox', { name: 'Search the mail' }).getByRole('option')).toHaveCount(2);
     await expect(page.getByRole('listbox').getByRole('link')).toHaveCount(0);
     await expect(host(page, 'd').locator('tanrei-search-result-group .title')).toHaveAttribute('aria-hidden', 'true');
     const docked = await new AxeBuilder({ page }).include('tanrei-search').analyze();
@@ -2965,8 +3485,8 @@ test.describe('results: semantics and the product’s data', () => {
     expect(await log(page)).toEqual(['input:t', 'input:to', 'input:tok']);
     // The results it was given are still there: it filters nothing by the value, and sorts nothing.
     expect(await s.evaluate((el) => [...el.querySelectorAll('tanrei-search-result')].map((item) => (item as any).value))).toEqual(['a', 'b']);
-    // The focused result is replaced by the product: focus goes to the input, not out of the view.
-    await page.keyboard.press('ArrowDown');
+    // The focused result is replaced by the product: focus goes to the input, not out of the view. (From the first
+    // result, current while focus is in the input, Down Arrow reaches the second, SRC-49.)
     await page.keyboard.press('ArrowDown');
     expect(await focused(page)).toBe('a@search-result:b');
     await s.evaluate((el: any) => {
@@ -2981,6 +3501,32 @@ test.describe('results: semantics and the product’s data', () => {
     // Replaced at once, without a motion of its own.
     expect(await link(page, 's', 'c').evaluate((el) => el.getAnimations().length + (el.getRootNode() as ShadowRoot).host.getAnimations().length)).toBe(0);
     expect(requests).toEqual([]);
+  });
+
+  test('SRC-51: when the product replaces the focused result’s content whole (its text set), which takes the link that held the focus with it, focus goes to the input, and the result keeps its link with the new excerpt; a link the result itself makes a button keeps the focus', async ({ page }) => {
+    await mountSite(page, [site('s', { value: 'tok', statusText: '' }, [result('a', 'A'), result('b', 'B'), result('c', 'C')])]);
+    const s = host(page, 's');
+    await trigger(page, 's').click();
+    await expect(link(page, 's', 'b')).toBeVisible();
+    // From the first result, current while focus is in the input, Down Arrow reaches the second (SRC-49).
+    await page.keyboard.press('ArrowDown');
+    expect(await focused(page)).toBe('a@search-result:b');
+    await s.evaluate((el: any) => (el.querySelector('tanrei-search-result[value="b"]').textContent = 'A new passage'));
+    await expect.poll(() => focused(page)).toBe('input@search:tok');
+    expect(await prop(s, 'expanded')).toBe(true);
+    await expect(anchor(page, 's', 'b')).toHaveCount(1);
+    await expect(anchor(page, 's', 'b')).toHaveAttribute('aria-description', 'A new passage');
+    // The product's content in another result than the focused one moves nothing.
+    await page.keyboard.press('ArrowDown');
+    expect(await focused(page)).toBe('a@search-result:b');
+    await s.evaluate((el: any) => (el.querySelector('tanrei-search-result[value="c"]').textContent = 'Another passage'));
+    await expect(anchor(page, 's', 'c')).toHaveAttribute('aria-description', 'Another passage');
+    expect(await focused(page)).toBe('a@search-result:b');
+    // A result whose destination the product takes away becomes a button (SRC-45): the result makes the change, and the
+    // focus goes with it to the button, not to the input.
+    await s.evaluate((el: any) => (el.querySelector('tanrei-search-result[value="b"]').href = ''));
+    await expect.poll(() => focused(page)).toBe('button@search-result:b');
+    expect(await prop(s, 'expanded')).toBe(true);
   });
 
   test('SRC-10, SRC-46: focus() on the element goes to the input focus belongs to — the header’s while a modal view is open, dialog or full-screen, so that the product’s own content in the view can send focus back when it removes what held it; the bar’s while the view is docked or closed; the trigger while a triggered search is closed; nowhere while disabled — and neither opens nor closes anything', async ({ page }) => {
@@ -3031,7 +3577,7 @@ test.describe('results: semantics and the product’s data', () => {
     await page.keyboard.press('ArrowDown');
     await expect.poll(() => prop(m, 'expanded')).toBe(true);
     await page.keyboard.press('ArrowDown');
-    await expect(link(page, 'm', 'a')).toBeFocused();
+    await expect(anchor(page, 'm', 'a')).toBeFocused();
     await m.evaluate((el: HTMLElement) => el.focus({ preventScroll: true }));
     await expect(input(page, 'm')).toBeFocused();
     expect(await prop(m, 'expanded')).toBe(true);
@@ -3091,7 +3637,7 @@ test.describe('results: semantics and the product’s data', () => {
 
   test('SRC-9, SRC-13: the full-screen view opened from an icon trigger holds the status row and the results in order and returns focus to the trigger; Enter in the input emits submit and keeps the view open while it shows a result or a status row, and closes it when it shows neither', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 700 });
-    await mountSite(page, [site('f', { bar: 'icon', presentation: 'full-screen' }), site('e', { statusText: '' }, []), site('st', { statusText: 'No results for tokne' }, [])]);
+    await mountSite(page, [site('f', { bar: 'icon', presentation: 'full-screen' }), site('q', { queryRow: 'none' }, [suggestion('tokens'), ...SITE.items!]), site('e', { statusText: '' }, []), site('st', { statusText: 'No results for tokne' }, [])]);
     const f = host(page, 'f');
     const button = f.locator('tanrei-button.trigger-icon button');
     await button.click();
@@ -3100,14 +3646,17 @@ test.describe('results: semantics and the product’s data', () => {
     const [st, first] = [await bounds(statusRow(page, 'f')), await bounds(heading(page, 'f', '/tokens/'))];
     expect(st.y).toBeGreaterThan((await bounds(f.locator('.divider'))).y);
     expect(first.y).toBeGreaterThan(st.y);
-    // With nothing current (Up Arrow on the first result, SRC-49), Enter with results in the view submits, and the view stays.
-    await wire(f);
-    await page.keyboard.press('ArrowUp');
-    await page.keyboard.press('Enter');
-    expect(await log(page)).toEqual(['submit:token']);
-    expect(await prop(f, 'expanded')).toBe(true);
     await page.keyboard.press('Escape');
     await expect(button).toBeFocused();
+    // With nothing current — a suggestion in the view and queryRow none (SRC-14) — Enter with results in the view
+    // submits, and the view stays.
+    await trigger(page, 'q').click();
+    await wire(host(page, 'q'));
+    expect(await activeOption(page, 'q')).toBeNull();
+    await page.keyboard.press('Enter');
+    expect(await log(page)).toEqual(['submit:token']);
+    expect(await prop(host(page, 'q'), 'expanded')).toBe(true);
+    await page.keyboard.press('Escape');
     // With a status row only ("No results"): it stays too.
     await trigger(page, 'st').click();
     await wire(host(page, 'st'));
@@ -3174,13 +3723,6 @@ test.describe('site search: reach and cost', () => {
     expect([...stops].sort()).toEqual(['a@search-result-group:/tokens/', 'a@search-result:/components/button/', 'a@search-result:/tokens/#layers', 'a@search-result:/tokens/#pipeline', 'button@tanrei-button:', 'input@search:token'].sort());
     const back = s.locator('.header .back button');
     await expect(back).toHaveAccessibleName('Back');
-    // Enter in the input with nothing current submits and — the view showing results — keeps it open: that is not the
-    // way out. (Up Arrow leaves the first result, current from the moment the view shows it, SRC-49.)
-    await tabTo(page, headerInput(page, 's'));
-    await page.keyboard.press('ArrowUp');
-    await page.keyboard.press('Enter');
-    expect(await prop(s, 'expanded')).toBe(true);
-    expect(await toggles(page)).toEqual([]);
     // The way out that goes nowhere: Tab to the back button, Enter. The view closes with the reason back and focus is on the trigger.
     await tabTo(page, back);
     await page.keyboard.press('Enter');
@@ -3279,7 +3821,7 @@ test.describe('site search: reach and cost', () => {
       const painted = performance.now() - start;
       const after = count();
       const rows = el.querySelectorAll('tanrei-search-result, tanrei-search-result-group').length;
-      const links = [...el.querySelectorAll('tanrei-search-result, tanrei-search-result-group')].filter((item: any) => item.shadowRoot.querySelector('a[href]')).length;
+      const links = [...el.querySelectorAll('tanrei-search-result, tanrei-search-result-group')].filter((item: any) => item.querySelector(':scope > a[href]')).length;
       EventTarget.prototype.addEventListener = add;
       MutationObserver.prototype.observe = observe;
       ResizeObserver.prototype.observe = resize;
@@ -3296,7 +3838,8 @@ test.describe('site search: reach and cost', () => {
     const s = host(page, 's');
     await wire(s);
     await headerInput(page, 's').focus();
-    for (let presses = 0; presses < 100; presses++) await page.keyboard.press('ArrowDown');
+    // The first is current while focus is in the input (SRC-49): 99 presses reach the hundredth.
+    for (let presses = 0; presses < 99; presses++) await page.keyboard.press('ArrowDown');
     expect(await focused(page)).toBe('a@search-result:/page-19/#s3');
     await page.keyboard.press('Enter');
     expect(await log(page)).toEqual(['select:/page-19/#s3', 'toggle:false:select:false']);
@@ -3304,7 +3847,7 @@ test.describe('site search: reach and cost', () => {
 });
 
 test.describe('on-screen keyboard', () => {
-  test('SRC-14, SRC-49: typed on an on-screen keyboard — the input focused by a touch — nothing is made current by itself, and its Search key submits the text as typed; an arrow or caret key (a hardware keyboard’s) or a mouse press brings automatic selection back, and a touch on the focused input ends it again', async ({ browser }) => {
+  test('SRC-14, SRC-49: typed on an on-screen keyboard — the input focused by a touch — nothing is made current by itself, and its Search key submits the text as typed; Down Arrow from none goes to the first row; an arrow or caret key (a hardware keyboard’s) or a mouse press brings back what the search makes current, and a touch on the focused input ends it again', async ({ browser }) => {
     // A touch device, as Playwright emulates one in every engine: a tap is a press whose pointerType is touch.
     const context = await browser.newContext({ hasTouch: true, viewport: { width: 480, height: 640 } });
     const page = await context.newPage();
@@ -3327,26 +3870,32 @@ test.describe('on-screen keyboard', () => {
     await wire(s);
     await page.keyboard.press('Enter');
     expect(await log(page)).toEqual(['submit:invo', 'toggle:false:submit:false']);
-    // A hardware keyboard's Down Arrow: the first is active, and read out; typing makes the first active again.
+    // A hardware keyboard's Down Arrow opens the view: the query row is current, and read out; typing keeps it current.
     await page.keyboard.press('ArrowDown');
-    await expect.poll(active).toBe('option-0');
-    await expect.poll(() => toldOption(page, 's')).toBe('option-0');
+    await expect.poll(active).toBe('query');
+    await expect.poll(() => toldOption(page, 's')).toBe('query');
     await page.keyboard.type('i');
-    await expect.poll(active).toBe('option-0');
-    // A touch on the focused input brings the on-screen keyboard back: none active as the person types.
+    await expect.poll(active).toBe('query');
+    // A touch on the focused input brings the on-screen keyboard back: none current as the person types.
     await field.tap();
     await page.keyboard.type('c');
     await expect.poll(() => prop(s, 'value')).toBe('invoic');
     expect(await active()).toBeNull();
-    // A caret key is a hardware keyboard's: the first is active again.
+    // Down Arrow from none goes to the first row: the query row, not past it.
+    await page.keyboard.press('ArrowDown');
+    expect([await active(), await toldOption(page, 's')]).toEqual(['query', 'query']);
+    await field.tap();
+    await page.keyboard.type('x');
+    expect(await active()).toBeNull();
+    // A caret key is a hardware keyboard's: the query row is current again.
     await page.keyboard.press('ArrowLeft');
-    await expect.poll(active).toBe('option-0');
-    // A mouse press on the input: automatic selection, as with a hardware keyboard.
+    await expect.poll(active).toBe('query');
+    // A mouse press on the input: what the search makes current by itself is back, as with a hardware keyboard.
     await field.tap();
     await page.keyboard.type('e');
     expect(await active()).toBeNull();
     await field.click();
-    await expect.poll(active).toBe('option-0');
+    await expect.poll(active).toBe('query');
     await page.keyboard.press('Escape');
     // A site search opened by a touch on its trigger: no result is current, and the Search key submits; the view, showing
     // results, stays. A caret key makes the first result current.
@@ -3363,7 +3912,36 @@ test.describe('on-screen keyboard', () => {
     await context.close();
   });
 
-  test('SRC-14: focus by the keyboard after a touch elsewhere in the search is the keyboard’s — the first suggestion is active — because focus that left the search forgot the touch', async ({ browser }) => {
+  test('SRC-55, SRC-14: on an on-screen keyboard nothing is completed — its Search key submits the text as typed — and a hardware keyboard’s key brings the completion back with the next insertion', async ({ browser }) => {
+    const context = await browser.newContext({ hasTouch: true, viewport: { width: 480, height: 640 } });
+    const page = await context.newPage();
+    await mountSite(page, [live('s', { value: '', inlineCompletion: true }, [])]);
+    const s = host(page, 's');
+    const field = input(page, 's');
+    await s.evaluate((el) => {
+      el.addEventListener('input', () => {
+        const value = (el as any).value as string;
+        el.querySelectorAll('tanrei-search-suggestion').forEach((n) => n.remove());
+        if (value) el.insertAdjacentHTML('beforeend', `<tanrei-search-suggestion value="${value}voices" headline="${value}voices"></tanrei-search-suggestion>`);
+      });
+    });
+    await field.tap();
+    await page.keyboard.type('in');
+    await expect.poll(() => prop(s, 'expanded')).toBe(true);
+    await settled(s);
+    expect(await field.evaluate((el: HTMLInputElement) => [el.value, el.selectionStart, el.selectionEnd]), 'nothing completed').toEqual(['in', 2, 2]);
+    expect(await activeOption(page, 's')).toBeNull();
+    await wire(s);
+    await page.keyboard.press('Enter');
+    expect(await log(page)).toEqual(['submit:in', 'toggle:false:submit:false']);
+    // A hardware keyboard's arrow key ends it: the next insertion is completed.
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.type('v');
+    await expect.poll(() => field.evaluate((el: HTMLInputElement) => [el.value, el.selectionStart, el.selectionEnd])).toEqual(['invvoices', 3, 9]);
+    await context.close();
+  });
+
+  test('SRC-14: focus by the keyboard after a touch elsewhere in the search is the keyboard’s — the query row is current — because focus that left the search forgot the touch', async ({ browser }) => {
     const context = await browser.newContext({ hasTouch: true, viewport: { width: 480, height: 640 } });
     const page = await context.newPage();
     await mountSite(page, [mail('s', { expanded: true })]);
@@ -3376,7 +3954,7 @@ test.describe('on-screen keyboard', () => {
     await tabTo(page, field);
     await expect(field).toBeFocused();
     await host(page, 's').evaluate((el: any) => (el.expanded = true));
-    await expect.poll(() => activeOption(page, 's')).toBe('option-0');
+    await expect.poll(() => activeOption(page, 's')).toBe('query');
     // Focus by a touch on the bar itself (not the input): the on-screen keyboard.
     await page.locator('#after').focus();
     await bar(page, 's').tap({ position: { x: 4, y: 4 } });

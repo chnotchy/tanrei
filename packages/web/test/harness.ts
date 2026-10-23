@@ -562,15 +562,16 @@ export async function inputBoxSetApart(page: Page, tag: string, inner?: string):
 
 /**
  * A combobox's props as its attributes, where they are not `name="value"`: `readOnly` keeps HTML's attribute name on
- * the web (`readonly`), `chevron`, a boolean that defaults to true, is the inverse attribute (`no-chevron`), and an
- * open fixture draws its list in place (`inline`) unless it says `inline: false`. The same for the combobox, for the
- * combobox field that forwards them, and for a combobox that is the item of a Field's fixture.
+ * the web (`readonly`), `chevron` and `wrap`, booleans that default to true, are the inverse attributes (`no-chevron`,
+ * `no-wrap`), and an open fixture draws its list in place (`inline`) unless it says `inline: false`. The same for the
+ * combobox, for the combobox field that forwards them, and for a combobox that is the item of a Field's fixture.
  */
-function comboboxProps({ readOnly, inline, chevron, ...props }: Props): Props {
+function comboboxProps({ readOnly, inline, chevron, wrap, ...props }: Props): Props {
   return {
     ...props,
     ...(readOnly !== undefined ? { readonly: readOnly } : {}),
     ...(chevron === false ? { noChevron: true } : {}),
+    ...(wrap === false ? { noWrap: true } : {}),
     ...(props.open && inline !== false ? { inline: true } : {}),
   };
 }
@@ -1371,8 +1372,13 @@ const STAGING: Record<string, Staging> = {
       .stage:has(> tanrei-search[expanded][presentation='full-screen']) { block-size: 480px; padding: 0; align-content: stretch; }
       .stage:has(> tanrei-search[expanded][presentation='dialog']) { inline-size: 720px; block-size: 480px; padding: 0; align-content: stretch; }
       .stage[data-fixture='dialog-loading'] { --tanrei-comp-loading-indicator-motion-show-delay: 0ms; --tanrei-comp-loading-indicator-motion-enter-duration: 0ms; }`,
-    // `inline` is the test attribute; a test's own fixture with `inline: false` is the real overlay instead.
-    props: ({ inline, ...props }) => ({ ...(props.expanded && inline !== false ? { ...props, inline: true } : props), 'data-tanrei-keyboard-convention': 'apple' }),
+    // `inline` is the test attribute; a test's own fixture with `inline: false` is the real overlay instead. `wrap`, a
+    // boolean that defaults to true, is the inverse attribute (`no-wrap`).
+    props: ({ inline, wrap, ...props }) => ({
+      ...(props.expanded && inline !== false ? { ...props, inline: true } : props),
+      ...(wrap === false ? { noWrap: true } : {}),
+      'data-tanrei-keyboard-convention': 'apple',
+    }),
   },
   // A segmented button is drawn at its natural width, start-aligned and vertically centred on a 400 × 96 stage (SEG-14's
   // verify); its `values` (multiple) are the JSON array attribute the set reads.

@@ -129,7 +129,7 @@ const read = (page: P, id: string) =>
     const combobox = el as HTMLElement & { value: string; inputValue: string; open: boolean };
     const root = el.shadowRoot!;
     const field = root.querySelector<HTMLInputElement>('.input')!;
-    const active = field.getAttribute('aria-activedescendant');
+    const named = field.getAttribute('aria-activedescendant');
     const surface = root.querySelector<HTMLElement>('.surface')!;
     const label = (r: Element) => r.querySelector('.option-label')!.textContent;
     return {
@@ -140,7 +140,10 @@ const read = (page: P, id: string) =>
       expanded: field.getAttribute('aria-expanded'),
       controls: field.getAttribute('aria-controls'),
       shown: surface.matches(':popover-open') || surface.classList.contains('inline'),
-      active: active ? (root.getElementById(active)?.querySelector('.option-label')?.textContent ?? null) : null,
+      // The active option as it is drawn, which Enter chooses (CMB-24); and the one the input names to assistive
+      // technology, which an option typing made active is only once typing pauses (CMB-48).
+      active: root.querySelector('.scroll .row.active .option-label')?.textContent ?? null,
+      descendant: named ? (root.getElementById(named)?.querySelector('.option-label')?.textContent ?? null) : null,
       ring: [...root.querySelectorAll('.row.kf')].map(label),
       selected: [...root.querySelectorAll('.row[aria-selected="true"]')].map(label),
       rows: [...root.querySelectorAll('.scroll .row')].map(label),
@@ -1203,11 +1206,13 @@ test.describe('behavior: the list', () => {
     await expect(part(page, groups, '.scroll .divider'), 'nor its separation').toHaveCount(0);
   });
 
-  test('CMB-26: typing makes the first shown option that is not disabled active, and none where a custom value is allowed; a list opened by a key makes the chosen option active, or the first enabled one; Down and Up Arrow move by one across groups and stop at the ends — Up Arrow on the first leaves none where a custom value is allowed — Page Down and Page Up by ten; Home, End, Left and Right Arrow are the text’s; a disabled option is reached; a pointer makes an option active without the ring, the keyboard with it; nothing here changes value or the text', async ({ page }) => {
+  test('CMB-26: typing makes the first shown option that is not disabled active, and none where a custom value is allowed; a list opened by a key makes the chosen option active, or the first enabled one; Down and Up Arrow move by one across groups and go round at the ends — through the text, with none active, where a custom value is allowed — or stop there with no-wrap, Up Arrow on the first leaving none where a custom value is allowed; Page Down and Page Up by ten and never round; Home, End, Left and Right Arrow are the text’s; a disabled option is reached; a pointer makes an option active without the ring, the keyboard with it; nothing here changes value or the text', async ({ page }) => {
     await mount(page, [
       fx('one', { value: 'lisbon' }, [group('A', [option('Kyoto', 'kyoto', { disabled: true }), option('Kobe', 'kobe')]), group('B', [option('Lisbon', 'lisbon'), option('Tokyo', 'tokyo', { disabled: true })]), option('Toronto', 'toronto')]),
       fx('custom', { allowCustomValue: true }),
       fx('many', {}, MANY),
+      fx('stop', { wrap: false }),
+      fx('custom-stop', { allowCustomValue: true, wrap: false }),
     ], { reducedMotion: true });
     await listen(page, 'one');
     // Typing: the first shown option that is not disabled.
@@ -1219,16 +1224,19 @@ test.describe('behavior: the list', () => {
     expect(await read(page, 'one'), 'only disabled options are shown: none').toMatchObject({ rows: ['Kyoto', 'Tokyo'], active: null });
     await page.keyboard.press('Escape');
     await page.keyboard.press('Escape');
-    // Opened by a key: the chosen option; the arrows move across groups, through disabled options, and stop at the ends.
+    // Opened by a key: the chosen option; the arrows move across groups, through disabled options, and go round at the ends.
     await page.keyboard.press('ArrowDown');
-    expect(await read(page, 'one')).toMatchObject({ active: 'Lisbon', ring: ['Lisbon'] });
+    expect(await read(page, 'one')).toMatchObject({ active: 'Lisbon', descendant: 'Lisbon', ring: ['Lisbon'] });
     await page.keyboard.press('ArrowDown');
     expect((await read(page, 'one')).active, 'a disabled option is reached').toBe('Tokyo');
     await page.keyboard.press('ArrowDown');
+    expect((await read(page, 'one')).active).toBe('Toronto');
     await page.keyboard.press('ArrowDown');
-    expect((await read(page, 'one')).active, 'stops at the last').toBe('Toronto');
-    for (let i = 0; i < 6; i++) await page.keyboard.press('ArrowUp');
-    expect((await read(page, 'one')).active, 'stops at the first').toBe('Kyoto');
+    expect(await read(page, 'one'), 'from the last to the first').toMatchObject({ active: 'Kyoto', descendant: 'Kyoto' });
+    await page.keyboard.press('ArrowUp');
+    expect(await read(page, 'one'), 'from the first to the last').toMatchObject({ active: 'Toronto', descendant: 'Toronto' });
+    for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowUp');
+    expect((await read(page, 'one')).active).toBe('Kyoto');
     // Home, End and the horizontal arrows are the text's: the combobox prevents none of them and the active option
     // stays; the caret moves as the platform moves it (Home and End move no caret in a field on every platform).
     const caret = () => input(page, 'one').evaluate((el) => (el as HTMLInputElement).selectionStart);
@@ -1269,17 +1277,41 @@ test.describe('behavior: the list', () => {
     await host(page, 'one').evaluate((el) => el.querySelector('[value="tokyo"]')!.remove());
     await settle(page, 'one');
     expect((await read(page, 'one')).active).toBe('Lisbon');
-    // A custom value: typing leaves none active; Down Arrow the first, Up Arrow from none the last, Up Arrow on the first none again.
+    // A custom value: typing leaves none active; the text is the place before the first option, in the cycle: Down Arrow
+    // the first, Up Arrow on the first none again, Up Arrow from none the last, and Down Arrow on the last none.
     await page.mouse.move(700, 5);
     await focusInput(page, 'custom');
     await type(page, 'o');
-    expect(await read(page, 'custom')).toMatchObject({ rows: ['Kyoto', 'Lisbon', 'Nairobi', 'Tokyo', 'Toronto'], active: null });
+    expect(await read(page, 'custom')).toMatchObject({ rows: ['Kyoto', 'Lisbon', 'Nairobi', 'Tokyo', 'Toronto'], active: null, descendant: null });
     await page.keyboard.press('ArrowDown');
     expect((await read(page, 'custom')).active).toBe('Kyoto');
     await page.keyboard.press('ArrowUp');
-    expect((await read(page, 'custom')).active, 'Enter is the text’s again').toBeNull();
+    expect(await read(page, 'custom'), 'Enter is the text’s again').toMatchObject({ active: null, descendant: null });
     await page.keyboard.press('ArrowUp');
-    expect((await read(page, 'custom')).active).toBe('Toronto');
+    expect(await read(page, 'custom'), 'round, from the text to the last').toMatchObject({ active: 'Toronto', descendant: 'Toronto' });
+    await page.keyboard.press('ArrowDown');
+    expect(await read(page, 'custom'), 'round, from the last to the text').toMatchObject({ active: null, descendant: null });
+    await page.keyboard.press('ArrowDown');
+    expect((await read(page, 'custom')).active).toBe('Kyoto');
+    await page.keyboard.press('Escape');
+    // no-wrap: the arrows stop at both ends; with a custom value, at the last and at the text.
+    await focusInput(page, 'stop');
+    await page.keyboard.press('ArrowDown');
+    await shownList(page, 'stop').toBe(true);
+    for (let i = 0; i < 7; i++) await page.keyboard.press('ArrowDown');
+    expect((await read(page, 'stop')).active, 'stops at the last').toBe('Toronto');
+    for (let i = 0; i < 7; i++) await page.keyboard.press('ArrowUp');
+    expect((await read(page, 'stop')).active, 'stops at the first').toBe('Kyoto');
+    expect(await host(page, 'stop').evaluate((el) => [el.hasAttribute('no-wrap'), (el as HTMLElement & { wrap: boolean }).wrap]), 'the attribute is the inverse').toEqual([true, false]);
+    await page.keyboard.press('Escape');
+    await focusInput(page, 'custom-stop');
+    await type(page, 'o');
+    await page.keyboard.press('ArrowUp');
+    expect((await read(page, 'custom-stop')).active, 'Up Arrow from the text does not go round').toBeNull();
+    for (let i = 0; i < 7; i++) await page.keyboard.press('ArrowDown');
+    expect((await read(page, 'custom-stop')).active, 'stops at the last').toBe('Toronto');
+    for (let i = 0; i < 7; i++) await page.keyboard.press('ArrowUp');
+    expect((await read(page, 'custom-stop')).active, 'stops at the text').toBeNull();
     await page.keyboard.press('Escape');
     // Page Down and Page Up: by ten, or to the end where fewer remain; an option scrolled out of view is brought into it.
     await focusInput(page, 'many');
@@ -1300,7 +1332,7 @@ test.describe('behavior: the list', () => {
     expect((await read(page, 'many')).active).toBe('Option 1');
   });
 
-  test('CMB-26, CMB-27, CMB-28, CMB-48: where the combobox filters and takes no custom value, the first match is the input’s active descendant from the first key — one Enter chooses it; where a custom value is allowed none is, and one Enter commits the text as typed', async ({ page }) => {
+  test('CMB-26, CMB-27, CMB-28, CMB-48: where the combobox filters and takes no custom value, the first match is the active option from the first key — one Enter chooses it, before the input names it; where a custom value is allowed none is, and one Enter commits the text as typed', async ({ page }) => {
     await mount(page, [fx('one', {}), fx('custom', { allowCustomValue: true })], { reducedMotion: true });
     await listen(page, 'one');
     await focusInput(page, 'one');
@@ -1318,6 +1350,39 @@ test.describe('behavior: the list', () => {
     await page.keyboard.press('Enter');
     expect(await read(page, 'custom')).toMatchObject({ value: 'to', text: 'to', open: false });
     expect(others(await heard(page))).toEqual(['toggle true', 'change to', 'toggle false commit', 'action to']);
+  });
+
+  test('CMB-48: an option typing made active is named as the input’s active descendant once it has stayed active for 500 ms with nothing typed — each key starts the pause again and takes the name away — and an option an arrow key moves to is named at once; the option is active, and Enter chooses it, all along', async ({ page }) => {
+    // The spec's pause: 500 milliseconds (CMB-48, as the search's SRC-24).
+    const pause = 500;
+    await mount(page, [fx('one', {})], { reducedMotion: true });
+    await holdClock(page);
+    await focusInput(page, 'one');
+    await type(page, 'k');
+    await settle(page, 'one');
+    expect(await read(page, 'one'), 'active at once, not named').toMatchObject({ rows: ['Kyoto', 'Tokyo'], active: 'Kyoto', descendant: null });
+    await page.clock.runFor(pause - 1);
+    await settle(page, 'one');
+    expect((await read(page, 'one')).descendant, 'not before the pause').toBeNull();
+    await type(page, 'y');
+    await settle(page, 'one');
+    await page.clock.runFor(pause - 1);
+    await settle(page, 'one');
+    expect((await read(page, 'one')).descendant, 'the key started the pause again').toBeNull();
+    await page.clock.runFor(1);
+    await settle(page, 'one');
+    expect(await read(page, 'one'), 'named once typing paused').toMatchObject({ active: 'Kyoto', descendant: 'Kyoto' });
+    await type(page, 'o');
+    await settle(page, 'one');
+    expect(await read(page, 'one'), 'a key takes the name away at once').toMatchObject({ active: 'Kyoto', descendant: null });
+    await page.keyboard.press('ArrowDown');
+    await settle(page, 'one');
+    expect(await read(page, 'one'), 'an arrow key names the option it moves to at once').toMatchObject({ active: 'Tokyo', descendant: 'Tokyo' });
+    await page.keyboard.press('Backspace');
+    await settle(page, 'one');
+    expect(await read(page, 'one'), 'a deletion is an edit too').toMatchObject({ rows: ['Kyoto', 'Tokyo'], active: 'Kyoto', descendant: null });
+    await page.keyboard.press('Enter');
+    expect(await read(page, 'one'), 'Enter chooses it before it is named').toMatchObject({ value: 'kyoto', open: false, descendant: null });
   });
 
   test('CMB-27: a press on an option, or Enter on the active one, sets value, emits change once with the new value, writes the option’s label with the caret at its end without emitting input, then closes the list with the reason select, so toggle follows change; the chosen option chosen again emits no change and still closes; an Enter that chooses emits no action and submits no form; setting value from the product emits nothing', async ({ page }) => {
@@ -1664,8 +1729,10 @@ test.describe('behavior: the list', () => {
     await page.keyboard.press('ArrowDown');
     await shownList(page, 'open-status').toBe(true);
     await page.keyboard.press('End');
-    for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
     expect((await read(page, 'open-status')).active).toBe('Bao Nguyen');
+    await page.keyboard.press('ArrowDown');
+    expect((await read(page, 'open-status')).active, 'from the last option round to the first, past the status row').toBe('Aiko Tanaka');
     await pressOn(status('open-status'));
     expect(await read(page, 'open-status')).toMatchObject({ open: true, value: '' });
     // An empty emptyText: no row — the list has nothing to show — and a report.
@@ -1867,6 +1934,8 @@ test.describe('behavior: the list', () => {
     expect(await osaka.getAttribute('aria-disabled')).toBe('true');
     await pressOn(osaka);
     expect(await read(page, 'one'), 'pressed').toMatchObject({ value: '', open: true });
+    // The keyboard reaches it too (from the first, on to the last).
+    await page.keyboard.press('ArrowUp');
     await page.keyboard.press('ArrowDown');
     expect((await read(page, 'one')).active).toBe('Osaka');
     await page.keyboard.press('Enter');
@@ -2003,8 +2072,9 @@ test.describe('behavior: the list', () => {
     expect((await box(title)).y + (await box(title)).height).toBeLessThanOrEqual((await box(rows(page, id).first())).y + 0.6);
     expect(await title.evaluate((el) => [el.tabIndex, el.getAttribute('role'), getComputedStyle(el).overflowWrap, el.closest('.scroll') !== null])).toEqual([-1, 'presentation', 'break-word', true]);
     await expect(part(page, id, '.group-title')).toHaveCount(2);
-    // Never active, and not matched by the filter: "asia" finds no option although a title is that word.
-    await set(page, id, { inline: false, open: false });
+    // Never active, and not matched by the filter: "asia" finds no option although a title is that word. (The arrow keys
+    // stop at the ends here, so that Up Arrow pressed past the first stays there, CMB-26.)
+    await set(page, id, { inline: false, open: false, wrap: false });
     await focusInput(page, id);
     await page.keyboard.press('ArrowDown');
     await shownList(page, id).toBe(true);
@@ -2304,7 +2374,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     await expect.poll(() => css(container(page, 'one'), 'background-color')).toBe(await color(page, 'stacked-hovered-container-color'));
   });
 
-  test('CMB-48: the input is an editable combobox named by label, with aria-autocomplete list, aria-haspopup listbox, aria-expanded, aria-controls naming the list while it is open and aria-activedescendant naming the active option while there is one; the list is a listbox named by label whose options are named by their label and described by their supporting text, each with its selected state, its disabled state, its position and the number shown, and whose groups are named by their title; typing moves the active descendant to the first match, and leaves it absent where a custom value is allowed', async ({ page }) => {
+  test('CMB-48: the input is an editable combobox named by label, with aria-autocomplete list, aria-haspopup listbox, aria-expanded, aria-controls naming the list while it is open and aria-activedescendant naming the active option while there is one; the list is a listbox named by label whose options are named by their label and described by their supporting text, each with its selected state, its disabled state, its position and the number shown, and whose groups are named by their title; typing makes the first match the active option, named as the active descendant once typing pauses, and leaves it absent where a custom value is allowed', async ({ page }) => {
     await mount(page, [fx('one', { label: 'Token', value: 'b' }, [group('Colors', [option('Alpha', 'a', { supportingText: '#111' }), option('Beta', 'b', { leadingIcon: 'palette' })]), option('Gamma', 'g', { disabled: true })]), fx('custom', { allowCustomValue: true })], { reducedMotion: true });
     const field = input(page, 'one');
     expect(await field.evaluate((el) => ['role', 'aria-autocomplete', 'aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-activedescendant', 'aria-label'].map((name) => el.getAttribute(name)))).toEqual(['combobox', 'list', 'listbox', 'false', null, null, 'Token']);
@@ -2341,7 +2411,8 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     expect(await rows(page, 'one').evaluateAll((all) => all.map((o) => `${o.getAttribute('aria-posinset')}/${o.getAttribute('aria-setsize')}`))).toEqual(['1/3', '2/3', '3/3']);
     await type(page, 'l');
     expect(await rows(page, 'one').evaluateAll((all) => all.map((o) => `${o.getAttribute('aria-posinset')}/${o.getAttribute('aria-setsize')}`))).toEqual(['1/1']);
-    expect((await read(page, 'one')).active, 'typing moves the active descendant to the first match').toBe('Alpha');
+    expect((await read(page, 'one')).active, 'typing makes the first match the active option').toBe('Alpha');
+    await expect.poll(async () => (await read(page, 'one')).descendant, 'and the active descendant once typing pauses').toBe('Alpha');
     await page.keyboard.press('Escape');
     expect(await field.evaluate((el) => [el.getAttribute('aria-expanded'), el.getAttribute('aria-controls'), el.getAttribute('aria-activedescendant')]), 'closed').toEqual(['false', null, null]);
     // A custom value: typing leaves the active descendant absent.
@@ -2373,7 +2444,8 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     [box_] = await axNodes(page, 'combobox');
     expect(box_).toMatchObject({ name: 'Token', value: 'a', expanded: true });
     expect(box_.controls, 'the list box, named by the label').toEqual(['Token']);
-    expect(box_.active, 'the active option').toEqual(['Alpha']);
+    // The first match typing made active is read once typing pauses, not after the key (CMB-48).
+    await expect.poll(async () => (await axNodes(page, 'combobox'))[0].active, 'the active option, once typing pauses').toEqual(['Alpha']);
     const [list] = await axNodes(page, 'listbox');
     expect(list.name).toBe('Token');
     expect(list.children.filter((role) => role !== 'option' && role !== 'group'), 'a list box of options and groups only').toEqual([]);
@@ -3264,7 +3336,8 @@ test.describe('the rows: drawn while the list is shown, and in a long list those
     const kept = ['Option 16', ...Array.from({ length: 10 }, (_, i) => `Option ${160 + i}`), ...Array.from({ length: 33 }, (_, i) => `Option ${1600 + i}`)];
     await expect.poll(async () => (await read(page, 'longer')).rows).toEqual(kept);
     expect(await counted(page, 'longer')).toMatchObject({ rows: 44, rooms: 0 });
-    expect(await activeRow(page, 'longer')).toEqual({ label: 'Option 16', position: '1', size: '44', inView: true });
+    // The first match is named once typing pauses (CMB-48).
+    await expect.poll(() => activeRow(page, 'longer')).toEqual({ label: 'Option 16', position: '1', size: '44', inView: true });
     expect(await part(page, 'longer', '.row').last().evaluate((el) => [el.getAttribute('aria-posinset'), el.getAttribute('aria-setsize')])).toEqual(['44', '44']);
   });
 

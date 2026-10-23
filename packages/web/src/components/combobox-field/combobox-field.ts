@@ -16,6 +16,7 @@ import {
   type TanreiComboboxVariant,
 } from '../combobox/combobox.js';
 import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
+import { inverseBoolean } from '../../primitives/values.js';
 
 // The members' own types are the combobox field's: it has no detail type and no type for a prop of its own.
 export type {
@@ -34,7 +35,7 @@ export type {
 /** CBF-1: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's (W6). */
 const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'] as const;
 /**
- * CBF-1: the sixteen props that are the combobox's, and `inline`, its web-only attribute that draws an open list in
+ * CBF-1: the props that are the combobox's, and `inline`, its web-only attribute that draws an open list in
  * place (a fixture and its twin are then staged alike). Its own `label`, `labelHidden`, `error` and `disabled` are
  * never set. `value`, `inputValue` and `open` are the three the combobox writes itself: what is set here is what the
  * combobox holds already, unless the product has just set another (CBF-3).
@@ -49,6 +50,7 @@ const COMBOBOX = [
   'open',
   'allowCustomValue',
   'filter',
+  'wrap',
   'noChevron',
   'clearable',
   'clearLabel',
@@ -176,6 +178,7 @@ export class TanreiComboboxField extends ComposedControl<string> {
     open: { type: Boolean, reflect: true },
     allowCustomValue: { type: Boolean, attribute: 'allow-custom-value', reflect: true },
     filter: { type: String, reflect: true },
+    wrap: { attribute: 'no-wrap', reflect: true, converter: inverseBoolean },
     noChevron: { type: Boolean, attribute: 'no-chevron', reflect: true },
     clearable: { type: Boolean, reflect: true },
     clearLabel: { type: String, attribute: 'clear-label' },
@@ -272,6 +275,9 @@ export class TanreiComboboxField extends ComposedControl<string> {
 
   /** @from tanrei-combobox.filter */
   filter: TanreiComboboxFilter = 'contains';
+
+  /** @from tanrei-combobox.wrap */
+  wrap = true;
 
   /** @from tanrei-combobox.noChevron */
   noChevron = false;
