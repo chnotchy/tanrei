@@ -24,6 +24,7 @@ import {
   swallowRelease,
   usableLength as usable,
   ariaAttribute,
+  asComponent,
 } from '../../primitives/index.js';
 // TIP-27: a plain tooltip draws its shortcut with the keyboard shortcut, which the tooltip defines wherever it is imported.
 import '../keyboard-shortcut/keyboard-shortcut.js';
@@ -780,7 +781,8 @@ export class TanreiTooltip extends TanreiElement {
       this.described = null;
     }
     if (target && text && !this.described) {
-      target.setAttribute('aria-description', text);
+      // A component's own write: never reported as the product's on an anchor that owns it (src/primitives/delegated-aria.ts).
+      asComponent(() => target.setAttribute('aria-description', text));
       this.described = { element: target, text };
     }
   }
@@ -793,7 +795,7 @@ export class TanreiTooltip extends TanreiElement {
       this.keyed = null;
     }
     if (target && keys && !this.keyed) {
-      target.setAttribute('aria-keyshortcuts', keys);
+      asComponent(() => target.setAttribute('aria-keyshortcuts', keys));
       this.keyed = { element: target, keys };
     }
   }

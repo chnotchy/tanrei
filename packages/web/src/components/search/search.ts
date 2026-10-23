@@ -1609,7 +1609,9 @@ export class TanreiSearch extends TanreiElement {
   /**
    * SRC-36, SRC-37: what the trigger or the bar's input carries for assistive technology besides its name — the
    * shortcut as `aria-keyshortcuts`, in the form the keyboard shortcut it draws gives (KBS-12), and for a trigger that
-   * it opens a dialog and whether that is open. An icon trigger is a Tanrei Button: they go on its native button.
+   * it opens a dialog and whether that is open. An icon trigger is a Tanrei Button: they go on its host, as a product
+   * writes them, and the Button moves them to data-aria-* and exposes them on its native button
+   * (src/primitives/delegated-aria.ts).
    */
   private expose() {
     const drawn = this.renderRoot.querySelector<TanreiKeyboardShortcut>('tanrei-keyboard-shortcut');
@@ -1620,12 +1622,8 @@ export class TanreiSearch extends TanreiElement {
       if (target) hostAria(target, { 'aria-keyshortcuts': keys });
       return;
     }
-    const button = this.trigger as (HTMLElement & { updateComplete?: Promise<unknown> }) | null;
-    const expanded = String(this.expanded && !this.inert_);
-    void button?.updateComplete?.then(() => {
-      const native = button.shadowRoot?.querySelector('button');
-      if (native) hostAria(native, { 'aria-haspopup': 'dialog', 'aria-expanded': expanded, 'aria-keyshortcuts': keys });
-    });
+    const button = this.trigger;
+    if (button) hostAria(button, { 'aria-haspopup': 'dialog', 'aria-expanded': String(this.expanded && !this.inert_), 'aria-keyshortcuts': keys });
   }
 
   protected override updated(changed: PropertyValues<this>) {

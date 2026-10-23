@@ -14,8 +14,12 @@
 //                      element set on the member, as a property, on every render (W2).
 //   exported()       — a member's documented parts as an `exportparts` value, from the list its class keeps (W4).
 //
+//   fieldDelegatesAria() — a composed field's host moves the product's ARIA to data-aria-* and passes it on to its
+//                      control (`${delegatedAria(this, {})}` on the control's tag), but for its name, which is `label`.
+//
 // The element writes no custom property and reads no token of a member (W3): nothing here touches a style.
 import { type CSSResultGroup, type PropertyDeclarations, type PropertyValues, type TemplateResult, css, html, nothing } from 'lit';
+import { type DelegatedName, delegatesAria, ownedNames } from './delegated-aria.js';
 import { FIELD_CONTROL } from './field.js';
 import { takeFormDisabled } from './form-disabled.js';
 import { type FormEntry, type FormWord, formSaysOf } from './form-says.js';
@@ -109,7 +113,8 @@ export abstract class ComposedElement extends TanreiElement {
 
   /**
    * W8: the sentence a debug build names when the host is given an ARIA name. The host has no role: its name is the
-   * frame's `label`. Empty: nothing is reported.
+   * frame's `label`. Empty: nothing is reported. A composed field moves the product's ARIA and reports a name given so
+   * itself (`fieldDelegatesAria()`), and leaves this empty.
    */
   protected readonly hostNameSentence: string = '';
 
@@ -205,6 +210,27 @@ export abstract class ComposedElement extends TanreiElement {
     await this.updateComplete;
     if (this.isConnected) this.control?.focus();
   }
+}
+
+// ─── The product's ARIA on a composed field ──────────────────────────────────────────────────────────────────────
+
+/** What a composed field says itself: its name is its Field's `label` (W8), and its disabled state its `disabled`. */
+const FIELD_OWNS: readonly DelegatedName[] = ['aria-label', 'aria-labelledby', 'aria-disabled'];
+const NAME_INSTEAD = 'name it with label (labelHidden keeps the name and draws none)';
+
+/**
+ * A composed field (`element`, whose spec's `sentence` says that its name is its Field's label) moves the product's
+ * ARIA from its host to `data-aria-*` (src/primitives/delegated-aria.ts) and passes it on to `control`, its member that
+ * carries the role, which moves and exposes it in turn: but for the name and the disabled state, which are its own,
+ * and what `control` says itself (a select's `aria-expanded`). Called after the class is written, before it is
+ * defined; the template puts `${delegatedAria(this, {})}` on the control's tag.
+ */
+export function fieldDelegatesAria(element: { prototype: HTMLElement }, control: { prototype: HTMLElement }, sentence: string) {
+  delegatesAria(element, {
+    owns: [...new Set([...FIELD_OWNS, ...ownedNames(control)])],
+    sentence,
+    instead: { 'aria-label': NAME_INSTEAD, 'aria-labelledby': NAME_INSTEAD },
+  });
 }
 
 // ─── W5, W6: a composed element with a value ─────────────────────────────────────────────────────────────────────

@@ -1,5 +1,6 @@
 import { type PropertyDeclarations, css, html } from 'lit';
-import { ComposedControl, type ValueMember, composedHost, exported, forward } from '../../primitives/composed.js';
+import { ComposedControl, type ValueMember, composedHost, exported, forward, fieldDelegatesAria } from '../../primitives/composed.js';
+import { delegatedAria } from '../../primitives/delegated-aria.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
 import {
@@ -320,8 +321,6 @@ export class TanreiTextField extends ComposedControl<string> {
   /** @from tanrei-text-input.pickerLabel */
   pickerLabel = '';
 
-  protected override readonly hostNameSentence = 'TXF-62';
-
   protected override get valueMember(): ValueMember<string> | null {
     return this.renderRoot?.querySelector<TanreiTextInput>('tanrei-text-input') ?? null;
   }
@@ -347,13 +346,15 @@ export class TanreiTextField extends ComposedControl<string> {
   // control is its one child without a slot.
   protected override render() {
     return html`<tanrei-field part="field" exportparts=${FIELD_PARTS.attribute} ${forward(this, FIELD)} .disabled=${this.disabled || this.formDisabled}
-      >${this.pass('label-icon')}<tanrei-text-input part="text-input" exportparts=${INPUT_PARTS.attribute} ${forward(this, INPUT)}
+      >${this.pass('label-icon')}<tanrei-text-input part="text-input" exportparts=${INPUT_PARTS.attribute} ${delegatedAria(this, {})} ${forward(this, INPUT)}
         >${this.pass('leading-icon')}${this.pass('trailing-icon')}</tanrei-text-input
       ></tanrei-field
     >`;
   }
 }
 
+// TXF-62: the product's ARIA on the host is its control's (src/primitives/delegated-aria.ts), but for its name, which is label.
+fieldDelegatesAria(TanreiTextField, TanreiTextInput, 'TXF-62');
 if (!customElements.get('tanrei-text-field')) customElements.define('tanrei-text-field', TanreiTextField);
 
 declare global {

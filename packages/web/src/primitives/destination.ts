@@ -4,6 +4,7 @@ import { html, literal } from 'lit/static-html.js';
 import { iconGlyph } from '../styles/icons.js';
 import { ownDirection } from '../styles/product-text.js';
 import { cornerRadius, shape } from '../styles/shape.js';
+import { delegatedAria } from './delegated-aria.js';
 import { focusRing, syncFocusStyle } from './focus-ring.js';
 import { LinkController, linkAttributes, readDestination } from './link.js';
 import { PressController, type PressedBy, pressHold } from './press.js';
@@ -755,9 +756,12 @@ export class NavigationDestination extends TanreiElement implements Destination 
       ?disabled=${!link && this.disabled}
       draggable=${link ? 'false' : nothing}
       ${linkAttributes(link)}
-      aria-current=${selected ? 'page' : nothing}
-      aria-label=${this.label || nothing}
-      aria-description=${this.link.describe(badgeDescription(this.badge, this.badgeCount, this.badgeLabel)) ?? nothing}
+      ${delegatedAria(this, {
+        'aria-current': selected && 'page',
+        'aria-label': this.label,
+        // The product's aria-description on the host comes first (src/primitives/delegated-aria.ts), then the badge's.
+        'aria-description': this.link.describe(this.getAttribute('data-aria-description'), badgeDescription(this.badge, this.badgeCount, this.badgeLabel)),
+      })}
       @pointerdown=${this.press.onPointerDown}
       @pointerup=${this.press.release}
       @pointercancel=${this.press.release}
