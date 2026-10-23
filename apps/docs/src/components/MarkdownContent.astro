@@ -3,7 +3,7 @@
 // Starlight's Markdown typography: this component replaces Starlight's `MarkdownContent`, and so its `markdown.css`
 // (headings, paragraphs, lists, quotes, rules, spacing) is never loaded. Tables, notices and code are Tanrei's Table,
 // Callout and Code block, written by the Markdown pipeline (lib/markdown.mjs) and by the
-// docs' own components; their elements are defined here, for every page.
+// docs' own components; their elements are defined here, on the pages that have them (lib/define-on-demand.ts).
 //
 // The wrapper keeps Starlight's class (its table of contents and print styles look for it) and takes prose's. Six
 // things in the rendered content are then said in Tanrei's words, here, once, for every page:
@@ -45,7 +45,6 @@ const content = tanreiContent(html, { kind: (name) => Astro.locals.t(`aside.${na
 <div class="sl-markdown-content tanrei-prose" data-size="large" set:html={content} />
 
 <script>
-  import '@tanrei/web/components/table';
-  import '@tanrei/web/components/callout';
-  import '@tanrei/web/components/code-block';
+  // A page's tables, notices and code blocks, and whatever else its content draws: defined where the page has them.
+  import '../lib/define-on-demand';
 </script>

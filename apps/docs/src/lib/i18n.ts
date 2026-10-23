@@ -226,7 +226,13 @@ const en = {
   // menu button, the two navigation landmarks' names and the breadcrumbs', the first level of the trail, the pickers of
   // the header, and the notice on a page shown in English. Tanrei ships no words. "Previous" and "Next" are still
   // the framework's translated strings; the search's words are `search`, below.
-  frame: { skipLink: 'Skip to content', menu: 'Menu', siteNavigation: 'Documentation', onThisPage: 'On this page', overview: 'Overview', breadcrumbs: 'Breadcrumbs', home: 'Home', hiddenLevels: 'Show hidden levels', theme: 'Theme', themeAuto: 'Auto', language: 'Language', themeAndLanguage: 'Theme and language' },
+  frame: { skipLink: 'Skip to content', menu: 'Menu', siteNavigation: 'Documentation', onThisPage: 'On this page', overview: 'Overview', breadcrumbs: 'Breadcrumbs', home: 'Home', hiddenLevels: 'Show hidden levels', theme: 'Theme', themeAuto: 'Auto', appearance: 'Appearance', editTheme: 'Edit theme', system: 'Design system: {system}', language: 'Language' },
+  // The titles of the document (src/routeData.ts, lib/seo.ts): a component's page, the site's name after it, and the
+  // first page's own. `{name}` is the system's name (tanrei.config.json), `{title}` the page's, `{platforms}` the
+  // platforms' names as the language lists them; `web` is the web platform's name in that list, and `list` what stands
+  // between two names and before the last (the site's own writing: no comma before «and»; Arabic joins Latin names
+  // with a spaced «و»).
+  seo: { component: '{title} — accessible UI component', site: '{name} design system', home: '{name} — design system for {platforms}', web: 'Web Components', list: [', ', ' and '] as [string, string] },
   // The site's search (components/frame/Search.astro), drawn by Tanrei's Search and Empty state: the field's name, the
   // trigger's text, the two buttons' names, the status row's sentences and the empty state's. `{count}` and `{query}`
   // are filled in as text; `results` holds one sentence for each plural form the language has (`Intl.PluralRules`),
@@ -464,7 +470,8 @@ const ja: typeof en = {
     unmeasured: '未計測 — 参照元が機械可読なトークンを公開していないため',
   },
   typeSample: '端麗なインターフェース Tanrei',
-  frame: { skipLink: 'メインコンテンツへスキップ', menu: 'メニュー', siteNavigation: 'ドキュメント', onThisPage: 'このページの内容', overview: '概要', breadcrumbs: 'パンくずリスト', home: 'ホーム', hiddenLevels: '隠れた階層を表示', theme: 'テーマ', themeAuto: '自動', language: '言語', themeAndLanguage: 'テーマと言語' },
+  frame: { skipLink: 'メインコンテンツへスキップ', menu: 'メニュー', siteNavigation: 'ドキュメント', onThisPage: 'このページの内容', overview: '概要', breadcrumbs: 'パンくずリスト', home: 'ホーム', hiddenLevels: '隠れた階層を表示', theme: 'テーマ', themeAuto: '自動', appearance: '外観', editTheme: 'テーマを編集', system: 'デザインシステム：{system}', language: '言語' },
+  seo: { component: '{title} — アクセシブルな UI コンポーネント', site: '{name} デザインシステム', home: '{name} — {platforms} のためのデザインシステム', web: 'Web Components', list: ['、', '、'] },
   search: {
     label: 'ドキュメントを検索',
     placeholder: '検索',
@@ -693,7 +700,8 @@ const zh: typeof en = {
     unmeasured: '未测量——参考来源没有发布机器可读的令牌',
   },
   typeSample: '端正清朗的界面 Tanrei',
-  frame: { skipLink: '跳到主要内容', menu: '菜单', siteNavigation: '文档', onThisPage: '本页内容', overview: '概览', breadcrumbs: '面包屑导航', home: '首页', hiddenLevels: '显示隐藏的层级', theme: '主题', themeAuto: '自动', language: '语言', themeAndLanguage: '主题和语言' },
+  frame: { skipLink: '跳到主要内容', menu: '菜单', siteNavigation: '文档', onThisPage: '本页内容', overview: '概览', breadcrumbs: '面包屑导航', home: '首页', hiddenLevels: '显示隐藏的层级', theme: '主题', themeAuto: '自动', appearance: '外观', editTheme: '编辑主题', system: '设计系统：{system}', language: '语言' },
+  seo: { component: '{title} — 无障碍 UI 组件', site: '{name} 设计系统', home: '{name} — 面向 {platforms} 的设计系统', web: 'Web Components', list: ['、', ' 和 '] },
   search: {
     label: '搜索文档',
     placeholder: '搜索',
@@ -921,7 +929,8 @@ const es: typeof en = {
     unmeasured: 'sin medir: la referencia no publica tokens legibles por máquina',
   },
   typeSample: 'Limpio y bien formado 端麗',
-  frame: { skipLink: 'Saltar al contenido', menu: 'Menú', siteNavigation: 'Documentación', onThisPage: 'En esta página', overview: 'Descripción general', breadcrumbs: 'Ruta de navegación', home: 'Inicio', hiddenLevels: 'Mostrar los niveles ocultos', theme: 'Tema', themeAuto: 'Automático', language: 'Idioma', themeAndLanguage: 'Tema e idioma' },
+  frame: { skipLink: 'Saltar al contenido', menu: 'Menú', siteNavigation: 'Documentación', onThisPage: 'En esta página', overview: 'Descripción general', breadcrumbs: 'Ruta de navegación', home: 'Inicio', hiddenLevels: 'Mostrar los niveles ocultos', theme: 'Tema', themeAuto: 'Automático', appearance: 'Apariencia', editTheme: 'Editar tema', system: 'Sistema de diseño: {system}', language: 'Idioma' },
+  seo: { component: '{title} — componente de interfaz accesible', site: 'Sistema de diseño {name}', home: '{name} — sistema de diseño para {platforms}', web: 'Web Components', list: [', ', ' y '] },
   search: {
     label: 'Buscar en la documentación',
     placeholder: 'Buscar',
@@ -1149,7 +1158,8 @@ const hi: typeof en = {
     unmeasured: 'मापा नहीं गया — रेफ़रेंस मशीन से पढ़े जा सकने वाले टोकन प्रकाशित नहीं करता',
   },
   typeSample: 'साफ़ और सुगठित इंटरफ़ेस Tanrei',
-  frame: { skipLink: 'सीधे मुख्य कॉन्टेंट पर जाएँ', menu: 'मेन्यू', siteNavigation: 'दस्तावेज़', onThisPage: 'इस पेज पर', overview: 'अवलोकन', breadcrumbs: 'ब्रेडक्रम्ब', home: 'होम', hiddenLevels: 'छिपे हुए स्तर दिखाएँ', theme: 'थीम', themeAuto: 'स्वचालित', language: 'भाषा', themeAndLanguage: 'थीम और भाषा' },
+  frame: { skipLink: 'सीधे मुख्य कॉन्टेंट पर जाएँ', menu: 'मेन्यू', siteNavigation: 'दस्तावेज़', onThisPage: 'इस पेज पर', overview: 'अवलोकन', breadcrumbs: 'ब्रेडक्रम्ब', home: 'होम', hiddenLevels: 'छिपे हुए स्तर दिखाएँ', theme: 'थीम', themeAuto: 'स्वचालित', appearance: 'दिखावट', editTheme: 'थीम में बदलाव करें', system: 'डिज़ाइन सिस्टम: {system}', language: 'भाषा' },
+  seo: { component: '{title} — सुलभ UI कंपोनेंट', site: '{name} डिज़ाइन सिस्टम', home: '{name} — {platforms} के लिए डिज़ाइन सिस्टम', web: 'Web Components', list: [', ', ' और '] },
   search: {
     label: 'दस्तावेज़ खोजें',
     placeholder: 'खोजें',
@@ -1378,7 +1388,9 @@ const ar: typeof en = {
     unmeasured: 'غير مقيسة — المرجع لا ينشر رموزًا مقروءة آليًا',
   },
   typeSample: 'واجهة أنيقة متقنة Tanrei',
-  frame: { skipLink: 'التخطّي إلى المحتوى', menu: 'القائمة', siteNavigation: 'التوثيق', onThisPage: 'في هذه الصفحة', overview: 'نظرة عامة', breadcrumbs: 'مسار التنقل', home: 'الرئيسية', hiddenLevels: 'إظهار المستويات المخفية', theme: 'السمة', themeAuto: 'تلقائي', language: 'اللغة', themeAndLanguage: 'السمة واللغة' },
+  frame: { skipLink: 'التخطّي إلى المحتوى', menu: 'القائمة', siteNavigation: 'التوثيق', onThisPage: 'في هذه الصفحة', overview: 'نظرة عامة', breadcrumbs: 'مسار التنقل', home: 'الرئيسية', hiddenLevels: 'إظهار المستويات المخفية', theme: 'السمة', themeAuto: 'تلقائي', appearance: 'المظهر', editTheme: 'تعديل السمة', system: 'نظام التصميم: {system}', language: 'اللغة' },
+  // A title opens with an Arabic word, never a Latin one (i18n/glossary.md): the system's name stands after «نظام التصميم».
+  seo: { component: '{title} — مكوّن واجهة مستخدم يراعي إمكانية الوصول', site: 'نظام التصميم {name}', home: 'نظام التصميم {name} لـ {platforms}', web: 'Web Components', list: [' و ', ' و '] },
   // A field's label is a verbal noun and its placeholder an imperative; the count takes the form its number asks for.
   search: {
     label: 'البحث في التوثيق',

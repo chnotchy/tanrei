@@ -15,13 +15,11 @@ import { strings } from '../lib/i18n';
 interface Props {
   /** The page's language. */
   lang: string | undefined;
-  /** The slot of the element the switch is a child of (the navigation drawer's `header`), where it has one. */
-  into?: string;
 }
 const t = strings(Astro.props.lang);
 ---
 
-<tanrei-switch class="docs-listing" slot={Astro.props.into} label={t.listing.showAll} data-docs-listing-switch />
+<tanrei-switch class="docs-listing" label={t.listing.showAll} data-docs-listing-switch />
 
 <script>
   import '@tanrei/web/components/switch';

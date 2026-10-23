@@ -2,7 +2,7 @@
 title: معاينة الصور
 description: تعرض صورة واحدة من مجموعة على النافذة كلها حين يضغط الشخص صورتها المصغّرة، ليراها عن قرب، فيكبّرها ويعيدها، ويتحرك فيها وهي مكبَّرة، وينتقل إلى الصورة التالية أو السابقة، إلى أن تُغلق.
 translationOf: components/image-preview.mdx
-sourceHash: cf3abaf4200c8a573c2daf0b205f42be76a4a5ab
+sourceHash: e96ae85ed4881dbba6ec6a53785b75f08794dbf3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -104,7 +104,7 @@ import square from '../../../../../../../packages/web/test/fixtures/image-previe
       closeLabel="إغلاق" zoomInLabel="تكبير" zoomOutLabel="تصغير"
       previousLabel="الصورة السابقة" nextLabel="الصورة التالية" countText="{position} من {count}"
       loadingLabel="جارٍ تحميل الصورة" errorText="تعذّر تحميل هذه الصورة"
-      onIndexchange={(event) => setShown(event.detail.index)}
+      onIndexChange={(event) => setShown(event.detail.index)}
       onClose={() => setShown(null)}>
       {photos.map((photo) => (
         <ImagePreviewItem key={photo.id} src={photo.large} thumbnailSrc={photo.small}

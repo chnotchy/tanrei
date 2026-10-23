@@ -18,9 +18,9 @@ const TextInputElement = /* @__PURE__ */ createComponent({
   react: React,
   events: {
     onChange: 'change' as EventName<TanreiEvent<TanreiTextInputElement>>,
-    onEntryerror: 'entryerror' as EventName<TanreiEvent<TanreiTextInputElement, CustomEvent<TanreiTextInputEntryErrorDetail>>>,
-    onPickerrequest: 'pickerrequest' as EventName<TanreiEvent<TanreiTextInputElement, CustomEvent<TanreiTextInputPickerRequestDetail>>>,
-    onResizeend: 'resizeend' as EventName<TanreiEvent<TanreiTextInputElement, CustomEvent<TanreiTextInputResizeEndDetail>>>,
+    onEntryError: 'entryerror' as EventName<TanreiEvent<TanreiTextInputElement, CustomEvent<TanreiTextInputEntryErrorDetail>>>,
+    onPickerRequest: 'pickerrequest' as EventName<TanreiEvent<TanreiTextInputElement, CustomEvent<TanreiTextInputPickerRequestDetail>>>,
+    onResizeEnd: 'resizeend' as EventName<TanreiEvent<TanreiTextInputElement, CustomEvent<TanreiTextInputResizeEndDetail>>>,
     onAction: 'action' as EventName<TanreiEvent<TanreiTextInputElement, CustomEvent<TanreiTextInputActionDetail>>>,
   },
 });
@@ -35,9 +35,9 @@ const withTextInputMarks = /* @__PURE__ */ withMarks<TextInputMarks>([], ['form'
  *
  * Events:
  * - `onChange` (`change`) — The user committed a changed value: focus left the field (a date or time field's segments and picker button), or the action key was pressed in a single-line field.
- * - `onEntryerror` (`entryerror`) — The user committed a date, time or date-time field that is half-filled (`invalid`) or whose value is not available (`unavailable`: before `min`, after `max` or listed in `disabledDates`), with the row's text as drawn.
- * - `onPickerrequest` (`pickerrequest`) — The user activated the picker button of a date, time or date-time field. The product presents the picker and sets `value` to the picked value.
- * - `onResizeend` (`resizeend`) — The person finished changing the size of a field resized by hand: a drag of its handle ended, or a key or an activation of the handle changed it (TXI-69). `detail.lines` and `detail.width`.
+ * - `onEntryError` (`entryerror`) — The user committed a date, time or date-time field that is half-filled (`invalid`) or whose value is not available (`unavailable`: before `min`, after `max` or listed in `disabledDates`), with the row's text as drawn.
+ * - `onPickerRequest` (`pickerrequest`) — The user activated the picker button of a date, time or date-time field. The product presents the picker and sets `value` to the picked value.
+ * - `onResizeEnd` (`resizeend`) — The person finished changing the size of a field resized by hand: a drag of its handle ended, or a key or an activation of the handle changed it (TXI-69). `detail.lines` and `detail.width`.
  * - `onAction` (`action`) — The action key (Enter) was pressed in a single-line field. Cancelable: cancelling it keeps an enclosing form from being submitted.
  */
 export const TextInput: Marked<typeof TextInputElement, TextInputMarks> = /* @__PURE__ */ withTextInputMarks(TextInputElement);

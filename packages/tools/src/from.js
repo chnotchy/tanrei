@@ -26,8 +26,8 @@ export const forwards = (spec) => LISTS.some(([list]) => (spec?.[list] ?? []).so
  * type, values, axis, default, description and words key; an event's or a slot's description and `fixture` — under the
  * name the composed spec gives it, keeping `from` (and `note`) so that what reads the result can still say where the
  * entry is from. A member's entry that is itself forwarded is followed to its end. An entry that cannot be resolved is
- * left as it is: `fromProblems` says why. An item kind that is a member's (`{ name, from, note? }` in `items`; proposal
- * 0135) becomes the member's own kind — its summary, props, `component`, `container`, slots and events — the same way.
+ * left as it is: `fromProblems` says why. An item kind that is a member's (`{ name, from, note? }` in `items`)
+ * becomes the member's own kind — its summary, props, `component`, `container`, slots and events — the same way.
  *
  * `byName` is a `Map` of every spec by its name. What reads a spec's props, events or slots for what they are — the
  * cross-references of `specProblems`, the parity check, a table of props — reads the resolved spec. Two things read the
@@ -149,8 +149,8 @@ export const hasOwnParts = (spec) => (spec.anatomy ?? []).some((part) => !(spec.
  *      from the twin's component, and on the twin's item of that member's kind where it is from another member — and
  *      the twin sets nothing more, but a prop the composed spec says it sets itself (`fills`): the component fills
  *      that one, so the product writing the same thing by hand must set it. A prop at its default counts as not set.
- *      On the twin's item of a member's kind only a prop that is a prop of that member's component counts (proposal
- *      0139): a prop the item kind has and the member has not — the entries a Field's fixture reads from its text
+ *      On the twin's item of a member's kind only a prop that is a prop of that member's component counts:
+ *      a prop the item kind has and the member has not — the entries a Field's fixture reads from its text
  *      input item to place the chips a product writes by hand — can never be forwarded, so no composed fixture can
  *      set it; the picture test of each platform holds it;
  *   4. where a composed spec forwards props and has no part of its own (every anatomy part is named for a member),

@@ -82,14 +82,14 @@ after(async () => {
 describe('every icon of the built pages is a glyph of the cut-down file', { concurrency: 4 }, () => {
   test('the icon words written into every page, in every language', () => {
     // An icon written as markup: a bare `.tanrei-icon`, a glyph attribute (`icon`, `leading-icon`, `glyph`…), the
-    // text of a glyph slot (`slot="icon"`, `slot="leading-icon"`, `slot="chevron"`…).
+    // text of a glyph slot (`slot="icon"`, `slot="leading-icon"`, `slot="chevron"`, `slot="media"`…).
     const words = new Map();
     for (const [url, file] of pages) {
       const html = fs.readFileSync(file, 'utf8');
       const add = (word) => (words.get(word) ?? words.set(word, new Set()).get(word)).add(url);
       for (const m of html.matchAll(/<[a-z][\w-]*\s[^>]*?class="[^"]*\btanrei-icon\b[^"]*"[^>]*>\s*([^<]*?)\s*</g)) add(m[1]);
       for (const m of html.matchAll(/\s(?:icon|glyph|[a-z]+(?:-[a-z]+)*-icon)="([a-z0-9_]+)"/g)) add(m[1]);
-      for (const m of html.matchAll(/<[a-z][\w-]*\s[^>]*?\bslot="(?:icon|[a-z-]+-icon|chevron|chevron-open)"[^>]*>\s*([a-z0-9_]+)\s*</g)) add(m[1]);
+      for (const m of html.matchAll(/<[a-z][\w-]*\s[^>]*?\bslot="(?:icon|[a-z-]+-icon|chevron|chevron-open|media)"[^>]*>\s*([a-z0-9_]+)\s*</g)) add(m[1]);
     }
     assert.ok(words.size > 50, `found ${words.size} icon words`);
     for (const family of FAMILIES) {
@@ -101,14 +101,21 @@ describe('every icon of the built pages is a glyph of the cut-down file', { conc
   test('there are pages to open', () => assert.ok(rootPages.length > 100, `${rootPages.length} pages`));
   // Drawn: the components' own glyphs in their shadow roots and generated boxes, after they are defined. A glyph
   // drawn only once something is opened is in the list the components' code gives (glyphs.json, tested with the
-  // font in packages/tools/test/glyphs.test.js).
-  for (const [url] of rootPages.filter(([url]) => !url.includes('/theme-studio/'))) {
+  // font in packages/tools/test/glyphs.test.js). An element defined on its first use (`data-define-on-use`: the
+  // search) stays undefined until then, so it is not waited for: on every page with the site's frame the wait ran
+  // its 30 s out. An element still undefined when the wait runs out fails the page, so a wait that cannot end is seen
+  // as a failure, not as a slower run.
+  const leftUndefined = () => [...document.querySelectorAll('*')].filter((el) => el.localName.includes('-') && !el.matches(':defined') && !el.hasAttribute('data-define-on-use')).map((el) => el.localName);
+  // A page that only sends the reader on (a moved page's old address) draws nothing: the page it sends to is opened.
+  const redirect = (file) => /<meta http-equiv="refresh"/.test(fs.readFileSync(file, 'utf8'));
+  for (const [url] of rootPages.filter(([url, file]) => !url.includes('/theme-studio/') && !redirect(file))) {
     test(`drawn on ${url}`, async () => {
       const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
       try {
         const page = await context.newPage();
         await page.goto(origin + url, { waitUntil: 'load' });
-        await page.waitForFunction(() => [...document.querySelectorAll('*')].every((el) => !el.localName.includes('-') || el.matches(':defined')), null, { timeout: 30000 }).catch(() => {});
+        await page.waitForFunction(`(${leftUndefined})().length === 0`, null, { timeout: 30000 }).catch(() => {});
+        assert.deepEqual([...new Set(await page.evaluate(leftUndefined))], [], `elements left undefined on ${url}`);
         const drawn = await page.evaluate(() => {
           const out = [];
           const icon = (style) => /^["']?Material Symbols/.test(style.fontFamily);

@@ -2,7 +2,7 @@
 title: コピーボタン
 description: 指定したテキストを 1 回の操作でコピーし、コピーできたこと、またはできなかったことを伝えるボタンです。ボタンコンポーネントが描き、既定ではレイアウトを動かしません。
 translationOf: components/copy-button.mdx
-sourceHash: 83b0e3b2e8515dd2490be056fdab9151e53d9e9e
+sourceHash: e6b7e0e12c613261bd9ecfb7a40acc453aa9118b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -76,7 +76,7 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
     ```tsx
     import { CopyButton } from '@tanrei/react';
 
-    <CopyButton text={command} label="コピー" copiedLabel="コピーしました" failedLabel="コピーできませんでした" onCopyfailed={() => showHelp()} />
+    <CopyButton text={command} label="コピー" copiedLabel="コピーしました" failedLabel="コピーできませんでした" onCopyFailed={() => showHelp()} />
     ```
   </TabItem>
 </Tabs>

@@ -600,12 +600,24 @@ jobs:
           path: packages/web/playwright-report
           retention-days: 14
 
-  docs:
+  # The docs run in the web jobs' Playwright image (see `web` above for the image, `--ipc=host` and `--user 1001`): its
+  # browsers and their system libraries are already installed, so no job downloads them from the Ubuntu mirrors (two of
+  # three jobs that installed them were cut at their limit while apt crawled). The site is built once, in docs-build,
+  # which also runs the docs' Node tests; three docs-browser jobs then each download that build and run every third
+  # file of the site's browser tests (`TEST_SHARD`, packages/tools/src/run-node-tests.js): one job ran them all for
+  # 11–16 minutes of its 20, and a train's slower page could take it past them.
+  docs-build:
     name: Docs · build
     runs-on: ubuntu-24.04
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001 --ipc=host
+    defaults:
+      run:
+        shell: bash
     needs: [validate, changes]
     if: needs.changes.outputs.docs == 'true'
-    timeout-minutes: 20 # about 1–2 minutes, and the browser tests' few
+    timeout-minutes: 15 # about 2 minutes of build
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -620,6 +632,8 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: The Playwright image is the lockfile's Playwright
+        run: bash scripts/ci/check-playwright-image.sh
       - id: web
         run: pnpm --filter @tanrei/web build
       - id: site
@@ -631,15 +645,58 @@ jobs:
       - name: Node tests of the docs app (the Markdown passes, the live fixtures against the manifest)
         if: ${{ !cancelled() && steps.web.outcome == 'success' }}
         run: pnpm --filter @tanrei/docs test:node
-      # The built site in a browser: every live example and spec fixture of the root language's pages is drawn as the
-      # web package draws it, in both schemes (`test:browser`, a few minutes) — what the Node tests cannot see, such as
-      # a component stylesheet that Starlight's layers beat.
-      - name: A browser for the docs' page tests
-        id: browser
-        if: ${{ !cancelled() && steps.site.outcome == 'success' }}
-        run: pnpm --filter @tanrei/docs exec playwright install --with-deps chromium
+      # What the browser tests read besides the sources: the site, the fixture documents the build wrote, and the web
+      # package's stylesheets the previews are compared with. Kept a day: only this run's docs-browser jobs read it.
+      - if: ${{ !cancelled() && steps.site.outcome == 'success' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: docs-site
+          path: |
+            apps/docs/dist
+            apps/docs/src/fixture-documents.generated.json
+            packages/web/dist
+          retention-days: 1
+          if-no-files-found: error
+
+  # The built site in a browser: every live example and spec fixture of the root language's pages is drawn as the web
+  # package draws it, in both schemes (`test:browser`) — what the Node tests cannot see, such as a component stylesheet
+  # that Starlight's layers beat. The image holds the three engines; nothing is installed.
+  docs-browser:
+    name: Docs · browser tests (${{ matrix.shard }}/${{ matrix.shards }})
+    runs-on: ubuntu-24.04
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001 --ipc=host
+    defaults:
+      run:
+        shell: bash
+    needs: [changes, docs-build]
+    if: needs.changes.outputs.docs == 'true'
+    timeout-minutes: 20 # its share of the browser tests, a few minutes
+    strategy:
+      fail-fast: false # every shard reports, as the single job did
+      matrix:
+        shard: [1, 2, 3]
+        shards: [3]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The sitemap's test dates each page by git as the build did: the same history.
+          fetch-depth: 0
+          filter: blob:none
+          persist-credentials: false # no step pushes: the token stays out of .git/config and any artifact
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: docs-site
       - name: Browser tests of the docs app (the previews against the package's own drawing)
-        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
+        env: # this shard's files: every third of them
+          TEST_SHARD: ${{ matrix.shard }}/${{ matrix.shards }}
         run: pnpm --filter @tanrei/docs test:browser
 
   # The Apple platform runs on GitHub-hosted macOS (ten times the Linux price); like every platform it runs only when
@@ -1064,7 +1121,8 @@ jobs:
       - core-tests
       - web
       - web-report
-      - docs
+      - docs-build
+      - docs-browser
       - swiftui
       - swiftui-dynamic-type
       - swiftui-gallery
@@ -1081,7 +1139,7 @@ jobs:
           echo "$AREAS" | jq -r 'to_entries[] | select(.key != "core-matrix") | "area \(.key): \(.value)"'
           echo "$NEEDS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
           bad=$(echo "$NEEDS" | jq -r --argjson areas "$AREAS" --arg event "$EVENT" '
-            { "zizmor": "workflows", "core-tests": "core", "web": "web", "docs": "docs",
+            { "zizmor": "workflows", "core-tests": "core", "web": "web", "docs-build": "docs", "docs-browser": "docs",
               "swiftui": "apple", "swiftui-dynamic-type": "apple", "swiftui-gallery": "apple",
               "flutter": "flutter", "compose": "compose", "compose-instrumented": "compose",
               "react-native": "react-native" } as $area

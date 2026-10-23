@@ -580,7 +580,7 @@ test.describe('editing', () => {
     expect(await prop(host(page, 's'), 'value')).toBe('in');
     await host(page, 's').evaluate((el) => ((el as any).value = 'receipts'));
     await expect(field).toHaveValue('receipts');
-    // TXF-24 (as amended by 0065): `dir="auto"` once the value has a letter; an empty value keeps the layout's direction.
+    // TXF-24: `dir="auto"` once the value has a letter; an empty value keeps the layout's direction.
     await expect(field).toHaveAttribute('dir', 'auto');
     expect((await log(page)).filter((e) => e.startsWith('input')).length).toBe(4);
     // TXF-24: the typed text's own direction.

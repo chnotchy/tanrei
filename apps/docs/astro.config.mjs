@@ -8,10 +8,12 @@ import sitemap from '@astrojs/sitemap';
 import { tanreiStudio } from '@tanrei/studio/vite';
 import { tabsBootstrap, tabsKey } from './src/components/tabs/keys.mjs';
 import { starlightLocales, translations } from './i18n/locales.mjs';
+import { elementModulesPlugin } from './src/lib/element-modules.mjs';
 import { SYSTEM_SYNC_KEY, listingBootstrap, sidebarSlugs, systemBootstrap } from './src/lib/listing.mjs';
 import { tanreiMarkdown } from './src/lib/markdown.mjs';
 import { notFoundFiles } from './src/lib/not-found-files.mjs';
 import { sitemapLastmod } from './src/lib/lastmod.mjs';
+import { pageMarkdownFiles } from './src/lib/page-markdown.mjs';
 import { pagePolicies } from './src/lib/csp.mjs';
 
 const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
@@ -22,21 +24,26 @@ const lastmod = sitemapLastmod({
   contentDir: path.relative(repoRoot, fileURLToPath(new URL('./src/content/docs', import.meta.url))).split(path.sep).join('/'),
   languages: translations.map(({ dir }) => dir),
 });
+// The names and the site's address (tanrei.config.json).
+const config = JSON.parse(fs.readFileSync(new URL('../../tanrei.config.json', import.meta.url), 'utf8'));
 // The generated status file: a row for each component, with the address of its page (written from specs/).
 const status = JSON.parse(fs.readFileSync(new URL('../../docs/status/status.json', import.meta.url), 'utf8'));
 // The shipped systems, each of which has its components manifest (tokens/generated/<id>/components.json), and the
 // default one, named by the configuration: the systems the lists of components can show, and the one they show first.
 const generated = new URL('../../tokens/generated/', import.meta.url);
 const systems = fs.readdirSync(generated).filter((id) => fs.existsSync(new URL(`${id}/components.json`, generated))).sort();
-const defaultSystem = JSON.parse(fs.readFileSync(new URL('../../tanrei.config.json', import.meta.url), 'utf8')).namespace;
+const defaultSystem = config.namespace;
 
 // Applies the reader's stored contrast choice before first paint. The attribute
 // lives on <html> because component tokens are resolved at :root.
 const contrastBootstrap = `try{var c=localStorage.getItem('tanrei-docs-contrast');if(c==='medium'||c==='high')document.documentElement.setAttribute('data-tanrei-contrast',c)}catch(e){}`;
 
-// The public URL (Cloudflare Pages, custom domain). Gives every page its canonical URL and the sitemap.
-const site = 'https://tanrei.chnotchy.com';
-const title = 'Tanrei';
+// The public URL (Cloudflare Pages, custom domain), from tanrei.config.json. Gives every page its canonical URL, the
+// sitemap and robots.txt (src/pages/robots.txt.ts).
+const { site } = config;
+if (!site) throw new Error('tanrei.config.json has no "site": the address of the docs site');
+// The site's title: the system's name.
+const title = config.name;
 
 // The brand page took the place of the principles page: its old address, in every language, leads there.
 const moved = Object.fromEntries(['', ...translations.map(({ dir }) => dir)].map((dir) => [`${dir ? `/${dir}` : ''}/foundations/principles`, `${dir ? `/${dir}` : ''}/foundations/brand/`]));
@@ -48,8 +55,9 @@ export default defineConfig({
     starlight({
       title,
       description: 'One design system for Web Components, SwiftUI, Jetpack Compose, Flutter and React Native.',
-      // The icons and the social image are the brand marks (design/brand/), rendered by the build: src/pages/favicon.svg.ts,
-      // favicon.ico.ts, apple-touch-icon.png.ts and og.png.ts (src/lib/brand.mjs). The SVG follows the reader's scheme.
+      // The icons are the brand marks (design/brand/), rendered by the build: src/pages/favicon.svg.ts, favicon.ico.ts
+      // and apple-touch-icon.png.ts (src/lib/brand.mjs). The SVG follows the reader's scheme. Each page's social image is
+      // src/pages/og/[...slug].png.ts.
       favicon: '/favicon.svg',
       defaultLocale: 'root',
       // English at the root; the translations and which of their pages must exist are in i18n/locales.mjs.
@@ -93,12 +101,10 @@ export default defineConfig({
         // The ICO for a browser that does not read the SVG favicon; `sizes` keeps one that does from choosing the ICO.
         { tag: 'link', attrs: { rel: 'icon', href: '/favicon.ico', sizes: '32x32' } },
         { tag: 'link', attrs: { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' } },
-        // A shared link of any page shows the wordmark (the framework already says `summary_large_image`).
-        { tag: 'meta', attrs: { property: 'og:image', content: new URL('/og.png', site).href } },
-        { tag: 'meta', attrs: { property: 'og:image:width', content: '1200' } },
-        { tag: 'meta', attrs: { property: 'og:image:height', content: '630' } },
-        { tag: 'meta', attrs: { property: 'og:image:alt', content: title } },
       ],
+      // Each page's image of a shared link, its language as Open Graph writes it, the titles of the first page and of a
+      // component's page, and its structured data (JSON-LD): src/routeData.ts.
+      routeMiddleware: './src/routeData.ts',
       // The page that was not found is the docs' own (src/pages/404.astro and one for each language): Tanrei's Empty
       // state in the page frame, in place of the framework's page.
       disable404Route: true,
@@ -191,6 +197,9 @@ export default defineConfig({
     // After Starlight, so that its passes run after Starlight's: Markdown's tables, notices and fenced code are drawn by
     // Tanrei's Table, Callout and Code block (src/lib/markdown.mjs).
     tanreiMarkdown(),
+    // Every page as Markdown beside it (`<path>.md`), from the built page, dated as the sitemap dates it
+    // (src/lib/page-markdown.mjs).
+    pageMarkdownFiles({ languages: translations.map(({ dir }) => dir), lastmod: lastmod.of }),
     // Each language's not-found page also as `<language>/404.html`, for a host that answers with the nearest one.
     notFoundFiles(translations),
     // Last, so that it reads every page as it is served: each page's own script policy, the hashes of the inline scripts
@@ -201,7 +210,9 @@ export default defineConfig({
   markdown: { syntaxHighlight: false },
   vite: {
     // Theme Studio (@tanrei/studio) previews with the build's own emitter; its plugin makes that bundle for a browser.
-    plugins: [tanreiStudio()],
+    // A page defines only the elements it draws (src/lib/define-on-demand.ts), from this table of the module that
+    // defines each tag, made from the web package's manifest.
+    plugins: [tanreiStudio(), elementModulesPlugin()],
     // Pages import tokens, specs and the status matrix straight from the repository root.
     server: { fs: { allow: [repoRoot] } },
     // A font file stays a file, however small: inlined, it would be in the stylesheet every page loads, and a face is

@@ -75,7 +75,7 @@ On the web it is `<tanrei-handle>`. The other platforms have not implemented it 
       min={2}
       max={12}
       valueText={`${rows} lines`}
-      onResizestart={() => setStart(rows)}
+      onResizeStart={() => setStart(rows)}
       onResize={(e) => setRows(clamp(start + e.detail.block / 24))}
       onStep={(e) => setRows(stepped(rows, e.detail))}
       onActivate={() => setRows(rows < 12 ? 12 : 2)}

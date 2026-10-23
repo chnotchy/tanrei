@@ -261,3 +261,63 @@ Tanrei 自身はこれをしません。製品のエントリーポイントの�
 ```
 
 このスクリプトは小さく、素直に書いてください。古いものも含め、訪れた人のブラウザーがすべてこれを実行します。静的な `import` にすると、ブラウザーはこのスクリプトより先にアプリを読み込むので、アプリを解析できない古いブラウザーでは確認そのものが動きません。`import()` なら、確認が済んでから読み込みます。
+
+## テスト
+
+### ブラウザーで動かす
+
+Tanrei の要素は、ブラウザーが実装している機能の上に作られています。シャドウルート、`ElementInternals`（フォームコントロールの値と妥当性、カスタムステート）、Popover API、`<dialog>`、そしてレイアウトです。jsdom と happy-dom はその一部しか実装していません（happy-dom には `attachInternals()` も Popover API もありません）。そのため、描画した時点で要素が例外を投げたり、拒否された Promise が残ったり、要素が前提にしているサイズやフォーカス順、トップレイヤーがないまま描画されたりします。Tanrei はこれらの環境をサポートしておらず、足りない機能の代わりになるもの（スタブ）も提供していません。要素が例外を投げないようにするだけの代用品を置くと、どのブラウザーにもない振る舞いでテストが通ってしまうからです。
+
+Tanrei の要素を描画するテストは、実際のブラウザーで動かしてください。
+
+- [Vitest のブラウザーモード](https://vitest.dev/guide/browser/)を Playwright プロバイダーで使えば、コンポーネントのテストを Vitest に置いたまま、Chromium、Firefox、WebKit で動かせます。
+- [Playwright Test](https://playwright.dev/docs/intro) は、ページや一連の操作の流れを動かします。
+
+Tanrei の要素を描画しない、自前のロジックのテストは、Node や jsdom、happy-dom のままでかまいません。Tanrei 自身のテストは、Chromium、Firefox、WebKit で、Playwright と axe-core を使って動かしています。
+
+### 要素を探す
+
+ほとんどの要素は、自分自身ではなくシャドウルートの中のネイティブ要素（`<button>`、`<input>`、`<dialog>`）にロールを持たせています。ブラウザーやテストツールに本物のセマンティクスを見せるためです。タブや開いているメニューなど、一部の要素は自分自身がロールを持ちます。Playwright のロケーターは開いたシャドウルートの中まで探すので、人と同じように、ロールと名前でコントロールを探してください。
+
+```ts
+await page.getByRole('button', { name: 'Save' }).click();
+await expect(page.getByRole('switch', { name: 'Wi-Fi' })).toBeChecked();
+```
+
+そのボタンのクリックは、`<tanrei-button>` 自身に登録したリスナーにも届きます。Testing Library のクエリはシャドウルートの中を探さないので、これらのコントロールは見つかりません。
+
+### ロールと中身が別のツリーにある場合
+
+要素によっては、ロールを自分のシャドウルートに持ち、その中身はスロットで差し込まれた利用側のマークアップ、という形になっています。`<tanrei-tabs>` のタブリストとその子の `<tanrei-tab>`、`<tanrei-dialog>` の `<dialog>` とそのアクションがそうです。DOM の上では、タブはタブリストの中にありません。そのため、ロールからつないだロケーターでは何も見つかりません。
+
+```ts
+// 何も見つからない：タブは <tanrei-tabs> の子で、そのタブリストの子ではない
+page.getByRole('tablist', { name: 'Sections' }).getByRole('tab', { name: 'Billing' });
+```
+
+名前の付いたロールを持つ要素を見つけてから、その中を探してください。
+
+```ts
+const sections = page.locator('tanrei-tabs', { has: page.getByRole('tablist', { name: 'Sections' }) });
+await sections.getByRole('tab', { name: 'Billing' }).click();
+
+const confirm = page.locator('tanrei-dialog', { has: page.getByRole('dialog', { name: 'Delete the file?' }) });
+await confirm.getByRole('button', { name: 'Delete' }).click();
+```
+
+### トップレイヤーに開くメニュー
+
+開いているあいだ、`<tanrei-menu>` はアンカーの名前を持つメニューになりますが、ページの中では場所を取りません。面はトップレイヤーに描かれるからです。そのため、メニュー自体の表示を確かめると、開いていても失敗します。メニューがあることを確かめてから、その項目を確かめてください。
+
+```ts
+await page.getByRole('button', { name: 'More' }).click();
+const menu = page.getByRole('menu', { name: 'More' });
+await expect(menu).toBeAttached();
+await expect(menu.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+```
+
+閉じると要素はメニューではなくなり、`await expect(menu).toHaveCount(0)` が通ります。
+
+### 警告
+
+開発ビルドでは、仕様が認めない使い方をされた要素がコンソールにそのことを書きます。メッセージは `[tanrei]` で始まり、振る舞いの ID で終わります。ブラウザーのテストは、これが一つでも出たら失敗にできます。Playwright の例は [AI エージェント向けのガイド](/ja/getting-started/ai-agents/)にあります。

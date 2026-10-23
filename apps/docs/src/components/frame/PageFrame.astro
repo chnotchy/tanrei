@@ -47,5 +47,6 @@ const notices = [route.isFallback && Astro.locals.t('i18n.untranslatedContent'),
 
 <script>
   import '@tanrei/web/components/app-shell';
-  import '@tanrei/web/components/callout';
+  // The announcement's callouts, on the pages that have one.
+  import '../../lib/define-on-demand';
 </script>

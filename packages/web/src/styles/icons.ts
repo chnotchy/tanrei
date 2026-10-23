@@ -14,6 +14,14 @@ export const MIRRORED = 'data-tanrei-mirrored';
 export const MIRROR = 'data-mirror';
 
 /**
+ * The glyph's name given as an attribute of a `.tanrei-icon` — `<span class="tanrei-icon" data-icon="folder"></span>` —
+ * in place of its text. `icons.css` draws it as the element's `::before`, a ligature in generated content, so the name
+ * is in none of the page's text: not in `textContent` or `innerText`, not in what is copied, and (with an empty
+ * alternative) not in an accessible name. Script reads the name from it as it reads the text (`glyphName()`).
+ */
+export const ICON_NAME = 'data-icon';
+
+/**
  * The compound a mirrored glyph's element matches, wherever it is: marked by script or forced by the product, not
  * forbidden by the product, in a right-to-left layout. `:dir()` reads the `dir` the element inherits (HTML's rule,
  * across shadow roots), not the `direction` the glyph box sets for its ligature.
@@ -175,6 +183,15 @@ export const ICONS_CSS = `/*
  *
  *   <span class="tanrei-icon" aria-hidden="true">favorite</span>
  *
+ * THE NAME AS AN ATTRIBUTE. data-icon gives the same glyph without putting its name in the page's text:
+ *
+ *   <span class="tanrei-icon" data-icon="favorite"></span>
+ *
+ * It is drawn as generated content with an empty alternative, so the name is not in the element's textContent or
+ * innerText, in what people copy, or (from Firefox 128 and Safari 17.4) in an accessible name: keep aria-hidden
+ * where the text beside it says the same. Use it where the name would be read as text: a row of a menu or a list, a
+ * cell, text a test compares. The element holds nothing else; everything below applies to it as to the text form.
+ *
  * THE SIZE. A bare icon is drawn at sys.icon.medium, the default size; data-size="extra-small" | "small" |
  * "medium" | "large" picks a step of sys.icon.
  *
@@ -222,6 +239,13 @@ export const ICONS_CSS = `/*
     vertical-align: middle;
   }
 ${opticalSize('.tanrei-icon', { size: 'var(--_size)', fill: 'var(--_fill)' })}
+
+  /* The name as an attribute (data-icon): drawn as generated content, with an empty alternative, so it is in none of
+     the page's text and in no accessible name. The element holds nothing else. */
+  .tanrei-icon[${ICON_NAME}]:not([${ICON_NAME}=''])::before {
+    content: attr(${ICON_NAME});
+    content: attr(${ICON_NAME}) / '';
+  }
 
   .tanrei-icon[data-size='extra-small'] { --tanrei-icon-size: var(--tanrei-sys-icon-extra-small); }
   .tanrei-icon[data-size='small'] { --tanrei-icon-size: var(--tanrei-sys-icon-small); }

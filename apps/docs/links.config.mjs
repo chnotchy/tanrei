@@ -13,8 +13,8 @@ import { fileURLToPath } from 'node:url';
 import { isExternal } from '@tanrei/web/links';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-/** The site's own origin: `site` of astro.config.mjs. */
-export const SITE = ['https://tanrei.chnotchy.com'];
+/** The site's own origin: `site` of tanrei.config.json, as astro.config.mjs reads it. */
+export const SITE = [JSON.parse(fs.readFileSync(path.join(here, '../../tanrei.config.json'), 'utf8')).site];
 
 /** The site's image step: an icon becomes a PNG of exactly the side asked for, on the ground asked for where there is one. */
 async function transform(bytes, info) {

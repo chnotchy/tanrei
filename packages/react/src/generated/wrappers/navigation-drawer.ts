@@ -16,8 +16,8 @@ import { TanreiNavigationDrawer as TanreiNavigationDrawerElement, type TanreiNav
  *
  * Events:
  * - `onClose` (`close`) — A modal drawer closed: the scrim, Escape, back, a drag, the menu button, or after a destination was activated. `open` is already false.
- * - `onExpandedchange` (`expandedchange`) — The user asked a collapsible drawer for its other form (its menu button, or a group's cell while collapsed): `detail.expanded`. `expanded` (or, for a modal drawer, `open`) already holds it.
- * - `onPresentationchange` (`presentationchange`) — A responsive drawer decided its presentation for the first time, or the window's width changed it: `detail.presentation` (and `presentation`) is `standard`, `column` or `modal`. A product shows its own menu button while it is `modal`.
+ * - `onExpandedChange` (`expandedchange`) — The user asked a collapsible drawer for its other form (its menu button, or a group's cell while collapsed): `detail.expanded`. `expanded` (or, for a modal drawer, `open`) already holds it.
+ * - `onPresentationChange` (`presentationchange`) — A responsive drawer decided its presentation for the first time, or the window's width changed it: `detail.presentation` (and `presentation`) is `standard`, `column` or `modal`. A product shows its own menu button while it is `modal`.
  * - `onChange` (`change`) — The user activated another destination: `detail.value` (and, for a button destination, the drawer's `value`) is its value. For a link it is fired before the link is followed, only for a plain activation of a link that opens in place, carries `detail.href`, leaves `value` to the page, and is cancelable: `preventDefault()` stops the browser's navigation.
  * - `onReselect` (`reselect`) — The user activated the selected destination again; for a link, as `change`.
  */
@@ -27,8 +27,8 @@ export const NavigationDrawer = /* @__PURE__ */ createComponent({
   react: React,
   events: {
     onClose: 'close' as EventName<TanreiEvent<TanreiNavigationDrawerElement>>,
-    onExpandedchange: 'expandedchange' as EventName<TanreiEvent<TanreiNavigationDrawerElement, CustomEvent<TanreiNavigationDrawerExpandedChangeDetail>>>,
-    onPresentationchange: 'presentationchange' as EventName<TanreiEvent<TanreiNavigationDrawerElement, CustomEvent<TanreiNavigationDrawerPresentationChangeDetail>>>,
+    onExpandedChange: 'expandedchange' as EventName<TanreiEvent<TanreiNavigationDrawerElement, CustomEvent<TanreiNavigationDrawerExpandedChangeDetail>>>,
+    onPresentationChange: 'presentationchange' as EventName<TanreiEvent<TanreiNavigationDrawerElement, CustomEvent<TanreiNavigationDrawerPresentationChangeDetail>>>,
     onChange: 'change' as EventName<TanreiEvent<TanreiNavigationDrawerElement, CustomEvent<TanreiNavigationChangeDetail>>>,
     onReselect: 'reselect' as EventName<TanreiEvent<TanreiNavigationDrawerElement, CustomEvent<TanreiNavigationChangeDetail>>>,
   },

@@ -129,7 +129,10 @@ describe('the sidebar', () => {
     assert.match(text, /const drawn = sidebarTree\(sidebar, statusComponents, listings, base, \(category\) => t\.category\[category\] \?\? category, manifests\)/);
     assert.match(text, /<Fragment set:html=\{cells\(drawn, true\)\} \/>/);
     assert.match(text, /entry\.onRequest \? ` \$\{ON_REQUEST_ATTR\} trailing-text="\$\{escape\(t\.listing\.advanced\)\}"`/);
-    assert.match(text, /<ListingSwitch lang=\{route\.lang\} into="header" \/>/);
+    // The switch's row is the first of the drawer's list (a list item, as a list holds), after the row of the design
+    // system's button a compact window draws there, and before the rows of pages.
+    assert.match(text, /<div role="listitem" class="docs-system-row"><SystemMenu id="docs-system-drawer" part="button" \/><SystemMenu id="docs-system-drawer" part="menu" \/><\/div>\s*<div role="listitem" class="docs-listing-row"><ListingSwitch lang=\{route\.lang\} \/><\/div>\s*<Fragment set:html=\{cells\(drawn, true\)\} \/>/);
+    assert.doesNotMatch(text, /slot="header(?:-button)?"/, 'the drawer has no header: its menu button is the app bar’s');
     // The drawer's value and the page's trail read the framework's own sidebar, which holds every page.
     assert.match(text, /value=\{currentHref\(sidebar\)\}/);
   });
@@ -158,7 +161,7 @@ describe('the index of components', () => {
 describe('the switch', () => {
   const text = read('src/components/ListingSwitch.astro');
   test('is Tanrei’s Switch, named in the page’s language, the same control in the sidebar and on the index', () => {
-    assert.match(text, /<tanrei-switch class="docs-listing" slot=\{Astro\.props\.into\} label=\{t\.listing\.showAll\} data-docs-listing-switch \/>/);
+    assert.match(text, /<tanrei-switch class="docs-listing" label=\{t\.listing\.showAll\} data-docs-listing-switch \/>/);
     for (const lang of languages) {
       const words = strings(lang).listing;
       for (const key of ['showAll', 'advanced', 'placedInstead']) assert.ok(String(words[key] ?? '').trim(), `${lang}: listing.${key}`);
@@ -269,11 +272,19 @@ describe('the choice of design system', () => {
     assert.match(read('astro.config.mjs'), /\{ tag: 'script', content: systemBootstrap\(tabsKey\(SYSTEM_SYNC_KEY\), systems, defaultSystem\) \}/);
     const text = read('src/components/SystemSelect.astro');
     assert.match(text, /localStorage\.setItem\(tabsKey\(SYSTEM_SYNC_KEY\), control\.value\)/);
-    assert.match(text, /<tanrei-select-field class="docs-system" slot=\{Astro\.props\.into\} size="small" label=\{t\.system\.choice\}/);
+    assert.match(text, /<tanrei-select-field class="docs-system" size="small" label=\{t\.system\.choice\}/);
+    const header = read('src/components/frame/Header.astro');
+    assert.match(header, /store\(tabsKey\(SYSTEM_SYNC_KEY\), control\.value\)/);
     assert.match(text, /manifests\.map\(\(manifest\) => <tanrei-option value=\{manifest\.system\} supporting-text=\{manifest\.name\}>\{manifest\.system\}<\/tanrei-option>\)/);
   });
-  test('is the same control in the sidebar and on the index, beside the switch, and the index says what the chosen system does not have', () => {
-    assert.match(read('src/components/frame/Sidebar.astro'), /<SystemSelect lang=\{route\.lang\} into="header" \/>\s*<ListingSwitch lang=\{route\.lang\} into="header" \/>/);
+  test('is the header’s menu beside the brand (in a compact window, first in the drawer), the index’s select beside the switch, and the index says what the chosen system does not have', () => {
+    const menu = read('src/components/SystemMenu.astro');
+    assert.match(menu, /<tanrei-menu-group class="docs-system-group" label=\{t\.system\.choice\} value=\{system\}>/);
+    assert.match(menu, /manifests\.map\(\(manifest\) => \(\s*<tanrei-menu-radio-item value=\{manifest\.system\} label=\{manifest\.system\} supporting-text=\{manifest\.name\} translate="no" \/>/);
+    assert.match(menu, /<tanrei-menu-item label=\{t\.frame\.editTheme\} leading-icon="format_paint" href=\{studio\} \/>/);
+    const header = read('src/components/frame/Header.astro');
+    assert.match(header, /<Fragment set:html=\{wordmark\} \/>\s*<SystemMenu id="docs-system" part="button" slot="context" \/>/);
+    assert.match(read('src/components/frame/Sidebar.astro'), /<SystemMenu id="docs-system-drawer" part="button" \/>/);
     const index = read('src/components/ComponentIndex.astro');
     assert.match(index, /<SystemSelect lang=\{lang\} \/>\s*<ListingSwitch lang=\{lang\} \/>/);
     assert.match(index, /manifests\.filter\(\(manifest\) => manifest\.omitted\.length > 0\)\.map\(\(manifest\) => \(\s*<p class="absent" \{\.\.\.\{ \[SYSTEM_ONLY_ATTR\]: manifest\.system \}\}>/);
@@ -290,7 +301,7 @@ describe('the choice of design system', () => {
     }
   });
   test('no source of the lists writes the name of a system, or of a component a system does not have', () => {
-    const files = ['astro.config.mjs', 'src/lib/listing.mjs', 'src/lib/list-filter.ts', 'src/lib/systems.ts', 'src/components/SystemSelect.astro', 'src/components/ComponentIndex.astro', 'src/components/frame/Sidebar.astro', 'src/components/ComponentAvailability.astro', 'src/components/PresetFacts.astro'];
+    const files = ['astro.config.mjs', 'src/lib/listing.mjs', 'src/lib/list-filter.ts', 'src/lib/systems.ts', 'src/components/SystemSelect.astro', 'src/components/SystemMenu.astro', 'src/components/frame/Header.astro', 'src/components/ComponentIndex.astro', 'src/components/frame/Sidebar.astro', 'src/components/ComponentAvailability.astro', 'src/components/PresetFacts.astro'];
     const left = [...new Set(onDisk.flatMap((manifest) => manifest.omitted.map((entry) => entry.name)))];
     for (const file of files) {
       const text = read(file).replace(/^\s*(\/\/|\*|\/\*).*$/gm, '');

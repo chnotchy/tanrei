@@ -48,6 +48,7 @@
   "devDependencies": {
     "@tanrei/token-engine": "workspace:*",
     "@tanrei/tokens-build": "workspace:*",
+    "@tanrei/tools": "workspace:*",
     "esbuild": "^0.28.2"
   }
 }

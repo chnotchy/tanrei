@@ -46,7 +46,7 @@
               "Restyle through these tokens in a layer; never fork the component.",
               "standard.state-layer.color aliases the input color and standard.suggestion.state-layer.color the headline color.",
               "A result's row reads the suggestion tokens: suggestions and results are rows of one list. Only what a result adds has tokens of its own (the mark, the group, the status).",
-              "A match is marked by weight and by the stronger text color, not by a hue; result.mark.container.color is transparent in the default system.",
+              "A match is marked by all three of the stronger text color, a raised weight and a quiet fill behind it (result.mark.container.color, the secondary container in the default system), so that it never depends on color alone; its text takes no hue.",
               "The trigger takes the bar's colors, elevation, shape and state tokens; only its geometry and text style are its own.",
               "compact is for a tool used with a pointer, where rows are many and looked through often; touch always gets rows of the touch target. The density never changes a text style."
             ]

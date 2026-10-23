@@ -14,6 +14,11 @@
 // - `goto('about:blank')` in a file whose tests hover or move the pointer: in Chromium on Linux a page that went to
 //   about:blank and on to the stage sends no pointerleave or pointerout to anything on it, so a hover never ends
 //   there. Mount on the test's own page (`setContent`).
+// - a colour polled with a plain read until it equals a value, then read exactly at that value again in the same test
+//   with nothing that waits for the motion between: the poll can pass while the colour's transition still runs (an
+//   engine serializes an interpolated colour like its end value, and Firefox unpremultiplies a translucent one
+//   differently from one frame to the next), so the second read gets another frame of it. Poll `settledCss()`
+//   (test/motions.ts), or wait with `motionEnded()` between the two.
 // - a duration expected as a literal number of milliseconds, or a step of the duration scale, a spring or a curve of
 //   the scale named in a test: a component times and eases a change by its role (`sys.motion.role.*`,
 //   `sys.motion.easing.{enter,exit,state,spatial}`) through its own token, so such a test holds it to one system's
@@ -26,6 +31,19 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+
+/** A line that is a comment, or inside one. */
+const COMMENT = /^\s*(\*|\/\/|\/\*)/;
+/** A read of a colour: a property named `…color` or `…shadow`, or the CSSStyleDeclaration's camel-cased colours. */
+const COLOUR = /['"`][\w-]*(color|shadow)['"`]|\b(backgroundColor|borderColor|outlineColor|boxShadow)\b|getComputedStyle\([^)]*\)\.color\b/;
+/** The text of the argument that starts at `at` in `text`, up to its closing parenthesis, trimmed. */
+const argument = (text, at) => {
+  for (let depth = 0, i = at; i < text.length; i++) {
+    if (text[i] === '(') depth++;
+    else if (text[i] === ')' && depth-- === 0) return text.slice(at, i).trim();
+  }
+  return text.slice(at).trim();
+};
 
 /** Each rule: what it counts in one file's text, and today's offenders by file (`<path from packages/web>: <count>`). */
 export const RULES = {
@@ -78,26 +96,24 @@ export const RULES = {
       'src/components/image-preview/image-preview.test.ts': 4,
       'src/components/list/list.test.ts': 3,
       'src/components/main-action-button/main-action-button.test.ts': 1,
-      'src/components/menu/menu.test.ts': 7,
+      'src/components/menu/menu.test.ts': 6,
       'src/components/menubar/menubar.test.ts': 4,
       // Two more since the list was made: the open helper that waits on the layer's own fade, merged just before.
       'src/components/modal-layer/modal-layer.test.ts': 4,
       'src/components/navigation-bar/navigation-bar.test.ts': 7,
       'src/components/navigation-drawer/navigation-drawer.test.ts': 3,
       'src/components/one-time-code-input/one-time-code-input.test.ts': 1,
-      'src/components/pagination/pagination.test.ts': 1,
       'src/components/popover/popover.test.ts': 5,
       'src/components/progress-indicator/progress-indicator.test.ts': 4,
-      'src/components/radio-button/radio-button.test.ts': 5,
+      'src/components/radio-button/radio-button.test.ts': 4,
       'src/components/radio-group/radio-group.test.ts': 1,
       'src/components/search/search.test.ts': 3,
-      'src/components/segmented-button/segmented-button.test.ts': 2,
+      'src/components/segmented-button/segmented-button.test.ts': 1,
       'src/components/select/select.test.ts': 2,
       'src/components/side-sheet/side-sheet.test.ts': 5,
       'src/components/skeleton/skeleton.test.ts': 4,
       'src/components/slider-field/slider-field.test.ts': 1,
       'src/components/snackbar/snackbar.test.ts': 5,
-      'src/components/stepper/stepper.test.ts': 1,
       'src/components/swatch/swatch.test.ts': 2,
       'src/components/switch/switch.test.ts': 4,
       'src/components/tab-view/tab-view.test.ts': 5,
@@ -230,6 +246,48 @@ export const RULES = {
       'src/styles/timeline.test.ts': 3,
     },
   },
+  'a colour polled with a plain read, then read exactly at that value with no wait for the motion': {
+    count: (text) => {
+      const lines = text.split('\n');
+      let n = 0;
+      for (const [at, line] of lines.entries()) {
+        if (COMMENT.test(line) || !line.includes('expect.poll(')) continue;
+        // The poll's read and the value it waits for: `expect.poll(() => <read>).toBe(<value>)` (or toEqual), over up
+        // to three lines. A read that waits for the motion itself (settledCss, a file's own drawn) is not a plain one.
+        const poll = lines.slice(at, at + 3).join(' ');
+        const from = poll.slice(poll.indexOf('expect.poll(') + 'expect.poll('.length);
+        const ends = /\)\s*\.(toBe|toEqual)\(/.exec(from);
+        if (!ends || /\)\s*\.(not\.)?to\w+\(/.exec(from).index !== ends.index) continue;
+        const read = from.slice(0, ends.index).replace(/^\s*(async\s*)?\(\)\s*=>\s*/, '').trim();
+        if (!COLOUR.test(read) || /\b(settledCss|drawn)\(/.test(read)) continue;
+        const value = argument(from, ends.index + ends[0].length);
+        // The same read later in the same test, before anything waits for the motion: asserted exactly at the same
+        // value, or kept (`const hovered = await <read>`) to compare with a later one.
+        for (const later of lines.slice(at + 1)) {
+          if (/^\s*test(\.\w+)?\(/.test(later) || /\b(motionEnded|settledCss)\(/.test(later)) break;
+          if (COMMENT.test(later)) continue;
+          const exact = later.includes(`expect(await ${read}`) && /\)\s*\.(toBe|toEqual)\(/.exec(later);
+          if ((exact && argument(later, exact.index + exact[0].length) === value) || later.includes(`= await ${read}`)) {
+            n++;
+            break;
+          }
+        }
+      }
+      return n;
+    },
+    // Each of these polls an opaque colour (an override such as rgb(0, 255, 0), or surface-dim), whose integer channels,
+    // once they read as the end value, stay there for the rest of the motion: none has been seen failing. Each is the
+    // same shape all the same, and is held to the rule when its test is next changed.
+    allowed: {
+      'src/components/button/button.test.ts': 1,
+      'src/components/card/card.test.ts': 1,
+      'src/components/checkbox/checkbox.test.ts': 1,
+      'src/components/chip/chip.test.ts': 1,
+      'src/components/date-time-picker/date-time-picker.test.ts': 1,
+      'src/components/main-action-button/main-action-button.test.ts': 1,
+      'src/components/slider/slider.test.ts': 1,
+    },
+  },
 };
 
 /** Planted offenders: each rule counts its own once, and its correct twin not at all. */
@@ -257,6 +315,10 @@ const PLANTED = {
   "goto('about:blank') where the pointer hovers or leaves": [
     "await page.goto('about:blank');\nawait mount(page);\nawait page.hover('#card');",
     "await page.setContent(html);\nawait page.hover('#card');",
+  ],
+  'a colour polled with a plain read, then read exactly at that value with no wait for the motion': [
+    "await expect.poll(() => css(c, 'background-color')).toBe(hovered);\nawait page.mouse.down();\nexpect(await css(c, 'background-color')).toBe(hovered);",
+    "await expect.poll(() => css(c, 'background-color')).toBe(hovered);\nawait motionEnded(host);\nawait page.mouse.down();\nexpect(await css(c, 'background-color')).toBe(hovered);",
   ],
 };
 

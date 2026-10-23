@@ -261,3 +261,63 @@ Tanrei 自己不做这件事：这是产品入口的职责。先检测这些功�
 ```
 
 这段脚本要写得小而朴素：每位访客的浏览器都会运行它，旧浏览器也不例外。如果用静态 `import`，浏览器会在这段脚本运行之前就加载应用，无法解析应用的旧浏览器根本走不到检测这一步；`import()` 则在检测之后才加载。
+
+## 测试
+
+### 在浏览器中运行
+
+Tanrei 的元素建立在浏览器所实现的能力之上：shadow root、`ElementInternals`（表单控件的值与有效性、自定义状态）、Popover API、`<dialog>` 以及布局。jsdom 和 happy-dom 只实现了其中一部分（happy-dom 既没有 `attachInternals()`，也没有 Popover API），因此元素可能在渲染时抛出异常，留下被拒绝的 Promise，或者在缺少其所依赖的尺寸、焦点顺序和顶层（top layer）的情况下渲染。Tanrei 不支持这些环境，也不提供替代它们所缺功能的桩代码：一个只让元素不再抛出异常的替代品，会让测试在任何浏览器都不存在的行为上通过。
+
+凡是会渲染 Tanrei 元素的测试，都请在真实浏览器中运行：
+
+- [Vitest 的浏览器模式](https://vitest.dev/guide/browser/)配合其 Playwright provider，可以让组件测试留在 Vitest 中，并在 Chromium、Firefox 或 WebKit 中运行。
+- [Playwright Test](https://playwright.dev/docs/intro) 用于运行页面和完整的操作流程。
+
+不渲染任何 Tanrei 元素、只测试你自己逻辑的测试，可以继续留在 Node、jsdom 或 happy-dom 中。Tanrei 自己的测试在 Chromium、Firefox 和 WebKit 中运行，并在 Playwright 中使用 axe-core。
+
+### 查找元素
+
+大多数元素都把角色放在其 shadow root 内的原生元素（`<button>`、`<input>`、`<dialog>`）上，而不是放在自身上，这样浏览器和测试工具看到的就是真实的语义；少数元素（例如标签或打开的菜单）由自身承载角色。Playwright 的定位器会查找开放的 shadow root 内部，因此请像人一样，按角色和名称查找控件：
+
+```ts
+await page.getByRole('button', { name: 'Save' }).click();
+await expect(page.getByRole('switch', { name: 'Wi-Fi' })).toBeChecked();
+```
+
+点击这个按钮，也会触发注册在 `<tanrei-button>` 自身上的监听器。Testing Library 的查询不会查找 shadow root 内部，因此找不到这些控件。
+
+### 角色与其内容位于不同的树中
+
+有些元素把角色放在自己的 shadow root 中，而属于该角色的内容却是你自己的标记，通过 slot 放入其中：`<tanrei-tabs>` 的标签列表及其 `<tanrei-tab>` 子元素，`<tanrei-dialog>` 的 `<dialog>` 及其操作按钮。在 DOM 中，标签并不在标签列表之内，因此从角色串联下去的定位器什么也找不到：
+
+```ts
+// 什么也找不到：标签是 <tanrei-tabs> 的子元素，而不是其标签列表的子元素。
+page.getByRole('tablist', { name: 'Sections' }).getByRole('tab', { name: 'Billing' });
+```
+
+先找到持有该命名角色的元素，再在其中查找：
+
+```ts
+const sections = page.locator('tanrei-tabs', { has: page.getByRole('tablist', { name: 'Sections' }) });
+await sections.getByRole('tab', { name: 'Billing' }).click();
+
+const confirm = page.locator('tanrei-dialog', { has: page.getByRole('dialog', { name: 'Delete the file?' }) });
+await confirm.getByRole('button', { name: 'Delete' }).click();
+```
+
+### 顶层中的菜单
+
+打开期间，`<tanrei-menu>` 就是菜单，名称来自其锚点，但它在页面中不占空间：它的表面绘制在顶层中。因此，即使菜单已经打开，检查菜单本身是否可见也会失败。请先确认菜单存在，再检查其中的菜单项：
+
+```ts
+await page.getByRole('button', { name: 'More' }).click();
+const menu = page.getByRole('menu', { name: 'More' });
+await expect(menu).toBeAttached();
+await expect(menu.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+```
+
+关闭后，该元素不再是菜单，`await expect(menu).toHaveCount(0)` 会通过。
+
+### 警告
+
+在开发构建中，如果元素的用法不符合其规范，它会在控制台中说明，消息以 `[tanrei]` 开头，以行为的 ID 结尾。浏览器测试可以在出现任何一条时失败：[面向 AI 智能体的指南](/zh-cn/getting-started/ai-agents/)中有 Playwright 的示例。

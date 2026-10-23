@@ -2,7 +2,7 @@
 title: "图片预览"
 description: "用户按下缩略图时，把一组图片中的一张铺满整个窗口显示，供人仔细查看：可以放大再还原，放大后可以四处移动，也可以移到下一张或上一张，直到关闭为止。"
 translationOf: components/image-preview.mdx
-sourceHash: cf3abaf4200c8a573c2daf0b205f42be76a4a5ab
+sourceHash: e96ae85ed4881dbba6ec6a53785b75f08794dbf3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -104,7 +104,7 @@ import square from '../../../../../../../packages/web/test/fixtures/image-previe
       closeLabel="关闭" zoomInLabel="放大" zoomOutLabel="缩小"
       previousLabel="上一张图片" nextLabel="下一张图片" countText="第 {position} 张，共 {count} 张"
       loadingLabel="正在加载图片" errorText="无法加载这张图片"
-      onIndexchange={(event) => setShown(event.detail.index)}
+      onIndexChange={(event) => setShown(event.detail.index)}
       onClose={() => setShown(null)}>
       {photos.map((photo) => (
         <ImagePreviewItem key={photo.id} src={photo.large} thumbnailSrc={photo.small}

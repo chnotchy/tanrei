@@ -17,6 +17,7 @@ import CodeSample from './CodeSample.astro';
 import Sentence from './Sentence.astro';
 import StatusBadge from './StatusBadge.astro';
 import SourceNote from './SourceNote.astro';
+import { markdownMark } from '../lib/page-markdown.mjs';
 
 interface Props {
   name: string;
@@ -42,6 +43,8 @@ const layerLine = where && `"components": {\n  "include": ${inline([where.includ
 const importLine = where?.module && `import '${where.module}';`;
 ---
 
+{/* The page's Markdown leaves this out: the spec's Markdown, in the Specs section, says where the component is (lib/page-markdown.mjs). */}
+<Fragment set:html={markdownMark.skip} />
 <div class="not-content availability" data-tanrei-code="plain">
   {/* The platforms are a list of facts, a platform to a fact. A `dl` takes no name of its own (DSL-17), so the group
       around the list carries the one the hand-made list had. */}
@@ -108,6 +111,7 @@ const importLine = where?.module && `import '${where.module}';`;
     </Callout>
   </div>
 )}
+<Fragment set:html={markdownMark.end} />
 
 <script>
   import '../lib/register-web';
