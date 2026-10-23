@@ -55,6 +55,21 @@ describe('the page on AI agents', () => {
     for (const { folder, text } of pages.slice(1)) assert.deepEqual(fences(text), blocks, `${folder}getting-started/ai-agents.mdx`);
   });
 
+  test('configures the server the actions at the head of every page install and copy (lib/page-actions.ts)', async () => {
+    const { claudeCodeCommand, mcpServer } = await import('../src/lib/page-actions.ts');
+    const blocks = fences(english);
+    assert.ok(blocks.some((block) => block.split('\n').includes(claudeCodeCommand)), `no sample of the page is the command ${claudeCodeCommand}`);
+    // The JSON samples (Cursor's and VS Code's) start the same command with the same arguments.
+    const json = blocks.filter((block) => block.startsWith('```json') && /"(mcpServers|servers)"/.test(block)).map((block) => JSON.parse(block.split('\n').slice(1, -1).join('\n')));
+    const servers = json.flatMap((sample) => Object.entries(sample.mcpServers ?? sample.servers ?? {}));
+    assert.ok(servers.length >= 2, `only ${servers.length} servers were found in the JSON samples: the test no longer reads the page`);
+    for (const [name, server] of servers) {
+      assert.equal(name, mcpServer.name);
+      assert.equal(server.command, mcpServer.command);
+      assert.deepEqual(server.args, [...mcpServer.args]);
+    }
+  });
+
   test('names only custom properties that Tanrei’s stylesheet declares', () => {
     const declared = new Set([...read('packages/web/src/generated/tokens.css').matchAll(/(--[a-z0-9-]+):/g)].map((match) => match[1]));
     const named = [...english.matchAll(/--tanrei-[a-z0-9-]+/g)].map(([name]) => name).filter((name) => !name.endsWith('-'));
