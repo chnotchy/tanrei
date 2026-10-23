@@ -7,4 +7,6 @@ Documentation site: every page says when it last changed, under its title and de
 branch of what the page is made from — read from the history once per build, never the time of the build. A
 component's page now also changes when its component tokens change (its own group's file and any shared set that
 names it), and a page that draws token tables when anything under `tokens/` changes; the sitemap's dates follow.
+The sitemap, the page's head and its Markdown's `last_updated` write that date as
+one string, in UTC, and the day under the title is its UTC day, the one the sitemap names.
 Broke: a page's `date` front matter and the "Published" line it drew are gone — no page carries a date of its own.

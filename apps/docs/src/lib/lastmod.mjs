@@ -1,5 +1,6 @@
-// When each page of the site last changed, from git: the date the sitemap gives a page (`<lastmod>`) and the one its
-// head prints under its title ("Last updated"), which are one value, read once.
+// When each page of the site last changed, from git: the date the sitemap gives a page (`<lastmod>`), the one its
+// head prints under its title ("Last updated"), its Markdown's `last_updated` and its structured data's
+// `dateModified`, which are one value, read once.
 //
 // sitemaps.org: `lastmod` is the date the page was last modified, in W3C Datetime. Google reads it only while it is
 // consistently and verifiably accurate, and only for a significant change to the page's content — not the build, not
@@ -22,6 +23,11 @@
 // commit and would give every page that date, so the build stops there instead of writing a wrong date: a checkout
 // that builds the site fetches the whole history of commits and trees (`fetch-depth: 0`, `filter: blob:none`).
 // `astro dev` runs in any clone: in a shallow one it reads no dates, and no page prints one.
+//
+// A page's date is written in UTC (`2026-10-22T20:00:00.000Z`), whatever offset its commit was made in: the sitemap
+// writes every date in UTC whatever it is given, so the page, its Markdown and its structured data write that same
+// string, and the day the head prints is the day the sitemap names — not a day that hangs on the offset of whoever
+// made the commit (a merge on GitHub and a commit on a laptop in Tokyo give two).
 //
 // The pages read the same dates through a virtual module, `virtual:tanrei-docs/last-updated` (declared in
 // src/env.d.ts): its `lastUpdated(url)` is what the sitemap writes for that address.
@@ -115,8 +121,11 @@ export function commitDates(repoRoot, paths) {
   return dates;
 }
 
-/** The newest of the dates of some files, or none where no commit holds any of them. */
-const newest = (dates, files) => files.map((file) => dates.get(file)).filter(Boolean).sort((a, b) => Date.parse(b) - Date.parse(a))[0];
+/** The newest of the dates of some files, in UTC, or none where no commit holds any of them. */
+const newest = (dates, files) => {
+  const times = files.map((file) => dates.get(file)).filter(Boolean).map((date) => Date.parse(date));
+  return times.length ? new Date(Math.max(...times)).toISOString() : undefined;
+};
 
 /** The virtual module the pages read the dates from. */
 export const LAST_UPDATED_MODULE = 'virtual:tanrei-docs/last-updated';
@@ -134,13 +143,13 @@ export function lastUpdatedModule(dates, where) {
     `import { pageDate } from ${JSON.stringify(fileURLToPath(import.meta.url))};`,
     `const dates = new Map(${JSON.stringify([...dates])});`,
     `const where = ${JSON.stringify(where)};`,
-    '/** When the page at `url` last changed: what the sitemap writes for it (ISO 8601 with its offset), or none. */',
+    '/** When the page at `url` last changed: what the sitemap writes for it (ISO 8601, UTC), or none. */',
     'export const lastUpdated = (url) => pageDate(dates, url, where);',
   ].join('\n');
 }
 
 /**
- * The date of a page: the newest of its sources' dates.
+ * The date of a page: the newest of its sources' dates, in UTC (ISO 8601, as `Date#toISOString` writes it).
  *
  * @param {Map<string, string>} dates
  * @param {string} url

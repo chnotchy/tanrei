@@ -11,7 +11,7 @@ declare module 'virtual:starlight/pagefind-config' {
 // sitemap writes for a page's address, read from git once when the site is built. A page's head prints it
 // (components/frame/PageTitle.astro); anything else that says when a page changed imports it from here.
 declare module 'virtual:tanrei-docs/last-updated' {
-  /** The page at `url` (an absolute address, or a path from the site's root): ISO 8601 with its offset, or none for a page no commit holds yet. */
+  /** The page at `url` (an absolute address, or a path from the site's root): ISO 8601 in UTC, or none for a page no commit holds yet. */
   export function lastUpdated(url: string): string | undefined;
 }
 

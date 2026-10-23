@@ -124,7 +124,7 @@ describe("a page's sources", () => {
 });
 
 describe("a page's date", () => {
-  test('is, for every page of the site, the date git gives for its sources one page at a time', async () => {
+  test('is, for every page of the site, the instant git gives for its sources one page at a time, in UTC', async () => {
     const lastmod = pageLastmod(where);
     lastmod.integration.hooks['astro:build:start']();
     const all = pages();
@@ -135,7 +135,7 @@ describe("a page's date", () => {
         all.slice(i, i + 16).map(async ({ url }) => {
           const expected = await gitDate(pageSources(url, where));
           const actual = lastmod.of(url);
-          if (!expected || actual !== expected) wrong.push(`${url}: ${actual} (git: ${expected || 'no commit'})`);
+          if (!expected || actual !== new Date(expected).toISOString()) wrong.push(`${url}: ${actual} (git: ${expected || 'no commit'})`);
         }),
       );
     }
@@ -161,6 +161,16 @@ describe("a page's date", () => {
     assert.equal(lastmod.of('/'), undefined);
     assert.throws(() => plugin.load(plugin.resolveId(LAST_UPDATED_MODULE)), /before the build read the dates/);
     assert.equal(plugin.resolveId('virtual:something-else'), undefined);
+  });
+
+  test('is written in UTC whatever offset its commits were made in', () => {
+    const { repo, commit } = scratchRepo('docs-lastmod-utc');
+    commit('2026-09-21T01:30:00+09:00', { 'content/index.mdx': '' });
+    commit('2026-09-21T10:00:00-05:00', { 'content/guide.mdx': '' });
+    const lastmod = pageLastmod({ repoRoot: repo, contentDir: 'content', languages: [] });
+    lastmod.integration.hooks['astro:build:start']();
+    assert.equal(lastmod.of('/'), '2026-09-20T16:30:00.000Z');
+    assert.equal(lastmod.of('https://tanrei.invalid/guide/'), '2026-09-21T15:00:00.000Z');
   });
 
   test('of a folder is the newest of the files under it', () => {

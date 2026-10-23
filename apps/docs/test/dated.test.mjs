@@ -40,7 +40,7 @@ describe('a stage of the roadmap', () => {
 
 describe('the date a page last changed', () => {
   test('is, for a machine, the date as the sitemap gives it', () => {
-    assert.equal(updatedParts('2026-10-21T19:08:04+09:00', 'en').datetime, '2026-10-21T19:08:04+09:00');
+    assert.equal(updatedParts('2026-10-21T10:08:04.000Z', 'en').datetime, '2026-10-21T10:08:04.000Z');
     assert.equal(updatedParts('2026-10-21T00:10:00Z', 'ja').datetime, '2026-10-21T00:10:00Z');
   });
   test('is written in the language of the page', () => {
@@ -52,9 +52,10 @@ describe('the date a page last changed', () => {
     assert.match(updatedParts(date, 'hi').text, /सितंबर/);
     assert.match(updatedParts(date, 'ar').text, /سبتمبر/);
   });
-  test('is the day the date names in its own offset, neither UTC’s nor the build machine’s', () => {
-    assert.equal(updatedParts('2026-09-22T01:30:00+09:00', 'en').text, 'September 22, 2026');
-    assert.equal(updatedParts('2026-09-21T23:30:00-05:00', 'en').text, 'September 21, 2026');
+  test('is its day in UTC, the day the sitemap names, not the day of its offset or of the build machine', () => {
+    assert.equal(updatedParts('2026-09-21T20:30:00.000Z', 'en').text, 'September 21, 2026');
+    assert.equal(updatedParts('2026-09-22T01:30:00+09:00', 'en').text, 'September 21, 2026');
+    assert.equal(updatedParts('2026-09-21T23:30:00-05:00', 'en').text, 'September 22, 2026');
   });
   test('is refused when it is no date', () => {
     assert.throws(() => updatedParts('yesterday', 'en'), /ISO 8601/);

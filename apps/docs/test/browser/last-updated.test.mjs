@@ -47,7 +47,7 @@ const WIDE = { width: 1440, height: 900 };
 const COMPACT = { width: 390, height: 900 };
 
 /**
- * That the text is the sentence of the page's dictionary around the day the date names in its own offset, written in
+ * That the text is the sentence of the page's dictionary around the day the date names in UTC, written in
  * the language's own words: its year and day in digits, and not the date's machine form. (Not the exact month: the
  * names are the locale data of the Node that built the site, and two versions of it spell a Hindi month two ways.)
  */
@@ -135,7 +135,7 @@ for (const engine of ENGINES) {
         assert.equal(seen.dates, 1);
         const sitemap = sitemapDates.get(address);
         assert.ok(sitemap, `${address} is in the sitemap`);
-        assert.equal(Date.parse(seen.datetime), Date.parse(sitemap));
+        assert.equal(seen.datetime, sitemap);
         assertText(seen.text, seen.datetime, lang);
         assert.equal(seen.ignored, true, 'the search does not index the date');
         assert.equal(seen.color, seen.metaColor);

@@ -35,15 +35,14 @@ export function currentStage(statuses: readonly StageStatus[]): number {
 
 /**
  * When a page last changed, as the page header's meta line says it in a `<time>` element: `datetime` is the date as it
- * was given (the sitemap's value, ISO 8601 with its offset), and `text` its day, written for a reader of `lang`. The day
- * is the one the date names in its own offset, so the page and its sitemap name one day.
+ * was given (the sitemap's value, ISO 8601 in UTC), and `text` its day in UTC, written for a reader of `lang`: the day
+ * the sitemap names, on whatever machine the site is built.
  */
 export function updatedParts(iso: string, lang: string): { datetime: string; text: string } {
-  const day = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
-  if (!day || Number.isNaN(Date.parse(iso))) throw new Error(`not an ISO 8601 date: ${iso}`);
-  const [, year, month, date] = day.map(Number);
+  const time = /^\d{4}-\d{2}-\d{2}T/.test(iso) ? Date.parse(iso) : Number.NaN;
+  if (Number.isNaN(time)) throw new Error(`not an ISO 8601 date: ${iso}`);
   return {
     datetime: iso,
-    text: new Intl.DateTimeFormat(lang, { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(Date.UTC(year, month - 1, date)),
+    text: new Intl.DateTimeFormat(lang, { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(time),
   };
 }

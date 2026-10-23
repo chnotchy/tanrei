@@ -40,7 +40,7 @@ describe('the sitemap', () => {
           if (sources.length === 0) return wrong.push(`${loc}: no source`);
           if (lastmod.length !== 1) return wrong.push(`${loc}: ${lastmod.length} lastmod`);
           const expected = await gitDate(sources);
-          if (!expected || Date.parse(lastmod[0]) !== Date.parse(expected)) wrong.push(`${loc}: ${lastmod[0]} (git: ${expected || 'no commit'} for ${sources.join(', ')})`);
+          if (!expected || lastmod[0] !== new Date(expected).toISOString()) wrong.push(`${loc}: ${lastmod[0]} (git: ${expected || 'no commit'} for ${sources.join(', ')})`);
         }),
       );
     }
@@ -62,7 +62,7 @@ describe('the sitemap', () => {
       const times = [...head.matchAll(/<time\b[^>]*\bdatetime="([^"]+)"/g)].map(([, datetime]) => datetime);
       const meta = /<div data-part="meta"[^>]*>([\s\S]*?)<\/div>/.exec(head)?.[1];
       if (times.length !== 1 || !meta?.includes(`datetime="${times[0]}"`)) wrong.push(`${loc}: ${times.length} dates in its head`);
-      else if (Date.parse(times[0]) !== Date.parse(lastmod[0])) wrong.push(`${loc}: its head says ${times[0]}, its sitemap ${lastmod[0]}`);
+      else if (times[0] !== lastmod[0]) wrong.push(`${loc}: its head says ${times[0]}, its sitemap ${lastmod[0]}`);
     }
     assert.deepEqual(wrong, []);
   });
