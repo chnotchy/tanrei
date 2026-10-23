@@ -34,13 +34,21 @@ import { type CSSResult, nothing, unsafeCSS } from 'lit';
  *   inset — is a margin of the box or a padding of its parent. WebKit lays a paragraph whose direction is not the
  *   layout's over the padding where the two differ (the main action button's label stood against its icon, MAB-19;
  *   a description in prose at its term's edge). `product-text.test.ts` looks at every fixture for it.
+ * - **Broken by the strict rules of Japanese and Chinese** (`line-break: strict`, inherited by what is slotted into the
+ *   box): a line neither begins with closing punctuation, a small kana, the prolonged sound mark (ー) or an iteration
+ *   mark nor ends with opening punctuation. The browsers' default (`auto`) lets a line begin with ー or a small kana
+ *   in Chromium, and in WebKit where the text is marked Japanese (Firefox's is strict already): a menu item's
+ *   `Claude Code のコマンドをコピー` broke before its last ー. It is written whatever the text's language is, so a
+ *   product that does not mark its Japanese text with `lang` still gets it: the strict rules differ from the others only
+ *   for the characters of Chinese and Japanese (CSS Text 3, the line-break property).
  */
 export function productText(on: string, { align }: { align?: 'start' } = {}): CSSResult {
   // Each selector of the right-to-left rule weighs what `on:dir(rtl)` weighs, so a component's own rule after this one
   // overrides it as it always did.
   return unsafeCSS(`
   ${on} {
-    unicode-bidi: plaintext;${align === 'start' ? '\n    text-align: left;' : ''}
+    unicode-bidi: plaintext;
+    line-break: strict;${align === 'start' ? '\n    text-align: left;' : ''}
   }${
     align === 'start'
       ? `
