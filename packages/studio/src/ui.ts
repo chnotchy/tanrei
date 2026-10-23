@@ -138,6 +138,8 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       layer = next;
       // An edit of a link's layer makes it the person's: it is kept from now on, in the place of theirs.
       if (mine && !options?.preview) keepShared(t.shared.edited);
+      // (A link opened where nothing was kept: its banner only said where the layer came from, and an edit makes it the person's.)
+      else if (sharedBanner.open && !options?.preview) sharedBanner.open = false;
       if (!options?.preview) {
         // A step to undo: what was committed before, unless nothing changed.
         if (stringifyLayer(next) !== stringifyLayer(committed)) history.record(committed);
@@ -195,8 +197,10 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   const file = h('div', { class: 'ts-file', 'data-file': true });
   // What changed underneath the person, and the two answers: a live callout (it is announced when it opens).
   const banner = h('tanrei-callout', { class: 'ts-banner', status: 'warning', 'status-label': t.file.states.conflict, live: true, open: 'false', 'data-banner': true });
-  // The layer of a link, shown in the place of the one this browser kept, and the two ways on (`address`).
-  const sharedBanner = h('tanrei-callout', { class: 'ts-banner', status: 'info', 'status-label': t.shared.status, live: true, open: 'false', 'data-shared-banner': true });
+  // The banner of a shared layer: the layer of a link, shown in the place of the one this browser kept, what each of the
+  // two is, and the ways on (`address`; `showShared`).
+  const sharedBanner = h('tanrei-callout', { class: 'ts-banner ts-shared', status: 'info', 'status-label': t.shared.status, live: true, open: 'false', 'close-label': t.shared.close, 'data-shared-banner': true }) as HTMLElement & { open: boolean; closable: boolean };
+  sharedBanner.addEventListener('dismiss', (event) => event.target === sharedBanner && (sharedBanner.open = false));
   const a11y = h('div');
   const exportHost = h('div');
   const glyph = (name: string) => h('span', { class: `${studio.tagPrefix}-icon`, slot: 'icon', 'aria-hidden': 'true', translate: 'no' }, name);
@@ -673,24 +677,37 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     }, 250);
   }
   /**
-   * Show the layer of a link. The layer this browser kept — `kept`, unless one is already set aside — is set aside when
-   * it holds anything the link's does not: an untouched layer, or the same one, is no work to lose.
+   * Show the layer of a link, under its banner. The layer this browser kept — `kept`, unless one is already set aside —
+   * is set aside when it holds anything the link's does not, and the banner names the two and leads back to it or keeps
+   * the link's. An untouched layer is no work to lose: the banner only says where the layer came from, and may be put
+   * away. The same layer is no news: there is no banner.
    */
   function showShared(next: Layer, kept: Layer) {
     const aside = mine ?? kept;
     layer = committed = next;
     history.clear();
     drawHistory();
-    if (stringifyLayer(aside) === stringifyLayer(next) || stringifyLayer(aside) === stringifyLayer(studio.blank())) {
+    const nameOf = (each: Layer) => isolated(each.name || each.id);
+    const baseOf = (each: Layer) => isolated(studio.systems.find((system: Json) => system.id === each.extends)?.name ?? each.extends);
+    if (stringifyLayer(aside) === stringifyLayer(next)) {
       mine = null;
       sharedBanner.open = false;
       return;
     }
-    mine = aside;
+    const fresh = stringifyLayer(aside) === stringifyLayer(studio.blank());
+    mine = fresh ? null : aside;
+    const exportIt = button(t.shared.export, () => exportSheet.open(), { 'data-export-shared': true });
+    sharedBanner.closable = fresh;
     sharedBanner.replaceChildren(
-      h('b', { slot: 'title', text: t.shared.title }),
-      ` ${t.shared.body}`,
-      h('div', { class: 'ts-actions', slot: 'actions' }, button(t.shared.keep, () => keepShared(t.shared.kept), { primary: true, 'data-keep-shared': true }), button(t.shared.mine, () => backToMine(), { 'data-back-to-mine': true })),
+      h('b', { slot: 'title' }, rich((at) => t.shared.title(at(nameOf(next)), at(baseOf(next))))),
+      h('span', {}, fresh ? t.shared.fresh : rich((at) => t.shared.body(at(nameOf(aside))))),
+      h(
+        'div',
+        { class: 'ts-actions', slot: 'actions' },
+        fresh ? null : button(t.shared.keep, () => keepShared(t.shared.kept), { primary: true, 'data-keep-shared': true }),
+        fresh ? null : button(t.shared.mine, () => backToMine(), { 'data-back-to-mine': true }),
+        exportIt,
+      ),
     );
     sharedBanner.open = true;
   }

@@ -695,10 +695,13 @@ const en = {
   // The layer of a link, shown in the place of the one this browser kept (ui.ts `showShared`).
   shared: {
     status: 'Information',
-    title: 'You are looking at a shared layer',
-    body: 'It came with the link you opened. The layer you were working on is still kept in this browser; editing this one, or keeping it, puts this one in its place.',
+    title: (name: string, base: string) => `A shared layer: ${name}, on ${base}`,
+    body: (mine: string) => `It came with the link you opened. Your own layer, ${mine}, is still the one this browser keeps, and nothing changes it until you choose: edit this one or keep it, and it takes the place of yours.`,
+    fresh: 'It came with the link you opened. This browser keeps it as you edit it.',
     keep: 'Keep this layer',
     mine: 'Back to my layer',
+    export: 'Export it',
+    close: 'Close',
     kept: 'This browser keeps the shared layer now, in place of the one you had.',
     edited: 'You edited the shared layer, so this browser keeps it now, in place of the one you had.',
     back: 'Back to your layer.',
