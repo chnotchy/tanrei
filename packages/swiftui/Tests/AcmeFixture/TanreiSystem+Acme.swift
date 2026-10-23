@@ -7419,7 +7419,7 @@ private let acmeSearchTokens = TanreiSearchTokens(
   statusColor: .role(.onSurfaceVariant),
   statusErrorColor: .role(.error),
   statusTypescale: acmeTypescale.bodySmall,
-  suggestionCompletionEmphasis: 100,
+  suggestionCompletionEmphasis: 300,
   suggestionContainerShape: 4,
   suggestionHeadlineTypescale: acmeTypescale.body,
   suggestionSupportingTextTypescale: acmeTypescale.bodySmall,

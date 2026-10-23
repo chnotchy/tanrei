@@ -1686,8 +1686,20 @@ test.describe('suggestions', () => {
     await expect(completion(2), 'width is not told apart').toHaveText('ｅｓｔ');
     await expect(completion(3), 'nothing is added').toHaveCount(0);
     await expect(queryRow(page, 's').locator('.completion'), 'the query row is the value').toHaveCount(0);
-    const weight = Number(await token(page, '--tanrei-sys-typescale-body-font-weight')) + Number(await token(page, '--tanrei-sys-typescale-emphasis-body'));
-    expect(Number(await css(completion(0), 'font-weight'))).toBe(weight);
+    // The token is derived from the body family's emphasis step (three of them in the default system): its value is
+    // read through a real property, as the cascade resolves it.
+    const emphasis = await page.evaluate(() => {
+      const probe = document.createElement('div');
+      probe.style.fontWeight = 'calc(1 + var(--tanrei-comp-search-suggestion-completion-emphasis))';
+      document.body.append(probe);
+      const value = Number(getComputedStyle(probe).fontWeight) - 1;
+      probe.remove();
+      return value;
+    });
+    const headline = Number(await css(row(page, 's', 0).locator('.headline'), 'font-weight'));
+    expect(headline).toBe(Number(await token(page, '--tanrei-sys-typescale-body-font-weight')));
+    expect(emphasis, 'heavier than the body family’s one emphasis step: weight alone tells it apart').toBeGreaterThan(Number(await token(page, '--tanrei-sys-typescale-emphasis-body')));
+    expect(Number(await css(completion(0), 'font-weight'))).toBe(headline + emphasis);
     expect(await css(completion(0), 'color')).toBe(await css(row(page, 's', 0).locator('.headline'), 'color'));
     expect(await css(completion(0), 'background-color')).toBe('rgba(0, 0, 0, 0)');
     // One text: the completion moves no letter, wraps with the headline, and is read as part of it.

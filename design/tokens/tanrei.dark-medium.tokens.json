@@ -71031,8 +71031,8 @@
           "completion": {
             "emphasis": {
               "$type": "number",
-              "$value": 100,
-              "$description": "How much weight the completion of a query suggestion gains — the part of its headline after the query as typed, and an inline completion in the query row — added to the weight of suggestion.headline.typescale. Weight alone, in the headline's own color and with no fill: the completion is what the person has not typed, read to tell the suggestions apart, not a match."
+              "$value": 300,
+              "$description": "How much weight the completion of a query suggestion gains — the part of its headline after the query as typed, and an inline completion in the query row — added to the weight of suggestion.headline.typescale. Weight alone, in the headline's own color and with no fill: the completion is what the person has not typed, read to tell the suggestions apart, not a match. Three of the body family's emphasis steps (400 to 700, bold, in the default system), as web search boxes draw it: weight is all that tells it apart, where a match (result.mark) has its color and its fill as well, so one step would hardly show."
             }
           },
           "container": {

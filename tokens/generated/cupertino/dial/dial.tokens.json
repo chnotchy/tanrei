@@ -5322,6 +5322,10 @@
               "$value": "{tanrei.sys.icon.small}",
               "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."
             },
+            "tanrei.comp.search.suggestion.completion.emphasis": {
+              "$value": "{tanrei.sys.typescale.emphasis.body}",
+              "reason": "This preset's body emphasis is already Apple's step to semibold (200): the default system's three steps would draw the completion at 1000, heavier than any weight its original sets running text in. One step keeps it at semibold; what its original draws there is a fidelity decision for this preset."
+            },
             "tanrei.comp.search.header.height": {
               "derive": {
                 "fn": "mul",
