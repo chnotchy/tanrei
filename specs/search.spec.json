@@ -1496,7 +1496,7 @@
             "target": "target",
             "targetLabel": "targetLabel"
           },
-          "notes": "A child element that renders an `<a href>` in its shadow root (a `<button>` without `href`). The excerpt is its child content: text with `<mark>` elements for the matches, which is what search engines hand back, styled through `::slotted(mark)`; the `excerpt` property (an array of runs) is used while it has no child content. Inserting an engine's HTML is the product's act: the element never parses a string as markup. `rel` and `download` are forwarded to the anchor, as every link form forwards them; `target=\"new\"` is `target=\"_blank\"` with `noopener` in `rel`."
+          "notes": "A child element whose link is an `<a href>` (a `<button>` without `href`) it keeps as its own first child in the light DOM, drawn as nothing and slotted over the row it draws in its shadow root, so that the search's input can name it as its active descendant (SRC-50); a page's rules for anchors and buttons neither move nor paint it. The excerpt is its child content: text with `<mark>` elements for the matches, which is what search engines hand back, styled through `::slotted(mark)`; the `excerpt` property (an array of runs) is used while it has no child content. Inserting an engine's HTML is the product's act: the element never parses a string as markup. `rel` and `download` are forwarded to the anchor, as every link form forwards them; `target=\"new\"` is `target=\"_blank\"` with `noopener` in `rel`."
         },
         "result-group": {
           "name": "tanrei-search-result-group",
@@ -1509,7 +1509,7 @@
             "target": "target",
             "targetLabel": "targetLabel"
           },
-          "notes": "A child element holding `<tanrei-search-result>` children; with `href` its own heading is an `<a>`, and its excerpt is the content of its `excerpt` slot, with `<mark>` as in a result."
+          "notes": "A child element holding `<tanrei-search-result>` children; with `href` its own heading's link is an `<a>` it keeps as its own child, as a result does, and its excerpt is the content of its `excerpt` slot, with `<mark>` as in a result."
         }
       }
     },

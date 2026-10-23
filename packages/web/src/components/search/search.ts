@@ -1,7 +1,6 @@
 import { type ComplexAttributeConverter, LitElement, type PropertyDeclarations, type PropertyValues, type TemplateResult, html, nothing } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { repeat } from 'lit/directives/repeat.js';
-import { html as staticHtml, literal } from 'lit/static-html.js';
 import {
   AvailabilityController,
   FollowController,
@@ -25,7 +24,6 @@ import {
   focusWithin,
   holdPageScroll,
   hostAria,
-  linkAttributes,
   markGlyph,
   modalLayer,
   naturalHeight,
@@ -159,6 +157,8 @@ const RESULT_GROUP = 'tanrei-search-result-group';
 const RESULT_SLOT = 'result';
 /** A result tells its search that a prop the search reads changed; an internal event, kept out of the public API. */
 const RESULT_UPDATE = 'tanrei-search-result-update';
+/** A result's slot for its own control (SRC-50). */
+const CONTROL_SLOT = 'control';
 
 /**
  * SRC-43: an excerpt as runs of text in order — the second, fourth and every further even run is a match. An array is
@@ -187,8 +187,27 @@ const contentNodes = (host: Element): (Element | Text)[] =>
   [...host.childNodes].filter((node): node is Element | Text => node instanceof Element || (node instanceof Text && !!node.data.trim()));
 
 /**
+ * SRC-45, SRC-50: how a row's own control — the `<a>` or `<button>` the element keeps as its child — is laid: an empty
+ * box over the whole row that draws nothing, so that what the person presses, focuses and opens is the browser's own
+ * link while the row in the shadow root draws everything (SRC-42). Set through the CSSOM, which a content security
+ * policy that refuses style attributes allows, and important, so that a page's rules for anchors and buttons (a reset,
+ * a link color, a focus outline) neither move it nor paint it.
+ */
+const CONTROL_STYLE: readonly (readonly [string, string])[] = [
+  ['all', 'unset'],
+  ['position', 'absolute'],
+  ['inset', '0'],
+  ['display', 'block'],
+  ['box-sizing', 'border-box'],
+  ['-webkit-tap-highlight-color', 'transparent'],
+];
+
+/**
  * What a result and a linked group heading share (SRC-42 … SRC-45): the destination props of a link, the row — a
- * suggestion's row, drawn by the element because the row is its own `<a>` — and the excerpt with its marks. It holds no
+ * suggestion's row, drawn by the element in its shadow root — its control, and the excerpt with its marks. The control
+ * is the element's own `<a>` (a `<button>` without a destination) in its light DOM, slotted over the row, so that the
+ * search's input can name it as its active descendant (SRC-50): an element in a shadow root of its own is out of reach
+ * of the input's `aria-activedescendant`, and of the element reflection that crosses into the document. It holds no
  * listener of its own: the search it is in answers its press, its keys and its activation.
  */
 export abstract class TanreiSearchRow extends TanreiElement {
@@ -204,6 +223,7 @@ export abstract class TanreiSearchRow extends TanreiElement {
     download: { type: String },
     iconColumn: { attribute: false },
     current: { attribute: false },
+    focusShown: { attribute: false },
   };
 
   /** Identifies it; `select` carries it. Unique among the search's suggestions, results and result groups. */
@@ -251,15 +271,80 @@ export abstract class TanreiSearchRow extends TanreiElement {
    */
   current = false;
 
+  /**
+   * @internal SRC-42: the row's control has focus that the browser shows (`:focus-visible`), so the row draws the focused
+   * state and the ring inside it. The search tells it, from the focus it already listens to.
+   */
+  focusShown = false;
+
   /** SRC-45: the link the row is while it has a destination, and what a debug build is told (src/primitives/link.ts). */
   protected readonly link = new LinkController(this, { ids: { refused: 'SRC-45', newContext: 'SRC-45' }, disabled: () => false });
+
+  #control: HTMLAnchorElement | HTMLButtonElement | null = null;
 
   /** The element's own child nodes that are its excerpt (text, with `<mark>` elements for the matches). */
   protected abstract excerptNodes(): (Element | Text)[];
 
-  /** @internal The row: the `<a>` of a result with a destination, the `<button>` of one without; null where none is drawn. */
+  /** Whether the element draws its row now: a result always, a group only while its heading is a link. */
+  protected abstract get drawsRow(): boolean;
+
+  /** The control's place in the shadow root: a named slot, or (for a group, which assigns its slots by hand) the slot it is assigned to. */
+  protected abstract placeControl(control: HTMLAnchorElement | HTMLButtonElement | null): void;
+
+  /** @internal The row as it is drawn — its box, its states and its press — in the shadow root; null where none is drawn. */
   get row(): HTMLElement | null {
     return this.renderRoot?.querySelector<HTMLElement>('.row') ?? null;
+  }
+
+  /**
+   * @internal SRC-45, SRC-50: the row's control — the `<a>` of a row with a destination, the `<button>` of one without —
+   * the element's own child, which takes focus and activation and is what assistive technology reads; null where no row
+   * is drawn.
+   */
+  get control(): HTMLAnchorElement | HTMLButtonElement | null {
+    return this.drawsRow ? this.#control : null;
+  }
+
+  /** Whether `node` is the element's own control (it is never part of the excerpt). */
+  protected isControl(node: Node): boolean {
+    return node === this.#control;
+  }
+
+  /**
+   * SRC-45, SRC-50: the control, kept as the element's first child — made again where the product's own content
+   * replaced it — the anchor of the link form (`linkForm`'s attributes) or a button, named by the headline and described
+   * by the excerpt and, for a new context, `targetLabel`; taken out while no row is drawn. Focus stays on it when it
+   * changes form.
+   */
+  private keepControl() {
+    let control = this.#control;
+    if (!this.drawsRow) {
+      control?.remove();
+      this.placeControl(null);
+      return;
+    }
+    const link = this.link.form;
+    const tag = link ? 'a' : 'button';
+    if (control?.localName !== tag) {
+      const next = document.createElement(tag);
+      for (const [name, value] of CONTROL_STYLE) next.style.setProperty(name, value, 'important');
+      const focused = !!control && control.matches(':focus');
+      control?.remove();
+      this.#control = control = next;
+      if (focused) queueMicrotask(() => next.focus());
+    }
+    if (control.parentNode !== this) this.prepend(control);
+    this.placeControl(control);
+    const attributes: Record<string, string | null> = link
+      ? { ...link.attributes, type: null }
+      : { href: null, target: null, rel: null, download: null, role: null, 'aria-disabled': null, type: 'button' };
+    attributes['aria-label'] = this.headline || null;
+    attributes['aria-description'] = this.link.describe(this.excerptText);
+    for (const [name, value] of Object.entries(attributes)) {
+      if (value === null) {
+        if (control.hasAttribute(name)) control.removeAttribute(name);
+      } else if (control.getAttribute(name) !== value) control.setAttribute(name, value);
+    }
   }
 
   /** @internal SRC-45: the link the row is now, or null: it is a button. */
@@ -274,10 +359,10 @@ export abstract class TanreiSearchRow extends TanreiElement {
     return text.replace(/\s+/g, ' ').trim();
   }
 
-  /** `element.focus()` focuses the row. */
+  /** `element.focus()` focuses the row's control. */
   override focus(options?: FocusOptions) {
     if (this.keepFocusUntilRendered(options)) return;
-    this.row?.focus(options);
+    this.control?.focus(options);
   }
 
   /** @internal SRC-32: marks the leading glyph for mirroring, by its name and the active icon set. */
@@ -287,34 +372,25 @@ export abstract class TanreiSearchRow extends TanreiElement {
   }
 
   protected override updated(changed: PropertyValues<this>) {
+    this.keepControl();
     this.markIcon();
     // The search re-reads its results when a prop it depends on changes.
     if ((['value', 'headline', 'leadingIcon', 'href'] as const).some((key) => changed.has(key))) notifyItemUpdate(this, RESULT_UPDATE);
   }
 
   /**
-   * SRC-42, SRC-43, SRC-45, SRC-50: the row — an anchor to `href`, or a button — named by the headline and described by
-   * the excerpt and, for a new context, `targetLabel`. `slot` is where the product's own excerpt (child content) goes;
-   * null draws the `excerpt` runs.
+   * SRC-42, SRC-43, SRC-50: the row as it is drawn — the place of its control (`control`, a slot), the leading icon, the
+   * headline and the excerpt. What it draws is hidden from assistive technology: the control is the one node that says
+   * it, named by the headline and described by the excerpt. `slot` is where the product's own excerpt (child content)
+   * goes; null draws the `excerpt` runs.
    */
-  protected renderRow(slot: TemplateResult | null) {
-    const link = this.link.form;
-    const tag = link ? literal`a` : literal`button`;
+  protected renderRow(control: TemplateResult, slot: TemplateResult | null) {
     const runs = runsOf(this.excerpt);
     const excerpt = slot ?? (runs.some(Boolean) ? runs.map((run, index) => (index % 2 ? html`<mark>${run}</mark>` : run)) : null);
-    const description = this.link.describe(this.excerptText);
-    return staticHtml`<${tag}
-      part="row"
-      class="row"
-      data-tanrei-shape
-      ?data-current=${this.current}
-      type=${link ? nothing : 'button'}
-      ${linkAttributes(link)}
-      aria-label=${this.headline || nothing}
-      aria-description=${description ?? nothing}
-      >${this.iconColumn ? html`<span class=${this.leadingIcon ? 'icon' : 'icon empty'} aria-hidden="true">${this.leadingIcon}</span>` : nothing}<span class="text"
+    return html`<div part="row" class="row" data-tanrei-shape ?data-current=${this.current} ?data-focused=${this.focusShown}
+      >${control}${this.iconColumn ? html`<span class=${this.leadingIcon ? 'icon' : 'icon empty'} aria-hidden="true">${this.leadingIcon}</span>` : nothing}<span class="text" aria-hidden="true"
         ><span part="headline" class="headline">${this.headline}</span>${excerpt === null ? nothing : html`<span part="excerpt" class="excerpt">${excerpt}</span>`}</span
-      ></${tag}
+      ></div
     >`;
   }
 }
@@ -348,11 +424,19 @@ export class TanreiSearchResult extends TanreiSearchRow {
   }
 
   protected excerptNodes() {
-    return contentNodes(this);
+    return contentNodes(this).filter((node) => !this.isControl(node));
+  }
+
+  protected get drawsRow() {
+    return true;
+  }
+
+  protected placeControl(control: HTMLAnchorElement | HTMLButtonElement | null) {
+    if (control && control.slot !== CONTROL_SLOT) control.slot = CONTROL_SLOT;
   }
 
   protected override render() {
-    return this.renderRow(this.excerptNodes().length ? html`<slot></slot>` : null);
+    return this.renderRow(html`<slot name=${CONTROL_SLOT}></slot>`, this.excerptNodes().length ? html`<slot></slot>` : null);
   }
 }
 
@@ -405,7 +489,15 @@ export class TanreiSearchResultGroup extends TanreiSearchRow {
   }
 
   protected excerptNodes() {
-    return contentNodes(this).filter((node) => !(node instanceof Element && node.localName.includes('-')));
+    return contentNodes(this).filter((node) => !this.isControl(node) && !(node instanceof Element && node.localName.includes('-')));
+  }
+
+  protected get drawsRow() {
+    return this.linked;
+  }
+
+  protected placeControl(control: HTMLAnchorElement | HTMLButtonElement | null) {
+    assignSlot(this.renderRoot?.querySelector<HTMLSlotElement>('slot.control-slot') ?? null, control ? [control] : []);
   }
 
   protected override updated(changed: PropertyValues<this>) {
@@ -425,7 +517,7 @@ export class TanreiSearchResultGroup extends TanreiSearchRow {
       aria-label=${this.headline || nothing}
     >
       ${linked
-        ? this.renderRow(this.excerptNodes().length ? html`<slot class="excerpt-slot"></slot>` : null)
+        ? this.renderRow(html`<slot class="control-slot"></slot>`, this.excerptNodes().length ? html`<slot class="excerpt-slot"></slot>` : null)
         : this.headline
           ? html`<div part="title" class="title" aria-hidden="true">${this.headline}</div>`
           : nothing}
@@ -1006,7 +1098,11 @@ export class TanreiSearch extends TanreiElement {
       for (const record of records) {
         const element = record.target instanceof Element ? record.target : record.target.parentElement;
         const row = element?.closest(`${RESULT}, ${RESULT_GROUP}`);
-        if (row instanceof TanreiSearchRow) touched.add(row);
+        // A row that put its own control in place (SRC-50) changed nothing of its excerpt.
+        const own =
+          row instanceof TanreiSearchRow &&
+          (record.target === row.control || (record.target === row && (record.type === 'attributes' || (record.removedNodes.length === 0 && [...record.addedNodes].every((node) => node === row.control)))));
+        if (row instanceof TanreiSearchRow && !own) touched.add(row);
       }
       for (const row of touched) row.requestUpdate();
     }
@@ -1199,17 +1295,19 @@ export class TanreiSearch extends TanreiElement {
    */
   private syncCurrentResult() {
     const next = this.expanded && !this.inert_ && this.resultCurrent && this.typing ? (this.rows[0] ?? null) : null;
-    if (next === this.currentRow) return;
-    if (this.currentRow) this.currentRow.current = false;
-    this.currentRow = next;
-    if (!next) return;
-    next.current = true;
-    void next.updateComplete.then(() => {
-      const row = next.row;
-      if (!row || this.currentRow !== next) return;
-      syncFocusStyle(next, row);
-      this.scrollIntoRoom(row);
-    });
+    if (next !== this.currentRow) {
+      if (this.currentRow) this.currentRow.current = false;
+      this.currentRow = next;
+      if (next) {
+        next.current = true;
+        void next.updateComplete.then(() => {
+          const row = next.row;
+          if (!row || this.currentRow !== next) return;
+          syncFocusStyle(next, row);
+          this.scrollIntoRoom(row);
+        });
+      }
+    }
   }
 
   /** SRC-13, SRC-14, SRC-49: nothing in the view is the one the action key takes: it submits the value as typed. */
@@ -1289,14 +1387,13 @@ export class TanreiSearch extends TanreiElement {
             this.rowPress.release();
           }
           this.choose(index);
-        } else if (result?.row) {
+        } else if (result?.row && result.control) {
           // SRC-49, SRC-45: the current result is activated as Enter on it would be: its row shows the press (SRC-19),
-          // and its own activation — select, then the link followed unless select was cancelled — is the click's.
-          const row = result.row;
-          this.pressRow(row);
+          // and its own activation — select, then the link followed unless select was cancelled — is its control's click.
+          this.pressRow(result.row);
           this.rowPress.press(null);
           this.rowPress.release();
-          row.click();
+          result.control.click();
         } else this.submit();
         return;
       }
@@ -1425,15 +1522,19 @@ export class TanreiSearch extends TanreiElement {
 
   /** Whether focus is in a result's row now. */
   private get resultFocused() {
-    const root = deepActive()?.getRootNode();
-    return root instanceof ShadowRoot && root.host instanceof TanreiSearchRow && this.contains(root.host);
+    const active = deepActive();
+    const row = active?.parentElement;
+    return row instanceof TanreiSearchRow && row.control === active && this.contains(row);
   }
 
   /** SRC-42, SRC-51: the result that takes focus — its ring's focus style (SRC-21), and which one to miss when it is removed. */
   private readonly onFocusIn = (event: FocusEvent) => {
     const row = rowOf(event, this);
     this.focusedResult = row;
-    if (row) syncFocusStyle(row, row.row);
+    if (!row) return;
+    syncFocusStyle(row, row.row);
+    // SRC-42: the row draws the focus its control shows — by the keyboard, not by a press (`:focus-visible`).
+    row.focusShown = !!row.control?.matches(':focus-visible');
   };
 
   /**
@@ -1473,8 +1574,10 @@ export class TanreiSearch extends TanreiElement {
     if (this.pressedResult && event.relatedTarget !== this.pressedResult) this.onResultPointerEnd(event);
   };
 
-  /** SRC-6: focus moving out of the search closes the docked view. */
+  /** SRC-6: focus moving out of the search closes the docked view. SRC-42: a result that loses focus draws none. */
   private readonly onFocusOut = (event: FocusEvent) => {
+    const row = rowOf(event, this);
+    if (row) row.focusShown = false;
     const to = event.relatedTarget as Node | null;
     // SRC-14: focus that leaves the search ends what its last press was: focus coming back by Tab is the keyboard's.
     if (to && to !== this && !this.contains(to) && !this.renderRoot.contains(to)) this.pressPointer = '';

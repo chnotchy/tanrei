@@ -1628,8 +1628,14 @@ const mail = (id: string, props: Fixture['props'] = {}, items: FixtureItem[] = M
 const result = (value: string, headline = value, props: FixtureItem['props'] = {}): FixtureItem => ({ kind: 'result', props: { value, headline, href: `/${value}`, ...props } });
 const trigger = (page: P, id: string) => host(page, id).locator('.trigger');
 const hint = (page: P, id: string) => host(page, id).locator('tanrei-keyboard-shortcut.hint');
+/** A result's row as it is drawn (its box, states and press), in the result's shadow root. */
 const link = (page: P, id: string, value: string) => host(page, id).locator(`tanrei-search-result[value="${value}"] .row`);
+/** A linked group heading's row as it is drawn. */
 const heading = (page: P, id: string, value: string) => host(page, id).locator(`tanrei-search-result-group[value="${value}"] .group > .row`);
+/** A result's control: its own `<a>` (or `<button>`), its child in the document, which takes focus and is the link (SRC-50). */
+const anchor = (page: P, id: string, value: string) => host(page, id).locator(`tanrei-search-result[value="${value}"] > :is(a, button)`);
+/** A linked group heading's control. */
+const headingAnchor = (page: P, id: string, value: string) => host(page, id).locator(`tanrei-search-result-group[value="${value}"] > :is(a, button)`);
 const statusRow = (page: P, id: string) => host(page, id).locator('.status');
 const settled = (locator: Locator) => locator.evaluate((el) => (el as any).updateComplete);
 /** Mounts as `mount()` does, with a text field on the page, and keeps links from leaving it: what a click did is in `nav`. */
@@ -1659,7 +1665,9 @@ const focused = (page: P) =>
     let active: Element | null = document.activeElement;
     while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
     const root = active?.getRootNode();
-    return active ? `${active.localName}${root instanceof ShadowRoot ? `@${root.host.localName.replace('tanrei-search', 'search')}:${(root.host as any).value ?? ''}` : active.id ? `#${active.id}` : ''}` : null;
+    // A result's control is its own child (SRC-50): it is told by the result it belongs to, as an element of a shadow root is.
+    const owner = root instanceof ShadowRoot ? root.host : active?.parentElement?.localName.startsWith('tanrei-search-result') ? active.parentElement : null;
+    return active ? `${active.localName}${owner ? `@${owner.localName.replace('tanrei-search', 'search')}:${(owner as any).value ?? ''}` : active.id ? `#${active.id}` : ''}` : null;
   });
 const toggles = async (page: P) => (await log(page)).filter((entry) => entry.startsWith('toggle'));
 /** The active suggestion — the option drawn active, whether or not it is announced — by its place (`option-<n>`), or null. */
@@ -1683,17 +1691,28 @@ const toldOption = (page: P, id: string, place: 'bar' | 'header' = 'bar') =>
  * What Chromium's accessibility tree tells assistive technology of the focused field: its role and name, and the node
  * it names as its active descendant (null: none, so nothing is read for it).
  */
-async function toldInChromium(page: P) {
+/** The element the input names as its active descendant (element reflection): its tag and its `href`, or null. */
+const activeDescendant = (field: Locator) =>
+  field.evaluate((el: HTMLInputElement) => {
+    const active = el.ariaActiveDescendantElement;
+    return active ? `${active.localName} ${active.getAttribute('href') ?? ''}`.trim() : null;
+  });
+/**
+ * What Chromium's accessibility tree tells assistive technology of the focused field: its role and name, and the node
+ * it names as its active descendant (null: none, so nothing is read for it); and every node named `name` — one link and
+ * nothing else is the current result said once.
+ */
+async function toldInChromium(page: P, name = '') {
   const cdp = await page.context().newCDPSession(page);
   await cdp.send('Accessibility.enable');
   const { nodes } = await cdp.send('Accessibility.getFullAXTree');
   await cdp.detach();
   const byNode = new Map(nodes.map((node) => [node.backendDOMNodeId, node]));
-  const said = (node: (typeof nodes)[number]) => `${String(node.role?.value)} "${String(node.name?.value ?? '')}"`;
+  const said = (node: (typeof nodes)[number]) => `${String(node.role?.value)} "${String(node.name?.value ?? '')}"${node.description?.value ? ` (${String(node.description.value)})` : ''}`;
   const field = nodes.find((node) => !node.ignored && ['searchbox', 'combobox'].includes(String(node.role?.value)) && (node.properties ?? []).some((property) => property.name === 'focused' && property.value.value === true));
   const relation = field?.properties?.find((property) => property.name === 'activedescendant');
   const active = relation ? byNode.get(relation.value.relatedNodes?.[0]?.backendDOMNodeId) : undefined;
-  return { field: field ? said(field) : null, active: active ? said(active) : null };
+  return { field: field ? said(field) : null, active: active ? said(active) : null, ...(name ? { named: nodes.filter((node) => !node.ignored && node.name?.value === name).map(said).sort() } : {}) };
 }
 
 test.describe('trigger', () => {
@@ -2241,7 +2260,7 @@ test.describe('results', () => {
     await page.mouse.move(0, 0);
     await input(page, 'some').focus();
     for (const key of ['ArrowDown', 'ArrowDown', 'ArrowDown']) await page.keyboard.press(key);
-    await expect(two).toBeFocused();
+    await expect(anchor(page, 'some', 'two')).toBeFocused();
     await expect.poll(() => css(headline, 'color')).toBe('rgb(0, 200, 0)');
     expect(await css(two, 'background-color')).toBe(await resolveColor(page, S('focused-suggestion-container-color')));
     // The ring: inside the row, never transitioned.
@@ -2303,7 +2322,7 @@ test.describe('results', () => {
     // Exposed as one text, the result's description; the headline is never marked; nothing is trimmed or shortened.
     const whole = 'Tokens of the button: its heights, corners and colors in each state, and the motion that takes one to the next.';
     await expect(page.getByRole('link', { name: 'Button', exact: true }).first()).toHaveAccessibleDescription(whole);
-    await expect(slotted).toHaveAttribute('aria-description', whole);
+    await expect(anchor(page, 's', 'slotted')).toHaveAttribute('aria-description', whole);
     await expect(own.locator('.headline mark')).toHaveCount(0);
     expect(await own.locator('.excerpt').evaluate((el) => el.textContent)).toBe(runs.join(''));
     expect(await css(own.locator('.excerpt'), 'unicode-bidi')).toBe('plaintext');
@@ -2321,8 +2340,11 @@ test.describe('results', () => {
     expect([await lines(own.locator('.excerpt')), await bounds(own), await bounds(slotted)]).toEqual(before);
     // The product's content replaces the runs, and is followed as it changes.
     await host(page, 's').evaluate((el) => (el.querySelector('[value="plain"]')!.innerHTML = 'Now <mark>marked</mark> by the product.'));
-    await expect(link(page, 's', 'plain')).toHaveAttribute('aria-description', 'Now marked by the product.');
-    await expect(link(page, 's', 'plain').locator('slot')).toHaveCount(1);
+    await expect(anchor(page, 's', 'plain')).toHaveAttribute('aria-description', 'Now marked by the product.');
+    await expect(link(page, 's', 'plain').locator('.excerpt slot')).toHaveCount(1);
+    // The product's content that replaced every child took the control with it: the result made it again, and it is still the link.
+    await expect(anchor(page, 's', 'plain')).toHaveAttribute('href', '/plain');
+    await expect(page.getByRole('link', { name: 'Plain', exact: true })).toHaveCount(1);
   });
 
   test('SRC-44: a group is its heading and then its results, group.gap from what stands above and below it; without href the heading is a quiet title that takes no input, with one it is a result’s row and its results step in by group.indent, hit areas with them; right to left mirrors the inset', async ({ page }) => {
@@ -2382,7 +2404,7 @@ test.describe('results', () => {
     await host(page, 'g').evaluate((el) =>
       el.insertAdjacentHTML('beforeend', '<tanrei-search-result-group value="/x/" headline="Page" href="/x/">A page about <mark>tokens</mark>.<tanrei-search-result value="/x/#y" headline="Part" href="/x/#y"></tanrei-search-result></tanrei-search-result-group>'),
     );
-    await expect(heading(page, 'g', '/x/')).toHaveAttribute('aria-description', 'A page about tokens.');
+    await expect(headingAnchor(page, 'g', '/x/')).toHaveAttribute('aria-description', 'A page about tokens.');
     expect(await css(host(page, 'g').locator('tanrei-search-result-group[value="/x/"] > mark'), 'color')).toBe(await resolveColor(page, T('result-mark-color')));
     await expect(link(page, 'g', '/x/#y')).toBeVisible();
   });
@@ -2404,15 +2426,17 @@ test.describe('results', () => {
       await page.evaluate(() => ((window as any).nav.length = 0));
     };
     await open();
-    const pipeline = link(page, 's', '/tokens/#pipeline');
+    const pipeline = anchor(page, 's', '/tokens/#pipeline');
     expect(await pipeline.evaluate((el) => [el.localName, el.getAttribute('href'), el.getAttribute('target'), el.getAttribute('rel'), el.getAttribute('role')])).toEqual(['a', '/tokens/#pipeline', null, null, null]);
-    expect(await heading(page, 's', '/tokens/').evaluate((el) => [el.localName, el.getAttribute('href')])).toEqual(['a', '/tokens/']);
+    expect(await headingAnchor(page, 's', '/tokens/').evaluate((el) => [el.localName, el.getAttribute('href')])).toEqual(['a', '/tokens/']);
+    // The link covers its whole row, which draws it: a press anywhere on the row is a press on the link.
+    expect(await bounds(pipeline)).toEqual(await bounds(link(page, 's', '/tokens/#pipeline')));
     // A new context: no handle to the page that opened it, said after the excerpt, and no mark drawn for it.
-    const ext = link(page, 's', 'ext');
+    const ext = anchor(page, 's', 'ext');
     expect(await ext.evaluate((el) => [el.getAttribute('target'), el.getAttribute('rel')])).toEqual(['_blank', 'noopener']);
     await expect(ext).toHaveAttribute('aria-description', 'What changed in 2.0., opens in a new tab');
-    await expect(ext.locator('.icon')).toHaveCount(1);
-    expect(await ext.evaluate((el) => el.textContent)).not.toContain('open_in_new');
+    await expect(link(page, 's', 'ext').locator('.icon')).toHaveCount(1);
+    expect(await link(page, 's', 'ext').evaluate((el) => el.textContent)).not.toContain('open_in_new');
     // In place, by a press: select with its value, then the link is followed, then the view closes (toggle follows select).
     await pipeline.click();
     expect(await log(page)).toEqual(['select:/tokens/#pipeline', 'toggle:false:select:false']);
@@ -2447,14 +2471,14 @@ test.describe('results', () => {
     await pipeline.evaluate((el) => el.dispatchEvent(new MouseEvent('auxclick', { bubbles: true, composed: true, cancelable: true, button: 1 })));
     expect([await log(page), await prop(s, 'expanded')]).toEqual([[], true]);
     // Without an href it is a button, for which select is all that happens — by a press, Enter or Space.
-    const plain = link(page, 's', 'plain');
+    const plain = anchor(page, 's', 'plain');
     expect(await plain.evaluate((el) => [el.localName, el.getAttribute('type'), el.hasAttribute('href')])).toEqual(['button', 'button', false]);
     await expect(plain).toHaveAttribute('aria-description', 'Runs in the product.');
     await plain.focus();
     await page.keyboard.press('Space');
     expect(await log(page)).toEqual(['select:plain', 'toggle:false:select:false']);
     // An address that names a script is no destination: a button too.
-    expect(await link(page, 's', 'script').evaluate((el) => [el.localName, el.hasAttribute('href')])).toEqual(['button', false]);
+    expect(await anchor(page, 's', 'script').evaluate((el) => [el.localName, el.hasAttribute('href')])).toEqual(['button', false]);
   });
 
   test('SRC-46: the view’s content is laid out from top to bottom as the suggestions, the status row, the results and groups in the product’s order, then the default slot’s content — whatever the order of the children — and an absent part takes no room', async ({ page }) => {
@@ -2647,7 +2671,7 @@ test.describe('keys through results', () => {
     expect(await focused(page)).toBe('a@search-result:/components/button/');
   });
 
-  test('SRC-49, SRC-42, SRC-50: with results and no suggestion the first result is current from the moment the view shows it — drawn as focused while focus stays in the input, never an active descendant — and one Enter there activates it as Enter on it does: select, then the link followed unless select was cancelled; Up Arrow leaves none, and Enter submits; while an input method composes none is current', async ({ page }) => {
+  test('SRC-49, SRC-42, SRC-50: with results and no suggestion the first result is current from the moment the view shows it — drawn as focused while focus stays in the input, never an active descendant, its own link said once — and one Enter there activates it as Enter on it does: select, then the link followed unless select was cancelled; Up Arrow leaves none, and Enter submits; while an input method composes none is current', async ({ page, browserName }) => {
     await mountSite(page, [site('s'), site('b', {}, [{ kind: 'result', props: { value: 'cmd', headline: 'A command' } }, result('after', 'After')])]);
     const s = host(page, 's');
     await override(page, { [S('focused-suggestion-headline-color')]: 'rgb(0, 200, 0)' });
@@ -2662,9 +2686,17 @@ test.describe('keys through results', () => {
     expect(await px(first, 'outline-offset')).toBeLessThan(0);
     await expect(link(page, 's', '/tokens/#pipeline')).not.toHaveAttribute('data-current', /.*/);
     // Not an active descendant, and the input stays a search box (SRC-50); the status row says what was found (SRC-48).
-    await expect(field).not.toHaveAttribute('aria-activedescendant', /.*/);
+    // Its own link is the one node there is for it — the row's drawn text is hidden, so nothing says it twice.
+    expect(await activeDescendant(field)).toBeNull();
     await expect(field).not.toHaveAttribute('role', /.*/);
     await expect(page.getByRole('searchbox', { name: 'Search the docs' })).toHaveCount(1);
+    if (browserName === 'chromium') {
+      expect(await toldInChromium(page, 'Design tokens')).toEqual({
+        field: 'searchbox "Search the docs"',
+        active: null,
+        named: ['group "Design tokens"', 'link "Design tokens" (Colors, sizes and motion as tokens, in three tiers.)'],
+      });
+    }
     // One Enter: select, then the browser follows the link, then the view closes.
     await wire(s);
     await page.keyboard.press('Enter');
@@ -2684,17 +2716,20 @@ test.describe('keys through results', () => {
     await wire(s);
     await page.keyboard.press('ArrowUp');
     await expect(first).not.toHaveAttribute('data-current', /.*/);
+    expect(await activeDescendant(field)).toBeNull();
     await page.keyboard.press('Enter');
     expect(await log(page)).toEqual(['submit:token']);
     // Typing makes the first current again; while an input method composes none is.
     await page.keyboard.type('s');
     await expect(first).toHaveAttribute('data-current', '');
+    expect(await activeDescendant(field)).toBeNull();
     await field.evaluate((el: HTMLInputElement) => {
       el.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, composed: true }));
       el.value = 'tokensか';
       el.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true, isComposing: true, inputType: 'insertCompositionText', data: 'か' }));
     });
     await expect(first).not.toHaveAttribute('data-current', /.*/);
+    expect(await activeDescendant(field)).toBeNull();
     const enter = await field.evaluate((el) => {
       const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, composed: true, cancelable: true, isComposing: true, keyCode: 229 });
       el.dispatchEvent(event);
@@ -2708,6 +2743,7 @@ test.describe('keys through results', () => {
     await tab(page, { back: true });
     await expect(s.locator('.header .back button')).toBeFocused();
     await expect(first).not.toHaveAttribute('data-current', /.*/);
+    expect(await activeDescendant(field)).toBeNull();
     await page.keyboard.press('Escape');
     // A result without href is a button: Enter in the input is its activation, for which select is all that happens.
     await trigger(page, 'b').click();
@@ -2896,7 +2932,7 @@ test.describe('results: semantics and the product’s data', () => {
       const inner = group.shadowRoot!.querySelector('.group')!;
       return {
         items: [...el.querySelectorAll(':scope > [slot="result"]')].map((item) => `${item.localName}:${item.getAttribute('role')}`),
-        group: [inner.getAttribute('role'), inner.getAttribute('aria-label'), [...inner.children].map((child) => child.getAttribute('role') ?? child.localName)],
+        group: [inner.getAttribute('role'), inner.getAttribute('aria-label'), [...inner.children].map((child) => child.getAttribute('role') ?? child.querySelector('slot')?.assignedElements()[0]?.localName)],
         parts: [...group.querySelectorAll('tanrei-search-result')].map((item) => item.getAttribute('role')),
         icons: [...el.querySelectorAll('tanrei-search-result')].every((item) => item.shadowRoot!.querySelector('.icon')?.getAttribute('aria-hidden') === 'true'),
         options: [el, ...el.querySelectorAll('*')].flatMap((item) => [...(item.shadowRoot?.querySelectorAll('[role="option"]') ?? [])]).length,
@@ -2909,7 +2945,8 @@ test.describe('results: semantics and the product’s data', () => {
       icons: true,
       options: 0,
     });
-    await expect(page.getByRole('group', { name: 'Design tokens' }).getByRole('link')).toHaveCount(1);
+    // The linked heading is one link, the group's own child slotted into the heading's row.
+    await expect(page.getByRole('link', { name: 'Design tokens', exact: true })).toHaveCount(1);
     // A focused result is never the input's active descendant.
     await page.keyboard.press('ArrowDown');
     await expect(headerInput(page, 's')).not.toHaveAttribute('aria-activedescendant', /.*/);
@@ -3029,7 +3066,7 @@ test.describe('results: semantics and the product’s data', () => {
     await page.keyboard.press('ArrowDown');
     await expect.poll(() => prop(m, 'expanded')).toBe(true);
     await page.keyboard.press('ArrowDown');
-    await expect(link(page, 'm', 'a')).toBeFocused();
+    await expect(anchor(page, 'm', 'a')).toBeFocused();
     await m.evaluate((el: HTMLElement) => el.focus({ preventScroll: true }));
     await expect(input(page, 'm')).toBeFocused();
     expect(await prop(m, 'expanded')).toBe(true);
@@ -3277,7 +3314,7 @@ test.describe('site search: reach and cost', () => {
       const painted = performance.now() - start;
       const after = count();
       const rows = el.querySelectorAll('tanrei-search-result, tanrei-search-result-group').length;
-      const links = [...el.querySelectorAll('tanrei-search-result, tanrei-search-result-group')].filter((item: any) => item.shadowRoot.querySelector('a[href]')).length;
+      const links = [...el.querySelectorAll('tanrei-search-result, tanrei-search-result-group')].filter((item: any) => item.querySelector(':scope > a[href]')).length;
       EventTarget.prototype.addEventListener = add;
       MutationObserver.prototype.observe = observe;
       ResizeObserver.prototype.observe = resize;

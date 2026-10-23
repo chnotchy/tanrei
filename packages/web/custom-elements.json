@@ -37953,7 +37953,7 @@
         },
         {
           "kind": "class",
-          "description": "What a result and a linked group heading share (SRC-42 … SRC-45): the destination props of a link, the row — a\nsuggestion's row, drawn by the element because the row is its own `<a>` — and the excerpt with its marks. It holds no\nlistener of its own: the search it is in answers its press, its keys and its activation.",
+          "description": "What a result and a linked group heading share (SRC-42 … SRC-45): the destination props of a link, the row — a\nsuggestion's row, drawn by the element in its shadow root — its control, and the excerpt with its marks. The control\nis the element's own `<a>` (a `<button>` without a destination) in its light DOM, slotted over the row, so that the\nsearch's input can name it as its active descendant (SRC-50): an element in a shadow root of its own is out of reach\nof the input's `aria-activedescendant`, and of the element reflection that crosses into the document. It holds no\nlistener of its own: the search it is in answers its press, its keys and its activation.",
           "name": "TanreiSearchRow",
           "members": [
             {
@@ -38067,7 +38067,7 @@
                   }
                 }
               ],
-              "description": "`element.focus()` focuses the row."
+              "description": "`element.focus()` focuses the row's control."
             }
           ],
           "attributes": [
@@ -38330,7 +38330,7 @@
                   }
                 }
               ],
-              "description": "`element.focus()` focuses the row.",
+              "description": "`element.focus()` focuses the row's control.",
               "inheritedFrom": {
                 "name": "TanreiSearchRow",
                 "module": "src/components/search/search.ts"
@@ -38648,7 +38648,7 @@
                   }
                 }
               ],
-              "description": "`element.focus()` focuses the row.",
+              "description": "`element.focus()` focuses the row's control.",
               "inheritedFrom": {
                 "name": "TanreiSearchRow",
                 "module": "src/components/search/search.ts"

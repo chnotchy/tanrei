@@ -7838,8 +7838,15 @@ so a person with neither Escape nor a pointer can leave. Both fade over the open
 `transition-behavior: allow-discrete` are missing the view leaves at once.
 
 **Results (SRC-42…46, SRC-49, SRC-50).** `<tanrei-search-result>` draws a suggestion's row from the suggestion tokens in
-its own shadow root, because the row is its own `<a href>` (a `<button>` without `href`, or with a `javascript:` one).
-The browser follows the link: Enter and a press activate it, a modifier key or the middle button opens a tab, the context
+its own shadow root. Its link is its own `<a href>` (a `<button>` without `href`, or with a `javascript:` one), which the
+element keeps as its **first child in the light DOM**, slotted over the whole row and drawn as nothing — `all: unset` and
+an absolute inset of 0, set through the CSSOM as important, so a page's rules for anchors and buttons neither move nor
+paint it; the row draws the focus the link shows (`:focus-visible`), and the row's own text is hidden from assistive
+technology, so the link is the one node said. It is a child of the document, not of the result's shadow root, so that the
+search's input can name it as its active descendant by element reflection (`ariaActiveDescendantElement`): an id cannot
+cross a shadow root, and reflection reaches out into the document, never into another shadow root. Content that replaces
+every child (a framework setting `textContent`) takes the link with it, and the element makes it again. A linked group
+heading keeps its link the same way. The browser follows the link: Enter and a press activate it, a modifier key or the middle button opens a tab, the context
 menu and the status bar are its own; `target="new"` is `target="_blank"` with `noopener` in `rel` (`rel` and `download`
 are forwarded), and `target-label` is read after the excerpt. **The excerpt is the element's child content** — text
 with `<mark>` around the matches, styled through `::slotted(mark)`; putting an engine's HTML there is your act — or,
