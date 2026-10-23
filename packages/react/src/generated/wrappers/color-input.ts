@@ -18,8 +18,8 @@ const ColorInputElement = /* @__PURE__ */ createComponent({
   react: React,
   events: {
     onChange: 'change' as EventName<TanreiEvent<TanreiColorInputElement>>,
-    onEntryerror: 'entryerror' as EventName<TanreiEvent<TanreiColorInputElement, CustomEvent<TanreiColorInputEntryErrorDetail>>>,
-    onPickerrequest: 'pickerrequest' as EventName<TanreiEvent<TanreiColorInputElement, CustomEvent<TanreiColorInputPickerRequestDetail>>>,
+    onEntryError: 'entryerror' as EventName<TanreiEvent<TanreiColorInputElement, CustomEvent<TanreiColorInputEntryErrorDetail>>>,
+    onPickerRequest: 'pickerrequest' as EventName<TanreiEvent<TanreiColorInputElement, CustomEvent<TanreiColorInputPickerRequestDetail>>>,
   },
 });
 const withColorInputMarks = /* @__PURE__ */ withMarks<ColorInputMarks>([], ['form']);
@@ -28,7 +28,7 @@ const withColorInputMarks = /* @__PURE__ */ withMarks<ColorInputMarks>([], ['for
  *
  * Events:
  * - `onChange` (`change`) — The person committed a changed value: focus left the input, Enter was pressed, or the browser's picker closed. `value` is already the new one. Composed and bubbling. Never fired when the product sets `value`.
- * - `onEntryerror` (`entryerror`) — The person committed a text that is not empty and is not a color. `detail.text` is the text as typed, `detail.message` is `invalidText` — empty where the product gave none. Composed and bubbling.
- * - `onPickerrequest` (`pickerrequest`) — The person activated the picker button. `detail.value` is the value. Cancelable: `preventDefault()` keeps the input from presenting the browser's picker; the product then presents its own surface and sets `value`. Composed and bubbling.
+ * - `onEntryError` (`entryerror`) — The person committed a text that is not empty and is not a color. `detail.text` is the text as typed, `detail.message` is `invalidText` — empty where the product gave none. Composed and bubbling.
+ * - `onPickerRequest` (`pickerrequest`) — The person activated the picker button. `detail.value` is the value. Cancelable: `preventDefault()` keeps the input from presenting the browser's picker; the product then presents its own surface and sets `value`. Composed and bubbling.
  */
 export const ColorInput: Marked<typeof ColorInputElement, ColorInputMarks> = /* @__PURE__ */ withColorInputMarks(ColorInputElement);

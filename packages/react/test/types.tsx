@@ -10,12 +10,14 @@ import {
   ButtonGroup,
   Checkbox,
   ColorField,
+  CopyButton,
   Dialog,
   FileItem,
   FileUpload,
   List,
   ListItem,
   MenuItem,
+  NavigationDrawer,
   NumberField,
   RadioButton,
   RadioGroup,
@@ -23,11 +25,13 @@ import {
   SearchResult,
   Select,
   Slider,
+  Snackbar,
   SnackbarHost,
   Switch,
   Tab,
   TabPanel,
   TabView,
+  Table,
   Tabs,
   type TanreiEvent,
   type TanreiWords,
@@ -175,11 +179,35 @@ export const details = (
     <Slider label="Volume" onInput={(event) => use(event.detail.value satisfies number, event.currentTarget.value)} onChange={(event) => use(event.detail.value)} />
     <NumberField label="Radius" onInput={(event) => use(event.detail.value satisfies number | null)} onChange={(event) => use(event.currentTarget.value)} />
     {/* The bare number input, and the composed field's value: each a number or null. */}
-    <NumberInput label="Scale" name="scale" form="order" noSteppers onInput={(event) => use(event.detail.value satisfies number | null)} onChange={(event) => use(event.currentTarget.value satisfies number | null)} onEntryerror={(event) => use(event.detail.text satisfies string)} />
+    <NumberInput label="Scale" name="scale" form="order" noSteppers onInput={(event) => use(event.detail.value satisfies number | null)} onChange={(event) => use(event.currentTarget.value satisfies number | null)} onEntryError={(event) => use(event.detail.text satisfies string)} />
     {/* A native event without one stays React's: the search's input is its synthetic event. */}
     <Search label="Search" onInput={(event) => use(event.nativeEvent, event.currentTarget.value)} onSelect={(event) => use(event.detail.value)}>
       <SearchResult value="/tokens/" headline="Tokens" />
     </Search>
+  </>
+);
+
+// An event prop is `on` and the event's name in camelCase, as React names its own (`onKeyDown`); the element fires the
+// event in lowercase (`expandedchange`), as the platform names its own (`selectionchange`).
+export const eventNames = (
+  <>
+    <NavigationDrawer onExpandedChange={(event) => use(event.detail.expanded satisfies boolean)} onPresentationChange={(event) => use(event.currentTarget)} />
+    <Snackbar message="Saved" onExpandedChange={(event) => use(event.detail.expanded satisfies boolean)} />
+    <CopyButton text="pnpm add @tanrei/react" label="Copy" onCopied={(event) => use(event.currentTarget.text)} onCopyFailed={(event) => use(event.detail.reason)} />
+    <TextField label="Date" type="date" onPickerRequest={(event) => use(event.detail.value satisfies string)} onEntryError={(event) => use(event.detail.text satisfies string)} />
+    <Table onSelectionChange={(event) => use(event.currentTarget)} />
+    {/* A dialog's `cancel` is the platform's own one-word event. */}
+    <Dialog headline="Discard draft?" onCancel={(event) => use(event.currentTarget.open)} />
+    {/* @ts-expect-error the event's name is camelCase: onExpandedChange */}
+    <NavigationDrawer onExpandedchange={() => use()} />
+    {/* @ts-expect-error the event's name is camelCase: onExpandedChange */}
+    <Snackbar message="Saved" onExpandedchange={() => use()} />
+    {/* @ts-expect-error the event's name is camelCase: onCopyFailed */}
+    <CopyButton text="x" onCopyfailed={() => use()} />
+    {/* @ts-expect-error the event's name is camelCase: onEntryError */}
+    <TextField label="Date" onEntryerror={() => use()} />
+    {/* @ts-expect-error the event's name is camelCase: onSelectionChange */}
+    <Table onSelectionchange={() => use()} />
   </>
 );
 

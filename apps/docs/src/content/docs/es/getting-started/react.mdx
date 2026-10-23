@@ -2,7 +2,7 @@
 title: React
 description: Componentes de React con tipos, generados a partir de los Web Components de Tanrei.
 translationOf: getting-started/react.mdx
-sourceHash: bbf537930ba2e1a31eb506876e8a8ab25ac3c6a3
+sourceHash: c0c841b6e6aeb6c0b3a2c71ef99d5f54268d0991
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -63,7 +63,7 @@ export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
 }
 ```
 
-Las propiedades llevan los mismos nombres que los atributos del elemento (`variant`, `size`, `disabled`). Los eventos son controladores de eventos de React corrientes.
+Las propiedades llevan los mismos nombres que los atributos del elemento (`variant`, `size`, `disabled`). Los eventos son controladores de eventos de React corrientes. Un evento propio del elemento se escucha con `on` y el nombre del evento en camel case, como React nombra los suyos (`onKeyDown`): un cajón de navegación emite `expandedchange`, y se escucha con `onExpandedChange`.
 
 `@tanrei/web/words/en` da un texto en inglés llano para cada etiqueta y cada mensaje que los componentes dibujan o dicen, como el de un tag de obligatorio o el nombre de un botón de cerrar; prescinde de él y da los tuyos con `setWords()` de `@tanrei/react`. Consulta [Textos](/es/foundations/words/).
 

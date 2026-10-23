@@ -2,7 +2,7 @@
 title: カルーセル
 description: フォーカスのある 1 つの項目を中心に横へスクロールするビジュアルの項目の列で、各項目はそれが示すものを開きます。目玉の列は、ループし、位置をドットで示し、自動で進むこともできます。
 translationOf: components/carousel.mdx
-sourceHash: 9e3187c84cf7ad11c87e041a77ec3b2d997a9e5e
+sourceHash: 456f22fc35f1b413823ac47def1b7dcdec2ed432
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -82,7 +82,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
     </Carousel>
 
     <Carousel label="おすすめの散歩道" loop indicator autoplay paused={paused}
-      onPausedchange={(e) => setPaused(e.detail.paused)}
+      onPausedChange={(e) => setPaused(e.detail.paused)}
       previousLabel="前の散歩道" nextLabel="次の散歩道"
       playLabel="スライドショーを再生" pauseLabel="スライドショーを一時停止">
       {featured.map((walk) => <CarouselItem key={walk.id} label={walk.label} onClick={() => openWalk(walk)}><img src={walk.image} alt="" /></CarouselItem>)}

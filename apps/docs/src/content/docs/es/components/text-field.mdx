@@ -114,8 +114,8 @@ Es un bloque tan ancho como el lugar en el que se pone, y su caja lo llena. No t
       picker
       pickerLabel="Elegir fecha de inicio"
       onChange={(e) => setStart(e.currentTarget.value)}
-      onEntryerror={(e) => report(e.detail.reason)}
-      onPickerrequest={() => setPickerOpen(true)}
+      onEntryError={(e) => report(e.detail.reason)}
+      onPickerRequest={() => setPickerOpen(true)}
     />
     ```
   </TabItem>

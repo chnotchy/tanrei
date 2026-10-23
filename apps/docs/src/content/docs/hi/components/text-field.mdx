@@ -114,8 +114,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       picker
       pickerLabel="शुरू होने की तारीख़ चुनें"
       onChange={(e) => setStart(e.currentTarget.value)}
-      onEntryerror={(e) => report(e.detail.reason)}
-      onPickerrequest={() => setPickerOpen(true)}
+      onEntryError={(e) => report(e.detail.reason)}
+      onPickerRequest={() => setPickerOpen(true)}
     />
     ```
   </TabItem>

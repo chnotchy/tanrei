@@ -2,7 +2,7 @@
 title: Vista previa de imágenes
 description: Muestra una imagen de un conjunto a toda la ventana cuando una persona pulsa su miniatura, para verla de cerca —ampliarla y volver, moverse por ella mientras está ampliada, y pasar a la imagen siguiente o a la anterior— hasta que se cierra.
 translationOf: components/image-preview.mdx
-sourceHash: cf3abaf4200c8a573c2daf0b205f42be76a4a5ab
+sourceHash: e96ae85ed4881dbba6ec6a53785b75f08794dbf3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -104,7 +104,7 @@ Cada imagen tiene un `src`, que es la imagen tal como la muestra la vista previa
       closeLabel="Cerrar" zoomInLabel="Acercar" zoomOutLabel="Alejar"
       previousLabel="Imagen anterior" nextLabel="Imagen siguiente" countText="{position} de {count}"
       loadingLabel="Cargando imagen" errorText="No se pudo cargar esta imagen"
-      onIndexchange={(event) => setShown(event.detail.index)}
+      onIndexChange={(event) => setShown(event.detail.index)}
       onClose={() => setShown(null)}>
       {photos.map((photo) => (
         <ImagePreviewItem key={photo.id} src={photo.large} thumbnailSrc={photo.small}

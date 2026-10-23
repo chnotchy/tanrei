@@ -2,7 +2,7 @@
 title: React
 description: Tanrei の Web Components から生成した、型付きの React コンポーネント。
 translationOf: getting-started/react.mdx
-sourceHash: bbf537930ba2e1a31eb506876e8a8ab25ac3c6a3
+sourceHash: c0c841b6e6aeb6c0b3a2c71ef99d5f54268d0991
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -63,7 +63,7 @@ export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
 }
 ```
 
-プロパティの名前は、要素の属性と同じです（`variant`、`size`、`disabled`）。イベントは、通常の React のハンドラーです。
+プロパティの名前は、要素の属性と同じです（`variant`、`size`、`disabled`）。イベントは、通常の React のハンドラーです。要素が独自に出すイベントは、React 自身のイベントと同じく、`on` にイベント名をキャメルケースで続けた名前で受け取ります（`onKeyDown` と同じ形）。ナビゲーションドロワーが出す `expandedchange` は `onExpandedChange` です。
 
 `@tanrei/web/words/en` は、コンポーネントが描いたり読み上げたりするラベルとメッセージ（必須のタグや閉じるボタンの名前など）のすべてに、平易な英語の言葉を渡します。使わずに、`@tanrei/react` の `setWords()` で自分の言葉を渡してもかまいません。[言葉](/ja/foundations/words/)を参照してください。
 

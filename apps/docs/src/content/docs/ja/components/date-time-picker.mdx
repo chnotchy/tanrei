@@ -2,7 +2,7 @@
 title: DateTimePicker
 description: 日付、時刻、日時、またはそれぞれの期間を、カレンダーと時刻のホイールや時計の文字盤から選べるようにします。ダイアログとして、またはフィールドの下に開くサーフェスとして表示します。
 translationOf: components/date-time-picker.mdx
-sourceHash: a166f2e23305635f24636ae2e11d2163bcebe5aa
+sourceHash: b20ac5ee4e3e21be0e6515467b45bd460309076c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -107,7 +107,7 @@ Web コンポーネントは、このページの説明どおりにピッカー�
       picker
       pickerLabel="日付を選択"
       onChange={(e) => setDue(e.currentTarget.value)}
-      onPickerrequest={() => setOpen(true)}
+      onPickerRequest={() => setOpen(true)}
     />
     <DateTimePicker
       presentation="docked"

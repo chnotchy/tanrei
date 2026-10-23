@@ -13,7 +13,7 @@ import { TanreiCodeBlock as TanreiCodeBlockElement, type TanreiCodeBlockCopiedDe
  *
  * Events:
  * - `onCopied` (`copied`) — The code was copied by the block's copy button; `detail.text` is the text that was copied.
- * - `onCopyfailed` (`copyfailed`) — The platform refused the copy asked for by the block's copy button; `detail.reason` is its reason, where it gave one.
+ * - `onCopyFailed` (`copyfailed`) — The platform refused the copy asked for by the block's copy button; `detail.reason` is its reason, where it gave one.
  */
 export const CodeBlock = /* @__PURE__ */ createComponent({
   tagName: 'tanrei-code-block',
@@ -21,6 +21,6 @@ export const CodeBlock = /* @__PURE__ */ createComponent({
   react: React,
   events: {
     onCopied: 'copied' as EventName<TanreiEvent<TanreiCodeBlockElement, CustomEvent<TanreiCodeBlockCopiedDetail>>>,
-    onCopyfailed: 'copyfailed' as EventName<TanreiEvent<TanreiCodeBlockElement, CustomEvent<TanreiCodeBlockCopyFailedDetail>>>,
+    onCopyFailed: 'copyfailed' as EventName<TanreiEvent<TanreiCodeBlockElement, CustomEvent<TanreiCodeBlockCopyFailedDetail>>>,
   },
 });

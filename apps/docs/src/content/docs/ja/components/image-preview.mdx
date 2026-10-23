@@ -2,7 +2,7 @@
 title: 画像プレビュー
 description: ユーザーがサムネイルを押すと、一連の画像のうち 1 枚をウィンドウ全体に表示します。拡大して元に戻す、拡大したまま動かす、次の画像や前の画像へ移るといった操作で細部まで見られ、閉じるまで表示が続きます。
 translationOf: components/image-preview.mdx
-sourceHash: cf3abaf4200c8a573c2daf0b205f42be76a4a5ab
+sourceHash: e96ae85ed4881dbba6ec6a53785b75f08794dbf3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -104,7 +104,7 @@ Web では `<tanrei-image-preview>` で、子に `<tanrei-image-preview-item>` �
       closeLabel="閉じる" zoomInLabel="拡大" zoomOutLabel="縮小"
       previousLabel="前の画像" nextLabel="次の画像" countText="{count}枚中{position}枚目"
       loadingLabel="画像を読み込んでいます" errorText="この画像を読み込めませんでした"
-      onIndexchange={(event) => setShown(event.detail.index)}
+      onIndexChange={(event) => setShown(event.detail.index)}
       onClose={() => setShown(null)}>
       {photos.map((photo) => (
         <ImagePreviewItem key={photo.id} src={photo.large} thumbnailSrc={photo.small}

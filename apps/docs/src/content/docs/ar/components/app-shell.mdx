@@ -2,7 +2,7 @@
 title: هيكل التطبيق
 description: يؤطّر صفحة أو تطبيقًا. يضع الترويسة والتنقل والمحتوى الرئيسي والمنطقة الجانبية والتذييل في أماكنها، ويقرّر من عرض النافذة كيف يُعرض كل منها، ويتيح للوحة المفاتيح بلوغ المحتوى في خطوة واحدة.
 translationOf: components/app-shell.mdx
-sourceHash: a8a52a001fa0dfb12850fc417ba8b268b9b50b6b
+sourceHash: 9045a147596e331dff0cc341434cf2feac3602a5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -54,7 +54,7 @@ import ComponentAccessibility from '../../../../components/ComponentAccessibilit
     import { AppBar, AppShell, Button, NavigationDrawer } from '@tanrei/react';
     import '@tanrei/web/app-shell.css';
 
-    <AppShell asideLabel="في هذه الصفحة" onWindowclasschange={(event) => setWindowClass(event.detail.windowClass)}>
+    <AppShell asideLabel="في هذه الصفحة" onWindowClassChange={(event) => setWindowClass(event.detail.windowClass)}>
       <a className="tanrei-link" data-standalone slot="skip-link" href="#main">التخطّي إلى المحتوى</a>
       <header slot="header">
         <AppBar headline="Tanrei">

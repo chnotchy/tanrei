@@ -2,7 +2,7 @@
 title: درج التنقل
 description: يسرد وجهات المنتج في لوحة عند حافة البداية، في أقسام ومجموعات، بجانب المحتوى على شاشة كبيرة أو فوقه على شاشة مضغوطة، ويمكن أن يُطوى إلى عمود من الأيقونات.
 translationOf: components/navigation-drawer.mdx
-sourceHash: 6b5906890ce701b55375672b7848c317fc45c977
+sourceHash: 5a0659850fec34d28617357f9478089babbb3c8f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -217,7 +217,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
         e.preventDefault(); // موجِّه من جهة العميل يتولى التنقل
         navigate(e.detail.href);
       }}
-      onPresentationchange={(e) => setPresentation(e.detail.presentation)}
+      onPresentationChange={(e) => setPresentation(e.detail.presentation)}
     >
       <NavigationDrawerGroup label="المكوّنات">
         <NavigationDrawerItem label="الزر" href="/components/button/" />
