@@ -1,0 +1,8 @@
+---
+// Theme Studio's page in English, the language of the site's root (components/StudioPage.astro says what it is). Each
+// other language has the same page under its folder (pages/[locale]/studio/index.astro).
+import StudioPage from '../../components/StudioPage.astro';
+import { source } from '../../../i18n/locales.mjs';
+---
+
+<StudioPage dir={source.dir} lang={source.lang} />

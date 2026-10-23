@@ -1,0 +1,10 @@
+---
+// Theme Studio's page in each language but the root's (components/StudioPage.astro says what it is).
+import StudioPage from '../../../components/StudioPage.astro';
+import { translations } from '../../../../i18n/locales.mjs';
+
+export const getStaticPaths = () => translations.map(({ dir, lang, direction }) => ({ params: { locale: dir }, props: { dir, lang, direction } }));
+const { dir, lang, direction } = Astro.props;
+---
+
+<StudioPage dir={dir} lang={lang} direction={direction} />

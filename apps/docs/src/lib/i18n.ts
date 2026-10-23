@@ -57,6 +57,9 @@ const en = {
   // first page and the button that opens the search.
   fileTree: { label: 'Files and folders' },
   notFound: { title: 'This page does not exist', text: 'The address may be mistyped, or the page may have moved.', home: 'Go to the start page', search: 'Search the docs' },
+  // Theme Studio's page (components/StudioPage.astro), which stands outside the documentation's frame: the document's
+  // title and description, the name of the brand's link back to the documentation, and the link to the page about the tool.
+  studioPage: { title: 'Theme Studio · Tanrei', description: 'Make a theme for Tanrei: move a few controls, watch real components follow, and export one layer file that builds for every platform.', back: 'Back to the documentation', about: 'About Theme Studio' },
   availability: 'Availability',
   variantsNotShippedIn: 'Variants not shipped in',
   // The choice of design system the lists of components show (components/SystemSelect.astro) and the index's line of
@@ -330,6 +333,7 @@ const ja: typeof en = {
   wordKeys: { table: 'プロダクトの言葉のキー', key: 'キー', readBy: '読み取るプロパティ', places: '埋める場所', english: '英語の言葉のパック' },
   fileTree: { label: 'ファイルとフォルダー' },
   notFound: { title: 'このページは存在しません', text: 'アドレスの入力が間違っているか、ページが移動した可能性があります。', home: 'トップページへ', search: 'ドキュメントを検索' },
+  studioPage: { title: 'Theme Studio · Tanrei', description: 'Tanrei のテーマを作ります。いくつかの操作で本物のコンポーネントが変わるのを確かめ、すべてのプラットフォーム向けにビルドできるレイヤーファイルを 1 つ書き出します。', back: 'ドキュメントに戻る', about: 'Theme Studio について' },
   availability: '提供状況',
   variantsNotShippedIn: '提供しないバリアント',
   system: { choice: 'デザインシステム', notIn: '{system} にないもの:', insteadUse: '{component}（代わりに {components}）', noteTitle: 'すべてのデザインシステムにあるわけではありません', has: '{systems} にあり、{entries} が登録します。', lacks: '{systems} にはありません。', livesIn: 'このコンポーネントは {layer} レイヤーにあり、これらのシステムはそのレイヤーを継いでいません。', leftOutBy: '{layer} レイヤーが外しています。', use: '代わりに {components} を使います。', take: 'これを持たないシステムの上のプロダクトでも、自分のレイヤーに取り込み（{guide}）、コンポーネント自身のモジュールを読み込めば使えます。そのときは自分のシステムのトークンで描かれます。', guide: '自分のデザインシステムを作る', layerFile: 'レイヤーのファイルに', yourCode: 'コードに' },
@@ -559,6 +563,7 @@ const zh: typeof en = {
   wordKeys: { table: '产品文字的键', key: '键', readBy: '读取它的属性', places: '填入的位置', english: '英语文字包中的文字' },
   fileTree: { label: '文件和文件夹' },
   notFound: { title: '此页面不存在', text: '地址可能输入有误，或者页面已被移走。', home: '前往首页', search: '搜索文档' },
+  studioPage: { title: 'Theme Studio · Tanrei', description: '为 Tanrei 制作主题：调整几个控件，看着真实的组件随之变化，再导出一个可以为所有平台构建的层文件。', back: '返回文档', about: '关于 Theme Studio' },
   availability: '可用情况',
   variantsNotShippedIn: '不提供的变体',
   system: { choice: '设计系统', notIn: '{system} 中没有：', insteadUse: '{component}（请改用 {components}）', noteTitle: '并非每个设计系统都有', has: '{systems} 提供此组件，由 {entries} 注册。', lacks: '{systems} 中没有此组件。', livesIn: '它位于 {layer} 层，而这些系统并不继承该层。', leftOutBy: '{layer} 层将它排除在外。', use: '请改用 {components}。', take: '基于没有此组件的系统构建的产品仍可使用它：在你自己的层中引入它（{guide}），并导入它自己的模块。这样它会用你的系统自己的令牌绘制。', guide: '你自己的设计系统', layerFile: '在你的层文件中', yourCode: '在你的代码中' },
@@ -787,6 +792,7 @@ const es: typeof en = {
   wordKeys: { table: 'Las claves de los textos del producto', key: 'Clave', readBy: 'Propiedad que la lee', places: 'Lugares que rellena', english: 'En el paquete de textos en inglés' },
   fileTree: { label: 'Archivos y carpetas' },
   notFound: { title: 'Esta página no existe', text: 'Puede que la dirección esté mal escrita o que la página se haya movido.', home: 'Ir a la página de inicio', search: 'Buscar en la documentación' },
+  studioPage: { title: 'Theme Studio · Tanrei', description: 'Crea un tema para Tanrei: mueve unos pocos controles, mira cómo cambian los componentes reales y exporta un único archivo de capa que se compila para todas las plataformas.', back: 'Volver a la documentación', about: 'Acerca de Theme Studio' },
   availability: 'Disponibilidad',
   variantsNotShippedIn: 'Variantes que no se incluyen en',
   system: { choice: 'Sistema de diseño', notIn: 'No está en {system}:', insteadUse: '{component} (usa {components} en su lugar)', noteTitle: 'No está en todos los sistemas de diseño', has: 'Lo incluyen {systems}, registrado por {entries}.', lacks: 'No está en {systems}.', livesIn: 'Vive en la capa {layer}, que esos sistemas no extienden.', leftOutBy: 'La capa {layer} lo deja fuera.', use: 'Usa {components} en su lugar.', take: 'Un producto sobre un sistema que no lo tiene puede usarlo igualmente: inclúyelo en tu propia capa ({guide}) e importa su propio módulo. Entonces se dibuja con los tokens de tu propio sistema.', guide: 'Tu propio sistema de diseño', layerFile: 'En el archivo de tu capa', yourCode: 'En tu código' },
@@ -1015,6 +1021,7 @@ const hi: typeof en = {
   wordKeys: { table: 'प्रॉडक्ट के शब्दों की कुंजियाँ', key: 'कुंजी', readBy: 'पढ़ने वाली प्रॉपर्टी', places: 'भरी जाने वाली जगहें', english: 'अंग्रेज़ी शब्दों के पैक में' },
   fileTree: { label: 'फ़ाइलें और फ़ोल्डर' },
   notFound: { title: 'यह पेज मौजूद नहीं है', text: 'हो सकता है पता ग़लत टाइप हुआ हो, या पेज कहीं और चला गया हो।', home: 'शुरुआती पेज पर जाएँ', search: 'दस्तावेज़ खोजें' },
+  studioPage: { title: 'Theme Studio · Tanrei', description: 'Tanrei के लिए थीम बनाएँ: कुछ कंट्रोल बदलें, असली कंपोनेंट को साथ-साथ बदलते देखें, और एक लेयर फ़ाइल एक्सपोर्ट करें जो हर प्लेटफ़ॉर्म के लिए बिल्ड होती है।', back: 'दस्तावेज़ पर वापस जाएँ', about: 'Theme Studio के बारे में' },
   availability: 'उपलब्धता',
   variantsNotShippedIn: 'वे वेरिएंट जो इनमें शामिल नहीं',
   system: { choice: 'डिज़ाइन सिस्टम', notIn: '{system} में नहीं:', insteadUse: '{component} (इसके बजाय {components} इस्तेमाल करें)', noteTitle: 'हर डिज़ाइन सिस्टम में नहीं', has: '{systems} में शामिल, {entries} से रजिस्टर होता है।', lacks: '{systems} में नहीं है।', livesIn: 'यह {layer} लेयर में है, जिसे ये सिस्टम आगे नहीं बढ़ाते।', leftOutBy: '{layer} लेयर इसे छोड़ देती है।', use: 'इसके बजाय {components} इस्तेमाल करें।', take: 'जिस सिस्टम में यह नहीं है, उस पर बना प्रोडक्ट भी इसे ले सकता है: इसे अपनी लेयर में शामिल करें ({guide}) और इसका अपना मॉड्यूल इम्पोर्ट करें। तब यह आपके सिस्टम के अपने टोकन से बनता है।', guide: 'आपका अपना डिज़ाइन सिस्टम', layerFile: 'अपनी लेयर फ़ाइल में', yourCode: 'अपने कोड में' },
@@ -1243,6 +1250,7 @@ const ar: typeof en = {
   wordKeys: { table: 'مفاتيح كلمات المنتج', key: 'المفتاح', readBy: 'تقرؤه', places: 'المواضع التي تُملأ', english: 'في حزمة الكلمات الإنجليزية' },
   fileTree: { label: 'الملفات والمجلدات' },
   notFound: { title: 'هذه الصفحة غير موجودة', text: 'ربما كُتب عنوان الصفحة خطأً، أو نُقلت الصفحة.', home: 'الانتقال إلى الصفحة الرئيسية', search: 'البحث في التوثيق' },
+  studioPage: { title: 'Theme Studio · Tanrei', description: 'أنشئ سمة لـ Tanrei: حرّك بعض عناصر التحكم، وشاهد المكوّنات الحقيقية تتغيّر معها، ثم صدّر ملف طبقة واحدًا يُبنى لكل المنصات.', back: 'العودة إلى التوثيق', about: 'حول Theme Studio' },
   availability: 'التوفر',
   variantsNotShippedIn: 'أشكال غير متوفرة في',
   system: { choice: 'نظام التصميم', notIn: 'غير موجود في {system}:', insteadUse: '{component} (استخدم {components} بدلًا منه)', noteTitle: 'ليس في كل أنظمة التصميم', has: 'متوفر في {systems}، وتسجّله {entries}.', lacks: 'غير موجود في {systems}.', livesIn: 'يقع في الطبقة {layer}، وهذه الأنظمة لا توسّعها.', leftOutBy: 'تستبعده الطبقة {layer}.', use: 'استخدم {components} بدلًا منه.', take: 'يمكن لمنتج مبني على نظام لا يتضمّنه أن يستخدمه مع ذلك: أدرجه في طبقتك الخاصة ({guide}) واستورد وحدته الخاصة. عندها يُرسم برموز نظامك الخاص.', guide: 'نظام التصميم الخاص بك', layerFile: 'في ملف طبقتك', yourCode: 'في شيفرتك' },

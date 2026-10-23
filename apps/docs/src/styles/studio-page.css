@@ -1,0 +1,58 @@
+/* The page of Theme Studio (components/StudioPage.astro): the Studio, the whole page, and nothing of the documentation's
+   frame. The web package's stylesheets the Studio draws with go into layers of the docs' own, as every page's do
+   (test/stylesheets.test.mjs): the tokens and the page's base (the page is not Starlight's, so the base is Tanrei's),
+   the icon class, and the tree view, the accordion and the description list the Studio's levels are made of. The
+   Studio's own stylesheet is linked by the page itself, so that it is on this page only. */
+@import '@tanrei/web/tokens.css' layer(docs.tokens);
+@import '@tanrei/web/base.css' layer(docs.base);
+@import '@tanrei/web/icons.css' layer(docs.icons);
+@import '@tanrei/web/tree-view.css' layer(docs.tree-view);
+@import '@tanrei/web/accordion.css' layer(docs.accordion);
+@import '@tanrei/web/description-list.css' layer(docs.description-list);
+@import './fonts.generated.css';
+@import './script-faces.css';
+
+:root {
+  -webkit-font-smoothing: antialiased;
+  text-size-adjust: 100%;
+}
+
+/* The page's items of the Studio's bar: the brand, a link back to the documentation's first page, and the page's
+   heading at the start; the page about the tool at the end. Until the Studio has mounted they stand where its bar will be. */
+.docs-studio-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tanrei-sys-space-space100);
+  min-block-size: var(--tanrei-sys-target-minimum);
+  color: inherit;
+  font: var(--tanrei-sys-typescale-label-font);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.docs-studio-brand img {
+  inline-size: var(--tanrei-sys-icon-medium);
+  block-size: var(--tanrei-sys-icon-medium);
+}
+.docs-studio-brand {
+  font-weight: var(--tanrei-sys-typescale-label-font-weight-emphasized);
+}
+/* The page's heading: the tool's name, beside the brand, as quiet as the bar. */
+.docs-studio-title {
+  margin: 0;
+  font: var(--tanrei-sys-typescale-label-font);
+  color: var(--tanrei-sys-color-on-surface-variant);
+  white-space: nowrap;
+}
+.docs-studio-about {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--tanrei-sys-target-minimum);
+  color: inherit;
+  font: var(--tanrei-sys-typescale-label-font);
+}
+.docs-studio-brand:focus-visible,
+.docs-studio-about:focus-visible {
+  outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+  outline-offset: var(--tanrei-sys-focus-offset);
+  border-radius: var(--tanrei-sys-shape-corner-extra-small);
+}

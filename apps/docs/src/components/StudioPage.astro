@@ -1,0 +1,82 @@
+---
+// Theme Studio, the whole page: `/studio/`, and `/<language>/studio/` in each translation (pages/studio/index.astro,
+// pages/[locale]/studio/index.astro). A tool, not a page of text: it stands outside the documentation's frame — no
+// header, no navigation — and the Studio's own bar holds what the page adds to it: the brand, which leads back to the
+// documentation's first page in this language, and a link to the page about the tool.
+//
+// The Studio lives in @tanrei/studio; this page only hosts it. Its chrome is drawn with Tanrei's default tokens on
+// :root, so nothing a visitor edits restyles the page: edits apply inside the Studio's preview. The layer is kept in
+// this browser and in the page's address (`address`), so that a link to the page opens it on the same layer.
+//
+// The page's language is passed as it is: the Studio speaks the languages it has a dictionary for
+// (packages/studio/src/strings/) and hosts any other in English. The scheme and the contrast are the ones the
+// documentation stored (its header's choice), else the system's.
+import studioCss from '@tanrei/studio/studio.css?url';
+import '../styles/studio-page.css';
+import { source, translations } from '../../i18n/locales.mjs';
+import { strings } from '../lib/i18n';
+
+interface Props {
+  /** The language's folder: '' for English, at the root. */
+  dir: string;
+  lang: string;
+  direction?: 'rtl';
+}
+const { dir, lang, direction } = Astro.props;
+const t = strings(lang);
+const base = dir ? `/${dir}` : '';
+const site = Astro.site ?? new URL('https://example.invalid');
+const page = (folder: string) => new URL(`${folder ? `/${folder}` : ''}/studio/`, site).href;
+const languages = [source, ...translations];
+---
+
+<!doctype html>
+<html lang={lang} dir={direction ?? 'ltr'}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>{t.studioPage.title}</title>
+    <meta name="description" content={t.studioPage.description} />
+    <link rel="canonical" href={page(dir)} />
+    {languages.map((language) => <link rel="alternate" hreflang={language.lang} href={page(language.dir)} />)}
+    <link rel="alternate" hreflang="x-default" href={page('')} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <script is:inline>
+      // The scheme and the contrast the documentation stored, before the first paint.
+      (() => {
+        let theme = null;
+        let contrast = null;
+        try {
+          theme = localStorage.getItem('starlight-theme');
+          contrast = localStorage.getItem('tanrei-docs-contrast');
+        } catch {}
+        if (theme === 'dark' || theme === 'light') document.documentElement.dataset.tanreiTheme = theme;
+        if (contrast === 'medium' || contrast === 'high') document.documentElement.dataset.tanreiContrast = contrast;
+      })();
+    </script>
+    <link rel="stylesheet" href={studioCss} />
+  </head>
+  <body>
+    <a class="docs-studio-brand" href={`${base}/`} title={t.studioPage.back} data-studio-bar="start"><img src="/favicon.svg" alt="" />Tanrei</a>
+    <h1 class="docs-studio-title" data-studio-bar="start">Theme Studio</h1>
+    <a class="docs-studio-about" href={`${base}/foundations/theme-studio/`} data-studio-bar="end">{t.studioPage.about}</a>
+    <div data-theme-studio data-lang={lang} data-layers={`${base}/foundations/design-systems/`}></div>
+    <script>
+      import '../lib/register-web';
+      import { mountStudio } from '@tanrei/studio';
+      import fullIcons from '../styles/icons-full.generated.css?url';
+      const root = document.querySelector<HTMLElement>('[data-theme-studio]')!;
+      const items = (place: string) => [...document.querySelectorAll<HTMLElement>(`[data-studio-bar="${place}"]`)];
+      mountStudio(root, { lang: root.dataset.lang, links: { layers: root.dataset.layers }, address: true, bar: { start: items('start'), end: items('end') } });
+      // The site's icon families are registered from files cut down to the glyphs its pages draw. A layer edited here
+      // may draw its icons at any weight, which only the full files hold: they are registered too — once the page has
+      // loaded, so that their 5 MB is not part of its load — and, registered last, they are the faces the icons are
+      // drawn in from then on.
+      const full = () => document.head.append(Object.assign(document.createElement('link'), { rel: 'stylesheet', href: fullIcons }));
+      if (document.readyState === 'complete') full();
+      else addEventListener('load', full, { once: true });
+    </script>
+  </body>
+</html>

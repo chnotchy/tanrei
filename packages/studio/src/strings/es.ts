@@ -445,6 +445,17 @@ const es: Dictionary = {
     keepMine: 'Conservar lo mío (sobrescribir el archivo)',
     keepOpen: 'Conservar lo que está abierto (sobrescribir el archivo)',
   },
+  frame: {
+    history: 'Historial',
+    undo: 'Deshacer',
+    redo: 'Rehacer',
+    undone: 'Deshecho.',
+    redone: 'Rehecho.',
+    rail: 'Niveles',
+    panel: 'Propiedades',
+    resize: 'Ancho del panel de propiedades',
+    width: (px: number) => `${px} píxeles`,
+  },
   app: {
     language: 'Idioma',
     theme: 'Tema',

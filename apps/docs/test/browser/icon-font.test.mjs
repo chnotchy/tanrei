@@ -108,7 +108,7 @@ describe('every icon of the built pages is a glyph of the cut-down file', { conc
   const leftUndefined = () => [...document.querySelectorAll('*')].filter((el) => el.localName.includes('-') && !el.matches(':defined') && !el.hasAttribute('data-define-on-use')).map((el) => el.localName);
   // A page that only sends the reader on (a moved page's old address) draws nothing: the page it sends to is opened.
   const redirect = (file) => /<meta http-equiv="refresh"/.test(fs.readFileSync(file, 'utf8'));
-  for (const [url] of rootPages.filter(([url, file]) => !url.includes('/theme-studio/') && !redirect(file))) {
+  for (const [url] of rootPages.filter(([url, file]) => url !== '/studio/' && !redirect(file))) {
     test(`drawn on ${url}`, async () => {
       const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
       try {
@@ -213,7 +213,7 @@ describe('the Theme Studio page', () => {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
     try {
       const page = await context.newPage();
-      await page.goto(`${origin}/foundations/theme-studio/`, { waitUntil: 'load' });
+      await page.goto(`${origin}/studio/`, { waitUntil: 'load' });
       // A glyph no list names, drawn in the default icon family: its name in letters, wider than its 1 em box,
       // until the full file is the family's face.
       const width = () => page.evaluate(() => {
