@@ -1,6 +1,7 @@
 import { LitElement, type PropertyDeclarations, css, html, nothing } from 'lit';
 import { GROUP_AVAILABILITY, GROUP_PLACE, type GroupPlace, type PlacingGroup, hostAria } from '../../primitives/index.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
 import { spaceStyles } from './toolbar.styles.js';
 
 /**
@@ -140,9 +141,11 @@ export class TanreiToolbarGroup extends TanreiElement implements PlacingGroup {
   }
 
   protected override updated() {
-    // TBR-22: a group with a label is a group named by it; without one it is nothing, and its items are the toolbar's.
-    const named = this.label.trim() !== '';
-    hostAria(this, { role: named ? 'group' : null, 'aria-label': named ? this.label : null });
+    // TBR-22: a group with a label is a group named by it; without one it is nothing, and its items are the toolbar's —
+    // unless the product names it: a group the product names is a named group (TBR-26).
+    const own = this.label.trim() !== '' ? this.label : '';
+    nameHost(this, own);
+    hostAria(this, { role: own || namedByProduct(this) ? 'group' : null });
     const slots = [...this.renderRoot.querySelectorAll<HTMLSlotElement>('slot.unit')];
     slots.forEach((slot, i) => {
       const child = this.laid[i];
@@ -158,6 +161,8 @@ export class TanreiToolbarGroup extends TanreiElement implements PlacingGroup {
   }
 }
 
+// TBR-26: the host carries the group role, and holds the product's name while its label names it.
+holdsProductName(TanreiToolbarGroup);
 if (!customElements.get('tanrei-toolbar-group')) customElements.define('tanrei-toolbar-group', TanreiToolbarGroup);
 
 declare global {

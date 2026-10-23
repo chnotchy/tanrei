@@ -309,6 +309,10 @@
     {
       "id": "SPR-27",
       "text": "IF the icon set cannot draw a marker's glyph yet (its font is still loading or failed to load) THE stepper SHALL draw nothing in the glyph's place, never the glyph's name as text, keeping the marker's size, fill and ring, and SHALL still expose the step's condition in words; it SHALL show the glyph once the icon set can draw it."
+    },
+    {
+      "id": "SPR-28",
+      "text": "WHERE the platform has ARIA attributes (the web), the host carries its list or group role (SPR-19) itself, so what the product writes on it is not moved, but for a name: WHILE label is not empty THE stepper SHALL hold the product's aria-label and aria-labelledby on that host as their data-aria- twins, so that label is its whole name although the platform gives aria-labelledby the precedence, and WHEN label is emptied SHALL give them back as they were written; WHILE label is empty a name the product gives so — aria-label, or aria-labelledby naming an element — SHALL be its name and SHALL NOT be reported as having none in debug builds (SPR-21). WHEN the product removes one, or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaLabelledByElements) to null, THE stepper SHALL take it away."
     }
   ],
   "accessibility": {

@@ -2,6 +2,8 @@
 // fixture has a baseline, and every size, color and edge is read back from the tokens — never from a number written
 // here. Its items are the real <tanrei-button>s, icon-only and labelled, so these tests also show that the toolbar leaves
 // them as they are (TBR-9).
+// TBR-26: the product's ARIA on the host is tested with every other host's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tab, tabTo } from '../../../test/harness.js';

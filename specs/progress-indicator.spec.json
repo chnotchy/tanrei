@@ -161,6 +161,10 @@
       "id": "PRG-17",
       "text": "THE progress indicator SHALL tell a determinate indicator from the rest of its track as its separation names: WHILE separation is auto, as comp.progress-indicator.track.separation names, which follows sys.behavior.separation unless a design system sets it apart; WHILE separation is divider or gap, as that value names, whatever the tokens say; each as PRG-5 draws it. WHEN separation, or the token it follows, changes THE progress indicator SHALL draw the other form at once, without animation, keeping its value. WHILE indeterminate THE progress indicator SHALL be drawn the same under either (PRG-2, PRG-7). A platform that cannot draw a choice SHALL fall back to the first value, divider, and state that in its README.",
       "verify": "Fixtures linear-gap, circular-gap and linear-divider set the prop, so they draw the same under every design system; the others leave it auto and draw divider under the default system and gap under m3-like. Test auto under a system that sets the component token apart from sys.behavior.separation."
+    },
+    {
+      "id": "PRG-18",
+      "text": "WHERE the platform has ARIA attributes (the web), the host carries its progressbar role (PRG-8) itself, so what the product writes on it is not moved, but for a name: WHILE label is not empty THE progress indicator SHALL hold the product's aria-label and aria-labelledby on that host as their data-aria- twins, so that label is its whole name although the platform gives aria-labelledby the precedence, and WHEN label is emptied SHALL give them back as they were written; WHILE label is empty a name the product gives so — aria-label, or aria-labelledby naming an element — SHALL be its name and SHALL NOT be reported as having none in debug builds (PRG-15). WHEN the product removes one, or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaLabelledByElements) to null, THE progress indicator SHALL take it away."
     }
   ],
   "accessibility": {

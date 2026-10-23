@@ -18,6 +18,7 @@ import {
 import type { TanreiMeterSizeRegistry } from '../../registry.js';
 import { AXES, STATUSES, VARIANTS, styles } from './meter.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
 
 /** `linear` is a bar that fills its layout's width; `circular` is a ring of a fixed size. Drawn by the component: a design system cannot add a form. */
 export type TanreiMeterVariant = 'linear' | 'circular';
@@ -148,14 +149,15 @@ export class TanreiMeter extends TanreiElement {
       else if (value < min || value > max) report(this, 'MTR-10', `value ${value} is outside ${min}…${max}; it is drawn and exposed as ${Math.min(max, Math.max(min, value))}`);
     }
     // MTR-14: a bar alone is not a name.
-    if (changed.has('label') && !this.label) report(this, 'MTR-14', 'label is empty, so the meter has no accessible name; give it a label');
+    if (changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'MTR-14', 'label is empty, so the meter has no accessible name; give it a label');
 
     // MTR-7 / MTR-8: the host is the meter — never a progressbar, never busy, never focusable, never a live region.
     // MTR-9: nothing of status is exposed.
     const range = this.range;
+    // MTR-16: its label is its whole name over the product's, which names it while the label is empty.
+    nameHost(this, this.label);
     hostAria(this, {
       role: 'meter',
-      'aria-label': this.label || null,
       'aria-valuemin': String(range.min),
       'aria-valuemax': String(range.max),
       'aria-valuenow': String(range.now),
@@ -176,6 +178,8 @@ export class TanreiMeter extends TanreiElement {
   }
 }
 
+// MTR-16: the host carries the role, and holds the product's name while its label names it.
+holdsProductName(TanreiMeter);
 if (!customElements.get('tanrei-meter')) customElements.define('tanrei-meter', TanreiMeter);
 
 declare global {

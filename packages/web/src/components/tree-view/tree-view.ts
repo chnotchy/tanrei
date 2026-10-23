@@ -33,6 +33,7 @@ import '../button/button.js';
 import type { TanreiTextInput } from '../text-input/text-input.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
+import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
 
 /** Whether people choose items: none (read and opened), single (one item), multiple (any number, each by itself). */
 export type TanreiTreeViewSelection = 'none' | 'single' | 'multiple';
@@ -619,9 +620,11 @@ export class TanreiTreeView extends TanreiLightElement {
     if (changed.has('stickyParents') || changed.has('stickyMax')) this.watchScroll();
     if (changed.has('label') || !this.named) {
       this.named = true;
+      // TRV-72: its label is its whole name over the product's, which names it while the label is empty (written with
+      // the rest of the tree's semantics, on the element that is the tree).
       this.writeTreeSemantics();
       // TRV-32: still rendered; a debug build says that the tree has no accessible name.
-      if (!this.label && !this.hasAttribute('aria-labelledby')) report(this, 'TRV-32', 'the tree has no accessible name; give it a label');
+      if (!this.label && !namedByProduct(this)) report(this, 'TRV-32', 'the tree has no accessible name; give it a label');
     }
     // (No property changed: the product's words did — src/primitives/words.ts.)
     if (changed.has('loadingLabel') || changed.size === 0) for (const loader of this.querySelectorAll<HTMLLIElement>(`li[${LOADING}]`)) this.writeLoader(loader);
@@ -757,13 +760,19 @@ export class TanreiTreeView extends TanreiLightElement {
         mark(before, 'role', 'none');
         if ('ariaOwnsElements' in before) before.ariaOwnsElements = null;
       }
-      mark(before, 'aria-label', null);
+      // The host's own name is nameHost()'s (below): a removal here would be taken as the product's (TRV-72).
+      if (before !== this) mark(before, 'aria-label', null);
       mark(before, 'aria-multiselectable', null);
       if (before === this) mark(this, 'role', null);
     }
     this.semantics = owner;
     mark(owner, 'role', any ? 'tree' : owner === this ? null : 'none');
-    mark(owner, 'aria-label', owner === this || any ? this.label || null : null);
+    // TRV-72: the host names itself while it is the tree, and holds the product's name while its first list is.
+    if (owner === this) nameHost(this, this.label);
+    else {
+      nameHost(this, null);
+      mark(owner, 'aria-label', any ? this.label || null : null);
+    }
     mark(owner, 'aria-multiselectable', any && this.mode === 'multiple' ? 'true' : null);
     const others = owner === this ? null : roots.slice(1);
     const held = owner as Owner;
@@ -2644,6 +2653,8 @@ function order(part: Element): number {
 // would otherwise drop their modules as having no side effects.
 if (!customElements.get('tanrei-embedded-text-input')) customElements.define('tanrei-embedded-text-input', TanreiEmbeddedTextInput);
 if (!customElements.get('tanrei-tooltip')) customElements.define('tanrei-tooltip', TanreiTooltip);
+// TRV-72: the host carries the tree role, and holds the product's name while its label names it.
+holdsProductName(TanreiTreeView);
 if (!customElements.get('tanrei-tree-view')) customElements.define('tanrei-tree-view', TanreiTreeView);
 
 declare global {

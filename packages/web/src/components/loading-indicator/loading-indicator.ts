@@ -4,6 +4,7 @@ import { AvailabilityController, OpenAxesController, VisibilityController, hostA
 import type { TanreiLoadingIndicatorSizeRegistry } from '../../registry.js';
 import { AXES, styles } from './loading-indicator.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
 
 /** The core sizes (small, medium, large), plus any a design system's generated `.d.ts` registers. */
 export type TanreiLoadingIndicatorSize = keyof TanreiLoadingIndicatorSizeRegistry;
@@ -156,11 +157,16 @@ export class TanreiLoadingIndicator extends TanreiElement {
     this.requestUpdate();
   }
 
-  /** LDG-5, LDG-11: a busy progressbar with no value once shown; absent from the accessibility tree while it waits. */
+  /**
+   * LDG-5, LDG-11: a busy progressbar with no value once shown; absent from the accessibility tree while it waits.
+   * LDG-18: the host is the progressbar. Its label is its whole name: while it is set the product's aria-label and
+   * aria-labelledby are held, while it is empty they are its name, and while it waits, with no role, they are held.
+   */
   private expose() {
+    nameHost(this, this.shown ? this.label : null);
     // LDG-6: not focusable, not a live region.
-    if (this.shown) hostAria(this, { role: 'progressbar', 'aria-label': this.label || null, 'aria-busy': 'true', 'aria-hidden': null });
-    else hostAria(this, { role: null, 'aria-label': null, 'aria-busy': null, 'aria-hidden': 'true' });
+    if (this.shown) hostAria(this, { role: 'progressbar', 'aria-busy': 'true', 'aria-hidden': null });
+    else hostAria(this, { role: null, 'aria-busy': null, 'aria-hidden': 'true' });
   }
 
   /**
@@ -185,7 +191,7 @@ export class TanreiLoadingIndicator extends TanreiElement {
 
   protected override willUpdate(changed: PropertyValues<this>) {
     // LDG-10: a moving mark alone is not a name.
-    if (changed.has('label') && !this.label) report(this, 'LDG-10', 'label is empty, so the loading indicator has no accessible name; give it a label');
+    if (changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'LDG-10', 'label is empty, so the loading indicator has no accessible name; give it a label');
     // LDG-14: a value it cannot use takes the token, and is reported.
     for (const [name, attribute, token] of [['showDelay', 'show-delay', 'show-delay'], ['enterDuration', 'enter-duration', 'enter-duration']] as const) {
       const value = this[name];
@@ -219,6 +225,8 @@ export class TanreiLoadingIndicator extends TanreiElement {
   }
 }
 
+// LDG-18: the host carries the role, and holds the product's name while its label names it.
+holdsProductName(TanreiLoadingIndicator);
 if (!customElements.get('tanrei-loading-indicator')) customElements.define('tanrei-loading-indicator', TanreiLoadingIndicator);
 
 declare global {

@@ -1,5 +1,5 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
-import { delegatedAria, delegatesAria } from '../../primitives/delegated-aria.js';
+import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/delegated-aria.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { AvailabilityController, GlyphDrawnController, PressController, report, styleQueries, syncFocusStyle } from '../../primitives/index.js';
 import { LINK_KEYS } from '../../primitives/link.js';
@@ -394,7 +394,7 @@ export class TanreiTableOfContents extends TanreiElement {
   private check() {
     // A list that is still being parsed is read again when it is whole.
     if (document.readyState === 'loading') return;
-    if (this.items.length && !this.label.trim()) report(this, 'TOC-40', 'label is empty: the navigation landmark and the compact row have no name; give it the words ("On this page")');
+    if (this.items.length && !this.label.trim() && !namedByProduct(this)) report(this, 'TOC-40', 'label is empty: the navigation landmark and the compact row have no name; give it the words ("On this page")');
     const seen = new Set<string>();
     for (const item of this.items) {
       if (seen.has(item.href)) report(this, 'TOC-39', `two items have the href "${item.href}"; both are drawn, and the first is the one that can be current`);
@@ -946,8 +946,11 @@ export class TanreiTableOfContents extends TanreiElement {
     const label = this.label ?? '';
     const name = this.currentItem()?.label ?? '';
     const titled = !!label.trim() || !!this.querySelector(':scope > [slot="title"]');
+    // TOC-41: while label is empty a name the product gives names the landmark, and the compact row by that name and
+    // the current item it shows.
+    const productNamed = !label.trim() && namedByProduct(this);
     return html`
-      <nav part="nav" class=${classMap({ compact, open })} ${delegatedAria(this, { 'aria-label': label.trim() })} ?data-tanrei-shape=${compact}>
+      <nav id="nav" part="nav" class=${classMap({ compact, open })} ${delegatedAria(this, { 'aria-label': label.trim() })} ?data-tanrei-shape=${compact}>
         ${compact
           ? html`<button
               part="disclosure-row"
@@ -957,6 +960,7 @@ export class TanreiTableOfContents extends TanreiElement {
               aria-expanded=${open ? 'true' : 'false'}
               aria-controls="list"
               aria-describedby=${label.trim() && name ? 'current' : nothing}
+              aria-labelledby=${productNamed ? (name ? 'nav current' : 'nav') : nothing}
               @click=${this.onRowClick}
               @pointerdown=${this.rowPress.onPointerDown}
               @pointerup=${this.rowPress.release}

@@ -265,6 +265,10 @@
     {
       "id": "CLO-31",
       "text": "IF the title, the title slot and the body are all empty THE callout SHALL draw nothing, take no space and expose nothing, and in debug builds report that a callout has no content: a glyph, actions or a close button alone are not a notice. WHILE status is not default and both the title and statusLabel are empty THE callout SHALL still render and in debug builds report that the status is not given in words; WHILE closable is true and closeLabel is empty it SHALL still render the close button and in debug builds report that the button has no accessible name; IF statusLabel is not empty while status is default THE callout SHALL ignore it and in debug builds report it."
+    },
+    {
+      "id": "CLO-32",
+      "text": "WHERE the platform has ARIA attributes (the web), the host carries its note or live region role (CLO-20, CLO-21) itself, so what the product writes on it is not moved, but for a name: WHILE its name (its title, else statusLabel) is not empty THE callout SHALL hold the product's aria-label and aria-labelledby on that host as their data-aria- twins, so that its name (its title, else statusLabel) is its whole name although the platform gives aria-labelledby the precedence, and WHEN its name (its title, else statusLabel) is emptied SHALL give them back as they were written; WHILE its name (its title, else statusLabel) is empty a name the product gives so — aria-label, or aria-labelledby naming an element — SHALL be its name. WHILE it is closed or empty (CLO-13) it exposes nothing, and SHALL hold them as well, giving them back when it is shown. WHEN the product removes one, or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaLabelledByElements) to null, THE callout SHALL take it away."
     }
   ],
   "accessibility": {

@@ -25,6 +25,7 @@ import type { TanreiCalloutSizeRegistry, TanreiCalloutVariantRegistry } from '..
 import '../button/button.js';
 import { AXES, STATUSES, styles } from './callout.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { holdsProductName, nameHost } from '../../primitives/delegated-aria.js';
 
 /** The core variants (tonal, outlined), plus any a design system's generated `.d.ts` registers. */
 export type TanreiCalloutVariant = keyof TanreiCalloutVariantRegistry;
@@ -401,12 +402,14 @@ export class TanreiCallout extends TanreiElement implements PlacingGroup {
     const statusLabel = this.form !== 'default' ? this.statusLabel.trim() : '';
     // CLO-20, CLO-21: a note, or — live — a live region by its status. The announcement is made by the live region in
     // the shadow root, once (announce()), so the host's own role does not announce a second time. Named by its title,
-    // or by statusLabel without one. Closed or empty it exposes nothing (CLO-13, CLO-31).
+    // or by statusLabel without one. Closed or empty it exposes nothing (CLO-13, CLO-31). CLO-32: that name is its whole
+    // name over the product's, which names it while it has none; closed or empty, the product's is held.
+    if (!shown) nameHost(this, null);
+    else if (title) nameHost(this, title.id, 'aria-labelledby');
+    else nameHost(this, this.headline.trim() || statusLabel);
     hostAria(this, {
       role: shown ? (this.live ? (this.assertive ? 'alert' : 'status') : 'note') : null,
       'aria-live': shown && this.live ? 'off' : null,
-      'aria-labelledby': shown && title ? title.id : null,
-      'aria-label': shown && !title ? this.headline.trim() || statusLabel || null : null,
     });
     this.watchContent();
 
@@ -486,6 +489,8 @@ export class TanreiCallout extends TanreiElement implements PlacingGroup {
   }
 }
 
+// CLO-32: the host carries its role, and holds the product's name while its title or its words name it.
+holdsProductName(TanreiCallout);
 if (!customElements.get('tanrei-callout')) customElements.define('tanrei-callout', TanreiCallout);
 
 declare global {

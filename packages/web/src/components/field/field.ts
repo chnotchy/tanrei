@@ -22,6 +22,7 @@ import {
 import { ownDirection } from '../../styles/product-text.js';
 import { PREFIX, styles } from './field.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { DELEGATED_RELATIONS, DELEGATED_STATES, type DelegatedName, delegatesAria } from '../../primitives/delegated-aria.js';
 
 /** FLD-21: a run of the value text that is isolated already (a first-strong isolate: one of a range's two values) has its own direction and gives the whole text none. */
 const ISOLATED = /\u2068[^\u2069]*\u2069/g;
@@ -468,6 +469,15 @@ export class TanreiField extends TanreiElement {
   }
 }
 
+// FLD-33: the host has no role, and the control it frames is the product's own element, which keeps its own ARIA
+// (FLD-10, FLD-23): what the product writes on the host is moved, exposed on no element, and reported.
+const FIELD_ARIA = [...DELEGATED_STATES, ...Object.keys(DELEGATED_RELATIONS)] as DelegatedName[];
+delegatesAria(TanreiField, {
+  sentence: 'FLD-33',
+  owns: FIELD_ARIA,
+  unexposed: "reaches no element: the field has no role, and the control it frames is the product's own element",
+  instead: Object.fromEntries(FIELD_ARIA.map((name) => [name, 'write it on the control the field frames; the field names and describes it by its label and its texts'])),
+});
 if (!customElements.get('tanrei-field')) customElements.define('tanrei-field', TanreiField);
 
 declare global {

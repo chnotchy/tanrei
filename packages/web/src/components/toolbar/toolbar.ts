@@ -20,6 +20,7 @@ import {
 } from '../../primitives/index.js';
 import { WordsController } from '../../primitives/words.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
 import '../button/button.js';
 import '../menu/menu.js';
 import type { TanreiMenu } from '../menu/menu.js';
@@ -341,8 +342,10 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
 
   protected override updated(changed: PropertyValues<this>) {
     // TBR-11: a toolbar named by its label, with its orientation; its items keep their own name, role and state.
-    hostAria(this, { role: 'toolbar', 'aria-label': this.label || null, 'aria-orientation': this.axis === 'block' ? 'vertical' : 'horizontal' });
-    if (changed.has('label') && !this.label) report(this, 'TBR-12', 'label is empty, so the toolbar has no accessible name; give it a label ("Formatting", "Message actions")');
+    // TBR-26: its label is its whole name over the product's, which names it while the label is empty.
+    nameHost(this, this.label);
+    hostAria(this, { role: 'toolbar', 'aria-orientation': this.axis === 'block' ? 'vertical' : 'horizontal' });
+    if (changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'TBR-12', 'label is empty, so the toolbar has no accessible name; give it a label ("Formatting", "Message actions")');
     if (changed.has('orientation') || changed.has('variant')) {
       // TBR-13: an orientation the component does not define is horizontal. TBR-6: a docked toolbar is horizontal.
       if (!ORIENTATIONS.includes(this.orientation)) report(this, 'TBR-13', `orientation "${this.orientation}" is not a value of the toolbar; it is drawn as "horizontal"`);
@@ -989,6 +992,8 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
 
 }
 
+// TBR-26: the host carries the role, and holds the product's name while its label names it.
+holdsProductName(TanreiToolbar);
 if (!customElements.get('tanrei-toolbar')) customElements.define('tanrei-toolbar', TanreiToolbar);
 
 declare global {
