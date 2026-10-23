@@ -39,7 +39,7 @@ import {
   readBinding,
   takesText,
 } from '../../primitives/index.js';
-import { FILTER_SETTLE_MS, type Run, filterWords, fold, runPieces, wordRuns } from '../../primitives/filter.js';
+import { FILTER_SETTLE_MS, filterWords, holdsWords } from '../../primitives/filter.js';
 import { WordsController } from '../../primitives/words.js';
 import { fillPlaces } from '../../primitives/places.js';
 // Not re-exported by the primitives' index: internal to a region and its destinations.
@@ -94,9 +94,6 @@ export interface TanreiNavigationDrawerToggleDetail {
 export interface TanreiNavigationDrawerFilterChangeDetail {
   value: string;
 }
-
-/** What a filter does to the rows that do not match (NVD-82, NVD-83): hides them, or only marks the matches. */
-export type TanreiNavigationDrawerFilterMode = 'filter' | 'highlight';
 
 /** How far a drag toward the start edge must go before the drawer follows it (NVD-20: no platform value on the web). */
 const TOUCH_SLOP = 8;
@@ -174,8 +171,6 @@ export interface DrawerCellContext extends DestinationContext {
   filterHidden: boolean;
   /** NVD-84: a group drawn open for the filter, its `open` untouched. */
   filterOpen: boolean;
-  /** NVD-85: the runs of its label a word of the filter matched (one array per words and label, kept while they are), or null. */
-  filterRuns: readonly Run[] | null;
   /** NVD-86: the active match, drawn as the row with keyboard focus while focus stays in the filter field. */
   filterActive: boolean;
 }
@@ -204,7 +199,6 @@ const REST: DrawerCellContext = {
   supportingWrap: false,
   filterHidden: false,
   filterOpen: false,
-  filterRuns: null,
   filterActive: false,
 };
 
@@ -655,18 +649,6 @@ abstract class DrawerCell extends TanreiElement {
   }
 
   /**
-   * NVD-85: the drawn label, each run a word of the filter matched in a `<mark>` of the cell's own — drawn, not said:
-   * the cell is named by its `aria-label`, and the drawn text is hidden from assistive technology, so the name stays one
-   * text.
-   */
-  protected labelText(): unknown {
-    const runs = this.context.filterRuns;
-    if (!runs?.length || this.context.collapsed) return this.label;
-    const pieces = runPieces(this.label, runs);
-    return pieces.map((piece, index) => (index % 2 ? html`<mark part="match" class="match">${piece}</mark>` : piece));
-  }
-
-  /**
    * The row: the item container (the active indicator, the state layer's box), the icon indicator with the icon on the
    * icon column, the label, the trailing content, the short label under the icon — and, for a collapsed cell that draws
    * no label, the plain tooltip that shows its name beside it (NVD-56). Everything but the cell itself is hidden from
@@ -684,7 +666,7 @@ abstract class DrawerCell extends TanreiElement {
           ${this.icon ? this.glyph() : nothing}
         </span>
         <span class=${classMap({ text: true, inline })} aria-hidden="true"
-          ><span part="label" class="label">${this.labelText()}</span>${this.supportingText ? html`<span part="supporting-text" class="supporting">${this.supportingText}</span>` : nothing}</span
+          ><span part="label" class="label">${this.label}</span>${this.supportingText ? html`<span part="supporting-text" class="supporting">${this.supportingText}</span>` : nothing}</span
         >
         ${trailing}
         <span part="short-label" class="short" aria-hidden="true"><span class="short-text" dir=${ownDirection(this.shortLabel || this.label)}>${this.shortLabel || this.label}</span></span>
@@ -723,7 +705,6 @@ abstract class DrawerCell extends TanreiElement {
  * @csspart short-label - The short label under the icon while collapsed, where the drawer's `collapsed-labels` draws one (hidden from assistive technology).
  * @csspart trailing-text - The trailing text.
  * @csspart link-mark - The `open_in_new` glyph that ends a link which opens a new context, where the row has no trailing content (hidden from assistive technology).
- * @csspart match - A run of the label that a word of the drawer's filter matched (NVD-85): a `<mark>` in the drawn label, which is hidden from assistive technology (the cell is named by the whole label).
  */
 export class TanreiNavigationDrawerItem extends DrawerCell implements Destination {
   static override styles = cellStyles;
@@ -935,7 +916,6 @@ export class TanreiNavigationDrawerItem extends DrawerCell implements Destinatio
  * @csspart short-label - The short label under the icon while collapsed.
  * @csspart chevron - The expand_more glyph (hidden from assistive technology).
  * @csspart items - The list of its items.
- * @csspart match - A run of the label that a word of the drawer's filter matched (NVD-85), as an item's.
  * @fires {CustomEvent<TanreiNavigationDrawerToggleDetail>} toggle - The user opened or closed the group from its row, or from its cell in the collapsed drawer, or the drawer opened it to show the selected destination (`reveal-selected`, NVD-58): `detail.open` (and `open`) is its new state. Bubbles.
  */
 export class TanreiNavigationDrawerGroup extends DrawerCell {
@@ -1479,17 +1459,15 @@ interface FilterState {
   applied: boolean;
   /** The rows that match. */
   matches: Set<DrawerCell>;
-  /** The rows (and sections) a filter hides (NVD-82: filterMode filter). */
+  /** The rows (and sections) a filter hides (NVD-82). */
   hidden: Set<Element>;
   /** The closed groups drawn open for the filter (NVD-84). */
   opened: Set<TanreiNavigationDrawerGroup>;
-  /** Each matching row's runs (NVD-85). */
-  runs: Map<DrawerCell, readonly Run[]>;
   /** The first row shown that matches and is not disabled (NVD-86). */
   active: DrawerCell | null;
 }
 
-const NO_FILTER: FilterState = { applied: false, matches: new Set(), hidden: new Set(), opened: new Set(), runs: new Map(), active: null };
+const NO_FILTER: FilterState = { applied: false, matches: new Set(), hidden: new Set(), opened: new Set(), active: null };
 
 /** What the drawer knows at a sync: what shows the selection, its top-level cells, and where every cell stands. */
 interface Snapshot {
@@ -1618,7 +1596,6 @@ export class TanreiNavigationDrawer extends TanreiElement {
     loadingLabel: { type: String, attribute: 'loading-label' },
     filterable: { type: Boolean, reflect: true },
     filterValue: { type: String, attribute: 'filter-value' },
-    filterMode: { type: String, attribute: 'filter-mode', reflect: true },
     filterLabel: { type: String, attribute: 'filter-label' },
     filterPlaceholder: { type: String, attribute: 'filter-placeholder' },
     filterEmptyText: { type: String, attribute: 'filter-empty-text' },
@@ -1711,9 +1688,6 @@ export class TanreiNavigationDrawer extends TanreiElement {
   /** The filter text (NVD-80): what the field holds. The drawer sets it as the person types, then fires `filterchange`; set it yourself to give a filter back (no event). Empty, or white space, applies none. */
   filterValue = '';
 
-  /** What a filter does to the rows that do not match: `filter` (the default) hides them; `highlight` hides nothing and marks the matches (NVD-82, NVD-83). Anything else is `filter`, reported. Reflected. */
-  filterMode: TanreiNavigationDrawerFilterMode = 'filter';
-
   /** Names the filter field for assistive technology ("Filter navigation"): your words. Required while `filterable`. */
   filterLabel = '';
 
@@ -1750,8 +1724,6 @@ export class TanreiNavigationDrawer extends TanreiElement {
   /** NVD-84: the words the filter was last reckoned for; the groups the person opened or closed while they held. */
   private filterKey = '';
   private readonly toggledInFilter = new Set<TanreiNavigationDrawerGroup>();
-  /** NVD-85: each cell's runs for the words and the label they were found for, so that an unchanged cell is not drawn again. */
-  private readonly runsMemo = new WeakMap<Element, { key: string; label: string; runs: readonly Run[] | null }>();
   /** NVD-92: how far the items were scrolled when the filter began; null while none is applied. */
   private filterScroll: number | null = null;
   /** NVD-86, NVD-87: what had focus before the chord moved it to the field. */
@@ -2007,11 +1979,6 @@ export class TanreiNavigationDrawer extends TanreiElement {
 
   // ---- the filter (NVD-79…95) ----
 
-  /** NVD-95: the filter mode drawn — filter or highlight; anything else is filter. */
-  private get filterModeAs(): TanreiNavigationDrawerFilterMode {
-    return this.filterMode === 'highlight' ? 'highlight' : 'filter';
-  }
-
   /** NVD-79: the field is drawn: filterable, and the drawer expanded. */
   private get fieldShown(): boolean {
     return this.filterable && !this.collapsed;
@@ -2032,19 +1999,10 @@ export class TanreiNavigationDrawer extends TanreiElement {
     return [...this.querySelectorAll(CELLS)].filter((cell): cell is DrawerCell => cell instanceof DrawerCell && cell.closest(DRAWER) === this);
   }
 
-  /** NVD-81, NVD-85: a cell's runs for the words, kept while the words and its label stay. */
-  private runsOf(cell: DrawerCell, words: string[], key: string): readonly Run[] | null {
-    const kept = this.runsMemo.get(cell);
-    if (kept && kept.key === key && kept.label === cell.label) return kept.runs;
-    const runs = wordRuns(cell.label, words, fold(cell.label));
-    this.runsMemo.set(cell, { key, label: cell.label, runs });
-    return runs;
-  }
-
   /**
    * NVD-81…86: the filter of filterValue over the cells as they are now — which rows match (every word, anywhere in the
    * label, in any order, without regard to case, width or marks), which a filter hides, which closed groups it draws
-   * open, the runs it marks, and the active match.
+   * open, and the active match. It marks no run of a label (NVD-85).
    */
   private reckonFilter(): FilterState {
     const words = this.filterable ? filterWords(this.filterValue ?? '') : [];
@@ -2057,29 +2015,19 @@ export class TanreiNavigationDrawer extends TanreiElement {
     // NVD-79: collapsed, the cells are drawn as though no filter were applied, and filterValue is kept.
     if (!words.length || this.collapsed) return NO_FILTER;
     const cells = this.ownCells();
-    const matches = new Set<DrawerCell>();
-    const runs = new Map<DrawerCell, readonly Run[]>();
-    for (const cell of cells) {
-      const found = this.runsOf(cell, words, key);
-      if (!found) continue;
-      matches.add(cell);
-      runs.set(cell, found);
+    const matches = new Set(cells.filter((cell) => holdsWords(cell.label, words)));
+    // NVD-82: each match, each group that holds one, and the whole of a group found by its own name.
+    const shown = new Set<Element>();
+    for (const cell of matches) {
+      shown.add(cell);
+      for (const group of groupsOf(cell)) shown.add(group);
+      if (cell instanceof TanreiNavigationDrawerGroup) for (const inner of cell.querySelectorAll(CELLS)) shown.add(inner);
     }
-    const hidden = new Set<Element>();
-    if (this.filterModeAs === 'filter') {
-      // NVD-82: each match, each group that holds one, and the whole of a group found by its own name.
-      const shown = new Set<Element>();
-      for (const cell of matches) {
-        shown.add(cell);
-        for (const group of groupsOf(cell)) shown.add(group);
-        if (cell instanceof TanreiNavigationDrawerGroup) for (const inner of cell.querySelectorAll(CELLS)) shown.add(inner);
-      }
-      for (const cell of cells) if (!shown.has(cell)) hidden.add(cell);
-      // NVD-82: a section with no row shown is hidden with its heading and its divider.
-      for (const section of this.querySelectorAll(SECTION)) {
-        if (!(section instanceof TanreiNavigationDrawerSection) || section.closest(DRAWER) !== this) continue;
-        if (![...section.querySelectorAll(CELLS)].some((cell) => shown.has(cell))) hidden.add(section);
-      }
+    const hidden = new Set<Element>(cells.filter((cell) => !shown.has(cell)));
+    // NVD-82: a section with no row shown is hidden with its heading and its divider.
+    for (const section of this.querySelectorAll(SECTION)) {
+      if (!(section instanceof TanreiNavigationDrawerSection) || section.closest(DRAWER) !== this) continue;
+      if (![...section.querySelectorAll(CELLS)].some((cell) => shown.has(cell))) hidden.add(section);
     }
     // NVD-84: each closed group that holds a match, drawn open for the filter — unless the person opened or closed it.
     const opened = new Set<TanreiNavigationDrawerGroup>();
@@ -2091,7 +2039,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
     const drawn = (group: TanreiNavigationDrawerGroup) => group.open || opened.has(group) || !this.expandable;
     const takes = (cell: DrawerCell) => !(cell instanceof TanreiNavigationDrawerGroup) || this.expandable || this.isDestinationGroup(cell);
     const active = cells.find((cell) => matches.has(cell) && !cell.disabled && takes(cell) && !hidden.has(cell) && groupsOf(cell).every(drawn)) ?? null;
-    return { applied: true, matches, hidden, opened, runs, active };
+    return { applied: true, matches, hidden, opened, active };
   }
 
   /** NVD-90: what the status line at the top of the results says now; empty while it draws none. */
@@ -2135,7 +2083,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
     // NVD-94: what a filter changes is drawn at once.
     if (after !== before && (after.applied || before.applied)) this.drawFilterAtOnce();
     // NVD-91: a changed result is said once it has stayed as it is for the pause; nothing while no filter is applied.
-    const result = after.applied ? [this.filterKey, this.filterModeAs, after.matches.size, ...[...after.matches].map((cell) => cell.label)].join('\u0001') : '';
+    const result = after.applied ? [this.filterKey, after.matches.size, ...[...after.matches].map((cell) => cell.label)].join('\u0001') : '';
     if (result !== this.saidFor) {
       this.saidFor = result;
       clearTimeout(this.sayTimer);
@@ -2422,7 +2370,6 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private reportFilter() {
     if (!this.fieldShown) return;
     if (!this.filterLabel.trim()) report(this, 'NVD-95', 'filterable is true and filterLabel is empty, so the filter field has no accessible name; give it one in the product’s language');
-    if (this.filterMode !== 'filter' && this.filterMode !== 'highlight') report(this, 'NVD-95', `filterMode "${this.filterMode}" is not a value the drawer defines; it filters as "filter"`);
     if (!this.words.get('filterPlaceholder', this.filterPlaceholder)) this.words.missing('filterPlaceholder', { id: 'NVD-79', effect: 'the empty filter field shows no hint' });
     if (this.filterValue && this.words.lacks('clearLabel', this.filterClearLabel)) report(this, 'NVD-89', 'filterClearLabel is empty and the product’s words give none, so the clear button has no accessible name; give it one in the product’s language');
     const { applied, matches } = this.filter;
@@ -2928,7 +2875,6 @@ export class TanreiNavigationDrawer extends TanreiElement {
       supportingWrap: this.supportingWrap,
       filterHidden: this.filter.hidden.has(cell),
       filterOpen: group && this.filter.opened.has(cell),
-      filterRuns: this.filter.runs.get(cell) ?? null,
       filterActive: this.fieldFocused && cell === this.filter.active,
     };
   }

@@ -509,18 +509,14 @@ export function auditInvariants(model) {
     ...SYNTAX.flatMap((part) => SURFACES.map((surface) => [`${codeBlock}.${part}`, `${CONFIG.namespace}.sys.color.${surface}`, TEXT, 'code in an outlined block on a surface'])),
     [`${inlineCode}.label.color`, `${inlineCode}.container.color`, TEXT, 'inline code on its fill'],
   ];
-  // A match is marked as a search marks one: its text in a color of its own over a fill of its own (and, on a row that
-  // is selected, over the fill that stands apart from the selected one). The text is read on that fill.
+  // A match is marked as a search marks one: its text in a color of its own over a fill of its own (and, in an option
+  // that is selected, over the fill that stands apart from the selected one). The text is read on that fill.
   const comp = (name) => `${CONFIG.namespace}.comp.${name}`;
+  const match = comp('combobox.option.match');
   const markPairs = [
     [comp('search.result.mark.color'), comp('search.result.mark.container.color'), TEXT, 'a match on its fill'],
-    ...[
-      ['navigation-drawer.item.match', 'a matched run of a row'],
-      ['combobox.option.match', 'a matched run of an option'],
-    ].flatMap(([match, what]) => [
-      [comp(`${match}.color`), comp(`${match}.container.color`), TEXT, `${what} on its fill`],
-      [comp(`${match}.selected.color`), comp(`${match}.selected.container.color`), TEXT, `${what} on the fill a selected one takes`],
-    ]),
+    [`${match}.color`, `${match}.container.color`, TEXT, 'a matched run of an option on its fill'],
+    [`${match}.selected.color`, `${match}.selected.container.color`, TEXT, 'a matched run of an option on the fill a selected one takes'],
   ];
   for (const [fgId, bgId, min, why] of [...codePairs, ...markPairs]) {
     const [fgToken, bgToken] = [model.tokens[fgId], model.tokens[bgId]];

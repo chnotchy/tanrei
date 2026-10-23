@@ -35,7 +35,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a navigation drawer reads, expanded and collapsed: per variant (standard: beside the content; modal: over it) the container color, elevation, shape and end-edge color; its two widths (expanded, and collapsed to the icon column), padding and the gaps of its header, and the text style and color its header slot gives what it holds; the two window widths at which a responsive drawer changes its presentation; the scrim; the section heading's style, color and height; per density (regular, compact) the geometry of a destination in each form (the expanded row, and the collapsed item container around the icon), the indent of a nested destination, the gap between cells, the collapsed column and the heading height, the trailing text and glyph, the supporting text, the guide line and the edge under pinned rows; the selection, expand and disclosure motion; and for each condition (unselected, selected, and their collapsed- forms) the colors of the item container, icon indicator, icon, label and trailing content in each state. Also, for a filterable drawer: the gap under its filter field, the status line's text style and color, the key hint's text style and color, and how a match in a label is marked (color, added weight, fill, and the two on the selected row).",
+            "usage": "Everything a navigation drawer reads, expanded and collapsed: per variant (standard: beside the content; modal: over it) the container color, elevation, shape and end-edge color; its two widths (expanded, and collapsed to the icon column), padding and the gaps of its header, and the text style and color its header slot gives what it holds; the two window widths at which a responsive drawer changes its presentation; the scrim; the section heading's style, color and height; per density (regular, compact) the geometry of a destination in each form (the expanded row, and the collapsed item container around the icon), the indent of a nested destination, the gap between cells, the collapsed column and the heading height, the trailing text and glyph, the supporting text, the guide line and the edge under pinned rows; the selection, expand and disclosure motion; and for each condition (unselected, selected, and their collapsed- forms) the colors of the item container, icon indicator, icon, label and trailing content in each state. Also, for a filterable drawer: the gap under its filter field, the status line's text style and color, and the key hint's text style and color.",
             "rules": [
               "The selected destination is drawn from the selected parts; every other destination from the unselected parts. While the drawer is collapsed they are the collapsed-selected and collapsed-unselected parts. Never pick a look by hand.",
               "Selected must differ from unselected by more than the icon's fill: an active indicator, a stronger color, or both.",
@@ -670,45 +670,6 @@
               "$type": "typography",
               "$value": "{tanrei.sys.typescale.body-small}",
               "$description": "The supporting text under or after a row's label: a tree view's note, a list item's supporting text."
-            }
-          },
-          "match": {
-            "$extensions": {
-              "dev.tanrei.vocabulary": {
-                "rationale": "One product marks, in each row a filter leaves or keeps, the letters that answered what was typed, as its search marks a match in a passage: how strongly — the text color, the added weight and the fill behind them — is its choice, apart from the selected fill and the state layers, and the selected row needs a fill of its own, because the quiet fill it is drawn with would hide a match drawn in that same fill.",
-                "since": "0.1.0"
-              }
-            },
-            "emphasis": {
-              "$type": "number",
-              "$value": "{tanrei.sys.typescale.emphasis.label}",
-              "$description": "How much weight a match gains over the row's label (NVD-85), added to the label typescale's weight."
-            },
-            "color": {
-              "$type": "color",
-              "$value": "{tanrei.sys.color.on-surface}",
-              "$description": "The text of a match on a row that is not selected (NVD-85): the stronger of the text colors. No hue: a match is not a selection, a choice or a link."
-            },
-            "container": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.sys.color.secondary-container}",
-                "$description": "The fill behind a match on a row that is not selected (NVD-85), as well as its weight and color: the quiet tonal container, as a search's match is filled, so that a match is found in every script, also where the reader's font has no weight between regular and bold."
-              }
-            },
-            "selected": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.navigation-drawer.selected.item.label.color}",
-                "$description": "The text of a match on the selected row (NVD-85): the selected label's own color."
-              },
-              "container": {
-                "color": {
-                  "$type": "color",
-                  "$value": "{tanrei.sys.color.surface}",
-                  "$description": "The fill behind a match on the selected row (NVD-85): the surface, cut out of the selected fill, so that the match stands apart from the row's own fill as it does on a row that is not selected."
-                }
-              }
             }
           }
         },

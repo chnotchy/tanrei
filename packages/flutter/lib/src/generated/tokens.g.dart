@@ -16931,11 +16931,6 @@ class TanreiNavigationDrawerTokens {
     required this.itemContainerShape,
     required this.itemGap,
     required this.itemIconIndicatorShape,
-    required this.itemMatchColor,
-    required this.itemMatchContainerColor,
-    required this.itemMatchEmphasis,
-    required this.itemMatchSelectedColor,
-    required this.itemMatchSelectedContainerColor,
     required this.itemSupportingTextTypescale,
     required this.itemTrailingTextTypescale,
     required this.motionDisclosureDuration,
@@ -17016,16 +17011,6 @@ class TanreiNavigationDrawerTokens {
   final double itemGap;
   /// `comp.navigation-drawer.item-icon-indicator-shape`
   final double itemIconIndicatorShape;
-  /// `comp.navigation-drawer.item-match-color`
-  final TanreiPaint itemMatchColor;
-  /// `comp.navigation-drawer.item-match-container-color`
-  final TanreiPaint itemMatchContainerColor;
-  /// `comp.navigation-drawer.item-match-emphasis`
-  final double itemMatchEmphasis;
-  /// `comp.navigation-drawer.item-match-selected-color`
-  final TanreiPaint itemMatchSelectedColor;
-  /// `comp.navigation-drawer.item-match-selected-container-color`
-  final TanreiPaint itemMatchSelectedContainerColor;
   /// `comp.navigation-drawer.item-supporting-text-typescale`
   final TanreiTextStyle itemSupportingTextTypescale;
   /// `comp.navigation-drawer.item-trailing-text-typescale`
@@ -17110,11 +17095,6 @@ class TanreiNavigationDrawerTokens {
     double? itemContainerShape,
     double? itemGap,
     double? itemIconIndicatorShape,
-    TanreiPaint? itemMatchColor,
-    TanreiPaint? itemMatchContainerColor,
-    double? itemMatchEmphasis,
-    TanreiPaint? itemMatchSelectedColor,
-    TanreiPaint? itemMatchSelectedContainerColor,
     TanreiTextStyle? itemSupportingTextTypescale,
     TanreiTextStyle? itemTrailingTextTypescale,
     int? motionDisclosureDuration,
@@ -17169,11 +17149,6 @@ class TanreiNavigationDrawerTokens {
         itemContainerShape: itemContainerShape ?? this.itemContainerShape,
         itemGap: itemGap ?? this.itemGap,
         itemIconIndicatorShape: itemIconIndicatorShape ?? this.itemIconIndicatorShape,
-        itemMatchColor: itemMatchColor ?? this.itemMatchColor,
-        itemMatchContainerColor: itemMatchContainerColor ?? this.itemMatchContainerColor,
-        itemMatchEmphasis: itemMatchEmphasis ?? this.itemMatchEmphasis,
-        itemMatchSelectedColor: itemMatchSelectedColor ?? this.itemMatchSelectedColor,
-        itemMatchSelectedContainerColor: itemMatchSelectedContainerColor ?? this.itemMatchSelectedContainerColor,
         itemSupportingTextTypescale: itemSupportingTextTypescale ?? this.itemSupportingTextTypescale,
         itemTrailingTextTypescale: itemTrailingTextTypescale ?? this.itemTrailingTextTypescale,
         motionDisclosureDuration: motionDisclosureDuration ?? this.motionDisclosureDuration,

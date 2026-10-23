@@ -63,7 +63,6 @@ const DENSITY_MEMBERS: readonly (readonly [string, string])[] = [
   ['--_nvd-ind-h', 'item-icon-indicator-height-*'],
   ['--_nvd-label-font', 'item-label-typescale-*-font'],
   ['--_nvd-label-tracking', 'item-label-typescale-*-letter-spacing'],
-  ['--_nvd-label-weight', 'item-label-typescale-*-font-weight'],
   ['--_nvd-trailing-icon', 'item-trailing-icon-size-*'],
   ['--_nvd-column', 'collapsed-container-width-*'],
   ['--_nvd-pill', 'collapsed-item-container-width-*'],
@@ -1239,27 +1238,6 @@ export const cellStyles = css`
   ${rippleStyles({ color: '--_c-p', grow: `${PREFIX}-motion-feedback-duration`, fade: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
   /* NVD-5, NVD-10: the ring (or the glow) around the item container, never animated. */
   ${focusRing((focus) => `.cell:is(${focus}, .filter-active${focus.replace(':focus-visible', '')}) .container`)}
-
-  /* NVD-85: a run a word of the filter matched, marked as the search marks a match (SRC-43): in item.match.color, its
-     weight raised by item.match.emphasis over the label's, over a fill of item.match.container.color that covers its own
-     line boxes — square, unpadded, so the fill moves no text; on the selected row in item.match.selected.color over
-     item.match.selected.container.color (the quiet fill a match takes elsewhere is the selected row's own); on a
-     disabled row in the label's disabled color. It wraps with the label as one text. */
-  .match {
-    margin: 0;
-    border-radius: 0;
-    padding: 0;
-    background-color: ${t('item-match-container-color')};
-    color: ${t('item-match-color')};
-    font-weight: calc(${d('--_nvd-label-weight')} + ${t('item-match-emphasis')});
-  }
-  .cell.selected .match {
-    background-color: ${t('item-match-selected-container-color')};
-    color: ${t('item-match-selected-color')};
-  }
-  .cell.d .match {
-    color: inherit;
-  }
   ${shape}
   ${pressHold('.hold')}
   .hold {
@@ -1301,14 +1279,6 @@ export const cellStyles = css`
     }
     .cell.d :is(.icon, .label, .supporting, .short, .trailing-text, .trailing-slot, .link-mark, .chevron) {
       color: GrayText;
-    }
-    /* NVD-85: a match in the platform's colors for marked text, its weight raised. */
-    .match,
-    .cell.selected .match,
-    .cell.d .match {
-      forced-color-adjust: none;
-      background-color: Mark;
-      color: MarkText;
     }
   }
 `;

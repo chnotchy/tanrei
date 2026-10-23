@@ -3656,15 +3656,6 @@ test.describe('filter', () => {
     await expect(item(page, 'sec', 0).locator('.cell')).toHaveAttribute('aria-current', 'page');
   });
 
-  test('NVD-83: highlight hides nothing, marks the matches and opens what holds them', async ({ page }) => {
-    await mount(page, [fx('filter-highlight')]);
-    expect(await shownLabels(page, 'filter-highlight')).toEqual(['Getting started', 'Foundations', 'Components', 'Button', 'Navigation bar', 'Navigation drawer', 'Tabs', 'Project', 'Source code']);
-    const marked = await drawer(page, 'filter-highlight').evaluate((el) =>
-      [...el.querySelectorAll<HTMLElement & { label: string }>('tanrei-navigation-drawer-item, tanrei-navigation-drawer-group')].filter((cell) => cell.shadowRoot?.querySelector('mark')).map((cell) => cell.label),
-    );
-    expect(marked).toEqual(['Navigation bar', 'Navigation drawer']);
-  });
-
   test('NVD-84: a closed group that holds a match is drawn open for the filter, at once, without writing open or emitting toggle; the person’s open and close are real; emptied, it is as its open says', async ({ page }) => {
     await mount(page, [fx('filter-empty-field')]);
     await wireFilter(page);
@@ -3697,55 +3688,37 @@ test.describe('filter', () => {
     await expect(row(started)).toHaveAttribute('aria-expanded', 'true');
   });
 
-  test('NVD-85: a matched run is drawn in item.match.color, heavier by item.match.emphasis, over item.match.container.color — on the selected row the selected pair — and the name stays one text', async ({ page }) => {
-    await mount(page, [fx('filter-highlight')]);
-    const bar = byLabel(page, 'filter-highlight', 'Navigation bar');
-    const selected = byLabel(page, 'filter-highlight', 'Navigation drawer');
-    await expect(bar.locator('mark')).toHaveText('Nav');
-    const look = (locator: Locator) =>
-      locator.evaluate((el) => {
-        const style = getComputedStyle(el);
-        const label = getComputedStyle(el.parentElement!);
-        return { color: style.color, fill: style.backgroundColor, weight: Number(style.fontWeight), labelWeight: Number(label.fontWeight), radius: style.borderRadius, padding: style.padding };
-      });
-    const plain = await look(bar.locator('mark'));
-    expect(plain.color).toBe(await resolveColor(page, T('item-match-color')));
-    expect(plain.fill).toBe(await resolveColor(page, T('item-match-container-color')));
-    expect(plain.weight).toBeGreaterThan(plain.labelWeight);
-    expect([plain.radius, plain.padding]).toEqual(['0px', '0px']);
-    const chosen = await look(selected.locator('mark'));
-    expect(chosen.color).toBe(await resolveColor(page, T('item-match-selected-color')));
-    expect(chosen.fill).toBe(await resolveColor(page, T('item-match-selected-container-color')));
-    await expect(selected.locator('.cell')).toHaveAttribute('aria-label', 'Navigation drawer');
-    expect(await selected.locator('.label').evaluate((el) => el.closest('[aria-hidden="true"]') !== null)).toBe(true);
-    // Under forced colors: the platform's colors for marked text.
-    await page.emulateMedia({ forcedColors: 'active' });
-    const forced = await look(bar.locator('mark'));
-    const system = await page.evaluate(() => {
-      const probe = document.createElement('div');
-      probe.style.cssText = 'forced-color-adjust:none;background-color:Mark;color:MarkText';
-      document.body.append(probe);
-      const style = getComputedStyle(probe);
-      const out = { fill: style.backgroundColor, color: style.color };
-      probe.remove();
-      return out;
-    });
-    expect([forced.fill, forced.color]).toEqual([system.fill, system.color]);
-    await page.emulateMedia({ forcedColors: 'none' });
+  test('NVD-85: a row that matches is drawn as it is without a filter — no run of its label marked, no element of its own — and is named by its whole label', async ({ page }) => {
+    await mount(page, [fx('filter-matches'), { id: 'plain', props: { ...fx('filter-matches').props, filterValue: '' }, items: SIDEBAR }]);
+    const look = (id: string, label: string) =>
+      byLabel(page, id, label)
+        .locator('.label')
+        .evaluate((el) => {
+          const style = getComputedStyle(el);
+          return { color: style.color, fill: style.backgroundColor, weight: style.fontWeight, elements: el.children.length, text: el.textContent };
+        });
+    for (const label of ['Navigation bar', 'Navigation drawer']) {
+      const drawn = await look('filter-matches', label);
+      expect(drawn).toEqual(await look('plain', label));
+      expect([drawn.elements, drawn.text]).toEqual([0, label]);
+      await expect(byLabel(page, 'filter-matches', label).locator('.cell')).toHaveAttribute('aria-label', label);
+    }
+    // Nothing of the drawer's is drawn in a label while a filter is applied: no mark anywhere.
+    expect(await drawer(page, 'filter-matches').evaluate((el) => [...el.querySelectorAll('*')].filter((cell) => cell.shadowRoot?.querySelector('mark')).length)).toBe(0);
   });
 
   test('NVD-86: the first match is active while focus stays in the field — drawn as the focused row; Enter takes it, Down Arrow moves focus to it; Escape empties, then returns focus to where the chord took it from', async ({ page }) => {
-    await mount(page, [fx('filter-highlight')]);
+    await mount(page, [fx('filter-matches')]);
     await wireFilter(page);
-    const bar = byLabel(page, 'filter-highlight', 'Navigation bar');
+    const bar = byLabel(page, 'filter-matches', 'Navigation bar');
     await expect(bar).not.toHaveAttribute('data-filter-active', '');
-    await fieldInput(page, 'filter-highlight').focus();
+    await fieldInput(page, 'filter-matches').focus();
     await expect(bar).toHaveAttribute('data-filter-active', '');
     expect(await focusedAt(page)).toEqual({ tag: 'input', label: null });
     // Drawn with the focused state's paints and the focus ring.
     await expect.poll(() => bar.locator('.container').evaluate((el) => getComputedStyle(el).outlineStyle)).toBe('solid');
     // The pointer over another row does not make it the active match.
-    await byLabel(page, 'filter-highlight', 'Tabs').hover();
+    await byLabel(page, 'filter-matches', 'Components').locator('.cell').first().hover();
     await expect(bar).toHaveAttribute('data-filter-active', '');
     // Enter takes it, as Enter on its row would (a link: the drawer says change, which the test cancels).
     await page.keyboard.press('Enter');
@@ -3754,21 +3727,21 @@ test.describe('filter', () => {
     // Typing goes on in the field; a new first match is the active one.
     await page.keyboard.press('End');
     await page.keyboard.type(' dr');
-    await expect(byLabel(page, 'filter-highlight', 'Navigation drawer')).toHaveAttribute('data-filter-active', '');
+    await expect(byLabel(page, 'filter-matches', 'Navigation drawer')).toHaveAttribute('data-filter-active', '');
     await expect(bar).not.toHaveAttribute('data-filter-active', '');
     // Down Arrow moves focus to it, and changes nothing else.
     await page.keyboard.press('ArrowDown');
     expect(await focusedAt(page)).toEqual({ tag: 'a', label: 'Navigation drawer' });
     expect(await log(page)).toEqual(['change:/components/navigation-bar/', 'filterchange:nav :nav ', 'filterchange:nav d:nav d', 'filterchange:nav dr:nav dr']);
     // No row is active while focus is not in the field.
-    await expect(byLabel(page, 'filter-highlight', 'Navigation drawer')).not.toHaveAttribute('data-filter-active', '');
+    await expect(byLabel(page, 'filter-matches', 'Navigation drawer')).not.toHaveAttribute('data-filter-active', '');
     // Escape in the field: with text it empties it and keeps focus; empty, back to where "/" came from.
     await page.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<button id="before">Before</button>'));
     await page.locator('#before').focus();
     await page.keyboard.press('/');
     expect((await focusedAt(page)).tag).toBe('input');
     await page.keyboard.press('Escape');
-    await expect(fieldInput(page, 'filter-highlight')).toHaveValue('');
+    await expect(fieldInput(page, 'filter-matches')).toHaveValue('');
     expect((await focusedAt(page)).tag).toBe('input');
     expect((await log(page)).at(-1)).toBe('filterchange::');
     await page.keyboard.press('Escape');
@@ -3894,30 +3867,31 @@ test.describe('filter', () => {
   });
 
   test('NVD-93: a filter that hides the focused row moves focus to the field; Escape on a row of a standard drawer opens the groups the filter opened around it, empties the filter and keeps focus there; a modal drawer closes', async ({ page }) => {
-    await mount(page, [fx('filter-highlight')]);
+    await mount(page, [fx('filter-matches')]);
     await wireFilter(page);
-    await byLabel(page, 'filter-highlight', 'Tabs').locator('.cell').focus();
-    await setProps(page, 'filter-highlight', { filterMode: 'filter' });
-    await expect(fieldInput(page, 'filter-highlight')).toBeFocused();
+    await setProps(page, 'filter-matches', { filterValue: 'tabs' });
+    await byLabel(page, 'filter-matches', 'Tabs').locator('.cell').focus();
+    await setProps(page, 'filter-matches', { filterValue: 'nav' });
+    await expect(fieldInput(page, 'filter-matches')).toBeFocused();
     // Escape on a row: emptied, and the row keeps focus.
-    await fieldInput(page, 'filter-highlight').focus();
+    await fieldInput(page, 'filter-matches').focus();
     await page.keyboard.press('ArrowDown');
     expect((await focusedAt(page)).label).toBe('Navigation bar');
     await page.keyboard.press('Escape');
-    await expect(fieldInput(page, 'filter-highlight')).toHaveValue('');
+    await expect(fieldInput(page, 'filter-matches')).toHaveValue('');
     expect((await focusedAt(page)).label).toBe('Navigation bar');
     expect((await log(page)).at(-1)).toBe('filterchange::');
     // A row shown only because the filter opened its group: the group is opened as the person would open it, so that
     // the row stays shown.
-    await setProps(page, 'filter-highlight', { filterValue: 'web' });
-    await fieldInput(page, 'filter-highlight').focus();
+    await setProps(page, 'filter-matches', { filterValue: 'web' });
+    await fieldInput(page, 'filter-matches').focus();
     await page.keyboard.press('ArrowDown');
     expect((await focusedAt(page)).label).toBe('Web');
     await page.keyboard.press('Escape');
-    await expect(byLabel(page, 'filter-highlight', 'Getting started')).toHaveAttribute('open', '');
+    await expect(byLabel(page, 'filter-matches', 'Getting started')).toHaveAttribute('open', '');
     expect((await log(page)).slice(-2)).toEqual(['toggle:Getting started:true', 'filterchange::']);
     expect((await focusedAt(page)).label).toBe('Web');
-    expect(await byLabel(page, 'filter-highlight', 'Web').evaluate((el) => el.checkVisibility({ visibilityProperty: true }))).toBe(true);
+    expect(await byLabel(page, 'filter-matches', 'Web').evaluate((el) => el.checkVisibility({ visibilityProperty: true }))).toBe(true);
     // Modal: Escape closes it, and the filter is left as it is.
     await mount(page, [{ id: 'modal', props: { ...fx('filter').props, variant: 'modal', open: true }, items: SIDEBAR }]);
     await page.locator('[data-fixture="modal"] tanrei-navigation-drawer-item[label="Navigation drawer"]').locator('.cell').focus();
@@ -3926,7 +3900,7 @@ test.describe('filter', () => {
     expect(await drawer(page, 'modal').evaluate((el: any) => el.filterValue)).toBe('dr');
   });
 
-  test('NVD-94: every change a filter makes is drawn at once — rows, groups opened and closed for it, marks — without the motion of a group', async ({ page }) => {
+  test('NVD-94: every change a filter makes is drawn at once — rows, and groups opened and closed for it — without the motion of a group', async ({ page }) => {
     await mount(page, [fx('filter-empty-field')]);
     const components = byLabel(page, 'filter-empty-field', 'Foundations');
     const motion = async () => ({ running: await motionCount(components.locator('.items')), rows: await components.locator('.items').evaluate((el) => getComputedStyle(el).gridTemplateRows) });
@@ -3938,9 +3912,9 @@ test.describe('filter', () => {
     expect((await motion()).running).toBe(0);
   });
 
-  test('NVD-95: the field is a search field named by filterLabel that controls the list, before the items; positions and sizes count the rows shown; an unknown filterMode filters, reported; an empty filterLabel is reported', async ({ page }) => {
+  test('NVD-95: the field is a search field named by filterLabel that controls the list, before the items; positions and sizes count the rows shown; an empty filterLabel is reported', async ({ page }) => {
     const seen = warnings(page);
-    await mount(page, [fx('filter'), { id: 'bare', props: { ...fx('filter').props, filterLabel: '', filterMode: 'sieve', filterShortcut: [] }, items: SIDEBAR }]);
+    await mount(page, [fx('filter'), { id: 'bare', props: { ...fx('filter').props, filterLabel: '', filterShortcut: [] }, items: SIDEBAR }]);
     const input = fieldInput(page, 'filter');
     await expect(input).toHaveAttribute('type', 'search');
     await expect(input).toHaveAccessibleName('Filter navigation');
@@ -3952,13 +3926,12 @@ test.describe('filter', () => {
     await expect(byLabel(page, 'filter', 'Navigation drawer')).toHaveAttribute('aria-setsize', '1');
     await expect(byLabel(page, 'filter', 'Components')).toHaveAttribute('aria-setsize', '1');
     expect(await shownLabels(page, 'bare')).toEqual(['Components', 'Navigation drawer']);
-    expect(seen.some((w) => w.includes('NVD-95') && w.includes('sieve'))).toBe(true);
     expect(seen.some((w) => w.includes('NVD-95') && w.includes('filterLabel is empty'))).toBe(true);
   });
 
-  test('no axe violations with a filter applied, matching nothing, highlighted and with focus in the field', async ({ page }) => {
-    await mount(page, only('filter-empty-field', 'filter', 'filter-count-hidden', 'filter-group', 'filter-highlight', 'filter-none', 'filter-compact'), { reducedMotion: true });
-    await fieldInput(page, 'filter-highlight').focus();
+  test('no axe violations with a filter applied, matching nothing and with focus in the field', async ({ page }) => {
+    await mount(page, only('filter-empty-field', 'filter', 'filter-count-hidden', 'filter-group', 'filter-matches', 'filter-none', 'filter-compact'), { reducedMotion: true });
+    await fieldInput(page, 'filter-matches').focus();
     const results = await new AxeBuilder({ page }).include('.stage').analyze();
     expect(results.violations, results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')).toEqual([]);
   });

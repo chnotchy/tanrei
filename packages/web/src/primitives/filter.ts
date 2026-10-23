@@ -1,5 +1,6 @@
-// How a typed text is compared with a label, and which runs of the label answered it: the combobox's filter (CMB-25,
-// CMB-29, CMB-38) and the filter field of the navigation drawer and the tree view (NVD-81, NVD-85, TRV-56).
+// How a typed text is compared with a label: the combobox's filter (CMB-25, CMB-29), with the run of the label that
+// answered it (CMB-38), and the filter field of the navigation drawer and the tree view (NVD-81, TRV-56), which marks
+// no run (NVD-85, TRV-60).
 //
 // Without regard to case, to the width of a character or to the marks on a letter: each letter with the marks that
 // follow it is folded by itself — its compatibility form (a full-width "ｔ" is "t", a half-width "ｶ" is "カ"), without
@@ -64,55 +65,12 @@ export function filterWords(text: string): string[] {
     .filter(Boolean);
 }
 
-/** A run of a label, as offsets into the label's own string (UTF-16 code units): `[start, end)`. */
-export type Run = readonly [number, number];
-
 /**
- * NVD-81, NVD-85, TRV-56: whether `label` holds every word — each anywhere in it, in any order — and, where it
- * does, every run of the label that a word matched, merged where they touch or overlap, in order. Null where a word is
- * missing. `folded` may be given where the caller keeps the label folded.
+ * NVD-81, TRV-56: whether `label` holds every word — each anywhere in it, in any order. `folded` may be given where the
+ * caller keeps the label folded.
  */
-export function wordRuns(label: string, words: readonly string[], folded: Folded = fold(label)): Run[] | null {
-  if (!words.length) return null;
-  // Where each letter of the label begins in its string.
-  const starts: number[] = [];
-  let offset = 0;
-  for (const cluster of folded.clusters) {
-    starts.push(offset);
-    offset += cluster.length;
-  }
-  starts.push(offset);
-  const spans: [number, number][] = [];
-  for (const word of words) {
-    let found = false;
-    for (let at = folded.text.indexOf(word); at >= 0; at = folded.text.indexOf(word, at + 1)) {
-      found = true;
-      const first = folded.from[at];
-      const last = folded.from[at + word.length - 1];
-      spans.push([starts[first], starts[last + 1]]);
-    }
-    if (!found) return null;
-  }
-  spans.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-  const merged: [number, number][] = [];
-  for (const span of spans) {
-    const last = merged.at(-1);
-    if (last && span[0] <= last[1]) last[1] = Math.max(last[1], span[1]);
-    else merged.push([span[0], span[1]]);
-  }
-  return merged;
-}
-
-/** The pieces of `label` between and at `runs`, in order: plain, run, plain, run, … (the first piece may be empty). */
-export function runPieces(label: string, runs: readonly Run[]): string[] {
-  const pieces: string[] = [];
-  let at = 0;
-  for (const [start, end] of runs) {
-    pieces.push(label.slice(at, start), label.slice(start, end));
-    at = end;
-  }
-  pieces.push(label.slice(at));
-  return pieces;
+export function holdsWords(label: string, words: readonly string[], folded: Folded = fold(label)): boolean {
+  return words.length > 0 && words.every((word) => folded.text.includes(word));
 }
 
 /**

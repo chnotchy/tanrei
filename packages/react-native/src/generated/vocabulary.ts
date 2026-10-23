@@ -3648,11 +3648,6 @@ export interface TanreiNavigationDrawerTokens {
   readonly itemContainerShape: number;
   readonly itemGap: number;
   readonly itemIconIndicatorShape: number;
-  readonly itemMatchColor: TanreiPaint;
-  readonly itemMatchContainerColor: TanreiPaint;
-  readonly itemMatchEmphasis: number;
-  readonly itemMatchSelectedColor: TanreiPaint;
-  readonly itemMatchSelectedContainerColor: TanreiPaint;
   readonly itemSupportingTextTypescale: TanreiTypescaleRole;
   readonly itemTrailingTextTypescale: TanreiTypescaleRole;
   readonly motionDisclosureDuration: number;

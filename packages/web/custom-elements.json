@@ -28522,10 +28522,6 @@
             {
               "description": "The `open_in_new` glyph that ends a link which opens a new context, where the row has no trailing content (hidden from assistive technology).",
               "name": "link-mark"
-            },
-            {
-              "description": "A run of the label that a word of the drawer's filter matched (NVD-85): a `<mark>` in the drawn label, which is hidden from assistive technology (the cell is named by the whole label).",
-              "name": "match"
             }
           ],
           "slots": [
@@ -28992,10 +28988,6 @@
             {
               "description": "The list of its items.",
               "name": "items"
-            },
-            {
-              "description": "A run of the label that a word of the drawer's filter matched (NVD-85), as an item's.",
-              "name": "match"
             }
           ],
           "slots": [
@@ -29697,18 +29689,6 @@
             },
             {
               "kind": "field",
-              "name": "filterMode",
-              "privacy": "public",
-              "type": {
-                "text": "TanreiNavigationDrawerFilterMode"
-              },
-              "default": "'filter'",
-              "description": "What a filter does to the rows that do not match: `filter` (the default) hides them; `highlight` hides nothing and marks the matches (NVD-82, NVD-83). Anything else is `filter`, reported. Reflected.",
-              "attribute": "filter-mode",
-              "reflects": true
-            },
-            {
-              "kind": "field",
               "name": "filterLabel",
               "privacy": "public",
               "type": {
@@ -30108,15 +30088,6 @@
               "default": "''",
               "description": "The filter text (NVD-80): what the field holds. The drawer sets it as the person types, then fires `filterchange`; set it yourself to give a filter back (no event). Empty, or white space, applies none.",
               "fieldName": "filterValue"
-            },
-            {
-              "name": "filter-mode",
-              "type": {
-                "text": "TanreiNavigationDrawerFilterMode"
-              },
-              "default": "'filter'",
-              "description": "What a filter does to the rows that do not match: `filter` (the default) hides them; `highlight` hides nothing and marks the matches (NVD-82, NVD-83). Anything else is `filter`, reported. Reflected.",
-              "fieldName": "filterMode"
             },
             {
               "name": "filter-label",

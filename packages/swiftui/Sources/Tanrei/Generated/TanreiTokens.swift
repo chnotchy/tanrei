@@ -11714,11 +11714,6 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   public var itemContainerShape: CGFloat
   public var itemGap: CGFloat
   public var itemIconIndicatorShape: CGFloat
-  public var itemMatchColor: TanreiPaint
-  public var itemMatchContainerColor: TanreiPaint
-  public var itemMatchEmphasis: Double
-  public var itemMatchSelectedColor: TanreiPaint
-  public var itemMatchSelectedContainerColor: TanreiPaint
   public var itemSupportingTextTypescale: TanreiTextStyle
   public var itemTrailingTextTypescale: TanreiTextStyle
   public var motionDisclosureDuration: Double
@@ -11778,11 +11773,6 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     itemContainerShape: CGFloat,
     itemGap: CGFloat,
     itemIconIndicatorShape: CGFloat,
-    itemMatchColor: TanreiPaint,
-    itemMatchContainerColor: TanreiPaint,
-    itemMatchEmphasis: Double,
-    itemMatchSelectedColor: TanreiPaint,
-    itemMatchSelectedContainerColor: TanreiPaint,
     itemSupportingTextTypescale: TanreiTextStyle,
     itemTrailingTextTypescale: TanreiTextStyle,
     motionDisclosureDuration: Double,
@@ -11837,11 +11827,6 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     self.itemContainerShape = itemContainerShape
     self.itemGap = itemGap
     self.itemIconIndicatorShape = itemIconIndicatorShape
-    self.itemMatchColor = itemMatchColor
-    self.itemMatchContainerColor = itemMatchContainerColor
-    self.itemMatchEmphasis = itemMatchEmphasis
-    self.itemMatchSelectedColor = itemMatchSelectedColor
-    self.itemMatchSelectedContainerColor = itemMatchSelectedContainerColor
     self.itemSupportingTextTypescale = itemSupportingTextTypescale
     self.itemTrailingTextTypescale = itemTrailingTextTypescale
     self.motionDisclosureDuration = motionDisclosureDuration

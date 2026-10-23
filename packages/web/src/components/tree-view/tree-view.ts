@@ -17,7 +17,7 @@ import {
   styleQueries,
   syncFocusStyle,
 } from '../../primitives/index.js';
-import { FILTER_SETTLE_MS, filterWords, wordRuns } from '../../primitives/filter.js';
+import { FILTER_SETTLE_MS, filterWords, holdsWords } from '../../primitives/filter.js';
 import { fillPlaces } from '../../primitives/places.js';
 import { PendingGlyphs, isGlyphProbe } from '../../primitives/glyph-pending.js';
 import { type CutTextContent, CutTextTip, isCut } from '../../primitives/cut-text.js';
@@ -1870,7 +1870,7 @@ export class TanreiTreeView extends TanreiLightElement {
     const matches = new Set<Item>();
     for (const item of items) {
       const row = rowOf(item);
-      if (row && wordRuns(labelTextNodes(row).map((node) => node.data).join(''), words)) matches.add(item);
+      if (row && holdsWords(labelTextNodes(row).map((node) => node.data).join(''), words)) matches.add(item);
     }
     const ancestors = (item: Element) => {
       const above: Item[] = [];

@@ -7371,11 +7371,6 @@ public data class TanreiNavigationDrawerTokens(
     public val itemContainerShape: Dp,
     public val itemGap: Dp,
     public val itemIconIndicatorShape: Dp,
-    public val itemMatchColor: TanreiPaint,
-    public val itemMatchContainerColor: TanreiPaint,
-    public val itemMatchEmphasis: Float,
-    public val itemMatchSelectedColor: TanreiPaint,
-    public val itemMatchSelectedContainerColor: TanreiPaint,
     public val itemSupportingTextTypescale: TanreiTextStyle,
     public val itemTrailingTextTypescale: TanreiTextStyle,
     public val motionDisclosureDuration: Int,
@@ -7420,10 +7415,6 @@ public data class TanreiNavigationDrawerTokens(
         addAll(guideColor.roles())
         addAll(headerColor.roles())
         addAll(headingColor.roles())
-        addAll(itemMatchColor.roles())
-        addAll(itemMatchContainerColor.roles())
-        addAll(itemMatchSelectedColor.roles())
-        addAll(itemMatchSelectedContainerColor.roles())
         addAll(scrimColor.roles())
         addAll(stickyContainerColor.roles())
         addAll(stickyDividerColor.roles())

@@ -1,4 +1,4 @@
-/* 118 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json */
+/* 113 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json */
 /* GENERATED FILE — DO NOT EDIT. Source: tokens/ (DTCG 2025.10). Regenerate with `pnpm generate`. */
 @layer tanrei.tokens {
   [data-tanrei-system="cupertino"] {
@@ -5257,11 +5257,6 @@
     --tanrei-comp-navigation-drawer-item-label-typescale-regular-letter-spacing: var(--tanrei-sys-typescale-body-large-letter-spacing);
     --tanrei-comp-navigation-drawer-item-label-typescale-regular-line-height: var(--tanrei-sys-typescale-body-large-line-height);
     --tanrei-comp-navigation-drawer-item-label-typescale-regular-font: var(--tanrei-sys-typescale-body-large-font);
-    --tanrei-comp-navigation-drawer-item-match-color: var(--tanrei-sys-color-on-surface);
-    --tanrei-comp-navigation-drawer-item-match-container-color: var(--tanrei-sys-color-secondary-container);
-    --tanrei-comp-navigation-drawer-item-match-emphasis: var(--tanrei-sys-typescale-emphasis-label);
-    --tanrei-comp-navigation-drawer-item-match-selected-color: var(--tanrei-comp-navigation-drawer-selected-item-label-color);
-    --tanrei-comp-navigation-drawer-item-match-selected-container-color: var(--tanrei-sys-color-surface);
     --tanrei-comp-navigation-drawer-item-nest-indent-compact: var(--tanrei-sys-space-space300);
     --tanrei-comp-navigation-drawer-item-nest-indent-regular: var(--tanrei-sys-space-space450);
     --tanrei-comp-navigation-drawer-item-padding-block-compact: max(0px, round(nearest, calc(var(--tanrei-sys-space-space25) + (var(--tanrei-comp-navigation-drawer-item-container-height-compact) - round(nearest, calc(var(--tanrei-dial-size-unit) * 8), var(--tanrei-dial-size-unit))) / 2), 0.25px));

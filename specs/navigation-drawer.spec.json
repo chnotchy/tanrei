@@ -102,10 +102,6 @@
       "description": "The destination's name: beside the icon while expanded (its label, wrapping). Collapsed, no label is drawn unless collapsedLabels asks for the short label under the icon, on one line. Its label is always its accessible name."
     },
     {
-      "id": "item.match",
-      "description": "A run of a row's label that a word of the filter text matched, marked as a search marks a match: a stronger text color, a raised weight and a quiet fill behind it. Read as one text with the label."
-    },
-    {
       "id": "item.trailing",
       "description": "The end of an expanded row: the trailing slot's content (a glyph such as open_in_new) or else the destination's trailing text (a count such as \"24\", a word such as \"New\"), quieter than the label. Not interactive; part of the destination's description.",
       "optional": true
@@ -299,16 +295,6 @@
       "type": "string",
       "default": "",
       "description": "The filter text: what the filter field holds. The drawer sets it when the person types and emits filterChange; the product may set it too (a filter given back when a page is rendered again). Empty, or only white space, applies no filter."
-    },
-    {
-      "name": "filterMode",
-      "type": "enum",
-      "values": [
-        "filter",
-        "highlight"
-      ],
-      "default": "filter",
-      "description": "What a filter does to the rows that do not match. filter: hides them, keeping the groups that hold a match and the whole of a group whose own name matches, so that what is left is what was asked for (a site's sidebar). highlight: hides nothing and marks the matches, opening what holds them, for a structure that is read in its context (a project's files). Both mark the matched words and open, for the time being, what holds a match."
     },
     {
       "name": "filterLabel",
@@ -1044,13 +1030,8 @@
     },
     {
       "id": "NVD-82",
-      "text": "WHILE a filter is applied and filterMode is filter THE navigation drawer SHALL show, in the order given: each row that matches; each group's row that holds a row that matches, at any depth; and every item inside a group whose own row matches, so that a group found by its name is shown whole. Every other row SHALL be hidden — not drawn, taking no space, not focusable and not exposed to assistive technology — together with what it holds. A section with no row shown SHALL be hidden with its heading and its divider; a section with a row shown SHALL keep both. A hidden row SHALL keep its open, its disabled state and its selection, and WHEN no filter is applied any more every row SHALL be shown as it was.",
+      "text": "WHILE a filter is applied THE navigation drawer SHALL show, in the order given: each row that matches; each group's row that holds a row that matches, at any depth; and every item inside a group whose own row matches, so that a group found by its name is shown whole. Every other row SHALL be hidden — not drawn, taking no space, not focusable and not exposed to assistive technology — together with what it holds. A section with no row shown SHALL be hidden with its heading and its divider; a section with a row shown SHALL keep both. A hidden row SHALL keep its open, its disabled state and its selection, and WHEN no filter is applied any more every row SHALL be shown as it was.",
       "verify": "Fixture filter (\"dr\" over site-sidebar's items): the Components group's row and Navigation drawer are shown, opened for the filter; Getting started, Foundations and Project are hidden. Fixture filter-group (\"found\"): the Foundations group is shown, closed as its open says, and opening it shows all three of its destinations."
-    },
-    {
-      "id": "NVD-83",
-      "text": "WHILE a filter is applied and filterMode is highlight THE navigation drawer SHALL hide no row and no section, SHALL mark the rows that match (NVD-85), and SHALL open for the filter each group that holds one (NVD-84).",
-      "verify": "Fixture filter-highlight: every row of site-sidebar is drawn; the Components group, which holds Navigation bar and Navigation drawer, is open; only those two labels carry a mark."
     },
     {
       "id": "NVD-84",
@@ -1059,13 +1040,13 @@
     },
     {
       "id": "NVD-85",
-      "text": "WHILE a filter is applied and the drawer is expanded THE navigation drawer SHALL mark, in the label of each row that matches, every run of characters that a word of the filter text matched, as the search marks a match (SRC-43): in comp.navigation-drawer.item.match.color with its weight raised by comp.navigation-drawer.item.match.emphasis over the label's, over a fill of comp.navigation-drawer.item.match.container.color that covers the run's own line boxes, with square corners and no padding; on the selected row in comp.navigation-drawer.item.match.selected.color over comp.navigation-drawer.item.match.selected.container.color, so that the fill stands apart from the selected row's own; and on a disabled row in the label's disabled color. A match SHALL be told from the label around it by all three — color, weight and fill — so that it never depends on color alone and is found in every script, also where the reader's font has no weight between regular and bold and the raised weight draws as the regular one; the run SHALL wrap with the label as one text. WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) it SHALL draw the run in the platform's colors for marked text (the web's Mark and MarkText), its weight raised. THE navigation drawer SHALL expose the label to assistive technology as one text, read without a pause or an announcement at a run.",
-      "verify": "Fixture filter-highlight (\"nav\"): in Navigation bar the run \"Nav\" is drawn in comp.navigation-drawer.item.match.color, heavier than the label around it, over comp.navigation-drawer.item.match.container.color; in Navigation drawer, the selected row, over comp.navigation-drawer.item.match.selected.container.color; each destination's accessible name is its whole label. Under forced colors the runs are drawn in Mark and MarkText."
+      "text": "WHILE a filter is applied THE navigation drawer SHALL draw each row it shows as it draws that row without a filter, and SHALL NOT mark, in a label, the characters that a word of the filter text matched: no color, weight, fill or element of their own. What the filter leaves is the answer, as in a file tree's filter and a site's sidebar filter; a row SHALL be told from the others only by its own states — selected, disabled, hovered, pressed and focused — and as the active match (NVD-86). THE navigation drawer SHALL expose each label to assistive technology as the one text it is without a filter.",
+      "verify": "Fixture filter-matches (\"nav\"): Navigation bar and Navigation drawer, the selected row, are drawn in the label color, weight and fill they have without the filter, and their drawn labels hold no element of their own; each destination's accessible name is its whole label."
     },
     {
       "id": "NVD-86",
       "text": "WHILE keyboard focus is in the filter field, a filter is applied and a row shown matches and is not disabled, THE navigation drawer SHALL make the first such row, in reading order, the active match — as soon as there is one, and the new first one whenever the result changes — and SHALL draw it as it draws that row while the row has keyboard focus, its focused tokens and its focus ring (NVD-10), without animation, while focus stays in the field, so that typing goes on editing the filter text; a pointer over a row SHALL NOT make it the active match, and WHILE focus is not in the field no row SHALL be drawn as one. WHILE no input method is composing, WHEN the person presses Enter THE navigation drawer SHALL take the active match as Enter on that row takes it — a destination activated (NVD-1, NVD-60), a group's row opened or closed (NVD-45) — and SHALL keep focus in the field unless the activation moves it (a link followed, a modal drawer closed, NVD-21); WHEN the person presses Down Arrow THE navigation drawer SHALL move focus to the active match and do nothing more. WHILE there is no active match the two keys SHALL do nothing of the drawer's own. WHEN the person presses Escape WHILE the field holds text THE navigation drawer SHALL empty it, emit filterChange once with the empty text, and keep focus in the field, as a native search field does; WHEN the person presses Escape WHILE the field is empty THE navigation drawer SHALL return focus to the element that had it before the filter shortcut moved it to the field (NVD-87), and otherwise SHALL do nothing of its own and let the key pass on, so that a modal drawer closes (NVD-20). Up Arrow, Home, End and the arrow keys along the line SHALL stay the field's.",
-      "verify": "Fixture filter-highlight (\"nav\"), focus in the field: Navigation bar is drawn with its focused tokens and its focus ring while the field keeps focus; Enter activates it (its change, or for a link its click) and Down Arrow moves focus to it. Escape empties the field and emits filterChange with \"\"; a second Escape, after the field was reached by \"/\", returns focus to the element focused before."
+      "verify": "Fixture filter-matches (\"nav\"), focus in the field: Navigation bar is drawn with its focused tokens and its focus ring while the field keeps focus; Enter activates it (its change, or for a link its click) and Down Arrow moves focus to it. Escape empties the field and emits filterChange with \"\"; a second Escape, after the field was reached by \"/\", returns focus to the element focused before."
     },
     {
       "id": "NVD-87",
@@ -1083,12 +1064,12 @@
     },
     {
       "id": "NVD-90",
-      "text": "WHILE a filter is applied THE navigation drawer SHALL draw a status line at the top of the results, where its first item would stand, the items following it: filterCountText with its place {count} filled by the number of rows that match WHILE a row matches and filterCountHidden is false, and filterEmptyText WHILE no row matches — in place of the items WHILE filterMode is filter, all of them hidden, and before them WHILE it is highlight. It SHALL draw the line in comp.navigation-drawer.filter.status.typescale and comp.navigation-drawer.filter.status.color, inset as a row's content is (comp.navigation-drawer.item.padding-inline.regular for regular and comp.navigation-drawer.item.padding-inline.compact for compact), wrapping and growing with enlarged text, as text of its own direction (NVD-52), taking no focus and no state, and hidden from assistive technology, which NVD-91 tells the same words. WHILE a row matches and filterCountHidden is true it SHALL draw no line. WHILE the words it would draw are empty and the product's words give none THE navigation drawer SHALL draw nothing in their place and in debug builds report it.",
+      "text": "WHILE a filter is applied THE navigation drawer SHALL draw a status line at the top of the results, where its first item would stand, the items following it: filterCountText with its place {count} filled by the number of rows that match WHILE a row matches and filterCountHidden is false, and filterEmptyText WHILE no row matches, in place of the items, all of them hidden. It SHALL draw the line in comp.navigation-drawer.filter.status.typescale and comp.navigation-drawer.filter.status.color, inset as a row's content is (comp.navigation-drawer.item.padding-inline.regular for regular and comp.navigation-drawer.item.padding-inline.compact for compact), wrapping and growing with enlarged text, as text of its own direction (NVD-52), taking no focus and no state, and hidden from assistive technology, which NVD-91 tells the same words. WHILE a row matches and filterCountHidden is true it SHALL draw no line. WHILE the words it would draw are empty and the product's words give none THE navigation drawer SHALL draw nothing in their place and in debug builds report it.",
       "verify": "Fixture filter (\"dr\"): \"Matches: 1\" stands 12 below the field, inset 12 from the padding, and the Components group's row follows it. Fixture filter-count-hidden: no line is drawn and the row stands 12 below the field. Fixture filter-none (\"zzz\"): no row is drawn and \"No matches\" stands in the line's place."
     },
     {
       "id": "NVD-91",
-      "text": "WHEN the result of a filter changes — the filter text, the items or filterMode change while a filter is applied — and has then stayed as it is for one second (the pause that ends a type-ahead run, TRV-23), THE navigation drawer SHALL tell assistive technology once, politely and without moving focus, filterCountText with its place {count} filled by the number of rows that match, or filterEmptyText WHILE no row matches; WHEN no filter is applied any more it SHALL say nothing. It SHALL say them whether or not filterCountHidden is true, through one status of its own that is not drawn (the line of NVD-90 is what is drawn) — on the web an element with the status role and aria-atomic true, inside the drawer — and never through the field's name or description. WHILE filterCountText is empty and the product's words give none THE navigation drawer SHALL say no count and in debug builds report it.",
+      "text": "WHEN the result of a filter changes — the filter text or the items change while a filter is applied — and has then stayed as it is for one second (the pause that ends a type-ahead run, TRV-23), THE navigation drawer SHALL tell assistive technology once, politely and without moving focus, filterCountText with its place {count} filled by the number of rows that match, or filterEmptyText WHILE no row matches; WHEN no filter is applied any more it SHALL say nothing. It SHALL say them whether or not filterCountHidden is true, through one status of its own that is not drawn (the line of NVD-90 is what is drawn) — on the web an element with the status role and aria-atomic true, inside the drawer — and never through the field's name or description. WHILE filterCountText is empty and the product's words give none THE navigation drawer SHALL say no count and in debug builds report it.",
       "verify": "Fixture filter: one second after \"dr\" is typed, the drawer's status holds \"Matches: 1\"; typing \"zzz\" gives \"No matches\"; emptying the field leaves the status empty. The status itself is not drawn, and it is said with filterCountHidden as well."
     },
     {
@@ -1101,11 +1082,11 @@
     },
     {
       "id": "NVD-94",
-      "text": "THE navigation drawer SHALL draw every change a filter makes — rows hidden and shown, groups opened for the filter and closed again, the marks — at once, without the motions of NVD-41 and NVD-44, whether or not motion is reduced; a group the person opens or closes during a filter moves as NVD-44 says."
+      "text": "THE navigation drawer SHALL draw every change a filter makes — rows hidden and shown, groups opened for the filter and closed again — at once, without the motions of NVD-41 and NVD-44, whether or not motion is reduced; a group the person opens or closes during a filter moves as NVD-44 says."
     },
     {
       "id": "NVD-95",
-      "text": "THE navigation drawer SHALL expose the filter field as a search field — on the web an input of type search, which has the searchbox role — named by filterLabel, with filterPlaceholder as its placeholder, controlling the drawer's list of items (aria-controls on the web), after the header and before the items in reading and focus order; each shown destination and group with its position among the shown items of its level and their number, so that a person is told the size of what the filter left; and the rows the filter hides not at all. WHILE filterable is true and filterLabel is empty THE navigation drawer SHALL still draw the field, and in debug builds report that it has no accessible name. WHEN filterMode names a value the navigation drawer does not define it SHALL filter as filter does, and in debug builds report the unknown value.",
+      "text": "THE navigation drawer SHALL expose the filter field as a search field — on the web an input of type search, which has the searchbox role — named by filterLabel, with filterPlaceholder as its placeholder, controlling the drawer's list of items (aria-controls on the web), after the header and before the items in reading and focus order; each shown destination and group with its position among the shown items of its level and their number, so that a person is told the size of what the filter left; and the rows the filter hides not at all. WHILE filterable is true and filterLabel is empty THE navigation drawer SHALL still draw the field, and in debug builds report that it has no accessible name.",
       "verify": "On the web, fixture filter: one input of type search named \"Filter navigation\" with aria-controls naming the drawer's list; the Components group's list reports one item (aria-setsize computed from the shown items)."
     }
   ],
@@ -1168,7 +1149,7 @@
       "Opening a modal drawer by a swipe from the screen edge is left out: on iOS the same edge is the back gesture. The product opens it from a menu button.",
       "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
       "A filter narrows the drawer in place; it is not a search. The site's search (the Search component, opened with ⌘K or Ctrl+K) looks through the content of every page and offers results in a view of its own; the filter looks only at the labels of the places the drawer already lists and leaves them where they are, so that a person who knows a page's name reaches it in two keys (\"/\" and its first letters) and sees it among its neighbours. The two keep separate keys: \"/\" for the filter, as documentation sites with a sidebar filter do, and the search's own chord.",
-      "Hidden rows are removed from what assistive technology is told, not only from view, so that every list position and size a person hears is the filter's (WCAG 1.3.1). The count is a status message (WCAG 4.1.3): said politely through a status of the drawer's own once typing pauses, never by moving focus, and drawn quietly at the top of the results unless the product hides it. Matches are marked as a search marks them — a stronger text color, a raised weight and a quiet fill — so that a mark is never told by color alone (WCAG 1.4.1: in highlight mode the mark is the only thing on screen that says which rows match) and is still seen in a script whose font has no bold, and in the platform's marked-text colors under forced colors; a name stays one text to assistive technology.",
+      "Hidden rows are removed from what assistive technology is told, not only from view, so that every list position and size a person hears is the filter's (WCAG 1.3.1). The count is a status message (WCAG 4.1.3): said politely through a status of the drawer's own once typing pauses, never by moving focus, and drawn quietly at the top of the results unless the product hides it. The rows that match are not marked: what the filter leaves is the answer, as in a file tree's filter and a documentation site's sidebar, and the row Enter takes is drawn as a focused row (NVD-85, NVD-86), so that nothing is told by color alone (WCAG 1.4.1).",
       "The field is a separate stop before the items, as a search field above a list is. As in a search, the first row that matches is active as soon as there is one while focus stays in the field: Enter takes it, as Enter on its row would, and Down Arrow moves focus to it, so that a keyboard user neither Tabs through every row the filter left nor leaves the field to reach the place they typed for. The active match is drawn as a focused row; it is not the field's active descendant, because a destination is a link or a button, which an input's active descendant is not (a search's results are not either), and a screen reader user meets it by Down Arrow, the count telling how many rows are left."
     ]
   },
@@ -5453,7 +5434,7 @@
       ]
     },
     {
-      "id": "filter-highlight",
+      "id": "filter-matches",
       "props": {
         "open": true,
         "value": "/components/navigation-drawer/",
@@ -5465,8 +5446,7 @@
         "filterEmptyText": "No matches",
         "filterCountText": "Matches: {count}",
         "filterClearLabel": "Clear",
-        "filterValue": "nav",
-        "filterMode": "highlight"
+        "filterValue": "nav"
       },
       "items": [
         {
@@ -5917,7 +5897,6 @@
         "loadingLabel": "loadingLabel",
         "filterable": "filterable",
         "filterValue": "filterValue",
-        "filterMode": "filterMode",
         "filterLabel": "filterLabel",
         "filterPlaceholder": "filterPlaceholder",
         "filterEmptyText": "filterEmptyText",
@@ -5955,10 +5934,9 @@
         "item.badge": "tanrei-navigation-drawer-item tanrei-badge",
         "focus-ring": "tanrei-navigation-drawer-item container@focus-ring",
         "filter": "filter",
-        "filter.status": "filter-status",
-        "item.match": "tanrei-navigation-drawer-item match"
+        "filter.status": "filter-status"
       },
-      "notes": "Children are `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` and `<tanrei-navigation-drawer-section>` elements, in order; header buttons (icon-only `<tanrei-button>`s) and the main action (`<tanrei-main-action-button>`) are children with `slot=\"header-button\"` and `slot=\"main-action\"`, and the header slot is `header`. `collapsedLabels` is the `collapsed-labels` attribute; `expanded` is reflected, and so is a read-only `collapsed` state attribute for styling. Modal: a `<dialog>` in the shadow root opened with `showModal()`, its `::backdrop` the scrim; Escape and a press on the backdrop close it, the host sets `open` to false and fires `close`; a collapsible modal drawer keeps its column in the host's layout box and widens the dialog from it. Standard: a `<nav>` named by `label`. The drawer selects the activated destination itself (sets `value`) before firing `change`, sets `expanded` (or `open`) before firing `expandedchange`, and sets a group's `open` before the group fires `toggle`. It sets `aria-expanded` and `aria-controls` on its first header button's inner button through the Button's `ariaExpanded` / `ariaControlsElements` element properties, and the Main Action Button's `extended` from its own form. `responsive` is an attribute: the element reads its system's `breakpoint.expanded` and `breakpoint.collapsed` custom properties from its computed style, listens to the two widths with `matchMedia`, exposes the result as the read-only `presentation` property (reflected as a state attribute for styling) and fires `presentationchange` with `detail.presentation`; nothing about the presentation is written to `variant`, `open` or `expanded`, and nothing is kept in storage. Before the element is upgraded, and in the React wrapper on a server, no dialog is open and nothing is inert. A collapsed cell that draws no label shows its name in a plain tooltip. Insets are `env(safe-area-inset-*)`. It lags the spec: it ships an earlier form of the drawer, with a separate rail element beside it. It does not yet follow NVD-57 to NVD-64, nor the parts of NVD-1, NVD-21 and NVD-23 that go with them. `reveal-selected` is an attribute. `scroll-offset` is an attribute read once, for the first frame, and `scrollOffset` a property whose getter returns the scroller's present `scrollTop` and whose setter writes it; the scroller has `overscroll-behavior: contain` and `scroll-behavior: auto`, and bringing the selection into view is a write to `scrollTop`, never `scrollIntoView` (which would also scroll the page). For a link destination `change` and `reselect` are cancelable, carry `detail.href` beside `detail.value`, and are fired from the anchor's `click` only when `event.button` is 0, no modifier key is down, the click was not already cancelled, and the item's `target` is `same` and it has no `download`; cancelling one calls `preventDefault()` on that click. The drawer does not set `value` for a link. Nothing is read from or written to `sessionStorage` or `localStorage`: a site keeps the groups' `open` and `scrollOffset` itself (on `toggle` and on `pagehide`) and writes them back as attributes in the page's markup, or in an inline script placed after the drawer's markup, before the elements are upgraded. `density` is reflected; a value a design system added is read from its own tokens, falling back to regular's. `selectableGroups` is the `selectable-groups` attribute. The attributes are `chevron`, `guides`, `indent` (auto or a number), `highlight`, `icon-space`, `expandable` (`expandable=\"false\"` turns it off), `label-wrap`, `supporting-wrap`, `sticky-parents`, `sticky-max` and `loading-label`; on the items `supporting-text`, `supporting-position`, and on a group `open-icon`, `trailing-text`, `loading` and the `trailing` slot. Filter (NVD-79 to NVD-95): the attributes are filterable, filter-value, filter-mode, filter-label, filter-placeholder, filter-empty-text, filter-count-text, filter-count-hidden, filter-clear-label and filter-shortcut (a space-separated list of chords); filterchange carries detail.value. The field is a `<tanrei-text-input type=\"search\" variant=\"stacked\">` in the shadow root between the header and the items (part `filter`), its leading glyph and its clear button (a `<tanrei-button>`) slotted into it; the drawer sets aria-controls (the drawer's list, through ariaControlsElements) and aria-keyshortcuts on its native input. The status line (part `filter-status`) stands first in the list of items, hidden from assistive technology; the status is a visually hidden element with role=\"status\" and aria-atomic=\"true\" in the shadow root. A match is a `<mark>` (part `match`) in the item's own shadow root around the run of its drawn label, which is hidden from assistive technology (the cell is named by `aria-label`), so the name stays one text. A row the filter hides takes `display: none` from a state attribute it writes on its own host (`data-filter-hidden`), a section with no row shown likewise, and a group opened for the filter draws its items open without writing `open`. The active match is drawn by a state attribute on its host (`data-filter-active`). `focusFilter()` is the method of NVD-88. The chord is read as the search reads its own (SRC-38), and the drawer, the search and the tree view share one registry of the chords that are bound (SRC-39).",
+      "notes": "Children are `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` and `<tanrei-navigation-drawer-section>` elements, in order; header buttons (icon-only `<tanrei-button>`s) and the main action (`<tanrei-main-action-button>`) are children with `slot=\"header-button\"` and `slot=\"main-action\"`, and the header slot is `header`. `collapsedLabels` is the `collapsed-labels` attribute; `expanded` is reflected, and so is a read-only `collapsed` state attribute for styling. Modal: a `<dialog>` in the shadow root opened with `showModal()`, its `::backdrop` the scrim; Escape and a press on the backdrop close it, the host sets `open` to false and fires `close`; a collapsible modal drawer keeps its column in the host's layout box and widens the dialog from it. Standard: a `<nav>` named by `label`. The drawer selects the activated destination itself (sets `value`) before firing `change`, sets `expanded` (or `open`) before firing `expandedchange`, and sets a group's `open` before the group fires `toggle`. It sets `aria-expanded` and `aria-controls` on its first header button's inner button through the Button's `ariaExpanded` / `ariaControlsElements` element properties, and the Main Action Button's `extended` from its own form. `responsive` is an attribute: the element reads its system's `breakpoint.expanded` and `breakpoint.collapsed` custom properties from its computed style, listens to the two widths with `matchMedia`, exposes the result as the read-only `presentation` property (reflected as a state attribute for styling) and fires `presentationchange` with `detail.presentation`; nothing about the presentation is written to `variant`, `open` or `expanded`, and nothing is kept in storage. Before the element is upgraded, and in the React wrapper on a server, no dialog is open and nothing is inert. A collapsed cell that draws no label shows its name in a plain tooltip. Insets are `env(safe-area-inset-*)`. It lags the spec: it ships an earlier form of the drawer, with a separate rail element beside it. It does not yet follow NVD-57 to NVD-64, nor the parts of NVD-1, NVD-21 and NVD-23 that go with them. `reveal-selected` is an attribute. `scroll-offset` is an attribute read once, for the first frame, and `scrollOffset` a property whose getter returns the scroller's present `scrollTop` and whose setter writes it; the scroller has `overscroll-behavior: contain` and `scroll-behavior: auto`, and bringing the selection into view is a write to `scrollTop`, never `scrollIntoView` (which would also scroll the page). For a link destination `change` and `reselect` are cancelable, carry `detail.href` beside `detail.value`, and are fired from the anchor's `click` only when `event.button` is 0, no modifier key is down, the click was not already cancelled, and the item's `target` is `same` and it has no `download`; cancelling one calls `preventDefault()` on that click. The drawer does not set `value` for a link. Nothing is read from or written to `sessionStorage` or `localStorage`: a site keeps the groups' `open` and `scrollOffset` itself (on `toggle` and on `pagehide`) and writes them back as attributes in the page's markup, or in an inline script placed after the drawer's markup, before the elements are upgraded. `density` is reflected; a value a design system added is read from its own tokens, falling back to regular's. `selectableGroups` is the `selectable-groups` attribute. The attributes are `chevron`, `guides`, `indent` (auto or a number), `highlight`, `icon-space`, `expandable` (`expandable=\"false\"` turns it off), `label-wrap`, `supporting-wrap`, `sticky-parents`, `sticky-max` and `loading-label`; on the items `supporting-text`, `supporting-position`, and on a group `open-icon`, `trailing-text`, `loading` and the `trailing` slot. Filter (NVD-79 to NVD-95): the attributes are filterable, filter-value, filter-label, filter-placeholder, filter-empty-text, filter-count-text, filter-count-hidden, filter-clear-label and filter-shortcut (a space-separated list of chords); filterchange carries detail.value. The field is a `<tanrei-text-input type=\"search\" variant=\"stacked\">` in the shadow root between the header and the items (part `filter`), its leading glyph and its clear button (a `<tanrei-button>`) slotted into it; the drawer sets aria-controls (the drawer's list, through ariaControlsElements) and aria-keyshortcuts on its native input. The status line (part `filter-status`) stands first in the list of items, hidden from assistive technology; the status is a visually hidden element with role=\"status\" and aria-atomic=\"true\" in the shadow root. A row the filter hides takes `display: none` from a state attribute it writes on its own host (`data-filter-hidden`), a section with no row shown likewise, and a group opened for the filter draws its items open without writing `open`. The active match is drawn by a state attribute on its host (`data-filter-active`). `focusFilter()` is the method of NVD-88. The chord is read as the search reads its own (SRC-38), and the drawer, the search and the tree view share one registry of the chords that are bound (SRC-39).",
       "items": {
         "destination": {
           "name": "tanrei-navigation-drawer-item",
@@ -6060,7 +6038,6 @@
         "loadingLabel": "loadingLabel",
         "filterable": "isFilterable",
         "filterValue": "filterText",
-        "filterMode": "filterMode",
         "filterLabel": "filterLabel",
         "filterPlaceholder": "filterPrompt",
         "filterEmptyText": "filterEmptyText",
@@ -6179,7 +6156,6 @@
         "loadingLabel": "loadingLabel",
         "filterable": "filterable",
         "filterValue": "filterValue",
-        "filterMode": "filterMode",
         "filterLabel": "filterLabel",
         "filterPlaceholder": "filterPlaceholder",
         "filterEmptyText": "filterEmptyText",
@@ -6298,7 +6274,6 @@
         "loadingLabel": "loadingLabel",
         "filterable": "filterable",
         "filterValue": "filterValue",
-        "filterMode": "filterMode",
         "filterLabel": "filterLabel",
         "filterPlaceholder": "filterPlaceholder",
         "filterEmptyText": "filterEmptyText",
@@ -6417,7 +6392,6 @@
         "loadingLabel": "loadingLabel",
         "filterable": "filterable",
         "filterValue": "filterValue",
-        "filterMode": "filterMode",
         "filterLabel": "filterLabel",
         "filterPlaceholder": "filterPlaceholder",
         "filterEmptyText": "filterEmptyText",
