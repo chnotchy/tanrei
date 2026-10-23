@@ -280,7 +280,7 @@ Tanrei के एलिमेंट उन चीज़ों पर बने �
 ज़्यादातर एलिमेंट अपना रोल ख़ुद पर नहीं, बल्कि अपने शैडो रूट के अंदर के किसी नेटिव एलिमेंट (`<button>`, `<input>`, `<dialog>`) पर रखते हैं, ताकि ब्राउज़र और टेस्टिंग टूल असली सिमैंटिक्स देखें; कुछ एलिमेंट, जैसे टैब या खुला मेन्यू, रोल ख़ुद रखते हैं। Playwright के लोकेटर खुले शैडो रूट के अंदर तक देखते हैं, इसलिए किसी कंट्रोल को उसके रोल और नाम से ढूँढें, जैसे कोई व्यक्ति ढूँढता:
 
 ```ts
-await page.getByRole('button', { name: 'Save' }).click();
+await page.getByRole('button', { name: 'सेव करें' }).click();
 await expect(page.getByRole('switch', { name: 'Wi-Fi' })).toBeChecked();
 ```
 
@@ -292,17 +292,17 @@ await expect(page.getByRole('switch', { name: 'Wi-Fi' })).toBeChecked();
 
 ```ts
 // कुछ नहीं मिलता: टैब <tanrei-tabs> के चाइल्ड हैं, उसकी टैब सूची के नहीं।
-page.getByRole('tablist', { name: 'Sections' }).getByRole('tab', { name: 'Billing' });
+page.getByRole('tablist', { name: 'सेक्शन' }).getByRole('tab', { name: 'बिलिंग' });
 ```
 
 पहले वह एलिमेंट ढूँढें जिसमें नाम वाला रोल है, फिर उसके अंदर खोजें:
 
 ```ts
-const sections = page.locator('tanrei-tabs', { has: page.getByRole('tablist', { name: 'Sections' }) });
-await sections.getByRole('tab', { name: 'Billing' }).click();
+const sections = page.locator('tanrei-tabs', { has: page.getByRole('tablist', { name: 'सेक्शन' }) });
+await sections.getByRole('tab', { name: 'बिलिंग' }).click();
 
-const confirm = page.locator('tanrei-dialog', { has: page.getByRole('dialog', { name: 'Delete the file?' }) });
-await confirm.getByRole('button', { name: 'Delete' }).click();
+const confirm = page.locator('tanrei-dialog', { has: page.getByRole('dialog', { name: 'फ़ाइल हटाएँ?' }) });
+await confirm.getByRole('button', { name: 'हटाएँ' }).click();
 ```
 
 ### टॉप लेयर में मेन्यू
@@ -310,10 +310,10 @@ await confirm.getByRole('button', { name: 'Delete' }).click();
 खुला रहने तक `<tanrei-menu>` ही मेन्यू है, जिसका नाम उसके ऐंकर से आता है, पर वह पेज में कोई जगह नहीं लेता: उसकी सतह टॉप लेयर में बनती है। इसलिए मेन्यू के दिखने की जाँच खुले होने पर भी फ़ेल होती है। पहले जाँचें कि मेन्यू मौजूद है, फिर उसके आइटम जाँचें:
 
 ```ts
-await page.getByRole('button', { name: 'More' }).click();
-const menu = page.getByRole('menu', { name: 'More' });
+await page.getByRole('button', { name: 'और' }).click();
+const menu = page.getByRole('menu', { name: 'और' });
 await expect(menu).toBeAttached();
-await expect(menu.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+await expect(menu.getByRole('menuitem', { name: 'नाम बदलें' })).toBeVisible();
 ```
 
 बंद होने पर एलिमेंट मेन्यू नहीं रहता, और `await expect(menu).toHaveCount(0)` पास होता है।

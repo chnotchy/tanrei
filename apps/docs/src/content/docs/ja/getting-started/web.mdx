@@ -280,7 +280,7 @@ Tanrei の要素を描画しない、自前のロジックのテストは、Node
 ほとんどの要素は、自分自身ではなくシャドウルートの中のネイティブ要素（`<button>`、`<input>`、`<dialog>`）にロールを持たせています。ブラウザーやテストツールに本物のセマンティクスを見せるためです。タブや開いているメニューなど、一部の要素は自分自身がロールを持ちます。Playwright のロケーターは開いたシャドウルートの中まで探すので、人と同じように、ロールと名前でコントロールを探してください。
 
 ```ts
-await page.getByRole('button', { name: 'Save' }).click();
+await page.getByRole('button', { name: '保存' }).click();
 await expect(page.getByRole('switch', { name: 'Wi-Fi' })).toBeChecked();
 ```
 
@@ -292,17 +292,17 @@ await expect(page.getByRole('switch', { name: 'Wi-Fi' })).toBeChecked();
 
 ```ts
 // 何も見つからない：タブは <tanrei-tabs> の子で、そのタブリストの子ではない
-page.getByRole('tablist', { name: 'Sections' }).getByRole('tab', { name: 'Billing' });
+page.getByRole('tablist', { name: 'セクション' }).getByRole('tab', { name: '請求' });
 ```
 
 名前の付いたロールを持つ要素を見つけてから、その中を探してください。
 
 ```ts
-const sections = page.locator('tanrei-tabs', { has: page.getByRole('tablist', { name: 'Sections' }) });
-await sections.getByRole('tab', { name: 'Billing' }).click();
+const sections = page.locator('tanrei-tabs', { has: page.getByRole('tablist', { name: 'セクション' }) });
+await sections.getByRole('tab', { name: '請求' }).click();
 
-const confirm = page.locator('tanrei-dialog', { has: page.getByRole('dialog', { name: 'Delete the file?' }) });
-await confirm.getByRole('button', { name: 'Delete' }).click();
+const confirm = page.locator('tanrei-dialog', { has: page.getByRole('dialog', { name: 'ファイルを削除しますか？' }) });
+await confirm.getByRole('button', { name: '削除' }).click();
 ```
 
 ### トップレイヤーに開くメニュー
@@ -310,10 +310,10 @@ await confirm.getByRole('button', { name: 'Delete' }).click();
 開いているあいだ、`<tanrei-menu>` はアンカーの名前を持つメニューになりますが、ページの中では場所を取りません。面はトップレイヤーに描かれるからです。そのため、メニュー自体の表示を確かめると、開いていても失敗します。メニューがあることを確かめてから、その項目を確かめてください。
 
 ```ts
-await page.getByRole('button', { name: 'More' }).click();
-const menu = page.getByRole('menu', { name: 'More' });
+await page.getByRole('button', { name: 'その他' }).click();
+const menu = page.getByRole('menu', { name: 'その他' });
 await expect(menu).toBeAttached();
-await expect(menu.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+await expect(menu.getByRole('menuitem', { name: '名前を変更' })).toBeVisible();
 ```
 
 閉じると要素はメニューではなくなり、`await expect(menu).toHaveCount(0)` が通ります。
