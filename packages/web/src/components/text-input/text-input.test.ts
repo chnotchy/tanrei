@@ -12,6 +12,8 @@ import { expectFirstFrameAtRest } from '../../../test/frames.js';
 import { opticalSize } from '../../../test/icons.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { decodePng } from '../../../test/png.js';
+import { fileURLToPath } from 'node:url';
+import { buildSync } from 'esbuild';
 
 const spec = loadSpec('text-input');
 type P = Page;
@@ -3080,6 +3082,35 @@ test.describe('behavior', () => {
     await expect(grip('grip-own')).toHaveAttribute('aria-label', 'Resize the message');
     expect((await segments('date-own'))[0]).toEqual([null, 'Not set']);
     expect(await missingWords(page)).toEqual([]);
+  });
+});
+
+// A product that imports one component's module, not the package's entry, gets only what that module imports: an
+// element the text input draws is defined by its own imports, or it never upgrades.
+test.describe('imported alone', () => {
+  test('TXI-32: imported alone — the text input’s own module, as `@tanrei/web/components/text-input`, not the package’s entry — a picker field defines the Button it draws, whose native button says it opens a dialog, with no error on the page', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    // What a product's bundler makes of that one import: the built module and all it imports, Lit included — and
+    // nothing the package's entry would have defined besides.
+    const alone = buildSync({
+      entryPoints: [fileURLToPath(new URL('../../../dist/components/text-input/text-input.js', import.meta.url))],
+      bundle: true,
+      write: false,
+      format: 'esm',
+      define: { 'process.env.NODE_ENV': '"development"' },
+    }).outputFiles[0].text;
+    await page.setContent('<main><tanrei-text-input type="date" locale="en-US" label="Start date" value="2026-09-27" picker picker-label="Choose date" segment-empty-text="Empty"></tanrei-text-input></main>');
+    await page.addScriptTag({ type: 'module', content: alone });
+    // Its first update ends without an error: the picker button it waits for is an element, not an unknown tag.
+    const update = await page.locator('tanrei-text-input').evaluate(async (el) => {
+      await customElements.whenDefined('tanrei-text-input');
+      return (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete.then(() => 'complete', (error: unknown) => String(error));
+    });
+    expect(update).toBe('complete');
+    await expect(page.locator('tanrei-text-input').getByRole('button', { name: 'Choose date', exact: true })).toHaveAttribute('aria-haspopup', 'dialog');
+    expect(await page.evaluate(() => customElements.get('tanrei-button') !== undefined)).toBe(true);
+    expect(errors).toEqual([]);
   });
 });
 
