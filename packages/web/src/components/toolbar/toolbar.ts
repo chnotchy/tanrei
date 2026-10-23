@@ -12,6 +12,7 @@ import {
   SEPARATION_VALUES,
   type SeparationProp,
   deepActive,
+  flatParent,
   hostAria,
   isDisabledControl,
   report,
@@ -84,8 +85,6 @@ interface Stop {
 /** Rounded to a hundredth of a pixel, so that a measurement that did not change does not re-render an item. */
 const hundredths = (value: number) => Math.round(value * 100) / 100;
 const isItem = (element: Element) => element.localName === BUTTON || element.localName === BUTTON_WITH_MENU;
-/** The box that lays an element out: the slot it is assigned to, else its parent, else its shadow root's host. */
-const layoutParent = (element: Element): Element | null => element.assignedSlot ?? element.parentElement ?? ((element.getRootNode() as ShadowRoot).host ?? null);
 
 /**
  * Holds a set of related controls — actions, toggles, a menu — as one Tab stop: inline where its content needs it, docked
@@ -616,7 +615,7 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
       this.watched.add(element);
     }
     const holders = new Set<Element>();
-    for (let box = layoutParent(this); box; box = layoutParent(box)) holders.add(box);
+    for (let box = flatParent(this); box; box = flatParent(box)) holders.add(box);
     for (const box of [...this.watchedAncestors.keys()]) {
       if (holders.has(box)) continue;
       resize.unobserve(box);
