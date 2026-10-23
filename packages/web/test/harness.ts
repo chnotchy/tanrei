@@ -2273,7 +2273,11 @@ const STAGING: Record<string, Staging> = {
       .stage:has(> tanrei-menu[inline] tanrei-submenu[open]) { box-sizing: border-box; inline-size: 480px; padding-block-end: 176px; }
       .stage:has(> tanrei-menu[inline] tanrei-submenu[open] tanrei-submenu[open]) { inline-size: 720px; }`,
     props: (props) => ({ ...(props.anchor ? props : { ...props, inline: true }), 'data-tanrei-keyboard-convention': 'apple' }),
-    wrap: (element, f) => (f.props.anchor ? `<button id="${String(f.props.anchor)}" type="button">${String(f.props.anchor)}</button>${element}` : element),
+    // `japanese` is drawn with the language ja (MNU-69: the phrases of Japanese are found where its language is marked).
+    wrap: (element, f) => {
+      const staged = f.id.startsWith('japanese') ? element.replace('<tanrei-menu', '<tanrei-menu lang="ja"') : element;
+      return f.props.anchor ? `<button id="${String(f.props.anchor)}" type="button">${String(f.props.anchor)}</button>${staged}` : staged;
+    },
   },
 };
 

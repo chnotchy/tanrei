@@ -766,6 +766,14 @@
     {
       "id": "MNU-67",
       "text": "WHERE the platform has ARIA attributes (the web), the hosts of the menu, of an item that is not a link item (a checkbox item, a radio item and a submenu item included) and of a group carry their roles themselves (MNU-24), so what the product writes on them is not moved, but for a name: WHILE an item's or a group's label, or the anchor that names a menu, is not empty THE menu SHALL hold the product's aria-label and aria-labelledby on that host as their data-aria- twins, so that its own is the whole name although the platform gives aria-labelledby the precedence, and WHEN it is emptied SHALL give them back as they were written; WHILE it is empty a name the product gives so is the name and an item SHALL NOT be reported as having none in debug builds (MNU-26) — a context menu is named so (MNU-63). WHILE a menu is closed, or a group is in a group (MNU-29), it exposes nothing, and THE menu SHALL hold them as well, giving them back when it is exposed again. WHEN the product removes one, or its data-aria- twin, or sets the ARIA property that reflects it to null, THE menu SHALL take it away."
+    },
+    {
+      "id": "MNU-68",
+      "text": "WHEN a surface of the menu is shown — the menu's own as it opens, a submenu's as its item opens it — THE menu SHALL show that surface's list from its start: a list taller than the surface (MNU-2, MNU-46) SHALL open scrolled to its top, so that its first row, its first group's title included, is in view, and WHERE the item that takes focus (MNU-1, MNU-43, or the last enabled item a menubar opens its menu on, MBR-9) is not whole in view there, scrolled just far enough to bring that item whole into view and no further. WHEN focus moves to an item by a key or by the menu's own doing (MNU-7, MNU-48) THE menu SHALL scroll the list that holds it just far enough to bring the item whole into view, and not at all where it is whole in view already — the first item of the list together with the list's start, the last together with its end, and the first item of a titled group together with that title (MNU-28); focus that follows the pointer (MNU-8) SHALL scroll nothing. Whether the item is in view SHALL be judged as the surface stands at rest: while its opening motion runs (MNU-4) the list SHALL keep its scroll position until the surface stands at rest, and then bring the item that has focus into view as this sentence says, so that no frame of the motion moves the list."
+    },
+    {
+      "id": "MNU-69",
+      "text": "THE menu SHALL break the lines of an item's label, supporting text and trailing text and of a group's title by the rules of the text's language: a line of Japanese or Chinese SHALL neither begin with closing punctuation, a small kana, the prolonged sound mark (ー) or an iteration mark nor end with opening punctuation (the strict rules of line breaking that JIS X 4051 and the W3C's requirements for Japanese text layout set out), whether or not the product marks the text's language; and WHERE the platform finds the phrases of Japanese text (on the web, word-break: auto-phrase, which reads the language the product marks), a line of Japanese SHALL break between two phrases rather than inside one. A phrase or a word longer than its line SHALL still break rather than overflow (MNU-20)."
     }
   ],
   "accessibility": {
@@ -2533,6 +2541,38 @@
                   }
                 }
               ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "japanese",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Markdown で表示",
+            "leadingIcon": "article",
+            "supportingText": "このページを新しいタブで開きます"
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "title": "MCP サーバー"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "Claude Code のコマンドをコピー",
+                "leadingIcon": "terminal",
+                "supportingText": "プロジェクトに追加するコマンドです"
+              }
             }
           ]
         }

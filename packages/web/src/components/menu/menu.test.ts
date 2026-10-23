@@ -13,7 +13,7 @@ import { MIRRORED, anchorOf, expectDrawnAlike, expectNewContext, expectRefusals,
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { decodePng } from '../../../test/png.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
-import { settledCss } from '../../../test/motions.js';
+import { motionCount, settledCss } from '../../../test/motions.js';
 
 const spec = loadSpec('menu');
 type P = Page;
@@ -4282,6 +4282,271 @@ test.describe('context menu', () => {
     await motionEnded(page);
     const results = await new AxeBuilder({ page }).include('.stage').analyze();
     expect(results.violations.map((v) => v.id)).toEqual([]);
+  });
+});
+
+test.describe('where the list stands, and how Japanese lines break', () => {
+  /**
+   * A documentation page's actions as a phone draws them in Japanese, 390 × 800: two groups, the second titled, every
+   * item with supporting text — taller than the room below an anchor half way down the window.
+   */
+  const ASK = { leadingIcon: 'chat', supportingText: 'このページについて質問します' };
+  const ADD = { leadingIcon: 'extension', supportingText: 'Tanrei の MCP サーバーを追加します' };
+  const ACTIONS = [
+    group({}, [it('Markdown で表示', { leadingIcon: 'article', supportingText: 'このページを Markdown のまま新しいタブで開きます' }), it('ChatGPT で開く', ASK), it('Claude で開く', ASK)]),
+    group({ title: 'MCP サーバー' }, [it('Cursor に追加', ADD), it('VS Code に追加', ADD), it('Claude Code のコマンドをコピー', { leadingIcon: 'terminal', supportingText: 'プロジェクトに追加するコマンドです' })]),
+  ];
+  const FIRST = 'Markdown で表示';
+  const LAST = 'Claude Code のコマンドをコピー';
+  const list = (page: P, id = 'actions') => menu(page, id).locator('.scroll').first();
+  /** Every scroll of the menu's list from now on, by the offset it left (`scrolled()`). */
+  const watchScrolls = (page: P, id = 'actions') =>
+    list(page, id).evaluate((el) => {
+      const seen: number[] = ((window as any).scrolled = []);
+      el.addEventListener('scroll', () => seen.push(el.scrollTop));
+    });
+  const scrolled = (page: P) => page.evaluate(() => (window as any).scrolled as number[]);
+  const offset = (page: P, id = 'actions') => list(page, id).evaluate((el) => el.scrollTop);
+  /** How far the list is from its end. */
+  const toEnd = (page: P, id = 'actions') => list(page, id).evaluate((el) => el.scrollHeight - el.clientHeight - el.scrollTop);
+  /** The distance of a row's top from the visible part's top edge, and of its bottom from the bottom edge: both at least 0 where it is whole in view. */
+  const standing = async (page: P, label: string, id = 'actions') => {
+    const [r, b] = [await bounds(rowOf(labelled(page, id, label))), await bounds(list(page, id))];
+    return { top: r.y - b.y, bottom: b.y + b.height - (r.y + r.height) };
+  };
+  const mountActions = async (page: P) => {
+    await page.setViewportSize({ width: 390, height: 800 });
+    await mountFixtures(page, spec, { fixtures: [overlay('actions', ACTIONS)] });
+    await menu(page, 'actions').evaluate((el) => el.setAttribute('lang', 'ja'));
+    await page.addStyleTag({ content: `#a-actions { position: fixed; top: 380px; left: 16px; }` });
+    await wire(page);
+    await watchScrolls(page);
+  };
+
+  for (const how of ['key', 'press', 'product'] as const) {
+    test(`MNU-68, MNU-1: opened by ${how === 'product' ? 'the product' : `a ${how}`} in a 390 × 800 window, a list taller than its room opens at its top — no frame of the opening motion scrolls it, and its first item has focus whole in view — reaches its end with its last item, and opens at its top again`, async ({ page }) => {
+      await mountActions(page);
+      const open = async () => {
+        if (how === 'key') {
+          await anchor(page, 'actions').focus();
+          await page.keyboard.press('Enter');
+        } else if (how === 'press') await anchor(page, 'actions').click();
+        else await menu(page, 'actions').evaluate((el: any) => (el.open = true));
+        await expect.poll(() => focused(page)).toBe(FIRST);
+        await motionEnded(page);
+      };
+      await open();
+      expect(await toEnd(page), 'the list is taller than its room').toBeGreaterThan(20);
+      // Chromium and WebKit scrolled it to its end on focus, through the surface scaled to nothing on the motion's first frame.
+      expect(await scrolled(page)).toEqual([]);
+      expect(await offset(page)).toBe(0);
+      const first = await standing(page, FIRST);
+      expect(first.top, 'the first item whole in view').toBeGreaterThanOrEqual(-0.5);
+      expect(first.bottom).toBeGreaterThanOrEqual(-0.5);
+      // The last item brings the list's end with it.
+      await page.keyboard.press('End');
+      await expect.poll(() => focused(page)).toBe(LAST);
+      await expect.poll(() => toEnd(page)).toBeLessThan(1);
+      // Closed at its end and opened again — at once, before its closing motion may have ended — it is at its top.
+      await page.keyboard.press('Escape');
+      await expect.poll(() => focused(page)).toBe('a-actions');
+      await watchScrolls(page);
+      await open();
+      expect(await offset(page)).toBe(0);
+      expect((await scrolled(page)).filter((at) => at !== 0)).toEqual([]);
+    });
+  }
+
+  test('MNU-68: a key pressed while the opening motion runs moves focus and leaves the list where it is; at rest the list scrolls just far enough to bring the item into view, not at all for an item in view, back to its start with the first item, and not for focus that follows the pointer', async ({ page }) => {
+    await mountActions(page);
+    // An opening motion that outlasts the test's keys: the test ends it, not the clock.
+    await override(page, { [T('motion-open-duration')]: '600s' });
+    await anchor(page, 'actions').focus();
+    await page.keyboard.press('Enter');
+    await expect.poll(() => focused(page)).toBe(FIRST);
+    await page.keyboard.press('End');
+    await expect.poll(() => focused(page)).toBe(LAST);
+    expect(await motionCount(surface(page, 'actions')), 'the opening motion still runs').toBeGreaterThan(0);
+    expect(await offset(page)).toBe(0);
+    expect(await scrolled(page)).toEqual([]);
+    await surface(page, 'actions').evaluate((el) => el.getAnimations().forEach((a) => a.finish()));
+    await expect.poll(() => toEnd(page)).toBeLessThan(1);
+    expect((await standing(page, LAST)).bottom).toBeGreaterThanOrEqual(-0.5);
+    // Up to an item whole in view: nothing scrolls.
+    const atEnd = await offset(page);
+    await page.keyboard.press('ArrowUp');
+    await expect.poll(() => focused(page)).toBe('VS Code に追加');
+    expect(await offset(page)).toBe(atEnd);
+    // Home: the first item, and the list's start with it (its padding above the first row).
+    await page.keyboard.press('Home');
+    await expect.poll(() => focused(page)).toBe(FIRST);
+    await expect.poll(() => offset(page)).toBe(0);
+    // Down to the last row but one: where it was cut by the bottom edge, just far enough — its bottom on that edge.
+    const cutBefore = (await standing(page, 'VS Code に追加')).bottom < -0.5;
+    for (const label of ['ChatGPT で開く', 'Claude で開く', 'Cursor に追加', 'VS Code に追加']) {
+      await page.keyboard.press('ArrowDown');
+      await expect.poll(() => focused(page)).toBe(label);
+    }
+    const vs = await standing(page, 'VS Code に追加');
+    expect(vs.top).toBeGreaterThanOrEqual(-0.5);
+    expect(vs.bottom).toBeGreaterThanOrEqual(-0.5);
+    if (cutBefore) expect(vs.bottom, 'scrolled no further than the row').toBeLessThan(1);
+    else expect(await offset(page), 'a row in view scrolls nothing').toBe(0);
+    // The pointer onto the visible part of a row the bottom edge cuts: focus follows it, and the list stays.
+    await page.keyboard.press('Home');
+    await expect.poll(() => offset(page)).toBe(0);
+    const view = await bounds(list(page));
+    let cut: string | undefined;
+    for (const label of ['Claude で開く', 'Cursor に追加', 'VS Code に追加', LAST]) {
+      const r = await bounds(rowOf(labelled(page, 'actions', label)));
+      if (r.y < view.y + view.height - 4 && r.y + r.height > view.y + view.height + 1) cut = label;
+    }
+    expect(cut, 'a row is cut by the bottom edge').toBeDefined();
+    const r = await bounds(rowOf(labelled(page, 'actions', cut!)));
+    await page.mouse.move(r.x + r.width / 2, (r.y + view.y + view.height) / 2);
+    await expect.poll(() => focused(page)).toBe(cut);
+    expect(await offset(page)).toBe(0);
+  });
+
+  test('MNU-68: the first item of a titled group brings its title into view with it', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 300 });
+    const many = (name: string) => Array.from({ length: 8 }, (_, n) => it(`${name} ${n + 1}`));
+    await mountFixtures(page, spec, { fixtures: [overlay('titled', [group({ title: 'Recent' }, many('Recent')), group({ title: 'Shared' }, many('Shared'))])] });
+    await page.addStyleTag({ content: `#a-titled { position: fixed; top: 8px; left: 100px; }` });
+    await wire(page);
+    await anchor(page, 'titled').focus();
+    await page.keyboard.press('Enter');
+    await expect.poll(() => focused(page)).toBe('Recent 1');
+    await motionEnded(page);
+    await page.keyboard.press('End');
+    await expect.poll(() => toEnd(page, 'titled')).toBeLessThan(1);
+    for (let n = 7; n >= 1; n--) {
+      await page.keyboard.press('ArrowUp');
+      await expect.poll(() => focused(page)).toBe(`Shared ${n}`);
+    }
+    const title = await box(menu(page, 'titled').locator('tanrei-menu-group').nth(1), '.title');
+    const view = await bounds(list(page, 'titled'));
+    expect(title.y, 'the group’s title whole in view').toBeGreaterThanOrEqual(view.y - 0.5);
+    expect((await standing(page, 'Shared 1', 'titled')).bottom).toBeGreaterThanOrEqual(-0.5);
+  });
+
+  test('MNU-68, MNU-43: a submenu taller than its room opens at its top, its first item whole in view, and at its top again after it was scrolled to its end', async ({ page }) => {
+    await page.setViewportSize({ width: 1000, height: 300 });
+    const many = Array.from({ length: 16 }, (_, n) => it(`Item ${n + 1}`));
+    await mountFixtures(page, spec, { fixtures: [overlay('file', [sub('Open recent', many), it('Close')])] });
+    await page.addStyleTag({ content: `#a-file { position: fixed; top: 8px; left: 100px; }` });
+    await wire(page);
+    await anchor(page, 'file').focus();
+    await page.keyboard.press('Enter');
+    await expect.poll(() => focused(page)).toBe('Open recent');
+    await motionEnded(page);
+    const own = labelled(page, 'file', 'Open recent');
+    const ownList = own.locator('.scroll').first();
+    await ownList.evaluate((el) => {
+      const seen: number[] = ((window as any).scrolled = []);
+      el.addEventListener('scroll', () => seen.push(el.scrollTop));
+    });
+    for (let round = 0; round < 2; round++) {
+      await page.keyboard.press('ArrowRight');
+      await expect.poll(() => focused(page)).toBe('Item 1');
+      await motionEnded(page);
+      expect(await ownList.evaluate((el) => el.scrollHeight - el.clientHeight), 'the submenu is taller than its room').toBeGreaterThan(20);
+      expect(await ownList.evaluate((el) => el.scrollTop)).toBe(0);
+      expect((await scrolled(page)).filter((at) => at !== 0)).toEqual([]);
+      const [r, b] = [await bounds(rowOf(labelled(page, 'file', 'Item 1'))), await bounds(ownList)];
+      expect(r.y).toBeGreaterThanOrEqual(b.y - 0.5);
+      await page.keyboard.press('End');
+      await expect.poll(() => focused(page)).toBe('Item 16');
+      await expect.poll(() => ownList.evaluate((el) => el.scrollHeight - el.clientHeight - el.scrollTop)).toBeLessThan(1);
+      await page.keyboard.press('ArrowLeft');
+      await expect.poll(() => focused(page)).toBe('Open recent');
+      await page.evaluate(() => ((window as any).scrolled.length = 0));
+    }
+  });
+
+  /**
+   * The lines a box of text is drawn in, read from where each character stands (a character on a lower line than the
+   * one before begins a line), as the page lays it out at `width` px — under `lineBreak` where one is given, which
+   * overrides the menu's own.
+   */
+  const lineSweep = (page: P, widths: number[], options: { lineBreak?: string; lang: string | null }) =>
+    page.evaluate(
+      ({ widths, lineBreak, lang }) => {
+        const range = document.createRange();
+        const linesOf = (box: Element) => {
+          const nodes: Text[] = [];
+          const walk = (node: Node) => (node.nodeType === Node.TEXT_NODE ? nodes.push(node as Text) : node.childNodes.forEach(walk));
+          walk(box);
+          const lines: string[] = [];
+          let top = -Infinity;
+          for (const node of nodes)
+            for (let i = 0; i < node.length; i++) {
+              range.setStart(node, i);
+              range.setEnd(node, i + 1);
+              const rect = [...range.getClientRects()].find((each) => each.width > 0);
+              if (rect && rect.top > top + rect.height / 2) {
+                lines.push('');
+                top = rect.top;
+              }
+              if (lines.length) lines[lines.length - 1] += node.data[i];
+            }
+          return lines.map((line) => line.trim()).filter(Boolean);
+        };
+        const menu = document.querySelector('[data-fixture="japanese"] tanrei-menu')!;
+        if (lang) menu.setAttribute('lang', lang);
+        else menu.removeAttribute('lang');
+        const boxes = [
+          ...[...menu.querySelectorAll('tanrei-menu-item')].flatMap((item) => [...item.shadowRoot!.querySelectorAll<HTMLElement>('.label, .supporting')]),
+          ...[...menu.querySelectorAll('tanrei-menu-group')].map((group) => group.shadowRoot!.querySelector<HTMLElement>('.title')!),
+        ];
+        const out: { width: number; text: string; lines: string[]; overflows: boolean }[] = [];
+        for (const box of boxes) {
+          if (lineBreak) box.style.lineBreak = lineBreak;
+          for (const width of widths) {
+            box.style.inlineSize = `${width}px`;
+            box.style.boxSizing = 'content-box';
+            out.push({ width, text: box.textContent!.trim(), lines: linesOf(box), overflows: box.scrollWidth > box.clientWidth + 1 });
+          }
+          box.style.removeProperty('inline-size');
+          box.style.removeProperty('box-sizing');
+          box.style.removeProperty('line-break');
+        }
+        return out;
+      },
+      { widths, lineBreak: options.lineBreak, lang: options.lang },
+    );
+  /** What a line of Japanese may not begin with under the strict rules: closing punctuation, small kana, ー, iteration marks. */
+  const NO_START = /^[、。，．・：；？！）」』】〕〉》ー々ゝゞヽヾぁぃぅぇぉっゃゅょゎゕゖァィゥェォッャュョヮヵヶ]/u;
+  /** What it may not end with: opening punctuation. */
+  const NO_END = /[（「『【〔〈《]$/u;
+  const WIDTHS = Array.from({ length: 241 }, (_, n) => 40 + n);
+  const broken = (sweep: Awaited<ReturnType<typeof lineSweep>>) =>
+    sweep.flatMap(({ width, lines }) => lines.flatMap((line, n) => [...(n > 0 && NO_START.test(line) ? [`${width}px: a line begins “${line}”`] : []), ...(n < lines.length - 1 && NO_END.test(line) ? [`${width}px: a line ends “${line}”`] : [])]));
+
+  for (const lang of ['ja', null] as const) {
+    test(`MNU-69, MNU-20: ${lang ? 'in text marked Japanese' : 'in Japanese text whose language is not marked'}, no line of an item’s label or supporting text or a group’s title begins with ー, a small kana or closing punctuation, at any width from 40 to 280 px — where the browser’s own rules let one — and a phrase longer than its line breaks rather than overflow`, async ({ page }) => {
+      await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === 'japanese') });
+      // The sweep meets such breaks: under the rules a browser has without strict, a line begins with one.
+      expect(broken(await lineSweep(page, WIDTHS, { lineBreak: 'normal', lang })).length, 'line-break: normal breaks before ー or a small kana somewhere in the sweep').toBeGreaterThan(0);
+      const sweep = await lineSweep(page, WIDTHS, { lang });
+      expect(broken(sweep)).toEqual([]);
+      expect(sweep.filter((each) => each.overflows).map((each) => `${each.width}px: ${each.text}`)).toEqual([]);
+    });
+  }
+
+  test('MNU-69: where the browser finds the phrases of Japanese text (word-break: auto-phrase), a label marked Japanese breaks between its phrases and never inside a word', async ({ page, browserName }) => {
+    await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === 'japanese') });
+    const label = item(page, 'japanese', 1).locator('.label');
+    const supported = await page.evaluate(() => CSS.supports('word-break', 'auto-phrase'));
+    expect(supported, 'Chromium knows auto-phrase').toBe(browserName === 'chromium');
+    expect(await css(label, 'word-break')).toBe(supported ? 'auto-phrase' : 'normal');
+    test.skip(!supported, 'Firefox and WebKit do not find phrases: their lines break by the strict rules alone (the test above)');
+    // From the width of its longest phrase up: 'Claude Code のコマンドをコピー' never breaks inside コマンド or コピー.
+    const sweep = (await lineSweep(page, Array.from({ length: 161 }, (_, n) => 100 + n), { lang: 'ja' })).filter((each) => each.text === LAST);
+    expect(sweep.length).toBeGreaterThan(0);
+    const inside = sweep.flatMap(({ width, lines }) => lines.slice(1).filter((line) => /^[マンドピー]/u.test(line)).map((line) => `${width}px: ${lines.join(' | ')}`));
+    expect(inside).toEqual([]);
+    expect(sweep.some(({ lines }) => lines.length > 1), 'the label wraps somewhere in the sweep').toBe(true);
   });
 });
 
