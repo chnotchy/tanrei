@@ -7,6 +7,7 @@ sourceHash: 35eb7f74b0118a0fb1dec588b658c674df33ab86
 
 import Callout from '../../../../components/Callout.astro';
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
+import InstallCommand from '../../../../components/InstallCommand.astro';
 
 `@tanrei/react-native` TypeScript में लिखा है और इसमें कोई नेटिव मॉड्यूल नहीं है, इसलिए लिंक करने के लिए कुछ नहीं है और यह Expo के साथ चलता है। यह New Architecture के लिए बना है और इसके लिए React 19 और React Native 0.78 या उसके बाद का वर्शन ज़रूरी है।
 
@@ -38,9 +39,7 @@ npm install path/to/tanrei-packages/tanrei-react-native-*.tgz
 
 ### प्रकाशित होने के बाद
 
-```sh
-npm install @tanrei/react-native
-```
+<InstallCommand packages="react-native" />
 
 ## इस्तेमाल
 
