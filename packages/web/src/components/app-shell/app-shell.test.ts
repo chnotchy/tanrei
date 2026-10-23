@@ -519,6 +519,32 @@ test.describe('the menu button', () => {
     expect(await shown(drawer(page))).toBe(true);
   });
 
+  test('APS-33: at 400 wide, a filterable drawer’s chord pressed anywhere opens the navigation as the menu button does (one navigationOpenChange with true) with focus in the drawer’s filter field; typed in a text field it is typed; where the drawer is shown the drawer answers it and the frame does not', async ({ page }) => {
+    const filterable = DRAWER('responsive collapsible filterable filter-label="Filter navigation" filter-placeholder="Filter" filter-clear-label="Clear" filter-count-text="Matches: {count}" filter-empty-text="No matches"');
+    await mount(page, real({ navigation: filterable, aside: '<aside slot="aside"><input id="aside-field" aria-label="Note"></aside>' }), { width: 400 });
+    const log = await record(page);
+    const dialogOpen = () => drawer(page).evaluate((el) => !!el.shadowRoot!.querySelector('dialog[open]'));
+    await page.locator('#first').focus();
+    await page.keyboard.press('/');
+    await expect.poll(dialogOpen).toBe(true);
+    expect(await log()).toEqual([['navigationopenchange', true]]);
+    await expect.poll(() => active(page)).toMatch(/tanrei-navigation-drawer\[navigation\] » tanrei-text-input » #input/);
+    // Closed again; "/" typed in a text field of the page is typed there.
+    await page.keyboard.press('Escape');
+    await expect.poll(dialogOpen).toBe(false);
+    await page.locator('#aside-field').focus();
+    await page.keyboard.press('/');
+    await expect(page.locator('#aside-field')).toHaveValue('/');
+    expect(await dialogOpen()).toBe(false);
+    // Beside the content the drawer answers the chord itself: no event from the frame, focus in the field.
+    await resize(page, 1280);
+    await page.locator('#first').focus();
+    const before = (await log()).length;
+    await page.keyboard.press('/');
+    await expect.poll(() => active(page)).toMatch(/tanrei-navigation-drawer\[navigation\] » tanrei-text-input » #input/);
+    expect((await log()).slice(before).filter(([name]) => name === 'navigationopenchange')).toEqual([]);
+  });
+
   test('APS-7: navigationOpen set by the product opens the navigation and puts it away without an event, and is ignored while the navigation stands beside the content; in the column presentation the drawer’s own menu button widens it over the content and the frame follows', async ({ page }) => {
     await mount(page, real(), { width: 400 });
     const log = await record(page);

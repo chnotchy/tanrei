@@ -55,7 +55,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a tree view reads: per density (regular, compact) a row's least height, paddings, gap, the indent of one level, the label's text style and the sizes of the glyph and the chevron; the text styles of the note after a label and of the value at a row's end; the row's corners; the guide line; the motion of a press and of opening and closing; and for each condition (unselected, selected) the colors of a row's container, label, supporting text, trailing text, icon, chevron and state layer in each state.",
+            "usage": "Everything a tree view reads: per density (regular, compact) a row's least height, paddings, gap, the indent of one level, the label's text style and the sizes of the glyph and the chevron; the text styles of the note after a label and of the value at a row's end; the row's corners; the guide line; the motion of a press and of opening and closing; and for each condition (unselected, selected) the colors of a row's container, label, supporting text, trailing text, icon, chevron and state layer in each state. Also, for a filterable tree: the gap under its filter field, the status line's text style and color, and how a match in a label is marked (color, added weight, fill, and the two on a selected row).",
             "rules": [
               "A tree view shows a hierarchy whose items open and close, and lets a person choose in it where the product asks. A hierarchy of places to go is a navigation drawer: a drawer navigates, a tree reveals or selects. Content folded under a row is an accordion. Rows of one level are a list.",
               "One tab stop: the arrow keys move through the rows that are shown, the arrow toward the end of the line opens a parent or steps into it, the arrow toward the start closes it or steps out. Do not add tab stops inside a row.",
@@ -448,6 +448,31 @@
                 "rationale": "The curve of disclosure-duration.",
                 "since": "0.1.0"
               }
+            }
+          }
+        },
+        "filter": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product lets a person narrow a long tree by typing in a field above it, as a file explorer does: the room between the field and what it narrows, and the line at the top of the results that says how many rows match or that none does, are its own to tune apart from its other fields and statuses.",
+              "since": "0.1.0"
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "Between the filter field and what stands under it: the status line, or the first row (TRV-54)."
+          },
+          "status": {
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.body-small}",
+              "$description": "The line at the top of the results while a filter is applied (TRV-65): how many rows match, or that none does."
+            },
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "Its color: as quiet as a supporting text, on the surface the tree stands on."
             }
           }
         }

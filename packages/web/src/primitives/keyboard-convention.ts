@@ -1,5 +1,6 @@
-// Whose keyboard a keyboard shortcut is written for (KBS-2), and the channel between a keyboard shortcut and the
-// component that hosts it (KBS-12, KBS-13: a menu item). It lives here, outside `src/components/**` — the files
+// Whose keyboard a keyboard shortcut is written for (KBS-2), the channel between a keyboard shortcut and the
+// component that hosts it (KBS-12, KBS-13: a menu item), and a chord an element binds in the window (SRC-38, SRC-39,
+// NVD-87): how it is read and matched, and the one registry that keeps one owner per chord. It lives here, outside `src/components/**` — the files
 // custom-elements.json is made from — so neither the watcher nor the internal event becomes part of a public API.
 
 import type { ComplexAttributeConverter } from 'lit';
@@ -97,3 +98,82 @@ export function chordsOf(value: unknown): string[] {
   if (typeof value === 'string') return parseChords(value);
   return [];
 }
+
+// ── A chord bound in the window (SRC-38, SRC-39, NVD-87) ─────────────────────────────────────────────────────────────
+
+/** One chord as an element listens for it: its modifiers and its one other key, as `KeyboardEvent.key` names it. */
+export interface Binding {
+  id: string;
+  key: string;
+  mod: boolean;
+  ctrl: boolean;
+  alt: boolean;
+  shift: boolean;
+}
+
+/** KBS-1: the named keys, as `KeyboardEvent.key` reports them. */
+const EVENT_KEYS: Record<string, string> = {
+  enter: 'Enter',
+  escape: 'Escape',
+  tab: 'Tab',
+  backspace: 'Backspace',
+  delete: 'Delete',
+  space: ' ',
+  'arrow-up': 'ArrowUp',
+  'arrow-down': 'ArrowDown',
+  'arrow-left': 'ArrowLeft',
+  'arrow-right': 'ArrowRight',
+  home: 'Home',
+  end: 'End',
+  'page-up': 'PageUp',
+  'page-down': 'PageDown',
+  'caps-lock': 'CapsLock',
+  plus: '+',
+  ...Object.fromEntries(Array.from({ length: 24 }, (_, i) => [`f${i + 1}`, `F${i + 1}`])),
+};
+
+/** SRC-38: a chord in the keyboard shortcut's key names (`mod+k`, `/`) as a binding, or null where it is not one chord of modifiers and one key. */
+export function readBinding(chord: string): Binding | null {
+  const modifiers = new Set<string>();
+  const others: string[] = [];
+  for (const name of chord.split('+').map((each) => each.trim().toLowerCase())) {
+    if (!name) continue;
+    if (name === 'mod' || name === 'ctrl' || name === 'alt' || name === 'shift') modifiers.add(name);
+    else others.push(name);
+  }
+  if (others.length !== 1) return null;
+  const key = EVENT_KEYS[others[0]] ?? ([...others[0]].length === 1 ? others[0] : null);
+  if (key === null) return null;
+  const [mod, ctrl, alt, shift] = ['mod', 'ctrl', 'alt', 'shift'].map((name) => modifiers.has(name));
+  return { id: [...['mod', 'ctrl', 'alt', 'shift'].filter((name) => modifiers.has(name)), key].join('+'), key, mod, ctrl, alt, shift };
+}
+
+/** SRC-38: whether `event` is that chord, read as KBS-1 reads it: mod is Command under the apple convention and Control otherwise. */
+export function chordPressed(event: KeyboardEvent, binding: Binding, convention: KeyboardConvention): boolean {
+  const meta = binding.mod && convention === 'apple';
+  const ctrl = binding.ctrl || (binding.mod && convention !== 'apple');
+  if (event.metaKey !== meta || event.ctrlKey !== ctrl || event.altKey !== binding.alt) return false;
+  const character = [...binding.key].length === 1 && binding.key !== ' ';
+  const letter = character && /[\p{L}\p{N}]/u.test(binding.key);
+  // A named key or a letter is pressed with Shift exactly when the chord names it; a sign that a layout writes with
+  // Shift (?) is what `key` says it is.
+  if (!character || letter ? event.shiftKey !== binding.shift : binding.shift && !event.shiftKey) return false;
+  if (event.key.toLowerCase() === binding.key.toLowerCase()) return true;
+  // Option on a Mac writes another character for the same key: with alt, the key's place decides.
+  return letter && binding.alt && (event.code === `Key${binding.key.toUpperCase()}` || event.code === `Digit${binding.key}`);
+}
+
+/** SRC-38: whether `element` takes text, so that a key without a modifier types there. */
+export function takesText(element: Element | null): boolean {
+  if (!element) return false;
+  if (element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement) return true;
+  if (element instanceof HTMLInputElement) return !['button', 'checkbox', 'color', 'file', 'image', 'radio', 'range', 'reset', 'submit'].includes(element.type);
+  return element instanceof HTMLElement && element.isContentEditable;
+}
+
+/**
+ * SRC-39, NVD-87: the chord each shown element has bound in the window — a search, a navigation drawer — and the elements
+ * that wait for a chord another one holds: one owner per chord, the one shown first; a chord set free goes to one that waited.
+ */
+export const BOUND_CHORDS = new Map<string, Element>();
+export const WAITING_FOR_CHORDS = new Set<{ syncShortcut(): void }>();

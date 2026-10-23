@@ -59,7 +59,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "What a combobox draws that is its own. The list: its surface, corners, lift, paddings, offset from the box, margin to the window's edge and greatest height; per density (regular, compact) an option's least height, paddings, gap, glyph and check sizes and a group title's inset; an option's corners, text styles and the weight of the matched letters; a group's title, the divider or the gap between groups; the status row; the motion of opening and closing and of a row's state change, and a row's opacity in each state; an option's colors at rest and chosen, in each state. And the gap between the clear button and the chevron. The box is comp.input-box.*.",
+            "usage": "What a combobox draws that is its own. The list: its surface, corners, lift, paddings, offset from the box, margin to the window's edge and greatest height; per density (regular, compact) an option's least height, paddings, gap, glyph and check sizes and a group title's inset; an option's corners, text styles and how the matched letters are marked (their color, added weight and fill, and the two in the chosen option); a group's title, the divider or the gap between groups; the status row; the motion of opening and closing and of a row's state change, and a row's opacity in each state; an option's colors at rest and chosen, in each state. And the gap between the clear button and the chevron. The box is comp.input-box.*.",
             "rules": [
               "A combobox holds one value a person finds by typing. For a short closed list use a select; for a query that finds things to go to use the search; for actions use a menu.",
               "A combobox is the bare box and its list: it has no label row, no requirement tag, no help and no error text. Put it in a Field for those, or use the combobox field, which is that pair; their tokens are comp.field.*.",
@@ -69,7 +69,8 @@
               "option.state-layer.color and selected-option.state-layer.color are the colors the state layers mix into a row. motion.state-duration, motion.state-easing and the four opacity tokens are the rows'; the box has its own in comp.input-box.",
               "The clear button is an icon-only Button of the text variant with Button's own tokens; container.action-gap is its distance from the chevron.",
               "compact is for a tool used with a pointer, where rows are many and looked through often; touch always gets rows of the touch target. The density never changes a text style.",
-              "Restyle through these tokens in a layer; never fork the component."
+              "Restyle through these tokens in a layer; never fork the component.",
+              "A match is marked as a search marks one — the stronger text color, a raised weight and a quiet fill behind it (option.match.container.color, the secondary container in the default system) — so that it never depends on color alone; its text takes no hue."
             ]
           }
         },
@@ -572,10 +573,60 @@
             "emphasis": {
               "$type": "number",
               "$value": "{tanrei.sys.typescale.emphasis.label}",
-              "$description": "How much weight the part of an option's label that matched the typed text gains, added to the weight of option.label.typescale. Weight alone: a match is not a selection, a choice or a link, so it takes no color.",
+              "$description": "How much weight the part of an option's label that matched the typed text gains, added to the weight of option.label.typescale (CMB-38). One of three marks, with the color and the fill: a match never depends on color alone.",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
                   "rationale": "One product filters a long list as a person types and shows in each row why that row is still there; how heavy the matched letters are is its choice, and 0 marks nothing."
+                }
+              }
+            },
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}",
+              "$description": "The text of a match on an option that is not selected (CMB-38): the stronger of the text colors. No hue: a match is not a selection, a choice or a link.",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product decides how the letters of an option that answered what was typed stand out from the rest of its label, as its search marks a match: the text color is one of the three marks.",
+                  "since": "0.1.0"
+                }
+              }
+            },
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.secondary-container}",
+                "$description": "The fill behind a match on an option that is not selected (CMB-38), as well as its weight and color: the quiet tonal container, as a search's match is filled, so that a match is found in every script, also where the reader's font has no weight between regular and bold.",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "The same product fills a match behind its letters as its search does, so that it is found in every script, also where the reader's font has no weight between regular and bold.",
+                    "since": "0.1.0"
+                  }
+                }
+              }
+            },
+            "selected": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-secondary-container}",
+                "$description": "The text of a match on the selected option (CMB-38): the selected label's own color.",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "The selected option is filled already: its match keeps the selected label's color.",
+                    "since": "0.1.0"
+                  }
+                }
+              },
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.sys.color.surface}",
+                  "$description": "The fill behind a match on the selected option (CMB-38): the surface, cut out of the selected fill, so that the match stands apart from the option's own fill as it does on an option that is not selected.",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "The selected option is filled with the quiet fill a match takes elsewhere: its match needs a fill of its own to stand apart.",
+                      "since": "0.1.0"
+                    }
+                  }
                 }
               }
             }

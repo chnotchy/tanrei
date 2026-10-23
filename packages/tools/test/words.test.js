@@ -80,6 +80,7 @@ test("the repository's words: which keys have places, and each is what its reade
     'entryRemovedText',
     'filesDroppedText',
     'filesRefusedText',
+    'filterCountText',
     'imageCountText',
     'liftedText',
     'movedText',

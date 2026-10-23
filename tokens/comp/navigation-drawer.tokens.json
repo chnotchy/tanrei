@@ -35,7 +35,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a navigation drawer reads, expanded and collapsed: per variant (standard: beside the content; modal: over it) the container color, elevation, shape and end-edge color; its two widths (expanded, and collapsed to the icon column), padding and the gaps of its header, and the text style and color its header slot gives what it holds; the two window widths at which a responsive drawer changes its presentation; the scrim; the section heading's style, color and height; per density (regular, compact) the geometry of a destination in each form (the expanded row, and the collapsed item container around the icon), the indent of a nested destination, the gap between cells, the collapsed column and the heading height, the trailing text and glyph, the supporting text, the guide line and the edge under pinned rows; the selection, expand and disclosure motion; and for each condition (unselected, selected, and their collapsed- forms) the colors of the item container, icon indicator, icon, label and trailing content in each state.",
+            "usage": "Everything a navigation drawer reads, expanded and collapsed: per variant (standard: beside the content; modal: over it) the container color, elevation, shape and end-edge color; its two widths (expanded, and collapsed to the icon column), padding and the gaps of its header, and the text style and color its header slot gives what it holds; the two window widths at which a responsive drawer changes its presentation; the scrim; the section heading's style, color and height; per density (regular, compact) the geometry of a destination in each form (the expanded row, and the collapsed item container around the icon), the indent of a nested destination, the gap between cells, the collapsed column and the heading height, the trailing text and glyph, the supporting text, the guide line and the edge under pinned rows; the selection, expand and disclosure motion; and for each condition (unselected, selected, and their collapsed- forms) the colors of the item container, icon indicator, icon, label and trailing content in each state. Also, for a filterable drawer: the gap under its filter field, the status line's text style and color, and the key hint's text style and color.",
             "rules": [
               "The selected destination is drawn from the selected parts; every other destination from the unselected parts. While the drawer is collapsed they are the collapsed-selected and collapsed-unselected parts. Never pick a look by hand.",
               "Selected must differ from unselected by more than the icon's fill: an active indicator, a stronger color, or both.",
@@ -1031,6 +1031,43 @@
             "width": {
               "$type": "dimension",
               "$value": "{tanrei.sys.border.hairline}"
+            }
+          }
+        },
+        "filter": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product lets a person narrow a long navigation by typing in a field above it, as a documentation site's sidebar filter does: the room between the field and what it narrows, the line at the top of the results that says how many rows match or that none does, and the key hint in the empty field are its own to tune apart from the header above and from its other fields, statuses and hints.",
+              "since": "0.1.0"
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space150}",
+            "$description": "Between the filter field and what stands under it: the status line, or the first item (NVD-79). The header's gap stands above the field."
+          },
+          "status": {
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.body-small}",
+              "$description": "The line at the top of the results while a filter is applied (NVD-90): how many rows match, or that none does."
+            },
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "Its color: as quiet as a section's heading, on the surface the drawer stands on."
+            }
+          },
+          "shortcut": {
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.label-small}",
+              "$description": "The legends of the key hint at the end of the empty field (NVD-87). The keyboard shortcut component draws no cap there."
+            },
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "The legends' color: as quiet as the placeholder beside them."
             }
           }
         }

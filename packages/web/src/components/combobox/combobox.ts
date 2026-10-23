@@ -46,6 +46,7 @@ import { AXES, INSET, PREFIX, styles } from './combobox.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { type Folded, fold, foldText, matchRun } from '../../primitives/filter.js';
 
 /** The three looks of the input box (`comp.input-box`): a filled box with no label of its own (`stacked`: the label above is its Field's), or the label floating inside a `filled` or `outlined` box. A design system may leave some out or add values. */
 export type TanreiComboboxVariant = keyof TanreiInputBoxVariantRegistry;
@@ -84,56 +85,8 @@ function whenParsed(task: () => void) {
   else task();
 }
 
-// ── CMB-25, CMB-29, CMB-38: how a text is compared with a label ───────────────────────────────────────────────────
-//
-// Without regard to case, to the width of a character or to the marks on a letter: each letter with the marks that
-// follow it is folded by itself — its compatibility form (a full-width "ｔ" is "t", a half-width "ｶ" is "カ"), without
-// its marks (an "á" is "a"), in lower case — so that a place in the folded text is a place in the label, and the run
-// that matched can be drawn. The two sound marks of kana are letters' own and are kept: "が" is not "か".
-
-const CLUSTER = /\P{M}\p{M}*|\p{M}+/gu;
-const KANA_SOUND_MARKS = new Set(['\u3099', '\u309A']);
-const foldCluster = (cluster: string) =>
-  cluster
-    .normalize('NFKD')
-    .replace(/\p{M}/gu, (mark) => (KANA_SOUND_MARKS.has(mark) ? mark : ''))
-    .normalize('NFKC')
-    .toLowerCase();
-
-interface Folded {
-  /** The label's letters, each with its marks. */
-  clusters: string[];
-  /** The folded text. */
-  text: string;
-  /** For each character of the folded text, the letter of the label it came from. */
-  from: number[];
-}
-
-function fold(label: string): Folded {
-  const clusters = label.match(CLUSTER) ?? [];
-  let text = '';
-  const from: number[] = [];
-  clusters.forEach((cluster, index) => {
-    const folded = foldCluster(cluster);
-    text += folded;
-    for (let i = 0; i < folded.length; i++) from.push(index);
-  });
-  return { clusters, text, from };
-}
-
-/** A text as it is compared: folded, without the spaces around it. */
-const foldText = (text: string) => fold(text.trim()).text;
-
-/** The first run of `label` that matched `query` (already folded), as the three pieces of the label; null when none did. */
-function matchRun(folded: Folded, query: string): [string, string, string] | null {
-  if (!query) return null;
-  const at = folded.text.indexOf(query);
-  if (at < 0) return null;
-  const first = folded.from[at];
-  const last = folded.from[at + query.length - 1];
-  const { clusters } = folded;
-  return [clusters.slice(0, first).join(''), clusters.slice(first, last + 1).join(''), clusters.slice(last + 1).join('')];
-}
+// CMB-25, CMB-29, CMB-38: how a text is compared with a label — src/primitives/filter.ts, shared with the filter field
+// of the navigation drawer and the tree view.
 
 /**
  * Lets people find one value by typing: a box that looks and measures like a text input, with a list of options that

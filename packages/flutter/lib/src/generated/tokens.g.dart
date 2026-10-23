@@ -8092,7 +8092,11 @@ class TanreiComboboxTokens {
     required this.motionStateDuration,
     required this.motionStateEasing,
     required this.optionLabelTypescale,
+    required this.optionMatchColor,
+    required this.optionMatchContainerColor,
     required this.optionMatchEmphasis,
+    required this.optionMatchSelectedColor,
+    required this.optionMatchSelectedContainerColor,
     required this.optionShape,
     required this.optionSupportingTextTypescale,
     required this.separation,
@@ -8153,8 +8157,16 @@ class TanreiComboboxTokens {
   final TanreiCubicBezier motionStateEasing;
   /// `comp.combobox.option-label-typescale`
   final TanreiTextStyle optionLabelTypescale;
+  /// `comp.combobox.option-match-color`
+  final TanreiPaint optionMatchColor;
+  /// `comp.combobox.option-match-container-color`
+  final TanreiPaint optionMatchContainerColor;
   /// `comp.combobox.option-match-emphasis`
   final double optionMatchEmphasis;
+  /// `comp.combobox.option-match-selected-color`
+  final TanreiPaint optionMatchSelectedColor;
+  /// `comp.combobox.option-match-selected-container-color`
+  final TanreiPaint optionMatchSelectedContainerColor;
   /// `comp.combobox.option-shape`
   final double optionShape;
   /// `comp.combobox.option-supporting-text-typescale`
@@ -8205,7 +8217,11 @@ class TanreiComboboxTokens {
     int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
     TanreiTextStyle? optionLabelTypescale,
+    TanreiPaint? optionMatchColor,
+    TanreiPaint? optionMatchContainerColor,
     double? optionMatchEmphasis,
+    TanreiPaint? optionMatchSelectedColor,
+    TanreiPaint? optionMatchSelectedContainerColor,
     double? optionShape,
     TanreiTextStyle? optionSupportingTextTypescale,
     double? separation,
@@ -8242,7 +8258,11 @@ class TanreiComboboxTokens {
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
         optionLabelTypescale: optionLabelTypescale ?? this.optionLabelTypescale,
+        optionMatchColor: optionMatchColor ?? this.optionMatchColor,
+        optionMatchContainerColor: optionMatchContainerColor ?? this.optionMatchContainerColor,
         optionMatchEmphasis: optionMatchEmphasis ?? this.optionMatchEmphasis,
+        optionMatchSelectedColor: optionMatchSelectedColor ?? this.optionMatchSelectedColor,
+        optionMatchSelectedContainerColor: optionMatchSelectedContainerColor ?? this.optionMatchSelectedContainerColor,
         optionShape: optionShape ?? this.optionShape,
         optionSupportingTextTypescale: optionSupportingTextTypescale ?? this.optionSupportingTextTypescale,
         separation: separation ?? this.separation,
@@ -16895,6 +16915,11 @@ class TanreiNavigationDrawerTokens {
     required this.containerPaddingBlock,
     required this.containerPaddingInline,
     required this.containerWidth,
+    required this.filterGap,
+    required this.filterShortcutColor,
+    required this.filterShortcutTypescale,
+    required this.filterStatusColor,
+    required this.filterStatusTypescale,
     required this.guideColor,
     required this.guideWidth,
     required this.headerColor,
@@ -16954,6 +16979,16 @@ class TanreiNavigationDrawerTokens {
   final double containerPaddingInline;
   /// `comp.navigation-drawer.container-width`
   final double containerWidth;
+  /// `comp.navigation-drawer.filter-gap`
+  final double filterGap;
+  /// `comp.navigation-drawer.filter-shortcut-color`
+  final TanreiPaint filterShortcutColor;
+  /// `comp.navigation-drawer.filter-shortcut-typescale`
+  final TanreiTextStyle filterShortcutTypescale;
+  /// `comp.navigation-drawer.filter-status-color`
+  final TanreiPaint filterStatusColor;
+  /// `comp.navigation-drawer.filter-status-typescale`
+  final TanreiTextStyle filterStatusTypescale;
   /// `comp.navigation-drawer.guide-color`
   final TanreiPaint guideColor;
   /// `comp.navigation-drawer.guide-width`
@@ -17044,6 +17079,11 @@ class TanreiNavigationDrawerTokens {
     double? containerPaddingBlock,
     double? containerPaddingInline,
     double? containerWidth,
+    double? filterGap,
+    TanreiPaint? filterShortcutColor,
+    TanreiTextStyle? filterShortcutTypescale,
+    TanreiPaint? filterStatusColor,
+    TanreiTextStyle? filterStatusTypescale,
     TanreiPaint? guideColor,
     double? guideWidth,
     TanreiPaint? headerColor,
@@ -17093,6 +17133,11 @@ class TanreiNavigationDrawerTokens {
         containerPaddingBlock: containerPaddingBlock ?? this.containerPaddingBlock,
         containerPaddingInline: containerPaddingInline ?? this.containerPaddingInline,
         containerWidth: containerWidth ?? this.containerWidth,
+        filterGap: filterGap ?? this.filterGap,
+        filterShortcutColor: filterShortcutColor ?? this.filterShortcutColor,
+        filterShortcutTypescale: filterShortcutTypescale ?? this.filterShortcutTypescale,
+        filterStatusColor: filterStatusColor ?? this.filterStatusColor,
+        filterStatusTypescale: filterStatusTypescale ?? this.filterStatusTypescale,
         guideColor: guideColor ?? this.guideColor,
         guideWidth: guideWidth ?? this.guideWidth,
         headerColor: headerColor ?? this.headerColor,
@@ -26745,6 +26790,9 @@ class TanreiTreeViewStateTokens {
 class TanreiTreeViewTokens {
   const TanreiTreeViewTokens({
     required this.containerShape,
+    required this.filterGap,
+    required this.filterStatusColor,
+    required this.filterStatusTypescale,
     required this.guideColor,
     required this.guideWidth,
     required this.iconGap,
@@ -26768,6 +26816,12 @@ class TanreiTreeViewTokens {
 
   /// `comp.tree-view.container-shape`
   final double containerShape;
+  /// `comp.tree-view.filter-gap`
+  final double filterGap;
+  /// `comp.tree-view.filter-status-color`
+  final TanreiPaint filterStatusColor;
+  /// `comp.tree-view.filter-status-typescale`
+  final TanreiTextStyle filterStatusTypescale;
   /// `comp.tree-view.guide-color`
   final TanreiPaint guideColor;
   /// `comp.tree-view.guide-width`
@@ -26810,6 +26864,9 @@ class TanreiTreeViewTokens {
   /// A copy with the given tokens replaced.
   TanreiTreeViewTokens copyWith({
     double? containerShape,
+    double? filterGap,
+    TanreiPaint? filterStatusColor,
+    TanreiTextStyle? filterStatusTypescale,
     TanreiPaint? guideColor,
     double? guideWidth,
     double? iconGap,
@@ -26831,6 +26888,9 @@ class TanreiTreeViewTokens {
     TanreiTreeViewStateTokens? disabled,
   }) => TanreiTreeViewTokens(
         containerShape: containerShape ?? this.containerShape,
+        filterGap: filterGap ?? this.filterGap,
+        filterStatusColor: filterStatusColor ?? this.filterStatusColor,
+        filterStatusTypescale: filterStatusTypescale ?? this.filterStatusTypescale,
         guideColor: guideColor ?? this.guideColor,
         guideWidth: guideWidth ?? this.guideWidth,
         iconGap: iconGap ?? this.iconGap,

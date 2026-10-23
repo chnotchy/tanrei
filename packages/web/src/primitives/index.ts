@@ -66,6 +66,8 @@
 //                 what a control tells its form, said where the element composed around it hears it; `formOf()` is in
 //                 default-button. Imported from their own modules, not from here.
 //   values      — parseValues(): the `values` attribute of a selection of several values (list, segmented button)
+//   filter      — fold(), filterWords(), holdsWords(), matchRun(): how a typed text is compared with a label, and which
+//                 run of it answered in a combobox (CMB-25, CMB-38, NVD-81, TRV-56)
 //   keyboard-convention — whose keyboard a keyboard shortcut writes (KBS-2): the ambient `data-tanrei-keyboard-convention`
 //                 across shadow roots, the platform's, one page-wide watcher; the chords' attribute converter; and the
 //                 internal event a keyboard shortcut tells its host with (KBS-12, a menu item's aria-keyshortcuts)
@@ -425,18 +427,25 @@ export {
   notifyDestinationUpdate,
 } from './destination.js';
 export {
+  BOUND_CHORDS,
+  type Binding,
   type ConventionReader,
   KEYBOARD_CONVENTION,
   type KeyboardConvention,
   SHORTCUT_UPDATE,
+  WAITING_FOR_CHORDS,
   ambientConvention,
+  chordPressed,
   chordsConverter,
   chordsOf,
   parseChords,
   platformConvention,
+  readBinding,
+  takesText,
   unwatchConvention,
   watchConvention,
 } from './keyboard-convention.js';
+export { FILTER_SETTLE_MS, type Folded, filterWords, fold, foldText, holdsWords, matchRun } from './filter.js';
 export { type IndicatorDragOptions, IndicatorDragController, type IndicatorPlace, type IndicatorStop, indicatorChoice, indicatorPlace } from './indicator-drag.js';
 export { type SharedChoice, keepInPlace, remember, remembered, sharedChoice } from './shared-choice.js';
 export { flatParent } from './flat-tree.js';

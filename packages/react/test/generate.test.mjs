@@ -41,6 +41,7 @@ test('every event prop is `on` and the event in camelCase; the event it listens 
   assert.ok(all.length > 100);
   for (const [prop, event] of all) assert.equal(prop.slice(2).toLowerCase(), event, `${prop} listens for ${event}`);
   assert.deepEqual(eventsOf(wrapper(root, 'navigation-drawer')).filter(([, event]) => event.endsWith('change') && event !== 'change'), [
+    ['onFilterChange', 'filterchange'],
     ['onExpandedChange', 'expandedchange'],
     ['onPresentationChange', 'presentationchange'],
   ]);

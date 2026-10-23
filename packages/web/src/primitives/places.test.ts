@@ -133,7 +133,7 @@ test.describe('a word with places', () => {
   });
 
   test('the keys of the product’s words that have places are the specs’, and every place is a number or a text', () => {
-    expect(Object.keys(wordPlaces).sort()).toEqual(['avatarGroupOverflowLabel', 'cancelledText', 'characterCountNoLimitText', 'characterCountText', 'dragHandleLabel', 'entriesAddedText', 'entryAddedText', 'entryRemoveLabel', 'entryRemovedText', 'filesDroppedText', 'filesRefusedText', 'imageCountText', 'liftedText', 'movedText', 'pageCountText', 'pageLabel', 'removeLabel', 'retryLabel', 'stepPositionText']);
+    expect(Object.keys(wordPlaces).sort()).toEqual(['avatarGroupOverflowLabel', 'cancelledText', 'characterCountNoLimitText', 'characterCountText', 'dragHandleLabel', 'entriesAddedText', 'entryAddedText', 'entryRemoveLabel', 'entryRemovedText', 'filesDroppedText', 'filesRefusedText', 'filterCountText', 'imageCountText', 'liftedText', 'movedText', 'pageCountText', 'pageLabel', 'removeLabel', 'retryLabel', 'stepPositionText']);
     expect(wordPlaces.movedText).toEqual([
       { name: 'label', kind: 'text' },
       { name: 'position', kind: 'number' },

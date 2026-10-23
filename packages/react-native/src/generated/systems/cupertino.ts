@@ -1,4 +1,4 @@
-// 112 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
+// 113 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
 // GENERATED FILE — DO NOT EDIT.
 // Source: tokens/ (DTCG 2025.10). Regenerate with `pnpm generate`.
 // The "cupertino" design system as values. Types: ../vocabulary.ts.
@@ -4025,7 +4025,11 @@ export const cupertino = {
       motionStateDuration: 250,
       motionStateEasing: [0.2, 0, 0, 1],
       optionLabelTypescale: "bodyLarge",
+      optionMatchColor: { kind: "role", role: "onSurface" },
+      optionMatchContainerColor: { kind: "role", role: "secondaryContainer" },
       optionMatchEmphasis: 200,
+      optionMatchSelectedColor: { kind: "role", role: "onSecondaryContainer" },
+      optionMatchSelectedContainerColor: { kind: "role", role: "surface" },
       optionShape: 8,
       optionSupportingTextTypescale: "bodySmall",
       pressedOpacity: 0.7,
@@ -7854,6 +7858,11 @@ export const cupertino = {
       containerPaddingInline: 12,
       containerWidth: 240,
       disabledOpacity: 1,
+      filterGap: 12,
+      filterShortcutColor: { kind: "role", role: "onSurfaceVariant" },
+      filterShortcutTypescale: "labelSmall",
+      filterStatusColor: { kind: "role", role: "onSurfaceVariant" },
+      filterStatusTypescale: "bodySmall",
       focusedOpacity: 1,
       guideColor: { kind: "role", role: "outlineVariant" },
       guideWidth: 1,
@@ -11627,6 +11636,9 @@ export const cupertino = {
     treeView: {
       containerShape: 8,
       disabledOpacity: 0.38,
+      filterGap: 8,
+      filterStatusColor: { kind: "role", role: "onSurfaceVariant" },
+      filterStatusTypescale: "bodySmall",
       focusedOpacity: 1,
       guideColor: { kind: "role", role: "outlineVariant" },
       guideWidth: 1,

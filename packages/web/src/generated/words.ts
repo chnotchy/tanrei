@@ -24,7 +24,7 @@ export interface TanreiWords {
   characterCountNoLimitText?: string;
   /** Read by `text-input.counterText`. A word with places: `{count}` (number), `{limit}` (number), `{remaining}` (number). */
   characterCountText?: string;
-  /** Read by `combobox.clearLabel`, `search.clearLabel`. */
+  /** Read by `combobox.clearLabel`, `navigation-drawer.filterClearLabel`, `search.clearLabel`, `tree-view.filterClearLabel`. */
   clearLabel?: string;
   /** Read by `bottom-sheet.closeLabel`, `callout.closeLabel`, `image-preview.closeLabel`, `popover.closeLabel`, `side-sheet.closeLabel`, `snackbar.closeLabel`. */
   closeLabel?: string;
@@ -84,6 +84,12 @@ export interface TanreiWords {
   filesDroppedText?: string;
   /** Read by `drop-zone.refusedText`. A word with places: `{count}` (number). */
   filesRefusedText?: string;
+  /** Read by `navigation-drawer.filterCountText`, `tree-view.filterCountText`. A word with places: `{count}` (number). */
+  filterCountText?: string;
+  /** Read by `navigation-drawer.filterEmptyText`, `tree-view.filterEmptyText`. */
+  filterEmptyText?: string;
+  /** Read by `navigation-drawer.filterPlaceholder`, `tree-view.filterPlaceholder`. */
+  filterPlaceholder?: string;
   /** Read by `pagination.firstLabel`. */
   firstPageLabel?: string;
   /** Read by `bottom-sheet.handleLabel`. */
@@ -210,7 +216,7 @@ export interface TanreiWords {
 export type WordKey = keyof TanreiWords;
 
 /** Every key of the product's words, in alphabetical order. */
-export const wordKeys: readonly WordKey[] = ['addedLabel', 'attachLabel', 'avatarGroupOverflowLabel', 'backLabel', 'breadcrumbsOverflowLabel', 'busyLabel', 'cancelLabel', 'cancelledText', 'characterCountNoLimitText', 'characterCountText', 'clearLabel', 'closeLabel', 'confirmLabel', 'copiedLabel', 'copyFailedLabel', 'copyLabel', 'dateLabel', 'decrementLabel', 'dialLabel', 'dragHandleHint', 'dragHandleLabel', 'dropZoneRefusingText', 'dropZoneText', 'duplicateEntryText', 'editLabel', 'emptyText', 'endLabel', 'entriesAddedText', 'entryAddedText', 'entryLimitText', 'entryModeLabel', 'entryRemoveLabel', 'entryRemovedText', 'expandLabel', 'externalLabel', 'fileCountErrorText', 'fileSizeErrorText', 'fileTypeErrorText', 'filesDroppedText', 'filesRefusedText', 'firstPageLabel', 'handleLabel', 'highlightedLabel', 'hourLabel', 'imageCountText', 'imageErrorText', 'incrementLabel', 'lastPageLabel', 'liftedText', 'loadingLabel', 'marqueePauseLabel', 'marqueePlayLabel', 'menubarOverflowLabel', 'minuteLabel', 'moveAfterLabel', 'moveBeforeLabel', 'moveToEndLabel', 'moveToStartLabel', 'movedText', 'nextDayLabel', 'nextImageLabel', 'nextItemLabel', 'nextMonthLabel', 'nextPageLabel', 'noFileText', 'noOptionsText', 'optionalText', 'pageCountText', 'pageLabel', 'pauseLabel', 'periodLabel', 'playLabel', 'previousImageLabel', 'previousItemLabel', 'previousMonthLabel', 'previousPageLabel', 'rangeErrorText', 'rangeLabel', 'removeLabel', 'removedLabel', 'requiredText', 'resizeLabel', 'retryLabel', 'segmentEmptyText', 'selectAllLabel', 'sendLabel', 'sortedAscendingLabel', 'sortedDescendingLabel', 'startLabel', 'stepCompletedText', 'stepErrorText', 'stepPositionText', 'stopLabel', 'targetLabel', 'todayLabel', 'toolbarOverflowLabel', 'wheelsLabel', 'yearViewLabel', 'zoomInLabel', 'zoomOutLabel'];
+export const wordKeys: readonly WordKey[] = ['addedLabel', 'attachLabel', 'avatarGroupOverflowLabel', 'backLabel', 'breadcrumbsOverflowLabel', 'busyLabel', 'cancelLabel', 'cancelledText', 'characterCountNoLimitText', 'characterCountText', 'clearLabel', 'closeLabel', 'confirmLabel', 'copiedLabel', 'copyFailedLabel', 'copyLabel', 'dateLabel', 'decrementLabel', 'dialLabel', 'dragHandleHint', 'dragHandleLabel', 'dropZoneRefusingText', 'dropZoneText', 'duplicateEntryText', 'editLabel', 'emptyText', 'endLabel', 'entriesAddedText', 'entryAddedText', 'entryLimitText', 'entryModeLabel', 'entryRemoveLabel', 'entryRemovedText', 'expandLabel', 'externalLabel', 'fileCountErrorText', 'fileSizeErrorText', 'fileTypeErrorText', 'filesDroppedText', 'filesRefusedText', 'filterCountText', 'filterEmptyText', 'filterPlaceholder', 'firstPageLabel', 'handleLabel', 'highlightedLabel', 'hourLabel', 'imageCountText', 'imageErrorText', 'incrementLabel', 'lastPageLabel', 'liftedText', 'loadingLabel', 'marqueePauseLabel', 'marqueePlayLabel', 'menubarOverflowLabel', 'minuteLabel', 'moveAfterLabel', 'moveBeforeLabel', 'moveToEndLabel', 'moveToStartLabel', 'movedText', 'nextDayLabel', 'nextImageLabel', 'nextItemLabel', 'nextMonthLabel', 'nextPageLabel', 'noFileText', 'noOptionsText', 'optionalText', 'pageCountText', 'pageLabel', 'pauseLabel', 'periodLabel', 'playLabel', 'previousImageLabel', 'previousItemLabel', 'previousMonthLabel', 'previousPageLabel', 'rangeErrorText', 'rangeLabel', 'removeLabel', 'removedLabel', 'requiredText', 'resizeLabel', 'retryLabel', 'segmentEmptyText', 'selectAllLabel', 'sendLabel', 'sortedAscendingLabel', 'sortedDescendingLabel', 'startLabel', 'stepCompletedText', 'stepErrorText', 'stepPositionText', 'stopLabel', 'targetLabel', 'todayLabel', 'toolbarOverflowLabel', 'wheelsLabel', 'yearViewLabel', 'zoomInLabel', 'zoomOutLabel'];
 
 /** The props that read each key, as `<component>.<prop>` and, for an item kind, `<component>/<kind>.<prop>`. */
 export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
@@ -224,7 +230,7 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   cancelledText: ['file-upload.cancelledText', 'list.cancelledText'],
   characterCountNoLimitText: ['text-input.counterNoLimitText'],
   characterCountText: ['text-input.counterText'],
-  clearLabel: ['combobox.clearLabel', 'search.clearLabel'],
+  clearLabel: ['combobox.clearLabel', 'navigation-drawer.filterClearLabel', 'search.clearLabel', 'tree-view.filterClearLabel'],
   closeLabel: ['bottom-sheet.closeLabel', 'callout.closeLabel', 'image-preview.closeLabel', 'popover.closeLabel', 'side-sheet.closeLabel', 'snackbar.closeLabel'],
   confirmLabel: ['date-time-picker.confirmLabel'],
   copiedLabel: ['code-block.copiedLabel', 'copy-button.copiedLabel'],
@@ -254,6 +260,9 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   fileTypeErrorText: ['chat-composer.typeErrorText', 'file-upload.typeErrorText'],
   filesDroppedText: ['drop-zone.droppedText'],
   filesRefusedText: ['drop-zone.refusedText'],
+  filterCountText: ['navigation-drawer.filterCountText', 'tree-view.filterCountText'],
+  filterEmptyText: ['navigation-drawer.filterEmptyText', 'tree-view.filterEmptyText'],
+  filterPlaceholder: ['navigation-drawer.filterPlaceholder', 'tree-view.filterPlaceholder'],
   firstPageLabel: ['pagination.firstLabel'],
   handleLabel: ['bottom-sheet.handleLabel'],
   highlightedLabel: ['code-block.highlightedLabel'],
@@ -340,6 +349,7 @@ export const wordPlaces: Readonly<Partial<Record<WordKey, readonly WordPlace[]>>
   entryRemovedText: [{ name: 'entry', kind: 'text' }],
   filesDroppedText: [{ name: 'count', kind: 'number' }],
   filesRefusedText: [{ name: 'count', kind: 'number' }],
+  filterCountText: [{ name: 'count', kind: 'number' }],
   imageCountText: [{ name: 'position', kind: 'number' }, { name: 'count', kind: 'number' }],
   liftedText: [{ name: 'label', kind: 'text' }, { name: 'position', kind: 'number' }, { name: 'count', kind: 'number' }],
   movedText: [{ name: 'label', kind: 'text' }, { name: 'position', kind: 'number' }, { name: 'count', kind: 'number' }],

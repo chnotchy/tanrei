@@ -1,4 +1,4 @@
-// 112 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
+// 113 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
 // GENERATED FILE — DO NOT EDIT.
 // Source: tokens/ (DTCG 2025.10). Regenerate with `pnpm generate`.
 //
@@ -3258,7 +3258,11 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     motionStateDuration: 250,
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     optionLabelTypescale: _typescaleBodyLarge,
+    optionMatchColor: TanreiPaint.role(TanreiColorRole.onSurface),
+    optionMatchContainerColor: TanreiPaint.role(TanreiColorRole.secondaryContainer),
     optionMatchEmphasis: 200.0,
+    optionMatchSelectedColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
+    optionMatchSelectedContainerColor: TanreiPaint.role(TanreiColorRole.surface),
     optionShape: 8.0,
     optionSupportingTextTypescale: _typescaleBodySmall,
     separation: 0.0,
@@ -6377,6 +6381,11 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     containerPaddingBlock: 12.0,
     containerPaddingInline: 12.0,
     containerWidth: 240.0,
+    filterGap: 12.0,
+    filterShortcutColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
+    filterShortcutTypescale: _typescaleLabelSmall,
+    filterStatusColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
+    filterStatusTypescale: _typescaleBodySmall,
     guideColor: TanreiPaint.role(TanreiColorRole.outlineVariant),
     guideWidth: 1.0,
     headerColor: TanreiPaint.role(TanreiColorRole.onSurface),
@@ -9670,6 +9679,9 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
   ),
   treeView: TanreiTreeViewTokens(
     containerShape: 8.0,
+    filterGap: 8.0,
+    filterStatusColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
+    filterStatusTypescale: _typescaleBodySmall,
     guideColor: TanreiPaint.role(TanreiColorRole.outlineVariant),
     guideWidth: 1.0,
     iconGap: 12.0,
