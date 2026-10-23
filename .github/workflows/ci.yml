@@ -633,11 +633,12 @@ jobs:
         run: pnpm --filter @tanrei/docs test:node
       # The built site in a browser: every live example and spec fixture of the root language's pages is drawn as the
       # web package draws it, in both schemes (`test:browser`, a few minutes) — what the Node tests cannot see, such as
-      # a component stylesheet that Starlight's layers beat.
-      - name: A browser for the docs' page tests
+      # a component stylesheet that Starlight's layers beat. The header's test runs in the three engines (its menus,
+      # its menu button and its widths are each engine's own work), so all three are installed.
+      - name: The browsers for the docs' page tests
         id: browser
         if: ${{ !cancelled() && steps.site.outcome == 'success' }}
-        run: pnpm --filter @tanrei/docs exec playwright install --with-deps chromium
+        run: pnpm --filter @tanrei/docs exec playwright install --with-deps chromium firefox webkit
       - name: Browser tests of the docs app (the previews against the package's own drawing)
         if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
         run: pnpm --filter @tanrei/docs test:browser

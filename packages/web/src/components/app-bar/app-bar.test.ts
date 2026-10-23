@@ -765,6 +765,63 @@ test.describe('brand', () => {
     expect(rtlMenu.x - (rtlCell.x + rtlCell.width)).toBeCloseTo(await resolveToken(page, T('actions-gap')), 0);
   });
 
+  test('APB-25: a control in context stands actions.gap after the brand’s cell, centred on the row, the actions still at the end; Tab goes navigation, brand, context, actions; without a brand it follows the navigation item, without either it starts container.padding-inline from the edge; rtl mirrors', async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 600 });
+    const CONTEXT = '<tanrei-button id="context" variant="text" slot="context" icon-position="trailing">tanrei<span slot="icon">expand_more</span></tanrei-button>';
+    const control = () => brandBar(page).locator('#context');
+    // The stage of a bar is a phone's width; a menu button, a wordmark, the control and an action need more.
+    const widen = () => page.locator('#brand-stage').evaluate((el: HTMLElement) => (el.style.inlineSize = '600px'));
+    await brandPage(page, NAMED, WORDMARK + CONTEXT);
+    await widen();
+    const gap = await resolveToken(page, T('actions-gap'));
+    const box = await bounds(brandBar(page).locator('.brand'));
+    const context = await bounds(control());
+    const row = await bounds(brandBar(page).locator('.row'));
+    expect(context.x - (box.x + box.width)).toBeCloseTo(gap, 0);
+    expect(centre(context).y).toBeCloseTo(centre(row).y, 0);
+    // Laid out, never restyled: the Button keeps its own height.
+    expect((await bounds(control().locator('[part~="container"]'))).height).toBeCloseTo(await resolveToken(page, '--tanrei-comp-button-container-height-medium'), 0);
+    // The actions stay where a bar without the control puts them.
+    const end = await bounds(brandBar(page).locator('tanrei-button[slot="actions"]'));
+    expect(end.x).toBeGreaterThan(context.x + context.width);
+    await control().evaluate((el) => el.removeAttribute('slot'));
+    await brandBar(page).evaluate((el: any) => el.updateComplete);
+    expect((await bounds(brandBar(page).locator('tanrei-button[slot="actions"]'))).x).toBeCloseTo(end.x, 0);
+    await control().evaluate((el) => el.setAttribute('slot', 'context'));
+    await brandBar(page).evaluate((el: any) => el.updateComplete);
+
+    await page.evaluate(() => {
+      document.body.insertAdjacentHTML('afterbegin', '<button id="before">Before</button>');
+      document.getElementById('before')!.focus();
+    });
+    const order: string[] = [];
+    for (let i = 0; i < 4; i++) {
+      await tab(page);
+      order.push(
+        await page.evaluate(() => {
+          const host = document.activeElement as HTMLElement;
+          const inside = host.shadowRoot?.activeElement as HTMLElement | null;
+          return host.getAttribute('label') ?? inside?.getAttribute('aria-label') ?? host.getAttribute('slot') ?? host.tagName;
+        }),
+      );
+    }
+    expect(order).toEqual(['Menu', 'Tanrei', 'context', 'Search']);
+
+    await brandPage(page, '', CONTEXT);
+    const menu = await bounds(brandBar(page).locator('tanrei-button[slot="navigation"]'));
+    expect((await bounds(control())).x - (menu.x + menu.width)).toBeCloseTo(gap, 0);
+    await brandPage(page, '', CONTEXT, { navigation: false });
+    expect((await bounds(control())).x - (await bounds(brandBar(page))).x).toBeCloseTo(await resolveToken(page, T('container-padding-inline')), 0);
+
+    await brandPage(page, NAMED, WORDMARK + CONTEXT);
+    await widen();
+    await page.locator('#brand-stage').evaluate((el) => el.setAttribute('dir', 'rtl'));
+    await brandBar(page).evaluate((el: any) => el.updateComplete);
+    const rtlCell = await bounds(brandBar(page).locator('.brand'));
+    const rtlContext = await bounds(control());
+    expect(rtlCell.x - (rtlContext.x + rtlContext.width)).toBeCloseTo(gap, 0);
+  });
+
   test('APB-20: each image at its token’s height and as wide as its proportions; a mark in currentColor in brand.color; a lockup draws the symbol, then the wordmark lockup.gap after it, aligned as lockup.alignment names', async ({ page }) => {
     await page.setViewportSize({ width: 1024, height: 600 });
     for (const theme of ['light', 'dark'] as const) {

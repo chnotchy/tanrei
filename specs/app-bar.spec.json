@@ -25,6 +25,11 @@
       "optional": true
     },
     {
+      "id": "context",
+      "description": "The product's context: one control after the brand (a workspace, a project, a design system), the product's own Button, not restyled by the bar.",
+      "optional": true
+    },
+    {
       "id": "title",
       "description": "The screen's name. In the top row for a small bar; under the top row for an expanded large bar, moving into the top row as it collapses."
     },
@@ -190,6 +195,10 @@
       "fixture": "mark"
     },
     {
+      "name": "context",
+      "description": "Holds one control of the product's context after the brand: a Button, or a Button that opens a Menu, that says and changes the workspace, the project or the design system the screen is in. The product's own control, not restyled by the bar."
+    },
+    {
       "name": "actions",
       "description": "Holds the action items, up to three icon-only Buttons at the end, in reading order; more belong in an overflow menu the product provides."
     }
@@ -301,6 +310,11 @@
       "id": "APB-24",
       "text": "WHILE the brand is a lockup THE app bar SHALL draw the symbol comp.app-bar.brand.lockup.symbol.size high, which is the wordmark's height (comp.app-bar.brand.wordmark.height) unless a design system sets it apart, so that the symbol and the wordmark stand at one height; a symbol shown alone keeps comp.app-bar.brand.symbol.size.",
       "verify": "small-brand-lockup: the symbol's box is as high as the wordmark's, within 0.5 px; small-brand-symbol, and small-brand-responsive in a compact window, draw the symbol brand.symbol.size high."
+    },
+    {
+      "id": "APB-25",
+      "text": "WHERE the product puts a control in context THE app bar SHALL place it at the start of the top row after the brand, at comp.app-bar.actions.gap from the brand's cell (from the navigation item WHILE no brand is drawn, and comp.app-bar.container.padding-inline from the start edge WHILE neither is), vertically centred in the row, with the title block after it at comp.app-bar.container.gap; SHALL NOT restyle it, as APB-11 says of the navigation and action items; and SHALL keep it in reading order after the brand and before the title block and the action items. Right-to-left layouts SHALL mirror the order.",
+      "verify": "Test on the web: a bar with a navigation button, a wordmark and a Button in context draws the Button actions.gap after the brand's cell, centred on the row's centre line, and the actions still at the end; Tab goes navigation, brand, context, actions; without a brand the Button stands actions.gap after the navigation button, and without either container.padding-inline from the start edge; in rtl the order mirrors."
     }
   ],
   "accessibility": {
@@ -308,10 +322,10 @@
     "keyboard": [
       {
         "keys": "Tab",
-        "action": "Moves focus to the navigation item, then to the brand's link, then through the action items; the bar itself is not a tab stop."
+        "action": "Moves focus to the navigation item, then to the brand's link, then to the control in context, then through the action items; the bar itself is not a tab stop."
       }
     ],
-    "labeling": "The title is the screen's heading (a level 1 heading on the web unless the product sets another level). The subtitle is read after it. The navigation and action items are named by their own labels. The brand is one link to the product's first page named by brandLabel (the product's name), whichever of its images is shown; its images are hidden from assistive technology.",
+    "labeling": "The title is the screen's heading (a level 1 heading on the web unless the product sets another level). The subtitle is read after it. The navigation and action items, and the control in context, are named by their own labels. The brand is one link to the product's first page named by brandLabel (the product's name), whichever of its images is shown; its images are hidden from assistive technology.",
     "minimumTarget": true,
     "notes": [
       "The app bar has no role of its own and takes no input: its buttons are the product's icon-only Buttons, which meet the minimum target themselves (BTN-5). The bar is not a landmark, because only the product knows whether it is its page's banner; a product that wants one wraps the bar in its own header element.",
@@ -681,7 +695,7 @@
         "brandLabel": "brandLabel",
         "brandLayout": "brandLayout"
       },
-      "notes": "`title` is the `headline` property and attribute, because HTML's global `title` attribute would show a tooltip over the whole bar. `titleAlignment` is the `title-alignment` attribute. The slots are `navigation` and `actions`. A web-only `scroll-target` attribute names the id of the scrolling element to connect (default: the document's scrolling element; `none` connects nothing), from which the bar sets `scrolled` itself. A web-only `heading-level` (default 1) sets the title's heading level. Insets are `env(safe-area-inset-top|left|right)`. `dividerVisibility` is the `divider-visibility` attribute (`auto`, `always`, `scroll`); `auto` reads `--tanrei-comp-app-bar-outline-visibility` from the cascade with a style query, and where the browser has none the bar writes the name it read on its container when it renders. The brand: `brand-href`, `brand-label` and `brand-layout` (`lockup` | `responsive`); its images are children with `slot=\"brand\"`, `slot=\"brand-symbol\"` or `slot=\"brand-wordmark\"` (an `<img>` or an inline `<svg>`), which the bar sizes from its tokens, marks `aria-hidden` and draws inside its own link (`part=\"brand\"`). The link is the bar's: a router that follows links by their clicks reads it from the click's composed path. The window class is the enclosing `<tanrei-app-shell>`'s, else `matchMedia` against `sys.breakpoint.medium`.",
+      "notes": "`title` is the `headline` property and attribute, because HTML's global `title` attribute would show a tooltip over the whole bar. `titleAlignment` is the `title-alignment` attribute. The slots are `navigation`, `context` and `actions`. A web-only `scroll-target` attribute names the id of the scrolling element to connect (default: the document's scrolling element; `none` connects nothing), from which the bar sets `scrolled` itself. A web-only `heading-level` (default 1) sets the title's heading level. Insets are `env(safe-area-inset-top|left|right)`. `dividerVisibility` is the `divider-visibility` attribute (`auto`, `always`, `scroll`); `auto` reads `--tanrei-comp-app-bar-outline-visibility` from the cascade with a style query, and where the browser has none the bar writes the name it read on its container when it renders. The brand: `brand-href`, `brand-label` and `brand-layout` (`lockup` | `responsive`); its images are children with `slot=\"brand\"`, `slot=\"brand-symbol\"` or `slot=\"brand-wordmark\"` (an `<img>` or an inline `<svg>`), which the bar sizes from its tokens, marks `aria-hidden` and draws inside its own link (`part=\"brand\"`). The link is the bar's: a router that follows links by their clicks reads it from the click's composed path. The window class is the enclosing `<tanrei-app-shell>`'s, else `matchMedia` against `sys.breakpoint.medium`.",
       "items": {
         "navigation": {
           "name": "tanrei-button",
@@ -719,7 +733,7 @@
         "brandLabel": "brandLabel",
         "brandLayout": "brandLayout"
       },
-      "notes": "`TanreiAppBar(_ title:, subtitle:, size:, titleAlignment:, isScrolled: Bool? = nil) { navigation } actions: { … }`, placed with `.safeAreaInset(edge: .top)` in a `NavigationStack` whose system bar is hidden; the system bar's heights, title font and edge cannot be set from the tokens. Hiding it must not lose the interactive back swipe: the implementation keeps it working. The connected scroll view is the one marked `.tanreiAppBarScrollSource()`, applied after the `.safeAreaInset` that holds the bar (the inset's content sees only the environment where the inset is applied); it connects on iOS 18 and macOS 15 and later. `isScrolled: nil` follows it, a value overrides it. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-24).",
+      "notes": "`TanreiAppBar(_ title:, subtitle:, size:, titleAlignment:, isScrolled: Bool? = nil) { navigation } actions: { … }`, placed with `.safeAreaInset(edge: .top)` in a `NavigationStack` whose system bar is hidden; the system bar's heights, title font and edge cannot be set from the tokens. Hiding it must not lose the interactive back swipe: the implementation keeps it working. The connected scroll view is the one marked `.tanreiAppBarScrollSource()`, applied after the `.safeAreaInset` that holds the bar (the inset's content sees only the environment where the inset is applied); it connects on iOS 18 and macOS 15 and later. `isScrolled: nil` follows it, a value overrides it. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-24). Not built on this platform yet: the context slot (APB-25).",
       "items": {
         "navigation": {
           "name": "TanreiButton",
@@ -757,7 +771,7 @@
         "brandLabel": "brandLabel",
         "brandLayout": "brandLayout"
       },
-      "notes": "Compose idiom (as `TopAppBar`): `TanreiAppBar(title, navigationIcon = { … }, actions = { … }, subtitle, size, titleAlignment, scrollBehavior, windowInsets)`. `scrollBehavior` (`TanreiAppBarDefaults.pinnedScrollBehavior()` for small, `.collapseScrollBehavior()` for large) is connected with `Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)`, and its state carries scrolled and the collapse; without one the bar is flat and expanded, and a state created with a given offset draws the scrolled fixtures. `windowInsets` defaults to the status bars plus the horizontal display cutout. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-24).",
+      "notes": "Compose idiom (as `TopAppBar`): `TanreiAppBar(title, navigationIcon = { … }, actions = { … }, subtitle, size, titleAlignment, scrollBehavior, windowInsets)`. `scrollBehavior` (`TanreiAppBarDefaults.pinnedScrollBehavior()` for small, `.collapseScrollBehavior()` for large) is connected with `Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)`, and its state carries scrolled and the collapse; without one the bar is flat and expanded, and a state created with a given offset draws the scrolled fixtures. `windowInsets` defaults to the status bars plus the horizontal display cutout. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-24). Not built on this platform yet: the context slot (APB-25).",
       "items": {
         "navigation": {
           "name": "TanreiButton",
@@ -795,7 +809,7 @@
         "brandLabel": "brandLabel",
         "brandLayout": "brandLayout"
       },
-      "notes": "Flutter idiom (as `AppBar` and `SliverAppBar.large`): `TanreiAppBar` is a `PreferredSizeWidget` for `Scaffold.appBar`, with `leading`, `actions`, `title` (a String), `subtitle`, `size` and `centerTitle` (true for center). `scrolledUnder: null` follows the `ScrollNotification`s of the scaffold's body, as `AppBar`'s scrolled-under state does; a bool overrides it. A large bar that collapses is `TanreiSliverAppBar` inside a `CustomScrollView`. Insets through `SafeArea`/`MediaQuery.padding`. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-24).",
+      "notes": "Flutter idiom (as `AppBar` and `SliverAppBar.large`): `TanreiAppBar` is a `PreferredSizeWidget` for `Scaffold.appBar`, with `leading`, `actions`, `title` (a String), `subtitle`, `size` and `centerTitle` (true for center). `scrolledUnder: null` follows the `ScrollNotification`s of the scaffold's body, as `AppBar`'s scrolled-under state does; a bool overrides it. A large bar that collapses is `TanreiSliverAppBar` inside a `CustomScrollView`. Insets through `SafeArea`/`MediaQuery.padding`. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-24). Not built on this platform yet: the context slot (APB-25).",
       "items": {
         "navigation": {
           "name": "TanreiButton",
@@ -833,7 +847,7 @@
         "brandLabel": "brandLabel",
         "brandLayout": "brandLayout"
       },
-      "notes": "`navigation` and `actions` are React nodes (an icon-only `Button`, and a fragment of up to three). The scroll connection is a hook: `const scroll = useAppBarScroll()` gives `scroll.onScroll` for a `ScrollView` or `FlatList` and `scroll.state` for the bar's `scrollState` prop, which sets scrolled and the collapse; without it the bar draws what `scrolled` says. Insets come from the bar's own `insets` prop, side by side, falling back to `TanreiProvider`'s `insets`; the package takes no safe-area dependency, and a product that uses `react-native-safe-area-context` passes its `useSafeAreaInsets()` to either. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-24).",
+      "notes": "`navigation` and `actions` are React nodes (an icon-only `Button`, and a fragment of up to three). The scroll connection is a hook: `const scroll = useAppBarScroll()` gives `scroll.onScroll` for a `ScrollView` or `FlatList` and `scroll.state` for the bar's `scrollState` prop, which sets scrolled and the collapse; without it the bar draws what `scrolled` says. Insets come from the bar's own `insets` prop, side by side, falling back to `TanreiProvider`'s `insets`; the package takes no safe-area dependency, and a product that uses `react-native-safe-area-context` passes its `useSafeAreaInsets()` to either. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does. Not built on this platform yet: the brand (`brandHref`, `brandLabel`, `brandLayout` and its slots, APB-19 to APB-24). Not built on this platform yet: the context slot (APB-25).",
       "items": {
         "navigation": {
           "name": "Button",

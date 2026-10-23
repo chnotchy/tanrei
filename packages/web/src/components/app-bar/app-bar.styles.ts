@@ -132,8 +132,8 @@ export const styles = css`
   .row:not(.has-navigation) {
     padding-inline-start: ${t('title-inset')};
   }
-  /* APB-19: a brand begins the bar where a navigation item would. */
-  .row.has-brand:not(.has-navigation) {
+  /* APB-19, APB-25: a brand, or a control in context, begins the bar where a navigation item would. */
+  .row:is(.has-brand, .has-context):not(.has-navigation) {
     padding-inline-start: ${t('container-padding-inline')};
   }
   .row:not(.has-actions) {
@@ -145,17 +145,19 @@ export const styles = css`
     flex: none;
     align-items: center;
   }
-  /* APB-19: the brand stands after the navigation item at the gap between two icon buttons. The two items are the
-     lead's own flex items, so that a navigation item the product does not draw (an app shell's menu button where the
-     navigation has a place) leaves no gap before the brand. */
+  /* APB-19: the brand stands after the navigation item at the gap between two icon buttons; APB-25: a control in
+     context after the brand at the same gap. The items are the lead's own flex items, so that a navigation item the
+     product does not draw (an app shell's menu button where the navigation has a place) leaves no gap before the brand. */
   .lead {
     gap: ${t('actions-gap')};
   }
-  .navigation {
+  .navigation,
+  .context {
     display: contents;
   }
   .row:not(.has-navigation) .navigation,
-  .row:not(.has-navigation):not(.has-brand) .lead,
+  .row:not(.has-context) .context,
+  .row:not(.has-navigation):not(.has-brand):not(.has-context) .lead,
   .row:not(.has-actions) .actions {
     display: none;
   }
@@ -230,7 +232,7 @@ export const styles = css`
   }
   /* APB-11: the items are laid out, never restyled — each keeps its own box, centred in a cell as large as the minimum
      target it answers to (BTN-5), so a neighbour's target never overlaps it and the row is at least that high. */
-  :is(slot[name='navigation'], slot[name='actions'])::slotted(*) {
+  :is(slot[name='navigation'], slot[name='context'], slot[name='actions'])::slotted(*) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -238,7 +240,7 @@ export const styles = css`
     min-block-size: var(--tanrei-sys-target-pointer);
   }
   @media (pointer: coarse) {
-    :is(slot[name='navigation'], slot[name='actions'])::slotted(*) {
+    :is(slot[name='navigation'], slot[name='context'], slot[name='actions'])::slotted(*) {
       min-inline-size: var(--tanrei-sys-target-touch);
       min-block-size: var(--tanrei-sys-target-touch);
     }
