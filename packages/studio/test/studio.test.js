@@ -24,7 +24,7 @@ const extend = (layer, fragment) => {
   return result.layer;
 };
 
-/** What a visitor does at the first two levels, on any base. */
+/** What a visitor does with the dials and a palette, on any base. */
 function groupsLayer(extendsId) {
   let layer = { ...studio.blank(extendsId), id: `studio-${extendsId}`, name: 'Studio export' };
   layer = studio.setDial(layer, `${NS}.dial.type.base`, 17, 'Our audience reads at arm’s length.');

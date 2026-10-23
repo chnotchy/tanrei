@@ -3,7 +3,7 @@
    the --ts-* properties below; the docs site maps them to its Starlight variables. */
 
 /* The Studio is a tool of its own, the whole page it is mounted in: a bar across the top, and under it the rail of
-   levels, the preview and the panel of what the level edits (`.ts-frame`). A host gives it the page — the docs site's
+   what the layer holds, the preview and the panel of what the rail points at (`.ts-frame`). A host gives it the page — the docs site's
    /studio/, the standalone app — and puts its own brand into the bar (`bar` in ui.ts). Nothing here looks at the page
    around the root: a `:has()` asked of the root, the body or the Studio's root is refused (test/studio-css.test.js). */
 
@@ -19,7 +19,7 @@
   --ts-font-mono: var(--sl-font-mono, var(--tanrei-ref-typeface-mono));
   /* The frame's columns: the rail's width, the least the preview and the panel are given, and the panel's width until
      the person moves the handle (ui.ts writes --ts-panel-width then). */
-  --ts-rail-width: 15rem;
+  --ts-rail-width: 18.5rem;
   --ts-preview-min: 22.5rem;
   --ts-panel-min: 20rem;
   --ts-panel-default: clamp(var(--ts-panel-min), 30vw, 30rem);
@@ -62,7 +62,15 @@
   align-items: center;
   gap: var(--tanrei-sys-space-space25);
 }
-/* The file's state, and the host's end items after it, stand at the end edge. */
+/* (Inspect and the draft's badge beside it may take two lines on a phone, in a language of long words.) */
+.ts-bar-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tanrei-sys-space-space50);
+  min-inline-size: 0;
+}
+/* The file's state, and what follows it — Inspect, the host's end items — stand at the end edge. */
 .ts-bar > .ts-file {
   flex: 1;
 }
@@ -82,17 +90,21 @@
     flex-basis: 100%;
     order: 1;
   }
-  .ts-bar-hosted > .ts-bar-history {
+  .ts-bar-hosted > .ts-bar-history,
+  .ts-bar-hosted > .ts-bar-tools {
     order: 2;
   }
   .ts-bar-hosted > .ts-file {
     order: 3;
   }
+  .ts-bar-hosted > .ts-bar-inspect {
+    order: 4;
+  }
 }
 
 /* ── The frame ──────────────────────────────────────────────────────── */
-/* A narrow screen: one column — the levels, the preview (it stays under the bar while the panel scrolls), the panel.
-   The handle has nothing to resize there. */
+/* A narrow screen: one column — the rail (its rows in a line that scrolls by itself), the preview (it stays under the
+   bar while the panel scrolls), the panel. The handle has nothing to resize there. */
 .ts-frame {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -129,12 +141,13 @@
     block-size: 100dvh;
     overflow: hidden;
   }
-  /* Every token holds two panes side by side, the tree and the chosen token's editor, and Source the file: their panel
-     starts wider. A width the person gave the panel holds at every level. */
-  .ts[data-level='tokens'] {
+  /* Inspect's tokens hold two panes side by side, the tree and the chosen token's editor, and its Source the file:
+     the column starts wider for them. A width the person gives the column is kept for what it holds then (ui.ts
+     `panelWidths`): a section's controls and each tab of Inspect keep theirs. */
+  .ts[data-pane='tokens'] {
     --ts-panel-default: clamp(var(--ts-panel-min), 55vw, 52rem);
   }
-  .ts[data-level='source'] {
+  .ts[data-pane='source'] {
     --ts-panel-default: clamp(var(--ts-panel-min), 45vw, 44rem);
   }
   .ts-frame {
@@ -177,11 +190,6 @@
   background: var(--tanrei-sys-color-surface-container-lowest);
   padding: 1rem;
   min-inline-size: 0;
-}
-/* Where a panel is drawn once it comes near the window (ui/dom.ts `drawnNear`): a window high, so that the panels
-   below it are not near yet, and the page is about as long as it will be. */
-.ts-panel-pending {
-  min-block-size: 100vh;
 }
 .ts-panel > header,
 .ts-preview-bar {
@@ -899,15 +907,11 @@
 }
 
 /* ── Export ─────────────────────────────────────────────────────────── */
+/* One column: the panel it stands at the foot of is as narrow as the person makes it. */
 .ts-export-grid {
   display: grid;
   gap: var(--ts-gap);
   align-items: start;
-}
-@media (min-width: 50rem) {
-  .ts-export-grid {
-    grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
-  }
 }
 .ts-export-side {
   display: grid;
@@ -959,7 +963,7 @@
 }
 .ts-json {
   margin: 0;
-  max-block-size: 32rem;
+  max-block-size: 20rem;
   overflow: auto;
   padding: 0.875rem 1rem;
   border: var(--ts-hairline);
@@ -984,23 +988,173 @@
   white-space: nowrap;
 }
 
-/* ── Levels and the file ────────────────────────────────────────────── */
-.ts-levels {
+/* ── The rail ───────────────────────────────────────────────────────── */
+/* Two lists: the nine rows of the look — a row's name, what it holds and a sample drawn in the layer, and its lock —
+   then the rest of what a layer holds. The row the panel shows is the current one. */
+.ts-rail-lists {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 0.375rem;
+  gap: 0.25rem;
   min-inline-size: 0;
 }
+.ts h2.ts-rail-heading {
+  padding-block: 0.5rem 0.25rem;
+  padding-inline: 0.5rem;
+}
+.ts-rail-lists > h2.ts-rail-heading:not(:first-child) {
+  margin-block-start: 0.75rem;
+}
+.ts-rail-rows,
+.ts-rail-more {
+  display: grid;
+  gap: 0.125rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-inline-size: 0;
+}
+.ts-rail-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.125rem;
+  min-inline-size: 0;
+}
+.ts-rail-row,
+.ts-rail-link {
+  display: grid;
+  align-items: center;
+  column-gap: 0.625rem;
+  min-inline-size: 0;
+  min-block-size: 2.75rem;
+  padding-block: 0.375rem;
+  padding-inline: 0.5rem;
+  border: 0;
+  border-radius: var(--ts-radius-container);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.ts-rail-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+}
+.ts-rail-link {
+  grid-template-columns: auto minmax(0, 1fr);
+  inline-size: 100%;
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-rail-row:hover,
+.ts-rail-link:hover {
+  background: var(--tanrei-sys-color-surface-container);
+}
+.ts-rail-row[aria-current='true'],
+.ts-rail-link[aria-current='true'] {
+  background: var(--tanrei-sys-color-secondary-container);
+  color: var(--tanrei-sys-color-on-secondary-container);
+}
+.ts-rail-row:focus-visible,
+.ts-rail-link:focus-visible {
+  outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+  outline-offset: calc(-1 * var(--tanrei-sys-focus-outer-width));
+}
+.ts-rail-label {
+  font-size: var(--ts-text-2xs);
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-rail-row[aria-current='true'] .ts-rail-label {
+  color: inherit;
+}
+.ts-rail-link .ts-rail-label {
+  font-size: var(--ts-text-xs);
+  color: inherit;
+}
+.ts-rail-value {
+  grid-column: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+/* The sample: drawn by the preview's sheet (it carries the preview's system id), a box of its own beside the words. */
+.ts-sample {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: grid;
+  place-items: center;
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
+  color: var(--tanrei-sys-color-on-surface);
+  font-size: 1.25rem;
+}
+.ts-sample-swatch {
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  border-radius: var(--tanrei-sys-shape-corner-full);
+  box-shadow: inset 0 0 0 var(--tanrei-sys-border-hairline) var(--tanrei-sys-color-outline-variant);
+}
+.ts-sample-type {
+  font-style: normal;
+  font-size: 1.125rem;
+  line-height: 1;
+}
+.ts-sample-size {
+  inline-size: 1.5rem;
+  border-radius: var(--tanrei-sys-shape-corner-small);
+  background: var(--tanrei-sys-color-primary);
+}
+.ts-sample-corner {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  border-block-start: 2px solid currentColor;
+  border-inline-end: 2px solid currentColor;
+}
+/* The eased corner as the components draw it (@tanrei/web's shape.ts), where the browser has `corner-shape`. */
+@supports (corner-shape: superellipse(log(2, 2))) {
+  .ts-sample-smooth {
+    corner-shape: superellipse(log(calc(2 + var(--tanrei-sys-shape-corner-smoothing, 0)), 2));
+  }
+}
+/* A narrow screen: each list is one line of compact rows that scrolls by itself, so the preview stays near the top. */
+@media (max-width: 63.999rem) {
+  .ts-rail-rows,
+  .ts-rail-more {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    padding-block-end: 0.25rem;
+  }
+  .ts-rail-rows > li,
+  .ts-rail-more > li {
+    flex: none;
+  }
+  .ts-rail-row {
+    inline-size: 10.5rem;
+    border: var(--ts-hairline);
+  }
+  .ts-rail-link {
+    border: var(--ts-hairline);
+  }
+}
+
+/* ── Inspect: over the panel, the token tree and Source ─────────────── */
+.ts-inspect-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+.ts-inspect-head > tanrei-tabs {
+  flex: 1;
+}
+
 /* A row of tabs is as wide as its tabs and stands at the start edge (the component scrolls them where they do not fit). */
-.ts-levels > tanrei-tabs,
 .ts-tree-bar > tanrei-tabs,
 .ts-panel tanrei-tabs {
   justify-self: start;
   max-inline-size: 100%;
-}
-.ts .ts-level-help {
-  margin: 0;
-  max-inline-size: 44rem;
 }
 .ts-file {
   display: flex;
@@ -1385,14 +1539,6 @@
   min-inline-size: 0;
 }
 
-/* ── Export, compact ────────────────────────────────────────────────── */
-.ts-export-compact {
-  grid-template-columns: minmax(0, 1fr) !important;
-}
-.ts-export-compact .ts-export-side {
-  max-inline-size: 44rem;
-}
-
 /* ── Preview: a layer's own tokens ──────────────────────────────────── */
 .ts-own {
   display: grid;
@@ -1434,8 +1580,8 @@
 }
 
 /* ── Source: a draft that does not parse ────────────────────────────── */
-.ts-levels .ts-draft-badge {
-  justify-self: start;
+.ts-bar .ts-draft-badge {
+  flex: none;
 }
 .ts-draft-note {
   display: flex;
@@ -1603,7 +1749,7 @@
   display: none;
 }
 
-/* A panel scrolled to (a level link, the draft badge, "Go to Color") lands BELOW what is stuck to the top: the site's
+/* A panel scrolled to (a link to a panel, the draft badge, "Go to Color") lands BELOW what is stuck to the top: the site's
    bar, and on a phone the sticky preview as well. */
 .ts-panel {
   scroll-margin-block-start: calc(var(--ts-sticky-top) + 0.75rem);

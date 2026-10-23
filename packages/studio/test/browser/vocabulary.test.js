@@ -5,8 +5,8 @@ import { studioTest, until } from './harness.js';
 
 const WHY = 'Our checkout needs it; nothing in core fits.';
 
-studioTest('Add…: a size "3x", a variant, a step and an own token — previewed, written with a rationale, drawn, removable', {}, async ({ page, level, saved, onDisk, lightPane, choose, pick }) => {
-  await level('groups');
+studioTest('Add…: a size "3x", a variant, a step and an own token — previewed, written with a rationale, drawn, removable', {}, async ({ page, section, saved, onDisk, lightPane, choose, pick }) => {
+  await section('vocabulary');
   const add = page.locator('[data-panel="add"]');
   const flow = (name) => choose(add.locator('[data-add-flow]'), name);
   const rationale = add.locator('[data-add-body] [data-reason] input').last();
@@ -85,10 +85,10 @@ studioTest('Add…: a size "3x", a variant, a step and an own token — previewe
   await until(async () => (await lightPane.locator('tanrei-button[size="3x"]').count()) === 0, 'and gone from the preview');
 });
 
-studioTest('Every token: a choice of kind is a name picker, the operations are an ARIA tablist, a font stack gets the stack editor — and Groups shows the same entries', {}, async ({ page, level, saved, choose }) => {
+studioTest('Inspect’s tokens: a choice of kind is a name picker, the operations are an ARIA tablist, a font stack gets the stack editor — and the rows’ panels show the same entries', {}, async ({ page, section, inspect, saved, choose }) => {
   await page.evaluate(() => window.tanreiStudio.applyOperation('tanrei.sys.behavior.pressed-feedback', { $value: 1, reason: 'How this product behaves.' }));
-  await level('tokens');
-  assert.deepEqual(await page.locator('[data-controls] [data-panel]').evaluateAll((els) => els.map((el) => el.dataset.panel)), ['tree', 'add', 'rules']);
+  await inspect('tokens');
+  assert.deepEqual(await page.locator('[data-controls] [data-panel]').evaluateAll((els) => els.map((el) => el.dataset.panel)), ['tree', 'rules']);
   await page.locator('[data-search] input').fill('pressed-feedback');
   await page.locator('[data-token="tanrei.sys.behavior.pressed-feedback"]').click();
   const editor = page.locator('[data-editor="tanrei.sys.behavior.pressed-feedback"]');
@@ -134,14 +134,15 @@ studioTest('Every token: a choice of kind is a name picker, the operations are a
   await plain.locator('[data-reason] input').fill('Plain text follows the brand guidelines.');
   await page.keyboard.press('Tab');
   await saved((layer) => layer.tokens['tanrei.ref.typeface.plain']?.$value.includes('Roboto'), 'the stack editor at Every token');
-  await level('groups');
+  await section('typeface');
   assert.match(await page.locator('[data-typeface="plain"] .ts-fold-value').textContent(), /Roboto/);
+  await section('press');
   assert.equal(await page.locator('[data-behavior="pressed-feedback"]').evaluate((el) => el.value), 'none');
 });
 
-studioTest('Source: text that does not parse is kept word for word — across levels, an autosave and a reload — shown as a badge, and never saved', {}, async ({ page, level, saved, onDisk, file }) => {
+studioTest('Source: text that does not parse is kept word for word — across the panel’s sections, an autosave and a reload — shown as a badge, and never saved', {}, async ({ page, section, inspect, saved, onDisk, file }) => {
   const fs = await import('node:fs');
-  await level('source');
+  await inspect('source');
   assert.deepEqual(await page.locator('[data-controls] [data-panel]').evaluateAll((els) => els.map((el) => el.dataset.panel)), ['source']);
   const area = page.locator('[data-source]');
   assert.deepEqual(JSON.parse(await area.inputValue()), onDisk(), 'Source IS the layer');
@@ -150,10 +151,9 @@ studioTest('Source: text that does not parse is kept word for word — across le
   await page.keyboard.type('\n\t{ "unfinished": [1, 2,');
   const typed = await area.inputValue();
   assert.ok(await page.locator('[data-draft-note]').isVisible());
-  await level('groups');
-  assert.equal(await page.locator('[data-draft-badge]').evaluate((chip) => chip.label), 'Source has invalid edits');
-  // The levels are tabs, and a tab holds its name alone: the badge beside them says it, in words, at every level.
-  assert.equal(await page.locator('[data-levels]').evaluate((el) => [el.localName, el.value].join()), 'tanrei-tabs,groups');
+  await section('dials');
+  // The badge stands in the bar: it says it, in words, wherever the person is.
+  assert.equal(await page.locator('[data-bar] [data-draft-badge]').evaluate((chip) => chip.label), 'Source has invalid edits');
   // An edit elsewhere is autosaved: what is saved is a valid layer, never the draft.
   await page.locator('[data-dial="tanrei.dial.space.unit"] tanrei-number-field input').fill('9');
   await page.keyboard.press('Tab');

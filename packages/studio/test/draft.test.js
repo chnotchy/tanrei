@@ -62,7 +62,7 @@ test('a draft can be discarded, survives a reload, and belongs to one layer file
   assert.deepEqual([draft.pending, draft.open(valid), JSON.stringify({ draft })], [false, valid, '{"draft":null}']);
 });
 
-test('the layer the other levels and autosave see is never the draft', () => {
+test('the layer the rest of the Studio and autosave see is never the draft', () => {
   // The page's flow, without the page: `committed` is what ctx.commit received — the only thing autosave ever sends.
   const draft = createSourceDraft();
   let committed = layer;

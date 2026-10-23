@@ -1,10 +1,10 @@
-// Groups: typefaces, the icon set, shape, behaviour — driven with real input events, asserted on
+// The rail's typefaces, icon set, corner smoothing and behaviour — driven with real input events, asserted on
 // the FILE the server holds and on the COMPUTED styles of the preview's real components.
 import assert from 'node:assert/strict';
 import { studioTest, until } from './harness.js';
 
-studioTest('Typefaces: add by typing, reorder by keyboard, remove, generic, platform switch → the preview’s computed font-family; "not installed here" is honest', {}, async ({ page, level, saved, onDisk, css, lightPane, installed, choose, pick }) => {
-  await level('groups');
+studioTest('Typefaces: add by typing, reorder by keyboard, remove, generic, platform switch → the preview’s computed font-family; "not installed here" is honest', {}, async ({ page, section, saved, onDisk, css, lightPane, installed, choose, pick }) => {
+  await section('typeface');
   const brand = page.locator('[data-typeface="brand"]');
   const headline = lightPane.locator('[data-sample="heading-1"]');
   assert.match(await css(headline, 'font-family'), /^Inter/);
@@ -85,8 +85,8 @@ studioTest('Typefaces: add by typing, reorder by keyboard, remove, generic, plat
   assert.match(await css(headline, 'font-family'), /^Inter/);
 });
 
-studioTest('Icons: weight by keyboard, fill, one variable family ↔ two static ones → computed font-family and font-variation-settings; a missing family is named', {}, async ({ page, level, saved, css, lightPane, installed, choose, pick }) => {
-  await level('groups');
+studioTest('Icons: weight by keyboard, fill, one variable family ↔ two static ones → computed font-family and font-variation-settings; a missing family is named', {}, async ({ page, section, saved, css, lightPane, installed, choose, pick }) => {
+  await section('icons');
   const icons = page.locator('[data-panel="icons"]');
   const unselected = lightPane.locator('[data-icon-row="unselected"] .tanrei-icon').first();
   const selected = lightPane.locator('[data-icon-row="selected"] .tanrei-icon').first();
@@ -142,8 +142,8 @@ studioTest('Icons: weight by keyboard, fill, one variable family ↔ two static 
   assert.match(await css(selected, 'font-family'), /Material Symbols Rounded/);
 });
 
-studioTest('Behaviour: chosen by name with the arrow keys; the preview’s real button ripples, dims and glows', {}, async ({ page, level, saved, onDisk, css, scope, lightPane, choose }) => {
-  await level('groups');
+studioTest('Behaviour: chosen by name with the arrow keys; the preview’s real button ripples, dims and glows', {}, async ({ page, section, saved, onDisk, css, scope, lightPane, choose }) => {
+  await section('behavior');
   const behaviour = page.locator('[data-panel="behavior"]');
   assert.deepEqual(await behaviour.locator('[data-behavior="pressed-feedback"] tanrei-radio-button').evaluateAll((els) => els.map((el) => el.label)), ['overlay', 'ripple', 'dim', 'none'], 'names, never numbers');
   assert.match(await behaviour.locator('[data-behavior-row="pressed-feedback"] .ts-help').textContent(), /^How a press is answered\. overlay:/);
@@ -190,9 +190,9 @@ studioTest('Behaviour: chosen by name with the arrow keys; the preview’s real 
   // The token it names is a link: Every token opens on it; lowering it there silences the hint.
   await hint.locator('tanrei-button', { hasText: 'comp.button.pressed.opacity' }).click();
   await page.waitForSelector('[data-editor="tanrei.comp.button.pressed.opacity"]');
-  assert.equal(await page.evaluate(() => window.tanreiStudio.getState().level), 'tokens');
+  assert.equal(await page.evaluate(() => window.tanreiStudio.getState().inspect), 'tokens');
   assert.equal(await page.evaluate(() => window.tanreiStudio.applyOperation('tanrei.comp.button.pressed.opacity', { $value: 0.6, reason: 'Dim on press, like our native apps.' })), null);
-  await level('groups');
+  await section('behavior');
   assert.ok(!(await hint.isVisible()), 'with a pressed opacity below 1 the build has nothing to warn about');
   const dim = await pressAndLook(filled);
   assert.deepEqual([dim.pressed, Number(dim.opacity)], ['dim', 0.6], 'dim: the whole control takes the pressed opacity');
@@ -217,8 +217,8 @@ studioTest('Behaviour: chosen by name with the arrow keys; the preview’s real 
   assert.ok(!/rgba\(0, 0, 0, 0\)|transparent/.test(ring.outlineColor) && ring.halo === 'none', `ring: a hard line, no halo — ${JSON.stringify(ring)}`);
 });
 
-studioTest('Shape: corner smoothing is a slider, 0–1 with Figma’s meaning; the amount reaches the sheet and the preview’s real button', {}, async ({ page, level, saved, onDisk, css, scope, lightPane }) => {
-  await level('groups');
+studioTest('Shape: corner smoothing is a slider, 0–1 with Figma’s meaning; the amount reaches the sheet and the preview’s real button', {}, async ({ page, section, saved, onDisk, css, scope, lightPane }) => {
+  await section('smoothing');
   const shape = page.locator('[data-panel="shape"]');
   const slider = shape.locator('[data-corner-smoothing]');
   assert.equal(await slider.evaluate((el) => el.localName), 'tanrei-slider');
@@ -254,8 +254,7 @@ studioTest('Shape: corner smoothing is a slider, 0–1 with Figma’s meaning; t
   assert.equal(await slider.evaluate((el) => el.value), 0);
 });
 
-studioTest('Emphasized: the typography sample draws each role at its weight plus its family’s step, live from the sheet', {}, async ({ page, level, css, lightPane }) => {
-  await level('groups');
+studioTest('Emphasized: the typography sample draws each role at its weight plus its family’s step, live from the sheet', {}, async ({ page, css, lightPane }) => {
   const heading = lightPane.locator('[data-sample="heading-1"]');
   const label = lightPane.locator('[data-sample="label"]');
   const body = lightPane.locator('[data-sample="body"]');

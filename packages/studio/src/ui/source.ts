@@ -1,5 +1,5 @@
 // "Source": the layer file itself. A plain textarea with line numbers and error markers; every keystroke is parsed and
-// checked against the schema, and a valid edit is the new layer for every other level. It is run through the engine
+// checked against the schema, and a valid edit is the new layer for the rest of the Studio. It is run through the engine
 // — the whole build — once the typing rests (COMMIT_REST) or the text loses focus, not at every key: done for every
 // key, typing four letters into the id took four long tasks, one under each key.
 // Text that does not parse is a DRAFT (../draft.js): kept word for word while the person is elsewhere, never saved,
@@ -14,7 +14,7 @@ function lineOf(text: string, needle: string | undefined) {
   return index === -1 ? undefined : lineAt(text, index);
 }
 
-/** How long the typing rests before a text that parses is committed: computed, saved, the layer of every level. */
+/** How long the typing rests before a text that parses is committed: computed, saved, the layer every other part of the Studio shows. */
 export const COMMIT_REST = 400;
 
 export function sourceLevel(ctx: Ctx): HTMLElement[] {

@@ -117,7 +117,7 @@ export function numberWidget(ctx: Ctx, { label, labelHidden = true, rangeLabel =
       number.value = next === undefined ? null : +trim(next);
       if (slider && next !== undefined) slider.value = next;
     },
-    /** A value that changed elsewhere (a reset, another level, a linked dial): shown, never under the person's hands. */
+    /** A value that changed elsewhere (a reset, another panel, a linked dial): shown, never under the person's hands. */
     sync(next) {
       const held = document.activeElement;
       if (held !== number && held !== slider) current = next;

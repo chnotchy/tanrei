@@ -1,8 +1,8 @@
 // Theme Studio — the pure half.
 //
-// The Studio's state IS the layer file: every level (essentials, groups, every token, source) reads and writes the
-// same `<id>.system.json` object, so switching levels cannot lose anything and nothing is "kept as written" on the
-// side. This module turns a layer into everything the page shows — the system's documents, its scoped CSS, the
+// The Studio's state IS the layer file: every part of the page (the rail's sections, the token tree, Source) reads and
+// writes the same `<id>.system.json` object, so moving between them cannot lose anything and nothing is "kept as
+// written" on the side. This module turns a layer into everything the page shows — the system's documents, its scoped CSS, the
 // build's warnings — and offers the edits as pure functions `layer → layer`.
 //
 // Nothing here touches the DOM or the filesystem. Values are computed by @tanrei/token-engine, the CSS by the
@@ -37,7 +37,6 @@ export const emphasisFamily = (role) => {
   return family === 'display' || family === 'heading' || family === 'body' ? family : 'label';
 };
 export const TYPEFACES = ['brand', 'plain', 'mono'];
-export const LEVELS = ['essentials', 'groups', 'tokens', 'source'];
 /** The four controls of the first level, by dial key. */
 export const ESSENTIALS = ['type.base', 'space.unit', 'shape.unit', 'type.contrast'];
 
