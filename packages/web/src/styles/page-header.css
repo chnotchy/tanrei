@@ -224,8 +224,10 @@
     overflow-wrap: anywhere;
     unicode-bidi: plaintext;
   }
-  /* PGH-8: a glyph or an Avatar followed by text in one item, centred on one line, meta.icon.gap between. */
-  :where(tanrei-page-header) > :where([data-part='meta']) > :where(span, time, data, li, div):where(:has(> *)) {
+  /* PGH-8: a glyph or an Avatar followed by text in one item, centred on one line, meta.icon.gap between. Only an item
+     that begins with one: an item whose text holds another element (`Published <time>…</time>`) stays a run of text,
+     with its own spaces. */
+  :where(tanrei-page-header) > :where([data-part='meta']) > :where(span, time, data, li, div):where(:has(> :is(tanrei-avatar, .tanrei-icon, svg, img):first-child)) {
     display: inline-flex;
     align-items: center;
     gap: var(--tanrei-comp-page-header-meta-icon-gap);

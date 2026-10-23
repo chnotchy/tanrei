@@ -1,5 +1,5 @@
-// What the site makes of the brand marks (src/lib/brand.mjs, design/brand/): the header's symbol, the icons, the
-// social image and the brand page's drawings, all derived from the marks' files — none drawn by hand, none left in
+// What the site makes of the brand marks (src/lib/brand.mjs, design/brand/): the header's wordmark, the icons, the
+// social images and the brand page's drawings, all derived from the marks' files — none drawn by hand, none left in
 // public/.
 //
 //   pnpm --filter @tanrei/docs test:node
@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { describe, test } from 'node:test';
 import sharp from 'sharp';
-import { ICO_SIZES, SOCIAL, TOUCH_ICON_SIZE, ico, icoOf, iconSvg, inlineMark, png, socialSvg } from '../src/lib/brand.mjs';
+import { ICO_SIZES, TOUCH_ICON_SIZE, ico, icoOf, iconSvg, inlineMark, png } from '../src/lib/brand.mjs';
 import { frameOf, inkBox } from '../src/lib/brand-geometry.mjs';
 import { translations } from '../i18n/locales.mjs';
 
@@ -17,7 +17,6 @@ const read = (base, file) => fs.readFileSync(new URL(file, base), 'utf8');
 const symbol = read(repo, 'design/brand/symbol.svg');
 const symbolLight = read(repo, 'design/brand/generated/symbol.light.svg');
 const wordmark = read(repo, 'design/brand/wordmark.svg');
-const wordmarkLight = read(repo, 'design/brand/generated/wordmark.light.svg');
 
 describe('the header', () => {
   const header = read(docs, 'src/components/frame/Header.astro');
@@ -54,12 +53,14 @@ describe('the header', () => {
   });
 });
 
-describe('the icons and the social image', () => {
-  test('nothing of the brand is a file of public/: every icon is rendered from the marks', () => {
-    for (const file of ['favicon.svg', 'favicon.ico', 'apple-touch-icon.png', 'og.png']) {
+describe('the icons and the social images', () => {
+  test('nothing of the brand is a file of public/: every icon and social image is rendered from the marks', () => {
+    for (const file of ['favicon.svg', 'favicon.ico', 'apple-touch-icon.png']) {
       assert.ok(!fs.existsSync(new URL(`public/${file}`, docs)), `public/${file} would shadow the one the build renders`);
       assert.ok(fs.existsSync(new URL(`src/pages/${file}.ts`, docs)), `src/pages/${file}.ts renders /${file}`);
     }
+    assert.ok(!fs.existsSync(new URL('public/og', docs)) && !fs.existsSync(new URL('public/og.png', docs)), 'a social image in public/ would shadow the ones the build renders');
+    assert.ok(fs.existsSync(new URL('src/pages/og/[...slug].png.ts', docs)), 'src/pages/og/[...slug].png.ts renders each page’s social image (test/seo.test.mjs)');
   });
 
   test('the head names each of them', () => {
@@ -67,7 +68,8 @@ describe('the icons and the social image', () => {
     assert.match(config, /favicon: '\/favicon\.svg'/);
     assert.match(config, /rel: 'icon', href: '\/favicon\.ico', sizes: '32x32'/);
     assert.match(config, /rel: 'apple-touch-icon', href: '\/apple-touch-icon\.png'/);
-    assert.match(config, /property: 'og:image', content: new URL\('\/og\.png', site\)\.href/);
+    assert.doesNotMatch(config, /og:image/, 'each page names its own social image (src/routeData.ts), not one for every page');
+    assert.match(config, /routeMiddleware: '\.\/src\/routeData\.ts'/);
   });
 
   test('an ICO holds each size as a PNG, as its directory says', async () => {
@@ -83,16 +85,11 @@ describe('the icons and the social image', () => {
     assert.equal(ico([]).length, 6);
   });
 
-  test('the home-screen icon is opaque and square; the social image is the wordmark at 1200 × 630', async () => {
+  test('the home-screen icon is opaque and square', async () => {
     const touch = await sharp(await png(iconSvg(symbolLight, { size: TOUCH_ICON_SIZE, background: '#ffffff' }))).stats();
     assert.equal(touch.isOpaque, true, 'a home screen draws a transparent icon on black');
     const meta = await sharp(await png(iconSvg(symbolLight, { size: TOUCH_ICON_SIZE, background: '#ffffff' }))).metadata();
     assert.deepEqual([meta.width, meta.height], [TOUCH_ICON_SIZE, TOUCH_ICON_SIZE]);
-    const social = socialSvg(wordmarkLight, { background: '#ffffff' });
-    assert.match(social, new RegExp(`^<svg [^>]*width="${SOCIAL.width}" height="${SOCIAL.height}"`));
-    assert.match(social, /fill="#1b1b1b"/, 'the wordmark in the light scheme’s on-surface');
-    const card = await sharp(await png(social)).metadata();
-    assert.deepEqual([card.width, card.height], [SOCIAL.width, SOCIAL.height]);
   });
 });
 

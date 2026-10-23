@@ -2,7 +2,7 @@
 title: React
 description: 由 Tanrei 的 Web Components 生成的、带类型的 React 组件。
 translationOf: getting-started/react.mdx
-sourceHash: bbf537930ba2e1a31eb506876e8a8ab25ac3c6a3
+sourceHash: c0c841b6e6aeb6c0b3a2c71ef99d5f54268d0991
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -63,7 +63,7 @@ export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
 }
 ```
 
-属性的名称与元素的 attribute 相同（`variant`、`size`、`disabled`）。事件就是普通的 React 处理函数。
+属性的名称与元素的 attribute 相同（`variant`、`size`、`disabled`）。事件就是普通的 React 处理函数。元素自己的事件，与 React 自身的事件一样，用 `on` 加上驼峰式的事件名来监听（与 `onKeyDown` 同一形式）：导航抽屉发出的 `expandedchange` 用 `onExpandedChange` 监听。
 
 `@tanrei/web/words/en` 为组件绘制或朗读的每一个标签和消息（例如必填标签、关闭按钮的名称）给出平实的英语文字；也可以不用它，而用 `@tanrei/react` 的 `setWords()` 给出你自己的文字。参见[文字](/zh-cn/foundations/words/)。
 

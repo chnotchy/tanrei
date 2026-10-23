@@ -39,6 +39,14 @@ import '@tanrei/web/icons.css';
 
 `.tanrei-icon` lee `aria-pressed`, `aria-selected`, `aria-checked` y `aria-current` en cualquier ancestro, o `data-selected` en el icono o en un ancestro (`data-selected="false"` excluye un icono concreto). Dale a un icono `aria-hidden="true"` cuando el texto que tiene al lado dice lo mismo, y dale al control un nombre accesible cuando no es así.
 
+El nombre también puede ir en `data-icon`, con el elemento vacío:
+
+```html
+<span class="tanrei-icon" data-icon="folder"></span>
+```
+
+El glifo es el mismo, pero su nombre deja de ser texto de la página: no aparece en `textContent` ni en `innerText`, ni en lo que se copia, ni en el nombre accesible del control que lo contiene. Úsalo allí donde el nombre se leería como texto, como una fila de un menú o de una lista, una celda de una tabla o un texto que compara una prueba. El tamaño, la selección y el reflejo en los diseños de derecha a izquierda funcionan igual que con el nombre escrito como texto. Mantén `aria-hidden="true"` cuando el texto de al lado ya dice lo mismo: Firefox anterior a la versión 128 sigue incluyendo el nombre en el nombre accesible.
+
 En las plataformas nativas, los mismos valores llegan con el sistema de diseño (`system.icon`), junto con una pequeña utilidad que convierte *seleccionado* y un tamaño en lo que necesita la fuente. Tanrei todavía no incluye un componente de icono.
 
 ## Un conjunto de iconos por sistema de diseño

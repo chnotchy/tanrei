@@ -2,7 +2,7 @@
 title: ハンドル
 description: 人がドラッグして、またはキーボードで動かして、それが付いているもの（シート、フィールド、ペイン、プレビューの枠）の大きさを変えるための印です。1 方向なら短い線、2 方向なら 1/4 円の弧で描きます。どれだけ動いたかを知らせ、大きさを変えるのは持ち主です。
 translationOf: components/handle.mdx
-sourceHash: 96b088d0f03e91d67a76ccdc8f4ae5804881ddf9
+sourceHash: 8955a734232bc0ade6255485b375c3b4b8e433b8
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -77,7 +77,7 @@ Web では `<tanrei-handle>` です。ほかのプラットフォームはまだ
       min={2}
       max={12}
       valueText={`${rows} 行`}
-      onResizestart={() => setStart(rows)}
+      onResizeStart={() => setStart(rows)}
       onResize={(e) => setRows(clamp(start + e.detail.block / 24))}
       onStep={(e) => setRows(stepped(rows, e.detail))}
       onActivate={() => setRows(rows < 12 ? 12 : 2)}

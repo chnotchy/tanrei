@@ -259,3 +259,63 @@ Tanrei does not do this itself: it belongs to your product's entry point. Test t
 ```
 
 Keep this script small and plain: every visitor's browser runs it, the old ones included. With a static `import`, the browser loads the app before this script runs, and an old one that cannot parse the app never reaches the test; `import()` loads it only afterwards.
+
+## Testing
+
+### In a browser
+
+Tanrei's elements are built on what browsers implement: shadow roots, `ElementInternals` (a form control's value and validity, custom states), the Popover API, `<dialog>` and layout. jsdom and happy-dom implement only part of that (happy-dom has neither `attachInternals()` nor the Popover API), so an element can throw when it renders, leave a rejected promise behind, or render without the sizes, focus order and top layer it relies on. Tanrei does not support them, and ships no stand-ins for what they lack: a stand-in that keeps an element from throwing would let a test pass on behaviour no browser has.
+
+Test whatever renders a Tanrei element in a real browser:
+
+- [Vitest's browser mode](https://vitest.dev/guide/browser/), with its Playwright provider, keeps your component tests in Vitest and runs them in Chromium, Firefox or WebKit.
+- [Playwright Test](https://playwright.dev/docs/intro) runs pages and whole flows.
+
+Tests of your own logic that render no Tanrei element can stay in Node, jsdom or happy-dom. Tanrei's own tests run in Chromium, Firefox and WebKit, with axe-core in Playwright.
+
+### Finding an element
+
+Most elements put their role on a native element inside their shadow root (a `<button>`, an `<input>`, a `<dialog>`) rather than on themselves, so that browsers and testing tools see real semantics; a few, such as a tab or an open menu, carry it themselves. Playwright's locators look inside open shadow roots, so find a control by its role and name, as a person would:
+
+```ts
+await page.getByRole('button', { name: 'Save' }).click();
+await expect(page.getByRole('switch', { name: 'Wi-Fi' })).toBeChecked();
+```
+
+A click on that button reaches the listeners on `<tanrei-button>` itself. Testing Library's queries do not look inside shadow roots, so they do not find these controls.
+
+### A role and its content in different trees
+
+Some elements keep a role in their shadow root while what belongs to it is your own markup, placed into it through a slot: the tab list of `<tanrei-tabs>` and its `<tanrei-tab>` children, the `<dialog>` of `<tanrei-dialog>` and its actions. In the DOM the tabs are not inside the tab list, so a locator chained from the role finds nothing:
+
+```ts
+// Finds nothing: the tabs are children of <tanrei-tabs>, not of its tab list.
+page.getByRole('tablist', { name: 'Sections' }).getByRole('tab', { name: 'Billing' });
+```
+
+Find the element that holds the named role, then search inside it:
+
+```ts
+const sections = page.locator('tanrei-tabs', { has: page.getByRole('tablist', { name: 'Sections' }) });
+await sections.getByRole('tab', { name: 'Billing' }).click();
+
+const confirm = page.locator('tanrei-dialog', { has: page.getByRole('dialog', { name: 'Delete the file?' }) });
+await confirm.getByRole('button', { name: 'Delete' }).click();
+```
+
+### A menu in the top layer
+
+While it is open, `<tanrei-menu>` is the menu, named by its anchor, but it takes no room in the page: its surface is drawn in the top layer. A visibility check on the menu therefore fails even while it is open. Check that the menu is there, then check its items:
+
+```ts
+await page.getByRole('button', { name: 'More' }).click();
+const menu = page.getByRole('menu', { name: 'More' });
+await expect(menu).toBeAttached();
+await expect(menu.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+```
+
+When it closes, the element is no longer a menu, and `await expect(menu).toHaveCount(0)` passes.
+
+### Warnings
+
+In a development build, an element that is used in a way its spec does not allow says so in the console, in a message that starts with `[tanrei]` and ends with the id of the behaviour. A browser test can fail on any of them: [the guide for AI agents](/getting-started/ai-agents/) has a Playwright example.

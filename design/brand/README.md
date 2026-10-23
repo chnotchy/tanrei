@@ -42,7 +42,7 @@ Each file here is one flat shape in `currentColor`. Everything else is made from
 | The marks painted in the light and the dark scheme's on-surface (an image that cannot inherit a color: this repository's README) | `generated/{symbol,wordmark}.{light,dark}.svg` | `pnpm generate` (`packages/tokens-build/src/emit/brand.js`) |
 | The favicon: the symbol, painted by its own stylesheet in the reader's scheme and contrast | `generated/symbol.adaptive.svg` → the docs' `/favicon.svg` | `pnpm generate`; served by `apps/docs/src/pages/favicon.svg.ts` |
 | The ICO (16, 32, 48) and the home-screen icon (180): the symbol on the light surface | the docs' `/favicon.ico`, `/apple-touch-icon.png` | the docs build (`apps/docs/src/lib/brand.mjs`) |
-| The social image (1200 × 630): the wordmark on the light surface | the docs' `/og.png` | the docs build |
+| Each page's social image (1200 × 630): the wordmark, the page's title and description, on the light surface | the docs' `/og/<page>.png` | the docs build (`apps/docs/src/lib/social-image.mjs`) |
 | The docs' header: the symbol inline, painted by `sys.color.on-surface`, as the link to the first page | — | `apps/docs/src/components/frame/Header.astro` |
 
 ## When a mark changes in Figma

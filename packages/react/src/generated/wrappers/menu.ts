@@ -13,7 +13,7 @@ import { TanreiMenu as TanreiMenuElement, type TanreiMenuCloseDetail, type Tanre
  *
  * Events:
  * - `onClose` (`close`) — The menu asks to be closed, every open submenu with it: `detail.reason` is `escape`, `outside`, `tab`, `focus-out` or `item`. Set `open` to false.
- * - `onContextrequest` (`contextrequest`) — With `trigger="context"`: a person asked for the context menu in the area. `detail` is `{ x, y, element, input }` — client coordinates, the element under the pointer or with focus, and `pointer`, `long-press` or `keyboard`. Set `open` to true; cancel it to leave the request to the browser's own context menu.
+ * - `onContextRequest` (`contextrequest`) — With `trigger="context"`: a person asked for the context menu in the area. `detail` is `{ x, y, element, input }` — client coordinates, the element under the pointer or with focus, and `pointer`, `long-press` or `keyboard`. Set `open` to true; cancel it to leave the request to the browser's own context menu.
  */
 export const Menu = /* @__PURE__ */ createComponent({
   tagName: 'tanrei-menu',
@@ -21,6 +21,6 @@ export const Menu = /* @__PURE__ */ createComponent({
   react: React,
   events: {
     onClose: 'close' as EventName<TanreiEvent<TanreiMenuElement, CustomEvent<TanreiMenuCloseDetail>>>,
-    onContextrequest: 'contextrequest' as EventName<TanreiEvent<TanreiMenuElement, CustomEvent<TanreiMenuContextRequestDetail>>>,
+    onContextRequest: 'contextrequest' as EventName<TanreiEvent<TanreiMenuElement, CustomEvent<TanreiMenuContextRequestDetail>>>,
   },
 });

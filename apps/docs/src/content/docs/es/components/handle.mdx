@@ -2,7 +2,7 @@
 title: Tirador de tamaño
 description: La marca que una persona arrastra, o mueve con el teclado, para cambiar el tamaño de lo que la lleva — una hoja, un campo, un panel, el marco de una vista previa. Una línea corta para una dirección, un arco de un cuarto de círculo para dos. Informa de cuánto se movió; el tamaño lo cambia su dueño.
 translationOf: components/handle.mdx
-sourceHash: 96b088d0f03e91d67a76ccdc8f4ae5804881ddf9
+sourceHash: 8955a734232bc0ade6255485b375c3b4b8e433b8
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -77,7 +77,7 @@ En la web es `<tanrei-handle>`. Las demás plataformas aún no lo han implementa
       min={2}
       max={12}
       valueText={`${rows} líneas`}
-      onResizestart={() => setStart(rows)}
+      onResizeStart={() => setStart(rows)}
       onResize={(e) => setRows(clamp(start + e.detail.block / 24))}
       onStep={(e) => setRows(stepped(rows, e.detail))}
       onActivate={() => setRows(rows < 12 ? 12 : 2)}
