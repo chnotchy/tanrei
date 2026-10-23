@@ -8,7 +8,7 @@ import Ajv2020 from 'ajv/dist/2020.js';
 import { checkInvariants, contrast, targetFloors } from '@tanrei/tokens-build/invariants';
 import { declarations, emitCss, idToVar } from '@tanrei/tokens-build/emit/css';
 import { cssColor } from '@tanrei/tokens-build/pure';
-import { heldComponents, outsideStandIns, sheetAvailability } from '@tanrei/tokens-build/layers';
+import { componentChoices, heldComponents, outsideStandIns, sheetAvailability } from '@tanrei/tokens-build/layers';
 import { createStudio } from '../src/core.js';
 import { catalogOf } from '../src/listing.js';
 
@@ -45,6 +45,7 @@ export const studio = createStudio({
   heldComponents,
   outsideStandIns,
   sheetAvailability,
+  componentChoices,
   checkInvariants,
   targetFloors,
   contrast,

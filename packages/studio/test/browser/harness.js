@@ -36,15 +36,16 @@ export const until = async (condition, what = 'condition', ms = 15_000) => {
  * Runs in the page. Every pointer target that is the Studio's own — the light DOM outside the preview; a Tanrei
  * component keeps its own minimum — with the size a pointer lands on: the element's box, or what extends it (the
  * input laid over a segment's label, the `::after` laid under a fold's row). `ok` when that is `min` by `min` CSS
- * pixels at least (WCAG 2.2, 2.5.8) and the square on its centre is its own: nothing else answers there.
+ * pixels at least (WCAG 2.2, 2.5.8) and the square on its centre is its own: nothing else answers there. `within`: a
+ * selector — only the targets inside it (a modal sheet: what is under its scrim is not operable while it is open).
  */
-function measureTargets(min) {
+function measureTargets({ min, within }) {
   const found = [];
   const shown = (el) => el.getBoundingClientRect().width > 0 && el.getBoundingClientRect().height > 0 && getComputedStyle(el).visibility !== 'hidden' && !el.closest('[hidden], [inert], details:not([open]) > :not(summary)');
   const round = (n) => Math.round(n * 10) / 10;
   // A tab is found by its element as well as its role: a row of tabs without panels is a radio group, its tabs radios.
   for (const el of document.querySelectorAll('a[href], button, summary, input:not([type="hidden"]), select, textarea, [role="tab"], tanrei-tab, [role="treeitem"], [tabindex="0"]')) {
-    if (el.disabled || el.closest('[data-scope]')) continue;
+    if (el.disabled || el.closest('[data-scope]') || (within && !el.closest(within))) continue;
     // A radio or a checkbox is pressed on its label.
     const host = (el.matches('input[type="radio"], input[type="checkbox"]') && el.closest('label')) || el;
     if (!shown(host)) continue;
@@ -170,9 +171,9 @@ export async function openStudio({ layer = { id: 'acme', extends: 'tanrei' }, pa
       const report = await new AxeBuilder({ page }).include(include).analyze();
       assert.deepEqual(report.violations.map((violation) => `${violation.id}: ${violation.nodes.length} — ${violation.nodes[0]?.target}`), [], `axe: ${what}`);
     },
-    /** Every pointer target of the Studio's own controls, as drawn now, is 24 by 24 CSS pixels at least. Returns what it measured. */
-    targets: async (what) => {
-      const found = await page.evaluate(measureTargets, 24);
+    /** Every pointer target of the Studio's own controls, as drawn now — or of those inside `within` — is 24 by 24 CSS pixels at least. Returns what it measured. */
+    targets: async (what, within) => {
+      const found = await page.evaluate(measureTargets, { min: 24, within });
       assert.deepEqual(found.filter((target) => !target.ok).map((target) => `${target.what} «${target.text}» ${target.size.join('×')}${target.own ? '' : target.reached ? ' — a neighbour answers inside it' : ' — could not be brought into view'}`), [], `${what}: a pointer target under 24 by 24`);
       return found;
     },

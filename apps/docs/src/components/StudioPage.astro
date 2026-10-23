@@ -62,14 +62,14 @@ const languages = [source, ...translations];
     <a class="docs-studio-brand" href={`${base}/`} title={t.studioPage.back} data-studio-bar="start"><img src="/favicon.svg" alt="" />Tanrei</a>
     <h1 class="docs-studio-title" data-studio-bar="start">Theme Studio</h1>
     <a class="docs-studio-about" href={`${base}/foundations/theme-studio/`} data-studio-bar="end">{t.studioPage.about}</a>
-    <div data-theme-studio data-lang={lang} data-layers={`${base}/foundations/design-systems/`}></div>
+    <div data-theme-studio data-lang={lang} data-layers={`${base}/foundations/design-systems/`} data-start={`${base}/getting-started/your-design-system/`}></div>
     <script>
       import '../lib/register-web';
       import { mountStudio } from '@tanrei/studio';
       import fullIcons from '../styles/icons-full.generated.css?url';
       const root = document.querySelector<HTMLElement>('[data-theme-studio]')!;
       const items = (place: string) => [...document.querySelectorAll<HTMLElement>(`[data-studio-bar="${place}"]`)];
-      mountStudio(root, { lang: root.dataset.lang, links: { layers: root.dataset.layers }, address: true, bar: { start: items('start'), end: items('end') } });
+      mountStudio(root, { lang: root.dataset.lang, links: { layers: root.dataset.layers, start: root.dataset.start }, address: true, bar: { start: items('start'), end: items('end') } });
       // The site's icon families are registered from files cut down to the glyphs its pages draw. A layer edited here
       // may draw its icons at any weight, which only the full files hold: they are registered too — once the page has
       // loaded, so that their 5 MB is not part of its load — and, registered last, they are the faces the icons are

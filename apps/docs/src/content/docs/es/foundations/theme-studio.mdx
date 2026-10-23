@@ -2,7 +2,7 @@
 title: Theme Studio
 description: Mueve unos pocos controles, observa cómo los siguen componentes reales y exporta una capa de sistema de diseño válida que puedes compilar para todas las plataformas.
 translationOf: foundations/theme-studio.mdx
-sourceHash: 0809aef558d0eca63f3c2c51d11b19a42d6d4d84
+sourceHash: 3540d4918e6a90aa3d7fe1a0469a934fd8724033
 ---
 
 import { LinkCard } from '../../../../components/cards';
@@ -15,7 +15,9 @@ Nada de lo que contiene es una maqueta. La vista previa es un ámbito de sistema
 
 Muestra tu tema en cinco pantallas hechas con esos componentes —un resumen con todos los tipos de componente, un panel, un formulario de ajustes, una lista con su detalle y una página de documentación—, en claro, en oscuro o en ambos uno al lado del otro, y en cada uno de los tres niveles de contraste. Qué pantalla miras y cómo no forma parte de tu tema: nada de eso se guarda en el archivo.
 
-La capa que estás creando se queda en este navegador y en la dirección de la página: un enlace al Studio copiado de la barra de direcciones lo abre con la misma capa. Abrir un enlace no sobrescribe la capa que guardaba el navegador: el Studio muestra la capa del enlace y lo indica, y conserva la tuya hasta que edites la del enlace o decidas quedártela; también puedes volver a la tuya.
+La capa que estás creando se queda en este navegador y en la dirección de la página: un enlace al Studio lo abre con la misma capa. Abrir un enlace no sobrescribe la capa que guardaba el navegador: un banner sobre el Studio indica qué capa llegó con el enlace y sobre qué sistema está hecha, y el Studio conserva la tuya hasta que edites la del enlace o decidas quedártela; también puedes volver a la tuya.
+
+**Exportar**, en la barra del Studio, abre una hoja lateral con el archivo y qué hacer con él. Su primera línea dice si el esquema, el motor de tokens y las comprobaciones de la compilación aceptan el archivo. Una capa que empezó en un ejemplo de la galería de temas depende de ese ejemplo por defecto: el archivo sigue siendo pequeño y sigue al ejemplo a medida que mejora. También puedes escribir todos los valores, para que el archivo no cambie cuando cambie el ejemplo; un componente que vive en el ejemplo se sigue tomando de él. Después vienen el propio archivo, para copiarlo o descargarlo; las declaraciones de la hoja de estilos que `tanrei build` escribe para la web que difieren de las del sistema base, con la hoja completa para descargar; y los pasos siguientes, cada uno un comando que la CLI acepta tal cual, con un enlace para compartir la capa.
 
 La columna de la izquierda enumera las nueve partes de un aspecto —color de marca, gris, tipo de letra, tamaño, esquinas, suavizado de esquinas, iconos, respuesta al pulsar y foco—, cada una con lo que tiene ahora y una pequeña muestra, y después el resto de lo que contiene una capa. Una fila abre sus controles en el panel de la derecha. Bloquea las filas que te gusten y **Mezclar** da otro valor a cada una de las demás, en un solo paso que se puede deshacer. **Inspeccionar** abre todos los tokens y el propio archivo de la capa sobre el panel. Cada cambio se puede deshacer y rehacer, con los botones de la barra del Studio o con ⌘Z y ⇧⌘Z (Ctrl+Z y Ctrl+Mayús+Z).
 
@@ -51,3 +53,5 @@ Un producto puede apilar sus propias capas: `acme-app.system.json`, que extiende
 ## Lo que no puede hacer
 
 En el sitio no hay ningún archivo detrás del Studio, así que aquí no se puede importar una capa que extiende otra capa tuya: ábrela con `tanrei studio`, que conoce los archivos que tiene al lado. El Studio nunca descarga una fuente de ningún lugar que no sea el sitio que lo sirve: una familia que ese sitio no ofrece y que tu navegador no tiene se nombra, y la vista previa muestra con honestidad la fuente alternativa. Sus pruebas de «la vista previa es igual a la compilación» comparan la hoja de estilos web, el paquete de tokens y las advertencias; las salidas nativas las genera `tanrei build` a partir del mismo modelo.
+
+La herramienta de línea de comandos no recibe una capa en un comando: `tanrei init` empieza una capa propia, y el archivo que descargas desde Exportar ocupa su lugar.

@@ -1,6 +1,7 @@
 // Theme Studio's page (components/StudioPage.astro): the Studio, the whole window, with its own bar and none of the
 // documentation's frame; the rail of the look and the panel it opens; its layer in the page's address, so that a link
-// opens it on the same layer, without writing over the one a browser kept; undo and redo, from the bar and from the
+// opens it on the same layer, under the banner of a shared layer, without writing over the one a browser kept; Export,
+// with the next steps the CLI takes and a link to share; undo and redo, from the bar and from the
 // keyboard; every part of it within reach of the Tab key; the preview's five screens, in light, dark and side by
 // side; and nothing axe finds, wide and narrow.
 //
@@ -139,7 +140,7 @@ for (const engine of ENGINES) {
       }
     });
 
-    test('the layer is in the address: a link opens the Studio on the same layer, in a browser that kept nothing', async () => {
+    test('the layer is in the address: a link opens the Studio on the same layer, in a browser that kept nothing, under a banner that says where it came from', async () => {
       const first = await open(browser);
       let link;
       try {
@@ -156,6 +157,16 @@ for (const engine of ENGINES) {
       const second = await open(browser, { url: link.slice(origin.length) });
       try {
         assert.equal((await layer(second.page)).extends, 'cupertino', 'the link’s layer');
+        // The banner: what the layer is, and that this browser keeps it; nothing of its own was kept, so it may be put away.
+        const banner = second.page.locator('[data-shared-banner]');
+        assert.equal(await banner.evaluate((el) => el.open), true);
+        assert.match(await banner.textContent(), /A shared layer: acme, on Cupertino \(Apple HIG-inspired\)/);
+        assert.equal(await banner.evaluate((el) => el.closable), true, 'nothing to choose: it may be closed');
+        assert.equal(await second.page.locator('[data-keep-shared], [data-back-to-mine]').count(), 0);
+        await second.page.locator('[data-export-shared]').click();
+        await second.page.waitForFunction(() => document.querySelector('[data-export-sheet]').open);
+        await second.page.keyboard.press('Escape');
+        await second.page.waitForFunction(() => !document.querySelector('[data-export-sheet]').open);
         await second.page.locator('[data-rail] [data-row="base"]').click();
         assert.equal(await second.page.locator('[data-panel="base"] tanrei-radio-group').evaluate((group) => group.value), 'cupertino', 'and the controls show it');
         assert.deepEqual(second.problems, []);
@@ -189,7 +200,10 @@ for (const engine of ENGINES) {
           await page.waitForFunction(() => window.tanreiStudio.getLayer().extends === 'cupertino');
         };
         await openLink();
-        assert.equal(await banner.evaluate((el) => el.open), true, 'the notice says the layer is the link’s');
+        assert.equal(await banner.evaluate((el) => el.open), true, 'the banner says the layer is the link’s');
+        assert.match(await banner.textContent(), /A shared layer: acme, on Cupertino \(Apple HIG-inspired\)/, 'what it is');
+        assert.match(await banner.textContent(), /Your own layer, acme, is still the one this browser keeps/, 'and that the visitor’s own is kept');
+        assert.equal(await banner.evaluate((el) => el.closable), false, 'a choice to make: it stays until it is made');
         assert.equal(await kept(), 'm3-like', 'and the layer this browser kept is still the one kept');
         assert.equal(await page.locator('[data-undo]').evaluate((el) => el.disabled), true, 'nothing to undo: the link’s layer is no edit');
         await page.locator('[data-back-to-mine]').click();
@@ -310,7 +324,60 @@ for (const engine of ENGINES) {
       }
     });
 
+    test('Export: the file, the next steps as the CLI takes them, and a link to the layer', async () => {
+      const { page, problems, close } = await open(browser);
+      try {
+        await chooseBase(page, 'cupertino');
+        await page.waitForFunction(() => new URLSearchParams(location.hash.slice(1)).get('layer'));
+        await page.locator('[data-export-open]').click();
+        await page.waitForFunction(() => document.querySelector('[data-export-sheet]').open);
+        // A product on Cupertino: the build's checks warn (a product layer reports what it does not meet), and say where.
+        assert.equal(await page.locator('[data-export-status]').getAttribute('data-state'), 'warning');
+        assert.match(await page.locator('[data-export-status]').textContent(), /Valid, with \d+ warnings? from the build’s checks/);
+        assert.deepEqual(await page.locator('[data-export-json]').evaluate((el) => JSON.parse(el.code)), await layer(page));
+        // The example the layer is on: depend on it (the default), or write every value.
+        assert.equal(await page.locator('[data-export-every]').evaluate((el) => el.value), 'depend');
+        await page.locator('[data-export-tabs] > tanrei-tab[data-tab="next"]').click();
+        assert.deepEqual(await page.locator('[data-export-command]').evaluateAll((els) => els.map((el) => el.code)), ['npm install --save-dev @tanrei/cli', 'npx tanrei init acme --extends cupertino', 'npx tanrei build', 'npx tanrei studio']);
+        assert.equal(await page.locator('[data-export-next] ~ p a').last().getAttribute('href'), '/getting-started/your-design-system/');
+        // Written out, the file extends the root, which `init --extends` does not take: the step starts from the default.
+        await page.locator('[data-export-every] tanrei-radio-button[data-value="every"]').click();
+        await page.waitForFunction(() => document.querySelector('[data-export-command="npx tanrei init"]')?.code === 'npx tanrei init acme');
+        // The link: the address of this layer.
+        if (engine === 'chromium') await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+        await page.locator('[data-export-copy-link]').click();
+        await page.waitForFunction(() => document.querySelector('[data-export-link-state]').textContent);
+        if (engine === 'chromium') {
+          assert.equal(await page.locator('[data-export-link-state]').textContent(), 'Link copied.');
+          assert.equal(await page.evaluate(() => navigator.clipboard.readText()), page.url(), 'the address the layer is in');
+        }
+        const report = await new AxeBuilder({ page }).include('[data-export-sheet]').analyze();
+        assert.deepEqual(report.violations.map((violation) => `${violation.id}: ${violation.nodes.length} — ${violation.nodes[0]?.target}`), []);
+        // The warnings are listed in Accessibility: the sheet closes there.
+        await page.locator('[data-export-warnings]').click();
+        await page.waitForSelector('[data-studio][data-section="a11y"]');
+        assert.equal(await page.locator('[data-export-sheet]').evaluate((el) => el.open), false);
+        assert.deepEqual(problems, []);
+      } finally {
+        await close();
+      }
+    });
+
     for (const [name, viewport] of [['1440', WIDE], ['390', NARROW]]) {
+      test(`${name} wide, Export open: axe finds nothing`, async () => {
+        const { page, close } = await open(browser, { viewport });
+        try {
+          await page.locator('[data-export-open]').click();
+          await page.waitForFunction(() => document.querySelector('[data-export-sheet]').open);
+          for (const tab of ['file', 'css', 'next']) {
+            await page.locator(`[data-export-tabs] > tanrei-tab[data-tab="${tab}"]`).click();
+            const report = await new AxeBuilder({ page }).include('[data-export-sheet]').analyze();
+            assert.deepEqual(report.violations.map((violation) => `${violation.id}: ${violation.nodes.length} — ${violation.nodes[0]?.target}`), [], tab);
+          }
+        } finally {
+          await close();
+        }
+      });
       test(`${name} wide: axe finds nothing`, async () => {
         const { page, close } = await open(browser, { viewport });
         try {
