@@ -40,6 +40,15 @@ import { EVERY_ANIMATION } from '../../test/motions.js';
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const read = (file: string) => fs.readFileSync(path.join(pkg, file), 'utf8');
 
+// The tests of this file run one after another in one worker, never beside each other. Each times a style engine that
+// works on several threads, on a page of 2,000 elements or more, and a change timed while the other worker restyles a
+// page as large is timed on half the machine. With every file's tests in parallel (the Playwright config), the two
+// tests with tree views were timed at the same moment on a shard's two workers in each of fifteen CI runs. Firefox, the
+// one where transitions start, in the CI-like container (4 CPUs, each change 50 ms after the one before rather than at
+// rest as `drawn` makes it now, the median of 6 to 10 runs): 97 ms alone, 115 beside the other test with tree views,
+// 131 beside two busy threads.
+test.describe.configure({ mode: 'default' });
+
 /** One screenful of a product: shadow-root components, stylesheet-drawn ones, links in prose, plain elements. */
 const unit = (i: number) => `<section>
 <h2>Section ${i}</h2>
