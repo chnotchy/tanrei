@@ -128,7 +128,7 @@ On a pull request and on a push to `main`, CI (`.github/workflows/ci.yml`) runs 
 | Core tests · MCP server | `packages/mcp/` |
 | Core tests · Theme Studio | `packages/studio/`, `packages/web/`, `packages/react/` |
 | Web (in shards: the selection above) and the merged Playwright report; its first Chromium shard also runs the web package's Node tests (`test:node`) and the React bindings' tests | `packages/web/`, `packages/react/` |
-| Docs · build, the built site's check, then the docs app's Node tests (and the Deploy docs preview) | the web paths, `apps/docs/`, `packages/studio/`, `design/`, `docs/status/` |
+| Docs · build (in shards: each builds the site and runs a third of its browser tests; the first also runs the docs app's Node tests), and the Deploy docs preview | the web paths, `apps/docs/`, `packages/studio/`, `design/`, `docs/status/` |
 | SwiftUI (build, Dynamic Type, gallery shards) — macOS | `packages/swiftui/`, `Package.swift`, `Package.resolved` |
 | Flutter | `packages/flutter/` |
 | Compose, and Compose on an emulator | `packages/compose/` |
