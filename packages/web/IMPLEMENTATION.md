@@ -2839,8 +2839,10 @@ shadow root with `autocomplete="off"`, `autocapitalize="none"`, `autocorrect="of
 (`NativeTextController`, as the text field's). Under `filter="contains"` the list shows the options whose label
 contains the text, compared letter by letter in compatibility form, without marks and in lower case — so `TO`, `ｔｏ`
 and `to` find the same options and `bogota` finds `Bogotá`; the two sound marks of kana are kept, so `か` does not find
-`が`. The first run of each label that matched is a `<mark>` with no fill, in the label's color, its weight raised by
-`option.match.emphasis`; the option is named by the whole label. Typing makes the first shown option that is not
+`が`. The first run of each label that matched is a `<mark>`, marked as the search marks a match: in
+`option.match.color`, its weight raised by `option.match.emphasis`, over `option.match.container.color` (the
+`option.match.selected.*` pair in the selected option), and in `Mark` and `MarkText` under forced colors; the option
+is named by the whole label. Typing makes the first shown option that is not
 disabled the active one, and none where a custom value is allowed, so that Enter commits what the field shows as about
 to be committed. The combobox never fetches, waits, debounces, sorts or ranks.
 
