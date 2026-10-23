@@ -11,6 +11,7 @@ import { type Fixture, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpe
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { holdTransitions, stepTransitions } from '../../../test/stepped-transitions.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('copy-button');
 type P = Page;
@@ -767,7 +768,7 @@ test.describe('accessibility', () => {
           for (const f of pressable) await press(page, f.id);
           for (const f of pressable) await expect.poll(async () => (await shows(page, f.id)).form, f.id).toBe(mode === 'writes' ? 'copied' : 'failed');
         }
-        await page.waitForTimeout(400); // colors transition
+        await motionEnded(page);
         const results = await new AxeBuilder({ page }).include('.stage').analyze();
         expect(results.violations, `${theme} ${mode ?? 'rest'}: ${results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target).join(' ')}`).join('; ')}`).toEqual([]);
       }

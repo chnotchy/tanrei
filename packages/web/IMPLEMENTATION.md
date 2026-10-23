@@ -7731,15 +7731,34 @@ on-screen keyboard. Opening focuses the header's input with the caret at the end
 input, which does not reopen it. A press on the view that would take focus nowhere keeps it inside. It fades in and out
 over the open and close motion. The slots are not drawn in the header.
 
-**Keyboard (SRC-12…15).** The WAI-ARIA combobox pattern: Down / Up Arrow move the active suggestion while focus stays in
-the input (Down from none is the first; it stays on the last; Up on the first leaves none); typing, deleting, moving the
-caret or new suggestions leave none active; the active row is scrolled into view. Enter chooses the active suggestion, or
-submits. Escape closes the view; closed, it empties a value (one `input`), and with none it does nothing and passes on.
+**Keyboard (SRC-12…15).** The WAI-ARIA combobox pattern with list autocomplete and automatic selection: the first
+suggestion is active as soon as the view shows suggestions while the input has focus, and again after typing, deleting,
+moving the caret, new suggestions or focus coming back; Down / Up Arrow move the active suggestion while focus stays in
+the input (Down from none is the first; it stays on the last; Up on the first leaves none), except that the first Down
+Arrow after an automatic choice stays on it and announces it, as Down from the field does in APG's list autocomplete
+example and GitHub's combobox-nav (whose `navigate(1)` starts from the first option while none is `aria-selected`); with
+results and no suggestion it moves focus to the current, first result. The active row is scrolled into view. Enter chooses the active suggestion, or submits. Escape closes the view; closed, it empties a value (one
+`input`), and with none it does nothing and passes on.
+
+**On an on-screen keyboard (SRC-14, SRC-49)** nothing is made active or current by itself, so the keyboard's Search or
+Go key submits the text as typed. The search tells the keyboard by the press that gave the input focus: it records the
+`pointerType` of the last press inside it (a capturing `pointerdown` on the host), reads it when the input takes focus —
+at once for a press on the bar or the input, as the view renders for a trigger — and forgets it a frame after the press's
+`click` or when focus leaves the search, so that focus by Tab is the keyboard's. A press on the focused input decides
+again (`touch` and `pen` bring up an on-screen keyboard, `mouse` does not), and an arrow key, Home or End — keys an
+on-screen keyboard does not have — brings automatic selection back. Not `(pointer: coarse)`: it describes the primary
+pointer, which is fine on a laptop with a touch screen and coarse on a tablet with a keyboard attached; not the
+VirtualKeyboard API, which only Chromium has.
 
 **Semantics (SRC-24).** The input is a native `type="search"` (a searchbox) with `enterkeyhint="search"` and `dir="auto"`,
 named by `aria-label` from `label`, never by the placeholder. While the view shows suggestions it is a `combobox` with
 `aria-autocomplete="list"`, `aria-expanded="true"`, `aria-controls` naming the `listbox` (named by `label`) and
-`aria-activedescendant` naming the active `option` (`aria-selected="true"`); each option is named by its headline
+`aria-activedescendant` naming the active `option` once the person has moved to it with an arrow key (the Down Arrow
+that opens the view included). The first, made active automatically, is `aria-selected="true"` but not named, so a screen
+reader reads no suggestion per key typed — APG's list autocomplete example sets only `aria-selected` on its automatic
+choice, and GitHub's combobox-nav marks its default option with a data attribute alone. Each option's id is its
+suggestion element's own (`option-<n>` from a counter, kept per element), never its place in the list, so that suggestions
+the product replaces are new options to name and to read, and an element it moves keeps its id; each option is named by its headline
 (`aria-labelledby`) and described by its supporting text (`aria-describedby`). The spec names the combobox for the docked
 view; the web's full-screen header input is one too, so the active suggestion is announced there as well. Icons and the divider are hidden; the full-screen view is a modal `dialog` named by
 `label`; the clear and back buttons are icon-only Tanrei Buttons named by `clearLabel` and `backLabel`.
@@ -7847,7 +7866,10 @@ children's order, by giving them `slot="result"`. A result holds no listener: th
 
 Activated in place — a primary press, a touch or Enter, no modifier, `target` same — a result fires `select`
 (**cancelable**: cancelling it keeps the link from being followed) and the view closes with the reason `select`. Opened
-any other way, nothing is fired and the view stays open. Down Arrow in the input, with no suggestion left to go to, moves
+any other way, nothing is fired and the view stays open. Enter in the input with Command (Apple convention) or Control
+opens the current result in a new tab, and with Shift in a new window, through `window.open` with `noopener` (and
+`noreferrer` where `rel` says so; a new window is a `popup`, the only window a page can ask for): a click dispatched with
+the modifiers would do it in Chromium and Firefox, but WebKit follows such a click in place whatever its modifiers. Down Arrow in the input, with no suggestion left to go to, moves
 **real focus** to the first result and on through them, across groups; Up Arrow comes back, to the input from the first.
 Typing a character, Backspace, Delete or pasting on a result moves focus to the input, where the key then acts. Tab goes
 through the links in a modal view; docked, it closes the view and moves on from the input. A result is a `listitem` of a
