@@ -577,7 +577,9 @@
         "divider",
         "tooltip",
         "button",
-        "main-action-button"
+        "main-action-button",
+        "text-input",
+        "keyboard-shortcut"
       ],
       "hasSpec": true,
       "docs": "/components/navigation-drawer/",
@@ -1262,7 +1264,9 @@
       "builtFrom": [],
       "uses": [
         "loading-indicator",
-        "embedded-text-input"
+        "embedded-text-input",
+        "text-input",
+        "button"
       ],
       "hasSpec": true,
       "docs": "/components/tree-view/",

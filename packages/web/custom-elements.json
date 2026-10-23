@@ -29438,6 +29438,14 @@
             {
               "description": "The list of items, which scrolls.",
               "name": "content"
+            },
+            {
+              "description": "The filter field (NVD-79): a `<tanrei-text-input type=\"search\">` between the header and the items, while `filterable` and expanded.",
+              "name": "filter"
+            },
+            {
+              "description": "The line at the top of the results while a filter is applied (NVD-90): how many rows match, or the words for none. Hidden from assistive technology (the drawer's status says the same).",
+              "name": "filter-status"
             }
           ],
           "slots": [
@@ -29662,6 +29670,107 @@
             },
             {
               "kind": "field",
+              "name": "filterable",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws a filter field above the items (NVD-79): what a person types there narrows the drawer to the rows whose label\nholds it, opening for the time being the groups that hold them, and the drawer comes back as it was when the field\nis emptied. Off by default: a product that filters on a server, ranks, or matches in another way leaves it off and\ngives the drawer the items that match. Reflected.",
+              "attribute": "filterable",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "filterValue",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The filter text (NVD-80): what the field holds. The drawer sets it as the person types, then fires `filterchange`; set it yourself to give a filter back (no event). Empty, or white space, applies none.",
+              "attribute": "filter-value"
+            },
+            {
+              "kind": "field",
+              "name": "filterLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Names the filter field for assistive technology (\"Filter navigation\"): your words. Required while `filterable`.",
+              "attribute": "filter-label"
+            },
+            {
+              "kind": "field",
+              "name": "filterPlaceholder",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The hint the empty field shows (\"Filter\"): your words, else the product's `filterPlaceholder`.",
+              "attribute": "filter-placeholder"
+            },
+            {
+              "kind": "field",
+              "name": "filterEmptyText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What the drawer draws and says while no row matches (\"No matches\"): your words, else the product's `filterEmptyText`.",
+              "attribute": "filter-empty-text"
+            },
+            {
+              "kind": "field",
+              "name": "filterCountText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What the drawer draws at the top of the results and says once they settle, with `{count}` for the number of rows that match (\"Matches: {count}\"): your words, else the product's `filterCountText`.",
+              "attribute": "filter-count-text"
+            },
+            {
+              "kind": "field",
+              "name": "filterCountHidden",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Does not draw the count at the top of the results; it is still said (NVD-90, NVD-91). Reflected.",
+              "attribute": "filter-count-hidden",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "filterClearLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The clear button's name (\"Clear\"): your words, else the product's `clearLabel`.",
+              "attribute": "filter-clear-label"
+            },
+            {
+              "kind": "field",
+              "name": "filterShortcut",
+              "privacy": "public",
+              "type": {
+                "text": "string[]"
+              },
+              "default": "['/']",
+              "description": "The chord that moves focus to the filter field from anywhere in the window (NVD-87), in the keyboard shortcut's key\nnames: `[\"/\"]` by default (the attribute: chords separated by spaces). Drawn as a hint in the empty field and\nexposed as its `aria-keyshortcuts`. Empty binds nothing and draws no hint.",
+              "attribute": "filter-shortcut"
+            },
+            {
+              "kind": "field",
               "name": "responsive",
               "privacy": "public",
               "type": {
@@ -29761,9 +29870,21 @@
               },
               "description": "NVD-53, NVD-55: what a responsive drawer is at the window's current width — `standard`, `column` or `modal` — or\nnull while it is not responsive. Read-only, derived from the width alone and never stored in a prop; reflected as\nthe `presentation` attribute, for styling.",
               "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "focusFilter",
+              "description": "Moves focus to the filter field (NVD-88), as its chord does (NVD-87): a collapsed drawer expands first; a modal drawer\nthat is closed gives the field focus the next time it opens, in place of its selected destination — so that an app\nshell, or a key of the product's, opens the drawer and lands in its field. Does nothing while `filterable` is false."
             }
           ],
           "events": [
+            {
+              "name": "filterchange",
+              "type": {
+                "text": "CustomEvent<TanreiNavigationDrawerFilterChangeDetail>"
+              },
+              "description": "The person changed the filter text (typing, deleting, pasting, an input method, the clear button, Escape): `detail.value` (and `filterValue`) is the new text. Not fired when the product sets `filterValue`."
+            },
             {
               "name": "close",
               "type": {
@@ -29953,6 +30074,87 @@
               "default": "''",
               "description": "What the loading row under a group that is fetching its items says, and its name (\"Loading…\", NVD-76): your words.",
               "fieldName": "loadingLabel"
+            },
+            {
+              "name": "filterable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws a filter field above the items (NVD-79): what a person types there narrows the drawer to the rows whose label\nholds it, opening for the time being the groups that hold them, and the drawer comes back as it was when the field\nis emptied. Off by default: a product that filters on a server, ranks, or matches in another way leaves it off and\ngives the drawer the items that match. Reflected.",
+              "fieldName": "filterable"
+            },
+            {
+              "name": "filter-value",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The filter text (NVD-80): what the field holds. The drawer sets it as the person types, then fires `filterchange`; set it yourself to give a filter back (no event). Empty, or white space, applies none.",
+              "fieldName": "filterValue"
+            },
+            {
+              "name": "filter-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Names the filter field for assistive technology (\"Filter navigation\"): your words. Required while `filterable`.",
+              "fieldName": "filterLabel"
+            },
+            {
+              "name": "filter-placeholder",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The hint the empty field shows (\"Filter\"): your words, else the product's `filterPlaceholder`.",
+              "fieldName": "filterPlaceholder"
+            },
+            {
+              "name": "filter-empty-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What the drawer draws and says while no row matches (\"No matches\"): your words, else the product's `filterEmptyText`.",
+              "fieldName": "filterEmptyText"
+            },
+            {
+              "name": "filter-count-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What the drawer draws at the top of the results and says once they settle, with `{count}` for the number of rows that match (\"Matches: {count}\"): your words, else the product's `filterCountText`.",
+              "fieldName": "filterCountText"
+            },
+            {
+              "name": "filter-count-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Does not draw the count at the top of the results; it is still said (NVD-90, NVD-91). Reflected.",
+              "fieldName": "filterCountHidden"
+            },
+            {
+              "name": "filter-clear-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The clear button's name (\"Clear\"): your words, else the product's `clearLabel`.",
+              "fieldName": "filterClearLabel"
+            },
+            {
+              "name": "filter-shortcut",
+              "type": {
+                "text": "string[]"
+              },
+              "default": "['/']",
+              "description": "The chord that moves focus to the filter field from anywhere in the window (NVD-87), in the keyboard shortcut's key\nnames: `[\"/\"]` by default (the attribute: chords separated by spaces). Drawn as a hint in the empty field and\nexposed as its `aria-keyshortcuts`. Empty binds nothing and draws no hint.",
+              "fieldName": "filterShortcut"
             },
             {
               "name": "responsive",
@@ -51391,7 +51593,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A hierarchy of items that open and close: rows that begin further in at each level, a chevron at the start or the end\nof every row that holds others (or none, the folder glyph opening), names on one line shown whole in a tooltip where\nthey are cut, the rows of the open parents above what is shown pinned at the top of the scrolling box; read and\nopened only, or with one item or several chosen. One stop in the focus order, moved through with the arrow keys. A\nfile tree in a page, the tokens of a design system, the folders of a product.\n\nContract: specs/tree-view.spec.json. The element has **no shadow root**: its items are the product's own nested\nlists, which stay in the document. Without script the page shows the whole hierarchy as the nested list\nit is.\n\n```html\n<tanrei-tree-view label=\"Project files\" selection=\"single\" value=\"src/index.ts\">\n  <ul>\n    <li data-value=\"src\" data-open>\n      <span>\n        <i class=\"tanrei-icon\">folder</i>\n        <bdi>src<small data-supporting-text>what is published</small></bdi>\n        <span data-trailing-text>12 files</span>\n      </span>\n      <ul>\n        <li data-value=\"src/index.ts\"><span>index.ts</span></li>\n      </ul>\n    </li>\n    <li data-expandable><span>node_modules</span></li>\n  </ul>\n</tanrei-tree-view>\n```\n\nAn item is an `<li>` whose FIRST child element is its row and whose `<ul>` holds its items. In the row, a\n`.tanrei-icon` is the icon, an element with `data-trailing` the trailing content, one with `data-trailing-text` the\ntrailing text, and the rest is the label: the row's own text, or ONE element around it (a `<bdi>`: text with inline\ncontent, a name whose direction is not the layout's). An element with `data-supporting-text` is the supporting text,\ninside the label's element or directly in the row. On the `<li>`: `data-value` (what identifies it; without one it\ncannot be chosen), `data-open`, `data-expandable` (it will hold items: give them at `toggle`), `data-loading`,\n`data-disabled`. The element sets and removes `data-open` itself when the user opens or closes a parent.\n\nEverything drawn is `@tanrei/web/tree-view.css` — every value a `--tanrei-comp-tree-view-*` token — which draws the\nwhole look before this script runs; the element adds the same sheet to the root it is connected to. The script adds\nwhat a stylesheet cannot: the tree's roles and states, the single tab stop and the keys, the selection, `change` and\n`toggle`, the answer to a press, the motion of a list that is revealed or hidden, the loading row, opening for the\nbrowser's find-in-page, editing names in place and naming new items (`editable`, `edit()`, `create()`), and the debug\nreports. Only the rows that are shown are read: a closed parent's items are\nread when it first opens, so a tree costs what it shows.\n\nThe ROW is the tree item (`role=\"treeitem\"`, `aria-selected`, `aria-expanded`, the tab stop and the focus); its\n`<li>` has no role and a nested list is a `group`, so the level comes from the nesting. An `<li>` holds every row\nunder it, so what changes while the tree is used is said on the row: one row's change styles that row alone. A\nserver that draws the selection in the first frame writes `aria-selected=\"true\"` on the row.",
+          "description": "A hierarchy of items that open and close: rows that begin further in at each level, a chevron at the start or the end\nof every row that holds others (or none, the folder glyph opening), names on one line shown whole in a tooltip where\nthey are cut, the rows of the open parents above what is shown pinned at the top of the scrolling box; read and\nopened only, or with one item or several chosen. One stop in the focus order, moved through with the arrow keys. A\nfile tree in a page, the tokens of a design system, the folders of a product.\n\nContract: specs/tree-view.spec.json. The element has **no shadow root**: its items are the product's own nested\nlists, which stay in the document. Without script the page shows the whole hierarchy as the nested list\nit is.\n\n```html\n<tanrei-tree-view label=\"Project files\" selection=\"single\" value=\"src/index.ts\">\n  <ul>\n    <li data-value=\"src\" data-open>\n      <span>\n        <i class=\"tanrei-icon\">folder</i>\n        <bdi>src<small data-supporting-text>what is published</small></bdi>\n        <span data-trailing-text>12 files</span>\n      </span>\n      <ul>\n        <li data-value=\"src/index.ts\"><span>index.ts</span></li>\n      </ul>\n    </li>\n    <li data-expandable><span>node_modules</span></li>\n  </ul>\n</tanrei-tree-view>\n```\n\nAn item is an `<li>` whose FIRST child element is its row and whose `<ul>` holds its items. In the row, a\n`.tanrei-icon` is the icon, an element with `data-trailing` the trailing content, one with `data-trailing-text` the\ntrailing text, and the rest is the label: the row's own text, or ONE element around it (a `<bdi>`: text with inline\ncontent, a name whose direction is not the layout's). An element with `data-supporting-text` is the supporting text,\ninside the label's element or directly in the row. On the `<li>`: `data-value` (what identifies it; without one it\ncannot be chosen), `data-open`, `data-expandable` (it will hold items: give them at `toggle`), `data-loading`,\n`data-disabled`. The element sets and removes `data-open` itself when the user opens or closes a parent.\n\nEverything drawn is `@tanrei/web/tree-view.css` — every value a `--tanrei-comp-tree-view-*` token — which draws the\nwhole look before this script runs; the element adds the same sheet to the root it is connected to. The script adds\nwhat a stylesheet cannot: the tree's roles and states, the single tab stop and the keys, the selection, `change` and\n`toggle`, the answer to a press, the motion of a list that is revealed or hidden, the loading row, opening for the\nbrowser's find-in-page, editing names in place and naming new items (`editable`, `edit()`, `create()`), and the debug\nreports. Only the rows that are shown are read: a closed parent's items are\nread when it first opens, so a tree costs what it shows.\n\nThe ROW is the tree item (`role=\"treeitem\"`, `aria-selected`, `aria-expanded`, the tab stop and the focus); its\n`<li>` has no role and a nested list is a `group`, so the level comes from the nesting. An `<li>` holds every row\nunder it, so what changes while the tree is used is said on the row: one row's change styles that row alone. A\nserver that draws the selection in the first frame writes `aria-selected=\"true\"` on the row.\n\nFilter (TRV-54 to TRV-71): with `filterable`, the element puts a box of its own before its first list — the filter\nfield (a `<tanrei-text-input type=\"search\">`, `[data-tanrei-filter]`), and after it the status line\n(`[data-tanrei-filter-status]`, hidden from assistive technology) — and takes them away again. It writes on the\nproduct's items only attributes of its own: `data-tanrei-filtered` on an `<li>` a filter hides, and\n`data-tanrei-filter-open` on a closed parent it draws open (never `data-open` or `hidden`), and\n`data-tanrei-filter-active` on the active match's row. It marks no match: the rows a filter leaves are the answer,\nand the product's text is never touched (TRV-60).",
           "name": "TanreiTreeView",
           "slots": [
             {
@@ -51621,6 +51823,107 @@
               "attribute": "loading-label"
             },
             {
+              "kind": "field",
+              "name": "filterable",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws a filter field above the rows (TRV-54): what a person types there narrows the tree to the rows whose label\nholds it, opening for the time being the parents that hold them, and the tree comes back as it was when the field\nis emptied. Off by default: a product that filters on a server, ranks, or matches in another way leaves it off.",
+              "attribute": "filterable",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "filterValue",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The filter text (TRV-55): what the field holds. The tree sets it as the person types, then fires `filterchange`; set it yourself to give a filter back (no event). Empty, or white space, applies none.",
+              "attribute": "filter-value"
+            },
+            {
+              "kind": "field",
+              "name": "filterLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Names the filter field for assistive technology (\"Filter files\"): your words. Required while `filterable`.",
+              "attribute": "filter-label"
+            },
+            {
+              "kind": "field",
+              "name": "filterPlaceholder",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The hint the empty field shows (\"Filter\"): your words, else the product's `filterPlaceholder`.",
+              "attribute": "filter-placeholder"
+            },
+            {
+              "kind": "field",
+              "name": "filterEmptyText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What the tree draws and says while no row matches (\"No matches\"): your words, else the product's `filterEmptyText`.",
+              "attribute": "filter-empty-text"
+            },
+            {
+              "kind": "field",
+              "name": "filterCountText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What the tree draws at the top of the results and says once they settle, with `{count}` for the number of rows that match (\"Matches: {count}\"): your words, else the product's `filterCountText`.",
+              "attribute": "filter-count-text"
+            },
+            {
+              "kind": "field",
+              "name": "filterCountHidden",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Does not draw the count at the top of the results; it is still said (TRV-65, TRV-66).",
+              "attribute": "filter-count-hidden",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "filterClearLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The clear button's name (\"Clear\"): your words, else the product's `clearLabel`.",
+              "attribute": "filter-clear-label"
+            },
+            {
+              "kind": "field",
+              "name": "filterShortcut",
+              "privacy": "public",
+              "type": {
+                "text": "string[]"
+              },
+              "default": "['/']",
+              "description": "The chord that, pressed while focus is on a row, moves focus to the filter field (TRV-62), in the keyboard shortcut's\nkey names: `[\"/\"]` by default (the attribute: chords separated by spaces). A key of the rows, as F2 is: no hint is\ndrawn and the field exposes no keyboard shortcut. Empty binds nothing, and \"/\" is then typed as any character.",
+              "attribute": "filter-shortcut"
+            },
+            {
               "kind": "method",
               "name": "edit",
               "return": {
@@ -51656,6 +51959,11 @@
                 }
               ],
               "description": "Asks for a new item (TRV-48): a row of the tree's own, at the level of the selected item and after its rows, with\nan empty field in which the user names it. `create` carries the name; the product adds the item. Returns whether\nthe row was added (a tree with no list has nowhere to put it)."
+            },
+            {
+              "kind": "method",
+              "name": "focusFilter",
+              "description": "Moves focus to the filter field, its text selected (TRV-63) — as the chord does from a row — whether or not\n`filterShortcut` is empty, so that a product can bind a key of its own for the whole window. Does nothing while\n`filterable` is false or the tree has no items (no field is drawn then)."
             }
           ],
           "events": [
@@ -51665,6 +51973,13 @@
                 "text": "CustomEvent<TanreiTreeViewCreateDetail>"
               },
               "description": "The user named the new item `create()` asked for: `detail.label`, `detail.parent`, and the `<li>` it goes under (`detail.within`, null at the first level) and follows (`detail.after`, null where it is first). The tree's own row is gone; add the item, and the tree moves focus to it."
+            },
+            {
+              "name": "filterchange",
+              "type": {
+                "text": "CustomEvent<TanreiTreeViewFilterChangeDetail>"
+              },
+              "description": "The person changed the filter text (typing, deleting, pasting, an input method, the clear button, Escape): `detail.value` (and `filterValue`) is the new text. Not fired when the product sets `filterValue`."
             },
             {
               "name": "change",
@@ -51859,6 +52174,87 @@
               "default": "''",
               "description": "The words of a loading row (\"Loading…\"), and the name of its indicator. Tanrei ships none.",
               "fieldName": "loadingLabel"
+            },
+            {
+              "name": "filterable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws a filter field above the rows (TRV-54): what a person types there narrows the tree to the rows whose label\nholds it, opening for the time being the parents that hold them, and the tree comes back as it was when the field\nis emptied. Off by default: a product that filters on a server, ranks, or matches in another way leaves it off.",
+              "fieldName": "filterable"
+            },
+            {
+              "name": "filter-value",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The filter text (TRV-55): what the field holds. The tree sets it as the person types, then fires `filterchange`; set it yourself to give a filter back (no event). Empty, or white space, applies none.",
+              "fieldName": "filterValue"
+            },
+            {
+              "name": "filter-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Names the filter field for assistive technology (\"Filter files\"): your words. Required while `filterable`.",
+              "fieldName": "filterLabel"
+            },
+            {
+              "name": "filter-placeholder",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The hint the empty field shows (\"Filter\"): your words, else the product's `filterPlaceholder`.",
+              "fieldName": "filterPlaceholder"
+            },
+            {
+              "name": "filter-empty-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What the tree draws and says while no row matches (\"No matches\"): your words, else the product's `filterEmptyText`.",
+              "fieldName": "filterEmptyText"
+            },
+            {
+              "name": "filter-count-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What the tree draws at the top of the results and says once they settle, with `{count}` for the number of rows that match (\"Matches: {count}\"): your words, else the product's `filterCountText`.",
+              "fieldName": "filterCountText"
+            },
+            {
+              "name": "filter-count-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Does not draw the count at the top of the results; it is still said (TRV-65, TRV-66).",
+              "fieldName": "filterCountHidden"
+            },
+            {
+              "name": "filter-clear-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The clear button's name (\"Clear\"): your words, else the product's `clearLabel`.",
+              "fieldName": "filterClearLabel"
+            },
+            {
+              "name": "filter-shortcut",
+              "type": {
+                "text": "string[]"
+              },
+              "default": "['/']",
+              "description": "The chord that, pressed while focus is on a row, moves focus to the filter field (TRV-62), in the keyboard shortcut's\nkey names: `[\"/\"]` by default (the attribute: chords separated by spaces). A key of the rows, as F2 is: no hint is\ndrawn and the field exposes no keyboard shortcut. Empty binds nothing, and \"/\" is then typed as any character.",
+              "fieldName": "filterShortcut"
             }
           ],
           "superclass": {

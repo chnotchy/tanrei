@@ -188,12 +188,14 @@ test('the repository: which props declare places, the kind of each name, and `va
     'list.dragHandleLabel',
     'list.liftedText',
     'list.movedText',
+    'navigation-drawer.filterCountText',
     'pagination.countText',
     'pagination.href',
     'pagination.pageLabel',
     'stepper.positionText',
     'text-input.counterNoLimitText',
     'text-input.counterText',
+    'tree-view.filterCountText',
   ]);
   const kinds = new Map(loadSpecs().flatMap(({ spec: each }) => [...each.props, ...(each.items ?? []).flatMap((kind) => kind.props ?? [])].flatMap((p) => p.places ?? []).map((p) => [p.name, p.kind])));
   assert.deepEqual([...kinds].sort(), [['count', 'number'], ['entry', 'text'], ['label', 'text'], ['limit', 'number'], ['name', 'text'], ['page', 'number'], ['position', 'number'], ['remaining', 'number']]);

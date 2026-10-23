@@ -390,12 +390,26 @@ export const styles = css`
   /* CMB-22 … CMB-45: the list (src/primitives/option-list.ts). It is exactly as wide as the container. */
   ${optionListStyles({ prefix: PREFIX, variants: [DEFAULT_VARIANT, ...CORE_VARIANTS.filter((v) => v !== DEFAULT_VARIANT)] })}
 
-  /* CMB-38: the run of a label that matched the text: its weight raised by option.match.emphasis over the label's, in
-     the label's own color and with no fill; it wraps with the label as one text. */
+  /* CMB-38: the run of a label that matched the text, marked as the search marks a match (SRC-43): in
+     option.match.color, its weight raised by option.match.emphasis over the label's, over a fill of
+     option.match.container.color that covers its own line boxes — square, unpadded, so the fill moves no text; in the
+     chosen option in option.match.selected.color over option.match.selected.container.color (the quiet fill a match
+     takes elsewhere is the chosen option's own); in a disabled option in the label's disabled color. It wraps with
+     the label as one text. */
   .option-label mark {
-    background: none;
-    color: inherit;
+    margin: 0;
+    border-radius: 0;
+    padding: 0;
+    background-color: var(${P}-option-match-container-color);
+    color: var(${P}-option-match-color);
     font-weight: calc(var(${P}-option-label-typescale-font-weight) + var(${P}-option-match-emphasis));
+  }
+  .row.selected .option-label mark {
+    background-color: var(${P}-option-match-selected-container-color);
+    color: var(${P}-option-match-selected-color);
+  }
+  .row.p.d .option-label mark {
+    color: inherit;
   }
 
   /* CMB-32: the status row, after the last option — inset as an option's row is, taking no input and no state:
@@ -457,7 +471,7 @@ export const styles = css`
   }
   /* CMB-51: forced colors — an edge outline.width wide in the control text color around the container in every
      variant, in the highlight color at the focused width while focused; every text in the text color; the matched run
-     by its weight alone; a disabled combobox in the disabled text color. */
+     in the colors for marked text, its weight raised; a disabled combobox in the disabled text color. */
   @media (forced-colors: active) {
     .container {
       border: var(${B}-outline-width) solid ButtonText;
@@ -485,16 +499,13 @@ export const styles = css`
       color: GrayText;
       -webkit-text-fill-color: GrayText;
     }
-    .option-label mark {
-      forced-color-adjust: none;
-      background: none;
-      color: CanvasText;
-    }
-    .row.p.d .option-label mark {
-      color: GrayText;
-    }
+    .option-label mark,
+    .row.selected .option-label mark,
+    .row.p.d .option-label mark,
     .row.p.active .option-label mark {
-      color: HighlightText;
+      forced-color-adjust: none;
+      background-color: Mark;
+      color: MarkText;
     }
     ${unsafeCSS(DISABLED)} :is(.container, .floating, .floating .asterisk, .input, .icon) {
       color: GrayText;

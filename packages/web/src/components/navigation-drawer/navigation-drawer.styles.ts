@@ -360,6 +360,68 @@ export const drawerStyles = css`
   .header.filled + .items {
     padding-block-start: ${t('header-gap')};
   }
+
+  /* NVD-79: the filter field after the header — header.gap below it (padding-block below the top without one) — across
+     the drawer's width inside its padding-inline, laid out for the expanded drawer as the header is; filter.gap between
+     it and what stands under it (the status line, or the first item). It stays in place while the items scroll. The
+     field is a Text input, drawn from its own tokens. */
+  .filter-box {
+    box-sizing: border-box;
+    flex: none;
+    inline-size: ${t('container-width')};
+    padding-inline: ${t('container-padding-inline')};
+    padding-block: ${t('container-padding-block')} ${t('filter-gap')};
+  }
+  .header.filled + .filter-box {
+    padding-block-start: ${t('header-gap')};
+  }
+  .filter-box + .items {
+    padding-block-start: 0;
+  }
+  .filter {
+    display: block;
+    inline-size: 100%;
+  }
+  /* NVD-87: the key hint — the keyboard shortcut, hosted (KBS-13), in its plain form: a line of text in
+     filter.shortcut.typescale and filter.shortcut.color, with no cap, fill or edge — only while the field is empty and
+     does not have focus. A press on it is a press on the field. */
+  .filter-hint {
+    font: ${t('filter-shortcut-typescale-font')};
+    letter-spacing: ${t('filter-shortcut-typescale-letter-spacing')};
+    color: ${t('filter-shortcut-color')};
+    pointer-events: none;
+  }
+  .filter-hint[hidden] {
+    display: none;
+  }
+  /* NVD-90: the status line at the top of the results — the count, or the words for none — in filter.status.typescale
+     and filter.status.color, inset as a row's content is; the items follow it. */
+  .filter-status {
+    box-sizing: border-box;
+    flex: none;
+    inline-size: ${t('container-width')};
+    padding-inline: calc(${t('container-padding-inline')} + ${d('--_nvd-pad')});
+    font: ${t('filter-status-typescale-font')};
+    letter-spacing: ${t('filter-status-typescale-letter-spacing')};
+    color: ${t('filter-status-color')};
+    overflow-wrap: anywhere;
+  }
+  ${productText('.filter-status', { align: 'start' })}
+  /* NVD-91: the status — read, never drawn. */
+  .filter-said {
+    position: absolute;
+    overflow: hidden;
+    inline-size: 1px;
+    block-size: 1px;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  /* NVD-94: what a filter changes is drawn at once — the groups it opens and closes, and their chevrons (inherited by the
+     groups and cells, which read the same tokens); a group the person opens or closes afterwards moves as it does. */
+  :host([data-filter-change]) {
+    --_nvd-reveal-duration: 0s;
+    ${unsafeCSS(PREFIX)}-motion-disclosure-duration: 0s;
+  }
   /* The change of form's clock: its motion, read through a real property (a duration token is an expression). */
   .clock {
     display: none;
@@ -566,6 +628,10 @@ export const sectionStyles = css`
   :host([hidden]) {
     display: none;
   }
+  /* NVD-82: a section that a filter leaves no row to show is hidden with its heading and its divider. */
+  :host([data-filter-hidden]) {
+    display: none !important;
+  }
   .section {
     display: flex;
     flex-direction: column;
@@ -634,7 +700,8 @@ const set = (suffix: string, skip?: string) =>
 const on = (state: string) => {
   // NVD-67: a hover on the chevron's own button, laid over the end of the cell, is a hover on the cell.
   if (state === ':hover') return '.cell:where(:hover, .split:hover > *):where(:not(.static))';
-  if (state === ':focus-visible') return '.cell:where(:focus-visible)';
+  // NVD-86: the active match is drawn as the row with keyboard focus while focus stays in the filter field.
+  if (state === ':focus-visible') return '.cell:where(:focus-visible, .filter-active)';
   if (state === ':disabled') return '.cell:where(.d)';
   return `.cell:where(:has(.container${state}))`;
 };
@@ -668,6 +735,10 @@ export const cellStyles = css`
   }
   :host([hidden]) {
     display: none;
+  }
+  /* NVD-82: a row a filter hides (and what it holds) is not drawn, takes no space, takes no focus and is not exposed. */
+  :host([data-filter-hidden]) {
+    display: none !important;
   }
   ${unsafeCSS(conditionBlock(PREFIX, 'unselected', PARTS, '.cell'))}
   ${unsafeCSS(conditionBlock(PREFIX, 'selected', PARTS, '.cell.selected'))}
@@ -1166,7 +1237,7 @@ export const cellStyles = css`
   }
   ${rippleStyles({ color: '--_c-p', grow: `${PREFIX}-motion-feedback-duration`, fade: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
   /* NVD-5, NVD-10: the ring (or the glow) around the item container, never animated. */
-  ${focusRing((focus) => `.cell${focus} .container`)}
+  ${focusRing((focus) => `.cell:is(${focus}, .filter-active${focus.replace(':focus-visible', '')}) .container`)}
   ${shape}
   ${pressHold('.hold')}
   .hold {

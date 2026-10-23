@@ -1,5 +1,21 @@
 import type { PropertyDeclarations, PropertyValues } from 'lit';
-import { AvailabilityController, SEPARATIONS, SEPARATION_VALUES, type SeparationProp, compChoice, deepActive, report, styleQueries } from '../../primitives/index.js';
+import {
+  AvailabilityController,
+  type Binding,
+  SEPARATIONS,
+  SEPARATION_VALUES,
+  type SeparationProp,
+  ambientConvention,
+  chordPressed,
+  chordsOf,
+  compChoice,
+  deepActive,
+  platformConvention,
+  readBinding,
+  report,
+  styleQueries,
+  takesText,
+} from '../../primitives/index.js';
 import { debugBuild } from '../../primitives/report.js';
 import { adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
@@ -51,7 +67,17 @@ const FOOTER = '--_aps-footer';
 
 type Root = Document | ShadowRoot;
 /** A navigation drawer in the navigation region, as much of it as the frame uses. */
-type Drawer = HTMLElement & { open: boolean; responsive?: boolean; collapsible?: boolean; presentation?: string | null; updateComplete?: Promise<unknown> };
+type Drawer = HTMLElement & {
+  open: boolean;
+  responsive?: boolean;
+  collapsible?: boolean;
+  presentation?: string | null;
+  updateComplete?: Promise<unknown>;
+  /** APS-33: a drawer that filters its items, its chord, and the request to focus its field (NVD-87, NVD-88). */
+  filterable?: boolean;
+  filterShortcut?: string[];
+  focusFilter?: () => void;
+};
 
 let made: CSSStyleSheet | null | undefined;
 /** The frame's stylesheet, made once and shared by every root that needs it. */
@@ -274,6 +300,8 @@ export class TanreiAppShell extends TanreiLightElement {
     this.style.removeProperty(FOOTER);
     this.unwatch();
     this.listen(null);
+    // APS-33: removed, it listens for no chord.
+    this.syncChord();
     this.header = this.bar = this.footer = this.navigation = null;
     publish(this, OFFSET, null);
     publish(this, OFFSET_END, null);
@@ -505,7 +533,7 @@ export class TanreiAppShell extends TanreiLightElement {
     if (navigation !== this.navigation) {
       this.navigationMutations?.disconnect();
       this.navigation = navigation;
-      if (navigation) this.navigationMutations?.observe(navigation, { attributes: true, attributeFilter: ['collapsible'] });
+      if (navigation) this.navigationMutations?.observe(navigation, { attributes: true, attributeFilter: ['collapsible', 'filterable', 'filter-shortcut'] });
       this.listen(navigation?.localName === 'tanrei-navigation-drawer' ? (navigation as Drawer) : null);
     }
     const presentation = this.presentation;
@@ -516,6 +544,7 @@ export class TanreiAppShell extends TanreiLightElement {
       report(this, 'APS-4', 'the navigation drawer in the navigation region is not responsive: set its responsive attribute, so that the window’s class chooses its presentation as it chooses the frame’s');
     }
     this.syncNavigation();
+    this.syncChord();
 
     // APS-6, APS-18: where the browser answers style queries the stylesheet reads both itself, and nothing is written.
     const queries = styleQueries();
@@ -652,6 +681,45 @@ export class TanreiAppShell extends TanreiLightElement {
       (target as unknown as { ariaControlsElements: Element[] | null }).ariaControlsElements = [controlled];
     }
   }
+
+  // ---- APS-33: a filterable drawer's chord, while the navigation is closed over the content ----
+
+  /** APS-33: the chord the frame listens for now — the drawer's, while it is modal and closed — or null. */
+  private chord: Binding | null = null;
+
+  /**
+   * APS-33: the frame answers a filterable drawer's chord only while its presentation is modal and the navigation is
+   * closed: the drawer is not shown then, and listens for nothing (NVD-87). Where the drawer is shown it answers it
+   * itself. No other key is bound.
+   */
+  private syncChord() {
+    const drawer = this.drawer;
+    const chords = this.isConnected && drawer?.filterable ? chordsOf(drawer.filterShortcut) : [];
+    const next = this.menuShown && !this.navigationOpen && chords.length === 1 ? readBinding(chords[0]) : null;
+    if ((next?.id ?? null) === (this.chord?.id ?? null)) return;
+    if (this.chord) window.removeEventListener('keydown', this.onWindowKeyDown);
+    this.chord = next;
+    if (next) window.addEventListener('keydown', this.onWindowKeyDown);
+  }
+
+  /**
+   * APS-33: the chord opens the navigation as the menu button does (APS-7: navigationopenchange with true) and asks the
+   * drawer to focus its filter (NVD-88), so that focus lands in its field once it is open. Left alone, as the drawer
+   * leaves it (SRC-38): a press something else has taken, a key repeating while held, an input-method composition,
+   * and a chord without mod, ctrl or alt while focus is in an element that takes text.
+   */
+  private readonly onWindowKeyDown = (event: KeyboardEvent) => {
+    const chord = this.chord;
+    const drawer = this.drawer;
+    if (!chord || !drawer?.filterable || event.defaultPrevented || event.repeat || event.isComposing || event.keyCode === 229) return;
+    if (!chordPressed(event, chord, ambientConvention(this) ?? platformConvention())) return;
+    if (!chord.mod && !chord.ctrl && !chord.alt && takesText(deepActive())) return;
+    if (!this.menuShown || this.navigationOpen) return;
+    event.preventDefault();
+    this.setOpen(true, true);
+    this.syncNavigation();
+    drawer.focusFilter?.();
+  };
 
   // ---- APS-20: the skip link ----
 

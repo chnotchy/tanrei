@@ -1,4 +1,4 @@
-// 112 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
+// 113 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
 // GENERATED FILE — DO NOT EDIT.
 // Source: tokens/ (DTCG 2025.10). Regenerate with `pnpm generate`.
 // System values of "cupertino". Generated the same way for every system; the types are in TanreiTokens.swift.
@@ -3119,7 +3119,11 @@ private let cupertinoComboboxTokens = TanreiComboboxTokens(
   motionStateDuration: 250,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   optionLabelTypescale: cupertinoTypescale.bodyLarge,
+  optionMatchColor: .role(.onSurface),
+  optionMatchContainerColor: .role(.secondaryContainer),
   optionMatchEmphasis: 200,
+  optionMatchSelectedColor: .role(.onSecondaryContainer),
+  optionMatchSelectedContainerColor: .role(.surface),
   optionShape: 8,
   optionSupportingTextTypescale: cupertinoTypescale.bodySmall,
   separation: 0,
@@ -6271,6 +6275,11 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
   containerPaddingBlock: 12,
   containerPaddingInline: 12,
   containerWidth: 240,
+  filterGap: 12,
+  filterShortcutColor: .role(.onSurfaceVariant),
+  filterShortcutTypescale: cupertinoTypescale.labelSmall,
+  filterStatusColor: .role(.onSurfaceVariant),
+  filterStatusTypescale: cupertinoTypescale.bodySmall,
   guideColor: .role(.outlineVariant),
   guideWidth: 1,
   headerColor: .role(.onSurface),
@@ -9598,6 +9607,9 @@ private let cupertinoTooltipTokens = TanreiTooltipTokens(
 
 private let cupertinoTreeViewTokens = TanreiTreeViewTokens(
   containerShape: 8,
+  filterGap: 8,
+  filterStatusColor: .role(.onSurfaceVariant),
+  filterStatusTypescale: cupertinoTypescale.bodySmall,
   guideColor: .role(.outlineVariant),
   guideWidth: 1,
   iconGap: 12,

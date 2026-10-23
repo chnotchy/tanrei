@@ -1,5 +1,24 @@
 import type { PropertyDeclarations, PropertyValues } from 'lit';
-import { AvailabilityController, PressController, RovingKeys, findInteractive, lineArrow, report, styleQueries, syncFocusStyle } from '../../primitives/index.js';
+import {
+  AvailabilityController,
+  type Binding,
+  type KeyboardConvention,
+  PressController,
+  RovingKeys,
+  ambientConvention,
+  chordPressed,
+  chordsConverter,
+  chordsOf,
+  findInteractive,
+  lineArrow,
+  platformConvention,
+  readBinding,
+  report,
+  styleQueries,
+  syncFocusStyle,
+} from '../../primitives/index.js';
+import { FILTER_SETTLE_MS, filterWords, holdsWords } from '../../primitives/filter.js';
+import { fillPlaces } from '../../primitives/places.js';
 import { PendingGlyphs, isGlyphProbe } from '../../primitives/glyph-pending.js';
 import { type CutTextContent, CutTextTip, isCut } from '../../primitives/cut-text.js';
 import { TanreiTooltip } from '../tooltip/tooltip.js';
@@ -8,6 +27,10 @@ import { WordsController } from '../../primitives/words.js';
 import type { TanreiTreeViewDensityRegistry } from '../../registry.js';
 import '../loading-indicator/loading-indicator.js';
 import { TanreiEmbeddedTextInput } from '../embedded-text-input/embedded-text-input.js';
+// TRV-54, TRV-64: the filter field is a Text input, and its clear button a Button.
+import '../text-input/text-input.js';
+import '../button/button.js';
+import type { TanreiTextInput } from '../text-input/text-input.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 
@@ -27,6 +50,10 @@ export type TanreiTreeViewHighlight = 'indented' | 'full';
 export interface TanreiTreeViewChangeDetail {
   value?: string | null;
   values?: string[];
+}
+/** What `filterchange` carries: the filter text the person left in the field (which `filterValue` already holds). */
+export interface TanreiTreeViewFilterChangeDetail {
+  value: string;
 }
 /** What an item's `toggle` carries: its new open state. */
 export interface TanreiTreeViewToggleDetail {
@@ -118,6 +145,16 @@ const PINNED = 'data-tanrei-pinned';
 const TIP = 'data-tanrei-tip';
 const EDIT = 'data-tanrei-edit';
 const EDITING = 'data-tanrei-editing';
+/**
+ * The filter (TRV-54 to TRV-71): the element's own box before the first list (the field and the status), the status
+ * line after it, an item a filter hides, a closed parent it draws open, the active match's row, and the clear button.
+ */
+const FILTER_BOX = 'data-tanrei-filter';
+const FILTER_STATUS = 'data-tanrei-filter-status';
+const FILTER_SAID = 'data-tanrei-filter-said';
+const FILTERED = 'data-tanrei-filtered';
+const FILTER_OPEN = 'data-tanrei-filter-open';
+const FILTER_ACTIVE = 'data-tanrei-filter-active';
 /** The parts of a row that are not its label. */
 const PARTS = '.tanrei-icon, [data-supporting-text], [data-trailing], [data-trailing-text], [data-tanrei-loading-box], .ripple, [data-tanrei-tip]';
 /** What an item says: a change of any is read again. */
@@ -219,7 +256,26 @@ const previousItem = (item: Element): Item | null => {
 const isParent = (item: Element) => item.hasAttribute('data-expandable') || !!firstItem(listOf(item));
 /** TRV-49: a tree that is not expandable shows every parent open. */
 const fixedOpen = (item: Element) => item.closest(TAG)?.getAttribute('expandable') === 'false';
-const isOpen = (item: Element) => isParent(item) && (item.hasAttribute('data-open') || fixedOpen(item));
+/** Drawn open: its own `data-open`, opened for a filter (TRV-59), or every parent of a tree that is not expandable (TRV-49). */
+const isOpen = (item: Element) => isParent(item) && (item.hasAttribute('data-open') || item.hasAttribute(FILTER_OPEN) || fixedOpen(item));
+/** TRV-57: an item whose row a filter does not hide. */
+const visible = (node: Element | null | undefined): node is Item => isItem(node) && !node.hasAttribute(FILTERED);
+const firstVisible = (list: Element | null): Item | null => {
+  for (let child = list?.firstElementChild; child; child = child.nextElementSibling) if (visible(child)) return child;
+  return null;
+};
+const lastVisible = (list: Element | null): Item | null => {
+  for (let child = list?.lastElementChild; child; child = child.previousElementSibling) if (visible(child)) return child;
+  return null;
+};
+const nextVisible = (item: Element): Item | null => {
+  for (let sibling = item.nextElementSibling; sibling; sibling = sibling.nextElementSibling) if (visible(sibling)) return sibling;
+  return null;
+};
+const previousVisible = (item: Element): Item | null => {
+  for (let sibling = item.previousElementSibling; sibling; sibling = sibling.previousElementSibling) if (visible(sibling)) return sibling;
+  return null;
+};
 const isDisabled = (item: Element) => item.hasAttribute('data-disabled');
 const valueOf = (item: Element) => item.getAttribute('data-value') ?? '';
 
@@ -291,11 +347,20 @@ let descriptions = 0;
  * under it, so what changes while the tree is used is said on the row: one row's change styles that row alone. A
  * server that draws the selection in the first frame writes `aria-selected="true"` on the row.
  *
+ * Filter (TRV-54 to TRV-71): with `filterable`, the element puts a box of its own before its first list — the filter
+ * field (a `<tanrei-text-input type="search">`, `[data-tanrei-filter]`), and after it the status line
+ * (`[data-tanrei-filter-status]`, hidden from assistive technology) — and takes them away again. It writes on the
+ * product's items only attributes of its own: `data-tanrei-filtered` on an `<li>` a filter hides, and
+ * `data-tanrei-filter-open` on a closed parent it draws open (never `data-open` or `hidden`), and
+ * `data-tanrei-filter-active` on the active match's row. It marks no match: the rows a filter leaves are the answer,
+ * and the product's text is never touched (TRV-60).
+ *
  * @tag tanrei-tree-view
  * @slot - The items: the product's own nested lists (`<ul>` of `<li>`). They are children in the document, not slotted nodes: the element has no shadow root.
  * @fires {CustomEvent<TanreiTreeViewChangeDetail>} change - The user changed the selection: `detail.value` (single) or `detail.values` (multiple) after the change.
  * @fires {CustomEvent<TanreiTreeViewToggleDetail>} toggle - Dispatched on an item's `<li>` (it bubbles): the user, or the browser's find-in-page, opened or closed it; `detail.open` is its new state. The moment to give the items of an `data-expandable` parent.
  * @fires {CustomEvent<TanreiTreeViewRenameDetail>} rename - Dispatched on an item's `<li>` (it bubbles): the user gave it a new name in place; `detail.label` is the name (trimmed, not empty, not the old one) and `detail.previous` the label it had. The tree changes no label: set it to rename the item.
+ * @fires {CustomEvent<TanreiTreeViewFilterChangeDetail>} filterchange - The person changed the filter text (typing, deleting, pasting, an input method, the clear button, Escape): `detail.value` (and `filterValue`) is the new text. Not fired when the product sets `filterValue`.
  * @fires {CustomEvent<TanreiTreeViewCreateDetail>} create - The user named the new item `create()` asked for: `detail.label`, `detail.parent`, and the `<li>` it goes under (`detail.within`, null at the first level) and follows (`detail.after`, null where it is first). The tree's own row is gone; add the item, and the tree moves focus to it.
  */
 export class TanreiTreeView extends TanreiLightElement {
@@ -335,6 +400,15 @@ export class TanreiTreeView extends TanreiLightElement {
     editable: { type: Boolean, reflect: true },
     editLabel: { type: String, attribute: 'edit-label' },
     loadingLabel: { type: String, attribute: 'loading-label' },
+    filterable: { type: Boolean, reflect: true },
+    filterValue: { type: String, attribute: 'filter-value' },
+    filterLabel: { type: String, attribute: 'filter-label' },
+    filterPlaceholder: { type: String, attribute: 'filter-placeholder' },
+    filterEmptyText: { type: String, attribute: 'filter-empty-text' },
+    filterCountText: { type: String, attribute: 'filter-count-text' },
+    filterCountHidden: { type: Boolean, attribute: 'filter-count-hidden', reflect: true },
+    filterClearLabel: { type: String, attribute: 'filter-clear-label' },
+    filterShortcut: { converter: chordsConverter, attribute: 'filter-shortcut' },
   };
 
   /** The accessible name of the tree: what the hierarchy is ("Project files"). Required. */
@@ -393,6 +467,41 @@ export class TanreiTreeView extends TanreiLightElement {
 
   /** The words of a loading row ("Loading…"), and the name of its indicator. Tanrei ships none. */
   loadingLabel = '';
+
+  /**
+   * Draws a filter field above the rows (TRV-54): what a person types there narrows the tree to the rows whose label
+   * holds it, opening for the time being the parents that hold them, and the tree comes back as it was when the field
+   * is emptied. Off by default: a product that filters on a server, ranks, or matches in another way leaves it off.
+   */
+  filterable = false;
+
+  /** The filter text (TRV-55): what the field holds. The tree sets it as the person types, then fires `filterchange`; set it yourself to give a filter back (no event). Empty, or white space, applies none. */
+  filterValue = '';
+
+  /** Names the filter field for assistive technology ("Filter files"): your words. Required while `filterable`. */
+  filterLabel = '';
+
+  /** The hint the empty field shows ("Filter"): your words, else the product's `filterPlaceholder`. */
+  filterPlaceholder = '';
+
+  /** What the tree draws and says while no row matches ("No matches"): your words, else the product's `filterEmptyText`. */
+  filterEmptyText = '';
+
+  /** What the tree draws at the top of the results and says once they settle, with `{count}` for the number of rows that match ("Matches: {count}"): your words, else the product's `filterCountText`. */
+  filterCountText = '';
+
+  /** Does not draw the count at the top of the results; it is still said (TRV-65, TRV-66). */
+  filterCountHidden = false;
+
+  /** The clear button's name ("Clear"): your words, else the product's `clearLabel`. */
+  filterClearLabel = '';
+
+  /**
+   * The chord that, pressed while focus is on a row, moves focus to the filter field (TRV-62), in the keyboard shortcut's
+   * key names: `["/"]` by default (the attribute: chords separated by spaces). A key of the rows, as F2 is: no hint is
+   * drawn and the field exposes no keyboard shortcut. Empty binds nothing, and "/" is then typed as any character.
+   */
+  filterShortcut: string[] = ['/'];
 
   private readonly mutations = typeof MutationObserver === 'undefined' ? null : new MutationObserver((records) => this.mutated(records));
   /** The lists whose items are read: the ones that are shown, or were. */
@@ -455,6 +564,8 @@ export class TanreiTreeView extends TanreiLightElement {
     this.heldRow = null;
     clearTimeout(this.leftTimer);
     this.left = null;
+    // TRV-66: out of the page, it says nothing.
+    clearTimeout(this.sayTimer);
   }
 
   /**
@@ -508,7 +619,7 @@ export class TanreiTreeView extends TanreiLightElement {
     if (changed.has('stickyParents') || changed.has('stickyMax')) this.watchScroll();
     if (changed.has('label') || !this.named) {
       this.named = true;
-      mark(this, 'aria-label', this.label || null);
+      this.writeTreeSemantics();
       // TRV-32: still rendered; a debug build says that the tree has no accessible name.
       if (!this.label && !this.hasAttribute('aria-labelledby')) report(this, 'TRV-32', 'the tree has no accessible name; give it a label');
     }
@@ -521,6 +632,8 @@ export class TanreiTreeView extends TanreiLightElement {
     if (changed.has('editLabel') && this.editing) this.nameField(this.editing.field);
     this.read();
     if (changed.has('selection') || changed.has('value') || changed.has('values')) this.readSelection();
+    // TRV-54 to TRV-71: the field, and the filter of what the tree holds now.
+    this.syncFilter();
   }
 
   /** How the tree chooses now: an unknown selection is none (TRV-41). */
@@ -561,9 +674,10 @@ export class TanreiTreeView extends TanreiLightElement {
 
   // ── The rows that are shown, in the order they are drawn (TRV-20) ─────────────────────────────────────────────
 
+  // (TRV-57: a row a filter hides is not one of them, and TRV-59: a parent a filter opened is open.)
   private firstShown(): Item | null {
     for (const root of this.roots()) {
-      const item = firstItem(root);
+      const item = firstVisible(root);
       if (item) return item;
     }
     return null;
@@ -572,39 +686,39 @@ export class TanreiTreeView extends TanreiLightElement {
   /** The last row shown in the subtree of `item`: itself, or the last under its last open descendant. */
   private lastUnder(item: Item): Item {
     let at = item;
-    for (let inner = isOpen(at) ? lastItem(listOf(at)) : null; inner; inner = isOpen(at) ? lastItem(listOf(at)) : null) at = inner;
+    for (let inner = isOpen(at) ? lastVisible(listOf(at)) : null; inner; inner = isOpen(at) ? lastVisible(listOf(at)) : null) at = inner;
     return at;
   }
 
   private lastShown(): Item | null {
     const roots = this.roots();
     for (let index = roots.length - 1; index >= 0; index -= 1) {
-      const item = lastItem(roots[index]);
+      const item = lastVisible(roots[index]);
       if (item) return this.lastUnder(item);
     }
     return null;
   }
 
   private nextShown(item: Item): Item | null {
-    const inner = isOpen(item) ? firstItem(listOf(item)) : null;
+    const inner = isOpen(item) ? firstVisible(listOf(item)) : null;
     if (inner) return inner;
     for (let at: Item | null = item; at; at = this.parentOf(at)) {
-      const sibling = nextItem(at);
+      const sibling = nextVisible(at);
       if (sibling) return sibling;
     }
     return null;
   }
 
   private previousShown(item: Item): Item | null {
-    const sibling = previousItem(item);
+    const sibling = previousVisible(item);
     return sibling ? this.lastUnder(sibling) : this.parentOf(item);
   }
 
-  /** Whether an item's row is drawn: every parent above it is open. */
+  /** Whether an item's row is drawn: no filter hides it, and every parent above it is open. */
   private shown(item: Element | null): item is Item {
-    if (!isItem(item) || !this.contains(item)) return false;
+    if (!isItem(item) || !this.contains(item) || item.hasAttribute(FILTERED)) return false;
     const fixed = !this.expandable;
-    for (let above = this.parentOf(item); above; above = this.parentOf(above)) if (!fixed && !above.hasAttribute('data-open')) return false;
+    for (let above = this.parentOf(item); above; above = this.parentOf(above)) if (!fixed && !above.hasAttribute('data-open') && !above.hasAttribute(FILTER_OPEN)) return false;
     return true;
   }
 
@@ -619,8 +733,7 @@ export class TanreiTreeView extends TanreiLightElement {
     const roots = this.roots();
     // TRV-42: a tree with no items exposes nothing.
     const any = roots.some((root) => !!firstItem(root));
-    mark(this, 'role', any ? 'tree' : null);
-    mark(this, 'aria-multiselectable', any && this.mode === 'multiple' ? 'true' : null);
+    this.writeTreeSemantics(any);
     for (const root of roots) this.readList(root, false);
     this.readStop();
     this.glyphs.read();
@@ -628,9 +741,41 @@ export class TanreiTreeView extends TanreiLightElement {
     this.schedulePin();
   }
 
+  /**
+   * The element that is the tree to assistive technology — its role, its name, whether it is multiselectable — the
+   * element itself; while the filter's field stands in it (TRV-54, TRV-71), its first list, so that the field and the
+   * status are outside the tree and not items of it: the other lists of the first level are owned by that one.
+   */
+  private semantics: HTMLElement | null = null;
+  private writeTreeSemantics(any = this.roots().some((root) => !!firstItem(root))) {
+    const roots = this.roots();
+    const owner: HTMLElement = this.filterBox && roots[0] ? roots[0] : this;
+    type Owner = HTMLElement & { ariaOwnsElements?: Element[] | null };
+    const before = this.semantics as Owner | null;
+    if (before && before !== owner) {
+      if (before !== this) {
+        mark(before, 'role', 'none');
+        if ('ariaOwnsElements' in before) before.ariaOwnsElements = null;
+      }
+      mark(before, 'aria-label', null);
+      mark(before, 'aria-multiselectable', null);
+      if (before === this) mark(this, 'role', null);
+    }
+    this.semantics = owner;
+    mark(owner, 'role', any ? 'tree' : owner === this ? null : 'none');
+    mark(owner, 'aria-label', owner === this || any ? this.label || null : null);
+    mark(owner, 'aria-multiselectable', any && this.mode === 'multiple' ? 'true' : null);
+    const others = owner === this ? null : roots.slice(1);
+    const held = owner as Owner;
+    if (owner !== this && 'ariaOwnsElements' in held) {
+      const now = held.ariaOwnsElements ?? [];
+      if (now.length !== (others?.length ?? 0) || now.some((element, index) => element !== others?.[index])) held.ariaOwnsElements = others?.length ? others : null;
+    }
+  }
+
   /** A list that is shown: its role, and each of its items. */
   private readList(list: HTMLElement, nested: boolean) {
-    mark(list, 'role', nested ? 'group' : 'none');
+    mark(list, 'role', nested ? 'group' : list === this.semantics ? 'tree' : 'none');
     if (this.live.has(list)) return;
     this.live.add(list);
     for (let child = list.firstElementChild; child; child = child.nextElementSibling) if (isItem(child)) this.readItem(child);
@@ -663,7 +808,8 @@ export class TanreiTreeView extends TanreiLightElement {
     const parent = isParent(item);
     const row = rowOf(item);
     if (row) {
-      mark(row, 'aria-expanded', parent && this.expandable ? String(item.hasAttribute('data-open')) : null);
+      // TRV-59: a parent a filter opened is exposed as expanded while it is drawn open.
+      mark(row, 'aria-expanded', parent && this.expandable ? String(item.hasAttribute('data-open') || item.hasAttribute(FILTER_OPEN)) : null);
       mark(row, 'aria-disabled', isDisabled(item) ? 'true' : null);
       // TRV-13: busy while it is loading, open or closed.
       mark(row, 'aria-busy', parent && item.hasAttribute('data-loading') ? 'true' : null);
@@ -748,6 +894,8 @@ export class TanreiTreeView extends TanreiLightElement {
    */
   private readStop() {
     let stop: Item | null = this.shown(this.last) ? this.last : null;
+    // TRV-68: while a filter hides the row that had focus last, the active match, in place of TRV-19's first choice.
+    if (!stop && this.filter.applied) stop = this.findActive(this.filter);
     if (!stop) {
       for (const item of this.selected) {
         if (!this.shown(item)) continue;
@@ -890,10 +1038,13 @@ export class TanreiTreeView extends TanreiLightElement {
   // ── What the observer saw ─────────────────────────────────────────────────────────────────────────────────────
 
   private mutated(records: MutationRecord[]) {
-    const own = (node: Node) => isGlyphProbe(node) || (node instanceof Element && (node.classList.contains('ripple') || node.hasAttribute(LOADING) || node.hasAttribute(OWN_LIST) || node.hasAttribute(NEW) || node.hasAttribute(EDIT) || node.hasAttribute(TIP)));
+    const own = (node: Node) =>
+      isGlyphProbe(node) || (node instanceof Element && (node.classList.contains('ripple') || node.hasAttribute(LOADING) || node.hasAttribute(OWN_LIST) || node.hasAttribute(NEW) || node.hasAttribute(EDIT) || node.hasAttribute(TIP) || node.hasAttribute(FILTER_BOX) || node.hasAttribute(FILTER_STATUS)));
     const items = new Set<Item>();
     let structure = false;
     for (const record of records) {
+      // TRV-54: what changes in the filter's own box and status line is the element's own.
+      if ((this.filterBox && this.filterBox.contains(record.target)) || (this.filterLine && this.filterLine.contains(record.target))) continue;
       if (record.type === 'attributes') {
         const item = record.target;
         if (!isItem(item) || !this.opens.has(item) || item.closest(TAG) !== this) continue;
@@ -946,6 +1097,8 @@ export class TanreiTreeView extends TanreiLightElement {
       this.read();
       if (this.mode !== 'none') this.readSelection();
     } else this.readStop();
+    // TRV-56, TRV-66: the items or their labels changed: the filter applies to what the tree holds now.
+    if (this.filterable) this.syncFilter();
   }
 
   /**
@@ -983,12 +1136,33 @@ export class TanreiTreeView extends TanreiLightElement {
 
   /** The user (or the browser's search) opens or closes a parent: its `data-open`, its drawing, and its `toggle`, once. */
   private toggle(item: Item, open: boolean, atOnce = false) {
-    if (!this.expandable || item.hasAttribute('data-open') === open) return;
+    if (!this.expandable) return;
+    // TRV-59: opened or closed by the person while a filter is applied — the filter stops opening it until its text
+    // changes. Closing a parent the filter opened changes no `data-open`: it closes, with its motion, and nothing is
+    // emitted; opening one makes it the person's own.
+    if (this.filter.applied) {
+      this.toggledInFilter.add(item);
+      this.filter.opened.delete(item);
+      if (item.hasAttribute(FILTER_OPEN)) {
+        item.removeAttribute(FILTER_OPEN);
+        if (!open) {
+          this.draw(item, false, atOnce);
+          this.filter = { ...this.filter, active: this.findActive(this.filter) };
+          this.writeActive();
+          return;
+        }
+      }
+    }
+    if (item.hasAttribute('data-open') === open) return;
     this.opens.set(item, open);
     item.toggleAttribute('data-open', open);
     this.draw(item, open, atOnce);
     // TRV-11: when the change begins, not when the motion ends.
     item.dispatchEvent(new CustomEvent<TanreiTreeViewToggleDetail>('toggle', { bubbles: true, detail: { open } }));
+    if (this.filter.applied) {
+      this.filter = { ...this.filter, active: this.findActive(this.filter) };
+      this.writeActive();
+    }
   }
 
   /** Draws a change of an item's open: its state, its list revealed or hidden, and the focus kept (TRV-12). */
@@ -1291,6 +1465,8 @@ export class TanreiTreeView extends TanreiLightElement {
     editing.box.remove();
     row?.removeAttribute(EDITING);
     if (!editing.item) editing.li.remove();
+    // TRV-68: the row kept for its field is filtered again once the field closes.
+    if (this.filter.applied) queueMicrotask(() => this.applyFilter());
     return editing;
   }
 
@@ -1384,6 +1560,476 @@ export class TanreiTreeView extends TanreiLightElement {
     const name = labelOf(item);
     const note = supporting?.textContent?.replace(/\s+/g, ' ').trim() ?? '';
     return note ? { title: name, text: note } : { text: name };
+  }
+
+  // ── The filter (TRV-54 to TRV-71) ─────────────────────────────────────────────────────────────────────────────
+
+  /** TRV-56…59: what the filter does now, as it was last reckoned. */
+  private filter: TreeFilter = NO_FILTER;
+  /** TRV-59: the words it was reckoned for; the parents the person opened or closed while they held. */
+  private filterKey = '';
+  private readonly toggledInFilter = new Set<Item>();
+  /** TRV-54: the box of the element's own before the first list — the field and the status — and the status line after it. */
+  private filterBox: HTMLElement | null = null;
+  private filterField: TanreiTextInput | null = null;
+  private filterLine: HTMLElement | null = null;
+  private filterSaid: HTMLElement | null = null;
+  /** TRV-61: focus is in the field — the active match is drawn only while it is. */
+  private fieldFocused = false;
+  /** TRV-61, TRV-62: the row the chord came from, for Escape in the empty field. */
+  private filterOpener: Item | null = null;
+  /** TRV-66: the result being waited for, and the timer of its pause. */
+  private saidFor = '';
+  private sayTimer: ReturnType<typeof setTimeout> | undefined;
+  /** TRV-71: the native input the field's semantics are written on, and what was written. */
+  private filterRow: HTMLElement | null = null;
+
+  /** The active match of TRV-61: the first row shown that matches and is not disabled. */
+  private get activeMatch(): Item | null {
+    return this.filter.active;
+  }
+
+  /**
+   * Moves focus to the filter field, its text selected (TRV-63) — as the chord does from a row — whether or not
+   * `filterShortcut` is empty, so that a product can bind a key of its own for the whole window. Does nothing while
+   * `filterable` is false or the tree has no items (no field is drawn then).
+   */
+  focusFilter() {
+    if (!this.filterable) return;
+    this.focusField(true);
+  }
+
+  private focusField(select: boolean) {
+    const field = this.filterField;
+    if (!field?.isConnected) return;
+    field.focus();
+    if (select) void field.updateComplete.then(() => field.select());
+  }
+
+  /**
+   * TRV-54: the field, the status line and the status — written while filterable is true and the tree has items, before
+   * its first list, and taken away otherwise; then the filter applied to what the tree holds now.
+   */
+  private syncFilter() {
+    const any = this.roots().some((root) => !!firstItem(root));
+    if (!this.filterable || !any || !this.isConnected) {
+      const had = !!this.filterBox;
+      this.removeFilterBox();
+      if (had) this.writeTreeSemantics();
+      this.applyFilter();
+      return;
+    }
+    if (!this.filterBox) this.makeFilterBox();
+    const box = this.filterBox!;
+    const line = this.filterLine!;
+    const first = this.roots()[0] ?? null;
+    if (box.nextElementSibling !== line || line.nextElementSibling !== first || box.parentElement !== this) {
+      this.insertBefore(box, first);
+      this.insertBefore(line, first);
+    }
+    // TRV-54: the field stays at the top of the scrolling box the tree stands in (where it stands in one).
+    mark(box, 'data-tanrei-sticky', scrollBoxOf(this) ? '' : null);
+    const field = this.filterField!;
+    const value = this.filterValue ?? '';
+    if (field.label !== this.filterLabel) field.label = this.filterLabel;
+    const placeholder = this.words.get('filterPlaceholder', this.filterPlaceholder);
+    if (field.placeholder !== placeholder) field.placeholder = placeholder;
+    if (field.value !== value) field.value = value;
+    this.writeClear(!!value);
+    this.writeTreeSemantics();
+    this.applyFilter();
+    this.reportFilter();
+  }
+
+  /** TRV-54, TRV-64, TRV-66: the box of the element's own — the field with its glyph, and the status, read and not drawn. */
+  private makeFilterBox() {
+    const box = document.createElement('div');
+    box.setAttribute(FILTER_BOX, '');
+    const field = document.createElement('tanrei-text-input') as TanreiTextInput;
+    field.setAttribute('type', 'search');
+    field.setAttribute('variant', 'stacked');
+    field.setAttribute('size', 'small');
+    field.setAttribute('autocomplete', 'off');
+    const glyph = document.createElement('span');
+    glyph.setAttribute('slot', 'leading-icon');
+    glyph.setAttribute('aria-hidden', 'true');
+    glyph.textContent = 'search';
+    field.append(glyph);
+    const said = document.createElement('span');
+    said.setAttribute(FILTER_SAID, '');
+    said.setAttribute('role', 'status');
+    said.setAttribute('aria-atomic', 'true');
+    box.append(field, said);
+    const line = document.createElement('div');
+    line.setAttribute(FILTER_STATUS, '');
+    line.setAttribute('aria-hidden', 'true');
+    line.setAttribute('dir', 'auto');
+    // The field's own events are its own: its change, input and action are not the tree's.
+    for (const type of ['change', 'input', 'action']) box.addEventListener(type, (event) => event.stopPropagation());
+    field.addEventListener('input', this.onFilterInput);
+    field.addEventListener('keydown', this.onFilterKeyDown);
+    box.addEventListener('focusin', this.onFilterFocusIn);
+    box.addEventListener('focusout', this.onFilterFocusOut);
+    this.filterBox = box;
+    this.filterField = field;
+    this.filterLine = line;
+    this.filterSaid = said;
+  }
+
+  private removeFilterBox() {
+    if (!this.filterBox) return;
+    this.filterBox.remove();
+    this.filterLine?.remove();
+    this.filterBox = null;
+    this.filterField = null;
+    this.filterLine = null;
+    this.filterSaid = null;
+    this.fieldFocused = false;
+    clearTimeout(this.sayTimer);
+    this.saidFor = '';
+  }
+
+  /** TRV-64: the clear button, while the field holds text: an icon-only text Button, small, showing close, not mirrored. */
+  private writeClear(shown: boolean) {
+    const field = this.filterField;
+    if (!field) return;
+    let button = field.querySelector<HTMLElement & { label: string }>(':scope > [data-tanrei-filter-clear]');
+    if (!shown) {
+      button?.remove();
+      return;
+    }
+    if (!button) {
+      button = document.createElement('tanrei-button') as HTMLElement & { label: string };
+      button.setAttribute('data-tanrei-filter-clear', '');
+      button.setAttribute('slot', 'trailing-icon');
+      button.setAttribute('variant', 'text');
+      button.setAttribute('size', 'small');
+      const glyph = document.createElement('span');
+      glyph.setAttribute('slot', 'icon');
+      glyph.setAttribute('data-mirror', 'never');
+      glyph.textContent = 'close';
+      button.append(glyph);
+      button.addEventListener('click', this.onFilterClear);
+      field.append(button);
+    }
+    const name = this.words.get('clearLabel', this.filterClearLabel);
+    if (button.getAttribute('label') !== name) button.setAttribute('label', name);
+  }
+
+  /** TRV-55: the person changed the text: filterValue first, then filterchange, once; the filter applies at once. */
+  private setFilterByPerson(value: string) {
+    if (value === (this.filterValue ?? '')) return;
+    this.filterValue = value;
+    this.dispatchEvent(new CustomEvent<TanreiTreeViewFilterChangeDetail>('filterchange', { bubbles: true, detail: { value } }));
+    // At once, not at the next update: the rows are drawn for the text the person sees.
+    this.syncFilter();
+  }
+
+  /** TRV-55: what the field reports — during an input method's composition too (the native input's own value). */
+  private readonly onFilterInput = (event: Event) => {
+    const native = event.composedPath()[0];
+    const value = native instanceof HTMLInputElement ? native.value : (this.filterField?.value ?? '');
+    this.setFilterByPerson(value);
+  };
+
+  /** TRV-64: the clear button empties the field and gives it focus. */
+  private readonly onFilterClear = (event: Event) => {
+    event.stopPropagation();
+    this.setFilterByPerson('');
+    this.focusField(false);
+  };
+
+  /**
+   * TRV-61: in the field — Enter takes the active match as Enter on its row would, Down Arrow moves focus to it; Escape
+   * empties the field, or, empty, returns focus to the row the chord came from, or passes on. An input method's keys are
+   * its own, and so are the clear button's.
+   */
+  private readonly onFilterKeyDown = (event: KeyboardEvent) => {
+    if (event.defaultPrevented || event.isComposing || event.keyCode === 229) return;
+    if (event.composedPath().some((node) => node instanceof Element && node.hasAttribute('data-tanrei-filter-clear'))) return;
+    const plain = !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey;
+    if ((event.key === 'Enter' || event.key === 'ArrowDown') && plain) {
+      const active = this.activeMatch;
+      if (!active) return;
+      event.preventDefault();
+      if (event.key === 'ArrowDown') this.focusRow(active);
+      else if (!event.repeat && this.answers(active)) this.activate(active, false);
+      return;
+    }
+    if (event.key !== 'Escape') return;
+    if (this.filterValue) {
+      // As a native search field empties itself: the tree does it, so that it is said once (filterchange).
+      event.preventDefault();
+      event.stopPropagation();
+      this.setFilterByPerson('');
+      return;
+    }
+    const opener = this.filterOpener;
+    this.filterOpener = null;
+    if (opener && this.shown(opener)) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.focusRow(opener);
+    }
+  };
+
+  private readonly onFilterFocusIn = () => {
+    if (this.fieldFocused) return;
+    this.fieldFocused = true;
+    this.writeActive();
+  };
+
+  private readonly onFilterFocusOut = (event: FocusEvent) => {
+    const to = event.relatedTarget;
+    if (to instanceof Node && this.filterBox?.contains(to)) return;
+    this.fieldFocused = false;
+    this.writeActive();
+  };
+
+  /** TRV-62: the chord of filterShortcut, as a binding; null while it is not exactly one chord. */
+  private get filterBinding(): Binding | null {
+    const chords = chordsOf(this.filterShortcut);
+    return chords.length === 1 ? readBinding(chords[0]) : null;
+  }
+
+  /** TRV-62, KBS-2: whose keyboard the chord is read for — the nearest ancestor's convention, else the platform's. */
+  private get convention(): KeyboardConvention {
+    return ambientConvention(this) ?? platformConvention();
+  }
+
+  /** The words of a filter text as the tree reads them now: none while it is not filterable or the field is not drawn. */
+  private filterWordsNow(): string[] {
+    return this.filterable && this.filterBox ? filterWords(this.filterValue ?? '') : [];
+  }
+
+  /**
+   * TRV-56 to TRV-59, TRV-68: the filter of filterValue over every item the tree holds — read or not, under a closed
+   * parent or not — written on the items: the rows a filter hides (`data-tanrei-filtered`), the closed parents it draws
+   * open (`data-tanrei-filter-open`, at once, with no toggle and no `data-open`); then the status line, the status, the
+   * active match, the focus and the scroll. No match is marked (TRV-60).
+   */
+  private applyFilter() {
+    const words = this.filterWordsNow();
+    const key = words.join('\u0000');
+    const keyChanged = key !== this.filterKey;
+    if (keyChanged) {
+      this.filterKey = key;
+      // TRV-59: a parent the person opened or closed is opened for the filter again once the text changes.
+      this.toggledInFilter.clear();
+    }
+    const before = this.filter;
+    // TRV-68: the row that has focus now — read first: an engine takes focus from a row that a style hides as soon as it
+    // computes the style, before this has written everything.
+    const focusedItem = this.active;
+    // TRV-67: a row with keyboard focus keeps its place in the view when the filter ends.
+    const scroller = scrollBoxOf(this);
+    const kept = !words.length && before.applied && this.active ? rowOf(this.active) : null;
+    const keptTop = kept ? kept.getBoundingClientRect().top : null;
+    const next = words.length ? this.reckonFilter(words) : NO_FILTER;
+    this.filter = next;
+    for (const item of before.hidden) if (!next.hidden.has(item)) item.removeAttribute(FILTERED);
+    for (const item of next.hidden) mark(item, FILTERED, '');
+    for (const item of before.opened) {
+      if (next.opened.has(item) || !item.hasAttribute(FILTER_OPEN)) continue;
+      item.removeAttribute(FILTER_OPEN);
+      // TRV-59, TRV-70: closed again at once, without the motion of TRV-11 and with no toggle.
+      if (item.isConnected) this.draw(item, isOpen(item), true);
+    }
+    for (const item of next.opened) {
+      if (item.hasAttribute(FILTER_OPEN)) continue;
+      item.setAttribute(FILTER_OPEN, '');
+      this.draw(item, true, true);
+    }
+    // The rows a filter hid or showed again: the tab stop (TRV-19, TRV-68), the positions (TRV-71) and the pins.
+    if (next !== before) {
+      this.filter = { ...next, active: this.findActive(next) };
+      this.writePositions(before, this.filter);
+      this.readStop();
+      this.schedulePin();
+    }
+    this.writeStatus();
+    this.writeActive();
+    // TRV-68: a filter that came to hide the row that has keyboard focus gives focus to the field.
+    const now = document.activeElement;
+    const stillThere = !!focusedItem && !!now && focusedItem.contains(now);
+    if (focusedItem && !this.shown(focusedItem) && this.filterField && (!now || now === document.body || stillThere)) this.focusField(false);
+    // TRV-67: a changed text brings the field and the first row into view; the end of the filter keeps a focused row where it was.
+    if (scroller && next.applied && keyChanged) {
+      const box = scroller.getBoundingClientRect();
+      const top = this.getBoundingClientRect().top - box.top - scroller.clientTop - (Number.parseFloat(getComputedStyle(scroller).paddingTop) || 0);
+      if (top < 0) scroller.scrollTop += top;
+    } else if (scroller && kept && keptTop !== null && kept.isConnected) {
+      const moved = kept.getBoundingClientRect().top - keptTop;
+      if (moved) scroller.scrollTop += moved;
+    }
+  }
+
+  /** TRV-56 to TRV-59, TRV-68: which items match, which rows a filter hides, and which closed parents it opens. */
+  private reckonFilter(words: string[]): TreeFilter {
+    const items = [...this.querySelectorAll<Item>('li')].filter((li) => isItem(li) && li.closest(TAG) === this);
+    const matches = new Set<Item>();
+    for (const item of items) {
+      const row = rowOf(item);
+      if (row && holdsWords(labelTextNodes(row).map((node) => node.data).join(''), words)) matches.add(item);
+    }
+    const ancestors = (item: Element) => {
+      const above: Item[] = [];
+      for (let at = this.parentOf(item); at; at = this.parentOf(at)) above.push(at);
+      return above;
+    };
+    // TRV-57: each match, each parent that holds one, and the whole of a parent found by its own name; TRV-68: the row
+    // whose name is edited, and the new row's parents, until the field closes.
+    const shown = new Set<Item>();
+    const keep = (item: Item) => {
+      shown.add(item);
+      for (const above of ancestors(item)) shown.add(above);
+    };
+    for (const item of matches) {
+      keep(item);
+      const list = listOf(item);
+      if (list && isParent(item)) for (const inner of list.querySelectorAll<Item>('li')) if (isItem(inner)) shown.add(inner);
+    }
+    const editing = this.editing;
+    if (editing?.item) keep(editing.item);
+    if (editing && !editing.item) for (const above of ancestors(editing.li)) keep(above);
+    const hidden = new Set<Item>();
+    for (const item of items) if (!shown.has(item)) hidden.add(item);
+    // TRV-59: each closed parent that holds a match, drawn open for the filter — unless the person opened or closed it.
+    const opened = new Set<Item>();
+    if (this.expandable) {
+      for (const item of matches) {
+        if (hidden.has(item)) continue;
+        for (const above of ancestors(item)) if (!above.hasAttribute('data-open') && !this.toggledInFilter.has(above)) opened.add(above);
+      }
+    }
+    return { applied: true, matches, hidden, opened, active: null };
+  }
+
+  /** TRV-61: the first row shown that matches and is not disabled, in the order drawn (read once the rows are written). */
+  private findActive(filter: TreeFilter): Item | null {
+    if (!filter.applied || !filter.matches.size) return null;
+    for (let at = this.firstShown(); at; at = this.nextShown(at)) if (filter.matches.has(at) && !isDisabled(at)) return at;
+    return null;
+  }
+
+  /**
+   * TRV-71: while a filter hides rows, each row shown says its position among the rows shown of its parent and their
+   * number (the browser would count the hidden ones too in some engines); written by the element, and taken away again.
+   */
+  private readonly positioned = new Set<HTMLElement>();
+  private writePositions(_before: TreeFilter, after: TreeFilter) {
+    const rows = new Set<HTMLElement>();
+    if (after.hidden.size) {
+      const lists = new Set<Element>();
+      for (let at = this.firstShown(); at; at = this.nextShown(at)) if (at.parentElement) lists.add(at.parentElement);
+      for (const list of lists) {
+        const shown = itemsIn(list).filter((item) => !item.hasAttribute(FILTERED));
+        shown.forEach((item, index) => {
+          const row = rowOf(item);
+          if (!row) return;
+          mark(row, 'aria-posinset', String(index + 1));
+          mark(row, 'aria-setsize', String(shown.length));
+          rows.add(row);
+        });
+      }
+    }
+    for (const row of this.positioned) {
+      if (rows.has(row)) continue;
+      row.removeAttribute('aria-posinset');
+      row.removeAttribute('aria-setsize');
+    }
+    this.positioned.clear();
+    for (const row of rows) this.positioned.add(row);
+  }
+
+  /** TRV-65: the status line's words now — the count, or the words for none; empty while it draws none. */
+  private lineText(): string {
+    const { applied, matches } = this.filter;
+    if (!applied) return '';
+    if (!matches.size) return this.words.get('filterEmptyText', this.filterEmptyText);
+    return this.filterCountHidden ? '' : this.countWords(matches.size);
+  }
+
+  /** TRV-65, TRV-66: filterCountText with {count} filled by the number of rows that match. */
+  private countWords(count: number): string {
+    const sentence = this.words.get('filterCountText', this.filterCountText);
+    if (!sentence) return '';
+    const number = new Intl.NumberFormat(this.closest('[lang]')?.getAttribute('lang') || undefined).format(count);
+    return fillPlaces(sentence, { count: number })
+      .runs.map((run) => run.text)
+      .join('');
+  }
+
+  /**
+   * TRV-65: the status line at the top of the results; TRV-66: the status, said once the result has stayed as it is
+   * for the pause — cleared at every change, and empty while no filter is applied.
+   */
+  private writeStatus() {
+    const line = this.filterLine;
+    if (line) {
+      const text = this.lineText();
+      if (line.textContent !== text) line.textContent = text;
+      line.toggleAttribute('hidden', !text);
+    }
+    const { applied, matches } = this.filter;
+    const result = applied ? [this.filterKey, matches.size, ...[...matches].map((item) => labelOf(item))].join('\u0001') : '';
+    if (result === this.saidFor) return;
+    this.saidFor = result;
+    clearTimeout(this.sayTimer);
+    if (this.filterSaid && this.filterSaid.textContent) this.filterSaid.textContent = '';
+    if (!applied) return;
+    this.sayTimer = setTimeout(() => {
+      const said = this.filterSaid;
+      if (!said) return;
+      const count = this.filter.matches.size;
+      said.textContent = count ? this.countWords(count) : this.words.get('filterEmptyText', this.filterEmptyText);
+    }, FILTER_SETTLE_MS);
+  }
+
+  /**
+   * TRV-61, TRV-71: the active match is drawn as the row with keyboard focus (`data-tanrei-filter-active` on its row)
+   * while focus is in the field, and is not named to assistive technology — no active descendant — until the person
+   * moves to it with Down Arrow, which gives it focus; the field controls the tree.
+   */
+  private writeActive() {
+    const row = this.fieldFocused && this.activeMatch ? rowOf(this.activeMatch) : null;
+    if (this.filterRow && this.filterRow !== row) this.filterRow.removeAttribute(FILTER_ACTIVE);
+    if (row) {
+      row.setAttribute(FILTER_ACTIVE, '');
+      // TRV-30: where the browser has no style queries, the focus style is read for the active match as for a focused row.
+      if (!styleQueries()) syncFocusStyle(this, row);
+    }
+    this.filterRow = row;
+    const field = this.filterField;
+    if (!field) return;
+    void field.updateComplete.then(() => {
+      type Aria = HTMLElement & { ariaControlsElements?: Element[] | null };
+      const native = field.shadowRoot?.querySelector<Aria>('input');
+      if (!native) return;
+      if ('ariaControlsElements' in native) native.ariaControlsElements = this.semantics ? [this.semantics] : null;
+    });
+  }
+
+  /** TRV-54, TRV-62, TRV-64 to TRV-66, TRV-71: what a debug build says about a field that is drawn. */
+  private reportFilter() {
+    if (!this.filterBox) return;
+    if (!this.filterLabel.trim()) report(this, 'TRV-71', 'filterable is true and filterLabel is empty, so the filter field has no accessible name; give it one in the product’s language');
+    if (chordsOf(this.filterShortcut).length > 1) report(this, 'TRV-62', `filterShortcut holds ${chordsOf(this.filterShortcut).length} chords; a sequence is not bound, so the rows answer no chord for the field`);
+    if (!this.words.get('filterPlaceholder', this.filterPlaceholder)) this.words.missing('filterPlaceholder', { id: 'TRV-54', effect: 'the empty filter field shows no hint' });
+    if (this.filterValue && this.words.lacks('clearLabel', this.filterClearLabel)) report(this, 'TRV-64', 'filterClearLabel is empty and the product’s words give none, so the clear button has no accessible name; give it one in the product’s language');
+    const { applied, matches } = this.filter;
+    if (applied && !matches.size && !this.words.get('filterEmptyText', this.filterEmptyText)) this.words.missing('filterEmptyText', { id: 'TRV-65', effect: 'a filter that matches nothing draws and says nothing' });
+    if (applied && matches.size && !this.words.get('filterCountText', this.filterCountText)) this.words.missing('filterCountText', { id: 'TRV-66', effect: 'no count of the rows that match is drawn or said' });
+  }
+
+  /**
+   * TRV-69: Escape on a row while a filter is applied empties it; the row keeps focus and its place in the view. A row
+   * that only the filter showed — under parents the filter opened — stays shown: those parents are opened as the person
+   * would open them (each one's toggle), so that the person who found an item sees it among its neighbours.
+   */
+  private emptyFromRow(item: Item) {
+    for (let above = this.parentOf(item); above; above = this.parentOf(above)) if (above.hasAttribute(FILTER_OPEN)) this.toggle(above, true, true);
+    this.setFilterByPerson('');
   }
 
   // ── Choosing several (TRV-52) ─────────────────────────────────────────────────────────────────────────────────
@@ -1526,7 +2172,11 @@ export class TanreiTreeView extends TanreiLightElement {
     const max = Math.floor(this.stickyMax);
     if (!box || !box.isConnected || !this.stickyParents || !(max > 0)) return this.unpin();
     // (A pinned row sticks to the box's content edge: inside its padding.)
-    const top = box.getBoundingClientRect().top + box.clientTop + (Number.parseFloat(getComputedStyle(box).paddingTop) || 0);
+    const edge = box.getBoundingClientRect().top + box.clientTop + (Number.parseFloat(getComputedStyle(box).paddingTop) || 0);
+    // TRV-54: the filter field and the gap under it stay at the top: the pinned rows stand under them.
+    const field = this.filterBox?.hasAttribute('data-tanrei-sticky') ? this.filterBox : null;
+    const head = field ? field.offsetHeight : 0;
+    const top = edge + head;
     let chain = this.pinChain(top, max);
     const covered = chain.reduce((sum, item) => sum + (rowOf(item)?.offsetHeight ?? 0), 0);
     if (covered) chain = this.pinChain(top + covered, max);
@@ -1536,13 +2186,15 @@ export class TanreiTreeView extends TanreiLightElement {
       row.removeAttribute(PINNED);
       row.style.removeProperty('--_trv-pin-top');
     }
-    let offset = 0;
+    let offset = head;
     rows.forEach((row, index) => {
       mark(row, PINNED, index === rows.length - 1 ? 'last' : '');
       row.style.setProperty('--_trv-pin-top', `${offset}px`);
       offset += row.offsetHeight;
     });
     this.pinned = rows;
+    // TRV-54: while rows scroll under the field and none is pinned, the edge of TRV-53 is drawn under the gap.
+    if (field) mark(field, 'data-tanrei-stuck', !rows.length && this.getBoundingClientRect().top < edge - 0.5 ? '' : null);
   }
 
   /** The open parents above the topmost row whose own line reaches below `y`, outer first, the innermost `max` of them. */
@@ -1570,8 +2222,9 @@ export class TanreiTreeView extends TanreiLightElement {
   /** TRV-12, TRV-53: a focused row under the pinned rows is brought into view below them. */
   private belowPinned(row: HTMLElement) {
     const box = this.scroller;
-    if (!box || !this.pinned.length || this.pinned.includes(row)) return;
-    const covered = this.pinned.reduce((sum, pinned) => sum + pinned.offsetHeight, 0);
+    const field = this.filterBox?.hasAttribute('data-tanrei-sticky') ? this.filterBox : null;
+    if (!box || (!this.pinned.length && !field) || this.pinned.includes(row)) return;
+    const covered = this.pinned.reduce((sum, pinned) => sum + pinned.offsetHeight, field ? field.offsetHeight : 0);
     const limit = box.getBoundingClientRect().top + box.clientTop + (Number.parseFloat(getComputedStyle(box).paddingTop) || 0) + covered;
     const rowTop = row.getBoundingClientRect().top;
     if (rowTop < limit) box.scrollTop -= limit - rowTop;
@@ -1642,6 +2295,21 @@ export class TanreiTreeView extends TanreiLightElement {
       key.preventDefault();
       return;
     }
+    // TRV-69: Escape on a row while a filter is applied empties it; the row keeps focus and its place.
+    if (key.key === 'Escape' && this.filter.applied && !key.altKey && !key.ctrlKey && !key.metaKey && !key.shiftKey) {
+      key.preventDefault();
+      this.emptyFromRow(item);
+      return;
+    }
+    // TRV-62, TRV-23: the chord of filterShortcut moves focus to the field and is not taken as type-ahead.
+    const chord = this.filterable && this.filterBox ? this.filterBinding : null;
+    if (chord && chordPressed(key, chord, this.convention)) {
+      key.preventDefault();
+      if (key.repeat) return;
+      this.filterOpener = item;
+      this.focusField(true);
+      return;
+    }
     // TRV-52: the multi-select model's keys.
     if (this.mode === 'multiple' && this.multiKey(key, item)) return;
     // TRV-22: a key pressed with a modifier is the platform's (Shift alone types a character).
@@ -1699,7 +2367,7 @@ export class TanreiTreeView extends TanreiLightElement {
     // TRV-22: the asterisk opens every closed parent among the focused row's siblings, itself included.
     if (key.key === '*') {
       key.preventDefault();
-      for (let sibling = firstItem(item.parentElement); sibling; sibling = nextItem(sibling)) if (isParent(sibling) && !isDisabled(sibling)) this.toggle(sibling, true);
+      for (let sibling = firstVisible(item.parentElement); sibling; sibling = nextVisible(sibling)) if (isParent(sibling) && !isDisabled(sibling) && !isOpen(sibling)) this.toggle(sibling, true);
       return;
     }
     // TRV-23: printable characters move focus to the next shown row whose label begins with them.
@@ -1735,7 +2403,8 @@ export class TanreiTreeView extends TanreiLightElement {
   private activate(item: Item, chevron: boolean) {
     if (isDisabled(item)) return;
     if (!chevron && this.canChoose(item)) this.choose(item);
-    else if (isParent(item)) this.toggle(item, !item.hasAttribute('data-open'));
+    // (Drawn open: a parent a filter opened closes, TRV-59.)
+    else if (isParent(item)) this.toggle(item, !isOpen(item));
   }
 
   /** TRV-16, TRV-17: the user chooses an item; `change`, exactly once, where the selection changed. */
@@ -1894,6 +2563,32 @@ export class TanreiTreeView extends TanreiLightElement {
   ];
 }
 
+/** TRV-56…59: what a filter does now — the items that match, the rows it hides, the parents it opens. */
+interface TreeFilter {
+  applied: boolean;
+  matches: Set<Item>;
+  hidden: Set<Item>;
+  opened: Set<Item>;
+  /** TRV-61: the first row shown that matches and is not disabled. */
+  active: Item | null;
+}
+const NO_FILTER: TreeFilter = { applied: false, matches: new Set(), hidden: new Set(), opened: new Set(), active: null };
+
+/** TRV-56: the label's own text nodes, in order — the row's text that is not one of its other parts. */
+function labelTextNodes(row: Element): Text[] {
+  const nodes: Text[] = [];
+  const walk = (node: Node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      nodes.push(node as Text);
+      return;
+    }
+    if (!(node instanceof Element) || node.matches(`${PARTS}, [${EDIT}]`)) return;
+    for (const child of node.childNodes) walk(child);
+  };
+  for (const child of row.childNodes) walk(child);
+  return nodes;
+}
+
 /** The nodes of a row that are its label: what is not one of its other parts (TRV-6). */
 const labelNodes = (row: Element) => [...row.childNodes].filter((node) => (node.nodeType === Node.TEXT_NODE && !!node.nodeValue?.trim()) || (node instanceof Element && !node.matches(`${PARTS}, [${EDIT}]`)));
 
@@ -1913,7 +2608,7 @@ function onLabel(row: Element, x: number, y: number): boolean {
 }
 
 /** The items of a list (not its loading row, nor a new row). */
-const itemsIn = (list: Element | null): Item[] => (list ? [...list.children].filter((child): child is Item => isItem(child)) : []);
+const itemsIn = (list: Element | null): Item[] => (list ? [...list.children].filter((child): child is Item => isItem(child) && !child.hasAttribute(FILTERED)) : []);
 
 /** TRV-53: the first of `items` (in the order drawn) whose box reaches below `y`; an item's box holds its rows. */
 function firstBelow(items: Item[], y: number): Item | null {

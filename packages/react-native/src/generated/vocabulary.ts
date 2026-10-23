@@ -1753,7 +1753,11 @@ export interface TanreiComboboxTokens {
   readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
   readonly optionLabelTypescale: TanreiTypescaleRole;
+  readonly optionMatchColor: TanreiPaint;
+  readonly optionMatchContainerColor: TanreiPaint;
   readonly optionMatchEmphasis: number;
+  readonly optionMatchSelectedColor: TanreiPaint;
+  readonly optionMatchSelectedContainerColor: TanreiPaint;
   readonly optionShape: number;
   readonly optionSupportingTextTypescale: TanreiTypescaleRole;
   readonly pressedOpacity: number;
@@ -3626,6 +3630,11 @@ export interface TanreiNavigationDrawerTokens {
   readonly containerPaddingInline: number;
   readonly containerWidth: number;
   readonly disabledOpacity: number;
+  readonly filterGap: number;
+  readonly filterShortcutColor: TanreiPaint;
+  readonly filterShortcutTypescale: TanreiTypescaleRole;
+  readonly filterStatusColor: TanreiPaint;
+  readonly filterStatusTypescale: TanreiTypescaleRole;
   readonly focusedOpacity: number;
   readonly guideColor: TanreiPaint;
   readonly guideWidth: number;
@@ -5727,6 +5736,9 @@ export type TanreiTreeViewDensitys = { readonly [Key in TanreiCoreTreeViewDensit
 export interface TanreiTreeViewTokens {
   readonly containerShape: number;
   readonly disabledOpacity: number;
+  readonly filterGap: number;
+  readonly filterStatusColor: TanreiPaint;
+  readonly filterStatusTypescale: TanreiTypescaleRole;
   readonly focusedOpacity: number;
   readonly guideColor: TanreiPaint;
   readonly guideWidth: number;
