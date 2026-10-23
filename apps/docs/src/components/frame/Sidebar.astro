@@ -22,6 +22,15 @@
 // have is marked with the systems that do not have it, and so is a group none of whose components it has, and neither
 // is drawn under them — unless it is the page being read. Without script every row is drawn.
 //
+// The drawer filters itself (`filterable`, NVD-79 to NVD-95): a field above its list narrows it to the rows whose label
+// holds what is typed, opening for the time being the groups that hold them; it marks nothing in a label, and keeps
+// nothing (the session's script below keeps the groups the reader opened, not what the filter opened). "/" anywhere in
+// the window, outside a field, moves focus to it, as a documentation site's sidebar filter does (NVD-87); Command+K or
+// Control+K stays the site's search (Search.astro) — two chords, one owner each. In a medium window "/" expands the
+// column first; in a compact one, where the drawer is closed over the content, the app shell opens it and the drawer
+// gives focus to its field (APS-33, NVD-88). Its words are the docs' (lib/i18n.ts, `sidebarFilter`). Until the drawer
+// is defined the field's room is held (styles/frame.css), so the rows do not move when it is.
+//
 // The drawer has no header button: its menu button is the header's, at every width (Header.astro), so the drawer's
 // list starts at its top. In a compact window, where the header has no room for it, the choice of design system
 // stands first (SystemMenu.astro, the header's button and menu again); in a wider one that row is not drawn.
@@ -61,7 +70,22 @@ const cells = (entries: Entry[], top: boolean): string =>
     .join('');
 ---
 
-<tanrei-navigation-drawer slot="navigation" id="docs-sidebar" class="docs-sidebar print:hidden" responsive collapsible reveal-selected label={words.siteNavigation} value={currentHref(sidebar)}>
+<tanrei-navigation-drawer
+  slot="navigation"
+  id="docs-sidebar"
+  class="docs-sidebar print:hidden"
+  responsive
+  collapsible
+  reveal-selected
+  label={words.siteNavigation}
+  value={currentHref(sidebar)}
+  filterable
+  filter-label={t.sidebarFilter.label}
+  filter-placeholder={t.sidebarFilter.placeholder}
+  filter-empty-text={t.sidebarFilter.none}
+  filter-count-text={t.sidebarFilter.count}
+  filter-clear-label={t.sidebarFilter.clear}
+>
   <div role="listitem" class="docs-system-row"><SystemMenu id="docs-system-drawer" part="button" /><SystemMenu id="docs-system-drawer" part="menu" /></div>
   <div role="listitem" class="docs-listing-row"><ListingSwitch lang={route.lang} /></div>
   <Fragment set:html={cells(drawn, true)} />
