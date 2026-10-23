@@ -12,6 +12,11 @@ import { SYSTEM_ATTR } from './listing.mjs';
 
 /** Sent on a frame's element once it has come near the view, its stage released and its actions drawn. */
 export const NEAR_EVENT = 'docs-example-near';
+/**
+ * Sent on a frame's element by a part of the page that changes what its stage holds (a playground's controls), with
+ * the stage's markup as a product writes it (`detail.source`): the frame's code and its copy follow it.
+ */
+export const SOURCE_EVENT = 'docs-example-source';
 
 /** How near the view a frame is drawn: within half a window of it. */
 const NEAR = '50% 0px';
@@ -44,8 +49,13 @@ function follow(frame: HTMLElement) {
 
 // ── The code ─────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-/** The markup the stage held as the page was built (the frame's inline script), or the one the page gave. */
+/** The markup a part of the page said the stage holds now (`SOURCE_EVENT`), by frame. */
+const changed = new WeakMap<HTMLElement, string>();
+
+/** The markup the stage holds: what a part of the page said it holds now, else what it held as the page was built (the frame's inline script), or the one the page gave. */
 function sourceOf(frame: HTMLElement): string {
+  const now = changed.get(frame);
+  if (now !== undefined) return now;
   const given = frame.querySelector<HTMLScriptElement>(':scope > figure > [data-part="frame"] > script[data-example-source]');
   if (given) {
     try {
@@ -113,7 +123,9 @@ function toggleCode(frame: HTMLElement, button: HTMLElement) {
     const template = document.querySelector<HTMLTemplateElement>('template[data-example-panel]');
     const stage = stageOf(frame);
     if (!template || !stage) return;
-    stage.after(document.importNode(template.content, true));
+    // Under the stage, and under a playground's controls where the frame has them.
+    const controls = frame.querySelector(':scope > figure > [data-part="frame"] > [data-example-controls]');
+    (controls ?? stage).after(document.importNode(template.content, true));
     panel = frame.querySelector<HTMLElement>('[data-example-code-panel]');
     if (!panel) return;
     panel.hidden = true;
@@ -202,6 +214,10 @@ const frames = () => document.querySelectorAll<HTMLElement>('[data-example]');
 for (const frame of frames()) {
   follow(frame);
   near.observe(frame);
+  frame.addEventListener(SOURCE_EVENT, (event) => {
+    changed.set(frame, (event as CustomEvent<{ source: string }>).detail.source);
+    if (drawn.has(frame) || frame.querySelector('[data-example-code-panel]')) void writeCode(frame);
+  });
 }
 // The reader's choice of system, wherever it is made (the header's menu, the index's select), is the root's attribute.
 new MutationObserver(() => {

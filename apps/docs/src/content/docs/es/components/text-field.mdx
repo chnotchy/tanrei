@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import Playground from '../../../../components/visuals/Playground.astro';
 
 ## Descripción general
 
@@ -29,6 +30,8 @@ Usa un campo de texto siempre que un formulario pida texto: es el caso corriente
 **Se compone de** un [campo](/es/components/field/) y una [entrada de texto](/es/components/text-input/). El campo es el marco: la etiqueta, la marca de obligatorio o de opcional, la ayuda, el error y el recuento. La entrada de texto es el control: la caja y todo lo que se escribe en ella. El campo de texto no dibuja nada propio y no tiene ningún token: cada propiedad que tiene es una propiedad de uno de los dos, que recibe sin cambios.
 
 Es un bloque tan ancho como el lugar en el que se pone, y su caja lo llena. No tiene ancho propio: para un campo más estrecho, dale un lugar más estrecho.
+
+<Playground name="text-field" />
 
 ### Uso
 

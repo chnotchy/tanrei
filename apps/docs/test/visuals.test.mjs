@@ -19,7 +19,8 @@ const { rolesOf } = await import('../src/lib/visuals/roles.ts');
 const { drawnMatrixOf, drawsStateMatrix, matrixOf, PSEUDO_STATES } = await import('../src/lib/visuals/states.ts');
 const { holdSelector, holdSelectorList, wordsOf } = await import('../src/lib/visuals/pseudo-states.ts');
 const { fixtureDocument } = await import('../src/lib/fixture-documents.ts');
-const { controlsOf, SIDE_BY_SIDE } = await import('../src/lib/visuals/playground.ts');
+const { CODE_FLAVORS, controlsAndGaps, controlsOf, NATIVE_CODE, playgroundOf, SIDE_BY_SIDE } = await import('../src/lib/visuals/playground.ts');
+const { attributeOf, fromAttribute, hashEntries, hashKey, hashOf, isDefault, propertyOf, stateFromHash, writeHash } = await import('../src/lib/visuals/playground-state.ts');
 const { strings } = await import('../src/lib/i18n.ts');
 const { specs } = await import('../src/lib/repo.ts');
 const { shippedSystems } = await import('../src/lib/tokens.ts');
@@ -280,22 +281,146 @@ describe('holding a state', () => {
 });
 
 describe('the playground', () => {
-  test('a control for each prop a reader can set, of the kind its type and its number of values ask for', () => {
+  /** The web build's manifest, read from disk: each element's attributes by name. */
+  const manifest = json('packages/web/custom-elements.json');
+  const declared = new Map(manifest.modules.flatMap((module) => (module.declarations ?? []).filter((each) => each.tagName).map((each) => [each.tagName, new Map((each.attributes ?? []).map((attribute) => [attribute.name, attribute]))])));
+  const lacking = json('docs/status/status.json').unavailable?.[NS]?.variants ?? {};
+  const SETTABLE = ['enum', 'boolean', 'number', 'string'];
+
+  test('a control for each prop a reader can set on the web element, of the kind its type and its number of values ask for', () => {
+    let counted = 0;
     for (const name of names) {
-      const controls = controlsOf(name);
-      const settable = specs[name].props.filter((prop) => ['enum', 'boolean', 'number', 'string'].includes(prop.type));
-      assert.deepEqual(controls.map((control) => control.prop), settable.map((prop) => prop.name), name);
+      const { controls, unwritable } = controlsAndGaps(name);
+      const settable = specs[name].props.filter((prop) => SETTABLE.includes(prop.type)).map((prop) => prop.name);
+      const order = (list) => list.sort((a, b) => settable.indexOf(a) - settable.indexOf(b));
+      assert.deepEqual(order([...controls.map((control) => control.prop), ...unwritable.map((gap) => gap.prop)]), settable, `${name}: every settable prop has a control or a reason for none`);
       for (const control of controls) {
         const prop = specs[name].props.find((entry) => entry.name === control.prop);
-        const expected = { enum: prop.values?.length <= SIDE_BY_SIDE ? 'segmented' : 'select', boolean: 'switch', number: 'number', string: 'text' }[prop.type];
+        const values = prop.type === 'enum' ? prop.values.filter((value) => prop.name !== 'variant' || !(lacking[name] ?? []).includes(value)) : [];
+        const expected = { enum: values.length <= SIDE_BY_SIDE ? 'segmented' : 'select', boolean: 'switch', number: 'number', string: 'text' }[prop.type];
         assert.equal(control.kind, expected, `${name}.${control.prop}`);
-        assert.deepEqual(control.values, prop.type === 'enum' ? prop.values : [], `${name}.${control.prop}`);
+        assert.deepEqual(control.values, values, `${name}.${control.prop}`);
         assert.equal(control.default, prop.default, `${name}.${control.prop}`);
+        counted++;
       }
     }
-    const variant = controlsOf('button').find((control) => control.prop === 'variant');
-    assert.equal(variant.kind, 'select', 'five variants open as a list');
-    assert.equal(controlsOf('button').find((control) => control.prop === 'size').kind, 'segmented', 'three sizes stand side by side');
+    assert.ok(counted > 1000, `${counted} controls in all: fewer than the specs' settable props`);
+    const button = controlsOf('button');
+    assert.equal(button.find((control) => control.prop === 'variant').kind, 'select', 'five variants open as a list');
+    assert.equal(button.find((control) => control.prop === 'size').kind, 'segmented', 'three sizes stand side by side');
+  });
+
+  test('every control writes only an attribute the web element reads, the attribute of the property it sets', () => {
+    for (const name of names) {
+      const tag = specs[name].platforms.web?.name;
+      const { controls, unwritable } = controlsAndGaps(name);
+      for (const control of controls) {
+        const attribute = declared.get(tag)?.get(control.attribute);
+        assert.ok(attribute, `${name}.${control.prop}: ${tag} reads no attribute "${control.attribute}" (custom-elements.json)`);
+        assert.equal(attribute.fieldName, control.property, `${name}.${control.prop}: "${control.attribute}" is the attribute of ${attribute.fieldName}, not of ${control.property}`);
+        if (control.kind === 'switch') assert.equal(attribute.type?.text?.replace(/ \| null$/, ''), 'boolean', `${name}.${control.prop}: a switch writes a boolean attribute`);
+        // A switch that is on where nothing is written must have an attribute that turns it off.
+        if (control.kind === 'switch' && control.default === true) assert.ok(control.inverse || control.negated, `${name}.${control.prop}: on by default, and nothing turns it off`);
+      }
+      for (const gap of unwritable) {
+        const prop = specs[name].props.find((entry) => entry.name === gap.prop);
+        if (gap.reason === 'cannot-turn-off') assert.ok(prop.type === 'boolean' && prop.default === true, `${name}.${gap.prop}`);
+        else {
+          const property = specs[name].platforms.web?.props?.[gap.prop] ?? gap.prop;
+          assert.ok(![...(declared.get(tag)?.values() ?? [])].some((attribute) => attribute.fieldName === property), `${name}.${gap.prop}: ${tag} has an attribute for it`);
+        }
+      }
+    }
+  });
+
+  test('a value is written as a product writes it, and read back as the same value', () => {
+    for (const name of names) {
+      for (const control of controlsOf(name)) {
+        const label = `${name}.${control.prop}`;
+        assert.equal(isDefault(control, control.default), true, label);
+        if (control.kind !== 'switch') assert.equal(attributeOf(control, control.default), null, `${label}: the default is not written`);
+        const other =
+          control.kind === 'switch' ? !control.default : control.kind === 'number' ? (Number(control.default) || 0) + 3 : control.kind === 'text' ? 'Any words & "quotes"' : control.values.find((value) => value !== control.default);
+        if (other === undefined) continue;
+        const written = attributeOf(control, other);
+        assert.notEqual(written === null, attributeOf(control, control.default) === null, `${label}: a value other than the default is written differently`);
+        assert.deepEqual(fromAttribute(control, written), other, `${label}: read back`);
+        assert.deepEqual(fromAttribute(control, attributeOf(control, control.default)), control.kind === 'switch' ? Boolean(control.default) : control.default, `${label}: the default read back`);
+      }
+    }
+    const field = controlsOf('text-field').find((control) => control.prop === 'wrap');
+    assert.deepEqual([field.attribute, field.property, field.negated, attributeOf(field, false), attributeOf(field, true), propertyOf(field, false)], ['no-wrap', 'noWrap', true, '', null, true], 'the spec’s wrap is the element’s no-wrap');
+    const inset = names.flatMap((name) => controlsOf(name)).find((control) => control.inverse);
+    assert.ok(inset, 'some switch is turned off by its attribute');
+    assert.deepEqual([attributeOf(inset, false), attributeOf(inset, true), propertyOf(inset, false)], ['', null, false]);
+  });
+
+  test('the address keeps what differs from the start, and gives back only what the controls would hold', () => {
+    for (const name of ['button', 'text-field', 'slider', 'tabs']) {
+      const { controls, start } = playgroundOf(name);
+      const changed = { ...start };
+      for (const control of controls.slice(0, 6)) {
+        changed[control.prop] = control.kind === 'switch' ? !start[control.prop] : control.kind === 'number' ? 7 : control.kind === 'text' ? 'a, b: c & d' : control.values.at(-1);
+      }
+      const written = hashOf(controls, changed, start);
+      assert.deepEqual(stateFromHash(controls, written, start), changed, `${name}: ${written}`);
+      assert.equal(hashOf(controls, start, start), '', `${name}: nothing differs, nothing is written`);
+    }
+    const controls = controlsOf('button');
+    const start = playgroundOf('button').start;
+    assert.deepEqual(stateFromHash(controls, 'variant:tonal,size:huge,busy:yes,unknown:1,disabled:true', start), { ...start, variant: 'tonal', disabled: true }, 'a value no control offers is read as nothing');
+    const entries = hashEntries('#play-button=variant:tonal&props&play-tabs=size:small');
+    assert.deepEqual([...entries], [['button', 'variant:tonal'], ['tabs', 'size:small']]);
+    assert.equal(writeHash(new Map([['button', 'variant:tonal'], ['tabs', '']])), '#play-button=variant:tonal');
+    assert.equal(writeHash(new Map([['button', '']])), '');
+    assert.equal(hashKey('button'), 'play-button');
+  });
+
+  test('a playground starts at the web package’s own stage of the spec’s first fixture, its controls’ attributes as the playground writes them', () => {
+    for (const name of ['button', 'text-field', 'slider', 'tabs']) {
+      const playground = playgroundOf(name);
+      const document = fixtureDocument(name);
+      const first = specs[name].fixtures[0];
+      assert.equal(playground.fixture, first.id, name);
+      assert.ok(document.stages.some((stage) => stage.id === first.id && stage.html.startsWith(playground.stage.slice(0, playground.stage.indexOf('>') + 1))), `${name}: the document's stage`);
+      assert.ok(playground.stage.includes(playground.markup), `${name}: the markup is what the stage holds`);
+      assert.ok(playground.markup.startsWith(`<${playground.tag}`), name);
+      for (const control of playground.controls) {
+        const written = attributeOf(control, playground.start[control.prop]);
+        const open = playground.markup.slice(0, playground.markup.indexOf('>'));
+        const found = new RegExp(`\\s${control.attribute}(?:="([^"]*)")?(?=[\\s>]|$)`).exec(open);
+        assert.equal(found ? (found[1] ?? '') : null, written === null ? null : written, `${name}.${control.prop}`);
+      }
+      // Each fixture's own props are where it starts.
+      for (const [prop, value] of Object.entries(first.props)) if (prop in playground.start) assert.equal(playground.start[prop], value, `${name}.${prop}`);
+      assert.ok(playground.room && playground.room.height >= document.sizes[first.id].height, `${name}: holds at least its baseline's room`);
+    }
+    assert.throws(() => playgroundOf('dialog'), /not drawn in the page/, 'a presented fixture is drawn in a window, not in a playground');
+  });
+
+  test('the code is the web’s until a native platform ships the component at the current spec, and then that platform needs its generator', () => {
+    assert.deepEqual([...CODE_FLAVORS], ['html', 'react']);
+    const pages = fs.readdirSync(here('../src/content/docs/components')).filter((file) => file.endsWith('.mdx'));
+    const placed = pages.flatMap((file) => [...read(`src/content/docs/components/${file}`).matchAll(/<Playground name="([\w-]+)"/g)].map(([, name]) => name));
+    assert.ok(placed.length >= 4, `${placed.length} playgrounds on the pages`);
+    const status = json('docs/status/status.json').components;
+    for (const name of placed) {
+      const shipped = Object.entries(status.find((each) => each.name === name).platforms).filter(([platform, state]) => platform !== 'web' && !['planned', 'lagging', 'deprecated'].includes(state));
+      assert.deepEqual(playgroundOf(name).native, shipped.map(([platform]) => platform), name);
+      for (const [platform] of shipped) assert.ok(platform in NATIVE_CODE, `${name} ships on ${platform}: the playground needs a generator of its code`);
+    }
+  });
+
+  test('every language’s page of a component places the same playgrounds', () => {
+    const placedIn = (base) => {
+      const dir = here(`../src/content/docs/${base}components`);
+      return Object.fromEntries(fs.readdirSync(dir).filter((file) => file.endsWith('.mdx')).map((file) => [file, [...fs.readFileSync(`${dir}/${file}`, 'utf8').matchAll(/<Playground name="([\w-]+)"/g)].map(([, name]) => name)]));
+    };
+    const english = placedIn('');
+    for (const { lang, dir } of translations) {
+      const translated = placedIn(`${dir}/`);
+      for (const [file, names] of Object.entries(english)) if (names.length && file in translated) assert.deepEqual(translated[file], names, `${lang}: ${file}`);
+    }
   });
 });
 
