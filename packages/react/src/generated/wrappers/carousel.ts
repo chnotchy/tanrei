@@ -12,13 +12,13 @@ import { TanreiCarousel as TanreiCarouselElement, type TanreiCarouselPausedChang
  * - default — `<tanrei-carousel-item>` children: the items, in order.
  *
  * Events:
- * - `onPausedchange` (`pausedchange`) — The person paused or played autoplay with the playback control; `detail.paused` is the new value. Not fired when `paused` is set, nor for a hold.
+ * - `onPausedChange` (`pausedchange`) — The person paused or played autoplay with the playback control; `detail.paused` is the new value. Not fired when `paused` is set, nor for a hold.
  */
 export const Carousel = /* @__PURE__ */ createComponent({
   tagName: 'tanrei-carousel',
   elementClass: TanreiCarouselElement,
   react: React,
   events: {
-    onPausedchange: 'pausedchange' as EventName<TanreiEvent<TanreiCarouselElement, CustomEvent<TanreiCarouselPausedChangeDetail>>>,
+    onPausedChange: 'pausedchange' as EventName<TanreiEvent<TanreiCarouselElement, CustomEvent<TanreiCarouselPausedChangeDetail>>>,
   },
 });

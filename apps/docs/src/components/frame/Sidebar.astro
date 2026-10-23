@@ -15,11 +15,16 @@
 //
 // The Components group is drawn from the specs (lib/listing.mjs, `sidebarTree`): each component in a group of its
 // category, and one a spec marks to be shown on request (`listing`) marked — with the word at the end
-// of its row — and drawn only to a reader who asked for everything with the switch in the drawer's header
-// (ListingSwitch.astro), or whose page it is. Beside the switch, the choice of design system (SystemSelect.astro): a
-// component the chosen system does not have is marked with the systems that do not have it, and so is a group none of
-// whose components it has, and neither is drawn under them — unless it is the page being read. Without script every
-// row is drawn.
+// of its row — and drawn only to a reader who asked for everything with the switch at the top of the drawer's list
+// (ListingSwitch.astro), or whose page it is. The switch stands first in the drawer's list, the top of what scrolls,
+// in a row of its own (a list holds list items only); a collapsed drawer, whose column holds the groups' glyphs, does
+// not draw it. The choice of design system is the header's (Header.astro): a component the chosen system does not
+// have is marked with the systems that do not have it, and so is a group none of whose components it has, and neither
+// is drawn under them — unless it is the page being read. Without script every row is drawn.
+//
+// The drawer has no header button: its menu button is the header's, at every width (Header.astro), so the drawer's
+// list starts at its top. In a compact window, where the header has no room for it, the choice of design system
+// stands first (SystemMenu.astro, the header's button and menu again); in a wider one that row is not drawn.
 //
 // A destination's anchor is in its element's shadow root, so the page as built would hold no link. Each destination therefore holds a plain `<a href>` of its own: until the elements
 // are defined, and where no script runs, those anchors are the sidebar (styles/frame.css draws them as the drawer's
@@ -30,7 +35,7 @@ import { localeBase, strings } from '../../lib/i18n';
 import { ABSENT_ATTR, ON_REQUEST_ATTR, sidebarTree } from '../../lib/listing.mjs';
 import { listings, manifests, statusComponents } from '../../lib/repo';
 import ListingSwitch from '../ListingSwitch.astro';
-import SystemSelect from '../SystemSelect.astro';
+import SystemMenu from '../SystemMenu.astro';
 
 const route = Astro.locals.starlightRoute as unknown as { sidebar: Entry[]; lang: string };
 const { sidebar } = route;
@@ -56,10 +61,9 @@ const cells = (entries: Entry[], top: boolean): string =>
     .join('');
 ---
 
-<tanrei-navigation-drawer slot="navigation" class="docs-sidebar print:hidden" responsive collapsible reveal-selected label={words.siteNavigation} value={currentHref(sidebar)}>
-  <tanrei-button slot="header-button" variant="text" label={words.menu}><span slot="icon">menu</span></tanrei-button>
-  <SystemSelect lang={route.lang} into="header" />
-  <ListingSwitch lang={route.lang} into="header" />
+<tanrei-navigation-drawer slot="navigation" id="docs-sidebar" class="docs-sidebar print:hidden" responsive collapsible reveal-selected label={words.siteNavigation} value={currentHref(sidebar)}>
+  <div role="listitem" class="docs-system-row"><SystemMenu id="docs-system-drawer" part="button" /><SystemMenu id="docs-system-drawer" part="menu" /></div>
+  <div role="listitem" class="docs-listing-row"><ListingSwitch lang={route.lang} /></div>
   <Fragment set:html={cells(drawn, true)} />
 </tanrei-navigation-drawer>
 {/* Kept for the session: which groups are open and how far the list is scrolled. Inline, so that it runs before the
@@ -96,6 +100,5 @@ const cells = (entries: Entry[], top: boolean): string =>
 </script>
 
 <script>
-  import '@tanrei/web/components/button';
   import '@tanrei/web/components/navigation-drawer';
 </script>

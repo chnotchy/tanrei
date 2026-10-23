@@ -1,5 +1,5 @@
-// The gallery's stages draw in the page's scheme and contrast, and follow every change of them: the header's theme
-// picker reaches a stage in the page (a preset's scope, which inherits the page's scheme as any subtree does) and a
+// The gallery's stages draw in the page's scheme and contrast, and follow every change of them: the color scheme
+// chosen in the header's appearance menu reaches a stage in the page (a preset's scope, which inherits the page's scheme as any subtree does) and a
 // stage's window (a document of its own, which the gallery hands the scheme and the contrast), until the stage's own
 // switch is turned. A window opened later starts from the contrast the site stored.
 //
@@ -48,12 +48,12 @@ const INLINE = 'filled-closed';
 const WINDOW = 'filled-open';
 const stage = (id) => `.docs-stage[data-fixture-id="${id}"]`;
 
-/** The reader's choice in the header's theme picker, as the picker hands it on (its `change`). */
+/** The reader's choice of color scheme in the header's appearance menu, as its group hands it on (its `change`). */
 const chooseTheme = (page, theme) =>
   page.evaluate((value) => {
-    const select = document.querySelector('tanrei-select.docs-theme');
-    select.value = value;
-    select.dispatchEvent(new Event('change', { bubbles: true }));
+    const group = document.querySelector('tanrei-menu-group.docs-scheme-group');
+    group.value = value;
+    group.dispatchEvent(new Event('change', { bubbles: true }));
   }, theme);
 
 /** What a stage in the page draws in: its box's scheme, and the scope it stands in. */
@@ -81,7 +81,7 @@ describe("the gallery's stages follow the page's scheme and contrast", () => {
     try {
       const page = await context.newPage();
       await page.goto(`${origin}${PAGE}`, { waitUntil: 'load' });
-      await page.waitForFunction(() => customElements.get('tanrei-select') && document.querySelector('tanrei-select.docs-theme')?.updateComplete);
+      await page.waitForFunction(() => customElements.get('tanrei-menu-group') && document.querySelector('tanrei-menu-group.docs-scheme-group')?.updateComplete);
       // The window loads when it comes near the view.
       await page.locator(stage(WINDOW)).scrollIntoViewIfNeeded();
 

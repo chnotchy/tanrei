@@ -1,4 +1,4 @@
-// `/llms-full.txt`: the Markdown page of every component the default design system ships, in one file (src/lib/llms.ts).
+// `/llms-full.txt`: the spec of every component the default design system ships, as Markdown, in one file (src/lib/llms.ts).
 import type { APIRoute } from 'astro';
 import { llmsFull } from '../lib/llms';
 

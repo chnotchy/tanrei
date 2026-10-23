@@ -2,7 +2,7 @@
 title: アプリシェル
 description: ページやアプリの枠組みです。ヘッダー、ナビゲーション、メインコンテンツ、アサイド、フッターを配置し、ウィンドウの幅からそれぞれの見せ方を決め、キーボードでは 1 回の操作でコンテンツに届くようにします。
 translationOf: components/app-shell.mdx
-sourceHash: a8a52a001fa0dfb12850fc417ba8b268b9b50b6b
+sourceHash: 9045a147596e331dff0cc341434cf2feac3602a5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -54,7 +54,7 @@ Web では、利用者側の領域を `<tanrei-app-shell>` で囲みます。こ
     import { AppBar, AppShell, Button, NavigationDrawer } from '@tanrei/react';
     import '@tanrei/web/app-shell.css';
 
-    <AppShell asideLabel="このページの内容" onWindowclasschange={(event) => setWindowClass(event.detail.windowClass)}>
+    <AppShell asideLabel="このページの内容" onWindowClassChange={(event) => setWindowClass(event.detail.windowClass)}>
       <a className="tanrei-link" data-standalone slot="skip-link" href="#main">メインコンテンツへスキップ</a>
       <header slot="header">
         <AppBar headline="Tanrei">

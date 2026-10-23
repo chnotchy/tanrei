@@ -8,6 +8,7 @@ import { tokensIn, dimension, ns } from '../lib/tokens';
 import { contentLang, strings } from '../lib/i18n';
 import SourceNote from './SourceNote.astro';
 import Table from './Table.astro';
+import { markdownMark } from '../lib/page-markdown.mjs';
 
 interface Props {
   name: string;
@@ -18,6 +19,8 @@ const t = strings(contentLang(Astro));
 const targets = tokensIn(`${ns}.sys.target`);
 ---
 
+{/* The page's Markdown leaves this out: the spec's Markdown, in the Specs section, holds it (lib/page-markdown.mjs). */}
+<Fragment set:html={markdownMark.skip} />
 <tanrei-description-list>
   <dl>
     <div><dt>{t.role}</dt><dd><code class="tanrei-code">{a11y.role}</code></dd></div>
@@ -54,6 +57,7 @@ const targets = tokensIn(`${ns}.sys.target`);
   </>
 )}
 <SourceNote files={[`specs/${spec.name}.spec.json`, 'tokens/sys/measure.tokens.json']} />
+<Fragment set:html={markdownMark.end} />
 
 <style>
   kbd {

@@ -2,7 +2,7 @@
 title: ऐप शेल
 description: किसी पेज या ऐप का फ़्रेम। यह हेडर, नेविगेशन, मुख्य कॉन्टेंट, असाइड और फ़ुटर को उनकी जगह पर रखता है, विंडो की चौड़ाई से तय करता है कि हर एक कैसे दिखाया जाए, और कीबोर्ड को एक ही क़दम में कॉन्टेंट तक पहुँचने देता है।
 translationOf: components/app-shell.mdx
-sourceHash: a8a52a001fa0dfb12850fc417ba8b268b9b50b6b
+sourceHash: 9045a147596e331dff0cc341434cf2feac3602a5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -54,7 +54,7 @@ import ComponentAccessibility from '../../../../components/ComponentAccessibilit
     import { AppBar, AppShell, Button, NavigationDrawer } from '@tanrei/react';
     import '@tanrei/web/app-shell.css';
 
-    <AppShell asideLabel="इस पेज पर" onWindowclasschange={(event) => setWindowClass(event.detail.windowClass)}>
+    <AppShell asideLabel="इस पेज पर" onWindowClassChange={(event) => setWindowClass(event.detail.windowClass)}>
       <a className="tanrei-link" data-standalone slot="skip-link" href="#main">सीधे मुख्य कॉन्टेंट पर जाएँ</a>
       <header slot="header">
         <AppBar headline="Tanrei">

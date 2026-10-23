@@ -13,7 +13,7 @@ import { TanreiTableOfContents as TanreiTableOfContentsElement, type TanreiTable
  * - `title` — The product's own title in place of the label's text: a heading of the level the page's outline needs. Drawn in the title's text style whatever its level; `label` still names the landmark and the compact row.
  *
  * Events:
- * - `onCurrentchange` (`currentchange`) — The current item changed while tracking is auto; `detail.href` is the new item's href, or an empty string. Never for a value the product set, never while tracking is manual.
+ * - `onCurrentChange` (`currentchange`) — The current item changed while tracking is auto; `detail.href` is the new item's href, or an empty string. Never for a value the product set, never while tracking is manual.
  * - `onToggle` (`toggle`) — The compact presentation's list was shown or hidden by the user (the row, an item chosen, Escape); `detail.open` is the new state.
  * - `onSelect` (`select`) — An item was activated; `detail.href` is its href. Dispatched from the anchor's click, before the browser follows the link; cancelable, cancelling the click with it.
  */
@@ -22,7 +22,7 @@ export const TableOfContents = /* @__PURE__ */ createComponent({
   elementClass: TanreiTableOfContentsElement,
   react: React,
   events: {
-    onCurrentchange: 'currentchange' as EventName<TanreiEvent<TanreiTableOfContentsElement, CustomEvent<TanreiTableOfContentsCurrentChangeDetail>>>,
+    onCurrentChange: 'currentchange' as EventName<TanreiEvent<TanreiTableOfContentsElement, CustomEvent<TanreiTableOfContentsCurrentChangeDetail>>>,
     onToggle: 'toggle' as EventName<TanreiEvent<TanreiTableOfContentsElement, CustomEvent<TanreiTableOfContentsToggleDetail>>>,
     onSelect: 'select' as EventName<TanreiEvent<TanreiTableOfContentsElement, CustomEvent<TanreiTableOfContentsSelectDetail>>>,
   },

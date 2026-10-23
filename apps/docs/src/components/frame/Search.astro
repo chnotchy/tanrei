@@ -23,6 +23,14 @@
 // (`mod+k`: Command+K on Apple platforms, Control+K elsewhere), and the script answers the other of the two, which the
 // framework's search answered as well. Every word is the site's (lib/i18n.ts, `search`).
 //
+// The element is defined when it is first used, not with the page: its module and the view's (about 20 KB compressed)
+// are most of the script a page without demos would load for an element nobody may open. Until then the stylesheet
+// draws the trigger (styles below) and the script makes that drawing a button: it has the trigger's name, Tab reaches
+// it, a press or Enter or Space opens the view, and so do both chords. A pointer over it or focus on it defines the
+// element at once, so that by the press the real trigger is there; a chord pressed before that defines it and opens
+// the view, and what is typed meanwhile goes into the field (`data-define-on-use` keeps lib/define-on-demand.ts from
+// defining it with the page's other elements).
+//
 // Without script nothing can search: the trigger is not shown (the framework's own stayed in the bar, disabled).
 import { strings } from '../../lib/i18n';
 
@@ -42,7 +50,8 @@ const { searching, results, none, noneHint, noneAction, more, unavailable } = wo
   shortcut="mod+k"
   bind-shortcut
   data-words={JSON.stringify({ searching, results, none, noneHint, noneAction, more, unavailable })}
-  data-base={import.meta.env.BASE_URL}></tanrei-search>
+  data-base={import.meta.env.BASE_URL}
+  data-define-on-use></tanrei-search>
 
 <script>
   import type { TanreiSearch, TanreiSearchResult, TanreiSearchResultGroup, TanreiSearchToggleDetail } from '@tanrei/web';
@@ -264,22 +273,86 @@ const { searching, results, none, noneHint, noneAction, more, unavailable } = wo
     };
     search.addEventListener('toggle', (event: Event) => toggled((event as CustomEvent<TanreiSearchToggleDetail>).detail.expanded));
 
-    // Defined only now: the element is drawn once, in the form its window asks for.
-    void import('@tanrei/web/components/search')
-      .then(() => search.updateComplete)
-      .then(() => {
+    /** A chord of the search: Command+K or Control+K, not repeated, not composed, with no other modifier. */
+    const chord = (event: KeyboardEvent) =>
+      !event.defaultPrevented && !event.repeat && !event.isComposing && !event.altKey && !event.shiftKey && (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k';
+
+    // Until the element is defined, the stylesheet's drawing of the trigger is the trigger: a button by these.
+    const apple = /Mac|iPhone|iPad/.test(navigator.platform);
+    const standIn: Record<string, string> = { role: 'button', tabindex: '0', 'aria-label': search.getAttribute('label') ?? '', 'aria-haspopup': 'dialog', 'aria-keyshortcuts': apple ? 'Meta+K' : 'Control+K' };
+    for (const [name, value] of Object.entries(standIn)) search.setAttribute(name, value);
+
+    // Typed after a chord and before the view's field is there: kept, and given to the field when it is.
+    let typed: string | null = null;
+    const keep = (event: KeyboardEvent) => {
+      if (typed === null || event.isComposing || event.ctrlKey || event.metaKey || event.altKey || event.key.length !== 1) return;
+      event.preventDefault();
+      typed += event.key;
+    };
+
+    /** The element's module, imported once: the stand-in's attributes go as the element takes over, focus with them. */
+    let defined: Promise<void> | undefined;
+    const define = () =>
+      (defined ??= (async () => {
+        await import('@tanrei/web/components/search');
+        // The stand-in keeps focus until the element's trigger can take it: drawn, with its own Button drawn.
+        await search.updateComplete;
+        await Promise.all([...search.renderRoot.querySelectorAll<HTMLElement & { updateComplete?: Promise<unknown> }>('tanrei-button')].map((button) => button.updateComplete));
+        // Focus on the stand-in moves to the trigger (the button trigger or the icon's Button) before the stand-in's
+        // tabindex goes: `focus()` on the element itself does nothing while the element holds focus.
+        if (document.activeElement === search) search.shadowRoot?.querySelector<HTMLElement>('.trigger, .trigger-icon')?.focus();
+        for (const name of Object.keys(standIn)) search.removeAttribute(name);
+        window.removeEventListener('keydown', early);
         // The element answers `mod+k`: Command+K on an Apple keyboard, Control+K on any other. The framework's search
         // answered both on every keyboard, so the one the element leaves alone is answered here — after the element,
         // which has then taken its own (a press something has taken is left alone, as SRC-38 leaves it).
         window.addEventListener('keydown', (event) => {
-          if (event.defaultPrevented || event.repeat || event.isComposing || event.altKey || event.shiftKey) return;
-          if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'k' || search.disabled) return;
+          if (!chord(event) || search.disabled) return;
           event.preventDefault();
           // Set from outside, `expanded` opens or closes the view and fires no `toggle`.
           search.expanded = !search.expanded;
           toggled(search.expanded);
         });
-      });
+      })());
+
+    /** Opens the view from the stand-in or a chord pressed before the element was defined. */
+    const open = async () => {
+      typed ??= '';
+      window.addEventListener('keydown', keep, true);
+      try {
+        await define();
+        if (!search.expanded) {
+          search.expanded = true;
+          toggled(true);
+          await search.updateComplete;
+        }
+      } finally {
+        window.removeEventListener('keydown', keep, true);
+        const text = typed;
+        typed = null;
+        if (text) {
+          search.value += text;
+          void ask();
+        }
+      }
+    };
+
+    /** Before the element is defined: both chords open the view. */
+    const early = (event: KeyboardEvent) => {
+      if (!chord(event)) return;
+      event.preventDefault();
+      void open();
+    };
+    window.addEventListener('keydown', early);
+    const undefinedYet = () => !search.matches(':defined');
+    search.addEventListener('click', () => undefinedYet() && void open());
+    search.addEventListener('keydown', (event) => {
+      if (!undefinedYet() || (event.key !== 'Enter' && event.key !== ' ')) return;
+      event.preventDefault();
+      void open();
+    });
+    // A reader about to press it: the element is defined now, while the pointer travels or the reader reads its name.
+    for (const intent of ['pointerover', 'focus', 'touchstart']) search.addEventListener(intent, () => void define(), { once: true, passive: true });
   }
 </script>
 

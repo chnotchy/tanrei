@@ -2,7 +2,7 @@
 title: Carrusel
 description: Una fila de elementos visuales que se desplaza hacia los lados en torno a un elemento en primer plano, cada uno de los cuales abre lo que muestra. Una fila destacada puede no tener fin, mostrar su posición con puntos y avanzar por sí sola.
 translationOf: components/carousel.mdx
-sourceHash: 9e3187c84cf7ad11c87e041a77ec3b2d997a9e5e
+sourceHash: 456f22fc35f1b413823ac47def1b7dcdec2ed432
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -82,7 +82,7 @@ Los ejemplos de Web y React muestran la especificación actual. Los ejemplos de 
     </Carousel>
 
     <Carousel label="Paseos destacados" loop indicator autoplay paused={paused}
-      onPausedchange={(e) => setPaused(e.detail.paused)}
+      onPausedChange={(e) => setPaused(e.detail.paused)}
       previousLabel="Paseo anterior" nextLabel="Paseo siguiente"
       playLabel="Reproducir presentación" pauseLabel="Pausar presentación">
       {featured.map((walk) => <CarouselItem key={walk.id} label={walk.label} onClick={() => openWalk(walk)}><img src={walk.image} alt="" /></CarouselItem>)}

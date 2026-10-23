@@ -216,3 +216,106 @@ test('a glyph drawn as its name is found — without a face the page registered,
   expect(spelled).toHaveLength(1);
   expect(spelled[0]).toContain('"no_such_glyph_here"');
 });
+
+// ── The name as an attribute: `data-icon` ───────────────────────────────────────────────────────────────────────────
+// The name in an element's text is text of the page: it is in textContent and innerText, in what people copy and in
+// what a test compares. `data-icon` gives the same glyph as generated content with an empty alternative, so the name is
+// in none of it — and in no accessible name.
+test.describe('the name as data-icon', () => {
+  /** The text form and the attribute form side by side, one pair per row: what a pair draws must be the same. */
+  const PAIRS = [
+    ['plain', ''],
+    ['large', ' data-size="large"'],
+    ['selected', ' data-selected'],
+  ] as const;
+  const pair = (id: string, extra: string, name = 'folder') =>
+    `<div class="row"><span id="text-${id}" class="tanrei-icon" aria-hidden="true"${extra} style="transition:none">${name}</span><span id="attr-${id}" class="tanrei-icon" aria-hidden="true" data-icon="${name}"${extra} style="transition:none"></span></div>`;
+  const MIRRORED = 'matrix(-1, 0, 0, 1, 0, 0)';
+
+  test('draws the same glyph as the name in text, at each size and selection, and the name is in none of the page’s text', async ({ page }) => {
+    await mount(page, `${PAIRS.map(([id, extra]) => pair(id, extra)).join('')}<p id="copy">Open <span class="tanrei-icon" data-icon="folder"></span> files</p>`);
+    await page.evaluate(() => document.fonts.load('24px "Material Symbols Rounded"', 'folder'));
+    for (const [id] of PAIRS) {
+      const text = page.locator(`#text-${id}`);
+      const attr = page.locator(`#attr-${id}`);
+      const [boxText, boxAttr] = [await text.boundingBox(), await attr.boundingBox()];
+      expect([boxAttr!.width, boxAttr!.height], `${id}: the same box`).toEqual([boxText!.width, boxText!.height]);
+      const [drawnText, drawnAttr] = [await text.screenshot(), await attr.screenshot()];
+      expect(drawnAttr.equals(drawnText), `${id}: the same pixels`).toBe(true);
+      expect(await attr.evaluate((el) => [el.textContent, (el as HTMLElement).innerText]), `${id}: no text`).toEqual(['', '']);
+    }
+    // What people copy, and what a test reads as the paragraph's text: its words, without the name.
+    const copied = await page.locator('#copy').evaluate((el) => {
+      const selection = getSelection()!;
+      selection.selectAllChildren(el);
+      const text = selection.toString();
+      selection.removeAllRanges();
+      return text.replace(/\s+/g, ' ');
+    });
+    expect(copied).toBe('Open files');
+    expect(await page.locator('#copy').evaluate((el) => [(el as HTMLElement).innerText.replace(/\s+/g, ' '), el.textContent!.replace(/\s+/g, ' ')])).toEqual(['Open files', 'Open files']);
+  });
+
+  test('the name is in no accessible name: a control named by its text keeps only its text', async ({ page, browserName }) => {
+    await mount(page, `<div class="row">
+      <button id="like"><span class="tanrei-icon" data-icon="favorite"></span>Like</button>
+      <a id="open" href="#"><span class="tanrei-icon" data-icon="folder_open"></span>Open</a>
+      <span id="bell" class="tanrei-icon" role="img" aria-label="Notifications" data-icon="notifications"></span>
+    </div>`);
+    await expect(page.locator('#like')).toHaveAccessibleName('Like');
+    await expect(page.locator('#open')).toHaveAccessibleName('Open');
+    await expect(page.locator('#bell')).toHaveAccessibleName('Notifications');
+    await expect(page.getByRole('button', { name: 'Like', exact: true })).toHaveCount(1);
+    // The engine's own accessibility tree, where the browser gives it to a test (Chromium): the generated name is not read.
+    if (browserName === 'chromium') {
+      const cdp = await page.context().newCDPSession(page);
+      const { nodes } = (await cdp.send('Accessibility.getFullAXTree')) as { nodes: { role?: { value: string }; name?: { value: string } }[] };
+      const named = nodes.filter((node) => ['button', 'link'].includes(node.role?.value ?? '')).map((node) => node.name?.value);
+      expect(named).toEqual(['Like', 'Open']);
+    }
+  });
+
+  test('a bare icon named by data-icon mirrors in right to left by the icon set’s list, and follows a changed name', async ({ page }) => {
+    await mount(page, `<div class="row" dir="rtl">
+      <span id="forward" class="tanrei-icon" aria-hidden="true" data-icon="arrow_forward"></span>
+      <span id="check" class="tanrei-icon" aria-hidden="true" data-icon="check"></span>
+      <span id="never" class="tanrei-icon" aria-hidden="true" data-icon="arrow_forward" data-mirror="never"></span>
+      <span id="over-text" class="tanrei-icon" aria-hidden="true" data-icon="check">arrow_forward</span>
+    </div>`);
+    const mirrored = (id: string) => page.locator(`#${id}`).evaluate((el) => [el.hasAttribute('data-tanrei-mirrored'), getComputedStyle(el).transform]);
+    await expect.poll(() => mirrored('forward')).toEqual([true, MIRRORED]);
+    expect(await mirrored('check')).toEqual([false, 'none']);
+    expect(await mirrored('never')).toEqual([false, 'none']);
+    // The attribute is the name, whatever text the element holds.
+    expect(await mirrored('over-text')).toEqual([false, 'none']);
+    // A changed name is decided again by the page's observer.
+    await page.locator('#check').evaluate((el) => el.setAttribute('data-icon', 'arrow_back'));
+    await expect.poll(() => mirrored('check')).toEqual([true, MIRRORED]);
+    await page.locator('#forward').evaluate((el) => el.setAttribute('data-icon', 'search'));
+    await expect.poll(() => mirrored('forward')).toEqual([false, 'none']);
+    // An empty attribute is no name: the text is read again.
+    await page.locator('#over-text').evaluate((el) => el.setAttribute('data-icon', ''));
+    await expect.poll(() => mirrored('over-text')).toEqual([true, MIRRORED]);
+  });
+
+  test('in a component’s icon slot it takes the slot’s size and is marked by the component, as the text form is', async ({ page }) => {
+    // One above the other, at the same offset in the line: a glyph drawn at another fraction of a pixel is antialiased otherwise.
+    await mount(page, `<div class="row" dir="rtl" style="flex-direction:column;align-items:start">
+      <tanrei-button id="text"><span slot="icon" class="tanrei-icon" aria-hidden="true">arrow_forward</span>Next</tanrei-button>
+      <tanrei-button id="attr"><span slot="icon" class="tanrei-icon" data-icon="arrow_forward"></span>Next</tanrei-button>
+    </div>`);
+    await page.waitForFunction(() => !!customElements.get('tanrei-button'));
+    const icon = (id: string) => page.locator(`#${id} [slot="icon"]`);
+    const side = await resolveToken(page, '--tanrei-comp-button-icon-size-medium');
+    for (const id of ['text', 'attr']) expect((await icon(id).boundingBox())!.width, id).toBe(side);
+    await expect(icon('text')).toHaveAttribute('data-tanrei-mirrored', '');
+    await expect(icon('attr')).toHaveAttribute('data-tanrei-mirrored', '');
+    const [drawnText, drawnAttr] = [await icon('text').screenshot(), await icon('attr').screenshot()];
+    expect(drawnAttr.equals(drawnText), 'the same pixels').toBe(true);
+    // Not hidden, and still not in the button's name.
+    await expect(page.locator('#attr').getByRole('button')).toHaveAccessibleName('Next');
+    // The component hears a changed attribute as it hears changed text.
+    await icon('attr').evaluate((el) => el.setAttribute('data-icon', 'check'));
+    await expect(icon('attr')).not.toHaveAttribute('data-tanrei-mirrored');
+  });
+});

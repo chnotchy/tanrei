@@ -737,7 +737,7 @@ test.describe('icon side padding and icon-only widths', () => {
       const id = `filled-icon-narrow${suffix}`;
       expect(await resolveToken(page, T(`icon-size-without-label-${size}`)), size).toBe(glyphSize);
       expect(await resolveToken(page, T(`container-padding-inline-narrow-${size}`)), size).toBe(inset);
-      // The width token 0073 read is gone: the width is derived, so nothing can disagree with the glyph and the inset.
+      // The narrow button has no width token of its own: the width is derived, so nothing can disagree with the glyph and the inset.
       expect(await token(page, T(`container-width-narrow-${size}`)), `${size}: no narrow width token`).toBe('');
       const drawn = await box(page, id);
       const glyph = (await page.locator(button(id)).locator('.icon').boundingBox())!;

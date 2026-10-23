@@ -2,7 +2,7 @@
 title: Menú
 description: Un conjunto corto de acciones u opciones en una superficie temporal que se abre desde el elemento que lo pidió.
 translationOf: components/menu.mdx
-sourceHash: b2bc5159dc19cbc953a578fe9a624af119a5a8e2
+sourceHash: dde889cba5c9b3c811de7ca80489ea496b14e941
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -148,7 +148,7 @@ Un menú también puede ser el menú contextual de un área: pon `trigger` en `c
     </Menu>
 
     {/* El menú contextual del área cuyo id es canvas: una petición lo abre. */}
-    <Menu anchor="canvas" trigger="context" aria-label="Lienzo" open={contextOpen} onContextrequest={() => setContextOpen(true)} onClose={() => setContextOpen(false)}>
+    <Menu anchor="canvas" trigger="context" aria-label="Lienzo" open={contextOpen} onContextRequest={() => setContextOpen(true)} onClose={() => setContextOpen(false)}>
       <MenuItem label="Pegar" onClick={paste} />
     </Menu>
     ```
