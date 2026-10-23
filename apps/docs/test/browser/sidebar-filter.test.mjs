@@ -15,8 +15,8 @@ import path from 'node:path';
 import { register } from 'node:module';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import * as playwright from '@playwright/test';
 import { serveDist } from './host.mjs';
+import { engines, launch } from './launch.mjs';
 
 register('../vite-shim.mjs', import.meta.url);
 const { strings } = await import('../../src/lib/i18n.ts');
@@ -25,7 +25,7 @@ const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
 
-const ENGINES = (process.env.DOCS_ENGINES ?? 'chromium,firefox,webkit').split(',').map((name) => name.trim());
+const ENGINES = engines('chromium,firefox,webkit');
 let host;
 let origin;
 
@@ -43,11 +43,6 @@ const WIDE = { width: 1440, height: 800 };
 const MEDIUM = { width: 1000, height: 800 };
 const COMPACT = { width: 390, height: 800 };
 const DRAWER = 'tanrei-navigation-drawer.docs-sidebar';
-
-// As header.test.mjs says: every page is sent with Cross-Origin-Opener-Policy, and Playwright's Firefox loses the first
-// navigation of a new page into the browsing context group the policy asks for on a busy machine. Nothing here is
-// about the policy; the other engines keep it.
-const LAUNCH = { firefox: { firefoxUserPrefs: { 'browser.tabs.remote.useCrossOriginOpenerPolicy': false } } };
 
 /** Where focus is, through every shadow root: `filter` when it is in the drawer's filter field. */
 const focus = (page) =>
@@ -86,7 +81,7 @@ for (const engine of ENGINES) {
   describe(`the sidebar's filter in ${engine}`, () => {
     let browser;
     before(async () => {
-      browser = await playwright[engine].launch(LAUNCH[engine]);
+      browser = await launch(engine);
     });
     after(async () => {
       await browser?.close();

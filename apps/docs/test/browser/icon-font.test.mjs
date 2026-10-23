@@ -11,10 +11,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { chromium } from '@playwright/test';
 import { iconFont } from '../../../../packages/tools/src/icon-font.js';
 import { watchNetwork } from './network-quiet.mjs';
 import { serveDist } from './host.mjs';
+import { launch } from './launch.mjs';
 
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
@@ -69,7 +69,7 @@ let browser;
 before(async () => {
   host = await serveDist(dist, { brotli: true });
   origin = host.origin;
-  browser = await chromium.launch();
+  browser = await launch();
 });
 
 after(async () => {

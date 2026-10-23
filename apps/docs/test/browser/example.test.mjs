@@ -18,8 +18,8 @@ import path from 'node:path';
 import { register } from 'node:module';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import * as playwright from '@playwright/test';
 import { serveDist } from './host.mjs';
+import { engines, launch } from './launch.mjs';
 
 register('../vite-shim.mjs', import.meta.url);
 const { strings } = await import('../../src/lib/i18n.ts');
@@ -29,7 +29,7 @@ const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
 const config = JSON.parse(fs.readFileSync(path.join(docs, '../../tanrei.config.json'), 'utf8'));
 
-const ENGINES = (process.env.DOCS_ENGINES ?? 'chromium,firefox,webkit').split(',').map((name) => name.trim());
+const ENGINES = engines('chromium,firefox,webkit');
 let host;
 let origin;
 
@@ -48,9 +48,6 @@ const t = strings('en');
 
 /** The page's first example that shows its code: one of the page's own, not a stage of the gallery. */
 const FIRST = '[data-example]:not([data-stage]):has([data-example-actions])';
-
-/** Firefox ignores Cross-Origin-Opener-Policy here, as in header.test.mjs (which says why). */
-const LAUNCH = { firefox: { firefoxUserPrefs: { 'browser.tabs.remote.useCrossOriginOpenerPolicy': false } } };
 
 /** The frame's actions drawn, its elements defined, the fonts in, and two frames drawn since. */
 const drawn = (page, selector) =>
@@ -77,7 +74,7 @@ for (const engine of ENGINES) {
   describe(`the one frame in ${engine}`, () => {
     let browser;
     before(async () => {
-      browser = await playwright[engine].launch(LAUNCH[engine]);
+      browser = await launch(engine);
     });
     after(async () => {
       await browser?.close();

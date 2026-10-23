@@ -9,8 +9,8 @@ import fs from 'node:fs';
 import http from 'node:http';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { chromium } from '@playwright/test';
 import { QUIET_MS, watchNetwork } from './network-quiet.mjs';
+import { launch } from './launch.mjs';
 
 // A document whose parser has nothing in flight for longer than 500 ms, then asks for a script it makes itself (the
 // preload scanner does not see it) that ends before DOMContentLoaded, then parses on. The parser is held by scripts that
@@ -40,7 +40,7 @@ before(async () => {
   });
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   origin = `http://127.0.0.1:${server.address().port}`;
-  browser = await chromium.launch();
+  browser = await launch();
 });
 
 after(async () => {
