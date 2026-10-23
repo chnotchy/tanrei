@@ -1,5 +1,5 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
-import { AvailabilityController, ariaAttribute, report } from '../../primitives/index.js';
+import { AvailabilityController, ariaAttribute, asComponent, report } from '../../primitives/index.js';
 import { styles } from './badge.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 
@@ -139,12 +139,12 @@ export class TanreiBadge extends TanreiElement {
       const own = ownDescriptions.get(anchor)!;
       ownDescriptions.delete(anchor);
       if (own === null) anchor.removeAttribute('aria-description');
-      else anchor.setAttribute('aria-description', own);
+      else asComponent(() => anchor.setAttribute('aria-description', own));
       return;
     }
     // An anchor that moves the product's ARIA holds it in data-aria-description (src/primitives/delegated-aria.ts).
     if (!ownDescriptions.has(anchor)) ownDescriptions.set(anchor, ariaAttribute(anchor, 'aria-description'));
-    if (ariaAttribute(anchor, 'aria-description') !== description) anchor.setAttribute('aria-description', description);
+    if (ariaAttribute(anchor, 'aria-description') !== description) asComponent(() => anchor.setAttribute('aria-description', description));
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {

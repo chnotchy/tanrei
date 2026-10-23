@@ -1,5 +1,6 @@
 import { type PropertyDeclarations, html } from 'lit';
-import { ComposedControl, type ValueMember, exported, forward } from '../../primitives/composed.js';
+import { ComposedControl, type ValueMember, exported, forward, fieldDelegatesAria } from '../../primitives/composed.js';
+import { delegatedAria } from '../../primitives/delegated-aria.js';
 import { TanreiField, type TanreiFieldRequiredMark } from '../field/field.js';
 import { TanreiOneTimeCodeInput, type TanreiOneTimeCodeInputDetail, type TanreiOneTimeCodeInputType } from '../one-time-code-input/one-time-code-input.js';
 
@@ -144,8 +145,6 @@ export class TanreiOneTimeCodeField extends ComposedControl<string> {
   /** @from tanrei-one-time-code-input.readOnly */
   readOnly = false;
 
-  protected override readonly hostNameSentence = 'OTF-1';
-
   protected override get valueMember(): ValueMember<string> | null {
     return this.renderRoot?.querySelector<TanreiOneTimeCodeInput>('tanrei-one-time-code-input') ?? null;
   }
@@ -155,11 +154,13 @@ export class TanreiOneTimeCodeField extends ComposedControl<string> {
   // one child.
   protected override render() {
     return html`<tanrei-field part="field" exportparts=${FIELD_PARTS.attribute} ${forward(this, FIELD)} .disabled=${this.disabled || this.formDisabled}
-      >${this.pass('label-icon')}<tanrei-one-time-code-input part="one-time-code-input" exportparts=${INPUT_PARTS.attribute} ${forward(this, INPUT)}></tanrei-one-time-code-input
+      >${this.pass('label-icon')}<tanrei-one-time-code-input part="one-time-code-input" exportparts=${INPUT_PARTS.attribute} ${delegatedAria(this, {})} ${forward(this, INPUT)}></tanrei-one-time-code-input
     ></tanrei-field>`;
   }
 }
 
+// OTF-1: the product's ARIA on the host is its control's (src/primitives/delegated-aria.ts), but for its name, which is label.
+fieldDelegatesAria(TanreiOneTimeCodeField, TanreiOneTimeCodeInput, 'OTF-1');
 if (!customElements.get('tanrei-one-time-code-field')) customElements.define('tanrei-one-time-code-field', TanreiOneTimeCodeField);
 
 declare global {

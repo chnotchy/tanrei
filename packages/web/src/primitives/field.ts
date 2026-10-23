@@ -1,6 +1,6 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
 // A control that moves the product's ARIA to data-aria-* holds there what a frame gave it.
-import { ariaAttribute } from './delegated-aria.js';
+import { ariaAttribute, asComponent } from './delegated-aria.js';
 
 // A field and the control it frames live in different trees: the field's label and its help are in the field's shadow
 // root, the control is the product's element in the light DOM, and its semantics are on a native element inside the
@@ -302,13 +302,14 @@ function write(element: Element, record: Given, name: string, value: string | nu
     // Take back only what is still the frame's: a value the product wrote meanwhile is the product's.
     if (ariaAttribute(element, name) === had.wrote) {
       if (had.before === null) element.removeAttribute(name);
-      else element.setAttribute(name, had.before);
+      else asComponent(() => element.setAttribute(name, had.before!));
     }
     record.attributes.delete(name);
     return;
   }
   const before = had ? had.before : ariaAttribute(element, name);
-  if (ariaAttribute(element, name) !== value) element.setAttribute(name, value);
+  // The frame's own write: never reported as the product's on a control that owns it (src/primitives/delegated-aria.ts).
+  if (ariaAttribute(element, name) !== value) asComponent(() => element.setAttribute(name, value));
   record.attributes.set(name, { before, wrote: value });
 }
 

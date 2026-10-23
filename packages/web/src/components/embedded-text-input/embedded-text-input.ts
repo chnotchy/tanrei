@@ -1,6 +1,6 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
-import { NativeTextController, report } from '../../primitives/index.js';
+import { NativeTextController, delegatedAria, delegatesAria, report } from '../../primitives/index.js';
 import { AutoHeight } from '../../primitives/auto-height.js';
 import { pressDefaultButton } from '../../primitives/default-button.js';
 import { takeFormDisabled } from '../../primitives/form-disabled.js';
@@ -666,7 +666,6 @@ export class TanreiEmbeddedTextInput extends TanreiElement {
     if (changed.has('type') && !(this.type in TYPES)) report(this, 'ETI-17', `type "${String(this.type)}" is not a type of the embedded text input; it behaves as "text"`);
     if (changed.has('enterKey') && !ENTER_KEYS.includes(this.enterKey)) report(this, 'ETI-6', `enter-key "${String(this.enterKey)}" is not a value of enterKey; Enter begins a new line, as with "line-break"`);
     if (!this.label.trim()) report(this, 'ETI-13', 'label is empty, so the input has no accessible name: nothing is drawn that could name it and it asks no field; give it a label');
-    if (this.hasAttribute('aria-label') || this.hasAttribute('aria-labelledby')) report(this, 'ETI-13', 'aria-label and aria-labelledby on the element name nothing: it has no role; name it with label');
   }
 
   protected override render() {
@@ -696,11 +695,13 @@ export class TanreiEmbeddedTextInput extends TanreiElement {
           .placeholder=${this.placeholder}
           ?disabled=${inert}
           ?readonly=${this.readOnly}
-          aria-label=${label || nothing}
-          aria-description=${description || nothing}
-          aria-invalid=${this.error ? 'true' : nothing}
-          aria-required=${this.required ? 'true' : nothing}
-          aria-readonly=${this.readOnly ? 'true' : nothing}
+          ${delegatedAria(this, {
+            'aria-label': label,
+            'aria-description': description,
+            'aria-invalid': this.error && 'true',
+            'aria-required': this.required && 'true',
+            'aria-readonly': this.readOnly && 'true',
+          })}
           autocomplete=${this.autocomplete || nothing}
           @input=${this.onInput}
           @change=${this.onNativeChange}
@@ -719,11 +720,13 @@ export class TanreiEmbeddedTextInput extends TanreiElement {
           .placeholder=${this.placeholder}
           ?disabled=${inert}
           ?readonly=${this.readOnly}
-          aria-label=${label || nothing}
-          aria-description=${description || nothing}
-          aria-invalid=${this.error ? 'true' : nothing}
-          aria-required=${this.required ? 'true' : nothing}
-          aria-readonly=${this.readOnly ? 'true' : nothing}
+          ${delegatedAria(this, {
+            'aria-label': label,
+            'aria-description': description,
+            'aria-invalid': this.error && 'true',
+            'aria-required': this.required && 'true',
+            'aria-readonly': this.readOnly && 'true',
+          })}
           autocomplete=${this.autocomplete || nothing}
           @input=${this.onInput}
           @change=${this.onNativeChange}
@@ -740,6 +743,14 @@ export class TanreiEmbeddedTextInput extends TanreiElement {
 disabledWaitsWhileFocused(TanreiEmbeddedTextInput);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiEmbeddedTextInput);
+// ETI-13: the product's ARIA on the host is the text element's (src/primitives/delegated-aria.ts), but for the name, the
+// description and the states, which reach it as props: those are moved, not exposed, and reported in debug builds.
+const PROPS_INSTEAD = { name: 'name it with label', description: 'describe it with description' };
+delegatesAria(TanreiEmbeddedTextInput, {
+  owns: ['aria-label', 'aria-labelledby', 'aria-description', 'aria-describedby', 'aria-errormessage', 'aria-invalid', 'aria-required', 'aria-readonly', 'aria-disabled'],
+  sentence: 'ETI-13',
+  instead: { 'aria-label': PROPS_INSTEAD.name, 'aria-labelledby': PROPS_INSTEAD.name, 'aria-description': PROPS_INSTEAD.description, 'aria-describedby': PROPS_INSTEAD.description },
+});
 if (!customElements.get('tanrei-embedded-text-input')) customElements.define('tanrei-embedded-text-input', TanreiEmbeddedTextInput);
 
 declare global {

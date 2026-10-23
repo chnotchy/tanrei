@@ -7,6 +7,8 @@ import {
   OpenAxesController,
   PressController,
   RovingKeys,
+  delegatedAria,
+  delegatesAria,
   hostAria,
   markConditionChange,
   notifyItemUpdate,
@@ -252,11 +254,9 @@ export class TanreiSegment extends TanreiElement {
         type="button"
         data-tanrei-shape
         role=${multiple ? nothing : 'radio'}
-        aria-checked=${multiple ? nothing : String(selected)}
-        aria-pressed=${multiple ? String(selected) : nothing}
+        ${delegatedAria(this, { 'aria-checked': !multiple && String(selected), 'aria-pressed': multiple && String(selected), 'aria-label': this.label })}
         aria-posinset=${!multiple && position ? String(position) : nothing}
         aria-setsize=${!multiple && size ? String(size) : nothing}
-        aria-label=${this.label || nothing}
         tabindex=${tabStop ? '0' : '-1'}
         ?disabled=${this.disabled}
         @pointerdown=${this.press.onPointerDown}
@@ -544,6 +544,9 @@ export class TanreiSegmentedButton extends TanreiElement {
   }
 }
 
+// The product's ARIA on a segment's host is its button's (src/primitives/delegated-aria.ts); its checked or pressed state
+// and the disabled state are its own (SEG-20).
+delegatesAria(TanreiSegment, { owns: ['aria-checked', 'aria-pressed', 'aria-disabled'] });
 if (!customElements.get('tanrei-segment')) customElements.define('tanrei-segment', TanreiSegment);
 if (!customElements.get('tanrei-segmented-button')) customElements.define('tanrei-segmented-button', TanreiSegmentedButton);
 

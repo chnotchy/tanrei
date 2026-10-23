@@ -286,7 +286,8 @@
       "Its place in the focus and reading order is where the layout puts the toggle in the element tree, not where it is drawn, as for the main action button.",
       "Compose has no menu role: the items are buttons in a traversal group named by label, with their position in their collection info.",
       "Text size does not change the toggle: an icon is not text. The items grow with enlarged text and wrap their labels.",
-      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
+      "WHEN the product sets an aria- attribute on the host THE FAB menu SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its toggle's role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the toggle is invalid — except those the FAB menu owns (aria-haspopup, aria-expanded, aria-controls, aria-disabled), which it SHALL move and not expose. WHEN the product removes the aria- attribute or its data-aria- twin THE FAB menu SHALL take it off that element. WHEN the product sets an aria- attribute the FAB menu owns THE FAB menu SHALL report it in debug builds."
     ]
   },
   "tokens": "comp.fab-menu",

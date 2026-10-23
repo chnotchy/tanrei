@@ -76,6 +76,14 @@ exposes them on that element. To keep the control one node for assistive technol
   it), never inside another component's shadow root. It follows the element as it is added, removed or changed.
 - `aria-errormessage` is read with the description while the control is invalid (`aria-invalid="true"`).
 - `aria-hidden` stays on the control: it hides the whole control.
+- What the control says itself — a toggle's `aria-pressed`, a checkbox's `aria-checked`, a destination's
+  `aria-current`, `aria-disabled` — moves too and is not exposed; each spec names them. A debug build reports each one
+  you set, once (`console.warn`). A composed field (`tanrei-text-field`, `tanrei-select-field` and the others) passes
+  the rest on to its control, but its name is its `label`: `aria-label` and `aria-labelledby` on it are reported and
+  not exposed. An embedded text input takes its name, its description and its states as props alone.
+- An item whose host has a role of its own keeps what it says there: a navigation destination is a list item, so its
+  `aria-posinset` and `aria-setsize` stay on its host, and what you write moves to its link or its button. A tab's
+  host is the tab itself, so nothing written on a `tanrei-tab` is moved.
 - Playwright sees the name and the description: `getByRole({ name })`, `getByLabel()`, `ariaSnapshot()` and
   `toHaveAccessibleDescription()`. Its own computation does not follow the element references a shadow root needs, so
   the control also gives its native element the name's text and keeps a hidden copy of the description's text in its

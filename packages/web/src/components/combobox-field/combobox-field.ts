@@ -1,5 +1,6 @@
 import { type PropertyDeclarations, type PropertyValues, css, html } from 'lit';
-import { ComposedControl, type ValueMember, composedHost, exported, forward } from '../../primitives/composed.js';
+import { ComposedControl, type ValueMember, composedHost, exported, forward, fieldDelegatesAria } from '../../primitives/composed.js';
+import { delegatedAria } from '../../primitives/delegated-aria.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
   TanreiCombobox,
@@ -307,8 +308,6 @@ export class TanreiComboboxField extends ComposedControl<string> {
    */
   inline = false;
 
-  protected override readonly hostNameSentence = 'CBF-1';
-
   /** CBF-3: what the product set on the element and the combobox has not been given yet. */
   private readonly asked: { inputValue?: string; open?: boolean } = {};
 
@@ -348,13 +347,15 @@ export class TanreiComboboxField extends ComposedControl<string> {
   // stands between the tags: the Field's control is its one child without a slot.
   protected override render() {
     return html`<tanrei-field part="field" exportparts=${FIELD_PARTS.attribute} ${forward(this, FIELD)} .disabled=${this.disabled || this.formDisabled}
-      >${this.pass('label-icon')}<tanrei-combobox part="combobox" exportparts=${COMBOBOX_PARTS.attribute} ${forward(this, COMBOBOX)}
+      >${this.pass('label-icon')}<tanrei-combobox part="combobox" exportparts=${COMBOBOX_PARTS.attribute} ${delegatedAria(this, {})} ${forward(this, COMBOBOX)}
         ><slot></slot>${this.pass('leading-icon')}</tanrei-combobox
       ></tanrei-field
     >`;
   }
 }
 
+// CBF-1: the product's ARIA on the host is its control's (src/primitives/delegated-aria.ts), but for its name, which is label.
+fieldDelegatesAria(TanreiComboboxField, TanreiCombobox, 'CBF-1');
 if (!customElements.get('tanrei-combobox-field')) customElements.define('tanrei-combobox-field', TanreiComboboxField);
 
 declare global {
