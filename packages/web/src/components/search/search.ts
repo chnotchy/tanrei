@@ -971,6 +971,8 @@ export class TanreiSearch extends TanreiElement {
   private pressedResult: TanreiSearchRow | null = null;
   /** SRC-51: the result that took focus last, for the moment the product removes it. */
   private focusedResult: TanreiSearchRow | null = null;
+  /** SRC-51: the control of that result that held the focus, for the moment content the product puts in the result takes it out. */
+  private focusedControl: HTMLElement | null = null;
   /** SRC-40: a press began on the dialog view's scrim. */
   private scrimPressed = false;
   /** SRC-38: the chord this search listens for now, or null. */
@@ -1277,10 +1279,16 @@ export class TanreiSearch extends TanreiElement {
     this.decideIconColumn(suggestions);
     this.checkSuggestions();
     this.checkResults();
-    // SRC-51: the result that had focus was removed or replaced: focus goes to the input rather than out of the view.
+    // SRC-51: the result that had focus was removed or replaced — or its control was, by content the product put in the
+    // result (its text set whole), which the result then puts back without the focus: focus goes to the input rather
+    // than out of the view. A control the row itself changed for another (a link becoming a button) keeps the focus.
     const focused = this.focusedResult;
-    if (focused && !this.contains(focused)) {
+    const control = this.focusedControl;
+    const controlRemoved =
+      !!focused && !!control && !!records?.some((record) => [...record.removedNodes].includes(control)) && (focused.control === control || focused.control === null);
+    if (focused && (!this.contains(focused) || controlRemoved)) {
       this.focusedResult = null;
+      this.focusedControl = null;
       const active = deepActive();
       if (this.expanded && !this.inert_ && (!active || active === document.body || active === this.dialog)) this.currentInput?.focus();
     }
@@ -1834,6 +1842,7 @@ export class TanreiSearch extends TanreiElement {
   private readonly onFocusIn = (event: FocusEvent) => {
     const row = rowOf(event, this);
     this.focusedResult = row;
+    this.focusedControl = row?.control ?? null;
     if (!row) return;
     syncFocusStyle(row, row.row);
     // SRC-42: the row draws the focus its control shows — by the keyboard, not by a press (`:focus-visible`).

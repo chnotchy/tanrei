@@ -656,7 +656,7 @@
     },
     {
       "id": "SRC-51",
-      "text": "THE search SHALL NOT run a query, fetch, wait, debounce, cache, sort or filter anything itself: it emits input once per change (SRC-4) and draws the suggestions, the results, the status and the statusText the product gives it, replacing them when the product does, at once and without a motion of its own. WHEN the result that has focus is removed or replaced THE search SHALL move focus to the input rather than let it fall out of the view; WHEN the product sets results or status while the view is collapsed THE search SHALL keep them for the next time it opens and SHALL NOT expand."
+      "text": "THE search SHALL NOT run a query, fetch, wait, debounce, cache, sort or filter anything itself: it emits input once per change (SRC-4) and draws the suggestions, the results, the status and the statusText the product gives it, replacing them when the product does, at once and without a motion of its own. WHEN the result that has focus is removed or replaced, or the product replaces its content whole so that the element that held the focus goes with it, THE search SHALL move focus to the input rather than let it fall out of the view; WHEN the product sets results or status while the view is collapsed THE search SHALL keep them for the next time it opens and SHALL NOT expand."
     },
     {
       "id": "SRC-52",

@@ -3407,6 +3407,32 @@ test.describe('results: semantics and the product’s data', () => {
     expect(requests).toEqual([]);
   });
 
+  test('SRC-51: when the product replaces the focused result’s content whole (its text set), which takes the link that held the focus with it, focus goes to the input, and the result keeps its link with the new excerpt; a link the result itself makes a button keeps the focus', async ({ page }) => {
+    await mountSite(page, [site('s', { value: 'tok', statusText: '' }, [result('a', 'A'), result('b', 'B'), result('c', 'C')])]);
+    const s = host(page, 's');
+    await trigger(page, 's').click();
+    await expect(link(page, 's', 'b')).toBeVisible();
+    // From the first result, current while focus is in the input, Down Arrow reaches the second (SRC-49).
+    await page.keyboard.press('ArrowDown');
+    expect(await focused(page)).toBe('a@search-result:b');
+    await s.evaluate((el: any) => (el.querySelector('tanrei-search-result[value="b"]').textContent = 'A new passage'));
+    await expect.poll(() => focused(page)).toBe('input@search:tok');
+    expect(await prop(s, 'expanded')).toBe(true);
+    await expect(anchor(page, 's', 'b')).toHaveCount(1);
+    await expect(anchor(page, 's', 'b')).toHaveAttribute('aria-description', 'A new passage');
+    // The product's content in another result than the focused one moves nothing.
+    await page.keyboard.press('ArrowDown');
+    expect(await focused(page)).toBe('a@search-result:b');
+    await s.evaluate((el: any) => (el.querySelector('tanrei-search-result[value="c"]').textContent = 'Another passage'));
+    await expect(anchor(page, 's', 'c')).toHaveAttribute('aria-description', 'Another passage');
+    expect(await focused(page)).toBe('a@search-result:b');
+    // A result whose destination the product takes away becomes a button (SRC-45): the result makes the change, and the
+    // focus goes with it to the button, not to the input.
+    await s.evaluate((el: any) => (el.querySelector('tanrei-search-result[value="b"]').href = ''));
+    await expect.poll(() => focused(page)).toBe('button@search-result:b');
+    expect(await prop(s, 'expanded')).toBe(true);
+  });
+
   test('SRC-10, SRC-46: focus() on the element goes to the input focus belongs to — the header’s while a modal view is open, dialog or full-screen, so that the product’s own content in the view can send focus back when it removes what held it; the bar’s while the view is docked or closed; the trigger while a triggered search is closed; nowhere while disabled — and neither opens nor closes anything', async ({ page }) => {
     // The host delegates focus to the first element of its shadow tree that takes it, which behind an open modal view
     // would be the dialog itself, where typing goes nowhere.
