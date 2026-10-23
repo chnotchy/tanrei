@@ -309,8 +309,8 @@ export class TanreiNumberField extends ComposedControl<number | null> {
   }
 }
 
-// NUM-47: the product's ARIA on the host is its control's (src/primitives/delegated-aria.ts), but for its name, which is label.
-fieldDelegatesAria(TanreiNumberField, TanreiNumberInput, 'NUM-47');
+// NUM-52: the product's ARIA on the host is its control's (src/primitives/delegated-aria.ts), but for its name, which is label (NUM-47).
+fieldDelegatesAria(TanreiNumberField, TanreiNumberInput, 'NUM-52');
 if (!customElements.get('tanrei-number-field')) customElements.define('tanrei-number-field', TanreiNumberField);
 
 declare global {

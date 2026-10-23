@@ -1,7 +1,7 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { hiddenHost } from '../../primitives/hidden.js';
-import { AvailabilityController, GlyphMirrorController, OpenAxesController, PressController, report, delegatedAria, delegatesAria, syncFocusStyle } from '../../primitives/index.js';
+import { AvailabilityController, GlyphMirrorController, OpenAxesController, PressController, report, delegatedAria, namedByProduct, delegatesAria, syncFocusStyle } from '../../primitives/index.js';
 import type { TanreiMainActionButtonSizeRegistry, TanreiMainActionButtonVariantRegistry } from '../../registry.js';
 import { AXES, styles } from './main-action-button.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
@@ -199,7 +199,7 @@ export class TanreiMainActionButton extends TanreiElement {
 
   protected override updated(changed: PropertyValues) {
     // MAB-16: the label is the name; without one it never extends. It still renders; a debug build says what is missing.
-    if (changed.has('label') && !this.label) report(this, 'MAB-16', 'label is empty, so the button has no accessible name and stays collapsed; give it a label');
+    if (changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'MAB-16', 'label is empty, so the button has no accessible name and stays collapsed; give it a label');
     // MAB-15: without an icon there is nothing to collapse to — it stays extended, and a debug build says why.
     if ((changed.has('extended') || changed.has('hasIcon') || changed.has('label')) && !this.extended && !this.hasIcon && this.label) {
       report(this, 'MAB-15', 'extended is false but there is no icon, so it cannot collapse; it stays extended — give it an icon');
@@ -245,7 +245,7 @@ export class TanreiMainActionButton extends TanreiElement {
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiMainActionButton);
 // The product's ARIA on the host is the native element's; the disabled state is its own.
-delegatesAria(TanreiMainActionButton, { owns: ['aria-disabled'] });
+delegatesAria(TanreiMainActionButton, { owns: ['aria-disabled'], sentence: 'MAB-25' });
 if (!customElements.get('tanrei-main-action-button')) customElements.define('tanrei-main-action-button', TanreiMainActionButton);
 
 declare global {

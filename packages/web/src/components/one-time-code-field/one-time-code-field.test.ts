@@ -3,6 +3,8 @@
 // and the value, the form, focus, the twin, reports — is held once, for every composed element, by
 // src/primitives/composed.test.ts (W13-1 to W13-8), and its members' own behaviour by their own files (a
 // higher level's tests repeat no test of a member). What is here is the eight sentences, as they hold of THIS element, and the browser behaviours the element is built on.
+// OTF-9: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

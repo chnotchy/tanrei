@@ -1,5 +1,5 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
-import { AvailabilityController, GlyphDrawnController, report, WordsController, delegatedAria, delegatesAria } from '../../primitives/index.js';
+import { AvailabilityController, GlyphDrawnController, report, WordsController, delegatedAria, namedByProduct, delegatesAria } from '../../primitives/index.js';
 import type { TanreiButtonSizeRegistry, TanreiButtonVariantRegistry } from '../../registry.js';
 import '../button/button.js';
 import '../tooltip/tooltip.js';
@@ -335,7 +335,7 @@ export class TanreiCopyButton extends TanreiElement {
     this.fit(true);
     if (!changed.has('label') && !changed.has('copiedLabel') && !changed.has('failedLabel') && !changed.has('iconOnly')) return;
     // CPY-17: it still renders and copies; a debug build says which words are missing.
-    if (this.words.lacks('copyLabel', this.label)) report(this, 'CPY-17', this.iconOnly ? 'label is empty, so the icon-only button has no accessible name; give it a label' : 'label is empty; give the button its text');
+    if (this.words.lacks('copyLabel', this.label) && !(this.iconOnly && namedByProduct(this))) report(this, 'CPY-17', this.iconOnly ? 'label is empty, so the icon-only button has no accessible name; give it a label' : 'label is empty; give the button its text');
     if (this.words.lacks('copiedLabel', this.copiedLabel)) report(this, 'CPY-17', 'copiedLabel is empty, so a copy is not announced; give it the words');
     if (this.words.lacks('copyFailedLabel', this.failedLabel)) report(this, 'CPY-17', 'failedLabel is empty, so a failure is not announced; give it the words');
   }
@@ -377,7 +377,7 @@ export class TanreiCopyButton extends TanreiElement {
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiCopyButton);
 // The product's ARIA on the host is the element's that carries the role; it is given to the Button it is drawn by, which exposes it; the disabled state is its own.
-delegatesAria(TanreiCopyButton, { owns: ['aria-pressed', 'aria-disabled'] });
+delegatesAria(TanreiCopyButton, { owns: ['aria-pressed', 'aria-disabled'], sentence: 'CPY-20' });
 if (!customElements.get('tanrei-copy-button')) customElements.define('tanrei-copy-button', TanreiCopyButton);
 
 declare global {

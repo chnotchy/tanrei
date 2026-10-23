@@ -226,7 +226,7 @@
     },
     {
       "id": "FBM-23",
-      "text": "WHILE label is empty, an item's label or icon is empty, or the menu holds fewer than two or more than six items, THE FAB menu SHALL still render, and in debug builds report it."
+      "text": "WHILE label is empty and the product gives the FAB menu a name of its own on the element — aria-label, or aria-labelledby naming an element — THE FAB menu SHALL expose that name as the toggle's accessible name and name the list by the toggle. WHILE label is empty and the product gives it none, an item's label or icon is empty, or the menu holds fewer than two or more than six items, THE FAB menu SHALL still render, and in debug builds report it."
     },
     {
       "id": "FBM-24",
@@ -245,6 +245,10 @@
     {
       "id": "FBM-27",
       "text": "THE FAB menu SHALL lay out the label of each item as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE FAB menu SHALL still place each label and align its lines by the layout direction, not by the text's own."
+    },
+    {
+      "id": "FBM-28",
+      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE FAB menu SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its toggle's role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the toggle is invalid — except those the FAB menu owns (aria-haspopup, aria-expanded, aria-controls, aria-disabled), which it SHALL move and not expose. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE FAB menu SHALL take it off that element. WHEN the product sets an aria- attribute the FAB menu owns THE FAB menu SHALL report it in debug builds."
     }
   ],
   "accessibility": {
@@ -286,8 +290,7 @@
       "Its place in the focus and reading order is where the layout puts the toggle in the element tree, not where it is drawn, as for the main action button.",
       "Compose has no menu role: the items are buttons in a traversal group named by label, with their position in their collection info.",
       "Text size does not change the toggle: an icon is not text. The items grow with enlarged text and wrap their labels.",
-      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
-      "WHEN the product sets an aria- attribute on the host THE FAB menu SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its toggle's role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the toggle is invalid — except those the FAB menu owns (aria-haspopup, aria-expanded, aria-controls, aria-disabled), which it SHALL move and not expose. WHEN the product removes the aria- attribute or its data-aria- twin THE FAB menu SHALL take it off that element. WHEN the product sets an aria- attribute the FAB menu owns THE FAB menu SHALL report it in debug builds."
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
     ]
   },
   "tokens": "comp.fab-menu",

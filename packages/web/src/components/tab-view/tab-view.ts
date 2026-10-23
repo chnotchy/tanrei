@@ -1,6 +1,6 @@
 import { type PropertyDeclarations, type PropertyValues, html } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
-import { AvailabilityController, SHEET_FLING_VELOCITY, SheetDrag, choiceAttribute, compChoice, findInteractive, hostAria, report } from '../../primitives/index.js';
+import { AvailabilityController, DelegatedAriaWriter, SHEET_FLING_VELOCITY, SheetDrag, choiceAttribute, compChoice, delegatedNames, delegatesAria, findInteractive, hostAria, report } from '../../primitives/index.js';
 import { type LinkedTabView, type TanreiTab, TanreiTabPanel, TanreiTabs, type TanreiTabsSize, type TanreiTabsVariant } from '../tabs/tabs.js';
 import { tabViewStyles } from './tab-view.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
@@ -230,6 +230,8 @@ export class TanreiTabView extends TanreiElement implements LinkedTabView {
   private link: TanreiTabs | null = null;
   /** TBV-16: the row the view draws itself, kept while the view is linked elsewhere so that it can be drawn again. */
   private ownRow: TanreiTabs | null = null;
+  /** TBV-24: what the product writes on the host, written on the own row's host as a product writes it. */
+  private readonly rowAria = new DelegatedAriaWriter();
   /** TBV-16: the tab of the own row that each panel makes, kept while the panel is (TBV-12: nothing is recreated). */
   private readonly rowTabs = new WeakMap<TanreiTabPanel, TanreiTab>();
   /** The panels and their values at the last sync: a change of either shows the selected panel at once (TBV-6). */
@@ -397,6 +399,7 @@ export class TanreiTabView extends TanreiElement implements LinkedTabView {
     row.label = this.label;
     row.group = this.group;
     row.rememberAs = this.rememberAs;
+    this.passAria();
     const panels = this.panels;
     const tabs = panels
       .filter((panel, index) => !!panel.value && panels.findIndex((each) => each.value === panel.value) === index)
@@ -916,8 +919,23 @@ export class TanreiTabView extends TanreiElement implements LinkedTabView {
     this.sync('instant');
   }
 
+  /**
+   * TBV-24: the product's ARIA on the host is the tab list's of the row the view draws, given to that row as a product
+   * gives it, which the row exposes on its tab list (TAB-62). Linked elsewhere, the view draws no row: it reaches no
+   * element, which a debug build says.
+   */
+  private passAria() {
+    if (this.linkedElsewhere) {
+      for (const name of delegatedNames(this)) {
+        if (this.hasAttribute(`data-${name}`)) report(this, 'TBV-24', `${name} on the element reaches nothing: linked to tabs placed elsewhere, the view draws no row; set it on the linked tanrei-tabs`);
+      }
+    } else if (this.ownRow) this.rowAria.write(this.ownRow, this);
+  }
+
   protected override updated(changed: PropertyValues<this>) {
     if (changed.has('tabs') && changed.get('tabs') !== undefined) this.resolve();
+    // TBV-24: what the product wrote on the host, or took away, after every update (a change of data-aria-* asks one).
+    this.passAria();
     // TBV-16: the own row's variant, fullWidth and label are the view's; TBV-17 reports them while linked elsewhere.
     if (changed.has('variant') || changed.has('size') || changed.has('track') || changed.has('fullWidth') || changed.has('label') || changed.has('group') || changed.has('rememberAs')) {
       this.drawRow();
@@ -953,6 +971,8 @@ export class TanreiTabView extends TanreiElement implements LinkedTabView {
   }
 }
 
+// TBV-24: the product's ARIA on the host is the tab list's of its own row (src/primitives/delegated-aria.ts); it owns none.
+delegatesAria(TanreiTabView, { sentence: 'TBV-24' });
 if (!customElements.get('tanrei-tab-view')) customElements.define('tanrei-tab-view', TanreiTabView);
 
 declare global {

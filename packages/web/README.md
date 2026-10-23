@@ -70,7 +70,8 @@ exposes them on that element. To keep the control one node for assistive technol
 - Select it by the moved name: `tanrei-button[data-aria-current="page"]`. `getAttribute('aria-current')` on it is
   `null`, and so is the `ariaCurrent` property; read `data-aria-current`.
 - Removing the `aria-*` attribute you set (`removeAttribute`, `toggleAttribute`, or a React, Vue or Lit binding set to
-  nothing) takes the moved value away; you may also remove `data-aria-*` yourself.
+  nothing) takes the moved value away, and so does setting its ARIA property to `null` (`el.ariaLabel = null`,
+  `el.ariaDescribedByElements = null`, Lit's `.ariaLabel=${nothing}`); you may also remove `data-aria-*` yourself.
 - An id reference (`aria-labelledby`, `aria-describedby`, `aria-controls`, `aria-details`, `aria-errormessage`) must
   name an element in the same tree as the control, or in a tree around it (the shadow root of a component that holds
   it), never inside another component's shadow root. It follows the element as it is added, removed or changed.
@@ -78,9 +79,16 @@ exposes them on that element. To keep the control one node for assistive technol
 - `aria-hidden` stays on the control: it hides the whole control.
 - What the control says itself — a toggle's `aria-pressed`, a checkbox's `aria-checked`, a destination's
   `aria-current`, `aria-disabled` — moves too and is not exposed; each spec names them. A debug build reports each one
-  you set, once (`console.warn`). A composed field (`tanrei-text-field`, `tanrei-select-field` and the others) passes
-  the rest on to its control, but its name is its `label`: `aria-label` and `aria-labelledby` on it are reported and
-  not exposed. An embedded text input takes its name, its description and its states as props alone.
+  you set, once (`console.warn`, citing the spec's sentence of this rule). A composed field (`tanrei-text-field`,
+  `tanrei-select-field` and the others) passes the rest on to its control, and a checkbox group or a radio group to
+  the group of its field group, but its name is its `label`: `aria-label` and `aria-labelledby` on it are reported and
+  not exposed. So it is for a field group, a chat composer and a file upload, on their group. An embedded text input
+  takes its name, its description and its states as props alone.
+- A navigation drawer exposes what you write on it on its navigation landmark, or on its dialog while it is a modal
+  drawer that is shown; a tab view on the tab list of the row it draws. A tab view linked to tabs placed elsewhere
+  draws no row, so what you write on it reaches nothing and is reported: write it on the linked `tanrei-tabs`.
+- Where a control's `label` is empty, the `aria-label` or the `aria-labelledby` you give it is its name, and a debug
+  build does not report it as unnamed.
 - An item whose host has a role of its own keeps what it says there: a navigation destination is a list item, so its
   `aria-posinset` and `aria-setsize` stay on its host, and what you write moves to its link or its button. A tab's
   host is the tab itself, so nothing written on a `tanrei-tab` is moved.

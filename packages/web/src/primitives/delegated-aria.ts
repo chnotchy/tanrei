@@ -14,15 +14,17 @@
 //                                    `setAttribute()`, by a framework, by an ARIA property (`host.ariaCurrent = …`,
 //                                    `host.ariaDescribedByElements = […]`) — moves to `data-aria-X`. `removeAttribute()`
 //                                    and `toggleAttribute()` of a moved name are overridden so that a framework that
-//                                    takes away the `aria-X` it set (React, Vue, Lit) takes the moved value away too.
-//                                    Nothing else is overridden: `getAttribute('aria-X')` is null and `ariaX` is null,
+//                                    takes away the `aria-X` it set (React, Vue, Lit) takes the moved value away too,
+//                                    and the setter of each name's ARIA property, so that `host.ariaX = null` (Lit's
+//                                    `.ariaX=${nothing}`) takes it away as well. Nothing else is overridden, getters
+//                                    neither: `getAttribute('aria-X')` is null and `ariaX` is null,
 //                                    because the host does not have them; the value is `data-aria-X`, and a selector
 //                                    reads `[data-aria-X]`. `owns` names what the component says itself (a toggle's
 //                                    `aria-pressed`, a checkbox's `aria-checked`, `aria-disabled`): those move too, so
 //                                    the host carries nothing, are not exposed, and a debug build reports each one
-//                                    set (`report()`, citing `sentence` — the spec sentence that says where the value
-//                                    comes from instead, `host-aria` where none does — and `instead`, what to write
-//                                    in its place). A composed element that passes the product's ARIA on to a member
+//                                    set (`report()`, citing `sentence` — the id of the spec sentence that states this
+//                                    rule for the component, "WHERE the platform has ARIA attributes (the web)" — and
+//                                    `instead`, what to write in its place). A composed element that passes the product's ARIA on to a member
 //                                    that moves it owns what that member owns as well (`ownedNames()`).
 //   delegatedAria(host, own)         on the element that carries the role, in the template: `own` is what the component
 //                                    says itself (`'aria-label': this.label`); an empty value leaves the name to the
@@ -34,6 +36,8 @@
 //                                    On a member that moves the product's ARIA itself (a composed field's control, a
 //                                    Copy button's Button), it writes on the member's host as a product would, and
 //                                    the member moves and exposes it; that write is the component's (`asComponent()`).
+//   new DelegatedAriaWriter()        the same, for a member the template does not draw (the row a tab view places in
+//                                    its light DOM): `writer.write(member, host, own)` after each of the host's updates.
 //
 // A relationship (`aria-labelledby`, `aria-describedby`, `aria-controls`, `aria-details`, `aria-flowto`,
 // `aria-errormessage`) names elements by id. Its ids are looked up in the host's tree (`getRootNode()`) and the elements
@@ -99,15 +103,39 @@ type RelationName = keyof typeof DELEGATED_RELATIONS;
 export type DelegatedName = StateName | RelationName;
 
 const ALL: readonly DelegatedName[] = [...DELEGATED_STATES, ...(Object.keys(DELEGATED_RELATIONS) as RelationName[])];
+
+/** The ARIA property that reflects each name (ARIA's reflection: `aria-roledescription` is `ariaRoleDescription`). */
+const ARIA_PROPERTIES: Record<DelegatedName, string> = {
+  'aria-label': 'ariaLabel',
+  'aria-description': 'ariaDescription',
+  'aria-roledescription': 'ariaRoleDescription',
+  'aria-expanded': 'ariaExpanded',
+  'aria-haspopup': 'ariaHasPopup',
+  'aria-pressed': 'ariaPressed',
+  'aria-checked': 'ariaChecked',
+  'aria-selected': 'ariaSelected',
+  'aria-disabled': 'ariaDisabled',
+  'aria-invalid': 'ariaInvalid',
+  'aria-required': 'ariaRequired',
+  'aria-readonly': 'ariaReadOnly',
+  'aria-current': 'ariaCurrent',
+  'aria-keyshortcuts': 'ariaKeyShortcuts',
+  'aria-busy': 'ariaBusy',
+  'aria-placeholder': 'ariaPlaceholder',
+  ...DELEGATED_RELATIONS,
+};
 const NAMES = Symbol('tanrei.delegatedAria.names');
 const OWNS = Symbol('tanrei.delegatedAria.owns');
 const GIVEN = Symbol('tanrei.delegatedAria.given');
 const WATCH = Symbol('tanrei.delegatedAria.watch');
+const SET = Symbol('tanrei.delegatedAria.set');
 
 interface Delegating extends HTMLElement {
   /** Elements a relationship was given by property (`host.ariaDescribedByElements = […]`): no id to keep. */
   [GIVEN]?: Map<RelationName, readonly Element[]>;
   [WATCH]?: TreeWatch;
+  /** Elements a relationship's property setter was given, until the attribute it writes is moved. */
+  [SET]?: Map<RelationName, readonly Element[]>;
   requestUpdate(): void;
 }
 
@@ -174,11 +202,17 @@ function relationElements(host: Delegating, name: RelationName): Element[] {
 
 /**
  * Whether the product has named `host` itself — a non-empty `aria-label`, or an `aria-labelledby` that names an element
- * — for a component whose check for a missing name must count it (BTN-16).
+ * — for a component whose check for a missing name must count it (BTN-16, TXI-23, TAB-22…). On a component that moves
+ * the product's ARIA it reads `data-aria-*`; on one whose host carries its role itself (a tab), the attributes, or the
+ * elements given by property (`host.ariaLabelledByElements`).
  */
 export function namedByProduct(host: Element): boolean {
-  if (host.getAttribute(dataName('aria-label'))?.trim()) return true;
-  return relationElements(host as Delegating, 'aria-labelledby').length > 0;
+  if (ariaAttribute(host, 'aria-label')?.trim()) return true;
+  if (delegates(host)) return relationElements(host as Delegating, 'aria-labelledby').length > 0;
+  const given = reflects('aria-labelledby') ? (host as Element & { ariaLabelledByElements?: readonly Element[] | null }).ariaLabelledByElements : null;
+  if (given?.some((element) => element.isConnected)) return true;
+  const root = host.getRootNode() as Document | ShadowRoot;
+  return (host.getAttribute('aria-labelledby') ?? '').split(/\s+/).some((id) => !!id && !!root.getElementById?.(id));
 }
 
 /**
@@ -219,12 +253,23 @@ class TreeWatch {
 
 const watchOf = (host: Delegating) => (host[WATCH] ??= new TreeWatch(host));
 
+/** The setter of each name's ARIA property as the platform has it (`Element.prototype`), where it has one. */
+const platformSetters = new Map<DelegatedName, (value: unknown) => void>(
+  typeof Element === 'undefined'
+    ? []
+    : ALL.flatMap((name) => {
+        const set = Object.getOwnPropertyDescriptor(Element.prototype, ARIA_PROPERTIES[name])?.set;
+        return set ? [[name, set] as const] : [];
+      }),
+);
+
+
 /** What `delegatesAria()` is told. */
 export interface DelegatesAriaOptions {
   /** What the component says itself: moved, never exposed, and reported where the product sets it. */
   owns?: readonly DelegatedName[];
-  /** The spec sentence a report of an owned name cites: where the value comes from instead. `host-aria` by default. */
-  sentence?: string;
+  /** The id of the component's spec sentence that states this rule ("WHERE the platform has ARIA attributes (the web)…"), which a report of an owned name cites. */
+  sentence: string;
   /** For an owned name, what the product writes in its place (`'name it with label'`), said in its report. */
   instead?: Partial<Record<DelegatedName, string>>;
 }
@@ -234,7 +279,7 @@ export interface DelegatesAriaOptions {
  * carries its role (`delegatedAria()`): every name of the list, those in `owns` moved and not exposed — and, in a debug
  * build, reported once per element and name where something other than a Tanrei component sets one (`asComponent()`).
  */
-export function delegatesAria(element: { prototype: HTMLElement; observedAttributes?: string[] }, { owns = [], sentence = 'host-aria', instead = {} }: DelegatesAriaOptions = {}): void {
+export function delegatesAria(element: { prototype: HTMLElement; observedAttributes?: string[] }, { owns = [], sentence, instead = {} }: DelegatesAriaOptions): void {
   const exposed = ALL.filter((name) => !owns.includes(name));
   const moved = new Set<string>(ALL);
   const owned = new Set<string>(owns);
@@ -278,11 +323,22 @@ export function delegatesAria(element: { prototype: HTMLElement; observedAttribu
       report(this, sentence, `${name} on the element is the component's own to say, so it is moved to data-${name} and not exposed${hint ? `; ${hint}` : ''}`);
     }
     if (isRelation(name)) {
-      // Set by the property (`ariaDescribedByElements = […]`), the attribute is empty: the elements are the engine's.
-      const elements = value === '' ? ((Object.getOwnPropertyDescriptor(Element.prototype, DELEGATED_RELATIONS[name])?.get?.call(this) as Element[] | null) ?? []) : null;
+      // Set by the property (`ariaDescribedByElements = […]`), the attribute is empty: the elements are those its setter
+      // was given (the engine's getter leaves out every one outside the host's tree, all of them while it is not in
+      // the page yet: a template's clone), else the engine's.
+      const set = this[SET]?.get(name);
+      this[SET]?.delete(name);
+      const elements = value === '' ? (set ?? (Object.getOwnPropertyDescriptor(Element.prototype, DELEGATED_RELATIONS[name])?.get?.call(this) as Element[] | null) ?? []) : null;
       const given = (this[GIVEN] ??= new Map());
-      if (elements) given.set(name, elements);
+      if (elements) given.set(name, [...elements]);
       else given.delete(name);
+      setAttribute.call(this, dataName(name), value);
+      // The engine's own list is cleared with the attribute (Firefox keeps it when only the attribute is removed, and
+      // the host would be a second node with its description).
+      const clear = platformSetters.get(name);
+      if (elements && clear) clear.call(this, null);
+      else removeAttribute.call(this, name);
+      return;
     }
     setAttribute.call(this, dataName(name), value);
     removeAttribute.call(this, name);
@@ -306,6 +362,26 @@ export function delegatesAria(element: { prototype: HTMLElement; observedAttribu
     else this.removeAttribute(lower);
     return on;
   };
+
+  // An ARIA property set on the host (`host.ariaLabel = …`, Lit's `.ariaLabel=${…}`) writes the attribute, which moves; set
+  // to null it would take away an attribute already gone, so nothing would follow: null (or an empty list of elements)
+  // takes the moved value away as removing the attribute does. Only the setters are the component's; a getter is the
+  // platform's, and reads nothing on the host, which carries nothing.
+  for (const name of ALL) {
+    const set = platformSetters.get(name);
+    if (!set) continue;
+    Object.defineProperty(element.prototype, ARIA_PROPERTIES[name], {
+      configurable: true,
+      enumerable: true,
+      get: Object.getOwnPropertyDescriptor(Element.prototype, ARIA_PROPERTIES[name])?.get,
+      set(this: Delegating, value: unknown) {
+        if (value === null || value === undefined || (Array.isArray(value) && value.length === 0)) return this.removeAttribute(name);
+        // The elements, for the move: an engine may run it after this setter has returned (Firefox).
+        if (isRelation(name)) (this[SET] ??= new Map()).set(name, [...(value as Iterable<Element>)]);
+        set.call(this, value);
+      },
+    });
+  }
 
   prototype.connectedCallback = function (this: Delegating) {
     connected?.call(this);
@@ -347,7 +423,13 @@ const same = (a: readonly Element[] | null | undefined, b: readonly Element[] | 
  */
 export type OwnAria = Partial<Record<string, string | null | undefined | false>>;
 
-class DelegatedAria extends Directive {
+/**
+ * What `delegatedAria()` does, for one element: the component's own ARIA and the product's from `host`, written on
+ * `element` each time it is called. The directive keeps one for the element it stands on; a component keeps one of its
+ * own for a member its template does not draw — the row a tab view places in its light DOM — and calls `write()` after
+ * each of its updates.
+ */
+export class DelegatedAriaWriter {
   /** The attributes it wrote last, so that one no longer given is taken off. */
   private written = new Set<string>();
   /** The relationships it drew last by element reflection. */
@@ -357,17 +439,9 @@ class DelegatedAria extends Directive {
   private copy: HTMLElement | null = null;
   private readonly copyIds = [`tanrei-described-${++copies}-a`, `tanrei-described-${copies}-b`] as const;
 
-  constructor(part: PartInfo) {
-    super(part);
-    if (part.type !== PartType.ELEMENT) throw new Error('delegatedAria() stands on the element that carries the role: <button ${delegatedAria(this, { … })}>');
-  }
-
-  render(_host: HTMLElement, _own: OwnAria) {
-    return noChange;
-  }
-
-  override update(part: ElementPart, [host, own]: [Delegating, OwnAria]) {
-    const element = part.element as HTMLElement & Record<string, unknown>;
+  write(target: HTMLElement, from: HTMLElement, own: OwnAria = {}) {
+    const element = target as HTMLElement & Record<string, unknown>;
+    const host = from as Delegating;
     const inner = delegates(element);
     const exposed = new Set<string>(delegatedNames(host));
     const values = new Map<string, string>();
@@ -453,7 +527,6 @@ class DelegatedAria extends Directive {
         }
       });
     }
-    return noChange;
   }
 
   /** The description: the component's own ids, then the hidden copy of the product's text (above). */
@@ -480,6 +553,24 @@ class DelegatedAria extends Directive {
 
 /** The copies of descriptions made in this page, for their ids. */
 let copies = 0;
+
+class DelegatedAria extends Directive {
+  private readonly writer = new DelegatedAriaWriter();
+
+  constructor(part: PartInfo) {
+    super(part);
+    if (part.type !== PartType.ELEMENT) throw new Error('delegatedAria() stands on the element that carries the role: <button ${delegatedAria(this, { … })}>');
+  }
+
+  render(_host: HTMLElement, _own: OwnAria) {
+    return noChange;
+  }
+
+  override update(part: ElementPart, [host, own]: [HTMLElement, OwnAria]) {
+    this.writer.write(part.element as HTMLElement, host, own);
+    return noChange;
+  }
+}
 
 /**
  * On the element that carries the role: the component's own ARIA (`own`) and, for every name its class exposes

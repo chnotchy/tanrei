@@ -288,7 +288,7 @@
     },
     {
       "id": "TAB-22",
-      "text": "WHILE a tab's label is empty THE tabs SHALL still render the tab and in debug builds report that it has no accessible name."
+      "text": "WHILE a tab's label is empty and the product gives the tab a name of its own on the element — aria-label, or aria-labelledby naming an element — THE tabs SHALL leave that name to the tab; WHILE a tab's label is empty and the product gives it none THE tabs SHALL still render the tab and in debug builds report that it has no accessible name."
     },
     {
       "id": "TAB-23",
@@ -467,6 +467,10 @@
       "id": "TAB-61",
       "text": "WHILE orientation is vertical and a tab's label is wider than its tab less the padding of the row's size on each side (and, beside an icon, less the icon and comp.tabs.container.gap) — a column narrower than its widest tab — THE tabs SHALL truncate the label at the end of its own direction (TAB-33) with an ellipsis, on one line, and SHALL show it whole as TAB-25 says.",
       "verify": "`vertical` in a tab list 120 wide: the longer labels end in an ellipsis, each tab is 120 wide, and hovering one shows its whole label in a tooltip."
+    },
+    {
+      "id": "TAB-62",
+      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the row's host, by the attribute or by the ARIA property that reflects it, THE tabs SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries the row's role (its tab list, or its radio group while the row has no panel) — an id reference by the elements it names in the host's tree or a tree around it. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE tabs SHALL take it off that element. A tab's host carries the tab's role itself, so what the product writes on it is not moved."
     }
   ],
   "accessibility": {
@@ -520,8 +524,7 @@
       "Without its track (TAB-49) a row has no ground of its own: its labels are held on every surface role of the system, and a product that places a row on a color of its own checks the labels against it, as it does for text.",
       "A small row (TAB-44) is 32 tall and still pressed over the minimum target (TAB-5, WCAG 2.5.8): its hit area reaches above and below it, which a header or a toolbar has room for. Directly over content that answers a press at its top edge, that content wins the overlap; a product that stacks a small row tight against such content uses the medium size.",
       "transition none (TAB-43) takes away the motion the row plays by itself when the selection changes, in every motion setting; it takes away no way of selecting, and a drag across the row still carries the indicator under the finger. Where motion is reduced every row is drawn that way, and the state colors then change at once too (TAB-23), a ripple appearing whole (TAB-9).",
-      "A vertical tab list (orientation vertical) is still tabs: one subject's views, the categories of a settings page or the sections of one record, with the arrow keys of its axis (Down and Up); a column without panels is a radio group, whose arrows move in both axes (TAB-42). It is not a menu of destinations — moving between the pages of an app belongs to the navigation drawer, whose items are links. A column never wraps a label: a column narrower than its widest tab truncates the label, which stays the tab's whole name, and shows it whole in a tooltip (TAB-61).",
-      "WHEN the product sets an aria- attribute on the row's host THE tabs SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries the row's role (its tab list, or its radio group while the row has no panel) — an id reference by the elements it names in the host's tree or a tree around it. WHEN the product removes the aria- attribute or its data-aria- twin THE tabs SHALL take it off that element. A tab's host carries the tab's role itself, so what the product writes on it is not moved."
+      "A vertical tab list (orientation vertical) is still tabs: one subject's views, the categories of a settings page or the sections of one record, with the arrow keys of its axis (Down and Up); a column without panels is a radio group, whose arrows move in both axes (TAB-42). It is not a menu of destinations — moving between the pages of an app belongs to the navigation drawer, whose items are links. A column never wraps a label: a column narrower than its widest tab truncates the label, which stays the tab's whole name, and shows it whole in a tooltip (TAB-61)."
     ]
   },
   "tokens": "comp.tabs",

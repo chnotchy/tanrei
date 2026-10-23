@@ -160,7 +160,7 @@
     },
     {
       "id": "CHK-16",
-      "text": "WHILE labelHidden is true THE checkbox SHALL draw no label and SHALL still expose label as its accessible name; WHILE label is empty THE checkbox SHALL still render, and in debug builds report that it has no accessible name."
+      "text": "WHILE labelHidden is true THE checkbox SHALL draw no label and SHALL still expose label as its accessible name; WHILE label is empty and the product gives the checkbox a name of its own on the element — aria-label, or aria-labelledby naming an element — THE checkbox SHALL expose that name as its accessible name; WHILE label is empty and the product gives it none THE checkbox SHALL still render, and in debug builds report that it has no accessible name."
     },
     {
       "id": "CHK-17",
@@ -198,6 +198,10 @@
       "id": "CHK-24",
       "text": "WHILE readOnly is true and disabled is false THE checkbox SHALL stay focusable and in the focus order; SHALL NOT change checked or indeterminate, and SHALL NOT emit change, on any activation — pointer, touch, Space, Enter where Enter activates it, assistive technology, a click on its label or a click dispatched on the element; SHALL expose the read-only state to assistive technology beside its checked, not checked or mixed state; WHERE the platform has forms SHALL be submitted with its form as it is drawn, and SHALL NOT report a missing value to the form's own validation, because the person cannot give one; and SHALL be drawn from the resting component tokens of its condition — the enabled ones, never the disabled ones — and SHALL show no hovered and no pressed state, under any pressed feedback (no overlay, no ripple, no dim), while keyboard focus still selects the focused state and shows the focus ring (CHK-5, CHK-6). The product may still set checked and indeterminate, which then take the selection motion (CHK-13). WHILE disabled is true as well, disabled wins (CHK-3).",
       "verify": "Web unit: a read-only checked checkbox is reached by Tab, keeps checked after a click on the box, a click on the label, Space and element.click(), and fires no input and no change; its input carries aria-readonly; a named one is in FormData and a required unchecked one leaves the form valid; hovered and pressed it draws its resting tokens, keyboard-focused its focused ones."
+    },
+    {
+      "id": "CHK-25",
+      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE checkbox SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the checkbox is invalid — except those the checkbox owns (aria-checked, aria-pressed, aria-disabled), which it SHALL move and not expose. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE checkbox SHALL take it off that element. WHEN the product sets an aria- attribute the checkbox owns THE checkbox SHALL report it in debug builds."
     }
   ],
   "accessibility": {
@@ -227,8 +231,7 @@
       "The mark is drawn at its own weight (comp.checkbox.mark.weight, CHK-12), heavier than the system's icons in the default system. Its color already has the contrast of content on its fill; what a light weight loses is the stroke, which at this size is about one pixel wide and is drawn in a mix of the mark's color and the fill's. A system that sets a lighter weight should look at the dash in particular: it is one stroke, and it is all that tells indeterminate from checked.",
       "The selection motion is decoration too: under reduced motion the new condition is drawn whole at once, never later (CHK-17).",
       "The label wraps at 200% text size; the box does not grow with text, because it is a control, not text.",
-      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
-      "WHEN the product sets an aria- attribute on the host THE checkbox SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the checkbox is invalid — except those the checkbox owns (aria-checked, aria-pressed, aria-disabled), which it SHALL move and not expose. WHEN the product removes the aria- attribute or its data-aria- twin THE checkbox SHALL take it off that element. WHEN the product sets an aria- attribute the checkbox owns THE checkbox SHALL report it in debug builds."
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
     ]
   },
   "tokens": "comp.checkbox",

@@ -4,6 +4,8 @@
 // (`frame()`), and the rows themselves — the label above, the requirement tag, the help, the error text and its
 // announcement — are the Field's sentences and the Field's tests (src/components/field/field.test.ts, FLD-2 to FLD-9
 // and FLD-25 to FLD-28). The arithmetic and the reading of a text (number-text.ts) are also tested by themselves.
+// NMI-48: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

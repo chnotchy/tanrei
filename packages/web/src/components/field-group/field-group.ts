@@ -1,7 +1,7 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { type FrameProps, type FrameRequiredMark, frameAnnounce, frameRequirement, frameWithWords, reportFrame, syncFrameMark } from '../../primitives/field-frame.js';
 import { GROUP_ORIENTATIONS, type GroupOrientation, type GroupSemantics, groupDescribedBy, groupOrientation, groupRows } from '../../primitives/field-group-frame.js';
-import { AvailabilityController, FieldControlController, FieldProviderController, type FieldState, OpenAxesController, WordsController, report } from '../../primitives/index.js';
+import { AvailabilityController, FieldControlController, FieldProviderController, type FieldState, OpenAxesController, WordsController, delegatedAria, delegatesAria, report } from '../../primitives/index.js';
 import type { TanreiFieldGroupSpacingRegistry } from '../../registry.js';
 import { AXES, CORE_SPACINGS, PREFIX, styles } from './field-group.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
@@ -266,16 +266,21 @@ export class TanreiFieldGroup extends TanreiElement {
     // place, never one inside the other — named by its legend, with the role's required and invalid states and its
     // orientation as attributes of this element, which the accessibility checks can see (they cannot see a role given
     // through ElementInternals). Nothing else differs, so the two kinds are the same picture.
+    //
+    // FGR-27: the product's ARIA on the host is this element's, after what the group says itself; its name, its
+    // states and its error message are its own.
     return html`
       <fieldset
         class="group"
         role=${radioGroup ? 'radiogroup' : nothing}
-        aria-labelledby=${radioGroup && this.label ? LEGEND : nothing}
-        aria-describedby=${groupDescribedBy(framed, semantics) ?? nothing}
-        aria-required=${radioGroup && frameRequirement(this) === 'required' ? 'true' : nothing}
-        aria-invalid=${radioGroup && this.error ? 'true' : nothing}
+        ${delegatedAria(this, {
+          'aria-labelledby': radioGroup && this.label ? LEGEND : '',
+          'aria-describedby': groupDescribedBy(framed, semantics) ?? '',
+          'aria-required': radioGroup && frameRequirement(this) === 'required' && 'true',
+          'aria-invalid': radioGroup && this.error && 'true',
+          'aria-disabled': disabled && 'true',
+        })}
         aria-orientation=${radioGroup ? groupOrientation(this.orientation) : nothing}
-        aria-disabled=${disabled ? 'true' : nothing}
         ?data-labelled=${rows.labelled}
         ?data-described=${rows.described}
         ?data-error=${this.error}
@@ -289,6 +294,14 @@ export class TanreiFieldGroup extends TanreiElement {
   }
 }
 
+// FGR-27: the product's ARIA on the host is its group's (src/primitives/delegated-aria.ts), but for its name, its states and
+// its error message, which are its props (FGR-10, FGR-14, FGR-25).
+const NAME_INSTEAD = 'name it with label (labelHidden keeps the name and draws none)';
+delegatesAria(TanreiFieldGroup, {
+  owns: ['aria-label', 'aria-labelledby', 'aria-disabled', 'aria-required', 'aria-invalid', 'aria-errormessage'],
+  sentence: 'FGR-27',
+  instead: { 'aria-label': NAME_INSTEAD, 'aria-labelledby': NAME_INSTEAD, 'aria-errormessage': 'give it error-text' },
+});
 if (!customElements.get('tanrei-field-group')) customElements.define('tanrei-field-group', TanreiFieldGroup);
 
 declare global {

@@ -353,8 +353,8 @@ export class TanreiTextField extends ComposedControl<string> {
   }
 }
 
-// TXF-62: the product's ARIA on the host is its control's (src/primitives/delegated-aria.ts), but for its name, which is label.
-fieldDelegatesAria(TanreiTextField, TanreiTextInput, 'TXF-62');
+// TXF-68: the product's ARIA on the host is its control's (src/primitives/delegated-aria.ts), but for its name, which is label (TXF-62).
+fieldDelegatesAria(TanreiTextField, TanreiTextInput, 'TXF-68');
 if (!customElements.get('tanrei-text-field')) customElements.define('tanrei-text-field', TanreiTextField);
 
 declare global {
