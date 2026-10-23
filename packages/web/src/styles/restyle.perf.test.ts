@@ -35,9 +35,19 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
+import { EVERY_ANIMATION } from '../../test/motions.js';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const read = (file: string) => fs.readFileSync(path.join(pkg, file), 'utf8');
+
+// The tests of this file run one after another in one worker, never beside each other. Each times a style engine that
+// works on several threads, on a page of 2,000 elements or more, and a change timed while the other worker restyles a
+// page as large is timed on half the machine. With every file's tests in parallel (the Playwright config), the two
+// tests with tree views were timed at the same moment on a shard's two workers in each of fifteen CI runs. Firefox, the
+// one where transitions start, in the CI-like container (4 CPUs, each change 50 ms after the one before rather than at
+// rest as `drawn` makes it now, the median of 6 to 10 runs): 97 ms alone, 115 beside the other test with tree views,
+// 131 beside two busy threads.
+test.describe.configure({ mode: 'default' });
 
 /** One screenful of a product: shadow-root components, stylesheet-drawn ones, links in prose, plain elements. */
 const unit = (i: number) => `<section>
@@ -88,13 +98,23 @@ const elements = (page: Page) =>
 /**
  * The time, in ms, from a change made in the page to the second frame after it — the change is drawn, and the page
  * answers again — the median of `runs` changes; `change` is called with the run's number.
+ *
+ * Each change is made on a page at rest: every motion the change before started (the components' state transitions,
+ * 250 ms) has ended first. A change made while they still run interrupts each of them, which is a dearer change, and
+ * how many still ran depended on how fast the machine drew the change before (the next one came two frames and 50 ms
+ * after it). Firefox, the page with trees where transitions start, in the CI-like container, the median of 4 or 5 runs:
+ * 115 ms when the next change came 50 ms after, 69 at rest (4 CPUs); 198 and 124 (2 CPUs). Where motion is reduced,
+ * and nothing runs, it is the same either way (70 to 86 ms and 64 to 70, 4 CPUs).
  */
 const drawn = (page: Page, change: string, runs = 5) =>
   page.evaluate(
-    async ({ change, runs }) => {
+    async ({ change, runs, every }) => {
       const act = (0, eval)(`(${change})`) as (run: number) => void;
+      const running = (0, eval)(every) as (root: Document) => Animation[];
       const times: number[] = [];
       for (let run = 0; run < runs; run++) {
+        // (An animation that never ends, a spinner's, is not waited for.)
+        await Promise.all(running(document).filter((motion) => Number(motion.effect?.getComputedTiming().endTime) !== Number.POSITIVE_INFINITY).map((motion) => motion.finished.catch(() => undefined)));
         await new Promise<void>((done) => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(done, 50))));
         const from = performance.now();
         act(run);
@@ -105,7 +125,7 @@ const drawn = (page: Page, change: string, runs = 5) =>
       }
       return times.sort((a, b) => a - b)[Math.floor(times.length / 2)]!;
     },
-    { change, runs },
+    { change, runs, every: EVERY_ANIMATION },
   );
 
 const CONTRAST = `(run) => document.documentElement.setAttribute('data-tanrei-contrast', run % 2 ? 'standard' : 'high')`;
@@ -195,6 +215,8 @@ const CHROMIUM_CEILING = 400;
  * taken less than half of that. It took between a ninth and a sixth of it on the fast machine, and between a seventh
  * and a fifth in the CI's image on the same machine (46 and 226, 90 and 550); a page that already pays for a
  * registered property takes all of it (the page with trees: 533, and 522 after). `CHROMIUM_CEILING` is held besides.
+ * (Those numbers are of changes made 50 ms after the one before. Made at rest, as `drawn` makes them now, in the
+ * CI-like container: between a seventh and a quarter, 37 and 195 for 300 buttons, 69 and 427 for the page with trees.)
  *
  * Elsewhere the number alone is held: in Firefox and WebKit, whose budgets that runner kept, and in Chromium where
  * nothing transitions — a registered property costs that page nothing (17 to 23 ms with it and without).
