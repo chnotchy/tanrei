@@ -1,6 +1,7 @@
 // The date under a page's title, as an engine draws it (components/frame/PageTitle.astro): the head's meta line holds one
 // item, when the page last changed — a `<time>` whose `datetime` is the date the sitemap gives the page and whose text
-// says that day in the page's language — drawn as the page header's last part, below the title and the description,
+// says that day in the page's language — drawn as the last part of the page header's text, below the title and the
+// description, followed only by the page's actions (PGH-11: they come after the meta line, components/frame/PageActions.astro),
 // from the head's start edge (the right one in Arabic), in the meta line's color, on one line in a wide window and
 // inside the head in a narrow one (PGH-1, PGH-8). Those are asked in UTC, where the day shown is the build's.
 //
@@ -133,9 +134,9 @@ for (const engine of ENGINES) {
     }
 
     for (const { address, lang, rtl } of PAGES) {
-      test(`${address}: the head's last part is when the page last changed, the date its sitemap gives`, async () => {
+      test(`${address}: the last part of the head's text is when the page last changed, the date its sitemap gives`, async () => {
         const seen = await head(address, WIDE);
-        assert.equal(seen.parts.at(-1), 'meta', `parts: ${seen.parts.join(', ')}`);
+        assert.deepEqual(seen.parts.slice(-2), ['meta', 'actions'], `parts: ${seen.parts.join(', ')}`);
         assert.deepEqual(seen.items, ['time']);
         assert.equal(seen.dates, 1);
         const sitemap = sitemapDates.get(address);
