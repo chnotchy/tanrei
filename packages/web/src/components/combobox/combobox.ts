@@ -17,7 +17,7 @@ import {
   slottedInteractive,
   syncFocusStyle,
   WordsController,
-  delegatedAria,
+  delegatedAria, namedByProduct,
   delegatesAria,
 } from '../../primitives/index.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
@@ -1050,7 +1050,7 @@ export class TanreiCombobox extends TanreiElement {
   private reports(changed: PropertyValues) {
     if (!this.isConnected) return;
     // CMB-12: a combobox no Field names, with no label of its own, still renders. (A Field with an empty label says so itself: FLD-10.)
-    if (!this.label.trim() && !this.frame.state) report(this, 'CMB-12', 'label is empty and no field frames it, so the combobox has no accessible name; put it in a field with a label, or give it a label');
+    if (!this.label.trim() && !this.frame.state && !namedByProduct(this)) report(this, 'CMB-12', 'label is empty and no field frames it, so the combobox has no accessible name; put it in a field with a label, or give it a label');
     if (this.clearable && this.words.lacks('clearLabel', this.clearLabel)) report(this, 'CMB-20', 'clearLabel is empty, so the clear button has no accessible name; give it one ("Clear")');
     // CMB-32, CMB-60: only where the row would be drawn — a person typed, or the product opened the list on, a text that
     // matches nothing. (Without the words the list has nothing to show and is not open: `open` is taken back.)
@@ -1205,7 +1205,7 @@ disabledWaitsWhileFocused(TanreiCombobox);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiCombobox);
 // The product's ARIA on the host is the element's that carries the role; the list it opens and the disabled state are its own.
-delegatesAria(TanreiCombobox, { owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-disabled'] });
+delegatesAria(TanreiCombobox, { owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-disabled'], sentence: 'CMB-69' });
 if (!customElements.get('tanrei-combobox')) customElements.define('tanrei-combobox', TanreiCombobox);
 
 declare global {

@@ -159,8 +159,8 @@ export class TanreiOneTimeCodeField extends ComposedControl<string> {
   }
 }
 
-// OTF-1: the product's ARIA on the host is its control's (src/primitives/delegated-aria.ts), but for its name, which is label.
-fieldDelegatesAria(TanreiOneTimeCodeField, TanreiOneTimeCodeInput, 'OTF-1');
+// OTF-9: the product's ARIA on the host is its control's (src/primitives/delegated-aria.ts), but for its name, which is label (OTF-1).
+fieldDelegatesAria(TanreiOneTimeCodeField, TanreiOneTimeCodeInput, 'OTF-9');
 if (!customElements.get('tanrei-one-time-code-field')) customElements.define('tanrei-one-time-code-field', TanreiOneTimeCodeField);
 
 declare global {

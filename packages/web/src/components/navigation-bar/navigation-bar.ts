@@ -610,7 +610,7 @@ export class TanreiNavigationBar extends TanreiElement {
 if (!customElements.get('tanrei-badge')) customElements.define('tanrei-badge', TanreiBadge);
 // The product's ARIA on an item's host is its link's or button's (src/primitives/delegated-aria.ts); whether it is the
 // current page and the disabled state are its own (NVB-2, NVB-30).
-delegatesAria(TanreiNavigationBarItem, { owns: ['aria-current', 'aria-disabled'] });
+delegatesAria(TanreiNavigationBarItem, { owns: ['aria-current', 'aria-disabled'], sentence: 'NVB-34' });
 if (!customElements.get('tanrei-navigation-bar-item')) customElements.define('tanrei-navigation-bar-item', TanreiNavigationBarItem);
 if (!customElements.get('tanrei-navigation-bar')) customElements.define('tanrei-navigation-bar', TanreiNavigationBar);
 

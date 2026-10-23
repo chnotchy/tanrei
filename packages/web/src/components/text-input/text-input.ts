@@ -22,7 +22,7 @@ import {
   syncFocusStyle,
   withinRange,
   WordsController,
-  delegatedAria,
+  delegatedAria, namedByProduct,
   delegatesAria,
 } from '../../primitives/index.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
@@ -2003,8 +2003,8 @@ export class TanreiTextInput extends TanreiElement {
   private reportMisuse(changed: PropertyValues<this>) {
     const kind = this.dateKind;
     const any = (...names: string[]) => names.some((name) => (changed as PropertyValues).has(name));
-    // TXI-23: an input no Field names, with no label of its own, still renders. (A Field with an empty label says so itself: FLD-10.)
-    if ((changed.has('label') || !this.hasUpdated) && !this.label.trim() && !this.frame.state) {
+    // TXI-23: an input no Field names, with no label of its own and none of the product's, still renders. (A Field with an empty label says so itself: FLD-10.)
+    if ((changed.has('label') || !this.hasUpdated) && !this.label.trim() && !this.frame.state && !namedByProduct(this)) {
       report(this, 'TXI-23', 'label is empty and no field frames it, so the text input has no accessible name; put it in a field with a label, or give it a label');
     }
     if (changed.has('type') && !(this.type in TYPES)) report(this, 'TXI-9', `type "${this.type}" is not a type of the text input; it behaves as "text"`);
@@ -2349,7 +2349,7 @@ disabledWaitsWhileFocused(TanreiTextInput);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiTextInput);
 // The product's ARIA on the host is the element's that carries the role; the disabled state is its own.
-delegatesAria(TanreiTextInput, { owns: ['aria-disabled'] });
+delegatesAria(TanreiTextInput, { owns: ['aria-disabled'], sentence: 'TXI-70' });
 if (!customElements.get('tanrei-text-input')) customElements.define('tanrei-text-input', TanreiTextInput);
 
 declare global {

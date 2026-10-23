@@ -2,6 +2,8 @@
 // fixture has a baseline (and the test frames of TBV-5 theirs), and every look and timing is read back from the tokens —
 // never from a number written here. A swipe is a touch (or pen) drag dispatched in the page, each event stamped with the
 // time the finger was there, so a release's velocity is what the test says however late the page's timers run.
+// TBV-24: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, loadSpec, mountFixtures, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';

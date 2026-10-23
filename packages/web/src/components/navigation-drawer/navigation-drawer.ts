@@ -15,7 +15,7 @@ import {
   PressController,
   badgeDescription,
   deepActive,
-  delegatedAria,
+  delegatedAria, namedByProduct,
   delegatesAria,
   findInteractive,
   holdPageScroll,
@@ -1168,7 +1168,7 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
     // NVD-68: without a chevron, a group that has no icon shows nothing on screen of being open or closed.
     if (this.context.chevron === 'none' && this.context.expandable && !this.icon && !this.openIcon && this.hasUpdated) report(this, 'NVD-68', `the group "${this.label}" has no icon and no openIcon while chevron is none, so nothing on screen shows whether it is open; give it an icon`);
     // NVD-46: a group without a label is a button and a list without a name.
-    if (changed.has('label') && !this.label.trim()) report(this, 'NVD-46', 'label is empty, so the group has no accessible name; give it a label');
+    if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'NVD-46', 'label is empty, so the group has no accessible name; give it a label');
     // The value as it was given, for a selector or a product that reads it; an href is not written back as one.
     if (changed.has('value')) {
       if (this.given) {
@@ -3366,7 +3366,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
     if (this.fieldShown) this.exposeFilter();
     this.reportFilter();
     // NVD-24: a modal drawer without a label is a dialog without a name.
-    if ((changed.has('label') || changed.has('variant')) && this.modal && !this.label.trim()) report(this, 'NVD-24', 'label is empty, so the modal drawer is a dialog without a name; give it a label');
+    if ((changed.has('label') || changed.has('variant')) && this.modal && !this.label.trim() && !namedByProduct(this)) report(this, 'NVD-24', 'label is empty, so the modal drawer is a dialog without a name; give it a label');
     // NVD-37: a collapsible drawer whose user cannot change its form.
     if ((changed.has('collapsible') || has(changed, 'hasButtons')) && this.collapsible && !this.headerButtons.length) {
       report(this, 'NVD-37', 'it is collapsible but has no header button, so its user cannot change its form; give it a menu button (slot="header-button")', { once: false });
@@ -3465,13 +3465,14 @@ export class TanreiNavigationDrawer extends TanreiElement {
   protected override render() {
     const label = this.label || nothing;
     if (this.modal && (!this.collapses || this.presented)) {
-      // NVD-23: a modal dialog named by the label, holding the navigation landmark.
+      // NVD-23: a modal dialog named by the label, holding the navigation landmark. NVD-78: the product's ARIA on the host
+      // is the dialog's, the element a person meets first.
       return html`<dialog
         part="container"
         class=${classMap({ drawer: true, widening: this.collapses })}
         data-tanrei-appear
         style=${styleMap(this.collapses ? this.place : {})}
-        aria-label=${label}
+        ${delegatedAria(this, { 'aria-label': this.label })}
         tabindex="-1"
         data-tanrei-shape
         @keydown=${this.onKeyDown}
@@ -3486,9 +3487,9 @@ export class TanreiNavigationDrawer extends TanreiElement {
       </dialog>`;
     }
     // NVD-40: a collapsible modal drawer's column, while it is closed: a layout region, drawn as a standard drawer's.
-    if (this.modal) return html`<nav part="container" class="drawer column" aria-label=${label} data-tanrei-shape>${this.body()}</nav>`;
+    if (this.modal) return html`<nav part="container" class="drawer column" ${delegatedAria(this, { 'aria-label': this.label })} data-tanrei-shape>${this.body()}</nav>`;
     // NVD-18: closed, it is out of the focus order and the accessibility tree at once (inert), and hidden once it has slid out.
-    return html`<nav part="container" class="drawer standard" aria-label=${label} ?inert=${!this.isOpen} data-tanrei-shape>${this.body()}</nav>`;
+    return html`<nav part="container" class="drawer standard" ${delegatedAria(this, { 'aria-label': this.label })} ?inert=${!this.isOpen} data-tanrei-shape>${this.body()}</nav>`;
   }
 }
 
@@ -3498,10 +3499,12 @@ if (!customElements.get('tanrei-divider')) customElements.define('tanrei-divider
 if (!customElements.get('tanrei-badge')) customElements.define('tanrei-badge', TanreiBadge);
 // NVD-56: a collapsed cell's name is shown by the tooltip component.
 if (!customElements.get('tanrei-tooltip')) customElements.define('tanrei-tooltip', TanreiTooltip);
-// The product's ARIA on an item's or a group's host is its row's (src/primitives/delegated-aria.ts), in both forms of the
-// drawer; whether it is the current page, whether a group is open and what it opens, and the disabled state are its own.
-delegatesAria(TanreiNavigationDrawerItem, { owns: ['aria-current', 'aria-disabled'] });
-delegatesAria(TanreiNavigationDrawerGroup, { owns: ['aria-current', 'aria-expanded', 'aria-controls', 'aria-disabled'] });
+// NVD-78: the product's ARIA on the drawer's host is its dialog's or its navigation landmark's; on an item's or a group's
+// host it is its row's (src/primitives/delegated-aria.ts), in both forms of the drawer — whether it is the current page,
+// whether a group is open and what it opens, and the disabled state are its own.
+delegatesAria(TanreiNavigationDrawer, { sentence: 'NVD-78' });
+delegatesAria(TanreiNavigationDrawerItem, { owns: ['aria-current', 'aria-disabled'], sentence: 'NVD-78' });
+delegatesAria(TanreiNavigationDrawerGroup, { owns: ['aria-current', 'aria-expanded', 'aria-controls', 'aria-disabled'], sentence: 'NVD-78' });
 if (!customElements.get(ITEM)) customElements.define(ITEM, TanreiNavigationDrawerItem);
 if (!customElements.get(GROUP)) customElements.define(GROUP, TanreiNavigationDrawerGroup);
 if (!customElements.get(SECTION)) customElements.define(SECTION, TanreiNavigationDrawerSection);

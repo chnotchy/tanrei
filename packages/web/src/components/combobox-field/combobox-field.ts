@@ -354,8 +354,8 @@ export class TanreiComboboxField extends ComposedControl<string> {
   }
 }
 
-// CBF-1: the product's ARIA on the host is its control's (src/primitives/delegated-aria.ts), but for its name, which is label.
-fieldDelegatesAria(TanreiComboboxField, TanreiCombobox, 'CBF-1');
+// CBF-8: the product's ARIA on the host is its control's (src/primitives/delegated-aria.ts), but for its name, which is label (CBF-1).
+fieldDelegatesAria(TanreiComboboxField, TanreiCombobox, 'CBF-8');
 if (!customElements.get('tanrei-combobox-field')) customElements.define('tanrei-combobox-field', TanreiComboboxField);
 
 declare global {

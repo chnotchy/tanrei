@@ -20,6 +20,7 @@ import {
   takeBack,
 } from '../../primitives/index.js';
 import { ComposedElement, composedHost, exported } from '../../primitives/composed.js';
+import { delegatedAria, delegatesAria } from '../../primitives/delegated-aria.js';
 import { acceptConverter, fileKind } from '../../primitives/file-format.js';
 import { FILE_ITEM_TAKE_FOCUS, FILE_ITEM_UPDATE, type FileItemGiven, giveFileItem } from '../../primitives/file-item-holder.js';
 import { takeFormDisabled } from '../../primitives/form-disabled.js';
@@ -411,8 +412,6 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   protected count = 0;
   /** Set by an ancestor `<fieldset disabled>`, or by the element's own attribute (`formDisabledCallback`). */
   protected formDisabled = false;
-
-  protected override readonly hostNameSentence = 'CCM-29';
 
   private readonly internals = this.attachInternals();
 
@@ -1455,9 +1454,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
         part="container"
         class="capsule"
         role="group"
-        aria-label=${name || nothing}
-        aria-busy=${this.sending ? 'true' : nothing}
-        aria-disabled=${disabled ? 'true' : nothing}
+        ${delegatedAria(this, { 'aria-label': name, 'aria-busy': this.sending && 'true', 'aria-disabled': disabled && 'true' })}
         data-layout=${stacked ? 'stacked' : 'inline'}
         ?data-error=${this.isError}
         ?data-focused=${this.typing && !disabled}
@@ -1507,6 +1504,13 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
 
 // Its `disabled` attribute, written while it holds focus, waits until focus has left: a frame at most.
 disabledWaitsWhileFocused(TanreiChatComposer);
+// CCM-45: the product's ARIA on the host is its group's (src/primitives/delegated-aria.ts), but for its name, its busy state
+// and its other states, which are its props (CCM-29).
+delegatesAria(TanreiChatComposer, {
+  owns: ['aria-label', 'aria-labelledby', 'aria-busy', 'aria-disabled', 'aria-invalid', 'aria-errormessage'],
+  sentence: 'CCM-45',
+  instead: { 'aria-label': 'name it with label', 'aria-labelledby': 'name it with label', 'aria-busy': 'it is busy while sending is true' },
+});
 if (!customElements.get('tanrei-chat-composer')) customElements.define('tanrei-chat-composer', TanreiChatComposer);
 
 declare global {

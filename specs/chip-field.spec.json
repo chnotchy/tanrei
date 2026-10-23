@@ -372,6 +372,10 @@
     {
       "id": "CHF-30",
       "text": "WHILE disabled is false and readOnly is false THE chip field SHALL keep every entry's hit areas as the Chip gives them (CHP-5, CHP-21): the remove action's reaches sys.target.touch for touch input and sys.target.pointer for fine pointers, and WHERE the hit areas of neighbouring entries, on one line or on two, overlap THE chip field SHALL give a press on an entry's visible bounds to that entry and a press between two to the nearer one. A press that lands on no entry and no remove action SHALL be the typing part's (CHF-11)."
+    },
+    {
+      "id": "CHF-31",
+      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE chip field SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the chip field is invalid — except those the chip field owns (aria-label, aria-labelledby, aria-disabled), which it SHALL move and not expose: its name is label (CHF-21). WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE chip field SHALL take it off that element. WHEN the product sets an aria- attribute the chip field owns THE chip field SHALL report it in debug builds."
     }
   ],
   "accessibility": {
@@ -431,8 +435,7 @@
       "The text of an input method's composition is never cut into entries: the key that commits a composition commits it, and only then is the text read (CHF-7). A Japanese or Chinese ideographic comma is a separator only where the product lists it.",
       "A long entry is cut by the Chip with an ellipsis and keeps its whole text as its name; there is no tooltip. Taking it back shows it whole in the typing part.",
       "Forced colors: the chip field draws nothing of its own, so there is nothing of its own to lose.",
-      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
-      "WHEN the product sets an aria- attribute on the host THE chip field SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the chip field is invalid — except those the chip field owns (aria-label, aria-labelledby, aria-disabled), which it SHALL move and not expose: its name is label (CHF-21). WHEN the product removes the aria- attribute or its data-aria- twin THE chip field SHALL take it off that element. WHEN the product sets an aria- attribute the chip field owns THE chip field SHALL report it in debug builds."
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
     ]
   },
   "tokens": "comp.field",

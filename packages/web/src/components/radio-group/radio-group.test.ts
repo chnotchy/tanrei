@@ -9,6 +9,8 @@
 // three engines (W13-7). The frame's own sentences are the field group's tests (FGR-1 … FGR-25). What is here is what
 // the group adds — the value, the event, the keys and the stop, the form — and, for the sentences that cite the field
 // group, that the frame inside the group is drawn and exposed as they say.
+// RGP-21: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { axTree, insideHost, ofRoles } from '../../../test/ax-tree.js';

@@ -43,7 +43,7 @@ import {
   chordPressed,
   readBinding,
   takesText,
-  delegatedAria,
+  delegatedAria, namedByProduct,
   delegatesAria,
 } from '../../primitives/index.js';
 import '../button/button.js';
@@ -1645,7 +1645,7 @@ export class TanreiSearch extends TanreiElement {
       report(this, 'SRC-36', `presentation "${this.presentation}" with a trigger (bar "${this.barForm}") has no input to type in; the view opens as "dialog"`);
     }
     // SRC-27, SRC-10, SRC-11: what a debug build reports.
-    if (changed.has('label') && !this.label.trim()) report(this, 'SRC-27', 'label is empty, so the search field has no accessible name; give it a label');
+    if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'SRC-27', 'label is empty, so the search field has no accessible name; give it a label');
     if (this.clearShown && this.words.lacks('clearLabel', this.clearLabel)) report(this, 'SRC-10', 'clearLabel is empty, so the clear button has no accessible name; give it one in the product’s language');
     if (this.modal && this.expanded && !this.inert_ && this.words.lacks('backLabel', this.backLabel)) report(this, 'SRC-11', 'backLabel is empty, so the back button has no accessible name; give it one in the product’s language');
   }
@@ -1885,7 +1885,7 @@ disabledWaitsWhileFocused(TanreiSearch);
 focusedAtFirst(TanreiSearch);
 // The product's ARIA on the host is the input's, or the trigger's while the bar is a button; the view it opens, the
 // shortcut its hint draws (SRC-37) and the disabled state are its own.
-delegatesAria(TanreiSearch, { owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-keyshortcuts', 'aria-disabled'] });
+delegatesAria(TanreiSearch, { owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-keyshortcuts', 'aria-disabled'], sentence: 'SRC-54' });
 if (!customElements.get('tanrei-search')) customElements.define('tanrei-search', TanreiSearch);
 
 declare global {

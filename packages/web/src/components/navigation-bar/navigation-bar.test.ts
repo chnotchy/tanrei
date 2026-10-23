@@ -1,6 +1,8 @@
 // <tanrei-navigation-bar> and <tanrei-navigation-bar-item>, driven by specs/navigation-bar.spec.json: every behaviour id
 // (NVB-1…33) is cited by a test title — the sentences shared through test/destinations.ts, with
 // the bar's own ids — every fixture has a baseline, and every value is read back from the tokens.
+// NVB-34: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { FOUR, bounds, css, destination, destinationSuite, override } from '../../../test/destinations.js';
 import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';

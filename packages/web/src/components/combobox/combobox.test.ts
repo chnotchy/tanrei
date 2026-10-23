@@ -3,6 +3,8 @@
 // number written here. What the frame does (the label, the help, the error text) is the Field's and is tested there
 // (field.test.ts); what a sentence says of "the Field that frames it" is tested with a Field around the combobox
 // (`frame()`), and that a combobox field is that pair by the twins (primitives/composed.test.ts).
+// CMB-69: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

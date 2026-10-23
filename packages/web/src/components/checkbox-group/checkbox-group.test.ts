@@ -864,14 +864,14 @@ test.describe('checkbox group', () => {
       ]);
       expect(tree.join('\n')).not.toMatch(/posinset|setsize|required=true/);
     }
-    // W8: the host has no role, so an ARIA name on it names nothing: a debug build says so.
+    // CKG-15: the host has no role; its name is label, so an ARIA name on it is moved, not exposed, and a debug build says so.
     expect(reportsOf(seen)).toEqual([]);
     await g(page).evaluate(async (el) => {
       el.setAttribute('aria-label', 'A name on the host');
       (el as HTMLElement & { requestUpdate(): void }).requestUpdate();
       await (el as Group).updateComplete;
     });
-    expect(reportsOf(seen).filter((text) => text.includes('(CKG-9)') && text.includes('aria-label'))).toHaveLength(1);
+    expect(reportsOf(seen).filter((text) => text.includes('(CKG-15)') && text.includes('aria-label on the element'))).toHaveLength(1);
   });
 
   test('CKG-10: a checkbox added, removed or moved, or whose value or disabled changes, is checked by value again — one that arrives with a value the list holds is shown checked, and the entry of a checked one that leaves is kept — the select-all checkbox is set again, the field group gives its error condition to one that came and takes it back from one that left, no change is emitted and focus stays where it is', async ({ page }) => {

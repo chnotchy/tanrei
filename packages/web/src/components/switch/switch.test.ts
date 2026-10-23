@@ -2,6 +2,8 @@
 // fixture has a baseline, and every condition, state and choice of kind is read back from the tokens — never from a
 // number written here. A drag (SWT-19…21) is dispatched in the page, each event stamped with the time the pointer was
 // there, so a release's velocity is the test's own; one test drives the real mouse, for the click that follows it.
+// SWT-26: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';

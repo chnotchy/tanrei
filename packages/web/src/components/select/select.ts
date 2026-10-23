@@ -17,7 +17,7 @@ import {
   report,
   slottedInteractive,
   syncFocusStyle,
-  delegatedAria,
+  delegatedAria, namedByProduct,
   delegatesAria,
 } from '../../primitives/index.js';
 import { FormSays } from '../../primitives/form-says.js';
@@ -772,7 +772,7 @@ export class TanreiSelect extends TanreiElement {
       }
     }
     // SEL-11: a select with neither name — no label of its own, and no Field that gives it one — still renders.
-    if (!this.name_) report(this, 'SEL-11', 'label is empty and no Field names the select, so it has no accessible name; give it a label, or put it in a <tanrei-field> that has one');
+    if (!this.name_ && !namedByProduct(this)) report(this, 'SEL-11', 'label is empty and no Field names the select, so it has no accessible name; give it a label, or put it in a <tanrei-field> that has one');
     if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
       report(this, 'SEL-45', `separation "${this.separation}" is not auto, divider or gap; it behaves as "auto"`);
     }
@@ -907,7 +907,7 @@ disabledWaitsWhileFocused(TanreiSelect);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiSelect);
 // The product's ARIA on the host is the element's that carries the role; the list it opens and the disabled state are its own.
-delegatesAria(TanreiSelect, { owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-disabled'] });
+delegatesAria(TanreiSelect, { owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-disabled'], sentence: 'SEL-71' });
 if (!customElements.get('tanrei-select')) customElements.define('tanrei-select', TanreiSelect);
 
 declare global {

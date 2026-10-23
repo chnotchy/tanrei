@@ -1,6 +1,8 @@
 // <tanrei-segmented-button> and <tanrei-segment>, driven by specs/segmented-button.spec.json: every behaviour id
 // (SEG-1…25) is cited by a test title, every fixture has a baseline, and every state, condition and choice of kind is read
 // back from the tokens — never from a number written here.
+// SEG-29: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import {

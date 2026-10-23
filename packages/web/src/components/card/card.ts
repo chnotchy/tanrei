@@ -1,7 +1,7 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, nothing } from 'lit';
 import { html, literal } from 'lit/static-html.js';
 import { hiddenHost } from '../../primitives/hidden.js';
-import { AvailabilityController, LinkController, OpenAxesController, PressController, type TanreiLinkTarget, linkAttributes, report, slottedInteractive, syncFocusStyle, delegatedAria, delegatesAria } from '../../primitives/index.js';
+import { AvailabilityController, LinkController, OpenAxesController, PressController, type TanreiLinkTarget, linkAttributes, report, slottedInteractive, syncFocusStyle, delegatedAria, namedByProduct, delegatesAria } from '../../primitives/index.js';
 import type { TanreiCardVariantRegistry } from '../../registry.js';
 import { AXES, styles } from './card.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
@@ -210,8 +210,9 @@ export class TanreiCard extends TanreiElement {
   }
 
   protected override updated(changed: PropertyValues<this>) {
-    // CRD-14: an interactive card or a link card without a label is named by its whole content; a debug build says so.
-    if ((changed.has('label') || changed.has('interactive') || changed.has('href')) && this.pressable && !this.label) {
+    // CRD-14: an interactive card or a link card without a label, nor a name of the product's, is named by its whole
+    // content; a debug build says so.
+    if ((changed.has('label') || changed.has('interactive') || changed.has('href')) && this.pressable && !this.label && !namedByProduct(this)) {
       report(this, 'CRD-14', `${this.link.form ? 'a link' : 'an interactive'} card has no label, so its whole content is its accessible name; give it a label (normally its heading’s text)`);
     }
     if ((changed.has('interactive') || changed.has('href')) && this.hasUpdated) void this.inspectContent();
@@ -260,7 +261,7 @@ export class TanreiCard extends TanreiElement {
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiCard);
 // The product's ARIA on the host is the element's that carries the role; the disabled state is its own.
-delegatesAria(TanreiCard, { owns: ['aria-disabled'] });
+delegatesAria(TanreiCard, { owns: ['aria-disabled'], sentence: 'CRD-24' });
 if (!customElements.get('tanrei-card')) customElements.define('tanrei-card', TanreiCard);
 
 declare global {

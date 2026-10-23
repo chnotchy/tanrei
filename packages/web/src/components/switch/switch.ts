@@ -13,7 +13,7 @@ import {
   report,
   selectionRippleOrigin,
   syncFocusStyle,
-  delegatedAria,
+  delegatedAria, namedByProduct,
   delegatesAria,
 } from '../../primitives/index.js';
 import { PROGRESS, styles } from './switch.styles.js';
@@ -457,7 +457,7 @@ export class TanreiSwitch extends TanreiElement {
   protected override updated(changed: PropertyValues<this>) {
     this.selection.setFormValue(this.checked ? this.value : null, String(this.checked));
     // SWT-16: a switch without a name still renders; a debug build says what is missing.
-    if (changed.has('label') && !this.label && !this.selection.field.label) report(this, 'SWT-16', 'label is empty, so the switch has no accessible name; give it a label');
+    if (changed.has('label') && !this.label && !this.selection.field.label && !namedByProduct(this)) report(this, 'SWT-16', 'label is empty, so the switch has no accessible name; give it a label');
   }
 
   protected override render() {
@@ -530,7 +530,7 @@ disabledWaitsWhileFocused(TanreiSwitch);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiSwitch);
 // The product's ARIA on the host is the element's that carries the role; its checked and disabled states are its own.
-delegatesAria(TanreiSwitch, { owns: ['aria-checked', 'aria-pressed', 'aria-disabled'] });
+delegatesAria(TanreiSwitch, { owns: ['aria-checked', 'aria-pressed', 'aria-disabled'], sentence: 'SWT-26' });
 if (!customElements.get('tanrei-switch')) customElements.define('tanrei-switch', TanreiSwitch);
 
 declare global {

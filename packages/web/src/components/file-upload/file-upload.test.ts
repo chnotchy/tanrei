@@ -10,6 +10,8 @@
 //
 // A file is chosen through the browser's own picker (Playwright's filechooser event), and a drag is a DragEvent that
 // carries a DataTransfer the page made. Every length is read back from the tokens — never from a number written here.
+// FUP-60: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';

@@ -4,6 +4,8 @@
 // rows themselves — the label above, the requirement tag, the help, the error text — are the Field's sentences and the
 // Field's tests (src/components/field/field.test.ts, FLD-2 to FLD-28). The reading of a text (color-text.ts) is also
 // tested by itself, in Node.
+// CLI-46: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

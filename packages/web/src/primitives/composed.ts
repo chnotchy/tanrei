@@ -4,8 +4,7 @@
 //
 //   ComposedElement  — the base of every composed element: focus passed to the control without delegating it (W7), a
 //                      slot passed on only while it is filled (W9), the Field's connection left alone and asked again
-//                      through the element (W8), `updateComplete` that waits for the members, the debug report for an
-//                      ARIA name on the host (W8).
+//                      through the element (W8), `updateComplete` that waits for the members.
 //   ComposedControl  — a composed element with a value member: the value that is the member's at every moment (W5) and
 //                      the form — the element is the form's control and repeats what its value member tells its own
 //                      internals (W6). `memberUpdated()` is where an element fills a member's prop from what its value
@@ -14,8 +13,9 @@
 //                      element set on the member, as a property, on every render (W2).
 //   exported()       — a member's documented parts as an `exportparts` value, from the list its class keeps (W4).
 //
-//   fieldDelegatesAria() — a composed field's host moves the product's ARIA to data-aria-* and passes it on to its
-//                      control (`${delegatedAria(this, {})}` on the control's tag), but for its name, which is `label`.
+//   fieldDelegatesAria() — a composed element's host moves the product's ARIA to data-aria-* and passes it on to the
+//                      member that carries its role (`${delegatedAria(this, {})}` on the member's tag), but for its
+//                      name, which is `label` (W8): a composed field's control, a checkbox group's field group.
 //
 // The element writes no custom property and reads no token of a member (W3): nothing here touches a style.
 import { type CSSResultGroup, type PropertyDeclarations, type PropertyValues, type TemplateResult, css, html, nothing } from 'lit';
@@ -24,7 +24,6 @@ import { FIELD_CONTROL } from './field.js';
 import { takeFormDisabled } from './form-disabled.js';
 import { type FormEntry, type FormWord, formSaysOf } from './form-says.js';
 import { hiddenHost } from './hidden.js';
-import { report } from './report.js';
 import { disabledWaitsWhileFocused } from './disabled-while-focused.js';
 import { wantsAutofocus } from './autofocus.js';
 import { TanreiElement } from './element.js';
@@ -111,13 +110,6 @@ export abstract class ComposedElement extends TanreiElement {
   /** W7: the member focus goes to, once rendered. */
   protected abstract get control(): HTMLElement | null;
 
-  /**
-   * W8: the sentence a debug build names when the host is given an ARIA name. The host has no role: its name is the
-   * frame's `label`. Empty: nothing is reported. A composed field moves the product's ARIA and reports a name given so
-   * itself (`fieldDelegatesAria()`), and leaves this empty.
-   */
-  protected readonly hostNameSentence: string = '';
-
   /** W9: the names of the slots it has passed on, and the watch on its own children for them. */
   private readonly passing = new Set<string>();
   private children_: MutationObserver | null = null;
@@ -199,10 +191,6 @@ export abstract class ComposedElement extends TanreiElement {
       this.focusedAtFirst = true;
       if (wantsAutofocus(this)) void this.focusWhenReady();
     }
-    // W8: the host has no role, so an ARIA name on it names nothing a person meets.
-    if (this.hostNameSentence && (this.hasAttribute('aria-label') || this.hasAttribute('aria-labelledby'))) {
-      report(this, this.hostNameSentence, 'aria-label and aria-labelledby on the element name nothing: it has no role; name it with label (labelHidden keeps the name and draws none)');
-    }
   }
 
   /** The control has rendered what takes focus only after its own first update. */
@@ -214,20 +202,22 @@ export abstract class ComposedElement extends TanreiElement {
 
 // ─── The product's ARIA on a composed field ──────────────────────────────────────────────────────────────────────
 
-/** What a composed field says itself: its name is its Field's `label` (W8), and its disabled state its `disabled`. */
+/** What a composed element says itself: its name is its frame's `label` (W8), and its disabled state its `disabled`. */
 const FIELD_OWNS: readonly DelegatedName[] = ['aria-label', 'aria-labelledby', 'aria-disabled'];
 const NAME_INSTEAD = 'name it with label (labelHidden keeps the name and draws none)';
 
 /**
- * A composed field (`element`, whose spec's `sentence` says that its name is its Field's label) moves the product's
- * ARIA from its host to `data-aria-*` (src/primitives/delegated-aria.ts) and passes it on to `control`, its member that
- * carries the role, which moves and exposes it in turn: but for the name and the disabled state, which are its own,
- * and what `control` says itself (a select's `aria-expanded`). Called after the class is written, before it is
- * defined; the template puts `${delegatedAria(this, {})}` on the control's tag.
+ * A composed element whose host has no role — a composed field, a checkbox group (`element`; `sentence` is the id of
+ * its spec's sentence that states this, which a report cites) — moves the product's ARIA from its host to `data-aria-*`
+ * (src/primitives/delegated-aria.ts) and passes it on to `control`, its member that carries the role (a field's
+ * control, a group's field group), which moves and exposes it in turn: but for the name and the disabled state, which
+ * are its own, what `control` says itself (a select's `aria-expanded`) and what it says itself besides (`also`: a
+ * radio group's `aria-readonly`). Called after the class is written, before it is defined; the template puts
+ * `${delegatedAria(this, {})}` on the member's tag.
  */
-export function fieldDelegatesAria(element: { prototype: HTMLElement }, control: { prototype: HTMLElement }, sentence: string) {
+export function fieldDelegatesAria(element: { prototype: HTMLElement }, control: { prototype: HTMLElement }, sentence: string, also: readonly DelegatedName[] = []) {
   delegatesAria(element, {
-    owns: [...new Set([...FIELD_OWNS, ...ownedNames(control)])],
+    owns: [...new Set([...FIELD_OWNS, ...ownedNames(control), ...also])],
     sentence,
     instead: { 'aria-label': NAME_INSTEAD, 'aria-labelledby': NAME_INSTEAD },
   });

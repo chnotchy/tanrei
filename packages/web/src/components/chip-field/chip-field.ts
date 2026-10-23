@@ -967,8 +967,8 @@ export class TanreiChipField extends ComposedElement {
 
 // Its `disabled` attribute, written while it holds focus, waits until focus has left: a frame at most.
 disabledWaitsWhileFocused(TanreiChipField);
-// CHF-21: the product's ARIA on the host is its typing part's (src/primitives/delegated-aria.ts), but for its name, which is label.
-fieldDelegatesAria(TanreiChipField, TanreiTextInput, 'CHF-21');
+// CHF-31: the product's ARIA on the host is its typing part's (src/primitives/delegated-aria.ts), but for its name, which is label (CHF-21).
+fieldDelegatesAria(TanreiChipField, TanreiTextInput, 'CHF-31');
 if (!customElements.get('tanrei-chip-field')) customElements.define('tanrei-chip-field', TanreiChipField);
 
 declare global {

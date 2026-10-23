@@ -1,6 +1,8 @@
 // <tanrei-search>, driven by specs/search.spec.json: every behaviour id (SRC-1…51) is cited by a test title, every
 // fixture has a baseline, and every size, color and width is read back from the tokens — never from a number written
 // here. Its clear and back buttons and the slots' buttons are real icon-only <tanrei-button>s.
+// SRC-54: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import {

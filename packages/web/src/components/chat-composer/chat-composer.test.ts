@@ -4,6 +4,8 @@
 // (src/primitives/composed.test.ts); this file holds the chat composer's own sentences — the capsule, the two
 // layouts, what can be sent, the files, the form — and, in the twin's place, the comparison of each
 // member with the same member written by hand.
+// CCM-45: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

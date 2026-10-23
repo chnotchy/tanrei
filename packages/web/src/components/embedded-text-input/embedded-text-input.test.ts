@@ -2,6 +2,8 @@
 // a test title, every fixture has a baseline, and every length and color is read back from the tokens — never from a
 // number written here. The fixtures whose id begins `held-` are drawn inside the sample holder, which
 // is where the holder's side of the contract is seen (ETI-10, ETI-11, ETI-12).
+// ETI-29: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

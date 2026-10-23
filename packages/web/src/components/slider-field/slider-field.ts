@@ -312,8 +312,8 @@ export class TanreiSliderField extends ComposedControl<number> {
   }
 }
 
-// SLF-5: the product's ARIA on the host is its control's (src/primitives/delegated-aria.ts), but for its name, which is label.
-fieldDelegatesAria(TanreiSliderField, TanreiSlider, 'SLF-5');
+// SLF-14: the product's ARIA on the host is its control's (src/primitives/delegated-aria.ts), but for its name, which is label (SLF-5).
+fieldDelegatesAria(TanreiSliderField, TanreiSlider, 'SLF-14');
 if (!customElements.get('tanrei-slider-field')) customElements.define('tanrei-slider-field', TanreiSliderField);
 
 declare global {

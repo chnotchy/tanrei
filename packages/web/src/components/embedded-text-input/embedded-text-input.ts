@@ -743,12 +743,12 @@ export class TanreiEmbeddedTextInput extends TanreiElement {
 disabledWaitsWhileFocused(TanreiEmbeddedTextInput);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiEmbeddedTextInput);
-// ETI-13: the product's ARIA on the host is the text element's (src/primitives/delegated-aria.ts), but for the name, the
-// description and the states, which reach it as props: those are moved, not exposed, and reported in debug builds.
+// ETI-29: the product's ARIA on the host is the text element's (src/primitives/delegated-aria.ts), but for the name, the
+// description and the states, which reach it as props (ETI-13): those are moved, not exposed, and reported in debug builds.
 const PROPS_INSTEAD = { name: 'name it with label', description: 'describe it with description' };
 delegatesAria(TanreiEmbeddedTextInput, {
   owns: ['aria-label', 'aria-labelledby', 'aria-description', 'aria-describedby', 'aria-errormessage', 'aria-invalid', 'aria-required', 'aria-readonly', 'aria-disabled'],
-  sentence: 'ETI-13',
+  sentence: 'ETI-29',
   instead: { 'aria-label': PROPS_INSTEAD.name, 'aria-labelledby': PROPS_INSTEAD.name, 'aria-description': PROPS_INSTEAD.description, 'aria-describedby': PROPS_INSTEAD.description },
 });
 if (!customElements.get('tanrei-embedded-text-input')) customElements.define('tanrei-embedded-text-input', TanreiEmbeddedTextInput);

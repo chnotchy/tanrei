@@ -10,7 +10,7 @@ import {
   report,
   selectionRippleOrigin,
   syncFocusStyle,
-  delegatedAria,
+  delegatedAria, namedByProduct,
   delegatesAria,
 } from '../../primitives/index.js';
 import { styles } from './checkbox.styles.js';
@@ -302,7 +302,7 @@ export class TanreiCheckbox extends TanreiElement {
     this.selection.syncValidity();
     if (owner && (changed.has('checked') || changed.has('value') || changed.has('disabled'))) owner.memberChanged(this, changed.has('checked'));
     // CHK-16: a checkbox without a name still renders; a debug build says what is missing.
-    if (changed.has('label') && !this.label && !this.selection.field.label) report(this, 'CHK-16', 'label is empty, so the checkbox has no accessible name; give it a label');
+    if (changed.has('label') && !this.label && !this.selection.field.label && !namedByProduct(this)) report(this, 'CHK-16', 'label is empty, so the checkbox has no accessible name; give it a label');
   }
 
   protected override render() {
@@ -370,7 +370,7 @@ disabledWaitsWhileFocused(TanreiCheckbox);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiCheckbox);
 // The product's ARIA on the host is the element's that carries the role; its checked and disabled states are its own.
-delegatesAria(TanreiCheckbox, { owns: ['aria-checked', 'aria-pressed', 'aria-disabled'] });
+delegatesAria(TanreiCheckbox, { owns: ['aria-checked', 'aria-pressed', 'aria-disabled'], sentence: 'CHK-25' });
 if (!customElements.get('tanrei-checkbox')) customElements.define('tanrei-checkbox', TanreiCheckbox);
 
 declare global {

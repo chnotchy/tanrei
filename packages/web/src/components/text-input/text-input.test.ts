@@ -3,6 +3,8 @@
 // written here. What a sentence says of "the Field that frames it" is tested with a Field around the input (`frame()`), and
 // the rows themselves — the label above, the requirement tag, the help, the error text, the drawn count — are the
 // Field's sentences and the Field's tests (src/components/field/field.test.ts, FLD-2 to FLD-9 and FLD-25 to FLD-28).
+// TXI-70: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';

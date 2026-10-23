@@ -5,6 +5,8 @@
 // `entries-<id>` — and reports). The members' own sentences are the members' tests (field.test.ts, text-input.test.ts
 // with TXI-64 to TXI-66, chip.test.ts with CHP-38). This file holds the chip field's own sentences, CHF-1 to CHF-30 —
 // among them what the shared test does not define for an element whose value is its own: the value, the form, focus.
+// CHF-31: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';

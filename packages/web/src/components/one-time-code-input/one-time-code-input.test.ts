@@ -1,6 +1,8 @@
 // <tanrei-one-time-code-input>, driven by specs/one-time-code-input.spec.json: every behaviour id (OTC-1…30) is cited by
 // a test title, every fixture has a baseline, and every length and color is read back from the tokens — never from a
 // number written here (the numbers of a spec's own `verify` are the default system's, and are named as such).
+// OTC-31: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
