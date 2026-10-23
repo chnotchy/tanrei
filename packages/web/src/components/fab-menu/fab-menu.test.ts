@@ -1108,14 +1108,14 @@ test.describe('accessibility', () => {
   test('no axe violations in light and dark, closed and open in place, and open in the top layer', async ({ page }) => {
     for (const theme of ['light', 'dark'] as const) {
       await mountFixtures(page, spec, { icons: true, theme });
-      await page.waitForTimeout(400); // colors transition
+      await motionEnded(page);
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => v.id).join(', ')}`).toEqual([]);
     }
     await mountFixtures(page, spec, { icons: true, fixtures: [fixture('menu')] });
     await wire(page);
     await toggle(page, 'menu').click();
-    await page.waitForTimeout(1000);
+    await motionEnded(page);
     const results = await new AxeBuilder({ page }).include('.stage').analyze();
     expect(results.violations, results.violations.map((v) => v.id).join(', ')).toEqual([]);
   });
