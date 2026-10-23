@@ -134,7 +134,7 @@ for (const engine of ENGINES) {
     test('Theme Studio draws its system', async () => {
       const { page, refused } = await open('/studio/');
       try {
-        await page.locator('[data-studio][data-level]').waitFor();
+        await page.locator('[data-studio][data-pane] [data-rail] [data-row]').first().waitFor();
         await page.waitForTimeout(500);
         assert.deepEqual(refused, []);
       } finally {
