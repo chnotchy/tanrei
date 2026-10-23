@@ -2,7 +2,7 @@
 title: "组合框字段"
 description: "让用户通过键入找到一个值，并作为表单的一个字段——一个组合框，带有随键入不断收窄的选项列表，用户从中选择，在产品允许的地方也可以填入自己的值；它位于可以说明必填或选填的标签之下，带有一行帮助文本，以及值被拒绝的原因。"
 translationOf: components/combobox-field.mdx
-sourceHash: 8e037bc89c7a8786138b8894cd3f7caa3988633c
+sourceHash: 1638eb2ce28b564ac75ec61ebafe326ef40c44a7
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -190,9 +190,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 | 输入 | 发生什么 |
 | --- | --- |
-| 键入 | 编辑文本并打开经过筛选的列表。第一个匹配项是活动选项；设置了 `allowCustomValue` 时，没有活动选项 |
+| 键入 | 编辑文本并打开经过筛选的列表。第一个匹配项是活动选项，输入停顿后会被读出；设置了 `allowCustomValue` 时，没有活动选项 |
 | 列表关闭时的下方向键、上方向键；V 形箭头 | 打开列表并显示所有选项。活动选项是选中的那一个；没有选中的选项时，是第一个启用的选项 |
-| 列表打开时的下方向键、上方向键 | 下一个或上一个选项，可以跨组，到头时停住 |
+| 列表打开时的下方向键、上方向键 | 下一个或上一个选项，可以跨组，到两端时循环（设置了 `allowCustomValue` 时经过文本本身）；`wrap` 为 false 时到头停住 |
 | Page Down、Page Up | 向下或向上移动十个选项 |
 | Home、End、左方向键、右方向键 | 在文本中移动插入点 |
 | 有活动选项时的 Enter；按下某个选项 | 选择它并关闭列表。不会提交表单 |
@@ -217,7 +217,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 这个元素的 shadow root 里有一个包着 `<tanrei-combobox>` 的 `<tanrei-field>`。你的 `<tanrei-option>` 子元素仍然是它自己的子元素，通过插槽到达组合框；没有任何东西被移动或复制。
 - 组合框字段是与表单关联的元素：表单看到的唯一控件。它接受 `name`，提交 `value`，绝不提交尚未确认的编辑文本；重置时回到 `value` 属性（attribute）的值，并在 `required` 且 `value` 为空时向表单报告缺少值。没有活动选项时按 Enter 会提交它的表单。
 - `value`、`inputValue` 和 `open` 在任何时刻都是组合框的：在每个监听器里，它们都已经是新的值。
-- `chevron` 对应含义相反的属性（attribute）`no-chevron`，`readOnly` 对应 `readonly`。
+- `chevron` 和 `wrap` 对应含义相反的属性（attribute）`no-chevron` 和 `no-wrap`，`readOnly` 对应 `readonly`。
 - `input` 是文本元素的原生事件。`change` 和 `action` 带有 `detail.value` 和 `detail.inputValue`。这四个事件是组合框自己的事件，以组合框字段为目标；`toggle` 不冒泡。
 - `focus()` 会把焦点交给输入框。这个元素自己不能获得焦点，也没有角色：用 `label` 为它命名，绝不要用 `aria-label`。
 - 部件：`field` 和 `combobox` 是两个成员；每个成员的部件都以自己的名称导出，`label` 和 `requirement-label` 还另外导出为 `field-label`、`combobox-label`、`field-requirement-label` 和 `combobox-requirement-label`。
@@ -271,7 +271,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 显示出来的辅助文本或错误文本是它的描述；字段为选填时，还会加上 `optionalText`。
 - 焦点在字段内时出现的错误，会以礼貌（polite）的方式朗读一次。
 - `error` 为 true 时，它暴露为无效；设置了 `required` 时，暴露为必填；只读时暴露为只读；列表打开时，暴露为已展开。
-- 列表打开期间，焦点留在输入框里。活动选项是输入框的活动后代，所以键入时对文本的编辑绝不会中断。
+- 列表打开期间，焦点留在输入框里。活动选项是输入框的活动后代，所以键入时对文本的编辑绝不会中断。键入使之成为活动的选项，会在输入停顿半秒后才被指向，所以屏幕阅读器先读出刚输入的字母，再读出 Enter 会选中的选项；方向键移到的选项会立即被指向。
 - 列表是一个以标签命名的列表框。每个选项都有自己的名称、描述、是否选中、是否禁用，以及它在所显示的选项中的位置。组以它的标题命名。
 - 匹配部分靠字重来标记，绝不只靠颜色。标签仍作为一整段文本朗读。
 - 状态行是一个实时区域（live region）：它的文本变化时，以礼貌（polite）的方式朗读；数据源失败时，立即朗读。加载期间，列表标记为忙碌，不朗读任何内容。

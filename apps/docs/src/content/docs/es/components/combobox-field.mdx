@@ -2,7 +2,7 @@
 title: Campo de cuadro combinado
 description: "Permite encontrar un valor escribiendo, como campo de un formulario: un cuadro combinado, con una lista de opciones que se reduce a medida que la persona escribe y de la que elige una o, donde el producto lo permite, un valor propio, bajo una etiqueta que puede decir si el campo es obligatorio u opcional, con una línea de ayuda y el motivo por el que se rechazó un valor."
 translationOf: components/combobox-field.mdx
-sourceHash: 8e037bc89c7a8786138b8894cd3f7caa3988633c
+sourceHash: 1638eb2ce28b564ac75ec61ebafe326ef40c44a7
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -190,9 +190,9 @@ La lista se abre a una distancia de `comp.combobox.list.offset` por debajo del c
 
 | Entrada | Qué ocurre |
 | --- | --- |
-| Escribir | Edita el texto y abre la lista, filtrada. La primera coincidencia es la opción activa; con `allowCustomValue` no lo es ninguna |
+| Escribir | Edita el texto y abre la lista, filtrada. La primera coincidencia es la opción activa, y se lee cuando la escritura se detiene; con `allowCustomValue` no lo es ninguna |
 | Flecha abajo, Flecha arriba, con la lista cerrada; el chevron | Abre la lista con todas las opciones. La opción activa es la elegida o, si no hay ninguna, la primera habilitada |
-| Flecha abajo, Flecha arriba, con la lista abierta | La opción siguiente o la anterior, atravesando los grupos y deteniéndose en los extremos |
+| Flecha abajo, Flecha arriba, con la lista abierta | La opción siguiente o la anterior, atravesando los grupos y dando la vuelta en los extremos (a través del texto, con `allowCustomValue`), salvo que `wrap` sea false |
 | Av Pág, Re Pág | Diez opciones hacia abajo o hacia arriba |
 | Inicio, Fin, Flecha izquierda, Flecha derecha | Mueven el cursor de texto |
 | Enter, con una opción activa; una pulsación en una opción | La elige y cierra la lista. No envía el formulario |
@@ -217,7 +217,7 @@ Mientras un método de entrada está componiendo, todas las teclas le pertenecen
 - El shadow root del elemento contiene un `<tanrei-field>` alrededor de un `<tanrei-combobox>`. Tus hijos `<tanrei-option>` siguen siendo hijos suyos y llegan al cuadro combinado a través de un slot; nada se mueve ni se copia.
 - El campo de cuadro combinado es un elemento asociado a formularios: el único control que ve el formulario. Recibe `name`, envía `value` y nunca el texto de una edición que no se confirmó, se restablece al valor del atributo `value` y, mientras `required` y `value` está vacío, notifica al formulario que falta un valor. Enter sin ninguna opción activa envía su formulario.
 - `value`, `inputValue` y `open` son en todo momento los del cuadro combinado: cada uno es ya el nuevo en todos los listeners.
-- `chevron` es el atributo inverso `no-chevron`, y `readOnly` es `readonly`.
+- `chevron` y `wrap` son los atributos inversos `no-chevron` y `no-wrap`, y `readOnly` es `readonly`.
 - `input` es el evento nativo del elemento de texto. `change` y `action` llevan `detail.value` y `detail.inputValue`. Los cuatro eventos son los propios del cuadro combinado, con el campo de cuadro combinado como destino; `toggle` no se propaga.
 - `focus()` va al campo de entrada. El elemento no puede recibir el foco por sí mismo y no tiene rol: dale nombre con `label`, nunca con `aria-label`.
 - Partes: `field` y `combobox` son los dos miembros; las partes de cada miembro se exportan con sus propios nombres, y `label` y `requirement-label` también como `field-label`, `combobox-label`, `field-requirement-label` y `combobox-requirement-label`.
@@ -271,7 +271,7 @@ Mientras un método de entrada está componiendo, todas las teclas le pertenecen
 - El texto de apoyo o de error que se muestra es su descripción, junto con `optionalText` mientras el campo es opcional.
 - Un error que aparece mientras el foco está en el campo se anuncia una vez, de forma cortés.
 - Se expone como no válido mientras `error` es true, como obligatorio mientras `required` está activado, como de solo lectura, y como expandido mientras su lista está abierta.
-- El foco permanece en el campo de entrada mientras la lista está abierta. La opción activa es su descendiente activo, de modo que escribir nunca deja de editar el texto.
+- El foco permanece en el campo de entrada mientras la lista está abierta. La opción activa es su descendiente activo, de modo que escribir nunca deja de editar el texto. Una opción que la escritura convirtió en activa se señala cuando la escritura se detiene medio segundo, para que un lector de pantalla lea primero la letra escrita y después la opción que elegiría Enter; una opción a la que llevan las teclas de flecha se señala al instante.
 - La lista es un cuadro de lista que recibe su nombre de la etiqueta. Cada opción tiene su nombre, su descripción, si es la elegida, si está deshabilitada y su posición entre las opciones que se muestran. Un grupo recibe su nombre de su título.
 - Una coincidencia se marca con el peso, nunca solo con el color. La etiqueta se lee como un solo texto.
 - La fila de estado es una región activa (live region): su texto se lee de forma cortés cuando cambia, y de inmediato cuando la fuente de datos ha fallado. Durante la carga, la lista se marca como ocupada y no se anuncia nada.

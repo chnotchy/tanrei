@@ -188,9 +188,9 @@ The list opens `comp.combobox.list.offset` below the container, exactly as wide 
 
 | Input | What happens |
 | --- | --- |
-| Typing | Edits the text and opens the list, filtered. The first match is the active option; with `allowCustomValue` none is |
+| Typing | Edits the text and opens the list, filtered. The first match is the active option, read out once typing pauses; with `allowCustomValue` none is |
 | Down Arrow, Up Arrow, list closed; the chevron | Opens the list with every option. The chosen option is the active one, or the first enabled one |
-| Down Arrow, Up Arrow, list open | The next or previous option, across groups, stopping at the ends |
+| Down Arrow, Up Arrow, list open | The next or previous option, across groups, going round at the ends — through the text, where `allowCustomValue` is set — unless `wrap` is false |
 | Page Down, Page Up | Ten options down or up |
 | Home, End, Left Arrow, Right Arrow | Move the caret in the text |
 | Enter, an option active; a press on an option | Chooses it and closes the list. It does not submit a form |
@@ -215,7 +215,7 @@ While an input method is composing, every key belongs to it. The Enter that conf
 - The element's shadow root holds a `<tanrei-field>` around a `<tanrei-combobox>`. Your `<tanrei-option>` children stay its own children and reach the combobox through a slot; nothing is moved or copied.
 - The combobox field is a form-associated element: the one control the form sees. It takes `name`, submits `value` and never the text of an edit that was not committed, resets to the `value` attribute, and reports a missing value to the form while `required` and `value` is empty. Enter with no option active submits its form.
 - `value`, `inputValue` and `open` are the combobox's at every moment: each is already the new one in every listener.
-- `chevron` is the inverse attribute `no-chevron`, and `readOnly` is `readonly`.
+- `chevron` and `wrap` are the inverse attributes `no-chevron` and `no-wrap`, and `readOnly` is `readonly`.
 - `input` is the native event of the text element. `change` and `action` carry `detail.value` and `detail.inputValue`. The four events are the combobox's own, with the combobox field as their target; `toggle` does not bubble.
 - `focus()` goes to the input. The element itself is not focusable and has no role: name it with `label`, never with `aria-label`.
 - Parts: `field` and `combobox` are the two members; each member's parts are exported under their own names, and `label` and `requirement-label` also as `field-label`, `combobox-label`, `field-requirement-label` and `combobox-requirement-label`.
@@ -269,7 +269,7 @@ While an input method is composing, every key belongs to it. The Enter that conf
 - The shown supporting or error text is its description, with `optionalText` while the field is optional.
 - An error that appears while focus is in the field is announced once, politely.
 - It is exposed as invalid while `error` is true, as required while `required` is set, as read-only, and as expanded while its list is open.
-- Focus stays in the input while the list is open. The active option is its active descendant, so typing never stops editing the text.
+- Focus stays in the input while the list is open. The active option is its active descendant, so typing never stops editing the text. An option that typing made active is named once typing pauses for half a second, so that a screen reader reads the typed letter first and then the option Enter would choose; an option the arrow keys move to is named at once.
 - The list is a list box named by the label. Each option has its name, its description, whether it is the chosen one, whether it is disabled, and its position among the options shown. A group is named by its title.
 - A match is marked by weight, never by color alone. The label is read as one text.
 - The status row is a live region: its text is read politely when it changes, and at once when the source failed. While loading, the list is marked busy and nothing is announced.

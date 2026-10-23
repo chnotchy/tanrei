@@ -2,7 +2,7 @@
 title: "组合框"
 description: "用户在里面键入以找到一个值的那个方框，以及它打开的选项列表——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的地方，或者放进产品自己组合的字段里。"
 translationOf: components/combobox.mdx
-sourceHash: 20505447c5a948a07d010334c0b1c6d27b691e0b
+sourceHash: 1c80b2651c012d4e997ca3a0612146bbd8864986
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -173,6 +173,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - **必填**要由字段来说明。单独使用的组合框没有必填设置：表单需要回答的地方，请自己校验。
 - **不对应任何选项的文本**在用户离开时会被放弃，除非设置了 `allowCustomValue`。它绝不是组合框自己的错误。
 
+### 在列表中移动
+
+方向键到了列表两端会循环：在最后一个选项上按下方向键回到第一个，在第一个选项上按上方向键到最后一个。设置了 `allowCustomValue` 时，文本本身就是两者之间的一站：在那里没有活动选项，Enter 保留输入的文本。要让方向键停在两端，把 `wrap` 设为 false。Page Down 和 Page Up 从不循环。
+
 ### 列表中的字形
 
 选项的字形位于标签前的一列中。没有字形的选项是否保留这一列的空间，由 `iconSpace` 决定。`auto`（默认）在同一区段中另有选项带字形时保留这一列，使该区段的标签从同一条线开始；在没有字形的区段中不保留。区段是一个组，或组外相邻的一串选项。`always` 在每个选项中都保留，`never` 只在带字形的选项中设这一列。[菜单](/zh-cn/components/menu/)也有同样的 `iconSpace`，取值和默认值都相同。被筛选隐藏的选项不计入。
@@ -187,7 +191,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 组合框的子元素里的 `<slot>` 元素，代表分配给它的那些元素。你自己的元素如果在 shadow root 里放了一个组合框，就可以用这种方式把自己的子元素作为选项转交过去；这些子元素一有变化，就会重新读取。
 - 这个元素是与表单关联的元素。有 `name` 时，它提交 `value`，绝不提交尚未确认的编辑文本；它重置为 `value` 属性（attribute）的值，在导航返回时恢复，跟随被禁用的 `<fieldset>`，并在所在的字段说明它必填而它为空时报告缺少值。
 - 这个元素是一个块。`focus()` 会把焦点交给输入框；在方框上、按钮之外的任何地方按下，也会让它获得焦点。
-- `chevron` 对应的是含义相反的属性（attribute）`no-chevron`，`readOnly` 对应的是 `readonly`。
+- `chevron` 和 `wrap` 对应的是含义相反的属性（attribute）`no-chevron` 和 `no-wrap`，`readOnly` 对应的是 `readonly`。
 - `input` 是文本元素的原生事件。`change` 和 `action` 是 composed 的 CustomEvent，带有 `detail.value` 和 `detail.inputValue`；取消 `action`，Enter 就不会提交表单。`toggle` 带有 `detail.open`，关闭时还带有 `detail.reason`；它是 composed 的，并且不冒泡。
 - 列表是顶层（top layer）中的 `popover="manual"` 元素。在外部按下会关闭它，这次按下也会传到它下方的元素。
 - 部件：`container`、`outline`、`active-indicator`、`label`、`requirement-label`、`input`、`leading-icon`、`clear-button`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider`、`status`。
@@ -230,7 +234,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 输入框是一个带列表框的可编辑组合框。它的名称是它自己的 `label`；它没有 `label` 时，是包着它的字段的标签。占位符绝不是名称。
 - 它的描述是字段给它的内容：帮助文本或错误文本，以及选填文字。
 - 处于错误状态时，它暴露为无效；所在的字段说明它必填时，暴露为必填；只读和禁用时，也分别暴露出来；列表打开时，暴露为已展开。
-- 列表打开期间，焦点留在输入框里。活动选项是输入框的活动后代，所以键入时对文本的编辑绝不会中断。
+- 列表打开期间，焦点留在输入框里。活动选项是输入框的活动后代，所以键入时对文本的编辑绝不会中断。键入使之成为活动的选项，会在输入停顿半秒后才被指向，所以屏幕阅读器先读出刚输入的字母，再读出 Enter 会选中的选项；方向键移到的选项会立即被指向。
 - 列表是一个同名的列表框。每个选项都有自己的名称、描述、是否选中、是否禁用，以及它在所显示的选项中的位置。组以它的标题命名。
 - 状态行是一个实时区域：它的文本变化时以礼貌（polite）的方式朗读，数据源失败时则立即朗读。
 - V 形箭头是一个同名的按钮，不在焦点顺序里。清除按钮以 `clearLabel` 命名，是输入框之后的下一个焦点停靠点。
