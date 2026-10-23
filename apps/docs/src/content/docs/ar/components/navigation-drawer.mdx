@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="navigation-drawer" />
 
 :::note[مواصفة معدَّلة لم تصل بعد إلى كل المنصات]
-تصف هذه الصفحة درج التنقل كما هو في المواصفة الآن. الدرج الذي له `collapsible` يضيق إلى عمود من الأيقونات يحلّ محل سكة التنقل (navigation rail): الدرج المطوي هو الدرج الموسَّع وقد ذهبت تسمياته، وكل صف فيه مقطوع بعد أيقونته، وزر القائمة فيه يوسّعه من جديد وكل أيقونة في مكانها. نص `badge` في الوجهة صار `trailingText`، يُرسم أهدأ، والمنفذ `trailing` يحمل رسمًا؛ أما `badge` فصارت الآن شارة على الأيقونة. العناصر من النوع `group` تفتح الوجهات المتداخلة وتغلقها. ارتفاع الصفوف 48، وهو ارتفاع عنصر قائمة الخيارات. والخاصية `responsive` تدع عرض النافذة يختار طريقة عرض الدرج. والوجهة التي لها `href` رابط، و `revealSelected` و `scrollOffset` تجعلان الدرج شريطًا جانبيًّا لموقع. مكوّن الويب يفعل هذا كله من الآن، وكذلك العروض الحيّة. أما SwiftUI و Compose و Flutter و React Native فموسومة أعلاه بأنها متأخرة: إلى أن تلحق بالمواصفة تقدّم المراجعة السابقة، بصفوف ارتفاعها 44، و `badge` نصًّا في نهاية الصف، وبلا هيئة مطوية ولا مجموعات ولا وجهات روابط ولا عرض متجاوب، وبسكة تنقل مستقلة، وتعرض عيّناتها تلك المراجعة. أما الكثافة المضغوطة `density` والمجموعات التي تكون وجهات أيضًا (`selectableGroups`) فهي أحدث من ذلك، وهي على الويب وحده حتى الآن.
+تصف هذه الصفحة درج التنقل كما هو في المواصفة الآن. الدرج الذي له `collapsible` يضيق إلى عمود من الأيقونات يحلّ محل سكة التنقل (navigation rail): الدرج المطوي هو الدرج الموسَّع وقد ذهبت تسمياته، وكل صف فيه مقطوع بعد أيقونته، وزر القائمة فيه يوسّعه من جديد وكل أيقونة في مكانها. نص `badge` في الوجهة صار `trailingText`، يُرسم أهدأ، والمنفذ `trailing` يحمل رسمًا؛ أما `badge` فصارت الآن شارة على الأيقونة. العناصر من النوع `group` تفتح الوجهات المتداخلة وتغلقها. ارتفاع الصفوف 48، وهو ارتفاع عنصر قائمة الخيارات. والخاصية `responsive` تدع عرض النافذة يختار طريقة عرض الدرج. والوجهة التي لها `href` رابط، و `revealSelected` و `scrollOffset` تجعلان الدرج شريطًا جانبيًّا لموقع. مكوّن الويب يفعل هذا كله من الآن، وكذلك العروض الحيّة. أما SwiftUI و Compose و Flutter و React Native فموسومة أعلاه بأنها متأخرة: إلى أن تلحق بالمواصفة تقدّم المراجعة السابقة، بصفوف ارتفاعها 44، و `badge` نصًّا في نهاية الصف، وبلا هيئة مطوية ولا مجموعات ولا وجهات روابط ولا عرض متجاوب، وبسكة تنقل مستقلة، وتعرض عيّناتها تلك المراجعة. أما الكثافة المضغوطة `density` والمجموعات التي تكون وجهات أيضًا (`selectableGroups`) وحقل التصفية (`filterable`) فهي أحدث من ذلك، وهي على الويب وحده حتى الآن.
 :::
 
 <DemoFrame label="درج قياسي فيه قسمان">
@@ -59,6 +59,25 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-navigation-drawer-item label="علامات التبويب" href="#sidebar-demo-tabs" trailing-text="جديد"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-group>
     <tanrei-navigation-drawer-item label="الشيفرة المصدرية" href="#sidebar-demo-source" target="new" target-label="يُفتح في تبويب جديد"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<DemoFrame label="درج يصفّي صفوفه: اكتب في الحقل، أو اضغط / في أي مكان من الصفحة للوصول إليه" plain>
+  <tanrei-navigation-drawer open filterable reveal-selected value="#filter-demo-tabs" label="التوثيق" filter-label="تصفية التنقل" filter-placeholder="تصفية" filter-count-text="المطابقات: {count}" filter-empty-text="لا توجد نتائج مطابقة" filter-clear-label="مسح" style="block-size: 26rem">
+    <tanrei-navigation-drawer-group label="البدء">
+      <tanrei-navigation-drawer-item label="نظرة عامة" href="#filter-demo-overview"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="الويب" href="#filter-demo-web"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-group label="الأسس">
+      <tanrei-navigation-drawer-item label="اللون" href="#filter-demo-color"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="الطباعة" href="#filter-demo-typography"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-group label="المكوّنات">
+      <tanrei-navigation-drawer-item label="الزر" href="#filter-demo-button"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="شريط التنقل" href="#filter-demo-navigation-bar"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="درج التنقل" href="#filter-demo-navigation-drawer"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="علامات التبويب" href="#filter-demo-tabs"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
   </tanrei-navigation-drawer>
 </DemoFrame>
 
@@ -106,6 +125,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 صف المجموعة يفتحها ويغلقها ولا يختار شيئًا. وحيث تكون المجموعة مكانًا قائمًا بذاته أيضًا (صفحة عامة لقسم في موقع، أو مجلدًا يُعرض حين يُختار)، اضبط `selectableGroups` على الدرج وأعطِ المجموعة `value` أو `href`: عندها يختارها صفها كما يختار صف الوجهة وجهته، ويصبح سهمها عنصر تحكم مستقلًّا يفتحها ويغلقها. والمجموعة التي ليس لها أيٌّ منهما تبقى تفتح وتُغلق فقط. المجموعات التي هي وجهات متاحة اليوم على الويب.
 
 قيمة `density` هي `regular`، وهي الافتراضية، أو `compact`: صفوف بارتفاع 32 ورسوم بحجم 16 وعمود أيقونات أضيق، لأداة تُستخدم بالمؤشر ويضم درجها أماكن كثيرة. الكثافة المضغوطة متاحة اليوم على الويب.
+
+الخاصية `filterable` ترسم حقل تصفية فوق الصفوف. وما يكتبه الشخص يضيّق الدرج إلى الصفوف التي تحمل تسميتها ما كتب، وتُفتح المجموعات التي تحملها ما دامت التصفية قائمة؛ وإذا أُفرغ الحقل عاد الدرج كما كان. والخاصية `filterValue` هي النص، يعيّنها الدرج بنفسه في أثناء الكتابة قبل أن يُصدر `filterChange`؛ وتعيّنها أنت أيضًا لتعيد تصفية حين تُرسم صفحة من جديد. وكلمات الحقل كلماتك: `filterLabel` تسمّيه، و `filterPlaceholder` و `filterCountText` («المطابقات: \{count}») و `filterEmptyText` و `filterClearLabel` تُؤخذ من كلمات منتجك حيث تتركها فارغة. والتصفية متاحة اليوم على الويب.
 
 للدرج طرازان (variants)، والمنتج الواحد يستخدم الاثنين عادةً: القياسي حيث النافذة عريضة بما يكفي، والنمطي (modal) حيث ليست كذلك.
 
@@ -158,6 +179,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       </tanrei-navigation-drawer-group>
     </tanrei-navigation-drawer>
 
+    <!-- شريط جانبي يصفّي صفوفه: المفتاح "/" في أي مكان من الصفحة ينقل إلى الحقل. والكلمات كلماتك. -->
+    <tanrei-navigation-drawer id="filtered" label="التوثيق" value="/components/tabs/" reveal-selected open
+      filterable filter-label="تصفية التنقل" filter-placeholder="تصفية"
+      filter-count-text="المطابقات: {count}" filter-empty-text="لا توجد نتائج مطابقة" filter-clear-label="مسح">
+      <tanrei-navigation-drawer-group label="المكوّنات">
+        <tanrei-navigation-drawer-item label="الزر" href="/components/button/"></tanrei-navigation-drawer-item>
+        <tanrei-navigation-drawer-item label="علامات التبويب" href="/components/tabs/"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-group>
+    </tanrei-navigation-drawer>
+
     <script type="module">
       import '@tanrei/web/components/navigation-drawer';
       import '@tanrei/web/components/button';
@@ -179,6 +210,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       });
       // الدرج المتجاوب يقول ما الذي جعله عرض النافذة: standard أو column أو modal.
       sidebar.addEventListener('presentationchange', (e) => showMenuButton(e.detail.presentation === 'modal'));
+
+      // نص التصفية الذي تركه الشخص، محفوظًا للصفحة التالية (الدرج لا يحفظ شيئًا).
+      const filtered = document.querySelector('#filtered');
+      filtered.addEventListener('filterchange', (e) => sessionStorage.setItem('filter', e.detail.value));
+      filtered.filterValue = sessionStorage.getItem('filter') ?? '';
     </script>
     ```
   </TabItem>
@@ -224,6 +260,25 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
         <NavigationDrawerItem label="علامات التبويب" href="/components/tabs/" trailingText="جديد" />
       </NavigationDrawerGroup>
       <NavigationDrawerItem label="الشيفرة المصدرية" href="https://example.com/tanrei" target="new" targetLabel="يُفتح في تبويب جديد" />
+    </NavigationDrawer>
+
+    // شريط جانبي يصفّي صفوفه: يعيّن الدرج filterValue بنفسه في أثناء الكتابة.
+    <NavigationDrawer
+      label="التوثيق"
+      open
+      filterable
+      filterLabel="تصفية التنقل"
+      filterPlaceholder="تصفية"
+      filterCountText="المطابقات: {count}"
+      filterEmptyText="لا توجد نتائج مطابقة"
+      filterClearLabel="مسح"
+      filterValue={filter}
+      onFilterChange={(e) => setFilter(e.detail.value)}
+    >
+      <NavigationDrawerGroup label="المكوّنات">
+        <NavigationDrawerItem label="الزر" href="/components/button/" />
+        <NavigationDrawerItem label="علامات التبويب" href="/components/tabs/" />
+      </NavigationDrawerGroup>
     </NavigationDrawer>
     ```
   </TabItem>
@@ -497,6 +552,19 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - **الرابط الذي يغادر الموقع** يأخذ `target` بالقيمة `new`. يُفتح في تبويب جديد، وينتهي صفه الموسَّع بالرسم `open_in_new` من مجموعة الأيقونات ما لم تضع هناك محتوى، وتُقرأ `targetLabel` بعد اسمه. الكلمات كلماتك («يُفتح في تبويب جديد»): Tanrei لا يقدّم أي كلمات.
 - **الموجِّه يستمع إلى `change`.** يصدر قبل أن يتبع المتصفح الرابط، وللتفعيل العادي فقط: الزر الأساسي بلا مفتاح تعديل، أو لمسة، أو المفتاح Enter، على رابط قيمة `target` فيه `same`. ألغِه واذهب إلى `href` التي يحملها. والرابط الذي يُفتح في تبويب آخر لا يُصدر شيئًا، ويترك الدرج النمطي مفتوحًا.
 
+### التصفية
+
+التصفية تضيّق الدرج في مكانه؛ وليست بحثًا. [البحث](/ar/components/search/) يبحث في محتوى كل صفحة ويعرض ما وجده في عرض خاص به. أما التصفية فلا تنظر إلا في تسميات الأماكن التي يسردها الدرج أصلًا، وتتركها حيث هي، فيصل القارئ الذي يعرف اسم صفحة إليها بمفتاحين، «/» وأول حروفها، ويراها بين جيرانها. أعطِ كلًّا منهما مفتاحه: «/» للتصفية، كما تفعل مواقع التوثيق التي في شريطها الجانبي تصفية، و `⌘K` أو Ctrl+K للبحث.
+
+- **ما يطابق.** يطابق الصفُّ ما دامت تسميته تحمل كل كلمة مكتوبة، كلَّ واحدة في أي موضع منها وبأي ترتيب، من غير تفريق بين الأحرف الكبيرة والصغيرة ولا بين عرض الحرف ولا بين الحرف وعلاماته: «nav dr» تجد «Navigation drawer»، و«resume» تجد «Résumé». ولا يُقارَن إلا التسمية، لا النص المساعد ولا النص في النهاية ولا العنوان. ولا يُجلب شيء ولا يُرتَّب ولا يُعاد ترتيبه: المنتج الذي يطابق على خادم أو بترتيب أو في أكثر من التسمية يترك `filterable` غير مضبوطة ويعطي الدرج الصفوف المطابقة، كما كان يفعل.
+- **ما يبقى.** تُخفى الصفوف التي لا تطابق. وتبقى المجموعات التي تحمل مطابقة، وتبقى المجموعة التي وُجدت باسمها كاملة، ويُخفى القسم الذي لا يبقى فيه صف مع عنوانه.
+- **تُفتح المجموعات مؤقتًا.** المجموعة المغلقة التي تحمل مطابقة تُرسم مفتوحة من أجل التصفية. لا تتغير قيمة `open` فيها ولا يصدر `toggle`، فإذا أُفرغ الحقل أُغلقت من جديد. أما المجموعة التي يفتحها الشخص أو يغلقها في أثناء التصفية فهي له: تبقى كما تركها.
+- **المطابقة الأولى جاهزة للأخذ.** ما دام التركيز في الحقل، يُرسم أول صف مطابق كما يُرسم الصف الذي عليه التركيز. والمفتاح Enter يأخذه كما يأخذه Enter على ذلك الصف، ومفتاح السهم للأسفل ينقل التركيز إليه؛ والكتابة تستمر في الحقل. والمفتاح Escape يفرغ الحقل، وإذا ضُغط مرة أخرى أعاد التركيز إلى حيث كان قبل «/».
+- **المفتاح «/» ينقل إلى الحقل من أي مكان** في الصفحة، إلا حين يكون التركيز في حقل نص، فيكتب هناك شرطة مائلة. والدرج المطوي يتوسّع أولًا. والخاصية `filterShortcut` تغيّر المفتاح، والقائمة الفارغة لا تربط أي مفتاح، لمنتج يستخدم «/» لشيء آخر. وفي النافذة الضيقة يفتح [هيكل التطبيق](/ar/components/app-shell/) الدرج المغلق بهذا المفتاح ويضع التركيز في حقله.
+- **العدد.** ما دامت التصفية مطبَّقة، يقول سطر هادئ في أعلى النتائج كم صفًّا يطابق (`filterCountText`)، أو `filterEmptyText` حيث لا يطابق أي صف. والخاصية `filterCountHidden` لا ترسم العدد؛ ويظل يُبلَّغ للتقنيات المساعدة.
+- **لا تُميَّز المطابقات.** الصفوف التي تُبقيها التصفية هي الجواب، فيبدو كل صف كما يبدو بلا تصفية، كما في شجرة الملفات في مراجعة الشيفرة أو في الشريط الجانبي لموقع توثيق.
+- **لا يُحفظ شيء.** ينسى الدرج النص حين يزول. احفظ `filterValue` من `filterChange` وأعِدها في الصفحة التالية إن كان على التصفية أن تتبع القارئ.
+
 ### الصفوف والمجموعات والأقسام
 
 - الصفوف بارتفاع 48 على الأقل، بارتفاع عنصر [القائمة](/ar/components/menu/) وبزواياه. والتسمية سطر واحد يُقطع، ما لم يسمح `labelWrap` بالتفافها فيطول الصف معها.
@@ -523,6 +591,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - لا تضع قسمًا داخل قسم، ولا قسمًا داخل مجموعة. تبلّغ بنيات التنقيح (debug) عن ذلك وترسم وجهات القسم الداخلي في موضعه.
 - لا تعطِ مجموعة `value` أو `href` و`selectableGroups` غير مضبوط متوقعًا أن يختارها صفها. فهي تفتح وتُغلق فقط، وتبلّغ عنها بنيات التنقيح.
 - لا تستخدم درجًا نمطيًّا على نافذة عريضة بما يكفي لدرج قياسي.
+- لا تجعل التصفية بديلًا من بحث الموقع. فهي تجد الأماكن بأسمائها؛ والقارئ الذي يبحث عن كلمة في المحتوى يحتاج إلى البحث.
 
 ## إمكانية الوصول
 
@@ -544,7 +613,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - تُرسم حلقة التركيز حول الصف، لتركيز لوحة المفاتيح فقط. وتركيز لوحة المفاتيح على صف ليس ظاهرًا كله يمرّره حتى يظهر بأقل مسافة.
 - مساحة اللمس هي الخلية كلها، في الهيئتين، ولا تقل أبدًا عن الحد الأدنى للهدف.
 - النص الأكبر يُبقي عرض الهيئتين ويجعل الصفوف والعناوين أطول. التسميات تلتف؛ والتسميات القصيرة تُقتطع. والأيقونات لا تُكبَّر.
-- تبلّغ بنيات التنقيح عن وجهة بلا تسمية، ودرج نمطي بلا `label`، وقيمة لا تسمّي أي وجهة، وقيمة مستخدَمة مرتين، وقسم متداخل، وقسم داخل مجموعة، وتداخل أعمق من ثلاثة مستويات، وطراز ليس في نظام التصميم، ودرج قابل للطي بلا زر قائمة، وعنصر يقبل التركيز في المنفذ `trailing`، وقيمة `href` هي عنوان `javascript:` أو لا يمكن قراءتها، وقيمة `target` غير معروفة، ورابط له `target` بالقيمة `new` وليس له `targetLabel`. وتبلّغ أيضًا عن كثافة ليست في نظام التصميم، وعن مجموعة لها `value` أو `href` و`selectableGroups` غير مضبوط.
+- حقل التصفية حقل بحث اسمه `filterLabel`، قبل الصفوف، ويقول إنه يتحكم في قائمة الدرج. وزر المسح فيه اسمه `filterClearLabel`، والمفتاح «/» يُكشف اختصارَ لوحة مفاتيح للحقل (`aria-keyshortcuts` على الويب)، بينما يُخفى تلميح المفتاح عن التقنيات المساعدة.
+- الصفوف التي تخفيها التصفية تزول عن التقنيات المساعدة أيضًا، فكل موضع وعدد يسمعه الشخص هو ما بعد التصفية. وحين تتوقف الكتابة ثانية واحدة، تقول حالة خاصة بالدرج، بتهذيب (polite) ومن غير نقل التركيز، كم صفًّا يطابق، أو أنه لا يطابق أي صف. والعدد المرسوم في أعلى النتائج مخفي عن التقنيات المساعدة، التي تسمع الحالة بدلًا منه.
+- لا يُميَّز الصف المطابق، فلا يُنقل شيء باللون وحده، ويُرسَم الصف الذي يأخذه Enter كالصف الذي عليه التركيز، ويبقى اسم الصف تسميته كاملة.
+- تبلّغ بنيات التنقيح عن وجهة بلا تسمية، ودرج نمطي بلا `label`، وقيمة لا تسمّي أي وجهة، وقيمة مستخدَمة مرتين، وقسم متداخل، وقسم داخل مجموعة، وتداخل أعمق من ثلاثة مستويات، وطراز ليس في نظام التصميم، ودرج قابل للطي بلا زر قائمة، وعنصر يقبل التركيز في المنفذ `trailing`، وقيمة `href` هي عنوان `javascript:` أو لا يمكن قراءتها، وقيمة `target` غير معروفة، ورابط له `target` بالقيمة `new` وليس له `targetLabel`. وتبلّغ أيضًا عن كثافة ليست في نظام التصميم، وعن مجموعة لها `value` أو `href` و`selectableGroups` غير مضبوط. ومع التصفية تبلّغ عن حقل بلا `filterLabel`، وزر مسح بلا اسم، و `filterShortcut` فيه أكثر من تآلف مفاتيح واحد، وتآلف يمسكه درج آخر أو بحث.
 
 فجوات معروفة في المنصات:
 
@@ -561,6 +633,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - ليس للدرج في React Native خاصية `insets` خاصة به بعد: يقرأ هوامش `TanreiProvider` وحدها. وتحمل الوجهة موضعها نصًّا لقيمتها، بالإنجليزية ما لم تمرِّر `positionText`.
 - على React Native: لم يُفحص بعد على جهاز سحب الدرج النمطي ودفعته السريعة، ولا انتقال تركيزه، ولا إيماءة الخروج.
 - على SwiftUI و Compose و Flutter و React Native، وهي تقدّم المراجعة السابقة: يقع الصف الأول على بُعد نصف فجوة تحت حشو الدرج، والصف الذي التفّت تسميته لا يكبر بالطريقة نفسها على كل منها (يُبقي SwiftUI و Compose الارتفاع الأدنى للصف إلى أن لا يسع النص). وحين تلحق، تقيس كل منها الحشو إلى الخلية الأولى وتعامل ارتفاع الصف حدًّا أدنى.
+- على الويب: المطابقة الأولى التي يجعلها الحقل جاهزة تُرسم صفًّا عليه التركيز، لكنها ليست الفرع النشط للحقل: الوجهة رابط أو زر، ولا يكون أيٌّ منهما فرعًا نشطًا لحقل إدخال. ويصل إليها مستخدم قارئ الشاشة بمفتاح السهم للأسفل.
+- ما زالت SwiftUI و Compose و Flutter و React Native بلا تصفية.
 - على الويب: الدرج النمطي القابل للطي لا يعيد التركيز إلا بعد أن يضيق عائدًا إلى عموده، والسحب يحرّك اللوحة كلها، ومربع حواره يوضع على صندوق العمود كما قيس حين فُتح.
 
 ### ما عليك فعله
@@ -576,3 +650,4 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - على SwiftUI، أعِد تركيز لوحة المفاتيح إلى زر القائمة بنفسك بعد أن يُغلق الدرج.
 - على React Native، أعِد التركيز إلى زر القائمة بنفسك بعد أن يُغلق الدرج، ومرِّر `positionText` بلغة منتجك، وأعطِ `TanreiProvider` هوامش النافذة.
 - أبقِ قيمة كل وجهة فريدة وثابتة عبر الهيئتين القياسية والنمطية.
+- مع `filterable`، أعطِ الحقل `filterLabel` يقول ما يصفّيه («تصفية التنقل»)، وأعطِ كلماتك للخصائص `filterCountText` و `filterEmptyText` و `filterClearLabel` و `filterPlaceholder`، على الدرج أو مرة واحدة في كلمات منتجك.
