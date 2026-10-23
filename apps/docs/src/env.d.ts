@@ -9,7 +9,8 @@ declare module 'virtual:starlight/pagefind-config' {
 
 // When each page last changed (src/lib/lastmod.mjs, served by its integration in astro.config.mjs): the date the
 // sitemap writes for a page's address, read from git once when the site is built. A page's head prints it
-// (components/frame/PageTitle.astro); anything else that says when a page changed imports it from here.
+// (components/frame/PageTitle.astro) and its structured data carries it (`dateModified`, src/routeData.ts); anything
+// else that says when a page changed imports it from here.
 declare module 'virtual:tanrei-docs/last-updated' {
   /** The page at `url` (an absolute address, or a path from the site's root): ISO 8601 in UTC, or none for a page no commit holds yet. */
   export function lastUpdated(url: string): string | undefined;
