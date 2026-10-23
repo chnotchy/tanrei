@@ -2,7 +2,7 @@
 title: Web
 description: 在任何 Web 项目中使用 Tanrei 的 CSS 令牌和 Web Components。
 translationOf: getting-started/web.mdx
-sourceHash: b80f1fce0b42384ed5d6b457b10570050f9c65ea
+sourceHash: ee4c3f5cddad88322fc87252a6236ef3ab67e4d9
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -288,7 +288,7 @@ await expect(page.getByRole('switch', { name: 'Wi-Fi' })).toBeChecked();
 
 ### 角色与其内容位于不同的树中
 
-有些元素把角色放在自己的 shadow root 中，而属于该角色的内容却是你自己的标记，通过 slot 放入其中：`<tanrei-tabs>` 的标签列表及其 `<tanrei-tab>` 子元素，`<tanrei-dialog>` 的 `<dialog>` 及其操作按钮。在 DOM 中，标签并不在标签列表之内，因此从角色串联下去的定位器什么也找不到：
+有些元素把角色放在自己的 shadow root 中，而属于该角色的内容却是你自己的标记，通过插槽放入其中：`<tanrei-tabs>` 的标签列表及其 `<tanrei-tab>` 子元素，`<tanrei-dialog>` 的 `<dialog>` 及其操作按钮。在 DOM 中，标签并不在标签列表之内，因此从角色串联下去的定位器什么也找不到：
 
 ```ts
 // 什么也找不到：标签是 <tanrei-tabs> 的子元素，而不是其标签列表的子元素。
@@ -320,4 +320,4 @@ await expect(menu.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
 
 ### 警告
 
-在开发构建中，如果元素的用法不符合其规范，它会在控制台中说明，消息以 `[tanrei]` 开头，以行为的 ID 结尾。浏览器测试可以在出现任何一条时失败：[面向 AI 智能体的指南](/zh-cn/getting-started/ai-agents/)中有 Playwright 的示例。
+在开发构建中，如果元素的用法不符合其规范，它会在控制台中说明，消息以 `[tanrei]` 开头，以行为的 ID 结尾。浏览器测试可以在出现任何一条时失败：[面向 AI 代理的指南](/zh-cn/getting-started/ai-agents/)中有 Playwright 的示例。
