@@ -661,8 +661,8 @@ struct TanreiToolbarItemTests {
     #expect(counter.counts == ["bold": 1, "done": 1])
   }
 
-  /// TBR-9 — floating, under the default system: the gap is at least `sys.target.touch` minus the small icon button (ADR
-  /// 0027), so no targets overlap and every item keeps its whole target on every side, between its neighbours too — a
+  /// TBR-9 — floating, under the default system: the gap is at least `sys.target.touch` minus the small icon button
+  /// (an imitation preset is held to its original instead), so no targets overlap and every item keeps its whole target on every side, between its neighbours too — a
   /// press up to half the target from an item's centre, along the row or across it, is that item's.
   @Test("TBR-9 under the default system every item keeps its whole target between neighbours")
   func wholeTargetsBetweenNeighbours() {
