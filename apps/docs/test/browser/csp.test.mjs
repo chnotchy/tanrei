@@ -12,15 +12,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import * as playwright from '@playwright/test';
 import { headerRules, headersFor, serveDist } from './host.mjs';
+import { engines, launch } from './launch.mjs';
 
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
 
 const EVERY_PAGE = headersFor(headerRules(fs.readFileSync(path.join(dist, '_headers'), 'utf8')), '/');
-const ENGINES = (process.env.DOCS_ENGINES ?? 'chromium').split(',').map((name) => name.trim());
+const ENGINES = engines();
 let host;
 let origin;
 
@@ -65,7 +65,7 @@ for (const engine of ENGINES) {
   describe(`in ${engine}`, () => {
     let browser;
     before(async () => {
-      browser = await playwright[engine].launch();
+      browser = await launch(engine);
     });
     after(async () => {
       await browser?.close();

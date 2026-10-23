@@ -17,10 +17,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { chromium } from '@playwright/test';
 import { comparePreviews } from './compare-previews.mjs';
 import { watchNetwork } from './network-quiet.mjs';
 import { serveDist } from './host.mjs';
+import { launch } from './launch.mjs';
 
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
@@ -61,7 +61,7 @@ export function previewTests(colorScheme) {
   before(async () => {
     host = await serveDist(dist);
     origin = host.origin;
-    browser = await chromium.launch();
+    browser = await launch();
   });
 
   after(async () => {
