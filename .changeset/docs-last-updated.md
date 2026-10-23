@@ -9,5 +9,7 @@ component's page now also changes when its component tokens change (its own grou
 names it), and a page that draws token tables when anything under `tokens/` changes; the sitemap's dates follow.
 Every page's JSON-LD now describes the page itself (`WebPage`: its address, title, language and description) with that
 date as `dateModified`. The sitemap, the page's head, its Markdown's `last_updated` and `dateModified` write the
-date as one string, in UTC, and the day under the title is its UTC day, the one the sitemap names.
+date as one string, in UTC. The day under the title is the reader's: written in the page's language for the
+reader's own time zone before the page is first drawn, so the same change reads 23 October in Tokyo and 22 October
+in Los Angeles. Without script it is the UTC day, the one the sitemap names.
 Broke: a page's `date` front matter and the "Published" line it drew are gone — no page carries a date of its own.

@@ -2,6 +2,7 @@
 // (specs/timeline.spec.json, specs/page-header.spec.json): a stage's status, and a date in the page's language with
 // its machine-readable form. Plain functions, so that Node can test them without the site
 // (test/dated.test.mjs).
+import { dayText } from './reader-day.mjs';
 
 /** A status of a timeline's event that has one (TML-7). */
 export type StageStatus = 'done' | 'current' | 'upcoming';
@@ -36,13 +37,9 @@ export function currentStage(statuses: readonly StageStatus[]): number {
 /**
  * When a page last changed, as the page header's meta line says it in a `<time>` element: `datetime` is the date as it
  * was given (the sitemap's value, ISO 8601 in UTC), and `text` its day in UTC, written for a reader of `lang`: the day
- * the sitemap names, on whatever machine the site is built.
+ * the sitemap names, on whatever machine the site is built. That is the day a reader without script sees; the page's
+ * script writes the reader's own day in its place (src/lib/reader-day.mjs).
  */
 export function updatedParts(iso: string, lang: string): { datetime: string; text: string } {
-  const time = /^\d{4}-\d{2}-\d{2}T/.test(iso) ? Date.parse(iso) : Number.NaN;
-  if (Number.isNaN(time)) throw new Error(`not an ISO 8601 date: ${iso}`);
-  return {
-    datetime: iso,
-    text: new Intl.DateTimeFormat(lang, { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(time),
-  };
+  return { datetime: iso, text: dayText(iso, lang, 'UTC') };
 }

@@ -12,7 +12,10 @@
 //                     language: the spec's own sentence is not printed a second time under it;
 //   the meta line     one item: when the page last changed, a `<time>` whose `datetime` is the date the sitemap
 //                     gives the page (src/lib/lastmod.mjs, through its virtual module: one value, read once) and
-//                     whose text says that day in the page's language (PGH-8). The words are in the `<time>` too:
+//                     whose text says that day in the page's language (PGH-8): the build writes its UTC day, the
+//                     day the sitemap names, and a script right after the head writes the reader's own day in its
+//                     place before the first frame, so a reader in Tokyo and one in Los Angeles may each see their
+//                     own day for the same instant (src/lib/reader-day.mjs). The words are in the `<time>` too:
 //                     one run of text, which the meta line draws as text, not as a glyph beside its label (an item
 //                     with an element inside is laid out as one). No other date: a page says when it last
 //                     changed, not when it was first written. A page no commit holds yet has no meta line. The
@@ -36,6 +39,7 @@ const PAGE_TITLE_ID = '_top';
 import { frameWords, homeHref, trail, type Entry } from './frame';
 import { localeBase, strings } from '../../lib/i18n';
 import { updatedParts } from '../../lib/dated';
+import { readerDayScript } from '../../lib/reader-day.mjs';
 import { lastUpdated } from 'virtual:tanrei-docs/last-updated';
 import { aroundPlace, isNotFoundPage, levelFacts, listingFacts, specOfPage } from '../../lib/page-head';
 import Callout from '../Callout.astro';
@@ -71,11 +75,14 @@ const head = !isNotFoundPage(route.id);
   {description && <p>{description}</p>}
   {updated && (
     <div data-part="meta" data-pagefind-ignore>
-      <time datetime={updated.datetime}>{beforeDate}{updated.text}{afterDate}</time>
+      <time datetime={updated.datetime} data-day={updated.text}>{beforeDate}{updated.text}{afterDate}</time>
     </div>
   )}
 </tanrei-page-header>
 )}
+{/* The reader's own day in place of the UTC day, before the first frame: inline, right after the head, which it finds
+    as the element before it (src/lib/reader-day.mjs). Without script the UTC day stays. */}
+{head && updated && <script is:inline set:html={readerDayScript} />}
 {listingOf?.onRequest && (
   <Callout type="note" title={t.listing.advanced}>
     {listingOf.placedInstead.length > 0 && (
