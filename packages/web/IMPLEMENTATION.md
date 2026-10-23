@@ -3504,7 +3504,7 @@ text for separators, and it has one live region.
   `readonly`, `autocomplete`, and `input-value`, the Text input's `value`), ten its own (`value`, `separators`,
   `max-entries`, `invalid-text`, `duplicate-text`, `limit-text`, `remove-label`, `added-text`, `added-count-text`,
   `removed-text`). Four forwarded props are joined, each by a sentence of the spec: `disabled` with a fieldset's (W6),
-  `error` and `errorText` with the entry error (CHF-6; W2 as settled for 0139), `placeholder` given only while the list
+  `error` and `errorText` with the entry error (CHF-6; W2), `placeholder` given only while the list
   is empty (CHF-17), `type` given as `text` unless it is `text`, `email`, `tel` or `url` (CHF-26).
 - **`value` is an array property** (assign a new array); the `value` attribute is read once, as a JSON array, and is
   what a reset returns to — a list first given as a property is what a reset returns to where there is no attribute.
@@ -5498,8 +5498,14 @@ browser has none). No line at either end, never two side by side; docked, the li
 skipping `toolbar-overflow="never"`, until what remains and the overflow button fit — an icon-only text medium Button,
 `more_horiz` (`more_vert` in a column), a button that opens a menu with its expanded state. What is hidden is decided
 once every item has rendered (microtasks, before the frame) and again in the observer's callback when a length changes —
-the container's, a shown item's or the parent's, whose length is the room an inline or a floating toolbar may take — so
-no item is drawn and then hidden, and nothing is animated. After a change made in the callback the observation is laid
+the container's, a shown item's, or the length along the axis of a box that holds the toolbar, up to the root (in the
+flat tree: a slot it is assigned to, then that shadow root's boxes), which is the room an inline or a floating toolbar
+may take — so no item is drawn and then hidden, and nothing is animated. The parent alone is not enough: a parent as
+long as its content (an inline-block, a flex item, a float, an absolutely placed box) shrinks to the items still shown
+and keeps that length when a box further up is widened. Which box first has a length of its own cannot be read from the
+styles (a flex or grid item, `fit-content` and a table cell depend on the layout around them), so each one is watched,
+and a report of its other length alone decides nothing. Each decision shows every item before it measures, so the
+parent grows to what the layout offers. After a change made in the callback the observation is laid
 down and taken up again in the next frame, so that a resize it causes is no loop error. The overflow button opens a
 `<tanrei-menu>` placed bottom-end, built when it opens: an action is a menu item with its label and icon, a toggle a
 checkbox item, a menu button a submenu holding copies of its menu's items, a Button with menu its main action and a
@@ -5521,8 +5527,9 @@ be vertical, an unknown variant, orientation, overflow or separation, and an ove
 Flutter expose a named group). The natives are lagging: no inline variant, groups, separators or overflow menu yet. The
 docked inset is `env(safe-area-inset-*)`, which needs `viewport-fit=cover` in the page's viewport meta to be non-zero. The
 Menu has no side placement, so a vertical toolbar's overflow menu opens below its button. The room of an inline or a
-floating toolbar is watched on its parent element: a toolbar whose room is set by its siblings in a flex row decides
-again only when its parent, its container or its items change size. The web has no gallery app; the fixtures are drawn
+floating toolbar is watched on the boxes that hold it, not on its siblings: a toolbar at its own length in a flex row,
+whose room grows because a sibling gets shorter while no box that holds it changes length, decides again only when
+one of those boxes, its container or its items change size. The web has no gallery app; the fixtures are drawn
 by the test harness (`test/harness.ts`): inline at the start of a 360 × 56 stage (240 wide for the overflow fixtures),
 docked on 360 × 64, floating centred on 360 × 96, vertical on 96 × 240 (96 × 288 with groups).
 
@@ -8232,6 +8239,16 @@ the font's default `opsz`, 24, at every size). The box size becomes a number thr
 dropped — and only under `@supports` for that arithmetic; an engine without it keeps `font-optical-sizing: auto`.
 Grade is 0. Icon names belong to the product.
 
+The name can be an attribute instead of the text: `<span class="tanrei-icon" data-icon="folder"></span>` draws the same
+glyph as `<span class="tanrei-icon">folder</span>`, as the element's `::before` (a ligature is formed in generated
+content as in text), with an empty alternative (`content: attr(data-icon) / ''`). The name is then in none of the
+page's text — not in `textContent` or `innerText`, not in what people copy or a test compares, not in the accessible
+name of the control around it — so it is the form for a glyph in a row, a cell or a label whose text is read. The
+element holds nothing else. Size, selection, mirroring and the slots of the components take it as they take the text
+form; `data-icon=""` is no name, and the text is read again. The empty alternative is read from Chrome and Edge 77,
+Firefox 128 and Safari 17.4; an engine before that (Firefox 126 and 127 are inside the package's floor) puts the name in
+the accessible name, so `aria-hidden="true"` stays the rule for a glyph whose text beside it says the same.
+
 One weight is not `sys.icon.weight`: a control's own mark — the check and the dash of a checkbox, the glyph on a switch's
 handle, the check in the box of a menu's checkbox item — is drawn at the weight its component token names, which aliases
 `sys.icon.mark.weight` (500 in the default system, the preset's icon weight under a preset). `iconGlyph()`
@@ -8256,8 +8273,9 @@ and everything vertical are not. Which names mirror is a fact about the icon set
 
 Decide for one use with `data-mirror="auto | always | never"` (default `auto`, by the list) on the `.tanrei-icon` or on
 the element in the slot: `never` for a physical direction or a mark that must not change (`format_align_left` in a text
-editor, a question mark in Hebrew), `always` for a name the list does not have. The glyph's name is the element's text
-without the white space around it; text that is not one name (letters, digits, underscores) is not a glyph. A change of
+editor, a question mark in Hebrew), `always` for a name the list does not have. The glyph's name is a `.tanrei-icon`'s
+`data-icon` where it has one, else the element's text without the white space around it; text that is not one name
+(letters, digits, underscores) is not a glyph. A change of
 `dir` on any ancestor, at any time, is followed by CSS alone; a changed name, a changed `data-mirror` and a design system
 switched on the document's root are followed by script. Not followed: `data-tanrei-system` changed on an element other
 than the root while the page runs, and a glyph given as a bare text node in a slot (give it in an element).
@@ -9172,8 +9190,10 @@ Good to know:
 - **A large head narrower than the wide width** draws the medium title and the medium space under it (PGH-12).
 - **The dot between two meta items** is each item's `::before` (so an item is `position: relative`), and the row is
   cut short of the dot at its start edge (`clip-path`), which hides the dot of an item that begins a row. An item of
-  text (`span`, `time`, `data`, `li`, `div`) that holds an element — an avatar, a glyph — centres it with its text;
-  a Tag, a Link or any other component as an item is placed and not styled.
+  text (`span`, `time`, `data`, `li`, `div`) that begins with an Avatar or a glyph (`tanrei-avatar`, `.tanrei-icon`,
+  an `svg` or an `img`) centres it with its text, `meta.icon.gap` apart; an item whose text holds another element
+  (`Published <time>…</time>`) stays a run of text with its own spaces. A Tag, a Link or any other component as an
+  item is placed and not styled.
 - **No tracking in scripts a tracked word falls apart in** (PGH-4): the title and the eyebrow take `letter-spacing: 0`
   under `:lang()` of Japanese, Chinese, Korean, Arabic, Persian, Urdu, Hindi and the like — set `lang`.
 - **An empty head** (no element child) is `display: none`; one built by script appears when its parts are written.

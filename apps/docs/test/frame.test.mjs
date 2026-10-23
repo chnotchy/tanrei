@@ -53,3 +53,33 @@ describe('the first page of the page’s language', () => {
     assert.deepEqual(readers, ['components/frame/frame.ts']);
   });
 });
+
+describe('the header’s controls', () => {
+  const header = read('components/frame/Header.astro');
+  test('every word of the menu button, the appearance’s menu, the design system’s button and the language’s button is in the six languages', async () => {
+    const { strings } = await import('../src/lib/i18n.ts');
+    const keys = ['menu', 'theme', 'themeAuto', 'appearance', 'editTheme', 'system', 'language'];
+    const english = strings(source.lang).frame;
+    for (const { lang } of [source, ...translations]) {
+      const words = strings(lang).frame;
+      for (const key of keys) {
+        assert.ok(String(words[key] ?? '').trim(), `${lang}: frame.${key}`);
+        if (lang !== source.lang) assert.notEqual(words[key], english[key], `${lang}: frame.${key} is not translated`);
+      }
+      assert.deepEqual([...words.system.matchAll(/\{(\w+)\}/g)].map((match) => match[1]), ['system'], `${lang}: frame.system has one place, for the system`);
+    }
+  });
+  test('the icon-only buttons are named from the dictionary, and each opens its menu', () => {
+    assert.match(header, /<tanrei-button slot="actions" id="docs-appearance" variant="text" label=\{words\.theme\}>/);
+    assert.match(header, /<tanrei-button slot="actions" id="docs-language" variant="text" label=\{words\.language\}>/);
+    assert.match(header, /id="docs-drawer-toggle"[^>]*label=\{words\.menu\} aria-controls="docs-sidebar" aria-expanded="true">/);
+    assert.match(header, /data-app-shell-menu variant="text" label=\{words\.menu\}>/);
+    for (const anchor of ['docs-appearance', 'docs-language']) assert.match(header, new RegExp(`<tanrei-menu class="docs-frame-menu" anchor="${anchor}" placement="bottom-end">`));
+  });
+  test('the appearance’s menu: the scheme, then the contrast, then Theme Studio’s link', () => {
+    const menu = header.slice(header.indexOf('anchor="docs-appearance"'), header.indexOf('anchor="docs-language"'));
+    const order = ['docs-scheme-group', 'value="auto"', 'value="light"', 'value="dark"', 'docs-contrast-group', 'value="standard"', 'value="medium"', 'value="high"', 'leading-icon="format_paint" href={studio}'].map((mark) => menu.indexOf(mark));
+    assert.ok(order.every((at) => at >= 0), JSON.stringify(order));
+    assert.deepEqual([...order].sort((a, b) => a - b), order);
+  });
+});

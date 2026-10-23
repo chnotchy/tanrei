@@ -2,7 +2,7 @@
 title: اللوحة السفلية
 description: ترفع من الحافة السفلية محتوى تكميليًّا أو مهمة قصيرة، إما فوق الجزء الأسفل من الشاشة مع بقاء الباقي قابلًا للاستخدام، وإما خطوةً نمطية تعتّم كل ما عداها وتحجبه إلى أن تُغلق.
 translationOf: components/bottom-sheet.mdx
-sourceHash: 781f175ddbfa9321c454fa0561caa9d7e064fd0b
+sourceHash: 129b9ec0bcae9a6a88c4f15e18d3132be5652383
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -84,7 +84,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       label="حفظ الصورة"
       handleLabel="تغيير حجم اللوحة"
       onClose={() => setOpen(false)}
-      onDetentchange={(e) => setDetent(e.detail.detent)}
+      onDetentChange={(e) => setDetent(e.detail.detent)}
     >
       <p>اختر أين تُحفظ الصورة.</p>
       <Button variant="text" onClick={() => setOpen(false)}>تم</Button>

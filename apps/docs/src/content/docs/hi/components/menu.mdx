@@ -2,7 +2,7 @@
 title: मेन्यू
 description: क्रियाओं या विकल्पों का एक छोटा सेट, जो एक अस्थायी सरफ़ेस पर उस एलिमेंट से खुलता है जिसने उसे माँगा।
 translationOf: components/menu.mdx
-sourceHash: b2bc5159dc19cbc953a578fe9a624af119a5a8e2
+sourceHash: dde889cba5c9b3c811de7ca80489ea496b14e941
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -148,7 +148,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </Menu>
 
     {/* उस क्षेत्र का कॉन्टेक्स्ट मेन्यू जिसकी id canvas है: अनुरोध आने पर यह खुलता है। */}
-    <Menu anchor="canvas" trigger="context" aria-label="कैनवस" open={contextOpen} onContextrequest={() => setContextOpen(true)} onClose={() => setContextOpen(false)}>
+    <Menu anchor="canvas" trigger="context" aria-label="कैनवस" open={contextOpen} onContextRequest={() => setContextOpen(true)} onClose={() => setContextOpen(false)}>
       <MenuItem label="चिपकाएँ" onClick={paste} />
     </Menu>
     ```

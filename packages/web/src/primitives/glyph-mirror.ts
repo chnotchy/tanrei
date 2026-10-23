@@ -1,6 +1,6 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
 import { type IconSet, iconSets, systemIconSets } from '../generated/icon-sets.js';
-import { MIRROR, MIRRORED } from '../styles/icons.js';
+import { ICON_NAME, MIRROR, MIRRORED } from '../styles/icons.js';
 
 // A glyph that shows a direction along the line is drawn mirrored in a right-to-left layout, and the icon set says
 // which names those are. A stylesheet cannot read a name from an element's text, so script reads it and
@@ -56,13 +56,16 @@ export function activeIconSet(element: Element): IconSet | null {
 }
 
 /**
- * The glyph name an element holds, or null where it holds none: its text — through any wrapper of its own, such as the
- * `.ink` of GlyphDrawnController, and without the white space around it — when that is one ligature name. An image, an
- * SVG, a custom element, an element that holds one of those or a `.tanrei-icon` of its own (which is marked itself), and
- * a box whose slot the product filled (the glyph is then the slotted element, not the box) hold no name.
+ * The glyph name an element holds, or null where it holds none: a `.tanrei-icon`'s `data-icon` where it is given (the
+ * name drawn as generated content, ICON_NAME), else its text — through any wrapper of its own, such as the `.ink` of
+ * GlyphDrawnController, and without the white space around it — when that is one ligature name. An image, an SVG, a
+ * custom element, an element that holds one of those or a `.tanrei-icon` of its own (which is marked itself), and a box
+ * whose slot the product filled (the glyph is then the slotted element, not the box) hold no name.
  */
 export function glyphName(element: Element): string | null {
   if (element.matches(NOT_A_NAME) || element.localName.includes('-')) return null;
+  const given = element.classList.contains('tanrei-icon') ? element.getAttribute(ICON_NAME) : null;
+  if (given) return NAME.test(given.trim()) ? given.trim() : null;
   if (element.querySelector(`${NOT_A_NAME}, .tanrei-icon`)) return null;
   for (const slot of element.querySelectorAll('slot')) if (slot.assignedNodes({ flatten: true }).length) return null;
   const text = element.textContent?.trim() ?? '';
@@ -108,8 +111,8 @@ function unwatchSystem(refresh: () => void) {
   systemObserver = null;
 }
 
-/** What tells a glyph's mark to be decided again: its name (its text) or the product's `data-mirror` changed. */
-const GLYPH_CHANGES: MutationObserverInit = { attributes: true, attributeFilter: [MIRROR], characterData: true, childList: true, subtree: true };
+/** What tells a glyph's mark to be decided again: its name (its text or its `data-icon`) or the product's `data-mirror` changed. */
+const GLYPH_CHANGES: MutationObserverInit = { attributes: true, attributeFilter: [MIRROR, ICON_NAME], characterData: true, childList: true, subtree: true };
 
 export interface GlyphMirrorOptions {
   /**
@@ -198,7 +201,7 @@ const observing = new WeakMap<Node, () => void>();
 
 /**
  * Marks every bare `.tanrei-icon` under `root`, now and as the page changes:
- * icons added later, a glyph's name or `data-mirror` changed, the class given to an element, the design system
+ * icons added later, a glyph's name (its text or its `data-icon`) or `data-mirror` changed, the class given to an element, the design system
  * switched. `@tanrei/web` and `@tanrei/web/icons` call it for the document when they load; call it yourself for a
  * shadow root of your own, which the document's observer cannot see into. Calling it twice for one root observes once.
  * Returns a function that stops observing that root (the marks already written stay).
@@ -214,7 +217,7 @@ export function observeIcons(root: Document | ShadowRoot | Element = document): 
     const icons = new Set<Element>();
     for (const record of records) {
       const target = record.target instanceof Element ? record.target : record.target.parentElement;
-      // A change inside an icon (its text, a wrapper) or on it (its class, its `data-mirror`).
+      // A change inside an icon (its text, a wrapper) or on it (its class, its `data-icon`, its `data-mirror`).
       const around = target?.closest(ICON);
       if (around) icons.add(around);
       for (const node of record.addedNodes) {
@@ -225,7 +228,7 @@ export function observeIcons(root: Document | ShadowRoot | Element = document): 
     }
     for (const icon of icons) if (icon.isConnected) markGlyph(icon);
   });
-  observer.observe(root, { attributes: true, attributeFilter: ['class', MIRROR], characterData: true, childList: true, subtree: true });
+  observer.observe(root, { attributes: true, attributeFilter: ['class', MIRROR, ICON_NAME], characterData: true, childList: true, subtree: true });
   watchSystem(all);
   all();
   const stop = () => {

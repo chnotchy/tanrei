@@ -74,6 +74,7 @@ const clamp = (value: number, low: number, high: number) => Math.min(high, Math.
  * @slot brand - The brand as one image (a single logo file), drawn `comp.app-bar.brand.image.height` high.
  * @slot brand-symbol - The brand's symbol, drawn `comp.app-bar.brand.symbol.size` high.
  * @slot brand-wordmark - The brand's wordmark, drawn `comp.app-bar.brand.wordmark.height` high.
+ * @slot context - One control of the product's context after the brand (a `<tanrei-button>` that opens a menu of workspaces, projects or design systems), laid out and never restyled.
  * @slot actions - The action items: up to three icon-only `<tanrei-button>`s at the end, in reading order.
  * @csspart container - The bar: its color, elevation, and the system insets it reaches under.
  * @csspart top-row - The row of the navigation item, the brand, the title block and the actions.
@@ -100,6 +101,7 @@ export class TanreiAppBar extends TanreiElement {
     scrollTarget: { type: String, attribute: 'scroll-target' },
     headingLevel: { type: Number, attribute: 'heading-level' },
     hasNavigation: { state: true },
+    hasContext: { state: true },
     brands: { state: true },
     compact: { state: true },
     hasActions: { state: true },
@@ -154,6 +156,8 @@ export class TanreiAppBar extends TanreiElement {
   headingLevel = 1;
 
   private hasNavigation = false;
+  /** APB-25: whether the context slot holds a control. */
+  private hasContext = false;
   /** How many images each brand slot holds (APB-19, APB-23). */
   private brands: Record<BrandSlot, number> = { brand: 0, 'brand-symbol': 0, 'brand-wordmark': 0 };
   /** Whether the window class is compact (APB-21): the app shell's, or the window's width against sys.breakpoint.medium. */
@@ -349,6 +353,8 @@ export class TanreiAppBar extends TanreiElement {
       for (const item of items) if (item.getAttribute('aria-hidden') !== 'true') item.setAttribute('aria-hidden', 'true');
       if (items.length > 1) report(this, 'APB-23', `the ${slot.name} slot holds ${items.length} images; it draws one`);
       this.reportBrand();
+    } else if (slot.name === 'context') {
+      this.hasContext = items.length > 0;
     } else if (slot.name === 'navigation') {
       this.hasNavigation = items.length > 0;
       if (items.length > 1) report(this, 'APB-13', `the bar holds ${items.length} navigation items; a bar has one navigation button`);
@@ -403,7 +409,7 @@ export class TanreiAppBar extends TanreiElement {
     const block = this.find('.block');
     if (block) this.resize$?.observe(block);
     if (changed.has('size') || changed.has('layerExpands' as keyof TanreiAppBar) || changed.has('headline') || changed.has('subtitle')) this.follow();
-    if (changed.has('titleAlignment') || changed.has('hasNavigation' as keyof TanreiAppBar) || changed.has('hasActions' as keyof TanreiAppBar) || changed.has('brands' as keyof TanreiAppBar) || changed.has('compact' as keyof TanreiAppBar)) this.balance();
+    if (changed.has('titleAlignment') || changed.has('hasNavigation' as keyof TanreiAppBar) || changed.has('hasContext' as keyof TanreiAppBar) || changed.has('hasActions' as keyof TanreiAppBar) || changed.has('brands' as keyof TanreiAppBar) || changed.has('compact' as keyof TanreiAppBar)) this.balance();
   }
 
   /** APB-5, APB-7, APB-12: the title (a heading) and the subtitle read after it; `hidden` keeps a copy out of the tree. */
@@ -443,11 +449,12 @@ export class TanreiAppBar extends TanreiElement {
       <div part="container" class="container">
         <div
           part="top-row"
-          class=${classMap({ row: true, center: this.center, 'has-navigation': this.hasNavigation, 'has-brand': hasBrand, 'has-actions': this.hasActions })}
+          class=${classMap({ row: true, center: this.center, 'has-navigation': this.hasNavigation, 'has-brand': hasBrand, 'has-context': this.hasContext, 'has-actions': this.hasActions })}
         >
           <div class="lead">
             <div class="navigation"><slot name="navigation" @slotchange=${this.#onSlotChange}></slot></div>
             ${brand}
+            <div class="context"><slot name="context" @slotchange=${this.#onSlotChange}></slot></div>
           </div>
           <div class="title-area" style=${styleMap({ opacity: expands && covered < 1 ? String(covered) : null })}>
             ${topTitle ? this.titleBlock(topHidden) : nothing}

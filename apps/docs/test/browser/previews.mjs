@@ -7,7 +7,11 @@
 //
 // It reads `dist/` (the site) and `packages/web/dist/` (the package's stylesheets), and serves the site itself on a
 // free port. Every page of the root language that holds a preview is opened at 1440 × 1000, in the light and the dark
-// scheme. (The other languages draw the same previews; a right-to-left one is not asked here.)
+// scheme. (The other languages draw the same previews; a right-to-left one is not asked here.) Each scheme is a test
+// file of its own (previews-light.test.mjs, previews-dark.test.mjs), so that the shards of CI's docs jobs, which take
+// whole files, can share the longest of the site's browser tests.
+//
+// This module only defines the tests: `previewTests(colorScheme)`, called by a test file.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -48,27 +52,28 @@ const walk = (dir, url) => {
 walk(dist, '/');
 pages.sort();
 
-let host;
-let origin;
-let browser;
+/** The tests of one scheme: every page with previews, opened in it. */
+export function previewTests(colorScheme) {
+  let host;
+  let origin;
+  let browser;
 
-before(async () => {
-  host = await serveDist(dist);
-  origin = host.origin;
-  browser = await chromium.launch();
-});
+  before(async () => {
+    host = await serveDist(dist);
+    origin = host.origin;
+    browser = await chromium.launch();
+  });
 
-after(async () => {
-  await browser?.close();
-  await host?.close();
-});
+  after(async () => {
+    await browser?.close();
+    await host?.close();
+  });
 
-describe('every live preview is drawn as the web package draws it', { concurrency: 4 }, () => {
-  test('there are pages with previews', () => assert.ok(pages.length > 50, `found ${pages.length} pages with previews`));
-  for (const url of pages) {
-    test(url, async () => {
-      const found = [];
-      for (const colorScheme of ['light', 'dark']) {
+  describe(`every live preview is drawn as the web package draws it, in the ${colorScheme} scheme`, { concurrency: 4 }, () => {
+    test('there are pages with previews', () => assert.ok(pages.length > 50, `found ${pages.length} pages with previews`));
+    for (const url of pages) {
+      test(url, async () => {
+        const found = [];
         const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, colorScheme, reducedMotion: 'reduce' });
         try {
           const page = await context.newPage();
@@ -78,13 +83,13 @@ describe('every live preview is drawn as the web package draws it', { concurrenc
           await page.goto(origin + url, { waitUntil: 'load' });
           await network.quiet();
           const result = await page.evaluate(comparePreviews, { componentCss, still });
-          if (result.error) found.push(`${colorScheme}: ${result.error}`);
-          for (const { index, preview, notes } of result.differ ?? []) found.push(`${colorScheme}, preview ${index} (${preview}):\n      ${notes.join('\n      ')}`);
+          if (result.error) found.push(result.error);
+          for (const { index, preview, notes } of result.differ ?? []) found.push(`preview ${index} (${preview}):\n      ${notes.join('\n      ')}`);
         } finally {
           await context.close();
         }
-      }
-      assert.deepEqual(found, [], `${url} draws previews otherwise than the package does:\n  ${found.join('\n  ')}`);
-    });
-  }
-});
+        assert.deepEqual(found, [], `${url} draws previews otherwise than the package does, in the ${colorScheme} scheme:\n  ${found.join('\n  ')}`);
+      });
+    }
+  });
+}

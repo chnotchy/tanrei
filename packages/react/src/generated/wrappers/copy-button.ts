@@ -10,7 +10,7 @@ import { TanreiCopyButton as TanreiCopyButtonElement, type TanreiCopyButtonCopie
  *
  * Events:
  * - `onCopied` (`copied`) — The browser confirmed that the text is on the clipboard; `detail.text` is the text.
- * - `onCopyfailed` (`copyfailed`) — The browser refused the copy or has no clipboard to write to; `detail.reason` is its reason, where it gave one.
+ * - `onCopyFailed` (`copyfailed`) — The browser refused the copy or has no clipboard to write to; `detail.reason` is its reason, where it gave one.
  */
 export const CopyButton = /* @__PURE__ */ createComponent({
   tagName: 'tanrei-copy-button',
@@ -18,6 +18,6 @@ export const CopyButton = /* @__PURE__ */ createComponent({
   react: React,
   events: {
     onCopied: 'copied' as EventName<TanreiEvent<TanreiCopyButtonElement, CustomEvent<TanreiCopyButtonCopiedDetail>>>,
-    onCopyfailed: 'copyfailed' as EventName<TanreiEvent<TanreiCopyButtonElement, CustomEvent<TanreiCopyButtonCopyFailedDetail>>>,
+    onCopyFailed: 'copyfailed' as EventName<TanreiEvent<TanreiCopyButtonElement, CustomEvent<TanreiCopyButtonCopyFailedDetail>>>,
   },
 });

@@ -19,7 +19,7 @@ const EmbeddedTextInputElement = /* @__PURE__ */ createComponent({
   events: {
     onChange: 'change' as EventName<TanreiEvent<TanreiEmbeddedTextInputElement>>,
     onAction: 'action' as EventName<TanreiEvent<TanreiEmbeddedTextInputElement, CustomEvent<TanreiEmbeddedTextInputActionDetail>>>,
-    onRowschange: 'rowschange' as EventName<TanreiEvent<TanreiEmbeddedTextInputElement, CustomEvent<TanreiEmbeddedTextInputRowsChangeDetail>>>,
+    onRowsChange: 'rowschange' as EventName<TanreiEvent<TanreiEmbeddedTextInputElement, CustomEvent<TanreiEmbeddedTextInputRowsChangeDetail>>>,
   },
 });
 const withEmbeddedTextInputMarks = /* @__PURE__ */ withMarks<EmbeddedTextInputMarks>([], ['form']);
@@ -29,6 +29,6 @@ const withEmbeddedTextInputMarks = /* @__PURE__ */ withMarks<EmbeddedTextInputMa
  * Events:
  * - `onChange` (`change`) — The person committed a changed value: focus left the input, or `action` was emitted. Bubbles.
  * - `onAction` (`action`) — The person asked for the action of whatever holds the input, by Enter as `enter-key` says or by Ctrl+Enter or Command+Enter. `detail.value` is the value. Bubbles; cancelable — a cancelled one keeps a single-line input from submitting its form.
- * - `onRowschange` (`rowschange`) — The number of lines the input shows is about to change, or it was first drawn: `detail.rows`, and `detail.scrolling` where the text has more lines and scrolls inside. Once per change, before the height moves. Bubbles.
+ * - `onRowsChange` (`rowschange`) — The number of lines the input shows is about to change, or it was first drawn: `detail.rows`, and `detail.scrolling` where the text has more lines and scrolls inside. Once per change, before the height moves. Bubbles.
  */
 export const EmbeddedTextInput: Marked<typeof EmbeddedTextInputElement, EmbeddedTextInputMarks> = /* @__PURE__ */ withEmbeddedTextInputMarks(EmbeddedTextInputElement);

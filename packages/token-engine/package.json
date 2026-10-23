@@ -32,5 +32,8 @@
   ],
   "scripts": {
     "test": "node ../tools/src/run-node-tests.js"
+  },
+  "devDependencies": {
+    "@tanrei/tools": "workspace:*"
   }
 }

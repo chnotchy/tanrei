@@ -1,5 +1,6 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
+import '../button/button.js';
 import {
   AvailabilityController,
   GlyphMirrorController,

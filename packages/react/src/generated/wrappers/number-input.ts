@@ -19,7 +19,7 @@ const NumberInputElement = /* @__PURE__ */ createComponent({
   events: {
     onChange: 'change' as EventName<TanreiEvent<TanreiNumberInputElement>>,
     onInput: 'input' as EventName<TanreiEvent<TanreiNumberInputElement, CustomEvent<TanreiNumberInputInputDetail>>>,
-    onEntryerror: 'entryerror' as EventName<TanreiEvent<TanreiNumberInputElement, CustomEvent<TanreiNumberInputEntryErrorDetail>>>,
+    onEntryError: 'entryerror' as EventName<TanreiEvent<TanreiNumberInputElement, CustomEvent<TanreiNumberInputEntryErrorDetail>>>,
     onAction: 'action' as EventName<TanreiEvent<TanreiNumberInputElement>>,
   },
 });
@@ -30,7 +30,7 @@ const withNumberInputMarks = /* @__PURE__ */ withMarks<NumberInputMarks>([], ['f
  * Events:
  * - `onChange` (`change`) — A commit changed the value: focus left the input, Enter was pressed, a key stepped it, or a pressed stepper was released; `value` is already the new one. Composed and bubbling. Never fired when the product sets `value`.
  * - `onInput` (`input`) — The person changed the text, or a step changed the value. `detail.value` is the number the text reads as — not clamped, not rounded — or null while it reads as no value or as not a number. Composed and bubbling. Never fired when the product sets `value`.
- * - `onEntryerror` (`entryerror`) — The person committed a text that is not a number. `detail.reason` is `invalid`, `detail.text` the input's `invalidText` (empty where none was given). Composed and bubbling.
+ * - `onEntryError` (`entryerror`) — The person committed a text that is not a number. `detail.reason` is `invalid`, `detail.text` the input's `invalidText` (empty where none was given). Composed and bubbling.
  * - `onAction` (`action`) — The person pressed Enter; after any `change` it caused. Cancelable: unless it is cancelled, the form the number input stands in is then asked to submit.
  */
 export const NumberInput: Marked<typeof NumberInputElement, NumberInputMarks> = /* @__PURE__ */ withNumberInputMarks(NumberInputElement);

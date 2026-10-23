@@ -152,8 +152,26 @@ async function measure() {
   }
   scrollTo(0, 0);
   step('defining the elements');
-  const tags = new Set([...gallery.querySelectorAll('*')].map((e) => e.localName).filter((n) => n.includes('-')));
-  await Promise.race([Promise.all([...tags].map((n) => customElements.whenDefined(n))), new Promise((r) => setTimeout(r, 5000))]);
+  // The page defines its elements after it has loaded, each one when its module arrives (lib/define-on-demand.ts), and
+  // on a page as large as the Field's that is seconds of work in the page, one module after another. The wait lasts
+  // while elements are being defined: it ends when no element of the gallery is left undefined, in the document or in
+  // a shadow root, or when 5 s pass in which none is. An element still undefined when the stages are measured is
+  // reported as that, not as a stage that draws nothing.
+  const undefinedTags = () => {
+    const tags = new Set();
+    const visit = (root) => {
+      for (const element of root.querySelectorAll('*')) {
+        if (element.localName.includes('-') && !element.matches(':defined')) tags.add(element.localName);
+        if (element.shadowRoot) visit(element.shadowRoot);
+      }
+    };
+    visit(gallery);
+    return [...tags];
+  };
+  for (let left = undefinedTags(); left.length; left = undefinedTags()) {
+    const stalled = await Promise.race([Promise.any(left.map((n) => customElements.whenDefined(n))).then(() => false), new Promise((r) => setTimeout(() => r(true), 5000))]);
+    if (stalled) break;
+  }
   step('updating the elements');
   const updating = [...gallery.querySelectorAll('*')].filter((e) => e.updateComplete);
   const named = (e) => `${e.localName} in ${e.closest('.docs-stage')?.dataset.fixtureId ?? 'the gallery'}`;
@@ -167,7 +185,7 @@ async function measure() {
   const column = gallery.getBoundingClientRect();
   const outside = (inner, outer, slack = 1) => inner.left < outer.left - slack || inner.right > outer.right + slack || inner.top < outer.top - slack || inner.bottom > outer.bottom + slack;
   const stages = [...gallery.querySelectorAll('.docs-stage')];
-  const found = [];
+  const found = undefinedTags().map((tag) => `${tag}: it is not defined`);
   for (const stage of stages) {
     const id = stage.dataset.fixtureId;
     const box = stage.getBoundingClientRect();

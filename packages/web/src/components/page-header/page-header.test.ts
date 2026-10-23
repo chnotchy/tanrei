@@ -369,7 +369,7 @@ test.describe('the meta line', () => {
     const composed = raw(
       'composed',
       {},
-      `<h1>Default typefaces and icons</h1><div data-part="meta"><span id="by"><span id="picture" aria-hidden="true" style="flex: none; inline-size: 20px; block-size: 20px; border-radius: 50%; background: currentColor"></span>The Tanrei team</span><time datetime="2026-09-21">21 September 2026</time><a id="more" class="tanrei-link" href="#all">All posts</a><tanrei-tag id="tag" size="small" label="Tokens"></tanrei-tag></div>`,
+      `<h1>Default typefaces and icons</h1><div data-part="meta"><span id="by"><span id="picture" class="tanrei-icon" aria-hidden="true">person</span>The Tanrei team</span><time datetime="2026-09-21">21 September 2026</time><a id="more" class="tanrei-link" href="#all">All posts</a><tanrei-tag id="tag" size="small" label="Tokens"></tanrei-tag></div>`,
     );
     await mount(page, [...some('blog-post', 'meta'), composed], { icons: true });
     const [itemGap, rowGap, metaGap] = [await resolveToken(page, T('meta-item-gap')), await resolveToken(page, T('meta-row-gap')), await resolveToken(page, T('meta-gap'))];
@@ -401,8 +401,8 @@ test.describe('the meta line', () => {
     await size(page, 'blog-post', 96);
     expect(await lines(item(page, 'blog-post', 1))).toBeGreaterThan(1);
     expect(await stage(page, 'blog-post').evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
-    // A picture and its text in one item: centred on one line, icon.gap apart. (The web has no Avatar element yet — a
-    // box of an avatar's small size stands for it; a glyph is placed the same way.)
+    // A glyph and its text in one item: centred on one line, icon.gap apart. (An Avatar is placed the same way: the
+    // next test.)
     await page.waitForFunction(() => !!customElements.get('tanrei-tag'));
     await frame(page);
     const [avatar, name] = [await edges(page.locator('#picture')), await page.locator('#by').evaluate((el) => {
@@ -422,6 +422,40 @@ test.describe('the meta line', () => {
     await frame(page);
     expect([(await edges(page.locator('#tag'))).width, (await edges(page.locator('#tag'))).height]).toEqual([(await edges(page.locator('#outside tanrei-tag'))).width, (await edges(page.locator('#outside tanrei-tag'))).height]);
     expect([await css(page.locator('#more'), 'color'), await css(page.locator('#more'), 'text-decoration-line'), await css(page.locator('#more'), 'font-size')]).toEqual([await css(page.locator('#outside a'), 'color'), await css(page.locator('#outside a'), 'text-decoration-line'), `${await resolveToken(page, T('meta-typescale-font-size'))}px`]);
+  });
+
+  test('PGH-8: only an item that begins with a glyph or an Avatar is a row with icon.gap — an item whose text holds another element (a <time> after a word) stays a run of text, its space a space', async ({ page }) => {
+    const head = (id: string, items: string) => raw(id, {}, `<h1>Default typefaces and icons</h1><div data-part="meta">${items}</div>`);
+    await mount(
+      page,
+      [
+        head('words', '<span id="words-item">Published <time datetime="2026-09-21">21 September 2026</time></span><span>4 min read</span>'),
+        head('plain', '<span id="plain-item">Published 21 September 2026</span><span>4 min read</span>'),
+        head('glyph', '<span id="glyph-item"><span class="tanrei-icon" aria-hidden="true">schedule</span>4 min read</span>'),
+        head('svg', '<span id="svg-item"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="8" /></svg>4 min read</span>'),
+      ],
+      { icons: true },
+    );
+    await frame(page);
+    const gap = await resolveToken(page, T('meta-icon-gap'));
+    // The words and the date: one line of text, as wide as the same words written as one text — the space between
+    // them is the space's own advance, and no icon.gap stands in for it.
+    const words = page.locator('#words-item');
+    expect(await css(words, 'display')).not.toMatch(/flex/);
+    expect(await lines(words)).toBe(1);
+    near((await edges(words)).width, (await edges(page.locator('#plain-item'))).width, 0.1);
+    // A glyph of the icon set, or a picture of the product's own, and its text: icon.gap apart, centred on one line.
+    for (const id of ['glyph-item', 'svg-item']) {
+      const placed = await page.locator(`#${id}`).evaluate((el) => {
+        const range = document.createRange();
+        range.selectNodeContents(el.lastChild!);
+        const text = range.getBoundingClientRect();
+        const glyph = el.firstElementChild!.getBoundingClientRect();
+        return { between: text.left - glyph.right, glyph: (glyph.top + glyph.bottom) / 2, text: (text.top + text.bottom) / 2 };
+      });
+      near(placed.between, gap, 0.01);
+      near(placed.glyph, placed.text, 1);
+    }
   });
 
   // The real element in the stand-in's place.

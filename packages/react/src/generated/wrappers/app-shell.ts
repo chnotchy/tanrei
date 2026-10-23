@@ -19,15 +19,15 @@ import { TanreiAppShell as TanreiAppShellElement, type TanreiAppShellWindowClass
  * - `navigation-bar` — A navigation bar for the bottom edge of a compact window.
  *
  * Events:
- * - `onWindowclasschange` (`windowclasschange`) — The frame decided the window's class for the first time, or the window's width changed it: `detail.windowClass` (and `windowClass`) is `compact`, `medium` or `expanded`.
- * - `onNavigationopenchange` (`navigationopenchange`) — The navigation asks to be presented over the content, or to be put away: the menu button was activated (`detail.navigationOpen` true), or the open navigation closed or the window's class changed (false). `navigationOpen` already holds it.
+ * - `onWindowClassChange` (`windowclasschange`) — The frame decided the window's class for the first time, or the window's width changed it: `detail.windowClass` (and `windowClass`) is `compact`, `medium` or `expanded`.
+ * - `onNavigationOpenChange` (`navigationopenchange`) — The navigation asks to be presented over the content, or to be put away: the menu button was activated (`detail.navigationOpen` true), or the open navigation closed or the window's class changed (false). `navigationOpen` already holds it.
  */
 export const AppShell = /* @__PURE__ */ createComponent({
   tagName: 'tanrei-app-shell',
   elementClass: TanreiAppShellElement,
   react: React,
   events: {
-    onWindowclasschange: 'windowclasschange' as EventName<TanreiEvent<TanreiAppShellElement, CustomEvent<TanreiAppShellWindowClassChangeDetail>>>,
-    onNavigationopenchange: 'navigationopenchange' as EventName<TanreiEvent<TanreiAppShellElement, CustomEvent<TanreiAppShellNavigationOpenChangeDetail>>>,
+    onWindowClassChange: 'windowclasschange' as EventName<TanreiEvent<TanreiAppShellElement, CustomEvent<TanreiAppShellWindowClassChangeDetail>>>,
+    onNavigationOpenChange: 'navigationopenchange' as EventName<TanreiEvent<TanreiAppShellElement, CustomEvent<TanreiAppShellNavigationOpenChangeDetail>>>,
   },
 });

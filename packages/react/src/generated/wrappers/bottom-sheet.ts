@@ -13,7 +13,7 @@ import { TanreiBottomSheet as TanreiBottomSheetElement, type TanreiBottomSheetCl
  *
  * Events:
  * - `onClose` (`close`) — The sheet asks to be closed: `detail.reason` is `close` (its close button, whatever `closedby` says), or `drag`, `scrim`, `escape` or `back` (only while `closedby` is not `none`). Set `open` to false.
- * - `onDetentchange` (`detentchange`) — The person moved the sheet to its other height, by a drag or with the handle: `detail.detent` (and `detent`) is the new one. Not fired when you set `detent`.
+ * - `onDetentChange` (`detentchange`) — The person moved the sheet to its other height, by a drag or with the handle: `detail.detent` (and `detent`) is the new one. Not fired when you set `detent`.
  */
 export const BottomSheet = /* @__PURE__ */ createComponent({
   tagName: 'tanrei-bottom-sheet',
@@ -21,6 +21,6 @@ export const BottomSheet = /* @__PURE__ */ createComponent({
   react: React,
   events: {
     onClose: 'close' as EventName<TanreiEvent<TanreiBottomSheetElement, CustomEvent<TanreiBottomSheetCloseDetail>>>,
-    onDetentchange: 'detentchange' as EventName<TanreiEvent<TanreiBottomSheetElement, CustomEvent<TanreiBottomSheetDetentChangeDetail>>>,
+    onDetentChange: 'detentchange' as EventName<TanreiEvent<TanreiBottomSheetElement, CustomEvent<TanreiBottomSheetDetentChangeDetail>>>,
   },
 });
