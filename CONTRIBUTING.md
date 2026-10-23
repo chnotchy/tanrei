@@ -14,7 +14,7 @@ The rest of this page is how the maintainers make a change in this repository. I
 
 ## Setup
 
-- Node ≥ 22.12 and **pnpm 12** (`packageManager` is pinned; use Corepack or a recent pnpm, which switches automatically).
+- Node ≥ 22.22 and **pnpm 12** (`packageManager` is pinned; use Corepack or a recent pnpm, which switches automatically).
 - Per platform, only what you work on: Xcode/Swift 6 · JDK 17 + Android SDK · Flutter ≥ 3.32 · nothing extra for Web/React Native.
 - Optional but recommended: [`lefthook`](https://github.com/evilmartians/lefthook) (`lefthook install`) and [`gitleaks`](https://github.com/gitleaks/gitleaks).
 
