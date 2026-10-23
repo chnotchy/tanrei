@@ -135,9 +135,20 @@ function toggleCode(frame: HTMLElement, button: HTMLElement) {
 
 function drawActions(frame: HTMLElement, stage: HTMLElement) {
   const holder = frame.querySelector<HTMLElement>('[data-example-actions]');
-  const template = holder?.querySelector<HTMLTemplateElement>(':scope > template:not([data-example-panel])');
+  const template = holder?.querySelector<HTMLTemplateElement>(':scope > template');
   if (!holder || !template) return;
-  template.replaceWith(document.importNode(template.content, true));
+  // The frame's own actions (a page's), then those it offers of the ones every frame shares.
+  const offers = (holder.dataset.exampleOffers ?? '').split(' ');
+  const shared = document.querySelector<HTMLTemplateElement>('template[data-example-shared]');
+  const actions = document.importNode(template.content, true);
+  if (shared) {
+    const common = document.importNode(shared.content, true);
+    if (!offers.includes('direction')) common.querySelector('[data-example-direction]')?.remove();
+    if (!offers.includes('code')) for (const element of common.querySelectorAll('[data-example-code], [data-example-copy]')) element.remove();
+    common.querySelector('[data-example-code]')?.setAttribute('aria-controls', `${stage.id}-code`);
+    actions.append(common);
+  }
+  template.replaceWith(actions);
   const direction = holder.querySelector<HTMLElement & { selected?: boolean }>('[data-example-direction]');
   direction?.addEventListener('change', () => {
     const turned = direction.selected === true || direction.hasAttribute('selected');

@@ -345,7 +345,8 @@ describe('the one frame', () => {
     assert.match(frame, /const SNAPSHOT = '\(window\.docsExampleSources \?\?= new WeakMap\(\)\)\.set\(document\.currentScript\.previousElementSibling, document\.currentScript\.previousElementSibling\.innerHTML\)';/);
     assert.match(frame, /code && !source && <script is:inline set:html=\{SNAPSHOT\}><\/script>/);
     // Closed until a reader opens it; the React names are fetched only then.
-    assert.match(frame, /aria-expanded="false" aria-controls=\{`\$\{id\}-code`\} data-example-code/);
+    assert.match(frame, /aria-expanded="false" data-example-code>/);
+    assert.match(script, /setAttribute\('aria-controls', `\$\{stage\.id\}-code`\)/);
     assert.match(script, /import\('virtual:tanrei-react-names'\)/);
     assert.doesNotMatch(script, /^import .*virtual:tanrei-react-names/m);
   });

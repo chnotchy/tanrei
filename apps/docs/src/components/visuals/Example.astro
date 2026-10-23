@@ -29,12 +29,9 @@
 //   «Save» in a sample button is not what the page says. The title, the legend and the caption are.
 import ResizeHandle from '../fixtures/ResizeHandle.astro';
 import { contentLang, strings } from '../../lib/i18n';
-import { figureId } from '../../lib/figure-id';
+import { figureId, firstOnPage } from '../../lib/figure-id';
 import { cssVar, ns, shippedSystems, tokensIn } from '../../lib/tokens';
 import type { Hydrate } from '../../lib/visuals/frame';
-
-/** The pages (`Astro.locals`, one object per page) whose code panel has been written. */
-const panels = new WeakSet<object>();
 
 /** A length: a token below the namespace (`comp.button.container.height.medium`) or a CSS length (`3rem`); a list is their sum. */
 type Length = string | string[];
@@ -124,10 +121,10 @@ const css = (length: Length | undefined) => {
 const room = reserve ? `--docs-example-block: ${css(reserve.block)}; --docs-example-inline: ${css(reserve.inline)};` : undefined;
 
 const id = figureId(Astro);
-// The code's panel is written once for the page, by its first frame that shows code: a page of hundreds of stages
-// would otherwise carry hundreds of copies of it.
-const panel = code && !panels.has(Astro.locals);
-if (panel) panels.add(Astro.locals);
+// What every frame of the page shares — the actions of its own and the code's panel — is written once, by the page's
+// first frame (in the page's words and direction): a page of hundreds of stages would otherwise carry hundreds of
+// copies of it.
+const shared = firstOnPage(Astro, 'example');
 const legend = Astro.slots.has('legend');
 const caption = Astro.slots.has('caption') || Boolean(pinned);
 const describedByIds = [describedBy, legend ? `${id}-legend` : undefined, caption ? `${id}-caption` : undefined].filter(Boolean).join(' ') || undefined;
@@ -138,7 +135,8 @@ const count = given + (rtl ? 1 : 0) + (code ? 2 : 0);
 const [before = '', after = ''] = t.demoUnder.split('{system}');
 // The page's own direction, which the stage is drawn in until the reader turns it.
 const drawsDirection: 'ltr' | 'rtl' = (Astro.locals as { starlightRoute?: { dir?: string } }).starlightRoute?.dir === 'rtl' ? 'rtl' : 'ltr';
-const stageId = stageAttributes.id ?? `${id}-stage`;
+const { id: givenStageId, ...stageRest } = stageAttributes;
+const stageId = givenStageId ?? `${id}-stage`;
 /** The glyph of the direction the stage is turned to, by the page's own (the glyph list reads a declared constant). */
 const DIRECTION_ICONS = { ltr: 'format_textdirection_r_to_l', rtl: 'format_textdirection_l_to_r' };
 /** The one inline script of every frame that shows what its stage holds as code: the same text, so one hash in the page's policy (lib/csp.mjs). */
@@ -146,6 +144,30 @@ const SNAPSHOT = '(window.docsExampleSources ??= new WeakMap()).set(document.cur
 ---
 
 {stylesheet && <link rel="stylesheet" href={stylesheet} />}
+{
+  shared && (
+    <>
+      <template data-example-shared>
+        <tanrei-button class="docs-example-action" variant="text" size="small" toggle label={t.example.direction[drawsDirection]} data-example-direction={drawsDirection === 'ltr' ? 'rtl' : 'ltr'}>
+          <span slot="icon" data-pagefind-ignore>{DIRECTION_ICONS[drawsDirection]}</span>
+        </tanrei-button>
+        <tanrei-button class="docs-example-action" variant="text" size="small" label={t.example.code} aria-expanded="false" data-example-code>
+          <span slot="icon" data-pagefind-ignore>code</span>
+        </tanrei-button>
+        <tanrei-copy-button class="docs-example-action" size="small" label={t.example.copy} copied-label={t.example.copied} failed-label={t.example.copyFailed} data-example-copy />
+      </template>
+      <template data-example-panel data-label={t.example.codeOf}>
+        <div data-part="attachment" class="docs-example-code" data-example-code-panel>
+          <tanrei-tabs class="docs-example-flavors" variant="secondary" size="small" label={t.example.flavor} value="html" data-example-flavors>
+            <tanrei-tab value="html" label="HTML" />
+            <tanrei-tab value="react" label="React" />
+          </tanrei-tabs>
+          <tanrei-code-block class="docs-example-source" language="html" copy="false" />
+        </div>
+      </template>
+    </>
+  )
+}
 <tanrei-figure class:list={['docs-example not-content', className]} pattern={pattern} data-tanrei-demo data-example data-hydrate={hydrate} data-default-system={ns} data-pinned={pinned} {...rest}>
   <figure aria-labelledby={`${id}-title`} aria-describedby={describedByIds}>
     <div data-part="frame">
@@ -153,35 +175,13 @@ const SNAPSHOT = '(window.docsExampleSources ??= new WeakMap()).set(document.cur
         <p data-part="title" id={`${id}-title`} data-tanrei-code={titleCode ? 'plain' : undefined}>{titleCode ? <code>{title}</code> : title}</p>
         {
           count > 0 && (
-            <div data-part="actions" data-pagefind-ignore data-example-actions={count}>
-              {/* Drawn when the frame comes near the view (lib/example.ts): a page of hundreds of stages would
-                  otherwise define a thousand buttons as it loads. */}
+            <div data-part="actions" data-pagefind-ignore data-example-actions={count} data-example-offers={[rtl && 'direction', code && 'code'].filter(Boolean).join(' ')}>
+              {/* Drawn when the frame comes near the view (lib/example.ts), with the actions every frame shares, which
+                  the page writes once: a page of hundreds of stages would otherwise define a thousand buttons as it
+                  loads, and carry the markup of each. */}
               <template>
                 <slot name="actions" />
-                {rtl && (
-                  <tanrei-button class="docs-example-action" variant="text" size="small" toggle label={t.example.direction[drawsDirection]} data-example-direction={drawsDirection === 'ltr' ? 'rtl' : 'ltr'}>
-                    <span slot="icon" data-pagefind-ignore>{DIRECTION_ICONS[drawsDirection]}</span>
-                  </tanrei-button>
-                )}
-                {code && (
-                  <tanrei-button class="docs-example-action" variant="text" size="small" label={t.example.code} aria-expanded="false" aria-controls={`${id}-code`} data-example-code>
-                    <span slot="icon" data-pagefind-ignore>code</span>
-                  </tanrei-button>
-                )}
-                {code && <tanrei-copy-button class="docs-example-action" size="small" label={t.example.copy} copied-label={t.example.copied} failed-label={t.example.copyFailed} data-example-copy />}
               </template>
-              {/* The code under the stage, written once for the page and made for a frame when it is first opened. */}
-              {panel && (
-                <template data-example-panel data-label={t.example.codeOf}>
-                  <div data-part="attachment" class="docs-example-code" data-example-code-panel>
-                    <tanrei-tabs class="docs-example-flavors" variant="secondary" size="small" label={t.example.flavor} value="html" data-example-flavors>
-                      <tanrei-tab value="html" label="HTML" />
-                      <tanrei-tab value="react" label="React" />
-                    </tanrei-tabs>
-                    <tanrei-code-block class="docs-example-source" language="html" copy="false" />
-                  </div>
-                </template>
-              )}
             </div>
           )
         }
@@ -194,7 +194,7 @@ const SNAPSHOT = '(window.docsExampleSources ??= new WeakMap()).set(document.cur
         data-example-stage
         data-example-pending
         data-pagefind-ignore
-        {...stageAttributes}
+        {...stageRest}
       >
         {
           reserve ? (
