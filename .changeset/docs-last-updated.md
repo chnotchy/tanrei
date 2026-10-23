@@ -1,0 +1,15 @@
+---
+'@tanrei/docs': patch
+---
+
+Documentation site: every page says when it last changed, under its title and description ("Last updated October 22,
+2026", in the page's language). The date is the one the sitemap gives the page — the newest merge into the published
+branch of what the page is made from — read from the history once per build, never the time of the build. A
+component's page now also changes when its component tokens change (its own group's file and any shared set that
+names it), and a page that draws token tables when anything under `tokens/` changes; the sitemap's dates follow.
+Every page's JSON-LD now describes the page itself (`WebPage`: its address, title, language and description) with that
+date as `dateModified`. The sitemap, the page's head, its Markdown's `last_updated` and `dateModified` write the
+date as one string, in UTC. The day under the title is the reader's: written in the page's language for the
+reader's own time zone before the page is first drawn, so the same change reads 23 October in Tokyo and 22 October
+in Los Angeles. Without script it is the UTC day, the one the sitemap names.
+Broke: a page's `date` front matter and the "Published" line it drew are gone — no page carries a date of its own.

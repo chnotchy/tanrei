@@ -108,6 +108,12 @@ describe('the structured data', () => {
       ],
     );
   });
+  test('the page itself: its address, title, language and description, and when it last changed as it was given', () => {
+    const page = seo.webPage('https://site.test/components/button/', 'Button', 'ja', 'D', '2026-10-21T10:08:04.000Z');
+    assert.deepEqual(page, { '@context': 'https://schema.org', '@type': 'WebPage', url: 'https://site.test/components/button/', name: 'Button', inLanguage: 'ja', description: 'D', dateModified: '2026-10-21T10:08:04.000Z' });
+    assert.deepEqual(Object.keys(seo.webPage('https://site.test/', 'Home', 'en', undefined, undefined)), ['@context', '@type', 'url', 'name', 'inLanguage'], 'a page no commit holds yet has no dateModified');
+    assert.match(read('src/routeData.ts'), /webPage\(url, title, route\.lang, description, lastUpdated\(context\.url\.pathname\)\)/, 'the date the head prints, from the one virtual module');
+  });
   test('the site and its source code: the name, 端麗, the repository, the license and the version from tanrei.config.json', () => {
     const website = seo.webSite('https://site.test/', 'ja', 'D');
     assert.deepEqual([website['@type'], website.name, website.alternateName, website.inLanguage], ['WebSite', config.name, '端麗', 'ja']);

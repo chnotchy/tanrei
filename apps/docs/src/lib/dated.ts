@@ -1,7 +1,8 @@
-// What the docs' lists of dated and staged things say to Tanrei's timeline and to the page header's meta line
-// (specs/timeline.spec.json, specs/page-header.spec.json): a stage's status, a date in the page's language with its
-// machine-readable form, and the order of dated entries. Plain functions, so that Node can test them without the site
+// What the docs' lists of staged things say to Tanrei's timeline, and what a page's head says of when it last changed
+// (specs/timeline.spec.json, specs/page-header.spec.json): a stage's status, and a date in the page's language with
+// its machine-readable form. Plain functions, so that Node can test them without the site
 // (test/dated.test.mjs).
+import { dayText } from './reader-day.mjs';
 
 /** A status of a timeline's event that has one (TML-7). */
 export type StageStatus = 'done' | 'current' | 'upcoming';
@@ -33,18 +34,12 @@ export function currentStage(statuses: readonly StageStatus[]): number {
   return under.length === 1 ? under[0] : -1;
 }
 
-/** A date as a `<time>` element says it: `datetime` for a machine, `text` for a reader of `lang`. The day is UTC's. */
-export function dateParts(date: Date, lang: string): { datetime: string; text: string } {
-  return {
-    datetime: date.toISOString().slice(0, 10),
-    text: new Intl.DateTimeFormat(lang, { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(date),
-  };
-}
-
 /**
- * Dated entries, newest first. Two entries of one day carry a time in their date; the id only makes the order of an
- * exact tie deterministic. An entry without a date comes last.
+ * When a page last changed, as the page header's meta line says it in a `<time>` element: `datetime` is the date as it
+ * was given (the sitemap's value, ISO 8601 in UTC), and `text` its day in UTC, written for a reader of `lang`: the day
+ * the sitemap names, on whatever machine the site is built. That is the day a reader without script sees; the page's
+ * script writes the reader's own day in its place (src/lib/reader-day.mjs).
  */
-export function newestFirst<T extends { id: string; data: { date?: Date } }>(entries: readonly T[]): T[] {
-  return [...entries].sort((a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0) || b.id.localeCompare(a.id));
+export function updatedParts(iso: string, lang: string): { datetime: string; text: string } {
+  return { datetime: iso, text: dayText(iso, lang, 'UTC') };
 }
