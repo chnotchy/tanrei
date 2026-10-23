@@ -1,0 +1,358 @@
+---
+// The one frame of everything the docs draw live: a page's example, a stage of the Specs tab's gallery of fixtures, and
+// a figure drawn from the repository (anatomy, states, a playground). Tanrei's Figure, written as its native parts, so
+// `@tanrei/web/figure.css` draws it before the element is defined: the title, the frame's actions in its header, the
+// stage, the code under the stage once a reader asks for it, a legend joined beneath it, and a caption.
+//
+// - **The stage is drawn in the page.** What it holds is the page's own markup (a page's example, a figure) or the web
+//   package's fixture document's stage (the gallery, lib/fixture-stages.ts), in the page's document, with the page's
+//   layers of the web package's stylesheets; a component's staging is scoped to its stage (`@scope`).
+// - **It follows the page's look.** The design system the reader chose in the header (`data-docs-system` on the root)
+//   and the page's scheme and contrast: no frame has a switch of its own (lib/example.ts). A page may pin a frame to a
+//   shipped preset (`system`) where what it shows lives only there.
+// - **Its elements are defined when it comes near the view** (lib/example.ts): until then the stage is marked pending,
+//   and the elements it holds are left to it (lib/define-on-demand.ts) — a page of many examples does not fetch and
+//   define, as it loads, what the reader may never scroll to.
+// - **Its actions** (lib/example.ts), written in a template and drawn when the frame comes near the view: the code,
+//   shown under the stage when the button is pressed and closed until then — in HTML, or in React with the React
+//   package's wrappers — and its copy; the stage drawn right to left (or left to right on a page that reads right to
+//   left); and the stage's width, with a handle on its end edge. The code is what the stage holds as the page was
+//   built (an inline script keeps it as the page is parsed, before any element is defined), or what a page gives
+//   (`source`, the gallery's fixture as a product writes it).
+// - **Its room is held before anything is defined.** A figure that lays numbers or lines over its stage gives its
+//   canvas the room it will take (`reserve`, as lengths of the repository's tokens) and draws what it shows at that
+//   size, in one row that scrolls sideways inside the stage where the column is narrower; what it lays over the stage
+//   goes into the overlay, placed by script once the elements are defined (lib/visuals/frame.ts, `whenDrawn`). The
+//   actions hold the room of their buttons before they are drawn.
+// - **It is named by its title before any script runs** (FIG-16), and described by its legend, its caption or an
+//   element a page names (`describedBy`). The stage and the actions are not text of the page (`data-pagefind-ignore`):
+//   «Save» in a sample button is not what the page says. The title, the legend and the caption are.
+import ResizeHandle from '../fixtures/ResizeHandle.astro';
+import { contentLang, strings } from '../../lib/i18n';
+import { figureId } from '../../lib/figure-id';
+import { cssVar, ns, shippedSystems, tokensIn } from '../../lib/tokens';
+import type { Hydrate } from '../../lib/visuals/frame';
+
+/** The pages (`Astro.locals`, one object per page) whose code panel has been written. */
+const panels = new WeakSet<object>();
+
+/** A length: a token below the namespace (`comp.button.container.height.medium`) or a CSS length (`3rem`); a list is their sum. */
+type Length = string | string[];
+
+interface Props {
+  /** The frame's title, in its header: words of the page's language. */
+  label?: string;
+  /** The title is a name of the repository's, set as code (a fixture's id). */
+  titleCode?: boolean;
+  /** Lay what the stage holds out in a column instead of a wrapping row. */
+  column?: boolean;
+  /**
+   * The Figure's ground pattern behind the stage: the grid that fades toward the centre unless a page asks for another
+   * — `none` where what is shown has patterns of its own.
+   */
+  pattern?: 'none' | 'grid' | 'dots' | 'grid-fade' | 'checkerboard';
+  /**
+   * A shipped preset the frame is always drawn under, whatever the reader chose: for a component or a variant the
+   * default system leaves out, so the example shows it where it ships. The caption names it.
+   */
+  system?: string;
+  /** For a figure drawn from the repository: the room its canvas holds before anything in it is defined, from the tokens of what it draws. */
+  reserve?: { block: Length; inline?: Length };
+  /** For a figure: when what it lays over its stage is drawn — near the view, when the browser is idle, or at once. */
+  hydrate?: Hydrate;
+  /** The id of an element of the page that describes the frame at length. */
+  describedBy?: string;
+  /** Whether the frame shows its code and copies it; every live example does, and a figure drawn from the repository does not. */
+  code?: boolean;
+  /** The code's markup where it is not what the stage holds as written: the gallery's fixture as a product writes it. */
+  source?: string;
+  /** Whether the frame offers its stage in the other direction; by default where it shows its code. */
+  rtl?: boolean;
+  /** Whether the stage has a width handle on its end edge; by default where it shows its code. */
+  resize?: boolean;
+  /** How many actions of its own the page gives the frame (the `actions` slot), for the room their buttons hold. */
+  actions?: number;
+  /** The frame's class, and the stage's, besides the frame's own. */
+  class?: string;
+  stageClass?: string;
+  /** More attributes of the stage, of the figure's element (`data-*`), as a page's script reads them. */
+  stageAttributes?: Record<string, string | undefined>;
+  [attribute: `data-${string}`]: string | undefined;
+}
+const {
+  label,
+  titleCode = false,
+  column = false,
+  pattern = 'grid-fade',
+  system,
+  reserve,
+  hydrate = 'visible',
+  describedBy,
+  code = !reserve,
+  source,
+  rtl = code,
+  resize = code,
+  actions: given = 0,
+  class: className,
+  stageClass,
+  stageAttributes = {},
+  ...rest
+} = Astro.props;
+const lang = contentLang(Astro);
+const t = strings(lang);
+
+if (system && !shippedSystems.some((shipped) => shipped.id === system)) throw new Error(`Example: "${system}" is not a shipped system`);
+const pinned = system && system !== ns ? system : undefined;
+// One opt-in stylesheet per preset, each scoped to [data-tanrei-system="<id>"]: linked here only for a frame pinned to
+// a preset; the script loads the one the reader chose (lib/example.ts).
+const stylesheets = import.meta.glob<string>('../../../../../packages/web/src/generated/systems/*.css', { query: '?url', import: 'default', eager: true });
+const stylesheet = pinned ? Object.entries(stylesheets).find(([path]) => path.endsWith(`/${pinned}.css`))?.[1] : undefined;
+if (pinned && !stylesheet) throw new Error(`Example: no generated stylesheet for the system "${pinned}"`);
+
+const TOKEN = /^[a-z][\w-]*(\.[\w-]+)+$/;
+/** One length as CSS: a token is its custom property, after checking that the repository resolves it to a length. */
+function lengthOf(piece: string): string {
+  if (!TOKEN.test(piece)) return piece;
+  const [token] = tokensIn(`${ns}.${piece}`);
+  if (!token || token.name !== `${ns}.${piece}` || token.type !== 'dimension') throw new Error(`Example: "${piece}" is not a dimension token below ${ns}`);
+  return `var(${cssVar(token.path)})`;
+}
+const css = (length: Length | undefined) => {
+  const pieces = (Array.isArray(length) ? length : [length ?? '0px']).map(lengthOf);
+  return pieces.length === 1 ? pieces[0] : `calc(${pieces.join(' + ')})`;
+};
+const room = reserve ? `--docs-example-block: ${css(reserve.block)}; --docs-example-inline: ${css(reserve.inline)};` : undefined;
+
+const id = figureId(Astro);
+// The code's panel is written once for the page, by its first frame that shows code: a page of hundreds of stages
+// would otherwise carry hundreds of copies of it.
+const panel = code && !panels.has(Astro.locals);
+if (panel) panels.add(Astro.locals);
+const legend = Astro.slots.has('legend');
+const caption = Astro.slots.has('caption') || Boolean(pinned);
+const describedByIds = [describedBy, legend ? `${id}-legend` : undefined, caption ? `${id}-caption` : undefined].filter(Boolean).join(' ') || undefined;
+const named = (template: string, values: Record<string, string>) => template.replace(/\{(\w+)\}/g, (place, key: string) => values[key] ?? place);
+const title = label ?? t.example.live;
+const count = given + (rtl ? 1 : 0) + (code ? 2 : 0);
+// "Under <system>", in the page's words: the sentence around the system's id.
+const [before = '', after = ''] = t.demoUnder.split('{system}');
+// The page's own direction, which the stage is drawn in until the reader turns it.
+const drawsDirection: 'ltr' | 'rtl' = (Astro.locals as { starlightRoute?: { dir?: string } }).starlightRoute?.dir === 'rtl' ? 'rtl' : 'ltr';
+const stageId = stageAttributes.id ?? `${id}-stage`;
+/** The glyph of the direction the stage is turned to, by the page's own (the glyph list reads a declared constant). */
+const DIRECTION_ICONS = { ltr: 'format_textdirection_r_to_l', rtl: 'format_textdirection_l_to_r' };
+/** The one inline script of every frame that shows what its stage holds as code: the same text, so one hash in the page's policy (lib/csp.mjs). */
+const SNAPSHOT = '(window.docsExampleSources ??= new WeakMap()).set(document.currentScript.previousElementSibling, document.currentScript.previousElementSibling.innerHTML)';
+---
+
+{stylesheet && <link rel="stylesheet" href={stylesheet} />}
+<tanrei-figure class:list={['docs-example not-content', className]} pattern={pattern} data-tanrei-demo data-example data-hydrate={hydrate} data-default-system={ns} data-pinned={pinned} {...rest}>
+  <figure aria-labelledby={`${id}-title`} aria-describedby={describedByIds}>
+    <div data-part="frame">
+      <header>
+        <p data-part="title" id={`${id}-title`} data-tanrei-code={titleCode ? 'plain' : undefined}>{titleCode ? <code>{title}</code> : title}</p>
+        {
+          count > 0 && (
+            <div data-part="actions" data-pagefind-ignore data-example-actions={count}>
+              {/* Drawn when the frame comes near the view (lib/example.ts): a page of hundreds of stages would
+                  otherwise define a thousand buttons as it loads. */}
+              <template>
+                <slot name="actions" />
+                {rtl && (
+                  <tanrei-button class="docs-example-action" variant="text" size="small" toggle label={t.example.direction[drawsDirection]} data-example-direction={drawsDirection === 'ltr' ? 'rtl' : 'ltr'}>
+                    <span slot="icon" data-pagefind-ignore>{DIRECTION_ICONS[drawsDirection]}</span>
+                  </tanrei-button>
+                )}
+                {code && (
+                  <tanrei-button class="docs-example-action" variant="text" size="small" label={t.example.code} aria-expanded="false" aria-controls={`${id}-code`} data-example-code>
+                    <span slot="icon" data-pagefind-ignore>code</span>
+                  </tanrei-button>
+                )}
+                {code && <tanrei-copy-button class="docs-example-action" size="small" label={t.example.copy} copied-label={t.example.copied} failed-label={t.example.copyFailed} data-example-copy />}
+              </template>
+              {/* The code under the stage, written once for the page and made for a frame when it is first opened. */}
+              {panel && (
+                <template data-example-panel data-label={t.example.codeOf}>
+                  <div data-part="attachment" class="docs-example-code" data-example-code-panel>
+                    <tanrei-tabs class="docs-example-flavors" variant="secondary" size="small" label={t.example.flavor} value="html" data-example-flavors>
+                      <tanrei-tab value="html" label="HTML" />
+                      <tanrei-tab value="react" label="React" />
+                    </tanrei-tabs>
+                    <tanrei-code-block class="docs-example-source" language="html" copy="false" />
+                  </div>
+                </template>
+              )}
+            </div>
+          )
+        }
+      </header>
+      <div
+        data-part="stage"
+        id={stageId}
+        class:list={['docs-example-stage', { column, canvas: Boolean(reserve) }, stageClass]}
+        data-tanrei-system={pinned}
+        data-example-stage
+        data-example-pending
+        data-pagefind-ignore
+        {...stageAttributes}
+      >
+        {
+          reserve ? (
+            <div class="docs-example-canvas" style={room} data-example-canvas>
+              <slot />
+              <div class="docs-example-overlay" aria-hidden="true" data-example-overlay />
+            </div>
+          ) : (
+            <slot />
+          )
+        }
+        {resize && <ResizeHandle label={named(t.example.width, { title })} controls={stageId} edge />}
+      </div>
+      {
+        /* What the stage holds as the page was built, kept as the page is parsed: before any element is defined, and
+           before one writes attributes of its own (lib/example.ts reads it for the code). */
+        code && !source && <script is:inline set:html={SNAPSHOT}></script>
+      }
+      {code && source && <script type="application/json" data-example-source set:html={JSON.stringify(source).replaceAll('<', '\\u003c')}></script>}
+      {
+        legend && (
+          <div data-part="attachment" id={`${id}-legend`}>
+            <slot name="legend" />
+          </div>
+        )
+      }
+    </div>
+    {
+      caption && (
+        <figcaption id={`${id}-caption`} class="docs-example-caption">
+          <slot name="caption" />
+          {pinned && (
+            <>
+              {before}
+              <code class="tanrei-code">{pinned}</code>
+              {after}
+            </>
+          )}
+        </figcaption>
+      )
+    }
+  </figure>
+</tanrei-figure>
+
+<script>
+  import '../../lib/register-web';
+  import '../../lib/example';
+</script>
+
+<style>
+  /* The frame, the header, the stage's box, the ground pattern, the attachment and the caption are the Figure's
+     (`@tanrei/web/figure.css`, which draws them before the element is defined). What follows is the site's own: how
+     several examples are arranged in the stage, its width, a figure's canvas and overlay, the code under the stage, and
+     the room the actions hold. */
+  .docs-example-stage {
+    position: relative;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    justify-content: safe center;
+    gap: 1rem 0.75rem;
+    /* The width the reader gave it with its handle, never more than the frame's (lib/example.ts). */
+    inline-size: min(100%, var(--docs-example-width, 100%));
+  }
+  .docs-example-stage.column {
+    flex-direction: column;
+  }
+  /* A figure's canvas is the stage's one child, as wide as the stage: what it holds stands at its centre, in one row. */
+  .docs-example-stage.canvas {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 0;
+  }
+  /* A preset's scope inherits the site's theme like any other subtree; the stage draws the preset's surface (under the
+     Figure's pattern, which is read in the preset's scope too). */
+  .docs-example-stage[data-tanrei-system] {
+    background-color: var(--tanrei-sys-color-surface);
+    color: var(--tanrei-sys-color-on-surface);
+  }
+  /* A column of examples: each centred at its own width, as in a row. A text field and a text input have no width of
+     their own to show — each is a block as wide as its place (TXF-62, TXI-63), and a centred item of the stage is
+     given no place — so the text fields and the text inputs of a column are given one, as the fields of a form are:
+     a form column's measure, and never more than the stage has. */
+  .docs-example-stage.column > :global(tanrei-text-field),
+  .docs-example-stage.column > :global(tanrei-text-input) {
+    inline-size: 20rem;
+    max-inline-size: 100%;
+  }
+  /* As wide as the stage, and what it shows at its centre: the canvas's own box does not move when what it holds takes
+     its width (an element is narrower before it is defined), and where that is wider than the stage it starts at the
+     start edge and the stage scrolls (FIG-5). */
+  .docs-example-canvas {
+    position: relative;
+    align-self: stretch;
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    justify-content: safe center;
+    gap: var(--tanrei-sys-space-space200);
+    min-block-size: var(--docs-example-block);
+    min-inline-size: var(--docs-example-inline);
+  }
+  /* Laid over the canvas, in its box: it takes no room and catches no pointer. */
+  .docs-example-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .docs-example-overlay:empty {
+    display: none;
+  }
+  /* The code under the stage: the flavors' row, then the code, which scrolls sideways inside its block. */
+  .docs-example-code {
+    display: grid;
+    gap: var(--tanrei-sys-space-space100);
+    min-inline-size: 0;
+  }
+  .docs-example-source {
+    min-inline-size: 0;
+  }
+  /* Custom elements have no meaningful rendering until they upgrade: they are hidden in the room they take. */
+  .docs-example-stage :global(:not(:defined)) {
+    visibility: hidden;
+  }
+  /* The actions hold their room before they are drawn — as many small icon-only Buttons as the frame has, and the gaps
+     between them — and each holds the room of one before it is defined; without script there are none. */
+  [data-example-actions]:has(> template:first-child) {
+    min-inline-size: calc(var(--docs-example-actions) * var(--tanrei-comp-button-container-height-small) + (var(--docs-example-actions) - 1) * var(--tanrei-comp-figure-header-gap));
+    min-block-size: var(--tanrei-comp-button-container-height-small);
+  }
+  [data-example-actions='1'] {
+    --docs-example-actions: 1;
+  }
+  [data-example-actions='2'] {
+    --docs-example-actions: 2;
+  }
+  [data-example-actions='3'] {
+    --docs-example-actions: 3;
+  }
+  [data-example-actions='4'] {
+    --docs-example-actions: 4;
+  }
+  [data-example-actions='5'] {
+    --docs-example-actions: 5;
+  }
+  [data-example-actions] > :global(:where(tanrei-button, tanrei-copy-button):not(:defined)) {
+    display: inline-block;
+    inline-size: var(--tanrei-comp-button-container-height-small);
+    block-size: var(--tanrei-comp-button-container-height-small);
+    overflow: hidden;
+    visibility: hidden;
+  }
+  @media (scripting: none) {
+    [data-example-actions]:has(> template:first-child) {
+      display: none;
+    }
+  }
+</style>

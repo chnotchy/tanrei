@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="avatar" />
 
-<DemoFrame label="Initials, a glyph, a square, and a group">
+<Example label="Initials, a glyph, a square, and a group">
   <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
   <tanrei-avatar label="Someone without a picture"></tanrei-avatar>
   <tanrei-avatar label="Design team" initials="DT" shape="square"></tanrei-avatar>
@@ -25,7 +25,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
     <tanrei-avatar label="Annie Easley" initials="AE"></tanrei-avatar>
     <tanrei-avatar label="Mary Jackson" initials="MJ"></tanrei-avatar>
   </tanrei-avatar-group>
-</DemoFrame>
+</Example>
 
 An avatar shows who something belongs to: the author of a post, the people in a conversation, the owner of a task. It draws a picture, and it always has something to draw when there is none. It never answers a pointer, a key or focus.
 
@@ -79,14 +79,14 @@ On the web it is `<tanrei-avatar>`, and several together are `<tanrei-avatar-gro
 
 ## Specs
 
-<DemoFrame label="Three sizes, two shapes" plain>
+<Example label="Three sizes, two shapes">
   <tanrei-avatar size="small" label="Ada Lovelace" initials="AL"></tanrei-avatar>
   <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
   <tanrei-avatar size="large" label="Ada Lovelace" initials="AL"></tanrei-avatar>
   <tanrei-avatar size="small" shape="square" label="Design team" initials="DT"></tanrei-avatar>
   <tanrei-avatar shape="square" label="Design team" initials="DT"></tanrei-avatar>
   <tanrei-avatar size="large" shape="square" label="A project"></tanrei-avatar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="avatar" />
 
@@ -129,13 +129,13 @@ The avatar does not make initials from the name. Which characters stand for a na
 
 The avatar draws at most two characters, counted the way a reader counts them, so a letter with its marks or a joined syllable is never cut in half. It draws them as written and does not change their case.
 
-<DemoFrame label="Initials in several writing systems" plain>
+<Example label="Initials in several writing systems">
   <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
   <tanrei-avatar label="山田 花子" initials="山田" lang="ja"></tanrei-avatar>
   <tanrei-avatar label="王小明" initials="王" lang="zh-Hans"></tanrei-avatar>
   <tanrei-avatar label="ليلى حسن" initials="لح" lang="ar"></tanrei-avatar>
   <tanrei-avatar label="किरण राव" initials="किरा" lang="hi"></tanrei-avatar>
-</DemoFrame>
+</Example>
 
 ### Sizes and shapes
 
@@ -162,13 +162,13 @@ Every fallback has the same quiet fill. There is no color per person: a color th
 
 A group draws its members as one row. Each lies a little over the one before it (2, 4 or 8 by size), so two initials side by side stay whole and are not misread, with a gap in the surface's color around each.
 
-<DemoFrame label="A group that counts what it was not given" plain>
+<Example label="A group that counts what it was not given">
   <tanrei-avatar-group label="Members" max="4" total="240" overflow-label="and {count} more">
     <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
     <tanrei-avatar label="Grace Hopper"></tanrei-avatar>
     <tanrei-avatar label="Katherine Johnson" initials="KJ"></tanrei-avatar>
   </tanrei-avatar-group>
-</DemoFrame>
+</Example>
 
 - `max` is the most boxes the group draws, the overflow box included. Six members with `max="4"` are three members and "+3". The group never draws "+1": it would spend a box to hide one face.
 - `total` is the real count where you give the group fewer members than exist. Three members, `max="4"` and `total="240"` are three members and "99+": above 99 the box reads "99+" at every size, so it never holds more than three characters. Give the exact number in `overflow-label`, which is what is read.

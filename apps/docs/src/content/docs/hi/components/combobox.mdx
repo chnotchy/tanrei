@@ -2,20 +2,20 @@
 title: कॉम्बोबॉक्स
 description: वह बॉक्स जिसमें लोग एक मान खोजने के लिए टाइप करते हैं, और विकल्पों की वह लिस्ट जो वह खोलता है — लेबल की अपनी पंक्ति, सहायता या त्रुटि टेक्स्ट के बिना। उस जगह के लिए जहाँ लेबल कहीं और है, या उस फ़ील्ड के भीतर जिसे प्रॉडक्ट ख़ुद जोड़कर बनाता है।
 translationOf: components/combobox.mdx
-sourceHash: 20505447c5a948a07d010334c0b1c6d27b691e0b
+sourceHash: 21c2432a088206528f66441b5fe486f03eb74098
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="combobox" />
 
-<DemoFrame label="अकेला कॉम्बोबॉक्स: टूलबार में एक फ़िल्टर, और एक पंक्ति जिसका लेबल कॉम्बोबॉक्स के बग़ल में है" column>
+<Example label="अकेला कॉम्बोबॉक्स: टूलबार में एक फ़िल्टर, और एक पंक्ति जिसका लेबल कॉम्बोबॉक्स के बग़ल में है" column>
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="टोकन खोजें" placeholder="टोकन खोजें" no-chevron empty-text="कोई नतीजा नहीं">
     <span slot="leading-icon">search</span>
     <tanrei-option value="primary" supporting-text="sys.color.primary">primary</tanrei-option>
@@ -30,7 +30,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-option value="Europe/Berlin">बर्लिन</tanrei-option>
     </tanrei-combobox>
   </div>
-</DemoFrame>
+</Example>
 
 कॉम्बोबॉक्स किसी [कॉम्बोबॉक्स फ़ील्ड](/hi/components/combobox-field/) का कंट्रोल है, अकेला: बॉक्स, उसमें टाइप किया गया टेक्स्ट, शुरुआती ग्लिफ़, मिटाने का बटन और शेवरॉन, और अपने विकल्पों, ग्रुप और स्थिति पंक्ति के साथ लिस्ट। इसके ऊपर लेबल की कोई पंक्ति नहीं है, और इसके नीचे न सहायता है न त्रुटि टेक्स्ट।
 
@@ -114,14 +114,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="एक फ़ील्ड जिसके भीतर कॉम्बोबॉक्स है: वही तस्वीर जो कॉम्बोबॉक्स फ़ील्ड की है" column>
+<Example label="एक फ़ील्ड जिसके भीतर कॉम्बोबॉक्स है: वही तस्वीर जो कॉम्बोबॉक्स फ़ील्ड की है" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="शहर" required required-text="ज़रूरी" supporting-text="ऑर्डर इसी शहर में भेजा जाता है।">
     <tanrei-combobox value="tokyo" empty-text="कोई नतीजा नहीं">
       <tanrei-option value="kyoto">क्योटो</tanrei-option>
       <tanrei-option value="tokyo">टोक्यो</tanrei-option>
     </tanrei-combobox>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 कॉम्बोबॉक्स अपने फ़ील्ड को वह बताता है जो सिर्फ़ वही जानता है। उसकी सहायता वहीं से शुरू होती है जहाँ से टेक्स्ट शुरू होता है, पैडिंग और शुरुआती ग्लिफ़ के बाद। फ़ील्ड का लेबल filled या outlined कॉम्बोबॉक्स ख़ुद दिखाता है, बॉक्स में फ़्लोट होता हुआ, इसलिए फ़ील्ड लेबल की कोई पंक्ति नहीं दिखाता। और जब तक उसकी लिस्ट खुली है, वह फ़ोकस वाले रूप में दिखाया जाता है, इसलिए फ़ील्ड का लेबल और सहायता भी उसके साथ फ़ोकस वाले रूप में दिखाए जाते हैं, इनपुट पर फ़ोकस हो या नहीं।
 
@@ -129,7 +129,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="अकेले कॉम्बोबॉक्स: त्रुटि में, अक्षम, सिर्फ़ पढ़ने के लिए, मिटाने के बटन के साथ, और large" plain column>
+<Example label="अकेले कॉम्बोबॉक्स: त्रुटि में, अक्षम, सिर्फ़ पढ़ने के लिए, मिटाने के बटन के साथ, और large" column>
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="शहर" value="nairobi" error empty-text="कोई नतीजा नहीं">
     <tanrei-option value="nairobi">नैरोबी</tanrei-option><tanrei-option value="tokyo">टोक्यो</tanrei-option>
   </tanrei-combobox>
@@ -145,16 +145,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" size="large" label="शहर" value="tokyo" empty-text="कोई नतीजा नहीं">
     <tanrei-option value="nairobi">नैरोबी</tanrei-option><tanrei-option value="tokyo">टोक्यो</tanrei-option>
   </tanrei-combobox>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="अकेले filled और outlined कॉम्बोबॉक्स: कॉम्बोबॉक्स का अपना लेबल बॉक्स में फ़्लोट होता है" system="m3-like" plain column>
+<Example label="अकेले filled और outlined कॉम्बोबॉक्स: कॉम्बोबॉक्स का अपना लेबल बॉक्स में फ़्लोट होता है" system="m3-like" column>
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="शहर" value="tokyo" empty-text="कोई नतीजा नहीं">
     <tanrei-option value="nairobi">नैरोबी</tanrei-option><tanrei-option value="tokyo">टोक्यो</tanrei-option>
   </tanrei-combobox>
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="शहर" empty-text="कोई नतीजा नहीं">
     <tanrei-option value="nairobi">नैरोबी</tanrei-option><tanrei-option value="tokyo">टोक्यो</tanrei-option>
   </tanrei-combobox>
-</DemoFrame>
+</Example>
 
 ### क्या कॉम्बोबॉक्स का है, और क्या फ़ील्ड का
 

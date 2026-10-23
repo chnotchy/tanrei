@@ -2,27 +2,27 @@
 title: स्टेपर
 description: "जिस फ़्लो को प्रॉडक्ट चरणों के एक तय क्रम में चलाता है, उसमें व्यक्ति कहाँ है, यह दिखाता है: कौन-सा चरण मौजूदा है, कौन-से पूरे हो चुके हैं, किसमें त्रुटि है और कौन-से अभी आने बाक़ी हैं। और व्यक्ति किसी चरण को दबाकर उस पर वापस जा सकता है।"
 translationOf: components/stepper.mdx
-sourceHash: 6f6aced00c2b6ebab565e04f4136b2fd6ad660ee
+sourceHash: b524c68cd799156b9046e09abbc27c410dcb8f23
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="stepper" />
 
-<DemoFrame label="आड़ा, एक ऐसे चरण के साथ जिसमें त्रुटि है" column>
+<Example label="आड़ा, एक ऐसे चरण के साथ जिसमें त्रुटि है" column>
   <tanrei-stepper label="चेकआउट की प्रगति" value="payment" pressable="visited" completed-text="पूरा हुआ" error-text="इसमें त्रुटि है" style="inline-size: 100%">
     <tanrei-stepper-step value="account" label="खाता"></tanrei-stepper-step>
     <tanrei-stepper-step value="shipping" label="शिपिंग" status="error" description="पिन कोड नहीं भरा गया"></tanrei-stepper-step>
     <tanrei-stepper-step value="payment" label="भुगतान"></tanrei-stepper-step>
     <tanrei-stepper-step value="review" label="समीक्षा"></tanrei-stepper-step>
   </tanrei-stepper>
-</DemoFrame>
+</Example>
 
 स्टेपर ऐसे फ़्लो के कॉन्टेंट के ऊपर या बग़ल में रहता है जिसमें कोई स्थान होता है: चेकआउट, सेटअप, कई हिस्सों वाला आवेदन। एक चरण मौजूदा होता है, उससे पहले के चरण पूरे हो चुके होते हैं, किसी एक पर व्यक्ति का ध्यान ज़रूरी हो सकता है, और बाक़ी चरण अभी आने हैं।
 
@@ -79,7 +79,7 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 
 ## स्पेक
 
-<DemoFrame label="खड़ा, और कॉम्पैक्ट" plain>
+<Example label="खड़ा, और कॉम्पैक्ट">
   <tanrei-stepper label="सेटअप" value="profile" layout="vertical" completed-text="पूरा हुआ" error-text="इसमें त्रुटि है" style="inline-size: 320px">
     <tanrei-stepper-step value="account" label="खाता बनाएँ" description="ईमेल और पासवर्ड"></tanrei-stepper-step>
     <tanrei-stepper-step value="profile" label="आपकी प्रोफ़ाइल" description="नाम और फ़ोटो"></tanrei-stepper-step>
@@ -93,7 +93,7 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
     <tanrei-stepper-step value="payment" label="भुगतान"></tanrei-stepper-step>
     <tanrei-stepper-step value="review" label="समीक्षा"></tanrei-stepper-step>
   </tanrei-stepper>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="stepper" />
 

@@ -2,14 +2,14 @@
 title: スイッチ
 description: 1 つの設定をオンまたはオフにし、その場で反映します。
 translationOf: components/switch.mdx
-sourceHash: 2da2b39034e7ee88a01f032d190b734152fcac50
+sourceHash: 3c9248e2d903cb5a621415b66cd6f02bbb77c85b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
@@ -19,13 +19,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 このページは、仕様の現在の形のスイッチを説明しています。52 × 32 のトラック、押すと大きくなるハンドル、アイコンセットのグリフだけを使うこと、ドラッグに付いてくるハンドル、ほかのアイコンより太い専用の太さで描くハンドルのグリフです。Web コンポーネントはすでにすべてに対応していて、デモもそのとおりに動きます。SwiftUI、Compose、Flutter、React Native は上の表で「追従待ち」です。追従するまでは以前の版を提供していて、タップにだけ反応し、ドラッグには付いてきません。
 :::
 
-<DemoFrame label="オフとオン">
+<Example label="オフとオン">
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space150)">
     <tanrei-switch checked label="Wi-Fi"></tanrei-switch>
     <tanrei-switch label="Bluetooth"></tanrei-switch>
     <tanrei-switch checked checked-icon="check" label="機内モード"></tanrei-switch>
   </div>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -110,7 +110,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 仕様
 
-<DemoFrame label="位置、アイコン、無効状態" plain>
+<Example label="位置、アイコン、無効状態">
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space150)">
     <tanrei-switch label="オフ"></tanrei-switch>
     <tanrei-switch checked label="オン"></tanrei-switch>
@@ -125,7 +125,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </div>
   <tanrei-switch readonly checked label="読み取り専用、オン"></tanrei-switch>
   <tanrei-switch checked label-hidden label="Wi-Fi"></tanrei-switch>
-</DemoFrame>
+</Example>
 
 ハンドルは、グリフがあってもなくても、どの状態でも円です。タップすると切り替わり、ハンドルが反対の端へ滑りながら、大きさと、オフとオンで異なるすべての色が一緒に変わります。トラックに沿ってドラッグすると、ハンドルが指に付いてきて、同じ途中の姿を切れ目なく描きます。スイッチが切り替わるのは、ドラッグを離したときです。ハンドルが近いほうの側か、フリングした向きの側になります。Escape やプラットフォームによってキャンセルされたドラッグは、何も変えません。
 

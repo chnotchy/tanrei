@@ -2,27 +2,27 @@
 title: ステッパー
 description: プロダクトが決まった順序のステップで進めるフローの中で、いまどこにいるかを示します。どのステップが現在で、どれが完了し、どれにエラーがあり、どれがこれからなのかを示し、ステップを押してそこへ戻れるようにします。
 translationOf: components/stepper.mdx
-sourceHash: 6f6aced00c2b6ebab565e04f4136b2fd6ad660ee
+sourceHash: b524c68cd799156b9046e09abbc27c410dcb8f23
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="stepper" />
 
-<DemoFrame label="横向き、エラーのあるステップを含む" column>
+<Example label="横向き、エラーのあるステップを含む" column>
   <tanrei-stepper label="購入手続きの進み具合" value="payment" pressable="visited" completed-text="完了" error-text="エラーあり" style="inline-size: 100%">
     <tanrei-stepper-step value="account" label="アカウント"></tanrei-stepper-step>
     <tanrei-stepper-step value="shipping" label="配送" status="error" description="郵便番号が未入力"></tanrei-stepper-step>
     <tanrei-stepper-step value="payment" label="支払い"></tanrei-stepper-step>
     <tanrei-stepper-step value="review" label="確認"></tanrei-stepper-step>
   </tanrei-stepper>
-</DemoFrame>
+</Example>
 
 ステッパーは、購入手続き、初期設定、いくつかの部分に分かれた申し込みのように、いまの位置があるフローのコンテンツの上か横に置きます。1 つのステップが現在のステップで、その前のステップは完了しています。1 つがその人の対応を必要としていることがあり、残りはこれからのステップです。
 
@@ -79,7 +79,7 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 
 ## 仕様
 
-<DemoFrame label="縦向きと、コンパクトな形" plain>
+<Example label="縦向きと、コンパクトな形">
   <tanrei-stepper label="初期設定" value="profile" layout="vertical" completed-text="完了" error-text="エラーあり" style="inline-size: 320px">
     <tanrei-stepper-step value="account" label="アカウントを作成" description="メールアドレスとパスワード"></tanrei-stepper-step>
     <tanrei-stepper-step value="profile" label="プロフィール" description="名前と写真"></tanrei-stepper-step>
@@ -93,7 +93,7 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
     <tanrei-stepper-step value="payment" label="支払い"></tanrei-stepper-step>
     <tanrei-stepper-step value="review" label="確認"></tanrei-stepper-step>
   </tanrei-stepper>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="stepper" />
 

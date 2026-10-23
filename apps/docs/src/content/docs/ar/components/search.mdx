@@ -2,14 +2,14 @@
 title: البحث
 description: شريط بحث، أو مشغِّل مدمج له، يقدّم اقتراحات ونتائج والأشخاص يكتبون، في عرض مُرسى تحت الشريط أو في مربع حوار أو فوق الشاشة كلها.
 translationOf: components/search.mdx
-sourceHash: 086f7f1c3045fd6c16e3efb539c84a64cab8e632
+sourceHash: f640e3f9448e9421ff69cf0125fb9e865227d1d4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 تصف هذه الصفحة البحث كما هو في المواصفة الآن، بحثًا في موقع أيضًا: مشغِّل (trigger) مكان الشريط، وعرض في مربع حوار، ونتائج هي روابط، ثم صف للحالة، واختصار. مكوّن الويب يفعل ذلك كله، وكذلك العروض التوضيحية. أما SwiftUI و Compose و Flutter و React Native فموسومة أعلاه بأنها متأخرة: إلى أن تلحق بالمواصفة تقدّم المراجعة السابقة، وهي الشريط مع حقل إدخاله، والعرضان المُرسى وملء الشاشة، والاقتراحات، وعيّناتها تعرض تلك المراجعة.
 :::
 
-<DemoFrame label="فارغ، ومع استعلام، ومع أزرار أيقونات" column>
+<Example label="فارغ، ومع استعلام، ومع أزرار أيقونات" column>
   <tanrei-search label="البحث في البريد" placeholder="ابحث في البريد" style="inline-size: 20.5rem"></tanrei-search>
   <tanrei-search label="البحث في البريد" placeholder="ابحث في البريد" value="فاتورة" clear-label="مسح البحث" style="inline-size: 20.5rem"></tanrei-search>
   <tanrei-search label="البحث في البريد" placeholder="ابحث في البريد" style="inline-size: 20.5rem">
@@ -27,9 +27,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-button variant="text" slot="trailing" label="البحث الصوتي"><span slot="icon">mic</span></tanrei-button>
     <tanrei-button variant="text" slot="trailing" label="الحساب"><span slot="icon">account_circle</span></tanrei-button>
   </tanrei-search>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="بحث في موقع: مشغِّل في هيئة زر مع اختصاره، ومشغِّل أيقونة، وشريط يعرض اختصاره. اضغط مشغِّلًا ليُفتح عرضه" plain column>
+<Example label="بحث في موقع: مشغِّل في هيئة زر مع اختصاره، ومشغِّل أيقونة، وشريط يعرض اختصاره. اضغط مشغِّلًا ليُفتح عرضه" column>
   <tanrei-search bar="button" presentation="dialog" label="البحث في التوثيق" placeholder="بحث" shortcut="mod+k" value="تبويب" status-text="3 نتائج عن تبويب" clear-label="مسح البحث" back-label="رجوع" style="inline-size: 20.5rem">
     <tanrei-search-result-group value="tabs" headline="علامات التبويب" href="/ar/components/tabs/" leading-icon="article" excerpt='["يبدّل بين عروض الموضوع نفسه بصف من علامات ", "التبويب", " المسمّاة."]'>
       <tanrei-search-result value="tabs-sharing" headline="مشاركة الاختيار" href="/ar/components/tabs/#مشاركة-الاختيار" leading-icon="tag" excerpt='["صفوف علامات ", "التبويب", " التي تسمّي مجموعة واحدة تعرض الاختيار نفسه."]'></tanrei-search-result>
@@ -43,7 +43,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-search-result value="tab-view" headline="عرض التبويبات" href="/ar/components/tab-view/" leading-icon="article" excerpt='["يعرض عرض ", "التبويب", " المحدَّد تحت صفه."]'></tanrei-search-result>
   </tanrei-search>
   <tanrei-search label="البحث في البريد" placeholder="ابحث في البريد" shortcut="/" clear-label="مسح البحث" style="inline-size: 20.5rem"></tanrei-search>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -263,7 +263,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="العرض المُرسى مع اقتراح، ثم صف الحالة، ونتائج مجمَّعة، مرسومًا في مكانه" plain column>
+<Example label="العرض المُرسى مع اقتراح، ثم صف الحالة، ونتائج مجمَّعة، مرسومًا في مكانه" column>
   <tanrei-search inline expanded label="البحث في البريد" placeholder="ابحث في البريد" value="فات" status-text="رسالتان" clear-label="مسح البحث" style="inline-size: 20.5rem">
     <tanrei-search-suggestion value="invoices" headline="فواتير" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-result-group headline="الرسائل">
@@ -271,16 +271,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-search-result value="m-2" headline="رد: الدفع" leading-icon="mail" excerpt='["يُرجى إرسال ", "الفاتورة", " مرة أخرى."]'></tanrei-search-result>
     </tanrei-search-result-group>
   </tanrei-search>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="معطَّل، والعرض المُرسى مفتوحًا" plain column>
+<Example label="معطَّل، والعرض المُرسى مفتوحًا" column>
   <tanrei-search label="البحث في البريد" placeholder="ابحث في البريد" disabled style="inline-size: 20.5rem"></tanrei-search>
   <tanrei-search inline expanded label="البحث في البريد" placeholder="ابحث في البريد" value="فات" clear-label="مسح البحث" style="inline-size: 20.5rem">
     <tanrei-search-suggestion value="invoices" headline="فواتير" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-suggestion value="invoice template" headline="قالب فاتورة" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-suggestion value="folder:invoices" headline="الفواتير" supporting-text="مجلد · 24 رسالة" leading-icon="folder"></tanrei-search-suggestion>
   </tanrei-search>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="search" />
 

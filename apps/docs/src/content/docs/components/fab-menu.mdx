@@ -7,14 +7,14 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="fab-menu" />
 
 
-<DemoFrame label="Closed and open" system="m3-like">
+<Example label="Closed and open" system="m3-like">
   {/* The open items are drawn in place above the toggle and move no layout (FBM-12, FBM-13): reserve their height — three items, the gaps between them and the offset from the toggle — so the frame holds them, and line both toggles up along the bottom. */}
   <div style="display: flex; align-items: end; gap: var(--tanrei-sys-space-space300); padding-block-start: calc(3 * max(var(--tanrei-comp-fab-menu-item-height), var(--tanrei-sys-target-touch)) + 2 * var(--tanrei-comp-fab-menu-list-gap) + var(--tanrei-comp-fab-menu-list-offset))">
     <tanrei-fab-menu label="Create">
@@ -30,7 +30,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
       <tanrei-fab-menu-item label="Upload" icon="upload"></tanrei-fab-menu-item>
     </tanrei-fab-menu>
   </div>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -172,13 +172,13 @@ The toggle is drawn as a collapsed [main action button](/components/main-action-
 
 ## Specs
 
-<DemoFrame label="Variants, sizes and disabled" system="m3-like" plain>
+<Example label="Variants, sizes and disabled" system="m3-like">
   <tanrei-fab-menu variant="tonal" label="Create"><span slot="icon">add</span></tanrei-fab-menu>
   <tanrei-fab-menu variant="surface" label="Create"><span slot="icon">add</span></tanrei-fab-menu>
   <tanrei-fab-menu size="small" label="Create"><span slot="icon">add</span></tanrei-fab-menu>
   <tanrei-fab-menu size="large" label="Create"><span slot="icon">add</span></tanrei-fab-menu>
   <tanrei-fab-menu disabled label="Create"><span slot="icon">add</span></tanrei-fab-menu>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="fab-menu" />
 

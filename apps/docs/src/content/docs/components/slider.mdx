@@ -7,17 +7,17 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="slider" />
 
-<DemoFrame label="Continuous, stepped with stops, and a range" column>
+<Example label="Continuous, stepped with stops, and a range" column>
   <tanrei-slider label="Volume" value="40" style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider label="Brightness" value="30" step="10" stops style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider range label="Maximum price" start-label="Minimum price" start-value="20" value="60" style="inline-size: 20rem"></tanrei-slider>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -169,7 +169,7 @@ The revision that gave the slider its round thumb, and the review that made its 
 
 ## Specs
 
-<DemoFrame label="Sizes, centered, value indicator, vertical and disabled" plain column>
+<Example label="Sizes, centered, value indicator, vertical and disabled" column>
   <tanrei-slider size="medium" label="Volume" value="40" style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider size="large" label="Volume" value="40" style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider label="Balance" min="-50" max="50" origin="0" value="20" style="inline-size: 20rem"></tanrei-slider>
@@ -177,7 +177,7 @@ The revision that gave the slider its round thumb, and the review that made its 
   <tanrei-slider label="Volume" value="40" disabled style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider label="Brightness" value="60" step="20" stops disabled style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider orientation="vertical" label="Volume" value="60" style="block-size: 12rem"></tanrei-slider>
-</DemoFrame>
+</Example>
 
 In the default system the thumb is a ring: a 20 circle filled with the surface color, inside an outline in the active track's color. The outline is 3 wide and is drawn inside the circle's edge, so it does not change the thumb's size: it leaves a 14 disc of the surface color, and a wider outline would leave a smaller one. The track and the active track run under the thumb and meet at its center, so the active track reads as one line that ends in the ring. The thumb is 20 at every size, on tracks of 4, 6 and 8.
 

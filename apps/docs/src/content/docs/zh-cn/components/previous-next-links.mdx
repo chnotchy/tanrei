@@ -2,20 +2,20 @@
 title: "上一页/下一页链接"
 description: "在一系列页面中，指向当前页的上一页和下一页。两个链接，各自以方向和目标页面的标题命名。"
 translationOf: components/previous-next-links.mdx
-sourceHash: f0b866b0992a5ea7997d1128521d78df773b99ab
+sourceHash: f26eed746e4017b08c334e2dd311e7dfa7d4279c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="previous-next-links" />
 
-<DemoFrame label="上一页和下一页" column>
+<Example label="上一页和下一页" column>
   <nav class="tanrei-previous-next-links" aria-label="本演示的页面" style="inline-size: 100%">
     <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="../link/">
       <span class="tanrei-previous-next-links-label">上一页</span>
@@ -26,7 +26,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <span class="tanrei-previous-next-links-title">步骤</span>
     </a>
   </nav>
-</DemoFrame>
+</Example>
 
 本页底部的上一页/下一页链接就是这个组件。
 
@@ -100,7 +100,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 
 ## 规格
 
-<DemoFrame label="只有下一页时，它保持在原来的位置；只有标签的项" plain column>
+<Example label="只有下一页时，它保持在原来的位置；只有标签的项" column>
   <nav class="tanrei-previous-next-links" aria-label="本演示的第一页" style="inline-size: 100%">
     <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href="../steps/">
       <span class="tanrei-previous-next-links-label">下一页</span>
@@ -111,9 +111,9 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
     <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="../link/"><span class="tanrei-previous-next-links-label">较新的文章</span></a>
     <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href="../steps/"><span class="tanrei-previous-next-links-label">较早的文章</span></a>
   </nav>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="在窄栏中，两项上下排列" plain>
+<Example label="在窄栏中，两项上下排列">
   <nav class="tanrei-previous-next-links" aria-label="本演示的窄栏" style="inline-size: 20rem">
     <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="../link/">
       <span class="tanrei-previous-next-links-label">上一页</span>
@@ -124,7 +124,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
       <span class="tanrei-previous-next-links-title">从右到左的布局</span>
     </a>
   </nav>
-</DemoFrame>
+</Example>
 
 - **一个项就是一个链接**，整体可以按下，画成带轮廓的容器：那唯一的一种细线，没有填充，标题用文本颜色。它不带下划线，因为它的边线、箭头和位置已经把它与周围的文本区分开。
 - **箭头由组件提供**：上一页那一项的起始边是 `arrow_back`，下一页那一项的末尾边是 `arrow_forward`。它们需要 `icons.css`。

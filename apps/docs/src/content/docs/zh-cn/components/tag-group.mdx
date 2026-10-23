@@ -2,20 +2,20 @@
 title: "标签组（Tag group）"
 description: "把一组 Tag 或纸片排成会换行的若干行，按其中的内容留出间距，并把这一组作为一个有名称的列表暴露出来。成员保持原样；纸片被移除之后，焦点会移到下一个纸片上。"
 translationOf: components/tag-group.mdx
-sourceHash: 244216f99f145c63ac5a62ba10e948f72502850f
+sourceHash: b9ba7fa1d7147d2cd10b1cd38abb4b9c994512db
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="tag-group" />
 
-<DemoFrame label="一组 Tag，和一行筛选条件" column>
+<Example label="一组 Tag，和一行筛选条件" column>
   <tanrei-tag-group class="not-content" spacing="tags" label="标签">
     <tanrei-tag label="设计令牌"></tanrei-tag>
     <tanrei-tag label="无障碍"></tanrei-tag>
@@ -27,7 +27,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-chip kind="filter" label="待审核"></tanrei-chip>
     <tanrei-chip kind="filter" label="受阻"></tanrei-chip>
   </tanrei-tag-group>
-</DemoFrame>
+</Example>
 
 一个[标签（Tag）](/zh-cn/components/tag/)、一个[纸片（Chip）](/zh-cn/components/chip/)，各自都只是一样东西。标签组用来容纳好几个这样的东西：一篇文章的标签、列表上方的筛选条件、字段下方的几条建议。它把它们排成会换行的若干行，让它们之间保持合适的距离，并告诉辅助技术它们是一个列表。
 
@@ -82,7 +82,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="会换行的 Tag、表示状态的 Tag、通往每个标签对应页面的链接，以及已输入的项" plain column>
+<Example label="会换行的 Tag、表示状态的 Tag、通往每个标签对应页面的链接，以及已输入的项" column>
   <tanrei-tag-group class="not-content" spacing="tags" style="inline-size: 22rem; max-inline-size: 100%" label="标签">
     <tanrei-tag label="设计令牌"></tanrei-tag>
     <tanrei-tag label="无障碍"></tanrei-tag>
@@ -106,7 +106,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-chip kind="input" label="王芳" remove-label="移除王芳"></tanrei-chip>
     <tanrei-chip kind="input" label="张伟" remove-label="移除张伟"></tanrei-chip>
   </tanrei-tag-group>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tag-group" />
 
@@ -165,7 +165,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 有选择时，这一组是一个 Tab 停靠点：上次获得焦点的纸片；没有的话，是第一个打开的纸片；再没有的话，是第一个纸片。方向键按它所指的方向在纸片之间移动，在从右到左的布局中也是如此；Home 和 End 移到第一个和最后一个纸片。这些按键不切换任何纸片，焦点也不会从最后一个纸片循环回第一个。Space 切换获得焦点的纸片。
 
-<DemoFrame label="一次一种排序方式，以及多个筛选条件">
+<Example label="一次一种排序方式，以及多个筛选条件">
   <tanrei-tag-group class="not-content" label="排序方式" selection="single" value="updated">
     <tanrei-chip kind="filter" label="最新" value="newest"></tanrei-chip>
     <tanrei-chip kind="filter" label="最近更新" value="updated"></tanrei-chip>
@@ -177,7 +177,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-chip kind="filter" label="待审阅" value="review"></tanrei-chip>
     <tanrei-chip kind="filter" label="受阻" value="blocked"></tanrei-chip>
   </tanrei-tag-group>
-</DemoFrame>
+</Example>
 
 <Tabs syncKey="platform">
   <TabItem label="Web">

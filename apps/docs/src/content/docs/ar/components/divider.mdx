@@ -2,20 +2,20 @@
 title: الفاصل
 description: يفصل بخط رفيع بين مجموعات المحتوى في قائمة أو تخطيط أو شريط أدوات.
 translationOf: components/divider.mdx
-sourceHash: 30a7a4cb70a241da25e710981e6be81e76fb6142
+sourceHash: 80c28fe451508b1939317f564533e2a5f8e2cfc1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="divider" />
 
-<DemoFrame label="في قائمة وفي شريط أدوات">
+<Example label="في قائمة وفي شريط أدوات">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space150); inline-size: min(100%, 20rem)">
     <span>الوارد</span>
     <tanrei-divider></tanrei-divider>
@@ -29,7 +29,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-divider orientation="vertical" decorative="false"></tanrei-divider>
     <tanrei-button variant="text" label="إدراج رابط"><span slot="icon">link</span></tanrei-button>
   </div>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -152,7 +152,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="الاتجاهات والإزاحات" plain>
+<Example label="الاتجاهات والإزاحات">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
     <tanrei-divider></tanrei-divider>
     <tanrei-divider inset="start"></tanrei-divider>
@@ -163,9 +163,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-divider orientation="vertical" inset="start"></tanrei-divider>
     <tanrei-divider orientation="vertical" inset="both"></tanrei-divider>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="أنماط الخط" plain>
+<Example label="أنماط الخط">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
     <tanrei-divider></tanrei-divider>
     <tanrei-divider line-style="dotted"></tanrei-divider>
@@ -178,16 +178,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-divider orientation="vertical" line-style="dotted"></tanrei-divider>
     <tanrei-divider orientation="vertical" line-style="wavy"></tanrei-divider>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="السماكة: سماكة خاصة بفاصل واحد، مع نهايات مستديرة على الأنماط الأسمك" plain>
+<Example label="السماكة: سماكة خاصة بفاصل واحد، مع نهايات مستديرة على الأنماط الأسمك">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
     <tanrei-divider thickness="2"></tanrei-divider>
     <tanrei-divider thickness="4" line-style="dotted" line-cap="round"></tanrei-divider>
     <tanrei-divider thickness="4" line-style="dashed" line-cap="round"></tanrei-divider>
     <tanrei-divider thickness="2" line-style="wavy"></tanrei-divider>
   </div>
-</DemoFrame>
+</Example>
 
 للخط المنقّط أو المتقطع دائمًا نقطة كاملة أو شرطة كاملة عند كل من طرفيه: يرسم الفاصل أكبر عدد يتّسع له الطول مع ترك الفجوة على الأقل بين كل اثنتين، ثم يوسّع الفجوات كلها بالمقدار نفسه. فيبدو الخط واحدًا عند الطرفين، في أي من الاتجاهين وبأي طول. والموجة مؤلفة من أقواس دائرية، تُمَدّ إلى عدد صحيح من الموجات لتبدأ وتنتهي على خط المنتصف. والفاصل المتموّج أعلى من غيره: ضعف السعة مضافًا إليه سماكة الخط، أي 5 افتراضيًّا بدل 1.
 

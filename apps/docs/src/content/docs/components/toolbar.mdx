@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="toolbar" />
 
-<DemoFrame label="Inline, docked and floating" column>
+<Example label="Inline, docked and floating" column>
   <tanrei-toolbar label="Formatting">
     <tanrei-toolbar-group label="Text style">
       <tanrei-button variant="text" toggle selected label="Bold"><span slot="icon">format_bold</span></tanrei-button>
@@ -37,7 +37,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
     <tanrei-button variant="text" label="Eraser"><span slot="icon">ink_eraser</span></tanrei-button>
     <tanrei-button variant="filled" label="Done"><span slot="icon">check</span></tanrei-button>
   </tanrei-toolbar>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -221,7 +221,7 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
 
 ## Specs
 
-<DemoFrame label="Groups and a separator, a menu button, a button with menu, labelled toggles, an overflow menu" plain column>
+<Example label="Groups and a separator, a menu button, a button with menu, labelled toggles, an overflow menu" column>
   <tanrei-toolbar label="Document actions">
     <tanrei-button variant="text" label="Undo"><span slot="icon">undo</span></tanrei-button>
     <tanrei-button variant="text" label="Redo"><span slot="icon">redo</span></tanrei-button>
@@ -266,7 +266,7 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
       <tanrei-button variant="text" label="Layers"><span slot="icon">layers</span></tanrei-button>
     </tanrei-toolbar-group>
   </tanrei-toolbar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="toolbar" />
 
@@ -290,7 +290,7 @@ A docked toolbar is always horizontal. An inline or a floating one may be vertic
 
 A docked toolbar spreads its items across the width and never brings them closer than its gap (16 in the default system). An inline or a floating toolbar closes its items up: two neighbours stand apart only as far as each needs to keep a touch target of its own along the row, and never closer than the gap (4 inline and 0 floating in the default system). Large buttons touch, medium ones end up 8 apart and small ones 16. The toolbar never widens or restyles an item to do this, and the spacing is the same for a mouse and for touch.
 
-<DemoFrame label="Floating: small, medium and large items, and narrow and wide ones" plain column>
+<Example label="Floating: small, medium and large items, and narrow and wide ones" column>
   <tanrei-toolbar variant="floating" label="Formatting, small">
     <tanrei-button variant="text" size="small" label="Bold"><span slot="icon">format_bold</span></tanrei-button>
     <tanrei-button variant="text" size="small" label="Italic"><span slot="icon">format_italic</span></tanrei-button>
@@ -313,7 +313,7 @@ A docked toolbar spreads its items across the width and never brings them closer
     <tanrei-button variant="text" label="Eraser"><span slot="icon">ink_eraser</span></tanrei-button>
     <tanrei-button variant="filled" width="wide" label="Done"><span slot="icon">check</span></tanrei-button>
   </tanrei-toolbar>
-</DemoFrame>
+</Example>
 
 ### Items
 

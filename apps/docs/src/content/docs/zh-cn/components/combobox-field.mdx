@@ -2,20 +2,20 @@
 title: "组合框字段"
 description: "让用户通过键入找到一个值，并作为表单的一个字段——一个组合框，带有随键入不断收窄的选项列表，用户从中选择，在产品允许的地方也可以填入自己的值；它位于可以说明必填或选填的标签之下，带有一行帮助文本，以及值被拒绝的原因。"
 translationOf: components/combobox-field.mdx
-sourceHash: 4a8c54e5baf14f784980c95d548773479589f5b1
+sourceHash: 12192d13f66de6c0c136ba5d0c6adb2e4f8ebd22
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="combobox-field" />
 
-<DemoFrame label="一个只接受自身选项的组合框字段，以及一个还接受用户自己的值的组合框字段" column>
+<Example label="一个只接受自身选项的组合框字段，以及一个还接受用户自己的值的组合框字段" column>
   <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="城市" value="tokyo" clearable clear-label="清除城市" placeholder="输入城市名称查找" supporting-text="订单将寄往该城市。" empty-text="无匹配项">
     <tanrei-option value="kyoto">京都</tanrei-option>
     <tanrei-option value="lisbon">里斯本</tanrei-option>
@@ -29,7 +29,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-option value="Roboto Mono">Roboto Mono</tanrei-option>
     <tanrei-option value="Source Serif 4">Source Serif 4</tanrei-option>
   </tanrei-combobox-field>
-</DemoFrame>
+</Example>
 
 表单里凡是要填一个用户宁愿键入也不愿滚动查找的值的地方，都使用组合框字段：几百个城市中的一个、一个人、一个令牌。它也适用于既给出建议值、又接受用户自己的值的字段，例如字体。它是最普通的情形，拿来就能用：标签、带列表的方框、一行帮助文本，以及值有误时的文字。方框的绘制方式和尺寸与同一变体、同一尺寸的文本字段的方框相同，列表则按下拉选择框的样子绘制。
 
@@ -122,20 +122,20 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="里面放着组合框的字段：画面与组合框字段相同" column>
+<Example label="里面放着组合框的字段：画面与组合框字段相同" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="城市" required required-text="必填" supporting-text="订单将寄往该城市。">
     <tanrei-combobox value="tokyo" empty-text="无匹配项">
       <tanrei-option value="kyoto">京都</tanrei-option>
       <tanrei-option value="tokyo">东京</tanrei-option>
     </tanrei-combobox>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 不同的是表单的控件在哪里：手写时它是组合框，`name` 写在组合框上；在组合框字段里，它是字段。
 
 ## 规格
 
-<DemoFrame label="分组、带辅助文本和一个禁用选项、错误、只读，以及禁用的组合框字段" plain column>
+<Example label="分组、带辅助文本和一个禁用选项、错误、只读，以及禁用的组合框字段" column>
   <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="时区" value="Europe/Lisbon" empty-text="无匹配项">
     <tanrei-option-group label="亚洲"><tanrei-option value="Asia/Tokyo">东京</tanrei-option><tanrei-option value="Asia/Seoul">首尔</tanrei-option></tanrei-option-group>
     <tanrei-option-group label="欧洲"><tanrei-option value="Europe/Lisbon">里斯本</tanrei-option><tanrei-option value="Europe/Berlin">柏林</tanrei-option></tanrei-option-group>
@@ -154,7 +154,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="城市" value="tokyo" disabled>
     <tanrei-option value="nairobi">内罗毕</tanrei-option><tanrei-option value="tokyo">东京</tanrei-option>
   </tanrei-combobox-field>
-</DemoFrame>
+</Example>
 
 ### 字段
 

@@ -2,20 +2,20 @@
 title: ハンドル
 description: 人がドラッグして、またはキーボードで動かして、それが付いているもの（シート、フィールド、ペイン、プレビューの枠）の大きさを変えるための印です。1 方向なら短い線、2 方向なら 1/4 円の弧で描きます。どれだけ動いたかを知らせ、大きさを変えるのは持ち主です。
 translationOf: components/handle.mdx
-sourceHash: 8955a734232bc0ade6255485b375c3b4b8e433b8
+sourceHash: 7d140675b426695f97f08e12810e1f2f8f5aef93
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="handle" />
 
-<DemoFrame label="高さを変えるハンドル、幅を変えるハンドル、角にあって両方を変えるハンドル">
+<Example label="高さを変えるハンドル、幅を変えるハンドル、角にあって両方を変えるハンドル">
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle label="メモの大きさを変更" value="4" min="2" max="12" value-text="4 行" revealed style="justify-self: center; align-self: end"></tanrei-handle>
   </div>
@@ -25,7 +25,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle axis="both" label="メッセージの大きさを変更" value="6" min="3" max="12" value-text="6 行" revealed style="justify-self: end; align-self: end"></tanrei-handle>
   </div>
-</DemoFrame>
+</Example>
 
 ハンドルは、人が大きさを変えてよいものの縁や角に付きます。シートの上端、テキストフィールドの下の角、ペインやプレビューの縁などです。ドラッグされるとどれだけ動いたかを、キーボードで動かされるとどの刻みを求められたかを、ドラッグせずに押されるとそのことを知らせます。自分では何の大きさも変えません。大きさを持つのは付いている側で、1 刻みが何かもそちらが決め、支援技術が読めるように大きさをハンドルに渡し返します。
 
@@ -88,14 +88,14 @@ Web では `<tanrei-handle>` です。ほかのプラットフォームはまだ
 
 ## 仕様
 
-<DemoFrame label="使うまでは見えません。ポインターを乗せるか、Tab で移動してください" plain>
+<Example label="使うまでは見えません。ポインターを乗せるか、Tab で移動してください">
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle label="パネルの大きさを変更" value="30" style="justify-self: center; align-self: end"></tanrei-handle>
   </div>
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-small) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle axis="both" size="small" label="コメントの大きさを変更" value="3" style="justify-self: end; align-self: end"></tanrei-handle>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="handle" />
 

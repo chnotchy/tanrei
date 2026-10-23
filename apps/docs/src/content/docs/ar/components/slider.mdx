@@ -2,24 +2,24 @@
 title: شريط التمرير
 description: يتيح للأشخاص اختيار قيمة، أو مدى من القيم، بسحب مقبض على طول مسار، باستمرار أو على درجات.
 translationOf: components/slider.mdx
-sourceHash: f8e90fd380943ae7d0e08ad6a1bd99f61a83ba8b
+sourceHash: e74996d456fba14f6d07067a6a1b9cf61c1e5e69
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="slider" />
 
-<DemoFrame label="مستمر، ومدرَّج مع نقاط توقف، ومدى" column>
+<Example label="مستمر، ومدرَّج مع نقاط توقف، ومدى" column>
   <tanrei-slider label="مستوى الصوت" value="40" style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider label="السطوع" value="30" step="10" stops style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider range label="أعلى سعر" start-label="أدنى سعر" start-value="20" value="60" style="inline-size: 20rem"></tanrei-slider>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -171,7 +171,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="الأحجام، والتوسيط، ومؤشر القيمة، والاتجاه العمودي، والتعطيل" plain column>
+<Example label="الأحجام، والتوسيط، ومؤشر القيمة، والاتجاه العمودي، والتعطيل" column>
   <tanrei-slider size="medium" label="مستوى الصوت" value="40" style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider size="large" label="مستوى الصوت" value="40" style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider label="التوازن" min="-50" max="50" origin="0" value="20" style="inline-size: 20rem"></tanrei-slider>
@@ -179,7 +179,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-slider label="مستوى الصوت" value="40" disabled style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider label="السطوع" value="60" step="20" stops disabled style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider orientation="vertical" label="مستوى الصوت" value="60" style="block-size: 12rem"></tanrei-slider>
-</DemoFrame>
+</Example>
 
 في النظام الافتراضي المقبض حلقة: دائرة بمقاس 20 معبَّأة بلون السطح، داخل حدّ بلون المسار النشط. عرض الحدّ 3 ويُرسم داخل حافة الدائرة، فلا يغيّر مقاس المقبض: يترك قرصًا بمقاس 14 بلون السطح، والحدّ الأعرض يترك قرصًا أصغر. يمرّ المسار والمسار النشط تحت المقبض ويلتقيان عند مركزه، فيُقرأ المسار النشط خطًّا واحدًا ينتهي في الحلقة. ومقاس المقبض 20 في كل الأحجام، على مسارات بثخانة 4 و 6 و 8.
 

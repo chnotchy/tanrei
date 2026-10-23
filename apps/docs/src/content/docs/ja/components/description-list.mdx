@@ -2,20 +2,20 @@
 title: 説明リスト
 description: ひとつのものについて分かっていることを、名前の付いた項目として示します。項目は、控えめな項目名と、それに答える値の組です。項目名は値の横、値の上、または大きな数値の下に置きます。レイアウトは自身の幅から決まり、コントロールにはなりません。
 translationOf: components/description-list.mdx
-sourceHash: 19b77e343ee682dd4da1249daeb3a93d679c1efb
+sourceHash: 77ff09c568150926010e4d5f42596663265fd01a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="description-list" />
 
-<DemoFrame label="注文の情報" column>
+<Example label="注文の情報" column>
   <tanrei-description-list lang="ja" style="inline-size: min(100%, 30rem)">
     <dl>
       <div><dt>注文番号</dt><dd>A-20418</dd></div>
@@ -25,7 +25,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <div><dt>合計</dt><dd>12,800円</dd></div>
     </dl>
   </tanrei-description-list>
-</DemoFrame>
+</Example>
 
 説明リストは、注文、ファイル、アカウント、コンポーネントなど、ひとつのものについての情報を示します。それぞれの項目は、項目名と、それに答える値の組です。項目名は控えめなラベルで、利用者が知りたいのは値のほうです。
 
@@ -96,7 +96,7 @@ Web では、プロダクト側のネイティブの `<dl>` を `<tanrei-descrip
 
 ## 仕様
 
-<DemoFrame label="stat：画面の最初に見せる数値" plain column>
+<Example label="stat：画面の最初に見せる数値" column>
   <tanrei-description-list lang="ja" layout="stat" columns="3" separation="gap" style="inline-size: 100%">
     <dl>
       <div><dt>今週の注文</dt><dd>1,284</dd><dd>先週より 12% 増</dd></div>
@@ -104,9 +104,9 @@ Web では、プロダクト側のネイティブの `<dl>` を `<tanrei-descrip
       <div><dt>ビルド時間の中央値</dt><dd>4 分 12 秒</dd></div>
     </dl>
   </tanrei-description-list>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="複数列の stacked：リストが狭いと列が減ります" plain column>
+<Example label="複数列の stacked：リストが狭いと列が減ります" column>
   <tanrei-description-list lang="ja" layout="stacked" columns="3" style="inline-size: 100%">
     <dl>
       <div><dt>Planned</dt><dd>仕様はありますが、このプラットフォームでは未実装です。</dd></div>
@@ -117,9 +117,9 @@ Web では、プロダクト側のネイティブの `<dl>` を `<tanrei-descrip
       <div><dt>Deprecated</dt><dd>まだ提供していますが、代わりになるものを示しています。</dd></div>
     </dl>
   </tanrei-description-list>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="compact、余白で区切る：ざっと目を通す項目" plain column>
+<Example label="compact、余白で区切る：ざっと目を通す項目" column>
   <tanrei-description-list lang="ja" density="compact" separation="gap" style="inline-size: min(100%, 26rem)">
     <dl>
       <div><dt>値</dt><dd>#1b1c1e</dd><dd>→ ref.palette.neutral.10</dd></div>
@@ -127,7 +127,7 @@ Web では、プロダクト側のネイティブの `<dl>` を `<tanrei-descrip
       <div><dt>説明</dt><dd>サーフェスやサーフェスコンテナの上のテキストとグリフ。</dd></div>
     </dl>
   </tanrei-description-list>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="description-list" />
 

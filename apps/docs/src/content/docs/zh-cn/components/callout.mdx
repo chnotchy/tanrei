@@ -2,25 +2,25 @@
 title: "提示块（Callout）"
 description: "属于内容的一部分、并一直留在那里的通知——一条说明、一条注意事项、某件事的原因，或者对出错之处的汇总。外观是柔和填充或轮廓，采用语义状态的颜色和字形，可带标题、操作和关闭按钮。"
 translationOf: components/callout.mdx
-sourceHash: 3c436844ceb67c8f97b0d4e71ba26f1cb2c8799a
+sourceHash: f6abd901240a5444e951caf8c754bcc85de11555
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="callout" />
 
-<DemoFrame label="一条说明、一条带标题的注意事项，以及一条带操作和关闭按钮的通知" column>
+<Example label="一条说明、一条带标题的注意事项，以及一条带操作和关闭按钮的通知" column>
   <tanrei-callout status="info" status-label="信息" style="inline-size: min(100%, 34rem)">Web 绘制的是这一版，其他平台随后跟进。</tanrei-callout>
   <tanrei-callout status="warning" headline="迁移前请先备份" style="inline-size: min(100%, 34rem)">迁移会就地改写数据库。下面的步骤展示如何保留一份可以恢复的副本。</tanrei-callout>
   <tanrei-callout id="callout-demo-overview" variant="outlined" headline="此页面有更新的版本" closable close-label="关闭" style="inline-size: min(100%, 34rem)">重新加载即可阅读。你输入的内容不会丢失。<tanrei-button slot="actions" variant="outlined" onclick="this.closest('tanrei-callout').open = false">重新加载</tanrei-button></tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-overview').open = true">再次显示最后一条</tanrei-button>
-</DemoFrame>
+</Example>
 
 提示块是页面流中的一条通知：你把它放在哪里，它就待在哪里，宽度与所在位置相同，内容在多久它就在多久。它默认是一条说明，像它前面的段落一样在原地朗读，从不获得焦点。
 
@@ -80,7 +80,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="两种外观在每种语义状态下的样子" plain column>
+<Example label="两种外观在每种语义状态下的样子" column>
   <tanrei-callout style="inline-size: min(100%, 34rem)">尺寸是最小值：文本放大时，控件会随之变大。</tanrei-callout>
   <tanrei-callout status="info" status-label="信息" style="inline-size: min(100%, 34rem)">Web 绘制的是这一版，其他平台随后跟进。</tanrei-callout>
   <tanrei-callout status="warning" status-label="警告" style="inline-size: min(100%, 34rem)">如果边框是表明控件存在的唯一线索，它与所在表面的对比度必须保持 3:1。</tanrei-callout>
@@ -91,16 +91,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-callout variant="outlined" status="warning" status-label="警告" style="inline-size: min(100%, 34rem)">如果边框是表明控件存在的唯一线索，它与所在表面的对比度必须保持 3:1。</tanrei-callout>
   <tanrei-callout variant="outlined" status="error" status-label="错误" style="inline-size: min(100%, 34rem)">无法读取文件。未做任何更改。</tanrei-callout>
   <tanrei-callout variant="outlined" status="success" status-label="成功" style="inline-size: min(100%, 34rem)">全部六个配色方案的每项对比度检查都已通过。</tanrei-callout>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="标题、你自己的字形、操作、关闭按钮，以及 large 尺寸" plain column>
+<Example label="标题、你自己的字形、操作、关闭按钮，以及 large 尺寸" column>
   <tanrei-callout headline="小贴士" style="inline-size: min(100%, 34rem)"><span slot="icon">lightbulb</span>让操作保持可用，在用户使用它时再说明还缺什么。</tanrei-callout>
   <tanrei-callout status="info" headline="实验性" style="inline-size: min(100%, 34rem)"><span slot="icon">science</span>这项行为在以后的版本中可能会变。</tanrei-callout>
   <tanrei-callout status="warning" headline="磁盘上的文件已更改" style="inline-size: min(100%, 34rem)">你在这里的修改不在那个文件里。在你做出选择之前，不会覆盖任何内容。<tanrei-button slot="actions" variant="outlined">从磁盘重新加载</tanrei-button><tanrei-button slot="actions" variant="text">保留我的修改</tanrei-button></tanrei-callout>
   <tanrei-callout id="callout-demo-closable" headline="搜索现已涵盖发行说明" closable close-label="关闭" style="inline-size: min(100%, 34rem)">按下关闭按钮：提示块立刻消失，焦点回到原来的位置。</tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-closable').open = true">再次显示</tanrei-button>
   <tanrei-callout size="large" status="error" headline="危险" style="inline-size: min(100%, 34rem)">此命令会删除所有生成的文件，且无法撤销。</tanrei-callout>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="callout" />
 
@@ -179,10 +179,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 `live` 用于在用户操作过程中出现或变化的提示块：提交之后对表单错误的汇总，或者告知文件已在用户不知情时发生更改的通知。请用 `open="false"` 把它留在页面里，在适用时设置 `open`。
 
-<DemoFrame label="带 live 的提示块，为回应一次按下而显示" plain column>
+<Example label="带 live 的提示块，为回应一次按下而显示" column>
   <tanrei-button variant="outlined" onclick="document.getElementById('callout-demo-live').open = true">提交表单</tanrei-button>
   <tanrei-callout id="callout-demo-live" live open="false" status="error" headline="有 3 个字段需要处理" closable close-label="关闭" style="inline-size: min(100%, 34rem)">请输入姓名，选择开始日期，并填写可以收信的地址。</tanrei-callout>
-</DemoFrame>
+</Example>
 
 ```html
 <tanrei-callout id="errors" live open="false" status="error" headline="有 3 个字段需要处理">

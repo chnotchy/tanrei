@@ -2,14 +2,14 @@
 title: زر مع قائمة
 description: ينفّذ إجراء رئيسيًّا بضغطة واحدة، ويقدّم إجراءات مرتبطة به في قائمة خيارات من زر ثانٍ موصول بجانبه.
 translationOf: components/button-with-menu.mdx
-sourceHash: b2cc3ce77b318949d05a451ba15d953c237f71ee
+sourceHash: fc9fa1614058622bad95aa4f9dbc578e3c4dc196
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
@@ -40,21 +40,21 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - الخاصية `trailingWidth` (`default` أو `narrow`) ترسم نصف نهاية أنحف: السهم الصغير وهامش داخلي صغير من كل جهة، مع حشو أكثر قليلًا عند طرفه الخارجي المستدير كما في العرض الافتراضي.
 :::
 
-<DemoFrame label="الطُرُز">
+<Example label="الطُرُز">
   <tanrei-button-with-menu label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="elevated" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="مع قائمته: اضغط نصف النهاية" plain>
+<Example label="مع قائمته: اضغط نصف النهاية">
   <tanrei-button-with-menu label="حفظ" menu-label="خيارات حفظ إضافية" ontoggle="this.open = event.detail.open" onclose="this.open = false">
     <span slot="icon">save</span>
     <tanrei-menu-item slot="menu" label="حفظ باسم…"></tanrei-menu-item>
     <tanrei-menu-item slot="menu" label="حفظ نسخة"></tanrei-menu-item>
     <tanrei-menu-item slot="menu" label="حفظ كقالب"></tanrei-menu-item>
   </tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -259,20 +259,20 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 يوصَل النصفان بإحدى طريقتين. مع **الفاصل** يتلامسان، وتكون الزوايا حيث يلتقيان مربّعة، ويحدّد خطٌّ موضع الوصل. ومع **الفجوة** تفصل بينهما فجوة ضيقة، وتكون زواياهما أقل استدارة حيث يواجه أحدهما الآخر. يختار نظام التصميم مرة واحدة لكل المكوّنات التي تصل أجزاء (النظام الافتراضي يرسم فاصلًا)، ويستطيع نظام تصميم أن يخص هذا المكوّن باختيار مختلف، والخاصية `separation` (`auto` أو `divider` أو `gap`) تضبط مثيلًا واحدًا. ويبقى النصفان دائمًا جنبًا إلى جنب: لا توجد هيئة عمودية.
 
-<DemoFrame label="موصول بفاصل وبفجوة" plain>
+<Example label="موصول بفاصل وبفجوة">
   <tanrei-button-with-menu separation="divider" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
   <tanrei-button-with-menu separation="gap" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" separation="divider" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" separation="gap" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" separation="divider" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" separation="gap" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 ### نصف نهاية ضيق
 
 افتراضيًّا يحمل نصف النهاية السهم الصغير في مربع بارتفاع الزر، مع حشو أكثر قليلًا عند طرفه الخارجي المستدير. وحين تُضبط الخاصية `trailingWidth` على القيمة `narrow` يصير مقبضًا نحيفًا على الإجراء الرئيسي: السهم الصغير مع هامش داخلي صغير من كل جهة، والحشو الإضافي القليل نفسه عند طرفه الخارجي المستدير، فيبدو السهم في الوسط أمام الانحناء (32 و 36 و 36 في النظام الافتراضي: عرض [زر](/ar/components/button/) ضيق ذي أيقونة وحدها من الحجم نفسه مضافًا إليه ذلك الحشو). ونصف البداية هو نفسه في العرضين.
 
-<DemoFrame label="عرض نصف النهاية: default و narrow، في كل حجم" plain>
+<Example label="عرض نصف النهاية: default و narrow، في كل حجم">
   <tanrei-button-with-menu size="small" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
   <tanrei-button-with-menu size="small" trailing-width="narrow" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
   <tanrei-button-with-menu label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
@@ -280,7 +280,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-button-with-menu size="large" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
   <tanrei-button-with-menu size="large" trailing-width="narrow" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" separation="gap" trailing-width="narrow" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 يُرسم نصف النهاية الضيق أضيق من الحد الأدنى للهدف، لكن مساحة لمسه ليست كذلك: فالهدف يمتد نحو الخارج، إلى ما وراء حافة النهاية. اترك له فسحة هناك، كما تترك بجانب زر ضيق ذي أيقونة وحدها.
 
@@ -290,17 +290,17 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 `destructive` يَسِم النصفين فقط، ولا يَسِم عناصر القائمة أبدًا. فقد يحذف خيار في القائمة ما لا يحذفه الإجراء الرئيسي، أو العكس، لذا أعطِ كل عنصر يحذف `destructive` الخاص به.
 
-<DemoFrame label="أزرار مع قائمة مدمّرة: بكل طراز، وموصولة بفجوة" plain>
+<Example label="أزرار مع قائمة مدمّرة: بكل طراز، وموصولة بفجوة">
   <tanrei-button-with-menu destructive label="حذف" menu-label="خيارات حذف إضافية"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" destructive label="حذف" menu-label="خيارات حذف إضافية"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="elevated" destructive label="حذف" menu-label="خيارات حذف إضافية"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" destructive label="حذف" menu-label="خيارات حذف إضافية"></tanrei-button-with-menu>
   <tanrei-button-with-menu separation="gap" destructive label="حذف" menu-label="خيارات حذف إضافية"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 ## المواصفات
 
-<DemoFrame label="الأحجام، وأيقونة، ومفتوح، ومعطَّل" plain>
+<Example label="الأحجام، وأيقونة، ومفتوح، ومعطَّل">
   <tanrei-button-with-menu size="small" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
   <tanrei-button-with-menu size="large" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
   <tanrei-button-with-menu label="حفظ" menu-label="خيارات حفظ إضافية"><span slot="icon">save</span></tanrei-button-with-menu>
@@ -309,7 +309,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-button-with-menu variant="outlined" disabled label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
   <tanrei-button-with-menu label="مشاركة" menu-label="خيارات مشاركة إضافية"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
   <tanrei-button-with-menu open label="مشاركة" menu-label="خيارات مشاركة إضافية"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="button-with-menu" />
 

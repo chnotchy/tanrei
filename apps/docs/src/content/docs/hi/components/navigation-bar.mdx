@@ -2,14 +2,14 @@
 title: नेविगेशन बार
 description: कॉम्पैक्ट स्क्रीन के निचले किनारे से तीन से पाँच सबसे ऊपरी स्तर के गंतव्यों के बीच ले जाता है, और दिखाता है कि मौजूदा गंतव्य कौन-सा है।
 translationOf: components/navigation-bar.mdx
-sourceHash: ebead3b29a3b730640d2ca80309b0a7ea07178d8
+sourceHash: a063a49e81d4bae9234bd616bd72890fef82374b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
@@ -19,31 +19,31 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 यह पेज नेविगेशन बार को वैसा बताता है जैसा स्पेक में वह अभी है, [टैब](/hi/components/tabs/) की तर्ज़ पर। सक्रिय इंडिकेटर मौजूदा गंतव्य का बार में पूरा बराबर हिस्सा है, जो बार के किनारों से भीतर रखा गया है, न कि आइकन और लेबल से सटा हुआ कोई पिल। चयन बदलने पर वह अपने पूरे साइज़ में नए गंतव्य तक खिसकता है, और बार पर किया गया ड्रैग उसे पॉइंटर के साथ ले चलता है। होवर, दबाना और फ़ोकस उसी बॉक्स में बनाए जाते हैं। `variant` tonal (डिफ़ॉल्ट) और filled के बीच चुनता है। बाक़ी हर प्रॉपर्टी और इवेंट दोनों संशोधनों में एक जैसा है। ऊपर जिन प्लैटफ़ॉर्म पर "पीछे" लिखा है, वे बराबरी पर आने तक पहला संशोधन देते हैं: न `variant`, न ड्रैग, और सिर्फ़ आइकन के पीछे का इंडिकेटर जो अपने केंद्र से बढ़ता हुआ आता है, और उनके उदाहरण वही संशोधन दिखाते हैं। इस पेज के डेमो में वही वेब कंपोनेंट है जो आज दिया जाता है।
 :::
 
-<DemoFrame label="चार गंतव्य, जिनमें से एक पर गिनती है">
+<Example label="चार गंतव्य, जिनमें से एक पर गिनती है">
   <tanrei-navigation-bar value="inbox" label="मुख्य" style="inline-size: 24rem">
     <tanrei-navigation-bar-item value="inbox" label="इनबॉक्स" icon="inbox" badge badge-count="3" badge-label="3 अपठित"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="chat" label="चैट" icon="chat"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="starred" label="तारांकित" icon="star"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="settings" label="सेटिंग" icon="settings"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="filled वेरिएंट: इंडिकेटर को साथ ले चलने के लिए बार पर दबाएँ और ड्रैग करें" plain>
+<Example label="filled वेरिएंट: इंडिकेटर को साथ ले चलने के लिए बार पर दबाएँ और ड्रैग करें">
   <tanrei-navigation-bar variant="filled" value="chat" label="मीडिया" style="inline-size: 24rem">
     <tanrei-navigation-bar-item value="home" label="होम" icon="home"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="chat" label="चैट" icon="chat" badge badge-label="नए संदेश"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="starred" label="तारांकित" icon="star"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="लिंक का बार: पेज अपने पते से मौजूदा गंतव्य का नाम लेता है, और सहायता नया टैब खोलती है" plain>
+<Example label="लिंक का बार: पेज अपने पते से मौजूदा गंतव्य का नाम लेता है, और सहायता नया टैब खोलती है">
   <tanrei-navigation-bar value="/hi/components/navigation-bar/" label="कंपोनेंट" style="inline-size: 24rem">
     <tanrei-navigation-bar-item href="/hi/components/button/" label="बटन" icon="smart_button"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item href="/hi/components/navigation-bar/" label="बार" icon="bottom_navigation"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item href="/hi/components/navigation-drawer/" label="ड्रॉअर" icon="side_navigation"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item href="https://example.com/" label="सहायता" icon="help" target="new" target-label="नए टैब में खुलता है"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -202,7 +202,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="सिर्फ़ चयनित का लेबल, और कोई लेबल नहीं" plain column>
+<Example label="सिर्फ़ चयनित का लेबल, और कोई लेबल नहीं" column>
   <tanrei-navigation-bar value="chat" label-visibility="selected" label="मुख्य" style="inline-size: 24rem">
     <tanrei-navigation-bar-item value="inbox" label="इनबॉक्स" icon="inbox"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="chat" label="चैट" icon="chat"></tanrei-navigation-bar-item>
@@ -213,7 +213,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-navigation-bar-item value="chat" label="चैट" icon="chat" badge badge-label="नए संदेश"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="starred" label="तारांकित" icon="star"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="navigation-bar" />
 

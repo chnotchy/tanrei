@@ -2,20 +2,20 @@
 title: روابط السابق والتالي
 description: الصفحة التي قبل الصفحة التي يقف عليها الشخص والصفحة التي بعدها، في تسلسل من الصفحات. رابطان، يسمّي كلًّا منهما اتجاهٌ وعنوانُ الصفحة التي يقود إليها.
 translationOf: components/previous-next-links.mdx
-sourceHash: f0b866b0992a5ea7997d1128521d78df773b99ab
+sourceHash: f26eed746e4017b08c334e2dd311e7dfa7d4279c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="previous-next-links" />
 
-<DemoFrame label="السابق والتالي" column>
+<Example label="السابق والتالي" column>
   <nav class="tanrei-previous-next-links" aria-label="صفحات هذا العرض التوضيحي" style="inline-size: 100%">
     <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="../link/">
       <span class="tanrei-previous-next-links-label">السابق</span>
@@ -26,7 +26,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <span class="tanrei-previous-next-links-title">الخطوات</span>
     </a>
   </nav>
-</DemoFrame>
+</Example>
 
 روابط السابق والتالي التي في أسفل هذه الصفحة هي المكوّن نفسه.
 
@@ -100,7 +100,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="«التالي» وحده يحتفظ بمكانه، وتسميات بلا عناوين" plain column>
+<Example label="«التالي» وحده يحتفظ بمكانه، وتسميات بلا عناوين" column>
   <nav class="tanrei-previous-next-links" aria-label="الصفحة الأولى في هذا العرض التوضيحي" style="inline-size: 100%">
     <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href="../steps/">
       <span class="tanrei-previous-next-links-label">التالي</span>
@@ -111,9 +111,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="../link/"><span class="tanrei-previous-next-links-label">الأحدث</span></a>
     <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href="../steps/"><span class="tanrei-previous-next-links-label">الأقدم</span></a>
   </nav>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="في عمود ضيق يُرصّ العنصران أحدهما فوق الآخر" plain>
+<Example label="في عمود ضيق يُرصّ العنصران أحدهما فوق الآخر">
   <nav class="tanrei-previous-next-links" aria-label="العمود الضيق في هذا العرض التوضيحي" style="inline-size: 20rem">
     <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="../link/">
       <span class="tanrei-previous-next-links-label">السابق</span>
@@ -124,7 +124,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <span class="tanrei-previous-next-links-title">التخطيطات من اليمين إلى اليسار</span>
     </a>
   </nav>
-</DemoFrame>
+</Example>
 
 - **العنصر رابط واحد**، يُضغط كله، ويُرسم حاويةً لها حدّ: الخط الرفيع الواحد، بلا تعبئة، والعنوان بلون النص. وليس تحته خط، لأن حافته وسهمه وموضعه تميّزه من النص الذي حوله.
 - **السهمان من المكوّن نفسه**: الرسم `arrow_back` عند حافة البداية في عنصر «السابق»، والرسم `arrow_forward` عند حافة النهاية في عنصر «التالي». ويحتاجان إلى الملف `icons.css`.

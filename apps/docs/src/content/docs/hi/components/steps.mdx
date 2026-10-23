@@ -2,26 +2,26 @@
 title: चरण
 description: "नंबर वाले चरणों के रूप में रखी गई एक प्रक्रिया: हर चरण में उसके नंबर वाली रिंग, वैकल्पिक शीर्षक और आपके कॉन्टेंट की बॉडी होती है, और एक बारीक रेखा उसे अगले चरण से जोड़ती है। यह पढ़ने के लिए क्रम वाली लिस्ट है, न कभी कंट्रोल और न कभी प्रगति का रिकॉर्ड।"
 translationOf: components/steps.mdx
-sourceHash: c8264baa77c44eb546180291656f27740ecb7537
+sourceHash: fc2b24b601c10465b86a49a8d463b2566ff711e1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="steps" />
 
-<DemoFrame label="शीर्षक और बॉडी" column>
+<Example label="शीर्षक और बॉडी" column>
   <ol class="tanrei-steps" role="list" aria-label="वर्कफ़्लो" style="inline-size: 100%; max-inline-size: 28rem">
     <li><p class="tanrei-steps-title">प्रस्ताव रखें</p><p>स्पेक लिखें या बदलें, और जहाँ बदलाव को ज़रूरत हो वहाँ टोकन भी।</p></li>
     <li><p class="tanrei-steps-title">वैलिडेट करें</p><p>स्कीमा, टोकन के नियम और हर स्कीम का कंट्रास्ट जाँचें।</p></li>
     <li><p class="tanrei-steps-title">जनरेट करें</p><p>टोकन आउटपुट, स्कैफ़ोल्ड और स्थिति मैट्रिक्स दोबारा बनाएँ।</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
 तीन चीज़ें एक जैसी दिखती हैं, पर एक नहीं हैं:
 
@@ -100,7 +100,7 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 
 ## स्पेक
 
-<DemoFrame label="हर चरण एक पंक्ति का, और आगे जारी सेट" plain column>
+<Example label="हर चरण एक पंक्ति का, और आगे जारी सेट" column>
   <ol class="tanrei-steps" role="list" aria-label="आगे क्या करना है" style="inline-size: 100%; max-inline-size: 28rem">
     <li>फ़ाइल को उस फ़ोल्डर में सेव करें जिसमें प्रोजेक्ट की सेटिंग हैं।</li>
     <li>सेटिंग में, डिज़ाइन लेयर की कुंजी के नीचे, इस फ़ाइल का नाम लिखें।</li>
@@ -111,14 +111,14 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
     <li>दस पर भी।</li>
     <li>और ग्यारह पर भी: तीनों एक ही किनारे से शुरू होते हैं।</li>
   </ol>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Large, बॉडी में एक ब्लॉक के साथ" plain column>
+<Example label="Large, बॉडी में एक ब्लॉक के साथ" column>
   <ol class="tanrei-steps" role="list" data-size="large" aria-label="इस्तेमाल" style="inline-size: 100%; max-inline-size: 32rem">
     <li><p>पैकेज को प्रोजेक्ट में जोड़ें।</p><tanrei-code-block label="इंस्टॉल करने का कमांड"><pre><code>npm install @tanrei/web</code></pre></tanrei-code-block></li>
     <li><p>स्टाइलशीट को एक बार लोड करें, पेज के किसी भी दूसरे स्टाइल से पहले।</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
 - **मार्कर** सिस्टम की बारीक रेखा से बनी एक रिंग है जिसमें चरण का नंबर होता है, medium पर 24 चौड़ी और large पर 28। एक या दो अंक हों तो वह गोला रहता है; इससे लंबा नंबर उसे चौड़ा करके पिल बना देता है, और हर चरण का कॉन्टेंट तब भी एक ही किनारे से शुरू होता है।
 - **कनेक्टर** हर रिंग से अगली रिंग तक चलता है और दोनों से थोड़ा पहले रुक जाता है। आख़िरी चरण में कनेक्टर नहीं होता।

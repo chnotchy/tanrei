@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="handle" />
 
-<DemoFrame label="A handle that changes a height, one that changes a width, and one in a corner that changes both">
+<Example label="A handle that changes a height, one that changes a width, and one in a corner that changes both">
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle label="Resize notes" value="4" min="2" max="12" value-text="4 lines" revealed style="justify-self: center; align-self: end"></tanrei-handle>
   </div>
@@ -23,7 +23,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle axis="both" label="Resize message" value="6" min="3" max="12" value-text="6 lines" revealed style="justify-self: end; align-self: end"></tanrei-handle>
   </div>
-</DemoFrame>
+</Example>
 
 A handle sits on an edge or a corner of something whose size a person may change: the top of a sheet, the bottom corner of a text field, the edge of a pane or of a preview. Dragged, it reports how far it moved; moved from the keyboard, it reports which step was asked for; pressed without a drag, it reports that. It never resizes anything itself. What it stands on keeps the size, decides what one step is, and gives the size back to the handle so that assistive technology can read it.
 
@@ -86,14 +86,14 @@ On the web it is `<tanrei-handle>`. The other platforms have not implemented it 
 
 ## Specs
 
-<DemoFrame label="Out of sight until used: point at it, or move to it with Tab" plain>
+<Example label="Out of sight until used: point at it, or move to it with Tab">
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle label="Resize panel" value="30" style="justify-self: center; align-self: end"></tanrei-handle>
   </div>
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-small) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle axis="both" size="small" label="Resize comment" value="3" style="justify-self: end; align-self: end"></tanrei-handle>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="handle" />
 

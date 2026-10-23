@@ -2,20 +2,20 @@
 title: البطاقة
 description: تفصل مجموعة من المحتوى المترابط عن خلفيتها، ويمكن أن تكون إجراء واحدًا يفتح ما تعرضه أو رابطًا واحدًا إليه.
 translationOf: components/card.mdx
-sourceHash: b6fcbfc849d4b1691f4876da47689bf1ed2bb7fb
+sourceHash: a264306df997c4a9cac9eeecd4af1aff5fda9b4a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="card" />
 
-<DemoFrame label="الطُرُز">
+<Example label="الطُرُز">
   <tanrei-card style="width: 15rem">
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Outlined</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">نمت الإيرادات 12% عن الربع السابق.</div>
@@ -28,7 +28,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Elevated</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">نمت الإيرادات 12% عن الربع السابق.</div>
   </tanrei-card>
-</DemoFrame>
+</Example>
 
 تأتي البطاقة في ثلاث هيئات. البطاقة البسيطة حاوية: يحتفظ محتواها بدلالاته ويجوز أن يضم أزرارًا وروابط. والبطاقة التفاعلية زر واحد. وبطاقة الرابط، أي البطاقة التي لها `href`، رابط واحد. استخدم بطاقة الرابط حين يأخذ تفعيلُ البطاقة الشخصَ إلى صفحة أخرى أو عنوان آخر، والبطاقة التفاعلية حين يحدث شيء في المكان الذي هو فيه.
 
@@ -173,7 +173,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="بلا حشو، وتفاعلية، ومعطَّلة" plain>
+<Example label="بلا حشو، وتفاعلية، ومعطَّلة">
   <tanrei-card flush style="width: 15rem">
     <div style="height: 5rem; background: var(--tanrei-sys-color-primary-container)"></div>
     <div style="padding: var(--tanrei-comp-card-container-padding); font: var(--tanrei-sys-typescale-body-font)">بلا حشو: المحتوى يبلغ الحواف.</div>
@@ -186,9 +186,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">التقرير الفصلي</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">تفاعلية ومعطَّلة.</div>
   </tanrei-card>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="بطاقات الرابط" plain>
+<Example label="بطاقات الرابط">
   <tanrei-card href="/ar/components/button/" label="الزر" style="width: 15rem">
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">الزر</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">بطاقة رابط. المفتاح Enter يتبعها، وقائمة الروابط في المتصفح تعمل عليها.</div>
@@ -204,7 +204,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">الزر</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">بطاقة رابط معطَّلة: لا شيء يُتبع.</div>
   </tanrei-card>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="card" />
 

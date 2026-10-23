@@ -2,14 +2,14 @@
 title: "导航栏"
 description: "位于 compact 屏幕的底边，用来在三到五个顶级目的地之间切换，并标明当前所在的是哪一个。"
 translationOf: components/navigation-bar.mdx
-sourceHash: ebead3b29a3b730640d2ca80309b0a7ea07178d8
+sourceHash: a063a49e81d4bae9234bd616bd72890fef82374b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
@@ -19,31 +19,31 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 本页描述的是规格当前所定的导航栏，它以[标签页](/zh-cn/components/tabs/)为样板。活动指示器是当前目的地在导航栏中平分到的整块区域，从导航栏的边缘向内收进一些，而不是紧贴图标和标签的胶囊形。选择改变时，它保持完整的大小滑到新的目的地；沿导航栏拖动时，它跟着指针移动。悬停、按下和聚焦也画在同一个框里。`variant` 在 tonal（默认）和 filled 之间选择。其他属性和事件在两个版本中都相同。上方标记为“待跟进”的平台在跟上之前提供的仍是第一次修订的版本：没有 `variant`，不能拖动，指示器只在图标背后，并且从中心向外展开；这些平台的示例展示的也是那个版本。本页的演示是目前提供的 Web 组件。
 :::
 
-<DemoFrame label="四个目的地，其中一个带有计数">
+<Example label="四个目的地，其中一个带有计数">
   <tanrei-navigation-bar value="inbox" label="主导航" style="inline-size: 24rem">
     <tanrei-navigation-bar-item value="inbox" label="收件箱" icon="inbox" badge badge-count="3" badge-label="3 封未读"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="chat" label="聊天" icon="chat"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="starred" label="星标" icon="star"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="settings" label="设置" icon="settings"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="filled 变体：按住并沿导航栏拖动，指示器会跟着移动" plain>
+<Example label="filled 变体：按住并沿导航栏拖动，指示器会跟着移动">
   <tanrei-navigation-bar variant="filled" value="chat" label="媒体" style="inline-size: 24rem">
     <tanrei-navigation-bar-item value="home" label="首页" icon="home"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="chat" label="聊天" icon="chat" badge badge-label="有新消息"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="starred" label="星标" icon="star"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="由链接组成的导航栏：页面用自己的地址指明当前目的地，“帮助”在新标签页中打开" plain>
+<Example label="由链接组成的导航栏：页面用自己的地址指明当前目的地，“帮助”在新标签页中打开">
   <tanrei-navigation-bar value="/zh-cn/components/navigation-bar/" label="组件" style="inline-size: 24rem">
     <tanrei-navigation-bar-item href="/zh-cn/components/button/" label="按钮" icon="smart_button"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item href="/zh-cn/components/navigation-bar/" label="导航栏" icon="bottom_navigation"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item href="/zh-cn/components/navigation-drawer/" label="抽屉" icon="side_navigation"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item href="https://example.com/" label="帮助" icon="help" target="new" target-label="在新标签页中打开"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -202,7 +202,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="只显示选中项的标签，以及不显示标签" plain column>
+<Example label="只显示选中项的标签，以及不显示标签" column>
   <tanrei-navigation-bar value="chat" label-visibility="selected" label="主导航" style="inline-size: 24rem">
     <tanrei-navigation-bar-item value="inbox" label="收件箱" icon="inbox"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="chat" label="聊天" icon="chat"></tanrei-navigation-bar-item>
@@ -213,7 +213,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-navigation-bar-item value="chat" label="聊天" icon="chat" badge badge-label="有新消息"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="starred" label="星标" icon="star"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="navigation-bar" />
 

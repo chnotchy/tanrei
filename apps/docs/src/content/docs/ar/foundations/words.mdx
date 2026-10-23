@@ -2,11 +2,11 @@
 title: الكلمات
 description: ليس للمكوّن كلمات خاصة به. كل تسمية واسم ورسالة يرسمها المكوّن أو يقولها هي لمنتجك، تُعطى على المكوّن، أو مرة واحدة للمنتج كله، أو تؤخذ من حزمة الكلمات الإنجليزية التي تستوردها.
 translationOf: foundations/words.mdx
-sourceHash: 9c03bb2b32d13c39654f66eb75fd92ed2117476d
+sourceHash: 1f87ce9619375814accd41f27f5d3d08f178e563
 ---
 
 import ProductWordKeys from '../../../../components/ProductWordKeys.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 **ليس للمكوّن كلمات خاصة به.** ليس لأي مكوّن نص افتراضي بأي لغة: لا «مطلوب» ولا «إغلاق» ولا «موافق». الكلمة التي يرسمها المكوّن أو يقولها كلمة أعطاها منتجك: كتبتها أنت، أو أخذتها من [حزمة الكلمات الإنجليزية](#حزمة-الكلمات-الإنجليزية) التي تستوردها بنفسك.
 
@@ -61,10 +61,10 @@ setWords({
 
 وخاصية HTML على مكوّن واحد تغلب كلمات منتجك دائمًا:
 
-<DemoFrame label="الكلمة على المكوّن نفسه: حقل واحد يقولها بطريقة مختلفة" plain column>
+<Example label="الكلمة على المكوّن نفسه: حقل واحد يقولها بطريقة مختلفة" column>
   <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="البريد الإلكتروني" required required-text="مطلوب"></tanrei-text-field>
   <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="الشركة" required required-text="لازم للفواتير"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
 ```html
 <tanrei-text-field label="البريد الإلكتروني" required required-text="مطلوب"></tanrei-text-field>

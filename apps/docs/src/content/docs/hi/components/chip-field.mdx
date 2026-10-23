@@ -2,23 +2,23 @@
 title: चिप फ़ील्ड
 description: छोटे टेक्स्ट की एक लिस्ट इकट्ठा करता है — ईमेल पते, टेलीफ़ोन नंबर, कीवर्ड — जो एक ही फ़ील्ड में एक के बाद एक टाइप किए जाते हैं। आपकी जाँच जिस टेक्स्ट को स्वीकार करती है, वह एक चिप बन जाता है जिसे हटाया जा सकता है, या बदलने के लिए टाइप करने वाले भाग में वापस रखा जा सकता है, और यह लिस्ट फ़ील्ड का एक ही मान है।
 translationOf: components/chip-field.mdx
-sourceHash: c40811ad47af7b7bc1c71ac68bdfe8da9010cbbf
+sourceHash: 73c351fcd4c977beb8d2f283e2a61d126c871b12
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="chip-field" />
 
-<DemoFrame label="दो पतों वाला एक चिप फ़ील्ड, और एक जिसका तीसरा पता माना नहीं गया" column>
+<Example label="दो पतों वाला एक चिप फ़ील्ड, और एक जिसका तीसरा पता माना नहीं गया" column>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="पाने वाले" type="email" separators='[",",";"," "]' remove-label="{entry} को हटाएँ" added-text="{entry} जोड़ा गया" removed-text="{entry} हटाया गया" supporting-text="पतों को कॉमा से अलग करें।" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="पाने वाले" type="email" separators='[",",";"," "]' remove-label="{entry} को हटाएँ" added-text="{entry} जोड़ा गया" removed-text="{entry} हटाया गया" supporting-text="पतों को कॉमा से अलग करें।" error error-text="पूरा पता डालें, जैसे name@example.com।" value='["ada@example.com","grace.hopper@example.org"]' input-value="alan@"></tanrei-chip-field>
-</DemoFrame>
+</Example>
 
 चिप फ़ील्ड वहाँ इस्तेमाल करें जहाँ व्यक्ति एक ही प्रकार के कई छोटे टेक्स्ट दर्ज करता है: किसी संदेश को पाने वाले, वे लोग जिनके साथ कोई दस्तावेज़ शेयर किया गया है, वे नंबर जिन पर कोई अलर्ट भेजा जाता है, किसी लेख के कीवर्ड। हर टेक्स्ट अलग से जाँचा जाता है, इसलिए बारह पतों में से एक ग़लत टाइप हुआ पता बाक़ी को नहीं बिगाड़ता, और हर एंट्री अकेले हटाई या बदली जा सकती है।
 
@@ -113,14 +113,14 @@ Tanrei नहीं जानता कि ईमेल पता या टे�
 </tanrei-field>
 ```
 
-<DemoFrame label="वही फ़ील्ड हाथ से लिखा हुआ: एक फ़ील्ड, एक टेक्स्ट इनपुट, और उसके entries स्लॉट में दो चिप" column>
+<Example label="वही फ़ील्ड हाथ से लिखा हुआ: एक फ़ील्ड, एक टेक्स्ट इनपुट, और उसके entries स्लॉट में दो चिप" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="पाने वाले" supporting-text="पतों को कॉमा से अलग करें।">
     <tanrei-text-input type="email">
       <tanrei-chip slot="entries" kind="input" size="small" label="ada@example.com" remove-label="ada@example.com को हटाएँ"></tanrei-chip>
       <tanrei-chip slot="entries" kind="input" size="small" label="grace.hopper@example.org" remove-label="grace.hopper@example.org को हटाएँ"></tanrei-chip>
     </tanrei-text-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 हाथ से लिखे गए सदस्य जो नहीं करते, वही चिप फ़ील्ड जोड़ता है:
 
@@ -136,12 +136,12 @@ Tanrei नहीं जानता कि ईमेल पता या टे�
 
 ## स्पेक
 
-<DemoFrame label="ज़रूरी, सिर्फ़ पढ़ने के लिए, अक्षम, और ऐसे कीवर्ड जो सिर्फ़ Enter से बनते हैं" plain column>
+<Example label="ज़रूरी, सिर्फ़ पढ़ने के लिए, अक्षम, और ऐसे कीवर्ड जो सिर्फ़ Enter से बनते हैं" column>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="पाने वाले" type="email" required required-text="ज़रूरी" remove-label="{entry} को हटाएँ" value='["ada@example.com"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="पाने वाले" type="email" readonly remove-label="{entry} को हटाएँ" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="पाने वाले" type="email" disabled remove-label="{entry} को हटाएँ" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="लेखक" remove-label="{entry} को हटाएँ" supporting-text="हर नाम के बाद Enter दबाएँ।" value='["Lovelace, Ada","Hopper, Grace"]'></tanrei-chip-field>
-</DemoFrame>
+</Example>
 
 ### हर सदस्य क्या देता है
 

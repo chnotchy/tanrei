@@ -2,20 +2,20 @@
 title: مجموعة الأزرار
 description: ترتّب بضعة أزرار مترابطة في صف أو عمود، متباعدة أو متصلة في شكل واحد، وتضع الإجراء الذي يُتمّ المهمة والإجراء الذي يتراجع عنها حيث يتوقعهما الأشخاص، وتسمّي الأزرار مجموعةً.
 translationOf: components/button-group.mdx
-sourceHash: 4fffb14499d629d4c5b2c43cb8fa1ec4e97d4b84
+sourceHash: 0fd69176212d667b8b1bbb982a7e5cc99319372b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="button-group" />
 
-<DemoFrame label="الطرازان standard و connected">
+<Example label="الطرازان standard و connected">
   <tanrei-button-group>
     <tanrei-button variant="outlined">إلغاء</tanrei-button>
     <tanrei-button variant="tonal">حفظ المسودة</tanrei-button>
@@ -26,7 +26,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-button variant="tonal" toggle label="مائل"><span slot="icon">format_italic</span></tanrei-button>
     <tanrei-button variant="tonal" toggle label="تسطير"><span slot="icon">format_underlined</span></tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -207,7 +207,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | `dismissive` | يتراجع عنها: «إلغاء»، «رجوع»، «ليس الآن» | في البداية | في الأسفل |
 | لا هذه ولا تلك | أي شيء آخر | بين الاثنين، بالترتيب المعطى | بين الاثنين، بالترتيب المعطى |
 
-<DemoFrame label="الأزرار الثلاثة نفسها في صف وفي عمود" plain>
+<Example label="الأزرار الثلاثة نفسها في صف وفي عمود">
   <tanrei-button-group>
     <tanrei-button variant="outlined" dismissive>إلغاء</tanrei-button>
     <tanrei-button variant="tonal">حفظ المسودة</tanrei-button>
@@ -218,9 +218,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-button variant="tonal">حفظ المسودة</tanrei-button>
     <tanrei-button variant="filled" confirming>نشر</tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="العرض الكامل: صف يتقاسم العرض، وعمود" plain column>
+<Example label="العرض الكامل: صف يتقاسم العرض، وعمود" column>
   <div style="inline-size: 20rem">
     <tanrei-button-group full-width>
       <tanrei-button variant="tonal" dismissive>ليس الآن</tanrei-button>
@@ -233,7 +233,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-button variant="tonal" confirming>سماح</tanrei-button>
     </tanrei-button-group>
   </div>
-</DemoFrame>
+</Example>
 
 تركيز لوحة المفاتيح وقارئات الشاشة يتبعان الترتيب بعد الوضع، فيلقى الجميع الإجراءات بالترتيب الذي رُسمت به. الرايتان تصفان المهمة لا النبرة: في «إلغاء · حذف»، الزر «حذف» هو الذي يُتمّ المهمة. والإجراء الذي لا رجعة فيه يُميَّز بمظهره (الخاصية `destructive` للزر) وتسميته، لا بمكانه. و[مربع الحوار](/ar/components/dialog/) و[اللوحة الجانبية](/ar/components/side-sheet/) يضعان إجراءاتهما بالرايتين نفسيهما.
 
@@ -241,7 +241,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 المجموعة من الطراز connected تصل أزرارها بإحدى طريقتين. مع **الفاصل** تتلامس الأزرار، وتكون زواياها قائمة حيث تلتقي، ويعلّم خط كل موضع وصل. ومع **الفجوة** تفصل بينها فجوة ضيقة، وتكون زواياها أضيق حيث يواجه أحدها الآخر. يختار نظام التصميم مرة واحدة لكل مكوّن يصل أجزاء (النظام الافتراضي يرسم فاصلًا)، ويستطيع نظام تصميم أن يخص مجموعة الأزرار باختيار مختلف، والخاصية `separation` (`auto` أو `divider` أو `gap`) تضبط مجموعة واحدة. والمجموعة من الطراز standard تتجاهلها.
 
-<DemoFrame label="متصلة بفاصل وبفجوة، في صف وفي عمود" plain>
+<Example label="متصلة بفاصل وبفجوة، في صف وفي عمود">
   <tanrei-button-group variant="connected" separation="divider" label="الحافظة">
     <tanrei-button variant="outlined">قص</tanrei-button>
     <tanrei-button variant="outlined">نسخ</tanrei-button>
@@ -260,22 +260,22 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-button variant="tonal" label="تكبير"><span slot="icon">add</span></tanrei-button>
     <tanrei-button variant="tonal" label="تصغير"><span slot="icon">remove</span></tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 مع الفاصل، لا يحمل موضع الوصل خطًّا إلا حيث يستند الزران إلى التعبئة نفسها. بين زر تبديل محدَّد وآخر غير محدَّد، أو بين زر من الطراز filled وآخر من الطراز outlined، تعلّم حافة التعبئة موضع الوصل أصلًا، فلا يُرسم خط هناك.
 
-<DemoFrame label="أزرار تبديل متصلة بفاصل: لا خط بجانب الزر المحدَّد" plain>
+<Example label="أزرار تبديل متصلة بفاصل: لا خط بجانب الزر المحدَّد">
   <tanrei-button-group variant="connected" label="نمط النص">
     <tanrei-button variant="outlined" toggle label="غامق"><span slot="icon">format_bold</span></tanrei-button>
     <tanrei-button variant="outlined" toggle selected label="مائل"><span slot="icon">format_italic</span></tanrei-button>
     <tanrei-button variant="outlined" toggle label="تسطير"><span slot="icon">format_underlined</span></tanrei-button>
     <tanrei-button variant="outlined" toggle label="يتوسطه خط"><span slot="icon">format_strikethrough</span></tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 ## المواصفات
 
-<DemoFrame label="الطراز connected: outlined، والحجم large، ومع عنصر معطَّل" plain>
+<Example label="الطراز connected: outlined، والحجم large، ومع عنصر معطَّل">
   <tanrei-button-group variant="connected" label="الحافظة">
     <tanrei-button variant="outlined">قص</tanrei-button>
     <tanrei-button variant="outlined">نسخ</tanrei-button>
@@ -291,7 +291,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-button variant="outlined" disabled>نسخ</tanrei-button>
     <tanrei-button variant="outlined">لصق</tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="button-group" />
 

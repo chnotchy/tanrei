@@ -1,7 +1,7 @@
 ---
 // A component's state matrix: the live component in each of its states, a row for each value of one of its choices
-// (lib/visuals/states.ts) — Tanrei's Table in the docs' figure frame (VisualFrame.astro), drawn under the default
-// system with the design system switch in its header. A page writes one line, `<StateMatrix name="button" />`, and the
+// (lib/visuals/states.ts) — Tanrei's Table in the docs' one frame (Example.astro), drawn under the design system the
+// reader chose for the page. A page writes one line, `<StateMatrix name="button" />`, and the
 // six languages share it.
 //
 // - Every cell draws the same element, made from the web package's own fixture document of the spec's first fixture,
@@ -13,7 +13,7 @@
 //   headers. Nothing in it moves (pseudo-states.ts holds its transitions still).
 // - Each cell holds the room of the drawn element before it is defined, from the web package's baseline of the
 //   fixture it is made from, so nothing in the table moves when the elements arrive.
-import VisualFrame from './VisualFrame.astro';
+import Example from './Example.astro';
 import Table from '../Table.astro';
 import { contentLang, strings } from '../../lib/i18n';
 import { getSpec } from '../../lib/repo';
@@ -42,7 +42,7 @@ const [before, after] = t.visuals.statesNotShown.split('{states}');
 const notShown = new Intl.ListFormat(lang, { type: 'conjunction' }).formatToParts(matrix.notShown);
 ---
 
-<VisualFrame label={t.visuals.statesTitle} reserve={{ block: `${tallest}px` }} controls="both">
+<Example label={t.visuals.statesTitle} reserve={{ block: `${tallest}px` }}>
   <Table label={`${spec.title} · ${t.visuals.statesTitle}`} rowHeaders stickyFirstColumn class="docs-state-matrix">
     <table data-docs-state-matrix data-feedback={feedback} data-element={matrix.tag}>
       <thead>
@@ -91,7 +91,7 @@ const notShown = new Intl.ListFormat(lang, { type: 'conjunction' }).formatToPart
       )
     }
   </Fragment>
-</VisualFrame>
+</Example>
 
 <script>
   import '../../lib/register-web';
@@ -102,7 +102,7 @@ const notShown = new Intl.ListFormat(lang, { type: 'conjunction' }).formatToPart
   // the figure is drawn under another system, whose answer to a press may differ, and whose element may adopt more
   // sheets.
   for (const table of document.querySelectorAll<HTMLElement>('[data-docs-state-matrix]')) {
-    const frame = table.closest<HTMLElement>('[data-docs-visual]');
+    const frame = table.closest<HTMLElement>('[data-example]');
     const property = table.dataset.feedback;
     const tag = table.dataset.element;
     if (!frame || !property || !tag) continue;

@@ -2,20 +2,20 @@
 title: टैग ग्रुप
 description: टैग या चिप के सेट को ऐसी पंक्ति में रखता है जो अगली पंक्तियों में जा सकती है, सेट में जो रखा है उसके हिसाब से दूरी देता है, और सेट को नाम वाली एक लिस्ट के रूप में देता है। सदस्य जैसे हैं वैसे ही रहते हैं, और किसी चिप के हटने के बाद फ़ोकस अगली चिप पर जाता है।
 translationOf: components/tag-group.mdx
-sourceHash: 244216f99f145c63ac5a62ba10e948f72502850f
+sourceHash: b9ba7fa1d7147d2cd10b1cd38abb4b9c994512db
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="tag-group" />
 
-<DemoFrame label="टैग का एक सेट, और फ़िल्टर की एक पंक्ति" column>
+<Example label="टैग का एक सेट, और फ़िल्टर की एक पंक्ति" column>
   <tanrei-tag-group class="not-content" spacing="tags" label="टैग">
     <tanrei-tag label="डिज़ाइन टोकन"></tanrei-tag>
     <tanrei-tag label="सुलभता"></tanrei-tag>
@@ -27,7 +27,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-chip kind="filter" label="समीक्षा बाक़ी"></tanrei-chip>
     <tanrei-chip kind="filter" label="रुके हुए"></tanrei-chip>
   </tanrei-tag-group>
-</DemoFrame>
+</Example>
 
 [टैग](/hi/components/tag/) और [चिप](/hi/components/chip/), दोनों एक-एक चीज़ हैं। टैग ग्रुप वह है जिसमें ऐसी कई चीज़ें रहती हैं: किसी लेख के टैग, किसी लिस्ट के ऊपर के फ़िल्टर, किसी फ़ील्ड के नीचे के कुछ सुझाव। वह उन्हें ऐसी पंक्ति में रखता है जो अगली पंक्तियों में जा सकती है, उनके बीच सही दूरी रखता है, और सहायक तकनीक को बताता है कि वे एक लिस्ट हैं।
 
@@ -82,7 +82,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="अगली पंक्ति में जाने वाले टैग, स्थिति वाले टैग, हर टैग के पेज के लिंक, और डाले गए आइटम" plain column>
+<Example label="अगली पंक्ति में जाने वाले टैग, स्थिति वाले टैग, हर टैग के पेज के लिंक, और डाले गए आइटम" column>
   <tanrei-tag-group class="not-content" spacing="tags" style="inline-size: 22rem; max-inline-size: 100%" label="टैग">
     <tanrei-tag label="डिज़ाइन टोकन"></tanrei-tag>
     <tanrei-tag label="सुलभता"></tanrei-tag>
@@ -106,7 +106,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-chip kind="input" label="Grace Hopper" remove-label="Grace Hopper को हटाएँ"></tanrei-chip>
     <tanrei-chip kind="input" label="Katherine Johnson" remove-label="Katherine Johnson को हटाएँ"></tanrei-chip>
   </tanrei-tag-group>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tag-group" />
 
@@ -165,7 +165,7 @@ small चिप उस घनी जगह के लिए हैं जहा�
 
 चयन होने पर सेट एक Tab स्टॉप है: वह चिप जिस पर आख़िरी बार फ़ोकस था, नहीं तो पहली चालू चिप, नहीं तो पहली चिप। ऐरो कुंजियाँ फ़ोकस को चिप के बीच उसी दिशा में ले जाती हैं जिधर वे इशारा करती हैं, दाएँ से बाएँ वाले लेआउट में भी, और Home और End पहली और आख़िरी चिप पर ले जाती हैं। वे कुछ नहीं बदलतीं, और फ़ोकस आख़िरी चिप से घूमकर पहली पर नहीं जाता। Space फ़ोकस वाली चिप को बदलती है।
 
-<DemoFrame label="एक समय में एक ही क्रम, और कई फ़िल्टर">
+<Example label="एक समय में एक ही क्रम, और कई फ़िल्टर">
   <tanrei-tag-group class="not-content" label="क्रम" selection="single" value="updated">
     <tanrei-chip kind="filter" label="सबसे नए" value="newest"></tanrei-chip>
     <tanrei-chip kind="filter" label="हाल में अपडेट हुए" value="updated"></tanrei-chip>
@@ -177,7 +177,7 @@ small चिप उस घनी जगह के लिए हैं जहा�
     <tanrei-chip kind="filter" label="समीक्षा बाक़ी" value="review"></tanrei-chip>
     <tanrei-chip kind="filter" label="रुके हुए" value="blocked"></tanrei-chip>
   </tanrei-tag-group>
-</DemoFrame>
+</Example>
 
 <Tabs syncKey="platform">
   <TabItem label="Web">

@@ -7,18 +7,18 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="callout" />
 
-<DemoFrame label="A note, a caution with a title, and a notice with actions and a close button" column>
+<Example label="A note, a caution with a title, and a notice with actions and a close button" column>
   <tanrei-callout status="info" status-label="Information" style="inline-size: min(100%, 34rem)">The web draws this revision; the other platforms follow.</tanrei-callout>
   <tanrei-callout status="warning" headline="Back up before you migrate" style="inline-size: min(100%, 34rem)">The migration rewrites the database in place. The steps below show how to keep a copy you can restore.</tanrei-callout>
   <tanrei-callout id="callout-demo-overview" variant="outlined" headline="A newer version of this page is available" closable close-label="Close" style="inline-size: min(100%, 34rem)">Reload to read it. Nothing you typed is lost.<tanrei-button slot="actions" variant="outlined" onclick="this.closest('tanrei-callout').open = false">Reload</tanrei-button></tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-overview').open = true">Show the last one again</tanrei-button>
-</DemoFrame>
+</Example>
 
 A callout is a notice in the flow of the page: it stands where you put it, as wide as its place, for as long as the content does. It is a note by default, read where it stands like the paragraph before it, and it never takes focus.
 
@@ -78,7 +78,7 @@ The body is the element's own content. The title is the `headline` attribute, or
 
 ## Specs
 
-<DemoFrame label="Both looks in every status" plain column>
+<Example label="Both looks in every status" column>
   <tanrei-callout style="inline-size: min(100%, 34rem)">Sizes are minimums: a control grows with enlarged text.</tanrei-callout>
   <tanrei-callout status="info" status-label="Information" style="inline-size: min(100%, 34rem)">The web draws this revision; the other platforms follow.</tanrei-callout>
   <tanrei-callout status="warning" status-label="Warning" style="inline-size: min(100%, 34rem)">A border that is the only cue a control exists must keep 3:1 against its surface.</tanrei-callout>
@@ -89,16 +89,16 @@ The body is the element's own content. The title is the `headline` attribute, or
   <tanrei-callout variant="outlined" status="warning" status-label="Warning" style="inline-size: min(100%, 34rem)">A border that is the only cue a control exists must keep 3:1 against its surface.</tanrei-callout>
   <tanrei-callout variant="outlined" status="error" status-label="Error" style="inline-size: min(100%, 34rem)">The file could not be read. Nothing was changed.</tanrei-callout>
   <tanrei-callout variant="outlined" status="success" status-label="Success" style="inline-size: min(100%, 34rem)">Every contrast check passes in all six schemes.</tanrei-callout>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="A title, your own glyph, actions, a close button, and the large size" plain column>
+<Example label="A title, your own glyph, actions, a close button, and the large size" column>
   <tanrei-callout headline="Tip" style="inline-size: min(100%, 34rem)"><span slot="icon">lightbulb</span>Keep an action enabled and explain what is missing when it is used.</tanrei-callout>
   <tanrei-callout status="info" headline="Experimental" style="inline-size: min(100%, 34rem)"><span slot="icon">science</span>This behaviour may change in a later version.</tanrei-callout>
   <tanrei-callout status="warning" headline="The file changed on disk" style="inline-size: min(100%, 34rem)">You have edits here that are not in it. Nothing is overwritten until you choose.<tanrei-button slot="actions" variant="outlined">Reload from disk</tanrei-button><tanrei-button slot="actions" variant="text">Keep mine</tanrei-button></tanrei-callout>
   <tanrei-callout id="callout-demo-closable" headline="Search now covers the release notes" closable close-label="Close" style="inline-size: min(100%, 34rem)">Press the close button: the callout goes at once, and focus returns to where it was.</tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-closable').open = true">Show it again</tanrei-button>
   <tanrei-callout size="large" status="error" headline="Danger" style="inline-size: min(100%, 34rem)">This command deletes every generated file and cannot be undone.</tanrei-callout>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="callout" />
 
@@ -177,10 +177,10 @@ The actions are your own [Buttons](../button/) or links, one or two. Use `outlin
 
 `live` is for a callout that appears or changes while the person works: a summary of a form's errors after a submit, a notice that the file changed underneath them. Keep it in the page with `open="false"` and set `open` when it applies.
 
-<DemoFrame label="A live callout, shown in answer to a press" plain column>
+<Example label="A live callout, shown in answer to a press" column>
   <tanrei-button variant="outlined" onclick="document.getElementById('callout-demo-live').open = true">Submit the form</tanrei-button>
   <tanrei-callout id="callout-demo-live" live open="false" status="error" headline="Three fields need attention" closable close-label="Close" style="inline-size: min(100%, 34rem)">Enter a name, choose a start date, and give an address that can receive mail.</tanrei-callout>
-</DemoFrame>
+</Example>
 
 ```html
 <tanrei-callout id="errors" live open="false" status="error" headline="Three fields need attention">

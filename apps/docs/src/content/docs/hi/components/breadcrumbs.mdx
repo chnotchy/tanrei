@@ -2,26 +2,26 @@
 title: ब्रेडक्रंब
 description: पेजों की हायरार्की में कोई पेज कहाँ है, और उसमें वापस ऊपर जाने का रास्ता। ऊपर के स्तर लिंक हैं, सबसे ऊपर से क्रम में, और ख़ुद पेज सबसे अंत में है।
 translationOf: components/breadcrumbs.mdx
-sourceHash: 05f7e32b5c5664f5cdf25c871df7f7a46deee3f0
+sourceHash: 07b8a95ffed90e5a92dae40da02c053bda503dc9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="breadcrumbs" />
 
-<DemoFrame label="तीन स्तरों का ट्रेल" column>
+<Example label="तीन स्तरों का ट्रेल" column>
   <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="इस डेमो के ब्रेडक्रंब" overflow-label="छिपे हुए स्तर दिखाएँ">
     <a href="#अवलोकन">होम</a>
     <a href="#अवलोकन">कंपोनेंट</a>
     <span aria-current="page">ब्रेडक्रंब</span>
   </tanrei-breadcrumbs>
-</DemoFrame>
+</Example>
 
 ट्रेल यह दिखाता है कि पेज हायरार्की में कहाँ है, यह नहीं कि व्यक्ति उस तक किस रास्ते से आया। इसे वहाँ इस्तेमाल करें जहाँ पेज दूसरे पेजों के भीतर रहते हैं, तीन या ज़्यादा स्तर गहरे।
 
@@ -89,7 +89,7 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 
 ## स्पेक
 
-<DemoFrame label="बिना पेज का स्तर; लिंक के रूप में मौजूदा पेज; पैरेंट पर ख़त्म होने वाला ट्रेल" plain column>
+<Example label="बिना पेज का स्तर; लिंक के रूप में मौजूदा पेज; पैरेंट पर ख़त्म होने वाला ट्रेल" column>
   <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="इस डेमो में, बिना पेज का स्तर" overflow-label="छिपे हुए स्तर दिखाएँ">
     <a href="#स्पेक">होम</a>
     <span>बुनियादी बातें</span>
@@ -104,9 +104,9 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
     <a href="#स्पेक" data-icon="home" data-icon-only>होम</a>
     <a href="#स्पेक">कंपोनेंट</a>
   </tanrei-breadcrumbs>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="होवर, फ़ोकस या दबाए जाने के दौरान की अंडरलाइन; और कभी नहीं" plain column>
+<Example label="होवर, फ़ोकस या दबाए जाने के दौरान की अंडरलाइन; और कभी नहीं" column>
   <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="इस डेमो में, किसी स्टेट में अंडरलाइन" overflow-label="छिपे हुए स्तर दिखाएँ" underline="hover">
     <a href="#स्पेक">होम</a>
     <a href="#स्पेक">कंपोनेंट</a>
@@ -117,9 +117,9 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
     <a href="#स्पेक">कंपोनेंट</a>
     <span aria-current="page">ब्रेडक्रंब</span>
   </tanrei-breadcrumbs>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="सँकरे कॉलम में लंबा ट्रेल: सिमटा हुआ, और रैप हुआ" plain column>
+<Example label="सँकरे कॉलम में लंबा ट्रेल: सिमटा हुआ, और रैप हुआ" column>
   <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="इस डेमो में, सिमटा हुआ ट्रेल" overflow-label="छिपे हुए स्तर दिखाएँ" style="inline-size: 24rem; max-inline-size: 100%">
     <a href="#स्पेक">होम</a>
     <a href="#स्पेक">दस्तावेज़</a>
@@ -136,7 +136,7 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
     <a href="#स्पेक">कंपोनेंट टोकन</a>
     <span aria-current="page">अक्षम कंटेनर कैसे व्युत्पन्न होता है</span>
   </tanrei-breadcrumbs>
-</DemoFrame>
+</Example>
 
 - **जो स्तर कहीं ले जाता है, वह अंडरलाइन के साथ रहता है**, डिफ़ॉल्ट सिस्टम में। वहाँ रंग नहीं, अंडरलाइन बताती है कि कोई स्तर लिंक है, जैसे वह वाक्य के भीतर के लिंक के लिए बताती है। बिना गंतव्य वाला स्तर सेकंडरी टेक्स्ट है। मौजूदा पेज ज़्यादा भारी वेट में, टेक्स्ट के रंग में होता है, और उस पर अंडरलाइन कभी नहीं होती।
 - **अंडरलाइन कब बने, यह एक चुनाव है।** `underline="hover"` उसे सिर्फ़ तब बनाता है जब स्तर होवर किया हुआ हो, कीबोर्ड से फ़ोकस किया हुआ हो या दबाया हुआ हो। `underline="never"` कोई अंडरलाइन नहीं बनाता। ऐट्रिब्यूट के बिना ट्रेल `comp.breadcrumbs.underline.visibility` के अनुसार चलता है, जो हर टेक्स्ट लिंक के लिए डिज़ाइन सिस्टम के चुनाव के अनुसार चलता है। `hover` या `never` सिर्फ़ वहाँ चुनें जहाँ लिंक का रंग टेक्स्ट के रंग से अलग दिखता है। फ़ोर्स्ड कलर्स में रेखा हमेशा बनती है।

@@ -46,7 +46,7 @@ const walk = (dir, url) => {
     if (entry.isDirectory()) {
       if (url === '/' && languages.has(entry.name)) continue;
       walk(path.join(dir, entry.name), `${url}${entry.name}/`);
-    } else if (entry.name === 'index.html' && /data-tanrei-demo|data-docs-visual|docs-file-tree/.test(fs.readFileSync(path.join(dir, entry.name), 'utf8'))) pages.push(url);
+    } else if (entry.name === 'index.html' && /data-example|docs-file-tree/.test(fs.readFileSync(path.join(dir, entry.name), 'utf8'))) pages.push(url);
   }
 };
 walk(dist, '/');

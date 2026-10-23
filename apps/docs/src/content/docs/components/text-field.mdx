@@ -7,7 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
@@ -17,10 +17,10 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 This page describes the text field as the spec has it now: a `stacked` variant, the default, with its label above the field; `filled` and `outlined` kept for the Material and cupertino presets only; heights of 32, 40 and 56 (40, 48 and 56 for a filled or outlined field, whose label floats inside it); date and time types, with a picker button; a multi-line field that follows its text or is resized with a handle (`resize`); a date or a time entered unit by unit, in segments; and `required` and `optional`, which mark a field as required or optional. The web component already does all of this, and so do the demos. A field can also hold code (`type="code"`, and `wrap` for its lines): the web has built it, and no other platform has yet. The text field is a field around a text input, as this page describes it: the web has built that too, and there the `required` attribute is gone. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship the previous revision, outlined by default at 36 and 40, with a `required` flag that draws no mark, and with no `stacked` variant, no date or time types, no picker button and no resize modes, and their samples show that revision.
 :::
 
-<DemoFrame label="Stacked, the default: a required field, and a date with its picker button" column>
+<Example label="Stacked, the default: a required field, and a date with its picker button" column>
   <tanrei-text-field label="Email" type="email" required required-text="Required" supporting-text="We only use it to sign you in."></tanrei-text-field>
   <tanrei-text-field label="Start date" type="date" locale="en-US" value="2026-09-27" picker picker-label="Choose start date" segment-empty-text="Empty"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
 Use a text field wherever a form asks for text: it is the ordinary case, ready to use, with a label, the box, a line of help, the words for a wrong value and a count.
 
@@ -209,11 +209,11 @@ The same field, written by hand from its two members, is the same picture, and t
 </tanrei-field>
 ```
 
-<DemoFrame label="The same field written by hand: a field with a text input in it" column>
+<Example label="The same field written by hand: a field with a text input in it" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Email" required required-text="Required" supporting-text="We only use it to sign you in.">
     <tanrei-text-input type="email"></tanrei-text-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 Go one level down when you need an arrangement the text field does not offer:
 
@@ -234,16 +234,16 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 ## Specs
 
-<DemoFrame label="Error, disabled, read-only, affixes and counter" plain column>
+<Example label="Error, disabled, read-only, affixes and counter" column>
   <tanrei-text-field label="Email" value="ada@" error error-text="Enter a complete email address."></tanrei-text-field>
   <tanrei-text-field label="Email" value="ada@example.com" disabled></tanrei-text-field>
   <tanrei-text-field label="Email" value="ada@example.com" readonly></tanrei-text-field>
   <tanrei-text-field label="Amount" type="number" value="120" prefix-text="$" suffix-text="USD"></tanrei-text-field>
   <tanrei-text-field label="Display name" value="Ada Lovelace" maxlength="40" counter></tanrei-text-field>
   <tanrei-text-field size="large" label="Email" value="ada@example.com"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Types: password, search, number, telephone and URL" plain column>
+<Example label="Types: password, search, number, telephone and URL" column>
   <tanrei-text-field label="Password" type="password" value="correct horse" autocomplete="current-password"></tanrei-text-field>
   <tanrei-text-field label="Search" label-hidden type="search" placeholder="Search components">
     <span slot="leading-icon">search</span>
@@ -251,44 +251,44 @@ input.addEventListener('input', () => (field.countText = input.countText));
   <tanrei-text-field label="Quantity" type="number" value="12"></tanrei-text-field>
   <tanrei-text-field label="Phone" type="tel" autocomplete="tel" placeholder="+1 555 0100"></tanrei-text-field>
   <tanrei-text-field label="Website" type="url" placeholder="https://example.com"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Required and optional: the tags, and the asterisk" plain column>
+<Example label="Required and optional: the tags, and the asterisk" column>
   <tanrei-text-field label="Email" type="email" required required-text="Required"></tanrei-text-field>
   <tanrei-text-field label="Company" optional optional-text="Optional"></tanrei-text-field>
   <tanrei-text-field label="Email" type="email" required required-mark="asterisk"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Several lines: following the text, resized by a handle (down, and both ways), and fixed" plain column>
+<Example label="Several lines: following the text, resized by a handle (down, and both ways), and fixed" column>
   <tanrei-text-field label="Message" multiline min-rows="2" max-rows="5" placeholder="Type a few lines: the field grows to five, then scrolls"></tanrei-text-field>
   <tanrei-text-field label="Notes" multiline resize="manual" max-rows="10" resize-label="Resize notes"></tanrei-text-field>
   <tanrei-text-field label="Description" multiline resize="manual" resize-axis="both" resize-label="Resize description"></tanrei-text-field>
   <tanrei-text-field label="Address" multiline resize="fixed" min-rows="3"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Code: a pattern on one line, JSON on several lines, and lines that do not wrap" plain column>
+<Example label="Code: a pattern on one line, JSON on several lines, and lines that do not wrap" column>
   <tanrei-text-field type="code" label="Pattern" value="tanrei.comp.button.*.container.color" supporting-text="A token id, with * for any part."></tanrei-text-field>
   <tanrei-text-field type="code" multiline min-rows="4" label="Layer" value="{&#10;  &quot;id&quot;: &quot;acme&quot;,&#10;  &quot;extends&quot;: &quot;tanrei&quot;&#10;}"></tanrei-text-field>
   <tanrei-text-field type="code" multiline no-wrap min-rows="3" label="Rules" value="{ &quot;match&quot;: &quot;tanrei.comp.button.*.hovered.container.color&quot;, &quot;$value&quot;: &quot;{tanrei.sys.color.primary}&quot; }&#10;{ &quot;match&quot;: &quot;*&quot; }"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Code in a right-to-left page: the label and the help follow the page, the code begins at the left" plain column>
+<Example label="Code in a right-to-left page: the label and the help follow the page, the code begins at the left" column>
   <div dir="rtl" lang="ar" style="display: grid; gap: 1rem;">
     <tanrei-text-field type="code" label="النمط" value="tanrei.comp.*.color" supporting-text="معرّف رمز، مع * لأي جزء."></tanrei-text-field>
     <tanrei-text-field type="code" multiline min-rows="3" label="المصادر" value="[&quot;مرحبا&quot;, &quot;acme&quot;]&#10;// تعليق: comment"></tanrei-text-field>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="A date, a time, and a date and time, in segments. Tab, the arrow keys and digits fill them" plain column>
+<Example label="A date, a time, and a date and time, in segments. Tab, the arrow keys and digits fill them" column>
   <tanrei-text-field label="Start date" type="date" locale="en-US" picker picker-label="Choose start date" invalid-text="Finish the date." segment-empty-text="Empty"></tanrei-text-field>
   <tanrei-text-field label="Start time" type="time" locale="en-US" value="14:30" segment-empty-text="Empty"></tanrei-text-field>
   <tanrei-text-field label="Departure" type="date-time" locale="en-US" value="2026-09-27T14:30" min="2026-09-01T00:00" unavailable-text="Choose a time from September 2026 on." segment-empty-text="Empty"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Filled and outlined, the Material presets' variants" system="m3-like" plain column>
+<Example label="Filled and outlined, the Material presets' variants" system="m3-like" column>
   <tanrei-text-field variant="filled" label="Email" type="email" value="ada@example.com"></tanrei-text-field>
   <tanrei-text-field variant="outlined" label="Email" type="email" supporting-text="We only use it to sign you in."></tanrei-text-field>
-</DemoFrame>
+</Example>
 
 ### What each member gives
 

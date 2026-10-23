@@ -7,20 +7,20 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="meter" />
 
-<DemoFrame label="Linear and circular">
+<Example label="Linear and circular">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter value="0.62" label="Storage used" value-text="9.3 GB of 15 GB"></tanrei-meter>
     <tanrei-meter value="37" max="50" label="Seats taken" value-text="37 of 50 seats"></tanrei-meter>
   </div>
   <tanrei-meter variant="circular" value="0.62" label="Battery"></tanrei-meter>
   <tanrei-meter variant="circular" size="large" value="0.15" status="warning" label="Battery" value-text="Low: 15%"></tanrei-meter>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -64,7 +64,7 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
 
 ## Specs
 
-<DemoFrame label="Statuses: default, info, success, warning, error" plain>
+<Example label="Statuses: default, info, success, warning, error">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter value="0.62" label="Default"></tanrei-meter>
     <tanrei-meter value="0.4" status="info" label="Info"></tanrei-meter>
@@ -72,9 +72,9 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
     <tanrei-meter value="0.85" status="warning" label="Warning"></tanrei-meter>
     <tanrei-meter value="0.98" status="error" label="Error"></tanrei-meter>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Sizes, ends of the range and a custom range" plain>
+<Example label="Sizes, ends of the range and a custom range">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter size="small" value="0.62" label="Small"></tanrei-meter>
     <tanrei-meter size="medium" value="0.62" label="Medium"></tanrei-meter>
@@ -86,14 +86,14 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
   <tanrei-meter variant="circular" size="small" value="0.62" label="Small"></tanrei-meter>
   <tanrei-meter variant="circular" size="medium" value="0.62" label="Medium"></tanrei-meter>
   <tanrei-meter variant="circular" size="large" value="0.62" label="Large"></tanrei-meter>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Separation: divider (the default system's choice) and gap" plain>
+<Example label="Separation: divider (the default system's choice) and gap">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter separation="divider" value="0.62" label="Divider"></tanrei-meter>
     <tanrei-meter separation="gap" value="0.62" label="Gap"></tanrei-meter>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="meter" />
 

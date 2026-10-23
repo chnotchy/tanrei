@@ -2,23 +2,23 @@
 title: حقل اللون
 description: يتيح للناس تعيين لون واحد حقلًا من حقول النموذج، بقيمة نصية يقرؤونها ويكتبونها ويلصقونها، وعيّنة منها بجانب النص، وزر يطلب منتقيًا. وهو يُرسم ويُقاس كما يُرسم ويُقاس حقل النص.
 translationOf: components/color-field.mdx
-sourceHash: 86c3e71976d4488f85216a9391b0e4d6a8b9d83f
+sourceHash: ffcd4797c3496f94c018017cc0ef57091027383d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="color-field" />
 
-<DemoFrame label="حقل لون له زر منتقٍ، وحقل يرفض المنتج لونه" column>
+<Example label="حقل لون له زر منتقٍ، وحقل يرفض المنتج لونه" column>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="لون العلامة التجارية" value="#0f766e" supporting-text="ستة أرقام سداسية عشرية، مثل &lrm;#0f766e." invalid-text="أدخِل ستة أرقام سداسية عشرية، مثل &lrm;#0f766e." picker picker-label="اختيار لون"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="لون العلامة التجارية" value="#fde047" error error-text="فاتح أكثر مما يصلح لنص أبيض. اختر لونًا أدكن."></tanrei-color-field>
-</DemoFrame>
+</Example>
 
 استخدم حقل اللون حيث يعيّن الناس لونًا على أنه قيمة: لون العلامة التجارية في سمة، أو لون تصنيف أو فئة. يقرؤونه، أو يكتبونه، أو يلصقونه من أداة أخرى، ويرون عيّنة منه بجانب النص. ويُرسم الحقل ويُقاس كما يُرسم ويُقاس حقل النص الذي له الطراز نفسه والحجم نفسه.
 
@@ -88,11 +88,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="الحقل نفسه مكتوبًا باليد: حقل بداخله حقل إدخال اللون" column>
+<Example label="الحقل نفسه مكتوبًا باليد: حقل بداخله حقل إدخال اللون" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="لون العلامة التجارية" required required-text="مطلوب" supporting-text="ستة أرقام سداسية عشرية، مثل &lrm;#0f766e.">
     <tanrei-color-input value="#0f766e" invalid-text="أدخِل ستة أرقام سداسية عشرية، مثل &lrm;#0f766e." picker picker-label="اختيار لون"></tanrei-color-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 انزل مستوى واحدًا حين تحتاج إلى ترتيب لا يقدّمه حقل اللون:
 
@@ -106,14 +106,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="حقل لون فارغ، وأبيض، وأسود، وحقل بالحجم large، وحقل معطَّل، ثم الصندوق وحده، أي حقل إدخال اللون، في صف يسمّي لونه" plain column>
+<Example label="حقل لون فارغ، وأبيض، وأسود، وحقل بالحجم large، وحقل معطَّل، ثم الصندوق وحده، أي حقل إدخال اللون، في صف يسمّي لونه" column>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="لون التمييز" optional optional-text="اختياري"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="خلفية الصفحة" value="#ffffff"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="النص" value="#000000"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="لون العلامة التجارية" value="#0f766e" size="large" picker picker-label="اختيار لون"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="لون العلامة التجارية" value="#0f766e" disabled picker picker-label="اختيار لون"></tanrei-color-field>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الأساسي، الدرجة 40" value="#0f766e"></tanrei-color-input>
-</DemoFrame>
+</Example>
 
 ### الحقل
 

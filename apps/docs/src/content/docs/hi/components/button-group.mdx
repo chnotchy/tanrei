@@ -2,20 +2,20 @@
 title: बटन ग्रुप
 description: कुछ संबंधित बटनों को एक पंक्ति या एक कॉलम में रखता है, अलग-अलग दूरी पर या एक ही शेप में जोड़कर, काम पूरा करने वाली और पीछे हटने वाली क्रियाओं को वहाँ रखता है जहाँ लोग उनकी उम्मीद करते हैं, और बटनों को एक ग्रुप के रूप में नाम देता है।
 translationOf: components/button-group.mdx
-sourceHash: 4fffb14499d629d4c5b2c43cb8fa1ec4e97d4b84
+sourceHash: 0fd69176212d667b8b1bbb982a7e5cc99319372b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="button-group" />
 
-<DemoFrame label="Standard और connected">
+<Example label="Standard और connected">
   <tanrei-button-group>
     <tanrei-button variant="outlined">रद्द करें</tanrei-button>
     <tanrei-button variant="tonal">ड्राफ़्ट सेव करें</tanrei-button>
@@ -26,7 +26,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-button variant="tonal" toggle label="इटैलिक"><span slot="icon">format_italic</span></tanrei-button>
     <tanrei-button variant="tonal" toggle label="अंडरलाइन"><span slot="icon">format_underlined</span></tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -207,7 +207,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
 | `dismissive` | उससे पीछे हटता है: रद्द करें, पीछे, अभी नहीं | शुरू में | सबसे नीचे |
 | दोनों में से कोई नहीं | बाक़ी सब कुछ | इन दोनों के बीच, दिए गए क्रम में | इन दोनों के बीच, दिए गए क्रम में |
 
-<DemoFrame label="वही तीन बटन, एक पंक्ति में और एक कॉलम में" plain>
+<Example label="वही तीन बटन, एक पंक्ति में और एक कॉलम में">
   <tanrei-button-group>
     <tanrei-button variant="outlined" dismissive>रद्द करें</tanrei-button>
     <tanrei-button variant="tonal">ड्राफ़्ट सेव करें</tanrei-button>
@@ -218,9 +218,9 @@ Web और React के उदाहरण मौजूदा स्पेक �
     <tanrei-button variant="tonal">ड्राफ़्ट सेव करें</tanrei-button>
     <tanrei-button variant="filled" confirming>प्रकाशित करें</tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="पूरी चौड़ाई: चौड़ाई बाँटने वाली पंक्ति, और एक कॉलम" plain column>
+<Example label="पूरी चौड़ाई: चौड़ाई बाँटने वाली पंक्ति, और एक कॉलम" column>
   <div style="inline-size: 20rem">
     <tanrei-button-group full-width>
       <tanrei-button variant="tonal" dismissive>अभी नहीं</tanrei-button>
@@ -233,7 +233,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
       <tanrei-button variant="tonal" confirming>अनुमति दें</tanrei-button>
     </tanrei-button-group>
   </div>
-</DemoFrame>
+</Example>
 
 कीबोर्ड फ़ोकस और स्क्रीन रीडर उसी क्रम में चलते हैं जिसमें बटन रखे गए हैं, इसलिए हर किसी को क्रियाएँ उसी क्रम में मिलती हैं जिसमें वे बनी हैं। फ़्लैग काम का वर्णन करते हैं, लहजे का नहीं: "रद्द करें · हटाएँ" में "हटाएँ" confirming वाला है। विनाशकारी क्रिया अपने रूप (Button के `destructive`) और लेबल से पहचानी जाती है, अपनी जगह से नहीं। [डायलॉग](/hi/components/dialog/) और [साइड शीट](/hi/components/side-sheet/) अपनी क्रियाओं को इन्हीं दो फ़्लैग से जगह देते हैं।
 
@@ -241,7 +241,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 connected ग्रुप अपने बटनों को दो में से एक तरीक़े से जोड़ता है। **डिवाइडर** के साथ बटन एक-दूसरे को छूते हैं, जहाँ वे मिलते हैं वहाँ उनके कोने चौकोर होते हैं, और हर जोड़ पर एक रेखा होती है। **गैप** के साथ वे एक सँकरे गैप की दूरी पर रहते हैं, और जहाँ वे आमने-सामने होते हैं वहाँ उनके कोने ज़्यादा कसे हुए होते हैं। डिज़ाइन सिस्टम यह चुनाव एक बार उन सभी कंपोनेंट के लिए करता है जो भागों को जोड़ते हैं (डिफ़ॉल्ट सिस्टम डिवाइडर बनाता है), कोई डिज़ाइन सिस्टम बटन ग्रुप के लिए अलग चुनाव कर सकता है, और `separation` (`auto`, `divider`, `gap`) किसी एक ग्रुप के लिए इसे तय करता है। standard ग्रुप इसे अनदेखा करता है।
 
-<DemoFrame label="डिवाइडर से और गैप से जुड़े हुए, पंक्ति में और कॉलम में" plain>
+<Example label="डिवाइडर से और गैप से जुड़े हुए, पंक्ति में और कॉलम में">
   <tanrei-button-group variant="connected" separation="divider" label="क्लिपबोर्ड">
     <tanrei-button variant="outlined">काटें</tanrei-button>
     <tanrei-button variant="outlined">कॉपी करें</tanrei-button>
@@ -260,22 +260,22 @@ connected ग्रुप अपने बटनों को दो में �
     <tanrei-button variant="tonal" label="ज़ूम इन करें"><span slot="icon">add</span></tanrei-button>
     <tanrei-button variant="tonal" label="ज़ूम आउट करें"><span slot="icon">remove</span></tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 डिवाइडर के साथ, जोड़ पर रेखा सिर्फ़ वहाँ होती है जहाँ दोनों बटन एक ही फ़िल पर टिके हों। चयनित और अचयनित टॉगल के बीच, या filled और outlined बटन के बीच, फ़िल का किनारा ही जोड़ को दिखा देता है, इसलिए वहाँ कोई रेखा नहीं बनती।
 
-<DemoFrame label="डिवाइडर से जुड़े टॉगल: चयनित टॉगल के बग़ल में कोई रेखा नहीं" plain>
+<Example label="डिवाइडर से जुड़े टॉगल: चयनित टॉगल के बग़ल में कोई रेखा नहीं">
   <tanrei-button-group variant="connected" label="टेक्स्ट स्टाइल">
     <tanrei-button variant="outlined" toggle label="बोल्ड"><span slot="icon">format_bold</span></tanrei-button>
     <tanrei-button variant="outlined" toggle selected label="इटैलिक"><span slot="icon">format_italic</span></tanrei-button>
     <tanrei-button variant="outlined" toggle label="अंडरलाइन"><span slot="icon">format_underlined</span></tanrei-button>
     <tanrei-button variant="outlined" toggle label="स्ट्राइकथ्रू"><span slot="icon">format_strikethrough</span></tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 ## स्पेक
 
-<DemoFrame label="Connected: outlined, large और एक अक्षम आइटम के साथ" plain>
+<Example label="Connected: outlined, large और एक अक्षम आइटम के साथ">
   <tanrei-button-group variant="connected" label="क्लिपबोर्ड">
     <tanrei-button variant="outlined">काटें</tanrei-button>
     <tanrei-button variant="outlined">कॉपी करें</tanrei-button>
@@ -291,7 +291,7 @@ connected ग्रुप अपने बटनों को दो में �
     <tanrei-button variant="outlined" disabled>कॉपी करें</tanrei-button>
     <tanrei-button variant="outlined">पेस्ट करें</tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="button-group" />
 

@@ -2,27 +2,27 @@
 title: Casilla de verificación
 description: Permite activar o desactivar una elección independiente, mostrar una elección principal que solo está activada en parte y señalar una elección obligatoria que ha quedado sin hacer.
 translationOf: components/checkbox.mdx
-sourceHash: 41115adc606cd77721bfa14586382e10f63283dc
+sourceHash: d1a6e6103be09cf364ec871c3c8cd717a614cc49
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="checkbox" />
 
-<DemoFrame label="Sin marcar, marcada e indeterminada">
+<Example label="Sin marcar, marcada e indeterminada">
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-checkbox indeterminate label="Todas las notificaciones"></tanrei-checkbox>
     <tanrei-checkbox checked label="Mensajes"></tanrei-checkbox>
     <tanrei-checkbox label="Menciones"></tanrei-checkbox>
     <tanrei-checkbox checked label="Recordatorios"></tanrei-checkbox>
   </div>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -132,7 +132,7 @@ La revisión que dio a la casilla de verificación sus tamaños actuales y los g
 
 ## Especificaciones
 
-<DemoFrame label="Condiciones, error y estado deshabilitado" plain>
+<Example label="Condiciones, error y estado deshabilitado">
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-checkbox label="Sin marcar"></tanrei-checkbox>
     <tanrei-checkbox checked label="Marcada"></tanrei-checkbox>
@@ -150,7 +150,7 @@ La revisión que dio a la casilla de verificación sus tamaños actuales y los g
   </div>
   <tanrei-checkbox readonly checked label="Solo lectura, marcada"></tanrei-checkbox>
   <tanrei-checkbox checked label-hidden label="Seleccionar fila"></tanrei-checkbox>
-</DemoFrame>
+</Example>
 
 En el sistema predeterminado, la casilla de verificación es un recuadro de 18 con un contorno de 2 y una esquina de 2, sobre una capa de estado redonda de 40, con un objetivo de 48. Con etiqueta mide 40 de alto. La marca de verificación y el guion son los glifos `check` y `remove` del conjunto de iconos del sistema, dibujados a 20 sobre el recuadro. Tienen un peso propio, más grueso que el de los demás iconos del sistema: 500 en el sistema predeterminado, donde los iconos son de 300. A este tamaño, un trazo con el peso de los iconos mide alrededor de un píxel de ancho y cuesta verlo, así que la marca es más gruesa mientras su tamaño sigue igual. Un preajuste conserva su propio peso de icono. La casilla de verificación no dibuja ninguna marca propia, de modo que un sistema de diseño que cambia su conjunto de iconos cambia estos glifos junto con todos los demás. El contorno y el relleno del recuadro son una sola forma: nada de lo que hay detrás del recuadro se ve entre ellos con ningún nivel de zoom ni densidad de pantalla, y un recuadro marcado es de un solo color uniforme desde su borde hasta su marca. Con `cupertino`, la casilla de verificación conserva su recuadro más pequeño y un glifo de 16.
 

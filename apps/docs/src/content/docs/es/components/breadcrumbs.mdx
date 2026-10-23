@@ -2,26 +2,26 @@
 title: Ruta de navegación
 description: Dónde está una página dentro de una jerarquía de páginas, y el camino de vuelta hacia arriba. Los niveles superiores son enlaces, en orden desde el más alto, y la propia página es el último.
 translationOf: components/breadcrumbs.mdx
-sourceHash: 05f7e32b5c5664f5cdf25c871df7f7a46deee3f0
+sourceHash: 07b8a95ffed90e5a92dae40da02c053bda503dc9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="breadcrumbs" />
 
-<DemoFrame label="Una ruta de tres niveles" column>
+<Example label="Una ruta de tres niveles" column>
   <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="Ruta de navegación de esta demostración" overflow-label="Mostrar niveles ocultos">
     <a href="#descripción-general">Inicio</a>
     <a href="#descripción-general">Componentes</a>
     <span aria-current="page">Ruta de navegación</span>
   </tanrei-breadcrumbs>
-</DemoFrame>
+</Example>
 
 Una ruta muestra dónde está una página en la jerarquía, no el camino por el que una persona llegó a ella. Úsala donde hay páginas dentro de otras páginas, con tres o más niveles de profundidad.
 
@@ -89,7 +89,7 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
 
 ## Especificaciones
 
-<DemoFrame label="Un nivel sin página; la página actual como enlace; una ruta que termina en el nivel superior" plain column>
+<Example label="Un nivel sin página; la página actual como enlace; una ruta que termina en el nivel superior" column>
   <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="Un nivel sin página, en esta demostración" overflow-label="Mostrar niveles ocultos">
     <a href="#especificaciones">Inicio</a>
     <span>Fundamentos</span>
@@ -104,9 +104,9 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
     <a href="#especificaciones" data-icon="home" data-icon-only>Inicio</a>
     <a href="#especificaciones">Componentes</a>
   </tanrei-breadcrumbs>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="El subrayado solo con el cursor encima, con el foco o durante la pulsación; y nunca" plain column>
+<Example label="El subrayado solo con el cursor encima, con el foco o durante la pulsación; y nunca" column>
   <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="Subrayada en un estado, en esta demostración" overflow-label="Mostrar niveles ocultos" underline="hover">
     <a href="#especificaciones">Inicio</a>
     <a href="#especificaciones">Componentes</a>
@@ -117,9 +117,9 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
     <a href="#especificaciones">Componentes</a>
     <span aria-current="page">Ruta de navegación</span>
   </tanrei-breadcrumbs>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Una ruta larga en una columna estrecha: plegada, y en varias líneas" plain column>
+<Example label="Una ruta larga en una columna estrecha: plegada, y en varias líneas" column>
   <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="Una ruta plegada, en esta demostración" overflow-label="Mostrar niveles ocultos" style="inline-size: 24rem; max-inline-size: 100%">
     <a href="#especificaciones">Inicio</a>
     <a href="#especificaciones">Documentación</a>
@@ -136,7 +136,7 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
     <a href="#especificaciones">Tokens de componente</a>
     <span aria-current="page">Cómo se deriva un contenedor deshabilitado</span>
   </tanrei-breadcrumbs>
-</DemoFrame>
+</Example>
 
 - **Un nivel que lleva a algún sitio está subrayado** en el sistema predeterminado. Ahí es el subrayado, y no el color, lo que dice que un nivel es un enlace, como ocurre con un enlace dentro de una frase. Un nivel sin destino es texto secundario. La página actual tiene más peso, va en el color del texto y nunca está subrayada.
 - **Cuándo se dibuja el subrayado es una elección.** `underline="hover"` lo dibuja solo mientras un nivel tiene el cursor encima, tiene el foco del teclado o está pulsado. `underline="never"` no dibuja ninguno. Sin el atributo, la ruta sigue a `comp.breadcrumbs.underline.visibility`, que sigue la elección del sistema de diseño para todos los enlaces de texto. Elige `hover` o `never` solo donde el color de enlace se distingue del color del texto. Con colores forzados, la línea se dibuja siempre.

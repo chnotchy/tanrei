@@ -2,14 +2,14 @@
 title: 画像プレビュー
 description: ユーザーがサムネイルを押すと、一連の画像のうち 1 枚をウィンドウ全体に表示します。拡大して元に戻す、拡大したまま動かす、次の画像や前の画像へ移るといった操作で細部まで見られ、閉じるまで表示が続きます。
 translationOf: components/image-preview.mdx
-sourceHash: e96ae85ed4881dbba6ec6a53785b75f08794dbf3
+sourceHash: b6cef54634494ef575b84c950accecdd5641b698
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import landscape from '../../../../../../../packages/web/test/fixtures/image-preview-landscape.png?url';
 import landscapeSmall from '../../../../../../../packages/web/test/fixtures/image-preview-landscape-thumbnail.png?url';
 import portrait from '../../../../../../../packages/web/test/fixtures/image-preview-portrait.png?url';
@@ -19,7 +19,7 @@ import square from '../../../../../../../packages/web/test/fixtures/image-previe
 
 <ComponentAvailability name="image-preview" />
 
-<DemoFrame label="ページにある 3 枚の画像。どれかを押すと、細部まで見られます">
+<Example label="ページにある 3 枚の画像。どれかを押すと、細部まで見られます">
   <tanrei-card class="not-content" interactive flush variant="outlined" label="拡大: 幅 1600、高さ 1000 の図" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 0, open: true })"><img src={landscapeSmall} alt="" width="160" height="100" style="display: block" /></tanrei-card>
   <tanrei-card class="not-content" interactive flush variant="outlined" label="拡大: 幅 1000、高さ 1500 の図" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 1, open: true })"><img src={portrait} alt="" width="67" height="100" style="display: block" /></tanrei-card>
   <tanrei-card class="not-content" interactive flush variant="outlined" label="拡大: 幅 1200、高さ 1200 の図" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 2, open: true })"><img src={square} alt="" width="100" height="100" style="display: block" /></tanrei-card>
@@ -28,7 +28,7 @@ import square from '../../../../../../../packages/web/test/fixtures/image-previe
     <tanrei-image-preview-item src={portrait} width="1000" height="1500" alt="幅 1000、高さ 1500 の図。枠と 2 本の対角線と輪が描かれています"></tanrei-image-preview-item>
     <tanrei-image-preview-item src={square} width="1200" height="1200" alt="幅 1200、高さ 1200 の図。枠と 2 本の対角線と輪が描かれています"></tanrei-image-preview-item>
   </tanrei-image-preview>
-</DemoFrame>
+</Example>
 
 画像プレビューは、ページの主題がほかにあるために画像を小さく表示していて、ユーザーがそれを少しの間だけ大きく見たい場面で使います。記事の中の写真、商品の画像、会話の添付ファイル、ガイドの中のスクリーンショットなどです。ユーザーはサムネイルを押し、画像を見て、元の場所に戻ります。
 

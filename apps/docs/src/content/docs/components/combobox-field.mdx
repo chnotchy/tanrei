@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="combobox-field" />
 
-<DemoFrame label="A combobox field that takes one of its options, and one that also takes a value of the person's own" column>
+<Example label="A combobox field that takes one of its options, and one that also takes a value of the person's own" column>
   <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="City" value="tokyo" clearable clear-label="Clear city" placeholder="Type to find a city" supporting-text="Where the order is sent." empty-text="No matches">
     <tanrei-option value="kyoto">Kyoto</tanrei-option>
     <tanrei-option value="lisbon">Lisbon</tanrei-option>
@@ -27,7 +27,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
     <tanrei-option value="Roboto Mono">Roboto Mono</tanrei-option>
     <tanrei-option value="Source Serif 4">Source Serif 4</tanrei-option>
   </tanrei-combobox-field>
-</DemoFrame>
+</Example>
 
 Use a combobox field wherever a form asks for one value that people would rather type than scroll to: a city out of hundreds, a person, a token. It also serves a field that suggests values and takes one of the person's own, such as a font family. It is the ordinary case, ready to use: a label, the box with its list, a line of help and the words for a wrong value. The box is drawn and measured as the text field's of the same variant and size, and the list is drawn as a select's.
 
@@ -120,20 +120,20 @@ A combobox field is a [field](/components/field/) with a [combobox](/components/
 </tanrei-field>
 ```
 
-<DemoFrame label="A field with a combobox in it: the same picture as a combobox field" column>
+<Example label="A field with a combobox in it: the same picture as a combobox field" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="City" required required-text="Required" supporting-text="Where the order is sent.">
     <tanrei-combobox value="tokyo" empty-text="No matches">
       <tanrei-option value="kyoto">Kyoto</tanrei-option>
       <tanrei-option value="tokyo">Tokyo</tanrei-option>
     </tanrei-combobox>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 What differs is where the form's control is: by hand it is the combobox, which takes the `name`; in the combobox field it is the field.
 
 ## Specs
 
-<DemoFrame label="Groups, supporting text with a disabled option, an error, a read-only and a disabled combobox field" plain column>
+<Example label="Groups, supporting text with a disabled option, an error, a read-only and a disabled combobox field" column>
   <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Time zone" value="Europe/Lisbon" empty-text="No matches">
     <tanrei-option-group label="Asia"><tanrei-option value="Asia/Tokyo">Tokyo</tanrei-option><tanrei-option value="Asia/Seoul">Seoul</tanrei-option></tanrei-option-group>
     <tanrei-option-group label="Europe"><tanrei-option value="Europe/Lisbon">Lisbon</tanrei-option><tanrei-option value="Europe/Berlin">Berlin</tanrei-option></tanrei-option-group>
@@ -152,7 +152,7 @@ What differs is where the form's control is: by hand it is the combobox, which t
   <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="City" value="tokyo" disabled>
     <tanrei-option value="nairobi">Nairobi</tanrei-option><tanrei-option value="tokyo">Tokyo</tanrei-option>
   </tanrei-combobox-field>
-</DemoFrame>
+</Example>
 
 ### The field
 

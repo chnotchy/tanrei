@@ -2,14 +2,14 @@
 title: DateTimePicker
 description: व्यक्ति को कोई तारीख़, कोई समय, या तारीख़ और समय दोनों (या इनमें से किसी की रेंज) चुनने देता है, कैलेंडर और समय के व्हील या घड़ी के डायल से, किसी डायलॉग में या किसी फ़ील्ड के नीचे खुलने वाली सरफ़ेस में।
 translationOf: components/date-time-picker.mdx
-sourceHash: b20ac5ee4e3e21be0e6515467b45bd460309076c
+sourceHash: 9931a6ee5d10eb1f030b535c10c20640f2544087
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import ProductWords from '../../../../components/ProductWords.astro';
 
 export const words = {
@@ -43,12 +43,12 @@ DateTimePicker एक सरफ़ेस है जिसमें एक [क�
 वेब कंपोनेंट पिकर को वैसे ही इम्प्लीमेंट करता है जैसा यह पेज बताता है: रेंज के दोनों सिरे डैश से जुड़े दो फ़ील्ड हैं, am और pm समय का एक हल्का हिस्सा हैं, एंट्री मोड के टैब पर ग्लिफ़ बने होते हैं, और व्हील टाइप किए गए अंक लेते हैं। डेमो वही कंपोनेंट हैं। SwiftUI, Compose, Flutter और React Native ने इसे अभी नहीं बनाया है। उनके पैकेजों में अब भी हटाए जा चुके तारीख़ पिकर और समय पिकर का कोड है, जिसके बारे में यह पेज कुछ नहीं बताता।
 :::
 
-<DemoFrame label="बटन से खोलें: एक docked तारीख़, और एक मोडल समय">
+<Example label="बटन से खोलें: एक docked तारीख़, और एक मोडल समय">
   <tanrei-button id="dtp-demo-due" variant="outlined" onclick="document.getElementById('dtp-demo-due-picker').open = true">नियत तारीख़</tanrei-button>
   <tanrei-date-time-picker id="dtp-demo-due-picker" presentation="docked" anchor="dtp-demo-due" label="नियत तारीख़" locale="hi-IN" today="2026-09-24" value="2026-09-28" onchange="document.getElementById('dtp-demo-due').textContent = 'नियत तारीख़ ' + this.value" onclose="this.open = false"></tanrei-date-time-picker>
   <tanrei-button id="dtp-demo-alarm" variant="outlined" onclick="document.getElementById('dtp-demo-alarm-picker').open = true">अलार्म</tanrei-button>
   <tanrei-date-time-picker id="dtp-demo-alarm-picker" mode="time" locale="hi-IN" value="07:30" minute-step="5" label="अलार्म" onchange="document.getElementById('dtp-demo-alarm').textContent = 'अलार्म ' + this.value" onclose="this.open = false"></tanrei-date-time-picker>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -163,25 +163,25 @@ SwiftUI, Compose, Flutter या React Native के उदाहरण नह�
 
 नीचे के डेमो खुली हुई सरफ़ेस को वहीं पेज में बनाते हैं, वेब के `inline` ऐट्रिब्यूट से, जो दस्तावेज़ों और टेस्ट के लिए है। प्रॉडक्ट में पिकर पेज के ऊपर खुलता है।
 
-<DemoFrame label="एक तारीख़: मोडल, अपने हेडर और क्रियाओं के साथ, और docked, जो दिन चुनते ही कमिट करता है" plain>
+<Example label="एक तारीख़: मोडल, अपने हेडर और क्रियाओं के साथ, और docked, जो दिन चुनते ही कमिट करता है">
   <tanrei-date-time-picker inline open locale="hi-IN" today="2026-09-24" value="2026-09-17" label="चेक-इन"></tanrei-date-time-picker>
   <tanrei-date-time-picker inline open presentation="docked" locale="hi-IN" today="2026-09-24" value="2026-09-17" label="चेक-इन"></tanrei-date-time-picker>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="एक समय: व्हील, जो डिफ़ॉल्ट हैं, और डायल" plain>
+<Example label="एक समय: व्हील, जो डिफ़ॉल्ट हैं, और डायल">
   <tanrei-date-time-picker inline open mode="time" locale="hi-IN" value="19:30" label="अलार्म"></tanrei-date-time-picker>
   <tanrei-date-time-picker inline open mode="time" entry-mode="dial" locale="hi-IN" value="19:30" label="अलार्म"></tanrei-date-time-picker>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="समय की एक रेंज जो अगले दिन ख़त्म होती है, और 15 मिनट के स्टेप वाली 24 घंटे की घड़ी" plain>
+<Example label="समय की एक रेंज जो अगले दिन ख़त्म होती है, और 15 मिनट के स्टेप वाली 24 घंटे की घड़ी">
   <tanrei-date-time-picker inline open mode="time" range locale="hi-IN" start="22:00" end="06:00" label="शांत समय"></tanrei-date-time-picker>
   <tanrei-date-time-picker inline open mode="time" hour-cycle="h23" minute-step="15" locale="hi-IN" value="19:30" label="प्रस्थान"></tanrei-date-time-picker>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="एक तारीख़ और समय, और तारीख़ों की एक रेंज" plain>
+<Example label="एक तारीख़ और समय, और तारीख़ों की एक रेंज">
   <tanrei-date-time-picker inline open mode="date-time" locale="hi-IN" today="2026-09-24" value="2026-09-17T19:30" minute-step="5" label="मीटिंग की शुरुआत"></tanrei-date-time-picker>
   <tanrei-date-time-picker inline open range locale="hi-IN" today="2026-09-24" start="2026-09-10" end="2026-09-16" label="ठहरने की अवधि"></tanrei-date-time-picker>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="date-time-picker" />
 

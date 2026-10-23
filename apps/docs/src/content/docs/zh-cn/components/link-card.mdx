@@ -2,14 +2,14 @@
 title: "链接卡片"
 description: "把一个链接画成一个区块。目的地的标题、一句介绍、它的图片和它所在的网站，都来自交给卡片的值，卡片自己从不加载。"
 translationOf: components/link-card.mdx
-sourceHash: 738b60d2538bbae63a50025bd28392c0e3895efd
+sourceHash: 6418c55dc327d21c94615818c38abb29768255c4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import picture from '../../../../../../../packages/web/test/fixtures/link-card.png?inline';
 import icon from '../../../../../../../packages/web/test/fixtures/site-icon.png?inline';
 
@@ -17,9 +17,9 @@ import icon from '../../../../../../../packages/web/test/fixtures/site-icon.png?
 
 <ComponentAvailability name="link-card" />
 
-<DemoFrame label="各个部件齐全的链接卡片" plain column>
+<Example label="各个部件齐全的链接卡片" column>
   <tanrei-link-card class="not-content" style="inline-size: 100%" href="https://example.com/articles/designing-with-tokens" headline="用令牌做设计" description="几个调节量如何变成一整套系统。" site-name="Example Journal" image={picture} site-icon={icon} external="on" external-label="外部链接"></tanrei-link-card>
-</DemoFrame>
+</Example>
 
 链接卡片把目的地当作一样独立的东西来展示：它的标题、一句介绍、有图片时的图片，以及它所在的网站。它是一个链接。按下的是整个区块，里面没有任何东西可以单独按下。
 
@@ -101,12 +101,12 @@ import icon from '../../../../../../../packages/web/test/fixtures/site-icon.png?
 
 ## 规格
 
-<DemoFrame label="两种外观" plain column>
+<Example label="两种外观" column>
   <div class="not-content" style="display: grid; gap: 1rem; inline-size: 100%">
     <tanrei-link-card href="/zh-cn/components/link/" headline="链接" description="通向某个地方的文本：句子里的一个短语、单独的一行，或者只有一个字形。"></tanrei-link-card>
     <tanrei-link-card variant="filled" href="/zh-cn/components/card/" headline="卡片" description="把围绕同一主题的相关内容和操作归为一组的表面。"></tanrei-link-card>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="link-card" />
 
@@ -140,12 +140,12 @@ import icon from '../../../../../../../packages/web/test/fixtures/site-icon.png?
 
 ### 缺少部件时
 
-<DemoFrame label="只有标题，以及你自己网站的路径" plain column>
+<Example label="只有标题，以及你自己网站的路径" column>
   <div class="not-content" style="display: grid; gap: 1rem; inline-size: 100%">
     <tanrei-link-card href="https://example.com/articles/designing-with-tokens" headline="用令牌做设计" external="off"></tanrei-link-card>
     <tanrei-link-card href="/zh-cn/foundations/design-tokens/" headline="令牌" description="调节量、系统角色，以及与组件的绑定。"></tanrei-link-card>
   </div>
-</DemoFrame>
+</Example>
 
 | 给出的内容 | 绘制的内容 |
 | --- | --- |

@@ -2,20 +2,20 @@
 title: डिवाइडर
 description: लिस्ट, लेआउट या टूलबार में कॉन्टेंट के ग्रुप को एक पतली रेखा से अलग करता है।
 translationOf: components/divider.mdx
-sourceHash: 30a7a4cb70a241da25e710981e6be81e76fb6142
+sourceHash: 80c28fe451508b1939317f564533e2a5f8e2cfc1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="divider" />
 
-<DemoFrame label="लिस्ट में और टूलबार में">
+<Example label="लिस्ट में और टूलबार में">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space150); inline-size: min(100%, 20rem)">
     <span>इनबॉक्स</span>
     <tanrei-divider></tanrei-divider>
@@ -29,7 +29,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-divider orientation="vertical" decorative="false"></tanrei-divider>
     <tanrei-button variant="text" label="लिंक डालें"><span slot="icon">link</span></tanrei-button>
   </div>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -152,7 +152,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 ## स्पेक
 
-<DemoFrame label="ओरिएंटेशन और इनसेट" plain>
+<Example label="ओरिएंटेशन और इनसेट">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
     <tanrei-divider></tanrei-divider>
     <tanrei-divider inset="start"></tanrei-divider>
@@ -163,9 +163,9 @@ Web और React के उदाहरण मौजूदा स्पेक �
     <tanrei-divider orientation="vertical" inset="start"></tanrei-divider>
     <tanrei-divider orientation="vertical" inset="both"></tanrei-divider>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="रेखा की शैलियाँ" plain>
+<Example label="रेखा की शैलियाँ">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
     <tanrei-divider></tanrei-divider>
     <tanrei-divider line-style="dotted"></tanrei-divider>
@@ -178,16 +178,16 @@ Web और React के उदाहरण मौजूदा स्पेक �
     <tanrei-divider orientation="vertical" line-style="dotted"></tanrei-divider>
     <tanrei-divider orientation="vertical" line-style="wavy"></tanrei-divider>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="मोटाई: किसी एक डिवाइडर की अपनी, मोटे पैटर्न पर गोल कैप के साथ" plain>
+<Example label="मोटाई: किसी एक डिवाइडर की अपनी, मोटे पैटर्न पर गोल कैप के साथ">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
     <tanrei-divider thickness="2"></tanrei-divider>
     <tanrei-divider thickness="4" line-style="dotted" line-cap="round"></tanrei-divider>
     <tanrei-divider thickness="4" line-style="dashed" line-cap="round"></tanrei-divider>
     <tanrei-divider thickness="2" line-style="wavy"></tanrei-divider>
   </div>
-</DemoFrame>
+</Example>
 
 बिंदुदार या डैश वाली रेखा के दोनों सिरों पर हमेशा एक पूरा बिंदु या डैश होता है: डिवाइडर उतने बनाता है जितने उनके बीच कम से कम गैप रखते हुए समा सकें, और हर गैप को बराबर मात्रा में बढ़ा देता है। वह दोनों सिरों पर, दोनों दिशाओं में और किसी भी लंबाई पर एक जैसी दिखती है। लहर गोलाकार चापों से बनती है, और पूरी संख्या में लहरों तक खींची जाती है, ताकि वह मध्य रेखा पर शुरू और ख़त्म हो। लहरदार डिवाइडर बाक़ी से ऊँचा होता है: ऐम्प्लिट्यूड का दुगना जमा रेखा की मोटाई, यानी डिफ़ॉल्ट रूप से 1 की जगह 5।
 

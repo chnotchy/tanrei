@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="page-header" />
 
-<DemoFrame label="A page's head, with every part" plain column>
+<Example label="A page's head, with every part" column>
   <tanrei-page-header class="not-content" divider style="inline-size: 100%">
     <div data-part="breadcrumbs"><a class="tanrei-link" data-standalone href="#overview">Guides</a></div>
     <p data-part="eyebrow">Design systems</p>
@@ -29,7 +29,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
       <tanrei-button variant="filled">Share</tanrei-button>
     </div>
   </tanrei-page-header>
-</DemoFrame>
+</Example>
 
 A page header opens a page's content. It holds the page's title, one or two sentences that say what the page is, a line of short facts, the actions for the whole page, and the way back up above it. Every part but the title is optional.
 
@@ -107,13 +107,13 @@ This form is drawn only once the script has run. Write the elements yourself on 
 
 ## Specs
 
-<DemoFrame label="Three sizes" plain column>
+<Example label="Three sizes" column>
   <div class="not-content" style="display: grid; gap: 1.5rem; inline-size: 100%">
     <tanrei-page-header size="small"><h4>Members</h4><p>People who can open this project.</p></tanrei-page-header>
     <tanrei-page-header><h3>Typography</h3><p>Text styles are named by level, never by size.</p></tanrei-page-header>
     <tanrei-page-header size="large"><h3>One system. Five platforms.</h3><p>The same tokens, the same components and the same accessibility contract, each in its own idiom.</p></tanrei-page-header>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="page-header" />
 

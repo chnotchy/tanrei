@@ -2,26 +2,26 @@
 title: 数字滚动器
 description: 显示一个会变化的数字——计数、价格、分数、仪表板上的数据——只把变化的位移动到新值，让人看出它变了、朝哪个方向、大约变了多少，而辅助技术只得知它最终停下的值。
 translationOf: components/number-ticker.mdx
-sourceHash: 95f0526e88d9f97f2e8636d465f88d6f39585435
+sourceHash: 15f18dcfd7f51262f1254bebb892eab3398a41d2
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="number-ticker" />
 
-<DemoFrame label="进入视野时升到各自数值的数据">
+<Example label="进入视野时升到各自数值的数据">
   <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
     <tanrei-number-ticker start-value="0" value="1234" label="订单数"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="0" value="98400" number-style="currency" currency="USD" fraction-digits="0" label="收入"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="0" value="0.426" number-style="percent" fraction-digits="1" label="转化率"></tanrei-number-ticker>
   </div>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -61,21 +61,21 @@ Web 和 React 示例遵循当前规格。SwiftUI、Compose、Flutter 和 React N
 
 ## 规格
 
-<DemoFrame label="动画：slide（默认系统的选择）、blur、blur-slide 和 flip" plain>
+<Example label="动画：slide（默认系统的选择）、blur、blur-slide 和 flip">
   <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
     <tanrei-number-ticker start-value="1180" value="1234" animation="slide" label="滑动"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="1180" value="1234" animation="blur" label="模糊"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="1180" value="1234" animation="blur-slide" label="模糊加滑动"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="1180" value="1234" animation="flip" label="翻页"></tanrei-number-ticker>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="trend：auto（19 到 20 两位都向上）和 digit（个位从 9 向下到 0）" plain>
+<Example label="trend：auto（19 到 20 两位都向上）和 digit（个位从 9 向下到 0）">
   <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
     <tanrei-number-ticker start-value="19" value="20" trend="auto" label="自动"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="19" value="20" trend="digit" label="按位"></tanrei-number-ticker>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="number-ticker" />
 

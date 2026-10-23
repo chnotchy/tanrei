@@ -2,20 +2,20 @@
 title: حقل إدخال النص
 description: الصندوق الذي يكتب فيه الأشخاص، وكل ما يُكتب فيه، سطرًا واحدًا أو عدة أسطر، تاريخًا أو وقتًا أو شيفرة، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لموضع تقف تسميته في مكان آخر، أو داخل حقل يركّبه المنتج بنفسه.
 translationOf: components/text-input.mdx
-sourceHash: 7e11d89a69b34a99a268214d2e585493afc8078e
+sourceHash: 83486ed63b6a2185108fc8bec04d5e73f0177fa5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="text-input" />
 
-<DemoFrame label="مجرَّدًا: عامل تصفية فوق قائمة، وصف تقف تسميته بجانب حقل إدخاله" column>
+<Example label="مجرَّدًا: عامل تصفية فوق قائمة، وصف تقف تسميته بجانب حقل إدخاله" column>
   <tanrei-text-input class="not-content" type="search" label="تصفية الرموز" placeholder="تصفية الرموز">
     <span slot="leading-icon">search</span>
   </tanrei-text-input>
@@ -23,7 +23,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <span>الاسم المعروض</span>
     <tanrei-text-input label="الاسم المعروض" value="Ada Lovelace"></tanrei-text-input>
   </div>
-</DemoFrame>
+</Example>
 
 حقل إدخال النص (text input) هو صندوق [حقل النص](/ar/components/text-field/) وحده: الحاوية، والنص، والأيقونات، والبادئة واللاحقة، ومقاطع التاريخ، وزر المنتقي، ومقبض تغيير الحجم. ليس فوقه صف تسمية، وليس تحته مساعدة ولا نص خطأ، ولا يرسم عددًا.
 
@@ -96,11 +96,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="حقل فيه حقل إدخال النص: الصورة نفسها التي لحقل النص" column>
+<Example label="حقل فيه حقل إدخال النص: الصورة نفسها التي لحقل النص" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="البريد الإلكتروني" required required-text="مطلوب" supporting-text="نستخدمه لتسجيل دخولك فقط.">
     <tanrei-text-input type="email"></tanrei-text-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 حقل الإدخال يخبر حقله بما لا يعرفه غيره. فالمساعدة تبدأ حيث يبدأ النص، بعد الحشو وأيقونة البداية. وحقل الإدخال من الطراز filled أو outlined يرسم تسمية الحقل بنفسه، عائمةً في الصندوق، فلا يرسم الحقل صف تسمية. والتاريخ أو الوقت الذي يُترك نصف مملوء يضع الحقل في حالة الخطأ بنص `invalidText` أو `unavailableText` الذي لحقل الإدخال.
 
@@ -123,19 +123,19 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="حقول إدخال مجرَّدة: في حالة الخطأ، ومعطَّل، وللقراءة فقط، وببادئة ولاحقة، وبالحجمين small و large" plain column>
+<Example label="حقول إدخال مجرَّدة: في حالة الخطأ، ومعطَّل، وللقراءة فقط، وببادئة ولاحقة، وبالحجمين small و large" column>
   <tanrei-text-input class="not-content" label="البريد الإلكتروني" value="ada@" error></tanrei-text-input>
   <tanrei-text-input class="not-content" label="البريد الإلكتروني" value="ada@example.com" disabled></tanrei-text-input>
   <tanrei-text-input class="not-content" label="البريد الإلكتروني" value="ada@example.com" readonly></tanrei-text-input>
   <tanrei-text-input class="not-content" label="المبلغ" type="number" value="120" prefix-text="$" suffix-text="USD"></tanrei-text-input>
   <tanrei-text-input class="not-content" size="small" label="بحث" value="tokens"></tanrei-text-input>
   <tanrei-text-input class="not-content" size="large" label="البريد الإلكتروني" value="ada@example.com"></tanrei-text-input>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="الطرازان filled و outlined مجرَّدين: تسمية حقل الإدخال نفسه تعوم في الصندوق" system="m3-like" plain column>
+<Example label="الطرازان filled و outlined مجرَّدين: تسمية حقل الإدخال نفسه تعوم في الصندوق" system="m3-like" column>
   <tanrei-text-input class="not-content" variant="filled" label="البريد الإلكتروني" type="email" value="ada@example.com"></tanrei-text-input>
   <tanrei-text-input class="not-content" variant="outlined" label="البريد الإلكتروني" type="email"></tanrei-text-input>
-</DemoFrame>
+</Example>
 
 ### ما هو لحقل الإدخال، وما هو للحقل
 

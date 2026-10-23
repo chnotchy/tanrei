@@ -2,23 +2,23 @@
 title: पेजिनेशन
 description: एक ही सूची के नंबर वाले पेजों के बीच ले जाता है। मौजूदा पेज पर निशान के साथ पेज नंबर, पिछला और अगला, ज़रूरत हो तो पहला और आख़िरी, और एक छोटा रूप जो बताता है कि कितने में से कौन-सा पेज है।
 translationOf: components/pagination.mdx
-sourceHash: 0055738fcfa0e80739713bb784bf880bbc361f3a
+sourceHash: 1c1cccbf82e1fb4aeaa57031bf176f4cf7943f25
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="pagination" />
 
-<DemoFrame label="नंबर वाला, और पहला और आख़िरी के साथ" column>
+<Example label="नंबर वाला, और पहला और आख़िरी के साथ" column>
   <tanrei-pagination label="पहले डेमो के पेज" page="5" count="10" previous-label="पिछला पेज" next-label="अगला पेज" page-label="पेज {page}"></tanrei-pagination>
   <tanrei-pagination label="दूसरे डेमो के पेज" page="12" count="40" first-last previous-label="पिछला पेज" next-label="अगला पेज" first-label="पहला पेज" last-label="आख़िरी पेज" page-label="पेज {page}"></tanrei-pagination>
-</DemoFrame>
+</Example>
 
 पेजिनेशन एक सूची के पेज नंबर से बदलता है: खोज नतीजे, किसी ब्लॉग की पोस्ट, किसी टेबल की पंक्तियाँ। शीर्षक वाले पेजों के किसी क्रम में, जैसे किसी गाइड के अध्यायों में, पिछला और अगला पेज [पिछला और अगला लिंक](/hi/components/previous-next-links/) हैं: शीर्षक बताता है कि वह कहाँ ले जाता है, पेज नंबर नहीं बताता।
 
@@ -60,16 +60,16 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 
 ## स्पेक
 
-<DemoFrame label="छोटा रूप, और छोटा साइज़" plain column>
+<Example label="छोटा रूप, और छोटा साइज़" column>
   <tanrei-pagination label="कॉम्पैक्ट डेमो के पेज" variant="compact" page="3" count="10" previous-label="पिछला पेज" next-label="अगला पेज" count-text="{count} में से पेज {page}"></tanrei-pagination>
   <tanrei-pagination label="छोटे डेमो के पेज" size="small" page="4" count="8" previous-label="पिछला पेज" next-label="अगला पेज" page-label="पेज {page}"></tanrei-pagination>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="पतले कॉलम में नंबर वाला रूप छोटा रूप बन जाता है" plain>
+<Example label="पतले कॉलम में नंबर वाला रूप छोटा रूप बन जाता है">
   <div style="inline-size: 14rem">
     <tanrei-pagination label="पतले डेमो के पेज" page="5" count="10" previous-label="पिछला पेज" next-label="अगला पेज" page-label="पेज {page}" count-text="{count} में से पेज {page}"></tanrei-pagination>
   </div>
-</DemoFrame>
+</Example>
 
 - **कौन-से नंबर दिखते हैं।** पहला और आख़िरी पेज (`boundaries`, डिफ़ॉल्ट 1), मौजूदा पेज और उसके दोनों ओर एक-एक पेज (`siblings`, डिफ़ॉल्ट 1)। इनके बीच छोड़े गए पेज एक एलिप्सिस बन जाते हैं। किसी छोर के पास दूसरी ओर ज़्यादा पेज दिखते हैं, ताकि हर पेज पर पंक्ति में जगहों की गिनती एक ही रहे और उसकी चौड़ाई न बदले।
 - **मौजूदा पेज** भरे हुए रंग से बनता है और मौजूदा पेज के रूप में बताया जाता है। उसे दबाने से कुछ नहीं होता।

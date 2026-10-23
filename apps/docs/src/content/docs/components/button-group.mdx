@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="button-group" />
 
-<DemoFrame label="Standard and connected">
+<Example label="Standard and connected">
   <tanrei-button-group>
     <tanrei-button variant="outlined">Cancel</tanrei-button>
     <tanrei-button variant="tonal">Save draft</tanrei-button>
@@ -24,7 +24,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
     <tanrei-button variant="tonal" toggle label="Italic"><span slot="icon">format_italic</span></tanrei-button>
     <tanrei-button variant="tonal" toggle label="Underline"><span slot="icon">format_underlined</span></tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -205,7 +205,7 @@ Two flags on a button tell the group where it belongs, so that the two orientati
 | `dismissive` | backs out of it: Cancel, Back, Not now | at the start | at the bottom |
 | neither | anything else | between the two, in the order given | between the two, in the order given |
 
-<DemoFrame label="The same three buttons in a row and in a column" plain>
+<Example label="The same three buttons in a row and in a column">
   <tanrei-button-group>
     <tanrei-button variant="outlined" dismissive>Cancel</tanrei-button>
     <tanrei-button variant="tonal">Save draft</tanrei-button>
@@ -216,9 +216,9 @@ Two flags on a button tell the group where it belongs, so that the two orientati
     <tanrei-button variant="tonal">Save draft</tanrei-button>
     <tanrei-button variant="filled" confirming>Publish</tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Full width: a row that shares the width, and a column" plain column>
+<Example label="Full width: a row that shares the width, and a column" column>
   <div style="inline-size: 20rem">
     <tanrei-button-group full-width>
       <tanrei-button variant="tonal" dismissive>Not now</tanrei-button>
@@ -231,7 +231,7 @@ Two flags on a button tell the group where it belongs, so that the two orientati
       <tanrei-button variant="tonal" confirming>Allow</tanrei-button>
     </tanrei-button-group>
   </div>
-</DemoFrame>
+</Example>
 
 Keyboard focus and screen readers follow the placed order, so everyone meets the actions in the order they are drawn. The flags describe the task, not the tone: in "Cancel · Delete", Delete is the confirming one. A destructive action is told apart by its own look (the Button's `destructive`) and its label, not by its place. A [dialog](/components/dialog/) and a [side sheet](/components/side-sheet/) place their own actions by the same two flags.
 
@@ -239,7 +239,7 @@ Keyboard focus and screen readers follow the placed order, so everyone meets the
 
 A connected group joins its buttons in one of two ways. With a **divider** the buttons touch, their corners are square where they meet, and a line marks each seam. With a **gap** they stand a narrow gap apart, with tighter corners where they face each other. The design system chooses once for every component that joins parts (the default system draws a divider), a design system can set the button group apart, and `separation` (`auto`, `divider`, `gap`) sets one group. A standard group ignores it.
 
-<DemoFrame label="Connected by a divider and by a gap, in a row and in a column" plain>
+<Example label="Connected by a divider and by a gap, in a row and in a column">
   <tanrei-button-group variant="connected" separation="divider" label="Clipboard">
     <tanrei-button variant="outlined">Cut</tanrei-button>
     <tanrei-button variant="outlined">Copy</tanrei-button>
@@ -258,22 +258,22 @@ A connected group joins its buttons in one of two ways. With a **divider** the b
     <tanrei-button variant="tonal" label="Zoom in"><span slot="icon">add</span></tanrei-button>
     <tanrei-button variant="tonal" label="Zoom out"><span slot="icon">remove</span></tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 Under a divider, a seam carries a line only where the two buttons rest on the same fill. Between a selected toggle and an unselected one, or a filled button and an outlined one, the edge of the fill already marks the seam, so no line is drawn there.
 
-<DemoFrame label="Toggles joined by a divider: no line beside the selected one" plain>
+<Example label="Toggles joined by a divider: no line beside the selected one">
   <tanrei-button-group variant="connected" label="Text style">
     <tanrei-button variant="outlined" toggle label="Bold"><span slot="icon">format_bold</span></tanrei-button>
     <tanrei-button variant="outlined" toggle selected label="Italic"><span slot="icon">format_italic</span></tanrei-button>
     <tanrei-button variant="outlined" toggle label="Underline"><span slot="icon">format_underlined</span></tanrei-button>
     <tanrei-button variant="outlined" toggle label="Strikethrough"><span slot="icon">format_strikethrough</span></tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 ## Specs
 
-<DemoFrame label="Connected: outlined, large and with a disabled item" plain>
+<Example label="Connected: outlined, large and with a disabled item">
   <tanrei-button-group variant="connected" label="Clipboard">
     <tanrei-button variant="outlined">Cut</tanrei-button>
     <tanrei-button variant="outlined">Copy</tanrei-button>
@@ -289,7 +289,7 @@ Under a divider, a seam carries a line only where the two buttons rest on the sa
     <tanrei-button variant="outlined" disabled>Copy</tanrei-button>
     <tanrei-button variant="outlined">Paste</tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="button-group" />
 

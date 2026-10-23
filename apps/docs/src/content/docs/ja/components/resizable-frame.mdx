@@ -2,24 +2,24 @@
 title: サイズ変更できる枠
 description: 縁や角のハンドル、キーボード、または 1 回の押下で、人が幅と高さを変えられる箱です。Outlined なら、プレビューをスマートフォンの幅とノートパソコンの幅で確かめる場所になります。Plain なら、ナビゲーションドロワーやサイドバーの縁になります。
 translationOf: components/resizable-frame.mdx
-sourceHash: a4cfbe849974e10d04768d89c60010bba48508e5
+sourceHash: af2988918c149def3c435d80345537512f119ef9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="resizable-frame" />
 
-<DemoFrame label="末尾側の縁、下の縁、角で人が大きさを変えるプレビュー" plain>
+<Example label="末尾側の縁、下の縁、角で人が大きさを変えるプレビュー">
   <tanrei-resizable-frame width="360" height="200" handles="end bottom bottom-end" snap-widths="400 600" width-label="プレビューの幅を変更" height-label="プレビューの高さを変更" corner-label="プレビューの大きさを変更" style="inline-size: 100%">
     <div style="box-sizing: border-box; min-block-size: 100%; padding: 1rem; background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface)">ハンドルをドラッグするか、Tab でハンドルに移動して矢印キーを使ってください。</div>
   </tanrei-resizable-frame>
-</DemoFrame>
+</Example>
 
 サイズ変更できる枠は、中身に、人が変えられる幅と高さを与えます。ハンドルは[ハンドル](/ja/components/handle/)です。ドラッグすると大きさが変わり、キーボードで動かすと 1 刻みずつ変わり、ドラッグせずに押すと最大の大きさと直前の大きさを行き来します。枠は大きさを保ち、人が大きさを変えたことを知らせ、支援技術が読めるように、各ハンドルに大きさを値として渡します。
 

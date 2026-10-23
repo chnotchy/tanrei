@@ -2,20 +2,20 @@
 title: صف القائمة
 description: سطر واحد من النص قبله شيء وبعده شيء. عنوان رئيسي، وسطر قصير فوقه وسطر أو سطران تحته؛ وفي البداية رمز أو صورة أو عنصر تحكم، وفي النهاية قيمة قصيرة أو رمز أو عنصر تحكم. يوضع في عنصر قائمة فيلائم كل أنماط القائمة، ويُستخدم وحده أيضًا.
 translationOf: components/list-row.mdx
-sourceHash: 19070cee88ea1c99d0d03fe7866472287bd11101
+sourceHash: 2d3567ece5ff8694cbe5c277bb265b81b65f928b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="list-row" />
 
-<DemoFrame label="صفوف في قائمة: صف ثابت فيه مفتاح، وصف يفتح شيئًا، وصف هو رابط" plain>
+<Example label="صفوف في قائمة: صف ثابت فيه مفتاح، وصف يفتح شيئًا، وصف هو رابط">
   <tanrei-list dividers style="inline-size: 22rem">
     <tanrei-list-item>
       <tanrei-list-row leading-icon="bluetooth" headline="بلوتوث" supporting-text="جهازان">
@@ -29,7 +29,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-list-row leading-icon="folder" overline="مشترك" headline="صور الميناء" supporting-text="48 عنصرًا، عُدّلت اليوم" trailing-text="2.4 GB"></tanrei-list-row>
     </tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
 صف القائمة هو الصف الذي تتألف منه معظم القوائم: اسم، وسطر أو سطران عنه، وشيء قبله وشيء بعده. [القائمة](/ar/components/list/) صندوق يرتّب عناصره ويجعلها إجراءات أو روابط أو خيارات؛ وصف القائمة هو ما يعرضه عنصر واحد. ضعه في عنصر قائمة، أو استخدمه وحده حيث يلزم صف واحد.
 
@@ -98,12 +98,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="سطر واحد وسطران وثلاثة أسطر؛ صورة وقيمة؛ compact" plain>
+<Example label="سطر واحد وسطران وثلاثة أسطر؛ صورة وقيمة؛ compact">
   <tanrei-list-row headline="واي فاي" style="inline-size: 22rem"></tanrei-list-row>
   <tanrei-list-row leading-icon="wifi" headline="واي فاي" supporting-text="متصل بشبكة Harbour" style="inline-size: 22rem"></tanrei-list-row>
   <tanrei-list-row leading-icon="folder" overline="مشترك" headline="صور الميناء" supporting-text="48 عنصرًا، عُدّلت اليوم" trailing-text="2.4 GB" trailing-icon="chevron_right" style="inline-size: 22rem"></tanrei-list-row>
   <tanrei-list-row leading-icon="description" headline="brief.pdf" supporting-text="820 KB" density="compact" style="inline-size: 22rem"></tanrei-list-row>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="list-row" />
 

@@ -2,20 +2,20 @@
 title: Código en línea
 description: Un tramo de código dentro de una frase, en el tipo de letra de código y al tamaño del texto que lo rodea, sobre un relleno tenue o sin él. Es texto, nunca un control.
 translationOf: components/inline-code.mdx
-sourceHash: a781f6f71d206aae52e9b17504a2139e3ab309d7
+sourceHash: e115b8a04119a448b5d648d2bf8c5369723b67c9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="inline-code" />
 
-<DemoFrame label="En una frase, en un encabezado y plain" column>
+<Example label="En una frase, en un encabezado y plain" column>
   <div class="tanrei-not-prose" style="max-inline-size: 32rem">
     <p style="margin: 0">
       Ejecuta <code class="tanrei-code" translate="no" spellcheck="false">npm install</code> en la carpeta que contiene
@@ -29,7 +29,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       Plain: <code class="tanrei-code" data-variant="plain" translate="no" spellcheck="false">comp.button.container.shape</code>
     </p>
   </div>
-</DemoFrame>
+</Example>
 
 El código en línea nombra dentro de una frase algo que viene del código: un comando, una propiedad, un archivo, un valor. Las líneas de código que se leen y se copian son un [bloque de código](/es/components/code-block/). Las teclas que hay que pulsar son un [atajo de teclado](/es/components/keyboard-shortcut/), que lee en voz alta los nombres de los modificadores.
 
@@ -75,15 +75,15 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
 
 ## Especificaciones
 
-<DemoFrame label="Salta de línea, y cada trozo conserva su relleno" plain>
+<Example label="Salta de línea, y cada trozo conserva su relleno">
   <div class="tanrei-not-prose" style="max-inline-size: 22rem">
     <p style="margin: 0">
       El token <code class="tanrei-code" translate="no" spellcheck="false">tanrei.comp.navigation-drawer.item.selected.hovered.state-layer.color</code> es más largo que esta línea. Se parte donde termina la línea y nunca se corta.
     </p>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="En un enlace, en texto fuerte y una columna de código" plain column>
+<Example label="En un enlace, en texto fuerte y una columna de código" column>
   <div class="tanrei-not-prose">
     <p style="margin: 0">
       Consulta <a class="tanrei-link" href="../button/">la referencia de <code class="tanrei-code">Button</code></a>. <strong>Nunca definas <code class="tanrei-code">disabled</code> en la única salida.</strong>
@@ -94,7 +94,7 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
       <code class="tanrei-code">size</code><code class="tanrei-code">medium</code>
     </div>
   </div>
-</DemoFrame>
+</Example>
 
 El código en línea no tiene tamaño propio. Su tamaño de fuente es el del texto en el que está, multiplicado por una proporción (`comp.inline-code.label.scale`) que iguala el tipo de letra de código y el del texto. En el texto de cuerpo es 13 junto a 14. En un encabezado es el tamaño del propio encabezado.
 

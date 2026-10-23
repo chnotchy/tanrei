@@ -2,20 +2,20 @@
 title: Cuadro combinado
 description: La caja en la que se escribe para encontrar un valor, y la lista de opciones que abre, sin fila de etiqueta, ayuda ni texto de error propios. Para un lugar cuya etiqueta está en otra parte, o dentro de un campo que el producto compone por su cuenta.
 translationOf: components/combobox.mdx
-sourceHash: 20505447c5a948a07d010334c0b1c6d27b691e0b
+sourceHash: 21c2432a088206528f66441b5fe486f03eb74098
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="combobox" />
 
-<DemoFrame label="Sin nada más: un filtro en una barra de herramientas, y una fila cuya etiqueta está junto a su cuadro combinado" column>
+<Example label="Sin nada más: un filtro en una barra de herramientas, y una fila cuya etiqueta está junto a su cuadro combinado" column>
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Buscar un token" placeholder="Buscar un token" no-chevron empty-text="Sin coincidencias">
     <span slot="leading-icon">search</span>
     <tanrei-option value="primary" supporting-text="sys.color.primary">primary</tanrei-option>
@@ -30,7 +30,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-option value="Europe/Berlin">Berlín</tanrei-option>
     </tanrei-combobox>
   </div>
-</DemoFrame>
+</Example>
 
 Un cuadro combinado es el control de un [campo de cuadro combinado](/es/components/combobox-field/), solo: la caja, el texto que se escribe en ella, el glifo inicial, el botón de borrar y el chevron, y la lista con sus opciones, sus grupos y su fila de estado. No tiene fila de etiqueta encima, ni ayuda ni texto de error debajo.
 
@@ -114,14 +114,14 @@ Un campo alrededor de un cuadro combinado es un campo de cuadro combinado escrit
 </tanrei-field>
 ```
 
-<DemoFrame label="Un campo con un cuadro combinado dentro: la misma imagen que un campo de cuadro combinado" column>
+<Example label="Un campo con un cuadro combinado dentro: la misma imagen que un campo de cuadro combinado" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Ciudad" required required-text="Obligatorio" supporting-text="Adónde se envía el pedido.">
     <tanrei-combobox value="tokyo" empty-text="Sin coincidencias">
       <tanrei-option value="kyoto">Kioto</tanrei-option>
       <tanrei-option value="tokyo">Tokio</tanrei-option>
     </tanrei-combobox>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 El cuadro combinado le dice a su campo lo que solo él sabe. La ayuda empieza donde empieza el texto, después del margen interior y de un glifo inicial. Un cuadro combinado filled u outlined dibuja él mismo la etiqueta del campo, flotando en la caja, de modo que el campo no dibuja ninguna fila de etiqueta. Y mientras su lista está abierta se dibuja con foco, de modo que la etiqueta y la ayuda del campo se dibujan con foco junto con él, tenga o no el foco el campo de entrada.
 
@@ -129,7 +129,7 @@ Una pulsación en la etiqueta del campo lleva el foco al campo de entrada y no a
 
 ## Especificaciones
 
-<DemoFrame label="Cuadros combinados sin nada más: en error, deshabilitado, de solo lectura, que se puede borrar, y grande" plain column>
+<Example label="Cuadros combinados sin nada más: en error, deshabilitado, de solo lectura, que se puede borrar, y grande" column>
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Ciudad" value="nairobi" error empty-text="Sin coincidencias">
     <tanrei-option value="nairobi">Nairobi</tanrei-option><tanrei-option value="tokyo">Tokio</tanrei-option>
   </tanrei-combobox>
@@ -145,16 +145,16 @@ Una pulsación en la etiqueta del campo lleva el foco al campo de entrada y no a
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" size="large" label="Ciudad" value="tokyo" empty-text="Sin coincidencias">
     <tanrei-option value="nairobi">Nairobi</tanrei-option><tanrei-option value="tokyo">Tokio</tanrei-option>
   </tanrei-combobox>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Filled y outlined, sin nada más: la etiqueta del propio cuadro combinado flota en la caja" system="m3-like" plain column>
+<Example label="Filled y outlined, sin nada más: la etiqueta del propio cuadro combinado flota en la caja" system="m3-like" column>
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="Ciudad" value="tokyo" empty-text="Sin coincidencias">
     <tanrei-option value="nairobi">Nairobi</tanrei-option><tanrei-option value="tokyo">Tokio</tanrei-option>
   </tanrei-combobox>
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="Ciudad" empty-text="Sin coincidencias">
     <tanrei-option value="nairobi">Nairobi</tanrei-option><tanrei-option value="tokyo">Tokio</tanrei-option>
   </tanrei-combobox>
-</DemoFrame>
+</Example>
 
 ### Qué es del cuadro combinado y qué es del campo
 

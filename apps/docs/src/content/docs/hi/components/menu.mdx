@@ -2,20 +2,20 @@
 title: मेन्यू
 description: क्रियाओं या विकल्पों का एक छोटा सेट, जो एक अस्थायी सरफ़ेस पर उस एलिमेंट से खुलता है जिसने उसे माँगा।
 translationOf: components/menu.mdx
-sourceHash: dde889cba5c9b3c811de7ca80489ea496b14e941
+sourceHash: 0341afebeabc8702ad394d02405a1d0b83eddc75
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="menu" />
 
-<DemoFrame label="क्रियाएँ, एक चेकबॉक्स आइटम, एक रेडियो ग्रुप और एक विनाशकारी क्रिया">
+<Example label="क्रियाएँ, एक चेकबॉक्स आइटम, एक रेडियो ग्रुप और एक विनाशकारी क्रिया">
   <tanrei-menu inline open>
     <tanrei-menu-item label="कॉपी करें" leading-icon="content_copy" shortcut="mod+c"></tanrei-menu-item>
     <tanrei-menu-item label="पेस्ट करें" leading-icon="content_paste" shortcut="mod+v"></tanrei-menu-item>
@@ -28,9 +28,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </tanrei-menu-group>
     <tanrei-menu-item label="हटाएँ" leading-icon="delete" destructive></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="सबमेन्यू: वह आइटम जो अपने बग़ल में एक और स्तर खोलता है" plain>
+<Example label="सबमेन्यू: वह आइटम जो अपने बग़ल में एक और स्तर खोलता है">
   <tanrei-menu inline open>
     <tanrei-menu-item label="नई फ़ाइल" leading-icon="add" shortcut="mod+n"></tanrei-menu-item>
     <tanrei-submenu label="हाल की फ़ाइल खोलें" leading-icon="history" open>
@@ -44,16 +44,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </tanrei-submenu>
     <tanrei-menu-item label="प्रिंट करें" leading-icon="print" shortcut="mod+p"></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="लिंक का मेन्यू: हर पंक्ति कहीं ले जाती है, एक वह पेज है जिस पर आप हैं, और एक नया टैब खोलती है" plain>
+<Example label="लिंक का मेन्यू: हर पंक्ति कहीं ले जाती है, एक वह पेज है जिस पर आप हैं, और एक नया टैब खोलती है">
   <tanrei-menu inline open>
     <tanrei-menu-item label="बटन" href="/hi/components/button/"></tanrei-menu-item>
     <tanrei-menu-item label="लिस्ट" href="/hi/components/list/" current></tanrei-menu-item>
     <tanrei-menu-item label="उदाहरण साइट" href="https://example.com/" target="new" target-label="नए टैब में खुलता है"></tanrei-menu-item>
     <tanrei-menu-item label="आर्काइव" href="/archive/" disabled></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -279,16 +279,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="सहायक टेक्स्ट, अंतिम आइकन और अक्षम आइटम" plain>
+<Example label="सहायक टेक्स्ट, अंतिम आइकन और अक्षम आइटम">
   <tanrei-menu inline open>
     <tanrei-menu-item label="शेयर करें" supporting-text="इस फ़ाइल का लिंक भेजें" leading-icon="share"></tanrei-menu-item>
     <tanrei-menu-item label="ऑफ़लाइन उपलब्ध" leading-icon="download" trailing-icon="cloud_done"></tanrei-menu-item>
     <tanrei-menu-item label="नाम बदलें" leading-icon="edit" disabled></tanrei-menu-item>
     <tanrei-menu-item label="हटाएँ" leading-icon="delete" destructive disabled></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="चेक और आइकन के कॉलम के ऊपर ग्रुप के शीर्षक" plain>
+<Example label="चेक और आइकन के कॉलम के ऊपर ग्रुप के शीर्षक">
   <tanrei-menu inline open>
     <tanrei-menu-group label="टेक्स्ट स्टाइल">
       <tanrei-menu-checkbox-item label="बोल्ड" leading-icon="format_bold" checked></tanrei-menu-checkbox-item>
@@ -299,9 +299,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-menu-radio-item label="बीच में" value="center" leading-icon="format_align_center"></tanrei-menu-radio-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="निशान और आइकन के कॉलम: iconSpace का auto (डिफ़ॉल्ट) और never" plain>
+<Example label="निशान और आइकन के कॉलम: iconSpace का auto (डिफ़ॉल्ट) और never">
   <tanrei-menu inline open>
     <tanrei-menu-item label="काटें" leading-icon="content_cut"></tanrei-menu-item>
     <tanrei-menu-item label="कॉपी करें" leading-icon="content_copy"></tanrei-menu-item>
@@ -330,9 +330,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-menu-item label="मदद"></tanrei-menu-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="निशान: डिफ़ॉल्ट सिस्टम का बॉक्स और रिंग, और mark-icon से नामित सादा चेक" plain>
+<Example label="निशान: डिफ़ॉल्ट सिस्टम का बॉक्स और रिंग, और mark-icon से नामित सादा चेक">
   <tanrei-menu inline open>
     <tanrei-menu-group label="दिखाएँ">
       <tanrei-menu-checkbox-item label="रूलर" checked></tanrei-menu-checkbox-item>
@@ -353,9 +353,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-menu-radio-item label="असली साइज़" value="actual"></tanrei-menu-radio-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="अलगाव: ग्रुप के बीच डिवाइडर, और गैप" plain>
+<Example label="अलगाव: ग्रुप के बीच डिवाइडर, और गैप">
   <tanrei-menu inline open separation="divider">
     <tanrei-menu-item label="पहले जैसा करें" shortcut="mod+z"></tanrei-menu-item>
     <tanrei-menu-item label="फिर से करें" shortcut="mod+shift+z"></tanrei-menu-item>
@@ -378,7 +378,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-menu-item label="पेज में खोजें" shortcut="mod+f"></tanrei-menu-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
 डिफ़ॉल्ट सिस्टम में चेकबॉक्स आइटम पर चेकबॉक्स का और रेडियो आइटम पर रेडियो बटन का निशान होता है, जो आइटम के चेक किए होने या न होने, दोनों हालत में बनता है: ख़ाली बॉक्स और चेक वाला भरा हुआ बॉक्स, पतली रिंग और अपने फ़िल वाली मोटी रिंग। इससे बंद विकल्प भी एक विकल्प के रूप में दिखता रहता है। ये निशान वाले कॉलम के चित्र हैं, कंट्रोल नहीं: दबाने और फ़ोकस करने की अकेली चीज़ पंक्ति है। बॉक्स के भीतर का चेक किसी कंट्रोल के अपने निशान वाले भारी वेट पर बनता है, जैसे [चेकबॉक्स](/hi/components/checkbox/) का बनता है।
 

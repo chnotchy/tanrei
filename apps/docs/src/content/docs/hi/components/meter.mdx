@@ -2,27 +2,27 @@
 title: मीटर
 description: दिखाता है कि कोई ज्ञात मान किसी ज्ञात रेंज में कहाँ है — इस्तेमाल हुआ स्टोरेज, बैटरी का चार्ज, कोई कोटा, पासवर्ड की मज़बूती — एक बार या रिंग के रूप में, जो प्रोग्रेस इंडिकेटर जैसा दिखता है, पर यह नहीं कहता कि कुछ चल रहा है।
 translationOf: components/meter.mdx
-sourceHash: a9d8ef1942e071884710cdc52bdb78d45aadfb32
+sourceHash: cd8bc895367db9b71db67bad0ef32e060f9d403e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="meter" />
 
-<DemoFrame label="Linear और circular">
+<Example label="Linear और circular">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter value="0.62" label="इस्तेमाल हुआ स्टोरेज" value-text="15 GB में से 9.3 GB"></tanrei-meter>
     <tanrei-meter value="37" max="50" label="भरी हुई सीटें" value-text="50 में से 37 सीटें"></tanrei-meter>
   </div>
   <tanrei-meter variant="circular" value="0.62" label="बैटरी"></tanrei-meter>
   <tanrei-meter variant="circular" size="large" value="0.15" status="warning" label="बैटरी" value-text="कम: 15%"></tanrei-meter>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -66,7 +66,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 ## स्पेक
 
-<DemoFrame label="स्थितियाँ: default, info, success, warning, error" plain>
+<Example label="स्थितियाँ: default, info, success, warning, error">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter value="0.62" label="Default"></tanrei-meter>
     <tanrei-meter value="0.4" status="info" label="Info"></tanrei-meter>
@@ -74,9 +74,9 @@ Web और React के उदाहरण मौजूदा स्पेक �
     <tanrei-meter value="0.85" status="warning" label="Warning"></tanrei-meter>
     <tanrei-meter value="0.98" status="error" label="Error"></tanrei-meter>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="साइज़, रेंज के दोनों छोर और अपनी रेंज" plain>
+<Example label="साइज़, रेंज के दोनों छोर और अपनी रेंज">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter size="small" value="0.62" label="Small"></tanrei-meter>
     <tanrei-meter size="medium" value="0.62" label="Medium"></tanrei-meter>
@@ -88,14 +88,14 @@ Web और React के उदाहरण मौजूदा स्पेक �
   <tanrei-meter variant="circular" size="small" value="0.62" label="Small"></tanrei-meter>
   <tanrei-meter variant="circular" size="medium" value="0.62" label="Medium"></tanrei-meter>
   <tanrei-meter variant="circular" size="large" value="0.62" label="Large"></tanrei-meter>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="अलगाव: divider (डिफ़ॉल्ट सिस्टम का चुनाव) और gap" plain>
+<Example label="अलगाव: divider (डिफ़ॉल्ट सिस्टम का चुनाव) और gap">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter separation="divider" value="0.62" label="Divider"></tanrei-meter>
     <tanrei-meter separation="gap" value="0.62" label="Gap"></tanrei-meter>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="meter" />
 

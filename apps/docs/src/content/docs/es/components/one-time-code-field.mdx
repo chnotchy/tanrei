@@ -2,23 +2,23 @@
 title: Campo de código de un solo uso
 description: Pide un código corto enviado a la persona como un único campo completo —las celdas bajo una etiqueta, con una línea de ayuda y las palabras para un código incorrecto—, unido para la tecnología de apoyo y que participa en un formulario como un solo control.
 translationOf: components/one-time-code-field.mdx
-sourceHash: 197fb3bbef1de7ff1a0dcf3c22e8bc35ade0e0ab
+sourceHash: e622be078eeb18fec9295ee054c28b4764e18e53
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="one-time-code-field" />
 
-<DemoFrame label="Un campo de código de un solo uso, y otro cuyo código rechazó el producto" column>
+<Example label="Un campo de código de un solo uso, y otro cuyo código rechazó el producto" column>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Código de verificación" supporting-text="Introduce el código de 6 dígitos que enviamos a tu teléfono." group-size="3" value="123"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Código de verificación" supporting-text="Introduce el código de 6 dígitos que enviamos a tu teléfono." error error-text="El código no es correcto. Revisa el mensaje e inténtalo de nuevo." group-size="3" value="123456"></tanrei-one-time-code-field>
-</DemoFrame>
+</Example>
 
 Usa un campo de código de un solo uso allí donde un producto pide de vuelta un código corto que envió: para iniciar sesión, para confirmar una dirección o un número de teléfono, para aprobar un pago. Es el caso corriente, listo para usarse: una etiqueta, las celdas, una línea que dice adónde se envió el código y las palabras para un código incorrecto.
 
@@ -85,11 +85,11 @@ El mismo campo, escrito a mano a partir de sus dos miembros, da la misma imagen 
 </tanrei-field>
 ```
 
-<DemoFrame label="El mismo campo escrito a mano: un campo con una entrada de código de un solo uso dentro" column>
+<Example label="El mismo campo escrito a mano: un campo con una entrada de código de un solo uso dentro" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Código de verificación" supporting-text="Introduce el código de 6 dígitos que enviamos a tu teléfono.">
     <tanrei-one-time-code-input group-size="3" value="123"></tanrei-one-time-code-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 Baja a ese nivel cuando necesites una organización que el campo de código de un solo uso no ofrece:
 
@@ -104,12 +104,12 @@ Lo que cambia un nivel más abajo es dónde se dice cada cosa. `name` y `value` 
 
 ## Especificaciones
 
-<DemoFrame label="Obligatorio con la palabra del producto, opcional, deshabilitado y un código oculto de cuatro" plain column>
+<Example label="Obligatorio con la palabra del producto, opcional, deshabilitado y un código oculto de cuatro" column>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Código de verificación" required required-text="Obligatorio" supporting-text="Introduce el código de 6 dígitos que enviamos a tu teléfono." group-size="3"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Código de respaldo" optional optional-text="Opcional" type="alphanumeric" group-size="3" value="A7K"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Código de verificación" disabled supporting-text="Introduce el código de 6 dígitos que enviamos a tu teléfono." group-size="3" value="123456"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="PIN de la carta" length="4" mask value="4821"></tanrei-one-time-code-field>
-</DemoFrame>
+</Example>
 
 ### Qué aporta cada miembro
 

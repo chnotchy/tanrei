@@ -2,14 +2,14 @@
 title: مؤشر التحميل
 description: يبيّن أن انتظارًا قصيرًا مجهول الطول جارٍ، ضمن السطر أو فوق المحتوى.
 translationOf: components/loading-indicator.mdx
-sourceHash: 9ce360324a5fe7d64d8c45600b454acdad42f463
+sourceHash: 54d9e2a8b2243f9e2d52da5c42e3a8996a3bf07d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
@@ -19,11 +19,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 تصف هذه الصفحة مؤشر التحميل كما هو في المواصفة الآن: ينتظر قبل أن يُعرض، ثم يدخل. مكوّن الويب يفعل ذلك منذ الآن، وكذلك العروض التوضيحية التي تظهر بعد المهلة. أما SwiftUI و Compose و Flutter و React Native فموسومة أعلاه بأنها متأخرة: إلى أن تلحق، ترسم المؤشر وتعرضه للتقنيات المساعدة فور إدراجه، ولا تأخذ الخصائص الثلاث الجديدة، فعيّناتها أدناه لا تعرض إلا ما تقدّمه فعلًا.
 :::
 
-<DemoFrame label="ضمن السطر ومحتوًى في حاوية">
+<Example label="ضمن السطر ومحتوًى في حاوية">
   <tanrei-loading-indicator label="جارٍ تحميل الرسائل"></tanrei-loading-indicator>
   <tanrei-loading-indicator size="large" label="جارٍ تحميل المعرض"></tanrei-loading-indicator>
   <tanrei-loading-indicator contained label="جارٍ التحديث"></tanrei-loading-indicator>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -106,14 +106,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="الأحجام، ضمن السطر وفي حاوية" plain>
+<Example label="الأحجام، ضمن السطر وفي حاوية">
   <tanrei-loading-indicator size="small" label="Small"></tanrei-loading-indicator>
   <tanrei-loading-indicator size="medium" label="Medium"></tanrei-loading-indicator>
   <tanrei-loading-indicator size="large" label="Large"></tanrei-loading-indicator>
   <tanrei-loading-indicator contained size="small" label="Small, contained"></tanrei-loading-indicator>
   <tanrei-loading-indicator contained size="medium" label="Medium, contained"></tanrei-loading-indicator>
   <tanrei-loading-indicator contained size="large" label="Large, contained"></tanrei-loading-indicator>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="loading-indicator" />
 

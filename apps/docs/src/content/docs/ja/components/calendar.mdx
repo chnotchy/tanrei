@@ -2,14 +2,14 @@
 title: カレンダー
 description: 1 か月を日のグリッドで表示し、そこから日付を 1 つ、または日付の期間を 1 つ選べるようにします。ページの中にもピッカーの中にも置け、月は週が 1 列に連なったものとして、スクロールやドラッグに追従して動きます。
 translationOf: components/calendar.mdx
-sourceHash: c095f989d07f9cab3c2978b4e5df0acdf942d89e
+sourceHash: 0a4eb8a0d2c0bebf083959ed9e5b6788f2588d04
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import ProductWords from '../../../../components/ProductWords.astro';
 
 export const words = {
@@ -31,9 +31,9 @@ export const words = {
 Web コンポーネントは、このページの説明どおりにカレンダーを実装しています。月は週が 1 列に連なったものとして、スクロールやドラッグに追従します。デモはそのコンポーネントです。SwiftUI、Compose、Flutter、React Native はまだ作っていません。これらのパッケージには廃止した日付ピッカーのコードが残っていますが、このページでは説明しません。
 :::
 
-<DemoFrame label="日付を 1 つ。日をスクロールするかドラッグするか、ボタンを使うと月が変わります">
+<Example label="日付を 1 つ。日をスクロールするかドラッグするか、ボタンを使うと月が変わります">
   <tanrei-calendar label="チェックイン日" locale="ja-JP" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -125,9 +125,9 @@ Web では、日付を選ぶ以前の要素はなくなりました。そのグ�
 - **期間。** `range` モードでは、最初に選んだ日が開始日、次に選んだ日が終了日です。開始日より前の日を選ぶか、両端が決まったあとに選ぶと、選び直しになります。`change` は選ぶたびに発火し、開始日だけのときは `end` が空です。そのため、選びかけの期間もプロダクト側で表示できます。開始日と終了日が同じなら 1 日の期間です。
 - **値** は ISO 8601 の暦日（`2026-09-17`）で、時刻もタイムゾーンも持ちません。`today` は、設定しなければ端末の今日の日付です。会場のタイムゾーンやテストのために設定できます。
 
-<DemoFrame label="期間。開始日、終了日の順に選びます。3 回目に選ぶと選び直しです" plain>
+<Example label="期間。開始日、終了日の順に選びます。3 回目に選ぶと選び直しです">
   <tanrei-calendar mode="range" label="宿泊" locale="ja-JP" today="2026-09-24" start="2026-09-10" end="2026-09-16"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 期間は、開始日から終了日までの 1 本の帯です。週の行の端で切れ、次の行に続きます。
 
@@ -137,9 +137,9 @@ Web では、日付を選ぶ以前の要素はなくなりました。そのグ�
 
 選べない日をまたぐ期間は、その日を含んだままです。プロダクトがそれを受け付けられない場合は、`change` のあとでそう伝えます。
 
-<DemoFrame label="9 月 7 日から 10 月 20 日まで。9 月 21 日と 22 日は埋まっています" plain>
+<Example label="9 月 7 日から 10 月 20 日まで。9 月 21 日と 22 日は埋まっています">
   <tanrei-calendar label="予約日" locale="ja-JP" today="2026-09-24" value="2026-09-17" min="2026-09-07" max="2026-10-20" disabled-dates="2026-09-21 2026-09-22"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### 月の移動
 
@@ -162,9 +162,9 @@ Web では、日付を選ぶ以前の要素はなくなりました。そのグ�
 
 キー操作は軸によって変わりません。
 
-<DemoFrame label="横の軸：月はページになります" system="m3-like" plain>
+<Example label="横の軸：月はページになります" system="m3-like">
   <tanrei-calendar label="チェックイン日" locale="ja-JP" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ポインターが日の上にあるあいだ、軸に沿ったスクロールはカレンダーのものです。日が止まる最初の月と最後の月でも同じです。同じ向きにスクロールするページでは、そこからはページがスクロールしません。長いページでは、カレンダーの横やまわりに、スクロールがページに届く場所を残してください。曜日の行、ナビゲーションの行、カレンダーのまわりでは、いつもどおりページがスクロールします。
 
@@ -172,17 +172,17 @@ Web では、日付を選ぶ以前の要素はなくなりました。そのグ�
 
 ビューの切り替えを押すと、年のビューになります。`min` の年から `max` の年まで（どちらもなければ 1900 年から 2100 年まで）の、スクロールするリストです。年を選ぶと、その年の同じ月を表示し、選択は変わりません。誕生日のように今日から遠い日付には、`startView` を `year` にして年のビューから始めます。
 
-<DemoFrame label="誕生日のために、年から始める" plain>
+<Example label="誕生日のために、年から始める">
   <tanrei-calendar label="生年月日" locale="ja-JP" today="2026-09-24" start-view="year" max="2026-09-24"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### 前後の月の日
 
 `showAdjacentDays` を付けると、グリッドの空いたマスに前後の月の日を控えめに表示します。選べる日ならそのまま選べ、期間の端にもできます。ポインターで選ぶと、その日を選んだうえでその月を表示し、そこではその月の日として描かれます。付けなければ、それらのマスは空で、押しても何も起こりません。
 
-<DemoFrame label="前後の月の日を表示：10 月 1 日を選ぶと 10 月になります" plain>
+<Example label="前後の月の日を表示：10 月 1 日を選ぶと 10 月になります">
   <tanrei-calendar label="配達日" locale="ja-JP" today="2026-09-24" value="2026-09-29" show-adjacent-days></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### ロケール
 
@@ -192,10 +192,10 @@ Web では、日付を選ぶ以前の要素はなくなりました。そのグ�
 
 この呼び出しは、このページが実際に実行しているものです。ページ上のカレンダーはすべてこの言葉で名前が付き、サンプルにはどの言葉も書いていません。ほかと違う言葉を使うカレンダーは、自分の属性で渡します。下の英語のカレンダーは、4 つの言葉を属性で渡しています。属性は常に優先されます。どれも渡さなくても、ナビゲーションボタンは動作しますが名前を持たず、デバッグビルドが足りない言葉をそれぞれ報告します。渡さないときにブラウザーのロケールデータから取るのは、今日を表す言葉だけです。
 
-<DemoFrame label="月曜始まりの週と、英語のロケール" plain>
+<Example label="月曜始まりの週と、英語のロケール">
   <tanrei-calendar label="チェックイン日" locale="ja-JP" first-day-of-week="monday" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
   <tanrei-calendar label="Check-in date" locale="en-US" today="2026-09-24" value="2026-09-17" previous-month-label="Previous month" next-month-label="Next month" year-view-label="Choose a year" today-label="Today"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### 推奨
 

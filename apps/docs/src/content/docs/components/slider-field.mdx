@@ -7,17 +7,17 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="slider-field" />
 
-<DemoFrame label="A slider field, a stepped one, and a range" column>
+<Example label="A slider field, a stepped one, and a range" column>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" supporting-text="Applies to alerts and media." value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Text size" min="50" max="200" step="10" value="120"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Price" supporting-text="Per night, before taxes." range min="0" max="500" step="10" start-value="100" value="300" start-label="Minimum price" end-label="Maximum price"></tanrei-slider-field>
-</DemoFrame>
+</Example>
 
 Use a slider field for a value that is chosen by feel and read back in words: a text size of 120 %, a distance of 5 km, a price from $100 to $300. A slider alone has no label that is drawn, and its track does not say what it is set to. The slider field is the ordinary case, ready to use: a label, the value in words, the track, a line of help and an error.
 
@@ -83,11 +83,11 @@ The value is drawn at the end of the label row, in the words the slider gives it
 
 A range's two values are joined by an en dash, in reading order: in a right-to-left layout the start's words stand at the right, where the start handle is. The slider field writes no number, unit or word itself.
 
-<DemoFrame label="A value text that shares the label's line, one that takes a line of its own, and a field that hides it" column>
+<Example label="A value text that shares the label's line, one that takes a line of its own, and a field that hides it" column>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" value="40" value-indicator="active"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Yearly income before tax" range min="0" max="20000000" step="100000" start-value="3400000" value="12500000" start-label="Lowest yearly income" end-label="Highest yearly income"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Brightness" value="70" value-hidden></tanrei-slider-field>
-</DemoFrame>
+</Example>
 
 The value text stands on the baseline of the label's first line and the label wraps in the room that is left. Where that would leave the label less than half of the row, the value text takes a line of its own after the label, and wraps there if it must. `valueHidden` leaves it out, for a slider whose number means nothing to the person: a volume, a brightness. The handle still says its value to assistive technology.
 
@@ -109,11 +109,11 @@ The same field, written by hand from its two members, is the same picture and th
 </script>
 ```
 
-<DemoFrame label="The same field written by hand: a field with a slider in it, given the value text once — without the listener above it is not kept in step" column>
+<Example label="The same field written by hand: a field with a slider in it, given the value text once — without the listener above it is not kept in step" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Text size" supporting-text="Applies to every page." value-text="120">
     <tanrei-slider min="50" max="200" step="10" value="120"></tanrei-slider>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 Go one level down when you need an arrangement the slider field does not offer:
 
@@ -129,12 +129,12 @@ What changes one level down is where things are said. `name`, `value` and `start
 
 ## Specs
 
-<DemoFrame label="Required with the product's word, optional, in error and disabled" plain column>
+<Example label="Required with the product's word, optional, in error and disabled" column>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" required required-text="Required" value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" optional optional-text="Optional" value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" supporting-text="Applies to alerts and media." error error-text="Choose a level above 0." value="0"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" supporting-text="Applies to alerts and media." disabled value="40"></tanrei-slider-field>
-</DemoFrame>
+</Example>
 
 ### What each member gives
 

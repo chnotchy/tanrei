@@ -2,14 +2,14 @@
 title: Lista
 description: Contiene un conjunto de elementos propios del producto (filas, mosaicos, tarjetas, archivos) en una columna, una fila o filas que se ajustan formando una cuadrícula. Las personas los leen, los abren uno a uno, eligen entre ellos o los arrastran a otro orden.
 translationOf: components/list.mdx
-sourceHash: 4fa8bead8fc1a1fecac07a97a78431a6c96183e9
+sourceHash: 7b9d25d43c69843610e9eecb13cbd05f5e3df571
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import ListReorderProduct from '../../../../components/ListReorderProduct.astro';
 
 <ListReorderProduct />
@@ -18,7 +18,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 <ComponentAvailability name="list" />
 
-<DemoFrame label="Arrastra un mosaico a otro lugar, o pulsa su tirador para ver un menú de movimientos" plain>
+<Example label="Arrastra un mosaico a otro lugar, o pulsa su tirador para ver un menú de movimientos">
   <tanrei-list reorderable orientation="horizontal" wrap gap="medium" data-demo-product label="Photos" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to start" move-before-label="Move left" move-after-label="Move right" move-to-end-label="Move to end" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 24rem">
     <tanrei-list-item><span class="demo-tile">Photo 1</span></tanrei-list-item>
     <tanrei-list-item><span class="demo-tile">Photo 2</span></tanrei-list-item>
@@ -26,7 +26,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
     <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
     <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
 <style>{`
   .demo-tile { display: block; padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }
@@ -34,7 +34,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 Una lista es una caja. Lo que muestra cada elemento es tu propio contenido: texto, una imagen, una tarjeta, un [elemento de archivo](/es/components/file-item/) o una [fila de lista](/es/components/list-row/): la fila de un titular, una o dos líneas de texto de apoyo y algo antes y después de ellos, de la que están hechas la mayoría de las listas. La lista se ocupa de todo lo que rodea a los elementos: cómo se disponen, el espacio y las líneas entre ellos, qué son para la tecnología de asistencia, cómo se mueve el foco del teclado entre ellos, cuáles están elegidos y cómo las personas los ponen en otro orden.
 
-<DemoFrame label="Una columna, una fila y una cuadrícula que se ajusta" plain>
+<Example label="Una columna, una fila y una cuadrícula que se ajusta">
   <tanrei-list gap="small" style="inline-size: 16rem">
     <tanrei-list-item><span class="demo-tile">Apples</span></tanrei-list-item>
     <tanrei-list-item><span class="demo-tile">Bananas</span></tanrei-list-item>
@@ -52,9 +52,9 @@ Una lista es una caja. Lo que muestra cada elemento es tu propio contenido: text
     <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
     <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Elementos que abren algo, elementos que son enlaces y una elección única" plain>
+<Example label="Elementos que abren algo, elementos que son enlaces y una elección única">
   <tanrei-list dividers style="inline-size: 16rem">
     <tanrei-list-item interactive><tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Connected"></tanrei-list-row></tanrei-list-item>
     <tanrei-list-item href="#list-demo-button"><tanrei-list-row leading-icon="smart_button" headline="Button" supporting-text="Actions and toggles"></tanrei-list-row></tanrei-list-item>
@@ -65,7 +65,7 @@ Una lista es una caja. Lo que muestra cada elemento es tu propio contenido: text
     <tanrei-list-item value="dark">Dark</tanrei-list-item>
     <tanrei-list-item value="system">Match the system</tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -132,13 +132,13 @@ SwiftUI, Compose, Flutter y React Native van con retraso: ofrecen la lista anter
 
 ### Reordenar
 
-<DemoFrame label="Una columna que se puede reordenar, cada elemento con un botón de eliminar de la propia página" plain>
+<Example label="Una columna que se puede reordenar, cada elemento con un botón de eliminar de la propia página">
   <tanrei-list reorderable gap="small" data-demo-product label="Typefaces" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to top" move-before-label="Move up" move-after-label="Move down" move-to-end-label="Move to bottom" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 22rem">
     <tanrei-list-item label="Inter"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Inter <tanrei-button variant="text" label="Remove Inter" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
     <tanrei-list-item label="Noto Sans JP"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Noto Sans JP <tanrei-button variant="text" label="Remove Noto Sans JP" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
     <tanrei-list-item label="Helvetica Neue"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Helvetica Neue <tanrei-button variant="text" label="Remove Helvetica Neue" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
 `reorderable` permite a las personas poner los elementos en otro orden, en una columna, una fila o una cuadrícula. Cada elemento dibuja un tirador al principio, la señal de que se puede mover. Se puede arrastrar el elemento entero, no solo el tirador: el ratón lo toma en cuanto se mueve unos píxeles, y un dedo o un lápiz tras una pulsación larga, de modo que un deslizamiento sigue desplazando la página (un toque en el tirador arrastra al instante). Los demás elementos se apartan, el elemento sigue al puntero por encima de ellos y se asienta en su sitio al soltarlo.
 

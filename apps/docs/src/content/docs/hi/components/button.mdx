@@ -2,28 +2,27 @@
 title: बटन
 description: एक टैप या क्लिक से लोगों को कोई क्रिया करने, किसी चीज़ को चालू-बंद करने या किसी गंतव्य पर जाने देता है।
 translationOf: components/button.mdx
-sourceHash: a587774eb5411058152f514ed38199d856c52a81
+sourceHash: f888556fbe868c4858d27e4c999dcfdeffd781f9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
-import VisualFrame from '../../../../components/visuals/VisualFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import StateMatrix from '../../../../components/visuals/StateMatrix.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="button" />
 
-<VisualFrame label="वेरिएंट" reserve={{ block: 'comp.button.container.height.medium' }} controls="both">
+<Example label="वेरिएंट" reserve={{ block: 'comp.button.container.height.medium' }} code>
   <tanrei-button variant="filled">Filled</tanrei-button>
   <tanrei-button variant="tonal">Tonal</tanrei-button>
   <tanrei-button variant="elevated">Elevated</tanrei-button>
   <tanrei-button variant="outlined">Outlined</tanrei-button>
   <tanrei-button variant="text">Text</tanrei-button>
-</VisualFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -106,12 +105,12 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 बटन अपने लेबल के साथ एक आइकन रख सकता है: शुरू में, या `iconPosition` को `trailing` करने पर अंत में। आइकन की ओर की पैडिंग लेबल की ओर की पैडिंग से एक स्टेप कम होती है, ताकि दोनों ओर की जगह बराबर दिखे। लेबल के बिना यह सिर्फ़ आइकन वाला बटन है: उतना ही चौड़ा गोला जितनी बटन की ऊँचाई है, जिसका नाम `label` से आता है, और तब `label` ज़रूरी है। `toggle` सेट होने पर यह हर बार दबाने पर अपना `selected` बदलता है, स्टेट को अपने रंगों और ग्लिफ़ के फ़िल से दिखाता है, और उसे दबाए हुए स्टेट के रूप में पढ़कर सुनाता है।
 
-<DemoFrame label="सिर्फ़ आइकन वाले बटन और एक टॉगल">
+<Example label="सिर्फ़ आइकन वाले बटन और एक टॉगल">
   <tanrei-button variant="text" label="खोजें"><span slot="icon">search</span></tanrei-button>
   <tanrei-button variant="tonal" label="संपादित करें"><span slot="icon">edit</span></tanrei-button>
   <tanrei-button variant="outlined" toggle selected label="पसंदीदा"><span slot="icon">favorite</span></tanrei-button>
   <tanrei-button variant="filled" icon-position="trailing">आगे<span slot="icon">arrow_forward</span></tanrei-button>
-</DemoFrame>
+</Example>
 
 Tanrei में आइकन बटन कोई अलग कंपोनेंट नहीं है। अगर आप Material के नाम जानते हैं, तो वे यहाँ इस तरह मिलते हैं:
 
@@ -134,13 +133,13 @@ Text टॉगल को एक आइकन दें। कंटेनर क
 | `narrow` | ग्लिफ़ और हर ओर एक छोटा इनसेट: 28 / 32 / 32, एक कैप्सूल | आइकन वाली क्रियाओं की सटी हुई पंक्ति, जैसे किसी फ़ील्ड के अंत के टूल या घनी टेबल की पंक्ति। |
 | `wide` | 40 / 52 / 72, एक कैप्सूल | पंक्ति की वह एक क्रिया जिसका वज़न अपने पड़ोसियों से ज़्यादा होना चाहिए। |
 
-<DemoFrame label="सिर्फ़ आइकन वाली चौड़ाइयाँ: default, narrow और wide" plain>
+<Example label="सिर्फ़ आइकन वाली चौड़ाइयाँ: default, narrow और wide">
   <tanrei-button variant="tonal" label="जोड़ें"><span slot="icon">add</span></tanrei-button>
   <tanrei-button variant="tonal" width="narrow" label="जोड़ें"><span slot="icon">add</span></tanrei-button>
   <tanrei-button variant="tonal" width="wide" label="जोड़ें"><span slot="icon">add</span></tanrei-button>
   <tanrei-button variant="outlined" size="small" width="narrow" label="और विकल्प"><span slot="icon">more_vert</span></tanrei-button>
   <tanrei-button variant="filled" size="large" width="wide" label="चलाएँ"><span slot="icon">play_arrow</span></tanrei-button>
-</DemoFrame>
+</Example>
 
 narrow बटन ठीक अपने ग्लिफ़ और हर ओर के इनसेट जितना होता है, इसलिए ग्लिफ़ हमेशा कैप्सूल के किनारे से दूर रहता है, और डिज़ाइन सिस्टम ग्लिफ़ का साइज़ जहाँ भी बदले, बटन उसके साथ चलता है। यह न्यूनतम टार्गेट से सँकरा बनता है, पर इसका हिट एरिया सँकरा नहीं होता: टार्गेट इसके दिखने वाले किनारों से आगे तक पहुँचता है। बटन के बग़ल में उसके लिए जगह छोड़ें, या narrow बटनों को [टूलबार](/hi/components/toolbar/) या [बटन ग्रुप](/hi/components/button-group/) में रखें, जो अपने आइटम के बीच जगह ख़ुद रखते हैं।
 
@@ -150,22 +149,22 @@ narrow बटन ठीक अपने ग्लिफ़ और हर ओर 
 
 अक्षम बटन फ़ोकस के क्रम से बाहर हो जाता है, इसलिए कीबोर्ड या स्क्रीन रीडर इस्तेमाल करने वाला व्यक्ति शायद उसे कभी न पाए, या यह न जान पाए कि वह कुछ करता क्यों नहीं। जहाँ व्यक्ति ख़ुद क्रिया को उपलब्ध करा सकता है, जैसे संदेश ख़ाली रहने तक भेजने का बटन, वहाँ `focusable-when-disabled` जोड़ें: बटन अक्षम दिखता है, अक्षम के रूप में बताया जाता है और कुछ नहीं करता, पर Tab अब भी उस तक पहुँचती है, ताकि कोई [टूलटिप](/hi/components/tooltip/) या विवरण बता सके कि क्यों।
 
-<DemoFrame label="व्यस्त, और अक्षम पर पहुँच में" plain>
+<Example label="व्यस्त, और अक्षम पर पहुँच में">
   <tanrei-button busy busy-label="डिप्लॉय हो रहा है">डिप्लॉय करें</tanrei-button>
   <tanrei-button variant="text" busy busy-label="सेव हो रहा है" label="सेव करें"><span slot="icon">save</span></tanrei-button>
   <tanrei-button disabled focusable-when-disabled>भेजें</tanrei-button>
-</DemoFrame>
+</Example>
 
 ### पूरी चौड़ाई
 
 `full-width` देने पर बटन अपने कंटेनर जितना चौड़ा हो जाता है, जैसे किसी संकरे फ़ॉर्म, कार्ड या शीट के नीचे की इकलौती क्रिया। उसकी ऊँचाई, पैडिंग और कोने उसके साइज़ के ही रहते हैं, और उसका लेबल और आइकन बीच में रहते हैं। जो लेबल न समाए, वह कटता नहीं, अगली लाइन में चला जाता है। जहाँ कोई [बटन ग्रुप](/hi/components/button-group/), [टूलबार](/hi/components/toolbar/), या किसी डायलॉग या पॉपओवर की क्रियाएँ बटनों को सजाती हैं, वहाँ चौड़ाई वही तय करते हैं और बटन पर `full-width` कुछ नहीं करता: कई बटनों में एक पंक्ति बाँटने के लिए बटन ग्रुप को `full-width` दें।
 
-<DemoFrame label="पूरी चौड़ाई वाले बटन" plain>
+<Example label="पूरी चौड़ाई वाले बटन">
   <div style="inline-size: 20rem; display: grid; gap: 0.75rem">
     <tanrei-button full-width>खाता बनाएँ</tanrei-button>
     <tanrei-button variant="outlined" full-width><span slot="icon">upload</span>फ़ाइल अपलोड करें</tanrei-button>
   </div>
-</DemoFrame>
+</Example>
 
 ### विनाशकारी क्रियाएँ
 
@@ -175,24 +174,24 @@ narrow बटन ठीक अपने ग्लिफ़ और हर ओर 
 
 लिंक का भी नहीं होता। `href` वाला बटन `destructive` को अनदेखा करता है और अपने वेरिएंट के लिंक की तरह बनता है, क्योंकि लिंक पर जाने से कुछ नहीं हटता: वह व्यक्ति को सिर्फ़ उस जगह ले जाता है जहाँ कुछ हटाया जा सकता है। निशान उस जगह की क्रिया पर लगाएँ, जैसे लिंक से खुलने वाले पेज पर "हटाएँ" बटन। डीबग बिल्ड ऐसे लिंक की रिपोर्ट करता है जिसे `destructive` दिया गया हो।
 
-<DemoFrame label="हर वेरिएंट में विनाशकारी बटन, और सिर्फ़ आइकन वाला बटन" plain>
+<Example label="हर वेरिएंट में विनाशकारी बटन, और सिर्फ़ आइकन वाला बटन">
   <tanrei-button destructive>प्रोजेक्ट हटाएँ</tanrei-button>
   <tanrei-button variant="tonal" destructive>ड्राफ़्ट छोड़ें</tanrei-button>
   <tanrei-button variant="outlined" destructive>सदस्य को निकालें</tanrei-button>
   <tanrei-button variant="text" destructive>इतिहास मिटाएँ</tanrei-button>
   <tanrei-button variant="text" destructive label="फ़ाइल हटाएँ"><span slot="icon">delete</span></tanrei-button>
-</DemoFrame>
+</Example>
 
 ### गंतव्य वाला बटन एक लिंक है
 
 बटन को `href` दें, तो वह बटन नहीं, लिंक है: वही कंट्रोल, हर स्टेट में उन्हीं टोकन से बना हुआ, पर लिंक के रोल के साथ और उस सब के साथ जो प्लैटफ़ॉर्म किसी लिंक को देता है। वेब पर यह एक असली ऐंकर है, इसलिए लोग इसे नए टैब में खोल सकते हैं, इसका पता कॉपी कर सकते हैं, और जाने से पहले देख सकते हैं कि यह कहाँ ले जाता है। जब भी कंट्रोल को सक्रिय करने से व्यक्ति सिर्फ़ कहीं और पहुँचता हो, यही रूप इस्तेमाल करें। सादे बटन के click हैंडलर से नेविगेट न करें।
 
-<DemoFrame label="लिंक: वही जगह, नया टैब, सिर्फ़ आइकन और अक्षम" plain>
+<Example label="लिंक: वही जगह, नया टैब, सिर्फ़ आइकन और अक्षम">
   <tanrei-button href="/hi/components/button-group/">बटन ग्रुप</tanrei-button>
   <tanrei-button variant="outlined" href="/hi/components/toolbar/" target="new" target-label="नए टैब में खुलता है">टूलबार</tanrei-button>
   <tanrei-button variant="text" href="/hi/components/" label="सभी कंपोनेंट"><span slot="icon">apps</span></tanrei-button>
   <tanrei-button variant="tonal" href="/hi/components/button-group/" disabled>बटन ग्रुप</tanrei-button>
-</DemoFrame>
+</Example>
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
@@ -319,11 +318,11 @@ narrow बटन ठीक अपने ग्लिफ़ और हर ओर 
 
 जब एक ही शब्द कई बटनों पर दिखता है, जैसे किसी लिस्ट की हर पंक्ति में "हटाएँ", तो अकेला शब्द स्क्रीन रीडर इस्तेमाल करने वाले व्यक्ति को यह नहीं बताता कि कौन-सा बटन किस पंक्ति का है। हर बटन को एक `label` दें: तब दिखने वाले टेक्स्ट की जगह वही बटन का पूरा एक्सेसिबल नाम होता है, और बटन ठीक पहले जैसा बनता है।
 
-<DemoFrame label="हर पंक्ति में वही शब्द, और हर बटन का नाम उसकी पंक्ति के अनुसार" plain>
+<Example label="हर पंक्ति में वही शब्द, और हर बटन का नाम उसकी पंक्ति के अनुसार">
   <tanrei-button variant="text" size="small" label="हटाएँ: Inter">हटाएँ</tanrei-button>
   <tanrei-button variant="text" size="small" label="हटाएँ: Noto Sans JP">हटाएँ</tanrei-button>
   <tanrei-button variant="text" size="small" label="हटाएँ: Roboto Mono">हटाएँ</tanrei-button>
-</DemoFrame>
+</Example>
 
 | `label` | दिखने वाला लेबल | एक्सेसिबल नाम |
 | --- | --- | --- |
@@ -337,13 +336,13 @@ narrow बटन ठीक अपने ग्लिफ़ और हर ओर 
 
 ## स्पेक
 
-<DemoFrame label="साइज़ और अक्षम" plain>
+<Example label="साइज़ और अक्षम">
   <tanrei-button size="small">Small</tanrei-button>
   <tanrei-button size="medium">Medium</tanrei-button>
   <tanrei-button size="large">Large</tanrei-button>
   <tanrei-button disabled>Disabled</tanrei-button>
   <tanrei-button variant="outlined" disabled>Disabled</tanrei-button>
-</DemoFrame>
+</Example>
 
 <StateMatrix name="button" />
 

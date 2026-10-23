@@ -2,20 +2,20 @@
 title: Menú
 description: Un conjunto corto de acciones u opciones en una superficie temporal que se abre desde el elemento que lo pidió.
 translationOf: components/menu.mdx
-sourceHash: dde889cba5c9b3c811de7ca80489ea496b14e941
+sourceHash: 0341afebeabc8702ad394d02405a1d0b83eddc75
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="menu" />
 
-<DemoFrame label="Acciones, un elemento de casilla de verificación, un grupo de opciones y una acción destructiva">
+<Example label="Acciones, un elemento de casilla de verificación, un grupo de opciones y una acción destructiva">
   <tanrei-menu inline open>
     <tanrei-menu-item label="Copiar" leading-icon="content_copy" shortcut="mod+c"></tanrei-menu-item>
     <tanrei-menu-item label="Pegar" leading-icon="content_paste" shortcut="mod+v"></tanrei-menu-item>
@@ -28,9 +28,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </tanrei-menu-group>
     <tanrei-menu-item label="Eliminar" leading-icon="delete" destructive></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Un submenú: un elemento que abre otro nivel a su lado" plain>
+<Example label="Un submenú: un elemento que abre otro nivel a su lado">
   <tanrei-menu inline open>
     <tanrei-menu-item label="Archivo nuevo" leading-icon="add" shortcut="mod+n"></tanrei-menu-item>
     <tanrei-submenu label="Abrir recientes" leading-icon="history" open>
@@ -44,16 +44,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </tanrei-submenu>
     <tanrei-menu-item label="Imprimir" leading-icon="print" shortcut="mod+p"></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Un menú de enlaces: cada fila lleva a algún sitio, una es la página en la que estás, y una abre una pestaña nueva" plain>
+<Example label="Un menú de enlaces: cada fila lleva a algún sitio, una es la página en la que estás, y una abre una pestaña nueva">
   <tanrei-menu inline open>
     <tanrei-menu-item label="Botón" href="/es/components/button/"></tanrei-menu-item>
     <tanrei-menu-item label="Lista" href="/es/components/list/" current></tanrei-menu-item>
     <tanrei-menu-item label="Sitio de ejemplo" href="https://example.com/" target="new" target-label="se abre en una pestaña nueva"></tanrei-menu-item>
     <tanrei-menu-item label="Archivo" href="/archive/" disabled></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -279,16 +279,16 @@ Un menú también puede ser el menú contextual de un área: pon `trigger` en `c
 
 ## Especificaciones
 
-<DemoFrame label="Texto de apoyo, icono final y elementos deshabilitados" plain>
+<Example label="Texto de apoyo, icono final y elementos deshabilitados">
   <tanrei-menu inline open>
     <tanrei-menu-item label="Compartir" supporting-text="Envía un enlace a este archivo" leading-icon="share"></tanrei-menu-item>
     <tanrei-menu-item label="Disponible sin conexión" leading-icon="download" trailing-icon="cloud_done"></tanrei-menu-item>
     <tanrei-menu-item label="Cambiar nombre" leading-icon="edit" disabled></tanrei-menu-item>
     <tanrei-menu-item label="Eliminar" leading-icon="delete" destructive disabled></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Títulos de grupo sobre las columnas de la marca y del icono" plain>
+<Example label="Títulos de grupo sobre las columnas de la marca y del icono">
   <tanrei-menu inline open>
     <tanrei-menu-group label="Estilo de texto">
       <tanrei-menu-checkbox-item label="Negrita" leading-icon="format_bold" checked></tanrei-menu-checkbox-item>
@@ -299,9 +299,9 @@ Un menú también puede ser el menú contextual de un área: pon `trigger` en `c
       <tanrei-menu-radio-item label="Al centro" value="center" leading-icon="format_align_center"></tanrei-menu-radio-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Columnas de marca e icono: iconSpace auto, el valor predeterminado, y never" plain>
+<Example label="Columnas de marca e icono: iconSpace auto, el valor predeterminado, y never">
   <tanrei-menu inline open>
     <tanrei-menu-item label="Cortar" leading-icon="content_cut"></tanrei-menu-item>
     <tanrei-menu-item label="Copiar" leading-icon="content_copy"></tanrei-menu-item>
@@ -330,9 +330,9 @@ Un menú también puede ser el menú contextual de un área: pon `trigger` en `c
       <tanrei-menu-item label="Ayuda"></tanrei-menu-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Marcas: el recuadro y el anillo del sistema predeterminado, y una simple marca de verificación indicada con mark-icon" plain>
+<Example label="Marcas: el recuadro y el anillo del sistema predeterminado, y una simple marca de verificación indicada con mark-icon">
   <tanrei-menu inline open>
     <tanrei-menu-group label="Mostrar">
       <tanrei-menu-checkbox-item label="Reglas" checked></tanrei-menu-checkbox-item>
@@ -353,9 +353,9 @@ Un menú también puede ser el menú contextual de un área: pon `trigger` en `c
       <tanrei-menu-radio-item label="Tamaño real" value="actual"></tanrei-menu-radio-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Separación: un divisor entre grupos y una separación de espacio vacío" plain>
+<Example label="Separación: un divisor entre grupos y una separación de espacio vacío">
   <tanrei-menu inline open separation="divider">
     <tanrei-menu-item label="Deshacer" shortcut="mod+z"></tanrei-menu-item>
     <tanrei-menu-item label="Rehacer" shortcut="mod+shift+z"></tanrei-menu-item>
@@ -378,7 +378,7 @@ Un menú también puede ser el menú contextual de un área: pon `trigger` en `c
       <tanrei-menu-item label="Buscar en la página" shortcut="mod+f"></tanrei-menu-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
 En el sistema predeterminado, un elemento de casilla de verificación se marca como una casilla de verificación y un elemento de opción como un botón de opción, que se dibujan tanto si el elemento está marcado como si no: un recuadro vacío y un recuadro relleno con una marca de verificación, un anillo fino y un anillo grueso con su relleno. Así, una opción que está desactivada se sigue viendo como una opción. Son dibujos en la columna de la marca, no controles: la fila es lo único que se pulsa y que recibe el foco. La marca de verificación del recuadro se dibuja con el peso mayor de la marca propia de un control, como la de la [casilla de verificación](/es/components/checkbox/).
 

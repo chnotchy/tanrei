@@ -2,14 +2,14 @@
 title: मेन्यू वाला बटन
 description: एक बार दबाने पर मुख्य क्रिया करता है, और अपने बग़ल में जुड़े दूसरे बटन से खुलने वाले मेन्यू में संबंधित क्रियाएँ देता है।
 translationOf: components/button-with-menu.mdx
-sourceHash: b2cc3ce77b318949d05a451ba15d953c237f71ee
+sourceHash: fc9fa1614058622bad95aa4f9dbc578e3c4dc196
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
@@ -40,21 +40,21 @@ Material 3 अपने समकक्ष कंपोनेंट को स�
 - `trailingWidth` (`default`, `narrow`) ज़्यादा पतला अंतिम हिस्सा बनाता है: शेवरॉन और हर ओर एक छोटा इनसेट, और डिफ़ॉल्ट चौड़ाई की तरह गोल बाहरी सिरे पर थोड़ी ज़्यादा पैडिंग।
 :::
 
-<DemoFrame label="वेरिएंट">
+<Example label="वेरिएंट">
   <tanrei-button-with-menu label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="elevated" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="अपने मेन्यू के साथ: अंतिम हिस्सा दबाएँ" plain>
+<Example label="अपने मेन्यू के साथ: अंतिम हिस्सा दबाएँ">
   <tanrei-button-with-menu label="सेव करें" menu-label="सेव करने के और विकल्प" ontoggle="this.open = event.detail.open" onclose="this.open = false">
     <span slot="icon">save</span>
     <tanrei-menu-item slot="menu" label="इस रूप में सेव करें…"></tanrei-menu-item>
     <tanrei-menu-item slot="menu" label="कॉपी सेव करें"></tanrei-menu-item>
     <tanrei-menu-item slot="menu" label="टेम्पलेट के रूप में सेव करें"></tanrei-menu-item>
   </tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -259,20 +259,20 @@ Material 3 अपने समकक्ष कंपोनेंट को स�
 
 दोनों हिस्से दो में से एक तरीक़े से जुड़े होते हैं। **डिवाइडर** के साथ वे एक-दूसरे को छूते हैं, जहाँ वे मिलते हैं वहाँ के कोने चौकोर होते हैं, और जोड़ पर एक रेखा होती है। **गैप** के साथ वे एक सँकरे गैप की दूरी पर रहते हैं, और जहाँ वे आमने-सामने होते हैं वहाँ उनके कोने ज़्यादा कसे हुए होते हैं। डिज़ाइन सिस्टम यह चुनाव एक बार उन सभी कंपोनेंट के लिए करता है जो भागों को जोड़ते हैं (डिफ़ॉल्ट सिस्टम डिवाइडर बनाता है), कोई डिज़ाइन सिस्टम इस कंपोनेंट के लिए अलग चुनाव कर सकता है, और `separation` (`auto`, `divider`, `gap`) किसी एक इंस्टेंस के लिए इसे तय करता है। दोनों हिस्से हमेशा अगल-बग़ल रहते हैं: कोई खड़ा रूप नहीं है।
 
-<DemoFrame label="डिवाइडर से और गैप से जुड़े हुए" plain>
+<Example label="डिवाइडर से और गैप से जुड़े हुए">
   <tanrei-button-with-menu separation="divider" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
   <tanrei-button-with-menu separation="gap" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" separation="divider" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" separation="gap" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" separation="divider" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" separation="gap" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 ### पतला अंतिम हिस्सा
 
 डिफ़ॉल्ट रूप से अंतिम हिस्सा शेवरॉन को बटन की ऊँचाई जितने वर्ग में रखता है, और उसके गोल बाहरी सिरे पर थोड़ी ज़्यादा पैडिंग होती है। `trailingWidth` को `narrow` करने पर यह मुख्य क्रिया से लगा एक पतला हैंडल बन जाता है: शेवरॉन के हर ओर एक छोटा इनसेट होता है, और गोल बाहरी सिरे पर डिफ़ॉल्ट चौड़ाई जितनी ही थोड़ी ज़्यादा पैडिंग, ताकि शेवरॉन वक्र के सामने बीच में दिखे (डिफ़ॉल्ट सिस्टम में 32 / 36 / 36: उसी साइज़ के narrow, सिर्फ़ आइकन वाले [Button](/hi/components/button/) की चौड़ाई और वह पैडिंग)। शुरुआती हिस्सा दोनों चौड़ाइयों पर एक जैसा रहता है।
 
-<DemoFrame label="अंतिम हिस्से की चौड़ाई: default और narrow, हर साइज़ पर" plain>
+<Example label="अंतिम हिस्से की चौड़ाई: default और narrow, हर साइज़ पर">
   <tanrei-button-with-menu size="small" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
   <tanrei-button-with-menu size="small" trailing-width="narrow" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
   <tanrei-button-with-menu label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
@@ -280,7 +280,7 @@ Material 3 अपने समकक्ष कंपोनेंट को स�
   <tanrei-button-with-menu size="large" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
   <tanrei-button-with-menu size="large" trailing-width="narrow" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" separation="gap" trailing-width="narrow" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 पतला अंतिम हिस्सा न्यूनतम टार्गेट से सँकरा बनता है, पर उसका हिट एरिया सँकरा नहीं होता: टार्गेट बाहर की ओर, अंतिम किनारे से आगे तक पहुँचता है। वहाँ उसके लिए जगह छोड़ें, जैसे narrow, सिर्फ़ आइकन वाले Button के बग़ल में छोड़ते हैं।
 
@@ -290,17 +290,17 @@ Material 3 अपने समकक्ष कंपोनेंट को स�
 
 `destructive` सिर्फ़ दोनों हिस्सों को चिह्नित करता है, मेन्यू के आइटम को कभी नहीं। मेन्यू का कोई विकल्प वह हटा सकता है जो मुख्य क्रिया नहीं हटाती, या इसका उलटा, इसलिए हटाने वाले हर आइटम को अपना `destructive` दें।
 
-<DemoFrame label="विनाशकारी मेन्यू वाले बटन: हर वेरिएंट में, और गैप से जुड़ा" plain>
+<Example label="विनाशकारी मेन्यू वाले बटन: हर वेरिएंट में, और गैप से जुड़ा">
   <tanrei-button-with-menu destructive label="हटाएँ" menu-label="हटाने के और विकल्प"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" destructive label="हटाएँ" menu-label="हटाने के और विकल्प"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="elevated" destructive label="हटाएँ" menu-label="हटाने के और विकल्प"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" destructive label="हटाएँ" menu-label="हटाने के और विकल्प"></tanrei-button-with-menu>
   <tanrei-button-with-menu separation="gap" destructive label="हटाएँ" menu-label="हटाने के और विकल्प"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 ## स्पेक
 
-<DemoFrame label="साइज़, आइकन, खुला और अक्षम" plain>
+<Example label="साइज़, आइकन, खुला और अक्षम">
   <tanrei-button-with-menu size="small" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
   <tanrei-button-with-menu size="large" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
   <tanrei-button-with-menu label="सेव करें" menu-label="सेव करने के और विकल्प"><span slot="icon">save</span></tanrei-button-with-menu>
@@ -309,7 +309,7 @@ Material 3 अपने समकक्ष कंपोनेंट को स�
   <tanrei-button-with-menu variant="outlined" disabled label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
   <tanrei-button-with-menu label="शेयर करें" menu-label="शेयर करने के और विकल्प"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
   <tanrei-button-with-menu open label="शेयर करें" menu-label="शेयर करने के और विकल्प"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="button-with-menu" />
 

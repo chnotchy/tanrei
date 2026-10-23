@@ -7,7 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 import landscape from '../../../../../../packages/web/test/fixtures/image-preview-landscape.png?url';
 import landscapeSmall from '../../../../../../packages/web/test/fixtures/image-preview-landscape-thumbnail.png?url';
 import portrait from '../../../../../../packages/web/test/fixtures/image-preview-portrait.png?url';
@@ -17,7 +17,7 @@ import square from '../../../../../../packages/web/test/fixtures/image-preview-s
 
 <ComponentAvailability name="image-preview" />
 
-<DemoFrame label="Three pictures on a page: press one to look at it closely">
+<Example label="Three pictures on a page: press one to look at it closely">
   <tanrei-card class="not-content" interactive flush variant="outlined" label="Enlarge: a drawing 1600 wide and 1000 high" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 0, open: true })"><img src={landscapeSmall} alt="" width="160" height="100" style="display: block" /></tanrei-card>
   <tanrei-card class="not-content" interactive flush variant="outlined" label="Enlarge: a drawing 1000 wide and 1500 high" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 1, open: true })"><img src={portrait} alt="" width="67" height="100" style="display: block" /></tanrei-card>
   <tanrei-card class="not-content" interactive flush variant="outlined" label="Enlarge: a drawing 1200 wide and 1200 high" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 2, open: true })"><img src={square} alt="" width="100" height="100" style="display: block" /></tanrei-card>
@@ -26,7 +26,7 @@ import square from '../../../../../../packages/web/test/fixtures/image-preview-s
     <tanrei-image-preview-item src={portrait} width="1000" height="1500" alt="A drawing 1000 wide and 1500 high: a frame, two diagonals and a ring"></tanrei-image-preview-item>
     <tanrei-image-preview-item src={square} width="1200" height="1200" alt="A drawing 1200 wide and 1200 high: a frame, two diagonals and a ring"></tanrei-image-preview-item>
   </tanrei-image-preview>
-</DemoFrame>
+</Example>
 
 Use an image preview where a page shows a picture small because the page is about something else, and a person needs it large for a moment: a photograph in an article, the pictures of a product for sale, an attachment in a conversation, a screenshot in a guide. The person presses the thumbnail, looks, and is back where they were.
 

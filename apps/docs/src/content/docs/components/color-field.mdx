@@ -7,16 +7,16 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="color-field" />
 
-<DemoFrame label="A color field with a picker button, and one whose color the product refuses" column>
+<Example label="A color field with a picker button, and one whose color the product refuses" column>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Brand color" value="#0f766e" supporting-text="Six hexadecimal digits, like #0f766e." invalid-text="Enter six hexadecimal digits, like #0f766e." picker picker-label="Choose color"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Brand color" value="#fde047" error error-text="Too light for white text. Choose a darker color."></tanrei-color-field>
-</DemoFrame>
+</Example>
 
 Use a color field where people set a color as a value: a brand color in a theme, the color of a label or a category. They read it, type it or paste it from another tool, and see a sample of it beside the text. The field is drawn and measured as the text field of the same variant and size.
 
@@ -86,11 +86,11 @@ The same field, written by hand from its two members, is the same picture, and t
 </tanrei-field>
 ```
 
-<DemoFrame label="The same field written by hand: a field with a color input in it" column>
+<Example label="The same field written by hand: a field with a color input in it" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Brand color" required required-text="Required" supporting-text="Six hexadecimal digits, like #0f766e.">
     <tanrei-color-input value="#0f766e" invalid-text="Enter six hexadecimal digits, like #0f766e." picker picker-label="Choose color"></tanrei-color-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 Go one level down when you need an arrangement the color field does not offer:
 
@@ -104,14 +104,14 @@ What changes one level down is where things are said. `name` and `value` are on 
 
 ## Specs
 
-<DemoFrame label="An empty color field, white, black, a large one, a disabled one — and the box alone, a color input, in a row that names its color" plain column>
+<Example label="An empty color field, white, black, a large one, a disabled one — and the box alone, a color input, in a row that names its color" column>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Accent color" optional optional-text="Optional"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Page background" value="#ffffff"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Text" value="#000000"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Brand color" value="#0f766e" size="large" picker picker-label="Choose color"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Brand color" value="#0f766e" disabled picker picker-label="Choose color"></tanrei-color-field>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Primary, tone 40" value="#0f766e"></tanrei-color-input>
-</DemoFrame>
+</Example>
 
 ### The field
 

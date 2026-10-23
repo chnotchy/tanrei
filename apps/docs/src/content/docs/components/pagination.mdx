@@ -7,16 +7,16 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="pagination" />
 
-<DemoFrame label="Numbered, and with first and last" column>
+<Example label="Numbered, and with first and last" column>
   <tanrei-pagination label="Pages of the first demo" page="5" count="10" previous-label="Previous page" next-label="Next page" page-label="Page {page}"></tanrei-pagination>
   <tanrei-pagination label="Pages of the second demo" page="12" count="40" first-last previous-label="Previous page" next-label="Next page" first-label="First page" last-label="Last page" page-label="Page {page}"></tanrei-pagination>
-</DemoFrame>
+</Example>
 
 A pagination pages one list by number: search results, the posts of a blog, the rows of a table. The page before and the page after in a sequence of titled pages, such as the chapters of a guide, are [Previous and next links](/components/previous-next-links/): a title says where it leads, a page number does not.
 
@@ -58,16 +58,16 @@ The words are yours: Tanrei ships none. Give them on each element, or once for t
 
 ## Specs
 
-<DemoFrame label="The short form, and a small size" plain column>
+<Example label="The short form, and a small size" column>
   <tanrei-pagination label="Pages of the compact demo" variant="compact" page="3" count="10" previous-label="Previous page" next-label="Next page" count-text="Page {page} of {count}"></tanrei-pagination>
   <tanrei-pagination label="Pages of the small demo" size="small" page="4" count="8" previous-label="Previous page" next-label="Next page" page-label="Page {page}"></tanrei-pagination>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="In a narrow column the numbered form becomes the short one" plain>
+<Example label="In a narrow column the numbered form becomes the short one">
   <div style="inline-size: 14rem">
     <tanrei-pagination label="Pages of the narrow demo" page="5" count="10" previous-label="Previous page" next-label="Next page" page-label="Page {page}" count-text="Page {page} of {count}"></tanrei-pagination>
   </div>
-</DemoFrame>
+</Example>
 
 - **Which numbers are shown.** The first and the last page (`boundaries`, 1 by default), the current page and one page on each side of it (`siblings`, 1 by default). The pages left out between them are one ellipsis. Near an end, more pages are shown on the other side, so the row holds the same number of places on every page and keeps its width.
 - **The current page** is drawn filled and is exposed as the current one. Activating it does nothing.

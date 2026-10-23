@@ -2,20 +2,20 @@
 title: "分隔线"
 description: "用一条细线把列表、布局或工具栏中的各组内容分开。"
 translationOf: components/divider.mdx
-sourceHash: 30a7a4cb70a241da25e710981e6be81e76fb6142
+sourceHash: 80c28fe451508b1939317f564533e2a5f8e2cfc1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="divider" />
 
-<DemoFrame label="在列表和工具栏中">
+<Example label="在列表和工具栏中">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space150); inline-size: min(100%, 20rem)">
     <span>收件箱</span>
     <tanrei-divider></tanrei-divider>
@@ -29,7 +29,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-divider orientation="vertical" decorative="false"></tanrei-divider>
     <tanrei-button variant="text" label="插入链接"><span slot="icon">link</span></tanrei-button>
   </div>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -152,7 +152,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 
 ## 规格
 
-<DemoFrame label="方向和缩进" plain>
+<Example label="方向和缩进">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
     <tanrei-divider></tanrei-divider>
     <tanrei-divider inset="start"></tanrei-divider>
@@ -163,9 +163,9 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
     <tanrei-divider orientation="vertical" inset="start"></tanrei-divider>
     <tanrei-divider orientation="vertical" inset="both"></tanrei-divider>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="线型" plain>
+<Example label="线型">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
     <tanrei-divider></tanrei-divider>
     <tanrei-divider line-style="dotted"></tanrei-divider>
@@ -178,16 +178,16 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
     <tanrei-divider orientation="vertical" line-style="dotted"></tanrei-divider>
     <tanrei-divider orientation="vertical" line-style="wavy"></tanrei-divider>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="粗细：单条分隔线自己的粗细，较粗的图案配圆形端点" plain>
+<Example label="粗细：单条分隔线自己的粗细，较粗的图案配圆形端点">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
     <tanrei-divider thickness="2"></tanrei-divider>
     <tanrei-divider thickness="4" line-style="dotted" line-cap="round"></tanrei-divider>
     <tanrei-divider thickness="4" line-style="dashed" line-cap="round"></tanrei-divider>
     <tanrei-divider thickness="2" line-style="wavy"></tanrei-divider>
   </div>
-</DemoFrame>
+</Example>
 
 点线和虚线的两端总是一个完整的点或线段：分隔线在保证最小间隔的前提下画出尽可能多的点或线段，再把每个间隔加宽相同的量。因此无论朝哪个方向、长度是多少，两端看起来都一样。波浪线由圆弧组成，并被拉伸成整数个波，所以它起于中线、止于中线。波浪线分隔线比其他线型高：高度是振幅的两倍加上线的粗细，默认是 5，而不是 1。
 

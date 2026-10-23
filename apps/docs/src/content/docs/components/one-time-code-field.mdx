@@ -7,16 +7,16 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="one-time-code-field" />
 
-<DemoFrame label="A one-time-code field, and one whose code the product refused" column>
+<Example label="A one-time-code field, and one whose code the product refused" column>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Verification code" supporting-text="Enter the 6-digit code we sent to your phone." group-size="3" value="123"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Verification code" supporting-text="Enter the 6-digit code we sent to your phone." error error-text="That code is not right. Check the message and try again." group-size="3" value="123456"></tanrei-one-time-code-field>
-</DemoFrame>
+</Example>
 
 Use a one-time-code field wherever a product asks back a short code it sent: to sign in, to confirm an address or a telephone number, to approve a payment. It is the ordinary case, ready to use: a label, the cells, a line that says where the code was sent, and the words for a wrong code.
 
@@ -83,11 +83,11 @@ The same field, written by hand from its two members, is the same picture and th
 </tanrei-field>
 ```
 
-<DemoFrame label="The same field written by hand: a field with a one-time-code input in it" column>
+<Example label="The same field written by hand: a field with a one-time-code input in it" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Verification code" supporting-text="Enter the 6-digit code we sent to your phone.">
     <tanrei-one-time-code-input group-size="3" value="123"></tanrei-one-time-code-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 Go one level down when you need an arrangement the one-time-code field does not offer:
 
@@ -102,12 +102,12 @@ What changes one level down is where things are said. `name` and `value` are on 
 
 ## Specs
 
-<DemoFrame label="Required with the product's word, optional, disabled, and a masked code of four" plain column>
+<Example label="Required with the product's word, optional, disabled, and a masked code of four" column>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Verification code" required required-text="Required" supporting-text="Enter the 6-digit code we sent to your phone." group-size="3"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Backup code" optional optional-text="Optional" type="alphanumeric" group-size="3" value="A7K"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Verification code" disabled supporting-text="Enter the 6-digit code we sent to your phone." group-size="3" value="123456"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="PIN from the letter" length="4" mask value="4821"></tanrei-one-time-code-field>
-</DemoFrame>
+</Example>
 
 ### What each member gives
 

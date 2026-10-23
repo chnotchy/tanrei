@@ -2,20 +2,20 @@
 title: Insignia
 description: Marca un icono, un elemento de navegación o un avatar con un punto o un número pequeño para indicar que hay algo pendiente.
 translationOf: components/badge.mdx
-sourceHash: 74073b748fa7daa98b80d466a68d0d373c3a788a
+sourceHash: c983c212e290693abdeb8186325270e2b71dc681
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="badge" />
 
-<DemoFrame label="Un punto y un número">
+<Example label="Un punto y un número">
   <tanrei-badge label="Mensajes nuevos">
     <tanrei-button variant="text" label="Chat"><span slot="icon">chat</span></tanrei-button>
   </tanrei-badge>
@@ -25,7 +25,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-badge count="42" label="42 notificaciones">
     <tanrei-button variant="text" label="Notificaciones"><span slot="icon">notifications</span></tanrei-button>
   </tanrei-badge>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -126,7 +126,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## Especificaciones
 
-<DemoFrame label="Números y el tope" plain>
+<Example label="Números y el tope">
   <tanrei-badge count="3" label="3 sin leer">
     <span class="tanrei-icon" role="img" aria-label="Notificaciones">notifications</span>
   </tanrei-badge>
@@ -145,7 +145,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-badge count="0" label="Ningún mensaje sin leer">
     <span class="tanrei-icon" role="img" aria-label="Notificaciones">notifications</span>
   </tanrei-badge>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="badge" />
 

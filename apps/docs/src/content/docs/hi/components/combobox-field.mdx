@@ -2,20 +2,20 @@
 title: कॉम्बोबॉक्स फ़ील्ड
 description: लोगों को फ़ॉर्म के एक फ़ील्ड के रूप में, टाइप करके एक मान खोजने देता है। यह एक कॉम्बोबॉक्स है, जिसमें विकल्पों की लिस्ट टाइप करने के साथ छोटी होती जाती है और लोग उसमें से चुनते हैं, या जहाँ प्रॉडक्ट इसकी छूट देता है, वहाँ अपना कोई मान देते हैं। वह ऐसे लेबल के नीचे रहता है जो बता सकता है कि फ़ील्ड ज़रूरी है या वैकल्पिक, सहायता की एक पंक्ति और मान के अस्वीकार होने की वजह के साथ।
 translationOf: components/combobox-field.mdx
-sourceHash: 4a8c54e5baf14f784980c95d548773479589f5b1
+sourceHash: 12192d13f66de6c0c136ba5d0c6adb2e4f8ebd22
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="combobox-field" />
 
-<DemoFrame label="एक कॉम्बोबॉक्स फ़ील्ड जो अपने विकल्पों में से एक लेता है, और एक जो व्यक्ति का अपना मान भी लेता है" column>
+<Example label="एक कॉम्बोबॉक्स फ़ील्ड जो अपने विकल्पों में से एक लेता है, और एक जो व्यक्ति का अपना मान भी लेता है" column>
   <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="शहर" value="tokyo" clearable clear-label="शहर मिटाएँ" placeholder="शहर खोजने के लिए टाइप करें" supporting-text="ऑर्डर इसी शहर में भेजा जाता है।" empty-text="कोई नतीजा नहीं">
     <tanrei-option value="kyoto">क्योटो</tanrei-option>
     <tanrei-option value="lisbon">लिस्बन</tanrei-option>
@@ -29,7 +29,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-option value="Roboto Mono">Roboto Mono</tanrei-option>
     <tanrei-option value="Source Serif 4">Source Serif 4</tanrei-option>
   </tanrei-combobox-field>
-</DemoFrame>
+</Example>
 
 कॉम्बोबॉक्स फ़ील्ड वहाँ इस्तेमाल करें जहाँ फ़ॉर्म ऐसा एक मान माँगता है जिस तक लोग स्क्रॉल करके पहुँचने के बजाय उसे टाइप करना चाहेंगे: सैकड़ों में से एक शहर, कोई व्यक्ति, कोई टोकन। यह उस फ़ील्ड के लिए भी है जो मान सुझाता है और व्यक्ति का अपना मान भी लेता है, जैसे फ़ॉन्ट फ़ैमिली। यह आम स्थिति के लिए है, और इस्तेमाल के लिए तैयार है: एक लेबल, अपनी लिस्ट वाला बॉक्स, सहायता की एक पंक्ति और ग़लत मान के लिए शब्द। बॉक्स उसी वेरिएंट और साइज़ के टेक्स्ट फ़ील्ड के बॉक्स की तरह बनाया और नापा जाता है, और लिस्ट सिलेक्ट की लिस्ट की तरह बनाई जाती है।
 
@@ -122,20 +122,20 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="एक फ़ील्ड, जिसके भीतर एक कॉम्बोबॉक्स है: कॉम्बोबॉक्स फ़ील्ड जैसा ही दिखता है" column>
+<Example label="एक फ़ील्ड, जिसके भीतर एक कॉम्बोबॉक्स है: कॉम्बोबॉक्स फ़ील्ड जैसा ही दिखता है" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="शहर" required required-text="ज़रूरी" supporting-text="ऑर्डर इसी शहर में भेजा जाता है।">
     <tanrei-combobox value="tokyo" empty-text="कोई नतीजा नहीं">
       <tanrei-option value="kyoto">क्योटो</tanrei-option>
       <tanrei-option value="tokyo">टोक्यो</tanrei-option>
     </tanrei-combobox>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 फ़र्क़ इसमें है कि फ़ॉर्म का कंट्रोल कौन है: हाथ से लिखने पर वह कॉम्बोबॉक्स है, जो `name` लेता है; कॉम्बोबॉक्स फ़ील्ड में वह फ़ील्ड है।
 
 ## स्पेक
 
-<DemoFrame label="ग्रुप, सहायक टेक्स्ट और एक अक्षम विकल्प, एक त्रुटि, सिर्फ़ पढ़ने वाला कॉम्बोबॉक्स फ़ील्ड और अक्षम कॉम्बोबॉक्स फ़ील्ड" plain column>
+<Example label="ग्रुप, सहायक टेक्स्ट और एक अक्षम विकल्प, एक त्रुटि, सिर्फ़ पढ़ने वाला कॉम्बोबॉक्स फ़ील्ड और अक्षम कॉम्बोबॉक्स फ़ील्ड" column>
   <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="टाइम ज़ोन" value="Europe/Lisbon" empty-text="कोई नतीजा नहीं">
     <tanrei-option-group label="एशिया"><tanrei-option value="Asia/Tokyo">टोक्यो</tanrei-option><tanrei-option value="Asia/Seoul">सियोल</tanrei-option></tanrei-option-group>
     <tanrei-option-group label="यूरोप"><tanrei-option value="Europe/Lisbon">लिस्बन</tanrei-option><tanrei-option value="Europe/Berlin">बर्लिन</tanrei-option></tanrei-option-group>
@@ -154,7 +154,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="शहर" value="tokyo" disabled>
     <tanrei-option value="nairobi">नैरोबी</tanrei-option><tanrei-option value="tokyo">टोक्यो</tanrei-option>
   </tanrei-combobox-field>
-</DemoFrame>
+</Example>
 
 ### फ़ील्ड
 

@@ -7,7 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 import BehaviorChoice from '../../../components/tokens/BehaviorChoice.astro';
 import SystemValues from '../../../components/tokens/SystemValues.astro';
 
@@ -15,7 +15,7 @@ import SystemValues from '../../../components/tokens/SystemValues.astro';
 
 <ComponentAvailability name="scroll-area" />
 
-<DemoFrame label="A list in a box of a fixed height">
+<Example label="A list in a box of a fixed height">
   <tanrei-scroll-area label="Messages" style="inline-size: min(100%, 20rem); block-size: 16rem">
     <tanrei-list-row headline="Ada" supporting-text="The draft is ready for review"></tanrei-list-row>
     <tanrei-list-row headline="Grace" supporting-text="Moved the meeting to Thursday"></tanrei-list-row>
@@ -28,7 +28,7 @@ import SystemValues from '../../../components/tokens/SystemValues.astro';
     <tanrei-list-row headline="Margaret" supporting-text="All systems go"></tanrei-list-row>
     <tanrei-list-row headline="Rosalind" supporting-text="New pictures from the lab"></tanrei-list-row>
   </tanrei-scroll-area>
-</DemoFrame>
+</Example>
 
 The area draws nothing of its own while its content fits. Scroll it: the bottom edge is marked while more lies below, and the top edge once something has scrolled out of view above.
 
@@ -84,7 +84,7 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
 
 ## Specs
 
-<DemoFrame label="Scroll edges: shadow (the default system's choice), fade, line, blur and none" plain>
+<Example label="Scroll edges: shadow (the default system's choice), fade, line, blur and none">
   <tanrei-scroll-area scroll-edge="shadow" label="Shadow" style="inline-size: 9rem; block-size: 10rem">
     <p>Shadow. A band in the color of the surface the area stands on, full at the edge and none 24 in from it. Scroll to see the top edge marked too. The content seems to sink into the surface.</p>
   </tanrei-scroll-area>
@@ -100,7 +100,7 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
   <tanrei-scroll-area scroll-edge="none" label="None" style="inline-size: 9rem; block-size: 10rem">
     <p>None. Nothing marks the edges: only the platform's scroll bar says that the content goes on. Scroll it to compare with the others.</p>
   </tanrei-scroll-area>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="scroll-area" />
 

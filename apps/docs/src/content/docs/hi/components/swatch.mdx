@@ -2,25 +2,25 @@
 title: स्वॉच
 description: किसी रंग को एक नमूने के रूप में दिखाता है, बग़ल में उसके नाम के साथ। नमूना ठीक वही रंग है; जहाँ रंग आधा पारदर्शी हो, वहाँ वह एक चेकरबोर्ड के ऊपर बनता है, और उसका एक किनारा होता है, ताकि सरफ़ेस से मिलता-जुलता रंग भी दिखाए कि वह कहाँ ख़त्म होता है। यह देखने के लिए नमूना है, कभी कंट्रोल नहीं और कभी पिकर नहीं।
 translationOf: components/swatch.mdx
-sourceHash: 23fa0af88d1049d9e926971bd03ae83df71af4a1
+sourceHash: 0d457cad3aed0feaada8341605f38e8f101de85b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="swatch" />
 
-<DemoFrame label="अपने मान के साथ एक रंग, थीम का एक रोल, एक आधा पारदर्शी रंग और एक बिंदु">
+<Example label="अपने मान के साथ एक रंग, थीम का एक रोल, एक आधा पारदर्शी रंग और एक बिंदु">
   <tanrei-swatch color="#0f766e" label="टील 700" supporting-text="#0f766e"></tanrei-swatch>
   <tanrei-swatch color="var(--tanrei-sys-color-primary)" label="प्राइमरी"></tanrei-swatch>
   <tanrei-swatch color="#0f766e80" label="आधा पारदर्शी टील 700" supporting-text="#0f766e80"></tanrei-swatch>
   <tanrei-swatch color="#e11d48" label="बग" shape="circle" size="small"></tanrei-swatch>
-</DemoFrame>
+</Example>
 
 स्वॉच ऐसा रंग दिखाता है जिसे बदला नहीं जा रहा: सेटिंग पेज पर ब्रैंड का रंग, किसी लेबल के बग़ल में उसी लेबल का रंग, एक साथ रखे थीम के रोल। वह रंग को ठीक वैसा ही बनाता है जैसा दिया गया है, और बग़ल में रंग का नाम, क्योंकि कोई रंग सिर्फ़ अपने नमूने से कभी नहीं बताया जाता। वह पॉइंटर, कुंजी या फ़ोकस का कभी जवाब नहीं देता।
 
@@ -60,13 +60,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="तीन साइज़, दो शेप, और एक ख़ाली स्वॉच" plain>
+<Example label="तीन साइज़, दो शेप, और एक ख़ाली स्वॉच">
   <tanrei-swatch size="small" color="#0f766e" label="Small"></tanrei-swatch>
   <tanrei-swatch color="#0f766e" label="Medium"></tanrei-swatch>
   <tanrei-swatch size="large" color="#0f766e" label="Large"></tanrei-swatch>
   <tanrei-swatch shape="circle" color="#7c3aed" label="Circle"></tanrei-swatch>
   <tanrei-swatch color="" label="कोई रंग नहीं"></tanrei-swatch>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="swatch" />
 

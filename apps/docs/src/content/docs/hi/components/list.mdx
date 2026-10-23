@@ -2,14 +2,14 @@
 title: लिस्ट
 description: प्रॉडक्ट के अपने आइटम (पंक्तियाँ, टाइलें, कार्ड, फ़ाइलें) एक कॉलम, एक पंक्ति, या ग्रिड बनाती हुई मुड़ती पंक्तियों में रखती है। लोग उन्हें पढ़ते हैं, एक-एक करके खोलते हैं, उनमें से चुनते हैं, या ड्रैग करके दूसरे क्रम में रखते हैं।
 translationOf: components/list.mdx
-sourceHash: 4fa8bead8fc1a1fecac07a97a78431a6c96183e9
+sourceHash: 7b9d25d43c69843610e9eecb13cbd05f5e3df571
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import ListReorderProduct from '../../../../components/ListReorderProduct.astro';
 
 <ListReorderProduct />
@@ -18,7 +18,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 <ComponentAvailability name="list" />
 
-<DemoFrame label="टाइल को दूसरी जगह ड्रैग करें, या चालों के मेन्यू के लिए उसका हैंडल दबाएँ" plain>
+<Example label="टाइल को दूसरी जगह ड्रैग करें, या चालों के मेन्यू के लिए उसका हैंडल दबाएँ">
   <tanrei-list reorderable orientation="horizontal" wrap gap="medium" data-demo-product label="Photos" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to start" move-before-label="Move left" move-after-label="Move right" move-to-end-label="Move to end" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 24rem">
     <tanrei-list-item><span class="demo-tile">Photo 1</span></tanrei-list-item>
     <tanrei-list-item><span class="demo-tile">Photo 2</span></tanrei-list-item>
@@ -26,7 +26,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
     <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
     <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
 <style>{`
   .demo-tile { display: block; padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }
@@ -34,7 +34,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 लिस्ट एक डिब्बा है। हर आइटम में जो दिखता है वह आपका अपना कंटेंट है: टेक्स्ट, तस्वीर, कार्ड, [फ़ाइल आइटम](/hi/components/file-item/), या [लिस्ट पंक्ति](/hi/components/list-row/) — हेडलाइन, सहायक टेक्स्ट की एक-दो लाइनें, और उनके पहले और बाद की चीज़ों से बनी वह पंक्ति, जिससे ज़्यादातर लिस्टें बनती हैं। आइटमों के आसपास की हर चीज़ लिस्ट की है: वे कैसे रखे जाते हैं, उनके बीच की जगह और लाइनें, सहायक तकनीक के लिए वे क्या हैं, कीबोर्ड फ़ोकस उनके बीच कैसे चलता है, कौन-से चुने गए हैं, और लोग उनका क्रम कैसे बदलते हैं।
 
-<DemoFrame label="एक कॉलम, एक पंक्ति, और मुड़ने वाला ग्रिड" plain>
+<Example label="एक कॉलम, एक पंक्ति, और मुड़ने वाला ग्रिड">
   <tanrei-list gap="small" style="inline-size: 16rem">
     <tanrei-list-item><span class="demo-tile">Apples</span></tanrei-list-item>
     <tanrei-list-item><span class="demo-tile">Bananas</span></tanrei-list-item>
@@ -52,9 +52,9 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
     <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
     <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="कुछ खोलने वाले आइटम, लिंक वाले आइटम, और एक चुनाव" plain>
+<Example label="कुछ खोलने वाले आइटम, लिंक वाले आइटम, और एक चुनाव">
   <tanrei-list dividers style="inline-size: 16rem">
     <tanrei-list-item interactive><tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Connected"></tanrei-list-row></tanrei-list-item>
     <tanrei-list-item href="#list-demo-button"><tanrei-list-row leading-icon="smart_button" headline="Button" supporting-text="Actions and toggles"></tanrei-list-row></tanrei-list-item>
@@ -65,7 +65,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
     <tanrei-list-item value="dark">Dark</tanrei-list-item>
     <tanrei-list-item value="system">Match the system</tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
 ### उपयोग
 
@@ -132,13 +132,13 @@ SwiftUI, Compose, Flutter और React Native पीछे हैं: वे प
 
 ### क्रम बदलना
 
-<DemoFrame label="क्रम बदलने योग्य कॉलम, हर आइटम में पेज का अपना हटाने वाला बटन" plain>
+<Example label="क्रम बदलने योग्य कॉलम, हर आइटम में पेज का अपना हटाने वाला बटन">
   <tanrei-list reorderable gap="small" data-demo-product label="Typefaces" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to top" move-before-label="Move up" move-after-label="Move down" move-to-end-label="Move to bottom" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 22rem">
     <tanrei-list-item label="Inter"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Inter <tanrei-button variant="text" label="Remove Inter" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
     <tanrei-list-item label="Noto Sans JP"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Noto Sans JP <tanrei-button variant="text" label="Remove Noto Sans JP" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
     <tanrei-list-item label="Helvetica Neue"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Helvetica Neue <tanrei-button variant="text" label="Remove Helvetica Neue" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
 `reorderable` लोगों को आइटमों का क्रम बदलने देता है, कॉलम, पंक्ति या ग्रिड में। हर आइटम अपनी शुरुआत में एक हैंडल बनाता है, जो बताता है कि उसे हिलाया जा सकता है। सिर्फ़ हैंडल नहीं, पूरा आइटम ड्रैग किया जा सकता है: माउस कुछ पिक्सेल हिलते ही उसे उठा लेता है, और उँगली या पेन देर तक दबाने के बाद, ताकि स्वाइप अब भी पेज को स्क्रॉल करे (हैंडल पर टच तुरंत ड्रैग करता है)। बाक़ी आइटम रास्ते से हट जाते हैं, उठाया हुआ आइटम उनके ऊपर पॉइंटर के साथ चलता है, और छोड़ने पर अपनी जगह बैठ जाता है।
 

@@ -2,20 +2,20 @@
 title: مجموعة الوسوم
 description: ترتّب مجموعة من الوسوم أو الرقاقات في أسطر تلتفّ، بتباعد يناسب ما تحمله، وتعرضها قائمةً واحدة لها اسم. تبقى الأعضاء على ما هي عليه، وبعد إزالة رقاقة ينتقل التركيز إلى التي تليها.
 translationOf: components/tag-group.mdx
-sourceHash: 244216f99f145c63ac5a62ba10e948f72502850f
+sourceHash: b9ba7fa1d7147d2cd10b1cd38abb4b9c994512db
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="tag-group" />
 
-<DemoFrame label="مجموعة من الوسوم، ثم صف من عوامل التصفية" column>
+<Example label="مجموعة من الوسوم، ثم صف من عوامل التصفية" column>
   <tanrei-tag-group class="not-content" spacing="tags" label="الوسوم">
     <tanrei-tag label="رموز التصميم"></tanrei-tag>
     <tanrei-tag label="إمكانية الوصول"></tanrei-tag>
@@ -27,7 +27,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-chip kind="filter" label="تحتاج إلى مراجعة"></tanrei-chip>
     <tanrei-chip kind="filter" label="متوقفة"></tanrei-chip>
   </tanrei-tag-group>
-</DemoFrame>
+</Example>
 
 [الوسم](/ar/components/tag/) و[الرقاقة](/ar/components/chip/) كل منهما شيء واحد. ومجموعة الوسوم هي ما يحمل عدة منها: وسوم مقال، أو عوامل التصفية فوق قائمة، أو بضعة اقتراحات تحت حقل. تضعها في أسطر تلتفّ، وتحفظ المسافة الصحيحة بينها، وتخبر التقنيات المساعدة بأنها قائمة واحدة.
 
@@ -82,7 +82,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="وسوم تلتفّ، ووسوم حالة، وروابط إلى صفحة كل وسم، وعناصر مُدخلة" plain column>
+<Example label="وسوم تلتفّ، ووسوم حالة، وروابط إلى صفحة كل وسم، وعناصر مُدخلة" column>
   <tanrei-tag-group class="not-content" spacing="tags" style="inline-size: 22rem; max-inline-size: 100%" label="الوسوم">
     <tanrei-tag label="رموز التصميم"></tanrei-tag>
     <tanrei-tag label="إمكانية الوصول"></tanrei-tag>
@@ -106,7 +106,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-chip kind="input" label="Grace Hopper" remove-label="إزالة Grace Hopper"></tanrei-chip>
     <tanrei-chip kind="input" label="Katherine Johnson" remove-label="إزالة Katherine Johnson"></tanrei-chip>
   </tanrei-tag-group>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tag-group" />
 
@@ -165,7 +165,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 مع التحديد تكون المجموعة موضع توقف واحدًا: الرقاقة التي كان عليها التركيز آخر مرة، وإلا فأول رقاقة مفعَّلة، وإلا فالرقاقة الأولى. تنتقل مفاتيح الأسهم بين الرقاقات في الاتجاه الذي تشير إليه، وفي التخطيط من اليمين إلى اليسار أيضًا، وينقل المفتاحان Home و End إلى الأولى والأخيرة. وهي لا تبدّل شيئًا، ولا يدور التركيز من الرقاقة الأخيرة إلى الأولى. والمفتاح Space يبدّل الرقاقة التي عليها التركيز.
 
-<DemoFrame label="ترتيب فرز واحد في كل مرة، وعدة عوامل تصفية">
+<Example label="ترتيب فرز واحد في كل مرة، وعدة عوامل تصفية">
   <tanrei-tag-group class="not-content" label="الفرز حسب" selection="single" value="updated">
     <tanrei-chip kind="filter" label="الأحدث" value="newest"></tanrei-chip>
     <tanrei-chip kind="filter" label="المحدَّثة مؤخرًا" value="updated"></tanrei-chip>
@@ -177,7 +177,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-chip kind="filter" label="تحتاج إلى مراجعة" value="review"></tanrei-chip>
     <tanrei-chip kind="filter" label="معلَّقة" value="blocked"></tanrei-chip>
   </tanrei-tag-group>
-</DemoFrame>
+</Example>
 
 <Tabs syncKey="platform">
   <TabItem label="Web">

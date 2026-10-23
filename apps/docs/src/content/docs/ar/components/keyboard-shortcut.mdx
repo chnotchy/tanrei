@@ -2,14 +2,14 @@
 title: اختصار لوحة المفاتيح
 description: يعرض المفاتيح التي تنفّذ أمرًا، في صورة مفاتيح أو نص، برموز المفاتيح المعدِّلة وأسمائها في لوحة المفاتيح التي يستخدمها الشخص، وينطقها بأسمائها.
 translationOf: components/keyboard-shortcut.mdx
-sourceHash: 63d76372e6eb95e569cb0e3333d01afaeaadceb0
+sourceHash: aefaa8f159d65d66f0d297cf2ae3f659c10c017f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
@@ -17,11 +17,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 يعرض اختصار لوحة المفاتيح المفاتيح التي تنفّذ أمرًا: مرسومة أغطية مفاتيح (keycaps)، أو نصًّا بسيطًا بجانب اسم الأمر، بحجم صغير أو متوسط. تُكتب المفاتيح بأسماء محايدة، هي `mod` و `shift` و `k`، وتُرسم بعُرف لوحة المفاتيح التي يستخدمها الشخص: رموز Apple (`⇧⌘K`) أو الأسماء القياسية (Ctrl+Shift+K). يستطيع المنتج أن يعيّن العُرف لمنطقة، أو أن يتركه للمنصة. والاختصار المكوَّن من عدة تآلفات مفاتيح (chords) متتالية (Ctrl+K Ctrl+C) تسلسل واحد.
 
-<DemoFrame label="أغطية مفاتيح، وتسلسل من تآلفين، والهيئة البسيطة، للوحة المفاتيح التي تستخدمها">
+<Example label="أغطية مفاتيح، وتسلسل من تآلفين، والهيئة البسيطة، للوحة المفاتيح التي تستخدمها">
   <tanrei-keyboard-shortcut keys="mod+shift+k" label="Command أو Control مع Shift و K"></tanrei-keyboard-shortcut>
   <tanrei-keyboard-shortcut keys="mod+k mod+c" label="Command أو Control مع K، ثم Command أو Control مع C"></tanrei-keyboard-shortcut>
   <tanrei-keyboard-shortcut keys="mod+shift+k" label="Command أو Control مع Shift و K" variant="plain"></tanrei-keyboard-shortcut>
-</DemoFrame>
+</Example>
 
 مفاتيحه مرسومة للنظر فقط: التقنيات المساعدة تقرأ القيمة `label` التي يعطيها المنتج، وهي الاختصار بكلماتك أنت، ومن دونها تقرأ صيغة `aria-keyshortcuts` (`Meta+Shift+K`). وليست عند Tanrei أسماء للمفاتيح بأي لغة. وهو يعرض المفاتيح ولا شيء غير ذلك: لا يأخذ تركيزًا ولا إدخالًا، ولا يجعل المفاتيح تعمل. منتجك هو الذي يربطها.
 
@@ -82,7 +82,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="المفاتيح نفسها للوحة مفاتيح Apple وللوحة قياسية؛ الحجم الصغير داخل جملة؛ مفاتيح مسمّاة؛ معطَّل" plain column>
+<Example label="المفاتيح نفسها للوحة مفاتيح Apple وللوحة قياسية؛ الحجم الصغير داخل جملة؛ مفاتيح مسمّاة؛ معطَّل" column>
   <div data-tanrei-keyboard-convention="apple" style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
     <tanrei-keyboard-shortcut keys="mod+shift+k" label="Shift و Command و K"></tanrei-keyboard-shortcut>
     <tanrei-keyboard-shortcut keys="mod+shift+k" label="Shift و Command و K" size="small"></tanrei-keyboard-shortcut>
@@ -104,7 +104,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-keyboard-shortcut keys="mod+z" label="Command أو Control مع Z" disabled></tanrei-keyboard-shortcut>
     <tanrei-keyboard-shortcut keys="mod+z" label="Command أو Control مع Z" variant="plain" disabled></tanrei-keyboard-shortcut>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="keyboard-shortcut" />
 

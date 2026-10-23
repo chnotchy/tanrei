@@ -2,20 +2,20 @@
 title: مقبض تغيير الحجم
 description: العلامة التي يسحبها الشخص، أو يحرّكها من لوحة المفاتيح، ليغيّر حجم ما تقف عليه — لوحة أو حقل أو جزء من الواجهة أو إطار معاينة. خط قصير لاتجاه واحد، وقوس ربع دائرة لاتجاهين. تخبر بمقدار ما حُرّكت؛ أما تغيير الحجم فمن شأن مالكها.
 translationOf: components/handle.mdx
-sourceHash: 8955a734232bc0ade6255485b375c3b4b8e433b8
+sourceHash: 7d140675b426695f97f08e12810e1f2f8f5aef93
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="handle" />
 
-<DemoFrame label="مقبض يغيّر ارتفاعًا، ومقبض يغيّر عرضًا، ومقبض في زاوية يغيّر الاثنين">
+<Example label="مقبض يغيّر ارتفاعًا، ومقبض يغيّر عرضًا، ومقبض في زاوية يغيّر الاثنين">
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle label="تغيير حجم الملاحظات" value="4" min="2" max="12" value-text="4 أسطر" revealed style="justify-self: center; align-self: end"></tanrei-handle>
   </div>
@@ -25,7 +25,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle axis="both" label="تغيير حجم الرسالة" value="6" min="3" max="12" value-text="6 أسطر" revealed style="justify-self: end; align-self: end"></tanrei-handle>
   </div>
-</DemoFrame>
+</Example>
 
 يقف مقبض تغيير الحجم (handle) على حافة أو زاوية لشيء يجوز للشخص أن يغيّر حجمه: الحافة العلوية للوحة، أو الزاوية السفلية لحقل نص، أو حافة جزء من الواجهة أو معاينة. حين يُسحب يخبر بالمسافة التي تحرّكها؛ وحين يُحرَّك من لوحة المفاتيح يخبر بالخطوة المطلوبة؛ وحين يُضغط دون سحب يخبر بذلك. ولا يغيّر حجم أي شيء بنفسه أبدًا. فالحجم يحفظه ما يقف عليه المقبض، وهو الذي يقرر مقدار الخطوة، ويعيد الحجم إلى المقبض لتقرأه التقنيات المساعدة.
 
@@ -88,14 +88,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="مخفي حتى يُستخدم: مرّر المؤشر فوقه، أو انتقل إليه بالمفتاح Tab" plain>
+<Example label="مخفي حتى يُستخدم: مرّر المؤشر فوقه، أو انتقل إليه بالمفتاح Tab">
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle label="تغيير حجم اللوحة" value="30" style="justify-self: center; align-self: end"></tanrei-handle>
   </div>
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-small) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle axis="both" size="small" label="تغيير حجم التعليق" value="3" style="justify-self: end; align-self: end"></tanrei-handle>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="handle" />
 

@@ -2,20 +2,20 @@
 title: "菜单"
 description: "一小组操作或选项，显示在一个临时表面上，这个表面从请求它的元素处打开。"
 translationOf: components/menu.mdx
-sourceHash: dde889cba5c9b3c811de7ca80489ea496b14e941
+sourceHash: 0341afebeabc8702ad394d02405a1d0b83eddc75
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="menu" />
 
-<DemoFrame label="操作、复选项、单选组和破坏性操作">
+<Example label="操作、复选项、单选组和破坏性操作">
   <tanrei-menu inline open>
     <tanrei-menu-item label="复制" leading-icon="content_copy" shortcut="mod+c"></tanrei-menu-item>
     <tanrei-menu-item label="粘贴" leading-icon="content_paste" shortcut="mod+v"></tanrei-menu-item>
@@ -28,9 +28,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </tanrei-menu-group>
     <tanrei-menu-item label="删除" leading-icon="delete" destructive></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="子菜单：在旁边打开下一级的项" plain>
+<Example label="子菜单：在旁边打开下一级的项">
   <tanrei-menu inline open>
     <tanrei-menu-item label="新建文件" leading-icon="add" shortcut="mod+n"></tanrei-menu-item>
     <tanrei-submenu label="最近打开" leading-icon="history" open>
@@ -44,16 +44,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </tanrei-submenu>
     <tanrei-menu-item label="打印" leading-icon="print" shortcut="mod+p"></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="由链接组成的菜单：每一行都通向某个地方，其中一行是当前所在的页面，一行在新标签页中打开" plain>
+<Example label="由链接组成的菜单：每一行都通向某个地方，其中一行是当前所在的页面，一行在新标签页中打开">
   <tanrei-menu inline open>
     <tanrei-menu-item label="按钮" href="/zh-cn/components/button/"></tanrei-menu-item>
     <tanrei-menu-item label="列表" href="/zh-cn/components/list/" current></tanrei-menu-item>
     <tanrei-menu-item label="示例网站" href="https://example.com/" target="new" target-label="在新标签页中打开"></tanrei-menu-item>
     <tanrei-menu-item label="归档" href="/archive/" disabled></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -279,16 +279,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="辅助文本、后置图标和禁用的项" plain>
+<Example label="辅助文本、后置图标和禁用的项">
   <tanrei-menu inline open>
     <tanrei-menu-item label="分享" supporting-text="发送此文件的链接" leading-icon="share"></tanrei-menu-item>
     <tanrei-menu-item label="可离线使用" leading-icon="download" trailing-icon="cloud_done"></tanrei-menu-item>
     <tanrei-menu-item label="重命名" leading-icon="edit" disabled></tanrei-menu-item>
     <tanrei-menu-item label="删除" leading-icon="delete" destructive disabled></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="位于对勾列和图标列上方的组标题" plain>
+<Example label="位于对勾列和图标列上方的组标题">
   <tanrei-menu inline open>
     <tanrei-menu-group label="文本样式">
       <tanrei-menu-checkbox-item label="粗体" leading-icon="format_bold" checked></tanrei-menu-checkbox-item>
@@ -299,9 +299,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-menu-radio-item label="居中" value="center" leading-icon="format_align_center"></tanrei-menu-radio-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="标记列和图标列：iconSpace 的 auto（默认）和 never" plain>
+<Example label="标记列和图标列：iconSpace 的 auto（默认）和 never">
   <tanrei-menu inline open>
     <tanrei-menu-item label="剪切" leading-icon="content_cut"></tanrei-menu-item>
     <tanrei-menu-item label="复制" leading-icon="content_copy"></tanrei-menu-item>
@@ -330,9 +330,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-menu-item label="帮助"></tanrei-menu-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="标记：默认系统的方框和圆环，以及用 mark-icon 指定的单纯对勾" plain>
+<Example label="标记：默认系统的方框和圆环，以及用 mark-icon 指定的单纯对勾">
   <tanrei-menu inline open>
     <tanrei-menu-group label="显示">
       <tanrei-menu-checkbox-item label="标尺" checked></tanrei-menu-checkbox-item>
@@ -353,9 +353,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-menu-radio-item label="实际大小" value="actual"></tanrei-menu-radio-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="分隔方式：组之间的分隔线，以及间隙" plain>
+<Example label="分隔方式：组之间的分隔线，以及间隙">
   <tanrei-menu inline open separation="divider">
     <tanrei-menu-item label="撤销" shortcut="mod+z"></tanrei-menu-item>
     <tanrei-menu-item label="重做" shortcut="mod+shift+z"></tanrei-menu-item>
@@ -378,7 +378,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-menu-item label="在页面中查找" shortcut="mod+f"></tanrei-menu-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
 在默认系统中，复选项被标记成复选框的样子，单选项被标记成单选按钮的样子，无论该项是否选中都会画出来：空的方框和带对勾的填充方框，细的圆环和带填充的粗圆环。这样，处于关闭状态的选项仍然看得出是一个选项。这些只是标记列中的图形，不是控件：可以按下和聚焦的只有行本身。方框中的对勾以控件自身标记所用的较粗字重绘制，与[复选框](/zh-cn/components/checkbox/)的对勾一样。
 

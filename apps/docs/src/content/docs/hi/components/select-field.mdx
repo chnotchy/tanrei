@@ -2,20 +2,20 @@
 title: सिलेक्ट फ़ील्ड
 description: लोगों को बंद लिस्ट में से एक मान चुनने देता है, फ़ॉर्म के एक पूरे फ़ील्ड के रूप में — एक लेबल जो बता सकता है कि फ़ील्ड ज़रूरी है या वैकल्पिक, एक ट्रिगर जो चुना हुआ विकल्प दिखाता है और विकल्पों की लिस्ट खोलता है, और नीचे सहायता या त्रुटि की एक पंक्ति — जो सहायक तकनीक के लिए आपस में जुड़े हैं और फ़ॉर्म में एक कंट्रोल के रूप में हिस्सा लेते हैं।
 translationOf: components/select-field.mdx
-sourceHash: c59acbc263b452b95f47f54facb5c9bd12df3fbc
+sourceHash: 83e74269c2603748840d4fd41ecbad498dca5c0c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="select-field" />
 
-<DemoFrame label="एक ज़रूरी सिलेक्ट फ़ील्ड, और एक जो ग्रुप में बँटा है और जिसमें फ़ील्ड की पहचान के लिए एक ग्लिफ़ है" column>
+<Example label="एक ज़रूरी सिलेक्ट फ़ील्ड, और एक जो ग्रुप में बँटा है और जिसमें फ़ील्ड की पहचान के लिए एक ग्लिफ़ है" column>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="देश" required required-text="ज़रूरी" placeholder="देश चुनें" supporting-text="आपके इनवॉइस इसी देश के पते पर भेजे जाते हैं।">
     <tanrei-option value="ca">कनाडा</tanrei-option>
     <tanrei-option value="fr">फ़्रांस</tanrei-option>
@@ -28,7 +28,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-option-group label="एशिया"><tanrei-option value="Asia/Tokyo" supporting-text="UTC+9">टोक्यो</tanrei-option><tanrei-option value="Asia/Seoul" supporting-text="UTC+9">सियोल</tanrei-option></tanrei-option-group>
     <tanrei-option-group label="यूरोप"><tanrei-option value="Europe/Lisbon" supporting-text="UTC+0">लिस्बन</tanrei-option><tanrei-option value="Europe/Berlin" supporting-text="UTC+1">बर्लिन</tanrei-option></tanrei-option-group>
   </tanrei-select-field>
-</DemoFrame>
+</Example>
 
 सिलेक्ट फ़ील्ड फ़ॉर्म में तब इस्तेमाल करें जब किसी ऐसी लिस्ट में से एक मान चुनना हो जो पहले से तय और बंद है: देश, टाइम ज़ोन, प्लान। यह आम स्थिति के लिए है, इस्तेमाल के लिए तैयार: एक लेबल, वह बॉक्स जो चुना हुआ विकल्प दिखाता है और लिस्ट खोलता है, सहायता की एक पंक्ति, और उस मान के लिए शब्द जो माना नहीं गया।
 
@@ -104,14 +104,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="वही फ़ील्ड हाथ से लिखा हुआ: एक फ़ील्ड, जिसके भीतर एक सिलेक्ट है" column>
+<Example label="वही फ़ील्ड हाथ से लिखा हुआ: एक फ़ील्ड, जिसके भीतर एक सिलेक्ट है" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="देश" required required-text="ज़रूरी" supporting-text="आपके इनवॉइस इसी देश के पते पर भेजे जाते हैं।">
     <tanrei-select placeholder="देश चुनें">
       <tanrei-option value="jp">जापान</tanrei-option>
       <tanrei-option value="ke">केन्या</tanrei-option>
     </tanrei-select>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 एक स्तर नीचे तब जाएँ जब आपको ऐसी व्यवस्था चाहिए जो सिलेक्ट फ़ील्ड नहीं देता:
 
@@ -126,7 +126,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="एक अक्षम विकल्प के साथ सहायक टेक्स्ट, वैकल्पिक, एक त्रुटि, सिर्फ़ पढ़ने के लिए और अक्षम" plain column>
+<Example label="एक अक्षम विकल्प के साथ सहायक टेक्स्ट, वैकल्पिक, एक त्रुटि, सिर्फ़ पढ़ने के लिए और अक्षम" column>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="प्लान" value="team">
     <tanrei-option value="free" supporting-text="एक प्रोजेक्ट, कम्यूनिटी से सहायता">मुफ़्त</tanrei-option>
     <tanrei-option value="team" supporting-text="असीमित प्रोजेक्ट, साझा भूमिकाएँ">टीम</tanrei-option>
@@ -144,16 +144,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="देश" value="jp" disabled>
     <tanrei-option value="jp">जापान</tanrei-option><tanrei-option value="ke">केन्या</tanrei-option>
   </tanrei-select-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Filled और outlined: फ़ील्ड का लेबल सिलेक्ट के बॉक्स में फ़्लोट होता है, और ज़रूरी फ़ील्ड के लिए तारांकन आता है" system="m3-like" plain column>
+<Example label="Filled और outlined: फ़ील्ड का लेबल सिलेक्ट के बॉक्स में फ़्लोट होता है, और ज़रूरी फ़ील्ड के लिए तारांकन आता है" system="m3-like" column>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="देश" value="jp" supporting-text="आपके इनवॉइस इसी देश के पते पर भेजे जाते हैं।">
     <tanrei-option value="jp">जापान</tanrei-option><tanrei-option value="ke">केन्या</tanrei-option>
   </tanrei-select-field>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="देश" required required-text="ज़रूरी">
     <tanrei-option value="jp">जापान</tanrei-option><tanrei-option value="ke">केन्या</tanrei-option>
   </tanrei-select-field>
-</DemoFrame>
+</Example>
 
 ### हर सदस्य क्या देता है
 

@@ -2,21 +2,21 @@
 title: ドロップゾーン
 description: 画面の任意の部分を包み、その上のどこにでもファイルをドロップできるようにします。中にあるものは、すべてこれまでどおりに動きます。ファイルがドラッグされてくるまで何も描かず、ドラッグされると領域全体を 1 つのメッセージで覆い、受け取ったファイルと断ったファイルをプロダクトに渡します。
 translationOf: components/drop-zone.mdx
-sourceHash: a96e90c3c5f7b4c3242c447e16ce8a353e6d79ca
+sourceHash: 51bab5267e5302b31899d5d17db28ab0709fbddb
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 
 ## 概要
 
 <ComponentAvailability name="drop-zone" />
 
-<DemoFrame label="ドロップゾーンで包んだ動画の画面。コンピューターからファイルをドラッグして、画面のどこかに重ねてください。ドロップできることを、画面全体が示します。ドロップしても、ここでは何も変わりません。このページはファイルを保持しないためです。" column>
+<Example label="ドロップゾーンで包んだ動画の画面。コンピューターからファイルをドラッグして、画面のどこかに重ねてください。ドロップできることを、画面全体が示します。ドロップしても、ここでは何も変わりません。このページはファイルを保持しないためです。" column>
   <tanrei-drop-zone class="not-content" style="inline-size: 30rem; max-inline-size: 100%; block-size: 16rem; border-radius: var(--tanrei-sys-shape-corner-medium)" multiple accept="video/*,image/*" drop-text="ドロップして動画をアップロード" refusing-text="アップロードできるのは動画と画像だけです" dropped-text="{count} 個のファイルを受け取りました" refused-text="{count} 個のファイルを受け取れませんでした">
     <div style="box-sizing: border-box; block-size: 100%; display: flex; flex-direction: column; gap: 0.75rem; padding: 1rem; background: var(--tanrei-sys-color-surface-container-low); border-radius: inherit">
       <tanrei-file-picker multiple accept="video/*,image/*" constraints-text="動画または画像">
@@ -27,7 +27,7 @@ import Callout from '../../../../components/Callout.astro';
       <span>舞台裏 · 12:47</span>
     </div>
   </tanrei-drop-zone>
-</DemoFrame>
+</Example>
 
 ドロップゾーンは、画面全体、またはその任意の部分を、ファイルをドロップできる場所に変えます。書類の一覧、動画のライブラリ、会話、アプリのメイン領域を包んで使います。中にあるものは、すべてこれまでどおりに動きます。ボタン、テーブル、フィールドは、ゾーンがないときと同じように押され、スクロールされ、キーボードで操作されます。ゾーンは、ホバーも、押下も、フォーカスの停止位置も、ロールも加えません。
 

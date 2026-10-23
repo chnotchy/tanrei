@@ -2,27 +2,27 @@
 title: Entrada de color
 description: La caja en la que se define un color (una muestra de él, el valor como texto que se puede leer, escribir y pegar, y un botón que pide un selector), sin fila de etiqueta, ayuda ni texto de error propios. Para una fila o una columna que ya da nombre al color, o dentro de un campo que el producto compone por su cuenta.
 translationOf: components/color-input.mdx
-sourceHash: 1832342749e78a62e8352e9c60bbc9bace7885d9
+sourceHash: 0999afc891925277301cd2b28ed9cdb4fb54d9d0
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="color-input" />
 
-<DemoFrame label="Sin nada más: las filas de una lista de tonos, cada una con el nombre que le da su fila" column>
+<Example label="Sin nada más: las filas de una lista de tonos, cada una con el nombre que le da su fila" column>
   <div class="not-content" style="display: grid; grid-template-columns: auto 14rem; align-items: center; gap: 0.5rem 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
     <span>Tono 40</span>
     <tanrei-color-input label="Primario, tono 40" value="#0f766e" picker picker-label="Elegir el color de Primario, tono 40"></tanrei-color-input>
     <span>Tono 80</span>
     <tanrei-color-input label="Primario, tono 80" value="#5eead4" picker picker-label="Elegir el color de Primario, tono 80"></tanrei-color-input>
   </div>
-</DemoFrame>
+</Example>
 
 Una entrada de color es la caja de un [campo de color](/es/components/color-field/), sola: el contenedor, la muestra, el valor como texto y el botón del selector. No tiene fila de etiqueta encima, ni ayuda ni texto de error debajo.
 
@@ -95,29 +95,29 @@ Un campo alrededor de una entrada de color es un campo de color escrito por exte
 </tanrei-field>
 ```
 
-<DemoFrame label="Un campo con una entrada de color dentro: la misma imagen que un campo de color" column>
+<Example label="Un campo con una entrada de color dentro: la misma imagen que un campo de color" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Color de marca" required required-text="Obligatorio" supporting-text="Seis dígitos hexadecimales, como #0f766e.">
     <tanrei-color-input value="#0f766e" invalid-text="Introduce seis dígitos hexadecimales, como #0f766e." picker picker-label="Elegir color"></tanrei-color-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 La entrada le dice a su campo lo que solo ella sabe. La ayuda del campo empieza donde empieza el texto del valor, después de la muestra. Una entrada filled u outlined dibuja ella misma la etiqueta del campo, flotando en la caja, de modo que el campo no dibuja ninguna fila de etiqueta. Un texto confirmado que no es un color pone el campo en error con el `invalidText` de la entrada.
 
 ## Especificaciones
 
-<DemoFrame label="Entradas sin nada más: vacía, blanca, negra, en error, deshabilitada, y grande con su botón del selector" plain column>
+<Example label="Entradas sin nada más: vacía, blanca, negra, en error, deshabilitada, y grande con su botón del selector" column>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Color de acento"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Fondo de la página" value="#ffffff"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Texto" value="#000000"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Color de marca" value="#fde047" error></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Color de marca" value="#0f766e" disabled picker picker-label="Elegir color"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" size="large" label="Color de marca" value="#0f766e" picker picker-label="Elegir color"></tanrei-color-input>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Filled y outlined, sin nada más: la etiqueta de la propia entrada flota en la caja" system="m3-like" plain column>
+<Example label="Filled y outlined, sin nada más: la etiqueta de la propia entrada flota en la caja" system="m3-like" column>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="Color de marca" value="#0f766e"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="Color de marca"></tanrei-color-input>
-</DemoFrame>
+</Example>
 
 ### Qué es de la entrada y qué es del campo
 

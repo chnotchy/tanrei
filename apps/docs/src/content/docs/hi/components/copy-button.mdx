@@ -2,25 +2,25 @@
 title: कॉपी बटन
 description: वह Button जो दिए गए टेक्स्ट को एक बार दबाने पर कॉपी करता है और इसकी पुष्टि करता है, या बताता है कि वह ऐसा नहीं कर सका। इसे Button बनाता है, और डिफ़ॉल्ट रूप से यह लेआउट को कभी नहीं हिलाता।
 translationOf: components/copy-button.mdx
-sourceHash: e6b7e0e12c613261bd9ecfb7a40acc453aa9118b
+sourceHash: 4ef8bacbc2d1f765fcf598423e9d01ebbca9a96d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="copy-button" />
 
-<DemoFrame label="कोई एक दबाएँ: ग्लिफ़ एक पल के लिए चेक बन जाता है">
+<Example label="कोई एक दबाएँ: ग्लिफ़ एक पल के लिए चेक बन जाता है">
   <tanrei-copy-button text="npm install @tanrei/web" label="कॉपी करें" copied-label="कॉपी हो गया" failed-label="कॉपी नहीं हो सका"></tanrei-copy-button>
   <tanrei-copy-button variant="tonal" text="#30a3f0" label="रंग कॉपी करें" copied-label="कॉपी हो गया" failed-label="कॉपी नहीं हो सका"></tanrei-copy-button>
   <tanrei-copy-button icon-only="false" variant="outlined" text="https://example.com/s/4f2a" label="लिंक कॉपी करें" copied-label="लिंक कॉपी हो गया" failed-label="कॉपी नहीं हो सका"></tanrei-copy-button>
   <tanrei-copy-button icon-only="false" variant="filled" text="sk-test-0000" label="कुंजी कॉपी करें" copied-label="कॉपी हो गया" failed-label="कॉपी नहीं हो सका"></tanrei-copy-button>
-</DemoFrame>
+</Example>
 
 कॉपी बटन उस चीज़ के बग़ल में इस्तेमाल करें जिसे व्यक्ति कहीं और पेस्ट करेगा: कोई कमांड, कुंजी, पता या रंग का मान। यह ब्राउज़र के जवाब का इंतज़ार करता है, दो सेकंड के लिए एक चेक (या त्रुटि का निशान) दिखाता है, और सहायक तकनीक को शब्दों में बताता है। [कोड ब्लॉक](/hi/components/code-block/) इसे आपके लिए ख़ुद रखता है।
 
@@ -83,22 +83,22 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 
 ## स्पेक
 
-<DemoFrame label="साइज़ और वेरिएंट Button के हैं" plain>
+<Example label="साइज़ और वेरिएंट Button के हैं">
   <tanrei-copy-button size="small" text="small" label="कॉपी करें" copied-label="कॉपी हो गया" failed-label="कॉपी नहीं हो सका"></tanrei-copy-button>
   <tanrei-copy-button text="medium" label="कॉपी करें" copied-label="कॉपी हो गया" failed-label="कॉपी नहीं हो सका"></tanrei-copy-button>
   <tanrei-copy-button size="large" text="large" label="कॉपी करें" copied-label="कॉपी हो गया" failed-label="कॉपी नहीं हो सका"></tanrei-copy-button>
   <tanrei-copy-button variant="elevated" text="elevated" label="कॉपी करें" copied-label="कॉपी हो गया" failed-label="कॉपी नहीं हो सका"></tanrei-copy-button>
   <tanrei-copy-button disabled text="disabled" label="कॉपी करें" copied-label="कॉपी हो गया" failed-label="कॉपी नहीं हो सका"></tanrei-copy-button>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="चौड़ाई तीनों टेक्स्ट में से सबसे लंबे के लिए रखी जाती है" plain>
+<Example label="चौड़ाई तीनों टेक्स्ट में से सबसे लंबे के लिए रखी जाती है">
   <tanrei-copy-button icon-only="false" variant="outlined" text="sk-test-0000" label="कॉपी करें" copied-label="क्लिपबोर्ड पर कॉपी हो गया" failed-label="कॉपी नहीं हो सका"></tanrei-copy-button>
   <tanrei-button variant="text">एक पड़ोसी जो नहीं हिलता</tanrei-button>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="label-width fit के साथ चौड़ाई शब्दों के साथ बदलती है" plain>
+<Example label="label-width fit के साथ चौड़ाई शब्दों के साथ बदलती है">
   <tanrei-copy-button icon-only="false" label-width="fit" variant="outlined" text="sk-test-0000" label="कॉपी करें" copied-label="क्लिपबोर्ड पर कॉपी हो गया" failed-label="कॉपी नहीं हो सका"></tanrei-copy-button>
-</DemoFrame>
+</Example>
 
 `label-width="fit"` के साथ लेबल वाला रूप उतना ही चौड़ा होता है जितने चौड़े उसके दिखाए गए शब्द हैं। जब शब्द बदलते हैं, तो उसकी चौड़ाई `comp.copy-button.motion.resize-duration` में धीरे-धीरे नए शब्दों की चौड़ाई तक जाती है, और जहाँ मोशन कम किया गया है वहाँ तुरंत बदलती है। डिफ़ॉल्ट `widest` ही रहता है, क्योंकि जो कंट्रोल ठीक उसी समय हिलता है जब कोई उसे दबाने जा रहा हो, वह ग़लती से दब जाता है। `fit` सिर्फ़ वहीं इस्तेमाल करें जहाँ बटन के बाद ऐसा कुछ न हो जिसे व्यक्ति अगली बार दबा सकता है, जैसे किसी पंक्ति के आख़िर में।
 

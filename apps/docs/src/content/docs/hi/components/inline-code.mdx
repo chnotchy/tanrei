@@ -2,20 +2,20 @@
 title: इनलाइन कोड
 description: वाक्य के भीतर कोड का एक टुकड़ा, कोड के टाइपफ़ेस में और अपने आसपास के टेक्स्ट के साइज़ पर, बहुत हल्के फ़िल पर या सादा। यह टेक्स्ट है, कभी कंट्रोल नहीं।
 translationOf: components/inline-code.mdx
-sourceHash: a781f6f71d206aae52e9b17504a2139e3ab309d7
+sourceHash: e115b8a04119a448b5d648d2bf8c5369723b67c9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="inline-code" />
 
-<DemoFrame label="वाक्य के भीतर, हेडिंग में, और plain" column>
+<Example label="वाक्य के भीतर, हेडिंग में, और plain" column>
   <div class="tanrei-not-prose" style="max-inline-size: 32rem">
     <p style="margin: 0">
       जिस फ़ोल्डर में <code class="tanrei-code" translate="no" spellcheck="false">package.json</code> है, उसमें
@@ -29,7 +29,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       Plain: <code class="tanrei-code" data-variant="plain" translate="no" spellcheck="false">comp.button.container.shape</code>
     </p>
   </div>
-</DemoFrame>
+</Example>
 
 इनलाइन कोड वाक्य के भीतर कोड की किसी चीज़ का नाम लेता है: कोई कमांड, प्रॉपर्टी, फ़ाइल या मान। पढ़ने और कॉपी करने के लिए कोड की पंक्तियाँ [कोड ब्लॉक](/hi/components/code-block/) हैं। दबाई जाने वाली कुंजियाँ [कीबोर्ड शॉर्टकट](/hi/components/keyboard-shortcut/) हैं, जो मॉडिफ़ायर के नाम पढ़कर सुनाता है।
 
@@ -75,15 +75,15 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 
 ## स्पेक
 
-<DemoFrame label="यह रैप होता है, और हर टुकड़ा अपना फ़िल रखता है" plain>
+<Example label="यह रैप होता है, और हर टुकड़ा अपना फ़िल रखता है">
   <div class="tanrei-not-prose" style="max-inline-size: 22rem">
     <p style="margin: 0">
       टोकन <code class="tanrei-code" translate="no" spellcheck="false">tanrei.comp.navigation-drawer.item.selected.hovered.state-layer.color</code> इस पंक्ति से लंबा है। यह वहाँ टूटता है जहाँ पंक्ति ख़त्म होती है, और कभी काटा नहीं जाता।
     </p>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="लिंक में, strong टेक्स्ट में, और कोड का एक कॉलम" plain column>
+<Example label="लिंक में, strong टेक्स्ट में, और कोड का एक कॉलम" column>
   <div class="tanrei-not-prose">
     <p style="margin: 0">
       <a class="tanrei-link" href="../button/"><code class="tanrei-code">Button</code> का रेफ़रेंस</a> देखें। <strong>निकलने के अकेले रास्ते पर कभी <code class="tanrei-code">disabled</code> सेट न करें।</strong>
@@ -94,7 +94,7 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
       <code class="tanrei-code">size</code><code class="tanrei-code">medium</code>
     </div>
   </div>
-</DemoFrame>
+</Example>
 
 इनलाइन कोड का अपना कोई साइज़ नहीं है। उसका फ़ॉन्ट साइज़ उस टेक्स्ट का साइज़ है जिसमें वह रखा है, एक अनुपात (`comp.inline-code.label.scale`) से गुणा किया हुआ, जो कोड के टाइपफ़ेस और टेक्स्ट के टाइपफ़ेस को बराबर दिखाता है। बॉडी टेक्स्ट में यह 14 के बग़ल में 13 है। हेडिंग में यह हेडिंग का अपना साइज़ है।
 

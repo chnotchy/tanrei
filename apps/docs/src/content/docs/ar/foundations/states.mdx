@@ -2,12 +2,12 @@
 title: حالات التفاعل
 description: طبقات الحالة، ومؤشر التركيز المكوَّن من فجوة ثم حلقة، وكيف تُرسم حالة التعطيل.
 translationOf: foundations/states.mdx
-sourceHash: 473427a122fbba6ee446b96eb41a5d60b045fd6a
+sourceHash: 202af5556b4e50ff88d6b12ec2714312ffd9176d
 ---
 
 import Callout from '../../../../components/Callout.astro';
 import StateTokens from '../../../../components/tokens/StateTokens.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 تشترك المكوّنات التفاعلية في مفردات واحدة للحالات: التفعيل (enabled)، والتحويم (hovered)، والتركيز (focused)، والضغط (pressed)، والسحب (dragged)، والتحديد (selected)، والتنشيط (activated)، والخطأ (error)، والتحميل (loading)، والتعطيل (disabled). تسرد مواصفة المكوّن الحالات التي يدعمها، وعلى كل منصة أن تنفّذها كلها.
 
@@ -26,13 +26,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 حوِّم فوق الأزرار التالية واضغطها لترى الطبقة على حاويات مختلفة:
 
-<DemoFrame label="طبقات الحالة">
+<Example label="طبقات الحالة">
   <tanrei-button variant="filled">Filled</tanrei-button>
   <tanrei-button variant="tonal">Tonal</tanrei-button>
   <tanrei-button variant="elevated">Elevated</tanrei-button>
   <tanrei-button variant="outlined">Outlined</tanrei-button>
   <tanrei-button variant="text">Text</tanrei-button>
-</DemoFrame>
+</Example>
 
 ## التركيز: فجوة ثم حلقة
 

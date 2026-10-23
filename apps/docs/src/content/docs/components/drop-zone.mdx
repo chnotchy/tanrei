@@ -7,14 +7,14 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 import Callout from '../../../components/Callout.astro';
 
 ## Overview
 
 <ComponentAvailability name="drop-zone" />
 
-<DemoFrame label="A screen of videos inside a drop zone. Drag a file from your computer anywhere onto it: the whole screen shows that it can be dropped. Dropping changes nothing here: the page keeps no file." column>
+<Example label="A screen of videos inside a drop zone. Drag a file from your computer anywhere onto it: the whole screen shows that it can be dropped. Dropping changes nothing here: the page keeps no file." column>
   <tanrei-drop-zone class="not-content" style="inline-size: 30rem; max-inline-size: 100%; block-size: 16rem; border-radius: var(--tanrei-sys-shape-corner-medium)" multiple accept="video/*,image/*" drop-text="Drop videos to upload them" refusing-text="Only videos and pictures can be uploaded" dropped-text="{count} files received" refused-text="{count} files could not be received">
     <div style="box-sizing: border-box; block-size: 100%; display: flex; flex-direction: column; gap: 0.75rem; padding: 1rem; background: var(--tanrei-sys-color-surface-container-low); border-radius: inherit">
       <tanrei-file-picker multiple accept="video/*,image/*" constraints-text="Videos or pictures">
@@ -25,7 +25,7 @@ import Callout from '../../../components/Callout.astro';
       <span>Behind the scenes · 12:47</span>
     </div>
   </tanrei-drop-zone>
-</DemoFrame>
+</Example>
 
 A drop zone turns a whole screen, or any part of it, into a place where files can be dropped. Wrap it around a list of documents, a library of videos, a conversation or your app's main region. Everything inside keeps working as before: buttons, tables and fields are pressed, scrolled and reached by keyboard as if the zone were not there. The zone adds no hover, no press, no focus stop and no role.
 

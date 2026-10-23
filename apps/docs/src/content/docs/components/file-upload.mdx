@@ -7,7 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 import Callout from '../../../components/Callout.astro';
 import { demoPicture } from '../../../lib/demo-picture';
 
@@ -15,14 +15,14 @@ import { demoPicture } from '../../../lib/demo-picture';
 
 <ComponentAvailability name="file-upload" />
 
-<DemoFrame label="A file upload in each layout. Choose a file: it is listed, and can be removed. Nothing is sent." column>
+<Example label="A file upload in each layout. Choose a file: it is listed, and can be removed. Nothing is sent." column>
   <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="Attachment" accept=".pdf" constraints-text="PDF, up to 10 MB" max-size="10000000" empty-text="No file chosen" remove-label="Remove {name}" type-error-text="Only PDF files can be added." size-error-text="Larger than 10 MB.">
     <tanrei-button slot="trigger" variant="outlined">Choose a file</tanrei-button>
   </tanrei-file-upload>
   <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="Attachments" accept=".pdf,image/png" max-size="10000000" drop-text="Drag files here, or choose them" constraints-text="PDF or PNG, up to 10 MB each" remove-label="Remove {name}" type-error-text="Only PDF and PNG files can be added." size-error-text="Larger than 10 MB.">
     <tanrei-button slot="trigger" variant="outlined">Choose files</tanrei-button>
   </tanrei-file-upload>
-</DemoFrame>
+</Example>
 
 A file upload is two things in one place: the way to choose files, and the list of what was chosen. It is the ordinary case, ready to use in a form.
 
@@ -226,14 +226,14 @@ The same thing written by hand from its two members is the same picture, with th
 </ul>
 ```
 
-<DemoFrame label="The same thing written by hand: a file picker, and a list of the page's own with one file item" column>
+<Example label="The same thing written by hand: a file picker, and a list of the page's own with one file item" column>
   <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="Attachments" multiple accept=".pdf" max-files="5" constraints-text="PDF, 5 files at most">
     <tanrei-button slot="trigger" variant="outlined">Choose files</tanrei-button>
   </tanrei-file-picker>
   <ul class="not-content" aria-label="Attachments" style="list-style: none; margin: 0; padding: 0; inline-size: 22.5rem; max-inline-size: 100%">
     <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="Uploading" progress="0.4" remove-label="Remove {name}" retry-label="Retry {name}"></tanrei-file-item></li>
   </ul>
-</DemoFrame>
+</Example>
 
 A file's row is the same element alone and inside a file upload. What the hand-made version does not get is the state the file upload holds:
 
@@ -255,7 +255,7 @@ Go one level down when you need an arrangement the file upload does not offer:
 
 ## Specs
 
-<DemoFrame label="Rows given by the product, one of each status: waiting, sent to 40%, under way, done, failed and retryable, failed for good" plain column>
+<Example label="Rows given by the product, one of each status: waiting, sent to 40%, under way, done, failed and retryable, failed for good" column>
   <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple label="Attachments" constraints-text="PDF or PNG, up to 10 MB each" remove-label="Remove {name}" retry-label="Retry {name}">
     <tanrei-button slot="trigger" variant="outlined">Choose files</tanrei-button>
     <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status-text="Waiting"></tanrei-file-item>
@@ -265,16 +265,16 @@ Go one level down when you need an arrangement the file upload does not offer:
     <tanrei-file-item value="e" name="site-photo.png" size-text="6.8 MB" status="error" error-text="The connection was lost." retryable></tanrei-file-item>
     <tanrei-file-item value="f" name="scan-archive.pdf" size-text="48 MB" status="error" error-text="Larger than 10 MB."></tanrei-file-item>
   </tanrei-file-upload>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="The same file upload with tiles: every file a box with its picture, and the name beneath" plain column>
+<Example label="The same file upload with tiles: every file a box with its picture, and the name beneath" column>
   <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple item-form="tile" item-preview label="Photos" constraints-text="Pictures, up to 5 MB each" remove-label="Remove {name}" retry-label="Retry {name}">
     <tanrei-button slot="trigger" variant="outlined">Choose photos</tanrei-button>
     <tanrei-file-item value="a" name="entrance.jpeg" preview-src={demoPicture}></tanrei-file-item>
     <tanrei-file-item value="b" name="floor-plan.png" preview-src={demoPicture} status="uploading" progress="0.4"></tanrei-file-item>
     <tanrei-file-item value="c" name="survey.pdf"></tanrei-file-item>
   </tanrei-file-upload>
-</DemoFrame>
+</Example>
 
 ### What each member gives
 
@@ -364,11 +364,11 @@ With `rows="own"` the file upload reorders the files it keeps itself, submits th
 
 The words are the [list's](/components/list/): `drag-handle-label` (`Reorder {label}`, filled with the file's name), the four move words and the three sentences.
 
-<DemoFrame label="A reorderable file upload that keeps its own files. Choose some files, then drag a row, or use its handle’s menu or the keyboard. Nothing is sent." column>
+<Example label="A reorderable file upload that keeps its own files. Choose some files, then drag a row, or use its handle’s menu or the keyboard. Nothing is sent." column>
   <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" multiple reorderable label="Attachments" remove-label="Remove {name}" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to top" move-before-label="Move up" move-after-label="Move down" move-to-end-label="Move to bottom" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}">
     <tanrei-button slot="trigger" variant="outlined">Choose files</tanrei-button>
   </tanrei-file-upload>
-</DemoFrame>
+</Example>
 
 ```html
 <tanrei-file-upload name="attachments" multiple reorderable remove-label="Remove {name}"

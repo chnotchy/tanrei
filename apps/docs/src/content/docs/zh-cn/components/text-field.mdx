@@ -2,14 +2,14 @@
 title: "文本字段"
 description: "让用户输入和编辑文本——单行，或者随文本增高、可手动调整大小的多行——也可以按区域设置的格式逐个单位地输入日期或时间，或者输入代码并按写下的样子原样保存；它带有可以说明必填或选填的标签，以及可选的图标、前缀和后缀、辅助文本、字符计数和选择器按钮。"
 translationOf: components/text-field.mdx
-sourceHash: 719a16c2a252ed9648b17821b91131dcc18c87a3
+sourceHash: 11ca82869cc7b493be699f28b68da9e9801b3dec
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
@@ -19,10 +19,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 本页描述的是规格当前所定的文本字段：`stacked` 变体，它是默认变体，标签位于文本字段上方；`filled` 和 `outlined` 只为 Material 和 cupertino 预设保留；高度为 32、40 和 56（标签浮在里面的 filled 或 outlined 文本字段为 40、48 和 56）；带选择器按钮的日期和时间类型；随文本增高、或用调整手柄调整大小的多行文本字段（`resize`）；按分段逐个单位输入的日期或时间；以及把文本字段标记为必填或选填的 `required` 和 `optional`。Web 组件已经全部做到，演示也是如此。文本字段还可以保存代码（`type="code"`，以及决定代码行是否换行的 `wrap`）：Web 已经实现，其他平台都还没有。文本字段是包住一个文本输入框的字段，也就是本页描述的样子：Web 也已经实现，并且在 Web 上 `required` 属性（attribute）已经不存在了。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是上一版——默认为 outlined，高度为 36 和 40，`required` 标志不绘制任何标记，没有 `stacked` 变体，没有日期或时间类型，没有选择器按钮，也没有调整大小的模式——它们的示例展示的也是那一版。
 :::
 
-<DemoFrame label="默认的 Stacked：一个必填的文本字段，以及带选择器按钮的日期" column>
+<Example label="默认的 Stacked：一个必填的文本字段，以及带选择器按钮的日期" column>
   <tanrei-text-field label="邮箱" type="email" required required-text="必填" supporting-text="仅用于登录。"></tanrei-text-field>
   <tanrei-text-field label="开始日期" type="date" locale="zh-CN" value="2026-09-27" picker picker-label="选择开始日期" segment-empty-text="未填写"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
 表单里凡是要填文本的地方，都使用文本字段：它是最普通的情形，拿来就能用，带有标签、方框、一行帮助文本、值有误时的文字，以及计数。
 
@@ -211,11 +211,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="手写出来的同一个字段：里面放着一个文本输入框的字段" column>
+<Example label="手写出来的同一个字段：里面放着一个文本输入框的字段" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="邮箱" required required-text="必填" supporting-text="仅用于登录。">
     <tanrei-text-input type="email"></tanrei-text-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 需要文本字段没有提供的排布方式时，就往下走一层：
 
@@ -236,16 +236,16 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 ## 规格
 
-<DemoFrame label="错误、禁用、只读、前后缀和计数器" plain column>
+<Example label="错误、禁用、只读、前后缀和计数器" column>
   <tanrei-text-field label="邮箱" value="ada@" error error-text="请输入完整的邮箱地址。"></tanrei-text-field>
   <tanrei-text-field label="邮箱" value="ada@example.com" disabled></tanrei-text-field>
   <tanrei-text-field label="邮箱" value="ada@example.com" readonly></tanrei-text-field>
   <tanrei-text-field label="金额" type="number" value="120" prefix-text="$" suffix-text="USD"></tanrei-text-field>
   <tanrei-text-field label="显示名称" value="李华" maxlength="40" counter></tanrei-text-field>
   <tanrei-text-field size="large" label="邮箱" value="ada@example.com"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="类型：密码、搜索、数字、电话和 URL" plain column>
+<Example label="类型：密码、搜索、数字、电话和 URL" column>
   <tanrei-text-field label="密码" type="password" value="correct horse" autocomplete="current-password"></tanrei-text-field>
   <tanrei-text-field label="搜索" label-hidden type="search" placeholder="搜索组件">
     <span slot="leading-icon">search</span>
@@ -253,44 +253,44 @@ input.addEventListener('input', () => (field.countText = input.countText));
   <tanrei-text-field label="数量" type="number" value="12"></tanrei-text-field>
   <tanrei-text-field label="电话" type="tel" autocomplete="tel" placeholder="138 0000 0000"></tanrei-text-field>
   <tanrei-text-field label="网站" type="url" placeholder="https://example.com"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="必填和选填：小标签，以及星号" plain column>
+<Example label="必填和选填：小标签，以及星号" column>
   <tanrei-text-field label="邮箱" type="email" required required-text="必填"></tanrei-text-field>
   <tanrei-text-field label="公司" optional optional-text="选填"></tanrei-text-field>
   <tanrei-text-field label="邮箱" type="email" required required-mark="asterisk"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="多行：随文本增高、用调整手柄调整大小（向下，以及双向）、固定" plain column>
+<Example label="多行：随文本增高、用调整手柄调整大小（向下，以及双向）、固定" column>
   <tanrei-text-field label="消息" multiline min-rows="2" max-rows="5" placeholder="输入几行试试：文本字段会增高到 5 行，之后滚动"></tanrei-text-field>
   <tanrei-text-field label="备注" multiline resize="manual" max-rows="10" resize-label="调整备注的大小"></tanrei-text-field>
   <tanrei-text-field label="描述" multiline resize="manual" resize-axis="both" resize-label="调整描述的大小"></tanrei-text-field>
   <tanrei-text-field label="地址" multiline resize="fixed" min-rows="3"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="代码：单行的匹配模式、多行的 JSON，以及不换行的代码行" plain column>
+<Example label="代码：单行的匹配模式、多行的 JSON，以及不换行的代码行" column>
   <tanrei-text-field type="code" label="匹配模式" value="tanrei.comp.button.*.container.color" supporting-text="令牌 id，* 代表任意一段。"></tanrei-text-field>
   <tanrei-text-field type="code" multiline min-rows="4" label="层" value="{&#10;  &quot;id&quot;: &quot;acme&quot;,&#10;  &quot;extends&quot;: &quot;tanrei&quot;&#10;}"></tanrei-text-field>
   <tanrei-text-field type="code" multiline no-wrap min-rows="3" label="规则" value="{ &quot;match&quot;: &quot;tanrei.comp.button.*.hovered.container.color&quot;, &quot;$value&quot;: &quot;{tanrei.sys.color.primary}&quot; }&#10;{ &quot;match&quot;: &quot;*&quot; }"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="从右到左的页面里的代码：标签和帮助文本跟随页面，代码从左侧开始" plain column>
+<Example label="从右到左的页面里的代码：标签和帮助文本跟随页面，代码从左侧开始" column>
   <div dir="rtl" lang="ar" style="display: grid; gap: 1rem;">
     <tanrei-text-field type="code" label="النمط" value="tanrei.comp.*.color" supporting-text="معرّف رمز، مع * لأي جزء."></tanrei-text-field>
     <tanrei-text-field type="code" multiline min-rows="3" label="المصادر" value="[&quot;مرحبا&quot;, &quot;acme&quot;]&#10;// تعليق: comment"></tanrei-text-field>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="分段输入的日期、时间，以及日期和时间。用 Tab、方向键和数字填写" plain column>
+<Example label="分段输入的日期、时间，以及日期和时间。用 Tab、方向键和数字填写" column>
   <tanrei-text-field label="开始日期" type="date" locale="zh-CN" picker picker-label="选择开始日期" invalid-text="请把日期填写完整。" segment-empty-text="未填写"></tanrei-text-field>
   <tanrei-text-field label="开始时间" type="time" locale="zh-CN" value="14:30" segment-empty-text="未填写"></tanrei-text-field>
   <tanrei-text-field label="出发时间" type="date-time" locale="zh-CN" value="2026-09-27T14:30" min="2026-09-01T00:00" unavailable-text="请选择 2026 年 9 月及以后的时间。" segment-empty-text="未填写"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Filled 和 Outlined：Material 预设的变体" system="m3-like" plain column>
+<Example label="Filled 和 Outlined：Material 预设的变体" system="m3-like" column>
   <tanrei-text-field variant="filled" label="邮箱" type="email" value="ada@example.com"></tanrei-text-field>
   <tanrei-text-field variant="outlined" label="邮箱" type="email" supporting-text="仅用于登录。"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
 ### 各个成员提供什么
 

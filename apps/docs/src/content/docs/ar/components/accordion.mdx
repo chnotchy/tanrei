@@ -2,20 +2,20 @@
 title: الأكورديون
 description: محتوى يُظهره صف ويخفيه في مكانه. العنصر الواحد أداة كشف مفردة، وعدة عناصر مجموعة تُفتح عناصرها كلٌّ بمفرده أو واحدًا في كل مرة.
 translationOf: components/accordion.mdx
-sourceHash: 734c02913c3de4d6bbbf30fab12414e81ab98d1b
+sourceHash: 2681abbddb5affc6cda5087c16254f1acec502a4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="accordion" />
 
-<DemoFrame label="أسئلة صفحة مساعدة: الطراز outlined، وعنصر واحد مفتوح" plain>
+<Example label="أسئلة صفحة مساعدة: الطراز outlined، وعنصر واحد مفتوح">
   <tanrei-accordion class="not-content tanrei-not-prose" variant="outlined">
     <details open>
       <summary>ما رمز التصميم؟</summary>
@@ -30,7 +30,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       بطبقة: ملف يضبط أقراص الضبط، ويضبط رموزًا مفردة حيث يحتاج المنتج إلى ذلك.
     </details>
   </tanrei-accordion>
-</DemoFrame>
+</Example>
 
 الأكورديون (accordion) يطوي أجزاء من الصفحة تحت صفوف تُظهرها وتخفيها: أجوبة صفحة مساعدة، أو أقسام شاشة إعدادات، أو الجزء المتقدم من نموذج. والعنصر الواحد وحده أداة كشف (disclosure)، وهو المكوّن نفسه. أما مجموعة الوجهات التي تُفتح داخل درج التنقل فهي مجموعة الدرج نفسه، والاختيار بين عروض لمكان واحد علامات تبويب.
 
@@ -111,7 +111,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="الكثافة compact، مع سطر ثانٍ وقيمة في النهاية: طيّات في لوحة" plain>
+<Example label="الكثافة compact، مع سطر ثانٍ وقيمة في النهاية: طيّات في لوحة">
   <tanrei-accordion class="not-content tanrei-not-prose" density="compact">
     <details open>
       <summary>النص<span data-supporting-text>المتن والتسميات والعناوين</span><span data-trailing-text>Inter, Noto Sans JP</span></summary>
@@ -126,9 +126,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       اثنتا عشرة قاعدة تأتي من الطبقات التي تحت هذه.
     </details>
   </tanrei-accordion>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="واحد مفتوح في كل مرة، وكل عنصر في حدّ خاص به" plain>
+<Example label="واحد مفتوح في كل مرة، وكل عنصر في حدّ خاص به">
   <tanrei-accordion class="not-content tanrei-not-prose" variant="outlined" separation="gap" exclusive>
     <details open>
       <summary><span class="tanrei-icon" aria-hidden="true">palette</span>الألوان</summary>
@@ -143,7 +143,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       اسمك وعنوانك وكلمة مرورك.
     </details>
   </tanrei-accordion>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="accordion" />
 

@@ -2,14 +2,14 @@
 title: "图片预览"
 description: "用户按下缩略图时，把一组图片中的一张铺满整个窗口显示，供人仔细查看：可以放大再还原，放大后可以四处移动，也可以移到下一张或上一张，直到关闭为止。"
 translationOf: components/image-preview.mdx
-sourceHash: e96ae85ed4881dbba6ec6a53785b75f08794dbf3
+sourceHash: b6cef54634494ef575b84c950accecdd5641b698
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import landscape from '../../../../../../../packages/web/test/fixtures/image-preview-landscape.png?url';
 import landscapeSmall from '../../../../../../../packages/web/test/fixtures/image-preview-landscape-thumbnail.png?url';
 import portrait from '../../../../../../../packages/web/test/fixtures/image-preview-portrait.png?url';
@@ -19,7 +19,7 @@ import square from '../../../../../../../packages/web/test/fixtures/image-previe
 
 <ComponentAvailability name="image-preview" />
 
-<DemoFrame label="页面上的三张图片：按下其中一张，可以仔细查看">
+<Example label="页面上的三张图片：按下其中一张，可以仔细查看">
   <tanrei-card class="not-content" interactive flush variant="outlined" label="放大：一张宽 1600、高 1000 的图" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 0, open: true })"><img src={landscapeSmall} alt="" width="160" height="100" style="display: block" /></tanrei-card>
   <tanrei-card class="not-content" interactive flush variant="outlined" label="放大：一张宽 1000、高 1500 的图" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 1, open: true })"><img src={portrait} alt="" width="67" height="100" style="display: block" /></tanrei-card>
   <tanrei-card class="not-content" interactive flush variant="outlined" label="放大：一张宽 1200、高 1200 的图" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 2, open: true })"><img src={square} alt="" width="100" height="100" style="display: block" /></tanrei-card>
@@ -28,7 +28,7 @@ import square from '../../../../../../../packages/web/test/fixtures/image-previe
     <tanrei-image-preview-item src={portrait} width="1000" height="1500" alt="一张宽 1000、高 1500 的图：一个边框、两条对角线和一个圆环"></tanrei-image-preview-item>
     <tanrei-image-preview-item src={square} width="1200" height="1200" alt="一张宽 1200、高 1200 的图：一个边框、两条对角线和一个圆环"></tanrei-image-preview-item>
   </tanrei-image-preview>
-</DemoFrame>
+</Example>
 
 如果页面讲的是别的内容，因而只把图片显示得很小，而用户又需要暂时把它放大来看，就使用图片预览：文章里的照片、待售商品的图片、对话里的附件、指南里的屏幕截图。用户按下缩略图，看完，然后回到原来的位置。
 

@@ -2,14 +2,14 @@
 title: टेबल
 description: पंक्तियों और कॉलम वाला डेटा दिखाती है, नाम वाले कॉलम, वैकल्पिक पंक्ति हेडर, कैप्शन और फ़ुटर पंक्तियों के साथ। जब वह अपनी जगह में नहीं समाती तो अपने ही बॉक्स में स्क्रॉल होती है। कॉलम का हेडर पंक्तियों को अपने क्रम में माँग सकता है और पंक्तियाँ चुनी जा सकती हैं; टेबल ख़ुद कभी सॉर्ट नहीं करती।
 translationOf: components/table.mdx
-sourceHash: 388549568f8a91ecb1e49333233b422d57daae1f
+sourceHash: 88d81c83a94e4a8312f1b69b16fb0422435b036d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import SortedByThePage from '../../../../components/SortedByThePage.astro';
 import CountedByThePage from '../../../../components/CountedByThePage.astro';
 
@@ -17,7 +17,7 @@ import CountedByThePage from '../../../../components/CountedByThePage.astro';
 
 <ComponentAvailability name="table" />
 
-<DemoFrame label="पंक्ति हेडर, अंत की ओर संख्याएँ, एक फ़ुटर पंक्ति">
+<Example label="पंक्ति हेडर, अंत की ओर संख्याएँ, एक फ़ुटर पंक्ति">
   <tanrei-table class="tanrei-not-prose" row-headers>
     <table>
       <caption>स्थिति और प्लैटफ़ॉर्म के अनुसार कंपोनेंट</caption>
@@ -34,7 +34,7 @@ import CountedByThePage from '../../../../components/CountedByThePage.astro';
       </tfoot>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 टेबल उस डेटा के लिए है जिसके दो आयाम हैं: क़ीमतों की सूची, प्लान की तुलना, सेटिंग की सूची जिसमें उनके टाइप और डिफ़ॉल्ट हों, कई प्लैटफ़ॉर्म पर कई चीज़ों की स्थिति, वे रिकॉर्ड जिन पर व्यक्ति काम करता है। कॉलम का हेडर पंक्तियों को अपने क्रम में माँग सकता है, बिना पंक्तियों की टेबल आपका ख़ाली स्टेट दिखाती है, और पंक्तियों के नीचे की स्थिति पंक्ति में आपका वाक्य और आपका पेजिनेशन रहता है। पंक्तियाँ चुनी जा सकती हैं, हर पंक्ति अपने चेकबॉक्स से, या रेडियो बटन से सिर्फ़ एक पंक्ति, और जो टेबल अपनी पंक्तियों का इंतज़ार कर रही है, वह बताती है कि वह व्यस्त है। टेबल ख़ुद कभी सॉर्ट नहीं करती, फ़िल्टर नहीं करती, डेटा नहीं लाती और पेज में नहीं बँटती: वह वही पंक्तियाँ बनाती है जो उसे दी जाती हैं, उसी क्रम में जिसमें वे दी जाती हैं। वह कॉलम का साइज़ नहीं बदलती।
 
@@ -119,7 +119,7 @@ import CountedByThePage from '../../../../components/CountedByThePage.astro';
 
 <SortedByThePage />
 
-<DemoFrame label="कोई हेडर दबाएँ: टेबल माँगती है, और यह पेज पंक्तियों को क्रम में रखता है" plain>
+<Example label="कोई हेडर दबाएँ: टेबल माँगती है, और यह पेज पंक्तियों को क्रम में रखता है">
   <tanrei-table class="tanrei-not-prose" data-docs-sorts>
     <table>
       <caption>प्रॉडक्ट</caption>
@@ -134,7 +134,7 @@ import CountedByThePage from '../../../../components/CountedByThePage.astro';
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 सॉर्ट करने लायक़ कॉलम एक हेडर सेल है जो बताता है कि पंक्तियाँ किस क्रम में हैं, और जिसके टेक्स्ट के चारों ओर आपका अपना बटन है:
 
@@ -161,7 +161,7 @@ table.addEventListener('sort', (event) => {
 
 ### कोई पंक्ति नहीं
 
-<DemoFrame label="कोई पंक्ति नहीं: हेडर पंक्ति के नीचे आपका ख़ाली स्टेट" plain>
+<Example label="कोई पंक्ति नहीं: हेडर पंक्ति के नीचे आपका ख़ाली स्टेट">
   <tanrei-table class="tanrei-not-prose">
     <table>
       <caption>मेल खाने वाले प्रॉडक्ट</caption>
@@ -173,7 +173,7 @@ table.addEventListener('sort', (event) => {
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 एक सेल वाली एक पंक्ति लिखें जो सारे कॉलम में फैलती है, और उसमें अपना ख़ाली स्टेट रखें:
 
@@ -189,7 +189,7 @@ table.addEventListener('sort', (event) => {
 
 ### स्थिति पंक्ति
 
-<DemoFrame label="पंक्तियों के नीचे आपका वाक्य और आपका पेजिनेशन" plain>
+<Example label="पंक्तियों के नीचे आपका वाक्य और आपका पेजिनेशन">
   <tanrei-table class="tanrei-not-prose" sticky-header style="max-block-size: 20rem">
     <table>
       <caption>रिलीज़, सबसे नई पहले</caption>
@@ -217,7 +217,7 @@ table.addEventListener('sort', (event) => {
       </div>
     </div>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 टेबल के बाद, एलिमेंट के भीतर, स्थिति पंक्ति लिखें: आपका वाक्य, एक ऐसे पैराग्राफ़ में जो status है, और आपका पेजिनेशन।
 
@@ -239,7 +239,7 @@ table.addEventListener('sort', (event) => {
 
 <CountedByThePage />
 
-<DemoFrame label="पंक्तियाँ चुनें: चयन टेबल के पास रहता है, और यह पेज उसे गिनता है" plain>
+<Example label="पंक्तियाँ चुनें: चयन टेबल के पास रहता है, और यह पेज उसे गिनता है">
   <tanrei-table class="tanrei-not-prose" selection="multiple" row-headers select-all-label="सभी प्रॉडक्ट चुनें" data-docs-counts="4 में से {count} चयनित">
     <table>
       <caption>दोबारा मँगाए जाने वाले प्रॉडक्ट</caption>
@@ -255,7 +255,7 @@ table.addEventListener('sort', (event) => {
     </table>
     <div data-part="status"><p role="status">4 में से 2 चयनित</p></div>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 एलिमेंट पर `selection="multiple"` सेट करें और हर पंक्ति को एक चयन सेल से शुरू करें। हेडर पंक्ति में इस सेल में सभी पंक्तियों का चेकबॉक्स रहता है। बॉडी की पंक्ति में इसमें उस पंक्ति का चेकबॉक्स रहता है, और पंक्ति `data-value` में वह नाम रखती है जिससे आप उस रिकॉर्ड को जानते हैं:
 
@@ -313,7 +313,7 @@ table.addEventListener('selectionchange', (event) => {
 
 ### एक पंक्ति चुनना
 
-<DemoFrame label="एक पंक्ति चुनें: हर पंक्ति में एक रेडियो बटन, हेडर में कोई नहीं" plain>
+<Example label="एक पंक्ति चुनें: हर पंक्ति में एक रेडियो बटन, हेडर में कोई नहीं">
   <tanrei-table class="tanrei-not-prose" selection="single" row-headers>
     <table>
       <caption>बदलने के लिए प्लान</caption>
@@ -327,7 +327,7 @@ table.addEventListener('selectionchange', (event) => {
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 जहाँ व्यक्ति एक रिकॉर्ड चुनता है (बदलने के लिए प्लान, भेजने का पता, तुलना के लिए बिल्ड), वहाँ `selection="single"` सेट करें। हर बॉडी पंक्ति के चयन सेल में चेकबॉक्स की जगह एक रेडियो बटन रहता है, और हेडर पंक्ति का चयन सेल ख़ाली रहता है, क्योंकि कोई कंट्रोल सभी पंक्तियों का प्रतिनिधि नहीं है:
 
@@ -357,7 +357,7 @@ table.addEventListener('selectionchange', (event) => {
 
 ### लोड होना
 
-<DemoFrame label="लोड होना: प्लेसहोल्डर पंक्तियाँ, और स्थिति पंक्ति यही बताती है" plain>
+<Example label="लोड होना: प्लेसहोल्डर पंक्तियाँ, और स्थिति पंक्ति यही बताती है">
   <tanrei-table class="tanrei-not-prose" loading>
     <table>
       <caption>इस हफ़्ते के ऑर्डर</caption>
@@ -372,7 +372,7 @@ table.addEventListener('selectionchange', (event) => {
     </table>
     <div data-part="status"><p role="status">लोड हो रहा है</p></div>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 जब तक आप पंक्तियाँ ला रहे हैं, `loading` सेट करें। टेबल सहायक तकनीक को व्यस्त के रूप में मिलती है, और इस बीच आप उसे जो देते हैं, वह उसे बनाती है। वह कुछ नहीं लाती और किसी चीज़ का इंतज़ार नहीं करती: वह तब तक लोड हो रही है जब तक आप ऐसा कहते हैं।
 
@@ -419,7 +419,7 @@ export function rehypeTanreiTable() {
 
 ## स्पेक
 
-<DemoFrame label="Compact और धारीदार, उस टेबल के लिए जिस पर व्यक्ति नज़र दौड़ाता है" plain>
+<Example label="Compact और धारीदार, उस टेबल के लिए जिस पर व्यक्ति नज़र दौड़ाता है">
   <tanrei-table class="tanrei-not-prose" density="compact" striped label="टेबल के टोकन">
     <table>
       <thead>
@@ -435,9 +435,9 @@ export function rehypeTanreiTable() {
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="अपने बॉक्स से चौड़ी: वह वहीं स्क्रॉल होती है, और पहला कॉलम अपनी जगह रहता है" plain>
+<Example label="अपने बॉक्स से चौड़ी: वह वहीं स्क्रॉल होती है, और पहला कॉलम अपनी जगह रहता है">
   <tanrei-table class="tanrei-not-prose" row-headers sticky-first-column style="max-inline-size: 30rem">
     <table>
       <caption>क्षेत्र के अनुसार विज़िट</caption>
@@ -452,9 +452,9 @@ export function rehypeTanreiTable() {
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="लेआउट से मिली ऊँचाई: पंक्तियाँ स्क्रॉल होती हैं, और हेडर अपनी जगह रहता है" plain>
+<Example label="लेआउट से मिली ऊँचाई: पंक्तियाँ स्क्रॉल होती हैं, और हेडर अपनी जगह रहता है">
   <tanrei-table class="tanrei-not-prose" sticky-header style="max-block-size: 14rem">
     <table>
       <caption>रिलीज़</caption>
@@ -472,7 +472,7 @@ export function rehypeTanreiTable() {
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="table" />
 

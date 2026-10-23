@@ -2,14 +2,14 @@
 title: Búsqueda
 description: Una barra de búsqueda, o un activador compacto que la sustituye, que ofrece sugerencias y resultados mientras se escribe, en una vista acoplada bajo la barra, en un diálogo o sobre toda la pantalla.
 translationOf: components/search.mdx
-sourceHash: 086f7f1c3045fd6c16e3efb539c84a64cab8e632
+sourceHash: f640e3f9448e9421ff69cf0125fb9e865227d1d4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 Esta página describe la búsqueda tal como la define ahora la especificación, también como búsqueda de sitio: un activador en lugar de la barra, una vista de diálogo, resultados que son enlaces, una fila de estado y un atajo. El componente web hace todo esto, y las demostraciones también. SwiftUI, Compose, Flutter y React Native aparecen arriba como rezagados: hasta que se pongan al día ofrecen la revisión anterior (la barra con su campo de entrada, las vistas acoplada y a pantalla completa, y las sugerencias), y sus ejemplos muestran esa revisión.
 :::
 
-<DemoFrame label="Vacía, con una consulta y con botones de icono" column>
+<Example label="Vacía, con una consulta y con botones de icono" column>
   <tanrei-search label="Buscar en el correo" placeholder="Buscar en el correo" style="inline-size: 20.5rem"></tanrei-search>
   <tanrei-search label="Buscar en el correo" placeholder="Buscar en el correo" value="factura" clear-label="Borrar búsqueda" style="inline-size: 20.5rem"></tanrei-search>
   <tanrei-search label="Buscar en el correo" placeholder="Buscar en el correo" style="inline-size: 20.5rem">
@@ -27,9 +27,9 @@ Esta página describe la búsqueda tal como la define ahora la especificación, 
     <tanrei-button variant="text" slot="trailing" label="Buscar por voz"><span slot="icon">mic</span></tanrei-button>
     <tanrei-button variant="text" slot="trailing" label="Cuenta"><span slot="icon">account_circle</span></tanrei-button>
   </tanrei-search>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Una búsqueda de sitio: un activador de botón con su atajo, un activador de icono y una barra que muestra su atajo. Pulsa un activador para abrir su vista" plain column>
+<Example label="Una búsqueda de sitio: un activador de botón con su atajo, un activador de icono y una barra que muestra su atajo. Pulsa un activador para abrir su vista" column>
   <tanrei-search bar="button" presentation="dialog" label="Buscar en la documentación" placeholder="Buscar" shortcut="mod+k" value="pestaña" status-text="3 resultados para pestaña" clear-label="Borrar búsqueda" back-label="Atrás" style="inline-size: 20.5rem">
     <tanrei-search-result-group value="tabs" headline="Pestañas" href="/es/components/tabs/" leading-icon="article" excerpt='["Cambia entre vistas de un mismo tema con una fila de ", "pestañas", " con etiqueta."]'>
       <tanrei-search-result value="tabs-sharing" headline="Compartir una elección" href="/es/components/tabs/#compartir-una-elección" leading-icon="tag" excerpt='["Las filas de ", "pestañas", " que nombran un mismo grupo muestran la misma elección."]'></tanrei-search-result>
@@ -43,7 +43,7 @@ Esta página describe la búsqueda tal como la define ahora la especificación, 
     <tanrei-search-result value="tab-view" headline="Vista de pestañas" href="/es/components/tab-view/" leading-icon="article" excerpt='["Muestra la vista de la ", "pestaña", " seleccionada bajo su propia fila."]'></tanrei-search-result>
   </tanrei-search>
   <tanrei-search label="Buscar en el correo" placeholder="Buscar en el correo" shortcut="/" clear-label="Borrar búsqueda" style="inline-size: 20.5rem"></tanrei-search>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -263,7 +263,7 @@ Usa la vista acoplada o el diálogo en ventanas grandes y la pantalla completa e
 
 ## Especificaciones
 
-<DemoFrame label="La vista acoplada con una sugerencia, la fila de estado y resultados agrupados, dibujada dentro de la página" plain column>
+<Example label="La vista acoplada con una sugerencia, la fila de estado y resultados agrupados, dibujada dentro de la página" column>
   <tanrei-search inline expanded label="Buscar en el correo" placeholder="Buscar en el correo" value="fac" status-text="2 mensajes" clear-label="Borrar búsqueda" style="inline-size: 20.5rem">
     <tanrei-search-suggestion value="invoices" headline="facturas" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-result-group headline="Mensajes">
@@ -271,16 +271,16 @@ Usa la vista acoplada o el diálogo en ventanas grandes y la pantalla completa e
       <tanrei-search-result value="m-2" headline="Re: pago" leading-icon="mail" excerpt='["Envía la ", "factura", " de nuevo, por favor."]'></tanrei-search-result>
     </tanrei-search-result-group>
   </tanrei-search>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Deshabilitada, y la vista acoplada abierta" plain column>
+<Example label="Deshabilitada, y la vista acoplada abierta" column>
   <tanrei-search label="Buscar en el correo" placeholder="Buscar en el correo" disabled style="inline-size: 20.5rem"></tanrei-search>
   <tanrei-search inline expanded label="Buscar en el correo" placeholder="Buscar en el correo" value="fac" clear-label="Borrar búsqueda" style="inline-size: 20.5rem">
     <tanrei-search-suggestion value="invoices" headline="facturas" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-suggestion value="invoice template" headline="plantilla de factura" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-suggestion value="folder:invoices" headline="Facturas" supporting-text="Carpeta · 24 mensajes" leading-icon="folder"></tanrei-search-suggestion>
   </tanrei-search>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="search" />
 

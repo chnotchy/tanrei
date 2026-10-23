@@ -2,20 +2,20 @@
 title: Campo de selección
 description: Permite elegir un valor de una lista cerrada como un campo completo de un formulario. Una etiqueta que puede decir que el campo es obligatorio u opcional, un activador que muestra la opción elegida y abre una lista de opciones, y una línea de ayuda o un error debajo, todo ello vinculado para la tecnología de apoyo y presente en un formulario como un solo control.
 translationOf: components/select-field.mdx
-sourceHash: c59acbc263b452b95f47f54facb5c9bd12df3fbc
+sourceHash: 83e74269c2603748840d4fd41ecbad498dca5c0c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="select-field" />
 
-<DemoFrame label="Un campo de selección obligatorio, y otro agrupado con un glifo que representa al campo" column>
+<Example label="Un campo de selección obligatorio, y otro agrupado con un glifo que representa al campo" column>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="País" required required-text="Obligatorio" placeholder="Elige un país" supporting-text="El país al que van dirigidas tus facturas.">
     <tanrei-option value="ca">Canadá</tanrei-option>
     <tanrei-option value="fr">Francia</tanrei-option>
@@ -28,7 +28,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-option-group label="Asia"><tanrei-option value="Asia/Tokyo" supporting-text="UTC+9">Tokio</tanrei-option><tanrei-option value="Asia/Seoul" supporting-text="UTC+9">Seúl</tanrei-option></tanrei-option-group>
     <tanrei-option-group label="Europa"><tanrei-option value="Europe/Lisbon" supporting-text="UTC+0">Lisboa</tanrei-option><tanrei-option value="Europe/Berlin" supporting-text="UTC+1">Berlín</tanrei-option></tanrei-option-group>
   </tanrei-select-field>
-</DemoFrame>
+</Example>
 
 Usa un campo de selección en un formulario para elegir un valor de una lista conocida y cerrada: un país, una zona horaria, un plan. Es el caso corriente, listo para usarse: una etiqueta, la caja que muestra la opción elegida y abre la lista, una línea de ayuda y las palabras para un valor que se rechazó.
 
@@ -104,14 +104,14 @@ El mismo campo, escrito a mano con sus dos miembros, es la misma imagen y el mis
 </tanrei-field>
 ```
 
-<DemoFrame label="El mismo campo escrito a mano: un campo con un select dentro" column>
+<Example label="El mismo campo escrito a mano: un campo con un select dentro" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="País" required required-text="Obligatorio" supporting-text="El país al que van dirigidas tus facturas.">
     <tanrei-select placeholder="Elige un país">
       <tanrei-option value="jp">Japón</tanrei-option>
       <tanrei-option value="ke">Kenia</tanrei-option>
     </tanrei-select>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 Baja a ese nivel cuando necesites una organización que el campo de selección no ofrezca:
 
@@ -126,7 +126,7 @@ Lo que cambia un nivel más abajo es dónde se dicen las cosas. `name`, `value` 
 
 ## Especificaciones
 
-<DemoFrame label="Texto de apoyo con una opción deshabilitada, opcional, un error, de solo lectura y deshabilitado" plain column>
+<Example label="Texto de apoyo con una opción deshabilitada, opcional, un error, de solo lectura y deshabilitado" column>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Plan" value="team">
     <tanrei-option value="free" supporting-text="Un proyecto, ayuda de la comunidad">Gratis</tanrei-option>
     <tanrei-option value="team" supporting-text="Proyectos ilimitados, roles compartidos">Equipo</tanrei-option>
@@ -144,16 +144,16 @@ Lo que cambia un nivel más abajo es dónde se dicen las cosas. `name`, `value` 
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="País" value="jp" disabled>
     <tanrei-option value="jp">Japón</tanrei-option><tanrei-option value="ke">Kenia</tanrei-option>
   </tanrei-select-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Filled y outlined: la etiqueta del campo flota en la caja del select, con un asterisco para un campo obligatorio" system="m3-like" plain column>
+<Example label="Filled y outlined: la etiqueta del campo flota en la caja del select, con un asterisco para un campo obligatorio" system="m3-like" column>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="País" value="jp" supporting-text="El país al que van dirigidas tus facturas.">
     <tanrei-option value="jp">Japón</tanrei-option><tanrei-option value="ke">Kenia</tanrei-option>
   </tanrei-select-field>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="País" required required-text="Obligatorio">
     <tanrei-option value="jp">Japón</tanrei-option><tanrei-option value="ke">Kenia</tanrei-option>
   </tanrei-select-field>
-</DemoFrame>
+</Example>
 
 ### Qué aporta cada miembro
 

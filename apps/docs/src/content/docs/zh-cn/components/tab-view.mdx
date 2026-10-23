@@ -2,14 +2,14 @@
 title: "标签页视图"
 description: "在自己的一行标签页之下显示选中标签页的视图，也可以关联到放在别处的一行标签页；用户还可以在视图之间轻扫，标签页的指示器会跟随手指。"
 translationOf: components/tab-view.mdx
-sourceHash: 9e88a691605cc8a2ba05cfb5974f032f4a81ef01
+sourceHash: f75de0457ae366f4d0466d2e7235b3ca346445a9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
@@ -17,13 +17,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 标签页视图为每个标签页保存一个面板，并显示选中标签页的面板。选中一个标签页时，视图以一段短促的位移、淡入淡出和模糊完成切换；用户也可以横向轻扫视图，标签页的指示器会跟随手指，并停在视图最终落到的那个标签页上。在减弱动态效果时，切换是一段仍然跟随手指的交叉淡入淡出，没有位移，也没有模糊。
 
-<DemoFrame label="带有自己一行标签页的标签页视图：选一个标签页，或用触摸或触控笔轻扫面板">
+<Example label="带有自己一行标签页的标签页视图：选一个标签页，或用触摸或触控笔轻扫面板">
   <tanrei-tab-view label="项目" style="inline-size: 22.5rem; max-inline-size: 100%">
     <tanrei-tab-panel value="overview" label="概览"><p>三项未完成的任务，本周到期。</p></tanrei-tab-panel>
     <tanrei-tab-panel value="activity" label="动态"><p>李华在 1 小时前评论了这份计划。</p></tanrei-tab-panel>
     <tanrei-tab-panel value="settings" label="设置"><p>对工作区内的所有人可见。</p></tanrei-tab-panel>
   </tanrei-tab-view>
-</DemoFrame>
+</Example>
 
 标签页视图有两种形态：
 
@@ -105,7 +105,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚未实现标签页视图。在�
 
 ## 规格
 
-<DemoFrame label="填满的一行次要标签页，带图标和一个禁用的标签页；以及关联到另放一处的一行标签页的视图" plain column>
+<Example label="填满的一行次要标签页，带图标和一个禁用的标签页；以及关联到另放一处的一行标签页的视图" column>
   <tanrei-tab-view variant="secondary" full-width label="部署" style="inline-size: 22.5rem; max-inline-size: 100%">
     <tanrei-tab-panel value="overview" label="概览" icon="dashboard"><p>三个服务，全部在运行。</p></tanrei-tab-panel>
     <tanrei-tab-panel value="activity" label="动态" icon="history"><p>2 小时前已部署。</p></tanrei-tab-panel>
@@ -122,7 +122,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚未实现标签页视图。在�
     <tanrei-tab-panel value="map"><p>在车站附近保存了四个地点。</p></tanrei-tab-panel>
     <tanrei-tab-panel value="notes"><p>博物馆周一闭馆。</p></tanrei-tab-panel>
   </tanrei-tab-view>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tab-view" />
 
@@ -168,7 +168,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚未实现标签页视图。在�
 
 ### 共享同一个选择
 
-<DemoFrame label="同一个组的两个标签页视图：在任意一个里选一个标签页" plain column>
+<Example label="同一个组的两个标签页视图：在任意一个里选一个标签页" column>
   <tanrei-tab-view variant="secondary" group="tab-view-demo-package-manager" label="包管理器" style="inline-size: 22.5rem; max-inline-size: 100%">
     <tanrei-tab-panel value="npm" label="npm"><p>用 npm 安装这个包。</p></tanrei-tab-panel>
     <tanrei-tab-panel value="pnpm" label="pnpm"><p>用 pnpm 安装这个包。</p></tanrei-tab-panel>
@@ -178,7 +178,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚未实现标签页视图。在�
     <tanrei-tab-panel value="npm" label="npm"><p>用 npm 运行构建。</p></tanrei-tab-panel>
     <tanrei-tab-panel value="pnpm" label="pnpm"><p>用 pnpm 运行构建。</p></tanrei-tab-panel>
   </tanrei-tab-view>
-</DemoFrame>
+</Example>
 
 - 给回答同一个问题的每个视图指定同一个 `group`。组的成员是视图自己的那一行标签页，所以[标签页](/zh-cn/components/tabs/)页面关于组的所有说明都适用：选择按面板的 `value` 对应，从不按它的标签；没有这个值的面板的视图保持自己的选择。在这个演示中，Yarn 只存在于第一个视图。
 - 只有用户操作的那个视图会执行切换并触发 `change`。其他每个视图立即显示自己的面板，没有位移、淡入淡出和模糊，保留它所隐藏的面板的状态，也不夺取焦点。

@@ -5,7 +5,7 @@ translationOf: foundations/icons.mdx
 sourceHash: 7fbcefc95cb2438d12c7eb5730e82dd1e6549010
 ---
 
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import TokenNotes from '../../../../components/tokens/TokenNotes.astro';
 import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
@@ -19,7 +19,7 @@ La manera de dibujar un icono es un pequeño grupo de tokens. La caja del icono 
 
 **Sin seleccionar, con contorno. Seleccionado, con relleno. Siempre.** Un elemento de navegación, una pestaña, un conmutador, un chip, un favorito: el icono sigue siendo el mismo glifo y solo su relleno cambia con el estado. Los iconos con relleno y con contorno nunca se mezclan para decorar ni se eligen a mano: en la web, el relleno sigue el estado del control en el que se encuentra el icono.
 
-<DemoFrame label="El relleno sigue a la selección">
+<Example label="El relleno sigue a la selección">
   <button class="icon-demo" aria-pressed="false" onclick="this.setAttribute('aria-pressed', this.getAttribute('aria-pressed') === 'true' ? 'false' : 'true')"><span class="tanrei-icon" data-size="large" aria-hidden="true">favorite</span> Favorito</button>
   <span class="icon-demo" role="tablist">
     <button role="tab" aria-selected="true"><span class="tanrei-icon" data-size="large" aria-hidden="true">home</span> Inicio</button>
@@ -27,7 +27,7 @@ La manera de dibujar un icono es un pequeño grupo de tokens. La caja del icono 
     <button role="tab" aria-selected="false"><span class="tanrei-icon" data-size="large" aria-hidden="true">settings</span> Configuración</button>
   </span>
   <tanrei-button><span slot="icon" class="tanrei-icon" aria-hidden="true">add</span>Añadir</tanrei-button>
-</DemoFrame>
+</Example>
 
 ```js
 import '@tanrei/web/icons.css';

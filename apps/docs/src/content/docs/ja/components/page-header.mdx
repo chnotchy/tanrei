@@ -2,20 +2,20 @@
 title: ページヘッダー
 description: ページのコンテンツの先頭に置くヘッダーです。ページのタイトルを見出しとして示し、何のページかを伝える文、ページについての短い情報を並べた行、ページ全体に対するアクションを添え、その上に、上の階層へ戻る経路を置きます。
 translationOf: components/page-header.mdx
-sourceHash: 1e702fdb88c5e57541104c160ade78c5a738a823
+sourceHash: b62c6189871694b9a25fbeff2c7fda9a431c4ffe
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="page-header" />
 
-<DemoFrame label="すべてのパーツがあるページのヘッダー" plain column>
+<Example label="すべてのパーツがあるページのヘッダー" column>
   <tanrei-page-header class="not-content" divider style="inline-size: 100%" lang="ja">
     <div data-part="breadcrumbs"><a class="tanrei-link" data-standalone href="#概要">ガイド</a></div>
     <p data-part="eyebrow">デザインシステム</p>
@@ -31,7 +31,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-button variant="filled">共有</tanrei-button>
     </div>
   </tanrei-page-header>
-</DemoFrame>
+</Example>
 
 ページヘッダーは、ページのコンテンツの先頭に置きます。ページのタイトル、何のページかを伝える 1、2 文、短い情報を並べた行、ページ全体に対するアクションを持ち、その上に、上の階層へ戻る経路を置けます。タイトル以外のパーツは、すべて省略できます。
 
@@ -109,13 +109,13 @@ Web では、ページ自身の要素を `<tanrei-page-header>` で囲みます�
 
 ## 仕様
 
-<DemoFrame label="3 つのサイズ" plain column>
+<Example label="3 つのサイズ" column>
   <div class="not-content" style="display: grid; gap: 1.5rem; inline-size: 100%" lang="ja">
     <tanrei-page-header size="small"><h4>メンバー</h4><p>このプロジェクトを開ける人。</p></tanrei-page-header>
     <tanrei-page-header><h3>タイポグラフィ</h3><p>テキストスタイルの名前は、サイズではなくレベルで付けます。</p></tanrei-page-header>
     <tanrei-page-header size="large"><h3>1 つのシステム。5 つのプラットフォーム。</h3><p>同じトークン、同じコンポーネント、同じアクセシビリティの契約を、それぞれの流儀で。</p></tanrei-page-header>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="page-header" />
 

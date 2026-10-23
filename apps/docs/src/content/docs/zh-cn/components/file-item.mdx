@@ -2,14 +2,14 @@
 title: "文件项"
 description: "显示一个文件，包括表示格式的字形或文件的小图、文件名，以及产品对它的说明，并带有移除和重试两个操作；它可以是一列文件中的一行，也可以是一排图片中的一个图块。可以按下它来打开文件。它自己绝不读取、保留或发送文件。"
 translationOf: components/file-item.mdx
-sourceHash: d28c31a8db7cd09eab202ce5126a728ce24942af
+sourceHash: 36e74efccd5964d52a7b541ac48c5b001732db14
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 import ListReorderProduct from '../../../../components/ListReorderProduct.astro';
 import { demoPicture } from '../../../../lib/demo-picture';
@@ -18,13 +18,13 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 <ComponentAvailability name="file-item" />
 
-<DemoFrame label="一个文件显示为行，几个文件显示为图块" column>
+<Example label="一个文件显示为行，几个文件显示为图块" column>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" format-text="PDF" size-text="820 KB" remove-label="移除 {name}"></tanrei-file-item>
   <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
     <tanrei-file-item form="tile" preview preview-src={demoPicture} value="b" name="floor-plan.png" remove-label="移除 {name}"></tanrei-file-item>
     <tanrei-file-item form="tile" value="c" name="survey-2026.xlsx" remove-label="移除 {name}"></tanrei-file-item>
   </div>
-</DemoFrame>
+</Example>
 
 文件项就是把一个文件显示出来。文件名前面是一个表示文件格式的字形，或者是文件的一张小图。文件名下面有一行，写的是你的产品对它的说明：格式、大小、发送进行到哪里，或者出了什么问题。末尾是文件都有的两个操作：移除它，以及重试。
 
@@ -103,14 +103,14 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 ## 规格
 
-<DemoFrame label="每种状态一行：等待中、已发送 40%、进行中、已完成、失败但可重试、彻底失败" plain column>
+<Example label="每种状态一行：等待中、已发送 40%、进行中、已完成、失败但可重试、彻底失败" column>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" size-text="820 KB" status-text="等待中" remove-label="移除 {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="floor-plan.png" size-text="3.4 MB" status="uploading" status-text="正在上传" progress="0.4" remove-label="移除 {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="survey.pdf" size-text="1.1 MB" status="uploading" status-text="正在上传" remove-label="移除 {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="d" name="contract.pdf" size-text="2.0 MB" status="done" status-text="已上传" remove-label="移除 {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="e" name="site-photo.png" size-text="6.8 MB" status="error" error-text="连接已断开。" retryable remove-label="移除 {name}" retry-label="重试 {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="f" name="scan-archive.zip" size-text="48 MB" status="error" error-text="超过 10 MB。" remove-label="移除 {name}"></tanrei-file-item>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="file-item" />
 
@@ -118,7 +118,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 ### 两种形式
 
-<DemoFrame label="同样的三个文件，分别显示为行和图块" plain column>
+<Example label="同样的三个文件，分别显示为行和图块" column>
   <div class="not-content" style="display: grid; gap: 0.5rem; inline-size: 22.5rem; max-inline-size: 100%">
     <tanrei-file-item value="a" name="entrance.jpeg" size-text="2.1 MB" preview preview-src={demoPicture} remove-label="移除 {name}"></tanrei-file-item>
     <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB" preview preview-src={demoPicture} remove-label="移除 {name}"></tanrei-file-item>
@@ -129,7 +129,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
     <tanrei-file-item form="tile" value="b" name="floor-plan.png" preview preview-src={demoPicture} remove-label="移除 {name}"></tanrei-file-item>
     <tanrei-file-item form="tile" value="c" name="survey.pdf" preview remove-label="移除 {name}"></tanrei-file-item>
   </div>
-</DemoFrame>
+</Example>
 
 | 方面 | `row`（默认） | `tile` |
 | --- | --- | --- |
@@ -168,7 +168,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 字形共有十个种类。每个种类都有一份媒体类型清单和一份文件扩展名清单。字形根据 `mediaType` 选定。媒体类型为空、是 `application/octet-stream`，或者不在这些清单的任何一份里时，则根据 `name` 的扩展名选定。各个种类按下表的顺序匹配。这些清单是固定的，在每个平台上都相同，所以同一个文件无论显示在哪里，画出的都是同一个字形。`video/mp2t` 也不决定种类：平台根据扩展名 `.ts` 推断出它，而 TypeScript 文件和视频流共用这个扩展名，所以 `index.ts` 画的是代码字形。
 
-<DemoFrame label="十个种类" plain column>
+<Example label="十个种类" column>
   <div class="not-content" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.25rem 1rem; inline-size: 100%">
     <tanrei-file-item name="handbook.pdf" readonly></tanrei-file-item>
     <tanrei-file-item name="budget.xlsx" readonly></tanrei-file-item>
@@ -181,7 +181,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
     <tanrei-file-item name="notes.docx" readonly></tanrei-file-item>
     <tanrei-file-item name="model.glb" readonly></tanrei-file-item>
   </div>
-</DemoFrame>
+</Example>
 
 | 种类 | 字形 | 媒体类型 | 后缀 |
 | --- | --- | --- | --- |
@@ -211,11 +211,11 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 `fit` 决定图片怎样填充它的方框。默认值 `cover` 填满方框，裁掉放不下的部分，适合照片。`contain` 在方框的底色上显示完整的图片，适合扫描件、签名和示意图这类边缘也要紧的图。
 
-<DemoFrame label="160 × 90 的方框：cover、contain，以及隐藏名称" plain>
+<Example label="160 × 90 的方框：cover、contain，以及隐藏名称">
   <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} value="a" name="entrance.jpeg" remove-label="移除 {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} fit="contain" value="b" name="signature.png" remove-label="移除 {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} name-hidden value="c" name="floor-plan.png" remove-label="移除 {name}"></tanrei-file-item>
-</DemoFrame>
+</Example>
 
 预览的代价：
 
@@ -233,11 +233,11 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 默认情况下，文件项的主体不接收焦点，也不响应任何操作。文件项只是承载着它的操作。
 
-<DemoFrame label="主体是按钮、主体是在新标签页中打开的链接，以及只读的文件" plain column>
+<Example label="主体是按钮、主体是在新标签页中打开的链接，以及只读的文件" column>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="floor-plan.png" size-text="3.4 MB" interactive remove-label="移除 {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="contract.pdf" size-text="2.0 MB" href="#可按下链接或只读" target="new" target-label="在新标签页中打开" remove-label="移除 {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="invoice-0412.pdf" size-text="96 KB" status="done" status-text="已于 12 月 4 日发送" readonly></tanrei-file-item>
-</DemoFrame>
+</Example>
 
 | 属性 | 主体是 | 用在哪里 |
 | --- | --- | --- |
@@ -257,13 +257,13 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 <ListReorderProduct />
 
-<DemoFrame label="顺序可由用户调整的文件：可调整顺序的列表中的文件项" plain>
+<Example label="顺序可由用户调整的文件：可调整顺序的列表中的文件项">
   <tanrei-list reorderable gap="small" data-demo-product label="附件" drag-handle-label="调整 {label} 的顺序" move-to-start-label="移到顶部" move-before-label="上移" move-after-label="下移" move-to-end-label="移到底部" lifted-text="已拿起 {label}：第 {position} 项，共 {count} 项" moved-text="{label}：第 {position} 项，共 {count} 项" cancelled-text="{label} 已回到第 {position} 项，共 {count} 项" style="inline-size: 26rem; max-inline-size: 100%">
     <tanrei-list-item><tanrei-file-item name="cover-letter.pdf" size-text="120 KB" remove-label="移除 {name}"></tanrei-file-item></tanrei-list-item>
     <tanrei-list-item><tanrei-file-item name="resume.docx" size-text="88 KB" remove-label="移除 {name}"></tanrei-file-item></tanrei-list-item>
     <tanrei-list-item><tanrei-file-item name="portfolio.zip" size-text="14 MB" remove-label="移除 {name}"></tanrei-file-item></tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
 ```html
 <tanrei-list reorderable gap="small" label="Attachments" drag-handle-label="Reorder {label}"

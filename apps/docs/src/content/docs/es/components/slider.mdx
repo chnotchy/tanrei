@@ -2,24 +2,24 @@
 title: Control deslizante
 description: Permite elegir un valor, o un intervalo de valores, arrastrando un tirador a lo largo de una pista, de forma continua o por pasos.
 translationOf: components/slider.mdx
-sourceHash: f8e90fd380943ae7d0e08ad6a1bd99f61a83ba8b
+sourceHash: e74996d456fba14f6d07067a6a1b9cf61c1e5e69
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="slider" />
 
-<DemoFrame label="Continuo, por pasos con puntos de parada y un intervalo" column>
+<Example label="Continuo, por pasos con puntos de parada y un intervalo" column>
   <tanrei-slider label="Volumen" value="40" style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider label="Brillo" value="30" step="10" stops style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider range label="Precio máximo" start-label="Precio mínimo" start-value="20" value="60" style="inline-size: 20rem"></tanrei-slider>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -171,7 +171,7 @@ La revisión que dio al control deslizante su tirador redondo, y el examen poste
 
 ## Especificaciones
 
-<DemoFrame label="Tamaños, centrado, indicador de valor, vertical y deshabilitado" plain column>
+<Example label="Tamaños, centrado, indicador de valor, vertical y deshabilitado" column>
   <tanrei-slider size="medium" label="Volumen" value="40" style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider size="large" label="Volumen" value="40" style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider label="Balance" min="-50" max="50" origin="0" value="20" style="inline-size: 20rem"></tanrei-slider>
@@ -179,7 +179,7 @@ La revisión que dio al control deslizante su tirador redondo, y el examen poste
   <tanrei-slider label="Volumen" value="40" disabled style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider label="Brillo" value="60" step="20" stops disabled style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider orientation="vertical" label="Volumen" value="60" style="block-size: 12rem"></tanrei-slider>
-</DemoFrame>
+</Example>
 
 En el sistema predeterminado, el tirador es un anillo: un círculo de 20 relleno con el color de la superficie, dentro de un contorno del color de la pista activa. El contorno mide 3 de ancho y se dibuja por dentro del borde del círculo, así que no cambia el tamaño del tirador: deja un disco de 14 del color de la superficie, y un contorno más ancho dejaría uno más pequeño. La pista y la pista activa pasan por debajo del tirador y se encuentran en su centro, de modo que la pista activa se lee como una sola línea que termina en el anillo. El tirador mide 20 en todos los tamaños, sobre pistas de 4, 6 y 8.
 

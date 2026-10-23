@@ -73,7 +73,7 @@ const TABLE = '[data-docs-state-matrix]';
 const settled = (page) =>
   page.evaluate(async (selector) => {
     const table = document.querySelector(selector);
-    const frame = table.closest('[data-docs-visual]');
+    const frame = table.closest('[data-example]');
     frame.scrollIntoView({ block: 'center' });
     const names = new Set([...frame.querySelectorAll('*')].map((element) => element.localName).filter((name) => name.includes('-')));
     await Promise.all([...names].map((name) => customElements.whenDefined(name)));
@@ -135,14 +135,13 @@ describe('the state matrix on the button’s page', () => {
     const page = await context.newPage();
     await page.goto(`${origin}${PAGE}`);
     await settled(page);
-    const frame = page.locator('[data-docs-visual]', { has: page.locator(TABLE) });
-    const tabs = frame.locator('[data-docs-visual-system]');
-    const presets = await tabs.locator('tanrei-tab').evaluateAll((all) => all.map((tab) => tab.getAttribute('value')).slice(1));
+    const presets = await page.locator('tanrei-menu[anchor="docs-system"] tanrei-menu-radio-item').evaluateAll((all) => all.map((item) => item.getAttribute('value')).slice(1));
     const token = `${NS}.comp.button.filled.hovered.container.color`;
     const preset = presets.find((id) => resolvedIn(id, token) && rgb(resolvedIn(id, token)) !== rgb(resolvedIn(NS, token)));
     assert.ok(preset, 'a preset draws the hovered filled button in another color than the default system');
-    await tabs.locator(`tanrei-tab[value="${preset}"]`).click();
-    await page.waitForFunction((selector) => document.querySelector(selector).closest('[data-docs-visual]').querySelector('[data-docs-visual-stage]').getAttribute('data-tanrei-system'), TABLE);
+    await page.locator('#docs-system').click();
+    await page.locator(`tanrei-menu[anchor="docs-system"] tanrei-menu-radio-item[value="${preset}"]`).click();
+    await page.waitForFunction((selector) => document.querySelector(selector).closest('[data-example]').querySelector('[data-example-stage]').getAttribute('data-tanrei-system'), TABLE);
     await settled(page);
     const drawn = await cells(page);
     await context.close();
@@ -175,7 +174,7 @@ describe('the state matrix on the button’s page', () => {
         page.evaluate((selector) => {
           const table = document.querySelector(selector);
           const box = (element) => element.getBoundingClientRect();
-          const stage = box(table.closest('[data-docs-visual-stage]'));
+          const stage = box(table.closest('[data-example-stage]'));
           return { stage: stage.height, cells: [...table.querySelectorAll('td, th')].map((cell) => [box(cell).left - stage.left, box(cell).top - stage.top, box(cell).width, box(cell).height]) };
         }, TABLE);
       const parsed = await measure();

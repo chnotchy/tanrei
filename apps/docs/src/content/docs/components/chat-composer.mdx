@@ -7,20 +7,20 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 import Callout from '../../../components/Callout.astro';
 
 ## Overview
 
 <ComponentAvailability name="chat-composer" />
 
-<DemoFrame label="A chat composer in each layout. Write a message, attach a file, and send. Nothing is sent anywhere." column>
+<Example label="A chat composer in each layout. Write a message, attach a file, and send. Nothing is sent anywhere." column>
   <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" label="Message" placeholder="Write a message" send-label="Send" attachments="own" attach-label="Attach files" remove-label="Remove {name}"></tanrei-chat-composer>
   <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" layout="stacked" label="Message" placeholder="Write a message" send-label="Send" attachments="own" attach-label="Attach files" remove-label="Remove {name}" max-length="280" counter>
     <tanrei-button slot="leading" variant="text" label="Mention someone"><span slot="icon">alternate_email</span></tanrei-button>
     <tanrei-button slot="leading" variant="text" label="Add an emoji"><span slot="icon">mood</span></tanrei-button>
   </tanrei-chat-composer>
-</DemoFrame>
+</Example>
 
 A chat composer is the one place where a message is written: in a conversation, in a thread under a piece of work, or in a request for help. It is drawn as one capsule. The capsule holds the typing area, the attachments, your own actions and the send button.
 

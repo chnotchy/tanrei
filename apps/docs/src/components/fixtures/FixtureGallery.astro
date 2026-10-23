@@ -2,9 +2,9 @@
 // The Specs tab's fixtures: a gallery of stages, one for each fixture of the spec (lib/fixture-gallery.ts says which
 // stage each takes). Every stage draws the fixture as the web package's own document of the component's fixtures
 // draws it — the document its tests take each baseline from (lib/fixture-documents.ts) — and the site has no renderer
-// of its own. Each stage is Tanrei's Figure, written as its native parts: the fixture's id as its title, the stage's
-// actions in its header — the stage's scheme and the copy of the fixture's markup — what the fixture draws on its
-// stage, and the props that make it as the caption. The stages stand in groups by the first axis of the spec that
+// of its own. Each stage is the docs' one frame (components/visuals/Example.astro): the fixture's id as its title, its
+// actions in its header — the stage's scheme and, as every frame's, the fixture's code as a product writes it, its
+// copy and the stage's direction — what the fixture draws on its stage, and the props that make it as the caption. The stages stand in groups by the first axis of the spec that
 // tells its fixtures apart (`variant`, else `size`, …).
 //
 // The stages stand one to a row, each as wide as the column, in one column — as a specification's figures stand one
@@ -17,13 +17,13 @@
 // stage, and no link of the page, sends the reader to it.
 //
 // The fixture ids and props are the page's words and are read by the search; what a stage draws, and its actions, are
-// not (`data-pagefind-ignore`, as DemoFrame's stage).
+// not (`data-pagefind-ignore`, as every frame's stage).
 import { getSpec } from '../../lib/repo';
 import { fixtureDocument } from '../../lib/fixture-documents';
 import { STAGE_SCOPE, galleryOf, fixtureWindowHref, stagesScript, stagingStyle, stepScript } from '../../lib/fixture-gallery';
 import { contentLang, strings } from '../../lib/i18n';
-import { figureId } from '../../lib/figure-id';
 import ResizeHandle from './ResizeHandle.astro';
+import Example from '../visuals/Example.astro';
 
 interface Props {
   name: string;
@@ -56,69 +56,70 @@ if (system && !systemSheet) throw new Error(`FixtureGallery: no generated styles
       )}
       <div class="docs-fixture-stages">
         {group.stages.map((stage) => {
-          const id = figureId(Astro);
+          const stageId = `docs-stage-${spec.name}-${stage.id}`;
           const sized = stage.kind === 'window' && stage.window;
           return (
             <>
-              <tanrei-figure class="docs-stage" pattern="none" data-stage={stage.kind} data-fixture-id={stage.id} data-drawn={stage.drawn ? '' : undefined}>
-                <figure aria-labelledby={`${id}-title`} aria-describedby={`${id}-caption`}>
-                  <div data-part="frame">
-                    <header>
-                      <p data-part="title" id={`${id}-title`} data-tanrei-code="plain"><code>{stage.id}</code></p>
-                      {stage.drawn && (
-                        <div data-part="actions" data-pagefind-ignore data-stage-actions={stage.kind === 'window' ? 3 : 2}>
-                          {/* Written in a template and drawn when the stage comes near the view (lib/fixture-stages.ts): a
-                              page of 368 fixtures would otherwise define over a thousand buttons as it loads. */}
-                          <template>
-                          <tanrei-button class="docs-stage-action" variant="text" size="small" toggle label={t.stages.dark} data-stage-theme><span slot="icon" data-pagefind-ignore>dark_mode</span></tanrei-button>
-                          {stage.kind === 'window' && (
-                            <tanrei-button class="docs-stage-action" variant="text" size="small" label={named(t.stages.redraw, { id: stage.id })} data-stage-redraw><span slot="icon" data-pagefind-ignore>refresh</span></tanrei-button>
-                          )}
-                          <tanrei-copy-button class="docs-stage-action" size="small" text={stage.markup} label={t.stages.copy} copied-label={t.stages.copied} failed-label={t.stages.copyFailed}></tanrei-copy-button>
-                          </template>
-                        </div>
-                      )}
-                    </header>
-                    <div data-part="stage" id={`${id}-stage`} class="docs-stage-box" data-tanrei-system={system} data-tanrei-demo data-pagefind-ignore>
-                      {!stage.drawn ? (
-                        <p class="docs-muted docs-stage-none">{t.notDefinedYet}</p>
-                      ) : sized ? (
-                        <div class="docs-stage-canvas docs-window" style={`--docs-window-width: ${sized.width}; --docs-window-height: ${sized.height}`} data-fit={stage.presented ? undefined : ''}>
-                          <iframe
-                            class="docs-window-frame"
-                            src={fixtureWindowHref(spec.name, stage.id)}
-                            loading="lazy"
-                            inert
-                            width={sized.width}
-                            height={sized.height}
-                            title={named(t.stages.frame, { id: stage.id })}
-                          />
-                          <ResizeHandle label={named(t.stages.width, { id: stage.id })} controls={`${id}-stage`} />
-                        </div>
-                      ) : (
-                        /* The document's stage is drawn in this canvas, from the gallery's data, when the stage comes near
-                           the view (lib/fixture-stages.ts); until then the canvas holds the room its baseline shows. Its
-                           handle is kept where the staging gives the fixture a layout's width, and taken away elsewhere. */
-                        <div
-                          class="docs-stage-canvas"
-                          {...scope}
-                          data-pending
-                          style={stage.reserve ? `--docs-stage-reserve-inline: ${stage.reserve.width}px; --docs-stage-reserve-block: ${stage.reserve.height}px` : undefined}
-                        >
-                          <ResizeHandle label={named(t.stages.width, { id: stage.id })} controls={`${id}-stage`} />
-                        </div>
-                      )}
-                    </div>
+              <Example
+                label={stage.id}
+                titleCode
+                class="docs-stage"
+                pattern="none"
+                system={system}
+                code={stage.drawn}
+                source={stage.markup}
+                resize={false}
+                actions={stage.drawn ? (stage.kind === 'window' ? 2 : 1) : 0}
+                stageClass="docs-stage-box"
+                stageAttributes={{ id: stageId }}
+                data-stage={stage.kind}
+                data-fixture-id={stage.id}
+                data-drawn={stage.drawn ? '' : undefined}
+              >
+                {stage.drawn && (
+                  <Fragment slot="actions">
+                    <tanrei-button class="docs-example-action" variant="text" size="small" toggle label={t.stages.dark} data-stage-theme><span slot="icon" data-pagefind-ignore>dark_mode</span></tanrei-button>
+                    {stage.kind === 'window' && (
+                      <tanrei-button class="docs-example-action" variant="text" size="small" label={named(t.stages.redraw, { id: stage.id })} data-stage-redraw><span slot="icon" data-pagefind-ignore>refresh</span></tanrei-button>
+                    )}
+                  </Fragment>
+                )}
+                {!stage.drawn ? (
+                  <p class="docs-muted docs-stage-none">{t.notDefinedYet}</p>
+                ) : sized ? (
+                  <div class="docs-stage-canvas docs-window" style={`--docs-window-width: ${sized.width}; --docs-window-height: ${sized.height}`} data-fit={stage.presented ? undefined : ''}>
+                    <iframe
+                      class="docs-window-frame"
+                      src={fixtureWindowHref(spec.name, stage.id)}
+                      loading="lazy"
+                      inert
+                      width={sized.width}
+                      height={sized.height}
+                      title={named(t.stages.frame, { id: stage.id })}
+                    />
+                    <ResizeHandle label={named(t.stages.width, { id: stage.id })} controls={stageId} />
                   </div>
-                  <figcaption id={`${id}-caption`} class="docs-stage-facts">
-                    {stage.facts.map((fact) => (<><code>{fact}</code>{' '}</>))}
-                    {stage.holds.items > 0 && <><code>items: {stage.holds.items}</code>{' '}</>}
-                    {stage.holds.slots.length > 0 && <><code>slots: {stage.holds.slots.join(', ')}</code>{' '}</>}
-                    {!stage.facts.length && !stage.holds.items && !stage.holds.slots.length && <><code>{'{}'}</code>{' '}</>}
-                    {sized && <span class="docs-muted docs-stage-window">{named(t.stages.window, { width: sized.width, height: sized.height })}</span>}
-                  </figcaption>
-                </figure>
-              </tanrei-figure>{' '}
+                ) : (
+                  /* The document's stage is drawn in this canvas, from the gallery's data, when the stage comes near
+                     the view (lib/fixture-stages.ts); until then the canvas holds the room its baseline shows. Its
+                     handle is kept where the staging gives the fixture a layout's width, and taken away elsewhere. */
+                  <div
+                    class="docs-stage-canvas"
+                    {...scope}
+                    data-pending
+                    style={stage.reserve ? `--docs-stage-reserve-inline: ${stage.reserve.width}px; --docs-stage-reserve-block: ${stage.reserve.height}px` : undefined}
+                  >
+                    <ResizeHandle label={named(t.stages.width, { id: stage.id })} controls={stageId} />
+                  </div>
+                )}
+                <Fragment slot="caption">
+                  {stage.facts.map((fact) => (<><code>{fact}</code>{' '}</>))}
+                  {stage.holds.items > 0 && <><code>items: {stage.holds.items}</code>{' '}</>}
+                  {stage.holds.slots.length > 0 && <><code>slots: {stage.holds.slots.join(', ')}</code>{' '}</>}
+                  {!stage.facts.length && !stage.holds.items && !stage.holds.slots.length && <><code>{'{}'}</code>{' '}</>}
+                  {sized && <span class="docs-muted docs-stage-window">{named(t.stages.window, { width: sized.width, height: sized.height })}</span>}
+                </Fragment>
+              </Example>{' '}
             </>
           );
         })}
@@ -153,22 +154,22 @@ if (system && !systemSheet) throw new Error(`FixtureGallery: no generated styles
      screen is: a stage that is not laid out while it is away from the view (`content-visibility: auto`) has no size
      then, and a component that measures its place once — the description list choosing between its terms beside
      their values and above them — keeps the choice it made in no room. */
-  .docs-stage {
+  .docs-fixture-stages > :global(.docs-stage) {
     display: block;
     min-inline-size: 0;
   }
   /* The id breaks where it must, so that the header never makes a stage wider than what it draws. */
-  .docs-stage [data-part='title'] code {
+  .docs-fixture-stages > :global(.docs-stage) :global([data-part='title'] code) {
     overflow-wrap: anywhere;
   }
   .docs-fixture-count {
     font-weight: normal;
   }
   /* The props wrap under the stage and do not widen it. */
-  .docs-stage-facts {
+  .docs-fixture-stages > :global(.docs-stage) :global(.docs-example-caption) {
     contain: inline-size;
   }
-  .docs-stage-facts code {
+  .docs-fixture-stages > :global(.docs-stage) :global(.docs-example-caption) code {
     overflow-wrap: anywhere;
   }
   .docs-stage-window {
@@ -178,7 +179,7 @@ if (system && !systemSheet) throw new Error(`FixtureGallery: no generated styles
      box that contains layout or paint is the box that the fixture's fixed parts are placed against, and a surface
      drawn in place (an open list placed against the window) would then stand where no product's page draws it. What a
      fixture places in the top layer or against the window is drawn in a window of its own instead. */
-  .docs-stage-box {
+  .docs-fixture-stages :global(.docs-stage-box) {
     display: grid;
     /* One column as wide as the stage, whatever the fixture asks for: a fixture wider than the column is made narrower
        (a layout's width, a window), never let out of it. */
@@ -188,7 +189,7 @@ if (system && !systemSheet) throw new Error(`FixtureGallery: no generated styles
     overflow: clip;
   }
   /* A stage keeps the scheme it is given (lib/fixture-stages.ts): its surface and every token below it. */
-  .docs-stage-box[data-tanrei-theme] {
+  .docs-fixture-stages :global(.docs-stage-box[data-tanrei-theme]) {
     background: var(--tanrei-sys-color-surface);
     color: var(--tanrei-sys-color-on-surface);
   }
@@ -253,33 +254,7 @@ if (system && !systemSheet) throw new Error(`FixtureGallery: no generated styles
     white-space: normal;
   }
   /* What a fixture draws before its element is defined is hidden, in the room it takes (as the table's cells were). */
-  .docs-stage-box :global(:not(:defined)) {
+  .docs-fixture-stages :global(.docs-stage-box :not(:defined)) {
     visibility: hidden;
-  }
-  /* The actions hold their room before they are drawn — as many small icon-only Buttons as the stage has, and the
-     gaps between them — and each holds the room of one before it is defined; without script there are none. */
-  [data-stage-actions]:has(> template) {
-    min-inline-size: calc(2 * var(--tanrei-comp-button-container-height-small) + var(--tanrei-comp-figure-header-gap));
-    min-block-size: var(--tanrei-comp-button-container-height-small);
-  }
-  [data-stage-actions='3']:has(> template) {
-    min-inline-size: calc(3 * var(--tanrei-comp-button-container-height-small) + 2 * var(--tanrei-comp-figure-header-gap));
-  }
-  @media (scripting: none) {
-    [data-stage-actions]:has(> template) {
-      display: none;
-    }
-  }
-  :where(tanrei-button, tanrei-copy-button).docs-stage-action:not(:defined) {
-    display: inline-block;
-    inline-size: var(--tanrei-comp-button-container-height-small);
-    block-size: var(--tanrei-comp-button-container-height-small);
-    overflow: hidden;
-    visibility: hidden;
-  }
-  @media (scripting: none) {
-    :where(tanrei-button, tanrei-copy-button).docs-stage-action:not(:defined) {
-      display: none;
-    }
   }
 </style>

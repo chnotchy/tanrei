@@ -325,10 +325,11 @@ describe('what the search index reads of a page', () => {
     assert.match(read('src/components/frame/TwoColumnContent.astro'), /indexSeparated\(await Astro\.slots\.render\('default'\)\)/);
   });
   test('the stage of a live example is not read: what an example draws is sample text, not the page’s', () => {
-    assert.match(read('src/components/DemoFrame.astro'), /<div data-part="stage"[^>]*\sdata-pagefind-ignore>/);
-    assert.match(read('src/components/DemoFrame.astro'), /<div data-part="actions" data-pagefind-ignore>/);
-    assert.match(read('src/components/fixtures/FixtureGallery.astro'), /<div data-part="stage"[^>]*\sdata-tanrei-demo data-pagefind-ignore>/);
-    assert.match(read('src/components/fixtures/FixtureGallery.astro'), /<div data-part="actions" data-pagefind-ignore[\s>]/);
+    // Every example, and every stage of the gallery of fixtures, is the one frame's (components/visuals/Example.astro).
+    assert.match(read('src/components/visuals/Example.astro'), /<div\s+data-part="stage"[^>]*\sdata-pagefind-ignore\s/);
+    assert.match(read('src/components/visuals/Example.astro'), /<div data-part="actions" data-pagefind-ignore[\s>]/);
+    assert.match(read('src/components/fixtures/FixtureGallery.astro'), /<Example\b/);
+    assert.doesNotMatch(read('src/components/fixtures/FixtureGallery.astro'), /<div data-part="stage"/);
     for (const file of ['src/components/Hero.astro', 'src/components/SystemGallery.astro']) assert.match(read(file), /<div data-part="stage"[^>]*\sdata-pagefind-ignore>/, file);
   });
   test('a glyph’s name, written as text where the docs draw a glyph, is not read', () => {

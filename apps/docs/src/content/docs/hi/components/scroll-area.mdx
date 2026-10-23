@@ -2,14 +2,14 @@
 title: स्क्रॉल एरिया
 description: एक बॉक्स जो आपके कॉन्टेंट को प्लैटफ़ॉर्म के अपने स्क्रॉल से स्क्रॉल करता है और जिन किनारों पर वह नज़र रखता है, उनमें से हर एक पर दिखाता है कि आगे और कॉन्टेंट है — सरफ़ेस के रंग की एक पट्टी, कॉन्टेंट का फ़ेड, एक रेखा या ब्लर — बिना अपना साइज़ बदले या कॉन्टेंट को खिसकाए।
 translationOf: components/scroll-area.mdx
-sourceHash: fd54b46e1aadb3f1cd30abe2cb060f324ca86fbc
+sourceHash: 775ae73696089e43cf18061a5f5f9b0205dabaf6
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import BehaviorChoice from '../../../../components/tokens/BehaviorChoice.astro';
 import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
@@ -17,7 +17,7 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
 <ComponentAvailability name="scroll-area" />
 
-<DemoFrame label="तय ऊँचाई वाले बॉक्स में एक लिस्ट">
+<Example label="तय ऊँचाई वाले बॉक्स में एक लिस्ट">
   <tanrei-scroll-area label="संदेश" style="inline-size: min(100%, 20rem); block-size: 16rem">
     <tanrei-list-row headline="Ada" supporting-text="ड्राफ़्ट समीक्षा के लिए तैयार है"></tanrei-list-row>
     <tanrei-list-row headline="Grace" supporting-text="मीटिंग गुरुवार को कर दी है"></tanrei-list-row>
@@ -30,7 +30,7 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
     <tanrei-list-row headline="Margaret" supporting-text="सब तैयार है"></tanrei-list-row>
     <tanrei-list-row headline="Rosalind" supporting-text="लैब से नई तस्वीरें"></tanrei-list-row>
   </tanrei-scroll-area>
-</DemoFrame>
+</Example>
 
 जब तक कॉन्टेंट समा जाता है, एरिया अपनी ओर से कुछ नहीं बनाता। इसे स्क्रॉल करें: जब तक नीचे और कॉन्टेंट है, नीचे का किनारा दिखाया जाता है, और जैसे ही कुछ ऊपर नज़र से बाहर स्क्रॉल होता है, ऊपर का किनारा भी।
 
@@ -86,7 +86,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 ## स्पेक
 
-<DemoFrame label="स्क्रॉल एज: shadow (डिफ़ॉल्ट सिस्टम का चुनाव), fade, line, blur और none" plain>
+<Example label="स्क्रॉल एज: shadow (डिफ़ॉल्ट सिस्टम का चुनाव), fade, line, blur और none">
   <tanrei-scroll-area scroll-edge="shadow" label="शैडो" style="inline-size: 9rem; block-size: 10rem">
     <p>शैडो। उस सरफ़ेस के रंग की पट्टी जिस पर एरिया रखा है, किनारे पर पूरी और किनारे से 24 अंदर ख़त्म। स्क्रॉल करें, तो ऊपर का किनारा भी दिखेगा। कॉन्टेंट सरफ़ेस में डूबता हुआ लगता है।</p>
   </tanrei-scroll-area>
@@ -102,7 +102,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
   <tanrei-scroll-area scroll-edge="none" label="कुछ नहीं" style="inline-size: 9rem; block-size: 10rem">
     <p>कुछ नहीं। किनारों पर कोई निशान नहीं: सिर्फ़ प्लैटफ़ॉर्म का स्क्रॉल बार बताता है कि कॉन्टेंट आगे है। इसे स्क्रॉल करके बाक़ियों से तुलना करें।</p>
   </tanrei-scroll-area>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="scroll-area" />
 

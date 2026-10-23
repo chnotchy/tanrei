@@ -2,23 +2,23 @@
 title: "一次性验证码字段"
 description: "以一个完整字段的形式，向用户索取发送给他的简短验证码：标签下方是格子，带有一行帮助文本和验证码错误时的文字；它们为辅助技术关联在一起，并作为一个控件参与表单。"
 translationOf: components/one-time-code-field.mdx
-sourceHash: 197fb3bbef1de7ff1a0dcf3c22e8bc35ade0e0ab
+sourceHash: e622be078eeb18fec9295ee054c28b4764e18e53
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="one-time-code-field" />
 
-<DemoFrame label="一次性验证码字段，以及一个验证码被产品拒绝的字段" column>
+<Example label="一次性验证码字段，以及一个验证码被产品拒绝的字段" column>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="验证码" supporting-text="请输入发送到手机的 6 位验证码。" group-size="3" value="123"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="验证码" supporting-text="请输入发送到手机的 6 位验证码。" error error-text="验证码不正确。请核对短信后重试。" group-size="3" value="123456"></tanrei-one-time-code-field>
-</DemoFrame>
+</Example>
 
 只要产品要求用户回填它发出的简短验证码，就使用一次性验证码字段：登录、确认某个地址或电话号码、批准一笔付款。它对应的是最常见的情况，可以直接使用：一个标签、一排格子、一行说明验证码发到了哪里的文字，以及验证码错误时的文字。
 
@@ -85,11 +85,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="手写出来的同一个字段：一个字段，里面有一个一次性验证码输入框" column>
+<Example label="手写出来的同一个字段：一个字段，里面有一个一次性验证码输入框" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="验证码" supporting-text="请输入发送到手机的 6 位验证码。">
     <tanrei-one-time-code-input group-size="3" value="123"></tanrei-one-time-code-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 当你需要一次性验证码字段没有提供的排布方式时，就往下走一层：
 
@@ -104,12 +104,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="带产品文字的必填、选填、禁用，以及遮蔽的 4 位验证码" plain column>
+<Example label="带产品文字的必填、选填、禁用，以及遮蔽的 4 位验证码" column>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="验证码" required required-text="必填" supporting-text="请输入发送到手机的 6 位验证码。" group-size="3"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="备用验证码" optional optional-text="选填" type="alphanumeric" group-size="3" value="A7K"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="验证码" disabled supporting-text="请输入发送到手机的 6 位验证码。" group-size="3" value="123456"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="信函中的 PIN 码" length="4" mask value="4821"></tanrei-one-time-code-field>
-</DemoFrame>
+</Example>
 
 ### 各个成员提供什么
 

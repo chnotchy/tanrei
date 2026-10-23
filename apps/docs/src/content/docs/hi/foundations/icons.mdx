@@ -5,7 +5,7 @@ translationOf: foundations/icons.mdx
 sourceHash: 7fbcefc95cb2438d12c7eb5730e82dd1e6549010
 ---
 
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import TokenNotes from '../../../../components/tokens/TokenNotes.astro';
 import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
@@ -19,7 +19,7 @@ Tanrei के डिफ़ॉल्ट आइकन [Material Symbols](https://f
 
 **चयनित नहीं है तो आउटलाइन। चयनित है तो भरा हुआ। हमेशा।** नेविगेशन आइटम, टैब, टॉगल, चिप, पसंदीदा: आइकन वही ग्लिफ़ रहता है और स्टेट के साथ सिर्फ़ उसका फ़िल बदलता है। भरे हुए और आउटलाइन वाले आइकन सजावट के लिए कभी मिलाए नहीं जाते, और कभी हाथ से चुने नहीं जाते — वेब पर फ़िल उस कंट्रोल के स्टेट के अनुसार चलता है जिसमें आइकन रखा है।
 
-<DemoFrame label="फ़िल चयन के अनुसार चलता है">
+<Example label="फ़िल चयन के अनुसार चलता है">
   <button class="icon-demo" aria-pressed="false" onclick="this.setAttribute('aria-pressed', this.getAttribute('aria-pressed') === 'true' ? 'false' : 'true')"><span class="tanrei-icon" data-size="large" aria-hidden="true">favorite</span> पसंदीदा</button>
   <span class="icon-demo" role="tablist">
     <button role="tab" aria-selected="true"><span class="tanrei-icon" data-size="large" aria-hidden="true">home</span> होम</button>
@@ -27,7 +27,7 @@ Tanrei के डिफ़ॉल्ट आइकन [Material Symbols](https://f
     <button role="tab" aria-selected="false"><span class="tanrei-icon" data-size="large" aria-hidden="true">settings</span> सेटिंग</button>
   </span>
   <tanrei-button><span slot="icon" class="tanrei-icon" aria-hidden="true">add</span>जोड़ें</tanrei-button>
-</DemoFrame>
+</Example>
 
 ```js
 import '@tanrei/web/icons.css';

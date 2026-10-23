@@ -2,26 +2,26 @@
 title: "底部面板"
 description: "从底边向上带出补充内容或一项简短的任务：可以盖在屏幕下部而让其余部分照常可用，也可以作为模态的一步，把其他一切变暗并挡住，直到它被关闭。"
 translationOf: components/bottom-sheet.mdx
-sourceHash: 129b9ec0bcae9a6a88c4f15e18d3132be5652383
+sourceHash: 0e04a47f5b04cc9c94d80a327068a564ff16dd76
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="bottom-sheet" />
 
-<DemoFrame label="模态面板：用按钮打开它">
+<Example label="模态面板：用按钮打开它">
   <tanrei-button variant="outlined" onclick="document.getElementById('bottom-sheet-demo-modal').open = true">保存照片</tanrei-button>
   <tanrei-bottom-sheet id="bottom-sheet-demo-modal" label="保存照片" handle-label="调整面板高度" onclose="this.open = false">
     <p>选择照片的保存位置。之后可以在“设置”中更改。</p>
     <tanrei-button variant="text" onclick="this.closest('tanrei-bottom-sheet').open = false">完成</tanrei-button>
   </tanrei-bottom-sheet>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -183,7 +183,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="盖在父元素底部的标准面板：向下拖动即可关闭" plain>
+<Example label="盖在父元素底部的标准面板：向下拖动即可关闭">
   <div style="position: relative; inline-size: 22rem; max-inline-size: 100%; block-size: 20rem; overflow: hidden">
     <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space75); padding: 1rem">
       <p>地图</p>
@@ -193,7 +193,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <p>步行十分钟之内，有三家咖啡馆和一家面包店正在营业。</p>
     </tanrei-bottom-sheet>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="bottom-sheet" />
 
@@ -207,7 +207,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 **从主操作引出多个操作。** 当屏幕的主操作有几种相关的形式时（新建文档、文件夹或上传），[主操作按钮](/zh-cn/components/main-action-button/)会打开一个模态底部面板，把它们列出来。在 Tanrei 系统中，它取代了 [FAB 菜单](/zh-cn/components/fab-menu/)；Tanrei 系统不提供 FAB 菜单。
 
-<DemoFrame label="从主操作引出多个操作：用按钮打开面板" plain>
+<Example label="从主操作引出多个操作：用按钮打开面板">
   <tanrei-main-action-button label="新建" onclick="document.getElementById('bottom-sheet-demo-actions').open = true"><span slot="icon">add</span></tanrei-main-action-button>
   <tanrei-bottom-sheet id="bottom-sheet-demo-actions" label="新建" handle-label="调整面板高度" flush onclose="this.open = false">
     <tanrei-list>
@@ -216,7 +216,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-list-item interactive onclick="this.closest('tanrei-bottom-sheet').open = false">上传文件</tanrei-list-item>
     </tanrei-list>
   </tanrei-bottom-sheet>
-</DemoFrame>
+</Example>
 
 ### 模态还是标准
 

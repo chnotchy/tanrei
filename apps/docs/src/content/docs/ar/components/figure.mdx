@@ -2,20 +2,20 @@
 title: الشكل التوضيحي
 description: يضع شيئًا واحدًا يُنظر إليه، صورة أو مخططًا بيانيًّا أو عيّنة أو مثالًا حيًّا، في منطقة عرض خاصة به، بإطار أو من دونه، مع شرح يقول ما يعرضه، ومعه اختياريًّا عنوان وعناصر تحكم من عندك في الأعلى وكتلة ملحقة في الأسفل.
 translationOf: components/figure.mdx
-sourceHash: 2b6611651835c6319c8a04774015c79b761f6871
+sourceHash: 143f98ae43eb824fe14a7cae9a47724674d4c105
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="figure" />
 
-<DemoFrame label="الطُرُز outlined و filled و plain" column>
+<Example label="الطُرُز outlined و filled و plain" column>
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1.5rem; inline-size: 100%">
     <tanrei-figure>
       <figure>
@@ -36,7 +36,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       </figure>
     </tanrei-figure>
   </div>
-</DemoFrame>
+</Example>
 
 الشكل التوضيحي (figure) يعرض شيئًا واحدًا يُنظر إليه ولا يُقرأ: صورة في مقالة، أو مخططًا بيانيًّا في تقرير، أو معاينة لما سينتجه إعداد، أو عيّنة. يُفرده عما حوله ويقول ما هو. والإطارات التي حول الأمثلة الحيّة في هذا الموقع أشكال توضيحية.
 
@@ -117,7 +117,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="عنوان، وعنصر تحكم، وكتلة ملحقة، وشرح" plain column>
+<Example label="عنوان، وعنصر تحكم، وكتلة ملحقة، وشرح" column>
   <tanrei-figure style="inline-size: min(100%, 30rem)">
     <figure>
       <div data-part="frame">
@@ -135,9 +135,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <figcaption>زر من الطراز filled وترميزه.</figcaption>
     </figure>
   </tanrei-figure>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="بلا حشو: المعروض يبلغ حواف الإطار" plain column>
+<Example label="بلا حشو: المعروض يبلغ حواف الإطار" column>
   <tanrei-figure flush style="inline-size: min(100%, 30rem)">
     <figure>
       <div data-part="frame">
@@ -148,9 +148,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <figcaption>الإطار يقصّ ما يحمله عند زواياه.</figcaption>
     </figure>
   </tanrei-figure>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="أعرض من منطقة عرضه: يُمرَّر هناك، ومنطقة العرض موضع توقف للتركيز" plain column>
+<Example label="أعرض من منطقة عرضه: يُمرَّر هناك، ومنطقة العرض موضع توقف للتركيز" column>
   <tanrei-figure style="inline-size: min(100%, 24rem)">
     <figure>
       <div data-part="frame">
@@ -167,9 +167,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <figcaption>خمسة أزرار في صف لا يلتفّ.</figcaption>
     </figure>
   </tanrei-figure>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="شبكة، ونقاط، وشبكة تتلاشى نحو المركز، ورقعة شطرنج" pattern="none" plain column>
+<Example label="شبكة، ونقاط، وشبكة تتلاشى نحو المركز، ورقعة شطرنج" pattern="none" column>
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1.5rem; inline-size: 100%">
     <tanrei-figure pattern="grid">
       <figure>
@@ -196,7 +196,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       </figure>
     </tanrei-figure>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="figure" />
 

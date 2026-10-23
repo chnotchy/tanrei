@@ -2,20 +2,20 @@
 title: قائمة الخيارات
 description: مجموعة قصيرة من الإجراءات أو الاختيارات على سطح مؤقت يُفتح من العنصر الذي طلبه.
 translationOf: components/menu.mdx
-sourceHash: dde889cba5c9b3c811de7ca80489ea496b14e941
+sourceHash: 0341afebeabc8702ad394d02405a1d0b83eddc75
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="menu" />
 
-<DemoFrame label="إجراءات، وعنصر خانة اختيار، ومجموعة أزرار اختيار، وإجراء لا رجعة فيه">
+<Example label="إجراءات، وعنصر خانة اختيار، ومجموعة أزرار اختيار، وإجراء لا رجعة فيه">
   <tanrei-menu inline open>
     <tanrei-menu-item label="نسخ" leading-icon="content_copy" shortcut="mod+c"></tanrei-menu-item>
     <tanrei-menu-item label="لصق" leading-icon="content_paste" shortcut="mod+v"></tanrei-menu-item>
@@ -28,9 +28,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </tanrei-menu-group>
     <tanrei-menu-item label="حذف" leading-icon="delete" destructive></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="قائمة فرعية: عنصر يفتح مستوى آخر بجانبه" plain>
+<Example label="قائمة فرعية: عنصر يفتح مستوى آخر بجانبه">
   <tanrei-menu inline open>
     <tanrei-menu-item label="ملف جديد" leading-icon="add" shortcut="mod+n"></tanrei-menu-item>
     <tanrei-submenu label="فتح الأخيرة" leading-icon="history" open>
@@ -44,16 +44,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </tanrei-submenu>
     <tanrei-menu-item label="طباعة" leading-icon="print" shortcut="mod+p"></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="قائمة خيارات من الروابط: كل صف يذهب إلى مكان، وواحد منها هو الصفحة التي أنت فيها، وواحد يفتح تبويبًا جديدًا" plain>
+<Example label="قائمة خيارات من الروابط: كل صف يذهب إلى مكان، وواحد منها هو الصفحة التي أنت فيها، وواحد يفتح تبويبًا جديدًا">
   <tanrei-menu inline open>
     <tanrei-menu-item label="الزر" href="/ar/components/button/"></tanrei-menu-item>
     <tanrei-menu-item label="القائمة" href="/ar/components/list/" current></tanrei-menu-item>
     <tanrei-menu-item label="موقع تجريبي" href="https://example.com/" target="new" target-label="يُفتح في تبويب جديد"></tanrei-menu-item>
     <tanrei-menu-item label="الأرشيف" href="/archive/" disabled></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -279,16 +279,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="النص المساعد، وأيقونة النهاية، والعناصر المعطَّلة" plain>
+<Example label="النص المساعد، وأيقونة النهاية، والعناصر المعطَّلة">
   <tanrei-menu inline open>
     <tanrei-menu-item label="مشاركة" supporting-text="إرسال رابط إلى هذا الملف" leading-icon="share"></tanrei-menu-item>
     <tanrei-menu-item label="متاح بلا اتصال" leading-icon="download" trailing-icon="cloud_done"></tanrei-menu-item>
     <tanrei-menu-item label="إعادة التسمية" leading-icon="edit" disabled></tanrei-menu-item>
     <tanrei-menu-item label="حذف" leading-icon="delete" destructive disabled></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="عناوين المجموعات فوق عمودي علامة الصح والأيقونة" plain>
+<Example label="عناوين المجموعات فوق عمودي علامة الصح والأيقونة">
   <tanrei-menu inline open>
     <tanrei-menu-group label="نمط النص">
       <tanrei-menu-checkbox-item label="غامق" leading-icon="format_bold" checked></tanrei-menu-checkbox-item>
@@ -299,9 +299,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-menu-radio-item label="الوسط" value="center" leading-icon="format_align_center"></tanrei-menu-radio-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="عمودا العلامة والأيقونة: القيمة auto للخاصية iconSpace، وهي الافتراضية، والقيمة never" plain>
+<Example label="عمودا العلامة والأيقونة: القيمة auto للخاصية iconSpace، وهي الافتراضية، والقيمة never">
   <tanrei-menu inline open>
     <tanrei-menu-item label="قص" leading-icon="content_cut"></tanrei-menu-item>
     <tanrei-menu-item label="نسخ" leading-icon="content_copy"></tanrei-menu-item>
@@ -330,9 +330,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-menu-item label="المساعدة"></tanrei-menu-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="العلامات: مربع النظام الافتراضي وحلقته، وعلامة صح بسيطة تسمّيها mark-icon" plain>
+<Example label="العلامات: مربع النظام الافتراضي وحلقته، وعلامة صح بسيطة تسمّيها mark-icon">
   <tanrei-menu inline open>
     <tanrei-menu-group label="إظهار">
       <tanrei-menu-checkbox-item label="المساطر" checked></tanrei-menu-checkbox-item>
@@ -353,9 +353,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-menu-radio-item label="الحجم الفعلي" value="actual"></tanrei-menu-radio-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="الفصل: فاصل بين المجموعات، وفجوة" plain>
+<Example label="الفصل: فاصل بين المجموعات، وفجوة">
   <tanrei-menu inline open separation="divider">
     <tanrei-menu-item label="تراجع" shortcut="mod+z"></tanrei-menu-item>
     <tanrei-menu-item label="إعادة" shortcut="mod+shift+z"></tanrei-menu-item>
@@ -378,7 +378,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-menu-item label="بحث في الصفحة" shortcut="mod+f"></tanrei-menu-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
 في النظام الافتراضي يُميَّز عنصر خانة الاختيار بخانة اختيار وعنصر زر الاختيار بزر اختيار، ويُرسمان سواء أكان العنصر محدَّدًا أم لا: مربع فارغ ومربع معبّأ فيه علامة صح، وحلقة رفيعة وحلقة ثخينة مع تعبئتها. فيبقى الخيار غير المفعَّل ظاهرًا على أنه خيار. وهذه رسوم في عمود العلامات، لا عناصر تحكم: الصف هو الشيء الوحيد الذي يُضغط ويأخذ التركيز. وعلامة الصح في المربع تُرسم بالوزن الأثقل الذي لعلامة عنصر التحكم نفسه، كما في [خانة الاختيار](/ar/components/checkbox/).
 

@@ -2,20 +2,20 @@
 title: पॉपओवर
 description: वह कॉन्टेंट जिसे व्यक्ति पढ़ और ऑपरेट कर सकता है, एक छोटी सरफ़ेस पर दिखाता है। सरफ़ेस उस कंट्रोल के बग़ल में खुलती है जिसे व्यक्ति ने दबाया और उसी के साथ रहती है, बाक़ी पेज को धुँधला किए या रोके बिना। कॉम्पैक्ट विंडो में यह बॉटम शीट जैसी दिखने वाली एक मोडल सरफ़ेस में दिखता है।
 translationOf: components/popover.mdx
-sourceHash: 80d3974c3277f1d69bb01e20df6bfa52a4477d9a
+sourceHash: cd2056332ef89bbba2c92da6cb340178ef7a87c7
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="popover" />
 
-<DemoFrame label="कोई बटन दबाएँ: लिंक वाला एक नोट, और क्रियाओं वाला एक छोटा फ़ॉर्म">
+<Example label="कोई बटन दबाएँ: लिंक वाला एक नोट, और क्रियाओं वाला एक छोटा फ़ॉर्म">
   <tanrei-button id="popover-demo-note-opener" variant="outlined" onclick="document.getElementById('popover-demo-note').open = !document.getElementById('popover-demo-note').open">स्टोरेज</tanrei-button>
   <tanrei-popover id="popover-demo-note" anchor="popover-demo-note-opener" headline="स्टोरेज" closable close-label="स्टोरेज की जानकारी बंद करें" arrow placement="bottom" onclose="this.open = false">
     ट्रैश की फ़ाइलें हटाए जाने तक आपके स्टोरेज में गिनी जाती हैं। <a class="tanrei-link" href="#दिशानिर्देश">स्टोरेज कैसे गिना जाता है</a>
@@ -26,7 +26,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-popover').open = false">रद्द करें</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-popover').open = false">नाम बदलें</tanrei-button>
   </tanrei-popover>
-</DemoFrame>
+</Example>
 
 पॉपओवर उस कॉन्टेंट के लिए इस्तेमाल करें जिस पर व्यक्ति उसे खोलने वाले कंट्रोल के बग़ल में ही काम करता है: कुछ सेटिंग, एक छोटा फ़ॉर्म, शेयर करने का पैनल, वह नोट जिसे लिंक या बटन चाहिए। उसके आस-पास का बाक़ी पेज इस्तेमाल करने लायक़ बना रहता है। कॉम्पैक्ट विंडो में यह इसकी जगह विंडो के निचले किनारे पर बॉटम शीट के रूप-रंग में दिखता है, जैसे कॉम्पैक्ट विंडो में Tanrei का हर पॉपओवर और हर डायलॉग दिखता है।
 
@@ -95,14 +95,14 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 
 ## स्पेक
 
-<DemoFrame label="स्थान, तीर, और अपने ऐंकर जितना चौड़ा पॉपओवर" plain>
+<Example label="स्थान, तीर, और अपने ऐंकर जितना चौड़ा पॉपओवर">
   <tanrei-button id="popover-demo-top-opener" variant="outlined" onclick="document.getElementById('popover-demo-top').open = !document.getElementById('popover-demo-top').open">ऊपर, बीच में</tanrei-button>
   <tanrei-popover id="popover-demo-top" anchor="popover-demo-top-opener" label="स्टोरेज" placement="top" arrow onclose="this.open = false">ट्रैश अब भी स्टोरेज में गिना जाता है।</tanrei-popover>
   <tanrei-button id="popover-demo-end-opener" variant="outlined" onclick="document.getElementById('popover-demo-end').open = !document.getElementById('popover-demo-end').open">बग़ल में, अंत की ओर</tanrei-button>
   <tanrei-popover id="popover-demo-end" anchor="popover-demo-end-opener" label="स्टोरेज" placement="end-top" onclose="this.open = false">ट्रैश अब भी स्टोरेज में गिना जाता है।</tanrei-popover>
   <tanrei-button id="popover-demo-width-opener" variant="outlined" style="inline-size: 16rem" onclick="document.getElementById('popover-demo-width').open = !document.getElementById('popover-demo-width').open">इस बटन जितना चौड़ा</tanrei-button>
   <tanrei-popover id="popover-demo-width" anchor="popover-demo-width-opener" label="स्टोरेज" width="anchor" onclose="this.open = false">ट्रैश अब भी स्टोरेज में गिना जाता है।</tanrei-popover>
-</DemoFrame>
+</Example>
 
 ### यह कहाँ रहता है
 

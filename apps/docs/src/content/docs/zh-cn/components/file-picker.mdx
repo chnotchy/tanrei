@@ -2,21 +2,21 @@
 title: "文件选择器"
 description: "让用户通过平台自己的选择器来选择文件：可以从一个按钮打开，在位置足够的地方还可以把文件拖到一块区域上。它在选择之前用文字说明限制，对选中的内容作出判定，再把它接受的文件和它拒绝的文件交给你的产品。它什么都不保留，什么都不列出，也不参与表单。"
 translationOf: components/file-picker.mdx
-sourceHash: 7b60eb18075b635e3d10042c71ae794088afa2bf
+sourceHash: 13621ef351e8f58d28882b26c91b782cc5a412fc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 
 ## 概览
 
 <ComponentAvailability name="file-picker" />
 
-<DemoFrame label="两种布局的文件选择器。在这里选择文件不会带来任何变化：页面不保留任何文件。" column>
+<Example label="两种布局的文件选择器。在这里选择文件不会带来任何变化：页面不保留任何文件。" column>
   <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="图层文件" accept=".json" constraints-text="一个 JSON 文件" selection-text="未选择文件">
     <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
   </tanrei-file-picker>
@@ -24,7 +24,7 @@ import Callout from '../../../../components/Callout.astro';
     <tanrei-button slot="trigger" variant="outlined">选择照片</tanrei-button>
     <span slot="icon">image</span>
   </tanrei-file-picker>
-</DemoFrame>
+</Example>
 
 文件选择器是选择文件的途径，仅此而已。你自己的[按钮](/zh-cn/components/button/)打开平台的文件选择器。按钮周围可以有一块拖放区域，它也接收拖到上面的文件。限制用你的文字写在旁边。选中的内容会对照限制作出判定，再交给你：被接受的文件随 `select` 交出，被拒绝的文件随 `reject` 交出。
 
@@ -107,7 +107,7 @@ const { accepted, refused } = picker.judge(event.clipboardData.files);
 
 ## 规格
 
-<DemoFrame label="只有触发器；带有已选内容和限制；处于错误状态的拖放区域；已禁用" plain column>
+<Example label="只有触发器；带有已选内容和限制；处于错误状态的拖放区域；已禁用" column>
   <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="添加附件">
     <tanrei-button slot="trigger" variant="outlined">添加附件</tanrei-button>
   </tanrei-file-picker>
@@ -120,7 +120,7 @@ const { accepted, refused } = picker.judge(event.clipboardData.files);
   <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple disabled label="附件" drop-text="将文件拖到此处，或选择文件" constraints-text="PDF 或 PNG，每个不超过 10 MB">
     <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
   </tanrei-file-picker>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="file-picker" />
 

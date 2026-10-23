@@ -2,20 +2,20 @@
 title: عنصر الاختيار
 description: "يتيح للأشخاص اختيار قيمة واحدة من قائمة مغلقة: مشغِّل له مظهر صندوق حقل إدخال النص ومقاساته ويعرض الخيار المختار، وقائمة بالخيارات تُفتح منه ويمكن تقسيمها إلى مجموعات، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. يصلح لشريط أو شريط أدوات أو جدول، أو داخل حقل يركّبه المنتج بنفسه."
 translationOf: components/select.mdx
-sourceHash: 6498add9840e5413d69077058e2b885721456c9b
+sourceHash: 6246b546b185dfc590a8e1793d0b194db9f0c4db
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="select" />
 
-<DemoFrame label="مجرَّدًا: عنصر اختيار للسمة يوضع في شريط، وترتيب فرز فوق قائمة" column>
+<Example label="مجرَّدًا: عنصر اختيار للسمة يوضع في شريط، وترتيب فرز فوق قائمة" column>
   <tanrei-select class="not-content" size="small" label="السمة" value="auto">
     <tanrei-option value="light" leading-icon="light_mode">فاتح</tanrei-option>
     <tanrei-option value="dark" leading-icon="dark_mode">داكن</tanrei-option>
@@ -26,7 +26,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-option value="name">الاسم</tanrei-option>
     <tanrei-option value="size">الحجم</tanrei-option>
   </tanrei-select>
-</DemoFrame>
+</Example>
 
 عنصر الاختيار (select) هو صندوق [حقل الاختيار](/ar/components/select-field/) وحده: المشغِّل (trigger) مع القيمة التي يعرضها وأيقونة البداية والسهم الصغير (chevron)، وقائمة بالخيارات تُفتح منه. ليس فوقه صف تسمية ولا علامة المطلوب أو الاختياري، وليس تحته مساعدة ولا نص خطأ.
 
@@ -106,20 +106,20 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="حقل فيه عنصر الاختيار: الصورة نفسها التي لحقل الاختيار" column>
+<Example label="حقل فيه عنصر الاختيار: الصورة نفسها التي لحقل الاختيار" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="البلد" required required-text="مطلوب" supporting-text="البلد الذي تُوجَّه إليه فواتيرك.">
     <tanrei-select placeholder="اختر بلدًا">
       <tanrei-option value="jp">اليابان</tanrei-option>
       <tanrei-option value="ke">كينيا</tanrei-option>
     </tanrei-select>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 يقول عنصر الاختيار لحقله ما لا يعرفه سواه. فمساعدته تبدأ حيث تبدأ القيمة، بعد الحشو وأيقونة البداية. وعنصر الاختيار من الطراز filled أو outlined يرسم تسمية الحقل بنفسه، عائمة في الصندوق، فلا يرسم الحقل صف التسمية. وما دامت قائمته مفتوحة يُرسم عنصر الاختيار في حالة التركيز، سواء أكان التركيز عليه أم لا، فيرسم الحقل تسميته ومساعدته في حالة التركيز طوال تلك المدة.
 
 ## المواصفات
 
-<DemoFrame label="عناصر اختيار مجرَّدة: مجموعات، ونص مساعد مع خيار معطَّل، وفي حالة خطأ، وللقراءة فقط، ومعطَّل" plain column>
+<Example label="عناصر اختيار مجرَّدة: مجموعات، ونص مساعد مع خيار معطَّل، وفي حالة خطأ، وللقراءة فقط، ومعطَّل" column>
   <tanrei-select class="not-content" label="المنطقة الزمنية" value="Europe/Lisbon">
     <tanrei-option-group label="آسيا"><tanrei-option value="Asia/Tokyo">طوكيو</tanrei-option><tanrei-option value="Asia/Seoul">سول</tanrei-option></tanrei-option-group>
     <tanrei-option-group label="أوروبا"><tanrei-option value="Europe/Lisbon">لشبونة</tanrei-option><tanrei-option value="Europe/Berlin">برلين</tanrei-option></tanrei-option-group>
@@ -138,7 +138,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-select class="not-content" label="البلد" value="jp" disabled>
     <tanrei-option value="jp">اليابان</tanrei-option><tanrei-option value="ke">كينيا</tanrei-option>
   </tanrei-select>
-</DemoFrame>
+</Example>
 
 ### المشغِّل
 
@@ -198,11 +198,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 عنصر الاختيار الذي لا خيار فيه ولا حالة ولا `emptyText` لا يُفتح. أعطِه `emptyText`، أو أعطِ كلمة المنتج `noOptionsText` مرة واحدة عبر `setWords()`، كي يعرف من يفتحه لماذا لا يوجد ما يُختار.
 
-<DemoFrame label="التحميل والإخفاق وعدم وجود ما يُختار" column>
+<Example label="التحميل والإخفاق وعدم وجود ما يُختار" column>
   <tanrei-select class="not-content" label="المشروع" placeholder="اختر مشروعًا" status="loading" status-text="جارٍ تحميل المشاريع"></tanrei-select>
   <tanrei-select class="not-content" label="المشروع" placeholder="اختر مشروعًا" status="error" status-text="تعذّر تحميل المشاريع. تحقّق من اتصالك."></tanrei-select>
   <tanrei-select class="not-content" label="المشروع" placeholder="اختر مشروعًا" empty-text="لا توجد مشاريع بعد"></tanrei-select>
-</DemoFrame>
+</Example>
 
 ### الفتح والتنقل والاختيار
 

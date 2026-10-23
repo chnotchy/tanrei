@@ -2,20 +2,20 @@
 title: セグメントボタン
 description: 関連する 2〜5 個の選択肢を、つながったセグメントとして横に並べた 1 つのコントロールです。1 つ、または複数を選べます。
 translationOf: components/segmented-button.mdx
-sourceHash: 6af9719e03456372600f15965041cf5525e4cc2b
+sourceHash: f5dba2ffe4e9e720932015a4fb412a533c20b3b9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="segmented-button" />
 
-<DemoFrame label="単一選択、アイコン付き、アイコンのみ" system="m3-like">
+<Example label="単一選択、アイコン付き、アイコンのみ" system="m3-like">
   <tanrei-segmented-button label="期間" value="week">
     <tanrei-segment value="day" label="日"></tanrei-segment>
     <tanrei-segment value="week" label="週"></tanrei-segment>
@@ -31,7 +31,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-segment value="center" label="中央揃え" icon="format_align_center" label-hidden></tanrei-segment>
     <tanrei-segment value="end" label="右揃え" icon="format_align_right" label-hidden></tanrei-segment>
   </tanrei-segmented-button>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -205,7 +205,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 仕様
 
-<DemoFrame label="サイズと無効なセグメント" system="m3-like" plain>
+<Example label="サイズと無効なセグメント" system="m3-like">
   <tanrei-segmented-button label="期間" value="week" size="small">
     <tanrei-segment value="day" label="日"></tanrei-segment>
     <tanrei-segment value="week" label="週"></tanrei-segment>
@@ -226,7 +226,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-segment value="week" label="週"></tanrei-segment>
     <tanrei-segment value="month" label="月" disabled></tanrei-segment>
   </tanrei-segmented-button>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="segmented-button" />
 

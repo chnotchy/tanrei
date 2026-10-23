@@ -2,20 +2,20 @@
 title: डिस्क्रिप्शन लिस्ट
 description: "किसी एक चीज़ के बारे में जो पता है, उसे नाम वाले तथ्यों के रूप में दिखाती है: एक हल्का टर्म और वह मान जो उसका जवाब है। टर्म अपने मान के बग़ल में, उसके ऊपर, या किसी बड़े आँकड़े के नीचे होते हैं। इसका लेआउट इसकी अपनी चौड़ाई से तय होता है, और यह कभी कंट्रोल नहीं होती।"
 translationOf: components/description-list.mdx
-sourceHash: 19b77e343ee682dd4da1249daeb3a93d679c1efb
+sourceHash: 77ff09c568150926010e4d5f42596663265fd01a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="description-list" />
 
-<DemoFrame label="एक ऑर्डर के तथ्य" column>
+<Example label="एक ऑर्डर के तथ्य" column>
   <tanrei-description-list style="inline-size: min(100%, 30rem)">
     <dl>
       <div><dt>ऑर्डर नंबर</dt><dd>A-20418</dd></div>
@@ -25,7 +25,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <div><dt>कुल</dt><dd>¥ 12,800</dd></div>
     </dl>
   </tanrei-description-list>
-</DemoFrame>
+</Example>
 
 डिस्क्रिप्शन लिस्ट किसी एक चीज़ के तथ्य दिखाती है: कोई ऑर्डर, फ़ाइल, खाता या कंपोनेंट। हर तथ्य एक टर्म और वह मान है जो उसका जवाब है। टर्म एक हल्का लेबल है; मान वह है जिसके लिए व्यक्ति आया है।
 
@@ -96,7 +96,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="Stat: वे संख्याएँ जिनसे कोई स्क्रीन शुरू होती है" plain column>
+<Example label="Stat: वे संख्याएँ जिनसे कोई स्क्रीन शुरू होती है" column>
   <tanrei-description-list layout="stat" columns="3" separation="gap" style="inline-size: 100%">
     <dl>
       <div><dt>इस हफ़्ते के ऑर्डर</dt><dd>1,284</dd><dd>पिछले हफ़्ते से 12% ज़्यादा</dd></div>
@@ -104,9 +104,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <div><dt>बिल्ड का मीडियन समय</dt><dd>4 मिनट 12 सेकंड</dd></div>
     </dl>
   </tanrei-description-list>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="कॉलम में stacked: लिस्ट सँकरी हो तो कॉलम कम हो जाते हैं" plain column>
+<Example label="कॉलम में stacked: लिस्ट सँकरी हो तो कॉलम कम हो जाते हैं" column>
   <tanrei-description-list layout="stacked" columns="3" style="inline-size: 100%">
     <dl>
       <div><dt>नियोजित</dt><dd>स्पेक लिखा जा चुका है, पर इस प्लैटफ़ॉर्म पर अभी इम्प्लीमेंट नहीं हुआ।</dd></div>
@@ -117,9 +117,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <div><dt>अप्रचलित</dt><dd>अभी भी दिया जाता है; इसकी जगह लेने वाली चीज़ बताई गई है।</dd></div>
     </dl>
   </tanrei-description-list>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Compact, ख़ाली जगह से अलग किए गए: वे तथ्य जिन पर व्यक्ति नज़र दौड़ाता है" plain column>
+<Example label="Compact, ख़ाली जगह से अलग किए गए: वे तथ्य जिन पर व्यक्ति नज़र दौड़ाता है" column>
   <tanrei-description-list density="compact" separation="gap" style="inline-size: min(100%, 26rem)">
     <dl>
       <div><dt>मान</dt><dd>#1b1c1e</dd><dd>→ ref.palette.neutral.10</dd></div>
@@ -127,7 +127,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <div><dt>विवरण</dt><dd>किसी भी सरफ़ेस या सरफ़ेस कंटेनर पर टेक्स्ट और ग्लिफ़।</dd></div>
     </dl>
   </tanrei-description-list>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="description-list" />
 

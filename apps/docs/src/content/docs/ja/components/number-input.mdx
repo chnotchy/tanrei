@@ -2,20 +2,20 @@
 title: 数値入力欄
 description: 数値のボックスです。ロケールの書き方で入力するか、キーやボタンで増減でき、範囲の中に保たれ、単位が横に付きます。ラベルの行、補足、エラーテキストは自分では持ちません。ラベルがほかの場所にある数値や、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/number-input.mdx
-sourceHash: d6ff008fbde5d43dd32614e3e7bdba4bb94404fd
+sourceHash: d2d6bd8ae89fdd1c543ff780c061b338242047c6
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="number-input" />
 
-<DemoFrame label="単独で使う例：1 つの行見出しの下でスライダーの横に置いた数値と、ラベルを横に置いた行の数量" column>
+<Example label="単独で使う例：1 つの行見出しの下でスライダーの横に置いた数値と、ラベルを横に置いた行の数量" column>
   <div class="not-content" style="display: grid; grid-template-columns: minmax(0, 1fr) 6rem; align-items: center; gap: 0.75rem; inline-size: 22rem; max-inline-size: 100%">
     <tanrei-slider label="倍率" min="0.25" max="4" step="0.05" value="1.5"></tanrei-slider>
     <tanrei-number-input label="倍率" min="0.25" max="4" step="0.05" value="1.5" suffix-text="×" value-text="1.5 倍" align="end" no-steppers></tanrei-number-input>
@@ -24,7 +24,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <span>オーク材のデスク</span>
     <tanrei-number-input label="数量、オーク材のデスク" value="2" min="1" max="99" increment-label="増やす" decrement-label="減らす"></tanrei-number-input>
   </div>
-</DemoFrame>
+</Example>
 
 数値入力欄は、[数値フィールド](/ja/components/number-field/)のボックスだけを取り出したものです。コンテナ、数値、プレフィックスとサフィックス、2 つのステッパーがあります。上にラベルの行はなく、下に補足もエラーテキストもありません。
 
@@ -107,11 +107,11 @@ Web では `<tanrei-number-input>` です。ほかのプラットフォームは
 </tanrei-field>
 ```
 
-<DemoFrame label="フィールドの中の数値入力欄。見た目は数値フィールドと同じです" column>
+<Example label="フィールドの中の数値入力欄。見た目は数値フィールドと同じです" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" required required-text="必須" supporting-text="1 回の注文は 99 個までです。">
     <tanrei-number-input min="1" max="99" invalid-text="数値を入力してください。" increment-label="増やす" decrement-label="減らす"></tanrei-number-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 入力欄は、自分にしか分からないことをフィールドに伝えます。フィールドの補足は、ボックスの中のテキストにそろいます。ステッパーが描かれていてもいなくても、ボックスのテキストのパディングの位置で始まり、その位置で終わります。Filled と Outlined の入力欄は、フィールドのラベルをボックスの中で浮き上がるラベルとして自分で描くので、フィールドはラベルの行を描きません。数ではないテキストは、入力欄の `invalidText` でフィールドをエラーにします。入力欄に `invalidText` がなければ、フィールド自身の `errorText` を使います。
 
@@ -119,24 +119,24 @@ Web では `<tanrei-number-input>` です。ほかのプラットフォームは
 
 ## 仕様
 
-<DemoFrame label="単独の入力欄：上限で無効になったステッパー、末尾側にそろえた数字、ステッパーなし、エラー、読み取り専用、無効" plain column>
+<Example label="単独の入力欄：上限で無効になったステッパー、末尾側にそろえた数字、ステッパーなし、エラー、読み取り専用、無効" column>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" value="99" min="1" max="99" increment-label="増やす" decrement-label="減らす"></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="トーン" value="40" min="0" max="100" align="end" increment-label="増やす" decrement-label="減らす"></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="字間" value="-0.25" step="0.01" suffix-text="px" no-steppers></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" value="0" error increment-label="増やす" decrement-label="減らす"></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" value="12" readonly></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" value="12" disabled increment-label="増やす" decrement-label="減らす"></tanrei-number-input>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="単独の Filled と Outlined：入力欄自身のラベルがボックスの中で浮き上がります" system="m3-like" plain column>
+<Example label="単独の Filled と Outlined：入力欄自身のラベルがボックスの中で浮き上がります" system="m3-like" column>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="数量" value="12" increment-label="増やす" decrement-label="減らす"></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="数量" increment-label="増やす" decrement-label="減らす"></tanrei-number-input>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="右から左のレイアウト：ラテン文字の単位は数値の後ろに左から右へ、ページ自身の文字の単位は数値の左に来ます" plain column>
+<Example label="右から左のレイアウト：ラテン文字の単位は数値の後ろに左から右へ、ページ自身の文字の単位は数値の左に来ます" column>
   <div dir="rtl" lang="ar"><tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="العرض" value="44" min="0" suffix-text="px" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input></div>
   <div dir="rtl" lang="ar"><tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الوزن" value="12" min="0" step="0.5" suffix-text="كغم" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input></div>
-</DemoFrame>
+</Example>
 
 数値とその単位は、ひと続きのテキストです。プレフィックスは数値の前に、サフィックスは数値の後ろに、単位自身の文字の向きで書きます。ページの向きには左右されません。そのため「44 px」「$ 120 USD」「40 %」は、アラビア語やヘブライ語のページでも英語のページと同じ並びになり、アラビア文字やヘブライ文字で書いた単位は数値の左に来ます。ステッパーとラベルはページの向きに従います。`align="end"` は数値を単位の側に寄せます。ラテン文字や記号の単位なら、どちらの向きでも右です。ラテン文字の通貨コードを数値の左に置きたいときは、サフィックスの先頭に右から左への方向マーク（U+200F）を書きます。
 
