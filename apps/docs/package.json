@@ -30,8 +30,10 @@
     "@tanrei/studio": "workspace:*",
     "@tanrei/web": "workspace:*",
     "astro": "^7.3.8",
+    "harfbuzzjs": "1.6.2",
     "sharp": "^0.35.5",
-    "ultrahtml": "^1.7.0"
+    "ultrahtml": "^1.7.0",
+    "wawoff2": "2.0.1"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
