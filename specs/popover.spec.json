@@ -419,6 +419,10 @@
       "id": "POP-43",
       "text": "WHILE compactPresentation is own, or initialFocus is anchor, THE popover SHALL stay an anchored popover that is not modal in every window, compact ones included: WHERE the window is narrower or shorter than the container wants THE popover SHALL narrow and shorten the container as POP-7 and POP-8 say, cover its anchor as POP-5 says where it must, and scroll, and SHALL NOT draw a scrim or trap focus. A popover whose initialFocus is anchor stays beside its anchor because focus stays in the element the person is typing in, which a modal sheet would make inert. WHEN compactPresentation names a value the popover does not define THE popover SHALL treat it as sheet and in debug builds report the unknown value.",
       "verify": "In a window 320 wide with compactPresentation own the fixture actions is 304 wide (the window less the margin on each side), stands beside its anchor and every part of it can be reached by scrolling; the fixture compact-own renders beside its anchor in a 360 × 640 window, with no scrim."
+    },
+    {
+      "id": "POP-44",
+      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE popover SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on its dialog (POP-28), beside its anchor and as a sheet alike — an id reference by the elements it names in the host's tree or a tree around it, a description after its own. WHILE headline or label is not empty it is the dialog's name (POP-28), over a name given so; WHILE both are empty, a name given so is the dialog's name and SHALL NOT be reported as having none in debug builds. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE popover SHALL take it off that element."
     }
   ],
   "accessibility": {

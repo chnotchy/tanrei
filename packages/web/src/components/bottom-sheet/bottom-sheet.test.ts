@@ -1,5 +1,7 @@
 // <tanrei-bottom-sheet>, driven by specs/bottom-sheet.spec.json: every behaviour id (BSH-1…30) is cited by a test title,
 // every fixture has a baseline, and every value is read back from the tokens.
+// BSH-31: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { atRest } from '../../../test/at-rest.js';
 import { type Page, expect, test } from '@playwright/test';

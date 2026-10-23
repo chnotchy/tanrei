@@ -1,4 +1,5 @@
 import { type PropertyDeclarations, type PropertyValues, type TemplateResult, html, nothing } from 'lit';
+import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/delegated-aria.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { repeat } from 'lit/directives/repeat.js';
@@ -1670,7 +1671,7 @@ export class TanreiCalendar extends TanreiElement {
     const moving = this.views.length > 1;
     const glyphs = this.glyphs();
     const label = this.label.trim();
-    return html`<div class="calendar" role=${ifDefined(label ? 'group' : undefined)} aria-label=${ifDefined(label || undefined)} data-axis=${this.axis}>
+    return html`<div class="calendar" role=${ifDefined(label || namedByProduct(this) ? 'group' : undefined)} ${delegatedAria(this, { 'aria-label': label })} data-axis=${this.axis}>
       <div part="navigation" class="nav">
         <button
           type="button"
@@ -1771,6 +1772,8 @@ export class TanreiCalendar extends TanreiElement {
   }
 }
 
+// CAL-36: the product's ARIA on the host is its group's, which it is while it has a name (src/primitives/delegated-aria.ts).
+delegatesAria(TanreiCalendar, { sentence: 'CAL-36' });
 if (!customElements.get('tanrei-calendar')) customElements.define('tanrei-calendar', TanreiCalendar);
 
 declare global {

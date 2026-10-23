@@ -3,6 +3,8 @@
 // tokens — never from a number written here (the heights and insets of TOC-3's and TOC-24's verify are the spec's own
 // numbers for the default system). The rule (TOC-9 to TOC-17) cannot be shown by a fixture: its tests build the pages
 // its `verify` texts describe (`reading()`).
+// TOC-41: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { expectPressHeldAtEveryMoment } from '../../../test/held-press.js';
 import { expectPressShownAndHeld, watchPress, watchedPress } from '../../../test/watched-press.js';

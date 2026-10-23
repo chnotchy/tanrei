@@ -1,4 +1,5 @@
 import { type PropertyDeclarations, type PropertyValues, type TemplateResult, html, nothing } from 'lit';
+import { delegatedAria, delegatesAria } from '../../primitives/delegated-aria.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { repeat } from 'lit/directives/repeat.js';
@@ -2954,7 +2955,7 @@ export class TanreiDateTimePicker extends TanreiElement {
         part="container"
         class=${classes}
         data-tanrei-appear
-        aria-label=${ifDefined(label || undefined)}
+        ${delegatedAria(this, { 'aria-label': label })}
         tabindex="-1"
         data-tanrei-shape
         @keydown=${this.onSurfaceKeyDown}
@@ -2969,7 +2970,7 @@ export class TanreiDateTimePicker extends TanreiElement {
       part="container"
       class=${classes}
       role="dialog"
-      aria-label=${ifDefined(label || undefined)}
+      ${delegatedAria(this, { 'aria-label': label })}
       data-tanrei-shape
       popover=${ifDefined(this.inline ? undefined : 'manual')}
       @keydown=${this.onSurfaceKeyDown}
@@ -3011,6 +3012,8 @@ function findOpenerTarget(element: HTMLElement): HTMLElement {
   return search(element.shadowRoot, 0) ?? element.shadowRoot.querySelector<HTMLElement>('button, [role="button"]') ?? element;
 }
 
+// DTM-52: the product's ARIA on the host is its surface's, the dialog (src/primitives/delegated-aria.ts).
+delegatesAria(TanreiDateTimePicker, { sentence: 'DTM-52' });
 if (!customElements.get('tanrei-date-time-picker')) customElements.define('tanrei-date-time-picker', TanreiDateTimePicker);
 
 declare global {

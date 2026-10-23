@@ -1,4 +1,5 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { delegatedAria, delegatesAria } from '../../primitives/delegated-aria.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { AvailabilityController, GlyphDrawnController, PressController, report, styleQueries, syncFocusStyle } from '../../primitives/index.js';
 import { LINK_KEYS } from '../../primitives/link.js';
@@ -946,7 +947,7 @@ export class TanreiTableOfContents extends TanreiElement {
     const name = this.currentItem()?.label ?? '';
     const titled = !!label.trim() || !!this.querySelector(':scope > [slot="title"]');
     return html`
-      <nav part="nav" class=${classMap({ compact, open })} aria-label=${label.trim() ? label : nothing} ?data-tanrei-shape=${compact}>
+      <nav part="nav" class=${classMap({ compact, open })} ${delegatedAria(this, { 'aria-label': label.trim() })} ?data-tanrei-shape=${compact}>
         ${compact
           ? html`<button
               part="disclosure-row"
@@ -981,6 +982,8 @@ export class TanreiTableOfContents extends TanreiElement {
   }
 }
 
+// TOC-41: the product's ARIA on the host is its navigation landmark's (src/primitives/delegated-aria.ts).
+delegatesAria(TanreiTableOfContents, { sentence: 'TOC-41' });
 if (!customElements.get('tanrei-table-of-contents')) customElements.define('tanrei-table-of-contents', TanreiTableOfContents);
 
 declare global {

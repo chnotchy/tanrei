@@ -222,6 +222,10 @@
     {
       "id": "HDL-25",
       "text": "WHERE the primary pointer cannot hover (a touch screen), and WHILE revealed is true, THE handle SHALL draw its line at rest: a mark that shows only under a hovering pointer would never be found by a finger, and a press on its unseen target would take a touch meant for what lies under it."
+    },
+    {
+      "id": "HDL-26",
+      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE handle SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role (HDL-8) — its separator WHILE value is not null, its button otherwise — an id reference by the elements it names in the host's tree or a tree around it, a description after its own — except those the handle owns (aria-disabled, aria-expanded), which it SHALL move and not expose. WHILE label is not empty it is the handle's name, over a name given so; WHILE label is empty, a name given so is the handle's name and SHALL NOT be reported as having none in debug builds. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE handle SHALL take it off that element. WHEN the product sets an aria- attribute the handle owns THE handle SHALL report it in debug builds."
     }
   ],
   "accessibility": {

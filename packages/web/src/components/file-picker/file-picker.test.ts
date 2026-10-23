@@ -3,6 +3,8 @@
 // here. A file is chosen through the browser's own picker (Playwright's filechooser event), and a drag is a DragEvent
 // that carries a DataTransfer the page made. The sentences the web holds as the nearest thing (FPK-6, FPK-13, FPK-14,
 // FPK-17, FPK-21) are named where a test holds them.
+// FPK-32: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, iconFaceArrives, loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';

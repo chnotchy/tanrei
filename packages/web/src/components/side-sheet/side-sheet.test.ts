@@ -1,5 +1,7 @@
 // <tanrei-side-sheet>, driven by specs/side-sheet.spec.json: every behaviour id (SSH-1…23) is cited by a test title,
 // every fixture has a baseline, and every value is read back from the tokens.
+// SSH-24: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { atRest } from '../../../test/at-rest.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';

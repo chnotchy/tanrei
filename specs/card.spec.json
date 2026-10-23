@@ -164,7 +164,7 @@
     },
     {
       "id": "CRD-14",
-      "text": "WHILE interactive is true THE card SHALL be exactly one focusable element with the button role (the link role WHILE href is not empty, CRD-19), named by label or, WHILE label is empty, by the name the product gives it on the element — aria-label, or aria-labelledby naming an element — or else by the text of its content merged in reading order, and in debug builds SHALL report, WHILE it has neither label nor a name of the product's, that it has no label; WHILE interactive is false and href is empty THE card SHALL have no role of its own and leave its content's semantics untouched, except that WHERE label is set it SHALL be a group named by label."
+      "text": "WHILE interactive is true THE card SHALL be exactly one focusable element with the button role (the link role WHILE href is not empty, CRD-19), named by label, over a name the product gives it on the element (aria-label or aria-labelledby), or, WHILE label is empty, by the name the product gives it on the element — aria-label, or aria-labelledby naming an element — or else by the text of its content merged in reading order, and in debug builds SHALL report, WHILE it has neither label nor a name of the product's, that it has no label; WHILE interactive is false and href is empty THE card SHALL have no role of its own and leave its content's semantics untouched, except that WHERE label is set it SHALL be a group named by label."
     },
     {
       "id": "CRD-15",

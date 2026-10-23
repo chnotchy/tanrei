@@ -1,6 +1,8 @@
 // <tanrei-calendar>, driven by specs/calendar.spec.json: every behaviour id (CAL-1…34) is cited by a test title, every
 // fixture has a baseline (the calendar at its natural size centred on a 400 × 440 stage, CAL-1's verify), and every value
 // is read back from the tokens — never from a number written here.
+// CAL-36: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens } from '../../../test/harness.js';

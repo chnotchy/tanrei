@@ -5,6 +5,8 @@
 // The gestures are driven three ways, and each test says which: a real mouse (`page.mouse`), which every engine turns
 // into pointer events of its own; pointer events made in the page for a finger (`finger()`, `drag()`), which every
 // engine dispatches alike; and, in Chromium, real touches over the DevTools protocol.
+// IMP-44: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Page, expect, test } from '@playwright/test';
 import { override, warnings } from '../../../test/destinations.js';

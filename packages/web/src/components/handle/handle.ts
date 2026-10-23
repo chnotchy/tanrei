@@ -1,4 +1,5 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing, svg } from 'lit';
+import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/delegated-aria.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { AvailabilityController, OpenAxesController, PressController, TOUCH_SLOP, report, syncFocusStyle } from '../../primitives/index.js';
@@ -358,7 +359,7 @@ export class TanreiHandle extends TanreiElement {
   }
 
   override updated(changed: PropertyValues<this>) {
-    if (changed.has('label') && !this.label.trim()) report(this, 'HDL-8', 'label is empty, so the handle has no accessible name; give it a label that says what it resizes');
+    if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'HDL-8', 'label is empty, so the handle has no accessible name; give it a label that says what it resizes');
     if (changed.has('axis') && this.axis !== this.shownAxis) report(this, 'HDL-20', `axis "${this.axis}" is not a value of the handle; it is drawn as "vertical"`);
     if (changed.has('corner') && this.corner !== this.shownCorner) report(this, 'HDL-20', `corner "${this.corner}" is not a value of the handle; it is drawn as "bottom-end"`);
   }
@@ -378,7 +379,7 @@ export class TanreiHandle extends TanreiElement {
       disabled: this.disabled,
       revealed: this.revealed,
     });
-    const name = this.label.trim() || nothing;
+    const name = this.label.trim();
     const inner = html`${this.lineTemplate()}<span class="hold" aria-hidden="true"></span>`;
     if (this.separator) {
       // HDL-8: a focusable separator with its value; its orientation is its line's.
@@ -389,13 +390,12 @@ export class TanreiHandle extends TanreiElement {
         data-tanrei-shape
         role="separator"
         tabindex=${this.disabled ? nothing : '0'}
-        aria-label=${name}
+        ${delegatedAria(this, { 'aria-label': name, 'aria-disabled': this.disabled && 'true' })}
         aria-orientation=${axis === 'horizontal' ? 'vertical' : 'horizontal'}
         aria-valuenow=${String(this.value)}
         aria-valuemin=${String(this.min)}
         aria-valuemax=${String(this.max)}
         aria-valuetext=${valueText || nothing}
-        aria-disabled=${this.disabled ? 'true' : nothing}
         @pointerdown=${this.onPointerDown}
         @pointermove=${this.onPointerMove}
         @pointerup=${this.onPointerUp}
@@ -417,8 +417,7 @@ export class TanreiHandle extends TanreiElement {
       data-tanrei-shape
       type="button"
       ?disabled=${this.disabled}
-      aria-label=${name}
-      aria-expanded=${this.expanded === null || this.expanded === undefined ? nothing : String(this.expanded)}
+      ${delegatedAria(this, { 'aria-label': name, 'aria-expanded': this.expanded !== null && this.expanded !== undefined && String(this.expanded) })}
       @pointerdown=${this.onPointerDown}
       @pointermove=${this.onPointerMove}
       @pointerup=${this.onPointerUp}
@@ -435,6 +434,8 @@ export class TanreiHandle extends TanreiElement {
   }
 }
 
+// HDL-26: the product's ARIA on the host is its separator's or its button's (src/primitives/delegated-aria.ts).
+delegatesAria(TanreiHandle, { owns: ['aria-disabled', 'aria-expanded'], sentence: 'HDL-26' });
 if (!customElements.get('tanrei-handle')) customElements.define('tanrei-handle', TanreiHandle);
 
 declare global {

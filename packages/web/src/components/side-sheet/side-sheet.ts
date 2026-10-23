@@ -1,4 +1,5 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/delegated-aria.js';
 import { classMap } from 'lit/directives/class-map.js';
 import {
   ActionPlacement,
@@ -560,7 +561,7 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
     // Before it is presented or measured: the slots of the element just rendered hold their children.
     this.assign();
     // SSH-12, SSH-5: what a debug build reports.
-    if ((changed.has('headline') || changed.has('variant')) && !this.headline.trim()) {
+    if ((changed.has('headline') || changed.has('variant')) && !this.headline.trim() && !namedByProduct(this)) {
       report(this, 'SSH-12', `headline is empty, so the ${this.modal ? 'modal dialog' : 'complementary region'} has no accessible name; give it a headline`);
     }
     if ((changed.has('closable') || changed.has('closeLabel')) && this.closable && this.words.lacks('closeLabel', this.closeLabel)) {
@@ -636,14 +637,14 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
   }
 
   protected override render() {
-    const label = this.headline.trim() || nothing;
+    const label = this.headline.trim();
     if (this.modal) {
       // SSH-12: a modal dialog named by the headline.
       return html`<dialog
         part="container"
         class="sheet"
         data-tanrei-appear
-        aria-label=${label}
+        ${delegatedAria(this, { 'aria-label': label })}
         tabindex="-1"
         data-tanrei-shape
         @keydown=${this.onKeyDown}
@@ -657,10 +658,12 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
     }
     // SSH-1, SSH-12: a complementary region named by the headline; closed, out of the focus order and the accessibility
     // tree at once (inert), and hidden once it has slid out.
-    return html`<aside part="container" class="sheet standard" aria-label=${label} tabindex="-1" ?inert=${!this.open} data-tanrei-shape>${this.body()}</aside>`;
+    return html`<aside part="container" class="sheet standard" ${delegatedAria(this, { 'aria-label': label })} tabindex="-1" ?inert=${!this.open} data-tanrei-shape>${this.body()}</aside>`;
   }
 }
 
+// SSH-24: the product's ARIA on the host is its dialog's, or its complementary region's (src/primitives/delegated-aria.ts).
+delegatesAria(TanreiSideSheet, { sentence: 'SSH-24' });
 if (!customElements.get('tanrei-side-sheet')) customElements.define('tanrei-side-sheet', TanreiSideSheet);
 
 declare global {

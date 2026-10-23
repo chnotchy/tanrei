@@ -2,6 +2,8 @@
 // every fixture has a baseline (the 640 × 640 window, since the layer and its scrim are in the top layer), and every
 // value is read back from the tokens — never from a number written here. The components built from the layer (the
 // dialog, the sheets, the drawer, the picker, the search) are held to its tokens here too: one value changes them all.
+// MDL-13: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, dialogWindow, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, tab } from '../../../test/harness.js';

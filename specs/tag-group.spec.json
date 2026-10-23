@@ -306,6 +306,10 @@
       "id": "TGR-21",
       "text": "WHILE selection is single or multiple, WHEN a member leaves while focus is on it THE tag group SHALL move focus as TGR-9 says, and the chip that then has focus SHALL be the set's stop; WHEN the chip that was the set's stop leaves, is disabled or no longer takes focus while focus is elsewhere THE tag group SHALL make a stop as TGR-20 says of a group whose last-focused chip is gone, so that the set keeps exactly one stop while it holds a chip that takes focus. WHEN selection becomes none THE tag group SHALL give each chip its own stop again.",
       "verify": "Unit: of five input chips under selection multiple, Delete on the focused third puts focus on the former fourth, which is then the only chip in the Tab order."
+    },
+    {
+      "id": "TGR-22",
+      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE tag group SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on its list — an id reference by the elements it names in the host's tree or a tree around it, a description after its own. WHILE label is not empty it is the list's name, over a name given so; WHILE label is empty, a name given so is the list's name. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE tag group SHALL take it off that element."
     }
   ],
   "accessibility": {
