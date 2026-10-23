@@ -23,9 +23,12 @@ until the person moves.
 - **`inline-completion`** (off by default) completes the query in the input from the first suggestion that begins with
   it, the added part selected after the caret. A caret key or a press in the input accepts it (one `input`), Backspace
   takes it away, Enter accepts it and submits. It never completes after a deletion or a paste, during an input-method
-  composition or on an on-screen keyboard.
-- **A query suggestion's completion** — the part of its headline after the query — is drawn heavier (`part="completion"`,
-  the new token `comp.search.suggestion.completion.emphasis`). The vocabulary gains that token.
+  composition or on an on-screen keyboard; a composition's first text replaces the completion, and a composition
+  cancelled before it inserted anything takes the completion away as Backspace does.
+- **A query suggestion's completion** — the part of its headline after the query — is drawn bold, as web search boxes
+  draw it (`part="completion"`, the new token `comp.search.suggestion.completion.emphasis`, three of the body family's
+  emphasis steps: 400 to 700 in the default system and the Material-like presets; one step, semibold, in the Cupertino
+  preset, whose step is already 200). The vocabulary gains that token.
 - **Announcements**: a row the search makes current by itself — the query row, or the first result — becomes the input's
   `aria-activedescendant` once typing has paused for 500 ms, and a row an arrow key reaches at once. A result's link is now
   the result's own light-DOM child (slotted over the row it draws), so that the input can name it.
