@@ -181,7 +181,25 @@ export class TanreiFigure extends TanreiLightElement {
   /** The ground pattern behind what is shown, across the stage: `none`, `grid` (lines), `dots` (a dot grid), `grid-fade` (the grid, clear around the centre) or `checkerboard` (where a picture may be transparent). Decoration only; the plain look and forced colors draw none. */
   pattern: TanreiFigurePattern = 'none';
 
-  private readonly resizes = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.measure());
+  /**
+   * One observer of sizes for every figure of the page, so that the figures whose stages change size in one frame —
+   * every figure of a page when it is first laid out, or when the window or the text size changes — are reported, and
+   * measured, together (`measureDue`).
+   */
+  private static readonly owners = new WeakMap<Element, TanreiFigure>();
+  private static readonly resizes =
+    typeof ResizeObserver === 'undefined'
+      ? null
+      : new ResizeObserver((entries) => {
+          for (const entry of entries) {
+            const figure = TanreiFigure.owners.get(entry.target);
+            if (figure) TanreiFigure.due.add(figure);
+          }
+          TanreiFigure.measureDue();
+        });
+  /** The figures to measure in the next frame (`measureLater`), and the frame asked for. */
+  private static readonly due = new Set<TanreiFigure>();
+  private static frame = 0;
   private readonly mutations = typeof MutationObserver === 'undefined' ? null : new MutationObserver(() => this.read());
   /** The stage the figure has now, and what the observer of sizes watches: the stage and what stands in it. */
   private stage: HTMLElement | null = null;
@@ -209,9 +227,18 @@ export class TanreiFigure extends TanreiLightElement {
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.removeEventListener('keydown', this.keyed);
-    this.resizes?.disconnect();
-    this.mutations?.disconnect();
+    // What it watched is let go; what it wrote on its stage stays its own, to be taken off if it is connected again.
+    for (const element of this.watched) {
+      TanreiFigure.resizes?.unobserve(element);
+      TanreiFigure.owners.delete(element);
+    }
     this.watched.clear();
+    this.mutations?.disconnect();
+    TanreiFigure.due.delete(this);
+    if (TanreiFigure.frame && !TanreiFigure.due.size) {
+      cancelAnimationFrame(TanreiFigure.frame);
+      TanreiFigure.frame = 0;
+    }
   }
 
   protected override updated(changed: PropertyValues) {
@@ -248,8 +275,8 @@ export class TanreiFigure extends TanreiLightElement {
   /**
    * Reads the figure the box holds and writes what follows from it: the parts of a figure the element builds, the
    * title and the caption the properties ask for, the name, the separation where the browser cannot query it — then
-   * measures. Called when a property changes and when the figure's content does (FIG-17); it writes only what
-   * differs, so it settles.
+   * asks to be measured. Called when a property changes and when the figure's content does (FIG-17); it writes only
+   * what differs, so it settles.
    */
   private read() {
     if (!this.isConnected) return;
@@ -272,7 +299,7 @@ export class TanreiFigure extends TanreiLightElement {
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => this.read(), { once: true });
       else report(this, 'FIG-25', 'the figure shows nothing: its stage is empty, so nothing is drawn (a title, a caption or an attachment alone is not a figure)');
     }
-    this.measure();
+    this.measureLater();
   }
 
   /**
@@ -410,29 +437,51 @@ export class TanreiFigure extends TanreiLightElement {
     const wanted = new Set<Element>(stage ? [stage, ...stage.children] : []);
     for (const element of this.watched) {
       if (!wanted.has(element)) {
-        this.resizes?.unobserve(element);
+        TanreiFigure.resizes?.unobserve(element);
+        TanreiFigure.owners.delete(element);
         this.watched.delete(element);
       }
     }
     for (const element of wanted) {
       if (!this.watched.has(element)) {
-        this.resizes?.observe(element);
+        TanreiFigure.owners.set(element, this);
+        TanreiFigure.resizes?.observe(element);
         this.watched.add(element);
       }
     }
     if (!stage) this.stop.clear();
   }
 
+  /** Asks for the figure to be measured in the next frame, with every other figure that asks before it. */
+  private measureLater() {
+    TanreiFigure.due.add(this);
+    TanreiFigure.frame ||= requestAnimationFrame(() => {
+      TanreiFigure.frame = 0;
+      TanreiFigure.measureDue();
+    });
+  }
+
+  /** Measures every figure that asked to be, now, and leaves none asking. */
+  private static measureDue() {
+    if (TanreiFigure.frame) {
+      cancelAnimationFrame(TanreiFigure.frame);
+      TanreiFigure.frame = 0;
+    }
+    const figures = [...TanreiFigure.due].filter((figure) => figure.isConnected && figure.stage);
+    TanreiFigure.due.clear();
+    // Every stage is read first — one layout for them all — and then each figure writes.
+    const scrolls = figures.map((figure) => figure.stage!.scrollWidth - figure.stage!.clientWidth > SLACK);
+    figures.forEach((figure, index) => figure.giveStop(figure.stage!, scrolls[index]));
+  }
+
   /**
    * FIG-6: while the stage scrolls sideways it is one stop in the focus order and a group with the figure's name, and
-   * neither otherwise. Called when the stage or what stands in it changes size; it reads the layout once and writes
-   * attributes of the stage alone.
+   * neither otherwise; it writes attributes of the stage alone. Measured once a frame for every figure that was read,
+   * or whose stage or what stands in it changed size, all of them together (`measureDue`): a figure that measured
+   * itself in its own update, after the figure before it had written its name, had the page laid out for itself.
    */
-  private measure() {
-    const stage = this.stage;
-    if (!stage || !this.isConnected) return;
+  private giveStop(stage: HTMLElement, scrolls: boolean) {
     const figure = this.within('');
-    const scrolls = stage.scrollWidth - stage.clientWidth > SLACK;
     const [title, caption] = figure ? [this.titleOf(figure), this.captionOf(figure)] : [null, null];
     const named = title ?? caption;
     const label = figure?.getAttribute('aria-label') ?? null;

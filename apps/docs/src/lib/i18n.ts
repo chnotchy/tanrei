@@ -111,7 +111,6 @@ const en = {
   minimumTarget: 'Minimum target',
   minimumTargetText: 'The hit area meets the minimum target size even when the visual size is smaller.',
   notDefinedYet: 'Not available in the installed web build.',
-  notDrawnHere: 'Not drawn on this page yet; see the examples above.',
   // The gallery of fixtures (components/fixtures/FixtureGallery.astro): a stage's actions, its width handle and its
   // window. `{id}` is a fixture's id; `{width}` and `{height}` are pixels.
   stages: {
@@ -380,7 +379,6 @@ const ja: typeof en = {
   minimumTarget: '最小ターゲット',
   minimumTargetText: '見た目のサイズが小さくても、ヒット領域は最小ターゲットサイズを満たします。',
   notDefinedYet: 'インストールされている Web ビルドにはまだ含まれていません。',
-  notDrawnHere: 'このページではまだ描画していません。上の例を参照してください。',
   stages: {
     dark: 'ダークスキーム',
     copy: 'マークアップをコピー',
@@ -610,7 +608,6 @@ const zh: typeof en = {
   minimumTarget: '最小目标',
   minimumTargetText: '即使外观尺寸更小，点击区域也满足最小目标尺寸。',
   notDefinedYet: '当前安装的 Web 构建中尚不包含。',
-  notDrawnHere: '本页尚未绘制；请参见上方的示例。',
   stages: {
     dark: '深色方案',
     copy: '复制标记',
@@ -839,7 +836,6 @@ const es: typeof en = {
   minimumTarget: 'Objetivo mínimo',
   minimumTargetText: 'El área de pulsación cumple el tamaño mínimo de objetivo aunque el tamaño visual sea menor.',
   notDefinedYet: 'No está disponible en la compilación web instalada.',
-  notDrawnHere: 'Todavía no se dibuja en esta página; consulta los ejemplos de arriba.',
   stages: {
     dark: 'Esquema oscuro',
     copy: 'Copiar el marcado',
@@ -1068,7 +1064,6 @@ const hi: typeof en = {
   minimumTarget: 'न्यूनतम टार्गेट',
   minimumTargetText: 'दिखने वाला आकार छोटा होने पर भी हिट एरिया न्यूनतम टार्गेट साइज़ को पूरा करता है।',
   notDefinedYet: 'इंस्टॉल किए गए वेब बिल्ड में उपलब्ध नहीं है।',
-  notDrawnHere: 'इस पेज पर अभी नहीं दिखाया गया है; ऊपर के उदाहरण देखें।',
   stages: {
     dark: 'डार्क स्कीम',
     copy: 'मार्कअप कॉपी करें',
@@ -1297,7 +1292,6 @@ const ar: typeof en = {
   minimumTarget: 'الحد الأدنى للهدف',
   minimumTargetText: 'تستوفي مساحة اللمس الحد الأدنى لحجم الهدف حتى لو كان الحجم المرئي أصغر.',
   notDefinedYet: 'غير متوفر في نسخة الويب المثبَّتة.',
-  notDrawnHere: 'لم يُرسم في هذه الصفحة بعد؛ انظر الأمثلة أعلاه.',
   stages: {
     dark: 'النظام الداكن',
     copy: 'نسخ الترميز',

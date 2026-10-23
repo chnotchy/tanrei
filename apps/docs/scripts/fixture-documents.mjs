@@ -3,16 +3,17 @@
 // (ignored by git, written again before every `dev`, `build`, `validate` and `test:node`).
 //
 // The web package's tests draw every fixture in a document of its own and take each baseline from it
-// (packages/web/test/harness.ts, `fixturesDocument`). The site draws a fixture from that same document where it draws
-// it alone, in a window of the fixtures' gallery (components/fixtures/FixtureGallery.astro): so what a reader sees
-// there is what every platform's baseline is compared with, the staging included — the width of a stage, the anchor a
-// tooltip stands beside, the sample screen a drop zone wraps, the step a file upload takes in script — and a spec the
-// site's own renderer cannot draw (src/lib/fixtures.ts) is drawn all the same.
+// (packages/web/test/harness.ts, `fixturesDocument`). The site draws every fixture from that same document — in the
+// page, on a stage of the fixtures' gallery (components/fixtures/FixtureGallery.astro), or alone in a window of it —
+// so what a reader sees there is what every platform's baseline is compared with, the staging included: the width of
+// a stage, the anchor a tooltip stands beside, the sample screen a drop zone wraps, the step a file upload takes in
+// script. The site has no renderer of fixtures of its own.
 //
 // The harness is TypeScript that reads the repository relative to its own file, so it is run here, by Node, and not
-// inside the site's build, which bundles the modules it runs. Each document is taken apart into what the fixtures page
-// needs — its stylesheets, its stages, its step in script — and the size of each fixture's stage is read from its
-// baseline (packages/web/snapshots/<spec>/<id>.png: a picture of the stage at a device pixel ratio of 2).
+// inside the site's build, which bundles the modules it runs. Each document is taken apart into what the site needs —
+// its stylesheets (whole, for a window, and the staging alone, for a stage in the page), its stages, its step in
+// script — and the size of each fixture's stage is read from its baseline (packages/web/snapshots/<spec>/<id>.png: a
+// picture of the stage at a device pixel ratio of 2).
 //
 //   node scripts/fixture-documents.mjs        (needs packages/web/dist: `pnpm --filter @tanrei/web build`)
 import fs from 'node:fs';
@@ -57,6 +58,66 @@ function parts(html) {
   return { styles, page, stages, after };
 }
 
+/** Each stylesheet the web package ships, as a document carries it: without its comments. */
+const SHEETS = fs
+  .readdirSync(path.join(repo, 'packages/web/dist'))
+  .filter((name) => name.endsWith('.css'))
+  .map((name) => ({ name, text: fs.readFileSync(path.join(repo, 'packages/web/dist', name), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '') }))
+  .filter((sheet) => sheet.text.trim());
+
+/**
+ * The staging alone: the document's rules less every stylesheet of the package it carries whole (`sheets`), which a
+ * page of the site loads once, in the site's own layers, as a product's page loads them. What is left is the stage's
+ * own rules and the component's staging — a stage's width, its anchor's place, the sample a drop zone wraps.
+ */
+function stagingOf(styles) {
+  let staging = styles;
+  const sheets = [];
+  for (const sheet of SHEETS) {
+    if (!staging.includes(sheet.text)) continue;
+    staging = staging.split(sheet.text).join('');
+    sheets.push(sheet.name);
+  }
+  return { staging: staging.replace(/\n\s*\n/g, '\n').trim(), sheets };
+}
+
+/**
+ * The step in script, taken apart for a page that draws its stages one at a time: the step's own source and the
+ * fixtures it reads, each as the document writes it (the source with `</script` escaped, the fixtures with every `<`).
+ */
+function stepOf(after) {
+  if (!after) return undefined;
+  const found = /^const after = ([\s\S]*?);\s*const fixtures = ([\s\S]*?);\s*await customElements\.whenDefined\(/.exec(after);
+  if (!found) throw new Error('the step in script is not written as the harness writes it');
+  return { source: found[1], fixtures: found[2] };
+}
+
+/**
+ * The stages that stand for a whole window: those a rule of the staging sizes by the window (`inline-size: 100vw` — a
+ * responsive drawer reads the window's width). A page draws each in a window of its own, never in its column. A rule's
+ * selector is read in the forms the staging writes it — `.stage:has(> tag[attr])`, `.stage > tag[attr]` — and a rule of
+ * another form stops the build, so that a new one is decided and not missed.
+ */
+function windowedOf(staging, stages) {
+  const windowed = new Set();
+  for (const [, selectors, declarations] of staging.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    if (!/\b\d*\.?\d+(vw|vh|dvh|svh|lvh|vmin|vmax)\b/.test(declarations)) continue;
+    for (const selector of selectors.split(',').map((each) => each.trim())) {
+      const form = /^\.stage(?::has\(>\s*|\s*>\s*)([a-z][a-z0-9-]*)((?:\[[a-z-]+(?:='[^']*')?\])*)\)?$/.exec(selector);
+      if (!form) throw new Error(`a rule of the staging sizes by the window in a form this script does not read: ${selector}`);
+      const [, tag, attributes] = form;
+      const wanted = [...attributes.matchAll(/\[([a-z-]+)(?:='([^']*)')?\]/g)];
+      for (const stage of stages) {
+        const head = new RegExp(`^<div class="stage"[^>]*>\\s*<${tag}((?:\\s+[^\\s=>]+(?:="[^"]*")?)*)\\s*>`).exec(stage.html);
+        if (!head) continue;
+        const has = new Map([...head[1].matchAll(/\s+([^\s=>]+)(?:="([^"]*)")?/g)].map((m) => [m[1], m[2] ?? '']));
+        if (wanted.every(([, name, value]) => has.has(name) && (value === undefined || has.get(name) === value))) windowed.add(stage.id);
+      }
+    }
+  }
+  return [...windowed];
+}
+
 /** The size of a fixture's stage in CSS pixels, read from its baseline's IHDR chunk; nothing where it has none. */
 function baseline(spec, id) {
   const file = path.join(repo, 'packages/web/snapshots', spec, `${id}.png`);
@@ -80,9 +141,10 @@ for (const file of fs.readdirSync(path.join(repo, 'specs')).filter((name) => nam
     const spec = loadSpec(name);
     if (!spec.platforms?.web || spec.platforms.web.status === 'planned') continue;
     const document = parts(await fixturesDocument(spec, { assets: NONE }));
+    const staged = stagingOf(document.styles);
     // The system the stages are drawn under: a component that lives in a layer is drawn under that layer's system.
     const { system } = drawnUnder(spec, {});
-    documents[name] = { ...document, ...(system ? { system } : {}), sizes: Object.fromEntries(document.stages.map((stage) => [stage.id, baseline(name, stage.id)]).filter(([, size]) => size)) };
+    documents[name] = { ...document, ...staged, ...(system ? { system } : {}), step: stepOf(document.after), windowed: windowedOf(staged.staging, document.stages), sizes: Object.fromEntries(document.stages.map((stage) => [stage.id, baseline(name, stage.id)]).filter(([, size]) => size)) };
   } catch (error) {
     failed.push(`${name}: ${String(error).split('\n')[0]}`);
   }

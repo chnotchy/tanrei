@@ -150,7 +150,9 @@ const options = (count: number) => Array.from({ length: count }, (_, n) => `<tan
 // direction, asked of the cascade by each instance: src/primitives/direction.ts); the number field with a value 105
 // and 101 (each field measured its steppers after writing their lengths: src/primitives/kept-length.ts); the text
 // field 50 and 50, multiline 250 and 250 (`document.fonts.ready` and the height, fitted field by field); the
-// reorderable list 355 and 351 (each list measured in a microtask of its own, between the other lists' renders).
+// reorderable list 355 and 351 (each list measured in a microtask of its own, between the other lists' renders); the
+// figure with a button on its stage 52 style passes (each figure measured its stage in its own update, after the
+// button before it had drawn).
 const SUBJECTS: Subject[] = [
   { name: 'color field with its picker', html: (n) => `<tanrei-color-field label="Color ${n}" value="#336699" picker></tanrei-color-field>`, most: { style: 8, layout: 3 } },
   { name: 'select of three', html: (n) => `<tanrei-select label="Select ${n}">${options(3)}</tanrei-select>`, most: { style: 5, layout: 2 } },
@@ -178,6 +180,12 @@ const SUBJECTS: Subject[] = [
     name: 'file picker with its drop area',
     html: (n) => `<tanrei-file-picker layout="drop-area" label="Files ${n}" drop-text="Drag files here" constraints-text="Any file"><tanrei-button slot="trigger">Choose</tanrei-button></tanrei-file-picker>`,
     most: { style: 3, layout: 2 },
+  },
+  {
+    name: 'figure with a stage (light DOM, the page\'s stylesheet)',
+    css: ['figure.css'],
+    html: (n) => `<tanrei-figure><figure><div data-part="frame"><div data-part="stage"><tanrei-button>Save ${n}</tanrei-button></div></div><figcaption>Caption ${n}</figcaption></figure></tanrei-figure>`,
+    most: { style: 4, layout: 2 },
   },
   ...LIGHT.map(([tag, most, more]) => {
     const subject = LIGHT_DOM_SUBJECTS.find((each) => each.tag === tag)!;
