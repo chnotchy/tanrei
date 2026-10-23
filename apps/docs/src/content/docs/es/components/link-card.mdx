@@ -2,14 +2,14 @@
 title: Tarjeta de enlace
 description: Un enlace dibujado como un bloque. El título del destino, una frase sobre él, su imagen y el sitio en el que está, a partir de valores que la tarjeta recibe y nunca carga.
 translationOf: components/link-card.mdx
-sourceHash: 738b60d2538bbae63a50025bd28392c0e3895efd
+sourceHash: 6418c55dc327d21c94615818c38abb29768255c4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import picture from '../../../../../../../packages/web/test/fixtures/link-card.png?inline';
 import icon from '../../../../../../../packages/web/test/fixtures/site-icon.png?inline';
 
@@ -17,9 +17,9 @@ import icon from '../../../../../../../packages/web/test/fixtures/site-icon.png?
 
 <ComponentAvailability name="link-card" />
 
-<DemoFrame label="Una tarjeta de enlace con todas sus partes" plain column>
+<Example label="Una tarjeta de enlace con todas sus partes" column>
   <tanrei-link-card class="not-content" style="inline-size: 100%" href="https://example.com/articles/designing-with-tokens" headline="Diseñar con tokens" description="Cómo unos pocos diales se convierten en un sistema entero." site-name="Example Journal" image={picture} site-icon={icon} external="on" external-label="enlace externo"></tanrei-link-card>
-</DemoFrame>
+</Example>
 
 Una tarjeta de enlace muestra un destino como algo con entidad propia: su título, una frase sobre él, una imagen donde la tiene y el sitio en el que está. Es un solo enlace. Se pulsa el bloque entero, y nada de lo que hay dentro se pulsa por separado.
 
@@ -101,12 +101,12 @@ El atributo del título es `headline`, porque el `title` propio de HTML mostrar�
 
 ## Especificaciones
 
-<DemoFrame label="Dos aspectos" plain column>
+<Example label="Dos aspectos" column>
   <div class="not-content" style="display: grid; gap: 1rem; inline-size: 100%">
     <tanrei-link-card href="/es/components/link/" headline="Enlace" description="Texto que lleva a algún sitio: una expresión dentro de una frase, una línea por sí sola, un glifo solo."></tanrei-link-card>
     <tanrei-link-card variant="filled" href="/es/components/card/" headline="Tarjeta" description="Una superficie que agrupa contenido y acciones relacionados sobre un mismo tema."></tanrei-link-card>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="link-card" />
 
@@ -140,12 +140,12 @@ Una tarjeta no juzga su destino. Una página puede seguir describiéndose de for
 
 ### Partes que faltan
 
-<DemoFrame label="Solo un título, y una ruta propia" plain column>
+<Example label="Solo un título, y una ruta propia" column>
   <div class="not-content" style="display: grid; gap: 1rem; inline-size: 100%">
     <tanrei-link-card href="https://example.com/articles/designing-with-tokens" headline="Diseñar con tokens" external="off"></tanrei-link-card>
     <tanrei-link-card href="/es/foundations/design-tokens/" headline="Tokens" description="Los diales, los roles de sistema y las vinculaciones de los componentes."></tanrei-link-card>
   </div>
-</DemoFrame>
+</Example>
 
 | Se da | Se dibuja |
 | --- | --- |

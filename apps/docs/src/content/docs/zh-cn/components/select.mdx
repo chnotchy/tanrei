@@ -2,20 +2,20 @@
 title: "下拉选择框"
 description: "让用户从一个封闭的列表里选择一个值——触发器的外观和尺寸与文本输入框的方框相同，显示选中的选项；选项列表从触发器展开，选项可以分组——它没有自己的标签行、帮助文本和错误文本。用于栏、工具栏或表格，或者放进产品自己组合的字段里。"
 translationOf: components/select.mdx
-sourceHash: 6498add9840e5413d69077058e2b885721456c9b
+sourceHash: 6246b546b185dfc590a8e1793d0b194db9f0c4db
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="select" />
 
-<DemoFrame label="单独使用：放在栏里的主题下拉选择框，以及列表上方的排序方式" column>
+<Example label="单独使用：放在栏里的主题下拉选择框，以及列表上方的排序方式" column>
   <tanrei-select class="not-content" size="small" label="主题" value="auto">
     <tanrei-option value="light" leading-icon="light_mode">浅色</tanrei-option>
     <tanrei-option value="dark" leading-icon="dark_mode">深色</tanrei-option>
@@ -26,7 +26,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-option value="name">名称</tanrei-option>
     <tanrei-option value="size">大小</tanrei-option>
   </tanrei-select>
-</DemoFrame>
+</Example>
 
 下拉选择框就是[下拉选择字段](/zh-cn/components/select-field/)的方框，单独拿出来：触发器和它显示的值、它的前置图标和 V 形箭头，以及从它展开的选项列表。它上方没有标签行，没有必填和选填标记，下方也没有帮助文本和错误文本。
 
@@ -106,20 +106,20 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="里面放着下拉选择框的字段：画面与下拉选择字段相同" column>
+<Example label="里面放着下拉选择框的字段：画面与下拉选择字段相同" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国家/地区" required required-text="必填" supporting-text="发票将寄往该国家/地区。">
     <tanrei-select placeholder="请选择国家/地区">
       <tanrei-option value="jp">日本</tanrei-option>
       <tanrei-option value="ke">肯尼亚</tanrei-option>
     </tanrei-select>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 只有下拉选择框自己知道的事，由它告诉所在的字段。它的帮助文本从值开始的位置起笔，越过内边距和前置图标。filled 或 outlined 的下拉选择框自己绘制字段的标签，浮在方框里，所以字段不绘制标签行。列表打开期间，无论下拉选择框有没有焦点，它都画成聚焦的样子，所以字段在这段时间里也把标签和帮助文本画成聚焦的样子。
 
 ## 规格
 
-<DemoFrame label="单独使用的下拉选择框：分组、带辅助文本和一个禁用选项、处于错误状态、只读，以及禁用" plain column>
+<Example label="单独使用的下拉选择框：分组、带辅助文本和一个禁用选项、处于错误状态、只读，以及禁用" column>
   <tanrei-select class="not-content" label="时区" value="Europe/Lisbon">
     <tanrei-option-group label="亚洲"><tanrei-option value="Asia/Tokyo">东京</tanrei-option><tanrei-option value="Asia/Seoul">首尔</tanrei-option></tanrei-option-group>
     <tanrei-option-group label="欧洲"><tanrei-option value="Europe/Lisbon">里斯本</tanrei-option><tanrei-option value="Europe/Berlin">柏林</tanrei-option></tanrei-option-group>
@@ -138,7 +138,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-select class="not-content" label="国家/地区" value="jp" disabled>
     <tanrei-option value="jp">日本</tanrei-option><tanrei-option value="ke">肯尼亚</tanrei-option>
   </tanrei-select>
-</DemoFrame>
+</Example>
 
 ### 触发器
 
@@ -198,11 +198,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 没有选项、没有状态也没有 `emptyText` 的下拉选择框不会打开。请给它 `emptyText`，或用 `setWords()` 一次性提供产品的 `noOptionsText`，让打开它的人知道为什么没有可选项。
 
-<DemoFrame label="加载中、失败和没有可选项" column>
+<Example label="加载中、失败和没有可选项" column>
   <tanrei-select class="not-content" label="项目" placeholder="选择项目" status="loading" status-text="正在加载项目"></tanrei-select>
   <tanrei-select class="not-content" label="项目" placeholder="选择项目" status="error" status-text="无法加载项目。请检查网络连接。"></tanrei-select>
   <tanrei-select class="not-content" label="项目" placeholder="选择项目" empty-text="还没有项目"></tanrei-select>
-</DemoFrame>
+</Example>
 
 ### 打开、移动和选择
 

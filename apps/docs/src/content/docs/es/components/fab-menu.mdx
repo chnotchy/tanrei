@@ -2,21 +2,21 @@
 title: Menú FAB
 description: Abre una lista breve de acciones relacionadas desde un conmutador dibujado como un botón de acción principal contraído, que se convierte en el botón de cierre de la lista mientras se muestran.
 translationOf: components/fab-menu.mdx
-sourceHash: 69aa6940fe6898a0910d96030f32d6cbf477668a
+sourceHash: 8ce8b0f6b2cf6294a457130430e3cf0e7f503e76
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="fab-menu" />
 
 
-<DemoFrame label="Cerrado y abierto" system="m3-like">
+<Example label="Cerrado y abierto" system="m3-like">
   {/* The open items are drawn in place above the toggle and move no layout (FBM-12, FBM-13): reserve their height — three items, the gaps between them and the offset from the toggle — so the frame holds them, and line both toggles up along the bottom. */}
   <div style="display: flex; align-items: end; gap: var(--tanrei-sys-space-space300); padding-block-start: calc(3 * max(var(--tanrei-comp-fab-menu-item-height), var(--tanrei-sys-target-touch)) + 2 * var(--tanrei-comp-fab-menu-list-gap) + var(--tanrei-comp-fab-menu-list-offset))">
     <tanrei-fab-menu label="Crear">
@@ -32,7 +32,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-fab-menu-item label="Subir" icon="upload"></tanrei-fab-menu-item>
     </tanrei-fab-menu>
   </div>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -174,13 +174,13 @@ El conmutador se dibuja como un [botón de acción principal](/es/components/mai
 
 ## Especificaciones
 
-<DemoFrame label="Variantes, tamaños y estado deshabilitado" system="m3-like" plain>
+<Example label="Variantes, tamaños y estado deshabilitado" system="m3-like">
   <tanrei-fab-menu variant="tonal" label="Crear"><span slot="icon">add</span></tanrei-fab-menu>
   <tanrei-fab-menu variant="surface" label="Crear"><span slot="icon">add</span></tanrei-fab-menu>
   <tanrei-fab-menu size="small" label="Crear"><span slot="icon">add</span></tanrei-fab-menu>
   <tanrei-fab-menu size="large" label="Crear"><span slot="icon">add</span></tanrei-fab-menu>
   <tanrei-fab-menu disabled label="Crear"><span slot="icon">add</span></tanrei-fab-menu>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="fab-menu" />
 

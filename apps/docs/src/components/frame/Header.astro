@@ -28,8 +28,9 @@
 //                     view; the site's search index answers it;
 //   the appearance    an icon-only Button that opens a Menu of three sections: the color scheme (auto, light, dark,
 //                     kept on this device under the key the framework's own theme script reads before first paint),
-//                     the contrast (standard, medium, high, kept under the key the head's script reads, and shared with
-//                     the contrast rows of the live examples, ContrastSwitch.astro), and Theme Studio's link;
+//                     the contrast (standard, medium, high, kept under the key the head's script reads), and Theme
+//                     Studio's link. Every example of the page follows both, and the design system chosen beside the
+//                     brand (components/visuals/Example.astro): no example has a switch of its own;
 //   the language      an icon-only Button that opens a Menu of links — a language is a place to go, the same page
 //                     at another address, and a list of places is a menu of links, never options.
 //
@@ -183,9 +184,7 @@ const studio = `${localeBase(Astro)}/foundations/theme-studio/`;
   });
 
   // The contrast: `data-tanrei-contrast` on the root (component tokens are resolved at :root, so a subtree cannot be
-  // forced), kept under the key the head's script reads. The contrast rows of the live examples are one group of
-  // tabs (ContrastSwitch.astro): the product setting one row's value makes it the group's choice, which every row
-  // follows (TAB-37), and a row chosen on sets the menu's value in turn.
+  // forced), kept under the key the head's script reads.
   const CONTRAST_KEY = 'tanrei-docs-contrast';
   const CONTRAST_ATTR = 'data-tanrei-contrast';
   const contrasts = document.querySelector<Choice>('tanrei-menu-group.docs-contrast-group');
@@ -197,11 +196,6 @@ const studio = `${localeBase(Astro)}/foundations/theme-studio/`;
     const value = contrasts.value ?? 'standard';
     applyContrast(value);
     store(CONTRAST_KEY, value);
-    for (const row of document.querySelectorAll<Choice>('[data-docs-contrast]')) row.value = value;
-  });
-  document.addEventListener('change', (event) => {
-    const row = event.target as Choice;
-    if (contrasts && row instanceof HTMLElement && row.matches('[data-docs-contrast]') && row.value) contrasts.value = row.value;
   });
 
   // The design system the lists show: kept under the docs' key for the shared choice `system`, so that a set of tabs

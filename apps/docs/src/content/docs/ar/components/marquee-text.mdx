@@ -2,23 +2,23 @@
 title: النص المتحرك
 description: سطر واحد من النص لا يتسع له مكانه. في السكون يُقصّ وينتهي بعلامة حذف، وما دام محفِّزه قائمًا يُمرَّر جانبيًّا بوتيرة ثابتة ليُظهر نفسه كله. لا يتحرك إلا حين يفيض النص، ولا يتحرك أبدًا حيث تُقلَّل الحركة، ويُقرأ مرة واحدة، كاملًا.
 translationOf: components/marquee-text.mdx
-sourceHash: dc5686cec00458180eb8990a3c8f28e770f7fd10
+sourceHash: 5e8fad528fe680de811c7c8091d796a52019ceac
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="marquee-text" />
 
-<DemoFrame label="عنوان لا يتسع، وعنوان يتسع">
+<Example label="عنوان لا يتسع، وعنوان يتسع">
   <tanrei-marquee-text style="inline-size: min(100%, 14rem)">المقطع 7: عنوان طويل جدًّا لا يتسع له الصف الذي يقع فيه</tanrei-marquee-text>
   <tanrei-marquee-text style="inline-size: min(100%, 14rem)">عنوان قصير</tanrei-marquee-text>
-</DemoFrame>
+</Example>
 
 النص المتحرك (marquee) سطر واحد من نص المنتج في مكان أضيق منه. في السكون يُقرأ كأي سطر مقصوص: يبدأ عند بداية السطر وينتهي بعلامة حذف (…) حيث يُقصّ. وما دام محفِّزه قائمًا، وهو افتراضيًّا مرور المؤشر فوقه أو تركيز لوحة المفاتيح على عنصر التحكم الذي يقع فيه، يُمرَّر جانبيًّا بوتيرة ثابتة تُعطى بالبكسل في الثانية، فيمرّ كل جزء من النص في المنظر؛ ثم يعود إلى بدايته ويسكن. مرِّر المؤشر فوق السطر الأول أعلاه. أما الثاني فيتسع، ولذلك لا يتحرك أبدًا: النص المتحرك الذي يتسع نصه سطر نص عادي.
 

@@ -2,20 +2,20 @@
 title: حقل التحرير والسرد
 description: يتيح للأشخاص العثور على قيمة واحدة بالكتابة، حقلًا من حقول النموذج، وهو مربع تحرير وسرد معه قائمة خيارات تضيق كلما كتبوا فيختارون منها، أو يُدخلون قيمة من عندهم حيث يسمح المنتج بذلك، تحت تسمية تستطيع أن تقول إن الحقل مطلوب أو اختياري، ومعه سطر مساعدة وسبب رفض القيمة.
 translationOf: components/combobox-field.mdx
-sourceHash: 1638eb2ce28b564ac75ec61ebafe326ef40c44a7
+sourceHash: e61869237c227606b9f24ade951599497664e794
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="combobox-field" />
 
-<DemoFrame label="حقل تحرير وسرد يقبل أحد خياراته، وآخر يقبل كذلك قيمة من عند الشخص" column>
+<Example label="حقل تحرير وسرد يقبل أحد خياراته، وآخر يقبل كذلك قيمة من عند الشخص" column>
   <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="المدينة" value="tokyo" clearable clear-label="مسح المدينة" placeholder="اكتب للعثور على مدينة" supporting-text="المدينة التي يُرسل إليها الطلب." empty-text="لا توجد نتائج مطابقة">
     <tanrei-option value="kyoto">كيوتو</tanrei-option>
     <tanrei-option value="lisbon">لشبونة</tanrei-option>
@@ -29,7 +29,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-option value="Roboto Mono">Roboto Mono</tanrei-option>
     <tanrei-option value="Source Serif 4">Source Serif 4</tanrei-option>
   </tanrei-combobox-field>
-</DemoFrame>
+</Example>
 
 استخدم حقل التحرير والسرد (combobox field) حيثما يطلب النموذج قيمة واحدة يفضّل الناس أن يكتبوها على أن يمرّروا إليها: مدينة من بين مئات، أو شخص، أو رمز تصميم. ويصلح كذلك لحقل يقترح قيمًا ويقبل قيمة من عند الشخص، كعائلة الخط. وهو الحالة المعتادة، جاهزًا للاستخدام: تسمية، وصندوق معه قائمته، وسطر مساعدة، والكلمات التي تقول إن القيمة خاطئة. يُرسم الصندوق ويُقاس كما يُرسم ويُقاس صندوق حقل النص الذي له الطراز نفسه والحجم نفسه، وتُرسم القائمة كما تُرسم قائمة عنصر الاختيار.
 
@@ -122,20 +122,20 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="حقل فيه مربع تحرير وسرد: الصورة نفسها التي لحقل التحرير والسرد" column>
+<Example label="حقل فيه مربع تحرير وسرد: الصورة نفسها التي لحقل التحرير والسرد" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="المدينة" required required-text="مطلوب" supporting-text="المدينة التي يُرسل إليها الطلب.">
     <tanrei-combobox value="tokyo" empty-text="لا توجد نتائج مطابقة">
       <tanrei-option value="kyoto">كيوتو</tanrei-option>
       <tanrei-option value="tokyo">طوكيو</tanrei-option>
     </tanrei-combobox>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 ما يختلف هو موضع عنصر التحكم الذي يلقاه النموذج: باليد هو مربع التحرير والسرد، وهو الذي يأخذ `name`؛ وفي حقل التحرير والسرد هو الحقل.
 
 ## المواصفات
 
-<DemoFrame label="مجموعات، ونص مساعد مع خيار معطَّل، وخطأ، وحقل تحرير وسرد للقراءة فقط وآخر معطَّل" plain column>
+<Example label="مجموعات، ونص مساعد مع خيار معطَّل، وخطأ، وحقل تحرير وسرد للقراءة فقط وآخر معطَّل" column>
   <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="المنطقة الزمنية" value="Europe/Lisbon" empty-text="لا توجد نتائج مطابقة">
     <tanrei-option-group label="آسيا"><tanrei-option value="Asia/Tokyo">طوكيو</tanrei-option><tanrei-option value="Asia/Seoul">سول</tanrei-option></tanrei-option-group>
     <tanrei-option-group label="أوروبا"><tanrei-option value="Europe/Lisbon">لشبونة</tanrei-option><tanrei-option value="Europe/Berlin">برلين</tanrei-option></tanrei-option-group>
@@ -154,7 +154,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="المدينة" value="tokyo" disabled>
     <tanrei-option value="nairobi">نيروبي</tanrei-option><tanrei-option value="tokyo">طوكيو</tanrei-option>
   </tanrei-combobox-field>
-</DemoFrame>
+</Example>
 
 ### الحقل
 

@@ -2,27 +2,27 @@
 title: حقل إدخال اللون
 description: الصندوق الذي يعيّن فيه الناس لونًا واحدًا، فيه عيّنة منه، والقيمة نصًّا يقرؤونه ويكتبونه ويلصقونه، وزر يطلب منتقيًا، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لصف أو عمود يسمّي اللون سلفًا، أو داخل حقل يركّبه المنتج بنفسه.
 translationOf: components/color-input.mdx
-sourceHash: 1832342749e78a62e8352e9c60bbc9bace7885d9
+sourceHash: 0999afc891925277301cd2b28ed9cdb4fb54d9d0
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="color-input" />
 
-<DemoFrame label="مجرَّدًا: صفوف قائمة من الدرجات اللونية، وكلٌّ منها يسمّيه صفه" column>
+<Example label="مجرَّدًا: صفوف قائمة من الدرجات اللونية، وكلٌّ منها يسمّيه صفه" column>
   <div class="not-content" style="display: grid; grid-template-columns: auto 14rem; align-items: center; gap: 0.5rem 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
     <span>الدرجة 40</span>
     <tanrei-color-input label="الأساسي، الدرجة 40" value="#0f766e" picker picker-label="اختيار لون الأساسي، الدرجة 40"></tanrei-color-input>
     <span>الدرجة 80</span>
     <tanrei-color-input label="الأساسي، الدرجة 80" value="#5eead4" picker picker-label="اختيار لون الأساسي، الدرجة 80"></tanrei-color-input>
   </div>
-</DemoFrame>
+</Example>
 
 حقل إدخال اللون (color input) هو صندوق [حقل اللون](/ar/components/color-field/) وحده: الحاوية، ومربع اللون (swatch)، والقيمة نصًّا، وزر المنتقي. ليس فوقه صف تسمية، وليس تحته مساعدة ولا نص خطأ.
 
@@ -95,29 +95,29 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="حقل فيه حقل إدخال اللون: الصورة نفسها التي لحقل اللون" column>
+<Example label="حقل فيه حقل إدخال اللون: الصورة نفسها التي لحقل اللون" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="لون العلامة التجارية" required required-text="مطلوب" supporting-text="ستة أرقام سداسية عشرية، مثل &lrm;#0f766e.">
     <tanrei-color-input value="#0f766e" invalid-text="أدخِل ستة أرقام سداسية عشرية، مثل &lrm;#0f766e." picker picker-label="اختيار لون"></tanrei-color-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 حقل الإدخال يخبر حقله بما لا يعرفه غيره. فمساعدة الحقل تبدأ حيث يبدأ نص القيمة، بعد مربع اللون. وحقل الإدخال من الطراز filled أو outlined يرسم تسمية الحقل بنفسه، عائمةً في الصندوق، فلا يرسم الحقل صف تسمية. والنص المعتمَد الذي ليس لونًا يضع الحقل في حالة الخطأ بنص `invalidText` الذي لحقل الإدخال.
 
 ## المواصفات
 
-<DemoFrame label="حقول إدخال مجرَّدة: فارغ، وأبيض، وأسود، وفي حالة الخطأ، ومعطَّل، وبالحجم large مع زر المنتقي" plain column>
+<Example label="حقول إدخال مجرَّدة: فارغ، وأبيض، وأسود، وفي حالة الخطأ، ومعطَّل، وبالحجم large مع زر المنتقي" column>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="لون التمييز"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="خلفية الصفحة" value="#ffffff"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="النص" value="#000000"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="لون العلامة التجارية" value="#fde047" error></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="لون العلامة التجارية" value="#0f766e" disabled picker picker-label="اختيار لون"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" size="large" label="لون العلامة التجارية" value="#0f766e" picker picker-label="اختيار لون"></tanrei-color-input>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="الطرازان filled و outlined مجرَّدين: تسمية حقل الإدخال نفسه تعوم في الصندوق" system="m3-like" plain column>
+<Example label="الطرازان filled و outlined مجرَّدين: تسمية حقل الإدخال نفسه تعوم في الصندوق" system="m3-like" column>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="لون العلامة التجارية" value="#0f766e"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="لون العلامة التجارية"></tanrei-color-input>
-</DemoFrame>
+</Example>
 
 ### ما هو لحقل الإدخال، وما هو للحقل
 

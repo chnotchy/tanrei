@@ -2,20 +2,20 @@
 title: Enlaces anterior y siguiente
 description: La página anterior y la página siguiente a aquella en la que está una persona, dentro de una secuencia de páginas. Dos enlaces, cada uno con un nombre formado por una dirección y el título del lugar al que lleva.
 translationOf: components/previous-next-links.mdx
-sourceHash: f0b866b0992a5ea7997d1128521d78df773b99ab
+sourceHash: f26eed746e4017b08c334e2dd311e7dfa7d4279c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="previous-next-links" />
 
-<DemoFrame label="Anterior y siguiente" column>
+<Example label="Anterior y siguiente" column>
   <nav class="tanrei-previous-next-links" aria-label="Páginas de esta demo" style="inline-size: 100%">
     <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="../link/">
       <span class="tanrei-previous-next-links-label">Anterior</span>
@@ -26,7 +26,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <span class="tanrei-previous-next-links-title">Pasos</span>
     </a>
   </nav>
-</DemoFrame>
+</Example>
 
 Los enlaces anterior y siguiente que hay al pie de esta página son el mismo componente.
 
@@ -101,7 +101,7 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
 
 ## Especificaciones
 
-<DemoFrame label="El siguiente, cuando está solo, conserva su lugar; solo etiquetas" plain column>
+<Example label="El siguiente, cuando está solo, conserva su lugar; solo etiquetas" column>
   <nav class="tanrei-previous-next-links" aria-label="Primera página de esta demo" style="inline-size: 100%">
     <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href="../steps/">
       <span class="tanrei-previous-next-links-label">Siguiente</span>
@@ -112,9 +112,9 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
     <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="../link/"><span class="tanrei-previous-next-links-label">Más recientes</span></a>
     <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href="../steps/"><span class="tanrei-previous-next-links-label">Más antiguas</span></a>
   </nav>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="En una columna estrecha los elementos se apilan" plain>
+<Example label="En una columna estrecha los elementos se apilan">
   <nav class="tanrei-previous-next-links" aria-label="Columna estrecha de esta demo" style="inline-size: 20rem">
     <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="../link/">
       <span class="tanrei-previous-next-links-label">Anterior</span>
@@ -125,7 +125,7 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
       <span class="tanrei-previous-next-links-title">Diseños de derecha a izquierda</span>
     </a>
   </nav>
-</DemoFrame>
+</Example>
 
 - **Un elemento es un solo enlace**, que se pulsa entero y se dibuja como un contenedor con contorno: la única línea fina, sin relleno y con el título en el color del texto. No va subrayado, porque su borde, su flecha y su lugar lo distinguen del texto que lo rodea.
 - **Las flechas son del componente**: `arrow_back` en el borde de inicio del elemento anterior y `arrow_forward` en el borde de fin del siguiente. Necesitan `icons.css`.

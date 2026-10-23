@@ -2,27 +2,27 @@
 title: Medidor
 description: Muestra dónde está un valor conocido dentro de un intervalo conocido (el almacenamiento usado, la carga de una batería, una cuota, la seguridad de una contraseña) en forma de barra o de anillo con el aspecto del indicador de progreso, sin decir que haya nada en curso.
 translationOf: components/meter.mdx
-sourceHash: a9d8ef1942e071884710cdc52bdb78d45aadfb32
+sourceHash: cd8bc895367db9b71db67bad0ef32e060f9d403e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="meter" />
 
-<DemoFrame label="Lineal y circular">
+<Example label="Lineal y circular">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter value="0.62" label="Almacenamiento usado" value-text="9,3 GB de 15 GB"></tanrei-meter>
     <tanrei-meter value="37" max="50" label="Plazas ocupadas" value-text="37 de 50 plazas"></tanrei-meter>
   </div>
   <tanrei-meter variant="circular" value="0.62" label="Batería"></tanrei-meter>
   <tanrei-meter variant="circular" size="large" value="0.15" status="warning" label="Batería" value-text="Baja: 15 %"></tanrei-meter>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -66,7 +66,7 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
 
 ## Especificaciones
 
-<DemoFrame label="Estados: default, info, success, warning, error" plain>
+<Example label="Estados: default, info, success, warning, error">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter value="0.62" label="Default"></tanrei-meter>
     <tanrei-meter value="0.4" status="info" label="Info"></tanrei-meter>
@@ -74,9 +74,9 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
     <tanrei-meter value="0.85" status="warning" label="Warning"></tanrei-meter>
     <tanrei-meter value="0.98" status="error" label="Error"></tanrei-meter>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Tamaños, extremos del intervalo y un intervalo propio" plain>
+<Example label="Tamaños, extremos del intervalo y un intervalo propio">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter size="small" value="0.62" label="Small"></tanrei-meter>
     <tanrei-meter size="medium" value="0.62" label="Medium"></tanrei-meter>
@@ -88,14 +88,14 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
   <tanrei-meter variant="circular" size="small" value="0.62" label="Small"></tanrei-meter>
   <tanrei-meter variant="circular" size="medium" value="0.62" label="Medium"></tanrei-meter>
   <tanrei-meter variant="circular" size="large" value="0.62" label="Large"></tanrei-meter>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Separación: divider (la elección del sistema predeterminado) y gap" plain>
+<Example label="Separación: divider (la elección del sistema predeterminado) y gap">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter separation="divider" value="0.62" label="Divider"></tanrei-meter>
     <tanrei-meter separation="gap" value="0.62" label="Gap"></tanrei-meter>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="meter" />
 

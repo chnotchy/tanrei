@@ -2,20 +2,20 @@
 title: टेक्स्ट इनपुट
 description: वह बॉक्स जिसमें लोग टाइप करते हैं, और उसमें टाइप की जाने वाली हर चीज़ — एक पंक्ति या कई पंक्तियाँ, तारीख़ या समय, कोड — लेबल की अपनी पंक्ति, सहायता या त्रुटि टेक्स्ट के बिना। उस जगह के लिए जहाँ लेबल कहीं और है, या उस फ़ील्ड के भीतर जिसे प्रॉडक्ट ख़ुद जोड़कर बनाता है।
 translationOf: components/text-input.mdx
-sourceHash: 7e11d89a69b34a99a268214d2e585493afc8078e
+sourceHash: 83486ed63b6a2185108fc8bec04d5e73f0177fa5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="text-input" />
 
-<DemoFrame label="अकेला इनपुट: लिस्ट के ऊपर एक फ़िल्टर, और एक पंक्ति जिसका लेबल इनपुट के बग़ल में है" column>
+<Example label="अकेला इनपुट: लिस्ट के ऊपर एक फ़िल्टर, और एक पंक्ति जिसका लेबल इनपुट के बग़ल में है" column>
   <tanrei-text-input class="not-content" type="search" label="टोकन फ़िल्टर करें" placeholder="टोकन फ़िल्टर करें">
     <span slot="leading-icon">search</span>
   </tanrei-text-input>
@@ -23,7 +23,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <span>दिखने वाला नाम</span>
     <tanrei-text-input label="दिखने वाला नाम" value="Ada Lovelace"></tanrei-text-input>
   </div>
-</DemoFrame>
+</Example>
 
 टेक्स्ट इनपुट किसी [टेक्स्ट फ़ील्ड](/hi/components/text-field/) का बॉक्स है, अकेला: कंटेनर, टेक्स्ट, आइकन, प्रीफ़िक्स और सफ़िक्स, तारीख़ के सेगमेंट, पिकर बटन और साइज़ हैंडल। इसके ऊपर लेबल की कोई पंक्ति नहीं है, इसके नीचे न सहायता है न त्रुटि टेक्स्ट, और यह कोई गिनती नहीं दिखाता।
 
@@ -96,11 +96,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="एक फ़ील्ड जिसके भीतर टेक्स्ट इनपुट है: वही तस्वीर जो टेक्स्ट फ़ील्ड की है" column>
+<Example label="एक फ़ील्ड जिसके भीतर टेक्स्ट इनपुट है: वही तस्वीर जो टेक्स्ट फ़ील्ड की है" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="ईमेल" required required-text="ज़रूरी" supporting-text="हम इसका इस्तेमाल सिर्फ़ आपको साइन इन कराने के लिए करते हैं।">
     <tanrei-text-input type="email"></tanrei-text-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 इनपुट अपने फ़ील्ड को वह बताता है जो सिर्फ़ वही जानता है। उसकी सहायता वहीं से शुरू होती है जहाँ से टेक्स्ट शुरू होता है, पैडिंग और शुरुआती आइकन के बाद। फ़ील्ड का लेबल filled या outlined इनपुट ख़ुद दिखाता है, बॉक्स में फ़्लोट होता हुआ, इसलिए फ़ील्ड लेबल की कोई पंक्ति नहीं दिखाता। आधी भरी छोड़ी गई तारीख़ या समय, इनपुट के `invalidText` या `unavailableText` के साथ फ़ील्ड को त्रुटि में ले आता है।
 
@@ -123,19 +123,19 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="अकेले इनपुट: त्रुटि में, अक्षम, सिर्फ़ पढ़ने के लिए, प्रीफ़िक्स और सफ़िक्स के साथ, small और large" plain column>
+<Example label="अकेले इनपुट: त्रुटि में, अक्षम, सिर्फ़ पढ़ने के लिए, प्रीफ़िक्स और सफ़िक्स के साथ, small और large" column>
   <tanrei-text-input class="not-content" label="ईमेल" value="ada@" error></tanrei-text-input>
   <tanrei-text-input class="not-content" label="ईमेल" value="ada@example.com" disabled></tanrei-text-input>
   <tanrei-text-input class="not-content" label="ईमेल" value="ada@example.com" readonly></tanrei-text-input>
   <tanrei-text-input class="not-content" label="राशि" type="number" value="120" prefix-text="$" suffix-text="USD"></tanrei-text-input>
   <tanrei-text-input class="not-content" size="small" label="खोजें" value="tokens"></tanrei-text-input>
   <tanrei-text-input class="not-content" size="large" label="ईमेल" value="ada@example.com"></tanrei-text-input>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="अकेले filled और outlined इनपुट: इनपुट का अपना लेबल बॉक्स में फ़्लोट होता है" system="m3-like" plain column>
+<Example label="अकेले filled और outlined इनपुट: इनपुट का अपना लेबल बॉक्स में फ़्लोट होता है" system="m3-like" column>
   <tanrei-text-input class="not-content" variant="filled" label="ईमेल" type="email" value="ada@example.com"></tanrei-text-input>
   <tanrei-text-input class="not-content" variant="outlined" label="ईमेल" type="email"></tanrei-text-input>
-</DemoFrame>
+</Example>
 
 ### क्या इनपुट का है, और क्या फ़ील्ड का
 

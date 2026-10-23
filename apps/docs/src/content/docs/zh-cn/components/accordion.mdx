@@ -2,20 +2,20 @@
 title: "折叠面板"
 description: "由一行来就地显示和隐藏的内容。单独一项就是一个可以展开和折叠的区块；多项组成一组，各项可以各自展开，也可以一次只展开一项。"
 translationOf: components/accordion.mdx
-sourceHash: 734c02913c3de4d6bbbf30fab12414e81ab98d1b
+sourceHash: 2681abbddb5affc6cda5087c16254f1acec502a4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="accordion" />
 
-<DemoFrame label="帮助页面上的问题：outlined 外观，展开了一项" plain>
+<Example label="帮助页面上的问题：outlined 外观，展开了一项">
   <tanrei-accordion class="not-content tanrei-not-prose" variant="outlined">
     <details open>
       <summary>什么是设计令牌？</summary>
@@ -30,7 +30,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       用一个层：一份设置各个调节量的文件，产品需要时还可以单独设置某个令牌。
     </details>
   </tanrei-accordion>
-</DemoFrame>
+</Example>
 
 折叠面板把页面的一部分内容收在各个标题行之下，由标题行来显示和隐藏它们：帮助页面上的回答、设置界面的各个分区、表单里的高级选项。只有一项时，它就是一个可以展开和折叠的区块，用的仍是同一个组件。在导航抽屉里展开的一组目的地，是抽屉自己的分组；在同一处的几个视图之间选择，用的是标签页。
 
@@ -111,7 +111,7 @@ Markdown 渲染器会把 `<details>` 当作 HTML 原样输出。请在源文件�
 
 ## 规格
 
-<DemoFrame label="紧凑密度，带第二行文字，行末有一个值：面板里的折叠项" plain>
+<Example label="紧凑密度，带第二行文字，行末有一个值：面板里的折叠项">
   <tanrei-accordion class="not-content tanrei-not-prose" density="compact">
     <details open>
       <summary>文本<span data-supporting-text>正文、标签和标题</span><span data-trailing-text>Inter, Noto Sans JP</span></summary>
@@ -126,9 +126,9 @@ Markdown 渲染器会把 `<details>` 当作 HTML 原样输出。请在源文件�
       有 12 条规则来自这一层之下的各层。
     </details>
   </tanrei-accordion>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="一次只展开一项，每一项有自己的边线" plain>
+<Example label="一次只展开一项，每一项有自己的边线">
   <tanrei-accordion class="not-content tanrei-not-prose" variant="outlined" separation="gap" exclusive>
     <details open>
       <summary><span class="tanrei-icon" aria-hidden="true">palette</span>颜色</summary>
@@ -143,7 +143,7 @@ Markdown 渲染器会把 `<details>` 当作 HTML 原样输出。请在源文件�
       你的姓名、地址和密码。
     </details>
   </tanrei-accordion>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="accordion" />
 

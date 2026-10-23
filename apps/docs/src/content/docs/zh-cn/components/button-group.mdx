@@ -2,20 +2,20 @@
 title: "按钮组"
 description: "把几个相关的按钮排成一行或一列，彼此隔开或连接成一个形状，把完成任务和退出任务的操作放在用户预期的位置，并把这些按钮作为一个组来命名。"
 translationOf: components/button-group.mdx
-sourceHash: 4fffb14499d629d4c5b2c43cb8fa1ec4e97d4b84
+sourceHash: 0fd69176212d667b8b1bbb982a7e5cc99319372b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="button-group" />
 
-<DemoFrame label="标准式与连接式">
+<Example label="标准式与连接式">
   <tanrei-button-group>
     <tanrei-button variant="outlined">取消</tanrei-button>
     <tanrei-button variant="tonal">保存草稿</tanrei-button>
@@ -26,7 +26,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-button variant="tonal" toggle label="斜体"><span slot="icon">format_italic</span></tanrei-button>
     <tanrei-button variant="tonal" toggle label="下划线"><span slot="icon">format_underlined</span></tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -207,7 +207,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 | `dismissive` | 退出任务：取消、返回、以后再说 | 在起始处 | 在底部 |
 | 两者都没有 | 其他任何按钮 | 在两者之间，按给出的顺序 | 在两者之间，按给出的顺序 |
 
-<DemoFrame label="同样的三个按钮，排成一行和一列" plain>
+<Example label="同样的三个按钮，排成一行和一列">
   <tanrei-button-group>
     <tanrei-button variant="outlined" dismissive>取消</tanrei-button>
     <tanrei-button variant="tonal">保存草稿</tanrei-button>
@@ -218,9 +218,9 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
     <tanrei-button variant="tonal">保存草稿</tanrei-button>
     <tanrei-button variant="filled" confirming>发布</tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="占满宽度：平分宽度的一行，以及一列" plain column>
+<Example label="占满宽度：平分宽度的一行，以及一列" column>
   <div style="inline-size: 20rem">
     <tanrei-button-group full-width>
       <tanrei-button variant="tonal" dismissive>以后再说</tanrei-button>
@@ -233,7 +233,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
       <tanrei-button variant="tonal" confirming>允许</tanrei-button>
     </tanrei-button-group>
   </div>
-</DemoFrame>
+</Example>
 
 键盘焦点和屏幕阅读器遵循摆放后的顺序，所以每个人遇到这些操作的顺序都与它们画出来的顺序相同。标志描述的是按钮与任务的关系，而不是语气：在“取消 · 删除”中，“删除”是 confirming 的那一个。破坏性操作靠它自身的外观（按钮的 `destructive`）和标签来区分，而不是靠位置。[对话框](/zh-cn/components/dialog/)和[侧边面板](/zh-cn/components/side-sheet/)也用这两个标志来摆放各自的操作。
 
@@ -241,7 +241,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 
 连接式按钮组用两种方式之一把按钮连接起来。用**分隔线**时，按钮彼此相接，相接处的圆角变成直角，每条接缝上有一条线。用**间隙**时，按钮之间隔着一条窄间隙，彼此相对的圆角收得更小。设计系统为所有连接部件的组件统一选择一次（默认系统画分隔线），设计系统也可以让按钮组单独不同，而 `separation`（`auto`、`divider`、`gap`）则设置某一个按钮组。标准式按钮组会忽略它。
 
-<DemoFrame label="以分隔线和以间隙连接，排成一行和一列" plain>
+<Example label="以分隔线和以间隙连接，排成一行和一列">
   <tanrei-button-group variant="connected" separation="divider" label="剪贴板">
     <tanrei-button variant="outlined">剪切</tanrei-button>
     <tanrei-button variant="outlined">复制</tanrei-button>
@@ -260,22 +260,22 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
     <tanrei-button variant="tonal" label="放大"><span slot="icon">add</span></tanrei-button>
     <tanrei-button variant="tonal" label="缩小"><span slot="icon">remove</span></tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 使用分隔线时，只有两侧按钮的填充相同，接缝上才有线。在选中的切换按钮与未选中的切换按钮之间，或 filled 按钮与 outlined 按钮之间，填充的边缘已经标出了接缝，所以那里不画线。
 
-<DemoFrame label="以分隔线连接的切换按钮：选中项的两旁没有线" plain>
+<Example label="以分隔线连接的切换按钮：选中项的两旁没有线">
   <tanrei-button-group variant="connected" label="文本样式">
     <tanrei-button variant="outlined" toggle label="粗体"><span slot="icon">format_bold</span></tanrei-button>
     <tanrei-button variant="outlined" toggle selected label="斜体"><span slot="icon">format_italic</span></tanrei-button>
     <tanrei-button variant="outlined" toggle label="下划线"><span slot="icon">format_underlined</span></tanrei-button>
     <tanrei-button variant="outlined" toggle label="删除线"><span slot="icon">format_strikethrough</span></tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 ## 规格
 
-<DemoFrame label="连接式：outlined、large，以及含有禁用项" plain>
+<Example label="连接式：outlined、large，以及含有禁用项">
   <tanrei-button-group variant="connected" label="剪贴板">
     <tanrei-button variant="outlined">剪切</tanrei-button>
     <tanrei-button variant="outlined">复制</tanrei-button>
@@ -291,7 +291,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
     <tanrei-button variant="outlined" disabled>复制</tanrei-button>
     <tanrei-button variant="outlined">粘贴</tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="button-group" />
 

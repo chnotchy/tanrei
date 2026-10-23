@@ -7,16 +7,16 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="main-action-button" />
 
-<DemoFrame label="Extended and collapsed">
+<Example label="Extended and collapsed">
   <tanrei-main-action-button label="Compose"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button label="Compose" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
-</DemoFrame>
+</Example>
 
 The main action button is the one action a screen exists for: Compose in a mailbox, New event in a calendar, Add in a list. It sits on a raised container that floats above the content, so it stays in reach while the content scrolls beneath it.
 
@@ -94,27 +94,27 @@ The main action button replaces the floating action button and the extended FAB.
 
 ## Specs
 
-<DemoFrame label="Variants" plain>
+<Example label="Variants">
   <tanrei-main-action-button label="Compose"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button variant="tonal" label="Compose"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button variant="surface" label="Compose"><span slot="icon">edit</span></tanrei-main-action-button>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Sizes, extended and collapsed" plain>
+<Example label="Sizes, extended and collapsed">
   <tanrei-main-action-button size="small" label="Compose"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="medium" label="Compose"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="large" label="Compose"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="small" label="Compose" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="medium" label="Compose" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="large" label="Compose" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="A trailing icon, no icon, and disabled" plain>
+<Example label="A trailing icon, no icon, and disabled">
   <tanrei-main-action-button label="Next" icon-position="trailing"><span slot="icon">arrow_forward</span></tanrei-main-action-button>
   <tanrei-main-action-button label="Start"></tanrei-main-action-button>
   <tanrei-main-action-button label="Compose" disabled><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button label="Compose" collapsed disabled><span slot="icon">edit</span></tanrei-main-action-button>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="main-action-button" />
 
@@ -167,11 +167,11 @@ The button draws no scrim and moves no content. Place it over the content, norma
 
 Set `full-width` to make the button as wide as its container, its icon and label centred: the one action of a screen held across its foot on a narrow screen, such as Check out or Send. A full-width button is always extended: it does not collapse while the content scrolls, and setting `extended` to false is reported in debug builds. It keeps the height, the corners and the elevation of its size, and a label that does not fit wraps. It still does not place itself: put it in the container that holds it at the foot of the screen.
 
-<DemoFrame label="A full-width main action button" plain>
+<Example label="A full-width main action button">
   <div style="inline-size: 20rem">
     <tanrei-main-action-button label="Check out" full-width><span slot="icon">shopping_cart</span></tanrei-main-action-button>
   </div>
-</DemoFrame>
+</Example>
 
 ### Do
 

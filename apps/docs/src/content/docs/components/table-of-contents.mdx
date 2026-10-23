@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="table-of-contents" />
 
-<DemoFrame label="The sections of this page: scroll, and the mark follows" plain>
+<Example label="The sections of this page: scroll, and the mark follows">
   <tanrei-table-of-contents class="not-content tanrei-not-prose" label="On this page" style="inline-size: 15rem; max-inline-size: 100%">
     <ul>
       <li>
@@ -34,7 +34,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
       <li><a href="#accessibility">Accessibility</a></li>
     </ul>
   </tanrei-table-of-contents>
-</DemoFrame>
+</Example>
 
 A table of contents shows what a long page holds and which part the reader is in. Each item is a link to a heading; sub-headings are set in under their heading. The current item has a marker on the rail and a heavier label. It is not the product's navigation between pages: that is a navigation drawer.
 
@@ -106,7 +106,7 @@ The items are given, not discovered. A page built by a site generator or a frame
 
 ## Specs
 
-<DemoFrame label="Compact density, three levels, the third item current" plain>
+<Example label="Compact density, three levels, the third item current">
   <tanrei-table-of-contents class="not-content tanrei-not-prose" label="On this page" density="compact" tracking="manual" current="#roles-demo" style="inline-size: 15rem; max-inline-size: 100%">
     <ul>
       <li>
@@ -125,9 +125,9 @@ The items are given, not discovered. A page built by a site generator or a frame
       <li><a href="#components-demo">Components</a></li>
     </ul>
   </tanrei-table-of-contents>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="The compact form: press the row" plain>
+<Example label="The compact form: press the row">
   <tanrei-table-of-contents class="not-content tanrei-not-prose" label="On this page" presentation="compact" tracking="manual" current="#configure-demo" style="inline-size: 20rem; max-inline-size: 100%">
     <ul>
       <li><a href="#install-demo">Install</a></li>
@@ -135,7 +135,7 @@ The items are given, not discovered. A page built by a site generator or a frame
       <li><a href="#build-demo">Build</a></li>
     </ul>
   </tanrei-table-of-contents>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="table-of-contents" />
 

@@ -2,14 +2,14 @@
 title: स्विच
 description: एक सेटिंग को चालू या बंद करता है, और बदलाव तुरंत लागू होता है।
 translationOf: components/switch.mdx
-sourceHash: 2da2b39034e7ee88a01f032d190b734152fcac50
+sourceHash: 3c9248e2d903cb5a621415b66cd6f02bbb77c85b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
@@ -19,13 +19,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 यह पेज स्विच को वैसा बताता है जैसा स्पेक में वह अभी है: 52 × 32 का ट्रैक, दबाने पर बढ़ने वाला हैंडल, सिर्फ़ आइकन सेट से आने वाले ग्लिफ़, ड्रैग के साथ चलने वाला हैंडल, और हैंडल के ग्लिफ़ जिनका अपना, ज़्यादा भारी वेट है। वेब कंपोनेंट यह सब पहले से करता है, और डेमो भी। SwiftUI, Compose, Flutter और React Native ऊपर "पीछे" के रूप में चिह्नित हैं: जब तक वे बराबरी पर नहीं आते, वे पिछला संशोधन देते हैं, जो सिर्फ़ टैप का जवाब देता है और ड्रैग के साथ नहीं चलता।
 :::
 
-<DemoFrame label="बंद और चालू">
+<Example label="बंद और चालू">
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space150)">
     <tanrei-switch checked label="Wi-Fi"></tanrei-switch>
     <tanrei-switch label="Bluetooth"></tanrei-switch>
     <tanrei-switch checked checked-icon="check" label="हवाई जहाज़ मोड"></tanrei-switch>
   </div>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -110,7 +110,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="स्थितियाँ, आइकन और अक्षम" plain>
+<Example label="स्थितियाँ, आइकन और अक्षम">
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space150)">
     <tanrei-switch label="बंद"></tanrei-switch>
     <tanrei-switch checked label="चालू"></tanrei-switch>
@@ -125,7 +125,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </div>
   <tanrei-switch readonly checked label="केवल पढ़ने के लिए, चालू"></tanrei-switch>
   <tanrei-switch checked label-hidden label="Wi-Fi"></tanrei-switch>
-</DemoFrame>
+</Example>
 
 हैंडल हर हाल में एक गोला है, ग्लिफ़ के साथ भी और उसके बिना भी। टैप उसे बदल देता है, और हैंडल दूसरे सिरे पर सरक जाता है, जबकि उसका साइज़ और बंद और चालू के बीच अलग होने वाला हर रंग उसके साथ बदलता है। ट्रैक पर किया गया ड्रैग हैंडल को उँगली के साथ ले चलता है और बीच के वही रूप बनाता है, बिना किसी थ्रेशोल्ड के। ड्रैग छोड़ने पर स्विच बदलता है: उस ओर, जिसके हैंडल ज़्यादा पास है, या जिस ओर फ़्लिंग जाता है। जो ड्रैग Escape से या प्लैटफ़ॉर्म की ओर से रद्द हो जाता है, वह कुछ नहीं बदलता।
 

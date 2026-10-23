@@ -2,27 +2,27 @@
 title: カラー入力欄
 description: 1 つの色を設定するボックスです。色見本と、読んで、入力して、貼り付けられるテキストの値と、ピッカーを求めるボタンがあります。ラベルの行、補足、エラーテキストは自分では持ちません。行や列がすでに色の名前を示しているところや、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/color-input.mdx
-sourceHash: 1832342749e78a62e8352e9c60bbc9bace7885d9
+sourceHash: 0999afc891925277301cd2b28ed9cdb4fb54d9d0
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="color-input" />
 
-<DemoFrame label="単独で使う例：トーンの一覧の行。それぞれの行が色の名前を示します" column>
+<Example label="単独で使う例：トーンの一覧の行。それぞれの行が色の名前を示します" column>
   <div class="not-content" style="display: grid; grid-template-columns: auto 14rem; align-items: center; gap: 0.5rem 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
     <span>トーン 40</span>
     <tanrei-color-input label="プライマリ、トーン 40" value="#0f766e" picker picker-label="プライマリ、トーン 40 の色を選択"></tanrei-color-input>
     <span>トーン 80</span>
     <tanrei-color-input label="プライマリ、トーン 80" value="#5eead4" picker picker-label="プライマリ、トーン 80 の色を選択"></tanrei-color-input>
   </div>
-</DemoFrame>
+</Example>
 
 カラー入力欄は、[カラーフィールド](/ja/components/color-field/)のボックスだけを取り出したものです。コンテナ、色見本、テキストとしての値、ピッカーのボタンがあります。上にラベルの行はなく、下に補足もエラーテキストもありません。
 
@@ -95,29 +95,29 @@ Web では `<tanrei-color-input>` です。ほかのプラットフォームは�
 </tanrei-field>
 ```
 
-<DemoFrame label="フィールドの中のカラー入力欄。見た目はカラーフィールドと同じです" column>
+<Example label="フィールドの中のカラー入力欄。見た目はカラーフィールドと同じです" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" required required-text="必須" supporting-text="6 桁の 16 進数で入力します。例：#0f766e">
     <tanrei-color-input value="#0f766e" invalid-text="6 桁の 16 進数で入力してください。例：#0f766e" picker picker-label="色を選択"></tanrei-color-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 入力欄は、自分にしか分からないことをフィールドに伝えます。フィールドの補足は、色見本を越えた、値のテキストが始まる位置から始まります。Filled と Outlined の入力欄は、フィールドのラベルをボックスの中で浮き上がるラベルとして自分で描くので、フィールドはラベルの行を描きません。色ではないテキストを確定すると、フィールドがエラーになり、入力欄の `invalidText` を表示します。
 
 ## 仕様
 
-<DemoFrame label="単独の入力欄：空、白、黒、エラー、無効、ピッカーのボタンがある large" plain column>
+<Example label="単独の入力欄：空、白、黒、エラー、無効、ピッカーのボタンがある large" column>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="アクセントカラー"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ページの背景" value="#ffffff"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="テキスト" value="#000000"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" value="#fde047" error></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" value="#0f766e" disabled picker picker-label="色を選択"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" size="large" label="ブランドカラー" value="#0f766e" picker picker-label="色を選択"></tanrei-color-input>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="単独の Filled と Outlined：入力欄自身のラベルがボックスの中で浮き上がります" system="m3-like" plain column>
+<Example label="単独の Filled と Outlined：入力欄自身のラベルがボックスの中で浮き上がります" system="m3-like" column>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="ブランドカラー" value="#0f766e"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="ブランドカラー"></tanrei-color-input>
-</DemoFrame>
+</Example>
 
 ### 入力欄が受け持つものと、フィールドが受け持つもの
 

@@ -7,20 +7,20 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="one-time-code-input" />
 
-<DemoFrame label="A one-time-code input inside a field, and one whose code the product refused" column>
+<Example label="A one-time-code input inside a field, and one whose code the product refused" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Verification code" supporting-text="Enter the 6-digit code we sent to your phone.">
     <tanrei-one-time-code-input group-size="3" value="123"></tanrei-one-time-code-input>
   </tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Verification code" supporting-text="Enter the 6-digit code we sent to your phone." error error-text="That code is not right. Check the message and try again.">
     <tanrei-one-time-code-input group-size="3" value="123456"></tanrei-one-time-code-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 Use a one-time-code input for a short code that a product sent to the person and asks back once: to sign in, to confirm an e-mail address or a telephone number, to approve a payment. The cells show how long the code is and how much of it is still missing.
 
@@ -85,14 +85,14 @@ On the web it is `<tanrei-one-time-code-input>`. The other platforms have not im
 
 ## Specs
 
-<DemoFrame label="Four cells, eight cells in two groups, letters and digits, a masked code, a read-only one and a disabled one" plain column>
+<Example label="Four cells, eight cells in two groups, letters and digits, a masked code, a read-only one and a disabled one" column>
   <tanrei-one-time-code-input class="not-content" label="PIN from the letter" length="4" value="4821"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="Pairing code" length="8" group-size="4" value="1234"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="Sign-in code" type="alphanumeric" group-size="3" value="A7K93Q"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="Verification code" mask value="1234"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="Verification code" readonly value="123456"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="Verification code" disabled group-size="3" value="123456"></tanrei-one-time-code-input>
-</DemoFrame>
+</Example>
 
 ### The cells
 

@@ -2,14 +2,14 @@
 title: कैरसेल
 description: दृश्य आइटम की एक पंक्ति, जो एक मुख्य आइटम के इर्द-गिर्द आड़ी स्क्रॉल होती है और जिसका हर आइटम वह चीज़ खोलता है जो वह दिखाता है। फ़ीचर्ड पंक्ति लूप कर सकती है, बिंदुओं से अपनी जगह दिखा सकती है और अपने आप आगे बढ़ सकती है।
 translationOf: components/carousel.mdx
-sourceHash: 456f22fc35f1b413823ac47def1b7dcdec2ed432
+sourceHash: 6c17872330097ca5dbb892d334a8fbaa39ad7f09
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 यह पेज कैरसेल को वैसा बताता है जैसा स्पेक में वह अभी है। `layout` प्रॉपर्टी की जगह अब स्वतंत्र चुनाव हैं (हीरो कहाँ रहता है, फ़्लुइड या तय चौड़ाइयाँ, स्केल, स्नैप, लूप), और फ़ीचर्ड पंक्ति बिंदु दिखा सकती है और अपने आप आगे बढ़ सकती है। हीरो अब डिफ़ॉल्ट रूप से बीच में रहता है, और पड़ोसी आइटम स्क्रॉल की हर स्थिति में एक-दूसरे से एक गैप की दूरी पर रहते हैं। वेब कंपोनेंट यह सब पहले से करता है, और डेमो भी। SwiftUI, Compose, Flutter और React Native ऊपर "पीछे" के रूप में चिह्नित हैं: जब तक वे बराबरी पर नहीं आते, वे पिछला संशोधन देते हैं, जिसमें `layout` है और लूप, बिंदु, ऑटोप्ले या पिछला और अगला कंट्रोल नहीं हैं। [हीरो डिफ़ॉल्ट रूप से बीच में होता है](#हीरो-डिफ़ॉल्ट-रूप-से-बीच-में-होता-है) और [`layout` से आगे बढ़ना](#layout-से-आगे-बढ़ना) देखें।
 :::
 
-<DemoFrame label="डिफ़ॉल्ट: हीरो बीच में, उसके बग़ल में एक छोटा आइटम">
+<Example label="डिफ़ॉल्ट: हीरो बीच में, उसके बग़ल में एक छोटा आइटम">
   <tanrei-carousel previous-label="पिछली सैर" next-label="अगली सैर" label="आपके पास की सैर" style="inline-size: 25rem; max-inline-size: 100%">
     <tanrei-carousel-item label="तटीय पगडंडी, 12 फ़ोटो"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
     <tanrei-carousel-item label="पुराना शहर, 8 फ़ोटो"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -28,7 +28,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-carousel-item label="पहाड़ी क़िला, 9 फ़ोटो"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
     <tanrei-carousel-item label="नदी किनारे की सैर, 14 फ़ोटो"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
   </tanrei-carousel>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -159,7 +159,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 ## स्पेक
 
-<DemoFrame label="जितना हो सके उतना चौड़ा हीरो, और तय चौड़ाइयाँ जो शुरुआती किनारे से खुलकर स्क्रॉल होती हैं" plain column>
+<Example label="जितना हो सके उतना चौड़ा हीरो, और तय चौड़ाइयाँ जो शुरुआती किनारे से खुलकर स्क्रॉल होती हैं" column>
   <tanrei-carousel previous-label="पिछली सैर" next-label="अगली सैर" item-width="400" label="चुनिंदा सैर" style="inline-size: 25rem; max-inline-size: 100%">
     <tanrei-carousel-item label="तटीय पगडंडी, 12 फ़ोटो"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
     <tanrei-carousel-item label="पुराना शहर, 8 फ़ोटो"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -173,9 +173,9 @@ Web और React के उदाहरण मौजूदा स्पेक �
     <tanrei-carousel-item label="झील का किनारा, 5 फ़ोटो"><span class="tanrei-icon">water</span></tanrei-carousel-item>
     <tanrei-carousel-item label="पहाड़ी क़िला, 9 फ़ोटो"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
   </tanrei-carousel>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="पंक्ति को सजाना: तय चौड़ाइयाँ, स्केल, लूप, हीरो की ओर का कॉन्टेंट" plain column>
+<Example label="पंक्ति को सजाना: तय चौड़ाइयाँ, स्केल, लूप, हीरो की ओर का कॉन्टेंट" column>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">तय चौड़ाइयाँ, स्क्रॉल जहाँ ख़त्म हो वहीं ठहरती हुई: <code>fixed-width free-scroll</code></div>
     <tanrei-carousel previous-label="पिछली सैर" next-label="अगली सैर" fixed-width free-scroll label="आपके पास की सैर" style="inline-size: 25rem; max-inline-size: 100%">
@@ -217,9 +217,9 @@ Web और React के उदाहरण मौजूदा स्पेक �
       <tanrei-carousel-item label="नदी किनारे की सैर, 14 फ़ोटो"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
     </tanrei-carousel>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="बिंदु, ऑटोप्ले, प्रगति, रुका हुआ, और अकेला प्लेबैक कंट्रोल" plain column>
+<Example label="बिंदु, ऑटोप्ले, प्रगति, रुका हुआ, और अकेला प्लेबैक कंट्रोल" column>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">बिंदु: <code>indicator</code></div>
     <tanrei-carousel previous-label="पिछली सैर" next-label="अगली सैर" indicator label="चुनिंदा सैर" style="inline-size: 25rem; max-inline-size: 100%">
@@ -273,7 +273,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
       <tanrei-carousel-item label="झील का किनारा, 5 फ़ोटो"><span class="tanrei-icon">water</span></tanrei-carousel-item>
     </tanrei-carousel>
   </div>
-</DemoFrame>
+</Example>
 
 जहाँ "मोशन कम करें" सेटिंग चालू है, वहाँ ऑटोप्ले कभी नहीं चलता: वहाँ ऑटोप्ले के डेमो स्थिर रहते हैं, और उनमें प्लेबैक कंट्रोल और प्रगति नहीं होते।
 

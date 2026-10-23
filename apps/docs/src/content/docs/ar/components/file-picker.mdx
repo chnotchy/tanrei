@@ -2,21 +2,21 @@
 title: منتقي الملفات
 description: يتيح للأشخاص اختيار ملفات بمنتقي الملفات الخاص بالمنصة، من زر، وحيث يتسع المكان من موضع يمكن أيضًا سحب الملفات إليه، ويقول القيود بالكلمات قبل الاختيار، ويحكم على ما اختير، ويسلّم منتجك الملفات التي قبلها والملفات التي رفضها. وهو لا يحتفظ بشيء، ولا يسرد شيئًا، ولا يشارك في أي نموذج.
 translationOf: components/file-picker.mdx
-sourceHash: 7b60eb18075b635e3d10042c71ae794088afa2bf
+sourceHash: 13621ef351e8f58d28882b26c91b782cc5a412fc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="file-picker" />
 
-<DemoFrame label="منتقي الملفات بكل تخطيط. اختيار ملف لا يغيّر شيئًا هنا: فالصفحة لا تحتفظ بأي ملف." column>
+<Example label="منتقي الملفات بكل تخطيط. اختيار ملف لا يغيّر شيئًا هنا: فالصفحة لا تحتفظ بأي ملف." column>
   <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="ملف الطبقة" accept=".json" constraints-text="ملف JSON واحد" selection-text="لم يُختر أي ملف">
     <tanrei-button slot="trigger" variant="outlined">اختيار ملف</tanrei-button>
   </tanrei-file-picker>
@@ -24,7 +24,7 @@ import Callout from '../../../../components/Callout.astro';
     <tanrei-button slot="trigger" variant="outlined">اختيار صور</tanrei-button>
     <span slot="icon">image</span>
   </tanrei-file-picker>
-</DemoFrame>
+</Example>
 
 منتقي الملفات (file picker) طريقة اختيار الملفات، ولا شيء غير ذلك. [زر](/ar/components/button/) من عندك يفتح منتقي الملفات الخاص بالمنصة. ويمكن أن تحيط به منطقة إفلات (drop area) تقبل أيضًا الملفات التي تُسحب إليها. والقيود تقف بجانبه بكلماتك. وما اختير يُحكم عليه بحسب القيود ثم يُسلَّم إليك: الملفات التي قُبلت مع الحدث `select`، والمرفوضة مع الحدث `reject`.
 
@@ -107,7 +107,7 @@ const { accepted, refused } = picker.judge(event.clipboardData.files);
 
 ## المواصفات
 
-<DemoFrame label="المشغِّل وحده؛ ثم مع ما اختير ومع القيود؛ ثم منطقة إفلات في حالة الخطأ؛ ثم معطَّل" plain column>
+<Example label="المشغِّل وحده؛ ثم مع ما اختير ومع القيود؛ ثم منطقة إفلات في حالة الخطأ؛ ثم معطَّل" column>
   <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="إرفاق">
     <tanrei-button slot="trigger" variant="outlined">إرفاق ملف</tanrei-button>
   </tanrei-file-picker>
@@ -120,7 +120,7 @@ const { accepted, refused } = picker.judge(event.clipboardData.files);
   <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple disabled label="المرفقات" drop-text="اسحب الملفات إلى هنا، أو اخترها" constraints-text="ملفات PDF أو PNG، حتى 10 ميغابايت لكل ملف">
     <tanrei-button slot="trigger" variant="outlined">اختيار ملفات</tanrei-button>
   </tanrei-file-picker>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="file-picker" />
 

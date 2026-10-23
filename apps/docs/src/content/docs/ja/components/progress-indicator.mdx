@@ -2,27 +2,27 @@
 title: プログレスインジケーター
 description: タスクがどこまで進んだかを、進み具合が分からないときは進行中であることを、バーまたはリングで示します。
 translationOf: components/progress-indicator.mdx
-sourceHash: 7a2f831964be9fb1473847365cd287574d956952
+sourceHash: a3a25acb0bd8dba2353811061e0fbe63c03d1013
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="progress-indicator" />
 
-<DemoFrame label="リニアとサーキュラー">
+<Example label="リニアとサーキュラー">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-progress-indicator value="0.4" label="report.pdf をアップロード中"></tanrei-progress-indicator>
     <tanrei-progress-indicator label="エクスポートを準備中"></tanrei-progress-indicator>
   </div>
   <tanrei-progress-indicator variant="circular" value="0.4" label="写真を同期中"></tanrei-progress-indicator>
   <tanrei-progress-indicator variant="circular" label="同期中"></tanrei-progress-indicator>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -124,7 +124,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 
 ## 仕様
 
-<DemoFrame label="サイズ、範囲の両端、独自の範囲" plain>
+<Example label="サイズ、範囲の両端、独自の範囲">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-progress-indicator size="small" value="0.4" label="Small"></tanrei-progress-indicator>
     <tanrei-progress-indicator size="medium" value="0.4" label="Medium"></tanrei-progress-indicator>
@@ -136,9 +136,9 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
   <tanrei-progress-indicator variant="circular" size="small" value="0.4" label="Small"></tanrei-progress-indicator>
   <tanrei-progress-indicator variant="circular" size="medium" value="0.4" label="Medium"></tanrei-progress-indicator>
   <tanrei-progress-indicator variant="circular" size="large" value="0.4" label="Large"></tanrei-progress-indicator>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="区切り方：divider（既定のシステムの選択）と gap" plain>
+<Example label="区切り方：divider（既定のシステムの選択）と gap">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-progress-indicator separation="divider" value="0.4" label="Divider"></tanrei-progress-indicator>
     <tanrei-progress-indicator separation="gap" value="0.4" label="Gap"></tanrei-progress-indicator>
@@ -146,7 +146,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
   </div>
   <tanrei-progress-indicator variant="circular" size="large" separation="divider" value="0.4" label="Divider"></tanrei-progress-indicator>
   <tanrei-progress-indicator variant="circular" size="large" separation="gap" value="0.4" label="Gap"></tanrei-progress-indicator>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="progress-indicator" />
 

@@ -2,25 +2,25 @@
 title: 色見本
 description: 色を見本として示し、その横に名前を添えます。見本は色そのままで、半透明の色は市松模様の上に描き、縁取りがあるのでサーフェスに近い色でもどこで終わるかが分かります。見て確かめるための見本であり、コントロールでもピッカーでもありません。
 translationOf: components/swatch.mdx
-sourceHash: 23fa0af88d1049d9e926971bd03ae83df71af4a1
+sourceHash: 0d457cad3aed0feaada8341605f38e8f101de85b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="swatch" />
 
-<DemoFrame label="値を添えた色、テーマのロール、半透明の色、ドット">
+<Example label="値を添えた色、テーマのロール、半透明の色、ドット">
   <tanrei-swatch color="#0f766e" label="ティール 700" supporting-text="#0f766e"></tanrei-swatch>
   <tanrei-swatch color="var(--tanrei-sys-color-primary)" label="プライマリ"></tanrei-swatch>
   <tanrei-swatch color="#0f766e80" label="半透明のティール 700" supporting-text="#0f766e80"></tanrei-swatch>
   <tanrei-swatch color="#e11d48" label="バグ" shape="circle" size="small"></tanrei-swatch>
-</DemoFrame>
+</Example>
 
 色見本は、編集中ではない色を示します。設定ページのブランドカラー、ラベルの横に添えるそのラベルの色、並べて示すテーマのロールなどです。色は渡されたとおりに正確に描き、その横に色の名前を描きます。色は見本だけでは伝わらないからです。ポインター、キー、フォーカスのいずれにも反応しません。
 
@@ -60,13 +60,13 @@ Web では `<tanrei-swatch>` です。ほかのプラットフォームはまだ
 
 ## 仕様
 
-<DemoFrame label="3 つのサイズ、2 つの形、色のない色見本" plain>
+<Example label="3 つのサイズ、2 つの形、色のない色見本">
   <tanrei-swatch size="small" color="#0f766e" label="Small"></tanrei-swatch>
   <tanrei-swatch color="#0f766e" label="Medium"></tanrei-swatch>
   <tanrei-swatch size="large" color="#0f766e" label="Large"></tanrei-swatch>
   <tanrei-swatch shape="circle" color="#7c3aed" label="Circle"></tanrei-swatch>
   <tanrei-swatch color="" label="色なし"></tanrei-swatch>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="swatch" />
 

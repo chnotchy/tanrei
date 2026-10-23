@@ -2,28 +2,27 @@
 title: Botón
 description: Permite realizar una acción, activar y desactivar algo o ir a un destino con un solo toque o clic.
 translationOf: components/button.mdx
-sourceHash: a587774eb5411058152f514ed38199d856c52a81
+sourceHash: f888556fbe868c4858d27e4c999dcfdeffd781f9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
-import VisualFrame from '../../../../components/visuals/VisualFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import StateMatrix from '../../../../components/visuals/StateMatrix.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="button" />
 
-<VisualFrame label="Variantes" reserve={{ block: 'comp.button.container.height.medium' }} controls="both">
+<Example label="Variantes" reserve={{ block: 'comp.button.container.height.medium' }} code>
   <tanrei-button variant="filled">Filled</tanrei-button>
   <tanrei-button variant="tonal">Tonal</tanrei-button>
   <tanrei-button variant="elevated">Elevated</tanrei-button>
   <tanrei-button variant="outlined">Outlined</tanrei-button>
   <tanrei-button variant="text">Text</tanrei-button>
-</VisualFrame>
+</Example>
 
 ### Uso
 
@@ -106,12 +105,12 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
 
 Un botón puede llevar un icono junto a su etiqueta, al inicio o, con `iconPosition` en `trailing`, al final. El margen interior del lado del icono es un paso más ajustado que el del lado de la etiqueta, de modo que ambos se ven equilibrados. Sin etiqueta es de solo icono: un círculo tan ancho como alto es el botón, que recibe su nombre de `label`, que entonces es obligatorio. Con `toggle` activado, cambia su propio `selected` en cada pulsación, muestra el estado con sus colores y con el relleno del glifo, y lo anuncia como un estado pulsado.
 
-<DemoFrame label="Botones de solo icono y un conmutador">
+<Example label="Botones de solo icono y un conmutador">
   <tanrei-button variant="text" label="Buscar"><span slot="icon">search</span></tanrei-button>
   <tanrei-button variant="tonal" label="Editar"><span slot="icon">edit</span></tanrei-button>
   <tanrei-button variant="outlined" toggle selected label="Favorito"><span slot="icon">favorite</span></tanrei-button>
   <tanrei-button variant="filled" icon-position="trailing">Siguiente<span slot="icon">arrow_forward</span></tanrei-button>
-</DemoFrame>
+</Example>
 
 En Tanrei, el botón de icono no es un componente aparte. Si conoces los nombres de Material, aquí es donde fueron a parar:
 
@@ -134,13 +133,13 @@ Un botón de solo icono tiene tres anchos. Su altura nunca cambia con ellos, y u
 | `narrow` | El glifo y un pequeño margen interior a cada lado: 28 / 32 / 32, una cápsula | Una fila apretada de acciones de icono, como las herramientas al final de un campo o una fila de tabla densa. |
 | `wide` | 40 / 52 / 72, una cápsula | La única acción de una fila que debe pesar más que sus vecinas. |
 
-<DemoFrame label="Anchos de solo icono: default, narrow y wide" plain>
+<Example label="Anchos de solo icono: default, narrow y wide">
   <tanrei-button variant="tonal" label="Añadir"><span slot="icon">add</span></tanrei-button>
   <tanrei-button variant="tonal" width="narrow" label="Añadir"><span slot="icon">add</span></tanrei-button>
   <tanrei-button variant="tonal" width="wide" label="Añadir"><span slot="icon">add</span></tanrei-button>
   <tanrei-button variant="outlined" size="small" width="narrow" label="Más opciones"><span slot="icon">more_vert</span></tanrei-button>
   <tanrei-button variant="filled" size="large" width="wide" label="Reproducir"><span slot="icon">play_arrow</span></tanrei-button>
-</DemoFrame>
+</Example>
 
 Un botón estrecho mide exactamente su glifo más el margen interior de cada lado, así que el glifo nunca toca el borde de la cápsula, y el botón sigue al glifo cuando un sistema de diseño le cambia el tamaño. Se dibuja más estrecho que el objetivo mínimo, pero su área de pulsación no lo es: el objetivo se extiende más allá de sus bordes visibles. Déjale espacio junto al botón, o coloca los botones estrechos en una [barra de herramientas](/es/components/toolbar/) o en un [grupo de botones](/es/components/button-group/), que espacian sus elementos.
 
@@ -150,22 +149,22 @@ Mientras la acción que inició un botón está en curso, define `busy` en lugar
 
 Un botón deshabilitado sale del orden del foco, así que quien usa un teclado o un lector de pantalla puede no encontrarlo nunca, ni saber por qué no hace nada. Donde la persona puede hacer que la acción esté disponible, como un botón de enviar mientras el mensaje está vacío, añade `focusable-when-disabled`: el botón se dibuja y se anuncia como deshabilitado y no hace nada, pero Tab sigue llegando a él, así que un [tooltip](/es/components/tooltip/) o una descripción pueden decir por qué.
 
-<DemoFrame label="Ocupado, y deshabilitado pero alcanzable" plain>
+<Example label="Ocupado, y deshabilitado pero alcanzable">
   <tanrei-button busy busy-label="Desplegando">Desplegar</tanrei-button>
   <tanrei-button variant="text" busy busy-label="Guardando" label="Guardar"><span slot="icon">save</span></tanrei-button>
   <tanrei-button disabled focusable-when-disabled>Enviar</tanrei-button>
-</DemoFrame>
+</Example>
 
 ### Ancho completo
 
 Añade `full-width` para que un botón sea tan ancho como su contenedor, por ejemplo la única acción al pie de un formulario, una tarjeta o una hoja estrechos. Conserva la altura, los márgenes interiores y las esquinas de su tamaño, y su etiqueta y su icono quedan centrados. Una etiqueta que no cabe pasa a la línea siguiente en lugar de cortarse. Donde un [grupo de botones](/es/components/button-group/), una [barra de herramientas](/es/components/toolbar/) o las acciones de un diálogo o de un popover disponen los botones, son ellos quienes deciden los anchos y `full-width` en un botón no hace nada: da `full-width` al grupo de botones para repartir una fila entre varios botones.
 
-<DemoFrame label="Botones de ancho completo" plain>
+<Example label="Botones de ancho completo">
   <div style="inline-size: 20rem; display: grid; gap: 0.75rem">
     <tanrei-button full-width>Crear cuenta</tanrei-button>
     <tanrei-button variant="outlined" full-width><span slot="icon">upload</span>Subir un archivo</tanrei-button>
   </div>
-</DemoFrame>
+</Example>
 
 ### Acciones destructivas
 
@@ -175,24 +174,24 @@ Elige la variante como para cualquier otra acción. Usa filled donde eliminar es
 
 Un enlace tampoco lo tiene. Un botón con `href` ignora `destructive` y se dibuja como el enlace de su variante, porque seguir un enlace no elimina nada: solo lleva a la persona al lugar donde se puede eliminar algo. Marca la acción de ese lugar, como el botón Eliminar de la página que abre el enlace. Las compilaciones de depuración notifican un enlace al que se le da `destructive`.
 
-<DemoFrame label="Botones destructivos en cada variante, y de solo icono" plain>
+<Example label="Botones destructivos en cada variante, y de solo icono">
   <tanrei-button destructive>Eliminar proyecto</tanrei-button>
   <tanrei-button variant="tonal" destructive>Descartar borrador</tanrei-button>
   <tanrei-button variant="outlined" destructive>Quitar miembro</tanrei-button>
   <tanrei-button variant="text" destructive>Borrar historial</tanrei-button>
   <tanrei-button variant="text" destructive label="Eliminar archivo"><span slot="icon">delete</span></tanrei-button>
-</DemoFrame>
+</Example>
 
 ### Un botón con destino es un enlace
 
 Dale un `href` a un botón y será un enlace, no un botón: el mismo control, dibujado con los mismos tokens en todos los estados, pero con el rol de enlace y todo lo que la plataforma da a un enlace. En la web es un ancla real, de modo que las personas pueden abrirlo en una pestaña nueva, copiar su dirección y ver adónde lleva antes de seguirlo. Usa esta forma siempre que activar el control solo lleve a la persona a otro lugar. No navegues desde el controlador de clic de un botón normal.
 
-<DemoFrame label="Enlaces: mismo lugar, pestaña nueva, solo icono y deshabilitado" plain>
+<Example label="Enlaces: mismo lugar, pestaña nueva, solo icono y deshabilitado">
   <tanrei-button href="/es/components/button-group/">Grupo de botones</tanrei-button>
   <tanrei-button variant="outlined" href="/es/components/toolbar/" target="new" target-label="se abre en una pestaña nueva">Barra de herramientas</tanrei-button>
   <tanrei-button variant="text" href="/es/components/" label="Todos los componentes"><span slot="icon">apps</span></tanrei-button>
   <tanrei-button variant="tonal" href="/es/components/button-group/" disabled>Grupo de botones</tanrei-button>
-</DemoFrame>
+</Example>
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
@@ -319,11 +318,11 @@ En la web, un botón es uno de los controles de su formulario, y `type` dice qu�
 
 Cuando la misma palabra se dibuja en varios botones, como «Quitar» en cada fila de una lista, la palabra por sí sola no le dice a quien usa un lector de pantalla a qué fila pertenece un botón. Da a cada botón un `label`: pasa a ser el nombre accesible completo del botón, en lugar del texto dibujado, y el botón se dibuja exactamente igual que antes.
 
-<DemoFrame label="La misma palabra en cada fila, y cada botón con el nombre de su fila" plain>
+<Example label="La misma palabra en cada fila, y cada botón con el nombre de su fila">
   <tanrei-button variant="text" size="small" label="Quitar: Inter">Quitar</tanrei-button>
   <tanrei-button variant="text" size="small" label="Quitar: Noto Sans JP">Quitar</tanrei-button>
   <tanrei-button variant="text" size="small" label="Quitar: Roboto Mono">Quitar</tanrei-button>
-</DemoFrame>
+</Example>
 
 | `label` | Etiqueta dibujada | Nombre accesible |
 | --- | --- | --- |
@@ -337,13 +336,13 @@ Cuando la misma palabra se dibuja en varios botones, como «Quitar» en cada fil
 
 ## Especificaciones
 
-<DemoFrame label="Tamaños y estado deshabilitado" plain>
+<Example label="Tamaños y estado deshabilitado">
   <tanrei-button size="small">Small</tanrei-button>
   <tanrei-button size="medium">Medium</tanrei-button>
   <tanrei-button size="large">Large</tanrei-button>
   <tanrei-button disabled>Disabled</tanrei-button>
   <tanrei-button variant="outlined" disabled>Disabled</tanrei-button>
-</DemoFrame>
+</Example>
 
 <StateMatrix name="button" />
 

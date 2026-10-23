@@ -2,25 +2,25 @@
 title: コールアウト
 description: コンテンツの一部としてその場に残る通知です。注記、注意、理由の説明、問題の要約などを、控えめな塗りまたは枠線で、ステータスがあればその色とグリフで描きます。タイトル、アクション、閉じるボタンを付けられます。
 translationOf: components/callout.mdx
-sourceHash: 3c436844ceb67c8f97b0d4e71ba26f1cb2c8799a
+sourceHash: f6abd901240a5444e951caf8c754bcc85de11555
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="callout" />
 
-<DemoFrame label="注記、タイトル付きの注意、アクションと閉じるボタンのある通知" column>
+<Example label="注記、タイトル付きの注意、アクションと閉じるボタンのある通知" column>
   <tanrei-callout status="info" status-label="情報" style="inline-size: min(100%, 34rem)">Web はこの改訂を描画しています。ほかのプラットフォームは後から続きます。</tanrei-callout>
   <tanrei-callout status="warning" headline="移行の前にバックアップを取ってください" style="inline-size: min(100%, 34rem)">移行はデータベースをその場で書き換えます。以下の手順で、復元できるコピーを残せます。</tanrei-callout>
   <tanrei-callout id="callout-demo-overview" variant="outlined" headline="このページの新しい版があります" closable close-label="閉じる" style="inline-size: min(100%, 34rem)">再読み込みすると読めます。入力した内容は失われません。<tanrei-button slot="actions" variant="outlined" onclick="this.closest('tanrei-callout').open = false">再読み込み</tanrei-button></tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-overview').open = true">最後のコールアウトをもう一度表示</tanrei-button>
-</DemoFrame>
+</Example>
 
 コールアウトは、ページの流れの中にある通知です。置いた場所に、その場所の幅いっぱいで、コンテンツがある限り残ります。既定では注記であり、前の段落と同じように、ある場所で読まれます。フォーカスを取ることはありません。
 
@@ -80,7 +80,7 @@ Web では `<tanrei-callout>` です。ほかのプラットフォームはま�
 
 ## 仕様
 
-<DemoFrame label="2 つの見た目と、それぞれのステータス" plain column>
+<Example label="2 つの見た目と、それぞれのステータス" column>
   <tanrei-callout style="inline-size: min(100%, 34rem)">サイズは最小値です。文字を拡大すると、コントロールも大きくなります。</tanrei-callout>
   <tanrei-callout status="info" status-label="情報" style="inline-size: min(100%, 34rem)">Web はこの改訂を描画しています。ほかのプラットフォームは後から続きます。</tanrei-callout>
   <tanrei-callout status="warning" status-label="警告" style="inline-size: min(100%, 34rem)">コントロールの存在を示す唯一の手がかりである枠線は、サーフェスに対して 3:1 を保つ必要があります。</tanrei-callout>
@@ -91,16 +91,16 @@ Web では `<tanrei-callout>` です。ほかのプラットフォームはま�
   <tanrei-callout variant="outlined" status="warning" status-label="警告" style="inline-size: min(100%, 34rem)">コントロールの存在を示す唯一の手がかりである枠線は、サーフェスに対して 3:1 を保つ必要があります。</tanrei-callout>
   <tanrei-callout variant="outlined" status="error" status-label="エラー" style="inline-size: min(100%, 34rem)">ファイルを読み込めませんでした。何も変更されていません。</tanrei-callout>
   <tanrei-callout variant="outlined" status="success" status-label="成功" style="inline-size: min(100%, 34rem)">6 つのスキームすべてで、コントラストの検査に合格しました。</tanrei-callout>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="タイトル、独自のグリフ、アクション、閉じるボタン、large サイズ" plain column>
+<Example label="タイトル、独自のグリフ、アクション、閉じるボタン、large サイズ" column>
   <tanrei-callout headline="ヒント" style="inline-size: min(100%, 34rem)"><span slot="icon">lightbulb</span>アクションは有効なままにして、使われたときに何が足りないかを説明します。</tanrei-callout>
   <tanrei-callout status="info" headline="実験的" style="inline-size: min(100%, 34rem)"><span slot="icon">science</span>この振る舞いは、今後のバージョンで変わる可能性があります。</tanrei-callout>
   <tanrei-callout status="warning" headline="ディスク上のファイルが変更されました" style="inline-size: min(100%, 34rem)">ここには、そのファイルにない編集があります。選ぶまで何も上書きされません。<tanrei-button slot="actions" variant="outlined">ディスクから再読み込み</tanrei-button><tanrei-button slot="actions" variant="text">自分の編集を残す</tanrei-button></tanrei-callout>
   <tanrei-callout id="callout-demo-closable" headline="検索の対象にリリースノートが加わりました" closable close-label="閉じる" style="inline-size: min(100%, 34rem)">閉じるボタンを押すと、コールアウトはすぐに消え、フォーカスは元の場所に戻ります。</tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-closable').open = true">もう一度表示</tanrei-button>
   <tanrei-callout size="large" status="error" headline="危険" style="inline-size: min(100%, 34rem)">このコマンドは生成されたファイルをすべて削除します。元に戻せません。</tanrei-callout>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="callout" />
 
@@ -179,10 +179,10 @@ Web では `<tanrei-callout>` です。ほかのプラットフォームはま�
 
 `live` は、人が作業している間に現れたり変わったりするコールアウトのためのものです。送信後のフォームのエラーの要約や、ファイルが手元で変更されたという通知などです。`open="false"` でページに置いておき、必要になったら `open` を設定します。
 
-<DemoFrame label="押したことへの応答として表示される、ライブのコールアウト" plain column>
+<Example label="押したことへの応答として表示される、ライブのコールアウト" column>
   <tanrei-button variant="outlined" onclick="document.getElementById('callout-demo-live').open = true">フォームを送信</tanrei-button>
   <tanrei-callout id="callout-demo-live" live open="false" status="error" headline="3 つのフィールドを確認してください" closable close-label="閉じる" style="inline-size: min(100%, 34rem)">名前を入力し、開始日を選び、メールを受け取れるアドレスを指定してください。</tanrei-callout>
-</DemoFrame>
+</Example>
 
 ```html
 <tanrei-callout id="errors" live open="false" status="error" headline="3 つのフィールドを確認してください">

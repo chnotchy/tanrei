@@ -2,14 +2,14 @@
 title: साइड शीट
 description: पूरक कॉन्टेंट या किसी गौण काम को अंतिम किनारे के एक पैनल में रखती है, एक हेडलाइन, बंद करने वाले बटन और वैकल्पिक क्रियाओं के साथ, चौड़ी विंडो पर कॉन्टेंट के बग़ल में या कॉम्पैक्ट विंडो पर उसके ऊपर।
 translationOf: components/side-sheet.mdx
-sourceHash: b24891eb6703f2c8705a45c1da8ece80df34b951
+sourceHash: 189097a97eaf2ee032ff1c320a71aa34643b79cd
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 यह पेज साइड शीट की क्रियाओं और बंद करने वाले बटन को वैसा बताता है जैसा स्पेक में वे अभी हैं, डायलॉग की क्रियाओं जैसा ही। क्रियाएँ tonal Button की पूरी चौड़ाई वाली एक पंक्ति हैं जिन्हें उनके काम के अनुसार जगह मिलती है: हर एक पर `confirming` या `dismissive` का निशान होता है, और मोडल शीट को कम से कम एक क्रिया देनी ही होती है। बंद करने वाला बटन small, tonal Button है, जो तब तक बनता है जब तक `closable` false न हो। क्रियाओं के ऊपर की तरह हेडर के नीचे भी हमेशा एक डिवाइडर रहता है, और क्रियाएँ ऑन-स्क्रीन कीबोर्ड के ऊपर रहती हैं। वेब कंपोनेंट यह सब पहले से करता है, और डेमो भी; जब तक संशोधन की समीक्षा नहीं हो जाती, तब तक वह ऊपर "पीछे" के रूप में ही दर्ज रहता है। SwiftUI, Compose, Flutter और React Native भी पीछे हैं: जब तक वे बराबरी पर नहीं आते, वे पिछला संशोधन देते हैं, जिसमें बंद करने के लिए एक standard आइकन बटन है, और क्रियाएँ शुरुआती किनारे से एक पंक्ति में, दिए गए क्रम में, दोनों रूपों में वैकल्पिक और एक-दूसरे से 8 की दूरी पर हैं।
 :::
 
-<DemoFrame label="एक पंक्ति के अंत में स्टैंडर्ड शीट">
+<Example label="एक पंक्ति के अंत में स्टैंडर्ड शीट">
   <div style="display: flex; inline-size: 40rem; max-inline-size: 100%; block-size: 22rem; overflow-x: auto">
     <div style="flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100); padding: 1rem">
       <p style="margin: 0">खोज के नतीजे</p>
@@ -31,7 +31,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-button slot="actions" confirming>लागू करें</tanrei-button>
     </tanrei-side-sheet>
   </div>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -207,14 +207,14 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 ## स्पेक
 
-<DemoFrame label="एक मोडल शीट: इसे बटन से खोलें" plain>
+<Example label="एक मोडल शीट: इसे बटन से खोलें">
   <tanrei-button variant="outlined" onclick="document.getElementById('side-sheet-demo-modal').open = true">फ़िल्टर</tanrei-button>
   <tanrei-side-sheet id="side-sheet-demo-modal" variant="modal" headline="फ़िल्टर" close-label="फ़िल्टर बंद करें" onclose="this.open = false">
     <p>पिछले 30 दिनों के वे नतीजे दिखाएँ जिन पर हर चयनित लेबल हो।</p>
     <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-side-sheet').open = false">रद्द करें</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-side-sheet').open = false">लागू करें</tanrei-button>
   </tanrei-side-sheet>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="side-sheet" />
 

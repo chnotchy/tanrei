@@ -2,11 +2,11 @@
 title: 言葉
 description: コンポーネントは自分の言葉を持ちません。コンポーネントが描いたり読み上げたりするラベル、名前、メッセージは、すべてプロダクトのものです。コンポーネントに書くか、プロダクト全体に一度だけ渡すか、import した英語の言葉のパックから取ります。
 translationOf: foundations/words.mdx
-sourceHash: 9c03bb2b32d13c39654f66eb75fd92ed2117476d
+sourceHash: 1f87ce9619375814accd41f27f5d3d08f178e563
 ---
 
 import ProductWordKeys from '../../../../components/ProductWordKeys.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 **コンポーネントは自分の言葉を持ちません。** どのコンポーネントも、どの言語でも、既定のテキストを持ちません。「必須」も「閉じる」も「OK」もありません。コンポーネントが描いたり読み上げたりする言葉は、プロダクトが渡したものです。自分で書いたものか、自分で import した[英語の言葉のパック](#英語の言葉のパック)から取ったものです。
 
@@ -61,10 +61,10 @@ setWords({
 
 コンポーネントに書いた属性は、プロダクトの言葉より常に優先されます。
 
-<DemoFrame label="コンポーネント自身に書いた言葉：1 つのフィールドだけ言い方を変える" plain column>
+<Example label="コンポーネント自身に書いた言葉：1 つのフィールドだけ言い方を変える" column>
   <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="メールアドレス" required required-text="必須"></tanrei-text-field>
   <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="会社名" required required-text="請求書に必要"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
 ```html
 <tanrei-text-field label="メールアドレス" required required-text="必須"></tanrei-text-field>

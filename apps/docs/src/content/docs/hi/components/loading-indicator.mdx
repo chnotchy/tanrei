@@ -2,14 +2,14 @@
 title: लोडिंग इंडिकेटर
 description: दिखाता है कि अनजान अवधि का एक छोटा इंतज़ार चल रहा है — इनलाइन, या कॉन्टेंट के ऊपर।
 translationOf: components/loading-indicator.mdx
-sourceHash: 9ce360324a5fe7d64d8c45600b454acdad42f463
+sourceHash: 54d9e2a8b2243f9e2d52da5c42e3a8996a3bf07d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
@@ -19,11 +19,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 यह पेज लोडिंग इंडिकेटर को वैसा बताता है जैसा स्पेक में वह अभी है: वह दिखने से पहले रुकता है, फिर प्रवेश करता है। वेब कंपोनेंट पहले से ऐसा करता है, और डेमो भी, जो देरी के बाद दिखते हैं। SwiftUI, Compose, Flutter और React Native ऊपर "पीछे" के रूप में चिह्नित हैं: जब तक वे बराबरी पर नहीं आते, वे इंडिकेटर को डाले जाते ही बना देते हैं और सहायक तकनीक को दे देते हैं, और तीन नई प्रॉपर्टी नहीं लेते, इसलिए नीचे उनके उदाहरण सिर्फ़ वही दिखाते हैं जो वे आज देते हैं।
 :::
 
-<DemoFrame label="इनलाइन और contained">
+<Example label="इनलाइन और contained">
   <tanrei-loading-indicator label="संदेश लोड हो रहे हैं"></tanrei-loading-indicator>
   <tanrei-loading-indicator size="large" label="गैलरी लोड हो रही है"></tanrei-loading-indicator>
   <tanrei-loading-indicator contained label="रीफ़्रेश हो रहा है"></tanrei-loading-indicator>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -106,14 +106,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="साइज़, इनलाइन और contained" plain>
+<Example label="साइज़, इनलाइन और contained">
   <tanrei-loading-indicator size="small" label="Small"></tanrei-loading-indicator>
   <tanrei-loading-indicator size="medium" label="Medium"></tanrei-loading-indicator>
   <tanrei-loading-indicator size="large" label="Large"></tanrei-loading-indicator>
   <tanrei-loading-indicator contained size="small" label="Small, contained"></tanrei-loading-indicator>
   <tanrei-loading-indicator contained size="medium" label="Medium, contained"></tanrei-loading-indicator>
   <tanrei-loading-indicator contained size="large" label="Large, contained"></tanrei-loading-indicator>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="loading-indicator" />
 

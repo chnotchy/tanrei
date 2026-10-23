@@ -2,11 +2,11 @@
 title: اللون
 description: أدوار الألوان، واللون الأساسي الأحادي، ولون التمييز الوحيد، وكيف يُولَّد كل مخطط لوني ويُفحص.
 translationOf: foundations/color.mdx
-sourceHash: 31328e97dbf59a6d31bd8381d374c5c3f32209f8
+sourceHash: 49214a53bfedcb5257c5fa4011775855945b0626
 ---
 
 import Callout from '../../../../components/Callout.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import { contrast } from '../../../../lib/contrast';
 
 لا يطلب Tanrei من أي مكوّن أن يختار لونًا. تطلب المكوّنات **دورًا**، مثل `primary` أو `surface-container`، والسمة الفعّالة هي التي تقرر أي لون يملأ ذلك الدور. الأدوار تعرّفها مفردات Tanrei، وقيمها تحدّدها طبقة كل نظام تصميم.
@@ -47,12 +47,12 @@ import { contrast } from '../../../../lib/contrast';
 
 توجد كل سمة بثلاثة مستويات تباين. **القياسي** هو الافتراضي. و**المتوسط** و**العالي** يدفعان أدوار المحتوى نحو الطرفين ويقوّيان دورَي الحدّ كليهما. على الويب يُطبَّق التباين العالي تلقائيًّا عند `prefers-contrast: more`؛ أما المنصات الأصلية فتتبع إعداد نظامها. جرّبه هنا (المفتاح يؤثر في الصفحة كلها):
 
-<DemoFrame label="التباين">
+<Example label="التباين">
   <tanrei-button variant="filled">Filled</tanrei-button>
   <tanrei-button variant="tonal">Tonal</tanrei-button>
   <tanrei-button variant="outlined">Outlined</tanrei-button>
   <tanrei-button variant="text">Text</tanrei-button>
-</DemoFrame>
+</Example>
 
 ## كيف تُولَّد المخططات اللونية
 

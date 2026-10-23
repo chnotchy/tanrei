@@ -7,18 +7,18 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="copy-button" />
 
-<DemoFrame label="Press one: the glyph becomes a check for a moment">
+<Example label="Press one: the glyph becomes a check for a moment">
   <tanrei-copy-button text="npm install @tanrei/web" label="Copy" copied-label="Copied" failed-label="Could not copy"></tanrei-copy-button>
   <tanrei-copy-button variant="tonal" text="#30a3f0" label="Copy color" copied-label="Copied" failed-label="Could not copy"></tanrei-copy-button>
   <tanrei-copy-button icon-only="false" variant="outlined" text="https://example.com/s/4f2a" label="Copy link" copied-label="Link copied" failed-label="Could not copy"></tanrei-copy-button>
   <tanrei-copy-button icon-only="false" variant="filled" text="sk-test-0000" label="Copy key" copied-label="Copied" failed-label="Could not copy"></tanrei-copy-button>
-</DemoFrame>
+</Example>
 
 Use a copy button beside something a person will paste elsewhere: a command, a key, an address, a color value. It waits for the browser's answer, shows a check (or an error mark) for two seconds, and tells assistive technology in words. A [Code block](../code-block/) places one for you.
 
@@ -81,22 +81,22 @@ SwiftUI, Compose, Flutter and React Native are planned: the names beside each pl
 
 ## Specs
 
-<DemoFrame label="Sizes and variants are the Button's" plain>
+<Example label="Sizes and variants are the Button's">
   <tanrei-copy-button size="small" text="small" label="Copy" copied-label="Copied" failed-label="Could not copy"></tanrei-copy-button>
   <tanrei-copy-button text="medium" label="Copy" copied-label="Copied" failed-label="Could not copy"></tanrei-copy-button>
   <tanrei-copy-button size="large" text="large" label="Copy" copied-label="Copied" failed-label="Could not copy"></tanrei-copy-button>
   <tanrei-copy-button variant="elevated" text="elevated" label="Copy" copied-label="Copied" failed-label="Could not copy"></tanrei-copy-button>
   <tanrei-copy-button disabled text="disabled" label="Copy" copied-label="Copied" failed-label="Could not copy"></tanrei-copy-button>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="The width is kept for the longest of the three texts" plain>
+<Example label="The width is kept for the longest of the three texts">
   <tanrei-copy-button icon-only="false" variant="outlined" text="sk-test-0000" label="Copy" copied-label="Copied to the clipboard" failed-label="Could not copy"></tanrei-copy-button>
   <tanrei-button variant="text">A neighbour that does not move</tanrei-button>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="With label-width fit, the width follows the words" plain>
+<Example label="With label-width fit, the width follows the words">
   <tanrei-copy-button icon-only="false" label-width="fit" variant="outlined" text="sk-test-0000" label="Copy" copied-label="Copied to the clipboard" failed-label="Could not copy"></tanrei-copy-button>
-</DemoFrame>
+</Example>
 
 With `label-width="fit"` the labelled form is as wide as the words it shows. When they change, its width eases to the new words over `comp.copy-button.motion.resize-duration`, and changes at once where motion is reduced. The default stays `widest`, because a control that moves as someone reaches for it gets pressed by mistake. Use `fit` only where nothing a person may press next stands after the button, such as at the end of a row.
 

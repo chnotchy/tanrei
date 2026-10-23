@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="badge" />
 
-<DemoFrame label="A dot and a count">
+<Example label="A dot and a count">
   <tanrei-badge label="New messages">
     <tanrei-button variant="text" label="Chat"><span slot="icon">chat</span></tanrei-button>
   </tanrei-badge>
@@ -23,7 +23,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
   <tanrei-badge count="42" label="42 notifications">
     <tanrei-button variant="text" label="Notifications"><span slot="icon">notifications</span></tanrei-button>
   </tanrei-badge>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -124,7 +124,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 
 ## Specs
 
-<DemoFrame label="Counts and the cap" plain>
+<Example label="Counts and the cap">
   <tanrei-badge count="3" label="3 unread">
     <span class="tanrei-icon" role="img" aria-label="Notifications">notifications</span>
   </tanrei-badge>
@@ -143,7 +143,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
   <tanrei-badge count="0" label="No unread messages">
     <span class="tanrei-icon" role="img" aria-label="Notifications">notifications</span>
   </tanrei-badge>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="badge" />
 

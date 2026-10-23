@@ -2,20 +2,20 @@
 title: Avatar
 description: Representa a una persona, un equipo o un proyecto con una imagen pequeña, o con iniciales o un glifo donde no la hay, en un círculo o en un cuadrado redondeado de tres tamaños. Varios se muestran como un solo grupo superpuesto que cuenta el resto. Es una imagen, nunca un control.
 translationOf: components/avatar.mdx
-sourceHash: 07dead2023b4f4d4a40bc6b59db9d6f9d5b93421
+sourceHash: 124605666562cadb6cd1fca1a22be5b5d2366ff9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="avatar" />
 
-<DemoFrame label="Iniciales, un glifo, un cuadrado y un grupo">
+<Example label="Iniciales, un glifo, un cuadrado y un grupo">
   <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
   <tanrei-avatar label="Alguien sin imagen"></tanrei-avatar>
   <tanrei-avatar label="Equipo de diseño" initials="ED" shape="square"></tanrei-avatar>
@@ -27,7 +27,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-avatar label="Annie Easley" initials="AE"></tanrei-avatar>
     <tanrei-avatar label="Mary Jackson" initials="MJ"></tanrei-avatar>
   </tanrei-avatar-group>
-</DemoFrame>
+</Example>
 
 Un avatar muestra de quién es algo: el autor de una publicación, las personas de una conversación, el responsable de una tarea. Dibuja una imagen, y siempre tiene algo que dibujar cuando no la hay. Nunca responde a un puntero, a una tecla ni al foco.
 
@@ -81,14 +81,14 @@ En la web es `<tanrei-avatar>`, y varios juntos son `<tanrei-avatar-group>`. Las
 
 ## Especificaciones
 
-<DemoFrame label="Tres tamaños, dos formas" plain>
+<Example label="Tres tamaños, dos formas">
   <tanrei-avatar size="small" label="Ada Lovelace" initials="AL"></tanrei-avatar>
   <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
   <tanrei-avatar size="large" label="Ada Lovelace" initials="AL"></tanrei-avatar>
   <tanrei-avatar size="small" shape="square" label="Equipo de diseño" initials="ED"></tanrei-avatar>
   <tanrei-avatar shape="square" label="Equipo de diseño" initials="ED"></tanrei-avatar>
   <tanrei-avatar size="large" shape="square" label="Un proyecto"></tanrei-avatar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="avatar" />
 
@@ -131,13 +131,13 @@ El avatar no forma las iniciales a partir del nombre. Qué caracteres representa
 
 El avatar dibuja dos caracteres como máximo, contados como los cuenta quien lee, de modo que una letra con sus marcas o una sílaba ligada nunca se parte por la mitad. Los dibuja tal como están escritos y no cambia sus mayúsculas ni sus minúsculas.
 
-<DemoFrame label="Iniciales en varios sistemas de escritura" plain>
+<Example label="Iniciales en varios sistemas de escritura">
   <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
   <tanrei-avatar label="山田 花子" initials="山田" lang="ja"></tanrei-avatar>
   <tanrei-avatar label="王小明" initials="王" lang="zh-Hans"></tanrei-avatar>
   <tanrei-avatar label="ليلى حسن" initials="لح" lang="ar"></tanrei-avatar>
   <tanrei-avatar label="किरण राव" initials="किरा" lang="hi"></tanrei-avatar>
-</DemoFrame>
+</Example>
 
 ### Tamaños y formas
 
@@ -164,13 +164,13 @@ Todos los respaldos tienen el mismo relleno discreto. No hay un color por person
 
 Un grupo dibuja sus miembros en una sola fila. Cada uno se superpone un poco al anterior (2, 4 u 8 según el tamaño), de modo que dos iniciales una junto a otra quedan enteras y no se leen mal, con una separación del color de la superficie alrededor de cada uno.
 
-<DemoFrame label="Un grupo que cuenta lo que no se le dio" plain>
+<Example label="Un grupo que cuenta lo que no se le dio">
   <tanrei-avatar-group label="Miembros" max="4" total="240" overflow-label="y {count} más">
     <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
     <tanrei-avatar label="Grace Hopper"></tanrei-avatar>
     <tanrei-avatar label="Katherine Johnson" initials="KJ"></tanrei-avatar>
   </tanrei-avatar-group>
-</DemoFrame>
+</Example>
 
 - `max` es el número máximo de cajas que dibuja el grupo, incluida la caja de desbordamiento. Seis miembros con `max="4"` son tres miembros y «+3». El grupo nunca dibuja «+1»: gastaría una caja en ocultar una sola cara.
 - `total` es el número real donde das al grupo menos miembros de los que existen. Tres miembros, `max="4"` y `total="240"` son tres miembros y «99+»: por encima de 99 la caja dice «99+» en todos los tamaños, así que nunca contiene más de tres caracteres. Da el número exacto en `overflow-label`, que es lo que se lee.

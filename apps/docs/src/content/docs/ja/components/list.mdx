@@ -2,14 +2,14 @@
 title: リスト
 description: 行、タイル、カード、ファイルなど、プロダクト自身の項目を 1 列、1 行、または折り返してグリッドになる行に並べて保持します。読む、1 つずつ開く、選ぶ、ドラッグして並べ替える、といった操作に使います。
 translationOf: components/list.mdx
-sourceHash: 4fa8bead8fc1a1fecac07a97a78431a6c96183e9
+sourceHash: 7b9d25d43c69843610e9eecb13cbd05f5e3df571
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import ListReorderProduct from '../../../../components/ListReorderProduct.astro';
 
 <ListReorderProduct />
@@ -18,7 +18,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 <ComponentAvailability name="list" />
 
-<DemoFrame label="タイルを別の場所へドラッグするか、ハンドルを押して移動のメニューを開きます" plain>
+<Example label="タイルを別の場所へドラッグするか、ハンドルを押して移動のメニューを開きます">
   <tanrei-list reorderable orientation="horizontal" wrap gap="medium" data-demo-product label="Photos" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to start" move-before-label="Move left" move-after-label="Move right" move-to-end-label="Move to end" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 24rem">
     <tanrei-list-item><span class="demo-tile">Photo 1</span></tanrei-list-item>
     <tanrei-list-item><span class="demo-tile">Photo 2</span></tanrei-list-item>
@@ -26,7 +26,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
     <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
     <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
 <style>{`
   .demo-tile { display: block; padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }
@@ -34,7 +34,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 リストは箱です。各項目に表示するのはプロダクト自身のコンテンツ（テキスト、画像、カード、[ファイル項目](/ja/components/file-item/)、または[リスト行](/ja/components/list-row/)）です。リスト行は、見出しと1〜2行の補足テキスト、その前後に置く要素からなる行で、多くのリストはこの行でできています。リストが担うのは項目のまわりのすべてです。項目の並べ方、項目間の余白と線、支援技術にとっての意味、項目間のキーボードフォーカスの移動、どれが選ばれているか、そして並べ替えです。
 
-<DemoFrame label="列、行、折り返すグリッド" plain>
+<Example label="列、行、折り返すグリッド">
   <tanrei-list gap="small" style="inline-size: 16rem">
     <tanrei-list-item><span class="demo-tile">Apples</span></tanrei-list-item>
     <tanrei-list-item><span class="demo-tile">Bananas</span></tanrei-list-item>
@@ -52,9 +52,9 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
     <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
     <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="何かを開く項目、リンクの項目、1 つを選ぶリスト" plain>
+<Example label="何かを開く項目、リンクの項目、1 つを選ぶリスト">
   <tanrei-list dividers style="inline-size: 16rem">
     <tanrei-list-item interactive><tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Connected"></tanrei-list-row></tanrei-list-item>
     <tanrei-list-item href="#list-demo-button"><tanrei-list-row leading-icon="smart_button" headline="Button" supporting-text="Actions and toggles"></tanrei-list-row></tanrei-list-item>
@@ -65,7 +65,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
     <tanrei-list-item value="dark">Dark</tanrei-list-item>
     <tanrei-list-item value="system">Match the system</tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -132,13 +132,13 @@ SwiftUI、Compose、Flutter、React Native は追随中です。見出し、補�
 
 ### 並べ替え
 
-<DemoFrame label="並べ替えられる列。各項目にページ側の削除ボタンがあります" plain>
+<Example label="並べ替えられる列。各項目にページ側の削除ボタンがあります">
   <tanrei-list reorderable gap="small" data-demo-product label="Typefaces" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to top" move-before-label="Move up" move-after-label="Move down" move-to-end-label="Move to bottom" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 22rem">
     <tanrei-list-item label="Inter"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Inter <tanrei-button variant="text" label="Remove Inter" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
     <tanrei-list-item label="Noto Sans JP"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Noto Sans JP <tanrei-button variant="text" label="Remove Noto Sans JP" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
     <tanrei-list-item label="Helvetica Neue"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Helvetica Neue <tanrei-button variant="text" label="Remove Helvetica Neue" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
 `reorderable` を付けると、列でも行でもグリッドでも項目を並べ替えられます。各項目は先頭にハンドルを描き、動かせることを示します。ドラッグできるのはハンドルだけでなく項目全体です。マウスでは数ピクセル動かした時点で、指やペンでは長押しで持ち上がるため、スワイプはこれまでどおりページをスクロールします（ハンドルへのタッチはすぐにドラッグになります）。ほかの項目は道を空けるように滑り、持ち上げた項目はそれらの上でポインターについていき、離すと自分の位置に収まります。
 

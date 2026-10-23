@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="inline-code" />
 
-<DemoFrame label="In a sentence, in a heading, and plain" column>
+<Example label="In a sentence, in a heading, and plain" column>
   <div class="tanrei-not-prose" style="max-inline-size: 32rem">
     <p style="margin: 0">
       Run <code class="tanrei-code" translate="no" spellcheck="false">npm install</code> in the folder that holds
@@ -27,7 +27,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
       Plain: <code class="tanrei-code" data-variant="plain" translate="no" spellcheck="false">comp.button.container.shape</code>
     </p>
   </div>
-</DemoFrame>
+</Example>
 
 Inline code names a thing from code inside a sentence: a command, a prop, a file, a value. Lines of code to read and copy are a [Code block](../code-block/). Keys to press are a [Keyboard shortcut](../keyboard-shortcut/), which reads the modifier names aloud.
 
@@ -73,15 +73,15 @@ SwiftUI, Compose, Flutter and React Native are planned: the names beside each pl
 
 ## Specs
 
-<DemoFrame label="It wraps, and every piece keeps its fill" plain>
+<Example label="It wraps, and every piece keeps its fill">
   <div class="tanrei-not-prose" style="max-inline-size: 22rem">
     <p style="margin: 0">
       The token <code class="tanrei-code" translate="no" spellcheck="false">tanrei.comp.navigation-drawer.item.selected.hovered.state-layer.color</code> is longer than this line. It breaks where the line ends and is never cut.
     </p>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="In a link, in strong text, and a column of code" plain column>
+<Example label="In a link, in strong text, and a column of code" column>
   <div class="tanrei-not-prose">
     <p style="margin: 0">
       See <a class="tanrei-link" href="../button/">the <code class="tanrei-code">Button</code> reference</a>. <strong>Never set <code class="tanrei-code">disabled</code> on the only way out.</strong>
@@ -92,7 +92,7 @@ SwiftUI, Compose, Flutter and React Native are planned: the names beside each pl
       <code class="tanrei-code">size</code><code class="tanrei-code">medium</code>
     </div>
   </div>
-</DemoFrame>
+</Example>
 
 Inline code has no size of its own. Its font size is the size of the text it sits in, multiplied by one ratio (`comp.inline-code.label.scale`), which evens out the code face and the text face. In body text that is 13 beside 14. In a heading it is the heading's own size.
 

@@ -2,27 +2,27 @@
 title: Tag
 description: Nombra una categoría o un estado con un rótulo estático y breve, de forma discreta, con contorno o con relleno, en los colores de un estado cuando lo tiene. Es texto, nunca un control.
 translationOf: components/tag.mdx
-sourceHash: c3a34569bea95920f34e80e1409983493e6a838f
+sourceHash: 7fd76c75d33037050a0229a79adebeaf784bf6f1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="tag" />
 
-<DemoFrame label="Tres aspectos, con estado y sin él">
+<Example label="Tres aspectos, con estado y sin él">
   <tanrei-tag label="Borrador"></tanrei-tag>
   <tanrei-tag variant="outlined" label="Borrador"></tanrei-tag>
   <tanrei-tag variant="filled" label="Predeterminado"></tanrei-tag>
   <tanrei-tag status="success" label="Superado"></tanrei-tag>
   <tanrei-tag variant="outlined" status="warning" label="Por caducar"></tanrei-tag>
   <tanrei-tag variant="filled" status="error" label="Fallido"></tanrei-tag>
-</DemoFrame>
+</Example>
 
 Un tag es una palabra o una frase corta que dice qué es una cosa o en qué estado está: la categoría de un artículo, el resultado de una compilación, la fase de una versión, el valor predeterminado entre varios. Ocupa su lugar en el diseño, en línea con el texto que tiene al lado, y nunca responde a un puntero, a una tecla ni al foco.
 
@@ -60,7 +60,7 @@ En la web es `<tanrei-tag>`. Las demás plataformas todavía no lo han implement
 
 ## Especificaciones
 
-<DemoFrame label="Cada aspecto en cada estado" plain>
+<Example label="Cada aspecto en cada estado">
   <tanrei-tag status="info" label="En revisión"></tanrei-tag>
   <tanrei-tag status="warning" label="Por caducar"></tanrei-tag>
   <tanrei-tag status="error" label="Fallido"></tanrei-tag>
@@ -73,9 +73,9 @@ En la web es `<tanrei-tag>`. Las demás plataformas todavía no lo han implement
   <tanrei-tag variant="filled" status="warning" label="Por caducar"></tanrei-tag>
   <tanrei-tag variant="filled" status="error" label="Fallido"></tanrei-tag>
   <tanrei-tag variant="filled" status="success" label="Superado"></tanrei-tag>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Dos tamaños, un glifo, un punto" plain>
+<Example label="Dos tamaños, un glifo, un punto">
   <tanrei-tag size="small" label="Opcional"></tanrei-tag>
   <tanrei-tag size="small" variant="filled" label="Obligatorio"></tanrei-tag>
   <tanrei-tag label="Diseño"><span slot="icon">sell</span></tanrei-tag>
@@ -83,7 +83,7 @@ En la web es `<tanrei-tag>`. Las demás plataformas todavía no lo han implement
   <tanrei-tag dot label="Archivado"></tanrei-tag>
   <tanrei-tag dot status="success" label="En línea"></tanrei-tag>
   <tanrei-tag size="small" variant="outlined" status="warning" label="Degradado"></tanrei-tag>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tag" />
 
@@ -119,14 +119,14 @@ Un tag nunca se convierte en un control por recibir un controlador de eventos. D
 
 El tag no dibuja por sí solo ningún glifo de estado. Indica uno donde ayude, como hace este sitio con los seis estados de sus propias tablas de estado:
 
-<DemoFrame label="Los seis estados de este sitio" plain>
+<Example label="Los seis estados de este sitio">
   <tanrei-tag size="small" variant="outlined" label="Planificado"><span slot="icon">radio_button_unchecked</span></tanrei-tag>
   <tanrei-tag size="small" variant="outlined" status="warning" label="Rezagado"><span slot="icon">schedule</span></tanrei-tag>
   <tanrei-tag size="small" label="Alpha"><span slot="icon">clock_loader_40</span></tanrei-tag>
   <tanrei-tag size="small" label="Beta"><span slot="icon">clock_loader_80</span></tanrei-tag>
   <tanrei-tag size="small" status="success" label="Stable"><span slot="icon">check_circle</span></tanrei-tag>
   <tanrei-tag size="small" status="error" label="Obsoleto"><span slot="icon">block</span></tanrei-tag>
-</DemoFrame>
+</Example>
 
 ### Tamaños
 
@@ -141,12 +141,12 @@ Los tags de obligatorio y de opcional de un [campo](/es/components/field/) y de 
 
 Un tag no tiene estados propios, pero puede estar dentro de algo que está deshabilitado: la etiqueta de un campo deshabilitado, una fila deshabilitada de una lista, un elemento deshabilitado de un menú. `disabled` lo dibuja con los colores deshabilitados de su aspecto (`comp.tag.<variant>.disabled.*`), sea cual sea su estado, de modo que se atenúa con lo que lo contiene y no parece la única parte viva de ello. No cambia nada más: el tag conserva su tamaño y sus palabras, y no recibe entrada ni foco. Un campo y un grupo de campos lo activan en su tag de obligatoriedad mientras están deshabilitados; actívalo tú en un tag que pongas dentro de un elemento deshabilitado propio.
 
-<DemoFrame label="Tags en reposo y dentro de algo deshabilitado" plain>
+<Example label="Tags en reposo y dentro de algo deshabilitado">
   <tanrei-tag size="small" variant="filled" label="Obligatorio"></tanrei-tag>
   <tanrei-tag size="small" variant="filled" label="Obligatorio" disabled></tanrei-tag>
   <tanrei-tag size="small" label="Opcional"></tanrei-tag>
   <tanrei-tag size="small" label="Opcional" disabled></tanrei-tag>
-</DemoFrame>
+</Example>
 
 ### Recomendado
 

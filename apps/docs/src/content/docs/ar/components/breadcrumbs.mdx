@@ -2,26 +2,26 @@
 title: مسار التنقل
 description: موضع الصفحة في تسلسل هرمي من الصفحات، وطريق العودة صعودًا فيه. المستويات التي فوقها روابط، مرتبةً من الأعلى، والصفحة نفسها في الآخر.
 translationOf: components/breadcrumbs.mdx
-sourceHash: 05f7e32b5c5664f5cdf25c871df7f7a46deee3f0
+sourceHash: 07b8a95ffed90e5a92dae40da02c053bda503dc9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="breadcrumbs" />
 
-<DemoFrame label="مسار من ثلاثة مستويات" column>
+<Example label="مسار من ثلاثة مستويات" column>
   <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="مسار التنقل في هذا العرض التوضيحي" overflow-label="إظهار المستويات المخفية">
     <a href="#نظرة-عامة">الرئيسية</a>
     <a href="#نظرة-عامة">المكوّنات</a>
     <span aria-current="page">مسار التنقل</span>
   </tanrei-breadcrumbs>
-</DemoFrame>
+</Example>
 
 مسار التنقل (breadcrumbs) يبيّن أين تقع الصفحة في التسلسل الهرمي، لا الطريق الذي جاء منه الشخص إليها. استخدمه حيث تقع صفحات داخل صفحات أخرى، على عمق ثلاثة مستويات أو أكثر.
 
@@ -89,7 +89,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="مستوى بلا صفحة؛ والصفحة الحالية رابطًا؛ ومسار ينتهي عند المستوى الأب" plain column>
+<Example label="مستوى بلا صفحة؛ والصفحة الحالية رابطًا؛ ومسار ينتهي عند المستوى الأب" column>
   <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="مستوى بلا صفحة، في هذا العرض التوضيحي" overflow-label="إظهار المستويات المخفية">
     <a href="#المواصفات">الرئيسية</a>
     <span>الأسس</span>
@@ -104,9 +104,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <a href="#المواصفات" data-icon="home" data-icon-only>الرئيسية</a>
     <a href="#المواصفات">المكوّنات</a>
   </tanrei-breadcrumbs>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="التسطير عند التحويم أو التركيز أو الضغط؛ وبلا تسطير أبدًا" plain column>
+<Example label="التسطير عند التحويم أو التركيز أو الضغط؛ وبلا تسطير أبدًا" column>
   <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="مسطَّر في حالة، في هذا العرض التوضيحي" overflow-label="إظهار المستويات المخفية" underline="hover">
     <a href="#المواصفات">الرئيسية</a>
     <a href="#المواصفات">المكوّنات</a>
@@ -117,9 +117,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <a href="#المواصفات">المكوّنات</a>
     <span aria-current="page">مسار التنقل</span>
   </tanrei-breadcrumbs>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="مسار طويل في عمود ضيق: مطويًّا، وملتفًّا" plain column>
+<Example label="مسار طويل في عمود ضيق: مطويًّا، وملتفًّا" column>
   <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="مسار مطوي، في هذا العرض التوضيحي" overflow-label="إظهار المستويات المخفية" style="inline-size: 24rem; max-inline-size: 100%">
     <a href="#المواصفات">الرئيسية</a>
     <a href="#المواصفات">التوثيق</a>
@@ -136,7 +136,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <a href="#المواصفات">رموز المكوّن</a>
     <span aria-current="page">كيف يُشتق لون الحاوية المعطَّلة</span>
   </tanrei-breadcrumbs>
-</DemoFrame>
+</Example>
 
 - **المستوى الذي يقود إلى مكان مسطَّر** في النظام الافتراضي. فالتسطير هناك، لا اللون، هو ما يقول إن المستوى رابط، كما يقوله للرابط الذي في جملة. والمستوى الذي بلا وجهة نص ثانوي. والصفحة الحالية أثقل وزنًا، بلون النص، وغير مسطَّرة أبدًا.
 - **متى يُرسم التسطير اختيار.** القيمة `underline="hover"` ترسمه فقط ما دام على المستوى تحويم أو تركيز من لوحة المفاتيح أو ضغط. والقيمة `underline="never"` لا ترسمه. ومن دون خاصية HTML هذه يتبع المسار الرمز `comp.breadcrumbs.underline.visibility`، وهو يتبع اختيار نظام التصميم لكل رابط نصي. لا تختر `hover` أو `never` إلا حيث يتميّز لون الرابط من لون النص. والألوان المفروضة (forced colors) ترسم الخط دائمًا.

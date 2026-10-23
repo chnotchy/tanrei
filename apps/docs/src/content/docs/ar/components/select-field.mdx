@@ -2,20 +2,20 @@
 title: حقل الاختيار
 description: يتيح للأشخاص اختيار قيمة واحدة من قائمة مغلقة، حقلًا كاملًا من حقول النموذج، فيه تسمية تستطيع أن تقول إن الحقل مطلوب أو اختياري، ومشغِّل يعرض الخيار المختار ويفتح قائمة بالخيارات، وسطر مساعدة أو خطأ تحته، وكلها مربوطة معًا للتقنيات المساعدة وتشارك في النموذج عنصر تحكم واحدًا.
 translationOf: components/select-field.mdx
-sourceHash: c59acbc263b452b95f47f54facb5c9bd12df3fbc
+sourceHash: 83e74269c2603748840d4fd41ecbad498dca5c0c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="select-field" />
 
-<DemoFrame label="حقل اختيار مطلوب، وآخر خياراته في مجموعات ومعه رسم أيقونة يدل على الحقل" column>
+<Example label="حقل اختيار مطلوب، وآخر خياراته في مجموعات ومعه رسم أيقونة يدل على الحقل" column>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="البلد" required required-text="مطلوب" placeholder="اختر بلدًا" supporting-text="البلد الذي تُوجَّه إليه فواتيرك.">
     <tanrei-option value="ca">كندا</tanrei-option>
     <tanrei-option value="fr">فرنسا</tanrei-option>
@@ -28,7 +28,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-option-group label="آسيا"><tanrei-option value="Asia/Tokyo" supporting-text="UTC+9">طوكيو</tanrei-option><tanrei-option value="Asia/Seoul" supporting-text="UTC+9">سول</tanrei-option></tanrei-option-group>
     <tanrei-option-group label="أوروبا"><tanrei-option value="Europe/Lisbon" supporting-text="UTC+0">لشبونة</tanrei-option><tanrei-option value="Europe/Berlin" supporting-text="UTC+1">برلين</tanrei-option></tanrei-option-group>
   </tanrei-select-field>
-</DemoFrame>
+</Example>
 
 استخدم حقل الاختيار (select field) في نموذج لقيمة واحدة من قائمة معروفة ومغلقة: بلد، أو منطقة زمنية، أو خطة. وهو الحالة المعتادة، جاهزًا للاستخدام: تسمية، والصندوق الذي يعرض الخيار المختار ويفتح القائمة، وسطر مساعدة، والكلمات التي تُقال لقيمة رُفضت.
 
@@ -104,14 +104,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="الحقل نفسه مكتوبًا باليد: حقل بداخله عنصر اختيار" column>
+<Example label="الحقل نفسه مكتوبًا باليد: حقل بداخله عنصر اختيار" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="البلد" required required-text="مطلوب" supporting-text="البلد الذي تُوجَّه إليه فواتيرك.">
     <tanrei-select placeholder="اختر بلدًا">
       <tanrei-option value="jp">اليابان</tanrei-option>
       <tanrei-option value="ke">كينيا</tanrei-option>
     </tanrei-select>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 انزل إلى هذا المستوى حين تحتاج إلى ترتيب لا يقدّمه حقل الاختيار:
 
@@ -126,7 +126,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="نص مساعد مع خيار معطَّل، واختياري، وخطأ، وللقراءة فقط، ومعطَّل" plain column>
+<Example label="نص مساعد مع خيار معطَّل، واختياري، وخطأ، وللقراءة فقط، ومعطَّل" column>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الخطة" value="team">
     <tanrei-option value="free" supporting-text="مشروع واحد ومساعدة من المجتمع">المجانية</tanrei-option>
     <tanrei-option value="team" supporting-text="مشاريع بلا حد وأدوار مشتركة">الفرق</tanrei-option>
@@ -144,16 +144,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="البلد" value="jp" disabled>
     <tanrei-option value="jp">اليابان</tanrei-option><tanrei-option value="ke">كينيا</tanrei-option>
   </tanrei-select-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="الطرازان filled و outlined: تسمية الحقل تعوم في صندوق عنصر الاختيار، مع نجمة للحقل المطلوب" system="m3-like" plain column>
+<Example label="الطرازان filled و outlined: تسمية الحقل تعوم في صندوق عنصر الاختيار، مع نجمة للحقل المطلوب" system="m3-like" column>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="البلد" value="jp" supporting-text="البلد الذي تُوجَّه إليه فواتيرك.">
     <tanrei-option value="jp">اليابان</tanrei-option><tanrei-option value="ke">كينيا</tanrei-option>
   </tanrei-select-field>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="البلد" required required-text="مطلوب">
     <tanrei-option value="jp">اليابان</tanrei-option><tanrei-option value="ke">كينيا</tanrei-option>
   </tanrei-select-field>
-</DemoFrame>
+</Example>
 
 ### ما يعطيه كل عضو
 

@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="menu" />
 
-<DemoFrame label="Actions, a checkbox item, a radio group and a destructive action">
+<Example label="Actions, a checkbox item, a radio group and a destructive action">
   <tanrei-menu inline open>
     <tanrei-menu-item label="Copy" leading-icon="content_copy" shortcut="mod+c"></tanrei-menu-item>
     <tanrei-menu-item label="Paste" leading-icon="content_paste" shortcut="mod+v"></tanrei-menu-item>
@@ -26,9 +26,9 @@ import DemoFrame from '../../../components/DemoFrame.astro';
     </tanrei-menu-group>
     <tanrei-menu-item label="Delete" leading-icon="delete" destructive></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="A submenu: an item that opens another level beside it" plain>
+<Example label="A submenu: an item that opens another level beside it">
   <tanrei-menu inline open>
     <tanrei-menu-item label="New file" leading-icon="add" shortcut="mod+n"></tanrei-menu-item>
     <tanrei-submenu label="Open recent" leading-icon="history" open>
@@ -42,16 +42,16 @@ import DemoFrame from '../../../components/DemoFrame.astro';
     </tanrei-submenu>
     <tanrei-menu-item label="Print" leading-icon="print" shortcut="mod+p"></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="A menu of links: each row goes somewhere, one is the page you are on, and one opens a new tab" plain>
+<Example label="A menu of links: each row goes somewhere, one is the page you are on, and one opens a new tab">
   <tanrei-menu inline open>
     <tanrei-menu-item label="Button" href="/components/button/"></tanrei-menu-item>
     <tanrei-menu-item label="List" href="/components/list/" current></tanrei-menu-item>
     <tanrei-menu-item label="Example site" href="https://example.com/" target="new" target-label="opens in a new tab"></tanrei-menu-item>
     <tanrei-menu-item label="Archive" href="/archive/" disabled></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -277,16 +277,16 @@ A menu can also be the context menu of an area: set `trigger` to `context`, and 
 
 ## Specs
 
-<DemoFrame label="Supporting text, trailing icon and disabled items" plain>
+<Example label="Supporting text, trailing icon and disabled items">
   <tanrei-menu inline open>
     <tanrei-menu-item label="Share" supporting-text="Send a link to this file" leading-icon="share"></tanrei-menu-item>
     <tanrei-menu-item label="Available offline" leading-icon="download" trailing-icon="cloud_done"></tanrei-menu-item>
     <tanrei-menu-item label="Rename" leading-icon="edit" disabled></tanrei-menu-item>
     <tanrei-menu-item label="Delete" leading-icon="delete" destructive disabled></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Group titles over the check and icon columns" plain>
+<Example label="Group titles over the check and icon columns">
   <tanrei-menu inline open>
     <tanrei-menu-group label="Text style">
       <tanrei-menu-checkbox-item label="Bold" leading-icon="format_bold" checked></tanrei-menu-checkbox-item>
@@ -297,9 +297,9 @@ A menu can also be the context menu of an area: set `trigger` to `context`, and 
       <tanrei-menu-radio-item label="Center" value="center" leading-icon="format_align_center"></tanrei-menu-radio-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Mark and icon columns: iconSpace auto, the default, and never" plain>
+<Example label="Mark and icon columns: iconSpace auto, the default, and never">
   <tanrei-menu inline open>
     <tanrei-menu-item label="Cut" leading-icon="content_cut"></tanrei-menu-item>
     <tanrei-menu-item label="Copy" leading-icon="content_copy"></tanrei-menu-item>
@@ -328,9 +328,9 @@ A menu can also be the context menu of an area: set `trigger` to `context`, and 
       <tanrei-menu-item label="Help"></tanrei-menu-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Marks: the default system's box and ring, and a plain check named by mark-icon" plain>
+<Example label="Marks: the default system's box and ring, and a check named by mark-icon">
   <tanrei-menu inline open>
     <tanrei-menu-group label="Show">
       <tanrei-menu-checkbox-item label="Rulers" checked></tanrei-menu-checkbox-item>
@@ -351,9 +351,9 @@ A menu can also be the context menu of an area: set `trigger` to `context`, and 
       <tanrei-menu-radio-item label="Actual size" value="actual"></tanrei-menu-radio-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Separation: a divider between groups, and a gap" plain>
+<Example label="Separation: a divider between groups, and a gap">
   <tanrei-menu inline open separation="divider">
     <tanrei-menu-item label="Undo" shortcut="mod+z"></tanrei-menu-item>
     <tanrei-menu-item label="Redo" shortcut="mod+shift+z"></tanrei-menu-item>
@@ -376,7 +376,7 @@ A menu can also be the context menu of an area: set `trigger` to `context`, and 
       <tanrei-menu-item label="Find in page" shortcut="mod+f"></tanrei-menu-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
 In the default system a checkbox item is marked as a checkbox and a radio item as a radio button, drawn whether the item is checked or not: an empty box and a filled box with a check, a thin ring and a heavy ring with its fill. An option that is off is then still seen to be an option. These are drawings in the mark column, not controls: the row is the one thing to press and to focus. The check in the box is drawn at the heavier weight of a control's own mark, as the [checkbox](/components/checkbox/)'s is.
 

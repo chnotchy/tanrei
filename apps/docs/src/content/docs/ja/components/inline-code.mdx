@@ -2,20 +2,20 @@
 title: インラインコード
 description: 文の中に置くコードです。まわりのテキストと同じ大きさで、コード用の書体を使い、薄い塗りの上または塗りなしで描きます。テキストであり、コントロールではありません。
 translationOf: components/inline-code.mdx
-sourceHash: a781f6f71d206aae52e9b17504a2139e3ab309d7
+sourceHash: e115b8a04119a448b5d648d2bf8c5369723b67c9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="inline-code" />
 
-<DemoFrame label="文の中、見出しの中、プレーン" column>
+<Example label="文の中、見出しの中、プレーン" column>
   <div class="tanrei-not-prose" style="max-inline-size: 32rem">
     <p style="margin: 0">
       <code class="tanrei-code" translate="no" spellcheck="false">package.json</code> と同じフォルダーで
@@ -29,7 +29,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       Plain：<code class="tanrei-code" data-variant="plain" translate="no" spellcheck="false">comp.button.container.shape</code>
     </p>
   </div>
-</DemoFrame>
+</Example>
 
 インラインコードは、文の中でコード上のものを指すために使います。コマンド、プロパティ、ファイル、値などです。読んでコピーするための複数行のコードは[コードブロック](../code-block/)です。押すキーは[キーボードショートカット](../keyboard-shortcut/)で、こちらは修飾キーの名前を読み上げます。
 
@@ -75,15 +75,15 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 
 ## 仕様
 
-<DemoFrame label="折り返しても、それぞれの断片が塗りを保つ" plain>
+<Example label="折り返しても、それぞれの断片が塗りを保つ">
   <div class="tanrei-not-prose" style="max-inline-size: 22rem">
     <p style="margin: 0">
       トークン <code class="tanrei-code" translate="no" spellcheck="false">tanrei.comp.navigation-drawer.item.selected.hovered.state-layer.color</code> はこの行より長いので、行の終わりで折り返します。切り詰めることはありません。
     </p>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="リンクの中、強調の中、コードだけの列" plain column>
+<Example label="リンクの中、強調の中、コードだけの列" column>
   <div class="tanrei-not-prose">
     <p style="margin: 0">
       <a class="tanrei-link" href="../button/"><code class="tanrei-code">Button</code> のリファレンス</a>を参照してください。<strong>ダイアログを閉じる唯一の手段に <code class="tanrei-code">disabled</code> を設定してはいけません。</strong>
@@ -94,7 +94,7 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
       <code class="tanrei-code">size</code><code class="tanrei-code">medium</code>
     </div>
   </div>
-</DemoFrame>
+</Example>
 
 インラインコードには固有のサイズがありません。フォントサイズは、まわりのテキストのサイズに 1 つの比率（`comp.inline-code.label.scale`）を掛けた値です。この比率が、コード用の書体と本文の書体の見た目の大きさをそろえます。本文の 14 の横では 13 になり、見出しの中では見出しのサイズに従います。
 

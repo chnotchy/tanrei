@@ -7,7 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
@@ -15,13 +15,13 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 
 The Web and React samples show the current spec, in which the bar's items are icon-only [Buttons](/components/button/). SwiftUI, Compose, Flutter and React Native are lagging: they still ship the previous revision, with an icon button component of its own, and their samples show that revision until they catch up.
 
-<DemoFrame label="A small app bar with a back button and two actions">
+<Example label="A small app bar with a back button and two actions">
   <tanrei-app-bar headline="Inbox" heading-level="3" scroll-target="none" style="inline-size: 22rem">
     <tanrei-button variant="text" slot="navigation" label="Back"><span slot="icon">arrow_back</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="Search"><span slot="icon">search</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="More options"><span slot="icon">more_vert</span></tanrei-button>
   </tanrei-app-bar>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -193,7 +193,7 @@ The title is the screen's name and its heading. On the web it is `headline`, bec
 
 ## Specs
 
-<DemoFrame label="A large bar with a subtitle, and a centered title" plain column>
+<Example label="A large bar with a subtitle, and a centered title" column>
   <tanrei-app-bar size="large" headline="Inbox" subtitle="ada@example.com" heading-level="3" scroll-target="none" style="inline-size: 22rem">
     <tanrei-button variant="text" slot="navigation" label="Menu"><span slot="icon">menu</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="Search"><span slot="icon">search</span></tanrei-button>
@@ -203,15 +203,15 @@ The title is the screen's name and its heading. On the web it is `headline`, bec
     <tanrei-button variant="text" slot="navigation" label="Back"><span slot="icon">arrow_back</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="Search"><span slot="icon">search</span></tanrei-button>
   </tanrei-app-bar>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="A navigation button that is a link, and a search trigger among the actions" plain>
+<Example label="A navigation button that is a link, and a search trigger among the actions">
   <tanrei-app-bar headline="Tabs" subtitle="Components" heading-level="3" scroll-target="none" style="inline-size: 22rem">
     <tanrei-button variant="text" slot="navigation" href="/components/" label="All components"><span slot="icon">arrow_back</span></tanrei-button>
     <tanrei-search slot="actions" bar="icon" presentation="dialog" label="Search the docs" placeholder="Search" clear-label="Clear search" back-label="Back"></tanrei-search>
     <tanrei-button variant="text" slot="actions" label="More options"><span slot="icon">more_vert</span></tanrei-button>
   </tanrei-app-bar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="app-bar" />
 

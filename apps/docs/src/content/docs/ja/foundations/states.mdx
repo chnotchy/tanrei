@@ -2,12 +2,12 @@
 title: インタラクション状態
 description: ステートレイヤー、「すき間、その外にリング」のフォーカスインジケーター、そして無効の描き方。
 translationOf: foundations/states.mdx
-sourceHash: 473427a122fbba6ee446b96eb41a5d60b045fd6a
+sourceHash: 202af5556b4e50ff88d6b12ec2714312ffd9176d
 ---
 
 import Callout from '../../../../components/Callout.astro';
 import StateTokens from '../../../../components/tokens/StateTokens.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 操作可能なコンポーネントは、状態について 1 つの語彙を共有します。enabled、hovered、focused、pressed、dragged、selected、activated、error、loading、disabled です。コンポーネントの仕様は対応する状態を列挙し、すべてのプラットフォームがそのすべてを実装しなければなりません。
 
@@ -26,13 +26,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 下のボタンにホバーしたり、押したりして、さまざまなコンテナの上のレイヤーを確かめてください。
 
-<DemoFrame label="ステートレイヤー">
+<Example label="ステートレイヤー">
   <tanrei-button variant="filled">Filled</tanrei-button>
   <tanrei-button variant="tonal">Tonal</tanrei-button>
   <tanrei-button variant="elevated">Elevated</tanrei-button>
   <tanrei-button variant="outlined">Outlined</tanrei-button>
   <tanrei-button variant="text">Text</tanrei-button>
-</DemoFrame>
+</Example>
 
 ## フォーカス：すき間、その外にリング
 

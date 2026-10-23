@@ -2,21 +2,21 @@
 title: Selector de archivos
 description: Permite elegir archivos con el selector propio de la plataforma —desde un botón y, donde hay sitio, desde un lugar al que también se pueden arrastrar—, dice los límites con palabras antes de la elección, juzga lo elegido y entrega a tu producto lo que se aceptó y lo que se rechazó. No conserva nada, no enumera nada y no participa en ningún formulario.
 translationOf: components/file-picker.mdx
-sourceHash: 7b60eb18075b635e3d10042c71ae794088afa2bf
+sourceHash: 13621ef351e8f58d28882b26c91b782cc5a412fc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="file-picker" />
 
-<DemoFrame label="Un selector de archivos en cada disposición. Elegir un archivo no cambia nada aquí: la página no conserva ninguno." column>
+<Example label="Un selector de archivos en cada disposición. Elegir un archivo no cambia nada aquí: la página no conserva ninguno." column>
   <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="Archivo de capa" accept=".json" constraints-text="Un archivo JSON" selection-text="Ningún archivo elegido">
     <tanrei-button slot="trigger" variant="outlined">Elegir un archivo</tanrei-button>
   </tanrei-file-picker>
@@ -24,7 +24,7 @@ import Callout from '../../../../components/Callout.astro';
     <tanrei-button slot="trigger" variant="outlined">Elegir fotos</tanrei-button>
     <span slot="icon">image</span>
   </tanrei-file-picker>
-</DemoFrame>
+</Example>
 
 Un selector de archivos es la forma de elegir archivos, y nada más. Tu propio [botón](/es/components/button/) abre el selector de archivos de la plataforma. A su alrededor puede haber una zona para soltar, que además recibe los archivos que se arrastran hasta ella. Los límites aparecen al lado, con tus palabras. Lo elegido se juzga según los límites y se te entrega: los archivos aceptados, con `select`; los rechazados, con `reject`.
 
@@ -107,7 +107,7 @@ En React, `judge()` está en la ref: `ref.current.judge(files)`.
 
 ## Especificaciones
 
-<DemoFrame label="El activador solo; con lo elegido y los límites; una zona para soltar en su estado de error; deshabilitado" plain column>
+<Example label="El activador solo; con lo elegido y los límites; una zona para soltar en su estado de error; deshabilitado" column>
   <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="Adjuntar">
     <tanrei-button slot="trigger" variant="outlined">Adjuntar un archivo</tanrei-button>
   </tanrei-file-picker>
@@ -120,7 +120,7 @@ En React, `judge()` está en la ref: `ref.current.judge(files)`.
   <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple disabled label="Archivos adjuntos" drop-text="Arrastra archivos aquí o elígelos" constraints-text="PDF o PNG, hasta 10 MB cada uno">
     <tanrei-button slot="trigger" variant="outlined">Elegir archivos</tanrei-button>
   </tanrei-file-picker>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="file-picker" />
 

@@ -2,23 +2,23 @@
 title: حقل الرمز لمرة واحدة
 description: يطلب رمزًا قصيرًا أُرسل إلى الشخص في حقل واحد كامل، فيه الخانات تحت تسمية ومعها سطر مساعدة والكلمات التي تقول إن الرمز خاطئ، وكلها مترابطة عند التقنيات المساعدة، ويشارك في النموذج بوصفه عنصر تحكم واحدًا.
 translationOf: components/one-time-code-field.mdx
-sourceHash: 197fb3bbef1de7ff1a0dcf3c22e8bc35ade0e0ab
+sourceHash: e622be078eeb18fec9295ee054c28b4764e18e53
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="one-time-code-field" />
 
-<DemoFrame label="حقل رمز لمرة واحدة، وآخر رفض المنتج رمزه" column>
+<Example label="حقل رمز لمرة واحدة، وآخر رفض المنتج رمزه" column>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="رمز التحقق" supporting-text="أدخِل الرمز المكوّن من 6 أرقام الذي أرسلناه إلى هاتفك." group-size="3" value="123"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="رمز التحقق" supporting-text="أدخِل الرمز المكوّن من 6 أرقام الذي أرسلناه إلى هاتفك." error error-text="الرمز غير صحيح. تحقق من الرسالة وحاول مرة أخرى." group-size="3" value="123456"></tanrei-one-time-code-field>
-</DemoFrame>
+</Example>
 
 استخدم حقل الرمز لمرة واحدة (one-time-code field) حيثما يطلب المنتج من الشخص رمزًا قصيرًا أرسله إليه: لتسجيل الدخول، أو لتأكيد عنوان أو رقم هاتف، أو للموافقة على عملية دفع. وهو الحالة المعتادة، جاهزًا للاستخدام: تسمية، وخانات، وسطر يقول إلى أين أُرسل الرمز، والكلمات التي تقول إن الرمز خاطئ.
 
@@ -85,11 +85,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="الحقل نفسه مكتوبًا باليد: حقل بداخله حقل إدخال الرمز لمرة واحدة" column>
+<Example label="الحقل نفسه مكتوبًا باليد: حقل بداخله حقل إدخال الرمز لمرة واحدة" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="رمز التحقق" supporting-text="أدخِل الرمز المكوّن من 6 أرقام الذي أرسلناه إلى هاتفك.">
     <tanrei-one-time-code-input group-size="3" value="123"></tanrei-one-time-code-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 انزل إلى هذا المستوى حين تحتاج إلى ترتيب لا يقدّمه حقل الرمز لمرة واحدة:
 
@@ -104,12 +104,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="مطلوب بكلمة المنتج، واختياري، ومعطَّل، ورمز محجوب من أربع خانات" plain column>
+<Example label="مطلوب بكلمة المنتج، واختياري، ومعطَّل، ورمز محجوب من أربع خانات" column>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="رمز التحقق" required required-text="مطلوب" supporting-text="أدخِل الرمز المكوّن من 6 أرقام الذي أرسلناه إلى هاتفك." group-size="3"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="الرمز الاحتياطي" optional optional-text="اختياري" type="alphanumeric" group-size="3" value="A7K"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="رمز التحقق" disabled supporting-text="أدخِل الرمز المكوّن من 6 أرقام الذي أرسلناه إلى هاتفك." group-size="3" value="123456"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="الرقم السري الوارد في الخطاب" length="4" mask value="4821"></tanrei-one-time-code-field>
-</DemoFrame>
+</Example>
 
 ### ما يعطيه كل عضو
 

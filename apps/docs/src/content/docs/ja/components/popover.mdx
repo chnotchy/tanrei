@@ -2,20 +2,20 @@
 title: ポップオーバー
 description: 押したコントロールの横に開く小さなサーフェスに、読んだり操作したりできるコンテンツを表示します。コントロールに付いて動き、ページのほかの部分を暗くしたり、ふさいだりしません。コンパクトなウィンドウでは、ボトムシートの見た目をしたモーダルなサーフェスに表示します。
 translationOf: components/popover.mdx
-sourceHash: 80d3974c3277f1d69bb01e20df6bfa52a4477d9a
+sourceHash: cd2056332ef89bbba2c92da6cb340178ef7a87c7
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="popover" />
 
-<DemoFrame label="ボタンを押すと開きます：リンクのある説明と、アクションのある短いフォーム">
+<Example label="ボタンを押すと開きます：リンクのある説明と、アクションのある短いフォーム">
   <tanrei-button id="popover-demo-note-opener" variant="outlined" onclick="document.getElementById('popover-demo-note').open = !document.getElementById('popover-demo-note').open">ストレージ</tanrei-button>
   <tanrei-popover id="popover-demo-note" anchor="popover-demo-note-opener" headline="ストレージ" closable close-label="ストレージの説明を閉じる" arrow placement="bottom" onclose="this.open = false">
     ゴミ箱のファイルは、削除するまでストレージの使用量に含まれます。<a class="tanrei-link" href="#ガイドライン">使用量の数え方</a>
@@ -26,7 +26,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-popover').open = false">キャンセル</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-popover').open = false">変更</tanrei-button>
   </tanrei-popover>
-</DemoFrame>
+</Example>
 
 ポップオーバーは、それを開いたコントロールの横でユーザーが操作するコンテンツに使います。いくつかの設定、短いフォーム、共有のパネル、リンクやボタンが必要な説明などです。開いている間も、ページのほかの部分はそのまま使えます。コンパクトなウィンドウでは、代わりにウィンドウの下端にボトムシートの見た目で表示します。Tanrei のポップオーバーとダイアログは、コンパクトなウィンドウではすべてそうなります。
 
@@ -95,14 +95,14 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 
 ## 仕様
 
-<DemoFrame label="配置、矢印、アンカーと同じ幅のポップオーバー" plain>
+<Example label="配置、矢印、アンカーと同じ幅のポップオーバー">
   <tanrei-button id="popover-demo-top-opener" variant="outlined" onclick="document.getElementById('popover-demo-top').open = !document.getElementById('popover-demo-top').open">上、中央</tanrei-button>
   <tanrei-popover id="popover-demo-top" anchor="popover-demo-top-opener" label="ストレージ" placement="top" arrow onclose="this.open = false">ゴミ箱もストレージの使用量に含まれます。</tanrei-popover>
   <tanrei-button id="popover-demo-end-opener" variant="outlined" onclick="document.getElementById('popover-demo-end').open = !document.getElementById('popover-demo-end').open">横、末尾側</tanrei-button>
   <tanrei-popover id="popover-demo-end" anchor="popover-demo-end-opener" label="ストレージ" placement="end-top" onclose="this.open = false">ゴミ箱もストレージの使用量に含まれます。</tanrei-popover>
   <tanrei-button id="popover-demo-width-opener" variant="outlined" style="inline-size: 16rem" onclick="document.getElementById('popover-demo-width').open = !document.getElementById('popover-demo-width').open">このボタンと同じ幅</tanrei-button>
   <tanrei-popover id="popover-demo-width" anchor="popover-demo-width-opener" label="ストレージ" width="anchor" onclose="this.open = false">ゴミ箱もストレージの使用量に含まれます。</tanrei-popover>
-</DemoFrame>
+</Example>
 
 ### 配置
 

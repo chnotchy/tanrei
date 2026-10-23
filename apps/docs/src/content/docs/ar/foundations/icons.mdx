@@ -5,7 +5,7 @@ translationOf: foundations/icons.mdx
 sourceHash: ac0bcf36ab92660baeea99c4cb860a04ef2338d0
 ---
 
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import TokenNotes from '../../../../components/tokens/TokenNotes.astro';
 import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
@@ -19,7 +19,7 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
 **غير المحدد محدَّد الأطراف (outlined). والمحدد معبَّأ (filled). دائمًا.** عنصر تنقل، علامة تبويب، زر تبديل، رقاقة، مفضّلة: تبقى الأيقونة الرسم نفسه، وتعبئتها وحدها تتغير مع الحالة. لا تُخلط الأيقونات المعبَّأة والمحدَّدة الأطراف للزينة أبدًا، ولا تُختار باليد أبدًا؛ فعلى الويب تتبع التعبئة حالة عنصر التحكم الذي تقع فيه الأيقونة.
 
-<DemoFrame label="التعبئة تتبع التحديد">
+<Example label="التعبئة تتبع التحديد">
   <button class="icon-demo" aria-pressed="false" onclick="this.setAttribute('aria-pressed', this.getAttribute('aria-pressed') === 'true' ? 'false' : 'true')"><span class="tanrei-icon" data-size="large" aria-hidden="true">favorite</span> المفضّلة</button>
   <span class="icon-demo" role="tablist">
     <button role="tab" aria-selected="true"><span class="tanrei-icon" data-size="large" aria-hidden="true">home</span> الرئيسية</button>
@@ -27,7 +27,7 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
     <button role="tab" aria-selected="false"><span class="tanrei-icon" data-size="large" aria-hidden="true">settings</span> الإعدادات</button>
   </span>
   <tanrei-button><span slot="icon" class="tanrei-icon" aria-hidden="true">add</span>إضافة</tanrei-button>
-</DemoFrame>
+</Example>
 
 ```js
 import '@tanrei/web/icons.css';

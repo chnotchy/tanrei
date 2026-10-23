@@ -2,26 +2,26 @@
 title: مجموعة أزرار الاختيار
 description: "تطرح سؤالًا واحدًا له جواب واحد بالضبط من بين خيارات قليلة معروضة كلها دفعة واحدة: مجموعة من أزرار الاختيار تحمل القيمة المختارة، تحت تسمية تستطيع أن تقول إن الجواب مطلوب أو اختياري، مع وصف وخطأ واحد للمجموعة."
 translationOf: components/radio-group.mdx
-sourceHash: e9c637af4e26a776faf7851c62e6badc99a1ebac
+sourceHash: ef8e11be72ab1efb6009b8e3b34c1fced7312c8c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="radio-group" />
 
-<DemoFrame label="مجموعة من أزرار الاختيار لها اسم ووصف ووسم المطلوب" column>
+<Example label="مجموعة من أزرار الاختيار لها اسم ووصف ووسم المطلوب" column>
   <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="التوصيل" supporting-text="يمكنك تغييره إلى أن يُشحن الطلب." required required-text="مطلوب" value="standard">
     <tanrei-radio-button value="standard" label="عادي، من 3 إلى 5 أيام"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="سريع، في اليوم التالي"></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="الاستلام من المتجر"></tanrei-radio-button>
   </tanrei-radio-group>
-</DemoFrame>
+</Example>
 
 [زر الاختيار](/ar/components/radio-button/) لا يُستخدم وحده أبدًا. ومجموعة أزرار الاختيار تجعل عدة أزرار منه سؤالًا واحدًا: تعطي المجموعة اسمًا، وسطرًا يقول كيف يُجاب، وكلمة تقول هل تجب الإجابة، وسببًا واحدًا حين تُرفض الإجابة، وتحمل الجواب قيمةً واحدة.
 
@@ -83,13 +83,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field-group>
 ```
 
-<DemoFrame label="المجموعة نفسها مكتوبةً باليد: مجموعة حقول نوعها radio-group، بداخلها أزرار اختيار لها اسم واحد" column>
+<Example label="المجموعة نفسها مكتوبةً باليد: مجموعة حقول نوعها radio-group، بداخلها أزرار اختيار لها اسم واحد" column>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="التوصيل" supporting-text="يمكنك تغييره إلى أن يُشحن الطلب." required required-text="مطلوب">
     <tanrei-radio-button name="delivery-by-hand" value="standard" label="عادي، من 3 إلى 5 أيام" checked></tanrei-radio-button>
     <tanrei-radio-button name="delivery-by-hand" value="express" label="سريع، في اليوم التالي"></tanrei-radio-button>
     <tanrei-radio-button name="delivery-by-hand" value="pickup" label="الاستلام من المتجر"></tanrei-radio-button>
   </tanrei-field-group>
-</DemoFrame>
+</Example>
 
 ما لا تفعله مجموعة الحقول وأزرار الاختيار المكتوبة باليد هو حمل الجواب. ولا يختلف شيء مما يُرسم أو يُقال.
 
@@ -107,7 +107,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="مجموعة مطلوبة بلا جواب في حالة خطأ، وجواب مرفوض، وترتيب في صف، ومجموعة فيها خيار معطَّل" plain column>
+<Example label="مجموعة مطلوبة بلا جواب في حالة خطأ، وجواب مرفوض، وترتيب في صف، ومجموعة فيها خيار معطَّل" column>
   <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="التوصيل" required required-text="مطلوب" error error-text="اختر طريقة وصول الطلب إليك.">
     <tanrei-radio-button value="standard" label="عادي، من 3 إلى 5 أيام"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="سريع، في اليوم التالي"></tanrei-radio-button>
@@ -133,7 +133,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-radio-button value="express" label="سريع، في اليوم التالي"></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="الاستلام من المتجر"></tanrei-radio-button>
   </tanrei-radio-group>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="radio-group" />
 

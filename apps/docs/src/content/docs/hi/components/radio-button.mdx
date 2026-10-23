@@ -2,26 +2,26 @@
 title: रेडियो बटन
 description: लोगों को एक साथ दिखाए गए छोटे ग्रुप में से ठीक एक विकल्प चुनने देता है।
 translationOf: components/radio-button.mdx
-sourceHash: 580d206e4ecad18e8ec686f544dd11bd9a7b7564
+sourceHash: 5b4f61772f78c2094f60c4453b4b44a4119e747d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="radio-button" />
 
-<DemoFrame label="एक ग्रुप">
+<Example label="एक ग्रुप">
   <div role="radiogroup" aria-label="कितनी बार" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-radio-button name="overview-frequency" value="daily" label="रोज़"></tanrei-radio-button>
     <tanrei-radio-button name="overview-frequency" value="weekly" checked label="हर हफ़्ते"></tanrei-radio-button>
     <tanrei-radio-button name="overview-frequency" value="monthly" label="हर महीने"></tanrei-radio-button>
   </div>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -121,7 +121,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="चयनित, अचयनित और अक्षम" plain>
+<Example label="चयनित, अचयनित और अक्षम">
   <div role="radiogroup" aria-label="सक्षम" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-radio-button name="specs-enabled" value="unselected" label="अचयनित"></tanrei-radio-button>
     <tanrei-radio-button name="specs-enabled" value="selected" checked label="चयनित"></tanrei-radio-button>
@@ -137,7 +137,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <div role="radiogroup" aria-label="छिपा हुआ लेबल">
     <tanrei-radio-button name="specs-hidden" value="weekly" checked label-hidden label="हर हफ़्ते"></tanrei-radio-button>
   </div>
-</DemoFrame>
+</Example>
 
 डिफ़ॉल्ट सिस्टम में रेडियो बटन 40 की गोल स्टेट लेयर पर 2 के स्ट्रोक वाली 20 की रिंग है। चयनित विकल्प कोई बिंदु नहीं बनाता। उसकी रिंग भीतर की ओर आधे रेडियस तक मोटी हो जाती है, और भीतर बची डिस्क रिंग के रंग से 16 % ओपैसिटी पर भरी जाती है: एक हल्की आभा, जो रिंग से कम से कम 3:1 अलग रहती है। रिंग दोनों अवस्थाओं में अपना बाहरी साइज़ बनाए रखती है। रिंग और फ़िल एक ही शेप हैं: किसी भी ज़ूम या डिस्प्ले डेंसिटी पर, या बदलाव के किसी भी फ़्रेम में, रेडियो बटन के पीछे की कोई चीज़ उनके बीच से नहीं झाँकती। जब चयन बदलता है, तो स्ट्रोक मोटा या पतला होता है, जबकि रिंग का रंग बदलता है और फ़िल फ़ेड होकर आता या जाता है; फ़िल कभी केंद्र से नहीं बढ़ता। जो बदलाव मोशन ख़त्म होने से पहले आता है, वह जहाँ है वहीं से वापस मुड़ता है, और जहाँ मोशन कम किया गया है, वहाँ नई अवस्था तुरंत और पूरी दिखती है।
 

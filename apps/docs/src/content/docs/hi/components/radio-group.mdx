@@ -2,26 +2,26 @@
 title: रेडियो ग्रुप
 description: ऐसा एक सवाल पूछता है जिसका, एक साथ दिखाए गए थोड़े-से विकल्पों में से, ठीक एक जवाब होता है। यह रेडियो बटन का ऐसा सेट है जो चुना हुआ मान रखता है, ऐसे लेबल के नीचे जो बता सकता है कि जवाब ज़रूरी है या वैकल्पिक, एक विवरण और पूरे सेट की एक त्रुटि के साथ।
 translationOf: components/radio-group.mdx
-sourceHash: e9c637af4e26a776faf7851c62e6badc99a1ebac
+sourceHash: ef8e11be72ab1efb6009b8e3b34c1fced7312c8c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="radio-group" />
 
-<DemoFrame label="रेडियो बटन का एक सेट, नाम, विवरण और ज़रूरी के निशान के साथ" column>
+<Example label="रेडियो बटन का एक सेट, नाम, विवरण और ज़रूरी के निशान के साथ" column>
   <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="डिलीवरी" supporting-text="ऑर्डर भेजे जाने तक आप इसे बदल सकते हैं।" required required-text="ज़रूरी" value="standard">
     <tanrei-radio-button value="standard" label="स्टैंडर्ड, 3 से 5 दिन"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="एक्सप्रेस, अगले दिन"></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="स्टोर से पिकअप"></tanrei-radio-button>
   </tanrei-radio-group>
-</DemoFrame>
+</Example>
 
 [रेडियो बटन](/hi/components/radio-button/) कभी अकेला इस्तेमाल नहीं होता। रेडियो ग्रुप कई रेडियो बटन को एक सवाल बना देता है: वह सेट को एक नाम देता है, एक पंक्ति जो बताती है कि जवाब कैसे देना है, एक शब्द जो बताता है कि जवाब देना ज़रूरी है या नहीं, और जवाब अस्वीकार होने पर एक वजह। और वह जवाब को एक मान के रूप में रखता है।
 
@@ -83,13 +83,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field-group>
 ```
 
-<DemoFrame label="वही सेट हाथ से लिखा हुआ: एक फ़ील्ड ग्रुप जिसका kind radio-group है, और उसमें एक ही name वाले रेडियो बटन" column>
+<Example label="वही सेट हाथ से लिखा हुआ: एक फ़ील्ड ग्रुप जिसका kind radio-group है, और उसमें एक ही name वाले रेडियो बटन" column>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="डिलीवरी" supporting-text="ऑर्डर भेजे जाने तक आप इसे बदल सकते हैं।" required required-text="ज़रूरी">
     <tanrei-radio-button name="delivery-by-hand" value="standard" label="स्टैंडर्ड, 3 से 5 दिन" checked></tanrei-radio-button>
     <tanrei-radio-button name="delivery-by-hand" value="express" label="एक्सप्रेस, अगले दिन"></tanrei-radio-button>
     <tanrei-radio-button name="delivery-by-hand" value="pickup" label="स्टोर से पिकअप"></tanrei-radio-button>
   </tanrei-field-group>
-</DemoFrame>
+</Example>
 
 हाथ से लिखे गए फ़ील्ड ग्रुप और रेडियो बटन बस एक काम नहीं करते: वे जवाब नहीं रखते। जो दिखता है या कहा जाता है, उसमें कोई फ़र्क़ नहीं है।
 
@@ -107,7 +107,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="त्रुटि में एक ज़रूरी सेट जिसका जवाब नहीं दिया गया, एक अस्वीकार हुआ जवाब, एक पंक्ति, और एक सेट जिसका एक विकल्प अक्षम है" plain column>
+<Example label="त्रुटि में एक ज़रूरी सेट जिसका जवाब नहीं दिया गया, एक अस्वीकार हुआ जवाब, एक पंक्ति, और एक सेट जिसका एक विकल्प अक्षम है" column>
   <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="डिलीवरी" required required-text="ज़रूरी" error error-text="चुनें कि ऑर्डर आप तक कैसे पहुँचे।">
     <tanrei-radio-button value="standard" label="स्टैंडर्ड, 3 से 5 दिन"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="एक्सप्रेस, अगले दिन"></tanrei-radio-button>
@@ -133,7 +133,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-radio-button value="express" label="एक्सप्रेस, अगले दिन"></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="स्टोर से पिकअप"></tanrei-radio-button>
   </tanrei-radio-group>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="radio-group" />
 

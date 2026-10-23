@@ -2,26 +2,26 @@
 title: الخطوات
 description: طريقة عمل تُعرض خطواتٍ مرقَّمة، لكل خطوة حلقة فيها رقمها، وعنوان اختياري، ومتن من محتواك، ويصلها بالتي تليها خط رفيع. هي قائمة مرتبة تُقرأ، وليست عنصر تحكم ولا سجلًّا للتقدم أبدًا.
 translationOf: components/steps.mdx
-sourceHash: c8264baa77c44eb546180291656f27740ecb7537
+sourceHash: fc2b24b601c10465b86a49a8d463b2566ff711e1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="steps" />
 
-<DemoFrame label="عناوين ومتون" column>
+<Example label="عناوين ومتون" column>
   <ol class="tanrei-steps" role="list" aria-label="سير العمل" style="inline-size: 100%; max-inline-size: 28rem">
     <li><p class="tanrei-steps-title">الاقتراح</p><p>اكتب المواصفة أو غيّرها، وغيّر الرموز حيث يحتاج التغيير إليها.</p></li>
     <li><p class="tanrei-steps-title">التحقق</p><p>افحص المخططات (schemas) وقواعد الرموز وتباين كل مخطط لوني.</p></li>
     <li><p class="tanrei-steps-title">التوليد</p><p>أعد بناء مخرجات الرموز والهياكل الأولية ومصفوفة الحالة.</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
 ثلاثة أشياء تتشابه في المظهر وليست شيئًا واحدًا:
 
@@ -100,7 +100,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="سطر واحد لكل خطوة، ومجموعة تكمل أخرى" plain column>
+<Example label="سطر واحد لكل خطوة، ومجموعة تكمل أخرى" column>
   <ol class="tanrei-steps" role="list" aria-label="ما تفعله بعد ذلك" style="inline-size: 100%; max-inline-size: 28rem">
     <li>احفظ الملف في المجلد الذي يحوي إعدادات المشروع.</li>
     <li>اذكر اسم الملف في الإعدادات، تحت مفتاح طبقة التصميم.</li>
@@ -111,14 +111,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <li>وكذلك العشرة.</li>
     <li>وكذلك الأحد عشر: الثلاث كلها تبدأ عند حافة واحدة.</li>
   </ol>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="الحجم الكبير، مع كتلة في المتن" plain column>
+<Example label="الحجم الكبير، مع كتلة في المتن" column>
   <ol class="tanrei-steps" role="list" data-size="large" aria-label="الاستخدام" style="inline-size: 100%; max-inline-size: 32rem">
     <li><p>أضف الحزمة إلى المشروع.</p><tanrei-code-block label="أمر التثبيت"><pre><code>npm install @tanrei/web</code></pre></tanrei-code-block></li>
     <li><p>حمّل ورقة الأنماط مرة واحدة، قبل أي نمط آخر في الصفحة.</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
 - **العلامة** حلقة بخط النظام الرفيع فيها رقم الخطوة، عرضها 24 في الحجم medium و 28 في الحجم large. الرقم من خانة أو خانتين يُبقيها دائرة؛ والرقم الأطول يوسّعها إلى كبسولة، ويبقى محتوى كل الخطوات يبدأ عند حافة واحدة.
 - **خط الوصل** يمتد من كل حلقة إلى التي تليها، ويتوقف قبل أن يبلغ أيًّا منهما. والخطوة الأخيرة لا خط لها.

@@ -22,3 +22,9 @@ declare module 'virtual:tanrei-element-modules' {
   export const loaders: Readonly<Record<string, () => Promise<unknown>>>;
   export const modules: number;
 }
+
+// The names the React package gives each element (src/lib/element-modules.mjs `reactNames`), for an example's code.
+declare module 'virtual:tanrei-react-names' {
+  const names: import('./lib/example-code').ReactNames;
+  export default names;
+}

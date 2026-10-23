@@ -2,23 +2,23 @@
 title: スケルトン
 description: 読み込みのあいだ、コンテンツが入る場所に置くものです。これから来るものの形をした控えめなプレースホルダー（テキストの行、ブロック、円）が、コンテンツの入るボックスを確保するので、届いたときに何も動きません。
 translationOf: components/skeleton.mdx
-sourceHash: 35e480f921d9bf8421691218c876dd261757f4ac
+sourceHash: a5c6ed1971270c9e64fb7b4de3a95eea84409f60
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="skeleton" />
 
-<DemoFrame label="読み込み中の人物の情報とカード" column>
+<Example label="読み込み中の人物の情報とカード" column>
   <tanrei-skeleton label="著者の情報を読み込み中" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 10rem"></span><span class="tanrei-skeleton-placeholder" data-lines="2"></span></tanrei-skeleton>
   <tanrei-skeleton label="プロジェクトを読み込み中" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 160px"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 12.5rem"></span><span class="tanrei-skeleton-placeholder" data-lines="3"></span><span class="tanrei-skeleton-placeholder" data-shape="block" style="inline-size: 6rem; block-size: 40px"></span></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
 ビューは、コンテンツより先に表示されることがよくあります。スケルトンは、これから来るものの形を、それが入る場所に確保します。テキストの行、画像やコントロールのためのブロック、人物の画像のための円です。コンテンツが届くと、確保してあったボックスにそのまま入るので、見ていたものも、押そうとしていたものも動きません。
 
@@ -99,15 +99,15 @@ Web では、スクリプトが動く前はスタイルシートがコンポー�
 
 ## 仕様
 
-<DemoFrame label="3 つの形: テキスト、ブロック、円" plain column>
+<Example label="3 つの形: テキスト、ブロック、円" column>
   <tanrei-skeleton label="テキストを読み込み中" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></tanrei-skeleton>
   <tanrei-skeleton label="画像を読み込み中" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 96px"></span></tanrei-skeleton>
   <tanrei-skeleton label="人物の情報を読み込み中" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="テキストのプレースホルダーは、置かれた場所のテキストスタイルに従います。見出しの中、段落の中" plain column>
+<Example label="テキストのプレースホルダーは、置かれた場所のテキストスタイルに従います。見出しの中、段落の中" column>
   <tanrei-skeleton label="記事を読み込み中" show-delay="0" style="inline-size: min(100%, 24rem)"><h3 style="margin: 0 0 0.5rem"><span class="tanrei-skeleton-placeholder" style="inline-size: 60%"></span></h3><p style="margin: 0"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></p></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="skeleton" />
 
@@ -123,13 +123,13 @@ Web では、スクリプトが動く前はスタイルシートがコンポー�
 - テキストが何行になるかは `data-lines` で渡します。コンテンツの形がそろっているほど、当たります。スケルトンが 1 行足りなければページは 1 行ぶん動きますが、空白のままにしておくよりは小さな動きです。
 - ブロックには、画像やコントロールの大きさを渡します。数値、比率、またはレイアウトが与える大きさです。円には、一辺の数値を 1 つ渡します。
 
-<DemoFrame label="「読み込む」を押すと、スケルトンが 2.5 秒のあいだ場所を確保し、コンテンツがそのボックスに入ります" plain column>
+<Example label="「読み込む」を押すと、スケルトンが 2.5 秒のあいだ場所を確保し、コンテンツがそのボックスに入ります" column>
   <tanrei-button variant="outlined" onclick="const place = this.parentElement.querySelector('[data-skeleton-demo]'); const [waiting, arrived] = this.parentElement.querySelectorAll('template'); place.replaceChildren(waiting.content.cloneNode(true)); clearTimeout(place.timer); place.timer = setTimeout(() => place.replaceChildren(arrived.content.cloneNode(true)), 2500)">読み込む</tanrei-button>
   <div data-skeleton-demo style="inline-size: min(100%, 24rem)"><h3 style="margin: 0 0 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">3 層のトークン</h3><p style="margin: 0; min-block-size: 3lh; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden">リファレンストークンは生の値を持ちます。システムトークンは値の用途に名前を付けます。コンポーネントトークンは 1 つの部品をそれに結び付けます。</p></div>
   <template><tanrei-skeleton label="記事を読み込み中"><h3 style="margin: 0 0 0.5rem"><span class="tanrei-skeleton-placeholder" style="inline-size: 60%"></span></h3><p style="margin: 0"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></p></tanrei-skeleton></template>
   <template><h3 style="margin: 0 0 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">3 層のトークン</h3><p style="margin: 0; min-block-size: 3lh; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden">リファレンストークンは生の値を持ちます。システムトークンは値の用途に名前を付けます。コンポーネントトークンは 1 つの部品をそれに結び付けます。</p></template>
   <p style="margin: 0">この行は記事の下にあり、動きません。</p>
-</DemoFrame>
+</Example>
 
 ### 形
 
@@ -149,10 +149,10 @@ Web では、スクリプトが動く前はスタイルシートがコンポー�
 
 同じ待ち時間をすでにほかのものが伝えているとき（ステータス行のローディングインジケーター、ステータスの文言、利用者側でビジー状態にして名前を付けた領域など）は、`decorative` を設定します。スケルトンは同じように描かれ、支援技術からは隠されるので、同じ待ち時間が 2 回読まれません。
 
-<DemoFrame label="ステータス行がすでに待ち時間を伝えているので、その下のプレースホルダーは装飾です" plain column>
+<Example label="ステータス行がすでに待ち時間を伝えているので、その下のプレースホルダーは装飾です" column>
   <span style="display: flex; align-items: center; gap: 0.5rem"><tanrei-loading-indicator size="small" label="検索中" show-delay="0"></tanrei-loading-indicator>検索中…</span>
   <tanrei-skeleton decorative show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder"></span><span class="tanrei-skeleton-placeholder"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 70%"></span></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
 ### 表示までに待つ
 

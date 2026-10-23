@@ -2,20 +2,20 @@
 title: مجموعة خانات الاختيار
 description: تطرح سؤالًا واحدًا قد تكون له عدة أجوبة من بين خيارات قليلة معروضة كلها دفعة واحدة، وهي مجموعة من خانات الاختيار تحت تسمية واحدة، مع وصف وخطأ واحد، تحمل قائمة القيم المحدَّدة تحت اسم واحد وتستطيع أن تأتي بخانة اختيار تحدّدها كلها.
 translationOf: components/checkbox-group.mdx
-sourceHash: 320c2d0f75bef6bb336ea072b1aef4b74ee7cd0e
+sourceHash: 3f33db7448b9a270c95ff8654e67bc3ad3ac6fe1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="checkbox-group" />
 
-<DemoFrame label="مجموعة خانات اختيار، وأخرى فيها خانة اختيار تحدّدها كلها" column>
+<Example label="مجموعة خانات اختيار، وأخرى فيها خانة اختيار تحدّدها كلها" column>
   <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="أبلِغني عبر" supporting-text="اختر كل ما ينطبق." required required-text="مطلوب">
     <tanrei-checkbox value="email" label="البريد الإلكتروني" checked></tanrei-checkbox>
     <tanrei-checkbox value="text" label="رسالة نصية"></tanrei-checkbox>
@@ -28,7 +28,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-checkbox value="thu" label="الخميس"></tanrei-checkbox>
     <tanrei-checkbox value="fri" label="الجمعة"></tanrei-checkbox>
   </tanrei-checkbox-group>
-</DemoFrame>
+</Example>
 
 استخدم مجموعة خانات الاختيار (checkbox group) حيث يكون جواب السؤال الواحد قائمة، والخيارات قليلة بحيث تُعرض كلها دفعة واحدة، حتى سبعة تقريبًا: طرق الإبلاغ، أو الأيام التي يُرسل فيها تقرير، أو الأصناف التي تُصفّى بها قائمة. والجواب قيمة واحدة، هي قائمة القيم المحدَّدة، والنموذج يرسلها تحت اسم واحد.
 
@@ -115,13 +115,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field-group>
 ```
 
-<DemoFrame label="المجموعة نفسها مكتوبةً باليد: مجموعة حقول بداخلها خانات اختيار" column>
+<Example label="المجموعة نفسها مكتوبةً باليد: مجموعة حقول بداخلها خانات اختيار" column>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="أبلِغني عبر" supporting-text="اختر كل ما ينطبق." required required-text="مطلوب">
     <tanrei-checkbox name="notify" value="email" label="البريد الإلكتروني" checked></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="text" label="رسالة نصية"></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="push" label="إشعار فوري"></tanrei-checkbox>
   </tanrei-field-group>
-</DemoFrame>
+</Example>
 
 ما لا تفعله مجموعة الحقول وخانات الاختيار المكتوبة باليد هو حمل الجواب:
 
@@ -148,7 +148,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="صف، وجواب مرفوض، وخيار مفعَّل دائمًا، ومجموعة معطَّلة" plain column>
+<Example label="صف، وجواب مرفوض، وخيار مفعَّل دائمًا، ومجموعة معطَّلة" column>
   <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="المقاسات" orientation="horizontal">
     <tanrei-checkbox value="s" label="S" checked></tanrei-checkbox>
     <tanrei-checkbox value="m" label="M" checked></tanrei-checkbox>
@@ -168,7 +168,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-checkbox value="email" label="البريد الإلكتروني" checked></tanrei-checkbox>
     <tanrei-checkbox value="text" label="رسالة نصية"></tanrei-checkbox>
   </tanrei-checkbox-group>
-</DemoFrame>
+</Example>
 
 ### ما يعطيه كل عضو
 

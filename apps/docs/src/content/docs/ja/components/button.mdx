@@ -2,28 +2,27 @@
 title: ボタン
 description: 1 回のタップまたはクリックで、アクションの実行、オン・オフの切り替え、移動先への移動を行えるようにします。
 translationOf: components/button.mdx
-sourceHash: a587774eb5411058152f514ed38199d856c52a81
+sourceHash: f888556fbe868c4858d27e4c999dcfdeffd781f9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
-import VisualFrame from '../../../../components/visuals/VisualFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import StateMatrix from '../../../../components/visuals/StateMatrix.astro';
 
 ## 概要
 
 <ComponentAvailability name="button" />
 
-<VisualFrame label="バリアント" reserve={{ block: 'comp.button.container.height.medium' }} controls="both">
+<Example label="バリアント" reserve={{ block: 'comp.button.container.height.medium' }} code>
   <tanrei-button variant="filled">Filled</tanrei-button>
   <tanrei-button variant="tonal">Tonal</tanrei-button>
   <tanrei-button variant="elevated">Elevated</tanrei-button>
   <tanrei-button variant="outlined">Outlined</tanrei-button>
   <tanrei-button variant="text">Text</tanrei-button>
-</VisualFrame>
+</Example>
 
 ### 使い方
 
@@ -106,12 +105,12 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 
 ボタンはラベルの横にアイコンを持てます。位置は先頭で、`iconPosition` を `trailing` にすると末尾です。アイコンのある側のパディングはラベルの側より 1 段狭く、両側が同じくらいの余白に見えます。ラベルがなければアイコンだけのボタンになります。高さと同じ幅の円で、名前は `label` から取るので、このときは `label` が必須です。`toggle` を付けると、押すたびに自分の `selected` を切り替え、色とグリフの塗りで状態を示し、押された状態として読み上げさせます。
 
-<DemoFrame label="アイコンだけのボタンとトグル">
+<Example label="アイコンだけのボタンとトグル">
   <tanrei-button variant="text" label="検索"><span slot="icon">search</span></tanrei-button>
   <tanrei-button variant="tonal" label="編集"><span slot="icon">edit</span></tanrei-button>
   <tanrei-button variant="outlined" toggle selected label="お気に入り"><span slot="icon">favorite</span></tanrei-button>
   <tanrei-button variant="filled" icon-position="trailing">次へ<span slot="icon">arrow_forward</span></tanrei-button>
-</DemoFrame>
+</Example>
 
 Tanrei にはアイコンボタンという別のコンポーネントはありません。Material の名前は次のように対応します。
 
@@ -134,13 +133,13 @@ Text のトグルにはアイコンを付けてください。コンテナのな
 | `narrow` | グリフと、その両側の小さな余白：28 / 32 / 32。カプセル形になります | アイコンのアクションを詰めて並べる行。フィールドの末尾のツールや、密度の高い表の行など。 |
 | `wide` | 40 / 52 / 72。カプセル形になります | 行の中で、隣より重みを持たせたい 1 つのアクション。 |
 
-<DemoFrame label="アイコンだけのボタンの幅：default、narrow、wide" plain>
+<Example label="アイコンだけのボタンの幅：default、narrow、wide">
   <tanrei-button variant="tonal" label="追加"><span slot="icon">add</span></tanrei-button>
   <tanrei-button variant="tonal" width="narrow" label="追加"><span slot="icon">add</span></tanrei-button>
   <tanrei-button variant="tonal" width="wide" label="追加"><span slot="icon">add</span></tanrei-button>
   <tanrei-button variant="outlined" size="small" width="narrow" label="その他のオプション"><span slot="icon">more_vert</span></tanrei-button>
   <tanrei-button variant="filled" size="large" width="wide" label="再生"><span slot="icon">play_arrow</span></tanrei-button>
-</DemoFrame>
+</Example>
 
 narrow のボタンは、グリフとその両側の余白だけでできています。そのため、グリフがカプセルの端に触れることはなく、デザインシステムがグリフの大きさを変えれば、ボタンもそれに従います。見た目は最小ターゲットより狭くなりますが、ヒット領域は狭くなりません。ターゲットは見えている端の外側まで届きます。ボタンの横にその分の余裕を取るか、項目の間隔を自分で取る[ツールバー](/ja/components/toolbar/)や[ボタングループ](/ja/components/button-group/)の中に置いてください。
 
@@ -150,22 +149,22 @@ narrow のボタンは、グリフとその両側の余白だけでできてい�
 
 無効なボタンはフォーカス順から外れるので、キーボードやスクリーンリーダーの利用者は、そのボタンを見つけられないことがあり、なぜ何も起きないのかもわかりません。メッセージが空の間の送信ボタンのように、利用者が操作すればアクションを使えるようになる場合は、`focusable-when-disabled` を追加します。ボタンは無効として描かれ、無効として読み上げられ、何もしませんが、Tab では届くので、[ツールチップ](/ja/components/tooltip/)や説明で理由を伝えられます。
 
-<DemoFrame label="ビジー状態と、Tab で届く無効状態" plain>
+<Example label="ビジー状態と、Tab で届く無効状態">
   <tanrei-button busy busy-label="デプロイ中">デプロイ</tanrei-button>
   <tanrei-button variant="text" busy busy-label="保存中" label="保存"><span slot="icon">save</span></tanrei-button>
   <tanrei-button disabled focusable-when-disabled>送信</tanrei-button>
-</DemoFrame>
+</Example>
 
 ### 全幅
 
 `full-width` を指定すると、ボタンはコンテナと同じ幅になります。幅の狭いフォーム、カード、シートの末尾に置く 1 つだけのアクションなどに使います。高さ、余白、角はそのサイズのままで、ラベルとアイコンは中央に置かれます。収まらないラベルは切り詰められず、折り返します。[ボタングループ](/ja/components/button-group/)、[ツールバー](/ja/components/toolbar/)、ダイアログやポップオーバーのアクションのようにボタンを並べる側がある場合は、その側が幅を決めるので、ボタンの `full-width` は何もしません。複数のボタンで 1 行を分け合うには、ボタングループに `full-width` を指定します。
 
-<DemoFrame label="全幅のボタン" plain>
+<Example label="全幅のボタン">
   <div style="inline-size: 20rem; display: grid; gap: 0.75rem">
     <tanrei-button full-width>アカウントを作成</tanrei-button>
     <tanrei-button variant="outlined" full-width><span slot="icon">upload</span>ファイルをアップロード</tanrei-button>
   </div>
-</DemoFrame>
+</Example>
 
 ### 破壊的なアクション
 
@@ -175,24 +174,24 @@ variant は、ほかのアクションと同じように選びます。削除が
 
 リンクにもありません。`href` を持つボタンは `destructive` を無視し、その variant のリンクとして描かれます。リンクをたどっても何も消えないからです。リンクは、何かを削除できる場所へ連れて行くだけです。印を付けるのはその場所のアクション、たとえばリンク先のページの「削除」ボタンです。デバッグビルドは、`destructive` を付けたリンクを報告します。
 
-<DemoFrame label="各 variant の破壊的なボタンと、アイコンだけのボタン" plain>
+<Example label="各 variant の破壊的なボタンと、アイコンだけのボタン">
   <tanrei-button destructive>プロジェクトを削除</tanrei-button>
   <tanrei-button variant="tonal" destructive>下書きを破棄</tanrei-button>
   <tanrei-button variant="outlined" destructive>メンバーを外す</tanrei-button>
   <tanrei-button variant="text" destructive>履歴を消去</tanrei-button>
   <tanrei-button variant="text" destructive label="ファイルを削除"><span slot="icon">delete</span></tanrei-button>
-</DemoFrame>
+</Example>
 
 ### 移動先のあるボタンはリンク
 
 ボタンに `href` を指定すると、ボタンではなくリンクになります。コントロールは同じで、どの状態でも同じトークンで描かれますが、ロールはリンクになり、プラットフォームがリンクに与えるものがすべて使えます。Web では本物のアンカーなので、新しいタブで開く、アドレスをコピーする、移動する前に行き先を確かめる、といったことができます。押すと別の場所へ移動するだけのコントロールには、必ずこの形を使います。ふつうのボタンの click で移動させることはしません。
 
-<DemoFrame label="リンク：同じ場所、新しいタブ、アイコンだけ、無効" plain>
+<Example label="リンク：同じ場所、新しいタブ、アイコンだけ、無効">
   <tanrei-button href="/ja/components/button-group/">ボタングループ</tanrei-button>
   <tanrei-button variant="outlined" href="/ja/components/toolbar/" target="new" target-label="新しいタブで開きます">ツールバー</tanrei-button>
   <tanrei-button variant="text" href="/ja/components/" label="すべてのコンポーネント"><span slot="icon">apps</span></tanrei-button>
   <tanrei-button variant="tonal" href="/ja/components/button-group/" disabled>ボタングループ</tanrei-button>
-</DemoFrame>
+</Example>
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
@@ -319,11 +318,11 @@ Web では、ボタンはフォームのコントロールの 1 つで、押し�
 
 リストのすべての行にある「削除」のように、同じ言葉が複数のボタンに描かれていると、スクリーンリーダーの利用者には、その言葉だけではどの行のボタンかがわかりません。それぞれのボタンに `label` を指定します。`label` は、描かれたテキストに代わってボタンのアクセシブルネームの全体になり、ボタンの見た目は変わりません。
 
-<DemoFrame label="すべての行に同じ言葉があり、それぞれのボタンに行の名前を付けた例" plain>
+<Example label="すべての行に同じ言葉があり、それぞれのボタンに行の名前を付けた例">
   <tanrei-button variant="text" size="small" label="削除：Inter">削除</tanrei-button>
   <tanrei-button variant="text" size="small" label="削除：Noto Sans JP">削除</tanrei-button>
   <tanrei-button variant="text" size="small" label="削除：Roboto Mono">削除</tanrei-button>
-</DemoFrame>
+</Example>
 
 | `label` | 描かれるラベル | アクセシブルネーム |
 | --- | --- | --- |
@@ -337,13 +336,13 @@ Web では、ボタンはフォームのコントロールの 1 つで、押し�
 
 ## 仕様
 
-<DemoFrame label="サイズと無効状態" plain>
+<Example label="サイズと無効状態">
   <tanrei-button size="small">Small</tanrei-button>
   <tanrei-button size="medium">Medium</tanrei-button>
   <tanrei-button size="large">Large</tanrei-button>
   <tanrei-button disabled>Disabled</tanrei-button>
   <tanrei-button variant="outlined" disabled>Disabled</tanrei-button>
-</DemoFrame>
+</Example>
 
 <StateMatrix name="button" />
 

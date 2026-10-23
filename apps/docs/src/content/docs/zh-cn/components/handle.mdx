@@ -2,20 +2,20 @@
 title: 调整手柄
 description: 用拖动或键盘移动它，来改变它所在之物（面板、字段、窗格、预览框）的大小的标记。一个方向是一段短线，两个方向是一段四分之一圆弧。它报告被移动了多少；改变大小的是它的所有者。
 translationOf: components/handle.mdx
-sourceHash: 8955a734232bc0ade6255485b375c3b4b8e433b8
+sourceHash: 7d140675b426695f97f08e12810e1f2f8f5aef93
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="handle" />
 
-<DemoFrame label="改变高度的手柄、改变宽度的手柄，以及在角上同时改变两者的手柄">
+<Example label="改变高度的手柄、改变宽度的手柄，以及在角上同时改变两者的手柄">
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle label="调整笔记大小" value="4" min="2" max="12" value-text="4 行" revealed style="justify-self: center; align-self: end"></tanrei-handle>
   </div>
@@ -25,7 +25,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle axis="both" label="调整消息大小" value="6" min="3" max="12" value-text="6 行" revealed style="justify-self: end; align-self: end"></tanrei-handle>
   </div>
-</DemoFrame>
+</Example>
 
 调整手柄位于某个可以由人改变大小之物的边或角上：面板的上边、文本字段的下角、窗格或预览的边。被拖动时，它报告移动了多远；用键盘移动时，它报告请求的是哪一步；不拖动而按下时，它也报告这一点。它自己从不改变任何东西的大小。大小由它所在之物保存，一步是多少也由那一方决定，并把大小交还给手柄，让辅助技术能够读出。
 
@@ -88,14 +88,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="使用之前看不见：把指针移上去，或用 Tab 移到它" plain>
+<Example label="使用之前看不见：把指针移上去，或用 Tab 移到它">
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle label="调整面板大小" value="30" style="justify-self: center; align-self: end"></tanrei-handle>
   </div>
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-small) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle axis="both" size="small" label="调整评论大小" value="3" style="justify-self: end; align-self: end"></tanrei-handle>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="handle" />
 

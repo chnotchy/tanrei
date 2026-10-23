@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="tag-group" />
 
-<DemoFrame label="A set of tags, and a row of filters" column>
+<Example label="A set of tags, and a row of filters" column>
   <tanrei-tag-group class="not-content" spacing="tags" label="Tags">
     <tanrei-tag label="Design tokens"></tanrei-tag>
     <tanrei-tag label="Accessibility"></tanrei-tag>
@@ -25,7 +25,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
     <tanrei-chip kind="filter" label="Needs review"></tanrei-chip>
     <tanrei-chip kind="filter" label="Blocked"></tanrei-chip>
   </tanrei-tag-group>
-</DemoFrame>
+</Example>
 
 A [tag](/components/tag/) and a [chip](/components/chip/) are each one thing. A tag group is what holds several of them: the tags of an article, the filters above a list, a few suggestions under a field. It places them in lines that wrap, keeps the right distance between them, and tells assistive technology that they are one list.
 
@@ -80,7 +80,7 @@ On the web it is `<tanrei-tag-group>`. The other platforms have not implemented 
 
 ## Specs
 
-<DemoFrame label="Tags that wrap, status tags, links to each tag’s page, and entered items" plain column>
+<Example label="Tags that wrap, status tags, links to each tag’s page, and entered items" column>
   <tanrei-tag-group class="not-content" spacing="tags" style="inline-size: 22rem; max-inline-size: 100%" label="Tags">
     <tanrei-tag label="Design tokens"></tanrei-tag>
     <tanrei-tag label="Accessibility"></tanrei-tag>
@@ -104,7 +104,7 @@ On the web it is `<tanrei-tag-group>`. The other platforms have not implemented 
     <tanrei-chip kind="input" label="Grace Hopper" remove-label="Remove Grace Hopper"></tanrei-chip>
     <tanrei-chip kind="input" label="Katherine Johnson" remove-label="Remove Katherine Johnson"></tanrei-chip>
   </tanrei-tag-group>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tag-group" />
 
@@ -163,7 +163,7 @@ When a person switches a chip, the group sets `value` or `values` and fires one 
 
 With a selection the set is one Tab stop: the chip that last had focus, otherwise the first chip that is on, otherwise the first chip. The arrow keys move between the chips the way they point, also in a right-to-left layout, and Home and End go to the first and the last. They switch nothing, and focus does not wrap from the last chip to the first. Space switches the focused chip.
 
-<DemoFrame label="One sort order at a time, and several filters">
+<Example label="One sort order at a time, and several filters">
   <tanrei-tag-group class="not-content" label="Sort by" selection="single" value="updated">
     <tanrei-chip kind="filter" label="Newest" value="newest"></tanrei-chip>
     <tanrei-chip kind="filter" label="Recently updated" value="updated"></tanrei-chip>
@@ -175,7 +175,7 @@ With a selection the set is one Tab stop: the chip that last had focus, otherwis
     <tanrei-chip kind="filter" label="Needs review" value="review"></tanrei-chip>
     <tanrei-chip kind="filter" label="Blocked" value="blocked"></tanrei-chip>
   </tanrei-tag-group>
-</DemoFrame>
+</Example>
 
 <Tabs syncKey="platform">
   <TabItem label="Web">

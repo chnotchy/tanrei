@@ -2,14 +2,14 @@
 title: डायलॉग
 description: व्यक्ति को किसी ऐसे फ़ैसले या कुछ ऐसी जानकारियों के लिए रोकता है जिनके बिना काम आगे नहीं बढ़ सकता, एक ऐसी सरफ़ेस में जो अपने पीछे की हर चीज़ को धुँधला करके तब तक रोके रखती है जब तक उसका जवाब न दे दिया जाए या उसे ख़ारिज न कर दिया जाए।
 translationOf: components/dialog.mdx
-sourceHash: f86e3764e1ad3f95e4617465f361ae2dd033e180
+sourceHash: 2ec420cc8eb2fe5bd3b7c94ecb87939ab77ba4a5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
@@ -19,13 +19,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 यह पेज डायलॉग को वैसा बताता है जैसा स्पेक में वह अभी है: हर डायलॉग कम से कम एक क्रिया देता है, क्रियाएँ tonal Button की पूरी चौड़ाई वाली एक पंक्ति हैं जिन्हें उनके काम के अनुसार जगह मिलती है, आइकन शुरू की सीध में रखी हेडलाइन के बग़ल में रहता है, और कॉम्पैक्ट विंडो पर डायलॉग नीचे रहता है। वेब कंपोनेंट इस संशोधन को इम्प्लीमेंट करता है, और इस पेज के डेमो में वही वेब कंपोनेंट है जो आज दिया जाता है; जब तक संशोधन की समीक्षा नहीं हो जाती और उसकी बेसलाइन रिकॉर्ड नहीं हो जातीं, तब तक वह ऊपर "पीछे" के रूप में ही दर्ज रहता है। SwiftUI, Compose, Flutter और React Native, जब तक वे बराबरी पर नहीं आते, पिछला संशोधन देते हैं: बीच में रखी हेडलाइन के ऊपर आइकन, अंत की ओर एक पंक्ति में दिए गए क्रम में text क्रियाएँ, वैकल्पिक क्रियाएँ, और हर विंडो में बीच में रखा डायलॉग।
 :::
 
-<DemoFrame label="एक पुष्टि: इसे बटन से खोलें">
+<Example label="एक पुष्टि: इसे बटन से खोलें">
   <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-basic').open = true">ड्राफ़्ट छोड़ें</tanrei-button>
   <tanrei-dialog id="dialog-demo-basic" headline="ड्राफ़्ट छोड़ें?" supporting-text="आप जो संदेश लिख रहे थे, वह इस डिवाइस से हटा दिया जाएगा।">
     <tanrei-button slot="actions" dismissive autofocus onclick="this.closest('tanrei-dialog').open = false">रद्द करें</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">छोड़ें</tanrei-button>
   </tanrei-dialog>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -193,14 +193,14 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 ## स्पेक
 
-<DemoFrame label="अलर्ट डायलॉग: एक विनाशकारी पुष्टि, जो खुलते ही पढ़कर सुनाई जाती है" plain>
+<Example label="अलर्ट डायलॉग: एक विनाशकारी पुष्टि, जो खुलते ही पढ़कर सुनाई जाती है">
   <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-alert').open = true">प्रोजेक्ट हटाएँ</tanrei-button>
   <tanrei-dialog id="dialog-demo-alert" alert headline="प्रोजेक्ट हटाएँ?" supporting-text="प्रोजेक्ट की हर चीज़, उसके इतिहास समेत, हटा दी जाएगी। इसे पहले जैसा नहीं किया जा सकता।">
     <span slot="icon">delete</span>
     <tanrei-button slot="actions" dismissive autofocus onclick="this.closest('tanrei-dialog').open = false">रद्द करें</tanrei-button>
     <tanrei-button slot="actions" confirming destructive onclick="this.closest('tanrei-dialog').open = false">हटाएँ</tanrei-button>
   </tanrei-dialog>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="dialog" />
 
@@ -244,13 +244,13 @@ tanrei-dialog::part(scroll) { scroll-padding-block-end: 56px; }
 
 ### क्लोज़ बटन नहीं
 
-<DemoFrame label="'सहेजें' के बग़ल में 'रद्द करें' वाला फ़ॉर्म, small चौड़ाई के साथ">
+<Example label="'सहेजें' के बग़ल में 'रद्द करें' वाला फ़ॉर्म, small चौड़ाई के साथ">
   <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-form').open = true">डिस्प्ले नाम बदलें</tanrei-button>
   <tanrei-dialog id="dialog-demo-form" headline="डिस्प्ले नाम बदलें" supporting-text="यह नाम टीम के हर व्यक्ति को दिखता है।" width="small">
     <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-dialog').open = false">रद्द करें</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">सहेजें</tanrei-button>
   </tanrei-dialog>
-</DemoFrame>
+</Example>
 
 डायलॉग अपने हेडर में कोई क्लोज़ बटन नहीं बनाता। वह एक फ़ैसला माँगता है, और फ़ैसला किए बिना निकलने का उसका रास्ता उसकी पीछे हटने वाली क्रिया है, और जब तक `dismissible` true है, Escape, प्लैटफ़ॉर्म का बैक और स्क्रिम पर दबाना।
 

@@ -2,23 +2,23 @@
 title: वन-टाइम कोड फ़ील्ड
 description: 'व्यक्ति को भेजा गया छोटा कोड एक पूरे फ़ील्ड के रूप में माँगता है: लेबल के नीचे सेल, सहायता की एक पंक्ति और ग़लत कोड के लिए शब्द। ये सब सहायक तकनीक के लिए आपस में जुड़े रहते हैं, और फ़ॉर्म में यह एक ही कंट्रोल के रूप में हिस्सा लेता है।'
 translationOf: components/one-time-code-field.mdx
-sourceHash: 197fb3bbef1de7ff1a0dcf3c22e8bc35ade0e0ab
+sourceHash: e622be078eeb18fec9295ee054c28b4764e18e53
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="one-time-code-field" />
 
-<DemoFrame label="एक वन-टाइम कोड फ़ील्ड, और एक जिसका कोड प्रॉडक्ट ने नहीं माना" column>
+<Example label="एक वन-टाइम कोड फ़ील्ड, और एक जिसका कोड प्रॉडक्ट ने नहीं माना" column>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="पुष्टि कोड" supporting-text="आपके फ़ोन पर भेजा गया 6 अंकों का कोड दर्ज करें।" group-size="3" value="123"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="पुष्टि कोड" supporting-text="आपके फ़ोन पर भेजा गया 6 अंकों का कोड दर्ज करें।" error error-text="यह कोड सही नहीं है। संदेश देखकर फिर कोशिश करें।" group-size="3" value="123456"></tanrei-one-time-code-field>
-</DemoFrame>
+</Example>
 
 वन-टाइम कोड फ़ील्ड वहाँ इस्तेमाल करें जहाँ प्रॉडक्ट अपना भेजा हुआ छोटा कोड वापस माँगता है: साइन इन करने के लिए, किसी पते या फ़ोन नंबर की पुष्टि के लिए, किसी भुगतान को मंज़ूरी देने के लिए। यह आम स्थिति के लिए है, और इस्तेमाल के लिए तैयार है: एक लेबल, सेल, एक पंक्ति जो बताती है कि कोड कहाँ भेजा गया, और ग़लत कोड के लिए शब्द।
 
@@ -85,11 +85,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="वही फ़ील्ड हाथ से लिखा हुआ: एक फ़ील्ड, जिसके भीतर एक वन-टाइम कोड इनपुट है" column>
+<Example label="वही फ़ील्ड हाथ से लिखा हुआ: एक फ़ील्ड, जिसके भीतर एक वन-टाइम कोड इनपुट है" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="पुष्टि कोड" supporting-text="आपके फ़ोन पर भेजा गया 6 अंकों का कोड दर्ज करें।">
     <tanrei-one-time-code-input group-size="3" value="123"></tanrei-one-time-code-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 एक स्तर नीचे तब जाएँ जब आपको ऐसी व्यवस्था चाहिए जो वन-टाइम कोड फ़ील्ड नहीं देता:
 
@@ -104,12 +104,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="प्रॉडक्ट के शब्द के साथ ज़रूरी, वैकल्पिक, अक्षम, और चार अक्षरों का छिपाया गया कोड" plain column>
+<Example label="प्रॉडक्ट के शब्द के साथ ज़रूरी, वैकल्पिक, अक्षम, और चार अक्षरों का छिपाया गया कोड" column>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="पुष्टि कोड" required required-text="ज़रूरी" supporting-text="आपके फ़ोन पर भेजा गया 6 अंकों का कोड दर्ज करें।" group-size="3"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="बैकअप कोड" optional optional-text="वैकल्पिक" type="alphanumeric" group-size="3" value="A7K"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="पुष्टि कोड" disabled supporting-text="आपके फ़ोन पर भेजा गया 6 अंकों का कोड दर्ज करें।" group-size="3" value="123456"></tanrei-one-time-code-field>
   <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="पत्र में दिया गया पिन" length="4" mask value="4821"></tanrei-one-time-code-field>
-</DemoFrame>
+</Example>
 
 ### हर सदस्य क्या देता है
 

@@ -2,20 +2,20 @@
 title: फ़िगर
 description: देखने की किसी एक चीज़ को, चाहे वह तस्वीर हो, चार्ट, नमूना या लाइव उदाहरण, उसके अपने स्टेज पर रखता है, फ़्रेम के साथ या उसके बिना, ऐसे कैप्शन के साथ जो बताता है कि उसमें क्या दिख रहा है, और चाहें तो ऊपर एक शीर्षक और आपके कंट्रोल के साथ और नीचे एक जुड़े हुए ब्लॉक के साथ।
 translationOf: components/figure.mdx
-sourceHash: 2b6611651835c6319c8a04774015c79b761f6871
+sourceHash: 143f98ae43eb824fe14a7cae9a47724674d4c105
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="figure" />
 
-<DemoFrame label="Outlined, filled और plain" column>
+<Example label="Outlined, filled और plain" column>
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1.5rem; inline-size: 100%">
     <tanrei-figure>
       <figure>
@@ -36,7 +36,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       </figure>
     </tanrei-figure>
   </div>
-</DemoFrame>
+</Example>
 
 फ़िगर ऐसी एक चीज़ दिखाता है जो पढ़ी नहीं, देखी जाती है: किसी लेख की तस्वीर, किसी रिपोर्ट का चार्ट, इस बात का प्रीव्यू कि कोई सेटिंग क्या बनाएगी, या कोई नमूना। वह उस चीज़ को अलग रखता है और बताता है कि वह क्या है। इस साइट पर लाइव उदाहरणों के चारों ओर के फ़्रेम फ़िगर हैं।
 
@@ -117,7 +117,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="एक शीर्षक, एक कंट्रोल, एक जुड़ा हुआ ब्लॉक और एक कैप्शन" plain column>
+<Example label="एक शीर्षक, एक कंट्रोल, एक जुड़ा हुआ ब्लॉक और एक कैप्शन" column>
   <tanrei-figure style="inline-size: min(100%, 30rem)">
     <figure>
       <div data-part="frame">
@@ -135,9 +135,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <figcaption>एक filled बटन और उसका मार्कअप।</figcaption>
     </figure>
   </tanrei-figure>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="पैडिंग के बिना: जो दिखाया गया है, वह फ़्रेम के किनारों तक पहुँचता है" plain column>
+<Example label="पैडिंग के बिना: जो दिखाया गया है, वह फ़्रेम के किनारों तक पहुँचता है" column>
   <tanrei-figure flush style="inline-size: min(100%, 30rem)">
     <figure>
       <div data-part="frame">
@@ -148,9 +148,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <figcaption>फ़्रेम अपने भीतर की चीज़ को अपने कोनों पर काट देता है।</figcaption>
     </figure>
   </tanrei-figure>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="अपने स्टेज से चौड़ा: वह वहीं स्क्रॉल होता है, और स्टेज फ़ोकस का एक पड़ाव है" plain column>
+<Example label="अपने स्टेज से चौड़ा: वह वहीं स्क्रॉल होता है, और स्टेज फ़ोकस का एक पड़ाव है" column>
   <tanrei-figure style="inline-size: min(100%, 24rem)">
     <figure>
       <div data-part="frame">
@@ -167,9 +167,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <figcaption>ऐसी पंक्ति में पाँच बटन जो रैप नहीं होती।</figcaption>
     </figure>
   </tanrei-figure>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="ग्रिड, बिंदु, बीच की ओर मिटती ग्रिड, और चेकरबोर्ड" pattern="none" plain column>
+<Example label="ग्रिड, बिंदु, बीच की ओर मिटती ग्रिड, और चेकरबोर्ड" pattern="none" column>
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1.5rem; inline-size: 100%">
     <tanrei-figure pattern="grid">
       <figure>
@@ -196,7 +196,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       </figure>
     </tanrei-figure>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="figure" />
 

@@ -7,16 +7,16 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="empty-state" />
 
-<DemoFrame label="A list nobody has added to yet, and a search that found nothing" column>
+<Example label="A list nobody has added to yet, and a search that found nothing" column>
   <tanrei-empty-state headline="No projects yet" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>A project keeps the layers, the exports and the people of one design system together.<tanrei-button slot="actions">New project</tanrei-button><tanrei-button slot="actions" variant="text">Import a layer</tanrei-button></tanrei-empty-state>
   <tanrei-empty-state headline="No results for “tokne”" style="inline-size: min(100%, 30rem)"><span slot="media">search_off</span>Check the spelling, or search for a shorter word.<tanrei-button slot="actions" variant="outlined">Clear the search</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
 An empty state stands where content would be and there is none: it replaces the list, the rows, the results. It says what is missing in a few words, why or what to do in a sentence, and offers the control that does it. It is quiet and flat — no fill, no edge — and it is content, read where it stands: it takes no focus and has no state.
 
@@ -77,17 +77,17 @@ The description is the element's own content. The title is the `headline` attrib
 
 ## Specs
 
-<DemoFrame label="The parts, added one by one" plain column>
+<Example label="The parts, added one by one" column>
   <tanrei-empty-state headline="No projects yet" style="inline-size: min(100%, 30rem)"></tanrei-empty-state>
   <tanrei-empty-state headline="No projects yet" style="inline-size: min(100%, 30rem)">A project keeps the layers, the exports and the people of one design system together.</tanrei-empty-state>
   <tanrei-empty-state headline="No projects yet" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>A project keeps the layers, the exports and the people of one design system together.</tanrei-empty-state>
   <tanrei-empty-state headline="No projects yet" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>A project keeps the layers, the exports and the people of one design system together.<tanrei-button slot="actions">New project</tanrei-button><tanrei-button slot="actions" variant="text">Import a layer</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="At the start edge, and the large size" plain column>
+<Example label="At the start edge, and the large size" column>
   <tanrei-empty-state align="start" headline="Nothing differs from the base yet" style="inline-size: min(100%, 30rem)">Change a value on the left and it is listed here.</tanrei-empty-state>
   <tanrei-empty-state size="large" headline="This page does not exist" style="inline-size: min(100%, 30rem)"><span slot="media">explore_off</span>The address may be mistyped, or the page may have moved.<tanrei-button slot="actions" variant="outlined">Go to the start page</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="empty-state" />
 
@@ -131,18 +131,18 @@ A glyph is given by its name, in an element: `<span slot="media">folder_open</sp
 
 The actions are your own [Buttons](/components/button/) or links, one or two, the main one first. The empty state lays them out in a row that wraps and does nothing else to them. An action whose label is longer than its line is given the line: a Button then wraps its label, so nothing is cut and nothing runs past the block.
 
-<DemoFrame label="In a narrow column the actions take a line each, and a long label wraps" plain column>
+<Example label="In a narrow column the actions take a line each, and a long label wraps" column>
   <tanrei-empty-state headline="No results" style="inline-size: 14rem"><span slot="media">search_off</span>Check the spelling.<tanrei-button slot="actions" variant="outlined">Clear the search</tanrei-button><tanrei-button slot="actions" variant="text">Open the list of contents of the documentation</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
 ### Appearing in answer to something
 
 `live` is for an empty state that results from what the person just did: a filter that matches no row, the last item removed. It is announced once, politely — the title, then the description, and not the actions — when it is shown and when its text changes. Keep it in the page with `hidden`, or add it when it applies.
 
-<DemoFrame label="A live empty state, shown in answer to a press" plain column>
+<Example label="A live empty state, shown in answer to a press" column>
   <tanrei-button variant="outlined" onclick="document.getElementById('empty-state-demo-live').hidden = false">Apply three filters</tanrei-button>
   <tanrei-empty-state id="empty-state-demo-live" live hidden headline="No entries match these filters" style="inline-size: min(100%, 30rem)">Three filters are on. Removing one shows more entries.<tanrei-button slot="actions" variant="outlined" onclick="this.closest('tanrei-empty-state').hidden = true">Clear the filters</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
 One that is in the page's markup and shown when the page loads is not announced then. On the web, a live empty state that your script adds to the page after it has loaded is announced; the element cannot tell one added in answer to something from one added with a new view of a single-page application, so for an empty state that is simply part of a new view, leave `live` off.
 

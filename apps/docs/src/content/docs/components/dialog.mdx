@@ -7,7 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
@@ -17,13 +17,13 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 This page describes the dialog as the spec has it now: every dialog offers at least one action, the actions are a full-width row of tonal Buttons placed by their task, the icon sits beside a start-aligned headline, and on a compact window the dialog sits at the bottom. The web component implements the revision, and the demos on this page are the web component as it ships today; it stays marked lagging above until the revision has been reviewed and its baselines recorded. SwiftUI, Compose, Flutter and React Native ship the previous revision until they catch up: the icon above a centred headline, text actions in a row at the end in the order given, optional actions, and a centred dialog in every window.
 :::
 
-<DemoFrame label="A confirmation: open it with the button">
+<Example label="A confirmation: open it with the button">
   <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-basic').open = true">Discard draft</tanrei-button>
   <tanrei-dialog id="dialog-demo-basic" headline="Discard draft?" supporting-text="The message you were writing will be deleted from this device.">
     <tanrei-button slot="actions" dismissive autofocus onclick="this.closest('tanrei-dialog').open = false">Cancel</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">Discard</tanrei-button>
   </tanrei-dialog>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -191,14 +191,14 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
 
 ## Specs
 
-<DemoFrame label="An alert dialog: a destructive confirmation read out as it opens" plain>
+<Example label="An alert dialog: a destructive confirmation read out as it opens">
   <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-alert').open = true">Delete project</tanrei-button>
   <tanrei-dialog id="dialog-demo-alert" alert headline="Delete project?" supporting-text="Everything in the project, including its history, will be deleted. This cannot be undone.">
     <span slot="icon">delete</span>
     <tanrei-button slot="actions" dismissive autofocus onclick="this.closest('tanrei-dialog').open = false">Cancel</tanrei-button>
     <tanrei-button slot="actions" confirming destructive onclick="this.closest('tanrei-dialog').open = false">Delete</tanrei-button>
   </tanrei-dialog>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="dialog" />
 
@@ -242,13 +242,13 @@ The actions share the container's inner width equally, with 16 between them.
 
 ### No close button
 
-<DemoFrame label="A form with Cancel beside Save, and a small width">
+<Example label="A form with Cancel beside Save, and a small width">
   <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-form').open = true">Edit display name</tanrei-button>
   <tanrei-dialog id="dialog-demo-form" headline="Edit display name" supporting-text="This name is shown to everyone on the team." width="small">
     <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-dialog').open = false">Cancel</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">Save</tanrei-button>
   </tanrei-dialog>
-</DemoFrame>
+</Example>
 
 A dialog draws no close button in its header. It asks for a decision, and its way out without one is its dismissive action and, while `dismissible` is true, Escape, the platform's back and a press on the scrim.
 

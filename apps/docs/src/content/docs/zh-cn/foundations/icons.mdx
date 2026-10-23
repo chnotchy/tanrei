@@ -5,7 +5,7 @@ translationOf: foundations/icons.mdx
 sourceHash: ac0bcf36ab92660baeea99c4cb860a04ef2338d0
 ---
 
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import TokenNotes from '../../../../components/tokens/TokenNotes.astro';
 import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
@@ -19,7 +19,7 @@ Tanrei 的默认图标是 [Material Symbols](https://fonts.google.com/icons) 的
 
 **未选中用线框，选中用填充，没有例外。** 导航项、标签页、切换按钮、纸片、收藏：图标始终是同一个字形，只有填充随状态变化。填充图标和线框图标从不为了装饰而混用，也从不手动挑选——在 Web 上，填充跟随图标所在控件的状态。
 
-<DemoFrame label="填充跟随选中状态">
+<Example label="填充跟随选中状态">
   <button class="icon-demo" aria-pressed="false" onclick="this.setAttribute('aria-pressed', this.getAttribute('aria-pressed') === 'true' ? 'false' : 'true')"><span class="tanrei-icon" data-size="large" aria-hidden="true">favorite</span> 收藏</button>
   <span class="icon-demo" role="tablist">
     <button role="tab" aria-selected="true"><span class="tanrei-icon" data-size="large" aria-hidden="true">home</span> 首页</button>
@@ -27,7 +27,7 @@ Tanrei 的默认图标是 [Material Symbols](https://fonts.google.com/icons) 的
     <button role="tab" aria-selected="false"><span class="tanrei-icon" data-size="large" aria-hidden="true">settings</span> 设置</button>
   </span>
   <tanrei-button><span slot="icon" class="tanrei-icon" aria-hidden="true">add</span>添加</tanrei-button>
-</DemoFrame>
+</Example>
 
 ```js
 import '@tanrei/web/icons.css';

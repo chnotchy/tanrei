@@ -2,27 +2,27 @@
 title: "一次性验证码输入框"
 description: "接收发送给用户的简短验证码——用于登录或核实身份——它是一个文本值，画成一个个独立的格子，让人看得出验证码有多长、还缺多少，平台也能一步把它填好。"
 translationOf: components/one-time-code-input.mdx
-sourceHash: c820388188c64d7d53434e6c907a565d8d10ab67
+sourceHash: cae7f555e817b85dc9656f43ee7803945e22cea3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="one-time-code-input" />
 
-<DemoFrame label="字段里的一次性验证码输入框，以及一个验证码被产品拒绝的输入框" column>
+<Example label="字段里的一次性验证码输入框，以及一个验证码被产品拒绝的输入框" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="验证码" supporting-text="请输入发送到手机的 6 位验证码。">
     <tanrei-one-time-code-input group-size="3" value="123"></tanrei-one-time-code-input>
   </tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="验证码" supporting-text="请输入发送到手机的 6 位验证码。" error error-text="验证码不正确。请核对短信后重试。">
     <tanrei-one-time-code-input group-size="3" value="123456"></tanrei-one-time-code-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 一次性验证码输入框用于产品发送给用户、并要求用户回填一次的简短验证码：登录、确认某个电子邮件地址或电话号码、批准一笔付款。格子显示出验证码有多长，以及还缺多少。
 
@@ -87,14 +87,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="4 个格子、分成两组的 8 个格子、字母加数字、遮蔽的验证码、只读的和禁用的" plain column>
+<Example label="4 个格子、分成两组的 8 个格子、字母加数字、遮蔽的验证码、只读的和禁用的" column>
   <tanrei-one-time-code-input class="not-content" label="信函中的 PIN 码" length="4" value="4821"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="配对码" length="8" group-size="4" value="1234"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="登录验证码" type="alphanumeric" group-size="3" value="A7K93Q"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="验证码" mask value="1234"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="验证码" readonly value="123456"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="验证码" disabled group-size="3" value="123456"></tanrei-one-time-code-input>
-</DemoFrame>
+</Example>
 
 ### 格子
 

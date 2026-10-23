@@ -2,20 +2,20 @@
 title: アコーディオン
 description: 行を押すと、その場でコンテンツを表示したり隠したりします。項目が 1 つなら単独のディスクロージャーで、複数なら、それぞれが独立して開くか、一度に 1 つだけ開くセットです。
 translationOf: components/accordion.mdx
-sourceHash: 734c02913c3de4d6bbbf30fab12414e81ab98d1b
+sourceHash: 2681abbddb5affc6cda5087c16254f1acec502a4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="accordion" />
 
-<DemoFrame label="ヘルプページの質問：Outlined で、項目が 1 つ開いた状態" plain>
+<Example label="ヘルプページの質問：Outlined で、項目が 1 つ開いた状態">
   <tanrei-accordion class="not-content tanrei-not-prose" variant="outlined">
     <details open>
       <summary>デザイントークンとは何ですか？</summary>
@@ -30,7 +30,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       レイヤを使います。ダイヤルと、プロダクトに必要な場合は個別のトークンを設定するファイルです。
     </details>
   </tanrei-accordion>
-</DemoFrame>
+</Example>
 
 アコーディオンは、ページの一部を行の下に折りたたみ、その行で表示したり隠したりします。ヘルプページの回答、設定画面のセクション、フォームの詳細設定などです。項目が 1 つだけならディスクロージャーで、これも同じコンポーネントです。ナビゲーションドロワーの中で開く行き先のグループは、ドロワー自身のグループです。1 つの場所のビューを切り替えるものは、タブです。
 
@@ -111,7 +111,7 @@ Markdown レンダラーは、`<details>` を HTML としてそのまま通し�
 
 ## 仕様
 
-<DemoFrame label="compact で、2 行目と末尾の値がある場合：パネルの中の折りたたみ" plain>
+<Example label="compact で、2 行目と末尾の値がある場合：パネルの中の折りたたみ">
   <tanrei-accordion class="not-content tanrei-not-prose" density="compact">
     <details open>
       <summary>テキスト<span data-supporting-text>本文、ラベル、見出し</span><span data-trailing-text>Inter, Noto Sans JP</span></summary>
@@ -126,9 +126,9 @@ Markdown レンダラーは、`<details>` を HTML としてそのまま通し�
       12 個のルールを、これより下のレイヤから継承しています。
     </details>
   </tanrei-accordion>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="一度に開くのは 1 つだけで、項目ごとに縁がある場合" plain>
+<Example label="一度に開くのは 1 つだけで、項目ごとに縁がある場合">
   <tanrei-accordion class="not-content tanrei-not-prose" variant="outlined" separation="gap" exclusive>
     <details open>
       <summary><span class="tanrei-icon" aria-hidden="true">palette</span>色</summary>
@@ -143,7 +143,7 @@ Markdown レンダラーは、`<details>` を HTML としてそのまま通し�
       名前、住所、パスワード。
     </details>
   </tanrei-accordion>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="accordion" />
 

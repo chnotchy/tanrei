@@ -2,14 +2,14 @@
 title: ऐप बार
 description: मौजूदा स्क्रीन को उसके ऊपरी किनारे पर नाम देता है और पीछे जाने का रास्ता और स्क्रीन की कुछ क्रियाएँ रखता है। इसका निचला किनारा स्क्रीन के हेडर के किनारे के रूप में बना रहता है, और कॉन्टेंट के इसके नीचे स्क्रॉल होते ही यह अपना स्क्रॉल्ड रूप लेता है।
 translationOf: components/app-bar.mdx
-sourceHash: 6cfec147d94cc9b488a1e09aa54d25c3d7b2351b
+sourceHash: 9a0ed3cf003d8c3fe796a8f2f2d585e762a46c26
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
@@ -17,13 +17,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 Web और React के उदाहरण मौजूदा स्पेक दिखाते हैं, जिसमें बार के आइटम सिर्फ़ आइकन वाले [बटन](/hi/components/button/) हैं। SwiftUI, Compose, Flutter और React Native पीछे हैं: वे अभी पिछला संशोधन देते हैं, जिसमें आइकन बटन एक अलग कंपोनेंट है, और जब तक वे बराबरी पर नहीं आते, उनके उदाहरण वही संशोधन दिखाते हैं।
 
-<DemoFrame label="एक small ऐप बार, जिसमें पीछे जाने का बटन और दो क्रियाएँ हैं">
+<Example label="एक small ऐप बार, जिसमें पीछे जाने का बटन और दो क्रियाएँ हैं">
   <tanrei-app-bar headline="इनबॉक्स" heading-level="3" scroll-target="none" style="inline-size: 22rem">
     <tanrei-button variant="text" slot="navigation" label="पीछे"><span slot="icon">arrow_back</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="खोजें"><span slot="icon">search</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="और विकल्प"><span slot="icon">more_vert</span></tanrei-button>
   </tanrei-app-bar>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -195,7 +195,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 ## स्पेक
 
-<DemoFrame label="उपशीर्षक वाला एक large बार, और बीच में रखा शीर्षक" plain column>
+<Example label="उपशीर्षक वाला एक large बार, और बीच में रखा शीर्षक" column>
   <tanrei-app-bar size="large" headline="इनबॉक्स" subtitle="ada@example.com" heading-level="3" scroll-target="none" style="inline-size: 22rem">
     <tanrei-button variant="text" slot="navigation" label="मेन्यू"><span slot="icon">menu</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="खोजें"><span slot="icon">search</span></tanrei-button>
@@ -205,15 +205,15 @@ Web और React के उदाहरण मौजूदा स्पेक �
     <tanrei-button variant="text" slot="navigation" label="पीछे"><span slot="icon">arrow_back</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="खोजें"><span slot="icon">search</span></tanrei-button>
   </tanrei-app-bar>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="एक नेविगेशन बटन जो लिंक है, और क्रियाओं के बीच एक खोज ट्रिगर" plain>
+<Example label="एक नेविगेशन बटन जो लिंक है, और क्रियाओं के बीच एक खोज ट्रिगर">
   <tanrei-app-bar headline="टैब" subtitle="कंपोनेंट" heading-level="3" scroll-target="none" style="inline-size: 22rem">
     <tanrei-button variant="text" slot="navigation" href="/hi/components/" label="सभी कंपोनेंट"><span slot="icon">arrow_back</span></tanrei-button>
     <tanrei-search slot="actions" bar="icon" presentation="dialog" label="दस्तावेज़ों में खोजें" placeholder="खोजें" clear-label="खोज मिटाएँ" back-label="पीछे"></tanrei-search>
     <tanrei-button variant="text" slot="actions" label="और विकल्प"><span slot="icon">more_vert</span></tanrei-button>
   </tanrei-app-bar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="app-bar" />
 

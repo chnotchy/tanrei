@@ -7,7 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
@@ -15,13 +15,13 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 
 A tab view holds one panel per tab and shows the panel of the selected tab. Selecting a tab switches the view with a short shift, fade and blur; a person can also swipe the view sideways, and the tabs' indicator follows the finger, settling on the tab the view lands on. Under reduced motion the switch is a crossfade that still follows the finger, with no shift and no blur.
 
-<DemoFrame label="A tab view with its own row: choose a tab, or swipe the panel with touch or a pen">
+<Example label="A tab view with its own row: choose a tab, or swipe the panel with touch or a pen">
   <tanrei-tab-view label="Project" style="inline-size: 22.5rem; max-inline-size: 100%">
     <tanrei-tab-panel value="overview" label="Overview"><p>Three open tasks, due this week.</p></tanrei-tab-panel>
     <tanrei-tab-panel value="activity" label="Activity"><p>Ada commented on the plan an hour ago.</p></tanrei-tab-panel>
     <tanrei-tab-panel value="settings" label="Settings"><p>Visible to everyone in the workspace.</p></tanrei-tab-panel>
   </tanrei-tab-view>
-</DemoFrame>
+</Example>
 
 A tab view has two forms:
 
@@ -103,7 +103,7 @@ SwiftUI, Compose, Flutter and React Native have not implemented the tab view yet
 
 ## Specs
 
-<DemoFrame label="A secondary row that fills, with icons and a disabled tab; and a view linked to a row placed apart from it" plain column>
+<Example label="A secondary row that fills, with icons and a disabled tab; and a view linked to a row placed apart from it" column>
   <tanrei-tab-view variant="secondary" full-width label="Deployment" style="inline-size: 22.5rem; max-inline-size: 100%">
     <tanrei-tab-panel value="overview" label="Overview" icon="dashboard"><p>Three services, all running.</p></tanrei-tab-panel>
     <tanrei-tab-panel value="activity" label="Activity" icon="history"><p>Deployed 2 hours ago.</p></tanrei-tab-panel>
@@ -120,7 +120,7 @@ SwiftUI, Compose, Flutter and React Native have not implemented the tab view yet
     <tanrei-tab-panel value="map"><p>Four places saved near the station.</p></tanrei-tab-panel>
     <tanrei-tab-panel value="notes"><p>The museum is closed on Mondays.</p></tanrei-tab-panel>
   </tanrei-tab-view>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tab-view" />
 
@@ -166,7 +166,7 @@ Use `none` for panels that are read and not watched, such as code. A swipe is st
 
 ### Sharing a choice
 
-<DemoFrame label="Two tab views of one group: choose a tab in either" plain column>
+<Example label="Two tab views of one group: choose a tab in either" column>
   <tanrei-tab-view variant="secondary" group="tab-view-demo-package-manager" label="Package manager" style="inline-size: 22.5rem; max-inline-size: 100%">
     <tanrei-tab-panel value="npm" label="npm"><p>Install the package with npm.</p></tanrei-tab-panel>
     <tanrei-tab-panel value="pnpm" label="pnpm"><p>Install the package with pnpm.</p></tanrei-tab-panel>
@@ -176,7 +176,7 @@ Use `none` for panels that are read and not watched, such as code. A swipe is st
     <tanrei-tab-panel value="npm" label="npm"><p>Run the build with npm.</p></tanrei-tab-panel>
     <tanrei-tab-panel value="pnpm" label="pnpm"><p>Run the build with pnpm.</p></tanrei-tab-panel>
   </tanrei-tab-view>
-</DemoFrame>
+</Example>
 
 - Give every view that answers the same question the same `group`. A view's own row is the member, so everything the [Tabs](/components/tabs/) page says of a group holds: the choice is matched by a panel's `value`, never by its label, and a view that has no panel of that value keeps its own. In the demo, Yarn exists in the first view only.
 - Only the view a person used runs a switch and emits `change`. Every other view shows its panel at once, with no travel, fade or blur, keeps the state of the panels it hides, and takes no focus.

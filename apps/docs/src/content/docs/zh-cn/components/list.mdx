@@ -2,14 +2,14 @@
 title: "列表"
 description: 把产品自己的项（行、磁贴、卡片、文件）排成一列、一行，或折行成网格。用户可以阅读它们、逐个打开、从中选择，或拖动调整顺序。
 translationOf: components/list.mdx
-sourceHash: 4fa8bead8fc1a1fecac07a97a78431a6c96183e9
+sourceHash: 7b9d25d43c69843610e9eecb13cbd05f5e3df571
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import ListReorderProduct from '../../../../components/ListReorderProduct.astro';
 
 <ListReorderProduct />
@@ -18,7 +18,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 <ComponentAvailability name="list" />
 
-<DemoFrame label="把磁贴拖到别处，或按下它的手柄打开移动菜单" plain>
+<Example label="把磁贴拖到别处，或按下它的手柄打开移动菜单">
   <tanrei-list reorderable orientation="horizontal" wrap gap="medium" data-demo-product label="Photos" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to start" move-before-label="Move left" move-after-label="Move right" move-to-end-label="Move to end" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 24rem">
     <tanrei-list-item><span class="demo-tile">Photo 1</span></tanrei-list-item>
     <tanrei-list-item><span class="demo-tile">Photo 2</span></tanrei-list-item>
@@ -26,7 +26,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
     <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
     <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
 <style>{`
   .demo-tile { display: block; padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }
@@ -34,7 +34,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 列表是一个容器。每一项显示的是产品自己的内容：文本、图片、卡片、[文件项](/zh-cn/components/file-item/)，或[列表行](/zh-cn/components/list-row/)——由标题、一两行辅助文本以及其前后的内容组成的一行，大多数列表都由这样的行构成。列表负责项周围的一切：项如何排列、项之间的间距和分隔线、它们对辅助技术意味着什么、键盘焦点如何在项之间移动、哪些项被选中，以及如何调整顺序。
 
-<DemoFrame label="一列、一行和折行的网格" plain>
+<Example label="一列、一行和折行的网格">
   <tanrei-list gap="small" style="inline-size: 16rem">
     <tanrei-list-item><span class="demo-tile">Apples</span></tanrei-list-item>
     <tanrei-list-item><span class="demo-tile">Bananas</span></tanrei-list-item>
@@ -52,9 +52,9 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
     <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
     <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="打开某物的项、作为链接的项，以及单选" plain>
+<Example label="打开某物的项、作为链接的项，以及单选">
   <tanrei-list dividers style="inline-size: 16rem">
     <tanrei-list-item interactive><tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Connected"></tanrei-list-row></tanrei-list-item>
     <tanrei-list-item href="#list-demo-button"><tanrei-list-row leading-icon="smart_button" headline="Button" supporting-text="Actions and toggles"></tanrei-list-row></tanrei-list-item>
@@ -65,7 +65,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
     <tanrei-list-item value="dark">Dark</tanrei-list-item>
     <tanrei-list-item value="system">Match the system</tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -132,13 +132,13 @@ SwiftUI、Compose、Flutter 和 React Native 尚在追赶：它们提供的是�
 
 ### 调整顺序
 
-<DemoFrame label="可调整顺序的一列，每一项都带有页面自己的删除按钮" plain>
+<Example label="可调整顺序的一列，每一项都带有页面自己的删除按钮">
   <tanrei-list reorderable gap="small" data-demo-product label="Typefaces" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to top" move-before-label="Move up" move-after-label="Move down" move-to-end-label="Move to bottom" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 22rem">
     <tanrei-list-item label="Inter"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Inter <tanrei-button variant="text" label="Remove Inter" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
     <tanrei-list-item label="Noto Sans JP"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Noto Sans JP <tanrei-button variant="text" label="Remove Noto Sans JP" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
     <tanrei-list-item label="Helvetica Neue"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Helvetica Neue <tanrei-button variant="text" label="Remove Helvetica Neue" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
 `reorderable` 让用户调整项的顺序，无论是一列、一行还是网格。每一项在开头绘制一个手柄，表示它可以移动。可拖动的不只是手柄，而是整个项：鼠标移动几个像素后即拿起，手指或触控笔则需长按，因此滑动仍会滚动页面（触摸手柄会立即开始拖动）。其他项会滑开让路，被拿起的项浮在它们上方跟随指针，放下时落入自己的位置。
 

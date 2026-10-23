@@ -2,26 +2,26 @@
 title: チップ
 description: 行に並べて使う、ラベル付きの小さなコントロールです。提案されたアクションやどこかへのリンク、オンとオフを切り替える絞り込み、ユーザーが入力して取り除ける項目を表します。
 translationOf: components/chip.mdx
-sourceHash: 035fe677407860928287282c7aaf348c8224ccac
+sourceHash: 4820a1e21e55b7549598fb6babd197db62f52069
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="chip" />
 
-<DemoFrame label="種類">
+<Example label="種類">
   <tanrei-chip label="カレンダーに追加"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip label="いいですね"></tanrei-chip>
   <tanrei-chip kind="filter" selected label="ベジタリアン"></tanrei-chip>
   <tanrei-chip kind="filter" label="30 分以内"></tanrei-chip>
   <tanrei-chip kind="input" label="山田 花子" remove-label="山田 花子を削除"></tanrei-chip>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -138,25 +138,25 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 
 ## 仕様
 
-<DemoFrame label="バリアント、サイズ、無効状態" plain>
+<Example label="バリアント、サイズ、無効状態">
   <tanrei-chip variant="elevated" label="カレンダーに追加"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip kind="filter" variant="elevated" selected label="ベジタリアン"></tanrei-chip>
   <tanrei-chip size="small" label="カレンダーに追加"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip kind="input" size="small" label="山田 花子" remove-label="山田 花子を削除"></tanrei-chip>
   <tanrei-chip disabled label="カレンダーに追加"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip kind="filter" selected disabled label="ベジタリアン"></tanrei-chip>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="取り除くアクション：通常（既定）と破壊的。ホバーかフォーカスで違いが見えます" plain>
+<Example label="取り除くアクション：通常（既定）と破壊的。ホバーかフォーカスで違いが見えます">
   <tanrei-chip kind="input" label="30 分以内" remove-label="30 分以内を削除"></tanrei-chip>
   <tanrei-chip kind="input" label="report.pdf" remove-label="report.pdf を削除" destructive-remove></tanrei-chip>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="リンクのチップ：同じタブ、新しいタブ、無効" plain>
+<Example label="リンクのチップ：同じタブ、新しいタブ、無効">
   <tanrei-chip label="タグ" href="/ja/components/tag/"></tanrei-chip>
   <tanrei-chip label="バッジ" href="/ja/components/badge/" target="new" target-label="新しいタブで開きます"></tanrei-chip>
   <tanrei-chip label="タグ" href="/ja/components/tag/" disabled></tanrei-chip>
-</DemoFrame>
+</Example>
 
 既定のシステムでは、どのチップも両端が半円のピル形で、文字を大きくして背が高くなってもピル形のままです。グリフは高さが許す限り大きく、medium では 24、small では 20 です。選択中の絞り込みチップのチェックはシステムのアイコンセットの `check`、取り除くグリフは `cancel` で、後者はいつも塗りつぶしで描きます。チップは独自の印を描かないので、別の印にしたいデザインシステムは別のアイコンセットを選びます。Outlined のチップの輪郭は、区切り線が引くのと同じ控えめな細い線です。
 

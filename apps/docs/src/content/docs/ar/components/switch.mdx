@@ -2,14 +2,14 @@
 title: مفتاح التبديل
 description: يفعّل إعدادًا واحدًا أو يوقفه، ويسري ذلك فورًا.
 translationOf: components/switch.mdx
-sourceHash: 2da2b39034e7ee88a01f032d190b734152fcac50
+sourceHash: 3c9248e2d903cb5a621415b66cd6f02bbb77c85b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
@@ -19,13 +19,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 تصف هذه الصفحة مفتاح التبديل كما هو في المواصفة الآن: مسار بمقاس 52 × 32، ومقبض يكبر تحت الضغط، ورسوم من مجموعة الأيقونات وحدها، ومقبض يتبع السحب، ورسوم للمقبض لها وزن خاص بها أثقل. مكوّن الويب يفعل ذلك كله منذ الآن، وكذلك العروض التوضيحية. أما SwiftUI و Compose و Flutter و React Native فموسومة أعلاه بأنها متأخرة: إلى أن تلحق، تقدّم المراجعة السابقة التي تستجيب للنقرة فقط ولا تتبع أي سحب.
 :::
 
-<DemoFrame label="موقوف ومفعَّل">
+<Example label="موقوف ومفعَّل">
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space150)">
     <tanrei-switch checked label="Wi-Fi"></tanrei-switch>
     <tanrei-switch label="Bluetooth"></tanrei-switch>
     <tanrei-switch checked checked-icon="check" label="وضع الطيران"></tanrei-switch>
   </div>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -110,7 +110,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="الموضعان والأيقونات والتعطيل" plain>
+<Example label="الموضعان والأيقونات والتعطيل">
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space150)">
     <tanrei-switch label="موقوف"></tanrei-switch>
     <tanrei-switch checked label="مفعَّل"></tanrei-switch>
@@ -125,7 +125,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </div>
   <tanrei-switch readonly checked label="للقراءة فقط، مشغَّل"></tanrei-switch>
   <tanrei-switch checked label-hidden label="Wi-Fi"></tanrei-switch>
-</DemoFrame>
+</Example>
 
 المقبض دائرة في كل وضع، برسم أو من دونه. النقرة تبدّله، فينزلق المقبض إلى الطرف الآخر ويتغير معه مقاسه وكل لون يختلف بين الإيقاف والتفعيل. والسحب على طول المسار يحمل المقبض مع الإصبع ويرسم المظاهر البينية نفسها، بلا عتبة. ويتغير مفتاح التبديل حين يُفلَت السحب: إلى الجهة الأقرب إلى المقبض، أو الجهة التي تتجه إليها الدفعة السريعة (fling). والسحب الذي يُلغى، بالمفتاح Escape أو من المنصة، لا يغيّر شيئًا.
 

@@ -2,14 +2,14 @@
 title: "DateTimePicker"
 description: "让用户通过日历和时间滚轮或时钟表盘选择日期、时间或日期加时间，也可以选择其中任何一种的范围；它显示为对话框，或显示为从文本字段下方展开的表面。"
 translationOf: components/date-time-picker.mdx
-sourceHash: b20ac5ee4e3e21be0e6515467b45bd460309076c
+sourceHash: 9931a6ee5d10eb1f030b535c10c20640f2544087
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import ProductWords from '../../../../components/ProductWords.astro';
 
 export const words = {
@@ -43,12 +43,12 @@ export const words = {
 Web 组件按本页的描述实现了选择器：范围的两端是由一条短横线连接的两个字段，AM 和 PM 是时间中不显眼的一部分，输入方式标签页只画图标，滚轮接受键入的数字。本页的演示就是这个组件。SwiftUI、Compose、Flutter 和 React Native 尚未实现它。它们的包里仍保留着已停用的日期选择器和时间选择器的代码，本页不对其作说明。
 :::
 
-<DemoFrame label="用按钮打开：停靠式的日期，以及模态的时间">
+<Example label="用按钮打开：停靠式的日期，以及模态的时间">
   <tanrei-button id="dtp-demo-due" variant="outlined" onclick="document.getElementById('dtp-demo-due-picker').open = true">截止日期</tanrei-button>
   <tanrei-date-time-picker id="dtp-demo-due-picker" presentation="docked" anchor="dtp-demo-due" label="截止日期" locale="zh-CN" today="2026-09-24" value="2026-09-28" onchange="document.getElementById('dtp-demo-due').textContent = '截止 ' + this.value" onclose="this.open = false"></tanrei-date-time-picker>
   <tanrei-button id="dtp-demo-alarm" variant="outlined" onclick="document.getElementById('dtp-demo-alarm-picker').open = true">闹钟</tanrei-button>
   <tanrei-date-time-picker id="dtp-demo-alarm-picker" mode="time" locale="zh-CN" value="07:30" minute-step="5" label="闹钟" onchange="document.getElementById('dtp-demo-alarm').textContent = '闹钟 ' + this.value" onclose="this.open = false"></tanrei-date-time-picker>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -163,25 +163,25 @@ Web 组件按本页的描述实现了选择器：范围的两端是由一条短�
 
 下面的演示用 Web 的 `inline` 属性把打开的表面原地画出来，这个属性用于文档和测试。产品里的选择器在页面之上打开。
 
-<DemoFrame label="日期：模态，带页眉和操作；停靠式，选中某一天即提交" plain>
+<Example label="日期：模态，带页眉和操作；停靠式，选中某一天即提交">
   <tanrei-date-time-picker inline open locale="zh-CN" today="2026-09-24" value="2026-09-17" label="入住"></tanrei-date-time-picker>
   <tanrei-date-time-picker inline open presentation="docked" locale="zh-CN" today="2026-09-24" value="2026-09-17" label="入住"></tanrei-date-time-picker>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="时间：默认的滚轮，以及表盘（12 小时制）" plain>
+<Example label="时间：默认的滚轮，以及表盘（12 小时制）">
   <tanrei-date-time-picker inline open mode="time" hour-cycle="h12" locale="zh-CN" value="19:30" label="闹钟"></tanrei-date-time-picker>
   <tanrei-date-time-picker inline open mode="time" entry-mode="dial" hour-cycle="h12" locale="zh-CN" value="19:30" label="闹钟"></tanrei-date-time-picker>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="在次日结束的时间范围，以及以 15 分钟为步长的 24 小时制" plain>
+<Example label="在次日结束的时间范围，以及以 15 分钟为步长的 24 小时制">
   <tanrei-date-time-picker inline open mode="time" range locale="zh-CN" start="22:00" end="06:00" label="免打扰时段"></tanrei-date-time-picker>
   <tanrei-date-time-picker inline open mode="time" hour-cycle="h23" minute-step="15" locale="zh-CN" value="19:30" label="出发时间"></tanrei-date-time-picker>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="日期加时间，以及日期范围" plain>
+<Example label="日期加时间，以及日期范围">
   <tanrei-date-time-picker inline open mode="date-time" locale="zh-CN" today="2026-09-24" value="2026-09-17T19:30" minute-step="5" label="会议开始"></tanrei-date-time-picker>
   <tanrei-date-time-picker inline open range locale="zh-CN" today="2026-09-24" start="2026-09-10" end="2026-09-16" label="住宿"></tanrei-date-time-picker>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="date-time-picker" />
 

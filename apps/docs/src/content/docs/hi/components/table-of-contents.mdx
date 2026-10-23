@@ -2,20 +2,20 @@
 title: विषय सूची
 description: जो पेज पढ़ा जा रहा है, उसकी हेडिंग को उन तक ले जाने वाले लिंक की लिस्ट के रूप में दिखाती है, और उस हेडिंग पर निशान लगाती है जिसका सेक्शन पढ़ा जा रहा है। जहाँ टेक्स्ट के बग़ल में जगह नहीं है, वहाँ एक पंक्ति मौजूदा सेक्शन का नाम बताती है और वही लिस्ट खोलती है।
 translationOf: components/table-of-contents.mdx
-sourceHash: f5bfc3fe238e62fc88573224164e01b2942039f2
+sourceHash: dc38f921aee3c6d914fb80adf6dc437c39164b17
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="table-of-contents" />
 
-<DemoFrame label="इस पेज के सेक्शन: स्क्रॉल करें, और निशान साथ चलता है" plain>
+<Example label="इस पेज के सेक्शन: स्क्रॉल करें, और निशान साथ चलता है">
   <tanrei-table-of-contents class="not-content tanrei-not-prose" label="इस पेज पर" style="inline-size: 15rem; max-inline-size: 100%">
     <ul>
       <li>
@@ -36,7 +36,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <li><a href="#सुलभता">सुलभता</a></li>
     </ul>
   </tanrei-table-of-contents>
-</DemoFrame>
+</Example>
 
 विषय सूची दिखाती है कि एक लंबे पेज में क्या-क्या है और पाठक उसके किस हिस्से में है। हर आइटम किसी हेडिंग का लिंक है; उप-हेडिंग अपनी हेडिंग के नीचे, थोड़ा भीतर से शुरू होती हैं। मौजूदा आइटम के लिए रेल पर एक मार्कर होता है और उसका लेबल ज़्यादा भारी वेट का होता है। यह पेजों के बीच का प्रॉडक्ट का नेविगेशन नहीं है: वह नेविगेशन ड्रॉअर है।
 
@@ -108,7 +108,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="Compact डेंसिटी, तीन स्तर, तीसरा आइटम मौजूदा" plain>
+<Example label="Compact डेंसिटी, तीन स्तर, तीसरा आइटम मौजूदा">
   <tanrei-table-of-contents class="not-content tanrei-not-prose" label="इस पेज पर" density="compact" tracking="manual" current="#roles-demo" style="inline-size: 15rem; max-inline-size: 100%">
     <ul>
       <li>
@@ -127,9 +127,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <li><a href="#components-demo">कंपोनेंट</a></li>
     </ul>
   </tanrei-table-of-contents>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="कॉम्पैक्ट रूप: पंक्ति दबाएँ" plain>
+<Example label="कॉम्पैक्ट रूप: पंक्ति दबाएँ">
   <tanrei-table-of-contents class="not-content tanrei-not-prose" label="इस पेज पर" presentation="compact" tracking="manual" current="#configure-demo" style="inline-size: 20rem; max-inline-size: 100%">
     <ul>
       <li><a href="#install-demo">इंस्टॉलेशन</a></li>
@@ -137,7 +137,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <li><a href="#build-demo">बिल्ड</a></li>
     </ul>
   </tanrei-table-of-contents>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="table-of-contents" />
 

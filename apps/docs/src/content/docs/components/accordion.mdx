@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="accordion" />
 
-<DemoFrame label="A help page's questions: the outlined look, one item open" plain>
+<Example label="A help page's questions: the outlined look, one item open">
   <tanrei-accordion class="not-content tanrei-not-prose" variant="outlined">
     <details open>
       <summary>What is a design token?</summary>
@@ -28,7 +28,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
       With a layer: a file that sets the dials and, where a product needs it, single tokens.
     </details>
   </tanrei-accordion>
-</DemoFrame>
+</Example>
 
 An accordion folds parts of a page under rows that show and hide them: the answers of a help page, the sections of a settings screen, the advanced part of a form. One item alone is a disclosure, and it is the same component. A group of destinations that opens inside a navigation drawer is the drawer's own group; a choice among views of one place is tabs.
 
@@ -109,7 +109,7 @@ A Markdown renderer passes `<details>` through as HTML. Wrap one or several in `
 
 ## Specs
 
-<DemoFrame label="Compact, with a second line and a value at the end: folds in a panel" plain>
+<Example label="Compact, with a second line and a value at the end: folds in a panel">
   <tanrei-accordion class="not-content tanrei-not-prose" density="compact">
     <details open>
       <summary>Text<span data-supporting-text>Body, labels and headings</span><span data-trailing-text>Inter, Noto Sans JP</span></summary>
@@ -124,9 +124,9 @@ A Markdown renderer passes `<details>` through as HTML. Wrap one or several in `
       Twelve rules come from the layers below this one.
     </details>
   </tanrei-accordion>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="One open at a time, each item in an edge of its own" plain>
+<Example label="One open at a time, each item in an edge of its own">
   <tanrei-accordion class="not-content tanrei-not-prose" variant="outlined" separation="gap" exclusive>
     <details open>
       <summary><span class="tanrei-icon" aria-hidden="true">palette</span>Colors</summary>
@@ -141,7 +141,7 @@ A Markdown renderer passes `<details>` through as HTML. Wrap one or several in `
       Your name, your address and your password.
     </details>
   </tanrei-accordion>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="accordion" />
 

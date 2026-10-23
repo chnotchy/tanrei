@@ -2,20 +2,20 @@
 title: 区切り線
 description: リスト、レイアウト、ツールバーの中のコンテンツのまとまりを、細い線で区切ります。
 translationOf: components/divider.mdx
-sourceHash: 30a7a4cb70a241da25e710981e6be81e76fb6142
+sourceHash: 80c28fe451508b1939317f564533e2a5f8e2cfc1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="divider" />
 
-<DemoFrame label="リストとツールバーの中">
+<Example label="リストとツールバーの中">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space150); inline-size: min(100%, 20rem)">
     <span>受信トレイ</span>
     <tanrei-divider></tanrei-divider>
@@ -29,7 +29,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-divider orientation="vertical" decorative="false"></tanrei-divider>
     <tanrei-button variant="text" label="リンクを挿入"><span slot="icon">link</span></tanrei-button>
   </div>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -152,7 +152,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 
 ## 仕様
 
-<DemoFrame label="向きとインセット" plain>
+<Example label="向きとインセット">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
     <tanrei-divider></tanrei-divider>
     <tanrei-divider inset="start"></tanrei-divider>
@@ -163,9 +163,9 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
     <tanrei-divider orientation="vertical" inset="start"></tanrei-divider>
     <tanrei-divider orientation="vertical" inset="both"></tanrei-divider>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="線の種類" plain>
+<Example label="線の種類">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
     <tanrei-divider></tanrei-divider>
     <tanrei-divider line-style="dotted"></tanrei-divider>
@@ -178,16 +178,16 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
     <tanrei-divider orientation="vertical" line-style="dotted"></tanrei-divider>
     <tanrei-divider orientation="vertical" line-style="wavy"></tanrei-divider>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="太さ：区切り線ごとの太さと、太い模様に付けた丸い端" plain>
+<Example label="太さ：区切り線ごとの太さと、太い模様に付けた丸い端">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
     <tanrei-divider thickness="2"></tanrei-divider>
     <tanrei-divider thickness="4" line-style="dotted" line-cap="round"></tanrei-divider>
     <tanrei-divider thickness="4" line-style="dashed" line-cap="round"></tanrei-divider>
     <tanrei-divider thickness="2" line-style="wavy"></tanrei-divider>
   </div>
-</DemoFrame>
+</Example>
 
 点線と破線は、両端がかならず欠けのない点や線分になります。区切り線は、少なくとも間隔を空けて収まるだけの数を描き、すべての間隔を同じだけ広げます。そのため、長さや向きにかかわらず、両端が同じ見え方になります。波線は円弧をつないだもので、波の数が整数になるよう伸縮させるので、中心線から始まり中心線で終わります。波線の区切り線はほかより高さがあり、振幅の 2 倍に線の太さを足した大きさ、既定では 1 ではなく 5 になります。
 

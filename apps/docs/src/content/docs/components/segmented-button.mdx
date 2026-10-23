@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="segmented-button" />
 
-<DemoFrame label="Single selection, with icons, icon only" system="m3-like">
+<Example label="Single selection, with icons, icon only" system="m3-like">
   <tanrei-segmented-button label="Range" value="week">
     <tanrei-segment value="day" label="Day"></tanrei-segment>
     <tanrei-segment value="week" label="Week"></tanrei-segment>
@@ -29,7 +29,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
     <tanrei-segment value="center" label="Center" icon="format_align_center" label-hidden></tanrei-segment>
     <tanrei-segment value="end" label="Align right" icon="format_align_right" label-hidden></tanrei-segment>
   </tanrei-segmented-button>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -203,7 +203,7 @@ A segmented button holds its segments the way each platform holds repeated child
 
 ## Specs
 
-<DemoFrame label="Sizes and disabled segments" system="m3-like" plain>
+<Example label="Sizes and disabled segments" system="m3-like">
   <tanrei-segmented-button label="Range" value="week" size="small">
     <tanrei-segment value="day" label="Day"></tanrei-segment>
     <tanrei-segment value="week" label="Week"></tanrei-segment>
@@ -224,7 +224,7 @@ A segmented button holds its segments the way each platform holds repeated child
     <tanrei-segment value="week" label="Week"></tanrei-segment>
     <tanrei-segment value="month" label="Month" disabled></tanrei-segment>
   </tanrei-segmented-button>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="segmented-button" />
 

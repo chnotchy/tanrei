@@ -2,20 +2,20 @@
 title: 図
 description: 画像、グラフ、見本、動く例など、見るためのものをひとつ、専用のステージに置きます。枠の有無を選べ、何を示しているかをキャプションで伝えます。上にタイトルと利用者側のコントロールを、下につながったブロックを置くこともできます。
 translationOf: components/figure.mdx
-sourceHash: 2b6611651835c6319c8a04774015c79b761f6871
+sourceHash: 143f98ae43eb824fe14a7cae9a47724674d4c105
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="figure" />
 
-<DemoFrame label="Outlined、Filled、Plain" column>
+<Example label="Outlined、Filled、Plain" column>
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1.5rem; inline-size: 100%">
     <tanrei-figure lang="ja">
       <figure>
@@ -36,7 +36,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       </figure>
     </tanrei-figure>
   </div>
-</DemoFrame>
+</Example>
 
 図は、読むものではなく見るものをひとつ見せます。記事の中の画像、レポートのグラフ、設定の結果のプレビュー、見本などです。それを周りから切り離し、何であるかを伝えます。このサイトで、動く例を囲んでいる枠も図です。
 
@@ -117,7 +117,7 @@ Web では、ネイティブの `<figure>` を `<tanrei-figure>` で囲みます
 
 ## 仕様
 
-<DemoFrame label="タイトル、コントロール、つながったブロック、キャプション" plain column>
+<Example label="タイトル、コントロール、つながったブロック、キャプション" column>
   <tanrei-figure lang="ja" style="inline-size: min(100%, 30rem)">
     <figure>
       <div data-part="frame">
@@ -135,9 +135,9 @@ Web では、ネイティブの `<figure>` を `<tanrei-figure>` で囲みます
       <figcaption>Filled のボタンと、そのマークアップ。</figcaption>
     </figure>
   </tanrei-figure>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="inset なし：見せるものが枠の端まで届きます" plain column>
+<Example label="inset なし：見せるものが枠の端まで届きます" column>
   <tanrei-figure lang="ja" flush style="inline-size: min(100%, 30rem)">
     <figure>
       <div data-part="frame">
@@ -148,9 +148,9 @@ Web では、ネイティブの `<figure>` を `<tanrei-figure>` で囲みます
       <figcaption>枠は、中のものを自身の角丸に合わせて切り取ります。</figcaption>
     </figure>
   </tanrei-figure>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="ステージより広いコンテンツ：ステージの中でスクロールし、ステージはフォーカスが止まる位置になります" plain column>
+<Example label="ステージより広いコンテンツ：ステージの中でスクロールし、ステージはフォーカスが止まる位置になります" column>
   <tanrei-figure lang="ja" style="inline-size: min(100%, 24rem)">
     <figure>
       <div data-part="frame">
@@ -167,9 +167,9 @@ Web では、ネイティブの `<figure>` を `<tanrei-figure>` で囲みます
       <figcaption>折り返さずに 1 行に並べた 5 つのボタン。</figcaption>
     </figure>
   </tanrei-figure>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="グリッド、ドット、中央に向かって消えるグリッド、市松模様" pattern="none" plain column>
+<Example label="グリッド、ドット、中央に向かって消えるグリッド、市松模様" pattern="none" column>
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1.5rem; inline-size: 100%">
     <tanrei-figure pattern="grid">
       <figure>
@@ -196,7 +196,7 @@ Web では、ネイティブの `<figure>` を `<tanrei-figure>` で囲みます
       </figure>
     </tanrei-figure>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="figure" />
 

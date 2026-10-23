@@ -2,12 +2,12 @@
 title: 交互状态
 description: 状态层、“先留间隙、再画圆环”的焦点指示，以及禁用状态的画法。
 translationOf: foundations/states.mdx
-sourceHash: 473427a122fbba6ee446b96eb41a5d60b045fd6a
+sourceHash: 202af5556b4e50ff88d6b12ec2714312ffd9176d
 ---
 
 import Callout from '../../../../components/Callout.astro';
 import StateTokens from '../../../../components/tokens/StateTokens.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 可交互的组件共用一套状态词汇：enabled、hovered、focused、pressed、dragged、selected、activated、error、loading 和 disabled。组件的规格会列出它支持的状态，每个平台都必须全部实现。
 
@@ -26,13 +26,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 将指针悬停在下面的按钮上并按下它们，看看状态层在不同容器上的样子：
 
-<DemoFrame label="状态层">
+<Example label="状态层">
   <tanrei-button variant="filled">Filled</tanrei-button>
   <tanrei-button variant="tonal">Tonal</tanrei-button>
   <tanrei-button variant="elevated">Elevated</tanrei-button>
   <tanrei-button variant="outlined">Outlined</tanrei-button>
   <tanrei-button variant="text">Text</tanrei-button>
-</DemoFrame>
+</Example>
 
 ## 焦点：先留间隙，再画圆环
 

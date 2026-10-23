@@ -2,23 +2,23 @@
 title: Campo
 description: Enmarca un control con lo que un formulario da a cada campo (una etiqueta que puede decir si el control es obligatorio u opcional, una línea de ayuda y el motivo por el que se rechazó un valor), cada cosa vinculada al control para la tecnología de apoyo. Es un marco, nunca un control.
 translationOf: components/field.mdx
-sourceHash: 353fb2c34b3255423d1b0d9d4ee7882e5bbcd48f
+sourceHash: c4d1b7a342bb601a6261b2b8c1d3247860058944
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="field" />
 
-<DemoFrame label="Un control deslizante y un interruptor, cada uno con el nombre, la ayuda y la marca que le da un campo" column>
+<Example label="Un control deslizante y un interruptor, cada uno con el nombre, la ayuda y la marca que le da un campo" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" required required-text="Obligatorio" supporting-text="Se aplica a las alertas y al contenido multimedia."><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notificaciones" optional optional-text="Opcional" supporting-text="Se envían cuando tienes una revisión pendiente."><tanrei-switch checked></tanrei-switch></tanrei-field>
-</DemoFrame>
+</Example>
 
 Un campo de texto puede decir qué es, si hay que responderlo, cómo responderlo y por qué se rechazó una respuesta. Un campo da esas mismas cuatro cosas a un control que no puede darlas: un control deslizante, un interruptor, una [entrada de texto](/es/components/text-input/), una [entrada de color](/es/components/color-input/), una [entrada de código de un solo uso](/es/components/one-time-code-input/), un control que ha construido tu producto. Un campo de texto es, a su vez, un campo alrededor de una entrada de texto. La etiqueta va encima del control y la ayuda debajo. Mientras el campo está en error, el texto de error ocupa el lugar de la ayuda, de modo que un formulario en error no es más alto que en reposo; un sistema de diseño puede, en cambio, conservar la ayuda y añadir el texto de error debajo de ella.
 
@@ -68,24 +68,24 @@ En la web es `<tanrei-field>`. Las demás plataformas todavía no lo han impleme
 
 ## Especificaciones
 
-<DemoFrame label="Las tres marcas de obligatoriedad, un error, un campo deshabilitado y un glifo en la etiqueta" plain column>
+<Example label="Las tres marcas de obligatoriedad, un error, un campo deshabilitado y un glifo en la etiqueta" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" required required-text="Obligatorio"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" optional optional-text="Opcional"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" required required-mark="asterisk"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" required required-text="Obligatorio" error error-text="Elige un nivel superior a 0."><tanrei-slider value="0"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" supporting-text="Se aplica a las alertas y al contenido multimedia." disabled><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen"><span slot="label-icon">volume_up</span><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Ayuda, y un error: el texto de error ocupa el lugar de la ayuda" plain column>
+<Example label="Ayuda, y un error: el texto de error ocupa el lugar de la ayuda" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Contraseña" supporting-text="Al menos 8 caracteres, con un número."><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Contraseña" supporting-text="Al menos 8 caracteres, con un número." error error-text="Esta contraseña es demasiado corta."><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Una entrada de texto en un campo: con ayuda y un recuento, y en error" plain column>
+<Example label="Una entrada de texto en un campo: con ayuda y un recuento, y en error" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Nombre visible" supporting-text="Se muestra junto a tus comentarios." count-text="12/40"><tanrei-text-input value="Ada Lovelace" maxlength="40" counter></tanrei-text-input></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Correo electrónico" required required-text="Obligatorio" error error-text="Introduce una dirección de correo completa."><tanrei-text-input type="email" value="ada@"></tanrei-text-input></tanrei-field>
-</DemoFrame>
+</Example>
 
 ### Alrededor de una entrada de texto
 
@@ -101,9 +101,9 @@ Un campo alrededor de una [entrada de texto](/es/components/text-input/) es un [
 
 `valueText` es el valor actual del control dicho con palabras («40 %», «$100 – $300»), para un control cuyo valor no se puede leer en el propio control: un control deslizante. El campo lo dibuja al final de la fila de la etiqueta, en la primera línea de la etiqueta, y no hace nada más con él: nunca lee ni da formato a un valor, y oculta el texto dibujado a la tecnología de apoyo, porque el control dice su propio valor. Donde dejaría a la etiqueta menos de la mitad de la fila, ocupa una línea propia después de la etiqueta. No se dibuja mientras no se dibuja la etiqueta. Escríbelo a partir del `shownValueText` del control deslizante en cada `input`; el [campo de control deslizante](/es/components/slider-field/) lo hace por sí solo, y es el campo ya hecho para un control deslizante.
 
-<DemoFrame label="Un campo con un control deslizante dentro y el valor con palabras al final de la fila de la etiqueta" column>
+<Example label="Un campo con un control deslizante dentro y el valor con palabras al final de la fila de la etiqueta" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Tamaño del texto" supporting-text="Se aplica a todas las páginas." value-text="120 %"><tanrei-slider min="50" max="200" step="10" value="120" value-text="120 %"></tanrei-slider></tanrei-field>
-</DemoFrame>
+</Example>
 
 ### Alrededor de un select
 

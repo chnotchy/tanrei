@@ -2,20 +2,20 @@
 title: شريط القوائم
 description: يُبقي أوامر التطبيق في المتناول في صف واحد دائم من القوائم المسمّاة (ملف، تحرير، عرض…)، تُفتح كل قائمة منها تحت عنوانها، وتتنقل مفاتيح الأسهم على امتداد الصف وإلى داخل كل قائمة.
 translationOf: components/menubar.mdx
-sourceHash: 727005283bfc41b0656f8ab9ab5f3acd80cb9bc8
+sourceHash: d6a1886f27ffae85410b1fcb19d9f1298ecf6889
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="menubar" />
 
-<DemoFrame label="قوائم محرر" column>
+<Example label="قوائم محرر" column>
   <tanrei-menubar label="قائمة التطبيق" overflow-label="قوائم أخرى" style="inline-size: 100%">
     <tanrei-menubar-menu label="ملف">
       <tanrei-menu-item label="جديد" shortcut="mod+n"></tanrei-menu-item>
@@ -55,7 +55,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-menu-item label="حول التطبيق"></tanrei-menu-item>
     </tanrei-menubar-menu>
   </tanrei-menubar>
-</DemoFrame>
+</Example>
 
 ### ما ليس شريط قوائم
 
@@ -151,7 +151,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### البنود التي تعمل بنفسها
 
-<DemoFrame label="ثلاث قوائم وإجراء وعنصرا رابط، تُرسم كلها بالمظهر نفسه" column>
+<Example label="ثلاث قوائم وإجراء وعنصرا رابط، تُرسم كلها بالمظهر نفسه" column>
   <tanrei-menubar label="قائمة التطبيق مع بنود تعمل بنفسها" overflow-label="المزيد" style="inline-size: 100%">
     <tanrei-menubar-menu label="ملف">
       <tanrei-menu-item label="جديد"></tanrei-menu-item>
@@ -168,7 +168,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-menubar-item><a href="#البنود-التي-تعمل-بنفسها">التوثيق</a></tanrei-menubar-item>
     <tanrei-menubar-item target-label="يُفتح في تبويب جديد"><a href="#البنود-التي-تعمل-بنفسها" target="_blank">المصدر</a></tanrei-menubar-item>
   </tanrei-menubar>
-</DemoFrame>
+</Example>
 
 قبل أن تستخدم عنصر شريط، اقرأ متى لا يُستخدم. عنصر الشريط يبدو تمامًا كعنوان يفتح قائمة، فكل عنصر شريط يكلّف الشخص لحظة شك في ما ستفعله الضغطة.
 
@@ -239,7 +239,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="الصف الذي لا يتّسع لكل العناوين يطوي الباقي في عنصر فائض واحد" plain column>
+<Example label="الصف الذي لا يتّسع لكل العناوين يطوي الباقي في عنصر فائض واحد" column>
   <tanrei-menubar label="قائمة التطبيق، ضيقة" overflow-label="قوائم أخرى" style="inline-size: 13rem">
     <tanrei-menubar-menu label="ملف"><tanrei-menu-item label="جديد"></tanrei-menu-item><tanrei-menu-item label="فتح…"></tanrei-menu-item></tanrei-menubar-menu>
     <tanrei-menubar-menu label="تحرير"><tanrei-menu-item label="تراجع"></tanrei-menu-item><tanrei-menu-item label="إعادة"></tanrei-menu-item></tanrei-menubar-menu>
@@ -247,7 +247,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-menubar-menu label="تنسيق" disabled><tanrei-menu-item label="غامق"></tanrei-menu-item></tanrei-menubar-menu>
     <tanrei-menubar-menu label="مساعدة"><tanrei-menu-item label="حول التطبيق"></tanrei-menu-item></tanrei-menubar-menu>
   </tanrei-menubar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="menubar" />
 

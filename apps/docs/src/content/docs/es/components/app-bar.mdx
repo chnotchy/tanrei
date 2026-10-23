@@ -2,14 +2,14 @@
 title: Barra de la aplicación
 description: Da nombre a la pantalla actual en su borde superior y contiene el camino de vuelta y algunas de las acciones de la pantalla. Su borde inferior se mantiene como el borde de la cabecera de la pantalla, y toma su aspecto desplazado en cuanto el contenido se desplaza por debajo de ella.
 translationOf: components/app-bar.mdx
-sourceHash: 6cfec147d94cc9b488a1e09aa54d25c3d7b2351b
+sourceHash: 9a0ed3cf003d8c3fe796a8f2f2d585e762a46c26
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
@@ -17,13 +17,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 Los ejemplos de Web y React muestran la especificación actual, en la que los elementos de la barra son [botones](/es/components/button/) de solo icono. SwiftUI, Compose, Flutter y React Native van rezagados: todavía ofrecen la revisión anterior, con un componente de botón de icono propio, y sus ejemplos muestran esa revisión hasta que se pongan al día.
 
-<DemoFrame label="Una barra de la aplicación pequeña con un botón para volver y dos acciones">
+<Example label="Una barra de la aplicación pequeña con un botón para volver y dos acciones">
   <tanrei-app-bar headline="Bandeja de entrada" heading-level="3" scroll-target="none" style="inline-size: 22rem">
     <tanrei-button variant="text" slot="navigation" label="Atrás"><span slot="icon">arrow_back</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="Buscar"><span slot="icon">search</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="Más opciones"><span slot="icon">more_vert</span></tanrei-button>
   </tanrei-app-bar>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -195,7 +195,7 @@ El título es el nombre de la pantalla y su encabezado. En la web es `headline`,
 
 ## Especificaciones
 
-<DemoFrame label="Una barra grande con subtítulo y un título centrado" plain column>
+<Example label="Una barra grande con subtítulo y un título centrado" column>
   <tanrei-app-bar size="large" headline="Bandeja de entrada" subtitle="ada@example.com" heading-level="3" scroll-target="none" style="inline-size: 22rem">
     <tanrei-button variant="text" slot="navigation" label="Menú"><span slot="icon">menu</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="Buscar"><span slot="icon">search</span></tanrei-button>
@@ -205,15 +205,15 @@ El título es el nombre de la pantalla y su encabezado. En la web es `headline`,
     <tanrei-button variant="text" slot="navigation" label="Atrás"><span slot="icon">arrow_back</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="Buscar"><span slot="icon">search</span></tanrei-button>
   </tanrei-app-bar>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Un botón de navegación que es un enlace y un activador de búsqueda entre las acciones" plain>
+<Example label="Un botón de navegación que es un enlace y un activador de búsqueda entre las acciones">
   <tanrei-app-bar headline="Pestañas" subtitle="Componentes" heading-level="3" scroll-target="none" style="inline-size: 22rem">
     <tanrei-button variant="text" slot="navigation" href="/es/components/" label="Todos los componentes"><span slot="icon">arrow_back</span></tanrei-button>
     <tanrei-search slot="actions" bar="icon" presentation="dialog" label="Buscar en la documentación" placeholder="Buscar" clear-label="Borrar búsqueda" back-label="Atrás"></tanrei-search>
     <tanrei-button variant="text" slot="actions" label="Más opciones"><span slot="icon">more_vert</span></tanrei-button>
   </tanrei-app-bar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="app-bar" />
 

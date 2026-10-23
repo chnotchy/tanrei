@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="menubar" />
 
-<DemoFrame label="The menus of an editor" column>
+<Example label="The menus of an editor" column>
   <tanrei-menubar label="Application menu" overflow-label="More menus" style="inline-size: 100%">
     <tanrei-menubar-menu label="File">
       <tanrei-menu-item label="New" shortcut="mod+n"></tanrei-menu-item>
@@ -53,7 +53,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
       <tanrei-menu-item label="About"></tanrei-menu-item>
     </tanrei-menubar-menu>
   </tanrei-menubar>
-</DemoFrame>
+</Example>
 
 ### What a menubar is not
 
@@ -149,7 +149,7 @@ On the web the titles and the actions are not drawn until the script has run: th
 
 ### Entries that act
 
-<DemoFrame label="Three menus, an action and two link items, drawn alike" column>
+<Example label="Three menus, an action and two link items, drawn alike" column>
   <tanrei-menubar label="Application menu with entries that act" overflow-label="More" style="inline-size: 100%">
     <tanrei-menubar-menu label="File">
       <tanrei-menu-item label="New"></tanrei-menu-item>
@@ -166,7 +166,7 @@ On the web the titles and the actions are not drawn until the script has run: th
     <tanrei-menubar-item><a href="#entries-that-act">Documentation</a></tanrei-menubar-item>
     <tanrei-menubar-item target-label="opens in a new tab"><a href="#entries-that-act" target="_blank">Source</a></tanrei-menubar-item>
   </tanrei-menubar>
-</DemoFrame>
+</Example>
 
 Before you use a bar item, read when not to use one. A bar item looks exactly like a title that opens a menu, so each one costs a person a moment of doubt about what a press will do.
 
@@ -237,7 +237,7 @@ A link item is the same element around your own anchor: `<tanrei-menubar-item><a
 
 ## Specs
 
-<DemoFrame label="A row with no room for every title folds the rest into one overflow item" plain column>
+<Example label="A row with no room for every title folds the rest into one overflow item" column>
   <tanrei-menubar label="Application menu, narrow" overflow-label="More menus" style="inline-size: 13rem">
     <tanrei-menubar-menu label="File"><tanrei-menu-item label="New"></tanrei-menu-item><tanrei-menu-item label="Open…"></tanrei-menu-item></tanrei-menubar-menu>
     <tanrei-menubar-menu label="Edit"><tanrei-menu-item label="Undo"></tanrei-menu-item><tanrei-menu-item label="Redo"></tanrei-menu-item></tanrei-menubar-menu>
@@ -245,7 +245,7 @@ A link item is the same element around your own anchor: `<tanrei-menubar-item><a
     <tanrei-menubar-menu label="Format" disabled><tanrei-menu-item label="Bold"></tanrei-menu-item></tanrei-menubar-menu>
     <tanrei-menubar-menu label="Help"><tanrei-menu-item label="About"></tanrei-menu-item></tanrei-menubar-menu>
   </tanrei-menubar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="menubar" />
 

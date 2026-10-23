@@ -2,20 +2,20 @@
 title: कार्ड
 description: आपस में जुड़े कॉन्टेंट के एक ग्रुप को उसके बैकग्राउंड से अलग करता है, और वह एक क्रिया हो सकता है जो उसकी दिखाई चीज़ खोलती है, या उस तक ले जाने वाला एक लिंक।
 translationOf: components/card.mdx
-sourceHash: b6fcbfc849d4b1691f4876da47689bf1ed2bb7fb
+sourceHash: a264306df997c4a9cac9eeecd4af1aff5fda9b4a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="card" />
 
-<DemoFrame label="वेरिएंट">
+<Example label="वेरिएंट">
   <tanrei-card style="width: 15rem">
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Outlined</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">पिछली तिमाही के मुक़ाबले राजस्व 12% बढ़ा।</div>
@@ -28,7 +28,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Elevated</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">पिछली तिमाही के मुक़ाबले राजस्व 12% बढ़ा।</div>
   </tanrei-card>
-</DemoFrame>
+</Example>
 
 कार्ड के तीन रूप हैं। सादा कार्ड एक कंटेनर है: उसका कॉन्टेंट अपने सिमैंटिक्स बनाए रखता है और उसमें बटन और लिंक हो सकते हैं। इंटरैक्टिव कार्ड एक बटन है। लिंक कार्ड, यानी `href` वाला कार्ड, एक लिंक है। जब कार्ड को सक्रिय करने से व्यक्ति किसी दूसरे पेज या पते पर पहुँचता हो, तब लिंक कार्ड इस्तेमाल करें, और जब कुछ वहीं होता हो जहाँ व्यक्ति है, तब इंटरैक्टिव कार्ड।
 
@@ -173,7 +173,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 ## स्पेक
 
-<DemoFrame label="फ़्लश, इंटरैक्टिव और अक्षम" plain>
+<Example label="फ़्लश, इंटरैक्टिव और अक्षम">
   <tanrei-card flush style="width: 15rem">
     <div style="height: 5rem; background: var(--tanrei-sys-color-primary-container)"></div>
     <div style="padding: var(--tanrei-comp-card-container-padding); font: var(--tanrei-sys-typescale-body-font)">फ़्लश: कॉन्टेंट किनारों तक पहुँचता है।</div>
@@ -186,9 +186,9 @@ Web और React के उदाहरण मौजूदा स्पेक �
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">तिमाही रिपोर्ट</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">इंटरैक्टिव और अक्षम।</div>
   </tanrei-card>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="लिंक कार्ड" plain>
+<Example label="लिंक कार्ड">
   <tanrei-card href="/hi/components/button/" label="बटन" style="width: 15rem">
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">बटन</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">एक लिंक कार्ड। Enter इसका लिंक खोलती है, और ब्राउज़र का लिंक मेन्यू इस पर काम करता है।</div>
@@ -204,7 +204,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">बटन</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">एक अक्षम लिंक कार्ड: खोलने के लिए कुछ नहीं।</div>
   </tanrei-card>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="card" />
 

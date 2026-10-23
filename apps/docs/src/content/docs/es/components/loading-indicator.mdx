@@ -2,14 +2,14 @@
 title: Indicador de carga
 description: Muestra que hay en curso una espera breve de duración desconocida, en línea o sobre el contenido.
 translationOf: components/loading-indicator.mdx
-sourceHash: 9ce360324a5fe7d64d8c45600b454acdad42f463
+sourceHash: 54d9e2a8b2243f9e2d52da5c42e3a8996a3bf07d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
@@ -19,11 +19,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 Esta página describe el indicador de carga tal como lo define ahora la especificación: espera antes de mostrarse y luego entra. El componente web ya lo hace, y también las demostraciones, que aparecen después del retardo. SwiftUI, Compose, Flutter y React Native están marcados arriba como rezagados: hasta que se pongan al día, dibujan y exponen el indicador en cuanto se inserta, y no admiten las tres propiedades nuevas, así que sus ejemplos de más abajo muestran solo lo que ofrecen.
 :::
 
-<DemoFrame label="En línea y con contenedor">
+<Example label="En línea y con contenedor">
   <tanrei-loading-indicator label="Cargando mensajes"></tanrei-loading-indicator>
   <tanrei-loading-indicator size="large" label="Cargando la galería"></tanrei-loading-indicator>
   <tanrei-loading-indicator contained label="Actualizando"></tanrei-loading-indicator>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -106,14 +106,14 @@ Esta página describe el indicador de carga tal como lo define ahora la especifi
 
 ## Especificaciones
 
-<DemoFrame label="Tamaños, en línea y con contenedor" plain>
+<Example label="Tamaños, en línea y con contenedor">
   <tanrei-loading-indicator size="small" label="Small"></tanrei-loading-indicator>
   <tanrei-loading-indicator size="medium" label="Medium"></tanrei-loading-indicator>
   <tanrei-loading-indicator size="large" label="Large"></tanrei-loading-indicator>
   <tanrei-loading-indicator contained size="small" label="Small, con contenedor"></tanrei-loading-indicator>
   <tanrei-loading-indicator contained size="medium" label="Medium, con contenedor"></tanrei-loading-indicator>
   <tanrei-loading-indicator contained size="large" label="Large, con contenedor"></tanrei-loading-indicator>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="loading-indicator" />
 

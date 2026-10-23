@@ -4,7 +4,7 @@ description: Color roles, the monochrome primary, the single accent, and how eve
 ---
 
 import Callout from '../../../components/Callout.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 import { contrast } from '../../../lib/contrast';
 
 Tanrei never asks a component to pick a color. Components ask for a **role**, such as `primary` or `surface-container`, and the active theme decides which color fills that role. The roles are defined by Tanrei's vocabulary, and their values by each design system's layer.
@@ -45,12 +45,12 @@ The two outline roles look similar and do opposite jobs.
 
 Every theme exists at three contrast levels. **Standard** is the default. **Medium** and **high** move content roles toward the extremes and strengthen both outline roles. On the web, high contrast is applied automatically for `prefers-contrast: more`; the native platforms follow their own system setting. Try it here (the switch applies to the whole page):
 
-<DemoFrame label="Contrast">
+<Example label="Contrast">
   <tanrei-button variant="filled">Filled</tanrei-button>
   <tanrei-button variant="tonal">Tonal</tanrei-button>
   <tanrei-button variant="outlined">Outlined</tanrei-button>
   <tanrei-button variant="text">Text</tanrei-button>
-</DemoFrame>
+</Example>
 
 ## How schemes are generated
 

@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="combobox" />
 
-<DemoFrame label="Bare: a filter in a toolbar, and a row whose label stands beside its combobox" column>
+<Example label="Bare: a filter in a toolbar, and a row whose label stands beside its combobox" column>
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Find a token" placeholder="Find a token" no-chevron empty-text="No matches">
     <span slot="leading-icon">search</span>
     <tanrei-option value="primary" supporting-text="sys.color.primary">primary</tanrei-option>
@@ -28,7 +28,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
       <tanrei-option value="Europe/Berlin">Berlin</tanrei-option>
     </tanrei-combobox>
   </div>
-</DemoFrame>
+</Example>
 
 A combobox is the control of a [combobox field](/components/combobox-field/), alone: the box, the text typed in it, the leading glyph, the clear button and the chevron, and the list with its options, groups and status row. It has no label row above it, and no help and no error text below it.
 
@@ -112,14 +112,14 @@ A field around a combobox is a combobox field written out. Leave the combobox's 
 </tanrei-field>
 ```
 
-<DemoFrame label="A field with a combobox in it: the same picture as a combobox field" column>
+<Example label="A field with a combobox in it: the same picture as a combobox field" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="City" required required-text="Required" supporting-text="Where the order is sent.">
     <tanrei-combobox value="tokyo" empty-text="No matches">
       <tanrei-option value="kyoto">Kyoto</tanrei-option>
       <tanrei-option value="tokyo">Tokyo</tanrei-option>
     </tanrei-combobox>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 The combobox tells its field what only it knows. Its help starts where the text starts, past the padding and a leading glyph. A filled or an outlined combobox draws the field's label itself, floating in the box, so the field draws no label row. And while its list is open it is drawn focused, so the field's label and help are drawn focused with it, whether or not the input has focus.
 
@@ -127,7 +127,7 @@ A press on the field's label moves focus to the input and opens nothing. While t
 
 ## Specs
 
-<DemoFrame label="Bare comboboxes: in error, disabled, read-only, clearable, and large" plain column>
+<Example label="Bare comboboxes: in error, disabled, read-only, clearable, and large" column>
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="City" value="nairobi" error empty-text="No matches">
     <tanrei-option value="nairobi">Nairobi</tanrei-option><tanrei-option value="tokyo">Tokyo</tanrei-option>
   </tanrei-combobox>
@@ -143,16 +143,16 @@ A press on the field's label moves focus to the input and opens nothing. While t
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" size="large" label="City" value="tokyo" empty-text="No matches">
     <tanrei-option value="nairobi">Nairobi</tanrei-option><tanrei-option value="tokyo">Tokyo</tanrei-option>
   </tanrei-combobox>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Filled and outlined bare: the combobox's own label floats in the box" system="m3-like" plain column>
+<Example label="Filled and outlined bare: the combobox's own label floats in the box" system="m3-like" column>
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="City" value="tokyo" empty-text="No matches">
     <tanrei-option value="nairobi">Nairobi</tanrei-option><tanrei-option value="tokyo">Tokyo</tanrei-option>
   </tanrei-combobox>
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="City" empty-text="No matches">
     <tanrei-option value="nairobi">Nairobi</tanrei-option><tanrei-option value="tokyo">Tokyo</tanrei-option>
   </tanrei-combobox>
-</DemoFrame>
+</Example>
 
 ### What is the combobox's, and what is the field's
 

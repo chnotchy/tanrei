@@ -2,24 +2,24 @@
 title: حقل شريط التمرير
 description: يتيح للأشخاص اختيار قيمة، أو مدى من القيم، على سلّم، حقلًا كاملًا واحدًا، فيه المسار تحت تسمية، والقيمة بالكلمات في نهاية صف التسمية، وسطر مساعدة، وسبب رفض القيمة.
 translationOf: components/slider-field.mdx
-sourceHash: dd20a710a125f8735c730d58cb45fb0697ecea0e
+sourceHash: 8694b1314d3a716d57183e53e8dd47c280a18063
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="slider-field" />
 
-<DemoFrame label="حقل شريط تمرير، وآخر مدرَّج، ومدى" column>
+<Example label="حقل شريط تمرير، وآخر مدرَّج، ومدى" column>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" supporting-text="ينطبق على التنبيهات والوسائط." value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="حجم النص" min="50" max="200" step="10" value="120"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="السعر" supporting-text="لليلة الواحدة، قبل الضرائب." range min="0" max="500" step="10" start-value="100" value="300" start-label="أدنى سعر" end-label="أعلى سعر"></tanrei-slider-field>
-</DemoFrame>
+</Example>
 
 استخدم حقل شريط التمرير (slider field) لقيمة تُختار بالإحساس وتُقرأ بعد ذلك بالكلمات: حجم نص مقداره 120%، أو مسافة مقدارها 5 كم، أو سعر من 100 دولار إلى 300 دولار. شريط التمرير وحده ليست له تسمية مرسومة، ومساره لا يقول القيمة التي ضُبط عليها. وحقل شريط التمرير هو الحالة المعتادة، جاهزًا للاستخدام: تسمية، والقيمة بالكلمات، والمسار، وسطر مساعدة، وخطأ.
 
@@ -85,11 +85,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 قيمتا المدى تصل بينهما شرطة متوسطة (en dash)، بترتيب القراءة: ففي تخطيط من اليمين إلى اليسار تقف كلمات البداية في اليمين، حيث مقبض البداية. وحقل شريط التمرير لا يكتب بنفسه عددًا ولا وحدة ولا كلمة.
 
-<DemoFrame label="نص قيمة يشارك التسمية سطرها، وآخر يأخذ سطرًا خاصًّا به، وحقل يخفيه" column>
+<Example label="نص قيمة يشارك التسمية سطرها، وآخر يأخذ سطرًا خاصًّا به، وحقل يخفيه" column>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" value="40" value-indicator="active"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الدخل السنوي قبل الضريبة" range min="0" max="20000000" step="100000" start-value="3400000" value="12500000" start-label="أدنى دخل سنوي" end-label="أعلى دخل سنوي"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="السطوع" value="70" value-hidden></tanrei-slider-field>
-</DemoFrame>
+</Example>
 
 يقف نص القيمة على خط الأساس للسطر الأول من التسمية، وتلتفّ التسمية في المكان المتبقي. وحيث كان ذلك سيترك للتسمية أقل من نصف الصف، يأخذ نص القيمة سطرًا خاصًّا به بعد التسمية، ويلتفّ هناك إن لزم. والخاصية `valueHidden` تحذفه، لشريط تمرير لا يعني عدده شيئًا للشخص: مستوى صوت، أو سطوع. والمقبض يظل يقول قيمته للتقنيات المساعدة.
 
@@ -111,11 +111,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </script>
 ```
 
-<DemoFrame label="الحقل نفسه مكتوبًا باليد: حقل بداخله شريط تمرير، أُعطي نص القيمة مرة واحدة، ومن دون المستمع المكتوب أعلاه لا يبقى متوافقًا مع القيمة" column>
+<Example label="الحقل نفسه مكتوبًا باليد: حقل بداخله شريط تمرير، أُعطي نص القيمة مرة واحدة، ومن دون المستمع المكتوب أعلاه لا يبقى متوافقًا مع القيمة" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="حجم النص" supporting-text="ينطبق على كل صفحة." value-text="120">
     <tanrei-slider min="50" max="200" step="10" value="120"></tanrei-slider>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 انزل إلى هذا المستوى حين تحتاج إلى ترتيب لا يقدّمه حقل شريط التمرير:
 
@@ -131,12 +131,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="مطلوب بكلمة المنتج، واختياري، وفي حالة الخطأ، ومعطَّل" plain column>
+<Example label="مطلوب بكلمة المنتج، واختياري، وفي حالة الخطأ، ومعطَّل" column>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" required required-text="مطلوب" value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" optional optional-text="اختياري" value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" supporting-text="ينطبق على التنبيهات والوسائط." error error-text="اختر مستوى أعلى من 0." value="0"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" supporting-text="ينطبق على التنبيهات والوسائط." disabled value="40"></tanrei-slider-field>
-</DemoFrame>
+</Example>
 
 ### ما يعطيه كل عضو
 

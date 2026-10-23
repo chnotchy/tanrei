@@ -2,27 +2,27 @@
 title: "颜色输入框"
 description: "用户在里面设置一种颜色的那个方框——颜色的样本、可以阅读、键入和粘贴的文本值，以及一个用来请求选择器的按钮——它自己没有标签行、帮助文本和错误文本。用于已经为这种颜色命名的行或列，或者放进产品自己组合的字段里。"
 translationOf: components/color-input.mdx
-sourceHash: 1832342749e78a62e8352e9c60bbc9bace7885d9
+sourceHash: 0999afc891925277301cd2b28ed9cdb4fb54d9d0
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="color-input" />
 
-<DemoFrame label="单独使用：一列色调中的各行，每个输入框由它所在的行命名" column>
+<Example label="单独使用：一列色调中的各行，每个输入框由它所在的行命名" column>
   <div class="not-content" style="display: grid; grid-template-columns: auto 14rem; align-items: center; gap: 0.5rem 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
     <span>色调 40</span>
     <tanrei-color-input label="主色，色调 40" value="#0f766e" picker picker-label="选择“主色，色调 40”的颜色"></tanrei-color-input>
     <span>色调 80</span>
     <tanrei-color-input label="主色，色调 80" value="#5eead4" picker picker-label="选择“主色，色调 80”的颜色"></tanrei-color-input>
   </div>
-</DemoFrame>
+</Example>
 
 颜色输入框就是[颜色字段](/zh-cn/components/color-field/)里的那个方框，单独拿出来：容器、色块、以文本形式呈现的值，以及选择器按钮。它上方没有标签行，下方没有帮助文本和错误文本。
 
@@ -95,29 +95,29 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="里面放着一个颜色输入框的字段：画面与颜色字段相同" column>
+<Example label="里面放着一个颜色输入框的字段：画面与颜色字段相同" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="品牌色" required required-text="必填" supporting-text="六位十六进制数字，例如 #0f766e。">
     <tanrei-color-input value="#0f766e" invalid-text="请输入六位十六进制数字，例如 #0f766e。" picker picker-label="选择颜色"></tanrei-color-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 只有输入框知道的事，由它告诉所在的字段。字段的帮助文本从值的文本开始的位置开始，也就是色块之后。filled 或 outlined 的输入框自己画出字段的标签，让它浮在方框里，所以字段不绘制标签行。确认的文本不是颜色时，字段会进入错误状态，显示输入框的 `invalidText`。
 
 ## 规格
 
-<DemoFrame label="单独使用的输入框：空的、白色、黑色、错误、禁用，以及带选择器按钮的大号" plain column>
+<Example label="单独使用的输入框：空的、白色、黑色、错误、禁用，以及带选择器按钮的大号" column>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="强调色"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="页面背景" value="#ffffff"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="文本" value="#000000"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="品牌色" value="#fde047" error></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="品牌色" value="#0f766e" disabled picker picker-label="选择颜色"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" size="large" label="品牌色" value="#0f766e" picker picker-label="选择颜色"></tanrei-color-input>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="单独使用的 filled 和 outlined：输入框自己的标签浮在方框里" system="m3-like" plain column>
+<Example label="单独使用的 filled 和 outlined：输入框自己的标签浮在方框里" system="m3-like" column>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="品牌色" value="#0f766e"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="品牌色"></tanrei-color-input>
-</DemoFrame>
+</Example>
 
 ### 哪些属于输入框，哪些属于字段
 

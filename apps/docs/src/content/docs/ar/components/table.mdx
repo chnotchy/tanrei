@@ -2,14 +2,14 @@
 title: الجدول
 description: يعرض بيانات لها صفوف وأعمدة، بأعمدة مسمّاة، ومعه اختياريًّا ترويسات صفوف وشرح وصفوف تذييل. يُمرَّر داخل صندوقه حين لا يتسع له المكان. تستطيع ترويسة العمود أن تطلب الصفوف بترتيبه، ويمكن اختيار الصفوف؛ أما الجدول نفسه فلا يفرز أبدًا.
 translationOf: components/table.mdx
-sourceHash: 388549568f8a91ecb1e49333233b422d57daae1f
+sourceHash: 88d81c83a94e4a8312f1b69b16fb0422435b036d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import SortedByThePage from '../../../../components/SortedByThePage.astro';
 import CountedByThePage from '../../../../components/CountedByThePage.astro';
 
@@ -17,7 +17,7 @@ import CountedByThePage from '../../../../components/CountedByThePage.astro';
 
 <ComponentAvailability name="table" />
 
-<DemoFrame label="ترويسات صفوف، وأرقام في النهاية، ثم صف تذييل">
+<Example label="ترويسات صفوف، وأرقام في النهاية، ثم صف تذييل">
   <tanrei-table class="tanrei-not-prose" row-headers>
     <table>
       <caption>المكوّنات بحسب الحالة والمنصة</caption>
@@ -34,7 +34,7 @@ import CountedByThePage from '../../../../components/CountedByThePage.astro';
       </tfoot>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 الجدول لبيانات لها بُعدان: قائمة أسعار، أو مقارنة بين خطط، أو قائمة إعدادات مع أنواعها وقيمها الافتراضية، أو حالة عدة أشياء على عدة منصات، أو السجلات التي يعمل عليها الشخص. تستطيع ترويسة العمود أن تطلب الصفوف بترتيبه، والجدول الذي بلا صفوف يعرض حالتك الفارغة، وسطر حالة تحت الصفوف يحمل جملتك ومكوّن التنقل بين الصفحات الخاص بك. ويمكن اختيار الصفوف، ولكل صف خانة اختيار، أو اختيار صف واحد بزر اختيار، والجدول الذي ينتظر صفوفه يقول إنه مشغول. أما الجدول نفسه فلا يفرز ولا يصفّي ولا يجلب ولا يقسّم إلى صفحات أبدًا: يرسم الصفوف التي تُعطى له، بالترتيب الذي تُعطى به. ولا يغيّر عرض الأعمدة.
 
@@ -119,7 +119,7 @@ import CountedByThePage from '../../../../components/CountedByThePage.astro';
 
 <SortedByThePage />
 
-<DemoFrame label="اضغط ترويسة: الجدول يطلب، وهذه الصفحة ترتّب الصفوف" plain>
+<Example label="اضغط ترويسة: الجدول يطلب، وهذه الصفحة ترتّب الصفوف">
   <tanrei-table class="tanrei-not-prose" data-docs-sorts>
     <table>
       <caption>المنتجات</caption>
@@ -134,7 +134,7 @@ import CountedByThePage from '../../../../components/CountedByThePage.astro';
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 العمود القابل للفرز خلية ترويسة تقول الترتيب الذي عليه الصفوف، وحول نصها زر من عندك:
 
@@ -161,7 +161,7 @@ table.addEventListener('sort', (event) => {
 
 ### بلا صفوف
 
-<DemoFrame label="بلا صفوف: حالتك الفارغة تحت صف الترويسة" plain>
+<Example label="بلا صفوف: حالتك الفارغة تحت صف الترويسة">
   <tanrei-table class="tanrei-not-prose">
     <table>
       <caption>المنتجات المطابقة</caption>
@@ -173,7 +173,7 @@ table.addEventListener('sort', (event) => {
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 اكتب صفًّا واحدًا من خلية واحدة تمتد على الأعمدة، وضع فيه حالتك الفارغة:
 
@@ -189,7 +189,7 @@ table.addEventListener('sort', (event) => {
 
 ### سطر الحالة
 
-<DemoFrame label="جملتك ومكوّن التنقل بين الصفحات الخاص بك، تحت الصفوف" plain>
+<Example label="جملتك ومكوّن التنقل بين الصفحات الخاص بك، تحت الصفوف">
   <tanrei-table class="tanrei-not-prose" sticky-header style="max-block-size: 20rem">
     <table>
       <caption>الإصدارات، الأحدث أولًا</caption>
@@ -217,7 +217,7 @@ table.addEventListener('sort', (event) => {
       </div>
     </div>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 بعد الجدول، داخل العنصر، اكتب سطر الحالة: جملتك في فقرة هي حالة (status)، ومكوّن التنقل بين الصفحات الخاص بك.
 
@@ -239,7 +239,7 @@ table.addEventListener('sort', (event) => {
 
 <CountedByThePage />
 
-<DemoFrame label="اختر صفوفًا: الجدول يحتفظ بالاختيار، وهذه الصفحة تعدّه" plain>
+<Example label="اختر صفوفًا: الجدول يحتفظ بالاختيار، وهذه الصفحة تعدّه">
   <tanrei-table class="tanrei-not-prose" selection="multiple" row-headers select-all-label="تحديد كل المنتجات" data-docs-counts="تم تحديد {count} من 4">
     <table>
       <caption>منتجات يُعاد طلبها</caption>
@@ -255,7 +255,7 @@ table.addEventListener('sort', (event) => {
     </table>
     <div data-part="status"><p role="status">تم تحديد 2 من 4</p></div>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 عيِّن `selection="multiple"` على العنصر، وابدأ كل صف بخلية اختيار. في صف الترويسة تحمل هذه الخلية خانة الاختيار لكل الصفوف. وفي صف من المتن تحمل خانة اختيار ذلك الصف، ويحمل الصف في `data-value` الاسم الذي تعرف به السجل:
 
@@ -313,7 +313,7 @@ table.addEventListener('selectionchange', (event) => {
 
 ### اختيار صف واحد
 
-<DemoFrame label="اختيار صف واحد: زر اختيار في كل صف، ولا شيء في الترويسة" plain>
+<Example label="اختيار صف واحد: زر اختيار في كل صف، ولا شيء في الترويسة">
   <tanrei-table class="tanrei-not-prose" selection="single" row-headers>
     <table>
       <caption>الخطة التي ستنتقل إليها</caption>
@@ -327,7 +327,7 @@ table.addEventListener('selectionchange', (event) => {
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 حيث يختار الشخص سجلًا واحدًا (الخطة التي ينتقل إليها، أو عنوان الشحن، أو البنية التي يقارن بها)، عيِّن `selection="single"`. تحمل خلية الاختيار في كل صف من صفوف المتن زر اختيار بدل خانة الاختيار، وتبقى خلية الاختيار في صف الترويسة فارغة، لأنه لا عنصر تحكم ينوب عن كل الصفوف:
 
@@ -357,7 +357,7 @@ table.addEventListener('selectionchange', (event) => {
 
 ### التحميل
 
-<DemoFrame label="التحميل: صفوف نائبة، وسطر الحالة يقول ذلك" plain>
+<Example label="التحميل: صفوف نائبة، وسطر الحالة يقول ذلك">
   <tanrei-table class="tanrei-not-prose" loading>
     <table>
       <caption>طلبات هذا الأسبوع</caption>
@@ -372,7 +372,7 @@ table.addEventListener('selectionchange', (event) => {
     </table>
     <div data-part="status"><p role="status">جارٍ التحميل</p></div>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 عيِّن `loading` ما دمت تجلب الصفوف. يُعرَض الجدول للتقنيات المساعدة مشغولًا ويرسم ما تعطيه إياه في أثناء ذلك. لا يجلب شيئًا ولا ينتظر شيئًا: هو في حالة تحميل ما دمت أنت تقول ذلك.
 
@@ -419,7 +419,7 @@ export function rehypeTanreiTable() {
 
 ## المواصفات
 
-<DemoFrame label="مضغوط وبصفوف مظلَّلة بالتناوب، لجدول يمسحه الشخص بنظره" plain>
+<Example label="مضغوط وبصفوف مظلَّلة بالتناوب، لجدول يمسحه الشخص بنظره">
   <tanrei-table class="tanrei-not-prose" density="compact" striped label="رموز الجدول">
     <table>
       <thead>
@@ -435,9 +435,9 @@ export function rehypeTanreiTable() {
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="أعرض من صندوقه: يُمرَّر هناك، ويبقى العمود الأول" plain>
+<Example label="أعرض من صندوقه: يُمرَّر هناك، ويبقى العمود الأول">
   <tanrei-table class="tanrei-not-prose" row-headers sticky-first-column style="max-inline-size: 30rem">
     <table>
       <caption>الزيارات بحسب المنطقة</caption>
@@ -452,9 +452,9 @@ export function rehypeTanreiTable() {
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="ارتفاع يحدّده التخطيط: تُمرَّر الصفوف، وتبقى الترويسة" plain>
+<Example label="ارتفاع يحدّده التخطيط: تُمرَّر الصفوف، وتبقى الترويسة">
   <tanrei-table class="tanrei-not-prose" sticky-header style="max-block-size: 14rem">
     <table>
       <caption>الإصدارات</caption>
@@ -472,7 +472,7 @@ export function rehypeTanreiTable() {
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="table" />
 

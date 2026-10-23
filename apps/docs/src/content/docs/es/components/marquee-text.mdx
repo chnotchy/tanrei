@@ -2,23 +2,23 @@
 title: Texto en marquesina
 description: Una línea de texto que no cabe en su sitio. En reposo se corta con puntos suspensivos, y mientras dura su activador se desplaza de lado a un ritmo constante para mostrarse entera. Solo se mueve cuando el texto desborda, nunca donde el movimiento está reducido, y se lee una vez, entero.
 translationOf: components/marquee-text.mdx
-sourceHash: dc5686cec00458180eb8990a3c8f28e770f7fd10
+sourceHash: 5e8fad528fe680de811c7c8091d796a52019ceac
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="marquee-text" />
 
-<DemoFrame label="Un título que no cabe y otro que sí">
+<Example label="Un título que no cabe y otro que sí">
   <tanrei-marquee-text style="inline-size: min(100%, 14rem)">Pista 7 — Un título muy largo que no cabe en la fila en la que está</tanrei-marquee-text>
   <tanrei-marquee-text style="inline-size: min(100%, 14rem)">Título corto</tanrei-marquee-text>
-</DemoFrame>
+</Example>
 
 Un texto en marquesina es una línea del texto del producto en un sitio demasiado estrecho para ella. En reposo se lee como cualquier línea cortada: empieza en el inicio de la línea y termina con puntos suspensivos donde se corta. Mientras dura su activador (de forma predeterminada, mientras el puntero está encima o el control en el que está tiene el foco del teclado), se desplaza de lado a un ritmo constante, expresado en píxeles por segundo, de modo que cada parte del texto pasa por la vista; luego vuelve a su inicio y se detiene. Pon el puntero sobre la primera línea de arriba. La segunda cabe, así que nunca se mueve: un texto en marquesina cuyo texto cabe es una línea de texto sin más.
 

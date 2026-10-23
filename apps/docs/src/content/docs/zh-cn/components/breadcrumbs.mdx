@@ -2,26 +2,26 @@
 title: "面包屑"
 description: "页面在页面层级结构中的位置，以及沿层级往回走的路。上面的各级是链接，从顶层起依次排列，页面本身排在最后。"
 translationOf: components/breadcrumbs.mdx
-sourceHash: 05f7e32b5c5664f5cdf25c871df7f7a46deee3f0
+sourceHash: 07b8a95ffed90e5a92dae40da02c053bda503dc9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="breadcrumbs" />
 
-<DemoFrame label="三个层级的面包屑" column>
+<Example label="三个层级的面包屑" column>
   <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="此演示的面包屑" overflow-label="显示隐藏的层级">
     <a href="#概览">首页</a>
     <a href="#概览">组件</a>
     <span aria-current="page">面包屑</span>
   </tanrei-breadcrumbs>
-</DemoFrame>
+</Example>
 
 面包屑显示的是页面在层级结构中的位置，而不是用户来到这里所走的路。在页面位于其他页面之内、深度达到三级或更多的地方使用它。
 
@@ -89,7 +89,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 
 ## 规格
 
-<DemoFrame label="没有页面的层级；作为链接的当前页面；止于父级的面包屑" plain column>
+<Example label="没有页面的层级；作为链接的当前页面；止于父级的面包屑" column>
   <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="此演示中没有页面的层级" overflow-label="显示隐藏的层级">
     <a href="#规格">首页</a>
     <span>基础</span>
@@ -104,9 +104,9 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
     <a href="#规格" data-icon="home" data-icon-only>首页</a>
     <a href="#规格">组件</a>
   </tanrei-breadcrumbs>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="只在悬停、聚焦或按下时显示的下划线；以及从不显示" plain column>
+<Example label="只在悬停、聚焦或按下时显示的下划线；以及从不显示" column>
   <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="此演示中只在某种状态下带下划线的面包屑" overflow-label="显示隐藏的层级" underline="hover">
     <a href="#规格">首页</a>
     <a href="#规格">组件</a>
@@ -117,9 +117,9 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
     <a href="#规格">组件</a>
     <span aria-current="page">面包屑</span>
   </tanrei-breadcrumbs>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="窄栏里的长面包屑：折叠的，以及换行的" plain column>
+<Example label="窄栏里的长面包屑：折叠的，以及换行的" column>
   <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="此演示中折叠的面包屑" overflow-label="显示隐藏的层级" style="inline-size: 24rem; max-inline-size: 100%">
     <a href="#规格">首页</a>
     <a href="#规格">文档</a>
@@ -136,7 +136,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
     <a href="#规格">组件令牌</a>
     <span aria-current="page">禁用的容器是怎样推导出来的</span>
   </tanrei-breadcrumbs>
-</DemoFrame>
+</Example>
 
 - 在默认系统中，**通向某个地方的层级带下划线**。在那里，表明某一级是链接的是下划线，而不是颜色，与句子里的链接一样。没有目的地的层级是次要文本。当前页面的字重更重，用文本颜色，从不带下划线。
 - **什么时候画下划线是一项选择。** `underline="hover"` 只在某一级处于悬停、键盘聚焦或按下状态时画它。`underline="never"` 完全不画。不写这个属性时，面包屑跟随 `comp.breadcrumbs.underline.visibility`，而它又跟随设计系统为所有文本链接所做的选择。只有在链接颜色与文本颜色区分得开的地方，才选择 `hover` 或 `never`。强制颜色模式下总是会画出这条线。

@@ -2,20 +2,20 @@
 title: "链接"
 description: "通向某个地方的文本：句子里的一个短语、单独的一行，或者只有一个字形。文本样式随所在位置而定，下划线按你的设计系统的选择绘制，离开本站的链接会带上标记。"
 translationOf: components/link.mdx
-sourceHash: f0fa00fc6cf51c83e20f611d66798ad0f25346c1
+sourceHash: 9b8d84836c01c4321968380baaeb61b4d1c2d871
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="link" />
 
-<DemoFrame label="在句子里、单独一行、只有一个字形" column>
+<Example label="在句子里、单独一行、只有一个字形" column>
   <p style="margin: 0; max-inline-size: 32rem">
     令牌会为每个平台生成。请阅读<a class="tanrei-link" href="../../foundations/design-tokens/">令牌是如何推导出来的</a>，或者查看<a class="tanrei-link" href="https://example.com/tanrei" target="_blank" aria-description="在新标签页中打开">源代码</a>。
   </p>
@@ -25,7 +25,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <p style="margin: 0">
     <a class="tanrei-link" href="#概览" aria-label="指向“概览”的链接"><span class="tanrei-icon" aria-hidden="true">link</span></a>
   </p>
-</DemoFrame>
+</Example>
 
 有一条规则，产品不用查表就能照着做：**有地址的是链接，没有地址的是按钮。** 在页面上执行某件事、不通向任何地方的控件是[按钮](../button/)；如果它应该像文本一样低调，就用 text 变体。应该看起来像按钮的目的地，是带 `href` 的按钮。
 
@@ -118,42 +118,42 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 
 ## 规格
 
-<DemoFrame label="换行：下划线、状态层和焦点环跟随每一行" plain>
+<Example label="换行：下划线、状态层和焦点环跟随每一行">
   <p style="margin: 0; max-inline-size: 22rem">
     <a class="tanrei-link" href="../../foundations/accessibility/">无障碍指南，其中说明了每个组件如何命名、如何用键盘到达和操作，以及状态变化时各个平台会朗读什么</a>
   </p>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="字形和新标签页标记" plain column>
+<Example label="字形和新标签页标记" column>
   <a class="tanrei-link" data-standalone href="../../foundations/design-tokens/"><span class="tanrei-icon" aria-hidden="true">download</span>下载令牌</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="在新标签页中打开">查看源代码</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="在新标签页中打开"><span class="tanrei-icon" aria-hidden="true">code</span>查看源代码</a>
   <a class="tanrei-link" data-standalone data-icon-position="trailing" href="https://example.com/tanrei" target="_blank" aria-description="在新标签页中打开">查看源代码<span class="tanrei-icon" aria-hidden="true">code</span></a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="当前和禁用" plain>
+<Example label="当前和禁用">
   <a class="tanrei-link" data-standalone href="../">概览</a>
   <a class="tanrei-link" data-standalone href="./" aria-current="page">组件</a>
   <a class="tanrei-link" data-standalone role="link" aria-disabled="true">上一页</a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="下划线：始终、悬停时、从不" plain>
+<Example label="下划线：始终、悬停时、从不">
   <a class="tanrei-link" data-standalone data-underline="always" href="../button/">始终</a>
   <a class="tanrei-link" data-standalone data-underline="hover" href="../button/">悬停时</a>
   <a class="tanrei-link" data-standalone data-underline="never" href="../button/">从不</a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="离开本站的链接" plain column>
+<Example label="离开本站的链接" column>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="外部链接">规格说明</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="外部链接"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />规格说明</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" target="_blank" aria-description="在新标签页中打开"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />规格说明</a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="在反色表面上" plain>
+<Example label="在反色表面上">
   <div style="padding: var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-inverse-surface); color: var(--tanrei-sys-color-inverse-on-surface)">
     页面已保存。查看<a class="tanrei-link" data-variant="inverse" href="../snackbar/">更改内容</a>。
   </div>
-</DemoFrame>
+</Example>
 
 链接不带自己的文本样式：无论在段落、标题、说明文字还是表格单元格里，它都沿用所在文本的字体族、字号、字重和行高。悬停、聚焦和按下画在它所经过的每一行的文字背后，不占空间，所以链接周围的任何东西都不会移动。字形、网站的图标和标记与文字一样大，并与旁边的词留在同一行。
 

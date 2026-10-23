@@ -2,20 +2,20 @@
 title: Tarjeta
 description: Separa de su fondo un grupo de contenido relacionado, y puede ser una sola acción que abre lo que muestra o un solo enlace hacia ello.
 translationOf: components/card.mdx
-sourceHash: b6fcbfc849d4b1691f4876da47689bf1ed2bb7fb
+sourceHash: a264306df997c4a9cac9eeecd4af1aff5fda9b4a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="card" />
 
-<DemoFrame label="Variantes">
+<Example label="Variantes">
   <tanrei-card style="width: 15rem">
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Outlined</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">Los ingresos crecieron un 12% respecto al trimestre anterior.</div>
@@ -28,7 +28,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Elevated</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">Los ingresos crecieron un 12% respecto al trimestre anterior.</div>
   </tanrei-card>
-</DemoFrame>
+</Example>
 
 Una tarjeta tiene tres formas. Una tarjeta simple es un contenedor: su contenido conserva su propia semántica y puede incluir botones y enlaces. Una tarjeta interactiva es un solo botón. Una tarjeta de enlace, es decir, una tarjeta con `href`, es un solo enlace. Usa una tarjeta de enlace cuando activarla lleve a la persona a otra página o dirección, y una tarjeta interactiva cuando algo ocurra donde la persona está.
 
@@ -173,7 +173,7 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
 
 ## Especificaciones
 
-<DemoFrame label="A ras, interactiva y deshabilitada" plain>
+<Example label="A ras, interactiva y deshabilitada">
   <tanrei-card flush style="width: 15rem">
     <div style="height: 5rem; background: var(--tanrei-sys-color-primary-container)"></div>
     <div style="padding: var(--tanrei-comp-card-container-padding); font: var(--tanrei-sys-typescale-body-font)">A ras: el contenido llega a los bordes.</div>
@@ -186,9 +186,9 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Informe trimestral</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">Interactiva y deshabilitada.</div>
   </tanrei-card>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Tarjetas de enlace" plain>
+<Example label="Tarjetas de enlace">
   <tanrei-card href="/es/components/button/" label="Botón" style="width: 15rem">
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Botón</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">Una tarjeta de enlace. Enter la sigue, y el menú de enlaces del navegador funciona en ella.</div>
@@ -204,7 +204,7 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Botón</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">Una tarjeta de enlace deshabilitada: no hay nada que seguir.</div>
   </tanrei-card>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="card" />
 

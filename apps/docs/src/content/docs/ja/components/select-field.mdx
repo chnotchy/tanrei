@@ -2,20 +2,20 @@
 title: セレクトフィールド
 description: 決まったリストの中から 1 つの値を、完成した 1 つのフォームのフィールドとして選べるようにします。必須または任意であることを伝えられるラベル、選ばれているオプションを表示してオプションのリストを開くトリガー、下に置く補足またはエラーの 1 行から成り、支援技術に対して 1 つにまとめられ、フォームには 1 つのコントロールとして加わります。
 translationOf: components/select-field.mdx
-sourceHash: c59acbc263b452b95f47f54facb5c9bd12df3fbc
+sourceHash: 83e74269c2603748840d4fd41ecbad498dca5c0c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="select-field" />
 
-<DemoFrame label="必須のセレクトフィールドと、グループに分けてフィールドを表すグリフを置いたもの" column>
+<Example label="必須のセレクトフィールドと、グループに分けてフィールドを表すグリフを置いたもの" column>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国" required required-text="必須" placeholder="国を選択" supporting-text="請求書の宛先になります。">
     <tanrei-option value="ca">カナダ</tanrei-option>
     <tanrei-option value="fr">フランス</tanrei-option>
@@ -28,7 +28,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-option-group label="アジア"><tanrei-option value="Asia/Tokyo" supporting-text="UTC+9">東京</tanrei-option><tanrei-option value="Asia/Seoul" supporting-text="UTC+9">ソウル</tanrei-option></tanrei-option-group>
     <tanrei-option-group label="ヨーロッパ"><tanrei-option value="Europe/Lisbon" supporting-text="UTC+0">リスボン</tanrei-option><tanrei-option value="Europe/Berlin" supporting-text="UTC+1">ベルリン</tanrei-option></tanrei-option-group>
   </tanrei-select-field>
-</DemoFrame>
+</Example>
 
 セレクトフィールドは、フォームの中で、あらかじめ決まっていて、ほかの値を受け付けないリストから 1 つの値を選ぶときに使います。国、タイムゾーン、プランなどです。ラベル、選ばれているオプションを表示してリストを開くボックス、補足の 1 行、値を受け付けなかったときの言葉という、いつもの組み合わせが、そのまま使える形でそろっています。
 
@@ -104,14 +104,14 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select-field>` です。
 </tanrei-field>
 ```
 
-<DemoFrame label="同じフィールドを自分で書いたもの。フィールドの中にセレクトがあります" column>
+<Example label="同じフィールドを自分で書いたもの。フィールドの中にセレクトがあります" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国" required required-text="必須" supporting-text="請求書の宛先になります。">
     <tanrei-select placeholder="国を選択">
       <tanrei-option value="jp">日本</tanrei-option>
       <tanrei-option value="ke">ケニア</tanrei-option>
     </tanrei-select>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 セレクトフィールドにない並べ方が必要なときに、1 つ下の階層で書きます。
 
@@ -126,7 +126,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select-field>` です。
 
 ## 仕様
 
-<DemoFrame label="補足テキストと無効なオプション、任意、エラー、読み取り専用、無効" plain column>
+<Example label="補足テキストと無効なオプション、任意、エラー、読み取り専用、無効" column>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="プラン" value="team">
     <tanrei-option value="free" supporting-text="プロジェクト 1 つ、コミュニティサポート">フリー</tanrei-option>
     <tanrei-option value="team" supporting-text="プロジェクト無制限、ロールの共有">チーム</tanrei-option>
@@ -144,16 +144,16 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select-field>` です。
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国" value="jp" disabled>
     <tanrei-option value="jp">日本</tanrei-option><tanrei-option value="ke">ケニア</tanrei-option>
   </tanrei-select-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Filled と Outlined。フィールドのラベルがセレクトのボックスの中で浮き上がり、必須のフィールドにはアスタリスクが付きます" system="m3-like" plain column>
+<Example label="Filled と Outlined。フィールドのラベルがセレクトのボックスの中で浮き上がり、必須のフィールドにはアスタリスクが付きます" system="m3-like" column>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="国" value="jp" supporting-text="請求書の宛先になります。">
     <tanrei-option value="jp">日本</tanrei-option><tanrei-option value="ke">ケニア</tanrei-option>
   </tanrei-select-field>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="国" required required-text="必須">
     <tanrei-option value="jp">日本</tanrei-option><tanrei-option value="ke">ケニア</tanrei-option>
   </tanrei-select-field>
-</DemoFrame>
+</Example>
 
 ### それぞれの構成要素が受け持つもの
 

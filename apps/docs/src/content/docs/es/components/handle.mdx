@@ -2,20 +2,20 @@
 title: Tirador de tamaño
 description: La marca que una persona arrastra, o mueve con el teclado, para cambiar el tamaño de lo que la lleva — una hoja, un campo, un panel, el marco de una vista previa. Una línea corta para una dirección, un arco de un cuarto de círculo para dos. Informa de cuánto se movió; el tamaño lo cambia su dueño.
 translationOf: components/handle.mdx
-sourceHash: 8955a734232bc0ade6255485b375c3b4b8e433b8
+sourceHash: 7d140675b426695f97f08e12810e1f2f8f5aef93
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="handle" />
 
-<DemoFrame label="Un tirador que cambia una altura, uno que cambia una anchura y uno en una esquina que cambia las dos">
+<Example label="Un tirador que cambia una altura, uno que cambia una anchura y uno en una esquina que cambia las dos">
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle label="Cambiar el tamaño de las notas" value="4" min="2" max="12" value-text="4 líneas" revealed style="justify-self: center; align-self: end"></tanrei-handle>
   </div>
@@ -25,7 +25,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle axis="both" label="Cambiar el tamaño del mensaje" value="6" min="3" max="12" value-text="6 líneas" revealed style="justify-self: end; align-self: end"></tanrei-handle>
   </div>
-</DemoFrame>
+</Example>
 
 Un tirador de tamaño está en un borde o en una esquina de algo cuyo tamaño una persona puede cambiar: el borde superior de una hoja, la esquina inferior de un campo de texto, el borde de un panel o de una vista previa. Si se arrastra, informa de cuánto se movió; si se mueve con el teclado, de qué paso se pidió; si se pulsa sin arrastrar, de eso. Nunca cambia el tamaño de nada por sí mismo. El tamaño lo guarda aquello sobre lo que está, que también decide qué es un paso y le devuelve el tamaño al tirador para que la tecnología de asistencia pueda leerlo.
 
@@ -88,14 +88,14 @@ En la web es `<tanrei-handle>`. Las demás plataformas aún no lo han implementa
 
 ## Especificaciones
 
-<DemoFrame label="Oculto hasta que se usa: pasa el puntero por encima o llega a él con Tab" plain>
+<Example label="Oculto hasta que se usa: pasa el puntero por encima o llega a él con Tab">
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle label="Cambiar el tamaño del panel" value="30" style="justify-self: center; align-self: end"></tanrei-handle>
   </div>
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-small) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle axis="both" size="small" label="Cambiar el tamaño del comentario" value="3" style="justify-self: end; align-self: end"></tanrei-handle>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="handle" />
 

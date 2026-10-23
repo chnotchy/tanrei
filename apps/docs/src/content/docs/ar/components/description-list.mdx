@@ -2,20 +2,20 @@
 title: قائمة الوصف
 description: تعرض ما يُعرف عن شيء واحد معلوماتٍ مسمّاة، لكل منها مصطلح هادئ وقيمة تجيب عنه، والمصطلحات بجانب قيمها أو فوقها أو تحت رقم كبير. يحدّد تخطيطَها عرضُها هي، وليست عنصر تحكم أبدًا.
 translationOf: components/description-list.mdx
-sourceHash: 19b77e343ee682dd4da1249daeb3a93d679c1efb
+sourceHash: 77ff09c568150926010e4d5f42596663265fd01a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="description-list" />
 
-<DemoFrame label="معلومات طلب" column>
+<Example label="معلومات طلب" column>
   <tanrei-description-list style="inline-size: min(100%, 30rem)">
     <dl>
       <div><dt>الطلب</dt><dd>A-20418</dd></div>
@@ -25,7 +25,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <div><dt>الإجمالي</dt><dd>¥ 12,800</dd></div>
     </dl>
   </tanrei-description-list>
-</DemoFrame>
+</Example>
 
 قائمة الوصف (description list) تعرض معلومات شيء واحد: طلب، أو ملف، أو حساب، أو مكوّن. كل معلومة مصطلح وقيمة تجيب عنه. المصطلح تسمية هادئة؛ والقيمة هي ما جاء الشخص من أجله.
 
@@ -96,7 +96,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="التخطيط stat: الأرقام التي تُفتتح بها الشاشة" plain column>
+<Example label="التخطيط stat: الأرقام التي تُفتتح بها الشاشة" column>
   <tanrei-description-list layout="stat" columns="3" separation="gap" style="inline-size: 100%">
     <dl>
       <div><dt>طلبات هذا الأسبوع</dt><dd>1,284</dd><dd>بزيادة 12% عن الأسبوع الماضي</dd></div>
@@ -104,9 +104,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <div><dt>وسيط زمن البناء</dt><dd>4 د 12 ث</dd></div>
     </dl>
   </tanrei-description-list>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="التخطيط stacked في أعمدة: يقلّ عددها حين تضيق القائمة" plain column>
+<Example label="التخطيط stacked في أعمدة: يقلّ عددها حين تضيق القائمة" column>
   <tanrei-description-list layout="stacked" columns="3" style="inline-size: 100%">
     <dl>
       <div><dt>مخطَّط</dt><dd>له مواصفة، ولم يُنفَّذ بعد على هذه المنصة.</dd></div>
@@ -117,9 +117,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <div><dt>مهمَل</dt><dd>ما زال متاحًا، وقد سُمّي بديله.</dd></div>
     </dl>
   </tanrei-description-list>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="الكثافة compact، والفصل بالفراغ: معلومات يمسحها الشخص بنظره" plain column>
+<Example label="الكثافة compact، والفصل بالفراغ: معلومات يمسحها الشخص بنظره" column>
   <tanrei-description-list density="compact" separation="gap" style="inline-size: min(100%, 26rem)">
     <dl>
       <div><dt>القيمة</dt><dd>#1b1c1e</dd><dd>→ ref.palette.neutral.10</dd></div>
@@ -127,7 +127,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <div><dt>الوصف</dt><dd>النص ورسوم الأيقونات على أي سطح أو حاوية سطح.</dd></div>
     </dl>
   </tanrei-description-list>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="description-list" />
 

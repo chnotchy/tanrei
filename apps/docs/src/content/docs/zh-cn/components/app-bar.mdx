@@ -2,14 +2,14 @@
 title: "应用栏"
 description: "位于屏幕顶部，标明当前屏幕的名称，并容纳返回入口和该屏幕的少量操作。它的底边作为屏幕页眉的边缘始终存在；内容滚动到它下方后，它呈现滚动后的外观。"
 translationOf: components/app-bar.mdx
-sourceHash: 6cfec147d94cc9b488a1e09aa54d25c3d7b2351b
+sourceHash: 9a0ed3cf003d8c3fe796a8f2f2d585e762a46c26
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
@@ -17,13 +17,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 Web 和 React 的示例展示的是当前规格：应用栏中的项是纯图标的[按钮](/zh-cn/components/button/)。SwiftUI、Compose、Flutter 和 React Native 待跟进，它们提供的仍是上一版，其中图标按钮是一个独立的组件；在跟上之前，这些平台的示例展示的是上一版。
 
-<DemoFrame label="带返回按钮和两个操作的小号应用栏">
+<Example label="带返回按钮和两个操作的小号应用栏">
   <tanrei-app-bar headline="收件箱" heading-level="3" scroll-target="none" style="inline-size: 22rem">
     <tanrei-button variant="text" slot="navigation" label="返回"><span slot="icon">arrow_back</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="搜索"><span slot="icon">search</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="更多选项"><span slot="icon">more_vert</span></tanrei-button>
   </tanrei-app-bar>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -195,7 +195,7 @@ Web 和 React 的示例展示的是当前规格：应用栏中的项是纯图标
 
 ## 规格
 
-<DemoFrame label="带副标题的大号应用栏，以及标题居中的应用栏" plain column>
+<Example label="带副标题的大号应用栏，以及标题居中的应用栏" column>
   <tanrei-app-bar size="large" headline="收件箱" subtitle="ada@example.com" heading-level="3" scroll-target="none" style="inline-size: 22rem">
     <tanrei-button variant="text" slot="navigation" label="菜单"><span slot="icon">menu</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="搜索"><span slot="icon">search</span></tanrei-button>
@@ -205,15 +205,15 @@ Web 和 React 的示例展示的是当前规格：应用栏中的项是纯图标
     <tanrei-button variant="text" slot="navigation" label="返回"><span slot="icon">arrow_back</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="搜索"><span slot="icon">search</span></tanrei-button>
   </tanrei-app-bar>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="作为链接的导航按钮，以及操作中的搜索触发器" plain>
+<Example label="作为链接的导航按钮，以及操作中的搜索触发器">
   <tanrei-app-bar headline="标签页" subtitle="组件" heading-level="3" scroll-target="none" style="inline-size: 22rem">
     <tanrei-button variant="text" slot="navigation" href="/zh-cn/components/" label="所有组件"><span slot="icon">arrow_back</span></tanrei-button>
     <tanrei-search slot="actions" bar="icon" presentation="dialog" label="搜索文档" placeholder="搜索" clear-label="清除搜索内容" back-label="返回"></tanrei-search>
     <tanrei-button variant="text" slot="actions" label="更多选项"><span slot="icon">more_vert</span></tanrei-button>
   </tanrei-app-bar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="app-bar" />
 

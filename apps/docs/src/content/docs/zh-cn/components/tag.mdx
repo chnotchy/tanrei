@@ -2,27 +2,27 @@
 title: "标签（Tag）"
 description: "用一段简短的静态文字标出类别或状态，外观可以是柔和填充、带轮廓或实色填充；有语义状态时采用该状态的颜色。它是文本，从不是控件。"
 translationOf: components/tag.mdx
-sourceHash: c3a34569bea95920f34e80e1409983493e6a838f
+sourceHash: 7fd76c75d33037050a0229a79adebeaf784bf6f1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="tag" />
 
-<DemoFrame label="三种外观，带语义状态和不带语义状态">
+<Example label="三种外观，带语义状态和不带语义状态">
   <tanrei-tag label="草稿"></tanrei-tag>
   <tanrei-tag variant="outlined" label="草稿"></tanrei-tag>
   <tanrei-tag variant="filled" label="默认"></tanrei-tag>
   <tanrei-tag status="success" label="已通过"></tanrei-tag>
   <tanrei-tag variant="outlined" status="warning" label="即将到期"></tanrei-tag>
   <tanrei-tag variant="filled" status="error" label="失败"></tanrei-tag>
-</DemoFrame>
+</Example>
 
 标签（Tag）是一个词或一个短语，说明某样东西是什么，或处于什么状态：文章的类别、构建的结果、版本所处的阶段、几个值当中的默认值。它位于布局之中，与旁边的文本同处一行，从不响应指针、按键或焦点。
 
@@ -60,7 +60,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="每种外观在每种语义状态下的样子" plain>
+<Example label="每种外观在每种语义状态下的样子">
   <tanrei-tag status="info" label="审核中"></tanrei-tag>
   <tanrei-tag status="warning" label="即将到期"></tanrei-tag>
   <tanrei-tag status="error" label="失败"></tanrei-tag>
@@ -73,9 +73,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-tag variant="filled" status="warning" label="即将到期"></tanrei-tag>
   <tanrei-tag variant="filled" status="error" label="失败"></tanrei-tag>
   <tanrei-tag variant="filled" status="success" label="已通过"></tanrei-tag>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="两种尺寸、图标、圆点" plain>
+<Example label="两种尺寸、图标、圆点">
   <tanrei-tag size="small" label="可选"></tanrei-tag>
   <tanrei-tag size="small" variant="filled" label="必填"></tanrei-tag>
   <tanrei-tag label="设计"><span slot="icon">sell</span></tanrei-tag>
@@ -83,7 +83,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-tag dot label="已归档"></tanrei-tag>
   <tanrei-tag dot status="success" label="在线"></tanrei-tag>
   <tanrei-tag size="small" variant="outlined" status="warning" label="性能下降"></tanrei-tag>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tag" />
 
@@ -119,14 +119,14 @@ Tag 绝不会因为加了处理函数而变成控件。在链接、按钮、列�
 
 Tag 自己不绘制任何表示状态的图标。在有帮助的地方请自己指定一个，就像本站为自己的状态表中的六种状态所做的那样：
 
-<DemoFrame label="本站的六种状态" plain>
+<Example label="本站的六种状态">
   <tanrei-tag size="small" variant="outlined" label="计划中"><span slot="icon">radio_button_unchecked</span></tanrei-tag>
   <tanrei-tag size="small" variant="outlined" status="warning" label="待跟进"><span slot="icon">schedule</span></tanrei-tag>
   <tanrei-tag size="small" label="Alpha"><span slot="icon">clock_loader_40</span></tanrei-tag>
   <tanrei-tag size="small" label="Beta"><span slot="icon">clock_loader_80</span></tanrei-tag>
   <tanrei-tag size="small" status="success" label="Stable"><span slot="icon">check_circle</span></tanrei-tag>
   <tanrei-tag size="small" status="error" label="已弃用"><span slot="icon">block</span></tanrei-tag>
-</DemoFrame>
+</Example>
 
 ### 尺寸
 
@@ -141,12 +141,12 @@ Tag 自己不绘制任何表示状态的图标。在有帮助的地方请自己�
 
 Tag 没有自己的状态，但它可以位于一个被禁用的元素之中：禁用字段的标签、列表中禁用的一行、菜单中禁用的一项。`disabled` 用它所属外观的禁用颜色（`comp.tag.<variant>.disabled.*`）来绘制它，无论语义状态如何，让它随所在的元素一起变淡，而不是看起来像其中唯一可用的部分。除此之外它什么都不改变：Tag 保持自己的尺寸和文字，不接受输入，也不获得焦点。字段和字段组在禁用时会为它们的必填和选填小标签设置它；你把 Tag 放进自己的禁用元素时，请自己设置。
 
-<DemoFrame label="常态的 Tag，以及位于禁用元素之中的 Tag" plain>
+<Example label="常态的 Tag，以及位于禁用元素之中的 Tag">
   <tanrei-tag size="small" variant="filled" label="必填"></tanrei-tag>
   <tanrei-tag size="small" variant="filled" label="必填" disabled></tanrei-tag>
   <tanrei-tag size="small" label="选填"></tanrei-tag>
   <tanrei-tag size="small" label="选填" disabled></tanrei-tag>
-</DemoFrame>
+</Example>
 
 ### 推荐
 

@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="select-field" />
 
-<DemoFrame label="A required select field, and one grouped with a glyph that stands for the field" column>
+<Example label="A required select field, and one grouped with a glyph that stands for the field" column>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Country" required required-text="Required" placeholder="Choose a country" supporting-text="Where your invoices are addressed.">
     <tanrei-option value="ca">Canada</tanrei-option>
     <tanrei-option value="fr">France</tanrei-option>
@@ -26,7 +26,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
     <tanrei-option-group label="Asia"><tanrei-option value="Asia/Tokyo" supporting-text="UTC+9">Tokyo</tanrei-option><tanrei-option value="Asia/Seoul" supporting-text="UTC+9">Seoul</tanrei-option></tanrei-option-group>
     <tanrei-option-group label="Europe"><tanrei-option value="Europe/Lisbon" supporting-text="UTC+0">Lisbon</tanrei-option><tanrei-option value="Europe/Berlin" supporting-text="UTC+1">Berlin</tanrei-option></tanrei-option-group>
   </tanrei-select-field>
-</DemoFrame>
+</Example>
 
 Use a select field in a form for one value out of a list that is known and closed: a country, a time zone, a plan. It is the ordinary case, ready to use: a label, the box that shows the chosen option and opens the list, a line of help, and the words for a value that was refused.
 
@@ -102,14 +102,14 @@ The same field, written by hand from its two members, is the same picture and th
 </tanrei-field>
 ```
 
-<DemoFrame label="The same field written by hand: a field with a select in it" column>
+<Example label="The same field written by hand: a field with a select in it" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Country" required required-text="Required" supporting-text="Where your invoices are addressed.">
     <tanrei-select placeholder="Choose a country">
       <tanrei-option value="jp">Japan</tanrei-option>
       <tanrei-option value="ke">Kenya</tanrei-option>
     </tanrei-select>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 Go one level down when you need an arrangement the select field does not offer:
 
@@ -124,7 +124,7 @@ What changes one level down is where things are said. `name`, `value` and the op
 
 ## Specs
 
-<DemoFrame label="Supporting text with a disabled option, optional, an error, read-only and disabled" plain column>
+<Example label="Supporting text with a disabled option, optional, an error, read-only and disabled" column>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Plan" value="team">
     <tanrei-option value="free" supporting-text="One project, community help">Free</tanrei-option>
     <tanrei-option value="team" supporting-text="Unlimited projects, shared roles">Team</tanrei-option>
@@ -142,16 +142,16 @@ What changes one level down is where things are said. `name`, `value` and the op
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Country" value="jp" disabled>
     <tanrei-option value="jp">Japan</tanrei-option><tanrei-option value="ke">Kenya</tanrei-option>
   </tanrei-select-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Filled and outlined: the field's label floats in the select's box, with an asterisk for a required field" system="m3-like" plain column>
+<Example label="Filled and outlined: the field's label floats in the select's box, with an asterisk for a required field" system="m3-like" column>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="Country" value="jp" supporting-text="Where your invoices are addressed.">
     <tanrei-option value="jp">Japan</tanrei-option><tanrei-option value="ke">Kenya</tanrei-option>
   </tanrei-select-field>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="Country" required required-text="Required">
     <tanrei-option value="jp">Japan</tanrei-option><tanrei-option value="ke">Kenya</tanrei-option>
   </tanrei-select-field>
-</DemoFrame>
+</Example>
 
 ### What each member gives
 

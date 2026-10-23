@@ -2,26 +2,26 @@
 title: नंबर टिकर
 description: बदलती हुई संख्या — कोई गिनती, कीमत, स्कोर या डैशबोर्ड का कोई आँकड़ा — दिखाता है, हर बदले हुए अंक को उसके नए मान तक ले जाकर, ताकि व्यक्ति देख सके कि वह बदली, किस दिशा में और लगभग कितनी, जबकि सहायक तकनीक को केवल वह मान बताया जाता है जिस पर वह ठहरती है।
 translationOf: components/number-ticker.mdx
-sourceHash: 95f0526e88d9f97f2e8636d465f88d6f39585435
+sourceHash: 15f18dcfd7f51262f1254bebb892eab3398a41d2
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="number-ticker" />
 
-<DemoFrame label="दिखाई देते ही अपने मान तक चढ़ते आँकड़े">
+<Example label="दिखाई देते ही अपने मान तक चढ़ते आँकड़े">
   <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
     <tanrei-number-ticker start-value="0" value="1234" label="ऑर्डर"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="0" value="98400" number-style="currency" currency="USD" fraction-digits="0" label="आय"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="0" value="0.426" number-style="percent" fraction-digits="1" label="कन्वर्ज़न"></tanrei-number-ticker>
   </div>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -61,21 +61,21 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 ## स्पेक
 
-<DemoFrame label="ऐनिमेशन: slide (डिफ़ॉल्ट सिस्टम का चुनाव), blur, blur-slide और flip" plain>
+<Example label="ऐनिमेशन: slide (डिफ़ॉल्ट सिस्टम का चुनाव), blur, blur-slide और flip">
   <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
     <tanrei-number-ticker start-value="1180" value="1234" animation="slide" label="स्लाइड"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="1180" value="1234" animation="blur" label="ब्लर"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="1180" value="1234" animation="blur-slide" label="ब्लर और स्लाइड"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="1180" value="1234" animation="flip" label="फ़्लिप"></tanrei-number-ticker>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="trend: auto (19 से 20 पर दोनों अंक ऊपर) और digit (इकाई का अंक 9 से 0 तक नीचे)" plain>
+<Example label="trend: auto (19 से 20 पर दोनों अंक ऊपर) और digit (इकाई का अंक 9 से 0 तक नीचे)">
   <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
     <tanrei-number-ticker start-value="19" value="20" trend="auto" label="अपने आप"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="19" value="20" trend="digit" label="हर अंक अलग"></tanrei-number-ticker>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="number-ticker" />
 

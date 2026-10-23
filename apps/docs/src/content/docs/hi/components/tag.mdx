@@ -2,27 +2,27 @@
 title: टैग
 description: एक छोटे स्थिर लेबल से किसी श्रेणी या स्थिति का नाम बताता है — हल्के, outlined या filled रूप में, और जहाँ कोई स्थिति हो वहाँ उस स्थिति के रंगों में। यह टेक्स्ट है, कंट्रोल कभी नहीं।
 translationOf: components/tag.mdx
-sourceHash: c3a34569bea95920f34e80e1409983493e6a838f
+sourceHash: 7fd76c75d33037050a0229a79adebeaf784bf6f1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="tag" />
 
-<DemoFrame label="तीन रूप, स्थिति के साथ और उसके बिना">
+<Example label="तीन रूप, स्थिति के साथ और उसके बिना">
   <tanrei-tag label="ड्राफ़्ट"></tanrei-tag>
   <tanrei-tag variant="outlined" label="ड्राफ़्ट"></tanrei-tag>
   <tanrei-tag variant="filled" label="डिफ़ॉल्ट"></tanrei-tag>
   <tanrei-tag status="success" label="पास"></tanrei-tag>
   <tanrei-tag variant="outlined" status="warning" label="समाप्त होने वाला"></tanrei-tag>
   <tanrei-tag variant="filled" status="error" label="विफल"></tanrei-tag>
-</DemoFrame>
+</Example>
 
 टैग एक शब्द या छोटा वाक्यांश है जो बताता है कि कोई चीज़ क्या है या किस स्थिति में है: किसी लेख की श्रेणी, किसी बिल्ड का नतीजा, किसी रिलीज़ का चरण, कई मानों में से डिफ़ॉल्ट। यह लेआउट में रहता है, अपने बग़ल के टेक्स्ट के साथ इनलाइन, और पॉइंटर, कुंजी या फ़ोकस का कभी जवाब नहीं देता।
 
@@ -60,7 +60,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="हर स्थिति में हर रूप" plain>
+<Example label="हर स्थिति में हर रूप">
   <tanrei-tag status="info" label="समीक्षा में"></tanrei-tag>
   <tanrei-tag status="warning" label="समाप्त होने वाला"></tanrei-tag>
   <tanrei-tag status="error" label="विफल"></tanrei-tag>
@@ -73,9 +73,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-tag variant="filled" status="warning" label="समाप्त होने वाला"></tanrei-tag>
   <tanrei-tag variant="filled" status="error" label="विफल"></tanrei-tag>
   <tanrei-tag variant="filled" status="success" label="पास"></tanrei-tag>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="दो साइज़, एक ग्लिफ़, एक बिंदु" plain>
+<Example label="दो साइज़, एक ग्लिफ़, एक बिंदु">
   <tanrei-tag size="small" label="वैकल्पिक"></tanrei-tag>
   <tanrei-tag size="small" variant="filled" label="ज़रूरी"></tanrei-tag>
   <tanrei-tag label="डिज़ाइन"><span slot="icon">sell</span></tanrei-tag>
@@ -83,7 +83,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-tag dot label="आर्काइव किया गया"></tanrei-tag>
   <tanrei-tag dot status="success" label="ऑनलाइन"></tanrei-tag>
   <tanrei-tag size="small" variant="outlined" status="warning" label="धीमा"></tanrei-tag>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tag" />
 
@@ -119,14 +119,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 टैग अपने आप कोई स्थिति ग्लिफ़ नहीं बनाता। जहाँ उससे मदद मिले, वहाँ ग्लिफ़ का नाम दें, जैसे यह साइट अपनी स्थिति टेबल की छह स्थितियों के लिए करती है:
 
-<DemoFrame label="इस साइट की छह स्थितियाँ" plain>
+<Example label="इस साइट की छह स्थितियाँ">
   <tanrei-tag size="small" variant="outlined" label="नियोजित"><span slot="icon">radio_button_unchecked</span></tanrei-tag>
   <tanrei-tag size="small" variant="outlined" status="warning" label="पीछे"><span slot="icon">schedule</span></tanrei-tag>
   <tanrei-tag size="small" label="Alpha"><span slot="icon">clock_loader_40</span></tanrei-tag>
   <tanrei-tag size="small" label="Beta"><span slot="icon">clock_loader_80</span></tanrei-tag>
   <tanrei-tag size="small" status="success" label="Stable"><span slot="icon">check_circle</span></tanrei-tag>
   <tanrei-tag size="small" status="error" label="अप्रचलित"><span slot="icon">block</span></tanrei-tag>
-</DemoFrame>
+</Example>
 
 ### साइज़
 
@@ -141,12 +141,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 टैग की अपनी कोई अवस्था नहीं होती, पर वह किसी ऐसी चीज़ के भीतर खड़ा हो सकता है जो अक्षम है: अक्षम फ़ील्ड का लेबल, लिस्ट की अक्षम पंक्ति, मेन्यू का अक्षम आइटम। `disabled` उसे उसके रूप के अक्षम रंगों (`comp.tag.<variant>.disabled.*`) में दिखाता है, उसकी स्थिति चाहे जो हो, ताकि वह अपने भीतर रखने वाली चीज़ के साथ फीका पड़ जाए और उसका अकेला सक्रिय हिस्सा न लगे। यह और कुछ नहीं बदलता: टैग अपना साइज़ और अपने शब्द बनाए रखता है, और न इनपुट लेता है, न फ़ोकस। फ़ील्ड और फ़ील्ड ग्रुप अक्षम रहते अपने ज़रूरी या वैकल्पिक के टैग पर इसे सेट करते हैं; अपने किसी अक्षम एलिमेंट में रखे टैग पर इसे ख़ुद सेट करें।
 
-<DemoFrame label="सामान्य टैग और किसी अक्षम चीज़ के भीतर के टैग" plain>
+<Example label="सामान्य टैग और किसी अक्षम चीज़ के भीतर के टैग">
   <tanrei-tag size="small" variant="filled" label="ज़रूरी"></tanrei-tag>
   <tanrei-tag size="small" variant="filled" label="ज़रूरी" disabled></tanrei-tag>
   <tanrei-tag size="small" label="वैकल्पिक"></tanrei-tag>
   <tanrei-tag size="small" label="वैकल्पिक" disabled></tanrei-tag>
-</DemoFrame>
+</Example>
 
 ### करें
 

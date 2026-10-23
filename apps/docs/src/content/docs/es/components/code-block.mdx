@@ -2,14 +2,14 @@
 title: Bloque de código
 description: Líneas de código para leer, comparar y copiar, en el tipo de letra de código, que se desplazan dentro del propio bloque o saltan de línea, con una cabecera, números de línea, líneas marcadas, un prompt y un botón de copiar opcionales. Si le das el código y su lenguaje, resalta el código por sí mismo.
 translationOf: components/code-block.mdx
-sourceHash: 1bd663ebb32b8674bdfe30352e2eb0eeda3db6a5
+sourceHash: 53a18014ffddf555d34389625cf92451c81157c5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 export const runs = (list) => list.map(([text, syntax]) => (syntax ? <span data-syntax={syntax}>{text}</span> : text));
 
@@ -39,11 +39,11 @@ export const given = [
 
 <ComponentAvailability name="code-block" />
 
-<DemoFrame label="Un título, una etiqueta de lenguaje y un botón de copiar; el código se resalta a partir de su lenguaje" column>
+<Example label="Un título, una etiqueta de lenguaje y un botón de copiar; el código se resalta a partir de su lenguaje" column>
   <tanrei-code-block style="inline-size: 100%" headline="Footer.tsx" language="tsx" language-label="TSX" copy copy-label="Copiar" copied-label="Copiado" copy-failed-label="No se pudo copiar">
     <pre><code>{footer}</code></pre>
   </tanrei-code-block>
-</DemoFrame>
+</Example>
 
 Un bloque de código muestra código que la gente lee, compara y copia. Un nombre o un comando dentro de una frase es [código en línea](/es/components/inline-code/).
 
@@ -102,24 +102,24 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
 
 ## Especificaciones
 
-<DemoFrame label="Filled y outlined, medium y small" plain column>
+<Example label="Filled y outlined, medium y small" column>
   <tanrei-code-block style="inline-size: 100%" language="js" label="Ejemplo"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
   <tanrei-code-block style="inline-size: 100%" variant="outlined" size="small" headline="sizes.js" language="js" language-label="JavaScript" copy copy-label="Copiar" copied-label="Copiado" copy-failed-label="No se pudo copiar"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Números de línea, una línea resaltada y líneas añadidas y eliminadas" plain column>
+<Example label="Números de línea, una línea resaltada y líneas añadidas y eliminadas" column>
   <tanrei-code-block style="inline-size: 100%" language="js" headline="sizes.js" line-numbers highlighted-lines="1" highlighted-label="Resaltada" removed-lines="4" added-lines="5" removed-label="Eliminada" added-label="Añadida" copy copy-label="Copiar" copied-label="Copiado" copy-failed-label="No se pudo copiar"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('button');\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Una línea larga se desplaza dentro del bloque, o salta de línea" plain column>
+<Example label="Una línea larga se desplaza dentro del bloque, o salta de línea" column>
   <tanrei-code-block style="inline-size: 100%" label="Ejemplo" copy copy-label="Copiar" copied-label="Copiado" copy-failed-label="No se pudo copiar"><pre><code>{`export const footer = html\`<footer class="form-footer"><tanrei-button variant="text" @click=\${cancel}>Cancelar</tanrei-button><tanrei-button variant="filled" @click=\${save}>Guardar cambios</tanrei-button></footer>\`;\n\n// La línea de arriba es una sola línea: no cabe y nunca se corta.`}</code></pre></tanrei-code-block>
   <tanrei-code-block style="inline-size: 100%" label="Ejemplo" wrap line-numbers><pre><code>{`export const footer = html\`<footer class="form-footer"><tanrei-button variant="text" @click=\${cancel}>Cancelar</tanrei-button><tanrei-button variant="filled" @click=\${save}>Guardar cambios</tanrei-button></footer>\`;\n\n// La línea de arriba es una sola línea: no cabe y nunca se corta.`}</code></pre></tanrei-code-block>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Un prompt y un límite de líneas visibles" plain column>
+<Example label="Un prompt y un límite de líneas visibles" column>
   <tanrei-code-block style="inline-size: 100%" label="Instalación" prompt="$" language="sh" language-label="Shell" copy copy-label="Copiar" copied-label="Copiado" copy-failed-label="No se pudo copiar"><pre><code>{`npm install @tanrei/web\nnpx tanrei studio`}</code></pre></tanrei-code-block>
   <tanrei-code-block style="inline-size: 100%" headline="tide.log" max-lines="4" line-numbers><pre><code>{`01:00 tide high, gauge 1.55 m\n02:00 tide falling, gauge 1.90 m\n03:00 tide low, gauge 2.25 m\n04:00 tide rising, gauge 2.60 m\n05:00 tide high, gauge 1.20 m\n06:00 tide falling, gauge 1.55 m\n07:00 tide low, gauge 1.90 m\n08:00 tide rising, gauge 2.25 m`}</code></pre></tanrei-code-block>
-</DemoFrame>
+</Example>
 
 **Dos aspectos.** `filled` es un relleno discreto, para el código en una página. `outlined` no tiene relleno y va dentro de una línea fina, para el código dentro de una tarjeta o de un panel que ya tienen relleno.
 
@@ -218,11 +218,11 @@ Cada rol tiene dos tokens: un color (`comp.code-block.syntax.color.*`) y un paso
 
 Un tramo es un `<span data-syntax="…">` dentro del `<code>`. El texto que queda fuera de un span es texto sin rol.
 
-<DemoFrame label="Los tramos que das tú se dibujan tal como se dan" plain column>
+<Example label="Los tramos que das tú se dibujan tal como se dan" column>
   <tanrei-code-block style="inline-size: 100%" label="Ejemplo">
     <pre><code>{runs(given)}</code></pre>
   </tanrei-code-block>
-</DemoFrame>
+</Example>
 
 ### Cómo reducir los ámbitos de un resaltador a los roles
 

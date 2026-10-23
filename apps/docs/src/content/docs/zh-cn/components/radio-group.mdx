@@ -2,26 +2,26 @@
 title: "单选组"
 description: "提出一个在同时全部显示出来的少量选项中恰好只有一个答案的问题——一组单选按钮，由它保存选中的值；它带有可以说明必填或选填的标签、一段描述，以及针对整组的一条错误。"
 translationOf: components/radio-group.mdx
-sourceHash: e9c637af4e26a776faf7851c62e6badc99a1ebac
+sourceHash: ef8e11be72ab1efb6009b8e3b34c1fced7312c8c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="radio-group" />
 
-<DemoFrame label="一组单选按钮，带有名称、描述和必填标记" column>
+<Example label="一组单选按钮，带有名称、描述和必填标记" column>
   <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="配送方式" supporting-text="订单发货前可以更改。" required required-text="必填" value="standard">
     <tanrei-radio-button value="standard" label="标准配送（3–5 天）"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="加急配送（次日达）"></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="到店自提"></tanrei-radio-button>
   </tanrei-radio-group>
-</DemoFrame>
+</Example>
 
 [单选按钮](/zh-cn/components/radio-button/)从不单独使用。单选组把几个单选按钮变成一个问题：它给这一组一个名称、一行说明该怎么回答的文字、一个说明是否必须回答的词，以及回答被拒绝时的一条原因，并把答案作为一个值来保存。
 
@@ -83,13 +83,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field-group>
 ```
 
-<DemoFrame label="手写出来的同一组：种类为 radio-group 的字段组，里面是同一个 name 的单选按钮" column>
+<Example label="手写出来的同一组：种类为 radio-group 的字段组，里面是同一个 name 的单选按钮" column>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="配送方式" supporting-text="订单发货前可以更改。" required required-text="必填">
     <tanrei-radio-button name="delivery-by-hand" value="standard" label="标准配送（3–5 天）" checked></tanrei-radio-button>
     <tanrei-radio-button name="delivery-by-hand" value="express" label="加急配送（次日达）"></tanrei-radio-button>
     <tanrei-radio-button name="delivery-by-hand" value="pickup" label="到店自提"></tanrei-radio-button>
   </tanrei-field-group>
-</DemoFrame>
+</Example>
 
 手写的字段组和单选按钮不做的事，是保存答案。画出来的和说出来的，没有任何不同。
 
@@ -107,7 +107,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="必填却未回答而处于错误状态的一组、被拒绝的回答、排成一行，以及有一个选项被禁用的一组" plain column>
+<Example label="必填却未回答而处于错误状态的一组、被拒绝的回答、排成一行，以及有一个选项被禁用的一组" column>
   <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="配送方式" required required-text="必填" error error-text="请选择配送方式。">
     <tanrei-radio-button value="standard" label="标准配送（3–5 天）"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="加急配送（次日达）"></tanrei-radio-button>
@@ -133,7 +133,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-radio-button value="express" label="加急配送（次日达）"></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="到店自提"></tanrei-radio-button>
   </tanrei-radio-group>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="radio-group" />
 

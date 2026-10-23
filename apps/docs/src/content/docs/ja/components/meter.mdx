@@ -2,27 +2,27 @@
 title: メーター
 description: ストレージの使用量、電池の残量、割り当ての消費、パスワードの強さのように、決まった範囲の中で、ある値がどこにあるかを示します。見た目はプログレスインジケーターと同じバーまたはリングですが、何かが進行中だとは伝えません。
 translationOf: components/meter.mdx
-sourceHash: a9d8ef1942e071884710cdc52bdb78d45aadfb32
+sourceHash: cd8bc895367db9b71db67bad0ef32e060f9d403e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="meter" />
 
-<DemoFrame label="リニアとサーキュラー">
+<Example label="リニアとサーキュラー">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter value="0.62" label="ストレージの使用量" value-text="15 GB 中 9.3 GB"></tanrei-meter>
     <tanrei-meter value="37" max="50" label="予約済みの席" value-text="50 席中 37 席"></tanrei-meter>
   </div>
   <tanrei-meter variant="circular" value="0.62" label="バッテリー"></tanrei-meter>
   <tanrei-meter variant="circular" size="large" value="0.15" status="warning" label="バッテリー" value-text="残りわずか：15%"></tanrei-meter>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -66,7 +66,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 
 ## 仕様
 
-<DemoFrame label="ステータス：default、info、success、warning、error" plain>
+<Example label="ステータス：default、info、success、warning、error">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter value="0.62" label="Default"></tanrei-meter>
     <tanrei-meter value="0.4" status="info" label="Info"></tanrei-meter>
@@ -74,9 +74,9 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
     <tanrei-meter value="0.85" status="warning" label="Warning"></tanrei-meter>
     <tanrei-meter value="0.98" status="error" label="Error"></tanrei-meter>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="サイズ、範囲の両端、独自の範囲" plain>
+<Example label="サイズ、範囲の両端、独自の範囲">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter size="small" value="0.62" label="Small"></tanrei-meter>
     <tanrei-meter size="medium" value="0.62" label="Medium"></tanrei-meter>
@@ -88,14 +88,14 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
   <tanrei-meter variant="circular" size="small" value="0.62" label="Small"></tanrei-meter>
   <tanrei-meter variant="circular" size="medium" value="0.62" label="Medium"></tanrei-meter>
   <tanrei-meter variant="circular" size="large" value="0.62" label="Large"></tanrei-meter>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="区切り方：divider（既定のシステムの選択）と gap" plain>
+<Example label="区切り方：divider（既定のシステムの選択）と gap">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter separation="divider" value="0.62" label="Divider"></tanrei-meter>
     <tanrei-meter separation="gap" value="0.62" label="Gap"></tanrei-meter>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="meter" />
 

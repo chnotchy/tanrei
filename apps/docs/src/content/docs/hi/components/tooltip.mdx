@@ -2,27 +2,27 @@
 title: टूलटिप
 description: जब व्यक्ति किसी एलिमेंट पर पॉइंटर ले जाता है, उसे कीबोर्ड से फ़ोकस करता है या देर तक दबाता है, तब उसे कुछ शब्दों में बताता है, बिना फ़ोकस लिए और बिना किसी चीज़ को रोके।
 translationOf: components/tooltip.mdx
-sourceHash: 352d33c155f7fa0c00f78129b4607ba1537de540
+sourceHash: dcb6c100029fe5ba5321bc6dd90e158f65de7061
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="tooltip" />
 
-<DemoFrame label="किसी बटन पर पॉइंटर ले जाएँ या उसे फ़ोकस करें: एक सादा और एक रिच टूलटिप">
+<Example label="किसी बटन पर पॉइंटर ले जाएँ या उसे फ़ोकस करें: एक सादा और एक रिच टूलटिप">
   <tanrei-tooltip text="ट्रैश में डालें" no-describe>
     <tanrei-button variant="text" label="ट्रैश में डालें"><span slot="icon">delete</span></tanrei-button>
   </tanrei-tooltip>
   <tanrei-tooltip variant="rich" headline="स्टोरेज" text="ट्रैश की फ़ाइलें हटाए जाने तक आपके स्टोरेज में गिनी जाती हैं।" placement="bottom">
     <tanrei-button variant="text" label="स्टोरेज के बारे में"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -192,14 +192,14 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 ## स्पेक
 
-<DemoFrame label="अपने ऐंकर के नीचे एक सादा टूलटिप, और बिना शीर्षक का एक रिच टूलटिप" plain>
+<Example label="अपने ऐंकर के नीचे एक सादा टूलटिप, और बिना शीर्षक का एक रिच टूलटिप">
   <tanrei-tooltip text="ट्रैश में डालें" placement="bottom" no-describe>
     <tanrei-button variant="text" label="ट्रैश में डालें"><span slot="icon">delete</span></tanrei-button>
   </tanrei-tooltip>
   <tanrei-tooltip variant="rich" text="ट्रैश की फ़ाइलें हटाए जाने तक आपके स्टोरेज में गिनी जाती हैं।">
     <tanrei-button variant="text" label="स्टोरेज के बारे में"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tooltip" />
 
@@ -224,7 +224,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 `placement` बताता है कि टूलटिप ऐंकर की किस ओर रहना पसंद करता है और उस ओर के साथ-साथ कैसे सीध में आता है। डिफ़ॉल्ट `top` है।
 
-<DemoFrame label="किसी बटन पर पॉइंटर ले जाएँ या उसे फ़ोकस करें: तेरह स्थान" plain>
+<Example label="किसी बटन पर पॉइंटर ले जाएँ या उसे फ़ोकस करें: तेरह स्थान">
   <tanrei-tooltip text="ऊपर, बीच में" placement="top"><tanrei-button variant="outlined" size="small">top</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="ऊपर, शुरुआती किनारे साथ-साथ" placement="top-start"><tanrei-button variant="outlined" size="small">top-start</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="ऊपर, अंतिम किनारे साथ-साथ" placement="top-end"><tanrei-button variant="outlined" size="small">top-end</tanrei-button></tanrei-tooltip>
@@ -238,7 +238,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
   <tanrei-tooltip text="बाद में, ऊपरी किनारे साथ-साथ" placement="end-top"><tanrei-button variant="outlined" size="small">end-top</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="बाद में, निचले किनारे साथ-साथ" placement="end-bottom"><tanrei-button variant="outlined" size="small">end-bottom</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="वह पहली ओर जहाँ जगह हो" placement="auto"><tanrei-button variant="outlined" size="small">auto</tanrei-button></tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 | ओर | ऐंकर के बीच में | पहले किनारे साथ-साथ | दूसरे किनारे साथ-साथ |
 | --- | --- | --- | --- |
@@ -256,7 +256,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 ### तीर
 
-<DemoFrame label="किसी बटन पर पॉइंटर ले जाएँ या उसे फ़ोकस करें: तीर के साथ" plain>
+<Example label="किसी बटन पर पॉइंटर ले जाएँ या उसे फ़ोकस करें: तीर के साथ">
   <tanrei-tooltip text="ट्रैश में डालें" arrow no-describe>
     <tanrei-button variant="text" label="ट्रैश में डालें"><span slot="icon">delete</span></tanrei-button>
   </tanrei-tooltip>
@@ -266,7 +266,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
   <tanrei-tooltip variant="rich" headline="स्टोरेज" text="ट्रैश की फ़ाइलें हटाए जाने तक आपके स्टोरेज में गिनी जाती हैं।" placement="end" arrow>
     <tanrei-button variant="text" label="स्टोरेज के बारे में"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 `arrow` टूलटिप के किनारे पर एक छोटा त्रिकोण बनाता है जो ऐंकर की ओर इशारा करता है। डिफ़ॉल्ट सिस्टम में यह बंद है। सेट न करने पर यह डिज़ाइन सिस्टम का चुनाव लेता है; `true` और `false` इसे एक टूलटिप के लिए तय करते हैं। वेब पर ऐट्रिब्यूट true के लिए `arrow` और false के लिए `arrow="false"` है।
 
@@ -276,12 +276,12 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 ### दो रूप
 
-<DemoFrame label="किसी बटन पर पॉइंटर ले जाएँ या उसे फ़ोकस करें: हर रूप इनवर्स और सरफ़ेस पर" plain>
+<Example label="किसी बटन पर पॉइंटर ले जाएँ या उसे फ़ोकस करें: हर रूप इनवर्स और सरफ़ेस पर">
   <tanrei-tooltip text="उलटी स्कीम के रंग" inverse><tanrei-button variant="outlined" size="small">Plain, इनवर्स</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="स्कीम की एक उठी हुई सरफ़ेस" inverse="false"><tanrei-button variant="outlined" size="small">Plain, सरफ़ेस</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip variant="rich" headline="सरफ़ेस पर" text="स्कीम की एक उठी हुई सरफ़ेस, अपने एलिवेशन के साथ।" inverse="false"><tanrei-button variant="outlined" size="small">Rich, सरफ़ेस</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip variant="rich" headline="इनवर्स" text="उलटी स्कीम के रंग, बिना शैडो के।" inverse><tanrei-button variant="outlined" size="small">Rich, इनवर्स</tanrei-button></tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 दोनों में से कोई भी रूप इनवर्स बनाया जा सकता है, यानी उलटी स्कीम के रंगों में, या स्कीम की उठी हुई सरफ़ेस पर।
 
@@ -297,14 +297,14 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 ### कीबोर्ड शॉर्टकट
 
-<DemoFrame label="किसी बटन पर पॉइंटर ले जाएँ या उसे फ़ोकस करें: कमांड के नाम के बाद उसकी कुंजियाँ" plain>
+<Example label="किसी बटन पर पॉइंटर ले जाएँ या उसे फ़ोकस करें: कमांड के नाम के बाद उसकी कुंजियाँ">
   <tanrei-tooltip text="बोल्ड" shortcut="mod+b" no-describe>
     <tanrei-button variant="text" label="बोल्ड"><span slot="icon">format_bold</span></tanrei-button>
   </tanrei-tooltip>
   <tanrei-tooltip text="इटैलिक" shortcut="mod+i" no-describe>
     <tanrei-button variant="text" label="इटैलिक"><span slot="icon">format_italic</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 `shortcut` सादे टूलटिप के टेक्स्ट के बाद ऐंकर के कमांड की कुंजियाँ दिखाता है, उस कीबोर्ड के लिए लिखी हुई जिसे व्यक्ति इस्तेमाल करता है। यह [कीबोर्ड शॉर्टकट](/hi/components/keyboard-shortcut/) कंपोनेंट के कुंजी-नाम लेता है, हर स्ट्रिंग में एक कॉर्ड; वेब पर ऐट्रिब्यूट में कॉर्ड स्पेस से अलग किए जाते हैं।
 

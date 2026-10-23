@@ -7,7 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
@@ -17,13 +17,13 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 This page describes the switch as the spec has it now: a 52 × 32 track, a handle that grows under a press, glyphs only from the icon set, a handle that follows a drag, and handle glyphs with a heavier weight of their own. The web component already does all of this, and so do the demos. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship the previous revision, which answers a tap only and follows no drag.
 :::
 
-<DemoFrame label="Off and on">
+<Example label="Off and on">
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space150)">
     <tanrei-switch checked label="Wi-Fi"></tanrei-switch>
     <tanrei-switch label="Bluetooth"></tanrei-switch>
     <tanrei-switch checked checked-icon="check" label="Airplane mode"></tanrei-switch>
   </div>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -108,7 +108,7 @@ This page describes the switch as the spec has it now: a 52 × 32 track, a handl
 
 ## Specs
 
-<DemoFrame label="Positions, icons and disabled" plain>
+<Example label="Positions, icons and disabled">
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space150)">
     <tanrei-switch label="Off"></tanrei-switch>
     <tanrei-switch checked label="On"></tanrei-switch>
@@ -123,7 +123,7 @@ This page describes the switch as the spec has it now: a 52 × 32 track, a handl
   </div>
   <tanrei-switch readonly checked label="Read-only, on"></tanrei-switch>
   <tanrei-switch checked label-hidden label="Wi-Fi"></tanrei-switch>
-</DemoFrame>
+</Example>
 
 The handle is a circle in every condition, with or without a glyph. A tap switches it, and the handle slides to the other end while its size and every color that differs between off and on change with it. A drag along the track carries the handle with the finger and draws the same in-between looks, with no threshold. The switch changes when the drag is released: to the side the handle is nearer to, or the side a fling goes toward. A drag that is cancelled, by Escape or by the platform, changes nothing.
 

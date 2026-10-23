@@ -2,20 +2,20 @@
 title: コンボボックスフィールド
 description: フォームのフィールドとして、入力して 1 つの値を見つけられるようにします。入力に応じて絞り込まれるオプションのリストが付いたコンボボックスで、そこから選べます。プロダクトが認めていれば、リストにない値も入力できます。フィールドが必須か任意かを伝えられるラベル、1 行の補足、値が違うときの理由が付きます。
 translationOf: components/combobox-field.mdx
-sourceHash: 1638eb2ce28b564ac75ec61ebafe326ef40c44a7
+sourceHash: e61869237c227606b9f24ade951599497664e794
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="combobox-field" />
 
-<DemoFrame label="オプションの中から選ぶコンボボックスフィールドと、リストにない値も受け付けるコンボボックスフィールド" column>
+<Example label="オプションの中から選ぶコンボボックスフィールドと、リストにない値も受け付けるコンボボックスフィールド" column>
   <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="都市" value="tokyo" clearable clear-label="都市を消去" placeholder="都市名を入力して検索" supporting-text="注文のお届け先です。" empty-text="一致する項目はありません">
     <tanrei-option value="kyoto">京都</tanrei-option>
     <tanrei-option value="lisbon">リスボン</tanrei-option>
@@ -29,7 +29,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-option value="Roboto Mono">Roboto Mono</tanrei-option>
     <tanrei-option value="Source Serif 4">Source Serif 4</tanrei-option>
   </tanrei-combobox-field>
-</DemoFrame>
+</Example>
 
 コンボボックスフィールドは、フォームが、スクロールして探すより入力したほうが早い 1 つの値を求めるところで使います。数百ある中の都市、人、トークンなどです。フォントファミリーのように、値の候補を示しつつ、リストにない値も受け付けるフィールドにも使えます。ラベル、リストの付いたボックス、1 行の補足、値が違うときの言葉という、いつもの組み合わせが、そのまま使える形でそろっています。ボックスの見た目と寸法は、同じバリアントとサイズのテキストフィールドのボックスと同じで、リストはセレクトのリストと同じように描かれます。
 
@@ -122,20 +122,20 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-combobox-field>` です�
 </tanrei-field>
 ```
 
-<DemoFrame label="同じフィールドを自分で書いたもの。フィールドの中にコンボボックスがあります" column>
+<Example label="同じフィールドを自分で書いたもの。フィールドの中にコンボボックスがあります" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="都市" required required-text="必須" supporting-text="注文のお届け先です。">
     <tanrei-combobox value="tokyo" empty-text="一致する項目はありません">
       <tanrei-option value="kyoto">京都</tanrei-option>
       <tanrei-option value="tokyo">東京</tanrei-option>
     </tanrei-combobox>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 1 つ下の階層で変わるのは、フォームに加わるコントロールがどれかです。自分で書いた場合はコンボボックスで、`name` もコンボボックスに指定します。コンボボックスフィールドでは、フィールドそのものです。
 
 ## 仕様
 
-<DemoFrame label="グループ、補足テキストと無効なオプション、エラー、読み取り専用、無効なコンボボックスフィールド" plain column>
+<Example label="グループ、補足テキストと無効なオプション、エラー、読み取り専用、無効なコンボボックスフィールド" column>
   <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="タイムゾーン" value="Europe/Lisbon" empty-text="一致する項目はありません">
     <tanrei-option-group label="アジア"><tanrei-option value="Asia/Tokyo">東京</tanrei-option><tanrei-option value="Asia/Seoul">ソウル</tanrei-option></tanrei-option-group>
     <tanrei-option-group label="ヨーロッパ"><tanrei-option value="Europe/Lisbon">リスボン</tanrei-option><tanrei-option value="Europe/Berlin">ベルリン</tanrei-option></tanrei-option-group>
@@ -154,7 +154,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-combobox-field>` です�
   <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="都市" value="tokyo" disabled>
     <tanrei-option value="nairobi">ナイロビ</tanrei-option><tanrei-option value="tokyo">東京</tanrei-option>
   </tanrei-combobox-field>
-</DemoFrame>
+</Example>
 
 ### フィールド
 

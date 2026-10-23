@@ -2,14 +2,14 @@
 title: テキストフィールド
 description: 1 行のテキスト、文章に合わせて伸びるか手で大きさを変えられる複数行のテキスト、ロケールの書き方で単位ごとに入力する日付・時刻、書かれたとおりに保持するコードを入力・編集します。必須か任意かを示せるラベル、アイコン、接頭辞と接尾辞、補足テキスト、文字数カウンター、ピッカーボタンを添えられます。
 translationOf: components/text-field.mdx
-sourceHash: 719a16c2a252ed9648b17821b91131dcc18c87a3
+sourceHash: 11ca82869cc7b493be699f28b68da9e9801b3dec
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
@@ -19,10 +19,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 このページは、仕様の現在の形のテキストフィールドを説明しています。ラベルをフィールドの上に置く `stacked` バリアントが既定で、`filled` と `outlined` は Material と cupertino のプリセットだけのものです。高さは 32、40、56（ラベルが中で浮き上がる filled と outlined のフィールドは 40、48、56）で、日付と時刻の種類とピッカーボタンがあります。複数行のフィールドは文章に合わせて伸びるか、ハンドルで大きさを変えられ（`resize`）、日付や時刻はセグメントで単位ごとに入力し、必須か任意かを示す `required` と `optional` があります。Web コンポーネントはすでにこのすべてに対応しており、デモもそれを示しています。フィールドはコードも保持できます（`type="code"` と、行の折り返しを決める `wrap`）。Web は実装済みで、ほかのプラットフォームはまだです。テキストフィールドは、このページで説明しているとおり、テキスト入力欄を囲むフィールドです。Web はこれも実装済みで、`required` 属性はなくなりました。SwiftUI、Compose、Flutter、React Native は上の表で「追従待ち」です。追従するまでは以前の版（既定が outlined で高さ 36 と 40、印を描かない `required` フラグがあり、`stacked` バリアント・日付や時刻の種類・ピッカーボタン・リサイズの方式はない）を提供しており、これらの例もその版のものです。
 :::
 
-<DemoFrame label="既定の Stacked：必須のフィールドと、ピッカーボタン付きの日付" column>
+<Example label="既定の Stacked：必須のフィールドと、ピッカーボタン付きの日付" column>
   <tanrei-text-field label="メールアドレス" type="email" required required-text="必須" supporting-text="サインインにだけ使います。"></tanrei-text-field>
   <tanrei-text-field label="開始日" type="date" locale="ja-JP" value="2026-09-27" picker picker-label="開始日を選択" segment-empty-text="未入力"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
 テキストフィールドは、フォームがテキストを求めるところで使います。ラベル、ボックス、1 行の補足、値が違うときの言葉、文字数という、いつもの組み合わせが、そのまま使える形でそろっています。
 
@@ -211,11 +211,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="同じフィールドを自分で書いたもの。フィールドの中にテキスト入力欄があります" column>
+<Example label="同じフィールドを自分で書いたもの。フィールドの中にテキスト入力欄があります" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="メールアドレス" required required-text="必須" supporting-text="サインインにだけ使います。">
     <tanrei-text-input type="email"></tanrei-text-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 テキストフィールドにない並べ方が必要なときに、1 つ下の階層で書きます。
 
@@ -236,16 +236,16 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 ## 仕様
 
-<DemoFrame label="エラー、無効、読み取り専用、接頭辞と接尾辞、カウンター" plain column>
+<Example label="エラー、無効、読み取り専用、接頭辞と接尾辞、カウンター" column>
   <tanrei-text-field label="メールアドレス" value="ada@" error error-text="メールアドレスを最後まで入力してください。"></tanrei-text-field>
   <tanrei-text-field label="メールアドレス" value="ada@example.com" disabled></tanrei-text-field>
   <tanrei-text-field label="メールアドレス" value="ada@example.com" readonly></tanrei-text-field>
   <tanrei-text-field label="金額" type="number" value="120" prefix-text="$" suffix-text="USD"></tanrei-text-field>
   <tanrei-text-field label="表示名" value="山田 花子" maxlength="40" counter></tanrei-text-field>
   <tanrei-text-field size="large" label="メールアドレス" value="ada@example.com"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="種類：パスワード、検索、数値、電話番号、URL" plain column>
+<Example label="種類：パスワード、検索、数値、電話番号、URL" column>
   <tanrei-text-field label="パスワード" type="password" value="correct horse" autocomplete="current-password"></tanrei-text-field>
   <tanrei-text-field label="検索" label-hidden type="search" placeholder="コンポーネントを検索">
     <span slot="leading-icon">search</span>
@@ -253,44 +253,44 @@ input.addEventListener('input', () => (field.countText = input.countText));
   <tanrei-text-field label="数量" type="number" value="12"></tanrei-text-field>
   <tanrei-text-field label="電話番号" type="tel" autocomplete="tel" placeholder="090 0000 0000"></tanrei-text-field>
   <tanrei-text-field label="ウェブサイト" type="url" placeholder="https://example.com"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="必須と任意：タグと、アスタリスク" plain column>
+<Example label="必須と任意：タグと、アスタリスク" column>
   <tanrei-text-field label="メールアドレス" type="email" required required-text="必須"></tanrei-text-field>
   <tanrei-text-field label="会社名" optional optional-text="任意"></tanrei-text-field>
   <tanrei-text-field label="メールアドレス" type="email" required required-mark="asterisk"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="複数行：文章に合わせて伸びる、ハンドルで変える（縦、縦横）、固定" plain column>
+<Example label="複数行：文章に合わせて伸びる、ハンドルで変える（縦、縦横）、固定" column>
   <tanrei-text-field label="メッセージ" multiline min-rows="2" max-rows="5" placeholder="数行入力すると 5 行まで伸び、それを超えるとスクロールします"></tanrei-text-field>
   <tanrei-text-field label="メモ" multiline resize="manual" max-rows="10" resize-label="メモの大きさを変える"></tanrei-text-field>
   <tanrei-text-field label="説明" multiline resize="manual" resize-axis="both" resize-label="説明の大きさを変える"></tanrei-text-field>
   <tanrei-text-field label="住所" multiline resize="fixed" min-rows="3"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="コード：1 行のパターン、複数行の JSON、折り返さない行" plain column>
+<Example label="コード：1 行のパターン、複数行の JSON、折り返さない行" column>
   <tanrei-text-field type="code" label="パターン" value="tanrei.comp.button.*.container.color" supporting-text="トークンの ID。* はどの部分にも一致します。"></tanrei-text-field>
   <tanrei-text-field type="code" multiline min-rows="4" label="レイヤー" value="{&#10;  &quot;id&quot;: &quot;acme&quot;,&#10;  &quot;extends&quot;: &quot;tanrei&quot;&#10;}"></tanrei-text-field>
   <tanrei-text-field type="code" multiline no-wrap min-rows="3" label="ルール" value="{ &quot;match&quot;: &quot;tanrei.comp.button.*.hovered.container.color&quot;, &quot;$value&quot;: &quot;{tanrei.sys.color.primary}&quot; }&#10;{ &quot;match&quot;: &quot;*&quot; }"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="右から左のページのコード：ラベルと補足はページに従い、コードは左から始まる" plain column>
+<Example label="右から左のページのコード：ラベルと補足はページに従い、コードは左から始まる" column>
   <div dir="rtl" lang="ar" style="display: grid; gap: 1rem;">
     <tanrei-text-field type="code" label="النمط" value="tanrei.comp.*.color" supporting-text="معرّف رمز، مع * لأي جزء."></tanrei-text-field>
     <tanrei-text-field type="code" multiline min-rows="3" label="المصادر" value="[&quot;مرحبا&quot;, &quot;acme&quot;]&#10;// تعليق: comment"></tanrei-text-field>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="セグメントで入力する日付、時刻、日時。Tab、矢印キー、数字で埋めます" plain column>
+<Example label="セグメントで入力する日付、時刻、日時。Tab、矢印キー、数字で埋めます" column>
   <tanrei-text-field label="開始日" type="date" locale="ja-JP" picker picker-label="開始日を選択" invalid-text="日付を最後まで入力してください。" segment-empty-text="未入力"></tanrei-text-field>
   <tanrei-text-field label="開始時刻" type="time" locale="ja-JP" value="14:30" segment-empty-text="未入力"></tanrei-text-field>
   <tanrei-text-field label="出発" type="date-time" locale="ja-JP" value="2026-09-27T14:30" min="2026-09-01T00:00" unavailable-text="2026 年 9 月以降の日時を選んでください。" segment-empty-text="未入力"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Material のプリセットのバリアント、Filled と Outlined" system="m3-like" plain column>
+<Example label="Material のプリセットのバリアント、Filled と Outlined" system="m3-like" column>
   <tanrei-text-field variant="filled" label="メールアドレス" type="email" value="ada@example.com"></tanrei-text-field>
   <tanrei-text-field variant="outlined" label="メールアドレス" type="email" supporting-text="サインインにだけ使います。"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
 ### それぞれの構成要素が受け持つもの
 

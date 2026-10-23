@@ -2,20 +2,20 @@
 title: メニューバー
 description: アプリケーションのコマンドを、名前の付いたメニュー（ファイル、編集、表示…）が並ぶ 1 本の常設の行にまとめます。各タイトルの下にメニューが開き、矢印キーで行に沿って、また各メニューの中へ移動できます。
 translationOf: components/menubar.mdx
-sourceHash: 727005283bfc41b0656f8ab9ab5f3acd80cb9bc8
+sourceHash: d6a1886f27ffae85410b1fcb19d9f1298ecf6889
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="menubar" />
 
-<DemoFrame label="エディターのメニュー" column>
+<Example label="エディターのメニュー" column>
   <tanrei-menubar label="アプリケーションメニュー" overflow-label="その他のメニュー" style="inline-size: 100%">
     <tanrei-menubar-menu label="ファイル">
       <tanrei-menu-item label="新規" shortcut="mod+n"></tanrei-menu-item>
@@ -55,7 +55,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-menu-item label="このアプリについて"></tanrei-menu-item>
     </tanrei-menubar-menu>
   </tanrei-menubar>
-</DemoFrame>
+</Example>
 
 ### メニューバーではないもの
 
@@ -151,7 +151,7 @@ Web では、スクリプトが動くまでタイトルとアクションは描�
 
 ### それだけで動作する項目
 
-<DemoFrame label="3 つのメニューと、アクション 1 つ、リンク項目 2 つ。どれも同じ見た目です" column>
+<Example label="3 つのメニューと、アクション 1 つ、リンク項目 2 つ。どれも同じ見た目です" column>
   <tanrei-menubar label="それだけで動作する項目のあるアプリケーションメニュー" overflow-label="その他" style="inline-size: 100%">
     <tanrei-menubar-menu label="ファイル">
       <tanrei-menu-item label="新規"></tanrei-menu-item>
@@ -168,7 +168,7 @@ Web では、スクリプトが動くまでタイトルとアクションは描�
     <tanrei-menubar-item><a href="#それだけで動作する項目">ドキュメント</a></tanrei-menubar-item>
     <tanrei-menubar-item target-label="新しいタブで開きます"><a href="#それだけで動作する項目" target="_blank">ソース</a></tanrei-menubar-item>
   </tanrei-menubar>
-</DemoFrame>
+</Example>
 
 まず、使わない場合から読んでください。バー項目は、メニューを開くタイトルとまったく同じ見た目です。1 つ置くごとに、押すと何が起きるのかを人が一瞬迷うことになります。
 
@@ -239,7 +239,7 @@ Web では、スクリプトが動くまでタイトルとアクションは描�
 
 ## 仕様
 
-<DemoFrame label="すべてのタイトルが入らない行は、残りを 1 つのオーバーフロー項目に畳みます" plain column>
+<Example label="すべてのタイトルが入らない行は、残りを 1 つのオーバーフロー項目に畳みます" column>
   <tanrei-menubar label="アプリケーションメニュー（狭い）" overflow-label="その他のメニュー" style="inline-size: 13rem">
     <tanrei-menubar-menu label="ファイル"><tanrei-menu-item label="新規"></tanrei-menu-item><tanrei-menu-item label="開く…"></tanrei-menu-item></tanrei-menubar-menu>
     <tanrei-menubar-menu label="編集"><tanrei-menu-item label="元に戻す"></tanrei-menu-item><tanrei-menu-item label="やり直す"></tanrei-menu-item></tanrei-menubar-menu>
@@ -247,7 +247,7 @@ Web では、スクリプトが動くまでタイトルとアクションは描�
     <tanrei-menubar-menu label="書式" disabled><tanrei-menu-item label="太字"></tanrei-menu-item></tanrei-menubar-menu>
     <tanrei-menubar-menu label="ヘルプ"><tanrei-menu-item label="このアプリについて"></tanrei-menu-item></tanrei-menubar-menu>
   </tanrei-menubar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="menubar" />
 

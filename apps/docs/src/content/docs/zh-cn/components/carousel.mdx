@@ -2,14 +2,14 @@
 title: "轮播"
 description: "一行视觉内容项，围绕一个突出展示的项横向滚动，每一项都会打开它所展示的内容。精选行可以循环、用圆点显示位置，并自动前进。"
 translationOf: components/carousel.mdx
-sourceHash: 456f22fc35f1b413823ac47def1b7dcdec2ed432
+sourceHash: 6c17872330097ca5dbb892d334a8fbaa39ad7f09
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 本页描述的是规格当前所定的轮播。`layout` 属性被几项相互独立的选择取代（主项的位置、流动宽度还是固定宽度、缩小、停靠、循环），精选行还可以显示圆点并自动前进。主项（hero）现在默认居中，相邻的项在任何滚动位置都相隔一个间距。Web 组件已经做到了这一切，演示也是如此。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是上一版，有 `layout`，没有循环、圆点、自动播放以及上一个和下一个控件。参见[主项默认居中](#主项默认居中)和[从 `layout` 迁移](#从-layout-迁移)。
 :::
 
-<DemoFrame label="默认：主项居中，旁边是一个小项">
+<Example label="默认：主项居中，旁边是一个小项">
   <tanrei-carousel previous-label="上一条步行路线" next-label="下一条步行路线" label="附近的步行路线" style="inline-size: 25rem; max-inline-size: 100%">
     <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
     <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -28,7 +28,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-carousel-item label="山丘古堡，9 张照片"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
     <tanrei-carousel-item label="河畔步道，14 张照片"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
   </tanrei-carousel>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -159,7 +159,7 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
 
 ## 规格
 
-<DemoFrame label="宽到上限的主项，以及从起始边缘自由滚动的固定宽度" plain column>
+<Example label="宽到上限的主项，以及从起始边缘自由滚动的固定宽度" column>
   <tanrei-carousel previous-label="上一条步行路线" next-label="下一条步行路线" item-width="400" label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
     <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
     <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -173,9 +173,9 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
     <tanrei-carousel-item label="湖畔，5 张照片"><span class="tanrei-icon">water</span></tanrei-carousel-item>
     <tanrei-carousel-item label="山丘古堡，9 张照片"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
   </tanrei-carousel>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="排列这一行：固定宽度、缩小、循环、内容靠向主项" plain column>
+<Example label="排列这一行：固定宽度、缩小、循环、内容靠向主项" column>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">固定宽度，滚动在哪里结束就停在哪里：<code>fixed-width free-scroll</code></div>
     <tanrei-carousel previous-label="上一条步行路线" next-label="下一条步行路线" fixed-width free-scroll label="附近的步行路线" style="inline-size: 25rem; max-inline-size: 100%">
@@ -217,9 +217,9 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
       <tanrei-carousel-item label="河畔步道，14 张照片"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
     </tanrei-carousel>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="圆点、自动播放、进度、已暂停，以及单独的播放控件" plain column>
+<Example label="圆点、自动播放、进度、已暂停，以及单独的播放控件" column>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">圆点：<code>indicator</code></div>
     <tanrei-carousel previous-label="上一条步行路线" next-label="下一条步行路线" indicator label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
@@ -273,7 +273,7 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
       <tanrei-carousel-item label="湖畔，5 张照片"><span class="tanrei-icon">water</span></tanrei-carousel-item>
     </tanrei-carousel>
   </div>
-</DemoFrame>
+</Example>
 
 在开启了“减弱动态效果”设置的环境中，自动播放从不运行：这时自动播放的演示静止不动，不显示播放控件，也不显示进度。
 

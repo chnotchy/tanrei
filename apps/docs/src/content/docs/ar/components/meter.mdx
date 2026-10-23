@@ -2,27 +2,27 @@
 title: العدّاد
 description: يبيّن أين تقع قيمة معروفة في مدى معروف — مساحة التخزين المستخدمة، أو شحن البطارية، أو حصة، أو قوة كلمة مرور — في صورة شريط أو حلقة يشبهان مؤشر التقدم، من غير أن يقول إن شيئًا جارٍ.
 translationOf: components/meter.mdx
-sourceHash: a9d8ef1942e071884710cdc52bdb78d45aadfb32
+sourceHash: cd8bc895367db9b71db67bad0ef32e060f9d403e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="meter" />
 
-<DemoFrame label="خطي ودائري">
+<Example label="خطي ودائري">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter value="0.62" label="مساحة التخزين المستخدمة" value-text="9.3 غيغابايت من 15 غيغابايت"></tanrei-meter>
     <tanrei-meter value="37" max="50" label="المقاعد المحجوزة" value-text="37 من 50 مقعدًا"></tanrei-meter>
   </div>
   <tanrei-meter variant="circular" value="0.62" label="البطارية"></tanrei-meter>
   <tanrei-meter variant="circular" size="large" value="0.15" status="warning" label="البطارية" value-text="منخفضة: 15%"></tanrei-meter>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -66,7 +66,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="الحالات: default و info و success و warning و error" plain>
+<Example label="الحالات: default و info و success و warning و error">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter value="0.62" label="Default"></tanrei-meter>
     <tanrei-meter value="0.4" status="info" label="Info"></tanrei-meter>
@@ -74,9 +74,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-meter value="0.85" status="warning" label="Warning"></tanrei-meter>
     <tanrei-meter value="0.98" status="error" label="Error"></tanrei-meter>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="الأحجام، وطرفا المدى، ومدى مخصَّص" plain>
+<Example label="الأحجام، وطرفا المدى، ومدى مخصَّص">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter size="small" value="0.62" label="Small"></tanrei-meter>
     <tanrei-meter size="medium" value="0.62" label="Medium"></tanrei-meter>
@@ -88,14 +88,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-meter variant="circular" size="small" value="0.62" label="Small"></tanrei-meter>
   <tanrei-meter variant="circular" size="medium" value="0.62" label="Medium"></tanrei-meter>
   <tanrei-meter variant="circular" size="large" value="0.62" label="Large"></tanrei-meter>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="الفصل: divider (اختيار النظام الافتراضي) و gap" plain>
+<Example label="الفصل: divider (اختيار النظام الافتراضي) و gap">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter separation="divider" value="0.62" label="Divider"></tanrei-meter>
     <tanrei-meter separation="gap" value="0.62" label="Gap"></tanrei-meter>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="meter" />
 

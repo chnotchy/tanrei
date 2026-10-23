@@ -7,21 +7,20 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
-import VisualFrame from '../../../components/visuals/VisualFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 import StateMatrix from '../../../components/visuals/StateMatrix.astro';
 
 ## Overview
 
 <ComponentAvailability name="button" />
 
-<VisualFrame label="Variants" reserve={{ block: 'comp.button.container.height.medium' }} controls="both">
+<Example label="Variants" reserve={{ block: 'comp.button.container.height.medium' }} code>
   <tanrei-button variant="filled">Filled</tanrei-button>
   <tanrei-button variant="tonal">Tonal</tanrei-button>
   <tanrei-button variant="elevated">Elevated</tanrei-button>
   <tanrei-button variant="outlined">Outlined</tanrei-button>
   <tanrei-button variant="text">Text</tanrei-button>
-</VisualFrame>
+</Example>
 
 ### Usage
 
@@ -104,12 +103,12 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
 
 A button can carry an icon beside its label, at the start or, with `iconPosition` set to `trailing`, at the end. The padding on the icon's side is a step tighter than on the label's side, so the two look evenly set. Without a label it is icon-only: a circle as wide as the button is high, named by `label`, which is then required. With `toggle` set it switches its own `selected` on each press, shows the state through its colors and the glyph's fill, and announces it as a pressed state.
 
-<DemoFrame label="Icon-only buttons and a toggle">
+<Example label="Icon-only buttons and a toggle">
   <tanrei-button variant="text" label="Search"><span slot="icon">search</span></tanrei-button>
   <tanrei-button variant="tonal" label="Edit"><span slot="icon">edit</span></tanrei-button>
   <tanrei-button variant="outlined" toggle selected label="Favorite"><span slot="icon">favorite</span></tanrei-button>
   <tanrei-button variant="filled" icon-position="trailing">Next<span slot="icon">arrow_forward</span></tanrei-button>
-</DemoFrame>
+</Example>
 
 Icon button is not a separate component in Tanrei. If you know Material's names, this is where they went:
 
@@ -132,13 +131,13 @@ An icon-only button has three widths. Its height never changes with them, and a 
 | `narrow` | The glyph and a small inset on each side: 28 / 32 / 32, a capsule | A tight row of icon actions, such as the tools at the end of a field or a dense table row. |
 | `wide` | 40 / 52 / 72, a capsule | The one action of a row that should weigh more than its neighbours. |
 
-<DemoFrame label="Icon-only widths: default, narrow and wide" plain>
+<Example label="Icon-only widths: default, narrow and wide">
   <tanrei-button variant="tonal" label="Add"><span slot="icon">add</span></tanrei-button>
   <tanrei-button variant="tonal" width="narrow" label="Add"><span slot="icon">add</span></tanrei-button>
   <tanrei-button variant="tonal" width="wide" label="Add"><span slot="icon">add</span></tanrei-button>
   <tanrei-button variant="outlined" size="small" width="narrow" label="More options"><span slot="icon">more_vert</span></tanrei-button>
   <tanrei-button variant="filled" size="large" width="wide" label="Play"><span slot="icon">play_arrow</span></tanrei-button>
-</DemoFrame>
+</Example>
 
 A narrow button is exactly its glyph and the inset on each side, so the glyph always stays clear of the capsule's edge, and the button follows the glyph wherever a design system re-sizes it. It is drawn narrower than the minimum target, but its hit area is not: the target reaches past its visible edges. Leave room for it beside the button, or put narrow buttons in a [toolbar](/components/toolbar/) or a [button group](/components/button-group/), which space their items.
 
@@ -148,22 +147,22 @@ While the action a button started is under way, set `busy` rather than `disabled
 
 A disabled button leaves the focus order, so a keyboard or screen-reader user may never find it, or learn why it does nothing. Where a person can make the action available, such as a send button while the message is empty, add `focusable-when-disabled`: the button is drawn and announced as disabled and does nothing, but Tab still reaches it, so a [tooltip](/components/tooltip/) or a description can say why.
 
-<DemoFrame label="Busy, and disabled but reachable" plain>
+<Example label="Busy, and disabled but reachable">
   <tanrei-button busy busy-label="Deploying">Deploy</tanrei-button>
   <tanrei-button variant="text" busy busy-label="Saving" label="Save"><span slot="icon">save</span></tanrei-button>
   <tanrei-button disabled focusable-when-disabled>Send</tanrei-button>
-</DemoFrame>
+</Example>
 
 ### Full width
 
 Set `full-width` to make a button as wide as its container, such as the one action at the foot of a narrow form, a card or a sheet. It keeps the height, the paddings and the corners of its size, and its label and icon are centred. A label that does not fit wraps rather than being cut off. Where a [button group](/components/button-group/), a [toolbar](/components/toolbar/), or the actions of a dialog or a popover lay buttons out, they decide the widths and `full-width` on a button does nothing: give the button group `full-width` to share one row between several buttons.
 
-<DemoFrame label="Full-width buttons" plain>
+<Example label="Full-width buttons">
   <div style="inline-size: 20rem; display: grid; gap: 0.75rem">
     <tanrei-button full-width>Create account</tanrei-button>
     <tanrei-button variant="outlined" full-width><span slot="icon">upload</span>Upload a file</tanrei-button>
   </div>
-</DemoFrame>
+</Example>
 
 ### Destructive actions
 
@@ -173,24 +172,24 @@ Choose the variant as for any other action. Use filled where deleting is the ste
 
 A link has none either. A button with `href` ignores `destructive` and is drawn as the link of its variant, because following a link deletes nothing: it only takes the person to the place where something can be deleted. Mark the action at that place instead, such as the Delete button on the page the link opens. A debug build reports a link that is given `destructive`.
 
-<DemoFrame label="Destructive buttons in each variant, and icon-only" plain>
+<Example label="Destructive buttons in each variant, and icon-only">
   <tanrei-button destructive>Delete project</tanrei-button>
   <tanrei-button variant="tonal" destructive>Discard draft</tanrei-button>
   <tanrei-button variant="outlined" destructive>Remove member</tanrei-button>
   <tanrei-button variant="text" destructive>Clear history</tanrei-button>
   <tanrei-button variant="text" destructive label="Delete file"><span slot="icon">delete</span></tanrei-button>
-</DemoFrame>
+</Example>
 
 ### A button with a destination is a link
 
 Give a button an `href` and it is a link, not a button: the same control, drawn from the same tokens in every state, but with the link role and everything the platform gives a link. On the web that is a real anchor, so people can open it in a new tab, copy its address, and see where it goes before they follow it. Use this form whenever activating the control only takes the person somewhere else. Do not navigate from a click handler on a plain button.
 
-<DemoFrame label="Links: same place, a new tab, icon-only and disabled" plain>
+<Example label="Links: same place, a new tab, icon-only and disabled">
   <tanrei-button href="/components/button-group/">Button group</tanrei-button>
   <tanrei-button variant="outlined" href="/components/toolbar/" target="new" target-label="opens in a new tab">Toolbar</tanrei-button>
   <tanrei-button variant="text" href="/components/" label="All components"><span slot="icon">apps</span></tanrei-button>
   <tanrei-button variant="tonal" href="/components/button-group/" disabled>Button group</tanrei-button>
-</DemoFrame>
+</Example>
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
@@ -317,11 +316,11 @@ On the web a button is one of its form's controls, and `type` says what a press 
 
 When the same word is drawn on several buttons, such as "Remove" in every row of a list, the word alone does not tell a screen reader user which row a button belongs to. Give each button a `label`: it is then the button's whole accessible name, in place of the drawn text, and the button is drawn exactly as before.
 
-<DemoFrame label="The same word in every row, each button named for its row" plain>
+<Example label="The same word in every row, each button named for its row">
   <tanrei-button variant="text" size="small" label="Remove: Inter">Remove</tanrei-button>
   <tanrei-button variant="text" size="small" label="Remove: Noto Sans JP">Remove</tanrei-button>
   <tanrei-button variant="text" size="small" label="Remove: Roboto Mono">Remove</tanrei-button>
-</DemoFrame>
+</Example>
 
 | `label` | Drawn label | Accessible name |
 | --- | --- | --- |
@@ -335,13 +334,13 @@ When the same word is drawn on several buttons, such as "Remove" in every row of
 
 ## Specs
 
-<DemoFrame label="Sizes and disabled" plain>
+<Example label="Sizes and disabled">
   <tanrei-button size="small">Small</tanrei-button>
   <tanrei-button size="medium">Medium</tanrei-button>
   <tanrei-button size="large">Large</tanrei-button>
   <tanrei-button disabled>Disabled</tanrei-button>
   <tanrei-button variant="outlined" disabled>Disabled</tanrei-button>
-</DemoFrame>
+</Example>
 
 <StateMatrix name="button" />
 

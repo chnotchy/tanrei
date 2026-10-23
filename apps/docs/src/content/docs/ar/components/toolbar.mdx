@@ -2,20 +2,20 @@
 title: شريط الأدوات
 description: يجمع مجموعة من عناصر التحكم المترابطة في موضع توقف واحد للمفتاح Tab، ضمن المحتوى حيث يحتاج إليه، أو راسيًا على امتداد الحافة السفلية، أو عائمًا فوق المحتوى. تنقل مفاتيح الأسهم بين عناصر التحكم فيه، وما لا تتسع له المساحة ينتقل إلى قائمة الفائض.
 translationOf: components/toolbar.mdx
-sourceHash: a8432aa4140d0470d37330b77fd6878ea1e55585
+sourceHash: ec078390e57356bd887b7ee15eb4f3f965cf37e9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="toolbar" />
 
-<DemoFrame label="ضمن المحتوى، وراسٍ، وعائم" column>
+<Example label="ضمن المحتوى، وراسٍ، وعائم" column>
   <tanrei-toolbar label="التنسيق">
     <tanrei-toolbar-group label="نمط النص">
       <tanrei-button variant="text" toggle selected label="غامق"><span slot="icon">format_bold</span></tanrei-button>
@@ -39,7 +39,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-button variant="text" label="ممحاة"><span slot="icon">ink_eraser</span></tanrei-button>
     <tanrei-button variant="filled" label="تم"><span slot="icon">check</span></tanrei-button>
   </tanrei-toolbar>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -223,7 +223,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="مجموعات وفاصل، وزر قائمة خيارات، وزر مع قائمة، وأزرار تبديل لها تسميات، وقائمة الفائض" plain column>
+<Example label="مجموعات وفاصل، وزر قائمة خيارات، وزر مع قائمة، وأزرار تبديل لها تسميات، وقائمة الفائض" column>
   <tanrei-toolbar label="إجراءات المستند">
     <tanrei-button variant="text" label="تراجع"><span slot="icon">undo</span></tanrei-button>
     <tanrei-button variant="text" label="إعادة"><span slot="icon">redo</span></tanrei-button>
@@ -268,7 +268,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-button variant="text" label="الطبقات"><span slot="icon">layers</span></tanrei-button>
     </tanrei-toolbar-group>
   </tanrei-toolbar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="toolbar" />
 
@@ -292,7 +292,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 يوزّع شريط الأدوات الراسي عناصره على العرض ولا يقرّب بينها أبدًا أكثر من فجوته (16 في النظام الافتراضي). أما الذي ضمن المحتوى والعائم فيضمّان عناصرهما: لا يتباعد الجاران إلا بالقدر الذي يحتاج إليه كل منهما ليحتفظ بهدف لمس خاص به على امتداد الصف، ولا يتقاربان أبدًا أكثر من الفجوة (4 ضمن المحتوى و0 للعائم في النظام الافتراضي). فالأزرار الكبيرة تتلامس، والمتوسطة تتباعد بمقدار 8، والصغيرة بمقدار 16. ولا يوسّع شريط الأدوات عنصرًا ولا يغيّر مظهره ليفعل ذلك، والتباعد واحد للفأرة واللمس.
 
-<DemoFrame label="عائم: عناصر صغيرة ومتوسطة وكبيرة، وعناصر ضيقة وعريضة" plain column>
+<Example label="عائم: عناصر صغيرة ومتوسطة وكبيرة، وعناصر ضيقة وعريضة" column>
   <tanrei-toolbar variant="floating" label="التنسيق، صغير">
     <tanrei-button variant="text" size="small" label="غامق"><span slot="icon">format_bold</span></tanrei-button>
     <tanrei-button variant="text" size="small" label="مائل"><span slot="icon">format_italic</span></tanrei-button>
@@ -315,7 +315,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-button variant="text" label="ممحاة"><span slot="icon">ink_eraser</span></tanrei-button>
     <tanrei-button variant="filled" width="wide" label="تم"><span slot="icon">check</span></tanrei-button>
   </tanrei-toolbar>
-</DemoFrame>
+</Example>
 
 ### العناصر
 

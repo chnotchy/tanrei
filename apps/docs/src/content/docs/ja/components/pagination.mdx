@@ -2,23 +2,23 @@
 title: ページネーション
 description: 1 つのリストの番号付きのページを移動します。現在のページに印を付けたページ番号、前と次、必要に応じて最初と最後、そして何ページ中の何ページかを示す短い形があります。
 translationOf: components/pagination.mdx
-sourceHash: 0055738fcfa0e80739713bb784bf880bbc361f3a
+sourceHash: 1c1cccbf82e1fb4aeaa57031bf176f4cf7943f25
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="pagination" />
 
-<DemoFrame label="番号付き、および最初と最後のあるもの" column>
+<Example label="番号付き、および最初と最後のあるもの" column>
   <tanrei-pagination label="1 つ目のデモのページ" page="5" count="10" previous-label="前のページ" next-label="次のページ" page-label="{page} ページ"></tanrei-pagination>
   <tanrei-pagination label="2 つ目のデモのページ" page="12" count="40" first-last previous-label="前のページ" next-label="次のページ" first-label="最初のページ" last-label="最後のページ" page-label="{page} ページ"></tanrei-pagination>
-</DemoFrame>
+</Example>
 
 ページネーションは、1 つのリストを番号でめくります。検索結果、ブログの投稿、テーブルの行などです。ガイドの章のように、タイトルのあるページが続く並びの中で前後のページへ進むものは[前後のリンク](/ja/components/previous-next-links/)です。タイトルは行き先を語りますが、ページ番号は語りません。
 
@@ -60,16 +60,16 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 
 ## 仕様
 
-<DemoFrame label="短い形と、小さいサイズ" plain column>
+<Example label="短い形と、小さいサイズ" column>
   <tanrei-pagination label="コンパクトなデモのページ" variant="compact" page="3" count="10" previous-label="前のページ" next-label="次のページ" count-text="{count} ページ中 {page} ページ"></tanrei-pagination>
   <tanrei-pagination label="小さいデモのページ" size="small" page="4" count="8" previous-label="前のページ" next-label="次のページ" page-label="{page} ページ"></tanrei-pagination>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="狭い列では、番号付きの形が短い形になる" plain>
+<Example label="狭い列では、番号付きの形が短い形になる">
   <div style="inline-size: 14rem">
     <tanrei-pagination label="狭いデモのページ" page="5" count="10" previous-label="前のページ" next-label="次のページ" page-label="{page} ページ" count-text="{count} ページ中 {page} ページ"></tanrei-pagination>
   </div>
-</DemoFrame>
+</Example>
 
 - **表示する番号。** 最初と最後のページ（`boundaries`、既定は 1）、現在のページとその両側の 1 ページずつ（`siblings`、既定は 1）です。その間で省いたページは 1 つの省略記号になります。端に近いときは反対側に多くのページを表示するので、どのページでも行の場所の数は同じで、行の幅も変わりません。
 - **現在のページ**は塗りつぶして描かれ、現在のものとして公開されます。現在のページを押しても何も起きません。

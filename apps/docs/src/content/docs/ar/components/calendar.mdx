@@ -2,14 +2,14 @@
 title: التقويم
 description: يعرض شهرًا واحدًا في صورة شبكة من الأيام، في الصفحة أو داخل منتقٍ، ويتيح للشخص أن يختار منه تاريخًا واحدًا أو مدى واحدًا من التواريخ، وينتقل من شهر إلى شهر في صورة عمود واحد من الأسابيع يتبع التمرير والسحب.
 translationOf: components/calendar.mdx
-sourceHash: c095f989d07f9cab3c2978b4e5df0acdf942d89e
+sourceHash: 0a4eb8a0d2c0bebf083959ed9e5b6788f2588d04
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import ProductWords from '../../../../components/ProductWords.astro';
 
 export const words = {
@@ -31,9 +31,9 @@ export const words = {
 ينفّذ مكوّن الويب التقويم كما تصفه هذه الصفحة: الأشهر عمود واحد من الأسابيع يتبع التمرير والسحب. والعروض التوضيحية هي ذلك المكوّن. لم تبنِه SwiftUI و Compose و Flutter و React Native بعد. وما زالت حزمها تحمل شيفرة منتقي التاريخ المتقاعد، الذي لا توثّقه هذه الصفحة.
 :::
 
-<DemoFrame label="تاريخ واحد. مرِّر الأيام أو اسحبها، أو استخدم الأزرار، لتغيير الشهر">
+<Example label="تاريخ واحد. مرِّر الأيام أو اسحبها، أو استخدم الأزرار، لتغيير الشهر">
   <tanrei-calendar label="تاريخ الوصول" locale="ar-u-nu-latn" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -125,9 +125,9 @@ export const words = {
 - **مدى.** في الوضع `range`، الاختيار الأول هو البداية والثاني هو النهاية. ويوم قبل البداية، أو اختيار بعد تعيين الطرفين، يبدأ من جديد. يصدر `change` بعد كل اختيار، و `end` فارغة بعد البداية وحدها، ليستطيع المنتج أن يعرض المدى نصف المختار. والبداية والنهاية في اليوم نفسه تصنعان مدى من يوم واحد.
 - **القيم** تواريخ تقويمية بصيغة ISO 8601 (`2026-09-17`)، بلا وقت ولا منطقة زمنية. والقيمة `today` هي تاريخ الجهاز الحالي ما لم تعيّنها، لمنطقة زمنية لمكان ما أو للاختبارات.
 
-<DemoFrame label="مدى. اختر بداية ثم نهاية؛ والاختيار الثالث يبدأ من جديد" plain>
+<Example label="مدى. اختر بداية ثم نهاية؛ والاختيار الثالث يبدأ من جديد">
   <tanrei-calendar mode="range" label="الإقامة" locale="ar-u-nu-latn" today="2026-09-24" start="2026-09-10" end="2026-09-16"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 المدى شريط واحد من البداية إلى النهاية. ينقطع عند نهاية صف الأسبوع ويكمل في الصف التالي.
 
@@ -137,9 +137,9 @@ export const words = {
 
 المدى الذي يمتد فوق يوم غير متاح يُبقيه في داخله؛ فإن لم يستطع منتجك قبول ذلك فقل ذلك بعد `change`.
 
-<DemoFrame label="من 7 سبتمبر إلى 20 أكتوبر، مع حجز يومي 21 و 22 سبتمبر" plain>
+<Example label="من 7 سبتمبر إلى 20 أكتوبر، مع حجز يومي 21 و 22 سبتمبر">
   <tanrei-calendar label="الموعد" locale="ar-u-nu-latn" today="2026-09-24" value="2026-09-17" min="2026-09-07" max="2026-10-20" disabled-dates="2026-09-21 2026-09-22"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### التنقل بين الأشهر
 
@@ -162,9 +162,9 @@ export const words = {
 
 المفاتيح لا تتغير مع المحور أبدًا.
 
-<DemoFrame label="محور أفقي: الأشهر صفحات" system="m3-like" plain>
+<Example label="محور أفقي: الأشهر صفحات" system="m3-like">
   <tanrei-calendar label="تاريخ الوصول" locale="ar-u-nu-latn" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 التمرير على طول المحور للتقويم ما دام المؤشر فوق الأيام، وكذلك عند الشهر الأول والأخير، حيث تتوقف الأيام. وفي صفحة تُمرَّر بالاتجاه نفسه لا تُمرَّر الصفحة من هناك: اترك فسحة بجانب التقويم أو حوله في صفحة طويلة، حيث يصل التمرير إلى الصفحة. أما صف أيام الأسبوع، ثم صف التنقل، وكل ما حول التقويم، فتمرّر الصفحة كالمعتاد.
 
@@ -172,17 +172,17 @@ export const words = {
 
 زر تبديل العرض ينتقل إلى عرض السنوات، وهو قائمة تُمرَّر من سنة `min` إلى سنة `max` (من 1900 إلى 2100 من دونهما). اختيار سنة يعرض الشهر نفسه في تلك السنة ولا يغيّر أي اختيار. والقيمة `year` للخاصية `startView` تفتح هناك أولًا، لتاريخ بعيد عن اليوم كتاريخ ميلاد.
 
-<DemoFrame label="الفتح على السنوات، لتاريخ ميلاد" plain>
+<Example label="الفتح على السنوات، لتاريخ ميلاد">
   <tanrei-calendar label="تاريخ الميلاد" locale="ar-u-nu-latn" today="2026-09-24" start-view="year" max="2026-09-24"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### أيام الشهرين المجاورين
 
 الخاصية `showAdjacentDays` تملأ الخانات الفارغة في الشبكة بأيام الشهرين المجاورين، مرسومة أهدأ. يمكن اختيارها حين تكون متاحة، ويجوز أن يبدأ المدى أو ينتهي على أحدها. واختيار أحدها بالمؤشر يختاره ثم يعرض شهره، حيث يكون واحدًا من أيام الشهر نفسه. ومن دونها تكون تلك الخانات فارغة ولا تأخذ ضغطًا.
 
-<DemoFrame label="مع أيام الشهرين المجاورين: اختيار 1 أكتوبر يعرض أكتوبر" plain>
+<Example label="مع أيام الشهرين المجاورين: اختيار 1 أكتوبر يعرض أكتوبر">
   <tanrei-calendar label="تاريخ التسليم" locale="ar-u-nu-latn" today="2026-09-24" value="2026-09-29" show-adjacent-days></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### الإعدادات المحلية
 
@@ -192,10 +192,10 @@ export const words = {
 
 هذا الاستدعاء هو ما تنفّذه هذه الصفحة: كل تقويم فيها تسمّيه تلك الكلمات، والعيّنات لا تحمل أيًّا منها. والتقويم الذي تختلف كلماته يقولها بنفسه: التقويم الياباني أدناه يعطي كلماته الأربع خصائص HTML، وخاصية HTML تغلب دائمًا. ومن دون أي منها تظل أزرار التنقل تعمل ولا اسم لها، وتبلّغ بنية التنقيح عن كل كلمة ناقصة. والكلمة الدالّة على اليوم الحاضر وحدها تأتي من بيانات الإعدادات المحلية في المتصفح حيث لا تعطي كلمة.
 
-<DemoFrame label="أسبوع يبدأ يوم الاثنين، والإعدادات المحلية اليابانية" plain>
+<Example label="أسبوع يبدأ يوم الاثنين، والإعدادات المحلية اليابانية">
   <tanrei-calendar label="تاريخ الوصول" locale="ar-u-nu-latn" first-day-of-week="monday" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
   <tanrei-calendar label="チェックイン日" locale="ja-JP" today="2026-09-24" value="2026-09-17" previous-month-label="前の月" next-month-label="次の月" year-view-label="年を選ぶ" today-label="今日"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### افعل
 

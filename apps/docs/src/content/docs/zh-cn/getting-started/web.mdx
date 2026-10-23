@@ -2,13 +2,13 @@
 title: Web
 description: 在任何 Web 项目中使用 Tanrei 的 CSS 令牌和 Web Components。
 translationOf: getting-started/web.mdx
-sourceHash: 0ade01b45306c42b4c74cd9c775e6125e3d7ab5c
+sourceHash: fb8e6a2acbc93ad9938e2e07ac6820f37f8fc6cb
 ---
 
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 `@tanrei/web` 包含两样东西：一份以 CSS 自定义属性提供设计令牌的样式表，以及用 Lit 构建的、基于标准的自定义元素。它不要求使用任何框架。
 
@@ -105,10 +105,10 @@ npm install path/to/tanrei-packages/tanrei-web-*.tgz
 
 </Steps>
 
-<DemoFrame>
+<Example>
   <tanrei-button variant="filled">部署</tanrei-button>
   <tanrei-button variant="outlined" size="small" disabled>取消</tanrei-button>
-</DemoFrame>
+</Example>
 
 ## 元素清单
 

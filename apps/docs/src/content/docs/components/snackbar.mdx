@@ -7,7 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
@@ -17,10 +17,10 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 This page describes the snackbar as the spec has it now: a bar drawn on a surface of the scheme or inverse, a quiet tonal action, status forms in quiet tints, a title, and text that expands. The web draws all of it. It stays marked lagging above until its inverse status forms have been reviewed and their baselines recorded. SwiftUI, Compose, Flutter and React Native ship an earlier revision, with a text action, no status forms, no title, no expansion and no `inverse`, and their samples show that revision until they catch up. The demos are the web component as it ships today.
 :::
 
-<DemoFrame label="Drawn in place: a message with an action, and one with a close button" column>
+<Example label="Drawn in place: a message with an action, and one with a close button" column>
   <tanrei-snackbar message="Conversation archived" action="Undo"></tanrei-snackbar>
   <tanrei-snackbar message="Connected to the office printer" closable close-label="Close"></tanrei-snackbar>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -169,10 +169,10 @@ Each host also closes the snackbar that is showing (`dismissCurrent`) and drops 
 
 ## Specs
 
-<DemoFrame label="A message that wraps, and an action on its own row" plain column>
+<Example label="A message that wraps, and an action on its own row" column>
   <tanrei-snackbar message="Your changes were saved, but the shared copy could not be updated while you were offline." action="Retry"></tanrei-snackbar>
   <tanrei-snackbar message="Three files could not be uploaded because they are larger than the limit for this folder." action="Review files that failed"></tanrei-snackbar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="snackbar" />
 
@@ -237,12 +237,12 @@ A product may give the action another look. It does that once, for every snackba
 | `warning` | `warning` | Assertively | Something that may go wrong unless the person acts. |
 | `error` | `error` | Assertively | A failure the person can come back to, with an action that retries or explains. |
 
-<DemoFrame label="Status forms: info, success, warning and error" column>
+<Example label="Status forms: info, success, warning and error" column>
   <tanrei-snackbar status="info" status-label="Information" message="A new version is ready to install." action="Restart"></tanrei-snackbar>
   <tanrei-snackbar status="success" status-label="Success" message="Backup finished" closable close-label="Close"></tanrei-snackbar>
   <tanrei-snackbar status="warning" status-label="Warning" headline="Storage almost full" message="Uploads stop when the last 200 MB are used." action="Manage"></tanrei-snackbar>
   <tanrei-snackbar status="error" status-label="Error" headline="Message not sent" message="You are offline. The message will stay in Outbox." action="Retry"></tanrei-snackbar>
-</DemoFrame>
+</Example>
 
 A status form draws its bar as a quiet tint of the status, with a hairline edge in the status's color around it and the status's glyph, in that color, before the text. The edge takes no space. The default form has no edge of its own, only the one its elevation draws. A status form is never told by color alone: the glyph's shape tells the forms apart, and `statusLabel` gives the status in words, in your product's language ("Error"). The label is read before the title and the message. Warning and error interrupt what is being read; the other forms wait for it.
 
@@ -250,13 +250,13 @@ A status form draws its bar as a quiet tint of the status, with a hairline edge 
 
 By default a snackbar is drawn on a raised surface of the scheme: the bright surface, lifted by its elevation, that dialogs also stand on, with the scheme's text color. Drawn inverse it takes the opposite scheme's colors, a dark bar in a light scheme, so that it stands apart from whatever it lands on.
 
-<DemoFrame label="Drawn inverse: the default form and the four status forms" plain column>
+<Example label="Drawn inverse: the default form and the four status forms" column>
   <tanrei-snackbar inverse message="Conversation archived" action="Undo"></tanrei-snackbar>
   <tanrei-snackbar inverse status="info" status-label="Information" message="A new version is ready to install." action="Restart"></tanrei-snackbar>
   <tanrei-snackbar inverse status="success" status-label="Success" message="Backup finished" closable close-label="Close"></tanrei-snackbar>
   <tanrei-snackbar inverse status="warning" status-label="Warning" headline="Storage almost full" message="Uploads stop when the last 200 MB are used." action="Manage"></tanrei-snackbar>
   <tanrei-snackbar inverse status="error" status-label="Error" headline="Message not sent" message="You are offline. The message will stay in Outbox." action="Retry"></tanrei-snackbar>
-</DemoFrame>
+</Example>
 
 | `inverse` | Drawn |
 | --- | --- |

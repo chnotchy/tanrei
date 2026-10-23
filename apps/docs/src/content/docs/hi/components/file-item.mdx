@@ -2,14 +2,14 @@
 title: फ़ाइल आइटम
 description: एक फ़ाइल दिखाता है, यानी उसका फ़ॉर्मैट बताने वाला ग्लिफ़ या उसकी छोटी तस्वीर, उसका नाम, और वह बात जो प्रॉडक्ट उसके बारे में कहता है। साथ में उसे हटाने और फिर कोशिश करने की क्रियाएँ होती हैं। वह फ़ाइलों के कॉलम की एक पंक्ति हो सकता है या तस्वीरों की क़तार की एक टाइल। फ़ाइल खोलने के लिए उसे दबाया जा सकता है। वह ख़ुद फ़ाइल को कभी नहीं पढ़ता, नहीं रखता और नहीं भेजता।
 translationOf: components/file-item.mdx
-sourceHash: d28c31a8db7cd09eab202ce5126a728ce24942af
+sourceHash: 36e74efccd5964d52a7b541ac48c5b001732db14
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 import ListReorderProduct from '../../../../components/ListReorderProduct.astro';
 import { demoPicture } from '../../../../lib/demo-picture';
@@ -18,13 +18,13 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 <ComponentAvailability name="file-item" />
 
-<DemoFrame label="एक फ़ाइल पंक्ति के रूप में, और फ़ाइलें टाइल के रूप में" column>
+<Example label="एक फ़ाइल पंक्ति के रूप में, और फ़ाइलें टाइल के रूप में" column>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" format-text="PDF" size-text="820 KB" remove-label="{name} हटाएँ"></tanrei-file-item>
   <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
     <tanrei-file-item form="tile" preview preview-src={demoPicture} value="b" name="floor-plan.png" remove-label="{name} हटाएँ"></tanrei-file-item>
     <tanrei-file-item form="tile" value="c" name="survey-2026.xlsx" remove-label="{name} हटाएँ"></tanrei-file-item>
   </div>
-</DemoFrame>
+</Example>
 
 फ़ाइल आइटम एक फ़ाइल को दिखाता है, बस इतना ही। नाम से पहले एक ग्लिफ़ होता है, जो फ़ाइल का फ़ॉर्मैट बताता है, या फ़ाइल की एक छोटी तस्वीर। नाम के नीचे एक लाइन होती है, जिसमें वह बात रहती है जो आपका प्रॉडक्ट उसके बारे में कहता है: उसका फ़ॉर्मैट, उसका साइज़, उसका भेजा जाना कहाँ तक पहुँचा, या क्या ग़लत हुआ। अंत में वे दो क्रियाएँ होती हैं जो किसी फ़ाइल की होती हैं: उसे हटाना, और फिर कोशिश करना।
 
@@ -103,14 +103,14 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 ## स्पेक
 
-<DemoFrame label="हर स्थिति की एक पंक्ति: इंतज़ार में, 40% तक भेजी गई, भेजी जा रही, पूरी हुई, विफल और फिर कोशिश करने लायक़, हमेशा के लिए विफल" plain column>
+<Example label="हर स्थिति की एक पंक्ति: इंतज़ार में, 40% तक भेजी गई, भेजी जा रही, पूरी हुई, विफल और फिर कोशिश करने लायक़, हमेशा के लिए विफल" column>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" size-text="820 KB" status-text="इंतज़ार में" remove-label="{name} हटाएँ"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="floor-plan.png" size-text="3.4 MB" status="uploading" status-text="अपलोड हो रही है" progress="0.4" remove-label="{name} हटाएँ"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="survey.pdf" size-text="1.1 MB" status="uploading" status-text="अपलोड हो रही है" remove-label="{name} हटाएँ"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="d" name="contract.pdf" size-text="2.0 MB" status="done" status-text="अपलोड हो गई" remove-label="{name} हटाएँ"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="e" name="site-photo.png" size-text="6.8 MB" status="error" error-text="कनेक्शन टूट गया।" retryable remove-label="{name} हटाएँ" retry-label="{name} के लिए फिर कोशिश करें"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="f" name="scan-archive.zip" size-text="48 MB" status="error" error-text="10 MB से बड़ी है।" remove-label="{name} हटाएँ"></tanrei-file-item>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="file-item" />
 
@@ -118,7 +118,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 ### दो रूप
 
-<DemoFrame label="वही तीन फ़ाइलें, पंक्तियों के रूप में और टाइल के रूप में" plain column>
+<Example label="वही तीन फ़ाइलें, पंक्तियों के रूप में और टाइल के रूप में" column>
   <div class="not-content" style="display: grid; gap: 0.5rem; inline-size: 22.5rem; max-inline-size: 100%">
     <tanrei-file-item value="a" name="entrance.jpeg" size-text="2.1 MB" preview preview-src={demoPicture} remove-label="{name} हटाएँ"></tanrei-file-item>
     <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB" preview preview-src={demoPicture} remove-label="{name} हटाएँ"></tanrei-file-item>
@@ -129,7 +129,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
     <tanrei-file-item form="tile" value="b" name="floor-plan.png" preview preview-src={demoPicture} remove-label="{name} हटाएँ"></tanrei-file-item>
     <tanrei-file-item form="tile" value="c" name="survey.pdf" preview remove-label="{name} हटाएँ"></tanrei-file-item>
   </div>
-</DemoFrame>
+</Example>
 
 | पहलू | `row` (डिफ़ॉल्ट) | `tile` |
 | --- | --- | --- |
@@ -168,7 +168,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 ग्लिफ़ के दस प्रकार हैं। हर प्रकार की मीडिया टाइप की एक लिस्ट और फ़ाइल एक्सटेंशन की एक लिस्ट होती है। ग्लिफ़ `mediaType` से चुना जाता है। जहाँ मीडिया टाइप ख़ाली है, `application/octet-stream` है या इनमें से किसी लिस्ट में नहीं है, वहाँ वह `name` के एक्सटेंशन से चुना जाता है। प्रकारों से मिलान इसी क्रम में किया जाता है। ये लिस्ट तय हैं और हर प्लैटफ़ॉर्म पर एक जैसी हैं, इसलिए कोई फ़ाइल जहाँ भी दिखे, उसका ग्लिफ़ एक ही रहता है। `video/mp2t` भी कुछ तय नहीं करता: प्लैटफ़ॉर्म इसे `.ts` एक्सटेंशन से अनुमान लगाते हैं, जो TypeScript फ़ाइलें वीडियो स्ट्रीम के साथ साझा करती हैं, इसलिए `index.ts` कोड का ग्लिफ़ बनाता है।
 
-<DemoFrame label="दस प्रकार" plain column>
+<Example label="दस प्रकार" column>
   <div class="not-content" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.25rem 1rem; inline-size: 100%">
     <tanrei-file-item name="handbook.pdf" readonly></tanrei-file-item>
     <tanrei-file-item name="budget.xlsx" readonly></tanrei-file-item>
@@ -181,7 +181,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
     <tanrei-file-item name="notes.docx" readonly></tanrei-file-item>
     <tanrei-file-item name="model.glb" readonly></tanrei-file-item>
   </div>
-</DemoFrame>
+</Example>
 
 | प्रकार | ग्लिफ़ | मीडिया टाइप | नाम के अंत |
 | --- | --- | --- | --- |
@@ -211,11 +211,11 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 `fit` बताता है कि तस्वीर अपने बॉक्स को कैसे भरती है। `cover`, जो डिफ़ॉल्ट है, बॉक्स को भर देता है और जो नहीं समाता उसे काट देता है; इसे फ़ोटो के लिए इस्तेमाल करें। `contain` पूरी तस्वीर को बॉक्स के बैकग्राउंड पर दिखाता है; इसे स्कैन, हस्ताक्षर और डायग्राम के लिए इस्तेमाल करें, जहाँ किनारे मायने रखते हैं।
 
-<DemoFrame label="160 गुणा 90 का बॉक्स: cover, contain, और छिपा हुआ नाम" plain>
+<Example label="160 गुणा 90 का बॉक्स: cover, contain, और छिपा हुआ नाम">
   <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} value="a" name="entrance.jpeg" remove-label="{name} हटाएँ"></tanrei-file-item>
   <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} fit="contain" value="b" name="signature.png" remove-label="{name} हटाएँ"></tanrei-file-item>
   <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} name-hidden value="c" name="floor-plan.png" remove-label="{name} हटाएँ"></tanrei-file-item>
-</DemoFrame>
+</Example>
 
 प्रीव्यू की क़ीमत:
 
@@ -233,11 +233,11 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 डिफ़ॉल्ट रूप से फ़ाइल आइटम की बॉडी न फ़ोकस लेती है, न किसी बात का जवाब देती है। आइटम में सिर्फ़ उसकी क्रियाएँ रहती हैं।
 
-<DemoFrame label="बटन वाली बॉडी, नए टैब में खुलने वाला लिंक, और सिर्फ़ पढ़ने वाली फ़ाइल" plain column>
+<Example label="बटन वाली बॉडी, नए टैब में खुलने वाला लिंक, और सिर्फ़ पढ़ने वाली फ़ाइल" column>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="floor-plan.png" size-text="3.4 MB" interactive remove-label="{name} हटाएँ"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="contract.pdf" size-text="2.0 MB" href="#दबाने-लायक़-लिंक-या-सिर्फ़-पढ़ने-के-लिए" target="new" target-label="नए टैब में खुलता है" remove-label="{name} हटाएँ"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="invoice-0412.pdf" size-text="96 KB" status="done" status-text="4 दिसंबर को भेजी गई" readonly></tanrei-file-item>
-</DemoFrame>
+</Example>
 
 | प्रॉपर्टी | बॉडी क्या है | किसके लिए |
 | --- | --- | --- |
@@ -257,13 +257,13 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 <ListReorderProduct />
 
-<DemoFrame label="वे फ़ाइलें जिनका क्रम लोग बदलते हैं: क्रम बदलने योग्य लिस्ट में फ़ाइल आइटम" plain>
+<Example label="वे फ़ाइलें जिनका क्रम लोग बदलते हैं: क्रम बदलने योग्य लिस्ट में फ़ाइल आइटम">
   <tanrei-list reorderable gap="small" data-demo-product label="अटैचमेंट" drag-handle-label="{label} का क्रम बदलें" move-to-start-label="सबसे ऊपर ले जाएँ" move-before-label="ऊपर ले जाएँ" move-after-label="नीचे ले जाएँ" move-to-end-label="सबसे नीचे ले जाएँ" lifted-text="{label} उठाया गया: {count} में से {position}" moved-text="{label}: {count} में से {position}" cancelled-text="{label} वापस {count} में से {position} पर" style="inline-size: 26rem; max-inline-size: 100%">
     <tanrei-list-item><tanrei-file-item name="cover-letter.pdf" size-text="120 KB" remove-label="हटाएँ: {name}"></tanrei-file-item></tanrei-list-item>
     <tanrei-list-item><tanrei-file-item name="resume.docx" size-text="88 KB" remove-label="हटाएँ: {name}"></tanrei-file-item></tanrei-list-item>
     <tanrei-list-item><tanrei-file-item name="portfolio.zip" size-text="14 MB" remove-label="हटाएँ: {name}"></tanrei-file-item></tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
 ```html
 <tanrei-list reorderable gap="small" label="Attachments" drag-handle-label="Reorder {label}"

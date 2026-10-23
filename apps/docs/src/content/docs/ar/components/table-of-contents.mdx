@@ -2,20 +2,20 @@
 title: جدول المحتويات
 description: يسرد عناوين أقسام الصفحة التي تُقرأ روابطَ إليها، ويعلّم العنوان الذي يُقرأ قسمه. وحيث لا متّسع بجانب النص، يسمّي صف واحد القسم الحالي ويفتح القائمة نفسها.
 translationOf: components/table-of-contents.mdx
-sourceHash: f5bfc3fe238e62fc88573224164e01b2942039f2
+sourceHash: dc38f921aee3c6d914fb80adf6dc437c39164b17
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="table-of-contents" />
 
-<DemoFrame label="أقسام هذه الصفحة: مرِّر، والعلامة تتبع" plain>
+<Example label="أقسام هذه الصفحة: مرِّر، والعلامة تتبع">
   <tanrei-table-of-contents class="not-content tanrei-not-prose" label="في هذه الصفحة" style="inline-size: 15rem; max-inline-size: 100%">
     <ul>
       <li>
@@ -36,7 +36,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <li><a href="#إمكانية-الوصول">إمكانية الوصول</a></li>
     </ul>
   </tanrei-table-of-contents>
-</DemoFrame>
+</Example>
 
 جدول المحتويات يُظهر ما تحمله صفحة طويلة وفي أي جزء منها القارئ. كل عنصر رابط إلى عنوان قسم؛ والعناوين الفرعية مُزاحة إلى الداخل تحت عنوانها. وللعنصر الحالي علامة على الخط الجانبي (rail) وتسمية بوزن أثقل. وليس هو تنقل المنتج بين الصفحات: ذاك درج التنقل.
 
@@ -108,7 +108,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="الكثافة compact، وثلاثة مستويات، والعنصر الثالث هو الحالي" plain>
+<Example label="الكثافة compact، وثلاثة مستويات، والعنصر الثالث هو الحالي">
   <tanrei-table-of-contents class="not-content tanrei-not-prose" label="في هذه الصفحة" density="compact" tracking="manual" current="#roles-demo" style="inline-size: 15rem; max-inline-size: 100%">
     <ul>
       <li>
@@ -127,9 +127,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <li><a href="#components-demo">المكوّنات</a></li>
     </ul>
   </tanrei-table-of-contents>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="الهيئة المضغوطة: اضغط الصف" plain>
+<Example label="الهيئة المضغوطة: اضغط الصف">
   <tanrei-table-of-contents class="not-content tanrei-not-prose" label="في هذه الصفحة" presentation="compact" tracking="manual" current="#configure-demo" style="inline-size: 20rem; max-inline-size: 100%">
     <ul>
       <li><a href="#install-demo">التثبيت</a></li>
@@ -137,7 +137,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <li><a href="#build-demo">البناء</a></li>
     </ul>
   </tanrei-table-of-contents>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="table-of-contents" />
 

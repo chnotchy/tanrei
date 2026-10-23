@@ -2,14 +2,14 @@
 title: العرض الدوّار
 description: صف من العناصر المرئية يُمرَّر جانبيًّا حول عنصر واحد في الصدارة، وكل عنصر يفتح ما يعرضه. والصف المميَّز قد يدور بلا نهاية، ويعرض موضعه بنقاط، ويتقدم من تلقاء نفسه.
 translationOf: components/carousel.mdx
-sourceHash: 456f22fc35f1b413823ac47def1b7dcdec2ed432
+sourceHash: 6c17872330097ca5dbb892d334a8fbaa39ad7f09
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 تصف هذه الصفحة العرض الدوّار كما هو في المواصفة الآن. تحل اختيارات مستقلة (موضع العنصر البارز، عروض مرنة أو ثابتة، التصغير، الاستقرار على عنصر كامل، الدوران) محل الخاصية `layout`، ويستطيع الصف المميَّز أن يعرض نقاطًا وأن يتقدم من تلقاء نفسه. العنصر البارز (hero) صار الآن في الوسط افتراضيًّا، والعناصر المتجاورة تقف على بُعد فجوة واحدة عند كل موضع تمرير. مكوّن الويب يفعل ذلك كله منذ الآن، وكذلك العروض التوضيحية. أما SwiftUI و Compose و Flutter و React Native فموسومة أعلاه بأنها متأخرة: إلى أن تلحق بالمواصفة تقدّم المراجعة السابقة، وفيها `layout` وليس فيها دوران ولا نقاط ولا تشغيل تلقائي ولا عنصرا التحكم السابق والتالي. انظر [العنصر البارز في الوسط في الوضع الافتراضي](#العنصر-البارز-في-الوسط-في-الوضع-الافتراضي) و [الترحيل من `layout`](#الترحيل-من-layout).
 :::
 
-<DemoFrame label="الوضع الافتراضي: العنصر البارز في الوسط، وبجانبه عنصر صغير">
+<Example label="الوضع الافتراضي: العنصر البارز في الوسط، وبجانبه عنصر صغير">
   <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" label="نزهات بالقرب منك" style="inline-size: 25rem; max-inline-size: 100%">
     <tanrei-carousel-item label="مسار الساحل، 12 صورة"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
     <tanrei-carousel-item label="البلدة القديمة، 8 صور"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -28,7 +28,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-carousel-item label="قلعة التل، 9 صور"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
     <tanrei-carousel-item label="ممشى النهر، 14 صورة"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
   </tanrei-carousel>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -159,7 +159,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="عنصر بارز بأقصى عرض مسموح له، وعروض ثابتة تُمرَّر بحرية من حافة البداية" plain column>
+<Example label="عنصر بارز بأقصى عرض مسموح له، وعروض ثابتة تُمرَّر بحرية من حافة البداية" column>
   <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" item-width="400" label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
     <tanrei-carousel-item label="مسار الساحل، 12 صورة"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
     <tanrei-carousel-item label="البلدة القديمة، 8 صور"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -173,9 +173,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-carousel-item label="ضفة البحيرة، 5 صور"><span class="tanrei-icon">water</span></tanrei-carousel-item>
     <tanrei-carousel-item label="قلعة التل، 9 صور"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
   </tanrei-carousel>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="ترتيب الصف: عروض ثابتة، تصغير، دوران، محتوى نحو العنصر البارز" plain column>
+<Example label="ترتيب الصف: عروض ثابتة، تصغير، دوران، محتوى نحو العنصر البارز" column>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">عروض ثابتة، والصف يقف حيث ينتهي التمرير: <code>fixed-width free-scroll</code></div>
     <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" fixed-width free-scroll label="نزهات بالقرب منك" style="inline-size: 25rem; max-inline-size: 100%">
@@ -217,9 +217,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-carousel-item label="ممشى النهر، 14 صورة"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
     </tanrei-carousel>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="النقاط، والتشغيل التلقائي، والتقدم، والإيقاف المؤقت، وعنصر التحكم في التشغيل وحده" plain column>
+<Example label="النقاط، والتشغيل التلقائي، والتقدم، والإيقاف المؤقت، وعنصر التحكم في التشغيل وحده" column>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">النقاط: <code>indicator</code></div>
     <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" indicator label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
@@ -273,7 +273,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-carousel-item label="ضفة البحيرة، 5 صور"><span class="tanrei-icon">water</span></tanrei-carousel-item>
     </tanrei-carousel>
   </div>
-</DemoFrame>
+</Example>
 
 لا يعمل التشغيل التلقائي أبدًا حيث يكون إعداد تقليل الحركة مفعَّلًا: هناك تقف عروض التشغيل التلقائي التوضيحية ساكنة، بلا عنصر التحكم في التشغيل وبلا التقدم.
 

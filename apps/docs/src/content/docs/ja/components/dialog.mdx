@@ -2,14 +2,14 @@
 title: ダイアログ
 description: 作業を先に進めるのに欠かせない判断や入力のために、人をいったん立ち止まらせます。背後のすべてを暗くしてふさぎ、答えるか閉じるまで表示し続けます。
 translationOf: components/dialog.mdx
-sourceHash: f86e3764e1ad3f95e4617465f361ae2dd033e180
+sourceHash: 2ec420cc8eb2fe5bd3b7c94ecb87939ab77ba4a5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
@@ -19,13 +19,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 このページは、仕様の現在の形のダイアログを説明しています。どのダイアログも少なくとも 1 つのアクションを持ち、アクションは役割で配置される Tonal のボタンが横幅いっぱいに並びます。アイコンは先頭にそろえた見出しの横に付き、コンパクトなウィンドウではダイアログが下端に表示されます。Web コンポーネントはこの改訂に対応しており、このページのデモは、現在提供している Web コンポーネントです。上の表で Web が追従待ち（lagging）のままなのは、改訂の確認とベースラインの記録が済んでいないためです。SwiftUI、Compose、Flutter、React Native は、追従するまで以前の版を提供します。アイコンが中央そろえの見出しの上に付き、テキストのアクションが渡した順に末尾側にそろえて 1 行に並び、アクションは省略でき、どのウィンドウでも中央に表示される形です。
 :::
 
-<DemoFrame label="確認のダイアログ：ボタンで開きます">
+<Example label="確認のダイアログ：ボタンで開きます">
   <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-basic').open = true">下書きを破棄</tanrei-button>
   <tanrei-dialog id="dialog-demo-basic" headline="下書きを破棄しますか？" supporting-text="作成中のメッセージはこのデバイスから削除されます。">
     <tanrei-button slot="actions" dismissive autofocus onclick="this.closest('tanrei-dialog').open = false">キャンセル</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">破棄</tanrei-button>
   </tanrei-dialog>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -193,14 +193,14 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 
 ## 仕様
 
-<DemoFrame label="アラートのダイアログ：開いた時点で読み上げる、破壊的な操作の確認" plain>
+<Example label="アラートのダイアログ：開いた時点で読み上げる、破壊的な操作の確認">
   <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-alert').open = true">プロジェクトを削除</tanrei-button>
   <tanrei-dialog id="dialog-demo-alert" alert headline="プロジェクトを削除しますか？" supporting-text="履歴も含め、プロジェクトのすべてが削除されます。元に戻すことはできません。">
     <span slot="icon">delete</span>
     <tanrei-button slot="actions" dismissive autofocus onclick="this.closest('tanrei-dialog').open = false">キャンセル</tanrei-button>
     <tanrei-button slot="actions" confirming destructive onclick="this.closest('tanrei-dialog').open = false">削除</tanrei-button>
   </tanrei-dialog>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="dialog" />
 
@@ -244,13 +244,13 @@ tanrei-dialog::part(scroll) { scroll-padding-block-end: 56px; }
 
 ### 閉じるボタンはない
 
-<DemoFrame label="保存の横にキャンセルがあるフォーム。small の幅">
+<Example label="保存の横にキャンセルがあるフォーム。small の幅">
   <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-form').open = true">表示名を編集</tanrei-button>
   <tanrei-dialog id="dialog-demo-form" headline="表示名を編集" supporting-text="この名前はチームの全員に表示されます。" width="small">
     <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-dialog').open = false">キャンセル</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">保存</tanrei-button>
   </tanrei-dialog>
-</DemoFrame>
+</Example>
 
 ダイアログは、見出しの行に閉じるボタンを描きません。ダイアログは判断を求めるものです。判断せずに出ていく道は引き返すアクションと、`dismissible` が true の間は、Escape、プラットフォームの「戻る」、スクリムの押下です。
 

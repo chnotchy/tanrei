@@ -7,18 +7,18 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 import Callout from '../../../components/Callout.astro';
 
 ## Overview
 
 <ComponentAvailability name="embedded-text-input" />
 
-<DemoFrame label="An embedded text input inside a box the page draws. Type several lines: the box follows the height. The edge of the box shows the focus." column>
+<Example label="An embedded text input inside a box the page draws. Type several lines: the box follows the height. The edge of the box shows the focus." column>
   <div class="not-content docs-embedded-holder" style="box-sizing: border-box; inline-size: 22.5rem; max-inline-size: 100%; background: var(--tanrei-sys-color-surface-container); border-radius: var(--tanrei-sys-shape-corner-large); padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); cursor: text">
     <tanrei-embedded-text-input label="Message" placeholder="Write a message" multiline max-rows="6"></tanrei-embedded-text-input>
   </div>
-</DemoFrame>
+</Example>
 
 <style>{`
   .docs-embedded-holder { outline: var(--tanrei-sys-border-thick) solid transparent; outline-offset: calc(-1 * var(--tanrei-sys-border-thick)); }

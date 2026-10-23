@@ -2,14 +2,14 @@
 title: 検索
 description: 入力に合わせて候補と検索結果を示す検索バー、またはその代わりに置く小さなトリガーです。バーの下に開くビュー、ダイアログ、画面全体を覆うビューのいずれかに表示します。
 translationOf: components/search.mdx
-sourceHash: ea99c97d9b0984ba334c4a36babfb96dedf3fb6b
+sourceHash: 75b389b319ef6abdc333633e4d9b399ea5421ec1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 このページは、仕様の現在の形の検索を説明しています。検索はサイト内検索にも使えます。バーの代わりに置くトリガー、ダイアログのビュー、リンクである検索結果、ステータスの行、ショートカットが加わっています。Web コンポーネントはこのすべてに対応しており、デモもそれを示しています。SwiftUI、Compose、Flutter、React Native は上の表で「追従待ち」です。追従するまでは以前の版（入力欄のあるバー、docked と full-screen のビュー、候補）を提供しており、サンプルもその版のものです。
 :::
 
-<DemoFrame label="空、検索語あり、アイコンボタンあり" column>
+<Example label="空、検索語あり、アイコンボタンあり" column>
   <tanrei-search label="メールを検索" placeholder="メールを検索" style="inline-size: 20.5rem"></tanrei-search>
   <tanrei-search label="メールを検索" placeholder="メールを検索" value="請求書" clear-label="検索語を消去" style="inline-size: 20.5rem"></tanrei-search>
   <tanrei-search label="メールを検索" placeholder="メールを検索" style="inline-size: 20.5rem">
@@ -27,9 +27,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-button variant="text" slot="trailing" label="音声で検索"><span slot="icon">mic</span></tanrei-button>
     <tanrei-button variant="text" slot="trailing" label="アカウント"><span slot="icon">account_circle</span></tanrei-button>
   </tanrei-search>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="サイト内検索：ショートカット付きのボタン型トリガー、アイコンのトリガー、ショートカットを示すバー。トリガーを押すとビューが開きます" plain column>
+<Example label="サイト内検索：ショートカット付きのボタン型トリガー、アイコンのトリガー、ショートカットを示すバー。トリガーを押すとビューが開きます" column>
   <tanrei-search bar="button" presentation="dialog" label="ドキュメントを検索" placeholder="検索" shortcut="mod+k" value="タブ" status-text="「タブ」の検索結果 3 件" clear-label="検索語を消去" back-label="戻る" style="inline-size: 20.5rem">
     <tanrei-search-result-group value="tabs" headline="タブ" href="/ja/components/tabs/" leading-icon="article" excerpt='["同じ対象の複数のビューを、ラベル付きの", "タブ", "の並びで切り替えます。"]'>
       <tanrei-search-result value="tabs-sharing" headline="選択を共有する" href="/ja/components/tabs/#選択を共有する" leading-icon="tag" excerpt='["同じグループを指定した", "タブ", "の並びは、同じ選択を示します。"]'></tanrei-search-result>
@@ -43,15 +43,15 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-search-result value="tab-view" headline="タブビュー" href="/ja/components/tab-view/" leading-icon="article" excerpt='["選ばれた", "タブ", "のビューを、自分の並びの下に表示します。"]'></tanrei-search-result>
   </tanrei-search>
   <tanrei-search label="メールを検索" placeholder="メールを検索" shortcut="/" clear-label="検索語を消去" style="inline-size: 20.5rem"></tanrei-search>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="検索語の行の下に並ぶ候補と、インライン補完。「請求」と入力してから、矢印キーで移動してみてください" column>
+<Example label="検索語の行の下に並ぶ候補と、インライン補完。「請求」と入力してから、矢印キーで移動してみてください" column>
   <tanrei-search label="メールを検索" placeholder="メールを検索" clear-label="検索語を消去" query-row-text="すべてのメールを検索" inline-completion style="inline-size: 20.5rem">
     <tanrei-search-suggestion value="invoices" headline="請求書" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-suggestion value="invoice template" headline="請求書のテンプレート" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-suggestion value="billing address" headline="請求先の住所" leading-icon="history"></tanrei-search-suggestion>
   </tanrei-search>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -283,7 +283,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 仕様
 
-<DemoFrame label="候補、ステータスの行、グループにまとめた検索結果を表示した docked のビュー（その場に描画）" plain column>
+<Example label="候補、ステータスの行、グループにまとめた検索結果を表示した docked のビュー（その場に描画）" column>
   <tanrei-search inline expanded label="メールを検索" placeholder="メールを検索" value="請求" status-text="メッセージ 2 件" clear-label="検索語を消去" style="inline-size: 20.5rem">
     <tanrei-search-suggestion value="請求書" headline="請求書" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-result-group headline="メッセージ">
@@ -291,16 +291,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-search-result value="m-2" headline="Re: お支払いについて" leading-icon="mail" excerpt='["", "請求", "書をもう一度お送りください。"]'></tanrei-search-result>
     </tanrei-search-result-group>
   </tanrei-search>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="無効状態、開いた docked のビュー" plain column>
+<Example label="無効状態、開いた docked のビュー" column>
   <tanrei-search label="メールを検索" placeholder="メールを検索" disabled style="inline-size: 20.5rem"></tanrei-search>
   <tanrei-search inline expanded label="メールを検索" placeholder="メールを検索" value="請求" clear-label="検索語を消去" style="inline-size: 20.5rem">
     <tanrei-search-suggestion value="請求書" headline="請求書" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-suggestion value="請求書 テンプレート" headline="請求書 テンプレート" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-suggestion value="folder:invoices" headline="請求書" supporting-text="フォルダー · 24 件のメッセージ" leading-icon="folder"></tanrei-search-suggestion>
   </tanrei-search>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="search" />
 

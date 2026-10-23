@@ -2,26 +2,26 @@
 title: "步骤"
 description: "把一套操作流程写成带编号的步骤：每一步有一个写着编号的圆环、可选的标题和由你的内容构成的正文，并用一道细线与下一步相连。它是供人阅读的有序列表，从不是控件，也从不记录进度。"
 translationOf: components/steps.mdx
-sourceHash: c8264baa77c44eb546180291656f27740ecb7537
+sourceHash: fc2b24b601c10465b86a49a8d463b2566ff711e1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="steps" />
 
-<DemoFrame label="标题和正文" column>
+<Example label="标题和正文" column>
   <ol class="tanrei-steps" role="list" aria-label="工作流程" style="inline-size: 100%; max-inline-size: 28rem">
     <li><p class="tanrei-steps-title">提案</p><p>编写或修改规格；改动需要令牌时，一并修改令牌。</p></li>
     <li><p class="tanrei-steps-title">验证</p><p>检查各个 schema、令牌规则和每种配色方案的对比度。</p></li>
     <li><p class="tanrei-steps-title">生成</p><p>重新生成令牌输出、脚手架和状态矩阵。</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
 有三样东西看起来相似，却并不相同：
 
@@ -100,7 +100,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 
 ## 规格
 
-<DemoFrame label="每步一行，以及一组接续的步骤" plain column>
+<Example label="每步一行，以及一组接续的步骤" column>
   <ol class="tanrei-steps" role="list" aria-label="接下来要做的事" style="inline-size: 100%; max-inline-size: 28rem">
     <li>把文件保存到存放项目设置的文件夹中。</li>
     <li>在设置中设计层对应的键下，指定这个文件的名称。</li>
@@ -111,14 +111,14 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
     <li>10 也是。</li>
     <li>11 同样如此：三步的内容都从同一条边开始。</li>
   </ol>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="大尺寸，正文里有一个块" plain column>
+<Example label="大尺寸，正文里有一个块" column>
   <ol class="tanrei-steps" role="list" data-size="large" aria-label="使用" style="inline-size: 100%; max-inline-size: 32rem">
     <li><p>把这个包添加到项目中。</p><tanrei-code-block label="安装命令"><pre><code>npm install @tanrei/web</code></pre></tanrei-code-block></li>
     <li><p>在页面的其他任何样式之前，加载一次样式表。</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
 - **标记**是一个用系统细线画出的圆环，里面是步骤的编号；中号时直径 24，大号时 28。一位或两位数字时它保持圆形；更长的编号会把它撑宽成胶囊形，而每个步骤的内容仍然从同一条边开始。
 - **连接线**从每个圆环通向下一个圆环，两端都不与圆环相接。最后一步没有连接线。

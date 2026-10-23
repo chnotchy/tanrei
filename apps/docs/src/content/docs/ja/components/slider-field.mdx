@@ -2,24 +2,24 @@
 title: スライダーフィールド
 description: 目盛りの上で値または値の範囲を選んでもらう、完成した 1 つのフィールドです。ラベルの下にトラックがあり、ラベルの行の末尾に値を言葉で示し、補足の 1 行と、値が受け付けられなかった理由が付きます。
 translationOf: components/slider-field.mdx
-sourceHash: dd20a710a125f8735c730d58cb45fb0697ecea0e
+sourceHash: 8694b1314d3a716d57183e53e8dd47c280a18063
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="slider-field" />
 
-<DemoFrame label="スライダーフィールド、刻みごとに動くもの、範囲を選ぶもの" column>
+<Example label="スライダーフィールド、刻みごとに動くもの、範囲を選ぶもの" column>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" supporting-text="通知とメディアに適用されます。" value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="文字の大きさ" min="50" max="200" step="10" value="120"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="価格" supporting-text="1 泊あたり、税抜きです。" range min="0" max="50000" step="1000" start-value="10000" value="30000" start-label="下限価格" end-label="上限価格"></tanrei-slider-field>
-</DemoFrame>
+</Example>
 
 スライダーフィールドは、感覚で選び、言葉で読み返す値に使います。120% の文字の大きさ、5 km の距離、10,000 円から 30,000 円の価格などです。スライダーだけでは、描かれるラベルがなく、トラックを見ても値が何に設定されているかはわかりません。スライダーフィールドには、ラベル、言葉で示した値、トラック、補足の 1 行、エラーという、いつもの組み合わせが、そのまま使える形でそろっています。
 
@@ -85,11 +85,11 @@ Web では `<tanrei-slider-field>` です。ほかのプラットフォームは
 
 範囲の 2 つの値は、読む順に、半角ダッシュ（–）でつなぎます。右から左へのレイアウトでは、始点の言葉が右側、つまり始点側のハンドルがある側に置かれます。スライダーフィールドが、数値、単位、言葉を自分で書くことはありません。
 
-<DemoFrame label="ラベルと同じ行に収まる値のテキスト、独立した行に移る値のテキスト、値のテキストを隠したフィールド" column>
+<Example label="ラベルと同じ行に収まる値のテキスト、独立した行に移る値のテキスト、値のテキストを隠したフィールド" column>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" value="40" value-indicator="active"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="税引き前の年収" range min="0" max="20000000" step="100000" start-value="3400000" value="12500000" start-label="年収の下限" end-label="年収の上限"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="明るさ" value="70" value-hidden></tanrei-slider-field>
-</DemoFrame>
+</Example>
 
 値のテキストは、ラベルの 1 行目のベースラインにそろえて置かれ、ラベルは残った幅の中で折り返します。そうするとラベルに行の半分も残らないときは、値のテキストがラベルのあとの独立した行に移り、必要ならそこで折り返します。`valueHidden` を指定すると、値のテキストを描きません。音量や明るさのように、数値がユーザーにとって意味を持たないスライダーに使います。その場合も、ハンドルは支援技術に値を伝えます。
 
@@ -111,11 +111,11 @@ Web では `<tanrei-slider-field>` です。ほかのプラットフォームは
 </script>
 ```
 
-<DemoFrame label="同じフィールドを自分で書いたもの。フィールドの中にスライダーがあり、値のテキストを 1 回だけ渡しています。上のリスナーがなければ、値に合わせて変わることはありません" column>
+<Example label="同じフィールドを自分で書いたもの。フィールドの中にスライダーがあり、値のテキストを 1 回だけ渡しています。上のリスナーがなければ、値に合わせて変わることはありません" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="文字の大きさ" supporting-text="すべてのページに適用されます。" value-text="120">
     <tanrei-slider min="50" max="200" step="10" value="120"></tanrei-slider>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 スライダーフィールドにない並べ方が必要なときに、1 つ下の階層で書きます。
 
@@ -131,12 +131,12 @@ Web では `<tanrei-slider-field>` です。ほかのプラットフォームは
 
 ## 仕様
 
-<DemoFrame label="プロダクトの言葉で示した必須、任意、エラー、無効" plain column>
+<Example label="プロダクトの言葉で示した必須、任意、エラー、無効" column>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" required required-text="必須" value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" optional optional-text="任意" value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" supporting-text="通知とメディアに適用されます。" error error-text="0 より大きい値を選んでください。" value="0"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" supporting-text="通知とメディアに適用されます。" disabled value="40"></tanrei-slider-field>
-</DemoFrame>
+</Example>
 
 ### それぞれの構成要素が受け持つもの
 

@@ -1,5 +1,6 @@
-// The script side of the docs' figure (components/visuals/VisualFrame.astro), run in the browser: when a figure draws
-// what it lays over its stage, and drawing a figure under another shipped design system.
+// The script side of the docs' frame (components/visuals/Example.astro), run in the browser: when a figure draws what
+// it lays over its stage, and drawing a frame under another shipped design system (lib/example.ts draws every frame
+// under the one the reader chose for the page).
 //
 // A figure's live elements are in the page's markup and hold their room before they are defined; what a figure lays
 // over them — numbers, lines, labels — is placed against the drawn elements, so it is drawn only once they are defined,
@@ -8,12 +9,15 @@
 
 export type Hydrate = 'visible' | 'idle' | 'load';
 
-/** Sent on the figure's element once its stage is drawn under another system; `detail.system` is that system's id. */
-export const SYSTEM_EVENT = 'docs-visual-system';
+/** Sent on the frame's element once its stage is drawn under another system; `detail.system` is that system's id. */
+export const SYSTEM_EVENT = 'docs-example-system';
+
+/** The attribute of a frame's element that names the default system, which a stage with no system of its own is drawn under. */
+export const DEFAULT_SYSTEM_ATTR = 'data-default-system';
 
 const partOf = (frame: HTMLElement, part: string): HTMLElement => {
-  const element = frame.querySelector<HTMLElement>(`[data-docs-visual-${part}]`);
-  if (!element) throw new Error(`a docs figure without its ${part} (components/visuals/VisualFrame.astro)`);
+  const element = frame.querySelector<HTMLElement>(`[data-example-${part}]`);
+  if (!element) throw new Error(`a docs frame without its ${part} (components/visuals/Example.astro)`);
   return element;
 };
 
@@ -76,7 +80,7 @@ const chosen = new WeakMap<HTMLElement, string>();
  */
 export async function drawUnder(frame: HTMLElement, system: string, sheet?: string): Promise<string> {
   const stage = partOf(frame, 'stage');
-  const current = () => stage.getAttribute('data-tanrei-system') ?? frame.dataset.defaultSystem ?? '';
+  const current = () => stage.getAttribute('data-tanrei-system') ?? frame.getAttribute(DEFAULT_SYSTEM_ATTR) ?? '';
   chosen.set(frame, system);
   if (sheet) {
     try {

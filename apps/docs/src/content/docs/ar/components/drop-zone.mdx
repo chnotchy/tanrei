@@ -2,21 +2,21 @@
 title: ساحة الإفلات
 description: تحيط بأي جزء من الشاشة كي يمكن إفلات الملفات في أي مكان منه، وكل ما تحويه يعمل كما كان. لا ترسم شيئًا حتى تُسحب ملفات فوقها، فتغطي عندئذ المساحة كلها برسالة واحدة، وتسلّم منتجك الملفات التي قبلتها والملفات التي رفضتها.
 translationOf: components/drop-zone.mdx
-sourceHash: a96e90c3c5f7b4c3242c447e16ce8a353e6d79ca
+sourceHash: 51bab5267e5302b31899d5d17db28ab0709fbddb
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="drop-zone" />
 
-<DemoFrame label="شاشة مقاطع فيديو داخل ساحة إفلات. اسحب ملفًا من جهازك إلى أي مكان فيها: فالشاشة كلها تُظهر أن الإفلات ممكن. والإفلات لا يغيّر شيئًا هنا: فالصفحة لا تحتفظ بأي ملف." column>
+<Example label="شاشة مقاطع فيديو داخل ساحة إفلات. اسحب ملفًا من جهازك إلى أي مكان فيها: فالشاشة كلها تُظهر أن الإفلات ممكن. والإفلات لا يغيّر شيئًا هنا: فالصفحة لا تحتفظ بأي ملف." column>
   <tanrei-drop-zone class="not-content" style="inline-size: 30rem; max-inline-size: 100%; block-size: 16rem; border-radius: var(--tanrei-sys-shape-corner-medium)" multiple accept="video/*,image/*" drop-text="أفلِت مقاطع الفيديو لرفعها" refusing-text="لا يمكن رفع غير مقاطع الفيديو والصور" dropped-text="عدد الملفات المستلَمة: {count}" refused-text="عدد الملفات التي تعذّر استلامها: {count}">
     <div style="box-sizing: border-box; block-size: 100%; display: flex; flex-direction: column; gap: 0.75rem; padding: 1rem; background: var(--tanrei-sys-color-surface-container-low); border-radius: inherit">
       <tanrei-file-picker multiple accept="video/*,image/*" constraints-text="مقاطع فيديو أو صور">
@@ -27,7 +27,7 @@ import Callout from '../../../../components/Callout.astro';
       <span>كواليس التصوير · 12:47</span>
     </div>
   </tanrei-drop-zone>
-</DemoFrame>
+</Example>
 
 ساحة الإفلات (drop zone) تجعل الشاشة كلها، أو أي جزء منها، مكانًا يمكن إفلات الملفات فيه. أحِط بها قائمة مستندات، أو مكتبة مقاطع فيديو، أو محادثة، أو المنطقة الرئيسية في تطبيقك. وكل ما في داخلها يبقى يعمل كما كان: فالأزرار والجداول والحقول تُضغط وتُمرَّر ويُوصل إليها بلوحة المفاتيح كأن الساحة غير موجودة. والساحة لا تضيف تحويمًا ولا ضغطًا ولا موضع توقف للتركيز ولا دورًا.
 

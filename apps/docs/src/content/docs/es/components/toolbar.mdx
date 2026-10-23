@@ -2,20 +2,20 @@
 title: Barra de herramientas
 description: Reúne un conjunto de controles relacionados en una sola parada de tabulación, en línea donde su contenido la necesita, acoplada a lo largo del borde inferior o flotando sobre el contenido. Las teclas de flecha mueven el foco entre sus controles, y lo que no cabe pasa a un menú de desbordamiento.
 translationOf: components/toolbar.mdx
-sourceHash: a8432aa4140d0470d37330b77fd6878ea1e55585
+sourceHash: ec078390e57356bd887b7ee15eb4f3f965cf37e9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="toolbar" />
 
-<DemoFrame label="En línea, acoplada y flotante" column>
+<Example label="En línea, acoplada y flotante" column>
   <tanrei-toolbar label="Formato">
     <tanrei-toolbar-group label="Estilo del texto">
       <tanrei-button variant="text" toggle selected label="Negrita"><span slot="icon">format_bold</span></tanrei-button>
@@ -39,7 +39,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-button variant="text" label="Goma de borrar"><span slot="icon">ink_eraser</span></tanrei-button>
     <tanrei-button variant="filled" label="Listo"><span slot="icon">check</span></tanrei-button>
   </tanrei-toolbar>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -223,7 +223,7 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
 
 ## Especificaciones
 
-<DemoFrame label="Grupos y un separador, un botón de menú, un botón con menú, conmutadores con etiqueta y un menú de desbordamiento" plain column>
+<Example label="Grupos y un separador, un botón de menú, un botón con menú, conmutadores con etiqueta y un menú de desbordamiento" column>
   <tanrei-toolbar label="Acciones del documento">
     <tanrei-button variant="text" label="Deshacer"><span slot="icon">undo</span></tanrei-button>
     <tanrei-button variant="text" label="Rehacer"><span slot="icon">redo</span></tanrei-button>
@@ -268,7 +268,7 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
       <tanrei-button variant="text" label="Capas"><span slot="icon">layers</span></tanrei-button>
     </tanrei-toolbar-group>
   </tanrei-toolbar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="toolbar" />
 
@@ -292,7 +292,7 @@ Una barra de herramientas acoplada siempre es horizontal. Una en línea o una fl
 
 Una barra de herramientas acoplada reparte sus elementos a lo ancho y nunca los acerca más que su separación (16 en el sistema predeterminado). Una barra de herramientas en línea o flotante junta sus elementos: dos vecinos se separan solo lo que cada uno necesita para conservar un objetivo táctil propio a lo largo de la fila, y nunca menos que la separación (4 en línea y 0 flotante en el sistema predeterminado). Los botones grandes se tocan, los medianos quedan a 8 y los pequeños a 16. La barra de herramientas nunca ensancha un elemento ni le cambia el estilo para lograrlo, y el espaciado es el mismo para un ratón y para el tacto.
 
-<DemoFrame label="Flotante: elementos small, medium y large, y elementos narrow y wide" plain column>
+<Example label="Flotante: elementos small, medium y large, y elementos narrow y wide" column>
   <tanrei-toolbar variant="floating" label="Formato, small">
     <tanrei-button variant="text" size="small" label="Negrita"><span slot="icon">format_bold</span></tanrei-button>
     <tanrei-button variant="text" size="small" label="Cursiva"><span slot="icon">format_italic</span></tanrei-button>
@@ -315,7 +315,7 @@ Una barra de herramientas acoplada reparte sus elementos a lo ancho y nunca los 
     <tanrei-button variant="text" label="Goma de borrar"><span slot="icon">ink_eraser</span></tanrei-button>
     <tanrei-button variant="filled" width="wide" label="Listo"><span slot="icon">check</span></tanrei-button>
   </tanrei-toolbar>
-</DemoFrame>
+</Example>
 
 ### Elementos
 

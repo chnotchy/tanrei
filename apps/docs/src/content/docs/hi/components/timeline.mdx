@@ -2,26 +2,26 @@
 title: टाइमलाइन
 description: समय के क्रम में रखी गई घटनाएँ। हर घटना में एक मार्कर, उसका समय, एक शीर्षक और आपके कॉन्टेंट की बॉडी होती है, और एक बारीक रेखा उसे अगली घटना से जोड़ती है। जहाँ घटनाओं की कोई स्थिति होती है, वहाँ मार्कर का आकार और आपके शब्द बताते हैं कि कौन-सी पूरी हो चुकी है, कौन-सी जारी है और कौन-सी आगे आनी है। यह पढ़ने के लिए लिस्ट है, कंट्रोल कभी नहीं।
 translationOf: components/timeline.mdx
-sourceHash: 0251491f2f4ffd11a3d50c86f7ebc160d900e2c7
+sourceHash: fe96394352682136b8b8072fff4ca84976bd75c1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="timeline" />
 
-<DemoFrame label="जो हुआ उसका रिकॉर्ड" column>
+<Example label="जो हुआ उसका रिकॉर्ड" column>
   <ol class="tanrei-timeline" role="list" aria-label="रिलीज़ का इतिहास" style="inline-size: 100%; max-inline-size: 28rem">
     <li><time class="tanrei-timeline-time" datetime="2026-09-22">22 सितंबर 2026</time><p class="tanrei-timeline-title">स्तर के अनुसार टेक्स्ट स्टाइल</p><p>टेक्स्ट स्टाइल के नाम अब उनके स्तर से आते हैं, और हर कोने को स्मूद किया जा सकता है।</p></li>
     <li><time class="tanrei-timeline-time" datetime="2026-09-21">21 सितंबर 2026</time><p class="tanrei-timeline-title">ऐसी शब्दावली जिसका विस्तार किया जा सकता है</p><p>डिज़ाइन लेयर किसी सीरीज़ में एक स्टेप या किसी अक्ष में एक मान जोड़ सकती है, वजह बताकर।</p></li>
     <li><time class="tanrei-timeline-time" datetime="2026-09-19">19 सितंबर 2026</time><p class="tanrei-timeline-title">विकास शुरू</p><p>टोकन पाइपलाइन, स्पेक का स्कीमा और पहला स्पेक तैयार हैं।</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
 तीन चीज़ें एक रेखा से जुड़े निशानों के रूप में बनती हैं। फ़र्क़ इसमें है कि पाठक उनके साथ क्या करता है:
 
@@ -119,16 +119,16 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 
 ## स्पेक
 
-<DemoFrame label="योजना: पूरा हुआ, पूरा हुआ, जारी, आगे" plain column>
+<Example label="योजना: पूरा हुआ, पूरा हुआ, जारी, आगे" column>
   <ol class="tanrei-timeline" role="list" aria-label="रोडमैप" style="inline-size: 100%; max-inline-size: 28rem">
     <li data-status="done" data-status-label="पूरा हुआ"><p class="tanrei-timeline-time">Wave 0</p><p class="tanrei-timeline-title">बुनियादी बातें</p><p>टोकन, थीमिंग, टाइपोग्राफ़ी, आइकन, सरफ़ेस और स्टेट के प्रिमिटिव।</p></li>
     <li data-status="done" data-status-label="पूरा हुआ"><p class="tanrei-timeline-time">Wave 1</p><p class="tanrei-timeline-title">पहले दिन के कंट्रोल</p><p>बटन, फ़ील्ड, चयन के कंट्रोल और लिस्ट।</p></li>
     <li data-status="current" data-status-label="जारी है"><p class="tanrei-timeline-time">Wave 2</p><p class="tanrei-timeline-title">नेविगेशन और ओवरले</p><p>ड्रॉअर, टैब, डायलॉग, मेन्यू और शीट।</p></li>
     <li data-status="upcoming" data-status-label="शुरू नहीं हुआ"><p class="tanrei-timeline-time">Wave 3</p><p class="tanrei-timeline-title">ख़ास काम के कंपोनेंट</p><p>पिकर, कैरसेल और वह सब जो किसी दस्तावेज़ साइट को चाहिए।</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="आपके अपने ग्लिफ़, और एक compact लॉग" plain column>
+<Example label="आपके अपने ग्लिफ़, और एक compact लॉग" column>
   <ol class="tanrei-timeline" role="list" aria-label="ऑर्डर 1042" style="inline-size: 100%; max-inline-size: 28rem">
     <li data-status="done" data-status-label="पूरा हुआ"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">receipt_long</span><p class="tanrei-timeline-time">सोमवार, 09:41</p><p class="tanrei-timeline-title">ऑर्डर दिया गया</p></li>
     <li data-status="current" data-status-label="जारी है"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">local_shipping</span><p class="tanrei-timeline-time">मंगलवार, 14:05</p><p class="tanrei-timeline-title">रास्ते में है</p></li>
@@ -139,7 +139,7 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
     <li><time class="tanrei-timeline-time" datetime="10:09">10:09</time><p class="tanrei-timeline-title">छह स्कीम में कंट्रास्ट जाँचा गया</p></li>
     <li><time class="tanrei-timeline-time" datetime="10:02">10:02</time><p class="tanrei-timeline-title">प्राइमरी रंग बदला गया</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
 - **मार्कर** शुरुआती किनारे के एक बॉक्स में रहता है, जो medium पर 24 चौड़ा और large पर 28 होता है, और घटना की पहली पंक्ति के बीच की सीध में रहता है। स्थिति न हो तो वह एक छोटा बिंदु है; आपका ग्लिफ़ हो तो बारीक रेखा की एक रिंग, जिसमें वह ग्लिफ़ रहता है।
 - **स्थिति** मार्कर का आकार बदलती है और कुछ नहीं: पूरी हो चुकी घटना के लिए चेक वाली रिंग, जारी घटना के लिए बिंदु वाला भरा हुआ गोला, और आगे आने वाली घटना के लिए ख़ाली रिंग। समय के रंग के अलावा टाइमलाइन बस यही एक रंग लाती है: भरा हुआ गोला।

@@ -2,23 +2,23 @@
 title: Campo numérico
 description: Permite introducir un número como número (escrito en la forma de la configuración regional de la persona o cambiado por pasos con una tecla o un botón, mantenido dentro de unos límites y con su unidad al lado), como un campo de formulario completo, compuesto por un campo y una entrada numérica.
 translationOf: components/number-field.mdx
-sourceHash: 74340194585f221ae2e50d10b49d796cb660f7d5
+sourceHash: 46df532e715f3bb90e316d666626d7f027be4b68
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="number-field" />
 
-<DemoFrame label="Un campo numérico con una unidad y límites, y otro que contiene un importe" column>
+<Example label="Un campo numérico con una unidad y límites, y otro que contiene un importe" column>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Radio de esquina" value="8" min="0" max="64" step="0.25" suffix-text="px" supporting-text="De 0 a 64, en pasos de un cuarto." increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Importe" value="120" min="0" prefix-text="$" suffix-text="USD" min-fraction-digits="2" max-fraction-digits="2" invalid-text="Introduce un importe en cifras." increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-field>
-</DemoFrame>
+</Example>
 
 Usa un campo numérico para un número que el producto lee como número: una cantidad, un tamaño, un porcentaje, un importe. Las personas lo escriben en la forma de su configuración regional, o lo cambian por pasos con las teclas de flecha o con los dos botones que hay al final del campo. El campo se dibuja y se mide como el campo de texto de la misma variante y el mismo tamaño.
 
@@ -86,11 +86,11 @@ El mismo campo, escrito a mano a partir de sus dos miembros, da la misma imagen 
 </tanrei-field>
 ```
 
-<DemoFrame label="El mismo campo escrito a mano: un campo con una entrada numérica dentro" column>
+<Example label="El mismo campo escrito a mano: un campo con una entrada numérica dentro" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Cantidad" required required-text="Obligatorio" supporting-text="Hasta 99 por pedido.">
     <tanrei-number-input min="1" max="99" invalid-text="Introduce un número." increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 Baja a ese nivel cuando necesites una organización que el campo numérico no ofrece:
 
@@ -104,14 +104,14 @@ Lo que cambia un nivel más abajo es dónde se dice cada cosa. `name`, `value`, 
 
 ## Especificaciones
 
-<DemoFrame label="Un botón de paso deshabilitado en el límite, dígitos en el borde de fin, sin botones de paso, un error, y un campo numérico de solo lectura y otro deshabilitado" plain column>
+<Example label="Un botón de paso deshabilitado en el límite, dígitos en el borde de fin, sin botones de paso, un error, y un campo numérico de solo lectura y otro deshabilitado" column>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Cantidad" value="99" min="1" max="99" increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Tono" value="40" min="0" max="100" align="end" increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Espaciado entre letras" value="-0.25" step="0.01" suffix-text="px" no-steppers></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Cantidad" value="0" error error-text="Pide al menos 1." increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Cantidad" value="12" readonly></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Cantidad" value="12" disabled increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-field>
-</DemoFrame>
+</Example>
 
 ### El campo
 
@@ -142,10 +142,10 @@ Los dos botones de paso son botones de la variante `text` y de tamaño mediano, 
 
 Un número confirmado se escribe con los dígitos y el separador decimal de la configuración regional, con entre `minFractionDigits` y `maxFractionDigits` dígitos después de este y sin separadores de agrupación, de modo que lo que se muestra se puede volver a escribir tal cual.
 
-<DemoFrame label="El mismo valor, 1.5, en alemán y en árabe de Egipto" plain column>
+<Example label="El mismo valor, 1.5, en alemán y en árabe de Egipto" column>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Gewicht" value="1.5" step="0.1" suffix-text="kg" locale="de-DE" increment-label="Erhöhen" decrement-label="Verringern"></tanrei-number-field>
   <div dir="rtl" lang="ar"><tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الوزن" value="1.5" step="0.1" locale="ar-EG" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-field></div>
-</DemoFrame>
+</Example>
 
 Un texto se lee con tolerancia, según el `locale` del campo o, donde este está vacío, según el idioma de la página:
 
@@ -158,10 +158,10 @@ Un texto se lee con tolerancia, según el `locale` del campo o, donde este está
 
 El campo nunca adivina entre dos configuraciones regionales. En alemán, donde la coma es el separador decimal, `1.500` se lee como 1500 y `1.5` como 15.
 
-<DemoFrame label="En un diseño de derecha a izquierda: una unidad en letras latinas después del número, de izquierda a derecha, y una unidad en la escritura de la propia página a la izquierda del número" plain column>
+<Example label="En un diseño de derecha a izquierda: una unidad en letras latinas después del número, de izquierda a derecha, y una unidad en la escritura de la propia página a la izquierda del número" column>
   <div dir="rtl" lang="ar"><tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="العرض" value="44" min="0" suffix-text="px" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-field></div>
   <div dir="rtl" lang="ar"><tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الوزن" value="12" min="0" step="0.5" suffix-text="كغم" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-field></div>
-</DemoFrame>
+</Example>
 
 Un número y su unidad son una sola pieza de escritura. El prefijo se escribe antes del número y el sufijo después, en la dirección de la escritura de la propia unidad, sea cual sea la dirección de la página. Así, «44 px», «$ 120 USD» y «40 %» se leen en una página en árabe o en hebreo igual que en una en inglés, y una unidad escrita en letras árabes o hebreas queda a la izquierda del número. Los botones de paso y la etiqueta siguen a la página. `align="end"` pone el número junto a su unidad: a la derecha para una unidad en letras o signos latinos, en las dos direcciones. Para un código de moneda latino a la izquierda del número, empieza el sufijo con una marca de derecha a izquierda (U+200F).
 

@@ -2,27 +2,27 @@
 title: "工具提示"
 description: "当用户用指针指向某个元素、用键盘聚焦它或长按它时，用几个词描述这个元素；它不取得焦点，也不阻挡任何东西。"
 translationOf: components/tooltip.mdx
-sourceHash: 352d33c155f7fa0c00f78129b4607ba1537de540
+sourceHash: dcb6c100029fe5ba5321bc6dd90e158f65de7061
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="tooltip" />
 
-<DemoFrame label="用指针指向按钮，或聚焦按钮：plain 和 rich 工具提示">
+<Example label="用指针指向按钮，或聚焦按钮：plain 和 rich 工具提示">
   <tanrei-tooltip text="移到回收站" no-describe>
     <tanrei-button variant="text" label="移到回收站"><span slot="icon">delete</span></tanrei-button>
   </tanrei-tooltip>
   <tanrei-tooltip variant="rich" headline="存储空间" text="回收站中的文件在删除前仍会占用你的存储空间。" placement="bottom">
     <tanrei-button variant="text" label="关于存储空间"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -192,14 +192,14 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 
 ## 规格
 
-<DemoFrame label="位于锚点下方的 plain 工具提示，以及没有标题的 rich 工具提示" plain>
+<Example label="位于锚点下方的 工具提示，以及没有标题的 rich 工具提示">
   <tanrei-tooltip text="移到回收站" placement="bottom" no-describe>
     <tanrei-button variant="text" label="移到回收站"><span slot="icon">delete</span></tanrei-button>
   </tanrei-tooltip>
   <tanrei-tooltip variant="rich" text="回收站中的文件在删除前仍会占用你的存储空间。">
     <tanrei-button variant="text" label="关于存储空间"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tooltip" />
 
@@ -224,7 +224,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 
 `placement` 指定工具提示优先出现在锚点的哪一侧，以及它沿这一侧如何对齐。默认是 `top`。
 
-<DemoFrame label="用指针指向按钮，或聚焦按钮：十三种位置" plain>
+<Example label="用指针指向按钮，或聚焦按钮：十三种位置">
   <tanrei-tooltip text="上方，居中" placement="top"><tanrei-button variant="outlined" size="small">top</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="上方，起始边对齐" placement="top-start"><tanrei-button variant="outlined" size="small">top-start</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="上方，末尾边对齐" placement="top-end"><tanrei-button variant="outlined" size="small">top-end</tanrei-button></tanrei-tooltip>
@@ -238,7 +238,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
   <tanrei-tooltip text="末尾侧，顶边对齐" placement="end-top"><tanrei-button variant="outlined" size="small">end-top</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="末尾侧，底边对齐" placement="end-bottom"><tanrei-button variant="outlined" size="small">end-bottom</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="第一个有空间的一侧" placement="auto"><tanrei-button variant="outlined" size="small">auto</tanrei-button></tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 | 所在的一侧 | 相对锚点居中 | 第一条边对齐 | 第二条边对齐 |
 | --- | --- | --- | --- |
@@ -256,7 +256,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 
 ### 箭头
 
-<DemoFrame label="用指针指向按钮，或聚焦按钮：带箭头" plain>
+<Example label="用指针指向按钮，或聚焦按钮：带箭头">
   <tanrei-tooltip text="移到回收站" arrow no-describe>
     <tanrei-button variant="text" label="移到回收站"><span slot="icon">delete</span></tanrei-button>
   </tanrei-tooltip>
@@ -266,7 +266,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
   <tanrei-tooltip variant="rich" headline="存储空间" text="回收站中的文件在删除前仍会占用你的存储空间。" placement="end" arrow>
     <tanrei-button variant="text" label="关于存储空间"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 `arrow` 在工具提示的边缘画一个指向锚点的小三角形。在默认系统中它是关闭的。不设置时，采用设计系统的选择；`true` 和 `false` 为单个工具提示作出决定。在 Web 上，这个属性写作 `arrow` 表示 true，写作 `arrow="false"` 表示 false。
 
@@ -276,12 +276,12 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 
 ### 两种外观
 
-<DemoFrame label="用指针指向按钮，或聚焦按钮：两种形式各自的反色外观和表面外观" plain>
+<Example label="用指针指向按钮，或聚焦按钮：两种形式各自的反色外观和表面外观">
   <tanrei-tooltip text="相反配色方案的颜色" inverse><tanrei-button variant="outlined" size="small">Plain，反色</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="当前配色方案中抬升的表面" inverse="false"><tanrei-button variant="outlined" size="small">Plain，表面</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip variant="rich" headline="画在表面上" text="当前配色方案中抬升的表面，带有它的层级。" inverse="false"><tanrei-button variant="outlined" size="small">Rich，表面</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip variant="rich" headline="反色" text="相反配色方案的颜色，没有阴影。" inverse><tanrei-button variant="outlined" size="small">Rich，反色</tanrei-button></tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 两种形式都可以画成反色，即使用相反配色方案的颜色；也可以画在当前配色方案中抬升的表面上。
 
@@ -297,14 +297,14 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 
 ### 键盘快捷键
 
-<DemoFrame label="用指针指向按钮，或聚焦按钮：命令的按键显示在名称之后" plain>
+<Example label="用指针指向按钮，或聚焦按钮：命令的按键显示在名称之后">
   <tanrei-tooltip text="粗体" shortcut="mod+b" no-describe>
     <tanrei-button variant="text" label="粗体"><span slot="icon">format_bold</span></tanrei-button>
   </tanrei-tooltip>
   <tanrei-tooltip text="斜体" shortcut="mod+i" no-describe>
     <tanrei-button variant="text" label="斜体"><span slot="icon">format_italic</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 `shortcut` 在 plain 工具提示的文本之后显示锚点所对应命令的按键，并按用户所用的键盘书写。它使用[键盘快捷键](/zh-cn/components/keyboard-shortcut/)组件的按键名称，每个字符串是一个组合键；在 Web 上，属性中的组合键用空格分隔。
 

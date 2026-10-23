@@ -2,23 +2,23 @@
 title: Esqueleto
 description: Ocupa el lugar del contenido mientras se carga, con marcadores de posición discretos que tienen la forma de lo que va a llegar (líneas de texto, un bloque, un círculo), y reserva la caja que ocupará el contenido, para que nada se mueva cuando llegue.
 translationOf: components/skeleton.mdx
-sourceHash: 35e480f921d9bf8421691218c876dd261757f4ac
+sourceHash: a5c6ed1971270c9e64fb7b4de3a95eea84409f60
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="skeleton" />
 
-<DemoFrame label="Los datos de una persona y una tarjeta, mientras se cargan" column>
+<Example label="Los datos de una persona y una tarjeta, mientras se cargan" column>
   <tanrei-skeleton label="Cargando los datos del autor" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 10rem"></span><span class="tanrei-skeleton-placeholder" data-lines="2"></span></tanrei-skeleton>
   <tanrei-skeleton label="Cargando el proyecto" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 160px"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 12.5rem"></span><span class="tanrei-skeleton-placeholder" data-lines="3"></span><span class="tanrei-skeleton-placeholder" data-shape="block" style="inline-size: 6rem; block-size: 40px"></span></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
 Una vista suele llegar antes que su contenido. Un esqueleto reserva la forma de lo que va a llegar en el lugar donde estará: líneas de texto, un bloque para una imagen o un control, un círculo para la foto de una persona. Cuando el contenido llega, ocupa las cajas que se le habían reservado, y nada de lo que la persona estaba mirando, o a punto de pulsar, se mueve.
 
@@ -99,15 +99,15 @@ En la web, la hoja de estilos es todo el componente antes de que se ejecute ning
 
 ## Especificaciones
 
-<DemoFrame label="Las tres formas: texto, un bloque, un círculo" plain column>
+<Example label="Las tres formas: texto, un bloque, un círculo" column>
   <tanrei-skeleton label="Cargando el texto" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></tanrei-skeleton>
   <tanrei-skeleton label="Cargando la imagen" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 96px"></span></tanrei-skeleton>
   <tanrei-skeleton label="Cargando los datos de la persona" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Un marcador de posición de texto toma el estilo de texto del lugar donde está: en un encabezado, en un párrafo" plain column>
+<Example label="Un marcador de posición de texto toma el estilo de texto del lugar donde está: en un encabezado, en un párrafo" column>
   <tanrei-skeleton label="Cargando el artículo" show-delay="0" style="inline-size: min(100%, 24rem)"><h3 style="margin: 0 0 0.5rem"><span class="tanrei-skeleton-placeholder" style="inline-size: 60%"></span></h3><p style="margin: 0"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></p></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="skeleton" />
 
@@ -123,13 +123,13 @@ El esqueleto no adivina nada. Dibuja los marcadores de posición que le diste, c
 - Di cuántas líneas ocupará el texto con `data-lines`. Acertarás tanto como regular sea tu contenido. Un esqueleto al que le falta una línea mueve la página una línea, que sigue siendo menos de lo que la mueve un hueco en blanco.
 - Da a un bloque el tamaño de la imagen o del control: un número, una proporción o el tamaño que le da tu diseño. Un círculo recibe un solo número, su lado.
 
-<DemoFrame label="Pulsa Cargar: el esqueleto reserva el lugar durante dos segundos y medio, y el contenido ocupa su caja" plain column>
+<Example label="Pulsa Cargar: el esqueleto reserva el lugar durante dos segundos y medio, y el contenido ocupa su caja" column>
   <tanrei-button variant="outlined" onclick="const place = this.parentElement.querySelector('[data-skeleton-demo]'); const [waiting, arrived] = this.parentElement.querySelectorAll('template'); place.replaceChildren(waiting.content.cloneNode(true)); clearTimeout(place.timer); place.timer = setTimeout(() => place.replaceChildren(arrived.content.cloneNode(true)), 2500)">Cargar</tanrei-button>
   <div data-skeleton-demo style="inline-size: min(100%, 24rem)"><h3 style="margin: 0 0 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Tokens en tres niveles</h3><p style="margin: 0; min-block-size: 3lh; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden">Los tokens de referencia guardan los valores en bruto. Los tokens de sistema nombran para qué sirve un valor. Los tokens de componente vinculan una parte a uno de ellos.</p></div>
   <template><tanrei-skeleton label="Cargando el artículo"><h3 style="margin: 0 0 0.5rem"><span class="tanrei-skeleton-placeholder" style="inline-size: 60%"></span></h3><p style="margin: 0"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></p></tanrei-skeleton></template>
   <template><h3 style="margin: 0 0 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Tokens en tres niveles</h3><p style="margin: 0; min-block-size: 3lh; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden">Los tokens de referencia guardan los valores en bruto. Los tokens de sistema nombran para qué sirve un valor. Los tokens de componente vinculan una parte a uno de ellos.</p></template>
   <p style="margin: 0">Esta línea está debajo del artículo y no se mueve.</p>
-</DemoFrame>
+</Example>
 
 ### Formas
 
@@ -149,10 +149,10 @@ Pon todos los marcadores de posición de una región en un solo esqueleto, con u
 
 Donde otra cosa ya dice la misma espera (un indicador de carga en una línea de estado, un texto de estado, una región que tú marcas como ocupada y a la que das nombre), define `decorative`. El esqueleto se dibuja igual y queda oculto para la tecnología de apoyo, de modo que la espera no se lee dos veces.
 
-<DemoFrame label="Una línea de estado ya dice la espera, así que los marcadores de posición que tiene debajo son decorativos" plain column>
+<Example label="Una línea de estado ya dice la espera, así que los marcadores de posición que tiene debajo son decorativos" column>
   <span style="display: flex; align-items: center; gap: 0.5rem"><tanrei-loading-indicator size="small" label="Buscando" show-delay="0"></tanrei-loading-indicator>Buscando…</span>
   <tanrei-skeleton decorative show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder"></span><span class="tanrei-skeleton-placeholder"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 70%"></span></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
 ### Espera antes de mostrarse
 

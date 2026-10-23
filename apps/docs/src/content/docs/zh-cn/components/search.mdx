@@ -2,14 +2,14 @@
 title: "搜索"
 description: "一个搜索栏，或者代替它的紧凑触发器，在用户输入时提供建议和结果，视图可以停靠在搜索栏下方、以对话框打开或覆盖整个屏幕。"
 translationOf: components/search.mdx
-sourceHash: ea99c97d9b0984ba334c4a36babfb96dedf3fb6b
+sourceHash: 75b389b319ef6abdc333633e4d9b399ea5421ec1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 本页描述的是规格当前所定的搜索，它也能用作站内搜索：代替搜索栏的触发器、对话框视图、作为链接的结果、状态行和快捷键。Web 组件已经实现了这一切，页面上的演示也是如此。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是上一版，即带输入框的搜索栏、停靠视图和全屏视图，以及建议；它们的示例展示的也是上一版。
 :::
 
-<DemoFrame label="空的、有查询词的，以及带图标按钮的" column>
+<Example label="空的、有查询词的，以及带图标按钮的" column>
   <tanrei-search label="搜索邮件" placeholder="搜索邮件" style="inline-size: 20.5rem"></tanrei-search>
   <tanrei-search label="搜索邮件" placeholder="搜索邮件" value="发票" clear-label="清除搜索内容" style="inline-size: 20.5rem"></tanrei-search>
   <tanrei-search label="搜索邮件" placeholder="搜索邮件" style="inline-size: 20.5rem">
@@ -27,9 +27,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-button variant="text" slot="trailing" label="语音搜索"><span slot="icon">mic</span></tanrei-button>
     <tanrei-button variant="text" slot="trailing" label="账户"><span slot="icon">account_circle</span></tanrei-button>
   </tanrei-search>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="站内搜索：带快捷键的按钮触发器、图标触发器，以及显示快捷键的搜索栏。按下触发器即可打开它的视图" plain column>
+<Example label="站内搜索：带快捷键的按钮触发器、图标触发器，以及显示快捷键的搜索栏。按下触发器即可打开它的视图" column>
   <tanrei-search bar="button" presentation="dialog" label="搜索文档" placeholder="搜索" shortcut="mod+k" value="标签页" status-text="“标签页”共 3 条结果" clear-label="清除搜索内容" back-label="返回" style="inline-size: 20.5rem">
     <tanrei-search-result-group value="tabs" headline="标签页" href="/zh-cn/components/tabs/" leading-icon="article" excerpt='["用一行带标签的", "标签页", "在同一主题的各个视图之间切换。"]'>
       <tanrei-search-result value="tabs-sharing" headline="共享选择" href="/zh-cn/components/tabs/#共享同一个选择" leading-icon="tag" excerpt='["指明同一个组的各行", "标签页", "显示相同的选择。"]'></tanrei-search-result>
@@ -43,15 +43,15 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-search-result value="tab-view" headline="标签页视图" href="/zh-cn/components/tab-view/" leading-icon="article" excerpt='["在自己的一行标签下方显示所选", "标签页", "的视图。"]'></tanrei-search-result>
   </tanrei-search>
   <tanrei-search label="搜索邮件" placeholder="搜索邮件" shortcut="/" clear-label="清除搜索内容" style="inline-size: 20.5rem"></tanrei-search>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="查询词行下方的建议，以及行内补全。输入“发票”，再用方向键移动试试" column>
+<Example label="查询词行下方的建议，以及行内补全。输入“发票”，再用方向键移动试试" column>
   <tanrei-search label="搜索邮件" placeholder="搜索邮件" clear-label="清除搜索内容" query-row-text="搜索全部邮件" inline-completion style="inline-size: 20.5rem">
     <tanrei-search-suggestion value="invoices" headline="发票" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-suggestion value="invoice template" headline="发票模板" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-suggestion value="invoice title" headline="发票抬头" leading-icon="history"></tanrei-search-suggestion>
   </tanrei-search>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -283,7 +283,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="停靠视图，其中有一条建议、状态行和分组的结果，就地绘制" plain column>
+<Example label="停靠视图，其中有一条建议、状态行和分组的结果，就地绘制" column>
   <tanrei-search inline expanded label="搜索邮件" placeholder="搜索邮件" value="发票" status-text="2 条消息" clear-label="清除搜索内容" style="inline-size: 20.5rem">
     <tanrei-search-suggestion value="发票" headline="发票" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-result-group headline="消息">
@@ -291,16 +291,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-search-result value="m-2" headline="回复：付款" leading-icon="mail" excerpt='["请把", "发票", "再发一次。"]'></tanrei-search-result>
     </tanrei-search-result-group>
   </tanrei-search>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="禁用的，以及打开的停靠视图" plain column>
+<Example label="禁用的，以及打开的停靠视图" column>
   <tanrei-search label="搜索邮件" placeholder="搜索邮件" disabled style="inline-size: 20.5rem"></tanrei-search>
   <tanrei-search inline expanded label="搜索邮件" placeholder="搜索邮件" value="发票" clear-label="清除搜索内容" style="inline-size: 20.5rem">
     <tanrei-search-suggestion value="发票" headline="发票" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-suggestion value="发票模板" headline="发票模板" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-suggestion value="folder:invoices" headline="发票" supporting-text="文件夹 · 24 条消息" leading-icon="folder"></tanrei-search-suggestion>
   </tanrei-search>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="search" />
 

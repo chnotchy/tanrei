@@ -2,13 +2,13 @@
 title: Web
 description: Tanrei の CSS トークンと Web Components を、どの Web プロジェクトでも使えます。
 translationOf: getting-started/web.mdx
-sourceHash: 0ade01b45306c42b4c74cd9c775e6125e3d7ab5c
+sourceHash: fb8e6a2acbc93ad9938e2e07ac6820f37f8fc6cb
 ---
 
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 `@tanrei/web` には 2 つのものが入っています。デザイントークンを CSS カスタムプロパティとして収めたスタイルシートと、Lit で作った標準準拠のカスタム要素です。特定のフレームワークは必要ありません。
 
@@ -105,10 +105,10 @@ npm install path/to/tanrei-packages/tanrei-web-*.tgz
 
 </Steps>
 
-<DemoFrame>
+<Example>
   <tanrei-button variant="filled">デプロイ</tanrei-button>
   <tanrei-button variant="outlined" size="small" disabled>キャンセル</tanrei-button>
-</DemoFrame>
+</Example>
 
 ## 要素のマニフェスト
 

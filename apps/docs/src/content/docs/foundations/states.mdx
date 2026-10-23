@@ -5,7 +5,7 @@ description: State layers, the gap-then-ring focus indicator, and how disabled i
 
 import Callout from '../../../components/Callout.astro';
 import StateTokens from '../../../components/tokens/StateTokens.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 Interactive components share one vocabulary of states: enabled, hovered, focused, pressed, dragged, selected, activated, error, loading and disabled. A component's spec lists the states it supports, and every platform must implement all of them.
 
@@ -24,13 +24,13 @@ The quiet selection is a layer too, and the one that stays: a list's selected op
 
 Hover and press the buttons below to see the layer on different containers:
 
-<DemoFrame label="State layers">
+<Example label="State layers">
   <tanrei-button variant="filled">Filled</tanrei-button>
   <tanrei-button variant="tonal">Tonal</tanrei-button>
   <tanrei-button variant="elevated">Elevated</tanrei-button>
   <tanrei-button variant="outlined">Outlined</tanrei-button>
   <tanrei-button variant="text">Text</tanrei-button>
-</DemoFrame>
+</Example>
 
 ## Focus: gap, then ring
 

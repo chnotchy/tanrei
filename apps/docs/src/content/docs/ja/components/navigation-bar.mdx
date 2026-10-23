@@ -2,14 +2,14 @@
 title: ナビゲーションバー
 description: コンパクトな画面の下端から、3〜5 個の最上位の行き先の間を移動し、今どこにいるかを示します。
 translationOf: components/navigation-bar.mdx
-sourceHash: ebead3b29a3b730640d2ca80309b0a7ea07178d8
+sourceHash: a063a49e81d4bae9234bd616bd72890fef82374b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
@@ -19,31 +19,31 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 このページは、仕様の現在の形のナビゲーションバーを説明しています。[タブ](/ja/components/tabs/)にならった形です。アクティブインジケーターは、バーの幅を等分した今の行き先の持ち分全体で、バーの端から少し内側に収めて描きます。アイコンとラベルにぴったり沿うピルではありません。選択が変わると、その大きさのまま新しい行き先へスライドし、バーに沿ってドラッグすると、ポインターについて動きます。ホバー、押下、フォーカスも同じ箱の中に描きます。`variant` で Tonal（既定）と Filled を選べます。ほかのプロパティとイベントは、どちらの版でも同じです。上で追従待ち（lagging）と示したプラットフォームは、追いつくまで最初の版を提供します。`variant` もドラッグもなく、インジケーターがアイコンの後ろだけにあり、中央から広がって現れる形で、これらの例もその版のものです。このページのデモは、現在提供している Web コンポーネントです。
 :::
 
-<DemoFrame label="4 つの行き先。1 つに件数が付いています">
+<Example label="4 つの行き先。1 つに件数が付いています">
   <tanrei-navigation-bar value="inbox" label="メイン" style="inline-size: 24rem">
     <tanrei-navigation-bar-item value="inbox" label="受信" icon="inbox" badge badge-count="3" badge-label="未読 3 件"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="chat" label="チャット" icon="chat"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="starred" label="スター" icon="star"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="settings" label="設定" icon="settings"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Filled のバリアント：バーを押したまま横にドラッグすると、インジケーターがついて動きます" plain>
+<Example label="Filled のバリアント：バーを押したまま横にドラッグすると、インジケーターがついて動きます">
   <tanrei-navigation-bar variant="filled" value="chat" label="メディア" style="inline-size: 24rem">
     <tanrei-navigation-bar-item value="home" label="ホーム" icon="home"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="chat" label="チャット" icon="chat" badge badge-label="新着メッセージ"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="starred" label="スター" icon="star"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="リンクのバー：ページが自分のアドレスで今の行き先を伝え、「ヘルプ」は新しいタブで開く" plain>
+<Example label="リンクのバー：ページが自分のアドレスで今の行き先を伝え、「ヘルプ」は新しいタブで開く">
   <tanrei-navigation-bar value="/ja/components/navigation-bar/" label="コンポーネント" style="inline-size: 24rem">
     <tanrei-navigation-bar-item href="/ja/components/button/" label="ボタン" icon="smart_button"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item href="/ja/components/navigation-bar/" label="バー" icon="bottom_navigation"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item href="/ja/components/navigation-drawer/" label="ドロワー" icon="side_navigation"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item href="https://example.com/" label="ヘルプ" icon="help" target="new" target-label="新しいタブで開きます"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -202,7 +202,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 仕様
 
-<DemoFrame label="選択中のラベルだけを描くバーと、ラベルを描かないバー" plain column>
+<Example label="選択中のラベルだけを描くバーと、ラベルを描かないバー" column>
   <tanrei-navigation-bar value="chat" label-visibility="selected" label="メイン" style="inline-size: 24rem">
     <tanrei-navigation-bar-item value="inbox" label="受信" icon="inbox"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="chat" label="チャット" icon="chat"></tanrei-navigation-bar-item>
@@ -213,7 +213,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-navigation-bar-item value="chat" label="チャット" icon="chat" badge badge-label="新着メッセージ"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="starred" label="スター" icon="star"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="navigation-bar" />
 

@@ -1,10 +1,11 @@
-// The docs' figure frame as the built site draws it (components/visuals/VisualFrame.astro, SystemSwitch.astro), on
-// the first page that uses it, the button's:
+// A figure of the docs' one frame (components/visuals/Example.astro) that holds its room, as the built site draws it on
+// the first page that has one, the button's:
 //
 // - its stage and its header take the same room before any element is defined as once they are, at a phone's width
 //   and a desktop's, so nothing under it moves when its script arrives; and what it shows stands in one row;
 // - it is drawn under the default system, and no preset's stylesheet is asked for with the page; choosing a preset in
-//   its header loads that stylesheet once and draws the stage — and only the stage — with that system's tokens.
+//   the header's menu loads that stylesheet once and draws the stage — and only the stage — with that system's tokens.
+//   (test/browser/example.test.mjs asks the rest of what the frame does, in the three engines.)
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //
@@ -54,7 +55,7 @@ const VIEWPORTS = [
   { width: 390, height: 844 },
   { width: 1440, height: 900 },
 ];
-const FIGURE = '[data-docs-visual]';
+const FIGURE = '[data-example]:has(> figure > [data-part=frame] > [data-part=stage] > [data-example-canvas])';
 
 /** The first figure's boxes: its stage, its header, and the top of each element its canvas shows. */
 const boxes = (page) =>
@@ -62,9 +63,9 @@ const boxes = (page) =>
     const frame = document.querySelector(selector);
     const box = (element) => element.getBoundingClientRect();
     return {
-      stage: box(frame.querySelector('[data-docs-visual-stage]')).height,
+      stage: box(frame.querySelector('[data-example-stage]')).height,
       header: box(frame.querySelector('header')).height,
-      tops: [...frame.querySelector('[data-docs-visual-canvas]').children].filter((child) => !child.matches('[data-docs-visual-overlay]')).map((child) => box(child).top),
+      tops: [...frame.querySelector('[data-example-canvas]').children].filter((child) => !child.matches('[data-example-overlay]')).map((child) => box(child).top),
     };
   }, FIGURE);
 
@@ -121,11 +122,15 @@ describe('the figure frame on the button’s page', () => {
     assert.deepEqual(sheets, [], 'no preset’s stylesheet is asked for with the page');
 
     const frame = page.locator(FIGURE).first();
-    const stage = frame.locator('[data-docs-visual-stage]');
+    const stage = frame.locator('[data-example-stage]');
     assert.equal(await stage.getAttribute('data-tanrei-system'), null);
-    const tabs = frame.locator('[data-docs-visual-system]');
-    assert.equal(await tabs.evaluate((row) => row.value), NS);
-    assert.deepEqual(await tabs.locator('tanrei-tab').evaluateAll((all) => all.map((tab) => tab.getAttribute('value'))).then((ids) => ids[0]), NS, 'the default system is the first tab');
+    const items = page.locator('tanrei-menu[anchor="docs-system"] tanrei-menu-radio-item');
+    assert.equal(await items.first().getAttribute('value'), NS, 'the default system is the menu’s first');
+    /** Chooses a system in the header's menu. */
+    const choose = async (id) => {
+      await page.locator('#docs-system').click();
+      await page.locator(`tanrei-menu[anchor="docs-system"] tanrei-menu-radio-item[value="${id}"]`).click();
+    };
 
     /** The value a token takes inside the stage, and on the page outside the figure. */
     const probe = (token) =>
@@ -139,31 +144,31 @@ describe('the figure frame on the button’s page', () => {
             element.remove();
             return value;
           };
-          return { inside: read(document.querySelector(selector).querySelector('[data-docs-visual-canvas]')), outside: read(document.querySelector('main')) };
+          return { inside: read(document.querySelector(selector).querySelector('[data-example-canvas]')), outside: read(document.querySelector('main')) };
         },
         { selector: FIGURE, property: `${PREFIX}-${token.split('.').slice(1).join('-')}` },
       );
     const token = `${NS}.comp.button.filled.container.color`;
-    const presets = await tabs.locator('tanrei-tab').evaluateAll((all) => all.map((tab) => tab.getAttribute('value')).slice(1));
+    const presets = await items.evaluateAll((all) => all.map((item) => item.getAttribute('value')).slice(1));
     const preset = presets.find((id) => rgb(resolvedIn(id, token)) !== rgb(resolvedIn(NS, token)));
     assert.ok(preset, 'a preset draws the filled button in another color than the default system');
     assert.equal((await probe(token)).inside, rgb(resolvedIn(NS, token)));
 
-    await tabs.locator(`tanrei-tab[value="${preset}"]`).click();
-    await page.waitForFunction((selector) => document.querySelector(selector).querySelector('[data-docs-visual-stage]').hasAttribute('data-tanrei-system'), FIGURE);
+    await choose(preset);
+    await page.waitForFunction((selector) => document.querySelector(selector).querySelector('[data-example-stage]').hasAttribute('data-tanrei-system'), FIGURE);
     assert.equal(await stage.getAttribute('data-tanrei-system'), preset);
     assert.equal(sheets.length, 1, `one stylesheet is asked for: ${sheets.join(', ')}`);
     assert.match(sheets[0], new RegExp(`${preset}[^/]*\\.css$`));
     const under = await probe(token);
     assert.equal(under.inside, rgb(resolvedIn(preset, token)), 'the stage is drawn with the preset’s tokens');
-    assert.equal(under.outside, rgb(resolvedIn(NS, token)), 'the page outside the figure is not');
+    assert.equal(under.outside, rgb(resolvedIn(NS, token)), 'the page outside the frames is not');
 
     // Back to the default system, and to the preset again: drawn at once, its stylesheet not asked for a second time.
-    await tabs.locator(`tanrei-tab[value="${NS}"]`).click();
-    await page.waitForFunction((selector) => !document.querySelector(selector).querySelector('[data-docs-visual-stage]').hasAttribute('data-tanrei-system'), FIGURE);
+    await choose(NS);
+    await page.waitForFunction((selector) => !document.querySelector(selector).querySelector('[data-example-stage]').hasAttribute('data-tanrei-system'), FIGURE);
     assert.equal((await probe(token)).inside, rgb(resolvedIn(NS, token)));
-    await tabs.locator(`tanrei-tab[value="${preset}"]`).click();
-    await page.waitForFunction((selector) => document.querySelector(selector).querySelector('[data-docs-visual-stage]').hasAttribute('data-tanrei-system'), FIGURE);
+    await choose(preset);
+    await page.waitForFunction((selector) => document.querySelector(selector).querySelector('[data-example-stage]').hasAttribute('data-tanrei-system'), FIGURE);
     assert.equal(sheets.length, 1, 'the stylesheet is loaded once for the page');
     await context.close();
   });

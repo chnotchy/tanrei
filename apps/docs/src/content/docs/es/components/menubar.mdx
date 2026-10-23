@@ -2,20 +2,20 @@
 title: Barra de menús
 description: Mantiene a mano los comandos de una aplicación en una fila permanente de menús con nombre (Archivo, Editar, Ver…); cada uno abre un menú debajo de su título, y las teclas de flecha recorren la fila y entran en cada menú.
 translationOf: components/menubar.mdx
-sourceHash: 727005283bfc41b0656f8ab9ab5f3acd80cb9bc8
+sourceHash: d6a1886f27ffae85410b1fcb19d9f1298ecf6889
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="menubar" />
 
-<DemoFrame label="Los menús de un editor" column>
+<Example label="Los menús de un editor" column>
   <tanrei-menubar label="Menú de la aplicación" overflow-label="Más menús" style="inline-size: 100%">
     <tanrei-menubar-menu label="Archivo">
       <tanrei-menu-item label="Nuevo" shortcut="mod+n"></tanrei-menu-item>
@@ -55,7 +55,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-menu-item label="Acerca de"></tanrei-menu-item>
     </tanrei-menubar-menu>
   </tanrei-menubar>
-</DemoFrame>
+</Example>
 
 ### Qué no es una barra de menús
 
@@ -151,7 +151,7 @@ En la web, los títulos y las acciones no se dibujan hasta que el script se ha e
 
 ### Entradas que actúan
 
-<DemoFrame label="Tres menús, una acción y dos elementos de enlace, dibujados igual" column>
+<Example label="Tres menús, una acción y dos elementos de enlace, dibujados igual" column>
   <tanrei-menubar label="Menú de la aplicación con entradas que actúan" overflow-label="Más" style="inline-size: 100%">
     <tanrei-menubar-menu label="Archivo">
       <tanrei-menu-item label="Nuevo"></tanrei-menu-item>
@@ -168,7 +168,7 @@ En la web, los títulos y las acciones no se dibujan hasta que el script se ha e
     <tanrei-menubar-item><a href="#entradas-que-actúan">Documentación</a></tanrei-menubar-item>
     <tanrei-menubar-item target-label="se abre en una pestaña nueva"><a href="#entradas-que-actúan" target="_blank">Código fuente</a></tanrei-menubar-item>
   </tanrei-menubar>
-</DemoFrame>
+</Example>
 
 Antes de usar un elemento de barra, lee cuándo no usar uno. Un elemento de barra se ve exactamente igual que un título que abre un menú, así que cada uno le cuesta a la persona un momento de duda sobre qué hará una pulsación.
 
@@ -239,7 +239,7 @@ Un elemento de enlace es el mismo elemento alrededor de tu propia ancla: `<tanre
 
 ## Especificaciones
 
-<DemoFrame label="Una fila sin sitio para todos los títulos pliega el resto en un solo elemento de desbordamiento" plain column>
+<Example label="Una fila sin sitio para todos los títulos pliega el resto en un solo elemento de desbordamiento" column>
   <tanrei-menubar label="Menú de la aplicación, estrecho" overflow-label="Más menús" style="inline-size: 13rem">
     <tanrei-menubar-menu label="Archivo"><tanrei-menu-item label="Nuevo"></tanrei-menu-item><tanrei-menu-item label="Abrir…"></tanrei-menu-item></tanrei-menubar-menu>
     <tanrei-menubar-menu label="Editar"><tanrei-menu-item label="Deshacer"></tanrei-menu-item><tanrei-menu-item label="Rehacer"></tanrei-menu-item></tanrei-menubar-menu>
@@ -247,7 +247,7 @@ Un elemento de enlace es el mismo elemento alrededor de tu propia ancla: `<tanre
     <tanrei-menubar-menu label="Formato" disabled><tanrei-menu-item label="Negrita"></tanrei-menu-item></tanrei-menubar-menu>
     <tanrei-menubar-menu label="Ayuda"><tanrei-menu-item label="Acerca de"></tanrei-menu-item></tanrei-menubar-menu>
   </tanrei-menubar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="menubar" />
 

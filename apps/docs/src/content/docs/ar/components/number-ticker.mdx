@@ -2,26 +2,26 @@
 title: عارض الأرقام المتحرّك
 description: يعرض رقمًا يتغيّر — عددًا أو سعرًا أو نتيجة أو رقمًا في لوحة معلومات — بتحريك كل خانة تغيّرت إلى قيمتها الجديدة، فيرى الشخص أنه تغيّر وفي أي اتجاه وبمقدار تقريبي، بينما لا تُبلَّغ التقنيات المساعدة إلا بالقيمة التي يستقر عليها.
 translationOf: components/number-ticker.mdx
-sourceHash: 95f0526e88d9f97f2e8636d465f88d6f39585435
+sourceHash: 15f18dcfd7f51262f1254bebb892eab3398a41d2
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="number-ticker" />
 
-<DemoFrame label="أرقام ترتفع إلى قيمها عندما تظهر">
+<Example label="أرقام ترتفع إلى قيمها عندما تظهر">
   <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
     <tanrei-number-ticker start-value="0" value="1234" label="الطلبات"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="0" value="98400" number-style="currency" currency="USD" fraction-digits="0" label="الإيرادات"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="0" value="0.426" number-style="percent" fraction-digits="1" label="معدل التحويل"></tanrei-number-ticker>
   </div>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -61,21 +61,21 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="الحركات: slide (اختيار النظام الافتراضي) و blur و blur-slide و flip" plain>
+<Example label="الحركات: slide (اختيار النظام الافتراضي) و blur و blur-slide و flip">
   <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
     <tanrei-number-ticker start-value="1180" value="1234" animation="slide" label="انزلاق"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="1180" value="1234" animation="blur" label="تمويه"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="1180" value="1234" animation="blur-slide" label="تمويه وانزلاق"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="1180" value="1234" animation="flip" label="قلب"></tanrei-number-ticker>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="trend: ‏auto (من 19 إلى 20 ترتفع الخانتان) و digit (تنزل خانة الآحاد من 9 إلى 0)" plain>
+<Example label="trend: ‏auto (من 19 إلى 20 ترتفع الخانتان) و digit (تنزل خانة الآحاد من 9 إلى 0)">
   <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
     <tanrei-number-ticker start-value="19" value="20" trend="auto" label="تلقائي"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="19" value="20" trend="digit" label="لكل خانة"></tanrei-number-ticker>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="number-ticker" />
 

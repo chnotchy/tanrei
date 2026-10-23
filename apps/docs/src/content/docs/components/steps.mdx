@@ -7,19 +7,19 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="steps" />
 
-<DemoFrame label="Titles and bodies" column>
+<Example label="Titles and bodies" column>
   <ol class="tanrei-steps" role="list" aria-label="The workflow" style="inline-size: 100%; max-inline-size: 28rem">
     <li><p class="tanrei-steps-title">Propose</p><p>Write or change the spec, and the tokens where the change needs them.</p></li>
     <li><p class="tanrei-steps-title">Validate</p><p>Check the schemas, the token rules and the contrast of every scheme.</p></li>
     <li><p class="tanrei-steps-title">Generate</p><p>Rebuild the token outputs, the scaffolds and the status matrix.</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
 Three things look alike and are not the same:
 
@@ -98,7 +98,7 @@ Write `role="list"` on the list: one browser engine drops the list semantics of 
 
 ## Specs
 
-<DemoFrame label="One line each, and a continued set" plain column>
+<Example label="One line each, and a continued set" column>
   <ol class="tanrei-steps" role="list" aria-label="What to do next" style="inline-size: 100%; max-inline-size: 28rem">
     <li>Save the file in the folder that holds the project's settings.</li>
     <li>Name the file in the settings, under the key for the design layer.</li>
@@ -109,14 +109,14 @@ Write `role="list"` on the list: one browser engine drops the list semantics of 
     <li>So does ten.</li>
     <li>And eleven: all three begin at one edge.</li>
   </ol>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Large, with a block in a body" plain column>
+<Example label="Large, with a block in a body" column>
   <ol class="tanrei-steps" role="list" data-size="large" aria-label="Use" style="inline-size: 100%; max-inline-size: 32rem">
     <li><p>Add the package to the project.</p><tanrei-code-block label="Install command"><pre><code>npm install @tanrei/web</code></pre></tanrei-code-block></li>
     <li><p>Load the stylesheet once, before any other style of the page.</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
 - **The marker** is a ring in the system's hairline with the step's number, 24 across at medium and 28 at large. One or two digits keep it a circle; a longer number widens it into a pill, and every step's content still begins at one edge.
 - **The connector** runs from each ring to the next and stops short of both. The last step has none.

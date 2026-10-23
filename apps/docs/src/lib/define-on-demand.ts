@@ -13,10 +13,18 @@
 // otherwise draw an undefined element here, where the whole package no longer stands behind it.
 //
 // An element marked `data-define-on-use` is left to the script that owns it, which defines it when it is first used
-// (the site's search: components/frame/Search.astro).
+// (the site's search: components/frame/Search.astro). So is what an example's stage holds while it is away from the
+// view (`data-example-pending`, components/visuals/Example.astro): once lib/example.ts takes the mark away, as the
+// stage comes near, what it holds is defined as what is added later is, so a page of many examples asks, as it loads,
+// only for what the reader is near. An element of a tag defined meanwhile for another part of the page is upgraded with
+// it, as the browser does.
 import { loaders, modules } from 'virtual:tanrei-element-modules';
 
 type Load = () => Promise<unknown>;
+
+/** What holds its elements back until it is near the view: an example's stage (components/visuals/Example.astro). */
+const PENDING_ATTR = 'data-example-pending';
+const PENDING = `[${PENDING_ATTR}]`;
 
 /** The modules asked for, by their loader (one module defines one or more tags). */
 const asked = new Set<Load>();
@@ -26,7 +34,11 @@ const waiting = new Map<string, Element[]>();
 const watched = new WeakSet<Node>();
 /** What the watched roots are given later: each element added is scanned as the document was. */
 const observer = new MutationObserver((records) => {
-  for (const record of records) for (const node of record.addedNodes) if (node instanceof Element) scan(node);
+  for (const record of records) {
+    for (const node of record.addedNodes) if (node instanceof Element) scan(node);
+    // A part that held its elements back no longer does.
+    if (record.type === 'attributes' && record.target instanceof Element && !record.target.hasAttribute(PENDING_ATTR)) scan(record.target);
+  }
 });
 
 /** Asks for the module of a tag no one has defined yet; a tag of no Tanrei module is left alone. */
@@ -52,7 +64,7 @@ function scan(node: Element | Document | ShadowRoot) {
   const each = (element: Element) => {
     if (!element.localName.startsWith('tanrei-')) return;
     if (!element.matches(':defined')) {
-      if (!element.hasAttribute('data-define-on-use')) want(element);
+      if (!element.hasAttribute('data-define-on-use') && !element.closest(PENDING)) want(element);
     }
     else if (element.shadowRoot) watch(element.shadowRoot);
   };
@@ -63,7 +75,7 @@ function scan(node: Element | Document | ShadowRoot) {
 function watch(root: Document | ShadowRoot) {
   if (watched.has(root)) return;
   watched.add(root);
-  observer.observe(root, { childList: true, subtree: true });
+  observer.observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: [PENDING_ATTR] });
   scan(root);
 }
 

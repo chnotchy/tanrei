@@ -2,25 +2,25 @@
 title: "色块"
 description: "以样本显示一种颜色，并在旁边写出它的名称。样本就是这种颜色本身；颜色半透明时，下面垫着棋盘格；样本带一道边线，与表面相近的颜色也看得出到哪里为止。它是用来看的样本，从不是控件，也从不是选择器。"
 translationOf: components/swatch.mdx
-sourceHash: 23fa0af88d1049d9e926971bd03ae83df71af4a1
+sourceHash: 0d457cad3aed0feaada8341605f38e8f101de85b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="swatch" />
 
-<DemoFrame label="带值的颜色、主题的一个角色、半透明的颜色和一个圆点">
+<Example label="带值的颜色、主题的一个角色、半透明的颜色和一个圆点">
   <tanrei-swatch color="#0f766e" label="青绿 700" supporting-text="#0f766e"></tanrei-swatch>
   <tanrei-swatch color="var(--tanrei-sys-color-primary)" label="主色"></tanrei-swatch>
   <tanrei-swatch color="#0f766e80" label="半透明的青绿 700" supporting-text="#0f766e80"></tanrei-swatch>
   <tanrei-swatch color="#e11d48" label="缺陷" shape="circle" size="small"></tanrei-swatch>
-</DemoFrame>
+</Example>
 
 色块显示一种不在编辑中的颜色：设置页里的品牌色、写在标签旁边的那个标签的颜色、并排列出的主题角色。它按给定的值原样绘制颜色，并在旁边写出颜色的名称，因为单凭样本永远说不清一种颜色。它从不响应指针、按键或焦点。
 
@@ -60,13 +60,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="三种尺寸、两种形状，以及一个空色块" plain>
+<Example label="三种尺寸、两种形状，以及一个空色块">
   <tanrei-swatch size="small" color="#0f766e" label="Small"></tanrei-swatch>
   <tanrei-swatch color="#0f766e" label="Medium"></tanrei-swatch>
   <tanrei-swatch size="large" color="#0f766e" label="Large"></tanrei-swatch>
   <tanrei-swatch shape="circle" color="#7c3aed" label="Circle"></tanrei-swatch>
   <tanrei-swatch color="" label="无颜色"></tanrei-swatch>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="swatch" />
 

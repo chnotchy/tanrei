@@ -7,16 +7,16 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="skeleton" />
 
-<DemoFrame label="A person’s details and a card, while they load" column>
+<Example label="A person’s details and a card, while they load" column>
   <tanrei-skeleton label="Loading the author's details" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 10rem"></span><span class="tanrei-skeleton-placeholder" data-lines="2"></span></tanrei-skeleton>
   <tanrei-skeleton label="Loading the project" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 160px"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 12.5rem"></span><span class="tanrei-skeleton-placeholder" data-lines="3"></span><span class="tanrei-skeleton-placeholder" data-shape="block" style="inline-size: 6rem; block-size: 40px"></span></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
 A view often arrives before its content. A skeleton holds the shape of what is coming in the place where it will be: lines of text, a block for a picture or a control, a circle for a person's picture. When the content arrives it takes the boxes that were held for it, and nothing a person was looking at, or about to press, moves.
 
@@ -97,15 +97,15 @@ On the web the stylesheet is the whole component before any script runs: the sha
 
 ## Specs
 
-<DemoFrame label="The three shapes: text, a block, a circle" plain column>
+<Example label="The three shapes: text, a block, a circle" column>
   <tanrei-skeleton label="Loading the text" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></tanrei-skeleton>
   <tanrei-skeleton label="Loading the picture" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 96px"></span></tanrei-skeleton>
   <tanrei-skeleton label="Loading the person's details" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="A text placeholder takes the text style of where it stands: in a heading, in a paragraph" plain column>
+<Example label="A text placeholder takes the text style of where it stands: in a heading, in a paragraph" column>
   <tanrei-skeleton label="Loading the article" show-delay="0" style="inline-size: min(100%, 24rem)"><h3 style="margin: 0 0 0.5rem"><span class="tanrei-skeleton-placeholder" style="inline-size: 60%"></span></h3><p style="margin: 0"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></p></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="skeleton" />
 
@@ -121,13 +121,13 @@ The skeleton guesses nothing. It draws the placeholders you gave, in the sizes y
 - Say how many lines the text will take with `data-lines`. You will be right as often as your content is regular. A skeleton that is one line short moves the page by one line, which is still less than a blank place moves it.
 - Give a block the size of the picture or the control: a number, a ratio, or the size your layout gives it. A circle takes one number, its side.
 
-<DemoFrame label="Press Load: the skeleton holds the place for two and a half seconds, and the content takes its box" plain column>
+<Example label="Press Load: the skeleton holds the place for two and a half seconds, and the content takes its box" column>
   <tanrei-button variant="outlined" onclick="const place = this.parentElement.querySelector('[data-skeleton-demo]'); const [waiting, arrived] = this.parentElement.querySelectorAll('template'); place.replaceChildren(waiting.content.cloneNode(true)); clearTimeout(place.timer); place.timer = setTimeout(() => place.replaceChildren(arrived.content.cloneNode(true)), 2500)">Load</tanrei-button>
   <div data-skeleton-demo style="inline-size: min(100%, 24rem)"><h3 style="margin: 0 0 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Tokens in three tiers</h3><p style="margin: 0; min-block-size: 3lh; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden">Reference tokens hold the raw values. System tokens name what a value is for. Component tokens bind one part to one of them.</p></div>
   <template><tanrei-skeleton label="Loading the article"><h3 style="margin: 0 0 0.5rem"><span class="tanrei-skeleton-placeholder" style="inline-size: 60%"></span></h3><p style="margin: 0"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></p></tanrei-skeleton></template>
   <template><h3 style="margin: 0 0 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Tokens in three tiers</h3><p style="margin: 0; min-block-size: 3lh; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden">Reference tokens hold the raw values. System tokens name what a value is for. Component tokens bind one part to one of them.</p></template>
   <p style="margin: 0">This line stands under the article, and does not move.</p>
-</DemoFrame>
+</Example>
 
 ### Shapes
 
@@ -147,10 +147,10 @@ Put every placeholder of a region in one skeleton, with one `label`. A skeleton 
 
 Where something else already says the same wait — a loading indicator in a status line, a status text, a region you mark busy and name yourself — set `decorative`. The skeleton is then drawn the same and kept from assistive technology, so that the wait is not read twice.
 
-<DemoFrame label="A status line already says the wait, so the placeholders under it are decorative" plain column>
+<Example label="A status line already says the wait, so the placeholders under it are decorative" column>
   <span style="display: flex; align-items: center; gap: 0.5rem"><tanrei-loading-indicator size="small" label="Searching" show-delay="0"></tanrei-loading-indicator>Searching…</span>
   <tanrei-skeleton decorative show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder"></span><span class="tanrei-skeleton-placeholder"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 70%"></span></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
 ### It waits before it shows
 

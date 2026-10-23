@@ -2,26 +2,26 @@
 title: الرقاقة
 description: عنصر تحكم صغير له تسمية يُعرض في صف، لإجراء مقترح أو رابط إلى مكان ما، أو عامل تصفية مفعَّل أو موقوف، أو عنصر أدخله المستخدم ويستطيع إزالته.
 translationOf: components/chip.mdx
-sourceHash: 035fe677407860928287282c7aaf348c8224ccac
+sourceHash: 4820a1e21e55b7549598fb6babd197db62f52069
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="chip" />
 
-<DemoFrame label="الأنواع">
+<Example label="الأنواع">
   <tanrei-chip label="إضافة إلى التقويم"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip label="يبدو جيدًا"></tanrei-chip>
   <tanrei-chip kind="filter" selected label="نباتي"></tanrei-chip>
   <tanrei-chip kind="filter" label="أقل من 30 دقيقة"></tanrei-chip>
   <tanrei-chip kind="input" label="Ada Lovelace" remove-label="إزالة Ada Lovelace"></tanrei-chip>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -138,25 +138,25 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="الطُرُز والأحجام والتعطيل" plain>
+<Example label="الطُرُز والأحجام والتعطيل">
   <tanrei-chip variant="elevated" label="إضافة إلى التقويم"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip kind="filter" variant="elevated" selected label="نباتي"></tanrei-chip>
   <tanrei-chip size="small" label="إضافة إلى التقويم"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip kind="input" size="small" label="Ada Lovelace" remove-label="إزالة Ada Lovelace"></tanrei-chip>
   <tanrei-chip disabled label="إضافة إلى التقويم"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip kind="filter" selected disabled label="نباتي"></tanrei-chip>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="إجراءات الإزالة: عادية (الافتراضي) ولا رجعة فيها؛ حوِّم فوقها أو ركِّز عليها" plain>
+<Example label="إجراءات الإزالة: عادية (الافتراضي) ولا رجعة فيها؛ حوِّم فوقها أو ركِّز عليها">
   <tanrei-chip kind="input" label="أقل من 30 دقيقة" remove-label="إزالة أقل من 30 دقيقة"></tanrei-chip>
   <tanrei-chip kind="input" label="report.pdf" remove-label="إزالة report.pdf" destructive-remove></tanrei-chip>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="رقاقات الرابط: هنا، في تبويب جديد، معطَّلة" plain>
+<Example label="رقاقات الرابط: هنا، في تبويب جديد، معطَّلة">
   <tanrei-chip label="الوسم" href="/ar/components/tag/"></tanrei-chip>
   <tanrei-chip label="الشارة" href="/ar/components/badge/" target="new" target-label="يُفتح في تبويب جديد"></tanrei-chip>
   <tanrei-chip label="الوسم" href="/ar/components/tag/" disabled></tanrei-chip>
-</DemoFrame>
+</Example>
 
 في النظام الافتراضي كل رقاقة كبسولة الشكل، وتبقى كذلك حين يجعلها النص الأكبر أطول. رسومها بأكبر ما يسمح به ارتفاعها: 24 في الرقاقة المتوسطة و 20 في الصغيرة. علامة الصح في رقاقة التصفية المحدَّدة هي الرسم `check` من مجموعة أيقونات النظام، ورسم الإزالة هو `cancel`، ويُرسم دائمًا معبَّأ. لا ترسم الرقاقة علامة خاصة بها، فنظام التصميم الذي يريد علامات أخرى يختار مجموعة أيقونات أخرى. وحافة الرقاقة من الطراز outlined هي الخط الرفيع، الخط الهادئ نفسه الذي يرسمه الفاصل.
 

@@ -7,7 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 import picture from '../../../../../../packages/web/test/fixtures/link-card.png?inline';
 import icon from '../../../../../../packages/web/test/fixtures/site-icon.png?inline';
 
@@ -15,9 +15,9 @@ import icon from '../../../../../../packages/web/test/fixtures/site-icon.png?inl
 
 <ComponentAvailability name="link-card" />
 
-<DemoFrame label="A link card with every part" plain column>
+<Example label="A link card with every part" column>
   <tanrei-link-card class="not-content" style="inline-size: 100%" href="https://example.com/articles/designing-with-tokens" headline="Designing with tokens" description="How a handful of dials becomes a whole system." site-name="Example Journal" image={picture} site-icon={icon} external="on" external-label="external link"></tanrei-link-card>
-</DemoFrame>
+</Example>
 
 A link card shows a destination as a thing in itself: its title, a sentence about it, a picture where it has one, and the site it is on. It is one link. The whole block is pressed, and nothing inside it is pressed by itself.
 
@@ -99,12 +99,12 @@ The title's attribute is `headline`, because HTML's own `title` would show a too
 
 ## Specs
 
-<DemoFrame label="Two looks" plain column>
+<Example label="Two looks" column>
   <div class="not-content" style="display: grid; gap: 1rem; inline-size: 100%">
     <tanrei-link-card href="/components/link/" headline="Link" description="Text that leads somewhere: a phrase in a sentence, a line by itself, a glyph alone."></tanrei-link-card>
     <tanrei-link-card variant="filled" href="/components/card/" headline="Card" description="A surface that groups related content and actions about one subject."></tanrei-link-card>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="link-card" />
 
@@ -138,12 +138,12 @@ A card does not judge its destination. A page may still describe itself falsely;
 
 ### Missing parts
 
-<DemoFrame label="A title only, and a path of your own" plain column>
+<Example label="A title only, and a path of your own" column>
   <div class="not-content" style="display: grid; gap: 1rem; inline-size: 100%">
     <tanrei-link-card href="https://example.com/articles/designing-with-tokens" headline="Designing with tokens" external="off"></tanrei-link-card>
     <tanrei-link-card href="/foundations/design-tokens/" headline="Tokens" description="The dials, the system roles and the component bindings."></tanrei-link-card>
   </div>
-</DemoFrame>
+</Example>
 
 | Given | Drawn |
 | --- | --- |

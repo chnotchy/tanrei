@@ -2,27 +2,27 @@
 title: चेकबॉक्स
 description: लोगों को एक स्वतंत्र चुनाव चालू या बंद करने देता है, ऐसा पैरेंट चुनाव दिखाता है जो सिर्फ़ आंशिक रूप से चालू है, और उस ज़रूरी चुनाव को चिह्नित करता है जो किया नहीं गया।
 translationOf: components/checkbox.mdx
-sourceHash: 41115adc606cd77721bfa14586382e10f63283dc
+sourceHash: d1a6e6103be09cf364ec871c3c8cd717a614cc49
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="checkbox" />
 
-<DemoFrame label="चेक नहीं किया हुआ, चेक किया हुआ और अनिश्चित">
+<Example label="चेक नहीं किया हुआ, चेक किया हुआ और अनिश्चित">
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-checkbox indeterminate label="सभी सूचनाएँ"></tanrei-checkbox>
     <tanrei-checkbox checked label="संदेश"></tanrei-checkbox>
     <tanrei-checkbox label="उल्लेख"></tanrei-checkbox>
     <tanrei-checkbox checked label="रिमाइंडर"></tanrei-checkbox>
   </div>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -132,7 +132,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="अवस्थाएँ, त्रुटि और अक्षम" plain>
+<Example label="अवस्थाएँ, त्रुटि और अक्षम">
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-checkbox label="चेक नहीं किया हुआ"></tanrei-checkbox>
     <tanrei-checkbox checked label="चेक किया हुआ"></tanrei-checkbox>
@@ -150,7 +150,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </div>
   <tanrei-checkbox readonly checked label="केवल पढ़ने के लिए, चेक किया हुआ"></tanrei-checkbox>
   <tanrei-checkbox checked label-hidden label="पंक्ति चुनें"></tanrei-checkbox>
-</DemoFrame>
+</Example>
 
 डिफ़ॉल्ट सिस्टम में चेकबॉक्स 2 की आउटलाइन और 2 के कोने वाला 18 का बॉक्स है, 40 की गोल स्टेट लेयर पर, 48 के टार्गेट के साथ। लेबल के साथ इसकी ऊँचाई 40 है। चेक और डैश सिस्टम के आइकन सेट के `check` और `remove` ग्लिफ़ हैं, जो बॉक्स के ऊपर 20 पर बनते हैं। उनका अपना वेट है, जो सिस्टम के बाक़ी आइकन से भारी है: डिफ़ॉल्ट सिस्टम में 500, जहाँ आइकन 300 के हैं। इस साइज़ पर आइकन के वेट वाला स्ट्रोक लगभग एक पिक्सल चौड़ा होता है और मुश्किल से दिखता है, इसलिए निशान भारी है जबकि उसका साइज़ वही रहता है। प्रीसेट अपना आइकन वेट बनाए रखता है। चेकबॉक्स अपना कोई निशान नहीं बनाता, इसलिए जो डिज़ाइन सिस्टम अपना आइकन सेट बदलता है, वह बाक़ी सभी ग्लिफ़ के साथ इन्हें भी बदल देता है। बॉक्स की आउटलाइन और फ़िल एक ही शेप हैं: किसी भी ज़ूम या डिस्प्ले डेंसिटी पर बॉक्स के पीछे की कोई चीज़ उनके बीच से नहीं झाँकती, और चेक किया हुआ बॉक्स अपने किनारे से अपने निशान तक एक ही समान रंग का होता है। `cupertino` में चेकबॉक्स अपना छोटा बॉक्स और 16 का ग्लिफ़ बनाए रखता है।
 

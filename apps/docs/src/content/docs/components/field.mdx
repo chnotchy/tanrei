@@ -7,16 +7,16 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="field" />
 
-<DemoFrame label="A slider and a switch, each named, helped and marked by a field" column>
+<Example label="A slider and a switch, each named, helped and marked by a field" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" required required-text="Required" supporting-text="Applies to alerts and media."><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notifications" optional optional-text="Optional" supporting-text="Sent when a review is waiting for you."><tanrei-switch checked></tanrei-switch></tanrei-field>
-</DemoFrame>
+</Example>
 
 A text field can say what it is, whether it must be answered, how to answer it and why an answer was refused. A field gives the same four things to a control that cannot: a slider, a switch, a [text input](/components/text-input/), a [color input](/components/color-input/), a [one-time-code input](/components/one-time-code-input/), a control your product built. A text field is itself a field around a text input. The label stands above the control and the help below it. While the field is in error the error text takes the help's place, so a form in error is no taller than at rest; a design system can keep the help and add the error text below it instead.
 
@@ -66,24 +66,24 @@ On the web it is `<tanrei-field>`. The other platforms have not implemented it y
 
 ## Specs
 
-<DemoFrame label="The three requirement marks, an error, a disabled field and a label glyph" plain column>
+<Example label="The three requirement marks, an error, a disabled field and a label glyph" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" required required-text="Required"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" optional optional-text="Optional"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" required required-mark="asterisk"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" required required-text="Required" error error-text="Choose a level above 0."><tanrei-slider value="0"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" supporting-text="Applies to alerts and media." disabled><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume"><span slot="label-icon">volume_up</span><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Help, and an error: the error text takes the help's place" plain column>
+<Example label="Help, and an error: the error text takes the help's place" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Password" supporting-text="At least 8 characters, with one number."><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Password" supporting-text="At least 8 characters, with one number." error error-text="This password is too short."><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="A text input in a field: with help and a count, and in error" plain column>
+<Example label="A text input in a field: with help and a count, and in error" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Display name" supporting-text="Shown beside your comments." count-text="12/40"><tanrei-text-input value="Ada Lovelace" maxlength="40" counter></tanrei-text-input></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Email" required required-text="Required" error error-text="Enter a complete email address."><tanrei-text-input type="email" value="ada@"></tanrei-text-input></tanrei-field>
-</DemoFrame>
+</Example>
 
 ### Around a text input
 
@@ -99,9 +99,9 @@ A field around a [text input](/components/text-input/) is a [text field](/compon
 
 `valueText` is the control's present value in words ("40 %", "$100 – $300"), for a control whose value cannot be read from the control itself: a slider. The field draws it at the end of the label row, on the label's first line, and does nothing else with it: it never reads or formats a value, and it keeps the drawn text from assistive technology, because the control says its own value. Where it would leave the label less than half of the row, it takes a line of its own after the label. It is not drawn while the label is not. Write it from the slider's `shownValueText` at every `input` — the [slider field](/components/slider-field/) does that by itself, and is the ready-made field for a slider.
 
-<DemoFrame label="A field with a slider in it and the value in words at the end of the label row" column>
+<Example label="A field with a slider in it and the value in words at the end of the label row" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Text size" supporting-text="Applies to every page." value-text="120 %"><tanrei-slider min="50" max="200" step="10" value="120" value-text="120 %"></tanrei-slider></tanrei-field>
-</DemoFrame>
+</Example>
 
 ### Around a select
 

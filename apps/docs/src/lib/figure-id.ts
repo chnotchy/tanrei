@@ -9,3 +9,17 @@ export function figureId(Astro: { locals: object }): string {
   counts.set(Astro.locals, count);
   return `docs-figure-${count}`;
 }
+
+const firsts = new WeakMap<object, Set<string>>();
+
+/**
+ * Whether this is the first time the page being rendered asks for `what`: a component that writes something once for
+ * the page (the one frame's shared actions) asks here, because its own frontmatter runs anew for every use.
+ */
+export function firstOnPage(Astro: { locals: object }, what: string): boolean {
+  const asked = firsts.get(Astro.locals) ?? new Set<string>();
+  firsts.set(Astro.locals, asked);
+  if (asked.has(what)) return false;
+  asked.add(what);
+  return true;
+}

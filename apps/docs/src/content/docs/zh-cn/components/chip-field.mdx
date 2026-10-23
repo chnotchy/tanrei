@@ -2,23 +2,23 @@
 title: "纸片字段"
 description: "在一个字段里收集一列简短的文本——电子邮件地址、电话号码、关键词——一个接一个地键入。通过你的检查的每段文本都变成一个纸片，可以移除，也可以放回键入部分去修改；这个列表就是字段唯一的值。"
 translationOf: components/chip-field.mdx
-sourceHash: c40811ad47af7b7bc1c71ac68bdfe8da9010cbbf
+sourceHash: 73c351fcd4c977beb8d2f283e2a61d126c871b12
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="chip-field" />
 
-<DemoFrame label="一个带有两个地址的纸片字段，以及一个第三个地址被拒绝的纸片字段" column>
+<Example label="一个带有两个地址的纸片字段，以及一个第三个地址被拒绝的纸片字段" column>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="收件人" type="email" separators='[",",";"," "]' remove-label="移除 {entry}" added-text="已添加 {entry}" removed-text="已移除 {entry}" supporting-text="用逗号分隔各个地址。" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="收件人" type="email" separators='[",",";"," "]' remove-label="移除 {entry}" added-text="已添加 {entry}" removed-text="已移除 {entry}" supporting-text="用逗号分隔各个地址。" error error-text="请输入完整的地址，例如 name@example.com。" value='["ada@example.com","grace.hopper@example.org"]' input-value="alan@"></tanrei-chip-field>
-</DemoFrame>
+</Example>
 
 用户要输入同一类的若干段简短文本时，就使用纸片字段：消息的收件人、文档共享给的人、接收提醒的号码、文章的关键词。每段文本单独检查，所以十二个地址里输错一个，不会连累其余的；每个条目也可以单独移除或修改。
 
@@ -113,14 +113,14 @@ Tanrei 不知道什么是电子邮件地址或电话号码。`type` 只选择键
 </tanrei-field>
 ```
 
-<DemoFrame label="手写出来的同一个字段：一个字段、一个文本输入框，以及放在它的 entries 插槽里的两个纸片" column>
+<Example label="手写出来的同一个字段：一个字段、一个文本输入框，以及放在它的 entries 插槽里的两个纸片" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="收件人" supporting-text="用逗号分隔各个地址。">
     <tanrei-text-input type="email">
       <tanrei-chip slot="entries" kind="input" size="small" label="ada@example.com" remove-label="移除 ada@example.com"></tanrei-chip>
       <tanrei-chip slot="entries" kind="input" size="small" label="grace.hopper@example.org" remove-label="移除 grace.hopper@example.org"></tanrei-chip>
     </tanrei-text-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 手写的这几个成员没有做的事，正是纸片字段添加的东西：
 
@@ -136,12 +136,12 @@ Tanrei 不知道什么是电子邮件地址或电话号码。`type` 只选择键
 
 ## 规格
 
-<DemoFrame label="必填、只读、禁用，以及只靠 Enter 生成的关键词" plain column>
+<Example label="必填、只读、禁用，以及只靠 Enter 生成的关键词" column>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="收件人" type="email" required required-text="必填" remove-label="移除 {entry}" value='["ada@example.com"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="收件人" type="email" readonly remove-label="移除 {entry}" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="收件人" type="email" disabled remove-label="移除 {entry}" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="作者" remove-label="移除 {entry}" supporting-text="每输入一个姓名后按 Enter。" value='["Lovelace, Ada","Hopper, Grace"]'></tanrei-chip-field>
-</DemoFrame>
+</Example>
 
 ### 各个成员提供什么
 

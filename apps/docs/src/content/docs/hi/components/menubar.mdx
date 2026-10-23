@@ -2,20 +2,20 @@
 title: मेन्यू बार
 description: ऐप्लिकेशन के कमांड को नाम वाले मेन्यू (फ़ाइल, संपादन, व्यू…) की एक ऐसी पंक्ति में पहुँच के भीतर रखता है जो हमेशा बनी रहती है। हर मेन्यू अपने शीर्षक के नीचे खुलता है, और ऐरो कुंजियाँ पंक्ति पर आगे-पीछे और हर मेन्यू के भीतर ले जाती हैं।
 translationOf: components/menubar.mdx
-sourceHash: 727005283bfc41b0656f8ab9ab5f3acd80cb9bc8
+sourceHash: d6a1886f27ffae85410b1fcb19d9f1298ecf6889
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="menubar" />
 
-<DemoFrame label="एक एडिटर के मेन्यू" column>
+<Example label="एक एडिटर के मेन्यू" column>
   <tanrei-menubar label="ऐप्लिकेशन मेन्यू" overflow-label="और मेन्यू" style="inline-size: 100%">
     <tanrei-menubar-menu label="फ़ाइल">
       <tanrei-menu-item label="नया" shortcut="mod+n"></tanrei-menu-item>
@@ -55,7 +55,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-menu-item label="इस ऐप के बारे में"></tanrei-menu-item>
     </tanrei-menubar-menu>
   </tanrei-menubar>
-</DemoFrame>
+</Example>
 
 ### मेन्यू बार क्या नहीं है
 
@@ -151,7 +151,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### क्रिया करने वाली एंट्री
 
-<DemoFrame label="तीन मेन्यू, एक क्रिया और दो लिंक आइटम, सब एक जैसे बने हुए" column>
+<Example label="तीन मेन्यू, एक क्रिया और दो लिंक आइटम, सब एक जैसे बने हुए" column>
   <tanrei-menubar label="क्रिया करने वाली एंट्री वाला ऐप्लिकेशन मेन्यू" overflow-label="और" style="inline-size: 100%">
     <tanrei-menubar-menu label="फ़ाइल">
       <tanrei-menu-item label="नया"></tanrei-menu-item>
@@ -168,7 +168,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-menubar-item><a href="#क्रिया-करने-वाली-एंट्री">डॉक्यूमेंटेशन</a></tanrei-menubar-item>
     <tanrei-menubar-item target-label="नए टैब में खुलता है"><a href="#क्रिया-करने-वाली-एंट्री" target="_blank">सोर्स</a></tanrei-menubar-item>
   </tanrei-menubar>
-</DemoFrame>
+</Example>
 
 बार आइटम इस्तेमाल करने से पहले पढ़ें कि उसे कब इस्तेमाल न करें। बार आइटम ठीक उस शीर्षक जैसा दिखता है जो मेन्यू खोलता है, इसलिए हर बार आइटम व्यक्ति को पल भर के लिए इस दुविधा में डालता है कि दबाने पर क्या होगा।
 
@@ -239,7 +239,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="जिस पंक्ति में हर शीर्षक की जगह नहीं है, वह बाक़ी को एक ओवरफ़्लो आइटम में समेट देती है" plain column>
+<Example label="जिस पंक्ति में हर शीर्षक की जगह नहीं है, वह बाक़ी को एक ओवरफ़्लो आइटम में समेट देती है" column>
   <tanrei-menubar label="ऐप्लिकेशन मेन्यू, सँकरा" overflow-label="और मेन्यू" style="inline-size: 13rem">
     <tanrei-menubar-menu label="फ़ाइल"><tanrei-menu-item label="नया"></tanrei-menu-item><tanrei-menu-item label="खोलें…"></tanrei-menu-item></tanrei-menubar-menu>
     <tanrei-menubar-menu label="संपादन"><tanrei-menu-item label="पहले जैसा करें"></tanrei-menu-item><tanrei-menu-item label="फिर से करें"></tanrei-menu-item></tanrei-menubar-menu>
@@ -247,7 +247,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-menubar-menu label="फ़ॉर्मैट" disabled><tanrei-menu-item label="बोल्ड"></tanrei-menu-item></tanrei-menubar-menu>
     <tanrei-menubar-menu label="सहायता"><tanrei-menu-item label="इस ऐप के बारे में"></tanrei-menu-item></tanrei-menubar-menu>
   </tanrei-menubar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="menubar" />
 

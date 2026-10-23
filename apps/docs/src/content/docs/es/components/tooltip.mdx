@@ -2,27 +2,27 @@
 title: Tooltip
 description: Describe un elemento en pocas palabras cuando una persona lo señala con el puntero, le da el foco con el teclado o lo mantiene pulsado, sin tomar el foco ni bloquear nada.
 translationOf: components/tooltip.mdx
-sourceHash: 352d33c155f7fa0c00f78129b4607ba1537de540
+sourceHash: dcb6c100029fe5ba5321bc6dd90e158f65de7061
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="tooltip" />
 
-<DemoFrame label="Apunta a un botón o dale el foco: un tooltip plain y uno rich">
+<Example label="Apunta a un botón o dale el foco: un tooltip y uno rich">
   <tanrei-tooltip text="Mover a la papelera" no-describe>
     <tanrei-button variant="text" label="Mover a la papelera"><span slot="icon">delete</span></tanrei-button>
   </tanrei-tooltip>
   <tanrei-tooltip variant="rich" headline="Almacenamiento" text="Los archivos de la papelera siguen contando para tu almacenamiento hasta que se eliminan." placement="bottom">
     <tanrei-button variant="text" label="Acerca del almacenamiento"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -192,14 +192,14 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
 
 ## Especificaciones
 
-<DemoFrame label="Un tooltip plain debajo de su ancla y uno rich sin título" plain>
+<Example label="Un tooltip debajo de su ancla y uno rich sin título">
   <tanrei-tooltip text="Mover a la papelera" placement="bottom" no-describe>
     <tanrei-button variant="text" label="Mover a la papelera"><span slot="icon">delete</span></tanrei-button>
   </tanrei-tooltip>
   <tanrei-tooltip variant="rich" text="Los archivos de la papelera siguen contando para tu almacenamiento hasta que se eliminan.">
     <tanrei-button variant="text" label="Acerca del almacenamiento"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tooltip" />
 
@@ -224,7 +224,7 @@ La variante es una elección estructural, no un eje de tokens. Un sistema de dis
 
 `placement` nombra el lado del ancla que el tooltip prefiere y cómo se alinea a lo largo de ese lado. El valor predeterminado es `top`.
 
-<DemoFrame label="Apunta a un botón o dale el foco: las trece colocaciones" plain>
+<Example label="Apunta a un botón o dale el foco: las trece colocaciones">
   <tanrei-tooltip text="Encima, centrado" placement="top"><tanrei-button variant="outlined" size="small">top</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="Encima, con los bordes de inicio juntos" placement="top-start"><tanrei-button variant="outlined" size="small">top-start</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="Encima, con los bordes de fin juntos" placement="top-end"><tanrei-button variant="outlined" size="small">top-end</tanrei-button></tanrei-tooltip>
@@ -238,7 +238,7 @@ La variante es una elección estructural, no un eje de tokens. Un sistema de dis
   <tanrei-tooltip text="Después, con los bordes superiores juntos" placement="end-top"><tanrei-button variant="outlined" size="small">end-top</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="Después, con los bordes inferiores juntos" placement="end-bottom"><tanrei-button variant="outlined" size="small">end-bottom</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="El primer lado con sitio" placement="auto"><tanrei-button variant="outlined" size="small">auto</tanrei-button></tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 | Lado | Centrado en el ancla | Primeros bordes juntos | Segundos bordes juntos |
 | --- | --- | --- | --- |
@@ -256,7 +256,7 @@ La variante es una elección estructural, no un eje de tokens. Un sistema de dis
 
 ### Una flecha
 
-<DemoFrame label="Apunta a un botón o dale el foco: con una flecha" plain>
+<Example label="Apunta a un botón o dale el foco: con una flecha">
   <tanrei-tooltip text="Mover a la papelera" arrow no-describe>
     <tanrei-button variant="text" label="Mover a la papelera"><span slot="icon">delete</span></tanrei-button>
   </tanrei-tooltip>
@@ -266,7 +266,7 @@ La variante es una elección estructural, no un eje de tokens. Un sistema de dis
   <tanrei-tooltip variant="rich" headline="Almacenamiento" text="Los archivos de la papelera siguen contando para tu almacenamiento hasta que se eliminan." placement="end" arrow>
     <tanrei-button variant="text" label="Acerca del almacenamiento"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 `arrow` dibuja en el borde del tooltip un pequeño triángulo que apunta al ancla. Está desactivado en el sistema predeterminado. Si no se define, toma la elección del sistema de diseño; `true` y `false` lo deciden para un solo tooltip. En la web, el atributo es `arrow` para true y `arrow="false"` para false.
 
@@ -276,12 +276,12 @@ Usa una flecha donde el lado por sí solo no diga a qué control se refiere: una
 
 ### Dos aspectos
 
-<DemoFrame label="Apunta a un botón o dale el foco: cada forma, inversa y sobre una superficie" plain>
+<Example label="Apunta a un botón o dale el foco: cada forma, inversa y sobre una superficie">
   <tanrei-tooltip text="Los colores del esquema opuesto" inverse><tanrei-button variant="outlined" size="small">Plain, inverso</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="Una superficie elevada del esquema" inverse="false"><tanrei-button variant="outlined" size="small">Plain, superficie</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip variant="rich" headline="Sobre una superficie" text="Una superficie elevada del esquema, con su elevación." inverse="false"><tanrei-button variant="outlined" size="small">Rich, superficie</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip variant="rich" headline="Inverso" text="Los colores del esquema opuesto, sin sombra." inverse><tanrei-button variant="outlined" size="small">Rich, inverso</tanrei-button></tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 Cualquiera de las dos formas se puede dibujar inversa, con los colores del esquema opuesto, o sobre una superficie elevada del esquema.
 
@@ -297,14 +297,14 @@ Solo cambian los colores y la elevación. La forma, los tamaños, los estilos de
 
 ### Un atajo de teclado
 
-<DemoFrame label="Apunta a un botón o dale el foco: las teclas de un comando después de su nombre" plain>
+<Example label="Apunta a un botón o dale el foco: las teclas de un comando después de su nombre">
   <tanrei-tooltip text="Negrita" shortcut="mod+b" no-describe>
     <tanrei-button variant="text" label="Negrita"><span slot="icon">format_bold</span></tanrei-button>
   </tanrei-tooltip>
   <tanrei-tooltip text="Cursiva" shortcut="mod+i" no-describe>
     <tanrei-button variant="text" label="Cursiva"><span slot="icon">format_italic</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 `shortcut` muestra las teclas del comando del ancla después del texto de un tooltip plain, escritas para el teclado que usa la persona. Recibe los nombres de tecla del componente [atajo de teclado](/es/components/keyboard-shortcut/), una combinación por cadena; en la web, el atributo contiene las combinaciones separadas por espacios.
 

@@ -2,27 +2,27 @@
 title: タグ
 description: カテゴリーや状態を、短い静的なラベルで示します。控えめな塗り、枠線、塗りつぶしの 3 つの見た目があり、ステータスがあればその色で描きます。テキストであり、操作できるコントロールではありません。
 translationOf: components/tag.mdx
-sourceHash: c3a34569bea95920f34e80e1409983493e6a838f
+sourceHash: 7fd76c75d33037050a0229a79adebeaf784bf6f1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="tag" />
 
-<DemoFrame label="3 つの見た目と、ステータスの有無">
+<Example label="3 つの見た目と、ステータスの有無">
   <tanrei-tag label="下書き"></tanrei-tag>
   <tanrei-tag variant="outlined" label="下書き"></tanrei-tag>
   <tanrei-tag variant="filled" label="既定"></tanrei-tag>
   <tanrei-tag status="success" label="成功"></tanrei-tag>
   <tanrei-tag variant="outlined" status="warning" label="期限間近"></tanrei-tag>
   <tanrei-tag variant="filled" status="error" label="失敗"></tanrei-tag>
-</DemoFrame>
+</Example>
 
 タグは、それが何であるか、どんな状態にあるかを示す単語や短い語句です。記事のカテゴリー、ビルドの結果、リリースの段階、複数の値のうちの既定値などに使います。レイアウトの中に、隣のテキストと同じ行に並び、ポインター、キー、フォーカスのいずれにも反応しません。
 
@@ -60,7 +60,7 @@ Web では `<tanrei-tag>` です。ほかのプラットフォームはまだ実
 
 ## 仕様
 
-<DemoFrame label="各見た目 × 各ステータス" plain>
+<Example label="各見た目 × 各ステータス">
   <tanrei-tag status="info" label="レビュー中"></tanrei-tag>
   <tanrei-tag status="warning" label="期限間近"></tanrei-tag>
   <tanrei-tag status="error" label="失敗"></tanrei-tag>
@@ -73,9 +73,9 @@ Web では `<tanrei-tag>` です。ほかのプラットフォームはまだ実
   <tanrei-tag variant="filled" status="warning" label="期限間近"></tanrei-tag>
   <tanrei-tag variant="filled" status="error" label="失敗"></tanrei-tag>
   <tanrei-tag variant="filled" status="success" label="成功"></tanrei-tag>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="2 つのサイズ、グリフ、ドット" plain>
+<Example label="2 つのサイズ、グリフ、ドット">
   <tanrei-tag size="small" label="任意"></tanrei-tag>
   <tanrei-tag size="small" variant="filled" label="必須"></tanrei-tag>
   <tanrei-tag label="デザイン"><span slot="icon">sell</span></tanrei-tag>
@@ -83,7 +83,7 @@ Web では `<tanrei-tag>` です。ほかのプラットフォームはまだ実
   <tanrei-tag dot label="アーカイブ済み"></tanrei-tag>
   <tanrei-tag dot status="success" label="オンライン"></tanrei-tag>
   <tanrei-tag size="small" variant="outlined" status="warning" label="性能低下"></tanrei-tag>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tag" />
 
@@ -119,14 +119,14 @@ Web では `<tanrei-tag>` です。ほかのプラットフォームはまだ実
 
 タグが自分でステータスのグリフを描くことはありません。役に立つ場所では、グリフを名前で指定します。このサイトのステータス表にある 6 つのステータスは、次のように描いています。
 
-<DemoFrame label="このサイトの 6 つのステータス" plain>
+<Example label="このサイトの 6 つのステータス">
   <tanrei-tag size="small" variant="outlined" label="計画中"><span slot="icon">radio_button_unchecked</span></tanrei-tag>
   <tanrei-tag size="small" variant="outlined" status="warning" label="追従待ち"><span slot="icon">schedule</span></tanrei-tag>
   <tanrei-tag size="small" label="Alpha"><span slot="icon">clock_loader_40</span></tanrei-tag>
   <tanrei-tag size="small" label="Beta"><span slot="icon">clock_loader_80</span></tanrei-tag>
   <tanrei-tag size="small" status="success" label="Stable"><span slot="icon">check_circle</span></tanrei-tag>
   <tanrei-tag size="small" status="error" label="非推奨"><span slot="icon">block</span></tanrei-tag>
-</DemoFrame>
+</Example>
 
 ### サイズ
 
@@ -141,12 +141,12 @@ Web では `<tanrei-tag>` です。ほかのプラットフォームはまだ実
 
 タグは自分の状態を持ちませんが、無効なものの中に置かれることがあります。無効なフィールドのラベル、リストの無効な行、メニューの無効な項目などです。`disabled` を付けると、ステータスにかかわらず、その見た目の無効の色（`comp.tag.<variant>.disabled.*`）で描かれ、包むものと一緒に薄くなり、そこだけが生きているようには見えません。ほかには何も変えません。タグの大きさと言葉はそのままで、入力もフォーカスも受けません。フィールドとフィールドグループは、無効の間、必須・任意のタグにこれを設定します。自分で作った無効な要素の中に置くタグには、利用者側で設定します。
 
-<DemoFrame label="通常のタグと、無効なものの中のタグ" plain>
+<Example label="通常のタグと、無効なものの中のタグ">
   <tanrei-tag size="small" variant="filled" label="必須"></tanrei-tag>
   <tanrei-tag size="small" variant="filled" label="必須" disabled></tanrei-tag>
   <tanrei-tag size="small" label="任意"></tanrei-tag>
   <tanrei-tag size="small" label="任意" disabled></tanrei-tag>
-</DemoFrame>
+</Example>
 
 ### 推奨
 

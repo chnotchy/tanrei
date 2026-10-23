@@ -2,26 +2,26 @@
 title: चिप
 description: पंक्ति में रखा, लेबल वाला एक छोटा कंट्रोल — सुझाई गई क्रिया या कहीं ले जाने वाले लिंक के लिए, चालू या बंद होने वाले फ़िल्टर के लिए, या उस आइटम के लिए जिसे व्यक्ति ने दर्ज किया है और हटा सकता है।
 translationOf: components/chip.mdx
-sourceHash: 035fe677407860928287282c7aaf348c8224ccac
+sourceHash: 4820a1e21e55b7549598fb6babd197db62f52069
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="chip" />
 
-<DemoFrame label="प्रकार">
+<Example label="प्रकार">
   <tanrei-chip label="कैलेंडर में जोड़ें"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip label="ठीक लगता है"></tanrei-chip>
   <tanrei-chip kind="filter" selected label="शाकाहारी"></tanrei-chip>
   <tanrei-chip kind="filter" label="30 मिनट से कम"></tanrei-chip>
   <tanrei-chip kind="input" label="Ada Lovelace" remove-label="Ada Lovelace को हटाएँ"></tanrei-chip>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -138,25 +138,25 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 ## स्पेक
 
-<DemoFrame label="वेरिएंट, साइज़ और अक्षम" plain>
+<Example label="वेरिएंट, साइज़ और अक्षम">
   <tanrei-chip variant="elevated" label="कैलेंडर में जोड़ें"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip kind="filter" variant="elevated" selected label="शाकाहारी"></tanrei-chip>
   <tanrei-chip size="small" label="कैलेंडर में जोड़ें"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip kind="input" size="small" label="Ada Lovelace" remove-label="Ada Lovelace को हटाएँ"></tanrei-chip>
   <tanrei-chip disabled label="कैलेंडर में जोड़ें"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip kind="filter" selected disabled label="शाकाहारी"></tanrei-chip>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="हटाने की क्रियाएँ: सादी (डिफ़ॉल्ट) और विनाशकारी; इन पर होवर करें या फ़ोकस लाएँ" plain>
+<Example label="हटाने की क्रियाएँ: सादी (डिफ़ॉल्ट) और विनाशकारी; इन पर होवर करें या फ़ोकस लाएँ">
   <tanrei-chip kind="input" label="30 मिनट से कम" remove-label="30 मिनट से कम को हटाएँ"></tanrei-chip>
   <tanrei-chip kind="input" label="report.pdf" remove-label="report.pdf को हटाएँ" destructive-remove></tanrei-chip>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="लिंक चिप: यहीं, नए टैब में, अक्षम" plain>
+<Example label="लिंक चिप: यहीं, नए टैब में, अक्षम">
   <tanrei-chip label="टैग" href="/hi/components/tag/"></tanrei-chip>
   <tanrei-chip label="बैज" href="/hi/components/badge/" target="new" target-label="नए टैब में खुलता है"></tanrei-chip>
   <tanrei-chip label="टैग" href="/hi/components/tag/" disabled></tanrei-chip>
-</DemoFrame>
+</Example>
 
 डिफ़ॉल्ट सिस्टम में हर चिप एक पिल है, और जब बड़ा टेक्स्ट उसे ऊँचा कर देता है तब भी पिल ही रहती है। उसके ग्लिफ़ उतने बड़े होते हैं जितना उसकी ऊँचाई होने देती है: medium चिप पर 24 और small चिप पर 20। चयनित फ़िल्टर चिप का चेक सिस्टम के आइकन सेट का `check` ग्लिफ़ है, और हटाने का ग्लिफ़ `cancel` है, जो हमेशा भरा हुआ बनाया जाता है। चिप अपना कोई निशान नहीं बनाती, इसलिए जिस डिज़ाइन सिस्टम को दूसरे निशान चाहिए, वह दूसरा आइकन सेट चुनता है। outlined चिप का किनारा बारीक रेखा है, वही हल्की रेखा जो डिवाइडर बनाता है।
 

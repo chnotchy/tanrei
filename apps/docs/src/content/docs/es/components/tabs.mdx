@@ -2,14 +2,14 @@
 title: Pestañas
 description: Cambia entre vistas de un mismo tema con una fila de pestañas con etiqueta sobre una pista. Hay una pestaña seleccionada, marcada por un indicador que se desliza entre las pestañas y sigue al dedo que se arrastra por la fila.
 translationOf: components/tabs.mdx
-sourceHash: 69eaaac41ca8870b83e0b2b2fe14004cae89db0e
+sourceHash: d17fe373c46ad348841f0e2a05ae5c40ce13480f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 Esta página describe las pestañas tal como están especificadas ahora: pestañas sobre una pista, con un único indicador que se desliza hasta la pestaña seleccionada y sigue un arrastre por la fila, pestañas que se ajustan a su contenido de forma predeterminada, etiquetas que se truncan en lugar de saltar de línea y filas que pueden compartir una elección y recordarla (`group` y `rememberAs`). `fullWidth` sustituye a `scrollable`. Una fila tiene además tres variantes (primaria, secundaria y tonal), dos tamaños, una pista que se puede omitir y una `transition` que dice si el indicador se desliza. El componente web hace todo esto, y las demostraciones también. SwiftUI, Compose, Flutter y React Native aparecen arriba como rezagados: hasta que se pongan al día ofrecen una revisión anterior, con `scrollable` (`isScrollable`, con false como valor predeterminado, en Flutter), un indicador de línea, etiquetas fijas que saltan de línea, sin pista y sin arrastre.
 :::
 
-<DemoFrame label="Pestañas primarias y el panel de la seleccionada">
+<Example label="Pestañas primarias y el panel de la seleccionada">
   <tanrei-tabs value="overview" label="Proyecto" style="inline-size: 22rem">
     <tanrei-tab value="overview" label="Resumen" icon="dashboard"></tanrei-tab>
     <tanrei-tab value="activity" label="Actividad" icon="history"></tanrei-tab>
@@ -34,7 +34,7 @@ Esta página describe las pestañas tal como están especificadas ahora: pestañ
       <p style="font: var(--tanrei-sys-typescale-body-font)">Región, dominios y acceso.</p>
     </tanrei-tab-panel>
   </tanrei-tabs>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -181,7 +181,7 @@ Las pestañas no dibujan los paneles, pero deciden cuál se muestra. En la web, 
 
 ## Especificaciones
 
-<DemoFrame label="Pestañas secundarias, una fila que llena el ancho, una fila que se ajusta al contenido y se desplaza, e iconos solos" plain column>
+<Example label="Pestañas secundarias, una fila que llena el ancho, una fila que se ajusta al contenido y se desplaza, e iconos solos" column>
   <tanrei-tabs variant="secondary" value="overview" label="Despliegue" style="inline-size: 22rem">
     <tanrei-tab value="overview" label="Resumen" icon="dashboard"></tanrei-tab>
     <tanrei-tab value="activity" label="Actividad" icon="history"></tanrei-tab>
@@ -205,9 +205,9 @@ Las pestañas no dibujan los paneles, pero deciden cuál se muestra. En la web, 
     <tanrei-tab value="grid" label="Cuadrícula" icon="grid_view" label-hidden></tanrei-tab>
     <tanrei-tab value="map" label="Mapa" icon="map" label-hidden></tanrei-tab>
   </tanrei-tabs>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Pestañas tonales con su pista, sin ella, y pequeñas, sin pista y sin transición" plain column>
+<Example label="Pestañas tonales con su pista, sin ella, y pequeñas, sin pista y sin transición" column>
   <tanrei-tabs variant="tonal" value="week" label="Periodo">
     <tanrei-tab value="day" label="Día"></tanrei-tab>
     <tanrei-tab value="week" label="Semana"></tanrei-tab>
@@ -222,7 +222,7 @@ Las pestañas no dibujan los paneles, pero deciden cuál se muestra. En la web, 
     <tanrei-tab value="metric" label="Métrico"></tanrei-tab>
     <tanrei-tab value="imperial" label="Imperial"></tanrei-tab>
   </tanrei-tabs>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tabs" />
 
@@ -324,7 +324,7 @@ Cuando la misma pregunta se responde en muchos lugares (la plataforma de cada ej
 - **Recordar va aparte.** `rememberAs` nombra la clave con la que la elección de una persona se guarda en su dispositivo y se restaura antes de que la fila se dibuje por primera vez. Sin clave no se almacena nada. La clave es tuya y se usa exactamente como la das, y solo se almacena el valor de la pestaña; si una preferencia recordada requiere consentimiento allí donde se usa tu producto, lo decides tú.
 - **En la web, las pestañas mantienen el grupo.** `group` y `remember-as` son atributos, y la clave es una clave de `localStorage`. En SwiftUI, Compose, Flutter y React Native, las filas que reciben el mismo estado de selección ya lo comparten, y es tu producto el que mantiene y almacena ese estado.
 
-<DemoFrame label="Dos filas de un mismo grupo: elige una pestaña en cualquiera de las dos" plain column>
+<Example label="Dos filas de un mismo grupo: elige una pestaña en cualquiera de las dos" column>
   <tanrei-tabs variant="secondary" group="docs-demo-units" value="metric" label="Unidades de distancia">
     <tanrei-tab value="metric" label="Métrico"></tanrei-tab>
     <tanrei-tab value="imperial" label="Imperial"></tanrei-tab>
@@ -339,7 +339,7 @@ Cuando la misma pregunta se responde en muchos lugares (la plataforma de cada ej
     <tanrei-tab-panel value="imperial"><p style="font: var(--tanrei-sys-typescale-body-font)">Caminar a paso ligero son 3.7 mph.</p></tanrei-tab-panel>
     <tanrei-tab-panel value="nautical"><p style="font: var(--tanrei-sys-typescale-body-font)">Caminar a paso ligero son 3.2 nudos.</p></tanrei-tab-panel>
   </tanrei-tabs>
-</DemoFrame>
+</Example>
 
 En la demostración, Náutico existe solo en la segunda fila: al elegirlo, la primera fila conserva su propia elección, y vuelve a seguir a la otra en cuanto la elección es una que también tiene. Ninguna de las dos filas nombra una clave, así que no se almacena nada.
 
@@ -349,7 +349,7 @@ Las pestañas de este sitio son un ejemplo: cada conjunto de ejemplos por plataf
 
 Con `orientation` en `vertical`, las pestañas se apilan en una columna en el borde inicial, junto a las vistas que alternan: las categorías de una página de ajustes o de un diálogo, las secciones de un registro. En todo lo demás es el mismo componente: una pestaña seleccionada, un indicador que se desliza y se puede arrastrar, los paneles y la elección compartida.
 
-<DemoFrame label="Pestañas verticales junto a sus paneles">
+<Example label="Pestañas verticales junto a sus paneles">
   <tanrei-tabs orientation="vertical" value="general" label="Ajustes" style="inline-size: 30rem">
     <tanrei-tab value="general" label="General" icon="settings"></tanrei-tab>
     <tanrei-tab value="notifications" label="Notificaciones" icon="notifications"></tanrei-tab>
@@ -358,7 +358,7 @@ Con `orientation` en `vertical`, las pestañas se apilan en una columna en el bo
     <tanrei-tab-panel value="notifications"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">Correo, notificaciones push y un resumen semanal.</p></tanrei-tab-panel>
     <tanrei-tab-panel value="privacy"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">Quién puede ver tu perfil.</p></tanrei-tab-panel>
   </tanrei-tabs>
-</DemoFrame>
+</Example>
 
 - **La columna.** Todas las pestañas son tan anchas como la más ancha, con el icono antes de la etiqueta en el borde inicial, en todas las variantes y tamaños. Las pestañas se tocan arriba y abajo, así que cada una mide al menos el objetivo mínimo de alto: las pestañas de una columna pequeña miden 44 (48 con entrada táctil), no 32. Para ensanchar la columna, usa `::part(tablist)`. En una columna más estrecha que su pestaña más ancha, la etiqueta se corta y se muestra entera en una información sobre herramientas.
 - **El indicador y la pista.** El indicador es la pestaña menos el margen interior de la pista por cada lado. Las esquinas de la pista son las del indicador más ese margen, de modo que ambas siguen siendo concéntricas en los extremos, por alta que sea la columna. Un sistema de diseño que dibuja una línea bajo la pestaña seleccionada la dibuja en el borde final de la columna, junto al panel, con el divisor a lo largo de ese borde.

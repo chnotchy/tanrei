@@ -2,23 +2,23 @@
 title: Estado vacío
 description: Lo que ocupa el lugar de un contenido que no está (una búsqueda sin resultados, una lista a la que nadie ha añadido nada, una página antes de su primer elemento) y dice qué falta, por qué o qué hacer, y ofrece la acción que lo resuelve.
 translationOf: components/empty-state.mdx
-sourceHash: d3fa57bc06d9c02ac0f16e7a10c5d4d5a0d20bfe
+sourceHash: 1dd91f2ec1c7941daac79ca1cc090adcaeb66da9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="empty-state" />
 
-<DemoFrame label="Una lista a la que nadie ha añadido nada todavía, y una búsqueda que no encontró nada" column>
+<Example label="Una lista a la que nadie ha añadido nada todavía, y una búsqueda que no encontró nada" column>
   <tanrei-empty-state headline="Aún no hay proyectos" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>Un proyecto reúne las capas, las exportaciones y las personas de un mismo sistema de diseño.<tanrei-button slot="actions">Nuevo proyecto</tanrei-button><tanrei-button slot="actions" variant="text">Importar una capa</tanrei-button></tanrei-empty-state>
   <tanrei-empty-state headline="No hay resultados para «tokne»" style="inline-size: min(100%, 30rem)"><span slot="media">search_off</span>Revisa la ortografía o busca una palabra más corta.<tanrei-button slot="actions" variant="outlined">Borrar búsqueda</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
 Un estado vacío está donde estaría el contenido cuando no hay ninguno: sustituye a la lista, a las filas, a los resultados. Dice qué falta en pocas palabras, por qué o qué hacer en una frase, y ofrece el control que lo resuelve. Es discreto y plano, sin relleno y sin borde, y es contenido, que se lee donde está: no recibe el foco y no tiene estados.
 
@@ -79,17 +79,17 @@ La descripción es el propio contenido del elemento. El título es el atributo `
 
 ## Especificaciones
 
-<DemoFrame label="Las partes, añadidas una a una" plain column>
+<Example label="Las partes, añadidas una a una" column>
   <tanrei-empty-state headline="Aún no hay proyectos" style="inline-size: min(100%, 30rem)"></tanrei-empty-state>
   <tanrei-empty-state headline="Aún no hay proyectos" style="inline-size: min(100%, 30rem)">Un proyecto reúne las capas, las exportaciones y las personas de un mismo sistema de diseño.</tanrei-empty-state>
   <tanrei-empty-state headline="Aún no hay proyectos" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>Un proyecto reúne las capas, las exportaciones y las personas de un mismo sistema de diseño.</tanrei-empty-state>
   <tanrei-empty-state headline="Aún no hay proyectos" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>Un proyecto reúne las capas, las exportaciones y las personas de un mismo sistema de diseño.<tanrei-button slot="actions">Nuevo proyecto</tanrei-button><tanrei-button slot="actions" variant="text">Importar una capa</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="En el borde de inicio, y el tamaño large" plain column>
+<Example label="En el borde de inicio, y el tamaño large" column>
   <tanrei-empty-state align="start" headline="Todavía no hay diferencias con la base" style="inline-size: min(100%, 30rem)">Cambia un valor a la izquierda y aparecerá aquí.</tanrei-empty-state>
   <tanrei-empty-state size="large" headline="Esta página no existe" style="inline-size: min(100%, 30rem)"><span slot="media">explore_off</span>Puede que la dirección esté mal escrita o que la página se haya movido.<tanrei-button slot="actions" variant="outlined">Ir a la página de inicio</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="empty-state" />
 
@@ -133,18 +133,18 @@ Un glifo se da por su nombre, en un elemento: `<span slot="media">folder_open</s
 
 Las acciones son tus propios [botones](/es/components/button/) o enlaces, una o dos, la principal primero. El estado vacío las dispone en una fila que salta de línea y no les hace nada más. A una acción cuya etiqueta es más larga que su línea se le da la línea entera: un botón hace entonces saltar de línea su etiqueta, de modo que nada se corta y nada sobresale del bloque.
 
-<DemoFrame label="En una columna estrecha, cada acción ocupa una línea, y una etiqueta larga salta de línea" plain column>
+<Example label="En una columna estrecha, cada acción ocupa una línea, y una etiqueta larga salta de línea" column>
   <tanrei-empty-state headline="Sin resultados" style="inline-size: 14rem"><span slot="media">search_off</span>Revisa la ortografía.<tanrei-button slot="actions" variant="outlined">Borrar búsqueda</tanrei-button><tanrei-button slot="actions" variant="text">Abrir el índice de contenidos de la documentación</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
 ### Aparecer en respuesta a algo
 
 `live` es para un estado vacío que resulta de lo que la persona acaba de hacer: un filtro que no coincide con ninguna fila, el último elemento que se quita. Se anuncia una vez, de forma cortés (el título, después la descripción, y no las acciones), cuando se muestra y cuando su texto cambia. Mantenlo en la página con `hidden`, o añádelo cuando corresponda.
 
-<DemoFrame label="Un estado vacío activo, que se muestra en respuesta a una pulsación" plain column>
+<Example label="Un estado vacío activo, que se muestra en respuesta a una pulsación" column>
   <tanrei-button variant="outlined" onclick="document.getElementById('empty-state-demo-live').hidden = false">Aplicar tres filtros</tanrei-button>
   <tanrei-empty-state id="empty-state-demo-live" live hidden headline="Ninguna entrada coincide con estos filtros" style="inline-size: min(100%, 30rem)">Hay tres filtros activos. Si quitas uno, se muestran más entradas.<tanrei-button slot="actions" variant="outlined" onclick="this.closest('tanrei-empty-state').hidden = true">Borrar filtros</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
 Uno que está en el marcado de la página y se muestra cuando la página se carga no se anuncia en ese momento. En la web, un estado vacío activo que tu script añade a la página después de que esta se haya cargado sí se anuncia; el elemento no puede distinguir uno añadido en respuesta a algo de uno añadido con una vista nueva de una aplicación de una sola página, así que, para un estado vacío que simplemente forma parte de una vista nueva, no pongas `live`.
 

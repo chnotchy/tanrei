@@ -2,14 +2,14 @@
 title: "导航抽屉"
 description: "在起始侧边缘的一块面板里，按分区和分组列出产品的目的地：在大屏幕上位于内容旁边，在 compact 屏幕上盖在内容之上，还可以收起为一列图标。"
 translationOf: components/navigation-drawer.mdx
-sourceHash: 863a49eefe0806a13fb113ad7e21185c8fdd9e2c
+sourceHash: 1eab880be19d8f79601b7bfb85013b914a9924bc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 本页描述的是规格当前所定的导航抽屉。`collapsible` 的抽屉可以收窄为一列图标，由此取代了导航轨道（navigation rail）：收起的抽屉就是去掉标签的展开抽屉，每一行都在图标之后截断，它的菜单按钮再把它展宽，每个图标都留在原位。目的地的 `badge` 文本改为 `trailingText`，画得更低调，另有 `trailing` 插槽用来放图标；`badge` 现在指图标上的徽标。`group` 项用来展开和折叠嵌套的目的地。行高为 48，与菜单项的高度相同。`responsive` 让窗口的宽度决定抽屉的呈现方式。带 `href` 的目的地是链接，`revealSelected` 和 `scrollOffset` 则让抽屉可以充当网站的侧边栏。Web 组件已经做到了这一切，本页的演示也是如此。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是上一版——行高 44，`badge` 是行末的文本，没有收起形态、分组、链接目的地和响应式呈现，另有一个独立的导航轨道；这些平台的示例展示的也是那个版本。 紧凑的 `density` 和同时作为目的地的分组（`selectableGroups`）更新一些，目前只在 Web 上提供。
 :::
 
-<DemoFrame label="带两个分区的标准抽屉">
+<Example label="带两个分区的标准抽屉">
   <tanrei-navigation-drawer open value="inbox" label="邮件" style="block-size: 26rem">
     <tanrei-navigation-drawer-section headline="邮件">
       <tanrei-navigation-drawer-item value="inbox" label="收件箱" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
@@ -31,9 +31,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-navigation-drawer-item value="family" label="家庭" icon="label"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-section>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="可收起的抽屉：菜单按钮把它收起为一列图标，其中的单元格用工具提示显示名称" plain>
+<Example label="可收起的抽屉：菜单按钮把它收起为一列图标，其中的单元格用工具提示显示名称">
   <tanrei-navigation-drawer open collapsible value="home" label="工作区" style="block-size: 30rem">
     <tanrei-button slot="header-button" variant="text" label="菜单"><span slot="icon">menu</span></tanrei-button>
     <tanrei-main-action-button slot="main-action" label="新建项目"><span slot="icon">add</span></tanrei-main-action-button>
@@ -45,9 +45,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </tanrei-navigation-drawer-group>
     <tanrei-navigation-drawer-item value="settings" label="设置" icon="settings" trailing-text="新"></tanrei-navigation-drawer-item>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="作为链接的目的地：抽屉的 value 指明当前页面，reveal-selected 展开包含它的分组" plain>
+<Example label="作为链接的目的地：抽屉的 value 指明当前页面，reveal-selected 展开包含它的分组">
   <tanrei-navigation-drawer open reveal-selected value="#sidebar-demo-tabs" label="文档" style="block-size: 24rem">
     <tanrei-navigation-drawer-item label="开始使用" href="#sidebar-demo-start"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-group label="基础">
@@ -60,9 +60,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </tanrei-navigation-drawer-group>
     <tanrei-navigation-drawer-item label="源代码" href="#sidebar-demo-source" target="new" target-label="在新标签页中打开"></tanrei-navigation-drawer-item>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="紧凑的抽屉，供用指针操作的工具使用：32 高的行和 16 的字形，每个嵌套图标都对齐到其分组标签的起点" plain>
+<Example label="紧凑的抽屉，供用指针操作的工具使用：32 高的行和 16 的字形，每个嵌套图标都对齐到其分组标签的起点">
   <tanrei-navigation-drawer open density="compact" value="tree-view" label="Workspace" style="block-size: 22rem">
     <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-section headline="Projects">
@@ -76,9 +76,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </tanrei-navigation-drawer-section>
     <tanrei-navigation-drawer-item value="settings" label="Settings" icon="settings"></tanrei-navigation-drawer-item>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="同时作为目的地的分组：设置 selectable-groups 后，分组的行选中它，而它的展开箭头负责展开和折叠" plain>
+<Example label="同时作为目的地的分组：设置 selectable-groups 后，分组的行选中它，而它的展开箭头负责展开和折叠">
   <tanrei-navigation-drawer open selectable-groups value="components" label="Documentation" style="block-size: 22rem">
     <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-group label="Foundations" icon="palette" value="foundations">
@@ -93,7 +93,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-navigation-drawer-item value="downloads" label="Downloads" icon="download"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-group>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -362,13 +362,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="不带图标、也不属于任何分区的目的地" plain>
+<Example label="不带图标、也不属于任何分区的目的地">
   <tanrei-navigation-drawer open value="deployments" label="项目" style="block-size: 20rem">
     <tanrei-navigation-drawer-item value="overview" label="概览"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-item value="deployments" label="部署" trailing-text="3"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-item value="settings" label="设置"></tanrei-navigation-drawer-item>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="navigation-drawer" />
 

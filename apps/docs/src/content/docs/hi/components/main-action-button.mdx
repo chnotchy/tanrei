@@ -2,23 +2,23 @@
 title: मुख्य ऐक्शन बटन
 description: स्क्रीन की अकेली सबसे महत्वपूर्ण क्रिया करता है, कॉन्टेंट के ऊपर तैरते एक उठे हुए कंटेनर पर, अपना नाम पूरा लिखकर या सिमटकर सिर्फ़ अपने आइकन के साथ।
 translationOf: components/main-action-button.mdx
-sourceHash: 4ea11cf1c96e665e4d8a7ce5bde60156fedc09b3
+sourceHash: 6a79e4750d54144d384e19b0a274c1d7763b4393
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="main-action-button" />
 
-<DemoFrame label="फैला हुआ और सिमटा हुआ">
+<Example label="फैला हुआ और सिमटा हुआ">
   <tanrei-main-action-button label="लिखें"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button label="लिखें" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
-</DemoFrame>
+</Example>
 
 मुख्य ऐक्शन बटन वह एक क्रिया है जिसके लिए कोई स्क्रीन बनी है: मेलबॉक्स में "लिखें", कैलेंडर में "नया इवेंट", लिस्ट में "जोड़ें"। यह कॉन्टेंट के ऊपर तैरते एक उठे हुए कंटेनर पर रहता है, इसलिए जब कॉन्टेंट इसके नीचे स्क्रॉल होता है तब भी यह पहुँच में रहता है।
 
@@ -96,27 +96,27 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="वेरिएंट" plain>
+<Example label="वेरिएंट">
   <tanrei-main-action-button label="लिखें"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button variant="tonal" label="लिखें"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button variant="surface" label="लिखें"><span slot="icon">edit</span></tanrei-main-action-button>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="साइज़, फैले हुए और सिमटे हुए" plain>
+<Example label="साइज़, फैले हुए और सिमटे हुए">
   <tanrei-main-action-button size="small" label="लिखें"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="medium" label="लिखें"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="large" label="लिखें"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="small" label="लिखें" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="medium" label="लिखें" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="large" label="लिखें" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="अंतिम आइकन, बिना आइकन, और अक्षम" plain>
+<Example label="अंतिम आइकन, बिना आइकन, और अक्षम">
   <tanrei-main-action-button label="आगे" icon-position="trailing"><span slot="icon">arrow_forward</span></tanrei-main-action-button>
   <tanrei-main-action-button label="शुरू करें"></tanrei-main-action-button>
   <tanrei-main-action-button label="लिखें" disabled><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button label="लिखें" collapsed disabled><span slot="icon">edit</span></tanrei-main-action-button>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="main-action-button" />
 
@@ -169,11 +169,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 `full-width` देने पर बटन अपने कंटेनर जितना चौड़ा हो जाता है, उसका आइकन और लेबल बीच में: किसी संकरी स्क्रीन पर उसके निचले हिस्से में फैली स्क्रीन की इकलौती क्रिया, जैसे "चेकआउट करें" या "भेजें"। पूरी चौड़ाई वाला बटन हमेशा फैला रहता है: कंटेंट स्क्रॉल होते समय वह सिमटता नहीं, और `extended` को false करने पर डीबग बिल्ड में इसकी रिपोर्ट होती है। उसकी ऊँचाई, कोने और एलिवेशन उसके साइज़ के ही रहते हैं, और जो लेबल न समाए वह अगली लाइन में चला जाता है। वह अब भी ख़ुद को नहीं रखता: उसे स्क्रीन के नीचे वाले कंटेनर में रखें।
 
-<DemoFrame label="पूरी चौड़ाई वाला मुख्य क्रिया बटन" plain>
+<Example label="पूरी चौड़ाई वाला मुख्य क्रिया बटन">
   <div style="inline-size: 20rem">
     <tanrei-main-action-button label="चेकआउट करें" full-width><span slot="icon">shopping_cart</span></tanrei-main-action-button>
   </div>
-</DemoFrame>
+</Example>
 
 ### करें
 

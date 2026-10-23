@@ -2,20 +2,20 @@
 title: लिस्ट पंक्ति
 description: टेक्स्ट की एक पंक्ति, जिसके पहले कुछ है और बाद में कुछ। एक हेडलाइन, उसके ऊपर एक छोटी लाइन और नीचे एक या दो लाइनें; शुरुआत में ग्लिफ़, तस्वीर या कंट्रोल; अंत में छोटी वैल्यू, ग्लिफ़ या कंट्रोल। लिस्ट आइटम में रखने पर यह लिस्ट के हर मोड में फ़िट होती है, और अकेले भी इस्तेमाल होती है।
 translationOf: components/list-row.mdx
-sourceHash: 19070cee88ea1c99d0d03fe7866472287bd11101
+sourceHash: 2d3567ece5ff8694cbe5c277bb265b81b65f928b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="list-row" />
 
-<DemoFrame label="लिस्ट में पंक्तियाँ: स्विच वाली स्थिर पंक्ति, कुछ खोलने वाली पंक्ति, और लिंक वाली पंक्ति" plain>
+<Example label="लिस्ट में पंक्तियाँ: स्विच वाली स्थिर पंक्ति, कुछ खोलने वाली पंक्ति, और लिंक वाली पंक्ति">
   <tanrei-list dividers style="inline-size: 22rem">
     <tanrei-list-item>
       <tanrei-list-row leading-icon="bluetooth" headline="ब्लूटूथ" supporting-text="दो डिवाइस">
@@ -29,7 +29,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-list-row leading-icon="folder" overline="शेयर किया गया" headline="बंदरगाह की तस्वीरें" supporting-text="48 आइटम, आज बदले गए" trailing-text="2.4 GB"></tanrei-list-row>
     </tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
 लिस्ट पंक्ति वह पंक्ति है जिससे ज़्यादातर लिस्टें बनती हैं: एक नाम, उसके बारे में एक-दो लाइनें, और उसके पहले और बाद में कुछ। [लिस्ट](/hi/components/list/) एक डिब्बा है जो अपने आइटम सजाता है और उन्हें ऐक्शन, लिंक या विकल्प बनाता है; लिस्ट पंक्ति वह है जो एक आइटम दिखाता है। इसे लिस्ट आइटम में रखें, या जहाँ सिर्फ़ एक पंक्ति चाहिए वहाँ अकेले इस्तेमाल करें।
 
@@ -98,12 +98,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="एक, दो और तीन लाइनें; तस्वीर और वैल्यू; compact" plain>
+<Example label="एक, दो और तीन लाइनें; तस्वीर और वैल्यू; compact">
   <tanrei-list-row headline="वाई-फ़ाई" style="inline-size: 22rem"></tanrei-list-row>
   <tanrei-list-row leading-icon="wifi" headline="वाई-फ़ाई" supporting-text="Harbour से कनेक्टेड" style="inline-size: 22rem"></tanrei-list-row>
   <tanrei-list-row leading-icon="folder" overline="शेयर किया गया" headline="बंदरगाह की तस्वीरें" supporting-text="48 आइटम, आज बदले गए" trailing-text="2.4 GB" trailing-icon="chevron_right" style="inline-size: 22rem"></tanrei-list-row>
   <tanrei-list-row leading-icon="description" headline="brief.pdf" supporting-text="820 KB" density="compact" style="inline-size: 22rem"></tanrei-list-row>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="list-row" />
 

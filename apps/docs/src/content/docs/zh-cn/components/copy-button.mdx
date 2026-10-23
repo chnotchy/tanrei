@@ -2,25 +2,25 @@
 title: "复制按钮"
 description: "按一次就复制给定文本并加以确认的按钮；复制不了时也会说明。它由 Button 绘制，默认绝不会让布局移动。"
 translationOf: components/copy-button.mdx
-sourceHash: e6b7e0e12c613261bd9ecfb7a40acc453aa9118b
+sourceHash: 4ef8bacbc2d1f765fcf598423e9d01ebbca9a96d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="copy-button" />
 
-<DemoFrame label="按下其中一个：字形会暂时变成对勾">
+<Example label="按下其中一个：字形会暂时变成对勾">
   <tanrei-copy-button text="npm install @tanrei/web" label="复制" copied-label="已复制" failed-label="无法复制"></tanrei-copy-button>
   <tanrei-copy-button variant="tonal" text="#30a3f0" label="复制颜色" copied-label="已复制" failed-label="无法复制"></tanrei-copy-button>
   <tanrei-copy-button icon-only="false" variant="outlined" text="https://example.com/s/4f2a" label="复制链接" copied-label="链接已复制" failed-label="无法复制"></tanrei-copy-button>
   <tanrei-copy-button icon-only="false" variant="filled" text="sk-test-0000" label="复制密钥" copied-label="已复制" failed-label="无法复制"></tanrei-copy-button>
-</DemoFrame>
+</Example>
 
 复制按钮放在用户会粘贴到别处的东西旁边：一条命令、一个密钥、一个地址、一个颜色值。它等待浏览器的答复，显示对勾（或错误标记）两秒钟，并用文字告知辅助技术。[代码块](../code-block/)会替你放置一个。
 
@@ -83,22 +83,22 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 
 ## 规格
 
-<DemoFrame label="尺寸和变体都是 Button 的" plain>
+<Example label="尺寸和变体都是 Button 的">
   <tanrei-copy-button size="small" text="small" label="复制" copied-label="已复制" failed-label="无法复制"></tanrei-copy-button>
   <tanrei-copy-button text="medium" label="复制" copied-label="已复制" failed-label="无法复制"></tanrei-copy-button>
   <tanrei-copy-button size="large" text="large" label="复制" copied-label="已复制" failed-label="无法复制"></tanrei-copy-button>
   <tanrei-copy-button variant="elevated" text="elevated" label="复制" copied-label="已复制" failed-label="无法复制"></tanrei-copy-button>
   <tanrei-copy-button disabled text="disabled" label="复制" copied-label="已复制" failed-label="无法复制"></tanrei-copy-button>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="宽度按三段文字中最长的一段保留" plain>
+<Example label="宽度按三段文字中最长的一段保留">
   <tanrei-copy-button icon-only="false" variant="outlined" text="sk-test-0000" label="复制" copied-label="已复制到剪贴板" failed-label="无法复制"></tanrei-copy-button>
   <tanrei-button variant="text">不会移动的相邻按钮</tanrei-button>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="label-width 为 fit 时，宽度随文字变化" plain>
+<Example label="label-width 为 fit 时，宽度随文字变化">
   <tanrei-copy-button icon-only="false" label-width="fit" variant="outlined" text="sk-test-0000" label="复制" copied-label="已复制到剪贴板" failed-label="无法复制"></tanrei-copy-button>
-</DemoFrame>
+</Example>
 
 设置 `label-width="fit"` 后，带标签的形式与它显示的文字一样宽。文字变化时，宽度会在 `comp.copy-button.motion.resize-duration` 内平滑地变为新文字的宽度；在减弱动态效果时则立即变化。默认值仍是 `widest`，因为在用户正要按下时移动的控件容易被误按。只有在按钮后面没有用户接下来可能按的东西时（例如一行的末尾），才使用 `fit`。
 

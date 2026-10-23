@@ -7,17 +7,17 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="resizable-frame" />
 
-<DemoFrame label="A preview a person resizes by its end edge, its bottom edge and its corner" plain>
+<Example label="A preview a person resizes by its end edge, its bottom edge and its corner">
   <tanrei-resizable-frame width="360" height="200" handles="end bottom bottom-end" snap-widths="400 600" width-label="Resize preview width" height-label="Resize preview height" corner-label="Resize preview" style="inline-size: 100%">
     <div style="box-sizing: border-box; min-block-size: 100%; padding: 1rem; background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface)">Drag a handle, or move to one with Tab and use the arrow keys.</div>
   </tanrei-resizable-frame>
-</DemoFrame>
+</Example>
 
 A resizable frame gives what it holds a width and a height that a person can change. Its handles are [Handles](/components/handle/): dragged, they change the size; moved from the keyboard, they change it a step at a time; pressed without a drag, they switch between the greatest size and the one before it. The frame keeps the size, tells you when a person has changed it, and gives each handle the size as its value, so that assistive technology reads it.
 

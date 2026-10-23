@@ -2,20 +2,20 @@
 title: "徽标"
 description: "在图标、导航项或头像上加一个圆点或一个小数字，表示有内容等待处理。"
 translationOf: components/badge.mdx
-sourceHash: 74073b748fa7daa98b80d466a68d0d373c3a788a
+sourceHash: c983c212e290693abdeb8186325270e2b71dc681
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="badge" />
 
-<DemoFrame label="圆点和数字">
+<Example label="圆点和数字">
   <tanrei-badge label="有新消息">
     <tanrei-button variant="text" label="聊天"><span slot="icon">chat</span></tanrei-button>
   </tanrei-badge>
@@ -25,7 +25,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-badge count="42" label="42 条通知">
     <tanrei-button variant="text" label="通知"><span slot="icon">notifications</span></tanrei-button>
   </tanrei-badge>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -126,7 +126,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="数字和上限" plain>
+<Example label="数字和上限">
   <tanrei-badge count="3" label="3 条未读">
     <span class="tanrei-icon" role="img" aria-label="通知">notifications</span>
   </tanrei-badge>
@@ -145,7 +145,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-badge count="0" label="没有未读消息">
     <span class="tanrei-icon" role="img" aria-label="通知">notifications</span>
   </tanrei-badge>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="badge" />
 

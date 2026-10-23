@@ -2,27 +2,27 @@
 title: वन-टाइम कोड इनपुट
 description: व्यक्ति को भेजा गया छोटा कोड, जैसे साइन-इन या पुष्टि कोड, एक ही टेक्स्ट मान के रूप में लेता है और उसे अलग-अलग सेल में दिखाता है, ताकि कोड की लंबाई और जो अभी बाक़ी है वह दिखे, और प्लैटफ़ॉर्म उसे एक ही बार में भर सके।
 translationOf: components/one-time-code-input.mdx
-sourceHash: c820388188c64d7d53434e6c907a565d8d10ab67
+sourceHash: cae7f555e817b85dc9656f43ee7803945e22cea3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="one-time-code-input" />
 
-<DemoFrame label="फ़ील्ड के भीतर एक वन-टाइम कोड इनपुट, और एक जिसका कोड प्रॉडक्ट ने नहीं माना" column>
+<Example label="फ़ील्ड के भीतर एक वन-टाइम कोड इनपुट, और एक जिसका कोड प्रॉडक्ट ने नहीं माना" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="पुष्टि कोड" supporting-text="आपके फ़ोन पर भेजा गया 6 अंकों का कोड दर्ज करें।">
     <tanrei-one-time-code-input group-size="3" value="123"></tanrei-one-time-code-input>
   </tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="पुष्टि कोड" supporting-text="आपके फ़ोन पर भेजा गया 6 अंकों का कोड दर्ज करें।" error error-text="यह कोड सही नहीं है। संदेश देखकर फिर कोशिश करें।">
     <tanrei-one-time-code-input group-size="3" value="123456"></tanrei-one-time-code-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 वन-टाइम कोड इनपुट उस छोटे कोड के लिए इस्तेमाल करें जो प्रॉडक्ट ने व्यक्ति को भेजा है और जिसे वह एक बार वापस माँगता है: साइन इन करने के लिए, किसी ईमेल पते या फ़ोन नंबर की पुष्टि के लिए, किसी भुगतान को मंज़ूरी देने के लिए। सेल दिखाते हैं कि कोड कितना लंबा है और उसका कितना हिस्सा अभी बाक़ी है।
 
@@ -87,14 +87,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="चार सेल, दो ग्रुप में आठ सेल, अक्षर और अंक, छिपाया गया कोड, सिर्फ़ पढ़ने के लिए और अक्षम" plain column>
+<Example label="चार सेल, दो ग्रुप में आठ सेल, अक्षर और अंक, छिपाया गया कोड, सिर्फ़ पढ़ने के लिए और अक्षम" column>
   <tanrei-one-time-code-input class="not-content" label="पत्र में दिया गया पिन" length="4" value="4821"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="पेयरिंग कोड" length="8" group-size="4" value="1234"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="साइन-इन कोड" type="alphanumeric" group-size="3" value="A7K93Q"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="पुष्टि कोड" mask value="1234"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="पुष्टि कोड" readonly value="123456"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="पुष्टि कोड" disabled group-size="3" value="123456"></tanrei-one-time-code-input>
-</DemoFrame>
+</Example>
 
 ### सेल
 
