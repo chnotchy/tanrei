@@ -97,9 +97,9 @@ describe("every page's Markdown", () => {
       if (!markdown.startsWith('---\ntitle: ')) wrong.push(`${page.file}: no front matter`);
       if (!fields.title || !markdown.includes(`\n---\n\n# `)) wrong.push(`${page.file}: no title`);
       if (fields.url !== page.canonical) wrong.push(`${page.file}: url ${fields.url}, canonical ${page.canonical}`);
-      // The same instant: the sitemap writes it in UTC, the front matter as the history gives it, with its offset.
+      // The same string: the sitemap's date, in UTC.
       const sitemap = sitemapDates.get(page.canonical);
-      if (!sitemap || !fields.last_updated || Date.parse(fields.last_updated) !== Date.parse(sitemap)) wrong.push(`${page.file}: last_updated ${fields.last_updated}, sitemap ${sitemapDates.get(page.canonical)}`);
+      if (!sitemap || !fields.last_updated || fields.last_updated !== sitemap) wrong.push(`${page.file}: last_updated ${fields.last_updated}, sitemap ${sitemapDates.get(page.canonical)}`);
     }
     assert.deepEqual(wrong, []);
     assert.ok([...sitemapDates.values()].filter(Boolean).length > 700);

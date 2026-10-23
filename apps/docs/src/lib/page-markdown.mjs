@@ -619,7 +619,7 @@ export function pageMarkdown(html, { url, lastmod, spec }) {
  * The integration that writes every page's Markdown beside it when the site is built.
  *
  * @param {{ languages: string[], lastmod: (url: string) => string | undefined }} options The translations' folders, and
- *   the date a page last changed by its address — the sitemap's own (`sitemapLastmod().of`), so that the two agree.
+ *   the date a page last changed by its address — the sitemap's own (`pageLastmod().of`), so that the two agree.
  */
 export function pageMarkdownFiles({ languages, lastmod }) {
   /** @type {URL} */

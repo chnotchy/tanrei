@@ -1,6 +1,6 @@
 // What the built site's heads say to a search engine and to a shared link (src/routeData.ts), page by page: one image
 // of a shared link that the site serves — a PNG of 1200 × 630 —, the language as Open Graph writes it, structured
-// data that parses and has what its type asks for, a title no other page of its language has, and no author but the
+// data that parses and has what its type asks for (the page itself, dated as the sitemap dates it), a title no other page of its language has, and no author but the
 // account that owns the repository. Then, in a browser, that the image a few pages name is one it draws.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
@@ -41,9 +41,17 @@ const pages = htmlFiles(dist)
       title: decode(head.match(/<title>([^<]*)<\/title>/)?.[1] ?? ''),
       all: (key) => metas.filter(([name]) => name === key).map(([, value]) => value),
       noindex: /<meta name="robots" content="noindex"/.test(head),
+      // The date under its title (components/frame/PageTitle.astro): its meta line's `<time>`.
+      shown: /<div data-part="meta"[^>]*>\s*<time\b[^>]*\bdatetime="([^"]+)"/.exec(html)?.[1],
       jsonLd: [...head.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(([, text]) => text),
     };
   });
+/** The date the sitemaps give each address, by its path. */
+const sitemapDates = new Map(
+  [...fs.readFileSync(path.join(dist, 'sitemap-index.xml'), 'utf8').matchAll(/<loc>(.*?)<\/loc>/g)].flatMap(([, loc]) =>
+    [...fs.readFileSync(path.join(dist, new URL(loc).pathname), 'utf8').matchAll(/<url>(.*?)<\/url>/gs)].map(([, body]) => [new URL(/<loc>(.*?)<\/loc>/s.exec(body)[1]).pathname, /<lastmod>(.*?)<\/lastmod>/s.exec(body)?.[1]]),
+  ),
+);
 const isHome = (file) => file === 'index.html' || translations.some(({ dir }) => file === `${dir}/index.html`);
 const ogLocales = [source, ...translations].map((language) => language.ogLocale);
 
@@ -119,6 +127,17 @@ describe('every page’s head', () => {
       }
       for (const item of data) assert.equal(item['@context'], 'https://schema.org', page.file);
       assert.equal(types.filter((type) => type === 'BreadcrumbList').length, 1, `${page.file}: one BreadcrumbList`);
+      // The page itself, dated as its sitemap and its head date it: the same string.
+      const own = data.filter((item) => item['@type'] === 'WebPage');
+      assert.equal(own.length, 1, `${page.file}: one WebPage`);
+      const pathname = `/${page.file.replace(/index\.html$/, '')}`;
+      assert.deepEqual([new URL(own[0].url).pathname, own[0].inLanguage], [pathname, page.lang], page.file);
+      assert.ok(own[0].name, `${page.file}: the WebPage's name`);
+      const sitemap = sitemapDates.get(pathname);
+      assert.ok(sitemap, `${page.file}: in the sitemap`);
+      assert.equal(own[0].dateModified, sitemap, `${page.file}: dateModified`);
+      // Each language's first page has a hero in place of its head, and prints no date.
+      if (!isHome(page.file)) assert.equal(page.shown, sitemap, `${page.file}: the date under its title`);
       const trail = data.find((item) => item['@type'] === 'BreadcrumbList').itemListElement;
       assert.ok(trail.length >= 1, page.file);
       trail.forEach((item, at) => {
@@ -138,7 +157,7 @@ describe('every page’s head', () => {
         const code = data.find((item) => item['@type'] === 'SoftwareSourceCode');
         assert.ok(code && typeof code.programmingLanguage === 'string', `${page.file}: SoftwareSourceCode with its programmingLanguage`);
       } else {
-        assert.deepEqual(types, ['BreadcrumbList'], page.file);
+        assert.deepEqual(types, ['WebPage', 'BreadcrumbList'], page.file);
       }
     }
   });

@@ -99,6 +99,15 @@ export function breadcrumbList(levels: { name: string; href?: string }[], site: 
   };
 }
 
+/**
+ * The page itself, on every page: its address, title and language, and `dateModified`, when it last changed — the date
+ * the sitemap gives the page and its head prints (`virtual:tanrei-docs/last-updated`, src/lib/lastmod.mjs), as it was
+ * given (ISO 8601 with its offset). A page no commit holds yet has no `dateModified`.
+ */
+export function webPage(url: string, name: string, lang: string, description: string | undefined, dateModified: string | undefined): Json {
+  return { '@context': 'https://schema.org', '@type': 'WebPage', url, name, inLanguage: lang, ...(description ? { description } : {}), ...(dateModified ? { dateModified } : {}) };
+}
+
 /** The site, on its first page in every language. */
 export function webSite(url: string, lang: string, description: string | undefined): Json {
   return { '@context': 'https://schema.org', '@type': 'WebSite', name: config.name, alternateName, url, inLanguage: lang, ...(description ? { description } : {}) };

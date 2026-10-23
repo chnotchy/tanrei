@@ -7,8 +7,10 @@
 //                                `og:locale:alternate` (the framework writes the bare tag, `ja`);
 //   the first page               a website (`og:type`), titled by what Tanrei is — not «Tanrei | Tanrei»;
 //   a component's page           «Button — accessible UI component | Tanrei design system»;
-//   structured data              JSON-LD: the page's trail on every page, the site and its source code on the first
-//                                page, the platform's source code on a platform's page of "Getting started".
+//   structured data              JSON-LD: the page itself and its trail on every page — the page with `dateModified`,
+//                                the date its head prints and the sitemap gives it (lib/lastmod.mjs) —, the site and
+//                                its source code on the first page, the platform's source code on a platform's page
+//                                of "Getting started".
 //
 // The page that was not found keeps its image (its language's first page's) and has no structured data: it is not
 // offered to a crawler.
@@ -17,7 +19,8 @@ import { homeHref, trail, type Entry } from './components/frame/frame';
 import { strings } from './lib/i18n';
 import { isNotFoundPage, specOfPage } from './lib/page-head';
 import { SOCIAL } from './lib/brand.mjs';
-import { breadcrumbList, componentTitles, gettingStartedPlatform, homeTitle, jsonLd, ogLocales, pageOf, socialImagePath, softwareSourceCode, webSite } from './lib/seo';
+import { breadcrumbList, componentTitles, gettingStartedPlatform, homeTitle, jsonLd, ogLocales, pageOf, socialImagePath, softwareSourceCode, webPage, webSite } from './lib/seo';
+import { lastUpdated } from 'virtual:tanrei-docs/last-updated';
 
 type HeadEntry = { tag: string; attrs?: Record<string, string | boolean | undefined>; content?: string };
 
@@ -80,7 +83,7 @@ export const onRequest = defineRouteMiddleware((context) => {
   const crumbs = home
     ? [{ name: strings(route.lang).frame.home, href: homeHref(route) }]
     : [{ name: strings(route.lang).frame.home, href: homeHref(route) }, ...levels.map((level) => ({ name: level.label, href: level.href })), { name: title, href: context.url.pathname }];
-  const data = [breadcrumbList(crumbs, site)];
+  const data = [webPage(url, title, route.lang, description, lastUpdated(context.url.pathname)), breadcrumbList(crumbs, site)];
   if (home) data.push(webSite(url, route.lang, description), softwareSourceCode(url, description));
   const platform = gettingStartedPlatform(page);
   if (platform) data.push(softwareSourceCode(new URL(homeHref(route), site).href, description, [platform]));
