@@ -80,7 +80,7 @@ The Web and React samples show the current spec. The SwiftUI, Compose, Flutter a
     </Carousel>
 
     <Carousel label="Featured walks" loop indicator autoplay paused={paused}
-      onPausedchange={(e) => setPaused(e.detail.paused)}
+      onPausedChange={(e) => setPaused(e.detail.paused)}
       previousLabel="Previous walk" nextLabel="Next walk"
       playLabel="Play the slideshow" pauseLabel="Pause the slideshow">
       {featured.map((walk) => <CarouselItem key={walk.id} label={walk.label} onClick={() => openWalk(walk)}><img src={walk.image} alt="" /></CarouselItem>)}

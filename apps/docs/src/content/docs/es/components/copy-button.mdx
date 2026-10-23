@@ -2,7 +2,7 @@
 title: Botón de copiar
 description: Un botón que copia un texto dado con una sola pulsación y lo confirma, o dice que no ha podido. Lo dibuja Button y, de forma predeterminada, nunca mueve el diseño.
 translationOf: components/copy-button.mdx
-sourceHash: 83b0e3b2e8515dd2490be056fdab9151e53d9e9e
+sourceHash: e6b7e0e12c613261bd9ecfb7a40acc453aa9118b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -76,7 +76,7 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
     ```tsx
     import { CopyButton } from '@tanrei/react';
 
-    <CopyButton text={command} label="Copiar" copiedLabel="Copiado" failedLabel="No se pudo copiar" onCopyfailed={() => showHelp()} />
+    <CopyButton text={command} label="Copiar" copiedLabel="Copiado" failedLabel="No se pudo copiar" onCopyFailed={() => showHelp()} />
     ```
   </TabItem>
 </Tabs>

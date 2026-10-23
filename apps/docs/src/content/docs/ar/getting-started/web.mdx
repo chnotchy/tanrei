@@ -261,3 +261,63 @@ import '@tanrei/web/icons.css';
 ```
 
 اجعل هذا السكربت صغيرًا وبسيطًا: فمتصفح كل زائر يشغّله، والقديمة منها أيضًا. مع `import` ثابت، يحمّل المتصفح التطبيق قبل أن يعمل هذا السكربت، والمتصفح القديم الذي لا يستطيع تحليله لا يصل إلى الفحص أصلًا؛ أما `import()` فلا يحمّله إلا بعد الفحص.
+
+## الاختبار
+
+### في متصفح
+
+تُبنى عناصر Tanrei على ما تنفّذه المتصفحات: جذور الظل (shadow roots)، و`ElementInternals` (قيمة عنصر التحكم في النموذج وصلاحيتها، والحالات المخصّصة)، وواجهة Popover، و`<dialog>`، وتخطيط الصفحة. لا تنفّذ jsdom وhappy-dom إلا جزءًا من ذلك (فليس في happy-dom الدالة `attachInternals()` ولا واجهة Popover)، فقد يرمي العنصر خطأً عند رسمه، أو يترك وعدًا (Promise) مرفوضًا، أو يُرسَم دون الأحجام وترتيب التركيز والطبقة العليا التي يعتمد عليها. لا يدعم Tanrei هذه البيئات، ولا يوفّر بدائل لما ينقصها: فالبديل الذي يمنع العنصر من رمي الخطأ يجعل الاختبار ينجح على سلوك لا يوجد في أي متصفح.
+
+شغّل في متصفح حقيقي كل ما يرسم عنصرًا من عناصر Tanrei:
+
+- [وضع المتصفح في Vitest](https://vitest.dev/guide/browser/)، مع مزوّد Playwright، يُبقي اختبارات مكوّناتك في Vitest ويشغّلها في Chromium أو Firefox أو WebKit.
+- [Playwright Test](https://playwright.dev/docs/intro) يشغّل الصفحات ومسارات الاستخدام الكاملة.
+
+أما اختبارات منطقك الخاص التي لا ترسم أي عنصر من عناصر Tanrei فيمكن أن تبقى في Node أو jsdom أو happy-dom. وتعمل اختبارات Tanrei نفسها في Chromium وFirefox وWebKit، مع axe-core في Playwright.
+
+### العثور على عنصر
+
+تضع معظم العناصر دورها على عنصر أصلي داخل جذر الظل الخاص بها (`<button>` أو `<input>` أو `<dialog>`) لا على نفسها، كي ترى المتصفحات وأدوات الاختبار دلالات حقيقية؛ وقليل منها، كالتبويب أو القائمة المفتوحة، يحمل الدور بنفسه. ومحدّدات المواقع (locators) في Playwright تبحث داخل جذور الظل المفتوحة، فابحث عن عنصر التحكم بدوره واسمه، كما يفعل الشخص:
+
+```ts
+await page.getByRole('button', { name: 'Save' }).click();
+await expect(page.getByRole('switch', { name: 'Wi-Fi' })).toBeChecked();
+```
+
+والنقر على هذا الزر يصل إلى المستمعين المسجّلين على `<tanrei-button>` نفسه. أما استعلامات Testing Library فلا تبحث داخل جذور الظل، فلا تعثر على عناصر التحكم هذه.
+
+### دور ومحتواه في شجرتين مختلفتين
+
+تحتفظ بعض العناصر بدور في جذر الظل الخاص بها، بينما ما ينتمي إليه هو ترميزك أنت، يوضع فيه عبر فتحة (slot): قائمة التبويبات في `<tanrei-tabs>` وأبناؤها `<tanrei-tab>`، وعنصر `<dialog>` في `<tanrei-dialog>` وإجراءاته. في DOM لا تقع التبويبات داخل قائمة التبويبات، فمحدّد الموقع الذي يتسلسل من الدور لا يعثر على شيء:
+
+```ts
+// لا يعثر على شيء: التبويبات أبناء <tanrei-tabs>، لا أبناء قائمة تبويباته.
+page.getByRole('tablist', { name: 'Sections' }).getByRole('tab', { name: 'Billing' });
+```
+
+اعثر على العنصر الذي يحمل الدور ذا الاسم، ثم ابحث داخله:
+
+```ts
+const sections = page.locator('tanrei-tabs', { has: page.getByRole('tablist', { name: 'Sections' }) });
+await sections.getByRole('tab', { name: 'Billing' }).click();
+
+const confirm = page.locator('tanrei-dialog', { has: page.getByRole('dialog', { name: 'Delete the file?' }) });
+await confirm.getByRole('button', { name: 'Delete' }).click();
+```
+
+### قائمة في الطبقة العليا
+
+ما دام `<tanrei-menu>` مفتوحًا فهو القائمة، ويحمل اسم مرساته، لكنه لا يشغل مساحة في الصفحة: فسطحه يُرسَم في الطبقة العليا. لذلك يفشل التحقق من ظهور القائمة نفسها حتى وهي مفتوحة. تحقّق من وجود القائمة، ثم تحقّق من عناصرها:
+
+```ts
+await page.getByRole('button', { name: 'More' }).click();
+const menu = page.getByRole('menu', { name: 'More' });
+await expect(menu).toBeAttached();
+await expect(menu.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+```
+
+وعند إغلاقها لا يبقى العنصر قائمة، فينجح `await expect(menu).toHaveCount(0)`.
+
+### التحذيرات
+
+في نسخة التطوير، يكتب العنصر في وحدة التحكم (console) حين يُستخدَم بطريقة لا تسمح بها مواصفته، في رسالة تبدأ بـ `[tanrei]` وتنتهي بمعرّف السلوك. ويمكن لاختبار في المتصفح أن يفشل عند أي منها: في [دليل وكلاء الذكاء الاصطناعي](/ar/getting-started/ai-agents/) مثال بـ Playwright.

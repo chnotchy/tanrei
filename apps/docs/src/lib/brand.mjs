@@ -1,6 +1,6 @@
-// What the site makes of the brand marks (design/brand/): the symbol inline in the header, and the icons and the
-// social image the build renders. Every one is derived from a mark's file and the tokens, never drawn by hand, so a
-// mark pulled again from Figma (`pnpm brand:pull`) reaches all of them with the next build.
+// What the site makes of the brand marks (design/brand/): the symbol inline in the header, and the icons the build
+// renders (each page's social image is lib/social-image.mjs's). Every one is derived from a mark's file and the tokens,
+// never drawn by hand, so a mark pulled again from Figma (`pnpm brand:pull`) reaches all of them with the next build.
 //
 // The marks' own files are one flat color each: the source in `currentColor`, the generated copies painted in a
 // scheme's on-surface (`pnpm generate`, packages/tokens-build/src/emit/brand.js).
@@ -49,18 +49,6 @@ export function inlineMark(svg, { width, height, ...attrs }) {
 export function iconSvg(svg, { size, background }) {
   const mark = parts(svg);
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><rect width="${size}" height="${size}" fill="${background}"/><svg x="0" y="0" width="${size}" height="${size}" viewBox="${mark.viewBox}" preserveAspectRatio="xMidYMid meet">${mark.body}</svg></svg>`;
-}
-
-/**
- * The social image: the wordmark alone, centred, at `share` of the image's width, on the background — the name is
- * what is read in a shared link, so the wordmark, never with the symbol.
- * @param {string} svg the wordmark painted in the color it is drawn in
- */
-export function socialSvg(svg, { background, share = 0.5, width = SOCIAL.width, height = SOCIAL.height }) {
-  const mark = parts(svg);
-  const w = Math.round(width * share);
-  const h = Math.round((w * mark.height) / mark.width);
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect width="${width}" height="${height}" fill="${background}"/><svg x="${Math.round((width - w) / 2)}" y="${Math.round((height - h) / 2)}" width="${w}" height="${h}" viewBox="${mark.viewBox}">${mark.body}</svg></svg>`;
 }
 
 /** An SVG drawn as a PNG of its own size. */

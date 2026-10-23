@@ -2,7 +2,7 @@
 title: Campo de texto
 description: Permite introducir y editar texto (una línea, o varias que siguen al texto o cuyo tamaño se cambia a mano) o una fecha o una hora que se introducen unidad por unidad en el formato de la configuración regional, o código que se conserva exactamente como se escribe, con una etiqueta que puede decir si el campo es obligatorio u opcional, iconos opcionales, prefijo y sufijo, texto de apoyo, un recuento de caracteres y un botón de selector.
 translationOf: components/text-field.mdx
-sourceHash: f108ac8d052ea1953cbb471dc7611d237bf1bae7
+sourceHash: 411dac5b1d815910bb7364fb17ea79e3abd15352
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="text-field" />
 
 :::note[Una especificación revisada que aún no está en todas las plataformas]
-Esta página describe el campo de texto tal como lo define ahora la especificación: una variante `stacked`, la predeterminada, con la etiqueta encima del campo; `filled` y `outlined`, que se conservan solo para los preajustes de Material y cupertino; alturas de 40, 48 y 56; tipos de fecha y hora, con un botón de selector; un campo de varias líneas que sigue a su texto o cuyo tamaño se cambia con un tirador (`resize`); una fecha o una hora que se introducen unidad por unidad, en segmentos; y `required` y `optional`, que marcan un campo como obligatorio u opcional. El componente web ya hace todo esto, y las demostraciones también. Un campo también puede contener código (`type="code"`, y `wrap` para sus líneas): la web ya lo ha construido, y ninguna otra plataforma todavía. El campo de texto es un campo alrededor de una entrada de texto, tal como lo describe esta página: la web también lo ha construido ya, y en ella el atributo `required` ha desaparecido. SwiftUI, Compose, Flutter y React Native aparecen arriba como rezagados: hasta que se pongan al día ofrecen la revisión anterior, outlined de forma predeterminada con alturas de 36 y 40, con un indicador `required` que no dibuja ninguna marca, y sin variante `stacked`, sin tipos de fecha ni de hora, sin botón de selector y sin modos de cambio de tamaño, y sus ejemplos muestran esa revisión.
+Esta página describe el campo de texto tal como lo define ahora la especificación: una variante `stacked`, la predeterminada, con la etiqueta encima del campo; `filled` y `outlined`, que se conservan solo para los preajustes de Material y cupertino; alturas de 32, 40 y 56 (40, 48 y 56 en un campo filled u outlined, cuya etiqueta flota dentro); tipos de fecha y hora, con un botón de selector; un campo de varias líneas que sigue a su texto o cuyo tamaño se cambia con un tirador (`resize`); una fecha o una hora que se introducen unidad por unidad, en segmentos; y `required` y `optional`, que marcan un campo como obligatorio u opcional. El componente web ya hace todo esto, y las demostraciones también. Un campo también puede contener código (`type="code"`, y `wrap` para sus líneas): la web ya lo ha construido, y ninguna otra plataforma todavía. El campo de texto es un campo alrededor de una entrada de texto, tal como lo describe esta página: la web también lo ha construido ya, y en ella el atributo `required` ha desaparecido. SwiftUI, Compose, Flutter y React Native aparecen arriba como rezagados: hasta que se pongan al día ofrecen la revisión anterior, outlined de forma predeterminada con alturas de 36 y 40, con un indicador `required` que no dibuja ninguna marca, y sin variante `stacked`, sin tipos de fecha ni de hora, sin botón de selector y sin modos de cambio de tamaño, y sus ejemplos muestran esa revisión.
 :::
 
 <DemoFrame label="Stacked, la predeterminada: un campo obligatorio y una fecha con su botón de selector" column>
@@ -114,8 +114,8 @@ Es un bloque tan ancho como el lugar en el que se pone, y su caja lo llena. No t
       picker
       pickerLabel="Elegir fecha de inicio"
       onChange={(e) => setStart(e.currentTarget.value)}
-      onEntryerror={(e) => report(e.detail.reason)}
-      onPickerrequest={() => setPickerOpen(true)}
+      onEntryError={(e) => report(e.detail.reason)}
+      onPickerRequest={() => setPickerOpen(true)}
     />
     ```
   </TabItem>
@@ -411,10 +411,8 @@ Añade `autocomplete` con un nombre de autorrelleno de HTML (`email`, `current-p
 - **Auto** conviene a la mayoría de los campos: un comentario, un mensaje, una descripción. Define `maxRows` donde un texto largo no deba empujar el resto del formulario.
 - **Manual** conviene a un texto que la persona relee y organiza: notas, una descripción larga, código. `resizeAxis` es `vertical` de forma predeterminada; `both` permite además a la persona cambiar el ancho del campo, dentro de lo que admita su diseño. El tamaño se conserva, y el texto salta de línea y se desplaza dentro de él.
 - **Fixed** conviene a un formulario cuyo diseño no debe moverse, como un bloque de dirección.
-- **El tirador funciona sin arrastrar.** Es una parada de foco que recibe su nombre de `resizeLabel`. Las teclas de flecha cambian el tamaño de línea en línea, Inicio y Fin van a lo más bajo y a lo más alto, y un clic, Enter o Espacio ajustan la altura al texto, o la devuelven a `minRows` cuando ya está ajustada. Donde `resizeAxis` es `both`, ese mismo clic también hace el campo tan ancho como su lugar, y el siguiente le devuelve el ancho que tenía, de modo que un puntero puede cambiar el ancho sin arrastrar. Su objetivo es el objetivo mínimo, aunque su glifo sea pequeño. Un campo deshabilitado no dibuja tirador; uno de solo lectura lo conserva, porque leer puede requerir ese espacio.
+- **El tirador funciona sin arrastrar.** Es un [tirador](/es/components/handle/) de tamaño pequeño en la esquina inferior del borde de fin, que no se ve hasta que un puntero pasa sobre el campo o el campo tiene el foco, y una parada de foco que recibe su nombre de `resizeLabel`. Las teclas de flecha cambian el tamaño de línea en línea, Re Pág y Av Pág de `minRows` en `minRows` líneas, Inicio y Fin van a lo más bajo y a lo más alto, y un clic, Enter o Espacio ajustan la altura al texto, o la devuelven a `minRows` cuando ya está ajustada. Donde `resizeAxis` es `both`, ese mismo clic también hace el campo tan ancho como su lugar, y el siguiente le devuelve el ancho que tenía, de modo que un puntero puede cambiar el ancho sin arrastrar. Su objetivo es el objetivo mínimo, aunque su línea sea pequeña. Cuando la persona ha cambiado el tamaño, el campo emite `resizeend` con las líneas que muestra (y su ancho, donde cambia de tamaño en las dos direcciones), para que puedas conservar el tamaño que eligió. Un campo deshabilitado no tiene tirador; uno de solo lectura lo conserva, porque leer puede requerir ese espacio.
 - **Nada de lo que hay encima del texto se mueve.** La primera línea de un campo de varias líneas está donde un campo de una línea dibuja la suya, y sus iconos, su prefijo y su sufijo se centran en esa línea. Todas las líneas siguientes quedan debajo, de modo que la etiqueta y la primera línea no se mueven mientras la altura cambia.
-
-Un producto todavía no puede saber el tamaño que una persona dio a un campo: cambiar el tamaño no emite nada.
 
 ### Código
 

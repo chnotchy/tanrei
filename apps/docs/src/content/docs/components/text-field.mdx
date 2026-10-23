@@ -14,7 +14,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 <ComponentAvailability name="text-field" />
 
 :::note[A revised spec, not yet on every platform]
-This page describes the text field as the spec has it now: a `stacked` variant, the default, with its label above the field; `filled` and `outlined` kept for the Material and cupertino presets only; heights of 40, 48 and 56; date and time types, with a picker button; a multi-line field that follows its text or is resized with a handle (`resize`); a date or a time entered unit by unit, in segments; and `required` and `optional`, which mark a field as required or optional. The web component already does all of this, and so do the demos. A field can also hold code (`type="code"`, and `wrap` for its lines): the web has built it, and no other platform has yet. The text field is a field around a text input, as this page describes it: the web has built that too, and there the `required` attribute is gone. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship the previous revision, outlined by default at 36 and 40, with a `required` flag that draws no mark, and with no `stacked` variant, no date or time types, no picker button and no resize modes, and their samples show that revision.
+This page describes the text field as the spec has it now: a `stacked` variant, the default, with its label above the field; `filled` and `outlined` kept for the Material and cupertino presets only; heights of 32, 40 and 56 (40, 48 and 56 for a filled or outlined field, whose label floats inside it); date and time types, with a picker button; a multi-line field that follows its text or is resized with a handle (`resize`); a date or a time entered unit by unit, in segments; and `required` and `optional`, which mark a field as required or optional. The web component already does all of this, and so do the demos. A field can also hold code (`type="code"`, and `wrap` for its lines): the web has built it, and no other platform has yet. The text field is a field around a text input, as this page describes it: the web has built that too, and there the `required` attribute is gone. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship the previous revision, outlined by default at 36 and 40, with a `required` flag that draws no mark, and with no `stacked` variant, no date or time types, no picker button and no resize modes, and their samples show that revision.
 :::
 
 <DemoFrame label="Stacked, the default: a required field, and a date with its picker button" column>
@@ -112,8 +112,8 @@ It is a block as wide as the place it is put in, and its box fills it. It has no
       picker
       pickerLabel="Choose start date"
       onChange={(e) => setStart(e.currentTarget.value)}
-      onEntryerror={(e) => report(e.detail.reason)}
-      onPickerrequest={() => setPickerOpen(true)}
+      onEntryError={(e) => report(e.detail.reason)}
+      onPickerRequest={() => setPickerOpen(true)}
     />
     ```
   </TabItem>
@@ -411,8 +411,6 @@ Add `autocomplete` with an HTML autofill name (`email`, `current-password`, `one
 - **Fixed** suits a form whose layout must not move, such as an address block.
 - **The handle works without a drag.** It is a [handle](/components/handle/) of the small size in the bottom end corner, out of sight until a pointer is over the field or the field has focus, and a focus stop named by `resizeLabel`. The arrow keys resize by a line, Page Up and Page Down by `minRows` lines, Home and End go to the smallest and the tallest, and a click, Enter or Space fits the height to the text, or returns it to `minRows` when it already fits. Where `resizeAxis` is `both`, the same click also makes the field as wide as its place, and the next one gives back the width it had, so a pointer can change the width without dragging. Its target is the minimum target, though its line is small. When the person has changed the size, the field fires `resizeend` with the lines it shows (and its width, where it resizes both ways), so you can keep the size they chose. A disabled field has no handle; a read-only one keeps it, because reading may need the room.
 - **Nothing above the text moves.** A multi-line field's first line stands where a single-line field draws its line, and its icons, prefix and suffix are centred on that line. Every further line lies below, so the label and the first line stay put while the height changes.
-
-A product cannot yet learn the size a person gave a field: resizing emits nothing.
 
 ### Code
 

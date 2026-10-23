@@ -217,9 +217,18 @@ importers:
       astro:
         specifier: ^7.3.8
         version: 7.3.8(@types/node@24.13.5)(esbuild@0.28.2)(terser@5.51.2)(yaml@2.9.1)
+      harfbuzzjs:
+        specifier: 1.6.2
+        version: 1.6.2
       sharp:
         specifier: ^0.35.5
         version: 0.35.5(@types/node@24.13.5)
+      ultrahtml:
+        specifier: ^1.7.0
+        version: 1.7.0
+      wawoff2:
+        specifier: 2.0.1
+        version: 2.0.1
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.10
@@ -227,6 +236,9 @@ importers:
       '@playwright/test':
         specifier: ^1.63.0
         version: 1.63.0
+      '@tanrei/tools':
+        specifier: workspace:*
+        version: link:../../packages/tools
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -252,6 +264,9 @@ importers:
       '@tanrei/tokens-build':
         specifier: workspace:*
         version: link:../tokens-build
+      '@tanrei/tools':
+        specifier: workspace:*
+        version: link:../tools
       esbuild:
         specifier: ^0.28.2
         version: 0.28.2
@@ -281,6 +296,9 @@ importers:
       '@tanrei/tokens-build':
         specifier: workspace:*
         version: link:../tokens-build
+      '@tanrei/tools':
+        specifier: workspace:*
+        version: link:../tools
       esbuild:
         specifier: ^0.28.2
         version: 0.28.2
@@ -297,6 +315,9 @@ importers:
       '@playwright/test':
         specifier: ^1.63.0
         version: 1.63.0
+      '@tanrei/tools':
+        specifier: workspace:*
+        version: link:../tools
       '@types/react':
         specifier: ^19.0.0
         version: 19.3.0
@@ -403,6 +424,9 @@ importers:
       '@playwright/test':
         specifier: ^1.63.0
         version: 1.63.0
+      '@tanrei/tools':
+        specifier: workspace:*
+        version: link:../tools
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -412,7 +436,11 @@ importers:
 
   packages/swiftui: {}
 
-  packages/token-engine: {}
+  packages/token-engine:
+    devDependencies:
+      '@tanrei/tools':
+        specifier: workspace:*
+        version: link:../tools
 
   packages/tokens-build:
     dependencies:
@@ -428,6 +456,10 @@ importers:
       ajv:
         specifier: ^8.20.0
         version: 8.20.0
+    devDependencies:
+      '@tanrei/tools':
+        specifier: workspace:*
+        version: link:../tools
 
   packages/tools:
     dependencies:
@@ -483,6 +515,9 @@ importers:
       '@tanrei/tokens-build':
         specifier: workspace:*
         version: link:../tokens-build
+      '@tanrei/tools':
+        specifier: workspace:*
+        version: link:../tools
       esbuild:
         specifier: ^0.28.2
         version: 0.28.2

@@ -2,7 +2,7 @@
 title: "底部面板"
 description: "从底边向上带出补充内容或一项简短的任务：可以盖在屏幕下部而让其余部分照常可用，也可以作为模态的一步，把其他一切变暗并挡住，直到它被关闭。"
 translationOf: components/bottom-sheet.mdx
-sourceHash: 781f175ddbfa9321c454fa0561caa9d7e064fd0b
+sourceHash: 129b9ec0bcae9a6a88c4f15e18d3132be5652383
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -84,7 +84,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       label="保存照片"
       handleLabel="调整面板高度"
       onClose={() => setOpen(false)}
-      onDetentchange={(e) => setDetent(e.detail.detent)}
+      onDetentChange={(e) => setDetent(e.detail.detent)}
     >
       <p>选择照片的保存位置。</p>
       <Button variant="text" onClick={() => setOpen(false)}>完成</Button>

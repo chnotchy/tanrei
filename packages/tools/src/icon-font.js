@@ -74,16 +74,18 @@ export async function iconFont(bytes) {
   };
   const glyphName = (gid) => font.glyphName(gid);
   /**
-   * The glyph `name` is drawn as — one glyph, other than .notdef, whose own name is that name where the font keeps
-   * glyph names (a subset does not: HarfBuzz names its glyphs `gid<n>`) — or null.
+   * The glyph `name` is drawn as — one glyph, other than .notdef: a name of two letters or more that shapes to one
+   * glyph is a ligature, the glyph's own name or another name the font gives it (`draft` draws the glyph `note`,
+   * `location_on` the glyph `place`) — or null.
    */
   const glyphOf = (name, axes = {}) => {
     const glyphs = shape(name, axes);
-    if (glyphs.length !== 1 || glyphs[0] === 0) return null;
-    const own = glyphName(glyphs[0]).replace(/\.fill$/, '');
-    return own === name || own === `_${name}` || /^gid\d+$/.test(own) ? glyphs[0] : null;
+    return name.length > 1 && glyphs.length === 1 && glyphs[0] !== 0 ? glyphs[0] : null;
   };
-  /** Every name the font draws as one glyph: the names of its icon glyphs (a name that starts with a digit is written `_360`), confirmed by shaping. */
+  /**
+   * The icon glyphs' own names, confirmed by shaping (a name that starts with a digit is written `_360`). The font
+   * draws other names too, as one of these glyphs (`draft`, `location_on`): ask `glyphOf()` whether it draws a word.
+   */
   const names = () => {
     const out = new Set();
     const maxp = face.referenceTable('maxp');

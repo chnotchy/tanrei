@@ -2,7 +2,7 @@
 title: ボトムシート
 description: 補足のコンテンツや短い作業を、画面の下端からせり上げて表示します。残りを使える状態のまま画面の下部に重ねるか、モーダルな手順として閉じるまでほかのすべてを暗くしてふさぎます。
 translationOf: components/bottom-sheet.mdx
-sourceHash: 781f175ddbfa9321c454fa0561caa9d7e064fd0b
+sourceHash: 129b9ec0bcae9a6a88c4f15e18d3132be5652383
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -84,7 +84,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       label="写真を保存"
       handleLabel="シートの高さを変更"
       onClose={() => setOpen(false)}
-      onDetentchange={(e) => setDetent(e.detail.detent)}
+      onDetentChange={(e) => setDetent(e.detail.detent)}
     >
       <p>写真の保存先を選んでください。</p>
       <Button variant="text" onClick={() => setOpen(false)}>完了</Button>

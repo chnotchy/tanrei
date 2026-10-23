@@ -146,7 +146,7 @@ A menu can also be the context menu of an area: set `trigger` to `context`, and 
     </Menu>
 
     {/* A context menu of the area whose id is canvas: a request opens it. */}
-    <Menu anchor="canvas" trigger="context" aria-label="Canvas" open={contextOpen} onContextrequest={() => setContextOpen(true)} onClose={() => setContextOpen(false)}>
+    <Menu anchor="canvas" trigger="context" aria-label="Canvas" open={contextOpen} onContextRequest={() => setContextOpen(true)} onClose={() => setContextOpen(false)}>
       <MenuItem label="Paste" onClick={paste} />
     </Menu>
     ```

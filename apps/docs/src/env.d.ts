@@ -14,3 +14,10 @@ declare module 'virtual:tanrei-docs/last-updated' {
   /** The page at `url` (an absolute address, or a path from the site's root): ISO 8601 with its offset, or none for a page no commit holds yet. */
   export function lastUpdated(url: string): string | undefined;
 }
+
+// Which module of `@tanrei/web` defines each element (src/lib/element-modules.mjs, from the package's manifest): a
+// function for each tag that imports its module, and how many modules there are.
+declare module 'virtual:tanrei-element-modules' {
+  export const loaders: Readonly<Record<string, () => Promise<unknown>>>;
+  export const modules: number;
+}

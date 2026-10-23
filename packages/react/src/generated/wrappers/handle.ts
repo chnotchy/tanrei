@@ -10,8 +10,8 @@ import { TanreiHandle as TanreiHandleElement, type TanreiHandleResizeEndDetail, 
  *
  * Events:
  * - `onActivate` (`activate`) — Pressed and released without a drag, or Enter or Space with keyboard focus: the owner switches between the sizes it knows.
- * - `onResizeend` (`resizeend`) — The drag ended, once: released, or cancelled by the platform (`detail.cancelled`).
- * - `onResizestart` (`resizestart`) — A drag began: a press on the handle moved past the touch slop.
+ * - `onResizeEnd` (`resizeend`) — The drag ended, once: released, or cancelled by the platform (`detail.cancelled`).
+ * - `onResizeStart` (`resizestart`) — A drag began: a press on the handle moved past the touch slop.
  * - `onResize` (`resize`) — The drag moved: `detail.inline` and `detail.block`, the distance from the press.
  * - `onStep` (`step`) — A key asked for a change of size: `detail.axis`, `detail.direction`, `detail.amount`.
  */
@@ -21,8 +21,8 @@ export const Handle = /* @__PURE__ */ createComponent({
   react: React,
   events: {
     onActivate: 'activate' as EventName<TanreiEvent<TanreiHandleElement>>,
-    onResizeend: 'resizeend' as EventName<TanreiEvent<TanreiHandleElement, CustomEvent<TanreiHandleResizeEndDetail>>>,
-    onResizestart: 'resizestart' as EventName<TanreiEvent<TanreiHandleElement, CustomEvent<TanreiHandleResizeStartDetail>>>,
+    onResizeEnd: 'resizeend' as EventName<TanreiEvent<TanreiHandleElement, CustomEvent<TanreiHandleResizeEndDetail>>>,
+    onResizeStart: 'resizestart' as EventName<TanreiEvent<TanreiHandleElement, CustomEvent<TanreiHandleResizeStartDetail>>>,
     onResize: 'resize' as EventName<TanreiEvent<TanreiHandleElement, CustomEvent<TanreiHandleResizeDetail>>>,
     onStep: 'step' as EventName<TanreiEvent<TanreiHandleElement, CustomEvent<TanreiHandleStepDetail>>>,
   },

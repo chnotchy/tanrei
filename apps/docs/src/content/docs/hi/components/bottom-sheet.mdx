@@ -2,7 +2,7 @@
 title: बॉटम शीट
 description: पूरक कॉन्टेंट या किसी छोटे काम को नीचे के किनारे से ऊपर लाती है, या तो स्क्रीन के निचले हिस्से के ऊपर जबकि बाक़ी स्क्रीन इस्तेमाल लायक़ रहती है, या एक ऐसे मोडल चरण के रूप में जो ख़ारिज किए जाने तक बाक़ी सब कुछ धुँधला करके रोके रखता है।
 translationOf: components/bottom-sheet.mdx
-sourceHash: 781f175ddbfa9321c454fa0561caa9d7e064fd0b
+sourceHash: 129b9ec0bcae9a6a88c4f15e18d3132be5652383
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -84,7 +84,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       label="फ़ोटो सेव करें"
       handleLabel="शीट का साइज़ बदलें"
       onClose={() => setOpen(false)}
-      onDetentchange={(e) => setDetent(e.detail.detent)}
+      onDetentChange={(e) => setDetent(e.detail.detent)}
     >
       <p>चुनें कि फ़ोटो कहाँ सेव करनी है।</p>
       <Button variant="text" onClick={() => setOpen(false)}>हो गया</Button>
