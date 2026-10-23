@@ -12177,6 +12177,18 @@
             },
             {
               "kind": "field",
+              "name": "wrap",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true",
+              "attribute": "no-wrap",
+              "reflects": true,
+              "description": "Whether the arrow keys go round at the ends of the list: Down Arrow on the last option to the first, Up Arrow on the\nfirst to the last — with `allowCustomValue`, through the text itself, where no option is active. `no-wrap` (the\nattribute is the inverse, as a boolean attribute cannot default to true) stops them at the ends. Reflected."
+            },
+            {
+              "kind": "field",
               "name": "noChevron",
               "privacy": "public",
               "type": {
@@ -12667,6 +12679,15 @@
               "default": "'contains'",
               "fieldName": "filter",
               "description": "Who decides which options answer the text. `contains`: the combobox shows the options whose label contains what was typed, ignoring case, width and marks, and marks the match. `none`: it shows every option it is given and the product filters, on `input`. Reflected."
+            },
+            {
+              "name": "no-wrap",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true",
+              "fieldName": "wrap",
+              "description": "Whether the arrow keys go round at the ends of the list: Down Arrow on the last option to the first, Up Arrow on the\nfirst to the last — with `allowCustomValue`, through the text itself, where no option is active. `no-wrap` (the\nattribute is the inverse, as a boolean attribute cannot default to true) stops them at the ends. Reflected."
             },
             {
               "name": "no-chevron",
@@ -13259,6 +13280,18 @@
             },
             {
               "kind": "field",
+              "name": "wrap",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true",
+              "description": "Whether the arrow keys go round at the ends of the list: Down Arrow on the last option to the first, Up Arrow on the\nfirst to the last — with `allowCustomValue`, through the text itself, where no option is active. `no-wrap` (the\nattribute is the inverse, as a boolean attribute cannot default to true) stops them at the ends. Reflected.",
+              "attribute": "no-wrap",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "noChevron",
               "privacy": "public",
               "type": {
@@ -13630,6 +13663,15 @@
               "default": "'contains'",
               "description": "Who decides which options answer the text. `contains`: the combobox shows the options whose label contains what was typed, ignoring case, width and marks, and marks the match. `none`: it shows every option it is given and the product filters, on `input`. Reflected.",
               "fieldName": "filter"
+            },
+            {
+              "name": "no-wrap",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true",
+              "description": "Whether the arrow keys go round at the ends of the list: Down Arrow on the last option to the first, Up Arrow on the\nfirst to the last — with `allowCustomValue`, through the text itself, where no option is active. `no-wrap` (the\nattribute is the inverse, as a boolean attribute cannot default to true) stops them at the ends. Reflected.",
+              "fieldName": "wrap"
             },
             {
               "name": "no-chevron",

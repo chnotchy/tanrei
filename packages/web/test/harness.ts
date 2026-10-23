@@ -562,15 +562,16 @@ export async function inputBoxSetApart(page: Page, tag: string, inner?: string):
 
 /**
  * A combobox's props as its attributes, where they are not `name="value"`: `readOnly` keeps HTML's attribute name on
- * the web (`readonly`), `chevron`, a boolean that defaults to true, is the inverse attribute (`no-chevron`), and an
- * open fixture draws its list in place (`inline`) unless it says `inline: false`. The same for the combobox, for the
- * combobox field that forwards them, and for a combobox that is the item of a Field's fixture.
+ * the web (`readonly`), `chevron` and `wrap`, booleans that default to true, are the inverse attributes (`no-chevron`,
+ * `no-wrap`), and an open fixture draws its list in place (`inline`) unless it says `inline: false`. The same for the
+ * combobox, for the combobox field that forwards them, and for a combobox that is the item of a Field's fixture.
  */
-function comboboxProps({ readOnly, inline, chevron, ...props }: Props): Props {
+function comboboxProps({ readOnly, inline, chevron, wrap, ...props }: Props): Props {
   return {
     ...props,
     ...(readOnly !== undefined ? { readonly: readOnly } : {}),
     ...(chevron === false ? { noChevron: true } : {}),
+    ...(wrap === false ? { noWrap: true } : {}),
     ...(props.open && inline !== false ? { inline: true } : {}),
   };
 }

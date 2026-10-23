@@ -7,6 +7,7 @@ import {
   type FieldSays,
   GlyphDrawnController,
   GlyphMirrorController,
+  inverseBoolean,
   NativeTextController,
   OpenAxesController,
   SEPARATION_VALUES,
@@ -47,6 +48,7 @@ import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focus
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { type Folded, fold, foldText, matchRun } from '../../primitives/text-match.js';
+import { PausedAnnouncement } from '../../primitives/paused-announcement.js';
 
 /** The three looks of the input box (`comp.input-box`): a filled box with no label of its own (`stacked`: the label above is its Field's), or the label floating inside a `filled` or `outlined` box. A design system may leave some out or add values. */
 export type TanreiComboboxVariant = keyof TanreiInputBoxVariantRegistry;
@@ -207,6 +209,8 @@ export class TanreiCombobox extends TanreiElement {
     open: { type: Boolean, reflect: true },
     allowCustomValue: { type: Boolean, attribute: 'allow-custom-value', reflect: true },
     filter: { type: String, reflect: true },
+    // CMB-26: an HTML boolean attribute cannot default to true: the attribute is the inverse, `no-wrap`.
+    wrap: { attribute: 'no-wrap', reflect: true, converter: inverseBoolean },
     noChevron: { type: Boolean, attribute: 'no-chevron', reflect: true },
     clearable: { type: Boolean, reflect: true },
     clearLabel: { type: String, attribute: 'clear-label' },
@@ -280,6 +284,13 @@ export class TanreiCombobox extends TanreiElement {
 
   /** Who decides which options answer the text. `contains`: the combobox shows the options whose label contains what was typed, ignoring case, width and marks, and marks the match. `none`: it shows every option it is given and the product filters, on `input`. Reflected. */
   filter: TanreiComboboxFilter = 'contains';
+
+  /**
+   * Whether the arrow keys go round at the ends of the list: Down Arrow on the last option to the first, Up Arrow on the
+   * first to the last — with `allowCustomValue`, through the text itself, where no option is active. `no-wrap` (the
+   * attribute is the inverse, as a boolean attribute cannot default to true) stops them at the ends. Reflected.
+   */
+  wrap = true;
 
   /** Draws no chevron (`no-chevron`: the spec's `chevron`, inverted, because a boolean attribute cannot default to true): for a field whose suggestions exist only for what was typed. The list then opens by typing and by the arrow keys alone. Reflected. */
   noChevron = false;
@@ -382,9 +393,18 @@ export class TanreiCombobox extends TanreiElement {
     chosen: () => this.chosen,
     choose: (option) => this.choose(option),
     iconSpace: () => (OPTION_ICON_SPACES.includes(this.iconSpace) ? this.iconSpace : 'auto'),
-    // CMB-26: an active option that is no longer shown gives way to what typing would have found.
-    replacement: (options) => (this.native.composing ? null : this.found(options)),
+    // CMB-26: an active option that is no longer shown gives way to what typing would have found — made active by the
+    // combobox, and so announced once typing pauses (CMB-48).
+    replacement: (options) => this.typed(this.native.composing ? null : this.found(options)),
   });
+  /**
+   * CMB-48: the option typing made active — or the options changing under the person's text — is the input's active
+   * descendant once it has stayed active for ANNOUNCE_PAUSE with nothing typed; an option an arrow key, a page key or a
+   * pointer makes active is at once (src/primitives/paused-announcement.ts).
+   */
+  private readonly announcement = new PausedAnnouncement(this);
+  /** CMB-48: the element of the option the combobox made active by itself, waiting to be announced; null for none. */
+  private typedOption: Element | null = null;
   /** CMB-22, CMB-23, CMB-58: where the list is — the anchored surface a popover is drawn on, as wide as the container. */
   private readonly anchored = anchoredOptionList(this, {
     anchor: () => this.container,
@@ -573,6 +593,48 @@ export class TanreiCombobox extends TanreiElement {
     return this.allowCustomValue ? null : (options.find((option) => !option.disabled) ?? null);
   }
 
+  /** CMB-26, CMB-48: `option` was made active by the combobox, not by the person's key or pointer: announced once typing pauses. Returns it. */
+  private typed(option: OptionData | null): OptionData | null {
+    this.typedOption = option?.element ?? null;
+    if (option) this.announcement.later();
+    else this.announcement.none();
+    return option;
+  }
+
+  /**
+   * CMB-48: the id the input names as its active descendant — the active option's, except one the combobox made active
+   * by itself that has not yet stayed active for the pause.
+   */
+  private get activeDescendant(): string | undefined {
+    const id = this.list.activeId;
+    if (!id) return undefined;
+    return this.list.active?.element === this.typedOption && !this.announcement.announced ? undefined : id;
+  }
+
+  /**
+   * CMB-26: Down Arrow (`step` 1) or Up Arrow (-1) in the open list: the next or the previous shown option, across
+   * groups. Where a custom value is allowed the text is the place before the first option, where none is active; at the
+   * ends the keys go round while `wrap` is true — through the text where it is a place — and do nothing otherwise.
+   */
+  private moveActive(step: 1 | -1) {
+    const { options } = this.shown;
+    const count = options.length;
+    if (count === 0) return;
+    const active = this.list.active;
+    const at = active ? options.findIndex((option) => option.element === active.element) : -1;
+    const free = this.allowCustomValue;
+    // The place to go: an option's index, -1 for the text (no option active), or null to stay.
+    let next: number | null;
+    if (at < 0) next = step > 0 ? 0 : !free || this.wrap ? count - 1 : null;
+    else if (at + step >= count) next = this.wrap ? (free ? -1 : 0) : null;
+    else if (at + step < 0) next = free ? -1 : this.wrap ? count - 1 : null;
+    else next = at + step;
+    // The person moved: what is active now is announced at once.
+    this.typedOption = null;
+    this.announcement.now();
+    if (next !== null) this.list.setActive(next < 0 ? null : options[next], true);
+  }
+
   /** CMB-29: the first option that is not disabled whose whole label is `text`, compared as the filter compares and ignoring the spaces around it. */
   private named(text: string): OptionData | null {
     const wanted = foldText(text);
@@ -677,6 +739,8 @@ export class TanreiCombobox extends TanreiElement {
     this.query = text;
     if (this.inert_ || this.readOnly) return;
     const active = composing ? null : this.found(this.shown.options);
+    // CMB-48: what typing made active is announced once typing pauses.
+    this.typed(active);
     if (this.open && this.presented) this.list.setActive(active, true);
     else if (!this.open) this.openList('text', active);
     // CMB-30: a list with nothing left to show closes with the reason empty, once the text is drawn (updated()).
@@ -746,7 +810,11 @@ export class TanreiCombobox extends TanreiElement {
     if (!this.usable) return;
     this.open = true;
     if (how === 'text') this.list.start(true, active ?? null);
-    else this.list.start(how === 'key');
+    else {
+      // CMB-48: the option an arrow key or the chevron opens the list on is the person's: announced at once.
+      this.typedOption = null;
+      this.list.start(how === 'key');
+    }
     this.toggled({ open: true });
   }
 
@@ -827,15 +895,15 @@ export class TanreiCombobox extends TanreiElement {
         return;
       }
       event.preventDefault();
-      const { options } = this.shown;
-      // CMB-26: where a custom value is allowed, Up Arrow on the first gives Enter back to the text.
-      if (key === 'ArrowUp' && this.allowCustomValue && options.length > 0 && this.list.active?.element === options[0].element) this.list.setActive(null, true);
-      else this.list.key(key);
+      // CMB-26: the next or previous option, going round at the ends — through the text where a custom value is allowed.
+      this.moveActive(key === 'ArrowDown' ? 1 : -1);
       return;
     }
-    // CMB-26: the page keys move by ten; Home, End, Left and Right Arrow are the text's.
+    // CMB-26: the page keys move by ten and never go round; Home, End, Left and Right Arrow are the text's.
     if ((key === 'PageDown' || key === 'PageUp') && open) {
       event.preventDefault();
+      this.typedOption = null;
+      this.announcement.now();
       this.list.key(key);
     }
   }
@@ -1006,8 +1074,11 @@ export class TanreiCombobox extends TanreiElement {
     // the chosen option is the active one — or, over a text that is being edited, what typing would have found.
     const shown = this.open && this.usable && this.isConnected;
     if (shown) {
-      if (!this.list.started) this.list.start(false, this.editing ? (this.native.composing ? null : this.found(this.shown.options)) : undefined);
-    } else this.list.stop();
+      if (!this.list.started) this.list.start(false, this.editing ? this.typed(this.native.composing ? null : this.found(this.shown.options)) : undefined);
+    } else {
+      this.list.stop();
+      this.typed(null);
+    }
   }
 
   protected override updated(changed: PropertyValues) {
@@ -1171,7 +1242,7 @@ export class TanreiCombobox extends TanreiElement {
               aria-haspopup="listbox"
               aria-expanded=${expanded ? 'true' : 'false'}
               aria-controls=${expanded ? 'list' : nothing}
-              aria-activedescendant=${(expanded && this.list.activeId) || nothing}
+              aria-activedescendant=${(expanded && this.activeDescendant) || nothing}
               @input=${this.#onInput}
               @keydown=${this.#onKeyDown}
               @focus=${this.#onFocus}
