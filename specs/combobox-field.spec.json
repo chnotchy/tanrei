@@ -119,6 +119,10 @@
       "from": "combobox.filter"
     },
     {
+      "name": "wrap",
+      "from": "combobox.wrap"
+    },
+    {
       "name": "chevron",
       "from": "combobox.chevron"
     },
@@ -270,6 +274,7 @@
         "open": "open",
         "allowCustomValue": "allowCustomValue",
         "filter": "filter",
+        "wrap": "wrap",
         "chevron": "noChevron",
         "clearable": "clearable",
         "clearLabel": "clearLabel",
@@ -336,6 +341,7 @@
         "open": "isPresented",
         "allowCustomValue": "allowCustomValue",
         "filter": "filter",
+        "wrap": "wrap",
         "chevron": "chevron",
         "clearable": "clearable",
         "clearLabel": "clearLabel",
@@ -398,6 +404,7 @@
         "open": "expanded",
         "allowCustomValue": "allowCustomValue",
         "filter": "filter",
+        "wrap": "wrap",
         "chevron": "chevron",
         "clearable": "clearable",
         "clearLabel": "clearContentDescription",
@@ -460,6 +467,7 @@
         "open": "menuController",
         "allowCustomValue": "allowCustomValue",
         "filter": "filter",
+        "wrap": "wrap",
         "chevron": "chevron",
         "clearable": "clearable",
         "clearLabel": "clearSemanticLabel",
@@ -522,6 +530,7 @@
         "open": "open",
         "allowCustomValue": "allowCustomValue",
         "filter": "filter",
+        "wrap": "wrap",
         "chevron": "chevron",
         "clearable": "clearable",
         "clearLabel": "clearAccessibilityLabel",
