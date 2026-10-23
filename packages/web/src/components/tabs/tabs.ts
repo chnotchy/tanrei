@@ -19,9 +19,11 @@ import {
   findInteractive,
   delegatedAria,
   delegatesAria,
+  holdsProductName,
   hostAria,
   keepInPlace,
   layoutScale,
+  nameHost,
   namedByProduct,
   notifyItemUpdate,
   remember,
@@ -333,9 +335,6 @@ export class TanreiTab extends TanreiElement {
 
   /** TAB-23: whether a row has told this tab what it is since the tab was last connected. */
   private told = false;
-
-  /** TAB-22: the host's aria-label is the tab's own, written from label (and not the product's). */
-  private namesItself = false;
 
   /** TAB-25: the drawn label does not fit its tab, so it is truncated and the tooltip shows it whole. */
   private truncated = false;
@@ -693,16 +692,14 @@ export class TanreiTab extends TanreiElement {
     // TAB-2, TAB-12, TAB-13: the tab role, its selection, position and name; one Tab stop per row; a disabled tab takes
     // no focus at all, so a pointer cannot focus it either. TAB-42: in a row without panels, the radio role and its
     // checked state instead.
-    // TAB-22: the host is the tab, so a name the product writes on it while label is empty is the tab's: the tab takes
-    // away only the aria-label it wrote itself.
-    const name: Record<string, string | null> = this.label ? { 'aria-label': this.label } : this.namesItself ? { 'aria-label': null } : {};
-    this.namesItself = !!this.label;
+    // TAB-22: the host is the tab. Its label is its whole name: while it is set, the product's aria-label and
+    // aria-labelledby are held, and while it is empty they are the tab's name, as the product wrote them.
+    nameHost(this, this.label);
     hostAria(this, {
       role: choice ? 'radio' : 'tab',
       'aria-selected': choice ? null : String(selected),
       'aria-checked': choice ? String(selected) : null,
       'aria-disabled': this.disabled ? 'true' : null,
-      ...name,
       'aria-posinset': position ? String(position) : null,
       'aria-setsize': size ? String(size) : null,
       tabindex: this.disabled ? null : tabStop ? '0' : '-1',
@@ -2659,10 +2656,12 @@ export class TanreiTabs extends TanreiElement {
 }
 
 if (!customElements.get('tanrei-tooltip')) customElements.define('tanrei-tooltip', TanreiTooltip);
+// TAB-22, TAB-62: a tab's host is the tab itself and keeps what is written on it, but for a name of the product's while
+// its label names it, which is held until label is empty (src/primitives/delegated-aria.ts).
+holdsProductName(TanreiTab);
 if (!customElements.get('tanrei-tab')) customElements.define('tanrei-tab', TanreiTab);
 if (!customElements.get('tanrei-tab-panel')) customElements.define('tanrei-tab-panel', TanreiTabPanel);
-// The product's ARIA on the row's host is its tab list's (src/primitives/delegated-aria.ts). A tab's host is the tab
-// itself and keeps what is written on it.
+// The product's ARIA on the row's host is its tab list's (src/primitives/delegated-aria.ts).
 delegatesAria(TanreiTabs, { sentence: 'TAB-62' });
 if (!customElements.get('tanrei-tabs')) customElements.define('tanrei-tabs', TanreiTabs);
 

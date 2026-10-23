@@ -1,6 +1,8 @@
 // <tanrei-tag-group>, driven by specs/tag-group.spec.json: every behaviour id (TGR-1…21) is cited by a test title, every
 // fixture has a baseline, and every length is read back from the tokens — never from a number written here, except
 // where the spec's own `verify` names the default system's value.
+// TGR-22: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { resolveEasing } from '../../../test/appear.js';

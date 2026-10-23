@@ -1,5 +1,7 @@
 // <tanrei-handle>, driven by specs/handle.spec.json: every behaviour id (HDL-1…25) is cited by a test title, every
 // fixture has a baseline, and every value is read back from the tokens.
+// HDL-26: the product's ARIA on the host is tested with every other control's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';

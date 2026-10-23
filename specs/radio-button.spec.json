@@ -170,7 +170,7 @@
     },
     {
       "id": "RAD-18",
-      "text": "WHILE labelHidden is true THE radio button SHALL draw no label and SHALL still expose label as its accessible name; WHILE label is empty and the product gives the radio button a name of its own on the element — aria-label, or aria-labelledby naming an element — THE radio button SHALL expose that name as its accessible name; WHILE label is empty and the product gives it none THE radio button SHALL still render, and in debug builds report that it has no accessible name."
+      "text": "WHILE labelHidden is true THE radio button SHALL draw no label and SHALL still expose label as its accessible name; WHILE label is not empty, or a Field that frames it gives it a label, THE radio button SHALL expose that label as its accessible name, over a name the product gives it on the element (aria-label or aria-labelledby); WHILE label is empty and the product gives the radio button a name of its own on the element — aria-label, or aria-labelledby naming an element — THE radio button SHALL expose that name as its accessible name; WHILE label is empty and the product gives it none THE radio button SHALL still render, and in debug builds report that it has no accessible name."
     },
     {
       "id": "RAD-19",

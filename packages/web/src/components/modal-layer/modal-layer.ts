@@ -1,4 +1,5 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/delegated-aria.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
   AvailabilityController,
@@ -198,7 +199,7 @@ export class TanreiModalLayer extends TanreiElement {
 
   protected override updated(changed: PropertyValues<this>) {
     // MDL-10: a layer without a label still opens; a debug build says it has no name.
-    if (changed.has('label') && !this.label.trim()) report(this, 'MDL-10', 'label is empty, so the modal dialog has no accessible name; give it a label');
+    if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'MDL-10', 'label is empty, so the modal dialog has no accessible name; give it a label');
     if (changed.has('open')) {
       if (this.open) this.present();
       else if (this.shown) this.withdraw(true);
@@ -210,7 +211,7 @@ export class TanreiModalLayer extends TanreiElement {
     return html`<dialog
       part="container"
       data-tanrei-appear
-      aria-label=${this.label || nothing}
+      ${delegatedAria(this, { 'aria-label': this.label })}
       tabindex="-1"
       @keydown=${this.onKeyDown}
       @cancel=${this.onNativeCancel}
@@ -223,6 +224,8 @@ export class TanreiModalLayer extends TanreiElement {
   }
 }
 
+// MDL-13: the product's ARIA on the host is its dialog's (src/primitives/delegated-aria.ts).
+delegatesAria(TanreiModalLayer, { sentence: 'MDL-13' });
 if (!customElements.get('tanrei-modal-layer')) customElements.define('tanrei-modal-layer', TanreiModalLayer);
 
 declare global {

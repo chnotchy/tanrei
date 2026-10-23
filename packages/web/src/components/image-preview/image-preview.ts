@@ -1,4 +1,5 @@
 import { type PropertyDeclarations, type PropertyValues, css, html, nothing } from 'lit';
+import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/delegated-aria.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { wordPlaces } from '../../generated/words.js';
@@ -1484,7 +1485,7 @@ export class TanreiImagePreview extends TanreiElement {
   }
 
   private reports() {
-    if (!this.label.trim()) report(this, 'IMP-7', 'label is empty, so the modal dialog has no accessible name; give it a label');
+    if (!this.label.trim() && !namedByProduct(this)) report(this, 'IMP-7', 'label is empty, so the modal dialog has no accessible name; give it a label');
     const named = (key: 'closeLabel' | 'zoomInLabel' | 'zoomOutLabel' | 'previousImageLabel' | 'nextImageLabel', prop: string, own: string, id: string, what: string) => {
       if (!this.words.get(key, own)) this.words.missing(key, { prop, id, effect: `the ${what} control is drawn and has no accessible name` });
     };
@@ -1577,7 +1578,7 @@ export class TanreiImagePreview extends TanreiElement {
       part="container"
       class=${classMap({ container: true, 'controls-hidden': this.controlsHidden, captioned: !!caption })}
       data-tanrei-appear
-      aria-label=${this.label.trim() ? this.label : nothing}
+      ${delegatedAria(this, { 'aria-label': this.label.trim() })}
       tabindex="-1"
       @keydown=${this.onKeyDown}
       @cancel=${this.onNativeCancel}
@@ -1629,6 +1630,8 @@ export class TanreiImagePreview extends TanreiElement {
 }
 
 if (!customElements.get(ITEM_TAG)) customElements.define(ITEM_TAG, TanreiImagePreviewItem);
+// IMP-44: the product's ARIA on the host is its dialog's (src/primitives/delegated-aria.ts).
+delegatesAria(TanreiImagePreview, { sentence: 'IMP-44' });
 if (!customElements.get('tanrei-image-preview')) customElements.define('tanrei-image-preview', TanreiImagePreview);
 
 declare global {

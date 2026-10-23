@@ -385,6 +385,10 @@
       "id": "CAL-35",
       "text": "THE calendar SHALL have no words of its own: it SHALL take startLabel, endLabel, previousMonthLabel, nextMonthLabel, yearViewLabel and todayLabel from the instance's prop and, WHILE that is empty, from the product's words of the same name; WHILE neither gives todayLabel it SHALL take the word from the platform's locale data WHERE the platform has the locale's own word for the present day, and it SHALL take no other word from anywhere. IF neither gives a navigation button its name, or a range's start or end its description, THE calendar SHALL still draw the part and keep it working, and in debug builds SHALL report the missing words once, naming the prop. WHILE neither gives yearViewLabel the view toggle SHALL have no description: its name and its expanded state (CAL-23) still say what it shows.",
       "verify": "Unit, with no product's words set: a calendar without the props has navigation buttons with no accessible name and one report that names previousMonthLabel and nextMonthLabel; with the product's words set the buttons are named by them, and an instance's own prop wins. No test finds an English word the test did not give, except the locale's own names under an English locale."
+    },
+    {
+      "id": "CAL-36",
+      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE calendar SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on its group, which it SHALL be WHILE it has a name: its label, or one given so — an id reference by the elements it names in the host's tree or a tree around it, a description after its own. WHILE label is not empty it is the group's name, over a name given so. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE calendar SHALL take it off that element."
     }
   ],
   "accessibility": {

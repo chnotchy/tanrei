@@ -212,8 +212,9 @@ export class TanreiMainActionButton extends TanreiElement {
 
   protected override render() {
     // The native <button> supplies role, focusability, Enter/Space activation and the disabled state, so assistive
-    // technology and test tools see real semantics. The label is its content — its name in either form (MAB-13) — and
-    // nothing here changes with the form but what is drawn: no aria-expanded, no aria-pressed, no live region (MAB-20).
+    // technology and test tools see real semantics. The label is its content — its name in either form (MAB-13), and
+    // said as its aria-label too, so that it is the whole name over the product's (MAB-16) — and nothing here changes
+    // with the form but what is drawn: no aria-expanded, no aria-pressed, no live region (MAB-20).
     const side = this.iconPosition === 'trailing' ? 'trailing' : 'leading';
     return html`
       <button
@@ -222,7 +223,7 @@ export class TanreiMainActionButton extends TanreiElement {
         data-tanrei-shape
         class=${classMap({ [side]: this.hasIcon, collapsed: this.collapsed, 'full-width': this.fullWidth && !this.collapsed })}
         ?data-resizing=${this.resizing}
-        ${delegatedAria(this, {})}
+        ${delegatedAria(this, { 'aria-label': this.label })}
         ?disabled=${this.disabled}
         @pointerdown=${this.press.onPointerDown}
         @pointerup=${this.press.release}

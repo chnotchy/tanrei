@@ -1,4 +1,5 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/delegated-aria.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { wordPlaces } from '../../generated/words.js';
 import {
@@ -480,7 +481,7 @@ export class TanreiPagination extends TanreiElement {
         report(this, 'PGN-3', `${prop} ${String(this[prop])} is not a whole number of 0 or more; it is read as ${TanreiPagination.atLeastZero(this[prop])}`);
       }
     }
-    if (!(this.label ?? '').trim()) report(this, 'PGN-1', 'label is empty, so the navigation landmark has no accessible name; give it the words ("Pages")');
+    if (!(this.label ?? '').trim() && !namedByProduct(this)) report(this, 'PGN-1', 'label is empty, so the navigation landmark has no accessible name; give it the words ("Pages")');
     if (!VARIANTS.includes(this.variant)) report(this, 'PGN-11', `variant "${String(this.variant)}" is not a value it defines ("numbered" or "compact"); it is drawn as "numbered"`);
     const href = this.href ?? '';
     if (href.trim() && this.template === null) {
@@ -599,7 +600,7 @@ export class TanreiPagination extends TanreiElement {
     const measured = this.variant === 'compact' ? 'compact' : 'numbered';
     const label = this.label ?? '';
     return html`
-      <nav part="nav" aria-label=${label.trim() ? label : nothing}>
+      <nav part="nav" ${delegatedAria(this, { 'aria-label': label.trim() })}>
         <ol part="list" class="row" role="list">
           ${slots.map((slot) => {
             switch (slot.kind) {
@@ -621,6 +622,8 @@ export class TanreiPagination extends TanreiElement {
   }
 }
 
+// PGN-25: the product's ARIA on the host is its navigation landmark's (src/primitives/delegated-aria.ts).
+delegatesAria(TanreiPagination, { sentence: 'PGN-25' });
 if (!customElements.get('tanrei-pagination')) customElements.define('tanrei-pagination', TanreiPagination);
 
 declare global {

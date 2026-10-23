@@ -1,4 +1,5 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/delegated-aria.js';
 import { classMap } from 'lit/directives/class-map.js';
 import {
   AvailabilityController,
@@ -706,7 +707,7 @@ export class TanreiBottomSheet extends TanreiElement {
   protected override updated(changed: PropertyValues<this>) {
     this.observe();
     // BSH-22, BSH-11, BSH-25: what a debug build reports.
-    if ((changed.has('label') || changed.has('headline') || changed.has('variant')) && !this.label.trim() && !this.headline.trim()) {
+    if ((changed.has('label') || changed.has('headline') || changed.has('variant')) && !this.label.trim() && !this.headline.trim() && !namedByProduct(this)) {
       report(this, 'BSH-22', `label and headline are empty, so the ${this.modal ? 'modal dialog' : 'region'} has no accessible name; give it a label or a headline`);
     }
     if ((changed.has('closable') || changed.has('closeLabel')) && this.closable && this.words.lacks('closeLabel', this.closeLabel)) {
@@ -818,7 +819,7 @@ export class TanreiBottomSheet extends TanreiElement {
 
   protected override render() {
     // BSH-22, BSH-28: named by label, or by the headline where label is empty.
-    const label = this.label || this.headline.trim() || nothing;
+    const label = this.label || this.headline.trim();
     const classes = classMap({ sheet: true, standard: !this.modal, 'has-handle': this.handle, 'has-header': !!this.headline.trim() || this.closable });
     const area = html`<div class="area" aria-hidden="true"><div class="cap partial"></div><div class="cap full"></div></div>
       <div class="timing" aria-hidden="true"></div>`;
@@ -829,7 +830,7 @@ export class TanreiBottomSheet extends TanreiElement {
           class=${classes}
           data-tanrei-appear
           data-detent=${this.resting}
-          aria-label=${label}
+          ${delegatedAria(this, { 'aria-label': label })}
           tabindex="-1"
           data-tanrei-shape
           @keydown=${this.onKeyDown}
@@ -846,7 +847,7 @@ export class TanreiBottomSheet extends TanreiElement {
         part="container"
         class=${classes}
         data-detent=${this.resting}
-        aria-label=${label}
+        ${delegatedAria(this, { 'aria-label': label })}
         tabindex="-1"
         ?inert=${!this.open}
         data-tanrei-shape
@@ -857,6 +858,8 @@ export class TanreiBottomSheet extends TanreiElement {
   }
 }
 
+// BSH-31: the product's ARIA on the host is its dialog's, or its region's (src/primitives/delegated-aria.ts).
+delegatesAria(TanreiBottomSheet, { sentence: 'BSH-31' });
 if (!customElements.get('tanrei-bottom-sheet')) customElements.define('tanrei-bottom-sheet', TanreiBottomSheet);
 
 declare global {

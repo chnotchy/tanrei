@@ -220,7 +220,7 @@
     },
     {
       "id": "SEG-20",
-      "text": "WHILE selection is single THE segmented button SHALL expose the set as a radio group named by label and each segment as a radio with its checked state; WHILE selection is multiple THE segmented button SHALL expose the set as a group named by label and each segment as a toggle button with its pressed state, as a toggle Button is; in both, each segment SHALL be named by its own label whether or not it is drawn and expose its position and the number of segments, and the icons, the check, the dividers and the outline SHALL be hidden."
+      "text": "WHILE selection is single THE segmented button SHALL expose the set as a radio group named by label and each segment as a radio with its checked state; WHILE selection is multiple THE segmented button SHALL expose the set as a group named by label and each segment as a toggle button with its pressed state, as a toggle Button is; in both, each segment SHALL be named by its own label whether or not it is drawn, over a name the product gives the segment on the element (aria-label or aria-labelledby) and expose its position and the number of segments, and the icons, the check, the dividers and the outline SHALL be hidden."
     },
     {
       "id": "SEG-21",
@@ -228,7 +228,7 @@
     },
     {
       "id": "SEG-22",
-      "text": "WHILE a segment's label is empty THE segmented button SHALL still render the segment, and in debug builds report that it has no accessible name; WHILE a segment's labelHidden is true and its icon is empty THE segmented button SHALL draw the label anyway and in debug builds report the segment; WHILE the set's label is empty, or the set holds fewer than two or more than five segments, THE segmented button SHALL still render and in debug builds report it."
+      "text": "WHILE a segment's label is empty and the product gives the segment a name of its own on the element — aria-label, or aria-labelledby naming an element — THE segmented button SHALL expose that name as the segment's accessible name; WHILE a segment's label is empty and the product gives it none THE segmented button SHALL still render the segment, and in debug builds report that it has no accessible name; WHILE a segment's labelHidden is true and its icon is empty THE segmented button SHALL draw the label anyway and in debug builds report the segment; WHILE the set's label is empty, or the set holds fewer than two or more than five segments, THE segmented button SHALL still render and in debug builds report it."
     },
     {
       "id": "SEG-23",

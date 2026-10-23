@@ -288,6 +288,10 @@
       "id": "FPK-31",
       "text": "THE file picker SHALL offer the product, and a component that holds it, a way in the platform's idiom to have files judged that came neither through its picker nor onto its area — files pasted, dropped on another part of the product's screen, or made by the product: it SHALL judge them as one arrival by the rule of FPK-9 and answer with the files that passed and with the refused files and their reasons, each in the order given; SHALL emit neither select nor reject for them, as a control's events tell what a person did; and SHALL keep none of them (FPK-7).",
       "verify": "On the web: `judge(files)` returns `{ accepted: File[], refused: { file, reason }[] }` and dispatches no event; it answers the same with `disabled` set."
+    },
+    {
+      "id": "FPK-32",
+      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE file picker SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on its group (FPK-17), which it SHALL be WHILE it has a name: its label or its Field's, or one given so — an id reference by the elements it names in the host's tree or a tree around it, a description after its own. WHILE label, or the Field's label, is not empty it is the group's name, over a name given so. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE file picker SHALL take it off that element."
     }
   ],
   "accessibility": {

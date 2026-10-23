@@ -701,9 +701,8 @@ export class TanreiButton extends TanreiElement {
         ${linkAttributes(link)}
         tabindex=${this.outsideFocusOrder ? '-1' : link && reachable ? '0' : nothing}
         ${delegatedAria(this, {
+          // BTN-16: a label given is the whole name, over the product's aria-label and aria-labelledby.
           'aria-label': this.label,
-          // BTN-16: a label given is the whole name, over the product's aria-labelledby.
-          'aria-labelledby': this.label ? null : undefined,
           'aria-description': description,
           'aria-pressed': this.toggle && String(this.selected),
           'aria-disabled': !link && reachable && 'true',
