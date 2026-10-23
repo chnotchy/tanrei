@@ -1110,6 +1110,9 @@ export class TanreiSubmenu extends TanreiMenuRowBase {
     if (mode === 'overlay') {
       surface.classList.remove('leaving');
       if (!surface.matches(':popover-open')) surface.showPopover();
+      // MNU-68: a submenu opens from the top of its list, also where it opens again before its closing motion has ended.
+      const scroll = this.scrollElement;
+      if (scroll && was === 'hidden') scroll.scrollTop = 0;
     } else {
       this.overlap = false;
       surface.classList.remove('cascading');
@@ -1802,7 +1805,7 @@ export class TanreiMenu extends TanreiElement {
     this.presentSubmenus();
     if (focus === 'stay') return;
     const first = rows.find((row) => !row.disabled) ?? rows[0];
-    this.placeFocus(() => (focus === 'key' ? first.focus() : first.focusFromPointer()));
+    this.placeFocus(() => this.focusItem(first, submenu, focus !== 'key'));
   }
 
   /** Moves focus as the menu's own doing (MNU-1, MNU-43), which closes no submenu of the surface focus lands in. */
@@ -1816,12 +1819,63 @@ export class TanreiMenu extends TanreiElement {
   }
 
   /**
+   * MNU-68: focus to an item by a key or by the menu's own doing — with the ring, or `quiet`ly without it — and its list
+   * scrolled by the menu, just far enough to bring the item whole into view. Never by the engine's own scroll on focus:
+   * Chromium and WebKit compute it through the surface's transform, and on the opening motion's first frame the surface
+   * is scaled to nothing along the block axis, which sent a list taller than its surface to its end and hid its first
+   * items.
+   */
+  private focusItem(item: TanreiMenuRowBase, level: Level = this.levelOf(item), quiet = false) {
+    if (quiet) item.focusFromPointer();
+    else item.focus({ preventScroll: true });
+    this.reveal(item, level);
+  }
+
+  /**
+   * MNU-68: scrolls the list of `level` just far enough to bring `item` whole into view, and not at all where it is,
+   * judged as the surface stands at rest: while a motion of the surface runs, once it has ended, and only if the item
+   * still has focus then. The first item of the list brings the list's start with it (its padding, a group's title),
+   * the last its end, and the first item of a titled group that title.
+   */
+  private reveal(item: TanreiMenuRowBase, level: Level) {
+    const surface = this.surfaceOf(level);
+    const scroll = this.scrollOf(level);
+    if (!surface || !scroll) return;
+    const moving = surface.getAnimations().filter((animation) => animation.playState === 'running' || animation.pending);
+    if (moving.length) {
+      void Promise.allSettled(moving.map((animation) => animation.finished)).then(() => {
+        const active = deepActive();
+        if (this.open && (active === item || (!!active && item.shadowRoot?.contains(active)))) this.reveal(item, level);
+      });
+      return;
+    }
+    const row = (item.rowElement ?? item).getBoundingClientRect();
+    const view = scroll.getBoundingClientRect();
+    const top = view.top + scroll.clientTop;
+    const bottom = top + scroll.clientHeight;
+    const start = top - scroll.scrollTop;
+    const rows = this.rowsOf(level);
+    let want = { top: row.top, bottom: row.bottom };
+    if (item === rows[0]) want = { ...want, top: start };
+    else {
+      let group: Node | null = flatParent(item);
+      while (group && !(group instanceof TanreiMenuGroup) && group !== level) group = flatParent(group);
+      const title = group instanceof TanreiMenuGroup ? group.shadowRoot?.querySelector('.title') : null;
+      if (title && rows.find((each) => (group as Node).contains(each)) === item) want = { ...want, top: Math.min(want.top, title.getBoundingClientRect().top) };
+    }
+    if (item === rows.at(-1)) want = { ...want, bottom: start + scroll.scrollHeight };
+    // Half a pixel either way is in view: an edge may fall between device pixels.
+    if (want.top < top - 0.5) scroll.scrollTop += want.top - top;
+    else if (want.bottom > bottom + 0.5) scroll.scrollTop += Math.min(want.bottom - bottom, want.top - top);
+  }
+
+  /**
    * MNU-48: closes a submenu and every submenu opened from it, and nothing else; focus returns to its item — always for
    * a key (with the ring) or a press (without), and otherwise when it was inside.
    */
   private closeSubmenu(submenu: TanreiSubmenu, person: boolean, focus: FocusReturn) {
     if (this.apex?.submenu === submenu) this.endAim();
-    if (focus === 'key') submenu.focus();
+    if (focus === 'key') this.focusItem(submenu);
     else if (focus === 'pointer' || this.within(deepActive(), submenu)) {
       // Focus the pointer moved back draws no ring, even where it was a keyboard's before.
       if (submenu.matches(':focus')) submenu.blur();
@@ -1983,7 +2037,7 @@ export class TanreiMenu extends TanreiElement {
     if (target === null) return;
     event.preventDefault();
     event.stopPropagation();
-    if (target !== current) rows[target].focus();
+    if (target !== current) this.focusItem(rows[target], level);
   };
 
   /**
@@ -2125,7 +2179,12 @@ export class TanreiMenu extends TanreiElement {
     this.syncs.flush();
     const items = this.rowsOf(this);
     const item = end === 'last' ? ([...items].reverse().find((each) => !each.disabled) ?? items.at(-1)) : (items.find((each) => !each.disabled) ?? items[0]);
-    this.placeFocus(() => (quiet ? item?.focusFromPointer() : item?.focus()));
+    if (!item) return;
+    // MNU-68: the list opens at its top (show()), or at its end for the last item, sent there at once rather than when
+    // the opening motion ends (reveal() then has nothing left to do, unless rows that take no focus follow it).
+    const scroll = this.scrollBox;
+    if (scroll && end === 'last') scroll.scrollTop = scroll.scrollHeight;
+    this.placeFocus(() => this.focusItem(item, this, quiet));
   }
 
   /**
@@ -2500,6 +2559,9 @@ export class TanreiMenu extends TanreiElement {
     if (this.inline) return;
     surface.classList.remove('leaving');
     if (!surface.matches(':popover-open')) surface.showPopover();
+    // MNU-68: from the top of its list, also where it opens again before its closing motion has ended.
+    const scroll = this.scrollBox;
+    if (scroll) scroll.scrollTop = 0;
     this.shown = true;
     this.place();
     this.following.start();
