@@ -50,18 +50,108 @@ after(async () => {
 });
 
 /**
+ * How long the browser may take over one thing asked of it before the test fails, naming it: a page's script that
+ * never yields, or a browser that stops answering, would otherwise hold the suite until the job's own limit, with
+ * nothing in its log (the gallery of 368 fixtures, the Field's, is drawn and measured in about a minute and a half on
+ * a loaded machine). `page.goto` has Playwright's own limit.
+ */
+const ANSWER = 240_000;
+
+/**
+ * `promise`, or a failure after ANSWER that says what was waited for (`what`, and `more()` at that time).
+ * @template T
+ * @param {string} what
+ * @param {Promise<T>} promise
+ * @param {() => string} [more]
+ * @returns {Promise<T>}
+ */
+async function bounded(what, promise, more = () => '') {
+  let timer;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`${what}: no answer within ${ANSWER / 1000} s${more()}`)), ANSWER);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * `page.evaluate(fn, arg)`, bounded, its failure naming the last step the page named with `console.debug('[step] …')`.
+ * @param {import('@playwright/test').Page} page
+ * @param {string} what
+ * @param {Function} fn
+ * @param {unknown} [arg]
+ */
+async function evaluateBounded(page, what, fn, arg) {
+  let step = '';
+  const heard = (message) => {
+    if (message.text().startsWith('[step] ')) step = message.text().slice('[step] '.length);
+  };
+  page.on('console', heard);
+  try {
+    return await bounded(`${what}: the page's script`, page.evaluate(fn, arg), () => (step ? `; its last step: ${step}` : ''));
+  } finally {
+    page.off('console', heard);
+  }
+}
+
+/**
+ * A new context and page of `browser`, and closing it, each bounded.
+ * @param {string} what
+ * @param {import('@playwright/test').BrowserContextOptions} options
+ */
+async function openPage(what, options) {
+  const context = await bounded(`${what}: a new browser context`, browser.newContext(options));
+  const page = await bounded(`${what}: a new page`, context.newPage());
+  return { page, close: () => bounded(`${what}: closing its context`, context.close()) };
+}
+
+/**
  * Runs IN THE PAGE: the gallery's stages, and for each drawn one what stands outside where it must stand. Measured once
- * the elements are defined and every stage is laid out.
+ * the elements are defined and every stage is laid out. Every wait is bounded: one that ends without what it waited for
+ * throws, naming what did not come.
  */
 async function measure() {
-  const frame = () => new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
+  const step = (what) => console.debug(`[step] ${what}`);
+  const within = (ms, missing, promise) => {
+    let timer;
+    const late = new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error(`${missing()}, after ${ms / 1000} s`)), ms);
+    });
+    return Promise.race([promise, late]).finally(() => clearTimeout(timer));
+  };
+  const frame = () => within(10_000, () => 'no frame was drawn', new Promise((resolve) => requestAnimationFrame(() => resolve(undefined))));
   const gallery = document.querySelector('[data-fixture-gallery]');
   if (!gallery) return { gallery: false };
   const laidOut = document.createElement('style');
   laidOut.textContent = '*, *::before, *::after { transition: none !important; animation: none !important; }';
   document.head.append(laidOut);
-  // A fixture is drawn when its stage comes near the view: every one is drawn here, as the page draws it.
-  for (const template of gallery.querySelectorAll('.fixture-element > template[data-stage-fixture]')) template.replaceWith(document.importNode(template.content, true));
+  // What each stage drawn in the page holds before it is drawn: the room of its baseline.
+  const held = new Map([...gallery.querySelectorAll('.docs-stage[data-stage="inline"][data-drawn]')].map((stage) => [stage, stage.getBoundingClientRect().height]));
+  // A fixture is drawn when its stage comes within half a window of the view (the gallery's IntersectionObserver): the
+  // page is scrolled through a window at a time, one frame at each (the observer reads a place in the frame after it is
+  // scrolled to), and the page draws each stage it comes near. A stage passed by, as the stages above it grew when they
+  // were drawn, is then brought into view on its own. (Half a window at a time, two frames at each, was four times the
+  // frames, for nothing more drawn.)
+  const start = document.scrollingElement.scrollHeight;
+  for (let y = 0; y < document.scrollingElement.scrollHeight; y += innerHeight) {
+    if (y > 4 * start) throw new Error(`the page kept growing as it was scrolled through: ${start} tall at first, ${document.scrollingElement.scrollHeight} at ${y}`);
+    step(`scrolling through, at ${y} of ${document.scrollingElement.scrollHeight}`);
+    scrollTo(0, y);
+    await frame();
+  }
+  for (const canvas of gallery.querySelectorAll('.docs-stage-canvas[data-pending]')) {
+    step(`bringing ${canvas.closest('.docs-stage')?.dataset.fixtureId} into view`);
+    canvas.scrollIntoView({ block: 'center' });
+    await frame();
+    await frame();
+  }
+  scrollTo(0, 0);
+  step('defining the elements');
   // The page defines its elements after it has loaded, each one when its module arrives (lib/define-on-demand.ts), and
   // on a page as large as the Field's that is seconds of work in the page, one module after another. The wait lasts
   // while elements are being defined: it ends when no element of the gallery is left undefined, in the document or in
@@ -82,9 +172,15 @@ async function measure() {
     const stalled = await Promise.race([Promise.any(left.map((n) => customElements.whenDefined(n))).then(() => false), new Promise((r) => setTimeout(() => r(true), 5000))]);
     if (stalled) break;
   }
-  await Promise.all([...gallery.querySelectorAll('*')].map((e) => e.updateComplete).filter(Boolean));
-  await document.fonts.ready;
+  step('updating the elements');
+  const updating = [...gallery.querySelectorAll('*')].filter((e) => e.updateComplete);
+  const named = (e) => `${e.localName} in ${e.closest('.docs-stage')?.dataset.fixtureId ?? 'the gallery'}`;
+  await within(10_000, () => `the update of ${updating.filter((e) => e.isUpdatePending).map(named).join(', ') || 'an element'} did not complete`, Promise.all(updating.map((e) => e.updateComplete)));
+  step('loading the faces');
+  await within(10_000, () => `the faces ${[...document.fonts].filter((f) => f.status === 'loading').map((f) => f.family).join(', ') || 'of the page'} did not load`, document.fonts.ready);
+  step('laying out');
   for (let k = 0; k < 4; k++) await frame();
+  step('measuring');
 
   const column = gallery.getBoundingClientRect();
   const outside = (inner, outer, slack = 1) => inner.left < outer.left - slack || inner.right > outer.right + slack || inner.top < outer.top - slack || inner.bottom > outer.bottom + slack;
@@ -100,7 +196,7 @@ async function measure() {
       continue;
     }
     const area = stage.querySelector('.docs-stage-box').getBoundingClientRect();
-    const drawn = stage.dataset.stage === 'window' ? stage.querySelector('.docs-window') : stage.querySelector('.fixture-element > *');
+    const drawn = stage.dataset.stage === 'window' ? stage.querySelector('.docs-window') : stage.querySelector('[data-fixture-scope] > .stage');
     if (!drawn) {
       found.push(`${id}: nothing is drawn on its stage`);
       continue;
@@ -117,8 +213,26 @@ async function measure() {
     if ((r.width < 1 && r.height >= 1) || (r.height < 1 && r.width >= 1 && !empty)) found.push(`${id}: what it draws has no length (${Math.round(r.width)} × ${Math.round(r.height)})`);
     else if (outside(r, area)) found.push(`${id}: what it draws is cut by its stage (${Math.round(r.width)} × ${Math.round(r.height)} in ${Math.round(area.width)} × ${Math.round(area.height)})`);
   }
+  // A stage drawn in the page holds its baseline's room before it is drawn, and is as tall once it is — unless it is
+  // drawn narrower than its baseline (a layout wider than the column, laid out at the column's width), where it is
+  // taller by design.
+  const grown = [];
+  let narrowed = 0;
+  for (const [stage, before] of held) {
+    const canvas = stage.querySelector('[data-fixture-scope]');
+    const reserve = parseFloat(canvas.style.getPropertyValue('--docs-stage-reserve-inline'));
+    const after = stage.getBoundingClientRect().height;
+    if (canvas.getBoundingClientRect().width < reserve - 1) {
+      narrowed++;
+      continue;
+    }
+    if (after > before + 1) grown.push({ id: stage.dataset.fixtureId, before: Math.round(before), after: Math.round(after), stage: canvas.querySelector(':scope > .stage').getBoundingClientRect().height });
+  }
   laidOut.remove();
   return {
+    grown,
+    narrowed,
+    held: held.size,
     gallery: true,
     ids: stages.map((stage) => stage.dataset.fixtureId),
     drawn: stages.filter((stage) => stage.dataset.drawn !== undefined).length,
@@ -140,11 +254,10 @@ describe('a fixture drawn alone is the one fixture its page draws, every element
     if (!stage) continue;
     test(`${name}/${stage.id}`, async () => {
       const size = document.sizes[stage.id];
-      const context = await browser.newContext({ viewport: size, reducedMotion: 'reduce' });
+      const { page, close } = await openPage(`/fixtures/${name}/?id=${stage.id}`, { viewport: size, reducedMotion: 'reduce' });
       try {
-        const page = await context.newPage();
         await page.goto(`${origin}/fixtures/${name}/?id=${encodeURIComponent(stage.id)}`, { waitUntil: 'load' });
-        const result = await page.evaluate(async (id) => {
+        const result = await evaluateBounded(page, `/fixtures/${name}/?id=${stage.id}`, async (id) => {
           const tags = new Set([...document.querySelectorAll('.stage *')].map((e) => e.localName).filter((n) => n.includes('-')));
           await Promise.race([Promise.all([...tags].map((n) => customElements.whenDefined(n))), new Promise((r) => setTimeout(r, 5000))]);
           await document.fonts.ready;
@@ -162,7 +275,7 @@ describe('a fixture drawn alone is the one fixture its page draws, every element
         assert.deepEqual(result.stages, [stage.id], 'the page draws the one fixture it is asked for');
         assert.deepEqual(result.undefined, [], 'every element on its stage is defined');
       } finally {
-        await context.close();
+        await close();
       }
     });
   }
@@ -189,17 +302,19 @@ describe('a fixture document is the windows’ only: no reader is sent to it', (
   });
 
   test('without the id of a fixture it draws nothing', async () => {
-    const context = await browser.newContext();
+    const { page, close } = await openPage('/fixtures/button/', {});
     try {
-      const page = await context.newPage();
       await page.goto(`${origin}/fixtures/button/`, { waitUntil: 'load' });
       assert.equal(await page.locator('.stage').count(), 0);
       assert.equal(await page.locator('meta[name="robots"][content="noindex"]').count(), 1);
     } finally {
-      await context.close();
+      await close();
     }
   });
 });
+
+// What each page's stages did when they were drawn, at each width: read by the last test below.
+const drawing = [];
 
 describe('every component page shows its fixtures, each whole, on a stage of its own', { concurrency: 4 }, () => {
   test('there are component pages', () => assert.ok(pages.length > 80, `found ${pages.length} component pages`));
@@ -207,11 +322,10 @@ describe('every component page shows its fixtures, each whole, on a stage of its
     test(name, async () => {
       const problems = [];
       for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
-        const context = await browser.newContext({ viewport, reducedMotion: 'reduce' });
+        const { page, close } = await openPage(`/components/${name}/ at ${viewport.width}`, { viewport, reducedMotion: 'reduce' });
         try {
-          const page = await context.newPage();
           await page.goto(`${origin}/components/${name}/`, { waitUntil: 'load' });
-          const result = await page.evaluate(measure);
+          const result = await evaluateBounded(page, `/components/${name}/ at ${viewport.width}`, measure);
           const at = `${viewport.width}`;
           if (!result.gallery) {
             problems.push(`${at}: the page has no gallery of fixtures`);
@@ -220,11 +334,53 @@ describe('every component page shows its fixtures, each whole, on a stage of its
           if (JSON.stringify([...result.ids].sort()) !== JSON.stringify([...fixtures].sort())) problems.push(`${at}: the stages are not the spec's fixtures (${result.ids.length} stages, ${fixtures.length} fixtures)`);
           if (result.sideways > 1) problems.push(`${at}: the page scrolls sideways by ${result.sideways}px`);
           for (const line of result.found) problems.push(`${at}: ${line}`);
+          // A stage that grew: is it as tall as its own document draws it on this machine? Then the page drew what the
+          // document draws, and the baseline's room was set by another machine's text (a face the document does not
+          // embed, a line that breaks otherwise); the stage is counted, not failed. Otherwise the page drew it otherwise.
+          const grown = [];
+          let otherMachine = 0;
+          for (const each of result.grown) {
+            const size = documents[name].sizes[each.id];
+            const { page: own, close: closeOwn } = await openPage(`/fixtures/${name}/?id=${each.id}`, { viewport: { width: Math.max(size.width, 800), height: 1000 }, reducedMotion: 'reduce' });
+            try {
+              await own.goto(`${origin}/fixtures/${name}/?id=${encodeURIComponent(each.id)}`, { waitUntil: 'load' });
+              const height = await evaluateBounded(own, `/fixtures/${name}/?id=${each.id}`, async () => {
+                const tags = new Set([...document.querySelectorAll('.stage *')].map((e) => e.localName).filter((n) => n.includes('-')));
+                await Promise.race([Promise.all([...tags].map((n) => customElements.whenDefined(n))), new Promise((r) => setTimeout(r, 5000))]);
+                await document.fonts.ready;
+                await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+                return document.querySelector('.stage')?.getBoundingClientRect().height ?? 0;
+              });
+              if (Math.abs(height - each.stage) <= 1) otherMachine++;
+              else grown.push(`${each.id}: its stage held ${each.before} and grew to ${each.after} when it was drawn (its own document draws it ${Math.round(height)} tall, the page ${Math.round(each.stage)})`);
+            } finally {
+              await closeOwn();
+            }
+          }
+          drawing.push({ name, at, held: result.held, narrowed: result.narrowed, otherMachine, grown });
         } finally {
-          await context.close();
+          await close();
         }
       }
       assert.deepEqual(problems, [], `${name}:\n  ${problems.join('\n  ')}`);
     });
   }
+});
+
+describe('a stage does not grow when it is drawn', () => {
+  // A stage drawn in the page holds the room of its baseline — the web package's document's stage — until it is drawn,
+  // and that stage is what it draws: nothing below it moves when it is. (While the site drew fixtures with a renderer
+  // of its own, 179 stages of 2390 grew at 1440 wide, and 345 at 390.) One drawn narrower than its baseline, at the
+  // column's width, is counted and left out: it is laid out anew there. So is one that grew to the height its own
+  // document gives it on this machine: the page drew what the document draws, and the room was another machine's.
+  test('every stage drawn at its baseline’s width is as tall as the room it held', () => {
+    assert.ok(drawing.length > 160, `${drawing.length} pages and widths were drawn`);
+    for (const at of ['1440', '390']) {
+      const of = drawing.filter((each) => each.at === at);
+      const sum = (key) => of.reduce((total, each) => total + (Array.isArray(each[key]) ? each[key].length : each[key]), 0);
+      console.log(`${at}: ${sum('held')} stages drawn in the page, ${sum('narrowed')} narrower than their baseline, ${sum('otherMachine')} taller than their baseline as their own document draws them on this machine, ${sum('grown')} grew`);
+    }
+    const grown = drawing.flatMap((each) => each.grown.map((line) => `${each.name} at ${each.at}: ${line}`));
+    assert.deepEqual(grown, []);
+  });
 });

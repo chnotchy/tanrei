@@ -23,8 +23,8 @@ const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
 
 // A page of presented fixtures (each a modal dialog, drawn in a window so that it opens there and not on the page) and
-// a page of fixtures that are not presented (each window grows to hold its document).
-const PAGES = ['/components/dialog/', '/components/scroll-area/'];
+// a page of fixtures that are not presented but are each a whole page's frame (each window grows to hold its document).
+const PAGES = ['/components/dialog/', '/components/app-shell/'];
 
 let host;
 let origin;

@@ -1,25 +1,30 @@
 // Runs IN THE PAGE (page.evaluate): every live preview of a built docs page against a copy of the same markup drawn
 // by the web package's stylesheets winning over the page's.
 //
-// A preview is an element the page draws to show a component: the children of a live example's stage (DemoFrame), of a
-// spec fixture's stage in the page (components/fixtures/FixtureGallery.astro) and of a file tree's stage (FileTree). Its copy is made from the page's HTML as
-// it was served, so the element is upgraded from the same markup, and stands in a shadow root beside the preview:
-// it inherits what the preview inherits, and is matched by
+// A preview is an element the page draws to show a component: the children of a live example's stage (DemoFrame), a
+// spec fixture's stage in the page — the web package's document's stage, drawn by the gallery
+// (components/fixtures/FixtureGallery.astro) — the children of a file tree's stage (FileTree), and what a figure drawn
+// from the repository shows on its canvas, less its overlay (VisualFrame). Its copy is made from the page's HTML as it
+// was served, so the element is upgraded from the same markup, and stands in a shadow root beside the preview: it
+// inherits what the preview inherits, and is matched by
 //
 //   1. every rule of the page's stylesheets, all of them in one layer — the reset, Starlight's rules, the docs' own —
 //      so a page rule that matches the element by its own markup matches the copy too (the docs' demo classes, a
 //      component's scoped style, the reset of a product's page); a rule that needs an ancestor outside the preview
 //      (`.sl-markdown-content p`) does not;
 //   2. then every stylesheet `@tanrei/web` ships, in a later layer: the component's own rules win, as on a product's
-//      page that loads them correctly.
+//      page that loads them correctly;
+//   3. then a fixture's staging (the gallery's scoped rules), last, as the web package's document has it: after the
+//      package's stylesheets, which it stages. A fixture's copy stands in a box of the staging's scope.
 //
 // What differs between a preview and its copy — a box, a margin, a color, a pseudo-element's glyph — is the page doing
 // to the component what the component's own stylesheet does not allow: a stylesheet loaded where the page's layers
 // beat it, a stylesheet the page does not load, a page rule that reaches into the component. Not what it cannot see:
-// a fixture drawn in a window of its own (an `iframe`, which is not a preview of this page) or one the page stages files into
-// (`data-fixture-files`) is in a state the copy is not, and is left out, as is a state matrix (its cells are held in
-// states the copy is not in; test/browser/state-matrix.test.mjs checks each against its tokens); parts placed against something outside the
-// preview (an open surface's list) and visually hidden parts are not compared.
+// a fixture drawn in a window of its own (an `iframe`, which is not a preview of this page), and one the page drew and
+// took its document's step in script for before the comparison began, are in a state the copy is not, and are left
+// out, as is a state matrix (its cells are held in states the copy is not in; test/browser/state-matrix.test.mjs checks
+// each against its tokens); parts placed against something outside the preview (an open surface's list) and visually
+// hidden parts are not compared.
 export async function comparePreviews({ componentCss, still }) {
   const frame = () => new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
   const quiet = document.createElement('style');
@@ -29,14 +34,26 @@ export async function comparePreviews({ componentCss, still }) {
 
   const SELECTOR = [
     '[data-tanrei-demo] > figure > [data-part=frame] > [data-part=stage] > *',
-    '.docs-stage-box[data-tanrei-demo] .fixture-element > *',
+    '.docs-stage-box[data-tanrei-demo] > [data-fixture-scope] > .stage',
     '.docs-file-tree > figure > [data-part=stage] > *',
     '[data-docs-visual] > figure > [data-part=frame] > [data-part=stage] > [data-docs-visual-canvas] > :not([data-docs-visual-overlay], .docs-state-matrix)',
   ].join(', ');
   const served = new DOMParser().parseFromString(await (await fetch(location.href)).text(), 'text/html');
-  // A fixture of the gallery is written in a template and drawn when its stage comes near the view: every one is drawn
-  // here, in the page and in its HTML alike, as the page would draw it.
-  for (const root of [document, served]) for (const template of root.querySelectorAll('.fixture-element > template[data-stage-fixture]')) template.replaceWith(root.importNode(template.content, true));
+  // A fixture of the gallery is drawn from the gallery's data when its stage comes near the view: every one not yet
+  // drawn is drawn here, in the page and in its HTML alike, as the page draws it. One the page drew already, in a
+  // gallery whose document takes a step in script, has taken the step, and its copy cannot.
+  const stepped = new Set([...document.querySelectorAll('[data-fixture-gallery][data-fixture-step] [data-fixture-scope]:not([data-pending]) > .stage')]);
+  for (const root of [document, served]) {
+    for (const gallery of root.querySelectorAll('[data-fixture-gallery]')) {
+      const drawings = JSON.parse(gallery.querySelector(':scope > script[data-fixture-stages]')?.textContent ?? '{}');
+      for (const canvas of gallery.querySelectorAll('[data-fixture-scope][data-pending]')) {
+        const template = root.createElement('template');
+        template.innerHTML = drawings[canvas.closest('[data-fixture-id]').dataset.fixtureId] ?? '';
+        canvas.prepend(root.importNode(template.content, true));
+        canvas.removeAttribute('data-pending');
+      }
+    }
+  }
   const live = [...document.querySelectorAll(SELECTOR)];
   const source = [...served.querySelectorAll(SELECTOR)];
   if (live.length !== source.length) return { error: `the page holds ${live.length} previews, its HTML ${source.length}` };
@@ -96,7 +113,7 @@ export async function comparePreviews({ componentCss, still }) {
   };
 
   const previews = live.map((element, index) => ({ element, index })).filter(({ element }) => {
-    if (element.matches('[data-fixture-files]')) return false;
+    if (stepped.has(element)) return false;
     const box = element.getBoundingClientRect();
     if (box.width === 0 && box.height === 0) return false;
     return all(element).some((e) => e.localName.startsWith('tanrei-') || /(^|\s)tanrei-/.test(e.getAttribute('class') ?? ''));
@@ -104,16 +121,18 @@ export async function comparePreviews({ componentCss, still }) {
   await settle(previews.map((p) => p.element));
 
   const page = [];
+  const staging = [];
   for (const sheet of document.styleSheets) {
     if (sheet.ownerNode === quiet) continue;
     try {
-      page.push(...[...sheet.cssRules].map((rule) => rule.cssText));
+      if (sheet.ownerNode?.matches?.('style[data-fixture-staging]')) staging.push(...[...sheet.cssRules].map((rule) => rule.cssText));
+      else page.push(...[...sheet.cssRules].map((rule) => rule.cssText));
     } catch {
       // A stylesheet of another origin cannot be read; the docs load none.
     }
   }
   const sheet = new CSSStyleSheet();
-  sheet.replaceSync(`@layer page {\n${page.join('\n')}\n}\n@layer components {\n${componentCss}\n}\n${still}`);
+  sheet.replaceSync(`@layer page {\n${page.join('\n')}\n}\n@layer components {\n${componentCss}\n}\n${staging.join('\n')}\n${still}`);
 
   for (const preview of previews) {
     const { element, index } = preview;
@@ -128,10 +147,23 @@ export async function comparePreviews({ componentCss, still }) {
     const root = host.attachShadow({ mode: 'open' });
     root.adoptedStyleSheets = [sheet];
     const wrap = document.createElement('div');
+    // A fixture's stage stands in a box of its staging's scope that the page's rules draw as they draw its canvas (the
+    // text style it inherits), as in the page.
+    if (element.parentElement.matches('[data-fixture-scope]')) for (const { name, value } of element.parentElement.attributes) if (name !== 'style' && name !== 'id' && name !== 'data-pending') wrap.setAttribute(name, value);
     wrap.style.inlineSize = `${layout.clientWidth - parseFloat(around.paddingLeft) - parseFloat(around.paddingRight) + 1}px`;
     for (const property of ['display', 'flex-direction', 'flex-wrap', 'align-items', 'justify-content']) wrap.style.setProperty(property, around.getPropertyValue(property));
     const copy = document.importNode(source[index], true);
-    if (!getComputedStyle(element).display.startsWith('inline')) copy.style.inlineSize = `${element.getBoundingClientRect().width}px`;
+    if (element.matches('[data-fixture-scope] > .stage')) {
+      // A fixture's stage takes its width from its staging, as its copy does; one the gallery laid out at another width
+      // (the column's, or the reader's) is laid out there in its copy too.
+      if (element.style.inlineSize) copy.style.inlineSize = element.style.inlineSize;
+      if (element.firstElementChild?.style.inlineSize && copy.firstElementChild) copy.firstElementChild.style.inlineSize = element.firstElementChild.style.inlineSize;
+      // What the package's own script wrote on the stage's light DOM once it was drawn (the Steps' measured marker
+      // column, `--_steps-measured`) is the component's state, which no script writes on the copy: the copy takes it.
+      const drawnParts = element.querySelectorAll('*');
+      const copiedParts = copy.querySelectorAll('*');
+      if (drawnParts.length === copiedParts.length) drawnParts.forEach((part, k) => { for (let i = 0; i < part.style.length; i++) if (part.style[i].startsWith('--')) copiedParts[k].style.setProperty(part.style[i], part.style.getPropertyValue(part.style[i])); });
+    } else if (!getComputedStyle(element).display.startsWith('inline')) copy.style.inlineSize = `${element.getBoundingClientRect().width}px`;
     wrap.append(copy);
     root.append(wrap);
     element.parentElement.append(host);
@@ -210,7 +242,11 @@ export async function comparePreviews({ componentCss, still }) {
       if (d.some((v) => Math.abs(v) > 1.5)) notes.push(`${describe(x)}: box off by [x ${Math.round(d[0])}, y ${Math.round(d[1])}, w ${Math.round(d[2])}, h ${Math.round(d[3])}]`);
       const sx = getComputedStyle(x);
       const sy = getComputedStyle(y);
+      // A fixture's stage is the picture its baseline is taken of: its own margin, which keeps the next stage clear in
+      // the web package's document, stands outside it, and the gallery's canvas has no next stage.
+      const outer = k === 0 && element.matches('[data-fixture-scope] > .stage');
       for (const p of PROPERTIES) {
+        if (outer && p.startsWith('margin-')) continue;
         if (!same(sx.getPropertyValue(p), sy.getPropertyValue(p))) {
           notes.push(`${describe(x)}: ${p} ${sx.getPropertyValue(p)}, the package's ${sy.getPropertyValue(p)}`);
           break;

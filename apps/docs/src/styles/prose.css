@@ -59,3 +59,7 @@
 @import '@tanrei/web/avatar.css' layer(docs.avatar);
 @import '@tanrei/web/empty-state.css' layer(docs.empty-state);
 @import '@tanrei/web/menubar.css' layer(docs.menubar);
+/* The Steps' and the Timeline's own stylesheets, after prose's (which draws a list of steps in running text): a
+   fixture of either is drawn in the page as the web package's document draws it, with its own sheet after prose's. */
+@import '@tanrei/web/steps.css' layer(docs.steps);
+@import '@tanrei/web/timeline.css' layer(docs.timeline);
