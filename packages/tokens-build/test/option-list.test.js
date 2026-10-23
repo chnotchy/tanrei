@@ -33,9 +33,12 @@ const OF_THE_LIST = new RegExp(`^(?:list|option|group-title|group|divider)\\.|^s
 export const LISTS = {
   // A long list scrolls inside a height of its own; a menu is short by its rules and has none.
   select: { own: ['list.max-height'], pairs: 203 },
-  // A combobox's list is exactly as wide as its field, so it has no least width (CMB-22); the weight of the letters
-  // that matched what was typed is its own.
-  combobox: { own: ['list.max-height', 'option.match.emphasis'], pairs: 201 },
+  // A combobox's list is exactly as wide as its field, so it has no least width (CMB-22); how the letters that matched
+  // what was typed are marked — their weight, color and fill, and the two in the selected option — is its own.
+  combobox: {
+    own: ['list.max-height', 'option.match.emphasis', 'option.match.color', 'option.match.container.color', 'option.match.selected.color', 'option.match.selected.container.color'],
+    pairs: 201,
+  },
 };
 
 const systems = [DEFAULT_SYSTEM, ...shippedSystems(REPO_ROOT).filter((id) => id !== DEFAULT_SYSTEM)];
