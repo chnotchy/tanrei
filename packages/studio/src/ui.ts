@@ -147,7 +147,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       else if (sharedBanner.open && !options?.preview) sharedBanner.open = false;
       if (!options?.preview) {
         // A step to undo: what was committed before, unless nothing changed.
-        if (stringifyLayer(next) !== stringifyLayer(committed)) history.record(committed);
+        if (stringifyLayer(next) !== stringifyLayer(committed)) history.record(committed, { alone: options?.alone });
         committed = next;
         drawHistory();
       }
@@ -394,7 +394,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     const offered = (studio.startPoints() as Json[]).some((point) => point.id === id && point.offered);
     if (!offered || id === committed.extends || (studio.holdsChanges(committed) && !window.confirm(t.start.confirm(name)))) return startPoint.refresh();
     importReport.open = false;
-    ctx.commit(studio.setBase(committed, id), { rebuild: true });
+    ctx.commit(studio.setBase(committed, id), { rebuild: true, alone: true });
     ctx.announce(t.start.started(name));
   }
   /** What loading a file found, said at the top of the panel: `error` (it was not loaded) or `warning` (it was, with problems). */
@@ -427,7 +427,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     }
     if (studio.holdsChanges(committed) && !window.confirm(t.start.confirmFile(chosen.name))) return;
     importReport.open = false;
-    ctx.commit(next, { rebuild: true });
+    ctx.commit(next, { rebuild: true, alone: true });
     const problems: string[] = latest.problems ?? [];
     if (problems.length) report('warning', t.start.importedProblems(chosen.name, problems.length), problems);
     ctx.announce(problems.length ? t.start.importedProblems(chosen.name, problems.length) : t.start.imported(chosen.name));
@@ -435,7 +435,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
 
   /** Every row that is not locked, another of its values: one commit, one step to undo. */
   function shuffleRows() {
-    ctx.commit(shuffle(ctx, committed, locks), { rebuild: true });
+    ctx.commit(shuffle(ctx, committed, locks), { rebuild: true, alone: true });
     ctx.announce(locks.size ? t.rail.shuffledKept(locks.size) : t.rail.shuffled);
   }
 
