@@ -215,6 +215,11 @@ const SNAPSHOT = '(window.docsExampleSources ??= new WeakMap()).set(document.cur
       }
       {code && source && <script type="application/json" data-example-source set:html={JSON.stringify(source).replaceAll('<', '\\u003c')}></script>}
       {
+        /* A playground's controls (Playground.astro), under the stage and above the code: what the reader sets, not
+           what describes the frame. */
+        Astro.slots.has('controls') && <slot name="controls" />
+      }
+      {
         legend && (
           <div data-part="attachment" id={`${id}-legend`}>
             <slot name="legend" />

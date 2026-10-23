@@ -200,6 +200,19 @@ export function webAttribute(tag: string, property: string): WebAttribute | unde
   return webAttributes.get(tag)?.get(property);
 }
 
+const webPropertyDefaults: Map<string, Map<string, string>> = new Map(
+  (customElements.modules ?? []).flatMap((m: any) =>
+    (m.declarations ?? [])
+      .filter((d: any) => d.tagName)
+      .map((d: any) => [d.tagName, new Map((d.attributes ?? []).filter((a: any) => a.fieldName && a.default !== undefined).map((a: any) => [a.fieldName, String(a.default)]))]),
+  ),
+);
+/**
+ * The default of a property of an element of the installed build, as its manifest writes it in source (`'filled'`,
+ * `false`, `2`); nothing where the manifest gives none.
+ */
+export const webPropertyDefault = (tag: string, property: string): string | undefined => webPropertyDefaults.get(tag)?.get(property);
+
 const webAttributeNames: Map<string, Set<string>> = new Map(
   (customElements.modules ?? []).flatMap((m: any) => (m.declarations ?? []).filter((d: any) => d.tagName).map((d: any) => [d.tagName, new Set((d.attributes ?? []).map((a: any) => a.name))])),
 );
