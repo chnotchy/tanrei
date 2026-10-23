@@ -6,9 +6,9 @@ import { studioTest } from './harness.js';
 
 const box = (page, selector) => page.locator(selector).first().evaluate((el) => { const r = el.getBoundingClientRect(); return { left: Math.round(r.left), right: Math.round(r.right), top: Math.round(r.top), bottom: Math.round(r.bottom), width: Math.round(r.width) }; });
 
-studioTest('1440 wide: the bar holds the app’s items, undo and redo, the shuffle and Inspect; the rail, the preview and the panel stand side by side under it, and the page does not scroll', {}, async ({ page, axe }) => {
+studioTest('1440 wide: the bar holds the app’s items, the start point, undo and redo, the shuffle and Inspect; the rail, the preview and the panel stand side by side under it, and the page does not scroll', {}, async ({ page, axe }) => {
   const bar = page.locator('[data-bar]');
-  assert.deepEqual(await bar.evaluate((el) => [...el.children].map((child) => child.className)), ['ts-bar-host', 'ts-bar-history', 'ts-bar-tools', 'ts-file', 'ts-bar-tools ts-bar-inspect', 'ts-bar-host ts-bar-end']);
+  assert.deepEqual(await bar.evaluate((el) => [...el.children].map((child) => child.className)), ['ts-bar-host', 'ts-bar-tools ts-bar-start', 'ts-bar-history', 'ts-bar-tools', 'ts-file', 'ts-bar-tools ts-bar-inspect', 'ts-bar-host ts-bar-end']);
   assert.equal(await bar.locator('.app-brand').count(), 1, 'the app’s brand is in the Studio’s bar');
   assert.equal(await page.locator('.app-bar').count(), 0, 'and the holder it came in is gone');
   const [rail, preview, panel] = await Promise.all(['[data-rail]', '.ts-preview', '[data-inspector]'].map((selector) => box(page, selector)));
