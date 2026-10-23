@@ -152,9 +152,9 @@ export function tokenEditor(ctx: Ctx, id: string, { compact = false }: { compact
                 // The effect is the engine's sentence, in English in every language.
                 rich((at) => t.named(at(h('b', { text: t.editor.ops[o.op] ?? o.op })), at(isolated(o.effect ?? '')))),
                 ' ',
-                o.op === 'pattern rule' ? linkButton(t.editor.toRules, () => ctx.setLevel('tokens', { panel: 'rules' })) : null,
-                o.op === 'change the palette' || o.op === 'declare a palette' ? linkButton(t.editor.toColor, () => ctx.setLevel('groups', { panel: 'color' })) : null,
-                o.op === 'declare a single role' ? linkButton(t.editor.toAdd, () => ctx.setLevel('tokens', { panel: 'add' })) : null,
+                o.op === 'pattern rule' ? linkButton(t.editor.toRules, () => ctx.show({ inspect: 'tokens', panel: 'rules' })) : null,
+                o.op === 'change the palette' || o.op === 'declare a palette' ? linkButton(t.editor.toColor, () => ctx.show({ section: 'palettes' })) : null,
+                o.op === 'declare a single role' ? linkButton(t.editor.toAdd, () => ctx.show({ section: 'vocabulary', panel: 'add' })) : null,
               ),
             ),
           )
@@ -245,7 +245,7 @@ export function tokenDetail(ctx: Ctx, id: string, open: (id: string) => void): H
     tokenEditor(ctx, id),
     about,
     d?.recipes?.length
-      ? h('div', { class: 'ts-row-actions ts-recipes' }, h('span', { class: 'ts-help', text: t.detail.addNext }), d.recipes.map((recipe: Json) => linkButton(t.add.recipes[recipe.op] ?? recipe.op, () => ctx.setLevel('tokens', { panel: 'add', token: id }), { 'data-recipe': recipe.op })))
+      ? h('div', { class: 'ts-row-actions ts-recipes' }, h('span', { class: 'ts-help', text: t.detail.addNext }), d.recipes.map((recipe: Json) => linkButton(t.add.recipes[recipe.op] ?? recipe.op, () => ctx.show({ section: 'vocabulary', panel: 'add', token: id }), { 'data-recipe': recipe.op })))
       : null,
     declared ? h('p', { class: 'ts-help' }, rich((at) => t.sentences(t.detail.declaredHere, at(linkButton(t.detail.removeExtension, () => ctx.commit(studio.removeExtension(ctx.layer(), id), { rebuild: true })))))) : null,
   );

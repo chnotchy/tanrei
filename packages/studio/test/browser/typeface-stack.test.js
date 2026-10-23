@@ -29,8 +29,8 @@ const controls = (list) => list.evaluate((el) => [...el.children].flatMap((item)
 const handle = (list, family) => list.locator(`[data-family="${family}"] .handle`);
 const move = (list, family, which) => list.locator(`[data-family="${family}"] tanrei-menu-item[data-move="${which}"]`);
 
-studioTest('a font stack is a reorderable list: lifted and carried by the keyboard, moved by the handle’s menu, removed — the file follows, focus stays on the moved family’s handle, and each step is announced', {}, async ({ page, level, saved, onDisk, axe, css }) => {
-  await level('groups');
+studioTest('a font stack is a reorderable list: lifted and carried by the keyboard, moved by the handle’s menu, removed — the file follows, focus stays on the moved family’s handle, and each step is announced', {}, async ({ page, section, saved, onDisk, axe, css }) => {
+  await section('typeface');
   const brand = page.locator('[data-typeface="brand"]');
   const list = brand.locator('[data-stack-list]');
   assert.deepEqual(await list.evaluate((el) => [el.localName, el.reorderable]), ['tanrei-list', true]);
@@ -105,9 +105,9 @@ studioTest('a font stack is a reorderable list: lifted and carried by the keyboa
   assert.deepEqual(onDisk().tokens[BRAND].$value, ['system-ui', 'sans-serif']);
 });
 
-studioTest('ar, 390px: a family is moved by the handle’s menu with a pointer and removed — the list says it in Arabic, focus stays, nothing scrolls sideways, axe passes', { locale: 'ar', viewport: { width: 390, height: 844 } }, async ({ page, level, saved, fits, axe }) => {
+studioTest('ar, 390px: a family is moved by the handle’s menu with a pointer and removed — the list says it in Arabic, focus stays, nothing scrolls sideways, axe passes', { locale: 'ar', viewport: { width: 390, height: 844 } }, async ({ page, section, saved, fits, axe }) => {
   assert.deepEqual(await page.locator('html').evaluate((html) => [html.lang, html.dir]), ['ar', 'rtl']);
-  await level('groups');
+  await section('typeface');
   const brand = page.locator('[data-typeface="brand"]');
   const list = brand.locator('[data-stack-list]');
   await list.scrollIntoViewIfNeeded();
@@ -131,8 +131,8 @@ studioTest('ar, 390px: a family is moved by the handle’s menu with a pointer a
   assert.deepEqual(await page.evaluate(() => window.tanreiStudio.missingWords()), [], 'no component of the page lacked a word');
 });
 
-studioTest('en, 390px: the stack’s items fit the panel, and a family dragged by a pointer is moved and said in English', { viewport: { width: 390, height: 844 } }, async ({ page, level, saved, fits }) => {
-  await level('groups');
+studioTest('en, 390px: the stack’s items fit the panel, and a family dragged by a pointer is moved and said in English', { viewport: { width: 390, height: 844 } }, async ({ page, section, saved, fits }) => {
+  await section('typeface');
   const list = page.locator('[data-typeface="brand"] [data-stack-list]');
   await list.scrollIntoViewIfNeeded();
   await listen(list);
@@ -150,9 +150,9 @@ studioTest('en, 390px: the stack’s items fit the panel, and a family dragged b
   await fits('body', 'groups, with the stack');
 });
 
-studioTest('the stack in a token’s editor: a move by the keyboard keeps its place while the editor waits to redraw', {}, async ({ page, level, saved }) => {
+studioTest('the stack in a token’s editor: a move by the keyboard keeps its place while the editor waits to redraw', {}, async ({ page, inspect, saved }) => {
   const PLAIN = 'tanrei.ref.typeface.plain';
-  await level('tokens');
+  await inspect('tokens');
   await page.locator('[data-search] input').fill('typeface.plain');
   await page.locator(`[data-token="${PLAIN}"] > span`).click();
   const list = page.locator(`[data-token-pane] [data-editor="${PLAIN}"] [data-stack-list]`);

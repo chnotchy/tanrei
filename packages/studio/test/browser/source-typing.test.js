@@ -40,8 +40,8 @@ const underKeys = (times, keys, rest) => times.filter((time) => {
 const rests = (keys, rest) => keys.filter((key, i) => i > 0 && key - keys[i - 1] >= rest).length + 1;
 
 /** Source, with the caret right after the first `after` in its text. */
-async function caretAfter(page, level, after) {
-  await level('source');
+async function caretAfter(page, inspect, after) {
+  await inspect('source');
   const area = page.locator('[data-source]');
   await area.click();
   await area.evaluate((el, text) => {
@@ -51,8 +51,8 @@ async function caretAfter(page, level, after) {
   return area;
 }
 
-studioTest('typing a value at Source computes the layer once the typing rests, and commits it once', { layer }, async ({ page, level, saved, css, scope }) => {
-  await caretAfter(page, level, '"Inter');
+studioTest('typing a value at Source computes the layer once the typing rests, and commits it once', { layer }, async ({ page, inspect, saved, css, scope }) => {
+  await caretAfter(page, inspect, '"Inter');
   await watch(page);
   await page.keyboard.type(' Display');
   await saved((file) => file.tokens?.[BRAND]?.$value[0] === 'Inter Display', 'the family typed');
@@ -65,8 +65,8 @@ studioTest('typing a value at Source computes the layer once the typing rests, a
   assert.match(await css(scope.first(), '--tanrei-ref-typeface-brand'), /^\s*"Inter Display"/, 'the preview draws the family typed');
 });
 
-studioTest('a text that parses is committed at once when it loses focus; until then the schema is said, the engine is not asked', { layer }, async ({ page, level, saved }) => {
-  const area = await caretAfter(page, level, '"Inter');
+studioTest('a text that parses is committed at once when it loses focus; until then the schema is said, the engine is not asked', { layer }, async ({ page, inspect, saved }) => {
+  const area = await caretAfter(page, inspect, '"Inter');
   await watch(page);
   // In one task, so that no rest can come between: a key's text, then focus leaving the text.
   const states = await area.evaluate((el) => {
@@ -83,8 +83,8 @@ studioTest('a text that parses is committed at once when it loses focus; until t
   await saved((file) => file.tokens?.[BRAND]?.$value[0] === 'InterZ', 'the text, when it lost focus');
 });
 
-studioTest('a name typed at Source is committed at every key, and computes nothing', { layer }, async ({ page, level, saved }) => {
-  await caretAfter(page, level, '"acme",');
+studioTest('a name typed at Source is committed at every key, and computes nothing', { layer }, async ({ page, inspect, saved }) => {
+  await caretAfter(page, inspect, '"acme",');
   await watch(page);
   await page.keyboard.type('\n  "name": "Acme",');
   await saved((file) => file.name === 'Acme', 'the name');

@@ -1,12 +1,19 @@
 // Small DOM helpers shared by every part of the Studio's page half.
 import type { Studio } from '../data';
 import type { StudioStrings } from '../strings';
+import type { Inspect, Section } from './sections';
 
 export type Json = Record<string, any>;
 export type Layer = Json;
 export type View = Json; // studio.preview(layer) with a model: the last VALID preview
 export type Contrast = 'standard' | 'medium' | 'high';
-export type Level = 'essentials' | 'groups' | 'tokens' | 'source';
+/** Where to go: a section of the rail, or Inspect at one of its tabs — and, there, a token or a panel to show. */
+export interface Place {
+  section?: Section;
+  inspect?: Inspect;
+  token?: string;
+  panel?: string;
+}
 
 /** What every part of the page gets: the core, the strings, the current layer, and the one way to change it. */
 export interface Ctx {
@@ -23,12 +30,15 @@ export interface Ctx {
    * layer and does not save it yet: the person is still typing, stepping or dragging, and the commit follows.
    */
   commit(next: Layer, options?: { rebuild?: boolean; preview?: boolean }): void;
-  /** Redraw the controls of the current level. */
+  /** Redraw the controls of the panel. */
   rebuild(): void;
   /** Called after every update while the controls stay: refresh what you show. */
   onUpdate(refresh: () => void): void;
   announce(message: string): void;
-  setLevel(level: Level, focus?: { token?: string; panel?: string }): void;
+  /** Show a section in the panel, or open Inspect (`../sections.ts`). */
+  show(place: Place): void;
+  /** The system id of the preview's scope: an element that carries it is drawn in the layer being edited (the rail's samples). */
+  scope: string;
   locked: { id: boolean };
   uid(prefix: string): string;
   /** Text typed at "Source" that does not parse: kept, never saved, never lost (../draft.js). */
@@ -132,82 +142,6 @@ export function panel(ctx: Ctx, { title, code, help, key, actions }: { title: st
     help ? h('p', { class: 'ts-help' }, help) : null,
     ...body,
   );
-}
-
-/**
- * Panels drawn as they come near the window, in their order: a level of many panels costs its first frame what that
- * frame shows (Groups holds some three thousand elements, a window of it a few hundred). Each panel stands as an empty
- * holder, a window high, until it is drawn:
- *
- * 1. before the first paint, every panel from the top down to the bottom of the window — each measured where it is
- *    once the panels above it have drawn their components, so the window is never shown with a holder in it;
- * 2. then each panel the person scrolls to within half a window (an `IntersectionObserver`);
- * 3. and the rest one at a time while the page is idle, top down, so that the Tab key, the browser's find and a screen
- *    reader reach every panel soon after, wherever the person has scrolled.
- *
- * "The window" is the box that scrolls the panels: `scroller`, where it is not the page (the frame's panel, beside the
- * preview), else the page's window.
- *
- * A panel whose `make` gives nothing leaves no holder. `stop()` leaves what is not drawn yet: the controls are being
- * drawn again. `done` says when every panel is drawn (or the drawing stopped).
- */
-export function drawnNear(makers: (() => HTMLElement | null)[], scroller: HTMLElement | null = null): { holders: HTMLElement[]; done: Promise<void>; stop(): void } {
-  const holders: HTMLElement[] = makers.map(() => h('div', { class: 'ts-panel-pending', 'data-panel-pending': true }));
-  const pending = new Map(holders.map((holder, index) => [holder, makers[index]!]));
-  let finish = () => {};
-  const done = new Promise<void>((resolve) => (finish = resolve));
-  let stopped = false;
-  let frame = 0;
-  let idle: number | undefined;
-  // (A browser with no idle callbacks gets a timer, a frame apart, in their place.)
-  const idles = typeof requestIdleCallback === 'function';
-  const near = new IntersectionObserver((entries) => entries.forEach((entry) => entry.isIntersecting && draw(entry.target as HTMLElement)), { root: scroller, rootMargin: '50% 0px' });
-  const stop = () => {
-    if (stopped) return;
-    stopped = true;
-    cancelAnimationFrame(frame);
-    if (idle !== undefined) (idles ? cancelIdleCallback(idle) : clearTimeout(idle));
-    near.disconnect();
-    pending.clear();
-    finish();
-  };
-  /** Draws one panel in its holder's place; what it holds is drawn by its components a microtask later. */
-  function draw(holder: HTMLElement): HTMLElement | null {
-    const make = pending.get(holder);
-    if (!make || stopped) return null;
-    // A holder taken out of the page belongs to controls drawn again since: nothing of that drawing is drawn any more.
-    if (!holder.isConnected) return (stop(), null);
-    pending.delete(holder);
-    near.unobserve(holder);
-    const panel = make();
-    if (panel) holder.replaceWith(panel);
-    else holder.remove();
-    if (!pending.size) stop();
-    return panel;
-  }
-  /** The components' first drawing (Lit draws a component in a microtask after it is connected): its height is real then. */
-  const drawnInside = (panel: HTMLElement | null) => Promise.all([...(panel?.querySelectorAll('*') ?? [])].map((el) => (el as Element & { updateComplete?: Promise<unknown> }).updateComplete));
-  const schedule = (next: () => void) => (idle = idles ? requestIdleCallback(next, { timeout: 500 }) : window.setTimeout(next, 16));
-  const rest = () => {
-    const holder = holders.find((each) => pending.has(each));
-    if (!holder || stopped) return;
-    draw(holder);
-    if (!stopped) schedule(rest);
-  };
-  // (An animation frame runs before its paint, and the microtasks it waits for run before the paint as well.)
-  frame = requestAnimationFrame(async () => {
-    for (const holder of holders) {
-      if (stopped) return;
-      if (!pending.has(holder)) continue;
-      if (holder.getBoundingClientRect().top >= (scroller?.getBoundingClientRect().bottom ?? innerHeight)) break;
-      await drawnInside(draw(holder));
-    }
-    if (stopped) return;
-    for (const holder of pending.keys()) near.observe(holder);
-    schedule(rest);
-  });
-  if (!makers.length) stop();
-  return { holders, done, stop };
 }
 
 /**

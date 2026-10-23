@@ -2,7 +2,7 @@
 
 > **Pre-release.** Nothing has been released. Theme Studio runs on the docs site, <https://tanrei.chnotchy.com/studio/>, and locally through `tanrei studio` once `@tanrei/cli` is built from source: <https://tanrei.chnotchy.com/getting-started/your-design-system/>.
 
-Theme Studio is a GUI over **one layer file**, `<id>.system.json` (the file [`tanrei init`](../cli/README.md) writes). Its state *is* that file: every level reads and writes the same JSON object, so switching levels loses nothing and nothing is kept on the side. What it shows is what `tanrei build` will generate — values come from [`@tanrei/token-engine`](../token-engine/README.md), the preview's CSS from the build's own emitter and the warnings from the build's own invariants (`@tanrei/tokens-build`), and the tests build Studio layers with the real pipeline and compare whole sheets.
+Theme Studio is a GUI over **one layer file**, `<id>.system.json` (the file [`tanrei init`](../cli/README.md) writes). Its state *is* that file: every part of the page reads and writes the same JSON object, so moving between them loses nothing and nothing is kept on the side. What it shows is what `tanrei build` will generate — values come from [`@tanrei/token-engine`](../token-engine/README.md), the preview's CSS from the build's own emitter and the warnings from the build's own invariants (`@tanrei/tokens-build`), and the tests build Studio layers with the real pipeline and compare whole sheets.
 
 The package is private: it is not published on its own. It ships two ways —
 
@@ -11,7 +11,7 @@ The package is private: it is not published on its own. It ships two ways —
 
 ## The frame
 
-The Studio is the whole page it is mounted in. Across the top stands its bar: the host's own items at its start and end (the docs' brand, the app's file, language and theme), **undo** and **redo**, and the file's state. Under it, in a wide window, three columns that each scroll by themselves: the rail (the levels), the preview, and the panel of what the level edits, with a handle between the preview and the panel that resizes the panel — dragged, or moved from the keyboard as a window splitter is (the arrow keys, Home and End, Enter to its least and back); the width is kept in this browser. In a narrow window they stand in one column, the preview staying under the top while the panel scrolls.
+The Studio is the whole page it is mounted in. Across the top stands its bar: the host's own items at its start and end (the docs' brand, the app's file, language and theme), **undo** and **redo**, the **shuffle**, the file's state and **Inspect**. Under it, in a wide window, three columns that each scroll by themselves: the rail, the preview, and the panel of what the rail points at, with a handle between the preview and the panel that resizes the panel — dragged, or moved from the keyboard as a window splitter is (the arrow keys, Home and End, Enter to its least and back); the width is kept in this browser, for a section's controls and for each tab of Inspect apart. In a narrow window they stand in one column, the rail's lists in lines that scroll by themselves and the preview staying under the top while the panel scrolls.
 
 Undo and redo step through the layers that were committed: a step is one commit, and commits closer together than half a second (the letters of a name typed in one go) are one step. ⌘Z and ⇧⌘Z (Ctrl+Z, Ctrl+Shift+Z and Ctrl+Y elsewhere) do the same wherever the focus is in the Studio, except in a field that holds text, where they are the field's own. A layer read again from the file starts a history of its own.
 
@@ -28,14 +28,18 @@ row.addEventListener('pointerenter', () => ctx.highlight?.(['tanrei.sys.color.pr
 row.addEventListener('pointerleave', () => ctx.clearHighlight?.());
 ```
 
-## Four levels
+## The rail, the panel and Inspect
 
-| Level | What it shows |
+The rail lists what a layer holds. First the nine rows of the look, in the order of how much of it they change — **brand color**, **gray**, **typeface**, **size** (density and the size unit, with the least target), **corners**, **corner smoothing**, **icons**, **press feedback**, **focus** — each with what it holds now and a small sample drawn in the layer itself, and a lock. Then the rest: the base system, the eight dials, every palette, each component, every behaviour, your vocabulary, the layer's own words, and accessibility. Pressing a row shows its controls in the panel on the right; the rail stays, and the row the panel shows is the current one. The controls are Groups' panels, each where its row is: Typefaces, Icons, corner smoothing and Behaviour write pins, each asking for one reason. The file — its id, the checks, copy and download — stands at the foot of every panel.
+
+The **shuffle** gives every row that is not locked another of its usual values (a seed among twelve, another density, another set of icons…), written as each row's own controls write them, in one step to undo. The locks are kept in this browser.
+
+**Inspect** opens over the panel, wider, with two tabs:
+
+| Tab | What it shows |
 |---|---|
-| **Essentials** | A base, a brand color and four sliders. Enough for a quick setup; everything else follows. |
-| **Groups** | All eight dials, every palette, each component, and what the layer adds to the vocabulary. Typefaces, Icons, Shape (the corner-smoothing slider) and Behaviour write pins, each asking for one reason. |
-| **Every token** | Every token of the system, in two panes: a tree that only chooses (`<tanrei-tree-view>`, one stop of the Tab key; a group's rows are written when it opens) and, beside it — under it where the panel is narrow — the chosen token's editor. Each token offers exactly the operations a layer may write for it (`legalOperations` of the engine): a choice of kind is picked by name, never typed as a number. |
-| **Source** | The layer file itself. The other three levels are views of this JSON. |
+| **Tokens** | Every token of the system, in two panes: a tree that only chooses (`<tanrei-tree-view>`, one stop of the Tab key; a group's rows are written when it opens) and, beside it — under it where the panel is narrow — the chosen token's editor. Each token offers exactly the operations a layer may write for it (`legalOperations` of the engine): a choice of kind is picked by name, never typed as a number. The pattern rules follow. |
+| **Source** | The layer file itself. Everything else is a view of this JSON. |
 
 A control left at its base value writes nothing, so an untouched Studio exports `{ "id", "extends" }`.
 

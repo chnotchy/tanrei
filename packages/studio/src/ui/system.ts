@@ -175,11 +175,12 @@ export function shapePanel(ctx: Ctx) {
 }
 
 // ── behaviour ────────────────────────────────────────────────────────────────────────────────────
-export function behaviourPanel(ctx: Ctx) {
+/** Every behaviour of the system, or the few a row of the rail edits (`keys`); one reason for all the pins either writes. */
+export function behaviourPanel(ctx: Ctx, { keys, title, key = 'behavior' }: { keys?: string[]; title?: string; key?: string } = {}) {
   const { t, studio } = ctx;
   const NS = studio.namespace;
   const reason = groupReason(ctx, 'behavior');
-  const rows = (studio.behaviors(ctx.layer()) as Json[]).map((entry) => {
+  const rows = (studio.behaviors(ctx.layer()) as Json[]).filter((entry) => !keys || keys.includes(entry.key)).map((entry) => {
     const now = () => (studio.behaviors(ctx.layer()) as Json[]).find((each) => each.id === entry.id) ?? entry;
     const names = choice<string>({ label: t.behavior.names[entry.key] ?? entry.key, attrs: { 'data-behavior': entry.key }, options: entry.values.map((name: string) => ({ value: name, label: name })), value: entry.value, onchange: (name) => ctx.commit(studio.setBehavior(ctx.layer(), entry.id, name, reason.value())) });
     const state = h('small');
@@ -208,7 +209,7 @@ export function behaviourPanel(ctx: Ctx) {
       hint.hidden = !said.length;
       const tokens = ctx.view().model.tokens;
       // A token id inside the message becomes the way to that token; everything else stays as the build wrote it.
-      const words = (warning: string) => warning.split(new RegExp(`(${NS}\\.[a-z0-9.-]*[a-z0-9])`)).map((part) => (part in tokens ? linkButton(short(part, NS), () => ctx.setLevel('tokens', { token: part }), { class: 'ts-link ts-link-mono' }) : part));
+      const words = (warning: string) => warning.split(new RegExp(`(${NS}\\.[a-z0-9.-]*[a-z0-9])`)).map((part) => (part in tokens ? linkButton(short(part, NS), () => ctx.show({ inspect: 'tokens', token: part }), { class: 'ts-link ts-link-mono' }) : part));
       // The build's sentence is one run of its own direction: its commas and brackets stay where it put them.
       hint.replaceChildren(...said.flatMap((warning, index) => [index ? h('br') : '', h('bdi', {}, words(warning))]));
     };
@@ -216,6 +217,9 @@ export function behaviourPanel(ctx: Ctx) {
     ctx.onUpdate(refresh);
     return row;
   });
-  const resetAll = linkButton(t.resetAll, () => ctx.commit(studio.resetGroup(ctx.layer(), 'behavior')), { 'data-reset-behavior': true });
-  return panel(ctx, { title: t.behavior.title, help: t.behavior.help, key: 'behavior', actions: [resetAll] }, h('div', { class: 'ts-rows', 'data-behaviors': true }, rows), reason.el);
+  // A row of the rail resets what it shows; the whole panel resets the group.
+  const resetAll = keys
+    ? linkButton(t.resetAll, () => ctx.commit((studio.behaviors(ctx.layer()) as Json[]).filter((entry) => keys.includes(entry.key)).reduce((layer: Json, entry) => studio.applyOperation(layer, entry.id, null).layer, ctx.layer())), { 'data-reset-behavior': key })
+    : linkButton(t.resetAll, () => ctx.commit(studio.resetGroup(ctx.layer(), 'behavior')), { 'data-reset-behavior': key });
+  return panel(ctx, { title: title ?? t.behavior.title, help: keys ? undefined : t.behavior.help, key, actions: [resetAll] }, h('div', { class: 'ts-rows', 'data-behaviors': key }, rows), reason.el);
 }

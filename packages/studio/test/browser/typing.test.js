@@ -38,8 +38,7 @@ const beforeRest = ({ at, keys }) => at.filter((time) => {
   return last !== undefined && time - last < REST;
 });
 
-studioTest('typing the layer’s name computes nothing: the file’s JSON follows every key, and the name is saved', {}, async ({ page, level, saved }) => {
-  await level('groups');
+studioTest('typing the layer’s name computes nothing: the file’s JSON follows every key, and the name is saved', {}, async ({ page, saved }) => {
   const field = page.locator('[data-name] input');
   await field.click();
   await settled(page);
@@ -57,9 +56,9 @@ studioTest('typing the layer’s name computes nothing: the file’s JSON follow
   assert.equal(seen.writes, 0, 'nor is the preview’s sheet written');
 });
 
-studioTest('typing a dial’s reason computes nothing while it is typed; the model’s words catch up once it rests, and the sheet is not written again', { layer: { id: 'acme', extends: 'tanrei', tokens: { 'tanrei.dial.shape.unit': { $value: { value: 3, unit: 'px' }, reason: 'Chosen in Theme Studio.' } } } }, async ({ page, level, saved }) => {
+studioTest('typing a dial’s reason computes nothing while it is typed; the model’s words catch up once it rests, and the sheet is not written again', { layer: { id: 'acme', extends: 'tanrei', tokens: { 'tanrei.dial.shape.unit': { $value: { value: 3, unit: 'px' }, reason: 'Chosen in Theme Studio.' } } } }, async ({ page, section, saved }) => {
   const dial = 'tanrei.dial.shape.unit';
-  await level('groups');
+  await section('dials');
   const field = page.locator(`[data-dial="${dial}"] [data-dial-reason] input`);
   await field.click();
   await settled(page);

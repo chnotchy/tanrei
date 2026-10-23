@@ -1,11 +1,11 @@
-// Essentials and the value groups of Groups: the base, the brand color, dials, palettes and the tone table.
+// The value sections of the rail: the base, the brand color, the size, dials, palettes and the tone table.
 import assert from 'node:assert/strict';
 import { studioTest, until } from './harness.js';
 
-studioTest('Essentials: a brand color and the sliders reach the file and the preview; another base starts from that base', {}, async ({ page, saved, onDisk, css, scope, choose }) => {
-  assert.equal(await page.locator('[data-studio]').getAttribute('data-level'), 'essentials');
-  assert.deepEqual(await page.locator('[data-controls] [data-panel]').evaluateAll((els) => els.map((el) => el.dataset.panel)), ['base', 'brand', 'feel']);
-  assert.equal(await page.locator('[data-panel="a11y"]').count(), 0, 'Essentials stays small');
+studioTest('the brand color and the size reach the file and the preview; another base starts from that base', {}, async ({ page, section, saved, onDisk, css, scope, choose }) => {
+  assert.equal(await page.locator('[data-studio]').getAttribute('data-section'), 'color');
+  assert.deepEqual(await page.locator('[data-controls] [data-panel]').evaluateAll((els) => els.map((el) => el.dataset.panel)), ['brand']);
+  assert.equal(await page.locator('[data-panel="a11y"]').count(), 0, 'the panel holds the row alone');
 
   const before = (await css(scope, '--tanrei-ref-palette-primary-40')).trim();
   // A color is shown as it is typed and written when it is committed (Enter, or leaving the field).
@@ -14,20 +14,26 @@ studioTest('Essentials: a brand color and the sliders reach the file and the pre
   await saved((layer) => layer.palettes?.primary?.source?.seed === '#0f766e', 'the brand color');
   await until(async () => (await css(scope, '--tanrei-ref-palette-primary-40')).trim() !== before, 'the preview’s primary palette follows');
 
-  // Spacing, by keyboard on the slider. Size follows spacing while the two are linked, and the Studio says so.
-  const space = page.locator('[data-dial="tanrei.dial.space.unit"]');
-  assert.match(await page.locator('[data-link-hint]').textContent(), /\d/);
-  const spaceBefore = (await css(scope, '--tanrei-dial-space-unit')).trim();
-  await space.locator('tanrei-slider [role="slider"]').focus();
+  // The size: density, by keyboard on its slider; the row says the new value.
+  await section('size');
+  assert.deepEqual(await page.locator('[data-controls] [data-panel]').evaluateAll((els) => els.map((el) => el.dataset.panel)), ['size']);
+  assert.deepEqual(await page.locator('[data-panel="size"] [data-dial]').evaluateAll((els) => els.map((el) => el.dataset.dial)), ['tanrei.dial.density', 'tanrei.dial.size.unit']);
+  const density = page.locator('[data-dial="tanrei.dial.density"]');
+  const densityBefore = (await css(scope, '--tanrei-dial-density')).trim();
+  await density.locator('tanrei-slider [role="slider"]').focus();
   await page.keyboard.press('ArrowRight');
-  await saved((layer) => layer.tokens?.['tanrei.dial.space.unit']?.$value.value > 4, 'spacing');
-  await until(async () => (await css(scope, '--tanrei-dial-space-unit')).trim() !== spaceBefore, 'the preview’s spacing unit follows');
-  assert.ok(onDisk().tokens['tanrei.dial.size.unit'], 'linked: the size unit moved with it');
-  await space.locator('tanrei-button', { hasText: 'Reset' }).click();
-  await saved((layer) => !layer.tokens['tanrei.dial.space.unit'] && !layer.tokens['tanrei.dial.size.unit'], 'reset: both entries go');
+  await saved((layer) => layer.tokens?.['tanrei.dial.density']?.$value > 1, 'the density');
+  await until(async () => (await css(scope, '--tanrei-dial-density')).trim() !== densityBefore, 'the preview’s density follows');
+  assert.equal(await page.locator('[data-rail] [data-row="size"] .ts-rail-value').textContent(), 'density 1.05 · 4px');
+  // The least target, the token's own editor in a fold.
+  assert.equal(await page.locator('[data-panel="size"] [data-target]').count(), 1);
+  await density.locator('tanrei-button', { hasText: 'Reset' }).click();
+  await saved((layer) => !layer.tokens['tanrei.dial.density'], 'reset');
   assert.ok(onDisk().tokens['tanrei.sys.color.primary'], 'the default system is monochrome: a brand color comes with the roles that use it');
 
   // Another base: operations are relative to what they inherit, so the person is asked first — and may say no.
+  await section('base');
+  assert.match(await page.locator('[data-base-description]').textContent(), /\w/);
   page.once('dialog', (dialog) => dialog.dismiss());
   await choose(page.locator('[data-base]'), 'm3-like');
   await until(async () => (await page.locator('[data-base]').evaluate((el) => el.value)) === 'tanrei', 'declined: the base stays, and the control says so');
@@ -36,15 +42,14 @@ studioTest('Essentials: a brand color and the sliders reach the file and the pre
   await choose(page.locator('[data-base]'), 'm3-like');
   await saved((layer) => layer.extends === 'm3-like', 'the base');
   assert.deepEqual(Object.keys(onDisk()), ['id', 'extends'], 'it starts from that base’s defaults');
-  // m3-like fixes single tones of its primary: Essentials shows the table for a palette that HAS them.
+  // m3-like fixes single tones of its primary: the brand color shows the table for a palette that HAS them.
+  await section('color');
   await page.waitForSelector('[data-panel="brand"] [data-tones="primary"]');
-  assert.match(await page.locator('[data-base-description]').textContent(), /\w/);
 });
 
-studioTest('Groups: a dial keeps its reason; palettes are added, recolored and removed; the tone table fixes single tones', {}, async ({ page, level, saved, onDisk, css, scope, lightPane }) => {
-  await level('groups');
-  assert.deepEqual(await page.locator('[data-controls] [data-panel]').evaluateAll((els) => els.map((el) => el.dataset.panel)), ['base', 'dials', 'color', 'typefaces', 'icons', 'shape', 'behavior', 'components', 'add', 'about']);
-  assert.equal(await page.locator('[data-dials] [data-dial]').count(), 8, 'all eight dials');
+studioTest('Dials and Palettes: a dial keeps its reason; palettes are added, recolored and removed; the tone table fixes single tones', {}, async ({ page, section, saved, onDisk, css, scope, lightPane }) => {
+  await section('dials');
+  assert.equal(await page.locator('[data-dials="dials"] [data-dial]').count(), 8, 'all eight dials');
 
   // A dial: typed, with a reason of its own; reset removes the entry.
   const shape = page.locator('[data-dial="tanrei.dial.shape.unit"]');
@@ -63,6 +68,7 @@ studioTest('Groups: a dial keeps its reason; palettes are added, recolored and r
   await saved((layer) => !layer.tokens, 'the dial reset');
 
   // Fixed tones: add (starts as the generated color), edit → the preview's palette variable, remove → nothing left.
+  await section('palettes');
   const accent = page.locator('[data-palette="accent"]');
   await accent.locator('[data-tones] summary').click();
   await accent.locator('[data-tone-new] input').fill('40');
@@ -105,8 +111,8 @@ studioTest('Groups: a dial keeps its reason; palettes are added, recolored and r
   assert.equal(await page.locator('[data-palette="correct"]').count(), 0);
 });
 
-studioTest('Components: one accordion whose items are drawn when they open; sizes and variants are tags, the size of the common edits a radio group, an edit a fold of its own', {}, async ({ page, level, saved, choose }) => {
-  await level('groups');
+studioTest('Components: one accordion whose items are drawn when they open; sizes and variants are tags, the size of the common edits a radio group, an edit a fold of its own', {}, async ({ page, section, saved, choose }) => {
+  await section('components');
   const list = page.locator('[data-components]');
   assert.equal(await list.evaluate((el) => el.localName), 'tanrei-accordion');
   assert.ok((await list.locator('> details').count()) > 30, 'every component is an item');
@@ -132,14 +138,14 @@ studioTest('Components: one accordion whose items are drawn when they open; size
   await page.keyboard.press('ArrowRight');
   await saved((layer) => layer.tokens?.['tanrei.comp.button.container.height.large']?.scale > 1, 'the scale');
   assert.equal(await editor.locator('tanrei-number-field input').inputValue(), '1.05', 'and the number beside the slider follows it');
-  // Drawn again (another level and back), the item the person left open is open.
-  await level('essentials');
-  await level('groups');
+  // Drawn again (another section and back), the item the person left open is open.
+  await section('color');
+  await section('components');
   assert.equal(await page.locator('[data-component="button"]').evaluate((el) => el.open), true);
 });
 
-studioTest('Components: the input box is an item of its own — its sizes, looks and common edits — and each control drawn on it opens it above its own controls', {}, async ({ page, level }) => {
-  await level('groups');
+studioTest('Components: the input box is an item of its own — its sizes, looks and common edits — and each control drawn on it opens it above its own controls', {}, async ({ page, section }) => {
+  await section('components');
   const list = page.locator('[data-components]');
   // The set is no component: it is listed by default, with no level, under its group's name.
   const box = list.locator('> [data-component="input-box"]');

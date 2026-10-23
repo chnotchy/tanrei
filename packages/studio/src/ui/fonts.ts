@@ -22,7 +22,7 @@ async function detect(family: string): Promise<boolean> {
   if (!name) return false;
   // 1. A face this page registered under that name: load it (same origin). The faces `load` hands back ARE the
   //    answer — one of them loaded means the sample can be drawn. `document.fonts.check` is asked only when `load`
-  //    gave nothing: right after a level is drawn Chromium answers `false` for a family whose face has just loaded
+  //    gave nothing: right after a panel is drawn Chromium answers `false` for a family whose face has just loaded
   //    (seen with Roboto under m3-like: `load` → 1 face, `check` → false), and the Studio would accuse a font it draws.
   const declared = [...document.fonts].some((face) => bare(face.family).toLowerCase() === name.toLowerCase());
   if (declared) {

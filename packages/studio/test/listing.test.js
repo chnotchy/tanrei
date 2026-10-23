@@ -32,7 +32,7 @@ describe('the catalog the Studio is given', () => {
   });
   test('and the source of the list writes no component’s name, no level and no listing', () => {
     const source = fs.readFileSync(path.join(repoRoot, 'packages/studio/src/listing.js'), 'utf8').replace(/\/\/.*$|\/\*[\s\S]*?\*\//gm, '');
-    const panel = fs.readFileSync(path.join(repoRoot, 'packages/studio/src/ui/levels.ts'), 'utf8');
+    const panel = fs.readFileSync(path.join(repoRoot, 'packages/studio/src/ui/panels.ts'), 'utf8');
     for (const word of [listed, onRequest, ...Object.values(status.levels)]) assert.doesNotMatch(source, new RegExp(`['"\`]${word}['"\`]`), word);
     for (const spec of specs.filter((entry) => entry.listing === onRequest)) {
       assert.doesNotMatch(source, new RegExp(`['"\`]${spec.name}['"\`]`), spec.name);

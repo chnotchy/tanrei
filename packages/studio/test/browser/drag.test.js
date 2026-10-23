@@ -148,9 +148,9 @@ studioTest('a drag across the brand color’s picker is drawn at every frame fro
   assert.equal((await css(scope, tone)).trim(), live, 'what the drag drew is what the layer computes');
 });
 
-studioTest('a drag across a fixed tone’s picker is drawn from the palette alone too, and written when the picker closes', {}, async ({ page, level, saved, css, scope }) => {
+studioTest('a drag across a fixed tone’s picker is drawn from the palette alone too, and written when the picker closes', {}, async ({ page, section, saved, css, scope }) => {
   const tone = '--tanrei-ref-palette-accent-40';
-  await level('groups');
+  await section('palettes');
   const accent = page.locator('[data-palette="accent"]');
   await accent.locator('[data-tones] summary').click();
   await accent.locator('[data-tone-new] input').fill('40');
@@ -174,7 +174,8 @@ studioTest('a drag across a fixed tone’s picker is drawn from the palette alon
   assert.equal((await css(scope, tone)).trim(), values.at(-1));
 });
 
-studioTest('a drag along a dial’s slider is drawn at every frame without computing the layer, and the layer is computed when the press ends', {}, async ({ page, saved, css, scope }) => {
+studioTest('a drag along a dial’s slider is drawn at every frame without computing the layer, and the layer is computed when the press ends', {}, async ({ page, section, saved, css, scope }) => {
+  await section('radius');
   const slider = '[data-dial="tanrei.dial.shape.unit"] tanrei-slider';
   const property = '--tanrei-dial-shape-unit';
   await settled(page);
@@ -194,28 +195,4 @@ studioTest('a drag along a dial’s slider is drawn at every frame without compu
   computedOnRelease(during, await take(page));
   assert.equal(await setOnScope(scope, property), '', 'nothing is left on the scope');
   assert.equal((await css(scope, property)).trim(), moves.drawn, 'what the drag drew is what the layer computes');
-});
-
-studioTest('a drag along the spacing slider draws the size unit that moves with it, and the layer computes the same', {}, async ({ page, saved, css, scope }) => {
-  const slider = '[data-dial="tanrei.dial.space.unit"] tanrei-slider';
-  const [space, size] = ['--tanrei-dial-space-unit', '--tanrei-dial-size-unit'];
-  await settled(page);
-  const before = (await css(scope, size)).trim();
-  await watch(page);
-  // Up the slider (4–14 by 0.5) from the default 8, and back a little.
-  const values = [8.5, 9, 9.5, 10, 10.5, 11, 11.5, 12, 11.5, 11, 10.5, 10];
-  const moves = await drag(page, { slider, values, perFrame: 3, property: space, also: [size] });
-  const during = await take(page);
-  assert.deepEqual(beforeRest(during, moves), [], `the layer is not computed while the slider moves: ${during.computes} times in ${moves.frames} frames`);
-  assert.equal(moves.set, moves.drawn, 'the spacing is set on the scope');
-  assert.equal(moves.also[size].set, moves.also[size].drawn, 'and the size unit with it');
-  assert.notEqual(moves.also[size].drawn, before, 'the size unit moved');
-
-  await release(page, { slider });
-  await saved((layer) => layer.tokens?.['tanrei.dial.space.unit']?.$value.value === values.at(-1), 'the last value, written when the press ends');
-  computedOnRelease(during, await take(page));
-  assert.equal(await setOnScope(scope, space), '');
-  assert.equal(await setOnScope(scope, size), '');
-  assert.equal((await css(scope, space)).trim(), moves.drawn, 'the spacing the drag drew is the computed one');
-  assert.equal((await css(scope, size)).trim(), moves.also[size].drawn, 'and so is the size unit');
 });

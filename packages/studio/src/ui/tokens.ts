@@ -3,7 +3,6 @@
 import { type Ctx, type Json, button, codeInput, cssColor, fold, folds, format, h, linkButton, ltr, panel, rename, rich, scrollingList, short, textInput, views } from './dom';
 import { tokenDetail } from './editor';
 import { jsonWidget } from './widgets';
-import { addPanel, extensionsPanel } from './add';
 
 const PAGE = 60;
 const TIERS = ['dial', 'ref', 'sys', 'comp', 'own'];
@@ -224,6 +223,7 @@ function rulesPanel(ctx: Ctx) {
   );
 }
 
-export function tokensLevel(ctx: Ctx, state: TreeState, focus?: { token?: string; panel?: string }): HTMLElement[] {
-  return [tokenPanes(ctx, state), extensionsPanel(ctx), addPanel(ctx, focus?.panel === 'add' ? focus.token : undefined), rulesPanel(ctx)].filter(Boolean) as HTMLElement[];
+/** Inspect's token tab: every token in its tree, with the chosen one's editor beside it, and the pattern rules. */
+export function tokensInspect(ctx: Ctx, state: TreeState): HTMLElement[] {
+  return [tokenPanes(ctx, state), rulesPanel(ctx)];
 }
