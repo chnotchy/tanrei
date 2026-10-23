@@ -36,6 +36,8 @@
 //   visibility  — VisibilityController: whether the host can be seen, so a running animation pauses off screen
 //   shared-choice — sharedChoice(), remembered(), remember(), keepInPlace(): what rows that share a choice have in common —
 //                  one registry of groups for a document, one read of the storage for a key (TAB-36…41, TBV-21).
+//   flat-tree   — flatParent(): an element's parent in the flat tree (its slot, its parent, its shadow root's host), the
+//                 one walk up for what lays out, clips, scrolls, inherits or is inert
 //   layout-scale — layoutScale(): how much larger an element is drawn than laid out (a transformed ancestor), for what is
 //                 measured on the page and written in the element's own pixels
 //   selection   — SelectionController and the styles of a form-associated selection control (checkbox, radio, switch),
@@ -437,3 +439,4 @@ export {
 } from './keyboard-convention.js';
 export { type IndicatorDragOptions, IndicatorDragController, type IndicatorPlace, type IndicatorStop, indicatorChoice, indicatorPlace } from './indicator-drag.js';
 export { type SharedChoice, keepInPlace, remember, remembered, sharedChoice } from './shared-choice.js';
+export { flatParent } from './flat-tree.js';

@@ -8,6 +8,7 @@ import { ownDirection } from '../../styles/product-text.js';
 import { styles } from './table-of-contents.styles.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { flatParent } from '../../primitives/flat-tree.js';
 
 /** How the table of contents stands (TOC-1, TOC-25): the title and the whole list, or one row that opens the list. */
 export type TanreiTableOfContentsPresentation = 'list' | 'compact';
@@ -154,13 +155,6 @@ function pixels(value: string, whole: number): number {
 
 const scrolls = (element: Element) => /^(auto|scroll|overlay)$/.test(getComputedStyle(element).overflowY) && element.scrollHeight - element.clientHeight > UNIT;
 const isPage = (element: Element) => element === document.documentElement || element === document.body;
-/** The element's parent as it is drawn: the slot it is assigned to, its parent, or the host of the root it is in. */
-const flatParent = (element: Element): Element | null => {
-  if (element.assignedSlot) return element.assignedSlot;
-  if (element.parentElement) return element.parentElement;
-  const root = element.getRootNode();
-  return root instanceof ShadowRoot ? root.host : null;
-};
 const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /**
