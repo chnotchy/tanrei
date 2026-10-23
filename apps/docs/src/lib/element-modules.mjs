@@ -52,18 +52,66 @@ export function elementModulesSource(rows) {
   return [...lines, 'export const loaders = {', ...entries, '};', `export const modules = ${rows.length};`, ''].join('\n');
 }
 
-/** The Vite plugin that serves `virtual:tanrei-element-modules`, from the manifest of the installed `@tanrei/web`. */
+/**
+ * The names the React package gives each element, for the code of an example (lib/example-code.ts): the module the
+ * wrappers are imported from, and for each tag its wrapper — the tag without the prefix, in PascalCase, as the React
+ * package's generator names it (packages/react/scripts/generate.js) — and the attributes whose prop is not the
+ * attribute's name in camelCase, or whose value is a number. Served as `virtual:tanrei-react-names`, a table and nothing else, which a page
+ * loads when a reader first opens an example's code.
+ * @param {{ modules?: { declarations?: { tagName?: string, customElement?: boolean, attributes?: { name: string, fieldName?: string, type?: { text?: string } }[] }[] }[] }} manifest
+ * @param {{ web: { tagPrefix: string }, packages: { npmScope: string } }} config  tanrei.config.json
+ */
+export function reactNames(manifest, config) {
+  const prefix = `${config.web.tagPrefix}-`;
+  const pascal = (name) => name.split('-').map((word) => word[0].toUpperCase() + word.slice(1)).join('');
+  const camel = (name) => name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+  const elements = {};
+  for (const module of manifest.modules ?? []) {
+    for (const declaration of module.declarations ?? []) {
+      if (!declaration.customElement || !declaration.tagName?.startsWith(prefix)) continue;
+      // Only what a reader of the attribute's name could not tell: a property not named as the attribute in camelCase
+      // (`readonly` → `readOnly`), an attribute of no property whose name has a hyphen (kept as written), and a number.
+      const props = {};
+      for (const attribute of declaration.attributes ?? []) {
+        const number = /^number\b/.test(attribute.type?.text ?? '');
+        const property = attribute.fieldName ?? attribute.name;
+        if (property !== camel(attribute.name) || number) props[attribute.name] = number ? [property, 1] : [property];
+      }
+      elements[declaration.tagName] = [pascal(declaration.tagName.slice(prefix.length)), props];
+    }
+  }
+  return { module: `${config.packages.npmScope}/react`, elements };
+}
+
+/** The virtual module of the React names' table. */
+export const REACT_NAMES = 'virtual:tanrei-react-names';
+const RESOLVED_NAMES = `\0${REACT_NAMES}`;
+
+/**
+ * The Vite plugin that serves `virtual:tanrei-element-modules` and `virtual:tanrei-react-names`, from the manifest of
+ * the installed `@tanrei/web` and the repository's names (tanrei.config.json).
+ */
 export function elementModulesPlugin() {
   const manifest = createRequire(import.meta.url).resolve('@tanrei/web/custom-elements.json');
+  const config = new URL('../../../../tanrei.config.json', import.meta.url);
   return {
     name: 'tanrei-docs:element-modules',
     resolveId(source) {
-      return source === ELEMENT_MODULES ? RESOLVED : undefined;
+      if (source === ELEMENT_MODULES) return RESOLVED;
+      if (source === REACT_NAMES) return RESOLVED_NAMES;
+      return undefined;
     },
     load(id) {
-      if (id !== RESOLVED) return undefined;
-      this.addWatchFile(manifest);
-      return elementModulesSource(elementModules(JSON.parse(fs.readFileSync(manifest, 'utf8'))));
+      if (id === RESOLVED) {
+        this.addWatchFile(manifest);
+        return elementModulesSource(elementModules(JSON.parse(fs.readFileSync(manifest, 'utf8'))));
+      }
+      if (id === RESOLVED_NAMES) {
+        this.addWatchFile(manifest);
+        const names = reactNames(JSON.parse(fs.readFileSync(manifest, 'utf8')), JSON.parse(fs.readFileSync(config, 'utf8')));
+        return `export default ${JSON.stringify(names)};\n`;
+      }
+      return undefined;
     },
   };
 }
