@@ -483,6 +483,9 @@ importers:
       '@tanrei/tokens-build':
         specifier: workspace:*
         version: link:../tokens-build
+      '@tanrei/tools':
+        specifier: workspace:*
+        version: link:../tools
       esbuild:
         specifier: ^0.28.2
         version: 0.28.2
