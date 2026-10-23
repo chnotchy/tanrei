@@ -702,6 +702,8 @@
      rows' ground, the pinned rows under it, and while rows scroll under it with none pinned, the pinned rows' edge is
      drawn under the gap. */
   :where(tanrei-tree-view) > :where([data-tanrei-filter]) {
+    /* The box the status is laid out against (TRV-66), so that a tree far along a row a box scrolls leaves no part outside it. */
+    position: relative;
     display: block;
     box-sizing: border-box;
     margin: 0;
