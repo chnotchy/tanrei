@@ -24,6 +24,7 @@ import {
   focusWithin,
   holdPageScroll,
   hostAria,
+  inverseBoolean,
   markGlyph,
   modalLayer,
   naturalHeight,
@@ -50,6 +51,8 @@ import { ownDirection } from '../../styles/product-text.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { PausedAnnouncement } from '../../primitives/paused-announcement.js';
+import { completionOf } from '../../primitives/text-match.js';
 
 /**
  * The glyphs of the system's icon set the search draws — the spec's names, not values; it draws no mark of
@@ -76,6 +79,18 @@ export type TanreiSearchIconSpace = 'auto' | 'always' | 'never';
 /** How much room a row of the view takes (SRC-53): `regular`, `compact`, or a density a design system added. */
 export type TanreiSearchDensity = keyof TanreiSearchDensityRegistry;
 const ICON_SPACES: readonly TanreiSearchIconSpace[] = ['auto', 'always', 'never'];
+/**
+ * Where the query as typed stands among the suggestions (SRC-14, SRC-54): a row of its own, first and active (`first`),
+ * or the input itself, the place before the first suggestion, with nothing active (`none`).
+ */
+export type TanreiSearchQueryRow = 'first' | 'none';
+const QUERY_ROWS: readonly TanreiSearchQueryRow[] = ['first', 'none'];
+/** SRC-54: the query row's option, the search's own row in its shadow root. */
+const QUERY_ROW_ID = 'query-row';
+/** SRC-55: the edits after which the query may be completed in the input: the person inserted text, by typing or an input method's commit. */
+const COMPLETING_INPUTS: ReadonlySet<string> = new Set(['insertText', 'insertCompositionText', 'insertFromComposition']);
+/** SRC-55: the keys that move the caret, which accept a completion. */
+const CARET_KEYS: ReadonlySet<string> = new Set(['ArrowLeft', 'ArrowRight', 'Home', 'End']);
 
 /**
  * Why the search closes its view (SRC-6), by the spec's names. `back` is the full-screen view's back button, or the
@@ -637,8 +652,8 @@ const WAITING = new Set<{ syncShortcut(): void }>();
  *
  * `docked` (the default) opens a view under the bar: a manual popover in the top layer, placed by script (flipped above
  * the bar when there is more room there), following the bar. Focus stays in the input — the WAI-ARIA combobox pattern:
- * the input controls the suggestions' listbox and names the active suggestion as its active descendant once the person
- * moves to it with an arrow key (the first, active as the suggestions show, is selected but not read out). A press outside
+ * the input controls the suggestions' listbox and names the active option as its active descendant — one an arrow key
+ * moves to at once, one the search made active once typing has paused for half a second. A press outside
  * closes it AND reaches the element under it. `full-screen` opens a modal `<dialog>` over the whole window with its own
  * header (a back button, the input, the clear button); it takes focus, keeps it, and gives it back to the bar's input.
  *
@@ -650,14 +665,21 @@ const WAITING = new Set<{ syncShortcut(): void }>();
  * is written as a hint — a line of text, no keycaps — and exposed as `aria-keyshortcuts`; it makes the keys work only with `bind-shortcut`, which adds one
  * `keydown` listener on the window while the element is connected and enabled. The results are
  * `<tanrei-search-result>` and `<tanrei-search-result-group>` children: links, never options, reached from the input
- * with Down Arrow (real focus), left with Up Arrow or by typing. As soon as the view shows suggestions, the first is
- * active (list autocomplete with automatic selection), and with no suggestion the first result is current — drawn as
- * focused while focus stays in the input — so that one Enter takes it; Up Arrow on the first gives Enter back to the
- * query as typed. `status` and `status-text` draw the status row — a
+ * with Down Arrow (real focus), left with Up Arrow or by typing.
+ *
+ * Suggestions are queries. With `query-row="first"` (the default) the view's first row is the query row — the search
+ * glyph, the value as typed and `query-row-text` — active as soon as suggestions show, so that Enter always searches for
+ * what was typed; with `query-row="none"` nothing is active and the input itself is the place before the first
+ * suggestion. The arrow keys go through the query row (or the input's place), the suggestions — each shown in the input
+ * without changing `value` or firing `input` — and the results, and round at the ends unless `no-wrap`. A suggestion's
+ * completion (what it adds to the value) is drawn heavier. `inline-completion` completes the value in the input from the
+ * first suggestion that begins with it. With no suggestion the first result is current — drawn as focused while focus
+ * stays in the input, its link the input's active descendant once typing pauses — so that one Enter opens it.
+ * `status` and `status-text` draw the status row — a
  * `role="status"` element that exists from the first render (`role="alert"` while `status="error"`). The search never
  * runs a query: listen to `input`, then set the results, `status` and `status-text`.
  *
- * Form-associated: with a `name` it submits `value`, and Enter (with no suggestion active and no result current) requests its form's
+ * Form-associated: with a `name` it submits `value`, and Enter (on the query row, or with no row active) requests its form's
  * submission after `submit`, unless `submit` was cancelled. The `inline` attribute, for tests and documentation, draws
  * the open view in place: the docked view under the bar, the full-screen view filling the element.
  *
@@ -669,12 +691,13 @@ const WAITING = new Set<{ syncShortcut(): void }>();
  * @csspart input - The native `<input>` (the bar's, and a modal view's header's).
  * @csspart view - The docked view's surface.
  * @csspart dialog - The dialog view's container, or the full-screen view.
- * @csspart listbox - The suggestions.
+ * @csspart listbox - The suggestions, the query row first.
+ * @csspart completion - A query suggestion's completion, drawn heavier, and the query row's inline completion.
  * @csspart status - The status row.
  * @csspart results - The list of the results and result groups.
  * @attr {string} form - The id of the form the search belongs to, where it stands outside it: the platform's own attribute, which then wins over a form around it. The `form` property is read-only and returns the form element.
- * @fires input - The person changed the value (typing, deleting, pasting, dictating, the clear button, Escape); `value` is already the new one. Never fired when the product sets `value`.
- * @fires {CustomEvent<TanreiSearchSubmitDetail>} submit - The action key (Enter, Search) was pressed with no suggestion active and no result current: `detail.value`. Cancelable: cancelling it keeps an enclosing form from being submitted.
+ * @fires input - The person changed the value (typing, deleting, pasting, dictating, the clear button, Escape, accepting an inline completion); `value` is already the new one. Never fired when the product sets `value`, nor for a suggestion an arrow key shows in the input or a completion that is shown and not accepted.
+ * @fires {CustomEvent<TanreiSearchSubmitDetail>} submit - The action key (Enter, Search) was pressed on the query row, or with no row active and no result current, or the query row was pressed: `detail.value` (an inline completion shown is accepted first, with its own `input`). Cancelable: cancelling it keeps an enclosing form from being submitted.
  * @fires {CustomEvent<TanreiSearchSelectDetail>} select - The person chose a suggestion, or activated a result in place (without a modifier key, in the same window): `detail.value` is its value. The search does not change `value`; set the value you want. For a result it is fired before the browser follows the link and is cancelable: cancelling it keeps the link from being followed, so that a router can take it. A result opened in a new tab (a modifier key, the middle button, `target="new"`) fires nothing.
  * @fires {CustomEvent<TanreiSearchToggleDetail>} toggle - The search opened or closed its view: `detail.expanded` (and the element's `expanded`) is the new value, and `detail.reason` says why it closed (`escape`, `back`, `select`, `submit`, `outside`, `tab`, `focus-out`, `shortcut`), or `null` when it opened.
  */
@@ -683,7 +706,7 @@ export class TanreiSearch extends TanreiElement {
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
   /** SRC-30: each of the search's glyphs is drawn only while the icon set can draw it (src/primitives/glyph.ts). */
-  private readonly glyphs = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.glyph, .button-glyph'));
+  private readonly glyphs = new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.glyph, .button-glyph, .query-glyph'));
 
   /**
    * SRC-34: the bar's action buttons — the clear button while it is shown, then the trailing slot's — each keep a touch
@@ -719,6 +742,11 @@ export class TanreiSearch extends TanreiElement {
     bindShortcut: { type: Boolean, attribute: 'bind-shortcut' },
     status: { type: String, reflect: true },
     statusText: { type: String, attribute: 'status-text' },
+    queryRow: { type: String, attribute: 'query-row', reflect: true },
+    queryRowText: { type: String, attribute: 'query-row-text' },
+    inlineCompletion: { type: Boolean, attribute: 'inline-completion', reflect: true },
+    // SRC-14: an HTML boolean attribute cannot default to true: the attribute is the inverse, `no-wrap`.
+    wrap: { attribute: 'no-wrap', reflect: true, converter: inverseBoolean },
     iconSpace: { type: String, attribute: 'icon-space', reflect: true },
     density: { type: String, reflect: true, useDefault: true },
     inline: { type: Boolean, reflect: true },
@@ -727,7 +755,7 @@ export class TanreiSearch extends TanreiElement {
     entries: { state: true },
     iconColumn: { state: true },
     active: { state: true },
-    moved: { state: true },
+    completion: { state: true },
     resultCurrent: { state: true },
     typing: { state: true },
     hasLeading: { state: true },
@@ -804,6 +832,36 @@ export class TanreiSearch extends TanreiElement {
   statusText = '';
 
   /**
+   * Where the query as typed stands among the suggestions, which are queries (`query-row`). `first` (the default): a row
+   * of its own above them — the search glyph and the value, with `queryRowText` under it — drawn while the view shows
+   * suggestions and the value is not empty, and active from the moment they show, so that Enter always searches for what
+   * was typed, as the first row of a browser's address bar does (SRC-54). `none`: no such row and nothing active until
+   * the person moves, as on a web search page; the input itself is the place before the first suggestion (SRC-14).
+   */
+  queryRow: TanreiSearchQueryRow = 'first';
+
+  /**
+   * What the query row says beside the query, in the product's language (`query-row-text`): its supporting text and its
+   * description ("Search all mail"). Empty draws the search glyph and the query alone: the row needs no words.
+   */
+  queryRowText = '';
+
+  /**
+   * Completes the query in the input while the person types, from the first suggestion whose headline begins with it:
+   * the rest is written after the caret, selected, and the query row shows the completed query (SRC-55,
+   * `inline-completion`). Never after a deletion or a paste, during a composition or on an on-screen keyboard; a caret
+   * move accepts it (`input` fires with the completed value), Backspace takes it away. Ignored with `query-row="none"`.
+   */
+  inlineCompletion = false;
+
+  /**
+   * Whether the arrow keys go round at the ends of the view's rows: Down Arrow on the last to the first, Up Arrow on the
+   * first to the last — with `query-row="none"`, through the input's own place (SRC-14, SRC-49). The attribute is the
+   * inverse, `no-wrap`, which stops them at the ends.
+   */
+  wrap = true;
+
+  /**
    * Whether a row of the view — a suggestion, a result, a linked group heading — keeps the room of the leading icon
    * column where it has no icon, so that the headlines start on one line (SRC-52): `auto` while any suggestion or
    * result of the view has a `leading-icon`, `always` in every row, `never` only in a row that has one (`icon-space`).
@@ -832,15 +890,31 @@ export class TanreiSearch extends TanreiElement {
   protected entries: (TanreiSearchResult | TanreiSearchResultGroup)[] = [];
   /** SRC-16, SRC-42, SRC-52: every row of the view keeps the leading icon column, as iconSpace says. */
   protected iconColumn = false;
-  /** The active suggestion's index, or -1. */
+  /**
+   * The active option's index in the suggestions' listbox — the query row first while it is drawn (SRC-54), then the
+   * suggestions — or -1: none, the input's own place (SRC-14).
+   */
   protected active = -1;
   /**
-   * SRC-14, SRC-24: the person moved to the active suggestion with an arrow key, so it is the input's active descendant
-   * and is read out; a suggestion made active automatically (the first, as they show) is not, until they move.
+   * SRC-55: the inline completion shown after the value in the input, selected — the rest of the first suggestion that
+   * begins with the value — or empty. It is not part of `value` until it is accepted.
    */
-  protected moved = false;
+  protected completion = '';
+  /** SRC-55: the person's last edit inserted text at the end of the value, so the query may be completed (as suggestions arrive, too). */
+  private completable = false;
+  /** SRC-4, TXI-4: the value the search took or wrote itself last; another is the product's. */
+  private ownValue = '';
+  /** TXI-4: the product set `value` since the last render: shown in the input, during a composition too (where it waits for the end). */
+  private productValue = false;
+  /** SRC-14: an arrow key moved to a row since the last render: the caret goes to the end of what the input shows. */
+  private caretToEnd = false;
   /** SRC-49: the first result is the one the action key takes (the view holds no suggestion), focus staying in the input. */
   protected resultCurrent = false;
+  /**
+   * SRC-24, SRC-50: whether the current row is announced now — at once when an arrow key moved to it; when the search
+   * made it current by itself, once it has stayed current for ANNOUNCE_PAUSE with nothing typed.
+   */
+  private readonly announcement = new PausedAnnouncement(this);
   /** SRC-14, SRC-49: focus is in an input of the search (the bar's or the header's), where its keys are answered. */
   protected typing = false;
   /**
@@ -861,9 +935,13 @@ export class TanreiSearch extends TanreiElement {
   private readonly internals: ElementInternals;
   private readonly children$ = new MutationObserver((records) => this.readChildren(records));
 
-  /** SRC-4: the bar's input and the header's, each kept in step with `value` around an input method (TXF-1, TXF-4). */
-  private readonly barText = new NativeTextController({ input: () => this.barInput, value: () => this.value, setValue: (value) => (this.value = value) });
-  private readonly headerText = new NativeTextController({ input: () => this.headerInput, value: () => this.value, setValue: (value) => (this.value = value) });
+  /**
+   * SRC-4: the bar's input and the header's, each kept in step with `value` around an input method (TXF-1, TXF-4) —
+   * showing, in the input the person types in, the suggestion an arrow key reached or the inline completion (SRC-14,
+   * SRC-55). During a composition the element's text is the input method's and the value follows it.
+   */
+  private readonly barText = new NativeTextController({ input: () => this.barInput, value: () => this.shownText(this.barInput), setValue: (value) => this.takeValue(value) });
+  private readonly headerText = new NativeTextController({ input: () => this.headerInput, value: () => this.shownText(this.headerInput), setValue: (value) => this.takeValue(value) });
 
   /**
    * SRC-19, SRC-20: the bar's press — by pointer or touch only: Enter and Space in the input type and submit. SRC-36: a
@@ -1038,6 +1116,71 @@ export class TanreiSearch extends TanreiElement {
     return this.entries.flatMap((entry) => (entry instanceof TanreiSearchResultGroup ? [...(entry.linked ? [entry] : []), ...entry.results] : [entry]));
   }
 
+  /** SRC-54: a queryRow the search does not define is drawn as first (and reported, `willUpdate`). */
+  private get queryRowMode(): TanreiSearchQueryRow {
+    return this.queryRow === 'none' ? 'none' : 'first';
+  }
+
+  /** SRC-54: the query row is drawn — queryRow first, the view showing suggestions, and a value that is not empty. */
+  private get queryRowShown(): boolean {
+    return this.queryRowMode === 'first' && this.suggestions.length > 0 && this.value !== '';
+  }
+
+  /** The index of the first suggestion among the listbox's options: after the query row while it is drawn. */
+  private get offset(): number {
+    return this.queryRowShown ? 1 : 0;
+  }
+
+  /** SRC-14: the suggestion an arrow key made active — shown in the input in place of the value — or null. */
+  private get activeSuggestion(): TanreiSearchSuggestion | null {
+    return this.active >= this.offset ? (this.suggestions[this.active - this.offset] ?? null) : null;
+  }
+
+  /** SRC-54: the query row is the active option. */
+  private get queryActive(): boolean {
+    return this.active === 0 && this.queryRowShown;
+  }
+
+  /** SRC-24, SRC-54: the id of the listbox's option at `index`: the query row's own, or its suggestion element's. */
+  private optionIdAt(index: number): string | undefined {
+    if (index < 0) return undefined;
+    if (index === 0 && this.queryRowShown) return QUERY_ROW_ID;
+    const suggestion = this.suggestions[index - this.offset];
+    return suggestion ? optionId(suggestion) : undefined;
+  }
+
+  /** The drawn row of the listbox's option at `index`, or null. */
+  private optionRow(index: number): HTMLElement | null {
+    const id = this.optionIdAt(index);
+    return id ? this.renderRoot.querySelector<HTMLElement>(`#${id}`) : null;
+  }
+
+  /**
+   * SRC-14, SRC-55: the text `input` shows. The input the person types in shows the suggestion an arrow key reached, in
+   * place of the value, or the value with its inline completion while the query row is active; every other input, and
+   * that one otherwise, the value as typed.
+   */
+  private shownText(input: HTMLInputElement | null): string {
+    if (!input || input !== this.currentInput || !this.typing) return this.value;
+    const suggestion = this.activeSuggestion;
+    if (suggestion) return suggestion.headline;
+    return this.completion && this.queryActive ? this.value + this.completion : this.value;
+  }
+
+  /**
+   * SRC-4: the value the person gave the element, which the search takes as its own — no event of its own: the
+   * element's `input` is it. During a composition (TXI-4) the element's text is the input method's: an inline completion
+   * it replaced is gone (SRC-55).
+   */
+  private takeValue(value: string) {
+    this.value = value;
+    this.ownValue = value;
+    if (this.composing) {
+      this.completion = '';
+      this.completable = false;
+    }
+  }
+
   /** The input focus belongs to now: the header's while a modal view is open, else the bar's. */
   private get currentInput() {
     return this.modal && this.expanded && !this.inert_ ? (this.headerInput ?? this.barInput) : this.barInput;
@@ -1082,7 +1225,9 @@ export class TanreiSearch extends TanreiElement {
   private decideIconColumn(suggestions: readonly TanreiSearchSuggestion[] = this.suggestions) {
     const space: TanreiSearchIconSpace = ICON_SPACES.includes(this.iconSpace) ? this.iconSpace : 'auto';
     const rows = this.entries.flatMap((entry) => (entry instanceof TanreiSearchResultGroup ? [entry, ...entry.results] : [entry]));
-    const any = suggestions.some((s) => !!s.leadingIcon) || rows.some((row) => !!row.leadingIcon && (!(row instanceof TanreiSearchResultGroup) || row.linked));
+    // The query row, while it is drawn, is a row with the search glyph in its leading icon column (SRC-54).
+    const queryRow = this.queryRowMode === 'first' && suggestions.length > 0 && this.value !== '';
+    const any = queryRow || suggestions.some((s) => !!s.leadingIcon) || rows.some((row) => !!row.leadingIcon && (!(row instanceof TanreiSearchResultGroup) || row.linked));
     const every = space === 'always' || (space === 'auto' && any);
     if (every !== this.iconColumn) this.iconColumn = every;
     for (const row of rows) {
@@ -1113,12 +1258,14 @@ export class TanreiSearch extends TanreiElement {
       (child): child is TanreiSearchResult | TanreiSearchResultGroup => child instanceof TanreiSearchResult || child instanceof TanreiSearchResultGroup,
     );
     if (entries.length !== this.entries.length || entries.some((entry, i) => entry !== this.entries[i])) this.entries = entries;
-    // SRC-14, SRC-49: suggestions or results the product gives or replaces make the first of them the one Enter takes.
+    // SRC-14, SRC-49: suggestions or results the product gives or replaces make the first place the one Enter takes —
+    // and, after an insertion, may complete the query (SRC-55).
     const rows = this.rows;
     if (changed || rows.length !== this.lastRows.length || rows.some((row, i) => row !== this.lastRows[i])) {
       this.lastRows = rows;
       this.firstCurrent();
     }
+    this.complete();
     // SRC-46: the results stand after the status row and before the product's own content, whatever the children's order.
     for (const entry of entries) if (entry.slot !== RESULT_SLOT) entry.slot = RESULT_SLOT;
     const content = [...this.childNodes].some((node) =>
@@ -1191,12 +1338,15 @@ export class TanreiSearch extends TanreiElement {
   private expand() {
     if (this.expanded || this.inert_) return;
     this.expanded = true;
-    // SRC-14, SRC-49: the view opens with its first suggestion active, or its first result current.
+    // SRC-14, SRC-49: the view opens with its first place current: the query row, or the first result.
     this.firstCurrent();
     this.dispatchEvent(new CustomEvent<TanreiSearchToggleDetail>('toggle', { detail: { expanded: true, reason: null } }));
   }
 
-  /** SRC-6: the search closes its view with a reason, once; the value stays as it is. */
+  /**
+   * SRC-6: the search closes its view with a reason, once; the value stays as it is, and the input shows it again —
+   * not a suggestion an arrow key reached (SRC-14), nor a completion that was not accepted (SRC-55).
+   */
   private collapse(reason: TanreiSearchCloseReason) {
     if (!this.expanded || this.inert_) return;
     // SRC-6, SRC-49: the docked view closes under a focused result: focus goes back to the input it belongs to (which
@@ -1204,6 +1354,7 @@ export class TanreiSearch extends TanreiElement {
     if (!this.modal && this.resultFocused) this.barInput?.focus();
     this.expanded = false;
     this.noneCurrent();
+    this.dropCompletion();
     this.dispatchEvent(new CustomEvent<TanreiSearchToggleDetail>('toggle', { detail: { expanded: false, reason } }));
   }
 
@@ -1220,6 +1371,8 @@ export class TanreiSearch extends TanreiElement {
    * what the person asked for is already in front of them — then, in a form, unless cancelled, the form is submitted.
    */
   private submit() {
+    // SRC-13, SRC-55: a completion shown is accepted first: the completed query is what is searched for.
+    this.acceptCompletion();
     const proceed = this.dispatchEvent(new CustomEvent<TanreiSearchSubmitDetail>('submit', { cancelable: true, detail: { value: this.value } }));
     if (this.entries.length === 0 && !this.statusShown) this.collapse('submit');
     if (proceed && this.form) pressDefaultButton(this.form);
@@ -1228,22 +1381,34 @@ export class TanreiSearch extends TanreiElement {
   /** SRC-10, SRC-12: the value emptied by the person (the clear button, Escape): `input` once, never a toggle. */
   private clearValue() {
     this.value = '';
+    this.ownValue = '';
+    this.dropCompletion();
     this.firstCurrent();
     for (const input of [this.barInput, this.headerInput]) if (input && !(input === this.barInput ? this.barText : this.headerText).composing) input.value = '';
     this.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true, inputType: 'deleteContentBackward' }));
   }
 
   /**
-   * SRC-14: the active suggestion, scrolled into view inside the view's scrolling box, and its ring's focus style (SRC-21).
-   * `moved`: the person moved to it with an arrow key, so it is announced (SRC-24); made active automatically, it is not.
+   * SRC-14: the option at `index` of the listbox — the query row or a suggestion — is the active one, scrolled into view
+   * inside the view's scrolling box, with its ring's focus style (SRC-21). `moved`: an arrow key moved to it, so it is
+   * announced at once (SRC-24); made active by the search, it waits for the pause (`firstCurrent()`).
    */
   private setActive(index: number, moved: boolean) {
     this.active = index;
-    this.moved = moved && index >= 0;
     this.resultCurrent = false;
-    if (index < 0) return;
+    if (moved) {
+      if (index >= 0) this.announcement.now();
+      else this.announcement.none();
+    }
+    if (index >= 0) this.revealActive();
+  }
+
+  /** SRC-14, SRC-21: the active option in view, and its ring's focus style, once it is drawn. */
+  private revealActive() {
+    const index = this.active;
     void this.updateComplete.then(() => {
-      const row = this.suggestions[index] ? this.renderRoot.querySelector<HTMLElement>(`#${optionId(this.suggestions[index])}`) : null;
+      if (this.active !== index) return;
+      const row = this.optionRow(index);
       if (!row) return;
       syncFocusStyle(this, row);
       this.scrollIntoRoom(row);
@@ -1271,22 +1436,25 @@ export class TanreiSearch extends TanreiElement {
   }
 
   /**
-   * SRC-14, SRC-49: the first row of the view becomes the one the action key takes — list autocomplete with automatic
-   * selection — while the view is open, focus is in the input and no input method composes: the first suggestion, or
-   * with none the first result; otherwise nothing is.
+   * SRC-14, SRC-49: the first place of the arrow keys' cycle becomes current by itself, while the view is open, focus is
+   * in the input, no input method composes and no on-screen keyboard is in use: with suggestions, the query row (active)
+   * or the input's own place (none active); with results and no suggestion, the first result. Otherwise nothing is.
+   * SRC-24, SRC-50: a row made current so is announced once it has stayed current for the pause; `restart` (an edit,
+   * new rows, focus coming back) starts the pause again, and without it a row that stays current keeps its state.
    */
-  private firstCurrent(keepMoved = false) {
+  private firstCurrent(restart = true) {
+    const before = `${this.active}:${this.resultCurrent}`;
     const now = this.expanded && !this.inert_ && this.typing && !this.composing && !this.onScreenKeyboard;
     if (now && this.suggestions.length > 0) {
-      if (this.active !== 0 || this.resultCurrent) this.setActive(0, false);
-      // SRC-14: made active again automatically, it is not read out until the person moves — unless this only confirms
-      // the first that an arrow key moved to (the Down Arrow that opened the view).
-      else if (!keepMoved) this.moved = false;
-      return;
+      this.resultCurrent = false;
+      this.active = this.queryRowShown ? 0 : -1;
+    } else {
+      this.active = -1;
+      this.resultCurrent = now && this.rows.length > 0;
     }
-    this.active = -1;
-    this.moved = false;
-    this.resultCurrent = now && this.rows.length > 0;
+    if (this.active < 0 && !this.resultCurrent) this.announcement.none();
+    else if (restart || before !== `${this.active}:${this.resultCurrent}` || (!this.announcement.announced && !this.announcement.waiting)) this.announcement.later();
+    if (this.active >= 0) this.revealActive();
   }
 
   /**
@@ -1305,98 +1473,240 @@ export class TanreiSearch extends TanreiElement {
           if (!row || this.currentRow !== next) return;
           syncFocusStyle(next, row);
           this.scrollIntoRoom(row);
+          this.exposeCurrentResult();
         });
       }
+    }
+    this.exposeCurrentResult();
+  }
+
+  /**
+   * SRC-50, SRC-24: the current result's own link — the one node assistive technology has for it — is the active
+   * descendant of the input that has focus once it has stayed current for the pause, while no option is active (the
+   * template names an active option by its id). The link is the result's child in the document, outside every shadow
+   * root, so the input's element reflection reaches it: an id cannot cross out of the search's shadow root, and nothing
+   * reaches into a result's own. Called whenever the search or the current result has rendered.
+   */
+  private exposeCurrentResult() {
+    const control = this.announcement.announced ? (this.currentRow?.control ?? null) : null;
+    for (const input of [this.barInput, this.headerInput]) {
+      if (!input || input.getAttribute('aria-activedescendant')) continue;
+      const wanted = input === this.currentInput && this.active < 0 ? control : null;
+      if (input.ariaActiveDescendantElement !== wanted) input.ariaActiveDescendantElement = wanted;
     }
   }
 
   /** SRC-13, SRC-14, SRC-49: nothing in the view is the one the action key takes: it submits the value as typed. */
   private noneCurrent() {
     this.active = -1;
-    this.moved = false;
     this.resultCurrent = false;
+    this.announcement.none();
+  }
+
+  // ── The arrow keys' cycle (SRC-14, SRC-49) ─────────────────────────────────────────────────────────────
+
+  /**
+   * SRC-14, SRC-49: the places of the arrow keys' cycle, counted in order: with suggestions, the first place — the
+   * query row, or the input's own place — then each suggestion; then each result, in view order across groups.
+   */
+  private get cycle(): { first: number; suggestions: number; results: number; length: number } {
+    const suggestions = this.suggestions.length;
+    const first = suggestions > 0 ? 1 : 0;
+    const results = this.rows.length;
+    return { first, suggestions, results, length: first + suggestions + results };
+  }
+
+  /**
+   * The place of the cycle that is current now, or null where none is (an on-screen keyboard, a composition, focus
+   * elsewhere). `focused`: the index of the result that has focus, where one has. The input's own place (queryRow none)
+   * is the first place while no option is active.
+   */
+  private placeNow(focused = -1): number | null {
+    const { first, suggestions } = this.cycle;
+    if (focused >= 0) return first + suggestions + focused;
+    if (this.active >= 0) return this.queryActive ? 0 : first + this.active - this.offset;
+    if (this.resultCurrent) return first + suggestions;
+    if (suggestions > 0 && !this.queryRowShown && this.typing) return 0;
+    return null;
+  }
+
+  /**
+   * SRC-14, SRC-49: Down Arrow (`step` 1) or Up Arrow (-1): the next or the previous place of the cycle, going round at
+   * the ends while `wrap` is true and doing nothing there otherwise. With none current, Down Arrow goes to the first
+   * place's row and Up Arrow, going round, to the last. `focused`: the result the key was pressed on, if any.
+   */
+  private move(step: 1 | -1, focused = -1) {
+    const { length } = this.cycle;
+    if (length === 0) return;
+    const at = this.placeNow(focused);
+    let next: number | null;
+    if (at === null) next = step > 0 ? 0 : this.wrap ? length - 1 : null;
+    else if (at + step >= length) next = this.wrap ? 0 : null;
+    else if (at + step < 0) next = this.wrap ? length - 1 : null;
+    else next = at + step;
+    // With no suggestion a current first result stays where it is on Up Arrow at the end: there is no input's place.
+    if (next === null) return;
+    this.goTo(next);
+  }
+
+  /**
+   * SRC-14, SRC-49: the place `index` of the cycle becomes current, by an arrow key, so it is announced at once: the
+   * query row or the input's place and the suggestions with focus in the input — a suggestion shown in the input in place
+   * of the value — and a result by real focus.
+   */
+  private goTo(index: number) {
+    const { first, suggestions } = this.cycle;
+    if (index < first + suggestions) {
+      if (this.resultFocused) this.currentInput?.focus();
+      // SRC-14: what the input shows now — a suggestion, or the value as typed — has the caret at its end.
+      this.caretToEnd = true;
+      if (index < first) {
+        if (this.queryRowShown) this.setActive(0, true);
+        else this.setActive(-1, true);
+      } else this.setActive(this.offset + index - first, true);
+      return;
+    }
+    this.focusResult(index - first - suggestions);
+  }
+
+  // ── The inline completion (SRC-55) ─────────────────────────────────────────────────────────────────────
+
+  /**
+   * SRC-55: the query completed in the input — after an insertion at the end of the value, while the query row is drawn
+   * and active, no input method composes and no on-screen keyboard is in use — from the first suggestion, in the
+   * product's order, whose headline begins with the value and is longer than it. The completion is never part of the
+   * value until it is accepted.
+   */
+  private complete() {
+    const can = this.inlineCompletion && this.completable && this.queryActive && this.typing && !this.composing && !this.onScreenKeyboard;
+    let completion = '';
+    if (can) {
+      for (const suggestion of this.suggestions) {
+        const pieces = completionOf(suggestion.headline, this.value);
+        if (pieces && pieces[1]) {
+          completion = pieces[1];
+          break;
+        }
+      }
+    }
+    if (completion !== this.completion) this.completion = completion;
+  }
+
+  /** SRC-55: the completion shown is accepted — the completed text is the value, and `input` is fired once. Returns whether there was one. */
+  private acceptCompletion(): boolean {
+    if (!this.completion || !this.queryActive) return false;
+    const value = this.value + this.completion;
+    this.completion = '';
+    this.completable = false;
+    this.value = value;
+    this.ownValue = value;
+    this.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true, inputType: 'insertReplacementText', data: value }));
+    // An edit: the query row, with the value it now holds, is announced once the pause has passed (SRC-24).
+    this.firstCurrent();
+    return true;
+  }
+
+  /** SRC-55: the completion is taken away, and nothing is completed until the person inserts text again. */
+  private dropCompletion() {
+    this.completable = false;
+    if (this.completion) this.completion = '';
   }
 
   // ── The inputs ─────────────────────────────────────────────────────────────────────────────────────────
 
   /**
-   * SRC-4 (TXF-1): the person changed the value. The native `input` is composed, so it leaves the shadow root by itself —
-   * after the element has taken the new value. SRC-5: typing opens the view; SRC-14, SRC-49: it makes the first
-   * suggestion active, or the first result current — and, while an input method composes, nothing.
+   * SRC-4 (TXF-1): the person changed the value — the text the input shows, a suggestion an arrow key put there
+   * included (SRC-14), becomes the value. The native `input` is composed, so it leaves the shadow root by itself —
+   * after the element has taken the new value. SRC-5: typing opens the view; SRC-14, SRC-49: it makes the first place
+   * current — and, while an input method composes, nothing. SRC-55: an insertion at the end may be completed; an edit
+   * that only took the completion away (a cut of the selected completion) changed no value, and fires nothing.
    */
   private readonly onInput = (event: Event) => {
     const input = event.target as HTMLInputElement;
     const text = input === this.headerInput ? this.headerText : this.barText;
-    if (!text.composingInput(event)) this.value = input.value;
+    if (!text.composingInput(event)) {
+      if (this.completion && input.value === this.value) {
+        event.stopPropagation();
+        this.dropCompletion();
+        return;
+      }
+      this.takeValue(input.value);
+      const type = (event as InputEvent).inputType ?? '';
+      const end = input.selectionStart === input.value.length && input.selectionEnd === input.value.length;
+      this.completable = COMPLETING_INPUTS.has(type) && end;
+      this.completion = '';
+    }
     if (!this.expanded) {
       input.focus();
       this.expand();
     }
     this.firstCurrent();
+    this.complete();
   };
 
   /**
-   * SRC-5, SRC-12, SRC-13, SRC-14, SRC-49: the keys the input answers. Escape while open and Tab are the host's (below).
-   * While an input method composes every key is its own (TXI-4): the Enter that confirms a conversion takes nothing — in
-   * WebKit that keydown comes after `compositionend`, with the key code 229.
+   * SRC-5, SRC-12, SRC-13, SRC-14, SRC-49, SRC-55: the keys the input answers. Escape while open and Tab are the host's
+   * (below). While an input method composes every key is its own (TXI-4): the Enter that confirms a conversion takes
+   * nothing — in WebKit that keydown comes after `compositionend`, with the key code 229.
    */
   private readonly onInputKeyDown = (event: KeyboardEvent) => {
+    if (event.isComposing || event.keyCode === 229 || this.composing) return;
+    // SRC-55: a key that moves the caret or the selection, with any modifier, accepts the completion; its own move follows.
+    if (CARET_KEYS.has(event.key)) this.acceptCompletion();
     if (event.key === 'Enter' && this.openElsewhere(event)) return;
     if (this.inert_ || event.altKey || event.ctrlKey || event.metaKey) return;
-    const input = event.target as HTMLInputElement;
-    if (event.isComposing || event.keyCode === 229 || this.composing) return;
-    const count = this.suggestions.length;
-    // SRC-14: only a hardware keyboard has the arrow and caret keys: automatic selection is back.
-    if (['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) this.onScreenKeyboard = false;
+    // SRC-14: only a hardware keyboard has the arrow and caret keys: what the search makes current by itself is back —
+    // after a caret key at once, and after an arrow key as the arrow key goes on from none (`move()`).
+    if (['ArrowDown', 'ArrowUp', ...CARET_KEYS].includes(event.key) && this.onScreenKeyboard) {
+      this.onScreenKeyboard = false;
+      if (CARET_KEYS.has(event.key)) this.firstCurrent();
+    }
     switch (event.key) {
       case 'ArrowDown':
-        event.preventDefault();
-        if (!this.expanded) {
-          this.expand();
-          // SRC-14: the Down Arrow that opens the view moves to its first suggestion, which is read out (as APG's does).
-          this.moved = this.active >= 0;
-        }
-        // SRC-49: the current result — current without being announced — is where the first press goes: it takes focus.
-        else if (this.resultCurrent) this.focusResult(0);
-        // SRC-14: the suggestion made active automatically is kept and announced by the first press, not skipped.
-        else if (this.active >= 0 && !this.moved) this.setActive(this.active, true);
-        else if (this.active < count - 1) this.setActive(this.active + 1, true);
-        // SRC-14, SRC-49: with no suggestion to go to — none in the view, or the last one active — on to the first result.
-        else this.focusResult(0);
-        return;
       case 'ArrowUp':
-        // SRC-14, SRC-49: back from the first — suggestion or result — nothing is current: Enter submits the value as typed.
-        if (this.expanded && (this.active >= 0 || this.resultCurrent)) {
+        if (event.shiftKey) return;
+        if (!this.expanded) {
+          // SRC-5, SRC-24: the Down Arrow that opens the view only opens it; what is current then is an arrow key's, read at once.
+          if (event.key === 'ArrowUp') return;
           event.preventDefault();
-          if (this.resultCurrent) this.noneCurrent();
-          else this.setActive(this.active - 1, true);
+          this.expand();
+          if (this.active >= 0 || this.resultCurrent) this.announcement.now();
+          return;
         }
+        if (this.cycle.length === 0) return;
+        event.preventDefault();
+        this.move(event.key === 'ArrowDown' ? 1 : -1);
         return;
       case 'Enter': {
         if (event.shiftKey) return;
         event.preventDefault();
         if (event.repeat) return;
-        const index = this.expanded ? this.active : -1;
+        const suggestion = this.expanded ? this.activeSuggestion : null;
         const result = this.expanded && this.resultCurrent ? this.rows[0] : undefined;
-        if (index >= 0 && index < count) {
+        if (suggestion) {
           // SRC-19: the chosen row shows its press.
-          const row = this.suggestions[index] ? this.renderRoot.querySelector<HTMLElement>(`#${optionId(this.suggestions[index])}`) : null;
-          if (row) {
-            this.pressRow(row);
-            this.rowPress.press(null);
-            this.rowPress.release();
-          }
-          this.choose(index);
+          this.showPress(this.optionRow(this.active));
+          this.choose(this.suggestions.indexOf(suggestion));
         } else if (result?.row && result.control) {
           // SRC-49, SRC-45: the current result is activated as Enter on it would be: its row shows the press (SRC-19),
           // and its own activation — select, then the link followed unless select was cancelled — is its control's click.
-          this.pressRow(result.row);
-          this.rowPress.press(null);
-          this.rowPress.release();
+          this.showPress(result.row);
           result.control.click();
-        } else this.submit();
+        } else {
+          // SRC-13, SRC-54: the query row — or no row — takes the value as typed (completed first, SRC-55).
+          if (this.expanded && this.queryActive) this.showPress(this.optionRow(0));
+          this.submit();
+        }
         return;
       }
+      case 'Backspace':
+      case 'Delete':
+        // SRC-55: with a completion shown, the key takes it away and nothing else.
+        if (this.completion && this.queryActive && !event.shiftKey) {
+          event.preventDefault();
+          this.dropCompletion();
+        }
+        return;
       case 'Escape':
         // SRC-12: collapsed, Escape empties a value, as a native search input does; with none it passes on.
         if (!this.expanded && this.value !== '') {
@@ -1404,17 +1714,17 @@ export class TanreiSearch extends TanreiElement {
           this.clearValue();
         }
         return;
-      case 'ArrowLeft':
-      case 'ArrowRight':
-      case 'Home':
-      case 'End':
-        // SRC-14, SRC-49: moving the caret makes the first suggestion active again, or the first result current.
-        this.firstCurrent();
-        return;
       default:
-        void input;
     }
   };
+
+  /** SRC-19: `row` shows the press of a key — from its centre, held for press-hold. */
+  private showPress(row: HTMLElement | null) {
+    if (!row) return;
+    this.pressRow(row);
+    this.rowPress.press(null);
+    this.rowPress.release();
+  }
 
   /**
    * SRC-49, SRC-45: Enter in the input with the modifier that opens a link elsewhere — Command (Apple convention) or Control
@@ -1472,25 +1782,18 @@ export class TanreiSearch extends TanreiElement {
   };
 
   /**
-   * SRC-49: the keys a focused result answers. Down and Up Arrow move real focus through the results in view order,
-   * across groups, staying on the last and going from the first back to the input (the last suggestion active, where
-   * there is one). Typing, deleting or pasting moves focus to the input, so that the key edits the value there. Enter is
+   * SRC-49: the keys a focused result answers. Down and Up Arrow move through the arrow keys' cycle — real focus through
+   * the results in view order, across groups, from the first back to the input (the last suggestion active, where there
+   * is one), and round at the ends while wrap is true. Typing, deleting or pasting moves focus to the input, so that the key edits the value there. Enter is
    * the browser's own activation of the link; the row only shows its press (SRC-19). Returns whether the key was taken.
    */
   #onResultKeyDown(event: KeyboardEvent, row: TanreiSearchRow): boolean {
     const plain = !event.altKey && !event.ctrlKey && !event.metaKey;
     if (plain && !event.shiftKey && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
       event.preventDefault();
-      const rows = this.rows;
-      const at = rows.indexOf(row);
-      if (event.key === 'ArrowDown') this.focusResult(Math.min(at + 1, rows.length - 1));
-      else if (at > 0) this.focusResult(at - 1);
-      else {
-        // SRC-49: from the first result back to the input — the last suggestion active, or nothing current.
-        this.currentInput?.focus();
-        if (this.suggestions.length > 0) this.setActive(this.suggestions.length - 1, true);
-        else this.noneCurrent();
-      }
+      // SRC-49: the cycle goes on from the result that has focus: to the next or the previous result, from the first
+      // back to the input with the last suggestion active, and round at the ends while wrap is true.
+      this.move(event.key === 'ArrowDown' ? 1 : -1, this.rows.indexOf(row));
       return true;
     }
     if (event.key === 'Enter') {
@@ -1611,19 +1914,26 @@ export class TanreiSearch extends TanreiElement {
     this.firstCurrent();
   };
 
-  /** SRC-14, SRC-49: while the input does not have focus nothing in the view is the one its action key takes. */
+  /**
+   * SRC-14, SRC-49: while the input does not have focus nothing in the view is the one its action key takes, and the
+   * input shows the value as typed again — not a suggestion an arrow key reached, nor a completion (SRC-55).
+   */
   private readonly onInputBlur = () => {
     this.typing = false;
     this.noneCurrent();
+    this.dropCompletion();
   };
 
   /**
-   * SRC-14: a press in the input moves the caret, which makes the first suggestion active again — by a mouse; a touch or
-   * a pen brings up the on-screen keyboard, where nothing is made active by itself.
+   * SRC-14: a press in the input moves the caret, which leaves the current row as it is and accepts a completion
+   * (SRC-55). A touch or a pen brings up the on-screen keyboard, where nothing is current by itself; a mouse ends it, and
+   * what the search makes current by itself is back.
    */
   private readonly onInputPointerDown = (event: PointerEvent) => {
+    this.acceptCompletion();
+    const was = this.onScreenKeyboard;
     this.onScreenKeyboard = brings(event.pointerType);
-    this.firstCurrent();
+    if (this.onScreenKeyboard !== was) this.firstCurrent();
   };
 
   /**
@@ -1634,13 +1944,24 @@ export class TanreiSearch extends TanreiElement {
    */
   private readonly onBarCompositionStart = () => {
     this.barText.onCompositionStart();
-    this.firstCurrent();
+    this.startComposition(this.barInput);
   };
 
   private readonly onHeaderCompositionStart = () => {
     this.headerText.onCompositionStart();
-    this.firstCurrent();
+    this.startComposition(this.headerInput);
   };
+
+  /**
+   * SRC-14, SRC-55 (TXI-4): a composition begins. A suggestion an arrow key put in the input is the text it edits, so it
+   * becomes the value; a completion is not completed further — the input method replaces the selected completion in the
+   * element itself, which the search leaves alone until the composition ends.
+   */
+  private startComposition(input: HTMLInputElement | null) {
+    if (input && this.activeSuggestion && input === this.currentInput) this.takeValue(input.value);
+    this.dropCompletion();
+    this.firstCurrent();
+  }
 
   // ── The bar (SRC-5, SRC-19) ────────────────────────────────────────────────────────────────────────────
 
@@ -1753,6 +2074,11 @@ export class TanreiSearch extends TanreiElement {
   private readonly onRowClick = (event: MouseEvent) => {
     const index = Number((event.currentTarget as HTMLElement).dataset.index);
     this.choose(index);
+  };
+
+  /** SRC-54, SRC-13: a press on the query row submits the value as typed, the input keeping focus. */
+  private readonly onQueryRowClick = () => {
+    if (!this.inert_) this.submit();
   };
 
   // ── Presenting the views (SRC-7, SRC-9, SRC-23) ────────────────────────────────────────────────────────
@@ -1917,13 +2243,27 @@ export class TanreiSearch extends TanreiElement {
       if (!ICON_SPACES.includes(this.iconSpace)) report(this, 'SRC-52', `iconSpace "${this.iconSpace}" is not a value the search defines; it is drawn as "auto"`);
       this.decideIconColumn();
     }
-    // SRC-14, SRC-49: the view the product opens or closes, or a search that becomes disabled, decides again what the
-    // action key takes: the first suggestion or result while the view is open and the input has focus, else nothing.
-    if (changed.has('expanded') || changed.has('disabled') || (changed as Map<PropertyKey, unknown>).has('formDisabled')) this.firstCurrent(true);
-    if (this.active >= this.suggestions.length || !this.expanded) this.active = -1;
+    // SRC-54: a queryRow the search does not define is drawn as first, and reported.
+    if (changed.has('queryRow') && !QUERY_ROWS.includes(this.queryRow)) report(this, 'SRC-54', `queryRow "${this.queryRow}" is not a value the search defines; it is drawn as "first"`);
+    // TXI-4: a value the product set is shown in the input, and ends what the person was doing with the one before: a
+    // suggestion an arrow key put in the input, a completion (SRC-14, SRC-55).
+    if (changed.has('value') && this.value !== this.ownValue) {
+      this.ownValue = this.value;
+      this.productValue = true;
+      this.dropCompletion();
+      this.firstCurrent();
+    }
+    // SRC-14, SRC-49: the view the product opens or closes, the query row drawn or taken away, or a search that becomes
+    // disabled, decides again what the action key takes: the first place while the view is open and the input has focus,
+    // else nothing. A row that stays current keeps its announcement.
+    if (changed.has('expanded') || changed.has('disabled') || changed.has('queryRow') || (changed as Map<PropertyKey, unknown>).has('formDisabled')) this.firstCurrent(false);
+    if (this.active >= this.offset + this.suggestions.length || !this.expanded) this.active = -1;
+    if (changed.has('inlineCompletion') && !this.inlineCompletion) this.dropCompletion();
     // SRC-44: a group stands group.gap below whatever stands above it in the view and above whatever follows it; two
     // groups that follow each other stand one gap apart.
     let above = (this.expanded && !this.inert_ && this.suggestions.length > 0) || this.statusShown;
+    // SRC-52: the query row, drawn with the search glyph, keeps the leading icon column for the view while it is drawn.
+    this.decideIconColumn();
     this.entries.forEach((entry, index) => {
       if (entry instanceof TanreiSearchResultGroup) {
         const next = this.entries[index + 1];
@@ -2024,9 +2364,11 @@ export class TanreiSearch extends TanreiElement {
   }
 
   protected override updated(changed: PropertyValues<this>) {
-    // TXF-4: never written into a composition; a value set meanwhile waits for its end.
-    this.barText.show();
-    this.headerText.show();
+    // TXF-4: never written into a composition — what the element holds then is the input method's, and the value
+    // follows it — but a value the product set meanwhile waits for its end.
+    for (const text of [this.barText, this.headerText]) if (!text.composing || this.productValue) text.show();
+    this.productValue = false;
+    this.selectCompletion();
     // Disabled, it submits nothing: said here too, since its attribute waits a frame where it holds focus.
     this.internals.setFormValue(this.disabled ? null : this.value, this.value);
     this.syncView();
@@ -2066,20 +2408,42 @@ export class TanreiSearch extends TanreiElement {
    * edge (an empty `dir="auto"` input is left to right in every layout).
    */
   /**
+   * SRC-55: the completion shown in the input that has focus is its selection, the caret before it — set again
+   * whenever the element was written, as typing or new suggestions complete the value.
+   */
+  private selectCompletion() {
+    const input = this.currentInput;
+    const toEnd = this.caretToEnd;
+    this.caretToEnd = false;
+    if (!input || !this.typing || this.composing) return;
+    if (!this.completion || !this.queryActive) {
+      // SRC-14: an arrow key moved to a row: the caret at the end of what the input shows.
+      if (toEnd && (input.selectionStart !== input.value.length || input.selectionEnd !== input.value.length)) input.setSelectionRange(input.value.length, input.value.length);
+      return;
+    }
+    const [start, end] = [this.value.length, this.value.length + this.completion.length];
+    if (input.value !== this.value + this.completion) return;
+    if (input.selectionStart !== start || input.selectionEnd !== end) input.setSelectionRange(start, end, 'backward');
+  }
+
+  /**
    * SRC-24: the input's semantics — a search field named by label; a combobox while its view shows the suggestions,
-   * whose active descendant is the active suggestion once the person has moved to it (SRC-14).
+   * whose active descendant is the active option: the one an arrow key moved to at once, the one the search made active
+   * once the pause has passed (SRC-14, `announcement`). With an inline completion it says both (SRC-55).
    */
   private renderInput(place: 'bar' | 'header', listed: boolean) {
-    const activeId = listed && this.active >= 0 && this.moved && this.suggestions[this.active] ? optionId(this.suggestions[this.active]) : undefined;
+    const activeId = listed && this.announcement.announced ? this.optionIdAt(this.active) : undefined;
+    const shown = this.shownText(place === 'bar' ? this.barInput : this.headerInput);
+    const both = this.inlineCompletion && this.queryRowMode === 'first';
     return html`<input
       part="input"
       class="input"
       type="search"
       enterkeyhint="search"
-      dir=${/\p{L}/u.test(this.value) ? 'auto' : nothing}
+      dir=${/\p{L}/u.test(shown) ? 'auto' : nothing}
       autocomplete="off"
       role=${listed ? 'combobox' : nothing}
-      aria-autocomplete=${listed ? 'list' : nothing}
+      aria-autocomplete=${listed ? (both ? 'both' : 'list') : nothing}
       aria-expanded=${listed ? 'true' : nothing}
       aria-controls=${listed ? 'listbox' : nothing}
       aria-activedescendant=${ifDefined(activeId)}
@@ -2117,31 +2481,35 @@ export class TanreiSearch extends TanreiElement {
     return html`<div class=${this.viewHasContent ? 'scroll' : 'scroll empty'}>
       ${listed
         ? html`<div part="listbox" class="listbox" id="listbox" role="listbox" aria-label=${ifDefined(this.label || undefined)}>
+            ${this.queryRowShown ? this.renderQueryRow() : nothing}
             ${repeat(
               this.suggestions,
               (s) => s,
-              (s, i) => html`<div
-                class="option"
-                id=${optionId(s)}
-                role="option"
-                aria-selected=${i === this.active ? 'true' : 'false'}
-                aria-labelledby="${optionId(s)}-headline"
-                aria-describedby=${ifDefined(s.supportingText ? `${optionId(s)}-supporting` : undefined)}
-                data-index=${i}
-                ?data-active=${i === this.active}
-                data-tanrei-shape
-                @pointerdown=${this.onRowPointerDown}
-                @pointerup=${this.rowPress.release}
-                @pointercancel=${this.rowPress.release}
-                @pointerleave=${this.rowPress.release}
-                @click=${this.onRowClick}
-              >
-                ${icons || s.leadingIcon ? html`<span class="option-icon ${s.leadingIcon ? '' : 'empty'}" aria-hidden="true">${s.leadingIcon}</span>` : nothing}
-                <span class="text">
-                  <span class="headline" id="${optionId(s)}-headline">${s.headline}</span>
-                  ${s.supportingText ? html`<span class="supporting" id="${optionId(s)}-supporting">${s.supportingText}</span>` : nothing}
-                </span>
-              </div>`,
+              (s, i) => {
+                const at = this.offset + i;
+                return html`<div
+                  class="option"
+                  id=${optionId(s)}
+                  role="option"
+                  aria-selected=${at === this.active ? 'true' : 'false'}
+                  aria-labelledby="${optionId(s)}-headline"
+                  aria-describedby=${ifDefined(s.supportingText ? `${optionId(s)}-supporting` : undefined)}
+                  data-index=${i}
+                  ?data-active=${at === this.active}
+                  data-tanrei-shape
+                  @pointerdown=${this.onRowPointerDown}
+                  @pointerup=${this.rowPress.release}
+                  @pointercancel=${this.rowPress.release}
+                  @pointerleave=${this.rowPress.release}
+                  @click=${this.onRowClick}
+                >
+                  ${icons || s.leadingIcon ? html`<span class="option-icon ${s.leadingIcon ? '' : 'empty'}" aria-hidden="true">${s.leadingIcon}</span>` : nothing}
+                  <span class="text">
+                    <span class="headline" id="${optionId(s)}-headline">${this.renderCompletion(s.headline)}</span>
+                    ${s.supportingText ? html`<span class="supporting" id="${optionId(s)}-supporting">${s.supportingText}</span>` : nothing}
+                  </span>
+                </div>`;
+              },
             )}
           </div>`
         : nothing}
@@ -2154,6 +2522,49 @@ export class TanreiSearch extends TanreiElement {
         <slot name=${RESULT_SLOT}></slot>
       </div>
       <div class="content" ?hidden=${!this.hasContent}><slot></slot></div>
+    </div>`;
+  }
+
+  /**
+   * SRC-56: a query suggestion's headline, the completion — the rest after the value, where the headline begins with it —
+   * drawn heavier, in one text with the rest, so that it is read as the headline alone. A headline that does not begin
+   * with the value is drawn as it is.
+   */
+  private renderCompletion(headline: string) {
+    const pieces = completionOf(headline, this.value);
+    if (!pieces || !pieces[1]) return headline;
+    return html`${pieces[0]}<span part="completion" class="completion">${pieces[1]}</span>`;
+  }
+
+  /**
+   * SRC-54: the query row — a suggestion's row of the search's own, first in the listbox: the search glyph, the value as
+   * typed with the inline completion after it while one is shown (SRC-55, emphasised as SRC-56 says), and queryRowText
+   * under it. A press on it submits the value (SRC-13); it is never a suggestion to choose.
+   */
+  private renderQueryRow() {
+    const active = this.active === 0;
+    const supporting = this.queryRowText;
+    const completion = this.completion && this.queryActive && this.typing ? this.completion : '';
+    return html`<div
+      class="option query"
+      id=${QUERY_ROW_ID}
+      role="option"
+      aria-selected=${active ? 'true' : 'false'}
+      aria-labelledby="${QUERY_ROW_ID}-headline"
+      aria-describedby=${ifDefined(supporting ? `${QUERY_ROW_ID}-supporting` : undefined)}
+      ?data-active=${active}
+      data-tanrei-shape
+      @pointerdown=${this.onRowPointerDown}
+      @pointerup=${this.rowPress.release}
+      @pointercancel=${this.rowPress.release}
+      @pointerleave=${this.rowPress.release}
+      @click=${this.onQueryRowClick}
+    >
+      <span class="option-icon query-glyph" aria-hidden="true"><span class="ink">${SEARCH_GLYPH}</span></span>
+      <span class="text">
+        <span class="headline" id="${QUERY_ROW_ID}-headline">${this.value}${completion ? html`<span part="completion" class="completion">${completion}</span>` : nothing}</span>
+        ${supporting ? html`<span class="supporting" id="${QUERY_ROW_ID}-supporting">${supporting}</span>` : nothing}
+      </span>
     </div>`;
   }
 

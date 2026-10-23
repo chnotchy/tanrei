@@ -2781,6 +2781,7 @@ never required by itself; the host is a block as wide as its place; and `toggle`
 | `allowCustomValue` / `allow-custom-value` | boolean | `false` | a text that names no option becomes the value as typed; otherwise it is given up when the person leaves; reflected |
 | `filter` | `contains` \| `none` | `contains` | who decides which options answer the text: the combobox, or the product on `input`; reflected |
 | `noChevron` / `no-chevron` | boolean | `false` | the spec's `chevron`, inverted (a boolean attribute cannot default to true): draws no chevron; reflected |
+| `wrap` / `no-wrap` | boolean | `true` | the arrow keys go round at the ends of the list — with `allow-custom-value`, through the text, where no option is active; the attribute is the inverse, and stops them at the ends (CMB-26); reflected |
 | `clearable`, `clearLabel` / `clear-label` | boolean, string | `false`, `""` | a clear button while the text is not empty, and its accessible name |
 | `status`, `statusText` / `status-text` | `idle` \| `loading` \| `error`, string | `idle`, `""` | what the product's source is doing, and the status row's text |
 | `emptyText` / `empty-text` | string | `""` | shown while the text matches nothing, no custom value is allowed and no status is set: the instance's, else the product's words; without them no such row is drawn (CMB-32) |
@@ -2900,7 +2901,10 @@ What the web does in its own way, and what it cannot do:
   the element where a browser has none; the focus style when focus arrives (`data-focus-style`, on the box and on the
   active option's row). The required mark is its Field's to read (FLD-25).
 - **The active option on the web is `aria-activedescendant`**: no announcement of the combobox's own is made for it
-  (CMB-48's fallback is for platforms whose assistive technology cannot follow it).
+  (CMB-48's fallback is for platforms whose assistive technology cannot follow it). An option typing made active — or
+  the options changing under the text — is drawn active and taken by Enter at once, and named 500 ms after it became
+  active, from a timer each change of the text restarts (`primitives/paused-announcement.ts`); an option an arrow key, a
+  page key or the pointer makes active is named at once, as is the one the list opens on by a key or the chevron.
 
 ## `<tanrei-combobox-field>`
 
@@ -7632,7 +7636,7 @@ motion. Parts: `steps`, `compact`, `bar`, `position` (stepper); `container`, `ma
 ## `<tanrei-search>`, `<tanrei-search-suggestion>`, `<tanrei-search-result>` and `<tanrei-search-result-group>`
 
 Lets people search the product from a bar or a compact trigger, and offers suggestions and results while they type in a
-view under the bar, in a dialog or over the whole screen (`specs/search.spec.json`, SRC-1…51). The field with its
+view under the bar, in a dialog or over the whole screen (`specs/search.spec.json`, SRC-1…56). The field with its
 suggestions comes first below; the site search — a trigger, a dialog view, results that are links, a status row — is
 under "A site search".
 
@@ -7659,6 +7663,10 @@ under "A site search".
 | `bind-shortcut` (`bindShortcut`) | boolean | `false` | the search listens for `shortcut` on the window while it is connected and enabled |
 | `status` | `idle` \| `loading` \| `error` | `idle` | what your search is doing. Unknown is `idle` (reported); reflected |
 | `status-text` (`statusText`) | string | `""` | the status row's text, announced when it changes |
+| `query-row` (`queryRow`) | `first` \| `none` | `first` | where the query as typed stands among the suggestions: a row of its own, first and active (SRC-54), or the input itself, the place before the first suggestion, with nothing active. Unknown is `first` (reported); reflected |
+| `query-row-text` (`queryRowText`) | string | `""` | the query row's supporting text and description, in your language ("Search all mail"); empty draws the glyph and the query alone |
+| `inline-completion` (`inlineCompletion`) | boolean | `false` | completes the value in the input from the first suggestion that begins with it (SRC-55); reflected |
+| `no-wrap` (`wrap`, inverted) | boolean | `wrap` is `true` | the arrow keys stop at the ends of the view instead of going round; reflected |
 | `value` | string | `""` | the query. Setting it shows it and fires nothing; the `value` attribute is what a form reset returns to |
 | `label` | string | `""` | names the field, the suggestions' listbox and the full-screen view ("Search mail"). Never drawn, never the placeholder. Required: empty is reported (SRC-27) |
 | `placeholder` | string | `""` | the hint while the value is empty |
@@ -7718,14 +7726,33 @@ on-screen keyboard. Opening focuses the header's input with the caret at the end
 input, which does not reopen it. A press on the view that would take focus nowhere keeps it inside. It fades in and out
 over the open and close motion. The slots are not drawn in the header.
 
-**Keyboard (SRC-12…15).** The WAI-ARIA combobox pattern with list autocomplete and automatic selection: the first
-suggestion is active as soon as the view shows suggestions while the input has focus, and again after typing, deleting,
-moving the caret, new suggestions or focus coming back; Down / Up Arrow move the active suggestion while focus stays in
-the input (Down from none is the first; it stays on the last; Up on the first leaves none), except that the first Down
-Arrow after an automatic choice stays on it and announces it, as Down from the field does in APG's list autocomplete
-example and GitHub's combobox-nav (whose `navigate(1)` starts from the first option while none is `aria-selected`); with
-results and no suggestion it moves focus to the current, first result. The active row is scrolled into view. Enter chooses the active suggestion, or submits. Escape closes the view; closed, it empties a value (one
+**Keyboard (SRC-12…15, SRC-54, SRC-55).** Suggestions are queries, and the query as typed is always what Enter takes
+until the person moves. With `query-row="first"` (the default) it is a row of the search's own, first in the listbox and
+active as soon as the view shows suggestions while the input has focus — and again after typing, deleting, pasting, new
+suggestions, the view opening or focus coming back — as the first row of a browser's address bar is. With
+`query-row="none"` no row is active and the input is the place before the first suggestion, as on a web search page.
+Down / Up Arrow go through the cycle while focus stays in the input: the query row (or the input's place), the
+suggestions, then the results by real focus; the first Down Arrow goes to the row after the one Enter takes. A suggestion
+an arrow key reaches is written into the input element — `value` is not set and `input` is not fired — and the value as
+typed is written back on the query row, the input's place, a result, a close or a blur; typing, deleting or pasting on a
+shown suggestion makes that text, edited, the value. At the ends the keys go round (`wrap`, the default) or stop
+(`no-wrap`). A caret move leaves the active row as it is. The active row is scrolled into view. Enter chooses the active
+suggestion, or — on the query row or with no row — submits. Escape closes the view; closed, it empties a value (one
 `input`), and with none it does nothing and passes on.
+
+**Inline completion (SRC-55).** With `inline-completion`, after an insertion at the end (typing, or an input method's
+commit — `inputType` `insertText` or `insertCompositionText`, the caret at the end), the rest of the first suggestion
+whose headline begins with the value (compared as the combobox compares: `primitives/text-match.ts`) is written after
+the value and selected backwards, so the caret stands before it; `value` stays what was typed. New suggestions after such
+an insertion complete again. Backspace or Delete takes the completion away (the key is prevented, so no `input` fires);
+a cut of the selected completion, which changes no value, has its `input` stopped in the shadow root. A caret key or a
+press in the input accepts it (`input` with `inputType` `insertReplacementText`), Enter accepts it and submits. A
+deletion, a paste, a composition, an on-screen keyboard or a blur completes nothing. The input says
+`aria-autocomplete="both"` while the search can complete.
+
+**A suggestion's completion (SRC-56).** Where a suggestion's headline begins with the value, the rest is a
+`<span part="completion" class="completion">` inside the headline, its weight `suggestion.headline.typescale`'s plus
+`suggestion.completion.emphasis`, in the headline's color, with no fill; the headline's name is the whole text.
 
 **On an on-screen keyboard (SRC-14, SRC-49)** nothing is made active or current by itself, so the keyboard's Search or
 Go key submits the text as typed. The search tells the keyboard by the press that gave the input focus: it records the
@@ -7739,11 +7766,13 @@ VirtualKeyboard API, which only Chromium has.
 
 **Semantics (SRC-24).** The input is a native `type="search"` (a searchbox) with `enterkeyhint="search"` and `dir="auto"`,
 named by `aria-label` from `label`, never by the placeholder. While the view shows suggestions it is a `combobox` with
-`aria-autocomplete="list"`, `aria-expanded="true"`, `aria-controls` naming the `listbox` (named by `label`) and
-`aria-activedescendant` naming the active `option` once the person has moved to it with an arrow key (the Down Arrow
-that opens the view included). The first, made active automatically, is `aria-selected="true"` but not named, so a screen
-reader reads no suggestion per key typed — APG's list autocomplete example sets only `aria-selected` on its automatic
-choice, and GitHub's combobox-nav marks its default option with a data attribute alone. Each option's id is its
+`aria-autocomplete="list"` (`both` with `inline-completion`), `aria-expanded="true"`, `aria-controls` naming the
+`listbox` (named by `label`) and `aria-activedescendant` naming the active `option`: at once when an arrow key moved to
+it (the Down Arrow that opens the view included), and when the search made it active by itself — the query row — 500 ms
+after it became active, from a timer that each edit restarts and that takes the name away meanwhile
+(`primitives/paused-announcement.ts`, React Aria's autocomplete's pause), so that a screen reader reads the character
+typed first and then what Enter takes. The active option is `aria-selected="true"` from the moment it is active. The query
+row's option is `id="query-row"`, named by the value and described by `query-row-text`. Each option's id is its
 suggestion element's own (`option-<n>` from a counter, kept per element), never its place in the list, so that suggestions
 the product replaces are new options to name and to read, and an element it moves keeps its id; each option is named by its headline
 (`aria-labelledby`) and described by its supporting text (`aria-describedby`). The spec names the combobox for the docked
@@ -7863,8 +7892,11 @@ Activated in place — a primary press, a touch or Enter, no modifier, `target` 
 any other way, nothing is fired and the view stays open. Enter in the input with Command (Apple convention) or Control
 opens the current result in a new tab, and with Shift in a new window, through `window.open` with `noopener` (and
 `noreferrer` where `rel` says so; a new window is a `popup`, the only window a page can ask for): a click dispatched with
-the modifiers would do it in Chromium and Firefox, but WebKit follows such a click in place whatever its modifiers. Down Arrow in the input, with no suggestion left to go to, moves
-**real focus** to the first result and on through them, across groups; Up Arrow comes back, to the input from the first.
+the modifiers would do it in Chromium and Firefox, but WebKit follows such a click in place whatever its modifiers. With results and no suggestion, the first is
+current while focus stays in the input (`data-current` on its row) and Enter opens it; its link becomes the input's
+active descendant by element reflection after the same 500 ms pause. Down Arrow moves **real focus** to the next
+result, across groups — the second from the current first, the first from the last suggestion — and Up Arrow comes back,
+to the input with the last suggestion active from the first result; at the ends the cycle goes round unless `no-wrap`.
 Typing a character, Backspace, Delete or pasting on a result moves focus to the input, where the key then acts. Tab goes
 through the links in a modal view; docked, it closes the view and moves on from the input. A result is a `listitem` of a
 `list` named by `label`, a group a `group` named by its headline holding its own `list`; a result is never an option,
@@ -7875,8 +7907,8 @@ element that holds `status-text` while idle and a `role="alert"` one that holds 
 `status.error.color`). While `loading` both are empty, a small `<tanrei-loading-indicator>` named by `status-text`
 stands at the row's start after its own show delay, and the results' list carries `aria-busy="true"`.
 
-**Enter in the input (SRC-13).** `submit` is fired; the view then closes only when it shows no result, no group and no
-status row.
+**Enter in the input (SRC-13).** On the query row, or with no row active and no result current, `submit` is fired; the
+view then closes only when it shows no result, no group and no status row. A press on the query row does the same.
 
 **Differences from the other platforms.** The web has the combobox and listbox roles, so its suggestions are options of a
 listbox the input controls, where the other platforms expose buttons with their position. The element sets its own

@@ -766,6 +766,20 @@ export const styles = css`
   .option-icon.empty {
     visibility: hidden;
   }
+  /* SRC-54, SRC-2, SRC-30: the query row's search glyph — a suggestion's leading icon, never mirrored — is drawn only
+     once the icon set can draw it (GlyphDrawnController sets data-drawn); until then its box is kept and empty. */
+  .query-glyph {
+    visibility: hidden;
+  }
+  .query-glyph[data-drawn] {
+    visibility: visible;
+  }
+  /* SRC-56: a query suggestion's completion — what it adds to the query as typed — and the query row's inline
+     completion (SRC-55): the headline's weight raised by suggestion.completion.emphasis, in its own color, no fill,
+     one text with the headline. */
+  .completion {
+    font-weight: calc(${t('suggestion-headline-typescale-font-weight')} + ${t('suggestion-completion-emphasis')});
+  }
   .text {
     display: flex;
     flex: 1 1 auto;

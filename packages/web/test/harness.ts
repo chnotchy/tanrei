@@ -1372,8 +1372,13 @@ const STAGING: Record<string, Staging> = {
       .stage:has(> tanrei-search[expanded][presentation='full-screen']) { block-size: 480px; padding: 0; align-content: stretch; }
       .stage:has(> tanrei-search[expanded][presentation='dialog']) { inline-size: 720px; block-size: 480px; padding: 0; align-content: stretch; }
       .stage[data-fixture='dialog-loading'] { --tanrei-comp-loading-indicator-motion-show-delay: 0ms; --tanrei-comp-loading-indicator-motion-enter-duration: 0ms; }`,
-    // `inline` is the test attribute; a test's own fixture with `inline: false` is the real overlay instead.
-    props: ({ inline, ...props }) => ({ ...(props.expanded && inline !== false ? { ...props, inline: true } : props), 'data-tanrei-keyboard-convention': 'apple' }),
+    // `inline` is the test attribute; a test's own fixture with `inline: false` is the real overlay instead. `wrap`, a
+    // boolean that defaults to true, is the inverse attribute (`no-wrap`).
+    props: ({ inline, wrap, ...props }) => ({
+      ...(props.expanded && inline !== false ? { ...props, inline: true } : props),
+      ...(wrap === false ? { noWrap: true } : {}),
+      'data-tanrei-keyboard-convention': 'apple',
+    }),
   },
   // A segmented button is drawn at its natural width, start-aligned and vertically centred on a 400 × 96 stage (SEG-14's
   // verify); its `values` (multiple) are the JSON array attribute the set reads.

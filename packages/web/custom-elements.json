@@ -38783,7 +38783,7 @@
         },
         {
           "kind": "class",
-          "description": "Lets people search the product from a bar or a compact trigger, and offers suggestions and results while they type in\na view under the bar, in a dialog or over the whole screen.\n\nContract: specs/search.spec.json. The value is edited in a native `<input type=\"search\" enterkeyhint=\"search\">` in the\nshadow root, as the text field's, with the browser's own cancel button hidden: the search draws its own\nclear button. Every visual value comes from `--tanrei-comp-search-*` tokens, its one condition's parts by state.\n\nOpening and closing: a press on the bar, typing or Down Arrow opens the view (focus alone never does); Escape, a\nchosen suggestion, submitting, the back button, and — docked — a press outside, Tab and focus leaving close it. The\nelement sets its own `expanded` and then fires `toggle`, whose `detail` holds `expanded` and, when closing, `reason`.\nSet `expanded` yourself to open or close it without an event.\n\n`docked` (the default) opens a view under the bar: a manual popover in the top layer, placed by script (flipped above\nthe bar when there is more room there), following the bar. Focus stays in the input — the WAI-ARIA combobox pattern:\nthe input controls the suggestions' listbox and names the active suggestion as its active descendant once the person\nmoves to it with an arrow key (the first, active as the suggestions show, is selected but not read out). A press outside\ncloses it AND reaches the element under it. `full-screen` opens a modal `<dialog>` over the whole window with its own\nheader (a back button, the input, the clear button); it takes focus, keeps it, and gives it back to the bar's input.\n\nA site search. `bar=\"button\"` draws a trigger shaped like the bar — the search glyph, the placeholder\nand the shortcut hint — and `bar=\"icon\"` an icon-only Button; a trigger opens a modal view, where the input is\n(`presentation=\"dialog\"`: a `<dialog>` hung from the top of the window over a scrim, a press on which closes it,\nits header starting with the same back button as the full-screen view's, so it can be left by Tab and Enter alone;\n`docked` with a trigger opens as `dialog`). `shortcut` (chords separated by spaces, as the keyboard shortcut's `keys`)\nis written as a hint — a line of text, no keycaps — and exposed as `aria-keyshortcuts`; it makes the keys work only with `bind-shortcut`, which adds one\n`keydown` listener on the window while the element is connected and enabled. The results are\n`<tanrei-search-result>` and `<tanrei-search-result-group>` children: links, never options, reached from the input\nwith Down Arrow (real focus), left with Up Arrow or by typing. As soon as the view shows suggestions, the first is\nactive (list autocomplete with automatic selection), and with no suggestion the first result is current — drawn as\nfocused while focus stays in the input — so that one Enter takes it; Up Arrow on the first gives Enter back to the\nquery as typed. `status` and `status-text` draw the status row — a\n`role=\"status\"` element that exists from the first render (`role=\"alert\"` while `status=\"error\"`). The search never\nruns a query: listen to `input`, then set the results, `status` and `status-text`.\n\nForm-associated: with a `name` it submits `value`, and Enter (with no suggestion active and no result current) requests its form's\nsubmission after `submit`, unless `submit` was cancelled. The `inline` attribute, for tests and documentation, draws\nthe open view in place: the docked view under the bar, the full-screen view filling the element.",
+          "description": "Lets people search the product from a bar or a compact trigger, and offers suggestions and results while they type in\na view under the bar, in a dialog or over the whole screen.\n\nContract: specs/search.spec.json. The value is edited in a native `<input type=\"search\" enterkeyhint=\"search\">` in the\nshadow root, as the text field's, with the browser's own cancel button hidden: the search draws its own\nclear button. Every visual value comes from `--tanrei-comp-search-*` tokens, its one condition's parts by state.\n\nOpening and closing: a press on the bar, typing or Down Arrow opens the view (focus alone never does); Escape, a\nchosen suggestion, submitting, the back button, and — docked — a press outside, Tab and focus leaving close it. The\nelement sets its own `expanded` and then fires `toggle`, whose `detail` holds `expanded` and, when closing, `reason`.\nSet `expanded` yourself to open or close it without an event.\n\n`docked` (the default) opens a view under the bar: a manual popover in the top layer, placed by script (flipped above\nthe bar when there is more room there), following the bar. Focus stays in the input — the WAI-ARIA combobox pattern:\nthe input controls the suggestions' listbox and names the active option as its active descendant — one an arrow key\nmoves to at once, one the search made active once typing has paused for half a second. A press outside\ncloses it AND reaches the element under it. `full-screen` opens a modal `<dialog>` over the whole window with its own\nheader (a back button, the input, the clear button); it takes focus, keeps it, and gives it back to the bar's input.\n\nA site search. `bar=\"button\"` draws a trigger shaped like the bar — the search glyph, the placeholder\nand the shortcut hint — and `bar=\"icon\"` an icon-only Button; a trigger opens a modal view, where the input is\n(`presentation=\"dialog\"`: a `<dialog>` hung from the top of the window over a scrim, a press on which closes it,\nits header starting with the same back button as the full-screen view's, so it can be left by Tab and Enter alone;\n`docked` with a trigger opens as `dialog`). `shortcut` (chords separated by spaces, as the keyboard shortcut's `keys`)\nis written as a hint — a line of text, no keycaps — and exposed as `aria-keyshortcuts`; it makes the keys work only with `bind-shortcut`, which adds one\n`keydown` listener on the window while the element is connected and enabled. The results are\n`<tanrei-search-result>` and `<tanrei-search-result-group>` children: links, never options, reached from the input\nwith Down Arrow (real focus), left with Up Arrow or by typing.\n\nSuggestions are queries. With `query-row=\"first\"` (the default) the view's first row is the query row — the search\nglyph, the value as typed and `query-row-text` — active as soon as suggestions show, so that Enter always searches for\nwhat was typed; with `query-row=\"none\"` nothing is active and the input itself is the place before the first\nsuggestion. The arrow keys go through the query row (or the input's place), the suggestions — each shown in the input\nwithout changing `value` or firing `input` — and the results, and round at the ends unless `no-wrap`. A suggestion's\ncompletion (what it adds to the value) is drawn heavier. `inline-completion` completes the value in the input from the\nfirst suggestion that begins with it. With no suggestion the first result is current — drawn as focused while focus\nstays in the input, its link the input's active descendant once typing pauses — so that one Enter opens it.\n`status` and `status-text` draw the status row — a\n`role=\"status\"` element that exists from the first render (`role=\"alert\"` while `status=\"error\"`). The search never\nruns a query: listen to `input`, then set the results, `status` and `status-text`.\n\nForm-associated: with a `name` it submits `value`, and Enter (on the query row, or with no row active) requests its form's\nsubmission after `submit`, unless `submit` was cancelled. The `inline` attribute, for tests and documentation, draws\nthe open view in place: the docked view under the bar, the full-screen view filling the element.",
           "name": "TanreiSearch",
           "cssParts": [
             {
@@ -38803,8 +38803,12 @@
               "name": "dialog"
             },
             {
-              "description": "The suggestions.",
+              "description": "The suggestions, the query row first.",
               "name": "listbox"
+            },
+            {
+              "description": "A query suggestion's completion, drawn heavier, and the query row's inline completion.",
+              "name": "completion"
             },
             {
               "description": "The status row.",
@@ -38998,6 +39002,53 @@
             },
             {
               "kind": "field",
+              "name": "queryRow",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiSearchQueryRow"
+              },
+              "default": "'first'",
+              "description": "Where the query as typed stands among the suggestions, which are queries (`query-row`). `first` (the default): a row\nof its own above them — the search glyph and the value, with `queryRowText` under it — drawn while the view shows\nsuggestions and the value is not empty, and active from the moment they show, so that Enter always searches for what\nwas typed, as the first row of a browser's address bar does (SRC-54). `none`: no such row and nothing active until\nthe person moves, as on a web search page; the input itself is the place before the first suggestion (SRC-14).",
+              "attribute": "query-row",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "queryRowText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What the query row says beside the query, in the product's language (`query-row-text`): its supporting text and its\ndescription (\"Search all mail\"). Empty draws the search glyph and the query alone: the row needs no words.",
+              "attribute": "query-row-text"
+            },
+            {
+              "kind": "field",
+              "name": "inlineCompletion",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Completes the query in the input while the person types, from the first suggestion whose headline begins with it:\nthe rest is written after the caret, selected, and the query row shows the completed query (SRC-55,\n`inline-completion`). Never after a deletion or a paste, during a composition or on an on-screen keyboard; a caret\nmove accepts it (`input` fires with the completed value), Backspace takes it away. Ignored with `query-row=\"none\"`.",
+              "attribute": "inline-completion",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "wrap",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true",
+              "description": "Whether the arrow keys go round at the ends of the view's rows: Down Arrow on the last to the first, Up Arrow on the\nfirst to the last — with `query-row=\"none\"`, through the input's own place (SRC-14, SRC-49). The attribute is the\ninverse, `no-wrap`, which stops them at the ends.",
+              "attribute": "no-wrap",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "iconSpace",
               "privacy": "public",
               "type": {
@@ -39116,14 +39167,14 @@
               "type": {
                 "text": "CustomEvent<TanreiSearchSubmitDetail>"
               },
-              "description": "The action key (Enter, Search) was pressed with no suggestion active and no result current: `detail.value`. Cancelable: cancelling it keeps an enclosing form from being submitted."
+              "description": "The action key (Enter, Search) was pressed on the query row, or with no row active and no result current, or the query row was pressed: `detail.value` (an inline completion shown is accepted first, with its own `input`). Cancelable: cancelling it keeps an enclosing form from being submitted."
             },
             {
               "name": "input",
               "type": {
                 "text": "InputEvent"
               },
-              "description": "The person changed the value (typing, deleting, pasting, dictating, the clear button, Escape); `value` is already the new one. Never fired when the product sets `value`."
+              "description": "The person changed the value (typing, deleting, pasting, dictating, the clear button, Escape, accepting an inline completion); `value` is already the new one. Never fired when the product sets `value`, nor for a suggestion an arrow key shows in the input or a completion that is shown and not accepted."
             }
           ],
           "attributes": [
@@ -39250,6 +39301,42 @@
               "default": "''",
               "description": "The status row's text, in the product's language, announced to assistive technology when it changes\n(`status-text`): the count (\"12 results for tokens\"), that nothing was found, the failure; while loading, the\nloading indicator's name (\"Searching\"). Empty draws no status row unless `status` is `loading`.",
               "fieldName": "statusText"
+            },
+            {
+              "name": "query-row",
+              "type": {
+                "text": "TanreiSearchQueryRow"
+              },
+              "default": "'first'",
+              "description": "Where the query as typed stands among the suggestions, which are queries (`query-row`). `first` (the default): a row\nof its own above them — the search glyph and the value, with `queryRowText` under it — drawn while the view shows\nsuggestions and the value is not empty, and active from the moment they show, so that Enter always searches for what\nwas typed, as the first row of a browser's address bar does (SRC-54). `none`: no such row and nothing active until\nthe person moves, as on a web search page; the input itself is the place before the first suggestion (SRC-14).",
+              "fieldName": "queryRow"
+            },
+            {
+              "name": "query-row-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What the query row says beside the query, in the product's language (`query-row-text`): its supporting text and its\ndescription (\"Search all mail\"). Empty draws the search glyph and the query alone: the row needs no words.",
+              "fieldName": "queryRowText"
+            },
+            {
+              "name": "inline-completion",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Completes the query in the input while the person types, from the first suggestion whose headline begins with it:\nthe rest is written after the caret, selected, and the query row shows the completed query (SRC-55,\n`inline-completion`). Never after a deletion or a paste, during a composition or on an on-screen keyboard; a caret\nmove accepts it (`input` fires with the completed value), Backspace takes it away. Ignored with `query-row=\"none\"`.",
+              "fieldName": "inlineCompletion"
+            },
+            {
+              "name": "no-wrap",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true",
+              "description": "Whether the arrow keys go round at the ends of the view's rows: Down Arrow on the last to the first, Up Arrow on the\nfirst to the last — with `query-row=\"none\"`, through the input's own place (SRC-14, SRC-49). The attribute is the\ninverse, `no-wrap`, which stops them at the ends.",
+              "fieldName": "wrap"
             },
             {
               "name": "icon-space",
