@@ -1044,6 +1044,10 @@
     {
       "id": "FLD-32",
       "text": "IF required and optional are both true THEN THE field SHALL behave as WHILE required alone is true — it draws the required mark and no optional tag, and says no optionalText — and in debug builds SHALL report that optional is ignored, because a control is never both required and optional."
+    },
+    {
+      "id": "FLD-33",
+      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the field's host, by the attribute or by the ARIA property that reflects it, THE field SHALL move it to the data-aria- attribute of the same name, so that the host — which has no role — is no node of its own with a name, a description or a state, SHALL expose it on no element, and SHALL report it in debug builds, saying to write it on the control: the control is the product's own element, which keeps its own name, states and ARIA (FLD-10, FLD-23), and what the field gives it is its label, its texts and its marks (FLD-8, FLD-10, FLD-11, FLD-14). WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it to null, THE field SHALL take the moved value away."
     }
   ],
   "accessibility": {

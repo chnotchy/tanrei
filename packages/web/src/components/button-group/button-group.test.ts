@@ -6,6 +6,8 @@
 // An item's box is its container's: under a divider the container ends at the seam and paints the fill alone, and its
 // outline and elevation are drawn by its ::after, which reaches past the seam and is cut there
 // (src/primitives/group-item.ts).
+// BGR-25: the product's ARIA on the host is tested with every other host's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';

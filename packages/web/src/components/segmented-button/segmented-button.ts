@@ -19,6 +19,7 @@ import {
 } from '../../primitives/index.js';
 import { AXES, segmentStyles, setStyles } from './segmented-button.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { holdsProductName, nameHost } from '../../primitives/delegated-aria.js';
 
 /** One option at a time (a radio group), or each option on and off (toggle buttons). A closed set: anything else is single. */
 export type TanreiSegmentedButtonSelection = 'single' | 'multiple';
@@ -519,7 +520,7 @@ export class TanreiSegmentedButton extends TanreiElement {
       if (!segment.label.trim() && !namedByProduct(segment)) this.reportOnce(seen, 'SEG-22', `segment ${index + 1} (value "${segment.value}") has an empty label, so it has no accessible name; give it a label`);
       if (segment.labelHidden && !segment.icon) this.reportOnce(seen, 'SEG-22', `segment ${index + 1} ("${segment.label}") hides its label but has no icon, so its label is drawn anyway; give it an icon`);
     });
-    if (!this.label.trim()) this.reportOnce(seen, 'SEG-22', 'label is empty, so the set has no accessible name; give it the question its options answer');
+    if (!this.label.trim() && !namedByProduct(this)) this.reportOnce(seen, 'SEG-22', 'label is empty, so the set has no accessible name; give it the question its options answer');
     if (segments.length < RANGE[0] || segments.length > RANGE[1]) this.reportOnce(seen, 'SEG-22', `it holds ${segments.length} segments; it is made for ${RANGE[0]} to ${RANGE[1]}`);
     for (const message of this.reported) if (!seen.has(message)) this.reported.delete(message);
   }
@@ -532,7 +533,9 @@ export class TanreiSegmentedButton extends TanreiElement {
 
   protected override updated() {
     // SEG-20: a radio group (single) or a group (multiple), named by the set's label.
-    hostAria(this, { role: this.multiple ? 'group' : 'radiogroup', 'aria-label': this.label || null });
+    // SEG-29: the set's label is its whole name over the product's, which names it while the label is empty.
+    nameHost(this, this.label);
+    hostAria(this, { role: this.multiple ? 'group' : 'radiogroup' });
     this.sync();
   }
 
@@ -549,6 +552,8 @@ export class TanreiSegmentedButton extends TanreiElement {
 // and the disabled state are its own (SEG-20).
 delegatesAria(TanreiSegment, { owns: ['aria-checked', 'aria-pressed', 'aria-disabled'], sentence: 'SEG-29' });
 if (!customElements.get('tanrei-segment')) customElements.define('tanrei-segment', TanreiSegment);
+// SEG-29: the set's host carries its role, and holds the product's name while its label names it.
+holdsProductName(TanreiSegmentedButton);
 if (!customElements.get('tanrei-segmented-button')) customElements.define('tanrei-segmented-button', TanreiSegmentedButton);
 
 declare global {

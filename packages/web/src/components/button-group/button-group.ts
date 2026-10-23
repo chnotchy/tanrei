@@ -20,6 +20,7 @@ import {
 } from '../../primitives/index.js';
 import { styles } from './button-group.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
 
 /** How the buttons are laid out: spaced apart, or joined into one shape. A closed set (the two differ in structure). */
 export type TanreiButtonGroupVariant = 'standard' | 'connected';
@@ -286,8 +287,10 @@ export class TanreiButtonGroup extends TanreiElement implements PlacingGroup {
   }
 
   protected override updated(changed: PropertyValues<this>) {
-    // BGR-6: a named group only when it has a label; otherwise no element of its own in the accessibility tree.
-    hostAria(this, { role: this.label ? 'group' : null, 'aria-label': this.label || null });
+    // BGR-6: a named group only when it has a label, or a name the product gives it (BGR-25); otherwise no element of its
+    // own in the accessibility tree.
+    nameHost(this, this.label);
+    hostAria(this, { role: this.label || namedByProduct(this) ? 'group' : null });
     // BGR-15: each child in the slot of its place, so the flat tree — what focus and assistive technology walk — is the
     // placed order. A child that stays in its slot is not assigned again.
     this.renderRoot.querySelectorAll<HTMLSlotElement>('slot').forEach((slot, i) => assignSlot(slot, this.placed[i] ? [this.placed[i]] : []));
@@ -326,6 +329,8 @@ export class TanreiButtonGroup extends TanreiElement implements PlacingGroup {
   }
 }
 
+// BGR-25: the host carries the group role, and holds the product's name while its label names it.
+holdsProductName(TanreiButtonGroup);
 if (!customElements.get('tanrei-button-group')) customElements.define('tanrei-button-group', TanreiButtonGroup);
 
 declare global {

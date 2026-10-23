@@ -162,6 +162,10 @@
     {
       "id": "MTR-15",
       "text": "WHERE the platform draws with a person's own forced colors THE meter SHALL draw its track as an edge sys.border.hairline wide in the platform's text color and its indicator filled in the platform's text color, whatever its status, so that the value is still read from where the indicator ends."
+    },
+    {
+      "id": "MTR-16",
+      "text": "WHERE the platform has ARIA attributes (the web), the host carries its meter role (MTR-7) itself, so what the product writes on it is not moved, but for a name: WHILE label is not empty THE meter SHALL hold the product's aria-label and aria-labelledby on that host as their data-aria- twins, so that label is its whole name although the platform gives aria-labelledby the precedence, and WHEN label is emptied SHALL give them back as they were written; WHILE label is empty a name the product gives so — aria-label, or aria-labelledby naming an element — SHALL be its name and SHALL NOT be reported as having none in debug builds (MTR-14). WHEN the product removes one, or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaLabelledByElements) to null, THE meter SHALL take it away."
     }
   ],
   "accessibility": {

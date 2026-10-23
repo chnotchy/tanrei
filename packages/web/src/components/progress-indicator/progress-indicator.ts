@@ -18,6 +18,7 @@ import {
 import type { TanreiProgressIndicatorSizeRegistry } from '../../registry.js';
 import { AXES, VARIANTS, styles } from './progress-indicator.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
 
 /** `linear` is a bar that fills its layout's width; `circular` is a ring of a fixed size. Drawn by the component: a design system cannot add a form. */
 export type TanreiProgressIndicatorVariant = 'linear' | 'circular';
@@ -129,13 +130,14 @@ export class TanreiProgressIndicator extends TanreiElement {
       else if (value < min || value > max) report(this, 'PRG-11', `value ${value} is outside ${min}…${max}; it is drawn and exposed as ${Math.min(max, Math.max(min, value))}`);
     }
     // PRG-15: a bar alone is not a name.
-    if (changed.has('label') && !this.label) report(this, 'PRG-15', 'label is empty, so the progress indicator has no accessible name; give it a label');
+    if (changed.has('label') && !this.label && !namedByProduct(this)) report(this, 'PRG-15', 'label is empty, so the progress indicator has no accessible name; give it a label');
 
     // PRG-8 / PRG-9 / PRG-10: the host is the progressbar; never focusable, never a live region.
     const range = this.determinate ? this.range : null;
+    // PRG-18: its label is its whole name over the product's, which names it while the label is empty.
+    nameHost(this, this.label);
     hostAria(this, {
       role: 'progressbar',
-      'aria-label': this.label || null,
       'aria-valuemin': range ? String(range.min) : null,
       'aria-valuemax': range ? String(range.max) : null,
       'aria-valuenow': range ? String(range.now) : null,
@@ -162,6 +164,8 @@ export class TanreiProgressIndicator extends TanreiElement {
   }
 }
 
+// PRG-18: the host carries the role, and holds the product's name while its label names it.
+holdsProductName(TanreiProgressIndicator);
 if (!customElements.get('tanrei-progress-indicator')) customElements.define('tanrei-progress-indicator', TanreiProgressIndicator);
 
 declare global {

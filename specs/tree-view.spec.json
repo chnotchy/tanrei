@@ -760,6 +760,10 @@
       "id": "TRV-71",
       "text": "THE tree view SHALL expose the filter field as a search field — on the web an input of type search, which has the searchbox role — named by filterLabel, with filterPlaceholder as its placeholder, controlling the tree (aria-controls on the web), naming no active descendant (the active match of TRV-61 is read once the person moves to it), before the tree in reading order and a stop of its own in the focus order, outside the tree's one stop (TRV-19); each shown item with its level and its position among the shown items of its parent and their number; and the rows the filter hides not at all. WHILE filterable is true and filterLabel is empty THE tree view SHALL still draw the field, and in debug builds report that it has no accessible name.",
       "verify": "On the web, fixture filter: one input of type search named \"Filter files\", aria-controls naming the element with the tree role; Tab from the field reaches the tree in one stop; components' group reports one item."
+    },
+    {
+      "id": "TRV-72",
+      "text": "WHERE the platform has ARIA attributes (the web), the host carries its tree role (TRV-32) itself — while no filter field stands in it; while one does, its first list carries the role and the label (TRV-54, TRV-71), and the host, which then carries no role, holds the product's name and writes none of its own — so what the product writes on it is not moved, but for a name: WHILE label is not empty THE tree view SHALL hold the product's aria-label and aria-labelledby on that host as their data-aria- twins, so that label is its whole name although the platform gives aria-labelledby the precedence, and WHEN label is emptied SHALL give them back as they were written; WHILE label is empty a name the product gives so — aria-label, or aria-labelledby naming an element — SHALL be its name and SHALL NOT be reported as having none in debug builds (TRV-32). WHEN the product removes one, or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaLabelledByElements) to null, THE tree view SHALL take it away."
     }
   ],
   "accessibility": {

@@ -1,6 +1,8 @@
 // <tanrei-scroll-area>, driven by specs/scroll-area.spec.json: every behaviour id (SCA-1…17) is cited by a test title,
 // every fixture has a baseline, and every length, color, duration and easing is read back from the tokens — never from
 // a number written here.
+// SCA-18: the product's ARIA on the host is tested with every other host's, in every engine, in
+// src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, tab, tabTo } from '../../../test/harness.js';

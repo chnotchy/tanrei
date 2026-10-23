@@ -22,6 +22,7 @@ import type { TanreiMenuCloseReason } from '../menu/menu.js';
 import { AXES, itemStyles, menuStyles } from './fab-menu.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { holdsProductName, nameHost } from '../../primitives/delegated-aria.js';
 
 /** FBM-11: the glyph of the system's icon set the open toggle draws — the spec's name, not a value. */
 const CLOSE_GLYPH = 'close';
@@ -171,15 +172,16 @@ export class TanreiFabMenuItem extends TanreiElement {
   };
 
   protected override updated(changed: PropertyValues<this>) {
-    // FBM-20: a menu item named by its label, with its position and the number of items.
+    // FBM-20: a menu item named by its label, with its position and the number of items. FBM-28: its label is its whole
+    // name over the product's, which names it while the label is empty.
+    nameHost(this, this.label);
     hostAria(this, {
       role: 'menuitem',
-      'aria-label': this.label || null,
       'aria-posinset': this.context.position ? String(this.context.position) : null,
       'aria-setsize': this.context.size ? String(this.context.size) : null,
     });
     // FBM-23: an item without a label or an icon still renders; a debug build says what is missing.
-    if (changed.has('label') && !this.label.trim()) report(this, 'FBM-23', 'label is empty, so the item has no accessible name; give it a label');
+    if (changed.has('label') && !this.label.trim() && !namedByProduct(this)) report(this, 'FBM-23', 'label is empty, so the item has no accessible name; give it a label');
     if (changed.has('icon') && !this.icon.trim()) report(this, 'FBM-23', 'icon is empty; give the item the name of a glyph of the icon set');
   }
 
@@ -663,6 +665,8 @@ export class TanreiFabMenu extends TanreiElement {
   }
 }
 
+// FBM-28: an item's host carries its role, and holds the product's name while its label names it.
+holdsProductName(TanreiFabMenuItem);
 if (!customElements.get('tanrei-fab-menu-item')) customElements.define('tanrei-fab-menu-item', TanreiFabMenuItem);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiFabMenu);

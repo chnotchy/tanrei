@@ -126,6 +126,10 @@
     {
       "id": "SCA-17",
       "text": "THE scroll area SHALL have no words of its own and SHALL read none of the product's words: label names this one region."
+    },
+    {
+      "id": "SCA-18",
+      "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE scroll area SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on its box — an id reference by the elements it names in the host's tree or a tree around it, a description after its own — but a name only while the box is a focus stop and a region (SCA-10): then label is its name over a name given so, and while label is empty a name given so is its name and SHALL NOT be reported as having none in debug builds. WHILE the box is not a focus stop it has no role a name could stand on: THE scroll area SHALL expose no name the product gives on the host, and SHALL report it in debug builds. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE scroll area SHALL take it off the box."
     }
   ],
   "accessibility": {

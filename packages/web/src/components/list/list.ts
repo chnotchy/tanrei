@@ -40,6 +40,7 @@ import '../menu/menu.js';
 import { AXES, itemStyles, listStyles } from './list.styles.js';
 import type { TanreiListDensityRegistry } from '../../registry.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { delegatedAria, delegatesAria, holdsProductName, nameHost, namedByProduct, syncDelegation } from '../../primitives/delegated-aria.js';
 
 /** LST-21: the glyph of the icon set a selected option draws — the spec's name, not a value. */
 const CHECK_GLYPH = 'check';
@@ -159,6 +160,9 @@ const spoken = (text: string | null | undefined) => (text ?? '').replace(/\s+/g,
 
 /** Whether motion is reduced for this person. */
 const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/** LST-52: what an item's host says itself while it carries its role (an option, a list item), taken away when an action carries it. */
+const ITEM_HOST_ARIA = ['aria-selected', 'aria-disabled', 'aria-description'];
 
 /**
  * One item of a list — the spec's item kind `list-item`: a box around your own content (its children). Placed as a
@@ -533,7 +537,7 @@ export class TanreiListItem extends TanreiElement {
 
   /** LST-19: an item that must be named and is not. */
   private reportName() {
-    if ((this.mode !== 'static' || this.context.reorder) && !this.name) {
+    if ((this.mode !== 'static' || this.context.reorder) && !this.name && !namedByProduct(this)) {
       report(this, 'LST-19', 'the item has no name — an empty label and no text in its content — so assistive technology cannot tell it apart; give it a label');
     }
   }
@@ -575,28 +579,38 @@ export class TanreiListItem extends TanreiElement {
   /** LST-48: a List row in the content is told what the item is before the item is drawn as that. */
   protected override willUpdate() {
     this.tellContent();
+    // LST-52: an action's role is carried inside: what the product writes on the host is moved there in that mode alone.
+    syncDelegation(this, ITEM_HOST_ARIA);
   }
 
   protected override updated(changed: PropertyValues<this>) {
     const { position, size, tabStop } = this.context;
     const mode = this.mode;
     const option = mode === 'option';
-    // LST-49: an option without a label is named by its List row's headline and described by the row's other texts.
-    const ownName = spoken(this.label) || this.contentName;
-    const ownDescription = this.contentDescription;
-    // LST-18, LST-19: a list item — or an option with its selected state, named by its label (else by its content) —
-    // with its position and the list's size.
-    hostAria(this, {
-      role: option ? 'option' : 'listitem',
-      'aria-selected': option ? String(this.selected) : null,
-      'aria-disabled': option && this.disabled ? 'true' : null,
-      'aria-label': option && ownName ? ownName : null,
-      'aria-description': option && ownDescription ? ownDescription : null,
-      'aria-posinset': position ? String(position) : null,
-      'aria-setsize': size ? String(size) : null,
-      // LST-17: an option takes focus itself; only the list's tab stop is in the tab order.
-      tabindex: option ? (tabStop ? '0' : '-1') : null,
-    });
+    const place = { 'aria-posinset': position ? String(position) : null, 'aria-setsize': size ? String(size) : null };
+    if (mode === 'interactive' || mode === 'link') {
+      // LST-18, LST-52: a list item with its position and the list's size; the action inside says the rest, with what
+      // the product wrote on the host.
+      hostAria(this, { role: 'listitem', ...place, tabindex: null });
+    } else {
+      // LST-49: an option without a label is named by its List row's headline and described by the row's other texts.
+      // LST-52: its label is its whole name over the product's; while the label is empty, a name the product gives it is
+      // its name over the text of its content. A static item is not named by the list, and keeps the product's name.
+      const ownName = option ? spoken(this.label) || (namedByProduct(this) ? '' : this.contentName) : '';
+      const ownDescription = this.contentDescription;
+      nameHost(this, ownName);
+      // LST-18, LST-19: a list item — or an option with its selected state, named by its label (else by its content) —
+      // with its position and the list's size.
+      hostAria(this, {
+        role: option ? 'option' : 'listitem',
+        'aria-selected': option ? String(this.selected) : null,
+        'aria-disabled': option && this.disabled ? 'true' : null,
+        'aria-description': option && ownDescription ? ownDescription : null,
+        ...place,
+        // LST-17: an option takes focus itself; only the list's tab stop is in the tab order.
+        tabindex: option ? (tabStop ? '0' : '-1') : null,
+      });
+    }
     const contextChanged = (changed as Map<PropertyKey, unknown>).has('context');
     // LST-32: the handle is a button that opens a menu, with its expanded state — said before the menu is first drawn
     // (the menu says it of its anchor itself once it is).
@@ -624,8 +638,9 @@ export class TanreiListItem extends TanreiElement {
     const action = interactive || !!link;
     const { reorder, size, orientation, divider } = this.context;
     // LST-49: named by the label, else by its List row's headline; described by the row's other texts, then by the
-    // words of a link that opens a new context (LST-28).
-    const name = spoken(this.label) || this.contentName;
+    // words of a link that opens a new context (LST-28). LST-52: a name the product gives is the action's over the
+    // text of its content, and the label's is over the product's.
+    const name = spoken(this.label) || (namedByProduct(this) ? '' : this.contentName);
     const description = [this.contentDescription, link ? this.link.describe() : ''].filter(Boolean).join(' ') || null;
     const lone = size < 2;
     // LST-32: the handle's name, its place {label} filled with the item's name.
@@ -645,9 +660,7 @@ export class TanreiListItem extends TanreiElement {
         role=${interactive ? 'button' : nothing}
         ${linkAttributes(link)}
         tabindex=${action ? (this.context.tabStop ? '0' : '-1') : nothing}
-        aria-label=${action && name ? name : nothing}
-        aria-description=${description || nothing}
-        aria-disabled=${interactive && this.disabled ? 'true' : nothing}
+        ${delegatedAria(this, { 'aria-label': action ? name : '', 'aria-description': description ?? '', 'aria-disabled': interactive && this.disabled ? 'true' : '' })}
         @pointerdown=${this.press.onPointerDown}
         @pointerup=${this.press.release}
         @pointercancel=${this.press.release}
@@ -1895,6 +1908,8 @@ export class TanreiList extends TanreiElement {
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {
+    // LST-52: while reorderable the list role is carried inside: what the product writes on the host is moved there.
+    syncDelegation(this);
     // LST-6: a value the list does not define is drawn as the default; a debug build says so.
     if (changed.has('selection') && !SELECTIONS.includes(this.selection)) report(this, 'LST-6', `selection "${this.selection}" is not a value the list defines; it is drawn as "none"`);
     if (changed.has('orientation') && !ORIENTATIONS.includes(this.orientation)) report(this, 'LST-6', `orientation "${this.orientation}" is not a value the list defines; it is drawn as "vertical"`);
@@ -1918,13 +1933,14 @@ export class TanreiList extends TanreiElement {
     const reorder = this.isReorderable;
     // LST-18: a list, or a listbox named by label (multi-selectable while selection is multiple, with its orientation).
     // LST-44: a reorderable list is a list inside the host, beside its live region (render()).
+    // LST-52: the host's label is its whole name over the product's, which names it while the label is empty.
+    if (!reorder) nameHost(this, this.label);
     hostAria(this, {
       role: reorder ? null : mode === 'none' ? 'list' : 'listbox',
-      'aria-label': reorder ? null : this.label || null,
       'aria-multiselectable': mode === 'multiple' ? 'true' : null,
       'aria-orientation': mode !== 'none' && this.axis === 'horizontal' && !this.wrap ? 'horizontal' : null,
     });
-    if ((changed.has('label') || changed.has('selection') || changed.has('reorderable')) && (mode !== 'none' || reorder) && !this.label.trim()) {
+    if ((changed.has('label') || changed.has('selection') || changed.has('reorderable')) && (mode !== 'none' || reorder) && !this.label.trim() && !namedByProduct(this)) {
       report(this, 'LST-18', `a ${reorder ? 'reorderable' : 'selectable'} list has no label, so the ${reorder ? 'list' : 'listbox'} has no accessible name; say what the items are`);
     }
     // LST-31: a selectable list is never reorderable; a debug build says so.
@@ -1956,7 +1972,7 @@ export class TanreiList extends TanreiElement {
         part="items"
         class="items"
         role=${reorder ? 'list' : 'presentation'}
-        aria-label=${reorder && this.label ? this.label : nothing}
+        ${delegatedAria(this, { 'aria-label': reorder ? this.label : '' })}
       ><slot @slotchange=${this.onSlotChange}></slot></div
       >${reorder ? html`<span class="quiet"><span class="announcer" role="status" aria-live="polite"></span></span>` : nothing}`;
   }
@@ -2016,6 +2032,12 @@ function scrollingAncestor(element: Element): Element | null {
   return null;
 }
 
+// LST-52: the hosts carry their roles and hold the product's name while they name themselves; an action item and a
+// reorderable list move what the product writes to the element inside that carries the role, in that mode alone.
+holdsProductName(TanreiListItem);
+delegatesAria(TanreiListItem, { sentence: 'LST-52', owns: ['aria-disabled'], when: (host) => ['interactive', 'link'].includes((host as unknown as { mode: string }).mode) });
+holdsProductName(TanreiList);
+delegatesAria(TanreiList, { sentence: 'LST-52', when: (host) => (host as unknown as { isReorderable: boolean }).isReorderable });
 if (!customElements.get('tanrei-list-item')) customElements.define('tanrei-list-item', TanreiListItem);
 if (!customElements.get('tanrei-list')) customElements.define('tanrei-list', TanreiList);
 

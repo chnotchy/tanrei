@@ -7,6 +7,7 @@ import { fillPlaces, placeFaults, reportPlaces } from '../../primitives/places.j
 import type { TanreiAvatarShapeRegistry, TanreiAvatarSizeRegistry } from '../../registry.js';
 import { AXES, GROUP_AXES, groupStyles, styles } from './avatar.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
 
 /** The core sizes (small, medium, large), plus any a design system's generated `.d.ts` registers. */
 export type TanreiAvatarSize = keyof TanreiAvatarSizeRegistry;
@@ -204,10 +205,14 @@ export class TanreiAvatar extends TanreiElement {
     const label = (this.label ?? '').trim();
     // AVT-9, AVT-19: one image named by label — whatever it draws — unless it is decorative (a member of a group is
     // always named); without a name it exposes nothing. AVT-8: inside a link or a Button the name is that element's.
-    const named = label !== '' && (this.member || !this.decorative);
-    hostAria(this, { role: named ? 'img' : null, 'aria-label': named ? label : null, 'aria-hidden': named ? null : 'true' });
+    // AVT-24: its label is its whole name over the product's; while the label is empty a name the product gives it makes
+    // it the image that name names; decorative, it is hidden and the product's name is held.
+    const exposed = this.member || !this.decorative;
+    nameHost(this, exposed ? label : null);
+    const named = exposed && (label !== '' || namedByProduct(this));
+    hostAria(this, { role: named ? 'img' : null, 'aria-hidden': named ? null : 'true' });
 
-    if ((has('label') || has('decorative') || has('member')) && label === '') {
+    if ((has('label') || has('decorative') || has('member')) && label === '' && !named) {
       if (this.member) report(this, 'AVT-19', 'a member of a group has no label, so the group exposes nothing for it; give it the name it stands for');
       else if (!this.decorative) report(this, 'AVT-9', 'the avatar has no label, so it has no name; give it the name it stands for, or set decorative beside that name in text');
     }
@@ -434,9 +439,11 @@ export class TanreiAvatarGroup extends TanreiElement {
     // AVT-19: one group named by its label; without members it exposes nothing (AVT-23).
     const label = (this.label ?? '').trim();
     const shown = this.members.length > 0;
-    hostAria(this, { role: shown ? 'group' : null, 'aria-label': shown && label ? label : null });
+    // AVT-24: its label is its whole name over the product's; without members it is nothing, and the product's is held.
+    nameHost(this, shown ? label : null);
+    hostAria(this, { role: shown ? 'group' : null });
 
-    if ((has('label') || has('members')) && shown && !label) {
+    if ((has('label') || has('members')) && shown && !label && !namedByProduct(this)) {
       report(this, 'AVT-19', 'the group has no label, so its members are exposed without a group’s name; give it one ("Reviewers")');
     }
     // AVT-22: what a debug build tells the product about max and total.
@@ -477,6 +484,9 @@ export class TanreiAvatarGroup extends TanreiElement {
   }
 }
 
+// AVT-24: the hosts carry their roles, and hold the product's name while their labels name them.
+holdsProductName(TanreiAvatar);
+holdsProductName(TanreiAvatarGroup);
 if (!customElements.get(AVATAR)) customElements.define(AVATAR, TanreiAvatar);
 if (!customElements.get(GROUP)) customElements.define(GROUP, TanreiAvatarGroup);
 

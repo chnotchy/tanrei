@@ -17,6 +17,7 @@ import {
 } from '../../primitives/index.js';
 import { type StepCondition, stepStyles, stepperStyles } from './stepper.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
 
 /** How the steps are laid out (SPR-4, SPR-5, SPR-6). A closed set: anything else is horizontal. */
 export type TanreiStepperLayout = 'horizontal' | 'vertical' | 'compact';
@@ -477,7 +478,7 @@ export class TanreiStepper extends TanreiElement {
     });
 
     const seen = new Set<string>();
-    if (!this.label.trim()) this.reportOnce(seen, 'SPR-21', 'label is empty, so the stepper has no accessible name; give it one ("Checkout progress")');
+    if (!this.label.trim() && !namedByProduct(this)) this.reportOnce(seen, 'SPR-21', 'label is empty, so the stepper has no accessible name; give it one ("Checkout progress")');
     if (steps.length < 2) this.reportOnce(seen, 'SPR-21', `it holds ${steps.length} step${steps.length === 1 ? '' : 's'}; a stepper is made for two or more`);
     if (this.value && current < 0 && steps.length) this.reportOnce(seen, 'SPR-21', `the value "${this.value}" names no step; no step is current`);
     // The values given more than once, in the order of their second step: one pass, as every other read of the steps here.
@@ -503,7 +504,9 @@ export class TanreiStepper extends TanreiElement {
   protected override updated() {
     const compact = this.compact;
     // SPR-19: a list of its steps, or, in the compact form, one group that reads what is drawn — named by label.
-    hostAria(this, { role: compact ? 'group' : 'list', 'aria-label': this.label || null });
+    // SPR-28: its label is its whole name over the product's, which names it while the label is empty.
+    nameHost(this, this.label);
+    hostAria(this, { role: compact ? 'group' : 'list' });
     this.sync(this.steps, compact);
     // SPR-6: a step added or removed changes the least width.
     this.measure();
@@ -541,6 +544,8 @@ export class TanreiStepper extends TanreiElement {
 }
 
 if (!customElements.get('tanrei-stepper-step')) customElements.define('tanrei-stepper-step', TanreiStepperStep);
+// SPR-28: the host carries the role, and holds the product's name while its label names it.
+holdsProductName(TanreiStepper);
 if (!customElements.get('tanrei-stepper')) customElements.define('tanrei-stepper', TanreiStepper);
 
 declare global {
