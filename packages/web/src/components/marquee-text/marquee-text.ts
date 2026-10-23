@@ -2,6 +2,7 @@ import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'l
 import { AvailabilityController, DIRECTION_PROBE, DirectionController, WordsController, report } from '../../primitives/index.js';
 import { TanreiElement } from '../../primitives/element.js';
 import { FacesWatch } from '../../primitives/faces.js';
+import { flatParent } from '../../primitives/flat-tree.js';
 import '../button/button.js';
 import { FADE, GAP, LOOPS, SPEED, TRIGGERS, styles } from './marquee-text.styles.js';
 
@@ -61,9 +62,6 @@ function deepActive(): Element | null {
   while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
   return active;
 }
-
-/** The parent of an element, crossing a shadow root to its host and a slot's assignment to where it is slotted. */
-const parentOf = (element: Element): Element | null => element.assignedSlot ?? element.parentElement ?? ((element.getRootNode() as ShadowRoot).host ?? null);
 
 /** The look of the fade at one moment: whether text lies hidden behind the left and behind the right edge (MRQ-6). */
 type Hidden = { left: boolean; right: boolean };
@@ -402,7 +400,7 @@ export class TanreiMarqueeText extends TanreiElement {
 
   /** The nearest element around the line that takes presses or focus, across shadow roots; the host where none does. */
   private findArea(): Element {
-    for (let at = parentOf(this); at; at = parentOf(at)) {
+    for (let at = flatParent(this); at; at = flatParent(at)) {
       if (at instanceof HTMLSlotElement) continue;
       if (at.matches(CONTROL)) return at;
       if (at.localName.includes('-') && at.shadowRoot?.querySelector(CONTROL)) return at;

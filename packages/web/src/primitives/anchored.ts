@@ -5,6 +5,7 @@ import { deepActive } from './modal.js';
 import { AppearController, type AppearTiming, appearStyles } from './motion.js';
 import { type AnchoredArrow, type AnchoredPlace, type AnchoredPlacement, type AnchoredSide, ANCHORED_PLACEMENTS, type NamedSide, anchorGone, placeAnchored, usableLength, visibleViewport } from './placement.js';
 import { keyboardCover } from './sheet.js';
+import { flatParent } from './flat-tree.js';
 
 // A surface that opens beside a control and stays with it (a popover, POP-1 to POP-5, POP-7, POP-8, POP-10, POP-26,
 // POP-27, POP-36; and every surface that cites those rules — a select's, a combobox's, a color field's). What the
@@ -166,8 +167,7 @@ const px = (value: string) => Number.parseFloat(value) || 0;
  * element on the way; `seen` itself where there is none, which is every case but that one.
  */
 function positionedIn(surface: HTMLElement, seen: HTMLElement): HTMLElement {
-  const up = (node: Element): Element | null => node.assignedSlot ?? node.parentElement ?? ((node.getRootNode() as ShadowRoot).host as Element | undefined) ?? null;
-  for (let at = up(surface); at && at !== seen; at = up(at)) if (getComputedStyle(at).position !== 'static') return at as HTMLElement;
+  for (let at = flatParent(surface); at && at !== seen; at = flatParent(at)) if (getComputedStyle(at).position !== 'static') return at as HTMLElement;
   return seen;
 }
 
