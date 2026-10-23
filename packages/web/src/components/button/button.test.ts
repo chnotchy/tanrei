@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { axTree } from '../../../test/ax-tree.js';
 import { opticalSize } from '../../../test/icons.js';
 import { motionEnded } from '../../../test/motions.js';
 import { allSettled } from '../../../test/settled.js';
@@ -1054,6 +1055,37 @@ test.describe('icon, accessible name and toggle', () => {
     expect((await inner(page, 'nameless').boundingBox())!.width).toBe(await resolveToken(page, T('container-height-medium')));
     await expect.poll(() => seen.filter((w) => w.includes('BTN-16')).length).toBe(1);
     expect(seen.join('\n')).toMatch(/<tanrei-button>: it is icon-only and label is empty, so it has no accessible name; give it a label \(BTN-16\)/);
+  });
+
+  test('BTN-16: an icon-only button with an empty label is named by the aria-label or the aria-labelledby the product puts on the element, and nothing is reported; label, when given, is the name over them', async ({ page, browserName }) => {
+    const seen = warnings(page);
+    await mountFixtures(page, spec, { icons: true, fixtures: [{ id: 'base', props: { variant: 'text', label: 'Favorite' }, slots: { icon: 'favorite' } }] });
+    await page.evaluate(async () => {
+      document.body.insertAdjacentHTML(
+        'beforeend',
+        `<p id="close-text">Close</p>
+         <tanrei-button id="by-label" variant="text" aria-label="Close"><span slot="icon">close</span></tanrei-button>
+         <tanrei-button id="by-reference" variant="text" aria-labelledby="close-text"><span slot="icon">close</span></tanrei-button>
+         <tanrei-button id="over" variant="text" label="Dismiss" aria-label="Close" aria-labelledby="close-text"><span slot="icon">close</span></tanrei-button>`,
+      );
+      for (const id of ['by-label', 'by-reference', 'over']) await (document.getElementById(id) as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    });
+    await expect(page.locator('#by-label').getByRole('button')).toHaveAccessibleName('Close');
+    // The reference is drawn by ARIA element reflection, which Playwright's own name computation does not read: what
+    // the native button names is read from it, and the engine's name from Chromium's tree.
+    const reference = (id: string) =>
+      page.locator(`#${id}`).evaluate((host) => ((host.shadowRoot!.querySelector('button') as unknown as { ariaLabelledByElements: Element[] | null }).ariaLabelledByElements ?? []).map((element) => element.id));
+    expect(await reference('by-reference')).toEqual(['close-text']);
+    await expect(page.locator('#over').getByRole('button')).toHaveAccessibleName('Dismiss');
+    expect(await reference('over'), 'label is the whole name: the product’s reference is not drawn').toEqual([]);
+    if (browserName === 'chromium') {
+      const tree = await axTree(page, 'body');
+      expect(tree.filter((line) => /^\s*button "(Close|Dismiss)"/.test(line)).map((line) => line.trim().split(' (')[0]!.replace(/ focusable.*/, ''))).toEqual(['button "Close"', 'button "Close"', 'button "Dismiss"']);
+    }
+    // A turn for a report that would come late.
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    expect(seen.filter((w) => w.includes('BTN-16'))).toEqual([]);
   });
 
   test('BTN-16: beside a drawn label, label is the whole accessible name and alone — on the one native element, the drawn text exposed no second time — and the button is drawn exactly as it is without it', async ({ page, browserName }) => {

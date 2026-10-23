@@ -1,6 +1,6 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
-import { AvailabilityController, FieldControlController, type FieldSays, GlyphDrawnController, NativeTextController, OpenAxesController, hostAria, report, syncFocusStyle } from '../../primitives/index.js';
+import { AvailabilityController, FieldControlController, type FieldSays, GlyphDrawnController, NativeTextController, OpenAxesController, hostAria, report, syncFocusStyle, delegatedAria, delegatesAria } from '../../primitives/index.js';
 import { FloatingLabelController, floatingAsterisk, floatingLabel, triggerEdges } from '../../primitives/field-trigger.js';
 import type { TanreiInputBoxSizeRegistry, TanreiInputBoxVariantRegistry } from '../../registry.js';
 import '../button/button.js';
@@ -779,10 +779,7 @@ export class TanreiColorInput extends TanreiElement {
               spellcheck="false"
               dir="ltr"
               ?disabled=${inert}
-              aria-label=${name || nothing}
-              aria-describedby=${described ? 'description' : nothing}
-              aria-invalid=${wrong ? 'true' : nothing}
-              aria-required=${this.required_ ? 'true' : nothing}
+              ${delegatedAria(this, { 'aria-label': name, 'aria-describedby': described && 'description', 'aria-invalid': wrong && 'true', 'aria-required': this.required_ && 'true' })}
               @input=${this.#onInput}
               @keydown=${this.#onKeyDown}
               @focus=${this.#onFocus}
@@ -819,6 +816,8 @@ export class TanreiColorInput extends TanreiElement {
 disabledWaitsWhileFocused(TanreiColorInput);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiColorInput);
+// The product's ARIA on the host is the element's that carries the role; the disabled state is its own.
+delegatesAria(TanreiColorInput, { owns: ['aria-disabled'] });
 if (!customElements.get('tanrei-color-input')) customElements.define('tanrei-color-input', TanreiColorInput);
 
 declare global {

@@ -1,6 +1,6 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, type TemplateResult, html, nothing } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
-import { AvailabilityController, DIRECTION_PROBE, DirectionController, FieldControlController, OpenAxesController, PressController, layoutSize, report, syncFocusStyle } from '../../primitives/index.js';
+import { AvailabilityController, DIRECTION_PROBE, DirectionController, FieldControlController, OpenAxesController, PressController, layoutSize, report, syncFocusStyle, delegatedAria, delegatesAria } from '../../primitives/index.js';
 import type { TanreiSliderSizeRegistry } from '../../registry.js';
 import { takeFormDisabled } from '../../primitives/form-disabled.js';
 import { FormSays } from '../../primitives/form-says.js';
@@ -788,9 +788,7 @@ export class TanreiSlider extends TanreiElement {
             data-tanrei-shape
             role="slider"
             tabindex=${focusable ? '0' : nothing}
-            aria-label=${label || nothing}
-            aria-description=${description || nothing}
-            aria-invalid=${this.field.invalid ? 'true' : nothing}
+            ${delegatedAria(this, { 'aria-label': label, 'aria-description': description, 'aria-invalid': this.field.invalid && 'true' })}
             aria-valuemin=${String(low)}
             aria-valuemax=${String(high)}
             aria-valuenow=${String(values[id])}
@@ -843,6 +841,8 @@ export class TanreiSlider extends TanreiElement {
 disabledWaitsWhileFocused(TanreiSlider);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiSlider);
+// The product's ARIA on the host is the element's that carries the role; on every handle; the disabled state is its own.
+delegatesAria(TanreiSlider, { owns: ['aria-disabled'] });
 if (!customElements.get('tanrei-slider')) customElements.define('tanrei-slider', TanreiSlider);
 
 declare global {

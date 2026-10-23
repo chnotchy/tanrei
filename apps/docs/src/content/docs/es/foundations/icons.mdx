@@ -37,7 +37,7 @@ import '@tanrei/web/icons.css';
 <button aria-pressed="true"><span class="tanrei-icon" aria-hidden="true">favorite</span> Favorito</button>
 ```
 
-`.tanrei-icon` lee `aria-pressed`, `aria-selected`, `aria-checked` y `aria-current` en cualquier ancestro, o `data-selected` en el icono o en un ancestro (`data-selected="false"` excluye un icono concreto). Dale a un icono `aria-hidden="true"` cuando el texto que tiene al lado dice lo mismo, y dale al control un nombre accesible cuando no es así.
+`.tanrei-icon` lee `aria-pressed`, `aria-selected`, `aria-checked` y `aria-current` en cualquier ancestro (en un control de Tanrei, que los traslada a `data-aria-*`, lee `data-aria-pressed`, `data-aria-selected`, `data-aria-checked` y `data-aria-current`), o `data-selected` en el icono o en un ancestro (`data-selected="false"` excluye un icono concreto). Dale a un icono `aria-hidden="true"` cuando el texto que tiene al lado dice lo mismo, y dale al control un nombre accesible cuando no es así.
 
 El nombre también puede ir en `data-icon`, con el elemento vacío:
 

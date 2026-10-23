@@ -17,6 +17,8 @@ import {
   report,
   slottedInteractive,
   syncFocusStyle,
+  delegatedAria,
+  delegatesAria,
 } from '../../primitives/index.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
@@ -864,11 +866,7 @@ export class TanreiSelect extends TanreiElement {
           data-tanrei-shape
           role="combobox"
           tabindex=${this.stop.keeps(inert) || !inert ? '0' : nothing}
-          aria-label=${name || nothing}
-          aria-describedby=${described ? 'description' : nothing}
-          aria-invalid=${this.invalid ? 'true' : nothing}
-          aria-required=${this.frame.required ? 'true' : nothing}
-          aria-readonly=${this.readOnly ? 'true' : nothing}
+          ${delegatedAria(this, { 'aria-label': name, 'aria-describedby': described && 'description', 'aria-invalid': this.invalid && 'true', 'aria-required': this.frame.required && 'true', 'aria-readonly': this.readOnly && 'true' })}
           aria-disabled=${inert ? 'true' : nothing}
           aria-haspopup="listbox"
           aria-expanded=${expanded ? 'true' : 'false'}
@@ -908,6 +906,8 @@ export class TanreiSelect extends TanreiElement {
 disabledWaitsWhileFocused(TanreiSelect);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiSelect);
+// The product's ARIA on the host is the element's that carries the role; the list it opens and the disabled state are its own.
+delegatesAria(TanreiSelect, { owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-disabled'] });
 if (!customElements.get('tanrei-select')) customElements.define('tanrei-select', TanreiSelect);
 
 declare global {

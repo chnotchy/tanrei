@@ -22,6 +22,8 @@ import {
   syncFocusStyle,
   withinRange,
   WordsController,
+  delegatedAria,
+  delegatesAria,
 } from '../../primitives/index.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
 import { stillMoving } from '../../primitives/auto-height.js';
@@ -2111,7 +2113,7 @@ export class TanreiTextInput extends TanreiElement {
       class="row"
       role="group"
       dir="ltr"
-      aria-label=${ifDefined(this.name_ || undefined)}
+      ${delegatedAria(this, { 'aria-label': this.name_ })}
       aria-disabled=${ifDefined(inert ? 'true' : undefined)}
       ?data-empty=${fill(row, this.segments).held === 0}
       @keydown=${this.#onSegmentKeyDown}
@@ -2232,9 +2234,7 @@ export class TanreiTextInput extends TanreiElement {
             autocorrect=${code ? 'off' : nothing}
             spellcheck=${code ? 'false' : nothing}
             translate=${code ? 'no' : nothing}
-            aria-label=${ifDefined(common.label)}
-            aria-describedby=${ifDefined(describedBy)}
-            aria-invalid=${ifDefined(common.invalid)}
+            ${delegatedAria(this, { 'aria-label': common.label, 'aria-describedby': describedBy, 'aria-invalid': common.invalid })}
             autocomplete=${ifDefined(common.autocomplete)}
             @input=${onEvents.input}
             @change=${onEvents.change}
@@ -2262,9 +2262,7 @@ export class TanreiTextInput extends TanreiElement {
             ?disabled=${this.inert_}
             ?readonly=${this.readOnly}
             ?required=${required}
-            aria-label=${ifDefined(common.label)}
-            aria-describedby=${ifDefined(describedBy)}
-            aria-invalid=${ifDefined(common.invalid)}
+            ${delegatedAria(this, { 'aria-label': common.label, 'aria-describedby': describedBy, 'aria-invalid': common.invalid })}
             autocomplete=${ifDefined(common.autocomplete)}
             @input=${onEvents.input}
             @change=${onEvents.change}
@@ -2350,6 +2348,8 @@ export class TanreiTextInput extends TanreiElement {
 disabledWaitsWhileFocused(TanreiTextInput);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiTextInput);
+// The product's ARIA on the host is the element's that carries the role; the disabled state is its own.
+delegatesAria(TanreiTextInput, { owns: ['aria-disabled'] });
 if (!customElements.get('tanrei-text-input')) customElements.define('tanrei-text-input', TanreiTextInput);
 
 declare global {

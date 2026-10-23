@@ -12,6 +12,8 @@ import {
   supportedLocale,
   syncFocusStyle,
   WordsController,
+  delegatedAria,
+  delegatesAria,
 } from '../../primitives/index.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
 import { FloatingLabelController, floatingAsterisk, floatingLabel, triggerEdges } from '../../primitives/field-trigger.js';
@@ -1017,11 +1019,7 @@ export class TanreiNumberInput extends TanreiElement {
               .placeholder=${this.placeholder}
               ?disabled=${inert}
               ?readonly=${this.readOnly}
-              aria-label=${name || nothing}
-              aria-describedby=${described ? 'description' : nothing}
-              aria-invalid=${wrong ? 'true' : nothing}
-              aria-required=${this.frame.required ? 'true' : nothing}
-              aria-readonly=${this.readOnly ? 'true' : nothing}
+              ${delegatedAria(this, { 'aria-label': name, 'aria-describedby': described && 'description', 'aria-invalid': wrong && 'true', 'aria-required': this.frame.required && 'true', 'aria-readonly': this.readOnly && 'true' })}
               aria-valuenow=${value ? canonical(value) : nothing}
               aria-valuemin=${min ? canonical(min) : nothing}
               aria-valuemax=${max ? canonical(max) : nothing}
@@ -1078,6 +1076,8 @@ export class TanreiNumberInput extends TanreiElement {
 disabledWaitsWhileFocused(TanreiNumberInput);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiNumberInput);
+// The product's ARIA on the host is the element's that carries the role; the disabled state is its own.
+delegatesAria(TanreiNumberInput, { owns: ['aria-disabled'] });
 if (!customElements.get('tanrei-number-input')) customElements.define('tanrei-number-input', TanreiNumberInput);
 
 declare global {

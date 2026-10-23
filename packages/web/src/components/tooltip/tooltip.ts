@@ -23,6 +23,7 @@ import {
   styleQueries,
   swallowRelease,
   usableLength as usable,
+  ariaAttribute,
 } from '../../primitives/index.js';
 // TIP-27: a plain tooltip draws its shortcut with the keyboard shortcut, which the tooltip defines wherever it is imported.
 import '../keyboard-shortcut/keyboard-shortcut.js';
@@ -775,7 +776,7 @@ export class TanreiTooltip extends TanreiElement {
     const target = text ? this.describedElement() : null;
     const now = this.described;
     if (now && (now.element !== target || now.text !== text)) {
-      if (now.element.getAttribute('aria-description') === now.text) now.element.removeAttribute('aria-description');
+      if (ariaAttribute(now.element, 'aria-description') === now.text) now.element.removeAttribute('aria-description');
       this.described = null;
     }
     if (target && text && !this.described) {
@@ -788,7 +789,7 @@ export class TanreiTooltip extends TanreiElement {
   private key(target: Element | null, keys: string | null) {
     const now = this.keyed;
     if (now && (now.element !== target || now.keys !== keys)) {
-      if (now.element.getAttribute('aria-keyshortcuts') === now.keys) now.element.removeAttribute('aria-keyshortcuts');
+      if (ariaAttribute(now.element, 'aria-keyshortcuts') === now.keys) now.element.removeAttribute('aria-keyshortcuts');
       this.keyed = null;
     }
     if (target && keys && !this.keyed) {
@@ -823,8 +824,9 @@ export class TanreiTooltip extends TanreiElement {
     const keys = drawn?.ariaKeyShortcuts ?? null;
     const element = keys ? this.describedElement() : null;
     const target = element ? focusableOf(element) : null;
-    const ours = (each: Element) => this.keyed?.element === each && each.getAttribute('aria-keyshortcuts') === this.keyed.keys;
-    const stated = [element, target].some((each) => !!each && each.hasAttribute('aria-keyshortcuts') && !ours(each));
+    // An anchor that moves the product's ARIA holds it in data-aria-* (src/primitives/delegated-aria.ts).
+    const ours = (each: Element) => this.keyed?.element === each && ariaAttribute(each, 'aria-keyshortcuts') === this.keyed.keys;
+    const stated = [element, target].some((each) => !!each && ariaAttribute(each, 'aria-keyshortcuts') !== null && !ours(each));
     this.key(stated ? null : target, stated ? null : keys);
     const spoken = stated && drawn ? drawn.spokenKeys : '';
     this.describe(this.describes && this.hasText ? [this.description(), spoken].filter(Boolean).join(', ') : null);

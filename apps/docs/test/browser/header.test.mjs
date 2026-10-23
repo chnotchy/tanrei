@@ -156,27 +156,31 @@ for (const engine of ENGINES) {
       const { context, page } = await open(WIDE);
       const toggle = page.locator('#docs-drawer-toggle');
       const drawer = page.locator('#docs-sidebar');
-      assert.equal(await toggle.getAttribute('aria-expanded'), 'true');
-      assert.equal(await toggle.getAttribute('aria-controls'), 'docs-sidebar');
+      // The state is said by the native button the toggle draws, which carries its role: the product's ARIA on the
+      // host is moved there (aria-controls by element reflection, where the engine has it).
+      const native = toggle.locator('button');
+      const expanded = () => native.getAttribute('aria-expanded');
+      assert.equal(await expanded(), 'true');
+      assert.deepEqual(await native.evaluate((button) => ('ariaControlsElements' in button ? (button.ariaControlsElements ?? []).map((controlled) => controlled.id) : ['docs-sidebar'])), ['docs-sidebar']);
       await toggle.click();
       await page.waitForFunction(() => document.getElementById('docs-sidebar').hasAttribute('collapsed'));
-      assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
+      assert.equal(await expanded(), 'false');
       assert.equal(await drawer.locator('.docs-listing-row').isVisible(), false, 'a collapsed drawer draws no switch');
       await toggle.click();
       await page.waitForFunction(() => !document.getElementById('docs-sidebar').hasAttribute('collapsed'));
-      assert.equal(await toggle.getAttribute('aria-expanded'), 'true');
+      assert.equal(await expanded(), 'true');
       assert.ok(await drawer.locator('.docs-listing').isVisible(), 'the switch stands first in the expanded drawer');
 
       await page.setViewportSize(MEDIUM);
       await windowClass(page, 'medium');
       await page.waitForFunction(() => document.getElementById('docs-sidebar').presentation === 'column');
-      assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
+      assert.equal(await expanded(), 'false');
       await toggle.click();
       await page.waitForFunction(() => document.getElementById('docs-sidebar').open === true);
-      assert.equal(await toggle.getAttribute('aria-expanded'), 'true');
+      assert.equal(await expanded(), 'true');
       await page.keyboard.press('Escape');
       await page.waitForFunction(() => document.getElementById('docs-sidebar').open === false);
-      assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
+      assert.equal(await expanded(), 'false');
       await context.close();
     });
 

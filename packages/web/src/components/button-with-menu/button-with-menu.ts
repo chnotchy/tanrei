@@ -14,6 +14,8 @@ import {
   report,
   syncFocusStyle,
   syncSeparation,
+  delegatedAria,
+  delegatesAria,
 } from '../../primitives/index.js';
 import type { TanreiButtonWithMenuSizeRegistry, TanreiButtonWithMenuVariantRegistry } from '../../registry.js';
 import { TanreiMenu, type TanreiMenuCloseDetail, type TanreiMenuCloseReason } from '../menu/menu.js';
@@ -676,6 +678,7 @@ export class TanreiButtonWithMenu extends TanreiElement {
           data-tanrei-shape
           class=${classMap({ leading: true, 'with-icon': this.iconChildren.length > 0, ...this.leadingPlace.classes() })}
           tabindex=${this.rovingStop === undefined ? nothing : this.rovingStop === 0 ? '0' : '-1'}
+          ${delegatedAria(this, {})}
           ?disabled=${this.disabled}
           @pointerdown=${this.onHalfPointerDown}
           @pointerup=${this.leadingPress.release}
@@ -738,6 +741,8 @@ const sameNodes = (a: readonly Node[], b: readonly Node[]) => a.length === b.len
 if (!customElements.get('tanrei-menu')) customElements.define('tanrei-menu', TanreiMenu);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiButtonWithMenu);
+// The product's ARIA on the host is the element's that carries the role; the leading half, its action, takes it; the menu the trailing half opens and the disabled state are its own.
+delegatesAria(TanreiButtonWithMenu, { owns: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-disabled'] });
 if (!customElements.get('tanrei-button-with-menu')) customElements.define('tanrei-button-with-menu', TanreiButtonWithMenu);
 
 declare global {

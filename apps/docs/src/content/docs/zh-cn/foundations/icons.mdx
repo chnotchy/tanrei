@@ -37,7 +37,7 @@ import '@tanrei/web/icons.css';
 <button aria-pressed="true"><span class="tanrei-icon" aria-hidden="true">favorite</span> 收藏</button>
 ```
 
-`.tanrei-icon` 会读取任意祖先元素上的 `aria-pressed`、`aria-selected`、`aria-checked` 和 `aria-current`，或者图标自身及其祖先上的 `data-selected`（`data-selected="false"` 可以让单个图标不参与）。图标旁边的文本已经表达了同样的意思时，给图标加上 `aria-hidden="true"`；没有这样的文本时，给控件一个无障碍名称。
+`.tanrei-icon` 会读取任意祖先元素上的 `aria-pressed`、`aria-selected`、`aria-checked` 和 `aria-current`（Tanrei 控件会把它们移到 `data-aria-*`，在这类控件上读取的是 `data-aria-pressed`、`data-aria-selected`、`data-aria-checked` 和 `data-aria-current`），或者图标自身及其祖先上的 `data-selected`（`data-selected="false"` 可以让单个图标不参与）。图标旁边的文本已经表达了同样的意思时，给图标加上 `aria-hidden="true"`；没有这样的文本时，给控件一个无障碍名称。
 
 名称也可以写在 `data-icon` 里，元素本身留空：
 

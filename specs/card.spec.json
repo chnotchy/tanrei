@@ -229,7 +229,8 @@
       "Text size does not clip a card: it grows with its content at 200% text size.",
       "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
       "A card with a destination is a link: one element with the link role, the platform's own link, Enter and not Space, so that on the web the card can be opened in a new tab and its address copied. No visited state is drawn.",
-      "A link card that opens a new context says so through targetLabel. The card draws no mark of its own, since it does not lay out its content; a product that shows one puts the glyph open_in_new of the system's icon set in the content, where the icon helper mirrors it in a right-to-left layout."
+      "A link card that opens a new context says so through targetLabel. The card draws no mark of its own, since it does not lay out its content; a product that shows one puts the glyph open_in_new of the system's icon set in the content, where the icon helper mirrors it in a right-to-left layout.",
+      "WHEN the product sets an aria- attribute on the host THE card SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the card is invalid — except those the card owns (aria-disabled), which it SHALL move and not expose. WHEN the product removes the aria- attribute or its data-aria- twin THE card SHALL take it off that element."
     ]
   },
   "tokens": "comp.card",
