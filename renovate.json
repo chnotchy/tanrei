@@ -31,6 +31,14 @@
       "allowedVersions": "!/^2\\.2\\.2$/"
     },
     {
+      "description": [
+        "axe-core stays below 4.14. In 4.14.0, color-contrast reads the background of light-DOM text slotted below a shadow tree's top level from outside the shadow tree (the fix is on axe's develop branch, not in a release), and label-content-name-mismatch, on by default from 4.14, takes an element's visible description, shortcut hint and hidden overlay copies for its label, which WCAG 2.5.3 does not.",
+        "Lift this when a release carries the shadow-DOM fix and the rule no longer counts a description as the label; then run the axe tests in the three engines before taking it."
+      ],
+      "matchPackageNames": ["axe-core", "@axe-core/playwright"],
+      "allowedVersions": "<4.14.0"
+    },
+    {
       "description": "One pull request a week for the GitHub Actions, each pinned to a commit SHA with its version in a comment.",
       "matchManagers": ["github-actions"],
       "matchDepTypes": ["action", "workflow"],
