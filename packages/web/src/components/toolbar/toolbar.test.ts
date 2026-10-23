@@ -869,6 +869,97 @@ test.describe('inline, groups, separators and the overflow menu', () => {
     await expect(overflowButton(page, 'inline-overflow')).toBeHidden();
   });
 
+  test('TBR-18, TBR-19: in a parent as long as its content — an inline-block, two of them nested, a flex item, a float, an absolutely placed box, a box in a shadow root — the items hidden come back when the layout offers more room further up, in the frame it does, and go again when it offers less', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => f.id === 'inline-overflow') });
+    const result = await page.evaluate(async () => {
+      const errors: string[] = [];
+      window.addEventListener('error', (event) => errors.push(event.message));
+      // A box of the product's whose shadow root lays out what it is given in an inline-block.
+      if (!customElements.get('shrink-wrap-probe')) {
+        customElements.define(
+          'shrink-wrap-probe',
+          class extends HTMLElement {
+            constructor() {
+              super();
+              this.attachShadow({ mode: 'open' }).innerHTML = '<div style="display:inline-block;max-inline-size:100%"><slot></slot></div>';
+            }
+          },
+        );
+      }
+      const glyphs = ['archive', 'delete', 'mark_email_unread', 'drive_file_move', 'label', 'flag', 'snooze', 'print', 'share', 'star'];
+      const make = () => {
+        const toolbar = document.createElement('tanrei-toolbar');
+        toolbar.setAttribute('label', 'Actions');
+        toolbar.setAttribute('overflow-label', 'More actions');
+        toolbar.innerHTML = glyphs.map((g) => `<tanrei-button variant="text" label="${g}"><span slot="icon">${g}</span></tanrei-button>`).join('');
+        return toolbar;
+      };
+      const box = (tag: string, style: string) => Object.assign(document.createElement(tag), { style });
+      const shrinkWrapped = 'display:inline-block;max-inline-size:100%';
+      // Each case puts a parent as long as its content in the box whose length the test changes, and returns it.
+      const cases: Record<string, (holder: HTMLElement) => HTMLElement> = {
+        'inline-block': (holder) => holder.appendChild(box('div', shrinkWrapped)),
+        nested: (holder) => holder.appendChild(box('span', shrinkWrapped)).appendChild(box('div', shrinkWrapped)),
+        'flex item': (holder) => {
+          holder.style.display = 'flex';
+          return holder.appendChild(box('div', 'flex:0 1 auto;min-inline-size:0'));
+        },
+        float: (holder) => {
+          holder.style.display = 'flow-root';
+          return holder.appendChild(box('div', 'float:inline-start;max-inline-size:100%'));
+        },
+        absolute: (holder) => {
+          holder.style.position = 'relative';
+          holder.style.blockSize = '64px';
+          return holder.appendChild(box('div', 'position:absolute;inset-block-start:0;inset-inline-start:0;max-inline-size:100%'));
+        },
+        'shadow root': (holder) => holder.appendChild(document.createElement('shrink-wrap-probe')),
+      };
+      const count = (toolbar: Element) => [...toolbar.children].filter((child) => child.getBoundingClientRect().width > 0).length;
+      const frame = () => new Promise<number>(requestAnimationFrame);
+      const out: Record<string, { at240: number; at600: number; settled600: number; length600: number; at320: number; again600: number }> = {};
+      for (const [name, place] of Object.entries(cases)) {
+        const holder = document.createElement('div');
+        holder.style.inlineSize = '240px';
+        document.body.append(holder);
+        const toolbar = make();
+        place(holder).append(toolbar);
+        await frame();
+        await frame();
+        const at240 = count(toolbar);
+        // Each count is read in the frame after the change: it is already the final one (TBR-19).
+        holder.style.inlineSize = '600px';
+        await frame();
+        const at600 = count(toolbar);
+        await frame();
+        await frame();
+        const settled600 = count(toolbar);
+        const length600 = Math.round(toolbar.getBoundingClientRect().width);
+        holder.style.inlineSize = '320px';
+        await frame();
+        const at320 = count(toolbar);
+        holder.style.inlineSize = '600px';
+        await frame();
+        const again600 = count(toolbar);
+        out[name] = { at240, at600, settled600, length600, at320, again600 };
+        holder.remove();
+      }
+      return { out, errors };
+    });
+    for (const [name, seen] of Object.entries(result.out)) {
+      const at = `${name} ${JSON.stringify(seen)}`;
+      expect(seen.at240, `${at}: 240 hides some`).toBeLessThan(10);
+      expect(seen.at240, at).toBeGreaterThan(0);
+      expect(seen.at600, `${at}: 600 shows every item, in the next frame`).toBe(10);
+      expect(seen.settled600, at).toBe(10);
+      expect(seen.length600, `${at}: no longer than its items`).toBeLessThan(600);
+      expect(seen.at320, `${at}: 320 hides some again`).toBeLessThan(10);
+      expect(seen.at320, at).toBeGreaterThanOrEqual(seen.at240);
+      expect(seen.again600, at).toBe(10);
+    }
+    expect(result.errors).toEqual([]);
+  });
+
   test('TBR-19: what is hidden is decided before the first frame and in the frame the length changes — no item is drawn and then hidden, nothing moves for it, and nothing is animated', async ({ page, browserName }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => f.id === 'inline-overflow') });
     const result = await page.evaluate(async () => {
