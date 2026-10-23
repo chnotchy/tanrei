@@ -1,8 +1,10 @@
 // Theme Studio — the page half. One layer, four views of it (the level is a view, never a mode of the file), a live
 // preview, and — when the host gives an adapter — the file that layer lives in.
 import { missingWords, setWords } from '@tanrei/web';
+import { layerParam, packLayer, unpackLayer, withLayer } from './address.js';
 import { ID_PATTERN, LEVELS, stringifyLayer } from './core.js';
 import { createSourceDraft } from './draft.js';
+import { createHistory } from './history.js';
 import { studio } from './data';
 import { type StudioStrings, studioDirection, studioLanguage, studioStrings } from './strings';
 import { type Contrast, type Ctx, type Json, type Layer, type Level, button, codeField, drawnNear, fold, folds, h, isolated, ltr, panel, rename, rich, scrollingList, stateChip, textField, views } from './ui/dom';
@@ -36,16 +38,25 @@ export interface StudioOptions {
   links?: { layers?: string };
   /** Autosave delay in ms (adapter only). */
   saveDelay?: number;
+  /**
+   * The host's own items for the Studio's bar, which stands across the top of the Studio: `start` before the Studio's
+   * own (a brand that leads back to the host's pages), `end` after them (a language, a theme). They are moved into it.
+   */
+  bar?: { start?: Node[]; end?: Node[] };
+  /**
+   * Keep the layer in the page's address (the fragment, compressed: ./address.js), so that a link opens the Studio on
+   * that layer. Without an adapter only: a file is where a layer that has one is kept.
+   */
+  address?: boolean;
 }
 type SaveState = 'saved' | 'unsaved' | 'saving' | 'invalid' | 'conflict' | 'error' | 'loading';
 
 const STORE = `${studio.namespace}-theme-studio`;
 const NS = studio.namespace;
-/** The Studios mounted in this document: while there is one, the root says so (studio.css gives the page a tool's width). */
-let mounted = 0;
-const MOUNTED = 'data-ts-mounted';
+/** Where the frame lays out its three columns — the rail, the preview and the panel — side by side (studio.css). */
+const WIDE = '(min-width: 64rem)';
 
-export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {}, saveDelay = 600 }: StudioOptions = {}) {
+export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {}, saveDelay = 600, bar: hosted = {}, address = false }: StudioOptions = {}) {
   // The language the Studio speaks: the one asked for when it is translated, English otherwise (./strings/index.ts).
   const speaks = studioLanguage(lang);
   const t: StudioStrings = studioStrings(speaks);
@@ -60,6 +71,10 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   let uid = 0;
   let focus: { token?: string; panel?: string } | undefined;
   const tree: TreeState = { query: '', filter: 'all', open: new Set() };
+  /** The width the person gave the panel, in CSS pixels; 0 while it has the frame's own (studio.css). */
+  let panelWidth = 0;
+  const history = createHistory();
+  const linked = address && !adapter;
 
   // ── persistence: the browser (no adapter) or the host's file (adapter) ────────────────────────
   let etag: string | undefined;
@@ -73,7 +88,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   let draft = createSourceDraft();
   function remember() {
     try {
-      localStorage.setItem(STORE, JSON.stringify(adapter ? { level, contrast, draft } : { layer, level, contrast, draft }));
+      localStorage.setItem(STORE, JSON.stringify(adapter ? { level, contrast, draft, panel: panelWidth } : { layer, level, contrast, draft, panel: panelWidth }));
     } catch {}
   }
   function recall() {
@@ -81,6 +96,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       const stored = JSON.parse(localStorage.getItem(STORE) ?? 'null');
       if (LEVELS.includes(stored?.level)) level = stored.level;
       if (['standard', 'medium', 'high'].includes(stored?.contrast)) contrast = stored.contrast;
+      if (Number.isFinite(stored?.panel) && stored.panel > 0) panelWidth = stored.panel;
       if (!adapter && stored?.layer) layer = studio.fromLayer(stored.layer);
       draft = createSourceDraft(stored?.draft);
     } catch {}
@@ -97,7 +113,12 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     latest: () => latest,
     commit(next, options) {
       layer = next;
-      if (!options?.preview) committed = next;
+      if (!options?.preview) {
+        // A step to undo: what was committed before, unless nothing changed.
+        if (stringifyLayer(next) !== stringifyLayer(committed)) history.record(committed);
+        committed = next;
+        drawHistory();
+      }
       if (options?.rebuild) build();
       else if (options?.preview) follow();
       else update();
@@ -116,13 +137,11 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   };
 
   // ── the frame: what stays while the levels change ─────────────────────────────────────────────
+  // The bar across the top; under it the rail (the levels), the preview, and the panel of what the level edits, with
+  // the handle that resizes the panel between the preview and it. On a narrow screen they stand in one column
+  // (studio.css). The Studio's own chrome is drawn in the default system: the layer being edited is the preview's.
   root.classList.add('ts', 'not-content');
   root.dataset.studio = '';
-  // The page's width follows from this attribute, written here and taken back by `destroy` — never from a `:has()`
-  // on the root, which every page that loads the Studio's stylesheet would pay for (studio.css).
-  let live = true;
-  mounted += 1;
-  document.documentElement.setAttribute(MOUNTED, '');
   // The Studio's words for Tanrei's components, given once — for the Studio alone: its root carries its
   // language with a private-use subtag, and the words are given for that tag. A component inside finds them first; one
   // outside never does, so the host page's own words (the document's, or its language's) are not written over, and a
@@ -141,10 +160,129 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   const banner = h('tanrei-callout', { class: 'ts-banner', status: 'warning', 'status-label': t.file.states.conflict, live: true, open: 'false', 'data-banner': true });
   const a11y = h('div');
   const exportHost = h('div');
-  root.replaceChildren(h('header', { class: 'ts-top' }, levels, file), banner, h('div', { class: 'ts-layout' }, controls, preview.el), a11y, exportHost, status);
+  const glyph = (name: string) => h('span', { class: `${studio.tagPrefix}-icon`, slot: 'icon', 'aria-hidden': 'true', translate: 'no' }, name);
+  // Undo and redo: icon buttons that keep their place in the keyboard's order while there is nothing to do (BTN-38).
+  const historyButton = (name: string, label: string, keys: string, act: () => void, attrs: Json) => h('tanrei-button', { variant: 'text', size: 'small', label, title: label, 'aria-keyshortcuts': keys, 'focusable-when-disabled': true, disabled: true, onclick: act, ...attrs }, glyph(name));
+  const undoButton = historyButton('undo', t.frame.undo, 'Meta+Z Control+Z', () => undo(), { 'data-undo': true });
+  const redoButton = historyButton('redo', t.frame.redo, 'Meta+Shift+Z Control+Shift+Z Control+Y', () => redo(), { 'data-redo': true });
+  const bar = h(
+    'header',
+    { class: `ts-bar${hosted.end?.length ? ' ts-bar-hosted' : ''}`, 'data-bar': true },
+    hosted.start?.length ? h('div', { class: 'ts-bar-host' }, hosted.start) : null,
+    h('div', { class: 'ts-bar-history', role: 'group', 'aria-label': t.frame.history }, undoButton, redoButton),
+    file,
+    hosted.end?.length ? h('div', { class: 'ts-bar-host ts-bar-end' }, hosted.end) : null,
+  );
+  const rail = h('section', { class: 'ts-rail', 'aria-label': t.frame.rail, 'data-rail': true }, levels);
+  // The panel scrolls by itself beside the preview; it takes the focus when what had it is drawn again (an undo).
+  const inspector = h('section', { class: 'ts-inspector', 'aria-label': t.frame.panel, tabindex: '-1', 'data-inspector': true }, controls, a11y, exportHost);
+  const handle = h('tanrei-handle', { class: 'ts-handle', axis: 'horizontal', label: t.frame.resize, 'data-panel-handle': true }) as HTMLElement & { value: number | null; min: number; max: number; valueText: string };
+  // The frame is the page's main region; what is announced is said from inside it.
+  const layout = h('main', { class: 'ts-frame', 'data-frame': true }, rail, preview.el, handle, inspector, status);
+  root.replaceChildren(bar, banner, layout);
+
+  // ── the panel's width ─────────────────────────────────────────────────────────────────────────
+  // The handle reports how far it was moved and the keys pressed on it (the Handle's window splitter); the Studio
+  // keeps the width: at least the panel's least, and never so wide that the preview falls under its own least
+  // (studio.css: --ts-panel-min, --ts-preview-min). The width is the person's, remembered in this browser.
+  const length = (property: string) => {
+    const probe = h('div', { style: `position: absolute; inline-size: var(${property}); visibility: hidden;` });
+    layout.append(probe);
+    const px = probe.getBoundingClientRect().width;
+    probe.remove();
+    return px;
+  };
+  const range = () => {
+    const least = length('--ts-panel-min');
+    const room = layout.clientWidth - rail.getBoundingClientRect().width - handle.getBoundingClientRect().width - length('--ts-preview-min');
+    return [least, Math.max(least, Math.floor(room))];
+  };
+  const panelNow = () => Math.round(inspector.getBoundingClientRect().width);
+  const drawHandle = () => {
+    if (!handle.getBoundingClientRect().width) return;
+    const [least, most] = range();
+    const now = panelNow();
+    Object.assign(handle, { min: Math.round(least), max: most, value: now, valueText: t.frame.width(now) });
+  };
+  function setPanel(px: number, keep = true) {
+    const [least, most] = range();
+    panelWidth = Math.round(Math.min(most, Math.max(least, px)));
+    root.style.setProperty('--ts-panel-width', `${panelWidth}px`);
+    drawHandle();
+    if (keep) remember();
+  }
+  if (panelWidth) root.style.setProperty('--ts-panel-width', `${panelWidth}px`);
+  let dragFrom = 0;
+  let restoreTo = 0;
+  handle.addEventListener('resizestart', () => (dragFrom = panelNow()));
+  // The handle stands at the panel's start edge: moving it toward the end edge narrows the panel, in either direction.
+  handle.addEventListener('resize', (event) => setPanel(dragFrom - (event as unknown as CustomEvent).detail.inline, false));
+  handle.addEventListener('resizeend', (event) => {
+    const { inline, cancelled } = (event as CustomEvent).detail;
+    setPanel(cancelled ? dragFrom : dragFrom - inline);
+  });
+  handle.addEventListener('step', (event) => {
+    const { direction, amount } = (event as CustomEvent).detail;
+    const [least, most] = range();
+    const STEP = { one: 16, large: 64 } as Record<string, number>;
+    setPanel(amount === 'limit' ? (direction < 0 ? least : most) : panelNow() - direction * STEP[amount]);
+  });
+  // Enter, Space or a press without a drag: the panel at its least, and back to where it was.
+  handle.addEventListener('activate', () => {
+    const [least] = range();
+    if (panelNow() > least + 1) {
+      restoreTo = panelNow();
+      setPanel(least);
+    } else setPanel(restoreTo || length('--ts-panel-default'));
+  });
+  const resized = new ResizeObserver(() => {
+    if (panelWidth && panelWidth > range()[1]) setPanel(panelWidth, false);
+    else drawHandle();
+  });
+  resized.observe(layout);
+
+  // ── undo and redo ─────────────────────────────────────────────────────────────────────────────
+  function drawHistory() {
+    undoButton.toggleAttribute('disabled', !history.canUndo);
+    redoButton.toggleAttribute('disabled', !history.canRedo);
+  }
+  /** The layer `step` hands back, drawn whole and saved; the focus stays where it was, or goes to the panel. */
+  function travel(step: Layer | null, said: string) {
+    if (!step) return;
+    const inside = root.contains(document.activeElement) && !bar.contains(document.activeElement);
+    layer = committed = step as Layer;
+    build();
+    drawHistory();
+    scheduleSave();
+    if (inside && !root.contains(document.activeElement)) inspector.focus({ preventScroll: true });
+    ctx.announce(said);
+  }
+  const undo = () => travel(history.undo(committed) as Layer | null, t.frame.undone);
+  const redo = () => travel(history.redo(committed) as Layer | null, t.frame.redone);
+  // ⌘Z and ⇧⌘Z (Ctrl+Z, Ctrl+Shift+Z and Ctrl+Y elsewhere), wherever the focus is in the Studio, or on no element at
+  // all. In a field that holds text the keys are the field's: they undo what was typed in it.
+  const editable = (target: EventTarget | undefined) => target instanceof HTMLElement && (target.isContentEditable || target.matches('input:not([type="checkbox"], [type="radio"], [type="range"], [type="button"]), textarea'));
+  const onKey = (event: KeyboardEvent) => {
+    if (event.defaultPrevented || event.altKey || !(event.metaKey || event.ctrlKey)) return;
+    const key = event.key.toLowerCase();
+    const redoing = (key === 'z' && event.shiftKey) || (key === 'y' && event.ctrlKey && !event.metaKey && !event.shiftKey);
+    if (!redoing && !(key === 'z' && !event.shiftKey)) return;
+    const target = event.composedPath()[0];
+    const here = event.target === document.body || event.target === document.documentElement || root.contains(event.target as Node);
+    if (!here || editable(target)) return;
+    event.preventDefault();
+    if (redoing) redo();
+    else undo();
+  };
+  document.addEventListener('keydown', onKey);
 
   // The four levels are four views of one layer: tabs. They stay while the level changes, so the keyboard keeps its place.
+  // In the rail of a wide frame they stand in a column; above the preview of a narrow one, in a row.
   const levelTabs = views<Level>({ label: t.levels.label, variant: 'primary', attrs: { 'data-levels': true }, options: (LEVELS as Level[]).map((value) => ({ value, label: t.levels[value] })), value: level, onchange: (value) => setLevel(value) });
+  const wide = matchMedia(WIDE);
+  const orient = () => levelTabs.setAttribute('orientation', wide.matches ? 'vertical' : 'horizontal');
+  orient();
+  wide.addEventListener('change', orient);
   // Said in words wherever the person is: the text they typed at Source is still there, and is not what is saved.
   const draftBadge = stateChip(() => setLevel('source'), { class: 'ts-draft-badge', 'data-draft-badge': true, title: t.source.draftHelp });
   draftBadge.say(t.source.draftBadge, 'warning');
@@ -343,6 +481,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
 
   function scheduleSave() {
     remember();
+    if (linked) writeAddress();
     if (!adapter || saveState === 'loading') return;
     if (stringifyLayer(committed) === savedText && saveState !== 'conflict') return setSave('saved');
     if (saveState === 'conflict') return; // the person decides first
@@ -386,6 +525,8 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
         { class: 'ts-actions', slot: 'actions' },
         button(t.file.reload, () => {
           layer = committed = studio.fromLayer(theirs!.layer);
+          history.clear();
+          drawHistory();
           etag = theirs!.etag;
           savedText = stringifyLayer(layer);
           dismiss('saved');
@@ -478,7 +619,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     // changes which controls exist), or opened at one of its panels, it is drawn whole at once, so that what is looked
     // at stays where it is.
     if (switched && level === 'groups' && !focus?.panel) {
-      const now = (drawing = drawnNear([...groupsPanels(ctx), accessibilityPanel, exportPanel]));
+      const now = (drawing = drawnNear([...groupsPanels(ctx), accessibilityPanel, exportPanel], wide.matches ? inspector : null));
       const holders = [...now.holders];
       const [exported, accessibility] = [holders.pop()!, holders.pop()!];
       controls.replaceChildren(...holders);
@@ -496,7 +637,49 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     update();
   }
 
-  build();
+  // ── the layer in the address (`address`) ──────────────────────────────────────────────────────
+  // Written a moment after each commit, in place of the address the tab has (the Back button still leaves the Studio):
+  // a link copied from the address bar opens the Studio on this layer. An untouched layer writes none. A layer that
+  // arrives in the address — the page opened from a link, or a link pasted into this tab — is the layer then, in the
+  // place of the one this browser kept, and the step back to that one can be undone.
+  let addressTimer: number | undefined;
+  let written: string | null = linked ? layerParam(location.hash) : null;
+  function writeAddress() {
+    window.clearTimeout(addressTimer);
+    addressTimer = window.setTimeout(async () => {
+      const text = stringifyLayer(committed);
+      const code = text === stringifyLayer(studio.blank()) ? null : await packLayer(text);
+      if (!live || code === written) return;
+      written = code;
+      window.history.replaceState(window.history.state, '', `${location.pathname}${location.search}${withLayer(location.hash, code)}`);
+    }, 250);
+  }
+  /** The layer of the address, or `null` when it holds none, or none that can be read (a link cut short is left alone). */
+  async function readAddress(): Promise<Layer | null> {
+    const code = layerParam(location.hash);
+    if (!code) return null;
+    try {
+      written = code;
+      return studio.fromLayer(await unpackLayer(code));
+    } catch {
+      return null;
+    }
+  }
+  const onHash = () => {
+    if (layerParam(location.hash) === written) return;
+    readAddress().then((next) => next && ctx.commit(next, { rebuild: true }));
+  };
+  let live = true;
+  if (linked && layerParam(location.hash)) {
+    // Read before the first drawing, so that the layer of the link is the first one drawn.
+    readAddress().then((next) => {
+      if (!live) return;
+      if (next) layer = committed = next;
+      build();
+      remember();
+    });
+  } else build();
+  if (linked) addEventListener('hashchange', onHash);
   let stopWatching = () => {};
   /** The host's local parent layers, before anything that extends them is computed. A host without them has none. */
   const loadParents = async () => studio.setParents(adapter?.parents ? await adapter.parents().catch(() => []) : []);
@@ -505,6 +688,8 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       .then(() => adapter.load())
       .then((loaded) => {
         layer = committed = studio.fromLayer(loaded.layer);
+        history.clear();
+        drawHistory();
         draft.belongsTo(layer.id);
         etag = loaded.etag;
         savedText = stringifyLayer(layer);
@@ -522,12 +707,14 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
 
   // For scripts and agents driving the page: the same layer the controls edit.
   const api = {
-    getState: () => ({ layer: structuredClone(layer), level, contrast, saveState, draft: draft.text }),
+    getState: () => ({ layer: structuredClone(layer), level, contrast, saveState, draft: draft.text, canUndo: history.canUndo, canRedo: history.canRedo }),
     getLayer: () => structuredClone(layer),
     setLayer: (next: Layer) => ctx.commit(studio.fromLayer(next), { rebuild: true }),
     importLayer: (input: string | object) => importLayer(typeof input === 'string' ? input : JSON.stringify(input)),
     setLevel: (next: Level) => setLevel(next),
     setContrast: (next: Contrast) => ((contrast = next), build()),
+    undo: () => undo(),
+    redo: () => redo(),
     /** One operation on one token, or `null` to revert it; returns the problem, if it was not written. */
     applyOperation: (id: string, op: Json | null) => {
       const result = studio.applyOperation(layer, id, op) as Json;
@@ -553,11 +740,12 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       cancelAnimationFrame(frame);
       window.clearTimeout(resting);
       window.clearTimeout(wording);
-      // Once for each mount, whatever the caller does twice; the last Studio of the document gives the width back.
-      if (!live) return;
+      window.clearTimeout(addressTimer);
       live = false;
-      mounted -= 1;
-      if (mounted === 0) document.documentElement.removeAttribute(MOUNTED);
+      document.removeEventListener('keydown', onKey);
+      removeEventListener('hashchange', onHash);
+      wide.removeEventListener('change', orient);
+      resized.disconnect();
     },
   };
   (window as Json)[`${NS}Studio`] = api;

@@ -26,6 +26,9 @@ const entries = (xml, tag) => [...xml.matchAll(new RegExp(`<${tag}>(.*?)</${tag}
 const index = entries(fs.readFileSync(path.join(dist, 'sitemap-index.xml'), 'utf8'), 'sitemap');
 const sitemaps = index.map(({ loc, lastmod }) => ({ lastmod, urls: entries(fs.readFileSync(path.join(dist, new URL(loc).pathname), 'utf8'), 'url') }));
 
+/** The pages with no head: each language's first page, and Theme Studio's (`/studio/`, src/pages/). */
+const headless = new RegExp(`^/(?:(?:${where.languages.join('|')})/)?(?:studio/)?$`);
+
 const gitDate = async (files) => (await promisify(execFile)('git', ['log', '-1', '--first-parent', '--format=%cI', '--', ...files], { cwd: repoRoot })).stdout.trim();
 
 describe('the sitemap', () => {
@@ -54,9 +57,10 @@ describe('the sitemap', () => {
       const pathname = new URL(loc).pathname;
       const html = fs.readFileSync(path.join(dist, pathname, pathname.endsWith('/') ? 'index.html' : ''), 'utf8');
       const head = /<tanrei-page-header class="docs-page-header"[^>]*>([\s\S]*?)<\/tanrei-page-header>/.exec(html)?.[1];
-      // Every page has a head but each language's first page, whose hero stands in its place and prints no date.
+      // Every page has a head but each language's first page, whose hero stands in its place, and Theme Studio's page,
+      // whose bar does; neither prints a date.
       if (!head) {
-        if (!/^\/([a-z-]+\/)?$/.test(pathname) || /<time\b/.test(html)) wrong.push(`${loc}: no head`);
+        if (!headless.test(pathname) || /<time\b/.test(html)) wrong.push(`${loc}: no head`);
         continue;
       }
       const times = [...head.matchAll(/<time\b[^>]*\bdatetime="([^"]+)"/g)].map(([, datetime]) => datetime);

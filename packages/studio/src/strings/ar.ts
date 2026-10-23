@@ -500,6 +500,17 @@ const ar: Dictionary = {
     keepMine: 'إبقاء ما لديّ (الكتابة فوق الملف)',
     keepOpen: 'إبقاء ما هو مفتوح (الكتابة فوق الملف)',
   },
+  frame: {
+    history: 'السجل',
+    undo: 'تراجع',
+    redo: 'إعادة',
+    undone: 'تم التراجع.',
+    redone: 'تمت الإعادة.',
+    rail: 'المستويات',
+    panel: 'الخصائص',
+    resize: 'عرض لوحة الخصائص',
+    width: (px: number) => `${px} بكسل`,
+  },
   app: {
     language: 'اللغة',
     theme: 'السمة',

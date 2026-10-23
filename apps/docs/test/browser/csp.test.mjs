@@ -132,7 +132,7 @@ for (const engine of ENGINES) {
     });
 
     test('Theme Studio draws its system', async () => {
-      const { page, refused } = await open('/foundations/theme-studio/');
+      const { page, refused } = await open('/studio/');
       try {
         await page.locator('[data-studio][data-level]').waitFor();
         await page.waitForTimeout(500);

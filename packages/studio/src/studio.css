@@ -2,15 +2,10 @@
    so nothing the visitor edits can restyle it: edits apply inside .ts-scope only. A host may tune the chrome through
    the --ts-* properties below; the docs site maps them to its Starlight variables. */
 
-/* The Studio needs the room a two-pane tool needs; the docs page turns its table of contents off.
-   (:root twice: the docs theme sets the width on :root[data-theme], and this sheet may load before it.)
-   The root says it with an attribute the Studio writes while it is mounted (`mountStudio`, ui.ts) — not with
-   `:has(.ts)`: this sheet may be on every page of a site that hosts the Studio on one, and a `:has()` on
-   the root makes every element of every such page one whose changes the root must be asked about again
-   (test/studio-css.test.js holds it). */
-:root:root[data-ts-mounted] {
-  --sl-content-width: 84rem;
-}
+/* The Studio is a tool of its own, the whole page it is mounted in: a bar across the top, and under it the rail of
+   levels, the preview and the panel of what the level edits (`.ts-frame`). A host gives it the page — the docs site's
+   /studio/, the standalone app — and puts its own brand into the bar (`bar` in ui.ts). Nothing here looks at the page
+   around the root: a `:has()` asked of the root, the body or the Studio's root is refused (test/studio-css.test.js). */
 
 .ts {
   --ts-gap: 1rem;
@@ -22,8 +17,16 @@
   --ts-text-xs: var(--sl-text-xs, 0.8125rem);
   --ts-text-2xs: var(--sl-text-2xs, 0.75rem);
   --ts-font-mono: var(--sl-font-mono, var(--tanrei-ref-typeface-mono));
-  --ts-sticky-top: var(--sl-nav-height, 0rem);
-  margin-block: 1.5rem 0;
+  /* The frame's columns: the rail's width, the least the preview and the panel are given, and the panel's width until
+     the person moves the handle (ui.ts writes --ts-panel-width then). */
+  --ts-rail-width: 15rem;
+  --ts-preview-min: 22.5rem;
+  --ts-panel-min: 20rem;
+  --ts-panel-default: clamp(var(--ts-panel-min), 30vw, 30rem);
+  /* What stays at the top while the page scrolls under it: nothing in the wide frame, whose columns scroll by
+     themselves; the bar on a narrow screen. */
+  --ts-sticky-top: 0rem;
+  margin: 0;
   font-size: var(--ts-text-sm);
   line-height: 1.5;
   color: var(--tanrei-sys-color-on-surface);
@@ -35,27 +38,135 @@
 .ts [hidden] {
   display: none;
 }
-.ts-layout {
+
+/* ── The bar ────────────────────────────────────────────────────────── */
+.ts-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tanrei-sys-space-space50) var(--tanrei-sys-space-space150);
+  min-block-size: 3rem;
+  padding-block: var(--tanrei-sys-space-space50);
+  padding-inline: var(--tanrei-sys-space-space150);
+  border-block-end: var(--ts-hairline);
+  background: var(--tanrei-sys-color-surface);
+}
+.ts-bar-host {
+  display: flex;
+  align-items: center;
+  gap: var(--tanrei-sys-space-space100);
+  min-inline-size: 0;
+}
+.ts-bar-history {
+  display: flex;
+  align-items: center;
+  gap: var(--tanrei-sys-space-space25);
+}
+/* The file's state, and the host's end items after it, stand at the end edge. */
+.ts-bar > .ts-file {
+  flex: 1;
+}
+.ts-bar-end {
+  flex: none;
+  margin-inline-start: auto;
+}
+/* A phone, with the host's items at both ends: they keep the first line (the brand, a language, a theme), and undo,
+   redo and the file's state take the second. */
+@media (max-width: 40rem) {
+  .ts-bar {
+    column-gap: var(--tanrei-sys-space-space100);
+    padding-inline: var(--tanrei-sys-space-space100);
+  }
+  .ts-bar-hosted::after {
+    content: '';
+    flex-basis: 100%;
+    order: 1;
+  }
+  .ts-bar-hosted > .ts-bar-history {
+    order: 2;
+  }
+  .ts-bar-hosted > .ts-file {
+    order: 3;
+  }
+}
+
+/* ── The frame ──────────────────────────────────────────────────────── */
+/* A narrow screen: one column — the levels, the preview (it stays under the bar while the panel scrolls), the panel.
+   The handle has nothing to resize there. */
+.ts-frame {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--ts-gap);
   align-items: start;
+  padding: var(--ts-gap);
+}
+.ts-rail,
+.ts-inspector {
+  min-inline-size: 0;
+}
+.ts-inspector {
+  display: grid;
+  align-content: start;
+  gap: var(--ts-gap);
+}
+.ts-inspector:focus {
+  outline: none;
+}
+.ts-handle {
+  display: none;
 }
 .ts-controls {
   display: grid;
   gap: var(--ts-gap);
   min-inline-size: 0;
 }
+/* A wide screen: the page is the Studio — the bar, then three columns that each scroll by themselves: the rail, the
+   preview (it takes what the others leave) and the panel, with the handle between the preview and the panel. */
 @media (min-width: 64rem) {
-  .ts-layout {
-    grid-template-columns: minmax(19rem, 24rem) minmax(0, 1fr);
+  .ts {
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    block-size: 100dvh;
+    overflow: hidden;
   }
-  .ts[data-level='source'] .ts-layout {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  /* Every token holds two panes side by side, the tree and the chosen token's editor, and Source the file: their panel
+     starts wider. A width the person gave the panel holds at every level. */
+  .ts[data-level='tokens'] {
+    --ts-panel-default: clamp(var(--ts-panel-min), 55vw, 52rem);
   }
-  /* Two panes — the tree and the chosen token's editor — and the preview beside them. */
-  .ts[data-level='tokens'] .ts-layout {
-    grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
+  .ts[data-level='source'] {
+    --ts-panel-default: clamp(var(--ts-panel-min), 45vw, 44rem);
+  }
+  .ts-frame {
+    grid-template-columns: var(--ts-rail-width) minmax(var(--ts-preview-min), 1fr) auto minmax(var(--ts-panel-min), var(--ts-panel-width, var(--ts-panel-default)));
+    align-items: stretch;
+    gap: 0;
+    padding: 0;
+    min-block-size: 0;
+  }
+  .ts-rail,
+  .ts-inspector {
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding: var(--ts-gap);
+    background: var(--tanrei-sys-color-surface-container-lowest);
+  }
+  .ts-rail {
+    border-inline-end: var(--ts-hairline);
+  }
+  .ts-inspector {
+    border-inline-start: var(--ts-hairline);
+  }
+  .ts-handle {
+    display: block;
+    align-self: center;
+  }
+  .ts-frame > .ts-preview {
+    position: static;
+    max-block-size: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
   }
 }
 
@@ -306,9 +417,6 @@
   min-inline-size: 0;
 }
 @media (max-width: 63.999rem) {
-  .ts-layout > .ts-preview {
-    order: -1;
-  }
   /* The sticky preview is short on a phone: components first, the type ramp after them. */
   .ts-pane .ts-ramp {
     order: 1;
@@ -317,12 +425,6 @@
   .ts-pane .ts-intents,
   .ts-pane .ts-measures {
     order: 2;
-  }
-}
-@media (min-width: 64rem) {
-  .ts-preview {
-    max-block-size: calc(100vh - var(--ts-sticky-top) - 1.5rem);
-    box-shadow: none;
   }
 }
 .ts-preview-bar {
@@ -612,14 +714,6 @@
 }
 
 /* ── Levels and the file ────────────────────────────────────────────── */
-.ts-top {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: start;
-  justify-content: space-between;
-  gap: 0.75rem 1.5rem;
-  margin-block-end: var(--ts-gap);
-}
 .ts-levels {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -1244,7 +1338,7 @@
   scroll-margin-block-start: calc(var(--ts-sticky-top) + 0.75rem);
 }
 @media (max-width: 63.999rem) {
-  .ts-layout .ts-panel {
+  .ts-frame .ts-panel {
     scroll-margin-block-start: calc(var(--ts-sticky-top) + min(46vh, 30rem) + 1.25rem);
   }
 }

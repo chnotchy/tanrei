@@ -14,7 +14,9 @@
 //     shared set that names it among its readers: the tables, the facts under its head and its fixtures are drawn from
 //     them in every language;
 //   - for a page that draws tokens (it imports one of `src/components/tokens/`), the whole of `tokens/`, which those
-//     tables and specimens read across every tier and system.
+//     tables and specimens read across every tier and system;
+//   - for Theme Studio's page (`/studio/` in each language), which is no page of the content, the component that
+//     writes it (`src/components/StudioPage.astro`).
 //
 // The date of a change is the date it reached the branch the site is built from: the history is read along first
 // parents, so a change merged from a pull request carries the date of its merge, not of the commit on its branch.
@@ -36,6 +38,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+/** The pages of the site that are not pages of the content, by their address in a language's folder: the file that writes each, relative to the docs' `src/`. */
+const OWN_PAGES = { studio: 'components/StudioPage.astro' };
+/** The docs' `src/`, relative to the repository's root: the folder above the content's (`<src>/content/docs`). */
+const srcOf = (contentDir) => path.posix.dirname(path.posix.dirname(contentDir));
+
 /** The extensions a page's source may have, in the order the content loader prefers them. */
 const EXTENSIONS = ['.mdx', '.md'];
 
@@ -56,6 +63,10 @@ export function pageSources(url, { repoRoot, contentDir, languages }) {
   const segments = new URL(url, 'https://site.invalid').pathname.split('/').filter(Boolean).map(decodeURIComponent);
   const language = languages.includes(segments[0]) ? segments.shift() : '';
   const slug = segments.join('/');
+  if (Object.hasOwn(OWN_PAGES, slug)) {
+    const file = path.posix.join(srcOf(contentDir), OWN_PAGES[slug]);
+    return fs.existsSync(path.join(repoRoot, file)) ? [file] : [];
+  }
   const candidates = (dir) => (slug ? [slug, `${slug}/index`] : ['index']).flatMap((name) => EXTENSIONS.map((ext) => path.posix.join(contentDir, dir, name + ext)));
   const source = [...(language ? candidates(language) : []), ...candidates('')].find((file) => fs.existsSync(path.join(repoRoot, file)));
   if (!source) return [];
@@ -168,7 +179,7 @@ export const pageDate = (dates, url, where) => newest(dates, pageSources(url, wh
 export function pageLastmod(where) {
   /** @type {Map<string, string> | undefined} */
   let dates;
-  const read = () => commitDates(where.repoRoot, [where.contentDir, 'specs', 'tokens']);
+  const read = () => commitDates(where.repoRoot, [where.contentDir, 'specs', 'tokens', ...Object.values(OWN_PAGES).map((file) => path.posix.join(srcOf(where.contentDir), file))]);
   const resolved = `\0${LAST_UPDATED_MODULE}`;
   return {
     integration: {

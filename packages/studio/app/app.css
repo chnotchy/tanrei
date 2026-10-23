@@ -37,18 +37,13 @@ body {
   margin: 0;
   min-block-size: 100vh;
 }
-.app-bar {
-  position: sticky;
-  inset-block-start: 0;
-  z-index: 10;
+/* The app's items of the Studio's bar (main.ts hands them over): the brand and the file at the start, the language and
+   the theme at the end. */
+.app-start {
   display: flex;
   align-items: center;
   gap: 0.75rem 1.25rem;
-  min-block-size: 3.25rem;
-  padding: 0.5rem clamp(1rem, 3vw, 2rem);
-  border-block-end: var(--tanrei-sys-border-hairline) solid var(--tanrei-sys-color-outline-variant);
-  background: color-mix(in srgb, var(--tanrei-sys-color-surface) 88%, transparent);
-  backdrop-filter: saturate(1.4) blur(12px);
+  min-inline-size: 0;
 }
 .app-brand {
   display: inline-flex;
@@ -79,7 +74,6 @@ body {
   background: radial-gradient(circle at 50% 50%, var(--tanrei-sys-color-surface) 0 32%, transparent 34%), var(--tanrei-sys-color-on-surface);
 }
 .app-session {
-  flex: 1;
   min-inline-size: 0;
   margin: 0;
   overflow: hidden;
@@ -111,21 +105,9 @@ body {
   clip-path: inset(50%);
   white-space: nowrap;
 }
-#studio {
-  --ts-sticky-top: 3.25rem;
-  max-inline-size: 96rem;
-  margin: 0 auto;
-  padding: 0.25rem clamp(1rem, 3vw, 2rem) 4rem;
-}
 @media (max-width: 40rem) {
   /* A phone: the brand, the language and the theme stand on one line in every language. */
-  .app-bar {
-    column-gap: 0.5rem;
-  }
   .app-session {
     display: none;
-  }
-  .app-tools {
-    margin-inline-start: auto;
   }
 }

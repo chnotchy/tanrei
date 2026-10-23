@@ -138,10 +138,13 @@ export function panel(ctx: Ctx, { title, code, help, key, actions }: { title: st
  * 3. and the rest one at a time while the page is idle, top down, so that the Tab key, the browser's find and a screen
  *    reader reach every panel soon after, wherever the person has scrolled.
  *
+ * "The window" is the box that scrolls the panels: `scroller`, where it is not the page (the frame's panel, beside the
+ * preview), else the page's window.
+ *
  * A panel whose `make` gives nothing leaves no holder. `stop()` leaves what is not drawn yet: the controls are being
  * drawn again. `done` says when every panel is drawn (or the drawing stopped).
  */
-export function drawnNear(makers: (() => HTMLElement | null)[]): { holders: HTMLElement[]; done: Promise<void>; stop(): void } {
+export function drawnNear(makers: (() => HTMLElement | null)[], scroller: HTMLElement | null = null): { holders: HTMLElement[]; done: Promise<void>; stop(): void } {
   const holders: HTMLElement[] = makers.map(() => h('div', { class: 'ts-panel-pending', 'data-panel-pending': true }));
   const pending = new Map(holders.map((holder, index) => [holder, makers[index]!]));
   let finish = () => {};
@@ -151,7 +154,7 @@ export function drawnNear(makers: (() => HTMLElement | null)[]): { holders: HTML
   let idle: number | undefined;
   // (A browser with no idle callbacks gets a timer, a frame apart, in their place.)
   const idles = typeof requestIdleCallback === 'function';
-  const near = new IntersectionObserver((entries) => entries.forEach((entry) => entry.isIntersecting && draw(entry.target as HTMLElement)), { rootMargin: '50% 0px' });
+  const near = new IntersectionObserver((entries) => entries.forEach((entry) => entry.isIntersecting && draw(entry.target as HTMLElement)), { root: scroller, rootMargin: '50% 0px' });
   const stop = () => {
     if (stopped) return;
     stopped = true;
@@ -189,7 +192,7 @@ export function drawnNear(makers: (() => HTMLElement | null)[]): { holders: HTML
     for (const holder of holders) {
       if (stopped) return;
       if (!pending.has(holder)) continue;
-      if (holder.getBoundingClientRect().top >= innerHeight) break;
+      if (holder.getBoundingClientRect().top >= (scroller?.getBoundingClientRect().bottom ?? innerHeight)) break;
       await drawnInside(draw(holder));
     }
     if (stopped) return;

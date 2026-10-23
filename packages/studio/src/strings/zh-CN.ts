@@ -443,6 +443,17 @@ const zhCN: Dictionary = {
     keepMine: '保留我的（覆盖文件）',
     keepOpen: '保留当前打开的内容（覆盖文件）',
   },
+  frame: {
+    history: '历史记录',
+    undo: '撤销',
+    redo: '重做',
+    undone: '已撤销。',
+    redone: '已重做。',
+    rail: '级别',
+    panel: '属性',
+    resize: '属性面板的宽度',
+    width: (px: number) => `${px} 像素`,
+  },
   app: {
     language: '语言',
     theme: '主题',

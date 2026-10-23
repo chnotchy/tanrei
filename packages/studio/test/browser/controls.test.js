@@ -51,9 +51,9 @@ studioTest('no control is hand-made: at every level, with the folds open, the on
   assert.deepEqual(held.source, ['lines[data-import]'], 'Source: the import');
   // (The Studio's own tree: a text field's own Field is in its shadow root, and is the text field's.)
   assert.equal(await page.evaluate(() => document.querySelectorAll('tanrei-field tanrei-text-field, tanrei-field tanrei-text-input, tanrei-field textarea').length), 0, 'the Studio frames no text field and no text input with a Field of its own');
-  // The standalone app's bar: its theme button and its language select are Tanrei's too.
-  assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('.app-bar button, .app-bar input, .app-bar select')].length), 0);
-  assert.equal(await page.locator('.app-bar #theme').evaluate((el) => el.localName), 'tanrei-button');
+  // The standalone app's items of the Studio's bar: its theme button and its language select are Tanrei's too.
+  assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('.ts-bar button, .ts-bar input, .ts-bar select')].length), 0);
+  assert.equal(await page.locator('.ts-bar #theme').evaluate((el) => el.localName), 'tanrei-button');
 });
 
 studioTest('an action is a Tanrei button: its drawn word, its whole name where rows share the word, and Enter and Space press it', { layer }, async ({ page, level, saved }) => {

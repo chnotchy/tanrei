@@ -3,8 +3,7 @@
 // A site that hosts the Studio on one page may load `src/studio.css` on every page (a host that imports it from a
 // script its pages share does). A `:has()` whose argument looks down from the root (`:root:has(.ts)`) makes every
 // element of each of those pages one whose changes the root must be asked about again, and the root's question is the
-// whole document: 35 to 60 ms of style time on a component page of the docs, measured. What the root needs to know
-// about the Studio it is told with an attribute (`data-ts-mounted`, written by `mountStudio`).
+// whole document: 35 to 60 ms of style time on a component page of the docs, measured.
 //
 // The rule held here is the web package's (packages/web/src/styles/has.test.ts): `:has()` is asked of the element the
 // rule styles, and never of the root, the body or the Studio's own root — each holds everything the Studio draws.
@@ -64,11 +63,3 @@ for (const sheet of SHEETS) {
     assert.deepEqual(found.filter(forAnother), [], 'asked of one element for the sake of another');
   });
 }
-
-test('the page’s width is said by the attribute the Studio writes while it is mounted', () => {
-  assert.match(read('../src/studio.css'), /:root:root\[data-ts-mounted\]\s*\{\s*--sl-content-width:/);
-  const ui = fs.readFileSync(new URL('../src/ui.ts', import.meta.url), 'utf8');
-  assert.match(ui, /const MOUNTED = 'data-ts-mounted'/);
-  assert.match(ui, /setAttribute\(MOUNTED, ''\)/);
-  assert.match(ui, /removeAttribute\(MOUNTED\)/);
-});
