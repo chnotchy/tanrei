@@ -154,6 +154,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   const status = h('p', { class: 'ts-status', role: 'status', 'aria-live': 'polite', 'data-status': true });
   const controls = h('div', { class: 'ts-controls', 'data-controls': true });
   const preview = createPreview(ctx, { contrast, onContrast: (next) => ((contrast = next), update()) });
+  Object.assign(ctx, { highlight: preview.highlight, clearHighlight: preview.clearHighlight });
   const levels = h('div', { class: 'ts-levels' });
   const file = h('div', { class: 'ts-file', 'data-file': true });
   // What changed underneath the person, and the two answers: a live callout (it is announced when it opens).
@@ -732,6 +733,12 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     /** The words a component on this page needed and nobody gave (`missingWords()` of @tanrei/web): empty, or a defect. */
     missingWords: () => missingWords(),
     describe: (id: string) => (last ? studio.describe(last, id) : null),
+    /** The preview: which screen and mode it shows, and the parts a set of tokens reaches (Ctx.highlight). */
+    getPreview: () => preview.state(),
+    setScreen: preview.setScreen,
+    setMode: preview.setMode,
+    highlight: preview.highlight,
+    clearHighlight: preview.clearHighlight,
     save: () => saveNow(),
     destroy: () => {
       stopWatching();
