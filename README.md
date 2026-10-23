@@ -76,7 +76,7 @@ Only `tokens/` (DTCG 2025.10, including the layer file of each shipped design sy
 ## Working in this repository
 
 ```bash
-pnpm install          # pnpm 12 (pinned via packageManager); Node ≥ 22.12
+pnpm install          # pnpm 12 (pinned via packageManager); Node ≥ 22.22
 pnpm check            # validate → generate → drift → build → test
 pnpm status           # component × platform matrix
 pnpm docs:dev         # documentation site (Astro Starlight, six languages)
