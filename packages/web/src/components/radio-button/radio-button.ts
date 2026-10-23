@@ -1,7 +1,7 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { live } from 'lit/directives/live.js';
 import { hiddenHost } from '../../primitives/hidden.js';
-import { AvailabilityController, PressController, SelectionController, markConditionChange, report, selectionRippleOrigin, syncFocusStyle } from '../../primitives/index.js';
+import { AvailabilityController, PressController, SelectionController, markConditionChange, report, selectionRippleOrigin, syncFocusStyle, delegatedAria, delegatesAria } from '../../primitives/index.js';
 import { styles } from './radio-button.styles.js';
 import { FocusedStop, disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
@@ -414,8 +414,7 @@ export class TanreiRadioButton extends TanreiElement {
             .checked=${live(this.checked)}
             ?disabled=${this.selection.disabled}
             tabindex=${this.stop.keeps(this.selection.disabled) || this.tabStop ? nothing : '-1'}
-            aria-label=${this.selection.field.name(this.label) || nothing}
-            aria-description=${this.selection.field.description() || nothing}
+            ${delegatedAria(this, { 'aria-label': this.selection.field.name(this.label), 'aria-description': this.selection.field.description() })}
             aria-posinset=${this.position}
             aria-setsize=${this.groupSize}
             @click=${this.#onClick}
@@ -439,6 +438,8 @@ export class TanreiRadioButton extends TanreiElement {
 disabledWaitsWhileFocused(TanreiRadioButton);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiRadioButton);
+// The product's ARIA on the host is the element's that carries the role; its checked and disabled states are its own.
+delegatesAria(TanreiRadioButton, { owns: ['aria-checked', 'aria-pressed', 'aria-disabled'] });
 if (!customElements.get('tanrei-radio-button')) customElements.define('tanrei-radio-button', TanreiRadioButton);
 
 declare global {

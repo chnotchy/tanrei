@@ -1,7 +1,7 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, nothing } from 'lit';
 import { html, literal } from 'lit/static-html.js';
 import { hiddenHost } from '../../primitives/hidden.js';
-import { AvailabilityController, LinkController, OpenAxesController, PressController, type TanreiLinkTarget, linkAttributes, report, slottedInteractive, syncFocusStyle } from '../../primitives/index.js';
+import { AvailabilityController, LinkController, OpenAxesController, PressController, type TanreiLinkTarget, linkAttributes, report, slottedInteractive, syncFocusStyle, delegatedAria, delegatesAria } from '../../primitives/index.js';
 import type { TanreiCardVariantRegistry } from '../../registry.js';
 import { AXES, styles } from './card.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
@@ -236,9 +236,11 @@ export class TanreiCard extends TanreiElement {
         role=${role}
         ${linkAttributes(link)}
         tabindex=${!link && this.active ? '0' : nothing}
-        aria-label=${this.label || nothing}
-        aria-description=${this.link.describe() ?? nothing}
-        aria-disabled=${!link && this.interactive && this.disabled ? 'true' : nothing}
+        ${delegatedAria(this, {
+          'aria-label': this.label,
+          'aria-description': this.link.describe(this.getAttribute('data-aria-description')),
+          'aria-disabled': !link && this.interactive && this.disabled && 'true',
+        })}
         @pointerdown=${this.press.onPointerDown}
         @pointerup=${this.press.release}
         @pointercancel=${this.press.release}
@@ -257,6 +259,8 @@ export class TanreiCard extends TanreiElement {
 
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiCard);
+// The product's ARIA on the host is the element's that carries the role; the disabled state is its own.
+delegatesAria(TanreiCard, { owns: ['aria-disabled'] });
 if (!customElements.get('tanrei-card')) customElements.define('tanrei-card', TanreiCard);
 
 declare global {

@@ -662,7 +662,7 @@ export class TanreiListItem extends TanreiElement {
               variant="text"
               size="small"
               label=${handleName}
-              .forwardedDescription=${this.context.handleHint || null}
+              aria-description=${this.context.handleHint || nothing}
               ?disabled=${lone}
               focusable-when-disabled
               @click=${this.#onHandleClick}

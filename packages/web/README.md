@@ -54,6 +54,33 @@ import { setWords } from '@tanrei/web';
 setWords({ requiredText: 'Required', optionalText: 'Optional', closeLabel: 'Close' });
 ```
 
+### ARIA on a component
+
+A control whose role is carried by a native element inside it (`tanrei-button`, `tanrei-checkbox`,
+`tanrei-text-input`, `tanrei-select` and the others whose spec says so) takes the `aria-*` attributes you put on it and
+exposes them on that element. To keep the control one node for assistive technology, it **moves** each of them to the
+`data-aria-*` attribute of the same name:
+
+```html
+<tanrei-button aria-current="page" aria-describedby="hint">Inbox</tanrei-button>
+<!-- becomes -->
+<tanrei-button data-aria-current="page" data-aria-describedby="hint">Inbox</tanrei-button>
+```
+
+- Select it by the moved name: `tanrei-button[data-aria-current="page"]`. `getAttribute('aria-current')` on it is
+  `null`, and so is the `ariaCurrent` property; read `data-aria-current`.
+- Removing the `aria-*` attribute you set (`removeAttribute`, `toggleAttribute`, or a React, Vue or Lit binding set to
+  nothing) takes the moved value away; you may also remove `data-aria-*` yourself.
+- An id reference (`aria-labelledby`, `aria-describedby`, `aria-controls`, `aria-details`, `aria-errormessage`) must
+  name an element in the same tree as the control, or in a tree around it (the shadow root of a component that holds
+  it), never inside another component's shadow root. It follows the element as it is added, removed or changed.
+- `aria-errormessage` is read with the description while the control is invalid (`aria-invalid="true"`).
+- `aria-hidden` stays on the control: it hides the whole control.
+- Playwright sees the name and the description: `getByRole({ name })`, `getByLabel()`, `ariaSnapshot()` and
+  `toHaveAccessibleDescription()`. Its own computation does not follow the element references a shadow root needs, so
+  the control also gives its native element the name's text and keeps a hidden copy of the description's text in its
+  shadow root. `toHaveAccessibleErrorMessage()` reads nothing: the error message is part of the description.
+
 ## Systems, themes and contrast
 
 The default system is `tanrei`. Three presets ship beside it — `m3-like`, `m3-expressive-like` and `cupertino` — and a

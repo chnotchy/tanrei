@@ -1,4 +1,6 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
+// A control that moves the product's ARIA to data-aria-* holds there what a frame gave it.
+import { ariaAttribute } from './delegated-aria.js';
 
 // A field and the control it frames live in different trees: the field's label and its help are in the field's shadow
 // root, the control is the product's element in the light DOM, and its semantics are on a native element inside the
@@ -286,10 +288,10 @@ export function takesRequired(element: Element): boolean {
 /** Whether `element` has an accessible name the product gave it: an ARIA name, or a `<label>` of the page. */
 export function namesItself(element: Element): boolean {
   const wrote = given.get(element)?.attributes.get('aria-label');
-  const ariaLabel = element.getAttribute('aria-label');
+  const ariaLabel = ariaAttribute(element, 'aria-label');
   if (ariaLabel?.trim() && ariaLabel !== wrote?.wrote) return true;
   if (wrote?.before?.trim()) return true;
-  if (element.getAttribute('aria-labelledby')?.trim()) return true;
+  if (ariaAttribute(element, 'aria-labelledby')?.trim()) return true;
   return ((element as HTMLInputElement).labels?.length ?? 0) > 0;
 }
 
@@ -298,15 +300,15 @@ function write(element: Element, record: Given, name: string, value: string | nu
   if (value === null) {
     if (!had) return;
     // Take back only what is still the frame's: a value the product wrote meanwhile is the product's.
-    if (element.getAttribute(name) === had.wrote) {
+    if (ariaAttribute(element, name) === had.wrote) {
       if (had.before === null) element.removeAttribute(name);
       else element.setAttribute(name, had.before);
     }
     record.attributes.delete(name);
     return;
   }
-  const before = had ? had.before : element.getAttribute(name);
-  if (element.getAttribute(name) !== value) element.setAttribute(name, value);
+  const before = had ? had.before : ariaAttribute(element, name);
+  if (ariaAttribute(element, name) !== value) element.setAttribute(name, value);
   record.attributes.set(name, { before, wrote: value });
 }
 
@@ -322,7 +324,7 @@ export function giveAttributes(element: Element, gift: PlainGift) {
   given.set(element, record);
   write(element, record, 'aria-label', gift.label && !namesItself(element) ? gift.label : null);
   const requiredState = takesRequired(element);
-  const own = record.attributes.get('aria-description')?.before ?? (record.attributes.has('aria-description') ? null : element.getAttribute('aria-description'));
+  const own = record.attributes.get('aria-description')?.before ?? (record.attributes.has('aria-description') ? null : ariaAttribute(element, 'aria-description'));
   const added = [gift.description ?? '', gift.required && !requiredState ? (gift.requiredText ?? '') : ''].filter(Boolean).join(' ');
   write(element, record, 'aria-description', added ? [own ?? '', added].filter(Boolean).join(' ') : null);
   write(element, record, 'aria-invalid', gift.invalid ? 'true' : null);

@@ -13,6 +13,8 @@ import {
   report,
   selectionRippleOrigin,
   syncFocusStyle,
+  delegatedAria,
+  delegatesAria,
 } from '../../primitives/index.js';
 import { PROGRESS, styles } from './switch.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
@@ -485,11 +487,13 @@ export class TanreiSwitch extends TanreiElement {
             role="switch"
             .checked=${live(this.checked)}
             ?disabled=${this.selection.disabled}
-            aria-label=${this.selection.field.name(this.label) || nothing}
-            aria-description=${this.selection.field.description() || nothing}
-            aria-invalid=${this.selection.field.invalid ? 'true' : nothing}
-            aria-required=${this.selection.field.required ? 'true' : nothing}
-            aria-readonly=${this.readOnly && !this.selection.disabled ? 'true' : nothing}
+            ${delegatedAria(this, {
+              'aria-label': this.selection.field.name(this.label),
+              'aria-description': this.selection.field.description(),
+              'aria-invalid': this.selection.field.invalid && 'true',
+              'aria-required': this.selection.field.required && 'true',
+              'aria-readonly': this.readOnly && !this.selection.disabled && 'true',
+            })}
             @click=${this.#onClick}
             @input=${this.#onInput}
             @change=${this.#onChange}
@@ -525,6 +529,8 @@ export class TanreiSwitch extends TanreiElement {
 disabledWaitsWhileFocused(TanreiSwitch);
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiSwitch);
+// The product's ARIA on the host is the element's that carries the role; its checked and disabled states are its own.
+delegatesAria(TanreiSwitch, { owns: ['aria-checked', 'aria-pressed', 'aria-disabled'] });
 if (!customElements.get('tanrei-switch')) customElements.define('tanrei-switch', TanreiSwitch);
 
 declare global {

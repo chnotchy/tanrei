@@ -5,8 +5,6 @@ import { html, literal } from 'lit/static-html.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import {
   AvailabilityController,
-  FORWARDED_DESCRIPTION,
-  FORWARDED_INVALID,
   GROUP_ITEM,
   GlyphMirrorController,
   GroupItemController,
@@ -19,6 +17,9 @@ import {
   type SubmitButtonState,
   type TanreiLinkTarget,
   afterClick,
+  delegatedAria,
+  delegatesAria,
+  namedByProduct,
   endsWaiting,
   linkAttributes,
   markPassingSubmitter,
@@ -138,8 +139,6 @@ export class TanreiButton extends TanreiElement {
     value: { type: String },
     hasIcon: { state: true },
     hasLabel: { state: true },
-    forwardedDescription: FORWARDED_DESCRIPTION,
-    forwardedInvalid: FORWARDED_INVALID,
     outsideFocusOrder: OUTSIDE_FOCUS_ORDER,
   };
 
@@ -264,19 +263,6 @@ export class TanreiButton extends TanreiElement {
 
   /** Web only: forwarded to the anchor's `download` (the file name; empty for the address's own). Ignored without `href`. */
   download: string | null = null;
-
-  /**
-   * The host's `aria-description`, read by assistive technology from the native button (src/primitives/description.ts).
-   * @internal
-   */
-  forwardedDescription: string | null = null;
-
-  /**
-   * The host's `aria-invalid`, read by assistive technology from the native button: what a frame writes on a control
-   * it marks invalid (a file upload on its trigger, FUP-16; src/primitives/description.ts).
-   * @internal
-   */
-  forwardedInvalid: string | null = null;
 
   /**
    * A host that steps for the button by keys of its own takes it out of the focus order: it stays a named button to
@@ -644,7 +630,7 @@ export class TanreiButton extends TanreiElement {
     // BTN-16, BTN-17: an icon alone is not a name, and a button with neither label nor icon shows nothing. It still renders.
     if (!this.hasLabel && !this.hasIcon) report(this, 'BTN-17', 'it has neither a label nor an icon; give it one');
     // A button its host keeps from assistive technology needs no name there (a number field's unnamed stepper, NUM-44).
-    else if (!this.hasLabel && !this.label && this.getAttribute('aria-hidden') !== 'true') report(this, 'BTN-16', 'it is icon-only and label is empty, so it has no accessible name; give it a label');
+    else if (!this.hasLabel && !this.label && !namedByProduct(this) && this.getAttribute('aria-hidden') !== 'true') report(this, 'BTN-16', 'it is icon-only and label is empty, so it has no accessible name; give it a label');
   }
 
   /** BTN-33: a type the button does not define, and a type a toggle or a link ignores. Each once. */
@@ -694,7 +680,8 @@ export class TanreiButton extends TanreiElement {
     // assistive technology so with aria-disabled in place of the platform's disabled state.
     const reachable = this.reachable;
     const busy = this.busy && !disabled;
-    const description = [this.link.describe(this.forwardedDescription), busy ? this.busyLabel : ''].filter(Boolean).join(', ');
+    // The product's `aria-description` on the host (a badge's on its anchor, BDG-8) comes first (src/primitives/delegated-aria.ts).
+    const description = [this.link.describe(this.getAttribute('data-aria-description')), busy ? this.busyLabel : ''].filter(Boolean).join(', ');
     const tag = link ? literal`a` : literal`button`;
     const iconOnly = !this.hasLabel;
     const trailing = this.hasIcon && this.hasLabel && this.iconPosition === 'trailing';
@@ -713,12 +700,15 @@ export class TanreiButton extends TanreiElement {
         ${ref(this[GROUP_ITEM].toneRef)}
         ${linkAttributes(link)}
         tabindex=${this.outsideFocusOrder ? '-1' : link && reachable ? '0' : nothing}
-        aria-label=${this.label || nothing}
-        aria-description=${description || nothing}
-        aria-invalid=${!link && this.forwardedInvalid === 'true' ? 'true' : nothing}
-        aria-pressed=${this.toggle ? String(this.selected) : nothing}
+        ${delegatedAria(this, {
+          'aria-label': this.label,
+          // BTN-16: a label given is the whole name, over the product's aria-labelledby.
+          'aria-labelledby': this.label ? null : undefined,
+          'aria-description': description,
+          'aria-pressed': this.toggle && String(this.selected),
+          'aria-disabled': !link && reachable && 'true',
+        })}
         ?disabled=${!link && disabled && !reachable}
-        aria-disabled=${!link && reachable ? 'true' : nothing}
         @click=${this.#onClick}
         @pointerdown=${this.press.onPointerDown}
         @pointerup=${this.press.release}
@@ -741,6 +731,8 @@ export class TanreiButton extends TanreiElement {
 
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiButton);
+// The product's ARIA on the host is the native element's; a toggle's pressed state and the disabled state are its own.
+delegatesAria(TanreiButton, { owns: ['aria-pressed', 'aria-disabled'] });
 if (!customElements.get('tanrei-button')) customElements.define('tanrei-button', TanreiButton);
 
 declare global {

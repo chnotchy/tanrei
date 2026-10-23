@@ -16,6 +16,8 @@ import {
   report,
   selectionRippleOrigin,
   syncFocusStyle,
+  delegatedAria,
+  delegatesAria,
 } from '../../primitives/index.js';
 import type { TanreiChipSizeRegistry, TanreiChipVariantRegistry } from '../../registry.js';
 import { AXES, styles } from './chip.styles.js';
@@ -425,9 +427,11 @@ export class TanreiChip extends TanreiElement {
           type=${link ? nothing : 'button'}
           data-tanrei-shape
           ${linkAttributes(link)}
-          aria-description=${this.link.describe() ?? nothing}
-          aria-pressed=${kind === 'filter' ? String(this.selected) : nothing}
-          aria-keyshortcuts=${this.removes && !this.disabled ? 'Delete Backspace' : nothing}
+          ${delegatedAria(this, {
+            'aria-description': this.link.describe(this.getAttribute('data-aria-description')),
+            'aria-pressed': kind === 'filter' && String(this.selected),
+            'aria-keyshortcuts': this.removes && !this.disabled && 'Delete Backspace',
+          })}
           ?disabled=${!link && this.disabled}
           @click=${this.#onClick}
           @pointerdown=${this.press.onPointerDown}
@@ -481,6 +485,8 @@ export class TanreiChip extends TanreiElement {
 
 // `autofocus` on it gives it focus when the page first loads too (src/primitives/autofocus.ts).
 focusedAtFirst(TanreiChip);
+// The product's ARIA on the host is the element's that carries the role; a filter chip's pressed state and the disabled state are its own.
+delegatesAria(TanreiChip, { owns: ['aria-pressed', 'aria-disabled'] });
 if (!customElements.get('tanrei-chip')) customElements.define('tanrei-chip', TanreiChip);
 
 declare global {

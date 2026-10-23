@@ -37,7 +37,7 @@ import '@tanrei/web/icons.css';
 <button aria-pressed="true"><span class="tanrei-icon" aria-hidden="true">favorite</span> お気に入り</button>
 ```
 
-`.tanrei-icon` は、祖先要素の `aria-pressed`・`aria-selected`・`aria-checked`・`aria-current`、またはアイコン自身か祖先の `data-selected` を読み取ります（`data-selected="false"` を付けると、そのアイコンだけ対象から外せます）。隣のテキストが同じ内容を伝えているならアイコンに `aria-hidden="true"` を付け、そうでないならコントロールにアクセシブルネームを付けてください。
+`.tanrei-icon` は、祖先要素の `aria-pressed`・`aria-selected`・`aria-checked`・`aria-current`（これらを `data-aria-*` に移す Tanrei のコントロールでは `data-aria-pressed`・`data-aria-selected`・`data-aria-checked`・`data-aria-current`）、またはアイコン自身か祖先の `data-selected` を読み取ります（`data-selected="false"` を付けると、そのアイコンだけ対象から外せます）。隣のテキストが同じ内容を伝えているならアイコンに `aria-hidden="true"` を付け、そうでないならコントロールにアクセシブルネームを付けてください。
 
 名前は `data-icon` で渡すこともできます。その場合、要素の中身は空にします。
 

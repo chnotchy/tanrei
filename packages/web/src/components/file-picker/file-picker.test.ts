@@ -200,7 +200,18 @@ async function axTree(page: P) {
   await cdp.send('Accessibility.enable');
   const { nodes } = await cdp.send('Accessibility.getFullAXTree');
   await cdp.detach();
-  return nodes
+  // In the tree's own order — depth first from the root, as a reader meets it — not the order the engine lists its
+  // nodes in, which follows when each node was made.
+  const byId = new Map(nodes.map((node) => [node.nodeId, node]));
+  const ordered: typeof nodes = [];
+  const walk = (id: string) => {
+    const node = byId.get(id);
+    if (!node) return;
+    ordered.push(node);
+    for (const child of node.childIds ?? []) walk(child);
+  };
+  walk(nodes[0]!.nodeId);
+  return ordered
     .filter((node) => !node.ignored)
     .map((node) => {
       const property = (name: string) => node.properties?.find((p) => p.name === name)?.value.value;
@@ -1182,7 +1193,8 @@ test.describe('behavior', () => {
       button.removeAttribute('slot');
       await new Promise((resolve) => setTimeout(resolve, 30));
       await el.updateComplete;
-      return [button.getAttribute('aria-description'), button.getAttribute('aria-invalid')];
+      // The trigger moves the ARIA a frame or the product gives it to data-aria-* (src/primitives/delegated-aria.ts).
+      return [button.getAttribute('data-aria-description'), button.getAttribute('data-aria-invalid')];
     });
     expect(left).toEqual(['Opens your files.', null]);
     // Invalid while error is true. Required: a button's role has no required state, so nothing of the picker's own
@@ -1960,13 +1972,13 @@ test.describe('behavior', () => {
     expect(pickers).toBe(2);
     await picker.evaluate(async (el: HTMLElement & { disabled: boolean; error: boolean; updateComplete: Promise<unknown> }) => (Object.assign(el, { disabled: false, error: false }), await el.updateComplete));
     await expect(inner).toBeEnabled();
-    expect(await button.evaluate((el) => [el.hasAttribute('disabled'), el.getAttribute('aria-invalid'), el.getAttribute('aria-description')])).toEqual([false, null, 'Opens your files. PDF only']);
+    expect(await button.evaluate((el) => [el.hasAttribute('disabled'), el.getAttribute('data-aria-invalid'), el.getAttribute('data-aria-description')])).toEqual([false, null, 'Opens your files. PDF only']);
     // A trigger that leaves the holder's slot gets back what it had, and stands alone again.
     await button.evaluate(async (el) => {
       el.removeAttribute('slot');
       await new Promise((resolve) => setTimeout(resolve, 30));
     });
-    await expect.poll(() => button.evaluate((el) => el.getAttribute('aria-description'))).toBe('Opens your files.');
+    await expect.poll(() => button.evaluate((el) => el.getAttribute('data-aria-description'))).toBe('Opens your files.');
     await expect.poll(() => inner.evaluate((el) => el.classList.contains('joined'))).toBe(false);
     await turn(page);
     // Reported: the holder without a trigger (twice: #empty from the start, #held once its trigger left), and nothing else.
