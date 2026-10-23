@@ -902,6 +902,13 @@ export class TanreiSearch extends TanreiElement {
   protected completion = '';
   /** SRC-55: the person's last edit inserted text at the end of the value, so the query may be completed (as suggestions arrive, too). */
   private completable = false;
+  /**
+   * SRC-55 (TXI-4): the text the input held — the value and its completion, selected — when an input method began to
+   * compose over a completion shown; empty once the composition's first `input` replaced the completion, and otherwise.
+   */
+  private composedOver = '';
+  /** SRC-55: a composition that inserted nothing ended over a completion, which went with it: its closing `input` changed no value. */
+  private cancelledOver = false;
   /** SRC-4, TXI-4: the value the search took or wrote itself last; another is the product's. */
   private ownValue = '';
   /** TXI-4: the product set `value` since the last render: shown in the input, during a composition too (where it waits for the end). */
@@ -1180,6 +1187,7 @@ export class TanreiSearch extends TanreiElement {
     if (this.composing) {
       this.completion = '';
       this.completable = false;
+      this.composedOver = '';
     }
   }
 
@@ -1632,7 +1640,16 @@ export class TanreiSearch extends TanreiElement {
   private readonly onInput = (event: Event) => {
     const input = event.target as HTMLInputElement;
     const text = input === this.headerInput ? this.headerText : this.barText;
+    const cancelled = this.cancelledOver;
+    this.cancelledOver = false;
     if (!text.composingInput(event)) {
+      // SRC-55: the `input` that closes a composition which inserted nothing over a completion changed no value: it
+      // fires nothing and completes nothing; what was current comes back, as after any composition.
+      if (cancelled && input.value === this.value) {
+        event.stopPropagation();
+        this.firstCurrent();
+        return;
+      }
       if (this.completion && input.value === this.value) {
         event.stopPropagation();
         this.dropCompletion();
@@ -1964,12 +1981,39 @@ export class TanreiSearch extends TanreiElement {
   /**
    * SRC-14, SRC-55 (TXI-4): a composition begins. A suggestion an arrow key put in the input is the text it edits, so it
    * becomes the value; a completion is not completed further — the input method replaces the selected completion in the
-   * element itself, which the search leaves alone until the composition ends.
+   * element itself, with its first `input`, and the search leaves the element alone until the composition ends.
    */
   private startComposition(input: HTMLInputElement | null) {
     if (input && this.activeSuggestion && input === this.currentInput) this.takeValue(input.value);
+    const over = !!input && input === this.currentInput && !!this.completion && this.queryActive && input.value === this.value + this.completion;
+    this.composedOver = over ? input.value : '';
     this.dropCompletion();
     this.firstCurrent();
+  }
+
+  private readonly onBarCompositionEnd = (event: CompositionEvent) => {
+    this.endComposition(this.barInput);
+    this.barText.onCompositionEnd(event);
+  };
+
+  private readonly onHeaderCompositionEnd = (event: CompositionEvent) => {
+    this.endComposition(this.headerInput);
+    this.headerText.onCompositionEnd(event);
+  };
+
+  /**
+   * SRC-55 (TXI-4): a composition ends. One that began over a completion and ends before its first `input` — cancelled,
+   * having inserted nothing — leaves the completion in the element, selected, where the value would take it as typed:
+   * the completion goes instead, the input shows the value as typed, and the `input` that closes the composition fires
+   * nothing (`onInput`).
+   */
+  private endComposition(input: HTMLInputElement | null) {
+    const over = this.composedOver;
+    this.composedOver = '';
+    if (!over || !input || input.value !== over) return;
+    input.value = this.value;
+    input.setSelectionRange(this.value.length, this.value.length);
+    this.cancelledOver = true;
   }
 
   // ── The bar (SRC-5, SRC-19) ────────────────────────────────────────────────────────────────────────────
@@ -2465,7 +2509,7 @@ export class TanreiSearch extends TanreiElement {
       @blur=${this.onInputBlur}
       @pointerdown=${this.onInputPointerDown}
       @compositionstart=${place === 'bar' ? this.onBarCompositionStart : this.onHeaderCompositionStart}
-      @compositionend=${place === 'bar' ? this.barText.onCompositionEnd : this.headerText.onCompositionEnd}
+      @compositionend=${place === 'bar' ? this.onBarCompositionEnd : this.onHeaderCompositionEnd}
     />`;
   }
 

@@ -1594,6 +1594,88 @@ test.describe('suggestions', () => {
     expect(await prop(s, 'value')).toBe('invo');
   });
 
+  /** Mounts a search with inline completion whose product answers each input with the queries that begin with it. */
+  async function completing(page: P) {
+    await mount(page, [live('s', { value: '', inlineCompletion: true }, [])]);
+    const s = host(page, 's');
+    const field = input(page, 's');
+    await wire(s);
+    await s.evaluate((el) => {
+      const words = ['invoices', 'inventory'];
+      el.addEventListener('input', () => {
+        const value = ((el as any).value as string).toLowerCase();
+        el.querySelectorAll('tanrei-search-suggestion').forEach((n) => n.remove());
+        for (const word of value ? words.filter((w) => w.startsWith(value)) : []) el.insertAdjacentHTML('beforeend', `<tanrei-search-suggestion value="${word}" headline="${word}"></tanrei-search-suggestion>`);
+      });
+    });
+    const selection = () => field.evaluate((el: HTMLInputElement) => [el.value, el.selectionStart, el.selectionEnd]);
+    const inputs = async () => (await log(page)).filter((e) => e.startsWith('input'));
+    return { s, field, selection, inputs };
+  }
+
+  test('SRC-55 (TXI-4): an input method that begins to compose over a completion and is cancelled before it inserted anything takes the completion away as Backspace does — the value as typed, no input, nothing completed until the next insertion; one whose first text replaces the completion goes on from the value as typed', async ({ page }) => {
+    const { s, field, selection, inputs } = await completing(page);
+    await field.focus();
+    await page.keyboard.type('i');
+    await expect.poll(selection).toEqual(['invoices', 1, 8]);
+    // Begun over the completion — the search renders between the start and the end, as an input method's events come
+    // in tasks of their own — and cancelled with nothing inserted.
+    await field.evaluate((el) => el.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, composed: true, data: '' })));
+    await settled(s);
+    expect(await selection(), 'the completion stays in the element until the input method replaces it').toEqual(['invoices', 1, 8]);
+    await field.evaluate((el) => el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, composed: true, data: '' })));
+    await expect.poll(selection, 'the value as typed, the caret at its end').toEqual(['i', 1, 1]);
+    await settled(s);
+    expect([await prop(s, 'value'), await inputs()], 'no input').toEqual(['i', ['input:i']]);
+    await expect(queryRow(page, 's').locator('.headline')).toHaveText('i');
+    await expect(queryRow(page, 's').locator('.completion')).toHaveCount(0);
+    expect(await activeOption(page, 's'), 'the query row is current again').toBe('query');
+    // Nothing is completed again until the person inserts text: new suggestions complete nothing…
+    await s.evaluate((el) => el.insertAdjacentHTML('beforeend', '<tanrei-search-suggestion value="ink" headline="ink"></tanrei-search-suggestion>'));
+    await settled(s);
+    expect(await selection()).toEqual(['i', 1, 1]);
+    // …and typing does.
+    await page.keyboard.type('n');
+    await expect.poll(selection).toEqual(['invoices', 2, 8]);
+    // A composition whose first text replaces the completion: the value follows the input method, and its commit is
+    // completed from the value as typed.
+    await field.evaluate((el: HTMLInputElement) => el.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, composed: true, data: '' })));
+    await settled(s);
+    await field.evaluate((el: HTMLInputElement) => {
+      el.setRangeText('v', 2, 8, 'end');
+      el.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true, isComposing: true, inputType: 'insertCompositionText', data: 'v' }));
+    });
+    await settled(s);
+    expect([await prop(s, 'value'), ...(await selection())]).toEqual(['inv', 'inv', 3, 3]);
+    await field.evaluate((el: HTMLInputElement) => el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, composed: true, data: 'v' })));
+    await expect.poll(selection, 'committed: completed').toEqual(['invoices', 3, 8]);
+    expect([await prop(s, 'value'), (await inputs()).at(-1)]).toEqual(['inv', 'input:inv']);
+  });
+
+  test('SRC-55 (TXI-4): a real input method over a completion (Chromium): its first text replaces the completion, a cancel brings the value as typed back and never the completed text, and a commit is completed from the value', async ({ page, browserName }) => {
+    test.skip(browserName !== 'chromium', 'only Chromium drives an input method from a test (CDP Input.imeSetComposition)');
+    const { s, field, selection, inputs } = await completing(page);
+    await field.focus();
+    await page.keyboard.type('i');
+    await expect.poll(selection).toEqual(['invoices', 1, 8]);
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send('Input.imeSetComposition', { text: 'n', selectionStart: 1, selectionEnd: 1 });
+    await expect.poll(selection, 'the first text replaced the completion').toEqual(['in', 2, 2]);
+    expect(await prop(s, 'value')).toBe('in');
+    // Cancelled: the input method takes its text away, and the value is what was typed before it.
+    await cdp.send('Input.imeSetComposition', { text: '', selectionStart: 0, selectionEnd: 0 });
+    await expect.poll(() => prop(s, 'value')).toBe('i');
+    await settled(s);
+    expect((await inputs()).at(-1)).toBe('input:i');
+    expect(await inputs(), 'the completed text was never the value').not.toContain('input:invoices');
+    // Committed: completed from the value as typed.
+    await cdp.send('Input.imeSetComposition', { text: 'n', selectionStart: 1, selectionEnd: 1 });
+    await cdp.send('Input.insertText', { text: 'n' });
+    await expect.poll(selection, 'committed: completed').toEqual(['invoices', 2, 8]);
+    expect(await prop(s, 'value')).toBe('in');
+    await cdp.detach();
+  });
+
   test('SRC-56: a query suggestion whose headline begins with the value draws the rest — its completion — with the headline’s weight raised by suggestion.completion.emphasis, in the headline’s color and with no fill, compared without regard to case or width; one that does not begin with it is drawn plain; the query row draws the value plain; the headline is read whole', async ({ page }) => {
     await mount(page, [live('s', { value: 'Inv', expanded: true, inline: true }, [suggestion('invoices'), suggestion('my invoices'), suggestion('ｉｎｖｅｓｔ'), suggestion('inv')])]);
     const s = host(page, 's');
