@@ -12,13 +12,15 @@ import { componentList } from '../listing.js';
 function basePanel(ctx: Ctx) {
   const { t, studio } = ctx;
   const layer = ctx.layer();
-  const description = studio.systems.find((s: Json) => s.id === layer.extends)?.description ?? '';
+  // The layer's own base is always among the choices — the root too, which a layer with every value written out extends.
+  const systems = studio.baseChoices(layer) as Json[];
+  const description = systems.find((s) => s.id === layer.extends)?.description ?? '';
   return panel(
     ctx,
     { title: t.base.title, code: 'extends', key: 'base' },
     choice({
       label: t.base.title,
-      options: studio.systems.map((s: Json) => ({ value: s.id, label: s.id })),
+      options: systems.map((s) => ({ value: s.id, label: s.id })),
       value: layer.extends,
       attrs: { 'data-base': true },
       onchange: (id) => {

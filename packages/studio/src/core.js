@@ -539,6 +539,17 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     return tidy({ $schema: layer.$schema, id: layer.id, name: layer.name, extends: extendsId, description: layer.description });
   }
 
+  /**
+   * The systems the Base system panel lists for a layer: every system it may extend (`systems`) — and the root, when
+   * the layer extends it, as a layer with every value written out does (`writeOut`): the root is not offered as a base,
+   * but the base a layer has is always one of the panel's choices.
+   */
+  function baseChoices(layer) {
+    if (layer.extends !== rootId || systems.some((s) => s.id === rootId)) return [...systems];
+    const root = layers[rootId];
+    return [...systems, { id: rootId, name: root.name ?? rootId, description: root.description ?? '' }];
+  }
+
   const dialValue = (op) => (op && '$value' in op && !isRef(op.$value) ? (typeof op.$value === 'number' ? op.$value : op.$value?.value) : undefined);
   /** Current value of every dial: the layer's, or the base's. */
   function dials(layer) {
@@ -1292,7 +1303,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     // What the specs say of each component — its level, its listing, what it is built from (./listing.js); none where the host gives none.
     catalog,
     cssVar, roleVar, blank, fromLayer, validate, valueKey, preview, liveProperties, base, baseOf,
-    setMeta, setBase, dials, setDial, essentials, setEssential,
+    setMeta, setBase, baseChoices, dials, setDial, essentials, setEssential,
     setParents, paletteRows, paletteNameProblem, setPalette, dropPalette, restorePalette, paletteTones, setPaletteTones, generatedTone,
     typefaces, setTypeface, iconSet, setIconSet, cornerSmoothing, setCornerSmoothing, typeEmphasis, behaviors, setBehavior, groupReason, setGroupReason, resetGroup,
     applyOperation, addExtension, removeExtension, setDeclaration, setRules,
