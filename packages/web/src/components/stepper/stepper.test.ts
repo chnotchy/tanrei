@@ -22,7 +22,7 @@ import {
 } from '../../../test/harness.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
-import { motionEnded } from '../../../test/motions.js';
+import { motionEnded, settledCss } from '../../../test/motions.js';
 
 const spec = loadSpec('stepper');
 type P = Page;
@@ -34,11 +34,6 @@ const btn = (page: P, id: string, n: number) => step(page, id, n).locator('butto
 const marker = (page: P, id: string, n: number) => step(page, id, n).locator('.marker');
 const css = (locator: Locator, property: string, pseudo?: string) =>
   locator.evaluate((el, [p, ps]) => getComputedStyle(el, ps ?? undefined).getPropertyValue(p as string), [property, pseudo ?? null] as const);
-const settledCss = (locator: Locator, property: string) =>
-  locator.evaluate(async (el, p) => {
-    await Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished.catch(() => undefined)));
-    return getComputedStyle(el).getPropertyValue(p);
-  }, property);
 const px = async (locator: Locator, property: string, pseudo?: string) => Number.parseFloat(await css(locator, property, pseudo));
 const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name);
 const T = (name: string) => `--tanrei-comp-stepper-${name}`;

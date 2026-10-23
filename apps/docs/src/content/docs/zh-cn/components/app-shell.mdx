@@ -2,7 +2,7 @@
 title: "应用外壳"
 description: "为页面或应用搭起框架。它安放页眉、导航、主内容、侧栏和页脚，根据窗口的宽度决定各自的呈现方式，并让键盘一步就能到达内容。"
 translationOf: components/app-shell.mdx
-sourceHash: a8a52a001fa0dfb12850fc417ba8b268b9b50b6b
+sourceHash: 9045a147596e331dff0cc341434cf2feac3602a5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -54,7 +54,7 @@ import ComponentAccessibility from '../../../../components/ComponentAccessibilit
     import { AppBar, AppShell, Button, NavigationDrawer } from '@tanrei/react';
     import '@tanrei/web/app-shell.css';
 
-    <AppShell asideLabel="本页内容" onWindowclasschange={(event) => setWindowClass(event.detail.windowClass)}>
+    <AppShell asideLabel="本页内容" onWindowClassChange={(event) => setWindowClass(event.detail.windowClass)}>
       <a className="tanrei-link" data-standalone slot="skip-link" href="#main">跳到主要内容</a>
       <header slot="header">
         <AppBar headline="Tanrei">

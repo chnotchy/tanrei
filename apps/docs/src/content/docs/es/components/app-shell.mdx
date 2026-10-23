@@ -2,7 +2,7 @@
 title: Estructura de la aplicación
 description: Enmarca una página o una aplicación. Coloca una cabecera, la navegación, el contenido principal, un contenido complementario y un pie, decide según el ancho de la ventana cómo se muestra cada uno y permite que el teclado llegue al contenido en un solo paso.
 translationOf: components/app-shell.mdx
-sourceHash: a8a52a001fa0dfb12850fc417ba8b268b9b50b6b
+sourceHash: 9045a147596e331dff0cc341434cf2feac3602a5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -54,7 +54,7 @@ En la web es `<tanrei-app-shell>` alrededor de tus propias regiones. El elemento
     import { AppBar, AppShell, Button, NavigationDrawer } from '@tanrei/react';
     import '@tanrei/web/app-shell.css';
 
-    <AppShell asideLabel="En esta página" onWindowclasschange={(event) => setWindowClass(event.detail.windowClass)}>
+    <AppShell asideLabel="En esta página" onWindowClassChange={(event) => setWindowClass(event.detail.windowClass)}>
       <a className="tanrei-link" data-standalone slot="skip-link" href="#main">Saltar al contenido</a>
       <header slot="header">
         <AppBar headline="Tanrei">

@@ -61,7 +61,7 @@ export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
 }
 ```
 
-Props carry the same names as the element's attributes (`variant`, `size`, `disabled`). Events are ordinary React handlers.
+Props carry the same names as the element's attributes (`variant`, `size`, `disabled`). Events are ordinary React handlers. An element's own event is `on` and the event's name in camel case, as React names its own (`onKeyDown`): a navigation drawer fires `expandedchange`, and you listen with `onExpandedChange`.
 
 `@tanrei/web/words/en` gives a word in plain English for every label and message the components draw or say, such as a required tag's or a close button's; leave it out and give your own with `setWords()` from `@tanrei/react`. See [Words](/foundations/words/).
 

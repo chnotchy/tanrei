@@ -2,6 +2,7 @@
 // `node --test`, failing when anything failed: every package's Node test script runs through this.
 //
 //   node ../../packages/tools/src/run-node-tests.js [the arguments of node --test…]      (run from the package's directory)
+//   TEST_SHARD=2/3 pnpm --filter <package> <script>                                      (one share of the files: shard below)
 //
 // Why: some Node versions report a failure without counting it. On Node 22.13, a suite whose `describe` body throws
 // (a file it reads is missing, say) or rejects, and an `after` hook inside a `describe` that throws, are printed as
@@ -28,6 +29,22 @@ export function uncountedFailures(tap) {
 }
 
 /**
+ * `--test-shard` for the shard `TEST_SHARD` names (`<index>/<total>`, from 1), or nothing: a CI job that runs one share
+ * of a package's test files sets it, and the package's script stays the same. Node takes the flag only before the
+ * files' patterns (after them it is ignored, and every file runs), so it is put there; it gives each shard every
+ * `total`-th file of the sorted list, so the shards together run every file once.
+ * @param {NodeJS.ProcessEnv} env
+ * @returns {string[]}
+ */
+export function shard(env) {
+  const value = env.TEST_SHARD;
+  if (!value) return [];
+  const m = /^(\d+)\/(\d+)$/.exec(value);
+  if (!m || +m[1] < 1 || +m[1] > +m[2]) throw new Error(`TEST_SHARD is "${value}": it is <index>/<total>, the index from 1 to the total`);
+  return [`--test-shard=${value}`];
+}
+
+/**
  * Run `node --test` with these arguments; the exit status the run should have.
  * @param {string[]} args
  * @param {{ cwd?: string, env?: NodeJS.ProcessEnv, stdio?: import('node:child_process').StdioOptions }} [options]
@@ -37,7 +54,7 @@ export function runNodeTests(args, { cwd = process.cwd(), env = process.env, std
   const report = path.join(tempDir('node-test'), 'report.tap');
   // Node adds its default reporter only when no reporter is named: name it, as it would have chosen it.
   const shown = args.some((arg) => arg.startsWith('--test-reporter')) ? [] : ['--test-reporter', process.stdout.isTTY ? 'spec' : 'tap', '--test-reporter-destination', 'stdout'];
-  const run = spawnSync(process.execPath, ['--test', ...shown, '--test-reporter', 'tap', '--test-reporter-destination', report, ...args], { cwd, env, stdio });
+  const run = spawnSync(process.execPath, ['--test', ...shown, '--test-reporter', 'tap', '--test-reporter-destination', report, ...shard(env), ...args], { cwd, env, stdio });
   if (run.error) throw run.error;
   if (run.signal) {
     console.error(`✖ node --test: ended by ${run.signal}`);

@@ -30,11 +30,10 @@
     padding: var(--tanrei-sys-space-space100) var(--tanrei-comp-app-shell-gutter-compact);
   }
 
-  /* ── The header: the app bar, with the site's brand beside the menu button ─────────────────────────────────────
+  /* ── The header: the app bar — the menu button, the site's brand, the design system, then the actions ─────────────
      The brand is the bar's (APB-19, APB-20): Tanrei's wordmark (Header.astro), in an icon button's cell after the menu
      button, comp.app-bar.brand.wordmark.height high, in comp.app-bar.brand.color. Until the bar is defined the image
-     holds the box the bar will give it: the cell's padding around the wordmark's height, the gap after the menu
-     button (none where the shell hides the button). */
+     holds the box the bar will give it: the cell's padding around the wordmark's height. */
   tanrei-app-bar:not(:defined) > .docs-brand {
     box-sizing: content-box;
     flex: none;
@@ -52,32 +51,28 @@
       padding-block: calc((var(--tanrei-sys-target-touch) - var(--tanrei-comp-app-bar-brand-wordmark-height)) / 2);
     }
   }
-  tanrei-app-bar:not(:defined) > [data-app-shell-menu] + .docs-brand {
-    margin-inline-start: var(--tanrei-comp-app-bar-actions-gap);
+  /* The design system's button: in the bar's context in a medium or wider window, first in the drawer's list in a
+     compact one, where the bar has no room for it beside the wordmark and three actions (Header.astro). */
+  .docs-system-row {
+    display: none;
   }
-  @container style(--_aps-menu: hidden) {
-    tanrei-app-bar:not(:defined) > [data-app-shell-menu] + .docs-brand {
-      margin-inline-start: 0;
+  @container style(--tanrei-app-shell-window-class: compact) {
+    tanrei-app-bar > .docs-system {
+      display: none;
+    }
+    .docs-system-row {
+      display: flex;
     }
   }
-  tanrei-app-shell[data-menu='hidden'] tanrei-app-bar:not(:defined) > [data-app-shell-menu] + .docs-brand {
-    margin-inline-start: 0;
+  tanrei-app-shell[data-window-class='compact'] tanrei-app-bar > .docs-system {
+    display: none;
   }
-  /* The theme's select is given no width: it is as wide as the longest of its three words needs, in the page's
-     language (SEL-49), and choosing one never changes it. Until it is defined its options hold that width for it
-     (below).
-     Nor is it given the bar's cell: the bar makes each item at least as tall as the minimum target and centres it
-     there (APB-11), which suits a Button, whose box is centred in its own element; a select's box stands at the top
-     of its element, so in a 44 high cell it stood 2 above the search beside it. The select is exactly as tall as its
-     box (SEL-64), the bar centres that, and the select extends its own hit area to the target (SEL-22).
-     It is medium (Header.astro): a stacked select is as tall as a Button of its size, and the search trigger and the
-     language's Button beside it are as tall as a medium Button, which a small select is not. */
-  tanrei-app-bar > tanrei-select.docs-theme {
-    min-block-size: auto;
+  tanrei-app-shell[data-window-class='compact'] .docs-system-row {
+    display: flex;
   }
-  /* A compact window: the theme and the language are one button and its menu; a wider one: the select and the
-     language's button. By the shell's window class — a style query, and the shell's own word where the browser has
-     none (until the shell is defined such a browser shows the wide arrangement). */
+  /* The menu button: the shell's in a compact window, the site's in a wider one — by the shell's window class, a
+     style query, and the shell's own word where the browser has none (until the shell is defined such a browser
+     shows the wide one). The shell also takes its own away wherever the navigation has a place (APS-6). */
   .docs-compact-only {
     display: none;
   }
@@ -95,13 +90,13 @@
   tanrei-app-shell[data-window-class='compact'] tanrei-app-bar > .docs-compact-only {
     display: inline-flex;
   }
-  /* The site's brand leaves a bar too narrow for it beside the menu button and two actions (a 320 wide window at
-     twice the text size): the widths are the reader's text size, as the shell's are (APS-2). The first level of the
-     breadcrumbs still leads to the same page. */
+  /* A bar too narrow for the brand beside the menu button, the design system and three actions (a 320 wide window,
+     or text twice its size) leaves the brand out: the widths are the reader's text size, as the shell's are (APS-2).
+     The design system's button still says the name, and the first level of the breadcrumbs still leads home. */
   tanrei-app-shell > [slot='header'] {
     container: docs-header / inline-size;
   }
-  @container docs-header (inline-size < 14rem) {
+  @container docs-header (inline-size < 22rem) {
     .docs-brand {
       display: none;
     }
@@ -120,15 +115,19 @@
     display: flex;
     align-items: center;
     min-block-size: var(--tanrei-comp-app-bar-container-height-small);
+    gap: var(--tanrei-comp-app-bar-actions-gap);
     padding-inline: var(--tanrei-comp-app-bar-container-padding-inline);
     background: var(--tanrei-comp-app-bar-flat-container-color);
   }
-  /* The search: the one item of the bar that neither the shell nor the window's class shows and hides, and the first
-     action in either arrangement, so the actions start from it at the end. (An item of the arrangement the window's
-     class does not show has no slot, Header.astro: no rule here may take the first action from the slots.) */
+  /* The search: the first action, so the actions start from it at the end. The menu buttons and the brand before it
+     are shown and hidden by the rules above; the bar puts actions.gap between them all, and the design system's
+     button after the brand (APB-19, APB-25). */
   tanrei-app-bar:not(:defined) > .docs-search {
     display: inline-flex;
     margin-inline-start: auto;
+  }
+  tanrei-app-bar:not(:defined) > .docs-system {
+    display: inline-flex;
   }
   tanrei-app-bar:not(:defined) > .docs-wide-only {
     display: inline-flex;
@@ -138,7 +137,7 @@
       display: none;
     }
   }
-  /* The menu button is shown only where the shell shows it (APS-6): its `display` is the shell's to take away. */
+  /* The shell's menu button is shown only where the shell shows it (APS-6): its `display` is the shell's to take away. */
   @container style(--_aps-menu: shown) {
     tanrei-app-bar:not(:defined) > [data-app-shell-menu] {
       display: inline-flex;
@@ -152,9 +151,6 @@
     box-sizing: border-box;
     min-inline-size: var(--tanrei-sys-target-pointer);
     min-block-size: var(--tanrei-sys-target-pointer);
-  }
-  tanrei-app-bar:not(:defined) > [slot='actions'] ~ [slot='actions'] {
-    margin-inline-start: var(--tanrei-comp-app-bar-actions-gap);
   }
   @media (pointer: coarse) {
     tanrei-app-bar:not(:defined) > :where([slot]) {
@@ -176,25 +172,26 @@
     direction: ltr;
     color: var(--tanrei-sys-color-on-surface-variant);
   }
-  /* A Select's options are running text until it is defined, and a Menu's items are nothing: the select keeps its
-     box, the menu has none. The box is the one the select will make
-     itself (SEL-49), so the search beside it does not move when it is defined: a medium stacked container's height,
-     and the widest of its options in the value's text style between the glyph and the chevron — the options are a
-     column of lines with no height, drawn nowhere, and the widest of them is the box's width. */
-  tanrei-select.docs-theme:not(:defined) {
-    flex-direction: column;
-    block-size: var(--tanrei-comp-input-box-stacked-container-height-medium, var(--tanrei-sys-target-pointer));
-    padding-inline: calc(var(--tanrei-comp-input-box-container-padding-inline-with-icon-medium) + var(--tanrei-comp-input-box-icon-size-medium) + var(--tanrei-comp-input-box-container-gap-medium));
-    font: var(--tanrei-comp-input-box-input-typescale-medium-font);
-    letter-spacing: var(--tanrei-comp-input-box-input-typescale-medium-letter-spacing);
-  }
-  tanrei-select.docs-theme:not(:defined) > :where(tanrei-option) {
-    flex: none;
-    display: block;
-    block-size: 0;
-    overflow: hidden;
-    visibility: hidden;
+  /* The design system's text Button until it is defined: its name, then its glyph, in the medium Button's box. */
+  tanrei-app-bar > tanrei-button.docs-system:not(:defined) {
+    box-sizing: border-box;
+    gap: var(--tanrei-comp-button-container-gap-medium);
+    block-size: var(--tanrei-comp-button-container-height-medium);
+    padding-inline: var(--tanrei-comp-button-container-padding-inline-start-medium) var(--tanrei-comp-button-container-padding-inline-end-with-icon-medium);
+    font: var(--tanrei-comp-button-label-typescale-medium-font);
+    letter-spacing: var(--tanrei-comp-button-label-typescale-medium-letter-spacing);
+    color: var(--tanrei-comp-button-text-label-color);
     white-space: nowrap;
+  }
+  tanrei-app-bar > tanrei-button.docs-system:not(:defined) > [slot='icon'] {
+    order: 1;
+    inline-size: var(--tanrei-comp-button-icon-size-medium);
+    block-size: var(--tanrei-comp-button-icon-size-medium);
+    overflow: hidden;
+    font-family: var(--tanrei-sys-icon-family-unselected);
+    font-size: var(--tanrei-comp-button-icon-size-medium);
+    font-feature-settings: 'liga';
+    line-height: 1;
   }
   /* (A menu a page draws in place is not the frame's: `@tanrei/web/menu.css` holds its size until it is defined.) */
   tanrei-menu:not([inline]):not(:defined) {
@@ -202,18 +199,13 @@
   }
 
   /* ── The sidebar until the drawer is defined, and where no script runs: its own anchors, as the drawer's rows ──
-     The shell keeps the column's place (APS-24); this draws what stands in it. Its header is the drawer's (NVD-38),
-     from the drawer's and the button's tokens, so that neither it nor a row below it moves when the drawer is
-     defined: the menu button centred on the icon column, and beside it, item.gap after the button, the header's
-     content — the choice of design system above the "All components" switch, each holding its own room until it is
-     defined — laid out at the drawer's full width; the button centred on the height of the two; the first row
-     header.gap below them. */
+     The shell keeps the column's place (APS-24); this draws what stands in it, from the drawer's tokens, so that no row
+     moves when the drawer is defined. The drawer has no header (its menu button is the header's, Header.astro): its
+     list starts at its top, with the row of the "All components" switch, which holds its own room until it is
+     defined. */
   tanrei-navigation-drawer.docs-sidebar:not(:defined) {
-    --docs-sidebar-lead: calc(var(--tanrei-comp-navigation-drawer-collapsed-container-width-regular) / 2 + var(--tanrei-comp-button-container-height-medium) / 2 + var(--tanrei-comp-navigation-drawer-item-gap));
     box-sizing: border-box;
-    grid-template-columns:
-      calc(var(--docs-sidebar-lead) - var(--tanrei-comp-navigation-drawer-container-padding-inline))
-      calc(var(--tanrei-comp-navigation-drawer-container-width) - var(--docs-sidebar-lead) - var(--tanrei-comp-navigation-drawer-container-padding-inline));
+    grid-template-columns: calc(var(--tanrei-comp-navigation-drawer-container-width) - 2 * var(--tanrei-comp-navigation-drawer-container-padding-inline));
     align-content: start;
     overflow: hidden auto;
     overscroll-behavior: contain;
@@ -230,32 +222,30 @@
   tanrei-app-shell:is([data-window-class='expanded'], [data-window-class='medium']) > tanrei-navigation-drawer.docs-sidebar:not(:defined) {
     display: grid;
   }
-  tanrei-navigation-drawer.docs-sidebar:not(:defined) > tanrei-button {
-    display: flex;
-    grid-row: 1 / span 2;
-    grid-column: 1;
-    align-self: center;
-    justify-self: start;
+  /* The rows of the design system's button (compact windows only, above) and of the switch: the first of the list, at
+     a row's inset, a row's height at least; a collapsed drawer, whose column holds the groups' glyphs, draws neither. */
+  .docs-system-row {
+    box-sizing: border-box;
     align-items: center;
-    justify-content: center;
-    inline-size: var(--tanrei-comp-button-container-height-medium);
-    block-size: var(--tanrei-comp-button-container-height-medium);
-    margin-inline-start: calc(var(--tanrei-comp-navigation-drawer-collapsed-container-width-regular) / 2 - var(--tanrei-comp-button-container-height-medium) / 2 - var(--tanrei-comp-navigation-drawer-container-padding-inline));
+    min-block-size: var(--tanrei-comp-navigation-drawer-item-container-height-regular);
+    margin-block-end: var(--tanrei-comp-navigation-drawer-container-gap-regular);
   }
-  tanrei-navigation-drawer.docs-sidebar:not(:defined) > .docs-system {
-    grid-row: 1;
-    grid-column: 2;
+  .docs-listing-row {
+    box-sizing: border-box;
+    display: grid;
+    align-items: center;
+    justify-items: start;
+    min-block-size: var(--tanrei-comp-navigation-drawer-item-container-height-regular);
+    margin-block-end: var(--tanrei-comp-navigation-drawer-container-gap-regular);
+    padding-inline: var(--tanrei-comp-navigation-drawer-item-padding-inline-regular);
   }
-  tanrei-navigation-drawer.docs-sidebar:not(:defined) > .docs-listing {
-    grid-row: 2;
-    grid-column: 2;
-    justify-self: start;
+  /* Once the drawer is defined its list has no inset of its own (each of its rows keeps the container's), and puts
+     the gap between its rows itself: these rows take the inset as theirs, and no margin below. */
+  tanrei-navigation-drawer:defined > :is(.docs-listing-row, .docs-system-row) {
+    margin: 0 var(--tanrei-comp-navigation-drawer-container-padding-inline);
   }
-  tanrei-navigation-drawer.docs-sidebar:not(:defined) > :is(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item) {
-    grid-column: 1 / -1;
-  }
-  tanrei-navigation-drawer.docs-sidebar:not(:defined) > [slot] + :is(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item) {
-    margin-block-start: var(--tanrei-comp-navigation-drawer-header-gap);
+  tanrei-navigation-drawer[collapsed] > :is(.docs-listing-row, .docs-system-row) {
+    display: none;
   }
   .docs-sidebar:not(:defined) :is(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item) {
     display: block;
@@ -311,7 +301,7 @@
   }
   /* The column of a medium window holds the groups' glyphs once the drawer is defined; until then it is empty. */
   @container style(--tanrei-app-shell-window-class: medium) {
-    tanrei-navigation-drawer.docs-sidebar:not(:defined) > :is(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item) {
+    tanrei-navigation-drawer.docs-sidebar:not(:defined) > :is(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item, .docs-listing-row) {
       display: none;
     }
   }
@@ -384,11 +374,10 @@
       border-inline-end: 0;
       border-block-start: var(--tanrei-sys-border-hairline) solid var(--tanrei-sys-color-outline-variant);
     }
-    tanrei-app-shell > tanrei-navigation-drawer.docs-sidebar:not(:defined) > :where(tanrei-button, tanrei-navigation-drawer-group, tanrei-navigation-drawer-item) {
+    tanrei-app-shell > tanrei-navigation-drawer.docs-sidebar:not(:defined) > :where(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item) {
       display: block;
     }
-    tanrei-app-shell [data-app-shell-menu],
-    tanrei-navigation-drawer.docs-sidebar > tanrei-button {
+    tanrei-app-shell [data-app-shell-menu] {
       display: none;
     }
   }
@@ -397,6 +386,12 @@
   }
   .docs-toc-compact.docs-toc-compact,
   tanrei-app-bar > :is(.docs-wide-only, .docs-compact-only) {
+    display: none;
+  }
+  /* Nothing can be chosen without script: the menus' buttons are not drawn (the switch's row holds nothing either). */
+  tanrei-app-bar > :is(.docs-system, #docs-appearance, #docs-language):not(:defined),
+  .docs-listing-row,
+  .docs-system-row.docs-system-row {
     display: none;
   }
 }

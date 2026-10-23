@@ -2,7 +2,7 @@
 title: React
 description: مكوّنات React محدَّدة الأنواع، مولَّدة من Web Components الخاصة بـ Tanrei.
 translationOf: getting-started/react.mdx
-sourceHash: bbf537930ba2e1a31eb506876e8a8ab25ac3c6a3
+sourceHash: c0c841b6e6aeb6c0b3a2c71ef99d5f54268d0991
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -63,7 +63,7 @@ export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
 }
 ```
 
-تحمل الخصائص أسماء خصائص HTML للعنصر نفسها (`variant` و `size` و `disabled`). والأحداث معالجات React عادية.
+تحمل الخصائص أسماء خصائص HTML للعنصر نفسها (`variant` و `size` و `disabled`). والأحداث معالجات React عادية. ويُستمع إلى الحدث الخاص بالعنصر باسم يبدأ بـ `on` ويليه اسم الحدث بصيغة camel case، كما يسمّي React أحداثه (`onKeyDown`): يُطلق درج التنقل الحدث `expandedchange`، ويُستمع إليه بـ `onExpandedChange`.
 
 تعطي `@tanrei/web/words/en` كلمة بإنجليزية بسيطة لكل تسمية ورسالة ترسمها المكوّنات أو تقولها، مثل وسم المطلوب أو اسم زر الإغلاق؛ ويمكنك الاستغناء عنها وإعطاء كلماتك بالدالة `setWords()` من `@tanrei/react`. انظر [الكلمات](/ar/foundations/words/).
 

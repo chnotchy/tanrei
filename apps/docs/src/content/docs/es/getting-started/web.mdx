@@ -261,3 +261,63 @@ Tanrei no lo hace por sí mismo: le corresponde al punto de entrada de tu produc
 ```
 
 Mantén este script pequeño y sencillo: lo ejecuta el navegador de cada visitante, también los antiguos. Con un `import` estático, el navegador carga la aplicación antes de ejecutar este script, y uno antiguo que no pueda analizarla nunca llega a hacer la comprobación; `import()` la carga solo después.
+
+## Pruebas
+
+### En un navegador
+
+Los elementos de Tanrei se apoyan en lo que implementan los navegadores: shadow roots, `ElementInternals` (el valor y la validez de un control de formulario, los estados personalizados), la API Popover, `<dialog>` y el diseño de la página. jsdom y happy-dom solo implementan una parte (happy-dom no tiene `attachInternals()` ni la API Popover), así que un elemento puede lanzar un error al renderizarse, dejar una promesa rechazada o renderizarse sin los tamaños, el orden de foco y la capa superior de los que depende. Tanrei no los admite y no incluye sustitutos para lo que les falta: un sustituto que evita que un elemento falle haría pasar una prueba con un comportamiento que no tiene ningún navegador.
+
+Ejecuta en un navegador real todo lo que renderice un elemento de Tanrei:
+
+- [El modo navegador de Vitest](https://vitest.dev/guide/browser/), con su proveedor de Playwright, mantiene tus pruebas de componentes en Vitest y las ejecuta en Chromium, Firefox o WebKit.
+- [Playwright Test](https://playwright.dev/docs/intro) ejecuta páginas y flujos completos.
+
+Las pruebas de tu propia lógica que no renderizan ningún elemento de Tanrei pueden seguir en Node, jsdom o happy-dom. Las pruebas de Tanrei se ejecutan en Chromium, Firefox y WebKit, con axe-core en Playwright.
+
+### Encontrar un elemento
+
+La mayoría de los elementos ponen su rol en un elemento nativo dentro de su shadow root (un `<button>`, un `<input>`, un `<dialog>`) y no en sí mismos, para que los navegadores y las herramientas de pruebas vean una semántica real; unos pocos, como una pestaña o un menú abierto, lo llevan ellos mismos. Los localizadores de Playwright buscan dentro de los shadow roots abiertos, así que busca un control por su rol y su nombre, como lo haría una persona:
+
+```ts
+await page.getByRole('button', { name: 'Save' }).click();
+await expect(page.getByRole('switch', { name: 'Wi-Fi' })).toBeChecked();
+```
+
+Un clic en ese botón llega a los listeners del propio `<tanrei-button>`. Las consultas de Testing Library no buscan dentro de los shadow roots, así que no encuentran estos controles.
+
+### Un rol y su contenido en árboles distintos
+
+Algunos elementos guardan un rol en su shadow root, mientras que lo que le pertenece es tu propio marcado, colocado en él mediante un slot: la lista de pestañas de `<tanrei-tabs>` y sus hijos `<tanrei-tab>`, el `<dialog>` de `<tanrei-dialog>` y sus acciones. En el DOM las pestañas no están dentro de la lista de pestañas, así que un localizador encadenado desde el rol no encuentra nada:
+
+```ts
+// No encuentra nada: las pestañas son hijas de <tanrei-tabs>, no de su lista de pestañas.
+page.getByRole('tablist', { name: 'Sections' }).getByRole('tab', { name: 'Billing' });
+```
+
+Busca el elemento que contiene el rol con ese nombre y luego busca dentro de él:
+
+```ts
+const sections = page.locator('tanrei-tabs', { has: page.getByRole('tablist', { name: 'Sections' }) });
+await sections.getByRole('tab', { name: 'Billing' }).click();
+
+const confirm = page.locator('tanrei-dialog', { has: page.getByRole('dialog', { name: 'Delete the file?' }) });
+await confirm.getByRole('button', { name: 'Delete' }).click();
+```
+
+### Un menú en la capa superior
+
+Mientras está abierto, `<tanrei-menu>` es el menú, con el nombre de su ancla, pero no ocupa espacio en la página: su superficie se dibuja en la capa superior. Por eso, comprobar si el menú es visible falla incluso cuando está abierto. Comprueba que el menú está ahí y después comprueba sus elementos:
+
+```ts
+await page.getByRole('button', { name: 'More' }).click();
+const menu = page.getByRole('menu', { name: 'More' });
+await expect(menu).toBeAttached();
+await expect(menu.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+```
+
+Al cerrarse, el elemento deja de ser un menú y `await expect(menu).toHaveCount(0)` pasa.
+
+### Avisos
+
+En una compilación de desarrollo, un elemento que se usa de una forma que su especificación no permite lo indica en la consola, con un mensaje que empieza por `[tanrei]` y termina con el identificador del comportamiento. Una prueba en el navegador puede fallar ante cualquiera de ellos: [la guía para agentes de IA](/es/getting-started/ai-agents/) tiene un ejemplo con Playwright.

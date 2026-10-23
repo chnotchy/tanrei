@@ -2,7 +2,7 @@
 title: زر النسخ
 description: زر ينسخ نصًّا معيَّنًا بضغطة واحدة ويؤكد ذلك، أو يقول إنه لم يستطع. يرسمه مكوّن Button، ولا يحرّك التخطيط افتراضيًّا أبدًا.
 translationOf: components/copy-button.mdx
-sourceHash: 83b0e3b2e8515dd2490be056fdab9151e53d9e9e
+sourceHash: e6b7e0e12c613261bd9ecfb7a40acc453aa9118b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -76,7 +76,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     ```tsx
     import { CopyButton } from '@tanrei/react';
 
-    <CopyButton text={command} label="نسخ" copiedLabel="تم النسخ" failedLabel="تعذّر النسخ" onCopyfailed={() => showHelp()} />
+    <CopyButton text={command} label="نسخ" copiedLabel="تم النسخ" failedLabel="تعذّر النسخ" onCopyFailed={() => showHelp()} />
     ```
   </TabItem>
 </Tabs>

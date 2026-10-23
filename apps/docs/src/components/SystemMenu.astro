@@ -1,0 +1,45 @@
+---
+// The choice of the design system the lists of components show, as the header makes it: a text Button that says the
+// system and opens a Menu — the shipped systems as radio items (each its id, and its name as the item's supporting
+// text), read from the components manifests, and then Theme Studio's link, "Edit theme". The button stands beside the
+// brand, in the app bar's context (Header.astro), and in a compact window first in the drawer's list (Sidebar.astro);
+// each has its own menu, written beside it, because a menu opened from inside the modal drawer must be inside it.
+// What a choice does is the header's script (Header.astro).
+//
+// A button and its menu are two parts, written apart: the bar draws only its slots, so the menu stands outside it.
+import { manifests } from '../lib/repo';
+import { localeBase, strings } from '../lib/i18n';
+
+interface Props {
+  /** The button's id, which its menu is anchored to. */
+  id: string;
+  /** Which part is written here. */
+  part: 'button' | 'menu';
+  /** The button's slot in the element it is a child of. */
+  slot?: string;
+}
+const { id, part, slot } = Astro.props;
+const t = strings(Astro.locals.starlightRoute.lang);
+// The default system: the first of the manifests (lib/repo.ts puts the configuration's namespace first). The head's
+// script names the reader's on the root before the first paint; the header's script writes it here.
+const system = manifests[0]?.system ?? '';
+const studio = `${localeBase(Astro)}/foundations/theme-studio/`;
+---
+
+{
+  part === 'button' ? (
+    <tanrei-button slot={slot} id={id} class="docs-system" variant="text" icon-position="trailing" label={t.frame.system.replace('{system}', system)} data-label={t.frame.system} translate="no">
+      <span class="docs-system-name">{system}</span>
+      <span slot="icon" data-pagefind-ignore>expand_more</span>
+    </tanrei-button>
+  ) : (
+    <tanrei-menu class="docs-frame-menu" anchor={id} placement="bottom-start">
+      <tanrei-menu-group class="docs-system-group" label={t.system.choice} value={system}>
+        {manifests.map((manifest) => (
+          <tanrei-menu-radio-item value={manifest.system} label={manifest.system} supporting-text={manifest.name} translate="no" />
+        ))}
+      </tanrei-menu-group>
+      <tanrei-menu-item label={t.frame.editTheme} leading-icon="format_paint" href={studio} />
+    </tanrei-menu>
+  )
+}

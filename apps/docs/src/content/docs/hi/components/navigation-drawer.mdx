@@ -2,7 +2,7 @@
 title: नेविगेशन ड्रॉअर
 description: प्रॉडक्ट के गंतव्यों को शुरुआती किनारे के एक पैनल में, सेक्शन और ग्रुप में बाँटकर दिखाता है; बड़ी स्क्रीन पर कॉन्टेंट के बग़ल में और छोटी स्क्रीन पर उसके ऊपर, और सिमटकर आइकन का एक कॉलम बन सकता है।
 translationOf: components/navigation-drawer.mdx
-sourceHash: 6b5906890ce701b55375672b7848c317fc45c977
+sourceHash: 5a0659850fec34d28617357f9478089babbb3c8f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -217,7 +217,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
         e.preventDefault(); // क्लाइंट-साइड राउटर नेविगेशन अपने हाथ में लेता है
         navigate(e.detail.href);
       }}
-      onPresentationchange={(e) => setPresentation(e.detail.presentation)}
+      onPresentationChange={(e) => setPresentation(e.detail.presentation)}
     >
       <NavigationDrawerGroup label="कंपोनेंट">
         <NavigationDrawerItem label="बटन" href="/components/button/" />

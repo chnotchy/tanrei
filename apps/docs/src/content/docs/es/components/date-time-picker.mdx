@@ -2,7 +2,7 @@
 title: DateTimePicker
 description: Permite elegir una fecha, una hora o una fecha y hora (o un intervalo de cualquiera de ellas) con un calendario y unas ruedas de hora o la esfera de un reloj, en un diálogo o en una superficie que se despliega bajo un campo.
 translationOf: components/date-time-picker.mdx
-sourceHash: a166f2e23305635f24636ae2e11d2163bcebe5aa
+sourceHash: b20ac5ee4e3e21be0e6515467b45bd460309076c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -107,7 +107,7 @@ El selector es un componente controlado: tú defines `open`, y él pide que lo c
       picker
       pickerLabel="Elegir fecha"
       onChange={(e) => setDue(e.currentTarget.value)}
-      onPickerrequest={() => setOpen(true)}
+      onPickerRequest={() => setOpen(true)}
     />
     <DateTimePicker
       presentation="docked"

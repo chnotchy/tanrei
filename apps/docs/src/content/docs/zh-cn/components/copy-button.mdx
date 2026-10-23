@@ -2,7 +2,7 @@
 title: "复制按钮"
 description: "按一次就复制给定文本并加以确认的按钮；复制不了时也会说明。它由 Button 绘制，默认绝不会让布局移动。"
 translationOf: components/copy-button.mdx
-sourceHash: 83b0e3b2e8515dd2490be056fdab9151e53d9e9e
+sourceHash: e6b7e0e12c613261bd9ecfb7a40acc453aa9118b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -76,7 +76,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
     ```tsx
     import { CopyButton } from '@tanrei/react';
 
-    <CopyButton text={command} label="复制" copiedLabel="已复制" failedLabel="无法复制" onCopyfailed={() => showHelp()} />
+    <CopyButton text={command} label="复制" copiedLabel="已复制" failedLabel="无法复制" onCopyFailed={() => showHelp()} />
     ```
   </TabItem>
 </Tabs>

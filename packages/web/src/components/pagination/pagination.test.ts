@@ -6,6 +6,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tab, tabTo } from '../../../test/harness.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
+import { settledCss } from '../../../test/motions.js';
 import { expectAnimated, sampleFrames } from '../../../test/frames.js';
 import { motionEnded } from '../../../test/motions.js';
 
@@ -19,11 +20,6 @@ const pageItem = (page: P, id: string, n: number) => host(page, id).locator(`.ro
 const control = (page: P, id: string, name: string) => host(page, id).locator(`.row .item[data-control="${name}"]`);
 const css = (locator: Locator, property: string, pseudo?: string) =>
   locator.evaluate((el, [p, ps]) => getComputedStyle(el, ps ?? undefined).getPropertyValue(p as string), [property, pseudo ?? null] as const);
-const settledCss = (locator: Locator, property: string) =>
-  locator.evaluate(async (el, p) => {
-    await Promise.all(el.getAnimations().map((a) => a.finished.catch(() => undefined)));
-    return getComputedStyle(el).getPropertyValue(p);
-  }, property);
 const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name);
 const bounds = async (locator: Locator) => (await locator.boundingBox())!;
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);

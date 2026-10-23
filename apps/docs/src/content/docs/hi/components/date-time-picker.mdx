@@ -2,7 +2,7 @@
 title: DateTimePicker
 description: व्यक्ति को कोई तारीख़, कोई समय, या तारीख़ और समय दोनों (या इनमें से किसी की रेंज) चुनने देता है, कैलेंडर और समय के व्हील या घड़ी के डायल से, किसी डायलॉग में या किसी फ़ील्ड के नीचे खुलने वाली सरफ़ेस में।
 translationOf: components/date-time-picker.mdx
-sourceHash: a166f2e23305635f24636ae2e11d2163bcebe5aa
+sourceHash: b20ac5ee4e3e21be0e6515467b45bd460309076c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -107,7 +107,7 @@ DateTimePicker एक सरफ़ेस है जिसमें एक [क�
       picker
       pickerLabel="तारीख़ चुनें"
       onChange={(e) => setDue(e.currentTarget.value)}
-      onPickerrequest={() => setOpen(true)}
+      onPickerRequest={() => setOpen(true)}
     />
     <DateTimePicker
       presentation="docked"

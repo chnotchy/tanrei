@@ -2,7 +2,7 @@
 title: कॉपी बटन
 description: वह Button जो दिए गए टेक्स्ट को एक बार दबाने पर कॉपी करता है और इसकी पुष्टि करता है, या बताता है कि वह ऐसा नहीं कर सका। इसे Button बनाता है, और डिफ़ॉल्ट रूप से यह लेआउट को कभी नहीं हिलाता।
 translationOf: components/copy-button.mdx
-sourceHash: 83b0e3b2e8515dd2490be056fdab9151e53d9e9e
+sourceHash: e6b7e0e12c613261bd9ecfb7a40acc453aa9118b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -76,7 +76,7 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
     ```tsx
     import { CopyButton } from '@tanrei/react';
 
-    <CopyButton text={command} label="कॉपी करें" copiedLabel="कॉपी हो गया" failedLabel="कॉपी नहीं हो सका" onCopyfailed={() => showHelp()} />
+    <CopyButton text={command} label="कॉपी करें" copiedLabel="कॉपी हो गया" failedLabel="कॉपी नहीं हो सका" onCopyFailed={() => showHelp()} />
     ```
   </TabItem>
 </Tabs>

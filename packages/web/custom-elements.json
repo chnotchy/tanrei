@@ -278,6 +278,10 @@
               "name": "brand-wordmark"
             },
             {
+              "description": "One control of the product's context after the brand (a `<tanrei-button>` that opens a menu of workspaces, projects or design systems), laid out and never restyled.",
+              "name": "context"
+            },
+            {
               "description": "The action items: up to three icon-only `<tanrei-button>`s at the end, in reading order.",
               "name": "actions"
             }

@@ -2,7 +2,7 @@
 title: कैरसेल
 description: दृश्य आइटम की एक पंक्ति, जो एक मुख्य आइटम के इर्द-गिर्द आड़ी स्क्रॉल होती है और जिसका हर आइटम वह चीज़ खोलता है जो वह दिखाता है। फ़ीचर्ड पंक्ति लूप कर सकती है, बिंदुओं से अपनी जगह दिखा सकती है और अपने आप आगे बढ़ सकती है।
 translationOf: components/carousel.mdx
-sourceHash: 9e3187c84cf7ad11c87e041a77ec3b2d997a9e5e
+sourceHash: 456f22fc35f1b413823ac47def1b7dcdec2ed432
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -82,7 +82,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
     </Carousel>
 
     <Carousel label="चुनिंदा सैर" loop indicator autoplay paused={paused}
-      onPausedchange={(e) => setPaused(e.detail.paused)}
+      onPausedChange={(e) => setPaused(e.detail.paused)}
       previousLabel="पिछली सैर" nextLabel="अगली सैर"
       playLabel="स्लाइड शो चलाएँ" pauseLabel="स्लाइड शो रोकें">
       {featured.map((walk) => <CarouselItem key={walk.id} label={walk.label} onClick={() => openWalk(walk)}><img src={walk.image} alt="" /></CarouselItem>)}

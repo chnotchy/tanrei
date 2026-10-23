@@ -2,7 +2,7 @@
 title: "轮播"
 description: "一行视觉内容项，围绕一个突出展示的项横向滚动，每一项都会打开它所展示的内容。精选行可以循环、用圆点显示位置，并自动前进。"
 translationOf: components/carousel.mdx
-sourceHash: 9e3187c84cf7ad11c87e041a77ec3b2d997a9e5e
+sourceHash: 456f22fc35f1b413823ac47def1b7dcdec2ed432
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -82,7 +82,7 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
     </Carousel>
 
     <Carousel label="精选步行路线" loop indicator autoplay paused={paused}
-      onPausedchange={(e) => setPaused(e.detail.paused)}
+      onPausedChange={(e) => setPaused(e.detail.paused)}
       previousLabel="上一条步行路线" nextLabel="下一条步行路线"
       playLabel="播放幻灯片" pauseLabel="暂停幻灯片">
       {featured.map((walk) => <CarouselItem key={walk.id} label={walk.label} onClick={() => openWalk(walk)}><img src={walk.image} alt="" /></CarouselItem>)}
