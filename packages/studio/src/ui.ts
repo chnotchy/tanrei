@@ -56,8 +56,12 @@ export interface StudioOptions {
 type SaveState = 'saved' | 'unsaved' | 'saving' | 'invalid' | 'conflict' | 'error' | 'loading';
 
 const STORE = `${studio.namespace}-theme-studio`;
-/** Export's glyph in the bar: declared, so that the docs site's cut-down icon file has it (packages/tools/src/glyphs.js). */
+/** The bar's glyphs: declared, so that the docs site's cut-down icon file has them (packages/tools/src/glyphs.js). */
 const EXPORT_GLYPH = 'ios_share';
+const SHUFFLE_GLYPH = 'shuffle';
+const INSPECT_GLYPH = 'data_object';
+const HISTORY_GLYPHS = { undo: 'undo', redo: 'redo' };
+const CLOSE_GLYPH = 'close';
 const NS = studio.namespace;
 
 export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {}, saveDelay = 600, bar: hosted = {}, address = false }: StudioOptions = {}) {
@@ -205,17 +209,17 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   const exportHost = h('div');
   const glyph = (name: string) => h('span', { class: `${studio.tagPrefix}-icon`, slot: 'icon', 'aria-hidden': 'true', translate: 'no' }, name);
   // The shuffle: every row that is not locked, another of its values, in one step to undo.
-  const shuffleButton = h('tanrei-button', { variant: 'text', size: 'small', label: t.rail.shuffle, title: t.rail.shuffleHelp, onclick: () => shuffleRows(), 'data-shuffle': true }, glyph('shuffle'));
+  const shuffleButton = h('tanrei-button', { variant: 'text', size: 'small', label: t.rail.shuffle, title: t.rail.shuffleHelp, onclick: () => shuffleRows(), 'data-shuffle': true }, glyph(SHUFFLE_GLYPH));
   // Inspect: over the panel, every token in its tree and the file itself. A toggle: it says whether it is open.
-  const inspectButton = h('tanrei-button', { variant: 'outlined', size: 'small', toggle: true, title: t.inspect.help, 'data-inspect': true }, glyph('data_object'), t.inspect.title) as HTMLElement & { selected: boolean };
+  const inspectButton = h('tanrei-button', { variant: 'outlined', size: 'small', toggle: true, title: t.inspect.help, 'data-inspect': true }, glyph(INSPECT_GLYPH), t.inspect.title) as HTMLElement & { selected: boolean };
   inspectButton.addEventListener('change', (event) => event.target === inspectButton && show(inspectButton.selected ? { inspect: lastInspect } : { section }));
   // Export: the side sheet of the file, its stylesheet and what to do next (./ui/export.ts).
   const exportSheet = createExportSheet(ctx, { file: adapter?.label, linked, links, onshow: (to) => show({ section: to }) });
   const exportButton = h('tanrei-button', { variant: 'filled', size: 'small', title: t.exporting.help, onclick: () => exportSheet.open(), 'data-export-open': true }, glyph(EXPORT_GLYPH), t.exporting.open);
   // Undo and redo: icon buttons that keep their place in the keyboard's order while there is nothing to do (BTN-38).
   const historyButton = (name: string, label: string, keys: string, act: () => void, attrs: Json) => h('tanrei-button', { variant: 'text', size: 'small', label, title: label, 'aria-keyshortcuts': keys, 'focusable-when-disabled': true, disabled: true, onclick: act, ...attrs }, glyph(name));
-  const undoButton = historyButton('undo', t.frame.undo, 'Meta+Z Control+Z', () => undo(), { 'data-undo': true });
-  const redoButton = historyButton('redo', t.frame.redo, 'Meta+Shift+Z Control+Shift+Z Control+Y', () => redo(), { 'data-redo': true });
+  const undoButton = historyButton(HISTORY_GLYPHS.undo, t.frame.undo, 'Meta+Z Control+Z', () => undo(), { 'data-undo': true });
+  const redoButton = historyButton(HISTORY_GLYPHS.redo, t.frame.redo, 'Meta+Shift+Z Control+Shift+Z Control+Y', () => redo(), { 'data-redo': true });
   const bar = h(
     'header',
     { class: `ts-bar${hosted.end?.length ? ' ts-bar-hosted' : ''}`, 'data-bar': true },
@@ -229,7 +233,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   const rail = h('nav', { class: 'ts-rail', 'aria-label': t.frame.rail, 'data-rail': true }, railView.el);
   // Inspect's head, over its two tabs: what it is, which tab, and the way back to the panel.
   const inspectTabs = views<Inspect>({ label: t.inspect.title, attrs: { 'data-inspect-tabs': true }, options: INSPECT.map((value) => ({ value, label: t.inspect[value] })), value: lastInspect, onchange: (value) => show({ inspect: value }) });
-  const inspectClose = h('tanrei-button', { variant: 'text', size: 'small', label: t.inspect.close, title: t.inspect.close, onclick: () => (show({ section }), inspectButton.focus()), 'data-inspect-close': true }, glyph('close'));
+  const inspectClose = h('tanrei-button', { variant: 'text', size: 'small', label: t.inspect.close, title: t.inspect.close, onclick: () => (show({ section }), inspectButton.focus()), 'data-inspect-close': true }, glyph(CLOSE_GLYPH));
   const inspectHead = h('div', { class: 'ts-inspect-head', hidden: true, 'data-inspect-head': true }, h('h2', { class: 'ts-eyebrow', text: t.inspect.title }), inspectTabs, inspectClose);
   // The panel scrolls by itself beside the preview; it takes the focus when what had it is drawn again (an undo).
   const inspector = h('section', { class: 'ts-inspector', 'aria-label': t.frame.panel, tabindex: '-1', 'data-inspector': true }, inspectHead, controls, a11y, exportHost);
