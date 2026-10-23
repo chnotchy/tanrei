@@ -4734,6 +4734,23 @@ and keeps the menu open after a checkbox or radio item. Every item has `tabindex
 moving onto an item focuses it without the ring (the item marks that focus, since `:focus-visible` would follow the
 keyboard's), and the arrow keys continue from there.
 
+**Where the list stands (MNU-68).** A list taller than its surface opens at its top — a submenu's too, and a menu opened
+again before its closing motion has ended — or, for the last item a menubar opens its menu on (MBR-9), at its end. The
+menu moves focus to an item with `preventScroll` and scrolls the list itself, just far enough to bring the item whole
+into view (the first item with the list's start, the last with its end, the first of a titled group with the title), as
+the surface stands at rest: a key pressed while the opening motion runs moves focus at once and the list once the motion
+has ended. The engine's own scroll on focus is not used because Chromium and WebKit compute it through the surface's
+transform, and on the opening motion's first frame the surface is scaled to nothing along the block axis (the unfold
+appearance): a list taller than the room was sent to its end, its first items hidden. Focus that follows the pointer
+scrolls nothing.
+
+**Line breaking (MNU-69).** The label, the supporting text, the trailing text and a group's title break by the strict
+rules of Japanese and Chinese (`line-break: strict`, from `productText()`, whatever the language): the browsers' default
+lets a line begin with ー or a small kana in Chromium, and in WebKit where the text is marked Japanese. They also take
+`word-break: auto-phrase`, which Chromium applies to text whose language is `ja` (put `lang="ja"` on the menu or an
+ancestor): a line breaks between phrases (`Claude Code のコマンドを` / `コピー`), and a phrase longer than its line still
+breaks (`overflow-wrap: break-word`). Firefox and WebKit do not know the value and break by the strict rules alone.
+
 **The shortcut (MNU-31).** `shortcut` holds the keys in the keyboard shortcut's names (`["mod+c"]`; the attribute holds
 the chords separated by spaces, `shortcut="mod+c"`). The item draws it in its trailing column with
 `<tanrei-keyboard-shortcut>` (the `shortcut` part), hosted (KBS-13): size `small`, the form
