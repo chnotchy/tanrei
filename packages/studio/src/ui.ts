@@ -10,6 +10,7 @@ import { studio } from './data';
 import { type StudioStrings, studioDirection, studioLanguage, studioStrings } from './strings';
 import { type Contrast, type Ctx, type Json, type Layer, type Place, button, codeField, fold, folds, h, isolated, ltr, panel, rename, rich, scrollingList, stateChip, textField, views } from './ui/dom';
 import { sectionPanels } from './ui/panels';
+import { createExportSheet } from './ui/export';
 import { createPreview } from './ui/preview';
 import { createRail, shuffle } from './ui/rail';
 import { INSPECT, type Inspect, type Pane, PANES, ROWS, type Row, SECTIONS, type Section } from './ui/sections';
@@ -37,8 +38,8 @@ export interface StudioOptions {
    */
   lang?: string;
   adapter?: StudioAdapter;
-  /** Where the prose links point; a host without those pages leaves them out. */
-  links?: { layers?: string };
+  /** Where the prose links point: the page on layers, the page that takes a product from a layer to every platform. A host without those pages leaves them out. */
+  links?: { layers?: string; start?: string };
   /** Autosave delay in ms (adapter only). */
   saveDelay?: number;
   /**
@@ -55,6 +56,8 @@ export interface StudioOptions {
 type SaveState = 'saved' | 'unsaved' | 'saving' | 'invalid' | 'conflict' | 'error' | 'loading';
 
 const STORE = `${studio.namespace}-theme-studio`;
+/** Export's glyph in the bar: declared, so that the docs site's cut-down icon file has it (packages/tools/src/glyphs.js). */
+const EXPORT_GLYPH = 'ios_share';
 const NS = studio.namespace;
 
 export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {}, saveDelay = 600, bar: hosted = {}, address = false }: StudioOptions = {}) {
@@ -202,6 +205,9 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   // Inspect: over the panel, every token in its tree and the file itself. A toggle: it says whether it is open.
   const inspectButton = h('tanrei-button', { variant: 'outlined', size: 'small', toggle: true, title: t.inspect.help, 'data-inspect': true }, glyph('data_object'), t.inspect.title) as HTMLElement & { selected: boolean };
   inspectButton.addEventListener('change', (event) => event.target === inspectButton && show(inspectButton.selected ? { inspect: lastInspect } : { section }));
+  // Export: the side sheet of the file, its stylesheet and what to do next (./ui/export.ts).
+  const exportSheet = createExportSheet(ctx, { file: adapter?.label, linked, links, onshow: (to) => show({ section: to }) });
+  const exportButton = h('tanrei-button', { variant: 'filled', size: 'small', title: t.exporting.help, onclick: () => exportSheet.open(), 'data-export-open': true }, glyph(EXPORT_GLYPH), t.exporting.open);
   // Undo and redo: icon buttons that keep their place in the keyboard's order while there is nothing to do (BTN-38).
   const historyButton = (name: string, label: string, keys: string, act: () => void, attrs: Json) => h('tanrei-button', { variant: 'text', size: 'small', label, title: label, 'aria-keyshortcuts': keys, 'focusable-when-disabled': true, disabled: true, onclick: act, ...attrs }, glyph(name));
   const undoButton = historyButton('undo', t.frame.undo, 'Meta+Z Control+Z', () => undo(), { 'data-undo': true });
@@ -213,7 +219,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     h('div', { class: 'ts-bar-history', role: 'group', 'aria-label': t.frame.history }, undoButton, redoButton),
     h('div', { class: 'ts-bar-tools' }, shuffleButton),
     file,
-    h('div', { class: 'ts-bar-tools ts-bar-inspect', 'data-bar-inspect': true }, inspectButton),
+    h('div', { class: 'ts-bar-tools ts-bar-inspect', 'data-bar-inspect': true }, inspectButton, exportButton),
     hosted.end?.length ? h('div', { class: 'ts-bar-host ts-bar-end' }, hosted.end) : null,
   );
   const rail = h('nav', { class: 'ts-rail', 'aria-label': t.frame.rail, 'data-rail': true }, railView.el);
@@ -226,7 +232,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   const handle = h('tanrei-handle', { class: 'ts-handle', axis: 'horizontal', label: t.frame.resize, 'data-panel-handle': true }) as HTMLElement & { value: number | null; min: number; max: number; valueText: string };
   // The frame is the page's main region; what is announced is said from inside it.
   const layout = h('main', { class: 'ts-frame', 'data-frame': true }, rail, preview.el, handle, inspector, status);
-  root.replaceChildren(bar, h('div', { class: 'ts-notices' }, banner, sharedBanner), layout);
+  root.replaceChildren(bar, h('div', { class: 'ts-notices' }, banner, sharedBanner), layout, exportSheet.el);
 
   // ── the panel's width ─────────────────────────────────────────────────────────────────────────
   // The handle reports how far it was moved and the keys pressed on it (the Handle's window splitter); the Studio
@@ -404,8 +410,8 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     return panel(ctx, { title: t.a11y.title, help: t.a11y.help, key: 'a11y' }, pairs, folds({}, all));
   }
 
-  // ── export / save ─────────────────────────────────────────────────────────────────────────────
-  /** The file: its id, the checks, copy and download, and what to do next. Under every panel; the file itself is Source. */
+  // ── the file, under every panel ──────────────────────────────────────────────────────────────
+  /** The file: its id and name, the checks, and the way to Export (./ui/export.ts). Under every panel; the file itself is Source. */
   function exportPanel() {
     const id = textField({ label: ctx.locked.id ? t.file.idLocked : t.export.id, attrs: { disabled: ctx.locked.id, 'data-id': true }, oninput: (value) => {
       const result = studio.setMeta(layer, { id: value.trim() }) as Json;
@@ -415,36 +421,9 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       else id.error = true;
     } });
     const name = textField({ label: t.export.name, attrs: { 'data-name': true }, oninput: (value) => ctx.commit(studio.setMeta(layer, { name: value }).layer) });
-    const json = h('code', { 'data-json': true });
     const filename = h('code', { 'data-filename': true });
     const checks = h('ul', { class: 'ts-checks', 'aria-live': 'polite', 'data-checks': true });
-    const init = h('code', { 'data-next-init': true });
-    const put = h('span', { 'data-next-put': true });
-    const flash = (el: HTMLElement, message: string) => {
-      const label = el.dataset.label ?? el.textContent ?? '';
-      el.dataset.label = label;
-      rename(el, message);
-      window.setTimeout(() => rename(el, label), 1600);
-    };
-    const copy = button(t.export.copy, async () => {
-      try {
-        await navigator.clipboard.writeText(stringifyLayer(layer));
-        ctx.announce(t.export.copied);
-        flash(copy, t.export.copied);
-      } catch {
-        ctx.announce(t.export.copyFailed);
-        flash(copy, t.export.copyFailed);
-      }
-    }, { primary: !adapter, 'data-copy': true });
-    const download = button(t.export.download, () => {
-      const url = URL.createObjectURL(new Blob([stringifyLayer(layer)], { type: 'application/json' }));
-      const link = h('a', { href: url, download: `${layer.id}.system.json` });
-      document.body.append(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-      ctx.announce(t.export.downloaded(`${layer.id}.system.json`));
-    }, { 'data-download': true });
+    const open = button(t.exporting.open, () => exportSheet.open(), { primary: !adapter, title: t.exporting.help, 'data-export-panel-open': true });
     const reset = button(t.export.reset, () => window.confirm(t.export.confirmReset) && ctx.commit({ ...studio.blank(layer.extends ?? studio.defaultId), id: layer.id }, { rebuild: true }), { 'data-reset': true });
 
     // The layer to import: JSON, in a text field that holds code, which says itself what does not parse.
@@ -467,15 +446,11 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       if (document.activeElement !== id) id.value = layer.id ?? '';
       if (document.activeElement !== name) name.value = layer.name ?? '';
       id.error = Boolean(id.errorText) || !ID_PATTERN.test(layer.id ?? '') || studio.systems.some((s: Json) => s.id === layer.id);
-      json.textContent = stringifyLayer(layer);
       filename.textContent = adapter?.label ?? `${layer.id}.system.json`;
-      init.textContent = `npx tanrei init ${layer.id} --extends ${layer.extends}`;
-      put.replaceChildren(...rich((at) => t.export.put(at(h('code', { text: `design/${layer.id}.system.json` })))));
       const changed = ['tokens', 'palettes', 'vocabulary'].reduce((sum, key) => sum + Object.keys(layer[key] ?? {}).length, 0) + (layer.rules?.length ?? 0);
       checks.replaceChildren(
         ...(latest.problems.length ? latest.problems.map((problem: string) => h('li', { 'data-state': 'problem' }, isolated(problem))) : [h('li', { text: t.export.schemaOk }), h('li', { text: t.export.engineOk }), h('li', { text: changed ? t.export.size(changed) : t.export.empty })]),
       );
-      copy.disabled = download.disabled = latest.problems.length > 0;
     };
     refresh();
     ctx.onUpdate(refresh);
@@ -486,19 +461,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     return panel(
       ctx,
       { title: adapter ? t.file.title : t.export.title, key: 'export', actions: [filename] },
-      h(
-        'div',
-        { class: 'ts-export-grid' },
-        h(
-          'div',
-          { class: 'ts-export-side' },
-          h('div', { class: 'ts-stack' }, id, name),
-          checks,
-          h('div', { class: 'ts-actions' }, copy, download, reset),
-          adapter ? null : h('div', { class: 'ts-next' }, h('p', { class: 'ts-subhead', text: t.export.next }), h('ol', {}, h('li', {}, init), h('li', {}, put), h('li', {}, h('code', { text: 'npx tanrei build' }))), h('p', { class: 'ts-help' }, links.layers ? rich((at) => t.sentences(t.export.authoritative, at(h('a', { href: links.layers, text: t.export.layersLink })))) : t.export.authoritative)),
-        ),
-        inspect === 'source' ? null : h('pre', { class: 'ts-json', tabindex: '0', 'aria-label': t.export.jsonLabel }, json),
-      ),
+      h('div', { class: 'ts-export-side' }, h('div', { class: 'ts-stack' }, id, name), checks, h('div', { class: 'ts-actions' }, open, reset)),
       folds({}, importFold),
     );
   }
@@ -660,6 +623,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     preview.stale.hidden = Boolean(latest.model);
     railView.refresh();
     for (const refresh of refreshers) refresh();
+    exportSheet.refresh();
     remember();
   }
 
@@ -809,7 +773,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
 
   // For scripts and agents driving the page: the same layer the controls edit.
   const api = {
-    getState: () => ({ layer: structuredClone(layer), section, inspect, locks: [...locks], contrast, saveState, draft: draft.text, canUndo: history.canUndo, canRedo: history.canRedo }),
+    getState: () => ({ layer: structuredClone(layer), section, inspect, locks: [...locks], contrast, saveState, draft: draft.text, canUndo: history.canUndo, canRedo: history.canRedo, export: exportSheet.state() }),
     getLayer: () => structuredClone(layer),
     setLayer: (next: Layer) => ctx.commit(studio.fromLayer(next), { rebuild: true }),
     importLayer: (input: string | object) => importLayer(typeof input === 'string' ? input : JSON.stringify(input)),
@@ -817,6 +781,9 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     show: (to: Place) => show(to),
     /** Every row that is not locked, another of its values. */
     shuffle: () => shuffleRows(),
+    /** Open Export, at one of its tabs; close it. */
+    openExport: (tab?: 'file' | 'css' | 'next') => exportSheet.open(tab),
+    closeExport: () => exportSheet.close(),
     setContrast: (next: Contrast) => ((contrast = next), build()),
     undo: () => undo(),
     redo: () => redo(),
