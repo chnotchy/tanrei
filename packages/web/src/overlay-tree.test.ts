@@ -195,7 +195,8 @@ test.describe('the top-layer surface in Chromium’s accessibility tree', () => 
     expectNoBareGroup(found);
     expect(found).toEqual([{ host: 'tanrei-search', open: true, ignored: true, role: '', name: '' }]);
     const lines = await tree(page);
-    expect(lines.filter((line) => /^\s*(group|listbox|option):/.test(line))).toEqual(['  listbox:Search mail', '    option:invoices', '    option:invoice template', '    option:Invoices']);
+    // The query row (the value as typed, SRC-57) is the listbox's first option, before the suggestions.
+    expect(lines.filter((line) => /^\s*(group|listbox|option):/.test(line))).toEqual(['  listbox:Search mail', '    option:inv', '    option:invoices', '    option:invoice template', '    option:Invoices']);
     expect(lines[1], 'the field first').toBe('  combobox:Search mail');
   });
 });

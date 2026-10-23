@@ -171,6 +171,10 @@ The three variants and the three sizes, `small` (32), `medium` (40) and `large` 
 - **Required** is a field's to say. A bare combobox has no requirement setting: where the form needs an answer, validate it yourself.
 - **A text that names no option** is given up when the person leaves, unless `allowCustomValue` is set. It is never an error of the combobox's own.
 
+### Moving through the list
+
+The arrow keys go round at the ends of the list: Down Arrow on the last option goes to the first, and Up Arrow on the first to the last. With `allowCustomValue` the text itself is a stop between them, where no option is active and Enter keeps what was typed. Set `wrap` to false to stop the keys at the ends. The page keys never go round.
+
 ### Glyphs in the list
 
 An option's glyph stands in a column before its label. `iconSpace` says where that column is kept in an option without a glyph. `auto` (the default) keeps it in a section where another option has a glyph, so that the labels of the section start on one line, and keeps none in a section without glyphs; a section is a group, or a run of options outside any group. `always` keeps it in every option, and `never` only in an option that has a glyph. The [menu](/components/menu/) has the same `iconSpace`, with the same values and default. Only the options the filter shows count.
@@ -185,7 +189,7 @@ An option's glyph stands in a column before its label. `iconSpace` says where th
 - A `<slot>` element among the combobox's children stands for the elements assigned to it. An element of your own that holds a combobox in its shadow root passes its own children on as the options this way, and they are read again whenever they change.
 - The element is form-associated. With a `name` it submits `value` and never the text of an edit that was not committed, resets to its `value` attribute, is restored on navigation, follows a disabled `<fieldset>`, and reports a missing value while its field says it is required.
 - The element is a block. `focus()` goes to the input, and a press anywhere on the box outside a button focuses it.
-- `chevron` is the inverse attribute `no-chevron`, and `readOnly` is `readonly`.
+- `chevron` and `wrap` are the inverse attributes `no-chevron` and `no-wrap`, and `readOnly` is `readonly`.
 - `input` is the native event of the text element. `change` and `action` are composed CustomEvents that carry `detail.value` and `detail.inputValue`; cancel `action` to keep Enter from submitting the form. `toggle` carries `detail.open` and, for a close, `detail.reason`; it is composed and does not bubble.
 - The list is a `popover="manual"` element in the top layer. A press outside closes it and also reaches the element under it.
 - Parts: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `leading-icon`, `clear-button`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`, `status`.
@@ -228,7 +232,7 @@ An option's glyph stands in a column before its label. `iconSpace` says where th
 - The input is an editable combobox with a list box. Its name is its own `label`, or the label of the field around it where it has none. The placeholder is never the name.
 - Its description is what its field gives: the help or the error text, and the optional text.
 - It is exposed as invalid while in error, as required while its field says so, as read-only and disabled, and as expanded while its list is open.
-- Focus stays in the input while the list is open. The active option is its active descendant, so typing never stops editing the text.
+- Focus stays in the input while the list is open. The active option is its active descendant, so typing never stops editing the text. An option that typing made active is named once typing pauses for half a second, so that a screen reader reads the typed letter first and then the option Enter would choose; an option the arrow keys move to is named at once.
 - The list is a list box of the same name. Each option has its name, its description, whether it is the chosen one, whether it is disabled, and its position among the options shown. A group is named by its title.
 - The status row is a live region: its text is read politely when it changes, and at once when the source failed.
 - The chevron is a button of the same name, outside the focus order. The clear button is named by `clearLabel`, and is the next focus stop after the input.

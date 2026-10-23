@@ -7256,6 +7256,7 @@ private let cupertinoSearchTokens = TanreiSearchTokens(
   statusColor: .role(.onSurfaceVariant),
   statusErrorColor: .role(.error),
   statusTypescale: cupertinoTypescale.bodySmall,
+  suggestionCompletionEmphasis: 200,
   suggestionContainerShape: 8,
   suggestionHeadlineTypescale: cupertinoTypescale.body,
   suggestionSupportingTextTypescale: cupertinoTypescale.bodySmall,

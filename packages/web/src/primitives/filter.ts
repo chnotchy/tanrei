@@ -1,6 +1,6 @@
 // How a typed text is compared with a label: the combobox's filter (CMB-25, CMB-29), with the run of the label that
-// answered it (CMB-38), and the filter field of the navigation drawer and the tree view (NVD-81, TRV-56), which marks
-// no run (NVD-85, TRV-60).
+// answered it (CMB-38), the filter field of the navigation drawer and the tree view (NVD-81, TRV-56), which marks
+// no run (NVD-85, TRV-60), and the search's completion of what was typed (SRC-55, SRC-56).
 //
 // Without regard to case, to the width of a character or to the marks on a letter: each letter with the marks that
 // follow it is folded by itself — its compatibility form (a full-width "ｔ" is "t", a half-width "ｶ" is "カ"), without
@@ -78,3 +78,21 @@ export function holdsWords(label: string, words: readonly string[], folded: Fold
  * that a count is said once typing stops and not at every key.
  */
 export const FILTER_SETTLE_MS = 1000;
+
+/**
+ * SRC-55, SRC-56: where `label` begins with `typed`, compared as above, the label in two pieces — the letters that
+ * answer what was typed, and the rest, its completion (possibly empty); null where it does not begin with it. A typed
+ * text that ends inside a letter of the label (half of a ligature's fold) does not begin it.
+ */
+export function completionOf(label: string, typed: string): [string, string] | null {
+  if (!typed) return null;
+  const query = fold(typed).text;
+  if (!query) return null;
+  const folded = fold(label);
+  if (!folded.text.startsWith(query)) return null;
+  const last = folded.from[query.length - 1];
+  // The typed text must end where a letter of the label ends.
+  if (query.length < folded.text.length && folded.from[query.length] === last) return null;
+  const { clusters } = folded;
+  return [clusters.slice(0, last + 1).join(''), clusters.slice(last + 1).join('')];
+}

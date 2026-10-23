@@ -412,8 +412,9 @@ test('React Native: the type scale is by level with emphasis as four weight step
   assert.match(vocabulary, /export type TanreiTypescaleRole = Exclude<keyof TanreiTypescale, "emphasis">;/);
   assert.match(vocabulary, /export interface TanreiShape \{[\s\S]*?readonly cornerSmoothing: number;/);
   // (`emphasized` the modifier stays — it is the API — and so do the `emphasizedAccelerate` / `emphasizedDecelerate` easings; the
-  // `emphasized<Role>` twins, `cornerStyle` and the emphasis color roles are gone.)
-  assert.ok(!/cornerStyle|TanreiCornerStyle|emphasized(?!Accelerate|Decelerate)[A-Z]|onEmphasis|emphasisContainer|role: "emphasis"/.test(vocabulary + system), 'no retired name survives in the generated TypeScript');
+  // `emphasized<Role>` twins, `cornerStyle` and the emphasis color roles are gone. Each name is matched as a word, not
+  // inside a longer one: `suggestionCompletionEmphasis` holds the letters `onEmphasis`.)
+  assert.ok(!/(?<![a-z])(?:cornerStyle|TanreiCornerStyle|emphasized(?!Accelerate|Decelerate)[A-Z]|onEmphasis|emphasisContainer)|role: "emphasis"/.test(vocabulary + system), 'no retired name survives in the generated TypeScript');
   // Values: the default system's steps and amount, as the IR has them.
   assert.match(system, new RegExp(`emphasis: \\{ display: ${ir.typeEmphasis.display}, heading: ${ir.typeEmphasis.heading}, body: ${ir.typeEmphasis.body}, label: ${ir.typeEmphasis.label} \\}`));
   assert.match(system, new RegExp(`shape: \\{ cornerSmoothing: ${ir.cornerSmoothing}, `));

@@ -2,7 +2,7 @@
 title: Cuadro combinado
 description: La caja en la que se escribe para encontrar un valor, y la lista de opciones que abre, sin fila de etiqueta, ayuda ni texto de error propios. Para un lugar cuya etiqueta está en otra parte, o dentro de un campo que el producto compone por su cuenta.
 translationOf: components/combobox.mdx
-sourceHash: 20505447c5a948a07d010334c0b1c6d27b691e0b
+sourceHash: 1c80b2651c012d4e997ca3a0612146bbd8864986
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -173,6 +173,10 @@ Las tres variantes y los tres tamaños, `small` (32), `medium` (40) y `large` (5
 - **La obligatoriedad** la dice un campo. Un cuadro combinado sin nada más no tiene ningún ajuste de obligatoriedad: donde el formulario necesite una respuesta, valídala tú.
 - **Un texto que no nombra ninguna opción** se abandona cuando la persona sale, a menos que `allowCustomValue` esté activado. Nunca es un error propio del cuadro combinado.
 
+### Moverse por la lista
+
+Las teclas de flecha dan la vuelta en los extremos de la lista: Flecha abajo en la última opción va a la primera, y Flecha arriba en la primera, a la última. Con `allowCustomValue`, el propio texto es una parada entre ambas, donde no hay ninguna opción activa y Enter conserva lo que se escribió. Pon `wrap` en false para que las teclas se detengan en los extremos. Las teclas de página nunca dan la vuelta.
+
 ### Los glifos de la lista
 
 El glifo de una opción está en una columna delante de su etiqueta. `iconSpace` decide dónde se guarda esa columna en una opción sin glifo. `auto` (predeterminado) la guarda en una sección en la que otra opción tiene glifo, para que las etiquetas de la sección empiecen en una misma línea, y no la guarda en una sección sin glifos; una sección es un grupo, o una serie de opciones seguidas fuera de cualquier grupo. `always` la guarda en todas las opciones, y `never` solo en una opción que tiene glifo. El [menú](/es/components/menu/) tiene el mismo `iconSpace`, con los mismos valores y el mismo valor predeterminado. Solo cuentan las opciones que el filtro muestra.
@@ -187,7 +191,7 @@ El glifo de una opción está en una columna delante de su etiqueta. `iconSpace`
 - Un elemento `<slot>` entre los hijos del cuadro combinado representa a los elementos que tiene asignados. Un elemento tuyo que contiene un cuadro combinado en su shadow root le pasa así sus propios hijos como opciones, y se vuelven a leer cada vez que cambian.
 - El elemento está asociado a formularios. Con un `name` envía `value`, y nunca el texto de una edición que no se confirmó; se restablece al valor de su atributo `value`, se restaura al navegar, sigue a un `<fieldset>` deshabilitado y notifica que falta un valor mientras su campo dice que es obligatorio.
 - El elemento es un bloque. `focus()` va al campo de entrada, y una pulsación en cualquier punto de la caja fuera de un botón le da el foco.
-- `chevron` es el atributo inverso `no-chevron`, y `readOnly` es `readonly`.
+- `chevron` y `wrap` son los atributos inversos `no-chevron` y `no-wrap`, y `readOnly` es `readonly`.
 - `input` es el evento nativo del elemento de texto. `change` y `action` son CustomEvents compuestos que llevan `detail.value` y `detail.inputValue`; cancela `action` para que Enter no envíe el formulario. `toggle` lleva `detail.open` y, en un cierre, `detail.reason`; es compuesto y no se propaga.
 - La lista es un elemento `popover="manual"` en la capa superior. Una pulsación fuera la cierra y además llega al elemento que hay debajo.
 - Partes: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `leading-icon`, `clear-button`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`, `status`.
@@ -230,7 +234,7 @@ El glifo de una opción está en una columna delante de su etiqueta. `iconSpace`
 - El campo de entrada es un cuadro combinado editable con un cuadro de lista. Su nombre es su propio `label`, o la etiqueta del campo que lo rodea donde no tiene ninguno. El marcador de posición nunca es el nombre.
 - Su descripción es lo que da su campo: la ayuda o el texto de error, y el texto de opcional.
 - Se expone como no válido mientras está en error, como obligatorio mientras su campo lo dice, como de solo lectura y deshabilitado, y como expandido mientras su lista está abierta.
-- El foco se queda en el campo de entrada mientras la lista está abierta. La opción activa es su descendiente activo, de modo que al escribir nunca se deja de editar el texto.
+- El foco se queda en el campo de entrada mientras la lista está abierta. La opción activa es su descendiente activo, de modo que al escribir nunca se deja de editar el texto. Una opción que la escritura convirtió en activa se señala cuando la escritura se detiene medio segundo, para que un lector de pantalla lea primero la letra escrita y después la opción que elegiría Enter; una opción a la que llevan las teclas de flecha se señala al instante.
 - La lista es un cuadro de lista con el mismo nombre. Cada opción tiene su nombre, su descripción, si es la elegida, si está deshabilitada y su posición entre las opciones que se muestran. Un grupo recibe su nombre de su título.
 - La fila de estado es una región activa: su texto se lee de forma cortés cuando cambia, y de inmediato cuando la fuente falló.
 - El chevron es un botón con el mismo nombre, fuera del orden del foco. El botón de borrar recibe su nombre de `clearLabel`, y es la siguiente parada del foco después del campo de entrada.

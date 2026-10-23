@@ -4988,6 +4988,7 @@
     "tanrei.comp.search.status.color": "color",
     "tanrei.comp.search.status.error.color": "color",
     "tanrei.comp.search.status.typescale": "typography",
+    "tanrei.comp.search.suggestion.completion.emphasis": "number",
     "tanrei.comp.search.suggestion.container.gap.compact": "dimension",
     "tanrei.comp.search.suggestion.container.gap.regular": "dimension",
     "tanrei.comp.search.suggestion.container.height.compact": "dimension",

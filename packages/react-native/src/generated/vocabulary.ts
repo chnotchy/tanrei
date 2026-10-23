@@ -4294,6 +4294,7 @@ export interface TanreiSearchTokens {
   readonly statusColor: TanreiPaint;
   readonly statusErrorColor: TanreiPaint;
   readonly statusTypescale: TanreiTypescaleRole;
+  readonly suggestionCompletionEmphasis: number;
   readonly suggestionContainerShape: number;
   readonly suggestionHeadlineTypescale: TanreiTypescaleRole;
   readonly suggestionSupportingTextTypescale: TanreiTypescaleRole;

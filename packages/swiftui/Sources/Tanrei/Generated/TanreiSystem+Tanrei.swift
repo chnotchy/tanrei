@@ -7278,6 +7278,7 @@ private let tanreiSearchTokens = TanreiSearchTokens(
   statusColor: .role(.onSurfaceVariant),
   statusErrorColor: .role(.error),
   statusTypescale: tanreiTypescale.bodySmall,
+  suggestionCompletionEmphasis: 300,
   suggestionContainerShape: 4,
   suggestionHeadlineTypescale: tanreiTypescale.body,
   suggestionSupportingTextTypescale: tanreiTypescale.bodySmall,

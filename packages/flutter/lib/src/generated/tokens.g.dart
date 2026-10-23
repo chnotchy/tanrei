@@ -19856,6 +19856,7 @@ class TanreiSearchTokens {
     required this.statusColor,
     required this.statusErrorColor,
     required this.statusTypescale,
+    required this.suggestionCompletionEmphasis,
     required this.suggestionContainerShape,
     required this.suggestionHeadlineTypescale,
     required this.suggestionSupportingTextTypescale,
@@ -19947,6 +19948,8 @@ class TanreiSearchTokens {
   final TanreiPaint statusErrorColor;
   /// `comp.search.status-typescale`
   final TanreiTextStyle statusTypescale;
+  /// `comp.search.suggestion-completion-emphasis`
+  final double suggestionCompletionEmphasis;
   /// `comp.search.suggestion-container-shape`
   final double suggestionContainerShape;
   /// `comp.search.suggestion-headline-typescale`
@@ -20032,6 +20035,7 @@ class TanreiSearchTokens {
     TanreiPaint? statusColor,
     TanreiPaint? statusErrorColor,
     TanreiTextStyle? statusTypescale,
+    double? suggestionCompletionEmphasis,
     double? suggestionContainerShape,
     TanreiTextStyle? suggestionHeadlineTypescale,
     TanreiTextStyle? suggestionSupportingTextTypescale,
@@ -20090,6 +20094,7 @@ class TanreiSearchTokens {
         statusColor: statusColor ?? this.statusColor,
         statusErrorColor: statusErrorColor ?? this.statusErrorColor,
         statusTypescale: statusTypescale ?? this.statusTypescale,
+        suggestionCompletionEmphasis: suggestionCompletionEmphasis ?? this.suggestionCompletionEmphasis,
         suggestionContainerShape: suggestionContainerShape ?? this.suggestionContainerShape,
         suggestionHeadlineTypescale: suggestionHeadlineTypescale ?? this.suggestionHeadlineTypescale,
         suggestionSupportingTextTypescale: suggestionSupportingTextTypescale ?? this.suggestionSupportingTextTypescale,
