@@ -280,7 +280,7 @@ Tanrei 的元素建立在浏览器所实现的能力之上：shadow root、`Elem
 大多数元素都把角色放在其 shadow root 内的原生元素（`<button>`、`<input>`、`<dialog>`）上，而不是放在自身上，这样浏览器和测试工具看到的就是真实的语义；少数元素（例如标签或打开的菜单）由自身承载角色。Playwright 的定位器会查找开放的 shadow root 内部，因此请像人一样，按角色和名称查找控件：
 
 ```ts
-await page.getByRole('button', { name: 'Save' }).click();
+await page.getByRole('button', { name: '保存' }).click();
 await expect(page.getByRole('switch', { name: 'Wi-Fi' })).toBeChecked();
 ```
 
@@ -292,17 +292,17 @@ await expect(page.getByRole('switch', { name: 'Wi-Fi' })).toBeChecked();
 
 ```ts
 // 什么也找不到：标签是 <tanrei-tabs> 的子元素，而不是其标签列表的子元素。
-page.getByRole('tablist', { name: 'Sections' }).getByRole('tab', { name: 'Billing' });
+page.getByRole('tablist', { name: '分区' }).getByRole('tab', { name: '账单' });
 ```
 
 先找到持有该命名角色的元素，再在其中查找：
 
 ```ts
-const sections = page.locator('tanrei-tabs', { has: page.getByRole('tablist', { name: 'Sections' }) });
-await sections.getByRole('tab', { name: 'Billing' }).click();
+const sections = page.locator('tanrei-tabs', { has: page.getByRole('tablist', { name: '分区' }) });
+await sections.getByRole('tab', { name: '账单' }).click();
 
-const confirm = page.locator('tanrei-dialog', { has: page.getByRole('dialog', { name: 'Delete the file?' }) });
-await confirm.getByRole('button', { name: 'Delete' }).click();
+const confirm = page.locator('tanrei-dialog', { has: page.getByRole('dialog', { name: '删除文件？' }) });
+await confirm.getByRole('button', { name: '删除' }).click();
 ```
 
 ### 顶层中的菜单
@@ -310,10 +310,10 @@ await confirm.getByRole('button', { name: 'Delete' }).click();
 打开期间，`<tanrei-menu>` 就是菜单，名称来自其锚点，但它在页面中不占空间：它的表面绘制在顶层中。因此，即使菜单已经打开，检查菜单本身是否可见也会失败。请先确认菜单存在，再检查其中的菜单项：
 
 ```ts
-await page.getByRole('button', { name: 'More' }).click();
-const menu = page.getByRole('menu', { name: 'More' });
+await page.getByRole('button', { name: '更多' }).click();
+const menu = page.getByRole('menu', { name: '更多' });
 await expect(menu).toBeAttached();
-await expect(menu.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+await expect(menu.getByRole('menuitem', { name: '重命名' })).toBeVisible();
 ```
 
 关闭后，该元素不再是菜单，`await expect(menu).toHaveCount(0)` 会通过。

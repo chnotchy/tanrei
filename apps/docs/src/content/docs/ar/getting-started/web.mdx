@@ -280,7 +280,7 @@ import '@tanrei/web/icons.css';
 تضع معظم العناصر دورها على عنصر أصلي داخل جذر الظل الخاص بها (`<button>` أو `<input>` أو `<dialog>`) لا على نفسها، كي ترى المتصفحات وأدوات الاختبار دلالات حقيقية؛ وقليل منها، كالتبويب أو قائمة الخيارات المفتوحة، يحمل الدور بنفسه. ومحدّدات المواقع (locators) في Playwright تبحث داخل جذور الظل المفتوحة، فابحث عن عنصر التحكم بدوره واسمه، كما يفعل الشخص:
 
 ```ts
-await page.getByRole('button', { name: 'Save' }).click();
+await page.getByRole('button', { name: 'حفظ' }).click();
 await expect(page.getByRole('switch', { name: 'Wi-Fi' })).toBeChecked();
 ```
 
@@ -292,17 +292,17 @@ await expect(page.getByRole('switch', { name: 'Wi-Fi' })).toBeChecked();
 
 ```ts
 // لا يعثر على شيء: التبويبات أبناء <tanrei-tabs>، لا أبناء قائمة تبويباته.
-page.getByRole('tablist', { name: 'Sections' }).getByRole('tab', { name: 'Billing' });
+page.getByRole('tablist', { name: 'الأقسام' }).getByRole('tab', { name: 'الفوترة' });
 ```
 
 اعثر على العنصر الذي يحمل الدور ذا الاسم، ثم ابحث داخله:
 
 ```ts
-const sections = page.locator('tanrei-tabs', { has: page.getByRole('tablist', { name: 'Sections' }) });
-await sections.getByRole('tab', { name: 'Billing' }).click();
+const sections = page.locator('tanrei-tabs', { has: page.getByRole('tablist', { name: 'الأقسام' }) });
+await sections.getByRole('tab', { name: 'الفوترة' }).click();
 
-const confirm = page.locator('tanrei-dialog', { has: page.getByRole('dialog', { name: 'Delete the file?' }) });
-await confirm.getByRole('button', { name: 'Delete' }).click();
+const confirm = page.locator('tanrei-dialog', { has: page.getByRole('dialog', { name: 'حذف الملف؟' }) });
+await confirm.getByRole('button', { name: 'حذف' }).click();
 ```
 
 ### قائمة خيارات في الطبقة العليا
@@ -310,10 +310,10 @@ await confirm.getByRole('button', { name: 'Delete' }).click();
 ما دام `<tanrei-menu>` مفتوحًا فهو قائمة الخيارات، ويحمل اسم مرساته، لكنه لا يشغل مساحة في الصفحة: فسطحه يُرسَم في الطبقة العليا. لذلك يفشل التحقق من ظهور قائمة الخيارات نفسها حتى وهي مفتوحة. تحقّق من وجود قائمة الخيارات، ثم تحقّق من عناصرها:
 
 ```ts
-await page.getByRole('button', { name: 'More' }).click();
-const menu = page.getByRole('menu', { name: 'More' });
+await page.getByRole('button', { name: 'المزيد' }).click();
+const menu = page.getByRole('menu', { name: 'المزيد' });
 await expect(menu).toBeAttached();
-await expect(menu.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+await expect(menu.getByRole('menuitem', { name: 'إعادة التسمية' })).toBeVisible();
 ```
 
 وعند إغلاقها لا يبقى العنصر قائمة خيارات، فينجح `await expect(menu).toHaveCount(0)`.
