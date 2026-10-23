@@ -13,7 +13,7 @@ import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 register('./vite-shim.mjs', import.meta.url);
-const { componentMarkdown, llmsFull, llmsIndex, markdownAlternate, markdownPath, pageGroups, PAGE_FOLDERS, standIns, systemIndexPath, systemIds } = await import('../src/lib/llms.ts');
+const { componentMarkdown, llmsFull, llmsIndex, markdownPath, pageGroups, PAGE_FOLDERS, standIns, systemIndexPath, systemIds } = await import('../src/lib/llms.ts');
 const { componentTokenSources, config, statusComponents } = await import('../src/lib/repo.ts');
 const { expandStateVocabulary } = await import('../../../packages/token-engine/src/states.js');
 const { translations } = await import('../i18n/locales.mjs');
@@ -229,7 +229,7 @@ describe("a component's page as Markdown", () => {
 
 describe('llms-full.txt', () => {
   const text = llmsFull(site);
-  test("holds the page of every component the default system ships, and no other", () => {
+  test("holds the spec of every component the default system ships, and no other", () => {
     const lines = text.split('\n');
     assert.equal(lines.filter((line) => /^# /.test(line)).length, 1);
     const titles = lines.filter((line) => /^## /.test(line)).map((line) => line.slice(3));
@@ -243,19 +243,6 @@ describe('llms-full.txt', () => {
   test(`stays under ${CEILING} bytes`, () => {
     const bytes = Buffer.byteLength(text);
     assert.ok(bytes < CEILING, `llms-full.txt is ${bytes} bytes`);
-  });
-});
-
-describe('the head names the Markdown version of a page', () => {
-  test("a component's page, in every language, and no other page", () => {
-    assert.equal(markdownAlternate('components/button'), '/components/button.md');
-    for (const { dir } of translations) assert.equal(markdownAlternate(`${dir}/components/button`), '/components/button.md', dir);
-    assert.equal(markdownAlternate('components'), undefined);
-    assert.equal(markdownAlternate('foundations/color'), undefined);
-  });
-  test('Head.astro writes it as an alternate of type text/markdown', () => {
-    const head = fs.readFileSync(here('../src/components/frame/Head.astro'), 'utf8');
-    assert.match(head, /<link rel="alternate" type="text\/markdown" href=\{markdown\}/);
   });
 });
 
