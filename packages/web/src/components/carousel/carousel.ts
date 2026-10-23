@@ -1,7 +1,7 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { exported } from '../../primitives/composed.js';
-import { AvailabilityController, BUTTON_VARIANTS, compChoice, DIRECTION_PROBE, DirectionController, giveVariant, PressController, RovingKeys, hostAria, report, slottedInteractive, stoppedBefore, SystemWatchController, syncFocusStyle, WordsController } from '../../primitives/index.js';
+import { AvailabilityController, BUTTON_VARIANTS, compChoice, DIRECTION_PROBE, DirectionController, giveVariant, inverseBoolean, PressController, RovingKeys, hostAria, report, slottedInteractive, stoppedBefore, SystemWatchController, syncFocusStyle, WordsController } from '../../primitives/index.js';
 import { TanreiButton } from '../button/button.js';
 import { CarouselGeometry, type TanreiCarouselHeroAlignment } from './carousel-geometry.js';
 import { carouselStyles, itemStyles } from './carousel.styles.js';
@@ -244,8 +244,6 @@ const numberConverter = {
   toAttribute: (value: number | null) => (value === null || value === undefined ? null : String(value)),
 };
 
-/** A boolean property that defaults to true, whose attribute is its inverse (an HTML boolean attribute cannot default to true). */
-const inverse = { fromAttribute: (value: string | null) => value === null, toAttribute: (value: boolean) => (value ? null : '') };
 
 /** A number that is positive, else null (CRL-24). */
 const positive = (value: unknown): number | null => (typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : null);
@@ -294,17 +292,17 @@ export class TanreiCarousel extends TanreiElement {
     itemWidth: { attribute: 'item-width', converter: numberConverter },
     // An HTML boolean attribute cannot default to true: the attributes are the inverses, `fixed-width`, `free-scroll` and
     // `no-playback-control`.
-    fluidWidth: { attribute: 'fixed-width', reflect: true, converter: inverse },
+    fluidWidth: { attribute: 'fixed-width', reflect: true, converter: inverseBoolean },
     contentAlignment: { type: String, attribute: 'content-alignment', reflect: true },
     scaleOthers: { type: Boolean, attribute: 'scale-others', reflect: true },
-    snap: { attribute: 'free-scroll', reflect: true, converter: inverse },
+    snap: { attribute: 'free-scroll', reflect: true, converter: inverseBoolean },
     loop: { type: Boolean, reflect: true },
     navigation: { type: String, reflect: true },
     indicator: { type: Boolean, reflect: true },
     autoplay: { type: Boolean, reflect: true },
     autoplayInterval: { attribute: 'autoplay-interval', converter: numberConverter },
     paused: { type: Boolean, reflect: true },
-    playbackControl: { attribute: 'no-playback-control', reflect: true, converter: inverse },
+    playbackControl: { attribute: 'no-playback-control', reflect: true, converter: inverseBoolean },
     autoplayProgress: { type: Boolean, attribute: 'autoplay-progress', reflect: true },
     playLabel: { type: String, attribute: 'play-label' },
     pauseLabel: { type: String, attribute: 'pause-label' },

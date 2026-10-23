@@ -373,7 +373,7 @@ export {
   styledAsAnchorToo,
 } from './link.js';
 export { layoutSize, naturalHeight } from './natural-height.js';
-export { parseValues } from './values.js';
+export { inverseBoolean, parseValues } from './values.js';
 export { CoalescedSync, notifyItemUpdate } from './item-update.js';
 export { countWork } from './work-count.js';
 export { type FilledRun, type FilledSentence, type PlaceFaults, fillPlaces, placeFaults, reportPlaces } from './places.js';

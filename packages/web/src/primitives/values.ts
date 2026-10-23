@@ -16,3 +16,9 @@ export function parseValues(attribute: string | null): string[] {
   }
   return text.split(/\s+/).filter(Boolean);
 }
+
+/**
+ * A boolean property that defaults to true, whose attribute is its inverse — an HTML boolean attribute cannot default
+ * to true: `no-wrap` sets `wrap` to false, and `wrap = false` writes `no-wrap`.
+ */
+export const inverseBoolean = { fromAttribute: (value: string | null) => value === null, toAttribute: (value: boolean) => (value ? null : '') };
