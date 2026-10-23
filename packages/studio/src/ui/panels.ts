@@ -28,8 +28,7 @@ function basePanel(ctx: Ctx) {
         // person is asked before their edits go. The layer is read NOW: this panel is drawn once, and most edits
         // (a color, a slider) do not redraw it, so the layer it was drawn with may be an empty one by now.
         const now = ctx.layer();
-        const changed = Object.keys(now).some((key) => ['palettes', 'tokens', 'rules', 'vocabulary'].includes(key));
-        if (changed && !window.confirm(t.base.confirm)) return ctx.rebuild();
+        if (studio.holdsChanges(now) && !window.confirm(t.base.confirm)) return ctx.rebuild();
         ctx.commit(studio.setBase(now, id), { rebuild: true });
       },
     }),

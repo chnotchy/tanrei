@@ -139,6 +139,7 @@
     "tune",
     "undo",
     "upload",
+    "upload_file",
     "verified",
     "video_library",
     "view_list",
