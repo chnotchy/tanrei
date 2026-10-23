@@ -686,7 +686,6 @@ const ar: Dictionary = {
     help: 'الصق أي طبقة تمتدّ من نظام مضمَّن. كل ما فيها قابل للتعديل هنا، ولا يبقى شيء جانبًا.',
     label: 'الطبقة بصيغة JSON',
     apply: 'تحميل في Studio',
-    done: 'تم تحميل الطبقة.',
     invalidJson: 'هذه ليست صيغة JSON صالحة',
   },
   file: {
@@ -716,19 +715,23 @@ const ar: Dictionary = {
     file: 'استيراد ملف…',
     fileNote: 'ملف طبقة، <id>.system.json',
     confirm: (name) => `أتريد البدء من ${name}؟ ستُستبدل تغييراتك على هذه الطبقة، ويعيدها التراجع.`,
-    confirmFile: (file) => `أتريد تحميل ${file}؟ ستُستبدل تغييراتك على هذه الطبقة، ويعيدها التراجع.`,
+    confirmLoad: (file) => `أتريد تحميل ${file ?? 'الطبقة الملصقة'}؟ ستُستبدل تغييراتك على هذه الطبقة، ويعيدها التراجع.`,
     started: (name) => `بدأت من ${name}. يمكنك التراجع عن ذلك.`,
-    imported: (file) => `تم تحميل ${file}.`,
-    importedProblems: (file, count) =>
-      counted(count, {
+    imported: (file) => `تم تحميل ${file ?? 'الطبقة الملصقة'}.`,
+    importedProblems: (given, count) => {
+      const file = given ?? 'الطبقة الملصقة';
+      // The pasted layer is feminine: the verb that refuses it agrees.
+      const refuses = given ? 'سيرفضه' : 'سيرفضها';
+      return counted(count, {
         zero: `تم تحميل ${file}.`,
-        one: `تم تحميل ${file} مع مشكلة واحدة. سيرفضه الأمر tanrei build حتى تُصلحها:`,
-        two: `تم تحميل ${file} مع مشكلتين. سيرفضه الأمر tanrei build حتى تُصلحهما:`,
-        few: `تم تحميل ${file} مع # مشكلات. سيرفضه الأمر tanrei build حتى تُصلحها:`,
-        many: `تم تحميل ${file} مع # مشكلة. سيرفضه الأمر tanrei build حتى تُصلحها:`,
-        other: `تم تحميل ${file} مع # مشكلة. سيرفضه الأمر tanrei build حتى تُصلحها:`,
-      }),
-    refused: (file) => `لم يُحمَّل ${file}. يحمل Studio طبقةً يقبلها المخطط وتمتدّ من نظام لديه:`,
+        one: `تم تحميل ${file} مع مشكلة واحدة. ${refuses} الأمر tanrei build حتى تُصلحها:`,
+        two: `تم تحميل ${file} مع مشكلتين. ${refuses} الأمر tanrei build حتى تُصلحهما:`,
+        few: `تم تحميل ${file} مع # مشكلات. ${refuses} الأمر tanrei build حتى تُصلحها:`,
+        many: `تم تحميل ${file} مع # مشكلة. ${refuses} الأمر tanrei build حتى تُصلحها:`,
+        other: `تم تحميل ${file} مع # مشكلة. ${refuses} الأمر tanrei build حتى تُصلحها:`,
+      });
+    },
+    refused: (file) => `${file ? `لم يُحمَّل ${file}` : 'لم تُحمَّل الطبقة الملصقة'}. يحمل Studio طبقةً يقبلها المخطط وتمتدّ من نظام لديه:`,
   },
   frame: {
     history: 'السجل',

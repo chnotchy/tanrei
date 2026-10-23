@@ -397,7 +397,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     ctx.commit(studio.setBase(committed, id), { rebuild: true, alone: true });
     ctx.announce(t.start.started(name));
   }
-  /** What loading a file found, said at the top of the panel: `error` (it was not loaded) or `warning` (it was, with problems). */
+  /** What loading a layer found, said at the top of the panel: `error` (it was not loaded) or `warning` (it was, with problems). */
   function report(status: 'error' | 'warning', said: string, problems: string[]) {
     importReport.setAttribute('status', status);
     importReport.setAttribute('status-label', t.exporting.statuses[status]);
@@ -406,15 +406,18 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     inspector.scrollTo({ top: 0 });
   }
   /**
-   * Load a layer file in the place of the layer: what the schema refuses, or a layer on a system the Studio does not
-   * have, is not loaded, and the panel says why; a layer the schema accepts is loaded, and what the token engine and the
-   * build's checks say of it is said in the panel. A layer that holds changes asks first; the load is one step to undo.
+   * Load a layer in the place of the layer — a file chosen from the start point's menu, or text pasted under the file
+   * panel: one path for both. What the schema refuses, or a layer on a system the Studio does not have, is not loaded,
+   * and the panel says why; a layer the schema accepts is loaded, and what the token engine and the build's checks say
+   * of it is said in the panel. A layer that holds changes asks first (`ask: false`: a script, through the page's API);
+   * the load is one step to undo. `file`: the file's name; none, the layer was pasted. Returns the problems that kept
+   * it out (empty: loaded, or the person kept their layer).
    */
-  async function importFile(chosen: File) {
-    const refused = (problems: string[]) => (report('error', t.start.refused(chosen.name), problems), ctx.announce(t.start.refused(chosen.name)));
+  function loadLayer(text: string, { file, ask = true }: { file?: string; ask?: boolean } = {}): string[] {
+    const refused = (problems: string[]) => (report('error', t.start.refused(file), problems), ctx.announce(t.start.refused(file)), problems);
     let parsed: unknown;
     try {
-      parsed = JSON.parse(await chosen.text());
+      parsed = JSON.parse(text);
     } catch (error) {
       return refused([t.labelled(t.import.invalidJson, (error as Error).message)]);
     }
@@ -425,13 +428,15 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     } catch (error) {
       return refused((error as Error).message.split('\n'));
     }
-    if (studio.holdsChanges(committed) && !window.confirm(t.start.confirmFile(chosen.name))) return;
+    if (ask && studio.holdsChanges(committed) && !window.confirm(t.start.confirmLoad(file))) return [];
     importReport.open = false;
     ctx.commit(next, { rebuild: true, alone: true });
     const problems: string[] = latest.problems ?? [];
-    if (problems.length) report('warning', t.start.importedProblems(chosen.name, problems.length), problems);
-    ctx.announce(problems.length ? t.start.importedProblems(chosen.name, problems.length) : t.start.imported(chosen.name));
+    if (problems.length) report('warning', t.start.importedProblems(file, problems.length), problems);
+    ctx.announce(problems.length ? t.start.importedProblems(file, problems.length) : t.start.imported(file));
+    return [];
   }
+  const importFile = async (chosen: File) => loadLayer(await chosen.text(), { file: chosen.name });
 
   /** Every row that is not locked, another of its values: one commit, one step to undo. */
   function shuffleRows() {
@@ -490,19 +495,10 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     const open = button(t.exporting.open, () => exportSheet.open(), { primary: !adapter, title: t.exporting.help, 'data-export-panel-open': true });
     const reset = button(t.export.reset, () => window.confirm(t.export.confirmReset) && ctx.commit({ ...studio.blank(layer.extends ?? studio.defaultId), id: layer.id }, { rebuild: true }), { 'data-reset': true });
 
-    // The layer to import: JSON, in a text field that holds code, which says itself what does not parse.
+    // The layer to import: JSON, in a text field that holds code. It is loaded as a file from the start point is.
     const importForm = () => {
       const importArea = codeField({ label: t.import.label, placeholder: '{ "id": "acme", "extends": "tanrei", … }', rows: 8, attrs: { 'data-import': true } });
-      const importFailed = (message: string) => ((importArea.errorText = message), (importArea.error = Boolean(message)));
-      const importApply = button(t.import.apply, () => {
-        try {
-          importLayer(importArea.value);
-          importFailed('');
-          ctx.announce(t.import.done);
-        } catch (problem) {
-          importFailed((problem as Error).message);
-        }
-      }, { 'data-import-apply': true });
+      const importApply = button(t.import.apply, () => loadLayer(importArea.value), { 'data-import-apply': true });
       return [h('p', { class: 'ts-help', text: t.import.help }), importArea, h('div', { class: 'ts-actions' }, importApply)];
     };
 
@@ -528,18 +524,6 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
       h('div', { class: 'ts-export-side' }, h('div', { class: 'ts-stack' }, id, name), checks, h('div', { class: 'ts-actions' }, open, reset)),
       folds({}, importFold),
     );
-  }
-
-  function importLayer(text: string) {
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(text);
-    } catch (error) {
-      throw new Error(t.labelled(t.import.invalidJson, (error as Error).message));
-    }
-    const next = studio.fromLayer(parsed);
-    if (adapter && next.id !== layer.id) throw new Error(t.file.idLocked);
-    ctx.commit(next, { rebuild: true });
   }
 
   // ── the file (adapter) ────────────────────────────────────────────────────────────────────────
@@ -854,7 +838,11 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     getState: () => ({ layer: structuredClone(layer), section, inspect, locks: [...locks], contrast, saveState, draft: draft.text, canUndo: history.canUndo, canRedo: history.canRedo, export: exportSheet.state() }),
     getLayer: () => structuredClone(layer),
     setLayer: (next: Layer) => ctx.commit(studio.fromLayer(next), { rebuild: true }),
-    importLayer: (input: string | object) => importLayer(typeof input === 'string' ? input : JSON.stringify(input)),
+    /** Load a layer in the place of the layer, as Import does, without asking; throws what kept it out. */
+    importLayer: (input: string | object) => {
+      const problems = loadLayer(typeof input === 'string' ? input : JSON.stringify(input), { ask: false });
+      if (problems.length) throw new Error(problems.join('\n'));
+    },
     /** Start the layer from a start point of the bar (`studio.startPoints()`), as its menu does. */
     startFrom: (id: string) => startFrom(id),
     /** Show a section of the rail in the panel, or open Inspect (`{ inspect: 'tokens' | 'source' }`). */
