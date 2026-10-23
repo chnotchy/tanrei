@@ -1,0 +1,117 @@
+/* The anatomy and measure figures (AnatomyDiagram.astro, MeasureDiagram.astro, lib/visuals/blueprint.ts): the subject
+   the component is drawn in, and what the script lays over it in the frame's overlay — numbers, leaders, a focus ring,
+   dimension lines and their labels. Every length and color is a token; under forced colors every line, number and label
+   is the system's text on the system's canvas. Nothing here sets a physical side: the rows, the columns and the bands
+   stand by the writing direction of the stage, which the script reads. */
+
+/* The subject: the web package's stage of the fixture, with the component's staging scoped to it, in the initial text
+   style its baseline was taken in (as the gallery's stages are), and the room the overlay draws in around it. */
+.docs-blueprint {
+  font: initial;
+  letter-spacing: initial;
+  word-spacing: initial;
+  text-align: initial;
+  text-indent: initial;
+  text-transform: initial;
+  white-space: initial;
+  color: CanvasText;
+}
+.docs-blueprint > .docs-blueprint-stage > .stage {
+  margin: 0;
+}
+/* The bands the numbers stand in, above and below the stage. */
+.docs-blueprint-anatomy {
+  padding-block: calc(var(--tanrei-comp-badge-container-height) + var(--tanrei-sys-space-space400));
+}
+/* The rows of the inline lengths above the stage; the columns of the block lengths at its end edge. */
+.docs-blueprint-measure {
+  padding-block-start: calc(var(--docs-blueprint-rows) * var(--tanrei-sys-space-space400));
+  padding-inline-end: calc(var(--docs-blueprint-columns) * (var(--tanrei-sys-space-space900) + var(--tanrei-sys-space-space200)));
+}
+
+/* What the overlay holds. */
+.docs-blueprint-lines {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+.docs-blueprint-lines line,
+.docs-blueprint-lines rect {
+  fill: none;
+  stroke-width: var(--tanrei-sys-border-hairline);
+}
+.docs-blueprint-lines .leader,
+.docs-blueprint-lines .dimension,
+.docs-blueprint-lines .tick {
+  stroke: var(--tanrei-comp-badge-container-color);
+}
+.docs-blueprint-lines .end {
+  fill: var(--tanrei-comp-badge-container-color);
+}
+.docs-blueprint-lines .ring,
+.docs-blueprint-lines .extension {
+  stroke: var(--tanrei-sys-color-outline);
+  stroke-dasharray: var(--tanrei-sys-space-space50) var(--tanrei-sys-space-space25);
+}
+/* A part's number: drawn as a badge's count is, with the badge's tokens. */
+.docs-blueprint-marker {
+  position: absolute;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: var(--tanrei-comp-badge-container-height);
+  block-size: var(--tanrei-comp-badge-container-height);
+  padding-inline: var(--tanrei-comp-badge-container-padding-inline);
+  border-radius: var(--tanrei-comp-badge-container-shape);
+  background: var(--tanrei-comp-badge-container-color);
+  color: var(--tanrei-comp-badge-label-color);
+  font-family: var(--tanrei-comp-badge-label-typescale-font-family);
+  font-size: var(--tanrei-comp-badge-label-typescale-font-size);
+  font-weight: var(--tanrei-comp-badge-label-typescale-font-weight);
+  line-height: var(--tanrei-comp-badge-label-typescale-line-height);
+  letter-spacing: var(--tanrei-comp-badge-label-typescale-letter-spacing);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+/* A length's label: what it is and its value, on the stage's surface so that a line under it does not cross it. */
+.docs-blueprint-length {
+  position: absolute;
+  padding-inline: var(--tanrei-sys-space-space25);
+  background: var(--tanrei-sys-color-surface);
+  color: var(--tanrei-sys-color-on-surface);
+  font-family: var(--tanrei-sys-typescale-label-small-font-family);
+  font-size: var(--tanrei-sys-typescale-label-small-font-size);
+  font-weight: var(--tanrei-sys-typescale-label-small-font-weight);
+  line-height: var(--tanrei-sys-typescale-label-small-line-height);
+  letter-spacing: var(--tanrei-sys-typescale-label-small-letter-spacing);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* What the script resolves a token's length with: given it as a width, in the overlay's scope, and never seen. */
+.docs-blueprint-probe {
+  position: absolute;
+  block-size: 0;
+  visibility: hidden;
+}
+
+@media (forced-colors: active) {
+  .docs-blueprint-lines line[class],
+  .docs-blueprint-lines rect[class] {
+    stroke: CanvasText;
+  }
+  .docs-blueprint-lines .end {
+    fill: CanvasText;
+  }
+  .docs-blueprint-marker {
+    forced-color-adjust: none;
+    background: CanvasText;
+    color: Canvas;
+  }
+  .docs-blueprint-length {
+    forced-color-adjust: none;
+    background: Canvas;
+    color: CanvasText;
+  }
+}

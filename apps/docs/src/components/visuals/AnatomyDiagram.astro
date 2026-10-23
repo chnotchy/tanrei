@@ -1,0 +1,61 @@
+---
+// A component's anatomy figure: the live component, drawn from the web package's own stage of one fixture (the spec's
+// `anatomyFixture`, else its first), with each part's number laid over it in the docs' one frame (Example.astro). The
+// numbers are the spec's order of parts, as in the anatomy table that is the figure's legend (`describedBy`), and the
+// script finds each part where the spec says the web draws it (`platforms.web.parts`, lib/visuals/blueprint.ts).
+// Nothing is drawn for a component whose spec does not say where its parts are, or whose fixture cannot stand in the
+// page (lib/visuals/anatomy.ts, `blueprintStageOf`).
+//
+// - The component is a picture here: `inert` and hidden from assistive technology. The figure is an image named by a
+//   sentence in the page's language that lists every part (`visuals.anatomyAlt`), and described by the legend.
+// - It follows the page's look (the system chosen in the header, the scheme, the contrast) as every frame does; a
+//   component that lives in a layer is drawn under that layer's system, as its gallery is.
+// - It holds its room before anything is defined: the fixture's baseline, and the bands the numbers stand in above
+//   and below it, from the badge's height (the numbers are drawn with the badge's tokens) and a space token.
+import Example from './Example.astro';
+import { contentLang, strings } from '../../lib/i18n';
+import { stagingStyle } from '../../lib/fixture-gallery';
+import { anatomyAlt, blueprintStageOf, webPartsOf } from '../../lib/visuals/anatomy';
+import type { BlueprintData } from '../../lib/visuals/blueprint';
+import './blueprint.css';
+
+interface Props {
+  /** The component, by its spec's name. */
+  name: string;
+  /** The fixture to draw, where it is not the spec's `anatomyFixture` or first. */
+  fixture?: string;
+  /** The id of the element that is the figure's legend (the anatomy table). */
+  describedBy?: string;
+}
+const { name, fixture, describedBy } = Astro.props;
+const lang = contentLang(Astro);
+const t = strings(lang);
+const parts = webPartsOf(name);
+const stage = parts ? blueprintStageOf(name, fixture) : null;
+/** The room above and below the stage that the numbers stand in: a number, and the leader's length. */
+const BAND = ['comp.badge.container.height', 'sys.space.space400'];
+const data: BlueprintData | null = stage && parts ? { kind: 'anatomy', tag: stage.tag, parts: parts.map(({ n, id, target }) => ({ n, id, target })) } : null;
+const [before = '', after = ''] = t.visuals.drawnFrom.split('{fixture}');
+---
+
+{
+  stage && data && (
+    <>
+      <Fragment set:html={stagingStyle(stage.staging)} />
+      <Example label={t.anatomy} reserve={{ block: [`${stage.room.height}px`, ...BAND, ...BAND], inline: `${stage.room.width}px` }} pattern="none" system={stage.system} describedBy={describedBy} data-blueprint-figure="anatomy">
+        <div class="docs-blueprint docs-blueprint-anatomy" data-blueprint={JSON.stringify(data)} data-fixture-scope role="img" aria-label={anatomyAlt(name, t.visuals.anatomyAlt, lang)}>
+          <div class="docs-blueprint-stage" inert aria-hidden="true" set:html={stage.html} />
+        </div>
+        <Fragment slot="caption">
+          {before}
+          <code>{stage.fixture}</code>
+          {after}
+        </Fragment>
+      </Example>
+    </>
+  )
+}
+
+<script>
+  import '../../lib/visuals/blueprint';
+</script>
