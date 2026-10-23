@@ -130,7 +130,7 @@ pnpm --filter @tanrei/docs validate   # astro check: type errors and warnings in
 pnpm --filter @tanrei/docs build      # astro check, then the site (`test` builds it again)
 pnpm --filter @tanrei/docs test:node  # Node's runner, no browser and no build of the site (about 3 s): test/*.test.mjs
 pnpm --filter @tanrei/docs test:browser  # the built site (`build` first) in Chromium, a few minutes: test/browser/*.test.mjs
-TEST_SHARD=2/3 pnpm --filter @tanrei/docs test:browser  # every third file of them, as the second of CI's three docs jobs runs
+TEST_SHARD=2/3 pnpm --filter @tanrei/docs test:browser  # every third file of them, as the second of CI's three docs browser jobs runs
 ```
 
 `test:browser` holds one thing: `test/browser/previews.mjs` (run by `previews-light.test.mjs` and `previews-dark.test.mjs`, a scheme each) opens every page of the root language that draws a live example, a spec fixture or a file tree, in both schemes, and compares each with a copy of its markup drawn beside it by the page's own rules under every stylesheet of `@tanrei/web` (`compare-previews.mjs` says how). A box, a margin, a color or a pseudo-element's glyph that differs is the page doing to a component what its stylesheet does not allow: a stylesheet in a layer Starlight's beat or not loaded, a page rule that reaches into a component, fixtures that share one document's state (a radio group's `name`). What it leaves out is said there: the fixtures drawn in a window of their own (an `iframe` of the component's fixture document), those the page stages files into, and the parts placed against a box outside the preview.
