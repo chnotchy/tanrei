@@ -18,8 +18,8 @@ const ColorFieldElement = /* @__PURE__ */ createComponent({
   react: React,
   events: {
     onChange: 'change' as EventName<TanreiEvent<TanreiColorFieldElement>>,
-    onPickerrequest: 'pickerrequest' as EventName<TanreiEvent<TanreiColorFieldElement, CustomEvent<TanreiColorInputPickerRequestDetail>>>,
-    onEntryerror: 'entryerror' as EventName<TanreiEvent<TanreiColorFieldElement, CustomEvent<TanreiColorInputEntryErrorDetail>>>,
+    onPickerRequest: 'pickerrequest' as EventName<TanreiEvent<TanreiColorFieldElement, CustomEvent<TanreiColorInputPickerRequestDetail>>>,
+    onEntryError: 'entryerror' as EventName<TanreiEvent<TanreiColorFieldElement, CustomEvent<TanreiColorInputEntryErrorDetail>>>,
   },
 });
 const withColorFieldMarks = /* @__PURE__ */ withMarks<ColorFieldMarks>([], ['form']);
@@ -31,7 +31,7 @@ const withColorFieldMarks = /* @__PURE__ */ withMarks<ColorFieldMarks>([], ['for
  *
  * Events:
  * - `onChange` (`change`) — The person committed a changed value: focus left the input, Enter was pressed, or the browser's picker closed. `value` is already the new one. Composed and bubbling. Never fired when the product sets `value`.
- * - `onPickerrequest` (`pickerrequest`) — The person activated the picker button. `detail.value` is the value. Cancelable: `preventDefault()` keeps the input from presenting the browser's picker; the product then presents its own surface and sets `value`. Composed and bubbling.
- * - `onEntryerror` (`entryerror`) — The person committed a text that is not empty and is not a color. `detail.text` is the text as typed, `detail.message` is `invalidText` — empty where the product gave none. Composed and bubbling.
+ * - `onPickerRequest` (`pickerrequest`) — The person activated the picker button. `detail.value` is the value. Cancelable: `preventDefault()` keeps the input from presenting the browser's picker; the product then presents its own surface and sets `value`. Composed and bubbling.
+ * - `onEntryError` (`entryerror`) — The person committed a text that is not empty and is not a color. `detail.text` is the text as typed, `detail.message` is `invalidText` — empty where the product gave none. Composed and bubbling.
  */
 export const ColorField: Marked<typeof ColorFieldElement, ColorFieldMarks> = /* @__PURE__ */ withColorFieldMarks(ColorFieldElement);

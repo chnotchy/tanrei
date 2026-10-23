@@ -2,7 +2,7 @@
 title: React
 description: Tanrei के Web Components से जनरेट किए गए, टाइप वाले React कंपोनेंट।
 translationOf: getting-started/react.mdx
-sourceHash: bbf537930ba2e1a31eb506876e8a8ab25ac3c6a3
+sourceHash: c0c841b6e6aeb6c0b3a2c71ef99d5f54268d0991
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -63,7 +63,7 @@ export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
 }
 ```
 
-प्रॉपर्टी के नाम वही हैं जो एलिमेंट के ऐट्रिब्यूट के हैं (`variant`, `size`, `disabled`)। इवेंट सामान्य React हैंडलर हैं।
+प्रॉपर्टी के नाम वही हैं जो एलिमेंट के ऐट्रिब्यूट के हैं (`variant`, `size`, `disabled`)। इवेंट सामान्य React हैंडलर हैं। एलिमेंट का अपना इवेंट `on` और कैमल केस में इवेंट के नाम से सुना जाता है, जैसे React अपने इवेंट का नाम रखता है (`onKeyDown`): नेविगेशन ड्रॉअर `expandedchange` भेजता है, और आप उसे `onExpandedChange` से सुनते हैं।
 
 `@tanrei/web/words/en` हर उस लेबल और संदेश के लिए सादी अंग्रेज़ी में एक शब्द देता है जिसे कंपोनेंट दिखाते या कहते हैं, जैसे ज़रूरी वाले टैग का या बंद करने वाले बटन का नाम; इसे छोड़कर `@tanrei/react` के `setWords()` से अपने शब्द भी दे सकते हैं। देखें [शब्द](/hi/foundations/words/)।
 

@@ -102,7 +102,7 @@ Each image has a `src`, the picture as the preview shows it, which is usually a 
       closeLabel="Close" zoomInLabel="Zoom in" zoomOutLabel="Zoom out"
       previousLabel="Previous image" nextLabel="Next image" countText="{position} of {count}"
       loadingLabel="Loading image" errorText="This image could not be loaded"
-      onIndexchange={(event) => setShown(event.detail.index)}
+      onIndexChange={(event) => setShown(event.detail.index)}
       onClose={() => setShown(null)}>
       {photos.map((photo) => (
         <ImagePreviewItem key={photo.id} src={photo.large} thumbnailSrc={photo.small}

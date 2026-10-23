@@ -12,13 +12,13 @@ import { TanreiMarqueeText as TanreiMarqueeTextElement, type TanreiMarqueeTextPa
  * - default — The text: plain text, or inline content (a bold run, an inline mark).
  *
  * Events:
- * - `onPausedchange` (`pausedchange`) — The person paused or played the motion with the playback control; `detail.paused` is the new value. Not fired when `paused` is set.
+ * - `onPausedChange` (`pausedchange`) — The person paused or played the motion with the playback control; `detail.paused` is the new value. Not fired when `paused` is set.
  */
 export const MarqueeText = /* @__PURE__ */ createComponent({
   tagName: 'tanrei-marquee-text',
   elementClass: TanreiMarqueeTextElement,
   react: React,
   events: {
-    onPausedchange: 'pausedchange' as EventName<TanreiEvent<TanreiMarqueeTextElement, CustomEvent<TanreiMarqueeTextPausedChangeDetail>>>,
+    onPausedChange: 'pausedchange' as EventName<TanreiEvent<TanreiMarqueeTextElement, CustomEvent<TanreiMarqueeTextPausedChangeDetail>>>,
   },
 });
