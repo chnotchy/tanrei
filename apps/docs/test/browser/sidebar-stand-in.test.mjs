@@ -1,5 +1,5 @@
-// The sidebar before its navigation drawer is defined (styles/frame.css) holds what the drawer will draw: the "All
-// components" switch first in its list, and every row of the sidebar where the drawer's row will be — so that nothing
+// The sidebar before its navigation drawer is defined (styles/frame.css) holds what the drawer will draw: the room of
+// its filter field at its top, the "All components" switch first in its list, and every row of the sidebar where the drawer's row will be — so that nothing
 // in the sidebar moves when the drawer is defined. The drawer has no header (its menu button is the app bar's). In the
 // six languages (the switch's label takes one line in some and two in others), at a desktop's width (the sidebar
 // beside the content) and a medium window's (the column of the groups' glyphs, drawn only once the drawer is defined,
