@@ -239,7 +239,6 @@
   unicode-bidi: isolate;
 }
 /* The layer as text is a code block: read from the left in every language, its line numbers before it. */
-.ts-json,
 .ts-source {
   direction: ltr;
 }
@@ -906,13 +905,8 @@
   overflow: auto;
 }
 
-/* ── Export ─────────────────────────────────────────────────────────── */
+/* ── The file, and Export ───────────────────────────────────────────── */
 /* One column: the panel it stands at the foot of is as narrow as the person makes it. */
-.ts-export-grid {
-  display: grid;
-  gap: var(--ts-gap);
-  align-items: start;
-}
 .ts-export-side {
   display: grid;
   gap: 0.75rem;
@@ -951,30 +945,34 @@
 .ts-checks li[data-state='pending']::before {
   background: var(--tanrei-sys-color-warning);
 }
-.ts-next ol {
+/* Export's side sheet (ui/export.ts): the line of the checks, what the file holds, and the three tabs. It is as wide
+   as the side sheet's tokens make it; what it shows scrolls inside the sheet. */
+.ts-export {
+  gap: var(--ts-gap);
+}
+.ts-export-status .ts-checks {
+  margin-block-start: 0.5rem;
+}
+.ts-export-values tanrei-radio-group {
+  max-inline-size: 100%;
+}
+.ts-next-steps {
   display: grid;
-  gap: 0.25rem;
-  margin: 0 0 0.75rem;
-  padding-inline-start: 1.25rem;
-  font-size: var(--ts-text-xs);
-}
-.ts-next code {
-  color: var(--tanrei-sys-color-on-surface);
-}
-.ts-json {
+  gap: 0.75rem;
   margin: 0;
-  max-block-size: 20rem;
-  overflow: auto;
-  padding: 0.875rem 1rem;
-  border: var(--ts-hairline);
-  border-radius: var(--ts-radius-control);
-  background: var(--tanrei-sys-color-surface-container-low);
+  padding-inline-start: 1.25rem;
 }
-.ts-json code {
-  font-size: var(--ts-text-xs);
-  line-height: 1.6;
-  color: var(--tanrei-sys-color-on-surface);
-  white-space: pre;
+.ts-next-steps li {
+  display: grid;
+  gap: 0.375rem;
+  min-inline-size: 0;
+}
+.ts-next-steps p {
+  margin: 0;
+}
+.ts-export-share {
+  padding-block-start: 0.75rem;
+  border-block-start: var(--ts-hairline);
 }
 .ts-import .ts-actions {
   margin-block-start: 0.5rem;

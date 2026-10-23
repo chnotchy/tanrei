@@ -1,5 +1,5 @@
-// What is typed into a name, a reason or a description is no value: the Studio shows it at once — the file's JSON, the
-// fields, the checks — and does not compute the layer for it (core.valueKey). Computing the layer is the whole build;
+// What is typed into a name, a reason or a description is no value: the Studio shows it at once — the file at Source,
+// the fields, the checks — and does not compute the layer for it (core.valueKey). Computing the layer is the whole build;
 // done for every key, typing a name of ten letters took ten long tasks of the page, one under each key.
 //
 // What is counted is what the Studio does, never how long the browser takes: the computations (each one a
@@ -25,8 +25,8 @@ const watch = (page) =>
   });
 const take = (page) => page.evaluate(() => window.__typing.take());
 const settled = (page) => page.evaluate(() => document.fonts.ready.then(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))));
-/** The file's JSON as Export shows it. */
-const shownJson = (page) => page.locator('[data-json]').evaluate((el) => JSON.parse(el.textContent));
+/** The file as Inspect's Source shows it, beside the fields under the panel. */
+const shownJson = (page) => page.locator('[data-source]').evaluate((el) => JSON.parse(el.value));
 /**
  * The computations that did not wait for the typing to rest: each one started less than the Studio's rest (150 ms)
  * after the key before it. A key that comes later than that — a page held up by something else — lets the Studio
@@ -38,7 +38,8 @@ const beforeRest = ({ at, keys }) => at.filter((time) => {
   return last !== undefined && time - last < REST;
 });
 
-studioTest('typing the layer’s name computes nothing: the file’s JSON follows every key, and the name is saved', {}, async ({ page, saved }) => {
+studioTest('typing the layer’s name computes nothing: the file at Source follows every key, and the name is saved', {}, async ({ page, inspect, saved }) => {
+  await inspect('source');
   const field = page.locator('[data-name] input');
   await field.click();
   await settled(page);
@@ -46,7 +47,7 @@ studioTest('typing the layer’s name computes nothing: the file’s JSON follow
   const name = 'Acme brand';
   for (let i = 1; i <= name.length; i += 1) {
     await page.keyboard.type(name[i - 1]);
-    assert.equal((await shownJson(page)).name, name.slice(0, i), `the JSON follows the key: "${name.slice(0, i)}"`);
+    assert.equal((await shownJson(page)).name, name.slice(0, i), `the file follows the key: "${name.slice(0, i)}"`);
   }
   // Saved once the typing has rested (600 ms), which is after any catch-up the Studio would make (150 ms).
   await saved((layer) => layer.name === name, 'the name');
@@ -65,7 +66,7 @@ studioTest('typing a dial’s reason computes nothing while it is typed; the mod
   await watch(page);
   const reason = 'Rounder, like the logo.';
   await page.keyboard.type(reason);
-  assert.equal((await shownJson(page)).tokens[dial].reason, reason, 'the JSON holds the reason as typed');
+  assert.equal((await page.evaluate(() => window.tanreiStudio.getLayer())).tokens[dial].reason, reason, 'the layer holds the reason as typed');
   await saved((layer) => layer.tokens?.[dial]?.reason === reason, 'the reason');
   const seen = await take(page);
   assert.equal(seen.keys.length, reason.length);

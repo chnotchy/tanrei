@@ -82,7 +82,7 @@ export function stringifyLayer(layer) {
 
 /**
  * @param {object} deps
- * @param {{ namespace: string, web: { cssPrefix: string, tagPrefix: string } }} deps.config   tanrei.config.json
+ * @param {{ namespace: string, web: { cssPrefix: string, tagPrefix: string }, packages?: { npmScope: string } }} deps.config   tanrei.config.json
  * @param {Record<string, object>} deps.sources     tokens/ source documents keyed by path relative to tokens/: the ones
  *   the default resolver names, and the documents of the components that live in a layer (`systems/<layer>/comp/…`)
  * @param {object} deps.vocabulary                  tokens/sys/color.vocabulary.json
@@ -100,9 +100,10 @@ export function stringifyLayer(layer) {
  * @param {(id: string) => string} deps.idToVar                                  the emitter's custom property of a token id
  * @param {(color: object) => string} deps.cssColor                              the emitter's way of writing a color (tokens-build's src/pure.js)
  * @param {(token: object) => string[][]} [deps.declarations]                    the emitter's declarations of one token; without it a dial's drag is computed
+ * @param {(chain: object[]) => { components: Map<string, { layer: string, reason?: string, insteadUse?: string[] }>, variants: Map<string, Map<string, object>> }} [deps.componentChoices]   the same module: what a chain leaves out, layer by layer; without it a layer is not written out (`writeOut`)
  * @param {import('./listing.js').Catalog} [deps.catalog]  what the specs say of each component: level, listing, members (./listing.js, `catalogOf`)
  */
-export function createStudio({ config, sources, vocabulary, resolver, layers, mcu, validateSchema, emitCss, heldComponents, outsideStandIns, sheetAvailability, checkInvariants, targetFloors, contrast, idToVar, cssColor, declarations, catalog }) {
+export function createStudio({ config, sources, vocabulary, resolver, layers, mcu, validateSchema, emitCss, heldComponents, outsideStandIns, sheetAvailability, checkInvariants, targetFloors, contrast, idToVar, cssColor, declarations, catalog, componentChoices }) {
   const NS = config.namespace;
   const PREFIX = config.web.cssPrefix;
   const SYS_COLOR = `${NS}.sys.color.`;
@@ -1097,6 +1098,182 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
       });
   }
 
+  // ── export: the file written out, and the stylesheet ─────────────────────────────────────────
+  /**
+   * The shipped layers a layer depends on that it could hold itself: the examples of the theme gallery between it and
+   * the default system or the root — every shipped layer of its chain that is neither (m3-like; m3-expressive-like
+   * and m3-like). Nearest first. None when it extends the default system, the root or a layer of the host's own.
+   */
+  function examplesOf(layer) {
+    const out = [];
+    for (let id = layer.extends; id && id !== defaultId && id !== rootId && Object.hasOwn(layers, id) && !Object.hasOwn(parents, id); id = layers[id].extends) out.push(layers[id]);
+    return out;
+  }
+  /**
+   * The layer with every value written out: what it inherits from the examples it extends (`examplesOf`) written into
+   * it, so that it extends what they extend — the root, or the default system — and no longer changes when they do.
+   * Merged as the engine merges a chain (`mergeLayers`): the later layer wins a palette and a token, a `scale` composes
+   * with the one it inherits, the rules run in the chain's order, and a declaration under `vocabulary` moves with
+   * its values. A component that lives in an example cannot move — its document is that layer's (tokens/systems/<id>/)
+   * — so it is included from there (`components.include`), and that is all the file still takes from the example.
+   * What the components leave out is the chain's (`componentChoices` of the build). `null` when there is nothing to
+   * write out. The tests build both files and compare the sheets, the documents and the warnings.
+   * @returns {{ layer: object, from: string[], held: string[] } | null} `from`: the examples written out, nearest
+   *   first; `held`: the components still taken from one of them
+   */
+  function writeOut(layer) {
+    const examples = examplesOf(layer);
+    if (!examples.length || !componentChoices) return null;
+    const onto = examples.at(-1).extends;
+    const merged = [...examples].reverse().concat([layer]);
+    const out = { id: layer.id, name: layer.name, extends: onto };
+    const palettes = {};
+    const tokens = {};
+    const vocabulary = {};
+    const rules = [];
+    const held = [];
+    const prefix = `${NS}.comp.`;
+    const rootPalettes = find(rootId)?.palettes ?? {};
+    for (const each of merged) {
+      if (each.specVersion) out.specVersion = each.specVersion;
+      if (each.attribution) out.attribution = clone(each.attribution);
+      for (const [name, declaration] of Object.entries(each.palettes ?? {})) {
+        // A palette dropped where nothing below the written-out file declares it is simply not there.
+        if (declaration === null && !Object.hasOwn(rootPalettes, name) && !(onto !== rootId && Object.hasOwn(base(onto).system.palettes, name))) delete palettes[name];
+        else palettes[name] = clone(declaration);
+      }
+      for (const [id, entry] of Object.entries(each.vocabulary ?? {})) {
+        if (id.startsWith(prefix) && entry && typeof entry === 'object' && 'document' in entry && each !== layer) held.push({ name: id.slice(prefix.length), from: each.id });
+        else vocabulary[id] = clone(entry);
+      }
+      for (const rule of each.rules ?? []) rules.push(clone(rule));
+      for (const [id, op] of Object.entries(each.tokens ?? {})) {
+        const previous = tokens[id];
+        if (!previous || '$value' in op || 'derive' in op) {
+          tokens[id] = clone(op);
+          continue;
+        }
+        // As mergeLayers does: what the op does not say is inherited, and a `scale` multiplies the inherited one.
+        const next = { ...previous, ...clone(op) };
+        if ('scale' in op && 'scale' in previous) {
+          const fields = (v) => (typeof v === 'number' ? { fontSize: v } : v);
+          if (typeof previous.scale === 'number' && typeof op.scale === 'number') next.scale = previous.scale * op.scale;
+          else {
+            const [x, y] = [fields(previous.scale), fields(op.scale)];
+            next.scale = Object.fromEntries([...new Set([...Object.keys(x), ...Object.keys(y)])].map((field) => [field, (x[field] ?? 1) * (y[field] ?? 1)]));
+          }
+        }
+        tokens[id] = next;
+      }
+    }
+    // The components: what the whole chain leaves out, against what the layer it now extends leaves out.
+    const below = onto === rootId ? [find(rootId)] : base(onto).chain;
+    const before = componentChoices(below);
+    const after = componentChoices([...below, ...merged]);
+    const components = {};
+    const omit = Object.fromEntries([...after.components].filter(([name]) => !before.components.has(name)).map(([name, { reason, insteadUse }]) => [name, { reason, ...(insteadUse ? { insteadUse } : {}) }]));
+    const include = [...[...before.components.keys()].filter((name) => !after.components.has(name)), ...held, ...merged.flatMap((each) => (each.components?.include ?? []).filter((entry) => typeof entry === 'object').map(clone))];
+    const variants = {};
+    for (const name of new Set([...before.variants.keys(), ...after.variants.keys()])) {
+      const [was, now] = [before.variants.get(name) ?? new Map(), after.variants.get(name) ?? new Map()];
+      const left = [...now.keys()].filter((value) => !was.has(value));
+      const back = [...was.keys()].filter((value) => !now.has(value));
+      if (left.length || back.length) variants[name] = { ...(left.length ? { omit: left } : {}), ...(back.length ? { include: back } : {}) };
+    }
+    if (Object.keys(omit).length) components.omit = omit;
+    if (include.length) components.include = include;
+    if (Object.keys(variants).length) components.variants = variants;
+    Object.assign(out, {
+      description: layer.description,
+      $schema: layer.$schema,
+      palettes: Object.keys(palettes).length ? palettes : undefined,
+      vocabulary: Object.keys(vocabulary).length ? vocabulary : undefined,
+      tokens: Object.keys(tokens).length ? tokens : undefined,
+      rules: rules.length ? rules : undefined,
+      components: Object.keys(components).length ? components : undefined,
+    });
+    // Whatever else the layer says of itself is its own.
+    for (const [key, value] of Object.entries(layer)) if (!(key in out) && !['palettes', 'vocabulary', 'tokens', 'rules', 'components'].includes(key)) out[key] = clone(value);
+    return { layer: tidy(out), from: examples.map((each) => each.id), held: held.map((entry) => entry.name) };
+  }
+
+  /**
+   * What the build says of a layer, computed on the side: the problems that keep it from building, and the warnings
+   * of the build's checks. The page's own computation (`preview`) is left as it is — this is for a file the page
+   * does not show, the one `writeOut` writes.
+   */
+  function check(layer) {
+    const problems = validate(layer);
+    const computation = evaluate(layer);
+    if (computation.error) return { problems: [...problems, computation.error], warnings: [] };
+    problems.push(...computation.hollow.map((token) => `${token.id}: the engine computed no value for this operation`));
+    return { problems, warnings: computation.computed.warnings };
+  }
+
+  /** The declarations of a sheet by the rule they stand in, with the rule's selectors and at-rules around it. */
+  function sheetRules(css) {
+    const rules = [];
+    const open = [];
+    let current = null;
+    for (const line of css.split('\n')) {
+      const text = line.trim();
+      if (!text || text.startsWith('/*')) continue;
+      if (text.endsWith('{')) {
+        open.push(text.slice(0, -1).trim());
+        current = { path: [...open], declarations: [] };
+        rules.push(current);
+      } else if (text === '}') {
+        open.pop();
+        current = rules.findLast((rule) => same(rule.path, open)) ?? null;
+      } else if (current) {
+        const colon = text.indexOf(':');
+        if (colon > 0) current.declarations.push([text.slice(0, colon), text.slice(colon + 1).trim().replace(/;$/, '')]);
+      }
+    }
+    return rules;
+  }
+  const baseSheets = new Map();
+  /**
+   * What a layer's stylesheet — the one `tanrei build` writes for the web, `<id>.css` — says that the sheet of the
+   * system it extends does not: each declaration whose value differs, or that the base has not, in its rule and in
+   * the sheet's order, as the build writes it (a color resolved in each scheme, a size that follows a dial left to
+   * follow it). `removed` counts the declarations of the base's sheet that this one does not have.
+   * @returns {{ css: string, changed: number, removed: number }}
+   */
+  function sheetChanges(view) {
+    const scope = view.layer.id;
+    const id = view.layer.extends;
+    const key = `${id}\n${scope}`;
+    if (!baseSheets.has(key)) {
+      const computed = base(id);
+      baseSheets.set(key, sheetRules(emitCss(computed.model, { scope, ...sheetAvailability(computed.chain, homes, standIns) })));
+    }
+    const theirs = new Map(baseSheets.get(key).map((rule) => [JSON.stringify(rule.path), new Map(rule.declarations)]));
+    const lines = [];
+    let changed = 0;
+    let printed = [];
+    const ours = sheetRules(view.css(scope));
+    const present = new Map(ours.map((rule) => [JSON.stringify(rule.path), new Set(rule.declarations.map(([property]) => property))]));
+    let removed = 0;
+    for (const [path, declarations] of theirs) for (const property of declarations.keys()) if (!present.get(path)?.has(property)) removed += 1;
+    for (const rule of ours) {
+      const was = theirs.get(JSON.stringify(rule.path)) ?? new Map();
+      const own = rule.declarations.filter(([property, value]) => was.get(property) !== value);
+      if (!own.length) continue;
+      // The at-rules and selectors around the rule, opened where they differ from the last ones printed.
+      let common = 0;
+      while (common < printed.length && common < rule.path.length - 1 && printed[common] === rule.path[common]) common += 1;
+      for (let depth = printed.length; depth > common; depth -= 1) lines.push(`${'  '.repeat(depth - 1)}}`);
+      for (let depth = common; depth < rule.path.length; depth += 1) lines.push(`${'  '.repeat(depth)}${rule.path[depth]} {`);
+      for (const [property, value] of own) lines.push(`${'  '.repeat(rule.path.length)}${property}: ${value};`);
+      lines.push(`${'  '.repeat(rule.path.length - 1)}}`);
+      printed = rule.path.slice(0, -1);
+      changed += own.length;
+    }
+    for (let depth = printed.length; depth > 0; depth -= 1) lines.push(`${'  '.repeat(depth - 1)}}`);
+    return { css: lines.length ? `${lines.join('\n')}\n` : '', changed, removed };
+  }
+
   /** Import: anything that is a JSON object is a layer the Studio can hold; what is wrong with it is reported, not refused… */
   function fromLayer(input) {
     if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('a layer is a JSON object');
@@ -1110,6 +1287,8 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
 
   return {
     namespace: NS, rootId, defaultId, systems, schemes: SCHEMES, tagPrefix: config.web.tagPrefix,
+    // The packages' npm scope (tanrei.config.json): where the command line tool a next step installs is published.
+    npmScope: config.packages?.npmScope,
     // What the specs say of each component — its level, its listing, what it is built from (./listing.js); none where the host gives none.
     catalog,
     cssVar, roleVar, blank, fromLayer, validate, valueKey, preview, liveProperties, base, baseOf,
@@ -1118,5 +1297,6 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     typefaces, setTypeface, iconSet, setIconSet, cornerSmoothing, setCornerSmoothing, typeEmphasis, behaviors, setBehavior, groupReason, setGroupReason, resetGroup,
     applyOperation, addExtension, removeExtension, setDeclaration, setRules,
     describe, rows, aliasTargets, series, pairs,
+    examplesOf, writeOut, check, sheetChanges,
   };
 }
