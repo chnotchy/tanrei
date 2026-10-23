@@ -17,8 +17,8 @@ import path from 'node:path';
 import { register } from 'node:module';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import * as playwright from '@playwright/test';
 import { serveDist } from './host.mjs';
+import { engines, launch } from './launch.mjs';
 
 register('../vite-shim.mjs', import.meta.url);
 const { strings } = await import('../../src/lib/i18n.ts');
@@ -30,7 +30,7 @@ const dist = path.join(docs, 'dist');
 if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/dist holds no site: run `pnpm --filter @tanrei/docs build` first');
 const config = JSON.parse(fs.readFileSync(path.join(docs, '../../tanrei.config.json'), 'utf8'));
 
-const ENGINES = (process.env.DOCS_ENGINES ?? 'chromium,firefox,webkit').split(',').map((name) => name.trim());
+const ENGINES = engines('chromium,firefox,webkit');
 let host;
 let origin;
 
@@ -49,11 +49,6 @@ const WIDE = { width: 1440, height: 800 };
 const COMPACT = { width: 390, height: 800 };
 const LANGUAGES = [source, ...translations].map(({ dir, lang }) => ({ lang, page: dir ? `/${dir}${PAGE}` : PAGE }));
 const en = strings('en').pageActions;
-
-// Firefox is told to ignore Cross-Origin-Opener-Policy, as in header.test.mjs (which says why): on a busy machine its
-// Playwright loses the first navigation of a new page into the policy's new browsing context group. Nothing here is
-// about the policy: no page here opens another (a link item's new tab is asked of its anchor, not followed).
-const LAUNCH = { firefox: { firefoxUserPrefs: { 'browser.tabs.remote.useCrossOriginOpenerPolicy': false } } };
 
 /** A clipboard that keeps what the page writes, in place of the system's, before any script of the page runs. */
 const KEEPING_CLIPBOARD = () => {
@@ -85,7 +80,7 @@ for (const engine of ENGINES) {
   describe(`the page actions in ${engine}`, () => {
     let browser;
     before(async () => {
-      browser = await playwright[engine].launch(LAUNCH[engine]);
+      browser = await launch(engine);
     });
     after(async () => {
       await browser?.close();
