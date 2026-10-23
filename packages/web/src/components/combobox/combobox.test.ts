@@ -1300,6 +1300,26 @@ test.describe('behavior: the list', () => {
     expect((await read(page, 'many')).active).toBe('Option 1');
   });
 
+  test('CMB-26, CMB-27, CMB-28, CMB-48: where the combobox filters and takes no custom value, the first match is the input’s active descendant from the first key — one Enter chooses it; where a custom value is allowed none is, and one Enter commits the text as typed', async ({ page }) => {
+    await mount(page, [fx('one', {}), fx('custom', { allowCustomValue: true })], { reducedMotion: true });
+    await listen(page, 'one');
+    await focusInput(page, 'one');
+    await type(page, 'to');
+    expect(await read(page, 'one'), 'the first match, at once').toMatchObject({ rows: ['Kyoto', 'Tokyo', 'Toronto'], active: 'Kyoto', focused: true });
+    await type(page, 'r');
+    expect(await read(page, 'one'), 'the list changed: its first match').toMatchObject({ rows: ['Toronto'], active: 'Toronto' });
+    await page.keyboard.press('Enter');
+    expect(await read(page, 'one')).toMatchObject({ value: 'toronto', text: 'Toronto', open: false });
+    expect(others(await heard(page))).toEqual(['toggle true', 'change toronto', 'toggle false select']);
+    await listen(page, 'custom');
+    await focusInput(page, 'custom');
+    await type(page, 'to');
+    expect(await read(page, 'custom'), 'the options are suggestions: none is active, and Enter keeps the text').toMatchObject({ rows: ['Kyoto', 'Tokyo', 'Toronto'], active: null });
+    await page.keyboard.press('Enter');
+    expect(await read(page, 'custom')).toMatchObject({ value: 'to', text: 'to', open: false });
+    expect(others(await heard(page))).toEqual(['toggle true', 'change to', 'toggle false commit', 'action to']);
+  });
+
   test('CMB-27: a press on an option, or Enter on the active one, sets value, emits change once with the new value, writes the option’s label with the caret at its end without emitting input, then closes the list with the reason select, so toggle follows change; the chosen option chosen again emits no change and still closes; an Enter that chooses emits no action and submits no form; setting value from the product emits nothing', async ({ page }) => {
     await mount(page, [fx('one', { value: 'tokyo' })], { reducedMotion: true });
     await inForm(page, 'one');

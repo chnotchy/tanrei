@@ -71,7 +71,7 @@ Use docked or the dialog on large windows and full-screen on small ones. The sea
 
 **The shortcut.** `shortcut` names the keys that open the search, in the [keyboard shortcut](/components/keyboard-shortcut/)'s key names (`mod+k`, `/`). The search writes them as a hint, a line of text for the person's keyboard: at the end of a button trigger, and in the bar while it is empty and not focused. It exposes them as the keyboard shortcut of the trigger or the input. The keys work only if you bind them, or set `bindShortcut`: the search then listens in the whole window while it is shown and enabled, opens on the keys and closes on them again.
 
-**Opening and closing.** A press on the bar, typing, or Down Arrow in the input opens the view. Focus alone never opens it: tabbing onto the bar, or focus returning from the full-screen view, leaves it closed. The search asks to open or close with `toggle`, which carries the new state and, when closing, the reason: `escape`, `back`, `select`, `submit`, `outside`, `tab`, `focus-out` or `shortcut`. The query stays as it is when the view closes. Enter in the input emits `submit`; the view then stays open while it shows results or a status, so that the person can go on to them. On the web the element sets its own `expanded`, and on SwiftUI and Flutter the binding or controller changes. On Compose and React Native you set `expanded` from the callback, as for the menu.
+**Opening and closing.** A press on the bar, typing, or Down Arrow in the input opens the view. Focus alone never opens it: tabbing onto the bar, or focus returning from the full-screen view, leaves it closed. The search asks to open or close with `toggle`, which carries the new state and, when closing, the reason: `escape`, `back`, `select`, `submit`, `outside`, `tab`, `focus-out` or `shortcut`. The query stays as it is when the view closes. As soon as the view shows suggestions, the first one is active, so a single Enter chooses it; with no suggestions, the first result is the one Enter opens. To submit the query as typed, the person presses Up Arrow on the first row and then Enter: the search emits `submit`, and the view stays open while it shows results or a status, so that the person can go on to them. On the web the element sets its own `expanded`, and on SwiftUI and Flutter the binding or controller changes. On Compose and React Native you set `expanded` from the callback, as for the menu.
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
@@ -319,6 +319,7 @@ Both are built in, because their behaviour belongs to the search: clear empties 
 ### Suggestions, results and your content
 
 - **A suggestion is something to choose; a result is somewhere to go.** A suggestion helps finish the query or jumps to a known thing, and the arrow keys make it active while focus stays in the input. A result is a thing your search found: a link that takes focus itself.
+- The first row is the one Enter takes, as in a web search or a documentation search. If Enter should search for the text exactly as typed while suggestions show, make that text your first suggestion, as web searches do. The search adds no such row itself.
 - Use the leading icon to tell kinds apart: history for a past query, a folder, a page, a section.
 - Where only some rows have an icon, `iconSpace` decides where the others start their headline. `auto` (the default) keeps the icon's room, empty, in every row of the view while any suggestion or result has an icon, so that the headlines line up; `always` keeps it in every row, and `never` only in a row that has an icon. The [menu](/components/menu/) has the same `iconSpace`, with the same values and default.
 - `density` sets how much room a row of the view takes: `regular` (the default, 56 high) or `compact` (32 high with a 20 glyph), for a command palette or a tool used with a mouse and the keyboard. Neither the bar nor the text changes. For touch a row is never lower than the touch target.
@@ -347,7 +348,7 @@ Both are built in, because their behaviour belongs to the search: clear empties 
 ### Do
 
 - Write a placeholder that says what can be searched: "Search mail". Set `label` too: the placeholder is never the name.
-- Update the suggestions as the query changes, and keep them in a stable order while the person moves through them.
+- Update the suggestions as the query changes, and keep them in a stable order while the person moves through them. Put the best match first: one Enter chooses it.
 - On `select`, do what the suggestion promises: open a result, or put a query into the bar and run it.
 - Keep the trailing slot to two icon buttons at most.
 - Give `targetLabel` ("opens in a new tab") to a result whose `target` is `new`.
@@ -368,20 +369,21 @@ Both are built in, because their behaviour belongs to the search: clear empties 
 ### What the component handles
 
 - The input is a search field named by `label`, never by the placeholder, with the platform's search role where it has one.
-- On the web, the docked view follows the WAI-ARIA combobox pattern. While suggestions show, the input is a combobox with `aria-autocomplete="list"`, `aria-expanded`, `aria-controls` naming the list, and `aria-activedescendant` naming the active suggestion. The suggestions are a listbox named by `label`, and each option is named by its headline and described by its supporting text.
-- Focus in the docked view stays in the input. The active suggestion moves with Down and Up Arrow, so the person can keep refining the query. When an active suggestion is partly out of view, the view scrolls it in.
+- On the web, the docked view follows the WAI-ARIA combobox pattern, with list autocomplete and automatic selection. While suggestions show, the input is a combobox with `aria-autocomplete="list"`, `aria-expanded`, `aria-controls` naming the list, and `aria-activedescendant` naming the active suggestion, which is the first one from the moment the suggestions appear. A screen reader therefore reads the suggestion that Enter will choose. The suggestions are a listbox named by `label`, and each option is named by its headline and described by its supporting text. The active option is the selected one.
+- Focus in the docked view stays in the input. The first suggestion is active as soon as the view shows it, and again after each change to the query or the suggestions. Down Arrow moves on to the next, and Up Arrow on the first leaves none active, so that Enter submits the query as typed. When an active suggestion is partly out of view, the view scrolls it in.
+- While an input method is composing, Enter, Escape and the arrow keys belong to it. The Enter that confirms a conversion chooses nothing, and the first suggestion becomes active once the text is committed.
 - The full-screen view and the dialog view are modal dialogs named by `label`. Focus moves to the header's input with the caret at the end of the query, stays inside the view, and everything outside becomes inert and hidden. When the view closes, focus returns to the bar's input or to the trigger, and the view does not open again.
 - A trigger is a button named by `label` that says it opens a dialog and whether its view is open. It shows keyboard focus as the bar does.
 - A press on the dialog's scrim closes it and reaches nothing under it. Its header starts with the back button, which Tab reaches.
 - Results are a list named by `label`, and a group is named by its headline. A result with an `href` is a link, never an option; the input is a combobox only while the view shows suggestions. A result is named by its headline and described by its excerpt, then by `targetLabel` when it opens in a new context.
-- Down Arrow in the input, with no suggestion left to go to, moves focus to the first result and on through them, across groups; Up Arrow comes back, to the input from the first. Typing, deleting or pasting on a result moves focus to the input, where the key then acts. In a modal view Tab goes through the results as through any links.
+- With results and no suggestions, the first result is current while focus stays in the input. It is drawn as focused, and Enter in the input opens it as Enter on the link would. It is not the input's active descendant, because a result is a link and not an option: what the search found is announced by the status row. Down Arrow moves focus on to the next result. With no suggestion left to go to, Down Arrow moves focus to the first result and on through them, across groups; Up Arrow comes back, to the input from the first. Typing, deleting or pasting on a result moves focus to the input, where the key then acts. In a modal view Tab goes through the results as through any links.
 - The status row is a live region. `statusText` is announced when it changes, and at once as an alert while `status` is `error`. While loading, the results are marked busy and the loading indicator is named by `statusText`.
 - The shortcut is exposed as the keyboard shortcut of the trigger or the input. Its hint takes no press and no focus.
 - Focus reaching the input never opens the view, whether by Tab or by returning from the full-screen view.
 - Escape, the platform's back action and the back button close the view. The docked view also closes on Tab, Shift+Tab, a press outside, or focus leaving the search.
 - The clear and back buttons are Tanrei icon buttons named by `clearLabel` and `backLabel`. After clear, focus returns to the input.
 - Your icon buttons in the `leading` and `trailing` slots keep their own names, roles and focus stops, in reading order. They are not shown in the full-screen header.
-- Typing, input-method composition, dictation and right-to-left text work as in the text field. The search keyboard's action key submits.
+- Typing, input-method composition, dictation and right-to-left text work as in the text field. The search keyboard's action key takes the active suggestion or the current result, and submits the query when there is neither.
 - The bar shows focus with its own edge, whether focus came from the keyboard or a pointer, as a field does. Suggestion rows show the focus ring inside the row while they are active. Each row and the bar meet the minimum target.
 - The search glyph, the leading icons and the divider are hidden from assistive technology.
 - At larger text sizes the bar and the header grow, the query stays on one line, and suggestion rows wrap.
@@ -390,6 +392,7 @@ Both are built in, because their behaviour belongs to the search: clear empties 
 Known platform gaps:
 
 - SwiftUI, Compose, Flutter and React Native do not have the trigger, the dialog view, results, the status row or the shortcut yet. On those platforms, show results in the view's own content and announce their number yourself.
+- SwiftUI, Compose, Flutter and React Native do not yet make the first suggestion active when the suggestions appear. There, Enter submits the query until the person moves to a suggestion with the arrow keys.
 - Web: a bound shortcut reads `mod` in the convention its hint is written in, the one an ancestor sets or else the platform's, where the spec names the platform's alone.
 - SwiftUI, Compose, Flutter and React Native have no combobox or listbox role. Their input is a search field, and each suggestion is a button with its position in the list, which a screen reader reaches by swiping. The active suggestion is not announced as the input's active descendant there. Flutter's suggestions have no position in the list either, and SwiftUI and React Native state the position in English ("2 of 3"; React Native's `positionText` changes it).
 - Flutter exposes the input as a search input type, not the search box role, because Flutter 3.32, the oldest version it supports, rejects that role.

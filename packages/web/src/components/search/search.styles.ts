@@ -103,9 +103,15 @@ const onTrigger = (state: string) => `.trigger:where(${state})`;
 /**
  * Where a result's states are read (SRC-42): the row is the result's own anchor (or button), so hover, keyboard focus —
  * which stands where a suggestion's active state stands — and `data-pressed` (the search's PressController) are its
- * own. A result is never disabled.
+ * own. The result current while focus stays in the search's input (`data-current`, SRC-49) is drawn as the focused
+ * one. A result is never disabled.
  */
-const onResult = (state: string) => (state === ':disabled' ? '.row:where(.never)' : `.row:where(${state})`);
+const onResult = (state: string) =>
+  state === ':disabled' ? '.row:where(.never)' : state === ':focus-visible' ? '.row:where(:focus-visible, [data-current])' : `.row:where(${state})`;
+
+/** SRC-42, SRC-49: the focused result's row and the current one take the focus ring inside the row (ring or glow). */
+const onResultFocus = (focus: string) =>
+  focus === ':focus-visible' ? '.row:is(:focus-visible, [data-current])' : ".row[data-focus-style='glow']:is(:focus-visible, [data-current])";
 
 /** The input's text: the value and the placeholder in input.typescale, their colors, the caret and the selection (SRC-3). */
 const inputStyles = `
@@ -921,8 +927,8 @@ export const rowStyles = css`
   .row[data-pressed]:not([data-pressed='none']) :is(.icon, .headline, .excerpt) {
     transition-duration: 0s;
   }
-  /* SRC-42, SRC-49: the focus ring inside the focused result's row, never animated (ring or glow, SRC-21). */
-  ${focusRing((focus) => `.row${focus}`, { inside: true })}
+  /* SRC-42, SRC-49: the focus ring inside the focused or current result's row, never animated (ring or glow, SRC-21). */
+  ${focusRing(onResultFocus, { inside: true })}
 
   /* SRC-32: iconGlyph() mirrors a leading glyph the element marked, in right-to-left. */
   ${iconGlyph('.icon', { size: '--_src-glyph', selected: '.never-selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
@@ -987,7 +993,7 @@ export const rowStyles = css`
     }
   }
   @media (forced-colors: active) {
-    .row:focus-visible {
+    .row:is(:focus-visible, [data-current]) {
       outline: 2px solid Highlight;
       outline-offset: -2px;
     }
