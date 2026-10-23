@@ -1910,6 +1910,8 @@ test.describe('behavior: the list', () => {
     expect(await osaka.getAttribute('aria-disabled')).toBe('true');
     await pressOn(osaka);
     expect(await read(page, 'one'), 'pressed').toMatchObject({ value: '', open: true });
+    // The keyboard reaches it too (from the first, on to the last).
+    await page.keyboard.press('ArrowUp');
     await page.keyboard.press('ArrowDown');
     expect((await read(page, 'one')).active).toBe('Osaka');
     await page.keyboard.press('Enter');
@@ -2046,8 +2048,9 @@ test.describe('behavior: the list', () => {
     expect((await box(title)).y + (await box(title)).height).toBeLessThanOrEqual((await box(rows(page, id).first())).y + 0.6);
     expect(await title.evaluate((el) => [el.tabIndex, el.getAttribute('role'), getComputedStyle(el).overflowWrap, el.closest('.scroll') !== null])).toEqual([-1, 'presentation', 'break-word', true]);
     await expect(part(page, id, '.group-title')).toHaveCount(2);
-    // Never active, and not matched by the filter: "asia" finds no option although a title is that word.
-    await set(page, id, { inline: false, open: false });
+    // Never active, and not matched by the filter: "asia" finds no option although a title is that word. (The arrow keys
+    // stop at the ends here, so that Up Arrow pressed past the first stays there, CMB-26.)
+    await set(page, id, { inline: false, open: false, wrap: false });
     await focusInput(page, id);
     await page.keyboard.press('ArrowDown');
     await shownList(page, id).toBe(true);
