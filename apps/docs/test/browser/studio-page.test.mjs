@@ -1,7 +1,7 @@
 // Theme Studio's page (components/StudioPage.astro): the Studio, the whole window, with its own bar and none of the
 // documentation's frame; its layer in the page's address, so that a link opens it on the same layer; undo and redo,
-// from the bar and from the keyboard; every part of it within reach of the Tab key; and nothing axe finds, wide and
-// narrow.
+// from the bar and from the keyboard; every part of it within reach of the Tab key; the preview's five screens, in
+// light, dark and side by side; and nothing axe finds, wide and narrow.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //   DOCS_ENGINES=chromium,firefox,webkit node --test test/browser/studio-page.test.mjs   # in each engine
@@ -195,7 +195,8 @@ for (const engine of ENGINES) {
         const seen = [];
         // WebKit moves through buttons and links with Option+Tab, as Safari does unless the reader asks otherwise.
         const tab = engine === 'webkit' ? 'Alt+Tab' : 'Tab';
-        for (let i = 0; i < 80; i += 1) {
+        // The preview's screen is a product's page: each of its controls is a stop on the way to the panel.
+        for (let i = 0; i < 200; i += 1) {
           await page.keyboard.press(tab);
           const at = await focused(page);
           seen.push(at);
@@ -204,6 +205,46 @@ for (const engine of ENGINES) {
         const parts = seen.map((at) => at.part).filter((part, i, all) => part !== all[i - 1]);
         assert.deepEqual(parts, ['bar', 'rail', 'preview', 'handle', 'panel'], JSON.stringify(seen));
         assert.ok(seen.some((at) => at.undo) && seen.some((at) => at.redo), 'undo and redo are stops while there is nothing to do');
+      } finally {
+        await close();
+      }
+    });
+
+    test('the preview’s five screens, from its bar: light, dark and side by side; axe finds nothing on any; each switch is drawn at once', async (t) => {
+      const { page, problems, close } = await open(browser);
+      try {
+        const screens = ['overview', 'dashboard', 'settings', 'list', 'docs'];
+        /** A tab of the preview's bar pressed; how long until the frame after the one the switch was drawn in. */
+        const press = (group, value) =>
+          page.evaluate(
+            ([selector, value]) =>
+              new Promise((resolve) => {
+                const started = performance.now();
+                document.querySelector(`${selector} > tanrei-tab[data-value="${value}"]`).click();
+                requestAnimationFrame(() => requestAnimationFrame(() => resolve(Math.round(performance.now() - started))));
+              }),
+            [group, value],
+          );
+        const drawn = async (screen) => {
+          await page.waitForSelector(`[data-scope] [data-screen="${screen}"]`);
+          await page.evaluate(async () => {
+            await Promise.all([...new Set([...document.querySelectorAll('[data-scope] *')].map((el) => el.localName).filter((name) => name.includes('-')))].map((name) => customElements.whenDefined(name)));
+            await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+          });
+        };
+        const times = {};
+        for (const mode of ['light', 'dark', 'both']) {
+          times[mode] = await press('[data-modes]', mode);
+          for (const screen of screens) {
+            times[`${mode} ${screen}`] = await press('[data-screens]', screen);
+            await drawn(screen);
+            assert.equal(await page.locator(`[data-scope] [data-screen="${screen}"]`).count(), mode === 'both' ? 2 : 1, `${mode}: ${screen}`);
+            const report = await new AxeBuilder({ page }).include('[data-scope]').analyze();
+            assert.deepEqual(report.violations.map((violation) => `${violation.id}: ${violation.nodes.length} — ${violation.nodes[0]?.target}`), [], `axe: ${screen}, ${mode}`);
+          }
+        }
+        t.diagnostic(`${engine}: ${Object.entries(times).map(([what, ms]) => `${what} ${ms} ms`).join(', ')}`);
+        assert.deepEqual(problems, []);
       } finally {
         await close();
       }

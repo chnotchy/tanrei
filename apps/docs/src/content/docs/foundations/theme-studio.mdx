@@ -11,6 +11,8 @@ A design system should feel right by default and follow you when you change one 
 
 Nothing in it is a mock-up. The preview is a real system scope with real components, and it applies the very stylesheet `tanrei build` would write for your layer — computed in your browser by the same engine, emitter and accessibility checks. Repository tests build Studio layers with the CLI pipeline and require the whole sheet, every token value in all six schemes and every warning to match.
 
+It shows your theme on five screens built from those components — an overview of every kind of component, a dashboard, a settings form, a list and its detail, and a documentation page — in light, in dark, or both side by side, at each of the three contrast levels. Which screen you look at, and how, is not part of your theme: none of it is saved in the file.
+
 The layer you are making stays in this browser, and in the page’s address: a link to the Studio, copied from the address bar, opens it on the same layer. Every change can be undone and redone, with the buttons in the Studio’s bar or with ⌘Z and ⇧⌘Z (Ctrl+Z and Ctrl+Shift+Z).
 
 ## What the controls write
