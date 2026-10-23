@@ -57,13 +57,19 @@ const items = (page) =>
     return { windowClass: bar.closest('tanrei-app-shell').getAttribute('data-window-class'), navigation: slot('navigation'), context: slot('context'), actions: slot('actions') };
   });
 
-/** Settled: the elements defined, the fonts in, and a frame drawn after both. */
-const settled = (page) =>
-  page.evaluate(async () => {
+/**
+ * Settled: the elements defined, the fonts in, and a frame drawn after both. The search is defined on its first use
+ * (components/frame/Search.astro): a pointer over its trigger defines it, as a reader's would.
+ */
+const settled = async (page) => {
+  await page.hover('tanrei-search.docs-search');
+  await page.evaluate(async () => {
     await Promise.all(['tanrei-app-shell', 'tanrei-app-bar', 'tanrei-menu', 'tanrei-button', 'tanrei-search', 'tanrei-navigation-drawer'].map((tag) => customElements.whenDefined(tag)));
+    await document.querySelector('tanrei-search.docs-search').updateComplete;
     await document.fonts.ready;
     await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   });
+};
 
 /** The class the shell has decided, once it is the one asked for. */
 const windowClass = (page, name) => page.waitForFunction((name) => document.querySelector('tanrei-app-shell')?.getAttribute('data-window-class') === name, name);
