@@ -39,6 +39,14 @@ import '@tanrei/web/icons.css';
 
 `.tanrei-icon` 会读取任意祖先元素上的 `aria-pressed`、`aria-selected`、`aria-checked` 和 `aria-current`，或者图标自身及其祖先上的 `data-selected`（`data-selected="false"` 可以让单个图标不参与）。图标旁边的文本已经表达了同样的意思时，给图标加上 `aria-hidden="true"`；没有这样的文本时，给控件一个无障碍名称。
 
+名称也可以写在 `data-icon` 里，元素本身留空：
+
+```html
+<span class="tanrei-icon" data-icon="folder"></span>
+```
+
+绘制出的字形相同，但名称不再是页面上的文本：它不会出现在 `textContent` 或 `innerText` 中，不会出现在用户复制的内容里，也不会进入外层控件的无障碍名称。凡是名称会被当作文本读取的地方，都可以用这种写法，例如菜单或列表的一行、表格的单元格，或测试要比对的文本。尺寸、选中状态以及从右到左布局中的镜像，都与把名称写成文本时完全一样。如果图标旁边的文本已经表达了同样的意思，仍然要加上 `aria-hidden="true"`：Firefox 128 之前的版本会把这个名称读进无障碍名称。
+
 在原生平台上，同样的取值随设计系统一起提供（`system.icon`），另有一个小的辅助函数，把“是否选中”和尺寸转换成字体所需的参数。Tanrei 目前还不提供图标组件。
 
 ## 每个设计系统一套图标集
