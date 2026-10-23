@@ -10957,6 +10957,7 @@ export const m3Like = {
       statusColor: { kind: "role", role: "onSurfaceVariant" },
       statusErrorColor: { kind: "role", role: "error" },
       statusTypescale: "bodySmall",
+      suggestionCompletionEmphasis: 100,
       suggestionContainerShape: 8,
       suggestionHeadlineTypescale: "body",
       suggestionSupportingTextTypescale: "bodySmall",

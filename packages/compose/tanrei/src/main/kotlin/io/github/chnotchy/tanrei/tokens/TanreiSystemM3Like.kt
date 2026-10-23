@@ -6950,6 +6950,7 @@ private object M3LikeSystemSource {
             statusColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             statusErrorColor = TanreiPaint.Role(TanreiColorRole.Error),
             statusTypescale = typescale.bodySmall,
+            suggestionCompletionEmphasis = 100f,
             suggestionContainerShape = 8.dp,
             suggestionHeadlineTypescale = typescale.body,
             suggestionSupportingTextTypescale = typescale.bodySmall,

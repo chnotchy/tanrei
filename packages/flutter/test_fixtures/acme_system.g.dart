@@ -7503,6 +7503,7 @@ const TanreiSystem acmeSystem = TanreiSystem(
     statusColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
     statusErrorColor: TanreiPaint.role(TanreiColorRole.error),
     statusTypescale: _typescaleBodySmall,
+    suggestionCompletionEmphasis: 100.0,
     suggestionContainerShape: 4.0,
     suggestionHeadlineTypescale: _typescaleBody,
     suggestionSupportingTextTypescale: _typescaleBodySmall,

@@ -7362,6 +7362,7 @@ private let m3LikeSearchTokens = TanreiSearchTokens(
   statusColor: .role(.onSurfaceVariant),
   statusErrorColor: .role(.error),
   statusTypescale: m3LikeTypescale.bodySmall,
+  suggestionCompletionEmphasis: 100,
   suggestionContainerShape: 8,
   suggestionHeadlineTypescale: m3LikeTypescale.body,
   suggestionSupportingTextTypescale: m3LikeTypescale.bodySmall,

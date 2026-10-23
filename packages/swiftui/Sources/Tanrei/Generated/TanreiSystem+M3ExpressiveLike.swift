@@ -7396,6 +7396,7 @@ private let m3ExpressiveLikeSearchTokens = TanreiSearchTokens(
   statusColor: .role(.onSurfaceVariant),
   statusErrorColor: .role(.error),
   statusTypescale: m3ExpressiveLikeTypescale.bodySmall,
+  suggestionCompletionEmphasis: 100,
   suggestionContainerShape: 8,
   suggestionHeadlineTypescale: m3ExpressiveLikeTypescale.body,
   suggestionSupportingTextTypescale: m3ExpressiveLikeTypescale.bodySmall,
