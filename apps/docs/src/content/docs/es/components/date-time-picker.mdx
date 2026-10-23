@@ -2,14 +2,14 @@
 title: DateTimePicker
 description: Permite elegir una fecha, una hora o una fecha y hora (o un intervalo de cualquiera de ellas) con un calendario y unas ruedas de hora o la esfera de un reloj, en un diálogo o en una superficie que se despliega bajo un campo.
 translationOf: components/date-time-picker.mdx
-sourceHash: b20ac5ee4e3e21be0e6515467b45bd460309076c
+sourceHash: 9931a6ee5d10eb1f030b535c10c20640f2544087
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import ProductWords from '../../../../components/ProductWords.astro';
 
 export const words = {
@@ -43,12 +43,12 @@ Un DateTimePicker es una superficie que contiene un [calendario](/es/components/
 El componente web implementa el selector tal como lo describe esta página: los dos extremos de un intervalo son dos campos unidos por una raya, AM y PM son una parte discreta de la hora, las pestañas del modo de entrada dibujan glifos y las ruedas aceptan dígitos escritos. Las demostraciones son ese componente. SwiftUI, Compose, Flutter y React Native todavía no lo han construido. Sus paquetes aún contienen el código del selector de fecha y del selector de hora retirados, que esta página no documenta.
 :::
 
-<DemoFrame label="Ábrelo con un botón: una fecha acoplada y una hora modal">
+<Example label="Ábrelo con un botón: una fecha acoplada y una hora modal">
   <tanrei-button id="dtp-demo-due" variant="outlined" onclick="document.getElementById('dtp-demo-due-picker').open = true">Fecha de entrega</tanrei-button>
   <tanrei-date-time-picker id="dtp-demo-due-picker" presentation="docked" anchor="dtp-demo-due" label="Fecha de entrega" locale="es" today="2026-09-24" value="2026-09-28" onchange="document.getElementById('dtp-demo-due').textContent = 'Entrega ' + this.value" onclose="this.open = false"></tanrei-date-time-picker>
   <tanrei-button id="dtp-demo-alarm" variant="outlined" onclick="document.getElementById('dtp-demo-alarm-picker').open = true">Alarma</tanrei-button>
   <tanrei-date-time-picker id="dtp-demo-alarm-picker" mode="time" locale="es" value="07:30" minute-step="5" label="Alarma" onchange="document.getElementById('dtp-demo-alarm').textContent = 'Alarma ' + this.value" onclose="this.open = false"></tanrei-date-time-picker>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -163,25 +163,25 @@ En la web, los dos elementos anteriores, uno que elegía una fecha y otro que el
 
 Las demostraciones siguientes dibujan la superficie abierta en su sitio, con el atributo `inline` de la web, que es para la documentación y las pruebas. En un producto, un selector se abre sobre la página.
 
-<DemoFrame label="Una fecha: modal, con su cabecera y sus acciones, y acoplada, que se confirma al elegir el día" plain>
+<Example label="Una fecha: modal, con su cabecera y sus acciones, y acoplada, que se confirma al elegir el día">
   <tanrei-date-time-picker inline open locale="es" today="2026-09-24" value="2026-09-17" label="Entrada"></tanrei-date-time-picker>
   <tanrei-date-time-picker inline open presentation="docked" locale="es" today="2026-09-24" value="2026-09-17" label="Entrada"></tanrei-date-time-picker>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Una hora: las ruedas, el modo predeterminado, y la esfera (reloj de 12 horas)" plain>
+<Example label="Una hora: las ruedas, el modo predeterminado, y la esfera (reloj de 12 horas)">
   <tanrei-date-time-picker inline open mode="time" hour-cycle="h12" locale="es" value="19:30" label="Alarma"></tanrei-date-time-picker>
   <tanrei-date-time-picker inline open mode="time" entry-mode="dial" hour-cycle="h12" locale="es" value="19:30" label="Alarma"></tanrei-date-time-picker>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Un intervalo de horas que termina al día siguiente y un reloj de 24 horas en pasos de 15 minutos" plain>
+<Example label="Un intervalo de horas que termina al día siguiente y un reloj de 24 horas en pasos de 15 minutos">
   <tanrei-date-time-picker inline open mode="time" range locale="es" start="22:00" end="06:00" label="Horas de silencio"></tanrei-date-time-picker>
   <tanrei-date-time-picker inline open mode="time" hour-cycle="h23" minute-step="15" locale="es" value="19:30" label="Salida"></tanrei-date-time-picker>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Una fecha y hora, y un intervalo de fechas" plain>
+<Example label="Una fecha y hora, y un intervalo de fechas">
   <tanrei-date-time-picker inline open mode="date-time" locale="es" today="2026-09-24" value="2026-09-17T19:30" minute-step="5" label="Inicio de la reunión"></tanrei-date-time-picker>
   <tanrei-date-time-picker inline open range locale="es" today="2026-09-24" start="2026-09-10" end="2026-09-16" label="Estancia"></tanrei-date-time-picker>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="date-time-picker" />
 

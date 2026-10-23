@@ -2,14 +2,14 @@
 title: キーボードショートカット
 description: コマンドを実行するキーを、キーの形か文字で表示します。使っているキーボードの修飾キーの記号と名前で描き、読み上げではキーの名前で伝えます。
 translationOf: components/keyboard-shortcut.mdx
-sourceHash: 63d76372e6eb95e569cb0e3333d01afaeaadceb0
+sourceHash: aefaa8f159d65d66f0d297cf2ae3f659c10c017f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
@@ -17,11 +17,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 キーボードショートカットは、コマンドを実行するキーを表示します。キーキャップの形か、コマンド名の横に置く文字の形で、small と medium の 2 つのサイズがあります。キーは `mod`、`shift`、`k` のような中立の名前で書き、使っているキーボードの流儀で描きます。Apple の記号（⇧⌘K）か、標準の名前（Ctrl+Shift+K）です。流儀はプロダクトが領域ごとに決めることも、プラットフォームに任せることもできます。複数の組み合わせが続くショートカット（Ctrl+K Ctrl+C）は、1 つの並びとして扱います。
 
-<DemoFrame label="キーキャップ、2 つの組み合わせが続く並び、文字の形。お使いのキーボードに合わせて表示します">
+<Example label="キーキャップ、2 つの組み合わせが続く並び、文字の形。お使いのキーボードに合わせて表示します">
   <tanrei-keyboard-shortcut keys="mod+shift+k" label="コマンドまたはコントロール、シフト、K"></tanrei-keyboard-shortcut>
   <tanrei-keyboard-shortcut keys="mod+k mod+c" label="コマンドまたはコントロールと K、続けてコマンドまたはコントロールと C"></tanrei-keyboard-shortcut>
   <tanrei-keyboard-shortcut keys="mod+shift+k" label="コマンドまたはコントロール、シフト、K" variant="plain"></tanrei-keyboard-shortcut>
-</DemoFrame>
+</Example>
 
 キーの描画は見た目のためだけのものです。支援技術には、プロダクトが与えた `label`（プロダクト自身の言葉で書いたショートカット）を読ませます。`label` がなければ、`aria-keyshortcuts` の記法（`Meta+Shift+K`）を読ませます。Tanrei は、どの言語でもキーの名前を持ちません。このコンポーネントはキーを表示するだけです。フォーカスも入力も受け取らず、キーを効かせることもしません。キーの割り当てはプロダクト側で行います。
 
@@ -82,7 +82,7 @@ Web では、`keys` 属性に組み合わせを空白で区切って書きます
 
 ## 仕様
 
-<DemoFrame label="同じキーを Apple のキーボード向けと標準のキーボード向けに。文中の small、名前のあるキー、無効" plain column>
+<Example label="同じキーを Apple のキーボード向けと標準のキーボード向けに。文中の small、名前のあるキー、無効" column>
   <div data-tanrei-keyboard-convention="apple" style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
     <tanrei-keyboard-shortcut keys="mod+shift+k" label="シフト コマンド K"></tanrei-keyboard-shortcut>
     <tanrei-keyboard-shortcut keys="mod+shift+k" label="シフト コマンド K" size="small"></tanrei-keyboard-shortcut>
@@ -104,7 +104,7 @@ Web では、`keys` 属性に組み合わせを空白で区切って書きます
     <tanrei-keyboard-shortcut keys="mod+z" label="コマンドまたはコントロール、Z" disabled></tanrei-keyboard-shortcut>
     <tanrei-keyboard-shortcut keys="mod+z" label="コマンドまたはコントロール、Z" variant="plain" disabled></tanrei-keyboard-shortcut>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="keyboard-shortcut" />
 

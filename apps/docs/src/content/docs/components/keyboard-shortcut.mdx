@@ -7,7 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
@@ -15,11 +15,11 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 
 A keyboard shortcut shows the keys that perform a command: drawn as keycaps, or as plain text beside a command's name, at a small or medium size. Keys are written in neutral names — `mod`, `shift`, `k` — and drawn in the convention of the keyboard the person is using: Apple's symbols (⇧⌘K) or the standard names (Ctrl+Shift+K). A product can set the convention for a region, or leave it to the platform. A shortcut of several chords in a row (Ctrl+K Ctrl+C) is one sequence.
 
-<DemoFrame label="Keycaps, a sequence of two chords, and the plain form, for the keyboard you are using">
+<Example label="Keycaps, a sequence of two chords, and the form, for the keyboard you are using">
   <tanrei-keyboard-shortcut keys="mod+shift+k" label="Command or Control, Shift, K"></tanrei-keyboard-shortcut>
   <tanrei-keyboard-shortcut keys="mod+k mod+c" label="Command or Control and K, then Command or Control and C"></tanrei-keyboard-shortcut>
   <tanrei-keyboard-shortcut keys="mod+shift+k" label="Command or Control, Shift, K" variant="plain"></tanrei-keyboard-shortcut>
-</DemoFrame>
+</Example>
 
 Its keys are drawn for sight only: assistive technology reads the `label` a product gives — the shortcut in your own words — and, without one, the notation of `aria-keyshortcuts` (`Meta+Shift+K`). Tanrei has no names for keys in any language. It shows the keys and nothing more: it takes no focus and no input, and it does not make the keys work. Your product binds them.
 
@@ -80,7 +80,7 @@ On the web the `keys` attribute holds the chords separated by spaces (`keys="mod
 
 ## Specs
 
-<DemoFrame label="The same keys for an Apple keyboard and for a standard one; small in a sentence; named keys; disabled" plain column>
+<Example label="The same keys for an Apple keyboard and for a standard one; small in a sentence; named keys; disabled" column>
   <div data-tanrei-keyboard-convention="apple" style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
     <tanrei-keyboard-shortcut keys="mod+shift+k" label="Shift Command K"></tanrei-keyboard-shortcut>
     <tanrei-keyboard-shortcut keys="mod+shift+k" label="Shift Command K" size="small"></tanrei-keyboard-shortcut>
@@ -102,7 +102,7 @@ On the web the `keys` attribute holds the chords separated by spaces (`keys="mod
     <tanrei-keyboard-shortcut keys="mod+z" label="Command or Control, Z" disabled></tanrei-keyboard-shortcut>
     <tanrei-keyboard-shortcut keys="mod+z" label="Command or Control, Z" variant="plain" disabled></tanrei-keyboard-shortcut>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="keyboard-shortcut" />
 

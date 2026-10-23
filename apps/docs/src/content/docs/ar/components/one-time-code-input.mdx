@@ -2,27 +2,27 @@
 title: حقل إدخال الرمز لمرة واحدة
 description: يأخذ رمزًا قصيرًا أُرسل إلى الشخص، كرمز تسجيل الدخول أو رمز التحقق، قيمةً نصية واحدة مرسومة في خانات منفصلة، فيُرى طوله وما بقي منه ناقصًا، وتستطيع المنصة أن تملأه في خطوة واحدة.
 translationOf: components/one-time-code-input.mdx
-sourceHash: c820388188c64d7d53434e6c907a565d8d10ab67
+sourceHash: cae7f555e817b85dc9656f43ee7803945e22cea3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="one-time-code-input" />
 
-<DemoFrame label="حقل إدخال الرمز لمرة واحدة داخل حقل، وآخر رفض المنتج رمزه" column>
+<Example label="حقل إدخال الرمز لمرة واحدة داخل حقل، وآخر رفض المنتج رمزه" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="رمز التحقق" supporting-text="أدخِل الرمز المكوّن من 6 أرقام الذي أرسلناه إلى هاتفك.">
     <tanrei-one-time-code-input group-size="3" value="123"></tanrei-one-time-code-input>
   </tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="رمز التحقق" supporting-text="أدخِل الرمز المكوّن من 6 أرقام الذي أرسلناه إلى هاتفك." error error-text="الرمز غير صحيح. تحقق من الرسالة وحاول مرة أخرى.">
     <tanrei-one-time-code-input group-size="3" value="123456"></tanrei-one-time-code-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 استخدم حقل إدخال الرمز لمرة واحدة (one-time-code input) لرمز قصير أرسله المنتج إلى الشخص ويطلبه منه مرة واحدة: لتسجيل الدخول، أو لتأكيد عنوان بريد إلكتروني أو رقم هاتف، أو للموافقة على عملية دفع. والخانات تُظهر طول الرمز وكم بقي منه ناقصًا.
 
@@ -87,14 +87,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="أربع خانات، وثماني خانات في مجموعتين، وأحرف وأرقام، ورمز محجوب، ورمز للقراءة فقط، ورمز معطَّل" plain column>
+<Example label="أربع خانات، وثماني خانات في مجموعتين، وأحرف وأرقام، ورمز محجوب، ورمز للقراءة فقط، ورمز معطَّل" column>
   <tanrei-one-time-code-input class="not-content" label="الرقم السري الوارد في الخطاب" length="4" value="4821"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="رمز الاقتران" length="8" group-size="4" value="1234"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="رمز تسجيل الدخول" type="alphanumeric" group-size="3" value="A7K93Q"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="رمز التحقق" mask value="1234"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="رمز التحقق" readonly value="123456"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="رمز التحقق" disabled group-size="3" value="123456"></tanrei-one-time-code-input>
-</DemoFrame>
+</Example>
 
 ### الخانات
 

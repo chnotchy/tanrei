@@ -2,20 +2,20 @@
 title: テキスト入力欄
 description: 文字を入力するボックスと、その中で入力するものすべてです。1 行または複数行のテキスト、日付や時刻、コードを扱います。ラベルの行、補足、エラーテキストは自分では持ちません。ラベルがほかの場所にあるところや、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/text-input.mdx
-sourceHash: 7e11d89a69b34a99a268214d2e585493afc8078e
+sourceHash: 83486ed63b6a2185108fc8bec04d5e73f0177fa5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="text-input" />
 
-<DemoFrame label="単独で使う例：リストの上の絞り込みと、ラベルを横に置いた行" column>
+<Example label="単独で使う例：リストの上の絞り込みと、ラベルを横に置いた行" column>
   <tanrei-text-input class="not-content" type="search" label="トークンを絞り込む" placeholder="トークンを絞り込む">
     <span slot="leading-icon">search</span>
   </tanrei-text-input>
@@ -23,7 +23,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <span>表示名</span>
     <tanrei-text-input label="表示名" value="山田 花子"></tanrei-text-input>
   </div>
-</DemoFrame>
+</Example>
 
 テキスト入力欄は、[テキストフィールド](/ja/components/text-field/)のボックスだけを取り出したものです。コンテナ、テキスト、アイコン、接頭辞と接尾辞、日付のセグメント、ピッカーボタン、サイズ変更のハンドルがあります。上にラベルの行はなく、下に補足もエラーテキストもなく、文字数も描きません。
 
@@ -96,11 +96,11 @@ Web では `<tanrei-text-input>` です。ほかのプラットフォームは�
 </tanrei-field>
 ```
 
-<DemoFrame label="フィールドの中のテキスト入力欄。見た目はテキストフィールドと同じです" column>
+<Example label="フィールドの中のテキスト入力欄。見た目はテキストフィールドと同じです" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="メールアドレス" required required-text="必須" supporting-text="サインインにだけ使います。">
     <tanrei-text-input type="email"></tanrei-text-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 入力欄は、自分にしか分からないことをフィールドに伝えます。補足は、パディングと先頭のアイコンを越えた、テキストが始まる位置から始まります。Filled と Outlined の入力欄は、フィールドのラベルをボックスの中で浮き上がるラベルとして自分で描くので、フィールドはラベルの行を描きません。日付や時刻を途中まで入力したまま離れると、フィールドがエラーになり、入力欄の `invalidText` または `unavailableText` を表示します。
 
@@ -123,19 +123,19 @@ Web では `<tanrei-text-input>` です。ほかのプラットフォームは�
 
 ## 仕様
 
-<DemoFrame label="単独の入力欄：エラー、無効、読み取り専用、接頭辞と接尾辞、small と large" plain column>
+<Example label="単独の入力欄：エラー、無効、読み取り専用、接頭辞と接尾辞、small と large" column>
   <tanrei-text-input class="not-content" label="メールアドレス" value="ada@" error></tanrei-text-input>
   <tanrei-text-input class="not-content" label="メールアドレス" value="ada@example.com" disabled></tanrei-text-input>
   <tanrei-text-input class="not-content" label="メールアドレス" value="ada@example.com" readonly></tanrei-text-input>
   <tanrei-text-input class="not-content" label="金額" type="number" value="120" prefix-text="$" suffix-text="USD"></tanrei-text-input>
   <tanrei-text-input class="not-content" size="small" label="検索" value="tokens"></tanrei-text-input>
   <tanrei-text-input class="not-content" size="large" label="メールアドレス" value="ada@example.com"></tanrei-text-input>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="単独の Filled と Outlined：入力欄自身のラベルがボックスの中で浮き上がります" system="m3-like" plain column>
+<Example label="単独の Filled と Outlined：入力欄自身のラベルがボックスの中で浮き上がります" system="m3-like" column>
   <tanrei-text-input class="not-content" variant="filled" label="メールアドレス" type="email" value="ada@example.com"></tanrei-text-input>
   <tanrei-text-input class="not-content" variant="outlined" label="メールアドレス" type="email"></tanrei-text-input>
-</DemoFrame>
+</Example>
 
 ### 入力欄が受け持つものと、フィールドが受け持つもの
 

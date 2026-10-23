@@ -2,26 +2,26 @@
 title: パンくずリスト
 description: ページが階層のどこにあるかを示し、上の階層へ戻る道になります。上の階層はいちばん上から順に並ぶリンクで、最後がそのページ自身です。
 translationOf: components/breadcrumbs.mdx
-sourceHash: 05f7e32b5c5664f5cdf25c871df7f7a46deee3f0
+sourceHash: 07b8a95ffed90e5a92dae40da02c053bda503dc9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="breadcrumbs" />
 
-<DemoFrame label="3 階層のパンくずリスト" column>
+<Example label="3 階層のパンくずリスト" column>
   <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="このデモのパンくずリスト" overflow-label="隠れた階層を表示">
     <a href="#概要">ホーム</a>
     <a href="#概要">コンポーネント</a>
     <span aria-current="page">パンくずリスト</span>
   </tanrei-breadcrumbs>
-</DemoFrame>
+</Example>
 
 パンくずリストが示すのは、ページが階層のどこにあるかです。その人がたどってきた道ではありません。ページがほかのページの中にあり、3 階層以上の深さがあるところで使います。
 
@@ -89,7 +89,7 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 
 ## 仕様
 
-<DemoFrame label="ページのない階層、リンクにした現在のページ、親で終わるパンくずリスト" plain column>
+<Example label="ページのない階層、リンクにした現在のページ、親で終わるパンくずリスト" column>
   <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="このデモの、ページのない階層" overflow-label="隠れた階層を表示">
     <a href="#仕様">ホーム</a>
     <span>基礎</span>
@@ -104,9 +104,9 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
     <a href="#仕様" data-icon="home" data-icon-only>ホーム</a>
     <a href="#仕様">コンポーネント</a>
   </tanrei-breadcrumbs>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="ホバー、フォーカス、押下の間だけの下線と、下線なし" plain column>
+<Example label="ホバー、フォーカス、押下の間だけの下線と、下線なし" column>
   <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="このデモの、状態の間だけ下線が付くパンくずリスト" overflow-label="隠れた階層を表示" underline="hover">
     <a href="#仕様">ホーム</a>
     <a href="#仕様">コンポーネント</a>
@@ -117,9 +117,9 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
     <a href="#仕様">コンポーネント</a>
     <span aria-current="page">パンくずリスト</span>
   </tanrei-breadcrumbs>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="狭い列の中の長いパンくずリスト：折りたたんだ形と、折り返した形" plain column>
+<Example label="狭い列の中の長いパンくずリスト：折りたたんだ形と、折り返した形" column>
   <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="このデモの、折りたたんだパンくずリスト" overflow-label="隠れた階層を表示" style="inline-size: 24rem; max-inline-size: 100%">
     <a href="#仕様">ホーム</a>
     <a href="#仕様">ドキュメント</a>
@@ -136,7 +136,7 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
     <a href="#仕様">コンポーネントトークン</a>
     <span aria-current="page">無効なコンテナがどう導出されるか</span>
   </tanrei-breadcrumbs>
-</DemoFrame>
+</Example>
 
 - **行き先のある階層には下線が付きます。** 既定のシステムでのことです。既定のシステムでは、文の中のリンクと同じく、階層がリンクであることを色ではなく下線で伝えます。行き先のない階層は、補助的なテキストとして描きます。現在のページはそれより太く、テキストの色で描き、下線は付きません。
 - **下線をいつ描くかは選択です。** `underline="hover"` は、階層にホバーしている間、キーボードでフォーカスしている間、押している間だけ描きます。`underline="never"` は描きません。属性がなければ、パンくずリストは `comp.breadcrumbs.underline.visibility` に従います。このトークンは、すべてのテキストリンクについてのデザインシステムの選択に従います。`hover` と `never` は、リンクの色がテキストの色とはっきり違う場合にだけ選んでください。強制カラーモードでは、常に下線を描きます。

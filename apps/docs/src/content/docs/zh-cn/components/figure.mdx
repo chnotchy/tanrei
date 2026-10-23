@@ -2,20 +2,20 @@
 title: "图示"
 description: "把一样供人观看的东西——图片、图表、样张或实时示例——放在它自己的展示区里，可以带外框，也可以不带；配一段说明文字说出它展示的是什么，还可以在上方加标题和你自己的控件，在下方接一个相连的块。"
 translationOf: components/figure.mdx
-sourceHash: 2b6611651835c6319c8a04774015c79b761f6871
+sourceHash: 143f98ae43eb824fe14a7cae9a47724674d4c105
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="figure" />
 
-<DemoFrame label="Outlined、filled 和 plain" column>
+<Example label="Outlined、filled 和 plain" column>
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1.5rem; inline-size: 100%">
     <tanrei-figure>
       <figure>
@@ -36,7 +36,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       </figure>
     </tanrei-figure>
   </div>
-</DemoFrame>
+</Example>
 
 图示展示一样供人观看而不是阅读的东西：文章里的图片、报告里的图表、某项设置将产生的效果的预览、一份样张。它把这样东西与周围区分开，并说明它是什么。本站实时示例外面的框就是图示。
 
@@ -117,7 +117,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="标题、控件、相连的块和说明文字" plain column>
+<Example label="标题、控件、相连的块和说明文字" column>
   <tanrei-figure style="inline-size: min(100%, 30rem)">
     <figure>
       <div data-part="frame">
@@ -135,9 +135,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <figcaption>一个 filled 按钮和它的标记。</figcaption>
     </figure>
   </tanrei-figure>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="不内缩：展示的东西一直延伸到外框的边缘" plain column>
+<Example label="不内缩：展示的东西一直延伸到外框的边缘" column>
   <tanrei-figure flush style="inline-size: min(100%, 30rem)">
     <figure>
       <div data-part="frame">
@@ -148,9 +148,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <figcaption>外框按自己的圆角裁剪其中的内容。</figcaption>
     </figure>
   </tanrei-figure>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="比展示区更宽：在展示区内滚动，展示区成为一个焦点停靠点" plain column>
+<Example label="比展示区更宽：在展示区内滚动，展示区成为一个焦点停靠点" column>
   <tanrei-figure style="inline-size: min(100%, 24rem)">
     <figure>
       <div data-part="frame">
@@ -167,9 +167,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <figcaption>排成一行、不换行的五个按钮。</figcaption>
     </figure>
   </tanrei-figure>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="网格、点阵、向中心淡出的网格，以及棋盘格" pattern="none" plain column>
+<Example label="网格、点阵、向中心淡出的网格，以及棋盘格" pattern="none" column>
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1.5rem; inline-size: 100%">
     <tanrei-figure pattern="grid">
       <figure>
@@ -196,7 +196,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       </figure>
     </tanrei-figure>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="figure" />
 

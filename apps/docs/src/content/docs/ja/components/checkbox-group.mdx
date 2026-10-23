@@ -2,20 +2,20 @@
 title: チェックボックスグループ
 description: 一度に見せられる数の選択肢から、複数を選んで答える 1 つの質問です。1 つのラベルの下にチェックボックスが並び、説明と 1 つのエラーが付きます。チェックが入った値のリストを 1 つの名前で持ち、すべてにチェックを入れるチェックボックスを添えることもできます。
 translationOf: components/checkbox-group.mdx
-sourceHash: 320c2d0f75bef6bb336ea072b1aef4b74ee7cd0e
+sourceHash: 3f33db7448b9a270c95ff8654e67bc3ad3ac6fe1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="checkbox-group" />
 
-<DemoFrame label="チェックボックスグループと、すべてにチェックを入れるチェックボックスを添えたもの" column>
+<Example label="チェックボックスグループと、すべてにチェックを入れるチェックボックスを添えたもの" column>
   <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。" required required-text="必須">
     <tanrei-checkbox value="email" label="メール" checked></tanrei-checkbox>
     <tanrei-checkbox value="text" label="SMS"></tanrei-checkbox>
@@ -28,7 +28,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-checkbox value="thu" label="木曜日"></tanrei-checkbox>
     <tanrei-checkbox value="fri" label="金曜日"></tanrei-checkbox>
   </tanrei-checkbox-group>
-</DemoFrame>
+</Example>
 
 チェックボックスグループは、答えがリストになる 1 つの質問で、選択肢を一度に見せられる数（7 つくらいまで）のときに使います。通知の受け取り方法、レポートを送る曜日、リストを絞り込む種類などです。答えは 1 つの値、つまりチェックが入った値のリストで、フォームは 1 つの名前で送信します。
 
@@ -115,13 +115,13 @@ Web では `<tanrei-checkbox-group>` です。ほかのプラットフォーム�
 </tanrei-field-group>
 ```
 
-<DemoFrame label="同じ集まりを自分で書いたもの。フィールドグループの中にチェックボックスがあります" column>
+<Example label="同じ集まりを自分で書いたもの。フィールドグループの中にチェックボックスがあります" column>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。" required required-text="必須">
     <tanrei-checkbox name="notify" value="email" label="メール" checked></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="text" label="SMS"></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="push" label="プッシュ通知"></tanrei-checkbox>
   </tanrei-field-group>
-</DemoFrame>
+</Example>
 
 フィールドグループとチェックボックスを自分で書いたものにないのは、答えを持つことです。
 
@@ -148,7 +148,7 @@ Web では `<tanrei-checkbox-group>` です。ほかのプラットフォーム�
 
 ## 仕様
 
-<DemoFrame label="横並び、受け付けられなかった回答、いつもオンの選択肢、無効なグループ" plain column>
+<Example label="横並び、受け付けられなかった回答、いつもオンの選択肢、無効なグループ" column>
   <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="サイズ" orientation="horizontal">
     <tanrei-checkbox value="s" label="S" checked></tanrei-checkbox>
     <tanrei-checkbox value="m" label="M" checked></tanrei-checkbox>
@@ -168,7 +168,7 @@ Web では `<tanrei-checkbox-group>` です。ほかのプラットフォーム�
     <tanrei-checkbox value="email" label="メール" checked></tanrei-checkbox>
     <tanrei-checkbox value="text" label="SMS"></tanrei-checkbox>
   </tanrei-checkbox-group>
-</DemoFrame>
+</Example>
 
 ### それぞれの構成要素が受け持つもの
 

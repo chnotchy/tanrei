@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="link" />
 
-<DemoFrame label="In a sentence, by itself, and a glyph alone" column>
+<Example label="In a sentence, by itself, and a glyph alone" column>
   <p style="margin: 0; max-inline-size: 32rem">
     Tokens are generated for every platform. Read
     <a class="tanrei-link" href="../../foundations/design-tokens/">how the tokens are derived</a>, or look at
@@ -25,7 +25,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
   <p style="margin: 0">
     <a class="tanrei-link" href="#overview" aria-label="Link to Overview"><span class="tanrei-icon" aria-hidden="true">link</span></a>
   </p>
-</DemoFrame>
+</Example>
 
 The rule a product can apply without a table: **if it has an address it is a link; if it has none it is a button.** A control that does something on the page and leads nowhere is a [Button](../button/), the text variant where it should read as quietly as text. A destination that should look like a button is a Button with `href`.
 
@@ -118,43 +118,43 @@ SwiftUI, Compose, Flutter and React Native are planned: the names beside each pl
 
 ## Specs
 
-<DemoFrame label="Wrapping: the underline, the state layer and the focus ring follow each line" plain>
+<Example label="Wrapping: the underline, the state layer and the focus ring follow each line">
   <p style="margin: 0; max-inline-size: 22rem">
     <a class="tanrei-link" href="../../foundations/accessibility/">the accessibility guide, which explains how every component is named, how it is reached and operated from the keyboard, and what each platform announces when its state changes</a>
   </p>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="A glyph and the new-tab mark" plain column>
+<Example label="A glyph and the new-tab mark" column>
   <a class="tanrei-link" data-standalone href="../../foundations/design-tokens/"><span class="tanrei-icon" aria-hidden="true">download</span>Download the tokens</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="opens in a new tab">View source</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="opens in a new tab"><span class="tanrei-icon" aria-hidden="true">code</span>View source</a>
   <a class="tanrei-link" data-standalone data-icon-position="trailing" href="https://example.com/tanrei" target="_blank" aria-description="opens in a new tab">View source<span class="tanrei-icon" aria-hidden="true">code</span></a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Current and disabled" plain>
+<Example label="Current and disabled">
   <a class="tanrei-link" data-standalone href="../">Overview</a>
   <a class="tanrei-link" data-standalone href="./" aria-current="page">Components</a>
   <a class="tanrei-link" data-standalone role="link" aria-disabled="true">Previous page</a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="The underline: always, on hover, never" plain>
+<Example label="The underline: always, on hover, never">
   <a class="tanrei-link" data-standalone data-underline="always" href="../button/">Always</a>
   <a class="tanrei-link" data-standalone data-underline="hover" href="../button/">On hover</a>
   <a class="tanrei-link" data-standalone data-underline="never" href="../button/">Never</a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="A link that leaves the site" plain column>
+<Example label="A link that leaves the site" column>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="external link">Specification</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="external link"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />Specification</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" target="_blank" aria-description="opens in a new tab"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />Specification</a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="On an inverse surface" plain>
+<Example label="On an inverse surface">
   <div style="padding: var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-inverse-surface); color: var(--tanrei-sys-color-inverse-on-surface)">
     The page was saved. See
     <a class="tanrei-link" data-variant="inverse" href="../snackbar/">what changed</a>.
   </div>
-</DemoFrame>
+</Example>
 
 A link brings no text style of its own: it takes the family, size, weight and line height of the text it sits in, in a paragraph, a heading, a caption or a table cell alike. Hover, focus and press are drawn behind its text on each line it runs over, and take no room, so nothing around a link moves. A glyph, the site's icon and the mark are the size of the text and stay on the line of the word beside them.
 

@@ -2,25 +2,25 @@
 title: एम्बेडेड टेक्स्ट इनपुट
 description: सिर्फ़ टाइप करने की जगह, उस बॉक्स के लिए जिसे कोई और बनाता है। टेक्स्ट, प्लेसहोल्डर, कैरेट और चयन, एक पंक्ति में या ऐसी पंक्तियों में जो मोशन के साथ बढ़ती और घटती हैं। यह न कंटेनर बनाता है, न किनारा, न लेबल, न फ़ोकस इंडिकेटर। जो इसे अपने भीतर रखता है, वही बॉक्स बनाता है और फ़ोकस दिखाता है।
 translationOf: components/embedded-text-input.mdx
-sourceHash: f1b2ad5ffbd2a08901db0c5720abfb2ed6b2f7bb
+sourceHash: f7d92a58aab4f5852eda9338976540bae6c91a35
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="embedded-text-input" />
 
-<DemoFrame label="पेज के बनाए बॉक्स के भीतर एक एम्बेडेड टेक्स्ट इनपुट। कई पंक्तियाँ टाइप करें: बॉक्स ऊँचाई के साथ बदलता है। फ़ोकस बॉक्स का किनारा दिखाता है।" column>
+<Example label="पेज के बनाए बॉक्स के भीतर एक एम्बेडेड टेक्स्ट इनपुट। कई पंक्तियाँ टाइप करें: बॉक्स ऊँचाई के साथ बदलता है। फ़ोकस बॉक्स का किनारा दिखाता है।" column>
   <div class="not-content docs-embedded-holder" style="box-sizing: border-box; inline-size: 22.5rem; max-inline-size: 100%; background: var(--tanrei-sys-color-surface-container); border-radius: var(--tanrei-sys-shape-corner-large); padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); cursor: text">
     <tanrei-embedded-text-input label="संदेश" placeholder="संदेश लिखें" multiline max-rows="6"></tanrei-embedded-text-input>
   </div>
-</DemoFrame>
+</Example>
 
 <style>{`
   .docs-embedded-holder { outline: var(--tanrei-sys-border-thick) solid transparent; outline-offset: calc(-1 * var(--tanrei-sys-border-thick)); }

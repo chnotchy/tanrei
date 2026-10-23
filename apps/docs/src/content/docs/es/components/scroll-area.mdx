@@ -2,14 +2,14 @@
 title: Área de desplazamiento
 description: Una caja que desplaza tu contenido con el desplazamiento propio de la plataforma y muestra, en cada borde que vigila, que hay más contenido más allá (una franja del color de la superficie, un desvanecido del contenido, una línea o un desenfoque) sin cambiar de tamaño ni mover el contenido.
 translationOf: components/scroll-area.mdx
-sourceHash: fd54b46e1aadb3f1cd30abe2cb060f324ca86fbc
+sourceHash: 775ae73696089e43cf18061a5f5f9b0205dabaf6
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import BehaviorChoice from '../../../../components/tokens/BehaviorChoice.astro';
 import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
@@ -17,7 +17,7 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
 <ComponentAvailability name="scroll-area" />
 
-<DemoFrame label="Una lista en una caja de altura fija">
+<Example label="Una lista en una caja de altura fija">
   <tanrei-scroll-area label="Mensajes" style="inline-size: min(100%, 20rem); block-size: 16rem">
     <tanrei-list-row headline="Ada" supporting-text="El borrador está listo para revisar"></tanrei-list-row>
     <tanrei-list-row headline="Grace" supporting-text="He movido la reunión al jueves"></tanrei-list-row>
@@ -30,7 +30,7 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
     <tanrei-list-row headline="Margaret" supporting-text="Todo listo"></tanrei-list-row>
     <tanrei-list-row headline="Rosalind" supporting-text="Fotos nuevas del laboratorio"></tanrei-list-row>
   </tanrei-scroll-area>
-</DemoFrame>
+</Example>
 
 Mientras su contenido cabe, el área no dibuja nada propio. Desplázala: el borde inferior se marca mientras queda más contenido abajo, y el superior en cuanto algo se ha desplazado fuera de la vista por arriba.
 
@@ -86,7 +86,7 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
 
 ## Especificaciones
 
-<DemoFrame label="Bordes de desplazamiento: shadow (la elección del sistema predeterminado), fade, line, blur y none" plain>
+<Example label="Bordes de desplazamiento: shadow (la elección del sistema predeterminado), fade, line, blur y none">
   <tanrei-scroll-area scroll-edge="shadow" label="Sombra" style="inline-size: 9rem; block-size: 10rem">
     <p>Sombra. Una franja del color de la superficie sobre la que está el área, plena en el borde y nula a 24 de él. Desplázala para ver marcado también el borde superior. El contenido parece hundirse en la superficie.</p>
   </tanrei-scroll-area>
@@ -102,7 +102,7 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
   <tanrei-scroll-area scroll-edge="none" label="Ninguno" style="inline-size: 9rem; block-size: 10rem">
     <p>Ninguno. Nada marca los bordes: solo la barra de desplazamiento de la plataforma dice que el contenido sigue. Desplázala para compararla con las demás.</p>
   </tanrei-scroll-area>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="scroll-area" />
 

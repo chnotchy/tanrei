@@ -2,20 +2,20 @@
 title: लिंक
 description: वह टेक्स्ट जो कहीं ले जाता है, वाक्य के भीतर एक वाक्यांश के रूप में, अपनी अलग पंक्ति के रूप में, या अकेले ग्लिफ़ के रूप में। यह जहाँ रखा हो वहाँ के टेक्स्ट स्टाइल में बनता है, इसकी अंडरलाइन आपके डिज़ाइन सिस्टम के चुनाव के अनुसार बनती है, और जहाँ यह साइट से बाहर ले जाता है वहाँ इस पर निशान लगता है।
 translationOf: components/link.mdx
-sourceHash: f0fa00fc6cf51c83e20f611d66798ad0f25346c1
+sourceHash: 9b8d84836c01c4321968380baaeb61b4d1c2d871
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="link" />
 
-<DemoFrame label="वाक्य के भीतर, अकेला, और सिर्फ़ ग्लिफ़" column>
+<Example label="वाक्य के भीतर, अकेला, और सिर्फ़ ग्लिफ़" column>
   <p style="margin: 0; max-inline-size: 32rem">
     टोकन हर प्लैटफ़ॉर्म के लिए जनरेट होते हैं। पढ़ें कि
     <a class="tanrei-link" href="../../foundations/design-tokens/">टोकन कैसे डिराइव होते हैं</a>, या
@@ -27,7 +27,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <p style="margin: 0">
     <a class="tanrei-link" href="#अवलोकन" aria-label="अवलोकन का लिंक"><span class="tanrei-icon" aria-hidden="true">link</span></a>
   </p>
-</DemoFrame>
+</Example>
 
 एक नियम, जिसे प्रॉडक्ट बिना किसी टेबल के लागू कर सकता है: **जिसका कोई पता है वह लिंक है; जिसका कोई पता नहीं वह बटन है।** जो कंट्रोल पेज पर कुछ करता है और कहीं नहीं ले जाता, वह [बटन](/hi/components/button/) है, और जहाँ उसे टेक्स्ट जितना हल्का दिखना हो वहाँ text वेरिएंट। जिस गंतव्य को बटन जैसा दिखना हो, वह `href` वाला बटन है।
 
@@ -120,43 +120,43 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 
 ## स्पेक
 
-<DemoFrame label="कई पंक्तियों में: अंडरलाइन, स्टेट लेयर और फ़ोकस रिंग हर पंक्ति के साथ चलते हैं" plain>
+<Example label="कई पंक्तियों में: अंडरलाइन, स्टेट लेयर और फ़ोकस रिंग हर पंक्ति के साथ चलते हैं">
   <p style="margin: 0; max-inline-size: 22rem">
     <a class="tanrei-link" href="../../foundations/accessibility/">सुलभता गाइड, जो बताती है कि हर कंपोनेंट को नाम कैसे मिलता है, कीबोर्ड से उस तक कैसे पहुँचा और उसे कैसे चलाया जाता है, और स्टेट बदलने पर हर प्लैटफ़ॉर्म क्या पढ़कर सुनाता है</a>
   </p>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="ग्लिफ़, और नए टैब का निशान" plain column>
+<Example label="ग्लिफ़, और नए टैब का निशान" column>
   <a class="tanrei-link" data-standalone href="../../foundations/design-tokens/"><span class="tanrei-icon" aria-hidden="true">download</span>टोकन डाउनलोड करें</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="नए टैब में खुलता है">सोर्स देखें</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="नए टैब में खुलता है"><span class="tanrei-icon" aria-hidden="true">code</span>सोर्स देखें</a>
   <a class="tanrei-link" data-standalone data-icon-position="trailing" href="https://example.com/tanrei" target="_blank" aria-description="नए टैब में खुलता है">सोर्स देखें<span class="tanrei-icon" aria-hidden="true">code</span></a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="मौजूदा और अक्षम" plain>
+<Example label="मौजूदा और अक्षम">
   <a class="tanrei-link" data-standalone href="../">अवलोकन</a>
   <a class="tanrei-link" data-standalone href="./" aria-current="page">कंपोनेंट</a>
   <a class="tanrei-link" data-standalone role="link" aria-disabled="true">पिछला पेज</a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="अंडरलाइन: हमेशा, होवर पर, कभी नहीं" plain>
+<Example label="अंडरलाइन: हमेशा, होवर पर, कभी नहीं">
   <a class="tanrei-link" data-standalone data-underline="always" href="../button/">हमेशा</a>
   <a class="tanrei-link" data-standalone data-underline="hover" href="../button/">होवर पर</a>
   <a class="tanrei-link" data-standalone data-underline="never" href="../button/">कभी नहीं</a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="साइट से बाहर ले जाने वाला लिंक" plain column>
+<Example label="साइट से बाहर ले जाने वाला लिंक" column>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="बाहरी लिंक">स्पेसिफ़िकेशन</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="बाहरी लिंक"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />स्पेसिफ़िकेशन</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" target="_blank" aria-description="नए टैब में खुलता है"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />स्पेसिफ़िकेशन</a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="इनवर्स सरफ़ेस पर" plain>
+<Example label="इनवर्स सरफ़ेस पर">
   <div style="padding: var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-inverse-surface); color: var(--tanrei-sys-color-inverse-on-surface)">
     पेज सेव हो गया। देखें कि
     <a class="tanrei-link" data-variant="inverse" href="../snackbar/">क्या बदला</a>।
   </div>
-</DemoFrame>
+</Example>
 
 लिंक अपना कोई टेक्स्ट स्टाइल नहीं लाता: वह उस टेक्स्ट की फ़ैमिली, साइज़, वेट और लाइन हाइट लेता है जिसमें वह रखा है, चाहे वह पैराग्राफ़ हो, हेडिंग, कैप्शन या टेबल का सेल। होवर, फ़ोकस और दबाना उसके टेक्स्ट के पीछे बनते हैं, हर उस पंक्ति पर जिस पर वह चलता है, और कोई जगह नहीं लेते, इसलिए लिंक के आसपास कुछ नहीं हिलता। ग्लिफ़, साइट का आइकन और निशान टेक्स्ट के साइज़ के होते हैं और अपने बग़ल के शब्द वाली पंक्ति पर ही रहते हैं।
 

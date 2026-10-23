@@ -2,27 +2,27 @@
 title: चैट कंपोज़र
 description: व्यक्ति को संदेश लिखने और भेजने देता है, एक ही कैप्सूल में जिसमें सब कुछ रहता है। टाइप करने की जगह जो लिखे गए टेक्स्ट के साथ बढ़ती है, संदेश से अटैच की गई फ़ाइलें, आपकी अपनी क्रियाएँ, और भेजने का बटन जो सिर्फ़ तब सक्षम रहता है जब संदेश भेजा जा सकता है। यह संदेश आपके प्रॉडक्ट को सौंपता है और ख़ुद कभी कुछ नहीं भेजता।
 translationOf: components/chat-composer.mdx
-sourceHash: 5030b8d8268f9b3555fd16ab43bcdbb77447e8fb
+sourceHash: 14a5591949903e4270525157dabc913983807927
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="chat-composer" />
 
-<DemoFrame label="हर लेआउट में एक चैट कंपोज़र। संदेश लिखें, फ़ाइल अटैच करें और भेजें। कहीं कुछ नहीं भेजा जाता।" column>
+<Example label="हर लेआउट में एक चैट कंपोज़र। संदेश लिखें, फ़ाइल अटैच करें और भेजें। कहीं कुछ नहीं भेजा जाता।" column>
   <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" label="संदेश" placeholder="संदेश लिखें" send-label="भेजें" attachments="own" attach-label="फ़ाइलें अटैच करें" remove-label="{name} हटाएँ"></tanrei-chat-composer>
   <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" layout="stacked" label="संदेश" placeholder="संदेश लिखें" send-label="भेजें" attachments="own" attach-label="फ़ाइलें अटैच करें" remove-label="{name} हटाएँ" max-length="280" counter>
     <tanrei-button slot="leading" variant="text" label="किसी का उल्लेख करें"><span slot="icon">alternate_email</span></tanrei-button>
     <tanrei-button slot="leading" variant="text" label="इमोजी जोड़ें"><span slot="icon">mood</span></tanrei-button>
   </tanrei-chat-composer>
-</DemoFrame>
+</Example>
 
 चैट कंपोज़र वह एक जगह है जहाँ संदेश लिखा जाता है: किसी बातचीत में, किसी काम के नीचे के थ्रेड में, या सहायता के किसी अनुरोध में। यह एक कैप्सूल के रूप में बनता है। कैप्सूल में टाइप करने की जगह, अटैचमेंट, आपकी अपनी क्रियाएँ और भेजने का बटन रहते हैं।
 

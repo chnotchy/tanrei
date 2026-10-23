@@ -2,14 +2,14 @@
 title: ファイルアップロード
 description: ファイルピッカーでファイルを選ばせ、選ばれたファイルをファイル項目として見せます。縦に並ぶ行にも、タイルの並びにもなります。フォームに置くだけで、選ばれたファイルを保持し、コードなしで送信します。ファイルを自分で送るプロダクトは、ファイル項目を自分で渡します。自身では何もアップロードしません。
 translationOf: components/file-upload.mdx
-sourceHash: b2debb12c2d70ab0dd1bea4e0b4c51c55b599528
+sourceHash: 97b893d5ef403669cb63454d2181b9f8e794b956
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 import { demoPicture } from '../../../../lib/demo-picture';
 
@@ -17,14 +17,14 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 <ComponentAvailability name="file-upload" />
 
-<DemoFrame label="2 つのレイアウトのファイルアップロード。ファイルを選ぶと一覧に並び、取り除くこともできます。何も送信されません。" column>
+<Example label="2 つのレイアウトのファイルアップロード。ファイルを選ぶと一覧に並び、取り除くこともできます。何も送信されません。" column>
   <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="添付ファイル" accept=".pdf" constraints-text="PDF、10 MB まで" max-size="10000000" empty-text="ファイルが選ばれていません" remove-label="{name} を取り除く" type-error-text="追加できるのは PDF だけです。" size-error-text="10 MB を超えています。">
     <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
   </tanrei-file-upload>
   <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="添付ファイル" accept=".pdf,image/png" max-size="10000000" drop-text="ここにファイルをドラッグするか、選んでください" constraints-text="PDF または PNG、1 つにつき 10 MB まで" remove-label="{name} を取り除く" type-error-text="追加できるのは PDF と PNG だけです。" size-error-text="10 MB を超えています。">
     <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
   </tanrei-file-upload>
-</DemoFrame>
+</Example>
 
 ファイルアップロードは、2 つのものを 1 か所にまとめます。ファイルを選ぶ手段と、選ばれたファイルの一覧です。いつもの組み合わせが、フォームでそのまま使える形でそろっています。
 
@@ -228,14 +228,14 @@ React では、同じ 3 つを ref から使います。`ref.current.files`、`r
 </ul>
 ```
 
-<DemoFrame label="同じものを自分で書いたもの。ファイルピッカーと、ファイル項目を 1 つ入れたページ自身のリストです" column>
+<Example label="同じものを自分で書いたもの。ファイルピッカーと、ファイル項目を 1 つ入れたページ自身のリストです" column>
   <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="添付ファイル" multiple accept=".pdf" max-files="5" constraints-text="PDF、5 つまで">
     <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
   </tanrei-file-picker>
   <ul class="not-content" aria-label="添付ファイル" style="list-style: none; margin: 0; padding: 0; inline-size: 22.5rem; max-inline-size: 100%">
     <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="アップロード中" progress="0.4" remove-label="{name} を取り除く" retry-label="{name} をもう一度試す"></tanrei-file-item></li>
   </ul>
-</DemoFrame>
+</Example>
 
 ファイルの行は、単独でも、ファイルアップロードの中でも、同じ要素です。自分で書いたものに付いてこないのは、ファイルアップロードが持っている状態です。
 
@@ -257,7 +257,7 @@ React では、同じ 3 つを ref から使います。`ref.current.files`、`r
 
 ## 仕様
 
-<DemoFrame label="プロダクトが渡した、状態ごとの行。待機中、40% まで送信、送信中、完了、失敗して再試行できる、失敗して再試行できない" plain column>
+<Example label="プロダクトが渡した、状態ごとの行。待機中、40% まで送信、送信中、完了、失敗して再試行できる、失敗して再試行できない" column>
   <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple label="添付ファイル" constraints-text="PDF または PNG、1 つにつき 10 MB まで" remove-label="{name} を取り除く" retry-label="{name} をもう一度試す">
     <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
     <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status-text="待機中"></tanrei-file-item>
@@ -267,16 +267,16 @@ React では、同じ 3 つを ref から使います。`ref.current.files`、`r
     <tanrei-file-item value="e" name="site-photo.png" size-text="6.8 MB" status="error" error-text="接続が切れました。" retryable></tanrei-file-item>
     <tanrei-file-item value="f" name="scan-archive.pdf" size-text="48 MB" status="error" error-text="10 MB を超えています。"></tanrei-file-item>
   </tanrei-file-upload>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="同じファイルアップロードをタイルにしたもの。どのファイルも画像の入ったボックスで、その下に名前があります" plain column>
+<Example label="同じファイルアップロードをタイルにしたもの。どのファイルも画像の入ったボックスで、その下に名前があります" column>
   <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple item-form="tile" item-preview label="写真" constraints-text="画像、1 枚につき 5 MB まで" remove-label="{name} を取り除く" retry-label="{name} をもう一度試す">
     <tanrei-button slot="trigger" variant="outlined">写真を選ぶ</tanrei-button>
     <tanrei-file-item value="a" name="entrance.jpeg" preview-src={demoPicture}></tanrei-file-item>
     <tanrei-file-item value="b" name="floor-plan.png" preview-src={demoPicture} status="uploading" progress="0.4"></tanrei-file-item>
     <tanrei-file-item value="c" name="survey.pdf"></tanrei-file-item>
   </tanrei-file-upload>
-</DemoFrame>
+</Example>
 
 ### それぞれの構成要素が受け持つもの
 
@@ -366,11 +366,11 @@ React では、同じ 3 つを ref から使います。`ref.current.files`、`r
 
 言葉は[リスト](/ja/components/list/)のものです。`drag-handle-label`（`{label}を並べ替え` のように書き、ファイル名が入ります）、4 つの移動の言葉、3 つの文です。
 
-<DemoFrame label="自分でファイルを保持する、並べ替えられるファイルアップロード。ファイルを選んでから、行をドラッグするか、ハンドルのメニューやキーボードを使ってください。何も送信されません。" column>
+<Example label="自分でファイルを保持する、並べ替えられるファイルアップロード。ファイルを選んでから、行をドラッグするか、ハンドルのメニューやキーボードを使ってください。何も送信されません。" column>
   <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" multiple reorderable label="添付ファイル" remove-label="{name}を削除" drag-handle-label="{label}を並べ替え" drag-handle-hint="Space で持ち上げ、矢印キーで移動、Space で置き、Escape で取り消し。Enter で移動メニュー" move-to-start-label="先頭へ移動" move-before-label="上へ移動" move-after-label="下へ移動" move-to-end-label="末尾へ移動" lifted-text="{label}を持ち上げました。{count}件中{position}番目" moved-text="{label}：{count}件中{position}番目" cancelled-text="{label}を{count}件中{position}番目に戻しました">
     <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
   </tanrei-file-upload>
-</DemoFrame>
+</Example>
 
 ```html
 <tanrei-file-upload name="attachments" multiple reorderable remove-label="{name}を削除"

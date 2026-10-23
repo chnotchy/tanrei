@@ -116,11 +116,12 @@ const en = {
   notDefinedYet: 'Not available in the installed web build.',
   // The gallery of fixtures (components/fixtures/FixtureGallery.astro): a stage's actions, its width handle and its
   // window. `{id}` is a fixture's id; `{width}` and `{height}` are pixels.
+  // The docs' one frame (components/visuals/Example.astro): its title where a page gives none, its code and the
+  // code's kinds, the copy of it, the direction it draws its stage in when turned (by the page's own direction:
+  // a page that reads left to right offers right to left), and its width handle. `{title}` is the frame's title.
+  example: { live: 'Live', code: 'Code', codeOf: 'Code of {title}', flavor: 'Code for', copy: 'Copy the code', copied: 'Code copied', copyFailed: 'The code could not be copied', direction: { ltr: 'Right to left', rtl: 'Left to right' }, width: 'Width of {title}' },
   stages: {
     dark: 'Dark scheme',
-    copy: 'Copy the markup',
-    copied: 'Markup copied',
-    copyFailed: 'The markup could not be copied',
     redraw: 'Draw {id} again',
     width: 'Width of {id}',
     frame: 'Fixture {id}',
@@ -135,7 +136,6 @@ const en = {
   contrastStandard: 'Standard',
   contrastMedium: 'Medium',
   contrastHigh: 'High',
-  contrastHelp: 'Applies to the whole page and is remembered on this device.',
   light: 'Light',
   dark: 'Dark',
   cssVariable: 'CSS custom property',
@@ -190,7 +190,7 @@ const en = {
   },
   // The link to the source repository at the foot of every page (components/frame/Footer.astro).
   sourceLink: 'Source code and issues on GitHub',
-  // A demo drawn under a shipped system (components/DemoFrame.astro); `{system}` is the system's id, set as code.
+  // A frame pinned to a shipped preset (components/visuals/Example.astro): `{system}` is the system's id, set as code.
   demoUnder: 'Under {system}',
   // The name of the ground the elevation levels are shown on, a figure with no title and no caption
   // (components/tokens/ElevationScale.astro); and what the system gallery says where a system declares no palette.
@@ -266,13 +266,11 @@ const en = {
     inverse: 'Inverse',
     utility: 'Utility',
   } as Record<string, string>,
-  // The docs' figures (components/visuals/, lib/visuals/): the help of the switch that draws a figure under another
-  // shipped system (components/visuals/SystemSwitch.astro; the word before its row is `system.choice`), the text that
-  // stands for an anatomy figure — one sentence for each plural form the language has (`Intl.PluralRules`), `{component}`
-  // the component's title, `{count}` its number of parts and `{list}` their ids as a list in the language — and the
-  // titles and controls of the other kinds of figure.
+  // The docs' figures (components/visuals/, lib/visuals/): the text that stands for an anatomy figure — one sentence
+  // for each plural form the language has (`Intl.PluralRules`), `{component}` the component's title, `{count}` its
+  // number of parts and `{list}` their ids as a list in the language — and the titles and controls of the other kinds
+  // of figure.
   visuals: {
-    systemHelp: 'Draws this figure under a shipped design system. Nothing else on the page changes.',
     anatomyAlt: { one: '{component}: 1 part, {list}.', other: '{component}: {count} parts — {list}.' } as Record<string, string>,
     measureTitle: 'Measurements',
     motionTitle: 'Motion',
@@ -385,11 +383,9 @@ const ja: typeof en = {
   minimumTarget: '最小ターゲット',
   minimumTargetText: '見た目のサイズが小さくても、ヒット領域は最小ターゲットサイズを満たします。',
   notDefinedYet: 'インストールされている Web ビルドにはまだ含まれていません。',
+  example: { live: 'ライブ', code: 'コード', codeOf: '{title}のコード', flavor: 'コードの種類', copy: 'コードをコピー', copied: 'コードをコピーしました', copyFailed: 'コードをコピーできませんでした', direction: { ltr: '右から左', rtl: '左から右' }, width: '{title}の幅' },
   stages: {
     dark: 'ダークスキーム',
-    copy: 'マークアップをコピー',
-    copied: 'マークアップをコピーしました',
-    copyFailed: 'マークアップをコピーできませんでした',
     redraw: '{id} を描き直す',
     width: '{id} の幅',
     frame: 'フィクスチャ {id}',
@@ -402,7 +398,6 @@ const ja: typeof en = {
   contrastStandard: '標準',
   contrastMedium: '中',
   contrastHigh: '高',
-  contrastHelp: 'ページ全体に適用され、このデバイスに保存されます。',
   light: 'ライト',
   dark: 'ダーク',
   cssVariable: 'CSS カスタムプロパティ',
@@ -503,7 +498,6 @@ const ja: typeof en = {
     utility: 'ユーティリティ',
   },
   visuals: {
-    systemHelp: 'この図を、提供しているデザインシステムで描き直します。ページのほかの部分は変わりません。',
     anatomyAlt: { other: '{component}: {count} 個のパーツ（{list}）。' },
     measureTitle: '寸法',
     motionTitle: '動き',
@@ -616,11 +610,9 @@ const zh: typeof en = {
   minimumTarget: '最小目标',
   minimumTargetText: '即使外观尺寸更小，点击区域也满足最小目标尺寸。',
   notDefinedYet: '当前安装的 Web 构建中尚不包含。',
+  example: { live: '实时', code: '代码', codeOf: '{title}的代码', flavor: '代码类型', copy: '复制代码', copied: '已复制代码', copyFailed: '无法复制代码', direction: { ltr: '从右到左', rtl: '从左到右' }, width: '{title}的宽度' },
   stages: {
     dark: '深色方案',
-    copy: '复制标记',
-    copied: '已复制标记',
-    copyFailed: '无法复制标记',
     redraw: '重新绘制 {id}',
     width: '{id} 的宽度',
     frame: '测试样例 {id}',
@@ -633,7 +625,6 @@ const zh: typeof en = {
   contrastStandard: '标准',
   contrastMedium: '中',
   contrastHigh: '高',
-  contrastHelp: '应用于整个页面，并保存在此设备上。',
   light: '浅色',
   dark: '深色',
   cssVariable: 'CSS 自定义属性',
@@ -734,7 +725,6 @@ const zh: typeof en = {
     utility: '辅助（Utility）',
   },
   visuals: {
-    systemHelp: '用所提供的某个设计系统重新绘制此图。页面的其他部分不变。',
     anatomyAlt: { other: '{component}：{count} 个部分（{list}）。' },
     measureTitle: '尺寸',
     motionTitle: '动效',
@@ -846,11 +836,9 @@ const es: typeof en = {
   minimumTarget: 'Objetivo mínimo',
   minimumTargetText: 'El área de pulsación cumple el tamaño mínimo de objetivo aunque el tamaño visual sea menor.',
   notDefinedYet: 'No está disponible en la compilación web instalada.',
+  example: { live: 'En vivo', code: 'Código', codeOf: 'Código de {title}', flavor: 'Código para', copy: 'Copiar el código', copied: 'Código copiado', copyFailed: 'No se pudo copiar el código', direction: { ltr: 'De derecha a izquierda', rtl: 'De izquierda a derecha' }, width: 'Ancho de {title}' },
   stages: {
     dark: 'Esquema oscuro',
-    copy: 'Copiar el marcado',
-    copied: 'Marcado copiado',
-    copyFailed: 'No se pudo copiar el marcado',
     redraw: 'Volver a dibujar {id}',
     width: 'Ancho de {id}',
     frame: 'Fixture {id}',
@@ -863,7 +851,6 @@ const es: typeof en = {
   contrastStandard: 'Estándar',
   contrastMedium: 'Medio',
   contrastHigh: 'Alto',
-  contrastHelp: 'Se aplica a toda la página y se recuerda en este dispositivo.',
   light: 'Claro',
   dark: 'Oscuro',
   cssVariable: 'Propiedad personalizada de CSS',
@@ -964,7 +951,6 @@ const es: typeof en = {
     utility: 'Utilidad',
   },
   visuals: {
-    systemHelp: 'Dibuja esta figura con uno de los sistemas de diseño incluidos. El resto de la página no cambia.',
     anatomyAlt: { one: '{component}: 1 parte, {list}.', other: '{component}: {count} partes: {list}.' },
     measureTitle: 'Medidas',
     motionTitle: 'Movimiento',
@@ -1076,11 +1062,9 @@ const hi: typeof en = {
   minimumTarget: 'न्यूनतम टार्गेट',
   minimumTargetText: 'दिखने वाला आकार छोटा होने पर भी हिट एरिया न्यूनतम टार्गेट साइज़ को पूरा करता है।',
   notDefinedYet: 'इंस्टॉल किए गए वेब बिल्ड में उपलब्ध नहीं है।',
+  example: { live: 'लाइव', code: 'कोड', codeOf: '{title} का कोड', flavor: 'कोड का प्रकार', copy: 'कोड कॉपी करें', copied: 'कोड कॉपी हो गया', copyFailed: 'कोड कॉपी नहीं हो सका', direction: { ltr: 'दाएँ से बाएँ', rtl: 'बाएँ से दाएँ' }, width: '{title} की चौड़ाई' },
   stages: {
     dark: 'डार्क स्कीम',
-    copy: 'मार्कअप कॉपी करें',
-    copied: 'मार्कअप कॉपी हो गया',
-    copyFailed: 'मार्कअप कॉपी नहीं किया जा सका',
     redraw: '{id} को फिर से बनाएँ',
     width: '{id} की चौड़ाई',
     frame: 'फ़िक्स्चर {id}',
@@ -1093,7 +1077,6 @@ const hi: typeof en = {
   contrastStandard: 'स्टैंडर्ड',
   contrastMedium: 'मध्यम',
   contrastHigh: 'उच्च',
-  contrastHelp: 'पूरे पेज पर लागू होता है और इस डिवाइस पर याद रखा जाता है।',
   light: 'लाइट',
   dark: 'डार्क',
   cssVariable: 'CSS कस्टम प्रॉपर्टी',
@@ -1194,7 +1177,6 @@ const hi: typeof en = {
     utility: 'यूटिलिटी',
   },
   visuals: {
-    systemHelp: 'इस चित्र को शामिल किए गए किसी डिज़ाइन सिस्टम में दिखाता है। पेज का बाक़ी हिस्सा नहीं बदलता।',
     anatomyAlt: { one: '{component}: 1 हिस्सा — {list}।', other: '{component}: {count} हिस्से — {list}।' },
     measureTitle: 'माप',
     motionTitle: 'मोशन',
@@ -1306,11 +1288,9 @@ const ar: typeof en = {
   minimumTarget: 'الحد الأدنى للهدف',
   minimumTargetText: 'تستوفي مساحة اللمس الحد الأدنى لحجم الهدف حتى لو كان الحجم المرئي أصغر.',
   notDefinedYet: 'غير متوفر في نسخة الويب المثبَّتة.',
+  example: { live: 'مباشر', code: 'الشيفرة', codeOf: 'شيفرة {title}', flavor: 'نوع الشيفرة', copy: 'نسخ الشيفرة', copied: 'نُسخت الشيفرة', copyFailed: 'تعذّر نسخ الشيفرة', direction: { ltr: 'من اليمين إلى اليسار', rtl: 'من اليسار إلى اليمين' }, width: 'عرض {title}' },
   stages: {
     dark: 'النظام الداكن',
-    copy: 'نسخ الترميز',
-    copied: 'تم نسخ الترميز',
-    copyFailed: 'تعذّر نسخ الترميز',
     redraw: 'إعادة رسم {id}',
     width: 'عرض {id}',
     frame: 'نموذج الاختبار {id}',
@@ -1323,7 +1303,6 @@ const ar: typeof en = {
   contrastStandard: 'قياسي',
   contrastMedium: 'متوسط',
   contrastHigh: 'عالٍ',
-  contrastHelp: 'يُطبَّق على الصفحة كلها ويُحفظ على هذا الجهاز.',
   light: 'فاتح',
   dark: 'داكن',
   cssVariable: 'خاصية CSS مخصصة',
@@ -1428,7 +1407,6 @@ const ar: typeof en = {
   },
   // The count takes the form its number asks for.
   visuals: {
-    systemHelp: 'يرسم هذا الشكل بأحد أنظمة التصميم المضمّنة. لا يتغيّر شيء آخر في الصفحة.',
     anatomyAlt: { one: '{component}: جزء واحد، هو {list}.', two: '{component}: جزءان، هما {list}.', few: '{component}: {count} أجزاء، هي {list}.', many: '{component}: {count} جزءًا، هي {list}.', other: '{component}: {count} جزء، هي {list}.' },
     measureTitle: 'القياسات',
     motionTitle: 'الحركة',

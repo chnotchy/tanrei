@@ -2,25 +2,25 @@
 title: زر النسخ
 description: زر ينسخ نصًّا معيَّنًا بضغطة واحدة ويؤكد ذلك، أو يقول إنه لم يستطع. يرسمه مكوّن Button، ولا يحرّك التخطيط افتراضيًّا أبدًا.
 translationOf: components/copy-button.mdx
-sourceHash: e6b7e0e12c613261bd9ecfb7a40acc453aa9118b
+sourceHash: 4ef8bacbc2d1f765fcf598423e9d01ebbca9a96d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="copy-button" />
 
-<DemoFrame label="اضغط واحدًا: يصير رسم الأيقونة علامة صح للحظة">
+<Example label="اضغط واحدًا: يصير رسم الأيقونة علامة صح للحظة">
   <tanrei-copy-button text="npm install @tanrei/web" label="نسخ" copied-label="تم النسخ" failed-label="تعذّر النسخ"></tanrei-copy-button>
   <tanrei-copy-button variant="tonal" text="#30a3f0" label="نسخ اللون" copied-label="تم النسخ" failed-label="تعذّر النسخ"></tanrei-copy-button>
   <tanrei-copy-button icon-only="false" variant="outlined" text="https://example.com/s/4f2a" label="نسخ الرابط" copied-label="نُسخ الرابط" failed-label="تعذّر النسخ"></tanrei-copy-button>
   <tanrei-copy-button icon-only="false" variant="filled" text="sk-test-0000" label="نسخ المفتاح" copied-label="تم النسخ" failed-label="تعذّر النسخ"></tanrei-copy-button>
-</DemoFrame>
+</Example>
 
 استخدم زر النسخ بجانب شيء سيلصقه الشخص في مكان آخر: أمر، أو مفتاح، أو عنوان، أو قيمة لون. ينتظر جواب المتصفح، ويعرض علامة صح (أو علامة خطأ) ثانيتين، ويخبر التقنيات المساعدة بالكلمات. و[كتلة الشيفرة](../code-block/) تضع واحدًا لك.
 
@@ -83,22 +83,22 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="الأحجام والطُرُز هي أحجام الزر وطُرُزه" plain>
+<Example label="الأحجام والطُرُز هي أحجام الزر وطُرُزه">
   <tanrei-copy-button size="small" text="small" label="نسخ" copied-label="تم النسخ" failed-label="تعذّر النسخ"></tanrei-copy-button>
   <tanrei-copy-button text="medium" label="نسخ" copied-label="تم النسخ" failed-label="تعذّر النسخ"></tanrei-copy-button>
   <tanrei-copy-button size="large" text="large" label="نسخ" copied-label="تم النسخ" failed-label="تعذّر النسخ"></tanrei-copy-button>
   <tanrei-copy-button variant="elevated" text="elevated" label="نسخ" copied-label="تم النسخ" failed-label="تعذّر النسخ"></tanrei-copy-button>
   <tanrei-copy-button disabled text="disabled" label="نسخ" copied-label="تم النسخ" failed-label="تعذّر النسخ"></tanrei-copy-button>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="العرض محفوظ لأطول النصوص الثلاثة" plain>
+<Example label="العرض محفوظ لأطول النصوص الثلاثة">
   <tanrei-copy-button icon-only="false" variant="outlined" text="sk-test-0000" label="نسخ" copied-label="تم النسخ إلى الحافظة" failed-label="تعذّر النسخ"></tanrei-copy-button>
   <tanrei-button variant="text">جار لا يتحرك</tanrei-button>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="مع label-width fit يتبع العرض الكلمات" plain>
+<Example label="مع label-width fit يتبع العرض الكلمات">
   <tanrei-copy-button icon-only="false" label-width="fit" variant="outlined" text="sk-test-0000" label="نسخ" copied-label="تم النسخ إلى الحافظة" failed-label="تعذّر النسخ"></tanrei-copy-button>
-</DemoFrame>
+</Example>
 
 مع `label-width="fit"` تكون الهيئة ذات التسمية بعرض الكلمات التي تعرضها. وحين تتغير الكلمات، ينتقل عرضها بسلاسة إلى عرض الكلمات الجديدة خلال `comp.copy-button.motion.resize-duration`، ويتغير فورًا حيث تكون الحركة مقلَّلة. ويبقى الافتراضي `widest`، لأن عنصر التحكم الذي يتحرك في اللحظة التي يهمّ فيها أحد بالضغط عليه يُضغط خطأً. استخدم `fit` فقط حيث لا يقف بعد الزر شيء قد يضغطه الشخص بعده، كما في نهاية صف.
 

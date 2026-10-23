@@ -2,27 +2,27 @@
 title: Indicador de progreso
 description: Muestra cuánto ha avanzado una tarea, o que está en curso cuando no se sabe cuánto, en forma de barra o de anillo.
 translationOf: components/progress-indicator.mdx
-sourceHash: 7a2f831964be9fb1473847365cd287574d956952
+sourceHash: a3a25acb0bd8dba2353811061e0fbe63c03d1013
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="progress-indicator" />
 
-<DemoFrame label="Lineal y circular">
+<Example label="Lineal y circular">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-progress-indicator value="0.4" label="Subiendo report.pdf"></tanrei-progress-indicator>
     <tanrei-progress-indicator label="Preparando la exportación"></tanrei-progress-indicator>
   </div>
   <tanrei-progress-indicator variant="circular" value="0.4" label="Sincronizando fotos"></tanrei-progress-indicator>
   <tanrei-progress-indicator variant="circular" label="Sincronizando"></tanrei-progress-indicator>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -124,7 +124,7 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
 
 ## Especificaciones
 
-<DemoFrame label="Tamaños, extremos del intervalo y un intervalo propio" plain>
+<Example label="Tamaños, extremos del intervalo y un intervalo propio">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-progress-indicator size="small" value="0.4" label="Small"></tanrei-progress-indicator>
     <tanrei-progress-indicator size="medium" value="0.4" label="Medium"></tanrei-progress-indicator>
@@ -136,9 +136,9 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
   <tanrei-progress-indicator variant="circular" size="small" value="0.4" label="Small"></tanrei-progress-indicator>
   <tanrei-progress-indicator variant="circular" size="medium" value="0.4" label="Medium"></tanrei-progress-indicator>
   <tanrei-progress-indicator variant="circular" size="large" value="0.4" label="Large"></tanrei-progress-indicator>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Separación: divider (la elección del sistema predeterminado) y gap" plain>
+<Example label="Separación: divider (la elección del sistema predeterminado) y gap">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-progress-indicator separation="divider" value="0.4" label="Divider"></tanrei-progress-indicator>
     <tanrei-progress-indicator separation="gap" value="0.4" label="Gap"></tanrei-progress-indicator>
@@ -146,7 +146,7 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
   </div>
   <tanrei-progress-indicator variant="circular" size="large" separation="divider" value="0.4" label="Divider"></tanrei-progress-indicator>
   <tanrei-progress-indicator variant="circular" size="large" separation="gap" value="0.4" label="Gap"></tanrei-progress-indicator>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="progress-indicator" />
 

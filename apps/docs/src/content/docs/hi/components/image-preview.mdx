@@ -2,14 +2,14 @@
 title: इमेज प्रीव्यू
 description: जब कोई व्यक्ति किसी थंबनेल को दबाता है, तब तस्वीरों के सेट की एक तस्वीर को पूरी विंडो पर दिखाता है, ताकि उसे पास से देखा जा सके। तस्वीर को बड़ा और वापस छोटा किया जा सकता है, बड़ी होने पर इधर-उधर खिसकाया जा सकता है, और अगली या पिछली तस्वीर पर जाया जा सकता है, जब तक प्रीव्यू बंद न किया जाए।
 translationOf: components/image-preview.mdx
-sourceHash: e96ae85ed4881dbba6ec6a53785b75f08794dbf3
+sourceHash: b6cef54634494ef575b84c950accecdd5641b698
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import landscape from '../../../../../../../packages/web/test/fixtures/image-preview-landscape.png?url';
 import landscapeSmall from '../../../../../../../packages/web/test/fixtures/image-preview-landscape-thumbnail.png?url';
 import portrait from '../../../../../../../packages/web/test/fixtures/image-preview-portrait.png?url';
@@ -19,7 +19,7 @@ import square from '../../../../../../../packages/web/test/fixtures/image-previe
 
 <ComponentAvailability name="image-preview" />
 
-<DemoFrame label="पेज पर तीन तस्वीरें: किसी एक को पास से देखने के लिए उसे दबाएँ">
+<Example label="पेज पर तीन तस्वीरें: किसी एक को पास से देखने के लिए उसे दबाएँ">
   <tanrei-card class="not-content" interactive flush variant="outlined" label="बड़ा करें: 1600 चौड़ा और 1000 ऊँचा चित्र" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 0, open: true })"><img src={landscapeSmall} alt="" width="160" height="100" style="display: block" /></tanrei-card>
   <tanrei-card class="not-content" interactive flush variant="outlined" label="बड़ा करें: 1000 चौड़ा और 1500 ऊँचा चित्र" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 1, open: true })"><img src={portrait} alt="" width="67" height="100" style="display: block" /></tanrei-card>
   <tanrei-card class="not-content" interactive flush variant="outlined" label="बड़ा करें: 1200 चौड़ा और 1200 ऊँचा चित्र" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 2, open: true })"><img src={square} alt="" width="100" height="100" style="display: block" /></tanrei-card>
@@ -28,7 +28,7 @@ import square from '../../../../../../../packages/web/test/fixtures/image-previe
     <tanrei-image-preview-item src={portrait} width="1000" height="1500" alt="1000 चौड़ा और 1500 ऊँचा चित्र: एक फ़्रेम, दो विकर्ण और एक छल्ला"></tanrei-image-preview-item>
     <tanrei-image-preview-item src={square} width="1200" height="1200" alt="1200 चौड़ा और 1200 ऊँचा चित्र: एक फ़्रेम, दो विकर्ण और एक छल्ला"></tanrei-image-preview-item>
   </tanrei-image-preview>
-</DemoFrame>
+</Example>
 
 इमेज प्रीव्यू वहाँ इस्तेमाल करें जहाँ पेज कोई तस्वीर छोटी दिखाता है, क्योंकि पेज किसी और चीज़ के बारे में है, और व्यक्ति को वह थोड़ी देर के लिए बड़ी चाहिए: किसी लेख की फ़ोटो, बिक्री के लिए रखे किसी सामान की तस्वीरें, किसी बातचीत का अटैचमेंट, किसी गाइड का स्क्रीनशॉट। व्यक्ति थंबनेल दबाता है, देखता है, और वहीं लौट आता है जहाँ वह था।
 

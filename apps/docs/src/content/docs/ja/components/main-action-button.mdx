@@ -2,23 +2,23 @@
 title: メインアクションボタン
 description: 画面でいちばん大切なアクションを、コンテンツの上に浮かぶ持ち上がったコンテナで実行します。名前を書き添えた形か、アイコンだけに縮めた形で表示します。
 translationOf: components/main-action-button.mdx
-sourceHash: 4ea11cf1c96e665e4d8a7ce5bde60156fedc09b3
+sourceHash: 6a79e4750d54144d384e19b0a274c1d7763b4393
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="main-action-button" />
 
-<DemoFrame label="伸ばした形と縮めた形">
+<Example label="伸ばした形と縮めた形">
   <tanrei-main-action-button label="作成"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button label="作成" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
-</DemoFrame>
+</Example>
 
 メインアクションボタンは、その画面が何のためにあるかを表す、ただ 1 つのアクションです。メールボックスの「作成」、カレンダーの「新しい予定」、リストの「追加」などです。コンテンツの上に浮かぶ持ち上がったコンテナに載るので、下のコンテンツがスクロールしても、いつでも押せる場所にあります。
 
@@ -96,27 +96,27 @@ Web では `<tanrei-main-action-button>`、React では `MainActionButton` で�
 
 ## 仕様
 
-<DemoFrame label="バリアント" plain>
+<Example label="バリアント">
   <tanrei-main-action-button label="作成"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button variant="tonal" label="作成"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button variant="surface" label="作成"><span slot="icon">edit</span></tanrei-main-action-button>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="サイズ（伸ばした形と縮めた形）" plain>
+<Example label="サイズ（伸ばした形と縮めた形）">
   <tanrei-main-action-button size="small" label="作成"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="medium" label="作成"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="large" label="作成"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="small" label="作成" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="medium" label="作成" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="large" label="作成" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="末尾のアイコン、アイコンなし、無効状態" plain>
+<Example label="末尾のアイコン、アイコンなし、無効状態">
   <tanrei-main-action-button label="次へ" icon-position="trailing"><span slot="icon">arrow_forward</span></tanrei-main-action-button>
   <tanrei-main-action-button label="開始"></tanrei-main-action-button>
   <tanrei-main-action-button label="作成" disabled><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button label="作成" collapsed disabled><span slot="icon">edit</span></tanrei-main-action-button>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="main-action-button" />
 
@@ -169,11 +169,11 @@ Web では `<tanrei-main-action-button>`、React では `MainActionButton` で�
 
 `full-width` を指定すると、ボタンはコンテナと同じ幅になり、アイコンとラベルは中央に置かれます。幅の狭い画面で、「購入手続きへ」や「送信」のような画面で 1 つだけのアクションを画面の下端に渡して置くときに使います。全幅のボタンは常に伸びた形です。コンテンツのスクロール中も縮まず、`extended` を false にするとデバッグビルドで報告されます。高さ、角、影はそのサイズのままで、収まらないラベルは折り返します。自分で位置を決めないのは変わらないので、画面の下端に置くコンテナの中に入れてください。
 
-<DemoFrame label="全幅のメインアクションボタン" plain>
+<Example label="全幅のメインアクションボタン">
   <div style="inline-size: 20rem">
     <tanrei-main-action-button label="購入手続きへ" full-width><span slot="icon">shopping_cart</span></tanrei-main-action-button>
   </div>
-</DemoFrame>
+</Example>
 
 ### 推奨
 

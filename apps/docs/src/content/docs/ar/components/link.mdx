@@ -2,20 +2,20 @@
 title: الرابط
 description: نص يقود إلى مكان ما، عبارةً في جملة أو سطرًا وحده أو رسم أيقونة وحده. يُرسم بنمط النص الذي يقع فيه، ويُسطَّر كما يختار نظام تصميمك، ويُعلَّم حيث يغادر الموقع.
 translationOf: components/link.mdx
-sourceHash: f0fa00fc6cf51c83e20f611d66798ad0f25346c1
+sourceHash: 9b8d84836c01c4321968380baaeb61b4d1c2d871
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="link" />
 
-<DemoFrame label="في جملة، ووحده، ورسم أيقونة وحده" column>
+<Example label="في جملة، ووحده، ورسم أيقونة وحده" column>
   <p style="margin: 0; max-inline-size: 32rem">
     تُولَّد الرموز لكل منصة. اقرأ
     <a class="tanrei-link" href="../../foundations/design-tokens/">كيف تُشتق الرموز</a>، أو اطّلع على
@@ -27,7 +27,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <p style="margin: 0">
     <a class="tanrei-link" href="#نظرة-عامة" aria-label="رابط إلى «نظرة عامة»"><span class="tanrei-icon" aria-hidden="true">link</span></a>
   </p>
-</DemoFrame>
+</Example>
 
 القاعدة التي يستطيع المنتج تطبيقها بلا جدول: **ما له عنوان وجهة فهو رابط، وما ليس له عنوان فهو زر.** عنصر التحكم الذي يفعل شيئًا في الصفحة ولا يقود إلى أي مكان هو [زر](../button/)، من الطراز text حيث ينبغي أن يُقرأ بهدوء النص. والوجهة التي ينبغي أن تبدو زرًّا هي زر له الخاصية `href`.
 
@@ -120,43 +120,43 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="الالتفاف: التسطير وطبقة الحالة وحلقة التركيز تتبع كل سطر" plain>
+<Example label="الالتفاف: التسطير وطبقة الحالة وحلقة التركيز تتبع كل سطر">
   <p style="margin: 0; max-inline-size: 22rem">
     <a class="tanrei-link" href="../../foundations/accessibility/">دليل إمكانية الوصول، الذي يشرح كيف يُسمّى كل مكوّن، وكيف يُبلَغ ويُشغَّل من لوحة المفاتيح، وما تُعلنه كل منصة حين تتغير حالته</a>
   </p>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="رسم أيقونة وعلامة التبويب الجديد" plain column>
+<Example label="رسم أيقونة وعلامة التبويب الجديد" column>
   <a class="tanrei-link" data-standalone href="../../foundations/design-tokens/"><span class="tanrei-icon" aria-hidden="true">download</span>تنزيل الرموز</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="يُفتح في تبويب جديد">عرض المصدر</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="يُفتح في تبويب جديد"><span class="tanrei-icon" aria-hidden="true">code</span>عرض المصدر</a>
   <a class="tanrei-link" data-standalone data-icon-position="trailing" href="https://example.com/tanrei" target="_blank" aria-description="يُفتح في تبويب جديد">عرض المصدر<span class="tanrei-icon" aria-hidden="true">code</span></a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="الحالي والمعطَّل" plain>
+<Example label="الحالي والمعطَّل">
   <a class="tanrei-link" data-standalone href="../">نظرة عامة</a>
   <a class="tanrei-link" data-standalone href="./" aria-current="page">المكوّنات</a>
   <a class="tanrei-link" data-standalone role="link" aria-disabled="true">الصفحة السابقة</a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="التسطير: دائمًا، وعند التحويم، وبلا تسطير أبدًا" plain>
+<Example label="التسطير: دائمًا، وعند التحويم، وبلا تسطير أبدًا">
   <a class="tanrei-link" data-standalone data-underline="always" href="../button/">دائمًا</a>
   <a class="tanrei-link" data-standalone data-underline="hover" href="../button/">عند التحويم</a>
   <a class="tanrei-link" data-standalone data-underline="never" href="../button/">أبدًا</a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="رابط يغادر الموقع" plain column>
+<Example label="رابط يغادر الموقع" column>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="رابط خارجي">المواصفة</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="رابط خارجي"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />المواصفة</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" target="_blank" aria-description="يُفتح في تبويب جديد"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />المواصفة</a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="على سطح معكوس" plain>
+<Example label="على سطح معكوس">
   <div style="padding: var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-inverse-surface); color: var(--tanrei-sys-color-inverse-on-surface)">
     حُفظت الصفحة. اطّلع على
     <a class="tanrei-link" data-variant="inverse" href="../snackbar/">ما تغيّر</a>.
   </div>
-</DemoFrame>
+</Example>
 
 لا يأتي الرابط بنمط نص خاص به: يأخذ خط النص الذي يقع فيه ومقاسه ووزنه وارتفاع سطره، في فقرة أو عنوان أو شرح أو خلية جدول على السواء. والتحويم والتركيز والضغط تُرسم خلف نصه على كل سطر يمرّ به، ولا تأخذ حيّزًا، فلا يتحرك شيء حول الرابط. ورسم الأيقونة (glyph) وأيقونة الموقع والعلامة بمقاس النص، وتبقى على سطر الكلمة التي بجانبها.
 

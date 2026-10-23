@@ -6,7 +6,7 @@ description: Use Tanrei's CSS tokens and Web Components in any web project.
 import Steps from '../../../components/Steps.astro';
 import Callout from '../../../components/Callout.astro';
 import ReleaseNotice from '../../../components/ReleaseNotice.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 `@tanrei/web` contains two things: a stylesheet of design tokens as CSS custom properties, and standards-based custom elements built with Lit. It has no framework requirement.
 
@@ -103,10 +103,10 @@ The packed file holds what a release publishes, so everything below works the sa
 
 </Steps>
 
-<DemoFrame>
+<Example>
   <tanrei-button variant="filled">Deploy</tanrei-button>
   <tanrei-button variant="outlined" size="small" disabled>Cancel</tanrei-button>
-</DemoFrame>
+</Example>
 
 ## The elements' manifest
 

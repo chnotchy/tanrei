@@ -2,26 +2,26 @@
 title: زر الاختيار
 description: يتيح للأشخاص اختيار خيار واحد بالضبط من مجموعة صغيرة معروضة كلها دفعة واحدة.
 translationOf: components/radio-button.mdx
-sourceHash: 580d206e4ecad18e8ec686f544dd11bd9a7b7564
+sourceHash: 5b4f61772f78c2094f60c4453b4b44a4119e747d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="radio-button" />
 
-<DemoFrame label="مجموعة">
+<Example label="مجموعة">
   <div role="radiogroup" aria-label="كم مرة" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-radio-button name="overview-frequency" value="daily" label="يوميًّا"></tanrei-radio-button>
     <tanrei-radio-button name="overview-frequency" value="weekly" checked label="أسبوعيًّا"></tanrei-radio-button>
     <tanrei-radio-button name="overview-frequency" value="monthly" label="شهريًّا"></tanrei-radio-button>
   </div>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -121,7 +121,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="محدَّد وغير محدَّد ومعطَّل" plain>
+<Example label="محدَّد وغير محدَّد ومعطَّل">
   <div role="radiogroup" aria-label="مفعَّل" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-radio-button name="specs-enabled" value="unselected" label="غير محدَّد"></tanrei-radio-button>
     <tanrei-radio-button name="specs-enabled" value="selected" checked label="محدَّد"></tanrei-radio-button>
@@ -137,7 +137,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <div role="radiogroup" aria-label="التسمية مخفيّة">
     <tanrei-radio-button name="specs-hidden" value="weekly" checked label-hidden label="أسبوعيًّا"></tanrei-radio-button>
   </div>
-</DemoFrame>
+</Example>
 
 في النظام الافتراضي زر الاختيار حلقة بمقاس 20 بخط عرضه 2، على طبقة حالة دائرية بمقاس 40. الخيار المحدَّد لا يرسم نقطة. تثخن حلقته نحو الداخل حتى نصف نصف القطر، والقرص الباقي في الداخل يُعبَّأ بلون الحلقة بعتامة 16 %: صبغة فاتحة تبقى على تباين 3:1 على الأقل مع الحلقة. وتحتفظ الحلقة بمقاسها الخارجي في الوضعين. والحلقة والتعبئة شكل واحد: لا يظهر بينهما شيء مما خلف زر الاختيار عند أي تكبير أو أي كثافة عرض، ولا في أي إطار من التغيّر. حين يتغير التحديد يثخن الخط أو يرقّ فيما يتغير لون الحلقة وتتدرّج التعبئة في الظهور أو الاختفاء؛ ولا تكبر التعبئة من المركز أبدًا. والتغيّر الذي يأتي قبل انتهاء الحركة يرتدّ من حيث هو، وحيث تكون الحركة مقلَّلة يظهر الوضع الجديد فورًا وكاملًا.
 

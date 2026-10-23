@@ -2,23 +2,23 @@
 title: الحقل
 description: "يؤطّر عنصر تحكم واحدًا بما يعطيه النموذج لكل حقل: تسمية تستطيع أن تقول إن عنصر التحكم مطلوب أو اختياري، وسطر مساعدة، وسبب رفض القيمة، وكلٌّ منها مربوط بعنصر التحكم للتقنيات المساعدة. وهو إطار، لا عنصر تحكم أبدًا."
 translationOf: components/field.mdx
-sourceHash: 353fb2c34b3255423d1b0d9d4ee7882e5bbcd48f
+sourceHash: c4d1b7a342bb601a6261b2b8c1d3247860058944
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="field" />
 
-<DemoFrame label="شريط تمرير ومفتاح تبديل، يسمّي الحقل كلًّا منهما ويعطيه المساعدة والعلامة" column>
+<Example label="شريط تمرير ومفتاح تبديل، يسمّي الحقل كلًّا منهما ويعطيه المساعدة والعلامة" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" required required-text="مطلوب" supporting-text="ينطبق على التنبيهات والوسائط."><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="الإشعارات" optional optional-text="اختياري" supporting-text="تُرسل حين تكون مراجعة في انتظارك."><tanrei-switch checked></tanrei-switch></tanrei-field>
-</DemoFrame>
+</Example>
 
 حقل النص يستطيع أن يقول ما هو، وهل تجب الإجابة عنه، وكيف يُجاب عنه، ولماذا رُفضت إجابة. والحقل يعطي هذه الأربعة نفسها لعنصر تحكم لا يستطيعها: شريط تمرير، أو مفتاح تبديل، أو [حقل إدخال النص](/ar/components/text-input/)، أو [حقل إدخال اللون](/ar/components/color-input/)، أو [حقل إدخال الرمز لمرة واحدة](/ar/components/one-time-code-input/)، أو عنصر تحكم بناه منتجك. وحقل النص نفسه حقل حول حقل إدخال النص. تقف التسمية فوق عنصر التحكم، والمساعدة تحته. وما دام الحقل في حالة خطأ يأخذ نص الخطأ مكان المساعدة، فلا يزيد ارتفاع النموذج في حالة الخطأ عنه في الراحة؛ ويستطيع نظام التصميم بدلًا من ذلك أن يُبقي المساعدة ويضيف نص الخطأ تحتها.
 
@@ -68,24 +68,24 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="علامات المطلوب والاختياري الثلاث، وخطأ، وحقل معطَّل، ورسم أيقونة للتسمية" plain column>
+<Example label="علامات المطلوب والاختياري الثلاث، وخطأ، وحقل معطَّل، ورسم أيقونة للتسمية" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" required required-text="مطلوب"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" optional optional-text="اختياري"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" required required-mark="asterisk"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" required required-text="مطلوب" error error-text="اختر مستوى أعلى من 0."><tanrei-slider value="0"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" supporting-text="ينطبق على التنبيهات والوسائط." disabled><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت"><span slot="label-icon">volume_up</span><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="حقل إدخال النص داخل حقل: مع مساعدة وعدد، وفي حالة خطأ" plain column>
+<Example label="حقل إدخال النص داخل حقل: مع مساعدة وعدد، وفي حالة خطأ" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="اسم العرض" supporting-text="يظهر بجانب تعليقاتك." count-text="12/40"><tanrei-text-input value="Ada Lovelace" maxlength="40" counter></tanrei-text-input></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="البريد الإلكتروني" required required-text="مطلوب" error error-text="أدخِل عنوان بريد إلكتروني كاملًا."><tanrei-text-input type="email" value="ada@"></tanrei-text-input></tanrei-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="مساعدة، وخطأ: يأخذ نص الخطأ مكان المساعدة" plain column>
+<Example label="مساعدة، وخطأ: يأخذ نص الخطأ مكان المساعدة" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="كلمة المرور" supporting-text="8 أحرف على الأقل، بينها رقم واحد."><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="كلمة المرور" supporting-text="8 أحرف على الأقل، بينها رقم واحد." error error-text="كلمة المرور هذه قصيرة جدًّا."><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
-</DemoFrame>
+</Example>
 
 ### حول حقل إدخال النص
 
@@ -101,9 +101,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 الخاصية `valueText` هي القيمة الحالية لعنصر التحكم بالكلمات («`40 %`»، «`$100 – $300`»)، لعنصر تحكم لا تُقرأ قيمته منه هو: شريط التمرير. يرسمها الحقل في نهاية صف التسمية، على السطر الأول من التسمية، ولا يفعل بها شيئًا آخر: فهو لا يقرأ قيمة ولا ينسّقها أبدًا، ويحجب النص المرسوم عن التقنيات المساعدة، لأن عنصر التحكم يقول قيمته بنفسه. وحيث كانت ستترك للتسمية أقل من نصف الصف، تأخذ سطرًا لها بعد التسمية. ولا تُرسم ما دامت التسمية غير مرسومة. اكتبها من `shownValueText` في شريط التمرير عند كل حدث `input`. و[حقل شريط التمرير](/ar/components/slider-field/) يفعل ذلك من تلقاء نفسه، وهو الحقل الجاهز لشريط التمرير.
 
-<DemoFrame label="حقل فيه شريط تمرير، والقيمة بالكلمات في نهاية صف التسمية" column>
+<Example label="حقل فيه شريط تمرير، والقيمة بالكلمات في نهاية صف التسمية" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="حجم النص" supporting-text="ينطبق على كل الصفحات." value-text="120 %"><tanrei-slider min="50" max="200" step="10" value="120" value-text="120 %"></tanrei-slider></tanrei-field>
-</DemoFrame>
+</Example>
 
 ### حول عنصر الاختيار
 

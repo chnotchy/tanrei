@@ -2,23 +2,23 @@
 title: 跑马灯文本
 description: 放不下的一行文本。静止时被截断并以省略号结尾；在触发条件持续期间，以稳定的速度横向滚动，展示自己的全部内容。只有文本溢出时才会移动，在减弱动态效果时从不移动，并且只被完整地朗读一次。
 translationOf: components/marquee-text.mdx
-sourceHash: dc5686cec00458180eb8990a3c8f28e770f7fd10
+sourceHash: 5e8fad528fe680de811c7c8091d796a52019ceac
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="marquee-text" />
 
-<DemoFrame label="一个放不下的标题，和一个放得下的标题">
+<Example label="一个放不下的标题，和一个放得下的标题">
   <tanrei-marquee-text style="inline-size: min(100%, 14rem)">第 7 首 —— 一个很长的标题，在它所在的行里根本放不下</tanrei-marquee-text>
   <tanrei-marquee-text style="inline-size: min(100%, 14rem)">短标题</tanrei-marquee-text>
-</DemoFrame>
+</Example>
 
 跑马灯文本是放在过窄位置里的一行产品文本。静止时，它读起来和任何被截断的行一样：从行的起点开始，在被截断处以省略号结尾。在触发条件持续期间——默认是指针悬停在它上面，或它所在的控件获得键盘焦点时——它以稳定的速度（以每秒像素数给出）横向滚动，让文本的每一部分都经过视野；然后回到起点并停下。把指针移到上面第一行试试。第二行放得下，所以从不移动：文本放得下的跑马灯文本就是一行普通文本。
 

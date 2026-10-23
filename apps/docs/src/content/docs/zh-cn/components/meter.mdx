@@ -2,27 +2,27 @@
 title: "计量条"
 description: "以条形或圆环显示一个已知的值在已知范围中的位置，例如已用存储空间、电池电量、配额用量或密码强度。外观与进度指示器相同，但不表示有任何事情正在进行。"
 translationOf: components/meter.mdx
-sourceHash: a9d8ef1942e071884710cdc52bdb78d45aadfb32
+sourceHash: cd8bc895367db9b71db67bad0ef32e060f9d403e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="meter" />
 
-<DemoFrame label="线性和环形">
+<Example label="线性和环形">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter value="0.62" label="已用存储空间" value-text="已用 9.3 GB，共 15 GB"></tanrei-meter>
     <tanrei-meter value="37" max="50" label="已占座位" value-text="已占 37 个，共 50 个座位"></tanrei-meter>
   </div>
   <tanrei-meter variant="circular" value="0.62" label="电池"></tanrei-meter>
   <tanrei-meter variant="circular" size="large" value="0.15" status="warning" label="电池" value-text="电量低：15%"></tanrei-meter>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -66,7 +66,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 
 ## 规格
 
-<DemoFrame label="语义状态：default、info、success、warning、error" plain>
+<Example label="语义状态：default、info、success、warning、error">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter value="0.62" label="Default"></tanrei-meter>
     <tanrei-meter value="0.4" status="info" label="Info"></tanrei-meter>
@@ -74,9 +74,9 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
     <tanrei-meter value="0.85" status="warning" label="Warning"></tanrei-meter>
     <tanrei-meter value="0.98" status="error" label="Error"></tanrei-meter>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="各种尺寸、范围的两端，以及自定义范围" plain>
+<Example label="各种尺寸、范围的两端，以及自定义范围">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter size="small" value="0.62" label="Small"></tanrei-meter>
     <tanrei-meter size="medium" value="0.62" label="Medium"></tanrei-meter>
@@ -88,14 +88,14 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
   <tanrei-meter variant="circular" size="small" value="0.62" label="Small"></tanrei-meter>
   <tanrei-meter variant="circular" size="medium" value="0.62" label="Medium"></tanrei-meter>
   <tanrei-meter variant="circular" size="large" value="0.62" label="Large"></tanrei-meter>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="分隔方式：divider（默认系统的选择）和 gap" plain>
+<Example label="分隔方式：divider（默认系统的选择）和 gap">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-meter separation="divider" value="0.62" label="Divider"></tanrei-meter>
     <tanrei-meter separation="gap" value="0.62" label="Gap"></tanrei-meter>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="meter" />
 

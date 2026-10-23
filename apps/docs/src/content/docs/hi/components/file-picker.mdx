@@ -2,21 +2,21 @@
 title: फ़ाइल पिकर
 description: लोगों को प्लैटफ़ॉर्म के अपने पिकर से फ़ाइलें चुनने देता है, एक बटन से और, जहाँ जगह हो, ऐसी जगह से जिस पर फ़ाइलें ड्रैग करके भी छोड़ी जा सकती हैं। वह चुनाव से पहले सीमाएँ शब्दों में बताता है, जो चुना गया उसे परखता है, और आपके प्रॉडक्ट को वे फ़ाइलें सौंपता है जो उसने स्वीकार कीं और वे जो उसने अस्वीकार कीं। वह कुछ नहीं रखता, कोई लिस्ट नहीं दिखाता और किसी फ़ॉर्म का हिस्सा नहीं बनता।
 translationOf: components/file-picker.mdx
-sourceHash: 7b60eb18075b635e3d10042c71ae794088afa2bf
+sourceHash: 13621ef351e8f58d28882b26c91b782cc5a412fc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="file-picker" />
 
-<DemoFrame label="दोनों लेआउट में एक-एक फ़ाइल पिकर। यहाँ फ़ाइल चुनने से कुछ नहीं बदलता: पेज कोई फ़ाइल नहीं रखता।" column>
+<Example label="दोनों लेआउट में एक-एक फ़ाइल पिकर। यहाँ फ़ाइल चुनने से कुछ नहीं बदलता: पेज कोई फ़ाइल नहीं रखता।" column>
   <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="लेयर फ़ाइल" accept=".json" constraints-text="एक JSON फ़ाइल" selection-text="कोई फ़ाइल नहीं चुनी गई">
     <tanrei-button slot="trigger" variant="outlined">फ़ाइल चुनें</tanrei-button>
   </tanrei-file-picker>
@@ -24,7 +24,7 @@ import Callout from '../../../../components/Callout.astro';
     <tanrei-button slot="trigger" variant="outlined">फ़ोटो चुनें</tanrei-button>
     <span slot="icon">image</span>
   </tanrei-file-picker>
-</DemoFrame>
+</Example>
 
 फ़ाइल पिकर फ़ाइलें चुनने का तरीक़ा है, और कुछ नहीं। आपका अपना [बटन](/hi/components/button/) प्लैटफ़ॉर्म का फ़ाइल पिकर खोलता है। उसके चारों ओर एक ड्रॉप एरिया हो सकता है, जो उस पर ड्रैग करके छोड़ी गई फ़ाइलें भी लेता है। सीमाएँ उसके पास आपके शब्दों में लिखी रहती हैं। जो चुना गया, वह सीमाओं के हिसाब से परखा जाता है और आपको सौंपा जाता है: स्वीकार की गई फ़ाइलें `select` के साथ, और अस्वीकार की गई फ़ाइलें `reject` के साथ।
 
@@ -107,7 +107,7 @@ React में `judge()` ref पर होता है: `ref.current.judge(fil
 
 ## स्पेक
 
-<DemoFrame label="अकेला ट्रिगर; चुनी गई फ़ाइल और सीमाओं के साथ; त्रुटि की अवस्था में ड्रॉप एरिया; अक्षम" plain column>
+<Example label="अकेला ट्रिगर; चुनी गई फ़ाइल और सीमाओं के साथ; त्रुटि की अवस्था में ड्रॉप एरिया; अक्षम" column>
   <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="अटैच करें">
     <tanrei-button slot="trigger" variant="outlined">फ़ाइल अटैच करें</tanrei-button>
   </tanrei-file-picker>
@@ -120,7 +120,7 @@ React में `judge()` ref पर होता है: `ref.current.judge(fil
   <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple disabled label="अटैचमेंट" drop-text="फ़ाइलें यहाँ खींचकर छोड़ें, या चुनें" constraints-text="PDF या PNG, हर फ़ाइल 10 MB तक">
     <tanrei-button slot="trigger" variant="outlined">फ़ाइलें चुनें</tanrei-button>
   </tanrei-file-picker>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="file-picker" />
 

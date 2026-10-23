@@ -2,14 +2,14 @@
 title: कोड ब्लॉक
 description: पढ़ने, तुलना करने और कॉपी करने के लिए कोड की पंक्तियाँ, कोड के टाइपफ़ेस में, जो अपने भीतर स्क्रॉल होती हैं या रैप होती हैं, और जिनके साथ हेडर, पंक्ति संख्याएँ, चिह्नित पंक्तियाँ, प्रॉम्प्ट और कॉपी बटन वैकल्पिक हैं। कोड और उसकी भाषा मिलने पर यह कोड को ख़ुद हाइलाइट करता है।
 translationOf: components/code-block.mdx
-sourceHash: 1bd663ebb32b8674bdfe30352e2eb0eeda3db6a5
+sourceHash: 53a18014ffddf555d34389625cf92451c81157c5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 export const runs = (list) => list.map(([text, syntax]) => (syntax ? <span data-syntax={syntax}>{text}</span> : text));
 
@@ -39,11 +39,11 @@ export const given = [
 
 <ComponentAvailability name="code-block" />
 
-<DemoFrame label="शीर्षक, भाषा का लेबल और कॉपी बटन; कोड अपनी भाषा के आधार पर हाइलाइट होता है" column>
+<Example label="शीर्षक, भाषा का लेबल और कॉपी बटन; कोड अपनी भाषा के आधार पर हाइलाइट होता है" column>
   <tanrei-code-block style="inline-size: 100%" headline="Footer.tsx" language="tsx" language-label="TSX" copy copy-label="कॉपी करें" copied-label="कॉपी हो गया" copy-failed-label="कॉपी नहीं हो सका">
     <pre><code>{footer}</code></pre>
   </tanrei-code-block>
-</DemoFrame>
+</Example>
 
 कोड ब्लॉक वह कोड दिखाता है जिसे लोग पढ़ते, मिलाकर देखते और कॉपी करते हैं। वाक्य के भीतर का नाम या कमांड [इनलाइन कोड](/hi/components/inline-code/) है।
 
@@ -102,24 +102,24 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 
 ## स्पेक
 
-<DemoFrame label="Filled और outlined, medium और small" plain column>
+<Example label="Filled और outlined, medium और small" column>
   <tanrei-code-block style="inline-size: 100%" language="js" label="उदाहरण"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
   <tanrei-code-block style="inline-size: 100%" variant="outlined" size="small" headline="sizes.js" language="js" language-label="JavaScript" copy copy-label="कॉपी करें" copied-label="कॉपी हो गया" copy-failed-label="कॉपी नहीं हो सका"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="पंक्ति संख्याएँ, एक हाइलाइट की गई पंक्ति, और जोड़ी और हटाई गई पंक्तियाँ" plain column>
+<Example label="पंक्ति संख्याएँ, एक हाइलाइट की गई पंक्ति, और जोड़ी और हटाई गई पंक्तियाँ" column>
   <tanrei-code-block style="inline-size: 100%" language="js" headline="sizes.js" line-numbers highlighted-lines="1" highlighted-label="हाइलाइट की गई" removed-lines="4" added-lines="5" removed-label="हटाई गई" added-label="जोड़ी गई" copy copy-label="कॉपी करें" copied-label="कॉपी हो गया" copy-failed-label="कॉपी नहीं हो सका"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('button');\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="लंबी पंक्ति ब्लॉक के भीतर स्क्रॉल होती है, या रैप होती है" plain column>
+<Example label="लंबी पंक्ति ब्लॉक के भीतर स्क्रॉल होती है, या रैप होती है" column>
   <tanrei-code-block style="inline-size: 100%" label="उदाहरण" copy copy-label="कॉपी करें" copied-label="कॉपी हो गया" copy-failed-label="कॉपी नहीं हो सका"><pre><code>{`export const footer = html\`<footer class="form-footer"><tanrei-button variant="text" @click=\${cancel}>रद्द करें</tanrei-button><tanrei-button variant="filled" @click=\${save}>बदलाव सेव करें</tanrei-button></footer>\`;\n\n// ऊपर की पंक्ति एक ही पंक्ति है: वह समाती नहीं, और कभी काटी नहीं जाती।`}</code></pre></tanrei-code-block>
   <tanrei-code-block style="inline-size: 100%" label="उदाहरण" wrap line-numbers><pre><code>{`export const footer = html\`<footer class="form-footer"><tanrei-button variant="text" @click=\${cancel}>रद्द करें</tanrei-button><tanrei-button variant="filled" @click=\${save}>बदलाव सेव करें</tanrei-button></footer>\`;\n\n// ऊपर की पंक्ति एक ही पंक्ति है: वह समाती नहीं, और कभी काटी नहीं जाती।`}</code></pre></tanrei-code-block>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="प्रॉम्प्ट, और दिखाई जाने वाली पंक्तियों की सीमा" plain column>
+<Example label="प्रॉम्प्ट, और दिखाई जाने वाली पंक्तियों की सीमा" column>
   <tanrei-code-block style="inline-size: 100%" label="इंस्टॉलेशन" prompt="$" language="sh" language-label="Shell" copy copy-label="कॉपी करें" copied-label="कॉपी हो गया" copy-failed-label="कॉपी नहीं हो सका"><pre><code>{`npm install @tanrei/web\nnpx tanrei studio`}</code></pre></tanrei-code-block>
   <tanrei-code-block style="inline-size: 100%" headline="tide.log" max-lines="4" line-numbers><pre><code>{`01:00 tide high, gauge 1.55 m\n02:00 tide falling, gauge 1.90 m\n03:00 tide low, gauge 2.25 m\n04:00 tide rising, gauge 2.60 m\n05:00 tide high, gauge 1.20 m\n06:00 tide falling, gauge 1.55 m\n07:00 tide low, gauge 1.90 m\n08:00 tide rising, gauge 2.25 m`}</code></pre></tanrei-code-block>
-</DemoFrame>
+</Example>
 
 **दो रूप।** `filled` एक हल्का फ़िल है, पेज पर रखे कोड के लिए। `outlined` में एक बारीक रेखा के भीतर कोई फ़िल नहीं होता, उस कोड के लिए जो पहले से फ़िल वाले कार्ड या पैनल के भीतर है।
 
@@ -218,11 +218,11 @@ const html = await highlightToHtml(source, 'tsx');
 
 टुकड़ा `<code>` के भीतर एक `<span data-syntax="…">` है। span के बाहर का टेक्स्ट सादा है।
 
-<DemoFrame label="आपके दिए हुए टुकड़े जैसे दिए गए हैं वैसे ही बनते हैं" plain column>
+<Example label="आपके दिए हुए टुकड़े जैसे दिए गए हैं वैसे ही बनते हैं" column>
   <tanrei-code-block style="inline-size: 100%" label="उदाहरण">
     <pre><code>{runs(given)}</code></pre>
   </tanrei-code-block>
-</DemoFrame>
+</Example>
 
 ### हाइलाइटर के स्कोप को रोल में समेटना
 

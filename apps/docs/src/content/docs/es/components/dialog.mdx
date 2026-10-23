@@ -2,14 +2,14 @@
 title: Diálogo
 description: Detiene a la persona para una decisión o unos pocos datos sin los que la tarea no puede continuar, en una superficie que atenúa y bloquea todo lo que hay detrás hasta que se responde o se descarta.
 translationOf: components/dialog.mdx
-sourceHash: f86e3764e1ad3f95e4617465f361ae2dd033e180
+sourceHash: 2ec420cc8eb2fe5bd3b7c94ecb87939ab77ba4a5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
@@ -19,13 +19,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 Esta página describe el diálogo tal como lo define ahora la especificación: todo diálogo ofrece al menos una acción, las acciones son una fila a todo lo ancho de botones tonal colocados según su tarea, el icono va junto a un titular alineado al inicio y, en una ventana compacta, el diálogo se sitúa en la parte inferior. El componente web implementa la revisión, y las demostraciones de esta página son el componente web tal como se distribuye hoy; arriba sigue marcado como rezagado hasta que la revisión se haya examinado y se hayan registrado sus imágenes de referencia. SwiftUI, Compose, Flutter y React Native ofrecen la revisión anterior hasta que se pongan al día: el icono encima de un titular centrado, acciones de texto en una fila al final y en el orden dado, acciones opcionales y un diálogo centrado en todas las ventanas.
 :::
 
-<DemoFrame label="Una confirmación: ábrela con el botón">
+<Example label="Una confirmación: ábrela con el botón">
   <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-basic').open = true">Descartar borrador</tanrei-button>
   <tanrei-dialog id="dialog-demo-basic" headline="¿Descartar el borrador?" supporting-text="El mensaje que estabas escribiendo se eliminará de este dispositivo.">
     <tanrei-button slot="actions" dismissive autofocus onclick="this.closest('tanrei-dialog').open = false">Cancelar</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">Descartar</tanrei-button>
   </tanrei-dialog>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -193,14 +193,14 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
 
 ## Especificaciones
 
-<DemoFrame label="Un diálogo de alerta: una confirmación destructiva que se lee en cuanto se abre" plain>
+<Example label="Un diálogo de alerta: una confirmación destructiva que se lee en cuanto se abre">
   <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-alert').open = true">Eliminar proyecto</tanrei-button>
   <tanrei-dialog id="dialog-demo-alert" alert headline="¿Eliminar el proyecto?" supporting-text="Se eliminará todo el contenido del proyecto, incluido su historial. Esta acción no se puede deshacer.">
     <span slot="icon">delete</span>
     <tanrei-button slot="actions" dismissive autofocus onclick="this.closest('tanrei-dialog').open = false">Cancelar</tanrei-button>
     <tanrei-button slot="actions" confirming destructive onclick="this.closest('tanrei-dialog').open = false">Eliminar</tanrei-button>
   </tanrei-dialog>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="dialog" />
 
@@ -244,13 +244,13 @@ Las acciones se reparten a partes iguales el ancho interior del contenedor, con 
 
 ### Sin botón de cerrar
 
-<DemoFrame label="Un formulario con Cancelar junto a Guardar, y el ancho small">
+<Example label="Un formulario con Cancelar junto a Guardar, y el ancho small">
   <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-form').open = true">Editar el nombre visible</tanrei-button>
   <tanrei-dialog id="dialog-demo-form" headline="Editar el nombre visible" supporting-text="Todo el equipo ve este nombre." width="small">
     <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-dialog').open = false">Cancelar</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">Guardar</tanrei-button>
   </tanrei-dialog>
-</DemoFrame>
+</Example>
 
 Un diálogo no dibuja ningún botón de cerrar en su encabezado. Pide una decisión, y su salida sin decidir es su acción de descarte y, mientras `dismissible` es true, Escape, la acción de retroceso de la plataforma y una pulsación en el velo.
 

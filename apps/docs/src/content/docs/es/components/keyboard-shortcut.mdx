@@ -2,14 +2,14 @@
 title: Atajo de teclado
 description: Muestra las teclas que ejecutan un comando, como teclas o como texto, con los símbolos y los nombres de modificadores del teclado que la persona está usando, y las lee en voz alta por su nombre.
 translationOf: components/keyboard-shortcut.mdx
-sourceHash: 63d76372e6eb95e569cb0e3333d01afaeaadceb0
+sourceHash: aefaa8f159d65d66f0d297cf2ae3f659c10c017f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
@@ -17,11 +17,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 Un atajo de teclado muestra las teclas que ejecutan un comando: dibujadas como capuchones de tecla, o como texto simple junto al nombre de un comando, en tamaño pequeño o mediano. Las teclas se escriben con nombres neutros (`mod`, `shift`, `k`) y se dibujan según la convención del teclado que la persona está usando: los símbolos de Apple (⇧⌘K) o los nombres estándar (Ctrl+Shift+K). Un producto puede definir la convención para una región, o dejársela a la plataforma. Un atajo formado por varias combinaciones seguidas (Ctrl+K Ctrl+C) es una sola secuencia.
 
-<DemoFrame label="Capuchones de tecla, una secuencia de dos combinaciones y la forma simple, para el teclado que estás usando">
+<Example label="Capuchones de tecla, una secuencia de dos combinaciones y la forma simple, para el teclado que estás usando">
   <tanrei-keyboard-shortcut keys="mod+shift+k" label="Comando o Control, Mayúsculas, K"></tanrei-keyboard-shortcut>
   <tanrei-keyboard-shortcut keys="mod+k mod+c" label="Comando o Control y K, después Comando o Control y C"></tanrei-keyboard-shortcut>
   <tanrei-keyboard-shortcut keys="mod+shift+k" label="Comando o Control, Mayúsculas, K" variant="plain"></tanrei-keyboard-shortcut>
-</DemoFrame>
+</Example>
 
 Sus teclas se dibujan solo para la vista: la tecnología de apoyo lee el `label` que da el producto (el atajo dicho con tus propias palabras) y, si no hay ninguno, la notación de `aria-keyshortcuts` (`Meta+Shift+K`). Tanrei no tiene nombres para las teclas en ningún idioma. Muestra las teclas y nada más: no recibe foco ni entrada, y no hace que las teclas funcionen. Es tu producto quien las vincula.
 
@@ -82,7 +82,7 @@ En la web, el atributo `keys` contiene las combinaciones separadas por espacios 
 
 ## Especificaciones
 
-<DemoFrame label="Las mismas teclas para un teclado de Apple y para uno estándar; small dentro de una frase; teclas con nombre; deshabilitado" plain column>
+<Example label="Las mismas teclas para un teclado de Apple y para uno estándar; small dentro de una frase; teclas con nombre; deshabilitado" column>
   <div data-tanrei-keyboard-convention="apple" style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
     <tanrei-keyboard-shortcut keys="mod+shift+k" label="Mayúsculas Comando K"></tanrei-keyboard-shortcut>
     <tanrei-keyboard-shortcut keys="mod+shift+k" label="Mayúsculas Comando K" size="small"></tanrei-keyboard-shortcut>
@@ -104,7 +104,7 @@ En la web, el atributo `keys` contiene las combinaciones separadas por espacios 
     <tanrei-keyboard-shortcut keys="mod+z" label="Comando o Control, Z" disabled></tanrei-keyboard-shortcut>
     <tanrei-keyboard-shortcut keys="mod+z" label="Comando o Control, Z" variant="plain" disabled></tanrei-keyboard-shortcut>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="keyboard-shortcut" />
 

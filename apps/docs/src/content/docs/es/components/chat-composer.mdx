@@ -2,27 +2,27 @@
 title: Cuadro de redacción de chat
 description: Permite escribir un mensaje y enviarlo, en una sola cápsula que lo contiene todo. Un área de escritura que crece con lo que se escribe, los archivos adjuntos al mensaje, tus propias acciones y un botón de enviar que solo está habilitado mientras el mensaje se puede enviar. Notifica el mensaje y nunca envía nada por sí mismo.
 translationOf: components/chat-composer.mdx
-sourceHash: 5030b8d8268f9b3555fd16ab43bcdbb77447e8fb
+sourceHash: 14a5591949903e4270525157dabc913983807927
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="chat-composer" />
 
-<DemoFrame label="Un cuadro de redacción de chat en cada disposición. Escribe un mensaje, adjunta un archivo y envía. No se envía nada a ninguna parte." column>
+<Example label="Un cuadro de redacción de chat en cada disposición. Escribe un mensaje, adjunta un archivo y envía. No se envía nada a ninguna parte." column>
   <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" label="Mensaje" placeholder="Escribe un mensaje" send-label="Enviar" attachments="own" attach-label="Adjuntar archivos" remove-label="Quitar {name}"></tanrei-chat-composer>
   <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" layout="stacked" label="Mensaje" placeholder="Escribe un mensaje" send-label="Enviar" attachments="own" attach-label="Adjuntar archivos" remove-label="Quitar {name}" max-length="280" counter>
     <tanrei-button slot="leading" variant="text" label="Mencionar a alguien"><span slot="icon">alternate_email</span></tanrei-button>
     <tanrei-button slot="leading" variant="text" label="Añadir un emoji"><span slot="icon">mood</span></tanrei-button>
   </tanrei-chat-composer>
-</DemoFrame>
+</Example>
 
 Un cuadro de redacción de chat es el único lugar donde se escribe un mensaje: en una conversación, en un hilo bajo un elemento de trabajo o en una petición de ayuda. Se dibuja como una sola cápsula. La cápsula contiene el área de escritura, los archivos adjuntos, tus propias acciones y el botón de enviar.
 

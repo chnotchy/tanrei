@@ -2,27 +2,27 @@
 title: الوسم
 description: يسمّي فئة أو حالة بتسمية قصيرة ثابتة، بهدوء أو بحدّ أو بتعبئة كاملة، وبألوان الحالة إن كانت له حالة. هو نص، وليس عنصر تحكم أبدًا.
 translationOf: components/tag.mdx
-sourceHash: c3a34569bea95920f34e80e1409983493e6a838f
+sourceHash: 7fd76c75d33037050a0229a79adebeaf784bf6f1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="tag" />
 
-<DemoFrame label="ثلاثة مظاهر، بحالة ومن دونها">
+<Example label="ثلاثة مظاهر، بحالة ومن دونها">
   <tanrei-tag label="مسودة"></tanrei-tag>
   <tanrei-tag variant="outlined" label="مسودة"></tanrei-tag>
   <tanrei-tag variant="filled" label="افتراضي"></tanrei-tag>
   <tanrei-tag status="success" label="ناجح"></tanrei-tag>
   <tanrei-tag variant="outlined" status="warning" label="ينتهي قريبًا"></tanrei-tag>
   <tanrei-tag variant="filled" status="error" label="فاشل"></tanrei-tag>
-</DemoFrame>
+</Example>
 
 الوسم كلمة أو عبارة قصيرة تقول ما هو الشيء أو ما حالته: فئة مقال، نتيجة بنية، مرحلة إصدار، القيمة الافتراضية بين عدة قيم. يقف داخل التخطيط، ضمن السطر مع النص المجاور له، ولا يستجيب أبدًا لمؤشر ولا لمفتاح ولا لتركيز.
 
@@ -60,7 +60,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="كل مظهر في كل حالة" plain>
+<Example label="كل مظهر في كل حالة">
   <tanrei-tag status="info" label="قيد المراجعة"></tanrei-tag>
   <tanrei-tag status="warning" label="ينتهي قريبًا"></tanrei-tag>
   <tanrei-tag status="error" label="فاشل"></tanrei-tag>
@@ -73,9 +73,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-tag variant="filled" status="warning" label="ينتهي قريبًا"></tanrei-tag>
   <tanrei-tag variant="filled" status="error" label="فاشل"></tanrei-tag>
   <tanrei-tag variant="filled" status="success" label="ناجح"></tanrei-tag>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="حجمان، وأيقونة، ونقطة" plain>
+<Example label="حجمان، وأيقونة، ونقطة">
   <tanrei-tag size="small" label="اختياري"></tanrei-tag>
   <tanrei-tag size="small" variant="filled" label="مطلوب"></tanrei-tag>
   <tanrei-tag label="تصميم"><span slot="icon">sell</span></tanrei-tag>
@@ -83,7 +83,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-tag dot label="مؤرشف"></tanrei-tag>
   <tanrei-tag dot status="success" label="متصل"></tanrei-tag>
   <tanrei-tag size="small" variant="outlined" status="warning" label="أداء متراجع"></tanrei-tag>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tag" />
 
@@ -119,14 +119,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 لا يرسم الوسم أيقونة حالة من تلقاء نفسه. سمِّ واحدة حيث تفيد، كما يفعل هذا الموقع للحالات الست في جداول الحالة الخاصة به:
 
-<DemoFrame label="الحالات الست في هذا الموقع" plain>
+<Example label="الحالات الست في هذا الموقع">
   <tanrei-tag size="small" variant="outlined" label="مخطَّط"><span slot="icon">radio_button_unchecked</span></tanrei-tag>
   <tanrei-tag size="small" variant="outlined" status="warning" label="متأخر"><span slot="icon">schedule</span></tanrei-tag>
   <tanrei-tag size="small" label="ألفا"><span slot="icon">clock_loader_40</span></tanrei-tag>
   <tanrei-tag size="small" label="بيتا"><span slot="icon">clock_loader_80</span></tanrei-tag>
   <tanrei-tag size="small" status="success" label="مستقر"><span slot="icon">check_circle</span></tanrei-tag>
   <tanrei-tag size="small" status="error" label="مهمَل"><span slot="icon">block</span></tanrei-tag>
-</DemoFrame>
+</Example>
 
 ### الأحجام
 
@@ -141,12 +141,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ليست للوسم حالات خاصة به، لكنه قد يقف داخل شيء معطَّل: تسمية حقل معطَّل، أو صف معطَّل في قائمة، أو عنصر معطَّل في قائمة أوامر. والخاصية `disabled` ترسمه بألوان مظهره المعطَّلة (`comp.tag.<variant>.disabled.*`)، أيًّا كانت حالته، فيبهت مع ما يحتويه ولا يبدو الجزء الحيّ الوحيد فيه. ولا تغيّر شيئًا آخر: يحتفظ الوسم بحجمه وكلماته، ولا يستقبل إدخالًا ولا تركيزًا. والحقل ومجموعة الحقول يعيّنانها على وسم المطلوب أو الاختياري ما داما معطَّلين؛ وعيِّنها بنفسك على وسم تضعه في عنصر معطَّل من عناصرك.
 
-<DemoFrame label="وسوم في الراحة وداخل شيء معطَّل" plain>
+<Example label="وسوم في الراحة وداخل شيء معطَّل">
   <tanrei-tag size="small" variant="filled" label="مطلوب"></tanrei-tag>
   <tanrei-tag size="small" variant="filled" label="مطلوب" disabled></tanrei-tag>
   <tanrei-tag size="small" label="اختياري"></tanrei-tag>
   <tanrei-tag size="small" label="اختياري" disabled></tanrei-tag>
-</DemoFrame>
+</Example>
 
 ### افعل
 

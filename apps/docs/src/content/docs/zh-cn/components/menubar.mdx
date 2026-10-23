@@ -2,20 +2,20 @@
 title: "菜单栏"
 description: "把应用的命令放在一行常驻的、有名称的菜单（文件、编辑、视图……）里，让它们随时可用；每个菜单在自己的标题下方打开，方向键沿这一行移动，并进入各个菜单。"
 translationOf: components/menubar.mdx
-sourceHash: 727005283bfc41b0656f8ab9ab5f3acd80cb9bc8
+sourceHash: d6a1886f27ffae85410b1fcb19d9f1298ecf6889
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="menubar" />
 
-<DemoFrame label="编辑器的菜单" column>
+<Example label="编辑器的菜单" column>
   <tanrei-menubar label="应用菜单" overflow-label="更多菜单" style="inline-size: 100%">
     <tanrei-menubar-menu label="文件">
       <tanrei-menu-item label="新建" shortcut="mod+n"></tanrei-menu-item>
@@ -55,7 +55,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-menu-item label="关于"></tanrei-menu-item>
     </tanrei-menubar-menu>
   </tanrei-menubar>
-</DemoFrame>
+</Example>
 
 ### 菜单栏不是什么
 
@@ -151,7 +151,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### 直接起作用的条目
 
-<DemoFrame label="三个菜单、一个操作和两个链接项，画得一样" column>
+<Example label="三个菜单、一个操作和两个链接项，画得一样" column>
   <tanrei-menubar label="带有直接起作用的条目的应用菜单" overflow-label="更多" style="inline-size: 100%">
     <tanrei-menubar-menu label="文件">
       <tanrei-menu-item label="新建"></tanrei-menu-item>
@@ -168,7 +168,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-menubar-item><a href="#直接起作用的条目">文档</a></tanrei-menubar-item>
     <tanrei-menubar-item target-label="在新标签页中打开"><a href="#直接起作用的条目" target="_blank">源代码</a></tanrei-menubar-item>
   </tanrei-menubar>
-</DemoFrame>
+</Example>
 
 使用栏项之前，先看什么时候不该用它。栏项看起来与打开菜单的标题一模一样，所以每多一个栏项，用户就要多犹豫一次：按下去会发生什么。
 
@@ -239,7 +239,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="一行放不下所有标题时，把其余的折叠进一个溢出项" plain column>
+<Example label="一行放不下所有标题时，把其余的折叠进一个溢出项" column>
   <tanrei-menubar label="应用菜单（窄）" overflow-label="更多菜单" style="inline-size: 13rem">
     <tanrei-menubar-menu label="文件"><tanrei-menu-item label="新建"></tanrei-menu-item><tanrei-menu-item label="打开…"></tanrei-menu-item></tanrei-menubar-menu>
     <tanrei-menubar-menu label="编辑"><tanrei-menu-item label="撤销"></tanrei-menu-item><tanrei-menu-item label="重做"></tanrei-menu-item></tanrei-menubar-menu>
@@ -247,7 +247,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-menubar-menu label="格式" disabled><tanrei-menu-item label="加粗"></tanrei-menu-item></tanrei-menubar-menu>
     <tanrei-menubar-menu label="帮助"><tanrei-menu-item label="关于"></tanrei-menu-item></tanrei-menubar-menu>
   </tanrei-menubar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="menubar" />
 

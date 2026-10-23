@@ -2,27 +2,27 @@
 title: "步骤条"
 description: "在产品按固定步骤顺序推进的流程中，显示一个人所处的位置：哪一步是当前步骤，哪些已完成，哪一步有错误，哪些还没到；并让他们按下某一步回到那里。"
 translationOf: components/stepper.mdx
-sourceHash: 6f6aced00c2b6ebab565e04f4136b2fd6ad660ee
+sourceHash: b524c68cd799156b9046e09abbc27c410dcb8f23
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="stepper" />
 
-<DemoFrame label="水平，含一个有错误的步骤" column>
+<Example label="水平，含一个有错误的步骤" column>
   <tanrei-stepper label="结账进度" value="payment" pressable="visited" completed-text="已完成" error-text="有错误" style="inline-size: 100%">
     <tanrei-stepper-step value="account" label="账户"></tanrei-stepper-step>
     <tanrei-stepper-step value="shipping" label="配送" status="error" description="缺少邮政编码"></tanrei-stepper-step>
     <tanrei-stepper-step value="payment" label="付款"></tanrei-stepper-step>
     <tanrei-stepper-step value="review" label="确认"></tanrei-stepper-step>
   </tanrei-stepper>
-</DemoFrame>
+</Example>
 
 步骤条（stepper）放在一个有位置可言的流程的内容上方或旁边：结账、初始设置、分成几部分填写的申请。一步是当前步骤，它之前的步骤已完成，可能有一步需要这个人处理，其余的还没到。
 
@@ -79,7 +79,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 
 ## 规格
 
-<DemoFrame label="垂直，以及紧凑形态" plain>
+<Example label="垂直，以及紧凑形态">
   <tanrei-stepper label="初始设置" value="profile" layout="vertical" completed-text="已完成" error-text="有错误" style="inline-size: 320px">
     <tanrei-stepper-step value="account" label="创建账户" description="邮箱和密码"></tanrei-stepper-step>
     <tanrei-stepper-step value="profile" label="个人资料" description="姓名和照片"></tanrei-stepper-step>
@@ -93,7 +93,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
     <tanrei-stepper-step value="payment" label="付款"></tanrei-stepper-step>
     <tanrei-stepper-step value="review" label="确认"></tanrei-stepper-step>
   </tanrei-stepper>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="stepper" />
 

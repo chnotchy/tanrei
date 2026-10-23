@@ -2,26 +2,26 @@
 title: タイムライン
 description: イベントを時間の順に並べます。各イベントはマーカー、時刻、タイトル、内容の本文から成り、次のイベントと細い線でつながります。イベントに状態がある場合は、どれが完了し、どれが進行中で、どれがこれからなのかを、マーカーの形と言葉で伝えます。読むためのリストであり、コントロールではありません。
 translationOf: components/timeline.mdx
-sourceHash: 0251491f2f4ffd11a3d50c86f7ebc160d900e2c7
+sourceHash: fe96394352682136b8b8072fff4ca84976bd75c1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="timeline" />
 
-<DemoFrame label="起きたことの記録" column>
+<Example label="起きたことの記録" column>
   <ol class="tanrei-timeline" role="list" aria-label="リリースの履歴" style="inline-size: 100%; max-inline-size: 28rem">
     <li><time class="tanrei-timeline-time" datetime="2026-09-22">2026年9月22日</time><p class="tanrei-timeline-title">レベルで呼ぶテキストスタイル</p><p>テキストスタイルをレベルで呼ぶようになり、すべての角をなめらかにできるようになりました。</p></li>
     <li><time class="tanrei-timeline-time" datetime="2026-09-21">2026年9月21日</time><p class="tanrei-timeline-title">拡張できる語彙</p><p>デザインのレイヤは、理由を添えて、系列に段階を、軸に値を追加できます。</p></li>
     <li><time class="tanrei-timeline-time" datetime="2026-09-19">2026年9月19日</time><p class="tanrei-timeline-title">開発開始</p><p>トークンのパイプライン、仕様のスキーマ、最初の仕様ができました。</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
 印を線でつないで描くものは 3 つあります。違いは、読み手がそれで何をするかです。
 
@@ -119,16 +119,16 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 
 ## 仕様
 
-<DemoFrame label="計画：完了、完了、進行中、これから" plain column>
+<Example label="計画：完了、完了、進行中、これから" column>
   <ol class="tanrei-timeline" role="list" aria-label="ロードマップ" style="inline-size: 100%; max-inline-size: 28rem">
     <li data-status="done" data-status-label="完了"><p class="tanrei-timeline-time">Wave 0</p><p class="tanrei-timeline-title">基礎</p><p>トークン、テーマ、タイポグラフィ、アイコン、サーフェス、状態のプリミティブ。</p></li>
     <li data-status="done" data-status-label="完了"><p class="tanrei-timeline-time">Wave 1</p><p class="tanrei-timeline-title">初日から必要なコントロール</p><p>ボタン、フィールド、選択コントロール、リスト。</p></li>
     <li data-status="current" data-status-label="進行中"><p class="tanrei-timeline-time">Wave 2</p><p class="tanrei-timeline-title">ナビゲーションとオーバーレイ</p><p>ドロワー、タブ、ダイアログ、メニュー、シート。</p></li>
     <li data-status="upcoming" data-status-label="未着手"><p class="tanrei-timeline-time">Wave 3</p><p class="tanrei-timeline-title">特定の用途のコンポーネント</p><p>ピッカー、カルーセル、ドキュメントサイトに必要なもの。</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="プロダクト側のグリフと、compact のログ" plain column>
+<Example label="プロダクト側のグリフと、compact のログ" column>
   <ol class="tanrei-timeline" role="list" aria-label="注文 1042" style="inline-size: 100%; max-inline-size: 28rem">
     <li data-status="done" data-status-label="完了"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">receipt_long</span><p class="tanrei-timeline-time">月曜日 09:41</p><p class="tanrei-timeline-title">注文を受け付けました</p></li>
     <li data-status="current" data-status-label="進行中"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">local_shipping</span><p class="tanrei-timeline-time">火曜日 14:05</p><p class="tanrei-timeline-title">配送中</p></li>
@@ -139,7 +139,7 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
     <li><time class="tanrei-timeline-time" datetime="10:09">10:09</time><p class="tanrei-timeline-title">6 つのスキームでコントラストを確認しました</p></li>
     <li><time class="tanrei-timeline-time" datetime="10:02">10:02</time><p class="tanrei-timeline-title">プライマリの色を変更しました</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
 - **マーカー**は、先頭側の端にあるボックスの中に置かれます。ボックスの差し渡しは medium で 24、large で 28 で、イベントの 1 行目の中央にそろいます。状態がなければ小さな点で、プロダクト側のグリフがあれば、細い線の輪にそのグリフを入れたものになります。
 - **状態**が変えるのは、マーカーの形だけです。完了はチェックの入った輪、進行中は点の入った塗りつぶしの円、これからのイベントは空の輪です。時刻の色を除けば、タイムラインが持ち込む色は、この塗りつぶしの円だけです。

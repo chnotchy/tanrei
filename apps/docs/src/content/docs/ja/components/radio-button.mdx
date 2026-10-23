@@ -2,26 +2,26 @@
 title: ラジオボタン
 description: 一度にすべて見えている少数の選択肢から、ちょうど 1 つを選べるようにします。
 translationOf: components/radio-button.mdx
-sourceHash: 580d206e4ecad18e8ec686f544dd11bd9a7b7564
+sourceHash: 5b4f61772f78c2094f60c4453b4b44a4119e747d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="radio-button" />
 
-<DemoFrame label="グループ">
+<Example label="グループ">
   <div role="radiogroup" aria-label="頻度" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-radio-button name="overview-frequency" value="daily" label="毎日"></tanrei-radio-button>
     <tanrei-radio-button name="overview-frequency" value="weekly" checked label="毎週"></tanrei-radio-button>
     <tanrei-radio-button name="overview-frequency" value="monthly" label="毎月"></tanrei-radio-button>
   </div>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -121,7 +121,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 仕様
 
-<DemoFrame label="選択、未選択、無効状態" plain>
+<Example label="選択、未選択、無効状態">
   <div role="radiogroup" aria-label="有効" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-radio-button name="specs-enabled" value="unselected" label="未選択"></tanrei-radio-button>
     <tanrei-radio-button name="specs-enabled" value="selected" checked label="選択"></tanrei-radio-button>
@@ -137,7 +137,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <div role="radiogroup" aria-label="ラベルを隠す">
     <tanrei-radio-button name="specs-hidden" value="weekly" checked label-hidden label="毎週"></tanrei-radio-button>
   </div>
-</DemoFrame>
+</Example>
 
 既定のシステムでは、ラジオボタンは線の太さ 2 の 20 のリングを、直径 40 の丸いステートレイヤーの上に描きます。選ばれた選択肢に点は描きません。リングが内側へ半径の半分まで太くなり、内側に残った円を、リングの色の 16% の不透明度で塗ります。淡い色合いで、リングとは 3:1 以上の差を保ちます。リングの外径は、どちらの状態でも変わりません。リングと塗りは 1 つの形です。どの拡大率や画面密度でも、また変化の途中のどのフレームでも、両者の間から背後が透けることはありません。選択が変わると、線が太くなるか細くなるのと同時に、リングの色が変わり、塗りがフェードインまたはフェードアウトします。塗りが中心から広がることはありません。動きの途中で再び変わったときは、その時点の姿から引き返します。動きを減らす設定では、新しい状態をすぐに、完全に示します。
 

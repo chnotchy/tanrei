@@ -2,14 +2,14 @@
 title: شريط التنقل
 description: ينقل بين ثلاث إلى خمس وجهات عليا من الحافة السفلية لشاشة مضغوطة، ويبيّن أيها الحالية.
 translationOf: components/navigation-bar.mdx
-sourceHash: ebead3b29a3b730640d2ca80309b0a7ea07178d8
+sourceHash: a063a49e81d4bae9234bd616bd72890fef82374b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
@@ -19,31 +19,31 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 تصف هذه الصفحة شريط التنقل كما هو في المواصفة الآن، على مثال [علامات التبويب](/ar/components/tabs/). المؤشر النشط هو الحصة المتساوية الكاملة للوجهة الحالية من الشريط، مُزاحةً إلى الداخل عن حواف الشريط، لا حبّة تلتف حول الأيقونة والتسمية. ينزلق إلى الوجهة الجديدة بحجمه الكامل حين يتغيّر التحديد، والسحب على امتداد الشريط يحمله مع مؤشر الإدخال. ويُرسم التحويم والضغط والتركيز في ذلك الصندوق نفسه. تختار الخاصية `variant` بين tonal (الافتراضي) و filled. وكل الخصائص والأحداث الأخرى هي نفسها في المراجعتين. المنصات الموسومة أعلاه بأنها متأخرة تقدّم المراجعة الأولى إلى أن تلحق: بلا `variant`، وبلا سحب، وبمؤشر خلف الأيقونة وحدها يكبر من مركزه، وتعرض عيّناتها تلك المراجعة. العروض الحيّة في هذه الصفحة هي مكوّن الويب كما يُقدَّم اليوم.
 :::
 
-<DemoFrame label="أربع وجهات، على إحداها عدد">
+<Example label="أربع وجهات، على إحداها عدد">
   <tanrei-navigation-bar value="inbox" label="الرئيسي" style="inline-size: 24rem">
     <tanrei-navigation-bar-item value="inbox" label="الوارد" icon="inbox" badge badge-count="3" badge-label="3 غير مقروءة"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="chat" label="المحادثة" icon="chat"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="starred" label="المميَّزة" icon="star"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="settings" label="الإعدادات" icon="settings"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="الطراز filled: اضغط واسحب على امتداد الشريط لتحمل المؤشر" plain>
+<Example label="الطراز filled: اضغط واسحب على امتداد الشريط لتحمل المؤشر">
   <tanrei-navigation-bar variant="filled" value="chat" label="الوسائط" style="inline-size: 24rem">
     <tanrei-navigation-bar-item value="home" label="الرئيسية" icon="home"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="chat" label="المحادثة" icon="chat" badge badge-label="رسائل جديدة"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="starred" label="المميَّزة" icon="star"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="شريط من الروابط: الصفحة تسمّي الوجهة الحالية بعنوانها، و«المساعدة» تفتح تبويبًا جديدًا" plain>
+<Example label="شريط من الروابط: الصفحة تسمّي الوجهة الحالية بعنوانها، و«المساعدة» تفتح تبويبًا جديدًا">
   <tanrei-navigation-bar value="/ar/components/navigation-bar/" label="المكوّنات" style="inline-size: 24rem">
     <tanrei-navigation-bar-item href="/ar/components/button/" label="الزر" icon="smart_button"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item href="/ar/components/navigation-bar/" label="الشريط" icon="bottom_navigation"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item href="/ar/components/navigation-drawer/" label="الدرج" icon="side_navigation"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item href="https://example.com/" label="المساعدة" icon="help" target="new" target-label="يُفتح في تبويب جديد"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -202,7 +202,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="تسمية الوجهة المحدَّدة وحدها، وبلا تسميات" plain column>
+<Example label="تسمية الوجهة المحدَّدة وحدها، وبلا تسميات" column>
   <tanrei-navigation-bar value="chat" label-visibility="selected" label="الرئيسي" style="inline-size: 24rem">
     <tanrei-navigation-bar-item value="inbox" label="الوارد" icon="inbox"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="chat" label="المحادثة" icon="chat"></tanrei-navigation-bar-item>
@@ -213,7 +213,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-navigation-bar-item value="chat" label="المحادثة" icon="chat" badge badge-label="رسائل جديدة"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="starred" label="المميَّزة" icon="star"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="navigation-bar" />
 

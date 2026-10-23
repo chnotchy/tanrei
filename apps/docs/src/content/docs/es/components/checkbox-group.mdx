@@ -2,20 +2,20 @@
 title: Grupo de casillas de verificación
 description: Hace una pregunta que puede tener varias respuestas entre unas pocas opciones que se muestran todas a la vez. Es un conjunto de casillas de verificación bajo una sola etiqueta, con una descripción y un solo error, que guarda la lista de los valores marcados con un solo nombre y puede traer una casilla que las marca todas.
 translationOf: components/checkbox-group.mdx
-sourceHash: 320c2d0f75bef6bb336ea072b1aef4b74ee7cd0e
+sourceHash: 3f33db7448b9a270c95ff8654e67bc3ad3ac6fe1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="checkbox-group" />
 
-<DemoFrame label="Un grupo de casillas de verificación, y otro con una casilla que las marca todas" column>
+<Example label="Un grupo de casillas de verificación, y otro con una casilla que las marca todas" column>
   <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Avísame por" supporting-text="Elige todas las opciones que correspondan." required required-text="Obligatorio">
     <tanrei-checkbox value="email" label="Correo electrónico" checked></tanrei-checkbox>
     <tanrei-checkbox value="text" label="Mensaje de texto"></tanrei-checkbox>
@@ -28,7 +28,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-checkbox value="thu" label="Jueves"></tanrei-checkbox>
     <tanrei-checkbox value="fri" label="Viernes"></tanrei-checkbox>
   </tanrei-checkbox-group>
-</DemoFrame>
+</Example>
 
 Usa un grupo de casillas de verificación donde una pregunta tiene una lista por respuesta y las opciones son lo bastante pocas para mostrarlas todas a la vez, hasta unas siete: las formas de recibir avisos, los días en que se envía un informe, los tipos por los que se filtra una lista. La respuesta es un solo valor (la lista de los valores marcados), y un formulario la envía con un solo nombre.
 
@@ -115,13 +115,13 @@ El mismo conjunto, escrito a mano con sus dos miembros, es la misma imagen y el 
 </tanrei-field-group>
 ```
 
-<DemoFrame label="El mismo conjunto escrito a mano: un grupo de campos con casillas de verificación dentro" column>
+<Example label="El mismo conjunto escrito a mano: un grupo de campos con casillas de verificación dentro" column>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Avísame por" supporting-text="Elige todas las opciones que correspondan." required required-text="Obligatorio">
     <tanrei-checkbox name="notify" value="email" label="Correo electrónico" checked></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="text" label="Mensaje de texto"></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="push" label="Notificación push"></tanrei-checkbox>
   </tanrei-field-group>
-</DemoFrame>
+</Example>
 
 Lo que el grupo de campos y las casillas escritos a mano no hacen es guardar la respuesta:
 
@@ -148,7 +148,7 @@ Baja a ese nivel cuando el conjunto no es una sola respuesta:
 
 ## Especificaciones
 
-<DemoFrame label="Una fila, una respuesta rechazada, una opción que siempre está activada y un grupo deshabilitado" plain column>
+<Example label="Una fila, una respuesta rechazada, una opción que siempre está activada y un grupo deshabilitado" column>
   <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Tallas" orientation="horizontal">
     <tanrei-checkbox value="s" label="S" checked></tanrei-checkbox>
     <tanrei-checkbox value="m" label="M" checked></tanrei-checkbox>
@@ -168,7 +168,7 @@ Baja a ese nivel cuando el conjunto no es una sola respuesta:
     <tanrei-checkbox value="email" label="Correo electrónico" checked></tanrei-checkbox>
     <tanrei-checkbox value="text" label="Mensaje de texto"></tanrei-checkbox>
   </tanrei-checkbox-group>
-</DemoFrame>
+</Example>
 
 ### Qué aporta cada miembro
 

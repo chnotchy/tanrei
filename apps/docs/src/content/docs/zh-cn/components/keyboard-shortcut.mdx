@@ -2,14 +2,14 @@
 title: "键盘快捷键"
 description: "以键帽或文本的形式显示执行某个命令的按键，使用用户所用键盘的修饰键符号和名称，朗读时则读出按键的名称。"
 translationOf: components/keyboard-shortcut.mdx
-sourceHash: 63d76372e6eb95e569cb0e3333d01afaeaadceb0
+sourceHash: aefaa8f159d65d66f0d297cf2ae3f659c10c017f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
@@ -17,11 +17,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 键盘快捷键显示执行某个命令的按键：可以画成键帽，也可以画成命令名称旁边的纯文本，有 small 和 medium 两种尺寸。按键用中立的名称书写，例如 `mod`、`shift`、`k`，并按用户所用键盘的惯例绘制：Apple 的符号（⇧⌘K），或标准名称（Ctrl+Shift+K）。产品可以为某个区域指定惯例，也可以交给平台决定。由连续几个组合键构成的快捷键（Ctrl+K Ctrl+C）是一个序列。
 
-<DemoFrame label="键帽、由两个组合键构成的序列，以及纯文本形式，按你正在使用的键盘显示">
+<Example label="键帽、由两个组合键构成的序列，以及纯文本形式，按你正在使用的键盘显示">
   <tanrei-keyboard-shortcut keys="mod+shift+k" label="Command 或 Control，Shift，K"></tanrei-keyboard-shortcut>
   <tanrei-keyboard-shortcut keys="mod+k mod+c" label="Command 或 Control 加 K，然后 Command 或 Control 加 C"></tanrei-keyboard-shortcut>
   <tanrei-keyboard-shortcut keys="mod+shift+k" label="Command 或 Control，Shift，K" variant="plain"></tanrei-keyboard-shortcut>
-</DemoFrame>
+</Example>
 
 它画出的按键只供眼睛看：辅助技术读到的是产品提供的 `label`，也就是用你自己的话说出的快捷键；没有 `label` 时，读到的是 `aria-keyshortcuts` 的写法（`Meta+Shift+K`）。Tanrei 没有任何语言的按键名称。它只显示按键，别无其他：它不接受焦点和输入，也不会让这些按键生效。按键由你的产品来绑定。
 
@@ -82,7 +82,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="同样的按键，分别按 Apple 键盘和标准键盘显示；句子中的 small；有名称的按键；禁用" plain column>
+<Example label="同样的按键，分别按 Apple 键盘和标准键盘显示；句子中的 small；有名称的按键；禁用" column>
   <div data-tanrei-keyboard-convention="apple" style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
     <tanrei-keyboard-shortcut keys="mod+shift+k" label="Shift Command K"></tanrei-keyboard-shortcut>
     <tanrei-keyboard-shortcut keys="mod+shift+k" label="Shift Command K" size="small"></tanrei-keyboard-shortcut>
@@ -104,7 +104,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-keyboard-shortcut keys="mod+z" label="Command 或 Control，Z" disabled></tanrei-keyboard-shortcut>
     <tanrei-keyboard-shortcut keys="mod+z" label="Command 或 Control，Z" variant="plain" disabled></tanrei-keyboard-shortcut>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="keyboard-shortcut" />
 

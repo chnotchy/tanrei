@@ -2,20 +2,20 @@
 title: Select
 description: "Permite elegir un valor de una lista cerrada: un activador que tiene el aspecto y las medidas de la caja de una entrada de texto y muestra la opción elegida, y una lista de opciones, agrupadas si hace falta, que se abre desde él, sin fila de etiqueta, ayuda ni texto de error propios. Para una barra, una barra de herramientas o una tabla, o dentro de un campo que el producto compone por su cuenta."
 translationOf: components/select.mdx
-sourceHash: 6498add9840e5413d69077058e2b885721456c9b
+sourceHash: 6246b546b185dfc590a8e1793d0b194db9f0c4db
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="select" />
 
-<DemoFrame label="Sin nada más: un select de tema para una barra y un criterio de orden sobre una lista" column>
+<Example label="Sin nada más: un select de tema para una barra y un criterio de orden sobre una lista" column>
   <tanrei-select class="not-content" size="small" label="Tema" value="auto">
     <tanrei-option value="light" leading-icon="light_mode">Claro</tanrei-option>
     <tanrei-option value="dark" leading-icon="dark_mode">Oscuro</tanrei-option>
@@ -26,7 +26,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-option value="name">Nombre</tanrei-option>
     <tanrei-option value="size">Tamaño</tanrei-option>
   </tanrei-select>
-</DemoFrame>
+</Example>
 
 Un select es la caja de un [campo de selección](/es/components/select-field/), sola: el activador con el valor que muestra, su icono inicial y su chevron, y la lista de opciones que se abre desde él. No tiene fila de etiqueta encima, ni marca de obligatoriedad, ni ayuda ni texto de error debajo.
 
@@ -106,20 +106,20 @@ Un campo alrededor de un select es un campo de selección escrito por extenso. D
 </tanrei-field>
 ```
 
-<DemoFrame label="Un campo con un select dentro: la misma imagen que un campo de selección" column>
+<Example label="Un campo con un select dentro: la misma imagen que un campo de selección" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="País" required required-text="Obligatorio" supporting-text="El país al que van dirigidas tus facturas.">
     <tanrei-select placeholder="Elige un país">
       <tanrei-option value="jp">Japón</tanrei-option>
       <tanrei-option value="ke">Kenia</tanrei-option>
     </tanrei-select>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 El select le dice a su campo lo que solo él sabe. Su ayuda empieza donde empieza el valor, después del margen interior y de un icono inicial. Un select filled u outlined dibuja él mismo la etiqueta del campo, flotando en la caja, así que el campo no dibuja fila de etiqueta. Y mientras su lista está abierta, el select se dibuja con foco, lo tenga o no, así que el campo dibuja su etiqueta y su ayuda con foco durante ese tiempo.
 
 ## Especificaciones
 
-<DemoFrame label="Selects sin nada más: grupos, texto de apoyo con una opción deshabilitada, en error, de solo lectura y deshabilitado" plain column>
+<Example label="Selects sin nada más: grupos, texto de apoyo con una opción deshabilitada, en error, de solo lectura y deshabilitado" column>
   <tanrei-select class="not-content" label="Zona horaria" value="Europe/Lisbon">
     <tanrei-option-group label="Asia"><tanrei-option value="Asia/Tokyo">Tokio</tanrei-option><tanrei-option value="Asia/Seoul">Seúl</tanrei-option></tanrei-option-group>
     <tanrei-option-group label="Europa"><tanrei-option value="Europe/Lisbon">Lisboa</tanrei-option><tanrei-option value="Europe/Berlin">Berlín</tanrei-option></tanrei-option-group>
@@ -138,7 +138,7 @@ El select le dice a su campo lo que solo él sabe. Su ayuda empieza donde empiez
   <tanrei-select class="not-content" label="País" value="jp" disabled>
     <tanrei-option value="jp">Japón</tanrei-option><tanrei-option value="ke">Kenia</tanrei-option>
   </tanrei-select>
-</DemoFrame>
+</Example>
 
 ### El activador
 
@@ -198,11 +198,11 @@ El select nunca carga, espera ni reintenta nada. Pon `status` en `loading` al em
 
 Un select sin opciones, sin estado y sin `emptyText` no se abre. Dale un `emptyText`, o la palabra `noOptionsText` del producto una vez con `setWords()`, para que quien lo abra sepa por qué no hay nada que elegir.
 
-<DemoFrame label="Cargando, un fallo y nada que elegir" column>
+<Example label="Cargando, un fallo y nada que elegir" column>
   <tanrei-select class="not-content" label="Proyecto" placeholder="Elige un proyecto" status="loading" status-text="Cargando proyectos"></tanrei-select>
   <tanrei-select class="not-content" label="Proyecto" placeholder="Elige un proyecto" status="error" status-text="No se pudieron cargar los proyectos. Comprueba tu conexión."></tanrei-select>
   <tanrei-select class="not-content" label="Proyecto" placeholder="Elige un proyecto" empty-text="Aún no hay proyectos"></tanrei-select>
-</DemoFrame>
+</Example>
 
 ### Abrir, moverse y elegir
 

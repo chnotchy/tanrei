@@ -207,18 +207,6 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('the contrast rows of a live example follow the menu, and the menu follows them', async () => {
-      const { context, page } = await open(WIDE, '/components/button/');
-      const row = page.locator('[data-docs-contrast]').first();
-      await row.waitFor();
-      await choose(page, 'docs-appearance', 'menuitemradio', strings('en').contrastMedium);
-      await page.waitForFunction(() => document.querySelector('[data-docs-contrast]').value === 'medium');
-      await row.getByRole('radio', { name: strings('en').contrastHigh }).click();
-      await page.waitForFunction(() => document.querySelector('tanrei-menu-group.docs-contrast-group').value === 'high');
-      assert.equal(await page.evaluate(() => document.documentElement.getAttribute('data-tanrei-contrast')), 'high');
-      await context.close();
-    });
-
     test('the language’s menu links this page in the six languages, the current one marked', async () => {
       const { context, page } = await open(WIDE, '/ja/foundations/accessibility/');
       const links = await page.locator('tanrei-menu[anchor="docs-language"] tanrei-menu-item').evaluateAll((all) => all.map((item) => ({ href: item.getAttribute('href'), current: item.hasAttribute('current') })));

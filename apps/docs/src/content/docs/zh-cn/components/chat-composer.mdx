@@ -2,27 +2,27 @@
 title: "聊天输入栏"
 description: "让用户写一条消息并把它发出去，一切都收在一个胶囊里。随所写内容增高的输入区、附加到消息上的文件、你自己的操作，以及只在消息可以发送时才启用的发送按钮。它只报告消息，自己绝不发送任何东西。"
 translationOf: components/chat-composer.mdx
-sourceHash: 5030b8d8268f9b3555fd16ab43bcdbb77447e8fb
+sourceHash: 14a5591949903e4270525157dabc913983807927
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 
 ## 概览
 
 <ComponentAvailability name="chat-composer" />
 
-<DemoFrame label="两种布局的聊天输入栏。写一条消息、附加一个文件，然后发送。不会发送到任何地方。" column>
+<Example label="两种布局的聊天输入栏。写一条消息、附加一个文件，然后发送。不会发送到任何地方。" column>
   <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" label="消息" placeholder="输入消息" send-label="发送" attachments="own" attach-label="添加附件" remove-label="移除 {name}"></tanrei-chat-composer>
   <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" layout="stacked" label="消息" placeholder="输入消息" send-label="发送" attachments="own" attach-label="添加附件" remove-label="移除 {name}" max-length="280" counter>
     <tanrei-button slot="leading" variant="text" label="提及某人"><span slot="icon">alternate_email</span></tanrei-button>
     <tanrei-button slot="leading" variant="text" label="添加表情"><span slot="icon">mood</span></tanrei-button>
   </tanrei-chat-composer>
-</DemoFrame>
+</Example>
 
 聊天输入栏是写消息的那一个地方：在一段对话里、在某项工作下方的讨论串里，或者在求助请求里。它画成一个胶囊。胶囊里有输入区、附件、你自己的操作和发送按钮。
 

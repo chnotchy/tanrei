@@ -2,23 +2,23 @@
 title: ख़ाली स्टेट
 description: वह चीज़ जो उस कॉन्टेंट की जगह रहती है जो वहाँ नहीं है, जैसे बिना नतीजों वाली खोज, वह लिस्ट जिसमें अभी किसी ने कुछ नहीं जोड़ा, या पहला आइटम आने से पहले का पेज। वह बताती है कि क्या नहीं है, क्यों नहीं है या क्या करना है, और वह क्रिया देती है जो यह काम करती है।
 translationOf: components/empty-state.mdx
-sourceHash: d3fa57bc06d9c02ac0f16e7a10c5d4d5a0d20bfe
+sourceHash: 1dd91f2ec1c7941daac79ca1cc090adcaeb66da9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="empty-state" />
 
-<DemoFrame label="वह लिस्ट जिसमें अभी किसी ने कुछ नहीं जोड़ा, और वह खोज जिसे कुछ नहीं मिला" column>
+<Example label="वह लिस्ट जिसमें अभी किसी ने कुछ नहीं जोड़ा, और वह खोज जिसे कुछ नहीं मिला" column>
   <tanrei-empty-state headline="अभी कोई प्रोजेक्ट नहीं है" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>प्रोजेक्ट एक डिज़ाइन सिस्टम की लेयर, एक्सपोर्ट और लोगों को एक साथ रखता है।<tanrei-button slot="actions">नया प्रोजेक्ट</tanrei-button><tanrei-button slot="actions" variant="text">लेयर इंपोर्ट करें</tanrei-button></tanrei-empty-state>
   <tanrei-empty-state headline='"tokne" के लिए कोई नतीजा नहीं मिला' style="inline-size: min(100%, 30rem)"><span slot="media">search_off</span>स्पेलिंग जाँचें, या कोई छोटा शब्द खोजें।<tanrei-button slot="actions" variant="outlined">खोज मिटाएँ</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
 ख़ाली स्टेट वहाँ रहता है जहाँ कॉन्टेंट होता, पर है नहीं: वह लिस्ट, पंक्तियों या नतीजों की जगह लेता है। वह कुछ शब्दों में बताता है कि क्या नहीं है, एक वाक्य में बताता है कि क्यों नहीं है या क्या करना है, और वह कंट्रोल देता है जो यह काम करता है। वह हल्का और सपाट है, न फ़िल, न किनारा, और वह कॉन्टेंट है, जो वहीं पढ़ा जाता है जहाँ वह है: वह फ़ोकस नहीं लेता और उसका कोई स्टेट नहीं होता।
 
@@ -79,17 +79,17 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="भाग, एक-एक करके जोड़े गए" plain column>
+<Example label="भाग, एक-एक करके जोड़े गए" column>
   <tanrei-empty-state headline="अभी कोई प्रोजेक्ट नहीं है" style="inline-size: min(100%, 30rem)"></tanrei-empty-state>
   <tanrei-empty-state headline="अभी कोई प्रोजेक्ट नहीं है" style="inline-size: min(100%, 30rem)">प्रोजेक्ट एक डिज़ाइन सिस्टम की लेयर, एक्सपोर्ट और लोगों को एक साथ रखता है।</tanrei-empty-state>
   <tanrei-empty-state headline="अभी कोई प्रोजेक्ट नहीं है" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>प्रोजेक्ट एक डिज़ाइन सिस्टम की लेयर, एक्सपोर्ट और लोगों को एक साथ रखता है।</tanrei-empty-state>
   <tanrei-empty-state headline="अभी कोई प्रोजेक्ट नहीं है" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>प्रोजेक्ट एक डिज़ाइन सिस्टम की लेयर, एक्सपोर्ट और लोगों को एक साथ रखता है।<tanrei-button slot="actions">नया प्रोजेक्ट</tanrei-button><tanrei-button slot="actions" variant="text">लेयर इंपोर्ट करें</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="शुरुआती किनारे पर, और large साइज़" plain column>
+<Example label="शुरुआती किनारे पर, और large साइज़" column>
   <tanrei-empty-state align="start" headline="अभी आधार से कुछ अलग नहीं है" style="inline-size: min(100%, 30rem)">बाईं ओर कोई मान बदलें, तो वह यहाँ दिखेगा।</tanrei-empty-state>
   <tanrei-empty-state size="large" headline="यह पेज मौजूद नहीं है" style="inline-size: min(100%, 30rem)"><span slot="media">explore_off</span>हो सकता है पता ग़लत टाइप हुआ हो, या पेज कहीं और चला गया हो।<tanrei-button slot="actions" variant="outlined">शुरुआती पेज पर जाएँ</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="empty-state" />
 
@@ -133,18 +133,18 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 क्रियाएँ आपके अपने [बटन](/hi/components/button/) या लिंक हैं, एक या दो, मुख्य वाला पहले। ख़ाली स्टेट उन्हें ऐसी पंक्ति में रखता है जो अगली पंक्ति में जा सकती है, और उनके साथ और कुछ नहीं करता। जिस क्रिया का लेबल अपनी पंक्ति से लंबा है, उसे पूरी पंक्ति दी जाती है: तब बटन अपने लेबल को रैप करता है, इसलिए न कुछ कटता है और न कुछ ब्लॉक से बाहर जाता है।
 
-<DemoFrame label="सँकरे कॉलम में हर क्रिया अपनी अलग पंक्ति लेती है, और लंबा लेबल रैप होता है" plain column>
+<Example label="सँकरे कॉलम में हर क्रिया अपनी अलग पंक्ति लेती है, और लंबा लेबल रैप होता है" column>
   <tanrei-empty-state headline="कोई नतीजा नहीं मिला" style="inline-size: 14rem"><span slot="media">search_off</span>स्पेलिंग जाँचें।<tanrei-button slot="actions" variant="outlined">खोज मिटाएँ</tanrei-button><tanrei-button slot="actions" variant="text">दस्तावेज़ों की पूरी विषय सूची खोलकर देखें</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
 ### किसी बात के जवाब में दिखना
 
 `live` उस ख़ाली स्टेट के लिए है जो उसका नतीजा है जो व्यक्ति ने अभी-अभी किया: वह फ़िल्टर जिससे कोई पंक्ति मेल नहीं खाती, या आख़िरी आइटम का हटाया जाना। वह एक बार, बिना टोके (polite), पढ़कर सुनाया जाता है, पहले शीर्षक, फिर विवरण, और क्रियाएँ नहीं, जब वह दिखाया जाता है और जब उसका टेक्स्ट बदलता है। उसे `hidden` के साथ पेज में रखें, या जब वह लागू हो तब जोड़ें।
 
-<DemoFrame label="लाइव ख़ाली स्टेट, जो दबाने के जवाब में दिखता है" plain column>
+<Example label="लाइव ख़ाली स्टेट, जो दबाने के जवाब में दिखता है" column>
   <tanrei-button variant="outlined" onclick="document.getElementById('empty-state-demo-live').hidden = false">तीन फ़िल्टर लागू करें</tanrei-button>
   <tanrei-empty-state id="empty-state-demo-live" live hidden headline="इन फ़िल्टर से कोई एंट्री मेल नहीं खाती" style="inline-size: min(100%, 30rem)">तीन फ़िल्टर चालू हैं। एक हटाने पर ज़्यादा एंट्री दिखेंगी।<tanrei-button slot="actions" variant="outlined" onclick="this.closest('tanrei-empty-state').hidden = true">फ़िल्टर हटाएँ</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
 जो ख़ाली स्टेट पेज के मार्कअप में है और पेज लोड होते समय दिखता है, वह उस समय पढ़कर नहीं सुनाया जाता। वेब पर, वह लाइव ख़ाली स्टेट पढ़कर सुनाया जाता है जिसे आपकी स्क्रिप्ट पेज के लोड हो जाने के बाद उसमें जोड़ती है; एलिमेंट यह फ़र्क़ नहीं कर सकता कि वह किसी बात के जवाब में जोड़ा गया है या सिंगल-पेज ऐप्लिकेशन के नए व्यू के साथ, इसलिए जो ख़ाली स्टेट बस नए व्यू का हिस्सा है, उस पर `live` न लगाएँ।
 

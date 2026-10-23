@@ -2,14 +2,14 @@
 title: شريط التطبيق
 description: يسمّي الشاشة الحالية عند حافتها العليا ويحمل طريق الرجوع وبعض إجراءات الشاشة. تبقى حافته السفلية قائمةً حدًّا لترويسة الشاشة، ويأخذ مظهر التمرير حين يمرّ المحتوى تحته.
 translationOf: components/app-bar.mdx
-sourceHash: 6cfec147d94cc9b488a1e09aa54d25c3d7b2351b
+sourceHash: 9a0ed3cf003d8c3fe796a8f2f2d585e762a46c26
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
@@ -17,13 +17,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 تعرض عيّنتا Web و React المواصفة الحالية، وفيها عناصر الشريط [أزرار](/ar/components/button/) بأيقونة فقط. أما SwiftUI و Compose و Flutter و React Native فمتأخرة: ما زالت تقدّم المراجعة السابقة، وفيها مكوّن مستقل لزر الأيقونة. وتعرض عيّناتها تلك المراجعة إلى أن تلحق بالمواصفة.
 
-<DemoFrame label="شريط تطبيق صغير فيه زر رجوع وإجراءان">
+<Example label="شريط تطبيق صغير فيه زر رجوع وإجراءان">
   <tanrei-app-bar headline="الوارد" heading-level="3" scroll-target="none" style="inline-size: 22rem">
     <tanrei-button variant="text" slot="navigation" label="رجوع"><span slot="icon">arrow_back</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="بحث"><span slot="icon">search</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="خيارات إضافية"><span slot="icon">more_vert</span></tanrei-button>
   </tanrei-app-bar>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -195,7 +195,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="شريط كبير له عنوان فرعي، وعنوان في الوسط" plain column>
+<Example label="شريط كبير له عنوان فرعي، وعنوان في الوسط" column>
   <tanrei-app-bar size="large" headline="الوارد" subtitle="ada@example.com" heading-level="3" scroll-target="none" style="inline-size: 22rem">
     <tanrei-button variant="text" slot="navigation" label="القائمة"><span slot="icon">menu</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="بحث"><span slot="icon">search</span></tanrei-button>
@@ -205,15 +205,15 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-button variant="text" slot="navigation" label="رجوع"><span slot="icon">arrow_back</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="بحث"><span slot="icon">search</span></tanrei-button>
   </tanrei-app-bar>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="زر تنقل هو رابط، وزر يفتح البحث بين الإجراءات" plain>
+<Example label="زر تنقل هو رابط، وزر يفتح البحث بين الإجراءات">
   <tanrei-app-bar headline="علامات التبويب" subtitle="المكوّنات" heading-level="3" scroll-target="none" style="inline-size: 22rem">
     <tanrei-button variant="text" slot="navigation" href="/ar/components/" label="كل المكوّنات"><span slot="icon">arrow_back</span></tanrei-button>
     <tanrei-search slot="actions" bar="icon" presentation="dialog" label="البحث في التوثيق" placeholder="بحث" clear-label="مسح البحث" back-label="رجوع"></tanrei-search>
     <tanrei-button variant="text" slot="actions" label="خيارات إضافية"><span slot="icon">more_vert</span></tanrei-button>
   </tanrei-app-bar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="app-bar" />
 

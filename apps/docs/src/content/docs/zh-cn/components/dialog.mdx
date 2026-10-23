@@ -2,14 +2,14 @@
 title: "对话框"
 description: "当任务缺少某个决定或几项信息就无法继续时，让用户停下来作答：它出现在一个表面上，把背后的一切变暗并挡住，直到用户作答或将它关闭。"
 translationOf: components/dialog.mdx
-sourceHash: f86e3764e1ad3f95e4617465f361ae2dd033e180
+sourceHash: 2ec420cc8eb2fe5bd3b7c94ecb87939ab77ba4a5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
@@ -19,13 +19,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 本页描述的是规格当前所定的对话框：每个对话框至少提供一个操作；操作是一行占满宽度的 tonal 按钮，按各自的任务放置；图标位于向起始侧对齐的标题旁边；在 compact 窗口中，对话框位于底部。Web 组件已经实现这次修订，本页的演示就是目前发布的 Web 组件；在修订通过评审、基准图记录完成之前，它在上表中仍标记为“待跟进”。SwiftUI、Compose、Flutter 和 React Native 在跟上之前仍提供上一版：图标位于居中的标题上方，text 变体的操作按给定顺序在末尾侧排成一行，操作可以省略，对话框在任何窗口中都居中。
 :::
 
-<DemoFrame label="确认对话框：用按钮打开它">
+<Example label="确认对话框：用按钮打开它">
   <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-basic').open = true">放弃草稿</tanrei-button>
   <tanrei-dialog id="dialog-demo-basic" headline="放弃草稿？" supporting-text="你正在撰写的消息将从此设备上删除。">
     <tanrei-button slot="actions" dismissive autofocus onclick="this.closest('tanrei-dialog').open = false">取消</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">放弃</tanrei-button>
   </tanrei-dialog>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -193,14 +193,14 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 
 ## 规格
 
-<DemoFrame label="警告对话框：一打开就被朗读的破坏性操作确认" plain>
+<Example label="警告对话框：一打开就被朗读的破坏性操作确认">
   <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-alert').open = true">删除项目</tanrei-button>
   <tanrei-dialog id="dialog-demo-alert" alert headline="删除项目？" supporting-text="项目中的所有内容，包括它的历史记录，都将被删除。此操作无法撤销。">
     <span slot="icon">delete</span>
     <tanrei-button slot="actions" dismissive autofocus onclick="this.closest('tanrei-dialog').open = false">取消</tanrei-button>
     <tanrei-button slot="actions" confirming destructive onclick="this.closest('tanrei-dialog').open = false">删除</tanrei-button>
   </tanrei-dialog>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="dialog" />
 
@@ -244,13 +244,13 @@ tanrei-dialog::part(scroll) { scroll-padding-block-end: 56px; }
 
 ### 没有关闭按钮
 
-<DemoFrame label="“保存”旁边有“取消”的表单，small 宽度">
+<Example label="“保存”旁边有“取消”的表单，small 宽度">
   <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-form').open = true">编辑显示名称</tanrei-button>
   <tanrei-dialog id="dialog-demo-form" headline="编辑显示名称" supporting-text="团队中的每个人都会看到这个名称。" width="small">
     <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-dialog').open = false">取消</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">保存</tanrei-button>
   </tanrei-dialog>
-</DemoFrame>
+</Example>
 
 对话框不会在标题行画出关闭按钮。对话框是在请求一个决定；不作决定就离开的路，是它的取消类操作，以及在 `dismissible` 为 true 时的 Escape、平台的返回操作和在遮罩上的按下。
 

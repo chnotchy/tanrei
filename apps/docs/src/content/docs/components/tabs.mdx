@@ -7,7 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
@@ -17,7 +17,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 This page describes the tabs as they are specified now: tabs on a track, with one indicator that slides to the selected tab and follows a drag across the row, tabs that hug their content by default, labels truncated rather than wrapped, and rows that can share one choice and remember it (`group` and `rememberAs`). `fullWidth` replaces `scrollable`. A row also has three variants (primary, secondary and tonal), two sizes, a track that can be left out, and a `transition` that says whether the indicator slides. The web component does all of this, and so do the demos. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship an earlier revision, with `scrollable` (`isScrollable` defaulting to false on Flutter), a line indicator, fixed labels that wrap, no track and no drag.
 :::
 
-<DemoFrame label="Primary tabs and the panel of the selected one">
+<Example label="Primary tabs and the panel of the selected one">
   <tanrei-tabs value="overview" label="Project" style="inline-size: 22rem">
     <tanrei-tab value="overview" label="Overview" icon="dashboard"></tanrei-tab>
     <tanrei-tab value="activity" label="Activity" icon="history"></tanrei-tab>
@@ -32,7 +32,7 @@ This page describes the tabs as they are specified now: tabs on a track, with on
       <p style="font: var(--tanrei-sys-typescale-body-font)">Region, domains and access.</p>
     </tanrei-tab-panel>
   </tanrei-tabs>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -179,7 +179,7 @@ The tabs do not draw the panels, but they decide which one shows. On the web, `<
 
 ## Specs
 
-<DemoFrame label="Secondary tabs, a row that fills, a row that hugs and scrolls, and icons alone" plain column>
+<Example label="Secondary tabs, a row that fills, a row that hugs and scrolls, and icons alone" column>
   <tanrei-tabs variant="secondary" value="overview" label="Deployment" style="inline-size: 22rem">
     <tanrei-tab value="overview" label="Overview" icon="dashboard"></tanrei-tab>
     <tanrei-tab value="activity" label="Activity" icon="history"></tanrei-tab>
@@ -203,9 +203,9 @@ The tabs do not draw the panels, but they decide which one shows. On the web, `<
     <tanrei-tab value="grid" label="Grid" icon="grid_view" label-hidden></tanrei-tab>
     <tanrei-tab value="map" label="Map" icon="map" label-hidden></tanrei-tab>
   </tanrei-tabs>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Tonal tabs with their track, without it, and small without it and without a transition" plain column>
+<Example label="Tonal tabs with their track, without it, and small without it and without a transition" column>
   <tanrei-tabs variant="tonal" value="week" label="Period">
     <tanrei-tab value="day" label="Day"></tanrei-tab>
     <tanrei-tab value="week" label="Week"></tanrei-tab>
@@ -220,7 +220,7 @@ The tabs do not draw the panels, but they decide which one shows. On the web, `<
     <tanrei-tab value="metric" label="Metric"></tanrei-tab>
     <tanrei-tab value="imperial" label="Imperial"></tanrei-tab>
   </tanrei-tabs>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tabs" />
 
@@ -322,7 +322,7 @@ When the same question is answered in many places — the platform of every code
 - **Remembering is separate.** `rememberAs` names the key under which a person's choice is kept on their device and restored before the row is first drawn. Without a key nothing is stored. The key is yours, used exactly as given, and only the tab's value is stored; whether a remembered preference needs consent where your product is used is your judgement.
 - **On the web the tabs keep the group.** `group` and `remember-as` are attributes, and the key is a key of `localStorage`. On SwiftUI, Compose, Flutter and React Native, rows given the same selection state already share it, and your product keeps and stores that state.
 
-<DemoFrame label="Two rows of one group: choose a tab in either" plain column>
+<Example label="Two rows of one group: choose a tab in either" column>
   <tanrei-tabs variant="secondary" group="docs-demo-units" value="metric" label="Units of distance">
     <tanrei-tab value="metric" label="Metric"></tanrei-tab>
     <tanrei-tab value="imperial" label="Imperial"></tanrei-tab>
@@ -337,7 +337,7 @@ When the same question is answered in many places — the platform of every code
     <tanrei-tab-panel value="imperial"><p style="font: var(--tanrei-sys-typescale-body-font)">A brisk walk is 3.7 mph.</p></tanrei-tab-panel>
     <tanrei-tab-panel value="nautical"><p style="font: var(--tanrei-sys-typescale-body-font)">A brisk walk is 3.2 knots.</p></tanrei-tab-panel>
   </tanrei-tabs>
-</DemoFrame>
+</Example>
 
 In the demo, Nautical exists in the second row only: choosing it leaves the first row on its own choice, and the first row follows again as soon as the choice is one it has. Neither row names a key, so nothing is stored.
 
@@ -347,7 +347,7 @@ The tabs of this site are an example: every set of platform samples is a [Tab vi
 
 Set `orientation` to `vertical` to stack the tabs in a column at the start edge, beside the views they switch: the categories of a settings page or of a dialog, the sections of one record. It is the same control in everything else: one selected tab, an indicator that slides and can be dragged, the panels, a shared choice.
 
-<DemoFrame label="Vertical tabs beside their panels">
+<Example label="Vertical tabs beside their panels">
   <tanrei-tabs orientation="vertical" value="general" label="Settings" style="inline-size: 30rem">
     <tanrei-tab value="general" label="General" icon="settings"></tanrei-tab>
     <tanrei-tab value="notifications" label="Notifications" icon="notifications"></tanrei-tab>
@@ -356,7 +356,7 @@ Set `orientation` to `vertical` to stack the tabs in a column at the start edge,
     <tanrei-tab-panel value="notifications"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">Email, push and a weekly summary.</p></tanrei-tab-panel>
     <tanrei-tab-panel value="privacy"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">Who can see your profile.</p></tanrei-tab-panel>
   </tanrei-tabs>
-</DemoFrame>
+</Example>
 
 - **The column.** Every tab is as wide as the widest, with its icon before its label at the start edge, in every variant and at every size. The tabs touch above and below, so each is at least the minimum target tall: a small column's tabs are 44 tall (48 with touch input), not 32. Make the column wider with `::part(tablist)`. In a column narrower than its widest tab, a label is truncated and shown whole in a tooltip.
 - **The indicator and the track.** The indicator is the tab less the track's inset on every side. The track's corners are the indicator's plus that inset, so the two stay concentric at the ends however tall the column is. A design system that draws a line under the selected tab draws it on the column's end edge, beside the panel, with the divider down that edge.

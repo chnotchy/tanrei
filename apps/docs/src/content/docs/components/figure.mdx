@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="figure" />
 
-<DemoFrame label="Outlined, filled and plain" column>
+<Example label="Outlined, filled and plain" column>
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1.5rem; inline-size: 100%">
     <tanrei-figure>
       <figure>
@@ -34,7 +34,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
       </figure>
     </tanrei-figure>
   </div>
-</DemoFrame>
+</Example>
 
 A figure shows one thing that is looked at rather than read: a picture in an article, a chart in a report, a preview of what a setting will produce, a specimen. It sets that thing apart and says what it is. The frames around the live examples on this site are figures.
 
@@ -115,7 +115,7 @@ This form is shorter, and it is drawn only once the script has run. Write the pa
 
 ## Specs
 
-<DemoFrame label="A title, a control, a joined block and a caption" plain column>
+<Example label="A title, a control, a joined block and a caption" column>
   <tanrei-figure style="inline-size: min(100%, 30rem)">
     <figure>
       <div data-part="frame">
@@ -133,9 +133,9 @@ This form is shorter, and it is drawn only once the script has run. Write the pa
       <figcaption>A filled button and its markup.</figcaption>
     </figure>
   </tanrei-figure>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Not inset: what is shown reaches the frame's edges" plain column>
+<Example label="Not inset: what is shown reaches the frame's edges" column>
   <tanrei-figure flush style="inline-size: min(100%, 30rem)">
     <figure>
       <div data-part="frame">
@@ -146,9 +146,9 @@ This form is shorter, and it is drawn only once the script has run. Write the pa
       <figcaption>The frame clips what it holds to its corners.</figcaption>
     </figure>
   </tanrei-figure>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Wider than its stage: it scrolls there, and the stage is a focus stop" plain column>
+<Example label="Wider than its stage: it scrolls there, and the stage is a focus stop" column>
   <tanrei-figure style="inline-size: min(100%, 24rem)">
     <figure>
       <div data-part="frame">
@@ -165,9 +165,9 @@ This form is shorter, and it is drawn only once the script has run. Write the pa
       <figcaption>Five buttons in a row that does not wrap.</figcaption>
     </figure>
   </tanrei-figure>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Grid, dots, a grid that fades toward the centre, and a checkerboard" pattern="none" plain column>
+<Example label="Grid, dots, a grid that fades toward the centre, and a checkerboard" pattern="none" column>
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1.5rem; inline-size: 100%">
     <tanrei-figure pattern="grid">
       <figure>
@@ -194,7 +194,7 @@ This form is shorter, and it is drawn only once the script has run. Write the pa
       </figure>
     </tanrei-figure>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="figure" />
 

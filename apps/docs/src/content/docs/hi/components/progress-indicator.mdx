@@ -2,27 +2,27 @@
 title: प्रोग्रेस इंडिकेटर
 description: एक बार या रिंग के रूप में दिखाता है कि कोई काम कितना आगे बढ़ा है, या जब यह पता न हो, तो यह कि वह चल रहा है।
 translationOf: components/progress-indicator.mdx
-sourceHash: 7a2f831964be9fb1473847365cd287574d956952
+sourceHash: a3a25acb0bd8dba2353811061e0fbe63c03d1013
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="progress-indicator" />
 
-<DemoFrame label="Linear और circular">
+<Example label="Linear और circular">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-progress-indicator value="0.4" label="report.pdf अपलोड हो रही है"></tanrei-progress-indicator>
     <tanrei-progress-indicator label="एक्सपोर्ट तैयार हो रहा है"></tanrei-progress-indicator>
   </div>
   <tanrei-progress-indicator variant="circular" value="0.4" label="फ़ोटो सिंक हो रही हैं"></tanrei-progress-indicator>
   <tanrei-progress-indicator variant="circular" label="सिंक हो रहा है"></tanrei-progress-indicator>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -124,7 +124,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 ## स्पेक
 
-<DemoFrame label="साइज़, रेंज के दोनों सिरे और एक कस्टम रेंज" plain>
+<Example label="साइज़, रेंज के दोनों सिरे और एक कस्टम रेंज">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-progress-indicator size="small" value="0.4" label="Small"></tanrei-progress-indicator>
     <tanrei-progress-indicator size="medium" value="0.4" label="Medium"></tanrei-progress-indicator>
@@ -136,9 +136,9 @@ Web और React के उदाहरण मौजूदा स्पेक �
   <tanrei-progress-indicator variant="circular" size="small" value="0.4" label="Small"></tanrei-progress-indicator>
   <tanrei-progress-indicator variant="circular" size="medium" value="0.4" label="Medium"></tanrei-progress-indicator>
   <tanrei-progress-indicator variant="circular" size="large" value="0.4" label="Large"></tanrei-progress-indicator>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="अलगाव: divider (डिफ़ॉल्ट सिस्टम का चुनाव) और gap" plain>
+<Example label="अलगाव: divider (डिफ़ॉल्ट सिस्टम का चुनाव) और gap">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-progress-indicator separation="divider" value="0.4" label="Divider"></tanrei-progress-indicator>
     <tanrei-progress-indicator separation="gap" value="0.4" label="Gap"></tanrei-progress-indicator>
@@ -146,7 +146,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
   </div>
   <tanrei-progress-indicator variant="circular" size="large" separation="divider" value="0.4" label="Divider"></tanrei-progress-indicator>
   <tanrei-progress-indicator variant="circular" size="large" separation="gap" value="0.4" label="Gap"></tanrei-progress-indicator>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="progress-indicator" />
 

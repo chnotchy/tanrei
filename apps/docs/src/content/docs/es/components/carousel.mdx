@@ -2,14 +2,14 @@
 title: Carrusel
 description: Una fila de elementos visuales que se desplaza hacia los lados en torno a un elemento en primer plano, cada uno de los cuales abre lo que muestra. Una fila destacada puede no tener fin, mostrar su posición con puntos y avanzar por sí sola.
 translationOf: components/carousel.mdx
-sourceHash: 456f22fc35f1b413823ac47def1b7dcdec2ed432
+sourceHash: 6c17872330097ca5dbb892d334a8fbaa39ad7f09
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 Esta página describe el carrusel tal como lo define ahora la especificación. Varias elecciones independientes (dónde se sitúa el elemento principal, anchos fluidos o fijos, escala, ajuste, bucle) sustituyen a la propiedad `layout`, y una fila destacada puede mostrar puntos y avanzar por sí sola. Ahora el elemento principal se sitúa en el centro de forma predeterminada, y los elementos vecinos quedan a una separación de distancia en cualquier posición del desplazamiento. El componente web ya hace todo esto, y también las demostraciones. SwiftUI, Compose, Flutter y React Native aparecen arriba como rezagadas: hasta que se pongan al día ofrecen la revisión anterior, con `layout` y sin bucle, puntos, reproducción automática ni controles anterior y siguiente. Consulta [El elemento principal está en el centro de forma predeterminada](#el-elemento-principal-está-en-el-centro-de-forma-predeterminada) y [Migrar desde `layout`](#migrar-desde-layout).
 :::
 
-<DemoFrame label="El valor predeterminado: el elemento principal en el centro y un elemento pequeño a su lado">
+<Example label="El valor predeterminado: el elemento principal en el centro y un elemento pequeño a su lado">
   <tanrei-carousel previous-label="Paseo anterior" next-label="Paseo siguiente" label="Paseos cerca de ti" style="inline-size: 25rem; max-inline-size: 100%">
     <tanrei-carousel-item label="Sendero costero, 12 fotos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
     <tanrei-carousel-item label="Casco antiguo, 8 fotos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -28,7 +28,7 @@ Esta página describe el carrusel tal como lo define ahora la especificación. V
     <tanrei-carousel-item label="Fuerte de la colina, 9 fotos"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
     <tanrei-carousel-item label="Paseo del río, 14 fotos"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
   </tanrei-carousel>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -159,7 +159,7 @@ Los ejemplos de Web y React muestran la especificación actual. Los ejemplos de 
 
 ## Especificaciones
 
-<DemoFrame label="Un elemento principal tan ancho como puede ser, y anchos fijos que se desplazan libremente desde el borde de inicio" plain column>
+<Example label="Un elemento principal tan ancho como puede ser, y anchos fijos que se desplazan libremente desde el borde de inicio" column>
   <tanrei-carousel previous-label="Paseo anterior" next-label="Paseo siguiente" item-width="400" label="Paseos destacados" style="inline-size: 25rem; max-inline-size: 100%">
     <tanrei-carousel-item label="Sendero costero, 12 fotos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
     <tanrei-carousel-item label="Casco antiguo, 8 fotos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -173,9 +173,9 @@ Los ejemplos de Web y React muestran la especificación actual. Los ejemplos de 
     <tanrei-carousel-item label="Orilla del lago, 5 fotos"><span class="tanrei-icon">water</span></tanrei-carousel-item>
     <tanrei-carousel-item label="Fuerte de la colina, 9 fotos"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
   </tanrei-carousel>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Organizar la fila: anchos fijos, escala, bucle y contenido hacia el elemento principal" plain column>
+<Example label="Organizar la fila: anchos fijos, escala, bucle y contenido hacia el elemento principal" column>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">Anchos fijos, en reposo donde termine el desplazamiento: <code>fixed-width free-scroll</code></div>
     <tanrei-carousel previous-label="Paseo anterior" next-label="Paseo siguiente" fixed-width free-scroll label="Paseos cerca de ti" style="inline-size: 25rem; max-inline-size: 100%">
@@ -217,9 +217,9 @@ Los ejemplos de Web y React muestran la especificación actual. Los ejemplos de 
       <tanrei-carousel-item label="Paseo del río, 14 fotos"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
     </tanrei-carousel>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Puntos, reproducción automática, progreso, en pausa y el control de reproducción solo" plain column>
+<Example label="Puntos, reproducción automática, progreso, en pausa y el control de reproducción solo" column>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">Puntos: <code>indicator</code></div>
     <tanrei-carousel previous-label="Paseo anterior" next-label="Paseo siguiente" indicator label="Paseos destacados" style="inline-size: 25rem; max-inline-size: 100%">
@@ -273,7 +273,7 @@ Los ejemplos de Web y React muestran la especificación actual. Los ejemplos de 
       <tanrei-carousel-item label="Orilla del lago, 5 fotos"><span class="tanrei-icon">water</span></tanrei-carousel-item>
     </tanrei-carousel>
   </div>
-</DemoFrame>
+</Example>
 
 La reproducción automática nunca se ejecuta donde el ajuste de reducir movimiento está activado: ahí las demostraciones de reproducción automática permanecen quietas, sin el control de reproducción ni el progreso.
 

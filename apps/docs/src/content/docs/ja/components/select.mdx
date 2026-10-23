@@ -2,20 +2,20 @@
 title: セレクト
 description: 決まったリストの中から 1 つの値を選べるようにします。テキスト入力欄のボックスと同じ見た目と寸法で、選ばれているオプションを表示するトリガーと、そこから開くオプションのリスト（グループ分けもできます）から成ります。ラベルの行、補足、エラーテキストは持ちません。バー、ツールバー、テーブルに置くか、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/select.mdx
-sourceHash: 6498add9840e5413d69077058e2b885721456c9b
+sourceHash: 6246b546b185dfc590a8e1793d0b194db9f0c4db
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="select" />
 
-<DemoFrame label="単独で使う例。バーに置くテーマのセレクトと、リストの上に置く並び順のセレクト" column>
+<Example label="単独で使う例。バーに置くテーマのセレクトと、リストの上に置く並び順のセレクト" column>
   <tanrei-select class="not-content" size="small" label="テーマ" value="auto">
     <tanrei-option value="light" leading-icon="light_mode">ライト</tanrei-option>
     <tanrei-option value="dark" leading-icon="dark_mode">ダーク</tanrei-option>
@@ -26,7 +26,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-option value="name">名前</tanrei-option>
     <tanrei-option value="size">サイズ</tanrei-option>
   </tanrei-select>
-</DemoFrame>
+</Example>
 
 セレクトは、[セレクトフィールド](/ja/components/select-field/)のボックスだけを取り出したものです。値を表示するトリガー、先頭のアイコン、シェブロンと、そこから開くオプションのリストから成ります。上にラベルの行はなく、必須・任意の印も、下の補足やエラーテキストもありません。
 
@@ -106,20 +106,20 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select>` です。ほか
 </tanrei-field>
 ```
 
-<DemoFrame label="フィールドの中にセレクトを入れたもの。セレクトフィールドと同じ見た目になります" column>
+<Example label="フィールドの中にセレクトを入れたもの。セレクトフィールドと同じ見た目になります" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国" required required-text="必須" supporting-text="請求書の宛先になります。">
     <tanrei-select placeholder="国を選択">
       <tanrei-option value="jp">日本</tanrei-option>
       <tanrei-option value="ke">ケニア</tanrei-option>
     </tanrei-select>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 セレクトは、自分にしか分からないことをフィールドに伝えます。補足は、内側の余白と先頭のアイコンを過ぎた、値の始まる位置から始まります。Filled と Outlined のセレクトは、フィールドのラベルをボックスの中で浮き上がるラベルとして自分で描くので、フィールドはラベルの行を描きません。また、リストが開いている間のセレクトは、フォーカスがあってもなくてもフォーカスされた状態で描かれるので、その間はフィールドもラベルと補足をフォーカスされた状態で描きます。
 
 ## 仕様
 
-<DemoFrame label="単独のセレクト。グループ、補足テキストと無効なオプション、エラー、読み取り専用、無効" plain column>
+<Example label="単独のセレクト。グループ、補足テキストと無効なオプション、エラー、読み取り専用、無効" column>
   <tanrei-select class="not-content" label="タイムゾーン" value="Europe/Lisbon">
     <tanrei-option-group label="アジア"><tanrei-option value="Asia/Tokyo">東京</tanrei-option><tanrei-option value="Asia/Seoul">ソウル</tanrei-option></tanrei-option-group>
     <tanrei-option-group label="ヨーロッパ"><tanrei-option value="Europe/Lisbon">リスボン</tanrei-option><tanrei-option value="Europe/Berlin">ベルリン</tanrei-option></tanrei-option-group>
@@ -138,7 +138,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select>` です。ほか
   <tanrei-select class="not-content" label="国" value="jp" disabled>
     <tanrei-option value="jp">日本</tanrei-option><tanrei-option value="ke">ケニア</tanrei-option>
   </tanrei-select>
-</DemoFrame>
+</Example>
 
 ### トリガー
 
@@ -198,11 +198,11 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select>` です。ほか
 
 オプションもステータスも `emptyText` もないセレクトは開きません。`emptyText` を渡すか、プロダクトの `noOptionsText` を `setWords()` で一度渡しておき、開いた人に選べるものがない理由が伝わるようにします。
 
-<DemoFrame label="読み込み中、失敗、選べるものがない場合" column>
+<Example label="読み込み中、失敗、選べるものがない場合" column>
   <tanrei-select class="not-content" label="プロジェクト" placeholder="プロジェクトを選択" status="loading" status-text="プロジェクトを読み込んでいます"></tanrei-select>
   <tanrei-select class="not-content" label="プロジェクト" placeholder="プロジェクトを選択" status="error" status-text="プロジェクトを読み込めませんでした。接続を確認してください。"></tanrei-select>
   <tanrei-select class="not-content" label="プロジェクト" placeholder="プロジェクトを選択" empty-text="プロジェクトはまだありません"></tanrei-select>
-</DemoFrame>
+</Example>
 
 ### 開く、移動する、選ぶ
 

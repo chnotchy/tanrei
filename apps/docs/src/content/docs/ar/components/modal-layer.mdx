@@ -2,20 +2,20 @@
 title: الطبقة النمطية
 description: الطبقة التي تحت كل سطح نمطي. تعتّم النافذة خلف ما تعرضه، وتجعل كل ما هناك خاملًا، وتنقل التركيز إلى الداخل وتُبقيه فيه ثم تعيده، وتطلب الإغلاق بالمفتاح Escape أو بالرجوع في المنصة أو بالضغط على الحجاب. غيّر مظهرها مرة واحدة فتتبعها كل الأسطح النمطية.
 translationOf: components/modal-layer.mdx
-sourceHash: b3984edc74655ea0935bdf9c218e40967f4095a4
+sourceHash: 8a469382865ac350a70a4ce9f969a738e26e6df4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="modal-layer" />
 
-<DemoFrame label="طبقة نمطية حول بطاقة من عندك: افتحها بالزر">
+<Example label="طبقة نمطية حول بطاقة من عندك: افتحها بالزر">
   <tanrei-button variant="outlined" onclick="document.getElementById('modal-layer-demo').open = true">تصدير الصور</tanrei-button>
   <tanrei-modal-layer id="modal-layer-demo" label="تصدير الصور" onclose="this.open = false">
     <tanrei-card variant="elevated" style="inline-size: 20rem; max-inline-size: calc(100vw - 2rem); padding: 1.5rem">
@@ -23,7 +23,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-button autofocus onclick="this.closest('tanrei-modal-layer').open = false">تم</tanrei-button>
     </tanrei-card>
   </tanrei-modal-layer>
-</DemoFrame>
+</Example>
 
 تحت كل سطح نمطي (modal) الطبقة نفسها. فهي تعتّم النافذة خلف السطح، فتبدو الصفحة كأنها وُضعت جانبًا. وتجعل كل ما هناك خاملًا (inert): لا شيء خلفها يمكن ضغطه أو التركيز عليه أو قراءته بقارئ الشاشة، ولا تُمرَّر الصفحة. وتنقل التركيز إلى داخل السطح، وتُبقيه هناك ما دام السطح مفتوحًا، وتعيده حين يُغلق. وتطلب الإغلاق حين يضغط الشخص المفتاح Escape، أو يستخدم الرجوع في المنصة، أو يضغط على الحجاب (scrim).
 

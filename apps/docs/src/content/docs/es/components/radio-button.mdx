@@ -2,26 +2,26 @@
 title: Botón de opción
 description: Permite elegir exactamente una opción de un grupo pequeño que se muestra entero a la vez.
 translationOf: components/radio-button.mdx
-sourceHash: 580d206e4ecad18e8ec686f544dd11bd9a7b7564
+sourceHash: 5b4f61772f78c2094f60c4453b4b44a4119e747d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="radio-button" />
 
-<DemoFrame label="Un grupo">
+<Example label="Un grupo">
   <div role="radiogroup" aria-label="Frecuencia" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-radio-button name="overview-frequency" value="daily" label="Cada día"></tanrei-radio-button>
     <tanrei-radio-button name="overview-frequency" value="weekly" checked label="Cada semana"></tanrei-radio-button>
     <tanrei-radio-button name="overview-frequency" value="monthly" label="Cada mes"></tanrei-radio-button>
   </div>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -121,7 +121,7 @@ La revisión que dio al botón de opción sus tamaños actuales y un anillo que 
 
 ## Especificaciones
 
-<DemoFrame label="Seleccionado, sin seleccionar y deshabilitado" plain>
+<Example label="Seleccionado, sin seleccionar y deshabilitado">
   <div role="radiogroup" aria-label="Habilitado" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-radio-button name="specs-enabled" value="unselected" label="Sin seleccionar"></tanrei-radio-button>
     <tanrei-radio-button name="specs-enabled" value="selected" checked label="Seleccionado"></tanrei-radio-button>
@@ -137,7 +137,7 @@ La revisión que dio al botón de opción sus tamaños actuales y un anillo que 
   <div role="radiogroup" aria-label="Etiqueta oculta">
     <tanrei-radio-button name="specs-hidden" value="weekly" checked label-hidden label="Cada semana"></tanrei-radio-button>
   </div>
-</DemoFrame>
+</Example>
 
 En el sistema predeterminado, el botón de opción es un anillo de 20 con un trazo de 2, sobre una capa de estado redonda de 40. Una opción seleccionada no dibuja ningún punto. Su anillo se engrosa hacia dentro hasta la mitad del radio, y el disco que queda en el interior se rellena con el color del anillo al 16 % de opacidad: un tinte claro, que se mantiene al menos a 3:1 del anillo. El anillo conserva su tamaño exterior en las dos condiciones. El anillo y el relleno son una sola forma: nada de lo que hay detrás del botón de opción se ve entre ellos, con ningún nivel de zoom ni densidad de pantalla, ni en ningún fotograma del cambio. Cuando la selección cambia, el trazo se engrosa o se afina mientras el color del anillo cambia y el relleno aparece o desaparece con un fundido; el relleno nunca crece desde el centro. Un cambio que llega antes de que termine el movimiento da la vuelta desde donde está y, donde el movimiento está reducido, la nueva condición se muestra de inmediato y por completo.
 

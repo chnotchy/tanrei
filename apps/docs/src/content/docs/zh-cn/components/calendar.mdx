@@ -2,14 +2,14 @@
 title: "日历"
 description: "以日期网格显示一个月，可以放在页面里，也可以放在选择器里；用户可以从中选择一个日期或一段日期范围。月份是一列连续的周，跟随滚动和拖动在月份之间移动。"
 translationOf: components/calendar.mdx
-sourceHash: c095f989d07f9cab3c2978b4e5df0acdf942d89e
+sourceHash: 0a4eb8a0d2c0bebf083959ed9e5b6788f2588d04
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import ProductWords from '../../../../components/ProductWords.astro';
 
 export const words = {
@@ -31,9 +31,9 @@ export const words = {
 Web 组件按本页的描述实现了日历：月份是一列连续的周，跟随滚动和拖动。本页的演示就是这个组件。SwiftUI、Compose、Flutter 和 React Native 尚未实现它。它们的包里仍保留着已停用的日期选择器的代码，本页不对其作说明。
 :::
 
-<DemoFrame label="一个日期。滚动或拖动日期，或者使用按钮，可以切换月份">
+<Example label="一个日期。滚动或拖动日期，或者使用按钮，可以切换月份">
   <tanrei-calendar label="入住日期" locale="zh-CN" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -125,9 +125,9 @@ Web 组件按本页的描述实现了日历：月份是一列连续的周，跟�
 - **一段范围。** 在 `range` 模式下，第一次选择的是开始日期，第二次选择的是结束日期。选择早于开始日期的一天，或者在两端都已确定后再选择，都会重新开始。每次选择后都会触发 `change`，只选了开始日期时 `end` 为空，所以产品可以显示选到一半的范围。开始日期和结束日期是同一天时，就是一天的范围。
 - **值**是 ISO 8601 的日历日期（`2026-09-17`），不含时间和时区。`today` 默认是设备的当前日期；你可以按场地所在的时区设置它，或者为测试设置它。
 
-<DemoFrame label="一段范围。先选开始日期，再选结束日期；第三次选择会重新开始" plain>
+<Example label="一段范围。先选开始日期，再选结束日期；第三次选择会重新开始">
   <tanrei-calendar mode="range" label="住宿" locale="zh-CN" today="2026-09-24" start="2026-09-10" end="2026-09-16"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 范围是从开始日期到结束日期的一条色带。它在一周的行尾断开，在下一行继续。
 
@@ -137,9 +137,9 @@ Web 组件按本页的描述实现了日历：月份是一列连续的周，跟�
 
 跨过不可选日期的范围会把它包含在内；如果你的产品不能接受这样的范围，请在 `change` 之后告知用户。
 
-<DemoFrame label="9 月 7 日至 10 月 20 日，其中 9 月 21 日和 22 日已被占用" plain>
+<Example label="9 月 7 日至 10 月 20 日，其中 9 月 21 日和 22 日已被占用">
   <tanrei-calendar label="预约日期" locale="zh-CN" today="2026-09-24" value="2026-09-17" min="2026-09-07" max="2026-10-20" disabled-dates="2026-09-21 2026-09-22"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### 在月份之间移动
 
@@ -162,9 +162,9 @@ Web 组件按本页的描述实现了日历：月份是一列连续的周，跟�
 
 按键从不随轴变化。
 
-<DemoFrame label="水平轴：月份是一页一页的" system="m3-like" plain>
+<Example label="水平轴：月份是一页一页的" system="m3-like">
   <tanrei-calendar label="入住日期" locale="zh-CN" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 指针位于日期上方时，沿轴方向的滚动归日历所有；在第一个月和最后一个月，日期停住不动时也是如此。在以相同方向滚动的页面上，从这里开始的滚动不会滚动页面：在长页面上，请在日历旁边或周围留出空间，让滚动能够到达页面。星期行、导航行和日历周围的一切，都照常滚动页面。
 
@@ -172,17 +172,17 @@ Web 组件按本页的描述实现了日历：月份是一列连续的周，跟�
 
 视图切换按钮会切换到年份视图，这是一个可滚动的列表，从 `min` 的年份到 `max` 的年份（没有设置时为 1900 到 2100）。选择一个年份会显示该年的同一个月，不改变任何已选内容。`startView` 设为 `year` 时，日历会先打开年份视图，适合生日这类离今天很远的日期。
 
-<DemoFrame label="为选择生日，先打开年份视图" plain>
+<Example label="为选择生日，先打开年份视图">
   <tanrei-calendar label="出生日期" locale="zh-CN" today="2026-09-24" start-view="year" max="2026-09-24"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### 相邻月份的日期
 
 `showAdjacentDays` 用相邻月份的日期填满网格中空余的单元格，并把它们画得更淡。这些日期只要可选就能被选择，范围也可以在其中一个上开始或结束。用指针选择这样的日期时，日历先选中它，再显示它所在的月份，在那里它是本月的日期。不设置这个属性时，这些单元格是空的，不响应按下。
 
-<DemoFrame label="显示相邻月份的日期：选择 10 月 1 日会显示 10 月" plain>
+<Example label="显示相邻月份的日期：选择 10 月 1 日会显示 10 月">
   <tanrei-calendar label="送达日期" locale="zh-CN" today="2026-09-24" value="2026-09-29" show-adjacent-days></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### 区域设置
 
@@ -192,10 +192,10 @@ Web 组件按本页的描述实现了日历：月份是一列连续的周，跟�
 
 这段调用就是本页实际运行的那一段：页面上的每个日历都由这些文字命名，示例里一个也没有写。某个日历的说法不同时，由它自己给出——下面的日语日历用属性给出了它的四个文字，而属性总是优先。一个都不给时，导航按钮仍然可以使用，但没有名称，调试构建会逐一报告缺少的文字。只有表示今天的那个词，在你没有给出时取自浏览器的区域数据。
 
-<DemoFrame label="从星期一开始的一周，以及日语区域设置" plain>
+<Example label="从星期一开始的一周，以及日语区域设置">
   <tanrei-calendar label="入住日期" locale="zh-SG" first-day-of-week="monday" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
   <tanrei-calendar label="チェックイン日" locale="ja-JP" today="2026-09-24" value="2026-09-17" previous-month-label="前の月" next-month-label="次の月" year-view-label="年を選ぶ" today-label="今日"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### 推荐
 

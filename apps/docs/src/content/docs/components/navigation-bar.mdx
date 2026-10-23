@@ -7,7 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
@@ -17,31 +17,31 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 This page describes the navigation bar as the spec has it now, on the model of the [tabs](/components/tabs/). The active indicator is the current destination's whole equal share of the bar, held in from the bar's edges, not a pill that hugs the icon and label. It slides to the new destination at its full size when the selection changes, and a drag along the bar carries it with the pointer. Hover, press and focus are drawn in that same box. `variant` chooses between tonal (the default) and filled. Every other prop and event is the same in both revisions. The platforms marked lagging above ship the first revision until they catch up: no `variant`, no drag, and an indicator behind the icon alone that grows in from its centre, and their samples show that revision. The demos on this page are the web component as it ships today.
 :::
 
-<DemoFrame label="Four destinations, one of them with a count">
+<Example label="Four destinations, one of them with a count">
   <tanrei-navigation-bar value="inbox" label="Main" style="inline-size: 24rem">
     <tanrei-navigation-bar-item value="inbox" label="Inbox" icon="inbox" badge badge-count="3" badge-label="3 unread"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="chat" label="Chat" icon="chat"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="starred" label="Starred" icon="star"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="settings" label="Settings" icon="settings"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="The filled variant: press and drag along the bar to carry the indicator" plain>
+<Example label="The filled variant: press and drag along the bar to carry the indicator">
   <tanrei-navigation-bar variant="filled" value="chat" label="Media" style="inline-size: 24rem">
     <tanrei-navigation-bar-item value="home" label="Home" icon="home"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="chat" label="Chat" icon="chat" badge badge-label="New messages"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="starred" label="Starred" icon="star"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="A bar of links: the page names the current one by its address, and Help opens a new tab" plain>
+<Example label="A bar of links: the page names the current one by its address, and Help opens a new tab">
   <tanrei-navigation-bar value="/components/navigation-bar/" label="Components" style="inline-size: 24rem">
     <tanrei-navigation-bar-item href="/components/button/" label="Button" icon="smart_button"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item href="/components/navigation-bar/" label="Bar" icon="bottom_navigation"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item href="/components/navigation-drawer/" label="Drawer" icon="side_navigation"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item href="https://example.com/" label="Help" icon="help" target="new" target-label="opens in a new tab"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -200,7 +200,7 @@ The bar is a layout region, not an overlay. Its color reaches under the home ind
 
 ## Specs
 
-<DemoFrame label="Only the selected label, and no labels" plain column>
+<Example label="Only the selected label, and no labels" column>
   <tanrei-navigation-bar value="chat" label-visibility="selected" label="Main" style="inline-size: 24rem">
     <tanrei-navigation-bar-item value="inbox" label="Inbox" icon="inbox"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="chat" label="Chat" icon="chat"></tanrei-navigation-bar-item>
@@ -211,7 +211,7 @@ The bar is a layout region, not an overlay. Its color reaches under the home ind
     <tanrei-navigation-bar-item value="chat" label="Chat" icon="chat" badge badge-label="New messages"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="starred" label="Starred" icon="star"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="navigation-bar" />
 

@@ -2,20 +2,20 @@
 title: "树视图"
 description: "由可以展开和折叠的项组成的层级结构。每深一级，行就多缩进一些；凡是包含其他项的行，开头都有一个 V 形箭头。它可以只供阅读和展开，也可以在其中选择一项或多项；它在焦点顺序中只占一个停靠点。"
 translationOf: components/tree-view.mdx
-sourceHash: 25a301c87d161891ac997c0612db8155bad74332
+sourceHash: a8b46b7ebf1f36bc3a53f968fe02fe4f35ec0a21
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="tree-view" />
 
-<DemoFrame label="文件树：按文件夹所在的行，或用方向键来展开它" plain>
+<Example label="文件树：按文件夹所在的行，或用方向键来展开它">
   <tanrei-tree-view class="not-content tanrei-not-prose" label="令牌存放在哪里" density="compact" guides style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
@@ -36,7 +36,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       </li>
     </ul>
   </tanrei-tree-view>
-</DemoFrame>
+</Example>
 
 树视图显示一个供用户浏览或在其中做选择的结构：项目的文件、设计系统的令牌、产品的文件夹。包含其他项的行带有 V 形箭头，可以展开和折叠。设置 `selection` 后，可以选择一项或多项，树会告诉你选中的是哪些。
 
@@ -153,7 +153,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="选中一项：按行是选择，按 V 形箭头是展开" plain>
+<Example label="选中一项：按行是选择，按 V 形箭头是展开">
   <tanrei-tree-view class="not-content tanrei-not-prose" label="全部令牌" selection="single" value="sys.color.primary" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li><span><bdi>参考</bdi><span data-trailing-text>212</span></span><ul><li data-value="ref.palette.neutral"><span><bdi>palette.neutral</bdi></span></li></ul></li>
@@ -173,7 +173,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       </li>
     </ul>
   </tanrei-tree-view>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tree-view" />
 
@@ -219,7 +219,7 @@ compact 的行比指针目标还矮。这是可以接受的，因为它是按名
 
 ### 箭头
 
-<DemoFrame label="chevron end：像菜单那样，把标记放在值之后" plain>
+<Example label="chevron end：像菜单那样，把标记放在值之后">
   <tanrei-tree-view class="not-content tanrei-not-prose" label="项目文件" chevron="end" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
@@ -232,7 +232,7 @@ compact 的行比指针目标还矮。这是可以接受的，因为它是按名
       <li><span><bdi>package.json</bdi><span data-trailing-text>2 KB</span></span></li>
     </ul>
   </tanrei-tree-view>
-</DemoFrame>
+</Example>
 
 | `chevron` | 位置 | 用于 |
 | --- | --- | --- |
@@ -240,7 +240,7 @@ compact 的行比指针目标还矮。这是可以接受的，因为它是按名
 | `end` | 在后置文本之后；`expand_more`，展开时转动半圈 | 设置等像菜单一样阅读的树：导航抽屉的位置。 |
 | `none` | 不画 | 用自己的字形表示状态的文件夹。 |
 
-<DemoFrame label="chevron none：文件夹字形表示展开和折叠，指针移上去时出现引导线" plain>
+<Example label="chevron none：文件夹字形表示展开和折叠，指针移上去时出现引导线">
   <tanrei-tree-view class="not-content tanrei-not-prose" label="项目文件" chevron="none" guides="hover" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
@@ -253,7 +253,7 @@ compact 的行比指针目标还矮。这是可以接受的，因为它是按名
       <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>package.json</bdi></span></li>
     </ul>
   </tanrei-tree-view>
-</DemoFrame>
+</Example>
 
 使用 `chevron="none"` 时，图标指定了展开字形（`data-open-icon="folder_open"`）的父项用字形表示展开和折叠，按下字形即可展开或折叠。没有图标的父项通过按下它的行来展开或折叠；但如果按下行会选择它，则选择优先，由方向键来展开。方向键始终可以展开和折叠。
 

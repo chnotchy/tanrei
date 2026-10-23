@@ -2,25 +2,25 @@
 title: Muestra
 description: Presenta un color como una muestra, con su nombre al lado. El recuadro de color es exactamente el color, sobre un damero donde el color es translúcido, y lleva un borde para que un color parecido a la superficie siga mostrando dónde termina. Una muestra para mirar, nunca un control ni un selector.
 translationOf: components/swatch.mdx
-sourceHash: 23fa0af88d1049d9e926971bd03ae83df71af4a1
+sourceHash: 0d457cad3aed0feaada8341605f38e8f101de85b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="swatch" />
 
-<DemoFrame label="Un color con su valor, un rol del tema, un color translúcido y un punto">
+<Example label="Un color con su valor, un rol del tema, un color translúcido y un punto">
   <tanrei-swatch color="#0f766e" label="Verde azulado 700" supporting-text="#0f766e"></tanrei-swatch>
   <tanrei-swatch color="var(--tanrei-sys-color-primary)" label="Primario"></tanrei-swatch>
   <tanrei-swatch color="#0f766e80" label="Verde azulado 700 a media opacidad" supporting-text="#0f766e80"></tanrei-swatch>
   <tanrei-swatch color="#e11d48" label="Error" shape="circle" size="small"></tanrei-swatch>
-</DemoFrame>
+</Example>
 
 Una muestra enseña un color que no se está editando: el color de una marca en una página de configuración, el color de una etiqueta junto a la etiqueta, los roles de un tema uno al lado del otro. Dibuja el color exactamente como se le da y, a su lado, el nombre del color, porque un color nunca se dice solo con su recuadro. Nunca responde a un puntero, a una tecla ni al foco.
 
@@ -60,13 +60,13 @@ En la web es `<tanrei-swatch>`. Las demás plataformas todavía no la han implem
 
 ## Especificaciones
 
-<DemoFrame label="Tres tamaños, dos formas y una muestra vacía" plain>
+<Example label="Tres tamaños, dos formas y una muestra vacía">
   <tanrei-swatch size="small" color="#0f766e" label="Small"></tanrei-swatch>
   <tanrei-swatch color="#0f766e" label="Medium"></tanrei-swatch>
   <tanrei-swatch size="large" color="#0f766e" label="Large"></tanrei-swatch>
   <tanrei-swatch shape="circle" color="#7c3aed" label="Circle"></tanrei-swatch>
   <tanrei-swatch color="" label="Sin color"></tanrei-swatch>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="swatch" />
 

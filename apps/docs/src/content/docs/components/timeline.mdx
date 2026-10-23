@@ -7,19 +7,19 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="timeline" />
 
-<DemoFrame label="A record of what happened" column>
+<Example label="A record of what happened" column>
   <ol class="tanrei-timeline" role="list" aria-label="Release history" style="inline-size: 100%; max-inline-size: 28rem">
     <li><time class="tanrei-timeline-time" datetime="2026-09-22">22 September 2026</time><p class="tanrei-timeline-title">Text styles by level</p><p>The text styles are named by their level, and every corner can be eased.</p></li>
     <li><time class="tanrei-timeline-time" datetime="2026-09-21">21 September 2026</time><p class="tanrei-timeline-title">A vocabulary that can be extended</p><p>A design layer may add a step to a series or a value to an axis, with its reason.</p></li>
     <li><time class="tanrei-timeline-time" datetime="2026-09-19">19 September 2026</time><p class="tanrei-timeline-title">Development begins</p><p>The token pipeline, the spec schema and the first spec exist.</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
 Three things are drawn as marks joined by a line. They differ in what the reader does with them:
 
@@ -117,16 +117,16 @@ The time is yours. Write it in your reader's language, calendar and format, and 
 
 ## Specs
 
-<DemoFrame label="A plan: done, done, under way, ahead" plain column>
+<Example label="A plan: done, done, under way, ahead" column>
   <ol class="tanrei-timeline" role="list" aria-label="Roadmap" style="inline-size: 100%; max-inline-size: 28rem">
     <li data-status="done" data-status-label="Done"><p class="tanrei-timeline-time">Wave 0</p><p class="tanrei-timeline-title">Foundations</p><p>Tokens, theming, typography, icons, surfaces and the state primitives.</p></li>
     <li data-status="done" data-status-label="Done"><p class="tanrei-timeline-time">Wave 1</p><p class="tanrei-timeline-title">The controls of day one</p><p>Buttons, fields, selection controls and the list.</p></li>
     <li data-status="current" data-status-label="In progress"><p class="tanrei-timeline-time">Wave 2</p><p class="tanrei-timeline-title">Navigation and overlays</p><p>The drawer, tabs, dialogs, menus and sheets.</p></li>
     <li data-status="upcoming" data-status-label="Not started"><p class="tanrei-timeline-time">Wave 3</p><p class="tanrei-timeline-title">The specialised pieces</p><p>Pickers, the carousel and what a documentation site needs.</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Your own glyphs, and a compact log" plain column>
+<Example label="Your own glyphs, and a compact log" column>
   <ol class="tanrei-timeline" role="list" aria-label="Order 1042" style="inline-size: 100%; max-inline-size: 28rem">
     <li data-status="done" data-status-label="Done"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">receipt_long</span><p class="tanrei-timeline-time">Monday, 09:41</p><p class="tanrei-timeline-title">Order placed</p></li>
     <li data-status="current" data-status-label="In progress"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">local_shipping</span><p class="tanrei-timeline-time">Tuesday, 14:05</p><p class="tanrei-timeline-title">On its way</p></li>
@@ -137,7 +137,7 @@ The time is yours. Write it in your reader's language, calendar and format, and 
     <li><time class="tanrei-timeline-time" datetime="10:09">10:09</time><p class="tanrei-timeline-title">Contrast checked in six schemes</p></li>
     <li><time class="tanrei-timeline-time" datetime="10:02">10:02</time><p class="tanrei-timeline-title">Primary color changed</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
 - **The marker** stands in a box at the start edge, 24 across at medium and 28 at large, centred on the event's first line. With no status it is a small dot; with a glyph of yours it is a hairline ring holding the glyph.
 - **A status** changes the marker's shape and nothing else: a ring holding a check for done, a filled circle holding a dot for the event under way, an empty ring for one still ahead. The filled circle is the only color a timeline brings besides the time's.

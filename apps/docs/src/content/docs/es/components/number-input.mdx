@@ -2,20 +2,20 @@
 title: Entrada numérica
 description: La caja de un número (escrito en la forma de la configuración regional o cambiado por pasos con una tecla o un botón, mantenido dentro de unos límites y con su unidad al lado), sin fila de etiqueta, ayuda ni texto de error propios. Para un número cuya etiqueta está en otra parte, o dentro de un campo que el producto compone por su cuenta.
 translationOf: components/number-input.mdx
-sourceHash: d6ff008fbde5d43dd32614e3e7bdba4bb94404fd
+sourceHash: d2d6bd8ae89fdd1c543ff780c061b338242047c6
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="number-input" />
 
-<DemoFrame label="Sin nada más: un número junto a su control deslizante bajo un mismo título de fila, y una cantidad en una fila cuya etiqueta está a su lado" column>
+<Example label="Sin nada más: un número junto a su control deslizante bajo un mismo título de fila, y una cantidad en una fila cuya etiqueta está a su lado" column>
   <div class="not-content" style="display: grid; grid-template-columns: minmax(0, 1fr) 6rem; align-items: center; gap: 0.75rem; inline-size: 22rem; max-inline-size: 100%">
     <tanrei-slider label="Escala" min="0.25" max="4" step="0.05" value="1.5"></tanrei-slider>
     <tanrei-number-input label="Escala" min="0.25" max="4" step="0.05" value="1.5" suffix-text="×" value-text="1,5 veces" align="end" no-steppers></tanrei-number-input>
@@ -24,7 +24,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <span>Escritorio de roble</span>
     <tanrei-number-input label="Cantidad, escritorio de roble" value="2" min="1" max="99" increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-input>
   </div>
-</DemoFrame>
+</Example>
 
 Una entrada numérica es la caja de un [campo numérico](/es/components/number-field/), sola: el contenedor, el número, su prefijo y su sufijo, y los dos botones de paso. No tiene fila de etiqueta encima, ni ayuda ni texto de error debajo.
 
@@ -107,11 +107,11 @@ Un campo alrededor de una entrada numérica es un campo numérico escrito por ex
 </tanrei-field>
 ```
 
-<DemoFrame label="Un campo con una entrada numérica dentro: la misma imagen que un campo numérico" column>
+<Example label="Un campo con una entrada numérica dentro: la misma imagen que un campo numérico" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Cantidad" required required-text="Obligatorio" supporting-text="Hasta 99 por pedido.">
     <tanrei-number-input min="1" max="99" invalid-text="Introduce un número." increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 La entrada le dice a su campo lo que solo ella sabe. La ayuda del campo está alineada con el texto de la caja: empieza y termina en el margen interior del texto de la caja, se dibujen o no los botones de paso. Una entrada filled u outlined dibuja ella misma la etiqueta del campo, flotando en la caja, de modo que el campo no dibuja ninguna fila de etiqueta. Un texto que no es un número pone el campo en error con el `invalidText` de la entrada, o con el `errorText` del propio campo donde la entrada no tiene ninguno.
 
@@ -119,24 +119,24 @@ No hay nada que debas mantener sincronizado a mano: una entrada numérica no tie
 
 ## Especificaciones
 
-<DemoFrame label="Entradas sin nada más: un botón de paso deshabilitado en el límite, dígitos en el borde de fin, sin botones de paso, en error, de solo lectura y deshabilitada" plain column>
+<Example label="Entradas sin nada más: un botón de paso deshabilitado en el límite, dígitos en el borde de fin, sin botones de paso, en error, de solo lectura y deshabilitada" column>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Cantidad" value="99" min="1" max="99" increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Tono" value="40" min="0" max="100" align="end" increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Espaciado entre letras" value="-0.25" step="0.01" suffix-text="px" no-steppers></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Cantidad" value="0" error increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Cantidad" value="12" readonly></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Cantidad" value="12" disabled increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-input>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Filled y outlined, sin nada más: la etiqueta de la propia entrada flota en la caja" system="m3-like" plain column>
+<Example label="Filled y outlined, sin nada más: la etiqueta de la propia entrada flota en la caja" system="m3-like" column>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="Cantidad" value="12" increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="Cantidad" increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-input>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="En un diseño de derecha a izquierda: una unidad en letras latinas después del número, de izquierda a derecha, y una unidad en la escritura de la propia página a la izquierda del número" plain column>
+<Example label="En un diseño de derecha a izquierda: una unidad en letras latinas después del número, de izquierda a derecha, y una unidad en la escritura de la propia página a la izquierda del número" column>
   <div dir="rtl" lang="ar"><tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="العرض" value="44" min="0" suffix-text="px" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input></div>
   <div dir="rtl" lang="ar"><tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الوزن" value="12" min="0" step="0.5" suffix-text="كغم" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input></div>
-</DemoFrame>
+</Example>
 
 Un número y su unidad son una sola pieza de escritura. El prefijo se escribe antes del número y el sufijo después, en la dirección de la escritura de la propia unidad, sea cual sea la dirección de la página. Así, «44 px», «$ 120 USD» y «40 %» se leen en una página en árabe o en hebreo igual que en una en inglés, y una unidad escrita en letras árabes o hebreas queda a la izquierda del número. Los botones de paso y la etiqueta siguen a la página. `align="end"` pone el número junto a su unidad: a la derecha para una unidad en letras o signos latinos, en las dos direcciones. Para un código de moneda latino a la izquierda del número, empieza el sufijo con una marca de derecha a izquierda (U+200F).
 

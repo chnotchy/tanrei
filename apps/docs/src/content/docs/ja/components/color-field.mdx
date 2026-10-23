@@ -2,23 +2,23 @@
 title: カラーフィールド
 description: フォームのフィールドとして、1 つの色を設定できるようにします。読んで、入力して、貼り付けられるテキストの値と、その横の色見本と、ピッカーを求めるボタンがあり、テキストフィールドと同じ見た目と寸法です。
 translationOf: components/color-field.mdx
-sourceHash: 86c3e71976d4488f85216a9391b0e4d6a8b9d83f
+sourceHash: ffcd4797c3496f94c018017cc0ef57091027383d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="color-field" />
 
-<DemoFrame label="ピッカーのボタンがあるカラーフィールドと、プロダクトが色を受け付けなかったカラーフィールド" column>
+<Example label="ピッカーのボタンがあるカラーフィールドと、プロダクトが色を受け付けなかったカラーフィールド" column>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" value="#0f766e" supporting-text="6 桁の 16 進数で入力します。例：#0f766e" invalid-text="6 桁の 16 進数で入力してください。例：#0f766e" picker picker-label="色を選択"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" value="#fde047" error error-text="白い文字には明るすぎます。もっと暗い色を選んでください。"></tanrei-color-field>
-</DemoFrame>
+</Example>
 
 カラーフィールドは、ユーザーが色を値として設定する場所に使います。テーマのブランドカラーや、ラベルやカテゴリーの色などです。ユーザーは値を読み、入力し、ほかのツールから貼り付け、テキストの横の色見本で確かめます。フィールドは、同じバリアントとサイズのテキストフィールドと同じ見た目と寸法です。
 
@@ -88,11 +88,11 @@ Web では `<tanrei-color-field>` です。ほかのプラットフォームは�
 </tanrei-field>
 ```
 
-<DemoFrame label="同じフィールドを自分で書いたもの：フィールドの中のカラー入力欄" column>
+<Example label="同じフィールドを自分で書いたもの：フィールドの中のカラー入力欄" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" required required-text="必須" supporting-text="6 桁の 16 進数で入力します。例：#0f766e">
     <tanrei-color-input value="#0f766e" invalid-text="6 桁の 16 進数で入力してください。例：#0f766e" picker picker-label="色を選択"></tanrei-color-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 カラーフィールドにない並べ方が必要なときに、1 つ下の階層で書きます。
 
@@ -106,14 +106,14 @@ Web では `<tanrei-color-field>` です。ほかのプラットフォームは�
 
 ## 仕様
 
-<DemoFrame label="空のカラーフィールド、白、黒、大きいサイズ、無効。最後は、行が色の名前を示している場所に置いた、ボックスだけのカラー入力欄" plain column>
+<Example label="空のカラーフィールド、白、黒、大きいサイズ、無効。最後は、行が色の名前を示している場所に置いた、ボックスだけのカラー入力欄" column>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="アクセントカラー" optional optional-text="任意"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ページの背景" value="#ffffff"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="テキスト" value="#000000"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" value="#0f766e" size="large" picker picker-label="色を選択"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" value="#0f766e" disabled picker picker-label="色を選択"></tanrei-color-field>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="プライマリ、トーン 40" value="#0f766e"></tanrei-color-input>
-</DemoFrame>
+</Example>
 
 ### フィールド
 

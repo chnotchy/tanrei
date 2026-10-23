@@ -2,20 +2,20 @@
 title: "卡片"
 description: "把一组相关内容与背景区分开来；整张卡片也可以是一个操作（打开它所展示的内容），或是一个指向该内容的链接。"
 translationOf: components/card.mdx
-sourceHash: b6fcbfc849d4b1691f4876da47689bf1ed2bb7fb
+sourceHash: a264306df997c4a9cac9eeecd4af1aff5fda9b4a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="card" />
 
-<DemoFrame label="变体">
+<Example label="变体">
   <tanrei-card style="width: 15rem">
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Outlined</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">营收比上一季度增长 12%。</div>
@@ -28,7 +28,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Elevated</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">营收比上一季度增长 12%。</div>
   </tanrei-card>
-</DemoFrame>
+</Example>
 
 卡片有三种形态。普通卡片是一个容器：内容保留各自的语义，里面可以放按钮和链接。可交互卡片是一个按钮。链接卡片，也就是带 `href` 的卡片，是一个链接。激活卡片后用户会前往另一个页面或地址时，用链接卡片；事情就在当前位置发生时，用可交互卡片。
 
@@ -173,7 +173,7 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
 
 ## 规格
 
-<DemoFrame label="铺满边缘、可交互、禁用" plain>
+<Example label="铺满边缘、可交互、禁用">
   <tanrei-card flush style="width: 15rem">
     <div style="height: 5rem; background: var(--tanrei-sys-color-primary-container)"></div>
     <div style="padding: var(--tanrei-comp-card-container-padding); font: var(--tanrei-sys-typescale-body-font)">铺满边缘：内容一直延伸到卡片边缘。</div>
@@ -186,9 +186,9 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">季度报告</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">可交互，并且已禁用。</div>
   </tanrei-card>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="链接卡片" plain>
+<Example label="链接卡片">
   <tanrei-card href="/zh-cn/components/button/" label="按钮" style="width: 15rem">
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">按钮</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">链接卡片。按 Enter 前往目标，浏览器的链接菜单对它同样有效。</div>
@@ -204,7 +204,7 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">按钮</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">禁用的链接卡片：无处可去。</div>
   </tanrei-card>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="card" />
 

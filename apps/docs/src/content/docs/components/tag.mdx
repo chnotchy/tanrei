@@ -7,20 +7,20 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="tag" />
 
-<DemoFrame label="Three looks, with and without a status">
+<Example label="Three looks, with and without a status">
   <tanrei-tag label="Draft"></tanrei-tag>
   <tanrei-tag variant="outlined" label="Draft"></tanrei-tag>
   <tanrei-tag variant="filled" label="Default"></tanrei-tag>
   <tanrei-tag status="success" label="Passed"></tanrei-tag>
   <tanrei-tag variant="outlined" status="warning" label="Expiring"></tanrei-tag>
   <tanrei-tag variant="filled" status="error" label="Failed"></tanrei-tag>
-</DemoFrame>
+</Example>
 
 A tag is a word or a short phrase that says what a thing is or what state it is in: an article's category, a build's result, a release's stage, the default among several values. It stands in the layout, inline with the text beside it, and never answers a pointer, a key or focus.
 
@@ -58,7 +58,7 @@ On the web it is `<tanrei-tag>`. The other platforms have not implemented it yet
 
 ## Specs
 
-<DemoFrame label="Each look in each status" plain>
+<Example label="Each look in each status">
   <tanrei-tag status="info" label="In review"></tanrei-tag>
   <tanrei-tag status="warning" label="Expiring"></tanrei-tag>
   <tanrei-tag status="error" label="Failed"></tanrei-tag>
@@ -71,9 +71,9 @@ On the web it is `<tanrei-tag>`. The other platforms have not implemented it yet
   <tanrei-tag variant="filled" status="warning" label="Expiring"></tanrei-tag>
   <tanrei-tag variant="filled" status="error" label="Failed"></tanrei-tag>
   <tanrei-tag variant="filled" status="success" label="Passed"></tanrei-tag>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Two sizes, a glyph, a dot" plain>
+<Example label="Two sizes, a glyph, a dot">
   <tanrei-tag size="small" label="Optional"></tanrei-tag>
   <tanrei-tag size="small" variant="filled" label="Required"></tanrei-tag>
   <tanrei-tag label="Design"><span slot="icon">sell</span></tanrei-tag>
@@ -81,7 +81,7 @@ On the web it is `<tanrei-tag>`. The other platforms have not implemented it yet
   <tanrei-tag dot label="Archived"></tanrei-tag>
   <tanrei-tag dot status="success" label="Online"></tanrei-tag>
   <tanrei-tag size="small" variant="outlined" status="warning" label="Degraded"></tanrei-tag>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tag" />
 
@@ -117,14 +117,14 @@ A tag never becomes a control by gaining a handler. Inside a link, a button, a l
 
 The tag draws no status glyph by itself. Name one where it helps, as this site does for the six statuses of its own status tables:
 
-<DemoFrame label="The six statuses of this site" plain>
+<Example label="The six statuses of this site">
   <tanrei-tag size="small" variant="outlined" label="Planned"><span slot="icon">radio_button_unchecked</span></tanrei-tag>
   <tanrei-tag size="small" variant="outlined" status="warning" label="Lagging"><span slot="icon">schedule</span></tanrei-tag>
   <tanrei-tag size="small" label="Alpha"><span slot="icon">clock_loader_40</span></tanrei-tag>
   <tanrei-tag size="small" label="Beta"><span slot="icon">clock_loader_80</span></tanrei-tag>
   <tanrei-tag size="small" status="success" label="Stable"><span slot="icon">check_circle</span></tanrei-tag>
   <tanrei-tag size="small" status="error" label="Deprecated"><span slot="icon">block</span></tanrei-tag>
-</DemoFrame>
+</Example>
 
 ### Sizes
 
@@ -139,12 +139,12 @@ The required and optional tags of a [field](/components/field/) and a [field gro
 
 A tag has no states of its own, but it can stand inside something that is disabled: the label of a disabled field, a disabled row of a list, a disabled item of a menu. `disabled` draws it in its look's disabled colors (`comp.tag.<variant>.disabled.*`), whatever its status, so that it fades with what holds it and does not read as the one live part of it. It changes nothing else: the tag keeps its size and its words, and takes no input and no focus. A field and a field group set it on their requirement tag while they are disabled; set it yourself on a tag you put in a disabled element of your own.
 
-<DemoFrame label="Tags at rest and inside something disabled" plain>
+<Example label="Tags at rest and inside something disabled">
   <tanrei-tag size="small" variant="filled" label="Required"></tanrei-tag>
   <tanrei-tag size="small" variant="filled" label="Required" disabled></tanrei-tag>
   <tanrei-tag size="small" label="Optional"></tanrei-tag>
   <tanrei-tag size="small" label="Optional" disabled></tanrei-tag>
-</DemoFrame>
+</Example>
 
 ### Do
 

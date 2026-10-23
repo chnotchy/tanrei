@@ -2,24 +2,24 @@
 title: स्लाइडर फ़ील्ड
 description: लोगों को किसी स्केल पर एक मान, या मानों की रेंज, चुनने देता है, एक पूरे फ़ील्ड के रूप में — लेबल के नीचे ट्रैक, लेबल की पंक्ति के अंत में शब्दों में मान, सहायता की एक पंक्ति, और वह कारण जिससे कोई मान माना नहीं गया।
 translationOf: components/slider-field.mdx
-sourceHash: dd20a710a125f8735c730d58cb45fb0697ecea0e
+sourceHash: 8694b1314d3a716d57183e53e8dd47c280a18063
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="slider-field" />
 
-<DemoFrame label="एक स्लाइडर फ़ील्ड, एक स्टेप वाला, और एक रेंज" column>
+<Example label="एक स्लाइडर फ़ील्ड, एक स्टेप वाला, और एक रेंज" column>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" supporting-text="अलर्ट और मीडिया पर लागू होता है।" value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="टेक्स्ट का साइज़" min="50" max="200" step="10" value="120"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="क़ीमत" supporting-text="प्रति रात, टैक्स से पहले।" range min="0" max="500" step="10" start-value="100" value="300" start-label="न्यूनतम क़ीमत" end-label="अधिकतम क़ीमत"></tanrei-slider-field>
-</DemoFrame>
+</Example>
 
 स्लाइडर फ़ील्ड उस मान के लिए इस्तेमाल करें जो अंदाज़ से चुना जाता है और शब्दों में वापस पढ़ा जाता है: 120 % का टेक्स्ट साइज़, 5 km की दूरी, $100 से $300 तक की क़ीमत। अकेले स्लाइडर का कोई दिखने वाला लेबल नहीं होता, और उसका ट्रैक यह नहीं बताता कि वह किस मान पर सेट है। स्लाइडर फ़ील्ड आम स्थिति के लिए है, इस्तेमाल के लिए तैयार: एक लेबल, शब्दों में मान, ट्रैक, सहायता की एक पंक्ति और त्रुटि।
 
@@ -85,11 +85,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 रेंज के दोनों मान एक एन डैश से जोड़े जाते हैं, पढ़ने के क्रम में: दाएँ से बाएँ वाले लेआउट में शुरुआत के शब्द दाईं ओर रहते हैं, जहाँ शुरुआती हैंडल है। स्लाइडर फ़ील्ड ख़ुद कोई संख्या, इकाई या शब्द नहीं लिखता।
 
-<DemoFrame label="एक मान टेक्स्ट जो लेबल की पंक्ति में ही रहता है, एक जो अपनी अलग पंक्ति लेता है, और एक फ़ील्ड जो उसे छिपाता है" column>
+<Example label="एक मान टेक्स्ट जो लेबल की पंक्ति में ही रहता है, एक जो अपनी अलग पंक्ति लेता है, और एक फ़ील्ड जो उसे छिपाता है" column>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" value="40" value-indicator="active"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="टैक्स से पहले की सालाना आय" range min="0" max="20000000" step="100000" start-value="3400000" value="12500000" start-label="सबसे कम सालाना आय" end-label="सबसे ज़्यादा सालाना आय"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="ब्राइटनेस" value="70" value-hidden></tanrei-slider-field>
-</DemoFrame>
+</Example>
 
 मान टेक्स्ट लेबल की पहली पंक्ति की बेसलाइन पर रहता है, और लेबल बची हुई जगह में रैप होता है। जहाँ इससे लेबल के लिए पंक्ति के आधे से कम जगह बचे, वहाँ मान टेक्स्ट लेबल के बाद अपनी अलग पंक्ति लेता है, और ज़रूरत हो तो वहीं रैप होता है। `valueHidden` उसे हटा देता है, उस स्लाइडर के लिए जिसकी संख्या व्यक्ति के लिए कोई मतलब नहीं रखती: वॉल्यूम, ब्राइटनेस। हैंडल फिर भी सहायक तकनीक को अपना मान बताता है।
 
@@ -111,11 +111,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </script>
 ```
 
-<DemoFrame label="वही फ़ील्ड हाथ से लिखा हुआ: एक फ़ील्ड, जिसके भीतर एक स्लाइडर है और जिसे मान टेक्स्ट एक बार दिया गया है — ऊपर के लिसनर के बिना वह सिंक में नहीं रहता" column>
+<Example label="वही फ़ील्ड हाथ से लिखा हुआ: एक फ़ील्ड, जिसके भीतर एक स्लाइडर है और जिसे मान टेक्स्ट एक बार दिया गया है — ऊपर के लिसनर के बिना वह सिंक में नहीं रहता" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="टेक्स्ट का साइज़" supporting-text="हर पेज पर लागू होता है।" value-text="120">
     <tanrei-slider min="50" max="200" step="10" value="120"></tanrei-slider>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 एक स्तर नीचे तब जाएँ जब आपको ऐसी व्यवस्था चाहिए जो स्लाइडर फ़ील्ड नहीं देता:
 
@@ -131,12 +131,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="प्रॉडक्ट के शब्द के साथ ज़रूरी, वैकल्पिक, त्रुटि में और अक्षम" plain column>
+<Example label="प्रॉडक्ट के शब्द के साथ ज़रूरी, वैकल्पिक, त्रुटि में और अक्षम" column>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" required required-text="ज़रूरी" value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" optional optional-text="वैकल्पिक" value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" supporting-text="अलर्ट और मीडिया पर लागू होता है।" error error-text="0 से ऊपर का स्तर चुनें।" value="0"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" supporting-text="अलर्ट और मीडिया पर लागू होता है।" disabled value="40"></tanrei-slider-field>
-</DemoFrame>
+</Example>
 
 ### हर सदस्य क्या देता है
 

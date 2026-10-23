@@ -2,24 +2,24 @@
 title: Marco redimensionable
 description: Una caja cuya anchura y altura cambia una persona con un tirador en su borde o en su esquina, con el teclado o con una sola pulsación. Con el aspecto outlined, es donde se comprueba una vista previa con la anchura de un teléfono y la de un portátil; con plain, es el borde de un panel de navegación o de una barra lateral.
 translationOf: components/resizable-frame.mdx
-sourceHash: a4cfbe849974e10d04768d89c60010bba48508e5
+sourceHash: af2988918c149def3c435d80345537512f119ef9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="resizable-frame" />
 
-<DemoFrame label="Una vista previa que una persona redimensiona por su borde final, su borde inferior y su esquina" plain>
+<Example label="Una vista previa que una persona redimensiona por su borde final, su borde inferior y su esquina">
   <tanrei-resizable-frame width="360" height="200" handles="end bottom bottom-end" snap-widths="400 600" width-label="Cambiar la anchura de la vista previa" height-label="Cambiar la altura de la vista previa" corner-label="Cambiar el tamaño de la vista previa" style="inline-size: 100%">
     <div style="box-sizing: border-box; min-block-size: 100%; padding: 1rem; background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface)">Arrastra un tirador, o ve a uno con Tab y usa las flechas.</div>
   </tanrei-resizable-frame>
-</DemoFrame>
+</Example>
 
 Un marco redimensionable le da a lo que contiene una anchura y una altura que una persona puede cambiar. Sus tiradores son [tiradores de tamaño](/es/components/handle/): si se arrastran, cambian el tamaño; si se mueven con el teclado, lo cambian paso a paso; si se pulsan sin arrastrar, alternan entre el tamaño máximo y el anterior. El marco guarda el tamaño, te avisa cuando una persona lo ha cambiado y le da a cada tirador el tamaño como valor, para que la tecnología de asistencia lo lea.
 

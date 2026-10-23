@@ -2,14 +2,14 @@
 title: スクロールエリア
 description: 内容をプラットフォーム自身のスクロールでスクロールさせる枠です。見張る端ごとに、その先にまだ内容があることを、サーフェスの色の帯、内容のフェード、線、ぼかしのいずれかで示します。大きさは変えず、内容も動かしません。
 translationOf: components/scroll-area.mdx
-sourceHash: fd54b46e1aadb3f1cd30abe2cb060f324ca86fbc
+sourceHash: 775ae73696089e43cf18061a5f5f9b0205dabaf6
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import BehaviorChoice from '../../../../components/tokens/BehaviorChoice.astro';
 import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
@@ -17,7 +17,7 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
 <ComponentAvailability name="scroll-area" />
 
-<DemoFrame label="高さの決まった枠の中のリスト">
+<Example label="高さの決まった枠の中のリスト">
   <tanrei-scroll-area label="メッセージ" style="inline-size: min(100%, 20rem); block-size: 16rem">
     <tanrei-list-row headline="Ada" supporting-text="下書きのレビューをお願いします"></tanrei-list-row>
     <tanrei-list-row headline="Grace" supporting-text="会議を木曜日に移しました"></tanrei-list-row>
@@ -30,7 +30,7 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
     <tanrei-list-row headline="Margaret" supporting-text="準備はすべて整いました"></tanrei-list-row>
     <tanrei-list-row headline="Rosalind" supporting-text="研究室からの新しい写真"></tanrei-list-row>
   </tanrei-scroll-area>
-</DemoFrame>
+</Example>
 
 内容が収まっているあいだ、エリアは何も描きません。スクロールしてみてください。下にまだ内容があるあいだは下端が、上に何かがスクロールして隠れると上端が示されます。
 
@@ -86,7 +86,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 
 ## 仕様
 
-<DemoFrame label="スクロールエッジ：shadow（既定のシステムの選択）、fade、line、blur、none" plain>
+<Example label="スクロールエッジ：shadow（既定のシステムの選択）、fade、line、blur、none">
   <tanrei-scroll-area scroll-edge="shadow" label="影" style="inline-size: 9rem; block-size: 10rem">
     <p>影。エリアが置かれたサーフェスの色の帯で、端でいちばん濃く、端から 24 の位置で消えます。スクロールすると上端にも表示されます。内容がサーフェスに沈み込むように見えます。</p>
   </tanrei-scroll-area>
@@ -102,7 +102,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
   <tanrei-scroll-area scroll-edge="none" label="なし" style="inline-size: 9rem; block-size: 10rem">
     <p>なし。端には何も描かれず、内容が続くことを伝えるのはプラットフォームのスクロールバーだけです。スクロールして、ほかと比べてみてください。</p>
   </tanrei-scroll-area>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="scroll-area" />
 

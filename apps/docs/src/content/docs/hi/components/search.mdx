@@ -2,14 +2,14 @@
 title: खोज
 description: एक खोज बार, या उसका एक छोटा ट्रिगर, जो लोगों के टाइप करते समय सुझाव और नतीजे पेश करता है — बार के नीचे डॉक किए हुए व्यू में, डायलॉग में या पूरी स्क्रीन पर।
 translationOf: components/search.mdx
-sourceHash: ea99c97d9b0984ba334c4a36babfb96dedf3fb6b
+sourceHash: 75b389b319ef6abdc333633e4d9b399ea5421ec1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 यह पेज खोज को वैसा बताता है जैसा स्पेक में वह अभी है, साइट खोज भी: बार की जगह एक ट्रिगर, डायलॉग व्यू, ऐसे नतीजे जो लिंक हैं, स्थिति पंक्ति और शॉर्टकट। वेब कंपोनेंट यह सब करता है, और डेमो भी। SwiftUI, Compose, Flutter और React Native ऊपर "पीछे" के रूप में चिह्नित हैं: जब तक वे बराबरी पर नहीं आते, वे पिछला संशोधन देते हैं — अपने इनपुट वाला बार, डॉक्ड और फ़ुल-स्क्रीन व्यू, और सुझाव — और उनके उदाहरण वही संशोधन दिखाते हैं।
 :::
 
-<DemoFrame label="ख़ाली, क्वेरी के साथ, और आइकन बटन के साथ" column>
+<Example label="ख़ाली, क्वेरी के साथ, और आइकन बटन के साथ" column>
   <tanrei-search label="मेल खोजें" placeholder="मेल खोजें" style="inline-size: 20.5rem"></tanrei-search>
   <tanrei-search label="मेल खोजें" placeholder="मेल खोजें" value="इनवॉइस" clear-label="खोज मिटाएँ" style="inline-size: 20.5rem"></tanrei-search>
   <tanrei-search label="मेल खोजें" placeholder="मेल खोजें" style="inline-size: 20.5rem">
@@ -27,9 +27,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-button variant="text" slot="trailing" label="बोलकर खोजें"><span slot="icon">mic</span></tanrei-button>
     <tanrei-button variant="text" slot="trailing" label="खाता"><span slot="icon">account_circle</span></tanrei-button>
   </tanrei-search>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="साइट खोज: अपने शॉर्टकट के साथ बटन ट्रिगर, आइकन ट्रिगर, और अपना शॉर्टकट दिखाने वाला बार। किसी ट्रिगर को दबाकर उसका व्यू खोलें" plain column>
+<Example label="साइट खोज: अपने शॉर्टकट के साथ बटन ट्रिगर, आइकन ट्रिगर, और अपना शॉर्टकट दिखाने वाला बार। किसी ट्रिगर को दबाकर उसका व्यू खोलें" column>
   <tanrei-search bar="button" presentation="dialog" label="दस्तावेज़ खोजें" placeholder="खोजें" shortcut="mod+k" value="टैब" status-text="टैब के लिए 3 नतीजे" clear-label="खोज मिटाएँ" back-label="पीछे" style="inline-size: 20.5rem">
     <tanrei-search-result-group value="tabs" headline="टैब" href="/hi/components/tabs/" leading-icon="article" excerpt='["लेबल वाले ", "टैब", " की एक पंक्ति से एक ही विषय के व्यू के बीच बदलता है।"]'>
       <tanrei-search-result value="tabs-sharing" headline="चुनाव साझा करना" href="/hi/components/tabs/#चुनाव-साझा-करना" leading-icon="tag" excerpt='["एक ही ग्रुप का नाम लेने वाली ", "टैब", " की पंक्तियाँ एक ही चुनाव दिखाती हैं।"]'></tanrei-search-result>
@@ -43,15 +43,15 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-search-result value="tab-view" headline="टैब व्यू" href="/hi/components/tab-view/" leading-icon="article" excerpt='["चयनित ", "टैब", " का व्यू अपनी पंक्ति के नीचे दिखाता है।"]'></tanrei-search-result>
   </tanrei-search>
   <tanrei-search label="मेल खोजें" placeholder="मेल खोजें" shortcut="/" clear-label="खोज मिटाएँ" style="inline-size: 20.5rem"></tanrei-search>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="क्वेरी वाली पंक्ति के नीचे सुझाव, और इनलाइन कम्प्लीशन। बिल टाइप करें, फिर ऐरो कुंजियों से आगे-पीछे जाएँ" column>
+<Example label="क्वेरी वाली पंक्ति के नीचे सुझाव, और इनलाइन कम्प्लीशन। बिल टाइप करें, फिर ऐरो कुंजियों से आगे-पीछे जाएँ" column>
   <tanrei-search label="मेल खोजें" placeholder="मेल खोजें" clear-label="खोज मिटाएँ" query-row-text="सारी मेल में खोजें" inline-completion style="inline-size: 20.5rem">
     <tanrei-search-suggestion value="bills" headline="बिल" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-suggestion value="bill payment" headline="बिल भुगतान" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-suggestion value="bill copy" headline="बिल की कॉपी" leading-icon="history"></tanrei-search-suggestion>
   </tanrei-search>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -283,7 +283,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="एक सुझाव, स्थिति पंक्ति और ग्रुप किए हुए नतीजों वाला डॉक्ड व्यू, अपनी जगह पर बना हुआ" plain column>
+<Example label="एक सुझाव, स्थिति पंक्ति और ग्रुप किए हुए नतीजों वाला डॉक्ड व्यू, अपनी जगह पर बना हुआ" column>
   <tanrei-search inline expanded label="मेल खोजें" placeholder="मेल खोजें" value="इन" status-text="2 संदेश" clear-label="खोज मिटाएँ" style="inline-size: 20.5rem">
     <tanrei-search-suggestion value="invoices" headline="इनवॉइस" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-result-group headline="संदेश">
@@ -291,16 +291,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-search-result value="m-2" headline="Re: भुगतान" leading-icon="mail" excerpt='["कृपया ", "इनवॉइस", " दोबारा भेजें।"]'></tanrei-search-result>
     </tanrei-search-result-group>
   </tanrei-search>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="अक्षम, और खुला हुआ डॉक्ड व्यू" plain column>
+<Example label="अक्षम, और खुला हुआ डॉक्ड व्यू" column>
   <tanrei-search label="मेल खोजें" placeholder="मेल खोजें" disabled style="inline-size: 20.5rem"></tanrei-search>
   <tanrei-search inline expanded label="मेल खोजें" placeholder="मेल खोजें" value="इन" clear-label="खोज मिटाएँ" style="inline-size: 20.5rem">
     <tanrei-search-suggestion value="invoices" headline="इनवॉइस" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-suggestion value="invoice template" headline="इनवॉइस टेम्पलेट" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-suggestion value="folder:invoices" headline="इनवॉइस" supporting-text="फ़ोल्डर · 24 संदेश" leading-icon="folder"></tanrei-search-suggestion>
   </tanrei-search>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="search" />
 

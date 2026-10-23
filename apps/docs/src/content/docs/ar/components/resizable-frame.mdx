@@ -2,24 +2,24 @@
 title: الإطار القابل لتغيير الحجم
 description: صندوق يغيّر الشخص عرضه وارتفاعه بمقبض على حافته أو زاويته، أو من لوحة المفاتيح، أو بضغطة واحدة. بالطراز outlined يكون المكان الذي تُفحص فيه معاينة بعرض هاتف وبعرض حاسوب محمول؛ وبالطراز plain يكون حافة درج التنقل أو الشريط الجانبي.
 translationOf: components/resizable-frame.mdx
-sourceHash: a4cfbe849974e10d04768d89c60010bba48508e5
+sourceHash: af2988918c149def3c435d80345537512f119ef9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="resizable-frame" />
 
-<DemoFrame label="معاينة يغيّر الشخص حجمها من حافة النهاية والحافة السفلية والزاوية" plain>
+<Example label="معاينة يغيّر الشخص حجمها من حافة النهاية والحافة السفلية والزاوية">
   <tanrei-resizable-frame width="360" height="200" handles="end bottom bottom-end" snap-widths="400 600" width-label="تغيير عرض المعاينة" height-label="تغيير ارتفاع المعاينة" corner-label="تغيير حجم المعاينة" style="inline-size: 100%">
     <div style="box-sizing: border-box; min-block-size: 100%; padding: 1rem; background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface)">اسحب أحد المقابض، أو انتقل إلى واحد منها بالمفتاح Tab واستخدم مفاتيح الأسهم.</div>
   </tanrei-resizable-frame>
-</DemoFrame>
+</Example>
 
 يمنح الإطار القابل لتغيير الحجم (resizable frame) ما يحتويه عرضًا وارتفاعًا يستطيع الشخص تغييرهما. ومقابضه هي [مقابض تغيير الحجم](/ar/components/handle/): حين تُسحب تغيّر الحجم؛ وحين تُحرَّك من لوحة المفاتيح تغيّره خطوة بعد خطوة؛ وحين تُضغط دون سحب تبدّل بين أكبر حجم والحجم الذي كان قبله. ويحفظ الإطار الحجم، ويخبرك حين يغيّره الشخص، ويعطي كل مقبض الحجم قيمةً له لتقرأه التقنيات المساعدة.
 

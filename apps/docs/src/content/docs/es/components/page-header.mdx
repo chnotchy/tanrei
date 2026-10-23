@@ -2,20 +2,20 @@
 title: Cabecera de página
 description: La cabecera del contenido de una página. El título de la página como su encabezado, con una frase que dice qué es la página, una línea de datos sobre ella, las acciones de toda la página y, encima, el camino de vuelta hacia arriba.
 translationOf: components/page-header.mdx
-sourceHash: 1e702fdb88c5e57541104c160ade78c5a738a823
+sourceHash: b62c6189871694b9a25fbeff2c7fda9a431c4ffe
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="page-header" />
 
-<DemoFrame label="La cabecera de una página, con todas sus partes" plain column>
+<Example label="La cabecera de una página, con todas sus partes" column>
   <tanrei-page-header class="not-content" divider style="inline-size: 100%">
     <div data-part="breadcrumbs"><a class="tanrei-link" data-standalone href="#descripción-general">Guías</a></div>
     <p data-part="eyebrow">Sistemas de diseño</p>
@@ -31,7 +31,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-button variant="filled">Compartir</tanrei-button>
     </div>
   </tanrei-page-header>
-</DemoFrame>
+</Example>
 
 Una cabecera de página abre el contenido de una página. Contiene el título de la página, una o dos frases que dicen qué es la página, una línea de datos breves, las acciones de toda la página y, encima, el camino de vuelta hacia arriba. Todas las partes son opcionales salvo el título.
 
@@ -109,13 +109,13 @@ Esta forma solo se dibuja una vez que el script se ha ejecutado. En una página 
 
 ## Especificaciones
 
-<DemoFrame label="Tres tamaños" plain column>
+<Example label="Tres tamaños" column>
   <div class="not-content" style="display: grid; gap: 1.5rem; inline-size: 100%">
     <tanrei-page-header size="small"><h4>Miembros</h4><p>Personas que pueden abrir este proyecto.</p></tanrei-page-header>
     <tanrei-page-header><h3>Tipografía</h3><p>Los estilos de texto se nombran por nivel, nunca por tamaño.</p></tanrei-page-header>
     <tanrei-page-header size="large"><h3>Un sistema. Cinco plataformas.</h3><p>Los mismos tokens, los mismos componentes y el mismo contrato de accesibilidad, en cada una con su estilo propio.</p></tanrei-page-header>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="page-header" />
 

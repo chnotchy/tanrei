@@ -7,18 +7,18 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="swatch" />
 
-<DemoFrame label="A color with its value, a role of the theme, a translucent color and a dot">
+<Example label="A color with its value, a role of the theme, a translucent color and a dot">
   <tanrei-swatch color="#0f766e" label="Teal 700" supporting-text="#0f766e"></tanrei-swatch>
   <tanrei-swatch color="var(--tanrei-sys-color-primary)" label="Primary"></tanrei-swatch>
   <tanrei-swatch color="#0f766e80" label="Teal 700 at half opacity" supporting-text="#0f766e80"></tanrei-swatch>
   <tanrei-swatch color="#e11d48" label="Bug" shape="circle" size="small"></tanrei-swatch>
-</DemoFrame>
+</Example>
 
 A swatch shows a color that is not being edited: a brand color in a settings page, the color of a label beside the label, the roles of a theme side by side. It draws the color exactly as given and the color's name beside it, because a color is never told by its sample alone. It never answers a pointer, a key or focus.
 
@@ -58,13 +58,13 @@ On the web it is `<tanrei-swatch>`. The other platforms have not implemented it 
 
 ## Specs
 
-<DemoFrame label="Three sizes, two shapes, and an empty swatch" plain>
+<Example label="Three sizes, two shapes, and an empty swatch">
   <tanrei-swatch size="small" color="#0f766e" label="Small"></tanrei-swatch>
   <tanrei-swatch color="#0f766e" label="Medium"></tanrei-swatch>
   <tanrei-swatch size="large" color="#0f766e" label="Large"></tanrei-swatch>
   <tanrei-swatch shape="circle" color="#7c3aed" label="Circle"></tanrei-swatch>
   <tanrei-swatch color="" label="No color"></tanrei-swatch>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="swatch" />
 

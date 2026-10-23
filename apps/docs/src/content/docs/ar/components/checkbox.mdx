@@ -2,27 +2,27 @@
 title: خانة الاختيار
 description: تتيح للأشخاص تفعيل اختيار مستقل واحد أو إيقافه، وإظهار اختيار أبٍ مفعَّل جزئيًّا فقط، وتعليم اختيار مطلوب تُرك من دون تحديد.
 translationOf: components/checkbox.mdx
-sourceHash: 41115adc606cd77721bfa14586382e10f63283dc
+sourceHash: d1a6e6103be09cf364ec871c3c8cd717a614cc49
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="checkbox" />
 
-<DemoFrame label="غير محدَّدة ومحدَّدة وفي حالة غير محسومة">
+<Example label="غير محدَّدة ومحدَّدة وفي حالة غير محسومة">
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-checkbox indeterminate label="كل الإشعارات"></tanrei-checkbox>
     <tanrei-checkbox checked label="الرسائل"></tanrei-checkbox>
     <tanrei-checkbox label="الإشارات"></tanrei-checkbox>
     <tanrei-checkbox checked label="التذكيرات"></tanrei-checkbox>
   </div>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -132,7 +132,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="الأوضاع والخطأ والتعطيل" plain>
+<Example label="الأوضاع والخطأ والتعطيل">
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-checkbox label="غير محدَّدة"></tanrei-checkbox>
     <tanrei-checkbox checked label="محدَّدة"></tanrei-checkbox>
@@ -150,7 +150,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </div>
   <tanrei-checkbox readonly checked label="للقراءة فقط، محدَّدة"></tanrei-checkbox>
   <tanrei-checkbox checked label-hidden label="تحديد الصف"></tanrei-checkbox>
-</DemoFrame>
+</Example>
 
 في النظام الافتراضي خانة الاختيار مربع بمقاس 18 بحدّ عرضه 2 وزاوية 2، على طبقة حالة دائرية بمقاس 40، مع هدف بمقاس 48. ومع التسمية يكون ارتفاعها 40. علامة الصح والشَّرطة هما الرسمان `check` و `remove` من مجموعة أيقونات النظام، مرسومان بمقاس 20 فوق المربع. ولهما وزن خاص بهما أثقل من سائر أيقونات النظام: 500 في النظام الافتراضي حيث الأيقونات 300. عند هذا المقاس يكون الخط بوزن الأيقونات بعرض بكسل واحد تقريبًا وتصعب رؤيته، ولذلك كانت العلامة أثقل مع بقاء مقاسها كما هو. والإعداد الجاهز يحتفظ بوزن أيقوناته. لا ترسم خانة الاختيار علامة خاصة بها، فنظام التصميم الذي يغيّر مجموعة أيقوناته يغيّر هذين الرسمين مع سائر الرسوم. وحدّ المربع وتعبئته شكل واحد: لا يظهر بينهما شيء مما خلف المربع عند أي تكبير أو أي كثافة عرض، والمربع المحدَّد لون واحد متساوٍ من حافته إلى علامته. وتحت `cupertino` تحتفظ خانة الاختيار بمربعها الأصغر وبرسم بمقاس 16.
 

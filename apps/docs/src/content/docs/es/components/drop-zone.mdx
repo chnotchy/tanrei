@@ -2,21 +2,21 @@
 title: Zona de soltar archivos
 description: Envuelve cualquier parte de una pantalla para que se puedan soltar archivos en cualquier punto de ella, mientras todo lo que contiene funciona como antes. No dibuja nada hasta que se arrastran archivos sobre ella; entonces cubre toda la zona con un único mensaje y entrega a tu producto los archivos que aceptó y los que rechazó.
 translationOf: components/drop-zone.mdx
-sourceHash: a96e90c3c5f7b4c3242c447e16ce8a353e6d79ca
+sourceHash: 51bab5267e5302b31899d5d17db28ab0709fbddb
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="drop-zone" />
 
-<DemoFrame label="Una pantalla de videos dentro de una zona de soltar archivos. Arrastra un archivo desde tu equipo a cualquier punto de ella: toda la pantalla muestra que se puede soltar. Soltarlo no cambia nada aquí: la página no conserva ningún archivo." column>
+<Example label="Una pantalla de videos dentro de una zona de soltar archivos. Arrastra un archivo desde tu equipo a cualquier punto de ella: toda la pantalla muestra que se puede soltar. Soltarlo no cambia nada aquí: la página no conserva ningún archivo." column>
   <tanrei-drop-zone class="not-content" style="inline-size: 30rem; max-inline-size: 100%; block-size: 16rem; border-radius: var(--tanrei-sys-shape-corner-medium)" multiple accept="video/*,image/*" drop-text="Suelta videos para subirlos" refusing-text="Solo se pueden subir videos e imágenes" dropped-text="Se recibieron {count} archivos" refused-text="No se pudieron recibir {count} archivos">
     <div style="box-sizing: border-box; block-size: 100%; display: flex; flex-direction: column; gap: 0.75rem; padding: 1rem; background: var(--tanrei-sys-color-surface-container-low); border-radius: inherit">
       <tanrei-file-picker multiple accept="video/*,image/*" constraints-text="Videos o imágenes">
@@ -27,7 +27,7 @@ import Callout from '../../../../components/Callout.astro';
       <span>Detrás de cámaras · 12:47</span>
     </div>
   </tanrei-drop-zone>
-</DemoFrame>
+</Example>
 
 Una zona de soltar archivos convierte una pantalla entera, o cualquier parte de ella, en un lugar donde se pueden soltar archivos. Envuelve con ella una lista de documentos, una biblioteca de videos, una conversación o la región principal de tu aplicación. Todo lo que hay dentro sigue funcionando como antes: los botones, las tablas y los campos se pulsan, se desplazan y se alcanzan con el teclado como si la zona no estuviera. La zona no añade paso del cursor, ni pulsación, ni parada de foco, ni rol.
 

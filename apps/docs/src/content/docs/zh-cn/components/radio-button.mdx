@@ -2,26 +2,26 @@
 title: "单选按钮"
 description: "让用户从同时全部显示出来的一小组选项中恰好选择一个。"
 translationOf: components/radio-button.mdx
-sourceHash: 580d206e4ecad18e8ec686f544dd11bd9a7b7564
+sourceHash: 5b4f61772f78c2094f60c4453b4b44a4119e747d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="radio-button" />
 
-<DemoFrame label="一个组">
+<Example label="一个组">
   <div role="radiogroup" aria-label="发送频率" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-radio-button name="overview-frequency" value="daily" label="每天"></tanrei-radio-button>
     <tanrei-radio-button name="overview-frequency" value="weekly" checked label="每周"></tanrei-radio-button>
     <tanrei-radio-button name="overview-frequency" value="monthly" label="每月"></tanrei-radio-button>
   </div>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -121,7 +121,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="选中、未选中和禁用" plain>
+<Example label="选中、未选中和禁用">
   <div role="radiogroup" aria-label="启用" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-radio-button name="specs-enabled" value="unselected" label="未选中"></tanrei-radio-button>
     <tanrei-radio-button name="specs-enabled" value="selected" checked label="选中"></tanrei-radio-button>
@@ -137,7 +137,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <div role="radiogroup" aria-label="隐藏标签">
     <tanrei-radio-button name="specs-hidden" value="weekly" checked label-hidden label="每周"></tanrei-radio-button>
   </div>
-</DemoFrame>
+</Example>
 
 在默认系统中，单选按钮是一个描边为 2 的 20 圆环，位于直径 40 的圆形状态层之上。选中的选项不画圆点。它的圆环向内加粗到半径的一半，留在里面的圆面则用圆环的颜色以 16% 的不透明度填充：一层浅色，与圆环至少保持 3:1 的对比度。两种状态下，圆环的外径都不变。圆环和填充是一个形状：无论缩放比例或显示密度如何，也无论在变化过程的哪一帧，单选按钮背后的东西都不会从两者之间透出来。选择发生变化时，描边变粗或变细，同时圆环改变颜色，填充淡入或淡出；填充绝不从中心向外扩大。动效结束之前再次变化时，会从当前的位置折返；在减弱动态效果时，新的状态立即完整显示。
 

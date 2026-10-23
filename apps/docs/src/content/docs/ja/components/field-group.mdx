@@ -2,26 +2,26 @@
 title: フィールドグループ
 description: 1 つの質問に答えるコントロールの集まり（チェックボックス、スイッチ、ひとまとまりのフィールド）に、必須か任意かを示せるラベル、説明、集まり全体に対する 1 つのエラーを添え、コントロールを縦または横に並べます。
 translationOf: components/field-group.mdx
-sourceHash: ec4bcb123ec8e843f4501f71bdaee22bc494365f
+sourceHash: 726301e1e81cd70f92d08f97bf13b1778cc4ef0f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="field-group" />
 
-<DemoFrame label="名前、説明、必須の印を付けたチェックボックスの集まり" column>
+<Example label="名前、説明、必須の印を付けたチェックボックスの集まり" column>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。" required required-text="必須">
     <tanrei-checkbox label="メール" checked></tanrei-checkbox>
     <tanrei-checkbox label="SMS"></tanrei-checkbox>
     <tanrei-checkbox label="プッシュ通知"></tanrei-checkbox>
   </tanrei-field-group>
-</DemoFrame>
+</Example>
 
 質問の中には、複数のコントロールで答えるものがあります。いくつかの選択肢から当てはまるものを選ぶ、ひとまとまりの設定を決める、5 つのフィールドに分けて住所を入力する、といったものです。フィールドグループは、その集まりに、1 つの名前、答え方を伝える 1 行、回答が必須かどうかを示す言葉、回答が受け付けられなかったときの 1 つの理由を添えます。コントロールが集まりになった[フィールド](/ja/components/field/)です。
 
@@ -66,7 +66,7 @@ Web では `<tanrei-field-group>` です。ほかのプラットフォームは�
 
 ## 仕様
 
-<DemoFrame label="集まりに対するエラー、横並び、スイッチ、ひとまとまりのフィールド" plain column>
+<Example label="集まりに対するエラー、横並び、スイッチ、ひとまとまりのフィールド" column>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。" required required-text="必須" error error-text="受け取り方法を 1 つ以上選んでください。">
     <tanrei-checkbox label="メール"></tanrei-checkbox>
     <tanrei-checkbox label="SMS"></tanrei-checkbox>
@@ -84,7 +84,7 @@ Web では `<tanrei-field-group>` です。ほかのプラットフォームは�
     <tanrei-text-field label="市区町村" value="京都市"></tanrei-text-field>
     <tanrei-text-field label="郵便番号" value="604-8571"></tanrei-text-field>
   </tanrei-field-group>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="field-group" />
 
@@ -110,12 +110,12 @@ Web では `<tanrei-field-group>` です。ほかのプラットフォームは�
 </tanrei-field-group>
 ```
 
-<DemoFrame label="kind が radio-group のフィールドグループ。中に同じ名前のラジオボタンがあります" column>
+<Example label="kind が radio-group のフィールドグループ。中に同じ名前のラジオボタンがあります" column>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="配送方法" required required-text="必須">
     <tanrei-radio-button name="delivery-kind" value="standard" label="通常配送（3〜5 日）" checked></tanrei-radio-button>
     <tanrei-radio-button name="delivery-kind" value="express" label="お急ぎ便（翌日）"></tanrei-radio-button>
   </tanrei-field-group>
-</DemoFrame>
+</Example>
 
 `kind` が変えるのは伝えられるものだけで、描かれるものは変わりません。フィールドグループは、値を持たず、フォーカスを動かさず、キーも受け取らないままです。ラジオボタンは、選択、矢印キー、フォーカスが止まる 1 つの位置を、自分の `name` によって保ちます。これは、[ラジオグループ](/ja/components/radio-group/)の 1 つ下の階層です。グループとは違う並べ方が必要でなければ、ラジオグループを使ってください。1 つの値、1 つの `change`、フォームでの 1 つのコントロールとしての位置が加わります。
 

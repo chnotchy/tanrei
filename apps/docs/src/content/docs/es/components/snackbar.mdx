@@ -2,14 +2,14 @@
 title: Snackbar
 description: Informa brevemente a la persona, en el borde inferior de la pantalla o en su extremo superior final, de lo que la aplicación acaba de hacer, con una acción como máximo, sin tomar el foco ni interrumpir su trabajo.
 translationOf: components/snackbar.mdx
-sourceHash: febc4ce05890121860b19e8cab8e263f3b82ff1c
+sourceHash: 699f5b84ef2dfdff3afaa99c8b72b032736f3679
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
@@ -19,10 +19,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 Esta página describe el snackbar tal como lo define ahora la especificación: una barra dibujada sobre una superficie del esquema o en inverso, una acción tonal discreta, formas de estado en tintes discretos, un título y un texto que se expande. La web lo dibuja todo. Arriba sigue marcado como rezagado hasta que se revisen sus formas de estado en inverso y se registren sus imágenes de referencia. SwiftUI, Compose, Flutter y React Native ofrecen una revisión anterior, con una acción de texto y sin formas de estado, sin título, sin expansión y sin `inverse`, y sus ejemplos muestran esa revisión hasta que se pongan al día. Las demostraciones son el componente web tal como se distribuye hoy.
 :::
 
-<DemoFrame label="Dibujado dentro de la página: un mensaje con una acción y otro con un botón de cierre" column>
+<Example label="Dibujado dentro de la página: un mensaje con una acción y otro con un botón de cierre" column>
   <tanrei-snackbar message="Conversación archivada" action="Deshacer"></tanrei-snackbar>
   <tanrei-snackbar message="Conectado a la impresora de la oficina" closable close-label="Cerrar"></tanrei-snackbar>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -171,10 +171,10 @@ Cada anfitrión también cierra el snackbar que se está mostrando (`dismissCurr
 
 ## Especificaciones
 
-<DemoFrame label="Un mensaje que ocupa varias líneas y una acción en su propia fila" plain column>
+<Example label="Un mensaje que ocupa varias líneas y una acción en su propia fila" column>
   <tanrei-snackbar message="Tus cambios se guardaron, pero la copia compartida no se pudo actualizar mientras no tenías conexión." action="Reintentar"></tanrei-snackbar>
   <tanrei-snackbar message="No se pudieron subir tres archivos porque superan el límite de esta carpeta." action="Revisar los archivos con errores"></tanrei-snackbar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="snackbar" />
 
@@ -239,12 +239,12 @@ Un producto puede dar otro aspecto a la acción. Lo hace una sola vez, para todo
 | `warning` | `warning` | De forma asertiva | Algo que puede ir mal si la persona no actúa. |
 | `error` | `error` | De forma asertiva | Un fallo al que la persona puede volver, con una acción que reintenta o explica. |
 
-<DemoFrame label="Formas de estado: info, success, warning y error" column>
+<Example label="Formas de estado: info, success, warning y error" column>
   <tanrei-snackbar status="info" status-label="Información" message="Hay una versión nueva lista para instalar." action="Reiniciar"></tanrei-snackbar>
   <tanrei-snackbar status="success" status-label="Correcto" message="Copia de seguridad terminada" closable close-label="Cerrar"></tanrei-snackbar>
   <tanrei-snackbar status="warning" status-label="Advertencia" headline="Almacenamiento casi lleno" message="Las subidas se detienen cuando se usen los últimos 200 MB." action="Administrar"></tanrei-snackbar>
   <tanrei-snackbar status="error" status-label="Error" headline="Mensaje no enviado" message="No tienes conexión. El mensaje se quedará en la Bandeja de salida." action="Reintentar"></tanrei-snackbar>
-</DemoFrame>
+</Example>
 
 Una forma de estado dibuja su barra como un tinte discreto del estado, rodeada por un borde de línea fina en el color del estado y con el glifo del estado, en ese color, antes del texto. El borde no ocupa espacio. La forma predeterminada no tiene un borde propio, solo el que dibuja su elevación. Una forma de estado nunca se comunica solo con el color: la forma del glifo distingue unas formas de otras, y `statusLabel` da el estado en palabras, en el idioma de tu producto («Error»). La etiqueta se lee antes del título y del mensaje. Las formas warning y error interrumpen lo que se está leyendo; las demás esperan a que termine.
 
@@ -252,13 +252,13 @@ Una forma de estado dibuja su barra como un tinte discreto del estado, rodeada p
 
 De forma predeterminada, un snackbar se dibuja sobre una superficie elevada del esquema: la superficie clara, levantada por su elevación, sobre la que también se apoyan los diálogos, con el color de texto del esquema. Dibujado en inverso toma los colores del esquema opuesto, una barra oscura en un esquema claro, de modo que se distingue de aquello sobre lo que aparece.
 
-<DemoFrame label="Dibujado en inverso: la forma predeterminada y las cuatro formas de estado" plain column>
+<Example label="Dibujado en inverso: la forma predeterminada y las cuatro formas de estado" column>
   <tanrei-snackbar inverse message="Conversación archivada" action="Deshacer"></tanrei-snackbar>
   <tanrei-snackbar inverse status="info" status-label="Información" message="Hay una versión nueva lista para instalar." action="Reiniciar"></tanrei-snackbar>
   <tanrei-snackbar inverse status="success" status-label="Correcto" message="Copia de seguridad terminada" closable close-label="Cerrar"></tanrei-snackbar>
   <tanrei-snackbar inverse status="warning" status-label="Advertencia" headline="Almacenamiento casi lleno" message="Las subidas se detienen cuando se usen los últimos 200 MB." action="Administrar"></tanrei-snackbar>
   <tanrei-snackbar inverse status="error" status-label="Error" headline="Mensaje no enviado" message="No tienes conexión. El mensaje se quedará en la Bandeja de salida." action="Reintentar"></tanrei-snackbar>
-</DemoFrame>
+</Example>
 
 | `inverse` | Se dibuja |
 | --- | --- |

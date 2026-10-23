@@ -2,14 +2,14 @@
 title: サイドシート
 description: 補足のコンテンツや副次的な作業を、末尾側の端のパネルに見出し、閉じるボタン、アクション（省略可）とともに表示します。幅の広いウィンドウではコンテンツの横に、コンパクトなウィンドウではコンテンツの上に重ねて表示します。
 translationOf: components/side-sheet.mdx
-sourceHash: b24891eb6703f2c8705a45c1da8ece80df34b951
+sourceHash: 189097a97eaf2ee032ff1c320a71aa34643b79cd
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 このページは、サイドシートのアクションと閉じるボタンを仕様の現在の形で説明しています。ダイアログと同じ形です。アクションは、役割に応じて置かれる全幅の Tonal ボタンの行です。それぞれに `confirming` か `dismissive` の印を付け、モーダルのシートには少なくとも 1 つ必要です。閉じるボタンは小さい Tonal のボタンで、`closable` を false にしない限り描かれます。アクションの上と同じく、ヘッダーの下にも区切り線が常に引かれ、アクションはオンスクリーンキーボードの上に留まります。Web コンポーネントはすでにこのすべてに対応しており、デモもそれを示しています。上の表で Web が「追従待ち」のままなのは、改訂の確認が済んでいないためです。SwiftUI、Compose、Flutter、React Native も「追従待ち」です。追従するまでは以前の版（閉じるボタンは standard のアイコンボタン、アクションは渡した順に先頭側の端から 1 行に並び、どちらの形でも省略でき、間隔は 8）を提供しています。
 :::
 
-<DemoFrame label="行の終わりに置いたスタンダードのシート">
+<Example label="行の終わりに置いたスタンダードのシート">
   <div style="display: flex; inline-size: 40rem; max-inline-size: 100%; block-size: 22rem; overflow-x: auto">
     <div style="flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100); padding: 1rem">
       <p style="margin: 0">検索結果</p>
@@ -31,7 +31,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-button slot="actions" confirming>適用</tanrei-button>
     </tanrei-side-sheet>
   </div>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -207,14 +207,14 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 
 ## 仕様
 
-<DemoFrame label="モーダルのシート：ボタンで開きます" plain>
+<Example label="モーダルのシート：ボタンで開きます">
   <tanrei-button variant="outlined" onclick="document.getElementById('side-sheet-demo-modal').open = true">絞り込み</tanrei-button>
   <tanrei-side-sheet id="side-sheet-demo-modal" variant="modal" headline="絞り込み" close-label="絞り込みを閉じる" onclose="this.open = false">
     <p>選んだラベルがすべて付いた、過去 30 日間の結果を表示します。</p>
     <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-side-sheet').open = false">キャンセル</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-side-sheet').open = false">適用</tanrei-button>
   </tanrei-side-sheet>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="side-sheet" />
 

@@ -7,7 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 import Callout from '../../../components/Callout.astro';
 import ListReorderProduct from '../../../components/ListReorderProduct.astro';
 import { demoPicture } from '../../../lib/demo-picture';
@@ -16,13 +16,13 @@ import { demoPicture } from '../../../lib/demo-picture';
 
 <ComponentAvailability name="file-item" />
 
-<DemoFrame label="One file as a row, and files as tiles" column>
+<Example label="One file as a row, and files as tiles" column>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" format-text="PDF" size-text="820 KB" remove-label="Remove {name}"></tanrei-file-item>
   <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
     <tanrei-file-item form="tile" preview preview-src={demoPicture} value="b" name="floor-plan.png" remove-label="Remove {name}"></tanrei-file-item>
     <tanrei-file-item form="tile" value="c" name="survey-2026.xlsx" remove-label="Remove {name}"></tanrei-file-item>
   </div>
-</DemoFrame>
+</Example>
 
 A file item is one file, shown. Before its name stands a glyph that says the file's format, or a small picture of the file. Below its name is one line with what your product says of it: its format, its size, where its sending stands, or what went wrong. At its end are the two actions a file has: remove it, and try it again.
 
@@ -101,14 +101,14 @@ Give `name`, and the texts you have. `value` is what `click`, `remove` and `retr
 
 ## Specs
 
-<DemoFrame label="A row in each status: waiting, sent to 40%, under way, done, failed and retryable, failed for good" plain column>
+<Example label="A row in each status: waiting, sent to 40%, under way, done, failed and retryable, failed for good" column>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" size-text="820 KB" status-text="Waiting" remove-label="Remove {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="floor-plan.png" size-text="3.4 MB" status="uploading" status-text="Uploading" progress="0.4" remove-label="Remove {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="survey.pdf" size-text="1.1 MB" status="uploading" status-text="Uploading" remove-label="Remove {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="d" name="contract.pdf" size-text="2.0 MB" status="done" status-text="Uploaded" remove-label="Remove {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="e" name="site-photo.png" size-text="6.8 MB" status="error" error-text="The connection was lost." retryable remove-label="Remove {name}" retry-label="Retry {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="f" name="scan-archive.zip" size-text="48 MB" status="error" error-text="Larger than 10 MB." remove-label="Remove {name}"></tanrei-file-item>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="file-item" />
 
@@ -116,7 +116,7 @@ Give `name`, and the texts you have. `value` is what `click`, `remove` and `retr
 
 ### Two forms
 
-<DemoFrame label="The same three files as rows and as tiles" plain column>
+<Example label="The same three files as rows and as tiles" column>
   <div class="not-content" style="display: grid; gap: 0.5rem; inline-size: 22.5rem; max-inline-size: 100%">
     <tanrei-file-item value="a" name="entrance.jpeg" size-text="2.1 MB" preview preview-src={demoPicture} remove-label="Remove {name}"></tanrei-file-item>
     <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB" preview preview-src={demoPicture} remove-label="Remove {name}"></tanrei-file-item>
@@ -127,7 +127,7 @@ Give `name`, and the texts you have. `value` is what `click`, `remove` and `retr
     <tanrei-file-item form="tile" value="b" name="floor-plan.png" preview preview-src={demoPicture} remove-label="Remove {name}"></tanrei-file-item>
     <tanrei-file-item form="tile" value="c" name="survey.pdf" preview remove-label="Remove {name}"></tanrei-file-item>
   </div>
-</DemoFrame>
+</Example>
 
 | Aspect | `row` (the default) | `tile` |
 | --- | --- | --- |
@@ -166,7 +166,7 @@ A done file and a failed file have a mark before the words of their status: a ch
 
 There are ten kinds of glyph. Each kind has a list of media types and a list of file extensions. The glyph is chosen from `mediaType`. Where the media type is empty, is `application/octet-stream` or is on none of these lists, it is chosen from the extension of `name`. The kinds are matched in this order. The lists are fixed and the same on every platform, so one file draws one glyph wherever it is shown. `video/mp2t` decides nothing either: platforms guess it from the ending `.ts`, which TypeScript files share with video streams, so `index.ts` draws the code glyph.
 
-<DemoFrame label="The ten kinds" plain column>
+<Example label="The ten kinds" column>
   <div class="not-content" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.25rem 1rem; inline-size: 100%">
     <tanrei-file-item name="handbook.pdf" readonly></tanrei-file-item>
     <tanrei-file-item name="budget.xlsx" readonly></tanrei-file-item>
@@ -179,7 +179,7 @@ There are ten kinds of glyph. Each kind has a list of media types and a list of 
     <tanrei-file-item name="notes.docx" readonly></tanrei-file-item>
     <tanrei-file-item name="model.glb" readonly></tanrei-file-item>
   </div>
-</DemoFrame>
+</Example>
 
 | Kind | Glyph | Media types | Endings |
 | --- | --- | --- | --- |
@@ -209,11 +209,11 @@ There are ten kinds of glyph. Each kind has a list of media types and a list of 
 
 `fit` says how the picture fills its box. `cover`, the default, fills the box and cuts what does not fit; use it for photographs. `contain` shows the whole picture on the box's ground; use it for scans, signatures and diagrams, where the edges matter.
 
-<DemoFrame label="A box of 160 by 90: cover, contain, and the name hidden" plain>
+<Example label="A box of 160 by 90: cover, contain, and the name hidden">
   <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} value="a" name="entrance.jpeg" remove-label="Remove {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} fit="contain" value="b" name="signature.png" remove-label="Remove {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} name-hidden value="c" name="floor-plan.png" remove-label="Remove {name}"></tanrei-file-item>
-</DemoFrame>
+</Example>
 
 What a preview costs:
 
@@ -231,11 +231,11 @@ What a preview costs:
 
 By default the body of a file item takes no focus and answers nothing. The item only holds its actions.
 
-<DemoFrame label="A body that is a button, a link that opens in a new tab, and a read-only file" plain column>
+<Example label="A body that is a button, a link that opens in a new tab, and a read-only file" column>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="floor-plan.png" size-text="3.4 MB" interactive remove-label="Remove {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="contract.pdf" size-text="2.0 MB" href="#pressable-a-link-or-read-only" target="new" target-label="opens in a new tab" remove-label="Remove {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="invoice-0412.pdf" size-text="96 KB" status="done" status-text="Sent on 4 December" readonly></tanrei-file-item>
-</DemoFrame>
+</Example>
 
 | Prop | The body is | Use it for |
 | --- | --- | --- |
@@ -255,13 +255,13 @@ A file item has no handle and no order of its own. Reordering belongs to the [li
 
 <ListReorderProduct />
 
-<DemoFrame label="Files in an order people change: file items in a reorderable list" plain>
+<Example label="Files in an order people change: file items in a reorderable list">
   <tanrei-list reorderable gap="small" data-demo-product label="Attachments" drag-handle-label="Reorder {label}" move-to-start-label="Move to top" move-before-label="Move up" move-after-label="Move down" move-to-end-label="Move to bottom" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 26rem; max-inline-size: 100%">
     <tanrei-list-item><tanrei-file-item name="cover-letter.pdf" size-text="120 KB" remove-label="Remove {name}"></tanrei-file-item></tanrei-list-item>
     <tanrei-list-item><tanrei-file-item name="resume.docx" size-text="88 KB" remove-label="Remove {name}"></tanrei-file-item></tanrei-list-item>
     <tanrei-list-item><tanrei-file-item name="portfolio.zip" size-text="14 MB" remove-label="Remove {name}"></tanrei-file-item></tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
 ```html
 <tanrei-list reorderable gap="small" label="Attachments" drag-handle-label="Reorder {label}"

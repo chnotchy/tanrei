@@ -3,7 +3,7 @@ title: Icons
 description: One icon set per design system, one weight, and one rule — outlined when unselected, filled when selected.
 ---
 
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 import TokenNotes from '../../../components/tokens/TokenNotes.astro';
 import SystemValues from '../../../components/tokens/SystemValues.astro';
 
@@ -17,7 +17,7 @@ How an icon is drawn is a small group of tokens. The icon box comes in three siz
 
 **Unselected is outlined. Selected is filled. Always.** A navigation item, a tab, a toggle, a chip, a favourite: the icon stays the same glyph and only its fill changes with the state. Filled and outlined icons are never mixed for decoration, and never chosen by hand — on the web the fill follows the state of the control the icon sits in.
 
-<DemoFrame label="Fill follows selection">
+<Example label="Fill follows selection">
   <button class="icon-demo" aria-pressed="false" onclick="this.setAttribute('aria-pressed', this.getAttribute('aria-pressed') === 'true' ? 'false' : 'true')"><span class="tanrei-icon" data-size="large" aria-hidden="true">favorite</span> Favourite</button>
   <span class="icon-demo" role="tablist">
     <button role="tab" aria-selected="true"><span class="tanrei-icon" data-size="large" aria-hidden="true">home</span> Home</button>
@@ -25,7 +25,7 @@ How an icon is drawn is a small group of tokens. The icon box comes in three siz
     <button role="tab" aria-selected="false"><span class="tanrei-icon" data-size="large" aria-hidden="true">settings</span> Settings</button>
   </span>
   <tanrei-button><span slot="icon" class="tanrei-icon" aria-hidden="true">add</span>Add</tanrei-button>
-</DemoFrame>
+</Example>
 
 ```js
 import '@tanrei/web/icons.css';

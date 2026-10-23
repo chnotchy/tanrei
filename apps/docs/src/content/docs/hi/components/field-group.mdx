@@ -2,26 +2,26 @@
 title: फ़ील्ड ग्रुप
 description: एक ही सवाल का जवाब देने वाले कंट्रोल के सेट को, यानी चेकबॉक्स, स्विच, या साथ रहने वाले फ़ील्ड को, नाम देता है, ऐसे लेबल के साथ जो बता सकता है कि सेट ज़रूरी है या वैकल्पिक, एक विवरण और पूरे सेट की एक त्रुटि के साथ, और कंट्रोल को कॉलम या पंक्ति में रखता है।
 translationOf: components/field-group.mdx
-sourceHash: ec4bcb123ec8e843f4501f71bdaee22bc494365f
+sourceHash: 726301e1e81cd70f92d08f97bf13b1778cc4ef0f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="field-group" />
 
-<DemoFrame label="चेकबॉक्स का एक सेट, नाम, विवरण और ज़रूरी के निशान के साथ" column>
+<Example label="चेकबॉक्स का एक सेट, नाम, विवरण और ज़रूरी के निशान के साथ" column>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।" required required-text="ज़रूरी">
     <tanrei-checkbox label="ईमेल" checked></tanrei-checkbox>
     <tanrei-checkbox label="SMS"></tanrei-checkbox>
     <tanrei-checkbox label="पुश सूचना"></tanrei-checkbox>
   </tanrei-field-group>
-</DemoFrame>
+</Example>
 
 कुछ सवालों का जवाब कई कंट्रोल से दिया जाता है: इनमें से कौन-से, ये सेटिंग, पाँच फ़ील्ड में बँटा पता। फ़ील्ड ग्रुप ऐसे सेट को एक नाम देता है, एक पंक्ति जो बताती है कि जवाब कैसे देना है, एक शब्द जो बताता है कि जवाब देना ज़रूरी है या नहीं, और जवाब अस्वीकार होने पर एक वजह। यह वह [फ़ील्ड](/hi/components/field/) है जिसका कंट्रोल एक सेट है।
 
@@ -66,7 +66,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="पूरे सेट की त्रुटि, एक पंक्ति, स्विच, और साथ रहने वाले फ़ील्ड" plain column>
+<Example label="पूरे सेट की त्रुटि, एक पंक्ति, स्विच, और साथ रहने वाले फ़ील्ड" column>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।" required required-text="ज़रूरी" error error-text="सूचना भेजने का कम से कम एक तरीक़ा चुनें।">
     <tanrei-checkbox label="ईमेल"></tanrei-checkbox>
     <tanrei-checkbox label="SMS"></tanrei-checkbox>
@@ -84,7 +84,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-text-field label="शहर" value="जयपुर"></tanrei-text-field>
     <tanrei-text-field label="पिन कोड" value="302001"></tanrei-text-field>
   </tanrei-field-group>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="field-group" />
 
@@ -110,12 +110,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field-group>
 ```
 
-<DemoFrame label="एक ही name वाले रेडियो बटन के चारों ओर एक फ़ील्ड ग्रुप, जिसका kind radio-group है" column>
+<Example label="एक ही name वाले रेडियो बटन के चारों ओर एक फ़ील्ड ग्रुप, जिसका kind radio-group है" column>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="डिलीवरी" required required-text="ज़रूरी">
     <tanrei-radio-button name="delivery-kind" value="standard" label="स्टैंडर्ड, 3 से 5 दिन" checked></tanrei-radio-button>
     <tanrei-radio-button name="delivery-kind" value="express" label="एक्सप्रेस, अगले दिन"></tanrei-radio-button>
   </tanrei-field-group>
-</DemoFrame>
+</Example>
 
 `kind` सिर्फ़ यह बदलता है कि सहायक तकनीक को क्या दिया जाता है; जो दिखता है उसमें कुछ नहीं बदलता। फ़ील्ड ग्रुप अब भी कोई मान नहीं रखता, फ़ोकस नहीं हटाता और कोई कुंजी नहीं सँभालता: रेडियो बटन अपना चयन, अपनी ऐरो कुंजियाँ और अपना एक पड़ाव अपने `name` से बनाए रखते हैं। यह एक स्तर नीचे का [रेडियो ग्रुप](/hi/components/radio-group/) है। जब तक आपको सेट को ऐसे ढंग से न रखना हो जैसे रेडियो ग्रुप नहीं रखता, रेडियो ग्रुप ही इस्तेमाल करें: वह एक मान, एक `change` और फ़ॉर्म में एक कंट्रोल के रूप में जगह जोड़ता है।
 

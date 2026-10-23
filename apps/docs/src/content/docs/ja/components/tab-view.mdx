@@ -2,14 +2,14 @@
 title: タブビュー
 description: 自分のタブの並び、またはほかの場所に置いたタブの並びと連動して、選ばれたタブのビューを表示します。スワイプでビューを切り替えられ、タブのインジケーターが指に合わせて動きます。
 translationOf: components/tab-view.mdx
-sourceHash: 9e88a691605cc8a2ba05cfb5974f032f4a81ef01
+sourceHash: f75de0457ae366f4d0466d2e7235b3ca346445a9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
@@ -17,13 +17,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 タブビューは、タブごとに 1 つのパネルを持ち、選ばれたタブのパネルを表示します。タブを選ぶと、短いずれとフェードとぼかしでビューが切り替わります。ビューを横にスワイプしても切り替えられ、タブのインジケーターは指に合わせて動き、ビューが止まったタブに落ち着きます。動きを減らす設定では、ずれとぼかしのないクロスフェードになり、それも指に合わせて進みます。
 
-<DemoFrame label="自分のタブの並びを持つタブビュー：タブを選ぶか、タッチかペンでパネルをスワイプします">
+<Example label="自分のタブの並びを持つタブビュー：タブを選ぶか、タッチかペンでパネルをスワイプします">
   <tanrei-tab-view label="プロジェクト" style="inline-size: 22.5rem; max-inline-size: 100%">
     <tanrei-tab-panel value="overview" label="概要"><p>今週が期限のタスクが 3 件あります。</p></tanrei-tab-panel>
     <tanrei-tab-panel value="activity" label="アクティビティ"><p>1 時間前に山田さんが計画にコメントしました。</p></tanrei-tab-panel>
     <tanrei-tab-panel value="settings" label="設定"><p>ワークスペースの全員に公開されています。</p></tanrei-tab-panel>
   </tanrei-tab-view>
-</DemoFrame>
+</Example>
 
 タブビューには 2 つの形があります。
 
@@ -105,7 +105,7 @@ SwiftUI、Compose、Flutter、React Native は、タブビューをまだ実装�
 
 ## 仕様
 
-<DemoFrame label="アイコンと無効なタブのある、幅を等分するセカンダリーの並び。離れた場所に置いた並びとつないだビュー" plain column>
+<Example label="アイコンと無効なタブのある、幅を等分するセカンダリーの並び。離れた場所に置いた並びとつないだビュー" column>
   <tanrei-tab-view variant="secondary" full-width label="デプロイ" style="inline-size: 22.5rem; max-inline-size: 100%">
     <tanrei-tab-panel value="overview" label="概要" icon="dashboard"><p>3 つのサービスがすべて稼働中です。</p></tanrei-tab-panel>
     <tanrei-tab-panel value="activity" label="アクティビティ" icon="history"><p>2 時間前にデプロイしました。</p></tanrei-tab-panel>
@@ -122,7 +122,7 @@ SwiftUI、Compose、Flutter、React Native は、タブビューをまだ実装�
     <tanrei-tab-panel value="map"><p>駅の近くに 4 か所を保存しました。</p></tanrei-tab-panel>
     <tanrei-tab-panel value="notes"><p>美術館は月曜日が休館です。</p></tanrei-tab-panel>
   </tanrei-tab-view>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tab-view" />
 
@@ -168,7 +168,7 @@ SwiftUI、Compose、Flutter、React Native は、タブビューをまだ実装�
 
 ### 選択を共有する
 
-<DemoFrame label="同じグループの 2 つのタブビュー：どちらかでタブを選んでください" plain column>
+<Example label="同じグループの 2 つのタブビュー：どちらかでタブを選んでください" column>
   <tanrei-tab-view variant="secondary" group="tab-view-demo-package-manager" label="パッケージマネージャー" style="inline-size: 22.5rem; max-inline-size: 100%">
     <tanrei-tab-panel value="npm" label="npm"><p>npm でパッケージをインストールします。</p></tanrei-tab-panel>
     <tanrei-tab-panel value="pnpm" label="pnpm"><p>pnpm でパッケージをインストールします。</p></tanrei-tab-panel>
@@ -178,7 +178,7 @@ SwiftUI、Compose、Flutter、React Native は、タブビューをまだ実装�
     <tanrei-tab-panel value="npm" label="npm"><p>npm でビルドを実行します。</p></tanrei-tab-panel>
     <tanrei-tab-panel value="pnpm" label="pnpm"><p>pnpm でビルドを実行します。</p></tanrei-tab-panel>
   </tanrei-tab-view>
-</DemoFrame>
+</Example>
 
 - 同じ問いに答えるビューには、すべて同じ `group` を指定します。グループに属するのはビュー自身の並びなので、[タブ](/ja/components/tabs/)のページがグループについて述べていることは、すべて当てはまります。選択はパネルの `value` で対応づけ、ラベルでは対応づけません。その値のパネルを持たないビューは、自分の選択を保ちます。このデモでは、Yarn は 1 つ目のビューにしかありません。
 - 切り替えの動きを行い、`change` を発火するのは、操作されたビューだけです。ほかのビューは、移動もフェードもぼかしもなく、ただちにパネルを表示し、隠したパネルの状態を保ち、フォーカスを取りません。

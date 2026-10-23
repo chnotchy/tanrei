@@ -2,25 +2,25 @@
 title: التنويه
 description: إشعار هو جزء من المحتوى ويبقى فيه، كملاحظة أو تحذير أو سبب لشيء أو ملخص لما هو خطأ، بتعبئة هادئة أو بحدّ، بألوان حالة ورسم أيقونتها، ومعه اختياريًّا عنوان وإجراءات وزر إغلاق.
 translationOf: components/callout.mdx
-sourceHash: 3c436844ceb67c8f97b0d4e71ba26f1cb2c8799a
+sourceHash: f6abd901240a5444e951caf8c754bcc85de11555
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="callout" />
 
-<DemoFrame label="ملاحظة، وتحذير له عنوان، وإشعار له إجراءات وزر إغلاق" column>
+<Example label="ملاحظة، وتحذير له عنوان، وإشعار له إجراءات وزر إغلاق" column>
   <tanrei-callout status="info" status-label="معلومة" style="inline-size: min(100%, 34rem)">الويب يرسم هذه المراجعة، والمنصات الأخرى تلحق به.</tanrei-callout>
   <tanrei-callout status="warning" headline="خذ نسخة احتياطية قبل الترحيل" style="inline-size: min(100%, 34rem)">يعيد الترحيل كتابة قاعدة البيانات في مكانها. تبيّن الخطوات أدناه كيف تحتفظ بنسخة يمكنك استعادتها.</tanrei-callout>
   <tanrei-callout id="callout-demo-overview" variant="outlined" headline="تتوفر نسخة أحدث من هذه الصفحة" closable close-label="إغلاق" style="inline-size: min(100%, 34rem)">أعد التحميل لقراءتها. لن يضيع شيء مما كتبته.<tanrei-button slot="actions" variant="outlined" onclick="this.closest('tanrei-callout').open = false">إعادة التحميل</tanrei-button></tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-overview').open = true">إظهار الأخير مرة أخرى</tanrei-button>
-</DemoFrame>
+</Example>
 
 التنويه (callout) إشعار في مجرى الصفحة: يقف حيث تضعه، بعرض مكانه، ويبقى ما بقي المحتوى. هو ملاحظة افتراضيًّا، تُقرأ في موضعها كالفقرة التي قبلها، ولا يأخذ التركيز أبدًا.
 
@@ -80,7 +80,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="المظهران في كل حالة" plain column>
+<Example label="المظهران في كل حالة" column>
   <tanrei-callout style="inline-size: min(100%, 34rem)">الأحجام حدود دنيا: عنصر التحكم يكبر مع النص المكبَّر.</tanrei-callout>
   <tanrei-callout status="info" status-label="معلومة" style="inline-size: min(100%, 34rem)">الويب يرسم هذه المراجعة، والمنصات الأخرى تلحق به.</tanrei-callout>
   <tanrei-callout status="warning" status-label="تحذير" style="inline-size: min(100%, 34rem)">الحدّ الذي هو الدليل الوحيد على وجود عنصر تحكم يجب أن يحافظ على 3:1 مع سطحه.</tanrei-callout>
@@ -91,16 +91,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-callout variant="outlined" status="warning" status-label="تحذير" style="inline-size: min(100%, 34rem)">الحدّ الذي هو الدليل الوحيد على وجود عنصر تحكم يجب أن يحافظ على 3:1 مع سطحه.</tanrei-callout>
   <tanrei-callout variant="outlined" status="error" status-label="خطأ" style="inline-size: min(100%, 34rem)">تعذّرت قراءة الملف. لم يتغير شيء.</tanrei-callout>
   <tanrei-callout variant="outlined" status="success" status-label="نجاح" style="inline-size: min(100%, 34rem)">كل فحوص التباين ناجحة في المخططات اللونية الستة.</tanrei-callout>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="عنوان، ورسم أيقونة من عندك، وإجراءات، وزر إغلاق، والحجم الكبير" plain column>
+<Example label="عنوان، ورسم أيقونة من عندك، وإجراءات، وزر إغلاق، والحجم الكبير" column>
   <tanrei-callout headline="نصيحة" style="inline-size: min(100%, 34rem)"><span slot="icon">lightbulb</span>أبقِ الإجراء مفعَّلًا، واشرح ما ينقص حين يُستخدم.</tanrei-callout>
   <tanrei-callout status="info" headline="تجريبي" style="inline-size: min(100%, 34rem)"><span slot="icon">science</span>قد يتغير هذا السلوك في إصدار لاحق.</tanrei-callout>
   <tanrei-callout status="warning" headline="تغيّر الملف على القرص" style="inline-size: min(100%, 34rem)">لديك هنا تعديلات ليست فيه. لن يُستبدل شيء حتى تختار.<tanrei-button slot="actions" variant="outlined">إعادة التحميل من القرص</tanrei-button><tanrei-button slot="actions" variant="text">الإبقاء على نسختي</tanrei-button></tanrei-callout>
   <tanrei-callout id="callout-demo-closable" headline="البحث يشمل الآن ملاحظات الإصدار" closable close-label="إغلاق" style="inline-size: min(100%, 34rem)">اضغط زر الإغلاق: يختفي التنويه فورًا، ويعود التركيز إلى حيث كان.</tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-closable').open = true">إظهاره مرة أخرى</tanrei-button>
   <tanrei-callout size="large" status="error" headline="خطر" style="inline-size: min(100%, 34rem)">هذا الأمر يحذف كل الملفات المولَّدة، ولا يمكن التراجع عنه.</tanrei-callout>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="callout" />
 
@@ -179,10 +179,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 الخاصية `live` لتنويه يظهر أو يتغير والشخص يعمل: ملخص لأخطاء نموذج بعد إرساله، أو إشعار بأن الملف تغيّر من تحته. أبقِه في الصفحة مع `open="false"`، وعيِّن `open` حين ينطبق.
 
-<DemoFrame label="تنويه حيّ، يظهر استجابةً لضغطة" plain column>
+<Example label="تنويه حيّ، يظهر استجابةً لضغطة" column>
   <tanrei-button variant="outlined" onclick="document.getElementById('callout-demo-live').open = true">إرسال النموذج</tanrei-button>
   <tanrei-callout id="callout-demo-live" live open="false" status="error" headline="ثلاثة حقول تحتاج إلى مراجعة" closable close-label="إغلاق" style="inline-size: min(100%, 34rem)">أدخل اسمًا، واختر تاريخ بدء، واكتب عنوانًا يمكنه استقبال البريد.</tanrei-callout>
-</DemoFrame>
+</Example>
 
 ```html
 <tanrei-callout id="errors" live open="false" status="error" headline="ثلاثة حقول تحتاج إلى مراجعة">

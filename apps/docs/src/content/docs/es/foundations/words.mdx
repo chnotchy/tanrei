@@ -2,11 +2,11 @@
 title: Textos
 description: Un componente no tiene textos propios. Cada etiqueta, cada nombre y cada mensaje que dibuja o dice es de tu producto, dado en el componente, una sola vez para todo el producto o tomado del paquete de textos en inglés que importas.
 translationOf: foundations/words.mdx
-sourceHash: 9c03bb2b32d13c39654f66eb75fd92ed2117476d
+sourceHash: 1f87ce9619375814accd41f27f5d3d08f178e563
 ---
 
 import ProductWordKeys from '../../../../components/ProductWordKeys.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 **Un componente no tiene textos propios.** Ningún componente tiene un texto predeterminado en ningún idioma: ni «Obligatorio», ni «Cerrar», ni «Aceptar». Un texto que un componente dibuja o dice es uno que dio tu producto: escrito por ti, o tomado del [paquete de textos en inglés](#el-paquete-de-textos-en-inglés), que importas tú.
 
@@ -61,10 +61,10 @@ Da solo los textos de los componentes que usas. Una segunda llamada se suma a la
 
 Un atributo en un componente siempre tiene prioridad sobre los textos de tu producto:
 
-<DemoFrame label="El texto en el propio componente: un campo lo dice de otra manera" plain column>
+<Example label="El texto en el propio componente: un campo lo dice de otra manera" column>
   <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Correo electrónico" required required-text="Obligatorio"></tanrei-text-field>
   <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Empresa" required required-text="Necesario para las facturas"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
 ```html
 <tanrei-text-field label="Correo electrónico" required required-text="Obligatorio"></tanrei-text-field>

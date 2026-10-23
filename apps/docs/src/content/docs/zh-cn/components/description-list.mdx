@@ -2,20 +2,20 @@
 title: "描述列表"
 description: "把关于一件事物的已知信息呈现为一项项有名称的信息：一个低调的项名，加上回答它的值。项名可以在值的旁边、值的上方，或者在一个大数字的下方。它按自身的宽度布局，从不是控件。"
 translationOf: components/description-list.mdx
-sourceHash: 19b77e343ee682dd4da1249daeb3a93d679c1efb
+sourceHash: 77ff09c568150926010e4d5f42596663265fd01a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="description-list" />
 
-<DemoFrame label="一份订单的各项信息" column>
+<Example label="一份订单的各项信息" column>
   <tanrei-description-list style="inline-size: min(100%, 30rem)">
     <dl>
       <div><dt>订单号</dt><dd>A-20418</dd></div>
@@ -25,7 +25,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <div><dt>合计</dt><dd>12,800 日元</dd></div>
     </dl>
   </tanrei-description-list>
-</DemoFrame>
+</Example>
 
 描述列表展示一件事物的各项信息：一份订单、一个文件、一个账户、一个组件。每项信息由一个项名和回答它的值组成。项名是低调的标签，值才是用户要找的内容。
 
@@ -96,7 +96,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="Stat：屏幕开头的几个数字" plain column>
+<Example label="Stat：屏幕开头的几个数字" column>
   <tanrei-description-list layout="stat" columns="3" separation="gap" style="inline-size: 100%">
     <dl>
       <div><dt>本周订单</dt><dd>1,284</dd><dd>比上周增长 12%</dd></div>
@@ -104,9 +104,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <div><dt>构建时间中位数</dt><dd>4 分 12 秒</dd></div>
     </dl>
   </tanrei-description-list>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Stacked 分列：列表变窄时，列数随之减少" plain column>
+<Example label="Stacked 分列：列表变窄时，列数随之减少" column>
   <tanrei-description-list layout="stacked" columns="3" style="inline-size: 100%">
     <dl>
       <div><dt>计划中</dt><dd>已有规格，在这个平台上尚未实现。</dd></div>
@@ -117,9 +117,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <div><dt>已弃用</dt><dd>仍在提供；已指明替代方案。</dd></div>
     </dl>
   </tanrei-description-list>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Compact，用留白分隔：供人扫读的信息" plain column>
+<Example label="Compact，用留白分隔：供人扫读的信息" column>
   <tanrei-description-list density="compact" separation="gap" style="inline-size: min(100%, 26rem)">
     <dl>
       <div><dt>值</dt><dd>#1b1c1e</dd><dd>→ ref.palette.neutral.10</dd></div>
@@ -127,7 +127,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <div><dt>说明</dt><dd>任何表面或表面容器上的文本和字形。</dd></div>
     </dl>
   </tanrei-description-list>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="description-list" />
 

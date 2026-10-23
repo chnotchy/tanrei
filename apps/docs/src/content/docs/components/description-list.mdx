@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="description-list" />
 
-<DemoFrame label="The facts of an order" column>
+<Example label="The facts of an order" column>
   <tanrei-description-list style="inline-size: min(100%, 30rem)">
     <dl>
       <div><dt>Order</dt><dd>A-20418</dd></div>
@@ -23,7 +23,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
       <div><dt>Total</dt><dd>¥ 12,800</dd></div>
     </dl>
   </tanrei-description-list>
-</DemoFrame>
+</Example>
 
 A description list shows the facts of one thing: an order, a file, an account, a component. Each fact is a term and the value that answers it. The term is a quiet label; the value is what a person came for.
 
@@ -94,7 +94,7 @@ A `<dl>` without the `<div>` groups, as some Markdown renderers write it, is sti
 
 ## Specs
 
-<DemoFrame label="Stat: the numbers a screen opens with" plain column>
+<Example label="Stat: the numbers a screen opens with" column>
   <tanrei-description-list layout="stat" columns="3" separation="gap" style="inline-size: 100%">
     <dl>
       <div><dt>orders this week</dt><dd>1,284</dd><dd>up 12% since last week</dd></div>
@@ -102,9 +102,9 @@ A `<dl>` without the `<div>` groups, as some Markdown renderers write it, is sti
       <div><dt>median build time</dt><dd>4 min 12 s</dd></div>
     </dl>
   </tanrei-description-list>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Stacked in columns: fewer of them when the list is narrow" plain column>
+<Example label="Stacked in columns: fewer of them when the list is narrow" column>
   <tanrei-description-list layout="stacked" columns="3" style="inline-size: 100%">
     <dl>
       <div><dt>Planned</dt><dd>Specified, not yet implemented on this platform.</dd></div>
@@ -115,9 +115,9 @@ A `<dl>` without the `<div>` groups, as some Markdown renderers write it, is sti
       <div><dt>Deprecated</dt><dd>Still shipped; a replacement is named.</dd></div>
     </dl>
   </tanrei-description-list>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Compact, parted by space: facts a person scans" plain column>
+<Example label="Compact, parted by space: facts a person scans" column>
   <tanrei-description-list density="compact" separation="gap" style="inline-size: min(100%, 26rem)">
     <dl>
       <div><dt>Value</dt><dd>#1b1c1e</dd><dd>→ ref.palette.neutral.10</dd></div>
@@ -125,7 +125,7 @@ A `<dl>` without the `<div>` groups, as some Markdown renderers write it, is sti
       <div><dt>Description</dt><dd>Text and glyphs on any surface or surface container.</dd></div>
     </dl>
   </tanrei-description-list>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="description-list" />
 

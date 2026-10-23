@@ -7,7 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
@@ -38,21 +38,21 @@ This revision brings the following, which only the web draws so far:
 - `trailingWidth` (`default`, `narrow`) draws a slimmer trailing half: the chevron with a small inset on each side, and the little padding at the rounded outer end that the default width has too.
 :::
 
-<DemoFrame label="Variants">
+<Example label="Variants">
   <tanrei-button-with-menu label="Save" menu-label="More save options"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" label="Save" menu-label="More save options"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="elevated" label="Save" menu-label="More save options"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" label="Save" menu-label="More save options"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="With its menu: press the trailing half" plain>
+<Example label="With its menu: press the trailing half">
   <tanrei-button-with-menu label="Save" menu-label="More save options" ontoggle="this.open = event.detail.open" onclose="this.open = false">
     <span slot="icon">save</span>
     <tanrei-menu-item slot="menu" label="Save as…"></tanrei-menu-item>
     <tanrei-menu-item slot="menu" label="Save a copy"></tanrei-menu-item>
     <tanrei-menu-item slot="menu" label="Save as template"></tanrei-menu-item>
   </tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -257,20 +257,20 @@ A button with menu is two buttons joined into one shape. The leading half perfor
 
 The two halves are joined in one of two ways. With a **divider** they touch, the corners where they meet are square, and a line marks the seam. With a **gap** they stand a narrow gap apart, with tighter corners where they face each other. The design system chooses once for every component that joins parts (the default system draws a divider), a design system can set this component apart, and `separation` (`auto`, `divider`, `gap`) sets one instance. The halves always sit side by side: there is no vertical form.
 
-<DemoFrame label="Joined by a divider and by a gap" plain>
+<Example label="Joined by a divider and by a gap">
   <tanrei-button-with-menu separation="divider" label="Save" menu-label="More save options"></tanrei-button-with-menu>
   <tanrei-button-with-menu separation="gap" label="Save" menu-label="More save options"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" separation="divider" label="Save" menu-label="More save options"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" separation="gap" label="Save" menu-label="More save options"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" separation="divider" label="Save" menu-label="More save options"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" separation="gap" label="Save" menu-label="More save options"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 ### A narrow trailing half
 
 By default the trailing half holds the chevron in a square of the button's height, with a little more padding at its rounded outer end. With `trailingWidth` set to `narrow` it is a slim handle on the main action: the chevron with a small inset on each side, and the same little padding at the rounded outer end, so that the chevron looks centred against the curve (32 / 36 / 36 in the default system: the width of a narrow icon-only [Button](/components/button/) of the same size, and that padding). The leading half is the same at either width.
 
-<DemoFrame label="Trailing width: default and narrow, at each size" plain>
+<Example label="Trailing width: default and narrow, at each size">
   <tanrei-button-with-menu size="small" label="Save" menu-label="More save options"></tanrei-button-with-menu>
   <tanrei-button-with-menu size="small" trailing-width="narrow" label="Save" menu-label="More save options"></tanrei-button-with-menu>
   <tanrei-button-with-menu label="Save" menu-label="More save options"></tanrei-button-with-menu>
@@ -278,7 +278,7 @@ By default the trailing half holds the chevron in a square of the button's heigh
   <tanrei-button-with-menu size="large" label="Save" menu-label="More save options"></tanrei-button-with-menu>
   <tanrei-button-with-menu size="large" trailing-width="narrow" label="Save" menu-label="More save options"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" separation="gap" trailing-width="narrow" label="Save" menu-label="More save options"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 A narrow trailing half is drawn narrower than the minimum target, but its hit area is not: the target reaches outward, past the end edge. Leave room for it there, as beside a narrow icon-only Button.
 
@@ -288,17 +288,17 @@ Set `destructive` on a button with menu whose main action deletes or discards so
 
 `destructive` marks the two halves only, never the menu's items. An option in the menu may delete where the main action does not, or the reverse, so give each item that deletes its own `destructive`.
 
-<DemoFrame label="Destructive, in each variant, and with a gap" plain>
+<Example label="Destructive, in each variant, and with a gap">
   <tanrei-button-with-menu destructive label="Delete" menu-label="More delete options"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" destructive label="Delete" menu-label="More delete options"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="elevated" destructive label="Delete" menu-label="More delete options"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" destructive label="Delete" menu-label="More delete options"></tanrei-button-with-menu>
   <tanrei-button-with-menu separation="gap" destructive label="Delete" menu-label="More delete options"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 ## Specs
 
-<DemoFrame label="Sizes, an icon, open and disabled" plain>
+<Example label="Sizes, an icon, open and disabled">
   <tanrei-button-with-menu size="small" label="Save" menu-label="More save options"></tanrei-button-with-menu>
   <tanrei-button-with-menu size="large" label="Save" menu-label="More save options"></tanrei-button-with-menu>
   <tanrei-button-with-menu label="Save" menu-label="More save options"><span slot="icon">save</span></tanrei-button-with-menu>
@@ -307,7 +307,7 @@ Set `destructive` on a button with menu whose main action deletes or discards so
   <tanrei-button-with-menu variant="outlined" disabled label="Save" menu-label="More save options"></tanrei-button-with-menu>
   <tanrei-button-with-menu label="Share" menu-label="More share options"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
   <tanrei-button-with-menu open label="Share" menu-label="More share options"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="button-with-menu" />
 

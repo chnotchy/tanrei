@@ -2,25 +2,25 @@
 title: "嵌入式文本输入框"
 description: "只有键入的部分，用于由别的东西来绘制的方框。文本、占位符、插入点和选区，排成一行，或者排成带着动效增减的若干行。它不绘制容器、边缘、标签和焦点指示。方框由容纳它的东西来绘制，焦点也由那个东西来显示。"
 translationOf: components/embedded-text-input.mdx
-sourceHash: f1b2ad5ffbd2a08901db0c5720abfb2ed6b2f7bb
+sourceHash: f7d92a58aab4f5852eda9338976540bae6c91a35
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 
 ## 概览
 
 <ComponentAvailability name="embedded-text-input" />
 
-<DemoFrame label="页面自己绘制的方框里的一个嵌入式文本输入框。键入几行试试：方框的高度会跟着变化。焦点由方框的边缘来显示。" column>
+<Example label="页面自己绘制的方框里的一个嵌入式文本输入框。键入几行试试：方框的高度会跟着变化。焦点由方框的边缘来显示。" column>
   <div class="not-content docs-embedded-holder" style="box-sizing: border-box; inline-size: 22.5rem; max-inline-size: 100%; background: var(--tanrei-sys-color-surface-container); border-radius: var(--tanrei-sys-shape-corner-large); padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); cursor: text">
     <tanrei-embedded-text-input label="消息" placeholder="输入消息" multiline max-rows="6"></tanrei-embedded-text-input>
   </div>
-</DemoFrame>
+</Example>
 
 <style>{`
   .docs-embedded-holder { outline: var(--tanrei-sys-border-thick) solid transparent; outline-offset: calc(-1 * var(--tanrei-sys-border-thick)); }

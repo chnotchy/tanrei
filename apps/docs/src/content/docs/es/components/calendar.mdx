@@ -2,14 +2,14 @@
 title: Calendario
 description: Muestra un mes como una cuadrícula de días, en la página o dentro de un selector, permite elegir en ella una fecha o un intervalo de fechas, y pasa de un mes a otro como una sola columna de semanas que sigue al desplazamiento y al arrastre.
 translationOf: components/calendar.mdx
-sourceHash: c095f989d07f9cab3c2978b4e5df0acdf942d89e
+sourceHash: 0a4eb8a0d2c0bebf083959ed9e5b6788f2588d04
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import ProductWords from '../../../../components/ProductWords.astro';
 
 export const words = {
@@ -31,9 +31,9 @@ Un calendario es una cuadrícula de mes que se coloca en línea. No tiene superf
 El componente web implementa el calendario tal como lo describe esta página: los meses son una sola columna de semanas que sigue al desplazamiento y al arrastre. Las demostraciones son ese componente. SwiftUI, Compose, Flutter y React Native todavía no lo han construido. Sus paquetes conservan el código del selector de fecha retirado, que esta página no documenta.
 :::
 
-<DemoFrame label="Una fecha. Desplaza o arrastra los días, o usa los botones, para cambiar de mes">
+<Example label="Una fecha. Desplaza o arrastra los días, o usa los botones, para cambiar de mes">
   <tanrei-calendar label="Fecha de entrada" locale="es" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -125,9 +125,9 @@ Usa un calendario cuando importan las fechas que rodean a la que se elige: una e
 - **Un intervalo.** En el modo `range`, la primera elección es el inicio y la segunda, el fin. Un día anterior al inicio, o una elección cuando ya están definidos los dos extremos, empieza de nuevo. `change` se emite después de cada elección, con `end` vacío cuando solo hay inicio, para que el producto pueda mostrar el intervalo a medio elegir. Un inicio y un fin en el mismo día forman un intervalo de un día.
 - **Los valores** son fechas de calendario ISO 8601 (`2026-09-17`), sin hora y sin zona horaria. `today` es la fecha actual del dispositivo salvo que la definas tú, para la zona horaria de un recinto o para las pruebas.
 
-<DemoFrame label="Un intervalo. Elige un inicio y después un fin; una tercera elección empieza de nuevo" plain>
+<Example label="Un intervalo. Elige un inicio y después un fin; una tercera elección empieza de nuevo">
   <tanrei-calendar mode="range" label="Estancia" locale="es" today="2026-09-24" start="2026-09-10" end="2026-09-16"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 El intervalo es una sola banda que va del inicio al fin. Se interrumpe al final de la fila de una semana y continúa en la siguiente.
 
@@ -137,9 +137,9 @@ Los días no disponibles salen de `min`, `max`, `disabledDates` y del predicado 
 
 Un intervalo que abarca un día no disponible lo conserva dentro; si tu producto no puede aceptarlo, dilo después de `change`.
 
-<DemoFrame label="Del 7 de septiembre al 20 de octubre, con el 21 y el 22 de septiembre ocupados" plain>
+<Example label="Del 7 de septiembre al 20 de octubre, con el 21 y el 22 de septiembre ocupados">
   <tanrei-calendar label="Cita" locale="es" today="2026-09-24" value="2026-09-17" min="2026-09-07" max="2026-10-20" disabled-dates="2026-09-21 2026-09-22"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### Moverse entre meses
 
@@ -162,9 +162,9 @@ El eje es un ajuste del producto, `comp.calendar.navigation.axis`, no una propie
 
 Las teclas nunca cambian con el eje.
 
-<DemoFrame label="Un eje horizontal: los meses son páginas" system="m3-like" plain>
+<Example label="Un eje horizontal: los meses son páginas" system="m3-like">
   <tanrei-calendar label="Fecha de entrada" locale="es" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 Un desplazamiento a lo largo del eje pertenece al calendario mientras el puntero esté sobre los días, también en el primer mes y en el último, donde los días se detienen. En una página que se desplaza en la misma dirección, la página no se desplaza desde ahí: en una página larga, deja espacio junto al calendario o a su alrededor, donde un desplazamiento llegue a la página. La fila de los días de la semana, la fila de navegación y todo lo que rodea al calendario desplazan la página como de costumbre.
 
@@ -172,17 +172,17 @@ Un desplazamiento a lo largo del eje pertenece al calendario mientras el puntero
 
 El conmutador de vista cambia a la vista de años, una lista desplazable que va del año de `min` al de `max` (de 1900 a 2100 sin ellos). Al elegir un año se muestra el mismo mes de ese año y no cambia ninguna elección. `startView` `year` abre primero ahí, para una fecha lejana de hoy, como una fecha de nacimiento.
 
-<DemoFrame label="Abrir por los años, para una fecha de nacimiento" plain>
+<Example label="Abrir por los años, para una fecha de nacimiento">
   <tanrei-calendar label="Fecha de nacimiento" locale="es" today="2026-09-24" start-view="year" max="2026-09-24"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### Días de los meses vecinos
 
 `showAdjacentDays` llena las celdas sobrantes de la cuadrícula con los días de los meses vecinos, dibujados más discretos. Se pueden elegir cuando están disponibles, y un intervalo puede empezar o terminar en uno de ellos. Al elegir uno con un puntero, se elige y después se muestra su mes, donde es uno de los días propios del mes. Sin esta propiedad, esas celdas quedan vacías y no admiten pulsaciones.
 
-<DemoFrame label="Con los días de los meses vecinos: al elegir el 1 de octubre se muestra octubre" plain>
+<Example label="Con los días de los meses vecinos: al elegir el 1 de octubre se muestra octubre">
   <tanrei-calendar label="Fecha de entrega" locale="es" today="2026-09-24" value="2026-09-29" show-adjacent-days></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### Configuración regional
 
@@ -192,10 +192,10 @@ Los nombres de los días de la semana, el título del mes y las cifras son los d
 
 Esa llamada es la que ejecuta esta página: todos los calendarios que hay en ella reciben su nombre de esas palabras, y los ejemplos no llevan ninguna. Un calendario dice las suyas donde son distintas: el japonés de abajo da sus cuatro como atributos, y un atributo siempre tiene prioridad. Sin ninguna de ellas, los botones de navegación siguen funcionando y no tienen nombre, y una compilación de depuración notifica cada palabra que falta. Solo la palabra para el día de hoy procede de los datos de configuración regional del navegador cuando no das ninguna.
 
-<DemoFrame label="Una semana que empieza en lunes, y la configuración regional japonesa" plain>
+<Example label="Una semana que empieza en lunes, y la configuración regional japonesa">
   <tanrei-calendar label="Fecha de entrada" locale="es-US" first-day-of-week="monday" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
   <tanrei-calendar label="チェックイン日" locale="ja-JP" today="2026-09-24" value="2026-09-17" previous-month-label="前の月" next-month-label="次の月" year-view-label="年を選ぶ" today-label="今日"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### Recomendado
 

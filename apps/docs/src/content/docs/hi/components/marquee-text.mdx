@@ -2,23 +2,23 @@
 title: मार्की टेक्स्ट
 description: टेक्स्ट की एक लाइन जो अपनी जगह में नहीं समाती। रुके रहने पर वह एलिप्सिस के साथ कटी रहती है, और जब तक उसका ट्रिगर बना रहता है, वह एक स्थिर रफ़्तार से आड़ी स्क्रॉल होकर अपना पूरा टेक्स्ट दिखाती है। वह सिर्फ़ तब चलती है जब टेक्स्ट बाहर निकलता है, मोशन कम करने पर कभी नहीं चलती, और एक बार, पूरी पढ़ी जाती है।
 translationOf: components/marquee-text.mdx
-sourceHash: dc5686cec00458180eb8990a3c8f28e770f7fd10
+sourceHash: 5e8fad528fe680de811c7c8091d796a52019ceac
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="marquee-text" />
 
-<DemoFrame label="एक शीर्षक जो नहीं समाता, और एक जो समा जाता है">
+<Example label="एक शीर्षक जो नहीं समाता, और एक जो समा जाता है">
   <tanrei-marquee-text style="inline-size: min(100%, 14rem)">ट्रैक 7 — एक बहुत लंबा शीर्षक जो अपनी पंक्ति में नहीं समाता</tanrei-marquee-text>
   <tanrei-marquee-text style="inline-size: min(100%, 14rem)">छोटा शीर्षक</tanrei-marquee-text>
-</DemoFrame>
+</Example>
 
 मार्की टेक्स्ट प्रॉडक्ट के टेक्स्ट की एक लाइन है, ऐसी जगह में जो उसके लिए बहुत संकरी है। रुके रहने पर वह किसी भी कटी हुई लाइन की तरह पढ़ी जाती है: लाइन की शुरुआत से शुरू होती है, और जहाँ कटती है वहाँ एलिप्सिस (…) पर ख़त्म होती है। जब तक उसका ट्रिगर बना रहता है (डिफ़ॉल्ट रूप से, जब तक पॉइंटर उसके ऊपर है या जिस कंट्रोल में वह है उस पर कीबोर्ड फ़ोकस है), वह एक स्थिर रफ़्तार से आड़ी स्क्रॉल होती है, जो पिक्सल प्रति सेकंड में दी जाती है, ताकि टेक्स्ट का हर हिस्सा नज़र के सामने से गुज़रे; फिर वह अपनी शुरुआत पर लौटकर रुक जाती है। ऊपर की पहली लाइन पर पॉइंटर ले जाएँ। दूसरी लाइन समा जाती है, इसलिए वह कभी नहीं चलती: जिस मार्की टेक्स्ट का टेक्स्ट समा जाता है, वह टेक्स्ट की एक सादी लाइन है।
 

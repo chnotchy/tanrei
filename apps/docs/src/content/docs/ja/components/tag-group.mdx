@@ -2,20 +2,20 @@
 title: タググループ
 description: タグやチップの集まりを、折り返す行に並べ、中身に合った間隔を取り、1 つの名前付きのリストとして伝えます。メンバーはそのままの姿で、チップが取り除かれた後は、フォーカスが次のチップへ進みます。
 translationOf: components/tag-group.mdx
-sourceHash: 244216f99f145c63ac5a62ba10e948f72502850f
+sourceHash: b9ba7fa1d7147d2cd10b1cd38abb4b9c994512db
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="tag-group" />
 
-<DemoFrame label="タグの集まりと、絞り込みの並び" column>
+<Example label="タグの集まりと、絞り込みの並び" column>
   <tanrei-tag-group class="not-content" spacing="tags" label="タグ">
     <tanrei-tag label="デザイントークン"></tanrei-tag>
     <tanrei-tag label="アクセシビリティ"></tanrei-tag>
@@ -27,7 +27,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-chip kind="filter" label="レビュー待ち"></tanrei-chip>
     <tanrei-chip kind="filter" label="ブロック中"></tanrei-chip>
   </tanrei-tag-group>
-</DemoFrame>
+</Example>
 
 [タグ](/ja/components/tag/)も[チップ](/ja/components/chip/)も、1 つずつ置くものです。タググループは、それらをいくつかまとめて置くためのものです。記事のタグ、一覧の上の絞り込み、フィールドの下に出すいくつかの候補などに使います。メンバーを折り返す行に並べ、メンバーの間に適切な間隔を取り、全体が 1 つのリストであることを支援技術に伝えます。
 
@@ -82,7 +82,7 @@ Web では `<tanrei-tag-group>` です。ほかのプラットフォームはま
 
 ## 仕様
 
-<DemoFrame label="折り返すタグ、ステータスのタグ、各タグのページへのリンク、入力された項目" plain column>
+<Example label="折り返すタグ、ステータスのタグ、各タグのページへのリンク、入力された項目" column>
   <tanrei-tag-group class="not-content" spacing="tags" style="inline-size: 22rem; max-inline-size: 100%" label="タグ">
     <tanrei-tag label="デザイントークン"></tanrei-tag>
     <tanrei-tag label="アクセシビリティ"></tanrei-tag>
@@ -106,7 +106,7 @@ Web では `<tanrei-tag-group>` です。ほかのプラットフォームはま
     <tanrei-chip kind="input" label="佐藤 健" remove-label="佐藤 健を削除"></tanrei-chip>
     <tanrei-chip kind="input" label="鈴木 一郎" remove-label="鈴木 一郎を削除"></tanrei-chip>
   </tanrei-tag-group>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tag-group" />
 
@@ -165,7 +165,7 @@ small のチップは、集まりが 1 行に収まる、密度の高い場所�
 
 選択がある場合、集まりで Tab が止まる位置は 1 つです。最後にフォーカスのあったチップ、それがなければ最初のオンのチップ、それもなければ最初のチップです。矢印キーは、右から左のレイアウトでも、指す向きのとおりにチップの間を移動し、Home と End で最初と最後のチップへ移ります。これらのキーは何も切り替えず、フォーカスは最後のチップから最初のチップへ折り返しません。Space で、フォーカスのあるチップを切り替えます。
 
-<DemoFrame label="一度に 1 つの並び順と、いくつもの絞り込み">
+<Example label="一度に 1 つの並び順と、いくつもの絞り込み">
   <tanrei-tag-group class="not-content" label="並べ替え" selection="single" value="updated">
     <tanrei-chip kind="filter" label="新しい順" value="newest"></tanrei-chip>
     <tanrei-chip kind="filter" label="最近更新された順" value="updated"></tanrei-chip>
@@ -177,7 +177,7 @@ small のチップは、集まりが 1 行に収まる、密度の高い場所�
     <tanrei-chip kind="filter" label="レビュー待ち" value="review"></tanrei-chip>
     <tanrei-chip kind="filter" label="ブロック中" value="blocked"></tanrei-chip>
   </tanrei-tag-group>
-</DemoFrame>
+</Example>
 
 <Tabs syncKey="platform">
   <TabItem label="Web">

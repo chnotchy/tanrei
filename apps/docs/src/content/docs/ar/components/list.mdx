@@ -2,14 +2,14 @@
 title: القائمة (list)
 description: تحمل مجموعة من عناصر المنتج نفسه (صفوفًا، ومربعات، وبطاقات، وملفات) في عمود واحد، أو سطر واحد، أو أسطر تلتف فتصنع شبكة. يقرؤها الناس، ويفتحونها واحدًا بعد آخر، ويختارون منها، أو يسحبونها إلى ترتيب آخر.
 translationOf: components/list.mdx
-sourceHash: 4fa8bead8fc1a1fecac07a97a78431a6c96183e9
+sourceHash: 7b9d25d43c69843610e9eecb13cbd05f5e3df571
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import ListReorderProduct from '../../../../components/ListReorderProduct.astro';
 
 <ListReorderProduct />
@@ -18,7 +18,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 <ComponentAvailability name="list" />
 
-<DemoFrame label="اسحب مربعًا إلى مكان آخر، أو اضغط مقبضه لقائمة من الحركات" plain>
+<Example label="اسحب مربعًا إلى مكان آخر، أو اضغط مقبضه لقائمة من الحركات">
   <tanrei-list reorderable orientation="horizontal" wrap gap="medium" data-demo-product label="Photos" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to start" move-before-label="Move left" move-after-label="Move right" move-to-end-label="Move to end" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 24rem">
     <tanrei-list-item><span class="demo-tile">Photo 1</span></tanrei-list-item>
     <tanrei-list-item><span class="demo-tile">Photo 2</span></tanrei-list-item>
@@ -26,7 +26,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
     <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
     <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
 <style>{`
   .demo-tile { display: block; padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }
@@ -34,7 +34,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 القائمة صندوق. ما يعرضه كل عنصر هو محتواك أنت: نص، أو صورة، أو بطاقة، أو [عنصر الملف](/ar/components/file-item/) (file item)، أو [صف القائمة](/ar/components/list-row/) (list row)، وهو الصف المؤلف من عنوان رئيسي وسطر أو سطرين من النص المساعد وشيء قبلهما وشيء بعدهما، ومنه تتألف معظم القوائم. وتتولى القائمة كل ما حول العناصر: كيف تُرتَّب، والمسافة والخطوط بينها، وما هي بالنسبة إلى التقنيات المساعدة، وكيف ينتقل تركيز لوحة المفاتيح بينها، وأيها مختار، وكيف يضعها الناس في ترتيب آخر.
 
-<DemoFrame label="عمود، وسطر، وشبكة تلتف" plain>
+<Example label="عمود، وسطر، وشبكة تلتف">
   <tanrei-list gap="small" style="inline-size: 16rem">
     <tanrei-list-item><span class="demo-tile">Apples</span></tanrei-list-item>
     <tanrei-list-item><span class="demo-tile">Bananas</span></tanrei-list-item>
@@ -52,9 +52,9 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
     <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
     <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="عناصر تفتح شيئًا، وعناصر هي روابط، واختيار واحد" plain>
+<Example label="عناصر تفتح شيئًا، وعناصر هي روابط، واختيار واحد">
   <tanrei-list dividers style="inline-size: 16rem">
     <tanrei-list-item interactive><tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Connected"></tanrei-list-row></tanrei-list-item>
     <tanrei-list-item href="#list-demo-button"><tanrei-list-row leading-icon="smart_button" headline="Button" supporting-text="Actions and toggles"></tanrei-list-row></tanrei-list-item>
@@ -65,7 +65,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
     <tanrei-list-item value="dark">Dark</tanrei-list-item>
     <tanrei-list-item value="system">Match the system</tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -132,13 +132,13 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 ### إعادة الترتيب
 
-<DemoFrame label="عمود يعيد الناس ترتيبه، ولكل عنصر زر حذف خاص بالصفحة" plain>
+<Example label="عمود يعيد الناس ترتيبه، ولكل عنصر زر حذف خاص بالصفحة">
   <tanrei-list reorderable gap="small" data-demo-product label="Typefaces" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to top" move-before-label="Move up" move-after-label="Move down" move-to-end-label="Move to bottom" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 22rem">
     <tanrei-list-item label="Inter"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Inter <tanrei-button variant="text" label="Remove Inter" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
     <tanrei-list-item label="Noto Sans JP"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Noto Sans JP <tanrei-button variant="text" label="Remove Noto Sans JP" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
     <tanrei-list-item label="Helvetica Neue"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Helvetica Neue <tanrei-button variant="text" label="Remove Helvetica Neue" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
 تسمح الخاصية `reorderable` للناس بوضع العناصر في ترتيب آخر، في عمود أو سطر أو شبكة. يرسم كل عنصر مقبضًا في بدايته، علامةً على أنه يمكن تحريكه. ويمكن سحب العنصر كله لا المقبض وحده: تلتقطه الفأرة ما إن يتحرك بضع وحدات بكسل، والإصبع أو القلم بعد ضغط مطوَّل، حتى يبقى التمرير بالإصبع يمرر الصفحة (ولمسة على المقبض تسحب فورًا). تتنحى العناصر الأخرى عن الطريق، ويتبع العنصر المؤشر فوقها، ويستقر في مكانه حين يُفلَت.
 

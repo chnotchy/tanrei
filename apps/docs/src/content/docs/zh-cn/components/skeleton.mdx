@@ -2,23 +2,23 @@
 title: "骨架屏"
 description: "在内容加载期间，站在内容将要出现的位置上：用低调的占位符画出即将到来的内容的形状——几行文本、一个块、一个圆——并保住内容将要占据的框，所以内容到达时什么都不会移动。"
 translationOf: components/skeleton.mdx
-sourceHash: 35e480f921d9bf8421691218c876dd261757f4ac
+sourceHash: a5c6ed1971270c9e64fb7b4de3a95eea84409f60
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="skeleton" />
 
-<DemoFrame label="加载中的人物信息和卡片" column>
+<Example label="加载中的人物信息和卡片" column>
   <tanrei-skeleton label="正在加载作者信息" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 10rem"></span><span class="tanrei-skeleton-placeholder" data-lines="2"></span></tanrei-skeleton>
   <tanrei-skeleton label="正在加载项目" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 160px"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 12.5rem"></span><span class="tanrei-skeleton-placeholder" data-lines="3"></span><span class="tanrei-skeleton-placeholder" data-shape="block" style="inline-size: 6rem; block-size: 40px"></span></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
 视图常常比它的内容先到。骨架屏在内容将要出现的位置上，保住即将到来的内容的形状：几行文本、代表图片或控件的块、代表人物图片的圆。内容到达时，就住进为它保留的框里，用户正在看的、正要按下的东西都不会移动。
 
@@ -99,15 +99,15 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="三种形状：文本、块、圆" plain column>
+<Example label="三种形状：文本、块、圆" column>
   <tanrei-skeleton label="正在加载文本" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></tanrei-skeleton>
   <tanrei-skeleton label="正在加载图片" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 96px"></span></tanrei-skeleton>
   <tanrei-skeleton label="正在加载人物信息" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="文本占位符采用它所在位置的文本样式：在标题里、在段落里" plain column>
+<Example label="文本占位符采用它所在位置的文本样式：在标题里、在段落里" column>
   <tanrei-skeleton label="正在加载文章" show-delay="0" style="inline-size: min(100%, 24rem)"><h3 style="margin: 0 0 0.5rem"><span class="tanrei-skeleton-placeholder" style="inline-size: 60%"></span></h3><p style="margin: 0"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></p></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="skeleton" />
 
@@ -123,13 +123,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 用 `data-lines` 说明文本将占几行。你的内容越规整，就猜得越准。少了一行的骨架屏会让页面移动一行，这仍然比一块空白造成的移动要小。
 - 把块的尺寸设为图片或控件的尺寸：一个数值、一个比例，或者布局给它的尺寸。圆只需要一个数值，即它的边长。
 
-<DemoFrame label="按下“加载”：骨架屏把位置保住两秒半，然后内容住进它的框" plain column>
+<Example label="按下“加载”：骨架屏把位置保住两秒半，然后内容住进它的框" column>
   <tanrei-button variant="outlined" onclick="const place = this.parentElement.querySelector('[data-skeleton-demo]'); const [waiting, arrived] = this.parentElement.querySelectorAll('template'); place.replaceChildren(waiting.content.cloneNode(true)); clearTimeout(place.timer); place.timer = setTimeout(() => place.replaceChildren(arrived.content.cloneNode(true)), 2500)">加载</tanrei-button>
   <div data-skeleton-demo style="inline-size: min(100%, 24rem)"><h3 style="margin: 0 0 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">三层令牌</h3><p style="margin: 0; min-block-size: 3lh; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden">参考令牌保存原始值。系统令牌为值的用途命名。组件令牌把一个部件绑定到其中之一。</p></div>
   <template><tanrei-skeleton label="正在加载文章"><h3 style="margin: 0 0 0.5rem"><span class="tanrei-skeleton-placeholder" style="inline-size: 60%"></span></h3><p style="margin: 0"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></p></tanrei-skeleton></template>
   <template><h3 style="margin: 0 0 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">三层令牌</h3><p style="margin: 0; min-block-size: 3lh; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden">参考令牌保存原始值。系统令牌为值的用途命名。组件令牌把一个部件绑定到其中之一。</p></template>
   <p style="margin: 0">这一行位于文章下方，不会移动。</p>
-</DemoFrame>
+</Example>
 
 ### 形状
 
@@ -149,10 +149,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 如果已经有别的东西在说明同一次等待——状态行里的加载指示器、一段状态文本、一个由你自己标记为忙碌并命名的区域——就设置 `decorative`。这时骨架屏的画法不变，但不提供给辅助技术，这样同一次等待不会被读两遍。
 
-<DemoFrame label="状态行已经说明了这次等待，所以它下面的占位符是装饰性的" plain column>
+<Example label="状态行已经说明了这次等待，所以它下面的占位符是装饰性的" column>
   <span style="display: flex; align-items: center; gap: 0.5rem"><tanrei-loading-indicator size="small" label="正在搜索" show-delay="0"></tanrei-loading-indicator>正在搜索…</span>
   <tanrei-skeleton decorative show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder"></span><span class="tanrei-skeleton-placeholder"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 70%"></span></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
 ### 它先等待再显示
 

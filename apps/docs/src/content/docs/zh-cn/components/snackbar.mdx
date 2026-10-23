@@ -2,14 +2,14 @@
 title: "消息条（Snackbar）"
 description: "在屏幕底边或顶边的末端简短地告诉用户应用刚刚做了什么，最多带一个操作，不夺取焦点，也不打断用户的工作。"
 translationOf: components/snackbar.mdx
-sourceHash: febc4ce05890121860b19e8cab8e263f3b82ff1c
+sourceHash: 699f5b84ef2dfdff3afaa99c8b72b032736f3679
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
@@ -19,10 +19,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 本页描述的是规格当前所定的消息条（Snackbar）：一个绘制在当前配色方案的表面上或以反色绘制的条，一个低调的 tonal 操作，用淡色呈现的状态形态，一个标题，以及可以展开的文本。Web 把这些全都画了出来。在它的反色状态形态通过评审、基准图记录完成之前，它在上表中仍标记为“待跟进”。SwiftUI、Compose、Flutter 和 React Native 提供的是较早的一版：操作是 text 样式，没有状态形态，没有标题，不能展开，也没有 `inverse`；在这些平台跟上之前，它们的示例展示的都是那一版。演示是目前发布的 Web 组件。
 :::
 
-<DemoFrame label="就地绘制：一条带操作的消息，和一条带关闭按钮的消息" column>
+<Example label="就地绘制：一条带操作的消息，和一条带关闭按钮的消息" column>
   <tanrei-snackbar message="会话已归档" action="撤销"></tanrei-snackbar>
   <tanrei-snackbar message="已连接到办公室的打印机" closable close-label="关闭"></tanrei-snackbar>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -171,10 +171,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="一条换行的消息，和一个独占一行的操作" plain column>
+<Example label="一条换行的消息，和一个独占一行的操作" column>
   <tanrei-snackbar message="你的更改已保存，但由于你当时处于离线状态，共享副本未能更新。" action="重试"></tanrei-snackbar>
   <tanrei-snackbar message="有三个文件未能上传，因为它们超过了此文件夹的大小上限。" action="查看失败的文件"></tanrei-snackbar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="snackbar" />
 
@@ -239,12 +239,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | `warning` | `warning` | 以立即打断（assertive）的方式 | 用户不采取行动就可能出问题的事。 |
 | `error` | `error` | 以立即打断的方式 | 用户可以回头再处理的失败，带有一个重试或解释的操作。 |
 
-<DemoFrame label="状态形态：info、success、warning 和 error" column>
+<Example label="状态形态：info、success、warning 和 error" column>
   <tanrei-snackbar status="info" status-label="信息" message="新版本已可安装。" action="重新启动"></tanrei-snackbar>
   <tanrei-snackbar status="success" status-label="成功" message="备份已完成" closable close-label="关闭"></tanrei-snackbar>
   <tanrei-snackbar status="warning" status-label="警告" headline="存储空间即将用尽" message="最后 200 MB 用完后，上传将停止。" action="管理"></tanrei-snackbar>
   <tanrei-snackbar status="error" status-label="错误" headline="消息未发送" message="你处于离线状态。消息会留在发件箱中。" action="重试"></tanrei-snackbar>
-</DemoFrame>
+</Example>
 
 状态形态把条画成该状态的一种淡色，周围有一圈用该状态颜色的细线画出的边线，文本之前是同样颜色的状态图标。这圈边线不占空间。默认形态没有自己的边线，只有它的层级所绘制的那一圈。状态形态从不只靠颜色来区分：图标的形状把各种形态区分开，`statusLabel` 则用文字给出状态，使用你的产品的语言（“错误”）。这个标签在标题和消息之前朗读。警告和错误会打断正在朗读的内容；其他形态会等它读完。
 
@@ -252,13 +252,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 默认情况下，消息条绘制在当前配色方案中一个抬升的表面上：也就是对话框所用的那个明亮表面，由它的层级抬起，配以该方案的文本颜色。以反色绘制时，它采用相反配色方案的颜色，在浅色方案中是一个深色的条，这样无论落在什么之上，它都能与之区分开。
 
-<DemoFrame label="以反色绘制：默认形态和四种状态形态" plain column>
+<Example label="以反色绘制：默认形态和四种状态形态" column>
   <tanrei-snackbar inverse message="会话已归档" action="撤销"></tanrei-snackbar>
   <tanrei-snackbar inverse status="info" status-label="信息" message="新版本已可安装。" action="重新启动"></tanrei-snackbar>
   <tanrei-snackbar inverse status="success" status-label="成功" message="备份已完成" closable close-label="关闭"></tanrei-snackbar>
   <tanrei-snackbar inverse status="warning" status-label="警告" headline="存储空间即将用尽" message="最后 200 MB 用完后，上传将停止。" action="管理"></tanrei-snackbar>
   <tanrei-snackbar inverse status="error" status-label="错误" headline="消息未发送" message="你处于离线状态。消息会留在发件箱中。" action="重试"></tanrei-snackbar>
-</DemoFrame>
+</Example>
 
 | `inverse` | 绘制方式 |
 | --- | --- |

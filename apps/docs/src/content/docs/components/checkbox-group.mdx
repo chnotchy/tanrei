@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="checkbox-group" />
 
-<DemoFrame label="A checkbox group, and one with a checkbox that checks them all" column>
+<Example label="A checkbox group, and one with a checkbox that checks them all" column>
   <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notify me by" supporting-text="Choose all that apply." required required-text="Required">
     <tanrei-checkbox value="email" label="Email" checked></tanrei-checkbox>
     <tanrei-checkbox value="text" label="Text message"></tanrei-checkbox>
@@ -26,7 +26,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
     <tanrei-checkbox value="thu" label="Thursday"></tanrei-checkbox>
     <tanrei-checkbox value="fri" label="Friday"></tanrei-checkbox>
   </tanrei-checkbox-group>
-</DemoFrame>
+</Example>
 
 Use a checkbox group where one question has a list for an answer and the choices are few enough to show all at once, up to about seven: the ways to be notified, the days a report is sent, the kinds a list is filtered by. The answer is one value — the list of the checked values — and a form submits it under one name.
 
@@ -113,13 +113,13 @@ The same set, written by hand from its two members, is the same picture and the 
 </tanrei-field-group>
 ```
 
-<DemoFrame label="The same set written by hand: a field group with checkboxes in it" column>
+<Example label="The same set written by hand: a field group with checkboxes in it" column>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notify me by" supporting-text="Choose all that apply." required required-text="Required">
     <tanrei-checkbox name="notify" value="email" label="Email" checked></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="text" label="Text message"></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="push" label="Push notification"></tanrei-checkbox>
   </tanrei-field-group>
-</DemoFrame>
+</Example>
 
 What the field group and the checkboxes written by hand do not do is hold the answer:
 
@@ -146,7 +146,7 @@ Go one level down when the set is not one answer:
 
 ## Specs
 
-<DemoFrame label="A row, a refused answer, a choice that is always on, and a disabled group" plain column>
+<Example label="A row, a refused answer, a choice that is always on, and a disabled group" column>
   <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Sizes" orientation="horizontal">
     <tanrei-checkbox value="s" label="S" checked></tanrei-checkbox>
     <tanrei-checkbox value="m" label="M" checked></tanrei-checkbox>
@@ -166,7 +166,7 @@ Go one level down when the set is not one answer:
     <tanrei-checkbox value="email" label="Email" checked></tanrei-checkbox>
     <tanrei-checkbox value="text" label="Text message"></tanrei-checkbox>
   </tanrei-checkbox-group>
-</DemoFrame>
+</Example>
 
 ### What each member gives
 

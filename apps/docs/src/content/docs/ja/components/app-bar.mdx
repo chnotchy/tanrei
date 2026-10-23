@@ -2,14 +2,14 @@
 title: アプリバー
 description: 画面の上端で今いる画面の名前を示し、戻る操作と、その画面でよく使うアクションをまとめます。下端の線は画面のヘッダーの縁として常に引かれ、コンテンツが下に潜り込むとスクロール時の見た目になります。
 translationOf: components/app-bar.mdx
-sourceHash: 6cfec147d94cc9b488a1e09aa54d25c3d7b2351b
+sourceHash: 9a0ed3cf003d8c3fe796a8f2f2d585e762a46c26
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
@@ -17,13 +17,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 Web と React のサンプルは現在の仕様を示しています。現在の仕様では、バーの項目はアイコンだけの[ボタン](/ja/components/button/)です。SwiftUI、Compose、Flutter、React Native は追従待ちで、独立したアイコンボタンのコンポーネントを持つ以前の版を提供しています。追従するまで、これらのサンプルは以前の版を示します。
 
-<DemoFrame label="戻るボタンと 2 つのアクションを持つ小さいアプリバー">
+<Example label="戻るボタンと 2 つのアクションを持つ小さいアプリバー">
   <tanrei-app-bar headline="受信トレイ" heading-level="3" scroll-target="none" style="inline-size: 22rem">
     <tanrei-button variant="text" slot="navigation" label="戻る"><span slot="icon">arrow_back</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="検索"><span slot="icon">search</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="その他のオプション"><span slot="icon">more_vert</span></tanrei-button>
   </tanrei-app-bar>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -195,7 +195,7 @@ Web と React のサンプルは現在の仕様を示しています。現在の
 
 ## 仕様
 
-<DemoFrame label="サブタイトル付きの大きいバーと、中央揃えのタイトル" plain column>
+<Example label="サブタイトル付きの大きいバーと、中央揃えのタイトル" column>
   <tanrei-app-bar size="large" headline="受信トレイ" subtitle="ada@example.com" heading-level="3" scroll-target="none" style="inline-size: 22rem">
     <tanrei-button variant="text" slot="navigation" label="メニュー"><span slot="icon">menu</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="検索"><span slot="icon">search</span></tanrei-button>
@@ -205,15 +205,15 @@ Web と React のサンプルは現在の仕様を示しています。現在の
     <tanrei-button variant="text" slot="navigation" label="戻る"><span slot="icon">arrow_back</span></tanrei-button>
     <tanrei-button variant="text" slot="actions" label="検索"><span slot="icon">search</span></tanrei-button>
   </tanrei-app-bar>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="リンクであるナビゲーションボタンと、アクションに置いた検索のトリガー" plain>
+<Example label="リンクであるナビゲーションボタンと、アクションに置いた検索のトリガー">
   <tanrei-app-bar headline="タブ" subtitle="コンポーネント" heading-level="3" scroll-target="none" style="inline-size: 22rem">
     <tanrei-button variant="text" slot="navigation" href="/ja/components/" label="すべてのコンポーネント"><span slot="icon">arrow_back</span></tanrei-button>
     <tanrei-search slot="actions" bar="icon" presentation="dialog" label="ドキュメントを検索" placeholder="検索" clear-label="検索語を消去" back-label="戻る"></tanrei-search>
     <tanrei-button variant="text" slot="actions" label="その他のオプション"><span slot="icon">more_vert</span></tanrei-button>
   </tanrei-app-bar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="app-bar" />
 

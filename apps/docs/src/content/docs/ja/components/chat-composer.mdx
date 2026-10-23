@@ -2,27 +2,27 @@
 title: チャットコンポーザー
 description: メッセージを書いて送るための、すべてを 1 つのカプセルに収めたコンポーネントです。書いた分だけ伸びる入力エリア、メッセージに添付したファイル、プロダクト独自のアクション、送信できる間だけ有効になる送信ボタンを持ちます。メッセージを報告するだけで、自分では何も送信しません。
 translationOf: components/chat-composer.mdx
-sourceHash: 5030b8d8268f9b3555fd16ab43bcdbb77447e8fb
+sourceHash: 14a5591949903e4270525157dabc913983807927
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 
 ## 概要
 
 <ComponentAvailability name="chat-composer" />
 
-<DemoFrame label="2 つのレイアウトのチャットコンポーザー。メッセージを書き、ファイルを添付して、送信できます。どこにも送信されません。" column>
+<Example label="2 つのレイアウトのチャットコンポーザー。メッセージを書き、ファイルを添付して、送信できます。どこにも送信されません。" column>
   <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" label="メッセージ" placeholder="メッセージを入力" send-label="送信" attachments="own" attach-label="ファイルを添付" remove-label="{name} を削除"></tanrei-chat-composer>
   <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" layout="stacked" label="メッセージ" placeholder="メッセージを入力" send-label="送信" attachments="own" attach-label="ファイルを添付" remove-label="{name} を削除" max-length="280" counter>
     <tanrei-button slot="leading" variant="text" label="メンションを追加"><span slot="icon">alternate_email</span></tanrei-button>
     <tanrei-button slot="leading" variant="text" label="絵文字を追加"><span slot="icon">mood</span></tanrei-button>
   </tanrei-chat-composer>
-</DemoFrame>
+</Example>
 
 チャットコンポーザーは、メッセージを書くための 1 つの場所です。会話、作業に付いたスレッド、問い合わせなどで使います。1 つのカプセルとして描かれ、その中に入力エリア、添付ファイル、プロダクト独自のアクション、送信ボタンが入ります。
 

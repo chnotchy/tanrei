@@ -2,20 +2,20 @@
 title: बैज
 description: किसी आइकन, नेविगेशन आइटम या अवतार पर एक बिंदु या छोटी गिनती लगाता है, यह दिखाने के लिए कि कुछ इंतज़ार कर रहा है।
 translationOf: components/badge.mdx
-sourceHash: 74073b748fa7daa98b80d466a68d0d373c3a788a
+sourceHash: c983c212e290693abdeb8186325270e2b71dc681
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="badge" />
 
-<DemoFrame label="एक बिंदु और एक गिनती">
+<Example label="एक बिंदु और एक गिनती">
   <tanrei-badge label="नए संदेश">
     <tanrei-button variant="text" label="चैट"><span slot="icon">chat</span></tanrei-button>
   </tanrei-badge>
@@ -25,7 +25,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-badge count="42" label="42 सूचनाएँ">
     <tanrei-button variant="text" label="सूचनाएँ"><span slot="icon">notifications</span></tanrei-button>
   </tanrei-badge>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -126,7 +126,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="गिनतियाँ और ऊपरी सीमा" plain>
+<Example label="गिनतियाँ और ऊपरी सीमा">
   <tanrei-badge count="3" label="3 अपठित">
     <span class="tanrei-icon" role="img" aria-label="सूचनाएँ">notifications</span>
   </tanrei-badge>
@@ -145,7 +145,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-badge count="0" label="कोई अपठित संदेश नहीं">
     <span class="tanrei-icon" role="img" aria-label="सूचनाएँ">notifications</span>
   </tanrei-badge>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="badge" />
 

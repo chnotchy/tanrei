@@ -114,6 +114,11 @@ describe('every icon of the built pages is a glyph of the cut-down file', { conc
       try {
         const page = await context.newPage();
         await page.goto(origin + url, { waitUntil: 'load' });
+        // A frame's stage defines what it holds once it comes near the view (components/visuals/Example.astro): every
+        // one is let go here, as if the reader had scrolled the page through.
+        await page.evaluate(() => {
+          for (const stage of document.querySelectorAll('[data-example-pending]')) stage.removeAttribute('data-example-pending');
+        });
         await page.waitForFunction(`(${leftUndefined})().length === 0`, null, { timeout: 30000 }).catch(() => {});
         assert.deepEqual([...new Set(await page.evaluate(leftUndefined))], [], `elements left undefined on ${url}`);
         const drawn = await page.evaluate(() => {

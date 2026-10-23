@@ -2,24 +2,24 @@
 title: Campo de control deslizante
 description: Permite elegir un valor, o un intervalo de valores, en una escala como un campo completo. La pista bajo una etiqueta, con el valor dicho con palabras al final de la fila de la etiqueta, una línea de ayuda y el motivo por el que se rechazó un valor.
 translationOf: components/slider-field.mdx
-sourceHash: dd20a710a125f8735c730d58cb45fb0697ecea0e
+sourceHash: 8694b1314d3a716d57183e53e8dd47c280a18063
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="slider-field" />
 
-<DemoFrame label="Un campo de control deslizante, uno por pasos y un intervalo" column>
+<Example label="Un campo de control deslizante, uno por pasos y un intervalo" column>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" supporting-text="Se aplica a las alertas y al contenido multimedia." value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Tamaño del texto" min="50" max="200" step="10" value="120"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Precio" supporting-text="Por noche, sin impuestos." range min="0" max="500" step="10" start-value="100" value="300" start-label="Precio mínimo" end-label="Precio máximo"></tanrei-slider-field>
-</DemoFrame>
+</Example>
 
 Usa un campo de control deslizante para un valor que se elige a ojo y que se lee después con palabras: un tamaño de texto del 120 %, una distancia de 5 km, un precio de $100 a $300. Un control deslizante sin nada más no tiene ninguna etiqueta que se dibuje, y su pista no dice en qué valor está. El campo de control deslizante es el caso corriente, listo para usarse: una etiqueta, el valor con palabras, la pista, una línea de ayuda y un error.
 
@@ -85,11 +85,11 @@ El valor se dibuja al final de la fila de la etiqueta, con las palabras que el c
 
 Los dos valores de un intervalo se unen con una raya corta, en el orden de lectura: en un diseño de derecha a izquierda, las palabras del inicio quedan a la derecha, donde está el tirador de inicio. El campo de control deslizante no escribe por sí mismo ningún número, unidad ni palabra.
 
-<DemoFrame label="Un texto del valor que comparte la línea de la etiqueta, otro que ocupa una línea propia y un campo que lo oculta" column>
+<Example label="Un texto del valor que comparte la línea de la etiqueta, otro que ocupa una línea propia y un campo que lo oculta" column>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" value="40" value-indicator="active"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Ingresos anuales antes de impuestos" range min="0" max="20000000" step="100000" start-value="3400000" value="12500000" start-label="Ingresos anuales mínimos" end-label="Ingresos anuales máximos"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Brillo" value="70" value-hidden></tanrei-slider-field>
-</DemoFrame>
+</Example>
 
 El texto del valor se apoya en la línea de base de la primera línea de la etiqueta, y la etiqueta salta de línea en el sitio que queda. Donde eso dejaría a la etiqueta menos de la mitad de la fila, el texto del valor ocupa una línea propia después de la etiqueta, y salta de línea ahí si hace falta. `valueHidden` lo omite, para un control deslizante cuyo número no significa nada para la persona: un volumen, un brillo. El tirador sigue diciendo su valor a la tecnología de apoyo.
 
@@ -111,11 +111,11 @@ El mismo campo, escrito a mano con sus dos miembros, es la misma imagen y el mis
 </script>
 ```
 
-<DemoFrame label="El mismo campo escrito a mano: un campo con un control deslizante dentro, que recibe el texto del valor una sola vez; sin el listener de arriba no se mantiene sincronizado" column>
+<Example label="El mismo campo escrito a mano: un campo con un control deslizante dentro, que recibe el texto del valor una sola vez; sin el listener de arriba no se mantiene sincronizado" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Tamaño del texto" supporting-text="Se aplica a todas las páginas." value-text="120">
     <tanrei-slider min="50" max="200" step="10" value="120"></tanrei-slider>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 Baja a ese nivel cuando necesites una organización que el campo de control deslizante no ofrezca:
 
@@ -131,12 +131,12 @@ Lo que cambia un nivel más abajo es dónde se dicen las cosas. `name`, `value` 
 
 ## Especificaciones
 
-<DemoFrame label="Obligatorio con la palabra del producto, opcional, en error y deshabilitado" plain column>
+<Example label="Obligatorio con la palabra del producto, opcional, en error y deshabilitado" column>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" required required-text="Obligatorio" value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" optional optional-text="Opcional" value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" supporting-text="Se aplica a las alertas y al contenido multimedia." error error-text="Elige un nivel superior a 0." value="0"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" supporting-text="Se aplica a las alertas y al contenido multimedia." disabled value="40"></tanrei-slider-field>
-</DemoFrame>
+</Example>
 
 ### Qué aporta cada miembro
 

@@ -2,25 +2,25 @@
 title: コピーボタン
 description: 指定したテキストを 1 回の操作でコピーし、コピーできたこと、またはできなかったことを伝えるボタンです。ボタンコンポーネントが描き、既定ではレイアウトを動かしません。
 translationOf: components/copy-button.mdx
-sourceHash: e6b7e0e12c613261bd9ecfb7a40acc453aa9118b
+sourceHash: 4ef8bacbc2d1f765fcf598423e9d01ebbca9a96d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="copy-button" />
 
-<DemoFrame label="押すと、グリフがしばらくチェックに変わります">
+<Example label="押すと、グリフがしばらくチェックに変わります">
   <tanrei-copy-button text="npm install @tanrei/web" label="コピー" copied-label="コピーしました" failed-label="コピーできませんでした"></tanrei-copy-button>
   <tanrei-copy-button variant="tonal" text="#30a3f0" label="色をコピー" copied-label="コピーしました" failed-label="コピーできませんでした"></tanrei-copy-button>
   <tanrei-copy-button icon-only="false" variant="outlined" text="https://example.com/s/4f2a" label="リンクをコピー" copied-label="リンクをコピーしました" failed-label="コピーできませんでした"></tanrei-copy-button>
   <tanrei-copy-button icon-only="false" variant="filled" text="sk-test-0000" label="キーをコピー" copied-label="コピーしました" failed-label="コピーできませんでした"></tanrei-copy-button>
-</DemoFrame>
+</Example>
 
 コピーボタンは、ユーザーがほかの場所に貼り付けるものの横に置きます。コマンド、キー、アドレス、色の値などです。ブラウザーの応答を待ってから、チェック（またはエラーの印）を 2 秒間表示し、支援技術には言葉で伝えます。[コードブロック](../code-block/)は、コピーボタンを自動で配置します。
 
@@ -83,22 +83,22 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 
 ## 仕様
 
-<DemoFrame label="サイズとバリアントはボタンのものです" plain>
+<Example label="サイズとバリアントはボタンのものです">
   <tanrei-copy-button size="small" text="small" label="コピー" copied-label="コピーしました" failed-label="コピーできませんでした"></tanrei-copy-button>
   <tanrei-copy-button text="medium" label="コピー" copied-label="コピーしました" failed-label="コピーできませんでした"></tanrei-copy-button>
   <tanrei-copy-button size="large" text="large" label="コピー" copied-label="コピーしました" failed-label="コピーできませんでした"></tanrei-copy-button>
   <tanrei-copy-button variant="elevated" text="elevated" label="コピー" copied-label="コピーしました" failed-label="コピーできませんでした"></tanrei-copy-button>
   <tanrei-copy-button disabled text="disabled" label="コピー" copied-label="コピーしました" failed-label="コピーできませんでした"></tanrei-copy-button>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="3 つの文言のうち最も長いものの幅を確保します" plain>
+<Example label="3 つの文言のうち最も長いものの幅を確保します">
   <tanrei-copy-button icon-only="false" variant="outlined" text="sk-test-0000" label="コピー" copied-label="クリップボードにコピーしました" failed-label="コピーできませんでした"></tanrei-copy-button>
   <tanrei-button variant="text">隣のボタンは動きません</tanrei-button>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="label-width を fit にすると、幅が文言に合わせて変わります" plain>
+<Example label="label-width を fit にすると、幅が文言に合わせて変わります">
   <tanrei-copy-button icon-only="false" label-width="fit" variant="outlined" text="sk-test-0000" label="コピー" copied-label="クリップボードにコピーしました" failed-label="コピーできませんでした"></tanrei-copy-button>
-</DemoFrame>
+</Example>
 
 `label-width="fit"` を指定すると、ラベル付きの形の幅は、表示している文言の幅になります。文言が変わると、幅は `comp.copy-button.motion.resize-duration` をかけて新しい文言の幅へなめらかに変わります。動きを減らす設定では、すぐに変わります。既定は `widest` のままです。押そうとした瞬間に動くコントロールは、押し間違いのもとになるからです。`fit` は、行の末尾など、ボタンの後ろに次に押されそうなものが何もない場所でだけ使います。
 

@@ -2,14 +2,14 @@
 title: "代码块"
 description: "供人阅读、比较和复制的多行代码，使用代码字体，在自身内部滚动或换行，可带页眉、行号、带标记的行、提示符和复制按钮。给出代码和它的语言，它就会自己为代码做语法高亮。"
 translationOf: components/code-block.mdx
-sourceHash: 1bd663ebb32b8674bdfe30352e2eb0eeda3db6a5
+sourceHash: 53a18014ffddf555d34389625cf92451c81157c5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 export const runs = (list) => list.map(([text, syntax]) => (syntax ? <span data-syntax={syntax}>{text}</span> : text));
 
@@ -39,11 +39,11 @@ export const given = [
 
 <ComponentAvailability name="code-block" />
 
-<DemoFrame label="标题、语言标签和复制按钮；代码根据它的语言高亮" column>
+<Example label="标题、语言标签和复制按钮；代码根据它的语言高亮" column>
   <tanrei-code-block style="inline-size: 100%" headline="Footer.tsx" language="tsx" language-label="TSX" copy copy-label="复制" copied-label="已复制" copy-failed-label="无法复制">
     <pre><code>{footer}</code></pre>
   </tanrei-code-block>
-</DemoFrame>
+</Example>
 
 代码块显示供人阅读、比较和复制的代码。句子里的一个名称或一条命令用[行内代码](../inline-code/)。
 
@@ -102,24 +102,24 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 
 ## 规格
 
-<DemoFrame label="Filled 和 outlined，medium 和 small" plain column>
+<Example label="Filled 和 outlined，medium 和 small" column>
   <tanrei-code-block style="inline-size: 100%" language="js" label="示例"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
   <tanrei-code-block style="inline-size: 100%" variant="outlined" size="small" headline="sizes.js" language="js" language-label="JavaScript" copy copy-label="复制" copied-label="已复制" copy-failed-label="无法复制"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="行号、一行高亮，以及新增和删除的行" plain column>
+<Example label="行号、一行高亮，以及新增和删除的行" column>
   <tanrei-code-block style="inline-size: 100%" language="js" headline="sizes.js" line-numbers highlighted-lines="1" highlighted-label="高亮" removed-lines="4" added-lines="5" removed-label="已删除" added-label="已新增" copy copy-label="复制" copied-label="已复制" copy-failed-label="无法复制"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('button');\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="长行在代码块内部滚动，或者换行" plain column>
+<Example label="长行在代码块内部滚动，或者换行" column>
   <tanrei-code-block style="inline-size: 100%" label="示例" copy copy-label="复制" copied-label="已复制" copy-failed-label="无法复制"><pre><code>{`export const footer = html\`<footer class="form-footer"><tanrei-button variant="text" @click=\${cancel}>取消</tanrei-button><tanrei-button variant="filled" @click=\${save}>保存更改</tanrei-button></footer>\`;\n\n// 上面是一整行：它放不下，但绝不截断。`}</code></pre></tanrei-code-block>
   <tanrei-code-block style="inline-size: 100%" label="示例" wrap line-numbers><pre><code>{`export const footer = html\`<footer class="form-footer"><tanrei-button variant="text" @click=\${cancel}>取消</tanrei-button><tanrei-button variant="filled" @click=\${save}>保存更改</tanrei-button></footer>\`;\n\n// 上面是一整行：它放不下，但绝不截断。`}</code></pre></tanrei-code-block>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="提示符，以及显示行数的上限" plain column>
+<Example label="提示符，以及显示行数的上限" column>
   <tanrei-code-block style="inline-size: 100%" label="安装" prompt="$" language="sh" language-label="Shell" copy copy-label="复制" copied-label="已复制" copy-failed-label="无法复制"><pre><code>{`npm install @tanrei/web\nnpx tanrei studio`}</code></pre></tanrei-code-block>
   <tanrei-code-block style="inline-size: 100%" headline="tide.log" max-lines="4" line-numbers><pre><code>{`01:00 tide high, gauge 1.55 m\n02:00 tide falling, gauge 1.90 m\n03:00 tide low, gauge 2.25 m\n04:00 tide rising, gauge 2.60 m\n05:00 tide high, gauge 1.20 m\n06:00 tide falling, gauge 1.55 m\n07:00 tide low, gauge 1.90 m\n08:00 tide rising, gauge 2.25 m`}</code></pre></tanrei-code-block>
-</DemoFrame>
+</Example>
 
 **两种外观。** `filled` 是柔和的填充，用于页面上的代码。`outlined` 没有填充，只有一道细线围着，用于已有填充的卡片或面板里的代码。
 
@@ -218,11 +218,11 @@ const html = await highlightToHtml(source, 'tsx');
 
 片段是 `<code>` 里的一个 `<span data-syntax="…">`。span 之外的文本是普通文本。
 
-<DemoFrame label="你提供的片段按原样绘制" plain column>
+<Example label="你提供的片段按原样绘制" column>
   <tanrei-code-block style="inline-size: 100%" label="示例">
     <pre><code>{runs(given)}</code></pre>
   </tanrei-code-block>
-</DemoFrame>
+</Example>
 
 ### 把语法高亮器的作用域归并到角色
 

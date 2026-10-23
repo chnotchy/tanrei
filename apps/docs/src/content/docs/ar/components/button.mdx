@@ -2,28 +2,27 @@
 title: الزر
 description: يتيح للأشخاص تنفيذ إجراء، أو تشغيل شيء وإيقافه، أو الذهاب إلى وجهة، بنقرة واحدة.
 translationOf: components/button.mdx
-sourceHash: a587774eb5411058152f514ed38199d856c52a81
+sourceHash: f888556fbe868c4858d27e4c999dcfdeffd781f9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
-import VisualFrame from '../../../../components/visuals/VisualFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import StateMatrix from '../../../../components/visuals/StateMatrix.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="button" />
 
-<VisualFrame label="الطُرُز" reserve={{ block: 'comp.button.container.height.medium' }} controls="both">
+<Example label="الطُرُز" reserve={{ block: 'comp.button.container.height.medium' }} code>
   <tanrei-button variant="filled">Filled</tanrei-button>
   <tanrei-button variant="tonal">Tonal</tanrei-button>
   <tanrei-button variant="elevated">Elevated</tanrei-button>
   <tanrei-button variant="outlined">Outlined</tanrei-button>
   <tanrei-button variant="text">Text</tanrei-button>
-</VisualFrame>
+</Example>
 
 ### الاستخدام
 
@@ -106,12 +105,12 @@ import StateMatrix from '../../../../components/visuals/StateMatrix.astro';
 
 يمكن أن يحمل الزر أيقونة بجانب تسميته، في البداية، أو في النهاية حين تُضبط الخاصية `iconPosition` على القيمة `trailing`. الحشو من جهة الأيقونة أضيق بدرجة من الحشو من جهة التسمية، فيبدو الاثنان متوازنين. ومن دون تسمية يكون الزر أيقونة وحدها: دائرة عرضها يساوي ارتفاع الزر، تسمّيها الخاصية `label`، وهي عندئذ مطلوبة. وحين تُضبط الخاصية `toggle` يبدّل الزر قيمة `selected` الخاصة به عند كل ضغطة، ويُظهر الحالة بألوانه وبتعبئة رسم الأيقونة (glyph)، ويُعلِنها حالةَ ضغط.
 
-<DemoFrame label="أزرار بأيقونة وحدها وزر تبديل">
+<Example label="أزرار بأيقونة وحدها وزر تبديل">
   <tanrei-button variant="text" label="بحث"><span slot="icon">search</span></tanrei-button>
   <tanrei-button variant="tonal" label="تعديل"><span slot="icon">edit</span></tanrei-button>
   <tanrei-button variant="outlined" toggle selected label="المفضلة"><span slot="icon">favorite</span></tanrei-button>
   <tanrei-button variant="filled" icon-position="trailing">التالي<span slot="icon">arrow_forward</span></tanrei-button>
-</DemoFrame>
+</Example>
 
 زر الأيقونة ليس مكوّنًا منفصلًا في Tanrei. إن كنت تعرف أسماء Material، فهذا ما آلت إليه:
 
@@ -134,13 +133,13 @@ import StateMatrix from '../../../../components/visuals/StateMatrix.astro';
 | `narrow` | رسم الأيقونة وهامش داخلي صغير من كل جهة: 28 و 32 و 32، كبسولة | صف متراصّ من إجراءات الأيقونات، كالأدوات في نهاية حقل أو صف في جدول كثيف. |
 | `wide` | 40 و 52 و 72، كبسولة | الإجراء الوحيد في صف الذي ينبغي أن يكون أثقل وزنًا من جيرانه. |
 
-<DemoFrame label="عروض الأيقونة وحدها: default و narrow و wide" plain>
+<Example label="عروض الأيقونة وحدها: default و narrow و wide">
   <tanrei-button variant="tonal" label="إضافة"><span slot="icon">add</span></tanrei-button>
   <tanrei-button variant="tonal" width="narrow" label="إضافة"><span slot="icon">add</span></tanrei-button>
   <tanrei-button variant="tonal" width="wide" label="إضافة"><span slot="icon">add</span></tanrei-button>
   <tanrei-button variant="outlined" size="small" width="narrow" label="خيارات إضافية"><span slot="icon">more_vert</span></tanrei-button>
   <tanrei-button variant="filled" size="large" width="wide" label="تشغيل"><span slot="icon">play_arrow</span></tanrei-button>
-</DemoFrame>
+</Example>
 
 الزر الضيق هو رسم أيقونته والهامش الداخلي من كل جهة بالضبط، فيبقى الرسم دائمًا بعيدًا عن حافة الكبسولة، ويتبع الزر الرسم حيثما غيّر نظام تصميم حجمه. يُرسم الزر أضيق من الحد الأدنى للهدف، لكن مساحة اللمس ليست كذلك: فالهدف يمتد إلى ما وراء حوافه المرئية. اترك له فسحة بجانب الزر، أو ضع الأزرار الضيقة في [شريط أدوات](/ar/components/toolbar/) أو في [مجموعة أزرار](/ar/components/button-group/)، فكلاهما يباعد بين عناصره.
 
@@ -150,22 +149,22 @@ import StateMatrix from '../../../../components/visuals/StateMatrix.astro';
 
 الزر المعطَّل يخرج من ترتيب التركيز، فقد لا يعثر عليه مستخدم لوحة المفاتيح أو قارئ الشاشة أبدًا، أو لا يعرف لماذا لا يفعل شيئًا. وحيث يستطيع الشخص أن يجعل الإجراء متاحًا، مثل زر الإرسال ما دامت الرسالة فارغة، أضف الخاصية `focusable-when-disabled`: يُرسم الزر ويُعلَن معطَّلًا ولا يفعل شيئًا، لكن المفتاح Tab يبلغه مع ذلك، فيستطيع [تلميح](/ar/components/tooltip/) أو وصف أن يقول السبب.
 
-<DemoFrame label="الزر المشغول، والزر المعطَّل الذي يبقى في المتناول" plain>
+<Example label="الزر المشغول، والزر المعطَّل الذي يبقى في المتناول">
   <tanrei-button busy busy-label="جارٍ النشر">نشر</tanrei-button>
   <tanrei-button variant="text" busy busy-label="جارٍ الحفظ" label="حفظ"><span slot="icon">save</span></tanrei-button>
   <tanrei-button disabled focusable-when-disabled>إرسال</tanrei-button>
-</DemoFrame>
+</Example>
 
 ### بعرض كامل
 
 أضف `full-width` ليصير الزر بعرض حاويته، مثل الإجراء الوحيد في أسفل نموذج أو بطاقة أو لوحة ضيقة. ويحتفظ بارتفاع حجمه وهوامشه الداخلية وزواياه، وتتوسّطه تسميته وأيقونته. والتسمية التي لا تتسع تنتقل إلى السطر التالي بدل أن تُقطع. وحيث يرتّب الأزرارَ [مجموعة أزرار](/ar/components/button-group/) أو [شريط أدوات](/ar/components/toolbar/) أو إجراءات حوار أو نافذة منبثقة، فهي التي تقرر العرض، ولا تفعل `full-width` على الزر شيئًا: أعطِ مجموعة الأزرار `full-width` لتتقاسم عدة أزرار صفًّا واحدًا.
 
-<DemoFrame label="أزرار بعرض كامل" plain>
+<Example label="أزرار بعرض كامل">
   <div style="inline-size: 20rem; display: grid; gap: 0.75rem">
     <tanrei-button full-width>إنشاء حساب</tanrei-button>
     <tanrei-button variant="outlined" full-width><span slot="icon">upload</span>رفع ملف</tanrei-button>
   </div>
-</DemoFrame>
+</Example>
 
 ### الإجراءات المدمرة
 
@@ -175,24 +174,24 @@ import StateMatrix from '../../../../components/visuals/StateMatrix.astro';
 
 ولا للرابط مظهر مدمِّر كذلك. فالزر الذي له `href` يتجاهل `destructive` ويُرسم رابطًا من طرازه، لأن اتباع الرابط لا يحذف شيئًا: إنه لا يفعل إلا أن يأخذ الشخص إلى المكان الذي يمكن فيه حذف شيء. فضع العلامة على الإجراء في ذلك المكان، مثل زر «حذف» في الصفحة التي يفتحها الرابط. وتبلّغ بنيات التنقيح (debug) عن أي رابط أُعطي `destructive`.
 
-<DemoFrame label="أزرار مدمرة في كل طراز، وزر بأيقونة وحدها" plain>
+<Example label="أزرار مدمرة في كل طراز، وزر بأيقونة وحدها">
   <tanrei-button destructive>حذف المشروع</tanrei-button>
   <tanrei-button variant="tonal" destructive>تجاهل المسودة</tanrei-button>
   <tanrei-button variant="outlined" destructive>إزالة العضو</tanrei-button>
   <tanrei-button variant="text" destructive>مسح السجل</tanrei-button>
   <tanrei-button variant="text" destructive label="حذف الملف"><span slot="icon">delete</span></tanrei-button>
-</DemoFrame>
+</Example>
 
 ### الزر الذي له وجهة رابط
 
 أعطِ الزر الخاصية `href` فيصير رابطًا لا زرًّا: عنصر التحكم نفسه، مرسومًا من الرموز (tokens) نفسها في كل حالة، لكن بدور الرابط وبكل ما تمنحه المنصة للرابط. على الويب هو عنصر anchor حقيقي، فيستطيع الأشخاص فتحه في تبويب جديد، ونسخ عنوانه، ورؤية وجهته قبل أن يتبعوه. استخدم هذه الهيئة كلما كان تفعيل عنصر التحكم لا يفعل إلا نقل الشخص إلى مكان آخر. لا تنفّذ التنقل من معالج النقر على زر عادي.
 
-<DemoFrame label="روابط: في المكان نفسه، في تبويب جديد، بأيقونة وحدها، ومعطَّل" plain>
+<Example label="روابط: في المكان نفسه، في تبويب جديد، بأيقونة وحدها، ومعطَّل">
   <tanrei-button href="/ar/components/button-group/">مجموعة الأزرار</tanrei-button>
   <tanrei-button variant="outlined" href="/ar/components/toolbar/" target="new" target-label="يُفتح في تبويب جديد">شريط الأدوات</tanrei-button>
   <tanrei-button variant="text" href="/ar/components/" label="كل المكوّنات"><span slot="icon">apps</span></tanrei-button>
   <tanrei-button variant="tonal" href="/ar/components/button-group/" disabled>مجموعة الأزرار</tanrei-button>
-</DemoFrame>
+</Example>
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
@@ -319,11 +318,11 @@ import StateMatrix from '../../../../components/visuals/StateMatrix.astro';
 
 حين تُرسم الكلمة نفسها على عدة أزرار، مثل «إزالة» في كل صف من قائمة، لا تقول الكلمة وحدها لمستخدم قارئ الشاشة إلى أي صف ينتمي الزر. أعطِ كل زر `label`: فتصير عندئذ هي الاسم المتاح للتقنيات المساعدة كاملًا، مكان النص المرسوم، ويُرسم الزر تمامًا كما كان.
 
-<DemoFrame label="الكلمة نفسها في كل صف، وكل زر مسمًّى بصفه" plain>
+<Example label="الكلمة نفسها في كل صف، وكل زر مسمًّى بصفه">
   <tanrei-button variant="text" size="small" label="إزالة: Inter">إزالة</tanrei-button>
   <tanrei-button variant="text" size="small" label="إزالة: Noto Sans JP">إزالة</tanrei-button>
   <tanrei-button variant="text" size="small" label="إزالة: Roboto Mono">إزالة</tanrei-button>
-</DemoFrame>
+</Example>
 
 | `label` | التسمية المرسومة | الاسم المتاح للتقنيات المساعدة |
 | --- | --- | --- |
@@ -337,13 +336,13 @@ import StateMatrix from '../../../../components/visuals/StateMatrix.astro';
 
 ## المواصفات
 
-<DemoFrame label="الأحجام والتعطيل" plain>
+<Example label="الأحجام والتعطيل">
   <tanrei-button size="small">Small</tanrei-button>
   <tanrei-button size="medium">Medium</tanrei-button>
   <tanrei-button size="large">Large</tanrei-button>
   <tanrei-button disabled>Disabled</tanrei-button>
   <tanrei-button variant="outlined" disabled>Disabled</tanrei-button>
-</DemoFrame>
+</Example>
 
 <StateMatrix name="button" />
 

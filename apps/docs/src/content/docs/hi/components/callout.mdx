@@ -2,25 +2,25 @@
 title: कॉलआउट
 description: वह सूचना जो कॉन्टेंट का हिस्सा है और वहीं रहती है, जैसे कोई नोट, कोई सावधानी, किसी बात की वजह या जो ग़लत है उसका सार। यह हल्के फ़िल या आउटलाइन के रूप में, किसी स्थिति के रंगों और उसके ग्लिफ़ के साथ बनता है, और इसमें शीर्षक, क्रियाएँ और बंद करने का बटन वैकल्पिक हैं।
 translationOf: components/callout.mdx
-sourceHash: 3c436844ceb67c8f97b0d4e71ba26f1cb2c8799a
+sourceHash: f6abd901240a5444e951caf8c754bcc85de11555
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="callout" />
 
-<DemoFrame label="एक नोट, शीर्षक वाली एक सावधानी, और क्रियाओं और बंद करने के बटन वाली एक सूचना" column>
+<Example label="एक नोट, शीर्षक वाली एक सावधानी, और क्रियाओं और बंद करने के बटन वाली एक सूचना" column>
   <tanrei-callout status="info" status-label="जानकारी" style="inline-size: min(100%, 34rem)">वेब यह संशोधन बनाता है; बाक़ी प्लैटफ़ॉर्म बाद में आएँगे।</tanrei-callout>
   <tanrei-callout status="warning" headline="माइग्रेट करने से पहले बैकअप लें" style="inline-size: min(100%, 34rem)">माइग्रेशन डेटाबेस को उसी जगह फिर से लिखता है। नीचे के चरण दिखाते हैं कि ऐसी कॉपी कैसे रखें जिसे आप रीस्टोर कर सकें।</tanrei-callout>
   <tanrei-callout id="callout-demo-overview" variant="outlined" headline="इस पेज का नया वर्शन उपलब्ध है" closable close-label="बंद करें" style="inline-size: min(100%, 34rem)">उसे पढ़ने के लिए रीलोड करें। आपका टाइप किया हुआ कुछ नहीं खोएगा।<tanrei-button slot="actions" variant="outlined" onclick="this.closest('tanrei-callout').open = false">रीलोड करें</tanrei-button></tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-overview').open = true">आख़िरी वाला फिर से दिखाएँ</tanrei-button>
-</DemoFrame>
+</Example>
 
 कॉलआउट पेज के फ़्लो में रखी एक सूचना है: वह वहीं रहता है जहाँ आप उसे रखते हैं, अपनी जगह जितना चौड़ा, और तब तक जब तक कॉन्टेंट रहता है। डिफ़ॉल्ट रूप से वह एक नोट है, जो अपने से पहले के पैराग्राफ़ की तरह वहीं पढ़ा जाता है जहाँ वह है, और वह कभी फ़ोकस नहीं लेता।
 
@@ -80,7 +80,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="हर स्थिति में दोनों रूप" plain column>
+<Example label="हर स्थिति में दोनों रूप" column>
   <tanrei-callout style="inline-size: min(100%, 34rem)">साइज़ न्यूनतम हैं: बड़े किए गए टेक्स्ट के साथ कंट्रोल बढ़ता है।</tanrei-callout>
   <tanrei-callout status="info" status-label="जानकारी" style="inline-size: min(100%, 34rem)">वेब यह संशोधन बनाता है; बाक़ी प्लैटफ़ॉर्म बाद में आएँगे।</tanrei-callout>
   <tanrei-callout status="warning" status-label="चेतावनी" style="inline-size: min(100%, 34rem)">जो बॉर्डर किसी कंट्रोल के होने का अकेला संकेत है, उसे अपनी सरफ़ेस के मुक़ाबले 3:1 बनाए रखना होगा।</tanrei-callout>
@@ -91,16 +91,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-callout variant="outlined" status="warning" status-label="चेतावनी" style="inline-size: min(100%, 34rem)">जो बॉर्डर किसी कंट्रोल के होने का अकेला संकेत है, उसे अपनी सरफ़ेस के मुक़ाबले 3:1 बनाए रखना होगा।</tanrei-callout>
   <tanrei-callout variant="outlined" status="error" status-label="त्रुटि" style="inline-size: min(100%, 34rem)">फ़ाइल पढ़ी नहीं जा सकी। कुछ नहीं बदला गया।</tanrei-callout>
   <tanrei-callout variant="outlined" status="success" status-label="सफल" style="inline-size: min(100%, 34rem)">कंट्रास्ट की हर जाँच सभी छह स्कीम में पास होती है।</tanrei-callout>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="शीर्षक, आपका अपना ग्लिफ़, क्रियाएँ, बंद करने का बटन, और large साइज़" plain column>
+<Example label="शीर्षक, आपका अपना ग्लिफ़, क्रियाएँ, बंद करने का बटन, और large साइज़" column>
   <tanrei-callout headline="सुझाव" style="inline-size: min(100%, 34rem)"><span slot="icon">lightbulb</span>क्रिया को सक्षम रखें, और जब वह इस्तेमाल हो तब बताएँ कि क्या छूटा है।</tanrei-callout>
   <tanrei-callout status="info" headline="प्रायोगिक" style="inline-size: min(100%, 34rem)"><span slot="icon">science</span>आगे के किसी संस्करण में यह व्यवहार बदल सकता है।</tanrei-callout>
   <tanrei-callout status="warning" headline="डिस्क पर फ़ाइल बदल गई है" style="inline-size: min(100%, 34rem)">यहाँ आपके ऐसे बदलाव हैं जो उसमें नहीं हैं। जब तक आप नहीं चुनते, कुछ भी ओवरराइट नहीं होगा।<tanrei-button slot="actions" variant="outlined">डिस्क से रीलोड करें</tanrei-button><tanrei-button slot="actions" variant="text">मेरा वाला रखें</tanrei-button></tanrei-callout>
   <tanrei-callout id="callout-demo-closable" headline="खोज में अब रिलीज़ नोट भी शामिल हैं" closable close-label="बंद करें" style="inline-size: min(100%, 34rem)">बंद करने का बटन दबाएँ: कॉलआउट तुरंत हट जाता है, और फ़ोकस वहीं लौटता है जहाँ वह था।</tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-closable').open = true">फिर से दिखाएँ</tanrei-button>
   <tanrei-callout size="large" status="error" headline="ख़तरा" style="inline-size: min(100%, 34rem)">यह कमांड जनरेट की गई हर फ़ाइल हटा देता है, और इसे पहले जैसा नहीं किया जा सकता।</tanrei-callout>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="callout" />
 
@@ -179,10 +179,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 `live` उस कॉलआउट के लिए है जो व्यक्ति के काम करते समय दिखता या बदलता है: सबमिट के बाद फ़ॉर्म की त्रुटियों का सार, या यह सूचना कि उनके काम करते-करते फ़ाइल बदल गई। उसे `open="false"` के साथ पेज में रखें, और जब वह लागू हो तब `open` सेट करें।
 
-<DemoFrame label="एक live कॉलआउट, जो दबाने के जवाब में दिखता है" plain column>
+<Example label="एक live कॉलआउट, जो दबाने के जवाब में दिखता है" column>
   <tanrei-button variant="outlined" onclick="document.getElementById('callout-demo-live').open = true">फ़ॉर्म सबमिट करें</tanrei-button>
   <tanrei-callout id="callout-demo-live" live open="false" status="error" headline="तीन फ़ील्ड पर ध्यान देना ज़रूरी है" closable close-label="बंद करें" style="inline-size: min(100%, 34rem)">नाम दर्ज करें, शुरू होने की तारीख़ चुनें, और ऐसा पता दें जिस पर मेल आ सके।</tanrei-callout>
-</DemoFrame>
+</Example>
 
 ```html
 <tanrei-callout id="errors" live open="false" status="error" headline="तीन फ़ील्ड पर ध्यान देना ज़रूरी है">

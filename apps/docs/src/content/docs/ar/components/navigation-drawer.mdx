@@ -2,14 +2,14 @@
 title: درج التنقل
 description: يسرد وجهات المنتج في لوحة عند حافة البداية، في أقسام ومجموعات، بجانب المحتوى على شاشة كبيرة أو فوقه على شاشة مضغوطة، ويمكن أن يُطوى إلى عمود من الأيقونات.
 translationOf: components/navigation-drawer.mdx
-sourceHash: 863a49eefe0806a13fb113ad7e21185c8fdd9e2c
+sourceHash: 1eab880be19d8f79601b7bfb85013b914a9924bc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 تصف هذه الصفحة درج التنقل كما هو في المواصفة الآن. الدرج الذي له `collapsible` يضيق إلى عمود من الأيقونات يحلّ محل سكة التنقل (navigation rail): الدرج المطوي هو الدرج الموسَّع وقد ذهبت تسمياته، وكل صف فيه مقطوع بعد أيقونته، وزر القائمة فيه يوسّعه من جديد وكل أيقونة في مكانها. نص `badge` في الوجهة صار `trailingText`، يُرسم أهدأ، والمنفذ `trailing` يحمل رسمًا؛ أما `badge` فصارت الآن شارة على الأيقونة. العناصر من النوع `group` تفتح الوجهات المتداخلة وتغلقها. ارتفاع الصفوف 48، وهو ارتفاع عنصر قائمة الخيارات. والخاصية `responsive` تدع عرض النافذة يختار طريقة عرض الدرج. والوجهة التي لها `href` رابط، و `revealSelected` و `scrollOffset` تجعلان الدرج شريطًا جانبيًّا لموقع. مكوّن الويب يفعل هذا كله من الآن، وكذلك العروض الحيّة. أما SwiftUI و Compose و Flutter و React Native فموسومة أعلاه بأنها متأخرة: إلى أن تلحق بالمواصفة تقدّم المراجعة السابقة، بصفوف ارتفاعها 44، و `badge` نصًّا في نهاية الصف، وبلا هيئة مطوية ولا مجموعات ولا وجهات روابط ولا عرض متجاوب، وبسكة تنقل مستقلة، وتعرض عيّناتها تلك المراجعة. أما الكثافة المضغوطة `density` والمجموعات التي تكون وجهات أيضًا (`selectableGroups`) فهي أحدث من ذلك، وهي على الويب وحده حتى الآن.
 :::
 
-<DemoFrame label="درج قياسي فيه قسمان">
+<Example label="درج قياسي فيه قسمان">
   <tanrei-navigation-drawer open value="inbox" label="البريد" style="block-size: 26rem">
     <tanrei-navigation-drawer-section headline="البريد">
       <tanrei-navigation-drawer-item value="inbox" label="الوارد" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
@@ -31,9 +31,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-navigation-drawer-item value="family" label="العائلة" icon="label"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-section>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="درج قابل للطي: زر القائمة فيه يطويه إلى عمود الأيقونات، وهناك تُظهر الخلية اسمها في تلميح" plain>
+<Example label="درج قابل للطي: زر القائمة فيه يطويه إلى عمود الأيقونات، وهناك تُظهر الخلية اسمها في تلميح">
   <tanrei-navigation-drawer open collapsible value="home" label="مساحة العمل" style="block-size: 30rem">
     <tanrei-button slot="header-button" variant="text" label="القائمة"><span slot="icon">menu</span></tanrei-button>
     <tanrei-main-action-button slot="main-action" label="مشروع جديد"><span slot="icon">add</span></tanrei-main-action-button>
@@ -45,9 +45,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </tanrei-navigation-drawer-group>
     <tanrei-navigation-drawer-item value="settings" label="الإعدادات" icon="settings" trailing-text="جديد"></tanrei-navigation-drawer-item>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="وجهات هي روابط: قيمة value في الدرج تسمّي الصفحة الحالية، و reveal-selected تفتح المجموعة التي تحويها" plain>
+<Example label="وجهات هي روابط: قيمة value في الدرج تسمّي الصفحة الحالية، و reveal-selected تفتح المجموعة التي تحويها">
   <tanrei-navigation-drawer open reveal-selected value="#sidebar-demo-tabs" label="التوثيق" style="block-size: 24rem">
     <tanrei-navigation-drawer-item label="البدء" href="#sidebar-demo-start"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-group label="الأسس">
@@ -60,9 +60,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </tanrei-navigation-drawer-group>
     <tanrei-navigation-drawer-item label="الشيفرة المصدرية" href="#sidebar-demo-source" target="new" target-label="يُفتح في تبويب جديد"></tanrei-navigation-drawer-item>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="درج مضغوط لأداة تُستخدم بالمؤشر: صفوف بارتفاع 32 ورسوم بحجم 16، وكل أيقونة متداخلة حيث تبدأ تسمية مجموعتها" plain>
+<Example label="درج مضغوط لأداة تُستخدم بالمؤشر: صفوف بارتفاع 32 ورسوم بحجم 16، وكل أيقونة متداخلة حيث تبدأ تسمية مجموعتها">
   <tanrei-navigation-drawer open density="compact" value="tree-view" label="Workspace" style="block-size: 22rem">
     <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-section headline="Projects">
@@ -76,9 +76,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </tanrei-navigation-drawer-section>
     <tanrei-navigation-drawer-item value="settings" label="Settings" icon="settings"></tanrei-navigation-drawer-item>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="مجموعات هي وجهات أيضًا: مع selectable-groups يختار صف المجموعة المجموعةَ، وسهمها يفتحها ويغلقها" plain>
+<Example label="مجموعات هي وجهات أيضًا: مع selectable-groups يختار صف المجموعة المجموعةَ، وسهمها يفتحها ويغلقها">
   <tanrei-navigation-drawer open selectable-groups value="components" label="Documentation" style="block-size: 22rem">
     <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-group label="Foundations" icon="palette" value="foundations">
@@ -93,7 +93,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-navigation-drawer-item value="downloads" label="Downloads" icon="download"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-group>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -362,13 +362,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="وجهات بلا أيقونات، خارج أي قسم" plain>
+<Example label="وجهات بلا أيقونات، خارج أي قسم">
   <tanrei-navigation-drawer open value="deployments" label="المشروع" style="block-size: 20rem">
     <tanrei-navigation-drawer-item value="overview" label="نظرة عامة"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-item value="deployments" label="عمليات النشر" trailing-text="3"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-item value="settings" label="الإعدادات"></tanrei-navigation-drawer-item>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="navigation-drawer" />
 

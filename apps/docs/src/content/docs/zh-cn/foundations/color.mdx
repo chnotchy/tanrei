@@ -2,11 +2,11 @@
 title: 颜色
 description: 颜色角色、单色的主色、唯一的强调色，以及每个配色方案如何生成和校验。
 translationOf: foundations/color.mdx
-sourceHash: 31328e97dbf59a6d31bd8381d374c5c3f32209f8
+sourceHash: 49214a53bfedcb5257c5fa4011775855945b0626
 ---
 
 import Callout from '../../../../components/Callout.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import { contrast } from '../../../../lib/contrast';
 
 Tanrei 从不让组件自己挑选颜色。组件请求的是一个**角色**，例如 `primary` 或 `surface-container`，由当前生效的主题决定用哪种颜色来充当这个角色。角色由 Tanrei 的词汇定义，它们的值则由各个设计系统的层给出。
@@ -47,12 +47,12 @@ Tanrei 从不让组件自己挑选颜色。组件请求的是一个**角色**，
 
 每个主题都有三个对比度级别。**标准**是默认级别。**中**和**高**会把内容角色推向两端，并同时加强两个轮廓角色。在 Web 上，`prefers-contrast: more` 时会自动应用高对比度；原生平台则遵循各自的系统设置。可以在这里试一试（开关作用于整个页面）：
 
-<DemoFrame label="对比度">
+<Example label="对比度">
   <tanrei-button variant="filled">Filled</tanrei-button>
   <tanrei-button variant="tonal">Tonal</tanrei-button>
   <tanrei-button variant="outlined">Outlined</tanrei-button>
   <tanrei-button variant="text">Text</tanrei-button>
-</DemoFrame>
+</Example>
 
 ## 配色方案如何生成
 

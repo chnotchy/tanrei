@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="tree-view" />
 
-<DemoFrame label="A file tree: open a folder by its row, or with the arrow keys" plain>
+<Example label="A file tree: open a folder by its row, or with the arrow keys">
   <tanrei-tree-view class="not-content tanrei-not-prose" label="Where the tokens live" density="compact" guides style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
@@ -34,7 +34,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
       </li>
     </ul>
   </tanrei-tree-view>
-</DemoFrame>
+</Example>
 
 A tree view shows a structure a person looks through or chooses in: the files of a project, the tokens of a design system, the folders of a product. A row that holds others has a chevron and opens and closes. With `selection` one item or several are chosen, and the tree tells you which.
 
@@ -151,7 +151,7 @@ None of these fires for a change you make yourself.
 
 ## Specs
 
-<DemoFrame label="One item chosen: the row chooses, the chevron opens" plain>
+<Example label="One item chosen: the row chooses, the chevron opens">
   <tanrei-tree-view class="not-content tanrei-not-prose" label="Every token" selection="single" value="sys.color.primary" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li><span><bdi>Reference</bdi><span data-trailing-text>212</span></span><ul><li data-value="ref.palette.neutral"><span><bdi>palette.neutral</bdi></span></li></ul></li>
@@ -171,7 +171,7 @@ None of these fires for a change you make yourself.
       </li>
     </ul>
   </tanrei-tree-view>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tree-view" />
 
@@ -217,7 +217,7 @@ A compact row is lower than the pointer target. That is accepted because it is a
 
 ### Chevron
 
-<DemoFrame label="chevron end: the mark after the value, as a menu draws it" plain>
+<Example label="chevron end: the mark after the value, as a menu draws it">
   <tanrei-tree-view class="not-content tanrei-not-prose" label="Project files" chevron="end" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
@@ -230,7 +230,7 @@ A compact row is lower than the pointer target. That is accepted because it is a
       <li><span><bdi>package.json</bdi><span data-trailing-text>2 KB</span></span></li>
     </ul>
   </tanrei-tree-view>
-</DemoFrame>
+</Example>
 
 | `chevron` | Where it stands | Use for |
 | --- | --- | --- |
@@ -238,7 +238,7 @@ A compact row is lower than the pointer target. That is accepted because it is a
 | `end` | After the trailing text; `expand_more`, which turns a half turn | Settings and other trees read like a menu: the navigation drawer's place. |
 | `none` | Nowhere | Folders that show their state by their own glyph. |
 
-<DemoFrame label="chevron none: the folder glyph shows open and closed; the guides appear under the pointer" plain>
+<Example label="chevron none: the folder glyph shows open and closed; the guides appear under the pointer">
   <tanrei-tree-view class="not-content tanrei-not-prose" label="Project files" chevron="none" guides="hover" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
@@ -251,7 +251,7 @@ A compact row is lower than the pointer target. That is accepted because it is a
       <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>package.json</bdi></span></li>
     </ul>
   </tanrei-tree-view>
-</DemoFrame>
+</Example>
 
 With `chevron="none"`, a parent whose icon names an open glyph (`data-open-icon="folder_open"`) shows open and closed by its glyph, and a press on the glyph opens and closes it. A parent without an icon opens by a press on its row, unless its row chooses: then selection wins, and the arrow keys open it. The arrow keys always open and close.
 

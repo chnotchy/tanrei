@@ -2,12 +2,12 @@
 title: Estados de interacción
 description: Las capas de estado, el indicador de foco de separación y anillo, y cómo se dibuja el estado deshabilitado.
 translationOf: foundations/states.mdx
-sourceHash: 473427a122fbba6ee446b96eb41a5d60b045fd6a
+sourceHash: 202af5556b4e50ff88d6b12ec2714312ffd9176d
 ---
 
 import Callout from '../../../../components/Callout.astro';
 import StateTokens from '../../../../components/tokens/StateTokens.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 Los componentes interactivos comparten un mismo vocabulario de estados: habilitado, con el cursor encima, con foco, pulsado, arrastrado, seleccionado, activado, error, cargando y deshabilitado. La especificación de un componente enumera los estados que admite, y cada plataforma debe implementarlos todos.
 
@@ -26,13 +26,13 @@ La selección discreta también es una capa, y es la que permanece: la opción s
 
 Pasa el cursor por los botones siguientes y púlsalos para ver la capa sobre distintos contenedores:
 
-<DemoFrame label="Capas de estado">
+<Example label="Capas de estado">
   <tanrei-button variant="filled">Filled</tanrei-button>
   <tanrei-button variant="tonal">Tonal</tanrei-button>
   <tanrei-button variant="elevated">Elevated</tanrei-button>
   <tanrei-button variant="outlined">Outlined</tanrei-button>
   <tanrei-button variant="text">Text</tanrei-button>
-</DemoFrame>
+</Example>
 
 ## Foco: una separación y luego un anillo
 

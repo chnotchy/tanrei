@@ -2,14 +2,14 @@
 title: Vista previa de imágenes
 description: Muestra una imagen de un conjunto a toda la ventana cuando una persona pulsa su miniatura, para verla de cerca —ampliarla y volver, moverse por ella mientras está ampliada, y pasar a la imagen siguiente o a la anterior— hasta que se cierra.
 translationOf: components/image-preview.mdx
-sourceHash: e96ae85ed4881dbba6ec6a53785b75f08794dbf3
+sourceHash: b6cef54634494ef575b84c950accecdd5641b698
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import landscape from '../../../../../../../packages/web/test/fixtures/image-preview-landscape.png?url';
 import landscapeSmall from '../../../../../../../packages/web/test/fixtures/image-preview-landscape-thumbnail.png?url';
 import portrait from '../../../../../../../packages/web/test/fixtures/image-preview-portrait.png?url';
@@ -19,7 +19,7 @@ import square from '../../../../../../../packages/web/test/fixtures/image-previe
 
 <ComponentAvailability name="image-preview" />
 
-<DemoFrame label="Tres imágenes en una página: pulsa una para verla de cerca">
+<Example label="Tres imágenes en una página: pulsa una para verla de cerca">
   <tanrei-card class="not-content" interactive flush variant="outlined" label="Ampliar: un dibujo de 1600 de ancho por 1000 de alto" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 0, open: true })"><img src={landscapeSmall} alt="" width="160" height="100" style="display: block" /></tanrei-card>
   <tanrei-card class="not-content" interactive flush variant="outlined" label="Ampliar: un dibujo de 1000 de ancho por 1500 de alto" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 1, open: true })"><img src={portrait} alt="" width="67" height="100" style="display: block" /></tanrei-card>
   <tanrei-card class="not-content" interactive flush variant="outlined" label="Ampliar: un dibujo de 1200 de ancho por 1200 de alto" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 2, open: true })"><img src={square} alt="" width="100" height="100" style="display: block" /></tanrei-card>
@@ -28,7 +28,7 @@ import square from '../../../../../../../packages/web/test/fixtures/image-previe
     <tanrei-image-preview-item src={portrait} width="1000" height="1500" alt="Un dibujo de 1000 de ancho por 1500 de alto: un marco, dos diagonales y un anillo"></tanrei-image-preview-item>
     <tanrei-image-preview-item src={square} width="1200" height="1200" alt="Un dibujo de 1200 de ancho por 1200 de alto: un marco, dos diagonales y un anillo"></tanrei-image-preview-item>
   </tanrei-image-preview>
-</DemoFrame>
+</Example>
 
 Usa una vista previa de imágenes donde una página muestra una imagen en pequeño porque la página trata de otra cosa, y una persona la necesita en grande por un momento: una fotografía en un artículo, las imágenes de un producto en venta, un adjunto en una conversación, una captura de pantalla en una guía. La persona pulsa la miniatura, mira y vuelve a estar donde estaba.
 

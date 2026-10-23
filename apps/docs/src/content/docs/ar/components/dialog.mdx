@@ -2,14 +2,14 @@
 title: مربع الحوار
 description: يوقف الشخص من أجل قرار أو بضعة تفاصيل لا تستطيع المهمة أن تستمر من دونها، في سطح يعتّم كل ما خلفه ويحجبه إلى أن يُجاب عنه أو يُغلق.
 translationOf: components/dialog.mdx
-sourceHash: f86e3764e1ad3f95e4617465f361ae2dd033e180
+sourceHash: 2ec420cc8eb2fe5bd3b7c94ecb87939ab77ba4a5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
@@ -19,13 +19,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 تصف هذه الصفحة مربع الحوار كما هو في المواصفة الآن: كل مربع حوار يعرض إجراءً واحدًا على الأقل، والإجراءات صف بعرض كامل من أزرار من الطراز tonal تُوضع بحسب مهمتها، والأيقونة تقع بجانب عنوان رئيسي محاذى إلى البداية، وفي نافذة مضغوطة (Compact) يقع مربع الحوار في الأسفل. مكوّن الويب ينفّذ المراجعة، والعروض في هذه الصفحة هي مكوّن الويب كما يُقدَّم اليوم؛ ويبقى معلَّمًا أعلاه بأنه متأخر إلى أن تُدقَّق المراجعة وتُسجَّل صورها المرجعية. أما SwiftUI و Compose و Flutter و React Native فتقدّم المراجعة السابقة إلى أن تلحق: الأيقونة فوق عنوان رئيسي موسَّط، وإجراءات من الطراز text في صف عند النهاية بالترتيب المعطى، وإجراءات اختيارية، ومربع حوار موسَّط في كل نافذة.
 :::
 
-<DemoFrame label="تأكيد: افتحه بالزر">
+<Example label="تأكيد: افتحه بالزر">
   <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-basic').open = true">تجاهل المسودة</tanrei-button>
   <tanrei-dialog id="dialog-demo-basic" headline="تجاهل المسودة؟" supporting-text="ستُحذف من هذا الجهاز الرسالة التي كنت تكتبها.">
     <tanrei-button slot="actions" dismissive autofocus onclick="this.closest('tanrei-dialog').open = false">إلغاء</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">تجاهل</tanrei-button>
   </tanrei-dialog>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -193,14 +193,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="مربع حوار تنبيهي: تأكيد لإجراء لا رجعة فيه يُقرأ لحظة فتحه" plain>
+<Example label="مربع حوار تنبيهي: تأكيد لإجراء لا رجعة فيه يُقرأ لحظة فتحه">
   <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-alert').open = true">حذف المشروع</tanrei-button>
   <tanrei-dialog id="dialog-demo-alert" alert headline="حذف المشروع؟" supporting-text="سيُحذف كل ما في المشروع، ومنه سجله. لا يمكن التراجع عن هذا.">
     <span slot="icon">delete</span>
     <tanrei-button slot="actions" dismissive autofocus onclick="this.closest('tanrei-dialog').open = false">إلغاء</tanrei-button>
     <tanrei-button slot="actions" confirming destructive onclick="this.closest('tanrei-dialog').open = false">حذف</tanrei-button>
   </tanrei-dialog>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="dialog" />
 
@@ -244,13 +244,13 @@ tanrei-dialog::part(scroll) { scroll-padding-block-end: 56px; }
 
 ### لا زر إغلاق
 
-<DemoFrame label="نموذج فيه «إلغاء» بجانب «حفظ»، بعرض small">
+<Example label="نموذج فيه «إلغاء» بجانب «حفظ»، بعرض small">
   <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-form').open = true">تعديل الاسم الظاهر</tanrei-button>
   <tanrei-dialog id="dialog-demo-form" headline="تعديل الاسم الظاهر" supporting-text="يظهر هذا الاسم لكل أعضاء الفريق." width="small">
     <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-dialog').open = false">إلغاء</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">حفظ</tanrei-button>
   </tanrei-dialog>
-</DemoFrame>
+</Example>
 
 لا يرسم مربع الحوار زر إغلاق في ترويسته. فهو يطلب قرارًا، وطريقه للخروج من دون قرار هو إجراء التراجع فيه، وما دامت قيمة `dismissible` هي true، المفتاح Escape والرجوع في المنصة والضغط على الحجاب.
 

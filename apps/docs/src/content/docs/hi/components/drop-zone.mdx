@@ -2,21 +2,21 @@
 title: ड्रॉप ज़ोन
 description: स्क्रीन के किसी भी हिस्से को घेर लेता है, ताकि उस पर कहीं भी फ़ाइलें ड्रॉप की जा सकें, और उसके भीतर की हर चीज़ पहले की तरह काम करती रहे। जब तक उस पर फ़ाइलें ड्रैग नहीं की जातीं, वह कुछ नहीं दिखाता; फिर पूरे हिस्से को एक संदेश से ढक देता है, और आपके प्रॉडक्ट को वे फ़ाइलें सौंपता है जो उसने स्वीकार कीं और वे जो उसने अस्वीकार कीं।
 translationOf: components/drop-zone.mdx
-sourceHash: a96e90c3c5f7b4c3242c447e16ce8a353e6d79ca
+sourceHash: 51bab5267e5302b31899d5d17db28ab0709fbddb
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="drop-zone" />
 
-<DemoFrame label="ड्रॉप ज़ोन के भीतर वीडियो की एक स्क्रीन। अपने डिवाइस से कोई फ़ाइल उस पर कहीं भी ड्रैग करें: पूरी स्क्रीन दिखाती है कि फ़ाइल ड्रॉप की जा सकती है। यहाँ ड्रॉप करने से कुछ नहीं बदलता: पेज कोई फ़ाइल नहीं रखता।" column>
+<Example label="ड्रॉप ज़ोन के भीतर वीडियो की एक स्क्रीन। अपने डिवाइस से कोई फ़ाइल उस पर कहीं भी ड्रैग करें: पूरी स्क्रीन दिखाती है कि फ़ाइल ड्रॉप की जा सकती है। यहाँ ड्रॉप करने से कुछ नहीं बदलता: पेज कोई फ़ाइल नहीं रखता।" column>
   <tanrei-drop-zone class="not-content" style="inline-size: 30rem; max-inline-size: 100%; block-size: 16rem; border-radius: var(--tanrei-sys-shape-corner-medium)" multiple accept="video/*,image/*" drop-text="अपलोड करने के लिए वीडियो यहाँ छोड़ें" refusing-text="सिर्फ़ वीडियो और तस्वीरें अपलोड की जा सकती हैं" dropped-text="{count} फ़ाइलें मिलीं" refused-text="{count} फ़ाइलें नहीं ली जा सकीं">
     <div style="box-sizing: border-box; block-size: 100%; display: flex; flex-direction: column; gap: 0.75rem; padding: 1rem; background: var(--tanrei-sys-color-surface-container-low); border-radius: inherit">
       <tanrei-file-picker multiple accept="video/*,image/*" constraints-text="वीडियो या तस्वीरें">
@@ -27,7 +27,7 @@ import Callout from '../../../../components/Callout.astro';
       <span>पर्दे के पीछे · 12:47</span>
     </div>
   </tanrei-drop-zone>
-</DemoFrame>
+</Example>
 
 ड्रॉप ज़ोन पूरी स्क्रीन को, या उसके किसी भी हिस्से को, ऐसी जगह बना देता है जहाँ फ़ाइलें ड्रॉप की जा सकती हैं। इसे दस्तावेज़ों की लिस्ट, वीडियो की लाइब्रेरी, किसी बातचीत या अपने ऐप के मुख्य रीजन के चारों ओर लगाएँ। भीतर की हर चीज़ पहले की तरह काम करती रहती है: बटन, टेबल और फ़ील्ड ऐसे दबाए, स्क्रॉल किए और कीबोर्ड से पाए जाते हैं जैसे ज़ोन वहाँ हो ही नहीं। ज़ोन न होवर जोड़ता है, न दबाना, न फ़ोकस का पड़ाव, न कोई रोल।
 

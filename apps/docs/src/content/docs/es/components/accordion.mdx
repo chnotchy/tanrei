@@ -2,20 +2,20 @@
 title: Acordeón
 description: Contenido que una fila muestra y oculta sin salir de su lugar. Un solo elemento es un único desplegable; varios forman un conjunto cuyos elementos se abren cada uno por su cuenta o de uno en uno.
 translationOf: components/accordion.mdx
-sourceHash: 734c02913c3de4d6bbbf30fab12414e81ab98d1b
+sourceHash: 2681abbddb5affc6cda5087c16254f1acec502a4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="accordion" />
 
-<DemoFrame label="Las preguntas de una página de ayuda: el aspecto outlined, con un elemento abierto" plain>
+<Example label="Las preguntas de una página de ayuda: el aspecto outlined, con un elemento abierto">
   <tanrei-accordion class="not-content tanrei-not-prose" variant="outlined">
     <details open>
       <summary>¿Qué es un token de diseño?</summary>
@@ -30,7 +30,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       Con una capa: un archivo que ajusta los diales y, donde un producto lo necesita, tokens sueltos.
     </details>
   </tanrei-accordion>
-</DemoFrame>
+</Example>
 
 Un acordeón pliega partes de una página bajo filas que las muestran y las ocultan: las respuestas de una página de ayuda, las secciones de una pantalla de configuración, la parte avanzada de un formulario. Un elemento solo es un desplegable (disclosure), y es el mismo componente. Un grupo de destinos que se abre dentro de un panel de navegación es el grupo propio del panel; una elección entre vistas de un mismo lugar son pestañas.
 
@@ -111,7 +111,7 @@ Un renderizador de Markdown deja pasar `<details>` tal cual, como HTML. Envuelve
 
 ## Especificaciones
 
-<DemoFrame label="Compact, con una segunda línea y un valor al final: pliegues en un panel" plain>
+<Example label="Compact, con una segunda línea y un valor al final: pliegues en un panel">
   <tanrei-accordion class="not-content tanrei-not-prose" density="compact">
     <details open>
       <summary>Texto<span data-supporting-text>Cuerpo, etiquetas y títulos</span><span data-trailing-text>Inter, Noto Sans JP</span></summary>
@@ -126,9 +126,9 @@ Un renderizador de Markdown deja pasar `<details>` tal cual, como HTML. Envuelve
       Doce reglas vienen de las capas que hay debajo de esta.
     </details>
   </tanrei-accordion>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Uno abierto cada vez, y cada elemento dentro de su propio borde" plain>
+<Example label="Uno abierto cada vez, y cada elemento dentro de su propio borde">
   <tanrei-accordion class="not-content tanrei-not-prose" variant="outlined" separation="gap" exclusive>
     <details open>
       <summary><span class="tanrei-icon" aria-hidden="true">palette</span>Colores</summary>
@@ -143,7 +143,7 @@ Un renderizador de Markdown deja pasar `<details>` tal cual, como HTML. Envuelve
       Tu nombre, tu dirección y tu contraseña.
     </details>
   </tanrei-accordion>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="accordion" />
 

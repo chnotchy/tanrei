@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="modal-layer" />
 
-<DemoFrame label="A modal layer around a card of your own: open it with the button">
+<Example label="A modal layer around a card of your own: open it with the button">
   <tanrei-button variant="outlined" onclick="document.getElementById('modal-layer-demo').open = true">Export photos</tanrei-button>
   <tanrei-modal-layer id="modal-layer-demo" label="Export photos" onclose="this.open = false">
     <tanrei-card variant="elevated" style="inline-size: 20rem; max-inline-size: calc(100vw - 2rem); padding: 1.5rem">
@@ -21,7 +21,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
       <tanrei-button autofocus onclick="this.closest('tanrei-modal-layer').open = false">Done</tanrei-button>
     </tanrei-card>
   </tanrei-modal-layer>
-</DemoFrame>
+</Example>
 
 Every modal surface has the same layer under it. It dims the window behind the surface, so the page reads as set aside. It makes everything there inert: nothing behind can be pressed, focused or read by a screen reader, and the page does not scroll. It moves focus into the surface, keeps it there while the surface is open, and gives it back when the surface closes. And it asks to close when the person presses Escape, uses the platform's back, or presses the dim.
 

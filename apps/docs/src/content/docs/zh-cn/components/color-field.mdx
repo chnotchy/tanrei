@@ -2,23 +2,23 @@
 title: "颜色字段"
 description: "让用户把一种颜色作为表单的一个字段来设置——一个可以阅读、键入和粘贴的文本值，文本旁边的颜色样本，以及一个用来唤出选择器的按钮——外观和尺寸与文本字段相同。"
 translationOf: components/color-field.mdx
-sourceHash: 86c3e71976d4488f85216a9391b0e4d6a8b9d83f
+sourceHash: ffcd4797c3496f94c018017cc0ef57091027383d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="color-field" />
 
-<DemoFrame label="一个带选择器按钮的颜色字段，以及一个颜色被产品拒绝的颜色字段" column>
+<Example label="一个带选择器按钮的颜色字段，以及一个颜色被产品拒绝的颜色字段" column>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="品牌色" value="#0f766e" supporting-text="六位十六进制数字，例如 #0f766e。" invalid-text="请输入六位十六进制数字，例如 #0f766e。" picker picker-label="选择颜色"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="品牌色" value="#fde047" error error-text="配白色文字太浅了。请选择更深的颜色。"></tanrei-color-field>
-</DemoFrame>
+</Example>
 
 在用户把颜色作为一个值来设置的地方使用颜色字段：主题里的品牌色、标签或类别的颜色。用户阅读它、键入它，或者从别的工具里粘贴过来，并在文本旁边看到它的样本。这个字段的绘制方式和尺寸，与相同变体、相同尺寸的文本字段一致。
 
@@ -88,11 +88,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="手写出来的同一个字段：里面放着一个颜色输入框的字段" column>
+<Example label="手写出来的同一个字段：里面放着一个颜色输入框的字段" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="品牌色" required required-text="必填" supporting-text="六位十六进制数字，例如 #0f766e。">
     <tanrei-color-input value="#0f766e" invalid-text="请输入六位十六进制数字，例如 #0f766e。" picker picker-label="选择颜色"></tanrei-color-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 需要颜色字段没有提供的排布方式时，就往下走一层：
 
@@ -106,14 +106,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="空的颜色字段、白色、黑色、大号的、禁用的——以及只有方框的颜色输入框，放在为它的颜色命名的一行里" plain column>
+<Example label="空的颜色字段、白色、黑色、大号的、禁用的——以及只有方框的颜色输入框，放在为它的颜色命名的一行里" column>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="强调色" optional optional-text="选填"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="页面背景" value="#ffffff"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="文本" value="#000000"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="品牌色" value="#0f766e" size="large" picker picker-label="选择颜色"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="品牌色" value="#0f766e" disabled picker picker-label="选择颜色"></tanrei-color-field>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="主色，色调 40" value="#0f766e"></tanrei-color-input>
-</DemoFrame>
+</Example>
 
 ### 字段
 

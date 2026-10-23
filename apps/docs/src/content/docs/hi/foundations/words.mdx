@@ -2,11 +2,11 @@
 title: शब्द
 description: किसी कंपोनेंट के अपने कोई शब्द नहीं होते। कंपोनेंट जो भी लेबल, नाम और संदेश दिखाता या कहता है, वह आपके प्रॉडक्ट का है, जो कंपोनेंट पर दिया जाता है, पूरे प्रॉडक्ट के लिए एक बार, या आपके import किए अंग्रेज़ी शब्दों के पैक से लिया जाता है।
 translationOf: foundations/words.mdx
-sourceHash: 9c03bb2b32d13c39654f66eb75fd92ed2117476d
+sourceHash: 1f87ce9619375814accd41f27f5d3d08f178e563
 ---
 
 import ProductWordKeys from '../../../../components/ProductWordKeys.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 **किसी कंपोनेंट के अपने कोई शब्द नहीं होते।** किसी कंपोनेंट का किसी भी भाषा में कोई डिफ़ॉल्ट टेक्स्ट नहीं है: न "ज़रूरी", न "बंद करें", न "ठीक है"। कंपोनेंट जो शब्द दिखाता या कहता है, वह आपके प्रॉडक्ट का दिया हुआ है: आपका लिखा हुआ, या [अंग्रेज़ी शब्दों के पैक](#अंग्रेज़ी-शब्दों-का-पैक) से लिया हुआ, जिसे आप ख़ुद import करते हैं।
 
@@ -61,10 +61,10 @@ setWords({
 
 किसी एक कंपोनेंट पर लिखा ऐट्रिब्यूट आपके प्रॉडक्ट के शब्दों पर हमेशा जीतता है:
 
-<DemoFrame label="ख़ुद कंपोनेंट पर लिखा शब्द: एक फ़ील्ड इसे अलग ढंग से कहता है" plain column>
+<Example label="ख़ुद कंपोनेंट पर लिखा शब्द: एक फ़ील्ड इसे अलग ढंग से कहता है" column>
   <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="ईमेल" required required-text="ज़रूरी"></tanrei-text-field>
   <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="कंपनी" required required-text="इनवॉइस के लिए ज़रूरी"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
 ```html
 <tanrei-text-field label="ईमेल" required required-text="ज़रूरी"></tanrei-text-field>

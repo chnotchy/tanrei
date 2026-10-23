@@ -2,20 +2,20 @@
 title: Campo de cuadro combinado
 description: "Permite encontrar un valor escribiendo, como campo de un formulario: un cuadro combinado, con una lista de opciones que se reduce a medida que la persona escribe y de la que elige una o, donde el producto lo permite, un valor propio, bajo una etiqueta que puede decir si el campo es obligatorio u opcional, con una línea de ayuda y el motivo por el que se rechazó un valor."
 translationOf: components/combobox-field.mdx
-sourceHash: 1638eb2ce28b564ac75ec61ebafe326ef40c44a7
+sourceHash: e61869237c227606b9f24ade951599497664e794
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="combobox-field" />
 
-<DemoFrame label="Un campo de cuadro combinado que acepta una de sus opciones y otro que acepta además un valor propio de la persona" column>
+<Example label="Un campo de cuadro combinado que acepta una de sus opciones y otro que acepta además un valor propio de la persona" column>
   <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Ciudad" value="tokyo" clearable clear-label="Borrar ciudad" placeholder="Escribe para buscar una ciudad" supporting-text="Adónde se envía el pedido." empty-text="Sin coincidencias">
     <tanrei-option value="kyoto">Kioto</tanrei-option>
     <tanrei-option value="lisbon">Lisboa</tanrei-option>
@@ -29,7 +29,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-option value="Roboto Mono">Roboto Mono</tanrei-option>
     <tanrei-option value="Source Serif 4">Source Serif 4</tanrei-option>
   </tanrei-combobox-field>
-</DemoFrame>
+</Example>
 
 Usa un campo de cuadro combinado siempre que un formulario pida un valor que las personas prefieren escribir a buscar desplazándose: una ciudad entre cientos, una persona, un token. También sirve para un campo que sugiere valores y acepta uno propio de la persona, como una familia de fuentes. Es el caso corriente, listo para usarse: una etiqueta, la caja con su lista, una línea de ayuda y las palabras para un valor incorrecto. La caja se dibuja y se mide como la del campo de texto de la misma variante y el mismo tamaño, y la lista se dibuja como la de un select.
 
@@ -122,20 +122,20 @@ Un campo de cuadro combinado es un [campo](/es/components/field/) con un [cuadro
 </tanrei-field>
 ```
 
-<DemoFrame label="Un campo con un cuadro combinado dentro: la misma imagen que un campo de cuadro combinado" column>
+<Example label="Un campo con un cuadro combinado dentro: la misma imagen que un campo de cuadro combinado" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Ciudad" required required-text="Obligatorio" supporting-text="Adónde se envía el pedido.">
     <tanrei-combobox value="tokyo" empty-text="Sin coincidencias">
       <tanrei-option value="kyoto">Kioto</tanrei-option>
       <tanrei-option value="tokyo">Tokio</tanrei-option>
     </tanrei-combobox>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 Lo que cambia es dónde está el control del formulario: a mano es el cuadro combinado, que recibe el `name`; en el campo de cuadro combinado es el campo.
 
 ## Especificaciones
 
-<DemoFrame label="Grupos, texto de apoyo con una opción deshabilitada, un error, un campo de cuadro combinado de solo lectura y uno deshabilitado" plain column>
+<Example label="Grupos, texto de apoyo con una opción deshabilitada, un error, un campo de cuadro combinado de solo lectura y uno deshabilitado" column>
   <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Zona horaria" value="Europe/Lisbon" empty-text="Sin coincidencias">
     <tanrei-option-group label="Asia"><tanrei-option value="Asia/Tokyo">Tokio</tanrei-option><tanrei-option value="Asia/Seoul">Seúl</tanrei-option></tanrei-option-group>
     <tanrei-option-group label="Europa"><tanrei-option value="Europe/Lisbon">Lisboa</tanrei-option><tanrei-option value="Europe/Berlin">Berlín</tanrei-option></tanrei-option-group>
@@ -154,7 +154,7 @@ Lo que cambia es dónde está el control del formulario: a mano es el cuadro com
   <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Ciudad" value="tokyo" disabled>
     <tanrei-option value="nairobi">Nairobi</tanrei-option><tanrei-option value="tokyo">Tokio</tanrei-option>
   </tanrei-combobox-field>
-</DemoFrame>
+</Example>
 
 ### El campo
 

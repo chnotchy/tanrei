@@ -2,27 +2,27 @@
 title: مؤشر الخطوات
 description: يبيّن أين يقف الشخص في مسار يسير فيه المنتج بترتيب ثابت من الخطوات، أي الخطوة الحالية، وأيها مكتملة، وأيها فيها خطأ، وأيها لم يأتِ دورها بعد، ويتيح له أن يضغط خطوة ليعود إليها.
 translationOf: components/stepper.mdx
-sourceHash: 6f6aced00c2b6ebab565e04f4136b2fd6ad660ee
+sourceHash: b524c68cd799156b9046e09abbc27c410dcb8f23
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="stepper" />
 
-<DemoFrame label="أفقي، مع خطوة فيها خطأ" column>
+<Example label="أفقي، مع خطوة فيها خطأ" column>
   <tanrei-stepper label="مراحل إتمام الشراء" value="payment" pressable="visited" completed-text="مكتملة" error-text="فيها خطأ" style="inline-size: 100%">
     <tanrei-stepper-step value="account" label="الحساب"></tanrei-stepper-step>
     <tanrei-stepper-step value="shipping" label="الشحن" status="error" description="الرمز البريدي ناقص"></tanrei-stepper-step>
     <tanrei-stepper-step value="payment" label="الدفع"></tanrei-stepper-step>
     <tanrei-stepper-step value="review" label="المراجعة"></tanrei-stepper-step>
   </tanrei-stepper>
-</DemoFrame>
+</Example>
 
 يقف مؤشر الخطوات (stepper) فوق محتوى مسار له موضع، أو بجانبه: إتمام شراء، أو إعداد، أو طلب من عدة أجزاء. خطوة واحدة هي الحالية، والخطوات التي قبلها مكتملة، وقد تحتاج واحدة إلى انتباه الشخص، والباقي لم يأتِ دوره بعد.
 
@@ -79,7 +79,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="الهيئة العمودية، والهيئة المضغوطة" plain>
+<Example label="الهيئة العمودية، والهيئة المضغوطة">
   <tanrei-stepper label="الإعداد" value="profile" layout="vertical" completed-text="مكتملة" error-text="فيها خطأ" style="inline-size: 320px">
     <tanrei-stepper-step value="account" label="إنشاء حساب" description="البريد الإلكتروني وكلمة المرور"></tanrei-stepper-step>
     <tanrei-stepper-step value="profile" label="الملف الشخصي" description="الاسم والصورة"></tanrei-stepper-step>
@@ -93,7 +93,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-stepper-step value="payment" label="الدفع"></tanrei-stepper-step>
     <tanrei-stepper-step value="review" label="المراجعة"></tanrei-stepper-step>
   </tanrei-stepper>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="stepper" />
 

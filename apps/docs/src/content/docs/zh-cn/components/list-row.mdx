@@ -2,20 +2,20 @@
 title: 列表行
 description: 一行文本，前后各有一些内容。一个标题、其上方的一行短文本和下方的一两行文本；起始处是字形、图片或控件，末尾是一个简短的值、字形或控件。放在列表项中时适配列表的每种模式，也可以单独使用。
 translationOf: components/list-row.mdx
-sourceHash: 19070cee88ea1c99d0d03fe7866472287bd11101
+sourceHash: 2d3567ece5ff8694cbe5c277bb265b81b65f928b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="list-row" />
 
-<DemoFrame label="列表中的行：带开关的静态行、打开某物的行，以及作为链接的行" plain>
+<Example label="列表中的行：带开关的静态行、打开某物的行，以及作为链接的行">
   <tanrei-list dividers style="inline-size: 22rem">
     <tanrei-list-item>
       <tanrei-list-row leading-icon="bluetooth" headline="蓝牙" supporting-text="两台设备">
@@ -29,7 +29,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-list-row leading-icon="folder" overline="共享" headline="港口照片" supporting-text="48 项，今天编辑" trailing-text="2.4 GB"></tanrei-list-row>
     </tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
 列表行是大多数列表由之构成的那种行：一个名称、关于它的一两行文字，以及放在它前面和后面的内容。[列表](/zh-cn/components/list/)是一个容器，负责排列各项并把它们变成操作、链接或选项；列表行是某一项显示的内容。把它放在列表项中，或者在只需要一行的地方单独使用。
 
@@ -98,12 +98,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="一行、两行和三行；图片和值；compact" plain>
+<Example label="一行、两行和三行；图片和值；compact">
   <tanrei-list-row headline="Wi-Fi" style="inline-size: 22rem"></tanrei-list-row>
   <tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="已连接到 Harbour" style="inline-size: 22rem"></tanrei-list-row>
   <tanrei-list-row leading-icon="folder" overline="共享" headline="港口照片" supporting-text="48 项，今天编辑" trailing-text="2.4 GB" trailing-icon="chevron_right" style="inline-size: 22rem"></tanrei-list-row>
   <tanrei-list-row leading-icon="description" headline="brief.pdf" supporting-text="820 KB" density="compact" style="inline-size: 22rem"></tanrei-list-row>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="list-row" />
 

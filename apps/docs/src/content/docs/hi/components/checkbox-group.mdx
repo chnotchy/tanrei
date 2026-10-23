@@ -2,20 +2,20 @@
 title: चेकबॉक्स ग्रुप
 description: ऐसा एक सवाल पूछता है जिसके, एक साथ दिखाए गए थोड़े-से विकल्पों में से, कई जवाब हो सकते हैं — एक लेबल के नीचे चेकबॉक्स का एक सेट, एक विवरण और एक त्रुटि के साथ, जो चेक किए गए मानों की लिस्ट एक नाम से रखता है और ऐसा चेकबॉक्स साथ ला सकता है जो उन सबको चेक कर देता है।
 translationOf: components/checkbox-group.mdx
-sourceHash: 320c2d0f75bef6bb336ea072b1aef4b74ee7cd0e
+sourceHash: 3f33db7448b9a270c95ff8654e67bc3ad3ac6fe1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="checkbox-group" />
 
-<DemoFrame label="एक चेकबॉक्स ग्रुप, और एक जिसमें सबको चेक करने वाला चेकबॉक्स है" column>
+<Example label="एक चेकबॉक्स ग्रुप, और एक जिसमें सबको चेक करने वाला चेकबॉक्स है" column>
   <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।" required required-text="ज़रूरी">
     <tanrei-checkbox value="email" label="ईमेल" checked></tanrei-checkbox>
     <tanrei-checkbox value="text" label="SMS"></tanrei-checkbox>
@@ -28,7 +28,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-checkbox value="thu" label="गुरुवार"></tanrei-checkbox>
     <tanrei-checkbox value="fri" label="शुक्रवार"></tanrei-checkbox>
   </tanrei-checkbox-group>
-</DemoFrame>
+</Example>
 
 चेकबॉक्स ग्रुप वहाँ इस्तेमाल करें जहाँ एक सवाल का जवाब एक लिस्ट है और विकल्प इतने कम हैं कि सब एक साथ दिखाए जा सकें, ज़्यादा से ज़्यादा सात के आसपास: सूचना पाने के तरीक़े, वे दिन जब रिपोर्ट भेजी जाती है, वे प्रकार जिनसे कोई लिस्ट फ़िल्टर होती है। जवाब एक ही मान है, यानी चेक किए गए मानों की लिस्ट, और फ़ॉर्म उसे एक नाम से सबमिट करता है।
 
@@ -115,13 +115,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field-group>
 ```
 
-<DemoFrame label="वही सेट हाथ से लिखा हुआ: एक फ़ील्ड ग्रुप, जिसके भीतर चेकबॉक्स हैं" column>
+<Example label="वही सेट हाथ से लिखा हुआ: एक फ़ील्ड ग्रुप, जिसके भीतर चेकबॉक्स हैं" column>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।" required required-text="ज़रूरी">
     <tanrei-checkbox name="notify" value="email" label="ईमेल" checked></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="text" label="SMS"></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="push" label="पुश सूचना"></tanrei-checkbox>
   </tanrei-field-group>
-</DemoFrame>
+</Example>
 
 हाथ से लिखे गए फ़ील्ड ग्रुप और चेकबॉक्स जो नहीं करते, वह है जवाब को रखना:
 
@@ -148,7 +148,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="एक पंक्ति, एक जवाब जो माना नहीं गया, एक विकल्प जो हमेशा चालू है, और एक अक्षम ग्रुप" plain column>
+<Example label="एक पंक्ति, एक जवाब जो माना नहीं गया, एक विकल्प जो हमेशा चालू है, और एक अक्षम ग्रुप" column>
   <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="साइज़" orientation="horizontal">
     <tanrei-checkbox value="s" label="S" checked></tanrei-checkbox>
     <tanrei-checkbox value="m" label="M" checked></tanrei-checkbox>
@@ -168,7 +168,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-checkbox value="email" label="ईमेल" checked></tanrei-checkbox>
     <tanrei-checkbox value="text" label="SMS"></tanrei-checkbox>
   </tanrei-checkbox-group>
-</DemoFrame>
+</Example>
 
 ### हर सदस्य क्या देता है
 

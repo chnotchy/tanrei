@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="number-input" />
 
-<DemoFrame label="Bare: a number beside its slider under one row title, and a quantity in a row whose label stands beside it" column>
+<Example label="Bare: a number beside its slider under one row title, and a quantity in a row whose label stands beside it" column>
   <div class="not-content" style="display: grid; grid-template-columns: minmax(0, 1fr) 6rem; align-items: center; gap: 0.75rem; inline-size: 22rem; max-inline-size: 100%">
     <tanrei-slider label="Scale" min="0.25" max="4" step="0.05" value="1.5"></tanrei-slider>
     <tanrei-number-input label="Scale" min="0.25" max="4" step="0.05" value="1.5" suffix-text="×" value-text="1.5 times" align="end" no-steppers></tanrei-number-input>
@@ -22,7 +22,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
     <span>Oak desk</span>
     <tanrei-number-input label="Quantity, oak desk" value="2" min="1" max="99" increment-label="Increase" decrement-label="Decrease"></tanrei-number-input>
   </div>
-</DemoFrame>
+</Example>
 
 A number input is the box of a [number field](/components/number-field/), alone: the container, the number, its prefix and its suffix, and the two steppers. It has no label row above it and no help or error text below it.
 
@@ -105,11 +105,11 @@ A field around a number input is a number field written out. Leave the input's o
 </tanrei-field>
 ```
 
-<DemoFrame label="A field with a number input in it: the same picture as a number field" column>
+<Example label="A field with a number input in it: the same picture as a number field" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Quantity" required required-text="Required" supporting-text="Up to 99 per order.">
     <tanrei-number-input min="1" max="99" invalid-text="Enter a number." increment-label="Increase" decrement-label="Decrease"></tanrei-number-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 The input tells its field what only it knows. The field's help is aligned with the text in the box: it starts and ends at the box's text padding, whether or not the steppers are drawn. A filled or an outlined input draws the field's label itself, floating in the box, so the field draws no label row. A text that is not a number puts the field in error with the input's `invalidText` — or the field's own `errorText` where the input has none.
 
@@ -117,24 +117,24 @@ You keep nothing in step by hand: a number input has no character count.
 
 ## Specs
 
-<DemoFrame label="Bare inputs: a stepper disabled at the limit, digits at the end edge, no steppers, in error, read-only and disabled" plain column>
+<Example label="Bare inputs: a stepper disabled at the limit, digits at the end edge, no steppers, in error, read-only and disabled" column>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Quantity" value="99" min="1" max="99" increment-label="Increase" decrement-label="Decrease"></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Tone" value="40" min="0" max="100" align="end" increment-label="Increase" decrement-label="Decrease"></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Letter spacing" value="-0.25" step="0.01" suffix-text="px" no-steppers></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Quantity" value="0" error increment-label="Increase" decrement-label="Decrease"></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Quantity" value="12" readonly></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Quantity" value="12" disabled increment-label="Increase" decrement-label="Decrease"></tanrei-number-input>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Filled and outlined bare: the input's own label floats in the box" system="m3-like" plain column>
+<Example label="Filled and outlined bare: the input's own label floats in the box" system="m3-like" column>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="Quantity" value="12" increment-label="Increase" decrement-label="Decrease"></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="Quantity" increment-label="Increase" decrement-label="Decrease"></tanrei-number-input>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="In a right-to-left layout: a unit in Latin letters after the number, from left to right, and a unit in the page's own script at the number's left" plain column>
+<Example label="In a right-to-left layout: a unit in Latin letters after the number, from left to right, and a unit in the page's own script at the number's left" column>
   <div dir="rtl" lang="ar"><tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="العرض" value="44" min="0" suffix-text="px" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input></div>
   <div dir="rtl" lang="ar"><tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الوزن" value="12" min="0" step="0.5" suffix-text="كغم" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input></div>
-</DemoFrame>
+</Example>
 
 A number and its unit are one piece of writing. The prefix is written before the number and the suffix after it, in the direction of the unit's own script, whatever the direction of the page. So "44 px", "$ 120 USD" and "40 %" read in an Arabic or a Hebrew page as they do in an English one, and a unit written in Arabic or Hebrew letters stands at the number's left. The steppers and the label follow the page. `align="end"` puts the number against its unit: at the right for a unit in Latin letters or signs, in both directions. For a Latin currency code at the number's left, begin the suffix with a right-to-left mark (U+200F).
 

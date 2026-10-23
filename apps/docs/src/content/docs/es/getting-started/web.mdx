@@ -2,13 +2,13 @@
 title: Web
 description: Usa los tokens CSS y los Web Components de Tanrei en cualquier proyecto web.
 translationOf: getting-started/web.mdx
-sourceHash: 0ade01b45306c42b4c74cd9c775e6125e3d7ab5c
+sourceHash: fb8e6a2acbc93ad9938e2e07ac6820f37f8fc6cb
 ---
 
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 `@tanrei/web` contiene dos cosas: una hoja de estilos con los tokens de diseño como propiedades personalizadas de CSS, y elementos personalizados basados en estándares, construidos con Lit. No requiere ningún framework.
 
@@ -105,10 +105,10 @@ El archivo empaquetado contiene lo mismo que publica un lanzamiento, así que to
 
 </Steps>
 
-<DemoFrame>
+<Example>
   <tanrei-button variant="filled">Desplegar</tanrei-button>
   <tanrei-button variant="outlined" size="small" disabled>Cancelar</tanrei-button>
-</DemoFrame>
+</Example>
 
 ## El manifiesto de los elementos
 

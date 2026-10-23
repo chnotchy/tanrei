@@ -2,23 +2,23 @@
 title: Campo de chips
 description: Recoge una lista de textos cortos (direcciones de correo electrónico, números de teléfono, palabras clave) que se escriben uno tras otro en un solo campo. Cada texto que tu comprobación acepta se convierte en un chip que se puede quitar, o devolver a la parte donde se escribe para cambiarlo, y la lista es el único valor del campo.
 translationOf: components/chip-field.mdx
-sourceHash: c40811ad47af7b7bc1c71ac68bdfe8da9010cbbf
+sourceHash: 73c351fcd4c977beb8d2f283e2a61d126c871b12
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="chip-field" />
 
-<DemoFrame label="Un campo de chips con dos direcciones, y otro cuya tercera dirección fue rechazada" column>
+<Example label="Un campo de chips con dos direcciones, y otro cuya tercera dirección fue rechazada" column>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Destinatarios" type="email" separators='[",",";"," "]' remove-label="Quitar {entry}" added-text="Se añadió {entry}" removed-text="Se quitó {entry}" supporting-text="Separa las direcciones con una coma." value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Destinatarios" type="email" separators='[",",";"," "]' remove-label="Quitar {entry}" added-text="Se añadió {entry}" removed-text="Se quitó {entry}" supporting-text="Separa las direcciones con una coma." error error-text="Introduce una dirección completa, como nombre@example.com." value='["ada@example.com","grace.hopper@example.org"]' input-value="alan@"></tanrei-chip-field>
-</DemoFrame>
+</Example>
 
 Usa un campo de chips donde una persona introduce varios textos cortos de un mismo tipo: los destinatarios de un mensaje, las personas con las que se comparte un documento, los números a los que se envía una alerta, las palabras clave de un artículo. Cada texto se comprueba por separado, de modo que una dirección mal escrita entre doce no echa a perder las demás, y cada elemento se puede quitar o cambiar por sí solo.
 
@@ -113,14 +113,14 @@ El mismo campo, escrito a mano con sus miembros, es la misma imagen:
 </tanrei-field>
 ```
 
-<DemoFrame label="El mismo campo escrito a mano: un campo, una entrada de texto y dos chips en su slot entries" column>
+<Example label="El mismo campo escrito a mano: un campo, una entrada de texto y dos chips en su slot entries" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Destinatarios" supporting-text="Separa las direcciones con una coma.">
     <tanrei-text-input type="email">
       <tanrei-chip slot="entries" kind="input" size="small" label="ada@example.com" remove-label="Quitar ada@example.com"></tanrei-chip>
       <tanrei-chip slot="entries" kind="input" size="small" label="grace.hopper@example.org" remove-label="Quitar grace.hopper@example.org"></tanrei-chip>
     </tanrei-text-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 Lo que los miembros escritos a mano no hacen es lo que añade el campo de chips:
 
@@ -136,12 +136,12 @@ Baja a ese nivel para una organización que el campo de chips no ofrezca, como e
 
 ## Especificaciones
 
-<DemoFrame label="Obligatorio, de solo lectura, deshabilitado, y palabras clave que solo se crean con Enter" plain column>
+<Example label="Obligatorio, de solo lectura, deshabilitado, y palabras clave que solo se crean con Enter" column>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Destinatarios" type="email" required required-text="Obligatorio" remove-label="Quitar {entry}" value='["ada@example.com"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Destinatarios" type="email" readonly remove-label="Quitar {entry}" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Destinatarios" type="email" disabled remove-label="Quitar {entry}" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Autores" remove-label="Quitar {entry}" supporting-text="Pulsa Enter después de cada nombre." value='["Lovelace, Ada","Hopper, Grace"]'></tanrei-chip-field>
-</DemoFrame>
+</Example>
 
 ### Qué aporta cada miembro
 

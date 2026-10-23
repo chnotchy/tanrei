@@ -299,7 +299,7 @@ describe('the playground', () => {
   });
 });
 
-describe('the frame and its system switch', () => {
+describe('the one frame', () => {
   /** What an `.astro` file draws: its template, without the front matter, the scripts, the styles and the comments. */
   const template = (text) =>
     text
@@ -307,41 +307,57 @@ describe('the frame and its system switch', () => {
       .replace(/<script\b[\s\S]*?<\/script>/g, '')
       .replace(/<style\b[\s\S]*?<\/style>/g, '')
       .replace(/<!--[\s\S]*?-->/g, '');
-  const frame = read('src/components/visuals/VisualFrame.astro');
-  const toggle = read('src/components/visuals/SystemSwitch.astro');
+  const frame = read('src/components/visuals/Example.astro');
+  const script = read('src/lib/example.ts');
 
-  test('the frame is Tanrei’s Figure in its native parts, named by its title before any script runs, its stage left out of the search', () => {
+  test('every live thing the docs draw stands in it: a page’s example, a stage of the gallery, a figure', () => {
+    const sources = fs.readdirSync(fileURLToPath(new URL('../src/', import.meta.url)), { recursive: true }).map((file) => String(file).replaceAll('\\', '/'));
+    assert.ok(!sources.some((file) => /(^|\/)(DemoFrame|VisualFrame|SystemSwitch|ContrastSwitch)\.astro$/.test(file)), 'one frame, and no switch of its own');
+    assert.match(read('src/components/fixtures/FixtureGallery.astro'), /<Example\b/);
+    assert.match(read('src/components/visuals/StateMatrix.astro'), /<Example label=\{t\.visuals\.statesTitle\} reserve=/);
+  });
+  test('it is Tanrei’s Figure in its native parts, named by its title before any script runs, its stage left out of the search', () => {
     const text = template(frame);
-    assert.match(text, /<tanrei-figure class="docs-visual not-content"[^>]*>\s*<figure aria-labelledby=\{`\$\{id\}-title`\}/);
-    assert.match(text, /<div data-part="frame">\s*<header>\s*<p data-part="title" id=\{`\$\{id\}-title`\}>\{label\}<\/p>/);
-    assert.match(text, /<div data-part="stage"[^>]*\bdata-pagefind-ignore>/);
-    assert.match(text, /<div class="docs-visual-overlay" aria-hidden="true" data-docs-visual-overlay><\/div>/);
+    assert.match(text, /<tanrei-figure class:list=\{\['docs-example not-content', className\]\}[^>]*\bdata-tanrei-demo data-example\b[^>]*>\s*<figure aria-labelledby=\{`\$\{id\}-title`\}/);
+    assert.match(text, /<div data-part="frame">\s*<header>\s*<p data-part="title" id=\{`\$\{id\}-title`\}/);
+    assert.match(text, /<div\s+data-part="stage"[^>]*\bdata-example-stage\s+data-example-pending\s+data-pagefind-ignore\b/);
+    assert.match(text, /<div class="docs-example-overlay" aria-hidden="true" data-example-overlay \/>/);
     assert.match(text, /<div data-part="attachment" id=\{`\$\{id\}-legend`\}>/);
   });
-  test('the frame holds its room in tokens, in one row that does not wrap, and lays its overlay over it without taking room', () => {
+  test('a figure holds its room in tokens, in one row that does not wrap, and lays its overlay over it without taking room', () => {
     const css = frame.match(/<style>([\s\S]*?)<\/style>/)[1];
-    assert.match(css, /\.docs-visual-canvas \{[^}]*min-block-size: var\(--docs-visual-block\);[^}]*\}/);
-    assert.match(css, /\.docs-visual-canvas \{[^}]*flex-wrap: nowrap;[^}]*\}/);
-    assert.match(css, /\.docs-visual-overlay \{[^}]*position: absolute;[^}]*inset: 0;[^}]*\}/);
-    assert.doesNotMatch(css, /content-visibility/, 'a figure is laid out: an element that measures its place once keeps what it chose');
+    assert.match(css, /\.docs-example-canvas \{[^}]*min-block-size: var\(--docs-example-block\);[^}]*\}/);
+    assert.match(css, /\.docs-example-canvas \{[^}]*flex-wrap: nowrap;[^}]*\}/);
+    assert.match(css, /\.docs-example-overlay \{[^}]*position: absolute;[^}]*inset: 0;[^}]*\}/);
+    assert.doesNotMatch(css, /content-visibility/, 'a stage is laid out: an element that measures its place once keeps what it chose');
   });
-  test('the system switch is Tabs of the shipped systems, the default first and chosen, its help in a Tooltip, the choice neither shared nor kept', () => {
-    const text = template(toggle);
-    assert.match(text, /<tanrei-tooltip class="docs-system-switch not-content" text=\{t\.visuals\.systemHelp\} no-describe>/);
-    assert.match(text, /<tanrei-tabs class="docs-system-switch-tabs" variant="tonal" track="false" transition="none" size="small" label=\{t\.system\.choice\} value=\{value\} data-docs-visual-system>/);
-    assert.match(text, /\{shippedSystems\.map\(\(system\) => <tanrei-tab value=\{system\.id\} label=\{system\.id\} aria-description=\{t\.visuals\.systemHelp\}/);
-    assert.match(toggle, /const \{ value = ns \} = Astro\.props;/);
-    assert.equal(shippedSystems[0].id, NS, 'the default system is the first tab');
-    assert.doesNotMatch(text, /\b(group|remember-as)=/, 'the choice is the figure’s alone');
-    assert.doesNotMatch(toggle, /localStorage|sessionStorage/);
-    // A preset's stylesheet is loaded when it is chosen, not with the page: its address is written, not linked.
-    assert.doesNotMatch(template(toggle), /<link\b/);
-    assert.match(toggle, /data-sheet=\{system\.id === ns \? undefined : sheetOf\(system\.id\)\}/);
-  });
-  test('the frame offers the switch where it is asked for, and starts under the default system', () => {
-    assert.match(frame, /const \{ label, reserve, system = ns, controls = 'contrast'/);
-    assert.match(template(frame), /\(controls === 'system' \|\| controls === 'both'\) && <SystemSwitch value=\{system\} \/>/);
+  test('it follows the design system the reader chose for the page, unless a page pins it to a preset', () => {
+    // No switch of its own: the root's attribute, which the header's menu writes (lib/listing.mjs), and every change of it.
+    assert.doesNotMatch(template(frame), /<tanrei-tabs\b(?![^>]*data-example-flavors)/);
+    assert.match(script, /import \{ SYSTEM_ATTR \} from '\.\/listing\.mjs';/);
+    assert.match(script, /observe\(document\.documentElement, \{ attributes: true, attributeFilter: \[SYSTEM_ATTR\] \}\)/);
+    assert.match(script, /if \(frame\.dataset\.pinned\) return;/);
+    // A pinned preset's stylesheet is linked with the frame; the one the reader chose is loaded once, by the script.
     assert.match(template(frame), /\{stylesheet && <link rel="stylesheet" href=\{stylesheet\} \/>\}/);
-    assert.match(frame, /const stylesheet = system === ns \? undefined :/);
+    assert.match(frame, /const pinned = system && system !== ns \? system : undefined;/);
+  });
+  test('its code is what the stage held as the page was built: one inline script, the same in every frame', () => {
+    assert.match(frame, /const SNAPSHOT = '\(window\.docsExampleSources \?\?= new WeakMap\(\)\)\.set\(document\.currentScript\.previousElementSibling, document\.currentScript\.previousElementSibling\.innerHTML\)';/);
+    assert.match(frame, /code && !source && <script is:inline set:html=\{SNAPSHOT\}><\/script>/);
+    // Closed until a reader opens it; the React names are fetched only then.
+    assert.match(frame, /aria-expanded="false" data-example-code>/);
+    assert.match(script, /setAttribute\('aria-controls', `\$\{stage\.id\}-code`\)/);
+    assert.match(script, /import\('virtual:tanrei-react-names'\)/);
+    assert.doesNotMatch(script, /^import .*virtual:tanrei-react-names/m);
+  });
+  test('its words are the page’s, in the six languages', () => {
+    for (const lang of ['en', 'ja', 'zh-CN', 'es', 'hi', 'ar']) {
+      const words = strings(lang).example;
+      for (const key of ['live', 'code', 'codeOf', 'flavor', 'copy', 'copied', 'copyFailed', 'width']) assert.ok(String(words[key] ?? '').trim(), `${lang}: example.${key}`);
+      assert.ok(words.direction.ltr.trim() && words.direction.rtl.trim(), `${lang}: example.direction`);
+      assert.match(words.codeOf, /\{title\}/, `${lang}: example.codeOf names the frame`);
+      assert.match(words.width, /\{title\}/, `${lang}: example.width names the frame`);
+    }
   });
 });
+

@@ -2,20 +2,20 @@
 title: "下拉选择字段"
 description: "以表单里一个完整字段的形式，让用户从一个封闭的列表中选择一个值——一个可以说明字段必填或选填的标签，一个显示选中的选项并打开选项列表的触发器，以及下方的一行帮助文本或错误——它们为辅助技术关联在一起，并作为一个控件参与表单。"
 translationOf: components/select-field.mdx
-sourceHash: c59acbc263b452b95f47f54facb5c9bd12df3fbc
+sourceHash: 83e74269c2603748840d4fd41ecbad498dca5c0c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="select-field" />
 
-<DemoFrame label="一个必填的下拉选择字段，以及一个分了组、并用一个字形代表这个字段的下拉选择字段" column>
+<Example label="一个必填的下拉选择字段，以及一个分了组、并用一个字形代表这个字段的下拉选择字段" column>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国家/地区" required required-text="必填" placeholder="请选择国家/地区" supporting-text="发票将寄往该国家/地区。">
     <tanrei-option value="ca">加拿大</tanrei-option>
     <tanrei-option value="fr">法国</tanrei-option>
@@ -28,7 +28,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-option-group label="亚洲"><tanrei-option value="Asia/Tokyo" supporting-text="UTC+9">东京</tanrei-option><tanrei-option value="Asia/Seoul" supporting-text="UTC+9">首尔</tanrei-option></tanrei-option-group>
     <tanrei-option-group label="欧洲"><tanrei-option value="Europe/Lisbon" supporting-text="UTC+0">里斯本</tanrei-option><tanrei-option value="Europe/Berlin" supporting-text="UTC+1">柏林</tanrei-option></tanrei-option-group>
   </tanrei-select-field>
-</DemoFrame>
+</Example>
 
 在表单里，要从一个已知且封闭的列表中选出一个值时，就使用下拉选择字段：国家/地区、时区、套餐。它对应的是最常见的情况，可以直接使用：一个标签、一个显示选中的选项并打开列表的方框、一行帮助文本，以及值被拒绝时的文字。
 
@@ -104,14 +104,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="手写出来的同一个字段：一个字段，里面有一个下拉选择框" column>
+<Example label="手写出来的同一个字段：一个字段，里面有一个下拉选择框" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国家/地区" required required-text="必填" supporting-text="发票将寄往该国家/地区。">
     <tanrei-select placeholder="请选择国家/地区">
       <tanrei-option value="jp">日本</tanrei-option>
       <tanrei-option value="ke">肯尼亚</tanrei-option>
     </tanrei-select>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 当你需要下拉选择字段没有提供的排布方式时，就往下走一层：
 
@@ -126,7 +126,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="带辅助文本和一个禁用选项、选填、错误、只读和禁用" plain column>
+<Example label="带辅助文本和一个禁用选项、选填、错误、只读和禁用" column>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="套餐" value="team">
     <tanrei-option value="free" supporting-text="1 个项目，社区支持">免费版</tanrei-option>
     <tanrei-option value="team" supporting-text="项目数量不限，共享角色">团队版</tanrei-option>
@@ -144,16 +144,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国家/地区" value="jp" disabled>
     <tanrei-option value="jp">日本</tanrei-option><tanrei-option value="ke">肯尼亚</tanrei-option>
   </tanrei-select-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="filled 和 outlined：字段的标签浮在下拉选择框的方框里，必填的字段带一个星号" system="m3-like" plain column>
+<Example label="filled 和 outlined：字段的标签浮在下拉选择框的方框里，必填的字段带一个星号" system="m3-like" column>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="国家/地区" value="jp" supporting-text="发票将寄往该国家/地区。">
     <tanrei-option value="jp">日本</tanrei-option><tanrei-option value="ke">肯尼亚</tanrei-option>
   </tanrei-select-field>
   <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="国家/地区" required required-text="必填">
     <tanrei-option value="jp">日本</tanrei-option><tanrei-option value="ke">肯尼亚</tanrei-option>
   </tanrei-select-field>
-</DemoFrame>
+</Example>
 
 ### 各个成员提供什么
 

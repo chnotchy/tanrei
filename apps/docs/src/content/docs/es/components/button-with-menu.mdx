@@ -2,14 +2,14 @@
 title: Botón con menú
 description: Realiza una acción principal con una sola pulsación y ofrece acciones relacionadas en un menú desde un segundo botón unido a su lado.
 translationOf: components/button-with-menu.mdx
-sourceHash: b2cc3ce77b318949d05a451ba15d953c237f71ee
+sourceHash: fc9fa1614058622bad95aa4f9dbc578e3c4dc196
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
@@ -40,21 +40,21 @@ Esta revisión trae lo siguiente, que por ahora solo dibuja la web:
 - `trailingWidth` (`default`, `narrow`) dibuja una mitad final más esbelta: el chevron con un pequeño margen interior a cada lado y, como en el ancho predeterminado, un poco más de margen interior en su extremo exterior redondeado.
 :::
 
-<DemoFrame label="Variantes">
+<Example label="Variantes">
   <tanrei-button-with-menu label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="elevated" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Con su menú: pulsa la mitad final" plain>
+<Example label="Con su menú: pulsa la mitad final">
   <tanrei-button-with-menu label="Guardar" menu-label="Más opciones de guardado" ontoggle="this.open = event.detail.open" onclose="this.open = false">
     <span slot="icon">save</span>
     <tanrei-menu-item slot="menu" label="Guardar como…"></tanrei-menu-item>
     <tanrei-menu-item slot="menu" label="Guardar una copia"></tanrei-menu-item>
     <tanrei-menu-item slot="menu" label="Guardar como plantilla"></tanrei-menu-item>
   </tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -259,20 +259,20 @@ Un botón con menú son dos botones unidos en una sola forma. La mitad inicial r
 
 Las dos mitades se unen de una de dos maneras. Con un **divisor**, se tocan, las esquinas donde se encuentran son rectas y una línea marca la unión. Con una **separación**, quedan a una distancia estrecha, con esquinas más cerradas donde se miran. El sistema de diseño elige una vez para todos los componentes que unen partes (el sistema predeterminado dibuja un divisor), un sistema de diseño puede tratar aparte este componente, y `separation` (`auto`, `divider`, `gap`) define una instancia concreta. Las mitades siempre están una al lado de la otra: no hay forma vertical.
 
-<DemoFrame label="Unidas por un divisor y por una separación" plain>
+<Example label="Unidas por un divisor y por una separación">
   <tanrei-button-with-menu separation="divider" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
   <tanrei-button-with-menu separation="gap" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" separation="divider" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" separation="gap" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" separation="divider" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" separation="gap" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 ### Una mitad final estrecha
 
 De forma predeterminada, la mitad final contiene el chevron en un cuadrado de la altura del botón, con un poco más de margen interior en su extremo exterior redondeado. Con `trailingWidth` en `narrow` es un asidero esbelto de la acción principal: el chevron con un pequeño margen interior a cada lado y ese mismo poco de margen adicional en su extremo exterior redondeado, para que el chevron parezca centrado frente a la curva (32 / 36 / 36 en el sistema predeterminado: el ancho de un [Button](/es/components/button/) estrecho de solo icono del mismo tamaño, más ese margen). La mitad inicial es la misma con cualquiera de los dos anchos.
 
-<DemoFrame label="Ancho de la mitad final: default y narrow, en cada tamaño" plain>
+<Example label="Ancho de la mitad final: default y narrow, en cada tamaño">
   <tanrei-button-with-menu size="small" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
   <tanrei-button-with-menu size="small" trailing-width="narrow" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
   <tanrei-button-with-menu label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
@@ -280,7 +280,7 @@ De forma predeterminada, la mitad final contiene el chevron en un cuadrado de la
   <tanrei-button-with-menu size="large" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
   <tanrei-button-with-menu size="large" trailing-width="narrow" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" separation="gap" trailing-width="narrow" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 Una mitad final estrecha se dibuja más estrecha que el objetivo mínimo, pero su área de pulsación no lo es: el objetivo se extiende hacia fuera, más allá del borde de fin. Déjale espacio ahí, como junto a un Button estrecho de solo icono.
 
@@ -290,17 +290,17 @@ Pon `destructive` en un botón con menú cuya acción principal borra o descarta
 
 `destructive` marca solo las dos mitades, nunca los elementos del menú. Una opción del menú puede borrar algo que la acción principal no borra, o al revés, así que da a cada elemento que borra su propio `destructive`.
 
-<DemoFrame label="Botones con menú destructivos, en cada variante y con separación" plain>
+<Example label="Botones con menú destructivos, en cada variante y con separación">
   <tanrei-button-with-menu destructive label="Eliminar" menu-label="Más opciones de eliminación"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" destructive label="Eliminar" menu-label="Más opciones de eliminación"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="elevated" destructive label="Eliminar" menu-label="Más opciones de eliminación"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" destructive label="Eliminar" menu-label="Más opciones de eliminación"></tanrei-button-with-menu>
   <tanrei-button-with-menu separation="gap" destructive label="Eliminar" menu-label="Más opciones de eliminación"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 ## Especificaciones
 
-<DemoFrame label="Tamaños, un icono, abierto y deshabilitado" plain>
+<Example label="Tamaños, un icono, abierto y deshabilitado">
   <tanrei-button-with-menu size="small" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
   <tanrei-button-with-menu size="large" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
   <tanrei-button-with-menu label="Guardar" menu-label="Más opciones de guardado"><span slot="icon">save</span></tanrei-button-with-menu>
@@ -309,7 +309,7 @@ Pon `destructive` en un botón con menú cuya acción principal borra o descarta
   <tanrei-button-with-menu variant="outlined" disabled label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
   <tanrei-button-with-menu label="Compartir" menu-label="Más opciones para compartir"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
   <tanrei-button-with-menu open label="Compartir" menu-label="Más opciones para compartir"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="button-with-menu" />
 

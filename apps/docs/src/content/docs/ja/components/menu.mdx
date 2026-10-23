@@ -2,20 +2,20 @@
 title: メニュー
 description: 呼び出した要素から開く一時的なサーフェスに、少数のアクションや選択肢を並べて見せます。
 translationOf: components/menu.mdx
-sourceHash: dde889cba5c9b3c811de7ca80489ea496b14e941
+sourceHash: 0341afebeabc8702ad394d02405a1d0b83eddc75
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="menu" />
 
-<DemoFrame label="アクション、チェックボックス項目、ラジオのグループ、破壊的なアクション">
+<Example label="アクション、チェックボックス項目、ラジオのグループ、破壊的なアクション">
   <tanrei-menu inline open>
     <tanrei-menu-item label="コピー" leading-icon="content_copy" shortcut="mod+c"></tanrei-menu-item>
     <tanrei-menu-item label="貼り付け" leading-icon="content_paste" shortcut="mod+v"></tanrei-menu-item>
@@ -28,9 +28,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </tanrei-menu-group>
     <tanrei-menu-item label="削除" leading-icon="delete" destructive></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="サブメニュー：隣にもう 1 つの階層を開く項目" plain>
+<Example label="サブメニュー：隣にもう 1 つの階層を開く項目">
   <tanrei-menu inline open>
     <tanrei-menu-item label="新規ファイル" leading-icon="add" shortcut="mod+n"></tanrei-menu-item>
     <tanrei-submenu label="最近使った項目を開く" leading-icon="history" open>
@@ -44,16 +44,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </tanrei-submenu>
     <tanrei-menu-item label="印刷" leading-icon="print" shortcut="mod+p"></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="リンクのメニュー：どの行も行き先を持ち、1 つは今いるページで、1 つは新しいタブで開く" plain>
+<Example label="リンクのメニュー：どの行も行き先を持ち、1 つは今いるページで、1 つは新しいタブで開く">
   <tanrei-menu inline open>
     <tanrei-menu-item label="ボタン" href="/ja/components/button/"></tanrei-menu-item>
     <tanrei-menu-item label="リスト" href="/ja/components/list/" current></tanrei-menu-item>
     <tanrei-menu-item label="サンプルサイト" href="https://example.com/" target="new" target-label="新しいタブで開きます"></tanrei-menu-item>
     <tanrei-menu-item label="アーカイブ" href="/archive/" disabled></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -279,16 +279,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 仕様
 
-<DemoFrame label="補足テキスト、末尾アイコン、無効な項目" plain>
+<Example label="補足テキスト、末尾アイコン、無効な項目">
   <tanrei-menu inline open>
     <tanrei-menu-item label="共有" supporting-text="このファイルへのリンクを送ります" leading-icon="share"></tanrei-menu-item>
     <tanrei-menu-item label="オフラインで使用可能" leading-icon="download" trailing-icon="cloud_done"></tanrei-menu-item>
     <tanrei-menu-item label="名前を変更" leading-icon="edit" disabled></tanrei-menu-item>
     <tanrei-menu-item label="削除" leading-icon="delete" destructive disabled></tanrei-menu-item>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="チェックとアイコンの列の上のグループタイトル" plain>
+<Example label="チェックとアイコンの列の上のグループタイトル">
   <tanrei-menu inline open>
     <tanrei-menu-group label="文字スタイル">
       <tanrei-menu-checkbox-item label="太字" leading-icon="format_bold" checked></tanrei-menu-checkbox-item>
@@ -299,9 +299,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-menu-radio-item label="中央揃え" value="center" leading-icon="format_align_center"></tanrei-menu-radio-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="印とアイコンの列：iconSpace の auto（既定）と never" plain>
+<Example label="印とアイコンの列：iconSpace の auto（既定）と never">
   <tanrei-menu inline open>
     <tanrei-menu-item label="切り取り" leading-icon="content_cut"></tanrei-menu-item>
     <tanrei-menu-item label="コピー" leading-icon="content_copy"></tanrei-menu-item>
@@ -330,9 +330,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-menu-item label="ヘルプ"></tanrei-menu-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="印：既定のシステムの箱と輪、そして mark-icon で指定したただのチェック" plain>
+<Example label="印：既定のシステムの箱と輪、そして mark-icon で指定したただのチェック">
   <tanrei-menu inline open>
     <tanrei-menu-group label="表示">
       <tanrei-menu-checkbox-item label="ルーラー" checked></tanrei-menu-checkbox-item>
@@ -353,9 +353,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-menu-radio-item label="実際のサイズ" value="actual"></tanrei-menu-radio-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="分け方：グループの間の区切り線と、余白" plain>
+<Example label="分け方：グループの間の区切り線と、余白">
   <tanrei-menu inline open separation="divider">
     <tanrei-menu-item label="元に戻す" shortcut="mod+z"></tanrei-menu-item>
     <tanrei-menu-item label="やり直す" shortcut="mod+shift+z"></tanrei-menu-item>
@@ -378,7 +378,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-menu-item label="ページ内を検索" shortcut="mod+f"></tanrei-menu-item>
     </tanrei-menu-group>
   </tanrei-menu>
-</DemoFrame>
+</Example>
 
 既定のシステムでは、チェックボックス項目はチェックボックスとして、ラジオ項目はラジオボタンとして印を描きます。チェックされていてもいなくても描くので、空の箱とチェックの入った塗られた箱、細い輪と中を塗った太い輪になります。そのため、オフの選択肢も選択肢であることが見て分かります。これらは印の列に描く絵であって、コントロールではありません。押すのもフォーカスするのも、行だけです。箱の中のチェックは、[チェックボックス](/ja/components/checkbox/)と同じく、コントロール自身の印のための太いウェイトで描きます。
 

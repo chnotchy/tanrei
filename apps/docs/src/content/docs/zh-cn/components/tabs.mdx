@@ -2,14 +2,14 @@
 title: "标签页"
 description: "用轨道上一行带标签的标签页，在同一主题的多个视图之间切换。其中一个标签页处于选中状态，由指示器标出；指示器在标签页之间滑动，也会跟随在这一行上拖动的手指。"
 translationOf: components/tabs.mdx
-sourceHash: 69eaaac41ca8870b83e0b2b2fe14004cae89db0e
+sourceHash: d17fe373c46ad348841f0e2a05ae5c40ce13480f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 本页描述的是标签页现在的规格：标签页位于轨道之上，只有一个指示器，它会滑向选中的标签页，也会跟随在这一行上的拖动；标签页默认贴合自己的内容；标签过长时截断而不换行；多行标签页可以共享同一个选择并记住它（`group` 和 `rememberAs`）。`fullWidth` 取代了 `scrollable`。一行标签页还有三种变体（主要、次要和柔和）、两种尺寸、可以省去的轨道，以及说明指示器是否滑动的 `transition`。Web 组件做到了这一切，演示也是如此。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是较早的一版，有 `scrollable`（在 Flutter 上是默认为 false 的 `isScrollable`）、线形指示器、宽度固定且会换行的标签，没有轨道，也不能拖动。
 :::
 
-<DemoFrame label="主要标签页，以及选中标签页的面板">
+<Example label="主要标签页，以及选中标签页的面板">
   <tanrei-tabs value="overview" label="项目" style="inline-size: 22rem">
     <tanrei-tab value="overview" label="概览" icon="dashboard"></tanrei-tab>
     <tanrei-tab value="activity" label="动态" icon="history"></tanrei-tab>
@@ -34,7 +34,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <p style="font: var(--tanrei-sys-typescale-body-font)">区域、域名和访问权限。</p>
     </tanrei-tab-panel>
   </tanrei-tabs>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -181,7 +181,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="次要标签页、填满的一行、贴合内容并可滚动的一行，以及纯图标的一行" plain column>
+<Example label="次要标签页、填满的一行、贴合内容并可滚动的一行，以及纯图标的一行" column>
   <tanrei-tabs variant="secondary" value="overview" label="部署" style="inline-size: 22rem">
     <tanrei-tab value="overview" label="概览" icon="dashboard"></tanrei-tab>
     <tanrei-tab value="activity" label="动态" icon="history"></tanrei-tab>
@@ -205,9 +205,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-tab value="grid" label="网格" icon="grid_view" label-hidden></tanrei-tab>
     <tanrei-tab value="map" label="地图" icon="map" label-hidden></tanrei-tab>
   </tanrei-tabs>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="柔和变体的标签页：带轨道的、不带轨道的，以及小号、不带轨道且没有过渡的" plain column>
+<Example label="柔和变体的标签页：带轨道的、不带轨道的，以及小号、不带轨道且没有过渡的" column>
   <tanrei-tabs variant="tonal" value="week" label="时间段">
     <tanrei-tab value="day" label="日"></tanrei-tab>
     <tanrei-tab value="week" label="周"></tanrei-tab>
@@ -222,7 +222,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-tab value="metric" label="公制"></tanrei-tab>
     <tanrei-tab value="imperial" label="英制"></tanrei-tab>
   </tanrei-tabs>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tabs" />
 
@@ -324,7 +324,7 @@ Tanrei 系统不提供[分段按钮](/zh-cn/components/segmented-button/)，因�
 - **记住选择是另一回事。** `rememberAs` 指定一个键，用户的选择以这个键保存在其设备上，并在这一行首次绘制之前恢复。没有键就什么都不保存。键由你决定，并原样使用；保存的只有标签页的值。在你的产品所面向的地区，记住偏好是否需要征得同意，由你自行判断。
 - **在 Web 上，由标签页来维护组。** `group` 和 `remember-as` 是 HTML 属性，键是 `localStorage` 的一个键。在 SwiftUI、Compose、Flutter 和 React Native 上，传入同一个选择状态的各行本来就共享这个状态，由你的产品来保存和存储它。
 
-<DemoFrame label="同一个组的两行：在任意一行里选一个标签页" plain column>
+<Example label="同一个组的两行：在任意一行里选一个标签页" column>
   <tanrei-tabs variant="secondary" group="docs-demo-units" value="metric" label="距离单位">
     <tanrei-tab value="metric" label="公制"></tanrei-tab>
     <tanrei-tab value="imperial" label="英制"></tanrei-tab>
@@ -339,7 +339,7 @@ Tanrei 系统不提供[分段按钮](/zh-cn/components/segmented-button/)，因�
     <tanrei-tab-panel value="imperial"><p style="font: var(--tanrei-sys-typescale-body-font)">快走的速度是每小时 3.7 英里。</p></tanrei-tab-panel>
     <tanrei-tab-panel value="nautical"><p style="font: var(--tanrei-sys-typescale-body-font)">快走的速度是 3.2 节。</p></tanrei-tab-panel>
   </tanrei-tabs>
-</DemoFrame>
+</Example>
 
 在这个演示中，“航海”只存在于第二行：选中它时，第一行保持自己的选择；一旦选择变回第一行也有的值，第一行又会跟着变化。两行都没有指定键，所以什么都不保存。
 
@@ -349,7 +349,7 @@ Tanrei 系统不提供[分段按钮](/zh-cn/components/segmented-button/)，因�
 
 把 `orientation` 设为 `vertical`，标签页会在起始边排成一列，放在它们所切换的视图旁边：设置页或对话框的分类、一条记录的各个部分。其他方面都是同一个组件：一个选中的标签页，一个会滑动、可拖动的指示器，面板，以及共享的选择。
 
-<DemoFrame label="放在面板旁的垂直标签页">
+<Example label="放在面板旁的垂直标签页">
   <tanrei-tabs orientation="vertical" value="general" label="设置" style="inline-size: 30rem">
     <tanrei-tab value="general" label="通用" icon="settings"></tanrei-tab>
     <tanrei-tab value="notifications" label="通知" icon="notifications"></tanrei-tab>
@@ -358,7 +358,7 @@ Tanrei 系统不提供[分段按钮](/zh-cn/components/segmented-button/)，因�
     <tanrei-tab-panel value="notifications"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">邮件、推送通知和每周摘要。</p></tanrei-tab-panel>
     <tanrei-tab-panel value="privacy"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">谁可以查看你的个人资料。</p></tanrei-tab-panel>
   </tanrei-tabs>
-</DemoFrame>
+</Example>
 
 - **这一列。** 在每种变体、每种尺寸下，每个标签页都和最宽的那个一样宽，图标在标签之前，位于起始边。标签页上下彼此相接，所以每个至少有最小目标那么高：小尺寸一列中的标签页高 44（触摸输入时为 48），而不是 32。要让这一列更宽，请使用 `::part(tablist)`。如果这一列比最宽的标签页还窄，标签会被截断，并在工具提示中完整显示。
 - **指示器与轨道。** 指示器是标签页四边各减去轨道内边距后的大小。轨道的圆角等于指示器的圆角加上这段内边距，因此无论这一列多高，两者在两端都保持同心。在选中标签页下方画线的设计系统，会把这条线画在这一列的末端边上、靠近面板的一侧，分隔线也沿这条边延伸。

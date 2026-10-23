@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="popover" />
 
-<DemoFrame label="Press a button: a note with a link, and a short form with actions">
+<Example label="Press a button: a note with a link, and a short form with actions">
   <tanrei-button id="popover-demo-note-opener" variant="outlined" onclick="document.getElementById('popover-demo-note').open = !document.getElementById('popover-demo-note').open">Storage</tanrei-button>
   <tanrei-popover id="popover-demo-note" anchor="popover-demo-note-opener" headline="Storage" closable close-label="Close storage" arrow placement="bottom" onclose="this.open = false">
     Files in the trash still count toward your storage until they are deleted. <a class="tanrei-link" href="#guidelines">How storage is counted</a>
@@ -24,7 +24,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
     <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-popover').open = false">Cancel</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-popover').open = false">Rename</tanrei-button>
   </tanrei-popover>
-</DemoFrame>
+</Example>
 
 Use a popover for content a person works with beside the control that opened it: a few settings, a short form, a share panel, a note that needs a link or a button. The rest of the page stays usable around it. In a compact window it takes the bottom sheet's appearance at the bottom of the window instead, as every popover and dialog of Tanrei does there.
 
@@ -93,14 +93,14 @@ SwiftUI, Compose, Flutter and React Native are planned: the names beside each pl
 
 ## Specs
 
-<DemoFrame label="Placement, an arrow, and a popover as wide as its anchor" plain>
+<Example label="Placement, an arrow, and a popover as wide as its anchor">
   <tanrei-button id="popover-demo-top-opener" variant="outlined" onclick="document.getElementById('popover-demo-top').open = !document.getElementById('popover-demo-top').open">Above, centred</tanrei-button>
   <tanrei-popover id="popover-demo-top" anchor="popover-demo-top-opener" label="Storage" placement="top" arrow onclose="this.open = false">Trash still counts toward storage.</tanrei-popover>
   <tanrei-button id="popover-demo-end-opener" variant="outlined" onclick="document.getElementById('popover-demo-end').open = !document.getElementById('popover-demo-end').open">Beside, at the end</tanrei-button>
   <tanrei-popover id="popover-demo-end" anchor="popover-demo-end-opener" label="Storage" placement="end-top" onclose="this.open = false">Trash still counts toward storage.</tanrei-popover>
   <tanrei-button id="popover-demo-width-opener" variant="outlined" style="inline-size: 16rem" onclick="document.getElementById('popover-demo-width').open = !document.getElementById('popover-demo-width').open">As wide as this button</tanrei-button>
   <tanrei-popover id="popover-demo-width" anchor="popover-demo-width-opener" label="Storage" width="anchor" onclose="this.open = false">Trash still counts toward storage.</tanrei-popover>
-</DemoFrame>
+</Example>
 
 ### Where it stands
 

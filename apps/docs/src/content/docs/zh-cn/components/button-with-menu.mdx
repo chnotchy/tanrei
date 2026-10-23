@@ -2,14 +2,14 @@
 title: "带菜单的按钮"
 description: "按一次即可执行主操作，并通过旁边与之相连的第二个按钮，在菜单中提供相关的操作。"
 translationOf: components/button-with-menu.mdx
-sourceHash: b2cc3ce77b318949d05a451ba15d953c237f71ee
+sourceHash: fc9fa1614058622bad95aa4f9dbc578e3c4dc196
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
@@ -40,21 +40,21 @@ Material 3 把对应的组件称为 split button；在 m3-like 预设中，带�
 - `trailingWidth`（`default`、`narrow`）画出更窄的后半边：箭头加上两侧各一小段留白，圆形的外端和默认宽度一样再多一点内边距。
 :::
 
-<DemoFrame label="变体">
+<Example label="变体">
   <tanrei-button-with-menu label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="elevated" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="带有菜单：请按下后半边" plain>
+<Example label="带有菜单：请按下后半边">
   <tanrei-button-with-menu label="保存" menu-label="更多保存选项" ontoggle="this.open = event.detail.open" onclose="this.open = false">
     <span slot="icon">save</span>
     <tanrei-menu-item slot="menu" label="另存为…"></tanrei-menu-item>
     <tanrei-menu-item slot="menu" label="保存副本"></tanrei-menu-item>
     <tanrei-menu-item slot="menu" label="另存为模板"></tanrei-menu-item>
   </tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -259,20 +259,20 @@ Material 3 把对应的组件称为 split button；在 m3-like 预设中，带�
 
 两个半边用两种方式之一连接。用**分隔线**时，它们彼此相接，相接处的圆角是直角，接缝上有一条线。用**间隙**时，它们之间隔着一条窄间隙，彼此相对的圆角收得更小。设计系统为所有连接部件的组件统一选择一次（默认系统画分隔线），设计系统也可以让这个组件单独不同，而 `separation`（`auto`、`divider`、`gap`）则设置某一个实例。两个半边总是并排放置：没有纵向的形态。
 
-<DemoFrame label="以分隔线和以间隙连接" plain>
+<Example label="以分隔线和以间隙连接">
   <tanrei-button-with-menu separation="divider" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
   <tanrei-button-with-menu separation="gap" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" separation="divider" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" separation="gap" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" separation="divider" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" separation="gap" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 ### 窄的后半边
 
 默认情况下，后半边把箭头放在一个边长等于按钮高度的正方形里，圆形的外端再多一点内边距。把 `trailingWidth` 设为 `narrow` 后，它就是附在主操作上的一个细长把手：箭头两侧各有一小段留白，圆形的外端也和默认宽度一样多一点内边距，让箭头相对弧线看起来居中（默认系统中为 32 / 36 / 36，即同尺寸 narrow 纯图标[按钮](/zh-cn/components/button/)的宽度再加上这段内边距）。无论取哪种宽度，前半边都一样。
 
-<DemoFrame label="后半边的宽度：default 和 narrow，各种尺寸" plain>
+<Example label="后半边的宽度：default 和 narrow，各种尺寸">
   <tanrei-button-with-menu size="small" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
   <tanrei-button-with-menu size="small" trailing-width="narrow" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
   <tanrei-button-with-menu label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
@@ -280,7 +280,7 @@ Material 3 把对应的组件称为 split button；在 m3-like 预设中，带�
   <tanrei-button-with-menu size="large" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
   <tanrei-button-with-menu size="large" trailing-width="narrow" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" separation="gap" trailing-width="narrow" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 窄的后半边画出来比最小目标窄，但点击区域并不窄：目标向外延伸，越过末尾侧的边缘。请在那里为它留出空间，就像在 narrow 纯图标 Button 旁边一样。
 
@@ -290,17 +290,17 @@ Material 3 把对应的组件称为 split button；在 m3-like 预设中，带�
 
 `destructive` 只标记两个半边，从不标记菜单项。菜单中的某个选项可能会删除主操作不删除的东西，反之亦然，所以请给每个会删除东西的菜单项单独设置 `destructive`。
 
-<DemoFrame label="破坏性的带菜单的按钮：各个变体，以及以间隙连接的" plain>
+<Example label="破坏性的带菜单的按钮：各个变体，以及以间隙连接的">
   <tanrei-button-with-menu destructive label="删除" menu-label="更多删除选项"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" destructive label="删除" menu-label="更多删除选项"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="elevated" destructive label="删除" menu-label="更多删除选项"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" destructive label="删除" menu-label="更多删除选项"></tanrei-button-with-menu>
   <tanrei-button-with-menu separation="gap" destructive label="删除" menu-label="更多删除选项"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 ## 规格
 
-<DemoFrame label="尺寸、图标、打开和禁用" plain>
+<Example label="尺寸、图标、打开和禁用">
   <tanrei-button-with-menu size="small" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
   <tanrei-button-with-menu size="large" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
   <tanrei-button-with-menu label="保存" menu-label="更多保存选项"><span slot="icon">save</span></tanrei-button-with-menu>
@@ -309,7 +309,7 @@ Material 3 把对应的组件称为 split button；在 m3-like 预设中，带�
   <tanrei-button-with-menu variant="outlined" disabled label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
   <tanrei-button-with-menu label="分享" menu-label="更多分享选项"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
   <tanrei-button-with-menu open label="分享" menu-label="更多分享选项"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="button-with-menu" />
 

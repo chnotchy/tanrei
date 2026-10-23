@@ -2,14 +2,14 @@
 title: タブ
 description: 同じ対象の複数のビューを、トラックの上に置いたラベル付きのタブの並びで切り替えます。選択中のタブは 1 つで、タブの間を滑り、並びの上をドラッグする指にも付いてくるインジケーターがそれを示します。
 translationOf: components/tabs.mdx
-sourceHash: 69eaaac41ca8870b83e0b2b2fe14004cae89db0e
+sourceHash: d17fe373c46ad348841f0e2a05ae5c40ce13480f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 このページは、現在の仕様のタブを説明しています。タブはトラックの上に並び、1 つのインジケーターが選択中のタブへ滑り、並びの上のドラッグにも付いてきます。タブは既定で中身に合わせた幅になり、ラベルは折り返さずに省略します。複数の並びで 1 つの選択を共有し、記憶することもできます（`group` と `rememberAs`）。`scrollable` は `fullWidth` に置き換わりました。並びには 3 つのバリアント（primary、secondary、tonal）と 2 つのサイズがあり、トラックを描かないことも、インジケーターが滑るかどうかを `transition` で指定することもできます。Web コンポーネントはこのすべてに対応しており、デモもそれを示しています。SwiftUI、Compose、Flutter、React Native は上の表で「追従待ち」です。追従するまでは以前の版（`scrollable`、Flutter では false が既定の `isScrollable`、線のインジケーター、折り返す固定幅のラベル。トラックもドラッグもありません）を提供しています。
 :::
 
-<DemoFrame label="プライマリーのタブと、選択中のタブのパネル">
+<Example label="プライマリーのタブと、選択中のタブのパネル">
   <tanrei-tabs value="overview" label="プロジェクト" style="inline-size: 22rem">
     <tanrei-tab value="overview" label="概要" icon="dashboard"></tanrei-tab>
     <tanrei-tab value="activity" label="アクティビティ" icon="history"></tanrei-tab>
@@ -34,7 +34,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <p style="font: var(--tanrei-sys-typescale-body-font)">リージョン、ドメイン、アクセス権。</p>
     </tanrei-tab-panel>
   </tanrei-tabs>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -181,7 +181,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 仕様
 
-<DemoFrame label="セカンダリーのタブ、幅を等分する並び、中身に合わせてスクロールする並び、アイコンだけの並び" plain column>
+<Example label="セカンダリーのタブ、幅を等分する並び、中身に合わせてスクロールする並び、アイコンだけの並び" column>
   <tanrei-tabs variant="secondary" value="overview" label="デプロイ" style="inline-size: 22rem">
     <tanrei-tab value="overview" label="概要" icon="dashboard"></tanrei-tab>
     <tanrei-tab value="activity" label="アクティビティ" icon="history"></tanrei-tab>
@@ -205,9 +205,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-tab value="grid" label="グリッド" icon="grid_view" label-hidden></tanrei-tab>
     <tanrei-tab value="map" label="地図" icon="map" label-hidden></tanrei-tab>
   </tanrei-tabs>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="トーナルのタブ。トラックあり、トラックなし、トラックもトランジションもない小さい並び" plain column>
+<Example label="トーナルのタブ。トラックあり、トラックなし、トラックもトランジションもない小さい並び" column>
   <tanrei-tabs variant="tonal" value="week" label="期間">
     <tanrei-tab value="day" label="日"></tanrei-tab>
     <tanrei-tab value="week" label="週"></tanrei-tab>
@@ -222,7 +222,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-tab value="metric" label="メートル法"></tanrei-tab>
     <tanrei-tab value="imperial" label="ヤード・ポンド法"></tanrei-tab>
   </tanrei-tabs>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tabs" />
 
@@ -324,7 +324,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - **記憶は別の指定。** `rememberAs` は、選択をその端末に保存し、並びが最初に描かれる前に復元するためのキーです。キーがなければ何も保存しません。キーは利用者側で決めるもので、指定されたとおりに使われ、保存されるのはタブの値だけです。記憶した設定に同意が必要かどうかは、提供する場面に応じて利用者側で判断してください。
 - **Web ではタブがグループを保つ。** `group` と `remember-as` は属性で、キーは `localStorage` のキーです。SwiftUI、Compose、Flutter、React Native では、同じ選択状態を渡された並びどうしがすでに選択を共有しており、その状態の保持と保存は利用者側で行います。
 
-<DemoFrame label="同じグループの 2 つの並び：どちらかでタブを選んでください" plain column>
+<Example label="同じグループの 2 つの並び：どちらかでタブを選んでください" column>
   <tanrei-tabs variant="secondary" group="docs-demo-units" value="metric" label="距離の単位">
     <tanrei-tab value="metric" label="メートル法"></tanrei-tab>
     <tanrei-tab value="imperial" label="ヤード・ポンド法"></tanrei-tab>
@@ -339,7 +339,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-tab-panel value="imperial"><p style="font: var(--tanrei-sys-typescale-body-font)">早歩きは時速 3.7 マイルです。</p></tanrei-tab-panel>
     <tanrei-tab-panel value="nautical"><p style="font: var(--tanrei-sys-typescale-body-font)">早歩きは 3.2 ノットです。</p></tanrei-tab-panel>
   </tanrei-tabs>
-</DemoFrame>
+</Example>
 
 このデモでは、「海里」は 2 つ目の並びにしかありません。これを選んでも 1 つ目の並びは自分の選択を保ち、選択が 1 つ目の並びにもある値になると、再び従います。どちらの並びもキーを指定していないので、何も保存されません。
 
@@ -349,7 +349,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 `orientation` を `vertical` にすると、タブを開始端の列に縦に積み、切り替えるビューの横に置きます。設定画面やダイアログのカテゴリー、1 件の記録のセクションなどに使います。それ以外は同じコンポーネントです。選択中のタブは 1 つで、インジケーターは滑り、ドラッグでき、パネルも選択の共有も同じように働きます。
 
-<DemoFrame label="パネルの横に並ぶ縦のタブ">
+<Example label="パネルの横に並ぶ縦のタブ">
   <tanrei-tabs orientation="vertical" value="general" label="設定" style="inline-size: 30rem">
     <tanrei-tab value="general" label="一般" icon="settings"></tanrei-tab>
     <tanrei-tab value="notifications" label="通知" icon="notifications"></tanrei-tab>
@@ -358,7 +358,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-tab-panel value="notifications"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">メール、プッシュ通知、週ごとのまとめ。</p></tanrei-tab-panel>
     <tanrei-tab-panel value="privacy"><p style="font: var(--tanrei-sys-typescale-body-font); margin: 0; padding-inline: var(--tanrei-sys-space-space200)">プロフィールを見られる人。</p></tanrei-tab-panel>
   </tanrei-tabs>
-</DemoFrame>
+</Example>
 
 - **列。** すべてのタブは最も幅の広いタブと同じ幅になり、どのバリアントとサイズでも、アイコンがラベルの前、開始端に並びます。タブは上下で隣と接するので、それぞれ最小ターゲット以上の高さになります。小さいサイズの列のタブは 32 ではなく 44（タッチ入力では 48）の高さです。列を広げるには `::part(tablist)` を使います。列が最も広いタブより狭いと、ラベルは省略され、ツールチップで全体を示します。
 - **インジケーターとトラック。** インジケーターは、タブからトラックの余白を四辺とも引いた大きさです。トラックの角丸はインジケーターの角丸にその余白を足した値になり、列がどれほど高くても、両端でインジケーターと同心のままです。選択中のタブの下に線を引くデザインシステムでは、その線は列の終端側、パネルの側の辺に引かれ、区切り線もその辺に沿って引かれます。

@@ -2,14 +2,14 @@
 title: スナックバー
 description: アプリがいま何をしたかを、画面の下端、または上端の終わり側で短く伝えます。アクションは多くても 1 つで、フォーカスを奪わず、作業を中断させません。
 translationOf: components/snackbar.mdx
-sourceHash: febc4ce05890121860b19e8cab8e263f3b82ff1c
+sourceHash: 699f5b84ef2dfdff3afaa99c8b72b032736f3679
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
@@ -19,10 +19,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 このページは、仕様の現在の形のスナックバーを説明しています。バーをスキームのサーフェスの上に、または反転（inverse）して描き、アクションは控えめな tonal になり、状態の種類は淡い色合いで描き、タイトルと長い文章の展開が加わりました。Web はこのすべてを描きます。上の表で Web が「追従待ち」のままなのは、反転した状態の種類の確認と、そのベースラインの記録が済んでいないためです。SwiftUI、Compose、Flutter、React Native は、それより前の版（テキストのアクション、状態の種類・タイトル・展開・`inverse` なし）を提供しており、追従するまで、それぞれのサンプルもその版を示します。デモは、現在提供している Web コンポーネントです。
 :::
 
-<DemoFrame label="その場に描いたもの：アクション付きのメッセージと、閉じるボタン付きのメッセージ" column>
+<Example label="その場に描いたもの：アクション付きのメッセージと、閉じるボタン付きのメッセージ" column>
   <tanrei-snackbar message="会話をアーカイブしました" action="元に戻す"></tanrei-snackbar>
   <tanrei-snackbar message="オフィスのプリンターに接続しました" closable close-label="閉じる"></tanrei-snackbar>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -171,10 +171,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 仕様
 
-<DemoFrame label="折り返すメッセージと、次の行に回ったアクション" plain column>
+<Example label="折り返すメッセージと、次の行に回ったアクション" column>
   <tanrei-snackbar message="変更は保存しましたが、オフラインだったため共有のコピーは更新できませんでした。" action="再試行"></tanrei-snackbar>
   <tanrei-snackbar message="このフォルダーの上限より大きいため、3 つのファイルをアップロードできませんでした。" action="失敗したファイルを確認"></tanrei-snackbar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="snackbar" />
 
@@ -239,12 +239,12 @@ tonal なのは、たいてい「元に戻す」だからです。いま間違�
 | `warning` | `warning` | 割り込んで | その人が対処しないと、うまくいかなくなりそうなこと。 |
 | `error` | `error` | 割り込んで | あとから戻って対処できる失敗。再試行や説明のアクションを添えます。 |
 
-<DemoFrame label="状態の種類：info、success、warning、error" column>
+<Example label="状態の種類：info、success、warning、error" column>
   <tanrei-snackbar status="info" status-label="お知らせ" message="新しいバージョンをインストールできます。" action="再起動"></tanrei-snackbar>
   <tanrei-snackbar status="success" status-label="成功" message="バックアップが完了しました" closable close-label="閉じる"></tanrei-snackbar>
   <tanrei-snackbar status="warning" status-label="警告" headline="ストレージの空きがわずかです" message="残りの 200 MB を使い切ると、アップロードが止まります。" action="管理"></tanrei-snackbar>
   <tanrei-snackbar status="error" status-label="エラー" headline="メッセージを送信できませんでした" message="オフラインです。メッセージは送信トレイに残ります。" action="再試行"></tanrei-snackbar>
-</DemoFrame>
+</Example>
 
 状態の種類では、バーをその状態の淡い色合いで描き、周りにその状態の色の細い線の縁を、文章の前にその色のグリフを描きます。縁は場所を取りません。default には独自の縁がなく、エレベーションが描く縁だけです。状態の種類を色だけで伝えることはありません。グリフの形で種類を見分けられ、`statusLabel` がプロダクトの言語で状態を言葉にします（「エラー」など）。このラベルはタイトルとメッセージより先に読み上げられます。warning と error は読み上げ中の内容に割り込み、ほかの種類は読み上げが終わるのを待ちます。
 
@@ -252,13 +252,13 @@ tonal なのは、たいてい「元に戻す」だからです。いま間違�
 
 既定では、スナックバーをスキームの一段高いサーフェスの上に描きます。ダイアログと同じ、エレベーションで浮かせた明るいサーフェスで、文章はスキームの文字色です。反転して描くと、反対のスキームの色（ライトのスキームでは暗いバー）になり、どこに現れても周りから際立ちます。
 
-<DemoFrame label="反転して描いたもの：default と 4 つの状態の種類" plain column>
+<Example label="反転して描いたもの：default と 4 つの状態の種類" column>
   <tanrei-snackbar inverse message="会話をアーカイブしました" action="元に戻す"></tanrei-snackbar>
   <tanrei-snackbar inverse status="info" status-label="お知らせ" message="新しいバージョンをインストールできます。" action="再起動"></tanrei-snackbar>
   <tanrei-snackbar inverse status="success" status-label="成功" message="バックアップが完了しました" closable close-label="閉じる"></tanrei-snackbar>
   <tanrei-snackbar inverse status="warning" status-label="警告" headline="ストレージの空きがわずかです" message="残りの 200 MB を使い切ると、アップロードが止まります。" action="管理"></tanrei-snackbar>
   <tanrei-snackbar inverse status="error" status-label="エラー" headline="メッセージを送信できませんでした" message="オフラインです。メッセージは送信トレイに残ります。" action="再試行"></tanrei-snackbar>
-</DemoFrame>
+</Example>
 
 | `inverse` | 描き方 |
 | --- | --- |

@@ -2,11 +2,11 @@
 title: 文字
 description: 组件没有自己的文字。组件绘制或朗读的每一个标签、名称和消息，都是你的产品的——写在组件上，为整个产品只给一次，或者取自你导入的英语文字包。
 translationOf: foundations/words.mdx
-sourceHash: 9c03bb2b32d13c39654f66eb75fd92ed2117476d
+sourceHash: 1f87ce9619375814accd41f27f5d3d08f178e563
 ---
 
 import ProductWordKeys from '../../../../components/ProductWordKeys.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 **组件没有自己的文字。** 没有哪个组件带有任何语言的默认文本：没有“必填”，没有“关闭”，也没有“确定”。组件绘制或朗读的文字，都是你的产品给出的：要么是你自己写的，要么取自你导入的[英语文字包](#英语文字包)。
 
@@ -61,10 +61,10 @@ setWords({
 
 组件上的属性总是优先于产品的文字：
 
-<DemoFrame label="写在组件自身上的文字：其中一个字段的说法不同" plain column>
+<Example label="写在组件自身上的文字：其中一个字段的说法不同" column>
   <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="邮箱" required required-text="必填"></tanrei-text-field>
   <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="公司" required required-text="开具发票需要"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
 ```html
 <tanrei-text-field label="邮箱" required required-text="必填"></tanrei-text-field>

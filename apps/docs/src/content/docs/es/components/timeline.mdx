@@ -2,26 +2,26 @@
 title: Línea de tiempo
 description: Eventos dispuestos en orden cronológico, cada uno con un marcador, su momento, un título y un cuerpo con tu contenido, unido al siguiente por una línea fina. Donde los eventos tienen un estado, la forma del marcador y tus palabras dicen cuáles están hechos, cuál está en curso y cuáles quedan por delante. Es una lista para leer, nunca un control.
 translationOf: components/timeline.mdx
-sourceHash: 0251491f2f4ffd11a3d50c86f7ebc160d900e2c7
+sourceHash: fe96394352682136b8b8072fff4ca84976bd75c1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="timeline" />
 
-<DemoFrame label="Un registro de lo que ocurrió" column>
+<Example label="Un registro de lo que ocurrió" column>
   <ol class="tanrei-timeline" role="list" aria-label="Historial de versiones" style="inline-size: 100%; max-inline-size: 28rem">
     <li><time class="tanrei-timeline-time" datetime="2026-09-22">22 de septiembre de 2026</time><p class="tanrei-timeline-title">Estilos de texto por nivel</p><p>Los estilos de texto se nombran por su nivel, y todas las esquinas se pueden suavizar.</p></li>
     <li><time class="tanrei-timeline-time" datetime="2026-09-21">21 de septiembre de 2026</time><p class="tanrei-timeline-title">Un vocabulario que se puede extender</p><p>Una capa de diseño puede añadir un paso a una serie o un valor a un eje, con su motivo.</p></li>
     <li><time class="tanrei-timeline-time" datetime="2026-09-19">19 de septiembre de 2026</time><p class="tanrei-timeline-title">Comienza el desarrollo</p><p>Ya existen la cadena de tokens, el esquema de las especificaciones y la primera especificación.</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
 Hay tres cosas que se dibujan como marcas unidas por una línea. Se diferencian en lo que quien lee hace con ellas:
 
@@ -119,16 +119,16 @@ El momento es tuyo. Escríbelo en el idioma, el calendario y el formato de quien
 
 ## Especificaciones
 
-<DemoFrame label="Un plan: hecho, hecho, en curso, por delante" plain column>
+<Example label="Un plan: hecho, hecho, en curso, por delante" column>
   <ol class="tanrei-timeline" role="list" aria-label="Hoja de ruta" style="inline-size: 100%; max-inline-size: 28rem">
     <li data-status="done" data-status-label="Completado"><p class="tanrei-timeline-time">Wave 0</p><p class="tanrei-timeline-title">Fundamentos</p><p>Tokens, temas, tipografía, iconos, superficies y las primitivas de estado.</p></li>
     <li data-status="done" data-status-label="Completado"><p class="tanrei-timeline-time">Wave 1</p><p class="tanrei-timeline-title">Los controles del primer día</p><p>Botones, campos, controles de selección y la lista.</p></li>
     <li data-status="current" data-status-label="En curso"><p class="tanrei-timeline-time">Wave 2</p><p class="tanrei-timeline-title">Navegación y superposiciones</p><p>El panel de navegación, las pestañas, los diálogos, los menús y las hojas.</p></li>
     <li data-status="upcoming" data-status-label="Sin empezar"><p class="tanrei-timeline-time">Wave 3</p><p class="tanrei-timeline-title">Las piezas especializadas</p><p>Los selectores, el carrusel y lo que necesita un sitio de documentación.</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Tus propios glifos, y un registro compacto" plain column>
+<Example label="Tus propios glifos, y un registro compacto" column>
   <ol class="tanrei-timeline" role="list" aria-label="Pedido 1042" style="inline-size: 100%; max-inline-size: 28rem">
     <li data-status="done" data-status-label="Completado"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">receipt_long</span><p class="tanrei-timeline-time">Lunes, 09:41</p><p class="tanrei-timeline-title">Pedido realizado</p></li>
     <li data-status="current" data-status-label="En curso"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">local_shipping</span><p class="tanrei-timeline-time">Martes, 14:05</p><p class="tanrei-timeline-title">En camino</p></li>
@@ -139,7 +139,7 @@ El momento es tuyo. Escríbelo en el idioma, el calendario y el formato de quien
     <li><time class="tanrei-timeline-time" datetime="10:09">10:09</time><p class="tanrei-timeline-title">Contraste comprobado en seis esquemas</p></li>
     <li><time class="tanrei-timeline-time" datetime="10:02">10:02</time><p class="tanrei-timeline-title">Color primario cambiado</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
 - **El marcador** está en una caja situada en el borde de inicio, de 24 de lado a lado en medium y de 28 en large, centrada en la primera línea del evento. Sin estado es un punto pequeño; con un glifo tuyo es un anillo de línea fina que contiene el glifo.
 - **Un estado** cambia la forma del marcador y nada más: un anillo con una marca de verificación para el evento hecho, un círculo relleno con un punto para el que está en curso y un anillo vacío para el que todavía queda por delante. El círculo relleno es el único color que aporta una línea de tiempo, aparte del color del momento.
