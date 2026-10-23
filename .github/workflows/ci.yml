@@ -621,10 +621,10 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # The sitemap dates each page by the last commit of its sources, as deploy-docs.yml builds it: the history's
-          # commits and trees, and the files of this commit only.
+          # The sitemap dates each page by the last commit of its sources, as deploy-docs.yml builds it: the whole
+          # history. No blob filter: with one, the checkout fetches this commit's files in a second, lazy request, and
+          # a timeout there fails the job before any test (HTTP 408, "could not fetch … from promisor remote").
           fetch-depth: 0
-          filter: blob:none
           persist-credentials: false # no step pushes: the token stays out of .git/config and any artifact
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -681,9 +681,8 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # The sitemap's test dates each page by git as the build did: the same history.
+          # The sitemap's test dates each page by git as the build did: the same history, fetched the same way.
           fetch-depth: 0
-          filter: blob:none
           persist-credentials: false # no step pushes: the token stays out of .git/config and any artifact
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0

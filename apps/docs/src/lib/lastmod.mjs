@@ -23,7 +23,7 @@
 //
 // The dates come from one `git log` over those paths when the site is built. A shallow clone knows only its last
 // commit and would give every page that date, so the build stops there instead of writing a wrong date: a checkout
-// that builds the site fetches the whole history of commits and trees (`fetch-depth: 0`, `filter: blob:none`).
+// that builds the site fetches the whole history (`fetch-depth: 0`).
 // `astro dev` runs in any clone: in a shallow one it reads no dates, and no page prints one.
 //
 // A page's date is written in UTC (`2026-10-22T20:00:00.000Z`), whatever offset its commit was made in: the sitemap
@@ -118,7 +118,7 @@ function componentTokenFiles(repoRoot, component, spec) {
 export function commitDates(repoRoot, paths) {
   const git = (...args) => execFileSync('git', args, { cwd: repoRoot, encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 });
   if (git('rev-parse', '--is-shallow-repository').trim() !== 'false') {
-    throw new Error('The sitemap dates each page from git, and this clone is shallow: every page would get the date of its last commit. Fetch the history (actions/checkout: `fetch-depth: 0`, `filter: blob:none`; locally: `git fetch --unshallow --filter=blob:none`).');
+    throw new Error('The sitemap dates each page from git, and this clone is shallow: every page would get the date of its last commit. Fetch the history (actions/checkout: `fetch-depth: 0`; locally: `git fetch --unshallow`).');
   }
   const dates = new Map();
   let date;
