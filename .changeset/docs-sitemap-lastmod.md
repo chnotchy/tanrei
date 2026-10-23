@@ -8,4 +8,4 @@ commit, along the first parents of the branch the site is built from, of the pag
 English page where a translation does not exist yet) and, for a component's page, of its spec; never the time of the
 build. Each sitemap in the index is dated by its newest page. The history has to be there: the build stops in a
 shallow clone instead of giving every page the date of its last commit, and the docs' checkouts in CI and in the
-deployment fetch every commit and tree (`fetch-depth: 0`, `filter: blob:none`).
+deployment fetch the whole history (`fetch-depth: 0`).
