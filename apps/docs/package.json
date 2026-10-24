@@ -30,7 +30,7 @@
     "@tanrei/studio": "workspace:*",
     "@tanrei/web": "workspace:*",
     "astro": "^7.3.8",
-    "harfbuzzjs": "1.6.2",
+    "harfbuzzjs": "1.6.3",
     "sharp": "^0.35.5",
     "ultrahtml": "^1.7.0",
     "wawoff2": "2.0.1"
@@ -41,6 +41,6 @@
     "@playwright/test": "^1.63.0",
     "@tanrei/tools": "workspace:*",
     "typescript": "^6.0.3",
-    "wrangler": "4.151.0"
+    "wrangler": "4.151.3"
   }
 }
