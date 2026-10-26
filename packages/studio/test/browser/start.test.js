@@ -169,6 +169,50 @@ studioTest('a file over a layer with changes asks first', { layer: { id: 'acme',
   await saved((layer) => layer.extends === 'm3-like' && !layer.palettes, 'loaded');
 });
 
+studioTest('a pasted layer is loaded as a file is: it asks over changes, is one step to undo, and what keeps it out or what the engine finds is said at the top of the panel', { layer: { id: 'acme', extends: 'tanrei', palettes: { primary: { source: { seed: '#0b6e4f' } } } } }, async ({ page, saved, onDisk }) => {
+  const paste = async (text) => {
+    if (!(await page.locator('[data-import] textarea').isVisible())) await page.locator('.ts-import > summary').click();
+    await page.locator('[data-import] textarea').fill(text);
+    await page.locator('[data-import-apply]').click();
+  };
+  // Over a layer with changes: asked, declined — the layer stays as it is.
+  const declined = dialogs(page, 'dismiss');
+  await paste(JSON.stringify({ id: 'acme', extends: 'm3-like' }));
+  await until(async () => declined.length === 1, 'asked');
+  assert.equal(declined[0], 'Load the pasted layer? Your changes to this layer are replaced; Undo brings them back.');
+  assert.equal((await page.evaluate(() => window.tanreiStudio.getLayer())).extends, 'tanrei');
+  page.removeAllListeners('dialog');
+  dialogs(page);
+
+  // Not JSON, and what the schema refuses: not loaded, and the panel's callout says why.
+  await paste('{ "id": "acme", ');
+  await until(() => report(page).evaluate((el) => el.open), 'the report');
+  assert.equal(await report(page).getAttribute('status'), 'error');
+  assert.match(await report(page).textContent(), /The pasted layer was not loaded/);
+  assert.match(await report(page).locator('[data-import-problems]').textContent(), /That is not valid JSON/);
+  await paste(JSON.stringify({ id: 'acme', extends: 'nope' }));
+  await until(async () => /"extends": "nope" is not a shipped system/.test(await report(page).locator('[data-import-problems]').textContent()), 'the report');
+  assert.deepEqual(onDisk(), { id: 'acme', extends: 'tanrei', palettes: { primary: { source: { seed: '#0b6e4f' } } } });
+
+  // The schema accepts it, the engine does not: loaded, and its problems said, in the engine's words.
+  await paste(JSON.stringify({ id: 'acme', extends: 'tanrei', tokens: { 'tanrei.sys.space.nope': { scale: 2 } } }));
+  await until(async () => (await report(page).getAttribute('status')) === 'warning', 'the report');
+  assert.match(await report(page).textContent(), /Loaded the pasted layer, with 1 problem/);
+  assert.match(await report(page).locator('[data-import-problems]').textContent(), /tanrei\.sys\.space\.nope: unknown token/);
+
+  // A good layer: loaded, the callout closed; one Undo brings the changes back, and there is nothing before them.
+  await paste(JSON.stringify({ id: 'acme', extends: 'cupertino' }));
+  await saved((layer) => layer.extends === 'cupertino' && !layer.palettes && !layer.tokens, 'the pasted layer');
+  assert.equal(await report(page).evaluate((el) => el.open), false);
+  assert.match(await page.locator('[data-status]').textContent(), /Loaded the pasted layer\./);
+  await page.locator('[data-undo]').click();
+  // (A layer the engine refuses is not saved: it is read from the page.)
+  await until(async () => (await page.evaluate(() => window.tanreiStudio.getLayer())).tokens?.['tanrei.sys.space.nope'], 'undone, one step');
+  await page.locator('[data-undo]').click();
+  await saved((layer) => layer.extends === 'tanrei' && layer.palettes?.primary && !layer.tokens, 'and the layer before');
+  assert.equal(await page.evaluate(() => window.tanreiStudio.getState().canUndo), false);
+});
+
 studioTest('390 wide, in Japanese: the start point fits the bar, and its menu speaks the language', { viewport: { width: 390, height: 844 }, locale: 'ja' }, async ({ page, fits, axe }) => {
   assert.equal(await label(page), '開始点: Tanrei');
   await fits('[data-bar]', 'the bar, with the start point');

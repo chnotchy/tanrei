@@ -632,7 +632,6 @@ const en = {
     help: 'Paste any layer that extends a shipped system. Everything in it is editable here: nothing is kept on the side.',
     label: 'Layer JSON',
     apply: 'Load into the Studio',
-    done: 'Layer loaded.',
     invalidJson: 'That is not valid JSON',
   },
   file: {
@@ -664,12 +663,13 @@ const en = {
     file: 'Import a file…',
     fileNote: 'A layer file, <id>.system.json',
     confirm: (name: string) => `Start from ${name}? Your changes to this layer are replaced; Undo brings them back.`,
-    confirmFile: (file: string) => `Load ${file}? Your changes to this layer are replaced; Undo brings them back.`,
+    // What loading a layer says: `file`, the name of the file; none, the layer was pasted (under the file panel).
+    confirmLoad: (file?: string) => `Load ${file ?? 'the pasted layer'}? Your changes to this layer are replaced; Undo brings them back.`,
     started: (name: string) => `Started from ${name}. Undo takes it back.`,
     // What importing a file found, said in the panel.
-    imported: (file: string) => `Loaded ${file}.`,
-    importedProblems: (file: string, count: number) => (count === 1 ? `Loaded ${file}, with 1 problem. tanrei build would refuse it until it is fixed:` : `Loaded ${file}, with ${count} problems. tanrei build would refuse it until they are fixed:`),
-    refused: (file: string) => `${file} was not loaded. The Studio holds a layer that the schema accepts and that extends a system it has:`,
+    imported: (file?: string) => `Loaded ${file ?? 'the pasted layer'}.`,
+    importedProblems: (file: string | undefined, count: number) => (count === 1 ? `Loaded ${file ?? 'the pasted layer'}, with 1 problem. tanrei build would refuse it until it is fixed:` : `Loaded ${file ?? 'the pasted layer'}, with ${count} problems. tanrei build would refuse it until they are fixed:`),
+    refused: (file?: string) => `${file ?? 'The pasted layer'} was not loaded. The Studio holds a layer that the schema accepts and that extends a system it has:`,
   },
   // The standalone app's own bar (app/main.ts), around the Studio.
   frame: {

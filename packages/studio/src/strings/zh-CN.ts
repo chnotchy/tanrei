@@ -606,7 +606,6 @@ const zhCN: Dictionary = {
     help: '粘贴任何扩展了内置系统的层。其中的一切都可以在这里编辑，不会有任何东西被搁在一边。',
     label: '层的 JSON',
     apply: '载入 Studio',
-    done: '层已载入。',
     invalidJson: '这不是有效的 JSON',
   },
   file: {
@@ -635,11 +634,11 @@ const zhCN: Dictionary = {
     file: '导入文件…',
     fileNote: '层文件 <id>.system.json',
     confirm: (name) => `要从 ${name} 开始吗？你对这个层的更改将被替换；撤销可以找回。`,
-    confirmFile: (file) => `要载入 ${file} 吗？你对这个层的更改将被替换；撤销可以找回。`,
+    confirmLoad: (file) => `要载入${file ? ` ${file} ` : '粘贴的层'}吗？你对这个层的更改将被替换；撤销可以找回。`,
     started: (name) => `已从 ${name} 开始。撤销即可还原。`,
-    imported: (file) => `已载入 ${file}。`,
-    importedProblems: (file, count) => `已载入 ${file}，有 ${count} 个问题。修正之前，tanrei build 不会接受它：`,
-    refused: (file) => `${file} 未能载入。Studio 只能载入 schema 接受、并且扩展了它所拥有的系统的层：`,
+    imported: (file) => `已载入${file ? ` ${file}` : '粘贴的层'}。`,
+    importedProblems: (file, count) => `已载入${file ? ` ${file}` : '粘贴的层'}，有 ${count} 个问题。修正之前，tanrei build 不会接受它：`,
+    refused: (file) => `${file ? `${file} ` : '粘贴的层'}未能载入。Studio 只能载入 schema 接受、并且扩展了它所拥有的系统的层：`,
   },
   frame: {
     history: '历史记录',
