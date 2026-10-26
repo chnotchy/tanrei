@@ -8,6 +8,7 @@ import { AnchoredSurfaceController, anchoredSurfaceStyles } from './anchored.js'
 import { focusRing, syncFocusStyle } from './focus-ring.js';
 import type { OpenAxis } from './axes.js';
 import { itemRowStyles, rowTarget } from './item-row.js';
+import { PointerMovedController } from './pointer-moved.js';
 import { PressController, pressHold } from './press.js';
 import { RovingKeys } from './roving.js';
 import { SELECTION_STATES } from './selection.js';
@@ -844,12 +845,15 @@ export class OptionListController implements ReactiveController {
   private pressedOption: OptionData | null = null;
   private revealing = false;
   private readonly press: PressController;
+  /** Whether a `pointermove` moved the pointer, or only came to what scrolled under it (WebKit). */
+  private readonly pointer: PointerMovedController;
 
   constructor(
     private readonly host: Host & { renderRoot: HTMLElement | DocumentFragment },
     private readonly options: OptionListOptions,
   ) {
     host.addController(this);
+    this.pointer = new PointerMovedController(host);
     this.press = new PressController(host, {
       container: () => this.pressedRow,
       holdCarrier: () => this.find('.scroll'),
@@ -1209,9 +1213,12 @@ export class OptionListController implements ReactiveController {
 
   readonly onPointerUp = (event: PointerEvent) => this.press.release(event);
 
-  /** A pointer that moves onto an option makes it the active one, without the focus indicator. */
+  /**
+   * A pointer that moves onto an option makes it the active one, without the focus indicator. A pointer at rest that an
+   * option scrolled under (WebKit says so with a `pointermove` at the same place) did not move: the keys keep theirs.
+   */
   readonly onPointerMove = (event: PointerEvent) => {
-    if (event.pointerType === 'touch') return;
+    if (event.pointerType === 'touch' || !this.pointer.moved(event)) return;
     const hit = this.optionAt(event);
     if (hit && (hit.option.element !== this.activeElement || this.keyboard)) this.makeActive(hit.option, false);
   };
