@@ -47,10 +47,12 @@ export function containWheel(event: WheelEvent, scroller: Element) {
 }
 
 /**
- * `containWheel()` as a listener for the scroller itself (`@wheel=${containedWheel}` in a template): not passive, so
- * that it can cancel.
+ * `containWheel()` as a listener for the scroller itself (`@wheel=${containedWheel}` in a template, or
+ * `addEventListener('wheel', containedWheel, containedWheel)`): not passive, so that it can cancel.
  */
 export const containedWheel = {
   passive: false,
-  handleEvent: (event: WheelEvent) => containWheel(event, event.currentTarget as Element),
+  handleEvent(event: WheelEvent) {
+    containWheel(event, event.currentTarget as Element);
+  },
 };
