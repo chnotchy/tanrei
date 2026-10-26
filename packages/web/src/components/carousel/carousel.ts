@@ -1,7 +1,7 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { exported } from '../../primitives/composed.js';
-import { AvailabilityController, BUTTON_VARIANTS, compChoice, DIRECTION_PROBE, DirectionController, giveVariant, inverseBoolean, PressController, RovingKeys, hostAria, report, slottedInteractive, stoppedBefore, SystemWatchController, syncFocusStyle, WordsController } from '../../primitives/index.js';
+import { AvailabilityController, BUTTON_VARIANTS, compChoice, containWheel, DIRECTION_PROBE, DirectionController, giveVariant, inverseBoolean, PressController, RovingKeys, hostAria, report, slottedInteractive, stoppedBefore, SystemWatchController, syncFocusStyle, WordsController } from '../../primitives/index.js';
 import { TanreiButton } from '../button/button.js';
 import { CarouselGeometry, type TanreiCarouselHeroAlignment } from './carousel-geometry.js';
 import { carouselStyles, itemStyles } from './carousel.styles.js';
@@ -877,13 +877,18 @@ export class TanreiCarousel extends TanreiElement {
     this.scroller?.classList.toggle('held', on);
   }
 
-  /** A wheel or a trackpad takes over from a running settle; Shift with a vertical wheel scrolls the row (CRL-14). */
+  /**
+   * A wheel or a trackpad takes over from a running settle; Shift with a vertical wheel scrolls the row (CRL-14). A
+   * sideways wheel toward an end the row stands at is cancelled, so that it does not reach the page (`containWheel()`).
+   */
   private readonly onWheel = (event: WheelEvent) => {
     this.takeOver();
     if (event.shiftKey && event.deltaX === 0 && event.deltaY !== 0 && event.deltaMode === WheelEvent.DOM_DELTA_PIXEL) {
       event.preventDefault();
       this.scroller?.scrollBy({ left: event.deltaY });
+      return;
     }
+    containWheel(event, event.currentTarget as Element);
   };
 
   /**
