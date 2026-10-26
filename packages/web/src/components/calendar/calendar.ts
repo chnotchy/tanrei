@@ -25,6 +25,7 @@ import {
   compChoice,
   compareDates,
   compareMonths,
+  containedWheel,
   daysInMonth,
   deviceToday,
   fullDateText,
@@ -1758,6 +1759,7 @@ export class TanreiCalendar extends TanreiElement {
           @pointercancel=${this.press.release}
           @pointerleave=${this.press.release}
           @click=${this.onYearsClick}
+          @wheel=${containedWheel}
           @focusin=${this.onCellFocus}
           @focusout=${this.press.onBlur}
           @transitionend=${this.onYearsFaded}

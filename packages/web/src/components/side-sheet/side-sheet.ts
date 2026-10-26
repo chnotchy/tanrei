@@ -12,6 +12,7 @@ import {
   assignSlot,
   closeModal,
   compChoice,
+  containedWheel,
   giveVariant,
   SHEET_FLING_VELOCITY,
   SheetDrag,
@@ -624,7 +625,7 @@ export class TanreiSideSheet extends TanreiElement implements VariantHost {
           </div>`
         : nothing}
       <div class="middle">
-        <div part="content" class=${classMap({ content: true, top: !header, bottom: !this.hasActions })} data-tanrei-shape @scroll=${this.onScroll}>
+        <div part="content" class=${classMap({ content: true, top: !header, bottom: !this.hasActions })} data-tanrei-shape @scroll=${this.onScroll} @wheel=${containedWheel}>
           <div class="inner"><slot @slotchange=${() => this.layout()}></slot></div>
         </div>
         <span class="focus" data-tanrei-shape></span>

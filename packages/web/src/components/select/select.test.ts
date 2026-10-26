@@ -15,6 +15,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
 import { expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { motionEnded } from '../../../test/motions.js';
+import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, withoutIconFont, inputBoxCopies, inputBoxOwn, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
@@ -1080,6 +1081,16 @@ test.describe('behavior: the list', () => {
     // It follows the container's width.
     await host(page, 'stacked-open').evaluate((el) => (el.style.inlineSize = '240px'));
     await expect.poll(async () => Math.round((await box(list)).width)).toBe(240);
+  });
+
+  test('SEL-25: a wheel turned on past the end of a list that scrolls, and turned again after a pause, leaves the page behind where it was and the list open', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 260 });
+    await mount(page, [fx('one', {})]);
+    await container(page, 'one').click();
+    await shownList(page, 'one').toBe(true);
+    await grownIn(page, 'one');
+    await expectWheelKeptFromPage(page, part(page, 'one', '.scroll'), 'block');
+    expect((await read(page, 'one')).open).toBe(true);
   });
 
   test('SEL-26: while the list is open focus stays on the container — it is not moved into the list, nothing is trapped or inert and no scrim is drawn — and a press on an option, on a group title or on the list’s surface does not take it; one option at a time is the active one', async ({ page }) => {

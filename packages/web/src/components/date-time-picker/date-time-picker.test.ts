@@ -9,6 +9,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, pickerWindow, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
 import { type Frames, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
+import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { motionEnded } from '../../../test/motions.js';
 import { releaseClock } from '../../../test/page-clock.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
@@ -1849,6 +1850,18 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     await page.setViewportSize({ width: 320, height: 720 });
     const margin = await resolveToken(page, T('modal-container-margin'));
     await expect.poll(async () => (await bounds(surface(page, 'v'))).width).toBeLessThanOrEqual(320 - 2 * margin + 0.5);
+  });
+
+  test('DTM-36: a wheel turned on past the end of a docked picker’s body that scrolls, and turned again after a pause, leaves the page behind where it was and the picker open', async ({ page }) => {
+    await mount(page, [docked('d', { mode: 'date-time', value: '2026-09-17T19:30', layout: 'vertical' })], { window: { width: 480, height: 420 } });
+    await opener(page, 'd').evaluate((el) => ((el as HTMLElement).style.cssText = 'position: fixed; top: 8px; left: 8px;'));
+    await open(page, 'd');
+    const body = host(page, 'd').locator('.body');
+    await expect.poll(() => body.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
+    // In the body's own padding: over the day grid a wheel moves the month (CAL-33), over a time wheel it turns it.
+    const b = await bounds(body);
+    await expectWheelKeptFromPage(page, body, 'block', { x: b.x + 3, y: b.y + b.height / 2 });
+    expect(await surface(page, 'd').evaluate((el) => el.matches(':popover-open'))).toBe(true);
   });
 
   test('DTM-37: the surface is a (modal) dialog named by label; the entry-mode tabs a tab list with its panel; the period a spin button of two values, not a tab list; the range display a group of two buttons; wheels and selectors are spin buttons, a wheel staying one while a number is typed into it; the dial is hidden; a docked picker’s opener says it opens a dialog and whether it is open', async ({ page }) => {

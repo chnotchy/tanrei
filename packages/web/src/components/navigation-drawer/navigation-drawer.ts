@@ -18,6 +18,7 @@ import {
   delegatedAria, namedByProduct,
   delegatesAria,
   findInteractive,
+  containedWheel,
   holdPageScroll,
   lineArrow,
   linkAttributes,
@@ -3456,7 +3457,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
         <div class=${classMap({ main: true, filled: this.hasMain })}><slot name="main-action" @slotchange=${this.#onMainAction}></slot></div>
       </div>
       ${this.filterField()}
-      <div part="content" class="items" role="list" @scroll=${this.onScroll}>${this.filterLine()}<slot></slot></div>
+      <div part="content" class="items" role="list" @scroll=${this.onScroll} @wheel=${containedWheel}>${this.filterLine()}<slot></slot></div>
       ${this.filterable ? html`<span class="filter-said" role="status" aria-atomic="true">${this.filterSaid}</span>` : nothing}
       <span class="clock"></span>
     `;

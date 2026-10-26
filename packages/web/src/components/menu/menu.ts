@@ -23,6 +23,7 @@ import {
   chordsConverter,
   chordsOf,
   compChoice,
+  containedWheel,
   countWork,
   deepActive,
   documentPainted,
@@ -1166,7 +1167,7 @@ export class TanreiSubmenu extends TanreiMenuRowBase {
     // MNU-24: the submenu's surface is a menu of its own, named by its item's label.
     return html`${this.renderRow()}
       <div part="surface" class="surface" data-tanrei-shape popover="manual" role="menu" aria-label=${this.label || nothing}>
-        <div part="scroll" class="scroll">${blocksTemplate(this.blocks)}</div>
+        <div part="scroll" class="scroll" @wheel=${containedWheel}>${blocksTemplate(this.blocks)}</div>
       </div>
       <div part="surface" class="cap" aria-hidden="true"></div>`;
   }
@@ -2661,7 +2662,7 @@ export class TanreiMenu extends TanreiElement {
   protected override render() {
     return html`
       <div part="surface" class="surface" data-tanrei-shape popover=${this.inline ? nothing : 'manual'} role="none">
-        <div part="scroll" class="scroll">${blocksTemplate(this.blocks)}</div>
+        <div part="scroll" class="scroll" @wheel=${containedWheel}>${blocksTemplate(this.blocks)}</div>
       </div>
       <div part="surface" class="cap" aria-hidden="true"></div>
     `;

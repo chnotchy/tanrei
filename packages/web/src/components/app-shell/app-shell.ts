@@ -9,6 +9,7 @@ import {
   chordPressed,
   chordsOf,
   compChoice,
+  containedWheel,
   deepActive,
   platformConvention,
   readBinding,
@@ -255,6 +256,14 @@ export class TanreiAppShell extends TanreiLightElement {
   private focused: Element | null = null;
   private drawer: Drawer | null = null;
   private navigation: Element | null = null;
+  /**
+   * APS-5, APS-9: the regions that scroll inside their own height beside the main region — the navigation where it is
+   * not a drawer (a drawer keeps its own scroll, NVD-61) and the aside — each holding `containedWheel`, so that a wheel
+   * at the end of one does not scroll the page in Firefox. On the regions themselves, never on the frame: a wheel
+   * listener that can cancel makes every wheel over its element wait for script before the browser scrolls, and the
+   * main region is the page's own scrolling. (With `scroll="main"` the window has nothing to scroll.)
+   */
+  private wheeled: Element[] = [];
   /** The elements the frame gave a role, a name or a tab index, and what it gave: taken back when they leave it. */
   private readonly given = new Map<Element, string[]>();
   private menuStated: Element | null = null;
@@ -296,6 +305,7 @@ export class TanreiAppShell extends TanreiLightElement {
     this.removeEventListener('click', this.onClick);
     this.removeEventListener('focusin', this.onFocusIn);
     this.removeEventListener('focusout', this.onFocusOut);
+    this.holdWheel([]);
     this.focused = null;
     this.style.removeProperty(FOOTER);
     this.unwatch();
@@ -545,12 +555,20 @@ export class TanreiAppShell extends TanreiLightElement {
     }
     this.syncNavigation();
     this.syncChord();
+    this.holdWheel([navigation?.localName === 'tanrei-navigation-drawer' ? null : navigation, aside].filter((region): region is Element => !!region));
 
     // APS-6, APS-18: where the browser answers style queries the stylesheet reads both itself, and nothing is written.
     const queries = styleQueries();
     mark(this, 'data-separation', queries ? null : compChoice(this, '--_aps-separation', SEPARATIONS));
     mark(this, 'data-menu', queries ? null : this.menuShown ? 'shown' : 'hidden');
     this.stateMenu();
+  }
+
+  /** APS-5, APS-9: `containedWheel` on exactly these regions. */
+  private holdWheel(regions: Element[]) {
+    for (const region of this.wheeled) if (!regions.includes(region)) region.removeEventListener('wheel', containedWheel);
+    for (const region of regions) if (!this.wheeled.includes(region)) region.addEventListener('wheel', containedWheel, containedWheel);
+    this.wheeled = regions;
   }
 
   // ---- APS-17: the scroll offset ----

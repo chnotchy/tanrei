@@ -1,7 +1,7 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { delegatedAria, delegatesAria, namedByProduct } from '../../primitives/delegated-aria.js';
 import { classMap } from 'lit/directives/class-map.js';
-import { AvailabilityController, GlyphDrawnController, PressController, report, styleQueries, syncFocusStyle } from '../../primitives/index.js';
+import { AvailabilityController, GlyphDrawnController, PressController, containedWheel, report, styleQueries, syncFocusStyle } from '../../primitives/index.js';
 import { LINK_KEYS } from '../../primitives/link.js';
 import { debugBuild } from '../../primitives/report.js';
 import type { TanreiTableOfContentsDensityRegistry } from '../../registry.js';
@@ -978,7 +978,7 @@ export class TanreiTableOfContents extends TanreiElement {
           : this.labelHidden || !titled
             ? nothing
             : html`<div part="title" class="title"><slot name="title"><span aria-hidden="true">${label}</span></slot></div>`}
-        <div part="list" id="list" class="scroller" ?inert=${compact && !open}>
+        <div part="list" id="list" class="scroller" ?inert=${compact && !open} @wheel=${containedWheel}>
           <div class="clip"><div class="inner"><slot></slot></div></div>
         </div>
       </nav>
