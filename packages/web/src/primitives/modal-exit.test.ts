@@ -159,6 +159,43 @@ for (const surface of SURFACES) {
       expect(moved.map((frame) => frame.index), 'nothing slides').toEqual([]);
     });
 
+    test(`MDL-7, MOT-1: opened at the end of a task that outlasts its entrance, the ${surface.name}${surface.scrim ? ' and its scrim move' : ' moves'} in from the first frame drawn after that task`, async ({ page }) => {
+      // WebKit dates a transition begun in a task from the frame drawn before it, which stands still while the task
+      // runs: a surface and a scrim opened at the end of a task longer than their entrance were drawn whole in the first
+      // frame after it (a modal date-time picker, its calendar rendered in the task that opens it, on a loaded runner).
+      // The task here is held for longer than the entrance, and that frame is read in its frame callback, as drawn.
+      await page.emulateMedia({ reducedMotion: 'no-preference' });
+      const host = await mount(page, surface);
+      await page.locator(`#${await openerOf(host)}`).focus();
+      const read = (dialog: HTMLDialogElement) => {
+        const style = getComputedStyle(dialog);
+        return { opacity: Number(style.opacity), translate: style.translate, scrim: Number(getComputedStyle(dialog, '::backdrop').opacity) };
+      };
+      const first = await host.evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }, source) => {
+        el.open = true;
+        await el.updateComplete;
+        const dialog = el.shadowRoot!.querySelector('dialog')!;
+        const motions = () => dialog.getAnimations({ subtree: true }).filter((animation) => (animation.effect as KeyframeEffect).target === dialog);
+        const entrance = Math.max(0, ...motions().map((animation) => Number(animation.effect!.getComputedTiming().endTime)));
+        const end = performance.now() + entrance + 200;
+        while (performance.now() < end);
+        const shown = (0, eval)(`(${source})`) as (dialog: HTMLDialogElement) => Record<string, number | string>;
+        return new Promise<{ entrance: number; shown: Record<string, number | string>; at: string[] }>((resolve) =>
+          requestAnimationFrame(() =>
+            resolve({ entrance, shown: shown(dialog), at: motions().map((animation) => `${(animation as CSSTransition).transitionProperty}${(animation.effect as KeyframeEffect).pseudoElement !== null ? ' (scrim)' : ''} at ${Math.round(Number(animation.currentTime))} ms`) }),
+          ),
+        );
+      }, read.toString());
+      expect(first.entrance, 'its entrance takes time').toBeGreaterThan(0);
+      expect(first.at.length, 'it moves in').toBeGreaterThan(0);
+      expect(first.at.filter((motion) => !motion.endsWith(' at 0 ms')), 'in the first frame after the task every motion of the surface and its scrim stands at its start').toEqual([]);
+      if (surface.scrim) expect(first.shown.scrim, 'the scrim is clear in that frame').toBe(0);
+      await motionEnded(host);
+      const rest = await host.evaluate((el, source) => ((0, eval)(`(${source})`) as (dialog: HTMLDialogElement) => Record<string, number | string>)(el.shadowRoot!.querySelector('dialog')!), read.toString());
+      expect(first.shown, 'and the surface is drawn where its entrance starts, not where it ends').not.toEqual(rest);
+      if (surface.scrim) expect(rest.scrim, 'the scrim has faded in at rest').toBe(1);
+    });
+
     test(`MOT-2: opened again while it leaves, the ${surface.name} goes back from what it shows, modal again`, async ({ page }) => {
       await page.emulateMedia({ reducedMotion: 'no-preference' });
       const host = await mount(page, surface);
