@@ -2,7 +2,7 @@
 title: Popover
 description: Muestra contenido que una persona puede leer y manejar en una superficie pequeña que se abre junto al control que pulsó y se queda con él, sin oscurecer ni bloquear el resto de la página; en una ventana compacta, en una superficie modal con el aspecto de la hoja inferior.
 translationOf: components/popover.mdx
-sourceHash: cd2056332ef89bbba2c92da6cb340178ef7a87c7
+sourceHash: 8ea783c257033a8837af0d1dc60f033602666320
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -193,6 +193,19 @@ Aquí los menús no son popovers: un menú, la lista de un select o de un combob
 2. Si es una lista de comandos o de opciones, es un menú.
 3. Si la persona no puede continuar sin responder, es un diálogo.
 4. En cualquier otro caso es un popover.
+
+### Un toggletip
+
+Un toggletip es una nota breve detrás de un pequeño botón de información, junto a lo que explica. No es un componente propio: es un botón que abre un popover. Úsalo donde un tooltip no basta, porque la nota tiene un enlace o se tiene que poder abrir con el tacto, y limítalo a una o dos frases.
+
+- **El botón.** Un botón de solo icono, `variant="text"` y `size="small"`, cuyo `label` dice de qué trata la nota («Sobre el almacenamiento») y no «Información». Una pulsación abre el popover y otra lo cierra; el popover nombra el botón como su `anchor`.
+- **El popover.** Dale nombre con `label`, o con `headline` donde dibuje un título. Como todo popover, recibe el foco al abrirse y se lo devuelve al botón al cerrarse, y Escape y una pulsación fuera lo cierran.
+- **No en lugar de la página.** Lo que hay que leer antes de seguir va en el texto de ayuda del campo o en la propia página, donde nadie tenga que pedirlo.
+
+<Example label="Un toggletip: pulsa el botón de información">
+  <tanrei-button id="popover-demo-toggletip-opener" variant="text" size="small" label="Sobre el almacenamiento" onclick="document.getElementById('popover-demo-toggletip').open = !document.getElementById('popover-demo-toggletip').open"><span slot="icon">info</span></tanrei-button>
+  <tanrei-popover id="popover-demo-toggletip" anchor="popover-demo-toggletip-opener" label="Sobre el almacenamiento" arrow onclose="this.open = false">Los archivos de la papelera cuentan en tu almacenamiento hasta que se eliminan. <a class="tanrei-link" href="#guidelines">Cómo se cuenta el almacenamiento</a></tanrei-popover>
+</Example>
 
 ### Recomendado
 
