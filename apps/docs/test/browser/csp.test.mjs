@@ -1,7 +1,8 @@
 // The site's content security policy, enforced as the host sends it: the header of public/_headers on every page and the
 // page's own policy the build writes into it (src/lib/csp.mjs). The pages a reader opens raise no violation — their
 // inline scripts and the demos' event handlers run, the search loads its index (WebAssembly), Theme Studio rebuilds a
-// system — and a script the page does not hold by its hash is refused.
+// system, the fixtures' windows draw — and a script the page does not hold by its hash is refused, in a window's
+// document too (it keeps the page's policy).
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //   DOCS_ENGINES=chromium,firefox,webkit node --test test/browser/csp.test.mjs   # in each engine
@@ -90,7 +91,7 @@ for (const engine of ENGINES) {
       return { page, refused };
     }
 
-    for (const address of ['/', '/ja/', '/ar/components/button/', '/components/table/', '/components/file-item/', '/fixtures/chat-composer/', '/404.html']) {
+    for (const address of ['/', '/ja/', '/ar/components/button/', '/components/table/', '/components/file-item/', '/components/chat-composer/', '/404.html']) {
       test(`${address} raises no violation`, async () => {
         const { page, refused } = await open(address);
         try {
@@ -101,6 +102,28 @@ for (const engine of ENGINES) {
         }
       });
     }
+
+    test('a window’s document keeps the page’s policy: its module runs, and an inline script is refused', async () => {
+      const { page, refused } = await open('/components/dialog/');
+      try {
+        const frame = page.locator('iframe.docs-window-frame').first();
+        await frame.scrollIntoViewIfNeeded();
+        await page.waitForFunction((element) => element.contentWindow?.customElements.get('tanrei-dialog') && element.contentDocument.querySelector('body > .stages > .stage'), await frame.elementHandle(), { timeout: 15_000 });
+        assert.deepEqual(refused, [], 'the window draws without a violation');
+        const ran = await frame.evaluate(async (element) => {
+          const view = element.contentWindow;
+          view.__ran = [];
+          const script = view.document.createElement('script');
+          script.textContent = 'window.__ran.push("script")';
+          view.document.body.append(script);
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          return view.__ran;
+        });
+        assert.deepEqual(ran, []);
+      } finally {
+        await page.close();
+      }
+    });
 
     test('a demo’s event handler runs (it is held by its hash)', async () => {
       const { page, refused } = await open('/components/callout/');

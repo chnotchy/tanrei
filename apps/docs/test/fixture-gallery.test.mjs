@@ -7,7 +7,7 @@ import { register } from 'node:module';
 import { describe, test } from 'node:test';
 
 register('./vite-shim.mjs', import.meta.url);
-const { galleryOf, groupingAxis, presented, stageOf, windowOf, fixtureWindowHref, stagesScript, stagingStyle, stepScript } = await import('../src/lib/fixture-gallery.ts');
+const { closed, drawnInPlace, galleryOf, groupingAxis, presented, stageOf, windowOf, stagesScript, stagingStyle, stepScript, windowScript } = await import('../src/lib/fixture-gallery.ts');
 const { fixtureDocument } = await import('../src/lib/fixture-documents.ts');
 const { specs } = await import('../src/lib/repo.ts');
 const { tanreiContent } = await import('../src/lib/markdown-content.mjs');
@@ -42,13 +42,14 @@ describe('the gallery of fixtures', () => {
     assert.equal(galleryOf(specs.dialog).length, 1);
   });
 
-  test('an inline stage draws the stage of the web package’s document, at its baseline’s size', () => {
+  test('a stage in the page draws the stage of the web package’s document, at its baseline’s size; an opener’s closed', () => {
     for (const spec of implemented) {
       const document = fixtureDocument(spec.name);
       for (const fixture of spec.fixtures) {
         const stage = stageOf(spec, fixture);
-        if (stage.kind !== 'inline') continue;
-        assert.equal(stage.html, document.stages.find((each) => each.id === fixture.id).html, `${spec.name}/${fixture.id}`);
+        if (stage.kind === 'window') continue;
+        const html = document.stages.find((each) => each.id === fixture.id).html;
+        assert.equal(stage.html, stage.kind === 'opener' ? closed(spec, html, stage.presence) : html, `${spec.name}/${fixture.id}`);
         assert.deepEqual(stage.reserve, document.sizes[fixture.id], `${spec.name}/${fixture.id}`);
       }
     }
@@ -59,20 +60,46 @@ describe('the gallery of fixtures', () => {
     }
   });
 
-  test('a presented fixture, a whole page’s frame and a stage the size of the window are drawn alone in a window; every other one in the page', () => {
+  test('a presented fixture is drawn in the page where its document draws it in place, closed with an opener where its surface stands beside its anchor in the top layer, and alone in a window where it is modal', () => {
+    const kinds = {};
     for (const spec of implemented) {
-      const { page, windowed } = fixtureDocument(spec.name);
+      const { page, windowed, stages } = fixtureDocument(spec.name);
       for (const fixture of spec.fixtures) {
         const stage = stageOf(spec, fixture);
-        assert.equal(stage.kind, page || windowed.includes(fixture.id) || presented(spec, fixture) ? 'window' : 'inline', `${spec.name}/${fixture.id}`);
+        const html = stages.find((each) => each.id === fixture.id).html;
+        // A whole page's frame and a stage the size of the window are drawn in a window; what is not presented, or is
+        // drawn in place, in the page.
+        if (page || windowed.includes(fixture.id)) assert.equal(stage.kind, 'window', `${spec.name}/${fixture.id}`);
+        else if (!presented(spec, fixture) || drawnInPlace(spec, html)) assert.equal(stage.kind, 'inline', `${spec.name}/${fixture.id}`);
+        else (kinds[`${spec.name} ${stage.kind}`] ??= []).push(fixture.id);
         if (stage.kind === 'window') assert.ok(stage.window.width >= 40 && stage.window.height >= 40, `${spec.name}/${fixture.id}`);
       }
+    }
+    // Every presented fixture not drawn in place, by component and how it is shown.
+    assert.deepEqual(Object.keys(kinds).sort(), [
+      'bottom-sheet inline', 'bottom-sheet window', 'button-with-menu opener', 'date-time-picker window', 'dialog window', 'image-preview window', 'modal-layer window', 'navigation-drawer inline', 'navigation-drawer window', 'popover window', 'side-sheet inline', 'side-sheet window', 'snackbar inline', 'table-of-contents inline', 'tooltip opener',
+    ]);
+    // A drawer, a sheet: modal in a window, standard in the page.
+    assert.deepEqual(kinds['navigation-drawer window'].sort(), ['modal', 'modal-collapsible-open']);
+    assert.ok(kinds['side-sheet inline'].includes('standard') && kinds['side-sheet window'].includes('modal'));
+    // An anchored surface its document draws in place is in the page: an open menu, a select's list, a popover beside its anchor.
+    for (const [name, id] of [['menu', 'actions'], ['select', 'stacked-open'], ['popover', 'basic'], ['fab-menu', 'filled-open'], ['date-time-picker', 'docked-date']]) {
+      assert.equal(stageOf(specs[name], specs[name].fixtures.find((f) => f.id === id)).kind, 'inline', `${name}/${id}`);
     }
     assert.equal(stageOf(specs['app-shell'], specs['app-shell'].fixtures[0]).kind, 'window');
     // A responsive drawer's stage is as wide as the window (`inline-size: 100vw`): it is drawn in one.
     assert.deepEqual(fixtureDocument('navigation-drawer').windowed.sort(), ['responsive-medium', 'responsive-narrow', 'responsive-wide']);
     assert.equal(presented(specs.dialog, specs.dialog.fixtures[0]), true);
     assert.equal(presented(specs.button, specs.button.fixtures[0]), false);
+  });
+
+  test('an opener’s stage is its fixture closed, and names the attribute that presents it', () => {
+    const tooltip = stageOf(specs.tooltip, specs.tooltip.fixtures.find((f) => f.id === 'plain'));
+    assert.equal(tooltip.kind, 'opener');
+    assert.equal(tooltip.presence, 'open');
+    assert.doesNotMatch(tooltip.html, /<tanrei-tooltip[^>]*\sopen[\s>]/);
+    assert.match(tooltip.markup, /^<tanrei-tooltip[^>]*\sopen[\s>]/, 'the code a reader copies is the fixture as it is written: open');
+    assert.throws(() => closed(specs.tooltip, '<div class="stage"><tanrei-tooltip text="x"></tanrei-tooltip></div>', 'open'), /without the attribute open/);
   });
 
   test('a window without a baseline is the one the web harness draws the fixture in', () => {
@@ -95,10 +122,6 @@ describe('the gallery of fixtures', () => {
     assert.match(stageOf(specs.dialog, specs.dialog.fixtures[0]).markup, /^<tanrei-dialog[^>]* open[\s>]/);
   });
 
-  test('a window’s document is addressed with its fixture’s id', () => {
-    assert.equal(fixtureWindowHref('dialog', 'basic'), '/fixtures/dialog/?id=basic');
-    assert.equal(fixtureWindowHref('menu', 'a b&c'), '/fixtures/menu/?id=a+b%26c');
-  });
 });
 
 describe('what the gallery writes into the page', () => {
@@ -109,7 +132,17 @@ describe('what the gallery writes into the page', () => {
       assert.equal(tanreiContent(script, words), script, spec.name);
       assert.doesNotMatch(script.slice(script.indexOf('>') + 1, script.lastIndexOf('</script>')), /</, spec.name);
       const read = JSON.parse(script.slice(script.indexOf('>') + 1, script.lastIndexOf('</script>')));
-      for (const stage of groups.flatMap((group) => group.stages).filter((each) => each.kind === 'inline')) assert.equal(read[stage.id], stage.html, `${spec.name}/${stage.id}`);
+      for (const stage of groups.flatMap((group) => group.stages).filter((each) => each.drawn)) assert.equal(read[stage.id], stage.html, `${spec.name}/${stage.id}`);
+    }
+  });
+
+  test('what a window writes into its document besides its stage is data the rewriting leaves as it is', () => {
+    for (const spec of implemented) {
+      const document = fixtureDocument(spec.name);
+      const script = windowScript(document);
+      assert.equal(tanreiContent(script, words), script, spec.name);
+      const read = JSON.parse(script.slice(script.indexOf('>') + 1, script.lastIndexOf('</script>')));
+      assert.deepEqual(read, { staging: document.staging, page: document.page }, spec.name);
     }
   });
 

@@ -184,12 +184,11 @@ export default defineConfig({
       ],
     }),
     // The sitemap, with Starlight's languages as Starlight configures its own (which it leaves out once the site has
-    // one): every page but the documents the fixtures' windows draw (src/pages/fixtures/), which are no reader's page.
+    // one): every page.
     // Each page says when it last changed (`lastmod`, from git; never the time of the build): the date its head prints.
     lastmod.integration,
     sitemap({
       i18n: { defaultLocale: 'root', locales: Object.fromEntries(Object.entries(starlightLocales).map(([locale, { lang }]) => [locale, lang])) },
-      filter: (page) => !new URL(page).pathname.startsWith('/fixtures/'),
       serialize: (item) => {
         const date = lastmod.of(item.url);
         return date ? { ...item, lastmod: date } : item;
