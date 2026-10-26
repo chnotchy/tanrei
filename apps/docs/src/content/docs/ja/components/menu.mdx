@@ -2,7 +2,7 @@
 title: メニュー
 description: 呼び出した要素から開く一時的なサーフェスに、少数のアクションや選択肢を並べて見せます。
 translationOf: components/menu.mdx
-sourceHash: 0341afebeabc8702ad394d02405a1d0b83eddc75
+sourceHash: c81574dec501c17c414ebc0bbbc0b4e5090cf4fb
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## 概要
 
@@ -494,6 +495,28 @@ import Example from '../../../../components/visuals/Example.astro';
 誰がメニューを閉じるかはプラットフォームの流儀に従います。Web と React Native では、閉じるイベントを受けて `open`（`visible`）を false に戻します。Compose では、`TanreiMenuCloseReason` を受け取る `onDismissRequest` で `expanded` を false にします。Flutter では、メニューが理由を添えて `onClose` を呼び、コントローラーを通じて自分で閉じます。SwiftUI では、メニューが `isPresented` に `false` を書き込むので、理由は伝わりません。
 
 外側を押したとき、その下にある要素にも押下が届くかどうかも、プラットフォームによって違います。Web と Flutter では届きます。SwiftUI、Compose、React Native では、メニューが閉じるだけです。
+
+### 見比べる
+
+<DoDont do="menu/destructive-last" dont="menu/destructive-first">
+  <Fragment slot="doCaption">destructive なアクションは最後に置き、専用のグループで区切ります。勢い余ったポインターがそこに落ちないように。</Fragment>
+  <Fragment slot="dontCaption">削除を、よく使うアクションに混ぜて先頭に置かない。急いだ押下が最も当たりやすい項目になります。</Fragment>
+</DoDont>
+
+<DoDont do="menu/radio-in-group" dont="menu/radio-outside-group">
+  <Fragment slot="doCaption">1 つの問いのラジオ項目は、その問いをタイトルにしたグループにまとめ、グループの `value` でチェックされた項目を示します。</Fragment>
+  <Fragment slot="dontCaption">ラジオ項目をグループの外に置かない。値を持つものがないので、どれもチェックされず、デバッグビルドが報告します。</Fragment>
+</DoDont>
+
+<DoDont do="menu/one-action-button" dont="menu/menu-of-one">
+  <Fragment slot="doCaption">アクションが 1 つだけなら、見える場所にボタンとして置きます。</Fragment>
+  <Fragment slot="dontCaption">項目が 1 つだけのメニューを作らない。アクションを 1 回の押下の向こうに隠すだけで、得るものがありません。</Fragment>
+</DoDont>
+
+<DoDont do="menu/submenu-chevron" dont="menu/chevron-on-action">
+  <Fragment slot="doCaption">シェブロンはサブメニュー項目に描かせます。ここで次の階層が開くことを示す印です。</Fragment>
+  <Fragment slot="dontCaption">アクションに末尾の `chevron_right` を付けない。サブメニューに見え、ありもしない次の階層を期待させます。</Fragment>
+</DoDont>
 
 ### 推奨
 

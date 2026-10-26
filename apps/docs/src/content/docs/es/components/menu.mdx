@@ -2,7 +2,7 @@
 title: Menú
 description: Un conjunto corto de acciones u opciones en una superficie temporal que se abre desde el elemento que lo pidió.
 translationOf: components/menu.mdx
-sourceHash: 0341afebeabc8702ad394d02405a1d0b83eddc75
+sourceHash: c81574dec501c17c414ebc0bbbc0b4e5090cf4fb
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## Descripción general
 
@@ -494,6 +495,28 @@ Un menú es una superposición que la persona maneja y que no es modal. Las pers
 Quién cierra el menú depende de la plataforma. En la web y en React Native, vuelves a poner `open` (`visible`) en false desde el evento de cierre. En Compose, pones `expanded` en false desde `onDismissRequest`, que lleva un `TanreiMenuCloseReason`. En Flutter, el menú llama a `onClose` con el motivo y se cierra solo mediante su controlador. En SwiftUI, el menú escribe `false` en `isPresented`, así que el motivo no se transmite.
 
 También depende de la plataforma que una pulsación fuera llegue además a lo que hay debajo. En la web y en Flutter llega. En SwiftUI, Compose y React Native la pulsación solo cierra el menú.
+
+### Lado a lado
+
+<DoDont do="menu/destructive-last" dont="menu/destructive-first">
+  <Fragment slot="doCaption">Pon una acción destructiva al final, separada en un grupo propio, donde un puntero que se pasa de largo no caiga en ella.</Fragment>
+  <Fragment slot="dontCaption">No pongas Eliminar en primer lugar, entre las acciones que más se usan. Es el elemento que una pulsación apresurada tiene más probabilidades de alcanzar.</Fragment>
+</DoDont>
+
+<DoDont do="menu/radio-in-group" dont="menu/radio-outside-group">
+  <Fragment slot="doCaption">Reúne los elementos de opción de una misma pregunta en un grupo cuyo título la formule, con el `value` del grupo nombrando el marcado.</Fragment>
+  <Fragment slot="dontCaption">No dejes elementos de opción fuera de un grupo. Nada guarda su valor, así que ninguno queda marcado nunca, y una compilación de depuración lo informa.</Fragment>
+</DoDont>
+
+<DoDont do="menu/one-action-button" dont="menu/menu-of-one">
+  <Fragment slot="doCaption">Muestra una sola acción como un botón, donde se pueda ver.</Fragment>
+  <Fragment slot="dontCaption">No hagas un menú de un solo elemento. Esconde la acción detrás de una pulsación y no da nada a cambio.</Fragment>
+</DoDont>
+
+<DoDont do="menu/submenu-chevron" dont="menu/chevron-on-action">
+  <Fragment slot="doCaption">Deja que un elemento de submenú dibuje su propio chevron. Es la marca que dice que aquí se abre otro nivel.</Fragment>
+  <Fragment slot="dontCaption">No des a una acción un `chevron_right` al final. Parece un submenú, y se espera un nivel que no existe.</Fragment>
+</DoDont>
 
 ### Recomendado
 

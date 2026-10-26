@@ -37,7 +37,10 @@ import type { Hydrate } from '../../lib/visuals/frame';
 type Length = string | string[];
 
 interface Props {
-  /** The frame's title, in its header: words of the page's language. */
+  /**
+   * The frame's title, in its header: words of the page's language. A page may draw the title itself in the `title`
+   * slot (a verdict's glyph beside its word, components/visuals/DoDont.astro); `label` still gives its words.
+   */
   label?: string;
   /** The title is a name of the repository's, set as code (a fixture's id). */
   titleCode?: boolean;
@@ -172,7 +175,7 @@ const SNAPSHOT = '(window.docsExampleSources ??= new WeakMap()).set(document.cur
   <figure aria-labelledby={`${id}-title`} aria-describedby={describedByIds}>
     <div data-part="frame">
       <header>
-        <p data-part="title" id={`${id}-title`} data-tanrei-code={titleCode ? 'plain' : undefined}>{titleCode ? <code>{title}</code> : title}</p>
+        <p data-part="title" id={`${id}-title`} data-tanrei-code={titleCode ? 'plain' : undefined}>{Astro.slots.has('title') ? <slot name="title" /> : titleCode ? <code>{title}</code> : title}</p>
         {
           count > 0 && (
             <div data-part="actions" data-pagefind-ignore data-example-actions={count} data-example-offers={[rtl && 'direction', code && 'code'].filter(Boolean).join(' ')}>

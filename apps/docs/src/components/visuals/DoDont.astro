@@ -1,0 +1,116 @@
+---
+// A Do and a Don't side by side (a Caution beside them where the guidance has one): each is the one frame,
+// `<Example>`, whose stage draws a shared example (`src/examples/<component>/<id>.html`, lib/examples.ts) in the page's
+// words, and whose caption is the page's own sentence, written in each language's MDX:
+//
+//   <DoDont do="button/form-delete-text" dont="button/form-delete-filled">
+//     <Fragment slot="doCaption">In a form, make Delete a text button …</Fragment>
+//     <Fragment slot="dontCaption">Don't set a filled destructive button beside …</Fragment>
+//   </DoDont>
+//
+// A caption's slot is the verdict's name and `Caption` (`doCaption`, `dontCaption`, `cautionCaption`), never the
+// verdict's own name: MDX hands a slot to a component as the prop of that name, which would take the example's id.
+// - **The verdict is a word, a glyph and a color**, never the color alone: the frame's title is the dictionary's word
+//   (`visuals.do`, `visuals.dont`, `visuals.caution`) after the glyph of its status, both in the status's color role.
+//   The title names the frame, and the caption describes it.
+// - **What the stage draws is a picture.** It is `inert` and hidden from assistive technology, so that a Don't that
+//   shows a mistake of accessibility (an icon button without a name) is not one of the page's, and Tab does not pass
+//   through a row of samples; the caption says in words what it shows. Its code is offered as every example's is.
+// - **Two columns where the column is wide enough for both**, one under the other where it is not.
+import Example from './Example.astro';
+import { exampleMarkup, EXAMPLE_ID } from '../../lib/examples';
+import { contentLang, strings } from '../../lib/i18n';
+
+type Verdict = 'do' | 'dont' | 'caution';
+
+interface Props {
+  /** The example the Do draws, by its id (`button/form-delete-text`). */
+  do?: string;
+  /** The example the Don't draws. */
+  dont?: string;
+  /** The example a Caution draws: what is allowed but needs care. */
+  caution?: string;
+  /** Lay what each stage holds out in a column (a form's fields, a slider and its label). */
+  column?: boolean;
+}
+const { column = false, ...ids } = Astro.props;
+const lang = contentLang(Astro);
+const t = strings(lang);
+
+const files = import.meta.glob<string>('../../examples/*/*.html', { query: '?raw', import: 'default', eager: true });
+/** An example's text by its id, read from its file. */
+const textOf = (id: string): string => {
+  if (!EXAMPLE_ID.test(id)) throw new Error(`DoDont: "${id}" is not an example id (<component>/<name>)`);
+  const text = files[`../../examples/${id}.html`];
+  if (text === undefined) throw new Error(`DoDont: no example src/examples/${id}.html`);
+  return text;
+};
+
+/** The glyph of each verdict, beside its word. */
+const VERDICT_ICONS: Record<Verdict, string> = { do: 'check_circle', dont: 'cancel', caution: 'warning' };
+const ORDER: Verdict[] = ['do', 'dont', 'caution'];
+const cells = await Promise.all(
+  ORDER.filter((verdict) => ids[verdict]).map(async (verdict) => {
+    const id = ids[verdict]!;
+    const slot = `${verdict}Caption`;
+    if (!Astro.slots.has(slot)) throw new Error(`DoDont: ${id} has no caption (the slot "${slot}")`);
+    return { verdict, id, markup: exampleMarkup(id, textOf(id), lang), caption: await Astro.slots.render(slot) };
+  }),
+);
+if (cells.length < 2) throw new Error(`DoDont: a pair is at least two examples (do, dont, caution); given ${Object.keys(Astro.props).join(', ') || 'none'}`);
+---
+
+<div class="docs-do-dont" data-do-dont>
+  {
+    cells.map(({ verdict, id, markup, caption }) => (
+      <Example
+        label={t.visuals[verdict]}
+        column={column}
+        rtl={false}
+        resize={false}
+        class="docs-do-dont-cell"
+        data-verdict={verdict}
+        data-example-id={id}
+        stageAttributes={{ inert: 'inert', 'aria-hidden': 'true' }}
+      >
+        <span slot="title" class="docs-do-dont-verdict">
+          <span class="tanrei-icon" aria-hidden="true" data-pagefind-ignore>
+            {VERDICT_ICONS[verdict]}
+          </span>
+          {t.visuals[verdict]}
+        </span>
+        <Fragment set:html={markup} />
+        <Fragment slot="caption" set:html={caption} />
+      </Example>
+    ))
+  }
+</div>
+
+<style>
+  /* Side by side while each frame has a reading column's room (18rem), one under the other below that. */
+  .docs-do-dont {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: var(--tanrei-sys-space-space300);
+    margin-block: var(--tanrei-sys-space-space400);
+  }
+  /* A frame of a pair takes its cell: no margin of its own, and never wider than the cell. */
+  .docs-do-dont > :global(.docs-do-dont-cell) {
+    margin: 0;
+    min-inline-size: 0;
+  }
+  .docs-do-dont-verdict {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--tanrei-sys-space-space100);
+  }
+  :global(.docs-do-dont-cell[data-verdict='do']) .docs-do-dont-verdict {
+    color: var(--tanrei-sys-color-success);
+  }
+  :global(.docs-do-dont-cell[data-verdict='dont']) .docs-do-dont-verdict {
+    color: var(--tanrei-sys-color-error);
+  }
+  :global(.docs-do-dont-cell[data-verdict='caution']) .docs-do-dont-verdict {
+    color: var(--tanrei-sys-color-warning);
+  }
+</style>
