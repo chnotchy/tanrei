@@ -608,7 +608,6 @@ const es: Dictionary = {
     help: 'Pega cualquier capa que extienda un sistema incluido. Todo lo que contiene se puede editar aquí: no queda nada al margen.',
     label: 'JSON de la capa',
     apply: 'Cargar en el Studio',
-    done: 'Capa cargada.',
     invalidJson: 'No es JSON válido',
   },
   file: {
@@ -637,11 +636,15 @@ const es: Dictionary = {
     file: 'Importar un archivo…',
     fileNote: 'Un archivo de capa, <id>.system.json',
     confirm: (name) => `¿Empezar desde ${name}? Tus cambios en esta capa se reemplazan; Deshacer los recupera.`,
-    confirmFile: (file) => `¿Cargar ${file}? Tus cambios en esta capa se reemplazan; Deshacer los recupera.`,
+    confirmLoad: (file) => `¿Cargar ${file ?? 'la capa pegada'}? Tus cambios en esta capa se reemplazan; Deshacer los recupera.`,
     started: (name) => `Empezaste desde ${name}. Deshacer lo revierte.`,
-    imported: (file) => `${file} cargado.`,
-    importedProblems: (file, count) => (count === 1 ? `${file} cargado, con 1 problema. tanrei build lo rechazará hasta que se corrija:` : `${file} cargado, con ${count} problemas. tanrei build lo rechazará hasta que se corrijan:`),
-    refused: (file) => `No se cargó ${file}. El Studio admite una capa que el esquema acepta y que extiende un sistema que tiene:`,
+    imported: (file) => (file ? `${file} cargado.` : 'Capa pegada cargada.'),
+    importedProblems: (file, count) => {
+      const loaded = file ? `${file} cargado` : 'Capa pegada cargada';
+      const it = file ? 'lo' : 'la';
+      return count === 1 ? `${loaded}, con 1 problema. tanrei build ${it} rechazará hasta que se corrija:` : `${loaded}, con ${count} problemas. tanrei build ${it} rechazará hasta que se corrijan:`;
+    },
+    refused: (file) => `No se cargó ${file ?? 'la capa pegada'}. El Studio admite una capa que el esquema acepta y que extiende un sistema que tiene:`,
   },
   frame: {
     history: 'Historial',

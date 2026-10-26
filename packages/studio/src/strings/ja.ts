@@ -600,7 +600,6 @@ const ja: Dictionary = {
     help: '出荷済みシステムを継承するレイヤーなら何でも貼り付けられます。中身はすべてここで編集でき、別枠で保持されるものはありません。',
     label: 'レイヤーの JSON',
     apply: 'Studio に読み込む',
-    done: 'レイヤーを読み込みました。',
     invalidJson: '有効な JSON ではありません',
   },
   file: {
@@ -629,11 +628,11 @@ const ja: Dictionary = {
     file: 'ファイルを読み込む…',
     fileNote: 'レイヤーのファイル（<id>.system.json）',
     confirm: (name) => `${name} から始めますか？ このレイヤーへの変更は置き換わります。元に戻すで取り戻せます。`,
-    confirmFile: (file) => `${file} を読み込みますか？ このレイヤーへの変更は置き換わります。元に戻すで取り戻せます。`,
+    confirmLoad: (file) => `${file ? `${file} を` : '貼り付けたレイヤーを'}読み込みますか？ このレイヤーへの変更は置き換わります。元に戻すで取り戻せます。`,
     started: (name) => `${name} から始めました。元に戻すで取り消せます。`,
-    imported: (file) => `${file} を読み込みました。`,
-    importedProblems: (file, count) => `${file} を読み込みました。問題が ${count} 件あり、直すまで tanrei build はこのファイルを受け付けません。`,
-    refused: (file) => `${file} は読み込めませんでした。Studio が扱えるのは、スキーマが受け付け、Studio にあるシステムを継承するレイヤーです。`,
+    imported: (file) => `${file ? `${file} を` : '貼り付けたレイヤーを'}読み込みました。`,
+    importedProblems: (file, count) => `${file ? `${file} を` : '貼り付けたレイヤーを'}読み込みました。問題が ${count} 件あり、直すまで tanrei build はこの${file ? 'ファイル' : 'レイヤー'}を受け付けません。`,
+    refused: (file) => `${file ? `${file} は` : '貼り付けたレイヤーは'}読み込めませんでした。Studio が扱えるのは、スキーマが受け付け、Studio にあるシステムを継承するレイヤーです。`,
   },
   frame: {
     history: '履歴',
