@@ -1,5 +1,5 @@
 // The gallery's stages draw in the page's scheme and contrast, and follow every change of them: the color scheme
-// chosen in the header's appearance menu reaches a stage in the page (a preset's scope, which inherits the page's scheme as any subtree does) and a
+// chosen in the header's Appearance panel reaches a stage in the page (a preset's scope, which inherits the page's scheme as any subtree does) and a
 // stage's window (a document of its own, which the gallery writes in the scheme and the contrast, and hands each
 // change of them), until the stage's own switch is turned. A window is written in the scheme and the contrast the site
 // stored.
@@ -50,12 +50,12 @@ const WINDOWS = '/components/dialog/';
 const WINDOW = 'basic';
 const stage = (id) => `.docs-stage[data-fixture-id="${id}"]`;
 
-/** The reader's choice of color scheme in the header's appearance menu, as its group hands it on (its `change`). */
+/** The reader's choice of color mode in the header's Appearance panel, as its tabs hand it on (their `change`). */
 const chooseTheme = (page, theme) =>
   page.evaluate((value) => {
-    const group = document.querySelector('tanrei-menu-group.docs-scheme-group');
-    group.value = value;
-    group.dispatchEvent(new Event('change', { bubbles: true }));
+    const tabs = document.querySelector('tanrei-tabs.docs-appearance-mode');
+    tabs.value = value;
+    tabs.dispatchEvent(new Event('change', { bubbles: true }));
   }, theme);
 
 /** What a stage in the page draws in: its box's scheme, and the scope it stands in. */
@@ -83,7 +83,9 @@ describe("the gallery's stages follow the page's scheme and contrast", () => {
     try {
       const page = await context.newPage();
       await page.goto(`${origin}${PAGE}`, { waitUntil: 'load' });
-      await page.waitForFunction(() => customElements.get('tanrei-menu-group') && document.querySelector('tanrei-menu-group.docs-scheme-group')?.updateComplete);
+      // The panel's elements are defined when a reader is about to use it: a pointer over its button.
+      await page.hover('#docs-appearance');
+      await page.waitForFunction(() => customElements.get('tanrei-tabs') && document.querySelector('tanrei-tabs.docs-appearance-mode')?.updateComplete);
 
       await chooseTheme(page, 'dark');
       assert.equal(await page.evaluate(() => document.documentElement.dataset.theme), 'dark');
@@ -112,7 +114,9 @@ describe("the gallery's stages follow the page's scheme and contrast", () => {
     try {
       const page = await context.newPage();
       await page.goto(`${origin}${WINDOWS}`, { waitUntil: 'load' });
-      await page.waitForFunction(() => customElements.get('tanrei-menu-group') && document.querySelector('tanrei-menu-group.docs-scheme-group')?.updateComplete);
+      // The panel's elements are defined when a reader is about to use it: a pointer over its button.
+      await page.hover('#docs-appearance');
+      await page.waitForFunction(() => customElements.get('tanrei-tabs') && document.querySelector('tanrei-tabs.docs-appearance-mode')?.updateComplete);
       // The window is written when it comes near the view.
       await page.locator(stage(WINDOW)).scrollIntoViewIfNeeded();
       assert.deepEqual(await windowed(page, WINDOW), { theme: 'light', contrast: null, scheme: 'light' });
@@ -139,8 +143,7 @@ describe("the gallery's stages follow the page's scheme and contrast", () => {
       const page = await context.newPage();
       await page.goto(`${origin}${WINDOWS}`, { waitUntil: 'load' });
       await page.evaluate(() => {
-        localStorage.setItem('tanrei-docs-contrast', 'medium');
-        localStorage.setItem('starlight-theme', 'dark');
+        localStorage.setItem('tanrei-docs-appearance', JSON.stringify({ mode: 'dark', contrast: 'medium' }));
       });
       await page.goto(`${origin}${WINDOWS}`, { waitUntil: 'load' });
       await page.locator(stage(WINDOW)).scrollIntoViewIfNeeded();

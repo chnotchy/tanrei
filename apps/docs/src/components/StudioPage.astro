@@ -11,6 +11,7 @@
 // The page's language is passed as it is: the Studio speaks the languages it has a dictionary for
 // (packages/studio/src/strings/) and hosts any other in English. The scheme and the contrast are the ones the
 // documentation stored (its header's choice), else the system's.
+import { standaloneBootstrap } from '../lib/appearance';
 import studioCss from '@tanrei/studio/studio.css?url';
 import '../styles/studio-page.css';
 import { source, translations } from '../../i18n/locales.mjs';
@@ -43,19 +44,8 @@ const languages = [source, ...translations];
     <link rel="alternate" hreflang="x-default" href={page('')} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
-    <script is:inline>
-      // The scheme and the contrast the documentation stored, before the first paint.
-      (() => {
-        let theme = null;
-        let contrast = null;
-        try {
-          theme = localStorage.getItem('starlight-theme');
-          contrast = localStorage.getItem('tanrei-docs-contrast');
-        } catch {}
-        if (theme === 'dark' || theme === 'light') document.documentElement.dataset.tanreiTheme = theme;
-        if (contrast === 'medium' || contrast === 'high') document.documentElement.dataset.tanreiContrast = contrast;
-      })();
-    </script>
+    {/* The scheme the reader forced and the contrast the documentation keeps, before the first paint (lib/appearance.ts). */}
+    <script is:inline set:html={standaloneBootstrap} />
     <link rel="stylesheet" href={studioCss} />
   </head>
   <body>

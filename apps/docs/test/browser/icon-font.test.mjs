@@ -102,10 +102,11 @@ describe('every icon of the built pages is a glyph of the cut-down file', { conc
   // Drawn: the components' own glyphs in their shadow roots and generated boxes, after they are defined. A glyph
   // drawn only once something is opened is in the list the components' code gives (glyphs.json, tested with the
   // font in packages/tools/test/glyphs.test.js). An element defined on its first use (`data-define-on-use`: the
-  // search) stays undefined until then, so it is not waited for: on every page with the site's frame the wait ran
+  // search, the Appearance panel), and what it holds, stays undefined until then, so it is not waited for: on every
+  // page with the site's frame the wait ran
   // its 30 s out. An element still undefined when the wait runs out fails the page, so a wait that cannot end is seen
   // as a failure, not as a slower run.
-  const leftUndefined = () => [...document.querySelectorAll('*')].filter((el) => el.localName.includes('-') && !el.matches(':defined') && !el.hasAttribute('data-define-on-use')).map((el) => el.localName);
+  const leftUndefined = () => [...document.querySelectorAll('*')].filter((el) => el.localName.includes('-') && !el.matches(':defined') && !el.closest('[data-define-on-use]')).map((el) => el.localName);
   // A page that only sends the reader on (a moved page's old address) draws nothing: the page it sends to is opened.
   const redirect = (file) => /<meta http-equiv="refresh"/.test(fs.readFileSync(file, 'utf8'));
   for (const [url] of rootPages.filter(([url, file]) => url !== '/studio/' && !redirect(file))) {

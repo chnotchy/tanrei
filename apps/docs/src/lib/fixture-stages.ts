@@ -6,6 +6,7 @@
 // sized by its stylesheet before any of this runs; nothing here moves anything that is already drawn. The frame's own
 // actions — the code, its copy, the direction — are the frame's (lib/example.ts).
 import { RESIZE_EVENT, resizeHandle } from './resize-handle';
+import { CONTRAST_ATTR, THEME_ATTR } from './appearance';
 import { NEAR_EVENT } from './example';
 import windowSheet from '../styles/fixture-window.css?url';
 
@@ -350,7 +351,7 @@ function windowStage(stage: HTMLElement, box: HTMLElement, canvas: HTMLElement, 
 
 // ── Schemes ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-/** The page's scheme: the one the header's picker put on the root (`data-theme`), else the system's. */
+/** The page's scheme: the one the reader's appearance draws on the root (`data-theme`, lib/appearance.ts), else the system's. */
 const pageScheme = () => (document.documentElement.dataset.theme === 'dark' || (document.documentElement.dataset.theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
 
 /** A stage's scheme: the page's, and every change of it, until the stage's own switch is turned; then the switch's. */
@@ -408,13 +409,13 @@ function scheme(stage: HTMLElement, box: HTMLElement) {
   drawScheme(held);
 }
 
-// Every change of the page's scheme or contrast reaches every stage that follows it: the header's picker sets
-// `data-theme` on the root (and follows the system there while it is on "auto"), a live example's switch sets
-// `data-tanrei-contrast`.
+// Every change of the page's scheme or contrast reaches every stage that follows it: the reader's appearance
+// (lib/appearance.ts) sets `data-theme` and `data-tanrei-contrast` on the root (and follows the device's scheme there
+// while the mode is the device's), a live example's switch sets `data-tanrei-contrast`.
 const followPage = () => {
   for (const stage of stageSchemes.values()) drawScheme(stage);
 };
-new MutationObserver(followPage).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-tanrei-contrast'] });
+new MutationObserver(followPage).observe(document.documentElement, { attributes: true, attributeFilter: [THEME_ATTR, CONTRAST_ATTR] });
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', followPage);
 
 // ── Openers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

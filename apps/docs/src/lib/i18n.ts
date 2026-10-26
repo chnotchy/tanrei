@@ -130,6 +130,7 @@ const en = {
     window: 'Drawn alone in a window of {width} × {height}',
   },
   platformChoice: 'Platform',
+  install: { choice: 'Package manager', command: 'Install with {manager}' },
   opensInNewTab: 'opens in a new tab',
   // What is read after the name of a link that leaves the site (LNK-34): written on every such link of a page's
   // Markdown by components/MarkdownContent.astro, where lib/markdown.mjs marked it.
@@ -232,7 +233,7 @@ const en = {
   // menu button, the two navigation landmarks' names and the breadcrumbs', the first level of the trail, the pickers of
   // the header, and the notice on a page shown in English. Tanrei ships no words. "Previous" and "Next" are still
   // the framework's translated strings; the search's words are `search`, below.
-  frame: { skipLink: 'Skip to content', menu: 'Menu', siteNavigation: 'Documentation', onThisPage: 'On this page', overview: 'Overview', breadcrumbs: 'Breadcrumbs', home: 'Home', hiddenLevels: 'Show hidden levels', theme: 'Theme', themeAuto: 'Auto', appearance: 'Appearance', editTheme: 'Edit theme', system: 'Design system: {system}', language: 'Language' },
+  frame: { skipLink: 'Skip to content', menu: 'Menu', siteNavigation: 'Documentation', onThisPage: 'On this page', overview: 'Overview', breadcrumbs: 'Breadcrumbs', home: 'Home', hiddenLevels: 'Show hidden levels', appearance: 'Appearance', appearanceOf: 'Appearance: {look}', mode: 'Color mode', modeAuto: 'Auto', darkMode: 'Dark mode', lookDefault: 'Default', showcase: 'Showcase', showcaseNote: 'Showcase systems imitate other design systems to show how far Tanrei can go. They are examples, not designs Tanrei supports.', copyLink: 'Copy link', linkCopied: 'Link copied', copyFailed: 'Couldn’t copy the link', shared: 'You’re seeing this page with the appearance from a shared link.', keepShared: 'Keep it', close: 'Close', editTheme: 'Edit theme', language: 'Language' },
   /** The sidebar's filter (the navigation drawer's `filterable`): the field's name and hint, what the drawer says while it filters, and its clear button. */
   sidebarFilter: { label: 'Filter navigation', placeholder: 'Filter', none: 'No matches', count: 'Matches: {count}', clear: 'Clear filter' },
   // The titles of the document (src/routeData.ts, lib/seo.ts): a component's page, the site's name after it, and the
@@ -434,6 +435,7 @@ const ja: typeof en = {
     window: '{width} × {height} のウィンドウに単独で描画',
   },
   platformChoice: 'プラットフォーム',
+  install: { choice: 'パッケージマネージャー', command: '{manager} でインストール' },
   opensInNewTab: '新しいタブで開きます',
   externalLink: '外部リンク',
   contrast: 'コントラスト',
@@ -513,7 +515,7 @@ const ja: typeof en = {
     unmeasured: '未計測 — 参照元が機械可読なトークンを公開していないため',
   },
   typeSample: '端麗なインターフェース Tanrei',
-  frame: { skipLink: 'メインコンテンツへスキップ', menu: 'メニュー', siteNavigation: 'ドキュメント', onThisPage: 'このページの内容', overview: '概要', breadcrumbs: 'パンくずリスト', home: 'ホーム', hiddenLevels: '隠れた階層を表示', theme: 'テーマ', themeAuto: '自動', appearance: '外観', editTheme: 'テーマを編集', system: 'デザインシステム：{system}', language: '言語' },
+  frame: { skipLink: 'メインコンテンツへスキップ', menu: 'メニュー', siteNavigation: 'ドキュメント', onThisPage: 'このページの内容', overview: '概要', breadcrumbs: 'パンくずリスト', home: 'ホーム', hiddenLevels: '隠れた階層を表示', appearance: '外観', appearanceOf: '外観：{look}', mode: 'カラーモード', modeAuto: '自動', darkMode: 'ダークモード', lookDefault: 'デフォルト', showcase: 'ギャラリー', showcaseNote: 'ギャラリーのシステムは、Tanrei でどこまで表現できるかを示すために、ほかのデザインシステムを模して作ったものです。サポート対象のデザインではなく、あくまで例です。', copyLink: 'リンクをコピー', linkCopied: 'リンクをコピーしました', copyFailed: 'リンクをコピーできませんでした', shared: '共有リンクの外観でこのページを表示しています。', keepShared: 'この外観にする', close: '閉じる', editTheme: 'テーマを編集', language: '言語' },
   sidebarFilter: { label: 'ナビゲーションを絞り込む', placeholder: '絞り込み', none: '一致する項目はありません', count: '{count} 件が一致', clear: '絞り込みを解除' },
   seo: { component: '{title} — アクセシブルな UI コンポーネント', site: '{name} デザインシステム', home: '{name} — {platforms} のためのデザインシステム', web: 'Web Components', list: ['、', '、'] },
   search: {
@@ -694,6 +696,7 @@ const zh: typeof en = {
     window: '单独绘制在 {width} × {height} 的窗口中',
   },
   platformChoice: '平台',
+  install: { choice: '包管理器', command: '用 {manager} 安装' },
   opensInNewTab: '在新标签页中打开',
   externalLink: '外部链接',
   contrast: '对比度',
@@ -773,7 +776,7 @@ const zh: typeof en = {
     unmeasured: '未测量——参考来源没有发布机器可读的令牌',
   },
   typeSample: '端正清朗的界面 Tanrei',
-  frame: { skipLink: '跳到主要内容', menu: '菜单', siteNavigation: '文档', onThisPage: '本页内容', overview: '概览', breadcrumbs: '面包屑导航', home: '首页', hiddenLevels: '显示隐藏的层级', theme: '主题', themeAuto: '自动', appearance: '外观', editTheme: '编辑主题', system: '设计系统：{system}', language: '语言' },
+  frame: { skipLink: '跳到主要内容', menu: '菜单', siteNavigation: '文档', onThisPage: '本页内容', overview: '概览', breadcrumbs: '面包屑导航', home: '首页', hiddenLevels: '显示隐藏的层级', appearance: '外观', appearanceOf: '外观：{look}', mode: '颜色模式', modeAuto: '自动', darkMode: '深色模式', lookDefault: '默认', showcase: '案例展示', showcaseNote: '案例展示中的系统模仿其他设计系统，用来展示 Tanrei 能做到什么程度。它们只是示例，不是 Tanrei 支持的设计。', copyLink: '复制链接', linkCopied: '链接已复制', copyFailed: '无法复制链接', shared: '你正在以共享链接中的外观查看此页面。', keepShared: '保留此外观', close: '关闭', editTheme: '编辑主题', language: '语言' },
   sidebarFilter: { label: '筛选导航', placeholder: '筛选', none: '没有匹配项', count: '匹配 {count} 项', clear: '清除筛选' },
   seo: { component: '{title} — 无障碍 UI 组件', site: '{name} 设计系统', home: '{name} — 面向 {platforms} 的设计系统', web: 'Web Components', list: ['、', ' 和 '] },
   search: {
@@ -953,6 +956,7 @@ const es: typeof en = {
     window: 'Dibujado por separado en una ventana de {width} × {height}',
   },
   platformChoice: 'Plataforma',
+  install: { choice: 'Gestor de paquetes', command: 'Instalar con {manager}' },
   opensInNewTab: 'se abre en una pestaña nueva',
   externalLink: 'enlace externo',
   contrast: 'Contraste',
@@ -1032,7 +1036,7 @@ const es: typeof en = {
     unmeasured: 'sin medir: la referencia no publica tokens legibles por máquina',
   },
   typeSample: 'Limpio y bien formado 端麗',
-  frame: { skipLink: 'Saltar al contenido', menu: 'Menú', siteNavigation: 'Documentación', onThisPage: 'En esta página', overview: 'Descripción general', breadcrumbs: 'Ruta de navegación', home: 'Inicio', hiddenLevels: 'Mostrar los niveles ocultos', theme: 'Tema', themeAuto: 'Automático', appearance: 'Apariencia', editTheme: 'Editar tema', system: 'Sistema de diseño: {system}', language: 'Idioma' },
+  frame: { skipLink: 'Saltar al contenido', menu: 'Menú', siteNavigation: 'Documentación', onThisPage: 'En esta página', overview: 'Descripción general', breadcrumbs: 'Ruta de navegación', home: 'Inicio', hiddenLevels: 'Mostrar los niveles ocultos', appearance: 'Apariencia', appearanceOf: 'Apariencia: {look}', mode: 'Modo de color', modeAuto: 'Automático', darkMode: 'Modo oscuro', lookDefault: 'Predeterminado', showcase: 'Galería', showcaseNote: 'Los sistemas de la galería imitan otros sistemas de diseño para mostrar hasta dónde llega Tanrei. Son ejemplos, no diseños con soporte de Tanrei.', copyLink: 'Copiar enlace', linkCopied: 'Enlace copiado', copyFailed: 'No se pudo copiar el enlace', shared: 'Estás viendo esta página con la apariencia de un enlace compartido.', keepShared: 'Mantenerla', close: 'Cerrar', editTheme: 'Editar tema', language: 'Idioma' },
   sidebarFilter: { label: 'Filtrar la navegación', placeholder: 'Filtrar', none: 'No hay coincidencias', count: 'Coincidencias: {count}', clear: 'Borrar filtro' },
   seo: { component: '{title} — componente de interfaz accesible', site: 'Sistema de diseño {name}', home: '{name} — sistema de diseño para {platforms}', web: 'Web Components', list: [', ', ' y '] },
   search: {
@@ -1212,6 +1216,7 @@ const hi: typeof en = {
     window: '{width} × {height} की विंडो में अलग से बनाया गया',
   },
   platformChoice: 'प्लैटफ़ॉर्म',
+  install: { choice: 'पैकेज मैनेजर', command: '{manager} से इंस्टॉल करें' },
   opensInNewTab: 'नए टैब में खुलता है',
   externalLink: 'बाहरी लिंक',
   contrast: 'कंट्रास्ट',
@@ -1291,7 +1296,7 @@ const hi: typeof en = {
     unmeasured: 'मापा नहीं गया — रेफ़रेंस मशीन से पढ़े जा सकने वाले टोकन प्रकाशित नहीं करता',
   },
   typeSample: 'साफ़ और सुगठित इंटरफ़ेस Tanrei',
-  frame: { skipLink: 'सीधे मुख्य कॉन्टेंट पर जाएँ', menu: 'मेन्यू', siteNavigation: 'दस्तावेज़', onThisPage: 'इस पेज पर', overview: 'अवलोकन', breadcrumbs: 'ब्रेडक्रम्ब', home: 'होम', hiddenLevels: 'छिपे हुए स्तर दिखाएँ', theme: 'थीम', themeAuto: 'स्वचालित', appearance: 'दिखावट', editTheme: 'थीम में बदलाव करें', system: 'डिज़ाइन सिस्टम: {system}', language: 'भाषा' },
+  frame: { skipLink: 'सीधे मुख्य कॉन्टेंट पर जाएँ', menu: 'मेन्यू', siteNavigation: 'दस्तावेज़', onThisPage: 'इस पेज पर', overview: 'अवलोकन', breadcrumbs: 'ब्रेडक्रम्ब', home: 'होम', hiddenLevels: 'छिपे हुए स्तर दिखाएँ', appearance: 'दिखावट', appearanceOf: 'दिखावट: {look}', mode: 'कलर मोड', modeAuto: 'स्वचालित', darkMode: 'डार्क मोड', lookDefault: 'डिफ़ॉल्ट', showcase: 'शोकेस', showcaseNote: 'शोकेस के सिस्टम दूसरे डिज़ाइन सिस्टम की नकल करते हैं, ताकि दिख सके कि Tanrei से कितना कुछ बनाया जा सकता है। ये सिर्फ़ उदाहरण हैं, ऐसे डिज़ाइन नहीं जिन्हें Tanrei सपोर्ट करता है।', copyLink: 'लिंक कॉपी करें', linkCopied: 'लिंक कॉपी हो गया', copyFailed: 'लिंक कॉपी नहीं हो सका', shared: 'आप यह पेज शेयर किए गए लिंक की दिखावट में देख रहे हैं।', keepShared: 'इसे रखें', close: 'बंद करें', editTheme: 'थीम में बदलाव करें', language: 'भाषा' },
   sidebarFilter: { label: 'नेविगेशन फ़िल्टर करें', placeholder: 'फ़िल्टर करें', none: 'कोई मिलान नहीं', count: 'मिलान: {count}', clear: 'फ़िल्टर हटाएँ' },
   seo: { component: '{title} — सुलभ UI कंपोनेंट', site: '{name} डिज़ाइन सिस्टम', home: '{name} — {platforms} के लिए डिज़ाइन सिस्टम', web: 'Web Components', list: [', ', ' और '] },
   search: {
@@ -1471,6 +1476,7 @@ const ar: typeof en = {
     window: 'مرسوم وحده في نافذة بحجم {width} × {height}',
   },
   platformChoice: 'المنصة',
+  install: { choice: 'مدير الحزم', command: 'التثبيت باستخدام {manager}' },
   opensInNewTab: 'يفتح في علامة تبويب جديدة',
   externalLink: 'رابط خارجي',
   contrast: 'التباين',
@@ -1551,7 +1557,7 @@ const ar: typeof en = {
     unmeasured: 'غير مقيسة — المرجع لا ينشر رموزًا مقروءة آليًا',
   },
   typeSample: 'واجهة أنيقة متقنة Tanrei',
-  frame: { skipLink: 'التخطّي إلى المحتوى', menu: 'القائمة', siteNavigation: 'التوثيق', onThisPage: 'في هذه الصفحة', overview: 'نظرة عامة', breadcrumbs: 'مسار التنقل', home: 'الرئيسية', hiddenLevels: 'إظهار المستويات المخفية', theme: 'السمة', themeAuto: 'تلقائي', appearance: 'المظهر', editTheme: 'تعديل السمة', system: 'نظام التصميم: {system}', language: 'اللغة' },
+  frame: { skipLink: 'التخطّي إلى المحتوى', menu: 'القائمة', siteNavigation: 'التوثيق', onThisPage: 'في هذه الصفحة', overview: 'نظرة عامة', breadcrumbs: 'مسار التنقل', home: 'الرئيسية', hiddenLevels: 'إظهار المستويات المخفية', appearance: 'المظهر', appearanceOf: 'المظهر: {look}', mode: 'وضع الألوان', modeAuto: 'تلقائي', darkMode: 'الوضع الداكن', lookDefault: 'الافتراضي', showcase: 'معرض', showcaseNote: 'أنظمة المعرض تحاكي أنظمة تصميم أخرى لتُظهر إلى أي مدى يمكن أن يصل Tanrei. إنها أمثلة، وليست تصاميم يدعمها Tanrei.', copyLink: 'نسخ الرابط', linkCopied: 'تم نسخ الرابط', copyFailed: 'تعذّر نسخ الرابط', shared: 'أنت تشاهد هذه الصفحة بمظهر من رابط مشترك.', keepShared: 'الاحتفاظ به', close: 'إغلاق', editTheme: 'تعديل السمة', language: 'اللغة' },
   sidebarFilter: { label: 'تصفية قائمة التنقّل', placeholder: 'تصفية', none: 'لا توجد نتائج مطابقة', count: 'النتائج المطابقة: {count}', clear: 'مسح التصفية' },
   // A title opens with an Arabic word, never a Latin one (i18n/glossary.md): the system's name stands after «نظام التصميم».
   seo: { component: '{title} — مكوّن واجهة مستخدم يراعي إمكانية الوصول', site: 'نظام التصميم {name}', home: 'نظام التصميم {name} لـ {platforms}', web: 'Web Components', list: [' و ', ' و '] },

@@ -100,21 +100,22 @@ describe('a built page’s scripts', { concurrency: 2 }, () => {
       const { context, page, errors } = await open(url);
       try {
         // The modules a page asks for are all in once it is quiet; an element is upgraded when its module is evaluated.
-        // An element defined on its first use (`data-define-on-use`: the search) is left undefined until then
+        // An element defined on its first use (`data-define-on-use`: the search, the Appearance panel), and what it holds,
+        // is left undefined until then
         // (test/browser/search-on-use.test.mjs). A frame's stage defines what it holds once it comes near the view
         // (components/visuals/Example.astro): every one is let go here, as if the reader had scrolled the page through.
         await page.evaluate(() => {
           for (const stage of document.querySelectorAll('[data-example-pending]')) stage.removeAttribute('data-example-pending');
         });
         await page.waitForFunction(() => {
-          const undefinedIn = (root) => [...root.querySelectorAll('*')].some((el) => (el.localName.startsWith('tanrei-') && !el.matches(':defined') && !el.hasAttribute('data-define-on-use')) || (el.shadowRoot && undefinedIn(el.shadowRoot)));
+          const undefinedIn = (root) => [...root.querySelectorAll('*')].some((el) => (el.localName.startsWith('tanrei-') && !el.matches(':defined') && !el.closest('[data-define-on-use]')) || (el.shadowRoot && undefinedIn(el.shadowRoot)));
           return !undefinedIn(document);
         }, null, { timeout: 10_000 }).catch(() => {});
         const left = await page.evaluate(() => {
           const out = new Set();
           const visit = (root, where) => {
             for (const el of root.querySelectorAll('*')) {
-              if (el.localName.startsWith('tanrei-') && !el.matches(':defined') && !el.hasAttribute('data-define-on-use')) out.add(`${el.localName} (${where})`);
+              if (el.localName.startsWith('tanrei-') && !el.matches(':defined') && !el.closest('[data-define-on-use]')) out.add(`${el.localName} (${where})`);
               if (el.shadowRoot) visit(el.shadowRoot, `in the shadow root of ${el.localName}`);
             }
           };

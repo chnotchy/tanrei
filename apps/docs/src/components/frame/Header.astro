@@ -16,21 +16,19 @@
 //                     the symbol. Until the bar is defined the image holds the box the bar will give it
 //                     (styles/frame.css). The bar's own title (`headline`) is text and a heading: a site's name leads
 //                     home and is not a heading of the page, so the bar is given none;
-//   the system        the bar's context (APB-25): a text Button that says the design system the lists of components
-//                     show and opens a Menu (SystemMenu.astro) — the shipped systems as radio items, read from the
-//                     components manifests, and then Theme Studio's link, "Edit theme". The choice is kept under the
-//                     docs' key for the shared choice `system` (lib/listing.mjs), which the head's script reads before
-//                     the first paint. A compact window has no room for it beside the wordmark and three actions: there
-//                     the same button and menu stand first in the drawer's list (Sidebar.astro), and the bar's is not
-//                     drawn;
+//   the appearance    the bar's context (APB-25): a text Button that says the reader's look — the design system the
+//                     docs are drawn in, Tanrei's own or a showcase system — and opens the Appearance panel
+//                     (Appearance.astro): the color mode, the contrast and the look, a link to this page as it looks
+//                     now, and Theme Studio's link. The choice is lib/appearance.ts's, which the head's script applies
+//                     before the first paint; every example of every page follows it (components/visuals/Example.astro),
+//                     and so do the lists of components (lib/list-filter.ts). A compact window has no room for it beside
+//                     the wordmark and three actions: there the same button and panel stand first in the drawer's list
+//                     (Sidebar.astro), and the bar's is not drawn;
 //   the search        Tanrei's Search as the bar's first action (Search.astro): a button trigger with its shortcut
 //                     that opens a dialog, and in a compact window an icon-only Button that opens the full-screen
 //                     view; the site's search index answers it;
-//   the appearance    an icon-only Button that opens a Menu of three sections: the color scheme (auto, light, dark,
-//                     kept on this device under the key the framework's own theme script reads before first paint),
-//                     the contrast (standard, medium, high, kept under the key the head's script reads), and Theme
-//                     Studio's link. Every example of the page follows both, and the design system chosen beside the
-//                     brand (components/visuals/Example.astro): no example has a switch of its own;
+//   the mode          an icon-only toggle Button, "Dark mode": on while the page is dark, and a press shows the other
+//                     scheme and keeps it as the reader's mode (the device's mode is chosen in the panel);
 //   the language      an icon-only Button that opens a Menu of links — a language is a place to go, the same page
 //                     at another address, and a list of places is a menu of links, never options.
 //
@@ -43,16 +41,14 @@
 // written (its surface is in the top layer).
 import Search from './Search.astro';
 import { translations, source } from '../../../i18n/locales.mjs';
-import { localeBase, strings } from '../../lib/i18n';
 import { frameWords, homeHref } from './frame';
 import { inlineMark } from '../../lib/brand.mjs';
 import { frameOf } from '../../lib/brand-geometry.mjs';
 import { marks } from '../../lib/brand-marks';
-import SystemMenu from '../SystemMenu.astro';
+import Appearance from './Appearance.astro';
 
 const route = Astro.locals.starlightRoute;
 const words = frameWords(Astro);
-const t = strings(route.lang);
 
 // The same page in each language: the address without this language's folder, under the other's.
 const here = route.locale ? Astro.url.pathname.replace(new RegExp(`^/${route.locale}(?=/|$)`), '') || '/' : Astro.url.pathname;
@@ -62,7 +58,6 @@ const WORDMARK_HEIGHT = 40;
 const frame = frameOf(marks.wordmark);
 const wordmark = inlineMark(marks.wordmark, { width: Math.round((WORDMARK_HEIGHT * frame.width) / frame.height), height: WORDMARK_HEIGHT, slot: 'brand-wordmark', class: 'docs-brand', role: 'img', 'aria-label': route.siteTitle, focusable: 'false', translate: 'no' });
 const languages = [{ dir: '', lang: source.lang, label: source.label }, ...translations].map(({ dir, lang, label }) => ({ lang, label, href: dir ? `/${dir}${here}` : here, current: (route.locale ?? '') === dir }));
-const studio = `${localeBase(Astro)}/foundations/theme-studio/`;
 ---
 
 <tanrei-app-bar class="docs-app-bar" brand-href={homeHref(route)} brand-label={route.siteTitle}>
@@ -79,57 +74,45 @@ const studio = `${localeBase(Astro)}/foundations/theme-studio/`;
     )
   }
   <Fragment set:html={wordmark} />
-  <SystemMenu id="docs-system" part="button" slot="context" />
+  <Appearance id="docs-appearance" part="button" slot="context" />
   <Search />
-  <tanrei-button slot="actions" id="docs-appearance" variant="text" label={words.theme}>
-    <span slot="icon">contrast</span>
+  <tanrei-button slot="actions" id="docs-mode" variant="text" toggle label={words.darkMode}>
+    <span slot="icon">dark_mode</span>
   </tanrei-button>
   <tanrei-button slot="actions" id="docs-language" variant="text" label={words.language}>
     <span slot="icon">translate</span>
   </tanrei-button>
 </tanrei-app-bar>
-<SystemMenu id="docs-system" part="menu" />
-<tanrei-menu class="docs-frame-menu" anchor="docs-appearance" placement="bottom-end">
-  <tanrei-menu-group class="docs-scheme-group" label={words.appearance} value="auto">
-    <tanrei-menu-radio-item value="auto" label={words.themeAuto} leading-icon="computer" />
-    <tanrei-menu-radio-item value="light" label={t.light} leading-icon="light_mode" />
-    <tanrei-menu-radio-item value="dark" label={t.dark} leading-icon="dark_mode" />
-  </tanrei-menu-group>
-  <tanrei-menu-group class="docs-contrast-group" label={t.contrast} value="standard">
-    <tanrei-menu-radio-item value="standard" label={t.contrastStandard} />
-    <tanrei-menu-radio-item value="medium" label={t.contrastMedium} />
-    <tanrei-menu-radio-item value="high" label={t.contrastHigh} />
-  </tanrei-menu-group>
-  <tanrei-menu-item label={words.editTheme} leading-icon="format_paint" href={studio} />
-</tanrei-menu>
+<Appearance id="docs-appearance" part="panel" />
 <tanrei-menu class="docs-frame-menu" anchor="docs-language" placement="bottom-end">
   {languages.map(({ lang, label, href, current }) => <tanrei-menu-item lang={lang} label={label} href={href} current={current || undefined} />)}
 </tanrei-menu>
+{/* The appearance's messages (a link copied, a shared appearance): defined on first use. */}
+<tanrei-snackbar-host class="docs-appearance-snackbars" data-define-on-use data-pagefind-ignore data-shared={words.shared} data-keep={words.keepShared} data-close={words.close}></tanrei-snackbar-host>
 
 {
-  /* Before first paint: the reader's stored choices as the menus' values and the system button's words (an attribute
-   is what an element starts from; the head's scripts have already applied each choice to the root), and the bar's
-   menu button for the window's class, read from the shell's stylesheet — before the bar is defined, so that it never
-   holds both. */
+  /* Before first paint: the appearance the head's script applied to the root, as the controls' starting values (an
+   attribute is what an element starts from) — the look's name on its button, the panel's choices, the mode's toggle
+   — and the bar's menu button for the window's class, read from the shell's stylesheet — before the bar is defined,
+   so that it never holds both. */
 }
 <script is:inline>
   {
     const frame = document.currentScript.parentElement;
     const root = document.documentElement;
-    try {
-      const scheme = localStorage.getItem('starlight-theme');
-      if (scheme === 'light' || scheme === 'dark') frame.querySelector('.docs-scheme-group')?.setAttribute('value', scheme);
-    } catch {}
-    const contrast = root.getAttribute('data-tanrei-contrast');
-    if (contrast === 'medium' || contrast === 'high') frame.querySelector('.docs-contrast-group')?.setAttribute('value', contrast);
-    const system = root.getAttribute('data-docs-system');
-    if (system) {
-      for (const button of frame.querySelectorAll('.docs-system')) {
-        button.querySelector('.docs-system-name').textContent = system;
-        button.setAttribute('label', button.dataset.label.replace('{system}', system));
+    const look = root.getAttribute('data-docs-system');
+    if (look) {
+      for (const button of frame.querySelectorAll('.docs-look')) {
+        button.querySelector('.docs-look-name').textContent = look;
+        button.setAttribute('label', button.dataset.label.replace('{look}', look));
       }
-      for (const group of frame.querySelectorAll('.docs-system-group')) group.setAttribute('value', system);
+      for (const list of frame.querySelectorAll('.docs-appearance-look')) list.setAttribute('value', look);
     }
+    const mode = root.getAttribute('data-docs-mode');
+    if (mode) for (const tabs of frame.querySelectorAll('.docs-appearance-mode')) tabs.setAttribute('value', mode);
+    const contrast = root.getAttribute('data-tanrei-contrast');
+    if (contrast) for (const tabs of frame.querySelectorAll('.docs-appearance-contrast')) tabs.setAttribute('value', contrast);
+    if (root.getAttribute('data-theme') === 'dark') frame.querySelector('#docs-mode')?.setAttribute('selected', '');
     const bar = frame.querySelector('tanrei-app-bar.docs-app-bar');
     if (bar) {
       const compact = getComputedStyle(bar).getPropertyValue('--tanrei-app-shell-window-class').trim() === 'compact';
@@ -145,83 +128,105 @@ const studio = `${localeBase(Astro)}/foundations/theme-studio/`;
   import '@tanrei/web/components/app-bar';
   import '@tanrei/web/components/button';
   import '@tanrei/web/components/menu';
-  import { tabsKey } from '../tabs/keys.mjs';
-  import { SYSTEM_SYNC_KEY } from '../../lib/listing.mjs';
-  import { showSystem, shownSystem } from '../../lib/list-filter';
+  import '../../lib/list-filter';
+  import { isShared, keepShared, linkTo, onAppearance, setAppearance, shownAppearance, type Appearance, type Contrast, type Mode } from '../../lib/appearance';
 
   type Choice = HTMLElement & { value: string | null };
-  const store = (key: string, value: string | null) => {
-    try {
-      if (value) localStorage.setItem(key, value);
-      else localStorage.removeItem(key);
-    } catch {}
-  };
+  type Panel = HTMLElement & { open: boolean };
+  const root = document.documentElement;
 
-  // The color scheme: the framework's script in the head has already applied the stored choice (`data-theme` on the
-  // root, which styles/tanrei-theme.css turns into `color-scheme`). Here the menu changes it, stores it under the same
-  // key, and follows the system while the choice is "auto".
-  const SCHEME_KEY = 'starlight-theme';
-  const system = matchMedia('(prefers-color-scheme: light)');
-  const storedScheme = () => {
-    try {
-      const scheme = localStorage.getItem(SCHEME_KEY);
-      return scheme === 'light' || scheme === 'dark' ? scheme : 'auto';
-    } catch {
-      return 'auto';
+  // ── The appearance ────────────────────────────────────────────────────────────────────────────────────────────────
+  // Every control says what is shown: the look's buttons (the bar's, and the drawer's of a compact window), every
+  // panel's choices and the mode's toggle. (The index's select of the system its lists show says it itself: SystemSelect.astro.)
+  /** A choice's value: its property once the element is defined, its attribute (what it starts from) until then. */
+  const choose = (control: Choice, value: string) => {
+    if (customElements.get(control.localName)) control.value = value;
+    else control.setAttribute('value', value);
+  };
+  const say = (appearance: Appearance) => {
+    for (const button of document.querySelectorAll<HTMLElement>('tanrei-button.docs-look')) {
+      const name = button.querySelector('.docs-look-name');
+      if (name) name.textContent = appearance.look;
+      button.setAttribute('label', (button.dataset.label ?? '{look}').replace('{look}', appearance.look));
     }
+    for (const tabs of document.querySelectorAll<Choice>('tanrei-tabs.docs-appearance-mode')) choose(tabs, appearance.mode);
+    for (const tabs of document.querySelectorAll<Choice>('tanrei-tabs.docs-appearance-contrast')) choose(tabs, appearance.contrast);
+    for (const list of document.querySelectorAll<Choice>('tanrei-list.docs-appearance-look')) choose(list, appearance.look);
+    const toggle = document.getElementById('docs-mode') as (HTMLElement & { selected: boolean }) | null;
+    if (toggle) toggle.selected = root.getAttribute('data-theme') === 'dark';
   };
-  const applyScheme = (scheme: string) => {
-    document.documentElement.dataset.theme = scheme === 'light' || scheme === 'dark' ? scheme : system.matches ? 'light' : 'dark';
-  };
-  const schemes = document.querySelector<Choice>('tanrei-menu-group.docs-scheme-group');
-  schemes?.addEventListener('change', () => {
-    const scheme = schemes.value ?? 'auto';
-    applyScheme(scheme);
-    store(SCHEME_KEY, scheme === 'light' || scheme === 'dark' ? scheme : null);
-  });
-  system.addEventListener('change', () => {
-    if (storedScheme() === 'auto') applyScheme('auto');
-  });
+  say(shownAppearance());
+  onAppearance(({ appearance }) => say(appearance));
 
-  // The contrast: `data-tanrei-contrast` on the root (component tokens are resolved at :root, so a subtree cannot be
-  // forced), kept under the key the head's script reads.
-  const CONTRAST_KEY = 'tanrei-docs-contrast';
-  const CONTRAST_ATTR = 'data-tanrei-contrast';
-  const contrasts = document.querySelector<Choice>('tanrei-menu-group.docs-contrast-group');
-  const applyContrast = (value: string) => {
-    if (value === 'medium' || value === 'high') document.documentElement.setAttribute(CONTRAST_ATTR, value);
-    else document.documentElement.removeAttribute(CONTRAST_ATTR);
-  };
-  contrasts?.addEventListener('change', () => {
-    const value = contrasts.value ?? 'standard';
-    applyContrast(value);
-    store(CONTRAST_KEY, value);
-  });
-
-  // The design system the lists show: kept under the docs' key for the shared choice `system`, so that a set of tabs
-  // with `syncKey="system"` opens on it; the lists take out what it does not have (lib/list-filter.ts).
-  // The bar's button and menu, and in a compact window the drawer's (Sidebar.astro): every one says the same.
-  const showOn = (id: string) => {
-    for (const button of document.querySelectorAll<HTMLElement>('tanrei-button.docs-system')) {
-      const name = button.querySelector('.docs-system-name');
-      if (name) name.textContent = id;
-      button.setAttribute('label', (button.dataset.label ?? '{system}').replace('{system}', id));
-    }
-    for (const group of document.querySelectorAll<Choice>('tanrei-menu-group.docs-system-group')) group.value = id;
-    // The index's select field (SystemSelect.astro) says the same.
-    for (const select of document.querySelectorAll<Choice>('[data-docs-system-select]')) select.value = id;
-  };
-  const found = shownSystem();
-  if (found) showOn(found);
+  // A choice in any panel is the reader's appearance from here on.
   document.addEventListener('change', (event) => {
     const control = event.target as Choice;
     if (!(control instanceof HTMLElement) || !control.value) return;
-    if (control.matches('tanrei-menu-group.docs-system-group')) {
-      store(tabsKey(SYSTEM_SYNC_KEY), control.value);
-      showSystem(control.value);
-      showOn(control.value);
-    } else if (control.matches('[data-docs-system-select]')) showOn(control.value);
+    if (control.matches('tanrei-tabs.docs-appearance-mode')) setAppearance({ mode: control.value as Mode });
+    else if (control.matches('tanrei-tabs.docs-appearance-contrast')) setAppearance({ contrast: control.value as Contrast });
+    else if (control.matches('tanrei-list.docs-appearance-look')) setAppearance({ look: control.value });
   });
+
+  // The mode's toggle: the other scheme than the one shown, kept as the reader's mode.
+  document.getElementById('docs-mode')?.addEventListener('change', (event) => {
+    setAppearance({ mode: (event as CustomEvent<{ selected: boolean }>).detail.selected ? 'dark' : 'light' });
+  });
+
+  // The panel's elements are defined when a reader is first about to open it — a pointer over its button, focus on
+  // it, or a press — so that a page whose panel is never opened never loads them.
+  let panelDefined: Promise<unknown> | undefined;
+  const definePanel = () =>
+    (panelDefined ??= Promise.all([import('@tanrei/web/components/popover'), import('@tanrei/web/components/tabs'), import('@tanrei/web/components/list'), import('@tanrei/web/components/list-row'), import('@tanrei/web/components/swatch')]).then(() => customElements.whenDefined('tanrei-popover')));
+  // A panel opens from its button and closes when it asks to (the popover never closes itself, POP-14).
+  for (const panel of document.querySelectorAll<Panel>('tanrei-popover.docs-appearance-panel')) {
+    const button = document.getElementById(panel.getAttribute('anchor') ?? '');
+    button?.addEventListener('pointerenter', definePanel, { once: true });
+    button?.addEventListener('focusin', definePanel, { once: true });
+    button?.addEventListener('click', async () => {
+      await definePanel();
+      panel.open = !panel.open;
+    });
+    panel.addEventListener('close', () => {
+      panel.open = false;
+    });
+  }
+
+  // ── What the appearance says in a Snackbar: a link copied, and a page opened with a shared appearance ─────────────
+  type Host = HTMLElement & { show(options: { message: string; action?: string; status?: 'default' | 'error'; statusLabel?: string; closable?: boolean; closeLabel?: string; duration?: string }): Promise<{ result: string }> };
+  const host = () => document.querySelector<Host>('tanrei-snackbar-host.docs-appearance-snackbars');
+  let defined: Promise<unknown> | undefined;
+  const defineHost = () => (defined ??= import('@tanrei/web/components/snackbar').then(() => customElements.whenDefined('tanrei-snackbar-host')));
+  const tell = async (options: Parameters<Host['show']>[0]) => {
+    const firstUse = !customElements.get('tanrei-snackbar-host');
+    await defineHost();
+    // A live region that has just entered the document is not heard yet: it is given two frames before it speaks.
+    if (firstUse) await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    return host()?.show(options);
+  };
+
+  // The copy of a link to this page as it looks now.
+  for (const copy of document.querySelectorAll<HTMLElement>('.docs-appearance-copy')) {
+    copy.addEventListener('pointerenter', defineHost, { once: true });
+    copy.addEventListener('focusin', defineHost, { once: true });
+    copy.addEventListener('click', async () => {
+      const panel = copy.closest<HTMLElement>('tanrei-popover');
+      try {
+        await navigator.clipboard.writeText(linkTo(location.href, shownAppearance()));
+        void tell({ message: panel?.dataset.copied ?? '' });
+      } catch {
+        void tell({ message: panel?.dataset.copyFailed ?? '', status: 'error' });
+      }
+    });
+  }
+
+  // A page opened with a shared appearance shows it, and offers to keep it; closed, the page goes on showing it, and
+  // the next page the reader's own.
+  if (isShared()) {
+    const words = document.querySelector<HTMLElement>('tanrei-snackbar-host.docs-appearance-snackbars');
+    void tell({ message: words?.dataset.shared ?? '', action: words?.dataset.keep, closable: true, closeLabel: words?.dataset.close, duration: 'indefinite' }).then((result) => {
+      if (result?.result === 'action') keepShared();
+    });
+  }
 
   // The bar's menu button follows the window's class (the script after the bar chose it before the bar was defined):
   // the button of the class has its slot, and the other none, so the bar holds one navigation item.

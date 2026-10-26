@@ -6,10 +6,10 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import sitemap from '@astrojs/sitemap';
 import { tanreiStudio } from '@tanrei/studio/vite';
-import { tabsBootstrap, tabsKey } from './src/components/tabs/keys.mjs';
+import { tabsBootstrap } from './src/components/tabs/keys.mjs';
 import { starlightLocales, translations } from './i18n/locales.mjs';
 import { elementModulesPlugin } from './src/lib/element-modules.mjs';
-import { SYSTEM_SYNC_KEY, listingBootstrap, sidebarSlugs, systemBootstrap } from './src/lib/listing.mjs';
+import { listingBootstrap, sidebarSlugs } from './src/lib/listing.mjs';
 import { tanreiMarkdown } from './src/lib/markdown.mjs';
 import { notFoundFiles } from './src/lib/not-found-files.mjs';
 import { pageLastmod } from './src/lib/lastmod.mjs';
@@ -29,16 +29,6 @@ const lastmod = pageLastmod({
 const config = JSON.parse(fs.readFileSync(new URL('../../tanrei.config.json', import.meta.url), 'utf8'));
 // The generated status file: a row for each component, with the address of its page (written from specs/).
 const status = JSON.parse(fs.readFileSync(new URL('../../docs/status/status.json', import.meta.url), 'utf8'));
-// The shipped systems, each of which has its components manifest (tokens/generated/<id>/components.json), and the
-// default one, named by the configuration: the systems the lists of components can show, and the one they show first.
-const generated = new URL('../../tokens/generated/', import.meta.url);
-const systems = fs.readdirSync(generated).filter((id) => fs.existsSync(new URL(`${id}/components.json`, generated))).sort();
-const defaultSystem = config.namespace;
-
-// Applies the reader's stored contrast choice before first paint. The attribute
-// lives on <html> because component tokens are resolved at :root.
-const contrastBootstrap = `try{var c=localStorage.getItem('tanrei-docs-contrast');if(c==='medium'||c==='high')document.documentElement.setAttribute('data-tanrei-contrast',c)}catch(e){}`;
-
 // The public URL (Cloudflare Pages, custom domain), from tanrei.config.json. Gives every page its canonical URL, the
 // sitemap and robots.txt (src/pages/robots.txt.ts).
 const { site } = config;
@@ -87,18 +77,19 @@ export default defineConfig({
         PageSidebar: './src/components/frame/PageSidebar.astro',
         ContentPanel: './src/components/frame/ContentPanel.astro',
         PageTitle: './src/components/frame/PageTitle.astro',
+        // The reader's appearance (color mode, contrast, look) before the first paint, in place of the framework's own
+        // theme script: lib/appearance.ts.
+        ThemeProvider: './src/components/frame/ThemeProvider.astro',
         Banner: './src/components/frame/Nothing.astro',
         FallbackContentNotice: './src/components/frame/Nothing.astro',
         DraftContentNotice: './src/components/frame/Nothing.astro',
       },
-      // All before first paint: the reader's contrast, the tab they chose before in each shared set of tabs, whether
-      // the lists of components show everything or what is listed by default, and the design system they show
-      // (src/lib/listing.mjs).
+      // All before first paint: the tab they chose before in each shared set of tabs, and whether the lists of
+      // components show everything or what is listed by default (src/lib/listing.mjs). The reader's appearance, and the
+      // look the lists follow, are the ThemeProvider's (above).
       head: [
-        { tag: 'script', content: contrastBootstrap },
         { tag: 'script', content: tabsBootstrap },
         { tag: 'script', content: listingBootstrap },
-        { tag: 'script', content: systemBootstrap(tabsKey(SYSTEM_SYNC_KEY), systems, defaultSystem) },
         // The ICO for a browser that does not read the SVG favicon; `sizes` keeps one that does from choosing the ICO.
         { tag: 'link', attrs: { rel: 'icon', href: '/favicon.ico', sizes: '32x32' } },
         { tag: 'link', attrs: { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' } },
