@@ -3221,6 +3221,139 @@ test.describe('the clear button', () => {
   });
 });
 
+test.describe('the reveal button of a password field', () => {
+  const reveal = (page: P, id: string) => part(page, id, '.reveal-button');
+  const native = (page: P, id: string) => reveal(page, id).locator('button');
+  const listenReveal = (locator: Locator) =>
+    locator.evaluate((el) => {
+      const log = ((window as any).events = [] as [string, string, boolean?][]);
+      for (const type of ['input', 'change', 'revealchange']) {
+        el.addEventListener(type, (event) => log.push([type, type === 'revealchange' ? String((event as CustomEvent<{ revealed: boolean }>).detail.revealed) : (el as any).value]));
+      }
+    });
+  const PASSWORD = { type: 'password', label: 'Password', value: 'correct horse', revealable: true, revealLabel: 'Show password' };
+
+  test('TXI-72: with revealable a password field draws an icon-only toggle Button of the text variant at Button’s small size, named by revealLabel in both states and pressed while the value is shown, showing visibility and then visibility_off, its glyph where a trailing icon’s would be; with clearable it stands after the clear button, action-gap away; another type ignores revealable and reports it; a disabled field draws none', async ({ page }) => {
+    const seen = warnings(page);
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        fixture('p', PASSWORD),
+        fixture('p-clear', { ...PASSWORD, clearable: true, clearLabel: 'Clear password' }),
+        fixture('p-text', { ...PASSWORD, type: 'text' }),
+        fixture('p-disabled', { ...PASSWORD, disabled: true }),
+      ],
+    });
+    await expect(reveal(page, 'p')).toHaveAttribute('variant', 'text');
+    await expect(reveal(page, 'p')).toHaveAttribute('size', 'small');
+    const button = host(page, 'p').getByRole('button', { name: 'Show password', exact: true });
+    await expect(button).toHaveAttribute('aria-pressed', 'false');
+    await expect(reveal(page, 'p').locator('[slot="icon"]')).toHaveText('visibility');
+    const c = await bounds(part(page, 'p', '.field > .container'));
+    const g = await bounds(reveal(page, 'p').locator('.icon'));
+    const [padding, icon] = [await resolveToken(page, T('container-padding-inline-with-icon-medium')), await resolveToken(page, T('icon-size-medium'))];
+    expect(c.x + c.width - (g.x + g.width / 2), 'across').toBeCloseTo(padding + icon / 2, 0);
+    expect(g.y + g.height / 2, 'down').toBeCloseTo(c.y + c.height / 2, 0);
+    await host(page, 'p').evaluate((el) => ((el as any).revealed = true));
+    await expect(button).toHaveAttribute('aria-pressed', 'true');
+    await expect(host(page, 'p').getByRole('button', { name: 'Show password', exact: true })).toHaveCount(1);
+    await expect(reveal(page, 'p').locator('[slot="icon"]')).toHaveText('visibility_off');
+    await expect(input(page, 'p')).toHaveAttribute('type', 'text');
+    // After the clear button's room, action-gap away; Tab: the input, the clear button, the reveal button.
+    const [clearBox, revealBox] = await Promise.all([bounds(part(page, 'p-clear', '.own.clear')), bounds(part(page, 'p-clear', '.own.reveal'))]);
+    expect(revealBox.x - (clearBox.x + clearBox.width)).toBeCloseTo(await resolveToken(page, '--tanrei-comp-text-input-container-action-gap'), 1);
+    await tabTo(page, input(page, 'p-clear'));
+    await tab(page);
+    await expect(part(page, 'p-clear', '.clear-button').locator('button')).toBeFocused();
+    await tab(page);
+    await expect(native(page, 'p-clear')).toBeFocused();
+    for (const id of ['p-text', 'p-disabled']) await expect(reveal(page, id), id).toHaveCount(0);
+    await expect.poll(() => seen.filter((w) => w.includes('TXI-72') && w.includes('revealable is ignored')).length).toBe(1);
+  });
+
+  test('TXI-72: a press on the reveal button shows the value as plain text and a second hides it, each emitting revealChange once and neither input nor change, keeping the value and the selection and leaving focus in the input; Enter and Space on the focused button do the same and leave focus on it; inside a form it never submits', async ({ page }) => {
+    await mountHtml(page, `<form><tanrei-text-input name="pw" type="password" label="Password" value="correct horse" revealable reveal-label="Show password"></tanrei-text-input></form>`);
+    const el = page.locator('tanrei-text-input');
+    const field = el.locator('.input');
+    const toggle = el.locator('.reveal-button');
+    await page.evaluate(() => {
+      (window as any).submitted = 0;
+      document.querySelector('form')!.addEventListener('submit', (event) => { event.preventDefault(); (window as any).submitted++; });
+    });
+    await listenReveal(el);
+    await field.click();
+    await field.evaluate((node) => (node as HTMLInputElement).setSelectionRange(2, 5));
+    await toggle.click();
+    await expect(field).toHaveAttribute('type', 'text');
+    await expect(field).toHaveValue('correct horse');
+    await expect(field).toBeFocused();
+    // (Given back by the next frame: a new native type moves the caret in Chromium.)
+    await expect.poll(() => field.evaluate((node) => [(node as HTMLInputElement).selectionStart, (node as HTMLInputElement).selectionEnd])).toEqual([2, 5]);
+    expect(await el.evaluate((node) => (node as any).revealed)).toBe(true);
+    await toggle.click();
+    await expect(field).toHaveAttribute('type', 'password');
+    await expect(field).toBeFocused();
+    expect(await events(page)).toEqual(['revealchange:true', 'revealchange:false']);
+    // By keyboard: focus stays on the button.
+    await tab(page);
+    await expect(toggle.locator('button')).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(field).toHaveAttribute('type', 'text');
+    await expect(toggle.locator('button')).toBeFocused();
+    await page.keyboard.press(' ');
+    await expect(field).toHaveAttribute('type', 'password');
+    await expect(toggle.locator('button')).toBeFocused();
+    expect(await events(page)).toEqual(['revealchange:true', 'revealchange:false', 'revealchange:true', 'revealchange:false']);
+    expect(await page.evaluate(() => (window as any).submitted)).toBe(0);
+  });
+
+  test('TXI-72: submitting and resetting its form, a new type and disabling the field hide a shown value again, without revealChange', async ({ page }) => {
+    await mountHtml(page, `<form><tanrei-text-input name="pw" type="password" label="Password" value="correct horse" revealable revealed reveal-label="Show password"></tanrei-text-input></form>`);
+    const el = page.locator('tanrei-text-input');
+    const field = el.locator('.input');
+    await page.evaluate(() => document.querySelector('form')!.addEventListener('submit', (event) => event.preventDefault()));
+    await listenReveal(el);
+    const shown = async (yes: boolean) => {
+      await el.evaluate((node, value) => ((node as any).revealed = value), yes);
+      await expect(field).toHaveAttribute('type', yes ? 'text' : 'password');
+    };
+    await expect(field).toHaveAttribute('type', 'text');
+    await page.evaluate(() => document.querySelector('form')!.requestSubmit());
+    await expect(field).toHaveAttribute('type', 'password');
+    await shown(true);
+    await page.evaluate(() => document.querySelector('form')!.reset());
+    await expect(field).toHaveAttribute('type', 'password');
+    await shown(true);
+    await el.evaluate((node) => ((node as any).disabled = true));
+    await expect.poll(() => el.evaluate((node) => (node as any).revealed)).toBe(false);
+    await el.evaluate((node) => ((node as any).disabled = false));
+    await expect(field).toHaveAttribute('type', 'password');
+    await shown(true);
+    await el.evaluate((node) => ((node as any).type = 'text'));
+    await expect.poll(() => el.evaluate((node) => (node as any).revealed)).toBe(false);
+    await el.evaluate((node) => ((node as any).type = 'password'));
+    await expect(field).toHaveAttribute('type', 'password');
+    expect(await events(page)).toEqual([]);
+  });
+
+  test('TXI-72, TXI-52: without revealLabel and the product’s words the reveal button is drawn, works and has no name, and the report names revealLabel; the product’s words name it, and an instance’s own prop wins', async ({ page }) => {
+    const seen = warnings(page);
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [wordless('nameless', { type: 'password', label: 'Password', value: 'x', revealable: true }), wordless('own', { type: 'password', label: 'PIN', value: 'x', revealable: true, revealLabel: 'Show PIN' })],
+    });
+    await expect(native(page, 'nameless')).not.toHaveAttribute('aria-label');
+    await expect.poll(() => seen.filter((w) => w.includes('reveal-label is empty') && w.includes('(TXI-72)')).length).toBe(1);
+    expect(await missingWords(page)).toEqual(['revealLabel']);
+    await native(page, 'nameless').click();
+    await expect(input(page, 'nameless')).toHaveAttribute('type', 'text');
+    await setWords(page, { revealLabel: 'Show password' });
+    await expect(host(page, 'nameless').getByRole('button', { name: 'Show password', exact: true })).toHaveCount(1);
+    await expect(host(page, 'own').getByRole('button', { name: 'Show PIN', exact: true })).toHaveCount(1);
+    expect(await missingWords(page)).toEqual([]);
+  });
+});
+
 // A product that imports one component's module, not the package's entry, gets only what that module imports: an
 // element the text input draws is defined by its own imports, or it never upgrades.
 test.describe('imported alone', () => {

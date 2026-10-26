@@ -4,7 +4,7 @@ import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
 import { type Marked, withMarks } from '../../marks.js';
-import { TanreiTextInput as TanreiTextInputElement, type TanreiTextInputEntryErrorDetail, type TanreiTextInputPickerRequestDetail, type TanreiTextInputResizeEndDetail, type TanreiTextInputActionDetail } from '@tanrei/web/components/text-input';
+import { TanreiTextInput as TanreiTextInputElement, type TanreiTextInputEntryErrorDetail, type TanreiTextInputPickerRequestDetail, type TanreiTextInputResizeEndDetail, type TanreiTextInputRevealChangeDetail, type TanreiTextInputActionDetail } from '@tanrei/web/components/text-input';
 
 /** The attributes of `<tanrei-text-input>` that are not properties of the element, as props of `TextInput`. */
 export interface TextInputMarks {
@@ -21,6 +21,7 @@ const TextInputElement = /* @__PURE__ */ createComponent({
     onEntryError: 'entryerror' as EventName<TanreiEvent<TanreiTextInputElement, CustomEvent<TanreiTextInputEntryErrorDetail>>>,
     onPickerRequest: 'pickerrequest' as EventName<TanreiEvent<TanreiTextInputElement, CustomEvent<TanreiTextInputPickerRequestDetail>>>,
     onResizeEnd: 'resizeend' as EventName<TanreiEvent<TanreiTextInputElement, CustomEvent<TanreiTextInputResizeEndDetail>>>,
+    onRevealChange: 'revealchange' as EventName<TanreiEvent<TanreiTextInputElement, CustomEvent<TanreiTextInputRevealChangeDetail>>>,
     onAction: 'action' as EventName<TanreiEvent<TanreiTextInputElement, CustomEvent<TanreiTextInputActionDetail>>>,
   },
 });
@@ -38,6 +39,7 @@ const withTextInputMarks = /* @__PURE__ */ withMarks<TextInputMarks>([], ['form'
  * - `onEntryError` (`entryerror`) — The user committed a date, time or date-time field that is half-filled (`invalid`) or whose value is not available (`unavailable`: before `min`, after `max` or listed in `disabledDates`), with the row's text as drawn.
  * - `onPickerRequest` (`pickerrequest`) — The user activated the picker button of a date, time or date-time field. The product presents the picker and sets `value` to the picked value.
  * - `onResizeEnd` (`resizeend`) — The person finished changing the size of a field resized by hand: a drag of its handle ended, or a key or an activation of the handle changed it (TXI-69). `detail.lines` and `detail.width`.
+ * - `onRevealChange` (`revealchange`) — The person showed or hid the value of a password field with the reveal button (TXI-72); `revealed` is already the new one. `detail.revealed`. Never fired when the product sets `revealed`, or when the field hides the value itself.
  * - `onAction` (`action`) — The action key (Enter) was pressed in a single-line field. Cancelable: cancelling it keeps an enclosing form from being submitted.
  */
 export const TextInput: Marked<typeof TextInputElement, TextInputMarks> = /* @__PURE__ */ withTextInputMarks(TextInputElement);
