@@ -3219,6 +3219,34 @@ test.describe('the clear button', () => {
     expect(g.x + g.width / 2 - c.x).toBeCloseTo(padding + icon / 2, 0);
     expect(await clear(page, id).locator('[slot="icon"]').evaluate((el) => getComputedStyle(el).transform)).toBe('none');
   });
+
+  test('TXI-71, TXI-24: in a right-to-left layout the trailing slot’s content and the clear button are the mirror of left to right, in every look — the clear button nearest the left edge, the slot’s content container.gap inside it, never over each other', async ({ page }) => {
+    const mic = '<tanrei-button variant="text" slot="trailing-icon" label="Speak"><span slot="icon">mic</span></tanrei-button>';
+    const looks = ['stacked', 'filled', 'outlined'] as const;
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: looks.flatMap((variant) => [fixture(`${variant}-ltr`, { variant, label: 'Find', value: 'tokens', clearable: true, clearLabel: 'Clear' }, mic), { ...fixture(`${variant}-rtl`, { variant, label: 'Find', value: 'tokens', clearable: true, clearLabel: 'Clear' }, mic), direction: 'rtl' as const }]),
+    });
+    const measure = async (id: string) => ({
+      c: await bounds(part(page, id, '.field > .container')),
+      glyph: await bounds(clear(page, id).locator('.icon')),
+      button: await bounds(clear(page, id).locator('button')),
+      trailing: await bounds(part(page, id, '.trailing')),
+    });
+    for (const variant of looks) {
+      const [ltr, rtl] = [await measure(`${variant}-ltr`), await measure(`${variant}-rtl`)];
+      expect(rtl.c.width, `${variant}: as wide`).toBeCloseTo(ltr.c.width, 0);
+      for (const key of ['glyph', 'button', 'trailing'] as const) {
+        const fromEnd = [ltr.c.x + ltr.c.width - (ltr[key].x + ltr[key].width), rtl[key].x - rtl.c.x];
+        expect(Math.abs(fromEnd[1]! - fromEnd[0]!), `${variant}: the ${key} mirrored, ${fromEnd[1]} ≈ ${fromEnd[0]}`).toBeLessThanOrEqual(0.6);
+      }
+      for (const [dir, m] of [['ltr', ltr], ['rtl', rtl]] as const) {
+        const [a, b] = [m.glyph, m.trailing];
+        expect(a.x + a.width <= b.x + 0.5 || b.x + b.width <= a.x + 0.5, `${variant} ${dir}: the clear glyph and the trailing content do not overlap`).toBe(true);
+      }
+      expect(rtl.glyph.x + rtl.glyph.width, `${variant} rtl: the clear button left of the trailing content`).toBeLessThanOrEqual(rtl.trailing.x + 0.5);
+    }
+  });
 });
 
 // A product that imports one component's module, not the package's entry, gets only what that module imports: an
