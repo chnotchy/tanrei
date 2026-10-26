@@ -230,8 +230,10 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
       return (
         <tr>
           <td data-wrap="false"><code>{tk.cssVar}</code></td>
-          <td>{alias ? <code>{alias.replace(`${ns}.`, '')}</code> : <span class="docs-muted">—</span>}</td>
-          <td>
+          {/* Each row is as few elements as it can be: a component's page holds hundreds of them. */}
+          {alias ? <td><code>{alias.replace(`${ns}.`, '')}</code></td> : <td class="docs-muted">—</td>}
+          {/* A color's swatch and its value stand on one line: the value is not broken under its swatch. */}
+          <td data-wrap={tk.type === 'color' ? 'false' : undefined}>
             {tk.type === 'color' && <tanrei-swatch class="chip" decorative size="small" shape="circle" color={tk.value.hex} />}
             <span class="docs-mono">{formatValue(tk)}</span>
           </td>
