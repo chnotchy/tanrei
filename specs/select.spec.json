@@ -411,7 +411,7 @@
     },
     {
       "id": "SEL-32",
-      "text": "WHILE an option is the active one by the keyboard THE select SHALL render it in the focused state and show the focus ring inside its row, which the list would otherwise clip, without animation; WHEN a pointer moves onto an option THE select SHALL make that option the active one, render it hovered and show no focus ring, so that the arrow keys continue from it; WHEN the pointer leaves the list the option SHALL stay active."
+      "text": "WHILE an option is the active one by the keyboard THE select SHALL render it in the focused state and show the focus ring inside its row, which the list would otherwise clip, without animation; WHEN a pointer moves onto an option THE select SHALL make that option the active one, render it hovered and show no focus ring, so that the arrow keys continue from it; WHILE a pointer is at rest THE select SHALL NOT take the options that a scroll of the list or of the page carries under it for a pointer that moves onto them, so that the option a key made active stays active; WHEN the pointer leaves the list the option SHALL stay active."
     },
     {
       "id": "SEL-33",

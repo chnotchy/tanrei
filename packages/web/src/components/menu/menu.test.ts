@@ -750,6 +750,55 @@ test.describe('overlay', () => {
     await expect(row(page, 'edit', 2)).toHaveCSS('outline-style', 'solid');
   });
 
+  test('MNU-8: a pointer at rest is not a pointer that moves — the items a key scrolls under it leave focus where the key put it, in every engine; the pointer that moves again moves focus to the item under it', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 300 });
+    await mountFixtures(page, spec, { fixtures: [overlay('long', Array.from({ length: 16 }, (_, n) => it(`Item ${n + 1}`)))] });
+    await wire(page);
+    await anchor(page, 'long').focus();
+    await page.keyboard.press('Enter');
+    await expect.poll(() => isOpen(page, 'long')).toBe(true);
+    await motionEnded(page);
+    // Every pointermove the window hears, and the last one's place and pointer.
+    await page.evaluate(() => {
+      const w = window as unknown as { __moves: { x: number; y: number; id: number }[] };
+      w.__moves = [];
+      window.addEventListener('pointermove', (event) => w.__moves.push({ x: event.clientX, y: event.clientY, id: event.pointerId }), true);
+    });
+    const moves = () => page.evaluate(() => (window as unknown as { __moves: { x: number; y: number; id: number }[] }).__moves);
+    // The pointer moves onto the second item: focus is there, without the ring.
+    const second = await bounds(row(page, 'long', 1));
+    // On whole pixels: WebKit reports a pointer's place in them.
+    const at = { x: Math.round(second.x + 20), y: Math.round(second.y + second.height / 2) };
+    await page.mouse.move(at.x, at.y);
+    expect(await focused(page)).toBe('Item 2');
+    await expect(row(page, 'long', 1)).toHaveCSS('outline-style', 'none');
+    // End scrolls the items under the resting pointer. WebKit then sends a pointermove at the pointer's own place
+    // (Chromium and Firefox send none): focus stays on the item the key moved it to.
+    const heard = (await moves()).length;
+    await page.keyboard.press('End');
+    expect(await focused(page)).toBe('Item 16');
+    await expect(row(page, 'long', 15)).toHaveCSS('outline-style', 'solid');
+    await expect.poll(() => menu(page, 'long').locator('.scroll').evaluate((el) => el.scrollTop), 'the items scrolled under the pointer').toBeGreaterThan(0);
+    if (test.info().project.name.startsWith('webkit')) await expect.poll(async () => (await moves()).length, 'WebKit tells the item now under the pointer').toBeGreaterThan(heard);
+    expect(await focused(page), 'the pointer did not move').toBe('Item 16');
+    await expect(row(page, 'long', 15)).toHaveCSS('outline-style', 'solid');
+    // What WebKit sends, sent in every engine: a pointermove at the place the pointer last was, from the deepest element there.
+    const last = (await moves()).at(-1)!;
+    expect([last.x, last.y]).toEqual([at.x, at.y]);
+    await page.evaluate((p) => {
+      let target = document.elementFromPoint(p.x, p.y)!;
+      for (let inner = target.shadowRoot?.elementFromPoint(p.x, p.y); inner && inner !== target; inner = target.shadowRoot?.elementFromPoint(p.x, p.y)) target = inner;
+      target.dispatchEvent(new PointerEvent('pointermove', { clientX: p.x, clientY: p.y, pointerId: p.id, pointerType: 'mouse', isPrimary: true, bubbles: true, composed: true }));
+    }, last);
+    expect(await focused(page), 'a pointermove at the same place is no move').toBe('Item 16');
+    // The pointer moves again, by a pixel: focus moves to the item under it, without the ring.
+    await page.mouse.move(at.x + 1, at.y);
+    const now = await page.evaluate((p) => (document.elementFromPoint(p.x, p.y)?.closest('tanrei-menu-item') as { label?: string } | null)?.label ?? null, { x: at.x + 1, y: at.y });
+    expect(now).toMatch(/^Item \d+$/);
+    expect(now).not.toBe('Item 16');
+    expect(await focused(page)).toBe(now);
+  });
+
   test('MNU-24: the menu named by its anchor; items by role, checked state, position, name and description; the shortcut; groups named; icons hidden; the anchor told', async ({ page }) => {
     const seen = warnings(page);
     await mountFixtures(page, spec, {
