@@ -9205,6 +9205,7 @@ export const cupertino = {
       },
     },
     select: {
+      containerActionGap: 4,
       disabledOpacity: 1,
       dividerColor: { kind: "role", role: "surfaceContainerHigh" },
       dividerSpace: 0,
@@ -11515,6 +11516,7 @@ export const cupertino = {
     textInput: {
       codeTabSize: 2,
       codeTypescale: "code",
+      containerActionGap: 4,
       entriesGap: 8,
       entriesRowGap: 8,
       entriesTypingMinWidth: 72,

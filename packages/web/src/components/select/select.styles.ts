@@ -125,6 +125,8 @@ export const styles = css`
     --_floated-line: calc(var(--_floated-line-height) * var(--_floated-font-size));
     --_label-line: calc(var(--_label-line-height) * var(--_label-font-size));
     --_input-line: calc(var(--_input-line-height) * var(--_input-font-size));
+    /* SEL-72: the clear button stands over the container's end; it is laid out against the field. */
+    position: relative;
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
@@ -138,6 +140,10 @@ export const styles = css`
   .field[data-chevron] {
     --_end: var(--_pad-icon);
     --_text-end: calc(var(--_pad-icon) + var(--_icon) + var(--_gap));
+  }
+  /* SEL-72: the clear button's room — a glyph's box action-gap before the chevron — is kept whether or not it is drawn. */
+  .field[data-clear] {
+    --_text-end: calc(var(--_pad-icon) + 2 * var(--_icon) + var(${P}-container-action-gap) + var(--_gap));
   }
 
   /* SEL-20: each state sets the current value of every part from that state's tokens of the current look; focused over
@@ -295,6 +301,32 @@ export const styles = css`
   }
   .field[data-chevron] .body {
     margin-inline-end: var(--_gap);
+  }
+  .field[data-clear] .chevron {
+    margin-inline-start: calc(var(--_icon) + var(${P}-container-action-gap));
+  }
+
+  /* SEL-72: the clear button is a Button — its own tokens, press, focus ring and target — after the combobox and not
+     in it, placed over the room the container keeps for it: a glyph's box centred on the container's height, its glyph
+     where a glyph of the row stands. Later in the tree and positioned, it paints over the container. */
+  .clear {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: calc(var(--_end) + var(--_icon) + var(${P}-container-action-gap));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--_icon);
+  }
+  .clear > tanrei-button {
+    flex: none;
+  }
+  /* Over the container only: an outlined select whose floated label wraps keeps room above its container (SEL-15). */
+  .field[data-label-wraps] .clear {
+    inset-block-start: calc((var(--_float-lines) - 1) * var(--_floated-line));
+  }
+  ${unsafeCSS(FILLED)}[data-labelled][data-label-wraps] .clear {
+    inset-block-start: 0;
   }
 
   /* SEL-15: the label of a filled or outlined select — resting in the line, floated, wrapping — and SEL-7, its asterisk

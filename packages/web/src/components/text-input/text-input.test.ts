@@ -3087,6 +3087,140 @@ test.describe('behavior', () => {
   });
 });
 
+test.describe('the clear button', () => {
+  const clear = (page: P, id: string) => part(page, id, '.clear-button');
+  const room = (page: P, id: string) => part(page, id, '.own.clear');
+  /** Where the text ends: the right edge of the native input, the box the value is laid out in. */
+  const textEnd = async (page: P, id: string) => {
+    const b = await bounds(input(page, id));
+    return b.x + b.width;
+  };
+
+  test('TXI-71: with clearable a single-line field keeps the room of an icon-only text Button of Button’s small size at its end — after the trailing slot’s content, container.gap away — and draws the button, named by clearLabel and showing close, while the value is not empty; the text ends at the same place with and without it; it is a focus stop after the input and a slotted button; a disabled, a read-only, a multi-line and a date field draw none, the last two reported', async ({ page }) => {
+    const seen = warnings(page);
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        fixture('c', { label: 'Filter', value: 'color', clearable: true, clearLabel: 'Clear filter' }),
+        fixture('c-trailing', { label: 'Find', value: 'tokens', clearable: true, clearLabel: 'Clear' }, '<tanrei-button variant="text" slot="trailing-icon" label="Speak"><span slot="icon">mic</span></tanrei-button>'),
+        fixture('c-disabled', { label: 'Off', value: 'x', clearable: true, clearLabel: 'Clear', disabled: true }),
+        fixture('c-read-only', { label: 'Read', value: 'x', clearable: true, clearLabel: 'Clear', readOnly: true }),
+        fixture('c-multiline', { label: 'Note', value: 'x', clearable: true, clearLabel: 'Clear', multiline: true }),
+        fixture('c-date', { type: 'date', locale: 'en-US', label: 'Due', value: '2026-10-24', clearable: true, clearLabel: 'Clear' }),
+        fixture('plain', { label: 'Plain', value: 'color' }),
+      ],
+    });
+    // An icon-only text Button of the small size, named by clearLabel, showing close.
+    await expect(clear(page, 'c')).toHaveAttribute('variant', 'text');
+    await expect(clear(page, 'c')).toHaveAttribute('size', 'small');
+    await expect(clear(page, 'c').locator('[slot="icon"]')).toHaveText('close');
+    await expect(host(page, 'c').getByRole('button', { name: 'Clear filter', exact: true })).toHaveCount(1);
+    // Its glyph stands where a trailing icon's would be: padding-inline-with-icon from the end, centred on the height.
+    const c = await bounds(part(page, 'c', '.field > .container'));
+    const g = await bounds(clear(page, 'c').locator('.icon'));
+    const [padding, icon, gap] = [await resolveToken(page, T('container-padding-inline-with-icon-medium')), await resolveToken(page, T('icon-size-medium')), await resolveToken(page, T('container-gap-medium'))];
+    expect(c.x + c.width - (g.x + g.width / 2), 'across').toBeCloseTo(padding + icon / 2, 0);
+    expect(g.y + g.height / 2, 'down').toBeCloseTo(c.y + c.height / 2, 0);
+    // The text ends container.gap before the room; emptied, the button goes and the room stays: the text ends there still.
+    const end = await textEnd(page, 'c');
+    expect(c.x + c.width - padding - icon - gap - end, 'text end').toBeCloseTo(0, 0);
+    await host(page, 'c').evaluate((el) => ((el as any).value = ''));
+    await expect(clear(page, 'c')).toHaveCount(0);
+    await expect(room(page, 'c')).toHaveCount(1);
+    expect(await textEnd(page, 'c')).toBeCloseTo(end, 1);
+    await host(page, 'c').evaluate((el) => ((el as any).value = 'color'));
+    await expect(clear(page, 'c')).toHaveCount(1);
+    // Without clearable there is no room: the text runs to the padding.
+    const p = await bounds(part(page, 'plain', '.field > .container'));
+    expect(p.x + p.width - (await resolveToken(page, T('container-padding-inline-medium'))) - (await textEnd(page, 'plain'))).toBeCloseTo(0, 0);
+    // The trailing slot's content comes before it, container.gap away; Tab: the input, the slotted button, the clear button.
+    const [trailing, own] = await Promise.all([bounds(part(page, 'c-trailing', '.trailing')), bounds(room(page, 'c-trailing'))]);
+    expect(own.x - (trailing.x + trailing.width)).toBeCloseTo(gap, 1);
+    await tabTo(page, input(page, 'c-trailing'));
+    await tab(page);
+    await expect(host(page, 'c-trailing').locator('tanrei-button[slot="trailing-icon"] button')).toBeFocused();
+    await tab(page);
+    await expect(clear(page, 'c-trailing').locator('button')).toBeFocused();
+    // None while disabled or read-only, nor in a field that cannot draw it.
+    for (const id of ['c-disabled', 'c-read-only', 'c-multiline', 'c-date']) await expect(clear(page, id), id).toHaveCount(0);
+    for (const id of ['c-disabled', 'c-read-only', 'c-multiline', 'c-date']) await expect(room(page, id), id).toHaveCount(0);
+    await expect.poll(() => seen.filter((w) => w.includes('TXI-71') && w.includes('clearable is ignored')).length).toBe(2);
+  });
+
+  test('TXI-71, TXI-2: activating the clear button empties the value, emits input once and then change once where the value differs from the one last committed, and leaves focus in the input; a mouse press on it does not take focus from the input; by keyboard it is reached by Tab and pressed with Enter or Space', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        fixture('c', { label: 'Filter', value: 'color', clearable: true, clearLabel: 'Clear filter' }),
+        fixture('typed', { label: 'Query', clearable: true, clearLabel: 'Clear query' }),
+      ],
+    });
+    // The value the product set, cleared with the mouse: focus never leaves the input, which then commits the empty value.
+    await listen(host(page, 'c'));
+    await input(page, 'c').click();
+    await host(page, 'c').evaluate((el) => {
+      const field = el.shadowRoot!.querySelector('.input')!;
+      field.addEventListener('blur', () => ((window as any).blurred = true));
+    });
+    await clear(page, 'c').click();
+    expect(await events(page)).toEqual(['input:', 'change:']);
+    await expect(input(page, 'c')).toHaveValue('');
+    await expect(input(page, 'c')).toBeFocused();
+    expect(await page.evaluate(() => (window as any).blurred ?? false)).toBe(false);
+    await expect(clear(page, 'c')).toHaveCount(0);
+    // Leaving now commits nothing more.
+    await page.locator('body').click({ position: { x: 1, y: 1 } });
+    expect(await events(page)).toEqual(['input:', 'change:']);
+    // Typed into a field that was empty when it took focus: clearing it gives the value it had, so no change.
+    await listen(host(page, 'typed'));
+    await input(page, 'typed').click();
+    await page.keyboard.type('ab');
+    await clear(page, 'typed').click();
+    expect(await events(page)).toEqual(['input:a', 'input:ab', 'input:']);
+    await expect(input(page, 'typed')).toBeFocused();
+    // By keyboard: Tab leaves the input (a commit), Enter clears (another), and focus is back in the input.
+    await page.keyboard.type('cd');
+    await tab(page);
+    await expect(clear(page, 'typed').locator('button')).toBeFocused();
+    await page.keyboard.press('Enter');
+    expect(await events(page)).toEqual(['input:a', 'input:ab', 'input:', 'input:c', 'input:cd', 'change:cd', 'input:', 'change:']);
+    await expect(input(page, 'typed')).toBeFocused();
+    await page.keyboard.type('e');
+    await tab(page);
+    await page.keyboard.press(' ');
+    await expect(input(page, 'typed')).toHaveValue('');
+    await expect(input(page, 'typed')).toBeFocused();
+  });
+
+  test('TXI-71, TXI-52: without clearLabel and the product’s words the clear button is drawn, works and has no name, and the report names clearLabel; the product’s words name it, and an instance’s own prop wins', async ({ page }) => {
+    const seen = warnings(page);
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [wordless('nameless', { label: 'Filter', value: 'color', clearable: true }), wordless('own', { label: 'City', value: 'Kyoto', clearable: true, clearLabel: 'Clear city' })],
+    });
+    await expect(clear(page, 'nameless')).toHaveCount(1);
+    await expect(clear(page, 'nameless').locator('button')).not.toHaveAttribute('aria-label');
+    await expect.poll(() => seen.filter((w) => w.includes('clear-label is empty') && w.includes('(TXI-71)')).length).toBe(1);
+    expect(await missingWords(page)).toEqual(['clearLabel']);
+    await setWords(page, { clearLabel: 'Clear' });
+    await expect(host(page, 'nameless').getByRole('button', { name: 'Clear', exact: true })).toHaveCount(1);
+    await expect(host(page, 'own').getByRole('button', { name: 'Clear city', exact: true })).toHaveCount(1);
+    await clear(page, 'nameless').click();
+    await expect(input(page, 'nameless')).toHaveValue('');
+    expect(await missingWords(page)).toEqual([]);
+  });
+
+  test('TXI-71, TXI-24, TXI-35: in a right-to-left layout the clear button stands at the left, its glyph unmirrored', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: only(/^stacked-clearable-rtl$/) });
+    const id = 'stacked-clearable-rtl';
+    const c = await bounds(part(page, id, '.field > .container'));
+    const g = await bounds(clear(page, id).locator('.icon'));
+    const [padding, icon] = [await resolveToken(page, T('container-padding-inline-with-icon-medium')), await resolveToken(page, T('icon-size-medium'))];
+    expect(g.x + g.width / 2 - c.x).toBeCloseTo(padding + icon / 2, 0);
+    expect(await clear(page, id).locator('[slot="icon"]').evaluate((el) => getComputedStyle(el).transform)).toBe('none');
+  });
+});
+
 // A product that imports one component's module, not the package's entry, gets only what that module imports: an
 // element the text input draws is defined by its own imports, or it never upgrades.
 test.describe('imported alone', () => {
@@ -4702,12 +4836,12 @@ test.describe('values a design system adds', () => {
 });
 
 test.describe('the box is the one set every input box is drawn from', () => {
-  test('TXI-68: the text input holds no token of the box under its own name — its own family is a segment, the code face, the entries place and the motion of a height, in the default system and in each preset', async () => {
+  test('TXI-68: the text input holds no token of the box under its own name — its own family is a segment, the code face, the entries place, the motion of a height and the gap between two buttons of its own, in the default system and in each preset', async () => {
     const dist = new URL('../../../dist/', import.meta.url);
     const sheets = ['tokens.css', 'systems/m3-like.css', 'systems/m3-expressive-like.css', 'systems/cupertino.css'].map((file) => fs.readFileSync(new URL(file, dist), 'utf8'));
     expect(inputBoxCopies(sheets, 'text-input')).toEqual([]);
     const mine = [...new Set([...sheets[0]!.matchAll(/--tanrei-comp-text-input-([a-z0-9-]+)(?=:)/g)].map((m) => m[1]!))];
-    expect(mine.filter((name) => !/^(entries-|motion-resize-|code-|segment-)/.test(name))).toEqual([]);
+    expect(mine.filter((name) => !/^(entries-|motion-resize-|code-|segment-|container-action-gap$)/.test(name))).toEqual([]);
     expect(mine.length).toBeGreaterThan(10);
   });
 
