@@ -26,11 +26,14 @@
 // written a frame late (it is, wherever a script reads layout in the mounting task). Style is never brought up to date
 // in the middle of a task: there, an attribute an element writes after its first render would start a transition the
 // page never starts. A motion that began and ended between two frames read here all the same is in no frame: its
-// events show it, and the sampling fails instead of returning frames without it. Not in WebKit, which dates a
-// transition begun in a task from the frame drawn before that task: one that the task outlasted is dropped at the next
-// frame without an event, and the first frame read is already at rest. A component starts such a motion from the next
-// frame itself (an appearance does: `AppearController`, src/primitives/motion.ts; and a modal dialog's entrance and its
-// scrim's fade: `openModal()`, src/primitives/modal-exit.ts).
+// events show it, and the sampling fails instead of returning frames without it. WebKit dates a transition begun in a
+// task from the frame drawn before that task (on a page where nothing else moves): one that the task outlasted ends in
+// the next frame, and sends its `transitionrun`, `transitionstart` and `transitionend` there — on macOS and in CI's
+// Linux container alike. The sampler's own task after the changing one holds it at its start before that frame in most
+// runs, and its frames are read whole; where the engine draws the frame first (once in about twenty runs of a 300 ms
+// transition behind a 500 ms task, in either), the sampling fails with it as missed. A component starts such a motion
+// from the next frame itself (an appearance's entrance and exit: `AppearController`, src/primitives/motion.ts; a modal
+// dialog's entrance and exit and its scrim's fade: `openModal()` and `closeModal()`, src/primitives/modal-exit.ts).
 //
 // Held motions stand still while the test acts: an act of several inputs (a key, then another) is one moment, however
 // long the round trips take. What moves on its own clock is not held — a script that moves a box frame by frame from
