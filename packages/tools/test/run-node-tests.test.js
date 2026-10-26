@@ -171,6 +171,14 @@ describe('shards by measured time (--shard-weights)', () => {
     const next = refreshed({ $comment: 'seconds', 'b.test.mjs': 40, 'a.test.mjs': 50 }, found, (file) => file.replace(/^test\//, ''));
     assert.deepEqual(Object.entries(next), [['$comment', 'seconds'], ['a.test.mjs', 60], ['b.test.mjs', 40], ['new.test.mjs', 12]]);
   });
+
+  test('the docs’ browser tests are split by their weights file: seconds by file, and a comment that says where they come from', () => {
+    const docs = path.join(root, 'apps/docs');
+    assert.match(JSON.parse(fs.readFileSync(path.join(docs, 'package.json'), 'utf8')).scripts['test:browser'], /--shard-weights=test\/browser\/durations\.json /);
+    const { $comment, ...table } = JSON.parse(fs.readFileSync(path.join(docs, 'test/browser/durations.json'), 'utf8'));
+    assert.match($comment, /shard-weights\.js/);
+    for (const [file, seconds] of Object.entries(table)) assert.ok(file.endsWith('.test.mjs') && Number.isFinite(seconds) && seconds > 0, `${file}: ${seconds}`);
+  });
 });
 
 test('a TAP report’s failures: at any depth, without the TODOs', () => {
