@@ -72,6 +72,17 @@ const ASKED = {
   'rail.hueChroma': [['0', '0'], ['265', '16']],
   'rail.size': [['1', '4px'], ['0.85', '4.25px']],
   'rail.lock': [['Brand color'], ['Gray']],
+  'exporting.depend': [['M3-like (Material 3-inspired)']],
+  'exporting.dependHelp': [['M3-like (Material 3-inspired)'], ['Cupertino (Apple HIG-inspired)']],
+  'exporting.everyHelp': [['M3-like (Material 3-inspired)']],
+  'exporting.held': [['fab-menu', 'M3-like (Material 3-inspired)'], ['fab-menu · carousel', 'Cupertino']],
+  'exporting.downloadFile': [['acme.system.json'], ['acme.css']],
+  'exporting.cssHelp': [['Tanrei'], ['M3-like (Material 3-inspired)']],
+  'exporting.cssNone': [['Tanrei']],
+  'exporting.init': [['design/acme.system.json']],
+  'exporting.saved': [['acme.system.json']],
+  'shared.title': [['Acme', 'Cupertino (Apple HIG-inspired)'], ['acme', 'Tanrei']],
+  'shared.body': [['Acme'], ['acme-app']],
 };
 
 test('the registry lists six languages, all six are translated, and a switch offers each under its own name', () => {

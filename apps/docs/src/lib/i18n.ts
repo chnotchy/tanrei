@@ -116,11 +116,12 @@ const en = {
   notDefinedYet: 'Not available in the installed web build.',
   // The gallery of fixtures (components/fixtures/FixtureGallery.astro): a stage's actions, its width handle and its
   // window. `{id}` is a fixture's id; `{width}` and `{height}` are pixels.
+  // The docs' one frame (components/visuals/Example.astro): its title where a page gives none, its code and the
+  // code's kinds, the copy of it, the direction it draws its stage in when turned (by the page's own direction:
+  // a page that reads left to right offers right to left), and its width handle. `{title}` is the frame's title.
+  example: { live: 'Live', code: 'Code', codeOf: 'Code of {title}', flavor: 'Code for', copy: 'Copy the code', copied: 'Code copied', copyFailed: 'The code could not be copied', direction: { ltr: 'Right to left', rtl: 'Left to right' }, width: 'Width of {title}' },
   stages: {
     dark: 'Dark scheme',
-    copy: 'Copy the markup',
-    copied: 'Markup copied',
-    copyFailed: 'The markup could not be copied',
     redraw: 'Draw {id} again',
     width: 'Width of {id}',
     frame: 'Fixture {id}',
@@ -135,7 +136,6 @@ const en = {
   contrastStandard: 'Standard',
   contrastMedium: 'Medium',
   contrastHigh: 'High',
-  contrastHelp: 'Applies to the whole page and is remembered on this device.',
   light: 'Light',
   dark: 'Dark',
   cssVariable: 'CSS custom property',
@@ -190,7 +190,7 @@ const en = {
   },
   // The link to the source repository at the foot of every page (components/frame/Footer.astro).
   sourceLink: 'Source code and issues on GitHub',
-  // A demo drawn under a shipped system (components/DemoFrame.astro); `{system}` is the system's id, set as code.
+  // A frame pinned to a shipped preset (components/visuals/Example.astro): `{system}` is the system's id, set as code.
   demoUnder: 'Under {system}',
   // The name of the ground the elevation levels are shown on, a figure with no title and no caption
   // (components/tokens/ElevationScale.astro); and what the system gallery says where a system declares no palette.
@@ -231,6 +231,8 @@ const en = {
   // the header, and the notice on a page shown in English. Tanrei ships no words. "Previous" and "Next" are still
   // the framework's translated strings; the search's words are `search`, below.
   frame: { skipLink: 'Skip to content', menu: 'Menu', siteNavigation: 'Documentation', onThisPage: 'On this page', overview: 'Overview', breadcrumbs: 'Breadcrumbs', home: 'Home', hiddenLevels: 'Show hidden levels', theme: 'Theme', themeAuto: 'Auto', appearance: 'Appearance', editTheme: 'Edit theme', system: 'Design system: {system}', language: 'Language' },
+  /** The sidebar's filter (the navigation drawer's `filterable`): the field's name and hint, what the drawer says while it filters, and its clear button. */
+  sidebarFilter: { label: 'Filter navigation', placeholder: 'Filter', none: 'No matches', count: 'Matches: {count}', clear: 'Clear filter' },
   // The titles of the document (src/routeData.ts, lib/seo.ts): a component's page, the site's name after it, and the
   // first page's own. `{name}` is the system's name (tanrei.config.json), `{title}` the page's, `{platforms}` the
   // platforms' names as the language lists them; `web` is the web platform's name in that list, and `list` what stands
@@ -254,6 +256,30 @@ const en = {
     more: 'Show more results',
     unavailable: 'Search is unavailable',
   },
+  // The actions at the head of a page (components/frame/PageActions.astro): the main action's label, the menu button's
+  // name, the snackbar's sentences, and each item's label and the line under it.
+  // `ask` is the question a new chat in ChatGPT or Claude starts with, `{url}` the address of the page's Markdown.
+  pageActions: {
+    copy: 'Copy Markdown',
+    more: 'More page actions',
+    copiedMessage: 'The page is copied as Markdown.',
+    copyFailed: 'The page could not be copied. Open it as Markdown and copy it from there.',
+    view: 'View as Markdown',
+    viewNote: 'This page as plain text',
+    chatgpt: 'Open in ChatGPT',
+    claude: 'Open in Claude',
+    askNote: 'Ask questions about this page',
+    ask: 'Read {url} and answer my questions about it.',
+    mcp: 'MCP server',
+    cursor: 'Add to Cursor',
+    vscode: 'Add to VS Code',
+    installNote: 'Install the MCP server',
+    claudeCode: 'Copy the Claude Code command',
+    claudeCodeNote: 'Add the MCP server to a project',
+    commandCopied: 'The command is copied.',
+    commandFailed: 'The command could not be copied.',
+    error: 'Error',
+  },
   group: {
     primary: 'Primary',
     secondary: 'Secondary',
@@ -264,13 +290,11 @@ const en = {
     inverse: 'Inverse',
     utility: 'Utility',
   } as Record<string, string>,
-  // The docs' figures (components/visuals/, lib/visuals/): the help of the switch that draws a figure under another
-  // shipped system (components/visuals/SystemSwitch.astro; the word before its row is `system.choice`), the text that
-  // stands for an anatomy figure — one sentence for each plural form the language has (`Intl.PluralRules`), `{component}`
-  // the component's title, `{count}` its number of parts and `{list}` their ids as a list in the language — and the
-  // titles and controls of the other kinds of figure.
+  // The docs' figures (components/visuals/, lib/visuals/): the text that stands for an anatomy figure — one sentence
+  // for each plural form the language has (`Intl.PluralRules`), `{component}` the component's title, `{count}` its
+  // number of parts and `{list}` their ids as a list in the language — and the titles and controls of the other kinds
+  // of figure.
   visuals: {
-    systemHelp: 'Draws this figure under a shipped design system. Nothing else on the page changes.',
     anatomyAlt: { one: '{component}: 1 part, {list}.', other: '{component}: {count} parts — {list}.' } as Record<string, string>,
     measureTitle: 'Measurements',
     motionTitle: 'Motion',
@@ -383,11 +407,9 @@ const ja: typeof en = {
   minimumTarget: '最小ターゲット',
   minimumTargetText: '見た目のサイズが小さくても、ヒット領域は最小ターゲットサイズを満たします。',
   notDefinedYet: 'インストールされている Web ビルドにはまだ含まれていません。',
+  example: { live: 'ライブ', code: 'コード', codeOf: '{title}のコード', flavor: 'コードの種類', copy: 'コードをコピー', copied: 'コードをコピーしました', copyFailed: 'コードをコピーできませんでした', direction: { ltr: '右から左', rtl: '左から右' }, width: '{title}の幅' },
   stages: {
     dark: 'ダークスキーム',
-    copy: 'マークアップをコピー',
-    copied: 'マークアップをコピーしました',
-    copyFailed: 'マークアップをコピーできませんでした',
     redraw: '{id} を描き直す',
     width: '{id} の幅',
     frame: 'フィクスチャ {id}',
@@ -400,7 +422,6 @@ const ja: typeof en = {
   contrastStandard: '標準',
   contrastMedium: '中',
   contrastHigh: '高',
-  contrastHelp: 'ページ全体に適用され、このデバイスに保存されます。',
   light: 'ライト',
   dark: 'ダーク',
   cssVariable: 'CSS カスタムプロパティ',
@@ -475,6 +496,7 @@ const ja: typeof en = {
   },
   typeSample: '端麗なインターフェース Tanrei',
   frame: { skipLink: 'メインコンテンツへスキップ', menu: 'メニュー', siteNavigation: 'ドキュメント', onThisPage: 'このページの内容', overview: '概要', breadcrumbs: 'パンくずリスト', home: 'ホーム', hiddenLevels: '隠れた階層を表示', theme: 'テーマ', themeAuto: '自動', appearance: '外観', editTheme: 'テーマを編集', system: 'デザインシステム：{system}', language: '言語' },
+  sidebarFilter: { label: 'ナビゲーションを絞り込む', placeholder: '絞り込み', none: '一致する項目はありません', count: '{count} 件が一致', clear: '絞り込みを解除' },
   seo: { component: '{title} — アクセシブルな UI コンポーネント', site: '{name} デザインシステム', home: '{name} — {platforms} のためのデザインシステム', web: 'Web Components', list: ['、', '、'] },
   search: {
     label: 'ドキュメントを検索',
@@ -489,6 +511,27 @@ const ja: typeof en = {
     more: '結果をさらに表示',
     unavailable: '検索を利用できません',
   },
+  pageActions: {
+    copy: 'Markdown をコピー',
+    more: 'ページのその他の操作',
+    copiedMessage: 'ページを Markdown でコピーしました。',
+    copyFailed: 'ページをコピーできませんでした。Markdown で開いて、そこからコピーしてください。',
+    view: 'Markdown で表示',
+    viewNote: 'このページをプレーンテキストで',
+    chatgpt: 'ChatGPT で開く',
+    claude: 'Claude で開く',
+    askNote: 'このページについて質問する',
+    ask: '{url} を読んで、その内容についての質問に答えてください。',
+    mcp: 'MCP サーバー',
+    cursor: 'Cursor に追加',
+    vscode: 'VS Code に追加',
+    installNote: 'MCP サーバーをインストール',
+    claudeCode: 'Claude Code のコマンドをコピー',
+    claudeCodeNote: 'プロジェクトに MCP サーバーを追加',
+    commandCopied: 'コマンドをコピーしました。',
+    commandFailed: 'コマンドをコピーできませんでした。',
+    error: 'エラー',
+  },
   group: {
     primary: 'プライマリ',
     secondary: 'セカンダリ',
@@ -500,7 +543,6 @@ const ja: typeof en = {
     utility: 'ユーティリティ',
   },
   visuals: {
-    systemHelp: 'この図を、提供しているデザインシステムで描き直します。ページのほかの部分は変わりません。',
     anatomyAlt: { other: '{component}: {count} 個のパーツ（{list}）。' },
     measureTitle: '寸法',
     motionTitle: '動き',
@@ -613,11 +655,9 @@ const zh: typeof en = {
   minimumTarget: '最小目标',
   minimumTargetText: '即使外观尺寸更小，点击区域也满足最小目标尺寸。',
   notDefinedYet: '当前安装的 Web 构建中尚不包含。',
+  example: { live: '实时', code: '代码', codeOf: '{title}的代码', flavor: '代码类型', copy: '复制代码', copied: '已复制代码', copyFailed: '无法复制代码', direction: { ltr: '从右到左', rtl: '从左到右' }, width: '{title}的宽度' },
   stages: {
     dark: '深色方案',
-    copy: '复制标记',
-    copied: '已复制标记',
-    copyFailed: '无法复制标记',
     redraw: '重新绘制 {id}',
     width: '{id} 的宽度',
     frame: '测试样例 {id}',
@@ -630,7 +670,6 @@ const zh: typeof en = {
   contrastStandard: '标准',
   contrastMedium: '中',
   contrastHigh: '高',
-  contrastHelp: '应用于整个页面，并保存在此设备上。',
   light: '浅色',
   dark: '深色',
   cssVariable: 'CSS 自定义属性',
@@ -705,6 +744,7 @@ const zh: typeof en = {
   },
   typeSample: '端正清朗的界面 Tanrei',
   frame: { skipLink: '跳到主要内容', menu: '菜单', siteNavigation: '文档', onThisPage: '本页内容', overview: '概览', breadcrumbs: '面包屑导航', home: '首页', hiddenLevels: '显示隐藏的层级', theme: '主题', themeAuto: '自动', appearance: '外观', editTheme: '编辑主题', system: '设计系统：{system}', language: '语言' },
+  sidebarFilter: { label: '筛选导航', placeholder: '筛选', none: '没有匹配项', count: '匹配 {count} 项', clear: '清除筛选' },
   seo: { component: '{title} — 无障碍 UI 组件', site: '{name} 设计系统', home: '{name} — 面向 {platforms} 的设计系统', web: 'Web Components', list: ['、', ' 和 '] },
   search: {
     label: '搜索文档',
@@ -719,6 +759,27 @@ const zh: typeof en = {
     more: '显示更多结果',
     unavailable: '搜索暂时无法使用',
   },
+  pageActions: {
+    copy: '复制 Markdown',
+    more: '更多页面操作',
+    copiedMessage: '已将本页复制为 Markdown。',
+    copyFailed: '无法复制本页。请以 Markdown 格式打开，再从中复制。',
+    view: '以 Markdown 格式查看',
+    viewNote: '以纯文本查看本页',
+    chatgpt: '在 ChatGPT 中打开',
+    claude: '在 Claude 中打开',
+    askNote: '就本页内容提问',
+    ask: '请阅读 {url}，然后回答我关于其内容的问题。',
+    mcp: 'MCP 服务器',
+    cursor: '添加到 Cursor',
+    vscode: '添加到 VS Code',
+    installNote: '安装 MCP 服务器',
+    claudeCode: '复制 Claude Code 命令',
+    claudeCodeNote: '将 MCP 服务器添加到项目中',
+    commandCopied: '已复制命令。',
+    commandFailed: '无法复制命令。',
+    error: '错误',
+  },
   group: {
     primary: '主色（Primary）',
     secondary: '次色（Secondary）',
@@ -730,7 +791,6 @@ const zh: typeof en = {
     utility: '辅助（Utility）',
   },
   visuals: {
-    systemHelp: '用所提供的某个设计系统重新绘制此图。页面的其他部分不变。',
     anatomyAlt: { other: '{component}：{count} 个部分（{list}）。' },
     measureTitle: '尺寸',
     motionTitle: '动效',
@@ -842,11 +902,9 @@ const es: typeof en = {
   minimumTarget: 'Objetivo mínimo',
   minimumTargetText: 'El área de pulsación cumple el tamaño mínimo de objetivo aunque el tamaño visual sea menor.',
   notDefinedYet: 'No está disponible en la compilación web instalada.',
+  example: { live: 'En vivo', code: 'Código', codeOf: 'Código de {title}', flavor: 'Código para', copy: 'Copiar el código', copied: 'Código copiado', copyFailed: 'No se pudo copiar el código', direction: { ltr: 'De derecha a izquierda', rtl: 'De izquierda a derecha' }, width: 'Ancho de {title}' },
   stages: {
     dark: 'Esquema oscuro',
-    copy: 'Copiar el marcado',
-    copied: 'Marcado copiado',
-    copyFailed: 'No se pudo copiar el marcado',
     redraw: 'Volver a dibujar {id}',
     width: 'Ancho de {id}',
     frame: 'Fixture {id}',
@@ -859,7 +917,6 @@ const es: typeof en = {
   contrastStandard: 'Estándar',
   contrastMedium: 'Medio',
   contrastHigh: 'Alto',
-  contrastHelp: 'Se aplica a toda la página y se recuerda en este dispositivo.',
   light: 'Claro',
   dark: 'Oscuro',
   cssVariable: 'Propiedad personalizada de CSS',
@@ -934,6 +991,7 @@ const es: typeof en = {
   },
   typeSample: 'Limpio y bien formado 端麗',
   frame: { skipLink: 'Saltar al contenido', menu: 'Menú', siteNavigation: 'Documentación', onThisPage: 'En esta página', overview: 'Descripción general', breadcrumbs: 'Ruta de navegación', home: 'Inicio', hiddenLevels: 'Mostrar los niveles ocultos', theme: 'Tema', themeAuto: 'Automático', appearance: 'Apariencia', editTheme: 'Editar tema', system: 'Sistema de diseño: {system}', language: 'Idioma' },
+  sidebarFilter: { label: 'Filtrar la navegación', placeholder: 'Filtrar', none: 'No hay coincidencias', count: 'Coincidencias: {count}', clear: 'Borrar filtro' },
   seo: { component: '{title} — componente de interfaz accesible', site: 'Sistema de diseño {name}', home: '{name} — sistema de diseño para {platforms}', web: 'Web Components', list: [', ', ' y '] },
   search: {
     label: 'Buscar en la documentación',
@@ -948,6 +1006,27 @@ const es: typeof en = {
     more: 'Mostrar más resultados',
     unavailable: 'La búsqueda no está disponible',
   },
+  pageActions: {
+    copy: 'Copiar Markdown',
+    more: 'Más acciones de la página',
+    copiedMessage: 'Se ha copiado la página en Markdown.',
+    copyFailed: 'No se ha podido copiar la página. Ábrela en Markdown y cópiala desde allí.',
+    view: 'Ver en Markdown',
+    viewNote: 'Esta página como texto sin formato',
+    chatgpt: 'Abrir en ChatGPT',
+    claude: 'Abrir en Claude',
+    askNote: 'Haz preguntas sobre esta página',
+    ask: 'Lee {url} y responde a mis preguntas sobre su contenido.',
+    mcp: 'Servidor MCP',
+    cursor: 'Añadir a Cursor',
+    vscode: 'Añadir a VS Code',
+    installNote: 'Instala el servidor MCP',
+    claudeCode: 'Copiar el comando de Claude Code',
+    claudeCodeNote: 'Añade el servidor MCP a un proyecto',
+    commandCopied: 'Se ha copiado el comando.',
+    commandFailed: 'No se ha podido copiar el comando.',
+    error: 'Error',
+  },
   group: {
     primary: 'Primario',
     secondary: 'Secundario',
@@ -959,7 +1038,6 @@ const es: typeof en = {
     utility: 'Utilidad',
   },
   visuals: {
-    systemHelp: 'Dibuja esta figura con uno de los sistemas de diseño incluidos. El resto de la página no cambia.',
     anatomyAlt: { one: '{component}: 1 parte, {list}.', other: '{component}: {count} partes: {list}.' },
     measureTitle: 'Medidas',
     motionTitle: 'Movimiento',
@@ -1071,11 +1149,9 @@ const hi: typeof en = {
   minimumTarget: 'न्यूनतम टार्गेट',
   minimumTargetText: 'दिखने वाला आकार छोटा होने पर भी हिट एरिया न्यूनतम टार्गेट साइज़ को पूरा करता है।',
   notDefinedYet: 'इंस्टॉल किए गए वेब बिल्ड में उपलब्ध नहीं है।',
+  example: { live: 'लाइव', code: 'कोड', codeOf: '{title} का कोड', flavor: 'कोड का प्रकार', copy: 'कोड कॉपी करें', copied: 'कोड कॉपी हो गया', copyFailed: 'कोड कॉपी नहीं हो सका', direction: { ltr: 'दाएँ से बाएँ', rtl: 'बाएँ से दाएँ' }, width: '{title} की चौड़ाई' },
   stages: {
     dark: 'डार्क स्कीम',
-    copy: 'मार्कअप कॉपी करें',
-    copied: 'मार्कअप कॉपी हो गया',
-    copyFailed: 'मार्कअप कॉपी नहीं किया जा सका',
     redraw: '{id} को फिर से बनाएँ',
     width: '{id} की चौड़ाई',
     frame: 'फ़िक्स्चर {id}',
@@ -1088,7 +1164,6 @@ const hi: typeof en = {
   contrastStandard: 'स्टैंडर्ड',
   contrastMedium: 'मध्यम',
   contrastHigh: 'उच्च',
-  contrastHelp: 'पूरे पेज पर लागू होता है और इस डिवाइस पर याद रखा जाता है।',
   light: 'लाइट',
   dark: 'डार्क',
   cssVariable: 'CSS कस्टम प्रॉपर्टी',
@@ -1163,6 +1238,7 @@ const hi: typeof en = {
   },
   typeSample: 'साफ़ और सुगठित इंटरफ़ेस Tanrei',
   frame: { skipLink: 'सीधे मुख्य कॉन्टेंट पर जाएँ', menu: 'मेन्यू', siteNavigation: 'दस्तावेज़', onThisPage: 'इस पेज पर', overview: 'अवलोकन', breadcrumbs: 'ब्रेडक्रम्ब', home: 'होम', hiddenLevels: 'छिपे हुए स्तर दिखाएँ', theme: 'थीम', themeAuto: 'स्वचालित', appearance: 'दिखावट', editTheme: 'थीम में बदलाव करें', system: 'डिज़ाइन सिस्टम: {system}', language: 'भाषा' },
+  sidebarFilter: { label: 'नेविगेशन फ़िल्टर करें', placeholder: 'फ़िल्टर करें', none: 'कोई मिलान नहीं', count: 'मिलान: {count}', clear: 'फ़िल्टर हटाएँ' },
   seo: { component: '{title} — सुलभ UI कंपोनेंट', site: '{name} डिज़ाइन सिस्टम', home: '{name} — {platforms} के लिए डिज़ाइन सिस्टम', web: 'Web Components', list: [', ', ' और '] },
   search: {
     label: 'दस्तावेज़ खोजें',
@@ -1177,6 +1253,27 @@ const hi: typeof en = {
     more: 'और नतीजे दिखाएँ',
     unavailable: 'खोज उपलब्ध नहीं है',
   },
+  pageActions: {
+    copy: 'Markdown कॉपी करें',
+    more: 'पेज के और विकल्प',
+    copiedMessage: 'पेज Markdown के रूप में कॉपी हो गया।',
+    copyFailed: 'पेज कॉपी नहीं हो सका। इसे Markdown में खोलें और वहीं से कॉपी करें।',
+    view: 'Markdown में देखें',
+    viewNote: 'यह पेज सादे टेक्स्ट में',
+    chatgpt: 'ChatGPT में खोलें',
+    claude: 'Claude में खोलें',
+    askNote: 'इस पेज के बारे में सवाल पूछें',
+    ask: '{url} पढ़ें और उसके बारे में मेरे सवालों के जवाब दें।',
+    mcp: 'MCP सर्वर',
+    cursor: 'Cursor में जोड़ें',
+    vscode: 'VS Code में जोड़ें',
+    installNote: 'MCP सर्वर इंस्टॉल करें',
+    claudeCode: 'Claude Code की कमांड कॉपी करें',
+    claudeCodeNote: 'किसी प्रोजेक्ट में MCP सर्वर जोड़ें',
+    commandCopied: 'कमांड कॉपी हो गई।',
+    commandFailed: 'कमांड कॉपी नहीं हो सकी।',
+    error: 'त्रुटि',
+  },
   group: {
     primary: 'प्राइमरी',
     secondary: 'सेकंडरी',
@@ -1188,7 +1285,6 @@ const hi: typeof en = {
     utility: 'यूटिलिटी',
   },
   visuals: {
-    systemHelp: 'इस चित्र को शामिल किए गए किसी डिज़ाइन सिस्टम में दिखाता है। पेज का बाक़ी हिस्सा नहीं बदलता।',
     anatomyAlt: { one: '{component}: 1 हिस्सा — {list}।', other: '{component}: {count} हिस्से — {list}।' },
     measureTitle: 'माप',
     motionTitle: 'मोशन',
@@ -1300,11 +1396,9 @@ const ar: typeof en = {
   minimumTarget: 'الحد الأدنى للهدف',
   minimumTargetText: 'تستوفي مساحة اللمس الحد الأدنى لحجم الهدف حتى لو كان الحجم المرئي أصغر.',
   notDefinedYet: 'غير متوفر في نسخة الويب المثبَّتة.',
+  example: { live: 'مباشر', code: 'الشيفرة', codeOf: 'شيفرة {title}', flavor: 'نوع الشيفرة', copy: 'نسخ الشيفرة', copied: 'نُسخت الشيفرة', copyFailed: 'تعذّر نسخ الشيفرة', direction: { ltr: 'من اليمين إلى اليسار', rtl: 'من اليسار إلى اليمين' }, width: 'عرض {title}' },
   stages: {
     dark: 'النظام الداكن',
-    copy: 'نسخ الترميز',
-    copied: 'تم نسخ الترميز',
-    copyFailed: 'تعذّر نسخ الترميز',
     redraw: 'إعادة رسم {id}',
     width: 'عرض {id}',
     frame: 'نموذج الاختبار {id}',
@@ -1317,7 +1411,6 @@ const ar: typeof en = {
   contrastStandard: 'قياسي',
   contrastMedium: 'متوسط',
   contrastHigh: 'عالٍ',
-  contrastHelp: 'يُطبَّق على الصفحة كلها ويُحفظ على هذا الجهاز.',
   light: 'فاتح',
   dark: 'داكن',
   cssVariable: 'خاصية CSS مخصصة',
@@ -1393,6 +1486,7 @@ const ar: typeof en = {
   },
   typeSample: 'واجهة أنيقة متقنة Tanrei',
   frame: { skipLink: 'التخطّي إلى المحتوى', menu: 'القائمة', siteNavigation: 'التوثيق', onThisPage: 'في هذه الصفحة', overview: 'نظرة عامة', breadcrumbs: 'مسار التنقل', home: 'الرئيسية', hiddenLevels: 'إظهار المستويات المخفية', theme: 'السمة', themeAuto: 'تلقائي', appearance: 'المظهر', editTheme: 'تعديل السمة', system: 'نظام التصميم: {system}', language: 'اللغة' },
+  sidebarFilter: { label: 'تصفية قائمة التنقّل', placeholder: 'تصفية', none: 'لا توجد نتائج مطابقة', count: 'النتائج المطابقة: {count}', clear: 'مسح التصفية' },
   // A title opens with an Arabic word, never a Latin one (i18n/glossary.md): the system's name stands after «نظام التصميم».
   seo: { component: '{title} — مكوّن واجهة مستخدم يراعي إمكانية الوصول', site: 'نظام التصميم {name}', home: 'نظام التصميم {name} لـ {platforms}', web: 'Web Components', list: [' و ', ' و '] },
   // A field's label is a verbal noun and its placeholder an imperative; the count takes the form its number asks for.
@@ -1409,6 +1503,27 @@ const ar: typeof en = {
     more: 'عرض نتائج أخرى',
     unavailable: 'البحث غير متاح',
   },
+  pageActions: {
+    copy: 'نسخ Markdown',
+    more: 'إجراءات أخرى للصفحة',
+    copiedMessage: 'تم نسخ الصفحة بتنسيق Markdown.',
+    copyFailed: 'تعذّر نسخ الصفحة. افتحها بتنسيق Markdown وانسخها من هناك.',
+    view: 'عرض بتنسيق Markdown',
+    viewNote: 'هذه الصفحة نصًا عاديًا',
+    chatgpt: 'فتح في ChatGPT',
+    claude: 'فتح في Claude',
+    askNote: 'اطرح أسئلة عن هذه الصفحة',
+    ask: 'اقرأ {url} وأجب عن أسئلتي حوله.',
+    mcp: 'خادم MCP',
+    cursor: 'إضافة إلى Cursor',
+    vscode: 'إضافة إلى VS Code',
+    installNote: 'ثبّت خادم MCP',
+    claudeCode: 'نسخ أمر Claude Code',
+    claudeCodeNote: 'أضف خادم MCP إلى مشروع',
+    commandCopied: 'تم نسخ الأمر.',
+    commandFailed: 'تعذّر نسخ الأمر.',
+    error: 'خطأ',
+  },
   group: {
     primary: 'الأساسي',
     secondary: 'الثانوي',
@@ -1421,7 +1536,6 @@ const ar: typeof en = {
   },
   // The count takes the form its number asks for.
   visuals: {
-    systemHelp: 'يرسم هذا الشكل بأحد أنظمة التصميم المضمّنة. لا يتغيّر شيء آخر في الصفحة.',
     anatomyAlt: { one: '{component}: جزء واحد، هو {list}.', two: '{component}: جزءان، هما {list}.', few: '{component}: {count} أجزاء، هي {list}.', many: '{component}: {count} جزءًا، هي {list}.', other: '{component}: {count} جزء، هي {list}.' },
     measureTitle: 'القياسات',
     motionTitle: 'الحركة',

@@ -7,19 +7,19 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="radio-button" />
 
-<DemoFrame label="A group">
+<Example label="A group">
   <div role="radiogroup" aria-label="How often" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-radio-button name="overview-frequency" value="daily" label="Daily"></tanrei-radio-button>
     <tanrei-radio-button name="overview-frequency" value="weekly" checked label="Weekly"></tanrei-radio-button>
     <tanrei-radio-button name="overview-frequency" value="monthly" label="Monthly"></tanrei-radio-button>
   </div>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -119,7 +119,7 @@ The revision that gave the radio button its present sizes and a ring that thicke
 
 ## Specs
 
-<DemoFrame label="Selected, unselected and disabled" plain>
+<Example label="Selected, unselected and disabled">
   <div role="radiogroup" aria-label="Enabled" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-radio-button name="specs-enabled" value="unselected" label="Unselected"></tanrei-radio-button>
     <tanrei-radio-button name="specs-enabled" value="selected" checked label="Selected"></tanrei-radio-button>
@@ -135,7 +135,7 @@ The revision that gave the radio button its present sizes and a ring that thicke
   <div role="radiogroup" aria-label="Label hidden">
     <tanrei-radio-button name="specs-hidden" value="weekly" checked label-hidden label="Weekly"></tanrei-radio-button>
   </div>
-</DemoFrame>
+</Example>
 
 In the default system the radio button is a 20 ring with a 2 stroke, on a round 40 state layer. A selected option draws no dot. Its ring thickens inward to half the radius, and the disc left inside is filled with the ring's color at 16 % opacity: a light tint, which stands at least 3:1 apart from the ring. The ring keeps its outer size in both conditions. The ring and the fill are one shape: nothing behind the radio button shows between them at any zoom or display density, or in any frame of the change. When the selection changes, the stroke thickens or thins while the ring's color changes and the fill fades in or out; the fill never grows from the center. A change that comes before the motion ends turns back from where it is, and where motion is reduced, the new condition shows at once and in full.
 

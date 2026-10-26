@@ -2,14 +2,14 @@
 title: Panel de navegación
 description: Muestra los destinos de un producto en un panel situado en el borde de inicio, organizados en secciones y grupos, junto al contenido en una pantalla grande o sobre él en una compacta, y puede contraerse hasta quedar en una columna de iconos.
 translationOf: components/navigation-drawer.mdx
-sourceHash: 863a49eefe0806a13fb113ad7e21185c8fdd9e2c
+sourceHash: 1eab880be19d8f79601b7bfb85013b914a9924bc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 Esta página describe el panel de navegación tal como lo define ahora la especificación. Un panel `collapsible` se estrecha hasta quedar en una columna de iconos, que sustituye al carril de navegación: el panel contraído es el expandido sin sus etiquetas, con cada fila cortada después de su icono, y su botón de menú lo vuelve a ensanchar con todos los iconos en su sitio. El texto `badge` de un destino pasa a ser `trailingText`, dibujado de forma más discreta, y un slot `trailing` contiene un glifo; `badge` es ahora una insignia sobre el icono. Los elementos `group` abren y cierran destinos anidados. Las filas miden 48 de alto, la altura de un elemento de menú. `responsive` deja que el ancho de la ventana elija cómo se presenta el panel. Un destino con `href` es un enlace, y `revealSelected` y `scrollOffset` convierten el panel en la barra lateral de un sitio. El componente web ya hace todo esto, y las demostraciones también. SwiftUI, Compose, Flutter y React Native aparecen arriba como rezagados: hasta que se pongan al día ofrecen la revisión anterior, con filas de 44, `badge` como texto al final de la fila, sin forma contraída, grupos, destinos de enlace ni presentación adaptable, y con un carril de navegación aparte, y sus ejemplos muestran esa revisión. La `density` compacta, los grupos que también son destinos (`selectableGroups`) y el campo de filtro (`filterable`) son aún más recientes, y por ahora solo están en la web.
 :::
 
-<DemoFrame label="Un panel estándar con dos secciones">
+<Example label="Un panel estándar con dos secciones">
   <tanrei-navigation-drawer open value="inbox" label="Correo" style="block-size: 26rem">
     <tanrei-navigation-drawer-section headline="Correo">
       <tanrei-navigation-drawer-item value="inbox" label="Bandeja de entrada" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
@@ -31,9 +31,9 @@ Esta página describe el panel de navegación tal como lo define ahora la especi
       <tanrei-navigation-drawer-item value="family" label="Familia" icon="label"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-section>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Un panel que se puede contraer: su botón de menú lo contrae hasta la columna de iconos, donde cada celda muestra su nombre en un tooltip" plain>
+<Example label="Un panel que se puede contraer: su botón de menú lo contrae hasta la columna de iconos, donde cada celda muestra su nombre en un tooltip">
   <tanrei-navigation-drawer open collapsible value="home" label="Espacio de trabajo" style="block-size: 30rem">
     <tanrei-button slot="header-button" variant="text" label="Menú"><span slot="icon">menu</span></tanrei-button>
     <tanrei-main-action-button slot="main-action" label="Nuevo proyecto"><span slot="icon">add</span></tanrei-main-action-button>
@@ -45,9 +45,9 @@ Esta página describe el panel de navegación tal como lo define ahora la especi
     </tanrei-navigation-drawer-group>
     <tanrei-navigation-drawer-item value="settings" label="Configuración" icon="settings" trailing-text="Nuevo"></tanrei-navigation-drawer-item>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Destinos que son enlaces: el valor del panel indica la página actual, y reveal-selected abre el grupo que la contiene" plain>
+<Example label="Destinos que son enlaces: el valor del panel indica la página actual, y reveal-selected abre el grupo que la contiene">
   <tanrei-navigation-drawer open reveal-selected value="#sidebar-demo-tabs" label="Documentación" style="block-size: 24rem">
     <tanrei-navigation-drawer-item label="Primeros pasos" href="#sidebar-demo-start"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-group label="Fundamentos">
@@ -60,9 +60,9 @@ Esta página describe el panel de navegación tal como lo define ahora la especi
     </tanrei-navigation-drawer-group>
     <tanrei-navigation-drawer-item label="Código fuente" href="#sidebar-demo-source" target="new" target-label="se abre en una pestaña nueva"></tanrei-navigation-drawer-item>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Un panel que filtra sus filas: escribe en el campo, o pulsa / en cualquier parte de la página para llegar a él" plain>
+<Example label="Un panel que filtra sus filas: escribe en el campo, o pulsa / en cualquier parte de la página para llegar a él">
   <tanrei-navigation-drawer open filterable reveal-selected value="#filter-demo-tabs" label="Documentación" filter-label="Filtrar navegación" filter-placeholder="Filtrar" filter-count-text="Coincidencias: {count}" filter-empty-text="Sin coincidencias" filter-clear-label="Borrar" style="block-size: 26rem">
     <tanrei-navigation-drawer-group label="Primeros pasos">
       <tanrei-navigation-drawer-item label="Introducción" href="#filter-demo-overview"></tanrei-navigation-drawer-item>
@@ -79,9 +79,9 @@ Esta página describe el panel de navegación tal como lo define ahora la especi
       <tanrei-navigation-drawer-item label="Pestañas" href="#filter-demo-tabs"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-group>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Un panel compacto, para una herramienta que se usa con puntero: filas de 32 y glifos de 16, cada icono anidado donde empieza la etiqueta de su grupo" plain>
+<Example label="Un panel compacto, para una herramienta que se usa con puntero: filas de 32 y glifos de 16, cada icono anidado donde empieza la etiqueta de su grupo">
   <tanrei-navigation-drawer open density="compact" value="tree-view" label="Workspace" style="block-size: 22rem">
     <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-section headline="Projects">
@@ -95,9 +95,9 @@ Esta página describe el panel de navegación tal como lo define ahora la especi
     </tanrei-navigation-drawer-section>
     <tanrei-navigation-drawer-item value="settings" label="Settings" icon="settings"></tanrei-navigation-drawer-item>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Grupos que también son destinos: con selectable-groups, la fila de un grupo lo elige y su chevron lo abre y lo cierra" plain>
+<Example label="Grupos que también son destinos: con selectable-groups, la fila de un grupo lo elige y su chevron lo abre y lo cierra">
   <tanrei-navigation-drawer open selectable-groups value="components" label="Documentation" style="block-size: 22rem">
     <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-group label="Foundations" icon="palette" value="foundations">
@@ -112,7 +112,7 @@ Esta página describe el panel de navegación tal como lo define ahora la especi
       <tanrei-navigation-drawer-item value="downloads" label="Downloads" icon="download"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-group>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -417,13 +417,13 @@ Con `responsive`, el panel toma esa decisión por sí mismo a partir del ancho d
 
 ## Especificaciones
 
-<DemoFrame label="Destinos sin iconos, fuera de cualquier sección" plain>
+<Example label="Destinos sin iconos, fuera de cualquier sección">
   <tanrei-navigation-drawer open value="deployments" label="Proyecto" style="block-size: 20rem">
     <tanrei-navigation-drawer-item value="overview" label="Resumen"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-item value="deployments" label="Despliegues" trailing-text="3"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-item value="settings" label="Configuración"></tanrei-navigation-drawer-item>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="navigation-drawer" />
 

@@ -2,14 +2,14 @@
 title: منطقة التمرير
 description: صندوق يمرّر محتواك بالتمرير الخاص بالمنصة، ويبيّن على كل حافة يراقبها أن وراءها مزيدًا من المحتوى — بشريط بلون السطح، أو بتلاشي المحتوى، أو بخط، أو بتمويه — من غير أن يغيّر حجمه أو يحرّك المحتوى.
 translationOf: components/scroll-area.mdx
-sourceHash: fd54b46e1aadb3f1cd30abe2cb060f324ca86fbc
+sourceHash: 775ae73696089e43cf18061a5f5f9b0205dabaf6
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import BehaviorChoice from '../../../../components/tokens/BehaviorChoice.astro';
 import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
@@ -17,7 +17,7 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
 <ComponentAvailability name="scroll-area" />
 
-<DemoFrame label="قائمة في صندوق ثابت الارتفاع">
+<Example label="قائمة في صندوق ثابت الارتفاع">
   <tanrei-scroll-area label="الرسائل" style="inline-size: min(100%, 20rem); block-size: 16rem">
     <tanrei-list-row headline="Ada" supporting-text="المسودة جاهزة للمراجعة"></tanrei-list-row>
     <tanrei-list-row headline="Grace" supporting-text="نقلتُ الاجتماع إلى الخميس"></tanrei-list-row>
@@ -30,7 +30,7 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
     <tanrei-list-row headline="Margaret" supporting-text="كل شيء جاهز"></tanrei-list-row>
     <tanrei-list-row headline="Rosalind" supporting-text="صور جديدة من المختبر"></tanrei-list-row>
   </tanrei-scroll-area>
-</DemoFrame>
+</Example>
 
 ما دام المحتوى يتسع، لا ترسم المنطقة شيئًا من عندها. مرّرها: تُعلَّم الحافة السفلية ما دام في الأسفل مزيد، والعلوية حالما يُمرَّر شيء خارج المنظر من الأعلى.
 
@@ -86,7 +86,7 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
 ## المواصفات
 
-<DemoFrame label="حواف التمرير: shadow (اختيار النظام الافتراضي) و fade و line و blur و none" plain>
+<Example label="حواف التمرير: shadow (اختيار النظام الافتراضي) و fade و line و blur و none">
   <tanrei-scroll-area scroll-edge="shadow" label="الظل" style="inline-size: 9rem; block-size: 10rem">
     <p>الظل. شريط بلون السطح الذي تقف عليه المنطقة، كامل عند الحافة ويختفي على بعد 24 منها. مرّرها لترى الحافة العلوية معلَّمة أيضًا. يبدو المحتوى كأنه يغوص في السطح.</p>
   </tanrei-scroll-area>
@@ -102,7 +102,7 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
   <tanrei-scroll-area scroll-edge="none" label="بلا علامة" style="inline-size: 9rem; block-size: 10rem">
     <p>بلا علامة. لا شيء يعلّم الحواف: شريط التمرير الخاص بالمنصة وحده يقول إن المحتوى مستمر. مرّرها لتقارنها بالأخريات.</p>
   </tanrei-scroll-area>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="scroll-area" />
 

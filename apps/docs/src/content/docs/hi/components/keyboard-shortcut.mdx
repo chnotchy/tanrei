@@ -2,14 +2,14 @@
 title: कीबोर्ड शॉर्टकट
 description: किसी कमांड को चलाने वाली कुंजियाँ दिखाता है — कीकैप के रूप में या टेक्स्ट के रूप में, उस कीबोर्ड के मॉडिफ़ायर चिह्नों और नामों में जिसे व्यक्ति इस्तेमाल कर रहा है — और उन्हें नाम से पढ़कर सुनाता है।
 translationOf: components/keyboard-shortcut.mdx
-sourceHash: 63d76372e6eb95e569cb0e3333d01afaeaadceb0
+sourceHash: aefaa8f159d65d66f0d297cf2ae3f659c10c017f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
@@ -17,11 +17,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 कीबोर्ड शॉर्टकट किसी कमांड को चलाने वाली कुंजियाँ दिखाता है: कीकैप के रूप में बनी हुई, या कमांड के नाम के बग़ल में सादे टेक्स्ट के रूप में, small या medium साइज़ पर। कुंजियाँ तटस्थ नामों में लिखी जाती हैं — `mod`, `shift`, `k` — और उस कीबोर्ड की परिपाटी में बनती हैं जिसे व्यक्ति इस्तेमाल कर रहा है: Apple के चिह्न (⇧⌘K) या मानक नाम (Ctrl+Shift+K)। प्रॉडक्ट किसी हिस्से के लिए परिपाटी सेट कर सकता है, या उसे प्लैटफ़ॉर्म पर छोड़ सकता है। एक के बाद एक कई कॉर्ड वाला शॉर्टकट (Ctrl+K Ctrl+C) एक ही सीक्वेंस है।
 
-<DemoFrame label="कीकैप, दो कॉर्ड का सीक्वेंस, और सादा रूप, उस कीबोर्ड के लिए जो आप इस्तेमाल कर रहे हैं">
+<Example label="कीकैप, दो कॉर्ड का सीक्वेंस, और सादा रूप, उस कीबोर्ड के लिए जो आप इस्तेमाल कर रहे हैं">
   <tanrei-keyboard-shortcut keys="mod+shift+k" label="कमांड या कंट्रोल, शिफ़्ट, K"></tanrei-keyboard-shortcut>
   <tanrei-keyboard-shortcut keys="mod+k mod+c" label="कमांड या कंट्रोल और K, फिर कमांड या कंट्रोल और C"></tanrei-keyboard-shortcut>
   <tanrei-keyboard-shortcut keys="mod+shift+k" label="कमांड या कंट्रोल, शिफ़्ट, K" variant="plain"></tanrei-keyboard-shortcut>
-</DemoFrame>
+</Example>
 
 इसकी कुंजियाँ सिर्फ़ देखने के लिए बनाई जाती हैं: सहायक तकनीक वह `label` पढ़ती है जो प्रॉडक्ट देता है, यानी आपके अपने शब्दों में शॉर्टकट, और उसके बिना `aria-keyshortcuts` का नोटेशन (`Meta+Shift+K`)। Tanrei के पास किसी भी भाषा में कुंजियों के नाम नहीं हैं। यह कुंजियाँ दिखाता है और कुछ नहीं: यह न फ़ोकस लेता है, न इनपुट, और इससे कुंजियाँ काम नहीं करने लगतीं। उन्हें आपका प्रॉडक्ट बाइंड करता है।
 
@@ -82,7 +82,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="वही कुंजियाँ Apple के कीबोर्ड के लिए और मानक कीबोर्ड के लिए; वाक्य में small; नाम वाली कुंजियाँ; अक्षम" plain column>
+<Example label="वही कुंजियाँ Apple के कीबोर्ड के लिए और मानक कीबोर्ड के लिए; वाक्य में small; नाम वाली कुंजियाँ; अक्षम" column>
   <div data-tanrei-keyboard-convention="apple" style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
     <tanrei-keyboard-shortcut keys="mod+shift+k" label="शिफ़्ट कमांड K"></tanrei-keyboard-shortcut>
     <tanrei-keyboard-shortcut keys="mod+shift+k" label="शिफ़्ट कमांड K" size="small"></tanrei-keyboard-shortcut>
@@ -104,7 +104,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-keyboard-shortcut keys="mod+z" label="कमांड या कंट्रोल, Z" disabled></tanrei-keyboard-shortcut>
     <tanrei-keyboard-shortcut keys="mod+z" label="कमांड या कंट्रोल, Z" variant="plain" disabled></tanrei-keyboard-shortcut>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="keyboard-shortcut" />
 

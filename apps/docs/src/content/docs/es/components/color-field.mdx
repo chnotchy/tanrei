@@ -2,23 +2,23 @@
 title: Campo de color
 description: Permite definir un color como un campo de formulario (un valor de texto que se puede leer, escribir y pegar, una muestra del color junto al texto y un botón que pide un selector) que tiene el aspecto y las medidas de un campo de texto.
 translationOf: components/color-field.mdx
-sourceHash: 86c3e71976d4488f85216a9391b0e4d6a8b9d83f
+sourceHash: ffcd4797c3496f94c018017cc0ef57091027383d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="color-field" />
 
-<DemoFrame label="Un campo de color con un botón del selector, y otro cuyo color rechaza el producto" column>
+<Example label="Un campo de color con un botón del selector, y otro cuyo color rechaza el producto" column>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Color de marca" value="#0f766e" supporting-text="Seis dígitos hexadecimales, como #0f766e." invalid-text="Introduce seis dígitos hexadecimales, como #0f766e." picker picker-label="Elegir color"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Color de marca" value="#fde047" error error-text="Demasiado claro para texto blanco. Elige un color más oscuro."></tanrei-color-field>
-</DemoFrame>
+</Example>
 
 Usa un campo de color donde las personas definen un color como un valor: un color de marca en un tema, el color de una etiqueta o de una categoría. Lo leen, lo escriben o lo pegan desde otra herramienta, y ven una muestra de él junto al texto. El campo se dibuja y se mide como el campo de texto de la misma variante y el mismo tamaño.
 
@@ -88,11 +88,11 @@ El mismo campo, escrito a mano a partir de sus dos miembros, da la misma imagen 
 </tanrei-field>
 ```
 
-<DemoFrame label="El mismo campo escrito a mano: un campo con una entrada de color dentro" column>
+<Example label="El mismo campo escrito a mano: un campo con una entrada de color dentro" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Color de marca" required required-text="Obligatorio" supporting-text="Seis dígitos hexadecimales, como #0f766e.">
     <tanrei-color-input value="#0f766e" invalid-text="Introduce seis dígitos hexadecimales, como #0f766e." picker picker-label="Elegir color"></tanrei-color-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 Baja a ese nivel cuando necesites una organización que el campo de color no ofrece:
 
@@ -106,14 +106,14 @@ Lo que cambia un nivel más abajo es dónde se dice cada cosa. `name` y `value` 
 
 ## Especificaciones
 
-<DemoFrame label="Un campo de color vacío, blanco, negro, uno grande, uno deshabilitado, y la caja sola, una entrada de color, en una fila que nombra su color" plain column>
+<Example label="Un campo de color vacío, blanco, negro, uno grande, uno deshabilitado, y la caja sola, una entrada de color, en una fila que nombra su color" column>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Color de acento" optional optional-text="Opcional"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Fondo de la página" value="#ffffff"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Texto" value="#000000"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Color de marca" value="#0f766e" size="large" picker picker-label="Elegir color"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Color de marca" value="#0f766e" disabled picker picker-label="Elegir color"></tanrei-color-field>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Primario, tono 40" value="#0f766e"></tanrei-color-input>
-</DemoFrame>
+</Example>
 
 ### El campo
 

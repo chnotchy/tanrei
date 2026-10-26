@@ -2,21 +2,21 @@
 title: قائمة FAB
 description: تفتح قائمة قصيرة من الإجراءات المترابطة من زر تبديل مرسوم بهيئة زر إجراء رئيسي مطويّ، يتحول إلى زر إغلاق القائمة ما دامت الإجراءات ظاهرة.
 translationOf: components/fab-menu.mdx
-sourceHash: 69aa6940fe6898a0910d96030f32d6cbf477668a
+sourceHash: 8ce8b0f6b2cf6294a457130430e3cf0e7f503e76
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="fab-menu" />
 
 
-<DemoFrame label="مغلقة ومفتوحة" system="m3-like">
+<Example label="مغلقة ومفتوحة" system="m3-like">
   {/* العناصر المفتوحة تُرسم في مكانها فوق زر التبديل ولا تحرّك أي تخطيط (FBM-12, FBM-13): احجز ارتفاعها — ثلاثة عناصر، والفجوات بينها، والإزاحة عن زر التبديل — ليتسع لها الإطار، وحاذِ زرَّي التبديل على امتداد الأسفل. */}
   <div style="display: flex; align-items: end; gap: var(--tanrei-sys-space-space300); padding-block-start: calc(3 * max(var(--tanrei-comp-fab-menu-item-height), var(--tanrei-sys-target-touch)) + 2 * var(--tanrei-comp-fab-menu-list-gap) + var(--tanrei-comp-fab-menu-list-offset))">
     <tanrei-fab-menu label="إنشاء">
@@ -32,7 +32,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-fab-menu-item label="رفع" icon="upload"></tanrei-fab-menu-item>
     </tanrei-fab-menu>
   </div>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -174,13 +174,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="الطُرُز والأحجام والتعطيل" system="m3-like" plain>
+<Example label="الطُرُز والأحجام والتعطيل" system="m3-like">
   <tanrei-fab-menu variant="tonal" label="إنشاء"><span slot="icon">add</span></tanrei-fab-menu>
   <tanrei-fab-menu variant="surface" label="إنشاء"><span slot="icon">add</span></tanrei-fab-menu>
   <tanrei-fab-menu size="small" label="إنشاء"><span slot="icon">add</span></tanrei-fab-menu>
   <tanrei-fab-menu size="large" label="إنشاء"><span slot="icon">add</span></tanrei-fab-menu>
   <tanrei-fab-menu disabled label="إنشاء"><span slot="icon">add</span></tanrei-fab-menu>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="fab-menu" />
 

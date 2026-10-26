@@ -2,20 +2,20 @@
 title: ボタングループ
 description: 関連する数個のボタンを 1 行または 1 列に並べます。間隔を空けるか、つなげて 1 つの形にし、完了するアクションと取りやめるアクションを人が期待する位置に置き、グループとして名前を付けます。
 translationOf: components/button-group.mdx
-sourceHash: 4fffb14499d629d4c5b2c43cb8fa1ec4e97d4b84
+sourceHash: 0fd69176212d667b8b1bbb982a7e5cc99319372b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="button-group" />
 
-<DemoFrame label="Standard と Connected">
+<Example label="Standard と Connected">
   <tanrei-button-group>
     <tanrei-button variant="outlined">キャンセル</tanrei-button>
     <tanrei-button variant="tonal">下書きを保存</tanrei-button>
@@ -26,7 +26,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-button variant="tonal" toggle label="斜体"><span slot="icon">format_italic</span></tanrei-button>
     <tanrei-button variant="tonal" toggle label="下線"><span slot="icon">format_underlined</span></tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -207,7 +207,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 | `dismissive` | タスクを取りやめる：キャンセル、戻る、後で | 先頭 | いちばん下 |
 | なし | それ以外 | 2 つの間に、書いた順で | 2 つの間に、書いた順で |
 
-<DemoFrame label="同じ 3 つのボタンを行と列で" plain>
+<Example label="同じ 3 つのボタンを行と列で">
   <tanrei-button-group>
     <tanrei-button variant="outlined" dismissive>キャンセル</tanrei-button>
     <tanrei-button variant="tonal">下書きを保存</tanrei-button>
@@ -218,9 +218,9 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
     <tanrei-button variant="tonal">下書きを保存</tanrei-button>
     <tanrei-button variant="filled" confirming>公開</tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="幅いっぱい：幅を分け合う行と、列" plain column>
+<Example label="幅いっぱい：幅を分け合う行と、列" column>
   <div style="inline-size: 20rem">
     <tanrei-button-group full-width>
       <tanrei-button variant="tonal" dismissive>後で</tanrei-button>
@@ -233,7 +233,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
       <tanrei-button variant="tonal" confirming>許可</tanrei-button>
     </tanrei-button-group>
   </div>
-</DemoFrame>
+</Example>
 
 キーボードフォーカスとスクリーンリーダーは、置かれた順序に従います。だれもが、描かれている順にアクションに出会います。フラグが表すのはタスクとの関係で、語調ではありません。「キャンセル · 削除」では、削除が confirming です。破壊的なアクションは、置き場所ではなく、それ自身の見た目（ボタンの `destructive`）とラベルで見分けさせます。[ダイアログ](/ja/components/dialog/)と[サイドシート](/ja/components/side-sheet/)も、同じ 2 つのフラグで自分のアクションを置きます。
 
@@ -241,7 +241,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 
 Connected のグループがボタンをつなぐ方法は 2 つあります。**区切り線**（divider）では、ボタンどうしが接し、接する側の角は直角になり、継ぎ目ごとに線が引かれます。**隙間**（gap）では、ボタンどうしが狭い隙間を空けて並び、向かい合う側の角が小さくなります。どちらにするかは、パーツをつなぐすべてのコンポーネントについてデザインシステムが 1 度だけ決めます（既定のシステムは区切り線です）。デザインシステムはボタングループだけを別にでき、`separation`（`auto`、`divider`、`gap`）は 1 つのグループだけを変えます。Standard のグループはこれを無視します。
 
-<DemoFrame label="区切り線と隙間でつないだ Connected（行と列）" plain>
+<Example label="区切り線と隙間でつないだ Connected（行と列）">
   <tanrei-button-group variant="connected" separation="divider" label="クリップボード">
     <tanrei-button variant="outlined">切り取り</tanrei-button>
     <tanrei-button variant="outlined">コピー</tanrei-button>
@@ -260,22 +260,22 @@ Connected のグループがボタンをつなぐ方法は 2 つあります。*
     <tanrei-button variant="tonal" label="拡大"><span slot="icon">add</span></tanrei-button>
     <tanrei-button variant="tonal" label="縮小"><span slot="icon">remove</span></tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 区切り線のとき、継ぎ目に線が引かれるのは、両側のボタンが同じ塗りの上にあるときだけです。選択中のトグルと選択されていないトグルの間や、Filled のボタンと Outlined のボタンの間では、塗りの端がすでに継ぎ目を示しているので、線は引かれません。
 
-<DemoFrame label="区切り線でつないだトグル：選択中の項目の隣には線がありません" plain>
+<Example label="区切り線でつないだトグル：選択中の項目の隣には線がありません">
   <tanrei-button-group variant="connected" label="文字スタイル">
     <tanrei-button variant="outlined" toggle label="太字"><span slot="icon">format_bold</span></tanrei-button>
     <tanrei-button variant="outlined" toggle selected label="斜体"><span slot="icon">format_italic</span></tanrei-button>
     <tanrei-button variant="outlined" toggle label="下線"><span slot="icon">format_underlined</span></tanrei-button>
     <tanrei-button variant="outlined" toggle label="取り消し線"><span slot="icon">format_strikethrough</span></tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 ## 仕様
 
-<DemoFrame label="Connected：Outlined、large、無効な項目を含むもの" plain>
+<Example label="Connected：Outlined、large、無効な項目を含むもの">
   <tanrei-button-group variant="connected" label="クリップボード">
     <tanrei-button variant="outlined">切り取り</tanrei-button>
     <tanrei-button variant="outlined">コピー</tanrei-button>
@@ -291,7 +291,7 @@ Connected のグループがボタンをつなぐ方法は 2 つあります。*
     <tanrei-button variant="outlined" disabled>コピー</tanrei-button>
     <tanrei-button variant="outlined">貼り付け</tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="button-group" />
 

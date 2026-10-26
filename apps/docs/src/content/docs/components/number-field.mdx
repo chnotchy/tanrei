@@ -7,16 +7,16 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="number-field" />
 
-<DemoFrame label="A number field with a unit and limits, and one that holds an amount of money" column>
+<Example label="A number field with a unit and limits, and one that holds an amount of money" column>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Corner radius" value="8" min="0" max="64" step="0.25" suffix-text="px" supporting-text="0 to 64, in steps of a quarter." increment-label="Increase" decrement-label="Decrease"></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Amount" value="120" min="0" prefix-text="$" suffix-text="USD" min-fraction-digits="2" max-fraction-digits="2" invalid-text="Enter an amount in figures." increment-label="Increase" decrement-label="Decrease"></tanrei-number-field>
-</DemoFrame>
+</Example>
 
 Use a number field for a number that the product reads as a number: a quantity, a size, a percentage, an amount. People type it in the form of their locale, or step it with the arrow keys or the two buttons at the end of the field. The field is drawn and measured as the text field of the same variant and size.
 
@@ -84,11 +84,11 @@ The same field, written by hand from its two members, is the same picture, and t
 </tanrei-field>
 ```
 
-<DemoFrame label="The same field written by hand: a field with a number input in it" column>
+<Example label="The same field written by hand: a field with a number input in it" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Quantity" required required-text="Required" supporting-text="Up to 99 per order.">
     <tanrei-number-input min="1" max="99" invalid-text="Enter a number." increment-label="Increase" decrement-label="Decrease"></tanrei-number-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 Go one level down when you need an arrangement the number field does not offer:
 
@@ -102,14 +102,14 @@ What changes one level down is where things are said. `name`, `value`, the limit
 
 ## Specs
 
-<DemoFrame label="A stepper disabled at the limit, digits at the end edge, no steppers, an error, a read-only and a disabled number field" plain column>
+<Example label="A stepper disabled at the limit, digits at the end edge, no steppers, an error, a read-only and a disabled number field" column>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Quantity" value="99" min="1" max="99" increment-label="Increase" decrement-label="Decrease"></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Tone" value="40" min="0" max="100" align="end" increment-label="Increase" decrement-label="Decrease"></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Letter spacing" value="-0.25" step="0.01" suffix-text="px" no-steppers></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Quantity" value="0" error error-text="Order at least 1." increment-label="Increase" decrement-label="Decrease"></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Quantity" value="12" readonly></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Quantity" value="12" disabled increment-label="Increase" decrement-label="Decrease"></tanrei-number-field>
-</DemoFrame>
+</Example>
 
 ### The field
 
@@ -140,10 +140,10 @@ The two steppers are text Buttons of the medium size, side by side. Under the de
 
 A committed number is written with the locale's digits and decimal separator, between `minFractionDigits` and `maxFractionDigits` digits after it, and without grouping separators — so what is shown can be typed back.
 
-<DemoFrame label="The same value, 1.5, in German and in Egyptian Arabic" plain column>
+<Example label="The same value, 1.5, in German and in Egyptian Arabic" column>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Gewicht" value="1.5" step="0.1" suffix-text="kg" locale="de-DE" increment-label="Erhöhen" decrement-label="Verringern"></tanrei-number-field>
   <div dir="rtl" lang="ar"><tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الوزن" value="1.5" step="0.1" locale="ar-EG" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-field></div>
-</DemoFrame>
+</Example>
 
 A text is read leniently, by the field's `locale` — or, where that is empty, by the language of the page:
 
@@ -156,10 +156,10 @@ A text is read leniently, by the field's `locale` — or, where that is empty, b
 
 The field never guesses between two locales. In German, where the comma is the decimal separator, `1.500` reads as 1500 and `1.5` as 15.
 
-<DemoFrame label="In a right-to-left layout: a unit in Latin letters after the number, from left to right, and a unit in the page's own script at the number's left" plain column>
+<Example label="In a right-to-left layout: a unit in Latin letters after the number, from left to right, and a unit in the page's own script at the number's left" column>
   <div dir="rtl" lang="ar"><tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="العرض" value="44" min="0" suffix-text="px" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-field></div>
   <div dir="rtl" lang="ar"><tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الوزن" value="12" min="0" step="0.5" suffix-text="كغم" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-field></div>
-</DemoFrame>
+</Example>
 
 A number and its unit are one piece of writing. The prefix is written before the number and the suffix after it, in the direction of the unit's own script, whatever the direction of the page. So "44 px", "$ 120 USD" and "40 %" read in an Arabic or a Hebrew page as they do in an English one, and a unit written in Arabic or Hebrew letters stands at the number's left. The steppers and the label follow the page. `align="end"` puts the number against its unit: at the right for a unit in Latin letters or signs, in both directions. For a Latin currency code at the number's left, begin the suffix with a right-to-left mark (U+200F).
 

@@ -2,23 +2,23 @@
 title: "主操作按钮"
 description: "在一个悬浮于内容之上的抬升容器上，执行屏幕中最重要的那一个操作；可以写出操作的名称，也可以收起为只有图标。"
 translationOf: components/main-action-button.mdx
-sourceHash: 4ea11cf1c96e665e4d8a7ce5bde60156fedc09b3
+sourceHash: 6a79e4750d54144d384e19b0a274c1d7763b4393
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="main-action-button" />
 
-<DemoFrame label="展开与收起">
+<Example label="展开与收起">
   <tanrei-main-action-button label="撰写"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button label="撰写" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
-</DemoFrame>
+</Example>
 
 主操作按钮代表屏幕为之存在的那一个操作：邮箱里的“撰写”，日历里的“新建日程”，列表里的“添加”。它画在一个悬浮于内容之上的抬升容器上，所以内容在它下方滚动时，它始终触手可及。
 
@@ -96,27 +96,27 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="变体" plain>
+<Example label="变体">
   <tanrei-main-action-button label="撰写"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button variant="tonal" label="撰写"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button variant="surface" label="撰写"><span slot="icon">edit</span></tanrei-main-action-button>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="尺寸，展开与收起" plain>
+<Example label="尺寸，展开与收起">
   <tanrei-main-action-button size="small" label="撰写"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="medium" label="撰写"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="large" label="撰写"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="small" label="撰写" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="medium" label="撰写" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="large" label="撰写" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="后置图标、没有图标，以及禁用" plain>
+<Example label="后置图标、没有图标，以及禁用">
   <tanrei-main-action-button label="下一步" icon-position="trailing"><span slot="icon">arrow_forward</span></tanrei-main-action-button>
   <tanrei-main-action-button label="开始"></tanrei-main-action-button>
   <tanrei-main-action-button label="撰写" disabled><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button label="撰写" collapsed disabled><span slot="icon">edit</span></tanrei-main-action-button>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="main-action-button" />
 
@@ -169,11 +169,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 设置 `full-width`，按钮就和它的容器一样宽，图标和标签居中：在窄屏上横跨屏幕底部的那一个主要操作，例如“去结算”或“发送”。全宽按钮总是展开的：内容滚动时它不会收起，把 `extended` 设为 false 会在调试构建中报告。它保持自己尺寸的高度、圆角和阴影，放不下的标签会换行。它仍然不自己定位：请把它放进位于屏幕底部的容器里。
 
-<DemoFrame label="全宽的主操作按钮" plain>
+<Example label="全宽的主操作按钮">
   <div style="inline-size: 20rem">
     <tanrei-main-action-button label="去结算" full-width><span slot="icon">shopping_cart</span></tanrei-main-action-button>
   </div>
-</DemoFrame>
+</Example>
 
 ### 推荐
 

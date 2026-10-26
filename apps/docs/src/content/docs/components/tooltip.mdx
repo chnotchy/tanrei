@@ -7,20 +7,20 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="tooltip" />
 
-<DemoFrame label="Point at or focus a button: a plain and a rich tooltip">
+<Example label="Point at or focus a button: a and a rich tooltip">
   <tanrei-tooltip text="Move to trash" no-describe>
     <tanrei-button variant="text" label="Move to trash"><span slot="icon">delete</span></tanrei-button>
   </tanrei-tooltip>
   <tanrei-tooltip variant="rich" headline="Storage" text="Files in the trash still count toward your storage until they are deleted." placement="bottom">
     <tanrei-button variant="text" label="About storage"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -190,14 +190,14 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
 
 ## Specs
 
-<DemoFrame label="A plain tooltip below its anchor, and a rich one without a title" plain>
+<Example label="A tooltip below its anchor, and a rich one without a title">
   <tanrei-tooltip text="Move to trash" placement="bottom" no-describe>
     <tanrei-button variant="text" label="Move to trash"><span slot="icon">delete</span></tanrei-button>
   </tanrei-tooltip>
   <tanrei-tooltip variant="rich" text="Files in the trash still count toward your storage until they are deleted.">
     <tanrei-button variant="text" label="About storage"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tooltip" />
 
@@ -222,7 +222,7 @@ The variant is a structural choice, not a token axis. A design system restyles b
 
 `placement` names the side of the anchor the tooltip prefers and how it lines up along that side. The default is `top`.
 
-<DemoFrame label="Point at or focus a button: the thirteen placements" plain>
+<Example label="Point at or focus a button: the thirteen placements">
   <tanrei-tooltip text="Above, centred" placement="top"><tanrei-button variant="outlined" size="small">top</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="Above, start edges together" placement="top-start"><tanrei-button variant="outlined" size="small">top-start</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="Above, end edges together" placement="top-end"><tanrei-button variant="outlined" size="small">top-end</tanrei-button></tanrei-tooltip>
@@ -236,7 +236,7 @@ The variant is a structural choice, not a token axis. A design system restyles b
   <tanrei-tooltip text="After, top edges together" placement="end-top"><tanrei-button variant="outlined" size="small">end-top</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="After, bottom edges together" placement="end-bottom"><tanrei-button variant="outlined" size="small">end-bottom</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="The first side with room" placement="auto"><tanrei-button variant="outlined" size="small">auto</tanrei-button></tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 | Side | Centred on the anchor | First edges together | Second edges together |
 | --- | --- | --- | --- |
@@ -254,7 +254,7 @@ The variant is a structural choice, not a token axis. A design system restyles b
 
 ### An arrow
 
-<DemoFrame label="Point at or focus a button: with an arrow" plain>
+<Example label="Point at or focus a button: with an arrow">
   <tanrei-tooltip text="Move to trash" arrow no-describe>
     <tanrei-button variant="text" label="Move to trash"><span slot="icon">delete</span></tanrei-button>
   </tanrei-tooltip>
@@ -264,7 +264,7 @@ The variant is a structural choice, not a token axis. A design system restyles b
   <tanrei-tooltip variant="rich" headline="Storage" text="Files in the trash still count toward your storage until they are deleted." placement="end" arrow>
     <tanrei-button variant="text" label="About storage"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 `arrow` draws a small triangle on the tooltip's edge that points at the anchor. It is off in the default system. Left unset, it takes the design system's choice; `true` and `false` decide it for one tooltip. On the web the attribute is `arrow` for true and `arrow="false"` for false.
 
@@ -274,12 +274,12 @@ Use an arrow where the side alone does not say which control is meant: a hint yo
 
 ### Two looks
 
-<DemoFrame label="Point at or focus a button: each form inverse and on a surface" plain>
+<Example label="Point at or focus a button: each form inverse and on a surface">
   <tanrei-tooltip text="The opposite scheme's colors" inverse><tanrei-button variant="outlined" size="small">Plain, inverse</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="A raised surface of the scheme" inverse="false"><tanrei-button variant="outlined" size="small">Plain, surface</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip variant="rich" headline="On a surface" text="A raised surface of the scheme, with its elevation." inverse="false"><tanrei-button variant="outlined" size="small">Rich, surface</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip variant="rich" headline="Inverse" text="The opposite scheme's colors, with no shadow." inverse><tanrei-button variant="outlined" size="small">Rich, inverse</tanrei-button></tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 Either form can be drawn inverse, in the opposite scheme's colors, or on a raised surface of the scheme.
 
@@ -295,14 +295,14 @@ Only colors and elevation change. The shape, the sizes, the text styles, the arr
 
 ### A keyboard shortcut
 
-<DemoFrame label="Point at or focus a button: a command's keys after its name" plain>
+<Example label="Point at or focus a button: a command's keys after its name">
   <tanrei-tooltip text="Bold" shortcut="mod+b" no-describe>
     <tanrei-button variant="text" label="Bold"><span slot="icon">format_bold</span></tanrei-button>
   </tanrei-tooltip>
   <tanrei-tooltip text="Italic" shortcut="mod+i" no-describe>
     <tanrei-button variant="text" label="Italic"><span slot="icon">format_italic</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 `shortcut` shows the keys of the anchor's command after a plain tooltip's text, written for the keyboard the person uses. It takes the key names of the [keyboard shortcut](/components/keyboard-shortcut/) component, one chord per string; on the web the attribute holds the chords separated by spaces.
 

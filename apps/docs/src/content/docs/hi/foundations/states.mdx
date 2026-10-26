@@ -2,12 +2,12 @@
 title: इंटरैक्शन स्टेट
 description: स्टेट लेयर, "पहले ख़ाली जगह, फिर रिंग" वाला फ़ोकस इंडिकेटर, और अक्षम स्टेट कैसे बनाया जाता है।
 translationOf: foundations/states.mdx
-sourceHash: 473427a122fbba6ee446b96eb41a5d60b045fd6a
+sourceHash: 202af5556b4e50ff88d6b12ec2714312ffd9176d
 ---
 
 import Callout from '../../../../components/Callout.astro';
 import StateTokens from '../../../../components/tokens/StateTokens.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 इंटरैक्टिव कंपोनेंट स्टेट की एक ही शब्दावली साझा करते हैं: enabled, hovered, focused, pressed, dragged, selected, activated, error, loading और disabled। कंपोनेंट का स्पेक उन स्टेट की सूची देता है जिन्हें वह सपोर्ट करता है, और हर प्लैटफ़ॉर्म को वे सभी इम्प्लीमेंट करने होते हैं।
 
@@ -26,13 +26,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 अलग-अलग कंटेनर पर लेयर देखने के लिए नीचे के बटनों पर होवर करें और उन्हें दबाएँ:
 
-<DemoFrame label="स्टेट लेयर">
+<Example label="स्टेट लेयर">
   <tanrei-button variant="filled">Filled</tanrei-button>
   <tanrei-button variant="tonal">Tonal</tanrei-button>
   <tanrei-button variant="elevated">Elevated</tanrei-button>
   <tanrei-button variant="outlined">Outlined</tanrei-button>
   <tanrei-button variant="text">Text</tanrei-button>
-</DemoFrame>
+</Example>
 
 ## फ़ोकस: पहले ख़ाली जगह, फिर रिंग
 

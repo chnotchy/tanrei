@@ -2,23 +2,23 @@
 title: 数値フィールド
 description: 数値を数値として入力できるようにします。ロケールの書き方で入力するか、キーやボタンで増減でき、範囲の中に保たれ、単位が横に付きます。フォームの完成した 1 つのフィールドで、数値入力欄をフィールドで囲んだものです。
 translationOf: components/number-field.mdx
-sourceHash: 74340194585f221ae2e50d10b49d796cb660f7d5
+sourceHash: 46df532e715f3bb90e316d666626d7f027be4b68
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="number-field" />
 
-<DemoFrame label="単位と範囲のある数値フィールドと、金額を持つ数値フィールド" column>
+<Example label="単位と範囲のある数値フィールドと、金額を持つ数値フィールド" column>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="角の半径" value="8" min="0" max="64" step="0.25" suffix-text="px" supporting-text="0 から 64 まで、0.25 刻みです。" increment-label="増やす" decrement-label="減らす"></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="金額" value="120" min="0" prefix-text="$" suffix-text="USD" min-fraction-digits="2" max-fraction-digits="2" invalid-text="金額を数字で入力してください。" increment-label="増やす" decrement-label="減らす"></tanrei-number-field>
-</DemoFrame>
+</Example>
 
 数値フィールドは、プロダクトが数値として読む数に使います。数量、サイズ、パーセント、金額などです。ユーザーは自分のロケールの書き方で入力するか、矢印キーやフィールドの末尾側にある 2 つのボタンで増減します。フィールドは、同じバリアントとサイズのテキストフィールドと同じ見た目と寸法です。
 
@@ -89,11 +89,11 @@ Web では `<tanrei-number-field>` です。ほかのプラットフォームは
 </tanrei-field>
 ```
 
-<DemoFrame label="同じフィールドを自分で書いたもの。フィールドの中に数値入力欄があります" column>
+<Example label="同じフィールドを自分で書いたもの。フィールドの中に数値入力欄があります" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" required required-text="必須" supporting-text="1 回の注文は 99 個までです。">
     <tanrei-number-input min="1" max="99" invalid-text="数値を入力してください。" increment-label="増やす" decrement-label="減らす"></tanrei-number-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 数値フィールドにない並べ方が必要なときに、1 つ下の階層で書きます。
 
@@ -107,14 +107,14 @@ Web では `<tanrei-number-field>` です。ほかのプラットフォームは
 
 ## 仕様
 
-<DemoFrame label="上限で無効になったステッパー、末尾側にそろえた数字、ステッパーなし、エラー、読み取り専用、無効の数値フィールド" plain column>
+<Example label="上限で無効になったステッパー、末尾側にそろえた数字、ステッパーなし、エラー、読み取り専用、無効の数値フィールド" column>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" value="99" min="1" max="99" increment-label="増やす" decrement-label="減らす"></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="トーン" value="40" min="0" max="100" align="end" increment-label="増やす" decrement-label="減らす"></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="字間" value="-0.25" step="0.01" suffix-text="px" no-steppers></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" value="0" error error-text="1 個以上を注文してください。" increment-label="増やす" decrement-label="減らす"></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" value="12" readonly></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" value="12" disabled increment-label="増やす" decrement-label="減らす"></tanrei-number-field>
-</DemoFrame>
+</Example>
 
 ### フィールド
 
@@ -145,10 +145,10 @@ Web では `<tanrei-number-field>` です。ほかのプラットフォームは
 
 確定した数値は、ロケールの数字と小数点で、小数部を `minFractionDigits` 桁から `maxFractionDigits` 桁までにして書きます。桁区切りは付けません。表示されているものを、そのまま入力し直せるようにするためです。
 
-<DemoFrame label="同じ値 1.5 を、ドイツ語とエジプトのアラビア語で" plain column>
+<Example label="同じ値 1.5 を、ドイツ語とエジプトのアラビア語で" column>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Gewicht" value="1.5" step="0.1" suffix-text="kg" locale="de-DE" increment-label="Erhöhen" decrement-label="Verringern"></tanrei-number-field>
   <div dir="rtl" lang="ar"><tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الوزن" value="1.5" step="0.1" locale="ar-EG" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-field></div>
-</DemoFrame>
+</Example>
 
 テキストは、フィールドの `locale` に従って、寛容に読みます。`locale` が空のときは、ページの言語に従います。
 
@@ -161,10 +161,10 @@ Web では `<tanrei-number-field>` です。ほかのプラットフォームは
 
 フィールドは、2 つのロケールの書き方の間で推測しません。小数点がカンマのドイツ語では、`1.500` を 1500、`1.5` を 15 と読みます。
 
-<DemoFrame label="右から左のレイアウト：ラテン文字の単位は数値の後ろに左から右へ、ページ自身の文字の単位は数値の左に来ます" plain column>
+<Example label="右から左のレイアウト：ラテン文字の単位は数値の後ろに左から右へ、ページ自身の文字の単位は数値の左に来ます" column>
   <div dir="rtl" lang="ar"><tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="العرض" value="44" min="0" suffix-text="px" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-field></div>
   <div dir="rtl" lang="ar"><tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الوزن" value="12" min="0" step="0.5" suffix-text="كغم" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-field></div>
-</DemoFrame>
+</Example>
 
 数値とその単位は、ひと続きのテキストです。プレフィックスは数値の前に、サフィックスは数値の後ろに、単位自身の文字の向きで書きます。ページの向きには左右されません。そのため「44 px」「$ 120 USD」「40 %」は、アラビア語やヘブライ語のページでも英語のページと同じ並びになり、アラビア文字やヘブライ文字で書いた単位は数値の左に来ます。ステッパーとラベルはページの向きに従います。`align="end"` は数値を単位の側に寄せます。ラテン文字や記号の単位なら、どちらの向きでも右です。ラテン文字の通貨コードを数値の左に置きたいときは、サフィックスの先頭に右から左への方向マーク（U+200F）を書きます。
 

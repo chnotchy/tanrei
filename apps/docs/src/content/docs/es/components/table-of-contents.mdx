@@ -2,20 +2,20 @@
 title: Tabla de contenido
 description: Enumera los encabezados de la página que se está leyendo como enlaces a ellos y marca aquel cuya sección se está leyendo. Donde no hay sitio junto al texto, una sola fila da el nombre de la sección actual y abre la misma lista.
 translationOf: components/table-of-contents.mdx
-sourceHash: f5bfc3fe238e62fc88573224164e01b2942039f2
+sourceHash: dc38f921aee3c6d914fb80adf6dc437c39164b17
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="table-of-contents" />
 
-<DemoFrame label="Las secciones de esta página: desplázate y el marcador te sigue" plain>
+<Example label="Las secciones de esta página: desplázate y el marcador te sigue">
   <tanrei-table-of-contents class="not-content tanrei-not-prose" label="En esta página" style="inline-size: 15rem; max-inline-size: 100%">
     <ul>
       <li>
@@ -36,7 +36,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <li><a href="#accesibilidad">Accesibilidad</a></li>
     </ul>
   </tanrei-table-of-contents>
-</DemoFrame>
+</Example>
 
 Una tabla de contenido muestra qué contiene una página larga y en qué parte está quien la lee. Cada elemento es un enlace a un encabezado; los subencabezados van con sangría bajo su encabezado. El elemento actual tiene un marcador en la línea guía y una etiqueta de más peso. No es la navegación del producto entre páginas: eso es un panel de navegación.
 
@@ -108,7 +108,7 @@ Los elementos se dan, no se descubren. Una página construida por un generador d
 
 ## Especificaciones
 
-<DemoFrame label="Densidad compact, tres niveles, con el tercer elemento como actual" plain>
+<Example label="Densidad compact, tres niveles, con el tercer elemento como actual">
   <tanrei-table-of-contents class="not-content tanrei-not-prose" label="En esta página" density="compact" tracking="manual" current="#roles-demo" style="inline-size: 15rem; max-inline-size: 100%">
     <ul>
       <li>
@@ -127,9 +127,9 @@ Los elementos se dan, no se descubren. Una página construida por un generador d
       <li><a href="#components-demo">Componentes</a></li>
     </ul>
   </tanrei-table-of-contents>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="La forma compacta: pulsa la fila" plain>
+<Example label="La forma compacta: pulsa la fila">
   <tanrei-table-of-contents class="not-content tanrei-not-prose" label="En esta página" presentation="compact" tracking="manual" current="#configure-demo" style="inline-size: 20rem; max-inline-size: 100%">
     <ul>
       <li><a href="#install-demo">Instalar</a></li>
@@ -137,7 +137,7 @@ Los elementos se dan, no se descubren. Una página construida por un generador d
       <li><a href="#build-demo">Compilar</a></li>
     </ul>
   </tanrei-table-of-contents>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="table-of-contents" />
 

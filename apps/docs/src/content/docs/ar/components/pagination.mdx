@@ -2,23 +2,23 @@
 title: التنقل بين الصفحات
 description: ينتقل بين الصفحات المرقّمة لقائمة واحدة. أرقام صفحات مع علامة على الصفحة الحالية، والسابقة والتالية، والأولى والأخيرة حيث تطلبهما، وشكل مختصر يقول أي صفحة من كم صفحة.
 translationOf: components/pagination.mdx
-sourceHash: 0055738fcfa0e80739713bb784bf880bbc361f3a
+sourceHash: 1c1cccbf82e1fb4aeaa57031bf176f4cf7943f25
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="pagination" />
 
-<DemoFrame label="بالأرقام، ومع الأولى والأخيرة" column>
+<Example label="بالأرقام، ومع الأولى والأخيرة" column>
   <tanrei-pagination label="صفحات العرض الأول" page="5" count="10" previous-label="الصفحة السابقة" next-label="الصفحة التالية" page-label="الصفحة {page}"></tanrei-pagination>
   <tanrei-pagination label="صفحات العرض الثاني" page="12" count="40" first-last previous-label="الصفحة السابقة" next-label="الصفحة التالية" first-label="الصفحة الأولى" last-label="الصفحة الأخيرة" page-label="الصفحة {page}"></tanrei-pagination>
-</DemoFrame>
+</Example>
 
 التنقل بين الصفحات ينتقل بين صفحات قائمة واحدة بالأرقام: نتائج بحث، أو منشورات مدوّنة، أو صفوف جدول. أما الصفحة السابقة والتالية في تسلسل من الصفحات التي لها عناوين، مثل فصول دليل، فهي [روابط السابق والتالي](/ar/components/previous-next-links/): العنوان يقول إلى أين يقود، ورقم الصفحة لا يقول.
 
@@ -60,16 +60,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="الشكل المختصر، وحجم صغير" plain column>
+<Example label="الشكل المختصر، وحجم صغير" column>
   <tanrei-pagination label="صفحات العرض المختصر" variant="compact" page="3" count="10" previous-label="الصفحة السابقة" next-label="الصفحة التالية" count-text="الصفحة {page} من {count}"></tanrei-pagination>
   <tanrei-pagination label="صفحات العرض الصغير" size="small" page="4" count="8" previous-label="الصفحة السابقة" next-label="الصفحة التالية" page-label="الصفحة {page}"></tanrei-pagination>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="في عمود ضيق يصير الشكل المرقّم هو الشكل المختصر" plain>
+<Example label="في عمود ضيق يصير الشكل المرقّم هو الشكل المختصر">
   <div style="inline-size: 14rem">
     <tanrei-pagination label="صفحات العرض الضيق" page="5" count="10" previous-label="الصفحة السابقة" next-label="الصفحة التالية" page-label="الصفحة {page}" count-text="الصفحة {page} من {count}"></tanrei-pagination>
   </div>
-</DemoFrame>
+</Example>
 
 - **أي الأرقام تُعرض.** الصفحة الأولى والأخيرة (`boundaries`، وقيمتها الافتراضية 1)، والصفحة الحالية وصفحة على كل جانب منها (`siblings`، وقيمتها الافتراضية 1). والصفحات المتروكة بينها علامة حذف واحدة. وقرب أحد الطرفين تُعرض صفحات أكثر على الجانب الآخر، فيبقى عدد المواضع في الصف واحدًا في كل صفحة ويحتفظ الصف بعرضه.
 - **الصفحة الحالية** تُرسم مملوءة وتُعرض بأنها الحالية. والضغط عليها لا يفعل شيئًا.

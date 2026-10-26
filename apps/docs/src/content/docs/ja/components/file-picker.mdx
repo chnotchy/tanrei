@@ -2,21 +2,21 @@
 title: ファイルピッカー
 description: プラットフォーム自身のピッカーでファイルを選ばせます。ボタンから開き、余裕のある場所では、ファイルをドラッグできる領域からも受け取ります。選ぶ前に制限を言葉で伝え、選ばれたファイルを判定し、通ったファイルと断ったファイルをプロダクトに渡します。何も保持せず、何も一覧にせず、フォームにも加わりません。
 translationOf: components/file-picker.mdx
-sourceHash: 7b60eb18075b635e3d10042c71ae794088afa2bf
+sourceHash: 13621ef351e8f58d28882b26c91b782cc5a412fc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 
 ## 概要
 
 <ComponentAvailability name="file-picker" />
 
-<DemoFrame label="2 つのレイアウトのファイルピッカー。ファイルを選んでも、ここでは何も変わりません。このページはファイルを保持しないためです。" column>
+<Example label="2 つのレイアウトのファイルピッカー。ファイルを選んでも、ここでは何も変わりません。このページはファイルを保持しないためです。" column>
   <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="レイヤファイル" accept=".json" constraints-text="JSON ファイル 1 つ" selection-text="ファイルが選ばれていません">
     <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
   </tanrei-file-picker>
@@ -24,7 +24,7 @@ import Callout from '../../../../components/Callout.astro';
     <tanrei-button slot="trigger" variant="outlined">写真を選ぶ</tanrei-button>
     <span slot="icon">image</span>
   </tanrei-file-picker>
-</DemoFrame>
+</Example>
 
 ファイルピッカーは、ファイルを選ぶ手段で、それ以上のものではありません。利用者側の[ボタン](/ja/components/button/)が、プラットフォームのファイルピッカーを開きます。ボタンのまわりにはドロップ領域を置くことができ、そこへドラッグしたファイルも受け取ります。制限は、利用者側の言葉でその横に並びます。選ばれたファイルは、制限に照らして判定され、利用者側に渡されます。通ったファイルは `select` で、断られたファイルは `reject` で届きます。
 
@@ -107,7 +107,7 @@ React では、`judge()` は ref から使います。`ref.current.judge(files)`
 
 ## 仕様
 
-<DemoFrame label="トリガーだけのもの、選ばれたものと制限を添えたもの、エラーの状態のドロップ領域、無効のもの" plain column>
+<Example label="トリガーだけのもの、選ばれたものと制限を添えたもの、エラーの状態のドロップ領域、無効のもの" column>
   <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="添付">
     <tanrei-button slot="trigger" variant="outlined">ファイルを添付</tanrei-button>
   </tanrei-file-picker>
@@ -120,7 +120,7 @@ React では、`judge()` は ref から使います。`ref.current.judge(files)`
   <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple disabled label="添付ファイル" drop-text="ここにファイルをドラッグするか、選んでください" constraints-text="PDF または PNG、1 つにつき 10 MB まで">
     <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
   </tanrei-file-picker>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="file-picker" />
 

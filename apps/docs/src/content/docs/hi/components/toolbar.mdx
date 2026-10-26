@@ -2,20 +2,20 @@
 title: टूलबार
 description: आपस में जुड़े कंट्रोल के एक सेट को एक Tab स्टॉप के रूप में रखता है, जहाँ उसके कॉन्टेंट को ज़रूरत हो वहीं इनलाइन, निचले किनारे पर डॉक किया हुआ, या कॉन्टेंट के ऊपर तैरता हुआ। ऐरो कुंजियाँ फ़ोकस को इसके कंट्रोल के बीच ले जाती हैं, और जो समाता नहीं वह ओवरफ़्लो मेन्यू में चला जाता है।
 translationOf: components/toolbar.mdx
-sourceHash: a8432aa4140d0470d37330b77fd6878ea1e55585
+sourceHash: ec078390e57356bd887b7ee15eb4f3f965cf37e9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="toolbar" />
 
-<DemoFrame label="इनलाइन, डॉक किया हुआ और तैरता हुआ" column>
+<Example label="इनलाइन, डॉक किया हुआ और तैरता हुआ" column>
   <tanrei-toolbar label="फ़ॉर्मैटिंग">
     <tanrei-toolbar-group label="टेक्स्ट की स्टाइल">
       <tanrei-button variant="text" toggle selected label="बोल्ड"><span slot="icon">format_bold</span></tanrei-button>
@@ -39,7 +39,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-button variant="text" label="इरेज़र"><span slot="icon">ink_eraser</span></tanrei-button>
     <tanrei-button variant="filled" label="हो गया"><span slot="icon">check</span></tanrei-button>
   </tanrei-toolbar>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -223,7 +223,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 ## स्पेक
 
-<DemoFrame label="ग्रुप और एक सेपरेटर, मेन्यू बटन, मेन्यू वाला बटन, लेबल वाले टॉगल, ओवरफ़्लो मेन्यू" plain column>
+<Example label="ग्रुप और एक सेपरेटर, मेन्यू बटन, मेन्यू वाला बटन, लेबल वाले टॉगल, ओवरफ़्लो मेन्यू" column>
   <tanrei-toolbar label="दस्तावेज़ की क्रियाएँ">
     <tanrei-button variant="text" label="पहले जैसा करें"><span slot="icon">undo</span></tanrei-button>
     <tanrei-button variant="text" label="फिर से करें"><span slot="icon">redo</span></tanrei-button>
@@ -268,7 +268,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
       <tanrei-button variant="text" label="लेयर"><span slot="icon">layers</span></tanrei-button>
     </tanrei-toolbar-group>
   </tanrei-toolbar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="toolbar" />
 
@@ -292,7 +292,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
 
 डॉक किया हुआ टूलबार अपने आइटम को चौड़ाई में फैलाता है और उन्हें कभी अपने गैप (डिफ़ॉल्ट सिस्टम में 16) से ज़्यादा पास नहीं लाता। इनलाइन या तैरता हुआ टूलबार अपने आइटम को पास-पास रखता है: दो पड़ोसी सिर्फ़ उतने दूर रहते हैं जितना हर एक को पंक्ति की दिशा में अपना टच टार्गेट बनाए रखने के लिए चाहिए, और गैप से कभी ज़्यादा पास नहीं (डिफ़ॉल्ट सिस्टम में इनलाइन के लिए 4 और तैरते हुए के लिए 0)। large बटन एक-दूसरे को छूते हैं, medium बटन 8 की दूरी पर रहते हैं और small बटन 16 की। इसके लिए टूलबार किसी आइटम को न चौड़ा करता है, न उसकी स्टाइल बदलता है, और यह दूरी माउस और टच के लिए एक जैसी है।
 
-<DemoFrame label="तैरता हुआ: small, medium और large आइटम, और narrow और wide आइटम" plain column>
+<Example label="तैरता हुआ: small, medium और large आइटम, और narrow और wide आइटम" column>
   <tanrei-toolbar variant="floating" label="फ़ॉर्मैटिंग, small">
     <tanrei-button variant="text" size="small" label="बोल्ड"><span slot="icon">format_bold</span></tanrei-button>
     <tanrei-button variant="text" size="small" label="इटैलिक"><span slot="icon">format_italic</span></tanrei-button>
@@ -315,7 +315,7 @@ Web और React के उदाहरण मौजूदा स्पेक �
     <tanrei-button variant="text" label="इरेज़र"><span slot="icon">ink_eraser</span></tanrei-button>
     <tanrei-button variant="filled" width="wide" label="हो गया"><span slot="icon">check</span></tanrei-button>
   </tanrei-toolbar>
-</DemoFrame>
+</Example>
 
 ### आइटम
 

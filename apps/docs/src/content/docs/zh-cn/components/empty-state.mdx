@@ -2,23 +2,23 @@
 title: "空状态"
 description: "站在本该有内容却没有内容的位置上——没有结果的搜索、还没有人添加过东西的列表、第一项出现之前的页面——说明缺的是什么、为什么缺或该怎么做，并提供完成这件事的操作。"
 translationOf: components/empty-state.mdx
-sourceHash: d3fa57bc06d9c02ac0f16e7a10c5d4d5a0d20bfe
+sourceHash: 1dd91f2ec1c7941daac79ca1cc090adcaeb66da9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="empty-state" />
 
-<DemoFrame label="还没有人添加过东西的列表，以及什么也没找到的搜索" column>
+<Example label="还没有人添加过东西的列表，以及什么也没找到的搜索" column>
   <tanrei-empty-state headline="还没有项目" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>项目把一个设计系统的设计层、导出内容和成员放在一起。<tanrei-button slot="actions">新建项目</tanrei-button><tanrei-button slot="actions" variant="text">导入设计层</tanrei-button></tanrei-empty-state>
   <tanrei-empty-state headline="没有找到“令排”的结果" style="inline-size: min(100%, 30rem)"><span slot="media">search_off</span>请检查输入是否有误，或者换一个更短的词搜索。<tanrei-button slot="actions" variant="outlined">清除搜索</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
 空状态站在本该有内容、却什么也没有的位置上：它取代列表、行或结果。它用几个词说明缺的是什么，用一句话说明为什么缺或该怎么做，并提供完成这件事的控件。它低调而扁平——没有填充，没有边线——而且它是内容，在它所在的位置被读到：它不接受焦点，也没有状态。
 
@@ -79,17 +79,17 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="各个部件，逐一加上" plain column>
+<Example label="各个部件，逐一加上" column>
   <tanrei-empty-state headline="还没有项目" style="inline-size: min(100%, 30rem)"></tanrei-empty-state>
   <tanrei-empty-state headline="还没有项目" style="inline-size: min(100%, 30rem)">项目把一个设计系统的设计层、导出内容和成员放在一起。</tanrei-empty-state>
   <tanrei-empty-state headline="还没有项目" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>项目把一个设计系统的设计层、导出内容和成员放在一起。</tanrei-empty-state>
   <tanrei-empty-state headline="还没有项目" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>项目把一个设计系统的设计层、导出内容和成员放在一起。<tanrei-button slot="actions">新建项目</tanrei-button><tanrei-button slot="actions" variant="text">导入设计层</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="靠起始侧边缘，以及大号尺寸" plain column>
+<Example label="靠起始侧边缘，以及大号尺寸" column>
   <tanrei-empty-state align="start" headline="目前与基础值没有差异" style="inline-size: min(100%, 30rem)">在左侧更改一个值，它就会列在这里。</tanrei-empty-state>
   <tanrei-empty-state size="large" headline="此页面不存在" style="inline-size: min(100%, 30rem)"><span slot="media">explore_off</span>地址可能输入有误，或者页面已被移走。<tanrei-button slot="actions" variant="outlined">前往首页</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="empty-state" />
 
@@ -133,18 +133,18 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 操作是你自己的 [Button](/zh-cn/components/button/) 或链接，一到两个，主要的那个放在前面。空状态把它们排成会换行的一行，除此之外不对它们做任何事。标签比所在的行还长的操作会独占这一行：这时 Button 会让标签换行，所以什么都不会被截断，也不会伸出这个块。
 
-<DemoFrame label="在窄栏里，每个操作各占一行，长标签会换行" plain column>
+<Example label="在窄栏里，每个操作各占一行，长标签会换行" column>
   <tanrei-empty-state headline="没有结果" style="inline-size: 14rem"><span slot="media">search_off</span>请检查输入是否有误。<tanrei-button slot="actions" variant="outlined">清除搜索</tanrei-button><tanrei-button slot="actions" variant="text">打开这份文档全部内容的目录列表</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
 ### 作为对某件事的回应而出现
 
 `live` 用于由用户刚刚做的事所导致的空状态：没有任何行符合的筛选条件、最后一项被移除。它在显示出来时，以及文本变化时，会以礼貌（polite）的方式朗读一次——先是标题，再是描述，不包括操作。用 `hidden` 把它留在页面里，或者在适用的时候再添加它。
 
-<DemoFrame label="带 live 的空状态，作为对一次按下的回应而显示" plain column>
+<Example label="带 live 的空状态，作为对一次按下的回应而显示" column>
   <tanrei-button variant="outlined" onclick="document.getElementById('empty-state-demo-live').hidden = false">应用三个筛选条件</tanrei-button>
   <tanrei-empty-state id="empty-state-demo-live" live hidden headline="没有符合这些筛选条件的条目" style="inline-size: min(100%, 30rem)">已启用三个筛选条件。移除其中一个，会显示更多条目。<tanrei-button slot="actions" variant="outlined" onclick="this.closest('tanrei-empty-state').hidden = true">清除筛选条件</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
 写在页面标记里、并在页面加载时就显示的空状态，在那时不会被朗读。在 Web 上，页面加载之后由你的脚本添加进来的带 `live` 的空状态会被朗读；元素无法分辨一个空状态是作为对某件事的回应而添加的，还是随单页应用的新视图一起添加的，所以对于只是新视图一部分的空状态，请不要写 `live`。
 

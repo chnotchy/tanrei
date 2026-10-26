@@ -7,16 +7,16 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="marquee-text" />
 
-<DemoFrame label="A title that does not fit, and one that does">
+<Example label="A title that does not fit, and one that does">
   <tanrei-marquee-text style="inline-size: min(100%, 14rem)">Track 7 — A very long title that does not fit in the row it stands in</tanrei-marquee-text>
   <tanrei-marquee-text style="inline-size: min(100%, 14rem)">Short title</tanrei-marquee-text>
-</DemoFrame>
+</Example>
 
 A marquee text is one line of the product's text in a place too narrow for it. At rest it reads as any cut line does: it starts at the line's start and ends with an ellipsis where it is cut. While its trigger holds — by default, while the pointer is over it or the control it stands in has keyboard focus — it scrolls sideways at a steady pace, given in pixels per second, so that every part of the text passes through view; then it comes back to its start and rests. Point at the first line above. The second fits, so it never moves: a marquee text whose text fits is a plain line of text.
 

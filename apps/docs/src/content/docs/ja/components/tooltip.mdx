@@ -2,27 +2,27 @@
 title: ツールチップ
 description: ポインターを載せたとき、キーボードでフォーカスしたとき、長押ししたときに、要素を短い言葉で説明します。フォーカスを奪わず、何もふさぎません。
 translationOf: components/tooltip.mdx
-sourceHash: 352d33c155f7fa0c00f78129b4607ba1537de540
+sourceHash: dcb6c100029fe5ba5321bc6dd90e158f65de7061
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="tooltip" />
 
-<DemoFrame label="ボタンにポインターを載せるか、フォーカスしてください：プレーンとリッチのツールチップ">
+<Example label="ボタンにポインターを載せるか、フォーカスしてください：プレーンとリッチのツールチップ">
   <tanrei-tooltip text="ゴミ箱に移動" no-describe>
     <tanrei-button variant="text" label="ゴミ箱に移動"><span slot="icon">delete</span></tanrei-button>
   </tanrei-tooltip>
   <tanrei-tooltip variant="rich" headline="ストレージ" text="ゴミ箱の中のファイルも、削除されるまではストレージの使用量に含まれます。" placement="bottom">
     <tanrei-button variant="text" label="ストレージについて"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -192,14 +192,14 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 
 ## 仕様
 
-<DemoFrame label="アンカーの下に出るプレーンなツールチップと、タイトルのないリッチなツールチップ" plain>
+<Example label="アンカーの下に出るプレーンなツールチップと、タイトルのないリッチなツールチップ">
   <tanrei-tooltip text="ゴミ箱に移動" placement="bottom" no-describe>
     <tanrei-button variant="text" label="ゴミ箱に移動"><span slot="icon">delete</span></tanrei-button>
   </tanrei-tooltip>
   <tanrei-tooltip variant="rich" text="ゴミ箱の中のファイルも、削除されるまではストレージの使用量に含まれます。">
     <tanrei-button variant="text" label="ストレージについて"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tooltip" />
 
@@ -224,7 +224,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 
 `placement` は、ツールチップをアンカーのどの側に置きたいかと、その辺に沿ってどうそろえるかを指定します。既定は `top` です。
 
-<DemoFrame label="ボタンにポインターを載せるか、フォーカスしてください：13 の配置" plain>
+<Example label="ボタンにポインターを載せるか、フォーカスしてください：13 の配置">
   <tanrei-tooltip text="上、中央揃え" placement="top"><tanrei-button variant="outlined" size="small">top</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="上、先頭側の端をそろえる" placement="top-start"><tanrei-button variant="outlined" size="small">top-start</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="上、末尾側の端をそろえる" placement="top-end"><tanrei-button variant="outlined" size="small">top-end</tanrei-button></tanrei-tooltip>
@@ -238,7 +238,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
   <tanrei-tooltip text="末尾側、上端をそろえる" placement="end-top"><tanrei-button variant="outlined" size="small">end-top</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="末尾側、下端をそろえる" placement="end-bottom"><tanrei-button variant="outlined" size="small">end-bottom</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="空きのある最初の側" placement="auto"><tanrei-button variant="outlined" size="small">auto</tanrei-button></tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 | 側 | アンカーの中央にそろえる | 1 つ目の端をそろえる | 2 つ目の端をそろえる |
 | --- | --- | --- | --- |
@@ -256,7 +256,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 
 ### 矢印
 
-<DemoFrame label="ボタンにポインターを載せるか、フォーカスしてください：矢印付き" plain>
+<Example label="ボタンにポインターを載せるか、フォーカスしてください：矢印付き">
   <tanrei-tooltip text="ゴミ箱に移動" arrow no-describe>
     <tanrei-button variant="text" label="ゴミ箱に移動"><span slot="icon">delete</span></tanrei-button>
   </tanrei-tooltip>
@@ -266,7 +266,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
   <tanrei-tooltip variant="rich" headline="ストレージ" text="ゴミ箱の中のファイルも、削除されるまではストレージの使用量に含まれます。" placement="end" arrow>
     <tanrei-button variant="text" label="ストレージについて"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 `arrow` は、アンカーを指す小さな三角形をツールチップの端に描きます。既定のシステムでは描きません。指定しなければデザインシステムの選択に従い、`true` と `false` で 1 つのツールチップについて決められます。Web では、属性 `arrow` が true、`arrow="false"` が false です。
 
@@ -276,12 +276,12 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 
 ### 2 つの見た目
 
-<DemoFrame label="ボタンにポインターを載せるか、フォーカスしてください：それぞれの形の、反転とサーフェスの上" plain>
+<Example label="ボタンにポインターを載せるか、フォーカスしてください：それぞれの形の、反転とサーフェスの上">
   <tanrei-tooltip text="反対のスキームの色" inverse><tanrei-button variant="outlined" size="small">Plain、反転</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="スキームの浮き上がったサーフェス" inverse="false"><tanrei-button variant="outlined" size="small">Plain、サーフェスの上</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip variant="rich" headline="サーフェスの上" text="スキームの浮き上がったサーフェスに、エレベーションを付けて描きます。" inverse="false"><tanrei-button variant="outlined" size="small">Rich、サーフェスの上</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip variant="rich" headline="反転" text="反対のスキームの色で、影なしで描きます。" inverse><tanrei-button variant="outlined" size="small">Rich、反転</tanrei-button></tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 どちらの形も、反転して（反対のスキームの色で）描くことも、スキームの浮き上がったサーフェスの上に描くこともできます。
 
@@ -297,14 +297,14 @@ Web では、[スナックバー](/ja/components/snackbar/)と同じく、属性
 
 ### キーボードショートカット
 
-<DemoFrame label="ボタンにポインターを載せるか、フォーカスしてください：名前の後ろにコマンドのキー" plain>
+<Example label="ボタンにポインターを載せるか、フォーカスしてください：名前の後ろにコマンドのキー">
   <tanrei-tooltip text="太字" shortcut="mod+b" no-describe>
     <tanrei-button variant="text" label="太字"><span slot="icon">format_bold</span></tanrei-button>
   </tanrei-tooltip>
   <tanrei-tooltip text="斜体" shortcut="mod+i" no-describe>
     <tanrei-button variant="text" label="斜体"><span slot="icon">format_italic</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 `shortcut` は、アンカーのコマンドのキーを、プレーンなツールチップのテキストの後ろに、その人が使っているキーボードに合わせて表示します。[キーボードショートカット](/ja/components/keyboard-shortcut/)コンポーネントのキーの名前を、文字列 1 つにつき 1 つの組み合わせで受け取ります。Web の属性では、組み合わせを空白で区切って書きます。
 

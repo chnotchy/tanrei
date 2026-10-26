@@ -2,24 +2,24 @@
 title: स्लाइडर
 description: लोगों को ट्रैक पर हैंडल को ड्रैग करके कोई मान, या मानों की रेंज, चुनने देता है, निरंतर या स्टेप में।
 translationOf: components/slider.mdx
-sourceHash: f8e90fd380943ae7d0e08ad6a1bd99f61a83ba8b
+sourceHash: e74996d456fba14f6d07067a6a1b9cf61c1e5e69
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="slider" />
 
-<DemoFrame label="निरंतर, स्टॉप के साथ स्टेप वाला, और एक रेंज" column>
+<Example label="निरंतर, स्टॉप के साथ स्टेप वाला, और एक रेंज" column>
   <tanrei-slider label="वॉल्यूम" value="40" style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider label="ब्राइटनेस" value="30" step="10" stops style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider range label="अधिकतम क़ीमत" start-label="न्यूनतम क़ीमत" start-value="20" value="60" style="inline-size: 20rem"></tanrei-slider>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -171,7 +171,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="साइज़, केंद्रित, मान इंडिकेटर, खड़ा और अक्षम" plain column>
+<Example label="साइज़, केंद्रित, मान इंडिकेटर, खड़ा और अक्षम" column>
   <tanrei-slider size="medium" label="वॉल्यूम" value="40" style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider size="large" label="वॉल्यूम" value="40" style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider label="बैलेंस" min="-50" max="50" origin="0" value="20" style="inline-size: 20rem"></tanrei-slider>
@@ -179,7 +179,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-slider label="वॉल्यूम" value="40" disabled style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider label="ब्राइटनेस" value="60" step="20" stops disabled style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider orientation="vertical" label="वॉल्यूम" value="60" style="block-size: 12rem"></tanrei-slider>
-</DemoFrame>
+</Example>
 
 डिफ़ॉल्ट सिस्टम में हैंडल एक रिंग है: सरफ़ेस के रंग से भरा 20 का गोला, जो सक्रिय ट्रैक के रंग की आउटलाइन के भीतर है। आउटलाइन 3 चौड़ी है और गोले के किनारे के भीतर बनती है, इसलिए वह हैंडल का साइज़ नहीं बदलती: वह सरफ़ेस के रंग की 14 की चकती छोड़ती है, और ज़्यादा चौड़ी आउटलाइन उससे छोटी चकती छोड़ेगी। ट्रैक और सक्रिय ट्रैक हैंडल के नीचे से गुज़रते हैं और उसके केंद्र पर मिलते हैं, इसलिए सक्रिय ट्रैक एक ही रेखा जैसा दिखता है जो रिंग में ख़त्म होती है। हैंडल हर साइज़ पर 20 का है, 4, 6 और 8 के ट्रैक पर।
 

@@ -2,20 +2,20 @@
 title: حقل إدخال العدد
 description: صندوق العدد، يُكتب فيه بالصورة التي تكتبه بها الإعدادات المحلية أو يُغيَّر خطوةً خطوةً بمفتاح أو بزر، ويبقى ضمن حدوده، ووحدته بجانبه، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لعدد تقف تسميته في مكان آخر، أو داخل حقل يركّبه المنتج بنفسه.
 translationOf: components/number-input.mdx
-sourceHash: d6ff008fbde5d43dd32614e3e7bdba4bb94404fd
+sourceHash: d2d6bd8ae89fdd1c543ff780c061b338242047c6
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="number-input" />
 
-<DemoFrame label="مجرَّدًا: عدد بجانب شريط تمريره تحت عنوان صف واحد، وكمية في صف تقف تسميته بجانبها" column>
+<Example label="مجرَّدًا: عدد بجانب شريط تمريره تحت عنوان صف واحد، وكمية في صف تقف تسميته بجانبها" column>
   <div class="not-content" style="display: grid; grid-template-columns: minmax(0, 1fr) 6rem; align-items: center; gap: 0.75rem; inline-size: 22rem; max-inline-size: 100%">
     <tanrei-slider label="التكبير" min="0.25" max="4" step="0.05" value="1.5"></tanrei-slider>
     <tanrei-number-input label="التكبير" min="0.25" max="4" step="0.05" value="1.5" suffix-text="×" value-text="1.5 مرة" align="end" no-steppers locale="ar-u-nu-latn"></tanrei-number-input>
@@ -24,7 +24,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <span>مكتب من خشب البلوط</span>
     <tanrei-number-input label="الكمية، مكتب من خشب البلوط" value="2" min="1" max="99" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input>
   </div>
-</DemoFrame>
+</Example>
 
 حقل إدخال العدد (number input) هو صندوق [حقل العدد](/ar/components/number-field/) وحده: الحاوية، والعدد، وبادئته ولاحقته، وزرّا التدرّج (steppers). ليس فوقه صف تسمية، وليس تحته مساعدة ولا نص خطأ.
 
@@ -107,11 +107,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="حقل فيه حقل إدخال العدد: الصورة نفسها التي لحقل العدد" column>
+<Example label="حقل فيه حقل إدخال العدد: الصورة نفسها التي لحقل العدد" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الكمية" required required-text="مطلوب" supporting-text="حتى 99 في الطلب الواحد.">
     <tanrei-number-input min="1" max="99" invalid-text="أدخِل رقمًا." locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 حقل الإدخال يخبر حقله بما لا يعرفه غيره. فمساعدة الحقل تحاذي النص في الصندوق: تبدأ وتنتهي عند حشو النص في الصندوق، سواء رُسم زرّا التدرّج أم لم يُرسما. وحقل الإدخال من الطراز filled أو outlined يرسم تسمية الحقل بنفسه، عائمةً في الصندوق، فلا يرسم الحقل صف تسمية. والنص الذي ليس عددًا يضع الحقل في حالة الخطأ بنص `invalidText` الذي لحقل الإدخال، أو بنص `errorText` الذي للحقل نفسه حيث لا يكون لحقل الإدخال نص.
 
@@ -119,24 +119,24 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="حقول إدخال مجرَّدة: زر تدرّج معطَّل عند الحد، وأرقام عند حافة النهاية، وبلا زرّي التدرّج، وفي حالة الخطأ، وللقراءة فقط، ومعطَّل" plain column>
+<Example label="حقول إدخال مجرَّدة: زر تدرّج معطَّل عند الحد، وأرقام عند حافة النهاية، وبلا زرّي التدرّج، وفي حالة الخطأ، وللقراءة فقط، ومعطَّل" column>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الكمية" value="99" min="1" max="99" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الدرجة اللونية" value="40" min="0" max="100" align="end" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="تباعد الأحرف" value="-0.25" step="0.01" suffix-text="px" no-steppers locale="ar-u-nu-latn"></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الكمية" value="0" error locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الكمية" value="12" readonly locale="ar-u-nu-latn"></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الكمية" value="12" disabled locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="الطرازان filled و outlined مجرَّدين: تسمية حقل الإدخال نفسه تعوم في الصندوق" system="m3-like" plain column>
+<Example label="الطرازان filled و outlined مجرَّدين: تسمية حقل الإدخال نفسه تعوم في الصندوق" system="m3-like" column>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="الكمية" value="12" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="الكمية" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="في تخطيط من اليمين إلى اليسار: الوحدة المكتوبة بأحرف لاتينية بعد العدد، من اليسار إلى اليمين، والوحدة المكتوبة بنظام كتابة الصفحة نفسه عن يسار العدد" plain column>
+<Example label="في تخطيط من اليمين إلى اليسار: الوحدة المكتوبة بأحرف لاتينية بعد العدد، من اليسار إلى اليمين، والوحدة المكتوبة بنظام كتابة الصفحة نفسه عن يسار العدد" column>
   <div dir="rtl" lang="ar"><tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="العرض" value="44" min="0" suffix-text="px" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input></div>
   <div dir="rtl" lang="ar"><tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الوزن" value="12" min="0" step="0.5" suffix-text="كغم" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input></div>
-</DemoFrame>
+</Example>
 
 العدد ووحدته مقطع واحد من الكتابة. تُكتب البادئة قبل العدد واللاحقة بعده في اتجاه نظام كتابة الوحدة نفسه، أيًّا كان اتجاه الصفحة. ولذلك تُقرأ «`44 px`» و «`$ 120 USD`» و «`40 %`» في صفحة عربية أو عبرية كما تُقرأ في صفحة إنجليزية، والوحدة المكتوبة بأحرف عربية أو عبرية تقف عن يسار العدد. وزرّا التدرّج والتسمية يتبعان الصفحة. والقيمة `align="end"` تضع العدد لصق وحدته: عند اليمين مع وحدة مكتوبة بأحرف أو علامات لاتينية، في الاتجاهين كليهما. ولاختصار عملة بأحرف لاتينية عن يسار العدد، ابدأ اللاحقة بعلامة الاتجاه من اليمين إلى اليسار (U+200F).
 

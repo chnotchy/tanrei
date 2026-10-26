@@ -2,14 +2,14 @@
 title: स्नैकबार
 description: स्क्रीन के निचले किनारे पर या ऊपरी किनारे के अंतिम छोर पर व्यक्ति को संक्षेप में बताता है कि ऐप ने अभी क्या किया, ज़्यादा से ज़्यादा एक क्रिया के साथ, फ़ोकस लिए बिना और उसके काम में रुकावट डाले बिना।
 translationOf: components/snackbar.mdx
-sourceHash: febc4ce05890121860b19e8cab8e263f3b82ff1c
+sourceHash: 699f5b84ef2dfdff3afaa99c8b72b032736f3679
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
@@ -19,10 +19,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 यह पेज स्नैकबार को वैसा बताता है जैसा स्पेक में वह अभी है: स्कीम की किसी सरफ़ेस पर या इनवर्स बना एक बार, एक हल्की tonal क्रिया, हल्के टिंट वाले स्थिति के रूप, एक शीर्षक, और फैलने वाला टेक्स्ट। वेब यह सब बनाता है। जब तक उसके इनवर्स स्थिति वाले रूपों की समीक्षा नहीं हो जाती और उनकी बेसलाइन रिकॉर्ड नहीं हो जातीं, तब तक वह ऊपर "पीछे" के रूप में ही दर्ज रहता है। SwiftUI, Compose, Flutter और React Native एक पहले का संशोधन देते हैं, जिसमें text क्रिया है और न स्थिति वाले रूप हैं, न शीर्षक, न फैलना, न `inverse`, और जब तक वे बराबरी पर नहीं आते, उनके उदाहरण वही संशोधन दिखाते हैं। डेमो में वही वेब कंपोनेंट है जो आज दिया जाता है।
 :::
 
-<DemoFrame label="अपनी जगह पर बने हुए: क्रिया वाला एक संदेश, और बंद करने वाले बटन वाला एक संदेश" column>
+<Example label="अपनी जगह पर बने हुए: क्रिया वाला एक संदेश, और बंद करने वाले बटन वाला एक संदेश" column>
   <tanrei-snackbar message="बातचीत आर्काइव की गई" action="पहले जैसा करें"></tanrei-snackbar>
   <tanrei-snackbar message="ऑफ़िस के प्रिंटर से कनेक्ट हो गया" closable close-label="बंद करें"></tanrei-snackbar>
-</DemoFrame>
+</Example>
 
 ### इस्तेमाल
 
@@ -171,10 +171,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="अगली पंक्ति में जाने वाला संदेश, और अपनी अलग पंक्ति में एक क्रिया" plain column>
+<Example label="अगली पंक्ति में जाने वाला संदेश, और अपनी अलग पंक्ति में एक क्रिया" column>
   <tanrei-snackbar message="आपके बदलाव सेव हो गए, पर आपके ऑफ़लाइन रहते साझा कॉपी अपडेट नहीं हो सकी।" action="फिर कोशिश करें"></tanrei-snackbar>
   <tanrei-snackbar message="तीन फ़ाइलें अपलोड नहीं हो सकीं, क्योंकि वे इस फ़ोल्डर की सीमा से बड़ी हैं।" action="विफल रही फ़ाइलें देखें"></tanrei-snackbar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="snackbar" />
 
@@ -239,12 +239,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | `warning` | `warning` | ज़ोर देकर | ऐसी चीज़ जो बिगड़ सकती है अगर व्यक्ति कुछ न करे। |
 | `error` | `error` | ज़ोर देकर | वह विफलता जिस पर व्यक्ति बाद में लौट सकता है, ऐसी क्रिया के साथ जो फिर कोशिश करे या कारण बताए। |
 
-<DemoFrame label="स्थिति वाले रूप: info, success, warning और error" column>
+<Example label="स्थिति वाले रूप: info, success, warning और error" column>
   <tanrei-snackbar status="info" status-label="जानकारी" message="नया वर्शन इंस्टॉल करने के लिए तैयार है।" action="रीस्टार्ट करें"></tanrei-snackbar>
   <tanrei-snackbar status="success" status-label="सफलता" message="बैकअप पूरा हुआ" closable close-label="बंद करें"></tanrei-snackbar>
   <tanrei-snackbar status="warning" status-label="चेतावनी" headline="स्टोरेज लगभग भर गया है" message="आख़िरी 200 MB इस्तेमाल होते ही अपलोड रुक जाएँगे।" action="प्रबंधित करें"></tanrei-snackbar>
   <tanrei-snackbar status="error" status-label="त्रुटि" headline="संदेश नहीं भेजा गया" message="आप ऑफ़लाइन हैं। संदेश आउटबॉक्स में रहेगा।" action="फिर कोशिश करें"></tanrei-snackbar>
-</DemoFrame>
+</Example>
 
 स्थिति वाला रूप अपने बार को उस स्थिति के हल्के टिंट में बनाता है, उसके चारों ओर स्थिति के रंग की बारीक रेखा वाले किनारे के साथ, और टेक्स्ट से पहले उसी रंग में स्थिति के ग्लिफ़ के साथ। किनारा कोई जगह नहीं लेता। डिफ़ॉल्ट रूप का अपना कोई किनारा नहीं होता, सिर्फ़ वह जो उसका एलिवेशन बनाता है। स्थिति वाला रूप कभी सिर्फ़ रंग से नहीं पहचाना जाता: ग्लिफ़ का आकार रूपों को एक-दूसरे से अलग करता है, और `statusLabel` स्थिति को शब्दों में देता है, आपके प्रॉडक्ट की भाषा में ("त्रुटि")। लेबल शीर्षक और संदेश से पहले पढ़ा जाता है। warning और error उस चीज़ को बीच में रोकते हैं जो पढ़ी जा रही है; बाक़ी रूप उसके पूरा होने का इंतज़ार करते हैं।
 
@@ -252,13 +252,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 डिफ़ॉल्ट रूप से स्नैकबार स्कीम की एक उठी हुई सरफ़ेस पर बनता है: वही उजली सरफ़ेस, अपने एलिवेशन से उठी हुई, जिस पर डायलॉग भी रहते हैं, स्कीम के टेक्स्ट के रंग के साथ। इनवर्स बनने पर वह उलटी स्कीम के रंग लेता है, यानी लाइट स्कीम में एक गहरा बार, ताकि वह जिस भी चीज़ पर आए, उससे अलग दिखे।
 
-<DemoFrame label="इनवर्स बने हुए: डिफ़ॉल्ट रूप और स्थिति वाले चार रूप" plain column>
+<Example label="इनवर्स बने हुए: डिफ़ॉल्ट रूप और स्थिति वाले चार रूप" column>
   <tanrei-snackbar inverse message="बातचीत आर्काइव की गई" action="पहले जैसा करें"></tanrei-snackbar>
   <tanrei-snackbar inverse status="info" status-label="जानकारी" message="नया वर्शन इंस्टॉल करने के लिए तैयार है।" action="रीस्टार्ट करें"></tanrei-snackbar>
   <tanrei-snackbar inverse status="success" status-label="सफलता" message="बैकअप पूरा हुआ" closable close-label="बंद करें"></tanrei-snackbar>
   <tanrei-snackbar inverse status="warning" status-label="चेतावनी" headline="स्टोरेज लगभग भर गया है" message="आख़िरी 200 MB इस्तेमाल होते ही अपलोड रुक जाएँगे।" action="प्रबंधित करें"></tanrei-snackbar>
   <tanrei-snackbar inverse status="error" status-label="त्रुटि" headline="संदेश नहीं भेजा गया" message="आप ऑफ़लाइन हैं। संदेश आउटबॉक्स में रहेगा।" action="फिर कोशिश करें"></tanrei-snackbar>
-</DemoFrame>
+</Example>
 
 | `inverse` | क्या बनता है |
 | --- | --- |

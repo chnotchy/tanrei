@@ -2,14 +2,14 @@
 title: عرض التبويبات
 description: يعرض عرض التبويب المحدَّد تحت صف Tabs خاص به، أو مرتبطًا بصف موضوع في مكان آخر، ويتيح للشخص أن يسحب من عرض إلى عرض ومؤشر التبويبات يتبع الإصبع.
 translationOf: components/tab-view.mdx
-sourceHash: 9e88a691605cc8a2ba05cfb5974f032f4a81ef01
+sourceHash: f75de0457ae366f4d0466d2e7235b3ca346445a9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
@@ -17,13 +17,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 يحمل عرض التبويبات لوحة واحدة لكل تبويب ويعرض لوحة التبويب المحدَّد. تحديد تبويب يبدّل العرض بإزاحة قصيرة وتلاشٍ وتغبيش؛ ويستطيع الشخص كذلك أن يسحب العرض جانبيًّا، فيتبع مؤشر التبويبات الإصبع ويستقر على التبويب الذي يحطّ عليه العرض. ومع تقليل الحركة يكون التبديل تلاشيًا متقاطعًا يظل يتبع الإصبع، بلا إزاحة ولا تغبيش.
 
-<DemoFrame label="عرض تبويبات بصفّه الخاص: اختر تبويبًا، أو اسحب اللوحة باللمس أو بالقلم">
+<Example label="عرض تبويبات بصفّه الخاص: اختر تبويبًا، أو اسحب اللوحة باللمس أو بالقلم">
   <tanrei-tab-view label="المشروع" style="inline-size: 22.5rem; max-inline-size: 100%">
     <tanrei-tab-panel value="overview" label="نظرة عامة"><p>ثلاث مهام مفتوحة، مستحقة هذا الأسبوع.</p></tanrei-tab-panel>
     <tanrei-tab-panel value="activity" label="النشاط"><p>علّقت Ada على الخطة قبل ساعة.</p></tanrei-tab-panel>
     <tanrei-tab-panel value="settings" label="الإعدادات"><p>مرئي لكل من في مساحة العمل.</p></tanrei-tab-panel>
   </tanrei-tab-view>
-</DemoFrame>
+</Example>
 
 لعرض التبويبات هيئتان:
 
@@ -105,7 +105,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="صف ثانوي يملأ العرض، مع أيقونات وتبويب معطَّل؛ وعرض مرتبط بصف موضوع بعيدًا عنه" plain column>
+<Example label="صف ثانوي يملأ العرض، مع أيقونات وتبويب معطَّل؛ وعرض مرتبط بصف موضوع بعيدًا عنه" column>
   <tanrei-tab-view variant="secondary" full-width label="النشر" style="inline-size: 22.5rem; max-inline-size: 100%">
     <tanrei-tab-panel value="overview" label="نظرة عامة" icon="dashboard"><p>ثلاث خدمات، كلها تعمل.</p></tanrei-tab-panel>
     <tanrei-tab-panel value="activity" label="النشاط" icon="history"><p>نُشر قبل ساعتين.</p></tanrei-tab-panel>
@@ -122,7 +122,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-tab-panel value="map"><p>أربعة أماكن محفوظة قرب المحطة.</p></tanrei-tab-panel>
     <tanrei-tab-panel value="notes"><p>المتحف مغلق أيام الاثنين.</p></tanrei-tab-panel>
   </tanrei-tab-view>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tab-view" />
 
@@ -168,7 +168,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### مشاركة الاختيار
 
-<DemoFrame label="عرضا تبويبات من مجموعة واحدة: اختر تبويبًا في أي منهما" plain column>
+<Example label="عرضا تبويبات من مجموعة واحدة: اختر تبويبًا في أي منهما" column>
   <tanrei-tab-view variant="secondary" group="tab-view-demo-package-manager" label="مدير الحزم" style="inline-size: 22.5rem; max-inline-size: 100%">
     <tanrei-tab-panel value="npm" label="npm"><p>ثبِّت الحزمة باستخدام npm.</p></tanrei-tab-panel>
     <tanrei-tab-panel value="pnpm" label="pnpm"><p>ثبِّت الحزمة باستخدام pnpm.</p></tanrei-tab-panel>
@@ -178,7 +178,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-tab-panel value="npm" label="npm"><p>شغِّل البناء باستخدام npm.</p></tanrei-tab-panel>
     <tanrei-tab-panel value="pnpm" label="pnpm"><p>شغِّل البناء باستخدام pnpm.</p></tanrei-tab-panel>
   </tanrei-tab-view>
-</DemoFrame>
+</Example>
 
 - أعطِ كل عرض يجيب عن السؤال نفسه قيمة `group` نفسها. الصف الخاص بالعرض هو العضو، فيصح كل ما تقوله صفحة [Tabs](/ar/components/tabs/) عن المجموعة: يُطابَق الاختيار بقيمة `value` للوحة، لا بتسميتها أبدًا، والعرض الذي ليس فيه لوحة بتلك القيمة يحتفظ باختياره. في العرض التوضيحي، Yarn موجود في العرض الأول فقط.
 - العرض الذي استخدمه الشخص وحده يجري تبديلًا ويُصدر `change`. وكل عرض آخر يعرض لوحته فورًا، بلا مسافة حركة ولا تلاشٍ ولا تغبيش، ويحتفظ بحالة اللوحات التي يخفيها، ولا يأخذ تركيزًا.

@@ -7,16 +7,16 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="chip-field" />
 
-<DemoFrame label="A chip field with two addresses, and one whose third address was refused" column>
+<Example label="A chip field with two addresses, and one whose third address was refused" column>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Recipients" type="email" separators='[",",";"," "]' remove-label="Remove {entry}" added-text="{entry} added" removed-text="{entry} removed" supporting-text="Separate addresses with a comma." value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Recipients" type="email" separators='[",",";"," "]' remove-label="Remove {entry}" added-text="{entry} added" removed-text="{entry} removed" supporting-text="Separate addresses with a comma." error error-text="Enter a full address, such as name@example.com." value='["ada@example.com","grace.hopper@example.org"]' input-value="alan@"></tanrei-chip-field>
-</DemoFrame>
+</Example>
 
 Use a chip field where a person enters several short texts of one kind: the recipients of a message, the people a document is shared with, the numbers an alert is sent to, the keywords of an article. Each text is checked by itself, so one mistyped address among twelve does not cost the others, and each entry can be removed or changed alone.
 
@@ -111,14 +111,14 @@ The same field, written by hand from its members, is the same picture:
 </tanrei-field>
 ```
 
-<DemoFrame label="The same field written by hand: a field, a text input, and two chips in its entries slot" column>
+<Example label="The same field written by hand: a field, a text input, and two chips in its entries slot" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Recipients" supporting-text="Separate addresses with a comma.">
     <tanrei-text-input type="email">
       <tanrei-chip slot="entries" kind="input" size="small" label="ada@example.com" remove-label="Remove ada@example.com"></tanrei-chip>
       <tanrei-chip slot="entries" kind="input" size="small" label="grace.hopper@example.org" remove-label="Remove grace.hopper@example.org"></tanrei-chip>
     </tanrei-text-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 What the members written by hand do not do is what the chip field adds:
 
@@ -134,12 +134,12 @@ Go one level down for an arrangement the chip field does not offer, such as entr
 
 ## Specs
 
-<DemoFrame label="Required, read-only, disabled, and keywords that are made by Enter alone" plain column>
+<Example label="Required, read-only, disabled, and keywords that are made by Enter alone" column>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Recipients" type="email" required required-text="Required" remove-label="Remove {entry}" value='["ada@example.com"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Recipients" type="email" readonly remove-label="Remove {entry}" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Recipients" type="email" disabled remove-label="Remove {entry}" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Authors" remove-label="Remove {entry}" supporting-text="Press Enter after each name." value='["Lovelace, Ada","Hopper, Grace"]'></tanrei-chip-field>
-</DemoFrame>
+</Example>
 
 ### What each member gives
 

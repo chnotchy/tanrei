@@ -2,23 +2,23 @@
 title: Paginación
 description: Recorre las páginas numeradas de una lista. Números de página con la página actual marcada, anterior y siguiente, primera y última donde las pidas, y una forma corta que dice qué página de cuántas.
 translationOf: components/pagination.mdx
-sourceHash: 0055738fcfa0e80739713bb784bf880bbc361f3a
+sourceHash: 1c1cccbf82e1fb4aeaa57031bf176f4cf7943f25
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="pagination" />
 
-<DemoFrame label="Con números, y con primera y última" column>
+<Example label="Con números, y con primera y última" column>
   <tanrei-pagination label="Páginas de la primera demostración" page="5" count="10" previous-label="Página anterior" next-label="Página siguiente" page-label="Página {page}"></tanrei-pagination>
   <tanrei-pagination label="Páginas de la segunda demostración" page="12" count="40" first-last previous-label="Página anterior" next-label="Página siguiente" first-label="Primera página" last-label="Última página" page-label="Página {page}"></tanrei-pagination>
-</DemoFrame>
+</Example>
 
 Una paginación pagina una lista por número: los resultados de una búsqueda, las entradas de un blog, las filas de una tabla. La página anterior y la siguiente en una secuencia de páginas con título, como los capítulos de una guía, son los [enlaces anterior y siguiente](/es/components/previous-next-links/): un título dice adónde lleva, un número de página no.
 
@@ -60,16 +60,16 @@ Los textos son tuyos: Tanrei no incluye textos propios. Dalos en cada elemento, 
 
 ## Especificaciones
 
-<DemoFrame label="La forma corta, y un tamaño pequeño" plain column>
+<Example label="La forma corta, y un tamaño pequeño" column>
   <tanrei-pagination label="Páginas de la demostración compacta" variant="compact" page="3" count="10" previous-label="Página anterior" next-label="Página siguiente" count-text="Página {page} de {count}"></tanrei-pagination>
   <tanrei-pagination label="Páginas de la demostración pequeña" size="small" page="4" count="8" previous-label="Página anterior" next-label="Página siguiente" page-label="Página {page}"></tanrei-pagination>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="En una columna estrecha, la forma con números pasa a ser la corta" plain>
+<Example label="En una columna estrecha, la forma con números pasa a ser la corta">
   <div style="inline-size: 14rem">
     <tanrei-pagination label="Páginas de la demostración estrecha" page="5" count="10" previous-label="Página anterior" next-label="Página siguiente" page-label="Página {page}" count-text="Página {page} de {count}"></tanrei-pagination>
   </div>
-</DemoFrame>
+</Example>
 
 - **Qué números se muestran.** La primera y la última página (`boundaries`, 1 por defecto), la página actual y una página a cada lado (`siblings`, 1 por defecto). Las páginas que se dejan fuera entre ellas son una sola elipsis. Cerca de un extremo se muestran más páginas al otro lado, de modo que la fila tiene el mismo número de huecos en todas las páginas y conserva su anchura.
 - **La página actual** se dibuja con relleno y se expone como la actual. Activarla no hace nada.

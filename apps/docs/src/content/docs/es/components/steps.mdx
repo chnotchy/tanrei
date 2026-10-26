@@ -2,26 +2,26 @@
 title: Pasos
 description: Un procedimiento presentado como pasos numerados, cada uno con un anillo que lleva su número, un título opcional y un cuerpo con tu contenido, unido al siguiente por una línea fina. Es una lista ordenada para leer, nunca un control ni un registro del progreso.
 translationOf: components/steps.mdx
-sourceHash: c8264baa77c44eb546180291656f27740ecb7537
+sourceHash: fc2b24b601c10465b86a49a8d463b2566ff711e1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="steps" />
 
-<DemoFrame label="Títulos y cuerpos" column>
+<Example label="Títulos y cuerpos" column>
   <ol class="tanrei-steps" role="list" aria-label="El flujo de trabajo" style="inline-size: 100%; max-inline-size: 28rem">
     <li><p class="tanrei-steps-title">Proponer</p><p>Escribe o cambia la especificación, y los tokens donde el cambio los necesite.</p></li>
     <li><p class="tanrei-steps-title">Validar</p><p>Comprueba los esquemas, las reglas de los tokens y el contraste de todos los esquemas de color.</p></li>
     <li><p class="tanrei-steps-title">Generar</p><p>Regenera las salidas de los tokens, los andamiajes de código y la matriz de estado.</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
 Hay tres cosas que se parecen y no son lo mismo:
 
@@ -100,7 +100,7 @@ Escribe `role="list"` en la lista: un motor de navegador retira la semántica de
 
 ## Especificaciones
 
-<DemoFrame label="Una línea cada uno, y un conjunto que continúa" plain column>
+<Example label="Una línea cada uno, y un conjunto que continúa" column>
   <ol class="tanrei-steps" role="list" aria-label="Qué hacer a continuación" style="inline-size: 100%; max-inline-size: 28rem">
     <li>Guarda el archivo en la carpeta que contiene los ajustes del proyecto.</li>
     <li>Indica el nombre del archivo en los ajustes, en la clave de la capa de diseño.</li>
@@ -111,14 +111,14 @@ Escribe `role="list"` en la lista: un motor de navegador retira la semántica de
     <li>El diez también.</li>
     <li>Y el once: los tres empiezan en el mismo borde.</li>
   </ol>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Large, con un bloque en un cuerpo" plain column>
+<Example label="Large, con un bloque en un cuerpo" column>
   <ol class="tanrei-steps" role="list" data-size="large" aria-label="Uso" style="inline-size: 100%; max-inline-size: 32rem">
     <li><p>Añade el paquete al proyecto.</p><tanrei-code-block label="Comando de instalación"><pre><code>npm install @tanrei/web</code></pre></tanrei-code-block></li>
     <li><p>Carga la hoja de estilos una sola vez, antes que cualquier otro estilo de la página.</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
 - **El marcador** es un anillo dibujado con la línea fina del sistema que lleva el número del paso; mide 24 de lado a lado en medium y 28 en large. Con una o dos cifras sigue siendo un círculo; un número más largo lo ensancha hasta convertirlo en una píldora, y el contenido de todos los pasos sigue empezando en el mismo borde.
 - **El conector** va de cada anillo al siguiente y se detiene antes de tocar ninguno de los dos. El último paso no tiene.

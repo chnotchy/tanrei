@@ -2,20 +2,20 @@
 title: 前後のリンク
 description: ひと続きのページの中で、いまいるページの前のページと次のページを示します。2 つのリンクから成り、それぞれの名前は方向と行き先のタイトルです。
 translationOf: components/previous-next-links.mdx
-sourceHash: f0b866b0992a5ea7997d1128521d78df773b99ab
+sourceHash: f26eed746e4017b08c334e2dd311e7dfa7d4279c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="previous-next-links" />
 
-<DemoFrame label="前と次" column>
+<Example label="前と次" column>
   <nav class="tanrei-previous-next-links" aria-label="このデモのページ" style="inline-size: 100%">
     <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="../link/">
       <span class="tanrei-previous-next-links-label">前へ</span>
@@ -26,7 +26,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <span class="tanrei-previous-next-links-title">ステップ</span>
     </a>
   </nav>
-</DemoFrame>
+</Example>
 
 このページの末尾にある前後のリンクも同じコンポーネントです。
 
@@ -100,7 +100,7 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 
 ## 仕様
 
-<DemoFrame label="次の項目だけでも場所は変わらない。ラベルだけの項目" plain column>
+<Example label="次の項目だけでも場所は変わらない。ラベルだけの項目" column>
   <nav class="tanrei-previous-next-links" aria-label="このデモの最初のページ" style="inline-size: 100%">
     <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href="../steps/">
       <span class="tanrei-previous-next-links-label">次へ</span>
@@ -111,9 +111,9 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
     <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="../link/"><span class="tanrei-previous-next-links-label">新しい記事</span></a>
     <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href="../steps/"><span class="tanrei-previous-next-links-label">古い記事</span></a>
   </nav>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="狭いカラムでは項目が縦に並ぶ" plain>
+<Example label="狭いカラムでは項目が縦に並ぶ">
   <nav class="tanrei-previous-next-links" aria-label="このデモの狭いカラム" style="inline-size: 20rem">
     <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="../link/">
       <span class="tanrei-previous-next-links-label">前へ</span>
@@ -124,7 +124,7 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
       <span class="tanrei-previous-next-links-title">右から左のレイアウト</span>
     </a>
   </nav>
-</DemoFrame>
+</Example>
 
 - **項目は 1 つのリンク**で、全体が押せます。輪郭線のあるコンテナとして描きます。輪郭線は細い線で、塗りはなく、タイトルはテキストの色です。下線は引きません。輪郭線と矢印と置かれた場所で、周りのテキストと見分けられるからです。
 - **矢印はコンポーネントが描きます**。前の項目の先頭側の端に `arrow_back`、次の項目の末尾側の端に `arrow_forward` です。`icons.css` が必要です。

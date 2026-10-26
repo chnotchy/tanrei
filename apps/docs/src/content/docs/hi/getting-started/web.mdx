@@ -2,13 +2,13 @@
 title: Web
 description: किसी भी वेब प्रोजेक्ट में Tanrei के CSS टोकन और Web Components इस्तेमाल करें।
 translationOf: getting-started/web.mdx
-sourceHash: ee4c3f5cddad88322fc87252a6236ef3ab67e4d9
+sourceHash: fb8e6a2acbc93ad9938e2e07ac6820f37f8fc6cb
 ---
 
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 `@tanrei/web` में दो चीज़ें हैं: डिज़ाइन टोकन की एक स्टाइलशीट, जिसमें टोकन CSS कस्टम प्रॉपर्टी के रूप में हैं, और Lit से बने, वेब मानकों पर आधारित कस्टम एलिमेंट। इसके लिए किसी फ़्रेमवर्क की ज़रूरत नहीं है।
 
@@ -24,7 +24,7 @@ npm install @tanrei/web
 
 ### सोर्स से
 
-`main` पर मौजूद सोर्स को उसके प्रकाशित होने से पहले इस्तेमाल करने के लिए आपको Git, Node 22.12 या उसके बाद का वर्शन और pnpm 12 चाहिए (`corepack enable` से आपको वही वर्शन मिलता है जो रिपॉज़िटरी में तय है)। रिपॉज़िटरी के क्लोन में पैकेज बिल्ड करें, उसे पैक करें, और पैक की गई फ़ाइल अपने प्रोजेक्ट में इंस्टॉल करें:
+`main` पर मौजूद सोर्स को उसके प्रकाशित होने से पहले इस्तेमाल करने के लिए आपको Git, Node 22.22 या उसके बाद का वर्शन और pnpm 12 चाहिए (`corepack enable` से आपको वही वर्शन मिलता है जो रिपॉज़िटरी में तय है)। रिपॉज़िटरी के क्लोन में पैकेज बिल्ड करें, उसे पैक करें, और पैक की गई फ़ाइल अपने प्रोजेक्ट में इंस्टॉल करें:
 
 ```sh
 git clone https://github.com/chnotchy/tanrei.git
@@ -105,10 +105,10 @@ npm install path/to/tanrei-packages/tanrei-web-*.tgz
 
 </Steps>
 
-<DemoFrame>
+<Example>
   <tanrei-button variant="filled">डिप्लॉय करें</tanrei-button>
   <tanrei-button variant="outlined" size="small" disabled>रद्द करें</tanrei-button>
-</DemoFrame>
+</Example>
 
 ## एलिमेंट का मैनिफ़ेस्ट
 
@@ -280,7 +280,7 @@ Tanrei के एलिमेंट उन चीज़ों पर बने �
 ज़्यादातर एलिमेंट अपना रोल ख़ुद पर नहीं, बल्कि अपने शैडो रूट के अंदर के किसी नेटिव एलिमेंट (`<button>`, `<input>`, `<dialog>`) पर रखते हैं, ताकि ब्राउज़र और टेस्टिंग टूल असली सिमैंटिक्स देखें; कुछ एलिमेंट, जैसे टैब या खुला मेन्यू, रोल ख़ुद रखते हैं। Playwright के लोकेटर खुले शैडो रूट के अंदर तक देखते हैं, इसलिए किसी कंट्रोल को उसके रोल और नाम से ढूँढें, जैसे कोई व्यक्ति ढूँढता:
 
 ```ts
-await page.getByRole('button', { name: 'Save' }).click();
+await page.getByRole('button', { name: 'सेव करें' }).click();
 await expect(page.getByRole('switch', { name: 'Wi-Fi' })).toBeChecked();
 ```
 
@@ -292,17 +292,17 @@ await expect(page.getByRole('switch', { name: 'Wi-Fi' })).toBeChecked();
 
 ```ts
 // कुछ नहीं मिलता: टैब <tanrei-tabs> के चाइल्ड हैं, उसकी टैब सूची के नहीं।
-page.getByRole('tablist', { name: 'Sections' }).getByRole('tab', { name: 'Billing' });
+page.getByRole('tablist', { name: 'सेक्शन' }).getByRole('tab', { name: 'बिलिंग' });
 ```
 
 पहले वह एलिमेंट ढूँढें जिसमें नाम वाला रोल है, फिर उसके अंदर खोजें:
 
 ```ts
-const sections = page.locator('tanrei-tabs', { has: page.getByRole('tablist', { name: 'Sections' }) });
-await sections.getByRole('tab', { name: 'Billing' }).click();
+const sections = page.locator('tanrei-tabs', { has: page.getByRole('tablist', { name: 'सेक्शन' }) });
+await sections.getByRole('tab', { name: 'बिलिंग' }).click();
 
-const confirm = page.locator('tanrei-dialog', { has: page.getByRole('dialog', { name: 'Delete the file?' }) });
-await confirm.getByRole('button', { name: 'Delete' }).click();
+const confirm = page.locator('tanrei-dialog', { has: page.getByRole('dialog', { name: 'फ़ाइल हटाएँ?' }) });
+await confirm.getByRole('button', { name: 'हटाएँ' }).click();
 ```
 
 ### टॉप लेयर में मेन्यू
@@ -310,10 +310,10 @@ await confirm.getByRole('button', { name: 'Delete' }).click();
 खुला रहने तक `<tanrei-menu>` ही मेन्यू है, जिसका नाम उसके ऐंकर से आता है, पर वह पेज में कोई जगह नहीं लेता: उसकी सतह टॉप लेयर में बनती है। इसलिए मेन्यू के दिखने की जाँच खुले होने पर भी फ़ेल होती है। पहले जाँचें कि मेन्यू मौजूद है, फिर उसके आइटम जाँचें:
 
 ```ts
-await page.getByRole('button', { name: 'More' }).click();
-const menu = page.getByRole('menu', { name: 'More' });
+await page.getByRole('button', { name: 'और' }).click();
+const menu = page.getByRole('menu', { name: 'और' });
 await expect(menu).toBeAttached();
-await expect(menu.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+await expect(menu.getByRole('menuitem', { name: 'नाम बदलें' })).toBeVisible();
 ```
 
 बंद होने पर एलिमेंट मेन्यू नहीं रहता, और `await expect(menu).toHaveCount(0)` पास होता है।

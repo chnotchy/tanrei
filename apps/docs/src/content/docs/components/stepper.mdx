@@ -7,20 +7,20 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="stepper" />
 
-<DemoFrame label="Horizontal, with a step that has an error" column>
+<Example label="Horizontal, with a step that has an error" column>
   <tanrei-stepper label="Checkout progress" value="payment" pressable="visited" completed-text="Completed" error-text="Has an error" style="inline-size: 100%">
     <tanrei-stepper-step value="account" label="Account"></tanrei-stepper-step>
     <tanrei-stepper-step value="shipping" label="Shipping" status="error" description="Postcode missing"></tanrei-stepper-step>
     <tanrei-stepper-step value="payment" label="Payment"></tanrei-stepper-step>
     <tanrei-stepper-step value="review" label="Review"></tanrei-stepper-step>
   </tanrei-stepper>
-</DemoFrame>
+</Example>
 
 A stepper sits above, or beside, the content of a flow that has a position: a checkout, a set-up, an application in several parts. One step is current, the steps before it are complete, one may need the person's attention, and the rest are still to come.
 
@@ -77,7 +77,7 @@ The words are yours: `completed-text` and `error-text` are what assistive techno
 
 ## Specs
 
-<DemoFrame label="Vertical, and compact" plain>
+<Example label="Vertical, and compact">
   <tanrei-stepper label="Set-up" value="profile" layout="vertical" completed-text="Completed" error-text="Has an error" style="inline-size: 320px">
     <tanrei-stepper-step value="account" label="Create an account" description="Email and password"></tanrei-stepper-step>
     <tanrei-stepper-step value="profile" label="Your profile" description="Name and photo"></tanrei-stepper-step>
@@ -91,7 +91,7 @@ The words are yours: `completed-text` and `error-text` are what assistive techno
     <tanrei-stepper-step value="payment" label="Payment"></tanrei-stepper-step>
     <tanrei-stepper-step value="review" label="Review"></tanrei-stepper-step>
   </tanrei-stepper>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="stepper" />
 

@@ -2,14 +2,14 @@
 title: DateTimePicker
 description: يتيح للشخص أن يختار تاريخًا أو وقتًا أو تاريخًا ووقتًا، أو مدى من أي منها، من تقويم ومن عجلات للوقت أو قرص ساعة، في مربع حوار أو في سطح ينسدل من حقل.
 translationOf: components/date-time-picker.mdx
-sourceHash: b20ac5ee4e3e21be0e6515467b45bd460309076c
+sourceHash: 9931a6ee5d10eb1f030b535c10c20640f2544087
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import ProductWords from '../../../../components/ProductWords.astro';
 
 export const words = {
@@ -43,12 +43,12 @@ export const words = {
 ينفّذ مكوّن الويب المنتقي كما تصفه هذه الصفحة: طرفا المدى حقلان تصل بينهما شرطة، وعلامتا الفترة «ص» و«م» (AM و PM) جزء هادئ من الوقت، وتبويبا وضع الإدخال يعرضان رسمين، والعجلات تقبل الأرقام المكتوبة. والعروض التوضيحية هي ذلك المكوّن. أما SwiftUI و Compose و Flutter و React Native فلم تبنِه بعد. ما زالت حزمها تحمل شيفرة منتقي التاريخ ومنتقي الوقت المتقاعدين، وهذه الصفحة لا توثّقها.
 :::
 
-<DemoFrame label="افتح واحدًا بزر: تاريخ مُرسى، ووقت نمطي">
+<Example label="افتح واحدًا بزر: تاريخ مُرسى، ووقت نمطي">
   <tanrei-button id="dtp-demo-due" variant="outlined" onclick="document.getElementById('dtp-demo-due-picker').open = true">تاريخ الاستحقاق</tanrei-button>
   <tanrei-date-time-picker id="dtp-demo-due-picker" presentation="docked" anchor="dtp-demo-due" locale="ar-u-nu-latn" today="2026-09-24" value="2026-09-28" label="تاريخ الاستحقاق" onchange="document.getElementById('dtp-demo-due').textContent = 'الاستحقاق ' + this.value" onclose="this.open = false"></tanrei-date-time-picker>
   <tanrei-button id="dtp-demo-alarm" variant="outlined" onclick="document.getElementById('dtp-demo-alarm-picker').open = true">المنبّه</tanrei-button>
   <tanrei-date-time-picker id="dtp-demo-alarm-picker" mode="time" locale="ar-u-nu-latn" value="07:30" minute-step="5" label="المنبّه" onchange="document.getElementById('dtp-demo-alarm').textContent = 'المنبّه ' + this.value" onclose="this.open = false"></tanrei-date-time-picker>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -163,25 +163,25 @@ export const words = {
 
 العروض التوضيحية أدناه ترسم السطح المفتوح في مكانه، بخاصية HTML `inline` الخاصة بالويب، وهي للتوثيق والاختبارات. أما المنتقي في منتج فيُفتح فوق الصفحة.
 
-<DemoFrame label="تاريخ: نمطي، بترويسته وإجراءاته، ومُرسى، وهو يعتمد الاختيار باليوم" plain>
+<Example label="تاريخ: نمطي، بترويسته وإجراءاته، ومُرسى، وهو يعتمد الاختيار باليوم">
   <tanrei-date-time-picker inline open locale="ar-u-nu-latn" today="2026-09-24" value="2026-09-17" label="تسجيل الوصول"></tanrei-date-time-picker>
   <tanrei-date-time-picker inline open presentation="docked" locale="ar-u-nu-latn" today="2026-09-24" value="2026-09-17" label="تسجيل الوصول"></tanrei-date-time-picker>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="وقت: العجلات، وهي الافتراضي، وقرص الساعة" plain>
+<Example label="وقت: العجلات، وهي الافتراضي، وقرص الساعة">
   <tanrei-date-time-picker inline open mode="time" locale="ar-u-nu-latn" value="19:30" label="المنبّه"></tanrei-date-time-picker>
   <tanrei-date-time-picker inline open mode="time" entry-mode="dial" locale="ar-u-nu-latn" value="19:30" label="المنبّه"></tanrei-date-time-picker>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="مدى من الأوقات ينتهي في اليوم التالي، وساعة بنظام 24 ساعة بدرجات من 15 دقيقة" plain>
+<Example label="مدى من الأوقات ينتهي في اليوم التالي، وساعة بنظام 24 ساعة بدرجات من 15 دقيقة">
   <tanrei-date-time-picker inline open mode="time" range locale="ar-u-nu-latn" start="22:00" end="06:00" label="ساعات الهدوء"></tanrei-date-time-picker>
   <tanrei-date-time-picker inline open mode="time" hour-cycle="h23" minute-step="15" locale="ar-u-nu-latn" value="19:30" label="المغادرة"></tanrei-date-time-picker>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="تاريخ ووقت، ومدى من التواريخ" plain>
+<Example label="تاريخ ووقت، ومدى من التواريخ">
   <tanrei-date-time-picker inline open mode="date-time" locale="ar-u-nu-latn" today="2026-09-24" value="2026-09-17T19:30" minute-step="5" label="بداية الاجتماع"></tanrei-date-time-picker>
   <tanrei-date-time-picker inline open range locale="ar-u-nu-latn" today="2026-09-24" start="2026-09-10" end="2026-09-16" label="الإقامة"></tanrei-date-time-picker>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="date-time-picker" />
 

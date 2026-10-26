@@ -2,14 +2,14 @@
 title: حقل النص
 description: يتيح للأشخاص إدخال نص وتحريره، سطرًا واحدًا أو عدة أسطر تتبع النص أو يُغيَّر حجمها باليد، أو إدخال تاريخ أو وقت وحدةً وحدةً بصيغة الإعدادات المحلية، أو شيفرة تُحفظ كما كُتبت تمامًا، مع تسمية تستطيع أن تقول إن الحقل مطلوب أو اختياري، وأيقونات اختيارية، وبادئة ولاحقة، ونص مساعد، وعدّاد أحرف، وزر منتقٍ.
 translationOf: components/text-field.mdx
-sourceHash: 719a16c2a252ed9648b17821b91131dcc18c87a3
+sourceHash: 11ca82869cc7b493be699f28b68da9e9801b3dec
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
@@ -19,10 +19,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 تصف هذه الصفحة حقل النص كما هو في المواصفة الآن: طراز (variant) هو `stacked`، وهو الافتراضي، وتسميته فوق الحقل؛ والطرازان `filled` و `outlined` باقيان لإعدادات Material الجاهزة والإعداد الجاهز cupertino فقط؛ وثلاثة ارتفاعات هي 32 و 40 و 56 (و 40 و 48 و 56 للحقل من الطراز filled أو outlined، الذي تعوم تسميته داخله)؛ وأنواع للتاريخ والوقت، مع زر منتقٍ؛ وحقل متعدد الأسطر يتبع نصه أو يُغيَّر حجمه بمقبض (`resize`)؛ وتاريخ أو وقت يُدخل وحدةً وحدةً، في مقاطع؛ والخاصيتان `required` و `optional` اللتان تعلّمان الحقل بأنه مطلوب أو اختياري. مكوّن الويب يفعل ذلك كله منذ الآن، وكذلك العروض التوضيحية. ويمكن للحقل أيضًا أن يحمل شيفرة (`type="code"`، ومعه `wrap` لأسطرها): بناه الويب، ولم تبنِه أي منصة أخرى بعد. وحقل النص حقل حول حقل إدخال النص، كما تصفه هذه الصفحة: بنى الويب ذلك أيضًا، وزالت فيه خاصية HTML `required`. أما SwiftUI و Compose و Flutter و React Native فموسومة أعلاه بأنها متأخرة: إلى أن تلحق تقدّم المراجعة السابقة، وهي من الطراز outlined افتراضيًّا بارتفاعي 36 و 40، وفيها راية `required` لا ترسم علامة، وليس فيها الطراز `stacked` ولا أنواع التاريخ والوقت ولا زر المنتقي ولا أوضاع تغيير الحجم، وتعرض عيّناتها تلك المراجعة.
 :::
 
-<DemoFrame label="الطراز Stacked، وهو الافتراضي: حقل مطلوب، وتاريخ مع زر المنتقي" column>
+<Example label="الطراز Stacked، وهو الافتراضي: حقل مطلوب، وتاريخ مع زر المنتقي" column>
   <tanrei-text-field label="البريد الإلكتروني" type="email" required supporting-text="نستخدمه لتسجيل دخولك فقط." required-text="مطلوب"></tanrei-text-field>
   <tanrei-text-field label="تاريخ البدء" type="date" locale="ar-u-nu-latn" value="2026-09-27" picker picker-label="اختيار تاريخ البدء" segment-empty-text="فارغ"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
 استخدم حقل النص حيثما يطلب النموذج نصًّا: فهو الحالة المعتادة، جاهزًا للاستخدام، بتسمية، وصندوق، وسطر مساعدة، والكلمات التي تقول إن القيمة خاطئة، وعدد.
 
@@ -211,11 +211,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="الحقل نفسه مكتوبًا باليد: حقل بداخله حقل إدخال النص" column>
+<Example label="الحقل نفسه مكتوبًا باليد: حقل بداخله حقل إدخال النص" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="البريد الإلكتروني" required required-text="مطلوب" supporting-text="نستخدمه لتسجيل دخولك فقط.">
     <tanrei-text-input type="email"></tanrei-text-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 انزل مستوى واحدًا حين تحتاج إلى ترتيب لا يقدّمه حقل النص:
 
@@ -236,16 +236,16 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 ## المواصفات
 
-<DemoFrame label="الخطأ، والتعطيل، والقراءة فقط، والبادئة واللاحقة، والعدّاد" plain column>
+<Example label="الخطأ، والتعطيل، والقراءة فقط، والبادئة واللاحقة، والعدّاد" column>
   <tanrei-text-field label="البريد الإلكتروني" value="ada@" error error-text="أدخِل عنوان بريد إلكتروني كاملًا."></tanrei-text-field>
   <tanrei-text-field label="البريد الإلكتروني" value="ada@example.com" disabled></tanrei-text-field>
   <tanrei-text-field label="البريد الإلكتروني" value="ada@example.com" readonly></tanrei-text-field>
   <tanrei-text-field label="المبلغ" type="number" value="120" prefix-text="$" suffix-text="USD"></tanrei-text-field>
   <tanrei-text-field label="الاسم المعروض" value="Ada Lovelace" maxlength="40" counter></tanrei-text-field>
   <tanrei-text-field size="large" label="البريد الإلكتروني" value="ada@example.com"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="الأنواع: كلمة المرور، والبحث، والرقم، والهاتف، وعنوان URL" plain column>
+<Example label="الأنواع: كلمة المرور، والبحث، والرقم، والهاتف، وعنوان URL" column>
   <tanrei-text-field label="كلمة المرور" type="password" value="correct horse" autocomplete="current-password"></tanrei-text-field>
   <tanrei-text-field label="بحث" label-hidden type="search" placeholder="ابحث في المكوّنات">
     <span slot="leading-icon">search</span>
@@ -253,44 +253,44 @@ input.addEventListener('input', () => (field.countText = input.countText));
   <tanrei-text-field label="الكمية" type="number" value="12"></tanrei-text-field>
   <tanrei-text-field label="الهاتف" type="tel" autocomplete="tel" placeholder="+1 555 0100"></tanrei-text-field>
   <tanrei-text-field label="الموقع الإلكتروني" type="url" placeholder="https://example.com"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="مطلوب واختياري: الوسمان، والنجمة" plain column>
+<Example label="مطلوب واختياري: الوسمان، والنجمة" column>
   <tanrei-text-field label="البريد الإلكتروني" type="email" required required-text="مطلوب"></tanrei-text-field>
   <tanrei-text-field label="الشركة" optional optional-text="اختياري"></tanrei-text-field>
   <tanrei-text-field label="البريد الإلكتروني" type="email" required required-mark="asterisk"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="عدة أسطر: يتبع النص، ويُغيَّر حجمه بمقبض (نزولًا، وفي الاتجاهين)، وثابت" plain column>
+<Example label="عدة أسطر: يتبع النص، ويُغيَّر حجمه بمقبض (نزولًا، وفي الاتجاهين)، وثابت" column>
   <tanrei-text-field label="الرسالة" multiline min-rows="2" max-rows="5" placeholder="اكتب بضعة أسطر: يكبر الحقل حتى خمسة ثم يُمرَّر"></tanrei-text-field>
   <tanrei-text-field label="الملاحظات" multiline resize="manual" max-rows="10" resize-label="تغيير حجم الملاحظات"></tanrei-text-field>
   <tanrei-text-field label="الوصف" multiline resize="manual" resize-axis="both" resize-label="تغيير حجم الوصف"></tanrei-text-field>
   <tanrei-text-field label="العنوان" multiline resize="fixed" min-rows="3"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="شيفرة: نمط في سطر واحد، و JSON في عدة أسطر، وأسطر لا تلتفّ" plain column>
+<Example label="شيفرة: نمط في سطر واحد، و JSON في عدة أسطر، وأسطر لا تلتفّ" column>
   <tanrei-text-field type="code" label="النمط" value="tanrei.comp.button.*.container.color" supporting-text="معرّف رمز، مع * لأي جزء."></tanrei-text-field>
   <tanrei-text-field type="code" multiline min-rows="4" label="الطبقة" value="{&#10;  &quot;id&quot;: &quot;acme&quot;,&#10;  &quot;extends&quot;: &quot;tanrei&quot;&#10;}"></tanrei-text-field>
   <tanrei-text-field type="code" multiline no-wrap min-rows="3" label="القواعد" value="{ &quot;match&quot;: &quot;tanrei.comp.button.*.hovered.container.color&quot;, &quot;$value&quot;: &quot;{tanrei.sys.color.primary}&quot; }&#10;{ &quot;match&quot;: &quot;*&quot; }"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="شيفرة في صفحة من اليمين إلى اليسار: التسمية والمساعدة تتبعان الصفحة، والشيفرة تبدأ من اليسار" plain column>
+<Example label="شيفرة في صفحة من اليمين إلى اليسار: التسمية والمساعدة تتبعان الصفحة، والشيفرة تبدأ من اليسار" column>
   <div dir="rtl" lang="ar" style="display: grid; gap: 1rem;">
     <tanrei-text-field type="code" label="النمط" value="tanrei.comp.*.color" supporting-text="معرّف رمز، مع * لأي جزء."></tanrei-text-field>
     <tanrei-text-field type="code" multiline min-rows="3" label="المصادر" value="[&quot;مرحبا&quot;, &quot;acme&quot;]&#10;// تعليق: comment"></tanrei-text-field>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="تاريخ، ووقت، وتاريخ ووقت، في مقاطع. يملؤها المفتاح Tab ومفاتيح الأسهم والأرقام" plain column>
+<Example label="تاريخ، ووقت، وتاريخ ووقت، في مقاطع. يملؤها المفتاح Tab ومفاتيح الأسهم والأرقام" column>
   <tanrei-text-field label="تاريخ البدء" type="date" locale="ar-u-nu-latn" picker picker-label="اختيار تاريخ البدء" invalid-text="أكمِل التاريخ." segment-empty-text="فارغ"></tanrei-text-field>
   <tanrei-text-field label="وقت البدء" type="time" locale="ar-u-nu-latn" value="14:30" segment-empty-text="فارغ"></tanrei-text-field>
   <tanrei-text-field label="المغادرة" type="date-time" locale="ar-u-nu-latn" value="2026-09-27T14:30" min="2026-09-01T00:00" unavailable-text="اختر وقتًا من سبتمبر 2026 فصاعدًا." segment-empty-text="فارغ"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="الطرازان Filled و outlined في إعدادات Material الجاهزة" system="m3-like" plain column>
+<Example label="الطرازان Filled و outlined في إعدادات Material الجاهزة" system="m3-like" column>
   <tanrei-text-field variant="filled" label="البريد الإلكتروني" type="email" value="ada@example.com"></tanrei-text-field>
   <tanrei-text-field variant="outlined" label="البريد الإلكتروني" type="email" supporting-text="نستخدمه لتسجيل دخولك فقط."></tanrei-text-field>
-</DemoFrame>
+</Example>
 
 ### ما يعطيه كل عضو
 

@@ -2,20 +2,20 @@
 title: Grupo de botones
 description: Dispone unos pocos botones relacionados en una fila o en una columna, separados o unidos en una sola forma, coloca la acción que completa la tarea y la que la abandona donde las personas las esperan, y da nombre a los botones como grupo.
 translationOf: components/button-group.mdx
-sourceHash: 4fffb14499d629d4c5b2c43cb8fa1ec4e97d4b84
+sourceHash: 0fd69176212d667b8b1bbb982a7e5cc99319372b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="button-group" />
 
-<DemoFrame label="Standard y connected">
+<Example label="Standard y connected">
   <tanrei-button-group>
     <tanrei-button variant="outlined">Cancelar</tanrei-button>
     <tanrei-button variant="tonal">Guardar borrador</tanrei-button>
@@ -26,7 +26,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-button variant="tonal" toggle label="Cursiva"><span slot="icon">format_italic</span></tanrei-button>
     <tanrei-button variant="tonal" toggle label="Subrayado"><span slot="icon">format_underlined</span></tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -207,7 +207,7 @@ Dos indicadores en un botón le dicen al grupo cuál es su lugar, de modo que la
 | `dismissive` | la abandona: Cancelar, Atrás, Ahora no | al inicio | abajo |
 | ninguno | cualquier otra cosa | entre los dos, en el orden dado | entre los dos, en el orden dado |
 
-<DemoFrame label="Los mismos tres botones en una fila y en una columna" plain>
+<Example label="Los mismos tres botones en una fila y en una columna">
   <tanrei-button-group>
     <tanrei-button variant="outlined" dismissive>Cancelar</tanrei-button>
     <tanrei-button variant="tonal">Guardar borrador</tanrei-button>
@@ -218,9 +218,9 @@ Dos indicadores en un botón le dicen al grupo cuál es su lugar, de modo que la
     <tanrei-button variant="tonal">Guardar borrador</tanrei-button>
     <tanrei-button variant="filled" confirming>Publicar</tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Ancho completo: una fila que se reparte el ancho y una columna" plain column>
+<Example label="Ancho completo: una fila que se reparte el ancho y una columna" column>
   <div style="inline-size: 20rem">
     <tanrei-button-group full-width>
       <tanrei-button variant="tonal" dismissive>Ahora no</tanrei-button>
@@ -233,7 +233,7 @@ Dos indicadores en un botón le dicen al grupo cuál es su lugar, de modo que la
       <tanrei-button variant="tonal" confirming>Permitir</tanrei-button>
     </tanrei-button-group>
   </div>
-</DemoFrame>
+</Example>
 
 El foco del teclado y los lectores de pantalla siguen el orden de colocación, de modo que todas las personas encuentran las acciones en el orden en que se dibujan. Los indicadores describen la tarea, no el tono: en «Cancelar · Eliminar», «Eliminar» es la acción que confirma. Una acción destructiva se distingue por su propio aspecto (el `destructive` del botón) y su etiqueta, no por su lugar. Un [diálogo](/es/components/dialog/) y una [hoja lateral](/es/components/side-sheet/) colocan sus propias acciones con los mismos dos indicadores.
 
@@ -241,7 +241,7 @@ El foco del teclado y los lectores de pantalla siguen el orden de colocación, d
 
 Un grupo connected une sus botones de una de dos maneras. Con un **divisor**, los botones se tocan, sus esquinas son rectas donde se encuentran y una línea marca cada unión. Con una **separación**, quedan a una distancia estrecha, con esquinas más cerradas donde se miran. El sistema de diseño elige una vez para todos los componentes que unen partes (el sistema predeterminado dibuja un divisor), un sistema de diseño puede tratar aparte el grupo de botones, y `separation` (`auto`, `divider`, `gap`) define un grupo concreto. Un grupo standard lo ignora.
 
-<DemoFrame label="Connected con un divisor y con una separación, en una fila y en una columna" plain>
+<Example label="Connected con un divisor y con una separación, en una fila y en una columna">
   <tanrei-button-group variant="connected" separation="divider" label="Portapapeles">
     <tanrei-button variant="outlined">Cortar</tanrei-button>
     <tanrei-button variant="outlined">Copiar</tanrei-button>
@@ -260,22 +260,22 @@ Un grupo connected une sus botones de una de dos maneras. Con un **divisor**, lo
     <tanrei-button variant="tonal" label="Acercar"><span slot="icon">add</span></tanrei-button>
     <tanrei-button variant="tonal" label="Alejar"><span slot="icon">remove</span></tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 Con un divisor, una unión lleva una línea solo donde los dos botones descansan sobre el mismo relleno. Entre un conmutador seleccionado y uno sin seleccionar, o entre un botón filled y uno outlined, el borde del relleno ya marca la unión, así que ahí no se dibuja ninguna línea.
 
-<DemoFrame label="Conmutadores unidos por un divisor: no hay línea junto al seleccionado" plain>
+<Example label="Conmutadores unidos por un divisor: no hay línea junto al seleccionado">
   <tanrei-button-group variant="connected" label="Estilo de texto">
     <tanrei-button variant="outlined" toggle label="Negrita"><span slot="icon">format_bold</span></tanrei-button>
     <tanrei-button variant="outlined" toggle selected label="Cursiva"><span slot="icon">format_italic</span></tanrei-button>
     <tanrei-button variant="outlined" toggle label="Subrayado"><span slot="icon">format_underlined</span></tanrei-button>
     <tanrei-button variant="outlined" toggle label="Tachado"><span slot="icon">format_strikethrough</span></tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 ## Especificaciones
 
-<DemoFrame label="Connected: outlined, large y con un elemento deshabilitado" plain>
+<Example label="Connected: outlined, large y con un elemento deshabilitado">
   <tanrei-button-group variant="connected" label="Portapapeles">
     <tanrei-button variant="outlined">Cortar</tanrei-button>
     <tanrei-button variant="outlined">Copiar</tanrei-button>
@@ -291,7 +291,7 @@ Con un divisor, una unión lleva una línea solo donde los dos botones descansan
     <tanrei-button variant="outlined" disabled>Copiar</tanrei-button>
     <tanrei-button variant="outlined">Pegar</tanrei-button>
   </tanrei-button-group>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="button-group" />
 

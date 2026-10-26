@@ -2,26 +2,26 @@
 title: Grupo de campos
 description: Da nombre a un conjunto de controles que responden a una misma pregunta (casillas de verificación, interruptores o campos que van juntos), con una etiqueta que puede decir si el conjunto es obligatorio u opcional, una descripción y un único error para el conjunto, y dispone los controles en una columna o en una fila.
 translationOf: components/field-group.mdx
-sourceHash: ec4bcb123ec8e843f4501f71bdaee22bc494365f
+sourceHash: 726301e1e81cd70f92d08f97bf13b1778cc4ef0f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="field-group" />
 
-<DemoFrame label="Un conjunto de casillas de verificación con un nombre, una descripción y una marca de obligatoriedad" column>
+<Example label="Un conjunto de casillas de verificación con un nombre, una descripción y una marca de obligatoriedad" column>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Avísame por" supporting-text="Elige todas las opciones que correspondan." required required-text="Obligatorio">
     <tanrei-checkbox label="Correo electrónico" checked></tanrei-checkbox>
     <tanrei-checkbox label="Mensaje de texto"></tanrei-checkbox>
     <tanrei-checkbox label="Notificación push"></tanrei-checkbox>
   </tanrei-field-group>
-</DemoFrame>
+</Example>
 
 Algunas preguntas se responden con varios controles: cuáles de estos, estos ajustes, una dirección en cinco campos. Un grupo de campos da al conjunto un nombre, una línea que dice cómo responder, una palabra que dice si hay que responderlo y un único motivo cuando la respuesta se rechaza. Es un [campo](/es/components/field/) cuyo control es un conjunto.
 
@@ -66,7 +66,7 @@ En la web es `<tanrei-field-group>`. Las demás plataformas todavía no lo han i
 
 ## Especificaciones
 
-<DemoFrame label="Un error para el conjunto, una fila, interruptores y campos que van juntos" plain column>
+<Example label="Un error para el conjunto, una fila, interruptores y campos que van juntos" column>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Avísame por" supporting-text="Elige todas las opciones que correspondan." required required-text="Obligatorio" error error-text="Elige al menos una forma de contacto.">
     <tanrei-checkbox label="Correo electrónico"></tanrei-checkbox>
     <tanrei-checkbox label="Mensaje de texto"></tanrei-checkbox>
@@ -84,7 +84,7 @@ En la web es `<tanrei-field-group>`. Las demás plataformas todavía no lo han i
     <tanrei-text-field label="Ciudad" value="Kioto"></tanrei-text-field>
     <tanrei-text-field label="Código postal" value="604-8571"></tanrei-text-field>
   </tanrei-field-group>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="field-group" />
 
@@ -110,12 +110,12 @@ Un grupo no tiene estado obligatorio ni estado no válido, así que un grupo de 
 </tanrei-field-group>
 ```
 
-<DemoFrame label="Un grupo de campos cuyo tipo es radio-group, alrededor de botones de opción con un mismo nombre" column>
+<Example label="Un grupo de campos cuyo tipo es radio-group, alrededor de botones de opción con un mismo nombre" column>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="Entrega" required required-text="Obligatorio">
     <tanrei-radio-button name="delivery-kind" value="standard" label="Estándar, de 3 a 5 días" checked></tanrei-radio-button>
     <tanrei-radio-button name="delivery-kind" value="express" label="Exprés, al día siguiente"></tanrei-radio-button>
   </tanrei-field-group>
-</DemoFrame>
+</Example>
 
 `kind` cambia lo que se expone y nada de lo que se dibuja, y el grupo de campos sigue sin guardar ningún valor, sin mover el foco y sin gestionar ninguna tecla: los botones de opción conservan su selección, sus teclas de flecha y su única parada gracias a su `name`. Esto es el [grupo de botones de opción](/es/components/radio-group/) un nivel más abajo. Usa el grupo de botones de opción salvo que necesites organizar el conjunto de una manera que él no ofrece: añade el valor único, un solo `change` y un lugar en un formulario como un solo control.
 

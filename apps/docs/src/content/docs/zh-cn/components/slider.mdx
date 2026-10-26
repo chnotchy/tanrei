@@ -2,24 +2,24 @@
 title: "滑块"
 description: "让用户沿轨道拖动手柄，以连续或步进的方式选择一个值或一个取值范围。"
 translationOf: components/slider.mdx
-sourceHash: f8e90fd380943ae7d0e08ad6a1bd99f61a83ba8b
+sourceHash: e74996d456fba14f6d07067a6a1b9cf61c1e5e69
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="slider" />
 
-<DemoFrame label="连续、带刻度点的步进，以及范围" column>
+<Example label="连续、带刻度点的步进，以及范围" column>
   <tanrei-slider label="音量" value="40" style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider label="亮度" value="30" step="10" stops style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider range label="最高价格" start-label="最低价格" start-value="20" value="60" style="inline-size: 20rem"></tanrei-slider>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -171,7 +171,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="尺寸、居中、数值指示器、纵向和禁用" plain column>
+<Example label="尺寸、居中、数值指示器、纵向和禁用" column>
   <tanrei-slider size="medium" label="音量" value="40" style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider size="large" label="音量" value="40" style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider label="平衡" min="-50" max="50" origin="0" value="20" style="inline-size: 20rem"></tanrei-slider>
@@ -179,7 +179,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-slider label="音量" value="40" disabled style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider label="亮度" value="60" step="20" stops disabled style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider orientation="vertical" label="音量" value="60" style="block-size: 12rem"></tanrei-slider>
-</DemoFrame>
+</Example>
 
 在默认系统中，滑块的手柄是一个圆环：一个直径 20、以表面颜色填充的圆，外面是一圈活动轨道颜色的轮廓。轮廓宽 3，画在圆的边缘以内，所以不改变手柄的大小：它留下一个直径 14 的表面颜色圆面，轮廓更宽，留下的圆面就更小。轨道和活动轨道从手柄下方穿过，在它的中心相接，所以活动轨道看起来是一条终止于圆环的线。在 4、6 和 8 的轨道上，也就是在每种尺寸下，手柄都是 20。
 

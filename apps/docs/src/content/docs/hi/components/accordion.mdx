@@ -2,20 +2,20 @@
 title: अकॉर्डियन
 description: वह कॉन्टेंट जिसे एक पंक्ति वहीं दिखाती और छिपाती है। अकेला एक आइटम डिस्क्लोज़र है; कई आइटम एक सेट हैं, जिसके आइटम अलग-अलग खुलते हैं या एक समय में एक।
 translationOf: components/accordion.mdx
-sourceHash: 734c02913c3de4d6bbbf30fab12414e81ab98d1b
+sourceHash: 2681abbddb5affc6cda5087c16254f1acec502a4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="accordion" />
 
-<DemoFrame label="सहायता पेज के सवाल: outlined रूप, एक आइटम खुला" plain>
+<Example label="सहायता पेज के सवाल: outlined रूप, एक आइटम खुला">
   <tanrei-accordion class="not-content tanrei-not-prose" variant="outlined">
     <details open>
       <summary>डिज़ाइन टोकन क्या है?</summary>
@@ -30,7 +30,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       लेयर से: एक फ़ाइल जो डायल सेट करती है और, जहाँ प्रॉडक्ट को ज़रूरत हो, अलग-अलग टोकन भी।
     </details>
   </tanrei-accordion>
-</DemoFrame>
+</Example>
 
 अकॉर्डियन पेज के हिस्सों को ऐसी पंक्तियों के नीचे समेट देता है जो उन्हें दिखाती और छिपाती हैं: सहायता पेज के जवाब, सेटिंग स्क्रीन के सेक्शन, फ़ॉर्म का उन्नत हिस्सा। अकेला एक आइटम डिस्क्लोज़र है, और वह यही कंपोनेंट है। नेविगेशन ड्रॉअर के भीतर खुलने वाला गंतव्यों का ग्रुप ड्रॉअर का अपना ग्रुप है; एक ही जगह के व्यू के बीच का चुनाव टैब है।
 
@@ -111,7 +111,7 @@ Markdown रेंडरर `<details>` को HTML के रूप में �
 
 ## स्पेक
 
-<DemoFrame label="Compact, दूसरी पंक्ति और अंत में एक मान के साथ: पैनल के समेटे जा सकने वाले हिस्से" plain>
+<Example label="Compact, दूसरी पंक्ति और अंत में एक मान के साथ: पैनल के समेटे जा सकने वाले हिस्से">
   <tanrei-accordion class="not-content tanrei-not-prose" density="compact">
     <details open>
       <summary>टेक्स्ट<span data-supporting-text>बॉडी, लेबल और हेडिंग</span><span data-trailing-text>Inter, Noto Sans JP</span></summary>
@@ -126,9 +126,9 @@ Markdown रेंडरर `<details>` को HTML के रूप में �
       बारह नियम इस लेयर के नीचे की लेयर से आते हैं।
     </details>
   </tanrei-accordion>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="एक समय में एक खुला, हर आइटम अपने किनारे के भीतर" plain>
+<Example label="एक समय में एक खुला, हर आइटम अपने किनारे के भीतर">
   <tanrei-accordion class="not-content tanrei-not-prose" variant="outlined" separation="gap" exclusive>
     <details open>
       <summary><span class="tanrei-icon" aria-hidden="true">palette</span>रंग</summary>
@@ -143,7 +143,7 @@ Markdown रेंडरर `<details>` को HTML के रूप में �
       आपका नाम, आपका पता और आपका पासवर्ड।
     </details>
   </tanrei-accordion>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="accordion" />
 

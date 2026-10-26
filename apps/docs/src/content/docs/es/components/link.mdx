@@ -2,20 +2,20 @@
 title: Enlace
 description: Texto que lleva a algún sitio, como una expresión dentro de una frase, una línea por sí sola o un glifo solo. En el estilo de texto del lugar donde está, subrayado como elija tu sistema de diseño y marcado cuando sale del sitio.
 translationOf: components/link.mdx
-sourceHash: f0fa00fc6cf51c83e20f611d66798ad0f25346c1
+sourceHash: 9b8d84836c01c4321968380baaeb61b4d1c2d871
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="link" />
 
-<DemoFrame label="En una frase, por sí solo y un glifo solo" column>
+<Example label="En una frase, por sí solo y un glifo solo" column>
   <p style="margin: 0; max-inline-size: 32rem">
     Los tokens se generan para todas las plataformas. Lee
     <a class="tanrei-link" href="../../foundations/design-tokens/">cómo se derivan los tokens</a> o consulta
@@ -27,7 +27,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <p style="margin: 0">
     <a class="tanrei-link" href="#descripción-general" aria-label="Enlace a Descripción general"><span class="tanrei-icon" aria-hidden="true">link</span></a>
   </p>
-</DemoFrame>
+</Example>
 
 La regla que un producto puede aplicar sin consultar una tabla: **si tiene una dirección, es un enlace; si no la tiene, es un botón.** Un control que hace algo en la página y no lleva a ningún sitio es un [botón](/es/components/button/), de la variante `text` cuando debe leerse con la misma discreción que el texto. Un destino que debe parecer un botón es un botón con `href`.
 
@@ -120,43 +120,43 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
 
 ## Especificaciones
 
-<DemoFrame label="Salto de línea: el subrayado, la capa de estado y el anillo de foco siguen cada línea" plain>
+<Example label="Salto de línea: el subrayado, la capa de estado y el anillo de foco siguen cada línea">
   <p style="margin: 0; max-inline-size: 22rem">
     <a class="tanrei-link" href="../../foundations/accessibility/">la guía de accesibilidad, que explica qué nombre recibe cada componente, cómo se llega a él y cómo se maneja con el teclado, y qué anuncia cada plataforma cuando cambia su estado</a>
   </p>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Un glifo y la marca de pestaña nueva" plain column>
+<Example label="Un glifo y la marca de pestaña nueva" column>
   <a class="tanrei-link" data-standalone href="../../foundations/design-tokens/"><span class="tanrei-icon" aria-hidden="true">download</span>Descargar los tokens</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="se abre en una pestaña nueva">Ver el código fuente</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="se abre en una pestaña nueva"><span class="tanrei-icon" aria-hidden="true">code</span>Ver el código fuente</a>
   <a class="tanrei-link" data-standalone data-icon-position="trailing" href="https://example.com/tanrei" target="_blank" aria-description="se abre en una pestaña nueva">Ver el código fuente<span class="tanrei-icon" aria-hidden="true">code</span></a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Actual y deshabilitado" plain>
+<Example label="Actual y deshabilitado">
   <a class="tanrei-link" data-standalone href="../">Descripción general</a>
   <a class="tanrei-link" data-standalone href="./" aria-current="page">Componentes</a>
   <a class="tanrei-link" data-standalone role="link" aria-disabled="true">Página anterior</a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="El subrayado: siempre, al pasar el cursor, nunca" plain>
+<Example label="El subrayado: siempre, al pasar el cursor, nunca">
   <a class="tanrei-link" data-standalone data-underline="always" href="../button/">Siempre</a>
   <a class="tanrei-link" data-standalone data-underline="hover" href="../button/">Al pasar el cursor</a>
   <a class="tanrei-link" data-standalone data-underline="never" href="../button/">Nunca</a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Un enlace que sale del sitio" plain column>
+<Example label="Un enlace que sale del sitio" column>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="enlace externo">Especificación</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="enlace externo"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />Especificación</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" target="_blank" aria-description="se abre en una pestaña nueva"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />Especificación</a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Sobre una superficie inversa" plain>
+<Example label="Sobre una superficie inversa">
   <div style="padding: var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-inverse-surface); color: var(--tanrei-sys-color-inverse-on-surface)">
     La página se ha guardado. Consulta
     <a class="tanrei-link" data-variant="inverse" href="../snackbar/">qué ha cambiado</a>.
   </div>
-</DemoFrame>
+</Example>
 
 Un enlace no trae un estilo de texto propio: toma la familia, el tamaño, el peso y el interlineado del texto en el que está, lo mismo en un párrafo que en un encabezado, una leyenda o una celda de tabla. El paso del cursor, el foco y la pulsación se dibujan detrás de su texto en cada línea por la que pasa, y no ocupan sitio, así que nada de lo que rodea a un enlace se mueve. Un glifo, el icono del sitio y la marca tienen el tamaño del texto y se quedan en la línea de la palabra que tienen al lado.
 

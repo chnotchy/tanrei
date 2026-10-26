@@ -2,20 +2,20 @@
 title: ट्री व्यू
 description: खुलने और बंद होने वाले आइटम की एक हायरार्की। हर स्तर पर पंक्तियाँ थोड़ा और भीतर से शुरू होती हैं, और जिस पंक्ति में दूसरे आइटम रहते हैं उसकी शुरुआत में एक शेवरॉन होता है। इसे या तो सिर्फ़ पढ़ा और खोला जाता है, या इसमें एक या कई आइटम चुने जाते हैं, और यह फ़ोकस के क्रम का एक ही पड़ाव है।
 translationOf: components/tree-view.mdx
-sourceHash: 25a301c87d161891ac997c0612db8155bad74332
+sourceHash: a8b46b7ebf1f36bc3a53f968fe02fe4f35ec0a21
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="tree-view" />
 
-<DemoFrame label="फ़ाइलों का ट्री: फ़ोल्डर को उसकी पंक्ति से खोलें, या ऐरो कुंजियों से" plain>
+<Example label="फ़ाइलों का ट्री: फ़ोल्डर को उसकी पंक्ति से खोलें, या ऐरो कुंजियों से">
   <tanrei-tree-view class="not-content tanrei-not-prose" label="टोकन कहाँ रहते हैं" density="compact" guides style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
@@ -36,7 +36,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       </li>
     </ul>
   </tanrei-tree-view>
-</DemoFrame>
+</Example>
 
 ट्री व्यू वह ढाँचा दिखाता है जिसे व्यक्ति खोल-खोलकर देखता है या जिसमें वह कुछ चुनता है: किसी प्रोजेक्ट की फ़ाइलें, किसी डिज़ाइन सिस्टम के टोकन, किसी प्रॉडक्ट के फ़ोल्डर। जिस पंक्ति में दूसरे आइटम रहते हैं, उसमें एक शेवरॉन होता है और वह खुलती और बंद होती है। `selection` के साथ एक या कई आइटम चुने जाते हैं, और ट्री आपको बताता है कि कौन-से।
 
@@ -153,7 +153,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="एक आइटम चुना हुआ: पंक्ति चुनती है, शेवरॉन खोलता है" plain>
+<Example label="एक आइटम चुना हुआ: पंक्ति चुनती है, शेवरॉन खोलता है">
   <tanrei-tree-view class="not-content tanrei-not-prose" label="हर टोकन" selection="single" value="sys.color.primary" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li><span><bdi>रेफ़रेंस</bdi><span data-trailing-text>212</span></span><ul><li data-value="ref.palette.neutral"><span><bdi>palette.neutral</bdi></span></li></ul></li>
@@ -173,7 +173,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       </li>
     </ul>
   </tanrei-tree-view>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tree-view" />
 
@@ -219,7 +219,7 @@ compact पंक्ति पॉइंटर टार्गेट से क�
 
 ### शेवरॉन
 
-<DemoFrame label="chevron end: मान के बाद निशान, जैसे मेन्यू बनाता है" plain>
+<Example label="chevron end: मान के बाद निशान, जैसे मेन्यू बनाता है">
   <tanrei-tree-view class="not-content tanrei-not-prose" label="प्रोजेक्ट की फ़ाइलें" chevron="end" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
@@ -232,7 +232,7 @@ compact पंक्ति पॉइंटर टार्गेट से क�
       <li><span><bdi>package.json</bdi><span data-trailing-text>2 KB</span></span></li>
     </ul>
   </tanrei-tree-view>
-</DemoFrame>
+</Example>
 
 | `chevron` | कहाँ रहता है | किसके लिए |
 | --- | --- | --- |
@@ -240,7 +240,7 @@ compact पंक्ति पॉइंटर टार्गेट से क�
 | `end` | अंत के टेक्स्ट के बाद; `expand_more`, जो खुलने पर आधा घूमता है | सेटिंग्स और मेन्यू की तरह पढ़े जाने वाले ट्री: नेविगेशन ड्रॉअर की जगह। |
 | `none` | कहीं नहीं | ऐसे फ़ोल्डर जो अपनी स्थिति अपने ग्लिफ़ से दिखाते हैं। |
 
-<DemoFrame label="chevron none: फ़ोल्डर का ग्लिफ़ खुला और बंद दिखाता है; गाइड पॉइंटर के नीचे दिखते हैं" plain>
+<Example label="chevron none: फ़ोल्डर का ग्लिफ़ खुला और बंद दिखाता है; गाइड पॉइंटर के नीचे दिखते हैं">
   <tanrei-tree-view class="not-content tanrei-not-prose" label="प्रोजेक्ट की फ़ाइलें" chevron="none" guides="hover" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
@@ -253,7 +253,7 @@ compact पंक्ति पॉइंटर टार्गेट से क�
       <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>package.json</bdi></span></li>
     </ul>
   </tanrei-tree-view>
-</DemoFrame>
+</Example>
 
 `chevron="none"` के साथ, जिस पैरेंट का आइकन एक खुला ग्लिफ़ बताता है (`data-open-icon="folder_open"`), वह अपने ग्लिफ़ से खुला या बंद दिखाता है, और ग्लिफ़ पर दबाना उसे खोलता-बंद करता है। बिना आइकन का पैरेंट अपनी पंक्ति पर दबाने से खुलता है, जब तक उसकी पंक्ति चुनती नहीं: तब चयन जीतता है, और ऐरो कुंजियाँ उसे खोलती हैं। ऐरो कुंजियाँ हमेशा खोलती और बंद करती हैं।
 

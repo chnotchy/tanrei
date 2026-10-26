@@ -2,14 +2,14 @@
 title: Tabla
 description: Presenta datos que tienen filas y columnas, con columnas con nombre y, de forma opcional, encabezados de fila, una leyenda y filas de pie. Se desplaza dentro de su propia caja cuando no cabe. El encabezado de una columna puede pedir las filas en su orden y las filas se pueden elegir; la tabla nunca ordena por sí misma.
 translationOf: components/table.mdx
-sourceHash: 388549568f8a91ecb1e49333233b422d57daae1f
+sourceHash: 88d81c83a94e4a8312f1b69b16fb0422435b036d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import SortedByThePage from '../../../../components/SortedByThePage.astro';
 import CountedByThePage from '../../../../components/CountedByThePage.astro';
 
@@ -17,7 +17,7 @@ import CountedByThePage from '../../../../components/CountedByThePage.astro';
 
 <ComponentAvailability name="table" />
 
-<DemoFrame label="Encabezados de fila, números al final y una fila de pie">
+<Example label="Encabezados de fila, números al final y una fila de pie">
   <tanrei-table class="tanrei-not-prose" row-headers>
     <table>
       <caption>Componentes por estado y plataforma</caption>
@@ -34,7 +34,7 @@ import CountedByThePage from '../../../../components/CountedByThePage.astro';
       </tfoot>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 Una tabla es para datos que tienen dos dimensiones: una lista de precios, una comparación de planes, una lista de ajustes con sus tipos y sus valores predeterminados, el estado de varias cosas en varias plataformas, los registros con los que trabaja una persona. El encabezado de una columna puede pedir las filas en su orden, una tabla sin filas muestra tu estado vacío, y una línea de estado bajo las filas contiene tu frase y tu paginación. Las filas se pueden elegir con una casilla de verificación cada una, o una sola fila con un botón de opción, y una tabla que espera sus filas dice que está ocupada. La tabla nunca ordena, filtra, obtiene datos ni pagina por sí misma: dibuja las filas que se le dan, en el orden en que se le dan. No cambia el tamaño de las columnas.
 
@@ -119,7 +119,7 @@ El elemento lleva la alineación y el salto de línea de una columna desde su ce
 
 <SortedByThePage />
 
-<DemoFrame label="Pulsa un encabezado: la tabla pide, y esta página ordena las filas" plain>
+<Example label="Pulsa un encabezado: la tabla pide, y esta página ordena las filas">
   <tanrei-table class="tanrei-not-prose" data-docs-sorts>
     <table>
       <caption>Productos</caption>
@@ -134,7 +134,7 @@ El elemento lleva la alineación y el salto de línea de una columna desde su ce
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 Una columna que se puede ordenar es una celda de encabezado que dice en qué orden están las filas, con tu propio botón alrededor de su texto:
 
@@ -161,7 +161,7 @@ Para una tabla que ordena el servidor, pon un enlace en lugar del botón: `<a hr
 
 ### Sin filas
 
-<DemoFrame label="Sin filas: tu estado vacío bajo la fila de encabezado" plain>
+<Example label="Sin filas: tu estado vacío bajo la fila de encabezado">
   <tanrei-table class="tanrei-not-prose">
     <table>
       <caption>Productos que coinciden</caption>
@@ -173,7 +173,7 @@ Para una tabla que ordena el servidor, pon un enlace en lugar del botón: `<a hr
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 Escribe una sola fila con una sola celda que abarque las columnas, y pon en ella tu estado vacío:
 
@@ -189,7 +189,7 @@ La tabla le da espacio por encima y por debajo y la anchura de su caja, y lo man
 
 ### La línea de estado
 
-<DemoFrame label="Tu frase y tu paginación, bajo las filas" plain>
+<Example label="Tu frase y tu paginación, bajo las filas">
   <tanrei-table class="tanrei-not-prose" sticky-header style="max-block-size: 20rem">
     <table>
       <caption>Versiones, de la más reciente a la más antigua</caption>
@@ -217,7 +217,7 @@ La tabla le da espacio por encima y por debajo y la anchura de su caja, y lo man
       </div>
     </div>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 Después de la tabla, dentro del elemento, escribe la línea de estado: tu frase en un párrafo que es un estado (`role="status"`), y tu paginación.
 
@@ -239,7 +239,7 @@ Lo que queda en el borde de fin es una [paginación](/es/components/pagination/)
 
 <CountedByThePage />
 
-<DemoFrame label="Elige filas: la tabla guarda la selección, y esta página la cuenta" plain>
+<Example label="Elige filas: la tabla guarda la selección, y esta página la cuenta">
   <tanrei-table class="tanrei-not-prose" selection="multiple" row-headers select-all-label="Seleccionar todos los productos" data-docs-counts="Seleccionados: {count} de 4">
     <table>
       <caption>Productos para reponer</caption>
@@ -255,7 +255,7 @@ Lo que queda en el borde de fin es una [paginación](/es/components/pagination/)
     </table>
     <div data-part="status"><p role="status">Seleccionados: 2 de 4</p></div>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 Define `selection="multiple"` en el elemento y empieza cada fila con una celda de selección. En la fila de encabezado, la celda contiene la casilla de verificación de todas las filas. En una fila del cuerpo contiene la casilla de esa fila, y la fila lleva en `data-value` el nombre por el que conoces el registro:
 
@@ -313,7 +313,7 @@ Para una página que debe funcionar sin script, usa casillas de verificación na
 
 ### Elegir una fila
 
-<DemoFrame label="Elegir una fila: un botón de opción en cada fila, ninguno en el encabezado" plain>
+<Example label="Elegir una fila: un botón de opción en cada fila, ninguno en el encabezado">
   <tanrei-table class="tanrei-not-prose" selection="single" row-headers>
     <table>
       <caption>Plan al que cambiar</caption>
@@ -327,7 +327,7 @@ Para una página que debe funcionar sin script, usa casillas de verificación na
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 Donde una persona elige un registro (el plan al que cambiar, la dirección de envío, la compilación con la que comparar), define `selection="single"`. La celda de selección de cada fila del cuerpo contiene un botón de opción en lugar de la casilla de verificación, y la celda de selección de la fila de encabezado queda vacía, porque ningún control representa a todas las filas:
 
@@ -357,7 +357,7 @@ Donde una persona elige un registro (el plan al que cambiar, la dirección de en
 
 ### Carga
 
-<DemoFrame label="En carga: filas de marcador de posición, y la línea de estado lo dice" plain>
+<Example label="En carga: filas de marcador de posición, y la línea de estado lo dice">
   <tanrei-table class="tanrei-not-prose" loading>
     <table>
       <caption>Pedidos de esta semana</caption>
@@ -372,7 +372,7 @@ Donde una persona elige un registro (el plan al que cambiar, la dirección de en
     </table>
     <div data-part="status"><p role="status">Cargando</p></div>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 Define `loading` mientras obtienes las filas. La tabla se expone como ocupada y, entretanto, dibuja lo que le das. No obtiene nada ni espera nada: está en carga mientras tú lo digas.
 
@@ -419,7 +419,7 @@ El `align="right"` que un renderizador pone en una celda se lee como `end`, y `a
 
 ## Especificaciones
 
-<DemoFrame label="Compacta y con franjas, para una tabla que se recorre con la vista" plain>
+<Example label="Compacta y con franjas, para una tabla que se recorre con la vista">
   <tanrei-table class="tanrei-not-prose" density="compact" striped label="Tokens de la tabla">
     <table>
       <thead>
@@ -435,9 +435,9 @@ El `align="right"` que un renderizador pone en una celda se lee como `end`, y `a
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Más ancha que su caja: se desplaza dentro de ella, y la primera columna se queda" plain>
+<Example label="Más ancha que su caja: se desplaza dentro de ella, y la primera columna se queda">
   <tanrei-table class="tanrei-not-prose" row-headers sticky-first-column style="max-inline-size: 30rem">
     <table>
       <caption>Visitas por región</caption>
@@ -452,9 +452,9 @@ El `align="right"` que un renderizador pone en una celda se lee como `end`, y `a
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Una altura que viene del diseño: las filas se desplazan, y el encabezado se queda" plain>
+<Example label="Una altura que viene del diseño: las filas se desplazan, y el encabezado se queda">
   <tanrei-table class="tanrei-not-prose" sticky-header style="max-block-size: 14rem">
     <table>
       <caption>Versiones</caption>
@@ -472,7 +472,7 @@ El `align="right"` que un renderizador pone en una celda se lee como `end`, y `a
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="table" />
 

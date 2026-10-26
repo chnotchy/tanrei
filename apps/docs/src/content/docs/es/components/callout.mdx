@@ -2,25 +2,25 @@
 title: Callout
 description: Un aviso que forma parte del contenido y se queda en él (una nota, una precaución, el motivo de algo o un resumen de lo que está mal), con un relleno discreto o con contorno, en los colores de un estado y con su glifo, con un título, acciones y un botón de cierre opcionales.
 translationOf: components/callout.mdx
-sourceHash: 3c436844ceb67c8f97b0d4e71ba26f1cb2c8799a
+sourceHash: f6abd901240a5444e951caf8c754bcc85de11555
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="callout" />
 
-<DemoFrame label="Una nota, una precaución con título y un aviso con acciones y botón de cierre" column>
+<Example label="Una nota, una precaución con título y un aviso con acciones y botón de cierre" column>
   <tanrei-callout status="info" status-label="Información" style="inline-size: min(100%, 34rem)">La web dibuja esta revisión; las demás plataformas la seguirán.</tanrei-callout>
   <tanrei-callout status="warning" headline="Haz una copia de seguridad antes de migrar" style="inline-size: min(100%, 34rem)">La migración reescribe la base de datos en su sitio. Los pasos siguientes muestran cómo conservar una copia que puedas restaurar.</tanrei-callout>
   <tanrei-callout id="callout-demo-overview" variant="outlined" headline="Hay una versión más reciente de esta página" closable close-label="Cerrar" style="inline-size: min(100%, 34rem)">Vuelve a cargarla para leerla. No se pierde nada de lo que has escrito.<tanrei-button slot="actions" variant="outlined" onclick="this.closest('tanrei-callout').open = false">Volver a cargar</tanrei-button></tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-overview').open = true">Mostrar de nuevo el último</tanrei-button>
-</DemoFrame>
+</Example>
 
 Un callout es un aviso en el flujo de la página: se queda donde lo pones, con la anchura de su lugar, durante tanto tiempo como el contenido. De forma predeterminada es una nota, que se lee donde está igual que el párrafo anterior, y nunca recibe el foco.
 
@@ -80,7 +80,7 @@ El cuerpo es el propio contenido del elemento. El título es el atributo `headli
 
 ## Especificaciones
 
-<DemoFrame label="Los dos aspectos en cada estado" plain column>
+<Example label="Los dos aspectos en cada estado" column>
   <tanrei-callout style="inline-size: min(100%, 34rem)">Los tamaños son mínimos: un control crece con el texto ampliado.</tanrei-callout>
   <tanrei-callout status="info" status-label="Información" style="inline-size: min(100%, 34rem)">La web dibuja esta revisión; las demás plataformas la seguirán.</tanrei-callout>
   <tanrei-callout status="warning" status-label="Advertencia" style="inline-size: min(100%, 34rem)">Un borde que es la única señal de que existe un control debe mantener 3:1 frente a su superficie.</tanrei-callout>
@@ -91,16 +91,16 @@ El cuerpo es el propio contenido del elemento. El título es el atributo `headli
   <tanrei-callout variant="outlined" status="warning" status-label="Advertencia" style="inline-size: min(100%, 34rem)">Un borde que es la única señal de que existe un control debe mantener 3:1 frente a su superficie.</tanrei-callout>
   <tanrei-callout variant="outlined" status="error" status-label="Error" style="inline-size: min(100%, 34rem)">No se pudo leer el archivo. No se ha cambiado nada.</tanrei-callout>
   <tanrei-callout variant="outlined" status="success" status-label="Correcto" style="inline-size: min(100%, 34rem)">Todas las comprobaciones de contraste se superan en los seis esquemas.</tanrei-callout>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Un título, tu propio glifo, acciones, un botón de cierre y el tamaño grande" plain column>
+<Example label="Un título, tu propio glifo, acciones, un botón de cierre y el tamaño grande" column>
   <tanrei-callout headline="Consejo" style="inline-size: min(100%, 34rem)"><span slot="icon">lightbulb</span>Mantén habilitada una acción y explica qué falta cuando se use.</tanrei-callout>
   <tanrei-callout status="info" headline="Experimental" style="inline-size: min(100%, 34rem)"><span slot="icon">science</span>Este comportamiento puede cambiar en una versión posterior.</tanrei-callout>
   <tanrei-callout status="warning" headline="El archivo ha cambiado en el disco" style="inline-size: min(100%, 34rem)">Aquí tienes cambios que no están en él. No se sobrescribe nada hasta que elijas.<tanrei-button slot="actions" variant="outlined">Volver a cargar desde el disco</tanrei-button><tanrei-button slot="actions" variant="text">Conservar los míos</tanrei-button></tanrei-callout>
   <tanrei-callout id="callout-demo-closable" headline="La búsqueda ahora incluye las notas de versión" closable close-label="Cerrar" style="inline-size: min(100%, 34rem)">Pulsa el botón de cierre: el callout desaparece de inmediato y el foco vuelve a donde estaba.</tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-closable').open = true">Mostrarlo de nuevo</tanrei-button>
   <tanrei-callout size="large" status="error" headline="Peligro" style="inline-size: min(100%, 34rem)">Este comando elimina todos los archivos generados y no se puede deshacer.</tanrei-callout>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="callout" />
 
@@ -179,10 +179,10 @@ Las acciones son tus propios [botones](/es/components/button/) o enlaces, uno o 
 
 `live` es para un callout que aparece o cambia mientras la persona trabaja: un resumen de los errores de un formulario después de enviarlo, un aviso de que el archivo ha cambiado por debajo. Mantenlo en la página con `open="false"` y define `open` cuando corresponda.
 
-<DemoFrame label="Un callout activo, mostrado en respuesta a una pulsación" plain column>
+<Example label="Un callout activo, mostrado en respuesta a una pulsación" column>
   <tanrei-button variant="outlined" onclick="document.getElementById('callout-demo-live').open = true">Enviar el formulario</tanrei-button>
   <tanrei-callout id="callout-demo-live" live open="false" status="error" headline="Hay tres campos que revisar" closable close-label="Cerrar" style="inline-size: min(100%, 34rem)">Escribe un nombre, elige una fecha de inicio e indica una dirección que pueda recibir correo.</tanrei-callout>
-</DemoFrame>
+</Example>
 
 ```html
 <tanrei-callout id="errors" live open="false" status="error" headline="Hay tres campos que revisar">

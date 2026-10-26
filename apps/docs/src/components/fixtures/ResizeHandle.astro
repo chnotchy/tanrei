@@ -10,11 +10,16 @@ interface Props {
   label: string;
   /** The id of the stage it resizes. */
   controls: string;
+  /**
+   * It stands on the stage's own end edge, inside it (an example's stage, which clips what reaches past it), rather
+   * than in the padding after a canvas within the stage (a fixture's).
+   */
+  edge?: boolean;
 }
-const { label, controls } = Astro.props;
+const { label, controls, edge = false } = Astro.props;
 ---
 
-<div class="docs-resize-handle" role="separator" aria-orientation="vertical" tabindex="0" aria-label={label} aria-controls={controls} data-resize-handle></div>
+<div class:list={['docs-resize-handle', { edge }]} role="separator" aria-orientation="vertical" tabindex="0" aria-label={label} aria-controls={controls} data-resize-handle></div>
 
 <style>
   /* A bar on the stage's end edge, as tall as the stage, with a grip in its middle; the pointer's target is wider than
@@ -31,6 +36,11 @@ const { label, controls } = Astro.props;
     cursor: ew-resize;
     touch-action: none;
     outline: none;
+  }
+  /* On the stage's end edge: the bar on the edge, its target reaching into the stage. */
+  .docs-resize-handle.edge {
+    inset-inline-end: 0;
+    place-items: center end;
   }
   .docs-resize-handle:not([aria-valuenow]) {
     visibility: hidden;

@@ -2,13 +2,13 @@
 title: Web
 description: Usa los tokens CSS y los Web Components de Tanrei en cualquier proyecto web.
 translationOf: getting-started/web.mdx
-sourceHash: ee4c3f5cddad88322fc87252a6236ef3ab67e4d9
+sourceHash: fb8e6a2acbc93ad9938e2e07ac6820f37f8fc6cb
 ---
 
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 `@tanrei/web` contiene dos cosas: una hoja de estilos con los tokens de diseño como propiedades personalizadas de CSS, y elementos personalizados basados en estándares, construidos con Lit. No requiere ningún framework.
 
@@ -24,7 +24,7 @@ npm install @tanrei/web
 
 ### Desde el código fuente
 
-Para usar el código fuente tal como está en `main`, antes de que se publique, necesitas Git, Node 22.12 o posterior y pnpm 12 (`corepack enable` te da la versión que fija el repositorio). Compila el paquete en un clon del repositorio, empaquétalo e instala el archivo empaquetado en tu proyecto:
+Para usar el código fuente tal como está en `main`, antes de que se publique, necesitas Git, Node 22.22 o posterior y pnpm 12 (`corepack enable` te da la versión que fija el repositorio). Compila el paquete en un clon del repositorio, empaquétalo e instala el archivo empaquetado en tu proyecto:
 
 ```sh
 git clone https://github.com/chnotchy/tanrei.git
@@ -105,10 +105,10 @@ El archivo empaquetado contiene lo mismo que publica un lanzamiento, así que to
 
 </Steps>
 
-<DemoFrame>
+<Example>
   <tanrei-button variant="filled">Desplegar</tanrei-button>
   <tanrei-button variant="outlined" size="small" disabled>Cancelar</tanrei-button>
-</DemoFrame>
+</Example>
 
 ## El manifiesto de los elementos
 
@@ -280,7 +280,7 @@ Las pruebas de tu propia lógica que no renderizan ningún elemento de Tanrei pu
 La mayoría de los elementos ponen su rol en un elemento nativo dentro de su shadow root (un `<button>`, un `<input>`, un `<dialog>`) y no en sí mismos, para que los navegadores y las herramientas de pruebas vean una semántica real; unos pocos, como una pestaña o un menú abierto, lo llevan ellos mismos. Los localizadores de Playwright buscan dentro de los shadow roots abiertos, así que busca un control por su rol y su nombre, como lo haría una persona:
 
 ```ts
-await page.getByRole('button', { name: 'Save' }).click();
+await page.getByRole('button', { name: 'Guardar' }).click();
 await expect(page.getByRole('switch', { name: 'Wi-Fi' })).toBeChecked();
 ```
 
@@ -292,17 +292,17 @@ Algunos elementos guardan un rol en su shadow root, mientras que lo que le perte
 
 ```ts
 // No encuentra nada: las pestañas son hijas de <tanrei-tabs>, no de su lista de pestañas.
-page.getByRole('tablist', { name: 'Sections' }).getByRole('tab', { name: 'Billing' });
+page.getByRole('tablist', { name: 'Secciones' }).getByRole('tab', { name: 'Facturación' });
 ```
 
 Busca el elemento que contiene el rol con ese nombre y luego busca dentro de él:
 
 ```ts
-const sections = page.locator('tanrei-tabs', { has: page.getByRole('tablist', { name: 'Sections' }) });
-await sections.getByRole('tab', { name: 'Billing' }).click();
+const sections = page.locator('tanrei-tabs', { has: page.getByRole('tablist', { name: 'Secciones' }) });
+await sections.getByRole('tab', { name: 'Facturación' }).click();
 
-const confirm = page.locator('tanrei-dialog', { has: page.getByRole('dialog', { name: 'Delete the file?' }) });
-await confirm.getByRole('button', { name: 'Delete' }).click();
+const confirm = page.locator('tanrei-dialog', { has: page.getByRole('dialog', { name: '¿Eliminar el archivo?' }) });
+await confirm.getByRole('button', { name: 'Eliminar' }).click();
 ```
 
 ### Un menú en la capa superior
@@ -310,10 +310,10 @@ await confirm.getByRole('button', { name: 'Delete' }).click();
 Mientras está abierto, `<tanrei-menu>` es el menú, con el nombre de su ancla, pero no ocupa espacio en la página: su superficie se dibuja en la capa superior. Por eso, comprobar si el menú es visible falla incluso cuando está abierto. Comprueba que el menú está ahí y después comprueba sus elementos:
 
 ```ts
-await page.getByRole('button', { name: 'More' }).click();
-const menu = page.getByRole('menu', { name: 'More' });
+await page.getByRole('button', { name: 'Más' }).click();
+const menu = page.getByRole('menu', { name: 'Más' });
 await expect(menu).toBeAttached();
-await expect(menu.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+await expect(menu.getByRole('menuitem', { name: 'Cambiar nombre' })).toBeVisible();
 ```
 
 Al cerrarse, el elemento deja de ser un menú y `await expect(menu).toHaveCount(0)` pasa.

@@ -2,10 +2,10 @@
 title: アイコン
 description: アイコンセットはデザインシステムごとに 1 つ、太さも 1 つ、規則も 1 つ。未選択は線、選択中は塗り。
 translationOf: foundations/icons.mdx
-sourceHash: 7fbcefc95cb2438d12c7eb5730e82dd1e6549010
+sourceHash: ac0bcf36ab92660baeea99c4cb860a04ef2338d0
 ---
 
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import TokenNotes from '../../../../components/tokens/TokenNotes.astro';
 import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
@@ -19,7 +19,7 @@ Tanrei の既定のアイコンは [Material Symbols](https://fonts.google.com/i
 
 **未選択は線。選択中は塗り。例外はありません。** ナビゲーション項目、タブ、トグル、チップ、お気に入り。どれもグリフは同じまま、状態に応じて塗りだけが変わります。装飾のために線と塗りを混ぜることはなく、塗りを手で選ぶこともありません。Web では、アイコンが置かれたコントロールの状態に塗りが自動で追従します。
 
-<DemoFrame label="塗りは選択状態に追従する">
+<Example label="塗りは選択状態に追従する">
   <button class="icon-demo" aria-pressed="false" onclick="this.setAttribute('aria-pressed', this.getAttribute('aria-pressed') === 'true' ? 'false' : 'true')"><span class="tanrei-icon" data-size="large" aria-hidden="true">favorite</span> お気に入り</button>
   <span class="icon-demo" role="tablist">
     <button role="tab" aria-selected="true"><span class="tanrei-icon" data-size="large" aria-hidden="true">home</span> ホーム</button>
@@ -27,7 +27,7 @@ Tanrei の既定のアイコンは [Material Symbols](https://fonts.google.com/i
     <button role="tab" aria-selected="false"><span class="tanrei-icon" data-size="large" aria-hidden="true">settings</span> 設定</button>
   </span>
   <tanrei-button><span slot="icon" class="tanrei-icon" aria-hidden="true">add</span>追加</tanrei-button>
-</DemoFrame>
+</Example>
 
 ```js
 import '@tanrei/web/icons.css';

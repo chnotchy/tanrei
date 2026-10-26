@@ -2,23 +2,23 @@
 title: マーキーテキスト
 description: 置かれた場所に収まらない 1 行のテキストです。ふだんは省略記号で切れたまま止まっていて、トリガーが続くあいだは一定の速さで横にスクロールして全体を見せます。テキストがはみ出しているときだけ動き、動きを減らす設定では決して動かず、支援技術には 1 回、全体が読まれます。
 translationOf: components/marquee-text.mdx
-sourceHash: dc5686cec00458180eb8990a3c8f28e770f7fd10
+sourceHash: 5e8fad528fe680de811c7c8091d796a52019ceac
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="marquee-text" />
 
-<DemoFrame label="収まらない曲名と、収まる曲名">
+<Example label="収まらない曲名と、収まる曲名">
   <tanrei-marquee-text style="inline-size: min(100%, 14rem)">トラック 7 — 置かれた行にはとても収まらない、とても長い曲名</tanrei-marquee-text>
   <tanrei-marquee-text style="inline-size: min(100%, 14rem)">短い曲名</tanrei-marquee-text>
-</DemoFrame>
+</Example>
 
 マーキーテキストは、プロダクトのテキスト 1 行を、それには狭すぎる場所に置くためのものです。止まっているあいだは、ほかの切れた行と同じように読めます。行の始まりから始まり、切れたところで省略記号で終わります。トリガーが続くあいだ（既定では、ポインターが重なっているあいだ、または置かれたコントロールにキーボードフォーカスがあるあいだ）は、ピクセル毎秒で決まる一定の速さで横にスクロールし、テキストのどの部分も一度は見える位置を通ります。そのあと始まりに戻って止まります。上の 1 行目にポインターを重ねてみてください。2 行目は収まっているので、決して動きません。テキストが収まっているマーキーテキストは、ただの 1 行のテキストです。
 

@@ -2,26 +2,26 @@
 title: ボトムシート
 description: 補足のコンテンツや短い作業を、画面の下端からせり上げて表示します。残りを使える状態のまま画面の下部に重ねるか、モーダルな手順として閉じるまでほかのすべてを暗くしてふさぎます。
 translationOf: components/bottom-sheet.mdx
-sourceHash: 129b9ec0bcae9a6a88c4f15e18d3132be5652383
+sourceHash: 0e04a47f5b04cc9c94d80a327068a564ff16dd76
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="bottom-sheet" />
 
-<DemoFrame label="モーダルのシート：ボタンで開きます">
+<Example label="モーダルのシート：ボタンで開きます">
   <tanrei-button variant="outlined" onclick="document.getElementById('bottom-sheet-demo-modal').open = true">写真を保存</tanrei-button>
   <tanrei-bottom-sheet id="bottom-sheet-demo-modal" label="写真を保存" handle-label="シートの高さを変更" onclose="this.open = false">
     <p>写真の保存先を選んでください。あとから設定で変更できます。</p>
     <tanrei-button variant="text" onclick="this.closest('tanrei-bottom-sheet').open = false">完了</tanrei-button>
   </tanrei-bottom-sheet>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -183,7 +183,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 仕様
 
-<DemoFrame label="親要素の下部に重なるスタンダードのシート：下へドラッグすると閉じます" plain>
+<Example label="親要素の下部に重なるスタンダードのシート：下へドラッグすると閉じます">
   <div style="position: relative; inline-size: 22rem; max-inline-size: 100%; block-size: 20rem; overflow: hidden">
     <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space75); padding: 1rem">
       <p>地図</p>
@@ -193,7 +193,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <p>歩いて 10 分以内に、カフェが 3 軒とパン屋が 1 軒開いています。</p>
     </tanrei-bottom-sheet>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="bottom-sheet" />
 
@@ -207,7 +207,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 **メインアクションから複数のアクションを出す。** 画面のメインアクションが関連するいくつかの形（新しいドキュメント、フォルダー、アップロードなど）に分かれるときは、[メインアクションボタン](/ja/components/main-action-button/)からそれらを並べたモーダルのボトムシートを開きます。Tanrei システムでは、提供しない [FAB メニュー](/ja/components/fab-menu/)の代わりにこの形を使います。
 
-<DemoFrame label="メインアクションから複数のアクションを出す：ボタンでシートを開きます" plain>
+<Example label="メインアクションから複数のアクションを出す：ボタンでシートを開きます">
   <tanrei-main-action-button label="新規" onclick="document.getElementById('bottom-sheet-demo-actions').open = true"><span slot="icon">add</span></tanrei-main-action-button>
   <tanrei-bottom-sheet id="bottom-sheet-demo-actions" label="新規" handle-label="シートの高さを変更" flush onclose="this.open = false">
     <tanrei-list>
@@ -216,7 +216,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-list-item interactive onclick="this.closest('tanrei-bottom-sheet').open = false">ファイルをアップロード</tanrei-list-item>
     </tanrei-list>
   </tanrei-bottom-sheet>
-</DemoFrame>
+</Example>
 
 ### モーダルかスタンダードか
 

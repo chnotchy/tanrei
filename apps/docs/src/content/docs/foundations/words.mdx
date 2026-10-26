@@ -4,7 +4,7 @@ description: A component has no words of its own. Every label, name and message 
 ---
 
 import ProductWordKeys from '../../../components/ProductWordKeys.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 **A component has no words of its own.** No component has a default text in any language: not "Required", not "Close", not "OK". A word a component draws or says is one your product gave: written by you, or taken from [the English word pack](#the-english-word-pack), which you import.
 
@@ -59,10 +59,10 @@ Give only the words of the components you use. A second call adds to the first, 
 
 An attribute on one component always wins over your product's words:
 
-<DemoFrame label="The word on the component itself: one field says it differently" plain column>
+<Example label="The word on the component itself: one field says it differently" column>
   <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Email" required required-text="Required"></tanrei-text-field>
   <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Company" required required-text="Needed for invoices"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
 ```html
 <tanrei-text-field label="Email" required required-text="Required"></tanrei-text-field>

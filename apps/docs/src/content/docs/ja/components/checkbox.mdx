@@ -2,27 +2,27 @@
 title: チェックボックス
 description: 独立した 1 つの選択をオンまたはオフにします。一部だけがオンになった親の選択や、必須なのに選ばれていない選択も示せます。
 translationOf: components/checkbox.mdx
-sourceHash: 41115adc606cd77721bfa14586382e10f63283dc
+sourceHash: d1a6e6103be09cf364ec871c3c8cd717a614cc49
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="checkbox" />
 
-<DemoFrame label="未チェック、チェック、中間状態">
+<Example label="未チェック、チェック、中間状態">
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-checkbox indeterminate label="すべての通知"></tanrei-checkbox>
     <tanrei-checkbox checked label="メッセージ"></tanrei-checkbox>
     <tanrei-checkbox label="メンション"></tanrei-checkbox>
     <tanrei-checkbox checked label="リマインダー"></tanrei-checkbox>
   </div>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -132,7 +132,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 仕様
 
-<DemoFrame label="状態、エラー、無効状態" plain>
+<Example label="状態、エラー、無効状態">
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-checkbox label="未チェック"></tanrei-checkbox>
     <tanrei-checkbox checked label="チェック"></tanrei-checkbox>
@@ -150,7 +150,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </div>
   <tanrei-checkbox readonly checked label="読み取り専用、チェック"></tanrei-checkbox>
   <tanrei-checkbox checked label-hidden label="行を選択"></tanrei-checkbox>
-</DemoFrame>
+</Example>
 
 既定のシステムでは、チェックボックスのボックスは 18 で、輪郭線は 2、角の丸みは 2、その後ろに直径 40 の丸いステートレイヤーがあり、ターゲットは 48 です。ラベル付きの高さは 40 になります。チェックと横線は、システムのアイコンセットの `check` と `remove` のグリフで、ボックスの上に 20 の大きさで描きます。太さは印専用のもので、システムのほかのアイコンより太くなります（既定のシステムでは、アイコンの 300 に対して 500）。この大きさでは、アイコンの太さのままだと線の幅が 1 ピクセルほどしかなく見えにくいため、大きさは変えずに太くしています。プリセットは自分のアイコンの太さを保ちます。チェックボックスは独自の印を描かないので、アイコンセットを変えたデザインシステムでは、ほかのグリフと一緒にこれらも変わります。ボックスの輪郭線と塗りは 1 つの形です。どの拡大率や画面密度でも、両者の間から背後が透けることはなく、チェックありのボックスは端から印まで均一な 1 色になります。`cupertino` では、チェックボックスは小さめのボックスと 16 のグリフのままです。
 

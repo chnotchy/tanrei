@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="card" />
 
-<DemoFrame label="Variants">
+<Example label="Variants">
   <tanrei-card style="width: 15rem">
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Outlined</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">Revenue grew 12% over the previous quarter.</div>
@@ -26,7 +26,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Elevated</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">Revenue grew 12% over the previous quarter.</div>
   </tanrei-card>
-</DemoFrame>
+</Example>
 
 A card comes in three forms. A plain card is a container: its content keeps its own semantics and may hold buttons and links. An interactive card is one button. A link card, a card with `href`, is one link. Use a link card when activating the card takes the person to another page or address, and an interactive card when something happens where they are.
 
@@ -171,7 +171,7 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
 
 ## Specs
 
-<DemoFrame label="Flush, interactive and disabled" plain>
+<Example label="Flush, interactive and disabled">
   <tanrei-card flush style="width: 15rem">
     <div style="height: 5rem; background: var(--tanrei-sys-color-primary-container)"></div>
     <div style="padding: var(--tanrei-comp-card-container-padding); font: var(--tanrei-sys-typescale-body-font)">Flush: the content reaches the edges.</div>
@@ -184,9 +184,9 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Quarterly report</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">Interactive and disabled.</div>
   </tanrei-card>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Link cards" plain>
+<Example label="Link cards">
   <tanrei-card href="/components/button/" label="Button" style="width: 15rem">
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Button</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">A link card. Enter follows it, and the browser's link menu works on it.</div>
@@ -202,7 +202,7 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Button</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">A disabled link card: nothing to follow.</div>
   </tanrei-card>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="card" />
 

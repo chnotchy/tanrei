@@ -337,6 +337,8 @@ export const groupStyles = css`
     letter-spacing: ${t('group-title-typescale-letter-spacing')};
     color: ${t('group-title-color')};
     overflow-wrap: break-word;
+    /* MNU-69: between Japanese phrases where the browser finds them, and by the strict rules (productText(), below). */
+    word-break: auto-phrase;
   }
   /* MNU-34: the title is its own run, in the direction of its first strong character, aligned to the layout's start. */
   ${productText('.title', { align: 'start' })}
@@ -453,10 +455,13 @@ export const itemStyles = css`
     min-inline-size: 0;
     padding-block-start: calc((var(--_first) - 1lh) / 2);
   }
+  /* MNU-69: Japanese breaks between its phrases where the browser finds them (Chromium; elsewhere the value is not
+     known and is dropped) — a phrase longer than the line still breaks — and by the strict rules (productText(), below). */
   .label,
   .supporting,
   .trailing-text {
     overflow-wrap: break-word;
+    word-break: auto-phrase;
   }
   .supporting {
     font: ${t('supporting-text-typescale-font')};

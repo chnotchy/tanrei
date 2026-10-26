@@ -2,14 +2,14 @@
 title: ナビゲーションドロワー
 description: プロダクトの行き先を、先頭側の端のパネルにセクションやグループでまとめて並べます。大きい画面ではコンテンツの横に、コンパクトな画面ではコンテンツの上に重ねて表示し、アイコンの列まで折りたたむこともできます。
 translationOf: components/navigation-drawer.mdx
-sourceHash: 863a49eefe0806a13fb113ad7e21185c8fdd9e2c
+sourceHash: 1eab880be19d8f79601b7bfb85013b914a9924bc
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 このページは、仕様の現在の形のナビゲーションドロワーを説明しています。`collapsible` のドロワーはアイコンの列まで狭まり、これがナビゲーションレールの代わりになります。折りたたんだドロワーは、展開したドロワーからラベルがなくなっただけのもので、各項目をアイコンの後ろで切った形です。メニューボタンでまた広がり、どのアイコンも位置を変えません。行き先の `badge` のテキストは `trailingText` になって控えめに描かれ、`trailing` スロットにはグリフを置けます。`badge` は、アイコンに付けるバッジになりました。`group` の項目で、入れ子の行き先を開閉できます。項目の高さは 48 で、メニューの項目と同じです。`responsive` を付けると、ウィンドウの幅がドロワーの表示のしかたを選びます。`href` を持つ行き先はリンクで、`revealSelected` と `scrollOffset` によってドロワーはサイトのサイドバーになります。Web コンポーネントはすでにこのすべてに対応しており、デモもそれを示しています。SwiftUI、Compose、Flutter、React Native は上の表で「追従待ち」です。追従するまでは以前の版（項目の高さ 44、`badge` は項目の末尾のテキスト、折りたたんだ形、グループ、リンクの行き先、幅に応じた表示はなく、ナビゲーションレールは別のコンポーネント）を提供しており、これらの例もその版のものです。 コンパクトな `density`、行き先にもなるグループ（`selectableGroups`）、絞り込みの入力欄（`filterable`）はさらに新しく、今のところ Web だけです。
 :::
 
-<DemoFrame label="2 つのセクションを持つスタンダードのドロワー">
+<Example label="2 つのセクションを持つスタンダードのドロワー">
   <tanrei-navigation-drawer open value="inbox" label="メール" style="block-size: 26rem">
     <tanrei-navigation-drawer-section headline="メール">
       <tanrei-navigation-drawer-item value="inbox" label="受信トレイ" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
@@ -31,9 +31,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-navigation-drawer-item value="family" label="家族" icon="label"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-section>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="折りたためるドロワー：メニューボタンでアイコンの列に折りたたみます。折りたたんだセルは名前をツールチップで示します" plain>
+<Example label="折りたためるドロワー：メニューボタンでアイコンの列に折りたたみます。折りたたんだセルは名前をツールチップで示します">
   <tanrei-navigation-drawer open collapsible value="home" label="ワークスペース" style="block-size: 30rem">
     <tanrei-button slot="header-button" variant="text" label="メニュー"><span slot="icon">menu</span></tanrei-button>
     <tanrei-main-action-button slot="main-action" label="新しいプロジェクト"><span slot="icon">add</span></tanrei-main-action-button>
@@ -45,9 +45,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </tanrei-navigation-drawer-group>
     <tanrei-navigation-drawer-item value="settings" label="設定" icon="settings" trailing-text="新着"></tanrei-navigation-drawer-item>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="リンクの行き先：ドロワーの value が今のページを示し、reveal-selected がそれを含むグループを開きます" plain>
+<Example label="リンクの行き先：ドロワーの value が今のページを示し、reveal-selected がそれを含むグループを開きます">
   <tanrei-navigation-drawer open reveal-selected value="#sidebar-demo-tabs" label="ドキュメント" style="block-size: 24rem">
     <tanrei-navigation-drawer-item label="はじめに" href="#sidebar-demo-start"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-group label="基礎">
@@ -60,9 +60,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </tanrei-navigation-drawer-group>
     <tanrei-navigation-drawer-item label="ソースコード" href="#sidebar-demo-source" target="new" target-label="新しいタブで開きます"></tanrei-navigation-drawer-item>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="行を絞り込めるドロワー：入力欄に入力するか、ページのどこかで / を押して入力欄に移ります" plain>
+<Example label="行を絞り込めるドロワー：入力欄に入力するか、ページのどこかで / を押して入力欄に移ります">
   <tanrei-navigation-drawer open filterable reveal-selected value="#filter-demo-tabs" label="ドキュメント" filter-label="ナビゲーションを絞り込む" filter-placeholder="絞り込む" filter-count-text="一致: {count} 件" filter-empty-text="一致する項目はありません" filter-clear-label="クリア" style="block-size: 26rem">
     <tanrei-navigation-drawer-group label="はじめに">
       <tanrei-navigation-drawer-item label="概要" href="#filter-demo-overview"></tanrei-navigation-drawer-item>
@@ -79,9 +79,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-navigation-drawer-item label="タブ" href="#filter-demo-tabs"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-group>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="コンパクトなドロワー：ポインターで使うツール向けに、項目の高さ 32、グリフ 16。入れ子のアイコンはグループのラベルの位置にそろいます" plain>
+<Example label="コンパクトなドロワー：ポインターで使うツール向けに、項目の高さ 32、グリフ 16。入れ子のアイコンはグループのラベルの位置にそろいます">
   <tanrei-navigation-drawer open density="compact" value="tree-view" label="Workspace" style="block-size: 22rem">
     <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-section headline="Projects">
@@ -95,9 +95,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     </tanrei-navigation-drawer-section>
     <tanrei-navigation-drawer-item value="settings" label="Settings" icon="settings"></tanrei-navigation-drawer-item>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="行き先にもなるグループ：selectable-groups を付けると、グループの行はそれを選び、シェブロンが開閉します" plain>
+<Example label="行き先にもなるグループ：selectable-groups を付けると、グループの行はそれを選び、シェブロンが開閉します">
   <tanrei-navigation-drawer open selectable-groups value="components" label="Documentation" style="block-size: 22rem">
     <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-group label="Foundations" icon="palette" value="foundations">
@@ -112,7 +112,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-navigation-drawer-item value="downloads" label="Downloads" icon="download"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-group>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -417,13 +417,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 仕様
 
-<DemoFrame label="セクションに入れず、アイコンを付けない行き先" plain>
+<Example label="セクションに入れず、アイコンを付けない行き先">
   <tanrei-navigation-drawer open value="deployments" label="プロジェクト" style="block-size: 20rem">
     <tanrei-navigation-drawer-item value="overview" label="概要"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-item value="deployments" label="デプロイ" trailing-text="3"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-item value="settings" label="設定"></tanrei-navigation-drawer-item>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="navigation-drawer" />
 

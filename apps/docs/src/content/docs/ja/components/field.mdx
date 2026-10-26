@@ -2,23 +2,23 @@
 title: フィールド
 description: フォームのどのフィールドにもあるもの、つまり必須か任意かを示せるラベル、補足の 1 行、値が受け付けられなかった理由を 1 つのコントロールに添え、支援技術に向けてそれぞれをコントロールと結び付けます。フィールドは枠であり、コントロールではありません。
 translationOf: components/field.mdx
-sourceHash: 353fb2c34b3255423d1b0d9d4ee7882e5bbcd48f
+sourceHash: c4d1b7a342bb601a6261b2b8c1d3247860058944
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="field" />
 
-<DemoFrame label="フィールドで名前、補足、印を付けたスライダーとスイッチ" column>
+<Example label="フィールドで名前、補足、印を付けたスライダーとスイッチ" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" required required-text="必須" supporting-text="通知とメディアに適用されます。"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知" optional optional-text="任意" supporting-text="レビュー待ちがあるときにお知らせします。"><tanrei-switch checked></tanrei-switch></tanrei-field>
-</DemoFrame>
+</Example>
 
 テキストフィールドは、何を入力するものか、回答が必須かどうか、どう答えればよいか、なぜ回答が受け付けられなかったかを、自分で伝えられます。フィールドは、それができないコントロール（スライダー、スイッチ、[テキスト入力欄](/ja/components/text-input/)、[カラー入力欄](/ja/components/color-input/)、[ワンタイムコード入力欄](/ja/components/one-time-code-input/)、プロダクトが独自に作ったコントロールなど）に、同じ 4 つを添えます。テキストフィールドは、それ自体が、テキスト入力欄を囲むフィールドです。ラベルはコントロールの上に、補足は下に置きます。フィールドがエラーの間は、エラーテキストが補足の位置に代わって出るので、エラーのフォームが通常より高くなることはありません。デザインシステムによっては、補足を残してその下にエラーテキストを加えることもできます。
 
@@ -68,24 +68,24 @@ Web では `<tanrei-field>` です。ほかのプラットフォームはまだ�
 
 ## 仕様
 
-<DemoFrame label="3 種類の必須・任意の印、エラー、無効なフィールド、ラベルのグリフ" plain column>
+<Example label="3 種類の必須・任意の印、エラー、無効なフィールド、ラベルのグリフ" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" required required-text="必須"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" optional optional-text="任意"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" required required-mark="asterisk"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" required required-text="必須" error error-text="0 より大きい値を選んでください。"><tanrei-slider value="0"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" supporting-text="通知とメディアに適用されます。" disabled><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量"><span slot="label-icon">volume_up</span><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="補足と、エラー：エラーテキストが補足の位置に代わって出ます" plain column>
+<Example label="補足と、エラー：エラーテキストが補足の位置に代わって出ます" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="パスワード" supporting-text="8 文字以上で、数字を 1 つ含めてください。"><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="パスワード" supporting-text="8 文字以上で、数字を 1 つ含めてください。" error error-text="パスワードが短すぎます。"><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="フィールドの中のテキスト入力欄：補足と文字数のあるものと、エラーのもの" plain column>
+<Example label="フィールドの中のテキスト入力欄：補足と文字数のあるものと、エラーのもの" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="表示名" supporting-text="コメントの横に表示されます。" count-text="5/40"><tanrei-text-input value="山田 花子" maxlength="40" counter></tanrei-text-input></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="メールアドレス" required required-text="必須" error error-text="メールアドレスを最後まで入力してください。"><tanrei-text-input type="email" value="ada@"></tanrei-text-input></tanrei-field>
-</DemoFrame>
+</Example>
 
 ### テキスト入力欄を囲む
 
@@ -101,9 +101,9 @@ Web では `<tanrei-field>` です。ほかのプラットフォームはまだ�
 
 `valueText` は、コントロールの今の値を言葉で表したもの（「40%」「100 ドル – 300 ドル」）です。スライダーのように、コントロールを見ても値が読み取れないものに使います。フィールドはそれをラベルの行の末尾、ラベルの 1 行目に描き、ほかには何もしません。値を読んだり書式化したりすることはなく、描いたテキストは支援技術から隠します。コントロールが自分の値を伝えるためです。ラベルに行の半分も残らなくなるときは、ラベルのあとの独立した行に移ります。ラベルを描いていない間は、値のテキストも描きません。`input` のたびに、スライダーの `shownValueText` から書き込みます。[スライダーフィールド](/ja/components/slider-field/)は、これを自分で行います。スライダーには、この完成したフィールドが使えます。
 
-<DemoFrame label="スライダーを入れたフィールド。ラベルの行の末尾に、値を言葉で示しています" column>
+<Example label="スライダーを入れたフィールド。ラベルの行の末尾に、値を言葉で示しています" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="文字の大きさ" supporting-text="すべてのページに適用されます。" value-text="120%"><tanrei-slider min="50" max="200" step="10" value="120" value-text="120%"></tanrei-slider></tanrei-field>
-</DemoFrame>
+</Example>
 
 ### セレクトを囲む
 

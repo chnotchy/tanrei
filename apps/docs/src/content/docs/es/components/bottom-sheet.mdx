@@ -2,26 +2,26 @@
 title: Hoja inferior
 description: Hace subir desde el borde inferior un contenido complementario o una tarea breve, ya sea sobre la parte baja de la pantalla mientras el resto sigue siendo utilizable, o como un paso modal que atenúa y bloquea todo lo demás hasta que se descarta.
 translationOf: components/bottom-sheet.mdx
-sourceHash: 129b9ec0bcae9a6a88c4f15e18d3132be5652383
+sourceHash: 0e04a47f5b04cc9c94d80a327068a564ff16dd76
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="bottom-sheet" />
 
-<DemoFrame label="Una hoja modal: ábrela con el botón">
+<Example label="Una hoja modal: ábrela con el botón">
   <tanrei-button variant="outlined" onclick="document.getElementById('bottom-sheet-demo-modal').open = true">Guardar foto</tanrei-button>
   <tanrei-bottom-sheet id="bottom-sheet-demo-modal" label="Guardar foto" handle-label="Cambiar el tamaño de la hoja" onclose="this.open = false">
     <p>Elige dónde guardar la foto. Puedes cambiarlo más adelante en Configuración.</p>
     <tanrei-button variant="text" onclick="this.closest('tanrei-bottom-sheet').open = false">Listo</tanrei-button>
   </tanrei-bottom-sheet>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -183,7 +183,7 @@ Marca el elemento que debe recibir el foco cuando se abre la hoja con la marca p
 
 ## Especificaciones
 
-<DemoFrame label="Una hoja estándar sobre la parte inferior de su padre: arrástrala hacia abajo para cerrarla" plain>
+<Example label="Una hoja estándar sobre la parte inferior de su padre: arrástrala hacia abajo para cerrarla">
   <div style="position: relative; inline-size: 22rem; max-inline-size: 100%; block-size: 20rem; overflow: hidden">
     <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space75); padding: 1rem">
       <p>Mapa</p>
@@ -193,7 +193,7 @@ Marca el elemento que debe recibir el foco cuando se abre la hoja con la marca p
       <p>Hay tres cafeterías y una panadería abiertas a menos de diez minutos a pie.</p>
     </tanrei-bottom-sheet>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="bottom-sheet" />
 
@@ -207,7 +207,7 @@ Usa una [hoja lateral](/es/components/side-sheet/) para el mismo tipo de conteni
 
 **Varias acciones a partir de la acción principal.** Cuando la acción principal de una pantalla se presenta en unas pocas formas relacionadas (un documento nuevo, una carpeta o una subida), el [botón de acción principal](/es/components/main-action-button/) abre una hoja inferior modal que las enumera. En el sistema Tanrei esto ocupa el lugar del [menú FAB](/es/components/fab-menu/), que este sistema no incluye.
 
-<DemoFrame label="Varias acciones a partir de la acción principal: abre la hoja con el botón" plain>
+<Example label="Varias acciones a partir de la acción principal: abre la hoja con el botón">
   <tanrei-main-action-button label="Nuevo" onclick="document.getElementById('bottom-sheet-demo-actions').open = true"><span slot="icon">add</span></tanrei-main-action-button>
   <tanrei-bottom-sheet id="bottom-sheet-demo-actions" label="Nuevo" handle-label="Cambiar el tamaño de la hoja" flush onclose="this.open = false">
     <tanrei-list>
@@ -216,7 +216,7 @@ Usa una [hoja lateral](/es/components/side-sheet/) para el mismo tipo de conteni
       <tanrei-list-item interactive onclick="this.closest('tanrei-bottom-sheet').open = false">Subir un archivo</tanrei-list-item>
     </tanrei-list>
   </tanrei-bottom-sheet>
-</DemoFrame>
+</Example>
 
 ### Modal o estándar
 

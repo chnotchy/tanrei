@@ -2,24 +2,24 @@
 title: "滑块字段"
 description: "以一个完整字段的形式，让用户在一个刻度范围上选择一个值或一个取值范围——标签下方是轨道，标签行末尾是用文字写出的值，还有一行帮助文本和值被拒绝的原因。"
 translationOf: components/slider-field.mdx
-sourceHash: dd20a710a125f8735c730d58cb45fb0697ecea0e
+sourceHash: 8694b1314d3a716d57183e53e8dd47c280a18063
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="slider-field" />
 
-<DemoFrame label="一个滑块字段、一个步进的，以及一个范围" column>
+<Example label="一个滑块字段、一个步进的，以及一个范围" column>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" supporting-text="适用于提醒和媒体。" value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="文字大小" min="50" max="200" step="10" value="120"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="价格" supporting-text="每晚，不含税。" range min="0" max="500" step="10" start-value="100" value="300" start-label="最低价格" end-label="最高价格"></tanrei-slider-field>
-</DemoFrame>
+</Example>
 
 滑块字段用于凭感觉选择、再用文字读出来的值：120 % 的文字大小、5 km 的距离、从 $100 到 $300 的价格。单独的滑块没有画出来的标签，它的轨道也不说明自己被设成了多少。滑块字段对应的是最常见的情况，可以直接使用：一个标签、用文字写出的值、轨道、一行帮助文本和一条错误。
 
@@ -85,11 +85,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 范围的两个值用一个短破折号（en dash）连接，按阅读顺序排列：在从右到左的布局中，起始值的文字位于右边，也就是起始手柄所在的一边。滑块字段自己不写任何数字、单位或词。
 
-<DemoFrame label="与标签同在一行的值文本、自己另占一行的值文本，以及把它隐藏起来的字段" column>
+<Example label="与标签同在一行的值文本、自己另占一行的值文本，以及把它隐藏起来的字段" column>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" value="40" value-indicator="active"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="税前年收入" range min="0" max="20000000" step="100000" start-value="3400000" value="12500000" start-label="最低年收入" end-label="最高年收入"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="亮度" value="70" value-hidden></tanrei-slider-field>
-</DemoFrame>
+</Example>
 
 值文本位于标签第一行的基线上，标签在剩下的空间里换行。如果这样会让标签得不到这一行的一半，值文本就在标签之后另占一行，必要时在那里换行。`valueHidden` 把它去掉，用于数字对用户没有意义的滑块：音量、亮度。手柄仍然会把它的值告诉辅助技术。
 
@@ -111,11 +111,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </script>
 ```
 
-<DemoFrame label="手写出来的同一个字段：一个字段，里面有一个滑块，值文本只给了一次——没有上面的监听器，它就不会保持同步" column>
+<Example label="手写出来的同一个字段：一个字段，里面有一个滑块，值文本只给了一次——没有上面的监听器，它就不会保持同步" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="文字大小" supporting-text="适用于所有页面。" value-text="120">
     <tanrei-slider min="50" max="200" step="10" value="120"></tanrei-slider>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 当你需要滑块字段没有提供的排布方式时，就往下走一层：
 
@@ -131,12 +131,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="带产品文字的必填、选填、错误和禁用" plain column>
+<Example label="带产品文字的必填、选填、错误和禁用" column>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" required required-text="必填" value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" optional optional-text="选填" value="40"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" supporting-text="适用于提醒和媒体。" error error-text="请选择大于 0 的音量。" value="0"></tanrei-slider-field>
   <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" supporting-text="适用于提醒和媒体。" disabled value="40"></tanrei-slider-field>
-</DemoFrame>
+</Example>
 
 ### 各个成员提供什么
 

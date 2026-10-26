@@ -2,26 +2,26 @@
 title: الخط الزمني
 description: أحداث مرتبة بترتيب الزمن، لكل حدث علامة ووقت وعنوان ومتن من محتواك، ويصله بالذي يليه خط رفيع. وحيث تكون للأحداث حالة، يقول شكل العلامة وكلماتك أيها اكتمل وأيها جارٍ وأيها آتٍ. هو قائمة تُقرأ، وليس عنصر تحكم أبدًا.
 translationOf: components/timeline.mdx
-sourceHash: 0251491f2f4ffd11a3d50c86f7ebc160d900e2c7
+sourceHash: fe96394352682136b8b8072fff4ca84976bd75c1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="timeline" />
 
-<DemoFrame label="سجل لما حدث" column>
+<Example label="سجل لما حدث" column>
   <ol class="tanrei-timeline" role="list" aria-label="سجل الإصدارات" style="inline-size: 100%; max-inline-size: 28rem">
     <li><time class="tanrei-timeline-time" datetime="2026-09-22">22 سبتمبر 2026</time><p class="tanrei-timeline-title">أنماط النص بحسب المستوى</p><p>صارت أنماط النص تُسمّى بمستواها، وصار تنعيم كل زاوية ممكنًا.</p></li>
     <li><time class="tanrei-timeline-time" datetime="2026-09-21">21 سبتمبر 2026</time><p class="tanrei-timeline-title">مفردات يمكن توسيعها</p><p>يجوز لطبقة التصميم أن تضيف درجة إلى سلسلة أو قيمة إلى محور، مع ذكر السبب.</p></li>
     <li><time class="tanrei-timeline-time" datetime="2026-09-19">19 سبتمبر 2026</time><p class="tanrei-timeline-title">بدء التطوير</p><p>صار هناك مسار بناء الرموز، ومخطط المواصفات (schema)، والمواصفة الأولى.</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
 ثلاثة أشياء تُرسم علاماتٍ يصل بينها خط. وتختلف في ما يفعله القارئ بها:
 
@@ -119,16 +119,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="خطة: مكتمل، مكتمل، جارٍ، آتٍ" plain column>
+<Example label="خطة: مكتمل، مكتمل، جارٍ، آتٍ" column>
   <ol class="tanrei-timeline" role="list" aria-label="خارطة الطريق" style="inline-size: 100%; max-inline-size: 28rem">
     <li data-status="done" data-status-label="مكتمل"><p class="tanrei-timeline-time">المرحلة Wave 0</p><p class="tanrei-timeline-title">الأسس</p><p>الرموز، والسمات، والطباعة، والأيقونات، والأسطح، وعناصر الحالة الأولية.</p></li>
     <li data-status="done" data-status-label="مكتمل"><p class="tanrei-timeline-time">المرحلة Wave 1</p><p class="tanrei-timeline-title">عناصر التحكم لليوم الأول</p><p>الأزرار، والحقول، وعناصر التحديد، والقائمة.</p></li>
     <li data-status="current" data-status-label="قيد التنفيذ"><p class="tanrei-timeline-time">المرحلة Wave 2</p><p class="tanrei-timeline-title">التنقل والتراكبات</p><p>الدرج، وعلامات التبويب، ومربعات الحوار، وقوائم الخيارات، واللوحات.</p></li>
     <li data-status="upcoming" data-status-label="لم يبدأ"><p class="tanrei-timeline-time">المرحلة Wave 3</p><p class="tanrei-timeline-title">القطع المتخصصة</p><p>المنتقيات، والعرض الدوّار، وما يحتاج إليه موقع توثيق.</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="رسوم من عندك، وسجل بالكثافة compact" plain column>
+<Example label="رسوم من عندك، وسجل بالكثافة compact" column>
   <ol class="tanrei-timeline" role="list" aria-label="الطلب 1042" style="inline-size: 100%; max-inline-size: 28rem">
     <li data-status="done" data-status-label="مكتمل"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">receipt_long</span><p class="tanrei-timeline-time">الاثنين، 09:41</p><p class="tanrei-timeline-title">تم تقديم الطلب</p></li>
     <li data-status="current" data-status-label="قيد التنفيذ"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">local_shipping</span><p class="tanrei-timeline-time">الثلاثاء، 14:05</p><p class="tanrei-timeline-title">في الطريق</p></li>
@@ -139,7 +139,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <li><time class="tanrei-timeline-time" datetime="10:09">10:09</time><p class="tanrei-timeline-title">فُحص التباين في ستة مخططات لونية</p></li>
     <li><time class="tanrei-timeline-time" datetime="10:02">10:02</time><p class="tanrei-timeline-title">غُيّر اللون الأساسي</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
 - **العلامة** تقف في صندوق عند حافة البداية، عرضه 24 في الحجم medium و 28 في الحجم large، موسَّطةً على السطر الأول من الحدث. بلا حالة هي نقطة صغيرة؛ ومع رسم من عندك هي حلقة بخط رفيع تحمل الرسم.
 - **الحالة** تغيّر شكل العلامة ولا شيء غيره: حلقة فيها علامة صح للحدث المكتمل، ودائرة معبَّأة فيها نقطة للحدث الجاري، وحلقة فارغة للحدث الآتي. والدائرة المعبَّأة هي اللون الوحيد الذي يأتي به الخط الزمني سوى لون الوقت.

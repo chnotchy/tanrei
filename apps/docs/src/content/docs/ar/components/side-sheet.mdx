@@ -2,14 +2,14 @@
 title: اللوحة الجانبية
 description: تحمل محتوى تكميليًّا أو مهمة ثانوية في لوحة عند حافة النهاية، لها عنوان رئيسي وزر إغلاق وإجراءات اختيارية، بجانب المحتوى في النافذة العريضة أو فوقه في النافذة المضغوطة.
 translationOf: components/side-sheet.mdx
-sourceHash: b24891eb6703f2c8705a45c1da8ece80df34b951
+sourceHash: 189097a97eaf2ee032ff1c320a71aa34643b79cd
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 تصف هذه الصفحة إجراءات اللوحة الجانبية وزر إغلاقها كما هي في المواصفة الآن، مثل إجراءات مربع الحوار. الإجراءات صف بعرض كامل من أزرار من الطراز tonal تُوضع بحسب مهمتها: كل منها معلَّم بالعلامة `confirming` أو `dismissive`، واللوحة النمطية (modal) يجب أن تعرض واحدًا على الأقل. زر الإغلاق زر صغير (small) من الطراز tonal، يُرسم ما لم تكن قيمة `closable` هي false. ويقوم فاصل تحت الترويسة دائمًا كما يقوم فوق الإجراءات، وتبقى الإجراءات فوق لوحة المفاتيح الظاهرة على الشاشة. مكوّن الويب يفعل هذا كله من الآن، وكذلك العروض؛ ويبقى معلَّمًا أعلاه بأنه متأخر إلى أن تُدقَّق المراجعة. ومنصات SwiftUI و Compose و Flutter و React Native متأخرة هي الأخرى: إلى أن تلحق تقدّم المراجعة السابقة، وفيها زر أيقونة من الطراز standard للإغلاق، والإجراءات في صف من حافة البداية بالترتيب المعطى، اختيارية في الهيئتين وبينها 8.
 :::
 
-<DemoFrame label="لوحة قياسية في نهاية صف">
+<Example label="لوحة قياسية في نهاية صف">
   <div style="display: flex; inline-size: 40rem; max-inline-size: 100%; block-size: 22rem; overflow-x: auto">
     <div style="flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100); padding: 1rem">
       <p style="margin: 0">نتائج البحث</p>
@@ -31,7 +31,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-button slot="actions" confirming>تطبيق</tanrei-button>
     </tanrei-side-sheet>
   </div>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -207,14 +207,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="لوحة نمطية: افتحها بالزر" plain>
+<Example label="لوحة نمطية: افتحها بالزر">
   <tanrei-button variant="outlined" onclick="document.getElementById('side-sheet-demo-modal').open = true">عوامل التصفية</tanrei-button>
   <tanrei-side-sheet id="side-sheet-demo-modal" variant="modal" headline="عوامل التصفية" close-label="إغلاق عوامل التصفية" onclose="this.open = false">
     <p>اعرض نتائج آخر 30 يومًا التي تحمل كل التسميات المحددة.</p>
     <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-side-sheet').open = false">إلغاء</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-side-sheet').open = false">تطبيق</tanrei-button>
   </tanrei-side-sheet>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="side-sheet" />
 

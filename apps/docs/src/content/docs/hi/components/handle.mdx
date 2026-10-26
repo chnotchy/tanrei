@@ -2,20 +2,20 @@
 title: साइज़ हैंडल
 description: वह निशान जिसे कोई खींचकर, या कीबोर्ड से हिलाकर, उस चीज़ का साइज़ बदलता है जिस पर वह लगा है — शीट, फ़ील्ड, पेन या प्रीव्यू का फ़्रेम। एक दिशा के लिए छोटी लाइन, दो दिशाओं के लिए चौथाई गोले का चाप। वह बताता है कि उसे कितना हिलाया गया; साइज़ उसका मालिक बदलता है।
 translationOf: components/handle.mdx
-sourceHash: 8955a734232bc0ade6255485b375c3b4b8e433b8
+sourceHash: 7d140675b426695f97f08e12810e1f2f8f5aef93
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="handle" />
 
-<DemoFrame label="ऊँचाई बदलने वाला हैंडल, चौड़ाई बदलने वाला हैंडल, और कोने में दोनों बदलने वाला हैंडल">
+<Example label="ऊँचाई बदलने वाला हैंडल, चौड़ाई बदलने वाला हैंडल, और कोने में दोनों बदलने वाला हैंडल">
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle label="नोट्स का साइज़ बदलें" value="4" min="2" max="12" value-text="4 लाइनें" revealed style="justify-self: center; align-self: end"></tanrei-handle>
   </div>
@@ -25,7 +25,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle axis="both" label="मैसेज का साइज़ बदलें" value="6" min="3" max="12" value-text="6 लाइनें" revealed style="justify-self: end; align-self: end"></tanrei-handle>
   </div>
-</DemoFrame>
+</Example>
 
 साइज़ हैंडल किसी ऐसी चीज़ के किनारे या कोने पर लगता है जिसका साइज़ कोई बदल सकता है: शीट का ऊपरी किनारा, टेक्स्ट फ़ील्ड का निचला कोना, किसी पेन या प्रीव्यू का किनारा। खींचने पर वह बताता है कि वह कितना हिला; कीबोर्ड से हिलाने पर, कौन-सा कदम माँगा गया; बिना खींचे दबाने पर, यही बात। वह ख़ुद किसी चीज़ का साइज़ कभी नहीं बदलता। साइज़ वह चीज़ रखती है जिस पर हैंडल लगा है, वही तय करती है कि एक कदम कितना है, और साइज़ हैंडल को लौटाती है ताकि सहायक तकनीक उसे पढ़ सके।
 
@@ -88,14 +88,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="इस्तेमाल होने तक नहीं दिखता: पॉइंटर उस पर ले जाएँ, या Tab से उस तक पहुँचें" plain>
+<Example label="इस्तेमाल होने तक नहीं दिखता: पॉइंटर उस पर ले जाएँ, या Tab से उस तक पहुँचें">
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-medium) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle label="पैनल का साइज़ बदलें" value="30" style="justify-self: center; align-self: end"></tanrei-handle>
   </div>
   <div style="display: grid; inline-size: 12rem; block-size: 6rem; box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline-variant); border-radius: calc(var(--tanrei-comp-handle-arc-radius-small) + var(--tanrei-comp-handle-inset))">
     <tanrei-handle axis="both" size="small" label="टिप्पणी का साइज़ बदलें" value="3" style="justify-self: end; align-self: end"></tanrei-handle>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="handle" />
 

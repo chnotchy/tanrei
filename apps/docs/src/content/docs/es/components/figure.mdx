@@ -2,20 +2,20 @@
 title: Figura
 description: Coloca una cosa que se mira, una imagen, un gráfico, una muestra o un ejemplo en vivo, en un escenario propio, con marco o sin él, con una leyenda que dice qué muestra y, de forma opcional, un título con tus controles encima y un bloque unido debajo.
 translationOf: components/figure.mdx
-sourceHash: 2b6611651835c6319c8a04774015c79b761f6871
+sourceHash: 143f98ae43eb824fe14a7cae9a47724674d4c105
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="figure" />
 
-<DemoFrame label="Outlined, filled y plain" column>
+<Example label="Outlined, filled y plain" column>
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1.5rem; inline-size: 100%">
     <tanrei-figure>
       <figure>
@@ -36,7 +36,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       </figure>
     </tanrei-figure>
   </div>
-</DemoFrame>
+</Example>
 
 Una figura muestra una cosa que se mira en lugar de leerse: una imagen en un artículo, un gráfico en un informe, una vista previa de lo que producirá un ajuste, una muestra. La separa de lo demás y dice qué es. Los marcos que rodean los ejemplos en vivo de este sitio son figuras.
 
@@ -117,7 +117,7 @@ Esta forma es más corta, y solo se dibuja una vez que el script se ha ejecutado
 
 ## Especificaciones
 
-<DemoFrame label="Un título, un control, un bloque unido y una leyenda" plain column>
+<Example label="Un título, un control, un bloque unido y una leyenda" column>
   <tanrei-figure style="inline-size: min(100%, 30rem)">
     <figure>
       <div data-part="frame">
@@ -135,9 +135,9 @@ Esta forma es más corta, y solo se dibuja una vez que el script se ha ejecutado
       <figcaption>Un botón filled y su marcado.</figcaption>
     </figure>
   </tanrei-figure>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Sin margen interior: lo que se muestra llega hasta los bordes del marco" plain column>
+<Example label="Sin margen interior: lo que se muestra llega hasta los bordes del marco" column>
   <tanrei-figure flush style="inline-size: min(100%, 30rem)">
     <figure>
       <div data-part="frame">
@@ -148,9 +148,9 @@ Esta forma es más corta, y solo se dibuja una vez que el script se ha ejecutado
       <figcaption>El marco recorta lo que contiene según sus esquinas.</figcaption>
     </figure>
   </tanrei-figure>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Más ancho que su escenario: se desplaza dentro de él, y el escenario es una parada de foco" plain column>
+<Example label="Más ancho que su escenario: se desplaza dentro de él, y el escenario es una parada de foco" column>
   <tanrei-figure style="inline-size: min(100%, 24rem)">
     <figure>
       <div data-part="frame">
@@ -167,9 +167,9 @@ Esta forma es más corta, y solo se dibuja una vez que el script se ha ejecutado
       <figcaption>Cinco botones en una fila que no salta de línea.</figcaption>
     </figure>
   </tanrei-figure>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Cuadrícula, puntos, una cuadrícula que se desvanece hacia el centro y un tablero de ajedrez" pattern="none" plain column>
+<Example label="Cuadrícula, puntos, una cuadrícula que se desvanece hacia el centro y un tablero de ajedrez" pattern="none" column>
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1.5rem; inline-size: 100%">
     <tanrei-figure pattern="grid">
       <figure>
@@ -196,7 +196,7 @@ Esta forma es más corta, y solo se dibuja una vez que el script se ha ejecutado
       </figure>
     </tanrei-figure>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="figure" />
 

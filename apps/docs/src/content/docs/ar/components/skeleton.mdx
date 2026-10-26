@@ -2,23 +2,23 @@
 title: هيكل التحميل
 description: يقف حيث سيكون المحتوى ما دام يُحمَّل. عناصر نائبة هادئة في شكل ما سيأتي، أسطر نص أو كتلة أو دائرة، تحجز الصندوق الذي سيأخذه المحتوى، فلا يتحرك شيء حين يصل.
 translationOf: components/skeleton.mdx
-sourceHash: 35e480f921d9bf8421691218c876dd261757f4ac
+sourceHash: a5c6ed1971270c9e64fb7b4de3a95eea84409f60
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="skeleton" />
 
-<DemoFrame label="بيانات شخص وبطاقة، في أثناء تحميلهما" column>
+<Example label="بيانات شخص وبطاقة، في أثناء تحميلهما" column>
   <tanrei-skeleton label="جارٍ تحميل بيانات الكاتب" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 10rem"></span><span class="tanrei-skeleton-placeholder" data-lines="2"></span></tanrei-skeleton>
   <tanrei-skeleton label="جارٍ تحميل المشروع" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 160px"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 12.5rem"></span><span class="tanrei-skeleton-placeholder" data-lines="3"></span><span class="tanrei-skeleton-placeholder" data-shape="block" style="inline-size: 6rem; block-size: 40px"></span></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
 كثيرًا ما يصل العرض قبل محتواه. هيكل التحميل (skeleton) يحجز شكل ما سيأتي في المكان الذي سيكون فيه: أسطر نص، وكتلة لصورة أو لعنصر تحكم، ودائرة لصورة شخص. وحين يصل المحتوى يأخذ الصناديق التي حُجزت له، فلا يتحرك شيء كان الشخص ينظر إليه أو يوشك أن يضغطه.
 
@@ -99,15 +99,15 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="الأشكال الثلاثة: نص، وكتلة، ودائرة" plain column>
+<Example label="الأشكال الثلاثة: نص، وكتلة، ودائرة" column>
   <tanrei-skeleton label="جارٍ تحميل النص" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></tanrei-skeleton>
   <tanrei-skeleton label="جارٍ تحميل الصورة" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 96px"></span></tanrei-skeleton>
   <tanrei-skeleton label="جارٍ تحميل بيانات الشخص" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="العنصر النائب للنص يأخذ نمط النص في المكان الذي يقف فيه: في عنوان، وفي فقرة" plain column>
+<Example label="العنصر النائب للنص يأخذ نمط النص في المكان الذي يقف فيه: في عنوان، وفي فقرة" column>
   <tanrei-skeleton label="جارٍ تحميل المقالة" show-delay="0" style="inline-size: min(100%, 24rem)"><h3 style="margin: 0 0 0.5rem"><span class="tanrei-skeleton-placeholder" style="inline-size: 60%"></span></h3><p style="margin: 0"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></p></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="skeleton" />
 
@@ -123,13 +123,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - قل كم سطرًا سيأخذ النص بالخاصية `data-lines`. ستصيب بقدر ما يكون محتواك منتظمًا. والهيكل الذي ينقصه سطر واحد يحرّك الصفحة سطرًا واحدًا، وهذا يبقى أقل مما يحرّكها مكان فارغ.
 - أعطِ الكتلة حجم الصورة أو عنصر التحكم: رقمًا، أو نسبة، أو الحجم الذي يعطيها إياه تخطيطك. والدائرة تأخذ رقمًا واحدًا، هو ضلعها.
 
-<DemoFrame label="اضغط «تحميل»: يحجز الهيكل المكان ثانيتين ونصف الثانية، ثم يأخذ المحتوى صندوقه" plain column>
+<Example label="اضغط «تحميل»: يحجز الهيكل المكان ثانيتين ونصف الثانية، ثم يأخذ المحتوى صندوقه" column>
   <tanrei-button variant="outlined" onclick="const place = this.parentElement.querySelector('[data-skeleton-demo]'); const [waiting, arrived] = this.parentElement.querySelectorAll('template'); place.replaceChildren(waiting.content.cloneNode(true)); clearTimeout(place.timer); place.timer = setTimeout(() => place.replaceChildren(arrived.content.cloneNode(true)), 2500)">تحميل</tanrei-button>
   <div data-skeleton-demo style="inline-size: min(100%, 24rem)"><h3 style="margin: 0 0 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">الرموز في ثلاثة مستويات</h3><p style="margin: 0; min-block-size: 3lh; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden">رموز المرجع تحمل القيم الخام. رموز النظام تسمّي الغرض من القيمة. رموز المكوّن تربط جزءًا واحدًا بأحدها.</p></div>
   <template><tanrei-skeleton label="جارٍ تحميل المقالة"><h3 style="margin: 0 0 0.5rem"><span class="tanrei-skeleton-placeholder" style="inline-size: 60%"></span></h3><p style="margin: 0"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></p></tanrei-skeleton></template>
   <template><h3 style="margin: 0 0 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">الرموز في ثلاثة مستويات</h3><p style="margin: 0; min-block-size: 3lh; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden">رموز المرجع تحمل القيم الخام. رموز النظام تسمّي الغرض من القيمة. رموز المكوّن تربط جزءًا واحدًا بأحدها.</p></template>
   <p style="margin: 0">هذا السطر يقع تحت المقالة، ولا يتحرك.</p>
-</DemoFrame>
+</Example>
 
 ### الأشكال
 
@@ -149,10 +149,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 حيث يقول شيء آخر الانتظار نفسه أصلًا، كمؤشر تحميل في سطر حالة، أو نص حالة، أو منطقة تعلّمها أنت بأنها مشغولة وتسمّيها، عيِّن `decorative`. يُرسم الهيكل عندئذ كما هو ويُحجب عن التقنيات المساعدة، فلا يُقرأ الانتظار مرتين.
 
-<DemoFrame label="سطر حالة يقول الانتظار أصلًا، فالعناصر النائبة التي تحته زخرفية" plain column>
+<Example label="سطر حالة يقول الانتظار أصلًا، فالعناصر النائبة التي تحته زخرفية" column>
   <span style="display: flex; align-items: center; gap: 0.5rem"><tanrei-loading-indicator size="small" label="جارٍ البحث" show-delay="0"></tanrei-loading-indicator>جارٍ البحث…</span>
   <tanrei-skeleton decorative show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder"></span><span class="tanrei-skeleton-placeholder"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 70%"></span></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
 ### ينتظر قبل أن يُعرض
 

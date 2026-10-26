@@ -2,27 +2,27 @@
 title: "复选框"
 description: "让用户打开或关闭一个独立的选项，显示只有部分打开的父级选项，并标出必选却尚未选择的选项。"
 translationOf: components/checkbox.mdx
-sourceHash: 41115adc606cd77721bfa14586382e10f63283dc
+sourceHash: d1a6e6103be09cf364ec871c3c8cd717a614cc49
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="checkbox" />
 
-<DemoFrame label="未选中、选中和半选">
+<Example label="未选中、选中和半选">
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-checkbox indeterminate label="所有通知"></tanrei-checkbox>
     <tanrei-checkbox checked label="消息"></tanrei-checkbox>
     <tanrei-checkbox label="提及"></tanrei-checkbox>
     <tanrei-checkbox checked label="提醒"></tanrei-checkbox>
   </div>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -132,7 +132,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="选中情况、错误和禁用" plain>
+<Example label="选中情况、错误和禁用">
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-checkbox label="未选中"></tanrei-checkbox>
     <tanrei-checkbox checked label="选中"></tanrei-checkbox>
@@ -150,7 +150,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </div>
   <tanrei-checkbox readonly checked label="只读，已选中"></tanrei-checkbox>
   <tanrei-checkbox checked label-hidden label="选择此行"></tanrei-checkbox>
-</DemoFrame>
+</Example>
 
 在默认系统中，复选框的方框为 18，轮廓为 2，圆角为 2，位于直径 40 的圆形状态层之上，目标为 48。带标签时高 40。对勾和横线是系统图标集里的 `check` 和 `remove` 两个图标，以 20 的大小绘制在方框之上。它们有自己的字重，比系统的其他图标更粗：在默认系统中是 500，而图标是 300。在这个大小下，按图标的字重画出的笔画只有大约 1 像素宽，很难看清，所以标记加粗了，大小则保持不变。预设沿用它自己的图标字重。复选框不绘制自己的标记，因此设计系统更换图标集时，这两个图标会和其他图标一起更换。方框的轮廓和填充是一个形状：无论缩放比例或显示密度如何，方框背后的东西都不会从两者之间透出来，选中的方框从边缘到标记是一片均匀的颜色。在 `cupertino` 下，复选框保留较小的方框和 16 的图标。
 

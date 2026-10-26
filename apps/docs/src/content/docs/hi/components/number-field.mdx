@@ -2,23 +2,23 @@
 title: नंबर फ़ील्ड
 description: लोगों को संख्या को संख्या की तरह डालने देता है, अपने लोकेल के रूप में टाइप करके या किसी कुंजी या बटन से स्टेप-दर-स्टेप बदलकर, सीमाओं के भीतर, और इकाई को बग़ल में रखकर। यह फ़ॉर्म का एक पूरा फ़ील्ड है, जो एक फ़ील्ड और एक नंबर इनपुट से बना है।
 translationOf: components/number-field.mdx
-sourceHash: 74340194585f221ae2e50d10b49d796cb660f7d5
+sourceHash: 46df532e715f3bb90e316d666626d7f027be4b68
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="number-field" />
 
-<DemoFrame label="इकाई और सीमाओं वाला एक नंबर फ़ील्ड, और एक जिसमें पैसों की रक़म है" column>
+<Example label="इकाई और सीमाओं वाला एक नंबर फ़ील्ड, और एक जिसमें पैसों की रक़म है" column>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="कॉर्नर रेडियस" value="8" min="0" max="64" step="0.25" suffix-text="px" supporting-text="0 से 64 तक, 0.25 के स्टेप में।" increment-label="बढ़ाएँ" decrement-label="घटाएँ"></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="रक़म" value="120" min="0" prefix-text="₹" suffix-text="INR" min-fraction-digits="2" max-fraction-digits="2" invalid-text="रक़म अंकों में डालें।" increment-label="बढ़ाएँ" decrement-label="घटाएँ"></tanrei-number-field>
-</DemoFrame>
+</Example>
 
 नंबर फ़ील्ड उस संख्या के लिए इस्तेमाल करें जिसे प्रॉडक्ट संख्या की तरह पढ़ता है: कोई मात्रा, साइज़, प्रतिशत या रक़म। लोग उसे अपने लोकेल के रूप में टाइप करते हैं, या ऐरो कुंजियों से या फ़ील्ड के अंत में बने दो बटन से स्टेप-दर-स्टेप बदलते हैं। फ़ील्ड उसी वेरिएंट और साइज़ के टेक्स्ट फ़ील्ड की तरह बनता है और उसी की नाप का होता है।
 
@@ -86,11 +86,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="वही फ़ील्ड हाथ से लिखा हुआ: एक फ़ील्ड, जिसके भीतर एक नंबर इनपुट है" column>
+<Example label="वही फ़ील्ड हाथ से लिखा हुआ: एक फ़ील्ड, जिसके भीतर एक नंबर इनपुट है" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="मात्रा" required required-text="ज़रूरी" supporting-text="हर ऑर्डर में 99 तक।">
     <tanrei-number-input min="1" max="99" invalid-text="कोई संख्या डालें।" increment-label="बढ़ाएँ" decrement-label="घटाएँ"></tanrei-number-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 एक स्तर नीचे तब जाएँ जब आपको ऐसी व्यवस्था चाहिए जो नंबर फ़ील्ड नहीं देता:
 
@@ -104,14 +104,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="सीमा पर अक्षम हुआ स्टेपर, अंतिम किनारे पर अंक, बिना स्टेपर, एक त्रुटि, सिर्फ़ पढ़ने वाला नंबर फ़ील्ड और अक्षम नंबर फ़ील्ड" plain column>
+<Example label="सीमा पर अक्षम हुआ स्टेपर, अंतिम किनारे पर अंक, बिना स्टेपर, एक त्रुटि, सिर्फ़ पढ़ने वाला नंबर फ़ील्ड और अक्षम नंबर फ़ील्ड" column>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="मात्रा" value="99" min="1" max="99" increment-label="बढ़ाएँ" decrement-label="घटाएँ"></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="टोन" value="40" min="0" max="100" align="end" increment-label="बढ़ाएँ" decrement-label="घटाएँ"></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="अक्षरों के बीच की दूरी" value="-0.25" step="0.01" suffix-text="px" no-steppers></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="मात्रा" value="0" error error-text="कम से कम 1 ऑर्डर करें।" increment-label="बढ़ाएँ" decrement-label="घटाएँ"></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="मात्रा" value="12" readonly></tanrei-number-field>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="मात्रा" value="12" disabled increment-label="बढ़ाएँ" decrement-label="घटाएँ"></tanrei-number-field>
-</DemoFrame>
+</Example>
 
 ### फ़ील्ड
 
@@ -142,10 +142,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 कमिट की गई संख्या लोकेल के अंकों और दशमलव सेपरेटर के साथ लिखी जाती है, दशमलव के बाद `minFractionDigits` से `maxFractionDigits` तक अंकों के साथ, और बिना ग्रुपिंग सेपरेटर के। इसलिए जो दिखता है, उसे वैसा ही वापस टाइप किया जा सकता है।
 
-<DemoFrame label="एक ही मान, 1.5, जर्मन में और मिस्र की अरबी में" plain column>
+<Example label="एक ही मान, 1.5, जर्मन में और मिस्र की अरबी में" column>
   <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Gewicht" value="1.5" step="0.1" suffix-text="kg" locale="de-DE" increment-label="Erhöhen" decrement-label="Verringern"></tanrei-number-field>
   <div dir="rtl" lang="ar"><tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الوزن" value="1.5" step="0.1" locale="ar-EG" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-field></div>
-</DemoFrame>
+</Example>
 
 टेक्स्ट को उदारता से पढ़ा जाता है, फ़ील्ड के `locale` के हिसाब से, या जहाँ वह ख़ाली है, वहाँ पेज की भाषा के हिसाब से:
 
@@ -158,10 +158,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 फ़ील्ड कभी दो लोकेल के बीच अंदाज़ा नहीं लगाता। जर्मन में, जहाँ कॉमा दशमलव सेपरेटर है, `1.500` को 1500 पढ़ा जाता है और `1.5` को 15।
 
-<DemoFrame label="दाएँ से बाएँ वाले लेआउट में: लैटिन अक्षरों वाली इकाई संख्या के बाद, बाएँ से दाएँ, और पेज की अपनी लिपि वाली इकाई संख्या के बाईं ओर" plain column>
+<Example label="दाएँ से बाएँ वाले लेआउट में: लैटिन अक्षरों वाली इकाई संख्या के बाद, बाएँ से दाएँ, और पेज की अपनी लिपि वाली इकाई संख्या के बाईं ओर" column>
   <div dir="rtl" lang="ar"><tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="العرض" value="44" min="0" suffix-text="px" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-field></div>
   <div dir="rtl" lang="ar"><tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الوزن" value="12" min="0" step="0.5" suffix-text="كغم" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-field></div>
-</DemoFrame>
+</Example>
 
 संख्या और उसकी इकाई लिखावट का एक ही टुकड़ा हैं। प्रीफ़िक्स संख्या से पहले लिखा जाता है और सफ़िक्स उसके बाद, इकाई की अपनी लिपि की दिशा में, पेज की दिशा चाहे जो हो। इसलिए "44 px", "$ 120 USD" और "40 %" अरबी या हिब्रू पेज में वैसे ही पढ़े जाते हैं जैसे अंग्रेज़ी पेज में, और अरबी या हिब्रू अक्षरों में लिखी इकाई संख्या के बाईं ओर रहती है। स्टेपर और लेबल पेज के साथ चलते हैं। `align="end"` संख्या को उसकी इकाई से सटाकर रखता है: लैटिन अक्षरों या चिह्नों वाली इकाई के लिए दाईं ओर, दोनों दिशाओं में। संख्या के बाईं ओर लैटिन अक्षरों का मुद्रा कोड रखने के लिए, सफ़िक्स की शुरुआत दाएँ से बाएँ के दिशा चिह्न (right-to-left mark, U+200F) से करें।
 

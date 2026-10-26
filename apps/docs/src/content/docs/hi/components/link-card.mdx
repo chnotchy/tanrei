@@ -2,14 +2,14 @@
 title: लिंक कार्ड
 description: एक लिंक, जो ब्लॉक के रूप में दिखता है। गंतव्य का शीर्षक, उसके बारे में एक वाक्य, उसकी तस्वीर और वह साइट जिस पर वह है, उन मानों से जो कार्ड को दिए जाते हैं और जिन्हें वह ख़ुद कभी लोड नहीं करता।
 translationOf: components/link-card.mdx
-sourceHash: 738b60d2538bbae63a50025bd28392c0e3895efd
+sourceHash: 6418c55dc327d21c94615818c38abb29768255c4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import picture from '../../../../../../../packages/web/test/fixtures/link-card.png?inline';
 import icon from '../../../../../../../packages/web/test/fixtures/site-icon.png?inline';
 
@@ -17,9 +17,9 @@ import icon from '../../../../../../../packages/web/test/fixtures/site-icon.png?
 
 <ComponentAvailability name="link-card" />
 
-<DemoFrame label="हर भाग वाला लिंक कार्ड" plain column>
+<Example label="हर भाग वाला लिंक कार्ड" column>
   <tanrei-link-card class="not-content" style="inline-size: 100%" href="https://example.com/articles/designing-with-tokens" headline="टोकन के साथ डिज़ाइन" description="कैसे गिने-चुने डायल एक पूरा सिस्टम बन जाते हैं।" site-name="Example Journal" image={picture} site-icon={icon} external="on" external-label="बाहरी लिंक"></tanrei-link-card>
-</DemoFrame>
+</Example>
 
 लिंक कार्ड गंतव्य को अपने आप में एक चीज़ के रूप में दिखाता है: उसका शीर्षक, उसके बारे में एक वाक्य, जहाँ तस्वीर हो वहाँ तस्वीर, और वह साइट जिस पर वह है। यह एक ही लिंक है। पूरा ब्लॉक दबाया जाता है, और उसके भीतर की कोई चीज़ अलग से नहीं दबाई जाती।
 
@@ -101,12 +101,12 @@ import icon from '../../../../../../../packages/web/test/fixtures/site-icon.png?
 
 ## स्पेक
 
-<DemoFrame label="दो रूप" plain column>
+<Example label="दो रूप" column>
   <div class="not-content" style="display: grid; gap: 1rem; inline-size: 100%">
     <tanrei-link-card href="/hi/components/link/" headline="लिंक" description="वह टेक्स्ट जो कहीं ले जाता है: वाक्य के भीतर एक वाक्यांश, अपनी अलग पंक्ति, या अकेला ग्लिफ़।"></tanrei-link-card>
     <tanrei-link-card variant="filled" href="/hi/components/card/" headline="कार्ड" description="वह सरफ़ेस जो एक ही विषय के कॉन्टेंट और क्रियाओं को एक साथ रखती है।"></tanrei-link-card>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="link-card" />
 
@@ -140,12 +140,12 @@ import icon from '../../../../../../../packages/web/test/fixtures/site-icon.png?
 
 ### छूटे हुए भाग
 
-<DemoFrame label="सिर्फ़ शीर्षक, और आपका अपना पाथ" plain column>
+<Example label="सिर्फ़ शीर्षक, और आपका अपना पाथ" column>
   <div class="not-content" style="display: grid; gap: 1rem; inline-size: 100%">
     <tanrei-link-card href="https://example.com/articles/designing-with-tokens" headline="टोकन के साथ डिज़ाइन" external="off"></tanrei-link-card>
     <tanrei-link-card href="/hi/foundations/design-tokens/" headline="टोकन" description="डायल, सिस्टम के रोल और कंपोनेंट की बाइंडिंग।"></tanrei-link-card>
   </div>
-</DemoFrame>
+</Example>
 
 | क्या दिया गया | क्या दिखता है |
 | --- | --- |

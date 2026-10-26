@@ -7,19 +7,19 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="radio-group" />
 
-<DemoFrame label="A set of radio buttons with a name, a description and a requirement" column>
+<Example label="A set of radio buttons with a name, a description and a requirement" column>
   <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Delivery" supporting-text="You can change this until the order ships." required required-text="Required" value="standard">
     <tanrei-radio-button value="standard" label="Standard, 3 to 5 days"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="Express, next day"></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="Pick up in store"></tanrei-radio-button>
   </tanrei-radio-group>
-</DemoFrame>
+</Example>
 
 A [radio button](/components/radio-button/) is never used alone. A radio group makes several of them one question: it gives the set a name, a line that says how to answer, a word that says whether it must be answered, and one reason when the answer is refused — and it holds the answer as one value.
 
@@ -81,13 +81,13 @@ The same set, written by hand from its two members, is the same picture and the 
 </tanrei-field-group>
 ```
 
-<DemoFrame label="The same set written by hand: a field group whose kind is radio-group, with radio buttons of one name in it" column>
+<Example label="The same set written by hand: a field group whose kind is radio-group, with radio buttons of one name in it" column>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="Delivery" supporting-text="You can change this until the order ships." required required-text="Required">
     <tanrei-radio-button name="delivery-by-hand" value="standard" label="Standard, 3 to 5 days" checked></tanrei-radio-button>
     <tanrei-radio-button name="delivery-by-hand" value="express" label="Express, next day"></tanrei-radio-button>
     <tanrei-radio-button name="delivery-by-hand" value="pickup" label="Pick up in store"></tanrei-radio-button>
   </tanrei-field-group>
-</DemoFrame>
+</Example>
 
 What the field group and the radio buttons written by hand do not do is hold the answer. Nothing that is drawn or said differs.
 
@@ -105,7 +105,7 @@ Write the field group and the radio buttons by hand where the set holds somethin
 
 ## Specs
 
-<DemoFrame label="An unanswered required set in error, a refused answer, a row, and a set with one option disabled" plain column>
+<Example label="An unanswered required set in error, a refused answer, a row, and a set with one option disabled" column>
   <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Delivery" required required-text="Required" error error-text="Choose how the order reaches you.">
     <tanrei-radio-button value="standard" label="Standard, 3 to 5 days"></tanrei-radio-button>
     <tanrei-radio-button value="express" label="Express, next day"></tanrei-radio-button>
@@ -131,7 +131,7 @@ Write the field group and the radio buttons by hand where the set holds somethin
     <tanrei-radio-button value="express" label="Express, next day"></tanrei-radio-button>
     <tanrei-radio-button value="pickup" label="Pick up in store"></tanrei-radio-button>
   </tanrei-radio-group>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="radio-group" />
 

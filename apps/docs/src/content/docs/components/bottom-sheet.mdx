@@ -7,19 +7,19 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="bottom-sheet" />
 
-<DemoFrame label="A modal sheet: open it with the button">
+<Example label="A modal sheet: open it with the button">
   <tanrei-button variant="outlined" onclick="document.getElementById('bottom-sheet-demo-modal').open = true">Save photo</tanrei-button>
   <tanrei-bottom-sheet id="bottom-sheet-demo-modal" label="Save photo" handle-label="Resize sheet" onclose="this.open = false">
     <p>Choose where to save the photo. You can change this later in Settings.</p>
     <tanrei-button variant="text" onclick="this.closest('tanrei-bottom-sheet').open = false">Done</tanrei-button>
   </tanrei-bottom-sheet>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -181,7 +181,7 @@ Mark the element that should get focus when the sheet opens with the platform's 
 
 ## Specs
 
-<DemoFrame label="A standard sheet over the bottom of its parent: drag it down to close it" plain>
+<Example label="A standard sheet over the bottom of its parent: drag it down to close it">
   <div style="position: relative; inline-size: 22rem; max-inline-size: 100%; block-size: 20rem; overflow: hidden">
     <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space75); padding: 1rem">
       <p>Map</p>
@@ -191,7 +191,7 @@ Mark the element that should get focus when the sheet opens with the platform's 
       <p>Three cafés and a bakery are open within a ten-minute walk.</p>
     </tanrei-bottom-sheet>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="bottom-sheet" />
 
@@ -205,7 +205,7 @@ Use a [side sheet](/components/side-sheet/) for the same kind of content on a wi
 
 **Several actions from the main action.** When a screen's main action comes in a few related forms (a new document, a folder or an upload), the [main action button](/components/main-action-button/) opens a modal bottom sheet that lists them. In the Tanrei system this takes the place of the [FAB menu](/components/fab-menu/), which it does not ship.
 
-<DemoFrame label="Several actions from the main action: open the sheet with the button" plain>
+<Example label="Several actions from the main action: open the sheet with the button">
   <tanrei-main-action-button label="New" onclick="document.getElementById('bottom-sheet-demo-actions').open = true"><span slot="icon">add</span></tanrei-main-action-button>
   <tanrei-bottom-sheet id="bottom-sheet-demo-actions" label="New" handle-label="Resize sheet" flush onclose="this.open = false">
     <tanrei-list>
@@ -214,7 +214,7 @@ Use a [side sheet](/components/side-sheet/) for the same kind of content on a wi
       <tanrei-list-item interactive onclick="this.closest('tanrei-bottom-sheet').open = false">Upload a file</tanrei-list-item>
     </tanrei-list>
   </tanrei-bottom-sheet>
-</DemoFrame>
+</Example>
 
 ### Modal or standard
 

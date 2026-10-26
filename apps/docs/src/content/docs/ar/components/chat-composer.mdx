@@ -2,27 +2,27 @@
 title: مربع كتابة الرسائل
 description: يتيح للشخص أن يكتب رسالة ويرسلها، في كبسولة واحدة تحمل كل شيء. منطقة كتابة تكبر مع ما يُكتب، والملفات المرفقة بالرسالة، وإجراءاتك أنت، وزر إرسال لا يكون مفعَّلًا إلا ما دام إرسال الرسالة ممكنًا. وهو يبلّغ عن الرسالة ولا يرسل شيئًا بنفسه أبدًا.
 translationOf: components/chat-composer.mdx
-sourceHash: 5030b8d8268f9b3555fd16ab43bcdbb77447e8fb
+sourceHash: 14a5591949903e4270525157dabc913983807927
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="chat-composer" />
 
-<DemoFrame label="مربع كتابة الرسائل في كل تخطيط. اكتب رسالة، وأرفِق ملفًّا، وأرسِل. لا يُرسل شيء إلى أي مكان." column>
+<Example label="مربع كتابة الرسائل في كل تخطيط. اكتب رسالة، وأرفِق ملفًّا، وأرسِل. لا يُرسل شيء إلى أي مكان." column>
   <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" label="الرسالة" placeholder="اكتب رسالة" send-label="إرسال" attachments="own" attach-label="إرفاق ملفات" remove-label="إزالة {name}"></tanrei-chat-composer>
   <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" layout="stacked" label="الرسالة" placeholder="اكتب رسالة" send-label="إرسال" attachments="own" attach-label="إرفاق ملفات" remove-label="إزالة {name}" max-length="280" counter>
     <tanrei-button slot="leading" variant="text" label="الإشارة إلى شخص"><span slot="icon">alternate_email</span></tanrei-button>
     <tanrei-button slot="leading" variant="text" label="إضافة رمز تعبيري"><span slot="icon">mood</span></tanrei-button>
   </tanrei-chat-composer>
-</DemoFrame>
+</Example>
 
 مربع كتابة الرسائل (chat composer) هو المكان الواحد الذي تُكتب فيه الرسالة: في محادثة، أو في سلسلة ردود تحت عمل ما، أو في طلب مساعدة. ويُرسم كبسولة واحدة. والكبسولة تحمل منطقة الكتابة والمرفقات وإجراءاتك أنت وزر الإرسال.
 

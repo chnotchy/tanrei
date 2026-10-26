@@ -2,23 +2,23 @@
 title: "字段"
 description: "为一个控件配上表单给每个字段的东西——可以说明控件必填或选填的标签、一行帮助文本，以及值被拒绝的原因——并把每一样都与这个控件关联起来，供辅助技术使用。它是一个框架，从不是控件。"
 translationOf: components/field.mdx
-sourceHash: 353fb2c34b3255423d1b0d9d4ee7882e5bbcd48f
+sourceHash: c4d1b7a342bb601a6261b2b8c1d3247860058944
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="field" />
 
-<DemoFrame label="滑块和开关，各由一个字段命名、提供帮助文本并加上标记" column>
+<Example label="滑块和开关，各由一个字段命名、提供帮助文本并加上标记" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" required required-text="必填" supporting-text="适用于提醒和媒体。"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知" optional optional-text="选填" supporting-text="有评审等待你处理时发送。"><tanrei-switch checked></tanrei-switch></tanrei-field>
-</DemoFrame>
+</Example>
 
 文本字段可以说明自己是什么、是否必须填写、该怎么填，以及填写的内容为什么被拒绝。字段把同样的四样东西交给做不到这些的控件：滑块、开关、[文本输入框](/zh-cn/components/text-input/)、[颜色输入框](/zh-cn/components/color-input/)、[一次性验证码输入框](/zh-cn/components/one-time-code-input/)，或者你的产品自己构建的控件。文本字段本身就是包住一个文本输入框的字段。标签位于控件上方，帮助文本位于控件下方。字段处于错误状态时，错误文本取代帮助文本的位置，所以处于错误状态的表单不会比平时更高；设计系统也可以改为保留帮助文本，把错误文本加在它的下方。
 
@@ -68,24 +68,24 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="三种必填和选填标记、错误、禁用的字段，以及标签的字形" plain column>
+<Example label="三种必填和选填标记、错误、禁用的字段，以及标签的字形" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" required required-text="必填"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" optional optional-text="选填"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" required required-mark="asterisk"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" required required-text="必填" error error-text="请选择大于 0 的音量。"><tanrei-slider value="0"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" supporting-text="适用于提醒和媒体。" disabled><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量"><span slot="label-icon">volume_up</span><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="帮助文本与错误：错误文本取代帮助文本的位置" plain column>
+<Example label="帮助文本与错误：错误文本取代帮助文本的位置" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="密码" supporting-text="至少 8 个字符，其中包含一个数字。"><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="密码" supporting-text="至少 8 个字符，其中包含一个数字。" error error-text="这个密码太短。"><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="字段里的文本输入框：带帮助文本和计数的，以及处于错误状态的" plain column>
+<Example label="字段里的文本输入框：带帮助文本和计数的，以及处于错误状态的" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="显示名称" supporting-text="显示在你的评论旁边。" count-text="2/40"><tanrei-text-input value="李华" maxlength="40" counter></tanrei-text-input></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="邮箱" required required-text="必填" error error-text="请输入完整的邮箱地址。"><tanrei-text-input type="email" value="ada@"></tanrei-text-input></tanrei-field>
-</DemoFrame>
+</Example>
 
 ### 包住文本输入框
 
@@ -101,9 +101,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 `valueText` 是用文字写出的控件当前的值（“40 %”“$100 – $300”），用于从控件本身读不出值的控件：滑块。字段把它画在标签行的末尾，与标签的第一行对齐，此外不拿它做任何事：字段绝不读取值，也不为值设定格式，并且不让辅助技术读到这段画出来的文字，因为控件会说出自己的值。如果它会让标签只剩下不到半行，它就在标签之后单独占一行。标签不绘制时，它也不绘制。每次 `input` 时，用滑块的 `shownValueText` 来写它——[滑块字段](/zh-cn/components/slider-field/)会自己做这件事，它就是为滑块准备好的字段。
 
-<DemoFrame label="里面放着滑块的字段，用文字写出的值位于标签行的末尾" column>
+<Example label="里面放着滑块的字段，用文字写出的值位于标签行的末尾" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="文本大小" supporting-text="适用于每一个页面。" value-text="120 %"><tanrei-slider min="50" max="200" step="10" value="120" value-text="120 %"></tanrei-slider></tanrei-field>
-</DemoFrame>
+</Example>
 
 ### 包住下拉选择框
 

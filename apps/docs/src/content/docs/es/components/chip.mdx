@@ -2,26 +2,26 @@
 title: Chip
 description: Un control pequeño con etiqueta que va en una fila, para una acción sugerida o un enlace a algún sitio, un filtro que está activado o desactivado, o un elemento que la persona introdujo y puede quitar.
 translationOf: components/chip.mdx
-sourceHash: 035fe677407860928287282c7aaf348c8224ccac
+sourceHash: 4820a1e21e55b7549598fb6babd197db62f52069
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="chip" />
 
-<DemoFrame label="Tipos">
+<Example label="Tipos">
   <tanrei-chip label="Añadir al calendario"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip label="Me parece bien"></tanrei-chip>
   <tanrei-chip kind="filter" selected label="Vegetariano"></tanrei-chip>
   <tanrei-chip kind="filter" label="Menos de 30 min"></tanrei-chip>
   <tanrei-chip kind="input" label="Ada Lovelace" remove-label="Quitar a Ada Lovelace"></tanrei-chip>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -138,25 +138,25 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
 
 ## Especificaciones
 
-<DemoFrame label="Variantes, tamaños y estado deshabilitado" plain>
+<Example label="Variantes, tamaños y estado deshabilitado">
   <tanrei-chip variant="elevated" label="Añadir al calendario"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip kind="filter" variant="elevated" selected label="Vegetariano"></tanrei-chip>
   <tanrei-chip size="small" label="Añadir al calendario"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip kind="input" size="small" label="Ada Lovelace" remove-label="Quitar a Ada Lovelace"></tanrei-chip>
   <tanrei-chip disabled label="Añadir al calendario"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip kind="filter" selected disabled label="Vegetariano"></tanrei-chip>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Acciones de quitar: simple (predeterminada) y destructiva; pasa el cursor por encima o dales el foco" plain>
+<Example label="Acciones de quitar: simple (predeterminada) y destructiva; pasa el cursor por encima o dales el foco">
   <tanrei-chip kind="input" label="Menos de 30 min" remove-label="Quitar Menos de 30 min"></tanrei-chip>
   <tanrei-chip kind="input" label="report.pdf" remove-label="Quitar report.pdf" destructive-remove></tanrei-chip>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Chips de enlace: aquí, en una pestaña nueva, deshabilitado" plain>
+<Example label="Chips de enlace: aquí, en una pestaña nueva, deshabilitado">
   <tanrei-chip label="Tag" href="/es/components/tag/"></tanrei-chip>
   <tanrei-chip label="Insignia" href="/es/components/badge/" target="new" target-label="se abre en una pestaña nueva"></tanrei-chip>
   <tanrei-chip label="Tag" href="/es/components/tag/" disabled></tanrei-chip>
-</DemoFrame>
+</Example>
 
 En el sistema predeterminado, todos los chips tienen forma de píldora, y la conservan cuando un texto más grande los hace más altos. Sus glifos son tan grandes como permite su altura: 24 en un chip mediano y 20 en uno pequeño. La marca de verificación de un chip de filtro seleccionado es el glifo `check` del conjunto de iconos del sistema, y el glifo de quitar es `cancel`, siempre dibujado con relleno. El chip no dibuja ninguna marca propia, de modo que un sistema de diseño que quiera otras marcas elige otro conjunto de iconos. El borde de un chip outlined es la línea fina, la misma línea discreta que dibuja un divisor.
 

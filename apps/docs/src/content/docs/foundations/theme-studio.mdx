@@ -13,7 +13,9 @@ Nothing in it is a mock-up. The preview is a real system scope with real compone
 
 It shows your theme on five screens built from those components — an overview of every kind of component, a dashboard, a settings form, a list and its detail, and a documentation page — in light, in dark, or both side by side, at each of the three contrast levels. Which screen you look at, and how, is not part of your theme: none of it is saved in the file.
 
-The layer you are making stays in this browser, and in the page’s address: a link to the Studio, copied from the address bar, opens it on the same layer. A link never writes over the layer a browser kept: the Studio shows the link’s layer and says so, and keeps yours until you edit the link’s or choose to keep it — or go back to yours.
+The layer you are making stays in this browser, and in the page’s address: a link to the Studio opens it on the same layer. A link never writes over the layer a browser kept: a banner over the Studio says which layer came with the link and what it is built on, and the Studio keeps yours until you edit the link’s or choose to keep it — or go back to yours.
+
+**Export**, in the Studio’s bar, opens a side sheet with the file and what to do with it. Its first line says whether the schema, the token engine and the build’s checks accept the file. A layer started from an example of the theme gallery depends on that example by default: the file stays small and follows the example as it improves. You can also write every value out, so that the file no longer changes when the example does; a component that lives in the example is still taken from it. Then come the file itself, to copy or download; the declarations of the stylesheet `tanrei build` writes for the web that differ from the base system’s, with the whole stylesheet to download; and the next steps, each a command the CLI takes as it is, with a link to share the layer.
 
 On the left, the rail lists the nine parts of a look — brand color, gray, typeface, size, corners, corner smoothing, icons, press feedback and focus — each with what it holds now and a small sample, then the rest of what a layer holds. A row opens its controls in the panel on the right. Lock the rows you like, and **Shuffle** gives every other row another value, in one step to undo. **Inspect** opens every token, and the layer file itself, over the panel. Every change can be undone and redone, with the buttons in the Studio’s bar or with ⌘Z and ⇧⌘Z (Ctrl+Z and Ctrl+Shift+Z).
 
@@ -49,3 +51,5 @@ A product may stack its own layers — `acme-app.system.json` extending `acme.sy
 ## What it cannot do
 
 On the site there is no file behind the Studio, so a layer that extends a layer of your own cannot be imported here — open it with `tanrei studio`, which knows the files next to it. The Studio never fetches a font from anywhere but the site that serves it: a family that site does not provide and your browser does not have is named, and the preview honestly shows the fallback. Its "preview equals build" tests compare the web sheet, the token bundle and the warnings; the native outputs are generated from the same model by `tanrei build`.
+
+The command line tool takes no layer in a command: `tanrei init` starts a layer of its own, and the file you download from Export takes its place.

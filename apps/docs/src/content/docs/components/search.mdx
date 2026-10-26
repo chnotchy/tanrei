@@ -7,7 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
@@ -17,7 +17,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 This page describes the search as the spec has it now, a site search as well: a trigger in place of the bar, a dialog view, results that are links, a status row and a shortcut. The web component does all of this, and so do the demos. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship the previous revision — the bar with its input, the docked and full-screen views, and suggestions — and their samples show that revision.
 :::
 
-<DemoFrame label="Empty, with a query, and with icon buttons" column>
+<Example label="Empty, with a query, and with icon buttons" column>
   <tanrei-search label="Search mail" placeholder="Search mail" style="inline-size: 20.5rem"></tanrei-search>
   <tanrei-search label="Search mail" placeholder="Search mail" value="invoice" clear-label="Clear search" style="inline-size: 20.5rem"></tanrei-search>
   <tanrei-search label="Search mail" placeholder="Search mail" style="inline-size: 20.5rem">
@@ -25,9 +25,9 @@ This page describes the search as the spec has it now, a site search as well: a 
     <tanrei-button variant="text" slot="trailing" label="Search by voice"><span slot="icon">mic</span></tanrei-button>
     <tanrei-button variant="text" slot="trailing" label="Account"><span slot="icon">account_circle</span></tanrei-button>
   </tanrei-search>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="A site search: a button trigger with its shortcut, an icon trigger, and a bar that shows its shortcut. Press a trigger to open its view" plain column>
+<Example label="A site search: a button trigger with its shortcut, an icon trigger, and a bar that shows its shortcut. Press a trigger to open its view" column>
   <tanrei-search bar="button" presentation="dialog" label="Search the docs" placeholder="Search" shortcut="mod+k" value="tab" status-text="3 results for tab" clear-label="Clear search" back-label="Back" style="inline-size: 20.5rem">
     <tanrei-search-result-group value="tabs" headline="Tabs" href="/components/tabs/" leading-icon="article" excerpt='["Switches between views of the same subject with a row of labelled ", "tabs", "."]'>
       <tanrei-search-result value="tabs-sharing" headline="Sharing a choice" href="/components/tabs/#sharing-a-choice" leading-icon="tag" excerpt='["Rows of ", "tabs", " that name one group show the same choice."]'></tanrei-search-result>
@@ -41,15 +41,15 @@ This page describes the search as the spec has it now, a site search as well: a 
     <tanrei-search-result value="tab-view" headline="Tab view" href="/components/tab-view/" leading-icon="article" excerpt='["Shows the view of the selected ", "tab", " under its own row."]'></tanrei-search-result>
   </tanrei-search>
   <tanrei-search label="Search mail" placeholder="Search mail" shortcut="/" clear-label="Clear search" style="inline-size: 20.5rem"></tanrei-search>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Suggestions under the query row, and inline completion. Type inv, then move with the arrow keys" column>
+<Example label="Suggestions under the query row, and inline completion. Type inv, then move with the arrow keys" column>
   <tanrei-search label="Search mail" placeholder="Search mail" clear-label="Clear search" query-row-text="Search all mail" inline-completion style="inline-size: 20.5rem">
     <tanrei-search-suggestion value="invoices" headline="invoices" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-suggestion value="invoice template" headline="invoice template" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-suggestion value="invoice reminders" headline="invoice reminders" leading-icon="history"></tanrei-search-suggestion>
   </tanrei-search>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -281,7 +281,7 @@ Use docked or the dialog on large windows and full-screen on small ones. The sea
 
 ## Specs
 
-<DemoFrame label="The docked view with a suggestion, the status row and grouped results, drawn in place" plain column>
+<Example label="The docked view with a suggestion, the status row and grouped results, drawn in place" column>
   <tanrei-search inline expanded label="Search mail" placeholder="Search mail" value="inv" status-text="2 messages" clear-label="Clear search" style="inline-size: 20.5rem">
     <tanrei-search-suggestion value="invoices" headline="invoices" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-result-group headline="Messages">
@@ -289,16 +289,16 @@ Use docked or the dialog on large windows and full-screen on small ones. The sea
       <tanrei-search-result value="m-2" headline="Re: payment" leading-icon="mail" excerpt='["Please send the ", "invoice", " again."]'></tanrei-search-result>
     </tanrei-search-result-group>
   </tanrei-search>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Disabled, and the docked view open" plain column>
+<Example label="Disabled, and the docked view open" column>
   <tanrei-search label="Search mail" placeholder="Search mail" disabled style="inline-size: 20.5rem"></tanrei-search>
   <tanrei-search inline expanded label="Search mail" placeholder="Search mail" value="inv" clear-label="Clear search" style="inline-size: 20.5rem">
     <tanrei-search-suggestion value="invoices" headline="invoices" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-suggestion value="invoice template" headline="invoice template" leading-icon="history"></tanrei-search-suggestion>
     <tanrei-search-suggestion value="folder:invoices" headline="Invoices" supporting-text="Folder · 24 messages" leading-icon="folder"></tanrei-search-suggestion>
   </tanrei-search>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="search" />
 

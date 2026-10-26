@@ -2,14 +2,14 @@
 title: Barra de navegación
 description: Permite moverse entre tres y cinco destinos de nivel superior desde el borde inferior de una pantalla compacta, y muestra cuál es el actual.
 translationOf: components/navigation-bar.mdx
-sourceHash: ebead3b29a3b730640d2ca80309b0a7ea07178d8
+sourceHash: a063a49e81d4bae9234bd616bd72890fef82374b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
@@ -19,31 +19,31 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 Esta página describe la barra de navegación tal como la define ahora la especificación, tomando como modelo las [pestañas](/es/components/tabs/). El indicador activo es toda la parte igual de la barra que corresponde al destino actual, retirada de los bordes de la barra, no una píldora que se ciñe al icono y a la etiqueta. Cuando la selección cambia, se desliza hasta el nuevo destino con su tamaño completo, y un arrastre a lo largo de la barra lo lleva con el puntero. El paso del cursor, la pulsación y el foco se dibujan en ese mismo recuadro. `variant` elige entre tonal (el valor predeterminado) y filled. Todas las demás propiedades y eventos son iguales en ambas revisiones. Las plataformas marcadas arriba como rezagadas ofrecen la primera revisión hasta que se pongan al día: sin `variant`, sin arrastre y con un indicador solo detrás del icono que crece desde su centro, y sus ejemplos muestran esa revisión. Las demostraciones de esta página son el componente web tal como se distribuye hoy.
 :::
 
-<DemoFrame label="Cuatro destinos, uno de ellos con un recuento">
+<Example label="Cuatro destinos, uno de ellos con un recuento">
   <tanrei-navigation-bar value="inbox" label="Principal" style="inline-size: 24rem">
     <tanrei-navigation-bar-item value="inbox" label="Recibidos" icon="inbox" badge badge-count="3" badge-label="3 sin leer"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="chat" label="Chat" icon="chat"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="starred" label="Destacados" icon="star"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="settings" label="Configuración" icon="settings"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="La variante filled: pulsa y arrastra a lo largo de la barra para llevar el indicador" plain>
+<Example label="La variante filled: pulsa y arrastra a lo largo de la barra para llevar el indicador">
   <tanrei-navigation-bar variant="filled" value="chat" label="Multimedia" style="inline-size: 24rem">
     <tanrei-navigation-bar-item value="home" label="Inicio" icon="home"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="chat" label="Chat" icon="chat" badge badge-label="Mensajes nuevos"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="starred" label="Destacados" icon="star"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Una barra de enlaces: la página nombra el actual por su dirección, y «Ayuda» abre una pestaña nueva" plain>
+<Example label="Una barra de enlaces: la página nombra el actual por su dirección, y «Ayuda» abre una pestaña nueva">
   <tanrei-navigation-bar value="/es/components/navigation-bar/" label="Componentes" style="inline-size: 24rem">
     <tanrei-navigation-bar-item href="/es/components/button/" label="Botón" icon="smart_button"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item href="/es/components/navigation-bar/" label="Barra" icon="bottom_navigation"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item href="/es/components/navigation-drawer/" label="Panel" icon="side_navigation"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item href="https://example.com/" label="Ayuda" icon="help" target="new" target-label="se abre en una pestaña nueva"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -202,7 +202,7 @@ La barra es una región del diseño, no una superposición. Su color llega hasta
 
 ## Especificaciones
 
-<DemoFrame label="Solo la etiqueta seleccionada, y sin etiquetas" plain column>
+<Example label="Solo la etiqueta seleccionada, y sin etiquetas" column>
   <tanrei-navigation-bar value="chat" label-visibility="selected" label="Principal" style="inline-size: 24rem">
     <tanrei-navigation-bar-item value="inbox" label="Recibidos" icon="inbox"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="chat" label="Chat" icon="chat"></tanrei-navigation-bar-item>
@@ -213,7 +213,7 @@ La barra es una región del diseño, no una superposición. Su color llega hasta
     <tanrei-navigation-bar-item value="chat" label="Chat" icon="chat" badge badge-label="Mensajes nuevos"></tanrei-navigation-bar-item>
     <tanrei-navigation-bar-item value="starred" label="Destacados" icon="star"></tanrei-navigation-bar-item>
   </tanrei-navigation-bar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="navigation-bar" />
 

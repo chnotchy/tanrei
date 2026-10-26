@@ -2,20 +2,20 @@
 title: "工具栏"
 description: "把一组相关的控件作为一个 Tab 停靠点容纳在一起：内嵌在内容需要它的地方、停靠在底边，或悬浮在内容之上。方向键在它的各个控件之间移动，放不下的项会进入溢出菜单。"
 translationOf: components/toolbar.mdx
-sourceHash: a8432aa4140d0470d37330b77fd6878ea1e55585
+sourceHash: ec078390e57356bd887b7ee15eb4f3f965cf37e9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="toolbar" />
 
-<DemoFrame label="内嵌、停靠与悬浮" column>
+<Example label="内嵌、停靠与悬浮" column>
   <tanrei-toolbar label="格式">
     <tanrei-toolbar-group label="文字样式">
       <tanrei-button variant="text" toggle selected label="粗体"><span slot="icon">format_bold</span></tanrei-button>
@@ -39,7 +39,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-button variant="text" label="橡皮擦"><span slot="icon">ink_eraser</span></tanrei-button>
     <tanrei-button variant="filled" label="完成"><span slot="icon">check</span></tanrei-button>
   </tanrei-toolbar>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -223,7 +223,7 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
 
 ## 规格
 
-<DemoFrame label="组与分隔符、菜单按钮、带菜单的按钮、带标签的切换按钮、溢出菜单" plain column>
+<Example label="组与分隔符、菜单按钮、带菜单的按钮、带标签的切换按钮、溢出菜单" column>
   <tanrei-toolbar label="文档操作">
     <tanrei-button variant="text" label="撤销"><span slot="icon">undo</span></tanrei-button>
     <tanrei-button variant="text" label="重做"><span slot="icon">redo</span></tanrei-button>
@@ -268,7 +268,7 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
       <tanrei-button variant="text" label="图层"><span slot="icon">layers</span></tanrei-button>
     </tanrei-toolbar-group>
   </tanrei-toolbar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="toolbar" />
 
@@ -292,7 +292,7 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
 
 停靠的工具栏把它的项沿宽度铺开，项与项之间的距离绝不小于它的间隙（默认系统中为 16）。内嵌或悬浮的工具栏让它的项彼此靠拢：相邻两项之间隔开的距离，只够让每个项沿这一排保有自己的触摸目标，且绝不小于间隙（默认系统中内嵌为 4，悬浮为 0）。大号按钮彼此相接，中号按钮相隔 8，小号按钮相隔 16。工具栏绝不会为此把某个项加宽或改变它的样式，而且无论用鼠标还是触摸，间距都相同。
 
-<DemoFrame label="悬浮：small、medium 和 large 的项，以及 narrow 和 wide 的项" plain column>
+<Example label="悬浮：small、medium 和 large 的项，以及 narrow 和 wide 的项" column>
   <tanrei-toolbar variant="floating" label="格式（small）">
     <tanrei-button variant="text" size="small" label="粗体"><span slot="icon">format_bold</span></tanrei-button>
     <tanrei-button variant="text" size="small" label="斜体"><span slot="icon">format_italic</span></tanrei-button>
@@ -315,7 +315,7 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
     <tanrei-button variant="text" label="橡皮擦"><span slot="icon">ink_eraser</span></tanrei-button>
     <tanrei-button variant="filled" width="wide" label="完成"><span slot="icon">check</span></tanrei-button>
   </tanrei-toolbar>
-</DemoFrame>
+</Example>
 
 ### 项
 

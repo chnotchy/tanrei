@@ -2,27 +2,27 @@
 title: التلميح
 description: يصف عنصرًا في بضع كلمات حين يشير إليه الشخص أو يركّز عليه بلوحة المفاتيح أو يضغط عليه ضغطًا مطوَّلًا، من دون أن يأخذ التركيز أو يحجب شيئًا.
 translationOf: components/tooltip.mdx
-sourceHash: 352d33c155f7fa0c00f78129b4607ba1537de540
+sourceHash: dcb6c100029fe5ba5321bc6dd90e158f65de7061
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="tooltip" />
 
-<DemoFrame label="أشِر إلى زر أو ركّز عليه: تلميح من الطراز plain وآخر من الطراز rich">
+<Example label="أشِر إلى زر أو ركّز عليه: تلميح من الطراز وآخر من الطراز rich">
   <tanrei-tooltip text="نقل إلى المهملات" no-describe>
     <tanrei-button variant="text" label="نقل إلى المهملات"><span slot="icon">delete</span></tanrei-button>
   </tanrei-tooltip>
   <tanrei-tooltip variant="rich" headline="التخزين" text="الملفات في المهملات تبقى محسوبة من مساحة تخزينك إلى أن تُحذف." placement="bottom">
     <tanrei-button variant="text" label="عن التخزين"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -192,14 +192,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="تلميح من الطراز plain تحت عنصر ارتكازه، وتلميح من الطراز rich بلا عنوان" plain>
+<Example label="تلميح من الطراز تحت عنصر ارتكازه، وتلميح من الطراز rich بلا عنوان">
   <tanrei-tooltip text="نقل إلى المهملات" placement="bottom" no-describe>
     <tanrei-button variant="text" label="نقل إلى المهملات"><span slot="icon">delete</span></tanrei-button>
   </tanrei-tooltip>
   <tanrei-tooltip variant="rich" text="الملفات في المهملات تبقى محسوبة من مساحة تخزينك إلى أن تُحذف.">
     <tanrei-button variant="text" label="عن التخزين"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tooltip" />
 
@@ -224,7 +224,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 الخاصية `placement` تسمّي جهة عنصر الارتكاز التي يفضّلها التلميح وكيف يُحاذى على امتداد تلك الجهة. القيمة الافتراضية `top`.
 
-<DemoFrame label="أشِر إلى زر أو ركّز عليه: المواضع الثلاثة عشر" plain>
+<Example label="أشِر إلى زر أو ركّز عليه: المواضع الثلاثة عشر">
   <tanrei-tooltip text="فوق، في الوسط" placement="top"><tanrei-button variant="outlined" size="small">top</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="فوق، مع تطابق حافتي البداية" placement="top-start"><tanrei-button variant="outlined" size="small">top-start</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="فوق، مع تطابق حافتي النهاية" placement="top-end"><tanrei-button variant="outlined" size="small">top-end</tanrei-button></tanrei-tooltip>
@@ -238,7 +238,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-tooltip text="بعد، مع تطابق الحافتين العلويتين" placement="end-top"><tanrei-button variant="outlined" size="small">end-top</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="بعد، مع تطابق الحافتين السفليتين" placement="end-bottom"><tanrei-button variant="outlined" size="small">end-bottom</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="أول جهة فيها متّسع" placement="auto"><tanrei-button variant="outlined" size="small">auto</tanrei-button></tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 | الجهة | موسَّط على عنصر الارتكاز | تطابق الحافتين الأوليين | تطابق الحافتين الثانيتين |
 | --- | --- | --- | --- |
@@ -256,7 +256,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### السهم
 
-<DemoFrame label="أشِر إلى زر أو ركّز عليه: مع سهم" plain>
+<Example label="أشِر إلى زر أو ركّز عليه: مع سهم">
   <tanrei-tooltip text="نقل إلى المهملات" arrow no-describe>
     <tanrei-button variant="text" label="نقل إلى المهملات"><span slot="icon">delete</span></tanrei-button>
   </tanrei-tooltip>
@@ -266,7 +266,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-tooltip variant="rich" headline="التخزين" text="الملفات في المهملات تبقى محسوبة من مساحة تخزينك إلى أن تُحذف." placement="end" arrow>
     <tanrei-button variant="text" label="عن التخزين"><span slot="icon">info</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 الخاصية `arrow` ترسم مثلثًا صغيرًا على حافة التلميح يشير إلى عنصر الارتكاز. وهو موقوف في النظام الافتراضي. إن تُركت بلا ضبط أخذت اختيار نظام التصميم؛ والقيمتان `true` و `false` تقررانه لتلميح واحد. على الويب تُكتب خاصية HTML (attribute) في الصورة `arrow` للقيمة true و `arrow="false"` للقيمة false.
 
@@ -276,12 +276,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### مظهران
 
-<DemoFrame label="أشِر إلى زر أو ركّز عليه: كل هيئة معكوسةً وعلى سطح" plain>
+<Example label="أشِر إلى زر أو ركّز عليه: كل هيئة معكوسةً وعلى سطح">
   <tanrei-tooltip text="ألوان المخطط اللوني المقابل" inverse><tanrei-button variant="outlined" size="small">Plain, inverse</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip text="سطح مرتفع من المخطط اللوني" inverse="false"><tanrei-button variant="outlined" size="small">Plain, surface</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip variant="rich" headline="على سطح" text="سطح مرتفع من المخطط اللوني، مع ارتفاعه." inverse="false"><tanrei-button variant="outlined" size="small">Rich, surface</tanrei-button></tanrei-tooltip>
   <tanrei-tooltip variant="rich" headline="معكوس" text="ألوان المخطط اللوني المقابل، بلا ظل." inverse><tanrei-button variant="outlined" size="small">Rich, inverse</tanrei-button></tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 يمكن أن تُرسم كل من الهيئتين معكوسةً، بألوان المخطط اللوني المقابل، أو على سطح مرتفع من المخطط اللوني.
 
@@ -297,14 +297,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### اختصار لوحة المفاتيح
 
-<DemoFrame label="أشِر إلى زر أو ركّز عليه: مفاتيح الأمر بعد اسمه" plain>
+<Example label="أشِر إلى زر أو ركّز عليه: مفاتيح الأمر بعد اسمه">
   <tanrei-tooltip text="غامق" shortcut="mod+b" no-describe>
     <tanrei-button variant="text" label="غامق"><span slot="icon">format_bold</span></tanrei-button>
   </tanrei-tooltip>
   <tanrei-tooltip text="مائل" shortcut="mod+i" no-describe>
     <tanrei-button variant="text" label="مائل"><span slot="icon">format_italic</span></tanrei-button>
   </tanrei-tooltip>
-</DemoFrame>
+</Example>
 
 الخاصية `shortcut` تعرض مفاتيح أمر عنصر الارتكاز بعد نص التلميح من الطراز plain، مكتوبةً للوحة المفاتيح التي يستخدمها الشخص. وتأخذ أسماء المفاتيح التي يستخدمها مكوّن [اختصار لوحة المفاتيح](/ar/components/keyboard-shortcut/)، تآلفًا (chord) واحدًا في كل سلسلة نصية؛ وعلى الويب تحمل خاصية HTML التآلفات مفصولة بمسافات.
 

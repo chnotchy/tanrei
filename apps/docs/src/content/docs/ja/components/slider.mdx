@@ -2,24 +2,24 @@
 title: スライダー
 description: トラックに沿ってハンドルをドラッグし、値または値の範囲を選びます。連続的にも、刻みごとにも選べます。
 translationOf: components/slider.mdx
-sourceHash: f8e90fd380943ae7d0e08ad6a1bd99f61a83ba8b
+sourceHash: e74996d456fba14f6d07067a6a1b9cf61c1e5e69
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="slider" />
 
-<DemoFrame label="連続、刻みと目盛り、範囲" column>
+<Example label="連続、刻みと目盛り、範囲" column>
   <tanrei-slider label="音量" value="40" style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider label="明るさ" value="30" step="10" stops style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider range label="上限価格" start-label="下限価格" start-value="20" value="60" style="inline-size: 20rem"></tanrei-slider>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -171,7 +171,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 仕様
 
-<DemoFrame label="サイズ、中央起点、値の表示、縦向き、無効状態" plain column>
+<Example label="サイズ、中央起点、値の表示、縦向き、無効状態" column>
   <tanrei-slider size="medium" label="音量" value="40" style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider size="large" label="音量" value="40" style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider label="バランス" min="-50" max="50" origin="0" value="20" style="inline-size: 20rem"></tanrei-slider>
@@ -179,7 +179,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-slider label="音量" value="40" disabled style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider label="明るさ" value="60" step="20" stops disabled style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider orientation="vertical" label="音量" value="60" style="block-size: 12rem"></tanrei-slider>
-</DemoFrame>
+</Example>
 
 既定のシステムでは、ハンドルはリング形です。サーフェスの色で塗った直径 20 の円を、アクティブトラックと同じ色の輪郭線が囲みます。輪郭線は太さ 3 で、円の縁の内側に描くので、ハンドルの大きさは変わりません。内側にはサーフェスの色の直径 14 の円が残り、輪郭線を太くすれば、その円が小さくなります。トラックとアクティブトラックはハンドルの下まで伸びてその中心で出会うので、アクティブトラックはリングで終わる 1 本の線に見えます。ハンドルはどのサイズでも 20 で、トラックの太さは 4、6、8 です。
 

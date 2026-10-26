@@ -2,23 +2,23 @@
 title: الحالة الفارغة
 description: ما يقف مكان محتوى غير موجود، كبحث بلا نتائج، أو قائمة لم يُضف إليها أحد شيئًا، أو صفحة قبل عنصرها الأول. يقول ما الناقص، ولماذا أو ما العمل، ويعرض الإجراء الذي يقوم بذلك.
 translationOf: components/empty-state.mdx
-sourceHash: d3fa57bc06d9c02ac0f16e7a10c5d4d5a0d20bfe
+sourceHash: 1dd91f2ec1c7941daac79ca1cc090adcaeb66da9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="empty-state" />
 
-<DemoFrame label="قائمة لم يُضف إليها أحد شيئًا بعد، وبحث لم يجد شيئًا" column>
+<Example label="قائمة لم يُضف إليها أحد شيئًا بعد، وبحث لم يجد شيئًا" column>
   <tanrei-empty-state headline="لا توجد مشاريع بعد" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>المشروع يجمع طبقات نظام تصميم واحد وملفاته المصدَّرة وأعضاءه في مكان واحد.<tanrei-button slot="actions">مشروع جديد</tanrei-button><tanrei-button slot="actions" variant="text">استيراد طبقة</tanrei-button></tanrei-empty-state>
   <tanrei-empty-state headline="لا توجد نتائج عن «tokne»" style="inline-size: min(100%, 30rem)"><span slot="media">search_off</span>تحقق من الإملاء، أو ابحث بكلمة أقصر.<tanrei-button slot="actions" variant="outlined">مسح البحث</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
 الحالة الفارغة (empty state) تقف حيث كان المحتوى سيكون وليس هناك محتوى: تحلّ محل القائمة أو الصفوف أو النتائج. تقول ما الناقص في كلمات قليلة، ولماذا أو ما العمل في جملة، وتعرض عنصر التحكم الذي يقوم بذلك. وهي هادئة ومسطّحة، بلا تعبئة ولا حافة، وهي محتوى يُقرأ حيث يقف: لا تأخذ تركيزًا وليست لها حالات.
 
@@ -79,17 +79,17 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="الأجزاء، مضافةً واحدًا بعد آخر" plain column>
+<Example label="الأجزاء، مضافةً واحدًا بعد آخر" column>
   <tanrei-empty-state headline="لا توجد مشاريع بعد" style="inline-size: min(100%, 30rem)"></tanrei-empty-state>
   <tanrei-empty-state headline="لا توجد مشاريع بعد" style="inline-size: min(100%, 30rem)">المشروع يجمع طبقات نظام تصميم واحد وملفاته المصدَّرة وأعضاءه في مكان واحد.</tanrei-empty-state>
   <tanrei-empty-state headline="لا توجد مشاريع بعد" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>المشروع يجمع طبقات نظام تصميم واحد وملفاته المصدَّرة وأعضاءه في مكان واحد.</tanrei-empty-state>
   <tanrei-empty-state headline="لا توجد مشاريع بعد" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>المشروع يجمع طبقات نظام تصميم واحد وملفاته المصدَّرة وأعضاءه في مكان واحد.<tanrei-button slot="actions">مشروع جديد</tanrei-button><tanrei-button slot="actions" variant="text">استيراد طبقة</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="عند حافة البداية، والحجم large" plain column>
+<Example label="عند حافة البداية، والحجم large" column>
   <tanrei-empty-state align="start" headline="لا شيء يختلف عن الأساس بعد" style="inline-size: min(100%, 30rem)">غيّر قيمة على اليسار فتُدرج هنا.</tanrei-empty-state>
   <tanrei-empty-state size="large" headline="هذه الصفحة غير موجودة" style="inline-size: min(100%, 30rem)"><span slot="media">explore_off</span>ربما كُتب عنوان الصفحة خطأً، أو نُقلت الصفحة.<tanrei-button slot="actions" variant="outlined">الانتقال إلى الصفحة الرئيسية</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="empty-state" />
 
@@ -133,18 +133,18 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 الإجراءات [أزرارك](/ar/components/button/) أو روابطك أنت، واحد أو اثنان، والرئيسي أولًا. تضعها الحالة الفارغة في صف يلتفّ ولا تفعل بها شيئًا آخر. والإجراء الذي تسميته أطول من سطره يُعطى السطر: فيلفّ الزر تسميته، ولا يُقصّ شيء ولا يتجاوز شيء الكتلة.
 
-<DemoFrame label="في عمود ضيق يأخذ كل إجراء سطرًا، والتسمية الطويلة تلتفّ" plain column>
+<Example label="في عمود ضيق يأخذ كل إجراء سطرًا، والتسمية الطويلة تلتفّ" column>
   <tanrei-empty-state headline="لا توجد نتائج" style="inline-size: 14rem"><span slot="media">search_off</span>تحقق من الإملاء.<tanrei-button slot="actions" variant="outlined">مسح البحث</tanrei-button><tanrei-button slot="actions" variant="text">فتح قائمة محتويات التوثيق</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
 ### الظهور جوابًا عن شيء
 
 الخاصية `live` لحالة فارغة تنتج عمّا فعله الشخص للتو: تصفية لا تطابق أي صف، أو إزالة العنصر الأخير. تُعلَن مرة واحدة، بتهذيب، العنوان ثم الوصف دون الإجراءات، حين تُعرض وحين يتغيّر نصها. أبقِها في الصفحة مع `hidden`، أو أضفها حين تنطبق.
 
-<DemoFrame label="حالة فارغة حيّة، تُعرض جوابًا عن ضغطة" plain column>
+<Example label="حالة فارغة حيّة، تُعرض جوابًا عن ضغطة" column>
   <tanrei-button variant="outlined" onclick="document.getElementById('empty-state-demo-live').hidden = false">تطبيق ثلاثة عوامل تصفية</tanrei-button>
   <tanrei-empty-state id="empty-state-demo-live" live hidden headline="لا توجد مدخلات تطابق عوامل التصفية هذه" style="inline-size: min(100%, 30rem)">ثلاثة عوامل تصفية مفعَّلة. إزالة أحدها تُظهر مدخلات أكثر.<tanrei-button slot="actions" variant="outlined" onclick="this.closest('tanrei-empty-state').hidden = true">مسح عوامل التصفية</tanrei-button></tanrei-empty-state>
-</DemoFrame>
+</Example>
 
 أما التي في ترميز الصفحة وتُعرض حين تُحمَّل الصفحة فلا تُعلَن عندئذ. وعلى الويب، الحالة الفارغة الحيّة التي يضيفها سكربتك إلى الصفحة بعد تحميلها تُعلَن؛ والعنصر لا يستطيع أن يفرّق بين ما أضيف جوابًا عن شيء وما أضيف مع عرض جديد في تطبيق من صفحة واحدة، فلا تضع `live` على حالة فارغة هي مجرد جزء من عرض جديد.
 

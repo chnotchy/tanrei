@@ -2,27 +2,27 @@
 title: Indicador de pasos
 description: Muestra dónde está una persona en un flujo que el producto recorre en un orden fijo de pasos (qué paso es el actual, cuáles están completados, cuál tiene un error y cuáles faltan todavía) y le permite pulsar un paso para volver a él.
 translationOf: components/stepper.mdx
-sourceHash: 6f6aced00c2b6ebab565e04f4136b2fd6ad660ee
+sourceHash: b524c68cd799156b9046e09abbc27c410dcb8f23
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="stepper" />
 
-<DemoFrame label="Horizontal, con un paso que tiene un error" column>
+<Example label="Horizontal, con un paso que tiene un error" column>
   <tanrei-stepper label="Progreso de la compra" value="payment" pressable="visited" completed-text="Completado" error-text="Tiene un error" style="inline-size: 100%">
     <tanrei-stepper-step value="account" label="Cuenta"></tanrei-stepper-step>
     <tanrei-stepper-step value="shipping" label="Envío" status="error" description="Falta el código postal"></tanrei-stepper-step>
     <tanrei-stepper-step value="payment" label="Pago"></tanrei-stepper-step>
     <tanrei-stepper-step value="review" label="Revisión"></tanrei-stepper-step>
   </tanrei-stepper>
-</DemoFrame>
+</Example>
 
 El indicador de pasos (stepper) se coloca encima o al lado del contenido de un flujo que tiene una posición: una compra, una configuración inicial, una solicitud en varias partes. Un paso es el actual, los anteriores están completados, uno puede necesitar la atención de la persona y el resto faltan todavía.
 
@@ -79,7 +79,7 @@ Los textos son tuyos: `completed-text` y `error-text` son lo que la tecnología 
 
 ## Especificaciones
 
-<DemoFrame label="Vertical y compacto" plain>
+<Example label="Vertical y compacto">
   <tanrei-stepper label="Configuración" value="profile" layout="vertical" completed-text="Completado" error-text="Tiene un error" style="inline-size: 320px">
     <tanrei-stepper-step value="account" label="Crear una cuenta" description="Correo electrónico y contraseña"></tanrei-stepper-step>
     <tanrei-stepper-step value="profile" label="Tu perfil" description="Nombre y foto"></tanrei-stepper-step>
@@ -93,7 +93,7 @@ Los textos son tuyos: `completed-text` y `error-text` son lo que la tecnología 
     <tanrei-stepper-step value="payment" label="Pago"></tanrei-stepper-step>
     <tanrei-stepper-step value="review" label="Revisión"></tanrei-stepper-step>
   </tanrei-stepper>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="stepper" />
 

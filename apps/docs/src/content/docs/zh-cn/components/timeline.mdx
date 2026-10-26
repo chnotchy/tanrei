@@ -2,26 +2,26 @@
 title: "时间线"
 description: "按时间顺序排列的事件：每个事件有一个标记、它的时间、一个标题和由你的内容构成的正文，并用一道细线与下一个事件相连。事件有状态时，由标记的形状和你写的文字说明哪些已经完成、哪个正在进行、哪些还在后面。它是供人阅读的列表，从不是控件。"
 translationOf: components/timeline.mdx
-sourceHash: 0251491f2f4ffd11a3d50c86f7ebc160d900e2c7
+sourceHash: fe96394352682136b8b8072fff4ca84976bd75c1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="timeline" />
 
-<DemoFrame label="对已发生之事的记录" column>
+<Example label="对已发生之事的记录" column>
   <ol class="tanrei-timeline" role="list" aria-label="发布历史" style="inline-size: 100%; max-inline-size: 28rem">
     <li><time class="tanrei-timeline-time" datetime="2026-09-22">2026 年 9 月 22 日</time><p class="tanrei-timeline-title">按级别命名的文本样式</p><p>文本样式改为按级别命名，每个圆角都可以做平滑处理。</p></li>
     <li><time class="tanrei-timeline-time" datetime="2026-09-21">2026 年 9 月 21 日</time><p class="tanrei-timeline-title">可以扩展的词汇</p><p>设计层可以给一个序列加一级，或给一条轴加一个值，并写明理由。</p></li>
     <li><time class="tanrei-timeline-time" datetime="2026-09-19">2026 年 9 月 19 日</time><p class="tanrei-timeline-title">开发启动</p><p>令牌管线、规格的 schema 和第一份规格已经就绪。</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
 有三样东西都画成由一条线连起来的标记。它们的区别在于读者拿它们做什么：
 
@@ -119,16 +119,16 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 
 ## 规格
 
-<DemoFrame label="计划：已完成、已完成、进行中、还在后面" plain column>
+<Example label="计划：已完成、已完成、进行中、还在后面" column>
   <ol class="tanrei-timeline" role="list" aria-label="路线图" style="inline-size: 100%; max-inline-size: 28rem">
     <li data-status="done" data-status-label="已完成"><p class="tanrei-timeline-time">Wave 0</p><p class="tanrei-timeline-title">基础</p><p>令牌、主题、字体排印、图标、表面和状态的基础构件。</p></li>
     <li data-status="done" data-status-label="已完成"><p class="tanrei-timeline-time">Wave 1</p><p class="tanrei-timeline-title">第一天就需要的控件</p><p>按钮、字段、选择控件和列表。</p></li>
     <li data-status="current" data-status-label="进行中"><p class="tanrei-timeline-time">Wave 2</p><p class="tanrei-timeline-title">导航和浮层</p><p>抽屉、标签页、对话框、菜单和面板。</p></li>
     <li data-status="upcoming" data-status-label="未开始"><p class="tanrei-timeline-time">Wave 3</p><p class="tanrei-timeline-title">专门用途的部件</p><p>选择器、轮播，以及文档网站需要的东西。</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="你自己的字形，以及紧凑的日志" plain column>
+<Example label="你自己的字形，以及紧凑的日志" column>
   <ol class="tanrei-timeline" role="list" aria-label="订单 1042" style="inline-size: 100%; max-inline-size: 28rem">
     <li data-status="done" data-status-label="已完成"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">receipt_long</span><p class="tanrei-timeline-time">周一 09:41</p><p class="tanrei-timeline-title">已下单</p></li>
     <li data-status="current" data-status-label="进行中"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">local_shipping</span><p class="tanrei-timeline-time">周二 14:05</p><p class="tanrei-timeline-title">运输中</p></li>
@@ -139,7 +139,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
     <li><time class="tanrei-timeline-time" datetime="10:09">10:09</time><p class="tanrei-timeline-title">已在六种配色方案中检查对比度</p></li>
     <li><time class="tanrei-timeline-time" datetime="10:02">10:02</time><p class="tanrei-timeline-title">已更改主色</p></li>
   </ol>
-</DemoFrame>
+</Example>
 
 - **标记**位于起始侧边缘的一个框里，中号时宽 24，大号时宽 28，与事件的第一行居中对齐。没有状态时，它是一个小圆点；放了你自己的字形时，它是一个用细线画出的圆环，里面是这个字形。
 - **状态**只改变标记的形状，不改变别的：已完成是里面有对勾的圆环，正在进行的事件是里面有圆点的填充圆，还在后面的事件是空的圆环。除了时间的颜色之外，这个填充圆是时间线带来的唯一颜色。

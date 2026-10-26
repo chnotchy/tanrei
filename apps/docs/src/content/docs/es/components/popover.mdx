@@ -2,20 +2,20 @@
 title: Popover
 description: Muestra contenido que una persona puede leer y manejar en una superficie pequeña que se abre junto al control que pulsó y se queda con él, sin oscurecer ni bloquear el resto de la página; en una ventana compacta, en una superficie modal con el aspecto de la hoja inferior.
 translationOf: components/popover.mdx
-sourceHash: 80d3974c3277f1d69bb01e20df6bfa52a4477d9a
+sourceHash: cd2056332ef89bbba2c92da6cb340178ef7a87c7
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="popover" />
 
-<DemoFrame label="Pulsa un botón: una nota con un enlace y un formulario breve con acciones">
+<Example label="Pulsa un botón: una nota con un enlace y un formulario breve con acciones">
   <tanrei-button id="popover-demo-note-opener" variant="outlined" onclick="document.getElementById('popover-demo-note').open = !document.getElementById('popover-demo-note').open">Almacenamiento</tanrei-button>
   <tanrei-popover id="popover-demo-note" anchor="popover-demo-note-opener" headline="Almacenamiento" closable close-label="Cerrar almacenamiento" arrow placement="bottom" onclose="this.open = false">
     Los archivos de la papelera siguen ocupando espacio de almacenamiento hasta que se eliminan. <a class="tanrei-link" href="#pautas">Cómo se calcula el almacenamiento</a>
@@ -26,7 +26,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-popover').open = false">Cancelar</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-popover').open = false">Cambiar nombre</tanrei-button>
   </tanrei-popover>
-</DemoFrame>
+</Example>
 
 Usa un popover para el contenido con el que una persona trabaja junto al control que lo abrió: unos pocos ajustes, un formulario breve, un panel para compartir, una nota que necesita un enlace o un botón. El resto de la página se puede seguir usando a su alrededor. En una ventana compacta toma en su lugar el aspecto de la hoja inferior, en el borde inferior de la ventana, como lo hacen ahí todos los popovers y diálogos de Tanrei.
 
@@ -95,14 +95,14 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
 
 ## Especificaciones
 
-<DemoFrame label="La colocación, una flecha y un popover tan ancho como su ancla" plain>
+<Example label="La colocación, una flecha y un popover tan ancho como su ancla">
   <tanrei-button id="popover-demo-top-opener" variant="outlined" onclick="document.getElementById('popover-demo-top').open = !document.getElementById('popover-demo-top').open">Encima, centrado</tanrei-button>
   <tanrei-popover id="popover-demo-top" anchor="popover-demo-top-opener" label="Almacenamiento" placement="top" arrow onclose="this.open = false">La papelera sigue ocupando almacenamiento.</tanrei-popover>
   <tanrei-button id="popover-demo-end-opener" variant="outlined" onclick="document.getElementById('popover-demo-end').open = !document.getElementById('popover-demo-end').open">Al lado, al final</tanrei-button>
   <tanrei-popover id="popover-demo-end" anchor="popover-demo-end-opener" label="Almacenamiento" placement="end-top" onclose="this.open = false">La papelera sigue ocupando almacenamiento.</tanrei-popover>
   <tanrei-button id="popover-demo-width-opener" variant="outlined" style="inline-size: 16rem" onclick="document.getElementById('popover-demo-width').open = !document.getElementById('popover-demo-width').open">Tan ancho como este botón</tanrei-button>
   <tanrei-popover id="popover-demo-width" anchor="popover-demo-width-opener" label="Almacenamiento" width="anchor" onclose="this.open = false">La papelera sigue ocupando almacenamiento.</tanrei-popover>
-</DemoFrame>
+</Example>
 
 ### Dónde se sitúa
 

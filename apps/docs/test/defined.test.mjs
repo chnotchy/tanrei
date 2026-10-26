@@ -146,7 +146,7 @@ describe('where :defined stands in the site’s stylesheets', () => {
     assert.ok(asking.some((rule) => rule.file.endsWith('.astro')) && asking.some((rule) => rule.file.endsWith('.css')));
     // Rules inside `@layer`, `@container` and `@media` are read, and `:global()` is taken off.
     assert.ok(asking.some((rule) => rule.selector === 'tanrei-app-shell > tanrei-navigation-drawer.docs-sidebar:not(:defined)'));
-    assert.ok(asking.some((rule) => rule.selector === '.stage :not(:defined)'));
+    assert.ok(asking.some((rule) => rule.selector === '.docs-example-stage :not(:defined)'));
   });
 
   test(':defined is asked of the element a rule styles, or for an element the engine can name', () => {

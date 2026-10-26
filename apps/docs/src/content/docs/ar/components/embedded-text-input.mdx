@@ -2,25 +2,25 @@
 title: حقل إدخال النص المدمج
 description: الكتابة وحدها، لصندوق يرسمه شيء آخر. نص، ونص نائب، ومؤشر الكتابة والتحديد، في سطر واحد أو في أسطر تزيد وتنقص بحركة. لا يرسم حاوية ولا حافة ولا تسمية ولا مؤشر تركيز. فما يحمله هو الذي يرسم الصندوق ويُظهر التركيز.
 translationOf: components/embedded-text-input.mdx
-sourceHash: f1b2ad5ffbd2a08901db0c5720abfb2ed6b2f7bb
+sourceHash: f7d92a58aab4f5852eda9338976540bae6c91a35
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="embedded-text-input" />
 
-<DemoFrame label="حقل إدخال نص مدمج داخل صندوق ترسمه الصفحة. اكتب عدة أسطر: الصندوق يتبع الارتفاع. وحافة الصندوق تُظهر التركيز." column>
+<Example label="حقل إدخال نص مدمج داخل صندوق ترسمه الصفحة. اكتب عدة أسطر: الصندوق يتبع الارتفاع. وحافة الصندوق تُظهر التركيز." column>
   <div class="not-content docs-embedded-holder" style="box-sizing: border-box; inline-size: 22.5rem; max-inline-size: 100%; background: var(--tanrei-sys-color-surface-container); border-radius: var(--tanrei-sys-shape-corner-large); padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); cursor: text">
     <tanrei-embedded-text-input label="الرسالة" placeholder="اكتب رسالة" multiline max-rows="6"></tanrei-embedded-text-input>
   </div>
-</DemoFrame>
+</Example>
 
 <style>{`
   .docs-embedded-holder { outline: var(--tanrei-sys-border-thick) solid transparent; outline-offset: calc(-1 * var(--tanrei-sys-border-thick)); }

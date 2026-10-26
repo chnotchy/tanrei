@@ -7,19 +7,19 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="chip" />
 
-<DemoFrame label="Kinds">
+<Example label="Kinds">
   <tanrei-chip label="Add to calendar"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip label="Sounds good"></tanrei-chip>
   <tanrei-chip kind="filter" selected label="Vegetarian"></tanrei-chip>
   <tanrei-chip kind="filter" label="Under 30 min"></tanrei-chip>
   <tanrei-chip kind="input" label="Ada Lovelace" remove-label="Remove Ada Lovelace"></tanrei-chip>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -136,25 +136,25 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
 
 ## Specs
 
-<DemoFrame label="Variants, sizes and disabled" plain>
+<Example label="Variants, sizes and disabled">
   <tanrei-chip variant="elevated" label="Add to calendar"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip kind="filter" variant="elevated" selected label="Vegetarian"></tanrei-chip>
   <tanrei-chip size="small" label="Add to calendar"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip kind="input" size="small" label="Ada Lovelace" remove-label="Remove Ada Lovelace"></tanrei-chip>
   <tanrei-chip disabled label="Add to calendar"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip kind="filter" selected disabled label="Vegetarian"></tanrei-chip>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Remove actions: plain (default) and destructive; hover or focus them" plain>
+<Example label="Remove actions: (default) and destructive; hover or focus them">
   <tanrei-chip kind="input" label="Under 30 min" remove-label="Remove Under 30 min"></tanrei-chip>
   <tanrei-chip kind="input" label="report.pdf" remove-label="Remove report.pdf" destructive-remove></tanrei-chip>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Link chips: here, in a new tab, disabled" plain>
+<Example label="Link chips: here, in a new tab, disabled">
   <tanrei-chip label="Tag" href="/components/tag/"></tanrei-chip>
   <tanrei-chip label="Badge" href="/components/badge/" target="new" target-label="opens in a new tab"></tanrei-chip>
   <tanrei-chip label="Tag" href="/components/tag/" disabled></tanrei-chip>
-</DemoFrame>
+</Example>
 
 In the default system every chip is a pill, and stays one when larger text makes it taller. Its glyphs are as large as its height allows: 24 on a medium chip and 20 on a small one. The check of a selected filter chip is the glyph `check` of the system's icon set, and the remove glyph is `cancel`, always drawn filled. The chip draws no mark of its own, so a design system that wants other marks chooses another icon set. The edge of an outlined chip is the hairline, the same quiet line a divider draws.
 

@@ -2,14 +2,14 @@
 title: टेक्स्ट फ़ील्ड
 description: लोगों को टेक्स्ट दर्ज और संपादित करने देता है — एक पंक्ति में, या कई पंक्तियों में जो टेक्स्ट के साथ बढ़ती हैं या हाथ से छोटी-बड़ी की जाती हैं — या लोकेल के रूप में इकाई-दर-इकाई दर्ज की जाने वाली तारीख़ या समय, या ठीक वैसे ही रखा गया कोड जैसा वह लिखा गया है, ऐसे लेबल के साथ जो बता सकता है कि फ़ील्ड ज़रूरी है या वैकल्पिक, और वैकल्पिक आइकन, प्रीफ़िक्स और सफ़िक्स, सहायक टेक्स्ट, अक्षरों की गिनती और पिकर बटन के साथ।
 translationOf: components/text-field.mdx
-sourceHash: 719a16c2a252ed9648b17821b91131dcc18c87a3
+sourceHash: 11ca82869cc7b493be699f28b68da9e9801b3dec
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
@@ -19,10 +19,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 यह पेज टेक्स्ट फ़ील्ड को वैसा बताता है जैसा स्पेक में वह अभी है: एक `stacked` वेरिएंट, जो डिफ़ॉल्ट है और जिसका लेबल फ़ील्ड के ऊपर रहता है; `filled` और `outlined`, जो सिर्फ़ Material और cupertino प्रीसेट के लिए रखे गए हैं; 32, 40 और 56 की ऊँचाइयाँ (filled या outlined फ़ील्ड की, जिसके भीतर लेबल फ़्लोट होता है, 40, 48 और 56); तारीख़ और समय के टाइप, पिकर बटन के साथ; कई पंक्तियों वाला फ़ील्ड, जो अपने टेक्स्ट के साथ बढ़ता है या हैंडल से छोटा-बड़ा किया जाता है (`resize`); सेगमेंट में इकाई-दर-इकाई दर्ज की जाने वाली तारीख़ या समय; और `required` व `optional`, जो फ़ील्ड को ज़रूरी या वैकल्पिक के रूप में चिह्नित करते हैं। वेब कंपोनेंट यह सब पहले से करता है, और डेमो भी। फ़ील्ड कोड भी रख सकता है (`type="code"`, और उसकी पंक्तियों के लिए `wrap`): वेब ने इसे बना लिया है, और किसी दूसरे प्लैटफ़ॉर्म ने अभी नहीं। टेक्स्ट फ़ील्ड टेक्स्ट इनपुट के चारों ओर का फ़ील्ड है, जैसा यह पेज बताता है: वेब ने यह भी बना लिया है, और वहाँ `required` ऐट्रिब्यूट अब नहीं है। SwiftUI, Compose, Flutter और React Native ऊपर "पीछे" के रूप में चिह्नित हैं: जब तक वे बराबरी पर नहीं आते, वे पिछला संशोधन देते हैं, जो डिफ़ॉल्ट रूप से outlined है और 36 और 40 की ऊँचाई पर है, जिसका `required` फ़्लैग कोई निशान नहीं बनाता, और जिसमें न `stacked` वेरिएंट है, न तारीख़ या समय के टाइप, न पिकर बटन और न resize के मोड। उनके उदाहरण वही संशोधन दिखाते हैं।
 :::
 
-<DemoFrame label="Stacked, जो डिफ़ॉल्ट है: एक ज़रूरी फ़ील्ड, और अपने पिकर बटन के साथ एक तारीख़" column>
+<Example label="Stacked, जो डिफ़ॉल्ट है: एक ज़रूरी फ़ील्ड, और अपने पिकर बटन के साथ एक तारीख़" column>
   <tanrei-text-field label="ईमेल" type="email" required required-text="ज़रूरी" supporting-text="हम इसका इस्तेमाल सिर्फ़ आपको साइन इन कराने के लिए करते हैं।"></tanrei-text-field>
   <tanrei-text-field label="शुरू होने की तारीख़" type="date" locale="hi-IN" value="2026-09-27" picker picker-label="शुरू होने की तारीख़ चुनें" segment-empty-text="ख़ाली"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
 जहाँ भी फ़ॉर्म टेक्स्ट माँगता है, वहाँ टेक्स्ट फ़ील्ड इस्तेमाल करें: यह आम स्थिति के लिए है, और इस्तेमाल के लिए तैयार है, लेबल, बॉक्स, सहायता की एक पंक्ति, ग़लत मान के लिए शब्दों और गिनती के साथ।
 
@@ -211,11 +211,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="वही फ़ील्ड हाथ से लिखा हुआ: एक फ़ील्ड, जिसके भीतर एक टेक्स्ट इनपुट है" column>
+<Example label="वही फ़ील्ड हाथ से लिखा हुआ: एक फ़ील्ड, जिसके भीतर एक टेक्स्ट इनपुट है" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="ईमेल" required required-text="ज़रूरी" supporting-text="हम इसका इस्तेमाल सिर्फ़ आपको साइन इन कराने के लिए करते हैं।">
     <tanrei-text-input type="email"></tanrei-text-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 एक स्तर नीचे तब जाएँ जब आपको ऐसी व्यवस्था चाहिए जो टेक्स्ट फ़ील्ड नहीं देता:
 
@@ -236,16 +236,16 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 ## स्पेक
 
-<DemoFrame label="त्रुटि, अक्षम, सिर्फ़ पढ़ने के लिए, प्रीफ़िक्स-सफ़िक्स और काउंटर" plain column>
+<Example label="त्रुटि, अक्षम, सिर्फ़ पढ़ने के लिए, प्रीफ़िक्स-सफ़िक्स और काउंटर" column>
   <tanrei-text-field label="ईमेल" value="ada@" error error-text="पूरा ईमेल पता दर्ज करें।"></tanrei-text-field>
   <tanrei-text-field label="ईमेल" value="ada@example.com" disabled></tanrei-text-field>
   <tanrei-text-field label="ईमेल" value="ada@example.com" readonly></tanrei-text-field>
   <tanrei-text-field label="राशि" type="number" value="120" prefix-text="$" suffix-text="USD"></tanrei-text-field>
   <tanrei-text-field label="दिखने वाला नाम" value="Ada Lovelace" maxlength="40" counter></tanrei-text-field>
   <tanrei-text-field size="large" label="ईमेल" value="ada@example.com"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="टाइप: पासवर्ड, खोज, संख्या, टेलीफ़ोन और URL" plain column>
+<Example label="टाइप: पासवर्ड, खोज, संख्या, टेलीफ़ोन और URL" column>
   <tanrei-text-field label="पासवर्ड" type="password" value="correct horse" autocomplete="current-password"></tanrei-text-field>
   <tanrei-text-field label="खोजें" label-hidden type="search" placeholder="कंपोनेंट खोजें">
     <span slot="leading-icon">search</span>
@@ -253,44 +253,44 @@ input.addEventListener('input', () => (field.countText = input.countText));
   <tanrei-text-field label="मात्रा" type="number" value="12"></tanrei-text-field>
   <tanrei-text-field label="फ़ोन" type="tel" autocomplete="tel" placeholder="+1 555 0100"></tanrei-text-field>
   <tanrei-text-field label="वेबसाइट" type="url" placeholder="https://example.com"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="ज़रूरी और वैकल्पिक: टैग, और तारांकन" plain column>
+<Example label="ज़रूरी और वैकल्पिक: टैग, और तारांकन" column>
   <tanrei-text-field label="ईमेल" type="email" required required-text="ज़रूरी"></tanrei-text-field>
   <tanrei-text-field label="कंपनी" optional optional-text="वैकल्पिक"></tanrei-text-field>
   <tanrei-text-field label="ईमेल" type="email" required required-mark="asterisk"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="कई पंक्तियाँ: टेक्स्ट के साथ बढ़ने वाला, हैंडल से छोटा-बड़ा होने वाला (नीचे की ओर, और दोनों दिशाओं में), और स्थिर" plain column>
+<Example label="कई पंक्तियाँ: टेक्स्ट के साथ बढ़ने वाला, हैंडल से छोटा-बड़ा होने वाला (नीचे की ओर, और दोनों दिशाओं में), और स्थिर" column>
   <tanrei-text-field label="संदेश" multiline min-rows="2" max-rows="5" placeholder="कुछ पंक्तियाँ लिखें: फ़ील्ड पाँच पंक्तियों तक बढ़ता है, फिर स्क्रॉल होता है"></tanrei-text-field>
   <tanrei-text-field label="नोट" multiline resize="manual" max-rows="10" resize-label="नोट का साइज़ बदलें"></tanrei-text-field>
   <tanrei-text-field label="विवरण" multiline resize="manual" resize-axis="both" resize-label="विवरण का साइज़ बदलें"></tanrei-text-field>
   <tanrei-text-field label="पता" multiline resize="fixed" min-rows="3"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="कोड: एक पंक्ति में पैटर्न, कई पंक्तियों में JSON, और ऐसी पंक्तियाँ जो रैप नहीं होतीं" plain column>
+<Example label="कोड: एक पंक्ति में पैटर्न, कई पंक्तियों में JSON, और ऐसी पंक्तियाँ जो रैप नहीं होतीं" column>
   <tanrei-text-field type="code" label="पैटर्न" value="tanrei.comp.button.*.container.color" supporting-text="टोकन की id, जिसमें * किसी भी हिस्से के लिए है।"></tanrei-text-field>
   <tanrei-text-field type="code" multiline min-rows="4" label="लेयर" value="{&#10;  &quot;id&quot;: &quot;acme&quot;,&#10;  &quot;extends&quot;: &quot;tanrei&quot;&#10;}"></tanrei-text-field>
   <tanrei-text-field type="code" multiline no-wrap min-rows="3" label="नियम" value="{ &quot;match&quot;: &quot;tanrei.comp.button.*.hovered.container.color&quot;, &quot;$value&quot;: &quot;{tanrei.sys.color.primary}&quot; }&#10;{ &quot;match&quot;: &quot;*&quot; }"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="दाएँ से बाएँ वाले पेज में कोड: लेबल और सहायता पेज के साथ चलते हैं, कोड बाईं ओर से शुरू होता है" plain column>
+<Example label="दाएँ से बाएँ वाले पेज में कोड: लेबल और सहायता पेज के साथ चलते हैं, कोड बाईं ओर से शुरू होता है" column>
   <div dir="rtl" lang="ar" style="display: grid; gap: 1rem;">
     <tanrei-text-field type="code" label="النمط" value="tanrei.comp.*.color" supporting-text="معرّف رمز، مع * لأي جزء."></tanrei-text-field>
     <tanrei-text-field type="code" multiline min-rows="3" label="المصادر" value="[&quot;مرحبا&quot;, &quot;acme&quot;]&#10;// تعليق: comment"></tanrei-text-field>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="सेगमेंट में एक तारीख़, एक समय, और तारीख़ के साथ समय। Tab, ऐरो कुंजियाँ और अंक इन्हें भरते हैं" plain column>
+<Example label="सेगमेंट में एक तारीख़, एक समय, और तारीख़ के साथ समय। Tab, ऐरो कुंजियाँ और अंक इन्हें भरते हैं" column>
   <tanrei-text-field label="शुरू होने की तारीख़" type="date" locale="hi-IN" picker picker-label="शुरू होने की तारीख़ चुनें" invalid-text="तारीख़ पूरी करें।" segment-empty-text="ख़ाली"></tanrei-text-field>
   <tanrei-text-field label="शुरू होने का समय" type="time" locale="hi-IN" value="14:30" segment-empty-text="ख़ाली"></tanrei-text-field>
   <tanrei-text-field label="प्रस्थान" type="date-time" locale="hi-IN" value="2026-09-27T14:30" min="2026-09-01T00:00" unavailable-text="सितंबर 2026 या उसके बाद का समय चुनें।" segment-empty-text="ख़ाली"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Filled और outlined, Material प्रीसेट के वेरिएंट" system="m3-like" plain column>
+<Example label="Filled और outlined, Material प्रीसेट के वेरिएंट" system="m3-like" column>
   <tanrei-text-field variant="filled" label="ईमेल" type="email" value="ada@example.com"></tanrei-text-field>
   <tanrei-text-field variant="outlined" label="ईमेल" type="email" supporting-text="हम इसका इस्तेमाल सिर्फ़ आपको साइन इन कराने के लिए करते हैं।"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
 ### हर सदस्य क्या देता है
 

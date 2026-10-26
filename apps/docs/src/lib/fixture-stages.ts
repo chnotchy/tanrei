@@ -1,9 +1,11 @@
 // What the gallery of fixtures does in the browser (components/fixtures/FixtureGallery.astro): drawing each fixture of
-// the page from the web package's document of it when its stage comes near the view, and the document's step in
-// script for it; each stage's width handle; its scheme; the scale of a window that is wider than the column; drawing a
-// window's fixture again. A stage is placed and sized by its stylesheet before any of this runs; nothing here moves
-// anything that is already drawn.
+// the page from the web package's document of it when its stage comes near the view (the frame says so,
+// lib/example.ts `NEAR_EVENT`), and the document's step in script for it; each stage's width handle; its scheme; the
+// scale of a window that is wider than the column; drawing a window's fixture again. A stage is placed and sized by
+// its stylesheet before any of this runs; nothing here moves anything that is already drawn. The frame's own actions —
+// the code, its copy, the direction — are the frame's (lib/example.ts).
 import { RESIZE_EVENT, resizeHandle } from './resize-handle';
+import { NEAR_EVENT } from './example';
 
 /** The least width a stage is made narrower to by its handle, in CSS pixels. */
 const LEAST = 160;
@@ -229,14 +231,10 @@ new MutationObserver(followPage).observe(document.documentElement, { attributes:
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', followPage);
 
 /**
- * A stage's actions are written in a template and drawn when the stage comes near the view: each is a Button or a Copy
- * button, and a page of hundreds of fixtures would define them all as it loads (on the Field's page, over a thousand).
+ * A stage's own actions, once the frame has drawn its actions (they are written in a template and drawn when the stage
+ * comes near the view, lib/example.ts): its scheme, and drawing a window's fixture again.
  */
 function actions(stage: HTMLElement, box: HTMLElement) {
-  const holder = stage.querySelector<HTMLElement>('[data-stage-actions]');
-  const template = holder?.querySelector<HTMLTemplateElement>(':scope > template');
-  if (!holder || !template) return;
-  template.replaceWith(document.importNode(template.content, true));
   scheme(stage, box);
   stage.querySelector('[data-stage-redraw]')?.addEventListener('click', () => {
     const frame = box.querySelector('iframe');
@@ -305,19 +303,12 @@ export function drawFixture(figure: HTMLElement) {
   }
 }
 
-const near = new IntersectionObserver(
-  (entries) => {
-    for (const entry of entries) {
-      if (!entry.isIntersecting) continue;
-      near.unobserve(entry.target);
-      const stage = entry.target as HTMLElement;
-      drawFixture(stage);
-      const box = stage.querySelector<HTMLElement>('.docs-stage-box');
-      if (box) actions(stage, box);
-    }
-  },
-  { rootMargin: '50% 0px' },
-);
+/** A stage near the view (the frame tells it once, lib/example.ts): its fixture is drawn, and its own actions take effect. */
+function near(stage: HTMLElement) {
+  drawFixture(stage);
+  const box = stage.querySelector<HTMLElement>('.docs-stage-box');
+  if (box) actions(stage, box);
+}
 
 for (const stage of document.querySelectorAll<HTMLElement>('.docs-stage[data-drawn]')) {
   const box = stage.querySelector<HTMLElement>('.docs-stage-box');
@@ -326,5 +317,5 @@ for (const stage of document.querySelectorAll<HTMLElement>('.docs-stage[data-dra
   const handle = canvas.querySelector<HTMLElement>(':scope > [data-resize-handle]');
   if (stage.dataset.stage === 'window') windowStage(canvas, handle);
   holdScheme(box);
-  near.observe(stage);
+  stage.addEventListener(NEAR_EVENT, () => near(stage), { once: true });
 }

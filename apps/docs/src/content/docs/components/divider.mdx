@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="divider" />
 
-<DemoFrame label="In a list and in a toolbar">
+<Example label="In a list and in a toolbar">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space150); inline-size: min(100%, 20rem)">
     <span>Inbox</span>
     <tanrei-divider></tanrei-divider>
@@ -27,7 +27,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
     <tanrei-divider orientation="vertical" decorative="false"></tanrei-divider>
     <tanrei-button variant="text" label="Insert link"><span slot="icon">link</span></tanrei-button>
   </div>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -150,7 +150,7 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
 
 ## Specs
 
-<DemoFrame label="Orientations and insets" plain>
+<Example label="Orientations and insets">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
     <tanrei-divider></tanrei-divider>
     <tanrei-divider inset="start"></tanrei-divider>
@@ -161,9 +161,9 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
     <tanrei-divider orientation="vertical" inset="start"></tanrei-divider>
     <tanrei-divider orientation="vertical" inset="both"></tanrei-divider>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Line styles" plain>
+<Example label="Line styles">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
     <tanrei-divider></tanrei-divider>
     <tanrei-divider line-style="dotted"></tanrei-divider>
@@ -176,16 +176,16 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
     <tanrei-divider orientation="vertical" line-style="dotted"></tanrei-divider>
     <tanrei-divider orientation="vertical" line-style="wavy"></tanrei-divider>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Thickness: one divider's own, with round caps on the thicker patterns" plain>
+<Example label="Thickness: one divider's own, with round caps on the thicker patterns">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
     <tanrei-divider thickness="2"></tanrei-divider>
     <tanrei-divider thickness="4" line-style="dotted" line-cap="round"></tanrei-divider>
     <tanrei-divider thickness="4" line-style="dashed" line-cap="round"></tanrei-divider>
     <tanrei-divider thickness="2" line-style="wavy"></tanrei-divider>
   </div>
-</DemoFrame>
+</Example>
 
 A dotted or dashed line always has a whole dot or dash at both ends: the divider draws as many as fit with at least the gap between them, and widens every gap by the same amount. It looks the same at both ends, in either direction and at any length. A wave is made of circular arcs, stretched to a whole number of waves so that it starts and ends on the midline. A wavy divider is taller than the others: twice the amplitude plus the line's thickness, 5 by default instead of 1.
 

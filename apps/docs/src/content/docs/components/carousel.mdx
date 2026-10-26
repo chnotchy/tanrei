@@ -7,7 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
@@ -17,7 +17,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 This page describes the carousel as the spec has it now. Independent choices (where the hero sits, fluid or fixed widths, scale, snapping, looping) replace the `layout` prop, and a featured row can show dots and advance by itself. The hero now sits in the centre by default, and neighbouring items stand one gap apart at every scroll position. The web component already does all of this, and so do the demos. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship the previous revision, with `layout` and no loop, dots, autoplay or previous and next controls. See [The hero is in the centre by default](#the-hero-is-in-the-centre-by-default) and [Moving from `layout`](#moving-from-layout).
 :::
 
-<DemoFrame label="The default: the hero in the centre, a small item beside it">
+<Example label="The default: the hero in the centre, a small item beside it">
   <tanrei-carousel previous-label="Previous walk" next-label="Next walk" label="Walks near you" style="inline-size: 25rem; max-inline-size: 100%">
     <tanrei-carousel-item label="Coast path, 12 photos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
     <tanrei-carousel-item label="Old town, 8 photos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -26,7 +26,7 @@ This page describes the carousel as the spec has it now. Independent choices (wh
     <tanrei-carousel-item label="Hill fort, 9 photos"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
     <tanrei-carousel-item label="River walk, 14 photos"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
   </tanrei-carousel>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -157,7 +157,7 @@ The Web and React samples show the current spec. The SwiftUI, Compose, Flutter a
 
 ## Specs
 
-<DemoFrame label="A hero as wide as it may be, and fixed widths that scroll freely from the start edge" plain column>
+<Example label="A hero as wide as it may be, and fixed widths that scroll freely from the start edge" column>
   <tanrei-carousel previous-label="Previous walk" next-label="Next walk" item-width="400" label="Featured walks" style="inline-size: 25rem; max-inline-size: 100%">
     <tanrei-carousel-item label="Coast path, 12 photos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
     <tanrei-carousel-item label="Old town, 8 photos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
@@ -171,9 +171,9 @@ The Web and React samples show the current spec. The SwiftUI, Compose, Flutter a
     <tanrei-carousel-item label="Lakeside, 5 photos"><span class="tanrei-icon">water</span></tanrei-carousel-item>
     <tanrei-carousel-item label="Hill fort, 9 photos"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
   </tanrei-carousel>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Arranging the row: fixed widths, scale, loop, content toward the hero" plain column>
+<Example label="Arranging the row: fixed widths, scale, loop, content toward the hero" column>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">Fixed widths, resting wherever the scroll ends: <code>fixed-width free-scroll</code></div>
     <tanrei-carousel previous-label="Previous walk" next-label="Next walk" fixed-width free-scroll label="Walks near you" style="inline-size: 25rem; max-inline-size: 100%">
@@ -215,9 +215,9 @@ The Web and React samples show the current spec. The SwiftUI, Compose, Flutter a
       <tanrei-carousel-item label="River walk, 14 photos"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
     </tanrei-carousel>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Dots, autoplay, progress, paused, and the playback control alone" plain column>
+<Example label="Dots, autoplay, progress, paused, and the playback control alone" column>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">Dots: <code>indicator</code></div>
     <tanrei-carousel previous-label="Previous walk" next-label="Next walk" indicator label="Featured walks" style="inline-size: 25rem; max-inline-size: 100%">
@@ -271,7 +271,7 @@ The Web and React samples show the current spec. The SwiftUI, Compose, Flutter a
       <tanrei-carousel-item label="Lakeside, 5 photos"><span class="tanrei-icon">water</span></tanrei-carousel-item>
     </tanrei-carousel>
   </div>
-</DemoFrame>
+</Example>
 
 Autoplay never runs where the reduced-motion setting is on: there the autoplay demos stand still, without the playback control and the progress.
 

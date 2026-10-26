@@ -2,23 +2,23 @@
 title: कलर फ़ील्ड
 description: लोगों को किसी फ़ॉर्म के फ़ील्ड के रूप में एक रंग तय करने देता है। इसमें टेक्स्ट वाला एक मान होता है जिसे वे पढ़, टाइप और पेस्ट कर सकते हैं, टेक्स्ट के बग़ल में उस रंग का नमूना, और एक बटन जो पिकर माँगता है। यह टेक्स्ट फ़ील्ड जैसा दिखता है और उसी की नाप का होता है।
 translationOf: components/color-field.mdx
-sourceHash: 86c3e71976d4488f85216a9391b0e4d6a8b9d83f
+sourceHash: ffcd4797c3496f94c018017cc0ef57091027383d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="color-field" />
 
-<DemoFrame label="पिकर बटन वाला एक कलर फ़ील्ड, और एक जिसका रंग प्रॉडक्ट नहीं मानता" column>
+<Example label="पिकर बटन वाला एक कलर फ़ील्ड, और एक जिसका रंग प्रॉडक्ट नहीं मानता" column>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ब्रैंड का रंग" value="#0f766e" supporting-text="छह अंकों का हेक्स कोड, जैसे #0f766e।" invalid-text="छह अंकों का हेक्स कोड डालें, जैसे #0f766e।" picker picker-label="रंग चुनें"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ब्रैंड का रंग" value="#fde047" error error-text="सफ़ेद टेक्स्ट के लिए यह रंग बहुत हल्का है। कोई गहरा रंग चुनें।"></tanrei-color-field>
-</DemoFrame>
+</Example>
 
 कलर फ़ील्ड वहाँ इस्तेमाल करें जहाँ लोग रंग को एक मान के रूप में तय करते हैं: किसी थीम में ब्रैंड का रंग, किसी लेबल या कैटेगरी का रंग। वे उसे पढ़ते हैं, टाइप करते हैं या किसी दूसरे टूल से पेस्ट करते हैं, और टेक्स्ट के बग़ल में उसका नमूना देखते हैं। फ़ील्ड उसी वेरिएंट और साइज़ के टेक्स्ट फ़ील्ड की तरह बनता है और उसी की नाप का होता है।
 
@@ -88,11 +88,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="वही फ़ील्ड हाथ से लिखा हुआ: एक फ़ील्ड, जिसके भीतर एक कलर इनपुट है" column>
+<Example label="वही फ़ील्ड हाथ से लिखा हुआ: एक फ़ील्ड, जिसके भीतर एक कलर इनपुट है" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ब्रैंड का रंग" required required-text="ज़रूरी" supporting-text="छह अंकों का हेक्स कोड, जैसे #0f766e।">
     <tanrei-color-input value="#0f766e" invalid-text="छह अंकों का हेक्स कोड डालें, जैसे #0f766e।" picker picker-label="रंग चुनें"></tanrei-color-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 एक स्तर नीचे तब जाएँ जब आपको ऐसी व्यवस्था चाहिए जो कलर फ़ील्ड नहीं देता:
 
@@ -106,14 +106,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="एक ख़ाली कलर फ़ील्ड, सफ़ेद, काला, एक large, एक अक्षम, और सिर्फ़ बॉक्स, यानी कलर इनपुट, ऐसी पंक्ति में जो उसके रंग का नाम देती है" plain column>
+<Example label="एक ख़ाली कलर फ़ील्ड, सफ़ेद, काला, एक large, एक अक्षम, और सिर्फ़ बॉक्स, यानी कलर इनपुट, ऐसी पंक्ति में जो उसके रंग का नाम देती है" column>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ऐक्सेंट रंग" optional optional-text="वैकल्पिक"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="पेज का बैकग्राउंड" value="#ffffff"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="टेक्स्ट" value="#000000"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ब्रैंड का रंग" value="#0f766e" size="large" picker picker-label="रंग चुनें"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ब्रैंड का रंग" value="#0f766e" disabled picker picker-label="रंग चुनें"></tanrei-color-field>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="प्राइमरी, टोन 40" value="#0f766e"></tanrei-color-input>
-</DemoFrame>
+</Example>
 
 ### फ़ील्ड
 

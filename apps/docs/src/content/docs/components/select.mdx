@@ -7,13 +7,13 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="select" />
 
-<DemoFrame label="Bare: a theme select for a bar, and a sort order over a list" column>
+<Example label="Bare: a theme select for a bar, and a sort order over a list" column>
   <tanrei-select class="not-content" size="small" label="Theme" value="auto">
     <tanrei-option value="light" leading-icon="light_mode">Light</tanrei-option>
     <tanrei-option value="dark" leading-icon="dark_mode">Dark</tanrei-option>
@@ -24,7 +24,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
     <tanrei-option value="name">Name</tanrei-option>
     <tanrei-option value="size">Size</tanrei-option>
   </tanrei-select>
-</DemoFrame>
+</Example>
 
 A select is the box of a [select field](/components/select-field/), alone: the trigger with the value it shows, its leading icon and its chevron, and the list of options that opens from it. It has no label row above it, no requirement mark, no help and no error text below it.
 
@@ -104,20 +104,20 @@ A field around a select is a select field written out. Leave the select's own `l
 </tanrei-field>
 ```
 
-<DemoFrame label="A field with a select in it: the same picture as a select field" column>
+<Example label="A field with a select in it: the same picture as a select field" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Country" required required-text="Required" supporting-text="Where your invoices are addressed.">
     <tanrei-select placeholder="Choose a country">
       <tanrei-option value="jp">Japan</tanrei-option>
       <tanrei-option value="ke">Kenya</tanrei-option>
     </tanrei-select>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 The select tells its field what only it knows. Its help starts where the value starts, past the padding and a leading icon. A filled or an outlined select draws the field's label itself, floating in the box, so the field draws no label row. And while its list is open the select is drawn focused, whether or not it has focus, so the field draws its label and its help focused for as long.
 
 ## Specs
 
-<DemoFrame label="Bare selects: groups, supporting text with a disabled option, in error, read-only and disabled" plain column>
+<Example label="Bare selects: groups, supporting text with a disabled option, in error, read-only and disabled" column>
   <tanrei-select class="not-content" label="Time zone" value="Europe/Lisbon">
     <tanrei-option-group label="Asia"><tanrei-option value="Asia/Tokyo">Tokyo</tanrei-option><tanrei-option value="Asia/Seoul">Seoul</tanrei-option></tanrei-option-group>
     <tanrei-option-group label="Europe"><tanrei-option value="Europe/Lisbon">Lisbon</tanrei-option><tanrei-option value="Europe/Berlin">Berlin</tanrei-option></tanrei-option-group>
@@ -136,7 +136,7 @@ The select tells its field what only it knows. Its help starts where the value s
   <tanrei-select class="not-content" label="Country" value="jp" disabled>
     <tanrei-option value="jp">Japan</tanrei-option><tanrei-option value="ke">Kenya</tanrei-option>
   </tanrei-select>
-</DemoFrame>
+</Example>
 
 ### The trigger
 
@@ -196,11 +196,11 @@ The select never fetches, waits or retries. Set `status` to `loading` when you s
 
 A select with no option, no status and no `emptyText` does not open. Give it an `emptyText`, or the product's `noOptionsText` once with `setWords()`, so that a person who opens it learns why there is nothing to choose.
 
-<DemoFrame label="Loading, a failure, and nothing to choose" column>
+<Example label="Loading, a failure, and nothing to choose" column>
   <tanrei-select class="not-content" label="Project" placeholder="Choose a project" status="loading" status-text="Loading projects"></tanrei-select>
   <tanrei-select class="not-content" label="Project" placeholder="Choose a project" status="error" status-text="Projects could not be loaded. Check your connection."></tanrei-select>
   <tanrei-select class="not-content" label="Project" placeholder="Choose a project" empty-text="No projects yet"></tanrei-select>
-</DemoFrame>
+</Example>
 
 ### Opening, moving and choosing
 

@@ -2,23 +2,23 @@
 title: زر الإجراء الرئيسي
 description: ينفّذ الإجراء الأهم الوحيد في الشاشة على حاوية مرتفعة تطفو فوق المحتوى، واسمه مكتوب كاملًا، أو مطويًّا إلى أيقونته وحدها.
 translationOf: components/main-action-button.mdx
-sourceHash: 4ea11cf1c96e665e4d8a7ce5bde60156fedc09b3
+sourceHash: 6a79e4750d54144d384e19b0a274c1d7763b4393
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="main-action-button" />
 
-<DemoFrame label="ممتد ومطويّ">
+<Example label="ممتد ومطويّ">
   <tanrei-main-action-button label="إنشاء"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button label="إنشاء" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
-</DemoFrame>
+</Example>
 
 زر الإجراء الرئيسي هو الإجراء الوحيد الذي وُجدت الشاشة من أجله: «إنشاء» في صندوق بريد، «حدث جديد» في تقويم، «إضافة» في قائمة. يقع على حاوية مرتفعة تطفو فوق المحتوى، فيبقى في المتناول والمحتوى يُمرَّر تحته.
 
@@ -96,27 +96,27 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="الطُرُز" plain>
+<Example label="الطُرُز">
   <tanrei-main-action-button label="إنشاء"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button variant="tonal" label="إنشاء"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button variant="surface" label="إنشاء"><span slot="icon">edit</span></tanrei-main-action-button>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="الأحجام، ممتدة ومطويّة" plain>
+<Example label="الأحجام، ممتدة ومطويّة">
   <tanrei-main-action-button size="small" label="إنشاء"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="medium" label="إنشاء"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="large" label="إنشاء"><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="small" label="إنشاء" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="medium" label="إنشاء" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button size="large" label="إنشاء" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="أيقونة في النهاية، وبلا أيقونة، ومعطَّل" plain>
+<Example label="أيقونة في النهاية، وبلا أيقونة، ومعطَّل">
   <tanrei-main-action-button label="التالي" icon-position="trailing"><span slot="icon">arrow_forward</span></tanrei-main-action-button>
   <tanrei-main-action-button label="بدء"></tanrei-main-action-button>
   <tanrei-main-action-button label="إنشاء" disabled><span slot="icon">edit</span></tanrei-main-action-button>
   <tanrei-main-action-button label="إنشاء" collapsed disabled><span slot="icon">edit</span></tanrei-main-action-button>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="main-action-button" />
 
@@ -169,11 +169,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 أضف `full-width` ليصير الزر بعرض حاويته، وتتوسّطه أيقونته وتسميته: الإجراء الوحيد في الشاشة ممتدًّا على أسفلها في شاشة ضيقة، مثل «إتمام الشراء» أو «إرسال». والزر الذي بعرض كامل ممدود دائمًا: لا ينطوي أثناء تمرير المحتوى، وجعل `extended` خطأً يُبلَّغ عنه في إصدارات التصحيح. ويحتفظ بارتفاع حجمه وزواياه وارتفاعه الظلي، والتسمية التي لا تتسع تنتقل إلى السطر التالي. ولا يزال لا يضع نفسه: ضعه في الحاوية التي تحمله في أسفل الشاشة.
 
-<DemoFrame label="زر إجراء رئيسي بعرض كامل" plain>
+<Example label="زر إجراء رئيسي بعرض كامل">
   <div style="inline-size: 20rem">
     <tanrei-main-action-button label="إتمام الشراء" full-width><span slot="icon">shopping_cart</span></tanrei-main-action-button>
   </div>
-</DemoFrame>
+</Example>
 
 ### افعل
 

@@ -2,25 +2,25 @@
 title: Botón de copiar
 description: Un botón que copia un texto dado con una sola pulsación y lo confirma, o dice que no ha podido. Lo dibuja Button y, de forma predeterminada, nunca mueve el diseño.
 translationOf: components/copy-button.mdx
-sourceHash: e6b7e0e12c613261bd9ecfb7a40acc453aa9118b
+sourceHash: 4ef8bacbc2d1f765fcf598423e9d01ebbca9a96d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="copy-button" />
 
-<DemoFrame label="Pulsa uno: el glifo se convierte por un momento en una marca de verificación">
+<Example label="Pulsa uno: el glifo se convierte por un momento en una marca de verificación">
   <tanrei-copy-button text="npm install @tanrei/web" label="Copiar" copied-label="Copiado" failed-label="No se pudo copiar"></tanrei-copy-button>
   <tanrei-copy-button variant="tonal" text="#30a3f0" label="Copiar color" copied-label="Copiado" failed-label="No se pudo copiar"></tanrei-copy-button>
   <tanrei-copy-button icon-only="false" variant="outlined" text="https://example.com/s/4f2a" label="Copiar enlace" copied-label="Enlace copiado" failed-label="No se pudo copiar"></tanrei-copy-button>
   <tanrei-copy-button icon-only="false" variant="filled" text="sk-test-0000" label="Copiar clave" copied-label="Copiado" failed-label="No se pudo copiar"></tanrei-copy-button>
-</DemoFrame>
+</Example>
 
 Usa un botón de copiar junto a algo que una persona va a pegar en otro lugar: un comando, una clave, una dirección, un valor de color. Espera la respuesta del navegador, muestra una marca de verificación (o una marca de error) durante dos segundos y se lo dice con palabras a la tecnología de apoyo. Un [bloque de código](/es/components/code-block/) coloca uno por ti.
 
@@ -83,22 +83,22 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
 
 ## Especificaciones
 
-<DemoFrame label="Los tamaños y las variantes son los de Button" plain>
+<Example label="Los tamaños y las variantes son los de Button">
   <tanrei-copy-button size="small" text="small" label="Copiar" copied-label="Copiado" failed-label="No se pudo copiar"></tanrei-copy-button>
   <tanrei-copy-button text="medium" label="Copiar" copied-label="Copiado" failed-label="No se pudo copiar"></tanrei-copy-button>
   <tanrei-copy-button size="large" text="large" label="Copiar" copied-label="Copiado" failed-label="No se pudo copiar"></tanrei-copy-button>
   <tanrei-copy-button variant="elevated" text="elevated" label="Copiar" copied-label="Copiado" failed-label="No se pudo copiar"></tanrei-copy-button>
   <tanrei-copy-button disabled text="disabled" label="Copiar" copied-label="Copiado" failed-label="No se pudo copiar"></tanrei-copy-button>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="La anchura se reserva para el más largo de los tres textos" plain>
+<Example label="La anchura se reserva para el más largo de los tres textos">
   <tanrei-copy-button icon-only="false" variant="outlined" text="sk-test-0000" label="Copiar" copied-label="Copiado en el portapapeles" failed-label="No se pudo copiar"></tanrei-copy-button>
   <tanrei-button variant="text">Un vecino que no se mueve</tanrei-button>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Con label-width fit, la anchura sigue a las palabras" plain>
+<Example label="Con label-width fit, la anchura sigue a las palabras">
   <tanrei-copy-button icon-only="false" label-width="fit" variant="outlined" text="sk-test-0000" label="Copiar" copied-label="Copiado en el portapapeles" failed-label="No se pudo copiar"></tanrei-copy-button>
-</DemoFrame>
+</Example>
 
 Con `label-width="fit"`, la forma con etiqueta es tan ancha como las palabras que muestra. Cuando cambian, su anchura pasa suavemente a la de las nuevas palabras en `comp.copy-button.motion.resize-duration`, y cambia de inmediato donde el movimiento está reducido. El valor predeterminado sigue siendo `widest`, porque un control que se mueve justo cuando alguien va a pulsarlo se pulsa por error. Usa `fit` solo donde no haya detrás del botón nada que la persona pueda pulsar a continuación, como al final de una fila.
 

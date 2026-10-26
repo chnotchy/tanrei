@@ -2,23 +2,23 @@
 title: チップフィールド
 description: メールアドレス、電話番号、キーワードのような短いテキストを、1 つのフィールドに続けて入力してもらい、リストとして受け取ります。プロダクトのチェックが受け付けたテキストはチップになり、取り除くことも、入力部分に戻して直すこともできます。フィールドの値は、このリスト 1 つです。
 translationOf: components/chip-field.mdx
-sourceHash: c40811ad47af7b7bc1c71ac68bdfe8da9010cbbf
+sourceHash: 73c351fcd4c977beb8d2f283e2a61d126c871b12
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="chip-field" />
 
-<DemoFrame label="アドレスが 2 件入ったチップフィールドと、3 件目のアドレスを受け付けなかったもの" column>
+<Example label="アドレスが 2 件入ったチップフィールドと、3 件目のアドレスを受け付けなかったもの" column>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="宛先" type="email" separators='[",",";"," "]' remove-label="{entry} を取り除く" added-text="{entry} を追加しました" removed-text="{entry} を取り除きました" supporting-text="アドレスはカンマで区切ってください。" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="宛先" type="email" separators='[",",";"," "]' remove-label="{entry} を取り除く" added-text="{entry} を追加しました" removed-text="{entry} を取り除きました" supporting-text="アドレスはカンマで区切ってください。" error error-text="name@example.com のように、アドレス全体を入力してください。" value='["ada@example.com","grace.hopper@example.org"]' input-value="alan@"></tanrei-chip-field>
-</DemoFrame>
+</Example>
 
 チップフィールドは、同じ種類の短いテキストをいくつも入力してもらう場面で使います。メッセージの宛先、ドキュメントの共有相手、通知を送る電話番号、記事のキーワードなどです。テキストは 1 件ずつチェックするので、12 件のうち 1 件のアドレスを打ち間違えても、残りの 11 件はそのまま残ります。入力済みの 1 件（以下、エントリ）は、それぞれ単独で取り除いたり、直したりできます。
 
@@ -113,14 +113,14 @@ Tanrei は、メールアドレスや電話番号が何であるかを知りま�
 </tanrei-field>
 ```
 
-<DemoFrame label="同じフィールドを自分で書いたもの。フィールド、テキスト入力欄、その entries スロットに入れた 2 つのチップ" column>
+<Example label="同じフィールドを自分で書いたもの。フィールド、テキスト入力欄、その entries スロットに入れた 2 つのチップ" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="宛先" supporting-text="アドレスはカンマで区切ってください。">
     <tanrei-text-input type="email">
       <tanrei-chip slot="entries" kind="input" size="small" label="ada@example.com" remove-label="ada@example.com を取り除く"></tanrei-chip>
       <tanrei-chip slot="entries" kind="input" size="small" label="grace.hopper@example.org" remove-label="grace.hopper@example.org を取り除く"></tanrei-chip>
     </tanrei-text-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 構成要素を自分で書いたものにないものが、チップフィールドが加えるものです。
 
@@ -136,12 +136,12 @@ Tanrei は、メールアドレスや電話番号が何であるかを知りま�
 
 ## 仕様
 
-<DemoFrame label="必須、読み取り専用、無効、Enter だけでエントリを作るキーワード" plain column>
+<Example label="必須、読み取り専用、無効、Enter だけでエントリを作るキーワード" column>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="宛先" type="email" required required-text="必須" remove-label="{entry} を取り除く" value='["ada@example.com"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="宛先" type="email" readonly remove-label="{entry} を取り除く" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="宛先" type="email" disabled remove-label="{entry} を取り除く" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
   <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="著者" remove-label="{entry} を取り除く" supporting-text="名前を 1 件入力するごとに Enter を押してください。" value='["Lovelace, Ada","Hopper, Grace"]'></tanrei-chip-field>
-</DemoFrame>
+</Example>
 
 ### それぞれの構成要素が受け持つもの
 

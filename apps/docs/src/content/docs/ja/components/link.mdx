@@ -2,20 +2,20 @@
 title: リンク
 description: 行き先のあるテキストです。文の中の語句、単独の 1 行、グリフだけの 3 つの形があります。置かれた場所のテキストスタイルで描き、下線はデザインシステムの選択に従い、サイトの外へ出るリンクにはその印を付けます。
 translationOf: components/link.mdx
-sourceHash: f0fa00fc6cf51c83e20f611d66798ad0f25346c1
+sourceHash: 9b8d84836c01c4321968380baaeb61b4d1c2d871
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="link" />
 
-<DemoFrame label="文の中、単独、グリフだけ" column>
+<Example label="文の中、単独、グリフだけ" column>
   <p style="margin: 0; max-inline-size: 32rem">
     トークンはすべてのプラットフォーム向けに生成されます。
     <a class="tanrei-link" href="../../foundations/design-tokens/">トークンの導出のしくみ</a>を読むか、
@@ -27,7 +27,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <p style="margin: 0">
     <a class="tanrei-link" href="#概要" aria-label="「概要」へのリンク"><span class="tanrei-icon" aria-hidden="true">link</span></a>
   </p>
-</DemoFrame>
+</Example>
 
 表を引かなくても使える規則が 1 つあります。**アドレスがあればリンク、なければボタンです。** ページ上で何かを実行し、どこにも移動しないコントロールは[ボタン](../button/)で、テキストのように控えめに見せたいときは `text` バリアントを使います。ボタンのように見せたい行き先は、`href` を持つボタンです。
 
@@ -120,43 +120,43 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 
 ## 仕様
 
-<DemoFrame label="折り返し：下線、ステートレイヤー、フォーカスリングは行ごとに描かれます" plain>
+<Example label="折り返し：下線、ステートレイヤー、フォーカスリングは行ごとに描かれます">
   <p style="margin: 0; max-inline-size: 22rem">
     <a class="tanrei-link" href="../../foundations/accessibility/">アクセシビリティガイド。各コンポーネントの名前の付け方、キーボードでの到達と操作の方法、状態が変わったときに各プラットフォームが読み上げる内容を説明します</a>
   </p>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="グリフと、新しいタブの印" plain column>
+<Example label="グリフと、新しいタブの印" column>
   <a class="tanrei-link" data-standalone href="../../foundations/design-tokens/"><span class="tanrei-icon" aria-hidden="true">download</span>トークンをダウンロード</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="新しいタブで開きます">ソースを見る</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="新しいタブで開きます"><span class="tanrei-icon" aria-hidden="true">code</span>ソースを見る</a>
   <a class="tanrei-link" data-standalone data-icon-position="trailing" href="https://example.com/tanrei" target="_blank" aria-description="新しいタブで開きます">ソースを見る<span class="tanrei-icon" aria-hidden="true">code</span></a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="現在の項目と無効" plain>
+<Example label="現在の項目と無効">
   <a class="tanrei-link" data-standalone href="../">概要</a>
   <a class="tanrei-link" data-standalone href="./" aria-current="page">コンポーネント</a>
   <a class="tanrei-link" data-standalone role="link" aria-disabled="true">前のページ</a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="下線：常に、ホバー時、なし" plain>
+<Example label="下線：常に、ホバー時、なし">
   <a class="tanrei-link" data-standalone data-underline="always" href="../button/">常に</a>
   <a class="tanrei-link" data-standalone data-underline="hover" href="../button/">ホバー時</a>
   <a class="tanrei-link" data-standalone data-underline="never" href="../button/">なし</a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="サイトの外へ出るリンク" plain column>
+<Example label="サイトの外へ出るリンク" column>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="外部リンク">仕様書</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="外部リンク"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />仕様書</a>
   <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" target="_blank" aria-description="新しいタブで開きます"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />仕様書</a>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="反転したサーフェスの上" plain>
+<Example label="反転したサーフェスの上">
   <div style="padding: var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-inverse-surface); color: var(--tanrei-sys-color-inverse-on-surface)">
     ページを保存しました。
     <a class="tanrei-link" data-variant="inverse" href="../snackbar/">変更点を見る</a>
   </div>
-</DemoFrame>
+</Example>
 
 リンクは自分のテキストスタイルを持ちません。段落、見出し、キャプション、表のセルのどこでも、置かれたテキストの書体、サイズ、太さ、行の高さをそのまま使います。ホバー、フォーカス、押下は、リンクが通る各行のテキストの背後に描かれ、場所を取らないので、リンクの周りは動きません。グリフ、サイトのアイコン、印はテキストと同じ大きさで、隣の語と同じ行にとどまります。
 

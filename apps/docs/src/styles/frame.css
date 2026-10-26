@@ -222,6 +222,22 @@
   tanrei-app-shell:is([data-window-class='expanded'], [data-window-class='medium']) > tanrei-navigation-drawer.docs-sidebar:not(:defined) {
     display: grid;
   }
+  /* The filter field (Sidebar.astro, NVD-79): the drawer draws it above its list once it is defined, a Text input of
+     the default variant at the medium size with filter.gap below it. Until then its box stands in its place, from the
+     same tokens, so that the rows under it do not move; where no script runs there is no field, and no room for one. */
+  tanrei-navigation-drawer.docs-sidebar[filterable]:not(:defined)::before {
+    content: '';
+    box-sizing: border-box;
+    block-size: var(--tanrei-comp-input-box-stacked-container-height-medium);
+    margin-block-end: var(--tanrei-comp-navigation-drawer-filter-gap);
+    border-radius: var(--tanrei-comp-input-box-container-shape);
+    background: var(--tanrei-comp-input-box-stacked-container-color);
+  }
+  @media (scripting: none) {
+    tanrei-navigation-drawer.docs-sidebar[filterable]:not(:defined)::before {
+      content: none;
+    }
+  }
   /* The rows of the design system's button (compact windows only, above) and of the switch: the first of the list, at
      a row's inset, a row's height at least; a collapsed drawer, whose column holds the groups' glyphs, draws neither. */
   .docs-system-row {

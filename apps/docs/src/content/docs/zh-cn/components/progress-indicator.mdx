@@ -2,27 +2,27 @@
 title: "进度指示器"
 description: "以条形或圆环显示任务已经进行到哪里；进度未知时，则表示任务正在进行。"
 translationOf: components/progress-indicator.mdx
-sourceHash: 7a2f831964be9fb1473847365cd287574d956952
+sourceHash: a3a25acb0bd8dba2353811061e0fbe63c03d1013
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="progress-indicator" />
 
-<DemoFrame label="线性和环形">
+<Example label="线性和环形">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-progress-indicator value="0.4" label="正在上传 report.pdf"></tanrei-progress-indicator>
     <tanrei-progress-indicator label="正在准备导出"></tanrei-progress-indicator>
   </div>
   <tanrei-progress-indicator variant="circular" value="0.4" label="正在同步照片"></tanrei-progress-indicator>
   <tanrei-progress-indicator variant="circular" label="正在同步"></tanrei-progress-indicator>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -124,7 +124,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 
 ## 规格
 
-<DemoFrame label="各种尺寸、范围的两端，以及自定义范围" plain>
+<Example label="各种尺寸、范围的两端，以及自定义范围">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-progress-indicator size="small" value="0.4" label="Small"></tanrei-progress-indicator>
     <tanrei-progress-indicator size="medium" value="0.4" label="Medium"></tanrei-progress-indicator>
@@ -136,9 +136,9 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
   <tanrei-progress-indicator variant="circular" size="small" value="0.4" label="Small"></tanrei-progress-indicator>
   <tanrei-progress-indicator variant="circular" size="medium" value="0.4" label="Medium"></tanrei-progress-indicator>
   <tanrei-progress-indicator variant="circular" size="large" value="0.4" label="Large"></tanrei-progress-indicator>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="分隔方式：divider（默认系统的选择）和 gap" plain>
+<Example label="分隔方式：divider（默认系统的选择）和 gap">
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
     <tanrei-progress-indicator separation="divider" value="0.4" label="Divider"></tanrei-progress-indicator>
     <tanrei-progress-indicator separation="gap" value="0.4" label="Gap"></tanrei-progress-indicator>
@@ -146,7 +146,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
   </div>
   <tanrei-progress-indicator variant="circular" size="large" separation="divider" value="0.4" label="Divider"></tanrei-progress-indicator>
   <tanrei-progress-indicator variant="circular" size="large" separation="gap" value="0.4" label="Gap"></tanrei-progress-indicator>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="progress-indicator" />
 

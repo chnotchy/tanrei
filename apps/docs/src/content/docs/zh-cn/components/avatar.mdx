@@ -2,20 +2,20 @@
 title: "头像"
 description: "用一张小图片代表一个人、一个团队或一个项目；没有图片时，用姓名缩写或一个字形；形状是圆形或圆角方形，有三种尺寸。多个头像可以显示成相互交叠的一组，并数出其余的数量。它是一张图片，从不是控件。"
 translationOf: components/avatar.mdx
-sourceHash: 07dead2023b4f4d4a40bc6b59db9d6f9d5b93421
+sourceHash: 124605666562cadb6cd1fca1a22be5b5d2366ff9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="avatar" />
 
-<DemoFrame label="姓名缩写、字形、方形，以及一组">
+<Example label="姓名缩写、字形、方形，以及一组">
   <tanrei-avatar label="李华" initials="李"></tanrei-avatar>
   <tanrei-avatar label="没有图片的用户"></tanrei-avatar>
   <tanrei-avatar label="设计团队" initials="设" shape="square"></tanrei-avatar>
@@ -27,7 +27,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-avatar label="陈静" initials="陈"></tanrei-avatar>
     <tanrei-avatar label="赵磊" initials="赵"></tanrei-avatar>
   </tanrei-avatar-group>
-</DemoFrame>
+</Example>
 
 头像表明某样东西属于谁：帖子的作者、对话中的人、任务的负责人。它绘制一张图片，没有图片时也总有东西可画。它从不响应指针、按键或焦点。
 
@@ -81,14 +81,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="三种尺寸，两种形状" plain>
+<Example label="三种尺寸，两种形状">
   <tanrei-avatar size="small" label="李华" initials="李"></tanrei-avatar>
   <tanrei-avatar label="李华" initials="李"></tanrei-avatar>
   <tanrei-avatar size="large" label="李华" initials="李"></tanrei-avatar>
   <tanrei-avatar size="small" shape="square" label="设计团队" initials="设"></tanrei-avatar>
   <tanrei-avatar shape="square" label="设计团队" initials="设"></tanrei-avatar>
   <tanrei-avatar size="large" shape="square" label="某个项目"></tanrei-avatar>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="avatar" />
 
@@ -131,13 +131,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 头像最多绘制两个字符，按读者数字符的方式来数，所以带附加符号的字母或者连写的音节绝不会被切成两半。它按写下的样子绘制，不改变大小写。
 
-<DemoFrame label="几种文字系统的姓名缩写" plain>
+<Example label="几种文字系统的姓名缩写">
   <tanrei-avatar label="Ada Lovelace" initials="AL" lang="en"></tanrei-avatar>
   <tanrei-avatar label="山田 花子" initials="山田" lang="ja"></tanrei-avatar>
   <tanrei-avatar label="王小明" initials="王"></tanrei-avatar>
   <tanrei-avatar label="ليلى حسن" initials="لح" lang="ar"></tanrei-avatar>
   <tanrei-avatar label="किरण राव" initials="किरा" lang="hi"></tanrei-avatar>
-</DemoFrame>
+</Example>
 
 ### 尺寸和形状
 
@@ -164,13 +164,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 组把它的成员画成一行。每个成员只压住前一个成员一点点（按尺寸为 2、4 或 8），因此并排的两个字母缩写保持完整、不会被误读；每个成员周围都有一圈表面颜色的间隙。
 
-<DemoFrame label="把没有交给它的成员也数进去的组" plain>
+<Example label="把没有交给它的成员也数进去的组">
   <tanrei-avatar-group label="成员" max="4" total="240" overflow-label="还有 {count} 人">
     <tanrei-avatar label="李华" initials="李"></tanrei-avatar>
     <tanrei-avatar label="王芳"></tanrei-avatar>
     <tanrei-avatar label="张伟" initials="张"></tanrei-avatar>
   </tanrei-avatar-group>
-</DemoFrame>
+</Example>
 
 - `max` 是组最多绘制的方框数，溢出框也算在内。六名成员加上 `max="4"`，是三名成员和“+3”。组绝不绘制“+1”：那等于花掉一个方框去藏起一张脸。
 - 交给组的成员比实际的少时，`total` 是真实的总数。三名成员、`max="4"` 和 `total="240"`，是三名成员和“99+”：超过 99 时，任何尺寸的方框都写“99+”，所以方框里最多只有三个字符。确切的数字请写在 `overflow-label` 里，读屏读的是它。

@@ -2,20 +2,20 @@
 title: "数字输入框"
 description: "放数字的那个方框——按所在区域设置的写法键入，或者用按键或按钮步进；数字被限制在范围之内，单位就在旁边——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的数字，或者放进产品自己组合的字段里。"
 translationOf: components/number-input.mdx
-sourceHash: d6ff008fbde5d43dd32614e3e7bdba4bb94404fd
+sourceHash: d2d6bd8ae89fdd1c543ff780c061b338242047c6
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="number-input" />
 
-<DemoFrame label="单独使用：同一个行标题之下、滑块旁边的数字，以及标签位于旁边的一行里的数量" column>
+<Example label="单独使用：同一个行标题之下、滑块旁边的数字，以及标签位于旁边的一行里的数量" column>
   <div class="not-content" style="display: grid; grid-template-columns: minmax(0, 1fr) 6rem; align-items: center; gap: 0.75rem; inline-size: 22rem; max-inline-size: 100%">
     <tanrei-slider label="缩放比例" min="0.25" max="4" step="0.05" value="1.5"></tanrei-slider>
     <tanrei-number-input label="缩放比例" min="0.25" max="4" step="0.05" value="1.5" suffix-text="×" value-text="1.5 倍" align="end" no-steppers></tanrei-number-input>
@@ -24,7 +24,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <span>橡木书桌</span>
     <tanrei-number-input label="数量，橡木书桌" value="2" min="1" max="99" increment-label="增加" decrement-label="减少"></tanrei-number-input>
   </div>
-</DemoFrame>
+</Example>
 
 数字输入框就是[数字字段](/zh-cn/components/number-field/)里的那个方框，单独拿出来：容器、数字、它的前缀和后缀，以及两个步进按钮。它上方没有标签行，下方没有帮助文本和错误文本。
 
@@ -107,11 +107,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="里面放着一个数字输入框的字段：画面与数字字段相同" column>
+<Example label="里面放着一个数字输入框的字段：画面与数字字段相同" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" required required-text="必填" supporting-text="每笔订单最多 99 件。">
     <tanrei-number-input min="1" max="99" invalid-text="请输入数字。" increment-label="增加" decrement-label="减少"></tanrei-number-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 只有输入框知道的事，由它告诉所在的字段。字段的帮助文本与方框里的文本对齐：无论是否绘制步进按钮，它都从方框的文本内边距处开始，也在文本内边距处结束。filled 或 outlined 的输入框自己画出字段的标签，让它浮在方框里，所以字段不绘制标签行。文本不是数字时，字段会进入错误状态，显示输入框的 `invalidText`；输入框没有给出时，显示字段自己的 `errorText`。
 
@@ -119,24 +119,24 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="单独使用的输入框：到达上限而被禁用的步进按钮、靠末尾边对齐的数字、没有步进按钮、错误、只读和禁用" plain column>
+<Example label="单独使用的输入框：到达上限而被禁用的步进按钮、靠末尾边对齐的数字、没有步进按钮、错误、只读和禁用" column>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" value="99" min="1" max="99" increment-label="增加" decrement-label="减少"></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="色调" value="40" min="0" max="100" align="end" increment-label="增加" decrement-label="减少"></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="字距" value="-0.25" step="0.01" suffix-text="px" no-steppers></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" value="0" error increment-label="增加" decrement-label="减少"></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" value="12" readonly></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" value="12" disabled increment-label="增加" decrement-label="减少"></tanrei-number-input>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="单独使用的 filled 和 outlined：输入框自己的标签浮在方框里" system="m3-like" plain column>
+<Example label="单独使用的 filled 和 outlined：输入框自己的标签浮在方框里" system="m3-like" column>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="数量" value="12" increment-label="增加" decrement-label="减少"></tanrei-number-input>
   <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="数量" increment-label="增加" decrement-label="减少"></tanrei-number-input>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="在从右到左的布局中：用拉丁字母写的单位位于数字之后，从左到右书写；用页面自身的文字写的单位位于数字的左侧" plain column>
+<Example label="在从右到左的布局中：用拉丁字母写的单位位于数字之后，从左到右书写；用页面自身的文字写的单位位于数字的左侧" column>
   <div dir="rtl" lang="ar"><tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="العرض" value="44" min="0" suffix-text="px" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input></div>
   <div dir="rtl" lang="ar"><tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الوزن" value="12" min="0" step="0.5" suffix-text="كغم" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input></div>
-</DemoFrame>
+</Example>
 
 数字和它的单位是连成一体书写的。前缀写在数字之前，后缀写在数字之后，方向按单位自身所用文字的书写方向，与页面的方向无关。所以“44 px”“$ 120 USD”和“40 %”在阿拉伯语或希伯来语的页面里，读起来与在英语页面里一样；用阿拉伯字母或希伯来字母写的单位，则位于数字的左侧。步进按钮和标签跟随页面。`align="end"` 让数字紧靠它的单位：单位用拉丁字母或符号书写时，在两种方向下都靠右。要让拉丁字母的货币代码位于数字的左侧，就让后缀以一个从右到左标记（U+200F）开头。
 

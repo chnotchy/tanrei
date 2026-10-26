@@ -79,8 +79,8 @@ studioTest('an action is a Tanrei button: its drawn word, its whole name where r
   assert.equal(await page.locator('html').getAttribute('data-tanrei-theme'), 'dark');
   assert.equal(await page.getByRole('button', { name: 'Theme: Light', exact: true }).count(), 1);
 
-  // The one filled action of the export; the others outlined.
-  assert.deepEqual(await page.locator('[data-panel="export"] .ts-export-side .ts-actions tanrei-button').evaluateAll((els) => els.map((el) => el.variant)), ['outlined', 'outlined', 'outlined'], 'with a file attached nothing is the main action');
+  // The file's actions under the panel — Export and Start over — outlined: with a file attached, nothing is the main action.
+  assert.deepEqual(await page.locator('[data-panel="export"] .ts-export-side .ts-actions tanrei-button').evaluateAll((els) => els.map((el) => el.variant)), ['outlined', 'outlined'], 'with a file attached nothing is the main action');
   // A palette is declared by the button, and by Enter in its name: the form is still a form.
   await section('palettes');
   const form = page.locator('[data-add-palette]');

@@ -2,20 +2,20 @@
 title: اللوحة المنبثقة
 description: تعرض محتوى يقرؤه الشخص ويعمل فيه على سطح صغير يُفتح بجانب عنصر التحكم الذي ضغطه ويبقى معه، من دون تعتيم بقية الصفحة أو حجبها. وفي نافذة مضغوطة، على سطح نمطي بمظهر اللوحة السفلية.
 translationOf: components/popover.mdx
-sourceHash: 80d3974c3277f1d69bb01e20df6bfa52a4477d9a
+sourceHash: cd2056332ef89bbba2c92da6cb340178ef7a87c7
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="popover" />
 
-<DemoFrame label="اضغط زرًّا: ملاحظة فيها رابط، ونموذج قصير له إجراءات">
+<Example label="اضغط زرًّا: ملاحظة فيها رابط، ونموذج قصير له إجراءات">
   <tanrei-button id="popover-demo-note-opener" variant="outlined" onclick="document.getElementById('popover-demo-note').open = !document.getElementById('popover-demo-note').open">التخزين</tanrei-button>
   <tanrei-popover id="popover-demo-note" anchor="popover-demo-note-opener" headline="التخزين" closable close-label="إغلاق لوحة التخزين" arrow placement="bottom" onclose="this.open = false">
     الملفات في المهملات تبقى محسوبة من مساحة تخزينك إلى أن تُحذف. <a class="tanrei-link" href="#الإرشادات">كيف تُحسب مساحة التخزين</a>
@@ -26,7 +26,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-popover').open = false">إلغاء</tanrei-button>
     <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-popover').open = false">إعادة تسمية</tanrei-button>
   </tanrei-popover>
-</DemoFrame>
+</Example>
 
 استخدم اللوحة المنبثقة (popover) لمحتوى يعمل فيه الشخص بجانب عنصر التحكم الذي فتحها: بضعة إعدادات، أو نموذج قصير، أو لوحة مشاركة، أو ملاحظة تحتاج إلى رابط أو زر. وتبقى بقية الصفحة حولها صالحة للاستخدام. وفي نافذة مضغوطة تأخذ بدلًا من ذلك مظهر اللوحة السفلية عند الحافة السفلية للنافذة، كما تفعل هناك كل لوحة منبثقة وكل مربع حوار في Tanrei.
 
@@ -95,14 +95,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="الموضع، وسهم، ولوحة منبثقة بعرض عنصر ارتكازها" plain>
+<Example label="الموضع، وسهم، ولوحة منبثقة بعرض عنصر ارتكازها">
   <tanrei-button id="popover-demo-top-opener" variant="outlined" onclick="document.getElementById('popover-demo-top').open = !document.getElementById('popover-demo-top').open">فوق، في الوسط</tanrei-button>
   <tanrei-popover id="popover-demo-top" anchor="popover-demo-top-opener" label="التخزين" placement="top" arrow onclose="this.open = false">المهملات تبقى محسوبة من مساحة التخزين.</tanrei-popover>
   <tanrei-button id="popover-demo-end-opener" variant="outlined" onclick="document.getElementById('popover-demo-end').open = !document.getElementById('popover-demo-end').open">بجانبه، عند النهاية</tanrei-button>
   <tanrei-popover id="popover-demo-end" anchor="popover-demo-end-opener" label="التخزين" placement="end-top" onclose="this.open = false">المهملات تبقى محسوبة من مساحة التخزين.</tanrei-popover>
   <tanrei-button id="popover-demo-width-opener" variant="outlined" style="inline-size: 16rem" onclick="document.getElementById('popover-demo-width').open = !document.getElementById('popover-demo-width').open">بعرض هذا الزر</tanrei-button>
   <tanrei-popover id="popover-demo-width" anchor="popover-demo-width-opener" label="التخزين" width="anchor" onclose="this.open = false">المهملات تبقى محسوبة من مساحة التخزين.</tanrei-popover>
-</DemoFrame>
+</Example>
 
 ### أين تقف
 

@@ -2,14 +2,14 @@
 title: メニュー付きボタン
 description: 主なアクションを 1 回の押下で実行し、関連するアクションは、隣につながったもう 1 つのボタンから開くメニューで示します。
 translationOf: components/button-with-menu.mdx
-sourceHash: b2cc3ce77b318949d05a451ba15d953c237f71ee
+sourceHash: fc9fa1614058622bad95aa4f9dbc578e3c4dc196
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
@@ -40,21 +40,21 @@ Material 3 では、対応するコンポーネントを split button と呼び�
 - `trailingWidth`（`default`、`narrow`）で、末尾側の半分を細く描けます。シェブロンの両側に小さな余白を取り、丸い外側の端には既定の幅と同じくパディングが少し加わります。
 :::
 
-<DemoFrame label="バリアント">
+<Example label="バリアント">
   <tanrei-button-with-menu label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="elevated" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="メニュー付き：メニュー側の半分を押してください" plain>
+<Example label="メニュー付き：メニュー側の半分を押してください">
   <tanrei-button-with-menu label="保存" menu-label="保存のその他のオプション" ontoggle="this.open = event.detail.open" onclose="this.open = false">
     <span slot="icon">save</span>
     <tanrei-menu-item slot="menu" label="名前を付けて保存…"></tanrei-menu-item>
     <tanrei-menu-item slot="menu" label="コピーを保存"></tanrei-menu-item>
     <tanrei-menu-item slot="menu" label="テンプレートとして保存"></tanrei-menu-item>
   </tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 ### 使い方
 
@@ -259,20 +259,20 @@ Material 3 では、対応するコンポーネントを split button と呼び�
 
 2 つの半分をつなぐ方法は 2 つあります。**区切り線**（divider）では、2 つが接し、接する側の角は直角になり、継ぎ目に線が引かれます。**隙間**（gap）では、2 つが狭い隙間を空けて並び、向かい合う側の角が小さくなります。どちらにするかは、パーツをつなぐすべてのコンポーネントについてデザインシステムが 1 度だけ決めます（既定のシステムは区切り線です）。デザインシステムはこのコンポーネントだけを別にでき、`separation`（`auto`、`divider`、`gap`）は 1 つのインスタンスだけを変えます。2 つの半分はいつも横に並びます。縦の形はありません。
 
-<DemoFrame label="区切り線と隙間" plain>
+<Example label="区切り線と隙間">
   <tanrei-button-with-menu separation="divider" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
   <tanrei-button-with-menu separation="gap" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" separation="divider" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" separation="gap" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" separation="divider" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" separation="gap" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 ### 細いメニュー側の半分
 
 既定では、メニュー側の半分は、ボタンの高さと同じ 1 辺の正方形にシェブロンを収め、丸い外側の端にパディングが少し加わります。`trailingWidth` を `narrow` にすると、主アクションに添えた細い取っ手になります。シェブロンの両側に小さな余白を取り、丸い外側の端には既定の幅と同じパディングが少し加わるので、シェブロンは曲線に対して中央に見えます（既定のシステムでは 32 / 36 / 36。同じサイズの narrow のアイコンだけの[ボタン](/ja/components/button/)の幅に、そのパディングを足した幅です）。主アクション側の半分は、どちらの幅でも同じです。
 
-<DemoFrame label="メニュー側の幅：default と narrow（各サイズ）" plain>
+<Example label="メニュー側の幅：default と narrow（各サイズ）">
   <tanrei-button-with-menu size="small" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
   <tanrei-button-with-menu size="small" trailing-width="narrow" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
   <tanrei-button-with-menu label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
@@ -280,7 +280,7 @@ Material 3 では、対応するコンポーネントを split button と呼び�
   <tanrei-button-with-menu size="large" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
   <tanrei-button-with-menu size="large" trailing-width="narrow" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" separation="gap" trailing-width="narrow" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 細いメニュー側の半分は、見た目は最小ターゲットより狭くなりますが、ヒット領域は狭くなりません。ターゲットは外側へ、末尾側の端を越えて届きます。narrow のアイコンだけのボタンの横と同じように、そこに余裕を取ってください。
 
@@ -290,17 +290,17 @@ Material 3 では、対応するコンポーネントを split button と呼び�
 
 `destructive` が付くのは 2 つの半分だけで、メニューの項目には付きません。メニューの選択肢は、主なアクションが削除しないものを削除することも、その逆もあるので、削除する項目にはそれぞれ `destructive` を設定します。
 
-<DemoFrame label="破壊的なメニュー付きボタン（各 variant と、隙間でつないだもの）" plain>
+<Example label="破壊的なメニュー付きボタン（各 variant と、隙間でつないだもの）">
   <tanrei-button-with-menu destructive label="削除" menu-label="削除のその他のオプション"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="tonal" destructive label="削除" menu-label="削除のその他のオプション"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="elevated" destructive label="削除" menu-label="削除のその他のオプション"></tanrei-button-with-menu>
   <tanrei-button-with-menu variant="outlined" destructive label="削除" menu-label="削除のその他のオプション"></tanrei-button-with-menu>
   <tanrei-button-with-menu separation="gap" destructive label="削除" menu-label="削除のその他のオプション"></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 ## 仕様
 
-<DemoFrame label="サイズ、アイコン、開いた状態、無効状態" plain>
+<Example label="サイズ、アイコン、開いた状態、無効状態">
   <tanrei-button-with-menu size="small" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
   <tanrei-button-with-menu size="large" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
   <tanrei-button-with-menu label="保存" menu-label="保存のその他のオプション"><span slot="icon">save</span></tanrei-button-with-menu>
@@ -309,7 +309,7 @@ Material 3 では、対応するコンポーネントを split button と呼び�
   <tanrei-button-with-menu variant="outlined" disabled label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
   <tanrei-button-with-menu label="共有" menu-label="共有のその他のオプション"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
   <tanrei-button-with-menu open label="共有" menu-label="共有のその他のオプション"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="button-with-menu" />
 

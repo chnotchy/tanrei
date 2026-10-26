@@ -2,23 +2,23 @@
 title: स्केलेटन
 description: लोड होने के दौरान उस जगह रहता है जहाँ कॉन्टेंट आएगा। आने वाली चीज़ के आकार के हल्के प्लेसहोल्डर (टेक्स्ट की लाइनें, एक ब्लॉक, एक गोला) वह बॉक्स थामे रखते हैं जो कॉन्टेंट लेगा, ताकि उसके आने पर कुछ न खिसके।
 translationOf: components/skeleton.mdx
-sourceHash: 35e480f921d9bf8421691218c876dd261757f4ac
+sourceHash: a5c6ed1971270c9e64fb7b4de3a95eea84409f60
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="skeleton" />
 
-<DemoFrame label="लोड होते समय एक व्यक्ति का ब्योरा और एक कार्ड" column>
+<Example label="लोड होते समय एक व्यक्ति का ब्योरा और एक कार्ड" column>
   <tanrei-skeleton label="लेखक का ब्योरा लोड हो रहा है" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 10rem"></span><span class="tanrei-skeleton-placeholder" data-lines="2"></span></tanrei-skeleton>
   <tanrei-skeleton label="प्रोजेक्ट लोड हो रहा है" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 160px"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 12.5rem"></span><span class="tanrei-skeleton-placeholder" data-lines="3"></span><span class="tanrei-skeleton-placeholder" data-shape="block" style="inline-size: 6rem; block-size: 40px"></span></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
 व्यू अक्सर अपने कॉन्टेंट से पहले आ जाता है। स्केलेटन आने वाली चीज़ का आकार उसी जगह थामे रखता है जहाँ वह होगी: टेक्स्ट की लाइनें, किसी तस्वीर या कंट्रोल के लिए एक ब्लॉक, किसी व्यक्ति की तस्वीर के लिए एक गोला। कॉन्टेंट आने पर वही बॉक्स लेता है जो उसके लिए थामे गए थे, और जिसे व्यक्ति देख रहा था या दबाने वाला था, वह नहीं खिसकता।
 
@@ -99,15 +99,15 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="तीन आकार: टेक्स्ट, एक ब्लॉक, एक गोला" plain column>
+<Example label="तीन आकार: टेक्स्ट, एक ब्लॉक, एक गोला" column>
   <tanrei-skeleton label="टेक्स्ट लोड हो रहा है" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></tanrei-skeleton>
   <tanrei-skeleton label="तस्वीर लोड हो रही है" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 96px"></span></tanrei-skeleton>
   <tanrei-skeleton label="व्यक्ति का ब्योरा लोड हो रहा है" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="टेक्स्ट का प्लेसहोल्डर उस जगह का टेक्स्ट स्टाइल लेता है जहाँ वह है: हेडिंग में, पैराग्राफ़ में" plain column>
+<Example label="टेक्स्ट का प्लेसहोल्डर उस जगह का टेक्स्ट स्टाइल लेता है जहाँ वह है: हेडिंग में, पैराग्राफ़ में" column>
   <tanrei-skeleton label="लेख लोड हो रहा है" show-delay="0" style="inline-size: min(100%, 24rem)"><h3 style="margin: 0 0 0.5rem"><span class="tanrei-skeleton-placeholder" style="inline-size: 60%"></span></h3><p style="margin: 0"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></p></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="skeleton" />
 
@@ -123,13 +123,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - `data-lines` से बताएँ कि टेक्स्ट कितनी लाइनें लेगा। आपका कॉन्टेंट जितना नियमित होगा, आप उतनी ही बार सही होंगे। जो स्केलेटन एक लाइन छोटा है, वह पेज को एक लाइन खिसकाता है, जो फिर भी उससे कम है जितना ख़ाली जगह उसे खिसकाती है।
 - ब्लॉक को तस्वीर या कंट्रोल का साइज़ दें: एक संख्या, एक अनुपात, या वह साइज़ जो आपका लेआउट उसे देता है। गोला एक संख्या लेता है, अपनी भुजा।
 
-<DemoFrame label='"लोड करें" दबाएँ: स्केलेटन ढाई सेकंड तक जगह थामे रखता है, और कॉन्टेंट उसका बॉक्स लेता है' plain column>
+<Example label='"लोड करें" दबाएँ: स्केलेटन ढाई सेकंड तक जगह थामे रखता है, और कॉन्टेंट उसका बॉक्स लेता है' column>
   <tanrei-button variant="outlined" onclick="const place = this.parentElement.querySelector('[data-skeleton-demo]'); const [waiting, arrived] = this.parentElement.querySelectorAll('template'); place.replaceChildren(waiting.content.cloneNode(true)); clearTimeout(place.timer); place.timer = setTimeout(() => place.replaceChildren(arrived.content.cloneNode(true)), 2500)">लोड करें</tanrei-button>
   <div data-skeleton-demo style="inline-size: min(100%, 24rem)"><h3 style="margin: 0 0 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">तीन स्तरों में टोकन</h3><p style="margin: 0; min-block-size: 3lh; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden">रेफ़रेंस टोकन कच्चे मान रखते हैं। सिस्टम टोकन बताते हैं कि मान किस काम का है। कंपोनेंट टोकन एक भाग को उनमें से एक से जोड़ते हैं।</p></div>
   <template><tanrei-skeleton label="लेख लोड हो रहा है"><h3 style="margin: 0 0 0.5rem"><span class="tanrei-skeleton-placeholder" style="inline-size: 60%"></span></h3><p style="margin: 0"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></p></tanrei-skeleton></template>
   <template><h3 style="margin: 0 0 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">तीन स्तरों में टोकन</h3><p style="margin: 0; min-block-size: 3lh; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden">रेफ़रेंस टोकन कच्चे मान रखते हैं। सिस्टम टोकन बताते हैं कि मान किस काम का है। कंपोनेंट टोकन एक भाग को उनमें से एक से जोड़ते हैं।</p></template>
   <p style="margin: 0">यह लाइन लेख के नीचे है, और खिसकती नहीं।</p>
-</DemoFrame>
+</Example>
 
 ### आकार
 
@@ -149,10 +149,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 जहाँ कोई और चीज़ पहले से वही इंतज़ार बता रही है, जैसे स्थिति पंक्ति का लोडिंग इंडिकेटर, स्थिति का टेक्स्ट, या ऐसा रीजन जिसे आपने ख़ुद व्यस्त के रूप में चिह्नित करके नाम दिया है, वहाँ `decorative` सेट करें। तब स्केलेटन वैसा ही बनता है और सहायक तकनीक से छिपा रहता है, ताकि इंतज़ार दो बार न पढ़ा जाए।
 
-<DemoFrame label="स्थिति पंक्ति पहले से इंतज़ार बता रही है, इसलिए उसके नीचे के प्लेसहोल्डर सजावटी हैं" plain column>
+<Example label="स्थिति पंक्ति पहले से इंतज़ार बता रही है, इसलिए उसके नीचे के प्लेसहोल्डर सजावटी हैं" column>
   <span style="display: flex; align-items: center; gap: 0.5rem"><tanrei-loading-indicator size="small" label="खोजा जा रहा है" show-delay="0"></tanrei-loading-indicator>खोजा जा रहा है…</span>
   <tanrei-skeleton decorative show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder"></span><span class="tanrei-skeleton-placeholder"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 70%"></span></tanrei-skeleton>
-</DemoFrame>
+</Example>
 
 ### वह दिखने से पहले रुकता है
 

@@ -2,14 +2,14 @@
 title: "滚动区域"
 description: "用平台自己的滚动方式滚动内容的框。在它关注的每条边上，用表面颜色的渐变带、内容本身的渐隐、一条线或模糊来表示边外还有内容，既不改变自身尺寸，也不移动内容。"
 translationOf: components/scroll-area.mdx
-sourceHash: fd54b46e1aadb3f1cd30abe2cb060f324ca86fbc
+sourceHash: 775ae73696089e43cf18061a5f5f9b0205dabaf6
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import BehaviorChoice from '../../../../components/tokens/BehaviorChoice.astro';
 import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
@@ -17,7 +17,7 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
 
 <ComponentAvailability name="scroll-area" />
 
-<DemoFrame label="固定高度框中的列表">
+<Example label="固定高度框中的列表">
   <tanrei-scroll-area label="消息" style="inline-size: min(100%, 20rem); block-size: 16rem">
     <tanrei-list-row headline="Ada" supporting-text="草稿可以审阅了"></tanrei-list-row>
     <tanrei-list-row headline="Grace" supporting-text="会议改到周四了"></tanrei-list-row>
@@ -30,7 +30,7 @@ import SystemValues from '../../../../components/tokens/SystemValues.astro';
     <tanrei-list-row headline="Margaret" supporting-text="一切就绪"></tanrei-list-row>
     <tanrei-list-row headline="Rosalind" supporting-text="实验室的新照片"></tanrei-list-row>
   </tanrei-scroll-area>
-</DemoFrame>
+</Example>
 
 内容放得下时，区域自己什么也不绘制。滚动试试：下方还有内容时，底边会被标示；一旦有内容滚出上方的视野，顶边也会被标示。
 
@@ -86,7 +86,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 
 ## 规格
 
-<DemoFrame label="滚动边缘：shadow（默认系统的选择）、fade、line、blur 和 none" plain>
+<Example label="滚动边缘：shadow（默认系统的选择）、fade、line、blur 和 none">
   <tanrei-scroll-area scroll-edge="shadow" label="阴影" style="inline-size: 9rem; block-size: 10rem">
     <p>阴影。一条使用区域所在表面颜色的渐变带，在边缘处最浓，到距边缘 24 处消失。滚动后顶边也会被标示。内容看起来像是沉入了表面。</p>
   </tanrei-scroll-area>
@@ -102,7 +102,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
   <tanrei-scroll-area scroll-edge="none" label="无" style="inline-size: 9rem; block-size: 10rem">
     <p>无。边缘不做任何标示，只有平台的滚动条表示内容还在继续。滚动它，和其他几个比较一下。</p>
   </tanrei-scroll-area>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="scroll-area" />
 

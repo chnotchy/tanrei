@@ -2,23 +2,23 @@
 title: फ़ील्ड
 description: एक कंट्रोल को वह सब देता है जो फ़ॉर्म हर फ़ील्ड को देता है, यानी ऐसा लेबल जो बता सकता है कि कंट्रोल ज़रूरी है या वैकल्पिक, सहायता की एक पंक्ति, और मान के अस्वीकार होने की वजह, और हर एक को सहायक तकनीक के लिए उस कंट्रोल से जोड़ता है। यह फ़्रेम है, कंट्रोल कभी नहीं।
 translationOf: components/field.mdx
-sourceHash: 353fb2c34b3255423d1b0d9d4ee7882e5bbcd48f
+sourceHash: c4d1b7a342bb601a6261b2b8c1d3247860058944
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="field" />
 
-<DemoFrame label="एक स्लाइडर और एक स्विच, जिनमें से हर एक को फ़ील्ड नाम, सहायता और निशान देता है" column>
+<Example label="एक स्लाइडर और एक स्विच, जिनमें से हर एक को फ़ील्ड नाम, सहायता और निशान देता है" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" required required-text="ज़रूरी" supporting-text="अलर्ट और मीडिया पर लागू होता है।"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचनाएँ" optional optional-text="वैकल्पिक" supporting-text="जब कोई समीक्षा आपके इंतज़ार में हो, तब भेजी जाती हैं।"><tanrei-switch checked></tanrei-switch></tanrei-field>
-</DemoFrame>
+</Example>
 
 टेक्स्ट फ़ील्ड बता सकता है कि वह क्या है, उसका जवाब देना ज़रूरी है या नहीं, जवाब कैसे देना है, और कोई जवाब क्यों अस्वीकार हुआ। फ़ील्ड यही चार चीज़ें उस कंट्रोल को देता है जो ख़ुद ऐसा नहीं कर सकता: स्लाइडर, स्विच, [टेक्स्ट इनपुट](/hi/components/text-input/), [कलर इनपुट](/hi/components/color-input/), [वन-टाइम कोड इनपुट](/hi/components/one-time-code-input/), या वह कंट्रोल जो आपके प्रॉडक्ट ने बनाया है। टेक्स्ट फ़ील्ड ख़ुद टेक्स्ट इनपुट के चारों ओर का फ़ील्ड है। लेबल कंट्रोल के ऊपर रहता है और सहायता उसके नीचे। जब तक फ़ील्ड में त्रुटि है, त्रुटि टेक्स्ट सहायता की जगह ले लेता है, इसलिए त्रुटि वाला फ़ॉर्म सामान्य से ज़्यादा ऊँचा नहीं होता; कोई डिज़ाइन सिस्टम इसकी जगह सहायता को बनाए रख सकता है और त्रुटि टेक्स्ट उसके नीचे जोड़ सकता है।
 
@@ -68,24 +68,24 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="ज़रूरी और वैकल्पिक के तीन निशान, एक त्रुटि, एक अक्षम फ़ील्ड और लेबल का ग्लिफ़" plain column>
+<Example label="ज़रूरी और वैकल्पिक के तीन निशान, एक त्रुटि, एक अक्षम फ़ील्ड और लेबल का ग्लिफ़" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" required required-text="ज़रूरी"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" optional optional-text="वैकल्पिक"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" required required-mark="asterisk"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" required required-text="ज़रूरी" error error-text="0 से ऊपर का स्तर चुनें।"><tanrei-slider value="0"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" supporting-text="अलर्ट और मीडिया पर लागू होता है।" disabled><tanrei-slider value="40"></tanrei-slider></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम"><span slot="label-icon">volume_up</span><tanrei-slider value="40"></tanrei-slider></tanrei-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="सहायता, और एक त्रुटि: त्रुटि टेक्स्ट सहायता की जगह ले लेता है" plain column>
+<Example label="सहायता, और एक त्रुटि: त्रुटि टेक्स्ट सहायता की जगह ले लेता है" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="पासवर्ड" supporting-text="कम से कम 8 अक्षर, जिनमें एक अंक हो।"><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="पासवर्ड" supporting-text="कम से कम 8 अक्षर, जिनमें एक अंक हो।" error error-text="यह पासवर्ड बहुत छोटा है।"><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="फ़ील्ड में टेक्स्ट इनपुट: सहायता और गिनती के साथ, और त्रुटि में" plain column>
+<Example label="फ़ील्ड में टेक्स्ट इनपुट: सहायता और गिनती के साथ, और त्रुटि में" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="दिखने वाला नाम" supporting-text="आपकी टिप्पणियों के साथ दिखता है।" count-text="12/40"><tanrei-text-input value="Ada Lovelace" maxlength="40" counter></tanrei-text-input></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="ईमेल" required required-text="ज़रूरी" error error-text="पूरा ईमेल पता दर्ज करें।"><tanrei-text-input type="email" value="ada@"></tanrei-text-input></tanrei-field>
-</DemoFrame>
+</Example>
 
 ### टेक्स्ट इनपुट के चारों ओर
 
@@ -101,9 +101,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 `valueText` कंट्रोल का मौजूदा मान शब्दों में है ("40 %", "$100 – $300"), उस कंट्रोल के लिए जिसका मान ख़ुद कंट्रोल से पढ़ा नहीं जा सकता: स्लाइडर। फ़ील्ड उसे लेबल की पंक्ति के अंत में, लेबल की पहली पंक्ति पर दिखाता है और उसके साथ और कुछ नहीं करता: वह कभी कोई मान न पढ़ता है, न फ़ॉर्मैट करता है, और दिखाए गए टेक्स्ट को सहायक तकनीक से छिपाए रखता है, क्योंकि कंट्रोल अपना मान ख़ुद कहता है। जहाँ उसके कारण लेबल के लिए पंक्ति के आधे से कम जगह बचे, वहाँ वह लेबल के बाद अपनी अलग पंक्ति लेता है। जब लेबल नहीं दिखाया जाता, तब यह भी नहीं दिखाया जाता। हर `input` पर इसे स्लाइडर के `shownValueText` से लिखें। [स्लाइडर फ़ील्ड](/hi/components/slider-field/) यह अपने आप करता है, और स्लाइडर के लिए वही बना-बनाया फ़ील्ड है।
 
-<DemoFrame label="एक फ़ील्ड जिसमें स्लाइडर है, और लेबल की पंक्ति के अंत में शब्दों में मान" column>
+<Example label="एक फ़ील्ड जिसमें स्लाइडर है, और लेबल की पंक्ति के अंत में शब्दों में मान" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="टेक्स्ट का साइज़" supporting-text="हर पेज पर लागू होता है।" value-text="120 %"><tanrei-slider min="50" max="200" step="10" value="120" value-text="120 %"></tanrei-slider></tanrei-field>
-</DemoFrame>
+</Example>
 
 ### सिलेक्ट के चारों ओर
 

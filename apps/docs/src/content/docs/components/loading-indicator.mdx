@@ -7,7 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
@@ -17,11 +17,11 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 This page describes the loading indicator as the spec has it now: it waits before it is shown, then enters. The web component already does, and so do the demos, which appear after the delay. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they draw and expose the indicator as soon as it is inserted, and do not take the three new props, so their samples below show only what they ship.
 :::
 
-<DemoFrame label="Inline and contained">
+<Example label="Inline and contained">
   <tanrei-loading-indicator label="Loading messages"></tanrei-loading-indicator>
   <tanrei-loading-indicator size="large" label="Loading the gallery"></tanrei-loading-indicator>
   <tanrei-loading-indicator contained label="Refreshing"></tanrei-loading-indicator>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -104,14 +104,14 @@ This page describes the loading indicator as the spec has it now: it waits befor
 
 ## Specs
 
-<DemoFrame label="Sizes, inline and contained" plain>
+<Example label="Sizes, inline and contained">
   <tanrei-loading-indicator size="small" label="Small"></tanrei-loading-indicator>
   <tanrei-loading-indicator size="medium" label="Medium"></tanrei-loading-indicator>
   <tanrei-loading-indicator size="large" label="Large"></tanrei-loading-indicator>
   <tanrei-loading-indicator contained size="small" label="Small, contained"></tanrei-loading-indicator>
   <tanrei-loading-indicator contained size="medium" label="Medium, contained"></tanrei-loading-indicator>
   <tanrei-loading-indicator contained size="large" label="Large, contained"></tanrei-loading-indicator>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="loading-indicator" />
 

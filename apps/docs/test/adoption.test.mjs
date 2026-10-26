@@ -8,7 +8,7 @@
 // - No page writes one either, outside a code sample and outside the native parts a Tanrei element takes (the
 //   Table's sort button, the Accordion's `<details>`). The places still owed are named, each with what it waits for;
 //   a place leaves the list when it is drawn by a component, and none may join it.
-// - Each adoption stays: the contrast control, the typescale's switch, a component's states, the
+// - Each adoption stays: the contrast in the header's menu, the typescale's switch, a component's states, the
 //   platforms of a component, a choice of kind — with its words from the dictionary, in the six languages, and with
 //   the room it takes kept before its element is defined.
 // - The theme file dresses no part of the framework's that the site no longer draws.
@@ -133,34 +133,17 @@ describe('each adoption', () => {
     for (const lang of languages) for (const key of keys) assert.ok(String(strings(lang)[key] ?? '').trim(), `${lang}: ${key}`);
   };
 
-  test('the contrast control is Tabs of three tabs, named and described in the page’s language, with its help in a Tooltip', () => {
-    const text = template(read('components/ContrastSwitch.astro'));
-    // The control is switched with Tanrei's Tabs. Its rows are one group of the
-    // page's own, apart from the color tokens page's `contrast` tab set, which sets nothing.
-    // The row is tonal, without its track, without the effect of
-    // switching, and small — and the code samples' tabs are tonal, without their track and without the effect.
-    assert.match(text, /<tanrei-tabs\b[^>]*\bvariant="tonal" track="false" transition="none" size="small"[^>]*\blabel=\{t\.contrast\}[^>]*\bgroup="page-contrast"[^>]*\bremember-as="tanrei-docs-contrast"[^>]*\bvalue="standard"/);
-    assert.match(template(read('components/tabs/Tabs.astro')), /<tanrei-tab-view class="docs-tabs" variant="tonal" track="false" transition="none" label=\{label\}/);
-    assert.match(text, /<tanrei-tab value=\{o\.value\} label=\{o\.label\} aria-description=\{t\.contrastHelp\} \/>/);
-    assert.doesNotMatch(text, /<tanrei-tab-panel\b/, 'what the row switches is the page, not a panel of its own');
-    assert.doesNotMatch(text, /<tanrei-radio-(group|button)\b/);
-    // The help is Tanrei's Tooltip around the row, and each tab's description (the tooltip does not describe: a row of
-    // tabs is not one control); the word before the row is the row's own name, said once.
-    assert.match(text, /<tanrei-tooltip class="docs-contrast not-content" text=\{t\.contrastHelp\} no-describe>/);
-    assert.match(text, /<span class="docs-contrast-word" aria-hidden="true">\{t\.contrast\}<\/span>/);
-    assert.doesNotMatch(text, /\btitle=/, 'the help is Tanrei’s Tooltip, not a tooltip of the browser’s');
-    const source = read('components/ContrastSwitch.astro');
-    assert.deepEqual([...source.matchAll(/value: '(\w+)', label: t\.(\w+)/g)].map(([, value, key]) => [value, key]), [
-      ['standard', 'contrastStandard'],
-      ['medium', 'contrastMedium'],
-      ['high', 'contrastHigh'],
-    ]);
-    said(['contrast', 'contrastHelp', 'contrastStandard', 'contrastMedium', 'contrastHigh']);
-    // The key the head's script reads before the first paint (astro.config.mjs) is the one the row keeps its choice
-    // under, and the row is the only writer: the component's script touches no storage.
+  test('the contrast is chosen in the header’s appearance menu, in the page’s language, and no frame has a control of its own', () => {
+    const header = template(read('components/frame/Header.astro'));
+    // Three radio items of one group, the menu's second section: the page's contrast, which every example follows.
+    assert.match(header, /<tanrei-menu-group class="docs-contrast-group" label=\{t\.contrast\} value="standard">\s*<tanrei-menu-radio-item value="standard" label=\{t\.contrastStandard\} \/>\s*<tanrei-menu-radio-item value="medium" label=\{t\.contrastMedium\} \/>\s*<tanrei-menu-radio-item value="high" label=\{t\.contrastHigh\} \/>/);
+    said(['contrast', 'contrastStandard', 'contrastMedium', 'contrastHigh']);
+    // The key the head's script reads before the first paint (astro.config.mjs) is the one the menu keeps its choice under.
     assert.match(read('../astro.config.mjs'), /localStorage\.getItem\('tanrei-docs-contrast'\)/);
-    assert.doesNotMatch(source, /localStorage/);
-    assert.match(source, /const ATTR = 'data-tanrei-contrast';/);
+    assert.match(read('components/frame/Header.astro'), /const CONTRAST_KEY = 'tanrei-docs-contrast';/);
+    // An example follows the page's look: its header offers no switch of system, scheme or contrast.
+    const frame = template(read('components/visuals/Example.astro'));
+    assert.doesNotMatch(frame, /<tanrei-tabs\b[^>]*\b(group="page-contrast"|data-docs-contrast|data-docs-visual-system)/);
   });
   test('the typescale’s flip is a Switch, named in the page’s language', () => {
     const text = template(read('components/tokens/Typescale.astro'));
@@ -168,13 +151,18 @@ describe('each adoption', () => {
     said(['emphasizedToggle']);
   });
   test('a control that can do nothing without script is not drawn where none runs, and holds its room until it is defined', () => {
-    for (const [file, name] of [['components/ContrastSwitch.astro', '.docs-contrast'], ['components/tokens/Typescale.astro', '.flip'], ['components/ListingSwitch.astro', '.docs-listing'], ['components/visuals/SystemSwitch.astro', '.docs-system-switch']]) {
+    for (const [file, name] of [['components/tokens/Typescale.astro', '.flip'], ['components/ListingSwitch.astro', '.docs-listing'], ['components/frame/PageActions.astro', '.docs-page-actions']]) {
       const text = read(file);
       const escaped = name.replace('.', '\\.');
       // Written with `:not(:defined)`, as the rule that holds the room is: a rule of the class alone would lose to it.
       assert.match(text, new RegExp(`@media \\(scripting: none\\) \\{\\s*${escaped}:not\\(:defined\\) \\{\\s*display: none;`), `${file}: ${name} without script`);
       assert.match(text, new RegExp(`${escaped}:not\\(:defined\\) \\{[^}]*visibility: hidden;`), `${file}: ${name} before it is defined`);
     }
+    // A frame's actions: drawn from a template once the frame is near the view, the room of their buttons held until
+    // then, and nothing drawn without script.
+    const frame = read('components/visuals/Example.astro');
+    assert.match(frame, /@media \(scripting: none\) \{\s*\[data-example-actions\]:has\(> template:first-child\) \{\s*display: none;/);
+    assert.match(frame, /\[data-example-actions\]:has\(> template:first-child\) \{[^}]*min-block-size: var\(--tanrei-comp-button-container-height-small\);/);
   });
   test('a component’s states and a choice’s values are Tag groups of tags, each word given to the search index', () => {
     const tag = read('components/NameTag.astro');

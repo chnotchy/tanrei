@@ -1,5 +1,5 @@
-// The sidebar before its navigation drawer is defined (styles/frame.css) holds what the drawer will draw: the "All
-// components" switch first in its list, and every row of the sidebar where the drawer's row will be — so that nothing
+// The sidebar before its navigation drawer is defined (styles/frame.css) holds what the drawer will draw: the room of
+// its filter field at its top, the "All components" switch first in its list, and every row of the sidebar where the drawer's row will be — so that nothing
 // in the sidebar moves when the drawer is defined. The drawer has no header (its menu button is the app bar's). In the
 // six languages (the switch's label takes one line in some and two in others), at a desktop's width (the sidebar
 // beside the content) and a medium window's (the column of the groups' glyphs, drawn only once the drawer is defined,
@@ -16,9 +16,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { chromium } from '@playwright/test';
 import { watchNetwork } from './network-quiet.mjs';
 import { serveDist } from './host.mjs';
+import { launch } from './launch.mjs';
 
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
@@ -38,7 +38,7 @@ let browser;
 before(async () => {
   host = await serveDist(dist);
   origin = host.origin;
-  browser = await chromium.launch();
+  browser = await launch();
 });
 
 after(async () => {

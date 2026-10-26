@@ -1,10 +1,12 @@
 // Runs IN THE PAGE (page.evaluate): every live preview of a built docs page against a copy of the same markup drawn
 // by the web package's stylesheets winning over the page's.
 //
-// A preview is an element the page draws to show a component: the children of a live example's stage (DemoFrame), a
-// spec fixture's stage in the page — the web package's document's stage, drawn by the gallery
-// (components/fixtures/FixtureGallery.astro) — the children of a file tree's stage (FileTree), and what a figure drawn
-// from the repository shows on its canvas, less its overlay (VisualFrame). Its copy is made from the page's HTML as it
+// A preview is an element the page draws to show a component, in the docs' one frame (components/visuals/Example.astro):
+// the children of a live example's stage, a spec fixture's stage in the page — the web package's document's stage,
+// drawn by the gallery (components/fixtures/FixtureGallery.astro) — and what a figure drawn from the repository shows
+// on its canvas, less its overlay; and the children of a file tree's stage (FileTree). A frame's stage defines what it
+// holds once it comes near the view (lib/example.ts): every one is let go of that here, as if the reader had scrolled
+// to it. Its copy is made from the page's HTML as it
 // was served, so the element is upgraded from the same markup, and stands in a shadow root beside the preview: it
 // inherits what the preview inherits, and is matched by
 //
@@ -33,11 +35,12 @@ export async function comparePreviews({ componentCss, still }) {
   await document.fonts.ready;
 
   const SELECTOR = [
-    '[data-tanrei-demo] > figure > [data-part=frame] > [data-part=stage] > *',
-    '.docs-stage-box[data-tanrei-demo] > [data-fixture-scope] > .stage',
+    '[data-example]:not([data-stage]) > figure > [data-part=frame] > [data-part=stage] > :not([data-example-canvas], [data-resize-handle])',
+    '[data-example][data-stage] > figure > [data-part=frame] > .docs-stage-box > [data-fixture-scope] > .stage',
     '.docs-file-tree > figure > [data-part=stage] > *',
-    '[data-docs-visual] > figure > [data-part=frame] > [data-part=stage] > [data-docs-visual-canvas] > :not([data-docs-visual-overlay], .docs-state-matrix)',
+    '[data-example] > figure > [data-part=frame] > [data-part=stage] > [data-example-canvas] > :not([data-example-overlay], .docs-state-matrix)',
   ].join(', ');
+  for (const stage of document.querySelectorAll('[data-example-pending]')) stage.removeAttribute('data-example-pending');
   const served = new DOMParser().parseFromString(await (await fetch(location.href)).text(), 'text/html');
   // A fixture of the gallery is drawn from the gallery's data when its stage comes near the view: every one not yet
   // drawn is drawn here, in the page and in its HTML alike, as the page draws it. One the page drew already, in a

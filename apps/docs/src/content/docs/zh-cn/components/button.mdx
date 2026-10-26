@@ -2,28 +2,27 @@
 title: "按钮"
 description: "让用户只需轻点或点击一次，就能执行一项操作、打开或关闭某个功能，或前往某个目标位置。"
 translationOf: components/button.mdx
-sourceHash: a587774eb5411058152f514ed38199d856c52a81
+sourceHash: f888556fbe868c4858d27e4c999dcfdeffd781f9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
-import VisualFrame from '../../../../components/visuals/VisualFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import StateMatrix from '../../../../components/visuals/StateMatrix.astro';
 
 ## 概览
 
 <ComponentAvailability name="button" />
 
-<VisualFrame label="变体" reserve={{ block: 'comp.button.container.height.medium' }} controls="both">
+<Example label="变体" reserve={{ block: 'comp.button.container.height.medium' }} code>
   <tanrei-button variant="filled">Filled</tanrei-button>
   <tanrei-button variant="tonal">Tonal</tanrei-button>
   <tanrei-button variant="elevated">Elevated</tanrei-button>
   <tanrei-button variant="outlined">Outlined</tanrei-button>
   <tanrei-button variant="text">Text</tanrei-button>
-</VisualFrame>
+</Example>
 
 ### 用法
 
@@ -106,12 +105,12 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 
 按钮可以在标签旁边带一个图标：默认放在起始侧，把 `iconPosition` 设为 `trailing` 则放在末尾侧。图标一侧的内边距比标签一侧小一级，这样两侧看起来留白均匀。没有标签时，它就是纯图标按钮：一个宽度等于按钮高度的圆形，由 `label` 命名，此时 `label` 是必填的。设置 `toggle` 后，每按一次它都会切换自身的 `selected`，通过颜色和图标的填充来显示状态，并把这个状态作为“已按下”状态朗读出来。
 
-<DemoFrame label="纯图标按钮和切换按钮">
+<Example label="纯图标按钮和切换按钮">
   <tanrei-button variant="text" label="搜索"><span slot="icon">search</span></tanrei-button>
   <tanrei-button variant="tonal" label="编辑"><span slot="icon">edit</span></tanrei-button>
   <tanrei-button variant="outlined" toggle selected label="收藏"><span slot="icon">favorite</span></tanrei-button>
   <tanrei-button variant="filled" icon-position="trailing">下一步<span slot="icon">arrow_forward</span></tanrei-button>
-</DemoFrame>
+</Example>
 
 在 Tanrei 中，图标按钮不是一个独立的组件。如果你熟悉 Material 的名称，它们的去向如下：
 
@@ -134,13 +133,13 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 | `narrow` | 图标加上两侧各一小段留白：28 / 32 / 32，呈胶囊形 | 紧凑排列的一行图标操作，例如字段末尾的工具，或密集表格中的一行。 |
 | `wide` | 40 / 52 / 72，呈胶囊形 | 一行之中应当比相邻操作更有分量的那一个操作。 |
 
-<DemoFrame label="纯图标按钮的宽度：default、narrow 和 wide" plain>
+<Example label="纯图标按钮的宽度：default、narrow 和 wide">
   <tanrei-button variant="tonal" label="添加"><span slot="icon">add</span></tanrei-button>
   <tanrei-button variant="tonal" width="narrow" label="添加"><span slot="icon">add</span></tanrei-button>
   <tanrei-button variant="tonal" width="wide" label="添加"><span slot="icon">add</span></tanrei-button>
   <tanrei-button variant="outlined" size="small" width="narrow" label="更多选项"><span slot="icon">more_vert</span></tanrei-button>
   <tanrei-button variant="filled" size="large" width="wide" label="播放"><span slot="icon">play_arrow</span></tanrei-button>
-</DemoFrame>
+</Example>
 
 narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始终不会贴到胶囊的边缘；设计系统改变图标的尺寸时，按钮也随之变化。它画出来比最小目标窄，但点击区域并不窄：目标会延伸到可见边缘之外。请在按钮旁边为它留出空间，或者把 narrow 按钮放进[工具栏](/zh-cn/components/toolbar/)或[按钮组](/zh-cn/components/button-group/)，它们会为其中的项安排间距。
 
@@ -150,22 +149,22 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
 
 禁用的按钮会退出焦点顺序，所以键盘或屏幕阅读器用户可能永远找不到它，也无从得知它为什么没有反应。如果用户能让这个操作变得可用，例如消息为空时的发送按钮，请加上 `focusable-when-disabled`：按钮画成禁用的样子，按禁用朗读，也不执行任何操作，但 Tab 仍然能到达它，于是[工具提示](/zh-cn/components/tooltip/)或描述就可以说明原因。
 
-<DemoFrame label="忙碌，以及禁用但仍可到达" plain>
+<Example label="忙碌，以及禁用但仍可到达">
   <tanrei-button busy busy-label="正在部署">部署</tanrei-button>
   <tanrei-button variant="text" busy busy-label="正在保存" label="保存"><span slot="icon">save</span></tanrei-button>
   <tanrei-button disabled focusable-when-disabled>发送</tanrei-button>
-</DemoFrame>
+</Example>
 
 ### 全宽
 
 设置 `full-width`，按钮就和它的容器一样宽，例如窄表单、卡片或面板底部唯一的操作。它保持自己尺寸的高度、内边距和圆角，标签和图标居中。放不下的标签会换行，而不会被截断。当[按钮组](/zh-cn/components/button-group/)、[工具栏](/zh-cn/components/toolbar/)或对话框、弹出框的操作区来排列按钮时，由它们决定宽度，按钮上的 `full-width` 不起作用：要让几个按钮分享一行，请给按钮组设置 `full-width`。
 
-<DemoFrame label="全宽按钮" plain>
+<Example label="全宽按钮">
   <div style="inline-size: 20rem; display: grid; gap: 0.75rem">
     <tanrei-button full-width>创建账号</tanrei-button>
     <tanrei-button variant="outlined" full-width><span slot="icon">upload</span>上传文件</tanrei-button>
   </div>
-</DemoFrame>
+</Example>
 
 ### 破坏性操作
 
@@ -175,24 +174,24 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
 
 链接也没有。带 `href` 的按钮会忽略 `destructive`，按其变体的链接来绘制，因为跟随链接不会删除任何东西：它只是把用户带到可以删除东西的地方。应当标记的是那个地方的操作，例如链接打开的页面中的“删除”按钮。调试构建会报告设置了 `destructive` 的链接。
 
-<DemoFrame label="各变体的破坏性按钮，以及纯图标按钮" plain>
+<Example label="各变体的破坏性按钮，以及纯图标按钮">
   <tanrei-button destructive>删除项目</tanrei-button>
   <tanrei-button variant="tonal" destructive>放弃草稿</tanrei-button>
   <tanrei-button variant="outlined" destructive>移除成员</tanrei-button>
   <tanrei-button variant="text" destructive>清除历史记录</tanrei-button>
   <tanrei-button variant="text" destructive label="删除文件"><span slot="icon">delete</span></tanrei-button>
-</DemoFrame>
+</Example>
 
 ### 有目标地址的按钮是链接
 
 给按钮指定 `href`，它就是链接，而不是按钮：控件还是同一个，在每种状态下都用同样的令牌绘制，但角色是链接，并且拥有平台赋予链接的一切。在 Web 上它是真正的锚元素，所以用户可以在新标签页中打开它、复制它的地址，并在跟随之前看到它通向哪里。只要激活控件的结果仅仅是把用户带到别处，就使用这种形态。不要在普通按钮的点击处理函数里进行导航。
 
-<DemoFrame label="链接：当前位置、新标签页、纯图标和禁用" plain>
+<Example label="链接：当前位置、新标签页、纯图标和禁用">
   <tanrei-button href="/zh-cn/components/button-group/">按钮组</tanrei-button>
   <tanrei-button variant="outlined" href="/zh-cn/components/toolbar/" target="new" target-label="在新标签页中打开">工具栏</tanrei-button>
   <tanrei-button variant="text" href="/zh-cn/components/" label="所有组件"><span slot="icon">apps</span></tanrei-button>
   <tanrei-button variant="tonal" href="/zh-cn/components/button-group/" disabled>按钮组</tanrei-button>
-</DemoFrame>
+</Example>
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
@@ -319,11 +318,11 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
 
 当几个按钮上画的是同一个词时，例如列表每一行里的“移除”，仅凭这个词，屏幕阅读器用户无从知道某个按钮属于哪一行。给每个按钮一个 `label`：这时它就是按钮完整的无障碍名称，取代画出的文字，而按钮画出来的样子与原先完全相同。
 
-<DemoFrame label="每一行都是同一个词，每个按钮按所在的行命名" plain>
+<Example label="每一行都是同一个词，每个按钮按所在的行命名">
   <tanrei-button variant="text" size="small" label="移除 Inter">移除</tanrei-button>
   <tanrei-button variant="text" size="small" label="移除 Noto Sans JP">移除</tanrei-button>
   <tanrei-button variant="text" size="small" label="移除 Roboto Mono">移除</tanrei-button>
-</DemoFrame>
+</Example>
 
 | `label` | 画出的标签 | 无障碍名称 |
 | --- | --- | --- |
@@ -337,13 +336,13 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
 
 ## 规格
 
-<DemoFrame label="尺寸与禁用" plain>
+<Example label="尺寸与禁用">
   <tanrei-button size="small">Small</tanrei-button>
   <tanrei-button size="medium">Medium</tanrei-button>
   <tanrei-button size="large">Large</tanrei-button>
   <tanrei-button disabled>Disabled</tanrei-button>
   <tanrei-button variant="outlined" disabled>Disabled</tanrei-button>
-</DemoFrame>
+</Example>
 
 <StateMatrix name="button" />
 

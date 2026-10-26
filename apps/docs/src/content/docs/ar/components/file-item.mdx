@@ -2,14 +2,14 @@
 title: عنصر الملف
 description: يعرض ملفًا واحدًا، برسم أيقونة يقول صيغته أو صورة صغيرة له، وباسمه، وبما يقوله المنتج عنه، ومعه إجراءا إزالته وإعادة المحاولة، في هيئة صف من عمود ملفات أو بلاطة من سلسلة صور. ويمكن ضغطه لفتح الملف. وهو لا يقرأ الملف ولا يحتفظ به ولا يرسله بنفسه أبدًا.
 translationOf: components/file-item.mdx
-sourceHash: d28c31a8db7cd09eab202ce5126a728ce24942af
+sourceHash: 36e74efccd5964d52a7b541ac48c5b001732db14
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 import ListReorderProduct from '../../../../components/ListReorderProduct.astro';
 import { demoPicture } from '../../../../lib/demo-picture';
@@ -18,13 +18,13 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 <ComponentAvailability name="file-item" />
 
-<DemoFrame label="ملف واحد في هيئة صف، وملفات في هيئة بلاطات" column>
+<Example label="ملف واحد في هيئة صف، وملفات في هيئة بلاطات" column>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" format-text="PDF" size-text="820 كيلوبايت" remove-label="إزالة {name}"></tanrei-file-item>
   <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
     <tanrei-file-item form="tile" preview preview-src={demoPicture} value="b" name="floor-plan.png" remove-label="إزالة {name}"></tanrei-file-item>
     <tanrei-file-item form="tile" value="c" name="survey-2026.xlsx" remove-label="إزالة {name}"></tanrei-file-item>
   </div>
-</DemoFrame>
+</Example>
 
 عنصر الملف (file item) ملف واحد معروض. قبل اسمه رسم أيقونة (glyph) يقول صيغة الملف، أو صورة صغيرة للملف. وتحت اسمه سطر واحد فيه ما يقوله منتجك عنه: صيغته، أو حجمه، أو إلى أين وصل إرساله، أو ما الذي تعثّر. وفي نهايته الإجراءان الخاصان بالملف: إزالته، وإعادة المحاولة.
 
@@ -103,14 +103,14 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 ## المواصفات
 
-<DemoFrame label="صف في كل حالة: في الانتظار، وأُرسل منه 40%، وجارٍ إرساله، ومكتمل، وفشل ويمكن إعادة محاولته، وفشل نهائيًّا" plain column>
+<Example label="صف في كل حالة: في الانتظار، وأُرسل منه 40%، وجارٍ إرساله، ومكتمل، وفشل ويمكن إعادة محاولته، وفشل نهائيًّا" column>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" size-text="820 كيلوبايت" status-text="في الانتظار" remove-label="إزالة {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="floor-plan.png" size-text="3.4 ميغابايت" status="uploading" status-text="جارٍ الرفع" progress="0.4" remove-label="إزالة {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="survey.pdf" size-text="1.1 ميغابايت" status="uploading" status-text="جارٍ الرفع" remove-label="إزالة {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="d" name="contract.pdf" size-text="2.0 ميغابايت" status="done" status-text="تم الرفع" remove-label="إزالة {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="e" name="site-photo.png" size-text="6.8 ميغابايت" status="error" error-text="انقطع الاتصال." retryable remove-label="إزالة {name}" retry-label="إعادة محاولة {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="f" name="scan-archive.zip" size-text="48 ميغابايت" status="error" error-text="الحجم أكبر من 10 ميغابايت." remove-label="إزالة {name}"></tanrei-file-item>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="file-item" />
 
@@ -118,7 +118,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 ### هيئتان
 
-<DemoFrame label="الملفات الثلاثة نفسها صفوفًا ثم بلاطات" plain column>
+<Example label="الملفات الثلاثة نفسها صفوفًا ثم بلاطات" column>
   <div class="not-content" style="display: grid; gap: 0.5rem; inline-size: 22.5rem; max-inline-size: 100%">
     <tanrei-file-item value="a" name="entrance.jpeg" size-text="2.1 ميغابايت" preview preview-src={demoPicture} remove-label="إزالة {name}"></tanrei-file-item>
     <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 ميغابايت" preview preview-src={demoPicture} remove-label="إزالة {name}"></tanrei-file-item>
@@ -129,7 +129,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
     <tanrei-file-item form="tile" value="b" name="floor-plan.png" preview preview-src={demoPicture} remove-label="إزالة {name}"></tanrei-file-item>
     <tanrei-file-item form="tile" value="c" name="survey.pdf" preview remove-label="إزالة {name}"></tanrei-file-item>
   </div>
-</DemoFrame>
+</Example>
 
 | الجانب | `row` (الافتراضية) | `tile` |
 | --- | --- | --- |
@@ -168,7 +168,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 هناك عشرة أصناف من الرسوم. ولكل صنف قائمة بأنواع الوسائط (media types) وقائمة بامتدادات الملفات. يُختار الرسم من `mediaType`. وحيث يكون نوع الوسائط فارغًا، أو يكون `application/octet-stream`، أو لا يرد في أي من هذه القوائم، يُختار من امتداد `name`. والأصناف تُطابَق بهذا الترتيب. والقوائم ثابتة وهي نفسها على كل منصة، فللملف الواحد رسم واحد أينما عُرض. ولا يقرّر `video/mp2t` شيئًا هو الآخر: فالمنصات تستنتجه من الامتداد `.ts`، الذي تتشاركه ملفات TypeScript مع تدفقات الفيديو، فيرسم `index.ts` رسم الشيفرة.
 
-<DemoFrame label="الأصناف العشرة" plain column>
+<Example label="الأصناف العشرة" column>
   <div class="not-content" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.25rem 1rem; inline-size: 100%">
     <tanrei-file-item name="handbook.pdf" readonly></tanrei-file-item>
     <tanrei-file-item name="budget.xlsx" readonly></tanrei-file-item>
@@ -181,7 +181,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
     <tanrei-file-item name="notes.docx" readonly></tanrei-file-item>
     <tanrei-file-item name="model.glb" readonly></tanrei-file-item>
   </div>
-</DemoFrame>
+</Example>
 
 | الصنف | الرسم | أنواع الوسائط | النهايات |
 | --- | --- | --- | --- |
@@ -211,11 +211,11 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 الخاصية `fit` تقول كيف تملأ الصورة صندوقها. القيمة `cover`، وهي الافتراضية، تملأ الصندوق وتقصّ ما لا يتسع له؛ استخدمها للصور الفوتوغرافية. والقيمة `contain` تعرض الصورة كاملة على أرضية الصندوق؛ استخدمها للمستندات الممسوحة ضوئيًّا والتواقيع والمخططات، حيث تكون الحواف مهمة.
 
-<DemoFrame label="صندوق مقاسه 160 في 90: القيمة cover، والقيمة contain، والاسم المخفي" plain>
+<Example label="صندوق مقاسه 160 في 90: القيمة cover، والقيمة contain، والاسم المخفي">
   <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} value="a" name="entrance.jpeg" remove-label="إزالة {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} fit="contain" value="b" name="signature.png" remove-label="إزالة {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} name-hidden value="c" name="floor-plan.png" remove-label="إزالة {name}"></tanrei-file-item>
-</DemoFrame>
+</Example>
 
 ما تكلّفه المعاينة:
 
@@ -233,11 +233,11 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 في الوضع الافتراضي لا يأخذ جسم عنصر الملف تركيزًا ولا يستجيب لشيء. فالعنصر يحمل إجراءيه لا غير.
 
-<DemoFrame label="جسم هو زر، ورابط يُفتح في تبويب جديد، وملف للقراءة فقط" plain column>
+<Example label="جسم هو زر، ورابط يُفتح في تبويب جديد، وملف للقراءة فقط" column>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="floor-plan.png" size-text="3.4 ميغابايت" interactive remove-label="إزالة {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="contract.pdf" size-text="2.0 ميغابايت" href="#قابل-للضغط-أو-رابط-أو-للقراءة-فقط" target="new" target-label="يُفتح في تبويب جديد" remove-label="إزالة {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="invoice-0412.pdf" size-text="96 كيلوبايت" status="done" status-text="أُرسل في 4 ديسمبر" readonly></tanrei-file-item>
-</DemoFrame>
+</Example>
 
 | الخاصية | الجسم يكون | تُستخدم لـ |
 | --- | --- | --- |
@@ -257,13 +257,13 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 <ListReorderProduct />
 
-<DemoFrame label="ملفات بترتيب يغيّره الأشخاص: عناصر ملفات في قائمة قابلة لإعادة الترتيب" plain>
+<Example label="ملفات بترتيب يغيّره الأشخاص: عناصر ملفات في قائمة قابلة لإعادة الترتيب">
   <tanrei-list reorderable gap="small" data-demo-product label="المرفقات" drag-handle-label="إعادة ترتيب {label}" move-to-start-label="النقل إلى الأعلى" move-before-label="نقل لأعلى" move-after-label="نقل لأسفل" move-to-end-label="النقل إلى الأسفل" lifted-text="رُفع {label}: الموضع {position} من {count}" moved-text="{label}: الموضع {position} من {count}" cancelled-text="عاد {label} إلى الموضع {position} من {count}" style="inline-size: 26rem; max-inline-size: 100%">
     <tanrei-list-item><tanrei-file-item name="cover-letter.pdf" size-text="120 KB" remove-label="إزالة {name}"></tanrei-file-item></tanrei-list-item>
     <tanrei-list-item><tanrei-file-item name="resume.docx" size-text="88 KB" remove-label="إزالة {name}"></tanrei-file-item></tanrei-list-item>
     <tanrei-list-item><tanrei-file-item name="portfolio.zip" size-text="14 MB" remove-label="إزالة {name}"></tanrei-file-item></tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
 ```html
 <tanrei-list reorderable gap="small" label="Attachments" drag-handle-label="Reorder {label}"

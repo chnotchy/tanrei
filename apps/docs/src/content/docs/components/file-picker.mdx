@@ -7,14 +7,14 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 import Callout from '../../../components/Callout.astro';
 
 ## Overview
 
 <ComponentAvailability name="file-picker" />
 
-<DemoFrame label="A file picker in each layout. Choosing a file changes nothing here: the page keeps none." column>
+<Example label="A file picker in each layout. Choosing a file changes nothing here: the page keeps none." column>
   <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="Layer file" accept=".json" constraints-text="One JSON file" selection-text="No file chosen">
     <tanrei-button slot="trigger" variant="outlined">Choose a file</tanrei-button>
   </tanrei-file-picker>
@@ -22,7 +22,7 @@ import Callout from '../../../components/Callout.astro';
     <tanrei-button slot="trigger" variant="outlined">Choose photos</tanrei-button>
     <span slot="icon">image</span>
   </tanrei-file-picker>
-</DemoFrame>
+</Example>
 
 A file picker is the way to choose files, and nothing more. Your own [button](/components/button/) opens the platform's file picker. Around it there can be a drop area, which also takes files dragged onto it. The limits stand beside it in your words. What was chosen is judged against the limits and handed to you: the accepted files with `select`, the refused ones with `reject`.
 
@@ -105,7 +105,7 @@ In React, `judge()` is on the ref: `ref.current.judge(files)`.
 
 ## Specs
 
-<DemoFrame label="The trigger alone; with what is chosen and the limits; a drop area in its error condition; disabled" plain column>
+<Example label="The trigger alone; with what is chosen and the limits; a drop area in its error condition; disabled" column>
   <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="Attach">
     <tanrei-button slot="trigger" variant="outlined">Attach a file</tanrei-button>
   </tanrei-file-picker>
@@ -118,7 +118,7 @@ In React, `judge()` is on the ref: `ref.current.judge(files)`.
   <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple disabled label="Attachments" drop-text="Drag files here, or choose them" constraints-text="PDF or PNG, up to 10 MB each">
     <tanrei-button slot="trigger" variant="outlined">Choose files</tanrei-button>
   </tanrei-file-picker>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="file-picker" />
 

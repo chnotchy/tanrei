@@ -2,20 +2,20 @@
 title: "复选框组"
 description: "提出一个可以有多个答案的问题，选项不多，同时全部显示出来——同一个标签之下的一组复选框，带有一段描述和一条错误；它在一个名称之下保存选中值的列表，还可以带上一个把它们全部选中的复选框。"
 translationOf: components/checkbox-group.mdx
-sourceHash: 320c2d0f75bef6bb336ea072b1aef4b74ee7cd0e
+sourceHash: 3f33db7448b9a270c95ff8654e67bc3ad3ac6fe1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="checkbox-group" />
 
-<DemoFrame label="一个复选框组，以及一个带有全选复选框的复选框组" column>
+<Example label="一个复选框组，以及一个带有全选复选框的复选框组" column>
   <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知方式" supporting-text="可多选。" required required-text="必填">
     <tanrei-checkbox value="email" label="邮件" checked></tanrei-checkbox>
     <tanrei-checkbox value="text" label="短信"></tanrei-checkbox>
@@ -28,7 +28,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-checkbox value="thu" label="星期四"></tanrei-checkbox>
     <tanrei-checkbox value="fri" label="星期五"></tanrei-checkbox>
   </tanrei-checkbox-group>
-</DemoFrame>
+</Example>
 
 一个问题的答案是一个列表，而选项又少到可以同时全部显示出来（最多七个左右）时，就使用复选框组：通知的方式、发送报告的日子、筛选列表所用的种类。答案是一个值——选中值的列表——表单在一个名称之下提交它。
 
@@ -115,13 +115,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field-group>
 ```
 
-<DemoFrame label="手写出来的同一组：一个字段组，里面有若干复选框" column>
+<Example label="手写出来的同一组：一个字段组，里面有若干复选框" column>
   <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知方式" supporting-text="可多选。" required required-text="必填">
     <tanrei-checkbox name="notify" value="email" label="邮件" checked></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="text" label="短信"></tanrei-checkbox>
     <tanrei-checkbox name="notify" value="push" label="推送通知"></tanrei-checkbox>
   </tanrei-field-group>
-</DemoFrame>
+</Example>
 
 手写的字段组和复选框没有做的事，是保存答案：
 
@@ -148,7 +148,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="排成一行、被拒绝的回答、始终打开的选项，以及禁用的组" plain column>
+<Example label="排成一行、被拒绝的回答、始终打开的选项，以及禁用的组" column>
   <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="尺码" orientation="horizontal">
     <tanrei-checkbox value="s" label="S" checked></tanrei-checkbox>
     <tanrei-checkbox value="m" label="M" checked></tanrei-checkbox>
@@ -168,7 +168,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-checkbox value="email" label="邮件" checked></tanrei-checkbox>
     <tanrei-checkbox value="text" label="短信"></tanrei-checkbox>
   </tanrei-checkbox-group>
-</DemoFrame>
+</Example>
 
 ### 各个成员提供什么
 

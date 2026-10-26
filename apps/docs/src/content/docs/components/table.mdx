@@ -7,7 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 import SortedByThePage from '../../../components/SortedByThePage.astro';
 import CountedByThePage from '../../../components/CountedByThePage.astro';
 
@@ -15,7 +15,7 @@ import CountedByThePage from '../../../components/CountedByThePage.astro';
 
 <ComponentAvailability name="table" />
 
-<DemoFrame label="Row headers, numbers at the end, a footer row">
+<Example label="Row headers, numbers at the end, a footer row">
   <tanrei-table class="tanrei-not-prose" row-headers>
     <table>
       <caption>Components by status and platform</caption>
@@ -32,7 +32,7 @@ import CountedByThePage from '../../../components/CountedByThePage.astro';
       </tfoot>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 A table is for data that has two dimensions: a price list, a comparison of plans, a list of settings with their types and defaults, the status of several things on several platforms, the records a person works with. A column's header can ask for the rows in its order, a table without rows shows your Empty state, and a status line under the rows holds your sentence and your pagination. Rows can be chosen with a checkbox each, or one row with a radio button, and a table that waits for its rows says that it is busy. The table itself never sorts, filters, fetches or pages: it draws the rows it is given, in the order it is given them. It does not resize columns.
 
@@ -117,7 +117,7 @@ The element takes a column's alignment and wrapping from its header cell to ever
 
 <SortedByThePage />
 
-<DemoFrame label="Press a header: the table asks, and this page orders the rows" plain>
+<Example label="Press a header: the table asks, and this page orders the rows">
   <tanrei-table class="tanrei-not-prose" data-docs-sorts>
     <table>
       <caption>Products</caption>
@@ -132,7 +132,7 @@ The element takes a column's alignment and wrapping from its header cell to ever
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 A column that can be sorted is a header cell that says the order the rows are in, with your own button around its text:
 
@@ -159,7 +159,7 @@ For a table ordered by the server, put a link in place of the button: `<a href="
 
 ### No rows
 
-<DemoFrame label="No rows: your Empty state under the header row" plain>
+<Example label="No rows: your Empty state under the header row">
   <tanrei-table class="tanrei-not-prose">
     <table>
       <caption>Products that match</caption>
@@ -171,7 +171,7 @@ For a table ordered by the server, put a link in place of the button: `<a href="
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 Write one row of one cell that spans the columns, and put your Empty state in it:
 
@@ -187,7 +187,7 @@ The table gives it room above and below and the width of its box, and keeps it i
 
 ### The status line
 
-<DemoFrame label="Your sentence and your pagination, under the rows" plain>
+<Example label="Your sentence and your pagination, under the rows">
   <tanrei-table class="tanrei-not-prose" sticky-header style="max-block-size: 20rem">
     <table>
       <caption>Releases, newest first</caption>
@@ -215,7 +215,7 @@ The table gives it room above and below and the width of its box, and keeps it i
       </div>
     </div>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 After the table, inside the element, write the status line: your sentence in a paragraph that is a status, and your pagination.
 
@@ -237,7 +237,7 @@ What stands at the end is a [Pagination](/components/pagination/) at size `small
 
 <CountedByThePage />
 
-<DemoFrame label="Choose rows: the table holds the selection, and this page counts it" plain>
+<Example label="Choose rows: the table holds the selection, and this page counts it">
   <tanrei-table class="tanrei-not-prose" selection="multiple" row-headers select-all-label="Select all products" data-docs-counts="{count} of 4 selected">
     <table>
       <caption>Products to reorder</caption>
@@ -253,7 +253,7 @@ What stands at the end is a [Pagination](/components/pagination/) at size `small
     </table>
     <div data-part="status"><p role="status">2 of 4 selected</p></div>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 Set `selection="multiple"` on the element and begin every row with a selection cell. In the header row the cell holds the checkbox for every row. In a body row it holds that row's checkbox, and the row carries the name you know the record by in `data-value`:
 
@@ -311,7 +311,7 @@ For a page that must work without script, use native checkboxes. A row whose che
 
 ### Choosing one row
 
-<DemoFrame label="Choose one row: a radio button in each row, none in the header" plain>
+<Example label="Choose one row: a radio button in each row, none in the header">
   <tanrei-table class="tanrei-not-prose" selection="single" row-headers>
     <table>
       <caption>Plan to change to</caption>
@@ -325,7 +325,7 @@ For a page that must work without script, use native checkboxes. A row whose che
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 Where a person chooses one record (the plan to change to, the address to ship to, the build to compare against), set `selection="single"`. Each body row's selection cell holds a radio button in place of the checkbox, and the header row's selection cell stays empty, because no control stands for every row:
 
@@ -355,7 +355,7 @@ Where a person chooses one record (the plan to change to, the address to ship to
 
 ### Loading
 
-<DemoFrame label="Loading: placeholder rows, and the status line says so" plain>
+<Example label="Loading: placeholder rows, and the status line says so">
   <tanrei-table class="tanrei-not-prose" loading>
     <table>
       <caption>Orders of this week</caption>
@@ -370,7 +370,7 @@ Where a person chooses one record (the plan to change to, the address to ship to
     </table>
     <div data-part="status"><p role="status">Loading</p></div>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 Set `loading` while you fetch rows. The table is exposed as busy and draws what you give it meanwhile. It fetches nothing and waits for nothing: it is loading for as long as you say so.
 
@@ -417,7 +417,7 @@ A renderer's own `align="right"` on a cell is read as `end`, and `align="left"` 
 
 ## Specs
 
-<DemoFrame label="Compact and striped, for a table a person scans" plain>
+<Example label="Compact and striped, for a table a person scans">
   <tanrei-table class="tanrei-not-prose" density="compact" striped label="Tokens of the table">
     <table>
       <thead>
@@ -433,9 +433,9 @@ A renderer's own `align="right"` on a cell is read as `end`, and `align="left"` 
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Wider than its box: it scrolls there, and the first column stays" plain>
+<Example label="Wider than its box: it scrolls there, and the first column stays">
   <tanrei-table class="tanrei-not-prose" row-headers sticky-first-column style="max-inline-size: 30rem">
     <table>
       <caption>Visits by region</caption>
@@ -450,9 +450,9 @@ A renderer's own `align="right"` on a cell is read as `end`, and `align="left"` 
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="A height from the layout: the rows scroll, and the header stays" plain>
+<Example label="A height from the layout: the rows scroll, and the header stays">
   <tanrei-table class="tanrei-not-prose" sticky-header style="max-block-size: 14rem">
     <table>
       <caption>Releases</caption>
@@ -470,7 +470,7 @@ A renderer's own `align="right"` on a cell is read as `end`, and `align="left"` 
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="table" />
 

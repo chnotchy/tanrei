@@ -2,14 +2,14 @@
 title: "表格"
 description: "呈现有行有列的数据，带具名的列、可选的行标题、说明文字和表尾行。放不下时在自己的框内滚动。列标题可以请求让各行按这一列排序，行也可以被选择；表格自己从不排序。"
 translationOf: components/table.mdx
-sourceHash: 388549568f8a91ecb1e49333233b422d57daae1f
+sourceHash: 88d81c83a94e4a8312f1b69b16fb0422435b036d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import SortedByThePage from '../../../../components/SortedByThePage.astro';
 import CountedByThePage from '../../../../components/CountedByThePage.astro';
 
@@ -17,7 +17,7 @@ import CountedByThePage from '../../../../components/CountedByThePage.astro';
 
 <ComponentAvailability name="table" />
 
-<DemoFrame label="行标题、靠末尾对齐的数字、一行表尾">
+<Example label="行标题、靠末尾对齐的数字、一行表尾">
   <tanrei-table class="tanrei-not-prose" row-headers>
     <table>
       <caption>按状态和平台统计的组件数</caption>
@@ -34,7 +34,7 @@ import CountedByThePage from '../../../../components/CountedByThePage.astro';
       </tfoot>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 表格用于有两个维度的数据：价目表、套餐对比、带类型和默认值的设置项列表、几样东西在几个平台上的状态、用户要处理的记录。列标题可以请求让各行按这一列排序，没有行的表格显示你的空状态，各行下方的状态行容纳你的句子和你的分页。行可以各用一个复选框来选择，也可以用单选按钮只选一行，正在等待行到来的表格会说明自己正忙。表格自己从不排序、筛选、获取数据或分页：给它什么行，它就按给它的顺序画什么行。它不调整列宽。
 
@@ -119,7 +119,7 @@ import CountedByThePage from '../../../../components/CountedByThePage.astro';
 
 <SortedByThePage />
 
-<DemoFrame label="按下某个列标题：表格提出请求，由本页为各行排序" plain>
+<Example label="按下某个列标题：表格提出请求，由本页为各行排序">
   <tanrei-table class="tanrei-not-prose" data-docs-sorts>
     <table>
       <caption>商品</caption>
@@ -134,7 +134,7 @@ import CountedByThePage from '../../../../components/CountedByThePage.astro';
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 可排序的列，是一个说明各行当前顺序的列标题单元格，它的文字外面包着你自己的按钮：
 
@@ -161,7 +161,7 @@ table.addEventListener('sort', (event) => {
 
 ### 没有行
 
-<DemoFrame label="没有行：你的空状态位于表头行下方" plain>
+<Example label="没有行：你的空状态位于表头行下方">
   <tanrei-table class="tanrei-not-prose">
     <table>
       <caption>符合条件的商品</caption>
@@ -173,7 +173,7 @@ table.addEventListener('sort', (event) => {
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 写一行，其中只有一个横跨所有列的单元格，把你的空状态放在里面：
 
@@ -189,7 +189,7 @@ table.addEventListener('sort', (event) => {
 
 ### 状态行
 
-<DemoFrame label="你的句子和你的分页，位于各行下方" plain>
+<Example label="你的句子和你的分页，位于各行下方">
   <tanrei-table class="tanrei-not-prose" sticky-header style="max-block-size: 20rem">
     <table>
       <caption>版本发布（从新到旧）</caption>
@@ -217,7 +217,7 @@ table.addEventListener('sort', (event) => {
       </div>
     </div>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 在表格之后、元素之内写状态行：把你的句子放在一个作为状态的段落里，再加上你的分页。
 
@@ -239,7 +239,7 @@ table.addEventListener('sort', (event) => {
 
 <CountedByThePage />
 
-<DemoFrame label="选择行：表格保存选择，由本页来数" plain>
+<Example label="选择行：表格保存选择，由本页来数">
   <tanrei-table class="tanrei-not-prose" selection="multiple" row-headers select-all-label="选择所有商品" data-docs-counts="已选择 {count} 件，共 4 件">
     <table>
       <caption>需要补货的商品</caption>
@@ -255,7 +255,7 @@ table.addEventListener('sort', (event) => {
     </table>
     <div data-part="status"><p role="status">已选择 2 件，共 4 件</p></div>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 在元素上设置 `selection="multiple"`，并让每一行都以一个选择单元格开头。在表头行里，这个单元格放针对所有行的复选框。在表体的行里，它放这一行的复选框，行则用 `data-value` 带上你用来识别这条记录的名称：
 
@@ -313,7 +313,7 @@ table.addEventListener('selectionchange', (event) => {
 
 ### 选择一行
 
-<DemoFrame label="选择一行：每行一个单选按钮，表头行没有" plain>
+<Example label="选择一行：每行一个单选按钮，表头行没有">
   <tanrei-table class="tanrei-not-prose" selection="single" row-headers>
     <table>
       <caption>要换成的套餐</caption>
@@ -327,7 +327,7 @@ table.addEventListener('selectionchange', (event) => {
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 用户要选择一条记录时（要换成的套餐、收货地址、作为对比基准的构建），设置 `selection="single"`。每个表体行的选择单元格放一个单选按钮来代替复选框，表头行的选择单元格留空，因为没有针对所有行的控件：
 
@@ -357,7 +357,7 @@ table.addEventListener('selectionchange', (event) => {
 
 ### 加载中
 
-<DemoFrame label="加载中：占位行，以及说明这一点的状态行" plain>
+<Example label="加载中：占位行，以及说明这一点的状态行">
   <tanrei-table class="tanrei-not-prose" loading>
     <table>
       <caption>本周订单</caption>
@@ -372,7 +372,7 @@ table.addEventListener('selectionchange', (event) => {
     </table>
     <div data-part="status"><p role="status">正在加载</p></div>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 获取行的期间设置 `loading`。表格会以忙碌状态暴露给辅助技术，并照常画出这期间你给它的内容。它什么都不获取，也什么都不等待：你说它在加载多久，它就加载多久。
 
@@ -419,7 +419,7 @@ export function rehypeTanreiTable() {
 
 ## 规格
 
-<DemoFrame label="紧凑并带条纹，用于供人扫读的表格" plain>
+<Example label="紧凑并带条纹，用于供人扫读的表格">
   <tanrei-table class="tanrei-not-prose" density="compact" striped label="表格的令牌">
     <table>
       <thead>
@@ -435,9 +435,9 @@ export function rehypeTanreiTable() {
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="比它的框更宽：在框内滚动，第一列保持不动" plain>
+<Example label="比它的框更宽：在框内滚动，第一列保持不动">
   <tanrei-table class="tanrei-not-prose" row-headers sticky-first-column style="max-inline-size: 30rem">
     <table>
       <caption>各地区访问量</caption>
@@ -452,9 +452,9 @@ export function rehypeTanreiTable() {
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="高度由布局给定：各行滚动，表头保持不动" plain>
+<Example label="高度由布局给定：各行滚动，表头保持不动">
   <tanrei-table class="tanrei-not-prose" sticky-header style="max-block-size: 14rem">
     <table>
       <caption>版本发布</caption>
@@ -472,7 +472,7 @@ export function rehypeTanreiTable() {
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="table" />
 

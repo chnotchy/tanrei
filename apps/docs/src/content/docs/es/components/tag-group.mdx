@@ -2,20 +2,20 @@
 title: Grupo de tags
 description: Dispone un conjunto de tags o de chips en una o en varias líneas, con la separación que corresponde a lo que contiene, y expone el conjunto como una sola lista con nombre. Los miembros siguen siendo lo que son, y cuando se quita un chip el foco pasa al siguiente.
 translationOf: components/tag-group.mdx
-sourceHash: 244216f99f145c63ac5a62ba10e948f72502850f
+sourceHash: b9ba7fa1d7147d2cd10b1cd38abb4b9c994512db
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="tag-group" />
 
-<DemoFrame label="Un conjunto de tags y una fila de filtros" column>
+<Example label="Un conjunto de tags y una fila de filtros" column>
   <tanrei-tag-group class="not-content" spacing="tags" label="Etiquetas">
     <tanrei-tag label="Tokens de diseño"></tanrei-tag>
     <tanrei-tag label="Accesibilidad"></tanrei-tag>
@@ -27,7 +27,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-chip kind="filter" label="Pendientes de revisión"></tanrei-chip>
     <tanrei-chip kind="filter" label="Bloqueadas"></tanrei-chip>
   </tanrei-tag-group>
-</DemoFrame>
+</Example>
 
 Un [tag](/es/components/tag/) y un [chip](/es/components/chip/) son cada uno una sola cosa. Un grupo de tags es lo que contiene varios: los tags de un artículo, los filtros encima de una lista, unas pocas sugerencias bajo un campo. Los coloca en líneas, de modo que el que no cabe en una pasa a la siguiente, mantiene entre ellos la distancia adecuada e indica a la tecnología de apoyo que forman una sola lista.
 
@@ -82,7 +82,7 @@ En la web es `<tanrei-tag-group>`. Las demás plataformas todavía no lo han imp
 
 ## Especificaciones
 
-<DemoFrame label="Tags que saltan de línea, tags de estado, enlaces a la página de cada tag y elementos introducidos" plain column>
+<Example label="Tags que saltan de línea, tags de estado, enlaces a la página de cada tag y elementos introducidos" column>
   <tanrei-tag-group class="not-content" spacing="tags" style="inline-size: 22rem; max-inline-size: 100%" label="Etiquetas">
     <tanrei-tag label="Tokens de diseño"></tanrei-tag>
     <tanrei-tag label="Accesibilidad"></tanrei-tag>
@@ -106,7 +106,7 @@ En la web es `<tanrei-tag-group>`. Las demás plataformas todavía no lo han imp
     <tanrei-chip kind="input" label="Grace Hopper" remove-label="Quitar a Grace Hopper"></tanrei-chip>
     <tanrei-chip kind="input" label="Katherine Johnson" remove-label="Quitar a Katherine Johnson"></tanrei-chip>
   </tanrei-tag-group>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tag-group" />
 
@@ -165,7 +165,7 @@ Cuando la persona cambia un chip, el grupo define `value` o `values` y emite un 
 
 Con una selección, el conjunto es una sola parada de tabulación: el chip que tuvo el foco por última vez; si no, el primer chip activado; si no, el primer chip. Las teclas de flecha se mueven entre los chips en la dirección a la que apuntan, también en un diseño de derecha a izquierda, e Inicio y Fin van al primero y al último. No cambian nada, y el foco no pasa del último chip al primero. Espacio cambia el chip que tiene el foco.
 
-<DemoFrame label="Un solo orden a la vez, y varios filtros">
+<Example label="Un solo orden a la vez, y varios filtros">
   <tanrei-tag-group class="not-content" label="Ordenar por" selection="single" value="updated">
     <tanrei-chip kind="filter" label="Más recientes" value="newest"></tanrei-chip>
     <tanrei-chip kind="filter" label="Actualizados recientemente" value="updated"></tanrei-chip>
@@ -177,7 +177,7 @@ Con una selección, el conjunto es una sola parada de tabulación: el chip que t
     <tanrei-chip kind="filter" label="Pendientes de revisión" value="review"></tanrei-chip>
     <tanrei-chip kind="filter" label="Bloqueadas" value="blocked"></tanrei-chip>
   </tanrei-tag-group>
-</DemoFrame>
+</Example>
 
 <Tabs syncKey="platform">
   <TabItem label="Web">

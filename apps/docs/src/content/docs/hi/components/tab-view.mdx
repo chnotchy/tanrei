@@ -2,14 +2,14 @@
 title: टैब व्यू
 description: चयनित टैब का व्यू टैब की अपनी पंक्ति के नीचे, या कहीं और रखी पंक्ति से जुड़कर दिखाता है, और व्यक्ति को एक व्यू से दूसरे व्यू तक स्वाइप करने देता है, जबकि टैब का इंडिकेटर उँगली के साथ चलता है।
 translationOf: components/tab-view.mdx
-sourceHash: 9e88a691605cc8a2ba05cfb5974f032f4a81ef01
+sourceHash: f75de0457ae366f4d0466d2e7235b3ca346445a9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
@@ -17,13 +17,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 टैब व्यू हर टैब के लिए एक पैनल रखता है और चयनित टैब का पैनल दिखाता है। टैब चुनने पर व्यू थोड़ा खिसकते, फ़ेड होते और धुँधले होते हुए बदलता है; व्यक्ति व्यू को आड़ा स्वाइप भी कर सकता है, और टैब का इंडिकेटर उँगली के साथ चलता है और उस टैब पर ठहरता है जिस पर व्यू पहुँचता है। जहाँ मोशन कम किया गया है, वहाँ यह बदलाव एक क्रॉसफ़ेड है, जो तब भी उँगली के साथ चलता है, बिना खिसके और बिना धुँधलेपन के।
 
-<DemoFrame label="अपनी पंक्ति वाला टैब व्यू: कोई टैब चुनें, या पैनल को टच या पेन से स्वाइप करें">
+<Example label="अपनी पंक्ति वाला टैब व्यू: कोई टैब चुनें, या पैनल को टच या पेन से स्वाइप करें">
   <tanrei-tab-view label="प्रोजेक्ट" style="inline-size: 22.5rem; max-inline-size: 100%">
     <tanrei-tab-panel value="overview" label="अवलोकन"><p>तीन खुले काम, जो इस हफ़्ते पूरे होने हैं।</p></tanrei-tab-panel>
     <tanrei-tab-panel value="activity" label="गतिविधि"><p>Ada ने एक घंटा पहले योजना पर टिप्पणी की।</p></tanrei-tab-panel>
     <tanrei-tab-panel value="settings" label="सेटिंग"><p>वर्कस्पेस में सभी को दिखता है।</p></tanrei-tab-panel>
   </tanrei-tab-view>
-</DemoFrame>
+</Example>
 
 टैब व्यू के दो रूप हैं:
 
@@ -105,7 +105,7 @@ SwiftUI, Compose, Flutter और React Native ने टैब व्यू क�
 
 ## स्पेक
 
-<DemoFrame label="पूरी चौड़ाई भरने वाली secondary पंक्ति, आइकन और एक अक्षम टैब के साथ; और अपने से अलग रखी पंक्ति से जुड़ा एक व्यू" plain column>
+<Example label="पूरी चौड़ाई भरने वाली secondary पंक्ति, आइकन और एक अक्षम टैब के साथ; और अपने से अलग रखी पंक्ति से जुड़ा एक व्यू" column>
   <tanrei-tab-view variant="secondary" full-width label="डिप्लॉयमेंट" style="inline-size: 22.5rem; max-inline-size: 100%">
     <tanrei-tab-panel value="overview" label="अवलोकन" icon="dashboard"><p>तीन सर्विस, सभी चल रही हैं।</p></tanrei-tab-panel>
     <tanrei-tab-panel value="activity" label="गतिविधि" icon="history"><p>2 घंटे पहले डिप्लॉय किया गया।</p></tanrei-tab-panel>
@@ -122,7 +122,7 @@ SwiftUI, Compose, Flutter और React Native ने टैब व्यू क�
     <tanrei-tab-panel value="map"><p>स्टेशन के पास चार जगहें सेव की गईं।</p></tanrei-tab-panel>
     <tanrei-tab-panel value="notes"><p>संग्रहालय सोमवार को बंद रहता है।</p></tanrei-tab-panel>
   </tanrei-tab-view>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="tab-view" />
 
@@ -168,7 +168,7 @@ SwiftUI, Compose, Flutter और React Native ने टैब व्यू क�
 
 ### चुनाव साझा करना
 
-<DemoFrame label="एक ही ग्रुप के दो टैब व्यू: किसी में भी एक टैब चुनें" plain column>
+<Example label="एक ही ग्रुप के दो टैब व्यू: किसी में भी एक टैब चुनें" column>
   <tanrei-tab-view variant="secondary" group="tab-view-demo-package-manager" label="पैकेज मैनेजर" style="inline-size: 22.5rem; max-inline-size: 100%">
     <tanrei-tab-panel value="npm" label="npm"><p>पैकेज npm से इंस्टॉल करें।</p></tanrei-tab-panel>
     <tanrei-tab-panel value="pnpm" label="pnpm"><p>पैकेज pnpm से इंस्टॉल करें।</p></tanrei-tab-panel>
@@ -178,7 +178,7 @@ SwiftUI, Compose, Flutter और React Native ने टैब व्यू क�
     <tanrei-tab-panel value="npm" label="npm"><p>बिल्ड npm से चलाएँ।</p></tanrei-tab-panel>
     <tanrei-tab-panel value="pnpm" label="pnpm"><p>बिल्ड pnpm से चलाएँ।</p></tanrei-tab-panel>
   </tanrei-tab-view>
-</DemoFrame>
+</Example>
 
 - एक ही सवाल का जवाब देने वाले हर व्यू को एक ही `group` दें। व्यू की अपनी पंक्ति ही ग्रुप की सदस्य है, इसलिए [टैब](/hi/components/tabs/) का पेज ग्रुप के बारे में जो कुछ कहता है वह सब यहाँ लागू होता है: चुनाव पैनल के `value` से मिलाया जाता है, उसके लेबल से कभी नहीं, और जिस व्यू में उस मान का कोई पैनल नहीं है वह अपना चुनाव बनाए रखता है। डेमो में Yarn सिर्फ़ पहले व्यू में है।
 - सिर्फ़ वही व्यू बदलाव चलाता है और `change` एमिट करता है जिसे व्यक्ति ने इस्तेमाल किया। बाक़ी हर व्यू अपना पैनल तुरंत दिखाता है, बिना खिसके, बिना फ़ेड या धुँधलेपन के, जिन पैनल को वह छिपाता है उनका स्टेट बनाए रखता है, और कोई फ़ोकस नहीं लेता।

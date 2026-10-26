@@ -7,7 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
@@ -17,7 +17,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 This page describes the navigation drawer as the spec has it now. A `collapsible` drawer narrows to a column of icons, which replaces the navigation rail: the collapsed drawer is the expanded one with its labels gone, each row cut after its icon, and its menu button widens it again with every icon in place. A destination's `badge` text becomes `trailingText`, drawn quieter, and a `trailing` slot holds a glyph; `badge` is now a badge on the icon. `group` items open and close nested destinations. Rows are 48 high, the height of a menu's item. `responsive` lets the window's width choose how the drawer is presented. A destination with an `href` is a link, and `revealSelected` and `scrollOffset` make the drawer a site's sidebar. The web component already does all of this, and so do the demos. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship the previous revision, with 44 rows, `badge` as text at the row's end, no collapsed form, groups, link destinations or responsive presentation, and a separate navigation rail, and their samples show that revision. The compact `density`, groups that are destinations (`selectableGroups`) and the filter field (`filterable`) are newer still, and on the web only.
 :::
 
-<DemoFrame label="A standard drawer with two sections">
+<Example label="A standard drawer with two sections">
   <tanrei-navigation-drawer open value="inbox" label="Mail" style="block-size: 26rem">
     <tanrei-navigation-drawer-section headline="Mail">
       <tanrei-navigation-drawer-item value="inbox" label="Inbox" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
@@ -29,9 +29,9 @@ This page describes the navigation drawer as the spec has it now. A `collapsible
       <tanrei-navigation-drawer-item value="family" label="Family" icon="label"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-section>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="A collapsible drawer: its menu button collapses it to the column of icons, where a cell shows its name in a tooltip" plain>
+<Example label="A collapsible drawer: its menu button collapses it to the column of icons, where a cell shows its name in a tooltip">
   <tanrei-navigation-drawer open collapsible value="home" label="Workspace" style="block-size: 30rem">
     <tanrei-button slot="header-button" variant="text" label="Menu"><span slot="icon">menu</span></tanrei-button>
     <tanrei-main-action-button slot="main-action" label="New project"><span slot="icon">add</span></tanrei-main-action-button>
@@ -43,9 +43,9 @@ This page describes the navigation drawer as the spec has it now. A `collapsible
     </tanrei-navigation-drawer-group>
     <tanrei-navigation-drawer-item value="settings" label="Settings" icon="settings" trailing-text="New"></tanrei-navigation-drawer-item>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Destinations that are links: the drawer's value names the current page, and reveal-selected opens the group that holds it" plain>
+<Example label="Destinations that are links: the drawer's value names the current page, and reveal-selected opens the group that holds it">
   <tanrei-navigation-drawer open reveal-selected value="#sidebar-demo-tabs" label="Documentation" style="block-size: 24rem">
     <tanrei-navigation-drawer-item label="Getting started" href="#sidebar-demo-start"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-group label="Foundations">
@@ -58,9 +58,9 @@ This page describes the navigation drawer as the spec has it now. A `collapsible
     </tanrei-navigation-drawer-group>
     <tanrei-navigation-drawer-item label="Source code" href="#sidebar-demo-source" target="new" target-label="opens in a new tab"></tanrei-navigation-drawer-item>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="A drawer that filters its rows: type in the field, or press / anywhere on the page to reach it" plain>
+<Example label="A drawer that filters its rows: type in the field, or press / anywhere on the page to reach it">
   <tanrei-navigation-drawer open filterable reveal-selected value="#filter-demo-tabs" label="Documentation" filter-label="Filter navigation" filter-placeholder="Filter" filter-count-text="Matches: {count}" filter-empty-text="No matches" filter-clear-label="Clear" style="block-size: 26rem">
     <tanrei-navigation-drawer-group label="Getting started">
       <tanrei-navigation-drawer-item label="Overview" href="#filter-demo-overview"></tanrei-navigation-drawer-item>
@@ -77,9 +77,9 @@ This page describes the navigation drawer as the spec has it now. A `collapsible
       <tanrei-navigation-drawer-item label="Tabs" href="#filter-demo-tabs"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-group>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="A compact drawer, for a tool used with a pointer: 32 rows and 16 glyphs, each nested icon where its group's label starts" plain>
+<Example label="A compact drawer, for a tool used with a pointer: 32 rows and 16 glyphs, each nested icon where its group's label starts">
   <tanrei-navigation-drawer open density="compact" value="tree-view" label="Workspace" style="block-size: 22rem">
     <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-section headline="Projects">
@@ -93,9 +93,9 @@ This page describes the navigation drawer as the spec has it now. A `collapsible
     </tanrei-navigation-drawer-section>
     <tanrei-navigation-drawer-item value="settings" label="Settings" icon="settings"></tanrei-navigation-drawer-item>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Groups that are destinations: with selectable-groups, a group's row chooses it and its chevron opens and closes it" plain>
+<Example label="Groups that are destinations: with selectable-groups, a group's row chooses it and its chevron opens and closes it">
   <tanrei-navigation-drawer open selectable-groups value="components" label="Documentation" style="block-size: 22rem">
     <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-group label="Foundations" icon="palette" value="foundations">
@@ -110,7 +110,7 @@ This page describes the navigation drawer as the spec has it now. A `collapsible
       <tanrei-navigation-drawer-item value="downloads" label="Downloads" icon="download"></tanrei-navigation-drawer-item>
     </tanrei-navigation-drawer-group>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -415,13 +415,13 @@ With `responsive` the drawer makes that choice itself, from the window's width (
 
 ## Specs
 
-<DemoFrame label="Destinations without icons, outside any section" plain>
+<Example label="Destinations without icons, outside any section">
   <tanrei-navigation-drawer open value="deployments" label="Project" style="block-size: 20rem">
     <tanrei-navigation-drawer-item value="overview" label="Overview"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-item value="deployments" label="Deployments" trailing-text="3"></tanrei-navigation-drawer-item>
     <tanrei-navigation-drawer-item value="settings" label="Settings"></tanrei-navigation-drawer-item>
   </tanrei-navigation-drawer>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="navigation-drawer" />
 

@@ -2,21 +2,21 @@
 title: "放置区"
 description: "包住界面的任意一部分，让文件可以放到它上面的任何位置，而它包住的一切照常工作。在有文件拖到它上面之前，它什么都不绘制；有文件拖来时，它用一条消息盖住整个区域，再把它接受的文件和它拒绝的文件交给你的产品。"
 translationOf: components/drop-zone.mdx
-sourceHash: a96e90c3c5f7b4c3242c447e16ce8a353e6d79ca
+sourceHash: 51bab5267e5302b31899d5d17db28ab0709fbddb
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 
 ## 概览
 
 <ComponentAvailability name="drop-zone" />
 
-<DemoFrame label="放在放置区里的一个视频界面。从你的电脑上把一个文件拖到它上面的任何位置：整个界面都会显示可以放下。在这里放下不会带来任何变化：页面不保留任何文件。" column>
+<Example label="放在放置区里的一个视频界面。从你的电脑上把一个文件拖到它上面的任何位置：整个界面都会显示可以放下。在这里放下不会带来任何变化：页面不保留任何文件。" column>
   <tanrei-drop-zone class="not-content" style="inline-size: 30rem; max-inline-size: 100%; block-size: 16rem; border-radius: var(--tanrei-sys-shape-corner-medium)" multiple accept="video/*,image/*" drop-text="放下视频即可上传" refusing-text="只能上传视频和图片" dropped-text="已收到 {count} 个文件" refused-text="有 {count} 个文件无法接收">
     <div style="box-sizing: border-box; block-size: 100%; display: flex; flex-direction: column; gap: 0.75rem; padding: 1rem; background: var(--tanrei-sys-color-surface-container-low); border-radius: inherit">
       <tanrei-file-picker multiple accept="video/*,image/*" constraints-text="视频或图片">
@@ -27,7 +27,7 @@ import Callout from '../../../../components/Callout.astro';
       <span>幕后花絮 · 12:47</span>
     </div>
   </tanrei-drop-zone>
-</DemoFrame>
+</Example>
 
 放置区把整个界面或其中任意一部分，变成可以放下文件的地方。用它包住一个文档列表、一个视频库、一段对话，或者你的应用的主区域。里面的一切照常工作：按钮、表格和字段的按下、滚动和键盘操作，都和没有放置区时一样。放置区不添加悬停，不添加按下，不添加焦点停靠点，也不添加角色。
 

@@ -2,26 +2,26 @@
 title: اللوحة السفلية
 description: ترفع من الحافة السفلية محتوى تكميليًّا أو مهمة قصيرة، إما فوق الجزء الأسفل من الشاشة مع بقاء الباقي قابلًا للاستخدام، وإما خطوةً نمطية تعتّم كل ما عداها وتحجبه إلى أن تُغلق.
 translationOf: components/bottom-sheet.mdx
-sourceHash: 129b9ec0bcae9a6a88c4f15e18d3132be5652383
+sourceHash: 0e04a47f5b04cc9c94d80a327068a564ff16dd76
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="bottom-sheet" />
 
-<DemoFrame label="لوحة نمطية: افتحها بالزر">
+<Example label="لوحة نمطية: افتحها بالزر">
   <tanrei-button variant="outlined" onclick="document.getElementById('bottom-sheet-demo-modal').open = true">حفظ الصورة</tanrei-button>
   <tanrei-bottom-sheet id="bottom-sheet-demo-modal" label="حفظ الصورة" handle-label="تغيير حجم اللوحة" onclose="this.open = false">
     <p>اختر أين تُحفظ الصورة. يمكنك تغيير هذا لاحقًا من الإعدادات.</p>
     <tanrei-button variant="text" onclick="this.closest('tanrei-bottom-sheet').open = false">تم</tanrei-button>
   </tanrei-bottom-sheet>
-</DemoFrame>
+</Example>
 
 ### الاستخدام
 
@@ -183,7 +183,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="لوحة قياسية فوق أسفل عنصرها الأب: اسحبها إلى الأسفل لإغلاقها" plain>
+<Example label="لوحة قياسية فوق أسفل عنصرها الأب: اسحبها إلى الأسفل لإغلاقها">
   <div style="position: relative; inline-size: 22rem; max-inline-size: 100%; block-size: 20rem; overflow: hidden">
     <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space75); padding: 1rem">
       <p>الخريطة</p>
@@ -193,7 +193,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <p>ثلاثة مقاهٍ ومخبز مفتوحة على بعد عشر دقائق مشيًا.</p>
     </tanrei-bottom-sheet>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="bottom-sheet" />
 
@@ -207,7 +207,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 **عدة إجراءات من الإجراء الرئيسي.** حين يأتي الإجراء الرئيسي للشاشة في بضع صور متقاربة (مستند جديد، أو مجلد، أو رفع ملف)، يفتح [زر الإجراء الرئيسي](/ar/components/main-action-button/) لوحة سفلية نمطية تسردها. في نظام Tanrei يحل هذا محل [قائمة FAB](/ar/components/fab-menu/)، التي لا يتضمنها النظام.
 
-<DemoFrame label="عدة إجراءات من الإجراء الرئيسي: افتح اللوحة بالزر" plain>
+<Example label="عدة إجراءات من الإجراء الرئيسي: افتح اللوحة بالزر">
   <tanrei-main-action-button label="جديد" onclick="document.getElementById('bottom-sheet-demo-actions').open = true"><span slot="icon">add</span></tanrei-main-action-button>
   <tanrei-bottom-sheet id="bottom-sheet-demo-actions" label="جديد" handle-label="تغيير حجم اللوحة" flush onclose="this.open = false">
     <tanrei-list>
@@ -216,7 +216,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-list-item interactive onclick="this.closest('tanrei-bottom-sheet').open = false">رفع ملف</tanrei-list-item>
     </tanrei-list>
   </tanrei-bottom-sheet>
-</DemoFrame>
+</Example>
 
 ### نمطية أم قياسية
 

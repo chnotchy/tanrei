@@ -2,14 +2,14 @@
 title: Campo de texto
 description: Permite introducir y editar texto (una línea, o varias que siguen al texto o cuyo tamaño se cambia a mano) o una fecha o una hora que se introducen unidad por unidad en el formato de la configuración regional, o código que se conserva exactamente como se escribe, con una etiqueta que puede decir si el campo es obligatorio u opcional, iconos opcionales, prefijo y sufijo, texto de apoyo, un recuento de caracteres y un botón de selector.
 translationOf: components/text-field.mdx
-sourceHash: 719a16c2a252ed9648b17821b91131dcc18c87a3
+sourceHash: 11ca82869cc7b493be699f28b68da9e9801b3dec
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
@@ -19,10 +19,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 Esta página describe el campo de texto tal como lo define ahora la especificación: una variante `stacked`, la predeterminada, con la etiqueta encima del campo; `filled` y `outlined`, que se conservan solo para los preajustes de Material y cupertino; alturas de 32, 40 y 56 (40, 48 y 56 en un campo filled u outlined, cuya etiqueta flota dentro); tipos de fecha y hora, con un botón de selector; un campo de varias líneas que sigue a su texto o cuyo tamaño se cambia con un tirador (`resize`); una fecha o una hora que se introducen unidad por unidad, en segmentos; y `required` y `optional`, que marcan un campo como obligatorio u opcional. El componente web ya hace todo esto, y las demostraciones también. Un campo también puede contener código (`type="code"`, y `wrap` para sus líneas): la web ya lo ha construido, y ninguna otra plataforma todavía. El campo de texto es un campo alrededor de una entrada de texto, tal como lo describe esta página: la web también lo ha construido ya, y en ella el atributo `required` ha desaparecido. SwiftUI, Compose, Flutter y React Native aparecen arriba como rezagados: hasta que se pongan al día ofrecen la revisión anterior, outlined de forma predeterminada con alturas de 36 y 40, con un indicador `required` que no dibuja ninguna marca, y sin variante `stacked`, sin tipos de fecha ni de hora, sin botón de selector y sin modos de cambio de tamaño, y sus ejemplos muestran esa revisión.
 :::
 
-<DemoFrame label="Stacked, la predeterminada: un campo obligatorio y una fecha con su botón de selector" column>
+<Example label="Stacked, la predeterminada: un campo obligatorio y una fecha con su botón de selector" column>
   <tanrei-text-field label="Correo electrónico" type="email" required required-text="Obligatorio" supporting-text="Solo lo usamos para iniciar tu sesión."></tanrei-text-field>
   <tanrei-text-field label="Fecha de inicio" type="date" locale="es-ES" value="2026-09-27" picker picker-label="Elegir fecha de inicio" segment-empty-text="vacío"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
 Usa un campo de texto siempre que un formulario pida texto: es el caso corriente, listo para usarse, con una etiqueta, la caja, una línea de ayuda, las palabras para un valor incorrecto y un recuento.
 
@@ -211,11 +211,11 @@ El mismo campo, escrito a mano a partir de sus dos miembros, da la misma imagen 
 </tanrei-field>
 ```
 
-<DemoFrame label="El mismo campo escrito a mano: un campo con una entrada de texto dentro" column>
+<Example label="El mismo campo escrito a mano: un campo con una entrada de texto dentro" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Correo electrónico" required required-text="Obligatorio" supporting-text="Solo lo usamos para iniciar tu sesión.">
     <tanrei-text-input type="email"></tanrei-text-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 Baja a ese nivel cuando necesites una organización que el campo de texto no ofrezca:
 
@@ -236,16 +236,16 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 ## Especificaciones
 
-<DemoFrame label="Error, deshabilitado, solo lectura, prefijo y sufijo, y contador" plain column>
+<Example label="Error, deshabilitado, solo lectura, prefijo y sufijo, y contador" column>
   <tanrei-text-field label="Correo electrónico" value="ada@" error error-text="Introduce una dirección de correo completa."></tanrei-text-field>
   <tanrei-text-field label="Correo electrónico" value="ada@example.com" disabled></tanrei-text-field>
   <tanrei-text-field label="Correo electrónico" value="ada@example.com" readonly></tanrei-text-field>
   <tanrei-text-field label="Importe" type="number" value="120" prefix-text="$" suffix-text="USD"></tanrei-text-field>
   <tanrei-text-field label="Nombre visible" value="Ada Lovelace" maxlength="40" counter></tanrei-text-field>
   <tanrei-text-field size="large" label="Correo electrónico" value="ada@example.com"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Tipos: contraseña, búsqueda, número, teléfono y URL" plain column>
+<Example label="Tipos: contraseña, búsqueda, número, teléfono y URL" column>
   <tanrei-text-field label="Contraseña" type="password" value="correct horse" autocomplete="current-password"></tanrei-text-field>
   <tanrei-text-field label="Buscar" label-hidden type="search" placeholder="Buscar componentes">
     <span slot="leading-icon">search</span>
@@ -253,44 +253,44 @@ input.addEventListener('input', () => (field.countText = input.countText));
   <tanrei-text-field label="Cantidad" type="number" value="12"></tanrei-text-field>
   <tanrei-text-field label="Teléfono" type="tel" autocomplete="tel" placeholder="+1 555 0100"></tanrei-text-field>
   <tanrei-text-field label="Sitio web" type="url" placeholder="https://example.com"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Obligatorio y opcional: los tags y el asterisco" plain column>
+<Example label="Obligatorio y opcional: los tags y el asterisco" column>
   <tanrei-text-field label="Correo electrónico" type="email" required required-text="Obligatorio"></tanrei-text-field>
   <tanrei-text-field label="Empresa" optional optional-text="Opcional"></tanrei-text-field>
   <tanrei-text-field label="Correo electrónico" type="email" required required-mark="asterisk"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Varias líneas: sigue al texto, cambia de tamaño con un tirador (hacia abajo y en ambos sentidos) y fijo" plain column>
+<Example label="Varias líneas: sigue al texto, cambia de tamaño con un tirador (hacia abajo y en ambos sentidos) y fijo" column>
   <tanrei-text-field label="Mensaje" multiline min-rows="2" max-rows="5" placeholder="Escribe unas líneas: el campo crece hasta cinco y después se desplaza"></tanrei-text-field>
   <tanrei-text-field label="Notas" multiline resize="manual" max-rows="10" resize-label="Cambiar el tamaño de las notas"></tanrei-text-field>
   <tanrei-text-field label="Descripción" multiline resize="manual" resize-axis="both" resize-label="Cambiar el tamaño de la descripción"></tanrei-text-field>
   <tanrei-text-field label="Dirección" multiline resize="fixed" min-rows="3"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Código: un patrón en una línea, JSON en varias líneas y líneas que no continúan en otra fila" plain column>
+<Example label="Código: un patrón en una línea, JSON en varias líneas y líneas que no continúan en otra fila" column>
   <tanrei-text-field type="code" label="Patrón" value="tanrei.comp.button.*.container.color" supporting-text="Un id de token, con * para cualquier parte."></tanrei-text-field>
   <tanrei-text-field type="code" multiline min-rows="4" label="Capa" value="{&#10;  &quot;id&quot;: &quot;acme&quot;,&#10;  &quot;extends&quot;: &quot;tanrei&quot;&#10;}"></tanrei-text-field>
   <tanrei-text-field type="code" multiline no-wrap min-rows="3" label="Reglas" value="{ &quot;match&quot;: &quot;tanrei.comp.button.*.hovered.container.color&quot;, &quot;$value&quot;: &quot;{tanrei.sys.color.primary}&quot; }&#10;{ &quot;match&quot;: &quot;*&quot; }"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Código en una página de derecha a izquierda: la etiqueta y la ayuda siguen a la página, el código empieza a la izquierda" plain column>
+<Example label="Código en una página de derecha a izquierda: la etiqueta y la ayuda siguen a la página, el código empieza a la izquierda" column>
   <div dir="rtl" lang="ar" style="display: grid; gap: 1rem;">
     <tanrei-text-field type="code" label="النمط" value="tanrei.comp.*.color" supporting-text="معرّف رمز، مع * لأي جزء."></tanrei-text-field>
     <tanrei-text-field type="code" multiline min-rows="3" label="المصادر" value="[&quot;مرحبا&quot;, &quot;acme&quot;]&#10;// تعليق: comment"></tanrei-text-field>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Una fecha, una hora, y una fecha y hora, en segmentos. Tab, las teclas de flecha y los dígitos los rellenan" plain column>
+<Example label="Una fecha, una hora, y una fecha y hora, en segmentos. Tab, las teclas de flecha y los dígitos los rellenan" column>
   <tanrei-text-field label="Fecha de inicio" type="date" locale="es-ES" picker picker-label="Elegir fecha de inicio" invalid-text="Completa la fecha." segment-empty-text="vacío"></tanrei-text-field>
   <tanrei-text-field label="Hora de inicio" type="time" locale="es-ES" value="14:30" segment-empty-text="vacío"></tanrei-text-field>
   <tanrei-text-field label="Salida" type="date-time" locale="es-ES" value="2026-09-27T14:30" min="2026-09-01T00:00" unavailable-text="Elige una fecha y hora a partir de septiembre de 2026." segment-empty-text="vacío"></tanrei-text-field>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="Filled y outlined, las variantes de los preajustes de Material" system="m3-like" plain column>
+<Example label="Filled y outlined, las variantes de los preajustes de Material" system="m3-like" column>
   <tanrei-text-field variant="filled" label="Correo electrónico" type="email" value="ada@example.com"></tanrei-text-field>
   <tanrei-text-field variant="outlined" label="Correo electrónico" type="email" supporting-text="Solo lo usamos para iniciar tu sesión."></tanrei-text-field>
-</DemoFrame>
+</Example>
 
 ### Qué aporta cada miembro
 

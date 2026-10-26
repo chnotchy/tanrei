@@ -2,20 +2,20 @@
 title: पिछला और अगला लिंक
 description: पेजों के क्रम में उस पेज से पहले का और उसके बाद का पेज, जिस पर व्यक्ति अभी है। दो लिंक, जिनमें से हर एक का नाम एक दिशा और उस जगह के शीर्षक से बनता है जहाँ वह ले जाता है।
 translationOf: components/previous-next-links.mdx
-sourceHash: f0b866b0992a5ea7997d1128521d78df773b99ab
+sourceHash: f26eed746e4017b08c334e2dd311e7dfa7d4279c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="previous-next-links" />
 
-<DemoFrame label="पिछला और अगला" column>
+<Example label="पिछला और अगला" column>
   <nav class="tanrei-previous-next-links" aria-label="इस डेमो के पेज" style="inline-size: 100%">
     <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="../link/">
       <span class="tanrei-previous-next-links-label">पिछला</span>
@@ -26,7 +26,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <span class="tanrei-previous-next-links-title">चरण</span>
     </a>
   </nav>
-</DemoFrame>
+</Example>
 
 इस पेज के अंत में दिखने वाले पिछला और अगला लिंक यही कंपोनेंट हैं।
 
@@ -100,7 +100,7 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 
 ## स्पेक
 
-<DemoFrame label="अकेला अगला आइटम अपनी जगह रहता है; सिर्फ़ लेबल" plain column>
+<Example label="अकेला अगला आइटम अपनी जगह रहता है; सिर्फ़ लेबल" column>
   <nav class="tanrei-previous-next-links" aria-label="इस डेमो का पहला पेज" style="inline-size: 100%">
     <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href="../steps/">
       <span class="tanrei-previous-next-links-label">अगला</span>
@@ -111,9 +111,9 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
     <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="../link/"><span class="tanrei-previous-next-links-label">नई पोस्ट</span></a>
     <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href="../steps/"><span class="tanrei-previous-next-links-label">पुरानी पोस्ट</span></a>
   </nav>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="सँकरे कॉलम में आइटम एक के ऊपर एक आते हैं" plain>
+<Example label="सँकरे कॉलम में आइटम एक के ऊपर एक आते हैं">
   <nav class="tanrei-previous-next-links" aria-label="इस डेमो का सँकरा कॉलम" style="inline-size: 20rem">
     <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="../link/">
       <span class="tanrei-previous-next-links-label">पिछला</span>
@@ -124,7 +124,7 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
       <span class="tanrei-previous-next-links-title">दाएँ से बाएँ वाले लेआउट</span>
     </a>
   </nav>
-</DemoFrame>
+</Example>
 
 - **एक आइटम एक लिंक है**, जो पूरा का पूरा दबाया जाता है और आउटलाइन वाले कंटेनर के रूप में बनता है: वही एक बारीक रेखा, कोई फ़िल नहीं, और शीर्षक टेक्स्ट के रंग में। उस पर अंडरलाइन नहीं होती, क्योंकि उसका किनारा, उसका ऐरो और उसकी जगह उसे आसपास के टेक्स्ट से अलग दिखाते हैं।
 - **ऐरो कंपोनेंट के अपने हैं**: पिछले आइटम के शुरुआती किनारे पर `arrow_back`, और अगले आइटम के अंतिम किनारे पर `arrow_forward`। इनके लिए `icons.css` चाहिए।

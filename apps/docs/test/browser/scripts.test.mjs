@@ -11,8 +11,8 @@ import path from 'node:path';
 import zlib from 'node:zlib';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { chromium } from '@playwright/test';
 import { watchNetwork } from './network-quiet.mjs';
+import { launch } from './launch.mjs';
 
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
@@ -56,7 +56,7 @@ before(async () => {
   });
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   origin = `http://127.0.0.1:${server.address().port}`;
-  browser = await chromium.launch();
+  browser = await launch();
 });
 
 after(async () => {
@@ -100,7 +100,11 @@ describe('a built page’s scripts', { concurrency: 2 }, () => {
       try {
         // The modules a page asks for are all in once it is quiet; an element is upgraded when its module is evaluated.
         // An element defined on its first use (`data-define-on-use`: the search) is left undefined until then
-        // (test/browser/search-on-use.test.mjs).
+        // (test/browser/search-on-use.test.mjs). A frame's stage defines what it holds once it comes near the view
+        // (components/visuals/Example.astro): every one is let go here, as if the reader had scrolled the page through.
+        await page.evaluate(() => {
+          for (const stage of document.querySelectorAll('[data-example-pending]')) stage.removeAttribute('data-example-pending');
+        });
         await page.waitForFunction(() => {
           const undefinedIn = (root) => [...root.querySelectorAll('*')].some((el) => (el.localName.startsWith('tanrei-') && !el.matches(':defined') && !el.hasAttribute('data-define-on-use')) || (el.shadowRoot && undefinedIn(el.shadowRoot)));
           return !undefinedIn(document);

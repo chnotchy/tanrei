@@ -2,13 +2,13 @@
 title: Web
 description: Tanrei の CSS トークンと Web Components を、どの Web プロジェクトでも使えます。
 translationOf: getting-started/web.mdx
-sourceHash: ee4c3f5cddad88322fc87252a6236ef3ab67e4d9
+sourceHash: fb8e6a2acbc93ad9938e2e07ac6820f37f8fc6cb
 ---
 
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 `@tanrei/web` には 2 つのものが入っています。デザイントークンを CSS カスタムプロパティとして収めたスタイルシートと、Lit で作った標準準拠のカスタム要素です。特定のフレームワークは必要ありません。
 
@@ -24,7 +24,7 @@ npm install @tanrei/web
 
 ### ソースから
 
-公開される前の `main` のソースを使うには、Git、Node 22.12 以降、pnpm 12 が必要です（`corepack enable` で、リポジトリが固定しているバージョンが使えます）。リポジトリのクローンでパッケージをビルドしてパックし、パックしたファイルをプロジェクトにインストールします。
+公開される前の `main` のソースを使うには、Git、Node 22.22 以降、pnpm 12 が必要です（`corepack enable` で、リポジトリが固定しているバージョンが使えます）。リポジトリのクローンでパッケージをビルドしてパックし、パックしたファイルをプロジェクトにインストールします。
 
 ```sh
 git clone https://github.com/chnotchy/tanrei.git
@@ -105,10 +105,10 @@ npm install path/to/tanrei-packages/tanrei-web-*.tgz
 
 </Steps>
 
-<DemoFrame>
+<Example>
   <tanrei-button variant="filled">デプロイ</tanrei-button>
   <tanrei-button variant="outlined" size="small" disabled>キャンセル</tanrei-button>
-</DemoFrame>
+</Example>
 
 ## 要素のマニフェスト
 
@@ -280,7 +280,7 @@ Tanrei の要素を描画しない、自前のロジックのテストは、Node
 ほとんどの要素は、自分自身ではなくシャドウルートの中のネイティブ要素（`<button>`、`<input>`、`<dialog>`）にロールを持たせています。ブラウザーやテストツールに本物のセマンティクスを見せるためです。タブや開いているメニューなど、一部の要素は自分自身がロールを持ちます。Playwright のロケーターは開いたシャドウルートの中まで探すので、人と同じように、ロールと名前でコントロールを探してください。
 
 ```ts
-await page.getByRole('button', { name: 'Save' }).click();
+await page.getByRole('button', { name: '保存' }).click();
 await expect(page.getByRole('switch', { name: 'Wi-Fi' })).toBeChecked();
 ```
 
@@ -292,17 +292,17 @@ await expect(page.getByRole('switch', { name: 'Wi-Fi' })).toBeChecked();
 
 ```ts
 // 何も見つからない：タブは <tanrei-tabs> の子で、そのタブリストの子ではない
-page.getByRole('tablist', { name: 'Sections' }).getByRole('tab', { name: 'Billing' });
+page.getByRole('tablist', { name: 'セクション' }).getByRole('tab', { name: '請求' });
 ```
 
 名前の付いたロールを持つ要素を見つけてから、その中を探してください。
 
 ```ts
-const sections = page.locator('tanrei-tabs', { has: page.getByRole('tablist', { name: 'Sections' }) });
-await sections.getByRole('tab', { name: 'Billing' }).click();
+const sections = page.locator('tanrei-tabs', { has: page.getByRole('tablist', { name: 'セクション' }) });
+await sections.getByRole('tab', { name: '請求' }).click();
 
-const confirm = page.locator('tanrei-dialog', { has: page.getByRole('dialog', { name: 'Delete the file?' }) });
-await confirm.getByRole('button', { name: 'Delete' }).click();
+const confirm = page.locator('tanrei-dialog', { has: page.getByRole('dialog', { name: 'ファイルを削除しますか？' }) });
+await confirm.getByRole('button', { name: '削除' }).click();
 ```
 
 ### トップレイヤーに開くメニュー
@@ -310,10 +310,10 @@ await confirm.getByRole('button', { name: 'Delete' }).click();
 開いているあいだ、`<tanrei-menu>` はアンカーの名前を持つメニューになりますが、ページの中では場所を取りません。面はトップレイヤーに描かれるからです。そのため、メニュー自体の表示を確かめると、開いていても失敗します。メニューがあることを確かめてから、その項目を確かめてください。
 
 ```ts
-await page.getByRole('button', { name: 'More' }).click();
-const menu = page.getByRole('menu', { name: 'More' });
+await page.getByRole('button', { name: 'その他' }).click();
+const menu = page.getByRole('menu', { name: 'その他' });
 await expect(menu).toBeAttached();
-await expect(menu.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+await expect(menu.getByRole('menuitem', { name: '名前を変更' })).toBeVisible();
 ```
 
 閉じると要素はメニューではなくなり、`await expect(menu).toHaveCount(0)` が通ります。

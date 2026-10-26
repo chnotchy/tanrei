@@ -2,26 +2,26 @@
 title: Contador animado
 description: Muestra un número que cambia —un recuento, un precio, una puntuación, una cifra de un panel— moviendo cada dígito que cambia hasta su nuevo valor, para que una persona vea que cambió, en qué dirección y aproximadamente cuánto, mientras a la tecnología de apoyo solo se le comunica el valor en el que se detiene.
 translationOf: components/number-ticker.mdx
-sourceHash: 95f0526e88d9f97f2e8636d465f88d6f39585435
+sourceHash: 15f18dcfd7f51262f1254bebb892eab3398a41d2
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="number-ticker" />
 
-<DemoFrame label="Cifras que suben hasta su valor al entrar en la vista">
+<Example label="Cifras que suben hasta su valor al entrar en la vista">
   <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
     <tanrei-number-ticker start-value="0" value="1234" label="Pedidos"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="0" value="98400" number-style="currency" currency="USD" fraction-digits="0" label="Ingresos"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="0" value="0.426" number-style="percent" fraction-digits="1" label="Conversión"></tanrei-number-ticker>
   </div>
-</DemoFrame>
+</Example>
 
 ### Uso
 
@@ -61,21 +61,21 @@ Los ejemplos de Web y React siguen la especificación actual. SwiftUI, Compose, 
 
 ## Especificaciones
 
-<DemoFrame label="Animaciones: slide (la elección del sistema predeterminado), blur, blur-slide y flip" plain>
+<Example label="Animaciones: slide (la elección del sistema predeterminado), blur, blur-slide y flip">
   <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
     <tanrei-number-ticker start-value="1180" value="1234" animation="slide" label="Deslizar"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="1180" value="1234" animation="blur" label="Desenfoque"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="1180" value="1234" animation="blur-slide" label="Desenfoque y deslizamiento"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="1180" value="1234" animation="flip" label="Paleta"></tanrei-number-ticker>
   </div>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="trend: auto (de 19 a 20 ambos dígitos suben) y digit (las unidades bajan de 9 a 0)" plain>
+<Example label="trend: auto (de 19 a 20 ambos dígitos suben) y digit (las unidades bajan de 9 a 0)">
   <div style="display: flex; flex-wrap: wrap; gap: var(--tanrei-sys-space-space400); font: var(--tanrei-sys-typescale-heading-2-font); letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing)">
     <tanrei-number-ticker start-value="19" value="20" trend="auto" label="Automático"></tanrei-number-ticker>
     <tanrei-number-ticker start-value="19" value="20" trend="digit" label="Por dígito"></tanrei-number-ticker>
   </div>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="number-ticker" />
 

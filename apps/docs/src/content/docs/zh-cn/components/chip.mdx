@@ -2,26 +2,26 @@
 title: "纸片（Chip）"
 description: "排成一行的带标签的小控件：用于建议的操作或通往某处的链接、可开可关的筛选条件，或者用户输入后可以移除的项。"
 translationOf: components/chip.mdx
-sourceHash: 035fe677407860928287282c7aaf348c8224ccac
+sourceHash: 4820a1e21e55b7549598fb6babd197db62f52069
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="chip" />
 
-<DemoFrame label="种类">
+<Example label="种类">
   <tanrei-chip label="添加到日历"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip label="听起来不错"></tanrei-chip>
   <tanrei-chip kind="filter" selected label="素食"></tanrei-chip>
   <tanrei-chip kind="filter" label="30 分钟以内"></tanrei-chip>
   <tanrei-chip kind="input" label="李华" remove-label="移除李华"></tanrei-chip>
-</DemoFrame>
+</Example>
 
 ### 用法
 
@@ -138,25 +138,25 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 
 ## 规格
 
-<DemoFrame label="变体、尺寸和禁用" plain>
+<Example label="变体、尺寸和禁用">
   <tanrei-chip variant="elevated" label="添加到日历"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip kind="filter" variant="elevated" selected label="素食"></tanrei-chip>
   <tanrei-chip size="small" label="添加到日历"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip kind="input" size="small" label="李华" remove-label="移除李华"></tanrei-chip>
   <tanrei-chip disabled label="添加到日历"><span slot="icon">event</span></tanrei-chip>
   <tanrei-chip kind="filter" selected disabled label="素食"></tanrei-chip>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="移除操作：普通（默认）和破坏性；悬停或聚焦即可看出差别" plain>
+<Example label="移除操作：普通（默认）和破坏性；悬停或聚焦即可看出差别">
   <tanrei-chip kind="input" label="30 分钟以内" remove-label="移除“30 分钟以内”"></tanrei-chip>
   <tanrei-chip kind="input" label="report.pdf" remove-label="移除 report.pdf" destructive-remove></tanrei-chip>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="链接纸片：在当前页打开、在新标签页中打开、禁用" plain>
+<Example label="链接纸片：在当前页打开、在新标签页中打开、禁用">
   <tanrei-chip label="标签（Tag）" href="/zh-cn/components/tag/"></tanrei-chip>
   <tanrei-chip label="徽标" href="/zh-cn/components/badge/" target="new" target-label="在新标签页中打开"></tanrei-chip>
   <tanrei-chip label="标签（Tag）" href="/zh-cn/components/tag/" disabled></tanrei-chip>
-</DemoFrame>
+</Example>
 
 在默认系统中，每个纸片都是胶囊形，文本放大使它变高时也仍然是胶囊形。它的图标大到高度所能容纳的程度：中号纸片上是 24，小号纸片上是 20。选中的筛选纸片上的对勾是系统图标集里的 `check` 图标，移除图标是 `cancel`，始终以填充样式绘制。纸片不绘制自己的标记，所以想要其他标记的设计系统，应当选择另一套图标集。outlined 纸片的边线是细线，也就是分隔线所画的那种不显眼的线。
 

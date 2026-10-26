@@ -2,20 +2,20 @@
 title: सिलेक्ट
 description: लोगों को किसी बंद लिस्ट में से एक मान चुनने देता है। इसमें एक ट्रिगर होता है, जो टेक्स्ट इनपुट के बॉक्स जैसा दिखता है, उसी की नाप का होता है और चुना हुआ विकल्प दिखाता है, और विकल्पों की एक लिस्ट होती है, जो उसी से खुलती है और जिसे चाहें तो ग्रुप में बाँटा जा सकता है। इसकी अपनी न लेबल की पंक्ति है, न सहायता, न त्रुटि टेक्स्ट। यह बार, टूलबार या टेबल के लिए है, या उस फ़ील्ड के भीतर के लिए जिसे प्रॉडक्ट ख़ुद जोड़कर बनाता है।
 translationOf: components/select.mdx
-sourceHash: 6498add9840e5413d69077058e2b885721456c9b
+sourceHash: 6246b546b185dfc590a8e1793d0b194db9f0c4db
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="select" />
 
-<DemoFrame label="अकेला सिलेक्ट: बार के लिए थीम का सिलेक्ट, और लिस्ट के ऊपर सॉर्ट का क्रम" column>
+<Example label="अकेला सिलेक्ट: बार के लिए थीम का सिलेक्ट, और लिस्ट के ऊपर सॉर्ट का क्रम" column>
   <tanrei-select class="not-content" size="small" label="थीम" value="auto">
     <tanrei-option value="light" leading-icon="light_mode">लाइट</tanrei-option>
     <tanrei-option value="dark" leading-icon="dark_mode">डार्क</tanrei-option>
@@ -26,7 +26,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-option value="name">नाम</tanrei-option>
     <tanrei-option value="size">साइज़</tanrei-option>
   </tanrei-select>
-</DemoFrame>
+</Example>
 
 सिलेक्ट, [सिलेक्ट फ़ील्ड](/hi/components/select-field/) का अकेला बॉक्स है: ट्रिगर, जिसमें उसका दिखाया हुआ मान, उसका शुरुआती आइकन और उसका शेवरॉन है, और विकल्पों की वह लिस्ट जो उससे खुलती है। उसके ऊपर न लेबल की पंक्ति है, न ज़रूरी या वैकल्पिक का निशान, और उसके नीचे न सहायता है, न त्रुटि टेक्स्ट।
 
@@ -106,20 +106,20 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="एक फ़ील्ड, जिसके भीतर एक सिलेक्ट है: सिलेक्ट फ़ील्ड जैसा ही दिखता है" column>
+<Example label="एक फ़ील्ड, जिसके भीतर एक सिलेक्ट है: सिलेक्ट फ़ील्ड जैसा ही दिखता है" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="देश" required required-text="ज़रूरी" supporting-text="आपके इनवॉइस इसी देश के पते पर भेजे जाते हैं।">
     <tanrei-select placeholder="देश चुनें">
       <tanrei-option value="jp">जापान</tanrei-option>
       <tanrei-option value="ke">केन्या</tanrei-option>
     </tanrei-select>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 जो बात सिर्फ़ सिलेक्ट जानता है, वह उसे अपने फ़ील्ड को बताता है। उसकी सहायता वहीं से शुरू होती है जहाँ से मान शुरू होता है, पैडिंग और शुरुआती आइकन के बाद। फ़ील्ड का लेबल filled या outlined सिलेक्ट ख़ुद बनाता है, बॉक्स में फ़्लोट होता हुआ, इसलिए फ़ील्ड लेबल की कोई पंक्ति नहीं बनाता। और जब तक उसकी लिस्ट खुली है, सिलेक्ट फ़ोकस वाले रूप में दिखाया जाता है, उस पर फ़ोकस हो या न हो, इसलिए फ़ील्ड भी उतनी देर अपना लेबल और अपनी सहायता फ़ोकस वाले रूप में दिखाता है।
 
 ## स्पेक
 
-<DemoFrame label="अकेले सिलेक्ट: ग्रुप, सहायक टेक्स्ट और एक अक्षम विकल्प, त्रुटि में, सिर्फ़ पढ़ने वाला और अक्षम" plain column>
+<Example label="अकेले सिलेक्ट: ग्रुप, सहायक टेक्स्ट और एक अक्षम विकल्प, त्रुटि में, सिर्फ़ पढ़ने वाला और अक्षम" column>
   <tanrei-select class="not-content" label="टाइम ज़ोन" value="Europe/Lisbon">
     <tanrei-option-group label="एशिया"><tanrei-option value="Asia/Tokyo">टोक्यो</tanrei-option><tanrei-option value="Asia/Seoul">सियोल</tanrei-option></tanrei-option-group>
     <tanrei-option-group label="यूरोप"><tanrei-option value="Europe/Lisbon">लिस्बन</tanrei-option><tanrei-option value="Europe/Berlin">बर्लिन</tanrei-option></tanrei-option-group>
@@ -138,7 +138,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-select class="not-content" label="देश" value="jp" disabled>
     <tanrei-option value="jp">जापान</tanrei-option><tanrei-option value="ke">केन्या</tanrei-option>
   </tanrei-select>
-</DemoFrame>
+</Example>
 
 ### ट्रिगर
 
@@ -198,11 +198,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 जिस सिलेक्ट में न कोई विकल्प है, न स्टेटस और न `emptyText`, वह नहीं खुलता। उसे `emptyText` दें, या `setWords()` से एक बार प्रोडक्ट का `noOptionsText` दें, ताकि उसे खोलने वाले को पता चले कि चुनने को कुछ क्यों नहीं है।
 
-<DemoFrame label="लोड होना, विफलता और चुनने को कुछ न होना" column>
+<Example label="लोड होना, विफलता और चुनने को कुछ न होना" column>
   <tanrei-select class="not-content" label="प्रोजेक्ट" placeholder="प्रोजेक्ट चुनें" status="loading" status-text="प्रोजेक्ट लोड हो रहे हैं"></tanrei-select>
   <tanrei-select class="not-content" label="प्रोजेक्ट" placeholder="प्रोजेक्ट चुनें" status="error" status-text="प्रोजेक्ट लोड नहीं हो सके। अपना कनेक्शन जाँचें।"></tanrei-select>
   <tanrei-select class="not-content" label="प्रोजेक्ट" placeholder="प्रोजेक्ट चुनें" empty-text="अभी कोई प्रोजेक्ट नहीं"></tanrei-select>
-</DemoFrame>
+</Example>
 
 ### खोलना, आगे-पीछे जाना और चुनना
 

@@ -2,14 +2,14 @@
 title: テーブル
 description: 行と列のあるデータを示します。列の見出し、行見出し、キャプション、フッター行を持てます。収まらないときは自身の枠の中でスクロールします。列の見出しは、その列の順に行を並べるよう求めることができ、行は選択できます。テーブル自身は並べ替えません。
 translationOf: components/table.mdx
-sourceHash: 388549568f8a91ecb1e49333233b422d57daae1f
+sourceHash: 88d81c83a94e4a8312f1b69b16fb0422435b036d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import SortedByThePage from '../../../../components/SortedByThePage.astro';
 import CountedByThePage from '../../../../components/CountedByThePage.astro';
 
@@ -17,7 +17,7 @@ import CountedByThePage from '../../../../components/CountedByThePage.astro';
 
 <ComponentAvailability name="table" />
 
-<DemoFrame label="行見出し、末尾にそろえた数値、フッター行">
+<Example label="行見出し、末尾にそろえた数値、フッター行">
   <tanrei-table class="tanrei-not-prose" row-headers>
     <table>
       <caption>ステータスとプラットフォーム別のコンポーネント数</caption>
@@ -34,7 +34,7 @@ import CountedByThePage from '../../../../components/CountedByThePage.astro';
       </tfoot>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 テーブルは、2 つの次元を持つデータのためのものです。価格表、プランの比較、型と既定値を添えた設定の一覧、複数のプラットフォームにまたがる状況、人が扱うレコードなどに使います。列の見出しは、その列の順に行を並べるよう求めることができます。行のないテーブルは、プロダクトの空の状態を示します。行の下のステータス行には、プロダクトの文とページネーションを置けます。行は、行ごとのチェックボックスで選択できます。1 行だけを選ぶときはラジオボタンを使います。行を待っているテーブルは、ビジーであることを伝えます。テーブル自身は、並べ替え、絞り込み、取得、ページ送りのいずれも行いません。渡された行を、渡された順に描きます。列幅の変更は行いません。
 
@@ -119,7 +119,7 @@ Web では、ネイティブの `<table>` を `<tanrei-table>` で囲みます�
 
 <SortedByThePage />
 
-<DemoFrame label="見出しを押すと、テーブルが求め、このページが行を並べます" plain>
+<Example label="見出しを押すと、テーブルが求め、このページが行を並べます">
   <tanrei-table class="tanrei-not-prose" data-docs-sorts>
     <table>
       <caption>商品</caption>
@@ -134,7 +134,7 @@ Web では、ネイティブの `<table>` を `<tanrei-table>` で囲みます�
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 並べ替えられる列は、行がいまどの順に並んでいるかを見出しセルに書き、そのテキストをプロダクト自身のボタンで囲みます。
 
@@ -161,7 +161,7 @@ table.addEventListener('sort', (event) => {
 
 ### 行がないとき
 
-<DemoFrame label="行がないとき：見出し行の下に空の状態" plain>
+<Example label="行がないとき：見出し行の下に空の状態">
   <tanrei-table class="tanrei-not-prose">
     <table>
       <caption>条件に合う商品</caption>
@@ -173,7 +173,7 @@ table.addEventListener('sort', (event) => {
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 すべての列にまたがるセル 1 つの行を書き、その中に空の状態を置きます。
 
@@ -189,7 +189,7 @@ table.addEventListener('sort', (event) => {
 
 ### ステータス行
 
-<DemoFrame label="行の下に、プロダクトの文とページネーション" plain>
+<Example label="行の下に、プロダクトの文とページネーション">
   <tanrei-table class="tanrei-not-prose" sticky-header style="max-block-size: 20rem">
     <table>
       <caption>リリース（新しい順）</caption>
@@ -217,7 +217,7 @@ table.addEventListener('sort', (event) => {
       </div>
     </div>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 テーブルの後ろ、要素の中に、ステータス行を書きます。ステータスである段落にプロダクトの文を入れ、その後にページネーションを置きます。
 
@@ -239,7 +239,7 @@ table.addEventListener('sort', (event) => {
 
 <CountedByThePage />
 
-<DemoFrame label="行を選択する: テーブルが選択を保持し、このページが数える" plain>
+<Example label="行を選択する: テーブルが選択を保持し、このページが数える">
   <tanrei-table class="tanrei-not-prose" selection="multiple" row-headers select-all-label="すべての商品を選択" data-docs-counts="4 件中 {count} 件を選択">
     <table>
       <caption>再発注する商品</caption>
@@ -255,7 +255,7 @@ table.addEventListener('sort', (event) => {
     </table>
     <div data-part="status"><p role="status">4 件中 2 件を選択</p></div>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 要素に `selection="multiple"` を指定し、すべての行を選択セルで始めます。見出し行の選択セルには、すべての行のチェックボックスを入れます。本体の行の選択セルにはその行のチェックボックスを入れ、行の `data-value` に、プロダクトがそのレコードを呼ぶ名前を書きます。
 
@@ -313,7 +313,7 @@ table.addEventListener('selectionchange', (event) => {
 
 ### 1 行の選択
 
-<DemoFrame label="1 行を選ぶ：各行にラジオボタン、見出し行にはなし" plain>
+<Example label="1 行を選ぶ：各行にラジオボタン、見出し行にはなし">
   <tanrei-table class="tanrei-not-prose" selection="single" row-headers>
     <table>
       <caption>変更先のプラン</caption>
@@ -327,7 +327,7 @@ table.addEventListener('selectionchange', (event) => {
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 1 件のレコードを選ぶとき（変更先のプラン、配送先の住所、比較の基準にするビルドなど）は、`selection="single"` を指定します。各本体行の選択セルにはチェックボックスの代わりにラジオボタンを入れ、見出し行の選択セルは空のままにします。すべての行を表すコントロールはないからです。
 
@@ -357,7 +357,7 @@ table.addEventListener('selectionchange', (event) => {
 
 ### 読み込み中
 
-<DemoFrame label="読み込み中: プレースホルダーの行と、それを伝えるステータス行" plain>
+<Example label="読み込み中: プレースホルダーの行と、それを伝えるステータス行">
   <tanrei-table class="tanrei-not-prose" loading>
     <table>
       <caption>今週の注文</caption>
@@ -372,7 +372,7 @@ table.addEventListener('selectionchange', (event) => {
     </table>
     <div data-part="status"><p role="status">読み込み中</p></div>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 行を取得している間、`loading` を指定します。テーブルはビジーとして公開され、その間に渡されたものを描きます。テーブルは何も取得せず、何も待ちません。プロダクトがそう指定している間だけ、読み込み中です。
 
@@ -419,7 +419,7 @@ export function rehypeTanreiTable() {
 
 ## 仕様
 
-<DemoFrame label="コンパクトと縞模様：見渡すための表" plain>
+<Example label="コンパクトと縞模様：見渡すための表">
   <tanrei-table class="tanrei-not-prose" density="compact" striped label="テーブルのトークン">
     <table>
       <thead>
@@ -435,9 +435,9 @@ export function rehypeTanreiTable() {
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="枠より広い表：枠の中でスクロールし、最初の列は残ります" plain>
+<Example label="枠より広い表：枠の中でスクロールし、最初の列は残ります">
   <tanrei-table class="tanrei-not-prose" row-headers sticky-first-column style="max-inline-size: 30rem">
     <table>
       <caption>地域別の訪問数</caption>
@@ -452,9 +452,9 @@ export function rehypeTanreiTable() {
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="レイアウトが高さを決める表：行がスクロールし、見出し行は残ります" plain>
+<Example label="レイアウトが高さを決める表：行がスクロールし、見出し行は残ります">
   <tanrei-table class="tanrei-not-prose" sticky-header style="max-block-size: 14rem">
     <table>
       <caption>リリース</caption>
@@ -472,7 +472,7 @@ export function rehypeTanreiTable() {
       </tbody>
     </table>
   </tanrei-table>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="table" />
 

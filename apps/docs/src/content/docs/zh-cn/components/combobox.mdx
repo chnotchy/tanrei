@@ -2,20 +2,20 @@
 title: "组合框"
 description: "用户在里面键入以找到一个值的那个方框，以及它打开的选项列表——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的地方，或者放进产品自己组合的字段里。"
 translationOf: components/combobox.mdx
-sourceHash: 1c80b2651c012d4e997ca3a0612146bbd8864986
+sourceHash: 028ca22e954ed2d7eb93511169fd171c3be5e549
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概览
 
 <ComponentAvailability name="combobox" />
 
-<DemoFrame label="单独使用：工具栏里的一个筛选框，以及标签位于组合框旁边的一行" column>
+<Example label="单独使用：工具栏里的一个筛选框，以及标签位于组合框旁边的一行" column>
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="查找令牌" placeholder="查找令牌" no-chevron empty-text="无匹配项">
     <span slot="leading-icon">search</span>
     <tanrei-option value="primary" supporting-text="sys.color.primary">primary</tanrei-option>
@@ -30,7 +30,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-option value="Europe/Berlin">柏林</tanrei-option>
     </tanrei-combobox>
   </div>
-</DemoFrame>
+</Example>
 
 组合框就是[组合框字段](/zh-cn/components/combobox-field/)里的那个控件，单独拿出来：方框、在里面键入的文本、前置字形、清除按钮和 V 形箭头，以及带有选项、组和状态行的列表。它上方没有标签行，下方没有帮助文本和错误文本。
 
@@ -114,14 +114,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="里面放着一个组合框的字段：画面与组合框字段相同" column>
+<Example label="里面放着一个组合框的字段：画面与组合框字段相同" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="城市" required required-text="必填" supporting-text="订单将寄往该城市。">
     <tanrei-combobox value="tokyo" empty-text="无匹配项">
       <tanrei-option value="kyoto">京都</tanrei-option>
       <tanrei-option value="tokyo">东京</tanrei-option>
     </tanrei-combobox>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 只有组合框知道的事，由它告诉所在的字段。字段的帮助文本从组合框里文本开始的位置开始，也就是越过内边距和前置字形之后。filled 或 outlined 的组合框自己画出字段的标签，让它浮在方框里，所以字段不绘制标签行。列表打开期间，组合框画成聚焦的样子，所以无论输入框是否有焦点，字段的标签和帮助文本也随它画成聚焦的样子。
 
@@ -129,7 +129,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="单独使用的组合框：错误、禁用、只读、可清除，以及大号" plain column>
+<Example label="单独使用的组合框：错误、禁用、只读、可清除，以及大号" column>
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="城市" value="nairobi" error empty-text="无匹配项">
     <tanrei-option value="nairobi">内罗毕</tanrei-option><tanrei-option value="tokyo">东京</tanrei-option>
   </tanrei-combobox>
@@ -145,16 +145,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" size="large" label="城市" value="tokyo" empty-text="无匹配项">
     <tanrei-option value="nairobi">内罗毕</tanrei-option><tanrei-option value="tokyo">东京</tanrei-option>
   </tanrei-combobox>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="单独使用的 filled 和 outlined：组合框自己的标签浮在方框里" system="m3-like" plain column>
+<Example label="单独使用的 filled 和 outlined：组合框自己的标签浮在方框里" system="m3-like" column>
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="城市" value="tokyo" empty-text="无匹配项">
     <tanrei-option value="nairobi">内罗毕</tanrei-option><tanrei-option value="tokyo">东京</tanrei-option>
   </tanrei-combobox>
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="城市" empty-text="无匹配项">
     <tanrei-option value="nairobi">内罗毕</tanrei-option><tanrei-option value="tokyo">东京</tanrei-option>
   </tanrei-combobox>
-</DemoFrame>
+</Example>
 
 ### 哪些属于组合框，哪些属于字段
 

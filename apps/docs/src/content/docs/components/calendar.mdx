@@ -7,7 +7,7 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 import ProductWords from '../../../components/ProductWords.astro';
 
 export const words = {
@@ -29,9 +29,9 @@ A calendar is an inline month grid. It has no surface, padding or elevation of i
 The web component implements the calendar as this page describes it: the months are one column of weeks that follows a scroll and a drag. The demos are that component. SwiftUI, Compose, Flutter and React Native have not built it yet. Their packages still hold the code of the retired date picker, which this page does not document.
 :::
 
-<DemoFrame label="One date. Scroll or drag the days, or use the buttons, to change the month">
+<Example label="One date. Scroll or drag the days, or use the buttons, to change the month">
   <tanrei-calendar label="Check-in date" locale="en-US" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -123,9 +123,9 @@ Use a calendar when the dates around the one being chosen matter: a stay, a book
 - **A range.** In `range` mode, the first choice is the start and the second the end. A day before the start, or a choice after both ends are set, starts again. `change` is emitted after every choice, with `end` empty after a start alone, so the product can show the half-chosen range. A start and end on the same day make a one-day range.
 - **Values** are ISO 8601 calendar dates (`2026-09-17`), with no time and no time zone. `today` is the device's current date unless you set it, for a venue's time zone or for tests.
 
-<DemoFrame label="A range. Choose a start, then an end; a third choice starts again" plain>
+<Example label="A range. Choose a start, then an end; a third choice starts again">
   <tanrei-calendar mode="range" label="Stay" locale="en-US" today="2026-09-24" start="2026-09-10" end="2026-09-16"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 The range is one band from the start to the end. It breaks at the end of a week's row and carries on in the next.
 
@@ -135,9 +135,9 @@ Unavailable days come from `min`, `max`, `disabledDates` and the platform's `isD
 
 A range that spans an unavailable day keeps it inside; if your product cannot accept that, say so after `change`.
 
-<DemoFrame label="From the 7th of September to the 20th of October, with the 21st and 22nd of September taken" plain>
+<Example label="From the 7th of September to the 20th of October, with the 21st and 22nd of September taken">
   <tanrei-calendar label="Appointment" locale="en-US" today="2026-09-24" value="2026-09-17" min="2026-09-07" max="2026-10-20" disabled-dates="2026-09-21 2026-09-22"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### Moving between months
 
@@ -160,9 +160,9 @@ The axis is a product setting, `comp.calendar.navigation.axis`, not a prop, so e
 
 The keys never change with the axis.
 
-<DemoFrame label="A horizontal axis: the months are pages" system="m3-like" plain>
+<Example label="A horizontal axis: the months are pages" system="m3-like">
   <tanrei-calendar label="Check-in date" locale="en-US" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 A scroll along the axis is the calendar's while the pointer is over the days, also at the first and last month, where the days stop. On a page that scrolls the same way, the page does not scroll from there: leave room beside or around a calendar on a long page, where a scroll reaches the page. The weekday row, the navigation row and everything around the calendar scroll the page as usual.
 
@@ -170,17 +170,17 @@ A scroll along the axis is the calendar's while the pointer is over the days, al
 
 The view toggle switches to the year view, a scrolling list from `min`'s year to `max`'s (1900 to 2100 without them). Choosing a year shows the same month in that year and changes no choice. `startView` `year` opens there first, for a date far from today such as a birthday.
 
-<DemoFrame label="Opening on the years, for a birthday" plain>
+<Example label="Opening on the years, for a birthday">
   <tanrei-calendar label="Date of birth" locale="en-US" today="2026-09-24" start-view="year" max="2026-09-24"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### Days of the neighbouring months
 
 `showAdjacentDays` fills the grid's spare cells with the neighbouring months' days, drawn quieter. They can be chosen when they are available, and a range may start or end on one. Choosing one with a pointer chooses it and then shows its month, where it is one of the month's own days. Without it those cells are empty and take no press.
 
-<DemoFrame label="With the neighbouring months' days: choosing the 1st of October shows October" plain>
+<Example label="With the neighbouring months' days: choosing the 1st of October shows October">
   <tanrei-calendar label="Delivery date" locale="en-US" today="2026-09-24" value="2026-09-29" show-adjacent-days></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### Locale
 
@@ -190,10 +190,10 @@ The weekday names, the month title and the digits are the locale's (`locale`, or
 
 That call is the one this page runs: every calendar on it is named by those words, and the samples carry none of them. A calendar says its own where it differs — the Japanese one below gives its four as attributes, and an attribute always wins. Without any of them the navigation buttons still work and have no name, and a debug build reports each missing word. Only the word for the present day comes from the browser's locale data where you give none.
 
-<DemoFrame label="A week that begins on Monday, and the Japanese locale" plain>
+<Example label="A week that begins on Monday, and the Japanese locale">
   <tanrei-calendar label="Check-in date" locale="en-US" first-day-of-week="monday" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
   <tanrei-calendar label="チェックイン日" locale="ja-JP" today="2026-09-24" value="2026-09-17" previous-month-label="前の月" next-month-label="次の月" year-view-label="年を選ぶ" today-label="今日"></tanrei-calendar>
-</DemoFrame>
+</Example>
 
 ### Do
 

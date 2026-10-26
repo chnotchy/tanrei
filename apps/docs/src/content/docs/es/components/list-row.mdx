@@ -2,20 +2,20 @@
 title: Fila de lista
 description: Una fila de texto con algo antes y algo después. Un titular, una línea corta encima y una o dos debajo; un glifo, una imagen o un control al inicio; un valor corto, un glifo o un control al final. Dentro de un elemento de lista se adapta a cada modo de la lista, y también se usa sola.
 translationOf: components/list-row.mdx
-sourceHash: 19070cee88ea1c99d0d03fe7866472287bd11101
+sourceHash: 2d3567ece5ff8694cbe5c277bb265b81b65f928b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="list-row" />
 
-<DemoFrame label="Filas en una lista: una fila estática con un interruptor, una fila que abre algo y una fila que es un enlace" plain>
+<Example label="Filas en una lista: una fila estática con un interruptor, una fila que abre algo y una fila que es un enlace">
   <tanrei-list dividers style="inline-size: 22rem">
     <tanrei-list-item>
       <tanrei-list-row leading-icon="bluetooth" headline="Bluetooth" supporting-text="Dos dispositivos">
@@ -29,7 +29,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-list-row leading-icon="folder" overline="Compartido" headline="Fotos del puerto" supporting-text="48 elementos, editado hoy" trailing-text="2,4 GB"></tanrei-list-row>
     </tanrei-list-item>
   </tanrei-list>
-</DemoFrame>
+</Example>
 
 Una fila de lista es la fila de la que están hechas la mayoría de las listas: un nombre, una o dos líneas sobre él, algo antes y algo después. La [lista](/es/components/list/) es una caja que dispone sus elementos y los convierte en acciones, enlaces u opciones; la fila de lista es lo que muestra un elemento. Ponla dentro de un elemento de lista, o úsala sola donde haga falta una única fila.
 
@@ -98,12 +98,12 @@ Pon la fila como hija directa del elemento. Una fila envuelta en otro elemento d
 
 ## Especificaciones
 
-<DemoFrame label="Una, dos y tres líneas; una imagen y un valor; compact" plain>
+<Example label="Una, dos y tres líneas; una imagen y un valor; compact">
   <tanrei-list-row headline="Wi-Fi" style="inline-size: 22rem"></tanrei-list-row>
   <tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Conectado a Harbour" style="inline-size: 22rem"></tanrei-list-row>
   <tanrei-list-row leading-icon="folder" overline="Compartido" headline="Fotos del puerto" supporting-text="48 elementos, editado hoy" trailing-text="2,4 GB" trailing-icon="chevron_right" style="inline-size: 22rem"></tanrei-list-row>
   <tanrei-list-row leading-icon="description" headline="brief.pdf" supporting-text="820 KB" density="compact" style="inline-size: 22rem"></tanrei-list-row>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="list-row" />
 

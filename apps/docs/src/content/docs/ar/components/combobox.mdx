@@ -2,20 +2,20 @@
 title: مربع التحرير والسرد
 description: الصندوق الذي يكتب فيه الأشخاص ليعثروا على قيمة واحدة، وقائمة الخيارات التي يفتحها، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لموضع تقف تسميته في مكان آخر، أو داخل حقل يركّبه المنتج بنفسه.
 translationOf: components/combobox.mdx
-sourceHash: 1c80b2651c012d4e997ca3a0612146bbd8864986
+sourceHash: 028ca22e954ed2d7eb93511169fd171c3be5e549
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## نظرة عامة
 
 <ComponentAvailability name="combobox" />
 
-<DemoFrame label="مجرَّدًا: عامل تصفية في شريط أدوات، وصف تقف تسميته بجانب مربع التحرير والسرد" column>
+<Example label="مجرَّدًا: عامل تصفية في شريط أدوات، وصف تقف تسميته بجانب مربع التحرير والسرد" column>
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="البحث عن رمز" placeholder="ابحث عن رمز" no-chevron empty-text="لا توجد نتائج مطابقة">
     <span slot="leading-icon">search</span>
     <tanrei-option value="primary" supporting-text="sys.color.primary">primary</tanrei-option>
@@ -30,7 +30,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <tanrei-option value="Europe/Berlin">برلين</tanrei-option>
     </tanrei-combobox>
   </div>
-</DemoFrame>
+</Example>
 
 مربع التحرير والسرد (combobox) هو عنصر التحكم الذي في [حقل التحرير والسرد](/ar/components/combobox-field/) وحده: الصندوق، والنص المكتوب فيه، ورسم أيقونة البداية (glyph)، وزر المسح، والسهم الصغير (chevron)، والقائمة بخياراتها ومجموعاتها وصف حالتها. ليس فوقه صف تسمية، وليس تحته مساعدة ولا نص خطأ.
 
@@ -114,14 +114,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="حقل فيه مربع تحرير وسرد: الصورة نفسها التي لحقل التحرير والسرد" column>
+<Example label="حقل فيه مربع تحرير وسرد: الصورة نفسها التي لحقل التحرير والسرد" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="المدينة" required required-text="مطلوب" supporting-text="المدينة التي يُرسل إليها الطلب.">
     <tanrei-combobox value="tokyo" empty-text="لا توجد نتائج مطابقة">
       <tanrei-option value="kyoto">كيوتو</tanrei-option>
       <tanrei-option value="tokyo">طوكيو</tanrei-option>
     </tanrei-combobox>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 مربع التحرير والسرد يخبر حقله بما لا يعرفه غيره. فالمساعدة تبدأ حيث يبدأ النص، بعد الحشو ورسم أيقونة البداية. ومربع التحرير والسرد من الطراز filled أو outlined يرسم تسمية الحقل بنفسه، عائمةً في الصندوق، فلا يرسم الحقل صف تسمية. وما دامت قائمته مفتوحة يُرسم في حالة التركيز، فتُرسم تسمية الحقل ومساعدته في حالة التركيز معه، سواء كان التركيز على حقل الإدخال أو لم يكن.
 
@@ -129,7 +129,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="مربعات تحرير وسرد مجرَّدة: في حالة الخطأ، ومعطَّل، وللقراءة فقط، وقابل للمسح، وبالحجم large" plain column>
+<Example label="مربعات تحرير وسرد مجرَّدة: في حالة الخطأ، ومعطَّل، وللقراءة فقط، وقابل للمسح، وبالحجم large" column>
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="المدينة" value="nairobi" error empty-text="لا توجد نتائج مطابقة">
     <tanrei-option value="nairobi">نيروبي</tanrei-option><tanrei-option value="tokyo">طوكيو</tanrei-option>
   </tanrei-combobox>
@@ -145,16 +145,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" size="large" label="المدينة" value="tokyo" empty-text="لا توجد نتائج مطابقة">
     <tanrei-option value="nairobi">نيروبي</tanrei-option><tanrei-option value="tokyo">طوكيو</tanrei-option>
   </tanrei-combobox>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="الطرازان filled و outlined مجرَّدين: تسمية مربع التحرير والسرد نفسه تعوم في الصندوق" system="m3-like" plain column>
+<Example label="الطرازان filled و outlined مجرَّدين: تسمية مربع التحرير والسرد نفسه تعوم في الصندوق" system="m3-like" column>
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="المدينة" value="tokyo" empty-text="لا توجد نتائج مطابقة">
     <tanrei-option value="nairobi">نيروبي</tanrei-option><tanrei-option value="tokyo">طوكيو</tanrei-option>
   </tanrei-combobox>
   <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="المدينة" empty-text="لا توجد نتائج مطابقة">
     <tanrei-option value="nairobi">نيروبي</tanrei-option><tanrei-option value="tokyo">طوكيو</tanrei-option>
   </tanrei-combobox>
-</DemoFrame>
+</Example>
 
 ### ما هو لمربع التحرير والسرد، وما هو للحقل
 

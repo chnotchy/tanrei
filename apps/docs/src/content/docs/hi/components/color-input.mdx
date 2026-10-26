@@ -2,27 +2,27 @@
 title: कलर इनपुट
 description: वह बॉक्स जिसमें लोग एक रंग तय करते हैं — उसका नमूना, टेक्स्ट के रूप में मान जिसे वे पढ़, टाइप और पेस्ट कर सकते हैं, और एक बटन जो पिकर माँगता है — लेबल की अपनी पंक्ति, सहायता या त्रुटि टेक्स्ट के बिना। उस पंक्ति या कॉलम के लिए जो रंग का नाम पहले से देता है, या उस फ़ील्ड के भीतर जिसे प्रॉडक्ट ख़ुद जोड़कर बनाता है।
 translationOf: components/color-input.mdx
-sourceHash: 1832342749e78a62e8352e9c60bbc9bace7885d9
+sourceHash: 0999afc891925277301cd2b28ed9cdb4fb54d9d0
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="color-input" />
 
-<DemoFrame label="अकेला इनपुट: टोन की एक लिस्ट की पंक्तियाँ, जिनमें हर इनपुट को नाम उसकी पंक्ति देती है" column>
+<Example label="अकेला इनपुट: टोन की एक लिस्ट की पंक्तियाँ, जिनमें हर इनपुट को नाम उसकी पंक्ति देती है" column>
   <div class="not-content" style="display: grid; grid-template-columns: auto 14rem; align-items: center; gap: 0.5rem 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
     <span>टोन 40</span>
     <tanrei-color-input label="प्राइमरी, टोन 40" value="#0f766e" picker picker-label="प्राइमरी, टोन 40 का रंग चुनें"></tanrei-color-input>
     <span>टोन 80</span>
     <tanrei-color-input label="प्राइमरी, टोन 80" value="#5eead4" picker picker-label="प्राइमरी, टोन 80 का रंग चुनें"></tanrei-color-input>
   </div>
-</DemoFrame>
+</Example>
 
 कलर इनपुट किसी [कलर फ़ील्ड](/hi/components/color-field/) का बॉक्स है, अकेला: कंटेनर, स्वॉच, टेक्स्ट के रूप में मान और पिकर बटन। इसके ऊपर लेबल की कोई पंक्ति नहीं है, और इसके नीचे न सहायता है न त्रुटि टेक्स्ट।
 
@@ -95,29 +95,29 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 </tanrei-field>
 ```
 
-<DemoFrame label="एक फ़ील्ड जिसके भीतर कलर इनपुट है: वही तस्वीर जो कलर फ़ील्ड की है" column>
+<Example label="एक फ़ील्ड जिसके भीतर कलर इनपुट है: वही तस्वीर जो कलर फ़ील्ड की है" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ब्रैंड का रंग" required required-text="ज़रूरी" supporting-text="छह अंकों का हेक्स कोड, जैसे #0f766e।">
     <tanrei-color-input value="#0f766e" invalid-text="छह अंकों का हेक्स कोड डालें, जैसे #0f766e।" picker picker-label="रंग चुनें"></tanrei-color-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 इनपुट अपने फ़ील्ड को वह बताता है जो सिर्फ़ वही जानता है। फ़ील्ड की सहायता वहीं से शुरू होती है जहाँ से मान का टेक्स्ट शुरू होता है, स्वॉच के बाद। फ़ील्ड का लेबल filled या outlined इनपुट ख़ुद दिखाता है, बॉक्स में फ़्लोट होता हुआ, इसलिए फ़ील्ड लेबल की कोई पंक्ति नहीं दिखाता। कमिट किया गया जो टेक्स्ट रंग नहीं है, वह इनपुट के `invalidText` के साथ फ़ील्ड को त्रुटि में ले आता है।
 
 ## स्पेक
 
-<DemoFrame label="अकेले इनपुट: ख़ाली, सफ़ेद, काला, त्रुटि में, अक्षम, और अपने पिकर बटन के साथ large" plain column>
+<Example label="अकेले इनपुट: ख़ाली, सफ़ेद, काला, त्रुटि में, अक्षम, और अपने पिकर बटन के साथ large" column>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ऐक्सेंट रंग"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="पेज का बैकग्राउंड" value="#ffffff"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="टेक्स्ट" value="#000000"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ब्रैंड का रंग" value="#fde047" error></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ब्रैंड का रंग" value="#0f766e" disabled picker picker-label="रंग चुनें"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" size="large" label="ब्रैंड का रंग" value="#0f766e" picker picker-label="रंग चुनें"></tanrei-color-input>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="अकेले filled और outlined इनपुट: इनपुट का अपना लेबल बॉक्स में फ़्लोट होता है" system="m3-like" plain column>
+<Example label="अकेले filled और outlined इनपुट: इनपुट का अपना लेबल बॉक्स में फ़्लोट होता है" system="m3-like" column>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="ब्रैंड का रंग" value="#0f766e"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="ब्रैंड का रंग"></tanrei-color-input>
-</DemoFrame>
+</Example>
 
 ### क्या इनपुट का है, और क्या फ़ील्ड का
 

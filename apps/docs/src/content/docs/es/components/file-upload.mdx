@@ -2,14 +2,14 @@
 title: Subida de archivos
 description: Permite elegir archivos con un selector de archivos y muestra lo elegido como elementos de archivo, en una columna de filas o en una tira de mosaicos. Colocado en un formulario, conserva los archivos elegidos y los envía sin código; un producto que envía los archivos por su cuenta da los elementos de archivo. Nunca sube nada por sí mismo.
 translationOf: components/file-upload.mdx
-sourceHash: b2debb12c2d70ab0dd1bea4e0b4c51c55b599528
+sourceHash: 97b893d5ef403669cb63454d2181b9f8e794b956
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 import { demoPicture } from '../../../../lib/demo-picture';
 
@@ -17,14 +17,14 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 <ComponentAvailability name="file-upload" />
 
-<DemoFrame label="Un control de subida de archivos en cada disposición. Elige un archivo: aparece en la lista y se puede quitar. No se envía nada." column>
+<Example label="Un control de subida de archivos en cada disposición. Elige un archivo: aparece en la lista y se puede quitar. No se envía nada." column>
   <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="Archivo adjunto" accept=".pdf" constraints-text="PDF, hasta 10 MB" max-size="10000000" empty-text="Ningún archivo elegido" remove-label="Quitar {name}" type-error-text="Solo se pueden añadir archivos PDF." size-error-text="Supera los 10 MB.">
     <tanrei-button slot="trigger" variant="outlined">Elegir un archivo</tanrei-button>
   </tanrei-file-upload>
   <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="Archivos adjuntos" accept=".pdf,image/png" max-size="10000000" drop-text="Arrastra archivos aquí o elígelos" constraints-text="PDF o PNG, hasta 10 MB cada uno" remove-label="Quitar {name}" type-error-text="Solo se pueden añadir archivos PDF y PNG." size-error-text="Supera los 10 MB.">
     <tanrei-button slot="trigger" variant="outlined">Elegir archivos</tanrei-button>
   </tanrei-file-upload>
-</DemoFrame>
+</Example>
 
 Un control de subida de archivos es dos cosas en un mismo lugar: la forma de elegir archivos y la lista de lo que se eligió. Es el caso corriente, listo para usarse en un formulario.
 
@@ -228,14 +228,14 @@ Lo mismo, escrito a mano a partir de sus dos miembros, da la misma imagen, con l
 </ul>
 ```
 
-<DemoFrame label="Lo mismo escrito a mano: un selector de archivos y una lista propia de la página con un elemento de archivo" column>
+<Example label="Lo mismo escrito a mano: un selector de archivos y una lista propia de la página con un elemento de archivo" column>
   <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="Archivos adjuntos" multiple accept=".pdf" max-files="5" constraints-text="PDF, 5 archivos como máximo">
     <tanrei-button slot="trigger" variant="outlined">Elegir archivos</tanrei-button>
   </tanrei-file-picker>
   <ul class="not-content" aria-label="Archivos adjuntos" style="list-style: none; margin: 0; padding: 0; inline-size: 22.5rem; max-inline-size: 100%">
     <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="Subiendo" progress="0.4" remove-label="Quitar {name}" retry-label="Reintentar {name}"></tanrei-file-item></li>
   </ul>
-</DemoFrame>
+</Example>
 
 La fila de un archivo es el mismo elemento por separado y dentro de un control de subida. Lo que la versión hecha a mano no recibe es el estado que mantiene el control de subida:
 
@@ -257,7 +257,7 @@ Baja a ese nivel cuando necesites una organización que el control de subida no 
 
 ## Especificaciones
 
-<DemoFrame label="Filas que da el producto, una de cada estado: en espera, enviada al 40%, en curso, completada, fallida y reintentable, fallida definitivamente" plain column>
+<Example label="Filas que da el producto, una de cada estado: en espera, enviada al 40%, en curso, completada, fallida y reintentable, fallida definitivamente" column>
   <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple label="Archivos adjuntos" constraints-text="PDF o PNG, hasta 10 MB cada uno" remove-label="Quitar {name}" retry-label="Reintentar {name}">
     <tanrei-button slot="trigger" variant="outlined">Elegir archivos</tanrei-button>
     <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status-text="En espera"></tanrei-file-item>
@@ -267,16 +267,16 @@ Baja a ese nivel cuando necesites una organización que el control de subida no 
     <tanrei-file-item value="e" name="site-photo.png" size-text="6,8 MB" status="error" error-text="Se perdió la conexión." retryable></tanrei-file-item>
     <tanrei-file-item value="f" name="scan-archive.pdf" size-text="48 MB" status="error" error-text="Supera los 10 MB."></tanrei-file-item>
   </tanrei-file-upload>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="El mismo control de subida con mosaicos: cada archivo es un recuadro con su imagen y el nombre debajo" plain column>
+<Example label="El mismo control de subida con mosaicos: cada archivo es un recuadro con su imagen y el nombre debajo" column>
   <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple item-form="tile" item-preview label="Fotos" constraints-text="Imágenes, hasta 5 MB cada una" remove-label="Quitar {name}" retry-label="Reintentar {name}">
     <tanrei-button slot="trigger" variant="outlined">Elegir fotos</tanrei-button>
     <tanrei-file-item value="a" name="entrance.jpeg" preview-src={demoPicture}></tanrei-file-item>
     <tanrei-file-item value="b" name="floor-plan.png" preview-src={demoPicture} status="uploading" progress="0.4"></tanrei-file-item>
     <tanrei-file-item value="c" name="survey.pdf"></tanrei-file-item>
   </tanrei-file-upload>
-</DemoFrame>
+</Example>
 
 ### Qué aporta cada miembro
 
@@ -366,11 +366,11 @@ Con `rows="own"`, el control de subida reordena él mismo los archivos que conse
 
 Las palabras son las de la [lista](/es/components/list/): `drag-handle-label` (`Reordenar {label}`, con el nombre del archivo), las cuatro palabras de movimiento y las tres frases.
 
-<DemoFrame label="Un control de subida reordenable que conserva sus propios archivos. Elige algunos archivos y arrastra una fila, o usa el menú de su asa o el teclado. No se envía nada." column>
+<Example label="Un control de subida reordenable que conserva sus propios archivos. Elige algunos archivos y arrastra una fila, o usa el menú de su asa o el teclado. No se envía nada." column>
   <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" multiple reorderable label="Adjuntos" remove-label="Quitar {name}" drag-handle-label="Reordenar {label}" drag-handle-hint="Espacio levanta, las flechas mueven, Espacio suelta, Escape cancela; Intro abre los movimientos" move-to-start-label="Mover al principio" move-before-label="Subir" move-after-label="Bajar" move-to-end-label="Mover al final" lifted-text="{label} levantado: {position} de {count}" moved-text="{label}: {position} de {count}" cancelled-text="{label} devuelto a {position} de {count}">
     <tanrei-button slot="trigger" variant="outlined">Elegir archivos</tanrei-button>
   </tanrei-file-upload>
-</DemoFrame>
+</Example>
 
 ```html
 <tanrei-file-upload name="attachments" multiple reorderable remove-label="Quitar {name}"

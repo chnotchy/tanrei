@@ -2,20 +2,20 @@
 title: カード
 description: 関連するコンテンツのまとまりを背景から区切ります。カード全体を、中身を開く 1 つのアクションや、そこへ移動する 1 つのリンクにもできます。
 translationOf: components/card.mdx
-sourceHash: b6fcbfc849d4b1691f4876da47689bf1ed2bb7fb
+sourceHash: a264306df997c4a9cac9eeecd4af1aff5fda9b4a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## 概要
 
 <ComponentAvailability name="card" />
 
-<DemoFrame label="バリアント">
+<Example label="バリアント">
   <tanrei-card style="width: 15rem">
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Outlined</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">売上は前四半期から 12% 伸びました。</div>
@@ -28,7 +28,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Elevated</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">売上は前四半期から 12% 伸びました。</div>
   </tanrei-card>
-</DemoFrame>
+</Example>
 
 カードには 3 つの形があります。ふつうのカードはコンテナで、中身は自分のセマンティクスを保ち、ボタンやリンクを置けます。操作できるカードは 1 つのボタンです。リンクカード（`href` のあるカード）は 1 つのリンクです。押すと別のページやアドレスへ移動するならリンクカードを、その場で何かが起こるなら操作できるカードを使います。
 
@@ -173,7 +173,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 
 ## 仕様
 
-<DemoFrame label="端まで広げる、操作できる、無効" plain>
+<Example label="端まで広げる、操作できる、無効">
   <tanrei-card flush style="width: 15rem">
     <div style="height: 5rem; background: var(--tanrei-sys-color-primary-container)"></div>
     <div style="padding: var(--tanrei-comp-card-container-padding); font: var(--tanrei-sys-typescale-body-font)">flush：中身が端まで届きます。</div>
@@ -186,9 +186,9 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">四半期レポート</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">操作できるカードの無効状態。</div>
   </tanrei-card>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="リンクカード" plain>
+<Example label="リンクカード">
   <tanrei-card href="/ja/components/button/" label="ボタン" style="width: 15rem">
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">ボタン</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">リンクカード。Enter で移動でき、ブラウザーのリンクのメニューも使えます。</div>
@@ -204,7 +204,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
     <div style="font: var(--tanrei-sys-typescale-heading-5-font)">ボタン</div>
     <div style="font: var(--tanrei-sys-typescale-body-font)">無効なリンクカード。移動できません。</div>
   </tanrei-card>
-</DemoFrame>
+</Example>
 
 <ComponentSpecs name="card" />
 

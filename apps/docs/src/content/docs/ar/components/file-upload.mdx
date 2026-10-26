@@ -2,14 +2,14 @@
 title: رفع الملفات
 description: يتيح للأشخاص اختيار ملفات بمنتقي ملفات، ويعرض ما اختير عناصر ملفات، في عمود من الصفوف أو في سلسلة من البلاطات. إذا وُضع في نموذج احتفظ بالملفات المختارة وأرسلها بلا شيفرة؛ والمنتج الذي يرسل الملفات بنفسه يعطي عناصر الملفات. وهو لا يرفع شيئًا بنفسه أبدًا.
 translationOf: components/file-upload.mdx
-sourceHash: b2debb12c2d70ab0dd1bea4e0b4c51c55b599528
+sourceHash: 97b893d5ef403669cb63454d2181b9f8e794b956
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 import Callout from '../../../../components/Callout.astro';
 import { demoPicture } from '../../../../lib/demo-picture';
 
@@ -17,14 +17,14 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 <ComponentAvailability name="file-upload" />
 
-<DemoFrame label="رفع الملفات بكل تخطيط. اختر ملفًا: يُسرد، ويمكن أن يُزال. ولا يُرسل شيء." column>
+<Example label="رفع الملفات بكل تخطيط. اختر ملفًا: يُسرد، ويمكن أن يُزال. ولا يُرسل شيء." column>
   <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="المرفق" accept=".pdf" constraints-text="ملف PDF، حتى 10 ميغابايت" max-size="10000000" empty-text="لم يُختر أي ملف" remove-label="إزالة {name}" type-error-text="يمكن إضافة ملفات PDF فقط." size-error-text="الحجم أكبر من 10 ميغابايت.">
     <tanrei-button slot="trigger" variant="outlined">اختيار ملف</tanrei-button>
   </tanrei-file-upload>
   <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="المرفقات" accept=".pdf,image/png" max-size="10000000" drop-text="اسحب الملفات إلى هنا، أو اخترها" constraints-text="ملفات PDF أو PNG، حتى 10 ميغابايت لكل ملف" remove-label="إزالة {name}" type-error-text="يمكن إضافة ملفات PDF و PNG فقط." size-error-text="الحجم أكبر من 10 ميغابايت.">
     <tanrei-button slot="trigger" variant="outlined">اختيار ملفات</tanrei-button>
   </tanrei-file-upload>
-</DemoFrame>
+</Example>
 
 مكوّن رفع الملفات (file upload) شيئان في مكان واحد: طريقة اختيار الملفات، وقائمة ما اختير. وهو الحالة المعتادة، جاهزًا للاستخدام في نموذج.
 
@@ -228,14 +228,14 @@ upload.clear();
 </ul>
 ```
 
-<DemoFrame label="الشيء نفسه مكتوبًا باليد: منتقي ملفات، وقائمة من عند الصفحة فيها عنصر ملف واحد" column>
+<Example label="الشيء نفسه مكتوبًا باليد: منتقي ملفات، وقائمة من عند الصفحة فيها عنصر ملف واحد" column>
   <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="المرفقات" multiple accept=".pdf" max-files="5" constraints-text="ملفات PDF، 5 ملفات على الأكثر">
     <tanrei-button slot="trigger" variant="outlined">اختيار ملفات</tanrei-button>
   </tanrei-file-picker>
   <ul class="not-content" aria-label="المرفقات" style="list-style: none; margin: 0; padding: 0; inline-size: 22.5rem; max-inline-size: 100%">
     <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 كيلوبايت" status="uploading" status-text="جارٍ الرفع" progress="0.4" remove-label="إزالة {name}" retry-label="إعادة محاولة {name}"></tanrei-file-item></li>
   </ul>
-</DemoFrame>
+</Example>
 
 صف الملف هو العنصر نفسه وحده وداخل مكوّن رفع الملفات. وما لا تحصل عليه النسخة المصنوعة باليد هو الحالة التي يحتفظ بها مكوّن رفع الملفات:
 
@@ -257,7 +257,7 @@ upload.clear();
 
 ## المواصفات
 
-<DemoFrame label="صفوف يعطيها المنتج، صف لكل حالة: في الانتظار، وأُرسل منه 40%، وجارٍ إرساله، ومكتمل، وفشل ويمكن إعادة محاولته، وفشل نهائيًّا" plain column>
+<Example label="صفوف يعطيها المنتج، صف لكل حالة: في الانتظار، وأُرسل منه 40%، وجارٍ إرساله، ومكتمل، وفشل ويمكن إعادة محاولته، وفشل نهائيًّا" column>
   <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple label="المرفقات" constraints-text="ملفات PDF أو PNG، حتى 10 ميغابايت لكل ملف" remove-label="إزالة {name}" retry-label="إعادة محاولة {name}">
     <tanrei-button slot="trigger" variant="outlined">اختيار ملفات</tanrei-button>
     <tanrei-file-item value="a" name="brief.pdf" size-text="820 كيلوبايت" status-text="في الانتظار"></tanrei-file-item>
@@ -267,16 +267,16 @@ upload.clear();
     <tanrei-file-item value="e" name="site-photo.png" size-text="6.8 ميغابايت" status="error" error-text="انقطع الاتصال." retryable></tanrei-file-item>
     <tanrei-file-item value="f" name="scan-archive.pdf" size-text="48 ميغابايت" status="error" error-text="الحجم أكبر من 10 ميغابايت."></tanrei-file-item>
   </tanrei-file-upload>
-</DemoFrame>
+</Example>
 
-<DemoFrame label="مكوّن رفع الملفات نفسه ببلاطات: كل ملف صندوق فيه صورته، والاسم تحته" plain column>
+<Example label="مكوّن رفع الملفات نفسه ببلاطات: كل ملف صندوق فيه صورته، والاسم تحته" column>
   <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple item-form="tile" item-preview label="الصور" constraints-text="صور، حتى 5 ميغابايت لكل صورة" remove-label="إزالة {name}" retry-label="إعادة محاولة {name}">
     <tanrei-button slot="trigger" variant="outlined">اختيار صور</tanrei-button>
     <tanrei-file-item value="a" name="entrance.jpeg" preview-src={demoPicture}></tanrei-file-item>
     <tanrei-file-item value="b" name="floor-plan.png" preview-src={demoPicture} status="uploading" progress="0.4"></tanrei-file-item>
     <tanrei-file-item value="c" name="survey.pdf"></tanrei-file-item>
   </tanrei-file-upload>
-</DemoFrame>
+</Example>
 
 ### ما يعطيه كل عضو
 
@@ -366,11 +366,11 @@ upload.clear();
 
 الكلمات هي كلمات [القائمة](/ar/components/list/): `drag-handle-label` (`أعد ترتيب {label}`، ويُملأ باسم الملف)، وكلمات الحركات الأربع، والجمل الثلاث.
 
-<DemoFrame label="مكوّن رفع ملفات قابل لإعادة الترتيب يحتفظ بملفاته بنفسه. اختر بعض الملفات، ثم اسحب صفًا، أو استخدم قائمة مقبضه أو لوحة المفاتيح. لا يُرسَل شيء." column>
+<Example label="مكوّن رفع ملفات قابل لإعادة الترتيب يحتفظ بملفاته بنفسه. اختر بعض الملفات، ثم اسحب صفًا، أو استخدم قائمة مقبضه أو لوحة المفاتيح. لا يُرسَل شيء." column>
   <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" multiple reorderable label="المرفقات" remove-label="إزالة {name}" drag-handle-label="أعد ترتيب {label}" drag-handle-hint="Space يرفع، والأسهم تنقل، وSpace يضع، وEscape يلغي؛ وEnter يفتح الحركات" move-to-start-label="انقل إلى البداية" move-before-label="انقل إلى الأعلى" move-after-label="انقل إلى الأسفل" move-to-end-label="انقل إلى النهاية" lifted-text="رُفع {label}: {position} من {count}" moved-text="{label}: {position} من {count}" cancelled-text="أُعيد {label} إلى {position} من {count}">
     <tanrei-button slot="trigger" variant="outlined">اختر الملفات</tanrei-button>
   </tanrei-file-upload>
-</DemoFrame>
+</Example>
 
 ```html
 <tanrei-file-upload name="attachments" multiple reorderable remove-label="إزالة {name}"

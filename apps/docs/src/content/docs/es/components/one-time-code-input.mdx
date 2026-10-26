@@ -2,27 +2,27 @@
 title: Entrada de código de un solo uso
 description: Recibe un código corto enviado a la persona (un código de inicio de sesión o de verificación) como un único valor de texto dibujado en celdas separadas, de modo que se ven su longitud y lo que aún falta, y la plataforma puede rellenarlo en un solo paso.
 translationOf: components/one-time-code-input.mdx
-sourceHash: c820388188c64d7d53434e6c907a565d8d10ab67
+sourceHash: cae7f555e817b85dc9656f43ee7803945e22cea3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## Descripción general
 
 <ComponentAvailability name="one-time-code-input" />
 
-<DemoFrame label="Una entrada de código de un solo uso dentro de un campo, y otra cuyo código rechazó el producto" column>
+<Example label="Una entrada de código de un solo uso dentro de un campo, y otra cuyo código rechazó el producto" column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Código de verificación" supporting-text="Introduce el código de 6 dígitos que enviamos a tu teléfono.">
     <tanrei-one-time-code-input group-size="3" value="123"></tanrei-one-time-code-input>
   </tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Código de verificación" supporting-text="Introduce el código de 6 dígitos que enviamos a tu teléfono." error error-text="El código no es correcto. Revisa el mensaje e inténtalo de nuevo.">
     <tanrei-one-time-code-input group-size="3" value="123456"></tanrei-one-time-code-input>
   </tanrei-field>
-</DemoFrame>
+</Example>
 
 Usa una entrada de código de un solo uso para un código corto que un producto envió a la persona y que le pide de vuelta una sola vez: para iniciar sesión, para confirmar una dirección de correo electrónico o un número de teléfono, para aprobar un pago. Las celdas muestran la longitud del código y cuánto falta todavía.
 
@@ -87,14 +87,14 @@ En la web es `<tanrei-one-time-code-input>`. Las demás plataformas todavía no 
 
 ## Especificaciones
 
-<DemoFrame label="Cuatro celdas, ocho celdas en dos grupos, letras y dígitos, un código oculto, uno de solo lectura y uno deshabilitado" plain column>
+<Example label="Cuatro celdas, ocho celdas en dos grupos, letras y dígitos, un código oculto, uno de solo lectura y uno deshabilitado" column>
   <tanrei-one-time-code-input class="not-content" label="PIN de la carta" length="4" value="4821"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="Código de vinculación" length="8" group-size="4" value="1234"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="Código de inicio de sesión" type="alphanumeric" group-size="3" value="A7K93Q"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="Código de verificación" mask value="1234"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="Código de verificación" readonly value="123456"></tanrei-one-time-code-input>
   <tanrei-one-time-code-input class="not-content" label="Código de verificación" disabled group-size="3" value="123456"></tanrei-one-time-code-input>
-</DemoFrame>
+</Example>
 
 ### Las celdas
 

@@ -7,20 +7,20 @@ import { Tabs, TabItem } from '../../../components/tabs';
 import ComponentAvailability from '../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../components/DemoFrame.astro';
+import Example from '../../../components/visuals/Example.astro';
 
 ## Overview
 
 <ComponentAvailability name="checkbox" />
 
-<DemoFrame label="Unchecked, checked and indeterminate">
+<Example label="Unchecked, checked and indeterminate">
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-checkbox indeterminate label="All notifications"></tanrei-checkbox>
     <tanrei-checkbox checked label="Messages"></tanrei-checkbox>
     <tanrei-checkbox label="Mentions"></tanrei-checkbox>
     <tanrei-checkbox checked label="Reminders"></tanrei-checkbox>
   </div>
-</DemoFrame>
+</Example>
 
 ### Usage
 
@@ -130,7 +130,7 @@ The revision that gave the checkbox its present sizes and the icon set's glyphs 
 
 ## Specs
 
-<DemoFrame label="Conditions, error and disabled" plain>
+<Example label="Conditions, error and disabled">
   <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
     <tanrei-checkbox label="Unchecked"></tanrei-checkbox>
     <tanrei-checkbox checked label="Checked"></tanrei-checkbox>
@@ -148,7 +148,7 @@ The revision that gave the checkbox its present sizes and the icon set's glyphs 
   </div>
   <tanrei-checkbox readonly checked label="Read-only, checked"></tanrei-checkbox>
   <tanrei-checkbox checked label-hidden label="Select row"></tanrei-checkbox>
-</DemoFrame>
+</Example>
 
 In the default system the checkbox is an 18 box with a 2 outline and a 2 corner, on a round 40 state layer, with a 48 target. With a label it is 40 tall. The check and the dash are the glyphs `check` and `remove` of the system's icon set, drawn at 20 over the box. They have a weight of their own, heavier than the system's other icons: 500 in the default system, where the icons are 300. At this size a stroke of the icons' weight is about one pixel wide and hard to see, so the mark is heavier while its size stays the same. A preset keeps its own icon weight. The checkbox draws no mark of its own, so a design system that changes its icon set changes these glyphs with every other. The outline and the fill of the box are one shape: nothing behind the box shows between them at any zoom or display density, and a checked box is one even color from its edge to its mark. Under `cupertino` the checkbox keeps its smaller box and a 16 glyph.
 

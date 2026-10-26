@@ -2,24 +2,24 @@
 title: साइज़ बदलने वाला फ़्रेम
 description: एक बॉक्स जिसकी चौड़ाई और ऊँचाई कोई उसके किनारे या कोने के हैंडल से, कीबोर्ड से, या एक बार दबाकर बदलता है। outlined रूप में यह वह जगह है जहाँ किसी प्रीव्यू को फ़ोन की और लैपटॉप की चौड़ाई पर जाँचा जाता है; plain रूप में यह नेविगेशन ड्रॉअर या साइडबार का किनारा है।
 translationOf: components/resizable-frame.mdx
-sourceHash: a4cfbe849974e10d04768d89c60010bba48508e5
+sourceHash: af2988918c149def3c435d80345537512f119ef9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
 import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
-import DemoFrame from '../../../../components/DemoFrame.astro';
+import Example from '../../../../components/visuals/Example.astro';
 
 ## अवलोकन
 
 <ComponentAvailability name="resizable-frame" />
 
-<DemoFrame label="एक प्रीव्यू जिसका साइज़ कोई उसके आख़िरी किनारे, निचले किनारे और कोने से बदलता है" plain>
+<Example label="एक प्रीव्यू जिसका साइज़ कोई उसके आख़िरी किनारे, निचले किनारे और कोने से बदलता है">
   <tanrei-resizable-frame width="360" height="200" handles="end bottom bottom-end" snap-widths="400 600" width-label="प्रीव्यू की चौड़ाई बदलें" height-label="प्रीव्यू की ऊँचाई बदलें" corner-label="प्रीव्यू का साइज़ बदलें" style="inline-size: 100%">
     <div style="box-sizing: border-box; min-block-size: 100%; padding: 1rem; background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface)">कोई हैंडल खींचें, या Tab से किसी हैंडल पर जाकर ऐरो कुंजियाँ इस्तेमाल करें।</div>
   </tanrei-resizable-frame>
-</DemoFrame>
+</Example>
 
 साइज़ बदलने वाला फ़्रेम अपने भीतर की चीज़ को ऐसी चौड़ाई और ऊँचाई देता है जिसे कोई बदल सकता है। उसके हैंडल [साइज़ हैंडल](/hi/components/handle/) हैं: खींचने पर वे साइज़ बदलते हैं; कीबोर्ड से हिलाने पर एक-एक कदम बदलते हैं; बिना खींचे दबाने पर सबसे बड़े साइज़ और उससे पहले वाले साइज़ के बीच बदलते हैं। फ़्रेम साइज़ रखता है, जब कोई साइज़ बदल दे तो आपको बताता है, और हर हैंडल को साइज़ उसके मान के रूप में देता है, ताकि सहायक तकनीक उसे पढ़ सके।
 
