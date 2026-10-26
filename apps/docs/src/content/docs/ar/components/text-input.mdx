@@ -2,7 +2,7 @@
 title: حقل إدخال النص
 description: الصندوق الذي يكتب فيه الأشخاص، وكل ما يُكتب فيه، سطرًا واحدًا أو عدة أسطر، تاريخًا أو وقتًا أو شيفرة، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لموضع تقف تسميته في مكان آخر، أو داخل حقل يركّبه المنتج بنفسه.
 translationOf: components/text-input.mdx
-sourceHash: 83486ed63b6a2185108fc8bec04d5e73f0177fa5
+sourceHash: abdba7da8588ca765f8420914ded04a0158c1448
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -170,6 +170,18 @@ import Example from '../../../../components/visuals/Example.astro';
 
 لا يعطي حقل الإدخال هذه العناصر دورًا ولا مكانًا في ترتيب التركيز ولا مفتاحًا: فهي لك. والضغطة في الصندوق خارج كل عنصر تنقل التركيز إلى جزء الكتابة. ولقائمة من المُدخلات بمفاتيحها وفحوصها وقيمتها في النموذج استخدم [حقل الرقاقات](/ar/components/chip-field/)، وهو مبني على هذا المكان.
 
+### المسح
+
+مع `clearable` يرسم حقل الإدخال ذو السطر الواحد زرّ مسح في نهايته ما دام فيه قيمة: لمرشِّح أو بحث أو استعلام يفرغه المرء كله. الضغط عليه يفرغ القيمة، ويطلق `input`، ويطلق `change` إن تغيّرت القيمة منذ أخذ الحقل التركيز، ويبقي التركيز في حقل الإدخال. والضغط لا يأخذ التركيز من الحقل أبدًا، فتمضي الكتابة من حيث كانت وتبقى لوحة المفاتيح على الشاشة. ويبقى مكان الزر محفوظًا والحقل فارغ، فلا يتحرك النص ولا الأيقونات حين يظهر الزر أو يختفي. ولا يرسمه حقل متعدد الأسطر ولا حقل تاريخ أو وقت.
+
+يأتي زر المسح بعد حقل الإدخال وبعد زرّك الذي في المنفذ `trailing-icon`، وهو موضع توقف التركيز التالي. سمِّه بالخاصية `clearLabel` («مسح المرشِّح»)، أو مرة واحدة للمنتج كله بـ `setWords({ clearLabel })`.
+
+<Example label="قابل للمسح: مرشِّح يُفرغ بضغطة واحدة" column>
+  <tanrei-text-input class="not-content" type="search" label="تصفية الرموز" placeholder="تصفية الرموز" value="color" clearable clear-label="مسح المرشِّح">
+    <span slot="leading-icon">search</span>
+  </tanrei-text-input>
+</Example>
+
 <ComponentSpecs name="text-input" />
 
 ### ما يرسمه الويب بطريقة مختلفة
@@ -180,7 +192,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - الحدثان `input` و `change` يعبران حدود جذر الظل (composed). والحدث `action` من النوع CustomEvent وقابل للإلغاء: ألغِه لتمنع المفتاح Enter من إرسال النموذج. والحدثان `pickerrequest` و `entryerror` من النوع CustomEvent، وفي `detail` لهما، على الترتيب، `{ value, type, min, max }` و `{ reason, text }`. وأنواعها `TanreiTextInputActionDetail` و `TanreiTextInputPickerRequestDetail` و `TanreiTextInputEntryErrorDetail`.
 - الخاصية `countText` للقراءة فقط، وتتجدد بعد كل تغيير في القيمة. وليست لها خاصية HTML.
 - خصائص HTML مكتوبة بصيغة kebab-case، مثل `label-hidden` و `min-rows` و `prefix-text` و `no-wrap`، والأخيرة هي `wrap` بالقيمة false. أما `readonly` و `maxlength` و `autocomplete` و `min` و `max` فتحتفظ بأسمائها في HTML.
-- الأجزاء: `container`، `outline`، `active-indicator`، `label`، `requirement-label`، `input`، `entries`، `segment`، `prefix`، `suffix`، `leading-icon`، `trailing-icon`، `picker-button`، `resize-handle`.
+- الأجزاء: `container`، `outline`، `active-indicator`، `label`، `requirement-label`، `input`، `entries`، `segment`، `prefix`، `suffix`، `leading-icon`، `trailing-icon`، `clear-button`، `picker-button`، `resize-handle`.
+- الخاصية `clear-label` تُقرأ من كلمات المنتج (`setWords({ clearLabel })`) حين تُترك فارغة.
 - المنافذ: `leading-icon` و `trailing-icon` و `entries`. وأيقونة النهاية قد تكون زرًّا بأيقونة فقط من عندك. والجزء `entries` ليس له صندوق من عنده: عناصره تقف في أسطر الصندوق نفسه.
 - الخاصيتان `resize-label` و `segment-empty-text` تُقرآن من كلمات المنتج (`setWords()`) حين تُتركان فارغتين.
 - قبل أن يُعرَّف العنصر لا يكون له حجم. احجز ارتفاع الصندوق.
@@ -233,3 +246,4 @@ import Example from '../../../../components/visuals/Example.astro';
 - حيث يمكن أن يكون حقل الإدخال المجرَّد خاطئًا، قل ما الخطأ بكلمات تصل إلى التقنيات المساعدة: رسالة من عندك مرتبطة بالصفحة، أو حقل يحيط بحقل الإدخال.
 - لتاريخ أو وقت، أعطِ `segmentEmptyText`، واكتب `invalidText` و `unavailableText` حتى حيث لا يعرضهما حقل: فهما يُقرآن مع حقل الإدخال.
 - سمِّ مقبض تغيير الحجم بالخاصية `resizeLabel` وزر المنتقي بالخاصية `pickerLabel`.
+- أعطِ حقل الإدخال القابل للمسح `clearLabel` يقول ما الذي يمسحه («مسح المرشِّح»).
