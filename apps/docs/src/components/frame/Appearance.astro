@@ -60,7 +60,7 @@ const ids = { mode: `${id}-mode`, contrast: `${id}-contrast`, look: `${id}-look`
       <span class="docs-look-name">{look}</span>
     </tanrei-button>
   ) : (
-    <tanrei-popover class="docs-appearance-panel" anchor={id} placement="bottom-start" headline={words.appearance} closable close-label={words.close} data-docs-looks={looks.map((each) => each.id).join(' ')} data-copied={words.linkCopied} data-copy-failed={words.copyFailed}>
+    <tanrei-popover class="docs-appearance-panel" data-define-on-use anchor={id} placement="bottom-start" headline={words.appearance} closable close-label={words.close} data-docs-looks={looks.map((each) => each.id).join(' ')} data-copied={words.linkCopied} data-copy-failed={words.copyFailed}>
       <div class="docs-appearance-body">
         <p class="docs-appearance-heading" id={ids.mode}>{words.mode}</p>
         <tanrei-tabs class="docs-appearance-mode" label={words.mode} value="system" size="small" full-width>

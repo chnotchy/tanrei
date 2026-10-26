@@ -196,6 +196,11 @@
   tanrei-menu:not([inline]):not(:defined) {
     display: none;
   }
+  /* The Appearance panel (Appearance.astro) is drawn only when it is opened, in the top layer: until its element is
+     defined, its choices are not drawn in the page's flow either. */
+  tanrei-popover.docs-appearance-panel:not(:defined) {
+    display: none;
+  }
 
   /* ── The sidebar until the drawer is defined, and where no script runs: its own anchors, as the drawer's rows ──
      The shell keeps the column's place (APS-24); this draws what stands in it, from the drawer's tokens, so that no row

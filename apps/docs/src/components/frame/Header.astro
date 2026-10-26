@@ -128,10 +128,6 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
   import '@tanrei/web/components/app-bar';
   import '@tanrei/web/components/button';
   import '@tanrei/web/components/menu';
-  import '@tanrei/web/components/popover';
-  import '@tanrei/web/components/tabs';
-  import '@tanrei/web/components/list';
-  import '@tanrei/web/components/swatch';
   import '../../lib/list-filter';
   import { isShared, keepShared, linkTo, onAppearance, setAppearance, shownAppearance, type Appearance, type Contrast, type Mode } from '../../lib/appearance';
 
@@ -142,15 +138,20 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
   // ── The appearance ────────────────────────────────────────────────────────────────────────────────────────────────
   // Every control says what is shown: the look's buttons (the bar's, and the drawer's of a compact window), every
   // panel's choices and the mode's toggle. (The index's select of the system its lists show says it itself: SystemSelect.astro.)
+  /** A choice's value: its property once the element is defined, its attribute (what it starts from) until then. */
+  const choose = (control: Choice, value: string) => {
+    if (customElements.get(control.localName)) control.value = value;
+    else control.setAttribute('value', value);
+  };
   const say = (appearance: Appearance) => {
     for (const button of document.querySelectorAll<HTMLElement>('tanrei-button.docs-look')) {
       const name = button.querySelector('.docs-look-name');
       if (name) name.textContent = appearance.look;
       button.setAttribute('label', (button.dataset.label ?? '{look}').replace('{look}', appearance.look));
     }
-    for (const tabs of document.querySelectorAll<Choice>('tanrei-tabs.docs-appearance-mode')) tabs.value = appearance.mode;
-    for (const tabs of document.querySelectorAll<Choice>('tanrei-tabs.docs-appearance-contrast')) tabs.value = appearance.contrast;
-    for (const list of document.querySelectorAll<Choice>('tanrei-list.docs-appearance-look')) list.value = appearance.look;
+    for (const tabs of document.querySelectorAll<Choice>('tanrei-tabs.docs-appearance-mode')) choose(tabs, appearance.mode);
+    for (const tabs of document.querySelectorAll<Choice>('tanrei-tabs.docs-appearance-contrast')) choose(tabs, appearance.contrast);
+    for (const list of document.querySelectorAll<Choice>('tanrei-list.docs-appearance-look')) choose(list, appearance.look);
     const toggle = document.getElementById('docs-mode') as (HTMLElement & { selected: boolean }) | null;
     if (toggle) toggle.selected = root.getAttribute('data-theme') === 'dark';
   };
@@ -171,10 +172,18 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
     setAppearance({ mode: (event as CustomEvent<{ selected: boolean }>).detail.selected ? 'dark' : 'light' });
   });
 
+  // The panel's elements are defined when a reader is first about to open it — a pointer over its button, focus on
+  // it, or a press — so that a page whose panel is never opened never loads them.
+  let panelDefined: Promise<unknown> | undefined;
+  const definePanel = () =>
+    (panelDefined ??= Promise.all([import('@tanrei/web/components/popover'), import('@tanrei/web/components/tabs'), import('@tanrei/web/components/list'), import('@tanrei/web/components/list-row'), import('@tanrei/web/components/swatch')]).then(() => customElements.whenDefined('tanrei-popover')));
   // A panel opens from its button and closes when it asks to (the popover never closes itself, POP-14).
   for (const panel of document.querySelectorAll<Panel>('tanrei-popover.docs-appearance-panel')) {
     const button = document.getElementById(panel.getAttribute('anchor') ?? '');
-    button?.addEventListener('click', () => {
+    button?.addEventListener('pointerenter', definePanel, { once: true });
+    button?.addEventListener('focusin', definePanel, { once: true });
+    button?.addEventListener('click', async () => {
+      await definePanel();
       panel.open = !panel.open;
     });
     panel.addEventListener('close', () => {

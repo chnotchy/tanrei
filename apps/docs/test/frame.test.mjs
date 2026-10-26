@@ -77,7 +77,7 @@ describe('the header’s controls', () => {
     assert.match(header, /data-app-shell-menu variant="text" label=\{words\.menu\}>/);
     assert.match(header, /<tanrei-menu class="docs-frame-menu" anchor="docs-language" placement="bottom-end">/);
     assert.match(header, /<Appearance id="docs-appearance" part="panel" \/>/);
-    assert.match(panel, /<tanrei-popover class="docs-appearance-panel" anchor=\{id\} placement="bottom-start" headline=\{words\.appearance\} closable close-label=\{words\.close\}/);
+    assert.match(panel, /<tanrei-popover class="docs-appearance-panel" data-define-on-use anchor=\{id\} placement="bottom-start" headline=\{words\.appearance\} closable close-label=\{words\.close\}/);
   });
   test('the appearance’s panel: the color mode, then the contrast, then the design system, then the link and Theme Studio’s', () => {
     const order = ['docs-appearance-mode', 'value="system"', 'value="light"', 'value="dark"', 'docs-appearance-contrast', 'value="standard"', 'value="medium"', 'value="high"', 'docs-appearance-look', 'docs-appearance-note', 'docs-appearance-copy', 'href={studio}'].map((mark) => panel.indexOf(mark));
