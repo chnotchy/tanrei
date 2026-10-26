@@ -29,7 +29,8 @@
 // events show it, and the sampling fails instead of returning frames without it. Not in WebKit, which dates a
 // transition begun in a task from the frame drawn before that task: one that the task outlasted is dropped at the next
 // frame without an event, and the first frame read is already at rest. A component starts such a motion from the next
-// frame itself (an appearance does: `AppearController`, src/primitives/motion.ts).
+// frame itself (an appearance does: `AppearController`, src/primitives/motion.ts; and a modal dialog's entrance and its
+// scrim's fade: `openModal()`, src/primitives/modal-exit.ts).
 //
 // Held motions stand still while the test acts: an act of several inputs (a key, then another) is one moment, however
 // long the round trips take. What moves on its own clock is not held — a script that moves a box frame by frame from
