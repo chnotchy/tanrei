@@ -3,8 +3,22 @@
 import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiTreeView as TanreiTreeViewElement, type TanreiTreeViewCreateDetail, type TanreiTreeViewFilterChangeDetail, type TanreiTreeViewChangeDetail, type TanreiTreeViewToggleDetail, type TanreiTreeViewRenameDetail } from '@tanrei/web/components/tree-view';
 
+const TreeViewElement = /* @__PURE__ */ createComponent({
+  tagName: 'tanrei-tree-view',
+  elementClass: TanreiTreeViewElement,
+  react: React,
+  events: {
+    onCreate: 'create' as EventName<TanreiEvent<TanreiTreeViewElement, CustomEvent<TanreiTreeViewCreateDetail>>>,
+    onFilterChange: 'filterchange' as EventName<TanreiEvent<TanreiTreeViewElement, CustomEvent<TanreiTreeViewFilterChangeDetail>>>,
+    onChange: 'change' as EventName<TanreiEvent<TanreiTreeViewElement, CustomEvent<TanreiTreeViewChangeDetail>>>,
+    onToggle: 'toggle' as EventName<TanreiEvent<TanreiTreeViewElement, CustomEvent<TanreiTreeViewToggleDetail>>>,
+    onRename: 'rename' as EventName<TanreiEvent<TanreiTreeViewElement, CustomEvent<TanreiTreeViewRenameDetail>>>,
+  },
+});
+const TreeViewAttributes = { label: ['label', ''], selection: ['selection', 'none'], value: ['value', null], values: ['values'], density: ['density', 'regular'], chevron: ['chevron', 'start'], expandable: ['expandable', true], guides: ['guides', 'none'], indent: ['indent', null], iconSpace: ['icon-space', 'auto'], iconGap: ['icon-gap', null], highlight: ['highlight', 'indented'], labelWrap: ['label-wrap', false], supportingWrap: ['supporting-wrap', false], stickyParents: ['sticky-parents', true], stickyMax: ['sticky-max', 2], editable: ['editable', false], editLabel: ['edit-label', ''], loadingLabel: ['loading-label', ''], filterable: ['filterable', false], filterValue: ['filter-value', ''], filterLabel: ['filter-label', ''], filterPlaceholder: ['filter-placeholder', ''], filterEmptyText: ['filter-empty-text', ''], filterCountText: ['filter-count-text', ''], filterCountHidden: ['filter-count-hidden', false], filterClearLabel: ['filter-clear-label', ''], filterShortcut: ['filter-shortcut'] } as const;
 /**
  * A hierarchy of items that open and close: rows that begin further in at each level, a chevron at the start or the end of every row that holds others (or none, the folder glyph opening), names on one line shown whole in a tooltip where they are cut, the rows of the open parents above what is shown pinned at the top of the scrolling box; read and opened only, or with one item or several chosen. One stop in the focus order, moved through with the arrow keys. A file tree in a page, the tokens of a design system, the folders of a product.
  *
@@ -18,15 +32,4 @@ import { TanreiTreeView as TanreiTreeViewElement, type TanreiTreeViewCreateDetai
  * - `onToggle` (`toggle`) — Dispatched on an item's `<li>` (it bubbles): the user, or the browser's find-in-page, opened or closed it; `detail.open` is its new state. The moment to give the items of an `data-expandable` parent.
  * - `onRename` (`rename`) — Dispatched on an item's `<li>` (it bubbles): the user gave it a new name in place; `detail.label` is the name (trimmed, not empty, not the old one) and `detail.previous` the label it had. The tree changes no label: set it to rename the item.
  */
-export const TreeView = /* @__PURE__ */ createComponent({
-  tagName: 'tanrei-tree-view',
-  elementClass: TanreiTreeViewElement,
-  react: React,
-  events: {
-    onCreate: 'create' as EventName<TanreiEvent<TanreiTreeViewElement, CustomEvent<TanreiTreeViewCreateDetail>>>,
-    onFilterChange: 'filterchange' as EventName<TanreiEvent<TanreiTreeViewElement, CustomEvent<TanreiTreeViewFilterChangeDetail>>>,
-    onChange: 'change' as EventName<TanreiEvent<TanreiTreeViewElement, CustomEvent<TanreiTreeViewChangeDetail>>>,
-    onToggle: 'toggle' as EventName<TanreiEvent<TanreiTreeViewElement, CustomEvent<TanreiTreeViewToggleDetail>>>,
-    onRename: 'rename' as EventName<TanreiEvent<TanreiTreeViewElement, CustomEvent<TanreiTreeViewRenameDetail>>>,
-  },
-});
+export const TreeView = /* @__PURE__ */ withServerAttributes(TreeViewElement, 'tanrei-tree-view', TanreiTreeViewElement, TreeViewAttributes);

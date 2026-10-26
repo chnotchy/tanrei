@@ -29,9 +29,22 @@ test('withMarks(): renders the wrapper it was given, with the marks as attribute
   assert.deepEqual(props, { variant: 'tonal', confirming: '' });
 });
 
+/**
+ * Renders a generated wrapper as it renders in a browser: where there is no document it renders for a server instead
+ * (src/server.ts; ssr.test.mjs), and this file is about the client's wrapper. Its render touches no document.
+ */
+function inBrowser(render) {
+  globalThis.document = {};
+  try {
+    return render();
+  } finally {
+    delete globalThis.document;
+  }
+}
+
 test('the generated Button carries the marks, and a wrapper without marks is the element’s wrapper itself', async () => {
   const { Button, ButtonGroup } = await import('../dist/entries/generated/index.js');
-  const element = Button.render({ confirming: false, dismissive: true, variant: 'text' }, null);
+  const element = inBrowser(() => Button.render({ confirming: false, dismissive: true, variant: 'text' }, null));
   const { ref: _ref, ...props } = element.props;
   assert.deepEqual(props, { dismissive: '', variant: 'text' });
   assert.equal(element.type.displayName, 'TanreiButton');
@@ -80,7 +93,7 @@ test('withMarks(): an attribute that has the name of a read-only property is kep
 
 test('the generated Button writes form as an attribute: its element’s form property has only a getter', async () => {
   const { Button } = await import('../dist/entries/generated/index.js');
-  const rendered = Button.render({ type: 'submit', form: 'checkout', name: 'intent', value: 'pay' }, null);
+  const rendered = inBrowser(() => Button.render({ type: 'submit', form: 'checkout', name: 'intent', value: 'pay' }, null));
   const { ref: attach = rendered.ref, ...props } = rendered.props;
   assert.deepEqual(props, { type: 'submit', name: 'intent', value: 'pay' });
   const el = element();
@@ -109,14 +122,14 @@ test('every form-associated element of the manifest has a wrapper that writes fo
       .join('');
     const Wrapper = wrappers[name];
     assert.ok(Wrapper, `${name} is exported`);
-    const rendered = Wrapper.render({ form: 'checkout', name: 'field' }, null);
+    const rendered = inBrowser(() => Wrapper.render({ form: 'checkout', name: 'field' }, null));
     const { ref: attach = rendered.ref, ...props } = rendered.props;
     assert.deepEqual(props, { name: 'field' }, `${name}: no prop named form reaches the element`);
     const el = element();
     attach(el);
     assert.deepEqual([...el.attributes], [['form', 'checkout']], `${name}: the attribute`);
     // Taken away again when the prop is.
-    const again = Wrapper.render({ name: 'field' }, null);
+    const again = inBrowser(() => Wrapper.render({ name: 'field' }, null));
     (again.props.ref ?? again.ref)(el);
     assert.deepEqual([...el.attributes], [], `${name}: no form, no attribute`);
   }

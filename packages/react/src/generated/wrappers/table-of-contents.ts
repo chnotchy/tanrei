@@ -3,8 +3,20 @@
 import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiTableOfContents as TanreiTableOfContentsElement, type TanreiTableOfContentsCurrentChangeDetail, type TanreiTableOfContentsToggleDetail, type TanreiTableOfContentsSelectDetail } from '@tanrei/web/components/table-of-contents';
 
+const TableOfContentsElement = /* @__PURE__ */ createComponent({
+  tagName: 'tanrei-table-of-contents',
+  elementClass: TanreiTableOfContentsElement,
+  react: React,
+  events: {
+    onCurrentChange: 'currentchange' as EventName<TanreiEvent<TanreiTableOfContentsElement, CustomEvent<TanreiTableOfContentsCurrentChangeDetail>>>,
+    onToggle: 'toggle' as EventName<TanreiEvent<TanreiTableOfContentsElement, CustomEvent<TanreiTableOfContentsToggleDetail>>>,
+    onSelect: 'select' as EventName<TanreiEvent<TanreiTableOfContentsElement, CustomEvent<TanreiTableOfContentsSelectDetail>>>,
+  },
+});
+const TableOfContentsAttributes = { label: ['label', ''], labelHidden: ['label-hidden', false], presentation: ['presentation', 'list'], density: ['density', 'regular'], open: ['open', false], current: ['current', ''], tracking: ['tracking', 'auto'] } as const;
 /**
  * Lists the headings of the page being read as links to them and marks the one whose section is being read.
  *
@@ -17,13 +29,4 @@ import { TanreiTableOfContents as TanreiTableOfContentsElement, type TanreiTable
  * - `onToggle` (`toggle`) — The compact presentation's list was shown or hidden by the user (the row, an item chosen, Escape); `detail.open` is the new state.
  * - `onSelect` (`select`) — An item was activated; `detail.href` is its href. Dispatched from the anchor's click, before the browser follows the link; cancelable, cancelling the click with it.
  */
-export const TableOfContents = /* @__PURE__ */ createComponent({
-  tagName: 'tanrei-table-of-contents',
-  elementClass: TanreiTableOfContentsElement,
-  react: React,
-  events: {
-    onCurrentChange: 'currentchange' as EventName<TanreiEvent<TanreiTableOfContentsElement, CustomEvent<TanreiTableOfContentsCurrentChangeDetail>>>,
-    onToggle: 'toggle' as EventName<TanreiEvent<TanreiTableOfContentsElement, CustomEvent<TanreiTableOfContentsToggleDetail>>>,
-    onSelect: 'select' as EventName<TanreiEvent<TanreiTableOfContentsElement, CustomEvent<TanreiTableOfContentsSelectDetail>>>,
-  },
-});
+export const TableOfContents = /* @__PURE__ */ withServerAttributes(TableOfContentsElement, 'tanrei-table-of-contents', TanreiTableOfContentsElement, TableOfContentsAttributes);

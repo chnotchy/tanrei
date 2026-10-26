@@ -4,6 +4,7 @@ import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
 import { type Marked, withMarks } from '../../marks.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiComboboxField as TanreiComboboxFieldElement, type TanreiComboboxChangeDetail, type TanreiComboboxToggleDetail } from '@tanrei/web/components/combobox-field';
 
 /** The attributes of `<tanrei-combobox-field>` that are not properties of the element, as props of `ComboboxField`. */
@@ -23,6 +24,7 @@ const ComboboxFieldElement = /* @__PURE__ */ createComponent({
   },
 });
 const withComboboxFieldMarks = /* @__PURE__ */ withMarks<ComboboxFieldMarks>([], ['form']);
+const ComboboxFieldAttributes = { label: ['label', ''], labelHidden: ['label-hidden', false], supportingText: ['supporting-text', ''], errorText: ['error-text', ''], error: ['error', false], disabled: ['disabled', false], required: ['required', false], optional: ['optional', false], requiredMark: ['required-mark', 'auto'], requiredText: ['required-text', ''], optionalText: ['optional-text', ''], variant: ['variant', 'stacked'], size: ['size', 'medium'], value: ['value', ''], inputValue: ['input-value'], placeholder: ['placeholder', ''], readOnly: ['readonly', false], open: ['open', false], allowCustomValue: ['allow-custom-value', false], filter: ['filter', 'contains'], wrap: ['no-wrap', true], noChevron: ['no-chevron', false], clearable: ['clearable', false], clearLabel: ['clear-label', ''], status: ['status', 'idle'], statusText: ['status-text', ''], emptyText: ['empty-text', ''], separation: ['separation', 'auto'], iconSpace: ['icon-space', 'auto'], density: ['density', 'regular'], name: ['name', ''], form: ['form'] } as const;
 /**
  * Lets people find one value by typing, as one complete field of a form. Built from a Field (`<tanrei-field>`) and the Combobox (`<tanrei-combobox>`) it frames: the box with its list of options under the Field's label — or, in the filled and the outlined look, with the label floating in it — with the Field's requirement mark, its help and its error, tied together for assistive technology and taking part in a form as one control.
  *
@@ -36,4 +38,4 @@ const withComboboxFieldMarks = /* @__PURE__ */ withMarks<ComboboxFieldMarks>([],
  * - `onToggle` (`toggle`) — The list was opened or closed by the person, or closed by having nothing left to show; `open` is already the new one. `detail.open`, and for a close `detail.reason`: `select`, `commit`, `escape`, `outside`, `press`, `tab`, `focus-out`, `anchor-hidden` or `empty`. After a choice it follows `change`. Composed and not bubbling, as the platform's own `toggle`: heard on the element, and on an element composed around it, and by no ancestor. Never fired when the product sets `open`.
  * - `onAction` (`action`) — The person pressed Enter with no option active and the text was committed; after any `change` it caused. Cancelable: unless it is cancelled, the form the combobox stands in is then asked to submit.
  */
-export const ComboboxField: Marked<typeof ComboboxFieldElement, ComboboxFieldMarks> = /* @__PURE__ */ withComboboxFieldMarks(ComboboxFieldElement);
+export const ComboboxField: Marked<typeof ComboboxFieldElement, ComboboxFieldMarks> = /* @__PURE__ */ withServerAttributes(/* @__PURE__ */ withComboboxFieldMarks(ComboboxFieldElement), 'tanrei-combobox-field', TanreiComboboxFieldElement, ComboboxFieldAttributes);
