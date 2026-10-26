@@ -11,11 +11,13 @@ interface Props {
   language: string;
   /** The code block's accessible name, in the page's language (COD-22). */
   label: string;
+  /** What is drawn before each line and is not code: `$` for shell commands, as a fenced block of a shell takes it. */
+  prompt?: string;
 }
-const { code, language, label } = Astro.props;
+const { code, language, label, prompt } = Astro.props;
 
 await loadLanguage(language);
-const nodes = await highlightToNodes(code, language, { lines: {} });
+const nodes = await highlightToNodes(code, language, { lines: prompt ? { prompt } : {} });
 const escape = (text: string) => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 const attribute = (text: string) => escape(text).replaceAll('"', '&quot;');
 const html = (node: TanreiCodeNode): string =>
@@ -26,7 +28,7 @@ const html = (node: TanreiCodeNode): string =>
         .join('')}>${node.children.map(html).join('')}</${node.name}>`;
 ---
 
-<tanrei-code-block language={language} label={label} copy
+<tanrei-code-block language={language} label={label} prompt={prompt} copy
   ><pre translate="no" spellcheck="false"><code data-syntax-of={language} set:html={nodes.map(html).join('')} /></pre></tanrei-code-block
 >
 
