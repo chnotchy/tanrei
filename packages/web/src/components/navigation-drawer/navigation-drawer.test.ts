@@ -2606,14 +2606,41 @@ test.describe('a site’s sidebar', () => {
     await page.mouse.wheel(0, 300);
     await expect.poll(() => offset()).toBe(1534);
     expect(await log(page)).toEqual([]);
-    // Past the end of the items the page behind stays where it is; the same wheel beside the drawer does scroll it.
+    // Past the end of the items the page behind stays where it is, however the wheel is turned there: on past the end
+    // in the gesture that reached it, and again once the browser has let that gesture go. (Gecko keeps a run of wheel
+    // events with the box that took the first only 1.5 s after the last one that scrolled something,
+    // `mousewheel.transaction.timeout`, and gives the next run to the first box that can scroll, overscroll-behavior or
+    // not: a person still turning the wheel 1.5 s after the end, or turning it again, scrolled the page 400 px a turn.)
+    // The same wheel beside the drawer does scroll the page.
     await page.evaluate(() => (document.body.style.minBlockSize = '3000px'));
     expect(await long.evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('.items')!).overscrollBehaviorY)).toBe('contain');
-    await offset(5000);
+    await offset(3224 - 200);
     for (let turn = 0; turn < 4; turn++) await page.mouse.wheel(0, 400);
-    await page.waitForTimeout(300);
+    await atRest(page);
+    await expect.poll(() => offset()).toBe(3224);
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
+    // Longer than Gecko keeps the gesture, on the browser's own clock, which no page clock holds: the next turn is a new one.
+    await page.waitForTimeout(1600);
+    for (let turn = 0; turn < 4; turn++) await page.mouse.wheel(0, 400);
+    await atRest(page);
     expect(await page.evaluate(() => window.scrollY)).toBe(0);
     expect(await offset()).toBe(3224);
+    // What the drawer cancels is only a wheel its items cannot take and nothing else would: one toward the end they are
+    // at. Not one back up, not one with Ctrl (the page's zoom, and how a trackpad's pinch arrives), not one sideways,
+    // and not one that a scroller inside the items can still take.
+    const cancelled = (init: WheelEventInit, from = 'tanrei-navigation-drawer-item') =>
+      long.evaluate((el, [init, from]) => {
+        const event = new WheelEvent('wheel', { bubbles: true, composed: true, cancelable: true, ...(init as WheelEventInit) });
+        el.querySelector(from as string)!.dispatchEvent(event);
+        return event.defaultPrevented;
+      }, [init, from] as const);
+    expect([await cancelled({ deltaY: 100 }), await cancelled({ deltaY: -100 }), await cancelled({ deltaY: 100, ctrlKey: true }), await cancelled({ deltaX: 100 })]).toEqual([true, false, false, false]);
+    await long.evaluate((el) => el.insertAdjacentHTML('beforeend', '<div class="inner" style="overflow-y: auto; block-size: 40px"><div style="block-size: 200px"></div></div>'));
+    expect(await cancelled({ deltaY: 100 }, '.inner > div')).toBe(false);
+    await long.evaluate((el) => el.querySelector('.inner')!.remove());
+    await offset(0);
+    expect([await cancelled({ deltaY: -100 }), await cancelled({ deltaY: 100 })]).toEqual([true, false]);
+    await offset(3224);
     await page.mouse.move(900, 300);
     await page.mouse.wheel(0, 400);
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
