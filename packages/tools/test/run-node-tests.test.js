@@ -107,6 +107,15 @@ describe('shards by measured time (--shard-weights)', () => {
     assert.deepEqual(expected, [['a.test.mjs', 'e.test.mjs', 'new.test.mjs'], ['b.test.mjs', 'c.test.mjs', 'd.test.mjs']]);
   });
 
+  test('a file of `$alone` takes a shard of its own, and the others share the rest', () => {
+    const shards = balance(files, { ...weights, $alone: ['a.test.mjs', 'gone.test.mjs'] }, 3);
+    assert.deepEqual(shards[0].files, ['a.test.mjs']);
+    assert.deepEqual(shards.flatMap((s) => s.files).sort(), [...files].sort());
+    // The rest, without a: b 40 → 2 (40); c 30 → 3 (30); new 25 → 3 (55); d 20 → 2 (60); e 10 → 3 (65).
+    assert.deepEqual(shards.slice(1).map((s) => s.files), [['b.test.mjs', 'd.test.mjs'], ['c.test.mjs', 'e.test.mjs', 'new.test.mjs']]);
+    assert.throws(() => balance(files, { ...weights, $alone: ['a.test.mjs', 'b.test.mjs'] }, 2), /need at least one/);
+  });
+
   test('the runner gives each shard its files by weight, says how it split them, and how long each ran', () => {
     const dir = tempDir('node-test-weights');
     fs.mkdirSync(path.join(dir, 'test'));
@@ -175,9 +184,14 @@ describe('shards by measured time (--shard-weights)', () => {
   test('the docs’ browser tests are split by their weights file: seconds by file, and a comment that says where they come from', () => {
     const docs = path.join(root, 'apps/docs');
     assert.match(JSON.parse(fs.readFileSync(path.join(docs, 'package.json'), 'utf8')).scripts['test:browser'], /--shard-weights=test\/browser\/durations\.json /);
-    const { $comment, ...table } = JSON.parse(fs.readFileSync(path.join(docs, 'test/browser/durations.json'), 'utf8'));
+    const { $comment, $alone = [], ...table } = JSON.parse(fs.readFileSync(path.join(docs, 'test/browser/durations.json'), 'utf8'));
     assert.match($comment, /shard-weights\.js/);
     for (const [file, seconds] of Object.entries(table)) assert.ok(file.endsWith('.test.mjs') && Number.isFinite(seconds) && seconds > 0, `${file}: ${seconds}`);
+    // A file that runs alone is a file the table weighs, and the CI job has a shard for each and one for the rest.
+    for (const file of $alone) assert.ok(file in table, `$alone names ${file}, which the table does not weigh`);
+    const ci = fs.readFileSync(path.join(root, '.github/workflows/ci.yml'), 'utf8');
+    const shards = Number(/docs-browser:[\s\S]*?shards: \[(\d+)\]/.exec(ci)?.[1]);
+    assert.ok(shards > $alone.length, `ci.yml's docs browser job has ${shards} shards, and ${$alone.length} files run alone`);
   });
 });
 

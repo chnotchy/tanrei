@@ -63,19 +63,32 @@ export function shard(env) {
  * far (the lower index on a tie), the files of one weight taken by name — the same split on every machine, whatever
  * order the files were found in. A file the weights do not name weighs their median: a new file runs, in some shard,
  * before anyone has measured it. Each shard's files are in name order.
+ *
+ * A file the weights list under `$alone` takes a shard of its own, the first ones, and the others share the rest: a
+ * file that keeps the machine busy for its whole run slows every file beside it (the docs' fixture gallery, about two
+ * thirds of a job, made the pages of the files run with it take more than 30 s to load in WebKit), which a split by
+ * time alone cannot see. A file of `$alone` that is not among the files is skipped.
  * @param {string[]} files
- * @param {Record<string, number>} weights seconds by file
+ * @param {Record<string, number | string | string[]>} weights seconds by file, and `$alone`
  * @param {number} total
  * @returns {{ files: string[], seconds: number, guessed: string[] }[]}
  */
 export function balance(files, weights, total) {
+  const alone = (Array.isArray(weights.$alone) ? weights.$alone : []).filter((file) => files.includes(file)).sort();
+  if (alone.length >= total) throw new Error(`the weights put ${alone.length} files in shards of their own (${alone.join(', ')}), and there are ${total} shards: the others need at least one`);
   const known = Object.values(weights).filter((value) => typeof value === 'number').sort((a, b) => a - b);
   const median = known.length === 0 ? 1 : known.length % 2 ? known[(known.length - 1) / 2] : (known[known.length / 2 - 1] + known[known.length / 2]) / 2;
   const weightOf = (file) => (typeof weights[file] === 'number' ? weights[file] : median);
   const shards = Array.from({ length: total }, () => ({ files: [], seconds: 0, guessed: [] }));
-  const order = [...new Set(files)].sort((a, b) => weightOf(b) - weightOf(a) || (a < b ? -1 : a > b ? 1 : 0));
+  alone.forEach((file, k) => {
+    shards[k].files.push(file);
+    shards[k].seconds += weightOf(file);
+    if (typeof weights[file] !== 'number') shards[k].guessed.push(file);
+  });
+  const shared = shards.slice(alone.length);
+  const order = [...new Set(files)].filter((file) => !alone.includes(file)).sort((a, b) => weightOf(b) - weightOf(a) || (a < b ? -1 : a > b ? 1 : 0));
   for (const file of order) {
-    const least = shards.reduce((best, s) => (s.seconds < best.seconds ? s : best));
+    const least = shared.reduce((best, s) => (s.seconds < best.seconds ? s : best));
     least.files.push(file);
     least.seconds += weightOf(file);
     if (typeof weights[file] !== 'number') least.guessed.push(file);
