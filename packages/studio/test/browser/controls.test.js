@@ -21,7 +21,7 @@ const natives = (page) => page.evaluate(() => [...document.querySelectorAll('but
  */
 const codes = (page) => page.evaluate(() => [...document.querySelectorAll('tanrei-text-field[type="code"], tanrei-text-input[type="code"]')].filter((el) => !el.closest('[data-scope]')).map((el) => `${el.multiline ? 'lines' : 'line'}${[...el.attributes].filter((a) => a.name.startsWith('data-') && a.name !== 'data-tanrei-settling').map((a) => `[${a.name}]`).join('')}`));
 
-studioTest('no control is hand-made: in every section and tab of Inspect, with the folds open, the only native controls of the Studio’s own are the rail’s rows and the Source editor, and what holds JSON is a text field that holds code', { layer }, async ({ page, view }) => {
+studioTest('no control is hand-made: in every section and tab of Inspect, with the folds open, the only native controls of the Studio’s own are the rail’s rows, the start point’s file input and the Source editor, and what holds JSON is a text field that holds code', { layer }, async ({ page, view }) => {
   // What each kind of view holds, together: the rail's sections, Inspect's tokens, its Source.
   const seen = { sections: new Set(), tokens: new Set(), source: new Set() };
   const held = { sections: new Set(), tokens: new Set(), source: new Set() };
@@ -43,7 +43,9 @@ studioTest('no control is hand-made: in every section and tab of Inspect, with t
   }
   const sorted = (set) => [...set].sort();
   // The rail's rows are buttons of the Studio's own: a row is a name, a value and a sample, more than a Button holds.
-  const RAIL = ['button[data-row]'];
+  // The bar's start point loads a file from an item of its menu, through the browser's own picker: a hidden file input,
+  // which the item's press opens (a File picker takes a trigger of its own, and a menu's item is the menu's).
+  const RAIL = ['button[data-row]', 'input[file][data-start-input]'];
   assert.deepEqual(sorted(seen.sections), RAIL, 'the sections');
   assert.deepEqual(sorted(seen.tokens), RAIL, 'Inspect’s tokens');
   assert.deepEqual(sorted(seen.source), [...RAIL, 'textarea[data-source]'], 'Source: the layer file, in the Studio’s own editor');
@@ -54,7 +56,9 @@ studioTest('no control is hand-made: in every section and tab of Inspect, with t
   // (The Studio's own tree: a text field's own Field is in its shadow root, and is the text field's.)
   assert.equal(await page.evaluate(() => document.querySelectorAll('tanrei-field tanrei-text-field, tanrei-field tanrei-text-input, tanrei-field textarea').length), 0, 'the Studio frames no text field and no text input with a Field of its own');
   // The standalone app's items of the Studio's bar: its theme button and its language select are Tanrei's too.
-  assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('.ts-bar button, .ts-bar input, .ts-bar select')].length), 0);
+  // (But the start point's hidden file input, the browser's own picker its menu item opens.)
+  assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('.ts-bar button, .ts-bar input:not([data-start-input]), .ts-bar select')].length), 0);
+  assert.equal(await page.locator('.ts-bar [data-start-input]').isHidden(), true);
   assert.equal(await page.locator('.ts-bar #theme').evaluate((el) => el.localName), 'tanrei-button');
 });
 

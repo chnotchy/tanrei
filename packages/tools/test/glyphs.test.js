@@ -109,6 +109,26 @@ describe('the lists', () => {
     assert.deepEqual([...spelled].map(([word, file]) => `${word} (${file})`), [], 'glyph names the code spells that the list leaves out: declare each one drawn in a constant (then pnpm generate), or add a word never drawn to NOT_DRAWN');
     assert.deepEqual([...NOT_DRAWN].filter((word) => components.has(word)), [], 'a word on the list is drawn: take it out of NOT_DRAWN');
   });
+  test('miss no glyph the Theme Studio draws through its own glyph helper', () => {
+    // packages/studio draws its bar's and its rail's icons with `glyph(name)` / `glyph(ctx, name)`: every string
+    // literal written in such a call is drawn, and must be on a list (spelled in a declared constant, not in the call).
+    const lists = new Set([...listed(COMPONENT_GLYPHS), ...listed(DOCS_GLYPHS)]);
+    const missing = [];
+    const walk = (rel) => {
+      for (const entry of fs.readdirSync(path.join(REPO, rel), { withFileTypes: true })) {
+        const child = `${rel}/${entry.name}`;
+        if (entry.isDirectory()) walk(child);
+        else if (/\.(ts|js)$/.test(entry.name) && !/\.d\.ts$/.test(entry.name)) {
+          const code = fs.readFileSync(path.join(REPO, child), 'utf8');
+          for (const call of code.matchAll(/\bglyph\(([^()]*)\)/g)) for (const word of call[1].matchAll(/'([a-z0-9_]+)'/g)) if (!lists.has(word[1])) missing.push(`${word[1]} (${child})`);
+        }
+      }
+    };
+    walk('packages/studio/src');
+    assert.deepEqual(missing, [], 'a glyph the Studio draws that no list has: declare it in a constant (`const SHUFFLE_GLYPH = \'shuffle\'`), then pnpm generate');
+    // The bar's and the rail's own, which drew as their letters until the page's full icon file had loaded.
+    for (const name of ['shuffle', 'lock_open']) assert.ok(listed(DOCS_GLYPHS).includes(name), name);
+  });
   test('name the icon axes of the shipped systems, read from the resolved tokens', () => {
     assert.deepEqual(iconAxes(REPO), { FILL: [0, 1], wght: [300, 500], GRAD: [0, 0], opsz: [20, 48] });
     assert.deepEqual(JSON.parse(read(REPO, COMPONENT_GLYPHS)).axes, iconAxes(REPO));
