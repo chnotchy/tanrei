@@ -2,7 +2,7 @@
 title: ボタン
 description: 1 回のタップまたはクリックで、アクションの実行、オン・オフの切り替え、移動先への移動を行えるようにします。
 translationOf: components/button.mdx
-sourceHash: f888556fbe868c4858d27e4c999dcfdeffd781f9
+sourceHash: a1a96cc2c5ac23f179d9150a621ccaaec6fa22ad
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -11,6 +11,7 @@ import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import StateMatrix from '../../../../components/visuals/StateMatrix.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## 概要
 
@@ -371,6 +372,38 @@ Web では、ボタンはフォームのコントロールの 1 つで、押し�
 `destructive` は variant ではありません。どの variant とも組み合わせられ、その variant の強調を保ちます（[破壊的なアクション](#破壊的なアクション)を参照）。
 
 `variant` のないボタンは Filled です。ただし、[ダイアログ](/ja/components/dialog/)や[サイドシート](/ja/components/side-sheet/)のアクションとして置いたときは、その置き場所の variant（既定のシステムでは Tonal）になります。見た目を変えたいアクションにだけ variant を設定すれば済みます。ポップオーバー、サイドシート、ボトムシート、コールアウト、スナックバー、画像プレビューの閉じるボタンは、どれも小さいアイコンだけのボタンで、同じように置き場所の閉じるボタン用の variant（既定のシステムでは Tonal）になります。状態を示すコールアウトや反転したスナックバーのような色の付いた面では、その面の文字の色でも描かれます。
+
+### 見比べる
+
+<DoDont do="button/form-delete-text" dont="button/form-delete-filled">
+  <Fragment slot="doCaption">何かを編集するフォームでは、削除を `destructive` の Text ボタンにして、主アクションをただ 1 つの Filled ボタンのままにします。</Fragment>
+  <Fragment slot="dontCaption">削除のための画面でないなら、主アクションの隣に Filled の destructive ボタンを置かない。2 つが張り合い、赤いほうが勝ってしまいます。</Fragment>
+</DoDont>
+
+<DoDont do="button/delete-dialog-named" dont="button/delete-dialog-vague">
+  <Fragment slot="doCaption">削除そのものが目的のダイアログでは、確定のアクションを Filled の destructive にしてかまいません。ラベルで何が消えるかを言い、隣にキャンセルを置きます。</Fragment>
+  <Fragment slot="dontCaption">destructive なアクションのラベルを「OK」にしない。何かが消える前に読む最後の言葉なので、何が消えるかを書きます。</Fragment>
+</DoDont>
+
+<DoDont do="button/link-to-delete" dont="button/link-destructive">
+  <Fragment slot="doCaption">アカウントを削除する場所へのリンクは普通のリンクにします。ラベルで行き先を言い、省略記号でもう 1 段階あることを示します。</Fragment>
+  <Fragment slot="dontCaption">リンクに `destructive` を付けない。リンクをたどっても何も消えないので、ボタンはそれを無視してその variant のリンクとして描き、デバッグビルドが報告します。</Fragment>
+</DoDont>
+
+<DoDont do="button/one-filled" dont="button/all-filled">
+  <Fragment slot="doCaption">強調は一度だけ使います。その画面の目的であるアクションに Filled ボタンを 1 つ、残りには控えめな variant を。</Fragment>
+  <Fragment slot="dontCaption">すべてのアクションを Filled にしない。すべてを強調すると、どれも強調されません。</Fragment>
+</DoDont>
+
+<DoDont do="button/busy-saving" dont="button/disabled-saving">
+  <Fragment slot="doCaption">アクションの進行中は `busy` と `busyLabel` を設定します。ボタンは位置もフォーカスも保ったまま、2 度目の押下を受け付けません。</Fragment>
+  <Fragment slot="dontCaption">アクションの実行中にボタンを無効にしない。フォーカス順から外れ、利用者のフォーカスも一緒に失われます。</Fragment>
+</DoDont>
+
+<DoDont do="button/close-named" dont="button/close-unnamed">
+  <Fragment slot="doCaption">アイコンだけの閉じるボタンには、プロダクトの言葉で `label` を付けます。シート、ポップオーバー、通知が持つ閉じるボタンは `closeLabel` で名前が付きます。ダイアログは閉じるボタンを持ちません。</Fragment>
+  <Fragment slot="dontCaption">アイコンだけのボタンを `label` なしで置かない。見た目は同じでも名前がなく、デバッグビルドが報告します。</Fragment>
+</DoDont>
 
 ### 推奨
 

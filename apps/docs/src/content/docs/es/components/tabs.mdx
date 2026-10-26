@@ -2,7 +2,7 @@
 title: Pestañas
 description: Cambia entre vistas de un mismo tema con una fila de pestañas con etiqueta sobre una pista. Hay una pestaña seleccionada, marcada por un indicador que se desliza entre las pestañas y sigue al dedo que se arrastra por la fila.
 translationOf: components/tabs.mdx
-sourceHash: d17fe373c46ad348841f0e2a05ae5c40ce13480f
+sourceHash: 1fb9d7112501473d17e4a7472e513fa4233dbbb0
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## Descripción general
 
@@ -371,6 +372,28 @@ Con `orientation` en `vertical`, las pestañas se apilan en una columna en el bo
 - `labelHidden` dibuja el icono solo. La etiqueta sigue siendo obligatoria: sigue siendo el nombre accesible de la pestaña. Una pestaña con `labelHidden` y sin icono dibuja su etiqueta de todos modos, y las compilaciones de depuración lo notifican.
 - Una pestaña con la etiqueta vacía y sin icono no tiene contenido: su indicador es un círculo vacío y la pestaña no tiene nombre accesible. Las compilaciones de depuración notifican la etiqueta vacía; da una etiqueta a la pestaña.
 - Para mostrar un recuento en una pestaña, coloca tú una insignia de Tanrei sobre su icono. Las pestañas no tienen una propiedad de insignia.
+
+### Lado a lado
+
+<DoDont do="tabs/short-labels" dont="tabs/long-labels" column>
+  <Fragment slot="doCaption">Nombra cada vista con una o dos palabras. En una fila que ocupa todo su ancho, las etiquetas cortas caben enteras.</Fragment>
+  <Fragment slot="dontCaption">No escribas etiquetas largas en una fila que ocupa todo su ancho. Cada pestaña recibe una parte igual, y una etiqueta más larga que su parte se corta.</Fragment>
+</DoDont>
+
+<DoDont do="tabs/icons-all" dont="tabs/icons-mixed" column>
+  <Fragment slot="doCaption">Da un icono a todas las pestañas de una fila, o a ninguna.</Fragment>
+  <Fragment slot="dontCaption">No mezcles pestañas con y sin icono en una fila. La fila se ve desigual, y la pestaña sin icono parece sin terminar.</Fragment>
+</DoDont>
+
+<DoDont do="tabs/secondary-inside-primary" dont="tabs/primary-inside-primary" column>
+  <Fragment slot="doCaption">Pon las pestañas secondary dentro de una vista de pestañas primary. La fila más discreta se lee como un nivel inferior.</Fragment>
+  <Fragment slot="dontCaption">No anides dos filas de la misma variante. Ninguna se lee como el nivel de la otra.</Fragment>
+</DoDont>
+
+<DoDont do="tabs/icons-only-named" dont="tabs/label-hidden-no-icon" column>
+  <Fragment slot="doCaption">Para mostrar solo iconos, define `labelHidden` en pestañas que tengan cada una su icono. La etiqueta sigue nombrando la pestaña.</Fragment>
+  <Fragment slot="dontCaption">No definas `labelHidden` en una pestaña sin icono. No tiene otra cosa que dibujar, así que la etiqueta se dibuja igualmente, y una compilación de depuración lo informa.</Fragment>
+</DoDont>
 
 ### Recomendado
 

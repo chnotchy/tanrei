@@ -8,6 +8,7 @@ import ComponentAvailability from '../../../components/ComponentAvailability.ast
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
 import Example from '../../../components/visuals/Example.astro';
+import DoDont from '../../../components/visuals/DoDont.astro';
 
 ## Overview
 
@@ -241,6 +242,28 @@ document.querySelector('[name="price"]').formatValue = (value) => dollars.format
 `small` is the everyday slider. `medium` and `large` give a prominent control, such as a volume or brightness slider on a media screen, a heavier track. Every size meets the minimum target.
 
 A vertical slider runs from the bottom (`min`) to the top (`max`) in every layout direction. A horizontal slider runs from the inline start, so in a right-to-left layout `min` is on the right.
+
+### Side by side
+
+<DoDont do="slider/few-stops" dont="slider/many-stops" column>
+  <Fragment slot="doCaption">Show stops on a slider of a few steps, where each dot is a value people can tell apart.</Fragment>
+  <Fragment slot="dontCaption">Don't show stops on a slider with many steps. A hundred dots read as a dashed line, not as values.</Fragment>
+</DoDont>
+
+<DoDont do="slider/switch-for-on-off" dont="slider/slider-for-on-off" column>
+  <Fragment slot="doCaption">Use a switch for a setting that is only on or off.</Fragment>
+  <Fragment slot="dontCaption">Don't use a slider of two values for on and off. It asks for a drag where a press would do, and does not say which end is on.</Fragment>
+</DoDont>
+
+<DoDont do="slider/value-with-unit" dont="slider/value-without-unit" column>
+  <Fragment slot="doCaption">Give `valueText` a unit when the number alone does not say what it counts. The field shows it beside its label, and a screen reader says it.</Fragment>
+  <Fragment slot="dontCaption">Don't leave a number without its unit. “4” could be seconds, minutes or messages.</Fragment>
+</DoDont>
+
+<DoDont do="slider/visible-label" dont="slider/unlabelled" column>
+  <Fragment slot="doCaption">Name the slider where people can see it. A slider field draws the label and gives the slider the same words.</Fragment>
+  <Fragment slot="dontCaption">Don't leave a slider without a name. Nothing says what it sets, a screen reader announces only a number, and a debug build reports it.</Fragment>
+</DoDont>
 
 ### Do
 

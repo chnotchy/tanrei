@@ -2,7 +2,7 @@
 title: "按钮"
 description: "让用户只需轻点或点击一次，就能执行一项操作、打开或关闭某个功能，或前往某个目标位置。"
 translationOf: components/button.mdx
-sourceHash: f888556fbe868c4858d27e4c999dcfdeffd781f9
+sourceHash: a1a96cc2c5ac23f179d9150a621ccaaec6fa22ad
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -11,6 +11,7 @@ import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import StateMatrix from '../../../../components/visuals/StateMatrix.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## 概览
 
@@ -371,6 +372,38 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
 `destructive` 不是变体：它可以与任何变体搭配，并保持该变体的强调程度（参见[破坏性操作](#破坏性操作)）。
 
 没有 `variant` 的按钮是 filled，只有一个例外：作为[对话框](/zh-cn/components/dialog/)或[侧边面板](/zh-cn/components/side-sheet/)的操作放置时，它采用宿主的变体，在默认系统中是 tonal。因此只需要给外观应当不同的那个操作设置变体。每个宿主的关闭按钮——弹出框、侧边面板、底部面板、提示块、消息条和图片预览的——都是一个 small 的纯图标按钮，以同样的方式采用宿主为关闭按钮规定的变体，在默认系统中是 tonal。在带颜色的表面上，例如表示状态的提示块或反色的消息条上，它还会以该表面的文字颜色绘制。
+
+### 对照
+
+<DoDont do="button/form-delete-text" dont="button/form-delete-filled">
+  <Fragment slot="doCaption">在编辑内容的表单里，把“删除”做成带 `destructive` 的 text 按钮，让主操作仍是唯一的 filled 按钮。</Fragment>
+  <Fragment slot="dontCaption">如果界面不是为了删除而存在，就不要在主操作旁边放 filled 的 destructive 按钮。两者会互相争抢，而红色的那个会胜出。</Fragment>
+</DoDont>
+
+<DoDont do="button/delete-dialog-named" dont="button/delete-dialog-vague">
+  <Fragment slot="doCaption">在专为删除而存在的对话框里，确认操作可以是 filled 且 destructive 的。它的标签说明要删除什么，旁边放上“取消”。</Fragment>
+  <Fragment slot="dontCaption">不要把 destructive 操作的标签写成“确定”。这是用户在东西消失前读到的最后一句话：说明要删除的是什么。</Fragment>
+</DoDont>
+
+<DoDont do="button/link-to-delete" dont="button/link-destructive">
+  <Fragment slot="doCaption">通往删除账号之处的链接，做成普通链接。它的标签说明通向哪里，省略号表示后面还有一步。</Fragment>
+  <Fragment slot="dontCaption">不要给链接设置 `destructive`。打开链接不会删除任何东西，所以按钮会忽略它，按其变体的链接来绘制，调试构建会报告这一点。</Fragment>
+</DoDont>
+
+<DoDont do="button/one-filled" dont="button/all-filled">
+  <Fragment slot="doCaption">强调只用一次：为这个视图的目的所在的操作放一个 filled 按钮，其余的用更低调的变体。</Fragment>
+  <Fragment slot="dontCaption">不要让每个操作都是 filled。什么都强调，就等于什么都没强调。</Fragment>
+</DoDont>
+
+<DoDont do="button/busy-saving" dont="button/disabled-saving">
+  <Fragment slot="doCaption">操作进行期间，设置 `busy` 和 `busyLabel`。按钮保持原来的位置和用户的焦点，并拒绝第二次按下。</Fragment>
+  <Fragment slot="dontCaption">不要在操作进行时禁用按钮。它会离开焦点顺序，用户的焦点也随之丢失。</Fragment>
+</DoDont>
+
+<DoDont do="button/close-named" dont="button/close-unnamed">
+  <Fragment slot="doCaption">用 `label` 以你产品的语言为纯图标的关闭按钮命名。面板、弹出框或通知自带的关闭按钮由其 `closeLabel` 命名；对话框没有关闭按钮。</Fragment>
+  <Fragment slot="dontCaption">不要让纯图标按钮缺少 `label`。它看起来一样，却没有名称，调试构建会报告这一点。</Fragment>
+</DoDont>
 
 ### 推荐
 

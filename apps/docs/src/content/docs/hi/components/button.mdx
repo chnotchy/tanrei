@@ -2,7 +2,7 @@
 title: बटन
 description: एक टैप या क्लिक से लोगों को कोई क्रिया करने, किसी चीज़ को चालू-बंद करने या किसी गंतव्य पर जाने देता है।
 translationOf: components/button.mdx
-sourceHash: f888556fbe868c4858d27e4c999dcfdeffd781f9
+sourceHash: a1a96cc2c5ac23f179d9150a621ccaaec6fa22ad
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -11,6 +11,7 @@ import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import StateMatrix from '../../../../components/visuals/StateMatrix.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## अवलोकन
 
@@ -371,6 +372,38 @@ narrow बटन ठीक अपने ग्लिफ़ और हर ओर 
 `destructive` कोई वेरिएंट नहीं है: यह किसी भी वेरिएंट के साथ लगता है, और उस वेरिएंट का ज़ोर बनाए रखता है ([विनाशकारी क्रियाएँ](#विनाशकारी-क्रियाएँ) देखें)।
 
 `variant` के बिना बटन filled होता है, एक अपवाद के साथ: किसी [डायलॉग](/hi/components/dialog/) या [साइड शीट](/hi/components/side-sheet/) की क्रिया के रूप में रखे जाने पर वह उस होस्ट का वेरिएंट लेता है, जो डिफ़ॉल्ट सिस्टम में tonal है, इसलिए आप वेरिएंट सिर्फ़ उस क्रिया पर सेट करते हैं जिसे अलग दिखना चाहिए। हर होस्ट का बंद करने वाला बटन, यानी पॉपओवर, साइड शीट, बॉटम शीट, कॉलआउट, स्नैकबार और इमेज प्रीव्यू का, सिर्फ़ आइकन वाला एक small बटन है, जो इसी तरह अपने होस्ट के बंद करने वाले बटन के लिए तय वेरिएंट लेता है, जो डिफ़ॉल्ट सिस्टम में tonal है। किसी रंगीन सतह पर, जैसे किसी स्थिति वाले कॉलआउट या उलटे स्नैकबार पर, वह उस सतह के टेक्स्ट के रंग में भी बनता है।
+
+### आमने-सामने
+
+<DoDont do="button/form-delete-text" dont="button/form-delete-filled">
+  <Fragment slot="doCaption">किसी चीज़ को संपादित करने वाले फ़ॉर्म में “हटाएँ” को `destructive` वाला text बटन बनाएँ, ताकि मुख्य क्रिया ही अकेला filled बटन रहे।</Fragment>
+  <Fragment slot="dontCaption">जो स्क्रीन हटाने के लिए नहीं है, उसकी मुख्य क्रिया के बगल में filled destructive बटन न रखें। दोनों होड़ करते हैं, और लाल वाला जीत जाता है।</Fragment>
+</DoDont>
+
+<DoDont do="button/delete-dialog-named" dont="button/delete-dialog-vague">
+  <Fragment slot="doCaption">जहाँ डायलॉग हटाने के क़दम के लिए ही है, वहाँ उसकी पुष्टि वाली क्रिया filled और destructive हो सकती है। उसका लेबल बताता है कि क्या हटेगा, और उसके बगल में “रद्द करें” रहता है।</Fragment>
+  <Fragment slot="dontCaption">destructive क्रिया का लेबल “ठीक है” न रखें। कुछ हटने से पहले व्यक्ति यही आख़िरी शब्द पढ़ता है: बताएँ कि क्या हटेगा।</Fragment>
+</DoDont>
+
+<DoDont do="button/link-to-delete" dont="button/link-destructive">
+  <Fragment slot="doCaption">जिस जगह खाता हटाया जाता है, वहाँ ले जाने वाले लिंक को साधारण लिंक रखें। उसका लेबल बताता है कि वह कहाँ ले जाता है, और तीन बिंदु बताते हैं कि आगे एक और क़दम है।</Fragment>
+  <Fragment slot="dontCaption">किसी लिंक को `destructive` न दें। लिंक पर जाने से कुछ नहीं हटता, इसलिए बटन इसे अनदेखा करता है और अपने वेरिएंट के लिंक की तरह बनता है, और डीबग बिल्ड इसकी रिपोर्ट करता है।</Fragment>
+</DoDont>
+
+<DoDont do="button/one-filled" dont="button/all-filled">
+  <Fragment slot="doCaption">ज़ोर एक ही बार दें: जिस क्रिया के लिए व्यू है उसके लिए एक filled बटन, और बाक़ी के लिए हल्के वेरिएंट।</Fragment>
+  <Fragment slot="dontCaption">हर क्रिया को filled न बनाएँ। जब सब पर ज़ोर हो, तो किसी पर नहीं होता।</Fragment>
+</DoDont>
+
+<DoDont do="button/busy-saving" dont="button/disabled-saving">
+  <Fragment slot="doCaption">जब तक उसकी क्रिया चल रही हो, `busy` और `busyLabel` सेट करें। बटन अपनी जगह और व्यक्ति का फ़ोकस बनाए रखता है, और दूसरा दबाव नहीं लेता।</Fragment>
+  <Fragment slot="dontCaption">क्रिया चलते समय बटन को अक्षम न करें। वह फ़ोकस क्रम से बाहर हो जाता है, और व्यक्ति का फ़ोकस भी उसके साथ चला जाता है।</Fragment>
+</DoDont>
+
+<DoDont do="button/close-named" dont="button/close-unnamed">
+  <Fragment slot="doCaption">सिर्फ़ आइकन वाले बंद करने के बटन को अपने प्रॉडक्ट के शब्दों में `label` से नाम दें। शीट, पॉपओवर या सूचना का अपना बंद करने का बटन उसके `closeLabel` से नाम पाता है; डायलॉग में यह बटन नहीं होता।</Fragment>
+  <Fragment slot="dontCaption">सिर्फ़ आइकन वाले बटन को `label` के बिना न छोड़ें। वह दिखता वैसा ही है, पर उसका कोई नाम नहीं होता, और डीबग बिल्ड इसकी रिपोर्ट करता है।</Fragment>
+</DoDont>
 
 ### करें
 

@@ -2,7 +2,7 @@
 title: Control deslizante
 description: Permite elegir un valor, o un intervalo de valores, arrastrando un tirador a lo largo de una pista, de forma continua o por pasos.
 translationOf: components/slider.mdx
-sourceHash: e74996d456fba14f6d07067a6a1b9cf61c1e5e69
+sourceHash: ce9048e0387153621d8b58d5ad455d3334fd4d35
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## Descripción general
 
@@ -243,6 +244,28 @@ document.querySelector('[name="price"]').formatValue = (value) => dollars.format
 `small` es el control deslizante de uso diario. `medium` y `large` dan una pista más gruesa a un control destacado, como un control deslizante de volumen o de brillo en una pantalla multimedia. Todos los tamaños cumplen el objetivo mínimo.
 
 Un control deslizante vertical va de abajo (`min`) a arriba (`max`) en cualquier dirección del diseño. Uno horizontal va desde el inicio en línea, así que en un diseño de derecha a izquierda `min` queda a la derecha.
+
+### Lado a lado
+
+<DoDont do="slider/few-stops" dont="slider/many-stops" column>
+  <Fragment slot="doCaption">Muestra paradas en un control deslizante de pocos pasos, donde cada punto es un valor que se distingue.</Fragment>
+  <Fragment slot="dontCaption">No muestres paradas en un control deslizante con muchos pasos. Cien puntos se leen como una línea discontinua, no como valores.</Fragment>
+</DoDont>
+
+<DoDont do="slider/switch-for-on-off" dont="slider/slider-for-on-off" column>
+  <Fragment slot="doCaption">Usa un interruptor para un ajuste que solo está activado o desactivado.</Fragment>
+  <Fragment slot="dontCaption">No uses un control deslizante de dos valores para activar y desactivar. Pide arrastrar donde bastaría pulsar, y no dice qué extremo es el activado.</Fragment>
+</DoDont>
+
+<DoDont do="slider/value-with-unit" dont="slider/value-without-unit" column>
+  <Fragment slot="doCaption">Da a `valueText` una unidad cuando el número solo no dice qué cuenta. El campo la muestra junto a su etiqueta, y un lector de pantalla la dice.</Fragment>
+  <Fragment slot="dontCaption">No dejes un número sin su unidad. «4» pueden ser segundos, minutos o mensajes.</Fragment>
+</DoDont>
+
+<DoDont do="slider/visible-label" dont="slider/unlabelled" column>
+  <Fragment slot="doCaption">Nombra el control deslizante donde se pueda ver. Un campo de control deslizante dibuja la etiqueta y da al control las mismas palabras.</Fragment>
+  <Fragment slot="dontCaption">No dejes un control deslizante sin nombre. Nada dice qué ajusta, un lector de pantalla anuncia solo un número, y una compilación de depuración lo informa.</Fragment>
+</DoDont>
 
 ### Recomendado
 

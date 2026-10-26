@@ -2,7 +2,7 @@
 title: "滑块"
 description: "让用户沿轨道拖动手柄，以连续或步进的方式选择一个值或一个取值范围。"
 translationOf: components/slider.mdx
-sourceHash: e74996d456fba14f6d07067a6a1b9cf61c1e5e69
+sourceHash: ce9048e0387153621d8b58d5ad455d3334fd4d35
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## 概览
 
@@ -243,6 +244,28 @@ document.querySelector('[name="price"]').formatValue = (value) => dollars.format
 `small` 是日常使用的滑块。`medium` 和 `large` 给突出的控件一条更粗的轨道，例如媒体界面上的音量或亮度滑块。每种尺寸都满足最小目标。
 
 无论布局方向如何，纵向滑块都是从底部（`min`）到顶部（`max`）。横向滑块从行内起始侧开始，所以在从右到左的布局中，`min` 在右边。
+
+### 对照
+
+<DoDont do="slider/few-stops" dont="slider/many-stops" column>
+  <Fragment slot="doCaption">在只有少数几档的滑块上显示停靠点，这样每个点都是可以分辨的值。</Fragment>
+  <Fragment slot="dontCaption">不要在档位很多的滑块上显示停靠点。一百个点看起来像一条虚线，而不是一个个值。</Fragment>
+</DoDont>
+
+<DoDont do="slider/switch-for-on-off" dont="slider/slider-for-on-off" column>
+  <Fragment slot="doCaption">只有开和关的设置，用开关。</Fragment>
+  <Fragment slot="dontCaption">不要用只有两个值的滑块来表示开和关。本来按一下就行，它却要求拖动，也说不清哪一端是开。</Fragment>
+</DoDont>
+
+<DoDont do="slider/value-with-unit" dont="slider/value-without-unit" column>
+  <Fragment slot="doCaption">当数字本身说明不了它计的是什么时，给 `valueText` 加上单位。字段会在标签旁显示它，屏幕阅读器也会读出它。</Fragment>
+  <Fragment slot="dontCaption">不要只给数字而不带单位。“4”可能是秒，可能是分钟，也可能是消息的条数。</Fragment>
+</DoDont>
+
+<DoDont do="slider/visible-label" dont="slider/unlabelled" column>
+  <Fragment slot="doCaption">在看得见的地方为滑块命名。滑块字段会绘制标签，并把同样的文字交给滑块。</Fragment>
+  <Fragment slot="dontCaption">不要让滑块没有名称。没有任何东西说明它设置的是什么，屏幕阅读器只会读出一个数字，调试构建会报告这一点。</Fragment>
+</DoDont>
 
 ### 推荐
 

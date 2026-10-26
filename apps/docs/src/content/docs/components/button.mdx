@@ -9,6 +9,7 @@ import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
 import Example from '../../../components/visuals/Example.astro';
 import StateMatrix from '../../../components/visuals/StateMatrix.astro';
+import DoDont from '../../../components/visuals/DoDont.astro';
 
 ## Overview
 
@@ -369,6 +370,38 @@ Variants express emphasis, and emphasis is a budget. Spend it once per view.
 `destructive` is not a variant: it goes with any of them, and keeps that variant's emphasis (see [Destructive actions](#destructive-actions)).
 
 A button without a `variant` is filled, with one exception: placed as a [dialog](/components/dialog/)'s or a [side sheet](/components/side-sheet/)'s action, it takes that host's variant, tonal in the default system, so you set a variant only on the action that should look different. Every host's close button — a popover's, a side sheet's, a bottom sheet's, a callout's, a snackbar's, an image preview's — is a small icon-only button that takes its host's close-button variant the same way, tonal in the default system. On a colored surface, such as a status callout or an inverse snackbar, it is also drawn in that surface's text color.
+
+### Side by side
+
+<DoDont do="button/form-delete-text" dont="button/form-delete-filled">
+  <Fragment slot="doCaption">In a form that edits something, make Delete a text button with `destructive`, so that the main action stays the one filled button.</Fragment>
+  <Fragment slot="dontCaption">Don't set a filled destructive button beside the main action of a screen that is not there to delete. The two compete, and the red one wins.</Fragment>
+</DoDont>
+
+<DoDont do="button/delete-dialog-named" dont="button/delete-dialog-vague">
+  <Fragment slot="doCaption">Where deleting is the step a dialog exists for, its confirming action may be filled and destructive. Its label names what goes, and Cancel stands beside it.</Fragment>
+  <Fragment slot="dontCaption">Don't label a destructive action OK. It is the last thing a person reads before something is gone: say what goes.</Fragment>
+</DoDont>
+
+<DoDont do="button/link-to-delete" dont="button/link-destructive">
+  <Fragment slot="doCaption">Make a link to the place where an account is deleted an ordinary link. Its label says where it goes, and the ellipsis that another step follows.</Fragment>
+  <Fragment slot="dontCaption">Don't give a link `destructive`. Following a link deletes nothing, so the button ignores it and draws the link of its variant, and a debug build reports it.</Fragment>
+</DoDont>
+
+<DoDont do="button/one-filled" dont="button/all-filled">
+  <Fragment slot="doCaption">Spend emphasis once: one filled button for the action the view is for, and quieter variants for the rest.</Fragment>
+  <Fragment slot="dontCaption">Don't make every action filled. When everything is emphasized, nothing is.</Fragment>
+</DoDont>
+
+<DoDont do="button/busy-saving" dont="button/disabled-saving">
+  <Fragment slot="doCaption">While its action is under way, set `busy` and `busyLabel`. The button keeps its place and the person's focus, and refuses a second press.</Fragment>
+  <Fragment slot="dontCaption">Don't disable a button while its action runs. It leaves the focus order, and the person's focus goes with it.</Fragment>
+</DoDont>
+
+<DoDont do="button/close-named" dont="button/close-unnamed">
+  <Fragment slot="doCaption">Name an icon-only close button with `label`, in your product's words. A sheet's, a popover's or a notice's own close button is named by its `closeLabel`; a dialog has none.</Fragment>
+  <Fragment slot="dontCaption">Don't leave an icon-only button without `label`. It looks the same, but nothing names it, and a debug build reports it.</Fragment>
+</DoDont>
 
 ### Do
 

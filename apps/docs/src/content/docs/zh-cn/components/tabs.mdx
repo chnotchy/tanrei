@@ -2,7 +2,7 @@
 title: "标签页"
 description: "用轨道上一行带标签的标签页，在同一主题的多个视图之间切换。其中一个标签页处于选中状态，由指示器标出；指示器在标签页之间滑动，也会跟随在这一行上拖动的手指。"
 translationOf: components/tabs.mdx
-sourceHash: d17fe373c46ad348841f0e2a05ae5c40ce13480f
+sourceHash: 1fb9d7112501473d17e4a7472e513fa4233dbbb0
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## 概览
 
@@ -371,6 +372,28 @@ Tanrei 系统不提供[分段按钮](/zh-cn/components/segmented-button/)，因�
 - `labelHidden` 只绘制图标。标签仍然必须提供：它仍是该标签页的无障碍名称。设置了 `labelHidden` 却没有图标的标签页照样会绘制标签，调试构建会报告这一点。
 - 标签为空且没有图标的标签页没有内容：它的指示器是一个空的圆，标签页也没有无障碍名称。调试构建会报告空标签；请给这个标签页提供标签。
 - 要在标签页上显示计数，请自己在它的图标上放一个 Tanrei 徽标。标签页没有徽标属性。
+
+### 对照
+
+<DoDont do="tabs/short-labels" dont="tabs/long-labels" column>
+  <Fragment slot="doCaption">每个视图用一两个词命名。在填满宽度的一行里，短标签可以完整显示。</Fragment>
+  <Fragment slot="dontCaption">不要在填满宽度的一行里写长标签。每个标签页平分宽度，比自己那一份长的标签会被截断。</Fragment>
+</DoDont>
+
+<DoDont do="tabs/icons-all" dont="tabs/icons-mixed" column>
+  <Fragment slot="doCaption">同一行的标签页，要么都有图标，要么都没有。</Fragment>
+  <Fragment slot="dontCaption">不要在同一行里混用有图标和没有图标的标签页。这一行会显得参差不齐，没有图标的那个看起来像没做完。</Fragment>
+</DoDont>
+
+<DoDont do="tabs/secondary-inside-primary" dont="tabs/primary-inside-primary" column>
+  <Fragment slot="doCaption">把 secondary 标签页放在 primary 标签页的视图里面。更低调的那一行会被读作下一级。</Fragment>
+  <Fragment slot="dontCaption">不要嵌套两行相同变体的标签页。哪一行都看不出是另一行的下一级。</Fragment>
+</DoDont>
+
+<DoDont do="tabs/icons-only-named" dont="tabs/label-hidden-no-icon" column>
+  <Fragment slot="doCaption">要只显示图标，就在每个都有图标的标签页上设置 `labelHidden`。标签仍然是标签页的名称。</Fragment>
+  <Fragment slot="dontCaption">不要在没有图标的标签页上设置 `labelHidden`。它没有别的可绘制，所以标签照样会被绘制，调试构建会报告这一点。</Fragment>
+</DoDont>
 
 ### 推荐
 

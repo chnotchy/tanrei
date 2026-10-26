@@ -2,7 +2,7 @@
 title: Botón
 description: Permite realizar una acción, activar y desactivar algo o ir a un destino con un solo toque o clic.
 translationOf: components/button.mdx
-sourceHash: f888556fbe868c4858d27e4c999dcfdeffd781f9
+sourceHash: a1a96cc2c5ac23f179d9150a621ccaaec6fa22ad
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -11,6 +11,7 @@ import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import StateMatrix from '../../../../components/visuals/StateMatrix.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## Descripción general
 
@@ -371,6 +372,38 @@ Las variantes expresan énfasis, y el énfasis es un presupuesto. Gástalo una v
 `destructive` no es una variante: se combina con cualquiera de ellas y conserva el énfasis de esa variante (consulta [Acciones destructivas](#acciones-destructivas)).
 
 Un botón sin `variant` es filled, con una excepción: colocado como acción de un [diálogo](/es/components/dialog/) o de una [hoja lateral](/es/components/side-sheet/), toma la variante de ese anfitrión, tonal en el sistema predeterminado, de modo que solo defines una variante en la acción que debe verse distinta. El botón de cierre de cada anfitrión —el de un popover, una hoja lateral, una hoja inferior, un callout, un snackbar o una vista previa de imágenes— es un botón small de solo icono que toma del mismo modo la variante de botón de cierre de su anfitrión, tonal en el sistema predeterminado. Sobre una superficie con color, como un callout de estado o un snackbar invertido, además se dibuja con el color del texto de esa superficie.
+
+### Lado a lado
+
+<DoDont do="button/form-delete-text" dont="button/form-delete-filled">
+  <Fragment slot="doCaption">En un formulario que edita algo, haz de Eliminar un botón de texto con `destructive`, para que la acción principal siga siendo el único botón filled.</Fragment>
+  <Fragment slot="dontCaption">No pongas un botón filled destructivo junto a la acción principal de una pantalla que no existe para eliminar. Los dos compiten, y gana el rojo.</Fragment>
+</DoDont>
+
+<DoDont do="button/delete-dialog-named" dont="button/delete-dialog-vague">
+  <Fragment slot="doCaption">Cuando eliminar es el paso para el que existe un diálogo, su acción de confirmar puede ser filled y destructiva. Su etiqueta dice qué se va, y Cancelar está a su lado.</Fragment>
+  <Fragment slot="dontCaption">No etiquetes una acción destructiva como Aceptar. Es lo último que alguien lee antes de que algo desaparezca: di qué se va.</Fragment>
+</DoDont>
+
+<DoDont do="button/link-to-delete" dont="button/link-destructive">
+  <Fragment slot="doCaption">Haz que un enlace al lugar donde se elimina una cuenta sea un enlace corriente. Su etiqueta dice adónde lleva, y los puntos suspensivos, que sigue otro paso.</Fragment>
+  <Fragment slot="dontCaption">No des `destructive` a un enlace. Seguir un enlace no elimina nada, así que el botón lo ignora y dibuja el enlace de su variante, y una compilación de depuración lo informa.</Fragment>
+</DoDont>
+
+<DoDont do="button/one-filled" dont="button/all-filled">
+  <Fragment slot="doCaption">Usa el énfasis una sola vez: un botón filled para la acción para la que existe la vista y variantes más discretas para el resto.</Fragment>
+  <Fragment slot="dontCaption">No hagas filled todas las acciones. Cuando todo se destaca, nada se destaca.</Fragment>
+</DoDont>
+
+<DoDont do="button/busy-saving" dont="button/disabled-saving">
+  <Fragment slot="doCaption">Mientras su acción está en curso, define `busy` y `busyLabel`. El botón conserva su sitio y el foco de la persona, y rechaza una segunda pulsación.</Fragment>
+  <Fragment slot="dontCaption">No deshabilites un botón mientras su acción se ejecuta. Sale del orden de foco, y el foco de la persona se va con él.</Fragment>
+</DoDont>
+
+<DoDont do="button/close-named" dont="button/close-unnamed">
+  <Fragment slot="doCaption">Da nombre con `label`, en las palabras de tu producto, a un botón de cerrar de solo icono. El botón de cerrar propio de una hoja, un popover o un aviso se nombra con su `closeLabel`; un diálogo no tiene ninguno.</Fragment>
+  <Fragment slot="dontCaption">No dejes un botón de solo icono sin `label`. Se ve igual, pero nada lo nombra, y una compilación de depuración lo informa.</Fragment>
+</DoDont>
 
 ### Recomendado
 

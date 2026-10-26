@@ -2,7 +2,7 @@
 title: Panel de navegación
 description: Muestra los destinos de un producto en un panel situado en el borde de inicio, organizados en secciones y grupos, junto al contenido en una pantalla grande o sobre él en una compacta, y puede contraerse hasta quedar en una columna de iconos.
 translationOf: components/navigation-drawer.mdx
-sourceHash: 1eab880be19d8f79601b7bfb85013b914a9924bc
+sourceHash: 8e98c35726faab405a37571e3d06be995d12d8cf
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## Descripción general
 
@@ -509,6 +510,28 @@ Da un `href` a cada destino y, al panel, la dirección de la propia página como
 - El `divider` de una sección dibuja un divisor delante de ella, para separarla de lo que tiene encima. Nunca colocas un divisor por tu cuenta.
 - La cabecera contiene los botones de la cabecera, apilados en la columna de iconos, y la acción principal debajo de ellos. El slot de la cabecera se sitúa junto al botón de menú mientras el panel está expandido, para un título o un selector de cuentas, y no se dibuja mientras está contraído. El texto simple que se coloca ahí se dibuja con el estilo de título del panel (`comp.navigation-drawer.header.typescale` y `comp.navigation-drawer.header.color`); un elemento tuyo que define su propio estilo lo conserva.
 - Cuando las filas ocupan más alto que el espacio que queda bajo la cabecera, se desplazan y la cabecera se queda en su sitio. Un desplazamiento que llega a cualquiera de los dos extremos no continúa desplazando la página que hay detrás del panel.
+
+### Lado a lado
+
+<DoDont do="navigation-drawer/destinations-only" dont="navigation-drawer/actions-as-rows">
+  <Fragment slot="doCaption">Llena el cajón de lugares: cada fila lleva a la persona a alguna parte, y la fila del lugar en el que está aparece seleccionada.</Fragment>
+  <Fragment slot="dontCaption">No pongas acciones como Redactar o Cerrar sesión entre los destinos. Una fila que hace algo en vez de llevar a alguna parte rompe lo que promete cada una de las demás.</Fragment>
+</DoDont>
+
+<DoDont do="navigation-drawer/sibling-sections" dont="navigation-drawer/section-in-section">
+  <Fragment slot="doCaption">Coloca las secciones una junto a otra, cada una con su encabezado y un divisor entre ellas.</Fragment>
+  <Fragment slot="dontCaption">No anides una sección en otra. Las secciones no se anidan: la interior dibuja solo sus destinos, en su sitio, y una compilación de depuración lo informa.</Fragment>
+</DoDont>
+
+<DoDont do="navigation-drawer/named-sections" dont="navigation-drawer/vague-sections">
+  <Fragment slot="doCaption">Nombra una sección por lo que tienen en común sus destinos, para que se puedan saltar las que no hacen falta.</Fragment>
+  <Fragment slot="dontCaption">No llames a las secciones General y Más. No dicen nada de lo que contienen, y hay que leer cada fila para averiguarlo.</Fragment>
+</DoDont>
+
+<DoDont do="navigation-drawer/most-used-first" dont="navigation-drawer/rarely-used-first">
+  <Fragment slot="doCaption">Pon arriba los destinos que más se usan, donde empiezan la vista y el puntero.</Fragment>
+  <Fragment slot="dontCaption">No abras el cajón con los lugares que casi nunca se visitan. Cada visita empieza entonces buscando columna abajo.</Fragment>
+</DoDont>
 
 ### Recomendado
 

@@ -2,7 +2,7 @@
 title: टेक्स्ट फ़ील्ड
 description: लोगों को टेक्स्ट दर्ज और संपादित करने देता है — एक पंक्ति में, या कई पंक्तियों में जो टेक्स्ट के साथ बढ़ती हैं या हाथ से छोटी-बड़ी की जाती हैं — या लोकेल के रूप में इकाई-दर-इकाई दर्ज की जाने वाली तारीख़ या समय, या ठीक वैसे ही रखा गया कोड जैसा वह लिखा गया है, ऐसे लेबल के साथ जो बता सकता है कि फ़ील्ड ज़रूरी है या वैकल्पिक, और वैकल्पिक आइकन, प्रीफ़िक्स और सफ़िक्स, सहायक टेक्स्ट, अक्षरों की गिनती और पिकर बटन के साथ।
 translationOf: components/text-field.mdx
-sourceHash: 11ca82869cc7b493be699f28b68da9e9801b3dec
+sourceHash: 953d475eb90190afea84ea117be6f1ef8c82c909
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## अवलोकन
 
@@ -451,6 +452,28 @@ input.addEventListener('input', () => (field.countText = input.countText));
 फ़ील्ड की घड़ी उसके लोकेल की घड़ी है: उसमें 12 या 24 घंटे की कोई सेटिंग नहीं है और मिनट का कोई स्टेप नहीं है, जैसा DateTimePicker में है।
 
 **पिकर बटन।** `picker` के साथ फ़ील्ड अपने अंत में सिर्फ़ आइकन वाला एक Button बनाता है, तारीख़ के लिए `calendar_month` और समय के लिए `schedule`, जिसका नाम `pickerLabel` से आता है। उसे सक्रिय करने पर मान, टाइप, `min` और `max` के साथ `pickerRequest` एमिट होता है; आधी भरी क़तार ख़ाली मान भेजती है और एंट्री की कोई त्रुटि नहीं दिखाती, क्योंकि पिकर एक पूरा मान देने ही वाला है। फ़ील्ड ख़ुद कुछ नहीं दिखाता: आपका प्रॉडक्ट मेल खाते मोड में एक [DateTimePicker](/hi/components/date-time-picker/) खोलता है, जो docked होने पर फ़ील्ड से ऐंकर किया जाता है, और पिकर के `change` से फ़ील्ड का `value` सेट करता है। पिकर को वही `min`, `max` और `disabledDates` दें जो फ़ील्ड के हैं। पिकर बंद होने पर फ़ोकस बटन पर लौटता है। बटन फ़ील्ड के साथ अक्षम होता है और जब फ़ील्ड सिर्फ़ पढ़ने के लिए हो, तब नहीं दिखाया जाता।
+
+### आमने-सामने
+
+<DoDont do="text-field/labelled" dont="text-field/placeholder-as-label" column>
+  <Fragment slot="doCaption">हर फ़ील्ड को ऐसा लेबल दें जो बना रहे, और उसे जो चाहिए वह सहायक टेक्स्ट में लिखें।</Fragment>
+  <Fragment slot="dontCaption">प्लेसहोल्डर को लेबल की तरह इस्तेमाल न करें। कोई टाइप करते ही वह ग़ायब हो जाता है, फ़ील्ड का कोई नाम नहीं रहता, और डीबग बिल्ड इसकी रिपोर्ट करता है।</Fragment>
+</DoDont>
+
+<DoDont do="text-field/one-field" dont="text-field/field-in-field" column>
+  <Fragment slot="doCaption">टेक्स्ट फ़ील्ड अपने आप में एक फ़ील्ड है: उसका लेबल, सहायता और त्रुटि उसके साथ आते हैं।</Fragment>
+  <Fragment slot="dontCaption">टेक्स्ट फ़ील्ड को किसी फ़ील्ड के अंदर न रखें। लेबल दो बार बनता है, और डीबग बिल्ड इसकी रिपोर्ट करता है। फ़ील्ड जिस कंट्रोल को घेरता है, वह टेक्स्ट इनपुट है।</Fragment>
+</DoDont>
+
+<DoDont do="text-field/required-mark" dont="text-field/required-in-label" column>
+  <Fragment slot="doCaption">`required` सेट करें और निशान फ़ील्ड को ख़ुद बनाने दें।</Fragment>
+  <Fragment slot="dontCaption">लेबल में भी “(ज़रूरी)” न लिखें। निशान यह पहले ही बताता है, और स्क्रीन रीडर इसे दो बार सुनाएगा।</Fragment>
+</DoDont>
+
+<DoDont do="text-field/read-only" dont="text-field/disabled-value" column>
+  <Fragment slot="doCaption">जो मान बदल नहीं सकता, उसे `readOnly` से दिखाएँ। लोग अब भी उस पर फ़ोकस कर सकते हैं, उसे चुन और कॉपी कर सकते हैं।</Fragment>
+  <Fragment slot="dontCaption">सिर्फ़ न बदलने वाला मान दिखाने के लिए फ़ील्ड को अक्षम न करें। अक्षम फ़ील्ड फीकी दिखती है, उस पर फ़ोकस नहीं हो सकता, और उसका मान कॉपी नहीं हो सकता।</Fragment>
+</DoDont>
 
 ### करें
 

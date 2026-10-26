@@ -2,7 +2,7 @@
 title: スライダー
 description: トラックに沿ってハンドルをドラッグし、値または値の範囲を選びます。連続的にも、刻みごとにも選べます。
 translationOf: components/slider.mdx
-sourceHash: e74996d456fba14f6d07067a6a1b9cf61c1e5e69
+sourceHash: ce9048e0387153621d8b58d5ad455d3334fd4d35
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## 概要
 
@@ -243,6 +244,28 @@ document.querySelector('[name="price"]').formatValue = (value) => yen.format(val
 `small` はふだん使いのスライダーです。`medium` と `large` はトラックが太くなり、メディア画面の音量や明るさのように目立たせたいコントロールに向いています。どのサイズでも、最小ターゲットは満たします。
 
 縦向きのスライダーは、書字方向にかかわらず下（`min`）から上（`max`）へ伸びます。横向きのスライダーは行頭から伸びるので、右から左のレイアウトでは `min` が右側になります。
+
+### 見比べる
+
+<DoDont do="slider/few-stops" dont="slider/many-stops" column>
+  <Fragment slot="doCaption">ストップは段階の少ないスライダーで見せます。点の 1 つ 1 つが見分けられる値になります。</Fragment>
+  <Fragment slot="dontCaption">段階の多いスライダーにストップを見せない。100 個の点は値ではなく破線に見えます。</Fragment>
+</DoDont>
+
+<DoDont do="slider/switch-for-on-off" dont="slider/slider-for-on-off" column>
+  <Fragment slot="doCaption">オンかオフかだけの設定にはスイッチを使います。</Fragment>
+  <Fragment slot="dontCaption">オンとオフに 2 値のスライダーを使わない。押せば済むところでドラッグを求め、どちらの端がオンなのかも伝わりません。</Fragment>
+</DoDont>
+
+<DoDont do="slider/value-with-unit" dont="slider/value-without-unit" column>
+  <Fragment slot="doCaption">数値だけでは何を数えているのか分からないときは、`valueText` に単位を付けます。フィールドのラベルの横に表示され、スクリーンリーダーでも読み上げられます。</Fragment>
+  <Fragment slot="dontCaption">数値を単位なしで出さない。「4」だけでは秒なのか、分なのか、件数なのか分かりません。</Fragment>
+</DoDont>
+
+<DoDont do="slider/visible-label" dont="slider/unlabelled" column>
+  <Fragment slot="doCaption">スライダーの名前は見える場所に出します。スライダーフィールドはラベルを描き、同じ言葉をスライダーに渡します。</Fragment>
+  <Fragment slot="dontCaption">スライダーを名前なしで置かない。何を設定するのか分からず、スクリーンリーダーは数値しか読み上げず、デバッグビルドが報告します。</Fragment>
+</DoDont>
 
 ### 推奨
 

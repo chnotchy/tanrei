@@ -2,7 +2,7 @@
 title: شريط التمرير
 description: يتيح للأشخاص اختيار قيمة، أو مدى من القيم، بسحب مقبض على طول مسار، باستمرار أو على درجات.
 translationOf: components/slider.mdx
-sourceHash: e74996d456fba14f6d07067a6a1b9cf61c1e5e69
+sourceHash: ce9048e0387153621d8b58d5ad455d3334fd4d35
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## نظرة عامة
 
@@ -243,6 +244,28 @@ document.querySelector('[name="price"]').formatValue = (value) => dollars.format
 الحجم `small` هو شريط التمرير اليومي. والحجمان `medium` و `large` يعطيان عنصر تحكم بارزًا، كشريط مستوى الصوت أو السطوع في شاشة وسائط، مسارًا أثقل. وكل حجم يستوفي الحد الأدنى للهدف.
 
 شريط التمرير العمودي يمتد من الأسفل (`min`) إلى الأعلى (`max`) في كل اتجاه للتخطيط. والأفقي يمتد من بداية السطر، ففي التخطيط من اليمين إلى اليسار تكون `min` على اليمين.
+
+### جنبًا إلى جنب
+
+<DoDont do="slider/few-stops" dont="slider/many-stops" column>
+  <Fragment slot="doCaption">اعرض نقاط التوقف على شريط تمرير ذي خطوات قليلة، حيث تكون كل نقطة قيمة يميّزها الناس.</Fragment>
+  <Fragment slot="dontCaption">لا تعرض نقاط التوقف على شريط تمرير كثير الخطوات. مئة نقطة تُقرأ خطًّا متقطعًا لا قيمًا.</Fragment>
+</DoDont>
+
+<DoDont do="slider/switch-for-on-off" dont="slider/slider-for-on-off" column>
+  <Fragment slot="doCaption">استخدم مفتاح تبديل لإعداد إمّا مفعَّل وإمّا موقوف.</Fragment>
+  <Fragment slot="dontCaption">لا تستخدم شريط تمرير بقيمتين للتفعيل والإيقاف. يطلب سحبًا حيث تكفي ضغطة، ولا يقول أي الطرفين هو المفعَّل.</Fragment>
+</DoDont>
+
+<DoDont do="slider/value-with-unit" dont="slider/value-without-unit" column>
+  <Fragment slot="doCaption">أعطِ `valueText` وحدة حين لا يقول الرقم وحده ما الذي يعدّه. يعرضها الحقل بجانب تسميته، ويقولها قارئ الشاشة.</Fragment>
+  <Fragment slot="dontCaption">لا تترك رقمًا بلا وحدته. قد تكون «4» ثواني أو دقائق أو رسائل.</Fragment>
+</DoDont>
+
+<DoDont do="slider/visible-label" dont="slider/unlabelled" column>
+  <Fragment slot="doCaption">سمِّ شريط التمرير حيث يراه الناس. يرسم حقل شريط التمرير التسمية ويعطي الشريط الكلمات نفسها.</Fragment>
+  <Fragment slot="dontCaption">لا تترك شريط تمرير بلا اسم. لا شيء يقول ما الذي يضبطه، ولا يعلن قارئ الشاشة إلا رقمًا، وتُبلغ عنه نسخة التصحيح.</Fragment>
+</DoDont>
 
 ### افعل
 

@@ -2,7 +2,7 @@
 title: علامات التبويب
 description: تبدّل بين عروض الموضوع الواحد بصف من التبويبات المسمّاة على مسار. تبويب واحد محدَّد، يميّزه مؤشر ينزلق بين التبويبات ويتبع الإصبع المسحوب عبر الصف.
 translationOf: components/tabs.mdx
-sourceHash: d17fe373c46ad348841f0e2a05ae5c40ce13480f
+sourceHash: 1fb9d7112501473d17e4a7472e513fa4233dbbb0
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## نظرة عامة
 
@@ -371,6 +372,28 @@ import Example from '../../../../components/visuals/Example.astro';
 - الخاصية `labelHidden` ترسم الأيقونة وحدها. وتبقى التسمية مطلوبة: فهي اسم التبويب المتاح للتقنيات المساعدة. والتبويب الذي له `labelHidden` وليس له أيقونة يرسم تسميته على أي حال، وتبلّغ بنيات التنقيح (debug) عنه.
 - التبويب الذي تسميته فارغة وليس له أيقونة لا محتوى له: مؤشره دائرة فارغة، وليس للتبويب اسم متاح للتقنيات المساعدة. تبلّغ بنيات التنقيح (debug) عن التسمية الفارغة؛ أعطِ التبويب تسمية.
 - لعرض عدد على تبويب، ضع شارة من Tanrei على أيقونته بنفسك. ليس للتبويبات خاصية للشارة.
+
+### جنبًا إلى جنب
+
+<DoDont do="tabs/short-labels" dont="tabs/long-labels" column>
+  <Fragment slot="doCaption">سمِّ كل عرض بكلمة أو كلمتين. في صف يملأ عرضه، تتسع التسميات القصيرة كاملة.</Fragment>
+  <Fragment slot="dontCaption">لا تكتب تسميات طويلة في صف يملأ عرضه. ينال كل تبويب حصة متساوية، وتُقتطع التسمية الأطول من حصتها.</Fragment>
+</DoDont>
+
+<DoDont do="tabs/icons-all" dont="tabs/icons-mixed" column>
+  <Fragment slot="doCaption">أعطِ كل تبويب في الصف أيقونة، أو لا تعطِ أيًّا منها.</Fragment>
+  <Fragment slot="dontCaption">لا تخلط في صف واحد تبويبات بأيقونات وأخرى بلا أيقونات. يبدو الصف غير متساوٍ، ويبدو التبويب الذي بلا أيقونة غير مكتمل.</Fragment>
+</DoDont>
+
+<DoDont do="tabs/secondary-inside-primary" dont="tabs/primary-inside-primary" column>
+  <Fragment slot="doCaption">ضع تبويبات secondary داخل عرض من تبويبات primary. يُقرأ الصف الأهدأ مستوى أدنى.</Fragment>
+  <Fragment slot="dontCaption">لا تُدخل صفين من الطراز نفسه أحدهما في الآخر. لا يُقرأ أي منهما مستوى للآخر.</Fragment>
+</DoDont>
+
+<DoDont do="tabs/icons-only-named" dont="tabs/label-hidden-no-icon" column>
+  <Fragment slot="doCaption">لعرض الأيقونات وحدها، اضبط `labelHidden` على تبويبات لكل منها أيقونة. تبقى التسمية اسم التبويب.</Fragment>
+  <Fragment slot="dontCaption">لا تضبط `labelHidden` على تبويب بلا أيقونة. ليس لديه ما يرسمه غيرها، فتُرسم التسمية على أي حال، وتُبلغ عنه نسخة التصحيح.</Fragment>
+</DoDont>
 
 ### افعل
 

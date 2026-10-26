@@ -2,7 +2,7 @@
 title: ナビゲーションドロワー
 description: プロダクトの行き先を、先頭側の端のパネルにセクションやグループでまとめて並べます。大きい画面ではコンテンツの横に、コンパクトな画面ではコンテンツの上に重ねて表示し、アイコンの列まで折りたたむこともできます。
 translationOf: components/navigation-drawer.mdx
-sourceHash: 1eab880be19d8f79601b7bfb85013b914a9924bc
+sourceHash: 8e98c35726faab405a37571e3d06be995d12d8cf
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## 概要
 
@@ -509,6 +510,28 @@ Web は実装済みです。SwiftUI、Compose、Flutter、React Native は、追
 - セクションの `divider` は、上にあるものと区切るために、セクションの前に区切り線を描きます。区切り線を利用者側で置くことはありません。
 - ヘッダーには、アイコンの列に縦に並ぶヘッダーボタンと、その下のメインアクションがあります。ヘッダーのスロットは展開している間メニューボタンの横に置かれ、タイトルやアカウントの切り替えに使います。折りたたんでいる間は描きません。そこに置いたただのテキストは、ドロワーのタイトルのスタイル（`comp.navigation-drawer.header.typescale` と `comp.navigation-drawer.header.color`）で描きます。自分でスタイルを指定した要素は、そのスタイルのままです。
 - 項目がヘッダーの下の空きより高くなると、項目がスクロールし、ヘッダーはその場にとどまります。スクロールがどちらかの端に達しても、ドロワーの背後のページまでスクロールすることはありません。
+
+### 見比べる
+
+<DoDont do="navigation-drawer/destinations-only" dont="navigation-drawer/actions-as-rows">
+  <Fragment slot="doCaption">ドロワーには場所を並べます。どの行も利用者をどこかへ連れて行き、いまいる場所の行が選択されます。</Fragment>
+  <Fragment slot="dontCaption">作成やログアウトのようなアクションを行き先に混ぜない。どこかへ行く代わりに何かをする行は、ほかのすべての行の約束を破ります。</Fragment>
+</DoDont>
+
+<DoDont do="navigation-drawer/sibling-sections" dont="navigation-drawer/section-in-section">
+  <Fragment slot="doCaption">セクションは見出しを付けて横並びの関係に置き、間に区切り線を入れます。</Fragment>
+  <Fragment slot="dontCaption">セクションの中にセクションを入れない。セクションは入れ子にならず、内側のセクションはその位置に行き先だけを描き、デバッグビルドが報告します。</Fragment>
+</DoDont>
+
+<DoDont do="navigation-drawer/named-sections" dont="navigation-drawer/vague-sections">
+  <Fragment slot="doCaption">セクションには、その行き先に共通するものを名前にします。要らないセクションを読み飛ばせるように。</Fragment>
+  <Fragment slot="dontCaption">セクションに「一般」や「その他」と名付けない。中身について何も語らず、確かめるにはすべての行を読むしかありません。</Fragment>
+</DoDont>
+
+<DoDont do="navigation-drawer/most-used-first" dont="navigation-drawer/rarely-used-first">
+  <Fragment slot="doCaption">よく使う行き先を上に置きます。視線もポインターもそこから動き始めます。</Fragment>
+  <Fragment slot="dontCaption">めったに訪れない場所をドロワーの先頭に置かない。毎回、列を下へ探すところから始めることになります。</Fragment>
+</DoDont>
 
 ### 推奨
 

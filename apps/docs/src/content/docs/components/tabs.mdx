@@ -8,6 +8,7 @@ import ComponentAvailability from '../../../components/ComponentAvailability.ast
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
 import Example from '../../../components/visuals/Example.astro';
+import DoDont from '../../../components/visuals/DoDont.astro';
 
 ## Overview
 
@@ -369,6 +370,28 @@ Set `orientation` to `vertical` to stack the tabs in a column at the start edge,
 - `labelHidden` draws the icon alone. The label is still required: it stays the tab's accessible name. A tab with `labelHidden` and no icon draws its label anyway, and debug builds report it.
 - A tab with an empty label and no icon has no content: its indicator is an empty circle, and the tab has no accessible name. Debug builds report the empty label; give the tab a label.
 - To show a count on a tab, place a Tanrei badge on its icon yourself. Tabs have no badge prop.
+
+### Side by side
+
+<DoDont do="tabs/short-labels" dont="tabs/long-labels" column>
+  <Fragment slot="doCaption">Name each view in one or two words. In a row that fills its width, short labels fit whole.</Fragment>
+  <Fragment slot="dontCaption">Don't write long labels in a row that fills its width. Each tab gets an equal share, and a label longer than its share is cut off.</Fragment>
+</DoDont>
+
+<DoDont do="tabs/icons-all" dont="tabs/icons-mixed" column>
+  <Fragment slot="doCaption">Give every tab of a row an icon, or none of them.</Fragment>
+  <Fragment slot="dontCaption">Don't mix tabs with and without icons in one row. The row looks uneven, and the tab without one looks unfinished.</Fragment>
+</DoDont>
+
+<DoDont do="tabs/secondary-inside-primary" dont="tabs/primary-inside-primary" column>
+  <Fragment slot="doCaption">Put secondary tabs inside a view of primary tabs. The quieter row reads as a level below.</Fragment>
+  <Fragment slot="dontCaption">Don't nest two rows of the same variant. Neither reads as the level of the other.</Fragment>
+</DoDont>
+
+<DoDont do="tabs/icons-only-named" dont="tabs/label-hidden-no-icon" column>
+  <Fragment slot="doCaption">To show icons alone, set `labelHidden` on tabs that each have an icon. The label still names the tab.</Fragment>
+  <Fragment slot="dontCaption">Don't set `labelHidden` on a tab without an icon. It has nothing else to draw, so the label is drawn anyway, and a debug build reports it.</Fragment>
+</DoDont>
 
 ### Do
 

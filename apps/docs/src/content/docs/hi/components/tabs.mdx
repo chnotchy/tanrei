@@ -2,7 +2,7 @@
 title: टैब
 description: ट्रैक पर रखे लेबल वाले टैब की एक पंक्ति से एक ही विषय के व्यू के बीच स्विच करता है। एक टैब चयनित रहता है, जिसे एक इंडिकेटर दिखाता है, जो टैब के बीच सरकता है और पंक्ति पर ड्रैग की गई उँगली के साथ चलता है।
 translationOf: components/tabs.mdx
-sourceHash: d17fe373c46ad348841f0e2a05ae5c40ce13480f
+sourceHash: 1fb9d7112501473d17e4a7472e513fa4233dbbb0
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## अवलोकन
 
@@ -371,6 +372,28 @@ small साइज़ की पंक्ति small साइज़ के [�
 - `labelHidden` सिर्फ़ आइकन बनाता है। लेबल तब भी ज़रूरी है: वह टैब का एक्सेसिबल नाम बना रहता है। `labelHidden` वाला और बिना आइकन का टैब फिर भी अपना लेबल बनाता है, और डीबग बिल्ड इसकी रिपोर्ट करते हैं।
 - ख़ाली लेबल वाले और बिना आइकन के टैब में कोई कॉन्टेंट नहीं होता: उसका इंडिकेटर एक ख़ाली गोला है, और टैब का कोई एक्सेसिबल नाम नहीं है। डीबग बिल्ड ख़ाली लेबल की रिपोर्ट करते हैं; टैब को एक लेबल दें।
 - टैब पर गिनती दिखाने के लिए, उसके आइकन पर Tanrei का बैज ख़ुद रखें। टैब में बैज की कोई प्रॉपर्टी नहीं है।
+
+### आमने-सामने
+
+<DoDont do="tabs/short-labels" dont="tabs/long-labels" column>
+  <Fragment slot="doCaption">हर व्यू का नाम एक या दो शब्दों में रखें। पूरी चौड़ाई भरने वाली पंक्ति में छोटे लेबल पूरे समा जाते हैं।</Fragment>
+  <Fragment slot="dontCaption">पूरी चौड़ाई भरने वाली पंक्ति में लंबे लेबल न लिखें। हर टैब को बराबर हिस्सा मिलता है, और अपने हिस्से से लंबा लेबल कट जाता है।</Fragment>
+</DoDont>
+
+<DoDont do="tabs/icons-all" dont="tabs/icons-mixed" column>
+  <Fragment slot="doCaption">एक पंक्ति के हर टैब को आइकन दें, या किसी को नहीं।</Fragment>
+  <Fragment slot="dontCaption">एक ही पंक्ति में आइकन वाले और बिना आइकन वाले टैब न मिलाएँ। पंक्ति असमान दिखती है, और बिना आइकन वाला टैब अधूरा लगता है।</Fragment>
+</DoDont>
+
+<DoDont do="tabs/secondary-inside-primary" dont="tabs/primary-inside-primary" column>
+  <Fragment slot="doCaption">secondary टैब को primary टैब के किसी व्यू के अंदर रखें। हल्की पंक्ति नीचे के स्तर की तरह पढ़ी जाती है।</Fragment>
+  <Fragment slot="dontCaption">एक ही वेरिएंट की दो पंक्तियाँ एक-दूसरे के अंदर न रखें। कोई भी पंक्ति दूसरी का स्तर नहीं लगती।</Fragment>
+</DoDont>
+
+<DoDont do="tabs/icons-only-named" dont="tabs/label-hidden-no-icon" column>
+  <Fragment slot="doCaption">सिर्फ़ आइकन दिखाने हों, तो उन टैब पर `labelHidden` सेट करें जिनमें से हर एक का आइकन हो। लेबल फिर भी टैब का नाम रहता है।</Fragment>
+  <Fragment slot="dontCaption">बिना आइकन वाले टैब पर `labelHidden` सेट न करें। उसके पास बनाने को और कुछ नहीं, इसलिए लेबल फिर भी बनता है, और डीबग बिल्ड इसकी रिपोर्ट करता है।</Fragment>
+</DoDont>
 
 ### करें
 

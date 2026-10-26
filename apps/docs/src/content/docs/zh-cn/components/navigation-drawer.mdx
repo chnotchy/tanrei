@@ -2,7 +2,7 @@
 title: "导航抽屉"
 description: "在起始侧边缘的一块面板里，按分区和分组列出产品的目的地：在大屏幕上位于内容旁边，在 compact 屏幕上盖在内容之上，还可以收起为一列图标。"
 translationOf: components/navigation-drawer.mdx
-sourceHash: 1eab880be19d8f79601b7bfb85013b914a9924bc
+sourceHash: 8e98c35726faab405a37571e3d06be995d12d8cf
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## 概览
 
@@ -509,6 +510,28 @@ Web 已经实现了它；SwiftUI、Compose、Flutter 和 React Native 在跟上�
 - 分区的 `divider` 在它前面绘制一条分隔线，把它与上面的内容分开。你永远不需要自己放分隔线。
 - 页眉容纳各个页眉按钮（它们在图标列中上下堆叠），以及它们下方的主操作。页眉插槽在展开时位于菜单按钮旁边，用来放标题或账户切换器，收起时不绘制。放在这里的纯文本以抽屉的标题样式绘制（`comp.navigation-drawer.header.typescale` 和 `comp.navigation-drawer.header.color`）；自己设置了样式的元素保留它自己的样式。
 - 当各行的总高度超过页眉下方的空间时，行可以滚动，页眉留在原处。滚动到任一端之后，不会接着去滚动抽屉背后的页面。
+
+### 对照
+
+<DoDont do="navigation-drawer/destinations-only" dont="navigation-drawer/actions-as-rows">
+  <Fragment slot="doCaption">抽屉里放的是地方：每一行都把用户带到某处，用户所在之处的那一行处于选中状态。</Fragment>
+  <Fragment slot="dontCaption">不要把“写邮件”“退出登录”这样的操作混进目的地里。一行不是去往某处而是执行某个操作，就违背了其他每一行的约定。</Fragment>
+</DoDont>
+
+<DoDont do="navigation-drawer/sibling-sections" dont="navigation-drawer/section-in-section">
+  <Fragment slot="doCaption">让各个分区并列，每个分区带有标题，中间用分隔线隔开。</Fragment>
+  <Fragment slot="dontCaption">不要在分区里嵌套分区。分区不能嵌套：内层的分区只在原位绘制它的目的地，调试构建会报告这一点。</Fragment>
+</DoDont>
+
+<DoDont do="navigation-drawer/named-sections" dont="navigation-drawer/vague-sections">
+  <Fragment slot="doCaption">用目的地的共同点为分区命名，让用户能跳过自己不需要的分区。</Fragment>
+  <Fragment slot="dontCaption">不要把分区命名为“常规”和“更多”。它们说明不了里面有什么，用户只能逐行阅读才能知道。</Fragment>
+</DoDont>
+
+<DoDont do="navigation-drawer/most-used-first" dont="navigation-drawer/rarely-used-first">
+  <Fragment slot="doCaption">把用户最常用的目的地放在顶部，那是视线和指针的起点。</Fragment>
+  <Fragment slot="dontCaption">不要让抽屉以很少访问的地方开头。那样每次访问都要先顺着这一列往下找。</Fragment>
+</DoDont>
 
 ### 推荐
 

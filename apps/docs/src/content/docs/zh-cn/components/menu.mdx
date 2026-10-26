@@ -2,7 +2,7 @@
 title: "菜单"
 description: "一小组操作或选项，显示在一个临时表面上，这个表面从请求它的元素处打开。"
 translationOf: components/menu.mdx
-sourceHash: 0341afebeabc8702ad394d02405a1d0b83eddc75
+sourceHash: c81574dec501c17c414ebc0bbbc0b4e5090cf4fb
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## 概览
 
@@ -494,6 +495,28 @@ import Example from '../../../../components/visuals/Example.astro';
 由谁来关闭菜单，取决于平台。在 Web 和 React Native 上，你在 close 事件中把 `open`（`visible`）设回 false。在 Compose 上，你在 `onDismissRequest` 中把 `expanded` 设为 false，它带有一个 `TanreiMenuCloseReason`。在 Flutter 上，菜单带着原因调用 `onClose`，并通过它的控制器自行关闭。在 SwiftUI 上，菜单向 `isPresented` 写入 `false`，所以原因不会传递出来。
 
 在外部的按下是否也会传到它下方的内容，同样取决于平台。在 Web 和 Flutter 上会。在 SwiftUI、Compose 和 React Native 上，这次按下只关闭菜单。
+
+### 对照
+
+<DoDont do="menu/destructive-last" dont="menu/destructive-first">
+  <Fragment slot="doCaption">把 destructive 操作放在最后，用单独的分组隔开，这样指针移过头时不会落在它上面。</Fragment>
+  <Fragment slot="dontCaption">不要把“删除”放在第一位，混在最常用的操作中间。匆忙的按下最容易点中它。</Fragment>
+</DoDont>
+
+<DoDont do="menu/radio-in-group" dont="menu/radio-outside-group">
+  <Fragment slot="doCaption">把同一个问题的单选项放进一个以该问题为标题的分组，用分组的 `value` 指明选中的那一项。</Fragment>
+  <Fragment slot="dontCaption">不要把单选项放在分组之外。没有东西持有它们的值，所以永远不会有哪一项被选中，调试构建会报告这一点。</Fragment>
+</DoDont>
+
+<DoDont do="menu/one-action-button" dont="menu/menu-of-one">
+  <Fragment slot="doCaption">只有一个操作时，把它做成按钮放在看得见的地方。</Fragment>
+  <Fragment slot="dontCaption">不要做只有一项的菜单。它把操作藏在一次按下之后，却没有带来任何好处。</Fragment>
+</DoDont>
+
+<DoDont do="menu/submenu-chevron" dont="menu/chevron-on-action">
+  <Fragment slot="doCaption">让子菜单项自己绘制箭头。它是“这里会打开下一级”的标记。</Fragment>
+  <Fragment slot="dontCaption">不要给操作加末尾的 `chevron_right`。它看起来像子菜单，用户会期待一个并不存在的下一级。</Fragment>
+</DoDont>
 
 ### 推荐
 

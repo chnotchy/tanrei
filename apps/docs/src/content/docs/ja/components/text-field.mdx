@@ -2,7 +2,7 @@
 title: テキストフィールド
 description: 1 行のテキスト、文章に合わせて伸びるか手で大きさを変えられる複数行のテキスト、ロケールの書き方で単位ごとに入力する日付・時刻、書かれたとおりに保持するコードを入力・編集します。必須か任意かを示せるラベル、アイコン、接頭辞と接尾辞、補足テキスト、文字数カウンター、ピッカーボタンを添えられます。
 translationOf: components/text-field.mdx
-sourceHash: 11ca82869cc7b493be699f28b68da9e9801b3dec
+sourceHash: 953d475eb90190afea84ea117be6f1ef8c82c909
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## 概要
 
@@ -451,6 +452,28 @@ input.addEventListener('input', () => (field.countText = input.countText));
 フィールドの時計の方式は、ロケールのものです。DateTimePicker と違って、12 時間制か 24 時間制かの設定も、分の刻みもありません。
 
 **ピッカーボタン。** `picker` を付けると、フィールドの末尾にアイコンだけのボタンを描きます。日付なら `calendar_month`、時刻なら `schedule` で、名前は `pickerLabel` です。押すと、値、種類、`min`、`max` を付けて `pickerRequest` を発火します。行が一部だけ埋まっているときは空の値を送り、入力エラーは出しません。このあとピッカーが値の全体を返すからです。フィールド自身は何も表示しません。プロダクト側で、対応するモードの [DateTimePicker](/ja/components/date-time-picker/) を開き（ドック型ならフィールドに固定し）、ピッカーの `change` からフィールドの `value` を設定します。ピッカーには、フィールドと同じ `min`、`max`、`disabledDates` を渡します。ピッカーが閉じると、フォーカスはボタンに戻ります。ボタンはフィールドと一緒に無効になり、読み取り専用のあいだは描かれません。
+
+### 見比べる
+
+<DoDont do="text-field/labelled" dont="text-field/placeholder-as-label" column>
+  <Fragment slot="doCaption">どのフィールドにも消えないラベルを付け、必要なことは補助テキストに書きます。</Fragment>
+  <Fragment slot="dontCaption">プレースホルダーをラベルの代わりにしない。入力を始めた途端に消え、フィールドには名前がなく、デバッグビルドが報告します。</Fragment>
+</DoDont>
+
+<DoDont do="text-field/one-field" dont="text-field/field-in-field" column>
+  <Fragment slot="doCaption">テキストフィールドはそれ自体がフィールドです。ラベルも補助テキストもエラーも備えています。</Fragment>
+  <Fragment slot="dontCaption">テキストフィールドをフィールドの中に入れない。ラベルが 2 回描かれ、デバッグビルドが報告します。フィールドで囲むコントロールはテキスト入力です。</Fragment>
+</DoDont>
+
+<DoDont do="text-field/required-mark" dont="text-field/required-in-label" column>
+  <Fragment slot="doCaption">`required` を設定し、印はフィールドに描かせます。</Fragment>
+  <Fragment slot="dontCaption">ラベルに「（必須）」とも書かない。印がすでにそれを示しており、スクリーンリーダーでは 2 回読み上げられます。</Fragment>
+</DoDont>
+
+<DoDont do="text-field/read-only" dont="text-field/disabled-value" column>
+  <Fragment slot="doCaption">変えられない値は `readOnly` で見せます。フォーカスも選択もコピーもできます。</Fragment>
+  <Fragment slot="dontCaption">変えられない値を見せるためだけにフィールドを無効にしない。無効のフィールドは薄く描かれ、フォーカスできず、値をコピーできません。</Fragment>
+</DoDont>
 
 ### 推奨
 

@@ -2,7 +2,7 @@
 title: स्लाइडर
 description: लोगों को ट्रैक पर हैंडल को ड्रैग करके कोई मान, या मानों की रेंज, चुनने देता है, निरंतर या स्टेप में।
 translationOf: components/slider.mdx
-sourceHash: e74996d456fba14f6d07067a6a1b9cf61c1e5e69
+sourceHash: ce9048e0387153621d8b58d5ad455d3334fd4d35
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## अवलोकन
 
@@ -243,6 +244,28 @@ document.querySelector('[name="price"]').formatValue = (value) => dollars.format
 `small` रोज़मर्रा का स्लाइडर है। `medium` और `large` किसी प्रमुख कंट्रोल को, जैसे मीडिया स्क्रीन पर वॉल्यूम या ब्राइटनेस का स्लाइडर, ज़्यादा भारी ट्रैक देते हैं। हर साइज़ न्यूनतम टार्गेट पूरा करता है।
 
 खड़ा स्लाइडर हर लेआउट दिशा में नीचे (`min`) से ऊपर (`max`) की ओर चलता है। आड़ा स्लाइडर इनलाइन शुरुआत से चलता है, इसलिए दाएँ से बाएँ वाले लेआउट में `min` दाईं ओर होता है।
+
+### आमने-सामने
+
+<DoDont do="slider/few-stops" dont="slider/many-stops" column>
+  <Fragment slot="doCaption">कुछ ही चरणों वाले स्लाइडर पर स्टॉप दिखाएँ, जहाँ हर बिंदु ऐसा मान हो जिसे लोग अलग पहचान सकें।</Fragment>
+  <Fragment slot="dontCaption">बहुत चरणों वाले स्लाइडर पर स्टॉप न दिखाएँ। सौ बिंदु मानों की तरह नहीं, एक टूटी रेखा की तरह दिखते हैं।</Fragment>
+</DoDont>
+
+<DoDont do="slider/switch-for-on-off" dont="slider/slider-for-on-off" column>
+  <Fragment slot="doCaption">जो सेटिंग सिर्फ़ चालू या बंद होती है, उसके लिए स्विच इस्तेमाल करें।</Fragment>
+  <Fragment slot="dontCaption">चालू और बंद के लिए दो मानों वाला स्लाइडर न इस्तेमाल करें। जहाँ एक दबाव काफ़ी हो, वहाँ वह खींचना माँगता है, और यह नहीं बताता कि कौन-सा सिरा चालू है।</Fragment>
+</DoDont>
+
+<DoDont do="slider/value-with-unit" dont="slider/value-without-unit" column>
+  <Fragment slot="doCaption">जब सिर्फ़ अंक यह न बताए कि वह क्या गिनता है, तो `valueText` में इकाई दें। फ़ील्ड उसे अपने लेबल के बगल में दिखाता है, और स्क्रीन रीडर उसे बोलता है।</Fragment>
+  <Fragment slot="dontCaption">किसी अंक को उसकी इकाई के बिना न छोड़ें। “4” सेकंड भी हो सकता है, मिनट भी, संदेश भी।</Fragment>
+</DoDont>
+
+<DoDont do="slider/visible-label" dont="slider/unlabelled" column>
+  <Fragment slot="doCaption">स्लाइडर का नाम वहाँ दें जहाँ लोग उसे देख सकें। स्लाइडर फ़ील्ड लेबल बनाता है और वही शब्द स्लाइडर को देता है।</Fragment>
+  <Fragment slot="dontCaption">स्लाइडर को बिना नाम के न छोड़ें। कुछ नहीं बताता कि वह क्या सेट करता है, स्क्रीन रीडर सिर्फ़ एक अंक बोलता है, और डीबग बिल्ड इसकी रिपोर्ट करता है।</Fragment>
+</DoDont>
 
 ### करें
 
