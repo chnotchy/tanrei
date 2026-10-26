@@ -60,6 +60,7 @@ import '../button/button.js';
 import type { TanreiTextInput } from '../text-input/text-input.js';
 import { AXES, cellStyles, drawerStyles, groupStyles, sectionStyles } from './navigation-drawer.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { cancelPhaseRead, readInPhase } from '../../primitives/read-phase.js';
 
 export type { TanreiNavigationChangeDetail } from '../../primitives/index.js';
 
@@ -1890,7 +1891,10 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private viewing = false;
   /** The drawer's first frame has been drawn: what it opens afterwards takes its motion (NVD-58), and the first frame's order (NVD-62) is over. */
   private painted = false;
-  private paintFrame = 0;
+  /** Who asks for the drawer's first frame in the read phase. */
+  private readonly firstFrame = {};
+  /** NVD-62: the first frame's order is owed: the cells are drawn, and the items wait for the phase to be placed. */
+  private firstLook = false;
 
   /** @internal NVD-62: the drawer's first frame is not drawn yet: its groups read it (a group opened for the selection stays open until then, NVD-58). */
   get arriving(): boolean {
@@ -2466,8 +2470,9 @@ export class TanreiNavigationDrawer extends TanreiElement {
   /**
    * NVD-57, NVD-62: once every cell is drawn — and, after the first frame, the groups just opened have finished
    * opening — the items go to the offset the product gave (in the first frame's order) and the row that shows the
-   * selection is brought into view. Before the first frame all of it happens in microtasks, so no frame shows the
-   * items anywhere else; and it reads the layout once for a whole burst of updates, however many cells there are.
+   * selection is brought into view. Before the first frame the cells are waited for in microtasks and the items are
+   * placed in the first frame's read phase, after its layout and before its paint, so no frame shows them anywhere
+   * else; and it reads the layout once for a whole burst of updates, however many cells there are.
    */
   private async showSelection() {
     this.viewing = true;
@@ -2481,6 +2486,12 @@ export class TanreiNavigationDrawer extends TanreiElement {
         if (!first) await Promise.all(opened.map((group) => group.settled()));
         // Asked again meanwhile (more cells arrived, or the value changed once more): that look replaces this one.
         if (this.viewOwed || !this.isConnected) continue;
+        // Before the first frame, its order is the first frame's read phase's (connectedCallback): it reads the layout
+        // there for nothing, where a read here had the browser lay out the page that was still being built.
+        if (first && !this.painted) {
+          this.firstLook = true;
+          continue;
+        }
         // Each run of the first frame's order starts where the product put the items — at their start, if it said
         // nothing — so that a run made while cells were still arriving leaves no trace in the next.
         if (first) this.applyOffset(true);
@@ -2506,24 +2517,30 @@ export class TanreiNavigationDrawer extends TanreiElement {
 
   /** NVD-77: how high the pinned rows stand together, the room above which nothing else is in view. */
   private pinnedHeight = 0;
-  private pinFrame = 0;
+  /** Who asks for the pinned rows to be reckoned in the read phase. */
+  private readonly pinsRead = {};
 
-  /** NVD-77: the pinned rows are reckoned again in the next frame (once per frame, however many scrolls). */
+  /**
+   * NVD-77: the pinned rows are reckoned again in the next frame's read phase (src/primitives/read-phase.ts): once per
+   * frame, however many scrolls, after its layout, which a frame callback of its own had the browser do for it.
+   */
   private schedulePins() {
-    if (this.pinFrame) return;
-    this.pinFrame = requestAnimationFrame(() => {
-      this.pinFrame = 0;
-      this.updatePins();
-    });
+    readInPhase(this.pinsRead, () => this.reckonPins());
+  }
+
+  /** NVD-77: the pinned rows, reckoned and written now. */
+  private updatePins() {
+    this.reckonPins()();
   }
 
   /**
    * NVD-77: the rows of the open groups that hold the first row shown below the pinned rows are pinned at the top of the
    * space the items scroll in, at most stickyMax of them, the innermost winning (as VS Code keeps its innermost scopes),
    * each directly under the one above: the row itself, with the platform's sticky position, so that it leaves as its
-   * group's last row scrolls past. None while the drawer is collapsed or stickyParents is off.
+   * group's last row scrolls past. None while the drawer is collapsed or stickyParents is off. Reads the layout, and
+   * returns the write that pins them.
    */
-  private updatePins() {
+  private reckonPins(): () => void {
     const scroller = this.scroller;
     const groups = this.groups;
     const max = Number.isInteger(this.stickyMax) && this.stickyMax > 0 ? this.stickyMax : 2;
@@ -2545,20 +2562,20 @@ export class TanreiNavigationDrawer extends TanreiElement {
       pinned.push(...chain.slice(-max));
     }
     let at = 0;
-    // A sticky row is held inside the space's padding: the pinned rows begin at its very top, over the padding.
-    const inset = scroller ? Number.parseFloat(getComputedStyle(scroller).paddingBlockStart) || 0 : 0;
-    for (const group of groups) {
-      const index = pinned.indexOf(group);
-      if (index < 0) {
-        group.setPinned(null);
-        continue;
-      }
-      group.setPinned({ top: at - inset, last: index === pinned.length - 1 });
+    // A sticky row is held inside the space's padding: the pinned rows begin at its very top, over the padding (read
+    // only where a row is pinned).
+    const inset = pinned.length && scroller ? Number.parseFloat(getComputedStyle(scroller).paddingBlockStart) || 0 : 0;
+    const pins = new Map<TanreiNavigationDrawerGroup, { top: number; last: boolean }>();
+    pinned.forEach((group, index) => {
+      pins.set(group, { top: at - inset, last: index === pinned.length - 1 });
       at += group.rowHeight;
-    }
-    this.pinnedHeight = at;
-    // NVD-77: the browser's own scrolling into view (a focus, a find) leaves room for the pinned rows too.
-    if (scroller) scroller.style.scrollPaddingBlockStart = at ? `${at}px` : '';
+    });
+    return () => {
+      for (const group of groups) group.setPinned(pins.get(group) ?? null);
+      this.pinnedHeight = at;
+      // NVD-77: the browser's own scrolling into view (a focus, a find) leaves room for the pinned rows too.
+      if (scroller) scroller.style.scrollPaddingBlockStart = at ? `${at}px` : '';
+    };
   }
 
   /**
@@ -2643,18 +2660,34 @@ export class TanreiNavigationDrawer extends TanreiElement {
     super.connectedCallback();
     // What the drawer opens after its first frame takes its motion (NVD-58).
     // NVD-62: until then it is drawn as it is given, without motion (the styles' `data-arriving`).
+    // The first frame is the read phase's (src/primitives/read-phase.ts), after its layout and before its paint: the
+    // first frame's order (NVD-62) is taken there, where the layout it reads costs nothing, and then the frame is the
+    // drawer's first.
     if (!this.painted) {
       this.setAttribute('data-arriving', '');
-      this.paintFrame = requestAnimationFrame(() => {
-        this.painted = true;
-        // The first frame is about to be drawn: an offset that was written into it has done its work, and what was
-        // given so far is settled in the styles before the motions are given back.
-        if (!this.unwritten) this.givenOffset = null;
-        void this.offsetHeight;
-        this.removeAttribute('data-arriving');
+      readInPhase(this.firstFrame, () => {
+        // NVD-57, NVD-61, NVD-62: the offset the product gave and the selection in view, in the first frame painted —
+        // with the reads, as it reads the layout before anything is written (a scroll moves no box).
+        if (this.firstLook) {
+          this.firstLook = false;
+          this.applyOffset(true);
+          this.bringSelectionIntoView();
+        }
+        return () => this.firstFrameDrawn();
       });
     }
     if (this.hasUpdated && this.open && this.modal) this.present();
+  }
+
+  /** NVD-62: the first frame is laid out, its order taken, and about to be painted. */
+  private firstFrameDrawn() {
+    this.painted = true;
+    // The first frame is about to be drawn: an offset that was written into it has done its work, and what was given so
+    // far is settled in the styles before the motions are given back (the frame's own style, unless a write of the
+    // phase changed it since).
+    if (!this.unwritten) this.givenOffset = null;
+    void this.offsetHeight;
+    this.removeAttribute('data-arriving');
   }
 
   // ---- what the drawer is drawn as (NVD-30, NVD-53…55) ----
@@ -2759,10 +2792,9 @@ export class TanreiNavigationDrawer extends TanreiElement {
     super.disconnectedCallback();
     this.sizes.disconnect();
     this.unwatchWidths();
-    cancelAnimationFrame(this.paintFrame);
+    cancelPhaseRead(this.firstFrame);
     cancelAnimationFrame(this.instantFrame);
-    cancelAnimationFrame(this.pinFrame);
-    this.pinFrame = 0;
+    cancelPhaseRead(this.pinsRead);
     this.removeAttribute('data-instant');
     clearTimeout(this.formTimer);
     if (this.shown) this.withdraw(false, false);
