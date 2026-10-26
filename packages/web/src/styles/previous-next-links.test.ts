@@ -9,6 +9,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { acmeSystemCss, fixtureHost, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../test/harness.js';
 import { drawnOpticalSize, opticalSize } from '../../test/icons.js';
+import { motionEnded } from '../../test/motions.js';
 import { expectPressHeldAtEveryMoment } from '../../test/held-press.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -71,8 +72,13 @@ const rgba = (color: string): number[] => {
   return [...parts.slice(0, 3).map(Math.round), Math.round((parts[3] ?? 1) * 100) / 100];
 };
 const color = async (page: P, name: string) => rgba(await resolveColor(page, name));
-/** A color of `target` once it has settled: a state changes over the motion tokens (PNL-13). */
+/**
+ * A color of `target` once it has settled: a state changes over the motion tokens (PNL-13). The motions of the item and
+ * its pseudo-elements are waited out first: on a busy machine a transition can stall for longer than the reads
+ * below are apart, and two equal reads mid-way read a color short of its end.
+ */
 const drawn = async (target: Locator, property: string, pseudo?: string) => {
+  await motionEnded(target);
   let last = await css(target, property, pseudo);
   for (let reads = 0; reads < 60; reads++) {
     await target.page().waitForTimeout(20);
