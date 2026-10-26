@@ -7,6 +7,7 @@ sourceHash: 35eb7f74b0118a0fb1dec588b658c674df33ab86
 
 import Callout from '../../../../components/Callout.astro';
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
+import InstallCommand from '../../../../components/InstallCommand.astro';
 
 `@tanrei/react-native` 用 TypeScript 编写，不含原生模块，因此无需链接任何东西，也可以与 Expo 一起使用。它面向新架构（New Architecture），需要 React 19 和 React Native 0.78 或更高版本。
 
@@ -38,9 +39,7 @@ npm install path/to/tanrei-packages/tanrei-react-native-*.tgz
 
 ### 发布之后
 
-```sh
-npm install @tanrei/react-native
-```
+<InstallCommand packages="react-native" />
 
 ## 使用
 
