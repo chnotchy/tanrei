@@ -10,6 +10,7 @@ import { expectOneThumb, readThumb } from '../../../test/thumb.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
+import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('tabs');
@@ -1913,6 +1914,24 @@ test.describe('the track and the drag', () => {
     await expect.poll(() => scroller.evaluate((el) => el.scrollLeft)).toBeGreaterThan(0);
     expect(await dragging(page, id)).toBe(false);
     expect(await row(page, id).evaluate((el: any) => el.value)).toBe('overview');
+  });
+
+  test('TAB-28: a sideways wheel turned on past the end of tabs that scroll, and turned again after a pause, leaves the page behind where it was; a wheel turned down over them is left to the page', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: only('primary-scrollable'), reducedMotion: true });
+    const scroller = track(page, 'primary-scrollable');
+    await expect(scroller).toHaveClass(/scrolls/);
+    await expectWheelKeptFromPage(page, scroller, 'inline');
+    // The row keeps only the sideways scroll: a wheel turned down over the tabs, at either end, is not cancelled, so
+    // the page takes it.
+    const cancelled = (deltaY: number) =>
+      tabAt(page, 'primary-scrollable', 1).evaluate((el, deltaY) => {
+        const event = new WheelEvent('wheel', { bubbles: true, composed: true, cancelable: true, deltaY });
+        el.dispatchEvent(event);
+        return event.defaultPrevented;
+      }, deltaY);
+    expect([await cancelled(100), await cancelled(-100)]).toEqual([false, false]);
+    await scroller.evaluate((el) => (el.scrollLeft = 0));
+    expect([await cancelled(100), await cancelled(-100)]).toEqual([false, false]);
   });
 
   test('TAB-24: a frame of a drag held between two tabs draws a label partly in each color — the covered copy’s clip moves with the indicator, a clip and not a blend', async ({ page }) => {
@@ -4217,6 +4236,11 @@ test.describe('vertical', () => {
     await frames(page, 3);
     expect(await boxes(page, V)).toEqual(before);
     await expect.poll(() => seen.filter((w) => w.includes('TAB-56')).length).toBeGreaterThan(0);
+  });
+
+  test('TAB-56: a wheel turned on past the end of a column that scrolls, and turned again after a pause, leaves the page behind where it was', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: only('vertical-scroll') });
+    await expectWheelKeptFromPage(page, track(page, 'vertical-scroll'), 'block');
   });
 
   test('TAB-57: a mouse dragged down a column carries the indicator and selects the tab it is released on; a touch drags nothing; a mouse moved sideways is not taken', async ({ page }) => {

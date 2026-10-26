@@ -7,6 +7,7 @@ import { atRest } from '../../../test/at-rest.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
+import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 
 const spec = loadSpec('side-sheet');
@@ -346,6 +347,13 @@ test.describe('drawing', () => {
     const p = await bounds(page.locator('[data-fixture="long"] #p39'));
     const room = await bounds(c);
     expect(p.y + p.height).toBeLessThanOrEqual(room.y + room.height + 1);
+  });
+
+  test('SSH-10: a wheel turned on past the end of a standard sheet’s content that scrolls, and turned again after a pause, leaves the page behind where it was', async ({ page }) => {
+    await mount(page, [fx('long', { variant: 'standard' }, LONG, ACTIONS)]);
+    const c = content(page, 'long');
+    expect(await c.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
+    await expectWheelKeptFromPage(page, c, 'block');
   });
 
   test('SSH-10: the keyboard focus of a content that scrolls is drawn inside its edges and stays there while it scrolls — its inner stroke does not move away with the content', async ({ page }) => {

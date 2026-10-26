@@ -9,6 +9,7 @@ import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { type Fixture, acmeSystemCss, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
+import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { motionEnded } from '../../../test/motions.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 
@@ -868,6 +869,12 @@ test.describe('forms, focus and dismissal', () => {
     await still(page);
     expect(await top(page)).toBeCloseTo(full, 1);
     await expect(content(page)).toHaveAttribute('data-touch', 'pan-down');
+  });
+
+  test('BSH-10: a wheel turned on past the end of a standard sheet’s content that scrolls, and turned again after a pause, leaves the page behind where it was', async ({ page }) => {
+    await mount(page, [fx('s', { variant: 'standard' }, LONG)]);
+    expect(await content(page).evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
+    await expectWheelKeptFromPage(page, content(page), 'block');
   });
 
   test('BSH-20: a drag that asks to close holds for a frame, then slides out from where it was when the product closes, or settles back at the lowest height when it declines', async ({ page }) => {
