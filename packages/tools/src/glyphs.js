@@ -4,7 +4,7 @@
 //                                            components' code declares — and the axis values the shipped systems use.
 //                                            `tanrei build` prints it, so a product can cut its own icon font
 //                                            down to these names and its own.
-//   apps/docs/src/generated/glyphs.json      what the docs site's own sources draw besides: its pages and
+//   apps/docs/src/generated/glyphs.json      what the docs site's own sources draw besides: its pages, their shared examples and
 //                                            components, and the Theme Studio it hosts.
 //
 //   node packages/tools/src/glyphs.js        (pnpm generate runs it; pnpm drift fails while a list is stale)
@@ -13,7 +13,7 @@
 // it as a glyph (the font is asked, by shaping it) AND it stands where a glyph is written —
 //   - in a spec, a fixture's or a default's value of a glyph prop (`icon`, `leadingIcon`, `glyph`…), of a slot, or
 //     of an item's content;
-//   - in any source (TypeScript, JavaScript, CSS, Astro, MDX; comments are not read):
+//   - in any source (TypeScript, JavaScript, CSS, Astro, MDX, HTML; comments are not read):
 //       a declared glyph constant: every string of the value of a `const` (or `readonly` field) whose name is
 //         GLYPH, GLYPHS, ICON or ICONS, or ends in `_GLYPH`, `_ICONS`… — `const CLOSE_GLYPH = 'close'`,
 //         `const GLYPHS = { up: 'arrow_upward' }` (an object's keys are not read);
@@ -48,7 +48,7 @@ const COMPONENT_SOURCES = [
   ['packages/web/src', /\.(ts|css)$/, /(^|\/)(generated|links|highlight)\/|\.test\.ts$|\.d\.ts$/],
 ];
 const DOCS_SOURCES = [
-  ['apps/docs/src', /\.(mdx|md|astro|ts|mjs|js)$/, /(^|\/)generated\//],
+  ['apps/docs/src', /\.(mdx|md|astro|ts|mjs|js|html)$/, /(^|\/)generated\//],
   ['packages/studio/src', /\.(ts|js)$/, /\.test\.(ts|js)$|\.d\.ts$/],
 ];
 
