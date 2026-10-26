@@ -4,6 +4,7 @@ import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
 import { type Marked, withMarks } from '../../marks.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiRadioButton as TanreiRadioButtonElement, type TanreiRadioButtonChangeDetail } from '@tanrei/web/components/radio-button';
 
 /** The attributes of `<tanrei-radio-button>` that are not properties of the element, as props of `RadioButton`. */
@@ -21,10 +22,11 @@ const RadioButtonElement = /* @__PURE__ */ createComponent({
   },
 });
 const withRadioButtonMarks = /* @__PURE__ */ withMarks<RadioButtonMarks>([], ['form']);
+const RadioButtonAttributes = { checked: ['checked', false], value: ['value', ''], name: ['name', ''], disabled: ['disabled', false], readOnly: ['readonly', false], error: ['error', false], label: ['label', ''], labelHidden: ['label-hidden', false], form: ['form'] } as const;
 /**
  * Lets people choose exactly one option from a small group shown all at once.
  *
  * Events:
  * - `onChange` (`change`) — The user selected this option; `detail.value` is its value.
  */
-export const RadioButton: Marked<typeof RadioButtonElement, RadioButtonMarks> = /* @__PURE__ */ withRadioButtonMarks(RadioButtonElement);
+export const RadioButton: Marked<typeof RadioButtonElement, RadioButtonMarks> = /* @__PURE__ */ withServerAttributes(/* @__PURE__ */ withRadioButtonMarks(RadioButtonElement), 'tanrei-radio-button', TanreiRadioButtonElement, RadioButtonAttributes);

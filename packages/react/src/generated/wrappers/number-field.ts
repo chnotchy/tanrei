@@ -4,6 +4,7 @@ import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
 import { type Marked, withMarks } from '../../marks.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiNumberField as TanreiNumberFieldElement, type TanreiNumberInputInputDetail, type TanreiNumberInputEntryErrorDetail } from '@tanrei/web/components/number-field';
 
 /** The attributes of `<tanrei-number-field>` that are not properties of the element, as props of `NumberField`. */
@@ -24,6 +25,7 @@ const NumberFieldElement = /* @__PURE__ */ createComponent({
   },
 });
 const withNumberFieldMarks = /* @__PURE__ */ withMarks<NumberFieldMarks>([], ['form']);
+const NumberFieldAttributes = { label: ['label', ''], labelHidden: ['label-hidden', false], supportingText: ['supporting-text', ''], errorText: ['error-text', ''], error: ['error', false], disabled: ['disabled', false], required: ['required', false], optional: ['optional', false], requiredMark: ['required-mark', 'auto'], requiredText: ['required-text', ''], optionalText: ['optional-text', ''], variant: ['variant', 'stacked'], size: ['size', 'medium'], value: ['value'], placeholder: ['placeholder', ''], readOnly: ['readonly', false], min: ['min', null], max: ['max', null], step: ['step', 1], noSteppers: ['no-steppers', false], incrementLabel: ['increment-label', ''], decrementLabel: ['decrement-label', ''], prefixText: ['prefix-text', ''], suffixText: ['suffix-text', ''], valueText: ['value-text', ''], align: ['align', 'start'], minFractionDigits: ['min-fraction-digits', 0], maxFractionDigits: ['max-fraction-digits', 3], locale: ['locale', ''], invalidText: ['invalid-text', ''], name: ['name', ''], form: ['form'] } as const;
 /**
  * Lets people enter a number as one complete field. Built from a Field (`<tanrei-field>`) and the Number input (`<tanrei-number-input>`) it frames: the box — the number, its unit and its two steppers — under the Field's label, or, in the filled and the outlined look, with the label floating in it; with the Field's requirement mark, its help and its error, tied together for assistive technology and taking part in a form as one control.
  *
@@ -36,4 +38,4 @@ const withNumberFieldMarks = /* @__PURE__ */ withMarks<NumberFieldMarks>([], ['f
  * - `onAction` (`action`) — The person pressed Enter; after any `change` it caused. Cancelable: unless it is cancelled, the form the number input stands in is then asked to submit.
  * - `onEntryError` (`entryerror`) — The person committed a text that is not a number. `detail.reason` is `invalid`, `detail.text` the input's `invalidText` (empty where none was given). Composed and bubbling.
  */
-export const NumberField: Marked<typeof NumberFieldElement, NumberFieldMarks> = /* @__PURE__ */ withNumberFieldMarks(NumberFieldElement);
+export const NumberField: Marked<typeof NumberFieldElement, NumberFieldMarks> = /* @__PURE__ */ withServerAttributes(/* @__PURE__ */ withNumberFieldMarks(NumberFieldElement), 'tanrei-number-field', TanreiNumberFieldElement, NumberFieldAttributes);

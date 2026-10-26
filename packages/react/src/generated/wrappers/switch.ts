@@ -4,6 +4,7 @@ import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
 import { type Marked, withMarks } from '../../marks.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiSwitch as TanreiSwitchElement, type TanreiSwitchChangeDetail } from '@tanrei/web/components/switch';
 
 /** The attributes of `<tanrei-switch>` that are not properties of the element, as props of `Switch`. */
@@ -21,10 +22,11 @@ const SwitchElement = /* @__PURE__ */ createComponent({
   },
 });
 const withSwitchMarks = /* @__PURE__ */ withMarks<SwitchMarks>([], ['form']);
+const SwitchAttributes = { checked: ['checked', false], disabled: ['disabled', false], readOnly: ['readonly', false], label: ['label', ''], labelHidden: ['label-hidden', false], checkedIcon: ['checked-icon', ''], uncheckedIcon: ['unchecked-icon', ''], name: ['name', ''], value: ['value', 'on'], form: ['form'] } as const;
 /**
  * Turns one setting on or off, taking effect at once, with a handle that follows a finger dragged along the track.
  *
  * Events:
  * - `onChange` (`change`) — The user switched it; `detail.checked` (and the element's `checked`) is the new value.
  */
-export const Switch: Marked<typeof SwitchElement, SwitchMarks> = /* @__PURE__ */ withSwitchMarks(SwitchElement);
+export const Switch: Marked<typeof SwitchElement, SwitchMarks> = /* @__PURE__ */ withServerAttributes(/* @__PURE__ */ withSwitchMarks(SwitchElement), 'tanrei-switch', TanreiSwitchElement, SwitchAttributes);

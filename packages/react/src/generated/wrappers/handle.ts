@@ -3,19 +3,10 @@
 import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiHandle as TanreiHandleElement, type TanreiHandleResizeEndDetail, type TanreiHandleResizeStartDetail, type TanreiHandleResizeDetail, type TanreiHandleStepDetail } from '@tanrei/web/components/handle';
 
-/**
- * The mark a person drags, or moves from the keyboard, to change the size of what it stands on: a sheet's top, a text field's corner, a pane's or a preview frame's edge. One axis is a short capsule; two axes are a quarter-circle arc that bows toward its corner.
- *
- * Events:
- * - `onActivate` (`activate`) — Pressed and released without a drag, or Enter or Space with keyboard focus: the owner switches between the sizes it knows.
- * - `onResizeEnd` (`resizeend`) — The drag ended, once: released, or cancelled by the platform (`detail.cancelled`).
- * - `onResizeStart` (`resizestart`) — A drag began: a press on the handle moved past the touch slop.
- * - `onResize` (`resize`) — The drag moved: `detail.inline` and `detail.block`, the distance from the press.
- * - `onStep` (`step`) — A key asked for a change of size: `detail.axis`, `detail.direction`, `detail.amount`.
- */
-export const Handle = /* @__PURE__ */ createComponent({
+const HandleElement = /* @__PURE__ */ createComponent({
   tagName: 'tanrei-handle',
   elementClass: TanreiHandleElement,
   react: React,
@@ -27,3 +18,15 @@ export const Handle = /* @__PURE__ */ createComponent({
     onStep: 'step' as EventName<TanreiEvent<TanreiHandleElement, CustomEvent<TanreiHandleStepDetail>>>,
   },
 });
+const HandleAttributes = { axis: ['axis', 'vertical'], corner: ['corner', 'bottom-end'], size: ['size', 'medium'], value: ['value', null], min: ['min', 0], max: ['max', 100], valueText: ['value-text', ''], expanded: ['expanded', null], label: ['label', ''], disabled: ['disabled', false], revealed: ['revealed', false] } as const;
+/**
+ * The mark a person drags, or moves from the keyboard, to change the size of what it stands on: a sheet's top, a text field's corner, a pane's or a preview frame's edge. One axis is a short capsule; two axes are a quarter-circle arc that bows toward its corner.
+ *
+ * Events:
+ * - `onActivate` (`activate`) — Pressed and released without a drag, or Enter or Space with keyboard focus: the owner switches between the sizes it knows.
+ * - `onResizeEnd` (`resizeend`) — The drag ended, once: released, or cancelled by the platform (`detail.cancelled`).
+ * - `onResizeStart` (`resizestart`) — A drag began: a press on the handle moved past the touch slop.
+ * - `onResize` (`resize`) — The drag moved: `detail.inline` and `detail.block`, the distance from the press.
+ * - `onStep` (`step`) — A key asked for a change of size: `detail.axis`, `detail.direction`, `detail.amount`.
+ */
+export const Handle = /* @__PURE__ */ withServerAttributes(HandleElement, 'tanrei-handle', TanreiHandleElement, HandleAttributes);

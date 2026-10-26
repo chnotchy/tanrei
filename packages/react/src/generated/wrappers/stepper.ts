@@ -3,8 +3,18 @@
 import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiStepper as TanreiStepperElement, type TanreiStepperSelectDetail } from '@tanrei/web/components/stepper';
 
+const StepperElement = /* @__PURE__ */ createComponent({
+  tagName: 'tanrei-stepper',
+  elementClass: TanreiStepperElement,
+  react: React,
+  events: {
+    onSelect: 'select' as EventName<TanreiEvent<TanreiStepperElement, CustomEvent<TanreiStepperSelectDetail>>>,
+  },
+});
+const StepperAttributes = { label: ['label', ''], value: ['value', ''], layout: ['layout', 'horizontal'], pressable: ['pressable', 'none'], completedText: ['completed-text', ''], errorText: ['error-text', ''], positionText: ['position-text', ''] } as const;
 /**
  * Shows where a person is in a flow the product runs in a fixed order of steps — which step is current, which are complete, which has an error and which are still to come — and, where the product allows it, lets the person press a step to go back to it.
  *
@@ -14,11 +24,4 @@ import { TanreiStepper as TanreiStepperElement, type TanreiStepperSelectDetail }
  * Events:
  * - `onSelect` (`select`) — The person pressed a step to go to it: `detail.value` is its value. The stepper does not change `value`.
  */
-export const Stepper = /* @__PURE__ */ createComponent({
-  tagName: 'tanrei-stepper',
-  elementClass: TanreiStepperElement,
-  react: React,
-  events: {
-    onSelect: 'select' as EventName<TanreiEvent<TanreiStepperElement, CustomEvent<TanreiStepperSelectDetail>>>,
-  },
-});
+export const Stepper = /* @__PURE__ */ withServerAttributes(StepperElement, 'tanrei-stepper', TanreiStepperElement, StepperAttributes);
