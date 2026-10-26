@@ -2549,7 +2549,9 @@ long label or a supporting text reads in fewer lines without the container chang
 it draws as it opens and holds it (`--_list-content`) while it scrolls. Its rows are the menu's (`itemRowStyles()`; a token test holds every value equal to the menu's):
 the conditions `option` and `selected-option`, hover, the focused state and the ring inside the row for the option that
 is active by the keyboard, the four pressed-feedback answers with press-hold, and the check of the icon set for the
-chosen option.
+chosen option. A pointer that moves onto an option makes it the active one (SEL-32, CMB-26) — and a `pointermove` at
+the place the same pointer last was is no move (`src/primitives/pointer-moved.ts`): WebKit sends one to whatever a
+scroll carries under a resting mouse, which would otherwise take the active option from the key that scrolled.
 
 **The rows are drawn while the list is shown, and at no other time.** A closed select or combobox holds the placed
 box, the sheet and an empty list box (the element `aria-controls` names) and no row, so the number of elements in its
