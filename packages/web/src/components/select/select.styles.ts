@@ -302,8 +302,11 @@ export const styles = css`
   .field[data-chevron] .body {
     margin-inline-end: var(--_gap);
   }
-  .field[data-clear] .chevron {
-    margin-inline-start: calc(var(--_icon) + var(${P}-container-action-gap));
+  /* SEL-72, SEL-55: the clear button's room is kept on the value's side too — never on the chevron, whose box is
+     left to right whatever the layout's direction, so that a margin of its own would fall on the wrong side in
+     right to left and put the chevron under the clear button. */
+  .field[data-clear] .body {
+    margin-inline-end: calc(var(--_gap) + var(--_icon) + var(${P}-container-action-gap));
   }
 
   /* SEL-72: the clear button is a Button — its own tokens, press, focus ring and target — after the combobox and not
