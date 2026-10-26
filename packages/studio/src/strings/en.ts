@@ -632,7 +632,6 @@ const en = {
     help: 'Paste any layer that extends a shipped system. Everything in it is editable here: nothing is kept on the side.',
     label: 'Layer JSON',
     apply: 'Load into the Studio',
-    done: 'Layer loaded.',
     invalidJson: 'That is not valid JSON',
   },
   file: {
@@ -648,6 +647,29 @@ const en = {
     reload: 'Reload from disk',
     keepMine: 'Keep mine (overwrite the file)',
     keepOpen: 'Keep what is open (overwrite the file)',
+  },
+  // The start point, first in the bar (ui/start.ts): what the layer starts from, and a file to import in its place.
+  start: {
+    open: (name: string) => `Start: ${name}`,
+    help: 'What your layer starts from. Your changes are made on top of it.',
+    menu: 'Start point',
+    starts: 'Start from',
+    defaultNote: 'The default system',
+    // The root, listed but not offered: why it cannot be chosen yet.
+    notNeutral: 'Not yet: Tanrei’s root layer still holds the default system’s values. It becomes a blank start once its values are neutral.',
+    // The examples of the theme gallery: a showcase of what a layer can imitate, not the official design it follows.
+    gallery: 'Theme gallery examples',
+    exampleNote: (name: string) => `${name}. An example, not an official design.`,
+    file: 'Import a file…',
+    fileNote: 'A layer file, <id>.system.json',
+    confirm: (name: string) => `Start from ${name}? Your changes to this layer are replaced; Undo brings them back.`,
+    // What loading a layer says: `file`, the name of the file; none, the layer was pasted (under the file panel).
+    confirmLoad: (file?: string) => `Load ${file ?? 'the pasted layer'}? Your changes to this layer are replaced; Undo brings them back.`,
+    started: (name: string) => `Started from ${name}. Undo takes it back.`,
+    // What importing a file found, said in the panel.
+    imported: (file?: string) => `Loaded ${file ?? 'the pasted layer'}.`,
+    importedProblems: (file: string | undefined, count: number) => (count === 1 ? `Loaded ${file ?? 'the pasted layer'}, with 1 problem. tanrei build would refuse it until it is fixed:` : `Loaded ${file ?? 'the pasted layer'}, with ${count} problems. tanrei build would refuse it until they are fixed:`),
+    refused: (file?: string) => `${file ?? 'The pasted layer'} was not loaded. The Studio holds a layer that the schema accepts and that extends a system it has:`,
   },
   // The standalone app's own bar (app/main.ts), around the Studio.
   frame: {

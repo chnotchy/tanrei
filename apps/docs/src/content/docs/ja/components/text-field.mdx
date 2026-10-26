@@ -2,7 +2,7 @@
 title: テキストフィールド
 description: 1 行のテキスト、文章に合わせて伸びるか手で大きさを変えられる複数行のテキスト、ロケールの書き方で単位ごとに入力する日付・時刻、書かれたとおりに保持するコードを入力・編集します。必須か任意かを示せるラベル、アイコン、接頭辞と接尾辞、補足テキスト、文字数カウンター、ピッカーボタンを添えられます。
 translationOf: components/text-field.mdx
-sourceHash: 953d475eb90190afea84ea117be6f1ef8c82c909
+sourceHash: 683632de1567a4e1bbf6de24ceaf12427a272d2c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -11,6 +11,7 @@ import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import DoDont from '../../../../components/visuals/DoDont.astro';
+import Playground from '../../../../components/visuals/Playground.astro';
 
 ## 概要
 
@@ -30,6 +31,8 @@ import DoDont from '../../../../components/visuals/DoDont.astro';
 **構成要素**は、[フィールド](/ja/components/field/)と[テキスト入力欄](/ja/components/text-input/)です。フィールドは枠で、ラベル、必須または任意の印、補足、エラー、文字数を受け持ちます。テキスト入力欄はコントロールで、ボックスと、その中で入力するものすべてを受け持ちます。テキストフィールドが自分で描くものはなく、トークンもありません。プロパティはどれも 2 つのどちらかのもので、そのまま渡されます。
 
 置かれた場所の幅いっぱいに広がるブロックで、ボックスもその幅いっぱいになります。自分の幅は持ちません。フィールドを狭くするには、置く場所を狭くします。
+
+<Playground name="text-field" />
 
 ### 使い方
 

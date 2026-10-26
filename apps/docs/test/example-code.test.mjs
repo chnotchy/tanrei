@@ -65,11 +65,16 @@ describe('the code in React', () => {
     assert.match(react, /<p id="hint">Use \{'\{'\}braces\{'\}'\} &amp; \{'<'\}angles\{'>'\}<\/p>/);
   });
   test('a number is a number, and an inline handler a function of the event', () => {
-    const numbered = Object.entries(names.elements).flatMap(([tag, [, props]]) => Object.entries(props).filter(([, [, number]]) => number).map(([attribute]) => [tag, attribute]));
+    const numbered = Object.entries(names.elements).flatMap(([tag, [, props]]) => Object.entries(props).filter(([, [, kind]]) => kind === 1).map(([attribute]) => [tag, attribute]));
     assert.ok(numbered.length > 0, 'some element takes a number');
     const [tag, attribute] = numbered[0];
     assert.match(reactOf(`<${tag} ${attribute}="3"></${tag}>`, names), new RegExp(`=\\{3\\} />`));
     assert.match(reactOf('<tanrei-button onclick="this.closest(\'figure\').hidden = true">Hide</tanrei-button>', names), /onClick=\{\(event\) => \{ event\.currentTarget\.closest\('figure'\)\.hidden = true \}\}/);
+  });
+  test('an attribute that turns off a property on by default is that property, false', () => {
+    const turnsOff = Object.entries(names.elements).flatMap(([tag, [, props]]) => Object.entries(props).filter(([, [, kind]]) => kind === 2).map(([attribute, [property]]) => [tag, attribute, property]));
+    assert.ok(turnsOff.some(([tag, attribute, property]) => tag === 'tanrei-card' && attribute === 'flush' && property === 'inset'), 'the card’s flush turns its inset off');
+    assert.match(reactOf('<tanrei-card flush="true">Text</tanrei-card>', names), /<Card inset=\{false\}>Text<\/Card>/);
   });
 });
 

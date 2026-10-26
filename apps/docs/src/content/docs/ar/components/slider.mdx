@@ -2,7 +2,7 @@
 title: شريط التمرير
 description: يتيح للأشخاص اختيار قيمة، أو مدى من القيم، بسحب مقبض على طول مسار، باستمرار أو على درجات.
 translationOf: components/slider.mdx
-sourceHash: ce9048e0387153621d8b58d5ad455d3334fd4d35
+sourceHash: 46db85aff63c44f150cdb3d4eec5f1ecd0187a45
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -11,6 +11,7 @@ import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import DoDont from '../../../../components/visuals/DoDont.astro';
+import Playground from '../../../../components/visuals/Playground.astro';
 
 ## نظرة عامة
 
@@ -21,6 +22,8 @@ import DoDont from '../../../../components/visuals/DoDont.astro';
   <tanrei-slider label="السطوع" value="30" step="10" stops style="inline-size: 20rem"></tanrei-slider>
   <tanrei-slider range label="أعلى سعر" start-label="أدنى سعر" start-value="20" value="60" style="inline-size: 20rem"></tanrei-slider>
 </Example>
+
+<Playground name="slider" />
 
 ### الاستخدام
 

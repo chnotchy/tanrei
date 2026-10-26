@@ -1,0 +1,125 @@
+---
+// A component's measure figure: the live component, drawn from the web package's own stage of one fixture (the same
+// as its anatomy figure's unless a page names another), with a dimension line for each of its lengths that the figure
+// can show on that fixture (lib/visuals/measure.ts, `measureLinesOf`), in the docs' one frame (Example.astro). Each
+// line is labelled with what it is and the value its token resolves to under the system the stage is drawn under, and
+// the table under the figure — its text alternative at length — names each line's token and value. Nothing is drawn
+// for a component with no such length, or whose fixture cannot stand in the page.
+//
+// - The lines are measured from the parts the browser draws (lib/visuals/blueprint.ts), never from the tokens, and a
+//   line is drawn only where the two agree: where the component draws another length, the figure draws no line and the
+//   table says what it found (`visuals.measureDiffers`), so a figure never shows a length the component does not have,
+//   and a page shows where an implementation and its tokens part.
+// - The inline lengths stand in rows above the stage, the block lengths in columns at its end edge, each row and column
+//   holding its room before anything is defined (space tokens), so nothing moves when the lines are drawn.
+// - The component is a picture here, as in the anatomy figure: `inert` and hidden from assistive technology.
+import Example from './Example.astro';
+import Table from '../Table.astro';
+import { contentLang, strings } from '../../lib/i18n';
+import { stagingStyle } from '../../lib/fixture-gallery';
+import { blueprintStageOf, webPartsOf } from '../../lib/visuals/anatomy';
+import { measureLinesOf } from '../../lib/visuals/measure';
+import type { BlueprintData } from '../../lib/visuals/blueprint';
+import { getSpec } from '../../lib/repo';
+import './blueprint.css';
+
+interface Props {
+  /** The component, by its spec's name. */
+  name: string;
+  /** The fixture to draw, where it is not the spec's `anatomyFixture` or first. */
+  fixture?: string;
+  /** The level of the heading the figure stands under, which it writes: none where the page writes its own. */
+  headingLevel?: 2 | 3 | 4;
+}
+const { name, fixture, headingLevel } = Astro.props;
+const lang = contentLang(Astro);
+const t = strings(lang);
+const spec = getSpec(name);
+const parts = webPartsOf(name);
+const stage = parts ? blueprintStageOf(name, fixture) : null;
+const lines = stage ? measureLinesOf(name, stage.fixture, stage.html) : [];
+const rows = lines.filter((line) => line.axis !== 'block').length;
+const columns = lines.length - rows;
+/** A row of an inline length: its label above its line. A column of a block length: its line, and its label beside it. */
+const ROW = 'sys.space.space400';
+const COLUMN = ['sys.space.space900', 'sys.space.space200'];
+const data: BlueprintData | null =
+  stage && parts && lines.length ? { kind: 'measure', tag: stage.tag, parts: parts.map(({ n, id, target }) => ({ n, id, target })), lines: lines.map(({ token, cssVar, part, kind, axis }) => ({ token, cssVar, part: part!, kind, axis })) } : null;
+const times = (count: number, length: string | string[]) => Array.from({ length: count }, () => length).flat();
+const forms = t.visuals.measureAlt;
+const listed = lines.map((line) => `${line.part} ${line.kind}`);
+const alt = (forms[new Intl.PluralRules(lang).select(lines.length)] ?? forms.other)
+  .replaceAll('{component}', spec.title)
+  .replaceAll('{count}', String(lines.length))
+  .replaceAll('{list}', new Intl.ListFormat(lang, { style: 'long', type: 'conjunction' }).format(listed));
+const Heading = headingLevel ? (`h${headingLevel}` as const) : null;
+const [before = '', after = ''] = t.visuals.drawnFrom.split('{fixture}');
+const shown = (value: number) => (Number.isInteger(value) ? String(value) : value.toFixed(1));
+---
+
+{
+  stage && data && (
+    <>
+      {Heading && <Heading>{t.visuals.measureTitle}</Heading>}
+      <Fragment set:html={stagingStyle(stage.staging)} />
+      <Example
+        label={t.visuals.measureTitle}
+        reserve={{ block: [`${stage.room.height}px`, ...times(rows, ROW)], inline: [`${stage.room.width}px`, ...times(columns, COLUMN)] }}
+        pattern="none"
+        system={stage.system}
+        data-blueprint-figure="measure"
+      >
+        <div
+          class="docs-blueprint docs-blueprint-measure"
+          style={`--docs-blueprint-rows: ${rows}; --docs-blueprint-columns: ${columns}`}
+          data-blueprint={JSON.stringify(data)}
+          data-fixture-scope
+          role="img"
+          aria-label={alt}
+        >
+          <div class="docs-blueprint-stage" inert aria-hidden="true" set:html={stage.html} />
+        </div>
+        <Fragment slot="legend">
+          <Table label={`${spec.title} · ${t.visuals.measureTitle}`} density="compact">
+            <table data-differs={t.visuals.measureDiffers} data-absent={t.visuals.measureAbsent}>
+              <thead>
+                <tr>
+                  <th scope="col">{t.visuals.measureLength}</th>
+                  <th scope="col">{t.token}</th>
+                  <th scope="col" data-align="end">{t.visuals.measureValue}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {
+                  lines.map((line) => (
+                    <tr data-measure-row={line.token}>
+                      <td data-wrap="false">
+                        <code>{line.part}</code> {line.kind}
+                        <span class="docs-muted docs-blueprint-note" data-measure-note hidden />
+                      </td>
+                      <td>
+                        <code>{line.token}</code>
+                      </td>
+                      <td data-align="end" data-measure-value>
+                        {shown(line.px)}
+                      </td>
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </Table>
+        </Fragment>
+        <Fragment slot="caption">
+          {before}
+          <code>{stage.fixture}</code>
+          {after}
+        </Fragment>
+      </Example>
+    </>
+  )
+}
+
+<script>
+  import '../../lib/visuals/blueprint';
+</script>

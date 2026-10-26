@@ -686,7 +686,6 @@ const ar: Dictionary = {
     help: 'الصق أي طبقة تمتدّ من نظام مضمَّن. كل ما فيها قابل للتعديل هنا، ولا يبقى شيء جانبًا.',
     label: 'الطبقة بصيغة JSON',
     apply: 'تحميل في Studio',
-    done: 'تم تحميل الطبقة.',
     invalidJson: 'هذه ليست صيغة JSON صالحة',
   },
   file: {
@@ -703,6 +702,36 @@ const ar: Dictionary = {
     reload: 'إعادة التحميل من الملف',
     keepMine: 'إبقاء ما لديّ (الكتابة فوق الملف)',
     keepOpen: 'إبقاء ما هو مفتوح (الكتابة فوق الملف)',
+  },
+  start: {
+    open: (name) => `البداية: ${name}`,
+    help: 'ما تبدأ منه طبقتك. تُكتب تغييراتك فوقه.',
+    menu: 'نقطة البداية',
+    starts: 'البدء من',
+    defaultNote: 'النظام الافتراضي',
+    notNeutral: 'ليس بعد: ما زالت الطبقة الجذر في Tanrei تحمل قيم النظام الافتراضي. ستصبح بداية فارغة حين تصبح قيمها محايدة.',
+    gallery: 'أمثلة من معرض السمات',
+    exampleNote: (name) => `${name}. مثال، وليس تصميمًا رسميًا.`,
+    file: 'استيراد ملف…',
+    fileNote: 'ملف طبقة، <id>.system.json',
+    confirm: (name) => `أتريد البدء من ${name}؟ ستُستبدل تغييراتك على هذه الطبقة، ويعيدها التراجع.`,
+    confirmLoad: (file) => `أتريد تحميل ${file ?? 'الطبقة الملصقة'}؟ ستُستبدل تغييراتك على هذه الطبقة، ويعيدها التراجع.`,
+    started: (name) => `بدأت من ${name}. يمكنك التراجع عن ذلك.`,
+    imported: (file) => `تم تحميل ${file ?? 'الطبقة الملصقة'}.`,
+    importedProblems: (given, count) => {
+      const file = given ?? 'الطبقة الملصقة';
+      // The pasted layer is feminine: the verb that refuses it agrees.
+      const refuses = given ? 'سيرفضه' : 'سيرفضها';
+      return counted(count, {
+        zero: `تم تحميل ${file}.`,
+        one: `تم تحميل ${file} مع مشكلة واحدة. ${refuses} الأمر tanrei build حتى تُصلحها:`,
+        two: `تم تحميل ${file} مع مشكلتين. ${refuses} الأمر tanrei build حتى تُصلحهما:`,
+        few: `تم تحميل ${file} مع # مشكلات. ${refuses} الأمر tanrei build حتى تُصلحها:`,
+        many: `تم تحميل ${file} مع # مشكلة. ${refuses} الأمر tanrei build حتى تُصلحها:`,
+        other: `تم تحميل ${file} مع # مشكلة. ${refuses} الأمر tanrei build حتى تُصلحها:`,
+      });
+    },
+    refused: (file) => `${file ? `لم يُحمَّل ${file}` : 'لم تُحمَّل الطبقة الملصقة'}. يحمل Studio طبقةً يقبلها المخطط وتمتدّ من نظام لديه:`,
   },
   frame: {
     history: 'السجل',

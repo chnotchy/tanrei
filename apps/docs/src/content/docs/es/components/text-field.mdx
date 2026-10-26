@@ -2,7 +2,7 @@
 title: Campo de texto
 description: Permite introducir y editar texto (una línea, o varias que siguen al texto o cuyo tamaño se cambia a mano) o una fecha o una hora que se introducen unidad por unidad en el formato de la configuración regional, o código que se conserva exactamente como se escribe, con una etiqueta que puede decir si el campo es obligatorio u opcional, iconos opcionales, prefijo y sufijo, texto de apoyo, un recuento de caracteres y un botón de selector.
 translationOf: components/text-field.mdx
-sourceHash: 953d475eb90190afea84ea117be6f1ef8c82c909
+sourceHash: 683632de1567a4e1bbf6de24ceaf12427a272d2c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -11,6 +11,7 @@ import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import DoDont from '../../../../components/visuals/DoDont.astro';
+import Playground from '../../../../components/visuals/Playground.astro';
 
 ## Descripción general
 
@@ -30,6 +31,8 @@ Usa un campo de texto siempre que un formulario pida texto: es el caso corriente
 **Se compone de** un [campo](/es/components/field/) y una [entrada de texto](/es/components/text-input/). El campo es el marco: la etiqueta, la marca de obligatorio o de opcional, la ayuda, el error y el recuento. La entrada de texto es el control: la caja y todo lo que se escribe en ella. El campo de texto no dibuja nada propio y no tiene ningún token: cada propiedad que tiene es una propiedad de uno de los dos, que recibe sin cambios.
 
 Es un bloque tan ancho como el lugar en el que se pone, y su caja lo llena. No tiene ancho propio: para un campo más estrecho, dale un lugar más estrecho.
+
+<Playground name="text-field" />
 
 ### Uso
 
