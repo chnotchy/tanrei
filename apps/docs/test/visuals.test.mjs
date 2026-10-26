@@ -12,8 +12,8 @@ import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 register('./vite-shim.mjs', import.meta.url);
-const { anatomyOf, anatomyAlt } = await import('../src/lib/visuals/anatomy.ts');
-const { measuresOf } = await import('../src/lib/visuals/measure.ts');
+const { anatomyOf, anatomyAlt, blueprintStageOf, webPartsOf } = await import('../src/lib/visuals/anatomy.ts');
+const { measureLinesOf, measuresOf } = await import('../src/lib/visuals/measure.ts');
 const { motionsOf } = await import('../src/lib/visuals/motion.ts');
 const { rolesOf } = await import('../src/lib/visuals/roles.ts');
 const { drawnMatrixOf, drawsStateMatrix, matrixOf, PSEUDO_STATES } = await import('../src/lib/visuals/states.ts');
@@ -107,13 +107,128 @@ describe('measurements', () => {
   test('the button at the medium size: its container’s height, and no length of another size', () => {
     const medium = measuresOf('button', { size: 'medium' });
     const height = medium.find((measure) => measure.part === 'container' && measure.kind === 'height');
-    assert.deepEqual(height, { token: `${NS}.comp.button.container.height.medium`, cssVar: `${config.web.cssPrefix}-comp-button-container-height-medium`, part: 'container', kind: 'height', size: 'medium', variant: null, px: resolved(`${NS}.comp.button.container.height.medium`).$value.value });
+    assert.deepEqual(height, { token: `${NS}.comp.button.container.height.medium`, cssVar: `${config.web.cssPrefix}-comp-button-container-height-medium`, part: 'container', kind: 'height', size: 'medium', variant: null, qualifiers: [], px: resolved(`${NS}.comp.button.container.height.medium`).$value.value });
     assert.ok(medium.every((measure) => measure.size === null || measure.size === 'medium'));
     assert.ok(medium.some((measure) => measure.size === null), 'a length the same at every size is kept');
     assert.ok(medium.some((measure) => measure.kind === 'padding-inline-start' && measure.part === 'container'));
   });
   test('a component that reads a shared set measures it too', () => {
     assert.ok(measuresOf('text-input').some((measure) => measure.token.startsWith(`${NS}.comp.input-box.`)), 'the text input reads the input box’s lengths');
+  });
+  test('a key of a token’s path that is no part, kind, size or variant is a qualifier: a state’s length is told apart', () => {
+    for (const name of names.filter(inDefault)) {
+      for (const measure of measuresOf(name)) {
+        const path = measure.token.split('.');
+        for (const key of measure.qualifiers) assert.ok(path.includes(key), `${name}: ${measure.token} has the key ${key}`);
+        assert.ok(!measure.qualifiers.includes(measure.kind) && !measure.qualifiers.includes(measure.part), `${name}: ${measure.token}`);
+      }
+    }
+  });
+});
+
+describe('the parts of the anatomy and measure figures', () => {
+  const withParts = names.filter((name) => specs[name].platforms.web?.parts);
+  test('where a spec says where the web draws its parts, each part has its target or says why it has none', () => {
+    assert.ok(withParts.length > 0);
+    for (const name of withParts) {
+      const parts = webPartsOf(name);
+      assert.deepEqual(parts.map(({ n, id }) => [n, id]), anatomyOf(name).map(({ n, id }) => [n, id]), name);
+      for (const part of parts) {
+        const value = specs[name].platforms.web.parts[part.id];
+        if (typeof value === 'object') assert.deepEqual([part.target, part.noBox], [null, value.noBox], `${name}: ${part.id}`);
+        else {
+          assert.ok(part.target, `${name}: ${part.id}`);
+          assert.equal(part.target.aspect ?? '', value.split('@')[1] ?? '', `${name}: ${part.id}'s aspect`);
+        }
+      }
+    }
+    assert.deepEqual(webPartsOf('button').find((part) => part.id === 'focus-ring').target, { part: 'container', aspect: 'focus-ring' });
+    assert.deepEqual(webPartsOf('tabs').find((part) => part.id === 'label').target, { child: ['tanrei-tab'], part: 'label' });
+    const silent = names.find((name) => !specs[name].platforms.web?.parts);
+    if (silent) assert.equal(webPartsOf(silent), null, `${silent}: a spec that does not say where its parts are has no figure`);
+  });
+  test('a figure stands on the web package’s own stage of the anatomy fixture, in the room of its baseline', () => {
+    for (const name of withParts) {
+      const stage = blueprintStageOf(name);
+      if (!stage) continue;
+      const document = fixtureDocument(name);
+      assert.equal(stage.fixture, specs[name].anatomyFixture ?? specs[name].fixtures[0].id, name);
+      assert.equal(stage.html, document.stages.find((candidate) => candidate.id === stage.fixture).html, name);
+      assert.deepEqual(stage.room, document.sizes[stage.fixture], name);
+      assert.equal(stage.tag, specs[name].platforms.web.name);
+      assert.ok(!document.windowed.includes(stage.fixture), `${name}: a fixture drawn in a window has no figure in the page`);
+    }
+    assert.equal(blueprintStageOf('button').fixture, 'filled-leading-icon', 'the button’s figure shows its icon');
+    assert.match(blueprintStageOf('button').html, /^<div class="stage" data-fixture="filled-leading-icon"><tanrei-button\b/);
+  });
+  test('the button’s lines, with its icon: the padding on the icon’s side, the gap, the other padding, the heights', () => {
+    const { fixture, html } = blueprintStageOf('button');
+    const lines = measureLinesOf('button', fixture, html);
+    const comp = `${NS}.comp.button`;
+    assert.deepEqual(
+      lines.map(({ token, part, axis, px }) => [token, part, axis, px]),
+      [
+        [`${comp}.container.padding-inline-start-with-icon.medium`, 'container', 'padding-start', resolved(`${comp}.container.padding-inline-start-with-icon.medium`).$value.value],
+        [`${comp}.container.gap.medium`, 'container', 'gap', resolved(`${comp}.container.gap.medium`).$value.value],
+        [`${comp}.container.padding-inline-end.medium`, 'container', 'padding-end', resolved(`${comp}.container.padding-inline-end.medium`).$value.value],
+        [`${comp}.container.height.medium`, 'container', 'block', resolved(`${comp}.container.height.medium`).$value.value],
+        [`${comp}.icon.size.medium`, 'icon', 'block', resolved(`${comp}.icon.size.medium`).$value.value],
+      ],
+    );
+    // Without its icon: no icon, no gap, and the plain paddings.
+    const plain = fixtureDocument('button').stages.find((stage) => stage.id === 'filled-medium').html;
+    assert.deepEqual(
+      measureLinesOf('button', 'filled-medium', plain).map(({ token }) => token),
+      [`${comp}.container.padding-inline-start.medium`, `${comp}.container.padding-inline-end.medium`, `${comp}.container.height.medium`],
+    );
+    // An icon after the label: its padding is at the end.
+    const trailing = fixtureDocument('button').stages.find((stage) => stage.id === 'filled-trailing-icon').html;
+    assert.ok(measureLinesOf('button', 'filled-trailing-icon', trailing).some(({ token }) => token === `${comp}.container.padding-inline-end-with-icon.medium`));
+  });
+  test('every line is a length of a part the web draws as a box, the same in every state, for the fixture’s size and variant', () => {
+    for (const name of withParts.filter(inDefault)) {
+      const stage = blueprintStageOf(name);
+      if (!stage) continue;
+      const fixture = specs[name].fixtures.find((candidate) => candidate.id === stage.fixture);
+      for (const line of measureLinesOf(name, stage.fixture, stage.html)) {
+        assert.equal(resolved(line.token)?.$type, 'dimension', `${name}: ${line.token}`);
+        assert.ok(line.px > 0 && line.qualifiers.length === 0, `${name}: ${line.token}`);
+        const target = webPartsOf(name).find((part) => part.id === line.part).target;
+        assert.ok(target && target.aspect !== 'focus-ring' && target.aspect !== 'backdrop' && target.aspect !== 'outline', `${name}: ${line.token} is of a box`);
+        for (const [prop, value] of [['size', line.size], ['variant', line.variant]]) {
+          const given = fixture.props[prop] ?? specs[name].props.find((p) => p.name === prop)?.default;
+          if (value !== null) assert.equal(value, given, `${name}: ${line.token} is for the fixture’s ${prop}`);
+        }
+      }
+    }
+  });
+  test('the measure figure’s text alternative has a sentence for every plural form, with the component and its lengths', () => {
+    for (const lang of languages) {
+      const forms = strings(lang).visuals.measureAlt;
+      const rules = new Intl.PluralRules(lang);
+      for (let count = 1; count <= 40; count++) assert.ok(rules.select(count) in forms || 'other' in forms, `${lang}: ${count}`);
+      for (const [form, text] of Object.entries(forms)) {
+        assert.match(text, /\{component\}/, `${lang}: measureAlt.${form}`);
+        assert.match(text, /\{list\}/, `${lang}: measureAlt.${form}`);
+      }
+      assert.match(strings(lang).visuals.drawnFrom, /\{fixture\}/, `${lang}: drawnFrom names the fixture`);
+      assert.match(strings(lang).visuals.measureDiffers, /\{measured\}/, `${lang}: measureDiffers says what was found`);
+    }
+  });
+  test('the Specs section draws both figures over the anatomy table, which is the anatomy figure’s legend', () => {
+    const specsSection = read('src/components/ComponentSpecs.astro');
+    assert.match(specsSection, /<AnatomyDiagram name=\{spec\.name\} describedBy=\{`docs-anatomy-\$\{spec\.name\}`\} \/>\s*<div id=\{`docs-anatomy-\$\{spec\.name\}`\}><Table label=\{t\.anatomy\}>/);
+    assert.match(specsSection, /<MeasureDiagram name=\{spec\.name\} headingLevel=\{3\} \/>/);
+    for (const file of ['src/components/visuals/AnatomyDiagram.astro', 'src/components/visuals/MeasureDiagram.astro']) {
+      const text = read(file);
+      assert.match(text, /<Example\b[^>]*\breserve=\{\{ block: \[/, `${file}: holds its room in tokens`);
+      assert.match(text, /data-fixture-scope\s+role="img"\s+aria-label=\{/, `${file}: an image with a text alternative`);
+      assert.match(text, /<div class="docs-blueprint-stage" inert aria-hidden="true" set:html=\{stage\.html\} \/>/, `${file}: the component is a picture`);
+    }
+    // Every length and color of what is laid over the stage is a token, and forced colors draw it in the system's.
+    const css = read('src/components/visuals/blueprint.css');
+    assert.doesNotMatch(css.replace(/\/\*[\s\S]*?\*\//g, ''), /#[0-9a-f]{3,8}\b|rgb\(|hsl\(|\b\d+(\.\d+)?px\b/i);
+    assert.match(css, /@media \(forced-colors: active\) \{[\s\S]*stroke: CanvasText;/);
   });
 });
 

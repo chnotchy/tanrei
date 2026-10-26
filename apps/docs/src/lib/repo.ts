@@ -44,6 +44,8 @@ export interface Spec {
   /** The components it is built from, by name. Left out where it is built from none. */
   builtFrom?: string[];
   anatomy: { id: string; description: string; optional?: boolean }[];
+  /** The fixture an anatomy diagram draws, where the first fixture does not show every optional part. */
+  anatomyFixture?: string;
   props: SpecProp[];
   slots?: (Forwarded & { name: string; description: string })[];
   events?: (Forwarded & { name: string; description: string })[];
@@ -68,7 +70,7 @@ export interface Spec {
     notes?: string[];
   };
   tokens: string;
-  fixtures: { id: string; props: Record<string, string | boolean | number>; content?: string; items?: FixtureItem[]; /** The fixture of a member that is the same thing made by hand. */ twin?: string }[];
+  fixtures: { id: string; props: Record<string, string | boolean | number>; content?: string; slots?: Record<string, string>; items?: FixtureItem[]; /** The fixture of a member that is the same thing made by hand. */ twin?: string }[];
   platforms: Record<
     PlatformId,
     {
@@ -77,6 +79,8 @@ export interface Spec {
       props?: Record<string, string>;
       events?: Record<string, string>;
       items?: Record<string, { name: string; props: Record<string, string>; events?: Record<string, string>; notes?: string }>;
+      /** Web only: where each anatomy part is drawn (a target and an aspect), or why it has no box of its own. */
+      parts?: Record<string, string | { noBox: string }>;
       notes?: string;
     }
   >;
