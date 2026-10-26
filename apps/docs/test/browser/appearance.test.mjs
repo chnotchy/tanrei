@@ -53,7 +53,7 @@ const root = (page) =>
 /** The page's controls defined, its fonts in, and a frame drawn after both. */
 const settled = (page) =>
   page.evaluate(async () => {
-    await Promise.all(['tanrei-app-bar', 'tanrei-button', 'tanrei-popover', 'tanrei-tabs', 'tanrei-list'].map((tag) => customElements.whenDefined(tag)));
+    await Promise.all(['tanrei-app-bar', 'tanrei-button'].map((tag) => customElements.whenDefined(tag)));
     await document.fonts.ready;
     await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   });

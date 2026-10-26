@@ -67,7 +67,7 @@ async function choose(page, system) {
 /** What the header's buttons and panels say (the bar's, and the drawer's of a compact window). */
 const saidByTheHeader = (page) =>
   page.evaluate(() => ({
-    groups: [...document.querySelectorAll('tanrei-list.docs-appearance-look')].map((list) => list.value),
+    groups: [...document.querySelectorAll('tanrei-list.docs-appearance-look')].map((list) => list.value ?? list.getAttribute('value')),
     names: [...document.querySelectorAll('tanrei-button.docs-look .docs-look-name')].map((name) => name.textContent),
   }));
 /** The look the reader keeps. */

@@ -81,6 +81,8 @@ describe("the gallery's stages follow the page's scheme and contrast", () => {
     try {
       const page = await context.newPage();
       await page.goto(`${origin}${PAGE}`, { waitUntil: 'load' });
+      // The panel's elements are defined when a reader is about to use it: a pointer over its button.
+      await page.hover('#docs-appearance');
       await page.waitForFunction(() => customElements.get('tanrei-tabs') && document.querySelector('tanrei-tabs.docs-appearance-mode')?.updateComplete);
       // The window loads when it comes near the view.
       await page.locator(stage(WINDOW)).scrollIntoViewIfNeeded();
