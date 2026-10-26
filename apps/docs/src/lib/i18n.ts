@@ -315,6 +315,12 @@ const en = {
     stateNames: { enabled: 'Enabled', disabled: 'Disabled', hovered: 'Hovered', focused: 'Focused', pressed: 'Pressed' } as Record<string, string>,
     statesHeld: 'Each cell is the live component, held still in its state: it cannot be used.',
     statesNotShown: 'Not drawn here: {states}.',
+    // The playground (components/visuals/Playground.astro): its controls' group, its reset, its caption, and the
+    // sentence that sends a reader of another platform to the spec's name mapping (`{link}`, the mapping's heading).
+    playgroundControls: 'Controls',
+    playgroundReset: 'Reset the controls',
+    playgroundCaption: 'Each control sets one property of the live component, and the code follows. The page’s address keeps what you set, so a link opens it as you left it.',
+    playgroundNative: 'The code is for the web. For the other platforms, see “{link}”.',
   },
 };
 
@@ -561,6 +567,10 @@ const ja: typeof en = {
     stateNames: { enabled: '有効', disabled: '無効', hovered: 'ホバー', focused: 'フォーカス', pressed: '押下' },
     statesHeld: 'どのセルも実際のコンポーネントを、その状態のまま止めて描いています。操作はできません。',
     statesNotShown: 'ここに描いていない状態: {states}。',
+    playgroundControls: 'コントロール',
+    playgroundReset: 'コントロールをリセット',
+    playgroundCaption: 'コントロールごとに、実際のコンポーネントのプロパティを 1 つ設定します。コードも合わせて変わります。設定はページのアドレスに残るので、リンクを開くと同じ状態で表示されます。',
+    playgroundNative: 'コードは Web 用です。ほかのプラットフォームは「{link}」を参照してください。',
   },
 };
 
@@ -809,6 +819,10 @@ const zh: typeof en = {
     stateNames: { enabled: '启用', disabled: '禁用', hovered: '悬停', focused: '聚焦', pressed: '按下' },
     statesHeld: '每个单元格都是真实的组件，停留在该状态下，无法操作。',
     statesNotShown: '此处未绘制：{states}。',
+    playgroundControls: '控件',
+    playgroundReset: '重置控件',
+    playgroundCaption: '每个控件设置实时组件的一个属性，代码也随之更新。设置会保留在页面地址中，打开链接即可看到相同的状态。',
+    playgroundNative: '代码适用于 Web。其他平台请参阅“{link}”。',
   },
 };
 
@@ -1056,6 +1070,10 @@ const es: typeof en = {
     stateNames: { enabled: 'Habilitado', disabled: 'Deshabilitado', hovered: 'Con el cursor encima', focused: 'Con foco', pressed: 'Pulsado' },
     statesHeld: 'Cada celda es el componente real, detenido en su estado: no se puede usar.',
     statesNotShown: 'No se dibujan aquí: {states}.',
+    playgroundControls: 'Controles',
+    playgroundReset: 'Restablecer los controles',
+    playgroundCaption: 'Cada control fija una propiedad del componente en vivo, y el código cambia con él. La dirección de la página guarda lo que fijes, así que un enlace la abre tal como la dejaste.',
+    playgroundNative: 'El código es para la web. Para las demás plataformas, consulta «{link}».',
   },
 };
 
@@ -1303,6 +1321,10 @@ const hi: typeof en = {
     stateNames: { enabled: 'सक्षम', disabled: 'अक्षम', hovered: 'होवर', focused: 'फ़ोकस', pressed: 'दबाया हुआ' },
     statesHeld: 'हर सेल असली कंपोनेंट है, जो अपनी स्टेट में रुका हुआ है। इसे इस्तेमाल नहीं किया जा सकता।',
     statesNotShown: 'यहाँ नहीं दिखाई गईं: {states}।',
+    playgroundControls: 'कंट्रोल',
+    playgroundReset: 'कंट्रोल रीसेट करें',
+    playgroundCaption: 'हर कंट्रोल लाइव कंपोनेंट की एक प्रॉपर्टी सेट करता है, और कोड भी उसी के साथ बदलता है। आपकी सेटिंग पेज के पते में रहती है, इसलिए लिंक खोलने पर वही स्थिति दिखती है।',
+    playgroundNative: 'यह कोड वेब के लिए है। दूसरे प्लैटफ़ॉर्म के लिए “{link}” देखें।',
   },
 };
 
@@ -1554,6 +1576,10 @@ const ar: typeof en = {
     stateNames: { enabled: 'مُمكَّن', disabled: 'معطَّل', hovered: 'التحويم', focused: 'التركيز', pressed: 'الضغط' },
     statesHeld: 'كل خلية هي المكوّن الحقيقي، ثابتًا على حالته، ولا يمكن استخدامه.',
     statesNotShown: 'لا تُرسم هنا: {states}.',
+    playgroundControls: 'عناصر التحكم',
+    playgroundReset: 'إعادة تعيين عناصر التحكم',
+    playgroundCaption: 'يضبط كل عنصر تحكم خاصية واحدة في المكوّن المباشر، وتتغيّر الشيفرة معه. ويحفظ عنوان الصفحة ما ضبطته، فيفتحها الرابط كما تركتها.',
+    playgroundNative: 'هذه الشيفرة للويب. وللمنصات الأخرى، راجع «{link}».',
   },
 };
 
