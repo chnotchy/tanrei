@@ -7,7 +7,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { after, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { shard, uncountedFailures } from '../src/run-node-tests.js';
+import { balance, shard, uncountedFailures } from '../src/run-node-tests.js';
+import { measured, refreshed } from '../src/shard-weights.js';
 import { leavesNothingBehind, tempDir } from '../src/test-tmp.js';
 
 leavesNothingBehind(after);
@@ -78,6 +79,98 @@ test('TEST_SHARD runs one share of the files, and the shares together run each f
   assert.deepEqual(ran.sort(), files);
   assert.deepEqual(shard({}), []);
   for (const value of ['0/3', '4/3', '1', 'a/b']) assert.throws(() => shard({ TEST_SHARD: value }), /TEST_SHARD/);
+});
+
+describe('shards by measured time (--shard-weights)', () => {
+  const weights = { 'a.test.mjs': 50, 'b.test.mjs': 40, 'c.test.mjs': 30, 'd.test.mjs': 20, 'e.test.mjs': 10, 'gone.test.mjs': 5 };
+  const files = ['a.test.mjs', 'b.test.mjs', 'c.test.mjs', 'd.test.mjs', 'e.test.mjs', 'new.test.mjs'];
+  const testFile = (name) => `import { test } from 'node:test';\ntest('${name}', () => {});\n`;
+
+  test('every file is in exactly one shard, a file the weights do not name among them at their median', () => {
+    for (const total of [1, 2, 3, 4, 7]) {
+      const shards = balance(files, weights, total);
+      assert.equal(shards.length, total);
+      assert.deepEqual(shards.flatMap((s) => s.files).sort(), [...files].sort(), `${total} shards`);
+    }
+    const shards = balance(files, weights, 3);
+    assert.deepEqual(shards.find((s) => s.files.includes('new.test.mjs')).guessed, ['new.test.mjs']);
+    // The median of the six weights (5, 10, 20, 30, 40, 50) is 25; the name of a file that is not there runs nowhere.
+    assert.equal(shards.reduce((sum, s) => sum + s.seconds, 0), 50 + 40 + 30 + 20 + 10 + 25);
+    assert.ok(!shards.some((s) => s.files.includes('gone.test.mjs')));
+  });
+
+  test('the same split whatever order the files are found in: longest first, each to the shard with the least so far', () => {
+    const split = (list) => balance(list, weights, 2).map((s) => s.files);
+    const expected = split(files);
+    for (const order of [[...files].reverse(), [files[3], files[0], files[5], files[1], files[4], files[2]]]) assert.deepEqual(split(order), expected);
+    // a 50 → 1 (50); b 40 → 2 (40); c 30 → 2 (70); new 25 → 1 (75); d 20 → 2 (90); e 10 → 1 (85).
+    assert.deepEqual(expected, [['a.test.mjs', 'e.test.mjs', 'new.test.mjs'], ['b.test.mjs', 'c.test.mjs', 'd.test.mjs']]);
+  });
+
+  test('the runner gives each shard its files by weight, says how it split them, and how long each ran', () => {
+    const dir = tempDir('node-test-weights');
+    fs.mkdirSync(path.join(dir, 'test'));
+    for (const file of files) fs.writeFileSync(path.join(dir, 'test', file), testFile(file));
+    fs.writeFileSync(path.join(dir, 'test/durations.json'), JSON.stringify({ $comment: 'seconds', ...weights }));
+    const ran = [];
+    for (const index of [1, 2, 3]) {
+      const child = spawnSync(process.execPath, [runner, '--shard-weights=test/durations.json', 'test/*.test.mjs'], { cwd: dir, env: { ...childEnv(), TEST_SHARD: `${index}/3` }, encoding: 'utf8' });
+      assert.equal(child.status, 0, `${child.stdout}${child.stderr}`);
+      const names = [...child.stdout.matchAll(/^ok \d+ - (\S+)$/gm)].map((m) => m[1]);
+      assert.ok(names.length > 0, `shard ${index}/3 ran nothing`);
+      assert.match(child.stdout, new RegExp(`^# → ${index}/3: \\d+ s — `, 'm'));
+      const timed = [...child.stdout.matchAll(/^# file-duration (\S+) \d+\.\d$/gm)].map((m) => m[1]);
+      assert.deepEqual(timed, names.map((name) => `test/${name}`).sort());
+      ran.push(...names);
+    }
+    assert.deepEqual(ran.sort(), [...files].sort());
+  });
+
+  test('a failure in a run sharded by weights fails it, a describe body that throws among them', () => {
+    for (const source of ["test('t', () => { throw new Error('plain'); });", "describe('reads a file', () => { throw new Error('ENOENT'); });"]) {
+      const dir = tempDir('node-test-weights-fail');
+      fs.writeFileSync(path.join(dir, 'case.test.mjs'), `import { describe, test } from 'node:test';\n${source}\n`);
+      fs.writeFileSync(path.join(dir, 'durations.json'), '{}');
+      const child = spawnSync(process.execPath, [runner, '--shard-weights=durations.json', '*.test.mjs'], { cwd: dir, env: { ...childEnv(), TEST_SHARD: '1/1' }, encoding: 'utf8' });
+      assert.notEqual(child.status, 0, `${child.stdout}${child.stderr}`);
+      assert.match(child.stdout, /^# file-duration case\.test\.mjs \d+\.\d$/m);
+    }
+  });
+
+  test('a file whose tests a helper module declares is timed as that file, not the helper', () => {
+    const dir = tempDir('node-test-weights-helper');
+    fs.writeFileSync(path.join(dir, 'helper.mjs'), "import { test } from 'node:test';\nexport function make(name) { test(name, () => {}); }\n");
+    for (const name of ['light', 'dark']) fs.writeFileSync(path.join(dir, `${name}.test.mjs`), `import { make } from './helper.mjs';\nmake('${name}');\n`);
+    fs.writeFileSync(path.join(dir, 'durations.json'), '{}');
+    const child = spawnSync(process.execPath, [runner, '--shard-weights=durations.json', '*.test.mjs'], { cwd: dir, env: { ...childEnv(), TEST_SHARD: '1/1' }, encoding: 'utf8' });
+    assert.equal(child.status, 0, `${child.stdout}${child.stderr}`);
+    assert.deepEqual([...child.stdout.matchAll(/^# file-duration (\S+) /gm)].map((m) => m[1]), ['dark.test.mjs', 'light.test.mjs']);
+  });
+
+  test('more shards than files: a shard with none runs nothing, and passes', () => {
+    const dir = tempDir('node-test-weights-few');
+    fs.writeFileSync(path.join(dir, 'only.test.mjs'), testFile('only'));
+    fs.writeFileSync(path.join(dir, 'durations.json'), '{}');
+    const child = spawnSync(process.execPath, [runner, '--shard-weights=durations.json', '*.test.mjs'], { cwd: dir, env: { ...childEnv(), TEST_SHARD: '2/2' }, encoding: 'utf8' });
+    assert.equal(child.status, 0, `${child.stdout}${child.stderr}`);
+    assert.doesNotMatch(child.stdout, /^ok \d+ - /m);
+  });
+
+  test('without TEST_SHARD the weights are not read, and every file runs', () => {
+    const dir = tempDir('node-test-weights-all');
+    for (const file of ['x.test.mjs', 'y.test.mjs']) fs.writeFileSync(path.join(dir, file), testFile(file));
+    const child = spawnSync(process.execPath, [runner, '--shard-weights=missing.json', '*.test.mjs'], { cwd: dir, env: childEnv(), encoding: 'utf8' });
+    assert.equal(child.status, 0, `${child.stdout}${child.stderr}`);
+    assert.equal([...child.stdout.matchAll(/^ok \d+ - /gm)].length, 2);
+  });
+
+  test('the weights are measured again from the logs of a sharded run', () => {
+    const logs = ['2026-10-26T12:00:00.0Z # file-duration test/a.test.mjs 61.4\nok 1 - a', '# file-duration test/a.test.mjs 58.6\n# file-duration test/new.test.mjs 12.2\r'];
+    const found = measured(logs);
+    assert.deepEqual([...found], [['test/a.test.mjs', [61.4, 58.6]], ['test/new.test.mjs', [12.2]]]);
+    const next = refreshed({ $comment: 'seconds', 'b.test.mjs': 40, 'a.test.mjs': 50 }, found, (file) => file.replace(/^test\//, ''));
+    assert.deepEqual(Object.entries(next), [['$comment', 'seconds'], ['a.test.mjs', 60], ['b.test.mjs', 40], ['new.test.mjs', 12]]);
+  });
 });
 
 test('a TAP report’s failures: at any depth, without the TODOs', () => {
