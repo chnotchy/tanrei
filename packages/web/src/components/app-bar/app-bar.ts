@@ -13,6 +13,7 @@ import {
 import { AXES, CORE_SIZES, heightProbe, styles } from './app-bar.styles.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { cancelPhaseRead, readInPhase } from '../../primitives/read-phase.js';
 
 /** The core sizes (small, large), plus any a design system adds: a size other than small has a title row that collapses. */
 export type TanreiAppBarSize = 'small' | 'large' | (string & {});
@@ -202,20 +203,33 @@ export class TanreiAppBar extends TanreiElement {
 
   // ---- APB-21: the window class a responsive brand follows ----
 
-  /** The app shell's window class where the bar stands in one and it has decided; else the window's width. */
+  /**
+   * The app shell's window class where the bar stands in one and it has decided; else the window's width. The width
+   * the window is medium from is the cascade's, read in the frame's read phase (src/primitives/read-phase.ts), after its
+   * layout and before its paint: a read as the bar is connected had the browser style the whole page for it.
+   */
   private watchWindow() {
     this.unwatchWindow();
     this.shell = this.closest<WindowClassSource>('tanrei-app-shell');
     this.shell?.addEventListener('windowclasschange', this.onWindow);
-    const medium = typeof matchMedia === 'function' ? getComputedStyle(this).getPropertyValue('--tanrei-sys-breakpoint-medium').trim() : '';
-    if (medium) {
+    this.onWindow();
+    if (typeof matchMedia !== 'function') return;
+    readInPhase(this.windowRead, () => {
+      if (!this.isConnected) return;
+      const medium = getComputedStyle(this).getPropertyValue('--tanrei-sys-breakpoint-medium').trim();
+      if (!medium) return;
       this.widths = matchMedia(`(min-width: ${medium})`);
       this.widths.addEventListener('change', this.onWindow);
-    }
-    this.onWindow();
+      this.onWindow();
+    });
   }
 
+  /** Who asks for the reads of the read phase: the window's width, and where the connected scroll is. */
+  private readonly windowRead = {};
+  private readonly scrollRead = {};
+
   private unwatchWindow() {
+    cancelPhaseRead(this.windowRead);
     this.shell?.removeEventListener('windowclasschange', this.onWindow);
     this.widths?.removeEventListener('change', this.onWindow);
     this.shell = null;
@@ -257,6 +271,7 @@ export class TanreiAppBar extends TanreiElement {
 
   private disconnectScroll() {
     cancelAnimationFrame(this.retry);
+    cancelPhaseRead(this.scrollRead);
     if (this.source) this.source.target.removeEventListener('scroll', this.onScroll);
     this.source = null;
     this.connected = false;
@@ -283,7 +298,9 @@ export class TanreiAppBar extends TanreiElement {
     }
     this.source.target.addEventListener('scroll', this.onScroll, { passive: true });
     this.connected = true;
-    this.onScroll();
+    // Where it is scrolled to now (a page restored scrolled) is read in the frame's read phase, before the first frame
+    // is painted: a read of the scroll in the bar's first update had the browser lay the page out for it.
+    readInPhase(this.scrollRead, this.onScroll);
   }
 
   private readonly onScroll = () => {
