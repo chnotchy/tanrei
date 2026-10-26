@@ -25,6 +25,8 @@ const groups = [spec.tokens, ...sharedSetsOf(spec.name)];
 // A component that lives in a layer is read in that layer's system, the one that has its tokens.
 const compTokens = groups.flatMap((group) => tokensIn(`${ns}.${group}`, 'light', spec.layer).filter((tk) => tk.type !== 'typography'));
 const typographyTokens = groups.flatMap((group) => tokensIn(`${ns}.${group}`, 'light', spec.layer).filter((tk) => tk.type === 'typography'));
+// The rows of the tokens' table: the room it holds until it comes near the view (below).
+const tokenRows = compTokens.length + typographyTokens.length;
 const tokenFile = (group: string) => (spec.layer && group === spec.tokens ? `tokens/systems/${spec.layer}/comp/${group.replace('comp.', '')}.tokens.json` : `tokens/comp/${group.replace('comp.', '')}.tokens.json`);
 
 const showDefault = (v: unknown) => (v === null ? 'null' : typeof v === 'string' ? `"${v}"` : String(v));
@@ -228,7 +230,7 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
 </table></Table>
 
 <h3>{t.tokens}</h3>
-<Table label={t.tokens} density="compact"><table>
+<Table label={t.tokens} density="compact" class="tokens" style={`--docs-token-rows: ${tokenRows}`}><table>
   <thead><tr><th scope="col">{t.token}</th><th scope="col">{t.aliases}</th><th scope="col">{t.resolvedLight}</th></tr></thead>
   <tbody>
     {[...compTokens, ...typographyTokens].map((tk) => {
@@ -236,8 +238,10 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
       return (
         <tr>
           <td data-wrap="false"><code>{tk.cssVar}</code></td>
-          <td>{alias ? <code>{alias.replace(`${ns}.`, '')}</code> : <span class="docs-muted">—</span>}</td>
-          <td>
+          {/* Each row is as few elements as it can be: a component's page holds hundreds of them. */}
+          {alias ? <td><code>{alias.replace(`${ns}.`, '')}</code></td> : <td class="docs-muted">—</td>}
+          {/* A color's swatch and its value stand on one line: the value is not broken under its swatch. */}
+          <td data-wrap={tk.type === 'color' ? 'false' : undefined}>
             {tk.type === 'color' && <tanrei-swatch class="chip" decorative size="small" shape="circle" color={tk.value.hex} />}
             <span class="docs-mono">{formatValue(tk)}</span>
           </td>
@@ -299,5 +303,21 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
   }
   td code {
     white-space: nowrap;
+  }
+  /* The tokens' table is the longest thing on a component's page — hundreds of rows, half of the page's elements, far
+     below its head — and it is neither styled nor laid out until it comes near the view: the browser restyled every
+     row of it each time a script read the layout as the page loaded. Until then it holds the room of its rows and its
+     header row, each one line of the Table's compact cell (every row of it is one line, but a long value the column
+     wraps, a shadow); the room it remembers (`auto`) is the room it took once drawn. Its text is still found by the
+     browser's find in page, which draws it. The Table reads its sizes again when it is drawn (a size observer), so it is
+     a focus stop and a region where it scrolls once it is near. The other tables, whose rows are paragraphs of no
+     height known before they are laid out, are drawn with the page. */
+  .tokens {
+    content-visibility: auto;
+    contain-intrinsic-block-size: auto
+      calc(
+        (var(--docs-token-rows) + 1) *
+          (2 * var(--tanrei-comp-table-cell-padding-block-compact) + var(--tanrei-comp-table-cell-text-typescale-compact-line-height) * var(--tanrei-comp-table-cell-text-typescale-compact-font-size))
+      );
   }
 </style>
