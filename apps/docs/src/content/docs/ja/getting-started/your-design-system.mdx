@@ -8,6 +8,7 @@ sourceHash: 647f155f3ba16d1377c26d7daac2a6ebdad810e4
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
+import InstallCommand from '../../../../components/InstallCommand.astro';
 
 プロダクトの見た目を変えても、Tanrei のコンポーネントは変わりません。変わるのは**レイヤ**です — 共通の語彙の「値」を決め、自分のパレットを宣言する小さな JSON ファイル。`@tanrei/cli` がその 1 ファイルを、各プラットフォームが必要とするものすべてに変換します。
 
@@ -19,9 +20,7 @@ import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 コマンドラインツールを、プロダクトに開発用の依存として加えます。このページの `npx tanrei …` のコマンドは、どれもそれを実行します。`tanrei studio` が配信する Theme Studio も入っています。
 
-```sh
-npm install --save-dev @tanrei/cli
-```
+<InstallCommand packages="cli" dev />
 
 MCP サーバーはインストールしなくてかまいません。このページの後のほうで登録するとおり、エージェントが起動するときに `npx` が `@tanrei/mcp` を取ってきます。
 

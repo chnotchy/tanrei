@@ -7,6 +7,7 @@ sourceHash: 8bc4bec678ed19a67a84c01798b3240663fd6cf1
 
 import Callout from '../../../../components/Callout.astro';
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
+import InstallCommand from '../../../../components/InstallCommand.astro';
 
 `@tanrei/react` は、`@tanrei/web` の各カスタム要素を、型付きのプロパティとイベントハンドラーを持つ本物の React コンポーネントでラップします。ラッパーはカスタム要素のマニフェストから生成されるので、ラップしている要素と常に一致します。
 
@@ -18,9 +19,7 @@ React 18 以降が必要です。
 
 ### npm から
 
-```sh
-npm install @tanrei/react @tanrei/web
-```
+<InstallCommand packages="react web" />
 
 ### ソースから
 

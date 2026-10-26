@@ -7,6 +7,7 @@ sourceHash: 8bc4bec678ed19a67a84c01798b3240663fd6cf1
 
 import Callout from '../../../../components/Callout.astro';
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
+import InstallCommand from '../../../../components/InstallCommand.astro';
 
 تغلِّف الحزمة `@tanrei/react` كل عنصر مخصص من `@tanrei/web` بمكوّن React حقيقي له خصائص محدَّدة الأنواع ومعالجات أحداث. تُولَّد هذه الأغلفة من بيان العناصر المخصصة (custom elements manifest)، فتطابق دائمًا العناصر التي تغلِّفها.
 
@@ -18,9 +19,7 @@ import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 ### من npm
 
-```sh
-npm install @tanrei/react @tanrei/web
-```
+<InstallCommand packages="react web" />
 
 ### من الشيفرة المصدرية
 

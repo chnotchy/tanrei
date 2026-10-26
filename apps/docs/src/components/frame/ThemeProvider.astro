@@ -1,0 +1,21 @@
+---
+// The page's scheme before its first frame: the one the reader chose in the header's appearance menu
+// (components/frame/Header.astro keeps it under `starlight-theme`), else the device's. It replaces Starlight's
+// `ThemeProvider`, whose script reads that storage outside a `try`: where the site's data is blocked, reading it throws,
+// the script stops before it sets `data-theme`, and the page keeps the scheme it was built with whatever the device
+// prefers. Here a storage that throws counts as nothing stored. The framework's theme select, the only reader of
+// `StarlightThemeProvider` and of the icons' template, is not drawn on this site (the header replaces it), so neither
+// is written.
+---
+
+{/* Inline, so that the first frame has its scheme. */}
+<script is:inline>
+  (() => {
+    let stored = null;
+    try {
+      stored = localStorage.getItem('starlight-theme');
+    } catch {}
+    const theme = stored === 'light' || stored === 'dark' ? stored : window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    document.documentElement.dataset.theme = theme;
+  })();
+</script>
