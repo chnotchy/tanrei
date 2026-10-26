@@ -26,6 +26,7 @@
       "description": "A ring outside the dot or the pill that separates the badge from what it overlaps."
     }
   ],
+  "anatomyFixture": "count-single",
   "props": [
     {
       "name": "count",
