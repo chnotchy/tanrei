@@ -51,23 +51,23 @@
       padding-block: calc((var(--tanrei-sys-target-touch) - var(--tanrei-comp-app-bar-brand-wordmark-height)) / 2);
     }
   }
-  /* The design system's button: in the bar's context in a medium or wider window, first in the drawer's list in a
+  /* The appearance's button: in the bar's context in a medium or wider window, first in the drawer's list in a
      compact one, where the bar has no room for it beside the wordmark and three actions (Header.astro). */
-  .docs-system-row {
+  .docs-look-row {
     display: none;
   }
   @container style(--tanrei-app-shell-window-class: compact) {
-    tanrei-app-bar > .docs-system {
+    tanrei-app-bar > .docs-look {
       display: none;
     }
-    .docs-system-row {
+    .docs-look-row {
       display: flex;
     }
   }
-  tanrei-app-shell[data-window-class='compact'] tanrei-app-bar > .docs-system {
+  tanrei-app-shell[data-window-class='compact'] tanrei-app-bar > .docs-look {
     display: none;
   }
-  tanrei-app-shell[data-window-class='compact'] .docs-system-row {
+  tanrei-app-shell[data-window-class='compact'] .docs-look-row {
     display: flex;
   }
   /* The menu button: the shell's in a compact window, the site's in a wider one — by the shell's window class, a
@@ -126,7 +126,7 @@
     display: inline-flex;
     margin-inline-start: auto;
   }
-  tanrei-app-bar:not(:defined) > .docs-system {
+  tanrei-app-bar:not(:defined) > .docs-look {
     display: inline-flex;
   }
   tanrei-app-bar:not(:defined) > .docs-wide-only {
@@ -172,19 +172,18 @@
     direction: ltr;
     color: var(--tanrei-sys-color-on-surface-variant);
   }
-  /* The design system's text Button until it is defined: its name, then its glyph, in the medium Button's box. */
-  tanrei-app-bar > tanrei-button.docs-system:not(:defined) {
+  /* The appearance's text Button until it is defined: its glyph, then the look's name, in the medium Button's box. */
+  tanrei-app-bar > tanrei-button.docs-look:not(:defined) {
     box-sizing: border-box;
     gap: var(--tanrei-comp-button-container-gap-medium);
     block-size: var(--tanrei-comp-button-container-height-medium);
-    padding-inline: var(--tanrei-comp-button-container-padding-inline-start-medium) var(--tanrei-comp-button-container-padding-inline-end-with-icon-medium);
+    padding-inline: var(--tanrei-comp-button-container-padding-inline-start-with-icon-medium) var(--tanrei-comp-button-container-padding-inline-end-medium);
     font: var(--tanrei-comp-button-label-typescale-medium-font);
     letter-spacing: var(--tanrei-comp-button-label-typescale-medium-letter-spacing);
     color: var(--tanrei-comp-button-text-label-color);
     white-space: nowrap;
   }
-  tanrei-app-bar > tanrei-button.docs-system:not(:defined) > [slot='icon'] {
-    order: 1;
+  tanrei-app-bar > tanrei-button.docs-look:not(:defined) > [slot='icon'] {
     inline-size: var(--tanrei-comp-button-icon-size-medium);
     block-size: var(--tanrei-comp-button-icon-size-medium);
     overflow: hidden;
@@ -238,9 +237,9 @@
       content: none;
     }
   }
-  /* The rows of the design system's button (compact windows only, above) and of the switch: the first of the list, at
+  /* The rows of the appearance's button (compact windows only, above) and of the switch: the first of the list, at
      a row's inset, a row's height at least; a collapsed drawer, whose column holds the groups' glyphs, draws neither. */
-  .docs-system-row {
+  .docs-look-row {
     box-sizing: border-box;
     align-items: center;
     min-block-size: var(--tanrei-comp-navigation-drawer-item-container-height-regular);
@@ -257,10 +256,10 @@
   }
   /* Once the drawer is defined its list has no inset of its own (each of its rows keeps the container's), and puts
      the gap between its rows itself: these rows take the inset as theirs, and no margin below. */
-  tanrei-navigation-drawer:defined > :is(.docs-listing-row, .docs-system-row) {
+  tanrei-navigation-drawer:defined > :is(.docs-listing-row, .docs-look-row) {
     margin: 0 var(--tanrei-comp-navigation-drawer-container-padding-inline);
   }
-  tanrei-navigation-drawer[collapsed] > :is(.docs-listing-row, .docs-system-row) {
+  tanrei-navigation-drawer[collapsed] > :is(.docs-listing-row, .docs-look-row) {
     display: none;
   }
   .docs-sidebar:not(:defined) :is(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item) {
@@ -404,10 +403,10 @@
   tanrei-app-bar > :is(.docs-wide-only, .docs-compact-only) {
     display: none;
   }
-  /* Nothing can be chosen without script: the menus' buttons are not drawn (the switch's row holds nothing either). */
-  tanrei-app-bar > :is(.docs-system, #docs-appearance, #docs-language):not(:defined),
+  /* Nothing can be chosen without script: the menus' and the panel's buttons, and the mode's toggle, are not drawn (the switch's row holds nothing either). */
+  tanrei-app-bar > :is(.docs-look, #docs-mode, #docs-language):not(:defined),
   .docs-listing-row,
-  .docs-system-row.docs-system-row {
+  .docs-look-row.docs-look-row {
     display: none;
   }
 }

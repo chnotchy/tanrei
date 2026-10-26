@@ -1,0 +1,14 @@
+---
+// The head's one script of the reader's appearance, in place of the framework's theme script (its `ThemeProvider`,
+// which kept a scheme of its own under a key of its own): before the first paint it puts on `<html>` the color mode,
+// the contrast and the look the reader keeps, or the ones the page's address shares (lib/appearance.ts), and the rule
+// that hides from the lists of components what the look does not have. The framework's theme picker is not drawn
+// (Header.astro replaces the header that held it), so nothing else of its script is needed.
+import { appearanceBootstrap, bootConfig } from '../../lib/appearance';
+import { manifests } from '../../lib/repo';
+
+// The shipped systems, the default first (lib/repo.ts puts the configuration's namespace first).
+const script = appearanceBootstrap(bootConfig(manifests.map((manifest) => manifest.system)));
+---
+
+<script is:inline set:html={script} />

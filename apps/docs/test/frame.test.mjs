@@ -56,9 +56,10 @@ describe('the first page of the page’s language', () => {
 
 describe('the header’s controls', () => {
   const header = read('components/frame/Header.astro');
-  test('every word of the menu button, the appearance’s menu, the design system’s button and the language’s button is in the six languages', async () => {
+  const panel = read('components/frame/Appearance.astro');
+  test('every word of the menu button, the appearance’s button and panel, the mode’s toggle and the language’s button is in the six languages', async () => {
     const { strings } = await import('../src/lib/i18n.ts');
-    const keys = ['menu', 'theme', 'themeAuto', 'appearance', 'editTheme', 'system', 'language'];
+    const keys = ['menu', 'appearance', 'appearanceOf', 'mode', 'modeAuto', 'darkMode', 'lookDefault', 'showcase', 'showcaseNote', 'copyLink', 'linkCopied', 'copyFailed', 'shared', 'keepShared', 'close', 'editTheme', 'language'];
     const english = strings(source.lang).frame;
     for (const { lang } of [source, ...translations]) {
       const words = strings(lang).frame;
@@ -66,19 +67,20 @@ describe('the header’s controls', () => {
         assert.ok(String(words[key] ?? '').trim(), `${lang}: frame.${key}`);
         if (lang !== source.lang) assert.notEqual(words[key], english[key], `${lang}: frame.${key} is not translated`);
       }
-      assert.deepEqual([...words.system.matchAll(/\{(\w+)\}/g)].map((match) => match[1]), ['system'], `${lang}: frame.system has one place, for the system`);
+      assert.deepEqual([...words.appearanceOf.matchAll(/\{(\w+)\}/g)].map((match) => match[1]), ['look'], `${lang}: frame.appearanceOf has one place, for the look`);
     }
   });
-  test('the icon-only buttons are named from the dictionary, and each opens its menu', () => {
-    assert.match(header, /<tanrei-button slot="actions" id="docs-appearance" variant="text" label=\{words\.theme\}>/);
+  test('the icon-only buttons are named from the dictionary; the language’s opens its menu, the appearance’s its panel', () => {
+    assert.match(header, /<tanrei-button slot="actions" id="docs-mode" variant="text" toggle label=\{words\.darkMode\}>/);
     assert.match(header, /<tanrei-button slot="actions" id="docs-language" variant="text" label=\{words\.language\}>/);
     assert.match(header, /id="docs-drawer-toggle"[^>]*label=\{words\.menu\} aria-controls="docs-sidebar" aria-expanded="true">/);
     assert.match(header, /data-app-shell-menu variant="text" label=\{words\.menu\}>/);
-    for (const anchor of ['docs-appearance', 'docs-language']) assert.match(header, new RegExp(`<tanrei-menu class="docs-frame-menu" anchor="${anchor}" placement="bottom-end">`));
+    assert.match(header, /<tanrei-menu class="docs-frame-menu" anchor="docs-language" placement="bottom-end">/);
+    assert.match(header, /<Appearance id="docs-appearance" part="panel" \/>/);
+    assert.match(panel, /<tanrei-popover class="docs-appearance-panel" anchor=\{id\} placement="bottom-start" headline=\{words\.appearance\} closable close-label=\{words\.close\}/);
   });
-  test('the appearance’s menu: the scheme, then the contrast, then Theme Studio’s link', () => {
-    const menu = header.slice(header.indexOf('anchor="docs-appearance"'), header.indexOf('anchor="docs-language"'));
-    const order = ['docs-scheme-group', 'value="auto"', 'value="light"', 'value="dark"', 'docs-contrast-group', 'value="standard"', 'value="medium"', 'value="high"', 'leading-icon="format_paint" href={studio}'].map((mark) => menu.indexOf(mark));
+  test('the appearance’s panel: the color mode, then the contrast, then the design system, then the link and Theme Studio’s', () => {
+    const order = ['docs-appearance-mode', 'value="system"', 'value="light"', 'value="dark"', 'docs-appearance-contrast', 'value="standard"', 'value="medium"', 'value="high"', 'docs-appearance-look', 'docs-appearance-note', 'docs-appearance-copy', 'href={studio}'].map((mark) => panel.indexOf(mark));
     assert.ok(order.every((at) => at >= 0), JSON.stringify(order));
     assert.deepEqual([...order].sort((a, b) => a - b), order);
   });
