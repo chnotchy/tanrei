@@ -3,8 +3,19 @@
 import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiFabMenu as TanreiFabMenuElement, type TanreiFabMenuCloseDetail, type TanreiFabMenuToggleDetail } from '@tanrei/web/components/fab-menu';
 
+const FabMenuElement = /* @__PURE__ */ createComponent({
+  tagName: 'tanrei-fab-menu',
+  elementClass: TanreiFabMenuElement,
+  react: React,
+  events: {
+    onClose: 'close' as EventName<TanreiEvent<TanreiFabMenuElement, CustomEvent<TanreiFabMenuCloseDetail>>>,
+    onToggle: 'toggle' as EventName<TanreiEvent<TanreiFabMenuElement, CustomEvent<TanreiFabMenuToggleDetail>>>,
+  },
+});
+const FabMenuAttributes = { variant: ['variant', 'filled'], size: ['size', 'medium'], open: ['open', false], label: ['label', ''], disabled: ['disabled', false], inline: ['inline', false] } as const;
 /**
  * Opens a short list of related actions from a floating action button, which turns into the list's close button while they show.
  *
@@ -16,12 +27,4 @@ import { TanreiFabMenu as TanreiFabMenuElement, type TanreiFabMenuCloseDetail, t
  * - `onClose` (`close`) — The menu asks to be closed: `detail.reason` is `escape`, `outside`, `tab`, `focus-out` or `item`. Set `open` to false.
  * - `onToggle` (`toggle`) — The toggle asks to open or close the menu: `detail.open` is the value asked for. Set `open` to it.
  */
-export const FabMenu = /* @__PURE__ */ createComponent({
-  tagName: 'tanrei-fab-menu',
-  elementClass: TanreiFabMenuElement,
-  react: React,
-  events: {
-    onClose: 'close' as EventName<TanreiEvent<TanreiFabMenuElement, CustomEvent<TanreiFabMenuCloseDetail>>>,
-    onToggle: 'toggle' as EventName<TanreiEvent<TanreiFabMenuElement, CustomEvent<TanreiFabMenuToggleDetail>>>,
-  },
-});
+export const FabMenu = /* @__PURE__ */ withServerAttributes(FabMenuElement, 'tanrei-fab-menu', TanreiFabMenuElement, FabMenuAttributes);

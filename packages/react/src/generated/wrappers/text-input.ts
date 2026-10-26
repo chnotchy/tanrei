@@ -4,6 +4,7 @@ import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
 import { type Marked, withMarks } from '../../marks.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiTextInput as TanreiTextInputElement, type TanreiTextInputEntryErrorDetail, type TanreiTextInputPickerRequestDetail, type TanreiTextInputResizeEndDetail, type TanreiTextInputActionDetail } from '@tanrei/web/components/text-input';
 
 /** The attributes of `<tanrei-text-input>` that are not properties of the element, as props of `TextInput`. */
@@ -25,6 +26,7 @@ const TextInputElement = /* @__PURE__ */ createComponent({
   },
 });
 const withTextInputMarks = /* @__PURE__ */ withMarks<TextInputMarks>([], ['form']);
+const TextInputAttributes = { variant: ['variant', 'stacked'], size: ['size', 'medium'], type: ['type', 'text'], value: ['value'], label: ['label', ''], labelHidden: ['label-hidden', false], placeholder: ['placeholder', ''], error: ['error', false], disabled: ['disabled', false], readOnly: ['readonly', false], multiline: ['multiline', false], minRows: ['min-rows', 2], maxRows: ['max-rows', 0], resize: ['resize', 'auto'], resizeAxis: ['resize-axis', 'vertical'], resizeLabel: ['resize-label', ''], noWrap: ['no-wrap', false], maxLength: ['maxlength', 0], counter: ['counter', false], counterText: ['counter-text', ''], counterNoLimitText: ['counter-no-limit-text', ''], prefixText: ['prefix-text', ''], suffixText: ['suffix-text', ''], autocomplete: ['autocomplete', ''], locale: ['locale', ''], min: ['min', ''], max: ['max', ''], disabledDates: ['disabled-dates'], invalidText: ['invalid-text', ''], unavailableText: ['unavailable-text', ''], segmentEmptyText: ['segment-empty-text', ''], picker: ['picker', false], pickerLabel: ['picker-label', ''], name: ['name', ''], form: ['form'] } as const;
 /**
  * The box people type in, and everything typed in it — one line, or several that follow the text or are resized by hand, or a date or a time entered unit by unit in the locale's form — with optional icons, a prefix and a suffix, a picker button, and, in the two looks that have one, the label that floats inside the box. It has no label row, no help and no error text of its own: put it in a `<tanrei-field>`, which names it, describes it and marks it — or use `<tanrei-text-field>`, which is the two as one element. Bare, it is for a place whose label stands elsewhere: a filter in a toolbar, a cell of a table, a row with its label beside it; give it `label` there.
  *
@@ -40,4 +42,4 @@ const withTextInputMarks = /* @__PURE__ */ withMarks<TextInputMarks>([], ['form'
  * - `onResizeEnd` (`resizeend`) — The person finished changing the size of a field resized by hand: a drag of its handle ended, or a key or an activation of the handle changed it (TXI-69). `detail.lines` and `detail.width`.
  * - `onAction` (`action`) — The action key (Enter) was pressed in a single-line field. Cancelable: cancelling it keeps an enclosing form from being submitted.
  */
-export const TextInput: Marked<typeof TextInputElement, TextInputMarks> = /* @__PURE__ */ withTextInputMarks(TextInputElement);
+export const TextInput: Marked<typeof TextInputElement, TextInputMarks> = /* @__PURE__ */ withServerAttributes(/* @__PURE__ */ withTextInputMarks(TextInputElement), 'tanrei-text-input', TanreiTextInputElement, TextInputAttributes);

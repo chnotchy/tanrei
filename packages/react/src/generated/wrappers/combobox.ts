@@ -4,6 +4,7 @@ import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
 import { type Marked, withMarks } from '../../marks.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiCombobox as TanreiComboboxElement, type TanreiComboboxChangeDetail, type TanreiComboboxToggleDetail } from '@tanrei/web/components/combobox';
 
 /** The attributes of `<tanrei-combobox>` that are not properties of the element, as props of `Combobox`. */
@@ -23,6 +24,7 @@ const ComboboxElement = /* @__PURE__ */ createComponent({
   },
 });
 const withComboboxMarks = /* @__PURE__ */ withMarks<ComboboxMarks>([], ['form']);
+const ComboboxAttributes = { variant: ['variant', 'stacked'], size: ['size', 'medium'], value: ['value', ''], inputValue: ['input-value'], name: ['name', ''], label: ['label', ''], labelHidden: ['label-hidden', false], placeholder: ['placeholder', ''], error: ['error', false], disabled: ['disabled', false], readOnly: ['readonly', false], open: ['open', false], allowCustomValue: ['allow-custom-value', false], filter: ['filter', 'contains'], wrap: ['no-wrap', true], noChevron: ['no-chevron', false], clearable: ['clearable', false], clearLabel: ['clear-label', ''], status: ['status', 'idle'], statusText: ['status-text', ''], emptyText: ['empty-text', ''], separation: ['separation', 'auto'], iconSpace: ['icon-space', 'auto'], density: ['density', 'regular'], inline: ['inline', false], form: ['form'] } as const;
 /**
  * Lets people find one value by typing: a box that looks and measures like a text input, with a list of options that narrows as they type and that they choose from, or, where the product allows it, a value of their own. The bare control: it has no label row and no message of its own.
  *
@@ -35,4 +37,4 @@ const withComboboxMarks = /* @__PURE__ */ withMarks<ComboboxMarks>([], ['form'])
  * - `onToggle` (`toggle`) — The list was opened or closed by the person, or closed by having nothing left to show; `open` is already the new one. `detail.open`, and for a close `detail.reason`: `select`, `commit`, `escape`, `outside`, `press`, `tab`, `focus-out`, `anchor-hidden` or `empty`. After a choice it follows `change`. Composed and not bubbling, as the platform's own `toggle`: heard on the element, and on an element composed around it, and by no ancestor. Never fired when the product sets `open`.
  * - `onAction` (`action`) — The person pressed Enter with no option active and the text was committed; after any `change` it caused. Cancelable: unless it is cancelled, the form the combobox stands in is then asked to submit.
  */
-export const Combobox: Marked<typeof ComboboxElement, ComboboxMarks> = /* @__PURE__ */ withComboboxMarks(ComboboxElement);
+export const Combobox: Marked<typeof ComboboxElement, ComboboxMarks> = /* @__PURE__ */ withServerAttributes(/* @__PURE__ */ withComboboxMarks(ComboboxElement), 'tanrei-combobox', TanreiComboboxElement, ComboboxAttributes);

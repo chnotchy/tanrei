@@ -3,8 +3,19 @@
 import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiChip as TanreiChipElement, type TanreiChipChangeDetail } from '@tanrei/web/components/chip';
 
+const ChipElement = /* @__PURE__ */ createComponent({
+  tagName: 'tanrei-chip',
+  elementClass: TanreiChipElement,
+  react: React,
+  events: {
+    onChange: 'change' as EventName<TanreiEvent<TanreiChipElement, CustomEvent<TanreiChipChangeDetail>>>,
+    onRemove: 'remove' as EventName<TanreiEvent<TanreiChipElement>>,
+  },
+});
+const ChipAttributes = { kind: ['kind', 'action'], variant: ['variant', 'outlined'], size: ['size', 'medium'], selected: ['selected', false], value: ['value', ''], disabled: ['disabled', false], label: ['label', ''], removeLabel: ['remove-label', ''], destructiveRemove: ['destructive-remove', false], removable: ['not-removable', true], href: ['href', ''], target: ['target', 'same'], targetLabel: ['target-label', ''], rel: ['rel', null], download: ['download', null] } as const;
 /**
  * Shows a compact choice, a suggested action or an item the user entered as a small labelled control.
  *
@@ -16,12 +27,4 @@ import { TanreiChip as TanreiChipElement, type TanreiChipChangeDetail } from '@t
  * - `onChange` (`change`) — A filter chip was activated; fired after its `click`, as a native checkbox does. `detail.selected` (and the element's `selected`) is the new value.
  * - `onRemove` (`remove`) — The user asked to remove an input chip, with its remove action or with Backspace or Delete. The chip stays until the page removes it.
  */
-export const Chip = /* @__PURE__ */ createComponent({
-  tagName: 'tanrei-chip',
-  elementClass: TanreiChipElement,
-  react: React,
-  events: {
-    onChange: 'change' as EventName<TanreiEvent<TanreiChipElement, CustomEvent<TanreiChipChangeDetail>>>,
-    onRemove: 'remove' as EventName<TanreiEvent<TanreiChipElement>>,
-  },
-});
+export const Chip = /* @__PURE__ */ withServerAttributes(ChipElement, 'tanrei-chip', TanreiChipElement, ChipAttributes);

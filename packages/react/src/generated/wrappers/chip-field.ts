@@ -4,6 +4,7 @@ import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
 import { type Marked, withMarks } from '../../marks.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiChipField as TanreiChipFieldElement, type TanreiChipFieldChangeDetail, type TanreiChipFieldRejectDetail, type TanreiChipFieldCheckDetail, type TanreiTextInputActionDetail } from '@tanrei/web/components/chip-field';
 
 /** The attributes of `<tanrei-chip-field>` that are not properties of the element, as props of `ChipField`. */
@@ -24,6 +25,7 @@ const ChipFieldElement = /* @__PURE__ */ createComponent({
   },
 });
 const withChipFieldMarks = /* @__PURE__ */ withMarks<ChipFieldMarks>([], ['form']);
+const ChipFieldAttributes = { value: ['value'], inputValue: ['input-value'], separators: ['separators'], maxEntries: ['max-entries', 0], variant: ['variant', 'stacked'], size: ['size', 'medium'], type: ['type', 'text'], placeholder: ['placeholder', ''], readOnly: ['readonly', false], autocomplete: ['autocomplete', ''], label: ['label', ''], labelHidden: ['label-hidden', false], supportingText: ['supporting-text', ''], errorText: ['error-text', ''], error: ['error', false], disabled: ['disabled', false], required: ['required', false], optional: ['optional', false], requiredMark: ['required-mark', 'auto'], requiredText: ['required-text', ''], optionalText: ['optional-text', ''], invalidText: ['invalid-text', ''], duplicateText: ['duplicate-text', ''], limitText: ['limit-text', ''], removeLabel: ['remove-label', ''], addedText: ['added-text', ''], addedCountText: ['added-count-text', ''], removedText: ['removed-text', ''], name: ['name', ''], form: ['form'] } as const;
 /**
  * Collects a list of short texts — e-mail addresses, telephone numbers, keywords — typed one after another in one field. Built from a Field (`<tanrei-field>`), the Text input it frames (`<tanrei-text-input>`) and one Chip (`<tanrei-chip>`) for each entry, standing in the Text input's box before the typing part: each text the product's check accepts becomes a chip that can be removed or taken back, and the list is the field's one value.
  *
@@ -36,4 +38,4 @@ const withChipFieldMarks = /* @__PURE__ */ withMarks<ChipFieldMarks>([], ['form'
  * - `onCheck` (`check`) — Asked once for each candidate entry, before it is made: `detail.text` and `detail.values`, the entries so far. Cancelable: `preventDefault()` refuses the candidate, and `detail.reason`, set by the listener, gives the words shown. Read when the event returns; an answer given later is not read.
  * - `onAction` (`action`) — The action key (Enter) was pressed in a single-line field. Cancelable: cancelling it keeps an enclosing form from being submitted.
  */
-export const ChipField: Marked<typeof ChipFieldElement, ChipFieldMarks> = /* @__PURE__ */ withChipFieldMarks(ChipFieldElement);
+export const ChipField: Marked<typeof ChipFieldElement, ChipFieldMarks> = /* @__PURE__ */ withServerAttributes(/* @__PURE__ */ withChipFieldMarks(ChipFieldElement), 'tanrei-chip-field', TanreiChipFieldElement, ChipFieldAttributes);

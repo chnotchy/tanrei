@@ -3,8 +3,19 @@
 import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiDialog as TanreiDialogElement, type TanreiDialogDismissDetail } from '@tanrei/web/components/dialog';
 
+const DialogElement = /* @__PURE__ */ createComponent({
+  tagName: 'tanrei-dialog',
+  elementClass: TanreiDialogElement,
+  react: React,
+  events: {
+    onCancel: 'cancel' as EventName<TanreiEvent<TanreiDialogElement, CustomEvent<TanreiDialogDismissDetail>>>,
+    onClose: 'close' as EventName<TanreiEvent<TanreiDialogElement>>,
+  },
+});
+const DialogAttributes = { open: ['open', false], headline: ['headline', ''], supportingText: ['supporting-text', ''], alert: ['alert', false], closedBy: ['closedby', 'any'], dividerVisibility: ['divider-visibility', 'auto'], width: ['width', 'content'], compactPresentation: ['compact-presentation', 'sheet'] } as const;
 /**
  * Stops a person for a decision or a few details that the task cannot go on without, in a surface that dims and blocks everything behind it and always offers at least one answer, until one is chosen or the dialog is dismissed.
  *
@@ -17,12 +28,4 @@ import { TanreiDialog as TanreiDialogElement, type TanreiDialogDismissDetail } f
  * - `onCancel` (`cancel`) — Escape, back or a press on the scrim asked to close it (only while `closedby` is not `none`): `detail.reason` is `escape`, `back` or `scrim`. Cancelable: `preventDefault()` keeps it open.
  * - `onClose` (`close`) — The dialog closed, whatever closed it.
  */
-export const Dialog = /* @__PURE__ */ createComponent({
-  tagName: 'tanrei-dialog',
-  elementClass: TanreiDialogElement,
-  react: React,
-  events: {
-    onCancel: 'cancel' as EventName<TanreiEvent<TanreiDialogElement, CustomEvent<TanreiDialogDismissDetail>>>,
-    onClose: 'close' as EventName<TanreiEvent<TanreiDialogElement>>,
-  },
-});
+export const Dialog = /* @__PURE__ */ withServerAttributes(DialogElement, 'tanrei-dialog', TanreiDialogElement, DialogAttributes);
