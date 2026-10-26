@@ -1387,6 +1387,46 @@ test.describe('behavior: the list', () => {
     expect((await read(page, 'one')).active).toBe('Kenya');
   });
 
+  test('SEL-32: a pointer at rest is not a pointer that moves — the rows a key scrolls under it leave the active option the key made, in every engine; the pointer that moves again makes the row under it active', async ({ page }) => {
+    await mount(page, [fx('many', {}, MANY)], { reducedMotion: true });
+    await focusSelect(page, 'many');
+    await page.keyboard.press('ArrowDown');
+    await shownList(page, 'many').toBe(true);
+    // Every pointermove the window hears, and the last one's place and pointer.
+    await page.evaluate(() => {
+      const w = window as unknown as { __moves: { x: number; y: number; id: number }[] };
+      w.__moves = [];
+      window.addEventListener('pointermove', (event) => w.__moves.push({ x: event.clientX, y: event.clientY, id: event.pointerId }), true);
+    });
+    const moves = () => page.evaluate(() => (window as unknown as { __moves: { x: number; y: number; id: number }[] }).__moves);
+    // The pointer moves onto the second row: it is the active one, without the ring.
+    const second = await box(rows(page, 'many').nth(1));
+    const at = { x: second.x + 20, y: second.y + second.height / 2 };
+    await page.mouse.move(at.x, at.y);
+    expect(await read(page, 'many')).toMatchObject({ active: 'Option 2', ring: [] });
+    // Page Down scrolls the list under the resting pointer. WebKit then sends a pointermove at the pointer's own place
+    // (Chromium and Firefox send none): the key's option stays the active one.
+    const heard = (await moves()).length;
+    await page.keyboard.press('PageDown');
+    expect(await read(page, 'many')).toMatchObject({ active: 'Option 12', ring: ['Option 12'] });
+    expect(await part(page, 'many', '.scroll').evaluate((el) => el.scrollTop), 'the list scrolled under the pointer').toBeGreaterThan(0);
+    if (test.info().project.name.startsWith('webkit')) await expect.poll(async () => (await moves()).length, 'WebKit tells the row now under the pointer').toBeGreaterThan(heard);
+    expect(await read(page, 'many'), 'the pointer did not move').toMatchObject({ active: 'Option 12', ring: ['Option 12'] });
+    // What WebKit sends, sent in every engine: a pointermove at the place the pointer last was.
+    const last = (await moves()).at(-1)!;
+    expect([last.x, last.y]).toEqual([at.x, at.y]);
+    await host(page, 'many').evaluate((el, p) => {
+      const target = el.shadowRoot!.elementFromPoint(p.x, p.y)!;
+      target.dispatchEvent(new PointerEvent('pointermove', { clientX: p.x, clientY: p.y, pointerId: p.id, pointerType: 'mouse', isPrimary: true, bubbles: true, composed: true }));
+    }, last);
+    expect(await read(page, 'many'), 'a pointermove at the same place is no move').toMatchObject({ active: 'Option 12', ring: ['Option 12'] });
+    // The pointer moves again, by a pixel: the row under it is the active one.
+    await page.mouse.move(at.x + 1, at.y);
+    const under = await host(page, 'many').evaluate((el, p) => el.shadowRoot!.elementFromPoint(p.x, p.y)!.closest('.row')!.querySelector('.option-label')!.textContent, { x: at.x + 1, y: at.y });
+    expect(under).not.toBe('Option 12');
+    expect(await read(page, 'many')).toMatchObject({ active: under, ring: [] });
+  });
+
   test('SEL-33: characters typed within a second of each other are one string, and the next option after the active one whose label begins with it — whatever the case, wrapping to the first — becomes active; one character typed again moves on to the next; on a closed select the first character opens the list and then does the same; typing never changes the value, and a Space typed within that second is a character', async ({ page }) => {
     await mount(page, [fx('one', { value: 'ca' }, [option('Canada', 'ca'), option('Chile', 'cl'), option('China', 'cn'), option('New Caledonia', 'nc'), option('New Zealand', 'nz'), option('Norway', 'no')])]);
     await listen(page, 'one');
