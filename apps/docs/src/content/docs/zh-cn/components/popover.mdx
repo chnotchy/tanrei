@@ -2,7 +2,7 @@
 title: "弹出框"
 description: "在一小块表面上显示可供阅读和操作的内容；它在用户按下的控件旁边打开并跟随这个控件，既不让页面的其余部分变暗，也不阻挡它；在 compact 窗口中，则显示在一个具有底部面板外观的模态表面上。"
 translationOf: components/popover.mdx
-sourceHash: cd2056332ef89bbba2c92da6cb340178ef7a87c7
+sourceHash: 8ea783c257033a8837af0d1dc60f033602666320
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -193,6 +193,19 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 2. 如果它是一列命令或选项，它就是菜单。
 3. 如果用户不作出回应就无法继续，它就是对话框。
 4. 否则它就是弹出框。
+
+### 切换提示
+
+切换提示（toggletip）是放在一个小信息按钮后面的简短说明，按钮就在它所解释的内容旁边。它不是一个独立的组件，而是一个打开弹出框的按钮。在工具提示不够用的地方使用它，比如说明里有链接，或者必须能通过触摸打开，并把内容控制在一两句话。
+
+- **按钮。** 一个纯图标按钮，`variant="text"`、`size="small"`，它的 `label` 说明这条说明是关于什么的（“关于存储空间”），而不是“信息”。按一下打开弹出框，再按一下关闭；弹出框把这个按钮指定为它的 `anchor`。
+- **弹出框。** 用 `label` 为它命名；要绘制标题时用 `headline`。和所有弹出框一样，它打开时获得焦点，关闭时把焦点交还给按钮，按 Escape 或在外部按下也会关闭它。
+- **不要用它代替页面。** 用户继续之前必须读到的内容，应写在字段的辅助文字或页面本身里，不需要谁去询问。
+
+<Example label="切换提示：按下信息按钮">
+  <tanrei-button id="popover-demo-toggletip-opener" variant="text" size="small" label="关于存储空间" onclick="document.getElementById('popover-demo-toggletip').open = !document.getElementById('popover-demo-toggletip').open"><span slot="icon">info</span></tanrei-button>
+  <tanrei-popover id="popover-demo-toggletip" anchor="popover-demo-toggletip-opener" label="关于存储空间" arrow onclose="this.open = false">回收站中的文件在被删除之前仍会占用存储空间。 <a class="tanrei-link" href="#guidelines">存储空间如何计算</a></tanrei-popover>
+</Example>
 
 ### 推荐
 

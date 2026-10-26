@@ -2,7 +2,7 @@
 title: اللوحة المنبثقة
 description: تعرض محتوى يقرؤه الشخص ويعمل فيه على سطح صغير يُفتح بجانب عنصر التحكم الذي ضغطه ويبقى معه، من دون تعتيم بقية الصفحة أو حجبها. وفي نافذة مضغوطة، على سطح نمطي بمظهر اللوحة السفلية.
 translationOf: components/popover.mdx
-sourceHash: cd2056332ef89bbba2c92da6cb340178ef7a87c7
+sourceHash: 8ea783c257033a8837af0d1dc60f033602666320
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -193,6 +193,19 @@ import Example from '../../../../components/visuals/Example.astro';
 2. إن كان قائمة أوامر أو خيارات، فهو قائمة خيارات.
 3. إن كان الشخص لا يستطيع أن يكمل من دون أن يجيب عنه، فهو مربع حوار.
 4. وإلا فهو لوحة منبثقة.
+
+### تلميح التبديل
+
+تلميح التبديل (toggletip) ملاحظة قصيرة خلف زر معلومات صغير، بجانب ما تشرحه. ليس مكوّنًا قائمًا بذاته: إنه زر يفتح لوحة منبثقة. استخدمه حيث لا يكفي التلميح، لأن الملاحظة فيها رابط أو يجب أن تُفتح باللمس، واجعله جملة أو جملتين.
+
+- **الزر.** زر بأيقونة وحدها، `variant="text"` و`size="small"`، تقول خاصيته `label` موضوع الملاحظة («حول مساحة التخزين») لا «معلومات». ضغطة تفتح اللوحة المنبثقة وأخرى تغلقها؛ وتسمّي اللوحة المنبثقة الزرَّ مرساةً لها `anchor`.
+- **اللوحة المنبثقة.** سمِّها بالخاصية `label`، أو بالخاصية `headline` حيث ترسم عنوانًا. كأي لوحة منبثقة، تأخذ التركيز حين تُفتح وتعيده إلى الزر حين تُغلق، ويغلقها Escape وضغطة خارجها.
+- **لا بديلًا عن الصفحة.** ما يجب أن يقرأه الشخص قبل أن يتابع مكانه النص المساعد للحقل أو الصفحة نفسها، حيث لا يحتاج أحد إلى طلبه.
+
+<Example label="تلميح التبديل: اضغط زر المعلومات">
+  <tanrei-button id="popover-demo-toggletip-opener" variant="text" size="small" label="حول مساحة التخزين" onclick="document.getElementById('popover-demo-toggletip').open = !document.getElementById('popover-demo-toggletip').open"><span slot="icon">info</span></tanrei-button>
+  <tanrei-popover id="popover-demo-toggletip" anchor="popover-demo-toggletip-opener" label="حول مساحة التخزين" arrow onclose="this.open = false">تُحتسب الملفات الموجودة في المهملات ضمن مساحة التخزين إلى أن تُحذف. <a class="tanrei-link" href="#guidelines">كيف تُحتسب مساحة التخزين</a></tanrei-popover>
+</Example>
 
 ### افعل
 
