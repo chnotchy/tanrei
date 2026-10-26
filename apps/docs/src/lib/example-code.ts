@@ -19,9 +19,10 @@ export interface ReactNames {
   module: string;
   /**
    * By tag: the wrapper's name, and the attributes whose prop is not their name in camelCase — the property's name, and
-   * `1` where its value is a number (lib/element-modules.mjs `reactNames`).
+   * `1` where its value is a number, and `2` where the attribute turns off a property that is on by default (`flush` →
+   * `inset={false}`) (lib/element-modules.mjs `reactNames`).
    */
-  elements: Record<string, [name: string, props: Record<string, [property: string, number?: 1]>]>;
+  elements: Record<string, [name: string, props: Record<string, [property: string, kind?: 1 | 2]>]>;
 }
 
 type Node = { kind: 'text'; text: string } | { kind: 'comment'; text: string } | { kind: 'element'; tag: string; attrs: [string, string | null][]; children: Node[] };
@@ -249,8 +250,10 @@ export function reactOf(source: string, names: ReactNames): string {
       if (name === 'style' && value !== null) return ` style=${styleObject(value)}`;
       const listed = wrapper?.[1][name];
       const prop = listed ? listed[0] : /^(aria-|data-)/.test(name) ? name : (REACT_ATTRS[name] ?? (wrapper ? camel(name) : name));
+      // An attribute that turns a property off is that property, false.
+      if (listed?.[1] === 2) return ` ${prop}={false}`;
       if (value === null) return ` ${prop}`;
-      if (listed?.[1] && value.trim() !== '' && Number.isFinite(Number(value))) return ` ${prop}={${Number(value)}}`;
+      if (listed?.[1] === 1 && value.trim() !== '' && Number.isFinite(Number(value))) return ` ${prop}={${Number(value)}}`;
       return ` ${prop}="${escapeAttr(value)}"`;
     }).join('');
   };

@@ -1,9 +1,9 @@
 // Theme Studio's page (components/StudioPage.astro): the Studio, the whole window, with its own bar and none of the
 // documentation's frame; the rail of the look and the panel it opens; its layer in the page's address, so that a link
 // opens it on the same layer, under the banner of a shared layer, without writing over the one a browser kept; Export,
-// with the next steps the CLI takes and a link to share; undo and redo, from the bar and from the
-// keyboard; every part of it within reach of the Tab key; the preview's five screens, in light, dark and side by
-// side; and nothing axe finds, wide and narrow.
+// with the next steps the CLI takes and a link to share; the start point, and a layer file loaded from it; undo and
+// redo, from the bar and from the keyboard; every part of it within reach of the Tab key; the preview's five screens,
+// in light, dark and side by side; and nothing axe finds, wide and narrow.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //   DOCS_ENGINES=chromium,firefox,webkit node --test test/browser/studio-page.test.mjs   # in each engine
@@ -261,6 +261,42 @@ for (const engine of ENGINES) {
       }
     });
 
+    test('the start point: an example of the theme gallery, undone; the root listed and not offered; a layer file loaded, and one refused with the reason in the panel', async () => {
+      const { page, problems, close } = await open(browser);
+      try {
+        const menu = page.locator('[data-start-menu]');
+        const openMenu = async () => {
+          await page.locator('[data-start-open]').click();
+          await page.waitForFunction(() => document.querySelector('[data-start-menu]')?.open === true);
+        };
+        assert.equal(await page.locator('[data-start-label]').textContent(), 'Start: Tanrei');
+        await openMenu();
+        assert.equal(await menu.locator('[data-start="core"]').evaluate((el) => el.disabled), true, 'the root is listed, and not offered yet');
+        await menu.locator('[data-start="m3-like"]').click();
+        await page.waitForFunction(() => window.tanreiStudio.getLayer().extends === 'm3-like');
+        assert.equal(await page.locator('[data-start-label]').textContent(), 'Start: m3-like');
+        await page.waitForFunction(() => location.hash.includes('layer='));
+        await page.locator('[data-undo]').click();
+        assert.equal((await layer(page)).extends, 'tanrei', 'one step to undo');
+        // A file, through the browser's own picker.
+        const load = async (name, text) => {
+          await openMenu();
+          const [chooser] = await Promise.all([page.waitForEvent('filechooser'), menu.locator('[data-start-file]').click()]);
+          await chooser.setFiles({ name, mimeType: 'application/json', buffer: Buffer.from(text) });
+        };
+        await load('acme.system.json', JSON.stringify({ id: 'acme', extends: 'cupertino', palettes: { primary: { source: { seed: '#0b6e4f' } } } }));
+        await page.waitForFunction(() => window.tanreiStudio.getLayer().extends === 'cupertino');
+        assert.equal((await layer(page)).palettes.primary.source.seed, '#0b6e4f');
+        await load('nope.json', JSON.stringify({ id: 'acme', extends: 'nope' }));
+        await page.waitForFunction(() => document.querySelector('[data-import-report]')?.open === true);
+        assert.match(await page.locator('[data-import-report]').textContent(), /nope\.json was not loaded[\s\S]*"extends": "nope" is not a shipped system/);
+        assert.equal((await layer(page)).extends, 'cupertino', 'the layer is as it was');
+        assert.deepEqual(problems, []);
+      } finally {
+        await close();
+      }
+    });
+
     test('every part is within reach of the Tab key, in the order it is drawn: the bar, the rail, the preview, the handle, the panel', async () => {
       const { page, close } = await open(browser);
       try {
@@ -374,6 +410,19 @@ for (const engine of ENGINES) {
             const report = await new AxeBuilder({ page }).include('[data-export-sheet]').analyze();
             assert.deepEqual(report.violations.map((violation) => `${violation.id}: ${violation.nodes.length} — ${violation.nodes[0]?.target}`), [], tab);
           }
+        } finally {
+          await close();
+        }
+      });
+      test(`${name} wide, the start point open: axe finds nothing`, async () => {
+        const { page, close } = await open(browser, { viewport });
+        try {
+          await page.locator('[data-start-open]').click();
+          await page.waitForFunction(() => document.querySelector('[data-start-menu]')?.open === true);
+          // Grown in: a surface still fading in is no color to measure.
+          await page.waitForFunction(() => document.querySelector('[data-start-menu]').shadowRoot.getAnimations({ subtree: true }).every((animation) => animation.playState !== 'running'));
+          const report = await new AxeBuilder({ page }).include('[data-start-menu]').analyze();
+          assert.deepEqual(report.violations.map((violation) => `${violation.id}: ${violation.nodes.length} — ${violation.nodes[0]?.target}`), []);
         } finally {
           await close();
         }

@@ -315,6 +315,21 @@ const en = {
     stateNames: { enabled: 'Enabled', disabled: 'Disabled', hovered: 'Hovered', focused: 'Focused', pressed: 'Pressed' } as Record<string, string>,
     statesHeld: 'Each cell is the live component, held still in its state: it cannot be used.',
     statesNotShown: 'Not drawn here: {states}.',
+    // The playground (components/visuals/Playground.astro): its controls' group, its reset, its caption, and the
+    // sentence that sends a reader of another platform to the spec's name mapping (`{link}`, the mapping's heading).
+    playgroundControls: 'Controls',
+    playgroundReset: 'Reset the controls',
+    playgroundCaption: 'Each control sets one property of the live component, and the code follows. The page’s address keeps what you set, so a link opens it as you left it.',
+    playgroundNative: 'The code is for the web. For the other platforms, see “{link}”.',
+    // The anatomy and measure figures (components/visuals/AnatomyDiagram.astro, MeasureDiagram.astro): the measure
+    // figure's text alternative (one sentence for each plural form, as anatomyAlt), its table's columns, and the
+    // caption both give, which says what they are drawn over.
+    measureAlt: { one: '{component}: 1 length — {list}.', other: '{component}: {count} lengths — {list}.' } as Record<string, string>,
+    measureLength: 'Length',
+    measureValue: 'Value (px)',
+    measureDiffers: 'Not drawn: the component draws {measured} px here.',
+    measureAbsent: 'Not drawn: this fixture draws no such length.',
+    drawnFrom: 'Drawn over the fixture {fixture}, as the web package draws it.',
   },
 };
 
@@ -561,6 +576,17 @@ const ja: typeof en = {
     stateNames: { enabled: '有効', disabled: '無効', hovered: 'ホバー', focused: 'フォーカス', pressed: '押下' },
     statesHeld: 'どのセルも実際のコンポーネントを、その状態のまま止めて描いています。操作はできません。',
     statesNotShown: 'ここに描いていない状態: {states}。',
+    playgroundControls: 'コントロール',
+    playgroundReset: 'コントロールをリセット',
+    playgroundCaption: 'コントロールごとに、実際のコンポーネントのプロパティを 1 つ設定します。コードも合わせて変わります。設定はページのアドレスに残るので、リンクを開くと同じ状態で表示されます。',
+    playgroundNative: 'コードは Web 用です。ほかのプラットフォームは「{link}」を参照してください。',
+
+    measureAlt: { other: '{component}: {count} 個の寸法（{list}）。' },
+    measureLength: '長さ',
+    measureValue: '値（px）',
+    measureDiffers: '描いていません: コンポーネントはここを {measured} px で描いています。',
+    measureAbsent: '描いていません: このフィクスチャにはこの長さがありません。',
+    drawnFrom: 'Web パッケージが描くフィクスチャ {fixture} の上に描いています。',
   },
 };
 
@@ -809,6 +835,17 @@ const zh: typeof en = {
     stateNames: { enabled: '启用', disabled: '禁用', hovered: '悬停', focused: '聚焦', pressed: '按下' },
     statesHeld: '每个单元格都是真实的组件，停留在该状态下，无法操作。',
     statesNotShown: '此处未绘制：{states}。',
+    playgroundControls: '控件',
+    playgroundReset: '重置控件',
+    playgroundCaption: '每个控件设置实时组件的一个属性，代码也随之更新。设置会保留在页面地址中，打开链接即可看到相同的状态。',
+    playgroundNative: '代码适用于 Web。其他平台请参阅“{link}”。',
+
+    measureAlt: { other: '{component}：{count} 个尺寸（{list}）。' },
+    measureLength: '长度',
+    measureValue: '值（px）',
+    measureDiffers: '未绘制：组件在此处绘制为 {measured} px。',
+    measureAbsent: '未绘制：此测试样例中没有这个长度。',
+    drawnFrom: '绘制在 Web 包所绘的测试样例 {fixture} 之上。',
   },
 };
 
@@ -1056,6 +1093,17 @@ const es: typeof en = {
     stateNames: { enabled: 'Habilitado', disabled: 'Deshabilitado', hovered: 'Con el cursor encima', focused: 'Con foco', pressed: 'Pulsado' },
     statesHeld: 'Cada celda es el componente real, detenido en su estado: no se puede usar.',
     statesNotShown: 'No se dibujan aquí: {states}.',
+    playgroundControls: 'Controles',
+    playgroundReset: 'Restablecer los controles',
+    playgroundCaption: 'Cada control fija una propiedad del componente en vivo, y el código cambia con él. La dirección de la página guarda lo que fijes, así que un enlace la abre tal como la dejaste.',
+    playgroundNative: 'El código es para la web. Para las demás plataformas, consulta «{link}».',
+
+    measureAlt: { one: '{component}: 1 medida: {list}.', other: '{component}: {count} medidas: {list}.' },
+    measureLength: 'Longitud',
+    measureValue: 'Valor (px)',
+    measureDiffers: 'No se dibuja: el componente dibuja aquí {measured} px.',
+    measureAbsent: 'No se dibuja: este fixture no tiene esta medida.',
+    drawnFrom: 'Dibujado sobre el fixture {fixture}, tal como lo dibuja el paquete web.',
   },
 };
 
@@ -1303,6 +1351,17 @@ const hi: typeof en = {
     stateNames: { enabled: 'सक्षम', disabled: 'अक्षम', hovered: 'होवर', focused: 'फ़ोकस', pressed: 'दबाया हुआ' },
     statesHeld: 'हर सेल असली कंपोनेंट है, जो अपनी स्टेट में रुका हुआ है। इसे इस्तेमाल नहीं किया जा सकता।',
     statesNotShown: 'यहाँ नहीं दिखाई गईं: {states}।',
+    playgroundControls: 'कंट्रोल',
+    playgroundReset: 'कंट्रोल रीसेट करें',
+    playgroundCaption: 'हर कंट्रोल लाइव कंपोनेंट की एक प्रॉपर्टी सेट करता है, और कोड भी उसी के साथ बदलता है। आपकी सेटिंग पेज के पते में रहती है, इसलिए लिंक खोलने पर वही स्थिति दिखती है।',
+    playgroundNative: 'यह कोड वेब के लिए है। दूसरे प्लैटफ़ॉर्म के लिए “{link}” देखें।',
+
+    measureAlt: { one: '{component}: 1 माप — {list}।', other: '{component}: {count} माप — {list}।' },
+    measureLength: 'लंबाई',
+    measureValue: 'मान (px)',
+    measureDiffers: 'नहीं बनाया गया: कॉम्पोनेंट यहाँ {measured} px बनाता है।',
+    measureAbsent: 'नहीं बनाया गया: इस फ़िक्स्चर में यह माप नहीं है।',
+    drawnFrom: 'वेब पैकेज जिस तरह फ़िक्स्चर {fixture} बनाता है, उसी के ऊपर बनाया गया।',
   },
 };
 
@@ -1554,6 +1613,17 @@ const ar: typeof en = {
     stateNames: { enabled: 'مُمكَّن', disabled: 'معطَّل', hovered: 'التحويم', focused: 'التركيز', pressed: 'الضغط' },
     statesHeld: 'كل خلية هي المكوّن الحقيقي، ثابتًا على حالته، ولا يمكن استخدامه.',
     statesNotShown: 'لا تُرسم هنا: {states}.',
+    playgroundControls: 'عناصر التحكم',
+    playgroundReset: 'إعادة تعيين عناصر التحكم',
+    playgroundCaption: 'يضبط كل عنصر تحكم خاصية واحدة في المكوّن المباشر، وتتغيّر الشيفرة معه. ويحفظ عنوان الصفحة ما ضبطته، فيفتحها الرابط كما تركتها.',
+    playgroundNative: 'هذه الشيفرة للويب. وللمنصات الأخرى، راجع «{link}».',
+
+    measureAlt: { one: '{component}: قياس واحد، هو {list}.', two: '{component}: قياسان، هما {list}.', few: '{component}: {count} قياسات، هي {list}.', many: '{component}: {count} قياسًا، هي {list}.', other: '{component}: {count} قياس، هي {list}.' },
+    measureLength: 'الطول',
+    measureValue: 'القيمة (px)',
+    measureDiffers: 'غير مرسوم: يرسم المكوّن هنا {measured} px.',
+    measureAbsent: 'غير مرسوم: لا يرسم نموذج الاختبار هذا هذا القياس.',
+    drawnFrom: 'مرسوم فوق نموذج الاختبار {fixture} كما ترسمه حزمة الويب.',
   },
 };
 

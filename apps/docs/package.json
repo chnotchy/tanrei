@@ -12,7 +12,7 @@
     "build": "node ../../packages/tools/src/font-faces.js src/styles/fonts.generated.css --icon-glyphs ../../packages/web/src/generated/glyphs.json,src/generated/glyphs.json --full-icons src/styles/icons-full.generated.css --text-cut 'Noto Sans JP:ja' --text-from ../../specs,src/content/docs,!src/content/docs/ja,!src/content/docs/zh-cn --check-systems && node scripts/fixture-documents.mjs && astro check --minimumFailingSeverity warning && astro build",
     "preview": "astro preview",
     "test:node": "pnpm fonts && node scripts/fixture-documents.mjs && node ../../packages/tools/src/run-node-tests.js \"test/*.test.mjs\"",
-    "test:browser": "node ../../packages/tools/src/run-node-tests.js \"test/browser/*.test.mjs\"",
+    "test:browser": "node ../../packages/tools/src/run-node-tests.js --shard-weights=test/browser/durations.json \"test/browser/*.test.mjs\"",
     "test": "pnpm test:node && node ../../packages/tools/src/font-faces.js src/styles/fonts.generated.css --icon-glyphs ../../packages/web/src/generated/glyphs.json,src/generated/glyphs.json --full-icons src/styles/icons-full.generated.css --text-cut 'Noto Sans JP:ja' --text-from ../../specs,src/content/docs,!src/content/docs/ja,!src/content/docs/zh-cn --check-systems && astro build && pnpm test:browser",
     "fonts": "node ../../packages/tools/src/font-faces.js src/styles/fonts.generated.css --icon-glyphs ../../packages/web/src/generated/glyphs.json,src/generated/glyphs.json --full-icons src/styles/icons-full.generated.css --text-cut 'Noto Sans JP:ja' --text-from ../../specs,src/content/docs,!src/content/docs/ja,!src/content/docs/zh-cn",
     "links": "tanrei-links update",

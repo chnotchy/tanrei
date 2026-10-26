@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import Playground from '../../../../components/visuals/Playground.astro';
 
 ## 概览
 
@@ -29,6 +30,8 @@ import Example from '../../../../components/visuals/Example.astro';
 **组成部分**是一个[字段](/zh-cn/components/field/)和一个[文本输入框](/zh-cn/components/text-input/)。字段是框架：标签、必填或选填标记、帮助文本、错误和计数。文本输入框是控件：方框，以及在方框里键入的一切。文本字段自己什么都不绘制，也没有令牌：它的每个属性都是这两者之一的属性，原样交给它们。
 
 它是一个块，放在哪里就和那里一样宽，它的方框会把它填满。它没有自己的宽度：想要窄一些的字段，就把它放进窄一些的地方。
+
+<Playground name="text-field" />
 
 ### 用法
 

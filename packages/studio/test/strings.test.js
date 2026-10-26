@@ -73,6 +73,14 @@ const ASKED = {
   'rail.size': [['1', '4px'], ['0.85', '4.25px']],
   'rail.lock': [['Brand color'], ['Gray']],
   'exporting.depend': [['M3-like (Material 3-inspired)']],
+  'start.open': [['Tanrei'], ['m3-like']],
+  'start.exampleNote': [['M3-like (Material 3-inspired)']],
+  'start.confirm': [['cupertino']],
+  'start.confirmLoad': [['acme.system.json'], [undefined]],
+  'start.started': [['m3-like']],
+  'start.imported': [['acme.system.json'], [undefined]],
+  'start.importedProblems': [['acme.system.json', 0], ['acme.system.json', 1], ['acme.system.json', 2], ['acme.system.json', 12], [undefined, 1], [undefined, 12]],
+  'start.refused': [['acme.system.json'], [undefined]],
   'exporting.dependHelp': [['M3-like (Material 3-inspired)'], ['Cupertino (Apple HIG-inspired)']],
   'exporting.everyHelp': [['M3-like (Material 3-inspired)']],
   'exporting.held': [['fab-menu', 'M3-like (Material 3-inspired)'], ['fab-menu · carousel', 'Cupertino']],
@@ -121,8 +129,8 @@ for (const tag of tags) {
           const said = mine(...values);
           assert.ok(typeof said === 'string' && said.trim(), `${key}(${values}) is empty`);
           // None, one and two may be said in words (a dual, «un solo tono»); from three on the figure is there. A
-          // name or a piece of text is always there, whole.
-          for (const value of values) if (typeof value !== 'number' || value >= 3) assert.ok(said.includes(String(value)), `${key}(${values}) does not say ${value}: ${said}`);
+          // name or a piece of text is always there, whole. A value left out (no file: the layer was pasted) is said in words.
+          for (const value of values) if (value !== undefined && (typeof value !== 'number' || value >= 3)) assert.ok(said.includes(String(value)), `${key}(${values}) does not say ${value}: ${said}`);
           assert.doesNotMatch(said, /undefined|NaN|\{[a-z]+\}|\[object/, `${key}(${values})`);
         }
         continue;

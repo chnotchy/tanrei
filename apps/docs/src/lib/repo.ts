@@ -44,6 +44,8 @@ export interface Spec {
   /** The components it is built from, by name. Left out where it is built from none. */
   builtFrom?: string[];
   anatomy: { id: string; description: string; optional?: boolean }[];
+  /** The fixture an anatomy diagram draws, where the first fixture does not show every optional part. */
+  anatomyFixture?: string;
   props: SpecProp[];
   slots?: (Forwarded & { name: string; description: string })[];
   events?: (Forwarded & { name: string; description: string })[];
@@ -68,7 +70,7 @@ export interface Spec {
     notes?: string[];
   };
   tokens: string;
-  fixtures: { id: string; props: Record<string, string | boolean | number>; content?: string; items?: FixtureItem[]; /** The fixture of a member that is the same thing made by hand. */ twin?: string }[];
+  fixtures: { id: string; props: Record<string, string | boolean | number>; content?: string; slots?: Record<string, string>; items?: FixtureItem[]; /** The fixture of a member that is the same thing made by hand. */ twin?: string }[];
   platforms: Record<
     PlatformId,
     {
@@ -77,6 +79,8 @@ export interface Spec {
       props?: Record<string, string>;
       events?: Record<string, string>;
       items?: Record<string, { name: string; props: Record<string, string>; events?: Record<string, string>; notes?: string }>;
+      /** Web only: where each anatomy part is drawn (a target and an aspect), or why it has no box of its own. */
+      parts?: Record<string, string | { noBox: string }>;
       notes?: string;
     }
   >;
@@ -199,6 +203,19 @@ const webAttributes: Map<string, Map<string, WebAttribute>> = new Map(
 export function webAttribute(tag: string, property: string): WebAttribute | undefined {
   return webAttributes.get(tag)?.get(property);
 }
+
+const webPropertyDefaults: Map<string, Map<string, string>> = new Map(
+  (customElements.modules ?? []).flatMap((m: any) =>
+    (m.declarations ?? [])
+      .filter((d: any) => d.tagName)
+      .map((d: any) => [d.tagName, new Map((d.attributes ?? []).filter((a: any) => a.fieldName && a.default !== undefined).map((a: any) => [a.fieldName, String(a.default)]))]),
+  ),
+);
+/**
+ * The default of a property of an element of the installed build, as its manifest writes it in source (`'filled'`,
+ * `false`, `2`); nothing where the manifest gives none.
+ */
+export const webPropertyDefault = (tag: string, property: string): string | undefined => webPropertyDefaults.get(tag)?.get(property);
 
 const webAttributeNames: Map<string, Set<string>> = new Map(
   (customElements.modules ?? []).flatMap((m: any) => (m.declarations ?? []).filter((d: any) => d.tagName).map((d: any) => [d.tagName, new Set((d.attributes ?? []).map((a: any) => a.name))])),

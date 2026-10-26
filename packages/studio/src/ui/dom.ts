@@ -29,7 +29,8 @@ export interface Ctx {
    * Replace the layer. `rebuild` redraws the controls (an edit that changes which controls exist). `preview` shows the
    * layer and does not save it yet: the person is still typing, stepping or dragging, and the commit follows.
    */
-  commit(next: Layer, options?: { rebuild?: boolean; preview?: boolean }): void;
+  /** `alone`: a step of its own to undo, joined to no commit before or after it (a new start, a load, a shuffle). */
+  commit(next: Layer, options?: { rebuild?: boolean; preview?: boolean; alone?: boolean }): void;
   /** Redraw the controls of the panel. */
   rebuild(): void;
   /** Called after every update while the controls stay: refresh what you show. */

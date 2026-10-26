@@ -1840,6 +1840,33 @@ test.describe('ranges, actions, motion, overflow and semantics', () => {
     expect(own(fading).filter(([name]) => name !== 'opacity')).toEqual([]);
   });
 
+  test('DTM-35: a modal picker opened at the end of a task that outlasts its open motion appears from the first frame drawn after that task — its surface and its scrim at their start, none of it over before it is drawn', async ({ page }) => {
+    // WebKit dates a transition begun in a task from the frame drawn before it, which stands still while the task runs:
+    // a picker whose calendar took longer to render than its open motion lasts had its scrim drawn whole in its first
+    // frame. The task here is held for longer than the open motion, and that frame is read in its frame callback.
+    await mount(page, [modal('m', { value: '2026-09-17' })]);
+    const first = await host(page, 'm').evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }) => {
+      el.open = true;
+      await el.updateComplete;
+      const dialog = el.shadowRoot!.querySelector('dialog')!;
+      const motions = () => dialog.getAnimations({ subtree: true }).filter((animation) => (animation.effect as KeyframeEffect).target === dialog);
+      const end = performance.now() + Math.max(0, ...motions().map((animation) => Number(animation.effect!.getComputedTiming().endTime))) + 200;
+      while (performance.now() < end);
+      return new Promise<{ opacity: number; scale: string; scrim: number; at: string[] }>((resolve) =>
+        requestAnimationFrame(() => {
+          const style = getComputedStyle(dialog);
+          const at = motions().map((animation) => `${(animation as CSSTransition).transitionProperty}${(animation.effect as KeyframeEffect).pseudoElement !== null ? ' (scrim)' : ''} at ${Math.round(Number(animation.currentTime))} ms`);
+          resolve({ opacity: Number(style.opacity), scale: style.scale, scrim: Number(getComputedStyle(dialog, '::backdrop').opacity), at });
+        }),
+      );
+    });
+    expect(first.at.filter((motion) => !motion.endsWith(' at 0 ms')), 'every motion of the surface and its scrim stands at its start').toEqual([]);
+    expect(first.at.some((motion) => motion.includes('(scrim)')), `the scrim fades in: ${first.at.join(', ')}`).toBe(true);
+    expect({ opacity: first.opacity, scale: first.scale, scrim: first.scrim }, 'the first frame draws the picker and its scrim where the appearance starts them').toEqual({ opacity: 0, scale: '0.96', scrim: 0 });
+    await motionEnded(surface(page, 'm'));
+    expect(await surface(page, 'm').evaluate((el) => [Number(getComputedStyle(el).opacity), Number(getComputedStyle(el, '::backdrop').opacity)]), 'and both have come in at rest').toEqual([1, 1]);
+  });
+
   test('DTM-36: in a short window the header and the actions stay and the body scrolls between them; in a narrow one the picker is the window less the margins', async ({ page }) => {
     await mount(page, [opened('v', { mode: 'date-time', value: '2026-09-17T19:30', layout: 'vertical' })], { window: { width: 480, height: 560 } });
     const body = host(page, 'v').locator('.body');

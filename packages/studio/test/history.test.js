@@ -46,6 +46,23 @@ test('commits closer together than `merge` are one step — the letters of a nam
   assert.equal(history.undo('Acme'), '');
 });
 
+test('a commit that stands alone is a step of its own, however soon it comes, and the next commit does not join it', () => {
+  const time = clock();
+  const history = createHistory({ now: time.now, merge: 500 });
+  history.record('typed');
+  time.wait(10);
+  history.record('loaded', { alone: true }); // a layer loaded at once after a key
+  time.wait(10);
+  history.record('loaded again', { alone: true });
+  time.wait(10);
+  history.record('typed after');
+  assert.equal(history.undo('now'), 'typed after');
+  assert.equal(history.undo('typed after'), 'loaded again');
+  assert.equal(history.undo('loaded again'), 'loaded');
+  assert.equal(history.undo('loaded'), 'typed');
+  assert.equal(history.canUndo, false);
+});
+
 test('it keeps `limit` steps, the oldest going first, and `clear` forgets them all', () => {
   const time = clock();
   const history = createHistory({ now: time.now, limit: 3 });
