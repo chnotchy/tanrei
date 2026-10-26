@@ -8,6 +8,7 @@ import ComponentAvailability from '../../../components/ComponentAvailability.ast
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
 import Example from '../../../components/visuals/Example.astro';
+import Playground from '../../../components/visuals/Playground.astro';
 
 ## Overview
 
@@ -27,6 +28,8 @@ Use a text field wherever a form asks for text: it is the ordinary case, ready t
 **Built from** a [field](/components/field/) and a [text input](/components/text-input/). The field is the frame: the label, the required or optional mark, the help, the error and the count. The text input is the control: the box and everything typed in it. The text field draws nothing of its own and has no token: every property it has is a property of one of the two, given to it unchanged.
 
 It is a block as wide as the place it is put in, and its box fills it. It has no width of its own: for a narrower field, give it a narrower place.
+
+<Playground name="text-field" />
 
 ### Usage
 

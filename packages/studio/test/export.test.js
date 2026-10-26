@@ -20,6 +20,16 @@ test('the examples a layer could hold itself: every shipped layer between it and
   assert.deepEqual(studio.examplesOf({ id: 'acme', extends: stacked }).map((layer) => layer.id), [stacked, shipped[stacked].extends], 'nearest first');
 });
 
+test('the base of a layer written out is one of the Base system panel’s choices: the root, which is offered for no other layer', () => {
+  const written = studio.writeOut({ id: 'acme', extends: examples[0] }).layer;
+  assert.equal(written.extends, studio.rootId);
+  assert.ok(!studio.systems.some(({ id }) => id === studio.rootId), 'the root is not offered as a base');
+  const choices = studio.baseChoices(written);
+  assert.deepEqual(choices.map(({ id }) => id), [...studio.systems.map(({ id }) => id), studio.rootId]);
+  assert.equal(choices.at(-1).description, shipped[studio.rootId].description, 'with its own description');
+  assert.deepEqual(studio.baseChoices({ id: 'acme', extends: studio.defaultId }), studio.systems);
+});
+
 /** Both files, built by `tanrei build`: the same sheet, declaration for declaration, the same documents and warnings. */
 async function assertSameBuild(layer) {
   const written = studio.writeOut(layer);

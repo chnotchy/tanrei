@@ -10,6 +10,9 @@ import { MORE, ROWS, type Row, type Section } from './sections';
 const glyph = (ctx: Ctx, name: string, attrs: Json = {}) => h('span', { class: `${ctx.studio.tagPrefix}-icon`, 'aria-hidden': 'true', translate: 'no', ...attrs }, name);
 const PRESS_GLYPHS: Record<string, string> = { overlay: 'layers', ripple: 'water_drop', dim: 'brightness_6', none: 'block' };
 const FOCUS_GLYPHS: Record<string, string> = { ring: 'radio_button_unchecked', glow: 'blur_on' };
+/** A row's sample when its value names no glyph of its own; the lock, held and open. Declared, so that the docs site's cut-down icon file has them (packages/tools/src/glyphs.js). */
+const SAMPLE_GLYPHS = { icons: 'star', press: 'touch_app', focus: 'center_focus_strong' };
+const LOCK_GLYPHS = { held: 'lock', open: 'lock_open' };
 const MORE_GLYPHS: Record<(typeof MORE)[number], string> = { base: 'layers', dials: 'tune', palettes: 'palette', components: 'widgets', behavior: 'touch_app', vocabulary: 'add_box', about: 'description', a11y: 'accessibility_new' };
 
 /** A row's state, read from the layer each time it is drawn. */
@@ -97,11 +100,11 @@ function sample(ctx: Ctx, row: Row) {
       case 'smoothing':
         return el.replaceChildren(h('i', { class: 'ts-sample-corner ts-sample-smooth', style: `border-start-end-radius: ${v('sys.shape.corner.extra-large')};` }));
       case 'icons':
-        return el.replaceChildren(glyph(ctx, 'star'));
+        return el.replaceChildren(glyph(ctx, SAMPLE_GLYPHS.icons));
       case 'press':
-        return el.replaceChildren(glyph(ctx, PRESS_GLYPHS[behavior(ctx, layer, 'pressed-feedback').value] ?? 'touch_app'));
+        return el.replaceChildren(glyph(ctx, PRESS_GLYPHS[behavior(ctx, layer, 'pressed-feedback').value] ?? SAMPLE_GLYPHS.press));
       case 'focus':
-        return el.replaceChildren(glyph(ctx, FOCUS_GLYPHS[behavior(ctx, layer, 'focus-style').value] ?? 'center_focus_strong'));
+        return el.replaceChildren(glyph(ctx, FOCUS_GLYPHS[behavior(ctx, layer, 'focus-style').value] ?? SAMPLE_GLYPHS.focus));
     }
   };
   return { el, draw };
@@ -230,10 +233,10 @@ export function createRail(ctx: Ctx, { locked, onshow, onlock }: { locked: Set<R
       show.addEventListener('focusin', point);
       show.addEventListener('pointerleave', unmark);
       show.addEventListener('focusout', unmark);
-      const lock = h('tanrei-button', { class: 'ts-rail-lock', variant: 'text', size: 'small', toggle: true, label: t.rail.lock(t.rail.rows[row]), title: t.rail.lockHelp, selected: locked.has(row), 'data-lock': row }, glyph(ctx, locked.has(row) ? 'lock' : 'lock_open', { slot: 'icon' })) as HTMLElement & { selected: boolean };
+      const lock = h('tanrei-button', { class: 'ts-rail-lock', variant: 'text', size: 'small', toggle: true, label: t.rail.lock(t.rail.rows[row]), title: t.rail.lockHelp, selected: locked.has(row), 'data-lock': row }, glyph(ctx, locked.has(row) ? LOCK_GLYPHS.held : LOCK_GLYPHS.open, { slot: 'icon' })) as HTMLElement & { selected: boolean };
       lock.addEventListener('change', (event) => {
         if (event.target !== lock) return;
-        lock.querySelector('[slot="icon"]')!.textContent = lock.selected ? 'lock' : 'lock_open';
+        lock.querySelector('[slot="icon"]')!.textContent = lock.selected ? LOCK_GLYPHS.held : LOCK_GLYPHS.open;
         onlock(row, lock.selected);
       });
       refreshers.push(() => {

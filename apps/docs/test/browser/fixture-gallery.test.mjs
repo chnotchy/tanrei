@@ -62,7 +62,7 @@ const ANSWER = 240_000;
  * @template T
  * @param {string} what
  * @param {Promise<T>} promise
- * @param {() => string} [more]
+ * @param {() => string | Promise<string>} [more]
  * @returns {Promise<T>}
  */
 async function bounded(what, promise, more = () => '') {
@@ -71,7 +71,7 @@ async function bounded(what, promise, more = () => '') {
     return await Promise.race([
       promise,
       new Promise((_, reject) => {
-        timer = setTimeout(() => reject(new Error(`${what}: no answer within ${ANSWER / 1000} s${more()}`)), ANSWER);
+        timer = setTimeout(async () => reject(new Error(`${what}: no answer within ${ANSWER / 1000} s${await more()}`)), ANSWER);
       }),
     ]);
   } finally {
@@ -80,7 +80,51 @@ async function bounded(what, promise, more = () => '') {
 }
 
 /**
- * `page.evaluate(fn, arg)`, bounded, its failure naming the last step the page named with `console.debug('[step] …')`.
+ * Each page's DevTools session, its debugger on from the start (a thread busy in script is stopped to be read only so),
+ * and the address of each script it has parsed, by id: a stopped frame names its script by id alone.
+ * @type {WeakMap<import('@playwright/test').Page, { session: import('@playwright/test').CDPSession, scripts: Map<string, string> }>}
+ */
+const sessions = new WeakMap();
+
+/** How long a page's thread may take to stop where it stands, once it is asked to. */
+const STOP = 10_000;
+
+/**
+ * Where the page's script stands, read when it has not answered: its thread is stopped (`Debugger.pause`, which a
+ * script that never yields still hears) and the innermost frames of its stack are named, with the file, line and
+ * column of each. A thread that does not stop is not running script (it waits on the browser, or the renderer is gone),
+ * and is named as that.
+ * @param {import('@playwright/test').Page} page
+ */
+async function standing(page) {
+  const { session, scripts } = sessions.get(page) ?? {};
+  if (!session) return '';
+  let timer;
+  try {
+    const paused = new Promise((resolve) => session.once('Debugger.paused', resolve));
+    const stopped = await Promise.race([
+      session.send('Debugger.pause').then(() => paused),
+      new Promise((resolve) => {
+        timer = setTimeout(() => resolve(null), STOP);
+      }),
+    ]);
+    if (!stopped) return `; its thread did not stop to be read within ${STOP / 1000} s: it is not running script`;
+    const at = stopped.callFrames.slice(0, 12).map((frame) => {
+      const url = scripts.get(frame.location.scriptId) || frame.url;
+      const file = url ? new URL(url).pathname + new URL(url).search : "the test's own script";
+      return `${frame.functionName || '(anonymous)'} (${file}:${frame.location.lineNumber + 1}:${(frame.location.columnNumber ?? 0) + 1})`;
+    });
+    return `; its script stands at ${at.join(' < ')}`;
+  } catch (error) {
+    return `; where its script stands could not be read (${error.message})`;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * `page.evaluate(fn, arg)`, bounded, its failure naming the last step the page named with `console.debug('[step] …')`
+ * and where the page's script stands (`standing`).
  * @param {import('@playwright/test').Page} page
  * @param {string} what
  * @param {Function} fn
@@ -93,20 +137,25 @@ async function evaluateBounded(page, what, fn, arg) {
   };
   page.on('console', heard);
   try {
-    return await bounded(`${what}: the page's script`, page.evaluate(fn, arg), () => (step ? `; its last step: ${step}` : ''));
+    return await bounded(`${what}: the page's script`, page.evaluate(fn, arg), async () => `${step ? `; its last step: ${step}` : ''}${await standing(page)}`);
   } finally {
     page.off('console', heard);
   }
 }
 
 /**
- * A new context and page of `browser`, and closing it, each bounded.
+ * A new context and page of `browser`, its DevTools session's debugger on (`standing`), and closing it, each bounded.
  * @param {string} what
  * @param {import('@playwright/test').BrowserContextOptions} options
  */
 async function openPage(what, options) {
   const context = await bounded(`${what}: a new browser context`, browser.newContext(options));
   const page = await bounded(`${what}: a new page`, context.newPage());
+  const session = await bounded(`${what}: its DevTools session`, context.newCDPSession(page));
+  const scripts = new Map();
+  session.on('Debugger.scriptParsed', ({ scriptId, url }) => scripts.set(scriptId, url));
+  await bounded(`${what}: its debugger`, session.send('Debugger.enable'));
+  sessions.set(page, { session, scripts });
   return { page, close: () => bounded(`${what}: closing its context`, context.close()) };
 }
 

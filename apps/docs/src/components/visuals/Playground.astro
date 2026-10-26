@@ -1,0 +1,168 @@
+---
+// A component's playground: the live component in the docs' one frame (Example.astro), with a control for each of its
+// props a reader can set on the web element (lib/visuals/playground.ts) under the stage, and the frame's code, which
+// follows the controls. A page writes one line, `<Playground name="button" />`, and the six languages share it.
+//
+// - **What it draws is the web package's.** The stage is the web package's own fixture document's stage of the spec's
+//   first fixture (or the one a page names), its staging scoped to the stage, as the Specs tab's gallery draws it:
+//   the site writes no markup of a component's own.
+// - **The controls come from the spec and the build's manifest.** A choice of a few values is a Segmented button, a
+//   longer one a Select, a flag a Switch, a number a Number field and a text a Text field, each named by the prop
+//   («variant»), as the Specs tab's table of props names it. A control writes only an attribute the manifest says the
+//   element reads; the code writes only what differs from the spec's default.
+// - **The page's address keeps what is set** (`#play-<component>=…`, lib/visuals/playground-state.ts), so that a link
+//   opens the playground as it was left; the reset in the frame's header takes every control back to where it started.
+// - **Nothing moves as the page loads.** The stage holds the room of the fixture's tallest baseline at any size, and
+//   every control's cell holds the room of the tallest control before any is defined; the controls, like the stage,
+//   are defined when the frame comes near the view.
+// - **The code is the web's** (in HTML or with the React package's wrappers, the frame's own choice). A native
+//   platform's code is offered once that platform ships the component at the current spec (lib/visuals/playground.ts
+//   `NATIVE_CODE`); until then the caption sends a reader to the spec's name mapping.
+import Example from './Example.astro';
+import { contentLang, strings } from '../../lib/i18n';
+import { fixtureDocument } from '../../lib/fixture-documents';
+import { STAGE_SCOPE, stagingStyle } from '../../lib/fixture-gallery';
+import { getSpec } from '../../lib/repo';
+import { NATIVE_CODE, playgroundOf } from '../../lib/visuals/playground';
+
+interface Props {
+  /** The component, by its spec's name. */
+  name: string;
+  /** The fixture it starts at; the spec's first by default. */
+  fixture?: string;
+}
+const { name, fixture } = Astro.props;
+const lang = contentLang(Astro);
+const t = strings(lang);
+const spec = getSpec(name);
+const playground = playgroundOf(name, fixture);
+const missing = playground.native.filter((platform) => !(platform in NATIVE_CODE));
+if (missing.length) throw new Error(`Playground: ${name} ships on ${missing.join(', ')} at the current spec, and the playground has no generator of that platform's code (lib/visuals/playground.ts NATIVE_CODE)`);
+const document = fixtureDocument(name)!;
+const room = playground.room ? `min-inline-size: min(100%, ${playground.room.width}px); min-block-size: ${playground.room.height}px;` : undefined;
+const scope = { [STAGE_SCOPE]: '' };
+const id = `docs-playground-${name}`;
+// A segmented choice whose segments do not fit beside each other in one cell takes two. Its segments are as wide as
+// each other: the longest value and the selected segment's check, in characters, for each.
+const CELL = 26;
+const wide = (values: string[]) => values.length * (Math.max(...values.map((value) => value.length)) + 4) > CELL;
+const data = JSON.stringify({ component: name, tag: playground.tag, markup: playground.markup, controls: playground.controls, start: playground.start }).replaceAll('<', '\\u003c');
+const [before = '', after = ''] = t.visuals.playgroundNative.split('{link}');
+const escapeAttribute = (value: string) => value.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+const reset = `<tanrei-button class="docs-example-action" variant="text" size="small" label="${escapeAttribute(t.visuals.playgroundReset)}" data-playground-reset><span slot="icon" data-pagefind-ignore>restart_alt</span></tanrei-button>`;
+---
+
+<Example label={t.visuals.playgroundTitle} code reserve={playground.room ? { block: `${playground.room.height}px` } : undefined} actions={1} class="docs-playground" data-playground={name}>
+  {/* Written as markup: a `slot` attribute in what a page passes to a slot of the frame is taken by the framework for
+      its own slots, and the glyph would be drawn as the button's words. */}
+  <Fragment slot="actions" set:html={reset} />
+  <div class="docs-playground-canvas" {...scope} style={room}>
+    <Fragment set:html={stagingStyle(document.staging)} />
+    <Fragment set:html={playground.stage} />
+  </div>
+  <div slot="controls" data-part="attachment" class="docs-playground-controls" role="group" aria-label={`${spec.title} · ${t.visuals.playgroundControls}`} id={`${id}-controls`} data-example-controls data-example-pending data-pagefind-ignore>
+    <script type="application/json" data-playground-data set:html={data} />
+    {
+      playground.controls.map((control) => {
+        const value = playground.start[control.prop];
+        const common = { label: control.prop, 'data-playground-prop': control.prop, lang: 'en', translate: 'no' };
+        return (
+          <div class="docs-playground-control" data-kind={control.kind} data-wide={control.kind === 'segmented' && wide(control.values) ? '' : undefined}>
+            <span class="docs-playground-name" aria-hidden="true" translate="no">
+              <code class="tanrei-code">{control.prop}</code>
+            </span>
+            {control.kind === 'segmented' && (
+              <tanrei-segmented-button {...common} size="small" selection="single" value={String(value)}>
+                {control.values.map((choice) => (
+                  <tanrei-segment value={choice} label={choice} />
+                ))}
+              </tanrei-segmented-button>
+            )}
+            {control.kind === 'select' && (
+              <tanrei-select {...common} label-hidden size="small" value={String(value)}>
+                {control.values.map((choice) => (
+                  <tanrei-option value={choice}>{choice}</tanrei-option>
+                ))}
+              </tanrei-select>
+            )}
+            {control.kind === 'switch' && <tanrei-switch {...common} label-hidden checked={value === true ? '' : undefined} />}
+            {control.kind === 'number' && <tanrei-number-field {...common} label-hidden size="small" no-steppers value={value === null ? undefined : String(value)} />}
+            {control.kind === 'text' && <tanrei-text-field {...common} label-hidden size="small" value={value === null ? undefined : String(value)} />}
+          </div>
+        );
+      })
+    }
+  </div>
+  <Fragment slot="caption">
+    {t.visuals.playgroundCaption}{' '}
+    {before}<a href="#platform-names">{t.mapping}</a>{after}
+  </Fragment>
+</Example>
+
+<script>
+  import '../../lib/playground';
+</script>
+
+<style is:global>
+  /* The stage the fixture document draws, in the middle of the canvas, as the gallery's canvas holds it: a margin the
+     staging gives a stage to keep the next one clear has no next one here. */
+  .docs-playground-canvas {
+    position: relative;
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    max-inline-size: 100%;
+  }
+  .docs-playground-canvas > .stage {
+    margin: 0;
+  }
+  /* The controls: cells of one size in as many columns as fit, each the prop's name above its control. Every cell
+     holds the room of the tallest control (a small text field's box, a small segmented button, a pointer's target)
+     before any is defined, so nothing moves when they are. */
+  .docs-playground-controls {
+    --docs-playground-control: max(
+      var(--tanrei-comp-input-box-container-height-small),
+      var(--tanrei-comp-input-box-stacked-container-height-small),
+      var(--tanrei-comp-segmented-button-container-height-small),
+      var(--tanrei-sys-target-minimum)
+    );
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr));
+    gap: var(--tanrei-sys-space-space200) var(--tanrei-sys-space-space300);
+    padding: var(--tanrei-sys-space-space200);
+    min-inline-size: 0;
+    container-type: inline-size;
+  }
+  .docs-playground-control {
+    display: grid;
+    grid-template-rows: auto var(--docs-playground-control);
+    align-items: center;
+    gap: var(--tanrei-sys-space-space50);
+    min-inline-size: 0;
+  }
+  /* Two cells, where the controls stand in two columns or more. */
+  @container (min-inline-size: 27rem) {
+    .docs-playground-control[data-wide] {
+      grid-column: span 2;
+    }
+  }
+  .docs-playground-name {
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+  .docs-playground-control > :is(tanrei-select, tanrei-number-field, tanrei-text-field) {
+    inline-size: 100%;
+    min-inline-size: 0;
+  }
+  .docs-playground-control > tanrei-segmented-button {
+    justify-self: start;
+    max-inline-size: 100%;
+  }
+  .docs-playground-control > tanrei-switch {
+    justify-self: start;
+  }
+  /* An element is not drawn before it is defined: it keeps its cell's room, hidden. */
+  .docs-playground-controls :not(:defined) {
+    visibility: hidden;
+  }
+</style>

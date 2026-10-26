@@ -70,12 +70,14 @@ export function reactNames(manifest, config) {
     for (const declaration of module.declarations ?? []) {
       if (!declaration.customElement || !declaration.tagName?.startsWith(prefix)) continue;
       // Only what a reader of the attribute's name could not tell: a property not named as the attribute in camelCase
-      // (`readonly` → `readOnly`), an attribute of no property whose name has a hyphen (kept as written), and a number.
+      // (`readonly` → `readOnly`), an attribute of no property whose name has a hyphen (kept as written), a number, and
+      // an attribute that turns off a property that is on by default (`flush` for `inset`, which React sets to false).
       const props = {};
       for (const attribute of declaration.attributes ?? []) {
         const number = /^number\b/.test(attribute.type?.text ?? '');
         const property = attribute.fieldName ?? attribute.name;
-        if (property !== camel(attribute.name) || number) props[attribute.name] = number ? [property, 1] : [property];
+        const turnsOff = attribute.type?.text === 'boolean' && String(attribute.default) === 'true' && property !== camel(attribute.name);
+        if (property !== camel(attribute.name) || number) props[attribute.name] = number ? [property, 1] : turnsOff ? [property, 2] : [property];
       }
       elements[declaration.tagName] = [pascal(declaration.tagName.slice(prefix.length)), props];
     }

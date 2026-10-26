@@ -47,6 +47,18 @@ studioTest('the brand color and the size reach the file and the preview; another
   await page.waitForSelector('[data-panel="brand"] [data-tones="primary"]');
 });
 
+studioTest('a layer with every value written out extends the root: the Base system panel shows it chosen, with its description', { layer: { id: 'acme', extends: 'core', palettes: { primary: { source: { seed: '#0b6e4f' } } } } }, async ({ page, section, choose, saved }) => {
+  await section('base');
+  const base = page.locator('[data-base]');
+  assert.equal(await base.evaluate((el) => el.value), 'core');
+  assert.deepEqual(await base.locator('tanrei-radio-button').evaluateAll((els) => els.filter((el) => el.checked).map((el) => el.value)), ['core'], 'one choice is checked: the base the layer has');
+  assert.match(await page.locator('[data-base-description]').textContent(), /root layer/);
+  // Another base is chosen as from any other (the layer holds a color: the person is asked).
+  page.once('dialog', (dialog) => dialog.accept());
+  await choose(base, 'm3-like');
+  await saved((layer) => layer.extends === 'm3-like', 'the base');
+});
+
 studioTest('Dials and Palettes: a dial keeps its reason; palettes are added, recolored and removed; the tone table fixes single tones', {}, async ({ page, section, saved, onDisk, css, scope, lightPane }) => {
   await section('dials');
   assert.equal(await page.locator('[data-dials="dials"] [data-dial]').count(), 8, 'all eight dials');
