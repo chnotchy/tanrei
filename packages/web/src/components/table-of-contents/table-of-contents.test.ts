@@ -8,6 +8,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expectPressHeldAtEveryMoment } from '../../../test/held-press.js';
 import { expectPressShownAndHeld, watchPress, watchedPress } from '../../../test/watched-press.js';
+import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
 
@@ -1140,6 +1141,16 @@ test.describe('the compact presentation', () => {
     const again = await edges(row(page, 'held', '#i17'));
     expect(again.top).toBeGreaterThanOrEqual(shown.top - 0.6);
     expect(again.bottom).toBeLessThanOrEqual(shown.bottom + 0.6);
+  });
+
+  test('TOC-27: a wheel turned on past the end of an open compact list that scrolls, and turned again after a pause, leaves the page behind where it was', async ({ page }) => {
+    const items = `<ul>${Array.from({ length: 20 }, (_, i) => `<li><a href="#i${i + 1}">Item ${i + 1}</a></li>`).join('')}</ul>`;
+    await mountFixtures(page, spec, { icons: true, fixtures: [raw('held', { ...LABEL, presentation: 'compact', tracking: 'manual', current: '#i17' }, items)], reducedMotion: true });
+    await page.addStyleTag({ content: `[data-fixture="held"] > ${TAG} { max-block-size: 240px; }` });
+    await button(page, 'held').click();
+    const scroller = host(page, 'held').locator('.scroller');
+    await expect.poll(() => scroller.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
+    await expectWheelKeptFromPage(page, scroller, 'block');
   });
 
   test('TOC-28: choosing the third item of an open compact list with Enter hides the list with toggle false, follows the link, and leaves keyboard focus with the page — the next Tab is on the first focusable element after the third heading, not on the disclosure row and not at the start of the page', async ({ page }) => {
