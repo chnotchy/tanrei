@@ -7222,7 +7222,11 @@ the site's hand (`specs/navigation-drawer.spec.json`, NVD-1…64).
   `open` says, what `reveal-selected` opens, `scroll-offset`, then the selection — without motion (the host carries
   `data-arriving` until that frame is drawn, and the disclosure, selection and state motions take no time while it
   does), and is run again while the drawer's children are still being parsed.
-- *The scroll is the drawer's own.* `overscroll-behavior: contain` and `scroll-behavior: auto` on the scroller; a group
+- *The scroll is the drawer's own.* `overscroll-behavior: contain` and `scroll-behavior: auto` on the scroller, and a
+  wheel listener on it that cancels a wheel turned toward an end the items already stand at (not one with Ctrl, one
+  without a vertical part, one over items that cannot scroll, nor one a scroller inside the items can still take):
+  Gecko keeps to `contain` only within one wheel transaction, which an event that scrolls nothing does not prolong, so
+  1.5 s after the end (`mousewheel.transaction.timeout`) it gave a person's next turns to the page; a group
   that opens or closes keeps its own row where it is; keyboard focus on a cell that is not wholly in view scrolls it by
   the least distance (the drawer undoes a browser's own answer to the focus where it differs — one centres, one leaves a
   half-shown cell alone).
