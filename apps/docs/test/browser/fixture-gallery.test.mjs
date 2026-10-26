@@ -19,7 +19,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { serveDist } from './host.mjs';
+import { headerRules, headersFor, serveDist } from './host.mjs';
 import { launch } from './launch.mjs';
 
 const docs = fileURLToPath(new URL('../../', import.meta.url));
@@ -262,12 +262,15 @@ describe('no address on the site is a fixture’s document', () => {
 const built = (pattern) => fs.readdirSync(path.join(dist, '_astro')).find((name) => pattern.test(name));
 const WINDOW_SHEET = `/_astro/${built(/^fixture-window\.[\w-]+\.css$/)}`;
 const WINDOW_MODULE = `/_astro/${built(/^fixture-window\.[\w-]+\.js$/)}`;
+// The policy the host sends with every document: what the site refuses, its own document of a fixture refuses too (a
+// picture from a `blob:` address, which the file upload's tiles draw, is one).
+const PAGE_POLICY = headersFor(headerRules(fs.readFileSync(path.join(dist, '_headers'), 'utf8')), '/')['content-security-policy'];
 
 /**
  * How tall the web package's own document of a component's fixtures draws one of them on this machine, with the site's
  * stylesheets: the fixture's stage alone, the component's staging and its step in script, in a document of the site's
- * origin (written by the test, under no policy, so that the step runs inline as the harness writes it) that loads what a
- * window of the gallery loads (a component that lives in a layer is measured without its preset's sheet: none grows today).
+ * origin, sent the host's policy (written by the test, which runs the step inline as the harness writes it: the host's
+ * policy allows that, and only each page's own narrows it), that loads what a window of the gallery loads (a component that lives in a layer is measured without its preset's sheet: none grows today).
  */
 async function ownHeight(name, id, width) {
   const document = documents[name];
@@ -277,7 +280,7 @@ async function ownHeight(name, id, width) {
   const { page, close } = await openPage(`${name}/${id} in its own document`, { viewport: { width: Math.max(width, 800), height: 1000 }, reducedMotion: 'reduce' });
   try {
     const address = `${origin}/__own-document/${name}/${encodeURIComponent(id)}/`;
-    await page.route(address, (route) => route.fulfill({ status: 200, contentType: 'text/html', body: html }));
+    await page.route(address, (route) => route.fulfill({ status: 200, headers: { 'content-security-policy': PAGE_POLICY }, contentType: 'text/html', body: html }));
     await bounded(`${name}/${id} in its own document: opening it`, page.goto(address, { waitUntil: 'load' }));
     return await evaluateBounded(page, `${name}/${id} in its own document`, async () => {
       const tags = new Set([...document.querySelectorAll('.stage *')].map((e) => e.localName).filter((n) => n.includes('-')));
