@@ -13,6 +13,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
 import { expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { motionEnded } from '../../../test/motions.js';
+import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxOwn, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
@@ -1142,6 +1143,16 @@ test.describe('behavior: the list', () => {
     expect((await box(long)).height, 'the row grew').toBeGreaterThan(2 * rowHeight);
     expect(await long.locator('.option-supporting').evaluate((el) => el.scrollWidth <= el.clientWidth + 1 && getComputedStyle(el).textOverflow !== 'ellipsis')).toBe(true);
     near((await box(part(page, id, '.list'))).width, (await box(container(page, id))).width, 'as wide as the container');
+  });
+
+  test('CMB-23: a wheel turned on past the end of a list that scrolls, and turned again after a pause, leaves the page behind where it was and the list open', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 900 });
+    await mount(page, [fx('many', {}, MANY)], { reducedMotion: true });
+    await focusInput(page, 'many');
+    await page.keyboard.press('ArrowDown');
+    await shownList(page, 'many').toBe(true);
+    await expectWheelKeptFromPage(page, part(page, 'many', '.scroll'), 'block');
+    await shownList(page, 'many').toBe(true);
   });
 
   test('CMB-24: while the list is open focus stays in the input — it is not moved into the list, nothing is trapped or inert and no scrim is drawn — and a press on a disabled option, on a group title, on the status row or on the list’s surface does not take it, so typing goes on; one option at most is the active one', async ({ page }) => {
