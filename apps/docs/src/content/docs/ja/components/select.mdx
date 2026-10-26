@@ -2,7 +2,7 @@
 title: セレクト
 description: 決まったリストの中から 1 つの値を選べるようにします。テキスト入力欄のボックスと同じ見た目と寸法で、選ばれているオプションを表示するトリガーと、そこから開くオプションのリスト（グループ分けもできます）から成ります。ラベルの行、補足、エラーテキストは持ちません。バー、ツールバー、テーブルに置くか、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/select.mdx
-sourceHash: 6246b546b185dfc590a8e1793d0b194db9f0c4db
+sourceHash: 78a3a2519dcda7753654b53a1aa261542ee2824c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -219,6 +219,21 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select>` です。ほか
 
 `toggle` は、閉じた理由を伝えます。`select`、`escape`、`outside`、`focus-out`、`anchor-hidden`、`press`、`tab` のいずれかです。
 
+### 消去
+
+値がないこともありうるセレクト（フィルターや、省略できる設定）は、`clearable` を付けると消去ボタンを描きます。値が選ばれているあいだシェブロンの前に立ち、押すと値を空にします。セレクトはプレースホルダーを再び表示し、`change` を出し、フォーカスはセレクトに戻ります。開いているリストは開いたままです。何も選ばれていないあいだもボタンの場所は空けたままにするので、セレクトの幅は変わらず、シェブロンも動きません。
+
+消去ボタンはセレクトの中ではなく、そのあとに置かれた独立したボタンで、フォーカスの順序では次の位置です。`clearLabel` で名前を付けるか（「国を消去」）、プロダクト全体で一度だけ `setWords({ clearLabel })` で付けます。「指定なし」を人が意図して選ぶもの（「すべて」「未設定」）にしたいときは、代わりにオプションにします。
+
+<Example label="消去できるセレクト: 値がないこともありうるフィルター" column>
+  <tanrei-select class="not-content" label="国" placeholder="すべての国" value="jp" clearable clear-label="国を消去">
+    <tanrei-option value="ca">カナダ</tanrei-option>
+    <tanrei-option value="fr">フランス</tanrei-option>
+    <tanrei-option value="jp">日本</tanrei-option>
+    <tanrei-option value="ke">ケニア</tanrei-option>
+  </tanrei-select>
+</Example>
+
 <ComponentSpecs name="select" />
 
 ### Web での描き方の違い
@@ -231,7 +246,8 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select>` です。ほか
 - リストは、トップレイヤーにある `popover="manual"` の要素です。外側を押すとリストは閉じ、押した位置にある要素にもその操作が届きます。
 - 浮き上がるラベル（`filled`、`outlined`）はコンテナの中にあるので、ラベルを押すとリストが開きます。
 - `supporting-text`、`error-text`、`required`、`optional`、`required-mark`、`required-text`、`optional-text` と、`label-icon` スロットに入れる子は、セレクトフィールドとフィールドのものです。セレクトに書いても何も描かれません。デバッグビルドは、要素ごとに 1 度だけそのことを伝え、`<tanrei-select-field>` を案内します。
-- パーツ: `container`、`outline`、`active-indicator`、`label`、`requirement-label`、`value`、`placeholder`、`leading-icon`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider`、`status`。
+- パーツ: `container`、`outline`、`active-indicator`、`label`、`requirement-label`、`value`、`placeholder`、`leading-icon`、`clear-button`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider`、`status`。
+- 消去ボタンは `role="combobox"` の要素のあとに置いた `<tanrei-button>` で、コンテナーの末尾に重ねて描きます。コンボボックスの中にボタンを入れないためです。`clear-label` を空のままにすると、プロダクトの言葉（`setWords({ clearLabel })`）から読みます。
 - `empty-text` が空のときは、プロダクトの言葉（`setWords({ noOptionsText })`）を読みます。
 - 要素が定義されるまでの間、オプションはふつうのテキストとして表示されます。`tanrei-select:not(:defined) > *` を隠し、高さを確保しておいてください。
 - Web には固有の戻る操作がないので、`toggle` が理由 `back` を伝えることはありません。
@@ -311,3 +327,4 @@ Web での既知の制約：
 - 単独のセレクトの値が誤りになりうるときは、何が違うのかを、支援技術に届く言葉で伝えます。ページに結び付けた自分のメッセージか、セレクトを囲むフィールドです。
 - オプションの値は、1 つのセレクトの中で重複させません。
 - 読み込み中は `statusText` を書きます。ローディングインジケーターの名前になるからです。オプションがなくなりうるセレクトには `emptyText` を書きます。
+- 消去できるセレクトには、何を消去するのかを言う `clearLabel` を付けます（「国を消去」）。
