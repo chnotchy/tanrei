@@ -21,6 +21,7 @@ import {
 } from '../../../test/harness.js';
 import { opticalSize } from '../../../test/icons.js';
 import { motionEnded } from '../../../test/motions.js';
+import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock } from '../../../test/page-clock.js';
 
 const spec = loadSpec('search');
@@ -789,6 +790,18 @@ test.describe('opening and closing', () => {
     b = await bounds(bar(page, 's'));
     v = await bounds(view(page, 's'));
     expect(v.y).toBeGreaterThanOrEqual(margin - 0.5);
+  });
+
+  test('SRC-7: a wheel turned on past the end of a docked view that scrolls, and turned again after a pause, leaves the page behind where it was and the view open', async ({ page }) => {
+    await page.setViewportSize({ width: 480, height: 400 });
+    const many = Array.from({ length: 12 }, (_, n) => suggestion(`s${n}`, `suggestion ${n}`, { leadingIcon: 'history' }));
+    await mount(page, [live('s', { value: 'inv' }, many)]);
+    await input(page, 's').focus();
+    await page.keyboard.press('ArrowDown');
+    await expect.poll(() => popoverOpen(view(page, 's'))).toBe(true);
+    await motionEnded(page);
+    await expectWheelKeptFromPage(page, host(page, 's').locator('.view .scroll'), 'block');
+    expect(await popoverOpen(view(page, 's'))).toBe(true);
   });
 
   test('SRC-7: while expanded with no content the view is not drawn and the search stays expanded', async ({ page }) => {

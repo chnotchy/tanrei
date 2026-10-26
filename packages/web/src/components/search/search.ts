@@ -22,6 +22,7 @@ import {
   assignSlot,
   chordsConverter,
   chordsOf,
+  containedWheel,
   deepActive,
   focusWithin,
   holdPageScroll,
@@ -2464,7 +2465,7 @@ export class TanreiSearch extends TanreiElement {
     const icons = this.iconColumn;
     const status = this.statusNow;
     const label = this.label || undefined;
-    return html`<div class=${this.viewHasContent ? 'scroll' : 'scroll empty'}>
+    return html`<div class=${this.viewHasContent ? 'scroll' : 'scroll empty'} @wheel=${containedWheel}>
       ${listed
         ? html`<div part="listbox" class="listbox" id="listbox" role="listbox" aria-label=${ifDefined(this.label || undefined)}>
             ${this.queryRowShown ? this.renderQueryRow() : nothing}
