@@ -44,6 +44,8 @@
 //   visibility  — VisibilityController: whether the host can be seen, so a running animation pauses off screen
 //   shared-choice — sharedChoice(), remembered(), remember(), keepInPlace(): what rows that share a choice have in common —
 //                  one registry of groups for a document, one read of the storage for a key (TAB-36…41, TBV-21).
+//   read-phase  — readInPhase(owner, read): a read of the layout or the cascade made after the frame's layout and before
+//                 its paint, with every other element's, all reads before any write (cancelPhaseRead() withdraws it)
 //   flat-tree   — flatParent(): an element's parent in the flat tree (its slot, its parent, its shadow root's host), the
 //                 one walk up for what lays out, clips, scrolls, inherits or is inert
 //   layout-scale — layoutScale(): how much larger an element is drawn than laid out (a transformed ancestor), for what is
@@ -388,6 +390,7 @@ export {
 export { layoutSize, naturalHeight } from './natural-height.js';
 export { inverseBoolean, parseValues } from './values.js';
 export { CoalescedSync, notifyItemUpdate } from './item-update.js';
+export { type PhaseRead, cancelPhaseRead, readInPhase } from './read-phase.js';
 export { countWork } from './work-count.js';
 export { type FilledRun, type FilledSentence, type PlaceFaults, fillPlaces, placeFaults, reportPlaces } from './places.js';
 export {

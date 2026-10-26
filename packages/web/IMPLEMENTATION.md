@@ -8228,7 +8228,15 @@ script, pays for its whole page twice). So a first measurement is left to an obs
 layout — one for the page where it can be (`GlyphDrawnController` with `firstInFrame`, `KeptLengths`, the tabs' rows) —
 or collected for the turn and taken in one microtask that reads every host before it writes any (`GlyphDrawnController`,
 the text fields' heights, the lists' stacked controls); a direction is asked with `:dir()`, which styles nothing
-(`DirectionController`). `src/primitives/passes.test.ts` counts the style passes and layouts of fifty instances appended
+(`DirectionController`). A read that is not of a size an observer can report — a scroll position, a computed style, a
+box after a change of the element's own — and whose answer the first frame painted must show is asked of the frame's
+read phase, `readInPhase(owner, read)` (`src/primitives/read-phase.ts`): after the frame's layout and before its paint,
+every read of every element first and then the writes they return, so it costs nothing, where a microtask of the turn
+still styles the page once for every module of a loading page that defines its elements in a task of its own (the
+tables' sizes, the app bar's window width and scroll, the navigation drawer's first frame and pinned rows). It is a
+frame later than the turn: not for what a script that waits for `updateComplete` must find, nor for a read the
+element's first style must already follow (the drawer's presentation, NVD-55). `src/primitives/read-phase.test.ts`
+counts the passes forced by mounting one and ten of each such element. `src/primitives/passes.test.ts` counts the style passes and layouts of fifty instances appended
 at once, with the engine's own counters: the count is a small constant, and a component that measures gets a line there.
 
 Every interactive component composes the same pieces from `src/primitives/` (and `src/styles/shape.ts`), each with its
