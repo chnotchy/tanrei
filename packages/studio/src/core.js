@@ -539,6 +539,36 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     return tidy({ $schema: layer.$schema, id: layer.id, name: layer.name, extends: extendsId, description: layer.description });
   }
 
+  /**
+   * The systems the Base system panel lists for a layer: every system it may extend (`systems`) — and the root, when
+   * the layer extends it, as a layer with every value written out does (`writeOut`): the root is not offered as a base,
+   * but the base a layer has is always one of the panel's choices.
+   */
+  function baseChoices(layer) {
+    if (layer.extends !== rootId || systems.some((s) => s.id === rootId)) return [...systems];
+    const root = layers[rootId];
+    return [...systems, { id: rootId, name: root.name ?? rootId, description: root.description ?? '' }];
+  }
+
+  /**
+   * The start points the Studio's bar offers, in its order: the default system, the root, then the examples of the
+   * theme gallery — every other shipped system, a showcase of what a layer can imitate, not that system's official
+   * design. Each is `{ id, name, description, kind: 'default' | 'root' | 'example', offered, reason? }`; one that is
+   * listed but cannot be chosen says why (`reason`). A layer starts from one by extending it (`setBase`).
+   */
+  function startPoints() {
+    const of = (id, kind, extra = {}) => ({ id, name: layers[id].name ?? id, description: layers[id].description ?? '', kind, offered: true, ...extra });
+    const out = [of(defaultId, 'default')];
+    // TODO: the root is offered as a blank start once it holds neutral values of its own instead of the default
+    // system's, and the command line's `tanrei init --extends` takes it; until then it is listed, and cannot be chosen.
+    if (rootId !== defaultId) out.push(of(rootId, 'root', { offered: false, reason: 'not-neutral' }));
+    for (const system of shippedSystems) if (system.id !== defaultId) out.push(of(system.id, 'example'));
+    return out;
+  }
+
+  /** Whether starting `layer` from another point would replace anything: it holds more than a fresh start on its base. */
+  const holdsChanges = (layer) => JSON.stringify(tidy(layer)) !== JSON.stringify(setBase(layer, layer.extends));
+
   const dialValue = (op) => (op && '$value' in op && !isRef(op.$value) ? (typeof op.$value === 'number' ? op.$value : op.$value?.value) : undefined);
   /** Current value of every dial: the layer's, or the base's. */
   function dials(layer) {
@@ -1292,7 +1322,7 @@ export function createStudio({ config, sources, vocabulary, resolver, layers, mc
     // What the specs say of each component — its level, its listing, what it is built from (./listing.js); none where the host gives none.
     catalog,
     cssVar, roleVar, blank, fromLayer, validate, valueKey, preview, liveProperties, base, baseOf,
-    setMeta, setBase, dials, setDial, essentials, setEssential,
+    setMeta, setBase, baseChoices, startPoints, holdsChanges, dials, setDial, essentials, setEssential,
     setParents, paletteRows, paletteNameProblem, setPalette, dropPalette, restorePalette, paletteTones, setPaletteTones, generatedTone,
     typefaces, setTypeface, iconSet, setIconSet, cornerSmoothing, setCornerSmoothing, typeEmphasis, behaviors, setBehavior, groupReason, setGroupReason, resetGroup,
     applyOperation, addExtension, removeExtension, setDeclaration, setRules,
