@@ -3191,12 +3191,42 @@ test.describe('the clear button', () => {
     expect(await missingWords(page)).toEqual([]);
   });
 
-  test('SEL-72, SEL-55: in a right-to-left layout the clear button stands at the left, between the chevron and the value, its glyph unmirrored', async ({ page }) => {
-    await mountSpec(page, ['clearable-rtl']);
+  test('SEL-72, SEL-55: in a right-to-left layout the clear button and the chevron are the mirror of left to right — the chevron nearest the left edge, the clear button action-gap inside it, the two never over each other — in every look, its glyph unmirrored', async ({ page }) => {
+    const props = { value: 'jp', clearable: true, clearLabel: 'Clear country' };
+    const looks = ['stacked', 'filled', 'outlined'] as const;
+    await mount(page, [
+      ...looks.flatMap((variant) => [fx(`${variant}-ltr`, { ...props, variant }), fx(`${variant}-rtl`, { ...props, variant }, COUNTRIES, { direction: 'rtl' })]),
+      ...spec.fixtures.filter((f) => f.id === 'clearable-rtl'),
+    ]);
+    const [icon, gap] = [await token(page, 'icon-size-medium'), await resolveToken(page, '--tanrei-comp-select-container-action-gap')];
+    /** The horizontal boxes of the container, the chevron, the clear button's glyph and its visible button. */
+    const measure = async (id: string) => ({
+      c: await box(container(page, id)),
+      chevron: await box(part(page, id, '.chevron')),
+      glyph: await box(clear(page, id).locator('.icon')),
+      button: await box(clear(page, id).locator('button')),
+    });
+    const apart = (a: { x: number; width: number }, b: { x: number; width: number }, message: string) =>
+      expect(a.x + a.width <= b.x + 0.5 || b.x + b.width <= a.x + 0.5, `${message}: [${a.x}, ${a.x + a.width}] and [${b.x}, ${b.x + b.width}] do not overlap`).toBe(true);
+    for (const variant of looks) {
+      const [ltr, rtl] = [await measure(`${variant}-ltr`), await measure(`${variant}-rtl`)];
+      near(rtl.c.width, ltr.c.width, `${variant}: as wide`);
+      // Each part's distance from the container's inline end is the same: the right edge in LTR, the left edge in RTL.
+      const fromEnd = (m: typeof ltr, key: 'chevron' | 'glyph' | 'button', dir: 'ltr' | 'rtl') => (dir === 'ltr' ? m.c.x + m.c.width - (m[key].x + m[key].width) : m[key].x - m.c.x);
+      for (const key of ['chevron', 'glyph', 'button'] as const) near(fromEnd(rtl, key, 'rtl'), fromEnd(ltr, key, 'ltr'), `${variant}: the ${key} mirrored`);
+      for (const [dir, m] of [['ltr', ltr], ['rtl', rtl]] as const) {
+        apart(m.button, m.chevron, `${variant} ${dir}: the clear button and the chevron`);
+        apart(m.glyph, m.chevron, `${variant} ${dir}: the clear glyph and the chevron`);
+      }
+      // In RTL the chevron is at the left of the clear button's glyph, its centre action-gap and half a glyph from the chevron.
+      near(rtl.glyph.x + rtl.glyph.width / 2 - (rtl.chevron.x + rtl.chevron.width), gap + icon / 2, `${variant} rtl: after the chevron`);
+    }
+    // The spec's fixture: the chevron nearest the left edge, then the clear button, then the value.
     const id = 'clearable-rtl';
-    const [chevron, g, value] = [await box(part(page, id, '.chevron')), await box(clear(page, id).locator('.icon')), await box(part(page, id, '.value'))];
-    expect(chevron.x).toBeLessThan(g.x);
-    expect(g.x + g.width).toBeLessThan(value.x);
+    const [m, value] = [await measure(id), await box(part(page, id, '.value'))];
+    apart(m.button, m.chevron, `${id}: the clear button and the chevron`);
+    near(m.glyph.x + m.glyph.width / 2 - (m.chevron.x + m.chevron.width), gap + icon / 2, `${id}: after the chevron`);
+    expect(m.glyph.x + m.glyph.width).toBeLessThan(value.x);
     expect(await clear(page, id).locator('[slot="icon"]').evaluate((el) => getComputedStyle(el).transform)).toBe('none');
   });
 });
