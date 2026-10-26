@@ -2,7 +2,7 @@
 title: टेक्स्ट फ़ील्ड
 description: लोगों को टेक्स्ट दर्ज और संपादित करने देता है — एक पंक्ति में, या कई पंक्तियों में जो टेक्स्ट के साथ बढ़ती हैं या हाथ से छोटी-बड़ी की जाती हैं — या लोकेल के रूप में इकाई-दर-इकाई दर्ज की जाने वाली तारीख़ या समय, या ठीक वैसे ही रखा गया कोड जैसा वह लिखा गया है, ऐसे लेबल के साथ जो बता सकता है कि फ़ील्ड ज़रूरी है या वैकल्पिक, और वैकल्पिक आइकन, प्रीफ़िक्स और सफ़िक्स, सहायक टेक्स्ट, अक्षरों की गिनती और पिकर बटन के साथ।
 translationOf: components/text-field.mdx
-sourceHash: 9e1db5f3c000d955335f755eb7580a884097fce4
+sourceHash: 46c9e9ee51271a92fbae0ec4352c853a0b237635
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -324,7 +324,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 - एलिमेंट एक ब्लॉक है जो अपनी जगह को पूरा भरता है, ब्राउज़र के अपने टेक्स्ट इनपुट जितना चौड़ा इनलाइन बॉक्स नहीं।
 - एलिमेंट फ़ॉर्म से जुड़ा एलिमेंट है। वह `name` और `form` लेता है, मान सबमिट करता है (अक्षम रहते कुछ नहीं), रीसेट होने पर `value` ऐट्रिब्यूट पर लौटता है, नेविगेशन पर बहाल होता है, अक्षम `<fieldset>` के साथ अक्षम होता है, और जब तक `required` सेट है और वह ख़ाली है, फ़ॉर्म को बताता है कि मान नहीं है। उसके दोनों सदस्य फ़ॉर्म में कोई एंट्री नहीं जोड़ते। एक पंक्ति वाले फ़ील्ड में Enter एलिमेंट के फ़ॉर्म के डिफ़ॉल्ट बटन को दबाती है; इसे रोकने के लिए `action` को रद्द करें।
 - `input`, `change`, `action`, `pickerrequest` और `entryerror` टेक्स्ट इनपुट के अपने इवेंट हैं। उनका टार्गेट यही एलिमेंट है, और हर लिसनर में `event.target.value` नया मान होता है। detail के टाइप इनपुट के हैं: `TanreiTextInputActionDetail`, `TanreiTextInputPickerRequestDetail` और `TanreiTextInputEntryErrorDetail`।
-- भाग: `field` और `text-input` दोनों सदस्य हैं। उनके अपने भागों के नाम यहाँ वही हैं जो एक स्तर नीचे हैं: `label-icon`, `supporting-text`, `counter`; `container`, `outline`, `active-indicator`, `input`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `clear-button`, `picker-button`, `resize-handle`। `label` और `requirement-label` वे हैं जो दिखाए जाते हैं, उन्हें जो भी सदस्य बनाए; `field-label`, `text-input-label`, `field-requirement-label` और `text-input-requirement-label` सिर्फ़ किसी एक सदस्य के भाग के नाम हैं।
+- भाग: `field` और `text-input` दोनों सदस्य हैं। उनके अपने भागों के नाम यहाँ वही हैं जो एक स्तर नीचे हैं: `label-icon`, `supporting-text`, `counter`; `container`, `outline`, `active-indicator`, `input`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `clear-button`, `reveal-button`, `picker-button`, `resize-handle`। `label` और `requirement-label` वे हैं जो दिखाए जाते हैं, उन्हें जो भी सदस्य बनाए; `field-label`, `text-input-label`, `field-requirement-label` और `text-input-requirement-label` सिर्फ़ किसी एक सदस्य के भाग के नाम हैं।
 - एलिमेंट पर ख़ुद फ़ोकस नहीं जा सकता और उसका कोई रोल नहीं है: `focus()` इनपुट पर जाता है। लेबल की पंक्ति, बॉक्स या फ़्लोट होते लेबल पर दबाने से फ़ोकस इनपुट पर जाता है। सहायता, त्रुटि टेक्स्ट, गिनती या किसी पंक्ति और बॉक्स के बीच की ख़ाली जगह पर दबाने से कुछ नहीं होता।
 - उसे `label` से नाम दें, और जहाँ लेबल नहीं दिखाना है वहाँ साथ में `label-hidden` दें। उसे `aria-label` से कभी नाम न दें, जो यहाँ किसी चीज़ को नाम नहीं देता।
 - ऐट्रिब्यूट सदस्यों के अपने हैं: kebab-case में, जैसे `supporting-text`, `error-text`, `min-rows` और `no-wrap`, सिवाय `readonly`, `maxlength`, `autocomplete`, `min` और `max` के। `required` ऐट्रिब्यूट नहीं है: `required` लिखें।

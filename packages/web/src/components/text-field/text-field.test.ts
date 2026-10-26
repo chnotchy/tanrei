@@ -182,6 +182,30 @@ test.describe('behavior', () => {
     await expect(field(due).locator('.frame')).not.toHaveAttribute('data-error', /.*/);
   });
 
+  test('TXF-62, TXI-72: revealed is its text input’s at every moment — a press on the reveal button shows the value, the element reads and reflects it and a later render keeps it shown; the product’s revealed reaches the input, and the input’s own hiding is read back', async ({ page }) => {
+    await mountHtml(page, `<${TAG} id="pw" label="Password" type="password" value="correct horse" revealable reveal-label="Show password"></${TAG}>`);
+    const element = one(page, 'pw');
+    const typing = box(element).locator('.input');
+    await box(element).locator('.reveal-button').click();
+    await expect(typing).toHaveAttribute('type', 'text');
+    await expect(element).toHaveAttribute('revealed', '');
+    expect(await element.evaluate((el) => (el as unknown as { revealed: boolean }).revealed)).toBe(true);
+    // A render of its own for another prop gives the input what the element reads: still shown.
+    await element.evaluate(async (el) => {
+      (el as unknown as { label: string }).label = 'New password';
+      await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete;
+    });
+    await expect(typing).toHaveAttribute('type', 'text');
+    await element.evaluate((el) => ((el as unknown as { revealed: boolean }).revealed = false));
+    await expect(typing).toHaveAttribute('type', 'password');
+    await expect(element).not.toHaveAttribute('revealed');
+    // The input hides a shown value when it is disabled, with no event: the element reads that back.
+    await element.evaluate((el) => ((el as unknown as { revealed: boolean }).revealed = true));
+    await expect(typing).toHaveAttribute('type', 'text');
+    await element.evaluate((el) => ((el as unknown as { disabled: boolean }).disabled = true));
+    await expect.poll(() => element.evaluate((el) => (el as unknown as { revealed: boolean }).revealed)).toBe(false);
+  });
+
   test('TXF-63: in a form it is the one control the form sees — its name, its input’s value, reset to the value it was first given and restored, left out while disabled — and it reports what its input reports: a missing value while required, and a date’s entry error; a value its input does not keep is read back as the input holds it; its members take no part in the form', async ({ page }) => {
     await mountHtml(
       page,

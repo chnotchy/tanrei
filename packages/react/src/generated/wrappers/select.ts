@@ -23,7 +23,7 @@ const SelectElement = /* @__PURE__ */ createComponent({
   },
 });
 const withSelectMarks = /* @__PURE__ */ withMarks<SelectMarks>([], ['form']);
-const SelectAttributes = { variant: ['variant', 'stacked'], size: ['size', 'medium'], value: ['value', ''], name: ['name', ''], label: ['label', ''], labelHidden: ['label-hidden', false], placeholder: ['placeholder', ''], error: ['error', false], disabled: ['disabled', false], readOnly: ['readonly', false], open: ['open', false], separation: ['separation', 'auto'], iconSpace: ['icon-space', 'auto'], density: ['density', 'regular'], status: ['status', 'idle'], statusText: ['status-text', ''], emptyText: ['empty-text', ''], inline: ['inline', false], form: ['form'] } as const;
+const SelectAttributes = { variant: ['variant', 'stacked'], size: ['size', 'medium'], value: ['value', ''], name: ['name', ''], label: ['label', ''], labelHidden: ['label-hidden', false], placeholder: ['placeholder', ''], error: ['error', false], disabled: ['disabled', false], readOnly: ['readonly', false], clearable: ['clearable', false], clearLabel: ['clear-label', ''], open: ['open', false], separation: ['separation', 'auto'], iconSpace: ['icon-space', 'auto'], density: ['density', 'regular'], status: ['status', 'idle'], statusText: ['status-text', ''], emptyText: ['empty-text', ''], inline: ['inline', false], form: ['form'] } as const;
 /**
  * Lets people choose one value from a closed list: a trigger that looks and measures like a text input's box and shows the chosen option, and a list of options, optionally grouped, that opens from it. The bare control: it draws no label row, no requirement mark, no help and no error text.
  *

@@ -1,4 +1,4 @@
-import { type PropertyDeclarations, css, html } from 'lit';
+import { type PropertyDeclarations, type PropertyValues, css, html } from 'lit';
 import { ComposedControl, type ValueMember, composedHost, exported, forward, fieldDelegatesAria } from '../../primitives/composed.js';
 import { delegatedAria } from '../../primitives/delegated-aria.js';
 import { hiddenHost } from '../../primitives/hidden.js';
@@ -33,7 +33,7 @@ export type {
 
 /** TXF-62: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's (W6). */
 const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'] as const;
-/** TXF-62: the thirty-one props that are the text input's. Its own `label`, `labelHidden`, `error` and `disabled` are never set. */
+/** TXF-62: the thirty-four props that are the text input's. Its own `label`, `labelHidden`, `error` and `disabled` are never set. */
 const INPUT = [
   'variant',
   'size',
@@ -43,6 +43,9 @@ const INPUT = [
   'readOnly',
   'clearable',
   'clearLabel',
+  'revealable',
+  'revealed',
+  'revealLabel',
   'multiline',
   'minRows',
   'maxRows',
@@ -130,6 +133,7 @@ const INPUT_PARTS = exported(TanreiTextInput, { label: { as: 'text-input-label',
  * @fires pickerrequest - => tanrei-text-input
  * @fires entryerror - => tanrei-text-input
  * @fires resizeend - => tanrei-text-input
+ * @fires revealchange - => tanrei-text-input
  */
 export class TanreiTextField extends ComposedControl<string> {
   /** TXF-63: the one control the form meets. Its members stand in its shadow root, outside every form. */
@@ -174,6 +178,9 @@ export class TanreiTextField extends ComposedControl<string> {
     readOnly: { type: Boolean, attribute: 'readonly', reflect: true },
     clearable: { type: Boolean, reflect: true },
     clearLabel: { type: String, attribute: 'clear-label' },
+    revealable: { type: Boolean, reflect: true },
+    revealed: { type: Boolean, reflect: true },
+    revealLabel: { type: String, attribute: 'reveal-label' },
     multiline: { type: Boolean, reflect: true },
     minRows: { type: Number, attribute: 'min-rows' },
     maxRows: { type: Number, attribute: 'max-rows' },
@@ -262,6 +269,30 @@ export class TanreiTextField extends ComposedControl<string> {
   /** @from tanrei-text-input.clearLabel */
   clearLabel = '';
 
+  /** @from tanrei-text-input.revealable */
+  revealable = false;
+
+  /**
+   * W5: `revealed` is the text input's at every moment, as `value` is — what was last set on the element until the
+   * input has taken it (the element's next render), and from then on what the input holds. So it is already new in a
+   * listener of `revealchange`, and when the input hides the value itself (TXI-72) with no event.
+   */
+  private revealedGiven: boolean | undefined;
+
+  /** @from tanrei-text-input.revealed */
+  get revealed(): boolean {
+    return this.revealedGiven ?? this.valueMember?.revealed ?? false;
+  }
+
+  set revealed(revealed: boolean) {
+    const input = this.valueMember;
+    if (this.revealedGiven === undefined && input && input.revealed === revealed) return;
+    this.revealedGiven = revealed;
+  }
+
+  /** @from tanrei-text-input.revealLabel */
+  revealLabel = '';
+
   /** @from tanrei-text-input.multiline */
   multiline = false;
 
@@ -331,7 +362,7 @@ export class TanreiTextField extends ComposedControl<string> {
   /** @from tanrei-text-input.pickerLabel */
   pickerLabel = '';
 
-  protected override get valueMember(): ValueMember<string> | null {
+  protected override get valueMember(): (ValueMember<string> & Pick<TanreiTextInput, 'revealed'>) | null {
     return this.renderRoot?.querySelector<TanreiTextInput>('tanrei-text-input') ?? null;
   }
 
@@ -349,6 +380,14 @@ export class TanreiTextField extends ComposedControl<string> {
     const field = this.renderRoot?.querySelector<TanreiField>('tanrei-field');
     const input = this.renderRoot?.querySelector<TanreiTextInput>('tanrei-text-input');
     if (field && input && field.countText !== input.countText) field.countText = input.countText;
+    // W5: the reflected `revealed` follows the input's — the person showed or hid the value, or the input hid it.
+    if (input && this.hasUpdated && this.revealedGiven === undefined && this.hasAttribute('revealed') !== input.revealed) this.requestUpdate('revealed', !input.revealed);
+  }
+
+  protected override updated(changed: PropertyValues) {
+    // W5: the render that has just ended gave the input what was set; from here `revealed` is the input's.
+    this.revealedGiven = undefined;
+    super.updated(changed);
   }
 
   // TXF-62: a Field whose one control is a text input, exactly as a product writes the two — and nothing else but the
