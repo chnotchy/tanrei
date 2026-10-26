@@ -50,6 +50,16 @@ after(async () => {
   await host?.close();
 });
 
+/** Chooses a look in the header's Appearance panel, as a reader does, and closes the panel. */
+async function chooseLook(page, id) {
+  const panel = page.locator('tanrei-popover[anchor="docs-appearance"]');
+  if (!(await panel.evaluate((popover) => popover.open))) await page.locator('#docs-appearance').click();
+  await page.waitForFunction(() => document.querySelector('tanrei-popover[anchor="docs-appearance"]')?.open === true);
+  await panel.locator(`tanrei-list-item[value="${id}"]`).click();
+  await page.keyboard.press('Escape');
+  await page.waitForFunction(() => document.querySelector('tanrei-popover[anchor="docs-appearance"]')?.open === false);
+}
+
 const PAGE = '/components/button/';
 const VIEWPORTS = [
   { width: 390, height: 844 },
@@ -124,13 +134,9 @@ describe('the figure frame on the button’s page', () => {
     const frame = page.locator(FIGURE).first();
     const stage = frame.locator('[data-example-stage]');
     assert.equal(await stage.getAttribute('data-tanrei-system'), null);
-    const items = page.locator('tanrei-menu[anchor="docs-system"] tanrei-menu-radio-item');
-    assert.equal(await items.first().getAttribute('value'), NS, 'the default system is the menu’s first');
-    /** Chooses a system in the header's menu. */
-    const choose = async (id) => {
-      await page.locator('#docs-system').click();
-      await page.locator(`tanrei-menu[anchor="docs-system"] tanrei-menu-radio-item[value="${id}"]`).click();
-    };
+    const items = page.locator('tanrei-popover[anchor="docs-appearance"] tanrei-list-item');
+    assert.equal(await items.first().getAttribute('value'), NS, 'the default system is the panel’s first');
+    const choose = (id) => chooseLook(page, id);
 
     /** The value a token takes inside the stage, and on the page outside the figure. */
     const probe = (token) =>
