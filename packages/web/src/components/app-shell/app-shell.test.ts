@@ -10,6 +10,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 // The build's own step (scripts/build.js), read here so a width that drifts from its token fails a test.
 import { declarations, propertyOf, resolved, tokensIn, writeConditions } from '../../../scripts/conditions.js';
 import { type DocumentOptions, type Fixture, appShellWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens } from '../../../test/harness.js';
+import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { allSettled } from '../../../test/settled.js';
 
 const spec = loadSpec('app-shell');
@@ -407,6 +408,18 @@ test.describe('the navigation', () => {
     const bar = await edges(region(page, 'header'));
     const panel = await edges(drawer(page));
     expect([panel.top, panel.height]).toEqual([bar.bottom, 800 - bar.height]);
+  });
+
+  test('APS-5, APS-9: a wheel turned on past the end of what the navigation holds, or of the aside beside the main region, and turned again after a pause, leaves the page where it was; the same wheel over the main region scrolls the page', async ({ page }) => {
+    const tall = '<nav slot="navigation" aria-label="Documentation" style="inline-size: 200px"><div style="block-size: 3000px">Tokens</div></nav>';
+    const long = `<aside slot="aside"><div style="block-size: 2400px">Aside</div></aside>`;
+    await mount(page, real({ navigation: tall, aside: long, sections: 6 }), { width: 1280 });
+    await expectWheelKeptFromPage(page, region(page, 'navigation'), 'block');
+    await expectWheelKeptFromPage(page, region(page, 'aside'), 'block');
+    const box = await edges(main(page));
+    await page.mouse.move(box.left + 100, 400);
+    await page.mouse.wheel(0, 400);
+    await expect.poll(() => scrollY(page)).toBeGreaterThan(0);
   });
 });
 
