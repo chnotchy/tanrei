@@ -48,12 +48,12 @@ const INLINE = 'filled-closed';
 const WINDOW = 'filled-open';
 const stage = (id) => `.docs-stage[data-fixture-id="${id}"]`;
 
-/** The reader's choice of color scheme in the header's appearance menu, as its group hands it on (its `change`). */
+/** The reader's choice of color mode in the header's Appearance panel, as its tabs hand it on (their `change`). */
 const chooseTheme = (page, theme) =>
   page.evaluate((value) => {
-    const group = document.querySelector('tanrei-menu-group.docs-scheme-group');
-    group.value = value;
-    group.dispatchEvent(new Event('change', { bubbles: true }));
+    const tabs = document.querySelector('tanrei-tabs.docs-appearance-mode');
+    tabs.value = value;
+    tabs.dispatchEvent(new Event('change', { bubbles: true }));
   }, theme);
 
 /** What a stage in the page draws in: its box's scheme, and the scope it stands in. */
@@ -81,7 +81,7 @@ describe("the gallery's stages follow the page's scheme and contrast", () => {
     try {
       const page = await context.newPage();
       await page.goto(`${origin}${PAGE}`, { waitUntil: 'load' });
-      await page.waitForFunction(() => customElements.get('tanrei-menu-group') && document.querySelector('tanrei-menu-group.docs-scheme-group')?.updateComplete);
+      await page.waitForFunction(() => customElements.get('tanrei-tabs') && document.querySelector('tanrei-tabs.docs-appearance-mode')?.updateComplete);
       // The window loads when it comes near the view.
       await page.locator(stage(WINDOW)).scrollIntoViewIfNeeded();
 
@@ -123,8 +123,7 @@ describe("the gallery's stages follow the page's scheme and contrast", () => {
       const page = await context.newPage();
       await page.goto(`${origin}${PAGE}`, { waitUntil: 'load' });
       await page.evaluate(() => {
-        localStorage.setItem('tanrei-docs-contrast', 'medium');
-        localStorage.setItem('starlight-theme', 'dark');
+        localStorage.setItem('tanrei-docs-appearance', JSON.stringify({ mode: 'dark', contrast: 'medium' }));
       });
       await page.goto(`${origin}/fixtures/fab-menu/?id=${WINDOW}`, { waitUntil: 'load' });
       const root = await page.evaluate(() => ({ theme: document.documentElement.dataset.tanreiTheme ?? null, contrast: document.documentElement.dataset.tanreiContrast ?? null }));
