@@ -7,6 +7,7 @@ sourceHash: 8bc4bec678ed19a67a84c01798b3240663fd6cf1
 
 import Callout from '../../../../components/Callout.astro';
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
+import InstallCommand from '../../../../components/InstallCommand.astro';
 
 `@tanrei/react` 把 `@tanrei/web` 中的每个自定义元素包装成真正的 React 组件，带有类型化的属性和事件处理函数。这些包装组件由自定义元素清单（custom elements manifest）生成，因此始终与它们包装的元素保持一致。
 
@@ -18,9 +19,7 @@ import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 ### 从 npm
 
-```sh
-npm install @tanrei/react @tanrei/web
-```
+<InstallCommand packages="react web" />
 
 ### 从源码
 

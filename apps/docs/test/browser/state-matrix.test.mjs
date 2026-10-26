@@ -66,6 +66,16 @@ after(async () => {
   await new Promise((resolve) => (server ? server.close(resolve) : resolve()));
 });
 
+/** Chooses a look in the header's Appearance panel, as a reader does, and closes the panel. */
+async function chooseLook(page, id) {
+  const panel = page.locator('tanrei-popover[anchor="docs-appearance"]');
+  if (!(await panel.evaluate((popover) => popover.open))) await page.locator('#docs-appearance').click();
+  await page.waitForFunction(() => document.querySelector('tanrei-popover[anchor="docs-appearance"]')?.open === true);
+  await panel.locator(`tanrei-list-item[value="${id}"]`).click();
+  await page.keyboard.press('Escape');
+  await page.waitForFunction(() => document.querySelector('tanrei-popover[anchor="docs-appearance"]')?.open === false);
+}
+
 const PAGE = '/components/button/';
 const TABLE = '[data-docs-state-matrix]';
 
@@ -135,12 +145,11 @@ describe('the state matrix on the button’s page', () => {
     const page = await context.newPage();
     await page.goto(`${origin}${PAGE}`);
     await settled(page);
-    const presets = await page.locator('tanrei-menu[anchor="docs-system"] tanrei-menu-radio-item').evaluateAll((all) => all.map((item) => item.getAttribute('value')).slice(1));
+    const presets = await page.locator('tanrei-popover[anchor="docs-appearance"] tanrei-list-item').evaluateAll((all) => all.map((item) => item.getAttribute('value')).slice(1));
     const token = `${NS}.comp.button.filled.hovered.container.color`;
     const preset = presets.find((id) => resolvedIn(id, token) && rgb(resolvedIn(id, token)) !== rgb(resolvedIn(NS, token)));
     assert.ok(preset, 'a preset draws the hovered filled button in another color than the default system');
-    await page.locator('#docs-system').click();
-    await page.locator(`tanrei-menu[anchor="docs-system"] tanrei-menu-radio-item[value="${preset}"]`).click();
+    await chooseLook(page, preset);
     await page.waitForFunction((selector) => document.querySelector(selector).closest('[data-example]').querySelector('[data-example-stage]').getAttribute('data-tanrei-system'), TABLE);
     await settled(page);
     const drawn = await cells(page);

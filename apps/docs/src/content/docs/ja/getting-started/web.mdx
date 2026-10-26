@@ -9,6 +9,7 @@ import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import InstallCommand from '../../../../components/InstallCommand.astro';
 
 `@tanrei/web` には 2 つのものが入っています。デザイントークンを CSS カスタムプロパティとして収めたスタイルシートと、Lit で作った標準準拠のカスタム要素です。特定のフレームワークは必要ありません。
 
@@ -18,9 +19,7 @@ import Example from '../../../../components/visuals/Example.astro';
 
 ### npm から
 
-```sh
-npm install @tanrei/web
-```
+<InstallCommand packages="web" />
 
 ### ソースから
 
