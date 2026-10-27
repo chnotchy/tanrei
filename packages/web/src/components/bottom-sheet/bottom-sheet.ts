@@ -10,6 +10,7 @@ import {
   closeModal,
   closeRequestReason,
   compChoice,
+  containedWheel,
   deepActive,
   focusWithin,
   giveVariant,
@@ -809,7 +810,7 @@ export class TanreiBottomSheet extends TanreiElement {
       ${this.handle ? html`<div class="row" @click=${this.onClickCapture}>${this.handleTemplate()}</div>` : nothing}
       ${this.headerTemplate()}
       <div class="middle">
-        <div part="content" class=${classMap({ content: true, inset: this.inset })} data-tanrei-shape @scroll=${this.onScroll} @click=${this.onClickCapture}>
+        <div part="content" class=${classMap({ content: true, inset: this.inset })} data-tanrei-shape @scroll=${this.onScroll} @click=${this.onClickCapture} @wheel=${containedWheel}>
           <div class="inner"><slot @slotchange=${() => this.measure()}></slot></div>
         </div>
         <span class="focus" data-tanrei-shape></span>

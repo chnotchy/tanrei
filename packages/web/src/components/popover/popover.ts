@@ -25,6 +25,7 @@ import {
   closeModal,
   closeRequestReason,
   compChoice,
+  containedWheel,
   crossOffsetAttribute,
   deepActive,
   documentPainted,
@@ -886,7 +887,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
     const name = headline || this.label.trim();
     const focus = (event: FocusEvent) => syncFocusStyle(this, event.currentTarget as HTMLElement);
     const parts = html`
-      <div class="clip" data-tanrei-shape @focus=${focus}>
+      <div class="clip" data-tanrei-shape @focus=${focus} @wheel=${containedWheel}>
         ${header
           ? html`<div part="header" class=${classMap({ header: true, closable: this.closable, last: !this.hasContent && !this.hasActions })}>
               ${headline ? html`<h2 part="headline" class="headline">${headline}</h2>` : nothing}
@@ -905,6 +906,7 @@ export class TanreiPopover extends TanreiElement implements VariantHost, Placing
             data-tanrei-shape
             @scroll=${this.onScroll}
             @focus=${focus}
+            @wheel=${containedWheel}
           >
             <div class="inner"><slot @slotchange=${() => this.#onResize()}></slot></div>
           </div>
