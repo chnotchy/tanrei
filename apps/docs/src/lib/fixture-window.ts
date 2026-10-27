@@ -16,40 +16,64 @@ export const HELD = 'data-docs-held';
  * While a window draws, it neither takes the page's focus nor scrolls the page. A modal fixture opens as it is drawn —
  * `showModal()` moves focus into the dialog, and `focus()` is called on what it holds — and each engine then moves the
  * page's focus into the frame and scrolls the page to it, whether the frame is `inert` or not: a page of windows drawn
- * as the reader scrolls past them would be scrolled back to each one. Each open and each focus is let take place in the
- * window, without scrolling, and the page's focus and scroll are given back as they were.
+ * as the reader scrolls past them would be scrolled back to each one. WebKit scrolls at a frame of the window's own,
+ * which it holds back while the window is out of view, so a scroll cannot be put back afterwards: put back on the
+ * page's next frames it was too early on a loaded machine, and the page was scrolled to the window later; and putting
+ * back a place read before those frames undid the reader's own scrolling since. So nothing in the window is revealed:
+ * a dialog opens with nothing focused in it (it is `inert` for the call, so its focusing steps find nothing), and a
+ * focus asked for takes place without scrolling. The page's focus is given back as it was, in the call and — where
+ * the page's focus has gone into the frame since (WebKit moves it after the call has returned) — on the page's next
+ * frames and when the window is let go.
  */
 function hold(root: HTMLElement) {
   const page = window.parent as Window & typeof globalThis;
   const frame = window.frameElement as HTMLElement | null;
+  if (page === window || !frame) return;
+  // What had the page's focus before the window first took a part in it.
+  let before: Element | null = null;
+  const giveBack = () => {
+    const now = page.document.activeElement;
+    // The focus is the page's own where it is on something of the page (the reader's), or still where it was. It went
+    // into the frame where it is on the frame, or nowhere (Firefox takes it off the page's element and names none).
+    if (!before || now === before || (now !== frame && now !== null && now !== page.document.body)) return;
+    if (before instanceof page.HTMLElement && before !== page.document.body) before.focus({ preventScroll: true });
+    else {
+      (document.activeElement as HTMLElement | null)?.blur();
+      frame.blur();
+    }
+  };
   const kept = <T>(run: () => T): T => {
-    if (!root.hasAttribute(HELD) || page === window) return run();
+    if (!root.hasAttribute(HELD)) return run();
     const focused = page.document.activeElement;
+    if (focused !== frame) before = focused ?? page.document.body;
     const x = page.scrollX;
     const y = page.scrollY;
-    const giveBack = () => {
-      if (page.scrollX !== x || page.scrollY !== y) page.scrollTo({ left: x, top: y, behavior: 'instant' });
-      if (page.document.activeElement === focused) return;
-      if (focused instanceof page.HTMLElement && focused !== page.document.body) return focused.focus({ preventScroll: true });
-      // Nothing of the page had the focus: the window gives up its own, so that nothing of it is revealed by scrolling.
-      (document.activeElement as HTMLElement | null)?.blur();
-      frame?.blur();
-    };
     try {
       return run();
     } finally {
+      if (page.scrollX !== x || page.scrollY !== y) page.scrollTo({ left: x, top: y, behavior: 'instant' });
       giveBack();
-      // WebKit moves the page's focus after the call has returned, and scrolls the page at its next frame. The page's
-      // frames are asked for, not the window's: WebKit holds back the frames of a window out of view.
+      // The page's frames, not the window's: WebKit holds back the frames of a window out of view.
       page.requestAnimationFrame(() => {
         giveBack();
         page.requestAnimationFrame(giveBack);
       });
     }
   };
+  // Let go (lib/fixture-stages.ts takes the mark away): the page's focus is given back once more if it went in since.
+  new MutationObserver(() => {
+    if (!root.hasAttribute(HELD)) giveBack();
+  }).observe(root, { attributes: true, attributeFilter: [HELD] });
   const showModal = HTMLDialogElement.prototype.showModal;
   HTMLDialogElement.prototype.showModal = function (this: HTMLDialogElement) {
-    return kept(() => showModal.call(this));
+    if (!root.hasAttribute(HELD)) return showModal.call(this);
+    const inert = this.inert;
+    this.inert = true;
+    try {
+      return kept(() => showModal.call(this));
+    } finally {
+      this.inert = inert;
+    }
   };
   const focus = HTMLElement.prototype.focus;
   HTMLElement.prototype.focus = function (this: HTMLElement, options?: FocusOptions) {
