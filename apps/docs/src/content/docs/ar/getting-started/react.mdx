@@ -88,7 +88,59 @@ import { FabMenu, FabMenuItem, TextField } from '@tanrei/react/m3-like';
 
 ## التصيير على الخادم
 
-تُخرج المكوّنات وسم العنصر المخصص على الخادم، ثم يُرقّى العنصر في المتصفح. في إطارات العمل التي تفصل بين الخادم والعميل، استورد المدخل الذي تستخدمه من مكوّن عميل حتى تُسجَّل تعريفات العناصر في المتصفح.
+على الخادم، حيث لا يوجد `document`، يُخرج المكوّن وسم عنصره ويكتب كل خاصية (prop) يقرؤها العنصر من سمة على أنها تلك السمة، باسمها هي. فيحمل أول HTML التسمية والقيمة والحالات منذ البداية:
+
+```tsx
+<TextField label="البريد الإلكتروني" value="ada@example.com" required maxLength={80} readOnly={false} />
+// <tanrei-text-field label="البريد الإلكتروني" value="ada@example.com" required="" maxlength="80"></tanrei-text-field>
+```
+
+الخاصية التي على قيمتها الافتراضية لا تكتب شيئًا، فلا تُكتب `false` أبدًا على أنها موجودة. والقيمة المنطقية المفعّلة افتراضيًا إذا أُطفئت تكتب السمة التي يقرؤها العنصر على أنها مطفأة: `<CopyButton iconOnly={false} />` تكتب `icon-only="false"`، و`<BottomSheet handle={false} />` تكتب `no-handle`. أما المعالجات والكائنات والمصفوفات فتُضبط في المتصفح عند تركيب المكوّن. ولا يُصيَّر جذر الظل على الخادم: يرسم العنصر نفسه حين يُحمَّل تعريفه، ويُرطِّب React الوسم دون عدم تطابق.
+
+### Next.js (App Router)
+
+تستخدم المكوّنات المراجع (refs) وتأثيرات التخطيط، لذا تُستخدم من مكوّن عميل. استوردها في وحدة مُعلَّمة بـ `'use client'`؛ يمكن لمكوّن خادم أن يصيّر تلك الوحدة، ويظل Next.js يصيّرها على الخادم في التحميل الأول.
+
+```tsx
+// app/sign-up.tsx
+'use client';
+
+import '@tanrei/web/words/en';
+import { Button, TextField } from '@tanrei/react';
+
+export function SignUp() {
+  return (
+    <form action="/sign-up" method="post">
+      <TextField name="email" type="email" label="البريد الإلكتروني" required />
+      <Button type="submit">التسجيل</Button>
+    </form>
+  );
+}
+```
+
+```tsx
+// app/layout.tsx
+import '@tanrei/web/tanrei.css';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="ar">
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+```tsx
+// app/page.tsx (مكوّن خادم)
+import { SignUp } from './sign-up';
+
+export default function Page() {
+  return <SignUp />;
+}
+```
+
+مُصيِّر Lit للخادم (`@lit-labs/ssr-react` و`@lit-labs/nextjs`) غير مدعوم: فهو يصيّر جذر الظل على الخادم، وكثير من العناصر تقرأ أبناءها والمستند أثناء التصيير، وهو ما لا يوفّره هذا المصيِّر، فتفشل معه. لا تضفه؛ فما يرسله الخادم هو السمات المذكورة أعلاه.
 
 <Callout>
   السمة والتباين والرموز (tokens) والخطوط تعمل تمامًا كما في [دليل Web](/ar/getting-started/web/)؛ ولا تضيف حزمة React شيئًا من عندها فوق ذلك.

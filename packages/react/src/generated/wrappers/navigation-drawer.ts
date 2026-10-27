@@ -3,8 +3,23 @@
 import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiNavigationDrawer as TanreiNavigationDrawerElement, type TanreiNavigationDrawerFilterChangeDetail, type TanreiNavigationDrawerExpandedChangeDetail, type TanreiNavigationDrawerPresentationChangeDetail, type TanreiNavigationChangeDetail } from '@tanrei/web/components/navigation-drawer';
 
+const NavigationDrawerElement = /* @__PURE__ */ createComponent({
+  tagName: 'tanrei-navigation-drawer',
+  elementClass: TanreiNavigationDrawerElement,
+  react: React,
+  events: {
+    onFilterChange: 'filterchange' as EventName<TanreiEvent<TanreiNavigationDrawerElement, CustomEvent<TanreiNavigationDrawerFilterChangeDetail>>>,
+    onClose: 'close' as EventName<TanreiEvent<TanreiNavigationDrawerElement>>,
+    onExpandedChange: 'expandedchange' as EventName<TanreiEvent<TanreiNavigationDrawerElement, CustomEvent<TanreiNavigationDrawerExpandedChangeDetail>>>,
+    onPresentationChange: 'presentationchange' as EventName<TanreiEvent<TanreiNavigationDrawerElement, CustomEvent<TanreiNavigationDrawerPresentationChangeDetail>>>,
+    onChange: 'change' as EventName<TanreiEvent<TanreiNavigationDrawerElement, CustomEvent<TanreiNavigationChangeDetail>>>,
+    onReselect: 'reselect' as EventName<TanreiEvent<TanreiNavigationDrawerElement, CustomEvent<TanreiNavigationChangeDetail>>>,
+  },
+});
+const NavigationDrawerAttributes = { variant: ['variant', 'standard'], open: ['open', false], collapsible: ['collapsible', false], expanded: ['expanded', true], collapsedLabels: ['collapsed-labels', 'never'], density: ['density', 'regular'], chevron: ['chevron', 'start'], guides: ['guides', 'none'], indent: ['indent', null], highlight: ['highlight', 'indented'], iconSpace: ['icon-space', 'auto'], expandable: ['expandable', true], labelWrap: ['label-wrap', false], supportingWrap: ['supporting-wrap', false], stickyParents: ['sticky-parents', false], stickyMax: ['sticky-max', 2], loadingLabel: ['loading-label', ''], filterable: ['filterable', false], filterValue: ['filter-value', ''], filterLabel: ['filter-label', ''], filterPlaceholder: ['filter-placeholder', ''], filterEmptyText: ['filter-empty-text', ''], filterCountText: ['filter-count-text', ''], filterCountHidden: ['filter-count-hidden', false], filterClearLabel: ['filter-clear-label', ''], filterShortcut: ['filter-shortcut'], responsive: ['responsive', false], value: ['value', ''], revealSelected: ['reveal-selected', false], selectableGroups: ['selectable-groups', false], scrollOffset: ['scroll-offset'], label: ['label', ''] } as const;
 /**
  * A panel of destinations at the start edge, in two variants — `standard`, a layout region beside the content, and `modal`, a modal overlay over a scrim that closes itself after a destination is chosen — and, while `collapsible`, in two forms: expanded, and collapsed to a column of icons, which is the expanded drawer with its labels gone: every row is the same row cut after its icon, at the same height and with the same corners, and every icon exactly in place while the drawer moves between the two. A collapsed cell shows its name in a plain tooltip on hover and keyboard focus; `collapsed-labels` draws short labels under the icons instead, for a product or a system whose column is labelled.
  *
@@ -22,16 +37,4 @@ import { TanreiNavigationDrawer as TanreiNavigationDrawerElement, type TanreiNav
  * - `onChange` (`change`) — The user activated another destination: `detail.value` (and, for a button destination, the drawer's `value`) is its value. For a link it is fired before the link is followed, only for a plain activation of a link that opens in place, carries `detail.href`, leaves `value` to the page, and is cancelable: `preventDefault()` stops the browser's navigation.
  * - `onReselect` (`reselect`) — The user activated the selected destination again; for a link, as `change`.
  */
-export const NavigationDrawer = /* @__PURE__ */ createComponent({
-  tagName: 'tanrei-navigation-drawer',
-  elementClass: TanreiNavigationDrawerElement,
-  react: React,
-  events: {
-    onFilterChange: 'filterchange' as EventName<TanreiEvent<TanreiNavigationDrawerElement, CustomEvent<TanreiNavigationDrawerFilterChangeDetail>>>,
-    onClose: 'close' as EventName<TanreiEvent<TanreiNavigationDrawerElement>>,
-    onExpandedChange: 'expandedchange' as EventName<TanreiEvent<TanreiNavigationDrawerElement, CustomEvent<TanreiNavigationDrawerExpandedChangeDetail>>>,
-    onPresentationChange: 'presentationchange' as EventName<TanreiEvent<TanreiNavigationDrawerElement, CustomEvent<TanreiNavigationDrawerPresentationChangeDetail>>>,
-    onChange: 'change' as EventName<TanreiEvent<TanreiNavigationDrawerElement, CustomEvent<TanreiNavigationChangeDetail>>>,
-    onReselect: 'reselect' as EventName<TanreiEvent<TanreiNavigationDrawerElement, CustomEvent<TanreiNavigationChangeDetail>>>,
-  },
-});
+export const NavigationDrawer = /* @__PURE__ */ withServerAttributes(NavigationDrawerElement, 'tanrei-navigation-drawer', TanreiNavigationDrawerElement, NavigationDrawerAttributes);

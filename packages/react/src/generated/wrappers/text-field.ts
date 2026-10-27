@@ -4,6 +4,7 @@ import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
 import { type Marked, withMarks } from '../../marks.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiTextField as TanreiTextFieldElement, type TanreiTextInputActionDetail, type TanreiTextInputPickerRequestDetail, type TanreiTextInputEntryErrorDetail, type TanreiTextInputResizeEndDetail } from '@tanrei/web/components/text-field';
 
 /** The attributes of `<tanrei-text-field>` that are not properties of the element, as props of `TextField`. */
@@ -25,6 +26,7 @@ const TextFieldElement = /* @__PURE__ */ createComponent({
   },
 });
 const withTextFieldMarks = /* @__PURE__ */ withMarks<TextFieldMarks>([], ['form']);
+const TextFieldAttributes = { label: ['label', ''], labelHidden: ['label-hidden', false], supportingText: ['supporting-text', ''], errorText: ['error-text', ''], error: ['error', false], disabled: ['disabled', false], required: ['required', false], optional: ['optional', false], requiredMark: ['required-mark', 'auto'], requiredText: ['required-text', ''], optionalText: ['optional-text', ''], variant: ['variant', 'stacked'], size: ['size', 'medium'], type: ['type', 'text'], value: ['value'], placeholder: ['placeholder', ''], readOnly: ['readonly', false], multiline: ['multiline', false], minRows: ['min-rows', 2], maxRows: ['max-rows', 0], resize: ['resize', 'auto'], resizeAxis: ['resize-axis', 'vertical'], resizeLabel: ['resize-label', ''], noWrap: ['no-wrap', false], maxLength: ['maxlength', 0], counter: ['counter', false], counterText: ['counter-text', ''], counterNoLimitText: ['counter-no-limit-text', ''], prefixText: ['prefix-text', ''], suffixText: ['suffix-text', ''], autocomplete: ['autocomplete', ''], locale: ['locale', ''], min: ['min', ''], max: ['max', ''], disabledDates: ['disabled-dates'], invalidText: ['invalid-text', ''], unavailableText: ['unavailable-text', ''], segmentEmptyText: ['segment-empty-text', ''], picker: ['picker', false], pickerLabel: ['picker-label', ''], name: ['name', ''], form: ['form'] } as const;
 /**
  * Lets people enter and edit text as one complete field. Built from a Field (`<tanrei-field>`) and the Text input (`<tanrei-text-input>`) it frames: the box under the Field's label — or, in the filled and the outlined look, with the label floating in it — with the Field's help, its error and the count, tied together for assistive technology and taking part in a form as one control.
  *
@@ -40,4 +42,4 @@ const withTextFieldMarks = /* @__PURE__ */ withMarks<TextFieldMarks>([], ['form'
  * - `onEntryError` (`entryerror`) — The user committed a date, time or date-time field that is half-filled (`invalid`) or whose value is not available (`unavailable`: before `min`, after `max` or listed in `disabledDates`), with the row's text as drawn.
  * - `onResizeEnd` (`resizeend`) — The person finished changing the size of a field resized by hand: a drag of its handle ended, or a key or an activation of the handle changed it (TXI-69). `detail.lines` and `detail.width`.
  */
-export const TextField: Marked<typeof TextFieldElement, TextFieldMarks> = /* @__PURE__ */ withTextFieldMarks(TextFieldElement);
+export const TextField: Marked<typeof TextFieldElement, TextFieldMarks> = /* @__PURE__ */ withServerAttributes(/* @__PURE__ */ withTextFieldMarks(TextFieldElement), 'tanrei-text-field', TanreiTextFieldElement, TextFieldAttributes);

@@ -4,6 +4,7 @@ import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
 import { type Marked, withMarks } from '../../marks.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiColorInput as TanreiColorInputElement, type TanreiColorInputEntryErrorDetail, type TanreiColorInputPickerRequestDetail } from '@tanrei/web/components/color-input';
 
 /** The attributes of `<tanrei-color-input>` that are not properties of the element, as props of `ColorInput`. */
@@ -23,6 +24,7 @@ const ColorInputElement = /* @__PURE__ */ createComponent({
   },
 });
 const withColorInputMarks = /* @__PURE__ */ withMarks<ColorInputMarks>([], ['form']);
+const ColorInputAttributes = { variant: ['variant', 'stacked'], size: ['size', 'medium'], value: ['value'], name: ['name', ''], label: ['label', ''], labelHidden: ['label-hidden', false], error: ['error', false], disabled: ['disabled', false], invalidText: ['invalid-text', ''], picker: ['picker', false], pickerLabel: ['picker-label', ''], form: ['form'] } as const;
 /**
  * The box in which people set one color: a text value they can read, type and paste, a sample of it beside the text, a button that asks for a picker and — in the looks that float one — its label inside the box. It looks and measures like a text input. It has no label row, no help and no error text of its own: put it in a `<tanrei-field>`, which names it, describes it and marks it — or use `<tanrei-color-field>`, which is the two together.
  *
@@ -31,4 +33,4 @@ const withColorInputMarks = /* @__PURE__ */ withMarks<ColorInputMarks>([], ['for
  * - `onEntryError` (`entryerror`) — The person committed a text that is not empty and is not a color. `detail.text` is the text as typed, `detail.message` is `invalidText` — empty where the product gave none. Composed and bubbling.
  * - `onPickerRequest` (`pickerrequest`) — The person activated the picker button. `detail.value` is the value. Cancelable: `preventDefault()` keeps the input from presenting the browser's picker; the product then presents its own surface and sets `value`. Composed and bubbling.
  */
-export const ColorInput: Marked<typeof ColorInputElement, ColorInputMarks> = /* @__PURE__ */ withColorInputMarks(ColorInputElement);
+export const ColorInput: Marked<typeof ColorInputElement, ColorInputMarks> = /* @__PURE__ */ withServerAttributes(/* @__PURE__ */ withColorInputMarks(ColorInputElement), 'tanrei-color-input', TanreiColorInputElement, ColorInputAttributes);
