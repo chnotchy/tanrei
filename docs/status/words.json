@@ -1112,6 +1112,15 @@
       ]
     },
     {
+      "key": "revealLabel",
+      "readers": [
+        {
+          "component": "text-input",
+          "prop": "revealLabel"
+        }
+      ]
+    },
+    {
       "key": "segmentEmptyText",
       "readers": [
         {

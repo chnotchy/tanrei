@@ -90,6 +90,11 @@ export interface TanreiTextInputResizeEndDetail {
   width: number | null;
 }
 
+/** What `revealchange` carries (TXI-72): whether a password field now shows its value as plain text. */
+export interface TanreiTextInputRevealChangeDetail {
+  revealed: boolean;
+}
+
 /** What `action` carries: the value when the action key was pressed. */
 export interface TanreiTextInputActionDetail {
   value: string;
@@ -124,6 +129,8 @@ type Layout = 'stacked' | 'filled' | 'outlined';
 const BUTTON_SIZES = new Set(['small', 'medium', 'large']);
 /** TXI-71: the clear button's glyph, never mirrored. */
 const CLEAR_GLYPH = 'close';
+/** TXI-72: the reveal button's glyphs, while the value is hidden and while it is shown; never mirrored. */
+const REVEAL_GLYPHS = { hidden: 'visibility', shown: 'visibility_off' } as const;
 
 /**
  * TXI-20: how each type is given to the browser. The native element's own type is used only where it adds nothing the
@@ -314,6 +321,7 @@ function labelLines(copy: HTMLElement | null): { count: number; widest: number }
  * @csspart leading-icon - The box of the leading icon.
  * @csspart trailing-icon - The box of the trailing icon.
  * @csspart clear-button - The clear button, a `<tanrei-button>` (TXI-71).
+ * @csspart reveal-button - The reveal button of a password field, a toggle `<tanrei-button>` (TXI-72).
  * @csspart picker-button - The picker button, a `<tanrei-button>` (TXI-32).
  * @csspart resize-handle - The `<tanrei-handle>` of a multi-line field resized by hand (TXI-39).
  * @attr {string} form - The id of the form the text input belongs to, where it stands outside it: the platform's own attribute, which then wins over a form around it. The `form` property is read-only and returns the form element.
@@ -322,6 +330,7 @@ function labelLines(copy: HTMLElement | null): { count: number; widest: number }
  * @fires {CustomEvent<TanreiTextInputActionDetail>} action - The action key (Enter) was pressed in a single-line field. Cancelable: cancelling it keeps an enclosing form from being submitted.
  * @fires {CustomEvent<TanreiTextInputPickerRequestDetail>} pickerrequest - The user activated the picker button of a date, time or date-time field. The product presents the picker and sets `value` to the picked value.
  * @fires {CustomEvent<TanreiTextInputResizeEndDetail>} resizeend - The person finished changing the size of a field resized by hand: a drag of its handle ended, or a key or an activation of the handle changed it (TXI-69). `detail.lines` and `detail.width`.
+ * @fires {CustomEvent<TanreiTextInputRevealChangeDetail>} revealchange - The person showed or hid the value of a password field with the reveal button (TXI-72); `revealed` is already the new one. `detail.revealed`. Never fired when the product sets `revealed`, or when the field hides the value itself.
  * @fires {CustomEvent<TanreiTextInputEntryErrorDetail>} entryerror - The user committed a date, time or date-time field that is half-filled (`invalid`) or whose value is not available (`unavailable`: before `min`, after `max` or listed in `disabledDates`), with the row's text as drawn.
  */
 export class TanreiTextInput extends TanreiElement {
@@ -356,7 +365,7 @@ export class TanreiTextInput extends TanreiElement {
    *
    * @internal
    */
-  static readonly parts: readonly string[] = ['container', 'outline', 'active-indicator', 'label', 'requirement-label', 'input', 'entries', 'segment', 'prefix', 'suffix', 'leading-icon', 'trailing-icon', 'clear-button', 'picker-button', 'resize-handle'];
+  static readonly parts: readonly string[] = ['container', 'outline', 'active-indicator', 'label', 'requirement-label', 'input', 'entries', 'segment', 'prefix', 'suffix', 'leading-icon', 'trailing-icon', 'clear-button', 'reveal-button', 'picker-button', 'resize-handle'];
 
   static override shadowRootOptions: ShadowRootInit = { ...LitElement.shadowRootOptions, delegatesFocus: true };
 
@@ -377,6 +386,9 @@ export class TanreiTextInput extends TanreiElement {
     readOnly: { type: Boolean, attribute: 'readonly', reflect: true },
     clearable: { type: Boolean, reflect: true },
     clearLabel: { type: String, attribute: 'clear-label' },
+    revealable: { type: Boolean, reflect: true },
+    revealed: { type: Boolean, reflect: true },
+    revealLabel: { type: String, attribute: 'reveal-label' },
     multiline: { type: Boolean, reflect: true },
     minRows: { type: Number, attribute: 'min-rows' },
     maxRows: { type: Number, attribute: 'max-rows' },
@@ -499,6 +511,19 @@ export class TanreiTextInput extends TanreiElement {
 
   /** The clear button's accessible name, in the product's language (`clear-label`, "Clear"). Empty reads the product's words. Required while `clearable` is true. */
   clearLabel = '';
+
+  /** Draws a reveal button in a password field, which shows the value as plain text and hides it again (TXI-72). Ignored, and reported in debug builds, for every other type. Reflected. */
+  revealable = false;
+
+  /**
+   * Whether a revealable password field shows its value as plain text (TXI-72). The person changes it with the reveal
+   * button (`revealchange`); the product may set it. It goes back to false when the field's form is submitted or reset,
+   * when the type changes and when the field is disabled. Reflected.
+   */
+  revealed = false;
+
+  /** The reveal button's accessible name, in the product's language (`reveal-label`, "Show password"): one name for both states, whose pressed state says whether the value is shown. Empty reads the product's words. Required while `revealable` is true. */
+  revealLabel = '';
 
   /** Accepts line breaks and shows several lines, sized as `resize` says. Ignored for password, date, time and date-time. */
   multiline = false;
@@ -891,6 +916,8 @@ export class TanreiTextInput extends TanreiElement {
   }
 
   formResetCallback() {
+    // TXI-72: a reset form hides a shown password again.
+    this.revealed = false;
     this.value = this.getAttribute('value') ?? '';
     this.showValue();
     this.committed = this.value;
@@ -1894,6 +1921,8 @@ export class TanreiTextInput extends TanreiElement {
 
   override connectedCallback() {
     super.connectedCallback();
+    // TXI-72: the submission of its form hides a shown password (the event is heard as it is dispatched, before the page's).
+    document.addEventListener('submit', this.#onSubmit, true);
     if (this.hasUpdated) {
       this.observeLabel();
       this.observeSize();
@@ -1903,6 +1932,7 @@ export class TanreiTextInput extends TanreiElement {
 
   override disconnectedCallback() {
     super.disconnectedCallback();
+    document.removeEventListener('submit', this.#onSubmit, true);
     clearTimeout(this.countTimer);
     this.labelObserver?.disconnect();
     this.observedCopies = [];
@@ -1956,6 +1986,8 @@ export class TanreiTextInput extends TanreiElement {
         if (typeof entry !== 'string' || !isoValue('date', entry)) report(this, 'TXI-31', `the entry "${String(entry)}" of disabledDates is not an ISO 8601 calendar date; it is ignored`);
       }
     }
+    // TXI-72: a new type, or a disabled field, hides a shown password again, with no revealchange.
+    if (this.revealed && ((this.hasUpdated && changed.has('type')) || this.inert_)) this.revealed = false;
     // TXI-39: the size the person gave the field lasts until one of these changes.
     if (this.hasUpdated && (changed.has('resize') || changed.has('resizeAxis') || changed.has('minRows') || changed.has('maxRows') || changed.has('multiline') || changed.has('type'))) this.releaseSize();
   }
@@ -2046,6 +2078,8 @@ export class TanreiTextInput extends TanreiElement {
     if (any('clearable', 'multiline', 'type') && this.clearable && (this.isMultiline || this.dateKind)) {
       report(this, 'TXI-71', `clearable is ignored by a ${this.isMultiline ? 'multi-line' : this.type} field: it draws no clear button`);
     }
+    if (any('revealable', 'type') && this.revealable && this.type !== 'password') report(this, 'TXI-72', `revealable is ignored: the type "${this.type}" is not password`);
+    if (this.revealShown && !this.words.get('revealLabel', this.revealLabel).trim()) this.words.missing('revealLabel', { id: 'TXI-72', effect: 'the reveal button is drawn and works, and has no accessible name' });
     if (this.clearShown && !this.words.get('clearLabel', this.clearLabel).trim()) this.words.missing('clearLabel', { id: 'TXI-71', effect: 'the clear button is drawn and works, and has no accessible name' });
     if (any('picker', 'pickerLabel', 'type', 'readOnly') && this.pickerShown && !this.pickerLabel.trim()) {
       report(this, 'TXI-32', 'pickerLabel is empty, so the picker button has no accessible name; give it one ("Choose date")');
@@ -2065,9 +2099,19 @@ export class TanreiTextInput extends TanreiElement {
     return this.clearRoom && this.value !== '';
   }
 
-  /** TXI-32, TXI-71: how many buttons of the input's own stand at the end of the container. */
+  /** TXI-72: a password field with `revealable`, not disabled, draws the reveal button. */
+  private get revealShown(): boolean {
+    return this.type === 'password' && this.revealable && !this.inert_;
+  }
+
+  /** TXI-72: the value is shown as plain text. */
+  private get isRevealed(): boolean {
+    return this.revealShown && this.revealed;
+  }
+
+  /** TXI-32, TXI-71, TXI-72: how many buttons of the input's own stand at the end of the container. */
   private get ownButtons(): number {
-    return (this.clearRoom ? 1 : 0) + (this.pickerShown ? 1 : 0);
+    return (this.clearRoom ? 1 : 0) + (this.revealShown ? 1 : 0) + (this.pickerShown ? 1 : 0);
   }
 
   /** TXI-32: a date, time or date-time field with `picker`, not read-only, draws the picker button. */
@@ -2105,7 +2149,7 @@ export class TanreiTextInput extends TanreiElement {
    */
   private renderClear() {
     if (!this.clearRoom) return nothing;
-    return html`<span class="own clear" @mousedown=${this.#onClearPress}
+    return html`<span class="own clear" @mousedown=${this.#onOwnPress}
       >${this.clearShown
         ? html`<tanrei-button part="clear-button" class="clear-button" variant="text" size="small" label=${this.words.get('clearLabel', this.clearLabel)} @click=${this.#onClear}
             ><span slot="icon">${CLEAR_GLYPH}</span></tanrei-button
@@ -2114,10 +2158,67 @@ export class TanreiTextInput extends TanreiElement {
     >`;
   }
 
-  /** TXI-71: a press on the clear button does not take focus from the input. */
-  #onClearPress(event: MouseEvent) {
+  /** TXI-71, TXI-72: a press on the clear button or the reveal button does not take focus from the input. */
+  #onOwnPress(event: MouseEvent) {
     event.preventDefault();
   }
+
+  /**
+   * TXI-72: the reveal button, a toggle selected while the value is shown. Its `change` is the field's to answer and
+   * stays in the shadow root: `revealchange` is what the product hears.
+   */
+  private renderReveal() {
+    if (!this.revealShown) return nothing;
+    const shown = this.isRevealed;
+    return html`<span class="own reveal" @mousedown=${this.#onOwnPress}
+      ><tanrei-button
+        part="reveal-button"
+        class="reveal-button"
+        variant="text"
+        size="small"
+        toggle
+        .selected=${shown}
+        label=${this.words.get('revealLabel', this.revealLabel)}
+        @change=${this.#onRevealChange}
+        ><span slot="icon">${shown ? REVEAL_GLYPHS.shown : REVEAL_GLYPHS.hidden}</span></tanrei-button
+      ></span
+    >`;
+  }
+
+  /** TXI-72: the person showed or hid the value. The value, the caret and the selection stay; no input, no change, and focus does not move. */
+  #onRevealChange(event: CustomEvent<{ selected: boolean }>) {
+    event.stopPropagation();
+    if (!this.revealShown) return;
+    const input = this.input as HTMLInputElement | null;
+    let range: [number, number, 'forward' | 'backward' | 'none'] | null = null;
+    try {
+      if (input && input.selectionStart !== null && input.selectionEnd !== null) range = [input.selectionStart, input.selectionEnd, input.selectionDirection ?? 'none'];
+    } catch {
+      range = null;
+    }
+    this.revealed = event.detail.selected;
+    this.dispatchEvent(new CustomEvent<TanreiTextInputRevealChangeDetail>('revealchange', { bubbles: true, composed: true, detail: { revealed: this.revealed } }));
+    // A new native type puts the caret at the start in Chromium, and not only at once: the selection is given back
+    // after the update and again in the next frame, before it is painted.
+    const restore = () => {
+      const now = this.input as HTMLInputElement | null;
+      if (!now || !range) return;
+      try {
+        if (now.selectionStart !== range[0] || now.selectionEnd !== range[1]) now.setSelectionRange(...range);
+      } catch {
+        // A type without a selection API: the browser keeps the caret where it can.
+      }
+    };
+    void this.updateComplete.then(() => {
+      restore();
+      requestAnimationFrame(restore);
+    });
+  }
+
+  /** TXI-72: the form this field belongs to was submitted — a value shown for checking is hidden again. */
+  readonly #onSubmit = (event: Event) => {
+    if (this.revealed && event.target === this.internals.form) this.revealed = false;
+  };
 
   /**
    * TXI-71: the clear button empties the value: `input` once, then a commit as TXI-2 makes one — `change` while the
@@ -2323,7 +2424,7 @@ export class TanreiTextInput extends TanreiElement {
             id="input"
             part="input"
             class="input"
-            type=${kind.type}
+            type=${this.isRevealed ? 'text' : kind.type}
             inputmode=${ifDefined(kind.inputmode)}
             enterkeyhint=${ifDefined(kind.enterkeyhint)}
             autocapitalize=${kind.plain ? 'none' : nothing}
@@ -2402,7 +2503,7 @@ export class TanreiTextInput extends TanreiElement {
             <span part="suffix" class="suffix" id="suffix">${row ? nothing : this.suffixText}</span>
           </div>
           <span part="trailing-icon" class="icon trailing"><slot name="trailing-icon" @slotchange=${this.#onSlotChange}></slot></span>
-          ${this.renderClear()}${this.renderPicker()}
+          ${this.renderClear()}${this.renderReveal()}${this.renderPicker()}
           ${floating && labelled ? html`<label part="label" class="label" for="input" aria-hidden="true">${name}${asterisk}</label>` : nothing}
           ${floating && labelled
             ? html`<span class="measure measure-resting" aria-hidden="true">${name}${asterisk}</span
