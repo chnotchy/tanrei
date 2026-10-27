@@ -2,7 +2,7 @@
 title: حقل النص
 description: يتيح للأشخاص إدخال نص وتحريره، سطرًا واحدًا أو عدة أسطر تتبع النص أو يُغيَّر حجمها باليد، أو إدخال تاريخ أو وقت وحدةً وحدةً بصيغة الإعدادات المحلية، أو شيفرة تُحفظ كما كُتبت تمامًا، مع تسمية تستطيع أن تقول إن الحقل مطلوب أو اختياري، وأيقونات اختيارية، وبادئة ولاحقة، ونص مساعد، وعدّاد أحرف، وزر منتقٍ.
 translationOf: components/text-field.mdx
-sourceHash: 11ca82869cc7b493be699f28b68da9e9801b3dec
+sourceHash: 683632de1567a4e1bbf6de24ceaf12427a272d2c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 import Playground from '../../../../components/visuals/Playground.astro';
 
 ## نظرة عامة
@@ -454,6 +455,28 @@ input.addEventListener('input', () => (field.countText = input.countText));
 نظام الساعة في الحقل هو نظام إعداداته المحلية: ليس فيه إعداد لنظام 12 أو 24 ساعة ولا درجة للدقائق، كما في DateTimePicker.
 
 **زر المنتقي.** مع `picker` يرسم الحقل في نهايته زرًّا بأيقونة فقط، `calendar_month` للتاريخ و `schedule` للوقت، تسمّيه الخاصية `pickerLabel`. تفعيله يصدر `pickerRequest` مع القيمة والنوع و `min` و `max`؛ والصف النصف مملوء يرسل قيمة فارغة ولا يثير خطأ إدخال، لأن المنتقي يوشك أن يعطي قيمة كاملة. والحقل لا يعرض شيئًا بنفسه: منتجك يفتح [DateTimePicker](/ar/components/date-time-picker/) في الوضع المطابق، مرتكزًا على الحقل حين يكون مُرسى (docked)، ويعيّن الخاصية `value` في الحقل من الحدث `change` في المنتقي. أعطِ المنتقي قيم `min` و `max` و `disabledDates` نفسها التي للحقل. ويعود التركيز إلى الزر حين يُغلق المنتقي. والزر يتعطّل مع الحقل ولا يُرسم ما دام الحقل للقراءة فقط.
+
+### جنبًا إلى جنب
+
+<DoDont do="text-field/labelled" dont="text-field/placeholder-as-label" column>
+  <Fragment slot="doCaption">أعطِ كل حقل تسمية تبقى ظاهرة، وضع ما يحتاج إليه في النص المساعد.</Fragment>
+  <Fragment slot="dontCaption">لا تستخدم النص النائب تسميةً. يختفي بمجرد أن يبدأ أحد بالكتابة، ويبقى الحقل بلا اسم، وتُبلغ عنه نسخة التصحيح.</Fragment>
+</DoDont>
+
+<DoDont do="text-field/one-field" dont="text-field/field-in-field" column>
+  <Fragment slot="doCaption">حقل النص حقلٌ بالفعل: تأتي معه تسميته ونصه المساعد ونص الخطأ.</Fragment>
+  <Fragment slot="dontCaption">لا تضع حقل نص داخل حقل. تُرسم التسمية مرتين، وتُبلغ عنه نسخة التصحيح. عنصر التحكم الذي يؤطّره الحقل هو مُدخل النص.</Fragment>
+</DoDont>
+
+<DoDont do="text-field/required-mark" dont="text-field/required-in-label" column>
+  <Fragment slot="doCaption">اضبط `required` ودع الحقل يرسم علامته.</Fragment>
+  <Fragment slot="dontCaption">لا تكتب «(مطلوب)» في التسمية أيضًا. العلامة تقول ذلك بالفعل، وسيسمعه قارئ الشاشة مرتين.</Fragment>
+</DoDont>
+
+<DoDont do="text-field/read-only" dont="text-field/disabled-value" column>
+  <Fragment slot="doCaption">اعرض القيمة التي لا يمكن تغييرها بالخاصية `readOnly`. يظل بإمكان الناس التركيز عليها وتحديدها ونسخها.</Fragment>
+  <Fragment slot="dontCaption">لا تعطّل حقلًا لمجرد عرض قيمة لا يمكن تغييرها. الحقل المعطَّل باهت، ولا يقبل التركيز، ولا يمكن نسخ قيمته.</Fragment>
+</DoDont>
 
 ### افعل
 
