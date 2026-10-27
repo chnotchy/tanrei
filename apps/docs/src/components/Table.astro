@@ -25,11 +25,13 @@ interface Props {
   /** The page orders this table's rows when a header asks (lib/sort-table.ts, loaded by the caller): the Table itself never sorts. */
   sorts?: boolean;
   class?: string;
+  /** Custom properties the caller's own rules read on the box (the room a table holds before it is laid out). */
+  style?: string;
 }
-const { label, density, rowHeaders = false, stickyFirstColumn = false, sorts = false, class: className } = Astro.props;
+const { label, density, rowHeaders = false, stickyFirstColumn = false, sorts = false, class: className, style } = Astro.props;
 ---
 
-<tanrei-table class={className} data-tanrei-code="plain" label={label} density={density} row-headers={rowHeaders ? '' : undefined} sticky-first-column={stickyFirstColumn ? '' : undefined} data-docs-sorts={sorts ? '' : undefined}><slot /></tanrei-table>
+<tanrei-table class={className} style={style} data-tanrei-code="plain" label={label} density={density} row-headers={rowHeaders ? '' : undefined} sticky-first-column={stickyFirstColumn ? '' : undefined} data-docs-sorts={sorts ? '' : undefined}><slot /></tanrei-table>
 
 <script>
   import '@tanrei/web/components/table';
