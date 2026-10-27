@@ -49239,6 +49239,14 @@
         },
         {
           "kind": "js",
+          "name": "TanreiTextInputRevealChangeDetail",
+          "declaration": {
+            "name": "TanreiTextInputRevealChangeDetail",
+            "module": "src/components/text-field/text-field.ts"
+          }
+        },
+        {
+          "kind": "js",
           "name": "TanreiTextInputSize",
           "declaration": {
             "name": "TanreiTextInputSize",
