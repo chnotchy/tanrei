@@ -6,6 +6,7 @@ description: Keep one layer file in your product. One command writes tokens and 
 import Steps from '../../../components/Steps.astro';
 import Callout from '../../../components/Callout.astro';
 import ReleaseNotice from '../../../components/ReleaseNotice.astro';
+import InstallCommand from '../../../components/InstallCommand.astro';
 
 Tanrei's components never change when your product's look does. What changes is a **layer**: a small JSON file that sets values of the shared vocabulary and declares your palettes. `@tanrei/cli` turns that one file into everything each platform needs.
 
@@ -17,9 +18,7 @@ Tanrei's components never change when your product's look does. What changes is 
 
 Add the command line tool to your product as a development dependency; every `npx tanrei …` command on this page then runs that copy. It carries Theme Studio, which `tanrei studio` serves.
 
-```sh
-npm install --save-dev @tanrei/cli
-```
+<InstallCommand packages="cli" dev />
 
 The MCP server needs no install: `npx` fetches `@tanrei/mcp` when an agent starts it, as registered further down this page.
 

@@ -9,6 +9,7 @@ import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import InstallCommand from '../../../../components/InstallCommand.astro';
 
 `@tanrei/web` contiene dos cosas: una hoja de estilos con los tokens de diseño como propiedades personalizadas de CSS, y elementos personalizados basados en estándares, construidos con Lit. No requiere ningún framework.
 
@@ -18,9 +19,7 @@ import Example from '../../../../components/visuals/Example.astro';
 
 ### Desde npm
 
-```sh
-npm install @tanrei/web
-```
+<InstallCommand packages="web" />
 
 ### Desde el código fuente
 
