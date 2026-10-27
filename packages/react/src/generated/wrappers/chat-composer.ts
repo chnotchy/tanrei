@@ -4,6 +4,7 @@ import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
 import { type Marked, withMarks } from '../../marks.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiChatComposer as TanreiChatComposerElement, type TanreiChatComposerSendableDetail, type TanreiChatComposerSendDetail, type TanreiChatComposerSelectDetail, type TanreiChatComposerRejectDetail, type TanreiChatComposerAttachmentsChangeDetail } from '@tanrei/web/components/chat-composer';
 
 /** The attributes of `<tanrei-chat-composer>` that are not properties of the element, as props of `ChatComposer`. */
@@ -29,6 +30,7 @@ const ChatComposerElement = /* @__PURE__ */ createComponent({
   },
 });
 const withChatComposerMarks = /* @__PURE__ */ withMarks<ChatComposerMarks>([], ['form']);
+const ChatComposerAttributes = { value: ['value'], label: ['label', ''], placeholder: ['placeholder', ''], layout: ['layout', 'inline'], minRows: ['min-rows', 1], maxRows: ['max-rows', 6], maxLength: ['max-length', 0], counter: ['counter', false], sendKey: ['send-key', 'enter'], attachments: ['attachments', 'none'], attachmentForm: ['attachment-form', 'auto'], multiple: ['multiple', true], accept: ['accept'], maxSize: ['max-size', null], maxFiles: ['max-files', null], sending: ['sending', false], stoppable: ['stoppable', false], blocked: ['blocked', false], keepAfterSend: ['keep-after-send', false], disabled: ['disabled', false], error: ['error', false], sendLabel: ['send-label', ''], stopLabel: ['stop-label', ''], attachLabel: ['attach-label', ''], removeLabel: ['remove-label', ''], retryLabel: ['retry-label', ''], typeErrorText: ['type-error-text', ''], sizeErrorText: ['size-error-text', ''], countErrorText: ['count-error-text', ''], announcement: ['announcement', ''], name: ['name', ''], "files-name": ['files-name'], form: ['form'] } as const;
 /**
  * Lets a person write a message and send it, in one capsule that holds everything. Built from an Embedded text input (`<tanrei-embedded-text-input>`) — the typing, which grows with what is written — a File picker (`<tanrei-file-picker>`) and File items (`<tanrei-file-item>`) — the attachments, as a strip at the top of the capsule — and Buttons (`<tanrei-button>`): the send button, the stop button in its place, the attach button, and the product's own in its slots. It adds what ties them: the capsule, which is its own part and shows the typing area's focus on its edge; whether what it holds can be sent, and why not; the files it keeps; the counter; one live region; and the form's value. **It never sends**: `send` hands the text and the attachments to the product.
  *
@@ -49,4 +51,4 @@ const withChatComposerMarks = /* @__PURE__ */ withMarks<ChatComposerMarks>([], [
  * - `onAttachmentsChange` (`attachmentschange`) — While `attachments` is `own`: the kept files changed by what a person did — an arrival that kept a file, or a kept file removed by its File item. `detail.files` is the `File[]` now kept. Bubbles. Never for `addFiles()`, `clear()`, the emptying after `send` or a reset.
  * - `onStop` (`stop`) — The person activated the stop button while `sending` and `stoppable` were set. The product stops what is under way and sets `sending`. Bubbles.
  */
-export const ChatComposer: Marked<typeof ChatComposerElement, ChatComposerMarks> = /* @__PURE__ */ withChatComposerMarks(ChatComposerElement);
+export const ChatComposer: Marked<typeof ChatComposerElement, ChatComposerMarks> = /* @__PURE__ */ withServerAttributes(/* @__PURE__ */ withChatComposerMarks(ChatComposerElement), 'tanrei-chat-composer', TanreiChatComposerElement, ChatComposerAttributes);

@@ -88,7 +88,59 @@ import { FabMenu, FabMenuItem, TextField } from '@tanrei/react/m3-like';
 
 ## サーバーレンダリング
 
-コンポーネントは、サーバーではカスタム要素のタグをレンダリングし、ブラウザーでアップグレードされます。サーバーとクライアントが分かれているフレームワークでは、使うエントリーをクライアントコンポーネントからインポートして、要素の定義がブラウザーで登録されるようにしてください。
+`document` のないサーバーでは、コンポーネントは要素のタグをレンダリングし、要素が属性から読む prop を、その属性の名前で属性として書きます。最初の HTML に、ラベルも値も状態も入っています。
+
+```tsx
+<TextField label="メールアドレス" value="ada@example.com" required maxLength={80} readOnly={false} />
+// <tanrei-text-field label="メールアドレス" value="ada@example.com" required="" maxlength="80"></tanrei-text-field>
+```
+
+既定値のままの prop は何も書かないので、`false` が「ある」と書かれることはありません。既定でオンの真偽値をオフにしたときは、要素がオフと読む属性を書きます。`<CopyButton iconOnly={false} />` は `icon-only="false"` を、`<BottomSheet handle={false} />` は `no-handle` を書きます。ハンドラー、オブジェクト、配列は、ブラウザーでコンポーネントがマウントされたときに設定されます。シャドウルートはサーバーではレンダリングしません。要素は定義が読み込まれた時点で自分を描き、React はタグを不一致なしにハイドレーションします。
+
+### Next.js（App Router）
+
+コンポーネントは ref とレイアウトエフェクトを使うので、クライアントコンポーネントから使います。`'use client'` を付けたモジュールでインポートしてください。そのモジュールはサーバーコンポーネントからレンダリングでき、最初の読み込みでは Next.js がサーバーでレンダリングします。
+
+```tsx
+// app/sign-up.tsx
+'use client';
+
+import '@tanrei/web/words/en';
+import { Button, TextField } from '@tanrei/react';
+
+export function SignUp() {
+  return (
+    <form action="/sign-up" method="post">
+      <TextField name="email" type="email" label="メールアドレス" required />
+      <Button type="submit">登録</Button>
+    </form>
+  );
+}
+```
+
+```tsx
+// app/layout.tsx
+import '@tanrei/web/tanrei.css';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="ja">
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+```tsx
+// app/page.tsx (サーバーコンポーネント)
+import { SignUp } from './sign-up';
+
+export default function Page() {
+  return <SignUp />;
+}
+```
+
+Lit のサーバーレンダラー（`@lit-labs/ssr-react`、`@lit-labs/nextjs`）には対応していません。これはシャドウルートをサーバーでレンダリングしますが、多くの要素はレンダリング中に子要素やドキュメントを読み、このレンダラーはそれを用意しないため、失敗します。入れないでください。サーバーが送るのは、上の属性です。
 
 <Callout>
   テーマ、コントラスト、トークン、フォントは、[Web のガイド](/ja/getting-started/web/)に書かれているとおりに動作します。React のパッケージが独自に加えるものはありません。

@@ -3,8 +3,18 @@
 import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiTagGroup as TanreiTagGroupElement, type TanreiTagGroupChangeDetail } from '@tanrei/web/components/tag-group';
 
+const TagGroupElement = /* @__PURE__ */ createComponent({
+  tagName: 'tanrei-tag-group',
+  elementClass: TanreiTagGroupElement,
+  react: React,
+  events: {
+    onChange: 'change' as EventName<TanreiEvent<TanreiTagGroupElement, CustomEvent<TanreiTagGroupChangeDetail>>>,
+  },
+});
+const TagGroupAttributes = { spacing: ['spacing'], label: ['label', ''], selection: ['selection', 'none'], value: ['value', null], values: ['values'] } as const;
 /**
  * Lays out a set of tags or chips in lines that wrap, spaced for what it holds, and exposes the set as one named list.
  *
@@ -14,11 +24,4 @@ import { TanreiTagGroup as TanreiTagGroupElement, type TanreiTagGroupChangeDetai
  * Events:
  * - `onChange` (`change`) — While `selection` is single or multiple, a person switched a filter chip: `detail.value` (single) or `detail.values` (multiple) after the change, which the group already holds. The chip's own `change` stops at the group.
  */
-export const TagGroup = /* @__PURE__ */ createComponent({
-  tagName: 'tanrei-tag-group',
-  elementClass: TanreiTagGroupElement,
-  react: React,
-  events: {
-    onChange: 'change' as EventName<TanreiEvent<TanreiTagGroupElement, CustomEvent<TanreiTagGroupChangeDetail>>>,
-  },
-});
+export const TagGroup = /* @__PURE__ */ withServerAttributes(TagGroupElement, 'tanrei-tag-group', TanreiTagGroupElement, TagGroupAttributes);

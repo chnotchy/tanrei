@@ -60,6 +60,32 @@ const customEvents = (el) => (el.events ?? []).filter((e) => !NATIVE_EVENTS.has(
 // component reads from the element. A wrapper's prop types are the element's properties, so these are typed here, and the
 // boolean ones are written as attributes that are present or absent (`withMarks`). A deprecated one is not offered.
 const marksOf = (el) => (el.attributes ?? []).filter((a) => !a.fieldName && !/^deprecated\b/i.test(a.description ?? ''));
+// What a wrapper writes as attributes when it renders on a server (src/server.ts): each property of the element that
+// has an attribute, under the attribute's name, with the value the element has while the attribute is absent where the
+// manifest's default is a literal; and each mark, by its name (a boolean one is absent while false).
+const literal = (text) => {
+  if (text === undefined) return undefined;
+  const quoted = /^'((?:[^'\\]|\\.)*)'$/.exec(text);
+  if (quoted) return { value: quoted[1].replace(/\\(.)/g, '$1') };
+  try {
+    const value = JSON.parse(text);
+    return value === null || ['string', 'number', 'boolean'].includes(typeof value) ? { value } : undefined;
+  } catch {
+    return undefined;
+  }
+};
+const serverAttributesOf = (el, marks) => {
+  const entries = (el.members ?? [])
+    .filter((m) => m.kind === 'field' && !m.static && m.attribute && m.privacy !== 'private' && m.privacy !== 'protected')
+    .map((m) => {
+      const initial = literal(m.default);
+      return [m.name, initial ? [m.attribute, initial.value] : [m.attribute]];
+    });
+  for (const mark of marks) if (!entries.some(([prop]) => prop === mark.name)) entries.push([mark.name, mark.type?.text === 'boolean' ? [mark.name, false] : [mark.name]]);
+  const key = (name) => (/^[A-Za-z_$][\w$]*$/.test(name) ? name : JSON.stringify(name));
+  const value = (v) => (typeof v === 'string' ? `'${v.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'` : JSON.stringify(v));
+  return `{ ${entries.map(([prop, entry]) => `${key(prop)}: [${entry.map(value).join(', ')}]`).join(', ')} }`;
+};
 const oneLine = (text) => (text ?? '').replace(/\s+/g, ' ').trim().replace(/\*\//g, '*\\/');
 /** The events a wrapper maps to listeners on the element: its custom events, and `click` where it must be direct. */
 const listened = (el) => [...customEvents(el), ...(DIRECT_CLICK.has(el.tagName) && !customEvents(el).some((e) => e.name === 'click') ? [{ name: 'click', direct: true }] : [])];
@@ -88,6 +114,7 @@ const wrappers = elements.map((el) => {
     "import * as React from 'react';",
     ...(events.length ? ["import type { TanreiEvent } from '../../events.js';"] : []),
     ...(marks.length ? ["import { type Marked, withMarks } from '../../marks.js';"] : []),
+    "import { withServerAttributes } from '../../server.js';",
     // Importing the element's module defines the element, and the elements it is drawn with.
     `import { ${[`${el.name} as ${el.name}Element`, ...details.map((d) => `type ${d}`)].join(', ')} } from '${npmScope}/web/components/${dir}';`,
     '',
@@ -117,24 +144,23 @@ const wrappers = elements.map((el) => {
   // property returns the form) cannot be assigned as a prop: the wrapper writes it on the element as an attribute.
   const shadowed = marks.filter((a) => (el.members ?? []).some((m) => m.name === a.name)).map((a) => `'${a.name}'`).join(', ');
   const comment = ['/**', ...doc.map((line) => (line ? ` * ${line}` : ' *')), ' */'];
-  // With marks the wrapper is made in steps, so that the exported type names the element's wrapper instead of spelling
-  // its props out (which a declaration file cannot do for an element with a symbol-keyed member), and so that each call
-  // carries its own pure mark.
+  // The wrapper is made in steps, so that the exported type names the element's wrapper instead of spelling its props
+  // out (which a declaration file cannot do for an element with a symbol-keyed member), and so that each call carries
+  // its own pure mark.
   lines.push(
-    ...(marks.length ? [] : comment),
-    `${marks.length ? `const ${name}Element` : `export const ${name}`} = ${PURE} createComponent({`,
+    `const ${name}Element = ${PURE} createComponent({`,
     `  tagName: '${el.tagName}',`,
     `  elementClass: ${el.name}Element,`,
     '  react: React,',
     `  events: {${map ? `\n${map}\n  ` : ''}},`,
     '});',
-    ...(marks.length
-      ? [
-          `const with${name}Marks = ${PURE} withMarks<${name}Marks>([${booleans}]${shadowed ? `, [${shadowed}]` : ''});`,
-          ...comment,
-          `export const ${name}: Marked<typeof ${name}Element, ${name}Marks> = ${PURE} with${name}Marks(${name}Element);`,
-        ]
-      : []),
+    ...(marks.length ? [`const with${name}Marks = ${PURE} withMarks<${name}Marks>([${booleans}]${shadowed ? `, [${shadowed}]` : ''});`] : []),
+    // On a server the wrapper renders the tag with the props its element reads from attributes as those attributes.
+    `const ${name}Attributes = ${serverAttributesOf(el, marks)} as const;`,
+    ...comment,
+    marks.length
+      ? `export const ${name}: Marked<typeof ${name}Element, ${name}Marks> = ${PURE} withServerAttributes(${PURE} with${name}Marks(${name}Element), '${el.tagName}', ${el.name}Element, ${name}Attributes);`
+      : `export const ${name} = ${PURE} withServerAttributes(${name}Element, '${el.tagName}', ${el.name}Element, ${name}Attributes);`,
     '',
   );
   return { file: fileOf(el), name, marked: marks.length > 0, text: lines.join('\n') };
