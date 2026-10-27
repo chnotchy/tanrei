@@ -2,7 +2,7 @@
 title: Campo de texto
 description: Permite introducir y editar texto (una línea, o varias que siguen al texto o cuyo tamaño se cambia a mano) o una fecha o una hora que se introducen unidad por unidad en el formato de la configuración regional, o código que se conserva exactamente como se escribe, con una etiqueta que puede decir si el campo es obligatorio u opcional, iconos opcionales, prefijo y sufijo, texto de apoyo, un recuento de caracteres y un botón de selector.
 translationOf: components/text-field.mdx
-sourceHash: 683632de1567a4e1bbf6de24ceaf12427a272d2c
+sourceHash: 9e1db5f3c000d955335f755eb7580a884097fce4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -324,7 +324,7 @@ El campo de texto no tiene ningún token propio. Su caja lee los [tokens de la e
 - El elemento es un bloque que llena su lugar, no una caja en línea tan ancha como el campo de entrada de texto propio del navegador.
 - El elemento está asociado a formularios. Recibe `name` y `form`, envía el valor —nada mientras está deshabilitado—, se restablece al valor del atributo `value`, se restaura al navegar, sigue a un `<fieldset>` deshabilitado y notifica que falta un valor mientras `required` está activado y está vacío. Sus dos miembros no añaden ninguna entrada al formulario. Enter en un campo de una sola línea pulsa el botón predeterminado del formulario del elemento; cancela `action` para impedirlo.
 - `input`, `change`, `action`, `pickerrequest` y `entryerror` son los eventos propios de la entrada de texto. Su destino es el elemento, y `event.target.value` es el nuevo valor en todos los listeners. Los tipos del detalle son los de la entrada: `TanreiTextInputActionDetail`, `TanreiTextInputPickerRequestDetail` y `TanreiTextInputEntryErrorDetail`.
-- Partes: `field` y `text-input` son los dos miembros. Sus propias partes tienen aquí los mismos nombres que un nivel más abajo: `label-icon`, `supporting-text`, `counter`; `container`, `outline`, `active-indicator`, `input`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-handle`. `label` y `requirement-label` son las que se dibujan, sea cual sea el miembro que las dibuja; `field-label`, `text-input-label`, `field-requirement-label` y `text-input-requirement-label` nombran las de un solo miembro.
+- Partes: `field` y `text-input` son los dos miembros. Sus propias partes tienen aquí los mismos nombres que un nivel más abajo: `label-icon`, `supporting-text`, `counter`; `container`, `outline`, `active-indicator`, `input`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `clear-button`, `picker-button`, `resize-handle`. `label` y `requirement-label` son las que se dibujan, sea cual sea el miembro que las dibuja; `field-label`, `text-input-label`, `field-requirement-label` y `text-input-requirement-label` nombran las de un solo miembro.
 - El elemento no puede recibir el foco por sí mismo y no tiene rol: `focus()` va a la entrada. Una pulsación en la fila de la etiqueta, en la caja o en una etiqueta flotante da el foco a la entrada. Una pulsación en la ayuda, en el texto de error, en el recuento o en el hueco entre una fila y la caja no hace nada.
 - Dale nombre con `label` —con `label-hidden` donde la etiqueta no deba dibujarse— y nunca con `aria-label`, que aquí no nombra nada.
 - Los atributos son los de los propios miembros: en kebab-case, como `supporting-text`, `error-text`, `min-rows` y `no-wrap`, salvo `readonly`, `maxlength`, `autocomplete`, `min` y `max`. No hay atributo `required`: escribe `required`.

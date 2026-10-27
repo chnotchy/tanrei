@@ -20875,6 +20875,7 @@ class TanreiSelectStateTokens {
 @immutable
 class TanreiSelectTokens {
   const TanreiSelectTokens({
+    required this.containerActionGap,
     required this.dividerColor,
     required this.dividerSpace,
     required this.dividerThickness,
@@ -20913,6 +20914,8 @@ class TanreiSelectTokens {
     required this.disabled,
   });
 
+  /// `comp.select.container-action-gap`
+  final double containerActionGap;
   /// `comp.select.divider-color`
   final TanreiPaint dividerColor;
   /// `comp.select.divider-space`
@@ -20988,6 +20991,7 @@ class TanreiSelectTokens {
 
   /// A copy with the given tokens replaced.
   TanreiSelectTokens copyWith({
+    double? containerActionGap,
     TanreiPaint? dividerColor,
     double? dividerSpace,
     double? dividerThickness,
@@ -21025,6 +21029,7 @@ class TanreiSelectTokens {
     TanreiSelectStateTokens? pressed,
     TanreiSelectStateTokens? disabled,
   }) => TanreiSelectTokens(
+        containerActionGap: containerActionGap ?? this.containerActionGap,
         dividerColor: dividerColor ?? this.dividerColor,
         dividerSpace: dividerSpace ?? this.dividerSpace,
         dividerThickness: dividerThickness ?? this.dividerThickness,
@@ -25736,6 +25741,7 @@ class TanreiTextInputTokens {
   const TanreiTextInputTokens({
     required this.codeTabSize,
     required this.codeTypescale,
+    required this.containerActionGap,
     required this.entriesGap,
     required this.entriesRowGap,
     required this.entriesTypingMinWidth,
@@ -25748,6 +25754,8 @@ class TanreiTextInputTokens {
   final double codeTabSize;
   /// `comp.text-input.code-typescale`
   final TanreiTextStyle codeTypescale;
+  /// `comp.text-input.container-action-gap`
+  final double containerActionGap;
   /// `comp.text-input.entries-gap`
   final double entriesGap;
   /// `comp.text-input.entries-row-gap`
@@ -25765,6 +25773,7 @@ class TanreiTextInputTokens {
   TanreiTextInputTokens copyWith({
     double? codeTabSize,
     TanreiTextStyle? codeTypescale,
+    double? containerActionGap,
     double? entriesGap,
     double? entriesRowGap,
     double? entriesTypingMinWidth,
@@ -25774,6 +25783,7 @@ class TanreiTextInputTokens {
   }) => TanreiTextInputTokens(
         codeTabSize: codeTabSize ?? this.codeTabSize,
         codeTypescale: codeTypescale ?? this.codeTypescale,
+        containerActionGap: containerActionGap ?? this.containerActionGap,
         entriesGap: entriesGap ?? this.entriesGap,
         entriesRowGap: entriesRowGap ?? this.entriesRowGap,
         entriesTypingMinWidth: entriesTypingMinWidth ?? this.entriesTypingMinWidth,

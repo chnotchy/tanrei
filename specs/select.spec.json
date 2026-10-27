@@ -46,6 +46,11 @@
       "optional": true
     },
     {
+      "id": "clear-button",
+      "description": "An icon-only Button of the text variant at Button's small size showing close, before the chevron, that empties the value. Drawn while clearable is true and the value is not empty; its room is kept while clearable is true. It stands over the container and is not part of it.",
+      "optional": true
+    },
+    {
       "id": "chevron",
       "description": "The glyph expand_more of the system's icon set at the end of the container: it says that the box opens a list. It is drawn from the trailing-icon part of the tokens, is not a target of its own, does not turn while the list is open and is never mirrored. A read-only select draws none."
     },
@@ -167,6 +172,19 @@
       "type": "boolean",
       "default": false,
       "description": "The value is shown, can be focused and is submitted, but cannot be changed: the list does not open and no chevron is drawn."
+    },
+    {
+      "name": "clearable",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws a clear button while a value is chosen, for a select whose value may be none: a filter, an optional setting. Without it, a chosen value is changed only by choosing another."
+    },
+    {
+      "name": "clearLabel",
+      "type": "string",
+      "default": "",
+      "description": "The clear button's accessible name, in the product's language (\"Clear\"). Empty reads the product's words. Required while clearable is true.",
+      "words": "clearLabel"
     },
     {
       "name": "open",
@@ -337,7 +355,7 @@
     },
     {
       "id": "SEL-13",
-      "text": "THE select SHALL add one stop to the focus order, its container, and no other. A press on the label row of the Field that frames it moves focus to the container and opens nothing: that press is the Field's (FLD-12). A label that floats in the container is part of the container, and a press on it is a press on the container (SEL-22, SEL-23)."
+      "text": "THE select SHALL add one stop to the focus order, its container, and no other but the clear button while it is shown (SEL-72). A press on the label row of the Field that frames it moves focus to the container and opens nothing: that press is the Field's (FLD-12). A label that floats in the container is part of the container, and a press on it is a press on the container (SEL-22, SEL-23)."
     },
     {
       "id": "SEL-15",
@@ -469,11 +487,11 @@
     },
     {
       "id": "SEL-46",
-      "text": "WHILE disabled is true — set by the product, or by the Field that frames it (FLD-14) — THE select SHALL NOT be focusable, SHALL NOT open, SHALL NOT emit change or toggle, SHALL expose the disabled state to assistive technology, SHALL be left out of form submission on the web, and SHALL render every part of its trigger, the chevron, the floating label and its asterisk included, from the disabled component tokens of its variant (of its error parts WHILE error is true)."
+      "text": "WHILE disabled is true — set by the product, or by the Field that frames it (FLD-14) — THE select SHALL NOT be focusable, SHALL NOT open, SHALL NOT emit change or toggle, SHALL expose the disabled state to assistive technology, SHALL be left out of form submission on the web, SHALL draw no clear button, and SHALL render every part of its trigger, the chevron, the floating label and its asterisk included, from the disabled component tokens of its variant (of its error parts WHILE error is true)."
     },
     {
       "id": "SEL-47",
-      "text": "WHILE readOnly is true and disabled is false THE select SHALL stay focusable and show its value, SHALL NOT open by any input and SHALL NOT let the person change the value, SHALL NOT emit change or toggle, SHALL expose the read-only state to assistive technology, SHALL be submitted with its form on the web, and SHALL render as an enabled select without its chevron (SEL-19), including its hovered and focused states."
+      "text": "WHILE readOnly is true and disabled is false THE select SHALL stay focusable and show its value, SHALL NOT open by any input and SHALL NOT let the person change the value, SHALL NOT emit change or toggle, SHALL expose the read-only state to assistive technology, SHALL be submitted with its form on the web, and SHALL render as an enabled select without its chevron (SEL-19) and without the clear button and its room (SEL-72), including its hovered and focused states."
     },
     {
       "id": "SEL-48",
@@ -481,7 +499,7 @@
     },
     {
       "id": "SEL-49",
-      "text": "WHILE no Field frames it and the product gives it no width THE select SHALL be as wide as its widest option would make it — the widest option label in the value's text style, with the leading icon column where the select or any option has a leading icon, the chevron, the gaps and the paddings — so that choosing an option never changes its width, and at least as wide as its placeholder needs; it SHALL never be wider than its layout gives it, cutting the value instead (SEL-16), and WHERE the product gives it a width it SHALL fill that width. WHILE a Field frames it THE select SHALL fill the width that Field gives it (FLD-1), as a text input does, so that a field of a form is as wide as its column whatever control it holds; the width of such a pair is given to the Field.",
+      "text": "WHILE no Field frames it and the product gives it no width THE select SHALL be as wide as its widest option would make it — the widest option label in the value's text style, with the leading icon column where the select or any option has a leading icon, the room of the clear button WHILE clearable is true (SEL-72), the chevron, the gaps and the paddings — so that choosing an option never changes its width, and at least as wide as its placeholder needs; it SHALL never be wider than its layout gives it, cutting the value instead (SEL-16), and WHERE the product gives it a width it SHALL fill that width. WHILE a Field frames it THE select SHALL fill the width that Field gives it (FLD-1), as a text input does, so that a field of a form is as wide as its column whatever control it holds; the width of such a pair is given to the Field.",
       "verify": "The fixture small-label-hidden-icons holds options of unequal length: the container is as wide as with the longest of them chosen. Unit: the same select in a Field 280 wide has a container 280 wide, whichever option is chosen."
     },
     {
@@ -500,7 +518,7 @@
     },
     {
       "id": "SEL-55",
-      "text": "WHERE the layout direction is right-to-left THE select SHALL mirror its container and its list: the leading icon at the right of the container and the chevron at the left, a floating label from the right edge with its asterisk at its left, the list aligned to the container's right edge (SEL-24), and in each option the leading icon at the right and the check at the left, all paddings applied by logical start and end. The rows of the Field that frames it mirror by FLD-18."
+      "text": "WHERE the layout direction is right-to-left THE select SHALL mirror its container and its list: the leading icon at the right of the container and the clear button and the chevron at the left, the chevron nearest the edge, a floating label from the right edge with its asterisk at its left, the list aligned to the container's right edge (SEL-24), and in each option the leading icon at the right and the check at the left, all paddings applied by logical start and end. The rows of the Field that frames it mirror by FLD-18."
     },
     {
       "id": "SEL-56",
@@ -531,7 +549,7 @@
     },
     {
       "id": "SEL-62",
-      "text": "THE select SHALL have no words of its own: it shows its options' labels, its placeholder, its name and the status row's statusText, each given by the product, and SHALL take its empty text from the instance's emptyText and, WHILE that is empty, from the product's words of the name noOptionsText — the words a product sets once for all its components — and from nowhere else. WHILE neither gives it, the select draws no empty text (SEL-61) and, WHEN the person tries to open a select that holds nothing to show, reports once in debug builds that the words are missing. The words of a requirement are read by the Field that frames it (FLD-24).",
+      "text": "THE select SHALL have no words of its own: it shows its options' labels, its placeholder, its name and the status row's statusText, each given by the product, and SHALL take its empty text from the instance's emptyText and, WHILE that is empty, from the product's words of the name noOptionsText — the words a product sets once for all its components — and its clear button's name from clearLabel and, WHILE that is empty, from the product's words of the same name, and from nowhere else. WHILE neither gives clearLabel the clear button is as SEL-72 says: drawn, working and reported. WHILE neither gives the empty text, the select draws no empty text (SEL-61) and, WHEN the person tries to open a select that holds nothing to show, reports once in debug builds that the words are missing. The words of a requirement are read by the Field that frames it (FLD-24).",
       "verify": "Unit, with no product's words set: open-empty without emptyText does not open and the report names emptyText; with the product's noOptionsText set, a select without the prop draws it; an instance's own emptyText wins. No test finds in a select a word the test did not give."
     },
     {
@@ -571,6 +589,11 @@
     {
       "id": "SEL-71",
       "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE select SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the select is invalid — except those the select owns (aria-haspopup, aria-expanded, aria-controls, aria-disabled), which it SHALL move and not expose. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE select SHALL take it off that element. WHEN the product sets an aria- attribute the select owns THE select SHALL report it in debug builds."
+    },
+    {
+      "id": "SEL-72",
+      "text": "WHILE clearable is true and the select is neither disabled nor read-only THE select SHALL keep, at the end of its container before the chevron and comp.select.container.action-gap from it, the room of a clear button, and SHALL draw the button in that room WHILE value is not empty: an icon-only Tanrei Button of the text variant at Button's small size showing the glyph close of the system's icon set, not mirrored, its glyph centred in a box of the glyphs' size (comp.input-box.icon.size.medium for size medium, and so on), named by clearLabel, a Button in every respect — its own tokens, its press, focus ring and target (BTN-5, BTN-8, BTN-9, BTN-10) — and a focus stop after the container. The room SHALL be kept whether or not the button is drawn, so that the chevron stays where it is and a select given no width keeps its width (SEL-49) as a value is chosen and cleared. The button SHALL stand over the container and SHALL NOT be part of it: it is no child of the combobox in the accessibility tree, a press on it is no press on the container (SEL-23) and no press outside the select (SEL-27), and it neither opens nor closes the list. WHEN the button is activated THE select SHALL make value empty — it then shows the placeholder, or the option whose value is the empty string where it holds one (SEL-17) —, emit change once, move focus to the container, and leave its list as it is, open or closed, with no option chosen in it. WHILE clearable is false THE select SHALL draw no clear button and keep no room for one: a person changes the value only by choosing an option (SEL-34). WHILE clearLabel is empty and the product's words give none THE select SHALL still draw the button, working, and in debug builds report that it has no accessible name.",
+      "verify": "Fixtures stacked-clearable, stacked-clearable-empty, outlined-clearable and clearable-rtl. Unit: the button is drawn only while a value is chosen, and the container is as wide and the chevron where it is with and without it; Tab moves from the container to it, and Shift+Tab back; a click and Enter on it empty the value, emit change once and return focus to the container; a click on it while the list is open leaves the list open and emits no toggle; it is a button outside the combobox in the accessibility tree; a disabled and a read-only select draw none; with no clearLabel and no product's words the button is drawn, works and the report names clearLabel."
     }
   ],
   "accessibility": {
@@ -578,7 +601,7 @@
     "keyboard": [
       {
         "keys": "Tab / Shift+Tab",
-        "action": "Moves focus to the select, which is one stop, and on from it. With the list open, closes the list without choosing and moves focus on."
+        "action": "Moves focus to the select, which is one stop, and on from it; while the clear button is shown it is the next stop. With the list open, closes the list without choosing and moves focus on."
       },
       {
         "keys": "Enter, Space, Down Arrow or Up Arrow, list closed",
@@ -607,9 +630,13 @@
       {
         "keys": "Escape",
         "action": "Closes the list without choosing; focus stays on the select. With the list closed the select does not act on it."
+      },
+      {
+        "keys": "Enter or Space on the clear button",
+        "action": "Empties the value, emits change, and returns focus to the select (SEL-72)."
       }
     ],
-    "labeling": "The accessible name of the select and of its list is the label of the Field that frames it, or its own label where no Field does; a filled or outlined select draws that name floating, and labelHidden only stops the drawing. The placeholder is never the name and never the value. The chosen option's label is the select's value. The description is what the Field gives: its supporting text with, in error, the error text after it and its optional text. The select is exposed as invalid while error is true or its Field is in error, required while its Field says so — whichever mark is drawn, and the mark itself is hidden — read-only while readOnly is true, and expanded while its list is open. An option is named by its label and described by its supporting text, and exposes whether it is the chosen one, whether it is disabled, and its position among the options; a group is named by its title. The status row is a live region: what it says is read when the list opens and when it changes, politely, and at once while the source failed; while the options are loading the list box is busy and nothing is announced. The leading icons, the chevron, the check and the divider are decorative.",
+    "labeling": "The accessible name of the select and of its list is the label of the Field that frames it, or its own label where no Field does; a filled or outlined select draws that name floating, and labelHidden only stops the drawing. The placeholder is never the name and never the value. The chosen option's label is the select's value. The description is what the Field gives: its supporting text with, in error, the error text after it and its optional text. The select is exposed as invalid while error is true or its Field is in error, required while its Field says so — whichever mark is drawn, and the mark itself is hidden — read-only while readOnly is true, and expanded while its list is open. An option is named by its label and described by its supporting text, and exposes whether it is the chosen one, whether it is disabled, and its position among the options; a group is named by its title. The status row is a live region: what it says is read when the list opens and when it changes, politely, and at once while the source failed; while the options are loading the list box is busy and nothing is announced. The clear button is a button named by clearLabel, after the select and not inside it. The leading icons, the chevron, the check and the divider are decorative.",
     "minimumTarget": true,
     "notes": [
       "The select is the bare control: it draws no label row, no requirement mark, no help and no error. In a form it stands in a Field, which is the select field; alone it is for a place where its label stands elsewhere or is plain from where it stands and what it shows — a theme or a language select in a header, a toolbar, a column of a table — and there its own label names it.",
@@ -625,7 +652,8 @@
       "The hit area of the container meets the minimum target although a small select is 40 high, and options are at least the minimum target tall (WCAG 2.5.8).",
       "A disabled option stays reachable by the arrow keys and is read as unavailable; a select with a single option, or none, is still a select and says so, rather than turning into text.",
       "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
-      "WCAG 2.5.8 (target size): for touch every option is at least the touch target high in both densities (SEL-37). The compact density is lower than the pointer target for a fine pointer, by design: it is the density of a tool used with a mouse, it stays above the 24 by 24 the criterion asks, and its options reach across the list's whole width. A product that cannot accept that uses regular."
+      "WCAG 2.5.8 (target size): for touch every option is at least the touch target high in both densities (SEL-37). The compact density is lower than the pointer target for a fine pointer, by design: it is the density of a tool used with a mouse, it stays above the 24 by 24 the criterion asks, and its options reach across the list's whole width. A product that cannot accept that uses regular.",
+      "Clearing: a select whose value may be none either lists an option for none (\"Any\", \"Not set\") or, with clearable, draws a clear button after it. The button is a focus stop of its own beside the combobox, never inside it: a control inside a combobox is a nested interactive element that assistive technology cannot reach, and a key on the combobox that clears would empty the value unseen (WAI-ARIA select-only combobox; Ant Design's allowClear and Fluent's clearable dropdown are the same button)."
     ]
   },
   "tokens": "comp.select",
@@ -1764,6 +1792,147 @@
       ]
     },
     {
+      "id": "stacked-clearable",
+      "props": {
+        "variant": "stacked",
+        "label": "Country",
+        "value": "jp",
+        "clearable": true,
+        "clearLabel": "Clear country"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-clearable-empty",
+      "props": {
+        "variant": "stacked",
+        "label": "Country",
+        "placeholder": "Any country",
+        "clearable": true,
+        "clearLabel": "Clear country"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "outlined-clearable",
+      "props": {
+        "variant": "outlined",
+        "label": "Country",
+        "value": "jp",
+        "clearable": true,
+        "clearLabel": "Clear country"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
       "id": "stacked-option-icon",
       "props": {
         "label": "Theme",
@@ -2736,6 +2905,47 @@
       ]
     },
     {
+      "id": "clearable-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "label": "البلد",
+        "value": "jp",
+        "clearable": true,
+        "clearLabel": "مسح البلد"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "كندا",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "فرنسا",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "اليابان",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "كينيا",
+            "value": "ke"
+          }
+        }
+      ]
+    },
+    {
       "id": "icon-space-auto",
       "props": {
         "label": "Share to",
@@ -3070,6 +3280,8 @@
         "error": "error",
         "disabled": "disabled",
         "readOnly": "readOnly",
+        "clearable": "clearable",
+        "clearLabel": "clearLabel",
         "open": "open",
         "separation": "separation",
         "iconSpace": "iconSpace",
@@ -3102,7 +3314,7 @@
           "notes": "The title is the `label` attribute, as `<optgroup label>` and `<tanrei-menu-group label>`: a `title` attribute would also draw the browser's tooltip."
         }
       },
-      "notes": "The tag `tanrei-select`, the class `TanreiSelect` and the React name `Select` are the bare control, without the frame. Lagging: the element still draws the label row, the requirement mark and the supporting row itself. A form-associated custom element (`static formAssociated = true`): it takes `name`, submits `value`, restores it on navigation (`formStateRestoreCallback`), resets to the value it was first given, follows `<fieldset disabled>` and reports `valueMissing` while the Field that frames it says it is required and `value` is empty. Its two calls on `ElementInternals` and its form go through the shared field primitives, so that a select field can repeat them. The trigger is a `<div role=\"combobox\" tabindex=\"0\">` in the shadow root carrying the name, the description, `aria-invalid`, `aria-required`, `aria-readonly`, `aria-haspopup=\"listbox\"`, `aria-expanded`, `aria-controls` and `aria-activedescendant` — set on that element, not through ElementInternals, which axe cannot see. The name and the description are values the Field gives (`tanrei-field-connect`, `src/primitives/field.ts`), written into the select's own shadow root, the select's own `label` winning; the connection runs in both directions (SEL-63): the control's side says `drawsLabel`, `inset: { start, end }` (lengths the select writes from its own tokens and its measured icon box) and `drawnFocused` (true while the list is open), and takes `labelHidden` and `requiredMark` (`asterisk` or `none`) beside the name, the description and the three states. A select that a Field frames is a block that fills the Field's width (SEL-49); a bare one is an inline box as wide as its widest option, measured from a hidden grid cell that stacks every option's label in the value's style. The options are `<tanrei-option>` and `<tanrei-option-group>` elements, read as data and never drawn in place: the select renders the rows itself in its shadow root, so that the combobox, its `aria-controls` listbox and its `aria-activedescendant` option are in one tree. It reads them from its own children, and — in `src/primitives/option-list.ts`, for the combobox too — through any `<slot>` among its children: the elements assigned to that slot, flattened, stand in the slot's place, in order. That is how a select field's options, which are the product's children of `<tanrei-select-field>`, reach the select inside it, and how a product's own element can pass options on. Changes are observed on the children, on each such slot (`slotchange`) and on each element assigned through one. The list is a manual popover in the top layer, placed with CSS anchor positioning and a script fallback and followed with the `FollowController` the menu uses, with the select's own light dismiss so that `toggle` carries a reason; a press outside also reaches the element under it. The select sets its own `value` before firing `change` (a composed, bubbling Event, as a native select's) and its own `open` before firing `toggle`, a CustomEvent whose `detail` holds `open` and `reason` — which is composed and not bubbling (the shipped element's is not yet): composed so that it is heard on a select field, not bubbling so that an ancestor's own `toggle` listener, a `<details>`'s, never hears a select's. Attributes: `label-hidden`, `readonly`, the rest as the properties. The `leading-icon` slot is a named slot. Parts: `container`, `outline`, `active-indicator`, `label` (the floating label), `requirement-label` (its asterisk), `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`, `status`. The status row (SEL-68, SEL-69) is a `<div part=\"status\">` after the list box, outside it and outside the box that scrolls; its text is drawn in a span kept from assistive technology, and two visually hidden spans, `role=\"status\"` and `role=\"alert\"`, are its live regions, always in the shadow root and given the text one animation frame after the list is shown (empty while it is closed), so that what the row already says as the list opens is read. While loading the list box has `aria-busy=\"true\"` and the row holds one `<tanrei-loading-indicator size=\"small\">` named by `status-text`. `empty-text` left empty is read from the product's words (`setWords({ noOptionsText })`). The `inline` attribute, for tests and fixtures, draws the open list in place below the trigger. What belongs to the frame and not to the element: the attributes `supporting-text`, `error-text`, `required`, `optional`, `required-mark`, `required-text`, `optional-text`, the `label-icon` slot, the parts `label-icon` and `supporting-text`, and the label row of the stacked look. In a debug build the element reports any of those six attributes, or a child for `label-icon`, once, and names `tanrei-select-field`: nothing is kept for them in a production build, and no alias exists. Before the element is defined its options are running text in the page; what a server-rendered page shows then is the product's to guard today: hide `tanrei-select:not(:defined) > *` and reserve the block size of the select's size, and where the page must work without script put a native `<select>` or links in a `<noscript>` beside it. The native `<select>` is not used inside: its list cannot be drawn with the system's tokens, groups, glyphs and supporting text. The chevron is the icon helper's `expand_more` and the check its `check`. The element has no words and reads none."
+      "notes": "The tag `tanrei-select`, the class `TanreiSelect` and the React name `Select` are the bare control, without the frame. Lagging: the element still draws the label row, the requirement mark and the supporting row itself. A form-associated custom element (`static formAssociated = true`): it takes `name`, submits `value`, restores it on navigation (`formStateRestoreCallback`), resets to the value it was first given, follows `<fieldset disabled>` and reports `valueMissing` while the Field that frames it says it is required and `value` is empty. Its two calls on `ElementInternals` and its form go through the shared field primitives, so that a select field can repeat them. The trigger is a `<div role=\"combobox\" tabindex=\"0\">` in the shadow root carrying the name, the description, `aria-invalid`, `aria-required`, `aria-readonly`, `aria-haspopup=\"listbox\"`, `aria-expanded`, `aria-controls` and `aria-activedescendant` — set on that element, not through ElementInternals, which axe cannot see. The name and the description are values the Field gives (`tanrei-field-connect`, `src/primitives/field.ts`), written into the select's own shadow root, the select's own `label` winning; the connection runs in both directions (SEL-63): the control's side says `drawsLabel`, `inset: { start, end }` (lengths the select writes from its own tokens and its measured icon box) and `drawnFocused` (true while the list is open), and takes `labelHidden` and `requiredMark` (`asterisk` or `none`) beside the name, the description and the three states. A select that a Field frames is a block that fills the Field's width (SEL-49); a bare one is an inline box as wide as its widest option, measured from a hidden grid cell that stacks every option's label in the value's style. The options are `<tanrei-option>` and `<tanrei-option-group>` elements, read as data and never drawn in place: the select renders the rows itself in its shadow root, so that the combobox, its `aria-controls` listbox and its `aria-activedescendant` option are in one tree. It reads them from its own children, and — in `src/primitives/option-list.ts`, for the combobox too — through any `<slot>` among its children: the elements assigned to that slot, flattened, stand in the slot's place, in order. That is how a select field's options, which are the product's children of `<tanrei-select-field>`, reach the select inside it, and how a product's own element can pass options on. Changes are observed on the children, on each such slot (`slotchange`) and on each element assigned through one. The list is a manual popover in the top layer, placed with CSS anchor positioning and a script fallback and followed with the `FollowController` the menu uses, with the select's own light dismiss so that `toggle` carries a reason; a press outside also reaches the element under it. The select sets its own `value` before firing `change` (a composed, bubbling Event, as a native select's) and its own `open` before firing `toggle`, a CustomEvent whose `detail` holds `open` and `reason` — which is composed and not bubbling (the shipped element's is not yet): composed so that it is heard on a select field, not bubbling so that an ancestor's own `toggle` listener, a `<details>`'s, never hears a select's. Attributes: `label-hidden`, `readonly`, `clear-label`, the rest as the properties. The `leading-icon` slot is a named slot. Parts: `container`, `outline`, `active-indicator`, `label` (the floating label), `requirement-label` (its asterisk), `value`, `placeholder`, `leading-icon`, `clear-button`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`, `status`. The status row (SEL-68, SEL-69) is a `<div part=\"status\">` after the list box, outside it and outside the box that scrolls; its text is drawn in a span kept from assistive technology, and two visually hidden spans, `role=\"status\"` and `role=\"alert\"`, are its live regions, always in the shadow root and given the text one animation frame after the list is shown (empty while it is closed), so that what the row already says as the list opens is read. While loading the list box has `aria-busy=\"true\"` and the row holds one `<tanrei-loading-indicator size=\"small\">` named by `status-text`. `empty-text` left empty is read from the product's words (`setWords({ noOptionsText })`). The `inline` attribute, for tests and fixtures, draws the open list in place below the trigger. What belongs to the frame and not to the element: the attributes `supporting-text`, `error-text`, `required`, `optional`, `required-mark`, `required-text`, `optional-text`, the `label-icon` slot, the parts `label-icon` and `supporting-text`, and the label row of the stacked look. In a debug build the element reports any of those six attributes, or a child for `label-icon`, once, and names `tanrei-select-field`: nothing is kept for them in a production build, and no alias exists. Before the element is defined its options are running text in the page; what a server-rendered page shows then is the product's to guard today: hide `tanrei-select:not(:defined) > *` and reserve the block size of the select's size, and where the page must work without script put a native `<select>` or links in a `<noscript>` beside it. The native `<select>` is not used inside: its list cannot be drawn with the system's tokens, groups, glyphs and supporting text. The chevron is the icon helper's `expand_more` and the check its `check`. The clear button (SEL-72) is a `<tanrei-button variant=\"text\" size=\"small\">` after the `role=\"combobox\"` element in the shadow root, placed over the container's end, so that no button is inside the combobox; the container keeps its room with a margin before the chevron. `clear-label` left empty is read from the product's words (`setWords({ clearLabel })`)."
     },
     "swiftui": {
       "status": "planned",
@@ -3117,6 +3329,8 @@
         "error": "error",
         "disabled": "disabled",
         "readOnly": "readOnly",
+        "clearable": "clearable",
+        "clearLabel": "clearLabel",
         "open": "isPresented",
         "separation": "separation",
         "iconSpace": "iconSpace",
@@ -3164,6 +3378,8 @@
         "error": "isError",
         "disabled": "enabled",
         "readOnly": "readOnly",
+        "clearable": "clearable",
+        "clearLabel": "clearContentDescription",
         "open": "expanded",
         "separation": "separation",
         "iconSpace": "iconSpace",
@@ -3211,6 +3427,8 @@
         "error": "isError",
         "disabled": "enabled",
         "readOnly": "readOnly",
+        "clearable": "clearable",
+        "clearLabel": "clearSemanticLabel",
         "open": "controller",
         "separation": "separation",
         "iconSpace": "iconSpace",
@@ -3258,6 +3476,8 @@
         "error": "error",
         "disabled": "disabled",
         "readOnly": "readOnly",
+        "clearable": "clearable",
+        "clearLabel": "clearAccessibilityLabel",
         "open": "open",
         "separation": "separation",
         "iconSpace": "iconSpace",
@@ -3292,5 +3512,8 @@
       },
       "notes": "`<Select label=\"Country\" value={value} onValueChange={setValue} options={[…]} />`: `options` is an array of options and groups, as Menu's `items`. `open` and `onOpenChange` are optional: left out, the select keeps its own open state. React Native has no select of its own on both platforms, so the list is Tanrei's on the overlay layer that `TanreiProvider` renders, placed by measuring the trigger, as Menu is. The trigger has `accessibilityRole=\"combobox\"`, `accessibilityState={{ expanded, disabled }}`, the label as `accessibilityLabel` and the chosen label as `accessibilityValue.text`; options are pressable rows with `accessibilityState={{ selected, disabled }}` and their position among the options in the label. Follows the app's direction where an ancestor's is not known. A press outside does not reach what is under the list. The bare control: `label` names it where no Field frames it; in a form it stands in `Field`, which is `SelectField`."
     }
-  }
+  },
+  "uses": [
+    "button"
+  ]
 }

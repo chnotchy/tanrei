@@ -2,7 +2,7 @@
 title: "下拉选择框"
 description: "让用户从一个封闭的列表里选择一个值——触发器的外观和尺寸与文本输入框的方框相同，显示选中的选项；选项列表从触发器展开，选项可以分组——它没有自己的标签行、帮助文本和错误文本。用于栏、工具栏或表格，或者放进产品自己组合的字段里。"
 translationOf: components/select.mdx
-sourceHash: 6246b546b185dfc590a8e1793d0b194db9f0c4db
+sourceHash: 78a3a2519dcda7753654b53a1aa261542ee2824c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -219,6 +219,21 @@ import Example from '../../../../components/visuals/Example.astro';
 
 `toggle` 带有关闭的原因：`select`、`escape`、`outside`、`focus-out`、`anchor-hidden`、`press` 或 `tab`。
 
+### 清除
+
+值可以为空的下拉选择框（筛选、可选的设置）设置 `clearable` 后会画出清除按钮。它在选中值时位于 V 形箭头之前，按下会清空值：下拉选择框重新显示占位文字，发出 `change`，焦点回到下拉选择框。已打开的列表保持打开。什么都没选时，按钮的位置仍然保留，所以下拉选择框的宽度不变，V 形箭头也不移动。
+
+清除按钮是排在下拉选择框之后、而不在它里面的一个独立按钮，是焦点顺序里的下一个停靠点。用 `clearLabel` 为它命名（“清除国家”），或者用 `setWords({ clearLabel })` 为整个产品命名一次。如果“无”是人们有意选择的一项（“全部”“未设置”），就把它做成一个选项。
+
+<Example label="可清除：值可以为空的筛选" column>
+  <tanrei-select class="not-content" label="国家" placeholder="所有国家" value="jp" clearable clear-label="清除国家">
+    <tanrei-option value="ca">加拿大</tanrei-option>
+    <tanrei-option value="fr">法国</tanrei-option>
+    <tanrei-option value="jp">日本</tanrei-option>
+    <tanrei-option value="ke">肯尼亚</tanrei-option>
+  </tanrei-select>
+</Example>
+
 <ComponentSpecs name="select" />
 
 ### Web 上绘制方式的不同之处
@@ -231,7 +246,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - 列表是顶层（top layer）中的 `popover="manual"` 元素。在外部按下会关闭它，这次按下也会传到它下方的元素。
 - 浮动标签（`filled`、`outlined`）位于容器内部，所以按下它会打开列表。
 - `supporting-text`、`error-text`、`required`、`optional`、`required-mark`、`required-text` 和 `optional-text`，以及给 `label-icon` 插槽的子元素，属于下拉选择字段和字段。写在下拉选择框上，它们什么都不绘制；调试构建会报告一次，并指出 `<tanrei-select-field>`。
-- 部件：`container`、`outline`、`active-indicator`、`label`、`requirement-label`、`value`、`placeholder`、`leading-icon`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider`、`status`。
+- 部件：`container`、`outline`、`active-indicator`、`label`、`requirement-label`、`value`、`placeholder`、`leading-icon`、`clear-button`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider`、`status`。
+- 清除按钮是放在 `role="combobox"` 元素之后的 `<tanrei-button>`，叠放在容器末端，这样组合框里就没有按钮。`clear-label` 留空时，从产品的文字里读取（`setWords({ clearLabel })`）。
 - `empty-text` 为空时，从产品的文字（`setWords({ noOptionsText })`）读取。
 - 在元素定义之前，它的选项是页面上的普通文本。请隐藏 `tanrei-select:not(:defined) > *`，并预留高度。
 - Web 没有自己的返回手势，所以 `toggle` 绝不会带有原因 `back`。
@@ -311,3 +327,4 @@ Web 上的已知差距：
 - 单独使用的下拉选择框可能出错的地方，请用辅助技术读得到的文字说明哪里错了：一条与页面关联的、你自己的消息，或者包住下拉选择框的一个字段。
 - 在同一个下拉选择框里，让各个选项的值保持唯一。
 - 加载中请写 `statusText`，因为它是加载指示器的名称；可能没有选项的下拉选择框，请写 `emptyText`。
+- 给可清除的下拉选择框一个说明清除什么的 `clearLabel`（“清除国家”）。
