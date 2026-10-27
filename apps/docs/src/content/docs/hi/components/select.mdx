@@ -2,7 +2,7 @@
 title: सिलेक्ट
 description: लोगों को किसी बंद लिस्ट में से एक मान चुनने देता है। इसमें एक ट्रिगर होता है, जो टेक्स्ट इनपुट के बॉक्स जैसा दिखता है, उसी की नाप का होता है और चुना हुआ विकल्प दिखाता है, और विकल्पों की एक लिस्ट होती है, जो उसी से खुलती है और जिसे चाहें तो ग्रुप में बाँटा जा सकता है। इसकी अपनी न लेबल की पंक्ति है, न सहायता, न त्रुटि टेक्स्ट। यह बार, टूलबार या टेबल के लिए है, या उस फ़ील्ड के भीतर के लिए जिसे प्रॉडक्ट ख़ुद जोड़कर बनाता है।
 translationOf: components/select.mdx
-sourceHash: 6246b546b185dfc590a8e1793d0b194db9f0c4db
+sourceHash: 78a3a2519dcda7753654b53a1aa261542ee2824c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -219,6 +219,21 @@ import Example from '../../../../components/visuals/Example.astro';
 
 `toggle` के साथ बंद होने का कारण आता है: `select`, `escape`, `outside`, `focus-out`, `anchor-hidden`, `press` या `tab`।
 
+### मिटाना
+
+जिस सिलेक्ट का मान कुछ भी न हो सकता है — कोई फ़िल्टर, कोई वैकल्पिक सेटिंग — वह `clearable` के साथ मिटाने का बटन बनाता है। जब तक कोई मान चुना है, वह शेवरॉन से पहले रहता है, और उसे दबाने से मान ख़ाली होता है: सिलेक्ट फिर से अपना प्लेसहोल्डर दिखाता है, `change` निकालता है, और फ़ोकस सिलेक्ट पर लौट आता है। खुली सूची खुली रहती है। कुछ न चुना हो तब भी बटन की जगह रखी जाती है, इसलिए सिलेक्ट की चौड़ाई नहीं बदलती और शेवरॉन नहीं खिसकता।
+
+मिटाने का बटन सिलेक्ट के भीतर नहीं, उसके बाद का अपना अलग बटन है, और फ़ोकस के क्रम में अगला पड़ाव है। उसे `clearLabel` से नाम दें ("देश मिटाएँ"), या पूरे प्रॉडक्ट के लिए एक बार `setWords({ clearLabel })` से। जहाँ "कुछ नहीं" लोग जान-बूझकर चुनते हैं ("कोई भी", "तय नहीं"), वहाँ उसे एक विकल्प बनाएँ।
+
+<Example label="मिटाने योग्य: ऐसा फ़िल्टर जिसका मान कुछ भी न हो सकता है" column>
+  <tanrei-select class="not-content" label="देश" placeholder="कोई भी देश" value="jp" clearable clear-label="देश मिटाएँ">
+    <tanrei-option value="ca">कनाडा</tanrei-option>
+    <tanrei-option value="fr">फ़्रांस</tanrei-option>
+    <tanrei-option value="jp">जापान</tanrei-option>
+    <tanrei-option value="ke">केन्या</tanrei-option>
+  </tanrei-select>
+</Example>
+
 <ComponentSpecs name="select" />
 
 ### वेब क्या अलग ढंग से बनाता है
@@ -231,7 +246,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - लिस्ट टॉप लेयर में एक `popover="manual"` एलिमेंट है। बाहर दबाना उसे बंद करता है और उसके नीचे के एलिमेंट तक भी पहुँचता है।
 - फ़्लोट होने वाला लेबल (`filled`, `outlined`) कंटेनर के भीतर रहता है, इसलिए उसे दबाने पर लिस्ट खुलती है।
 - `supporting-text`, `error-text`, `required`, `optional`, `required-mark`, `required-text` और `optional-text`, और `label-icon` स्लॉट के लिए कोई चाइल्ड, सिलेक्ट फ़ील्ड और फ़ील्ड के हैं। सिलेक्ट पर वे कुछ नहीं बनाते; डीबग बिल्ड एक बार इसकी रिपोर्ट करता है और `<tanrei-select-field>` का नाम लेता है।
-- भाग: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`, `status`।
+- भाग: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `value`, `placeholder`, `leading-icon`, `clear-button`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`, `status`।
+- मिटाने का बटन `role="combobox"` वाले एलिमेंट के बाद एक `<tanrei-button>` है, जो कंटेनर के अंत के ऊपर रखा जाता है, ताकि कॉम्बोबॉक्स के भीतर कोई बटन न हो। `clear-label` ख़ाली छोड़ा जाए तो प्रॉडक्ट के शब्दों से पढ़ा जाता है (`setWords({ clearLabel })`)।
 - ख़ाली `empty-text` प्रोडक्ट के शब्दों (`setWords({ noOptionsText })`) से पढ़ा जाता है।
 - एलिमेंट के डिफ़ाइन होने से पहले उसके विकल्प पेज पर चलते टेक्स्ट की तरह रहते हैं। `tanrei-select:not(:defined) > *` को छिपाएँ और ऊँचाई के लिए जगह रखें।
 - वेब का अपना कोई बैक जेस्चर नहीं है, इसलिए `toggle` के साथ `back` कारण कभी नहीं आता।
@@ -311,3 +327,4 @@ import Example from '../../../../components/visuals/Example.astro';
 - जहाँ अकेले सिलेक्ट का मान ग़लत हो सकता है, वहाँ क्या ग़लत है यह ऐसे शब्दों में बताएँ जो सहायक तकनीक तक पहुँचें: पेज से जोड़ा गया आपका अपना संदेश, या सिलेक्ट के चारों ओर एक फ़ील्ड।
 - एक सिलेक्ट के भीतर विकल्पों के मान अलग-अलग रखें।
 - लोड होते समय `statusText` लिखें, क्योंकि वही लोडिंग इंडिकेटर का नाम है, और जहाँ सिलेक्ट बिना विकल्पों के रह सकता है वहाँ `emptyText` लिखें।
+- मिटाने के बटन वाले सिलेक्ट को ऐसा `clearLabel` दें जो बताए कि वह क्या मिटाता है ("देश मिटाएँ")।

@@ -243,9 +243,10 @@ test.describe('behavior: the trigger', () => {
     const sheets = [fs.readFileSync(path.join(pkg, 'dist/tokens.css'), 'utf8'), ...SYSTEMS.filter((system): system is Exclude<(typeof SYSTEMS)[number], undefined> => system !== undefined).map((system) => fs.readFileSync(path.join(pkg, `dist/systems/${system}.css`), 'utf8'))];
     // No copy to hold equal: what the select reads of the box is the one set every input box is drawn from.
     expect(inputBoxCopies(sheets, 'select')).toEqual([]);
-    // What stays under the select's name beside the list's and the options': the rows change state over, and are faded by, their own.
+    // What stays under the select's name beside the list's and the options': the rows change state over, and are faded by, their own,
+    // and the clear button stands its own gap from the chevron (SEL-72).
     const mine = declared(sheets[0]!, 'select').map((name) => name.replace('--tanrei-comp-select-', ''));
-    expect(mine.filter((name) => !/^(list|option|group|divider|separation|status|motion-(feedback|open|close))|-(selected-)?option-/.test(name)).sort()).toEqual(['disabled-opacity', 'focused-opacity', 'hovered-opacity', 'motion-state-duration', 'motion-state-easing', 'pressed-opacity']);
+    expect(mine.filter((name) => !/^(list|option|group|divider|separation|status|motion-(feedback|open|close))|-(selected-)?option-/.test(name)).sort()).toEqual(['container-action-gap', 'disabled-opacity', 'focused-opacity', 'hovered-opacity', 'motion-state-duration', 'motion-state-easing', 'pressed-opacity']);
   });
 
   test('SEL-65: a custom property of the box set on one select changes that one alone; set on an ancestor, every select in it — and in every other input box there', async ({ page }) => {
@@ -1489,8 +1490,8 @@ test.describe('behavior: the list', () => {
     await set(page, 'one', { value: 'ca' });
     await expect(part(page, 'one', '.value')).toHaveText('Canada');
     expect(await heard(page)).toEqual([]);
-    // The select has no way of its own back to nothing chosen.
-    expect(await part(page, 'one', '[part~="clear"], button').count()).toBe(0);
+    // Without clearable the select has no way of its own back to nothing chosen (SEL-72).
+    expect(await part(page, 'one', '[part~="clear-button"], button').count()).toBe(0);
   });
 
   test('SEL-35: a disabled option is not chosen by any input and leaves the list open when it is pressed or Enter or Space is pressed on it; it is exposed as disabled and drawn from the disabled tokens of its condition; a disabled option whose value is the select’s is still the chosen one, with the fill and the check from the disabled tokens', async ({ page }) => {
@@ -3150,6 +3151,126 @@ test.describe('the rows: drawn while the list is shown, and in a long list those
   });
 });
 
+test.describe('the clear button', () => {
+  const clear = (page: P, id: string) => part(page, id, '.clear-button');
+  const roomOf = (page: P, id: string) => part(page, id, '.clear');
+
+  test('SEL-72, SEL-49: with clearable the select keeps the room of an icon-only text Button of Button’s small size before the chevron, action-gap from it, and draws the button — named by clearLabel, showing close — while a value is chosen; the chevron stays and a select given no width keeps its width as the value is cleared and chosen; a disabled and a read-only select draw none', async ({ page }) => {
+    await mount(page, [
+      fx('c', { value: 'jp', clearable: true, clearLabel: 'Clear country' }),
+      fx('plain', { value: 'jp' }),
+      fx('c-disabled', { value: 'jp', clearable: true, clearLabel: 'Clear country', disabled: true }),
+      fx('c-read-only', { value: 'jp', clearable: true, clearLabel: 'Clear country', readOnly: true }),
+    ]);
+    await expect(clear(page, 'c')).toHaveAttribute('variant', 'text');
+    await expect(clear(page, 'c')).toHaveAttribute('size', 'small');
+    await expect(clear(page, 'c').locator('[slot="icon"]')).toHaveText('close');
+    await expect(host(page, 'c').getByRole('button', { name: 'Clear country', exact: true })).toHaveCount(1);
+    // Its glyph is centred on the container's height, action-gap before the chevron's box.
+    const [c, chevron, g] = [await box(container(page, 'c')), await box(part(page, 'c', '.chevron')), await box(clear(page, 'c').locator('.icon'))];
+    const [icon, gap] = [await token(page, 'icon-size-medium'), await resolveToken(page, '--tanrei-comp-select-container-action-gap')];
+    near(chevron.x - (g.x + g.width / 2), gap + icon / 2, 'before the chevron');
+    near(g.y + g.height / 2, c.y + c.height / 2, 'centred');
+    // The chevron is the room further in than without clearable, and stays there as the value is cleared.
+    const plain = await box(part(page, 'plain', '.chevron'));
+    const [plainBox] = [await box(container(page, 'plain'))];
+    near(c.width - plainBox.width, icon + gap, 'the room');
+    near(c.x + c.width - (chevron.x + chevron.width), plainBox.x + plainBox.width - (plain.x + plain.width), 'the chevron from the end');
+    await set(page, 'c', { value: '' });
+    await expect(clear(page, 'c')).toHaveCount(0);
+    await expect(roomOf(page, 'c')).toHaveCount(1);
+    const [after, chevronAfter] = [await box(container(page, 'c')), await box(part(page, 'c', '.chevron'))];
+    near(after.width, c.width, 'width kept');
+    near(chevronAfter.x, chevron.x, 'chevron kept');
+    for (const id of ['c-disabled', 'c-read-only']) {
+      await expect(clear(page, id), id).toHaveCount(0);
+      await expect(roomOf(page, id), id).toHaveCount(0);
+    }
+  });
+
+  test('SEL-72, SEL-13: the clear button is a focus stop after the container, outside the combobox; a click and Enter on it empty the value, emit change once and give focus back to the container, which shows the placeholder; a press on it keeps focus on the container and leaves an open list open, with no toggle', async ({ page }) => {
+    await mount(page, [fx('c', { value: 'jp', placeholder: 'Any country', clearable: true, clearLabel: 'Clear country' }), fx('after', { value: 'fr' })], { reducedMotion: true });
+    // Outside the combobox: no button is in the element that carries its role.
+    expect(await container(page, 'c').locator('tanrei-button, button').count()).toBe(0);
+    await listen(page, 'c');
+    // Tab: the container, then the clear button, then on.
+    await tabTo(page, container(page, 'c'));
+    await tab(page);
+    await expect(clear(page, 'c').locator('button')).toBeFocused();
+    await tab(page, { back: true });
+    expect((await read(page, 'c')).focused).toBe(true);
+    await tab(page);
+    await page.keyboard.press('Enter');
+    expect(await heard(page)).toEqual(['change ']);
+    expect((await read(page, 'c')).focused).toBe(true);
+    await expect(part(page, 'c', '.placeholder')).toHaveText('Any country');
+    await expect(clear(page, 'c')).toHaveCount(0);
+    // With the mouse, the list open: it stays open, nothing toggles, focus stays on the container, nothing is chosen.
+    await set(page, 'c', { value: 'ke' });
+    await container(page, 'c').click();
+    await shownList(page, 'c').toBe(true);
+    expect(await heard(page)).toEqual(['toggle true']);
+    await clear(page, 'c').click();
+    expect(await heard(page)).toEqual(['change ']);
+    const now = await read(page, 'c');
+    expect([now.open, now.shown, now.focused, now.selected]).toEqual([true, true, true, []]);
+  });
+
+  test('SEL-72, SEL-62: without clearLabel and the product’s words the clear button is drawn, works and has no name, and the report names clearLabel; the product’s words name it, and an instance’s own prop wins', async ({ page }) => {
+    const seen = warnings(page);
+    await mount(page, [fx('nameless', { value: 'jp', clearable: true }), fx('own', { value: 'jp', clearable: true, clearLabel: 'Clear country' })]);
+    await expect(clear(page, 'nameless')).toHaveCount(1);
+    await expect(clear(page, 'nameless').locator('button')).not.toHaveAttribute('aria-label');
+    await expect.poll(() => seen.filter((w) => w.includes('clear-label is empty') && w.includes('(SEL-72)')).length).toBe(1);
+    expect(await missingWords(page)).toEqual(['clearLabel']);
+    await setWords(page, { clearLabel: 'Clear' });
+    await expect(host(page, 'nameless').getByRole('button', { name: 'Clear', exact: true })).toHaveCount(1);
+    await expect(host(page, 'own').getByRole('button', { name: 'Clear country', exact: true })).toHaveCount(1);
+    await clear(page, 'nameless').click();
+    expect((await read(page, 'nameless')).value).toBe('');
+    expect(await missingWords(page)).toEqual([]);
+  });
+
+  test('SEL-72, SEL-55: in a right-to-left layout the clear button and the chevron are the mirror of left to right — the chevron nearest the left edge, the clear button action-gap inside it, the two never over each other — in every look, its glyph unmirrored', async ({ page }) => {
+    const props = { value: 'jp', clearable: true, clearLabel: 'Clear country' };
+    const looks = ['stacked', 'filled', 'outlined'] as const;
+    await mount(page, [
+      ...looks.flatMap((variant) => [fx(`${variant}-ltr`, { ...props, variant }), fx(`${variant}-rtl`, { ...props, variant }, COUNTRIES, { direction: 'rtl' })]),
+      ...spec.fixtures.filter((f) => f.id === 'clearable-rtl'),
+    ]);
+    const [icon, gap] = [await token(page, 'icon-size-medium'), await resolveToken(page, '--tanrei-comp-select-container-action-gap')];
+    /** The horizontal boxes of the container, the chevron, the clear button's glyph and its visible button. */
+    const measure = async (id: string) => ({
+      c: await box(container(page, id)),
+      chevron: await box(part(page, id, '.chevron')),
+      glyph: await box(clear(page, id).locator('.icon')),
+      button: await box(clear(page, id).locator('button')),
+    });
+    const apart = (a: { x: number; width: number }, b: { x: number; width: number }, message: string) =>
+      expect(a.x + a.width <= b.x + 0.5 || b.x + b.width <= a.x + 0.5, `${message}: [${a.x}, ${a.x + a.width}] and [${b.x}, ${b.x + b.width}] do not overlap`).toBe(true);
+    for (const variant of looks) {
+      const [ltr, rtl] = [await measure(`${variant}-ltr`), await measure(`${variant}-rtl`)];
+      near(rtl.c.width, ltr.c.width, `${variant}: as wide`);
+      // Each part's distance from the container's inline end is the same: the right edge in LTR, the left edge in RTL.
+      const fromEnd = (m: typeof ltr, key: 'chevron' | 'glyph' | 'button', dir: 'ltr' | 'rtl') => (dir === 'ltr' ? m.c.x + m.c.width - (m[key].x + m[key].width) : m[key].x - m.c.x);
+      for (const key of ['chevron', 'glyph', 'button'] as const) near(fromEnd(rtl, key, 'rtl'), fromEnd(ltr, key, 'ltr'), `${variant}: the ${key} mirrored`);
+      for (const [dir, m] of [['ltr', ltr], ['rtl', rtl]] as const) {
+        apart(m.button, m.chevron, `${variant} ${dir}: the clear button and the chevron`);
+        apart(m.glyph, m.chevron, `${variant} ${dir}: the clear glyph and the chevron`);
+      }
+      // In RTL the chevron is at the left of the clear button's glyph, its centre action-gap and half a glyph from the chevron.
+      near(rtl.glyph.x + rtl.glyph.width / 2 - (rtl.chevron.x + rtl.chevron.width), gap + icon / 2, `${variant} rtl: after the chevron`);
+    }
+    // The spec's fixture: the chevron nearest the left edge, then the clear button, then the value.
+    const id = 'clearable-rtl';
+    const [m, value] = [await measure(id), await box(part(page, id, '.value'))];
+    apart(m.button, m.chevron, `${id}: the clear button and the chevron`);
+    near(m.glyph.x + m.glyph.width / 2 - (m.chevron.x + m.chevron.width), gap + icon / 2, `${id}: after the chevron`);
+    expect(m.glyph.x + m.glyph.width).toBeLessThan(value.x);
+    expect(await clear(page, id).locator('[slot="icon"]').evaluate((el) => getComputedStyle(el).transform)).toBe('none');
+  });
+});
+
 test.describe('accessibility', () => {
   for (const theme of THEMES) {
     test(`axe: every fixture, closed and open, has no violations in ${theme}`, async ({ page }) => {
@@ -3175,7 +3296,7 @@ test.describe('accessibility', () => {
 test.describe('fixtures', () => {
   test('every fixture is mounted and visible, with the floating label, the value or the placeholder, the glyphs and — where it is open — the list the spec gives it, and no row of a frame', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
-    expect(spec.fixtures).toHaveLength(53);
+    expect(spec.fixtures).toHaveLength(57);
     const flat = (items: FixtureItem[] = []): FixtureItem[] => items.flatMap((item) => (item.kind === 'option' ? [item] : flat(item.items)));
     for (const f of spec.fixtures) {
       await expect(host(page, f.id), f.id).toBeVisible();

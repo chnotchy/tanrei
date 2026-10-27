@@ -2,7 +2,7 @@
 title: Entrada de texto
 description: La caja en la que se escribe, y todo lo que se escribe en ella (una línea o varias, una fecha o una hora, código), sin fila de etiqueta, ayuda ni texto de error propios. Para un lugar cuya etiqueta está en otra parte, o dentro de un campo que el producto compone por su cuenta.
 translationOf: components/text-input.mdx
-sourceHash: 83486ed63b6a2185108fc8bec04d5e73f0177fa5
+sourceHash: abdba7da8588ca765f8420914ded04a0158c1448
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -170,6 +170,18 @@ El slot `entries` es un lugar dentro de la caja, antes del texto que se escribe,
 
 La entrada no da a estos elementos ningún rol, ningún lugar en el orden del foco ni ninguna tecla: son tuyos. Una pulsación en la caja fuera de todos los elementos da el foco a la parte donde se escribe. Para una lista de elementos con sus teclas, sus comprobaciones y su valor de formulario, usa el [campo de chips](/es/components/chip-field/), que está construido sobre este lugar.
 
+### Borrar el valor
+
+Con `clearable`, una entrada de una línea dibuja un botón de borrar al final mientras tiene un valor: para un filtro, una búsqueda o una consulta que se vacía entera. Al pulsarlo vacía el valor, emite `input` y, si el valor cambió desde que la entrada tomó el foco, `change`, y deja el foco en la entrada. Pulsarlo nunca le quita el foco a la entrada, así que se sigue escribiendo donde se estaba y el teclado táctil no se cierra. Su sitio se conserva mientras la entrada está vacía, de modo que el texto y los iconos no se mueven cuando el botón aparece o desaparece. Una entrada de varias líneas, una fecha y una hora no lo dibujan.
+
+El botón de borrar va después de la entrada y de un botón tuyo en el slot `trailing-icon`, y es la siguiente parada del foco. Dale nombre con `clearLabel` («Borrar filtro»), o una sola vez para todo el producto con `setWords({ clearLabel })`.
+
+<Example label="Con botón de borrar: un filtro que se vacía con una pulsación" column>
+  <tanrei-text-input class="not-content" type="search" label="Filtrar tokens" placeholder="Filtrar tokens" value="color" clearable clear-label="Borrar filtro">
+    <span slot="leading-icon">search</span>
+  </tanrei-text-input>
+</Example>
+
 <ComponentSpecs name="text-input" />
 
 ### Qué dibuja la web de otra manera
@@ -180,7 +192,8 @@ La entrada no da a estos elementos ningún rol, ningún lugar en el orden del fo
 - `input` y `change` son eventos compuestos. `action` es un CustomEvent cancelable: cancélalo para que Enter no envíe el formulario. `pickerrequest` y `entryerror` son CustomEvents cuyo `detail` contiene `{ value, type, min, max }` y `{ reason, text }`. Sus tipos son `TanreiTextInputActionDetail`, `TanreiTextInputPickerRequestDetail` y `TanreiTextInputEntryErrorDetail`.
 - `countText` es una propiedad de solo lectura, nueva después de cada cambio del valor. No tiene atributo.
 - Los atributos van en kebab-case, como `label-hidden`, `min-rows`, `prefix-text` y `no-wrap`, que es `wrap` puesto en false. `readonly`, `maxlength`, `autocomplete`, `min` y `max` conservan los nombres de HTML.
-- Partes: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `entries`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-handle`.
+- Partes: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `entries`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `clear-button`, `picker-button`, `resize-handle`.
+- `clear-label`, si se deja vacío, se lee de los textos del producto (`setWords({ clearLabel })`).
 - Slots: `leading-icon`, `trailing-icon` y `entries`. Un icono final puede ser tu propio Button de solo icono. La parte `entries` no tiene caja propia: sus elementos están en las propias líneas de la caja.
 - `resize-label` y `segment-empty-text`, si se dejan vacíos, se leen de los textos del producto (`setWords()`).
 - Antes de que el elemento esté definido no tiene tamaño. Reserva la altura de la caja.
@@ -233,3 +246,4 @@ La entrada no da a estos elementos ningún rol, ningún lugar en el orden del fo
 - Donde una entrada sin nada más pueda estar mal, di qué está mal con palabras que lleguen a la tecnología de apoyo: un mensaje tuyo vinculado a la página, o un campo alrededor de la entrada.
 - Para una fecha o una hora, da `segmentEmptyText`, y escribe `invalidText` y `unavailableText` aunque ningún campo los muestre: se leen con la entrada.
 - Da nombre al tirador de cambio de tamaño con `resizeLabel` y al botón del selector con `pickerLabel`.
+- Da a una entrada que se puede borrar un `clearLabel` que diga qué borra («Borrar filtro»).

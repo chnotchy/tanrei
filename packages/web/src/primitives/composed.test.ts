@@ -238,6 +238,7 @@ const DRIVEN: Record<string, Driven> = {
       { attributes: `label="Recipients" supporting-text="Help" required required-text="Required" error error-text="Wrong" remove-label="Remove {entry}" value='["ada@example.com"]'`, children: '<span slot="label-icon">mail</span>' },
       { attributes: `variant="outlined" label="Recipients" required required-mark="asterisk" remove-label="Remove {entry}" value='["ada@example.com"]'`, children: '' },
     ],
+    neverDrawn: { 'clear-button': 'the chip field does not make its text input clearable: its entries are removed one by one (each chip\'s remove action), so the part is exported as the text input documents it' },
     tree: chipFieldTree,
   },
   'one-time-code-field': {
@@ -475,6 +476,8 @@ const DRIVEN: Record<string, Driven> = {
         children: '<span slot="label-icon">notes</span><span slot="leading-icon">search</span><span slot="trailing-icon">close</span>',
       },
       { attributes: 'variant="outlined" type="date" picker picker-label="Choose date" label="Start date" required required-mark="asterisk" value="2026-09-27"', children: '' },
+      // The clear button is drawn by a single-line field with a value (TXI-71).
+      { attributes: 'label="Filter" clearable clear-label="Clear" value="a"', children: '' },
     ],
     enterSubmits: true,
   },
@@ -612,6 +615,8 @@ const DRIVEN: Record<string, Driven> = {
           '<span slot="label-icon">schedule</span><span slot="leading-icon">public</span><tanrei-option-group label="Asia"><tanrei-option value="Asia/Tokyo" leading-icon="schedule" supporting-text="UTC+9">Tokyo</tanrei-option></tanrei-option-group><tanrei-option-group label="Europe"><tanrei-option value="Europe/Lisbon">Lisbon</tanrei-option></tanrei-option-group>',
       },
       { attributes: 'variant="outlined" label="Country" required required-mark="asterisk" placeholder="Choose a country"', children: '<tanrei-option value="jp">Japan</tanrei-option>' },
+      // The clear button is drawn while a value is chosen (SEL-72).
+      { attributes: 'label="Country" clearable clear-label="Clear" value="jp"', children: '<tanrei-option value="jp">Japan</tanrei-option>' },
     ],
     neverDrawn: { counter: 'a select keeps no count (SEL-63), so the select field gives its Field none; the part is exported as the Field documents it' },
   },

@@ -7552,6 +7552,7 @@ private let tanreiSegmentedButtonTokens = TanreiSegmentedButtonTokens(
 )
 
 private let tanreiSelectTokens = TanreiSelectTokens(
+  containerActionGap: 4,
   dividerColor: .role(.outlineVariant),
   dividerSpace: 4,
   dividerThickness: 1,
@@ -9491,6 +9492,7 @@ private let tanreiTagTokens = TanreiTagTokens(
 private let tanreiTextInputTokens = TanreiTextInputTokens(
   codeTabSize: 2,
   codeTypescale: tanreiTypescale.code,
+  containerActionGap: 4,
   entriesGap: 8,
   entriesRowGap: 8,
   entriesTypingMinWidth: 72,
