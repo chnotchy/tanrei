@@ -1,13 +1,14 @@
 // The lists of components as the reader asked for them, in the browser: the sidebar's and the index's, under both of
-// their controls — the switch that shows every component (components/ListingSwitch.astro) and the choice of design
-// system (components/SystemSelect.astro). One module for both, so that a row hidden by one is never put back by the
-// other: a row is out of the document while a component is shown only on request and the reader has not asked for
+// their controls — the switch that shows every component (components/ListingSwitch.astro) and the reader's look
+// (lib/appearance.ts: the header's Appearance panel, and the index's select). One module for both, so that a row
+// hidden by one is never put back by the other: a row is out of the document while a component is shown only on request and the reader has not asked for
 // everything, or while the chosen system does not have it (lib/listing.mjs).
 //
 // What is not shown is taken out of the document, not only out of sight: a list counts its items and moves focus
 // among them, and must count what the reader sees. Each row is held, and put back in its place, by a comment that
-// keeps that place. The head's scripts said before the first paint what was asked for (`listingBootstrap`,
-// `systemBootstrap`); the rule the system's script wrote is taken away here, once the rows are held instead.
+// keeps that place. The head's scripts said before the first paint what was asked for (`listingBootstrap`, and the
+// appearance's script); the rule the appearance's script wrote is taken away here, once the rows are held instead.
+import { APPEARANCE_EVENT } from './appearance';
 import { ABSENT_ATTR, LISTING_ATTR, ON_REQUEST_ATTR, SYSTEM_ATTR, SYSTEM_ONLY_ATTR, SYSTEM_RULE_ID } from './listing.mjs';
 
 const root = document.documentElement;
@@ -31,6 +32,7 @@ export function apply(): void {
   held.clear();
   const everything = showsEverything();
   const system = shownSystem();
+  shownLook = system;
   for (const row of document.querySelectorAll(`[${ON_REQUEST_ATTR}], [${ABSENT_ATTR}], [${SYSTEM_ONLY_ATTR}]`)) {
     // A row in a group already taken out goes with its group.
     if (!row.isConnected || !hidden(row, everything, system)) continue;
@@ -48,11 +50,11 @@ export function showEverything(everything: boolean): void {
   apply();
 }
 
-/** The lists show the components of `system`. */
-export function showSystem(system: string): void {
-  root.setAttribute(SYSTEM_ATTR, system);
-  apply();
-}
+// The lists follow the look wherever it is chosen: it is the root's attribute, announced with the appearance.
+document.addEventListener(APPEARANCE_EVENT, () => {
+  if (shownLook !== shownSystem()) apply();
+});
+let shownLook = shownSystem();
 
 // What the head's scripts found before the first paint, once, whichever control's script loads this first.
 apply();

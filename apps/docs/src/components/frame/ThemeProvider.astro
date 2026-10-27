@@ -1,21 +1,14 @@
 ---
-// The page's scheme before its first frame: the one the reader chose in the header's appearance menu
-// (components/frame/Header.astro keeps it under `starlight-theme`), else the device's. It replaces Starlight's
-// `ThemeProvider`, whose script reads that storage outside a `try`: where the site's data is blocked, reading it throws,
-// the script stops before it sets `data-theme`, and the page keeps the scheme it was built with whatever the device
-// prefers. Here a storage that throws counts as nothing stored. The framework's theme select, the only reader of
-// `StarlightThemeProvider` and of the icons' template, is not drawn on this site (the header replaces it), so neither
-// is written.
+// The head's one script of the reader's appearance, in place of the framework's theme script (its `ThemeProvider`,
+// which kept a scheme of its own under a key of its own): before the first paint it puts on `<html>` the color mode,
+// the contrast and the look the reader keeps, or the ones the page's address shares (lib/appearance.ts), and the rule
+// that hides from the lists of components what the look does not have. The framework's theme picker is not drawn
+// (Header.astro replaces the header that held it), so nothing else of its script is needed.
+import { appearanceBootstrap, bootConfig } from '../../lib/appearance';
+import { manifests } from '../../lib/repo';
+
+// The shipped systems, the default first (lib/repo.ts puts the configuration's namespace first).
+const script = appearanceBootstrap(bootConfig(manifests.map((manifest) => manifest.system)));
 ---
 
-{/* Inline, so that the first frame has its scheme. */}
-<script is:inline>
-  (() => {
-    let stored = null;
-    try {
-      stored = localStorage.getItem('starlight-theme');
-    } catch {}
-    const theme = stored === 'light' || stored === 'dark' ? stored : window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-    document.documentElement.dataset.theme = theme;
-  })();
-</script>
+<script is:inline set:html={script} />

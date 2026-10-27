@@ -12,8 +12,9 @@
 // each Tanrei element's shadow root. A component's module imports the elements it draws, but one that does not would
 // otherwise draw an undefined element here, where the whole package no longer stands behind it.
 //
-// An element marked `data-define-on-use` is left to the script that owns it, which defines it when it is first used
-// (the site's search: components/frame/Search.astro). So is what an example's stage holds while it is away from the
+// An element marked `data-define-on-use` is left to the script that owns it, with the elements it holds, which it
+// defines when it is first used (the site's search: components/frame/Search.astro; the Appearance panel:
+// components/frame/Appearance.astro). So is what an example's stage holds while it is away from the
 // view (`data-example-pending`, components/visuals/Example.astro): once lib/example.ts takes the mark away, as the
 // stage comes near, what it holds is defined as what is added later is, so a page of many examples asks, as it loads,
 // only for what the reader is near. An element of a tag defined meanwhile for another part of the page is upgraded with
@@ -25,6 +26,8 @@ type Load = () => Promise<unknown>;
 /** What holds its elements back until it is near the view: an example's stage (components/visuals/Example.astro). */
 const PENDING_ATTR = 'data-example-pending';
 const PENDING = `[${PENDING_ATTR}]`;
+/** What the script that owns it defines when it is first used, with the elements it holds. */
+const ON_USE = '[data-define-on-use]';
 
 /** The modules asked for, by their loader (one module defines one or more tags). */
 const asked = new Set<Load>();
@@ -64,7 +67,7 @@ function scan(node: Element | Document | ShadowRoot) {
   const each = (element: Element) => {
     if (!element.localName.startsWith('tanrei-')) return;
     if (!element.matches(':defined')) {
-      if (!element.hasAttribute('data-define-on-use') && !element.closest(PENDING)) want(element);
+      if (!element.closest(`${ON_USE}, ${PENDING}`)) want(element);
     }
     else if (element.shadowRoot) watch(element.shadowRoot);
   };

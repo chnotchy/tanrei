@@ -133,14 +133,14 @@ describe('each adoption', () => {
     for (const lang of languages) for (const key of keys) assert.ok(String(strings(lang)[key] ?? '').trim(), `${lang}: ${key}`);
   };
 
-  test('the contrast is chosen in the header’s appearance menu, in the page’s language, and no frame has a control of its own', () => {
-    const header = template(read('components/frame/Header.astro'));
-    // Three radio items of one group, the menu's second section: the page's contrast, which every example follows.
-    assert.match(header, /<tanrei-menu-group class="docs-contrast-group" label=\{t\.contrast\} value="standard">\s*<tanrei-menu-radio-item value="standard" label=\{t\.contrastStandard\} \/>\s*<tanrei-menu-radio-item value="medium" label=\{t\.contrastMedium\} \/>\s*<tanrei-menu-radio-item value="high" label=\{t\.contrastHigh\} \/>/);
+  test('the contrast is chosen in the header’s Appearance panel, in the page’s language, and no frame has a control of its own', () => {
+    const panel = template(read('components/frame/Appearance.astro'));
+    // Three tabs of one row without panels, the panel's second choice: the page's contrast, which every example follows.
+    assert.match(panel, /<tanrei-tabs class="docs-appearance-contrast" label=\{t\.contrast\} value="standard" size="small" full-width>\s*<tanrei-tab value="standard" label=\{t\.contrastStandard\} \/>\s*<tanrei-tab value="medium" label=\{t\.contrastMedium\} \/>\s*<tanrei-tab value="high" label=\{t\.contrastHigh\} \/>/);
     said(['contrast', 'contrastStandard', 'contrastMedium', 'contrastHigh']);
-    // The key the head's script reads before the first paint (astro.config.mjs) is the one the menu keeps its choice under.
-    assert.match(read('../astro.config.mjs'), /localStorage\.getItem\('tanrei-docs-contrast'\)/);
-    assert.match(read('components/frame/Header.astro'), /const CONTRAST_KEY = 'tanrei-docs-contrast';/);
+    // The choice is the appearance's (lib/appearance.ts), which the head's script reads before the first paint.
+    assert.match(read('components/frame/Header.astro'), /setAppearance\(\{ contrast: control\.value as Contrast \}\)/);
+    assert.match(read('components/frame/ThemeProvider.astro'), /appearanceBootstrap\(bootConfig\(/);
     // An example follows the page's look: its header offers no switch of system, scheme or contrast.
     const frame = template(read('components/visuals/Example.astro'));
     assert.doesNotMatch(frame, /<tanrei-tabs\b[^>]*\b(group="page-contrast"|data-docs-contrast|data-docs-visual-system)/);
