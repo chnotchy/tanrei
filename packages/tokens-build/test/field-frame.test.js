@@ -168,9 +168,9 @@ test('the text field has no group of its own: the box is the one set, the text i
   const count = (group) => Object.keys(model.tokens).filter((id) => id.startsWith(`${NS}.${group}.`)).length;
   assert.equal(count('text-field'), 0);
   // 364 were the text input's (361 at the split, and three for the entries place): 330 are the box's
-  // now, 26 went with the resize grip (its handle is a Handle, comp.handle.*), and 8 are its own — a segment, the code
-  // face, the entries place, the motion of a height.
-  assert.equal(count('text-input'), 8);
+  // now, 26 went with the resize grip (its handle is a Handle, comp.handle.*), and 9 are its own — a segment, the code
+  // face, the entries place, the motion of a height, and the gap between the clear button and a button of its own.
+  assert.equal(count('text-input'), 9);
   // The box: the text input's 330, the ten of the small size, which the select alone offered, and its state duration
   // per size (three in place of one), and the stacked look's own height and block padding per size (six), which make a
   // stacked box as tall as a Button of its size.
@@ -198,8 +198,9 @@ test('a split field has no group of its own: the box is the one set, its input h
   assert.equal(count('color-field'), 0);
   assert.equal(count('color-input'), 3);
   // The select: 739, then 548 for the box and the list; 206 were — the list (with its greatest width), the rows' own state
-  // motion and opacity, and the status row —, and 213 are since seven measures of a row are one per density (regular, compact).
-  assert.equal(count('select'), 213);
+  // motion and opacity, and the status row —, 213 since seven measures of a row are one per density (regular, compact),
+  // and 214 are with the gap between the clear button and the chevron.
+  assert.equal(count('select'), 214);
   assert.equal(count('select-field'), 0);
   // The combobox: 765, then 574; 206 were — the list, the matched letters, the status row, the gap of its two actions —,
   // 213 since seven measures of a row are one per density, and 217 are since a match is marked as a search marks one
