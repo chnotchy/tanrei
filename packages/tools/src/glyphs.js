@@ -17,7 +17,8 @@
 //       a declared glyph constant: every string of the value of a `const` (or `readonly` field) whose name is
 //         GLYPH, GLYPHS, ICON or ICONS, or ends in `_GLYPH`, `_ICONS`… — `const CLOSE_GLYPH = 'close'`,
 //         `const GLYPHS = { up: 'arrow_upward' }` (an object's keys are not read);
-//       a glyph prop or attribute: `icon="favorite"`, `leading-icon="search"`, `icon: 'schedule'`, `leadingIcon = 'tag'`;
+//       a glyph prop or attribute: `icon="favorite"`, `leading-icon="search"`, `icon: 'schedule'`, `leadingIcon = 'tag'`,
+//         `{ 'leading-icon': 'library_add' }`;
 //       the text of a glyph slot (`icon`, `<name>-icon`, `chevron…`, `media`) or of a bare icon:
 //         `<span slot="icon">home</span>`, `<span class="tanrei-icon">home</span>`;
 //       generated content: `content: 'check'`.
@@ -105,6 +106,9 @@ const GLYPH_FORMS = [
   /[\s{(,](?:icon|glyph|[a-z]+(?:-[a-z]+)*-(?:icon|glyph))=(["'])([a-z0-9_]+)\1/g,
   // A glyph prop of code, as a key or an assignment: `icon: 'schedule'`, `leadingIcon = 'tag'`, `this.glyph = 'add'`.
   /\b(?:icon|glyph|[a-z][A-Za-z0-9]*(?:Icon|Glyph))\s*(?::|=(?![=>]))\s*(["'`])([a-z0-9_]+)\1/g,
+  // A glyph attribute given as an object's quoted key, as code that builds elements writes it:
+  // `{ 'leading-icon': 'library_add' }`.
+  /["'](?:icon|glyph|[a-z]+(?:-[a-z]+)*-(?:icon|glyph))["']\s*:\s*(["'`])([a-z0-9_]+)\1/g,
   // The text of a glyph slot, or of a bare icon (an element of the class `tanrei-icon`).
   /<[a-z][\w-]*\s[^<>]*?\b(?:slot=["'](?:icon|[a-z-]+-icon|chevron(?:-[a-z]+)?|media)["']|class=["'][^"']*\btanrei-icon\b[^"']*["'])[^<>]*>\s*()([a-z0-9_]+)\s*</g,
   // Generated content: `content: 'check'`.
