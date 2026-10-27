@@ -2283,9 +2283,20 @@ test.describe('a site’s sidebar', () => {
           focus: document.activeElement === document.body,
         });
       }
-      if (seen.frames.length < 20) requestAnimationFrame(frame);
+      if (seen.frames.length < 20) next();
     };
-    requestAnimationFrame(frame);
+    // Each frame is read where it is painted: after its layout and the page's own resize observers (the drawer places
+    // its items in the frame's read phase, src/primitives/read-phase.ts), from an observer made anew in each frame's
+    // callback, so it is told after them. A frame callback reads what the frame was before it was laid out.
+    const next = () =>
+      requestAnimationFrame(() => {
+        const painted = new ResizeObserver(() => {
+          painted.disconnect();
+          frame();
+        });
+        painted.observe(document.documentElement);
+      });
+    next();
   })();`;
   type Seen = { frames: { top: number; groups: number[]; moving: string[]; focus: boolean }[]; events: string[]; storage: number };
   /** Mounts `fixtures` in a page that has watched them since before they were upgraded, and waits for twenty drawn frames. */

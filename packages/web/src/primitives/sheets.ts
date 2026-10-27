@@ -14,8 +14,9 @@
 //     list that says what the root already has;
 //   - `adoptUnlessDrawn()` first asks the cascade whether the root draws the element already: a name the stylesheet
 //     sets on the element itself. The cascade is the truth — a page that loaded the sheet into a layer of its own, or
-//     inside a bundle, answers the same — and it is asked once for a root and a sheet while the root's own stylesheets
-//     stay as many as they were: not once per instance, and not once per turn.
+//     inside a bundle, answers the same — and it is asked once for a root while the root's own stylesheets stay as
+//     many as they were: not once per instance, not once per turn, and not once per kind — the first question asks it
+//     for every kind of element that stands in the root (`DRAWN_MARKS`), in one style pass.
 
 import { flatParent } from './flat-tree.js';
 
@@ -58,17 +59,44 @@ function drawn(element: Element, mark: string): boolean {
 }
 
 /**
- * The sheets each root was found to draw already, with the number of stylesheets the root had when it answered. The
- * answer is kept while that number stands — a page's stylesheets do not come and go with its elements — so the
- * cascade is asked ONCE for a root and a sheet, not once for each turn in which an element is connected: the question
- * is a read of computed style inside the script that connected the element, and has the browser style (and, on a page
- * with container queries, lay out) whatever that script has written so far. A root that gains or loses a stylesheet
- * is asked again.
+ * Every element drawn by one stylesheet of its own (every caller of `adoptUnlessDrawn()`, as `test/light-dom.ts` lists
+ * them), and the name that stylesheet sets on it. The first question asked in a root is asked for every one of them
+ * that stands in the root at that moment, in the same style pass: on a page whose modules arrive one by one, each
+ * defining its elements in a task of its own, a question of each kind in its own module had the browser style the page
+ * once for each of them — a tenth of a second each on a long page. Only what is drawn is kept from it: a kind whose
+ * rules the root does not have yet (a stylesheet still loading) is asked again when its own element is connected. A
+ * name that is missing here, or wrong, only has that kind ask for itself (`src/primitives/sheets.test.ts` holds the list to
+ * `test/light-dom.ts`).
  */
-const found = new WeakMap<Root, Map<CSSStyleSheet, number>>();
+export const DRAWN_MARKS: Readonly<Record<string, `--${string}`>> = {
+  'tanrei-accordion': '--_acc-container',
+  'tanrei-app-shell': '--_aps-breakpoint-medium',
+  'tanrei-breadcrumbs': '--_brc-start',
+  'tanrei-code-block': '--_code-block-light',
+  'tanrei-description-list': '--_dl-fact-gap',
+  'tanrei-figure': '--_figure-fill',
+  'tanrei-link-card': '--_lc-container',
+  'tanrei-page-header': '--_pgh-title-font',
+  'tanrei-skeleton': '--_skl-gap',
+  'tanrei-table': '--_table-pad-block',
+  'tanrei-table-of-contents': '--_toc-row-height',
+  'tanrei-tree-view': '--_trv-gap',
+};
+
+/**
+ * The kinds each root was found to draw already (by tag and mark), with the number of stylesheets the root had when it
+ * answered. The answers are kept while that number stands — a page's stylesheets do not come and go with its elements
+ * — so the cascade is asked ONCE for a root, not once for each kind, nor once for each turn in which an element is
+ * connected: the question is a read of computed style inside the script that connected the element, and has the
+ * browser style (and, on a page with container queries, lay out) whatever that script has written so far. A root that
+ * gains or loses a stylesheet is asked again.
+ */
+const found = new WeakMap<Root, { count: number; asked: boolean; drawn: Set<string> }>();
 
 /** How many stylesheets of its own the root has (linked, written in a `<style>`): reading it styles nothing. */
 const loaded = (root: Root) => root.styleSheets.length;
+
+const kind = (tag: string, mark: string) => `${tag} ${mark}`;
 
 /**
  * Adds `sheet` to the root `element` stands in, unless that root draws the element already — it has the sheet, or the
@@ -78,13 +106,23 @@ const loaded = (root: Root) => root.styleSheets.length;
 export function adoptUnlessDrawn(element: Element, sheet: CSSStyleSheet | null | undefined, mark: `--${string}`) {
   const root = element.getRootNode();
   if (!sheet || !isRoot(root) || root.adoptedStyleSheets.includes(sheet)) return;
-  let sheets = found.get(root);
-  if (!sheets) found.set(root, (sheets = new Map()));
   const count = loaded(root);
-  if (sheets.get(sheet) === count) return;
-  if (drawn(element, mark)) sheets.set(sheet, count);
-  else {
-    sheets.delete(sheet);
-    adopt(root, sheet);
+  let answers = found.get(root);
+  if (!answers || answers.count !== count) found.set(root, (answers = { count, asked: false, drawn: new Set() }));
+  const own = kind(element.localName, mark);
+  if (answers.drawn.has(own)) return;
+  const drawnHere = drawn(element, mark);
+  if (drawnHere) answers.drawn.add(own);
+  // The first question of the root: the other kinds that stand in it are asked in the same style pass, before the
+  // sheet below (if any) is added and has the page styled again.
+  if (!answers.asked) {
+    answers.asked = true;
+    for (const [tag, name] of Object.entries(DRAWN_MARKS)) {
+      const other = kind(tag, name);
+      if (other === own) continue;
+      const instance = root.querySelector(tag);
+      if (instance && drawn(instance, name)) answers.drawn.add(other);
+    }
   }
+  if (!drawnHere) adopt(root, sheet);
 }
