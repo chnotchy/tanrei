@@ -109,7 +109,14 @@ describe('every icon of the built pages is a glyph of the cut-down file', { conc
   const leftUndefined = () => [...document.querySelectorAll('*')].filter((el) => el.localName.includes('-') && !el.matches(':defined') && !el.closest('[data-define-on-use]')).map((el) => el.localName);
   // A page that only sends the reader on (a moved page's old address) draws nothing: the page it sends to is opened.
   const redirect = (file) => /<meta http-equiv="refresh"/.test(fs.readFileSync(file, 'utf8'));
-  for (const [url] of rootPages.filter(([url, file]) => url !== '/studio/' && !redirect(file))) {
+  // The Theme Studio page is opened too: it takes the full files only once it has loaded (below), so until then — its
+  // first frame, and longer on a slow connection — it draws its own bar, rail and panels from the cut-down files, and
+  // a glyph its code writes that no list has is drawn as its letters. It is checked once the Studio has drawn its rail's
+  // rows, which the page's module script mounts (components/StudioPage.astro); the glyphs are asked of the cut-down
+  // files, whatever faces the page has registered by then.
+  const STUDIO = '[data-theme-studio]';
+  const STUDIO_DRAWN = '[data-studio][data-pane] [data-rail] [data-row]';
+  for (const [url] of rootPages.filter(([, file]) => !redirect(file))) {
     test(`drawn on ${url}`, async () => {
       const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
       try {
@@ -120,7 +127,10 @@ describe('every icon of the built pages is a glyph of the cut-down file', { conc
         await page.evaluate(() => {
           for (const stage of document.querySelectorAll('[data-example-pending]')) stage.removeAttribute('data-example-pending');
         });
-        await page.waitForFunction(`(${leftUndefined})().length === 0`, null, { timeout: 30000 }).catch(() => {});
+        if (await page.locator(STUDIO).count()) await page.waitForSelector(STUDIO_DRAWN);
+        // Asked from here, not by `waitForFunction`: the site's policy allows no script evaluated from a string, so a
+        // predicate written as one threw at once and the page was read before its elements were defined.
+        for (const until = Date.now() + 30000; (await page.evaluate(leftUndefined)).length && Date.now() < until; ) await new Promise((resolve) => setTimeout(resolve, 100));
         assert.deepEqual([...new Set(await page.evaluate(leftUndefined))], [], `elements left undefined on ${url}`);
         const drawn = await page.evaluate(() => {
           const out = [];
