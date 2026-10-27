@@ -8,6 +8,7 @@ import ComponentAvailability from '../../../components/ComponentAvailability.ast
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
 import Example from '../../../components/visuals/Example.astro';
+import DoDont from '../../../components/visuals/DoDont.astro';
 
 ## Overview
 
@@ -575,6 +576,28 @@ A filter narrows the drawer in place; it is not a search. The [search](/componen
 - A section's `divider` draws a divider before it, to set it apart from what is above. You never place a divider yourself.
 - The header holds the header buttons, stacked in the icon column, and the main action below them. The header slot sits beside the menu button while expanded, for a title or an account switcher, and is not drawn while collapsed. Plain text placed there is drawn in the drawer's title style (`comp.navigation-drawer.header.typescale` and `comp.navigation-drawer.header.color`); an element of yours that sets its own style keeps it.
 - When the rows are taller than the space below the header, they scroll and the header stays in place. A scroll that reaches either end does not go on to scroll the page behind the drawer.
+
+### Side by side
+
+<DoDont do="navigation-drawer/destinations-only" dont="navigation-drawer/actions-as-rows">
+  <Fragment slot="doCaption">Fill the drawer with places: each row takes the person somewhere, and the row of the place they are in is selected.</Fragment>
+  <Fragment slot="dontCaption">Don't put actions such as Compose or Sign out among the destinations. A row that does something instead of going somewhere breaks what every other row promises.</Fragment>
+</DoDont>
+
+<DoDont do="navigation-drawer/sibling-sections" dont="navigation-drawer/section-in-section">
+  <Fragment slot="doCaption">Set sections side by side, each with its headline, a divider between them.</Fragment>
+  <Fragment slot="dontCaption">Don't nest a section in a section. Sections do not nest: the inner one draws only its destinations, in its place, and a debug build reports it.</Fragment>
+</DoDont>
+
+<DoDont do="navigation-drawer/named-sections" dont="navigation-drawer/vague-sections">
+  <Fragment slot="doCaption">Name a section for what its destinations have in common, so a person can skip the ones they do not need.</Fragment>
+  <Fragment slot="dontCaption">Don't name sections General and More. They say nothing about what is in them, and a person has to read every row to find out.</Fragment>
+</DoDont>
+
+<DoDont do="navigation-drawer/most-used-first" dont="navigation-drawer/rarely-used-first">
+  <Fragment slot="doCaption">Put the destinations people use most at the top, where the eye and the pointer start.</Fragment>
+  <Fragment slot="dontCaption">Don't open the drawer with the places people rarely visit. Every visit then starts with a search down the column.</Fragment>
+</DoDont>
 
 ### Do
 
