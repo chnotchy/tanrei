@@ -6609,6 +6609,7 @@
     --tanrei-comp-segmented-button-unselected-pressed-label-color: var(--tanrei-comp-segmented-button-unselected-label-color);
     --tanrei-comp-segmented-button-unselected-pressed-state-layer-color: var(--tanrei-comp-segmented-button-unselected-state-layer-color);
     --tanrei-comp-segmented-button-unselected-state-layer-color: var(--tanrei-comp-segmented-button-unselected-label-color);
+    --tanrei-comp-select-container-action-gap: var(--tanrei-comp-combobox-container-action-gap);
     --tanrei-comp-select-disabled-opacity: 1;
     --tanrei-comp-select-divider-color: var(--tanrei-sys-color-outline-variant);
     --tanrei-comp-select-divider-space: var(--tanrei-sys-space-space100);
@@ -8438,6 +8439,7 @@
     --tanrei-comp-text-input-code-typescale-letter-spacing: var(--tanrei-sys-typescale-code-letter-spacing);
     --tanrei-comp-text-input-code-typescale-line-height: var(--tanrei-sys-typescale-code-line-height);
     --tanrei-comp-text-input-code-typescale-font: var(--tanrei-sys-typescale-code-font);
+    --tanrei-comp-text-input-container-action-gap: var(--tanrei-comp-combobox-container-action-gap);
     --tanrei-comp-text-input-entries-gap: var(--tanrei-sys-space-space100);
     --tanrei-comp-text-input-entries-row-gap: var(--tanrei-sys-space-space100);
     --tanrei-comp-text-input-entries-typing-min-width: var(--tanrei-sys-space-space900);

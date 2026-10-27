@@ -14454,6 +14454,7 @@ public struct TanreiSelectStateTokens: Sendable, Equatable {
 
 /// Component tokens of select (comp.select).
 public struct TanreiSelectTokens: Sendable, Equatable {
+  public var containerActionGap: CGFloat
   public var dividerColor: TanreiPaint
   public var dividerSpace: CGFloat
   public var dividerThickness: CGFloat
@@ -14496,6 +14497,7 @@ public struct TanreiSelectTokens: Sendable, Equatable {
   public var disabled: TanreiSelectStateTokens
 
   public init(
+    containerActionGap: CGFloat,
     dividerColor: TanreiPaint,
     dividerSpace: CGFloat,
     dividerThickness: CGFloat,
@@ -14533,6 +14535,7 @@ public struct TanreiSelectTokens: Sendable, Equatable {
     pressed: TanreiSelectStateTokens,
     disabled: TanreiSelectStateTokens
   ) {
+    self.containerActionGap = containerActionGap
     self.dividerColor = dividerColor
     self.dividerSpace = dividerSpace
     self.dividerThickness = dividerThickness
@@ -17844,6 +17847,7 @@ public struct TanreiTagTokens: Sendable, Equatable {
 public struct TanreiTextInputTokens: Sendable, Equatable {
   public var codeTabSize: Double
   public var codeTypescale: TanreiTextStyle
+  public var containerActionGap: CGFloat
   public var entriesGap: CGFloat
   public var entriesRowGap: CGFloat
   public var entriesTypingMinWidth: CGFloat
@@ -17854,6 +17858,7 @@ public struct TanreiTextInputTokens: Sendable, Equatable {
   public init(
     codeTabSize: Double,
     codeTypescale: TanreiTextStyle,
+    containerActionGap: CGFloat,
     entriesGap: CGFloat,
     entriesRowGap: CGFloat,
     entriesTypingMinWidth: CGFloat,
@@ -17863,6 +17868,7 @@ public struct TanreiTextInputTokens: Sendable, Equatable {
   ) {
     self.codeTabSize = codeTabSize
     self.codeTypescale = codeTypescale
+    self.containerActionGap = containerActionGap
     self.entriesGap = entriesGap
     self.entriesRowGap = entriesRowGap
     self.entriesTypingMinWidth = entriesTypingMinWidth

@@ -41,6 +41,7 @@ import type { TanreiInputBoxSizeRegistry, TanreiInputBoxVariantRegistry, TanreiS
 import { ownDirection } from '../../styles/product-text.js';
 import '../option/option.js';
 import '../loading-indicator/loading-indicator.js';
+import '../button/button.js';
 import { takeFormDisabled } from '../../primitives/form-disabled.js';
 import { AXES, INSET, PREFIX, styles } from './select.styles.js';
 import { FocusedStop, disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
@@ -70,6 +71,8 @@ export interface TanreiSelectToggleDetail {
 type Layout = 'stacked' | 'filled' | 'outlined';
 
 const STATUSES: readonly string[] = ['idle', 'loading', 'error'];
+/** SEL-72: the clear button's glyph, never mirrored. */
+const CLEAR_GLYPH = 'close';
 
 /** Runs `task` once the document has been read: an element upgraded while its children are still being parsed has none yet. */
 function whenParsed(task: () => void) {
@@ -134,6 +137,7 @@ const LEFT_ATTRIBUTES = ['supporting-text', 'error-text', 'required', 'optional'
  * @csspart value - The chosen option's label.
  * @csspart placeholder - The hint shown while nothing is chosen.
  * @csspart leading-icon - The box of the glyph at the start of the container.
+ * @csspart clear-button - The clear button, a `<tanrei-button>` over the container's end, before the chevron (SEL-72).
  * @csspart chevron - The glyph at the end of the container.
  * @csspart list - The raised sheet that holds the options.
  * @csspart option - An option's row.
@@ -146,7 +150,7 @@ const LEFT_ATTRIBUTES = ['supporting-text', 'error-text', 'required', 'optional'
  * @csspart divider - The line between two groups while the separation is divider.
  * @csspart status - The status row after the options: what the product's source is doing, or the empty text.
  * @attr {string} form - The id of the form the select belongs to, where it stands outside it: the platform's own attribute, which then wins over a form around it. The `form` property is read-only and returns the form element.
- * @fires change - The person chose an option whose value differs from the select's; `value` is already the new one. A composed, bubbling Event, as a native select's. Never fired when the product sets `value`, when the chosen option is chosen again, or while the person only moves through the list.
+ * @fires change - The person chose an option whose value differs from the select's, or cleared the value with the clear button; `value` is already the new one. A composed, bubbling Event, as a native select's. Never fired when the product sets `value`, when the chosen option is chosen again, or while the person only moves through the list.
  * @fires {CustomEvent<TanreiSelectToggleDetail>} toggle - The list was opened or closed by the person; `open` is already the new one. `detail.open`, and for a close `detail.reason`: `select`, `escape`, `outside`, `focus-out`, `anchor-hidden`, `press` or `tab`. After a choice it follows `change`. Composed and not bubbling: heard on the element — and on an element composed around it — and by no ancestor. Never fired when the product sets `open`.
  */
 export class TanreiSelect extends TanreiElement {
@@ -172,6 +176,7 @@ export class TanreiSelect extends TanreiElement {
     'value',
     'placeholder',
     'leading-icon',
+    'clear-button',
     'chevron',
     'list',
     'option',
@@ -196,6 +201,8 @@ export class TanreiSelect extends TanreiElement {
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
     readOnly: { type: Boolean, attribute: 'readonly', reflect: true },
+    clearable: { type: Boolean, reflect: true },
+    clearLabel: { type: String, attribute: 'clear-label' },
     open: { type: Boolean, reflect: true },
     separation: { type: String, reflect: true },
     iconSpace: { type: String, attribute: 'icon-space', reflect: true },
@@ -239,6 +246,16 @@ export class TanreiSelect extends TanreiElement {
 
   /** The value is shown, can be focused and is submitted, but cannot be changed: the list does not open and no chevron is drawn. The attribute is `readonly`. */
   readOnly = false;
+
+  /**
+   * Draws a clear button while a value is chosen, for a select whose value may be none: a filter, an optional setting
+   * (SEL-72). Its room is kept while the value is empty, so the select keeps its width. Without it, a chosen value is
+   * changed only by choosing another. Reflected.
+   */
+  clearable = false;
+
+  /** The clear button's accessible name, in the product's language (`clear-label`, "Clear"). Empty reads the product's words. Required while `clearable` is true. */
+  clearLabel = '';
 
   /** Whether the list is shown. The select opens and closes itself and emits `toggle`; the product may also set it. Ignored while the select is disabled or read-only or has nothing to show — no option, no status row and no empty text. Reflected. */
   open = false;
@@ -482,6 +499,29 @@ export class TanreiSelect extends TanreiElement {
   /** SEL-61: there is something to show — an option, a status row or the empty text. */
   private get showable(): boolean {
     return this.options$.model.options.length > 0 || this.statusShown || this.emptyShown;
+  }
+
+  /** SEL-72: the select keeps the clear button's room — clearable, neither disabled nor read-only. */
+  private get clearRoom(): boolean {
+    return this.clearable && !this.inert_ && !this.readOnly;
+  }
+
+  /** SEL-72: the clear button is drawn in its room while the value is not empty. */
+  private get clearShown(): boolean {
+    return this.clearRoom && this.value !== '';
+  }
+
+  /** SEL-72: a press on the clear button keeps focus on the container, and is no press on it or outside the select. */
+  #onClearPress(event: MouseEvent) {
+    event.preventDefault();
+  }
+
+  /** SEL-72: the clear button empties the value, emits `change` once, and gives focus back to the container; an open list stays open. */
+  #onClear() {
+    if (!this.clearRoom || this.value === '') return;
+    this.value = '';
+    this.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+    this.focus();
   }
 
   /** SEL-23, SEL-46, SEL-47, SEL-61: whether the list can be shown at all. */
@@ -788,6 +828,8 @@ export class TanreiSelect extends TanreiElement {
       this.words.missing('noOptionsText', { prop: 'emptyText', id: 'SEL-62', effect: 'a select without options does not open and says nothing' });
     }
     this.triedEmpty = false;
+    // SEL-72: the clear button is drawn and works without a name; a debug build says which words are missing.
+    if (this.clearShown && !this.words.get('clearLabel', this.clearLabel).trim()) this.words.missing('clearLabel', { id: 'SEL-72', effect: 'the clear button is drawn and works, and has no accessible name' });
     const { options, nested } = this.options$.model;
     // The options are reported when they, or the value, change — not on every render.
     const signature = `${this.value}\u0000${options.map((option) => `${option.value}\u0001${option.label}`).join('\u0000')}\u0000${nested.length}`;
@@ -858,6 +900,7 @@ export class TanreiSelect extends TanreiElement {
         ?data-has-value=${!!chosen}
         data-leading=${leading ?? nothing}
         ?data-chevron=${!this.readOnly}
+        ?data-clear=${this.clearRoom}
         ?data-option-icons=${model.hasIcons}
       >
         <div
@@ -894,6 +937,15 @@ export class TanreiSelect extends TanreiElement {
           ${floatingLabel({ floating, label: name, asterisk })}
           ${edges}
         </div>
+        ${this.clearRoom
+          ? html`<span class="clear" @mousedown=${this.#onClearPress}
+              >${this.clearShown
+                ? html`<tanrei-button part="clear-button" class="clear-button" variant="text" size="small" label=${this.words.get('clearLabel', this.clearLabel)} @click=${this.#onClear}
+                    ><span slot="icon">${CLEAR_GLYPH}</span></tanrei-button
+                  >`
+                : nothing}</span
+            >`
+          : nothing}
         <span id="name" hidden>${name}</span>
         ${described ? html`<span id="description" hidden>${described}</span>` : nothing}
       </div>

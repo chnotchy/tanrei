@@ -70,6 +70,11 @@
       "optional": true
     },
     {
+      "id": "clear-button",
+      "description": "An icon-only Button of the text variant at Button's small size showing close, after the trailing icon, that empties the value. Drawn while clearable is true and the value is not empty; its room is kept while clearable is true.",
+      "optional": true
+    },
+    {
       "id": "picker-button",
       "description": "In a date, time or date-time field, an icon-only Button of the text variant at the end of the container, showing the calendar_month glyph (date, date-time) or the schedule glyph (time); it asks the product to present Calendar or DateTimePicker.",
       "optional": true
@@ -174,6 +179,19 @@
       "type": "boolean",
       "default": false,
       "description": "The value can be focused, selected and copied, but not changed."
+    },
+    {
+      "name": "clearable",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws a clear button while the value is not empty, for a field a person often empties whole: a filter, a search, a query. A single-line field of any type but date, time and date-time."
+    },
+    {
+      "name": "clearLabel",
+      "type": "string",
+      "default": "",
+      "description": "The clear button's accessible name, in the product's language (\"Clear\"). Empty reads the product's words. Required while clearable is true.",
+      "words": "clearLabel"
     },
     {
       "name": "multiline",
@@ -358,7 +376,7 @@
     },
     {
       "name": "trailing-icon",
-      "description": "An icon at the end of the input, or the product's own icon-only Button (clear, reveal password). A date or time field's picker button comes after it."
+      "description": "An icon at the end of the input, or the product's own icon-only Button. The clear button and a date or time field's picker button come after it."
     },
     {
       "name": "entries",
@@ -432,7 +450,7 @@
     },
     {
       "id": "TXI-8",
-      "text": "WHERE the container is shorter than the minimum target THE text input SHALL extend its hit area vertically to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch. WHEN the user presses anywhere on the input outside an interactive slot element, the picker button and the resize handle — the container's padding, a floating label, the prefix, the suffix, a decorative icon — THE text input SHALL focus the input (in a date, time or date-time field, the segment TXI-43 names); it SHALL draw no press answer, because a press on a field is not an action. A press on the label row of the Field that frames it focuses the input too, and is that Field's (FLD-12)."
+      "text": "WHERE the container is shorter than the minimum target THE text input SHALL extend its hit area vertically to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch. WHEN the user presses anywhere on the input outside an interactive slot element, the clear button, the picker button and the resize handle — the container's padding, a floating label, the prefix, the suffix, a decorative icon — THE text input SHALL focus the input (in a date, time or date-time field, the segment TXI-43 names); it SHALL draw no press answer, because a press on a field is not an action. A press on the label row of the Field that frames it focuses the input too, and is that Field's (FLD-12)."
     },
     {
       "id": "TXI-9",
@@ -485,7 +503,7 @@
     },
     {
       "id": "TXI-22",
-      "text": "THE text input SHALL draw an icon in the leading-icon or trailing-icon slot at comp.input-box.icon.size.medium for size medium (and so on), with the family and fill of an unselected icon, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, colored by its leading-icon or trailing-icon part and comp.input-box.container.gap.medium from the text (and so on). Every glyph the text input draws — in these slots, and in the picker button (TXI-32) — SHALL be a glyph of the system's icon set at a step of the sys.icon scale; the text input SHALL draw no mark of its own. An interactive element the product places in a slot SHALL keep its own tokens and be its own focus stop after the input. THE text input SHALL build in no clear, reveal or other action except the picker button of a date or time field (TXI-32), and SHALL hide those a platform draws inside its native element (the web's search cancel button and password reveal button)."
+      "text": "THE text input SHALL draw an icon in the leading-icon or trailing-icon slot at comp.input-box.icon.size.medium for size medium (and so on), with the family and fill of an unselected icon, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, colored by its leading-icon or trailing-icon part and comp.input-box.container.gap.medium from the text (and so on). Every glyph the text input draws — in these slots, in the clear button (TXI-71) and in the picker button (TXI-32) — SHALL be a glyph of the system's icon set at a step of the sys.icon scale; the text input SHALL draw no mark of its own. An interactive element the product places in a slot SHALL keep its own tokens and be its own focus stop after the input. THE text input SHALL build in no action of its own but the clear button (TXI-71) and the picker button of a date or time field (TXI-32), and SHALL hide those a platform draws inside its native element (the web's search cancel button and password reveal button)."
     },
     {
       "id": "TXI-23",
@@ -493,7 +511,7 @@
     },
     {
       "id": "TXI-24",
-      "text": "WHEN the layout direction is right-to-left THE text input SHALL mirror its layout — leading icon on the right, trailing icon and picker button on the left, the prefix at the field's start edge and the suffix at its end edge beside a value laid out by its own direction (beside one that is always left-to-right they stand as TXI-67 says), the label floating from the right edge with its asterisk to its left, the resize handle in the container's bottom-left corner, where a drag or an arrow to the left widens a field that resizes both ways — and SHALL lay out the typed text by its own direction: the base direction of the value's first strong character and, WHILE the value is empty or holds no strong character (digits, spaces, punctuation), the layout direction, so that the caret of an empty field and its placeholder stand at the field's start edge. A single-line value SHALL be aligned to the start edge of its own direction (left-to-right text typed into a right-to-left field sits at the left), and in a multiline field each paragraph SHALL take the direction and the alignment of its own first strong character; except that the values of email, url, tel, number and password fields SHALL be laid out left-to-right, aligned to the field's start edge or, beside a prefix, to the prefix (TXI-67), the input line of a code field as one left-to-right row that begins at the left (TXI-53), and the segments of a date, time or date-time field as one left-to-right row at the field's start edge, in the order the locale's own form gives (TXI-42).",
+      "text": "WHEN the layout direction is right-to-left THE text input SHALL mirror its layout — leading icon on the right, trailing icon, clear button and picker button on the left, the prefix at the field's start edge and the suffix at its end edge beside a value laid out by its own direction (beside one that is always left-to-right they stand as TXI-67 says), the label floating from the right edge with its asterisk to its left, the resize handle in the container's bottom-left corner, where a drag or an arrow to the left widens a field that resizes both ways — and SHALL lay out the typed text by its own direction: the base direction of the value's first strong character and, WHILE the value is empty or holds no strong character (digits, spaces, punctuation), the layout direction, so that the caret of an empty field and its placeholder stand at the field's start edge. A single-line value SHALL be aligned to the start edge of its own direction (left-to-right text typed into a right-to-left field sits at the left), and in a multiline field each paragraph SHALL take the direction and the alignment of its own first strong character; except that the values of email, url, tel, number and password fields SHALL be laid out left-to-right, aligned to the field's start edge or, beside a prefix, to the prefix (TXI-67), the input line of a code field as one left-to-right row that begins at the left (TXI-53), and the segments of a date, time or date-time field as one left-to-right row at the field's start edge, in the order the locale's own form gives (TXI-42).",
       "verify": "Test an empty field, a value of digits only, a left-to-right and a right-to-left sentence, an email value and a multiline value with one paragraph of each direction, in both layout directions: where the caret and the placeholder stand, the order of the runs and the edge the text is aligned to. Fixtures stacked-date-rtl and stacked-multiline-manual-rtl draw the date row and the handle right-to-left."
     },
     {
@@ -536,7 +554,7 @@
     },
     {
       "id": "TXI-35",
-      "text": "WHERE the layout direction is right-to-left THE text input SHALL draw the glyphs of its leading-icon and trailing-icon slots mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order TXI-24 gives. THE text input SHALL NOT mirror a glyph itself, and SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name. The picker button's calendar_month and schedule (TXI-32) are not marked and are never mirrored.",
+      "text": "WHERE the layout direction is right-to-left THE text input SHALL draw the glyphs of its leading-icon and trailing-icon slots mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order TXI-24 gives. THE text input SHALL NOT mirror a glyph itself, and SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name. The clear button's close (TXI-71) and the picker button's calendar_month and schedule (TXI-32) are not marked and are never mirrored.",
       "verify": "arrow_forward, chevron_right, reply and send are marked by the default icon set; check, close, search and play_arrow are not. Test one marked and one unmarked name in right-to-left, the marked one again with mirroring forbidden and the unmarked one with it forced, and the marked one in left-to-right (never mirrored there)."
     },
     {
@@ -614,7 +632,7 @@
     },
     {
       "id": "TXI-52",
-      "text": "THE text input SHALL have no words of its own: it SHALL take resizeLabel and segmentEmptyText from the instance's prop and, WHILE that is empty, from the product's words of the same name, and counterText and counterNoLimitText as TXI-19 says, — the words a product sets once for all its components — and from nowhere else. WHILE neither gives resizeLabel the handle is as TXI-41 says: drawn, working and reported. IF neither gives segmentEmptyText THE text input SHALL expose an empty segment with no value and no value text, and in debug builds SHALL report the missing words once. The name of a segment's unit, the month's name and the period's name (TXI-47) are the platform's locale data and not the text input's words; the count (TXI-19) is drawn as digits and a slash, and said as the product's sentence where it has one; and the words of a requirement are the Field's (FLD-24).",
+      "text": "THE text input SHALL have no words of its own: it SHALL take resizeLabel, clearLabel and segmentEmptyText from the instance's prop and, WHILE that is empty, from the product's words of the same name, and counterText and counterNoLimitText as TXI-19 says, — the words a product sets once for all its components — and from nowhere else. WHILE neither gives resizeLabel the handle is as TXI-41 says, and WHILE neither gives clearLabel the clear button is as TXI-71 says: drawn, working and reported. IF neither gives segmentEmptyText THE text input SHALL expose an empty segment with no value and no value text, and in debug builds SHALL report the missing words once. The name of a segment's unit, the month's name and the period's name (TXI-47) are the platform's locale data and not the text input's words; the count (TXI-19) is drawn as digits and a slash, and said as the product's sentence where it has one; and the words of a requirement are the Field's (FLD-24).",
       "verify": "Unit, with no product's words set: stacked-multiline-manual without resizeLabel places a handle that works and reports the missing name; stacked-date-empty without segmentEmptyText exposes empty segments with no value text and reports once."
     },
     {
@@ -691,12 +709,17 @@
     },
     {
       "id": "TXI-68",
-      "text": "THE text input SHALL draw its box from the one set of tokens every input box is drawn from, the group comp.input-box (comp.input-box.container.shape, comp.input-box.container.height.medium, and so on): its container, its corners, its edges and their widths, the label that floats in it and the asterisk after it, the typed text and the placeholder, the prefix and the suffix, the icons at either end, the caret and the highlight of selected text, the paddings, the gaps and the least height of its size (a stacked box's from comp.input-box.stacked.container.height.medium and comp.input-box.stacked.container.padding-block.medium for size medium, as tall as a Button of the same size, and a filled or an outlined box's from comp.input-box.container.height.medium and comp.input-box.container.padding-block.medium, and so on), and the colors of each of these in its look, at rest, hovered, focused and disabled, plain and in error. It SHALL have no token of its own for any of them: the tokens of its own group are those of what only a text input draws — the motion of a height that follows its text (TXI-38), a segment of a date or a time (TXI-42), the code face (TXI-53) and the entries place (TXI-64). WHEN a design system or a product sets a token of the box THE text input SHALL follow it, as the select, the combobox, the number input and the color input do, which read the same tokens; no token is held equal to another for this. WHERE one text input is to differ from the other boxes of a product, the token is set for that instance — on its element or on a subtree that holds it, in each platform's way of setting a token for a subtree — and THE text input SHALL draw itself from the value it finds there.",
+      "text": "THE text input SHALL draw its box from the one set of tokens every input box is drawn from, the group comp.input-box (comp.input-box.container.shape, comp.input-box.container.height.medium, and so on): its container, its corners, its edges and their widths, the label that floats in it and the asterisk after it, the typed text and the placeholder, the prefix and the suffix, the icons at either end, the caret and the highlight of selected text, the paddings, the gaps and the least height of its size (a stacked box's from comp.input-box.stacked.container.height.medium and comp.input-box.stacked.container.padding-block.medium for size medium, as tall as a Button of the same size, and a filled or an outlined box's from comp.input-box.container.height.medium and comp.input-box.container.padding-block.medium, and so on), and the colors of each of these in its look, at rest, hovered, focused and disabled, plain and in error. It SHALL have no token of its own for any of them: the tokens of its own group are those of what only a text input draws — the motion of a height that follows its text (TXI-38), a segment of a date or a time (TXI-42), the code face (TXI-53), the entries place (TXI-64) and the gap between two buttons of its own at its end (TXI-71). WHEN a design system or a product sets a token of the box THE text input SHALL follow it, as the select, the combobox, the number input and the color input do, which read the same tokens; no token is held equal to another for this. WHERE one text input is to differ from the other boxes of a product, the token is set for that instance — on its element or on a subtree that holds it, in each platform's way of setting a token for a subtree — and THE text input SHALL draw itself from the value it finds there.",
       "verify": "Every value the box of a text input draws is the value of the token it reads, in every scheme of every shipped system. A build test fails if a token with the name of a token of the box stands in the text input's own group. Unit, web: with the custom property of comp.input-box.container.shape set on one text input's element, its corners change and those of a text input and a select beside it do not; set on an ancestor of the three, all three change."
     },
     {
       "id": "TXI-70",
       "text": "WHERE the platform has ARIA attributes (the web), WHEN the product sets an aria- attribute on the host, by the attribute or by the ARIA property that reflects it, THE text input SHALL move it to the data-aria- attribute of the same name, so that the host is no second node with its name, description or state, and SHALL expose it on the element that carries its role — an id reference by the elements it names in the host's tree or a tree around it, an error message as part of the description while the text input is invalid — except those the text input owns (aria-disabled), which it SHALL move and not expose. WHEN the product removes the aria- attribute or its data-aria- twin, or sets the ARIA property that reflects it (ariaLabel, ariaDescribedByElements…) to null, THE text input SHALL take it off that element. WHEN the product sets an aria- attribute the text input owns THE text input SHALL report it in debug builds."
+    },
+    {
+      "id": "TXI-71",
+      "text": "WHILE clearable is true, the field is single-line (TXI-17), type is not date, time or date-time, and the text input is neither disabled nor read-only THE text input SHALL keep at the end of its container, after the trailing-icon slot's content (comp.input-box.container.gap.medium after it for size medium, and so on) and before any other button of its own (comp.text-input.container.action-gap before it), the room of a clear button, and SHALL draw the button in that room WHILE the value is not empty: an icon-only Tanrei Button of the text variant at Button's small size showing the glyph close of the system's icon set, not mirrored, its glyph centred where a trailing icon's would be, named by clearLabel, a Button in every respect — its own tokens, its press, focus ring and target (BTN-5, BTN-8, BTN-9, BTN-10) — and a focus stop after the input and any interactive slot element. The room SHALL be kept whether or not the button is drawn, so that the end of the text, the trailing icon and every button after it stay where they are as the value is emptied and filled. A press on the button by pointer or touch SHALL NOT take focus from the input, so that typing goes on where it was and a touch keyboard stays up. WHEN the button is activated THE text input SHALL empty the value, emit input once with the empty value, then commit as TXI-2 does — change once WHILE the empty value differs from the one last committed —, and move focus to the input. WHILE clearable is false THE text input SHALL draw no clear button and keep no room for one: the person empties the field as any text is emptied. WHERE clearable is true in a field that cannot draw the button — a multi-line one, or a date, time or date-time — THE text input SHALL draw none and in debug builds report it. WHILE clearLabel is empty and the product's words give none THE text input SHALL still draw the button, working, and in debug builds report that it has no accessible name.",
+      "verify": "Fixtures stacked-clearable, stacked-clearable-empty, outlined-clearable and stacked-clearable-rtl. Unit: the button is drawn only while the value is not empty and the end of the text is the same with and without it; Tab reaches it after the input; a click and Enter on it empty the value, emit input once and change once, and leave focus in the input; a mouse press on it does not blur the input; a field whose value was already empty when it took focus emits input and no change; a disabled, a read-only, a multi-line and a date field draw none, the last two reported; with no clearLabel and no product's words the button is drawn, works and the report names clearLabel."
     }
   ],
   "accessibility": {
@@ -704,7 +727,7 @@
     "keyboard": [
       {
         "keys": "Tab",
-        "action": "Moves focus to the input; further Tabs move to an interactive element in the trailing slot, then to the picker button, then to the resize handle, where there are any. In a date, time or date-time field Tab visits each segment in turn first. In a code field too: Tab never inserts a character or an indent (TXI-59)."
+        "action": "Moves focus to the input; further Tabs move to an interactive element in the trailing slot, then to the clear button, then to the picker button, then to the resize handle, where there are any. In a date, time or date-time field Tab visits each segment in turn first. In a code field too: Tab never inserts a character or an indent (TXI-59)."
       },
       {
         "keys": "Typing, Backspace, Delete, arrows, Home, End, selection and clipboard shortcuts",
@@ -743,6 +766,10 @@
         "action": "Paste reads a whole date or time into every segment; copy and cut take the whole row (TXI-29)."
       },
       {
+        "keys": "Enter or Space on the clear button",
+        "action": "Empties the value, emits input and, where the value changed since focus arrived, change, and returns focus to the input (TXI-71)."
+      },
+      {
         "keys": "Enter or Space on the picker button",
         "action": "Emits pickerRequest (TXI-33)."
       },
@@ -759,13 +786,13 @@
         "action": "Fit the height to the text, or return to minRows when it already fits (TXI-41)."
       }
     ],
-    "labeling": "The accessible name is the label of the Field that frames the input, or its own label where no Field does; a filled or outlined input draws that name floating, and labelHidden only stops the drawing. The placeholder is never the name. The description is the input's own — the prefix and the suffix while shown, the count while counter is true — followed by what the Field gives: its supporting text with, in error, the error text after it and its optional text. The input is exposed as invalid while error is true, its Field is in error or an entry error lasts; as required while its Field says so, whichever mark is drawn; and as read-only while readOnly is true. A search input is exposed as a search box where the platform has that role. A date, time or date-time input is a group, named as the input is, whose segments are spin buttons named by their unit and that name, with a range, a value and a value text (segmentEmptyText while empty). The picker button is named by pickerLabel and exposed as opening a dialog. The resize handle is a window splitter named by resizeLabel whose value is the number of lines shown. A code input is the same text box as any other type: no role or word says that it holds code (TXI-60).",
+    "labeling": "The accessible name is the label of the Field that frames the input, or its own label where no Field does; a filled or outlined input draws that name floating, and labelHidden only stops the drawing. The placeholder is never the name. The description is the input's own — the prefix and the suffix while shown, the count while counter is true — followed by what the Field gives: its supporting text with, in error, the error text after it and its optional text. The input is exposed as invalid while error is true, its Field is in error or an entry error lasts; as required while its Field says so, whichever mark is drawn; and as read-only while readOnly is true. A search input is exposed as a search box where the platform has that role. A date, time or date-time input is a group, named as the input is, whose segments are spin buttons named by their unit and that name, with a range, a value and a value text (segmentEmptyText while empty). The clear button is named by clearLabel. The picker button is named by pickerLabel and exposed as opening a dialog. The resize handle is a window splitter named by resizeLabel whose value is the number of lines shown. A code input is the same text box as any other type: no role or word says that it holds code (TXI-60).",
     "minimumTarget": true,
     "notes": [
       "Text entry happens in the platform's native element: on the web an <input> or <textarea> in the shadow root, with the label, description and invalid state set on that element — not through ElementInternals, which axe cannot see. The host is form-associated: it takes name, submits the value and joins constraint validation. A date, time or date-time field is the one exception: its segments are spin buttons that take digits one unit at a time, as the platforms' own date fields do, because one free text cannot give each unit a name, a range and a step.",
       "Heights are minimums: at 200% text size the field grows, the floated label wraps rather than clips, and the input keeps its line height.",
       "Web: iOS Safari zooms the page into an input whose text is smaller than 16 px. Both default sizes use 16 px text (comp.input-box.input.typescale); a layer that sets a smaller style brings the zoom back.",
-      "A trailing action (clear, reveal password, voice input) is the product's own icon-only Button, with its own accessible name in the product's language. The field builds none in except a date or time field's picker button, which the product names with pickerLabel, because each needs a localized name and a policy the field cannot know.",
+      "A trailing action other than clearing (reveal password, voice input) is the product's own icon-only Button, with its own accessible name in the product's language. The field builds in two: the clear button, which the product turns on with clearable and names with clearLabel, and a date or time field's picker button, named with pickerLabel. Clearing is a separate focus stop with a name, not a key: Escape stays the product's and the platform's (it closes what the field stands in), and a person who cannot see the button still hears it after the input.",
       "A date or a time is entered unit by unit: each segment says what it is, shows its own placeholder and cannot hold a value outside its range, so the format never has to be explained or remembered (WCAG 3.3.2), and a whole date can still be pasted. The picker is an alternative, never the only way.",
       "Resizing by hand never depends on a drag (WCAG 2.5.7): the handle is a focus stop that the arrow keys move, and a click, a tap, Enter or Space fits the field to its text. Its hit area meets the minimum target although its line is small (WCAG 2.5.8).",
       "A field that follows its text changes height with a short motion; where motion is reduced it changes at once (WCAG 2.3.3).",
@@ -1007,6 +1034,38 @@
         "value": "tanrei"
       },
       "content": "leading-icon=search trailing-icon=close"
+    },
+    {
+      "id": "stacked-clearable",
+      "props": {
+        "variant": "stacked",
+        "label": "Filter tokens",
+        "value": "color",
+        "clearable": true,
+        "clearLabel": "Clear filter"
+      },
+      "content": "leading-icon=search"
+    },
+    {
+      "id": "stacked-clearable-empty",
+      "props": {
+        "variant": "stacked",
+        "label": "Filter tokens",
+        "placeholder": "Filter tokens",
+        "clearable": true,
+        "clearLabel": "Clear filter"
+      },
+      "content": "leading-icon=search"
+    },
+    {
+      "id": "outlined-clearable",
+      "props": {
+        "variant": "outlined",
+        "label": "City",
+        "value": "Kyoto",
+        "clearable": true,
+        "clearLabel": "Clear city"
+      }
     },
     {
       "id": "stacked-affixes",
@@ -1570,6 +1629,18 @@
       }
     },
     {
+      "id": "stacked-clearable-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "label": "المدينة",
+        "value": "كيوتو",
+        "clearable": true,
+        "clearLabel": "مسح المدينة"
+      },
+      "content": "leading-icon=search"
+    },
+    {
       "id": "stacked-url-prefix-rtl",
       "direction": "rtl",
       "props": {
@@ -1628,6 +1699,8 @@
         "error": "error",
         "disabled": "disabled",
         "readOnly": "readOnly",
+        "clearable": "clearable",
+        "clearLabel": "clearLabel",
         "multiline": "multiline",
         "minRows": "minRows",
         "maxRows": "maxRows",
@@ -1660,7 +1733,7 @@
         "entryError": "entryerror",
         "resizeEnd": "resizeend"
       },
-      "notes": "The input without the frame: the class `TanreiTextInput`, React `TextInput`. The host is `display: block` and as wide as its place, framed and bare (TXI-63): a Field keeps an inline-level control at its own size, at the start edge, so an inline host would not fill its Field. A form-associated custom element with a shadow root and `delegatesFocus` that takes `name`, submits its value, restores it and reports validity (a missing value while its Field says it is required; for date, time and date-time also badInput, rangeUnderflow and rangeOverflow while an entry error lasts, TXI-30). It renders an `<input>`, or a `<textarea>` while multiline, or the `role=\"group\"` of spin buttons of a date or a time; the `leading-icon` and `trailing-icon` slots are named slots; the picker button is a `<tanrei-button variant=\"text\">` in the shadow root. What the text field's note says of the inner element, of the types, of the segments, of the handle, of `noWrap` (attribute `no-wrap`, the inverse of `wrap`) and of code holds here for this element, with `--tanrei-comp-input-box-*` for the box (TXI-68) and `--tanrei-comp-text-input-*` for what is the text input's own. Parts: `container`, `outline`, `active-indicator`, `label` (the floating label), `requirement-label` (its asterisk), `input`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-handle`. The connection with a Field is `tanrei-field-connect` (`src/primitives/field.ts`), in both directions (TXI-62): the control's side gains what it says of itself — `drawsLabel`, `inset: { start, end }` (lengths written by the input from its own tokens and its measured icon boxes), `refusal: { text }` — and the frame's side gains `labelHidden` and `requiredMark` (`asterisk` or `none`) beside the name, the description and the three states; a Field that does not read the three ignores them, and an input no Field answers is drawn as a bare one. The count is not in the exchange: `countText` is a read-only property of the element (the text of TXI-19, empty while `counter` is false), new after each of the element's updates, which a composed element reads as it reads the value and a product reads in its own `input` listener. The routine of TXI-37 and TXI-38 that measures the lines and moves the height is one file, `src/primitives/auto-height.ts`, which draws nothing and reads no token; the web's tests of the height are one suite, so that another element that types on several lines is held to the same behaviour. The name, the description, `aria-invalid`, `aria-required` and `aria-readonly` are written on the inner element, the input's own `label` winning. Attributes are kebab-case (`label-hidden`, `min-rows`, `max-rows`, `prefix-text`, `suffix-text`, `invalid-text`, `unavailable-text`, `picker-label`, `resize-axis`, `resize-label`, `disabled-dates`, `segment-empty-text`, `no-wrap`) except `readonly`, `maxlength`, `autocomplete`, `min` and `max`, which keep HTML's names. `input` and `change` are composed events; `action` is cancelable; `pickerrequest` and `entryerror` are composed CustomEvents whose `detail` carries `{ value, type, min, max }` and `{ reason, text }`. Words: `resize-label` and `segment-empty-text` left empty read the product's words (`setWords()`). For the types email, url, tel, number and password the row of prefix, input and suffix takes the direction TXI-67 gives as its own `dir`; for every other type it keeps the host's. The resize handle is a `<tanrei-handle size=\"small\">` in the shadow root (part `resize-handle`), whose events stay in that root: the element answers them and fires `resizeend`, a composed `CustomEvent` whose `detail` is `{ lines, width }` (`width` null unless `resize-axis` is both)."
+      "notes": "The input without the frame: the class `TanreiTextInput`, React `TextInput`. The host is `display: block` and as wide as its place, framed and bare (TXI-63): a Field keeps an inline-level control at its own size, at the start edge, so an inline host would not fill its Field. A form-associated custom element with a shadow root and `delegatesFocus` that takes `name`, submits its value, restores it and reports validity (a missing value while its Field says it is required; for date, time and date-time also badInput, rangeUnderflow and rangeOverflow while an entry error lasts, TXI-30). It renders an `<input>`, or a `<textarea>` while multiline, or the `role=\"group\"` of spin buttons of a date or a time; the `leading-icon` and `trailing-icon` slots are named slots; the clear button is a `<tanrei-button variant=\"text\" size=\"small\">` in the shadow root, in a box of the glyph's size whose `mousedown` is prevented so that a press keeps focus in the input, and the picker button a `<tanrei-button variant=\"text\">`. What the text field's note says of the inner element, of the types, of the segments, of the handle, of `noWrap` (attribute `no-wrap`, the inverse of `wrap`) and of code holds here for this element, with `--tanrei-comp-input-box-*` for the box (TXI-68) and `--tanrei-comp-text-input-*` for what is the text input's own. Parts: `container`, `outline`, `active-indicator`, `label` (the floating label), `requirement-label` (its asterisk), `input`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `clear-button`, `picker-button`, `resize-handle`. The connection with a Field is `tanrei-field-connect` (`src/primitives/field.ts`), in both directions (TXI-62): the control's side gains what it says of itself — `drawsLabel`, `inset: { start, end }` (lengths written by the input from its own tokens and its measured icon boxes), `refusal: { text }` — and the frame's side gains `labelHidden` and `requiredMark` (`asterisk` or `none`) beside the name, the description and the three states; a Field that does not read the three ignores them, and an input no Field answers is drawn as a bare one. The count is not in the exchange: `countText` is a read-only property of the element (the text of TXI-19, empty while `counter` is false), new after each of the element's updates, which a composed element reads as it reads the value and a product reads in its own `input` listener. The routine of TXI-37 and TXI-38 that measures the lines and moves the height is one file, `src/primitives/auto-height.ts`, which draws nothing and reads no token; the web's tests of the height are one suite, so that another element that types on several lines is held to the same behaviour. The name, the description, `aria-invalid`, `aria-required` and `aria-readonly` are written on the inner element, the input's own `label` winning. Attributes are kebab-case (`label-hidden`, `min-rows`, `max-rows`, `prefix-text`, `suffix-text`, `invalid-text`, `unavailable-text`, `clear-label`, `picker-label`, `resize-axis`, `resize-label`, `disabled-dates`, `segment-empty-text`, `no-wrap`) except `readonly`, `maxlength`, `autocomplete`, `min` and `max`, which keep HTML's names. `input` and `change` are composed events; `action` is cancelable; `pickerrequest` and `entryerror` are composed CustomEvents whose `detail` carries `{ value, type, min, max }` and `{ reason, text }`. Words: `clear-label`, `resize-label` and `segment-empty-text` left empty read the product's words (`setWords()`). For the types email, url, tel, number and password the row of prefix, input and suffix takes the direction TXI-67 gives as its own `dir`; for every other type it keeps the host's. The resize handle is a `<tanrei-handle size=\"small\">` in the shadow root (part `resize-handle`), whose events stay in that root: the element answers them and fires `resizeend`, a composed `CustomEvent` whose `detail` is `{ lines, width }` (`width` null unless `resize-axis` is both)."
     },
     "swiftui": {
       "status": "planned",
@@ -1676,6 +1749,8 @@
         "error": "error",
         "disabled": "disabled",
         "readOnly": "readOnly",
+        "clearable": "clearable",
+        "clearLabel": "clearLabel",
         "multiline": "axis",
         "minRows": "lineLimit",
         "maxRows": "lineLimit",
@@ -1724,6 +1799,8 @@
         "error": "isError",
         "disabled": "enabled",
         "readOnly": "readOnly",
+        "clearable": "clearable",
+        "clearLabel": "clearContentDescription",
         "multiline": "singleLine",
         "minRows": "minLines",
         "maxRows": "maxLines",
@@ -1772,6 +1849,8 @@
         "error": "isError",
         "disabled": "enabled",
         "readOnly": "readOnly",
+        "clearable": "clearable",
+        "clearLabel": "clearSemanticLabel",
         "multiline": "multiline",
         "minRows": "minLines",
         "maxRows": "maxLines",
@@ -1820,6 +1899,8 @@
         "error": "error",
         "disabled": "disabled",
         "readOnly": "readOnly",
+        "clearable": "clearable",
+        "clearLabel": "clearAccessibilityLabel",
         "multiline": "multiline",
         "minRows": "minRows",
         "maxRows": "maxRows",

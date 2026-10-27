@@ -7530,6 +7530,7 @@ private let cupertinoSegmentedButtonTokens = TanreiSegmentedButtonTokens(
 )
 
 private let cupertinoSelectTokens = TanreiSelectTokens(
+  containerActionGap: 4,
   dividerColor: .role(.surfaceContainerHigh),
   dividerSpace: 0,
   dividerThickness: 8,
@@ -9469,6 +9470,7 @@ private let cupertinoTagTokens = TanreiTagTokens(
 private let cupertinoTextInputTokens = TanreiTextInputTokens(
   codeTabSize: 2,
   codeTypescale: cupertinoTypescale.code,
+  containerActionGap: 4,
   entriesGap: 8,
   entriesRowGap: 8,
   entriesTypingMinWidth: 72,

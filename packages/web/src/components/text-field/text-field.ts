@@ -33,7 +33,7 @@ export type {
 
 /** TXF-62: the props that are the Field's, given to it unchanged. `disabled` is the Field's too, joined with a disabled fieldset's (W6). */
 const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', 'required', 'optional', 'requiredMark', 'requiredText', 'optionalText'] as const;
-/** TXF-62: the twenty-seven props that are the text input's. Its own `label`, `labelHidden`, `error` and `disabled` are never set. */
+/** TXF-62: the thirty-one props that are the text input's. Its own `label`, `labelHidden`, `error` and `disabled` are never set. */
 const INPUT = [
   'variant',
   'size',
@@ -41,6 +41,8 @@ const INPUT = [
   'value',
   'placeholder',
   'readOnly',
+  'clearable',
+  'clearLabel',
   'multiline',
   'minRows',
   'maxRows',
@@ -170,6 +172,8 @@ export class TanreiTextField extends ComposedControl<string> {
     value: { type: String },
     placeholder: { type: String },
     readOnly: { type: Boolean, attribute: 'readonly', reflect: true },
+    clearable: { type: Boolean, reflect: true },
+    clearLabel: { type: String, attribute: 'clear-label' },
     multiline: { type: Boolean, reflect: true },
     minRows: { type: Number, attribute: 'min-rows' },
     maxRows: { type: Number, attribute: 'max-rows' },
@@ -251,6 +255,12 @@ export class TanreiTextField extends ComposedControl<string> {
 
   /** @from tanrei-text-input.readOnly */
   readOnly = false;
+
+  /** @from tanrei-text-input.clearable */
+  clearable = false;
+
+  /** @from tanrei-text-input.clearLabel */
+  clearLabel = '';
 
   /** @from tanrei-text-input.multiline */
   multiline = false;
