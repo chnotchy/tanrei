@@ -292,6 +292,39 @@ test.describe('appearStyles and AppearController', () => {
     expect(await runs(host)).toEqual(expect.arrayContaining(['motion:opacity', 'motion:scale']));
   });
 
+  test('an exit begun at the end of a task that outlasts it starts in the first frame drawn after that task, and exit() resolves true when it has played', async ({ page }) => {
+    // The same for the way out: WebKit dated an exit begun in a task from the frame drawn before it, so a surface closed
+    // at the end of a task longer than its exit (modal: 300 ms under the default system) was drawn at rest, gone, in the
+    // first frame after it.
+    await open(page, '<div id="stage"><x-appear id="a"></x-appear></div>');
+    await painted(page);
+    const host = page.locator('#a');
+    await host.evaluate((el: HTMLElement & { open: boolean }) => (el.open = true));
+    await expect(host.locator('.motion')).toHaveCSS('opacity', '1');
+    await finishAll(host);
+    const first = await host.evaluate(async (el) => {
+      const appear = el as HTMLElement & { open: boolean; updateComplete: Promise<unknown> };
+      const motion = el.shadowRoot!.querySelector('.motion')!;
+      appear.open = false;
+      await appear.updateComplete;
+      const end = performance.now() + 500;
+      while (performance.now() < end);
+      return new Promise<{ opacity: number; scale: number; at: string[] }>((resolve) =>
+        requestAnimationFrame(() => {
+          const style = getComputedStyle(motion);
+          const at = motion.getAnimations().map((animation) => `${(animation as CSSTransition).transitionProperty} at ${Math.round(Number(animation.currentTime))} ms`);
+          // At rest the scale is `none`; held at the start of its exit, `1`.
+          resolve({ opacity: Number(style.opacity), scale: style.scale === 'none' ? 1 : Number.parseFloat(style.scale), at });
+        }),
+      );
+    });
+    expect(first.at.length, `it moves out: ${first.at.join(', ')}`).toBeGreaterThan(0);
+    expect(first.at.filter((motion) => !motion.endsWith(' at 0 ms')), 'every motion of the exit stands at its start').toEqual([]);
+    expect({ opacity: first.opacity, scale: first.scale }, 'the first frame after the task draws the exit at its start: the surface whole').toEqual({ opacity: 1, scale: 1 });
+    expect(await host.evaluate((el) => (el as HTMLElement & { left: Promise<boolean> }).left), 'exit() resolves true once its exit has played').toBe(true);
+    await expect(host.locator('.motion')).toHaveCSS('opacity', '0');
+  });
+
   test('appear.blur of 0 (every shipped system) is no filter at all: the surface has none closed or open, and no transition of filter runs; a blur a layer sets is drawn closed', async ({ page }) => {
     // WebKit (Playwright's build on Linux) crashes or stalls a page while a transition of `filter` runs, blur(0px) to
     // none included: a popover opened and closed in a loop lost its page within 150 rounds in 8 runs of 8.
