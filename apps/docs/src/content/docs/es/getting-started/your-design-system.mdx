@@ -8,6 +8,7 @@ sourceHash: 647f155f3ba16d1377c26d7daac2a6ebdad810e4
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
+import InstallCommand from '../../../../components/InstallCommand.astro';
 
 Los componentes de Tanrei no cambian cuando cambia el aspecto de tu producto. Lo que cambia es una **capa**: un pequeño archivo JSON que da valores al vocabulario compartido y declara tus paletas. `@tanrei/cli` convierte ese único archivo en todo lo que necesita cada plataforma.
 
@@ -19,9 +20,7 @@ Los componentes de Tanrei no cambian cuando cambia el aspecto de tu producto. Lo
 
 Añade la herramienta de línea de comandos a tu producto como dependencia de desarrollo; cada comando `npx tanrei …` de esta página ejecuta entonces esa copia. Incluye Theme Studio, que sirve `tanrei studio`.
 
-```sh
-npm install --save-dev @tanrei/cli
-```
+<InstallCommand packages="cli" dev />
 
 El servidor MCP no necesita instalación: `npx` descarga `@tanrei/mcp` cuando un agente lo inicia, tal como se registra más abajo en esta página.
 
