@@ -1,11 +1,14 @@
 // What the gallery of fixtures does in the browser (components/fixtures/FixtureGallery.astro): drawing each fixture of
 // the page from the web package's document of it when its stage comes near the view (the frame says so,
-// lib/example.ts `NEAR_EVENT`), and the document's step in script for it; each stage's width handle; its scheme; the
-// scale of a window that is wider than the column; drawing a window's fixture again. A stage is placed and sized by
-// its stylesheet before any of this runs; nothing here moves anything that is already drawn. The frame's own actions —
-// the code, its copy, the direction — are the frame's (lib/example.ts).
+// lib/example.ts `NEAR_EVENT`), and the document's step in script for it; each stage's width handle; its scheme;
+// opening a fixture drawn closed; writing each window's document when the window comes near the view and emptying it
+// when it is far from it, drawing it again, and its scale where it is wider than the column. A stage is placed and
+// sized by its stylesheet before any of this runs; nothing here moves anything that is already drawn. The frame's own
+// actions — the code, its copy, the direction — are the frame's (lib/example.ts).
 import { RESIZE_EVENT, resizeHandle } from './resize-handle';
+import { CONTRAST_ATTR, THEME_ATTR } from './appearance';
 import { NEAR_EVENT } from './example';
+import windowSheet from '../styles/fixture-window.css?url';
 
 /** The least width a stage is made narrower to by its handle, in CSS pixels. */
 const LEAST = 160;
@@ -42,17 +45,19 @@ const matches = (element: Element, selector: string) => {
 /**
  * What the staging makes as wide as a layout, in a drawn stage: the fixture's element, or else the stage, where a rule
  * of the staging that matches it gives it a width in pixels (`.stage > tanrei-text-field { inline-size: 280px }`, a
- * table's stage 752 wide). Nothing where the fixture is as wide as what it draws (a Button).
+ * table's stage 752 wide). Nothing where the fixture is as wide as what it draws (a Button). Where both have a width,
+ * the stage is the layout when it is the wider (a popover's 480 stage around an anchor 240 wide).
  */
 function laidOutBy(stage: Element): { sized: HTMLElement; width: number } | undefined {
   const widthOf = (rule: CSSStyleRule) => rule.style.getPropertyValue('inline-size') || rule.style.getPropertyValue('width');
   const rules = stagingRules().filter((rule) => /^[\d.]+px$/.test(widthOf(rule)));
-  for (const element of [stage.firstElementChild, stage]) {
+  const sized = [stage.firstElementChild, stage].flatMap((element) => {
     // The last rule that matches is the one in effect, as their order in the staging says.
     const rule = element instanceof HTMLElement ? rules.findLast((each) => matches(element, each.selectorText)) : undefined;
-    if (rule) return { sized: element as HTMLElement, width: parseFloat(widthOf(rule)) };
-  }
-  return undefined;
+    return rule ? [{ sized: element as HTMLElement, width: parseFloat(widthOf(rule)) }] : [];
+  });
+  const [own, ofStage] = sized.length === 2 ? sized : [sized[0], undefined];
+  return ofStage && own && ofStage.width > own.width ? ofStage : own;
 }
 
 /**
@@ -107,49 +112,231 @@ function inlineStage(canvas: HTMLElement, { sized, width: natural }: { sized: HT
   rows.observe(row);
 }
 
+
+// ── Windows ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+/** How near the view a window's document is written: within half a window of it, as a frame is drawn (lib/example.ts). */
+const NEAR_WINDOW = '50% 0px';
+/** How far from the view a window's document is emptied: three windows away. */
+const FAR_WINDOW = '300% 0px';
+
+/** The mark of a window's root while it draws: `HELD` of lib/fixture-window.ts, which this script does not import (it is that module's own chunk, loaded by its address). */
+const HELD = 'data-docs-held';
+
+/** What every window of a gallery writes into its document besides its stage (the gallery's data, `windowScript`). */
+interface WindowData {
+  staging: string;
+  page: boolean;
+}
+
+// One opt-in stylesheet per preset, scoped to [data-tanrei-system="<id>"]: a window drawn under a preset links it.
+const presetSheets = import.meta.glob<string>('../../../../packages/web/src/generated/systems/*.css', { query: '?url', import: 'default', eager: true });
+const presetSheetOf = (system: string) => Object.entries(presetSheets).find(([file]) => file.endsWith(`/${system}.css`))?.[1];
+
+let module: Promise<string> | undefined;
+/** The address of the module a window's document runs (lib/fixture-window.ts), asked for once. */
+const windowModule = () => (module ??= import('./fixture-window').then((loaded) => loaded.windowModule));
+
+const attribute = (name: string, value: string | null | undefined) => (value ? ` ${name}="${value.replaceAll('&', '&amp;').replaceAll('"', '&quot;')}"` : '');
+
+/** What a window's document is drawn in: the stage's scheme, the page's contrast, the stage's system and direction. */
+interface Look {
+  theme: 'light' | 'dark';
+  contrast?: string;
+  system?: string;
+  dir?: string;
+}
+
+/**
+ * A window's document: the fixture's stage, alone, with the component's staging, the stylesheets every page of the site
+ * draws a fixture with (styles/fixture-window.css), the preset's where it is drawn under one, and the module that
+ * defines its elements. It holds no inline script: a document written into a frame (`srcdoc`) keeps the page's
+ * policy, which runs only the inline scripts the page itself holds.
+ */
+function windowDocument(html: string, data: WindowData, look: Look, script: string): string {
+  const holder = data.page ? 'div' : 'main';
+  const preset = look.system ? presetSheetOf(look.system) : undefined;
+  return (
+    `<!doctype html><html lang="en" ${HELD}${attribute('dir', look.dir)}${attribute('data-tanrei-theme', look.theme)}${attribute('data-tanrei-contrast', look.contrast)}${attribute('data-tanrei-system', look.system)}>` +
+    `<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">` +
+    `<link rel="stylesheet"${attribute('href', windowSheet)}>${preset ? `<link rel="stylesheet" data-preset${attribute('href', preset)}>` : ''}` +
+    `<style>${data.staging.replaceAll('</style', '<\\/style')}</style></head>` +
+    `<body><${holder} class="stages">${html}</${holder}><script type="module"${attribute('src', script)}></script></body></html>`
+  );
+}
+
+interface WindowStage {
+  stage: HTMLElement;
+  box: HTMLElement;
+  canvas: HTMLElement;
+  frame: HTMLIFrameElement;
+  /** Its document is wanted: the window is near the view. */
+  wanted: boolean;
+  /** It holds its fixture's document, or is being given it. */
+  written: boolean;
+  /** Its document is being written, loaded or defined: it is emptied, if it is no longer wanted, once it is drawn. */
+  busy: boolean;
+}
+const windows = new Map<Element, WindowStage>();
+
+/** The document a window draws now, where it holds its fixture (not the empty one of a frame without one). */
+const drawnDocument = (frame: HTMLIFrameElement) => {
+  const doc = frame.contentDocument;
+  return doc?.querySelector('body > .stages > .stage') ? doc : null;
+};
+
+/** The look a window's document is drawn in now. */
+function lookOf(win: WindowStage): Look {
+  const held = stageSchemes.get(win.box);
+  return {
+    theme: held ? schemeOf(held) : pageScheme(),
+    contrast: document.documentElement.dataset.tanreiContrast,
+    system: win.box.getAttribute('data-tanrei-system') ?? undefined,
+    dir: win.box.getAttribute('dir') ?? undefined,
+  };
+}
+
+/** Gives a drawn window's document the stage's system and direction, as they are now (a reader chose a preset, turned the stage). */
+function drawLook(win: WindowStage) {
+  const doc = drawnDocument(win.frame);
+  if (!doc) return;
+  const { system, dir } = lookOf(win);
+  const root = doc.documentElement;
+  if (dir) root.setAttribute('dir', dir);
+  else root.removeAttribute('dir');
+  const preset = system ? presetSheetOf(system) : undefined;
+  let link = doc.head.querySelector<HTMLLinkElement>('link[data-preset]');
+  if (preset && link?.getAttribute('href') !== preset) {
+    link?.remove();
+    link = doc.createElement('link');
+    link.rel = 'stylesheet';
+    link.dataset.preset = '';
+    link.href = preset;
+    doc.head.append(link);
+  }
+  if (system) root.setAttribute('data-tanrei-system', system);
+  else root.removeAttribute('data-tanrei-system');
+}
+
+/**
+ * Writes a window's document. A presented fixture takes focus when it opens (a modal dialog moves it in), and a window
+ * that took it would scroll the page to itself as the reader scrolls past it: while the document draws, its root is
+ * held (`HELD`), and its module gives the page back its focus and its scroll after each open and each focus
+ * (lib/fixture-window.ts); the frame is `inert`, so that Tab does not go into it. Both are let go once what it draws
+ * has opened.
+ */
+function writeWindow(win: WindowStage, again = false) {
+  win.wanted = true;
+  // A window left before it was drawn, and come back to, keeps the document it is drawing.
+  if (win.written && !again) return;
+  win.written = true;
+  const gallery = win.stage.closest<HTMLElement>('[data-fixture-gallery]');
+  const html = gallery ? drawingsOf(gallery)[win.stage.dataset.fixtureId ?? ''] : undefined;
+  const data = gallery ? windowDataOf(gallery) : undefined;
+  if (!html || !data) return;
+  void windowModule().then((script) => {
+    if (!win.wanted || !win.written) return;
+    win.busy = true;
+    win.frame.setAttribute('inert', '');
+    if (win.frame.hasAttribute('srcdoc')) win.frame.removeAttribute('srcdoc');
+    win.frame.srcdoc = windowDocument(html, data, lookOf(win), script);
+  });
+}
+
+/**
+ * Empties a window far from the view: its document, and every element it defined, is let go. A window still drawing
+ * is emptied once it has drawn (`settle`): a document taken away while it loads has the loads of its modules cut off.
+ */
+function emptyWindow(win: WindowStage) {
+  win.wanted = false;
+  if (win.busy || !win.written) return;
+  win.written = false;
+  win.frame.setAttribute('inert', '');
+  win.frame.removeAttribute('srcdoc');
+}
+
+/** How long a window's elements may take to be defined before the window is taken as drawn without them. */
+const DEFINED_WITHIN = 10_000;
+
+/**
+ * A window's document has loaded: once its elements are defined and drawn — a modal fixture has opened — it is let go
+ * (`HELD`, `inert`), and emptied if it is no longer wanted.
+ */
+function settle(win: WindowStage, doc: Document, view: Window & typeof globalThis) {
+  const elements = [...doc.querySelectorAll('body > .stages *')].filter((element) => element.localName.includes('-'));
+  const tags = new Set(elements.map((element) => element.localName));
+  // The page's frames and timers: WebKit holds back those of a window out of view.
+  const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+  const drawn = async () => {
+    await Promise.all([...tags].map((tag) => view.customElements.whenDefined(tag)));
+    await Promise.all(elements.map((element) => (element as Element & { updateComplete?: Promise<unknown> }).updateComplete));
+    await frame();
+    await frame();
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  };
+  void Promise.race([drawn(), new Promise((resolve) => setTimeout(resolve, DEFINED_WITHIN))]).then(() => {
+    if (win.frame.contentDocument !== doc) return;
+    win.busy = false;
+    if (!win.wanted) return emptyWindow(win);
+    doc.documentElement.removeAttribute(HELD);
+    win.frame.removeAttribute('inert');
+  });
+}
+
+const nearWindows = new IntersectionObserver(
+  (entries) => {
+    for (const entry of entries) {
+      const win = windows.get(entry.target);
+      if (entry.isIntersecting && win && !win.wanted) writeWindow(win);
+    }
+  },
+  { rootMargin: NEAR_WINDOW },
+);
+const farWindows = new IntersectionObserver(
+  (entries) => {
+    for (const entry of entries) {
+      const win = windows.get(entry.target);
+      if (!entry.isIntersecting && win) emptyWindow(win);
+    }
+  },
+  { rootMargin: FAR_WINDOW },
+);
+
 /**
  * A window stage: the frame is laid out at the window's width (`--docs-window-width`, which the handle changes, so that
  * what reads the window's width reads the new one) and drawn scaled to the box, which is never wider than the column.
  */
-function windowStage(canvas: HTMLElement, handle: HTMLElement | null) {
+function windowStage(stage: HTMLElement, box: HTMLElement, canvas: HTMLElement, handle: HTMLElement | null) {
   const frame = canvas.querySelector<HTMLIFrameElement>('iframe');
-  // A presented fixture takes focus when it opens (a modal dialog moves it in): the frame is written `inert`, so that
-  // a window loading as the reader scrolls never takes the focus from the page, and is let go once what it draws has
-  // opened. Each load of it (a "draw again") is held the same way.
-  if (frame) {
-    // A frame the browser refused to draw holds an error page of another origin: its window is there, but reading
-    // anything of it throws. Such a frame draws nothing that could take the focus, and is let go at once.
-    const release = () => {
-      const free = () => frame.removeAttribute('inert');
-      try {
-        const view = frame.contentWindow;
-        if (!view) return free();
-        view.requestAnimationFrame(() => view.requestAnimationFrame(() => view.setTimeout(free, 200)));
-      } catch {
-        free();
-      }
+  if (!frame) return;
+  const win: WindowStage = { stage, box, canvas, frame, wanted: false, written: false, busy: false };
+  windows.set(canvas, win);
+  // A fixture that is not presented stands in a frame of its stage's size, read from its baseline. Text set on another
+  // machine can take a few pixels more (the baselines are taken on Linux at a device pixel ratio of 2), and a stage's
+  // content can reach past the stage the baseline pictures: the frame grows to hold its document, never shrinks below
+  // the room it held, and is otherwise left as it was.
+  const least = Number(getComputedStyle(canvas).getPropertyValue('--docs-window-height')) || 0;
+  frame.addEventListener('load', () => {
+    const doc = drawnDocument(frame);
+    const view = frame.contentWindow as (Window & typeof globalThis) | null;
+    if (!doc || !view) return;
+    settle(win, doc, view);
+    drawLook(win);
+    const held = stageSchemes.get(box);
+    if (held) drawScheme(held);
+    if (canvas.dataset.fit === undefined) return;
+    const fit = () => {
+      const root = doc.scrollingElement ?? doc.documentElement;
+      canvas.style.setProperty('--docs-window-height', String(Math.max(least, root.scrollHeight)));
     };
-    frame.addEventListener('load', release);
-    // A fixture that is not presented stands in a frame of its stage's size, read from its baseline. Text set on
-    // another machine can take a few pixels more (the baselines are taken on Linux at a device pixel ratio of 2), and a
-    // stage's content can reach past the stage the baseline pictures: the frame grows to hold its document, never
-    // shrinks below the room it held, and is otherwise left as it was.
-    if (canvas.dataset.fit !== undefined) {
-      const least = Number(getComputedStyle(canvas).getPropertyValue('--docs-window-height')) || 0;
-      frame.addEventListener('load', () => {
-        const view = frame.contentWindow as (Window & typeof globalThis) | null;
-        const body = frame.contentDocument?.body;
-        if (!view || !body) return;
-        const fit = () => {
-          const root = frame.contentDocument!.scrollingElement ?? frame.contentDocument!.documentElement;
-          canvas.style.setProperty('--docs-window-height', String(Math.max(least, root.scrollHeight)));
-        };
-        new view.ResizeObserver(fit).observe(body);
-        fit();
-      });
-    }
-    if (frame.contentDocument?.readyState === 'complete' && frame.contentDocument.querySelector('.stage')) release();
-  }
+    new view.ResizeObserver(fit).observe(doc.body);
+    fit();
+  });
+  // The stage's system (the reader's choice in the header, lib/example.ts) and its direction (the frame's action) reach
+  // its window's document.
+  new MutationObserver(() => drawLook(win)).observe(box, { attributes: true, attributeFilter: ['data-tanrei-system', 'dir'] });
+  nearWindows.observe(canvas);
+  farWindows.observe(canvas);
   const width = () => Number(getComputedStyle(canvas).getPropertyValue('--docs-window-width')) || 1;
   const scale = () => canvas.style.setProperty('--docs-window-scale', String(Math.min(1, canvas.getBoundingClientRect().width / width())));
   new ResizeObserver(scale).observe(canvas);
@@ -162,7 +349,9 @@ function windowStage(canvas: HTMLElement, handle: HTMLElement | null) {
   });
 }
 
-/** The page's scheme: the one the header's picker put on the root (`data-theme`), else the system's. */
+// ── Schemes ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+/** The page's scheme: the one the reader's appearance draws on the root (`data-theme`, lib/appearance.ts), else the system's. */
 const pageScheme = () => (document.documentElement.dataset.theme === 'dark' || (document.documentElement.dataset.theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
 
 /** A stage's scheme: the page's, and every change of it, until the stage's own switch is turned; then the switch's. */
@@ -190,7 +379,7 @@ function drawScheme(stage: StageScheme) {
   if (stage.turned || chosen === 'dark') stage.box.dataset.tanreiTheme = chosen;
   else delete stage.box.dataset.tanreiTheme;
   if (stage.toggle && !stage.turned) stage.toggle.toggleAttribute('selected', chosen === 'dark');
-  const root = stage.frame?.contentDocument?.documentElement;
+  const root = stage.frame && drawnDocument(stage.frame)?.documentElement;
   if (!root) return;
   root.dataset.tanreiTheme = chosen;
   const contrast = document.documentElement.dataset.tanreiContrast;
@@ -198,11 +387,10 @@ function drawScheme(stage: StageScheme) {
   else delete root.dataset.tanreiContrast;
 }
 
-/** A stage's scheme is held from the start, before its actions are drawn: a window follows the page's from its first load. */
+/** A stage's scheme is held from the start, before its actions are drawn: a window's document is written in it. */
 function holdScheme(box: HTMLElement) {
   const stage: StageScheme = { box, frame: box.querySelector<HTMLIFrameElement>('iframe'), toggle: null, turned: false };
   stageSchemes.set(box, stage);
-  stage.frame?.addEventListener('load', () => drawScheme(stage));
   drawScheme(stage);
 }
 
@@ -221,41 +409,87 @@ function scheme(stage: HTMLElement, box: HTMLElement) {
   drawScheme(held);
 }
 
-// Every change of the page's scheme or contrast reaches every stage that follows it: the header's picker sets
-// `data-theme` on the root (and follows the system there while it is on "auto"), a live example's switch sets
-// `data-tanrei-contrast`.
+// Every change of the page's scheme or contrast reaches every stage that follows it: the reader's appearance
+// (lib/appearance.ts) sets `data-theme` and `data-tanrei-contrast` on the root (and follows the device's scheme there
+// while the mode is the device's), a live example's switch sets `data-tanrei-contrast`.
 const followPage = () => {
   for (const stage of stageSchemes.values()) drawScheme(stage);
 };
-new MutationObserver(followPage).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-tanrei-contrast'] });
+new MutationObserver(followPage).observe(document.documentElement, { attributes: true, attributeFilter: [THEME_ATTR, CONTRAST_ATTR] });
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', followPage);
 
+// ── Openers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
 /**
- * A stage's own actions, once the frame has drawn its actions (they are written in a template and drawn when the stage
- * comes near the view, lib/example.ts): its scheme, and drawing a window's fixture again.
+ * An opener's action: the fixture is drawn closed, and the action presents it — sets the attribute its stage's data
+ * names (`open`) on its element — and takes it away again. The action shows whether the fixture is presented, however it
+ * was closed (Escape, a press outside it, a choice in its menu). A press of the action turns the fixture from what it
+ * was when the press began: a press while it is open is also a press outside it, which closes it before the action
+ * hears the press, and leaves it closed.
  */
-function actions(stage: HTMLElement, box: HTMLElement) {
-  scheme(stage, box);
-  stage.querySelector('[data-stage-redraw]')?.addEventListener('click', () => {
-    const frame = box.querySelector('iframe');
-    frame?.setAttribute('inert', '');
-    frame?.contentWindow?.location.reload();
+function opener(stage: HTMLElement) {
+  const toggle = stage.querySelector<HTMLElement & { selected?: boolean }>('[data-stage-open]');
+  const presence = toggle?.dataset.stageOpen;
+  const tag = stage.closest<HTMLElement>('[data-fixture-gallery]')?.dataset.fixtureTag;
+  const element = tag ? stage.querySelector(`[data-fixture-scope] > .stage ${tag}`) : null;
+  if (!toggle || !presence || !element) return;
+  const open = () => element.hasAttribute(presence);
+  new MutationObserver(() => toggle.toggleAttribute('selected', open())).observe(element, { attributes: true, attributeFilter: [presence] });
+  // Heard before the fixture's own listeners, which it adds when it opens: these are added first.
+  let openAtPress: boolean | undefined;
+  const pressed = (event: Event) => {
+    if (event.composedPath().includes(toggle)) openAtPress = open();
+  };
+  addEventListener('pointerdown', pressed, true);
+  addEventListener('keydown', pressed, true);
+  toggle.addEventListener('change', () => {
+    const next = !(openAtPress ?? open());
+    openAtPress = undefined;
+    toggle.toggleAttribute('selected', next);
+    element.toggleAttribute(presence, next);
   });
 }
 
-/** The markup of each stage of a gallery drawn in the page, by fixture id (the gallery's data). */
+// ── The stages ───────────────────────────────────────────────────────────────────────────────────────────────────────
+
+/**
+ * A stage's own actions, once the frame has drawn its actions (they are written in a template and drawn when the stage
+ * comes near the view, lib/example.ts): its scheme, opening a fixture drawn closed, and drawing a window's fixture again.
+ */
+function actions(stage: HTMLElement, box: HTMLElement) {
+  scheme(stage, box);
+  if (stage.dataset.stage === 'opener') opener(stage);
+  stage.querySelector('[data-stage-redraw]')?.addEventListener('click', () => {
+    const win = windows.get(box.querySelector('.docs-window') ?? box);
+    if (win) writeWindow(win, true);
+  });
+}
+
+/** The markup of each stage of a gallery, by fixture id (the gallery's data). */
 const drawings = new WeakMap<Element, Record<string, string>>();
 function drawingsOf(gallery: Element): Record<string, string> {
   let found = drawings.get(gallery);
   if (!found) {
-    try {
-      found = JSON.parse(gallery.querySelector(':scope > script[data-fixture-stages]')?.textContent ?? '{}') as Record<string, string>;
-    } catch {
-      found = {};
-    }
+    found = readData<Record<string, string>>(gallery, 'data-fixture-stages') ?? {};
     drawings.set(gallery, found);
   }
   return found;
+}
+
+/** What a gallery's windows write into their documents (the gallery's data). */
+const windowDatas = new WeakMap<Element, WindowData | null>();
+function windowDataOf(gallery: Element): WindowData | undefined {
+  if (!windowDatas.has(gallery)) windowDatas.set(gallery, readData<WindowData>(gallery, 'data-fixture-window') ?? null);
+  return windowDatas.get(gallery) ?? undefined;
+}
+
+function readData<T>(gallery: Element, attribute: string): T | undefined {
+  try {
+    const text = gallery.querySelector(`:scope > script[${attribute}]`)?.textContent;
+    return text ? (JSON.parse(text) as T) : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 type Step = (element: Element, id: string) => unknown;
@@ -314,8 +548,8 @@ for (const stage of document.querySelectorAll<HTMLElement>('.docs-stage[data-dra
   const box = stage.querySelector<HTMLElement>('.docs-stage-box');
   const canvas = stage.querySelector<HTMLElement>('.docs-stage-canvas');
   if (!box || !canvas) continue;
-  const handle = canvas.querySelector<HTMLElement>(':scope > [data-resize-handle]');
-  if (stage.dataset.stage === 'window') windowStage(canvas, handle);
   holdScheme(box);
+  const handle = canvas.querySelector<HTMLElement>(':scope > [data-resize-handle]');
+  if (stage.dataset.stage === 'window') windowStage(stage, box, canvas, handle);
   stage.addEventListener(NEAR_EVENT, () => near(stage), { once: true });
 }

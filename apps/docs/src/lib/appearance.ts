@@ -142,7 +142,7 @@ export function appearanceBootstrap(config: BootConfig): string {
 }
 
 /**
- * The script of a document that stands outside the site's frame (a fixture's window, Theme Studio's page): the scheme
+ * The script of a document that stands outside the site's frame (Theme Studio's page): the scheme
  * the reader forced, and the contrast, on its root as Tanrei's tokens read them. The device's mode writes no scheme:
  * the tokens follow the device there by themselves.
  */
