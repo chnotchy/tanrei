@@ -7959,6 +7959,10 @@
               "name": "clear-button"
             },
             {
+              "description": "The reveal button of a password field, a toggle `<tanrei-button>` (TXI-72).",
+              "name": "reveal-button"
+            },
+            {
               "description": "The chip's native button — with `href`, the anchor in its place: its shape, colors, outline and elevation, and every state of the chip.",
               "name": "entry-container"
             },
@@ -47971,6 +47975,10 @@
               "name": "clear-button"
             },
             {
+              "description": "The reveal button of a password field, a toggle `<tanrei-button>` (TXI-72).",
+              "name": "reveal-button"
+            },
+            {
               "description": "The picker button, a `<tanrei-button>` (TXI-32).",
               "name": "picker-button"
             },
@@ -48222,6 +48230,41 @@
               "default": "''",
               "attribute": "clear-label",
               "description": "The clear button's accessible name, in the product's language (`clear-label`, \"Clear\"). Empty reads the product's words. Required while `clearable` is true."
+            },
+            {
+              "kind": "field",
+              "name": "revealable",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "revealable",
+              "reflects": true,
+              "description": "Draws a reveal button in a password field, which shows the value as plain text and hides it again (TXI-72). Ignored, and reported in debug builds, for every other type. Reflected."
+            },
+            {
+              "kind": "field",
+              "name": "revealed",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "attribute": "revealed",
+              "reflects": true,
+              "description": "Whether a revealable password field shows its value as plain text (TXI-72). The person changes it with the reveal\nbutton (`revealchange`); the product may set it. It goes back to false when the field's form is submitted or reset,\nwhen the type changes and when the field is disabled. Reflected.",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "revealLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "attribute": "reveal-label",
+              "description": "The reveal button's accessible name, in the product's language (`reveal-label`, \"Show password\"): one name for both states, whose pressed state says whether the value is shown. Empty reads the product's words. Required while `revealable` is true."
             },
             {
               "kind": "field",
@@ -48694,6 +48737,13 @@
               "type": {
                 "text": "CustomEvent<TanreiTextInputResizeEndDetail>"
               }
+            },
+            {
+              "description": "The person showed or hid the value of a password field with the reveal button (TXI-72); `revealed` is already the new one. `detail.revealed`. Never fired when the product sets `revealed`, or when the field hides the value itself.",
+              "name": "revealchange",
+              "type": {
+                "text": "CustomEvent<TanreiTextInputRevealChangeDetail>"
+              }
             }
           ],
           "attributes": [
@@ -48873,6 +48923,33 @@
               "default": "''",
               "fieldName": "clearLabel",
               "description": "The clear button's accessible name, in the product's language (`clear-label`, \"Clear\"). Empty reads the product's words. Required while `clearable` is true."
+            },
+            {
+              "name": "revealable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "revealable",
+              "description": "Draws a reveal button in a password field, which shows the value as plain text and hides it again (TXI-72). Ignored, and reported in debug builds, for every other type. Reflected."
+            },
+            {
+              "name": "revealed",
+              "type": {
+                "text": "boolean"
+              },
+              "fieldName": "revealed",
+              "description": "Whether a revealable password field shows its value as plain text (TXI-72). The person changes it with the reveal\nbutton (`revealchange`); the product may set it. It goes back to false when the field's form is submitted or reset,\nwhen the type changes and when the field is disabled. Reflected.",
+              "default": "false"
+            },
+            {
+              "name": "reveal-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "fieldName": "revealLabel",
+              "description": "The reveal button's accessible name, in the product's language (`reveal-label`, \"Show password\"): one name for both states, whose pressed state says whether the value is shown. Empty reads the product's words. Required while `revealable` is true."
             },
             {
               "name": "multiline",
@@ -49157,6 +49234,14 @@
           "name": "TanreiTextInputResizeEndDetail",
           "declaration": {
             "name": "TanreiTextInputResizeEndDetail",
+            "module": "src/components/text-field/text-field.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "TanreiTextInputRevealChangeDetail",
+          "declaration": {
+            "name": "TanreiTextInputRevealChangeDetail",
             "module": "src/components/text-field/text-field.ts"
           }
         },
@@ -50012,6 +50097,10 @@
               "name": "clear-button"
             },
             {
+              "description": "The reveal button of a password field, a toggle `<tanrei-button>` (TXI-72).",
+              "name": "reveal-button"
+            },
+            {
               "description": "The picker button, a `<tanrei-button>` (TXI-32).",
               "name": "picker-button"
             },
@@ -50191,6 +50280,41 @@
               "default": "''",
               "description": "The clear button's accessible name, in the product's language (`clear-label`, \"Clear\"). Empty reads the product's words. Required while `clearable` is true.",
               "attribute": "clear-label"
+            },
+            {
+              "kind": "field",
+              "name": "revealable",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws a reveal button in a password field, which shows the value as plain text and hides it again (TXI-72). Ignored, and reported in debug builds, for every other type. Reflected.",
+              "attribute": "revealable",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "revealed",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether a revealable password field shows its value as plain text (TXI-72). The person changes it with the reveal\nbutton (`revealchange`); the product may set it. It goes back to false when the field's form is submitted or reset,\nwhen the type changes and when the field is disabled. Reflected.",
+              "attribute": "revealed",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "revealLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The reveal button's accessible name, in the product's language (`reveal-label`, \"Show password\"): one name for both states, whose pressed state says whether the value is shown. Empty reads the product's words. Required while `revealable` is true.",
+              "attribute": "reveal-label"
             },
             {
               "kind": "field",
@@ -50600,6 +50724,13 @@
               "description": "The person finished changing the size of a field resized by hand: a drag of its handle ended, or a key or an activation of the handle changed it (TXI-69). `detail.lines` and `detail.width`."
             },
             {
+              "name": "revealchange",
+              "type": {
+                "text": "CustomEvent<TanreiTextInputRevealChangeDetail>"
+              },
+              "description": "The person showed or hid the value of a password field with the reveal button (TXI-72); `revealed` is already the new one. `detail.revealed`. Never fired when the product sets `revealed`, or when the field hides the value itself."
+            },
+            {
               "type": {
                 "text": "CustomEvent<TanreiTextInputActionDetail>"
               },
@@ -50721,6 +50852,33 @@
               "default": "''",
               "description": "The clear button's accessible name, in the product's language (`clear-label`, \"Clear\"). Empty reads the product's words. Required while `clearable` is true.",
               "fieldName": "clearLabel"
+            },
+            {
+              "name": "revealable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws a reveal button in a password field, which shows the value as plain text and hides it again (TXI-72). Ignored, and reported in debug builds, for every other type. Reflected.",
+              "fieldName": "revealable"
+            },
+            {
+              "name": "revealed",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether a revealable password field shows its value as plain text (TXI-72). The person changes it with the reveal\nbutton (`revealchange`); the product may set it. It goes back to false when the field's form is submitted or reset,\nwhen the type changes and when the field is disabled. Reflected.",
+              "fieldName": "revealed"
+            },
+            {
+              "name": "reveal-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The reveal button's accessible name, in the product's language (`reveal-label`, \"Show password\"): one name for both states, whose pressed state says whether the value is shown. Empty reads the product's words. Required while `revealable` is true.",
+              "fieldName": "revealLabel"
             },
             {
               "name": "multiline",

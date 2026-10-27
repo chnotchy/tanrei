@@ -2,7 +2,7 @@
 title: "文本字段"
 description: "让用户输入和编辑文本——单行，或者随文本增高、可手动调整大小的多行——也可以按区域设置的格式逐个单位地输入日期或时间，或者输入代码并按写下的样子原样保存；它带有可以说明必填或选填的标签，以及可选的图标、前缀和后缀、辅助文本、字符计数和选择器按钮。"
 translationOf: components/text-field.mdx
-sourceHash: 9e1db5f3c000d955335f755eb7580a884097fce4
+sourceHash: 46c9e9ee51271a92fbae0ec4352c853a0b237635
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -324,7 +324,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 - 这个元素是一个块，会填满所在的地方，而不是一个和浏览器自己的文本输入框一样宽的行内方框。
 - 这个元素是与表单关联的元素。它接受 `name` 和 `form`，提交它的值——禁用时什么都不提交——重置为 `value` 属性（attribute）的值，在导航时恢复，跟随被禁用的 `<fieldset>`；设置了 `required` 而它为空时，报告缺少值。它的两个成员不向表单添加任何条目。在单行的字段里按 Enter 会按下元素所在表单的默认按钮；取消 `action` 可以阻止这一点。
 - `input`、`change`、`action`、`pickerrequest` 和 `entryerror` 是文本输入框自己的事件。它们的目标是这个元素，在每个监听器里 `event.target.value` 都是新的值。detail 的类型是输入框的：`TanreiTextInputActionDetail`、`TanreiTextInputPickerRequestDetail` 和 `TanreiTextInputEntryErrorDetail`。
-- 部件：`field` 和 `text-input` 是两个成员。成员自己的部件在这里的名称与下一层相同：`label-icon`、`supporting-text`、`counter`；`container`、`outline`、`active-indicator`、`input`、`segment`、`prefix`、`suffix`、`leading-icon`、`trailing-icon`、`clear-button`、`picker-button`、`resize-handle`。`label` 和 `requirement-label` 是画出来的那一个，无论由哪个成员绘制；`field-label`、`text-input-label`、`field-requirement-label` 和 `text-input-requirement-label` 指的是某一个成员的。
+- 部件：`field` 和 `text-input` 是两个成员。成员自己的部件在这里的名称与下一层相同：`label-icon`、`supporting-text`、`counter`；`container`、`outline`、`active-indicator`、`input`、`segment`、`prefix`、`suffix`、`leading-icon`、`trailing-icon`、`clear-button`、`reveal-button`、`picker-button`、`resize-handle`。`label` 和 `requirement-label` 是画出来的那一个，无论由哪个成员绘制；`field-label`、`text-input-label`、`field-requirement-label` 和 `text-input-requirement-label` 指的是某一个成员的。
 - 这个元素自己不能获得焦点，也没有角色：`focus()` 会把焦点交给输入框。按标签行、方框或浮动标签，都会让输入框获得焦点。按帮助文本、错误文本、计数，或者某一行与方框之间的空隙，什么都不会发生。
 - 用 `label` 为它命名——不该绘制标签的地方再加上 `label-hidden`——绝不要用 `aria-label`，它在这里不为任何东西命名。
 - 属性（attribute）就是成员自己的那些：用 kebab-case 书写，例如 `supporting-text`、`error-text`、`min-rows` 和 `no-wrap`，只有 `readonly`、`maxlength`、`autocomplete`、`min` 和 `max` 例外。没有 `required` 属性（attribute）：请写 `required`。

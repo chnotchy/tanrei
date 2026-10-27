@@ -2,7 +2,7 @@
 title: テキスト入力欄
 description: 文字を入力するボックスと、その中で入力するものすべてです。1 行または複数行のテキスト、日付や時刻、コードを扱います。ラベルの行、補足、エラーテキストは自分では持ちません。ラベルがほかの場所にあるところや、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/text-input.mdx
-sourceHash: abdba7da8588ca765f8420914ded04a0158c1448
+sourceHash: 6c87fdde2d1e13f7175a5ac8376dff69aa18a85d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -182,6 +182,16 @@ Web では `<tanrei-text-input>` です。ほかのプラットフォームは�
   </tanrei-text-input>
 </Example>
 
+### パスワードを表示する
+
+`revealable` を付けると、パスワードの入力欄は末尾に表示ボタンを描きます。消去ボタンがあるときはそのあとです。押すと値をふつうのテキストとして表示するので、2 回入力させなくても、入力した内容を確かめられます。もう一度押すと、また隠します。値、キャレット、選択範囲はそのままで、`input` も `change` も出さず、フォーカスも動きません。押したときは入力欄に、Enter や Space のときはボタンに残ります。トグルボタンであり、送信ボタンには決してなりません。値が表示されているかどうかは `revealed` が表し、人が切り替えたことは `revealChange` で伝えます。表示した値は、フォームの送信やリセット、種類の変更、入力欄の無効化で、また隠れます。
+
+ボタンには `revealLabel` で名前を付けるか（「パスワードを表示」）、プロダクト全体で一度だけ `setWords({ revealLabel })` で付けます。名前は 2 つの状態で同じです。値が表示されているかどうかは、押された状態が表します。
+
+<Example label="確かめられるパスワード" column>
+  <tanrei-text-input class="not-content" type="password" label="パスワード" value="correct horse" revealable reveal-label="パスワードを表示" autocomplete="current-password"></tanrei-text-input>
+</Example>
+
 <ComponentSpecs name="text-input" />
 
 ### Web での描き方の違い
@@ -192,7 +202,8 @@ Web では `<tanrei-text-input>` です。ほかのプラットフォームは�
 - `input` と `change` は composed なイベントです。`action` はキャンセルできる CustomEvent で、キャンセルすると Enter でフォームが送信されません。`pickerrequest` と `entryerror` は、`detail` に `{ value, type, min, max }` と `{ reason, text }` を持つ CustomEvent です。型は `TanreiTextInputActionDetail`、`TanreiTextInputPickerRequestDetail`、`TanreiTextInputEntryErrorDetail` です。
 - `countText` は読み取り専用のプロパティで、値が変わるたびに新しくなります。属性はありません。
 - 属性はケバブケースです。`label-hidden`、`min-rows`、`prefix-text` などで、`no-wrap` は `wrap` を false にしたものです。`readonly`、`maxlength`、`autocomplete`、`min`、`max` は HTML の名前のままです。
-- パーツ: `container`、`outline`、`active-indicator`、`label`、`requirement-label`、`input`、`entries`、`segment`、`prefix`、`suffix`、`leading-icon`、`trailing-icon`、`clear-button`、`picker-button`、`resize-handle`。
+- パーツ: `container`、`outline`、`active-indicator`、`label`、`requirement-label`、`input`、`entries`、`segment`、`prefix`、`suffix`、`leading-icon`、`trailing-icon`、`clear-button`、`reveal-button`、`picker-button`、`resize-handle`。
+- 表示ボタンはトグルの `<tanrei-button>` です。値を表示しているあいだ、ネイティブの `<input>` は `type="text"` になり、パスワード欄のほかの属性はそのまま残ります。`revealchange` は `detail` に `{ revealed }` を持つ CustomEvent で、型は `TanreiTextInputRevealChangeDetail` です。`reveal-label` を空のままにすると、プロダクトの言葉（`setWords({ revealLabel })`）から読みます。
 - `clear-label` を空のままにすると、プロダクトの言葉（`setWords({ clearLabel })`）から読みます。
 - スロット: `leading-icon`、`trailing-icon`、`entries`。末尾のアイコンには、自前のアイコンだけのボタンを置けます。`entries` のパーツは自分のボックスを持ちません。置いたものは、ボックスの行にそのまま並びます。
 - `resize-label` と `segment-empty-text` を空のままにすると、プロダクトの言葉（`setWords()`）から読みます。
@@ -247,3 +258,4 @@ Web では `<tanrei-text-input>` です。ほかのプラットフォームは�
 - 日付や時刻では `segmentEmptyText` を渡し、フィールドが表示しない場合でも `invalidText` と `unavailableText` を書きます。入力欄と一緒に読み上げられます。
 - サイズ変更のハンドルには `resizeLabel` で、ピッカーボタンには `pickerLabel` で名前を付けます。
 - 消去できる入力欄には、何を消去するのかを言う `clearLabel` を付けます（「フィルターを消去」）。
+- 表示できるパスワードの入力欄には `revealLabel` を付け（「パスワードを表示」）、`autocomplete` のヒント（`current-password`、`new-password`）も残します。
