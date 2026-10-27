@@ -114,6 +114,16 @@ const measures = (page) =>
 
 const overlaps = (a, b) => a.left < b.right - NEAR && b.left < a.right - NEAR && a.top < b.bottom - NEAR && b.top < a.bottom - NEAR;
 
+/** Chooses a look in the header's Appearance panel, as a reader does, and closes the panel. */
+async function chooseLook(page, id) {
+  const panel = page.locator('tanrei-popover[anchor="docs-appearance"]');
+  if (!(await panel.evaluate((popover) => popover.open))) await page.locator('#docs-appearance').click();
+  await page.waitForFunction(() => document.querySelector('tanrei-popover[anchor="docs-appearance"]')?.open === true);
+  await panel.locator(`tanrei-list-item[value="${id}"]`).click();
+  await page.keyboard.press('Escape');
+  await page.waitForFunction(() => document.querySelector('tanrei-popover[anchor="docs-appearance"]')?.open === false);
+}
+
 for (const engine of ENGINES) {
   describe(`the anatomy and measure figures in ${engine}`, () => {
     let browser;
@@ -195,10 +205,10 @@ for (const engine of ENGINES) {
     test('under a preset chosen in the header, the lines are drawn again with that system’s values', async () => {
       const { context, page } = await open();
       await drawn(page, MEASURE);
-      const presets = await page.locator('tanrei-menu[anchor="docs-system"] tanrei-menu-radio-item').evaluateAll((all) => all.map((item) => item.getAttribute('value')).slice(1));
+      const presets = await page.locator('tanrei-popover[anchor="docs-appearance"] tanrei-list-item').evaluateAll((all) => all.map((item) => item.getAttribute('value')).slice(1));
+      assert.ok(presets.length > 0, 'a preset is shipped');
       const [preset] = presets;
-      await page.locator('#docs-system').click();
-      await page.locator(`tanrei-menu[anchor="docs-system"] tanrei-menu-radio-item[value="${preset}"]`).click();
+      await chooseLook(page, preset);
       await page.waitForFunction(({ selector, preset }) => document.querySelector(selector).querySelector('[data-example-stage]').getAttribute('data-tanrei-system') === preset, { selector: MEASURE, preset });
       await drawn(page, MEASURE);
       await page.waitForFunction((selector) => !document.querySelector(selector).querySelector('[data-example-overlay][data-drawing]'), MEASURE);

@@ -8,6 +8,7 @@ sourceHash: 647f155f3ba16d1377c26d7daac2a6ebdad810e4
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
+import InstallCommand from '../../../../components/InstallCommand.astro';
 
 产品的外观改变时，Tanrei 的组件从不改变。改变的是一个**层**：一个小型 JSON 文件，它为共享词汇设定值，并声明你的调色板。`@tanrei/cli` 把这一个文件变成各平台所需的一切。
 
@@ -19,9 +20,7 @@ import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 把命令行工具作为开发依赖添加到你的产品中；本页上的每一条 `npx tanrei …` 命令运行的都是它。它带有 `tanrei studio` 所提供的 Theme Studio。
 
-```sh
-npm install --save-dev @tanrei/cli
-```
+<InstallCommand packages="cli" dev />
 
 MCP 服务器无需安装：代理启动它时，`npx` 会取来 `@tanrei/mcp`，注册方法见本页后文。
 

@@ -1,0 +1,121 @@
+---
+// The reader's appearance as the header offers it (lib/appearance.ts holds the choice): a text Button that says the
+// look and opens the Appearance panel — Tanrei's Popover, which a compact window presents as a bottom sheet (POP-39).
+// The button stands beside the brand, in the app bar's context (Header.astro), and in a compact window first in the
+// drawer's list (Sidebar.astro), where the bar has no room for it; each has its own panel, written beside it, because a
+// panel opened from inside the modal drawer must be inside it. Every panel says the same: the script below writes what
+// is shown into each of them, and each choice made in one is the appearance's.
+//
+// The panel, top to bottom:
+//   Color mode   Tanrei's Tabs without panels (a choice of several values, TAB-1): the device's, light, dark
+//   Contrast     the same: standard, medium, high
+//   Design system  Tanrei's List with one choice: the default system, then each showcase system (an imitation of
+//                another design system, made to show what Tanrei can take on; its name from its components manifest),
+//                each with three dots of its own colors (its primary, secondary container and a surface, from the
+//                resolved tokens, in light and in dark), and a line that says what a showcase system is
+//   the actions  Theme Studio's link ("Edit theme"), and a copy of a link to this page as it looks now
+//                (`?look=&mode=&contrast=`), said in a Snackbar
+// The quick switch between light and dark is the bar's own toggle (Header.astro); the device's mode is chosen here.
+//
+// A button and its panel are two parts, written apart: the bar draws only its slots, so the panel stands outside it.
+import { manifests } from '../../lib/repo';
+import { localeBase, strings } from '../../lib/i18n';
+import { colorCss, ns, tokensIn } from '../../lib/tokens';
+
+interface Props {
+  /** The button's id, which its panel is anchored to. */
+  id: string;
+  /** Which part is written here. */
+  part: 'button' | 'panel';
+  /** The button's slot in the element it is a child of. */
+  slot?: string;
+}
+const { id, part, slot } = Astro.props;
+const t = strings(Astro.locals.starlightRoute.lang);
+const words = t.frame;
+// The default system: the first of the manifests (lib/repo.ts puts the configuration's namespace first). The head's
+// script names the reader's look on the root before the first paint; the header's script writes it here.
+const look = manifests[0]?.system ?? '';
+const studio = `${localeBase(Astro)}/foundations/theme-studio/`;
+
+/** A system's color for a role, in the scheme the page draws: its light and its dark value (`light-dark()`). */
+const roleColor = (system: string, role: string) => {
+  const [light] = tokensIn(`${ns}.sys.color.${role}`, 'light', system);
+  const [dark] = tokensIn(`${ns}.sys.color.${role}`, 'dark', system);
+  return `light-dark(${colorCss(light?.value)}, ${colorCss(dark?.value)})`;
+};
+const ROLES = ['primary', 'secondary-container', 'surface-container-highest'];
+const looks = manifests.map((manifest, index) => ({
+  id: manifest.system,
+  supporting: index === 0 ? words.lookDefault : `${words.showcase} · ${manifest.name}`,
+  colors: ROLES.map((role) => roleColor(manifest.system, role)),
+}));
+const ids = { mode: `${id}-mode`, contrast: `${id}-contrast`, look: `${id}-look` };
+---
+
+{
+  part === 'button' ? (
+    <tanrei-button slot={slot} id={id} class="docs-look" variant="text" label={words.appearanceOf.replace('{look}', look)} data-label={words.appearanceOf} translate="no">
+      <span slot="icon" data-pagefind-ignore>palette</span>
+      <span class="docs-look-name">{look}</span>
+    </tanrei-button>
+  ) : (
+    <tanrei-popover class="docs-appearance-panel" data-define-on-use anchor={id} placement="bottom-start" headline={words.appearance} closable close-label={words.close} data-docs-looks={looks.map((each) => each.id).join(' ')} data-copied={words.linkCopied} data-copy-failed={words.copyFailed}>
+      <div class="docs-appearance-body">
+        <p class="docs-appearance-heading" id={ids.mode}>{words.mode}</p>
+        <tanrei-tabs class="docs-appearance-mode" label={words.mode} value="system" size="small" full-width>
+          <tanrei-tab value="system" label={words.modeAuto} icon="computer" />
+          <tanrei-tab value="light" label={t.light} icon="light_mode" />
+          <tanrei-tab value="dark" label={t.dark} icon="dark_mode" />
+        </tanrei-tabs>
+        <p class="docs-appearance-heading" id={ids.contrast}>{t.contrast}</p>
+        <tanrei-tabs class="docs-appearance-contrast" label={t.contrast} value="standard" size="small" full-width>
+          <tanrei-tab value="standard" label={t.contrastStandard} />
+          <tanrei-tab value="medium" label={t.contrastMedium} />
+          <tanrei-tab value="high" label={t.contrastHigh} />
+        </tanrei-tabs>
+        <p class="docs-appearance-heading" id={ids.look}>{t.system.choice}</p>
+        <tanrei-list class="docs-appearance-look" selection="single" label={t.system.choice} value={look} density="compact">
+          {looks.map((each) => (
+            <tanrei-list-item value={each.id} label={each.id}>
+              <tanrei-list-row headline={each.id} supporting-text={each.supporting} supporting-lines="2" translate="no">
+                <span slot="leading" class="docs-look-colors" aria-hidden="true">
+                  {each.colors.map((color) => <tanrei-swatch color={color} size="small" shape="circle" label-hidden decorative />)}
+                </span>
+              </tanrei-list-row>
+            </tanrei-list-item>
+          ))}
+        </tanrei-list>
+        <p class="docs-appearance-note">{words.showcaseNote}</p>
+      </div>
+      <tanrei-button slot="actions" variant="text" class="docs-appearance-copy" label={words.copyLink}>{words.copyLink}</tanrei-button>
+      <tanrei-button slot="actions" variant="text" href={studio}>{words.editTheme}</tanrei-button>
+    </tanrei-popover>
+  )
+}
+
+<style>
+  .docs-appearance-body {
+    display: grid;
+    gap: var(--tanrei-sys-space-space100);
+  }
+  .docs-appearance-heading {
+    margin: var(--tanrei-sys-space-space100) 0 0;
+    font: var(--tanrei-sys-typescale-label-font);
+    letter-spacing: var(--tanrei-sys-typescale-label-letter-spacing);
+    color: var(--tanrei-sys-color-on-surface-variant);
+  }
+  .docs-appearance-heading:first-child {
+    margin-block-start: 0;
+  }
+  .docs-appearance-note {
+    margin: 0;
+    font: var(--tanrei-sys-typescale-body-small-font);
+    letter-spacing: var(--tanrei-sys-typescale-body-small-letter-spacing);
+    color: var(--tanrei-sys-color-on-surface-variant);
+  }
+  .docs-look-colors {
+    display: inline-flex;
+    gap: var(--tanrei-sys-space-space25);
+  }
+</style>

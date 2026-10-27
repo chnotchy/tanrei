@@ -5,6 +5,7 @@ description: Typed React components generated from Tanrei's Web Components.
 
 import Callout from '../../../components/Callout.astro';
 import ReleaseNotice from '../../../components/ReleaseNotice.astro';
+import InstallCommand from '../../../components/InstallCommand.astro';
 
 `@tanrei/react` wraps each custom element from `@tanrei/web` in a real React component with typed props and event handlers. The wrappers are generated from the custom elements manifest, so they always match the elements they wrap.
 
@@ -16,9 +17,7 @@ React 18 or later is required.
 
 ### From npm
 
-```sh
-npm install @tanrei/react @tanrei/web
-```
+<InstallCommand packages="react web" />
 
 ### From source
 

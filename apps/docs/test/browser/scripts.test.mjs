@@ -27,10 +27,11 @@ if (!fs.existsSync(path.join(dist, 'index.html'))) throw new Error('apps/docs/di
 const HOME_SCRIPT_BUDGET = 185 * 1024;
 
 // Pages of each kind: the home page, a component's page in two languages (a demo of every state, its fixtures'
-// gallery), a token page, a page that sets the product's words, and the fixtures' window of a component that draws
-// an element it does not import in its shadow root (the Text input's picker is a Button) on a page without the site's
-// frame, whose own scripts define the Button everywhere else.
-const PAGES = ['/', '/components/button/', '/ja/components/button/', '/components/text-input/', '/tokens/color/', '/foundations/words/', '/fixtures/text-input/'];
+// gallery), a component's page whose picker draws an element it does not import in its shadow root (the Text input's
+// picker is a Button), a token page and a page that sets the product's words. The documents of the fixtures' windows,
+// which stand without the site's frame and its scripts, are asked of separately.
+const PAGES = ['/', '/components/button/', '/ja/components/button/', '/components/text-input/', '/tokens/color/', '/foundations/words/'];
+
 
 // ── A static host ────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -99,21 +100,22 @@ describe('a built page’s scripts', { concurrency: 2 }, () => {
       const { context, page, errors } = await open(url);
       try {
         // The modules a page asks for are all in once it is quiet; an element is upgraded when its module is evaluated.
-        // An element defined on its first use (`data-define-on-use`: the search) is left undefined until then
+        // An element defined on its first use (`data-define-on-use`: the search, the Appearance panel), and what it holds,
+        // is left undefined until then
         // (test/browser/search-on-use.test.mjs). A frame's stage defines what it holds once it comes near the view
         // (components/visuals/Example.astro): every one is let go here, as if the reader had scrolled the page through.
         await page.evaluate(() => {
           for (const stage of document.querySelectorAll('[data-example-pending]')) stage.removeAttribute('data-example-pending');
         });
         await page.waitForFunction(() => {
-          const undefinedIn = (root) => [...root.querySelectorAll('*')].some((el) => (el.localName.startsWith('tanrei-') && !el.matches(':defined') && !el.hasAttribute('data-define-on-use')) || (el.shadowRoot && undefinedIn(el.shadowRoot)));
+          const undefinedIn = (root) => [...root.querySelectorAll('*')].some((el) => (el.localName.startsWith('tanrei-') && !el.matches(':defined') && !el.closest('[data-define-on-use]')) || (el.shadowRoot && undefinedIn(el.shadowRoot)));
           return !undefinedIn(document);
         }, null, { timeout: 10_000 }).catch(() => {});
         const left = await page.evaluate(() => {
           const out = new Set();
           const visit = (root, where) => {
             for (const el of root.querySelectorAll('*')) {
-              if (el.localName.startsWith('tanrei-') && !el.matches(':defined') && !el.hasAttribute('data-define-on-use')) out.add(`${el.localName} (${where})`);
+              if (el.localName.startsWith('tanrei-') && !el.matches(':defined') && !el.closest('[data-define-on-use]')) out.add(`${el.localName} (${where})`);
               if (el.shadowRoot) visit(el.shadowRoot, `in the shadow root of ${el.localName}`);
             }
           };
@@ -127,4 +129,30 @@ describe('a built page’s scripts', { concurrency: 2 }, () => {
       }
     });
   }
+
+  // A window's document runs one module (lib/fixture-window.ts), which defines what the window draws: a date-time
+  // picker's window holds Buttons in its shadow root that its fixture does not write.
+  test('a window of the fixtures’ gallery defines every element it draws, in its document and in every shadow root', async () => {
+    const { context, page, errors } = await open('/components/date-time-picker/');
+    try {
+      const frame = page.locator('iframe.docs-window-frame').first();
+      await frame.scrollIntoViewIfNeeded();
+      await page.waitForFunction((element) => element.contentDocument?.querySelector('body > .stages > .stage') && !element.hasAttribute('inert'), await frame.elementHandle(), { timeout: 15_000 });
+      const left = await frame.evaluate((element) => {
+        const out = new Set();
+        const visit = (node, where) => {
+          for (const el of node.querySelectorAll('*')) {
+            if (el.localName.startsWith('tanrei-') && !el.matches(':defined')) out.add(`${el.localName} (${where})`);
+            if (el.shadowRoot) visit(el.shadowRoot, `in the shadow root of ${el.localName}`);
+          }
+        };
+        visit(element.contentDocument, 'in the document');
+        return [...out];
+      });
+      assert.deepEqual(left, [], 'elements left undefined in the window');
+      assert.deepEqual(errors, [], 'errors the page threw');
+    } finally {
+      await context.close();
+    }
+  });
 });
