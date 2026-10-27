@@ -28,6 +28,7 @@ import {
   closeRequestReason,
   compChoice,
   compareDates,
+  containedWheel,
   deepActive,
   deviceTime,
   headerDateText,
@@ -2938,7 +2939,7 @@ export class TanreiDateTimePicker extends TanreiElement {
     const error = this.session && this.rangeError;
     const content = this.session
       ? html`${this.renderHeader()}
-          <div class="body">${this.hasDate ? this.renderCalendar() : nothing}${this.hasTime ? this.renderTime() : nothing}</div>
+          <div class="body" @wheel=${containedWheel}>${this.hasDate ? this.renderCalendar() : nothing}${this.hasTime ? this.renderTime() : nothing}</div>
           ${error ? html`<div part="error" class="error" id="range-error">${this.say.rangeErrorText || HOLDS_A_LINE}</div>` : nothing} ${this.renderActions()}`
       : nothing;
     const extras = html`<span class="hold" aria-hidden="true"></span><div class="announce" aria-live="polite"></div>`;
