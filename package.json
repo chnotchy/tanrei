@@ -5,7 +5,7 @@
   "description": "Tanrei — a cross-platform design system (Web Components, SwiftUI, Jetpack Compose, Flutter, React Native).",
   "license": "Apache-2.0",
   "type": "module",
-  "packageManager": "pnpm@12.4.2",
+  "packageManager": "pnpm@12.16.1",
   "engines": {
     "node": ">=22.22.0"
   },
