@@ -92,6 +92,7 @@ export const englishWords: Readonly<Required<TanreiWords>> = {
   requiredText: "Required",
   resizeLabel: "Resize",
   retryLabel: "Retry {name}",
+  revealLabel: "Show password",
   segmentEmptyText: "Empty",
   selectAllLabel: "Select all rows",
   sendLabel: "Send",

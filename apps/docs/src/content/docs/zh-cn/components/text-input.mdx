@@ -2,7 +2,7 @@
 title: "文本输入框"
 description: "用户在里面键入的那个方框，以及在里面键入的一切——单行或多行、日期或时间、代码——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的地方，或者放进产品自己组合的字段里。"
 translationOf: components/text-input.mdx
-sourceHash: abdba7da8588ca765f8420914ded04a0158c1448
+sourceHash: 6c87fdde2d1e13f7175a5ac8376dff69aa18a85d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -182,6 +182,16 @@ import Example from '../../../../components/visuals/Example.astro';
   </tanrei-text-input>
 </Example>
 
+### 显示密码
+
+设置 `revealable` 后，密码输入框会在末尾画出显示按钮；有清除按钮时，排在它之后。按下它会把值显示为普通文字，这样人们不必输入两遍，也能核对自己输入的内容；再按一次又会隐藏。值、光标和选区都保持不变，不发出 `input` 和 `change`，焦点也不移动：按下时焦点留在输入框里，用 Enter 或 Space 时焦点留在按钮上。它是一个切换按钮，绝不会成为提交按钮。`revealed` 表示值是否显示，`revealChange` 告诉你人们切换了它。表单提交或重置、类型改变、输入框被禁用时，显示的值会重新隐藏。
+
+用 `revealLabel` 为按钮命名（“显示密码”），或者用 `setWords({ revealLabel })` 为整个产品命名一次。两种状态下名称相同：值是否显示由按下状态表示。
+
+<Example label="可以核对的密码" column>
+  <tanrei-text-input class="not-content" type="password" label="密码" value="correct horse" revealable reveal-label="显示密码" autocomplete="current-password"></tanrei-text-input>
+</Example>
+
 <ComponentSpecs name="text-input" />
 
 ### Web 上绘制方式的不同之处
@@ -192,7 +202,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - `input` 和 `change` 是 composed 事件。`action` 是可以取消的 CustomEvent：取消它，Enter 就不会提交表单。`pickerrequest` 和 `entryerror` 是 CustomEvent，它们的 `detail` 分别是 `{ value, type, min, max }` 和 `{ reason, text }`。它们的类型是 `TanreiTextInputActionDetail`、`TanreiTextInputPickerRequestDetail` 和 `TanreiTextInputEntryErrorDetail`。
 - `countText` 是只读属性，值每次变化之后都是新的。它没有对应的属性（attribute）。
 - 属性（attribute）用 kebab-case 书写，例如 `label-hidden`、`min-rows`、`prefix-text`，以及表示 `wrap` 为 false 的 `no-wrap`。`readonly`、`maxlength`、`autocomplete`、`min` 和 `max` 沿用 HTML 的名称。
-- 部件：`container`、`outline`、`active-indicator`、`label`、`requirement-label`、`input`、`entries`、`segment`、`prefix`、`suffix`、`leading-icon`、`trailing-icon`、`clear-button`、`picker-button`、`resize-handle`。
+- 部件：`container`、`outline`、`active-indicator`、`label`、`requirement-label`、`input`、`entries`、`segment`、`prefix`、`suffix`、`leading-icon`、`trailing-icon`、`clear-button`、`reveal-button`、`picker-button`、`resize-handle`。
+- 显示按钮是一个切换的 `<tanrei-button>`。值显示时，原生 `<input>` 是 `type="text"`，并保留密码字段的其他属性。`revealchange` 是 `detail` 带有 `{ revealed }` 的 CustomEvent，类型为 `TanreiTextInputRevealChangeDetail`。`reveal-label` 留空时，从产品的文字里读取（`setWords({ revealLabel })`）。
 - `clear-label` 留空时，从产品的文字里读取（`setWords({ clearLabel })`）。
 - 插槽：`leading-icon`、`trailing-icon` 和 `entries`。后置图标可以是你自己的纯图标 Button。`entries` 部件没有自己的方框：它里面的项就排在方框自己的各行里。
 - `resize-label` 和 `segment-empty-text` 留空时，从产品的文字里读取（`setWords()`）。
@@ -247,3 +258,4 @@ import Example from '../../../../components/visuals/Example.astro';
 - 对日期或时间，给出 `segmentEmptyText`，并且即使没有字段显示它们，也要写上 `invalidText` 和 `unavailableText`：它们会随输入框一起朗读。
 - 用 `resizeLabel` 为调整手柄命名，用 `pickerLabel` 为选择器按钮命名。
 - 给可清除的输入框一个说明清除什么的 `clearLabel`（“清除筛选”）。
+- 给可显示的密码输入框一个 `revealLabel`（“显示密码”），并保留它的 `autocomplete` 提示（`current-password`、`new-password`）。

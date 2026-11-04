@@ -2,7 +2,7 @@
 title: Entrada de texto
 description: La caja en la que se escribe, y todo lo que se escribe en ella (una línea o varias, una fecha o una hora, código), sin fila de etiqueta, ayuda ni texto de error propios. Para un lugar cuya etiqueta está en otra parte, o dentro de un campo que el producto compone por su cuenta.
 translationOf: components/text-input.mdx
-sourceHash: abdba7da8588ca765f8420914ded04a0158c1448
+sourceHash: 6c87fdde2d1e13f7175a5ac8376dff69aa18a85d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -182,6 +182,16 @@ El botón de borrar va después de la entrada y de un botón tuyo en el slot `tr
   </tanrei-text-input>
 </Example>
 
+### Mostrar la contraseña
+
+Con `revealable`, una entrada de contraseña dibuja un botón de mostrar al final, después del botón de borrar si lo hay. Al pulsarlo muestra el valor como texto normal, para que se pueda comprobar lo escrito sin escribirlo dos veces, y otra pulsación lo vuelve a ocultar. El valor, el cursor y la selección siguen como estaban, no se emite `input` ni `change`, y el foco no se mueve: una pulsación lo deja en la entrada, y Enter o Espacio lo dejan en el botón. Es un botón de alternar, nunca un botón de envío. `revealed` dice si el valor se muestra, y `revealChange` te avisa cuando la persona lo cambia. Un valor mostrado se oculta de nuevo cuando su formulario se envía o se restablece, cuando cambia el tipo y cuando la entrada se deshabilita.
+
+Dale nombre al botón con `revealLabel` («Mostrar contraseña»), o una sola vez para todo el producto con `setWords({ revealLabel })`. Tiene un solo nombre en los dos estados: su estado pulsado dice si el valor se muestra.
+
+<Example label="Una contraseña que se puede comprobar" column>
+  <tanrei-text-input class="not-content" type="password" label="Contraseña" value="correct horse" revealable reveal-label="Mostrar contraseña" autocomplete="current-password"></tanrei-text-input>
+</Example>
+
 <ComponentSpecs name="text-input" />
 
 ### Qué dibuja la web de otra manera
@@ -192,7 +202,8 @@ El botón de borrar va después de la entrada y de un botón tuyo en el slot `tr
 - `input` y `change` son eventos compuestos. `action` es un CustomEvent cancelable: cancélalo para que Enter no envíe el formulario. `pickerrequest` y `entryerror` son CustomEvents cuyo `detail` contiene `{ value, type, min, max }` y `{ reason, text }`. Sus tipos son `TanreiTextInputActionDetail`, `TanreiTextInputPickerRequestDetail` y `TanreiTextInputEntryErrorDetail`.
 - `countText` es una propiedad de solo lectura, nueva después de cada cambio del valor. No tiene atributo.
 - Los atributos van en kebab-case, como `label-hidden`, `min-rows`, `prefix-text` y `no-wrap`, que es `wrap` puesto en false. `readonly`, `maxlength`, `autocomplete`, `min` y `max` conservan los nombres de HTML.
-- Partes: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `entries`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `clear-button`, `picker-button`, `resize-handle`.
+- Partes: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `entries`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `clear-button`, `reveal-button`, `picker-button`, `resize-handle`.
+- El botón de mostrar es un `<tanrei-button>` de alternar. Mientras el valor se muestra, el `<input>` nativo es `type="text"` y conserva los demás atributos del campo de contraseña. `revealchange` es un CustomEvent cuyo `detail` contiene `{ revealed }`; su tipo es `TanreiTextInputRevealChangeDetail`. `reveal-label`, si se deja vacío, se lee de los textos del producto (`setWords({ revealLabel })`).
 - `clear-label`, si se deja vacío, se lee de los textos del producto (`setWords({ clearLabel })`).
 - Slots: `leading-icon`, `trailing-icon` y `entries`. Un icono final puede ser tu propio Button de solo icono. La parte `entries` no tiene caja propia: sus elementos están en las propias líneas de la caja.
 - `resize-label` y `segment-empty-text`, si se dejan vacíos, se leen de los textos del producto (`setWords()`).
@@ -247,3 +258,4 @@ El botón de borrar va después de la entrada y de un botón tuyo en el slot `tr
 - Para una fecha o una hora, da `segmentEmptyText`, y escribe `invalidText` y `unavailableText` aunque ningún campo los muestre: se leen con la entrada.
 - Da nombre al tirador de cambio de tamaño con `resizeLabel` y al botón del selector con `pickerLabel`.
 - Da a una entrada que se puede borrar un `clearLabel` que diga qué borra («Borrar filtro»).
+- Da a una entrada de contraseña que se puede mostrar un `revealLabel` («Mostrar contraseña»), y conserva su indicación de `autocomplete` (`current-password`, `new-password`).

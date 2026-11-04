@@ -238,7 +238,10 @@ const DRIVEN: Record<string, Driven> = {
       { attributes: `label="Recipients" supporting-text="Help" required required-text="Required" error error-text="Wrong" remove-label="Remove {entry}" value='["ada@example.com"]'`, children: '<span slot="label-icon">mail</span>' },
       { attributes: `variant="outlined" label="Recipients" required required-mark="asterisk" remove-label="Remove {entry}" value='["ada@example.com"]'`, children: '' },
     ],
-    neverDrawn: { 'clear-button': 'the chip field does not make its text input clearable: its entries are removed one by one (each chip\'s remove action), so the part is exported as the text input documents it' },
+    neverDrawn: {
+      'clear-button': 'the chip field does not make its text input clearable: its entries are removed one by one (each chip\'s remove action), so the part is exported as the text input documents it',
+      'reveal-button': 'the chip field\'s text input takes addresses and names, never a password, so it draws no reveal button; the part is exported as the text input documents it',
+    },
     tree: chipFieldTree,
   },
   'one-time-code-field': {
@@ -438,6 +441,27 @@ const DRIVEN: Record<string, Driven> = {
   },
   'text-field': {
     attributes: { frame: 'label="Email" supporting-text="We never share your address."', member: 'placeholder="you@example.com"' },
+    passing: {
+      attributes: '',
+      children: '',
+      reads: {
+        // The text input hides a shown value while it is disabled (TXI-72), and the props before this one have disabled
+        // it: `revealed` is given again to an enabled password field, and read on the input.
+        revealed: {
+          given: true,
+          read: (element) =>
+            element.evaluate(async (el) => {
+              const field = el as HTMLElement & { disabled: boolean; type: string; revealed: boolean; updateComplete: Promise<unknown> };
+              Object.assign(field, { disabled: false, type: 'password' });
+              await field.updateComplete;
+              field.revealed = true;
+              await field.updateComplete;
+              return (el.shadowRoot!.querySelector('tanrei-text-input') as unknown as { revealed: boolean }).revealed;
+            }),
+          drawn: true,
+        },
+      },
+    },
     events: {
       input: { act: async (page, element) => (await focus(element), await page.keyboard.type('a')), value: 'a' },
       change: {
@@ -465,6 +489,12 @@ const DRIVEN: Record<string, Driven> = {
         act: async (page, element) => (await element.locator('.resize-handle .container').focus(), await page.keyboard.press('ArrowDown')),
         value: '',
       },
+      // A password field's reveal button shows the value (TXI-72): the value does not change.
+      revealChange: {
+        before: async (_page, element) => element.evaluate((el: HTMLElement) => Object.assign(el, { type: 'password', revealable: true, revealLabel: 'Show password', value: 'pw' })),
+        act: async (_page, element) => element.locator('[part~="reveal-button"]').click(),
+        value: 'pw',
+      },
     },
     // A text input keeps a text as it is given (a date input that is given no ISO date keeps none: text-field.test.ts).
     kept: { given: 'Ada  Lovelace ', kept: 'Ada  Lovelace ' },
@@ -476,8 +506,8 @@ const DRIVEN: Record<string, Driven> = {
         children: '<span slot="label-icon">notes</span><span slot="leading-icon">search</span><span slot="trailing-icon">close</span>',
       },
       { attributes: 'variant="outlined" type="date" picker picker-label="Choose date" label="Start date" required required-mark="asterisk" value="2026-09-27"', children: '' },
-      // The clear button is drawn by a single-line field with a value (TXI-71).
-      { attributes: 'label="Filter" clearable clear-label="Clear" value="a"', children: '' },
+      // The clear button is drawn by a single-line field with a value (TXI-71), the reveal button by a password field (TXI-72).
+      { attributes: 'type="password" label="Password" clearable clear-label="Clear" revealable reveal-label="Show password" value="a"', children: '' },
     ],
     enterSubmits: true,
   },

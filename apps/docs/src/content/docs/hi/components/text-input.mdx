@@ -2,7 +2,7 @@
 title: टेक्स्ट इनपुट
 description: वह बॉक्स जिसमें लोग टाइप करते हैं, और उसमें टाइप की जाने वाली हर चीज़ — एक पंक्ति या कई पंक्तियाँ, तारीख़ या समय, कोड — लेबल की अपनी पंक्ति, सहायता या त्रुटि टेक्स्ट के बिना। उस जगह के लिए जहाँ लेबल कहीं और है, या उस फ़ील्ड के भीतर जिसे प्रॉडक्ट ख़ुद जोड़कर बनाता है।
 translationOf: components/text-input.mdx
-sourceHash: abdba7da8588ca765f8420914ded04a0158c1448
+sourceHash: 6c87fdde2d1e13f7175a5ac8376dff69aa18a85d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -182,6 +182,16 @@ import Example from '../../../../components/visuals/Example.astro';
   </tanrei-text-input>
 </Example>
 
+### पासवर्ड दिखाना
+
+`revealable` के साथ पासवर्ड इनपुट अपने अंत में दिखाने का बटन बनाता है, और मिटाने का बटन हो तो उसके बाद। दबाने पर मान सादे टेक्स्ट के रूप में दिखता है, ताकि लोग दो बार टाइप किए बिना जाँच सकें कि उन्होंने क्या लिखा, और दोबारा दबाने पर वह फिर छिप जाता है। मान, कैरेट और चुना हुआ हिस्सा जैसे थे वैसे रहते हैं, न `input` निकलता है न `change`, और फ़ोकस नहीं हिलता: दबाने पर वह इनपुट में रहता है, और Enter या Space पर बटन पर। यह एक टॉगल बटन है, कभी सबमिट बटन नहीं। `revealed` बताता है कि मान दिख रहा है या नहीं, और `revealChange` बताता है कि व्यक्ति ने उसे बदला। फ़ॉर्म सबमिट या रीसेट होने पर, टाइप बदलने पर और इनपुट निष्क्रिय होने पर दिखाया गया मान फिर छिप जाता है।
+
+बटन को `revealLabel` से नाम दें ("पासवर्ड दिखाएँ"), या पूरे प्रॉडक्ट के लिए एक बार `setWords({ revealLabel })` से। दोनों स्थितियों में उसका नाम एक ही रहता है: मान दिख रहा है या नहीं, यह उसकी दबी हुई स्थिति बताती है।
+
+<Example label="ऐसा पासवर्ड जिसे जाँचा जा सके" column>
+  <tanrei-text-input class="not-content" type="password" label="पासवर्ड" value="correct horse" revealable reveal-label="पासवर्ड दिखाएँ" autocomplete="current-password"></tanrei-text-input>
+</Example>
+
 <ComponentSpecs name="text-input" />
 
 ### वेब क्या अलग ढंग से बनाता है
@@ -192,7 +202,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - `input` और `change` composed इवेंट हैं। `action` रद्द किया जा सकने वाला CustomEvent है: Enter से फ़ॉर्म को सबमिट होने से रोकने के लिए उसे रद्द करें। `pickerrequest` और `entryerror` CustomEvent हैं, जिनके `detail` में `{ value, type, min, max }` और `{ reason, text }` होते हैं। उनके टाइप `TanreiTextInputActionDetail`, `TanreiTextInputPickerRequestDetail` और `TanreiTextInputEntryErrorDetail` हैं।
 - `countText` सिर्फ़ पढ़ने वाली प्रॉपर्टी है, जो मान के हर बदलाव के बाद नई होती है। इसका कोई ऐट्रिब्यूट नहीं है।
 - ऐट्रिब्यूट kebab-case में हैं, जैसे `label-hidden`, `min-rows`, `prefix-text` और `no-wrap`, जो false पर सेट किया गया `wrap` है। `readonly`, `maxlength`, `autocomplete`, `min` और `max` के नाम HTML वाले ही हैं।
-- भाग: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `entries`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `clear-button`, `picker-button`, `resize-handle`।
+- भाग: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `entries`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `clear-button`, `reveal-button`, `picker-button`, `resize-handle`।
+- दिखाने का बटन एक टॉगल `<tanrei-button>` है। मान दिखते समय नेटिव `<input>` `type="text"` होता है और पासवर्ड फ़ील्ड के बाक़ी एट्रिब्यूट रखता है। `revealchange` एक CustomEvent है जिसके `detail` में `{ revealed }` होता है; उसका टाइप `TanreiTextInputRevealChangeDetail` है। `reveal-label` ख़ाली छोड़ा जाए तो प्रॉडक्ट के शब्दों से पढ़ा जाता है (`setWords({ revealLabel })`)।
 - `clear-label` ख़ाली छोड़ा जाए तो प्रॉडक्ट के शब्दों से पढ़ा जाता है (`setWords({ clearLabel })`)।
 - स्लॉट: `leading-icon`, `trailing-icon` और `entries`। अंतिम आइकन आपका अपना सिर्फ़ आइकन वाला Button हो सकता है। `entries` भाग का अपना कोई बॉक्स नहीं है: उसके आइटम बॉक्स की अपनी पंक्तियों में रहते हैं।
 - `resize-label` और `segment-empty-text` ख़ाली छोड़े जाएँ तो प्रॉडक्ट के शब्दों से पढ़े जाते हैं (`setWords()`)।
@@ -247,3 +258,4 @@ import Example from '../../../../components/visuals/Example.astro';
 - तारीख़ या समय के लिए `segmentEmptyText` दें, और `invalidText` और `unavailableText` वहाँ भी लिखें जहाँ कोई फ़ील्ड उन्हें नहीं दिखाता: वे इनपुट के साथ पढ़े जाते हैं।
 - साइज़ हैंडल को `resizeLabel` से और पिकर बटन को `pickerLabel` से नाम दें।
 - मिटाने के बटन वाले इनपुट को ऐसा `clearLabel` दें जो बताए कि वह क्या मिटाता है ("फ़िल्टर मिटाएँ")।
+- दिखाए जा सकने वाले पासवर्ड इनपुट को `revealLabel` दें ("पासवर्ड दिखाएँ"), और उसका `autocomplete` संकेत (`current-password`, `new-password`) बनाए रखें।

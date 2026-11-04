@@ -180,6 +180,16 @@ The clear button comes after the input and after a button of yours in the `trail
   </tanrei-text-input>
 </Example>
 
+### Showing a password
+
+With `revealable`, a password input draws a reveal button at its end, after the clear button where there is one. A press shows the value as plain text, so a person can check what they typed instead of typing it twice, and a second press hides it again. The value, the caret and the selection stay as they are, no `input` or `change` is emitted, and focus does not move: a press leaves it in the input, and Enter or Space leaves it on the button. It is a toggle button, never a submit button. `revealed` says whether the value is shown, and `revealChange` tells you when the person changed it. A shown value is hidden again when its form is submitted or reset, when the type changes and when the input is disabled.
+
+Name the button with `revealLabel` ("Show password"), or once for the product with `setWords({ revealLabel })`. It keeps one name in both states: its pressed state says whether the value is shown.
+
+<Example label="A password that can be checked" column>
+  <tanrei-text-input class="not-content" type="password" label="Password" value="correct horse" revealable reveal-label="Show password" autocomplete="current-password"></tanrei-text-input>
+</Example>
+
 <ComponentSpecs name="text-input" />
 
 ### What the web draws differently
@@ -190,7 +200,8 @@ The clear button comes after the input and after a button of yours in the `trail
 - `input` and `change` are composed events. `action` is a cancelable CustomEvent: cancel it to keep Enter from submitting the form. `pickerrequest` and `entryerror` are CustomEvents whose `detail` holds `{ value, type, min, max }` and `{ reason, text }`. Their types are `TanreiTextInputActionDetail`, `TanreiTextInputPickerRequestDetail` and `TanreiTextInputEntryErrorDetail`.
 - `countText` is a read-only property, new after each change of the value. It has no attribute.
 - Attributes are kebab-case, such as `label-hidden`, `min-rows`, `prefix-text` and `no-wrap`, which is `wrap` set to false. `readonly`, `maxlength`, `autocomplete`, `min` and `max` keep HTML's names.
-- Parts: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `entries`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `clear-button`, `picker-button`, `resize-handle`.
+- Parts: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `entries`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `clear-button`, `reveal-button`, `picker-button`, `resize-handle`.
+- The reveal button is a toggle `<tanrei-button>`. While the value is shown the native `<input>` is `type="text"` and keeps the password field's other attributes. `revealchange` is a CustomEvent whose `detail` holds `{ revealed }`; its type is `TanreiTextInputRevealChangeDetail`. `reveal-label` left empty is read from the product's words (`setWords({ revealLabel })`).
 - `clear-label` left empty is read from the product's words (`setWords({ clearLabel })`).
 - Slots: `leading-icon`, `trailing-icon` and `entries`. A trailing icon may be your own icon-only Button. The `entries` part has no box of its own: its items stand in the box's own lines.
 - `resize-label` and `segment-empty-text` left empty are read from the product's words (`setWords()`).
@@ -245,3 +256,4 @@ The clear button comes after the input and after a button of yours in the `trail
 - For a date or a time, give `segmentEmptyText`, and write `invalidText` and `unavailableText` even where no field shows them: they are read with the input.
 - Name the resize handle with `resizeLabel` and the picker button with `pickerLabel`.
 - Give a clearable input a `clearLabel` that says what it clears ("Clear filter").
+- Give a revealable password input a `revealLabel` ("Show password"), and keep its `autocomplete` hint (`current-password`, `new-password`).

@@ -2,7 +2,7 @@
 title: حقل إدخال النص
 description: الصندوق الذي يكتب فيه الأشخاص، وكل ما يُكتب فيه، سطرًا واحدًا أو عدة أسطر، تاريخًا أو وقتًا أو شيفرة، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لموضع تقف تسميته في مكان آخر، أو داخل حقل يركّبه المنتج بنفسه.
 translationOf: components/text-input.mdx
-sourceHash: abdba7da8588ca765f8420914ded04a0158c1448
+sourceHash: 6c87fdde2d1e13f7175a5ac8376dff69aa18a85d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -182,6 +182,16 @@ import Example from '../../../../components/visuals/Example.astro';
   </tanrei-text-input>
 </Example>
 
+### إظهار كلمة المرور
+
+مع `revealable` يرسم حقل إدخال كلمة المرور زرّ إظهار في نهايته، بعد زر المسح إن وُجد. الضغط عليه يُظهر القيمة نصًّا عاديًّا، فيتحقق المرء مما كتبه بدل أن يكتبه مرتين، والضغطة الثانية تخفيها من جديد. وتبقى القيمة والمؤشر والتحديد كما هي، ولا يُطلَق `input` ولا `change`، ولا يتحرك التركيز: الضغط يبقيه في حقل الإدخال، وEnter أو Space يبقيانه على الزر. وهو زرّ تبديل، ولا يكون زرّ إرسال أبدًا. تقول `revealed` هل القيمة ظاهرة، ويخبرك `revealChange` حين يغيّرها المرء. وتُخفى القيمة الظاهرة من جديد حين يُرسَل نموذجها أو يُعاد ضبطه، وحين يتغير النوع، وحين يُعطَّل الحقل.
+
+سمِّ الزر بالخاصية `revealLabel` («إظهار كلمة المرور»)، أو مرة واحدة للمنتج كله بـ `setWords({ revealLabel })`. ويبقى اسمه واحدًا في الحالتين: حالة الضغط هي التي تقول هل القيمة ظاهرة.
+
+<Example label="كلمة مرور يمكن التحقق منها" column>
+  <tanrei-text-input class="not-content" type="password" label="كلمة المرور" value="correct horse" revealable reveal-label="إظهار كلمة المرور" autocomplete="current-password"></tanrei-text-input>
+</Example>
+
 <ComponentSpecs name="text-input" />
 
 ### ما يرسمه الويب بطريقة مختلفة
@@ -192,7 +202,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - الحدثان `input` و `change` يعبران حدود جذر الظل (composed). والحدث `action` من النوع CustomEvent وقابل للإلغاء: ألغِه لتمنع المفتاح Enter من إرسال النموذج. والحدثان `pickerrequest` و `entryerror` من النوع CustomEvent، وفي `detail` لهما، على الترتيب، `{ value, type, min, max }` و `{ reason, text }`. وأنواعها `TanreiTextInputActionDetail` و `TanreiTextInputPickerRequestDetail` و `TanreiTextInputEntryErrorDetail`.
 - الخاصية `countText` للقراءة فقط، وتتجدد بعد كل تغيير في القيمة. وليست لها خاصية HTML.
 - خصائص HTML مكتوبة بصيغة kebab-case، مثل `label-hidden` و `min-rows` و `prefix-text` و `no-wrap`، والأخيرة هي `wrap` بالقيمة false. أما `readonly` و `maxlength` و `autocomplete` و `min` و `max` فتحتفظ بأسمائها في HTML.
-- الأجزاء: `container`، `outline`، `active-indicator`، `label`، `requirement-label`، `input`، `entries`، `segment`، `prefix`، `suffix`، `leading-icon`، `trailing-icon`، `clear-button`، `picker-button`، `resize-handle`.
+- الأجزاء: `container`، `outline`، `active-indicator`، `label`، `requirement-label`، `input`، `entries`، `segment`، `prefix`، `suffix`، `leading-icon`، `trailing-icon`، `clear-button`، `reveal-button`، `picker-button`، `resize-handle`.
+- زر الإظهار عنصر `<tanrei-button>` للتبديل. وما دامت القيمة ظاهرة يكون العنصر الأصلي `<input>` من النوع `type="text"` ويحتفظ بسمات حقل كلمة المرور الأخرى. والحدث `revealchange` من نوع CustomEvent يحمل `detail` فيه `{ revealed }`، ونوعه `TanreiTextInputRevealChangeDetail`. والخاصية `reveal-label` تُقرأ من كلمات المنتج (`setWords({ revealLabel })`) حين تُترك فارغة.
 - الخاصية `clear-label` تُقرأ من كلمات المنتج (`setWords({ clearLabel })`) حين تُترك فارغة.
 - المنافذ: `leading-icon` و `trailing-icon` و `entries`. وأيقونة النهاية قد تكون زرًّا بأيقونة فقط من عندك. والجزء `entries` ليس له صندوق من عنده: عناصره تقف في أسطر الصندوق نفسه.
 - الخاصيتان `resize-label` و `segment-empty-text` تُقرآن من كلمات المنتج (`setWords()`) حين تُتركان فارغتين.
@@ -247,3 +258,4 @@ import Example from '../../../../components/visuals/Example.astro';
 - لتاريخ أو وقت، أعطِ `segmentEmptyText`، واكتب `invalidText` و `unavailableText` حتى حيث لا يعرضهما حقل: فهما يُقرآن مع حقل الإدخال.
 - سمِّ مقبض تغيير الحجم بالخاصية `resizeLabel` وزر المنتقي بالخاصية `pickerLabel`.
 - أعطِ حقل الإدخال القابل للمسح `clearLabel` يقول ما الذي يمسحه («مسح المرشِّح»).
+- أعطِ حقل كلمة المرور القابل للإظهار `revealLabel` («إظهار كلمة المرور»)، وأبقِ تلميح `autocomplete` الخاص به (`current-password`، `new-password`).
