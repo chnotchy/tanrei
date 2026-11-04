@@ -7,19 +7,19 @@
 // It was written after the fixtures stood in a table, where at 390 wide the drawing of 1953 of 2390 fixtures began
 // past the table's visible box (the reader had to scroll the table sideways to find it), and where the drawing of
 // nine components was missing altogether. Every fixture of a component the web implements is drawn: in the page, or
-// alone in a window drawn from the web package's own document of it. That document is the window's only: no page
-// links to it, and the sitemap does not list it.
+// alone in a window whose document the page writes from the web package's own document of it. No address on the site
+// is a fixture's document.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //
 // It reads `dist/` and serves it on a free port as the host does (host.mjs). It asks where each stage stands, not what
-// a window draws inside it, and does not wait for a window to load (fixture-windows.test.mjs does).
+// a window draws inside it, and does not wait for a window to draw (fixture-windows.test.mjs does).
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { serveDist } from './host.mjs';
+import { headerRules, headersFor, serveDist } from './host.mjs';
 import { launch } from './launch.mjs';
 
 const docs = fileURLToPath(new URL('../../', import.meta.url));
@@ -180,7 +180,7 @@ async function measure() {
   laidOut.textContent = '*, *::before, *::after { transition: none !important; animation: none !important; }';
   document.head.append(laidOut);
   // What each stage drawn in the page holds before it is drawn: the room of its baseline.
-  const held = new Map([...gallery.querySelectorAll('.docs-stage[data-stage="inline"][data-drawn]')].map((stage) => [stage, stage.getBoundingClientRect().height]));
+  const held = new Map([...gallery.querySelectorAll('.docs-stage:not([data-stage="window"])[data-drawn]')].map((stage) => [stage, stage.getBoundingClientRect().height]));
   // A fixture is drawn when its stage comes within half a window of the view (the gallery's IntersectionObserver): the
   // page is scrolled through a window at a time, one frame at each (the observer reads a place in the frame after it is
   // scrolled to), and the page draws each stage it comes near. A stage passed by, as the stages above it grew when they
@@ -294,73 +294,54 @@ async function measure() {
 // of each stage's baseline.
 const documents = JSON.parse(fs.readFileSync(path.join(docs, 'src/fixture-documents.generated.json'), 'utf8'));
 
-describe('a fixture drawn alone is the one fixture its page draws, every element of it defined', { concurrency: 4 }, () => {
-  for (const [name, document] of Object.entries(documents)) {
-    // The first fixture of the component that has a baseline, in a window of the baseline's size. (Whether it fits there
-    // exactly is not asked: text set on another machine than the baselines' can take a few pixels more, and the gallery's
-    // frame grows to hold its document.)
-    const stage = document.stages.find((each) => document.sizes[each.id]);
-    if (!stage) continue;
-    test(`${name}/${stage.id}`, async () => {
-      const size = document.sizes[stage.id];
-      const { page, close } = await openPage(`/fixtures/${name}/?id=${stage.id}`, { viewport: size, reducedMotion: 'reduce' });
-      try {
-        await page.goto(`${origin}/fixtures/${name}/?id=${encodeURIComponent(stage.id)}`, { waitUntil: 'load' });
-        const result = await evaluateBounded(page, `/fixtures/${name}/?id=${stage.id}`, async (id) => {
-          const tags = new Set([...document.querySelectorAll('.stage *')].map((e) => e.localName).filter((n) => n.includes('-')));
-          await Promise.race([Promise.all([...tags].map((n) => customElements.whenDefined(n))), new Promise((r) => setTimeout(r, 5000))]);
-          await document.fonts.ready;
-          await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-          const stages = [...document.querySelectorAll('.stage')];
-          const box = stages[0]?.getBoundingClientRect();
-          return {
-            stages: stages.map((s) => s.dataset.fixture),
-            undefined: [...tags].filter((n) => !customElements.get(n)),
-            box: box && { width: Math.round(box.width), height: Math.round(box.height) },
-            scroll: { width: document.scrollingElement.scrollWidth, height: document.scrollingElement.scrollHeight },
-            id,
-          };
-        }, stage.id);
-        assert.deepEqual(result.stages, [stage.id], 'the page draws the one fixture it is asked for');
-        assert.deepEqual(result.undefined, [], 'every element on its stage is defined');
-      } finally {
-        await close();
-      }
-    });
-  }
-});
+describe('no address on the site is a fixture’s document', () => {
+  test('the site builds none', () => assert.equal(fs.existsSync(path.join(dist, 'fixtures')), false));
 
-describe('a fixture document is the windows’ only: no reader is sent to it', () => {
-  const htmlFiles = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => (entry.isDirectory() ? htmlFiles(path.join(dir, entry.name)) : entry.name.endsWith('.html') ? [path.join(dir, entry.name)] : []));
-
-  test('no page links to one', () => {
-    const linking = htmlFiles(dist)
-      .filter((file) => !file.startsWith(path.join(dist, 'fixtures') + path.sep))
-      .filter((file) => /\shref="\/fixtures\//.test(fs.readFileSync(file, 'utf8')))
-      .map((file) => path.relative(dist, file));
-    assert.deepEqual(linking, []);
-  });
-
-  test('the sitemap lists none', () => {
+  test('the sitemap lists none, and lists the component pages', () => {
     const maps = fs.readdirSync(dist).filter((name) => /^sitemap.*\.xml$/.test(name));
     assert.ok(maps.length > 0, 'the site has a sitemap');
     const listed = maps.flatMap((name) => [...fs.readFileSync(path.join(dist, name), 'utf8').matchAll(/<loc>([^<]*\/fixtures\/[^<]*)<\/loc>/g)].map((m) => m[1]));
     assert.deepEqual(listed, []);
-    // The component pages are still listed.
     assert.match(fs.readFileSync(path.join(dist, 'sitemap-0.xml'), 'utf8'), /<loc>[^<]*\/components\/button\/<\/loc>/);
   });
-
-  test('without the id of a fixture it draws nothing', async () => {
-    const { page, close } = await openPage('/fixtures/button/', {});
-    try {
-      await page.goto(`${origin}/fixtures/button/`, { waitUntil: 'load' });
-      assert.equal(await page.locator('.stage').count(), 0);
-      assert.equal(await page.locator('meta[name="robots"][content="noindex"]').count(), 1);
-    } finally {
-      await close();
-    }
-  });
 });
+
+// The stylesheet and the module a window of the gallery draws its document with (src/styles/fixture-window.css,
+// src/lib/fixture-window.ts), as the build named them.
+const built = (pattern) => fs.readdirSync(path.join(dist, '_astro')).find((name) => pattern.test(name));
+const WINDOW_SHEET = `/_astro/${built(/^fixture-window\.[\w-]+\.css$/)}`;
+const WINDOW_MODULE = `/_astro/${built(/^fixture-window\.[\w-]+\.js$/)}`;
+// The policy the host sends with every document: what the site refuses, its own document of a fixture refuses too (a
+// picture from a `blob:` address, which the file upload's tiles draw, is one).
+const PAGE_POLICY = headersFor(headerRules(fs.readFileSync(path.join(dist, '_headers'), 'utf8')), '/')['content-security-policy'];
+
+/**
+ * How tall the web package's own document of a component's fixtures draws one of them on this machine, with the site's
+ * stylesheets: the fixture's stage alone, the component's staging and its step in script, in a document of the site's
+ * origin, sent the host's policy (written by the test, which runs the step inline as the harness writes it: the host's
+ * policy allows that, and only each page's own narrows it), that loads what a window of the gallery loads (a component that lives in a layer is measured without its preset's sheet: none grows today).
+ */
+async function ownHeight(name, id, width) {
+  const document = documents[name];
+  const stage = document.stages.find((each) => each.id === id).html;
+  const holder = document.page ? 'div' : 'main';
+  const html = `<!doctype html><html lang="en" data-docs-held${document.system ? ` data-tanrei-system="${document.system}"` : ''}><head><meta charset="utf-8"><link rel="stylesheet" href="${WINDOW_SHEET}"><style>${document.staging}</style></head><body><${holder} class="stages">${stage}</${holder}><script type="module" src="${WINDOW_MODULE}"></script>${document.after ? `<script type="module">${document.after}</script>` : ''}</body></html>`;
+  const { page, close } = await openPage(`${name}/${id} in its own document`, { viewport: { width: Math.max(width, 800), height: 1000 }, reducedMotion: 'reduce' });
+  try {
+    const address = `${origin}/__own-document/${name}/${encodeURIComponent(id)}/`;
+    await page.route(address, (route) => route.fulfill({ status: 200, headers: { 'content-security-policy': PAGE_POLICY }, contentType: 'text/html', body: html }));
+    await bounded(`${name}/${id} in its own document: opening it`, page.goto(address, { waitUntil: 'load' }));
+    return await evaluateBounded(page, `${name}/${id} in its own document`, async () => {
+      const tags = new Set([...document.querySelectorAll('.stage *')].map((e) => e.localName).filter((n) => n.includes('-')));
+      await Promise.race([Promise.all([...tags].map((n) => customElements.whenDefined(n))), new Promise((r) => setTimeout(r, 5000))]);
+      await document.fonts.ready;
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      return document.querySelector('.stage')?.getBoundingClientRect().height ?? 0;
+    });
+  } finally {
+    await close();
+  }
+}
 
 // What each page's stages did when they were drawn, at each width: read by the last test below.
 const drawing = [];
@@ -389,22 +370,9 @@ describe('every component page shows its fixtures, each whole, on a stage of its
           const grown = [];
           let otherMachine = 0;
           for (const each of result.grown) {
-            const size = documents[name].sizes[each.id];
-            const { page: own, close: closeOwn } = await openPage(`/fixtures/${name}/?id=${each.id}`, { viewport: { width: Math.max(size.width, 800), height: 1000 }, reducedMotion: 'reduce' });
-            try {
-              await own.goto(`${origin}/fixtures/${name}/?id=${encodeURIComponent(each.id)}`, { waitUntil: 'load' });
-              const height = await evaluateBounded(own, `/fixtures/${name}/?id=${each.id}`, async () => {
-                const tags = new Set([...document.querySelectorAll('.stage *')].map((e) => e.localName).filter((n) => n.includes('-')));
-                await Promise.race([Promise.all([...tags].map((n) => customElements.whenDefined(n))), new Promise((r) => setTimeout(r, 5000))]);
-                await document.fonts.ready;
-                await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-                return document.querySelector('.stage')?.getBoundingClientRect().height ?? 0;
-              });
-              if (Math.abs(height - each.stage) <= 1) otherMachine++;
-              else grown.push(`${each.id}: its stage held ${each.before} and grew to ${each.after} when it was drawn (its own document draws it ${Math.round(height)} tall, the page ${Math.round(each.stage)})`);
-            } finally {
-              await closeOwn();
-            }
+            const height = await ownHeight(name, each.id, documents[name].sizes[each.id].width);
+            if (Math.abs(height - each.stage) <= 1) otherMachine++;
+            else grown.push(`${each.id}: its stage held ${each.before} and grew to ${each.after} when it was drawn (its own document draws it ${Math.round(height)} tall, the page ${Math.round(each.stage)})`);
           }
           drawing.push({ name, at, held: result.held, narrowed: result.narrowed, otherMachine, grown });
         } finally {

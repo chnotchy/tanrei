@@ -79,9 +79,9 @@ describe("every page's Markdown", () => {
       assert.equal(own.length, searched.length / (languages.length + 1), `the pages of ${dir || 'English'}`);
     }
   });
-  test('no other page names one (the pages that were not found, the redirects, the fixtures’ documents)', () => {
+  test('no other page names one (the pages that were not found, the redirects)', () => {
     const others = pages.filter((page) => !page.searched);
-    assert.ok(others.some((page) => page.file === '404.html') && others.some((page) => page.file.startsWith('fixtures/')));
+    assert.ok(others.some((page) => page.file === '404.html'));
     assert.deepEqual(others.filter((page) => page.alternates.length).map((page) => page.file), []);
   });
   test("every Markdown file is a page's, or the spec of a component whose page is elsewhere", () => {

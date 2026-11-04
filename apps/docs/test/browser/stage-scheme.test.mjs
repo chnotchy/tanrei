@@ -1,12 +1,13 @@
 // The gallery's stages draw in the page's scheme and contrast, and follow every change of them: the color scheme
-// chosen in the header's appearance menu reaches a stage in the page (a preset's scope, which inherits the page's scheme as any subtree does) and a
-// stage's window (a document of its own, which the gallery hands the scheme and the contrast), until the stage's own
-// switch is turned. A window opened later starts from the contrast the site stored.
+// chosen in the header's Appearance panel reaches a stage in the page (a preset's scope, which inherits the page's scheme as any subtree does) and a
+// stage's window (a document of its own, which the gallery writes in the scheme and the contrast, and hands each
+// change of them), until the stage's own switch is turned. A window is written in the scheme and the contrast the site
+// stored.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //
-// It reads `dist/` and serves it on a free port. The page is the floating action button menu's: it lives in the m3-like
-// layer, so its stages are that preset's scope, and its open fixtures are drawn in windows.
+// It reads `dist/` and serves it on a free port. The stages in the page are the floating action button menu's: it lives
+// in the m3-like layer, so its stages are that preset's scope. The windows are the dialog's.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import http from 'node:http';
@@ -45,7 +46,8 @@ after(async () => {
 
 const PAGE = '/components/fab-menu/';
 const INLINE = 'filled-closed';
-const WINDOW = 'filled-open';
+const WINDOWS = '/components/dialog/';
+const WINDOW = 'basic';
 const stage = (id) => `.docs-stage[data-fixture-id="${id}"]`;
 
 /** The reader's choice of color mode in the header's Appearance panel, as its tabs hand it on (their `change`). */
@@ -76,7 +78,7 @@ async function windowed(page, id) {
 }
 
 describe("the gallery's stages follow the page's scheme and contrast", () => {
-  test('the header’s theme reaches a preset’s stage and a window, on the system’s other scheme, until the stage’s own switch is turned', async () => {
+  test('the header’s theme reaches a preset’s stage, on the system’s other scheme, until the stage’s own switch is turned', async () => {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, colorScheme: 'light', reducedMotion: 'reduce' });
     try {
       const page = await context.newPage();
@@ -84,24 +86,12 @@ describe("the gallery's stages follow the page's scheme and contrast", () => {
       // The panel's elements are defined when a reader is about to use it: a pointer over its button.
       await page.hover('#docs-appearance');
       await page.waitForFunction(() => customElements.get('tanrei-tabs') && document.querySelector('tanrei-tabs.docs-appearance-mode')?.updateComplete);
-      // The window loads when it comes near the view.
-      await page.locator(stage(WINDOW)).scrollIntoViewIfNeeded();
 
       await chooseTheme(page, 'dark');
       assert.equal(await page.evaluate(() => document.documentElement.dataset.theme), 'dark');
       assert.deepEqual(await inline(page, INLINE), { system: 'm3-like', scheme: 'dark' }, 'the preset’s scope draws in the page’s scheme, not the system’s');
-      await page.waitForFunction((selector) => document.querySelector(`${selector} iframe`)?.contentDocument?.documentElement.dataset.tanreiTheme === 'dark', stage(WINDOW), { timeout: 15_000 });
-      assert.deepEqual(await windowed(page, WINDOW), { theme: 'dark', contrast: null, scheme: 'dark' });
-
       await chooseTheme(page, 'light');
       assert.equal((await inline(page, INLINE)).scheme, 'light');
-      assert.equal((await windowed(page, WINDOW)).theme, 'light', 'the window follows the change');
-
-      // The page's contrast (what a live example's switch sets on the root) reaches the window.
-      await page.evaluate(() => document.documentElement.setAttribute('data-tanrei-contrast', 'high'));
-      await page.waitForFunction((selector) => document.querySelector(`${selector} iframe`)?.contentDocument?.documentElement.dataset.tanreiContrast === 'high', stage(WINDOW), { timeout: 5_000 });
-      await page.evaluate(() => document.documentElement.removeAttribute('data-tanrei-contrast'));
-      assert.equal((await windowed(page, WINDOW)).contrast, null, 'standard again: the window holds no contrast of its own');
 
       // A stage whose own switch is turned keeps its scheme when the page's changes.
       await page.locator(`${stage(INLINE)}`).scrollIntoViewIfNeeded();
@@ -119,17 +109,51 @@ describe("the gallery's stages follow the page's scheme and contrast", () => {
     }
   });
 
-  test('a window opened later starts from the contrast and theme the site stored', async () => {
-    const context = await browser.newContext({ colorScheme: 'light' });
+  test('the header’s theme and the page’s contrast reach a window, on the system’s other scheme', async () => {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, colorScheme: 'light', reducedMotion: 'reduce' });
     try {
       const page = await context.newPage();
-      await page.goto(`${origin}${PAGE}`, { waitUntil: 'load' });
+      await page.goto(`${origin}${WINDOWS}`, { waitUntil: 'load' });
+      // The panel's elements are defined when a reader is about to use it: a pointer over its button.
+      await page.hover('#docs-appearance');
+      await page.waitForFunction(() => customElements.get('tanrei-tabs') && document.querySelector('tanrei-tabs.docs-appearance-mode')?.updateComplete);
+      // The window is written when it comes near the view.
+      await page.locator(stage(WINDOW)).scrollIntoViewIfNeeded();
+      assert.deepEqual(await windowed(page, WINDOW), { theme: 'light', contrast: null, scheme: 'light' });
+
+      await chooseTheme(page, 'dark');
+      await page.waitForFunction((selector) => document.querySelector(`${selector} iframe`)?.contentDocument?.documentElement.dataset.tanreiTheme === 'dark', stage(WINDOW), { timeout: 15_000 });
+      assert.deepEqual(await windowed(page, WINDOW), { theme: 'dark', contrast: null, scheme: 'dark' });
+      await chooseTheme(page, 'light');
+      assert.equal((await windowed(page, WINDOW)).theme, 'light', 'the window follows the change');
+
+      // The page's contrast (what a live example's switch sets on the root) reaches the window.
+      await page.evaluate(() => document.documentElement.setAttribute('data-tanrei-contrast', 'high'));
+      await page.waitForFunction((selector) => document.querySelector(`${selector} iframe`)?.contentDocument?.documentElement.dataset.tanreiContrast === 'high', stage(WINDOW), { timeout: 5_000 });
+      await page.evaluate(() => document.documentElement.removeAttribute('data-tanrei-contrast'));
+      assert.equal((await windowed(page, WINDOW)).contrast, null, 'standard again: the window holds no contrast of its own');
+    } finally {
+      await context.close();
+    }
+  });
+
+  test('a window is written in the contrast and theme the site stored', async () => {
+    const context = await browser.newContext({ colorScheme: 'light', viewport: { width: 1440, height: 1000 } });
+    try {
+      const page = await context.newPage();
+      await page.goto(`${origin}${WINDOWS}`, { waitUntil: 'load' });
       await page.evaluate(() => {
         localStorage.setItem('tanrei-docs-appearance', JSON.stringify({ mode: 'dark', contrast: 'medium' }));
       });
-      await page.goto(`${origin}/fixtures/fab-menu/?id=${WINDOW}`, { waitUntil: 'load' });
-      const root = await page.evaluate(() => ({ theme: document.documentElement.dataset.tanreiTheme ?? null, contrast: document.documentElement.dataset.tanreiContrast ?? null }));
-      assert.deepEqual(root, { theme: 'dark', contrast: 'medium' });
+      await page.goto(`${origin}${WINDOWS}`, { waitUntil: 'load' });
+      await page.locator(stage(WINDOW)).scrollIntoViewIfNeeded();
+      // What the window's document was written with, before the page handed it anything.
+      const written = await page.waitForFunction((selector) => {
+        const source = document.querySelector(`${selector} iframe`)?.getAttribute('srcdoc');
+        const root = source && new DOMParser().parseFromString(source, 'text/html').documentElement;
+        return root ? { theme: root.dataset.tanreiTheme ?? null, contrast: root.dataset.tanreiContrast ?? null } : null;
+      }, stage(WINDOW), { timeout: 15_000 });
+      assert.deepEqual(await written.jsonValue(), { theme: 'dark', contrast: 'medium' });
     } finally {
       await context.close();
     }

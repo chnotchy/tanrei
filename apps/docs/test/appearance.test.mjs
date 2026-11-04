@@ -93,7 +93,7 @@ describe('the appearance', () => {
   test('is the head’s one script of the appearance, in place of the framework’s, and the only reader of its key', () => {
     assert.match(read('astro.config.mjs'), /ThemeProvider: '\.\/src\/components\/frame\/ThemeProvider\.astro'/);
     assert.doesNotMatch(read('astro.config.mjs'), /localStorage/);
-    for (const file of ['src/pages/fixtures/[component].astro', 'src/components/StudioPage.astro']) assert.match(read(file), /<script is:inline set:html=\{standaloneBootstrap\} \/>/, file);
+    assert.match(read('src/components/StudioPage.astro'), /<script is:inline set:html=\{standaloneBootstrap\} \/>/);
     // No other key of an appearance is read anywhere in the site.
     const sources = fs.readdirSync(fileURLToPath(new URL('../src/', import.meta.url)), { recursive: true }).filter((file) => /\.(astro|ts|mjs)$/.test(file));
     for (const file of sources) assert.doesNotMatch(read(`src/${file}`), /starlight-theme|tanrei-docs-contrast|tanrei-docs-tabs-system/, file);

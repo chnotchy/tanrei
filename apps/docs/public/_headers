@@ -13,20 +13,10 @@
   # writes a second policy into every page, naming the hash of each inline script and event handler the page holds
   # (src/lib/csp.mjs), and a browser enforces both. The hashes are the page's, so they cannot stand here: every page's
   # would not fit in one line. The search compiles its index's WebAssembly in a worker it makes from a blob
-  # ('wasm-unsafe-eval', which allows no eval of script). A page frames only this site's own documents: the fixture
-  # gallery's windows (/fixtures/*, below).
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'
-
-# The fixture gallery's windows: a component page frames /fixtures/<component>/?id=<fixture>, so these documents may be
-# framed by this site and by no other. The host adds the headers of every rule a path matches, in this file's order, and
-# joins a header two rules set: each header the rule above sets is first detached (`!`), so it is sent once, with this
-# value. The policy is the one above, but for who may frame the document (X-Frame-Options says the same to a browser
-# that reads no frame-ancestors).
-/fixtures/*
-  ! X-Frame-Options
-  ! Content-Security-Policy
-  X-Frame-Options: SAMEORIGIN
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'self'; base-uri 'none'; form-action 'none'; object-src 'none'
+  # ('wasm-unsafe-eval', which allows no eval of script). No page frames a document fetched from anywhere, and no page is
+  # framed: the fixture gallery's windows are documents a page writes into its frames (`srcdoc`), which are not fetched
+  # and keep the page's own policy.
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; worker-src 'self' blob:; frame-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'
 
 # File names carry a content hash.
 /_astro/*

@@ -10,17 +10,18 @@
 // The stages stand one to a row, each as wide as the column, in one column — as a specification's figures stand one
 // under another, and as a reader scrolls them. A fixture drawn in the page is the document's stage, with the
 // component's staging scoped to it, at its own size in the middle of the stage; one that is as wide as its layout (the
-// staging gives it a width) has a handle on its end edge that makes it narrower or wider. A presented fixture, and a
-// whole page's frame, is drawn alone in a window of its own: an `iframe` of the fixture's document
-// (pages/fixtures/[component].astro), loaded when it comes near the view, in a box that holds the window's size before
-// anything is loaded (scaled down where the column is narrower). That document is only the window's: no action of a
-// stage, and no link of the page, sends the reader to it.
+// staging gives it a width) has a handle on its end edge that makes it narrower or wider. One whose surface stands
+// beside its anchor in the top layer (a tooltip) is drawn closed, and its stage has an action that opens it. A modal
+// fixture, and a whole page's frame, is drawn alone in a window of its own: an `iframe` whose document the gallery's
+// script writes (`srcdoc`) when it comes near the view and empties when it is far from it, in a box that holds the
+// window's size before anything is drawn (scaled down where the column is narrower). No address on the site is a
+// fixture's document.
 //
 // The fixture ids and props are the page's words and are read by the search; what a stage draws, and its actions, are
 // not (`data-pagefind-ignore`, as every frame's stage).
 import { getSpec } from '../../lib/repo';
 import { fixtureDocument } from '../../lib/fixture-documents';
-import { STAGE_SCOPE, galleryOf, fixtureWindowHref, stagesScript, stagingStyle, stepScript } from '../../lib/fixture-gallery';
+import { STAGE_SCOPE, galleryOf, stagesScript, stagingStyle, stepScript, windowScript } from '../../lib/fixture-gallery';
 import { contentLang, strings } from '../../lib/i18n';
 import ResizeHandle from './ResizeHandle.astro';
 import Example from '../visuals/Example.astro';
@@ -32,7 +33,9 @@ const spec = getSpec(Astro.props.name);
 const t = strings(contentLang(Astro));
 const document = fixtureDocument(spec.name);
 const groups = galleryOf(spec);
-const inPage = groups.some((group) => group.stages.some((stage) => stage.drawn && stage.kind === 'inline'));
+const stages = groups.flatMap((group) => group.stages).filter((stage) => stage.drawn);
+const inPage = stages.some((stage) => stage.kind !== 'window');
+const windows = stages.some((stage) => stage.kind === 'window');
 const named = (template: string, values: Record<string, string | number>) => template.replace(/\{(\w+)\}/g, (place, key: string) => (key in values ? String(values[key]) : place));
 const scope = { [STAGE_SCOPE]: '' };
 // A component that lives in a layer is drawn under that layer's system, as its tests draw it: the stages are scoped to
@@ -47,7 +50,8 @@ if (system && !systemSheet) throw new Error(`FixtureGallery: no generated styles
 
 <div class="docs-fixture-gallery not-content" data-fixture-gallery data-component={spec.name} data-fixture-tag={spec.platforms.web?.name} data-fixture-step={inPage && document?.step ? '' : undefined}>
   {inPage && document && <Fragment set:html={stagingStyle(document.staging)} />}
-  {inPage && <Fragment set:html={stagesScript(groups)} />}
+  {stages.length > 0 && <Fragment set:html={stagesScript(groups)} />}
+  {windows && document && <Fragment set:html={windowScript(document)} />}
   {inPage && document?.step && <Fragment set:html={stepScript(spec.name, document.step)} />}
   {groups.map((group) => (
     <section class="docs-fixture-group">
@@ -69,7 +73,7 @@ if (system && !systemSheet) throw new Error(`FixtureGallery: no generated styles
                 code={stage.drawn}
                 source={stage.markup}
                 resize={false}
-                actions={stage.drawn ? (stage.kind === 'window' ? 2 : 1) : 0}
+                actions={stage.drawn ? (stage.kind === 'inline' ? 1 : 2) : 0}
                 stageClass="docs-stage-box"
                 stageAttributes={{ id: stageId }}
                 data-stage={stage.kind}
@@ -82,16 +86,19 @@ if (system && !systemSheet) throw new Error(`FixtureGallery: no generated styles
                     {stage.kind === 'window' && (
                       <tanrei-button class="docs-example-action" variant="text" size="small" label={named(t.stages.redraw, { id: stage.id })} data-stage-redraw><span slot="icon" data-pagefind-ignore>refresh</span></tanrei-button>
                     )}
+                    {stage.kind === 'opener' && (
+                      <tanrei-button class="docs-example-action" variant="text" size="small" toggle label={named(t.stages.open, { id: stage.id })} data-stage-open={stage.presence}><span slot="icon" data-pagefind-ignore>touch_app</span></tanrei-button>
+                    )}
                   </Fragment>
                 )}
                 {!stage.drawn ? (
                   <p class="docs-muted docs-stage-none">{t.notDefinedYet}</p>
                 ) : sized ? (
                   <div class="docs-stage-canvas docs-window" style={`--docs-window-width: ${sized.width}; --docs-window-height: ${sized.height}`} data-fit={stage.presented ? undefined : ''}>
+                    {/* Its document is written by the gallery's script (lib/fixture-stages.ts) when the stage comes near the
+                        view: until then it is the empty one a frame without an address holds. */}
                     <iframe
                       class="docs-window-frame"
-                      src={fixtureWindowHref(spec.name, stage.id)}
-                      loading="lazy"
                       inert
                       width={sized.width}
                       height={sized.height}
@@ -101,8 +108,9 @@ if (system && !systemSheet) throw new Error(`FixtureGallery: no generated styles
                   </div>
                 ) : (
                   /* The document's stage is drawn in this canvas, from the gallery's data, when the stage comes near
-                     the view (lib/fixture-stages.ts); until then the canvas holds the room its baseline shows. Its
-                     handle is kept where the staging gives the fixture a layout's width, and taken away elsewhere. */
+                     the view (lib/fixture-stages.ts) — an opener's closed; until then the canvas holds the room its
+                     baseline shows. Its handle is kept where the staging gives the fixture a layout's width, and taken
+                     away elsewhere. */
                   <div
                     class="docs-stage-canvas"
                     {...scope}

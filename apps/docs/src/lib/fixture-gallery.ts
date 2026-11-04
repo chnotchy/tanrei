@@ -6,16 +6,23 @@
 // component workshop's canvas shows one story (Storybook's Canvas block), and not a row of a table, whose columns
 // cannot give a drawing the room it needs at a phone's width. Every stage draws the fixture's stage of the web
 // package's document — the one its tests draw every fixture in and take each baseline from — so what a reader sees is
-// what every platform's baseline is compared with. There are two kinds of stage:
+// what every platform's baseline is compared with. There are three kinds of stage:
 //
 // - `inline`: the fixture is drawn in the page's own document: the document's stage, with the component's staging
-//   (`staging`, scoped to the stage), at the size its baseline was taken at.
-// - `window`: a presented fixture (a modal dialog, an open menu, a docked picker, a tooltip), every fixture that is a
-//   whole page's frame (the app shell), and one whose staging sizes it by the window (a responsive drawer), is drawn
-//   alone in a window of its own — an `iframe` of the fixture's
-//   document (src/pages/fixtures/[component].astro) at the size of the stage its baseline was taken of. What it puts in
+//   (`staging`, scoped to the stage), at the size its baseline was taken at. So is a presented fixture whose surface
+//   the document draws in place (an open menu, a select's list, a popover beside its anchor, a docked picker: the
+//   element's `inline`, which draws it without placing it in the top layer, taking focus or dismissing it), and one
+//   that is presented in its own place in the layout (a standard drawer or sheet, an expanded snackbar).
+// - `opener`: a presented fixture whose surface stands beside its anchor in the top layer (a tooltip, a button's
+//   menu), which the page's own top layer would draw over the whole site, is drawn in the page closed, and its stage
+//   has an action that opens it — the real surface, on the page, as a product's opens.
+// - `window`: a modal fixture (a dialog, a modal sheet or drawer, a modal picker, an image preview), every fixture
+//   that is a whole page's frame (the app shell), and one whose staging sizes it by the window (a responsive drawer)
+//   is drawn alone in a window of its own: an `iframe` whose document the page writes itself (`srcdoc`) from the
+//   fixture's stage and the component's staging, at the size of the stage its baseline was taken of. What it puts in
 //   the top layer or places against the window stays in that window, and what reads the window's width (a drawer's
-//   breakpoints) reads the stage's. A window is drawn scaled down where the column is narrower than it.
+//   breakpoints) reads the stage's. A window is drawn scaled down where the column is narrower than it. Nothing is
+//   fetched for it, so the host's refusal to let any document be framed does not reach it.
 import { fixtureDocument, stageMarkup } from './fixture-documents';
 import type { Spec, SpecProp } from './repo';
 
@@ -35,18 +42,26 @@ export interface Stage {
   holds: { items: number; slots: string[] };
   /** Not drawn: the web package does not draw the component yet (it has no document of its fixtures). */
   drawn: boolean;
-  kind: 'inline' | 'window';
-  /** For an inline stage: the document's stage, as HTML (`<div class="stage" data-fixture="…">…</div>`). */
+  kind: Kind;
+  /**
+   * The document's stage, as HTML (`<div class="stage" data-fixture="…">…</div>`): what the page draws in the stage, or
+   * writes into its window. An opener's is closed: its element without the attribute that presents it.
+   */
   html?: string;
   /** For a window stage: the window's size in CSS pixels. */
   window?: Size;
   /** For a window stage: the fixture is presented (and does not grow its window to hold its document). */
   presented?: boolean;
+  /** For an opener: the attribute of its element that presents it (`open`), which the stage's action sets. */
+  presence?: string;
   /** The fixture as a product writes it, for the copy action: what the document's stage holds. */
   markup?: string;
-  /** For an inline stage: the room it holds before it is drawn — the size of its baseline, where it has one. */
+  /** For a stage drawn in the page: the room it holds before it is drawn — the size of its baseline, where it has one. */
   reserve?: Size;
 }
+
+/** Where a stage draws its fixture: in the page, in the page closed with an action that opens it, or in a window of its own. */
+export type Kind = 'inline' | 'opener' | 'window';
 
 export interface Group {
   /** The axis the stages are grouped by and this group's value of it, where the spec has an axis that tells its fixtures apart. */
@@ -137,10 +152,78 @@ function factsOf(spec: Spec, fixture: Fixture): string[] {
 /** Props whose value is what the spec calls presenting the component. */
 const PRESENCE = ['open', 'expanded'];
 
-/** Whether a fixture is presented: the spec's presence prop (`open`, `expanded`: a boolean that defaults to false) is true in it. */
+/** The spec's presence prop: `open` or `expanded`, a boolean that defaults to false. */
+const presenceOf = (spec: Spec): SpecProp | undefined => spec.props.find((p) => PRESENCE.includes(p.name) && p.type === 'boolean' && p.default === false);
+
+/** Whether a fixture is presented: the spec's presence prop is true in it. */
 export function presented(spec: Spec, fixture: Fixture): boolean {
-  const presence = spec.props.find((p) => PRESENCE.includes(p.name) && p.type === 'boolean' && p.default === false);
+  const presence = presenceOf(spec);
   return !!presence && effective(fixture, presence) === true;
+}
+
+/** The attributes of the first element of `tag` in a stage's markup, as written (`' open inline label="…"'`); nothing where it holds none. */
+const openingTag = (html: string, tag: string) => new RegExp(`<${tag}((?:\\s+[^\\s=>]+(?:="[^"]*")?)*)\\s*>`).exec(html)?.[1];
+
+/**
+ * Whether the web package's document draws a presented fixture's surface in place: its element carries `inline`, the
+ * attribute an anchored surface takes for tests and documentation (an open menu, a select's or a combobox's list, a
+ * popover, a docked picker, a search's view), which draws it beside where it stands, without the top layer, an anchor's
+ * placement, focus on opening or a light dismiss.
+ */
+export const drawnInPlace = (spec: Spec, html: string): boolean => /\sinline(?:=""|(?=\s|$))/.test(openingTag(html, spec.platforms.web?.name ?? '') ?? '');
+
+/** The stage's markup with its element closed: the attribute that presents it taken away (an opener draws it so). */
+export function closed(spec: Spec, html: string, attribute: string): string {
+  const tag = spec.platforms.web?.name ?? '';
+  const attributes = openingTag(html, tag);
+  if (attributes === undefined) throw new Error(`fixture gallery: ${spec.name}'s stage holds no <${tag}> to close`);
+  const without = attributes.replace(new RegExp(`\\s${attribute}(?:="[^"]*")?(?=\\s|$)`), '');
+  if (without === attributes) throw new Error(`fixture gallery: ${spec.name}'s <${tag}> is presented without the attribute ${attribute}`);
+  return html.replace(`<${tag}${attributes}`, `<${tag}${without}`);
+}
+
+type Presentation = 'inline' | 'opener' | 'window';
+const modalVariant = (spec: Spec, fixture: Fixture): Presentation => {
+  const variant = spec.props.find((p) => p.name === 'variant');
+  return variant && effective(fixture, variant) === 'modal' ? 'window' : 'inline';
+};
+
+/**
+ * How a presented fixture is shown where the web package's document does not draw its surface in place, by component,
+ * from what its web element does when it is presented:
+ *
+ * - `window`: it is modal (`showModal()`: the top layer over a scrim, the rest of the window inert, focus held in it),
+ *   or it reads the window (a popover's compact sheet, POP-39). In the page it would cover the site and take its focus.
+ * - `opener`: its surface stands beside its anchor in the top layer (`showPopover()`). In the page every one of them
+ *   would be drawn over the site at once, the site's header included; each is drawn closed, and opened by its stage's
+ *   action, as a product opens it.
+ * - `inline`: it is presented in its own place in the layout, as any element is (a standard drawer or sheet, an
+ *   expanded snackbar, a compact table of contents' open list).
+ *
+ * A component that is not named here stops the build (`stageOf`): how a new one is shown is decided, not guessed.
+ */
+const PRESENTED: Record<string, (spec: Spec, fixture: Fixture) => Presentation> = {
+  dialog: () => 'window',
+  'modal-layer': () => 'window',
+  'image-preview': () => 'window',
+  'date-time-picker': () => 'window',
+  popover: () => 'window',
+  'bottom-sheet': modalVariant,
+  'side-sheet': modalVariant,
+  'navigation-drawer': modalVariant,
+  snackbar: () => 'inline',
+  'table-of-contents': () => 'inline',
+  tooltip: () => 'opener',
+  'button-with-menu': () => 'opener',
+};
+
+/** Where a stage draws a fixture the web package's document has: see the head of this file. */
+function kindOf(spec: Spec, fixture: Fixture, html: string, document: { page: boolean; windowed: string[] }): Presentation {
+  if (document.page || document.windowed.includes(fixture.id)) return 'window';
+  if (!presented(spec, fixture) || drawnInPlace(spec, html)) return 'inline';
+  const how = PRESENTED[spec.name];
+  if (!how) throw new Error(`fixture gallery: ${spec.name}/${fixture.id} is presented and its document does not draw it in place; say in PRESENTED (lib/fixture-gallery.ts) how it is shown`);
+  return how(spec, fixture);
 }
 
 /** One fixture's stage. */
@@ -151,8 +234,16 @@ export function stageOf(spec: Spec, fixture: Fixture): Stage {
   if (!document || !stage) return { ...base, drawn: false, kind: 'inline' };
   const markup = stageMarkup(stage.html);
   const size = document.sizes[fixture.id];
-  if (document.page || document.windowed.includes(fixture.id) || presented(spec, fixture)) return { ...base, drawn: true, kind: 'window', window: size ?? windowOf(spec, fixture), presented: presented(spec, fixture), markup };
-  return { ...base, drawn: true, kind: 'inline', html: stage.html, markup, reserve: size };
+  const kind = kindOf(spec, fixture, stage.html, document);
+  if (kind === 'window') {
+    if (document.step) throw new Error(`fixture gallery: ${spec.name}/${fixture.id} is drawn in a window, and its document takes a step in script, which no window takes`);
+    return { ...base, drawn: true, kind, html: stage.html, window: size ?? windowOf(spec, fixture), presented: presented(spec, fixture), markup };
+  }
+  if (kind === 'opener') {
+    const presence = presenceOf(spec)!.name;
+    return { ...base, drawn: true, kind, html: closed(spec, stage.html, presence), presence, markup, reserve: size };
+  }
+  return { ...base, drawn: true, kind, html: stage.html, markup, reserve: size };
 }
 
 /** The spec's fixtures as groups of stages: by the grouping axis's values in the spec's order (then any other), or one group. */
@@ -170,9 +261,6 @@ export function galleryOf(spec: Spec): Group[] {
     .filter((group) => group.stages.length > 0);
 }
 
-/** The address of the document a window draws: one fixture of a component, alone. */
-export const fixtureWindowHref = (component: string, id: string) => `/fixtures/${component}/?${new URLSearchParams({ id })}`;
-
 /** The scope a stage drawn in the page stands in: its canvas, which the component's staging is scoped to. */
 export const STAGE_SCOPE = 'data-fixture-scope';
 
@@ -182,21 +270,31 @@ export const STAGE_SCOPE = 'data-fixture-scope';
  */
 export const stagingStyle = (staging: string) => `<style data-fixture-staging>@scope ([${STAGE_SCOPE}]) {\n${staging}\n}</style>`;
 
+/** JSON in a script that is data, every `<` written as an escape: see `stagesScript`. */
+const dataScript = (attribute: string, value: unknown) => `<script type="application/json" ${attribute}>${JSON.stringify(value).replaceAll('<', '\\u003c')}</script>`;
+
 /**
- * What the page's stages draw, by fixture id, as JSON in a script that is data: each is drawn when its stage comes
- * near the view (lib/fixture-stages.ts). Every `<` is written as an escape, so that the page's content, which is
- * rewritten as text once it is rendered (lib/markdown-content.mjs: inline code, links, islands), never reads a
- * fixture's markup as its own, and nothing in it ends the script.
+ * What the page's stages draw, by fixture id, as JSON in a script that is data: each is drawn — in the page, or in its
+ * window — when its stage comes near the view (lib/fixture-stages.ts). Every `<` is written as an escape, so that the
+ * page's content, which is rewritten as text once it is rendered (lib/markdown-content.mjs: inline code, links,
+ * islands), never reads a fixture's markup as its own, and nothing in it ends the script.
  */
 export function stagesScript(groups: Group[]): string {
   const drawn = Object.fromEntries(
     groups
       .flatMap((group) => group.stages)
-      .filter((stage) => stage.kind === 'inline' && stage.html)
+      .filter((stage) => stage.html)
       .map((stage) => [stage.id, stage.html]),
   );
-  return `<script type="application/json" data-fixture-stages>${JSON.stringify(drawn).replaceAll('<', '\\u003c')}</script>`;
+  return dataScript('data-fixture-stages', drawn);
 }
+
+/**
+ * What the gallery's windows write into each document besides its stage, as data: the component's staging as the web
+ * package's document has it (unscoped: in a window it is the document's own), and whether its stages are a whole
+ * page's frame (they stand in a `div`, not in the document's `main`).
+ */
+export const windowScript = (document: { staging: string; page: boolean }) => dataScript('data-fixture-window', { staging: document.staging, page: document.page });
 
 /**
  * The document's step in script, for the stages drawn in the page: the step's own source and the fixtures it reads,

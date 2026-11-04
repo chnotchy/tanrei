@@ -114,8 +114,9 @@ const en = {
   minimumTarget: 'Minimum target',
   minimumTargetText: 'The hit area meets the minimum target size even when the visual size is smaller.',
   notDefinedYet: 'Not available in the installed web build.',
-  // The gallery of fixtures (components/fixtures/FixtureGallery.astro): a stage's actions, its width handle and its
-  // window. `{id}` is a fixture's id; `{width}` and `{height}` are pixels.
+  // The gallery of fixtures (components/fixtures/FixtureGallery.astro): a stage's actions (its scheme, drawing its
+  // window again, opening a fixture drawn closed), its width handle and its window. `{id}` is a fixture's id; `{width}`
+  // and `{height}` are pixels.
   // The docs' one frame (components/visuals/Example.astro): its title where a page gives none, its code and the
   // code's kinds, the copy of it, the direction it draws its stage in when turned (by the page's own direction:
   // a page that reads left to right offers right to left), and its width handle. `{title}` is the frame's title.
@@ -123,6 +124,7 @@ const en = {
   stages: {
     dark: 'Dark scheme',
     redraw: 'Draw {id} again',
+    open: 'Open {id}',
     width: 'Width of {id}',
     frame: 'Fixture {id}',
     window: 'Drawn alone in a window of {width} × {height}',
@@ -427,6 +429,7 @@ const ja: typeof en = {
   stages: {
     dark: 'ダークスキーム',
     redraw: '{id} を描き直す',
+    open: '{id} を開く',
     width: '{id} の幅',
     frame: 'フィクスチャ {id}',
     window: '{width} × {height} のウィンドウに単独で描画',
@@ -687,6 +690,7 @@ const zh: typeof en = {
   stages: {
     dark: '深色方案',
     redraw: '重新绘制 {id}',
+    open: '打开 {id}',
     width: '{id} 的宽度',
     frame: '测试样例 {id}',
     window: '单独绘制在 {width} × {height} 的窗口中',
@@ -946,6 +950,7 @@ const es: typeof en = {
   stages: {
     dark: 'Esquema oscuro',
     redraw: 'Volver a dibujar {id}',
+    open: 'Abrir {id}',
     width: 'Ancho de {id}',
     frame: 'Fixture {id}',
     window: 'Dibujado por separado en una ventana de {width} × {height}',
@@ -1205,6 +1210,7 @@ const hi: typeof en = {
   stages: {
     dark: 'डार्क स्कीम',
     redraw: '{id} को फिर से बनाएँ',
+    open: '{id} खोलें',
     width: '{id} की चौड़ाई',
     frame: 'फ़िक्स्चर {id}',
     window: '{width} × {height} की विंडो में अलग से बनाया गया',
@@ -1464,6 +1470,7 @@ const ar: typeof en = {
   stages: {
     dark: 'النظام الداكن',
     redraw: 'إعادة رسم {id}',
+    open: 'فتح {id}',
     width: 'عرض {id}',
     frame: 'نموذج الاختبار {id}',
     window: 'مرسوم وحده في نافذة بحجم {width} × {height}',
