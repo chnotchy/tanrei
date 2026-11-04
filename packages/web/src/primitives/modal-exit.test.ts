@@ -196,6 +196,70 @@ for (const surface of SURFACES) {
       if (surface.scrim) expect(rest.scrim, 'the scrim has faded in at rest').toBe(1);
     });
 
+    test(`MDL-7, MOT-1: closed by work that outlasts its exit, the ${surface.name}${surface.scrim ? ' and its scrim move' : ' moves'} out from the first frame drawn after it, still drawn`, async ({ page }) => {
+      // The exit is begun in the work that closes it, and WebKit dated it from the frame drawn before that work: where
+      // the work outlasted the exit, the first frame after it had the exit over, and the surface and its scrim were gone
+      // without a frame of their motion. Here it is closed in a frame callback, where WebKit's timeline holds that
+      // frame's time on any machine (in a task its time depends on what the page did before: on this page, after the
+      // entrance, WebKit on macOS read it afresh in the task, and the exit was not over); the work is held for longer
+      // than the exit, and the first frame after it is read in its frame callback, as drawn.
+      await page.emulateMedia({ reducedMotion: 'no-preference' });
+      const host = await mount(page, surface);
+      await open(page, host);
+      const opener = await openerOf(host);
+      const read = (dialog: HTMLDialogElement) => {
+        const style = getComputedStyle(dialog);
+        // Its place as numbers: open, one engine writes `none`, another `0px`, and one held at an exit's start `0px 0%`.
+        const [x = 0, y = 0] = style.translate === 'none' ? [] : style.translate.split(' ').map((length) => Number.parseFloat(length));
+        return {
+          drawn: style.display !== 'none' && (dialog.matches(':modal') || dialog.matches(':popover-open')),
+          opacity: Number(style.opacity),
+          translate: `${x} ${y}`,
+          scrim: Number(getComputedStyle(dialog, '::backdrop').opacity),
+        };
+      };
+      const first = await host.evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }, source) => {
+        const dialog = el.shadowRoot!.querySelector('dialog')!;
+        const shown = (0, eval)(`(${source})`) as (dialog: HTMLDialogElement) => Record<string, boolean | number | string>;
+        const before = shown(dialog);
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+        // In that frame's callback.
+        el.open = false;
+        await el.updateComplete;
+        const motions = () => dialog.getAnimations({ subtree: true }).filter((animation) => (animation.effect as KeyframeEffect).target === dialog);
+        const exit = Math.max(0, ...motions().map((animation) => Number(animation.effect!.getComputedTiming().endTime)));
+        const end = performance.now() + exit + 200;
+        while (performance.now() < end);
+        return new Promise<{ before: Record<string, boolean | number | string>; exit: number; shown: Record<string, boolean | number | string>; at: string[]; focus: string }>((resolve) =>
+          requestAnimationFrame(() =>
+            resolve({
+              before,
+              exit,
+              shown: shown(dialog),
+              at: motions().map((animation) => `${(animation as CSSTransition).transitionProperty}${(animation.effect as KeyframeEffect).pseudoElement !== null ? ' (scrim)' : ''} at ${Math.round(Number(animation.currentTime))} ms`),
+              focus: document.activeElement?.id ?? '',
+            }),
+          ),
+        );
+      }, read.toString());
+      expect(first.exit, 'its exit takes time').toBeGreaterThan(0);
+      expect(first.at.length, `it moves out: ${first.at.join(', ')}`).toBeGreaterThan(0);
+      expect(first.at.filter((motion) => !motion.endsWith(' at 0 ms')), 'in the first frame after that work every motion of the surface and its scrim stands at its start').toEqual([]);
+      if (surface.scrim) expect(first.at.some((motion) => motion.includes('(scrim)')), `the scrim fades out: ${first.at.join(', ')}`).toBe(true);
+      expect(first.shown, 'and the surface and its scrim are drawn as they were shown open, in the top layer').toEqual(first.before);
+      expect(first.focus, 'focus is back on the opener (MDL-5)').toBe(opener);
+      // And it still leaves: its exit plays to its end, and then it is out of the top layer, not modal, not inert.
+      await motionEnded(host);
+      await expect
+        .poll(() =>
+          host.evaluate((el) => {
+            const dialog = el.shadowRoot!.querySelector('dialog')!;
+            return { drawn: getComputedStyle(dialog).display !== 'none', open: dialog.open, leaving: dialog.hasAttribute('data-tanrei-leaving'), inert: dialog.inert };
+          }),
+        )
+        .toEqual({ drawn: false, open: false, leaving: false, inert: false });
+    });
+
     test(`MOT-2: opened again while it leaves, the ${surface.name} goes back from what it shows, modal again`, async ({ page }) => {
       await page.emulateMedia({ reducedMotion: 'no-preference' });
       const host = await mount(page, surface);

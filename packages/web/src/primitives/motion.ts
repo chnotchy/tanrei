@@ -248,10 +248,13 @@ const appearing = (element: Element) =>
  * (or ended there, with its events), and the surface is drawn whole at once. (A combobox's list, its rows rendered in
  * the task that opens it, took 200–340 ms there on a two-core Linux runner, against an entrance of 300 ms.) Played
  * again in the same task it is dated the same way; so each is held at its start, which the next frame draws, and
- * played from that frame's callback, where the timeline has that frame's time. One that is no longer held there — replaced or cancelled (closed again), or held elsewhere by a script — is left as it
- * is. A hidden document draws no frame, and shows nothing, until it is shown: its motions are left to the engine.
+ * played from that frame (`nextFrame`), where the timeline has that frame's time. One that is no longer held there —
+ * replaced or cancelled (opened or closed again), or held elsewhere by a script — is left as it is. A hidden document
+ * draws no frame, and shows nothing, until it is shown: its motions are left to the engine. `leaving`: the motions are
+ * an exit, which the surface waits for before it goes, and so are played even where a page clock holds frame callbacks
+ * (`nextFrame`).
  */
-export function startFromNextFrame(motions: readonly Animation[]): void {
+export function startFromNextFrame(motions: readonly Animation[], { leaving = false }: { leaving?: boolean } = {}): void {
   if (typeof requestAnimationFrame !== 'function' || document.visibilityState === 'hidden') return;
   const started = motions.filter((animation) => animation.playState === 'running');
   if (!started.length) return;
@@ -259,17 +262,48 @@ export function startFromNextFrame(motions: readonly Animation[]): void {
     animation.pause();
     animation.currentTime = 0;
   }
-  requestAnimationFrame(() => {
+  nextFrame(() => {
     for (const animation of started) if (animation.playState === 'paused' && animation.currentTime === 0) animation.play();
-  });
+  }, leaving);
 }
 
 /**
- * The entrance that the open state just started on `element` begins in the first frame drawn after it
- * (`startFromNextFrame`). Called in the task that wrote the open state, so every transition of the appearance on
+ * Runs `then` once, in the next frame the document draws: in its frame callbacks. `unheld` (an exit, which a surface
+ * waits for before it leaves the top layer): also where a page clock holds those callbacks (Playwright's `page.clock`,
+ * a test's fake timers), at a resize observer's first report of the root, which every drawn frame gives and no clock
+ * holds; else the surface would stand at the start of its exit for as long as the clock does, and never leave. The
+ * root is observed from a task of its own (a message, which no clock holds either), so that the report is a later
+ * frame's even when this is asked for in a frame's callbacks, and so that no observation begins while resize
+ * observers report (WebKit reports one begun then as a loop of undelivered notifications). An entrance is played from
+ * the frame callbacks alone, as before: nothing waits for it (under a held clock it stands at its start).
+ */
+function nextFrame(then: () => void, unheld: boolean) {
+  let done = false;
+  let observer: ResizeObserver | null = null;
+  const run = () => {
+    if (done) return;
+    done = true;
+    observer?.disconnect();
+    then();
+  };
+  requestAnimationFrame(run);
+  if (!unheld || typeof ResizeObserver !== 'function' || typeof MessageChannel !== 'function') return;
+  const soon = new MessageChannel();
+  soon.port1.onmessage = () => {
+    soon.port1.close();
+    if (done) return;
+    observer = new ResizeObserver(run);
+    observer.observe(document.documentElement);
+  };
+  soon.port2.postMessage(0);
+}
+
+/**
+ * The entrance or the exit that the open or the closed state just started on `element` begins in the first frame drawn
+ * after it (`startFromNextFrame`). Called in the task that wrote that state, so every transition of the appearance on
  * `element` began in it.
  */
-const fromNextFrame = (element: HTMLElement) => startFromNextFrame(appearing(element));
+const fromNextFrame = (element: HTMLElement, leaving = false) => startFromNextFrame(appearing(element), { leaving });
 
 /**
  * Draws `element` in the style it has now with no transition into it: none starts, and one that had started is
@@ -325,6 +359,8 @@ export class AppearController implements ReactiveController {
   /** The entrance asked for is made at once. */
   private instant = false;
   private quiet: HTMLElement | null = null;
+  /** The transitions of the last entrance: an exit turns round from it while any of them has not finished. */
+  private entrance: Animation[] = [];
 
   constructor(
     private readonly host: Host & { isUpdatePending?: boolean },
@@ -378,6 +414,7 @@ export class AppearController implements ReactiveController {
     motion.setAttribute(APPEARING, '');
     if (this.instant || !documentPainted() || !motion.isConnected) atOnce(motion);
     else fromNextFrame(motion);
+    this.entrance = appearing(motion);
   }
 
   /**
@@ -422,6 +459,13 @@ export class AppearController implements ReactiveController {
    */
   async exit(instant = false): Promise<boolean> {
     const run = ++this.run;
+    // Closed in this task from rest (open, its entrance over): the exit's transitions begin in it, from the open look.
+    // Told again while it leaves, they had begun before, and go on as they are. Turned round in the middle of its
+    // entrance, the exit is not held either: in Firefox an exit held at its start that replaced an entrance still under
+    // way was drawn from nothing (a tooltip closed a quarter of the way into an entrance a script had moved there: an
+    // opacity of 0.0006 where 0.25 was shown, TIP-29).
+    let closing = this.opened && this.entrance.every((animation) => animation.playState === 'finished');
+    this.entrance = [];
     this.opened = false;
     this.waiting = false;
     if (this.host.isUpdatePending) await this.host.updateComplete;
@@ -437,6 +481,11 @@ export class AppearController implements ReactiveController {
       // and the loop asks again: what replaced it is waited for, and a surface opened again ends the wait.
       const running = appearing(motion);
       if (!running.length) return run === this.run;
+      // The exit begins in the first frame drawn after the task that closed it, as an entrance does (`fromNextFrame`):
+      // WebKit dated it from the frame drawn before that task, and a surface closed at the end of a task longer than its
+      // exit was gone in the first frame after it, with no frame of its motion.
+      if (closing) fromNextFrame(motion, true);
+      closing = false;
       await Promise.allSettled(running.map((animation) => animation.finished));
     }
   }

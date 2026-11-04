@@ -145,7 +145,9 @@ function gone(dialog: HTMLDialogElement, state: Leaving) {
  * false when it was opened again first (`openModal`). `instant` (or a dialog out of the document): closed now.
  *
  * The exit is what the dialog's style gives it closed: its `[open]` rules are its open look, and its closed rules
- * transition to the closed look. Give the dialog `modalExitStyles()`.
+ * transition to the closed look. Give the dialog `modalExitStyles()`. It and its scrim's fade begin in the first frame
+ * drawn after the closing task (`startFromNextFrame`, src/primitives/motion.ts); before the document's first paint they
+ * are left as they are.
  */
 export async function closeModal(dialog: HTMLDialogElement, { instant = false }: { instant?: boolean } = {}): Promise<boolean> {
   const was = leaving.get(dialog);
@@ -172,6 +174,10 @@ export async function closeModal(dialog: HTMLDialogElement, { instant = false }:
     dialog.setAttribute('popover', 'manual');
     dialog.showPopover();
   });
+  // Asking flushes style: the exit's transitions, and its scrim's, exist now. They begin in the first frame drawn after
+  // this task, as an entrance does: WebKit dated them from the frame drawn before it, and where a long task outlasted
+  // the exit the surface and its scrim were gone in that frame without a frame of their motion.
+  if (documentPainted()) startFromNextFrame([...turning(dialog), ...scrimMotions(dialog)], { leaving: true });
   return leave(dialog, state);
 }
 
