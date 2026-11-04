@@ -192,6 +192,19 @@ Menus are not popovers here: a menu, a select's or a combobox's list and a butto
 3. If the person cannot go on without answering it, it is a dialog.
 4. Otherwise it is a popover.
 
+### A toggletip
+
+A toggletip is a short note behind a small info button, beside the thing it explains. It is not a component of its own: it is a Button that opens a Popover. Use it where a tooltip will not do, because the note holds a link or must be reachable by touch, and keep it to a sentence or two.
+
+- **The button.** An icon-only Button, `variant="text"` and `size="small"`, whose `label` says what the note is about ("About storage") rather than "Info". A press opens the popover and a second press closes it; the popover names the button as its `anchor`.
+- **The popover.** Name it with `label`, or with `headline` where it draws a title. It takes focus when it opens and gives it back to the button when it closes, as every popover does, and Escape and a press outside close it.
+- **Not instead of the page.** What a person must read before going on belongs in the field's supporting text or the page itself, where nobody has to ask for it.
+
+<Example label="A toggletip: press the info button">
+  <tanrei-button id="popover-demo-toggletip-opener" variant="text" size="small" label="About storage" onclick="document.getElementById('popover-demo-toggletip').open = !document.getElementById('popover-demo-toggletip').open"><span slot="icon">info</span></tanrei-button>
+  <tanrei-popover id="popover-demo-toggletip" anchor="popover-demo-toggletip-opener" label="About storage" arrow onclose="this.open = false">Files in the trash count toward your storage until they are deleted. <a class="tanrei-link" href="#guidelines">How storage is counted</a></tanrei-popover>
+</Example>
+
 ### Do
 
 - Open it from a press on a control, and close it when that control is pressed again.

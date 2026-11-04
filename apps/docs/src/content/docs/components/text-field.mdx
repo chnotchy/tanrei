@@ -8,6 +8,7 @@ import ComponentAvailability from '../../../components/ComponentAvailability.ast
 import ComponentSpecs from '../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
 import Example from '../../../components/visuals/Example.astro';
+import DoDont from '../../../components/visuals/DoDont.astro';
 import Playground from '../../../components/visuals/Playground.astro';
 
 ## Overview
@@ -452,6 +453,28 @@ A `date`, `time` or `date-time` field is a row of segments in the input line, on
 A field's clock is its locale's: it has no setting for 12 or 24 hours and no minute step, as the DateTimePicker has.
 
 **The picker button.** With `picker`, the field draws an icon-only Button at its end, `calendar_month` for a date and `schedule` for a time, named by `pickerLabel`. Activating it emits `pickerRequest` with the value, type, `min` and `max`; a half-filled row sends an empty value and raises no entry error, because the picker is about to give a whole value. The field presents nothing itself: your product opens a [DateTimePicker](/components/date-time-picker/) in the matching mode, anchored to the field when it is docked, and sets the field's `value` from the picker's `change`. Give the picker the same `min`, `max` and `disabledDates` as the field. Focus returns to the button when the picker closes. The button is disabled with the field and not drawn while it is read-only.
+
+### Side by side
+
+<DoDont do="text-field/labelled" dont="text-field/placeholder-as-label" column>
+  <Fragment slot="doCaption">Give every field a label that stays, and put what it needs in the supporting text.</Fragment>
+  <Fragment slot="dontCaption">Don't use the placeholder as the label. It disappears as soon as someone types, the field has no name, and a debug build reports it.</Fragment>
+</DoDont>
+
+<DoDont do="text-field/one-field" dont="text-field/field-in-field" column>
+  <Fragment slot="doCaption">A text field is a field already: its label, its help and its error come with it.</Fragment>
+  <Fragment slot="dontCaption">Don't put a text field inside a field. The label is drawn twice, and a debug build reports it. The control a field frames is the text input.</Fragment>
+</DoDont>
+
+<DoDont do="text-field/required-mark" dont="text-field/required-in-label" column>
+  <Fragment slot="doCaption">Set `required` and let the field draw its mark.</Fragment>
+  <Fragment slot="dontCaption">Don't write “(required)” in the label as well. The mark already says it, and a screen reader would hear it twice.</Fragment>
+</DoDont>
+
+<DoDont do="text-field/read-only" dont="text-field/disabled-value" column>
+  <Fragment slot="doCaption">Show a value that cannot change with `readOnly`. People can still focus it, select it and copy it.</Fragment>
+  <Fragment slot="dontCaption">Don't disable a field only to show a value that cannot change. A disabled field is faint, cannot be focused, and its value cannot be copied.</Fragment>
+</DoDont>
 
 ### Do
 

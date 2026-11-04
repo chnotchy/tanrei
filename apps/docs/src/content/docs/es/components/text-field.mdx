@@ -2,7 +2,7 @@
 title: Campo de texto
 description: Permite introducir y editar texto (una línea, o varias que siguen al texto o cuyo tamaño se cambia a mano) o una fecha o una hora que se introducen unidad por unidad en el formato de la configuración regional, o código que se conserva exactamente como se escribe, con una etiqueta que puede decir si el campo es obligatorio u opcional, iconos opcionales, prefijo y sufijo, texto de apoyo, un recuento de caracteres y un botón de selector.
 translationOf: components/text-field.mdx
-sourceHash: 11ca82869cc7b493be699f28b68da9e9801b3dec
+sourceHash: 683632de1567a4e1bbf6de24ceaf12427a272d2c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 import Playground from '../../../../components/visuals/Playground.astro';
 
 ## Descripción general
@@ -454,6 +455,28 @@ Un campo `date`, `time` o `date-time` es una fila de segmentos en la línea de e
 El reloj de un campo es el de su configuración regional: no tiene ajuste de 12 o 24 horas ni paso de minutos, como sí tiene el DateTimePicker.
 
 **El botón de selector.** Con `picker`, el campo dibuja al final un Button de solo icono, `calendar_month` para una fecha y `schedule` para una hora, que recibe su nombre de `pickerLabel`. Al activarlo emite `pickerRequest` con el valor, el tipo, `min` y `max`; una fila a medio rellenar envía un valor vacío y no produce ningún error de entrada, porque el selector está a punto de dar un valor completo. El campo no presenta nada por sí mismo: tu producto abre un [DateTimePicker](/es/components/date-time-picker/) en el modo correspondiente, anclado al campo cuando está acoplado, y define el `value` del campo a partir del `change` del selector. Da al selector los mismos `min`, `max` y `disabledDates` que al campo. El foco vuelve al botón cuando el selector se cierra. El botón se deshabilita con el campo y no se dibuja mientras este es de solo lectura.
+
+### Lado a lado
+
+<DoDont do="text-field/labelled" dont="text-field/placeholder-as-label" column>
+  <Fragment slot="doCaption">Da a cada campo una etiqueta que permanezca, y pon lo que necesita en el texto de ayuda.</Fragment>
+  <Fragment slot="dontCaption">No uses el placeholder como etiqueta. Desaparece en cuanto alguien escribe, el campo no tiene nombre, y una compilación de depuración lo informa.</Fragment>
+</DoDont>
+
+<DoDont do="text-field/one-field" dont="text-field/field-in-field" column>
+  <Fragment slot="doCaption">Un campo de texto ya es un campo: su etiqueta, su ayuda y su error vienen con él.</Fragment>
+  <Fragment slot="dontCaption">No pongas un campo de texto dentro de un campo. La etiqueta se dibuja dos veces, y una compilación de depuración lo informa. El control que enmarca un campo es la entrada de texto.</Fragment>
+</DoDont>
+
+<DoDont do="text-field/required-mark" dont="text-field/required-in-label" column>
+  <Fragment slot="doCaption">Define `required` y deja que el campo dibuje su marca.</Fragment>
+  <Fragment slot="dontCaption">No escribas además «(obligatorio)» en la etiqueta. La marca ya lo dice, y un lector de pantalla lo oiría dos veces.</Fragment>
+</DoDont>
+
+<DoDont do="text-field/read-only" dont="text-field/disabled-value" column>
+  <Fragment slot="doCaption">Muestra un valor que no puede cambiar con `readOnly`. La persona aún puede enfocarlo, seleccionarlo y copiarlo.</Fragment>
+  <Fragment slot="dontCaption">No deshabilites un campo solo para mostrar un valor que no puede cambiar. Un campo deshabilitado se ve tenue, no recibe el foco y su valor no se puede copiar.</Fragment>
+</DoDont>
 
 ### Recomendado
 

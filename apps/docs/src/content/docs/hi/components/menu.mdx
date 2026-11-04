@@ -2,7 +2,7 @@
 title: मेन्यू
 description: क्रियाओं या विकल्पों का एक छोटा सेट, जो एक अस्थायी सरफ़ेस पर उस एलिमेंट से खुलता है जिसने उसे माँगा।
 translationOf: components/menu.mdx
-sourceHash: 0341afebeabc8702ad394d02405a1d0b83eddc75
+sourceHash: c81574dec501c17c414ebc0bbbc0b4e5090cf4fb
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## अवलोकन
 
@@ -494,6 +495,28 @@ import Example from '../../../../components/visuals/Example.astro';
 मेन्यू को कौन बंद करता है, यह प्लैटफ़ॉर्म के अनुसार है। वेब और React Native पर आप close इवेंट से `open` (`visible`) को वापस false करते हैं। Compose पर आप `onDismissRequest` से `expanded` को false करते हैं, जिसके साथ एक `TanreiMenuCloseReason` आता है। Flutter पर मेन्यू कारण के साथ `onClose` को कॉल करता है और अपने कंट्रोलर के ज़रिए ख़ुद बंद हो जाता है। SwiftUI पर मेन्यू `isPresented` में `false` लिखता है, इसलिए कारण आगे नहीं दिया जाता।
 
 बाहर दबाने का असर नीचे की चीज़ तक भी पहुँचता है या नहीं, यह भी प्लैटफ़ॉर्म के अनुसार है। वेब और Flutter पर वह पहुँचता है। SwiftUI, Compose और React Native पर बाहर दबाना सिर्फ़ मेन्यू को बंद करता है।
+
+### आमने-सामने
+
+<DoDont do="menu/destructive-last" dont="menu/destructive-first">
+  <Fragment slot="doCaption">destructive क्रिया को आख़िर में, अपने अलग ग्रुप में रखें, जहाँ आगे निकल जाने वाला पॉइंटर उस पर न पड़े।</Fragment>
+  <Fragment slot="dontCaption">“हटाएँ” को सबसे ऊपर, सबसे ज़्यादा इस्तेमाल होने वाली क्रियाओं के बीच न रखें। जल्दबाज़ी का दबाव सबसे पहले उसी पर पड़ता है।</Fragment>
+</DoDont>
+
+<DoDont do="menu/radio-in-group" dont="menu/radio-outside-group">
+  <Fragment slot="doCaption">एक सवाल के रेडियो आइटम ऐसे ग्रुप में रखें जिसका शीर्षक वही सवाल पूछे, और ग्रुप का `value` चुने गए आइटम को बताए।</Fragment>
+  <Fragment slot="dontCaption">रेडियो आइटम को ग्रुप के बाहर न छोड़ें। उनका मान कोई नहीं रखता, इसलिए कोई भी कभी चुना नहीं जाता, और डीबग बिल्ड इसकी रिपोर्ट करता है।</Fragment>
+</DoDont>
+
+<DoDont do="menu/one-action-button" dont="menu/menu-of-one">
+  <Fragment slot="doCaption">एक ही क्रिया हो तो उसे बटन के रूप में दिखाएँ, जहाँ लोग उसे देख सकें।</Fragment>
+  <Fragment slot="dontCaption">एक आइटम का मेन्यू न बनाएँ। वह क्रिया को एक दबाव के पीछे छिपा देता है और बदले में कुछ नहीं देता।</Fragment>
+</DoDont>
+
+<DoDont do="menu/submenu-chevron" dont="menu/chevron-on-action">
+  <Fragment slot="doCaption">शेवरॉन सबमेन्यू आइटम को ख़ुद बनाने दें। यही निशान बताता है कि यहाँ एक और स्तर खुलता है।</Fragment>
+  <Fragment slot="dontCaption">किसी क्रिया को आख़िर में `chevron_right` न दें। वह सबमेन्यू जैसी दिखती है, और लोग ऐसे स्तर की उम्मीद करते हैं जो है ही नहीं।</Fragment>
+</DoDont>
 
 ### करें
 

@@ -2,7 +2,7 @@
 title: ポップオーバー
 description: 押したコントロールの横に開く小さなサーフェスに、読んだり操作したりできるコンテンツを表示します。コントロールに付いて動き、ページのほかの部分を暗くしたり、ふさいだりしません。コンパクトなウィンドウでは、ボトムシートの見た目をしたモーダルなサーフェスに表示します。
 translationOf: components/popover.mdx
-sourceHash: cd2056332ef89bbba2c92da6cb340178ef7a87c7
+sourceHash: 8ea783c257033a8837af0d1dc60f033602666320
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -193,6 +193,19 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 2. コマンドや選択肢のリストなら、メニューです。
 3. 答えなければ先に進めないなら、ダイアログです。
 4. それ以外は、ポップオーバーです。
+
+### トグルチップ
+
+トグルチップは、説明する対象の隣にある小さな情報ボタンの奥に置く、短い注記です。独立したコンポーネントではなく、ポップオーバーを開くボタンです。注記にリンクがある、タッチでも届かなければならないなど、ツールチップでは足りないところで使い、1〜2 文に収めます。
+
+- **ボタン。** アイコンだけのボタン（`variant="text"`、`size="small"`）にし、`label` には「情報」ではなく、注記が何についてのものか（「ストレージについて」）を書きます。押すとポップオーバーが開き、もう一度押すと閉じます。ポップオーバーはこのボタンを `anchor` に指定します。
+- **ポップオーバー。** `label` で名前を付けます。タイトルを描くなら `headline` で。ほかのポップオーバーと同じく、開くとフォーカスを受け取り、閉じるとボタンに返します。Escape と外側の押下でも閉じます。
+- **ページの代わりにしない。** 先へ進む前に読まなければならないことは、フィールドの補助テキストやページそのものに書きます。尋ねなくても読めるように。
+
+<Example label="トグルチップ：情報ボタンを押してください">
+  <tanrei-button id="popover-demo-toggletip-opener" variant="text" size="small" label="ストレージについて" onclick="document.getElementById('popover-demo-toggletip').open = !document.getElementById('popover-demo-toggletip').open"><span slot="icon">info</span></tanrei-button>
+  <tanrei-popover id="popover-demo-toggletip" anchor="popover-demo-toggletip-opener" label="ストレージについて" arrow onclose="this.open = false">ゴミ箱のファイルも、削除されるまでストレージの使用量に含まれます。 <a class="tanrei-link" href="#guidelines">ストレージの数え方</a></tanrei-popover>
+</Example>
 
 ### 推奨
 

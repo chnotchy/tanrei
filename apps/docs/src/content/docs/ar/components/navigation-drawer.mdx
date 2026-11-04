@@ -2,7 +2,7 @@
 title: درج التنقل
 description: يسرد وجهات المنتج في لوحة عند حافة البداية، في أقسام ومجموعات، بجانب المحتوى على شاشة كبيرة أو فوقه على شاشة مضغوطة، ويمكن أن يُطوى إلى عمود من الأيقونات.
 translationOf: components/navigation-drawer.mdx
-sourceHash: 1eab880be19d8f79601b7bfb85013b914a9924bc
+sourceHash: 8e98c35726faab405a37571e3d06be995d12d8cf
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## نظرة عامة
 
@@ -577,6 +578,28 @@ import Example from '../../../../components/visuals/Example.astro';
 - الخاصية `divider` في القسم ترسم فاصلًا قبله، ليتميّز عمّا فوقه. لا تضع فاصلًا بنفسك أبدًا.
 - تحمل الترويسة أزرار الترويسة، مرصوصة في عمود الأيقونات، والإجراء الرئيسي تحتها. ويقع منفذ الترويسة بجانب زر القائمة في الهيئة الموسَّعة، لعنوان أو مبدِّل حسابات، ولا يُرسم في الهيئة المطوية. والنص المجرد الموضوع فيه يُرسم بطراز عنوان الدرج (`comp.navigation-drawer.header.typescale` و`comp.navigation-drawer.header.color`)؛ أما عنصر من عناصرك يعيّن طرازه بنفسه فيحتفظ به.
 - حين تكون الصفوف أطول من الحيّز الذي تحت الترويسة، تصير قابلة للتمرير وتبقى الترويسة في مكانها. والتمرير الذي يبلغ أحد الطرفين لا يتابع إلى تمرير الصفحة التي خلف الدرج.
+
+### جنبًا إلى جنب
+
+<DoDont do="navigation-drawer/destinations-only" dont="navigation-drawer/actions-as-rows">
+  <Fragment slot="doCaption">املأ الدرج بالأماكن: كل صف يأخذ الشخص إلى مكان ما، وصف المكان الذي هو فيه محدَّد.</Fragment>
+  <Fragment slot="dontCaption">لا تضع إجراءات مثل «إنشاء رسالة» أو «تسجيل الخروج» بين الوجهات. الصف الذي يفعل شيئًا بدل أن يؤدي إلى مكان يخلّ بما يعد به كل صف آخر.</Fragment>
+</DoDont>
+
+<DoDont do="navigation-drawer/sibling-sections" dont="navigation-drawer/section-in-section">
+  <Fragment slot="doCaption">ضع الأقسام متجاورة، لكل منها عنوانه، وبينها فاصل.</Fragment>
+  <Fragment slot="dontCaption">لا تضع قسمًا داخل قسم. الأقسام لا تتداخل: يرسم القسم الداخلي وجهاته فقط، في مكانه، وتُبلغ عنه نسخة التصحيح.</Fragment>
+</DoDont>
+
+<DoDont do="navigation-drawer/named-sections" dont="navigation-drawer/vague-sections">
+  <Fragment slot="doCaption">سمِّ القسم بما تشترك فيه وجهاته، ليتخطى الشخص ما لا يحتاج إليه.</Fragment>
+  <Fragment slot="dontCaption">لا تسمِّ الأقسام «عام» و«المزيد». لا تقول شيئًا عمّا فيها، ويضطر الشخص إلى قراءة كل صف ليعرف.</Fragment>
+</DoDont>
+
+<DoDont do="navigation-drawer/most-used-first" dont="navigation-drawer/rarely-used-first">
+  <Fragment slot="doCaption">ضع الوجهات الأكثر استخدامًا في الأعلى، حيث تبدأ العين والمؤشر.</Fragment>
+  <Fragment slot="dontCaption">لا تبدأ الدرج بالأماكن التي نادرًا ما يزورها الناس. عندئذ تبدأ كل زيارة ببحث نزولًا في العمود.</Fragment>
+</DoDont>
 
 ### افعل
 

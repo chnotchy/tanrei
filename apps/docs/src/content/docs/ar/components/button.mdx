@@ -2,7 +2,7 @@
 title: الزر
 description: يتيح للأشخاص تنفيذ إجراء، أو تشغيل شيء وإيقافه، أو الذهاب إلى وجهة، بنقرة واحدة.
 translationOf: components/button.mdx
-sourceHash: f888556fbe868c4858d27e4c999dcfdeffd781f9
+sourceHash: e5e2a19bb0002ea51da36b36f18c053ea26e99d2
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -11,6 +11,7 @@ import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
 import StateMatrix from '../../../../components/visuals/StateMatrix.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 import Playground from '../../../../components/visuals/Playground.astro';
 
 ## نظرة عامة
@@ -374,6 +375,38 @@ import Playground from '../../../../components/visuals/Playground.astro';
 الخاصية `destructive` ليست طرازًا: تُضاف إلى أي طراز، وتحفظ درجة إبرازه (انظر [الإجراءات المدمرة](#الإجراءات-المدمرة)).
 
 الزر الذي بلا `variant` يكون من الطراز filled، مع استثناء واحد: حين يوضع إجراءً في [مربع حوار](/ar/components/dialog/) أو في [لوحة جانبية](/ar/components/side-sheet/) يأخذ طراز ذلك المضيف، وهو tonal في النظام الافتراضي، فلا تضبط الطراز إلا على الإجراء الذي ينبغي أن يبدو مختلفًا. وزر الإغلاق في كل مضيف، في اللوحة المنبثقة واللوحة الجانبية واللوحة السفلية والتنويه وشريط الإشعار ومعاينة الصور، زر صغير (small) بأيقونة فقط يأخذ بالطريقة نفسها طراز زر الإغلاق الخاص بمضيفه، وهو tonal في النظام الافتراضي. وعلى سطح ملوّن، مثل تنويه لحالة أو شريط إشعار معكوس، يُرسم أيضًا بلون نص ذلك السطح.
+
+### جنبًا إلى جنب
+
+<DoDont do="button/form-delete-text" dont="button/form-delete-filled">
+  <Fragment slot="doCaption">في نموذج يعدّل شيئًا، اجعل «حذف» زرًّا من الطراز text مع `destructive`، ليبقى الإجراء الأساسي هو الزر الوحيد من الطراز filled.</Fragment>
+  <Fragment slot="dontCaption">لا تضع زرًّا destructive من الطراز filled بجانب الإجراء الأساسي لشاشة لم توجد للحذف. يتنافس الزران، ويفوز الأحمر.</Fragment>
+</DoDont>
+
+<DoDont do="button/delete-dialog-named" dont="button/delete-dialog-vague">
+  <Fragment slot="doCaption">حيث يكون الحذف هو الخطوة التي وُجد مربع الحوار من أجلها، يجوز أن يكون إجراء التأكيد من الطراز filled ومع destructive. تسميته تقول ما الذي سيُحذف، وبجانبه «إلغاء».</Fragment>
+  <Fragment slot="dontCaption">لا تسمِّ إجراءً destructive «موافق». إنها آخر ما يقرؤه الشخص قبل أن يختفي شيء: قل ما الذي سيُحذف.</Fragment>
+</DoDont>
+
+<DoDont do="button/link-to-delete" dont="button/link-destructive">
+  <Fragment slot="doCaption">اجعل الرابط المؤدي إلى المكان الذي يُحذف فيه الحساب رابطًا عاديًّا. تقول تسميته إلى أين يؤدي، وتقول علامة الحذف إن خطوة أخرى تليه.</Fragment>
+  <Fragment slot="dontCaption">لا تعطِ رابطًا `destructive`. اتباع الرابط لا يحذف شيئًا، ولذلك يتجاهلها الزر ويُرسم رابطًا من طرازه، وتُبلغ عنها نسخة التصحيح.</Fragment>
+</DoDont>
+
+<DoDont do="button/one-filled" dont="button/all-filled">
+  <Fragment slot="doCaption">استعمل الإبراز مرة واحدة: زر واحد من الطراز filled للإجراء الذي وُجد العرض من أجله، وطرز أهدأ لما سواه.</Fragment>
+  <Fragment slot="dontCaption">لا تجعل كل الإجراءات من الطراز filled. حين يُبرَز كل شيء، لا يبرز شيء.</Fragment>
+</DoDont>
+
+<DoDont do="button/busy-saving" dont="button/disabled-saving">
+  <Fragment slot="doCaption">ما دام إجراؤه جاريًا، اضبط `busy` و`busyLabel`. يحتفظ الزر بمكانه وبتركيز الشخص، ويرفض ضغطة ثانية.</Fragment>
+  <Fragment slot="dontCaption">لا تعطّل زرًّا ما دام إجراؤه يعمل. يخرج من ترتيب التركيز، ويذهب تركيز الشخص معه.</Fragment>
+</DoDont>
+
+<DoDont do="button/close-named" dont="button/close-unnamed">
+  <Fragment slot="doCaption">سمِّ زر الإغلاق ذا الأيقونة وحدها بالخاصية `label`، بكلمات منتجك. زر الإغلاق الخاص بلوحة أو لوحة منبثقة أو إشعار يُسمّى بخاصيته `closeLabel`؛ ولا زر إغلاق لمربع الحوار.</Fragment>
+  <Fragment slot="dontCaption">لا تترك زرًّا بأيقونة وحدها من دون `label`. يبدو كما هو، لكن لا شيء يسمّيه، وتُبلغ عنه نسخة التصحيح.</Fragment>
+</DoDont>
 
 ### افعل
 

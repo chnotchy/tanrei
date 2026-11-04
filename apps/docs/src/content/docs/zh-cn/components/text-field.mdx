@@ -2,7 +2,7 @@
 title: "文本字段"
 description: "让用户输入和编辑文本——单行，或者随文本增高、可手动调整大小的多行——也可以按区域设置的格式逐个单位地输入日期或时间，或者输入代码并按写下的样子原样保存；它带有可以说明必填或选填的标签，以及可选的图标、前缀和后缀、辅助文本、字符计数和选择器按钮。"
 translationOf: components/text-field.mdx
-sourceHash: 11ca82869cc7b493be699f28b68da9e9801b3dec
+sourceHash: 683632de1567a4e1bbf6de24ceaf12427a272d2c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 import Playground from '../../../../components/visuals/Playground.astro';
 
 ## 概览
@@ -454,6 +455,28 @@ input.addEventListener('input', () => (field.countText = input.countText));
 文本字段的时制就是它的区域设置的时制：它不像日期时间选择器那样有 12 或 24 小时制的设置，也没有分钟步长。
 
 **选择器按钮。** 设置 `picker` 后，文本字段在末尾绘制一个纯图标的 Button，日期用 `calendar_month`，时间用 `schedule`，由 `pickerLabel` 命名。激活它会触发 `pickerRequest`，其中带有值、类型、`min` 和 `max`；只填了一半的一行会发送空值，并且不引发输入错误，因为选择器马上就会给出一个完整的值。文本字段自己不呈现任何东西：由你的产品以对应的模式打开 [DateTimePicker](/zh-cn/components/date-time-picker/)（停靠式的要锚定到文本字段上），并根据选择器的 `change` 设置文本字段的 `value`。给选择器设置与文本字段相同的 `min`、`max` 和 `disabledDates`。选择器关闭时，焦点回到这个按钮。文本字段禁用时按钮也禁用，文本字段只读时则不绘制按钮。
+
+### 对照
+
+<DoDont do="text-field/labelled" dont="text-field/placeholder-as-label" column>
+  <Fragment slot="doCaption">给每个字段一个始终显示的标签，把它需要什么写在辅助文字里。</Fragment>
+  <Fragment slot="dontCaption">不要用占位文字代替标签。用户一开始输入它就消失了，字段也没有名称，调试构建会报告这一点。</Fragment>
+</DoDont>
+
+<DoDont do="text-field/one-field" dont="text-field/field-in-field" column>
+  <Fragment slot="doCaption">文本字段本身就是一个字段：标签、帮助文字和错误提示都已包含在内。</Fragment>
+  <Fragment slot="dontCaption">不要把文本字段放进字段里。标签会被绘制两次，调试构建会报告这一点。字段所框住的控件是文本输入框。</Fragment>
+</DoDont>
+
+<DoDont do="text-field/required-mark" dont="text-field/required-in-label" column>
+  <Fragment slot="doCaption">设置 `required`，让字段自己绘制标记。</Fragment>
+  <Fragment slot="dontCaption">不要再在标签里写“（必填）”。标记已经说明了这一点，屏幕阅读器会读两遍。</Fragment>
+</DoDont>
+
+<DoDont do="text-field/read-only" dont="text-field/disabled-value" column>
+  <Fragment slot="doCaption">用 `readOnly` 展示无法更改的值。用户仍然可以聚焦、选择并复制它。</Fragment>
+  <Fragment slot="dontCaption">不要只为了展示无法更改的值而禁用字段。禁用的字段颜色很淡，无法聚焦，它的值也无法复制。</Fragment>
+</DoDont>
 
 ### 推荐
 

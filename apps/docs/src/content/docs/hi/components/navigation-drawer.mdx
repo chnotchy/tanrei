@@ -2,7 +2,7 @@
 title: नेविगेशन ड्रॉअर
 description: प्रॉडक्ट के गंतव्यों को शुरुआती किनारे के एक पैनल में, सेक्शन और ग्रुप में बाँटकर दिखाता है; बड़ी स्क्रीन पर कॉन्टेंट के बग़ल में और छोटी स्क्रीन पर उसके ऊपर, और सिमटकर आइकन का एक कॉलम बन सकता है।
 translationOf: components/navigation-drawer.mdx
-sourceHash: 1eab880be19d8f79601b7bfb85013b914a9924bc
+sourceHash: 8e98c35726faab405a37571e3d06be995d12d8cf
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## अवलोकन
 
@@ -577,6 +578,28 @@ Tanrei में अपनी कोई अलग नेविगेशन र�
 - सेक्शन का `divider` उसके पहले एक डिवाइडर बनाता है, ताकि वह ऊपर की चीज़ों से अलग दिखे। डिवाइडर आप ख़ुद कभी नहीं रखते।
 - हेडर में हेडर बटन रहते हैं, जो आइकन के कॉलम में एक के ऊपर एक रखे जाते हैं, और उनके नीचे मुख्य क्रिया। फैले हुए रूप में हेडर स्लॉट मेन्यू बटन के बग़ल में रहता है, किसी शीर्षक या अकाउंट स्विचर के लिए, और समेटे हुए रूप में नहीं दिखाया जाता। वहाँ रखा सादा टेक्स्ट ड्रॉअर की शीर्षक स्टाइल (`comp.navigation-drawer.header.typescale` और `comp.navigation-drawer.header.color`) में बनता है; आपका कोई एलिमेंट जो अपनी स्टाइल ख़ुद सेट करता है, वह उसे बनाए रखता है।
 - जब पंक्तियाँ हेडर के नीचे की जगह से ज़्यादा ऊँची हों, तो वे स्क्रॉल होती हैं और हेडर अपनी जगह रहता है। किसी भी सिरे तक पहुँचा स्क्रॉल आगे बढ़कर ड्रॉअर के पीछे के पेज को स्क्रॉल नहीं करता।
+
+### आमने-सामने
+
+<DoDont do="navigation-drawer/destinations-only" dont="navigation-drawer/actions-as-rows">
+  <Fragment slot="doCaption">ड्रॉअर में जगहें रखें: हर पंक्ति व्यक्ति को कहीं ले जाती है, और जिस जगह वह है उसकी पंक्ति चुनी हुई रहती है।</Fragment>
+  <Fragment slot="dontCaption">गंतव्यों के बीच “लिखें” या “साइन आउट करें” जैसी क्रियाएँ न रखें। जो पंक्ति कहीं ले जाने के बजाय कुछ करती है, वह बाक़ी हर पंक्ति का वादा तोड़ती है।</Fragment>
+</DoDont>
+
+<DoDont do="navigation-drawer/sibling-sections" dont="navigation-drawer/section-in-section">
+  <Fragment slot="doCaption">सेक्शन बराबरी पर रखें, हर एक अपने शीर्षक के साथ, और उनके बीच एक डिवाइडर।</Fragment>
+  <Fragment slot="dontCaption">किसी सेक्शन के अंदर सेक्शन न रखें। सेक्शन एक-दूसरे के अंदर नहीं जाते: अंदर वाला अपनी जगह पर सिर्फ़ अपने गंतव्य बनाता है, और डीबग बिल्ड इसकी रिपोर्ट करता है।</Fragment>
+</DoDont>
+
+<DoDont do="navigation-drawer/named-sections" dont="navigation-drawer/vague-sections">
+  <Fragment slot="doCaption">सेक्शन का नाम उस बात पर रखें जो उसके गंतव्यों में साझा है, ताकि व्यक्ति उन्हें छोड़ सके जिनकी उसे ज़रूरत नहीं।</Fragment>
+  <Fragment slot="dontCaption">सेक्शन के नाम “सामान्य” और “और” न रखें। वे नहीं बताते कि अंदर क्या है, और पता करने के लिए व्यक्ति को हर पंक्ति पढ़नी पड़ती है।</Fragment>
+</DoDont>
+
+<DoDont do="navigation-drawer/most-used-first" dont="navigation-drawer/rarely-used-first">
+  <Fragment slot="doCaption">जिन गंतव्यों का लोग सबसे ज़्यादा इस्तेमाल करते हैं, उन्हें सबसे ऊपर रखें, जहाँ से नज़र और पॉइंटर शुरू होते हैं।</Fragment>
+  <Fragment slot="dontCaption">ड्रॉअर की शुरुआत उन जगहों से न करें जहाँ लोग कम ही जाते हैं। तब हर बार कॉलम में नीचे तक खोजने से शुरुआत होती है।</Fragment>
+</DoDont>
 
 ### करें
 

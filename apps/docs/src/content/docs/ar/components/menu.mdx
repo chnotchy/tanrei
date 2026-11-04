@@ -2,7 +2,7 @@
 title: قائمة الخيارات
 description: مجموعة قصيرة من الإجراءات أو الاختيارات على سطح مؤقت يُفتح من العنصر الذي طلبه.
 translationOf: components/menu.mdx
-sourceHash: 0341afebeabc8702ad394d02405a1d0b83eddc75
+sourceHash: c81574dec501c17c414ebc0bbbc0b4e5090cf4fb
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -10,6 +10,7 @@ import ComponentAvailability from '../../../../components/ComponentAvailability.
 import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
 import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ## نظرة عامة
 
@@ -494,6 +495,28 @@ import Example from '../../../../components/visuals/Example.astro';
 من يغلق قائمة الخيارات يتبع المنصة. على الويب و React Native تعيد أنت `open` (`visible`) إلى false من حدث الإغلاق. على Compose تضبط `expanded` على false من `onDismissRequest` الذي يحمل قيمة من النوع `TanreiMenuCloseReason`. على Flutter تستدعي قائمة الخيارات `onClose` مع السبب وتغلق نفسها عبر متحكِّمها. على SwiftUI تكتب قائمة الخيارات `false` في `isPresented`، فلا يُنقل السبب.
 
 وهل يصل الضغط في الخارج إلى ما تحته أيضًا؟ هذا يتبع المنصة كذلك. على الويب و Flutter يصل. على SwiftUI و Compose و React Native يغلق الضغط قائمة الخيارات فقط.
+
+### جنبًا إلى جنب
+
+<DoDont do="menu/destructive-last" dont="menu/destructive-first">
+  <Fragment slot="doCaption">ضع الإجراء destructive في الآخر، منفصلًا في مجموعة خاصة به، حيث لا يقع عليه مؤشر تجاوز وجهته.</Fragment>
+  <Fragment slot="dontCaption">لا تضع «حذف» أولًا بين الإجراءات الأكثر استخدامًا. فهو العنصر الذي يُرجَّح أن تصيبه ضغطة متعجلة.</Fragment>
+</DoDont>
+
+<DoDont do="menu/radio-in-group" dont="menu/radio-outside-group">
+  <Fragment slot="doCaption">اجمع عناصر الاختيار الأحادي لسؤال واحد في مجموعة يطرح عنوانها السؤال، ويسمّي `value` المجموعة العنصر المحدَّد.</Fragment>
+  <Fragment slot="dontCaption">لا تترك عناصر الاختيار الأحادي خارج مجموعة. لا شيء يحفظ قيمتها، فلا يُحدَّد أي منها أبدًا، وتُبلغ عنها نسخة التصحيح.</Fragment>
+</DoDont>
+
+<DoDont do="menu/one-action-button" dont="menu/menu-of-one">
+  <Fragment slot="doCaption">اعرض الإجراء المنفرد زرًّا، حيث يراه الناس.</Fragment>
+  <Fragment slot="dontCaption">لا تصنع قائمة خيارات من عنصر واحد. إنها تخفي الإجراء خلف ضغطة ولا تقدّم شيئًا في المقابل.</Fragment>
+</DoDont>
+
+<DoDont do="menu/submenu-chevron" dont="menu/chevron-on-action">
+  <Fragment slot="doCaption">دع عنصر القائمة الفرعية يرسم سهمه بنفسه. إنه العلامة التي تقول إن مستوى آخر يُفتح هنا.</Fragment>
+  <Fragment slot="dontCaption">لا تعطِ إجراءً `chevron_right` في آخره. يبدو قائمة فرعية، فيتوقع الناس مستوى غير موجود.</Fragment>
+</DoDont>
 
 ### افعل
 
