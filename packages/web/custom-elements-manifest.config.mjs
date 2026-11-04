@@ -5,7 +5,7 @@ import path from 'node:path';
 
 /**
  * What a class's `static properties` says of each property, read from the syntax tree: an options object written in
- * place, a constant it names (`forwardedDescription: FORWARDED_DESCRIPTION` — followed into the module it is imported
+ * place, a constant it names (`label: LABEL_OPTIONS` — followed into the module it is imported
  * from) or the properties of another class spread into it (`...TanreiSearchRow.properties`). A declaration that cannot
  * be read stops the analysis: a guess here is an attribute in the manifest that no element reads, or a real one lost.
  *
