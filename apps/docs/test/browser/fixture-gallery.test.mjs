@@ -81,34 +81,67 @@ async function bounded(what, promise, more = () => '') {
 
 /**
  * Each page's DevTools session, its debugger on from the start (a thread busy in script is stopped to be read only so),
- * and the address of each script it has parsed, by id: a stopped frame names its script by id alone.
- * @type {WeakMap<import('@playwright/test').Page, { session: import('@playwright/test').CDPSession, scripts: Map<string, string> }>}
+ * the address of each script it has parsed, by id (a stopped frame names its script by id alone), and what happened to
+ * the page that the test did not ask for: its renderer crashed, or its thread stopped of itself.
+ * @type {WeakMap<import('@playwright/test').Page, { session: import('@playwright/test').CDPSession, scripts: Map<string, string>, asked: boolean, crashed?: number, stoppedOfItself?: { at: number, reason: string } }>}
  */
 const sessions = new WeakMap();
 
 /** How long a page's thread may take to stop where it stands, once it is asked to. */
 const STOP = 10_000;
 
+/** `promise`, or `otherwise` once `ms` have passed. */
+async function within(ms, promise, otherwise) {
+  let timer;
+  try {
+    return await Promise.race([promise, new Promise((resolve) => (timer = setTimeout(() => resolve(otherwise), ms)))]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** How long ago `at` was, in seconds. */
+const ago = (at) => `${Math.round((Date.now() - at) / 1000)} s ago`;
+
 /**
  * Where the page's script stands, read when it has not answered: its thread is stopped (`Debugger.pause`, which a
  * script that never yields still hears) and the innermost frames of its stack are named, with the file, line and
- * column of each. A thread that does not stop is not running script (it waits on the browser, or the renderer is gone),
- * and is named as that.
+ * column of each. A thread that does not stop is not running script, and the failure says which of two things it is
+ * doing instead. Its thread heard the request and runs no script — no timer of its own fires, and the page's step in
+ * script sets one for every wait (`measure`) — or it did not even hear it: it is held in the engine outside script
+ * (style, layout, paint, a call into the browser that does not return). For the second, the browser's renderers are
+ * read (`renderers`): whether one of them spends its time in its main thread, or waits.
  * @param {import('@playwright/test').Page} page
  */
 async function standing(page) {
-  const { session, scripts } = sessions.get(page) ?? {};
-  if (!session) return '';
-  let timer;
+  const held = sessions.get(page);
+  if (!held) return '';
+  const { session, scripts } = held;
+  const crash = held.crashed ? `; its renderer crashed ${ago(held.crashed)}` : '';
+  if (held.stoppedOfItself) return `; its thread was stopped ${ago(held.stoppedOfItself.at)} by nothing the test asked (${held.stoppedOfItself.reason})${crash}`;
   try {
+    let heard = false;
+    held.asked = true;
     const paused = new Promise((resolve) => session.once('Debugger.paused', resolve));
-    const stopped = await Promise.race([
-      session.send('Debugger.pause').then(() => paused),
-      new Promise((resolve) => {
-        timer = setTimeout(() => resolve(null), STOP);
+    const stopped = await within(
+      STOP,
+      session.send('Debugger.pause').then(() => {
+        heard = true;
+        return paused;
       }),
-    ]);
-    if (!stopped) return `; its thread did not stop to be read within ${STOP / 1000} s: it is not running script`;
+      null,
+    );
+    if (!stopped && heard) {
+      // The request to stop is still pending: it is cleared before the page is read, or the reading would stop there.
+      await within(STOP, session.send('Debugger.disable'), null);
+      const read = await within(
+        STOP,
+        session.send('Runtime.evaluate', { expression: 'JSON.stringify({ readyState: document.readyState, visibility: document.visibilityState, scrollY, height: document.scrollingElement.scrollHeight })', returnByValue: true }),
+        null,
+      );
+      return `; its thread heard the request to stop but ran no script within ${STOP / 1000} s (no timer of its own fired)${read ? `: it answers ${read.result?.value}` : ', and did not answer a reading of the page either'}${crash}`;
+    }
+    if (!stopped) return `; its thread did not hear the request to stop within ${STOP / 1000} s: it is held outside script${crash}${await renderers()}`;
     const at = stopped.callFrames.slice(0, 12).map((frame) => {
       const url = scripts.get(frame.location.scriptId) || frame.url;
       const file = url ? new URL(url).pathname + new URL(url).search : "the test's own script";
@@ -116,9 +149,78 @@ async function standing(page) {
     });
     return `; its script stands at ${at.join(' < ')}`;
   } catch (error) {
-    return `; where its script stands could not be read (${error.message})`;
-  } finally {
-    clearTimeout(timer);
+    return `; where its script stands could not be read (${error.message})${crash}`;
+  }
+}
+
+/** The browser's own DevTools session, opened the first time a page's renderers are read (`renderers`). */
+let browserSession;
+
+/**
+ * Each thread of a process, by id, as Linux names it: its name, its state (R running, S or D waiting), the CPU it has
+ * spent, in clock ticks, and what it waits in (`wchan`). Nothing where there is no `/proc` (macOS).
+ * @param {number} pid
+ * @returns {Map<number, { name: string, state: string, ticks: number, waits: string }>}
+ */
+function threadsOf(pid) {
+  const threads = new Map();
+  let tids = [];
+  try {
+    tids = fs.readdirSync(`/proc/${pid}/task`);
+  } catch {
+    return threads;
+  }
+  for (const tid of tids) {
+    try {
+      const stat = fs.readFileSync(`/proc/${pid}/task/${tid}/stat`, 'utf8');
+      const fields = stat.slice(stat.lastIndexOf(')') + 2).split(' ');
+      let waits = '';
+      try {
+        waits = fs.readFileSync(`/proc/${pid}/task/${tid}/wchan`, 'utf8').trim();
+      } catch {}
+      // After the name: state is the 1st field, utime and stime the 12th and 13th.
+      threads.set(Number(tid), { name: stat.slice(stat.indexOf('(') + 1, stat.lastIndexOf(')')), state: fields[0], ticks: Number(fields[11]) + Number(fields[12]), waits });
+    } catch {}
+  }
+  return threads;
+}
+
+/**
+ * What each of the browser's renderers, and its GPU process, did over one second, read when a page's thread is held
+ * outside script: the CPU each process spent (the browser's `SystemInfo.getProcessInfo`) and, where Linux says so, every
+ * thread of it — its name, its state (R running, S or D waiting), what it waits in, and the CPU it spent — threads of
+ * one name and state counted together. A main thread (named as the process is) that spends the whole second is caught
+ * in the engine (a style or layout that does not end); one that waits, waits on another thread or process, and the
+ * threads it may wait on are named beside it. Each page of the suite has a renderer of its own (a context of its own);
+ * which is the page's is not said by the browser, so every one is named.
+ */
+async function renderers() {
+  try {
+    browserSession ??= await within(STOP, browser.newBrowserCDPSession(), null);
+    if (!browserSession) return '; the browser did not open a session to say what its renderers do';
+    const read = async () => {
+      const info = await within(STOP, browserSession.send('SystemInfo.getProcessInfo'), null);
+      return info && new Map(info.processInfo.filter((each) => each.type === 'renderer' || each.type === 'GPU').map((each) => [each.id, { type: each.type, cpu: each.cpuTime, threads: threadsOf(each.id) }]));
+    };
+    const before = await read();
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const after = await read();
+    if (!before || !after) return '; the browser did not say what its renderers do';
+    const each = [...after].map(([pid, now]) => {
+      const was = before.get(pid);
+      const counted = new Map();
+      for (const [tid, t] of now.threads) {
+        const spent = was?.threads.get(tid) ? (t.ticks - was.threads.get(tid).ticks) / 100 : 0;
+        const key = `${tid === pid ? 'main' : t.name} ${t.state}${t.waits && t.waits !== '0' ? ` in ${t.waits}` : ''}`;
+        const sum = counted.get(key) ?? { n: 0, spent: 0 };
+        counted.set(key, { n: sum.n + 1, spent: sum.spent + spent });
+      }
+      const threads = [...counted].map(([key, { n, spent }]) => `${key}${n > 1 ? ` ×${n}` : ''}${spent ? ` (${spent.toFixed(2)} s)` : ''}`);
+      return `${now.type} ${pid}: ${was ? `${(now.cpu - was.cpu).toFixed(2)} s of CPU` : 'started in that second'}${threads.length ? ` [${threads.join(', ')}]` : ''}`;
+    });
+    return `; over 1 s, the browser's renderers and GPU process: ${each.join('; ')}`;
+  } catch (error) {
+    return `; what the browser's renderers do could not be read (${error.message})`;
   }
 }
 
@@ -152,10 +254,14 @@ async function openPage(what, options) {
   const context = await bounded(`${what}: a new browser context`, browser.newContext(options));
   const page = await bounded(`${what}: a new page`, context.newPage());
   const session = await bounded(`${what}: its DevTools session`, context.newCDPSession(page));
-  const scripts = new Map();
-  session.on('Debugger.scriptParsed', ({ scriptId, url }) => scripts.set(scriptId, url));
+  const held = { session, scripts: new Map(), asked: false };
+  session.on('Debugger.scriptParsed', ({ scriptId, url }) => held.scripts.set(scriptId, url));
+  session.on('Debugger.paused', ({ reason }) => {
+    if (!held.asked) held.stoppedOfItself ??= { at: Date.now(), reason };
+  });
+  page.on('crash', () => (held.crashed ??= Date.now()));
   await bounded(`${what}: its debugger`, session.send('Debugger.enable'));
-  sessions.set(page, { session, scripts });
+  sessions.set(page, held);
   return { page, close: () => bounded(`${what}: closing its context`, context.close()) };
 }
 
