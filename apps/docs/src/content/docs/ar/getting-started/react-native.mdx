@@ -7,6 +7,7 @@ sourceHash: 35eb7f74b0118a0fb1dec588b658c674df33ab86
 
 import Callout from '../../../../components/Callout.astro';
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
+import InstallCommand from '../../../../components/InstallCommand.astro';
 
 الحزمة `@tanrei/react-native` مكتوبة بلغة TypeScript بلا وحدات أصلية، فلا شيء يحتاج إلى ربط، وهي تعمل مع Expo. تستهدف المعمارية الجديدة (New Architecture) وتتطلب React 19 و React Native 0.78 أو أحدث.
 
@@ -38,9 +39,7 @@ npm install path/to/tanrei-packages/tanrei-react-native-*.tgz
 
 ### بعد نشرها
 
-```sh
-npm install @tanrei/react-native
-```
+<InstallCommand packages="react-native" />
 
 ## الاستخدام
 

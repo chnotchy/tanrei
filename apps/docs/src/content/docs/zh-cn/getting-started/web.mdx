@@ -9,6 +9,7 @@ import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import InstallCommand from '../../../../components/InstallCommand.astro';
 
 `@tanrei/web` 包含两样东西：一份以 CSS 自定义属性提供设计令牌的样式表，以及用 Lit 构建的、基于标准的自定义元素。它不要求使用任何框架。
 
@@ -18,9 +19,7 @@ import Example from '../../../../components/visuals/Example.astro';
 
 ### 从 npm
 
-```sh
-npm install @tanrei/web
-```
+<InstallCommand packages="web" />
 
 ### 从源码
 

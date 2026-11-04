@@ -9,6 +9,7 @@ import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 import Example from '../../../../components/visuals/Example.astro';
+import InstallCommand from '../../../../components/InstallCommand.astro';
 
 `@tanrei/web` में दो चीज़ें हैं: डिज़ाइन टोकन की एक स्टाइलशीट, जिसमें टोकन CSS कस्टम प्रॉपर्टी के रूप में हैं, और Lit से बने, वेब मानकों पर आधारित कस्टम एलिमेंट। इसके लिए किसी फ़्रेमवर्क की ज़रूरत नहीं है।
 
@@ -18,9 +19,7 @@ import Example from '../../../../components/visuals/Example.astro';
 
 ### npm से
 
-```sh
-npm install @tanrei/web
-```
+<InstallCommand packages="web" />
 
 ### सोर्स से
 

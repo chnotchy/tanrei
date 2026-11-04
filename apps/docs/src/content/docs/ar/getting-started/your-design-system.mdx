@@ -8,6 +8,7 @@ sourceHash: 647f155f3ba16d1377c26d7daac2a6ebdad810e4
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
+import InstallCommand from '../../../../components/InstallCommand.astro';
 
 لا تتغير مكوّنات Tanrei أبدًا حين يتغير مظهر منتجك. الذي يتغير هو **الطبقة**: ملف JSON صغير يعيّن قيمًا من المفردات المشتركة ويعلن لوحات ألوانك. وتحوّل الأداة `@tanrei/cli` هذا الملف الواحد إلى كل ما تحتاج إليه كل منصة.
 
@@ -19,9 +20,7 @@ import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 أضِف أداة سطر الأوامر إلى منتجك اعتماديةً للتطوير، فيشغّل كل أمر `npx tanrei …` في هذه الصفحة تلك النسخة. وهي تحمل Theme Studio الذي يقدّمه `tanrei studio`.
 
-```sh
-npm install --save-dev @tanrei/cli
-```
+<InstallCommand packages="cli" dev />
 
 لا يحتاج خادم MCP إلى تثبيت: يجلب `npx` الحزمة `@tanrei/mcp` حين يشغّله وكيل، كما يُسجَّل في موضع لاحق من هذه الصفحة.
 

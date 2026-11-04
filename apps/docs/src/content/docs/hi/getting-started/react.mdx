@@ -7,6 +7,7 @@ sourceHash: 8bc4bec678ed19a67a84c01798b3240663fd6cf1
 
 import Callout from '../../../../components/Callout.astro';
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
+import InstallCommand from '../../../../components/InstallCommand.astro';
 
 `@tanrei/react`, `@tanrei/web` के हर कस्टम एलिमेंट को एक असली React कंपोनेंट में लपेटता है, जिसकी प्रॉपर्टी और इवेंट हैंडलर टाइप किए हुए हैं। ये रैपर कस्टम एलिमेंट मैनिफ़ेस्ट से जनरेट होते हैं, इसलिए वे हमेशा उन एलिमेंट से मेल खाते हैं जिन्हें वे लपेटते हैं।
 
@@ -18,9 +19,7 @@ React 18 या उसके बाद का वर्शन ज़रूरी
 
 ### npm से
 
-```sh
-npm install @tanrei/react @tanrei/web
-```
+<InstallCommand packages="react web" />
 
 ### सोर्स से
 

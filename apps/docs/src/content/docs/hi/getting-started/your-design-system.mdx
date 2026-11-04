@@ -8,6 +8,7 @@ sourceHash: 647f155f3ba16d1377c26d7daac2a6ebdad810e4
 import Steps from '../../../../components/Steps.astro';
 import Callout from '../../../../components/Callout.astro';
 import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
+import InstallCommand from '../../../../components/InstallCommand.astro';
 
 आपके प्रॉडक्ट का रूप बदलने पर Tanrei के कंपोनेंट कभी नहीं बदलते। जो बदलता है वह एक **लेयर** है: एक छोटी JSON फ़ाइल, जो साझा शब्दावली के मान तय करती है और आपके पैलेट घोषित करती है। `@tanrei/cli` उसी एक फ़ाइल से वह सब कुछ बना देता है जो हर प्लैटफ़ॉर्म को चाहिए।
 
@@ -19,9 +20,7 @@ import ReleaseNotice from '../../../../components/ReleaseNotice.astro';
 
 कमांड लाइन टूल को अपने प्रॉडक्ट में डेवलपमेंट डिपेंडेंसी के रूप में जोड़ें; तब इस पेज का हर `npx tanrei …` कमांड वही कॉपी चलाता है। इसमें Theme Studio भी है, जिसे `tanrei studio` सर्व करता है।
 
-```sh
-npm install --save-dev @tanrei/cli
-```
+<InstallCommand packages="cli" dev />
 
 MCP सर्वर को इंस्टॉल करने की ज़रूरत नहीं: जब कोई एजेंट उसे शुरू करता है, तब `npx` `@tanrei/mcp` ले आता है, जैसा इस पेज में आगे रजिस्टर किया गया है।
 

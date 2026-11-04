@@ -1,0 +1,39 @@
+---
+// The command that adds the repository's packages to a product, in each package manager a reader may use:
+//
+//   <InstallCommand packages="react web" />
+//   <InstallCommand packages="cli" dev />
+//
+// A set of the docs' tabs (npm, pnpm, yarn, bun: lib/install-command.mjs), each holding the command as a shell's code
+// block with its copy button, as a fenced block of a page is drawn (CodeSample.astro). Every set shares one choice,
+// `syncKey="package-manager"`: choosing pnpm on one page shows pnpm on every other, from the first frame, remembered
+// on the reader's device by the Tab view (`remember-as`); where storage is blocked or throws, npm is shown and every
+// tab still works. Without script the four commands are listed, each under its manager's name (Tabs.astro).
+//
+// The packages are named under the scope, which comes from tanrei.config.json (`packages.npmScope`).
+import CodeSample from './CodeSample.astro';
+import { Tabs, TabItem } from './tabs';
+import { contentLang, fill, strings } from '../lib/i18n';
+import { config } from '../lib/repo';
+import { PACKAGE_MANAGERS, installCommand, publishedNames } from '../lib/install-command.mjs';
+
+interface Props {
+  /** The packages, by their names under the scope, separated by spaces: `web`, `react web`. */
+  packages: string;
+  /** As development dependencies. */
+  dev?: boolean;
+}
+const { dev = false } = Astro.props;
+const packages = publishedNames(Astro.props.packages, config.packages.npmScope);
+const t = strings(contentLang(Astro));
+---
+
+<Tabs syncKey="package-manager" label={t.install.choice}>
+  {
+    PACKAGE_MANAGERS.map((manager) => (
+      <TabItem label={manager}>
+        <CodeSample code={installCommand(manager, packages, { dev })} language="sh" prompt="$" label={fill(t.install.command, { manager })} />
+      </TabItem>
+    ))
+  }
+</Tabs>

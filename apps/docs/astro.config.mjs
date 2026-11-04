@@ -87,6 +87,8 @@ export default defineConfig({
         PageSidebar: './src/components/frame/PageSidebar.astro',
         ContentPanel: './src/components/frame/ContentPanel.astro',
         PageTitle: './src/components/frame/PageTitle.astro',
+        // The scheme before the first frame, read from storage that may throw (components/frame/ThemeProvider.astro).
+        ThemeProvider: './src/components/frame/ThemeProvider.astro',
         Banner: './src/components/frame/Nothing.astro',
         FallbackContentNotice: './src/components/frame/Nothing.astro',
         DraftContentNotice: './src/components/frame/Nothing.astro',
