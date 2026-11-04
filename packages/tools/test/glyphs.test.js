@@ -40,9 +40,10 @@ describe('which words are glyph names', () => {
       <tanrei-empty-state><span slot="media">explore_off</span></tanrei-empty-state> <span class="tanrei-icon" aria-hidden="true">home</span>
       const look = { status: 'warning', icon: 'schedule' }; result.leadingIcon = 'article'; Object.assign(el, { trailingIcon: "chevron_right" });
       css\`.box::before { content: 'check' / ''; }\`;
+      el('menu-item', { label: o.duplicate, 'leading-icon': 'library_add' }); h('tanrei-chip', { "trailing-icon": "cancel", 'data-kind': 'input' });
     `);
-    for (const word of ['favorite', 'light_mode', 'more_vert', 'public', 'explore_off', 'home', 'schedule', 'article', 'chevron_right', 'check']) assert.ok(words.has(word), word);
-    for (const word of ['warning', 'Like', 'Light']) assert.ok(!words.has(word), word);
+    for (const word of ['favorite', 'light_mode', 'more_vert', 'public', 'explore_off', 'home', 'schedule', 'article', 'chevron_right', 'check', 'library_add', 'cancel']) assert.ok(words.has(word), word);
+    for (const word of ['warning', 'Like', 'Light', 'input']) assert.ok(!words.has(word), word);
   });
   test('nothing else: a word the icon set also draws is no glyph because code writes it as a string or a text', () => {
     // The earlier scan read every whole-word string and element text, and took about 80 such words into each list.
