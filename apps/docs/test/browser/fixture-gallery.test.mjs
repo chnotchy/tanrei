@@ -186,12 +186,13 @@ function threadsOf(pid) {
 }
 
 /**
- * What each of the browser's renderers did over one second, read when a page's thread is held outside script: the CPU
- * the process spent (the browser's `SystemInfo.getProcessInfo`), and where Linux says so, the state of its main thread
- * and its compositor's, and the CPU its main thread spent. A renderer whose main thread spends the whole second is
- * caught in the engine (a style or layout that does not end); one whose main thread waits is blocked on something.
- * Each page of the suite has a renderer of its own (a context of its own); which is the page's is not said by the
- * browser, so every one is named.
+ * What each of the browser's renderers, and its GPU process, did over one second, read when a page's thread is held
+ * outside script: the CPU each process spent (the browser's `SystemInfo.getProcessInfo`) and, where Linux says so, every
+ * thread of it — its name, its state (R running, S or D waiting), what it waits in, and the CPU it spent — threads of
+ * one name and state counted together. A main thread (named as the process is) that spends the whole second is caught
+ * in the engine (a style or layout that does not end); one that waits, waits on another thread or process, and the
+ * threads it may wait on are named beside it. Each page of the suite has a renderer of its own (a context of its own);
+ * which is the page's is not said by the browser, so every one is named.
  */
 async function renderers() {
   try {
@@ -199,24 +200,25 @@ async function renderers() {
     if (!browserSession) return '; the browser did not open a session to say what its renderers do';
     const read = async () => {
       const info = await within(STOP, browserSession.send('SystemInfo.getProcessInfo'), null);
-      return info && new Map(info.processInfo.filter((each) => each.type === 'renderer').map((each) => [each.id, { cpu: each.cpuTime, threads: threadsOf(each.id) }]));
+      return info && new Map(info.processInfo.filter((each) => each.type === 'renderer' || each.type === 'GPU').map((each) => [each.id, { type: each.type, cpu: each.cpuTime, threads: threadsOf(each.id) }]));
     };
     const before = await read();
     await new Promise((resolve) => setTimeout(resolve, 1000));
     const after = await read();
     if (!before || !after) return '; the browser did not say what its renderers do';
-    const thread = (now, was, tid, label) => {
-      const t = now.threads.get(tid);
-      if (!t) return '';
-      const spent = was?.threads.get(tid) ? `, ${(t.ticks - was.threads.get(tid).ticks) / 100} s of CPU` : '';
-      return `, its ${label} ${t.state}${t.waits && t.waits !== '0' ? ` in ${t.waits}` : ''}${spent}`;
-    };
     const each = [...after].map(([pid, now]) => {
       const was = before.get(pid);
-      const compositor = [...now.threads].find(([, t]) => t.name === 'Compositor')?.[0];
-      return `${pid}: ${was ? `${(now.cpu - was.cpu).toFixed(2)} s of CPU` : 'started in that second'}${thread(now, was, pid, 'main thread')}${compositor ? thread(now, was, compositor, 'compositor') : ''}`;
+      const counted = new Map();
+      for (const [tid, t] of now.threads) {
+        const spent = was?.threads.get(tid) ? (t.ticks - was.threads.get(tid).ticks) / 100 : 0;
+        const key = `${tid === pid ? 'main' : t.name} ${t.state}${t.waits && t.waits !== '0' ? ` in ${t.waits}` : ''}`;
+        const sum = counted.get(key) ?? { n: 0, spent: 0 };
+        counted.set(key, { n: sum.n + 1, spent: sum.spent + spent });
+      }
+      const threads = [...counted].map(([key, { n, spent }]) => `${key}${n > 1 ? ` ×${n}` : ''}${spent ? ` (${spent.toFixed(2)} s)` : ''}`);
+      return `${now.type} ${pid}: ${was ? `${(now.cpu - was.cpu).toFixed(2)} s of CPU` : 'started in that second'}${threads.length ? ` [${threads.join(', ')}]` : ''}`;
     });
-    return `; over 1 s, the browser's ${after.size} renderers: ${each.join('; ')}`;
+    return `; over 1 s, the browser's renderers and GPU process: ${each.join('; ')}`;
   } catch (error) {
     return `; what the browser's renderers do could not be read (${error.message})`;
   }
