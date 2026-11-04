@@ -617,7 +617,7 @@ const ja: Dictionary = {
     starts: 'ここから始める',
     defaultNote: '既定のシステム',
     notNeutral: 'まだ選べません。Tanrei のルートレイヤーには、まだ既定のシステムの値が入っています。値が中立になると、白紙の開始点になります。',
-    gallery: 'テーマギャラリーの例',
+    gallery: 'ギャラリーから始める',
     exampleNote: (name) => `${name}。例であり、公式のデザインではありません。`,
     file: 'ファイルを読み込む…',
     fileNote: 'レイヤーのファイル（<id>.system.json）',
