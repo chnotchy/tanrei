@@ -161,34 +161,14 @@ export const ON_REQUEST_ATTR = 'data-docs-on-request';
  */
 export const listingBootstrap = `try{if(localStorage.getItem(${JSON.stringify(LISTING_KEY)})!==${JSON.stringify(LISTING_EVERYTHING)})throw 0}catch(e){document.documentElement.setAttribute(${JSON.stringify(LISTING_ATTR)},'listed')}`;
 
-/**
- * The shared choice the reader's design system is (a `syncKey`): it is kept under the docs' tabs' key for that choice
- * (components/tabs/keys.mjs, `tabsKey`), so a set of tabs with this `syncKey` opens the system the lists show, and the
- * lists show the one a reader chose in such a set.
- */
-export const SYSTEM_SYNC_KEY = 'system';
-/** The attribute of `<html>` that names the system the lists show (written by the head's script, `systemBootstrap`). */
+/** The attribute of `<html>` that names the system the lists show: the reader's look (lib/appearance.ts). */
 export const SYSTEM_ATTR = 'data-docs-system';
 /** The mark of a row, or a group, that some systems do not have: those systems' ids, separated by spaces. */
 export const ABSENT_ATTR = 'data-docs-absent-from';
 /** The mark of what is said under one system only (the index's line of what that system does not have): its id. */
 export const SYSTEM_ONLY_ATTR = 'data-docs-system-only';
-/** The `id` of the rule the head's script writes, which the lists' script takes away once it holds the rows itself. */
+/** The `id` of the rule the head's script writes (lib/appearance.ts, `listRuleOf`), which the lists' script takes away once it holds the rows itself. */
 export const SYSTEM_RULE_ID = 'docs-system-rule';
-
-/**
- * The script of the page's head: where script runs, the lists show the system the reader chose from the first paint
- * — the one kept under the choice's key, if it is one of `systems`, and `defaultSystem` otherwise. It names it on
- * `<html>` and writes the one rule that hides what that system does not have, and what is said under another system
- * only. Where no script runs nothing is written and everything is shown: the safe fallback. Storage that is blocked or
- * throws is a reader who has not chosen.
- *
- * @param {string} key  The key the choice is kept under (`tabsKey(SYSTEM_SYNC_KEY)`).
- * @param {string[]} systems  The shipped systems' ids.
- * @param {string} defaultSystem
- */
-export const systemBootstrap = (key, systems, defaultSystem) =>
-  `(function(){var s=${JSON.stringify(systems)},v=${JSON.stringify(defaultSystem)};try{var k=localStorage.getItem(${JSON.stringify(key)});if(s.indexOf(k)>=0)v=k}catch(e){}document.documentElement.setAttribute(${JSON.stringify(SYSTEM_ATTR)},v);var r=document.createElement('style');r.id=${JSON.stringify(SYSTEM_RULE_ID)};r.textContent='[${ABSENT_ATTR}~="'+v+'"],[${SYSTEM_ONLY_ATTR}]:not([${SYSTEM_ONLY_ATTR}="'+v+'"]){display:none}';document.head.appendChild(r)})()`;
 
 /**
  * The pages of one answer of the search in the order they are drawn: among the components' pages of the answer, one

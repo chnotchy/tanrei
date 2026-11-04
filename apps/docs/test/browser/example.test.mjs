@@ -70,6 +70,16 @@ const code = (page, selector) =>
     return { open: Boolean(panel && !panel.hidden), shown: panel?.querySelector('tanrei-code-block')?.code ?? null, copied: frame.querySelector('[data-example-copy]')?.text ?? null, language: panel?.querySelector('tanrei-code-block')?.language ?? null };
   }, selector);
 
+/** Chooses a look in the header's Appearance panel, as a reader does, and closes the panel. */
+async function chooseLook(page, id) {
+  const panel = page.locator('tanrei-popover[anchor="docs-appearance"]');
+  if (!(await panel.evaluate((popover) => popover.open))) await page.locator('#docs-appearance').click();
+  await page.waitForFunction(() => document.querySelector('tanrei-popover[anchor="docs-appearance"]')?.open === true);
+  await panel.locator(`tanrei-list-item[value="${id}"]`).click();
+  await page.keyboard.press('Escape');
+  await page.waitForFunction(() => document.querySelector('tanrei-popover[anchor="docs-appearance"]')?.open === false);
+}
+
 for (const engine of ENGINES) {
   describe(`the one frame in ${engine}`, () => {
     let browser;
@@ -173,19 +183,16 @@ for (const engine of ENGINES) {
     test('every frame follows the design system and the scheme the reader chose for the page', async () => {
       const { context, page } = await open();
       await drawn(page, FIRST);
-      const presets = await page.locator('tanrei-menu[anchor="docs-system"] tanrei-menu-radio-item').evaluateAll((all) => all.map((item) => item.getAttribute('value')).slice(1));
+      const presets = await page.locator('tanrei-popover[anchor="docs-appearance"] tanrei-list-item').evaluateAll((all) => all.map((item) => item.getAttribute('value')).slice(1));
       assert.ok(presets.length > 0, 'a preset is shipped');
       const [preset] = presets;
-      await page.locator('#docs-system').click();
-      await page.locator(`tanrei-menu[anchor="docs-system"] tanrei-menu-radio-item[value="${preset}"]`).click();
+      await chooseLook(page, preset);
       await page.waitForFunction((preset) => [...document.querySelectorAll('[data-example]:not([data-pinned])')].every((frame) => frame.querySelector('[data-example-stage]').getAttribute('data-tanrei-system') === preset), preset);
       // The scheme is the page's: the stage inherits it.
-      await page.locator('#docs-appearance').click();
-      await page.locator('tanrei-menu[anchor="docs-appearance"]').getByRole('menuitemradio', { name: t.dark, exact: true }).click();
+      await page.locator('#docs-mode').click();
       await page.waitForFunction((selector) => getComputedStyle(document.querySelector(selector).querySelector('[data-example-stage]')).colorScheme.includes('dark'), FIRST);
       // And back: the default system again.
-      await page.locator('#docs-system').click();
-      await page.locator(`tanrei-menu[anchor="docs-system"] tanrei-menu-radio-item[value="${config.namespace}"]`).click();
+      await chooseLook(page, config.namespace);
       await page.waitForFunction(() => [...document.querySelectorAll('[data-example]:not([data-pinned])')].every((frame) => !frame.querySelector('[data-example-stage]').hasAttribute('data-tanrei-system')));
       await context.close();
     });

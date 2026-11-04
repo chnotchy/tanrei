@@ -62,7 +62,6 @@
     "format_align_right",
     "format_bold",
     "format_italic",
-    "format_paint",
     "format_strikethrough",
     "format_textdirection_l_to_r",
     "format_textdirection_r_to_l",

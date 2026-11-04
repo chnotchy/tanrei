@@ -9,6 +9,7 @@
 // search does not index it (it has no `data-pagefind-body`), it asks search engines not to index it, and the sitemap
 // leaves it out (astro.config.mjs). The scheme and the contrast are the ones the site stored, else the system's; the
 // gallery gives a window its stage's once it has loaded.
+import { standaloneBootstrap } from '../../lib/appearance';
 import '../../styles/fixture-page.css';
 import { specs } from '../../lib/repo';
 import { documentedComponents, fixtureDocument } from '../../lib/fixture-documents';
@@ -37,20 +38,9 @@ if (document.system && !systemSheet) throw new Error(`fixtures/${spec.name}: no 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex" />
     <title>{spec.title} · {spec.name}</title>
-    <script is:inline>
-      // The scheme and the contrast, before the first paint: the ones the site's picker and contrast switch stored, else
-      // the system's. The page that holds the window gives it every later change of either (lib/fixture-stages.ts).
-      (() => {
-        let stored = null;
-        let contrast = null;
-        try {
-          stored = localStorage.getItem('starlight-theme');
-          contrast = localStorage.getItem('tanrei-docs-contrast');
-        } catch {}
-        if (stored === 'dark' || stored === 'light') document.documentElement.dataset.tanreiTheme = stored;
-        if (contrast === 'medium' || contrast === 'high') document.documentElement.dataset.tanreiContrast = contrast;
-      })();
-    </script>
+    {/* The scheme the reader forced and the contrast, before the first paint (lib/appearance.ts); the page that holds the
+        window gives it every later change of either (lib/fixture-stages.ts). */}
+    <script is:inline set:html={standaloneBootstrap} />
     {systemSheet && <link rel="stylesheet" href={systemSheet} />}
     <Fragment set:html={`<style>${document.styles}</style>`} />
   </head>

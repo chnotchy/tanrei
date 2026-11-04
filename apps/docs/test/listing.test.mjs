@@ -12,10 +12,9 @@ import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 register('./vite-shim.mjs', import.meta.url);
-const { ABSENT_ATTR, LISTING_ATTR, LISTING_EVERYTHING, LISTING_KEY, ON_REQUEST_ATTR, SYSTEM_ATTR, SYSTEM_ONLY_ATTR, SYSTEM_RULE_ID, SYSTEM_SYNC_KEY, absentFrom, componentPages, groupOf, isOnRequest, listedFirst, listingBootstrap, shownIn, shownUnder, sidebarSlugs, sidebarTree, systemBootstrap, usedIn } = await import('../src/lib/listing.mjs');
+const { ABSENT_ATTR, LISTING_ATTR, LISTING_EVERYTHING, LISTING_KEY, ON_REQUEST_ATTR, SYSTEM_ONLY_ATTR, absentFrom, componentPages, groupOf, isOnRequest, listedFirst, listingBootstrap, shownIn, shownUnder, sidebarSlugs, sidebarTree, usedIn } = await import('../src/lib/listing.mjs');
 const { aroundPlace, listingFacts } = await import('../src/lib/page-head.ts');
 const { levelRole, levels, listings, manifests, statusComponents } = await import('../src/lib/repo.ts');
-const { tabsKey } = await import('../src/components/tabs/keys.mjs');
 const { pageGroup } = await import('../src/lib/search.mjs');
 const { strings } = await import('../src/lib/i18n.ts');
 const { source, translations } = await import('../i18n/locales.mjs');
@@ -129,9 +128,9 @@ describe('the sidebar', () => {
     assert.match(text, /const drawn = sidebarTree\(sidebar, statusComponents, listings, base, \(category\) => t\.category\[category\] \?\? category, manifests\)/);
     assert.match(text, /<Fragment set:html=\{cells\(drawn, true\)\} \/>/);
     assert.match(text, /entry\.onRequest \? ` \$\{ON_REQUEST_ATTR\} trailing-text="\$\{escape\(t\.listing\.advanced\)\}"`/);
-    // The switch's row is the first of the drawer's list (a list item, as a list holds), after the row of the design
-    // system's button a compact window draws there, and before the rows of pages.
-    assert.match(text, /<div role="listitem" class="docs-system-row"><SystemMenu id="docs-system-drawer" part="button" \/><SystemMenu id="docs-system-drawer" part="menu" \/><\/div>\s*<div role="listitem" class="docs-listing-row"><ListingSwitch lang=\{route\.lang\} \/><\/div>\s*<Fragment set:html=\{cells\(drawn, true\)\} \/>/);
+    // The switch's row is the first of the drawer's list (a list item, as a list holds), after the row of the
+    // appearance's button a compact window draws there, and before the rows of pages.
+    assert.match(text, /<div role="listitem" class="docs-look-row"><Appearance id="docs-appearance-drawer" part="button" \/><Appearance id="docs-appearance-drawer" part="panel" \/><\/div>\s*<div role="listitem" class="docs-listing-row"><ListingSwitch lang=\{route\.lang\} \/><\/div>\s*<Fragment set:html=\{cells\(drawn, true\)\} \/>/);
     assert.doesNotMatch(text, /slot="header(?:-button)?"/, 'the drawer has no header: its menu button is the app bar’s');
     // The drawer's value and the page's trail read the framework's own sidebar, which holds every page.
     assert.match(text, /value=\{currentHref\(sidebar\)\}/);
@@ -249,42 +248,20 @@ describe('the choice of design system', () => {
     assert.equal(components.entries.find((entry) => entry.type === 'group' && entry.entries.includes(own)).absentFrom, undefined);
   });
 
-  /** The head's script, run with a storage that holds `stored` (or throws): the attribute it leaves, and the rule it writes. */
-  const after = (stored) => {
-    const attributes = {};
-    const head = [];
-    const document = { documentElement: { setAttribute: (name, value) => (attributes[name] = value) }, createElement: () => ({}), head: { appendChild: (node) => head.push(node) } };
-    const localStorage = { getItem: (key) => (stored instanceof Error ? (() => { throw stored; })() : key === tabsKey(SYSTEM_SYNC_KEY) ? stored : null) };
-    new Function('document', 'localStorage', systemBootstrap(tabsKey(SYSTEM_SYNC_KEY), manifests.map((manifest) => manifest.system), DEFAULT))(document, localStorage);
-    return { system: attributes[SYSTEM_ATTR], rule: head[0] };
-  };
-  test('the head’s script names the system the reader chose, and the default one on a first visit, a blocked storage or an unknown value', () => {
-    assert.equal(after(null).system, DEFAULT);
-    assert.equal(after('m3-like').system, 'm3-like');
-    assert.equal(after('not-a-system').system, DEFAULT);
-    assert.equal(after('"]{}*{display:none}').system, DEFAULT, 'nothing stored writes a rule of its own');
-    assert.equal(after(new Error('blocked')).system, DEFAULT);
-    const { rule } = after('cupertino');
-    assert.equal(rule.id, SYSTEM_RULE_ID);
-    assert.equal(rule.textContent, `[${ABSENT_ATTR}~="cupertino"],[${SYSTEM_ONLY_ATTR}]:not([${SYSTEM_ONLY_ATTR}="cupertino"]){display:none}`);
-  });
-  test('the choice is kept under the key a set of tabs with syncKey "system" keeps its choice under, read before the first paint', () => {
-    assert.match(read('astro.config.mjs'), /\{ tag: 'script', content: systemBootstrap\(tabsKey\(SYSTEM_SYNC_KEY\), systems, defaultSystem\) \}/);
+  test('the index’s select chooses the reader’s look, one option for each shipped system', () => {
     const text = read('src/components/SystemSelect.astro');
-    assert.match(text, /localStorage\.setItem\(tabsKey\(SYSTEM_SYNC_KEY\), control\.value\)/);
+    assert.match(text, /setAppearance\(\{ look: control\.value \}\)/);
     assert.match(text, /<tanrei-select-field class="docs-system" size="small" label=\{t\.system\.choice\}/);
-    const header = read('src/components/frame/Header.astro');
-    assert.match(header, /store\(tabsKey\(SYSTEM_SYNC_KEY\), control\.value\)/);
     assert.match(text, /manifests\.map\(\(manifest\) => <tanrei-option value=\{manifest\.system\} supporting-text=\{manifest\.name\}>\{manifest\.system\}<\/tanrei-option>\)/);
   });
-  test('is the header’s menu beside the brand (in a compact window, first in the drawer), the index’s select beside the switch, and the index says what the chosen system does not have', () => {
-    const menu = read('src/components/SystemMenu.astro');
-    assert.match(menu, /<tanrei-menu-group class="docs-system-group" label=\{t\.system\.choice\} value=\{system\}>/);
-    assert.match(menu, /manifests\.map\(\(manifest\) => \(\s*<tanrei-menu-radio-item value=\{manifest\.system\} label=\{manifest\.system\} supporting-text=\{manifest\.name\} translate="no" \/>/);
-    assert.match(menu, /<tanrei-menu-item label=\{t\.frame\.editTheme\} leading-icon="format_paint" href=\{studio\} \/>/);
+  test('is the header’s Appearance panel beside the brand (in a compact window, first in the drawer), the index’s select beside the switch, and the index says what the chosen system does not have', () => {
+    const panel = read('src/components/frame/Appearance.astro');
+    assert.match(panel, /<tanrei-list class="docs-appearance-look" selection="single" label=\{t\.system\.choice\} value=\{look\}/);
+    assert.match(panel, /const looks = manifests\.map\(/);
+    assert.match(panel, /<tanrei-button slot="actions" variant="text" href=\{studio\}>\{words\.editTheme\}<\/tanrei-button>/);
     const header = read('src/components/frame/Header.astro');
-    assert.match(header, /<Fragment set:html=\{wordmark\} \/>\s*<SystemMenu id="docs-system" part="button" slot="context" \/>/);
-    assert.match(read('src/components/frame/Sidebar.astro'), /<SystemMenu id="docs-system-drawer" part="button" \/>/);
+    assert.match(header, /<Fragment set:html=\{wordmark\} \/>\s*<Appearance id="docs-appearance" part="button" slot="context" \/>/);
+    assert.match(read('src/components/frame/Sidebar.astro'), /<Appearance id="docs-appearance-drawer" part="button" \/>/);
     const index = read('src/components/ComponentIndex.astro');
     assert.match(index, /<SystemSelect lang=\{lang\} \/>\s*<ListingSwitch lang=\{lang\} \/>/);
     assert.match(index, /manifests\.filter\(\(manifest\) => manifest\.omitted\.length > 0\)\.map\(\(manifest\) => \(\s*<p class="absent" \{\.\.\.\{ \[SYSTEM_ONLY_ATTR\]: manifest\.system \}\}>/);
@@ -301,7 +278,7 @@ describe('the choice of design system', () => {
     }
   });
   test('no source of the lists writes the name of a system, or of a component a system does not have', () => {
-    const files = ['astro.config.mjs', 'src/lib/listing.mjs', 'src/lib/list-filter.ts', 'src/lib/systems.ts', 'src/components/SystemSelect.astro', 'src/components/SystemMenu.astro', 'src/components/frame/Header.astro', 'src/components/ComponentIndex.astro', 'src/components/frame/Sidebar.astro', 'src/components/ComponentAvailability.astro', 'src/components/PresetFacts.astro'];
+    const files = ['astro.config.mjs', 'src/lib/listing.mjs', 'src/lib/list-filter.ts', 'src/lib/systems.ts', 'src/components/SystemSelect.astro', 'src/components/frame/Appearance.astro', 'src/components/frame/Header.astro', 'src/components/frame/ThemeProvider.astro', 'src/lib/appearance.ts', 'src/components/ComponentIndex.astro', 'src/components/frame/Sidebar.astro', 'src/components/ComponentAvailability.astro', 'src/components/PresetFacts.astro'];
     const left = [...new Set(onDisk.flatMap((manifest) => manifest.omitted.map((entry) => entry.name)))];
     for (const file of files) {
       const text = read(file).replace(/^\s*(\/\/|\*|\/\*).*$/gm, '');

@@ -18,7 +18,7 @@
 // of its row — and drawn only to a reader who asked for everything with the switch at the top of the drawer's list
 // (ListingSwitch.astro), or whose page it is. The switch stands first in the drawer's list, the top of what scrolls,
 // in a row of its own (a list holds list items only); a collapsed drawer, whose column holds the groups' glyphs, does
-// not draw it. The choice of design system is the header's (Header.astro): a component the chosen system does not
+// not draw it. The lists follow the reader's look (lib/appearance.ts, chosen in the header): a component that system does not
 // have is marked with the systems that do not have it, and so is a group none of whose components it has, and neither
 // is drawn under them — unless it is the page being read. Without script every row is drawn.
 //
@@ -32,8 +32,8 @@
 // is defined the field's room is held (styles/frame.css), so the rows do not move when it is.
 //
 // The drawer has no header button: its menu button is the header's, at every width (Header.astro), so the drawer's
-// list starts at its top. In a compact window, where the header has no room for it, the choice of design system
-// stands first (SystemMenu.astro, the header's button and menu again); in a wider one that row is not drawn.
+// list starts at its top. In a compact window, where the header has no room for it, the appearance's button
+// stands first (Appearance.astro, the header's button and panel again); in a wider one that row is not drawn.
 //
 // A destination's anchor is in its element's shadow root, so the page as built would hold no link. Each destination therefore holds a plain `<a href>` of its own: until the elements
 // are defined, and where no script runs, those anchors are the sidebar (styles/frame.css draws them as the drawer's
@@ -44,7 +44,7 @@ import { localeBase, strings } from '../../lib/i18n';
 import { ABSENT_ATTR, ON_REQUEST_ATTR, sidebarTree } from '../../lib/listing.mjs';
 import { listings, manifests, statusComponents } from '../../lib/repo';
 import ListingSwitch from '../ListingSwitch.astro';
-import SystemMenu from '../SystemMenu.astro';
+import Appearance from './Appearance.astro';
 
 const route = Astro.locals.starlightRoute as unknown as { sidebar: Entry[]; lang: string };
 const { sidebar } = route;
@@ -86,7 +86,7 @@ const cells = (entries: Entry[], top: boolean): string =>
   filter-count-text={t.sidebarFilter.count}
   filter-clear-label={t.sidebarFilter.clear}
 >
-  <div role="listitem" class="docs-system-row"><SystemMenu id="docs-system-drawer" part="button" /><SystemMenu id="docs-system-drawer" part="menu" /></div>
+  <div role="listitem" class="docs-look-row"><Appearance id="docs-appearance-drawer" part="button" /><Appearance id="docs-appearance-drawer" part="panel" /></div>
   <div role="listitem" class="docs-listing-row"><ListingSwitch lang={route.lang} /></div>
   <Fragment set:html={cells(drawn, true)} />
 </tanrei-navigation-drawer>

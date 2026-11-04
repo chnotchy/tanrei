@@ -1,8 +1,8 @@
 // The site's header as it is drawn (components/frame/Header.astro), in each engine: the bar holds one menu button —
 // the shell's in a compact window, the site's in a wider one, which collapses and expands the drawer beside the
-// content and opens its column over it — the brand, the design system's button in its context (not drawn in a compact
-// window, where the drawer holds it), and three actions: the search, the appearance and the language. The appearance's
-// menu sets the color scheme and the contrast and keeps them; the language's menu links the page in the six languages;
+// content and opens its column over it — the brand, the appearance's button in its context (not drawn in a compact
+// window, where the drawer holds it), and three actions: the search, the mode's toggle and the language. What the
+// appearance's panel does is test/browser/appearance.test.mjs's; the language's menu links the page in the six languages;
 // the icon-only buttons are named in the page's language; and at a phone's width nothing scrolls sideways.
 // A production build reports nothing (APB-13 is a debug report), so what the report is about is asked of the bar.
 //
@@ -98,34 +98,34 @@ for (const engine of ENGINES) {
       return { context, page };
     };
 
-    test('a wide window: the site’s menu button, the design system beside the brand, and three actions', async () => {
+    test('a wide window: the site’s menu button, the appearance beside the brand, and three actions', async () => {
       const { context, page } = await open(WIDE);
       const seen = await items(page);
       assert.equal(seen.windowClass, 'expanded');
       assert.deepEqual(seen.navigation, { held: ['docs-drawer-toggle'], drawn: ['docs-drawer-toggle'] });
-      assert.deepEqual(seen.context, { held: ['docs-system'], drawn: ['docs-system'] });
-      assert.deepEqual(seen.actions, { held: ['docs-search', 'docs-appearance', 'docs-language'], drawn: ['docs-search', 'docs-appearance', 'docs-language'] });
+      assert.deepEqual(seen.context, { held: ['docs-appearance'], drawn: ['docs-appearance'] });
+      assert.deepEqual(seen.actions, { held: ['docs-search', 'docs-mode', 'docs-language'], drawn: ['docs-search', 'docs-mode', 'docs-language'] });
       // Beside the brand, on the row's centre line.
-      const [brand, system] = await page.evaluate(() => [document.querySelector('tanrei-app-bar').shadowRoot.querySelector('.brand'), document.getElementById('docs-system')].map((element) => element.getBoundingClientRect().toJSON()));
-      assert.ok(system.left > brand.right && system.left - brand.right < 16, `the system's button stands after the brand: ${JSON.stringify({ brand, system })}`);
+      const [brand, system] = await page.evaluate(() => [document.querySelector('tanrei-app-bar').shadowRoot.querySelector('.brand'), document.getElementById('docs-appearance')].map((element) => element.getBoundingClientRect().toJSON()));
+      assert.ok(system.left > brand.right && system.left - brand.right < 16, `the appearance's button stands after the brand: ${JSON.stringify({ brand, system })}`);
       assert.ok(Math.abs(system.top + system.height / 2 - (brand.top + brand.height / 2)) < 1);
       await context.close();
     });
 
-    test('a compact window: the shell’s menu button, the wordmark, three actions; the design system is in the drawer; nothing scrolls sideways at 390 and 320', async () => {
+    test('a compact window: the shell’s menu button, the wordmark, three actions; the appearance is in the drawer; nothing scrolls sideways at 390 and 320', async () => {
       for (const viewport of [COMPACT, NARROWEST]) {
         const { context, page } = await open(viewport);
         const seen = await items(page);
         assert.equal(seen.windowClass, 'compact');
         assert.deepEqual(seen.navigation, { held: ['shell-menu'], drawn: ['shell-menu'] });
-        assert.deepEqual(seen.context.drawn, [], 'the bar draws no design system’s button');
-        assert.deepEqual(seen.actions.drawn, ['docs-search', 'docs-appearance', 'docs-language']);
+        assert.deepEqual(seen.context.drawn, [], 'the bar draws no appearance’s button');
+        assert.deepEqual(seen.actions.drawn, ['docs-search', 'docs-mode', 'docs-language']);
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), viewport.width, `${viewport.width}: no sideways scroll`);
         const right = await page.evaluate(() => document.getElementById('docs-language').getBoundingClientRect().right);
         assert.ok(right <= viewport.width, `${viewport.width}: the last action ends at ${right}`);
         if (viewport === COMPACT) assert.ok(await page.locator('tanrei-app-bar .docs-brand').isVisible(), 'the wordmark at a phone’s width');
         await page.locator('tanrei-app-bar [data-app-shell-menu]').click();
-        await page.locator('#docs-system-drawer').waitFor({ state: 'visible' });
+        await page.locator('#docs-appearance-drawer').waitFor({ state: 'visible' });
         await context.close();
       }
     });
@@ -173,26 +173,11 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('the appearance’s menu sets the scheme and the contrast, keeps both, and links Theme Studio', async () => {
+    test('the appearance’s panel links Theme Studio, from the bar and from the drawer', async () => {
       const { context, page } = await open(WIDE);
-      const t = strings('en');
-      await choose(page, 'docs-appearance', 'menuitemradio', t.dark);
-      await page.waitForFunction(() => document.documentElement.dataset.theme === 'dark');
-      assert.equal(await page.evaluate(() => localStorage.getItem('starlight-theme')), 'dark');
-      await choose(page, 'docs-appearance', 'menuitemradio', t.contrastHigh);
-      await page.waitForFunction(() => document.documentElement.getAttribute('data-tanrei-contrast') === 'high');
-      assert.equal(await page.evaluate(() => localStorage.getItem('tanrei-docs-contrast')), 'high');
-      await page.reload();
-      await settled(page);
-      assert.equal(await page.evaluate(() => document.documentElement.dataset.theme), 'dark');
-      assert.equal(await page.evaluate(() => document.documentElement.getAttribute('data-tanrei-contrast')), 'high');
-      assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('tanrei-menu[anchor="docs-appearance"] tanrei-menu-group')].map((group) => group.value)), ['dark', 'high']);
-      await choose(page, 'docs-appearance', 'menuitemradio', t.contrastStandard);
-      await page.waitForFunction(() => !document.documentElement.hasAttribute('data-tanrei-contrast'));
-      await choose(page, 'docs-appearance', 'menuitemradio', t.frame.themeAuto);
-      assert.equal(await page.evaluate(() => localStorage.getItem('starlight-theme')), null);
-      assert.equal(await page.locator('tanrei-menu[anchor="docs-appearance"] tanrei-menu-item').getAttribute('href'), '/foundations/theme-studio/');
-      assert.equal(await page.locator('tanrei-menu[anchor="docs-system"] tanrei-menu-item').getAttribute('href'), '/foundations/theme-studio/');
+      for (const id of ['docs-appearance', 'docs-appearance-drawer']) {
+        assert.equal(await page.locator(`tanrei-popover[anchor="${id}"] tanrei-button[slot="actions"][href="/foundations/theme-studio/"]`).count(), 1, id);
+      }
       await context.close();
     });
 
@@ -205,14 +190,14 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('the icon-only buttons and the design system’s button are named in the page’s language', async () => {
+    test('the icon-only buttons and the appearance’s button are named in the page’s language', async () => {
       for (const [dir, lang] of [['', 'en'], ['ja/', 'ja'], ['zh-cn/', 'zh-cn'], ['hi/', 'hi'], ['es/', 'es'], ['ar/', 'ar']]) {
         const { context, page } = await open(WIDE, `/${dir}foundations/accessibility/`);
         const words = strings(lang).frame;
-        for (const [id, name] of [['docs-drawer-toggle', words.menu], ['docs-appearance', words.theme], ['docs-language', words.language]]) {
+        for (const [id, name] of [['docs-drawer-toggle', words.menu], ['docs-mode', words.darkMode], ['docs-language', words.language]]) {
           assert.equal(await page.locator(`#${id}`).getByRole('button', { name, exact: true }).count(), 1, `${lang}: #${id} is named «${name}»`);
         }
-        assert.equal(await page.locator('#docs-system').getAttribute('label'), words.system.replace('{system}', 'tanrei'), `${lang}: the design system's button`);
+        assert.equal(await page.locator('#docs-appearance').getAttribute('label'), words.appearanceOf.replace('{look}', 'tanrei'), `${lang}: the appearance's button`);
         await context.close();
       }
     });
