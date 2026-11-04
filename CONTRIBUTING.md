@@ -142,6 +142,19 @@ Known vulnerabilities in the locked dependencies are checked by their own workfl
 
 Runner images are pinned (`ubuntu-24.04`, `macos-26` with `XCODE_VERSION`), and the web runs in the Playwright image pinned to the lockfile: a baseline depends on the renderer, so a runner image or toolchain moves only on purpose — bump it in ci.yml and record-baselines.yml together, then re-record.
 
+### Web shards by time
+
+A run of every web test splits each engine's tests into its shards (8 Chromium, 6 Firefox, 8 WebKit) by the seconds each test file ran in each Playwright project on CI, [`packages/web/test/durations.json`](packages/web/test/durations.json), not by Playwright's `--shard`, which deals equal counts of tests in file order and so gave one shard of an engine about ten times the time of another. Each shard lists the tests, deals the files longest first to the shard with the least so far (`packages/tools/src/playwright-shards.js`; a file longer than a shard's share is dealt by its top-level blocks), checks that every listed test is in exactly one shard, prints the split at the head of its log and runs its own share (`--test-list`). A file the durations do not name weighs its project's median, so a new file runs before anyone has measured it. A selection or a targeted run (a pattern, or repeats) keeps `--shard`: a pattern runs only part of a file.
+
+**Refresh the durations** after tests were added, moved or made faster or slower: every full web run whose shards all passed uploads them measured again from its merged report, as the artifact `web-durations` (the committed file with each file the run ran written over it). Download it in place of the committed one and commit the change:
+
+```bash
+rm packages/web/test/durations.json   # gh run download does not overwrite a file
+gh run download <run> -n web-durations -D packages/web/test
+```
+
+From Playwright JSON reports of your own (`PLAYWRIGHT_JSON_OUTPUT_FILE=report.json pnpm exec playwright merge-reports --reporter json <blob reports>`), `node packages/tools/src/playwright-durations.js packages/web/test/durations.json report.json [report.json…]` does the same; several reports average. A project added to `playwright.config.ts` needs an entry in the file (`{}` until a run measures it); the first Chromium shard checks.
+
 ### Native CI is paused
 
 The jobs of the four native platforms are **paused** until each platform catches up with the web: SwiftUI (`swiftui`, `swiftui-dynamic-type`, `swiftui-gallery`), Compose (`compose`, `compose-instrumented`), Flutter (`flutter`) and React Native (`react-native`). They are skipped in every kind of run — a pull request, `main`, a dispatched run, a release — and **CI result** passes without them. Validate (drift and parity included), the core suites (the pipeline's emitters of native token code among them), the web, the docs and the tools are not paused, and nothing else ever is.

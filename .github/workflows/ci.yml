@@ -462,9 +462,12 @@ jobs:
   # record-baselines.yml — scripts/ci/check-playwright-image.sh fails the run until it does. `--ipc=host`: Chromium
   # runs out of shared memory in a container without it (Playwright's Docker guide); `--user 1001`: the runner's own
   # uid, so the checkout stays writable and Firefox does not refuse to start as root.
-  # About 14 hours on one runner (about 21,500 tests in the three engines, one worker on a runner's two cores), so every
-  # Playwright project runs in shards of about 40–45 minutes (`--shard`, test by test: fullyParallel): 8 of Chromium
-  # (which also compares every snapshot), 6 of Firefox, 8 of WebKit: fewer shards were each cut at their 60-minute timeout.
+  # About 44,000 test runs in the three engines, about 19 hours of tests (two workers a runner), so every Playwright
+  # project runs in shards: 8 of Chromium (which also compares every snapshot), 6 of Firefox, 8 of WebKit, each of about
+  # 30 minutes. A run of every test deals its files to the shards by the seconds each one ran on CI
+  # (packages/web/test/durations.json, packages/tools/src/playwright-shards.js: a file longer than a shard's share by its
+  # top-level blocks), since Playwright's `--shard` deals equal counts of tests in file order and its first shards came
+  # near or past the 60-minute timeout while the last took 5–8 minutes; web-report measures them again on every such run.
   # Baselines are found by `snapshotPathTemplate` (`snapshots/{arg}{ext}`), which names neither
   # the project, the platform nor the shard. `firefox-no-style-queries` rides with `firefox` (same browser; 46 tests).
   web:
@@ -479,7 +482,7 @@ jobs:
         shell: bash
     needs: [validate, changes]
     if: needs.changes.outputs.web == 'true'
-    timeout-minutes: 60 # a shard of every test takes about 40–45 minutes
+    timeout-minutes: 60 # a shard of every test takes about 30 minutes
     strategy:
       fail-fast: false # every shard reports, as the single run did
       # Built by the changes job: every test in 8 Chromium, 6 Firefox and 8 WebKit shards, or a selection in fewer.
@@ -498,7 +501,8 @@ jobs:
         run: bash scripts/ci/check-playwright-image.sh
       - id: build
         run: pnpm --filter @tanrei/web build
-      # A project added to playwright.config.ts must get shards above, or it would never run in CI.
+      # A project added to playwright.config.ts must get shards above, or it would never run in CI, and seconds in the
+      # durations the shards are split by (`{}` until a run measures them: its files then weigh 1 s each).
       - name: Every Playwright project has shards in this matrix
         if: matrix.engine == 'chromium' && matrix.shard == 1
         working-directory: packages/web
@@ -506,6 +510,8 @@ jobs:
           have=$(pnpm exec playwright test --list --reporter=json | node -e 'let s = ""; process.stdin.on("data", (d) => (s += d)).on("end", () => console.log(JSON.parse(s).config.projects.map((p) => p.name).sort().join(" ")))')
           want="chromium firefox firefox-no-style-queries webkit"
           [ "$have" = "$want" ] || { echo "::error::playwright.config.ts has the projects '$have'; ci.yml shards '$want'"; exit 1; }
+          timed=$(node -e 'console.log(Object.entries(require("./test/durations.json")).filter(([, v]) => typeof v === "object").map(([k]) => k).sort().join(" "))')
+          [ "$timed" = "$want" ] || { echo "::error::test/durations.json has seconds for the projects '$timed'; ci.yml shards '$want'"; exit 1; }
       # WEB_GREP is the selection, or a targeted run's pattern (empty: every test). Playwright matches it against each
       # test's file and titles, and a project's own grep (firefox-no-style-queries) still applies on top of it.
       # WEB_REPEAT is a targeted run's `repeat` (1 otherwise: each test once). TANREI_TRACE=first-failure, in a targeted
@@ -523,7 +529,17 @@ jobs:
           read -ra projects <<< "$PROJECTS"
           repeat=()
           if [ -n "$WEB_REPEAT" ] && [ "$WEB_REPEAT" != 1 ]; then repeat=(--repeat-each "$WEB_REPEAT"); fi
-          pnpm --filter @tanrei/web exec playwright test "${projects[@]}" --shard="$SHARD" ${WEB_GREP:+--grep "$WEB_GREP"} "${repeat[@]}"
+          if [ -z "$WEB_GREP" ] && [ ${#repeat[@]} -eq 0 ]; then
+            # Every test: this shard's files by measured time (packages/web/test/durations.json). Every shard lists the
+            # tests, splits them the same way, checks that each is in exactly one shard, and runs its own test list.
+            pnpm --filter @tanrei/web exec playwright test "${projects[@]}" --list --reporter=json >"$RUNNER_TEMP/list.json"
+            node packages/tools/src/playwright-shards.js packages/web/test/durations.json "$RUNNER_TEMP/list.json" "$SHARD" "$RUNNER_TEMP/test-list.txt"
+            pnpm --filter @tanrei/web exec playwright test "${projects[@]}" --test-list "$RUNNER_TEMP/test-list.txt"
+          else
+            # A selection or a targeted run (a pattern, or repeats): its tests by count, Playwright's own sharding; the
+            # durations are of whole files, which a pattern runs only part of.
+            pnpm --filter @tanrei/web exec playwright test "${projects[@]}" --shard="$SHARD" ${WEB_GREP:+--grep "$WEB_GREP"} "${repeat[@]}"
+          fi
       # A failed test's traces (its retry's; in a targeted run every failed attempt's, the first included), screenshots and
       # diffs, as they are in test-results/: only failed tests leave anything there. Kept a week. The blob report below
       # carries the same files into the merged report; this one is the shard's own, without merging.
@@ -562,7 +578,7 @@ jobs:
     name: Web · merged Playwright report
     # On the runner itself, not in the Playwright image: merging runs no browser, and only the runner's disk can be freed.
     runs-on: ubuntu-24.04
-    needs: web
+    needs: [changes, web]
     # Also after a failed shard (that is when the report matters); not when web did not run.
     if: ${{ !cancelled() && needs.web.result != 'skipped' }}
     timeout-minutes: 15
@@ -589,16 +605,35 @@ jobs:
           pattern: blob-report-*
           merge-multiple: true
           path: packages/web/all-blob-reports
+      # Also into a JSON report, which the shards' durations are measured from (below); it stays on the runner.
       - name: Merge the shards' reports into one HTML report
         working-directory: packages/web
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_FILE: ${{ runner.temp }}/report.json
         run: |
-          pnpm exec playwright merge-reports --reporter html ./all-blob-reports
+          pnpm exec playwright merge-reports --reporter html,json ./all-blob-reports
           df -h /
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: playwright-report
           path: packages/web/playwright-report
           retention-days: 14
+      # The web shards' durations measured again from this run (packages/tools/src/playwright-durations.js): the committed
+      # packages/web/test/durations.json with the seconds of every file this run ran whole written over it, as the
+      # artifact `web-durations`. Only from a run of every test whose shards all passed: a pattern runs files in part,
+      # and a cancelled shard leaves a file split across shards in part. A refresh is
+      # `rm packages/web/test/durations.json && gh run download <run> -n web-durations -D packages/web/test`, committed.
+      - name: Measure the web shards' durations again
+        id: durations
+        if: ${{ needs.web.result == 'success' && needs.changes.outputs.web-grep == '' && needs.changes.outputs.web-repeat == '1' }}
+        run: node packages/tools/src/playwright-durations.js packages/web/test/durations.json "$RUNNER_TEMP/report.json"
+      - if: ${{ steps.durations.outcome == 'success' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: web-durations
+          path: packages/web/test/durations.json
+          retention-days: 30
+          if-no-files-found: error
 
   # The docs run in the web jobs' Playwright image (see `web` above for the image, `--ipc=host` and `--user 1001`): its
   # browsers and their system libraries are already installed, so no job downloads them from the Ubuntu mirrors (two of
