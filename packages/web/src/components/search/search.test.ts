@@ -707,6 +707,69 @@ test.describe('opening and closing', () => {
     await expect.poll(() => prop(s, 'expanded')).toBe(true);
   });
 
+  test('SRC-5, SRC-4 (TXI-4): a view closed between a composition’s end and the input that closes it stays closed — by Escape or by the product, docked or modal; that input is emitted only where the composition changed the value, and what the person types next opens the view again', async ({ page }) => {
+    await mountSite(page, [live('s', { value: 'in' }), site('m')]);
+    /**
+     * A composition — inserting `text`, or nothing (cancelled) — then, in the same task, before the `input` that closes it
+     * arrives (src/primitives/native-text.ts sends it in a later task), the view is closed: by Escape from the input, or
+     * by the product. Returns once that closing input has reached the element.
+     */
+    const closeInTheGap = (field: Locator, how: 'escape' | 'product', text: string) =>
+      field.evaluate(
+        (el: HTMLInputElement, [by, inserted]) =>
+          new Promise<void>((resolve) => {
+            el.addEventListener('input', (event) => (event as InputEvent).isComposing || resolve());
+            el.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, composed: true }));
+            el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', ctrlKey: true, bubbles: true, composed: true, cancelable: true, isComposing: true, keyCode: 229 }));
+            if (inserted) {
+              el.value += inserted;
+              el.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true, isComposing: true, inputType: 'insertCompositionText', data: inserted }));
+            }
+            el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, composed: true, data: inserted }));
+            if (by === 'escape') el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true, cancelable: true }));
+            else ((el.getRootNode() as ShadowRoot).host as any).expanded = false;
+          }),
+        [how, text] as const,
+      );
+    const s = host(page, 's');
+    const field = input(page, 's');
+    const open = async () => {
+      await field.focus();
+      await page.keyboard.press('ArrowDown');
+      await expect.poll(() => popoverOpen(view(page, 's'))).toBe(true);
+      await wire(s);
+    };
+    // Docked: a cancelled composition, then Escape — one toggle, closed, and no input: the value never changed.
+    await open();
+    await closeInTheGap(field, 'escape', '');
+    expect(await log(page)).toEqual(['toggle:false:escape:false']);
+    expect([await prop(s, 'expanded'), await popoverOpen(view(page, 's'))]).toEqual([false, false]);
+    await expect(field).toBeFocused();
+    // A composition that inserted text is committed: its input is emitted, and the view stays closed.
+    await open();
+    await closeInTheGap(field, 'escape', 'ね');
+    expect(await log(page)).toEqual(['input:inね', 'toggle:false:escape:false', 'input:inね']);
+    expect(await prop(s, 'expanded')).toBe(false);
+    // Closed by the product in the gap: no toggle (the product's own change) and no reopening.
+    await open();
+    await closeInTheGap(field, 'product', '');
+    expect(await log(page)).toEqual([]);
+    expect(await prop(s, 'expanded')).toBe(false);
+    // What the person types next opens it again (SRC-5).
+    await page.keyboard.type('x');
+    expect(await log(page)).toEqual(['toggle:true:null:true', 'input:inねx']);
+    // Modal: the header's input, closed by Escape in the gap. Focus goes back to the trigger and stays there.
+    await page.keyboard.press('Escape');
+    const m = host(page, 'm');
+    await trigger(page, 'm').click();
+    await expect(headerInput(page, 'm')).toBeFocused();
+    await wire(m);
+    await closeInTheGap(headerInput(page, 'm'), 'escape', '');
+    expect(await log(page)).toEqual(['toggle:false:escape:false']);
+    expect(await prop(m, 'expanded')).toBe(false);
+    await expect(trigger(page, 'm')).toBeFocused();
+  });
+
   test('SRC-6: Escape, a chosen suggestion, submit, a press outside, Tab, Shift+Tab and focus leaving each close the docked view once with their reason; the value stays', async ({ page }) => {
     await mount(page, [live('s', { value: 'inv' })]);
     const s = host(page, 's');
