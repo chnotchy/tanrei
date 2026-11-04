@@ -1,5 +1,5 @@
 // The start point, first in the bar: a menu of what the layer starts from — the default system, the root (listed, not
-// offered until it is a blank start, with the reason), the examples of the theme gallery — and a file to load in the
+// offered until it is a blank start, with the reason), the examples of the gallery — and a file to load in the
 // layer's place. A layer that holds changes asks first; a new start and a loaded file are each one step to undo. A file
 // the schema refuses is not loaded, and the panel says why; one it accepts is loaded, with what the engine says of it.
 import assert from 'node:assert/strict';
@@ -40,7 +40,7 @@ studioTest('the bar’s start point: the default system, the root listed and not
     ['tanrei', 'Tanrei', 'The default system', false],
     ['core', 'Core', 'Not yet: Tanrei’s root layer still holds the default system’s values. It becomes a blank start once its values are neutral.', true],
   ]]);
-  assert.equal(rows[1][0], 'Theme gallery examples');
+  assert.equal(rows[1][0], 'From the gallery');
   assert.equal(rows[1][1], null, 'no example is the start');
   assert.deepEqual(rows[1][2].map(([id]) => id).sort(), ['cupertino', 'm3-expressive-like', 'm3-like']);
   for (const [id, , note, disabled] of rows[1][2]) assert.ok(note.endsWith('An example, not an official design.') && !disabled, id);
@@ -173,7 +173,7 @@ studioTest('390 wide, in Japanese: the start point fits the bar, and its menu sp
   assert.equal(await label(page), '開始点: Tanrei');
   await fits('[data-bar]', 'the bar, with the start point');
   await openMenu(page);
-  assert.deepEqual(await menu(page).locator('tanrei-menu-group').evaluateAll((groups) => groups.map((group) => group.getAttribute('label'))), ['ここから始める', 'テーマギャラリーの例']);
+  assert.deepEqual(await menu(page).locator('tanrei-menu-group').evaluateAll((groups) => groups.map((group) => group.getAttribute('label'))), ['ここから始める', 'ギャラリーから始める']);
   assert.equal(await menu(page).locator('[data-start-file]').getAttribute('label'), 'ファイルを読み込む…');
   await axe('[data-start-menu]', 'the start point’s menu, narrow, in Japanese');
 });

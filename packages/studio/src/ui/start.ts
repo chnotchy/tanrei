@@ -1,5 +1,5 @@
 // The start point, first in the bar: what the layer starts from — the default system, the root (listed, and offered
-// once it is a blank start: core.startPoints), an example of the theme gallery — and a layer file to load in its
+// once it is a blank start: core.startPoints), an example of the gallery — and a layer file to load in its
 // place. A button that opens a menu: a radio item for each start, the import as an item of its own.
 import { type Ctx, type Json, h } from './dom';
 

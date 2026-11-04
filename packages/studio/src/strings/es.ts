@@ -625,7 +625,7 @@ const es: Dictionary = {
     starts: 'Empezar desde',
     defaultNote: 'El sistema predeterminado',
     notNeutral: 'Todavía no: la capa raíz de Tanrei aún tiene los valores del sistema predeterminado. Será un punto de partida en blanco cuando sus valores sean neutros.',
-    gallery: 'Ejemplos de la galería de temas',
+    gallery: 'Empezar desde la galería',
     exampleNote: (name) => `${name}. Un ejemplo, no un diseño oficial.`,
     file: 'Importar un archivo…',
     fileNote: 'Un archivo de capa, <id>.system.json',

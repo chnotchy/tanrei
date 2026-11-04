@@ -704,7 +704,7 @@ const ar: Dictionary = {
     starts: 'البدء من',
     defaultNote: 'النظام الافتراضي',
     notNeutral: 'ليس بعد: ما زالت الطبقة الجذر في Tanrei تحمل قيم النظام الافتراضي. ستصبح بداية فارغة حين تصبح قيمها محايدة.',
-    gallery: 'أمثلة من معرض السمات',
+    gallery: 'ابدأ من المعرض',
     exampleNote: (name) => `${name}. مثال، وليس تصميمًا رسميًا.`,
     file: 'استيراد ملف…',
     fileNote: 'ملف طبقة، <id>.system.json',

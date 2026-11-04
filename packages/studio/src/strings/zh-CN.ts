@@ -623,7 +623,7 @@ const zhCN: Dictionary = {
     starts: '从这里开始',
     defaultNote: '默认系统',
     notNeutral: '暂不可选：Tanrei 的根层仍带有默认系统的值。等它的值变为中性后，它就会成为空白起点。',
-    gallery: '主题库示例',
+    gallery: '从主题示例开始',
     exampleNote: (name) => `${name}。这是示例，不是官方设计。`,
     file: '导入文件…',
     fileNote: '层文件 <id>.system.json',

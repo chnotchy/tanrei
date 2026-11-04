@@ -651,8 +651,9 @@ const en = {
     defaultNote: 'The default system',
     // The root, listed but not offered: why it cannot be chosen yet.
     notNeutral: 'Not yet: Tanrei’s root layer still holds the default system’s values. It becomes a blank start once its values are neutral.',
-    // The examples of the theme gallery: a showcase of what a layer can imitate, not the official design it follows.
-    gallery: 'Theme gallery examples',
+    // The examples of the gallery, under their own title: each a showcase of what a layer can imitate, not the official
+    // design it follows. The title reads as the first group's, «Start from»: a start, said as what it is made from.
+    gallery: 'From the gallery',
     exampleNote: (name: string) => `${name}. An example, not an official design.`,
     file: 'Import a file…',
     fileNote: 'A layer file, <id>.system.json',
