@@ -1,7 +1,8 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
 
 /**
- * Whether a `pointermove` is the pointer moving — what "WHEN a pointer moves onto an option" (SEL-32, CMB-26) asks.
+ * Whether a `pointermove` is the pointer moving — what "WHEN a pointer moves onto an option" (SEL-32, CMB-26) and
+ * "onto an item" (MNU-8) ask.
  *
  * WebKit sends a `pointermove` (and a `mousemove`) to whatever comes under a pointer at rest once the page, or a box
  * under it, has scrolled: at the very place of the last one, a moment later. Chromium and Firefox send none. A list

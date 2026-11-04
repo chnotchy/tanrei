@@ -491,7 +491,7 @@
     },
     {
       "id": "MNU-8",
-      "text": "WHEN a pointer moves onto an item THE menu SHALL move focus to that item without showing the focus ring and render it hovered, so that the arrow keys continue from it, except while the pointer is on its way to an open submenu (MNU-45); WHEN the pointer leaves the surface focus SHALL stay on that item."
+      "text": "WHEN a pointer moves onto an item THE menu SHALL move focus to that item without showing the focus ring and render it hovered, so that the arrow keys continue from it, except while the pointer is on its way to an open submenu (MNU-45); WHILE a pointer is at rest THE menu SHALL NOT take the items that a scroll of the surface or of the page carries under it for a pointer that moves onto them, so that focus stays on the item a key moved it to; WHEN the pointer leaves the surface focus SHALL stay on that item."
     },
     {
       "id": "MNU-9",

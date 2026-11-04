@@ -4738,7 +4738,9 @@ dividers through it. Such a component may also place the surface against another
 the labels; disabled items are reached but do nothing. Enter activates on key-down and closes; Space activates on key-up
 and keeps the menu open after a checkbox or radio item. Every item has `tabindex="-1"`: none is a Tab stop. A pointer
 moving onto an item focuses it without the ring (the item marks that focus, since `:focus-visible` would follow the
-keyboard's), and the arrow keys continue from there.
+keyboard's), and the arrow keys continue from there. A `pointermove` at the place the same pointer last was is no move
+(`src/primitives/pointer-moved.ts`, as for the select's and the combobox's options): WebKit sends one to whatever a
+scroll carries under a resting mouse, which would otherwise take focus from the key that scrolled.
 
 **Where the list stands (MNU-68).** A list taller than its surface opens at its top — a submenu's too, and a menu opened
 again before its closing motion has ended — or, for the last item a menubar opens its menu on (MBR-9), at its end. The

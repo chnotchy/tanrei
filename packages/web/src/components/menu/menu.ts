@@ -52,6 +52,7 @@ import type { TanreiKeyboardShortcut } from '../keyboard-shortcut/keyboard-short
 import { AXES, groupStyles, itemStyles, menuStyles, submenuStyles } from './menu.styles.js';
 import type { TanreiMenuDensityRegistry } from '../../registry.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { PointerMovedController } from '../../primitives/pointer-moved.js';
 import { DelegatedAriaWriter, delegatesAria, holdsProductName, nameHost, namedByProduct, syncDelegation } from '../../primitives/delegated-aria.js';
 
 /** Where the surface goes against the anchor. A closed set; an unknown value is drawn as `bottom-start` (MNU-14). */
@@ -1305,6 +1306,8 @@ export class TanreiMenu extends TanreiElement {
   private readonly system = new SystemWatchController(this);
   /** MNU-64: a density a design system added is drawn from its tokens; one the active system lacks is reported. */
   private readonly axes = new OpenAxesController(this, { component: 'menu', behavior: 'MNU-64', axes: AXES });
+  /** MNU-8: whether a `pointermove` moved the pointer, or only came to what scrolled under it (WebKit). */
+  private readonly pointer = new PointerMovedController(this);
   static override styles = [menuStyles, hiddenHost];
 
   // The menu places each child in a slot of its own, so that a divider or a gap can be drawn between two of them (MNU-23, MNU-36).
@@ -2107,10 +2110,12 @@ export class TanreiMenu extends TanreiElement {
    * MNU-8, MNU-44, MNU-45: a pointer moving onto an item moves focus there, without the ring, so that the arrow keys
    * continue from it — except while it is on its way to an open submenu: inside the triangle between its last position
    * on the submenu's item and the two corners of the submenu's surface that face the item, the items it crosses take
-   * neither hover nor focus, until it leaves the triangle or pauses in it for `submenu-delay`.
+   * neither hover nor focus, until it leaves the triangle or pauses in it for `submenu-delay`. A pointer at rest that an
+   * item scrolled under (WebKit says so with a `pointermove` at the same place) did not move: focus stays where the keys
+   * put it.
    */
   private readonly onPointerMove = (event: PointerEvent) => {
-    if (!this.open || event.pointerType === 'touch') return;
+    if (!this.open || event.pointerType === 'touch' || !this.pointer.moved(event)) return;
     const { item, level } = this.locate(event);
     this.pointerItem = item;
     const aimed = level ? this.openIn(level)[0] : undefined;
