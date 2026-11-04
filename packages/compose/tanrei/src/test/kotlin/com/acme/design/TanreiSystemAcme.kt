@@ -7240,6 +7240,7 @@ private object AcmeSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun select(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiSelectTokens =
         TanreiSelectTokens(
+            containerActionGap = 4.dp,
             dividerColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
             dividerSpace = 4.dp,
             dividerThickness = 1.dp,
@@ -9025,6 +9026,7 @@ private object AcmeSystemSource {
         TanreiTextInputTokens(
             codeTabSize = 2f,
             codeTypescale = typescale.code,
+            containerActionGap = 4.dp,
             entriesGap = 8.dp,
             entriesRowGap = 8.dp,
             entriesTypingMinWidth = 72.dp,

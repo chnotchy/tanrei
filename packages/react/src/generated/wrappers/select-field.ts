@@ -35,7 +35,7 @@ const SelectFieldAttributes = { label: ['label', ''], labelHidden: ['label-hidde
  * - `label-icon` — A glyph of the icon set before the label; decorative. A glyph the icon set flags is mirrored in right-to-left; `data-mirror="auto | always | never"` on the element decides for one use.
  *
  * Events:
- * - `onChange` (`change`) — The person chose an option whose value differs from the select's; `value` is already the new one. A composed, bubbling Event, as a native select's. Never fired when the product sets `value`, when the chosen option is chosen again, or while the person only moves through the list.
+ * - `onChange` (`change`) — The person chose an option whose value differs from the select's, or cleared the value with the clear button; `value` is already the new one. A composed, bubbling Event, as a native select's. Never fired when the product sets `value`, when the chosen option is chosen again, or while the person only moves through the list.
  * - `onToggle` (`toggle`) — The list was opened or closed by the person; `open` is already the new one. `detail.open`, and for a close `detail.reason`: `select`, `escape`, `outside`, `focus-out`, `anchor-hidden`, `press` or `tab`. After a choice it follows `change`. Composed and not bubbling: heard on the element — and on an element composed around it — and by no ancestor. Never fired when the product sets `open`.
  */
 export const SelectField: Marked<typeof SelectFieldElement, SelectFieldMarks> = /* @__PURE__ */ withServerAttributes(/* @__PURE__ */ withSelectFieldMarks(SelectFieldElement), 'tanrei-select-field', TanreiSelectFieldElement, SelectFieldAttributes);

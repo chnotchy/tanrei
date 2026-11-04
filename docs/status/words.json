@@ -159,6 +159,14 @@
           "prop": "clearLabel"
         },
         {
+          "component": "select",
+          "prop": "clearLabel"
+        },
+        {
+          "component": "text-input",
+          "prop": "clearLabel"
+        },
+        {
           "component": "tree-view",
           "prop": "filterClearLabel"
         }

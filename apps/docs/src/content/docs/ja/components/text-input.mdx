@@ -2,7 +2,7 @@
 title: テキスト入力欄
 description: 文字を入力するボックスと、その中で入力するものすべてです。1 行または複数行のテキスト、日付や時刻、コードを扱います。ラベルの行、補足、エラーテキストは自分では持ちません。ラベルがほかの場所にあるところや、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/text-input.mdx
-sourceHash: 83486ed63b6a2185108fc8bec04d5e73f0177fa5
+sourceHash: abdba7da8588ca765f8420914ded04a0158c1448
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -170,6 +170,18 @@ Web では `<tanrei-text-input>` です。ほかのプラットフォームは�
 
 入力欄は、ここに置いたものにロールも、フォーカスの順序も、キーも与えません。それらは利用者側のものです。ボックスの中で、置いたもの以外の場所を押すと、入力部分にフォーカスが移ります。キーの操作、チェック、フォームの値までそろった入力済みのリストが必要なら、この場所の上に作られた[チップフィールド](/ja/components/chip-field/)を使います。
 
+### 消去
+
+`clearable` を付けると、1 行の入力欄は値があるあいだ、末尾に消去ボタンを描きます。フィルター、検索、クエリーのように、まとめて空にすることが多い入力欄のためのものです。押すと値を空にし、`input` を出します。フォーカスを得たときから値が変わっていれば `change` も出します。フォーカスは入力欄に残ります。押してもフォーカスが入力欄から離れないので、入力は元の位置から続き、タッチキーボードも閉じません。入力欄が空のあいだもボタンの場所は空けたままにするので、ボタンが現れたり消えたりしても、テキストとアイコンは動きません。複数行の入力欄、日付、時刻には描きません。
+
+消去ボタンは入力欄のあと、`trailing-icon` スロットに置いた自前のボタンのあとに並び、フォーカスの順序では次の位置です。`clearLabel` で名前を付けるか（「フィルターを消去」）、プロダクト全体で一度だけ `setWords({ clearLabel })` で付けます。
+
+<Example label="消去できる入力欄: 1 回押すだけで空になるフィルター" column>
+  <tanrei-text-input class="not-content" type="search" label="トークンを絞り込む" placeholder="トークンを絞り込む" value="color" clearable clear-label="フィルターを消去">
+    <span slot="leading-icon">search</span>
+  </tanrei-text-input>
+</Example>
+
 <ComponentSpecs name="text-input" />
 
 ### Web での描き方の違い
@@ -180,7 +192,8 @@ Web では `<tanrei-text-input>` です。ほかのプラットフォームは�
 - `input` と `change` は composed なイベントです。`action` はキャンセルできる CustomEvent で、キャンセルすると Enter でフォームが送信されません。`pickerrequest` と `entryerror` は、`detail` に `{ value, type, min, max }` と `{ reason, text }` を持つ CustomEvent です。型は `TanreiTextInputActionDetail`、`TanreiTextInputPickerRequestDetail`、`TanreiTextInputEntryErrorDetail` です。
 - `countText` は読み取り専用のプロパティで、値が変わるたびに新しくなります。属性はありません。
 - 属性はケバブケースです。`label-hidden`、`min-rows`、`prefix-text` などで、`no-wrap` は `wrap` を false にしたものです。`readonly`、`maxlength`、`autocomplete`、`min`、`max` は HTML の名前のままです。
-- パーツ: `container`、`outline`、`active-indicator`、`label`、`requirement-label`、`input`、`entries`、`segment`、`prefix`、`suffix`、`leading-icon`、`trailing-icon`、`picker-button`、`resize-handle`。
+- パーツ: `container`、`outline`、`active-indicator`、`label`、`requirement-label`、`input`、`entries`、`segment`、`prefix`、`suffix`、`leading-icon`、`trailing-icon`、`clear-button`、`picker-button`、`resize-handle`。
+- `clear-label` を空のままにすると、プロダクトの言葉（`setWords({ clearLabel })`）から読みます。
 - スロット: `leading-icon`、`trailing-icon`、`entries`。末尾のアイコンには、自前のアイコンだけのボタンを置けます。`entries` のパーツは自分のボックスを持ちません。置いたものは、ボックスの行にそのまま並びます。
 - `resize-label` と `segment-empty-text` を空のままにすると、プロダクトの言葉（`setWords()`）から読みます。
 - 要素が定義されるまでは、大きさがありません。ボックスの高さを確保してください。
@@ -233,3 +246,4 @@ Web では `<tanrei-text-input>` です。ほかのプラットフォームは�
 - 単独の入力欄の値が誤りになりうる場合は、何が違うのかを、支援技術に届く言葉で伝えます。ページに結び付けた自前のメッセージか、入力欄を囲むフィールドを使います。
 - 日付や時刻では `segmentEmptyText` を渡し、フィールドが表示しない場合でも `invalidText` と `unavailableText` を書きます。入力欄と一緒に読み上げられます。
 - サイズ変更のハンドルには `resizeLabel` で、ピッカーボタンには `pickerLabel` で名前を付けます。
+- 消去できる入力欄には、何を消去するのかを言う `clearLabel` を付けます（「フィルターを消去」）。

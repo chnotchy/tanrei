@@ -7955,6 +7955,10 @@
               "name": "entries"
             },
             {
+              "description": "The clear button, a `<tanrei-button>` (TXI-71).",
+              "name": "clear-button"
+            },
+            {
               "description": "The chip's native button — with `href`, the anchor in its place: its shape, colors, outline and elevation, and every state of the chip.",
               "name": "entry-container"
             },
@@ -40163,6 +40167,10 @@
               "name": "leading-icon"
             },
             {
+              "description": "The clear button, a `<tanrei-button>` over the container's end, before the chevron (SEL-72).",
+              "name": "clear-button"
+            },
+            {
               "description": "The glyph at the end of the container.",
               "name": "chevron"
             },
@@ -40419,6 +40427,29 @@
             },
             {
               "kind": "field",
+              "name": "clearable",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "clearable",
+              "reflects": true,
+              "description": "Draws a clear button while a value is chosen, for a select whose value may be none: a filter, an optional setting\n(SEL-72). Its room is kept while the value is empty, so the select keeps its width. Without it, a chosen value is\nchanged only by choosing another. Reflected."
+            },
+            {
+              "kind": "field",
+              "name": "clearLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "attribute": "clear-label",
+              "description": "The clear button's accessible name, in the product's language (`clear-label`, \"Clear\"). Empty reads the product's words. Required while `clearable` is true."
+            },
+            {
+              "kind": "field",
               "name": "open",
               "privacy": "public",
               "type": {
@@ -40667,7 +40698,7 @@
           ],
           "events": [
             {
-              "description": "The person chose an option whose value differs from the select's; `value` is already the new one. A composed, bubbling Event, as a native select's. Never fired when the product sets `value`, when the chosen option is chosen again, or while the person only moves through the list.",
+              "description": "The person chose an option whose value differs from the select's, or cleared the value with the clear button; `value` is already the new one. A composed, bubbling Event, as a native select's. Never fired when the product sets `value`, when the chosen option is chosen again, or while the person only moves through the list.",
               "name": "change",
               "type": {
                 "text": "Event"
@@ -40839,6 +40870,24 @@
               "default": "false",
               "fieldName": "readOnly",
               "description": "The value is shown, can be focused and is submitted, but cannot be changed: the list does not open and no chevron is drawn. The attribute is `readonly`."
+            },
+            {
+              "name": "clearable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "clearable",
+              "description": "Draws a clear button while a value is chosen, for a select whose value may be none: a filter, an optional setting\n(SEL-72). Its room is kept while the value is empty, so the select keeps its width. Without it, a chosen value is\nchanged only by choosing another. Reflected."
+            },
+            {
+              "name": "clear-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "fieldName": "clearLabel",
+              "description": "The clear button's accessible name, in the product's language (`clear-label`, \"Clear\"). Empty reads the product's words. Required while `clearable` is true."
             },
             {
               "name": "open",
@@ -41169,6 +41218,10 @@
               "name": "leading-icon"
             },
             {
+              "description": "The clear button, a `<tanrei-button>` over the container's end, before the chevron (SEL-72).",
+              "name": "clear-button"
+            },
+            {
               "description": "The glyph at the end of the container.",
               "name": "chevron"
             },
@@ -41349,6 +41402,29 @@
               "description": "The value is shown, can be focused and is submitted, but cannot be changed: the list does not open and no chevron is drawn. The attribute is `readonly`.",
               "attribute": "readonly",
               "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "clearable",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws a clear button while a value is chosen, for a select whose value may be none: a filter, an optional setting\n(SEL-72). Its room is kept while the value is empty, so the select keeps its width. Without it, a chosen value is\nchanged only by choosing another. Reflected.",
+              "attribute": "clearable",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "clearLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The clear button's accessible name, in the product's language (`clear-label`, \"Clear\"). Empty reads the product's words. Required while `clearable` is true.",
+              "attribute": "clear-label"
             },
             {
               "kind": "field",
@@ -41535,18 +41611,18 @@
           ],
           "events": [
             {
+              "name": "change",
+              "type": {
+                "text": "Event"
+              },
+              "description": "The person chose an option whose value differs from the select's, or cleared the value with the clear button; `value` is already the new one. A composed, bubbling Event, as a native select's. Never fired when the product sets `value`, when the chosen option is chosen again, or while the person only moves through the list."
+            },
+            {
               "name": "toggle",
               "type": {
                 "text": "CustomEvent<TanreiSelectToggleDetail>"
               },
               "description": "The list was opened or closed by the person; `open` is already the new one. `detail.open`, and for a close `detail.reason`: `select`, `escape`, `outside`, `focus-out`, `anchor-hidden`, `press` or `tab`. After a choice it follows `change`. Composed and not bubbling: heard on the element — and on an element composed around it — and by no ancestor. Never fired when the product sets `open`."
-            },
-            {
-              "name": "change",
-              "type": {
-                "text": "Event"
-              },
-              "description": "The person chose an option whose value differs from the select's; `value` is already the new one. A composed, bubbling Event, as a native select's. Never fired when the product sets `value`, when the chosen option is chosen again, or while the person only moves through the list."
             }
           ],
           "attributes": [
@@ -41646,6 +41722,24 @@
               "default": "false",
               "description": "The value is shown, can be focused and is submitted, but cannot be changed: the list does not open and no chevron is drawn. The attribute is `readonly`.",
               "fieldName": "readOnly"
+            },
+            {
+              "name": "clearable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws a clear button while a value is chosen, for a select whose value may be none: a filter, an optional setting\n(SEL-72). Its room is kept while the value is empty, so the select keeps its width. Without it, a chosen value is\nchanged only by choosing another. Reflected.",
+              "fieldName": "clearable"
+            },
+            {
+              "name": "clear-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The clear button's accessible name, in the product's language (`clear-label`, \"Clear\"). Empty reads the product's words. Required while `clearable` is true.",
+              "fieldName": "clearLabel"
             },
             {
               "name": "open",
@@ -47873,6 +47967,10 @@
               "name": "trailing-icon"
             },
             {
+              "description": "The clear button, a `<tanrei-button>` (TXI-71).",
+              "name": "clear-button"
+            },
+            {
               "description": "The picker button, a `<tanrei-button>` (TXI-32).",
               "name": "picker-button"
             },
@@ -47891,7 +47989,7 @@
               "name": "leading-icon"
             },
             {
-              "description": "An icon at the end of the field, or the product's own icon-only Button (clear, reveal password). A date or time field's picker button comes after it. A glyph is mirrored in right-to-left as in `leading-icon`.",
+              "description": "An icon at the end of the field, or the product's own icon-only Button. The clear button and a date or time field's picker button come after it. A glyph is mirrored in right-to-left as in `leading-icon`.",
               "name": "trailing-icon"
             }
           ],
@@ -48101,6 +48199,29 @@
               "attribute": "readonly",
               "reflects": true,
               "description": "The value can be focused, selected and copied, but not changed (the `readonly` attribute)."
+            },
+            {
+              "kind": "field",
+              "name": "clearable",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "clearable",
+              "reflects": true,
+              "description": "Draws a clear button while the value is not empty, for a field a person often empties whole: a filter, a search, a\nquery (TXI-71). Its room is kept while the value is empty. A single-line field of any type but date, time and\ndate-time; ignored, and reported in debug builds, on the others. Reflected."
+            },
+            {
+              "kind": "field",
+              "name": "clearLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "attribute": "clear-label",
+              "description": "The clear button's accessible name, in the product's language (`clear-label`, \"Clear\"). Empty reads the product's words. Required while `clearable` is true."
             },
             {
               "kind": "field",
@@ -48734,6 +48855,24 @@
               "default": "false",
               "fieldName": "readOnly",
               "description": "The value can be focused, selected and copied, but not changed (the `readonly` attribute)."
+            },
+            {
+              "name": "clearable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "clearable",
+              "description": "Draws a clear button while the value is not empty, for a field a person often empties whole: a filter, a search, a\nquery (TXI-71). Its room is kept while the value is empty. A single-line field of any type but date, time and\ndate-time; ignored, and reported in debug builds, on the others. Reflected."
+            },
+            {
+              "name": "clear-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "fieldName": "clearLabel",
+              "description": "The clear button's accessible name, in the product's language (`clear-label`, \"Clear\"). Empty reads the product's words. Required while `clearable` is true."
             },
             {
               "name": "multiline",
@@ -49869,6 +50008,10 @@
               "name": "trailing-icon"
             },
             {
+              "description": "The clear button, a `<tanrei-button>` (TXI-71).",
+              "name": "clear-button"
+            },
+            {
               "description": "The picker button, a `<tanrei-button>` (TXI-32).",
               "name": "picker-button"
             },
@@ -49883,7 +50026,7 @@
               "name": "leading-icon"
             },
             {
-              "description": "An icon at the end of the field, or the product's own icon-only Button (clear, reveal password). A date or time field's picker button comes after it. A glyph is mirrored in right-to-left as in `leading-icon`.",
+              "description": "An icon at the end of the field, or the product's own icon-only Button. The clear button and a date or time field's picker button come after it. A glyph is mirrored in right-to-left as in `leading-icon`.",
               "name": "trailing-icon"
             },
             {
@@ -50025,6 +50168,29 @@
               "description": "The value can be focused, selected and copied, but not changed (the `readonly` attribute).",
               "attribute": "readonly",
               "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "clearable",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws a clear button while the value is not empty, for a field a person often empties whole: a filter, a search, a\nquery (TXI-71). Its room is kept while the value is empty. A single-line field of any type but date, time and\ndate-time; ignored, and reported in debug builds, on the others. Reflected.",
+              "attribute": "clearable",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "clearLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The clear button's accessible name, in the product's language (`clear-label`, \"Clear\"). Empty reads the product's words. Required while `clearable` is true.",
+              "attribute": "clear-label"
             },
             {
               "kind": "field",
@@ -50537,6 +50703,24 @@
               "default": "false",
               "description": "The value can be focused, selected and copied, but not changed (the `readonly` attribute).",
               "fieldName": "readOnly"
+            },
+            {
+              "name": "clearable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws a clear button while the value is not empty, for a field a person often empties whole: a filter, a search, a\nquery (TXI-71). Its room is kept while the value is empty. A single-line field of any type but date, time and\ndate-time; ignored, and reported in debug builds, on the others. Reflected.",
+              "fieldName": "clearable"
+            },
+            {
+              "name": "clear-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The clear button's accessible name, in the product's language (`clear-label`, \"Clear\"). Empty reads the product's words. Required while `clearable` is true.",
+              "fieldName": "clearLabel"
             },
             {
               "name": "multiline",

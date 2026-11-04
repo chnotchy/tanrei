@@ -168,6 +168,18 @@ The `entries` slot is a place inside the box, before the typed text, for what a 
 
 The input gives these items no role, no place in the focus order and no key: they are yours. A press in the box outside every item focuses the typing part. For a list of entries with its keys, its checks and its form value, use the [chip field](/components/chip-field/), which is built on this place.
 
+### Clearing
+
+With `clearable`, a single-line input draws a clear button at its end while it holds a value: for a filter, a search or a query that a person empties whole. A press on it empties the value, emits `input` and, where the value changed since the input took focus, `change`, and leaves focus in the input. A press never takes focus from the input, so typing goes on where it was and a touch keyboard stays up. Its room is kept while the input is empty, so the text and the icons do not move as the button comes and goes. A multi-line input, a date and a time draw none.
+
+The clear button comes after the input and after a button of yours in the `trailing-icon` slot, and is the next stop in the focus order. Name it with `clearLabel` ("Clear filter"), or once for the product with `setWords({ clearLabel })`.
+
+<Example label="Clearable: a filter emptied at one press" column>
+  <tanrei-text-input class="not-content" type="search" label="Filter tokens" placeholder="Filter tokens" value="color" clearable clear-label="Clear filter">
+    <span slot="leading-icon">search</span>
+  </tanrei-text-input>
+</Example>
+
 <ComponentSpecs name="text-input" />
 
 ### What the web draws differently
@@ -178,7 +190,8 @@ The input gives these items no role, no place in the focus order and no key: the
 - `input` and `change` are composed events. `action` is a cancelable CustomEvent: cancel it to keep Enter from submitting the form. `pickerrequest` and `entryerror` are CustomEvents whose `detail` holds `{ value, type, min, max }` and `{ reason, text }`. Their types are `TanreiTextInputActionDetail`, `TanreiTextInputPickerRequestDetail` and `TanreiTextInputEntryErrorDetail`.
 - `countText` is a read-only property, new after each change of the value. It has no attribute.
 - Attributes are kebab-case, such as `label-hidden`, `min-rows`, `prefix-text` and `no-wrap`, which is `wrap` set to false. `readonly`, `maxlength`, `autocomplete`, `min` and `max` keep HTML's names.
-- Parts: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `entries`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-handle`.
+- Parts: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `entries`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `clear-button`, `picker-button`, `resize-handle`.
+- `clear-label` left empty is read from the product's words (`setWords({ clearLabel })`).
 - Slots: `leading-icon`, `trailing-icon` and `entries`. A trailing icon may be your own icon-only Button. The `entries` part has no box of its own: its items stand in the box's own lines.
 - `resize-label` and `segment-empty-text` left empty are read from the product's words (`setWords()`).
 - Before the element is defined it has no size. Reserve the height of the box.
@@ -231,3 +244,4 @@ The input gives these items no role, no place in the focus order and no key: the
 - Where a bare input can be wrong, say what is wrong in words that reach assistive technology: a message of your own tied to the page, or a field around the input.
 - For a date or a time, give `segmentEmptyText`, and write `invalidText` and `unavailableText` even where no field shows them: they are read with the input.
 - Name the resize handle with `resizeLabel` and the picker button with `pickerLabel`.
+- Give a clearable input a `clearLabel` that says what it clears ("Clear filter").

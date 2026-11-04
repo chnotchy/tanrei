@@ -7645,6 +7645,7 @@ private let m3LikeSegmentedButtonTokens = TanreiSegmentedButtonTokens(
 )
 
 private let m3LikeSelectTokens = TanreiSelectTokens(
+  containerActionGap: 4,
   dividerColor: .role(.outlineVariant),
   dividerSpace: 8,
   dividerThickness: 1,
@@ -9584,6 +9585,7 @@ private let m3LikeTagTokens = TanreiTagTokens(
 private let m3LikeTextInputTokens = TanreiTextInputTokens(
   codeTabSize: 2,
   codeTypescale: m3LikeTypescale.code,
+  containerActionGap: 4,
   entriesGap: 8,
   entriesRowGap: 8,
   entriesTypingMinWidth: 72,

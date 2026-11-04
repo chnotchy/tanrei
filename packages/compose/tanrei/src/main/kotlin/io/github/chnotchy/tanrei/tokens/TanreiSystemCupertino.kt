@@ -7043,6 +7043,7 @@ private object CupertinoSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun select(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiSelectTokens =
         TanreiSelectTokens(
+            containerActionGap = 4.dp,
             dividerColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainerHigh),
             dividerSpace = 0.dp,
             dividerThickness = 8.dp,
@@ -8828,6 +8829,7 @@ private object CupertinoSystemSource {
         TanreiTextInputTokens(
             codeTabSize = 2f,
             codeTypescale = typescale.code,
+            containerActionGap = 4.dp,
             entriesGap = 8.dp,
             entriesRowGap = 8.dp,
             entriesTypingMinWidth = 72.dp,

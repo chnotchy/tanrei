@@ -2,7 +2,7 @@
 title: حقل النص
 description: يتيح للأشخاص إدخال نص وتحريره، سطرًا واحدًا أو عدة أسطر تتبع النص أو يُغيَّر حجمها باليد، أو إدخال تاريخ أو وقت وحدةً وحدةً بصيغة الإعدادات المحلية، أو شيفرة تُحفظ كما كُتبت تمامًا، مع تسمية تستطيع أن تقول إن الحقل مطلوب أو اختياري، وأيقونات اختيارية، وبادئة ولاحقة، ونص مساعد، وعدّاد أحرف، وزر منتقٍ.
 translationOf: components/text-field.mdx
-sourceHash: 683632de1567a4e1bbf6de24ceaf12427a272d2c
+sourceHash: 9e1db5f3c000d955335f755eb7580a884097fce4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -324,7 +324,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 - العنصر كتلة تملأ مكانها، لا صندوق مضمَّن في السطر بعرض حقل الإدخال النصي الخاص بالمتصفح.
 - العنصر مرتبط بالنماذج (form-associated). يأخذ `name` و `form`، ويرسل القيمة، ولا يرسل شيئًا وهو معطَّل، ويعود عند إعادة الضبط إلى قيمة خاصية HTML (attribute) `value`، ويُستعاد عند التنقل، ويتبع عنصر `<fieldset>` المعطَّل، ويبلّغ بأن القيمة ناقصة ما دامت `required` معيَّنة وهو فارغ. وعضواه لا يضيفان أي مُدخلة (entry) إلى النموذج. والمفتاح Enter في حقل من سطر واحد يضغط الزر الافتراضي في نموذج العنصر؛ ألغِ الحدث `action` لتمنع ذلك.
 - الأحداث `input` و `change` و `action` و `pickerrequest` و `entryerror` هي أحداث حقل إدخال النص نفسه. وهدفها هو العنصر، و `event.target.value` هي القيمة الجديدة في كل مستمع. وأنواع التفاصيل (detail) هي أنواع حقل الإدخال: `TanreiTextInputActionDetail` و `TanreiTextInputPickerRequestDetail` و `TanreiTextInputEntryErrorDetail`.
-- الأجزاء: `field` و `text-input` هما العضوان. وأجزاؤهما لها هنا الأسماء نفسها التي لها في المستوى الأدنى: `label-icon`، `supporting-text`، `counter`؛ `container`، `outline`، `active-indicator`، `input`، `segment`، `prefix`، `suffix`، `leading-icon`، `trailing-icon`، `picker-button`، `resize-handle`. والجزءان `label` و `requirement-label` هما المرسومان، أيًّا كان العضو الذي يرسمهما؛ أما `field-label` و `text-input-label` و `field-requirement-label` و `text-input-requirement-label` فتسمّي ما يخص عضوًا واحدًا.
+- الأجزاء: `field` و `text-input` هما العضوان. وأجزاؤهما لها هنا الأسماء نفسها التي لها في المستوى الأدنى: `label-icon`، `supporting-text`، `counter`؛ `container`، `outline`، `active-indicator`، `input`، `segment`، `prefix`، `suffix`، `leading-icon`، `trailing-icon`، `clear-button`، `picker-button`، `resize-handle`. والجزءان `label` و `requirement-label` هما المرسومان، أيًّا كان العضو الذي يرسمهما؛ أما `field-label` و `text-input-label` و `field-requirement-label` و `text-input-requirement-label` فتسمّي ما يخص عضوًا واحدًا.
 - العنصر نفسه غير قابل للتركيز وليس له دور: فالدالة `focus()` تذهب إلى حقل الإدخال. والضغط على صف التسمية أو على الصندوق أو على تسمية عائمة ينقل التركيز إلى حقل الإدخال. والضغط على المساعدة أو نص الخطأ أو العدد أو الفجوة بين صف والصندوق لا يفعل شيئًا.
 - سمِّه بالخاصية `label`، ومعها `label-hidden` حيث لا يُراد رسم التسمية، ولا تسمِّه أبدًا بالخاصية `aria-label`، فهي لا تسمّي شيئًا هنا.
 - خصائص HTML هي خصائص العضوين نفسها: بصيغة kebab-case، مثل `supporting-text` و `error-text` و `min-rows` و `no-wrap`، ما عدا `readonly` و `maxlength` و `autocomplete` و `min` و `max`. ولا توجد خاصية HTML اسمها `required`: اكتب `required`.

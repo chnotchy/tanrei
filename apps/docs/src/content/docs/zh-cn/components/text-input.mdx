@@ -2,7 +2,7 @@
 title: "文本输入框"
 description: "用户在里面键入的那个方框，以及在里面键入的一切——单行或多行、日期或时间、代码——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的地方，或者放进产品自己组合的字段里。"
 translationOf: components/text-input.mdx
-sourceHash: 83486ed63b6a2185108fc8bec04d5e73f0177fa5
+sourceHash: abdba7da8588ca765f8420914ded04a0158c1448
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -170,6 +170,18 @@ import Example from '../../../../components/visuals/Example.astro';
 
 输入框不给这些项任何角色，不把它们排进焦点顺序，也不为它们处理任何按键：这些都由你负责。在方框里、所有项之外的地方按下，会让键入部分获得焦点。如果需要的是一列条目，连同它的按键、检查和表单值，请使用建立在这个位置之上的[纸片字段](/zh-cn/components/chip-field/)。
 
+### 清除
+
+设置 `clearable` 后，单行输入框在有值时会在末尾画出清除按钮：用于人们常常整个清空的筛选、搜索或查询。按下它会清空值，发出 `input`；如果值自输入框获得焦点以来有变化，还会发出 `change`；焦点留在输入框里。按下它不会让输入框失去焦点，所以输入从原来的位置继续，触屏键盘也不会收起。输入框为空时，按钮的位置仍然保留，所以按钮出现或消失时，文字和图标都不会移动。多行输入框、日期和时间不画清除按钮。
+
+清除按钮排在输入框之后，也在你放进 `trailing-icon` 插槽的按钮之后，是焦点顺序里的下一个停靠点。用 `clearLabel` 为它命名（“清除筛选”），或者用 `setWords({ clearLabel })` 为整个产品命名一次。
+
+<Example label="可清除：按一下就清空的筛选" column>
+  <tanrei-text-input class="not-content" type="search" label="筛选令牌" placeholder="筛选令牌" value="color" clearable clear-label="清除筛选">
+    <span slot="leading-icon">search</span>
+  </tanrei-text-input>
+</Example>
+
 <ComponentSpecs name="text-input" />
 
 ### Web 上绘制方式的不同之处
@@ -180,7 +192,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - `input` 和 `change` 是 composed 事件。`action` 是可以取消的 CustomEvent：取消它，Enter 就不会提交表单。`pickerrequest` 和 `entryerror` 是 CustomEvent，它们的 `detail` 分别是 `{ value, type, min, max }` 和 `{ reason, text }`。它们的类型是 `TanreiTextInputActionDetail`、`TanreiTextInputPickerRequestDetail` 和 `TanreiTextInputEntryErrorDetail`。
 - `countText` 是只读属性，值每次变化之后都是新的。它没有对应的属性（attribute）。
 - 属性（attribute）用 kebab-case 书写，例如 `label-hidden`、`min-rows`、`prefix-text`，以及表示 `wrap` 为 false 的 `no-wrap`。`readonly`、`maxlength`、`autocomplete`、`min` 和 `max` 沿用 HTML 的名称。
-- 部件：`container`、`outline`、`active-indicator`、`label`、`requirement-label`、`input`、`entries`、`segment`、`prefix`、`suffix`、`leading-icon`、`trailing-icon`、`picker-button`、`resize-handle`。
+- 部件：`container`、`outline`、`active-indicator`、`label`、`requirement-label`、`input`、`entries`、`segment`、`prefix`、`suffix`、`leading-icon`、`trailing-icon`、`clear-button`、`picker-button`、`resize-handle`。
+- `clear-label` 留空时，从产品的文字里读取（`setWords({ clearLabel })`）。
 - 插槽：`leading-icon`、`trailing-icon` 和 `entries`。后置图标可以是你自己的纯图标 Button。`entries` 部件没有自己的方框：它里面的项就排在方框自己的各行里。
 - `resize-label` 和 `segment-empty-text` 留空时，从产品的文字里读取（`setWords()`）。
 - 在元素完成定义之前，它没有尺寸。请预留方框的高度。
@@ -233,3 +246,4 @@ import Example from '../../../../components/visuals/Example.astro';
 - 单独使用的输入框可能出错的地方，要用辅助技术读得到的文字说明哪里不对：一条与页面关联的、你自己的消息，或者包着输入框的字段。
 - 对日期或时间，给出 `segmentEmptyText`，并且即使没有字段显示它们，也要写上 `invalidText` 和 `unavailableText`：它们会随输入框一起朗读。
 - 用 `resizeLabel` 为调整手柄命名，用 `pickerLabel` 为选择器按钮命名。
+- 给可清除的输入框一个说明清除什么的 `clearLabel`（“清除筛选”）。

@@ -59,7 +59,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "What a select draws that is its own: the list it opens. Its surface, corners, lift, paddings, offset from the box, margin to the window's edge, least and greatest width and greatest height; per density (regular, compact) an option's least height, paddings, gap, glyph and check sizes and a group title's inset; an option's corners and text styles; a group's title, the divider or the gap between groups; the motion of opening and closing and of a row's state change, and a row's opacity in each state; and an option's colors at rest and chosen, in each state. The box is comp.input-box.*.",
+            "usage": "What a select draws that is its own: the list it opens. Its surface, corners, lift, paddings, offset from the box, margin to the window's edge, least and greatest width and greatest height; per density (regular, compact) an option's least height, paddings, gap, glyph and check sizes and a group title's inset; an option's corners and text styles; a group's title, the divider or the gap between groups; the motion of opening and closing and of a row's state change, and a row's opacity in each state; and an option's colors at rest and chosen, in each state. And the gap between the clear button and the chevron. The box is comp.input-box.*.",
             "rules": [
               "A select chooses exactly one value from a closed list and holds it as a form value. For actions use a menu; for several values use checkboxes or a list with multiple selection; for a list a person filters by typing use a combobox.",
               "With up to about five options that fit on the screen, radio buttons or tabs show every choice at once and cost one press less; use a select where the options are many or the space is small.",
@@ -71,8 +71,21 @@
               "list.max-height caps a long list, which then scrolls.",
               "option.state-layer.color and selected-option.state-layer.color are the colors the state layers mix into a row. motion.state-duration, motion.state-easing and the four opacity tokens are the rows'; the box has its own in comp.input-box.",
               "compact is for a tool used with a pointer, where rows are many and looked through often; touch always gets rows of the touch target. The density never changes a text style.",
-              "Restyle through these tokens in a layer; never fork the component."
+              "Restyle through these tokens in a layer; never fork the component.",
+              "With clearable the select draws a clear button, an icon-only Button of the text variant at Button's small size with Button's own tokens, before the chevron; container.action-gap is its distance from the chevron, the combobox's gap by default."
             ]
+          }
+        },
+        "container": {
+          "action-gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.comp.combobox.container.action-gap}",
+            "$description": "Between the clear button and the chevron at the end of the container.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product sets the clear button and the chevron at the end of a select as one tight pair while the value keeps its distance from them, as at the end of a combobox: the space inside the pair and the space before it are two decisions. It follows the combobox's by default, so that a select and a combobox side by side end alike."
+              }
+            }
           }
         },
         "list": {

@@ -4474,6 +4474,7 @@ export type TanreiSelectDensitys = { readonly [Key in TanreiCoreSelectDensity]: 
  * `<state><Part>`), then one holder per axis (`variants`, `densitys`), keyed by the axis value.
  */
 export interface TanreiSelectTokens {
+  readonly containerActionGap: number;
   readonly disabledOpacity: number;
   readonly dividerColor: TanreiPaint;
   readonly dividerSpace: number;
@@ -5503,6 +5504,7 @@ export interface TanreiTagTokens {
 export interface TanreiTextInputTokens {
   readonly codeTabSize: number;
   readonly codeTypescale: TanreiTypescaleRole;
+  readonly containerActionGap: number;
   readonly entriesGap: number;
   readonly entriesRowGap: number;
   readonly entriesTypingMinWidth: number;

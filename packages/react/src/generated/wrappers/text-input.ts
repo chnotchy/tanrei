@@ -32,7 +32,7 @@ const TextInputAttributes = { variant: ['variant', 'stacked'], size: ['size', 'm
  *
  * Children, by their `slot`:
  * - `leading-icon` — An icon at the start of the field: a glyph name of the system's icon set, an `<svg>` or an `<img>`. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout. `data-mirror="auto | always | never"` on the element decides for one use.
- * - `trailing-icon` — An icon at the end of the field, or the product's own icon-only Button (clear, reveal password). A date or time field's picker button comes after it. A glyph is mirrored in right-to-left as in `leading-icon`.
+ * - `trailing-icon` — An icon at the end of the field, or the product's own icon-only Button. The clear button and a date or time field's picker button come after it. A glyph is mirrored in right-to-left as in `leading-icon`.
  * - `entries` — What was entered already — the product's own elements, or the chips of a component that holds the input (a chip field): laid out inside the box before the typing part, in lines that wrap (TXI-64). The text input gives them no role, no focus order and no key (TXI-66).
  *
  * Events:

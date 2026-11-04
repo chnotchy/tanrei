@@ -70357,6 +70357,16 @@
         }
       },
       "select": {
+        "container": {
+          "action-gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 4,
+              "unit": "px"
+            },
+            "$description": "Between the clear button and the chevron at the end of the container."
+          }
+        },
         "disabled": {
           "opacity": {
             "$type": "number",
@@ -91497,6 +91507,16 @@
               "lineHeight": 1.5385
             },
             "$description": "The face of a code input's value, placeholder, prefix and suffix: the family, weight and letter spacing of the code role. Its size and line height are not taken: they are the box's (comp.input-box.input.typescale), so that a code input is as tall as any text input, sets its first line where one does, and keeps the text size below which a touch browser zooms into a box."
+          }
+        },
+        "container": {
+          "action-gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 4,
+              "unit": "px"
+            },
+            "$description": "Between the clear button and a button of the input's own after it, at the end of the container."
           }
         },
         "entries": {

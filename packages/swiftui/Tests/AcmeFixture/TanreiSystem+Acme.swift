@@ -7702,6 +7702,7 @@ private let acmeSegmentedButtonTokens = TanreiSegmentedButtonTokens(
 )
 
 private let acmeSelectTokens = TanreiSelectTokens(
+  containerActionGap: 4,
   dividerColor: .role(.outlineVariant),
   dividerSpace: 4,
   dividerThickness: 1,
@@ -9641,6 +9642,7 @@ private let acmeTagTokens = TanreiTagTokens(
 private let acmeTextInputTokens = TanreiTextInputTokens(
   codeTabSize: 2,
   codeTypescale: acmeTypescale.code,
+  containerActionGap: 4,
   entriesGap: 8,
   entriesRowGap: 8,
   entriesTypingMinWidth: 72,

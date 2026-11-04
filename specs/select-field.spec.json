@@ -70,6 +70,14 @@
       "from": "select.readOnly"
     },
     {
+      "name": "clearable",
+      "from": "select.clearable"
+    },
+    {
+      "name": "clearLabel",
+      "from": "select.clearLabel"
+    },
+    {
       "name": "required",
       "from": "field.required",
       "note": "The Field exposes its select as required (FLD-10, SEL-11)."
@@ -2958,6 +2966,8 @@
         "error": "error",
         "disabled": "disabled",
         "readOnly": "readOnly",
+        "clearable": "clearable",
+        "clearLabel": "clearLabel",
         "required": "required",
         "optional": "optional",
         "requiredMark": "requiredMark",
@@ -3016,6 +3026,8 @@
         "error": "error",
         "disabled": "disabled",
         "readOnly": "readOnly",
+        "clearable": "clearable",
+        "clearLabel": "clearLabel",
         "required": "isRequired",
         "optional": "isOptional",
         "requiredMark": "requiredMark",
@@ -3070,6 +3082,8 @@
         "error": "isError",
         "disabled": "enabled",
         "readOnly": "readOnly",
+        "clearable": "clearable",
+        "clearLabel": "clearContentDescription",
         "required": "required",
         "optional": "optional",
         "requiredMark": "requiredMark",
@@ -3124,6 +3138,8 @@
         "error": "isError",
         "disabled": "enabled",
         "readOnly": "readOnly",
+        "clearable": "clearable",
+        "clearLabel": "clearSemanticLabel",
         "required": "required",
         "optional": "optional",
         "requiredMark": "requiredMark",
@@ -3178,6 +3194,8 @@
         "error": "error",
         "disabled": "disabled",
         "readOnly": "readOnly",
+        "clearable": "clearable",
+        "clearLabel": "clearAccessibilityLabel",
         "required": "required",
         "optional": "optional",
         "requiredMark": "requiredMark",

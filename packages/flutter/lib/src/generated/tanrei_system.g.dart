@@ -7636,6 +7636,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     ),
   ),
   select: TanreiSelectTokens(
+    containerActionGap: 4.0,
     dividerColor: TanreiPaint.role(TanreiColorRole.outlineVariant),
     dividerSpace: 4.0,
     dividerThickness: 1.0,
@@ -9560,6 +9561,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
   textInput: TanreiTextInputTokens(
     codeTabSize: 2.0,
     codeTypescale: _typescaleCode,
+    containerActionGap: 4.0,
     entriesGap: 8.0,
     entriesRowGap: 8.0,
     entriesTypingMinWidth: 72.0,

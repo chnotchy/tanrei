@@ -24,7 +24,7 @@ export interface TanreiWords {
   characterCountNoLimitText?: string;
   /** Read by `text-input.counterText`. A word with places: `{count}` (number), `{limit}` (number), `{remaining}` (number). */
   characterCountText?: string;
-  /** Read by `combobox.clearLabel`, `navigation-drawer.filterClearLabel`, `search.clearLabel`, `tree-view.filterClearLabel`. */
+  /** Read by `combobox.clearLabel`, `navigation-drawer.filterClearLabel`, `search.clearLabel`, `select.clearLabel`, `text-input.clearLabel`, `tree-view.filterClearLabel`. */
   clearLabel?: string;
   /** Read by `bottom-sheet.closeLabel`, `callout.closeLabel`, `image-preview.closeLabel`, `popover.closeLabel`, `side-sheet.closeLabel`, `snackbar.closeLabel`. */
   closeLabel?: string;
@@ -230,7 +230,7 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   cancelledText: ['file-upload.cancelledText', 'list.cancelledText'],
   characterCountNoLimitText: ['text-input.counterNoLimitText'],
   characterCountText: ['text-input.counterText'],
-  clearLabel: ['combobox.clearLabel', 'navigation-drawer.filterClearLabel', 'search.clearLabel', 'tree-view.filterClearLabel'],
+  clearLabel: ['combobox.clearLabel', 'navigation-drawer.filterClearLabel', 'search.clearLabel', 'select.clearLabel', 'text-input.clearLabel', 'tree-view.filterClearLabel'],
   closeLabel: ['bottom-sheet.closeLabel', 'callout.closeLabel', 'image-preview.closeLabel', 'popover.closeLabel', 'side-sheet.closeLabel', 'snackbar.closeLabel'],
   confirmLabel: ['date-time-picker.confirmLabel'],
   copiedLabel: ['code-block.copiedLabel', 'copy-button.copiedLabel'],

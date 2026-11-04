@@ -9002,6 +9002,7 @@ public data class TanreiSelectStateTokens(
 /** `comp.select`. Members are flat tokens, then per-state tokens, then one holder per axis (`variants[variant]`, `densitys[density]`). */
 @Immutable
 public data class TanreiSelectTokens(
+    public val containerActionGap: Dp,
     public val dividerColor: TanreiPaint,
     public val dividerSpace: Dp,
     public val dividerThickness: Dp,
@@ -11084,6 +11085,7 @@ public data class TanreiTagTokens(
 public data class TanreiTextInputTokens(
     public val codeTabSize: Float,
     public val codeTypescale: TanreiTextStyle,
+    public val containerActionGap: Dp,
     public val entriesGap: Dp,
     public val entriesRowGap: Dp,
     public val entriesTypingMinWidth: Dp,

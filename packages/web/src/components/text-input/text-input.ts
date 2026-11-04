@@ -122,6 +122,8 @@ interface EntryError extends TanreiTextInputEntryErrorDetail {
 type Layout = 'stacked' | 'filled' | 'outlined';
 /** The Button sizes every design system has: the picker button takes the field's size name where Button has it (TXI-32). */
 const BUTTON_SIZES = new Set(['small', 'medium', 'large']);
+/** TXI-71: the clear button's glyph, never mirrored. */
+const CLEAR_GLYPH = 'close';
 
 /**
  * TXI-20: how each type is given to the browser. The native element's own type is used only where it adds nothing the
@@ -297,7 +299,7 @@ function labelLines(copy: HTMLElement | null): { count: number; widest: number }
  *
  * @tag tanrei-text-input
  * @slot leading-icon - An icon at the start of the field: a glyph name of the system's icon set, an `<svg>` or an `<img>`. A glyph the icon set flags as showing a direction (`arrow_forward`, `send`) is drawn mirrored in a right-to-left layout. `data-mirror="auto | always | never"` on the element decides for one use.
- * @slot trailing-icon - An icon at the end of the field, or the product's own icon-only Button (clear, reveal password). A date or time field's picker button comes after it. A glyph is mirrored in right-to-left as in `leading-icon`.
+ * @slot trailing-icon - An icon at the end of the field, or the product's own icon-only Button. The clear button and a date or time field's picker button come after it. A glyph is mirrored in right-to-left as in `leading-icon`.
  * @slot entries - What was entered already — the product's own elements, or the chips of a component that holds the input (a chip field): laid out inside the box before the typing part, in lines that wrap (TXI-64). The text input gives them no role, no focus order and no key (TXI-66).
  * @csspart container - The box around the input: its fill, corners and hover state layer.
  * @csspart outline - The outlined variant's border (with the gap for the floated label); a stacked field's inner line.
@@ -311,6 +313,7 @@ function labelLines(copy: HTMLElement | null): { count: number; widest: number }
  * @csspart suffix - The fixed text after the value.
  * @csspart leading-icon - The box of the leading icon.
  * @csspart trailing-icon - The box of the trailing icon.
+ * @csspart clear-button - The clear button, a `<tanrei-button>` (TXI-71).
  * @csspart picker-button - The picker button, a `<tanrei-button>` (TXI-32).
  * @csspart resize-handle - The `<tanrei-handle>` of a multi-line field resized by hand (TXI-39).
  * @attr {string} form - The id of the form the text input belongs to, where it stands outside it: the platform's own attribute, which then wins over a form around it. The `form` property is read-only and returns the form element.
@@ -353,7 +356,7 @@ export class TanreiTextInput extends TanreiElement {
    *
    * @internal
    */
-  static readonly parts: readonly string[] = ['container', 'outline', 'active-indicator', 'label', 'requirement-label', 'input', 'entries', 'segment', 'prefix', 'suffix', 'leading-icon', 'trailing-icon', 'picker-button', 'resize-handle'];
+  static readonly parts: readonly string[] = ['container', 'outline', 'active-indicator', 'label', 'requirement-label', 'input', 'entries', 'segment', 'prefix', 'suffix', 'leading-icon', 'trailing-icon', 'clear-button', 'picker-button', 'resize-handle'];
 
   static override shadowRootOptions: ShadowRootInit = { ...LitElement.shadowRootOptions, delegatesFocus: true };
 
@@ -372,6 +375,8 @@ export class TanreiTextInput extends TanreiElement {
     error: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
     readOnly: { type: Boolean, attribute: 'readonly', reflect: true },
+    clearable: { type: Boolean, reflect: true },
+    clearLabel: { type: String, attribute: 'clear-label' },
     multiline: { type: Boolean, reflect: true },
     minRows: { type: Number, attribute: 'min-rows' },
     maxRows: { type: Number, attribute: 'max-rows' },
@@ -484,6 +489,16 @@ export class TanreiTextInput extends TanreiElement {
 
   /** The value can be focused, selected and copied, but not changed (the `readonly` attribute). */
   readOnly = false;
+
+  /**
+   * Draws a clear button while the value is not empty, for a field a person often empties whole: a filter, a search, a
+   * query (TXI-71). Its room is kept while the value is empty. A single-line field of any type but date, time and
+   * date-time; ignored, and reported in debug builds, on the others. Reflected.
+   */
+  clearable = false;
+
+  /** The clear button's accessible name, in the product's language (`clear-label`, "Clear"). Empty reads the product's words. Required while `clearable` is true. */
+  clearLabel = '';
 
   /** Accepts line breaks and shows several lines, sized as `resize` says. Ignored for password, date, time and date-time. */
   multiline = false;
@@ -780,7 +795,7 @@ export class TanreiTextInput extends TanreiElement {
     const size = /^[a-z0-9][a-z0-9-]*$/.test(this.size) ? this.size : 'medium';
     return {
       drawsLabel: this.layout !== 'stacked',
-      inset: INSET(size, { leading: this.hasLeading, trailing: this.hasTrailing || this.pickerShown, lead: this.iconBoxes.lead }),
+      inset: INSET(size, { leading: this.hasLeading, trailing: this.hasTrailing || this.ownButtons > 0, lead: this.iconBoxes.lead }),
       refusal: this.entryError ? { text: this.refusalText } : null,
     };
   }
@@ -2027,9 +2042,32 @@ export class TanreiTextInput extends TanreiElement {
     if (any('type', 'picker') && this.picker && !kind) {
       report(this, 'TXI-32', `picker is ignored: the type "${this.type}" is not date, time or date-time`);
     }
+    // TXI-71: a field that cannot draw the clear button draws none, and says so; one that draws it unnamed says that.
+    if (any('clearable', 'multiline', 'type') && this.clearable && (this.isMultiline || this.dateKind)) {
+      report(this, 'TXI-71', `clearable is ignored by a ${this.isMultiline ? 'multi-line' : this.type} field: it draws no clear button`);
+    }
+    if (this.clearShown && !this.words.get('clearLabel', this.clearLabel).trim()) this.words.missing('clearLabel', { id: 'TXI-71', effect: 'the clear button is drawn and works, and has no accessible name' });
     if (any('picker', 'pickerLabel', 'type', 'readOnly') && this.pickerShown && !this.pickerLabel.trim()) {
       report(this, 'TXI-32', 'pickerLabel is empty, so the picker button has no accessible name; give it one ("Choose date")');
     }
+  }
+
+  /**
+   * TXI-71: the field keeps the clear button's room — `clearable`, single-line (TXI-17), not a date or a time, neither
+   * disabled nor read-only — whether or not the button is drawn.
+   */
+  private get clearRoom(): boolean {
+    return this.clearable && !this.isMultiline && !this.dateKind && !this.inert_ && !this.readOnly;
+  }
+
+  /** TXI-71: the clear button is drawn in its room while the value is not empty. */
+  private get clearShown(): boolean {
+    return this.clearRoom && this.value !== '';
+  }
+
+  /** TXI-32, TXI-71: how many buttons of the input's own stand at the end of the container. */
+  private get ownButtons(): number {
+    return (this.clearRoom ? 1 : 0) + (this.pickerShown ? 1 : 0);
   }
 
   /** TXI-32: a date, time or date-time field with `picker`, not read-only, draws the picker button. */
@@ -2048,7 +2086,7 @@ export class TanreiTextInput extends TanreiElement {
     if (!this.pickerShown) return nothing;
     // TXI-32: calendar_month for a date and a date-time, schedule for a time.
     const glyph = this.dateKind === 'time' ? 'schedule' : 'calendar_month';
-    return html`<span class="picker" @pointerdown=${this.#onPickerPress}
+    return html`<span class="own picker" @pointerdown=${this.#onPickerPress}
       ><tanrei-button
         part="picker-button"
         class="picker-button"
@@ -2059,6 +2097,41 @@ export class TanreiTextInput extends TanreiElement {
         @click=${this.#onPickerClick}
         ><span slot="icon">${glyph}</span></tanrei-button
       ></span>`;
+  }
+
+  /**
+   * TXI-71: the clear button's room, and the button in it while the value is not empty. A press on it keeps focus in
+   * the input (its `mousedown` is the field's to prevent), so that typing goes on where it was.
+   */
+  private renderClear() {
+    if (!this.clearRoom) return nothing;
+    return html`<span class="own clear" @mousedown=${this.#onClearPress}
+      >${this.clearShown
+        ? html`<tanrei-button part="clear-button" class="clear-button" variant="text" size="small" label=${this.words.get('clearLabel', this.clearLabel)} @click=${this.#onClear}
+            ><span slot="icon">${CLEAR_GLYPH}</span></tanrei-button
+          >`
+        : nothing}</span
+    >`;
+  }
+
+  /** TXI-71: a press on the clear button does not take focus from the input. */
+  #onClearPress(event: MouseEvent) {
+    event.preventDefault();
+  }
+
+  /**
+   * TXI-71: the clear button empties the value: `input` once, then a commit as TXI-2 makes one — `change` while the
+   * empty value differs from the one last committed — and focus to the input.
+   */
+  #onClear() {
+    if (!this.clearRoom) return;
+    const input = this.input;
+    if (input) input.value = '';
+    this.takeText('');
+    this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+    this.commit();
+    this.scheduleCount();
+    input?.focus();
   }
 
   /**
@@ -2305,7 +2378,7 @@ export class TanreiTextInput extends TanreiElement {
         ?data-trailing=${this.hasTrailing}
         ?data-entries=${this.hasEntries}
         ?data-no-typing=${this.hasEntries && this.readOnly && this.shownValue === ''}
-        ?data-picker=${this.pickerShown}
+        data-own=${this.ownButtons || nothing}
         ?data-multiline=${this.isMultiline}
         ?data-code=${code && !row}
         ?data-nowrap=${this.unwrapped}
@@ -2329,7 +2402,7 @@ export class TanreiTextInput extends TanreiElement {
             <span part="suffix" class="suffix" id="suffix">${row ? nothing : this.suffixText}</span>
           </div>
           <span part="trailing-icon" class="icon trailing"><slot name="trailing-icon" @slotchange=${this.#onSlotChange}></slot></span>
-          ${this.renderPicker()}
+          ${this.renderClear()}${this.renderPicker()}
           ${floating && labelled ? html`<label part="label" class="label" for="input" aria-hidden="true">${name}${asterisk}</label>` : nothing}
           ${floating && labelled
             ? html`<span class="measure measure-resting" aria-hidden="true">${name}${asterisk}</span

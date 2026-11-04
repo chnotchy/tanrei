@@ -77,6 +77,14 @@
       "from": "text-input.readOnly"
     },
     {
+      "name": "clearable",
+      "from": "text-input.clearable"
+    },
+    {
+      "name": "clearLabel",
+      "from": "text-input.clearLabel"
+    },
+    {
       "name": "required",
       "from": "field.required",
       "note": "The Field exposes its text input as required (FLD-10, TXI-23)."
@@ -1434,6 +1442,8 @@
         "error": "error",
         "disabled": "disabled",
         "readOnly": "readOnly",
+        "clearable": "clearable",
+        "clearLabel": "clearLabel",
         "required": "required",
         "optional": "optional",
         "requiredMark": "requiredMark",
@@ -1523,6 +1533,8 @@
         "error": "error",
         "disabled": "disabled",
         "readOnly": "readOnly",
+        "clearable": "clearable",
+        "clearLabel": "clearLabel",
         "required": "isRequired",
         "optional": "isOptional",
         "requiredMark": "requiredMark",
@@ -1578,6 +1590,8 @@
         "error": "isError",
         "disabled": "enabled",
         "readOnly": "readOnly",
+        "clearable": "clearable",
+        "clearLabel": "clearContentDescription",
         "required": "required",
         "optional": "optional",
         "requiredMark": "requiredMark",
@@ -1633,6 +1647,8 @@
         "error": "isError",
         "disabled": "enabled",
         "readOnly": "readOnly",
+        "clearable": "clearable",
+        "clearLabel": "clearSemanticLabel",
         "required": "required",
         "optional": "optional",
         "requiredMark": "requiredMark",
@@ -1688,6 +1704,8 @@
         "error": "error",
         "disabled": "disabled",
         "readOnly": "readOnly",
+        "clearable": "clearable",
+        "clearLabel": "clearAccessibilityLabel",
         "required": "required",
         "optional": "optional",
         "requiredMark": "requiredMark",

@@ -16,7 +16,7 @@ const FIELD = ['label', 'labelHidden', 'supportingText', 'errorText', 'error', '
  * SEF-1: the eleven props that are the select's. Its own `label`, `labelHidden`, `error` and `disabled` are never set:
  * they reach the select through its Field's connection.
  */
-const SELECT = ['variant', 'size', 'value', 'placeholder', 'readOnly', 'open', 'separation', 'iconSpace', 'density', 'status', 'statusText', 'emptyText'] as const;
+const SELECT = ['variant', 'size', 'value', 'placeholder', 'readOnly', 'clearable', 'clearLabel', 'open', 'separation', 'iconSpace', 'density', 'status', 'statusText', 'emptyText'] as const;
 
 /**
  * W4: each member's documented parts, from the member's own list. Two names are shared — `label` and
@@ -130,6 +130,8 @@ export class TanreiSelectField extends ComposedControl<string> {
     value: { type: String },
     placeholder: { type: String },
     readOnly: { type: Boolean, attribute: 'readonly', reflect: true },
+    clearable: { type: Boolean, reflect: true },
+    clearLabel: { type: String, attribute: 'clear-label' },
     open: { type: Boolean, reflect: true },
     separation: { type: String, reflect: true },
     iconSpace: { type: String, attribute: 'icon-space', reflect: true },
@@ -206,6 +208,12 @@ export class TanreiSelectField extends ComposedControl<string> {
 
   /** @from tanrei-select.readOnly */
   readOnly = false;
+
+  /** @from tanrei-select.clearable */
+  clearable = false;
+
+  /** @from tanrei-select.clearLabel */
+  clearLabel = '';
 
   /**
    * W5: `open` is the select's at every moment, as `value` is — what was last set on the element until the select has

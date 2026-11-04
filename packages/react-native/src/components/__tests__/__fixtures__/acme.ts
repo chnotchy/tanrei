@@ -12316,6 +12316,7 @@ export const acme = {
       },
     },
     select: {
+      containerActionGap: 4,
       disabledOpacity: 1,
       dividerColor: { kind: "role", role: "outlineVariant" },
       dividerSpace: 4,
@@ -16927,6 +16928,7 @@ export const acme = {
     textInput: {
       codeTabSize: 2,
       codeTypescale: "code",
+      containerActionGap: 4,
       entriesGap: 8,
       entriesRowGap: 8,
       entriesTypingMinWidth: 72,

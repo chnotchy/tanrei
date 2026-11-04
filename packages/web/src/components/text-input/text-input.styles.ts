@@ -235,16 +235,24 @@ export const styles = css`
     --_start: var(--_pad-icon);
     --_text-start: calc(var(--_pad-icon) + var(--_lead, var(--_icon)) + var(--_gap));
   }
-  /* The trailing slot's content, the picker button, or both (TXI-32): each takes an icon's box and container.gap. */
-  .field:is([data-trailing], [data-picker]) {
+  /* What stands after the text: the trailing slot's content, then the buttons of the input's own — the clear button's
+     room (TXI-71) and the picker button (TXI-32), as many as data-own says. Each takes an icon's box; the slot's content
+     is container.gap from the first button, and two buttons of its own are container.action-gap apart. */
+  .field:is([data-trailing], [data-own]) {
     --_end: var(--_pad-icon);
-    --_text-end: calc(var(--_pad-icon) + var(--_icon) + var(--_gap));
+    --_text-end: calc(var(--_pad-icon) + var(--_trail-room, 0px) + var(--_own-room, 0px) + var(--_gap));
   }
   .field[data-trailing] {
-    --_text-end: calc(var(--_pad-icon) + var(--_trail, var(--_icon)) + var(--_gap));
+    --_trail-room: var(--_trail, var(--_icon));
   }
-  .field[data-trailing][data-picker] {
-    --_text-end: calc(var(--_pad-icon) + var(--_trail, var(--_icon)) + var(--_icon) + 2 * var(--_gap));
+  .field[data-trailing][data-own] {
+    --_trail-room: calc(var(--_trail, var(--_icon)) + var(--_gap));
+  }
+  .field[data-own='1'] {
+    --_own-room: var(--_icon);
+  }
+  .field[data-own='2'] {
+    --_own-room: calc(2 * var(--_icon) + var(${unsafeCSS(OWN)}-container-action-gap));
   }
 
   /* TXI-6: each state sets the current value of every part from that state's tokens of the current look; focused over
@@ -707,7 +715,7 @@ export const styles = css`
   .field[data-leading] .body {
     margin-inline-start: var(--_gap);
   }
-  .field:is([data-trailing], [data-picker]) .body {
+  .field:is([data-trailing], [data-own]) .body {
     margin-inline-end: var(--_gap);
   }
   /* TXI-67: the row of a value that is always left-to-right has the direction of its run (dir on .body), which may run
@@ -721,18 +729,19 @@ export const styles = css`
   :host(:dir(ltr)) .field[data-leading]:not([data-code]) .body[dir='rtl'] {
     margin-inline-end: var(--_gap);
   }
-  :host(:dir(rtl)) .field:is([data-trailing], [data-picker]):not([data-code]) .body[dir='ltr'],
-  :host(:dir(ltr)) .field:is([data-trailing], [data-picker]):not([data-code]) .body[dir='rtl'] {
+  :host(:dir(rtl)) .field:is([data-trailing], [data-own]):not([data-code]) .body[dir='ltr'],
+  :host(:dir(ltr)) .field:is([data-trailing], [data-own]):not([data-code]) .body[dir='rtl'] {
     margin-inline-start: var(--_gap);
   }
 
-  /* TXI-32: the picker button — an icon-only text Button of its own tokens — has its glyph centred where a trailing
-     icon's would be: it stands in an icon's box and overflows it evenly on both sides. The trailing slot's content comes
-     before it, container.gap away. */
-  .picker {
+  /* TXI-32, TXI-71: a button of the input's own — the clear button, the picker button — is an icon-only text Button of
+     its own tokens whose glyph is centred where a trailing icon's would be: it stands in an icon's box and overflows it
+     evenly on both sides. The clear button's box is its room, kept while the button is not drawn. The trailing slot's
+     content comes before the first, container.gap away, and two stand container.action-gap apart. */
+  .own {
     position: relative;
     z-index: 2;
-    display: none;
+    display: flex;
     flex: none;
     align-self: center;
     align-items: center;
@@ -740,13 +749,13 @@ export const styles = css`
     inline-size: var(--_icon);
     block-size: var(--_icon);
   }
-  .field[data-picker] .picker {
-    display: flex;
-  }
-  .field[data-trailing][data-picker] .picker {
+  .field[data-trailing] .trailing + .own {
     margin-inline-start: var(--_gap);
   }
-  .picker > tanrei-button {
+  .own + .own {
+    margin-inline-start: var(${unsafeCSS(OWN)}-container-action-gap);
+  }
+  .own > tanrei-button {
     flex: none;
   }
   ::slotted(svg),

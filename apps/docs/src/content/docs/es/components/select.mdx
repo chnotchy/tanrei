@@ -2,7 +2,7 @@
 title: Select
 description: "Permite elegir un valor de una lista cerrada: un activador que tiene el aspecto y las medidas de la caja de una entrada de texto y muestra la opción elegida, y una lista de opciones, agrupadas si hace falta, que se abre desde él, sin fila de etiqueta, ayuda ni texto de error propios. Para una barra, una barra de herramientas o una tabla, o dentro de un campo que el producto compone por su cuenta."
 translationOf: components/select.mdx
-sourceHash: 6246b546b185dfc590a8e1793d0b194db9f0c4db
+sourceHash: 78a3a2519dcda7753654b53a1aa261542ee2824c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -219,6 +219,21 @@ El valor solo cambia cuando la persona confirma una opción en la lista abierta:
 
 `toggle` lleva el motivo de un cierre: `select`, `escape`, `outside`, `focus-out`, `anchor-hidden`, `press` o `tab`.
 
+### Borrar el valor
+
+Un select cuyo valor puede no existir — un filtro, un ajuste opcional — dibuja un botón de borrar con `clearable`. Está antes del chevron mientras hay un valor elegido, y al pulsarlo vacía el valor: el select vuelve a mostrar su texto de ejemplo, emite `change` y el foco vuelve al select. Una lista abierta sigue abierta. Su sitio se conserva mientras no hay nada elegido, así que el select conserva su ancho y el chevron no se mueve.
+
+El botón de borrar es un botón propio después del select, no dentro de él, y la siguiente parada del foco. Dale nombre con `clearLabel` («Borrar país»), o una sola vez para todo el producto con `setWords({ clearLabel })`. Donde «ninguno» sea algo que se elige a propósito («Cualquiera», «Sin definir»), hazlo una opción.
+
+<Example label="Con botón de borrar: un filtro cuyo valor puede no existir" column>
+  <tanrei-select class="not-content" label="País" placeholder="Cualquier país" value="jp" clearable clear-label="Borrar país">
+    <tanrei-option value="ca">Canadá</tanrei-option>
+    <tanrei-option value="fr">Francia</tanrei-option>
+    <tanrei-option value="jp">Japón</tanrei-option>
+    <tanrei-option value="ke">Kenia</tanrei-option>
+  </tanrei-select>
+</Example>
+
 <ComponentSpecs name="select" />
 
 ### Qué dibuja la web de otra manera
@@ -231,7 +246,8 @@ El valor solo cambia cuando la persona confirma una opción en la lista abierta:
 - La lista es un elemento `popover="manual"` en la capa superior. Una pulsación fuera la cierra y además llega al elemento que hay debajo.
 - Una etiqueta flotante (`filled`, `outlined`) queda dentro del contenedor, así que una pulsación en ella abre la lista.
 - `supporting-text`, `error-text`, `required`, `optional`, `required-mark`, `required-text` y `optional-text`, y un hijo para un slot `label-icon`, son del campo de selección y del campo. En un select no dibujan nada; una compilación de depuración lo dice una vez y nombra `<tanrei-select-field>`.
-- Partes: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`, `status`.
+- Partes: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `value`, `placeholder`, `leading-icon`, `clear-button`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`, `status`.
+- El botón de borrar es un `<tanrei-button>` después del elemento `role="combobox"`, colocado sobre el final del contenedor, para que no haya ningún botón dentro del cuadro combinado. `clear-label`, si se deja vacío, se lee de los textos del producto (`setWords({ clearLabel })`).
 - `empty-text` vacío se lee de las palabras del producto (`setWords({ noOptionsText })`).
 - Antes de que el elemento esté definido, sus opciones son texto corrido. Oculta `tanrei-select:not(:defined) > *` y reserva la altura.
 - La web no tiene un gesto de retroceso propio, así que `toggle` nunca lleva el motivo `back`.
@@ -311,3 +327,4 @@ Carencias conocidas en la web:
 - Donde un select sin nada más pueda estar mal, di qué está mal con palabras que lleguen a la tecnología de apoyo: un mensaje tuyo vinculado a la página, o un campo alrededor del select.
 - Mantén únicos los valores de las opciones dentro de un select.
 - Escribe `statusText` mientras carga, porque da nombre al indicador de carga, y escribe `emptyText` donde un select pueda quedarse sin opciones.
+- Da a un select que se puede borrar un `clearLabel` que diga qué borra («Borrar país»).

@@ -217,6 +217,21 @@ The value changes only when the person confirms an option in the open list: a pr
 
 `toggle` carries the reason for a close: `select`, `escape`, `outside`, `focus-out`, `anchor-hidden`, `press` or `tab`.
 
+### Clearing
+
+A select whose value may be none — a filter, an optional setting — draws a clear button with `clearable`. It stands before the chevron while a value is chosen, and a press on it empties the value: the select shows its placeholder again, emits `change`, and focus goes back to the select. An open list stays open. Its room is kept while nothing is chosen, so the select keeps its width and the chevron does not move.
+
+The clear button is a button of its own after the select, not inside it, and the next stop in the focus order. Name it with `clearLabel` ("Clear country"), or once for the product with `setWords({ clearLabel })`. Where "none" is something a person chooses on purpose ("Any", "Not set"), make it an option instead.
+
+<Example label="Clearable: a filter whose value may be none" column>
+  <tanrei-select class="not-content" label="Country" placeholder="Any country" value="jp" clearable clear-label="Clear country">
+    <tanrei-option value="ca">Canada</tanrei-option>
+    <tanrei-option value="fr">France</tanrei-option>
+    <tanrei-option value="jp">Japan</tanrei-option>
+    <tanrei-option value="ke">Kenya</tanrei-option>
+  </tanrei-select>
+</Example>
+
 <ComponentSpecs name="select" />
 
 ### What the web draws differently
@@ -229,7 +244,8 @@ The value changes only when the person confirms an option in the open list: a pr
 - The list is a `popover="manual"` element in the top layer. A press outside closes it and also reaches the element under it.
 - A floating label (`filled`, `outlined`) lies inside the container, so a press on it opens the list.
 - `supporting-text`, `error-text`, `required`, `optional`, `required-mark`, `required-text` and `optional-text`, and a child for a `label-icon` slot, are the select field's and the field's. On a select they draw nothing; a debug build says so once and names `<tanrei-select-field>`.
-- Parts: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`, `status`.
+- Parts: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `value`, `placeholder`, `leading-icon`, `clear-button`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`, `status`.
+- The clear button is a `<tanrei-button>` after the `role="combobox"` element, placed over the container's end, so that no button is inside the combobox. `clear-label` left empty is read from the product's words (`setWords({ clearLabel })`).
 - `empty-text` left empty is read from the product's words (`setWords({ noOptionsText })`).
 - Before the element is defined, its options are running text. Hide `tanrei-select:not(:defined) > *` and reserve the height.
 - The web has no back gesture of its own, so `toggle` never carries the reason `back`.
@@ -309,3 +325,4 @@ Known gaps on the web:
 - Where a bare select can be wrong, say what is wrong in words that reach assistive technology: a message of your own tied to the page, or a field around the select.
 - Keep option values unique within a select.
 - Write `statusText` while loading, because it names the loading indicator, and write `emptyText` where a select can be left without options.
+- Give a clearable select a `clearLabel` that says what it clears ("Clear country").

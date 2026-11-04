@@ -2,7 +2,7 @@
 title: टेक्स्ट इनपुट
 description: वह बॉक्स जिसमें लोग टाइप करते हैं, और उसमें टाइप की जाने वाली हर चीज़ — एक पंक्ति या कई पंक्तियाँ, तारीख़ या समय, कोड — लेबल की अपनी पंक्ति, सहायता या त्रुटि टेक्स्ट के बिना। उस जगह के लिए जहाँ लेबल कहीं और है, या उस फ़ील्ड के भीतर जिसे प्रॉडक्ट ख़ुद जोड़कर बनाता है।
 translationOf: components/text-input.mdx
-sourceHash: 83486ed63b6a2185108fc8bec04d5e73f0177fa5
+sourceHash: abdba7da8588ca765f8420914ded04a0158c1448
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -170,6 +170,18 @@ import Example from '../../../../components/visuals/Example.astro';
 
 इनपुट इन आइटम को न कोई रोल देता है, न फ़ोकस के क्रम में कोई जगह, न कोई कुंजी: ये आपके हैं। बॉक्स में हर आइटम से बाहर दबाने पर फ़ोकस टाइप करने वाले भाग पर आता है। एंट्री की ऐसी लिस्ट के लिए, जिसकी अपनी कुंजियाँ, अपनी जाँचें और अपना फ़ॉर्म मान हो, [चिप फ़ील्ड](/hi/components/chip-field/) इस्तेमाल करें, जो इसी जगह पर बना है।
 
+### मिटाना
+
+`clearable` के साथ एक पंक्ति वाला इनपुट, जब तक उसमें मान है, अपने अंत में मिटाने का बटन बनाता है: किसी फ़िल्टर, खोज या क्वेरी के लिए, जिसे लोग पूरा ख़ाली करते हैं। उसे दबाने से मान ख़ाली होता है, `input` निकलता है, और अगर इनपुट को फ़ोकस मिलने के बाद से मान बदला है तो `change` भी, और फ़ोकस इनपुट में ही रहता है। दबाने से फ़ोकस इनपुट से कभी नहीं हटता, इसलिए टाइप करना वहीं से चलता रहता है और टच कीबोर्ड खुला रहता है। इनपुट ख़ाली हो तब भी बटन की जगह रखी जाती है, इसलिए बटन के आने-जाने से टेक्स्ट और आइकन नहीं खिसकते। कई पंक्तियों वाला इनपुट, तारीख़ और समय इसे नहीं बनाते।
+
+मिटाने का बटन इनपुट के बाद, और `trailing-icon` स्लॉट में रखे आपके बटन के बाद आता है, और फ़ोकस के क्रम में अगला पड़ाव है। उसे `clearLabel` से नाम दें ("फ़िल्टर मिटाएँ"), या पूरे प्रॉडक्ट के लिए एक बार `setWords({ clearLabel })` से।
+
+<Example label="मिटाने योग्य: एक बार दबाने पर ख़ाली होने वाला फ़िल्टर" column>
+  <tanrei-text-input class="not-content" type="search" label="टोकन छाँटें" placeholder="टोकन छाँटें" value="color" clearable clear-label="फ़िल्टर मिटाएँ">
+    <span slot="leading-icon">search</span>
+  </tanrei-text-input>
+</Example>
+
 <ComponentSpecs name="text-input" />
 
 ### वेब क्या अलग ढंग से बनाता है
@@ -180,7 +192,8 @@ import Example from '../../../../components/visuals/Example.astro';
 - `input` और `change` composed इवेंट हैं। `action` रद्द किया जा सकने वाला CustomEvent है: Enter से फ़ॉर्म को सबमिट होने से रोकने के लिए उसे रद्द करें। `pickerrequest` और `entryerror` CustomEvent हैं, जिनके `detail` में `{ value, type, min, max }` और `{ reason, text }` होते हैं। उनके टाइप `TanreiTextInputActionDetail`, `TanreiTextInputPickerRequestDetail` और `TanreiTextInputEntryErrorDetail` हैं।
 - `countText` सिर्फ़ पढ़ने वाली प्रॉपर्टी है, जो मान के हर बदलाव के बाद नई होती है। इसका कोई ऐट्रिब्यूट नहीं है।
 - ऐट्रिब्यूट kebab-case में हैं, जैसे `label-hidden`, `min-rows`, `prefix-text` और `no-wrap`, जो false पर सेट किया गया `wrap` है। `readonly`, `maxlength`, `autocomplete`, `min` और `max` के नाम HTML वाले ही हैं।
-- भाग: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `entries`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-handle`।
+- भाग: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `entries`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `clear-button`, `picker-button`, `resize-handle`।
+- `clear-label` ख़ाली छोड़ा जाए तो प्रॉडक्ट के शब्दों से पढ़ा जाता है (`setWords({ clearLabel })`)।
 - स्लॉट: `leading-icon`, `trailing-icon` और `entries`। अंतिम आइकन आपका अपना सिर्फ़ आइकन वाला Button हो सकता है। `entries` भाग का अपना कोई बॉक्स नहीं है: उसके आइटम बॉक्स की अपनी पंक्तियों में रहते हैं।
 - `resize-label` और `segment-empty-text` ख़ाली छोड़े जाएँ तो प्रॉडक्ट के शब्दों से पढ़े जाते हैं (`setWords()`)।
 - एलिमेंट के डिफ़ाइन होने से पहले उसका कोई साइज़ नहीं होता। बॉक्स की ऊँचाई के लिए जगह रखें।
@@ -233,3 +246,4 @@ import Example from '../../../../components/visuals/Example.astro';
 - जहाँ अकेला इनपुट ग़लत हो सकता है, वहाँ क्या ग़लत है यह ऐसे शब्दों में बताएँ जो सहायक तकनीक तक पहुँचें: पेज से जुड़ा आपका अपना संदेश, या इनपुट के चारों ओर एक फ़ील्ड।
 - तारीख़ या समय के लिए `segmentEmptyText` दें, और `invalidText` और `unavailableText` वहाँ भी लिखें जहाँ कोई फ़ील्ड उन्हें नहीं दिखाता: वे इनपुट के साथ पढ़े जाते हैं।
 - साइज़ हैंडल को `resizeLabel` से और पिकर बटन को `pickerLabel` से नाम दें।
+- मिटाने के बटन वाले इनपुट को ऐसा `clearLabel` दें जो बताए कि वह क्या मिटाता है ("फ़िल्टर मिटाएँ")।
