@@ -2,8 +2,16 @@
 // Source: packages/web/custom-elements.json. Regenerate with `pnpm generate`.
 import { createComponent } from '@lit/react';
 import * as React from 'react';
+import { withServerAttributes } from '../../server.js';
 import { TanreiFigure as TanreiFigureElement } from '@tanrei/web/components/figure';
 
+const FigureElement = /* @__PURE__ */ createComponent({
+  tagName: 'tanrei-figure',
+  elementClass: TanreiFigureElement,
+  react: React,
+  events: {},
+});
+const FigureAttributes = { headline: ['headline', ''], caption: ['caption', ''], label: ['label', ''], variant: ['variant', 'outlined'], inset: ['flush', true], separation: ['separation', 'auto'], pattern: ['pattern', 'none'] } as const;
 /**
  * Sets one thing to look at — a picture, a chart, a specimen, a live example — on a stage of its own, framed or not, with a caption that says what it shows, and optionally a title with the product's controls above and a joined block beneath. It is never pressed and has no state; what stands in it stays as operable as it is anywhere else.
  *
@@ -14,9 +22,4 @@ import { TanreiFigure as TanreiFigureElement } from '@tanrei/web/components/figu
  * - `caption` — For a figure the element builds: the product's own caption content in place of `caption`. In the native form it is the `<figcaption>`.
  * - `attachment` — For a figure the element builds: the block joined under the stage. In the native form it is the element with `data-part="attachment"`.
  */
-export const Figure = /* @__PURE__ */ createComponent({
-  tagName: 'tanrei-figure',
-  elementClass: TanreiFigureElement,
-  react: React,
-  events: {},
-});
+export const Figure = /* @__PURE__ */ withServerAttributes(FigureElement, 'tanrei-figure', TanreiFigureElement, FigureAttributes);

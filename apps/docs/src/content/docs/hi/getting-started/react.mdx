@@ -88,7 +88,59 @@ import { FabMenu, FabMenuItem, TextField } from '@tanrei/react/m3-like';
 
 ## सर्वर रेंडरिंग
 
-कंपोनेंट सर्वर पर कस्टम एलिमेंट का टैग रेंडर करते हैं और ब्राउज़र में अपग्रेड होते हैं। जिन फ़्रेमवर्क में सर्वर और क्लाइंट अलग-अलग हैं, उनमें आप जो एंट्री इस्तेमाल करते हैं, उसे किसी क्लाइंट कंपोनेंट से इंपोर्ट करें, ताकि एलिमेंट की परिभाषाएँ ब्राउज़र में रजिस्टर हों।
+सर्वर पर, जहाँ `document` नहीं होता, कंपोनेंट अपने एलिमेंट का टैग रेंडर करता है और हर वह prop जिसे एलिमेंट किसी एट्रिब्यूट से पढ़ता है, उसी एट्रिब्यूट के नाम से एट्रिब्यूट के रूप में लिखता है। पहले HTML में ही लेबल, वैल्यू और स्टेट मौजूद रहते हैं:
+
+```tsx
+<TextField label="ईमेल" value="ada@example.com" required maxLength={80} readOnly={false} />
+// <tanrei-text-field label="ईमेल" value="ada@example.com" required="" maxlength="80"></tanrei-text-field>
+```
+
+डिफ़ॉल्ट वैल्यू वाला prop कुछ नहीं लिखता, इसलिए `false` कभी मौजूद के रूप में नहीं लिखा जाता। जो बूलियन डिफ़ॉल्ट रूप से चालू है और बंद किया गया है, वह वह एट्रिब्यूट लिखता है जिसे एलिमेंट बंद के रूप में पढ़ता है: `<CopyButton iconOnly={false} />` लिखता है `icon-only="false"`, और `<BottomSheet handle={false} />` लिखता है `no-handle`। हैंडलर, ऑब्जेक्ट और ऐरे ब्राउज़र में, कंपोनेंट के माउंट होने पर सेट होते हैं। शैडो रूट सर्वर पर रेंडर नहीं होता: एलिमेंट अपनी परिभाषा लोड होने पर खुद को बनाता है, और React टैग को बिना मिसमैच के हाइड्रेट करता है।
+
+### Next.js (App Router)
+
+कंपोनेंट ref और लेआउट इफ़ेक्ट इस्तेमाल करते हैं, इसलिए इन्हें क्लाइंट कंपोनेंट से इस्तेमाल किया जाता है। इन्हें `'use client'` वाले मॉड्यूल में इंपोर्ट करें; कोई सर्वर कंपोनेंट उस मॉड्यूल को रेंडर कर सकता है, और पहली लोडिंग में Next.js उसे सर्वर पर ही रेंडर करता है।
+
+```tsx
+// app/sign-up.tsx
+'use client';
+
+import '@tanrei/web/words/en';
+import { Button, TextField } from '@tanrei/react';
+
+export function SignUp() {
+  return (
+    <form action="/sign-up" method="post">
+      <TextField name="email" type="email" label="ईमेल" required />
+      <Button type="submit">साइन अप करें</Button>
+    </form>
+  );
+}
+```
+
+```tsx
+// app/layout.tsx
+import '@tanrei/web/tanrei.css';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="hi">
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+```tsx
+// app/page.tsx (एक सर्वर कंपोनेंट)
+import { SignUp } from './sign-up';
+
+export default function Page() {
+  return <SignUp />;
+}
+```
+
+Lit का सर्वर रेंडरर (`@lit-labs/ssr-react`, `@lit-labs/nextjs`) समर्थित नहीं है: वह शैडो रूट को सर्वर पर रेंडर करता है, और कई एलिमेंट रेंडर होते समय अपने चाइल्ड और डॉक्यूमेंट को पढ़ते हैं, जो यह रेंडरर नहीं देता, इसलिए वे इसके साथ फ़ेल हो जाते हैं। इसे न जोड़ें; सर्वर ऊपर वाले एट्रिब्यूट ही भेजता है।
 
 <Callout>
   थीम, कंट्रास्ट, टोकन और फ़ॉन्ट ठीक वैसे ही काम करते हैं जैसा [Web गाइड](/hi/getting-started/web/) में बताया गया है; React पैकेज इनके ऊपर अपनी ओर से कुछ नहीं जोड़ता।

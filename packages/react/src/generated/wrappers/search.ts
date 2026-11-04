@@ -4,6 +4,7 @@ import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
 import { type Marked, withMarks } from '../../marks.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiSearch as TanreiSearchElement, type TanreiSearchToggleDetail, type TanreiSearchSelectDetail, type TanreiSearchSubmitDetail } from '@tanrei/web/components/search';
 
 /** The attributes of `<tanrei-search>` that are not properties of the element, as props of `Search`. */
@@ -23,6 +24,7 @@ const SearchElement = /* @__PURE__ */ createComponent({
   },
 });
 const withSearchMarks = /* @__PURE__ */ withMarks<SearchMarks>([], ['form']);
+const SearchAttributes = { presentation: ['presentation', 'docked'], bar: ['bar', 'field'], value: ['value', ''], label: ['label', ''], placeholder: ['placeholder', ''], expanded: ['expanded', false], disabled: ['disabled', false], clearLabel: ['clear-label', ''], backLabel: ['back-label', ''], shortcut: ['shortcut'], bindShortcut: ['bind-shortcut', false], status: ['status', 'idle'], statusText: ['status-text', ''], queryRow: ['query-row', 'first'], queryRowText: ['query-row-text', ''], inlineCompletion: ['inline-completion', false], wrap: ['no-wrap', true], iconSpace: ['icon-space', 'auto'], density: ['density', 'regular'], inline: ['inline', false], name: ['name', ''], form: ['form'] } as const;
 /**
  * Lets people search the product from a bar or a compact trigger, and offers suggestions and results while they type in a view under the bar, in a dialog or over the whole screen.
  *
@@ -36,4 +38,4 @@ const withSearchMarks = /* @__PURE__ */ withMarks<SearchMarks>([], ['form']);
  * - `onSelect` (`select`) — The person chose a suggestion, or activated a result in place (without a modifier key, in the same window): `detail.value` is its value. The search does not change `value`; set the value you want. For a result it is fired before the browser follows the link and is cancelable: cancelling it keeps the link from being followed, so that a router can take it. A result opened in a new tab (a modifier key, the middle button, `target="new"`) fires nothing.
  * - `onSubmit` (`submit`) — The action key (Enter, Search) was pressed on the query row, or with no row active and no result current, or the query row was pressed: `detail.value` (an inline completion shown is accepted first, with its own `input`). Cancelable: cancelling it keeps an enclosing form from being submitted.
  */
-export const Search: Marked<typeof SearchElement, SearchMarks> = /* @__PURE__ */ withSearchMarks(SearchElement);
+export const Search: Marked<typeof SearchElement, SearchMarks> = /* @__PURE__ */ withServerAttributes(/* @__PURE__ */ withSearchMarks(SearchElement), 'tanrei-search', TanreiSearchElement, SearchAttributes);

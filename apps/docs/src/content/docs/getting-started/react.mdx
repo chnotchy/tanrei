@@ -86,7 +86,59 @@ A component is the same in every entry, so a bundler still keeps only what you i
 
 ## Server rendering
 
-The components render a custom element tag on the server and upgrade in the browser. In frameworks with a server/client split, import the entry you use from a client component so the element definitions are registered in the browser.
+On a server, where there is no `document`, a component renders its element's tag with each prop the element reads from an attribute written as that attribute, under the attribute's own name. The first HTML already carries the label, the value and the states:
+
+```tsx
+<TextField label="Email" value="ada@example.com" required maxLength={80} readOnly={false} />
+// <tanrei-text-field label="Email" value="ada@example.com" required="" maxlength="80"></tanrei-text-field>
+```
+
+A prop at its default writes nothing, so a `false` is never written as present. A boolean that is on by default and turned off writes the attribute the element reads as off: `<CopyButton iconOnly={false} />` writes `icon-only="false"`, `<BottomSheet handle={false} />` writes `no-handle`. Handlers, objects and arrays are set in the browser, once the component mounts. The shadow root is not rendered on the server: the element draws itself when its definition loads, and React hydrates the tag without a mismatch.
+
+### Next.js (App Router)
+
+The components use refs and layout effects, so they are used from a client component. Import them in a module marked `'use client'`; a server component can render that module, and Next.js still renders it on the server for the first load.
+
+```tsx
+// app/sign-up.tsx
+'use client';
+
+import '@tanrei/web/words/en';
+import { Button, TextField } from '@tanrei/react';
+
+export function SignUp() {
+  return (
+    <form action="/sign-up" method="post">
+      <TextField name="email" type="email" label="Email" required />
+      <Button type="submit">Sign up</Button>
+    </form>
+  );
+}
+```
+
+```tsx
+// app/layout.tsx
+import '@tanrei/web/tanrei.css';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+```tsx
+// app/page.tsx (a server component)
+import { SignUp } from './sign-up';
+
+export default function Page() {
+  return <SignUp />;
+}
+```
+
+Lit's server renderer (`@lit-labs/ssr-react`, `@lit-labs/nextjs`) is not supported: it renders the shadow root on the server, and many of the elements read their children and the document while they render, which it does not provide, so they fail under it. Leave it out; the attributes above are what the server sends.
 
 <Callout>
   Theme, contrast, tokens and fonts work exactly as described in the [Web guide](/getting-started/web/); the React package adds nothing of its own on top.

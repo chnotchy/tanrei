@@ -88,7 +88,59 @@ Un componente es el mismo en todas las entradas, así que el empaquetador sigue 
 
 ## Renderizado en el servidor
 
-Los componentes generan en el servidor la etiqueta de un elemento personalizado y se actualizan en el navegador. En los frameworks que separan servidor y cliente, importa la entrada que usas desde un componente de cliente para que las definiciones de los elementos se registren en el navegador.
+En un servidor, donde no hay `document`, un componente genera la etiqueta de su elemento y escribe como atributo cada prop que el elemento lee de un atributo, con el nombre de ese atributo. El primer HTML ya lleva la etiqueta, el valor y los estados:
+
+```tsx
+<TextField label="Correo electrónico" value="ada@example.com" required maxLength={80} readOnly={false} />
+// <tanrei-text-field label="Correo electrónico" value="ada@example.com" required="" maxlength="80"></tanrei-text-field>
+```
+
+Una prop con su valor por defecto no escribe nada, así que un `false` nunca se escribe como presente. Un booleano que está activado por defecto y se desactiva escribe el atributo que el elemento lee como desactivado: `<CopyButton iconOnly={false} />` escribe `icon-only="false"` y `<BottomSheet handle={false} />` escribe `no-handle`. Los manejadores, los objetos y los arrays se asignan en el navegador, cuando el componente se monta. La raíz de sombra no se genera en el servidor: el elemento se dibuja cuando se carga su definición, y React hidrata la etiqueta sin discrepancias.
+
+### Next.js (App Router)
+
+Los componentes usan refs y efectos de layout, así que se usan desde un componente de cliente. Impórtalos en un módulo marcado con `'use client'`; un componente de servidor puede renderizar ese módulo, y Next.js lo sigue generando en el servidor en la primera carga.
+
+```tsx
+// app/sign-up.tsx
+'use client';
+
+import '@tanrei/web/words/en';
+import { Button, TextField } from '@tanrei/react';
+
+export function SignUp() {
+  return (
+    <form action="/sign-up" method="post">
+      <TextField name="email" type="email" label="Correo electrónico" required />
+      <Button type="submit">Registrarse</Button>
+    </form>
+  );
+}
+```
+
+```tsx
+// app/layout.tsx
+import '@tanrei/web/tanrei.css';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="es">
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+```tsx
+// app/page.tsx (un componente de servidor)
+import { SignUp } from './sign-up';
+
+export default function Page() {
+  return <SignUp />;
+}
+```
+
+El renderizador de servidor de Lit (`@lit-labs/ssr-react`, `@lit-labs/nextjs`) no está soportado: genera la raíz de sombra en el servidor, y muchos de los elementos leen sus hijos y el documento mientras se renderizan, algo que ese renderizador no ofrece, así que fallan con él. No lo instales; lo que envía el servidor son los atributos de arriba.
 
 <Callout>
   El tema, el contraste, los tokens y las fuentes funcionan exactamente como se describe en la [guía de Web](/es/getting-started/web/); el paquete de React no añade nada propio encima.

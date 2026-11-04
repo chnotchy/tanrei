@@ -4,6 +4,7 @@ import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
 import { type Marked, withMarks } from '../../marks.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiOneTimeCodeInput as TanreiOneTimeCodeInputElement, type TanreiOneTimeCodeInputDetail } from '@tanrei/web/components/one-time-code-input';
 
 /** The attributes of `<tanrei-one-time-code-input>` that are not properties of the element, as props of `OneTimeCodeInput`. */
@@ -24,6 +25,7 @@ const OneTimeCodeInputElement = /* @__PURE__ */ createComponent({
   },
 });
 const withOneTimeCodeInputMarks = /* @__PURE__ */ withMarks<OneTimeCodeInputMarks>([], ['form']);
+const OneTimeCodeInputAttributes = { value: ['value', ''], length: ['length', 6], type: ['type', 'numeric'], groupSize: ['group-size', 0], mask: ['mask', false], label: ['label', ''], error: ['error', false], disabled: ['disabled', false], readOnly: ['readonly', false], name: ['name', ''], form: ['form'] } as const;
 /**
  * Takes a short code sent to the person — a sign-in or verification code — as one text value drawn in separate cells, so that its length and what is still missing can be seen, and the browser can fill it in one step.
  *
@@ -33,4 +35,4 @@ const withOneTimeCodeInputMarks = /* @__PURE__ */ withMarks<OneTimeCodeInputMark
  * - `onChange` (`change`) — The person committed a changed value: focus left the field, or Enter was pressed.
  * - `onAction` (`action`) — The person pressed Enter. Cancel it to keep the enclosing form from being submitted.
  */
-export const OneTimeCodeInput: Marked<typeof OneTimeCodeInputElement, OneTimeCodeInputMarks> = /* @__PURE__ */ withOneTimeCodeInputMarks(OneTimeCodeInputElement);
+export const OneTimeCodeInput: Marked<typeof OneTimeCodeInputElement, OneTimeCodeInputMarks> = /* @__PURE__ */ withServerAttributes(/* @__PURE__ */ withOneTimeCodeInputMarks(OneTimeCodeInputElement), 'tanrei-one-time-code-input', TanreiOneTimeCodeInputElement, OneTimeCodeInputAttributes);

@@ -179,17 +179,23 @@ is given its text as the `code` prop for that reason (`<CodeBlock language="js" 
 
 ## Server rendering
 
-The wrappers can be imported and rendered on a server (Lit ships the DOM shims it needs under Node), with two things to
-know:
+The wrappers can be imported and rendered on a server (Lit ships the DOM shims it needs under Node), with three things
+to know:
 
-- **They are client components.** A wrapper uses refs and layout effects. With React Server Components (Next.js app
-  router and the like), use it from a module marked `'use client'`.
-- **Without a Lit SSR integration the server HTML is the bare tag**: `<tanrei-button class="…">Deploy</tanrei-button>` —
-  no shadow root, and the element's props are not in the markup, because they are set as properties in a layout
-  effect once the component mounts (hydration warnings for the element are suppressed for that reason). The label is
-  readable at once; the button's look arrives when the element is defined and React has mounted. To send the shadow
-  root from the server (declarative shadow DOM) add [`@lit-labs/ssr-react`](https://www.npmjs.com/package/@lit-labs/ssr-react),
-  which `@lit/react` detects and hands the element props to.
+- **They are client components.** A wrapper uses refs and layout effects in the browser. With React Server Components
+  (Next.js app router and the like), use it from a module marked `'use client'`; Next.js still renders it on the
+  server for the first load.
+- **The server HTML is the tag with its attributes.** Where there is no `document`, a wrapper renders its element's
+  tag and writes each prop the element reads from an attribute as that attribute, under the attribute's name
+  (`src/server.ts`): `<TextField label="Name" maxLength={40} required />` is
+  `<tanrei-text-field label="Name" maxlength="40" required="">`. The attribute's name and the element's default come
+  from the manifest, and the text from the element's own converter, so a prop at its default writes nothing (a
+  `false` is never written as present) and a boolean that is on by default and turned off writes what the element
+  reads as off (`icon-only="false"`, `no-handle`). Handlers, objects and arrays are set in the browser once the
+  component mounts; the attributes it hydrates over are not reported as a mismatch.
+- **No shadow root is rendered on the server.** Lit's server renderer (`@lit-labs/ssr-react`, `@lit-labs/nextjs`) is
+  not supported: many of the elements read their children and the document while they render, which it does not
+  provide, and they fail under it. The element draws itself when its definition loads.
 
 ## Generated code
 

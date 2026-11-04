@@ -4,6 +4,7 @@ import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
 import { type Marked, withMarks } from '../../marks.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiButton as TanreiButtonElement, type TanreiButtonChangeDetail } from '@tanrei/web/components/button';
 
 /** The attributes of `<tanrei-button>` that are not properties of the element, as props of `Button`. */
@@ -25,6 +26,7 @@ const ButtonElement = /* @__PURE__ */ createComponent({
   },
 });
 const withButtonMarks = /* @__PURE__ */ withMarks<ButtonMarks>(['confirming', 'dismissive'], ['form']);
+const ButtonAttributes = { variant: ['variant', 'filled'], destructive: ['destructive', false], size: ['size', 'medium'], width: ['width', 'default'], fullWidth: ['full-width', false], iconPosition: ['icon-position', 'leading'], toggle: ['toggle', false], selected: ['selected', false], disabled: ['disabled', false], focusableWhenDisabled: ['focusable-when-disabled', false], busy: ['busy', false], busyLabel: ['busy-label', ''], label: ['label', ''], type: ['type', 'button'], name: ['name', ''], value: ['value', ''], href: ['href', ''], target: ['target', 'same'], targetLabel: ['target-label', ''], rel: ['rel', null], confirming: ['confirming', false], dismissive: ['dismissive', false], form: ['form'] } as const;
 /**
  * Lets people take an action, or switch something on and off, with one tap or click — named by a label, an icon, or both.
  *
@@ -35,4 +37,4 @@ const withButtonMarks = /* @__PURE__ */ withMarks<ButtonMarks>(['confirming', 'd
  * Events:
  * - `onChange` (`change`) — A toggle was activated; fired after its `click`. `detail.selected` (and the element's `selected`) is the new value.
  */
-export const Button: Marked<typeof ButtonElement, ButtonMarks> = /* @__PURE__ */ withButtonMarks(ButtonElement);
+export const Button: Marked<typeof ButtonElement, ButtonMarks> = /* @__PURE__ */ withServerAttributes(/* @__PURE__ */ withButtonMarks(ButtonElement), 'tanrei-button', TanreiButtonElement, ButtonAttributes);

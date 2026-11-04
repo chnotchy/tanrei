@@ -3,8 +3,18 @@
 import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiCallout as TanreiCalloutElement } from '@tanrei/web/components/callout';
 
+const CalloutElement = /* @__PURE__ */ createComponent({
+  tagName: 'tanrei-callout',
+  elementClass: TanreiCalloutElement,
+  react: React,
+  events: {
+    onDismiss: 'dismiss' as EventName<TanreiEvent<TanreiCalloutElement>>,
+  },
+});
+const CalloutAttributes = { headline: ['headline', ''], status: ['status', 'default'], statusLabel: ['status-label', ''], variant: ['variant', 'tonal'], size: ['size', 'medium'], live: ['live', false], closable: ['closable', false], closeLabel: ['close-label', ''], open: ['open', true] } as const;
 /**
  * A notice that is part of the content and stays there, as a quiet fill or an outline, in a status's colors with its glyph. A note, a caution, the reason for something or a summary of what is wrong, in the flow of the page, with an optional title, actions and a close button.
  *
@@ -17,11 +27,4 @@ import { TanreiCallout as TanreiCalloutElement } from '@tanrei/web/components/ca
  * Events:
  * - `onDismiss` (`dismiss`) — The person closed the callout with its close button. Fired once, after `open` became false; never when the product sets `open`.
  */
-export const Callout = /* @__PURE__ */ createComponent({
-  tagName: 'tanrei-callout',
-  elementClass: TanreiCalloutElement,
-  react: React,
-  events: {
-    onDismiss: 'dismiss' as EventName<TanreiEvent<TanreiCalloutElement>>,
-  },
-});
+export const Callout = /* @__PURE__ */ withServerAttributes(CalloutElement, 'tanrei-callout', TanreiCalloutElement, CalloutAttributes);

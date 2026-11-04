@@ -4,6 +4,7 @@ import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
 import { type Marked, withMarks } from '../../marks.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiOneTimeCodeField as TanreiOneTimeCodeFieldElement, type TanreiOneTimeCodeInputDetail } from '@tanrei/web/components/one-time-code-field';
 
 /** The attributes of `<tanrei-one-time-code-field>` that are not properties of the element, as props of `OneTimeCodeField`. */
@@ -24,6 +25,7 @@ const OneTimeCodeFieldElement = /* @__PURE__ */ createComponent({
   },
 });
 const withOneTimeCodeFieldMarks = /* @__PURE__ */ withMarks<OneTimeCodeFieldMarks>([], ['form']);
+const OneTimeCodeFieldAttributes = { label: ['label', ''], labelHidden: ['label-hidden', false], supportingText: ['supporting-text', ''], errorText: ['error-text', ''], error: ['error', false], disabled: ['disabled', false], required: ['required', false], optional: ['optional', false], requiredMark: ['required-mark', 'auto'], requiredText: ['required-text', ''], optionalText: ['optional-text', ''], value: ['value', ''], length: ['length', 6], type: ['type', 'numeric'], groupSize: ['group-size', 0], mask: ['mask', false], readOnly: ['readonly', false], name: ['name', ''], form: ['form'] } as const;
 /**
  * Asks for a short code sent to the person as one complete field. Built from a Field (`<tanrei-field>`) and the One-time-code input (`<tanrei-one-time-code-input>`) it frames: the input under the Field's label, with the Field's help and its error, tied together for assistive technology and taking part in a form as one control.
  *
@@ -36,4 +38,4 @@ const withOneTimeCodeFieldMarks = /* @__PURE__ */ withMarks<OneTimeCodeFieldMark
  * - `onComplete` (`complete`) — A change by the person left the value `length` characters long. After that change's input, once.
  * - `onAction` (`action`) — The person pressed Enter. Cancel it to keep the enclosing form from being submitted.
  */
-export const OneTimeCodeField: Marked<typeof OneTimeCodeFieldElement, OneTimeCodeFieldMarks> = /* @__PURE__ */ withOneTimeCodeFieldMarks(OneTimeCodeFieldElement);
+export const OneTimeCodeField: Marked<typeof OneTimeCodeFieldElement, OneTimeCodeFieldMarks> = /* @__PURE__ */ withServerAttributes(/* @__PURE__ */ withOneTimeCodeFieldMarks(OneTimeCodeFieldElement), 'tanrei-one-time-code-field', TanreiOneTimeCodeFieldElement, OneTimeCodeFieldAttributes);

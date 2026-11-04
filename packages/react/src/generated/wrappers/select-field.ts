@@ -4,6 +4,7 @@ import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
 import { type Marked, withMarks } from '../../marks.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiSelectField as TanreiSelectFieldElement, type TanreiSelectToggleDetail } from '@tanrei/web/components/select-field';
 
 /** The attributes of `<tanrei-select-field>` that are not properties of the element, as props of `SelectField`. */
@@ -24,6 +25,7 @@ const SelectFieldElement = /* @__PURE__ */ createComponent({
   },
 });
 const withSelectFieldMarks = /* @__PURE__ */ withMarks<SelectFieldMarks>(['inline'], ['form']);
+const SelectFieldAttributes = { label: ['label', ''], labelHidden: ['label-hidden', false], supportingText: ['supporting-text', ''], errorText: ['error-text', ''], error: ['error', false], disabled: ['disabled', false], required: ['required', false], optional: ['optional', false], requiredMark: ['required-mark', 'auto'], requiredText: ['required-text', ''], optionalText: ['optional-text', ''], variant: ['variant', 'stacked'], size: ['size', 'medium'], value: ['value', ''], placeholder: ['placeholder', ''], readOnly: ['readonly', false], open: ['open', false], separation: ['separation', 'auto'], iconSpace: ['icon-space', 'auto'], density: ['density', 'regular'], status: ['status', 'idle'], statusText: ['status-text', ''], emptyText: ['empty-text', ''], name: ['name', ''], inline: ['inline', false], form: ['form'] } as const;
 /**
  * Lets people choose one value from a closed list as one complete field of a form. Built from a Field (`<tanrei-field>`) and the Select (`<tanrei-select>`) it frames: the trigger and its list under the Field's label — or, in the filled and the outlined look, with the label floating in the box — with the Field's help and its error, tied together for assistive technology and taking part in a form as one control.
  *
@@ -36,4 +38,4 @@ const withSelectFieldMarks = /* @__PURE__ */ withMarks<SelectFieldMarks>(['inlin
  * - `onChange` (`change`) — The person chose an option whose value differs from the select's; `value` is already the new one. A composed, bubbling Event, as a native select's. Never fired when the product sets `value`, when the chosen option is chosen again, or while the person only moves through the list.
  * - `onToggle` (`toggle`) — The list was opened or closed by the person; `open` is already the new one. `detail.open`, and for a close `detail.reason`: `select`, `escape`, `outside`, `focus-out`, `anchor-hidden`, `press` or `tab`. After a choice it follows `change`. Composed and not bubbling: heard on the element — and on an element composed around it — and by no ancestor. Never fired when the product sets `open`.
  */
-export const SelectField: Marked<typeof SelectFieldElement, SelectFieldMarks> = /* @__PURE__ */ withSelectFieldMarks(SelectFieldElement);
+export const SelectField: Marked<typeof SelectFieldElement, SelectFieldMarks> = /* @__PURE__ */ withServerAttributes(/* @__PURE__ */ withSelectFieldMarks(SelectFieldElement), 'tanrei-select-field', TanreiSelectFieldElement, SelectFieldAttributes);

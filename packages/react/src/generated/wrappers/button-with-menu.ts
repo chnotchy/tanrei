@@ -3,8 +3,19 @@
 import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiButtonWithMenu as TanreiButtonWithMenuElement, type TanreiButtonWithMenuToggleDetail, type TanreiButtonWithMenuCloseDetail } from '@tanrei/web/components/button-with-menu';
 
+const ButtonWithMenuElement = /* @__PURE__ */ createComponent({
+  tagName: 'tanrei-button-with-menu',
+  elementClass: TanreiButtonWithMenuElement,
+  react: React,
+  events: {
+    onToggle: 'toggle' as EventName<TanreiEvent<TanreiButtonWithMenuElement, CustomEvent<TanreiButtonWithMenuToggleDetail>>>,
+    onClose: 'close' as EventName<TanreiEvent<TanreiButtonWithMenuElement, CustomEvent<TanreiButtonWithMenuCloseDetail>>>,
+  },
+});
+const ButtonWithMenuAttributes = { variant: ['variant', 'filled'], destructive: ['destructive', false], size: ['size', 'medium'], separation: ['separation', 'auto'], trailingWidth: ['trailing-width', 'default'], label: ['label', ''], menuLabel: ['menu-label', ''], open: ['open', false], disabled: ['disabled', false], hoverOpen: ['hover-open', false], hoverDelay: ['hover-delay', null] } as const;
 /**
  * Performs a main action with one press, and offers related actions in a menu from a second, joined button beside it.
  *
@@ -18,12 +29,4 @@ import { TanreiButtonWithMenu as TanreiButtonWithMenuElement, type TanreiButtonW
  * - `onToggle` (`toggle`) — The trailing half asks to open or close the menu — by a press, a key or, with `hover-open`, a hover: `detail.open` is the value asked for. Set `open` to it.
  * - `onClose` (`close`) — The menu asks to be closed: `detail.reason` is `escape`, `outside`, `tab`, `focus-out` or `item`. Set `open` to false.
  */
-export const ButtonWithMenu = /* @__PURE__ */ createComponent({
-  tagName: 'tanrei-button-with-menu',
-  elementClass: TanreiButtonWithMenuElement,
-  react: React,
-  events: {
-    onToggle: 'toggle' as EventName<TanreiEvent<TanreiButtonWithMenuElement, CustomEvent<TanreiButtonWithMenuToggleDetail>>>,
-    onClose: 'close' as EventName<TanreiEvent<TanreiButtonWithMenuElement, CustomEvent<TanreiButtonWithMenuCloseDetail>>>,
-  },
-});
+export const ButtonWithMenu = /* @__PURE__ */ withServerAttributes(ButtonWithMenuElement, 'tanrei-button-with-menu', TanreiButtonWithMenuElement, ButtonWithMenuAttributes);

@@ -4,6 +4,7 @@ import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
 import { type Marked, withMarks } from '../../marks.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiColorField as TanreiColorFieldElement, type TanreiColorInputPickerRequestDetail, type TanreiColorInputEntryErrorDetail } from '@tanrei/web/components/color-field';
 
 /** The attributes of `<tanrei-color-field>` that are not properties of the element, as props of `ColorField`. */
@@ -23,6 +24,7 @@ const ColorFieldElement = /* @__PURE__ */ createComponent({
   },
 });
 const withColorFieldMarks = /* @__PURE__ */ withMarks<ColorFieldMarks>([], ['form']);
+const ColorFieldAttributes = { label: ['label', ''], labelHidden: ['label-hidden', false], supportingText: ['supporting-text', ''], errorText: ['error-text', ''], error: ['error', false], disabled: ['disabled', false], required: ['required', false], optional: ['optional', false], requiredMark: ['required-mark', 'auto'], requiredText: ['required-text', ''], optionalText: ['optional-text', ''], variant: ['variant', 'stacked'], size: ['size', 'medium'], value: ['value'], invalidText: ['invalid-text', ''], picker: ['picker', false], pickerLabel: ['picker-label', ''], name: ['name', ''], form: ['form'] } as const;
 /**
  * Lets people set one color as one complete field of a form. Built from a Field (`<tanrei-field>`) and the Color input (`<tanrei-color-input>`) it frames: the box — a sample of the value, the value as text, a button that asks for a picker — under the Field's label, or, in the filled and the outlined look, with the label floating in it, with the Field's help and its error, tied together for assistive technology and taking part in a form as one control. It looks and measures like a text field.
  *
@@ -34,4 +36,4 @@ const withColorFieldMarks = /* @__PURE__ */ withMarks<ColorFieldMarks>([], ['for
  * - `onPickerRequest` (`pickerrequest`) — The person activated the picker button. `detail.value` is the value. Cancelable: `preventDefault()` keeps the input from presenting the browser's picker; the product then presents its own surface and sets `value`. Composed and bubbling.
  * - `onEntryError` (`entryerror`) — The person committed a text that is not empty and is not a color. `detail.text` is the text as typed, `detail.message` is `invalidText` — empty where the product gave none. Composed and bubbling.
  */
-export const ColorField: Marked<typeof ColorFieldElement, ColorFieldMarks> = /* @__PURE__ */ withColorFieldMarks(ColorFieldElement);
+export const ColorField: Marked<typeof ColorFieldElement, ColorFieldMarks> = /* @__PURE__ */ withServerAttributes(/* @__PURE__ */ withColorFieldMarks(ColorFieldElement), 'tanrei-color-field', TanreiColorFieldElement, ColorFieldAttributes);

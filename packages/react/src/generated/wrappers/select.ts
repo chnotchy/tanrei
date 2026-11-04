@@ -4,6 +4,7 @@ import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
 import { type Marked, withMarks } from '../../marks.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiSelect as TanreiSelectElement, type TanreiSelectToggleDetail } from '@tanrei/web/components/select';
 
 /** The attributes of `<tanrei-select>` that are not properties of the element, as props of `Select`. */
@@ -22,6 +23,7 @@ const SelectElement = /* @__PURE__ */ createComponent({
   },
 });
 const withSelectMarks = /* @__PURE__ */ withMarks<SelectMarks>([], ['form']);
+const SelectAttributes = { variant: ['variant', 'stacked'], size: ['size', 'medium'], value: ['value', ''], name: ['name', ''], label: ['label', ''], labelHidden: ['label-hidden', false], placeholder: ['placeholder', ''], error: ['error', false], disabled: ['disabled', false], readOnly: ['readonly', false], open: ['open', false], separation: ['separation', 'auto'], iconSpace: ['icon-space', 'auto'], density: ['density', 'regular'], status: ['status', 'idle'], statusText: ['status-text', ''], emptyText: ['empty-text', ''], inline: ['inline', false], form: ['form'] } as const;
 /**
  * Lets people choose one value from a closed list: a trigger that looks and measures like a text input's box and shows the chosen option, and a list of options, optionally grouped, that opens from it. The bare control: it draws no label row, no requirement mark, no help and no error text.
  *
@@ -33,4 +35,4 @@ const withSelectMarks = /* @__PURE__ */ withMarks<SelectMarks>([], ['form']);
  * - `onToggle` (`toggle`) — The list was opened or closed by the person; `open` is already the new one. `detail.open`, and for a close `detail.reason`: `select`, `escape`, `outside`, `focus-out`, `anchor-hidden`, `press` or `tab`. After a choice it follows `change`. Composed and not bubbling: heard on the element — and on an element composed around it — and by no ancestor. Never fired when the product sets `open`.
  * - `onChange` (`change`) — The person chose an option whose value differs from the select's; `value` is already the new one. A composed, bubbling Event, as a native select's. Never fired when the product sets `value`, when the chosen option is chosen again, or while the person only moves through the list.
  */
-export const Select: Marked<typeof SelectElement, SelectMarks> = /* @__PURE__ */ withSelectMarks(SelectElement);
+export const Select: Marked<typeof SelectElement, SelectMarks> = /* @__PURE__ */ withServerAttributes(/* @__PURE__ */ withSelectMarks(SelectElement), 'tanrei-select', TanreiSelectElement, SelectAttributes);

@@ -4,6 +4,7 @@ import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
 import { type Marked, withMarks } from '../../marks.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiCheckboxGroup as TanreiCheckboxGroupElement, type TanreiCheckboxGroupChangeDetail } from '@tanrei/web/components/checkbox-group';
 
 /** The attributes of `<tanrei-checkbox-group>` that are not properties of the element, as props of `CheckboxGroup`. */
@@ -21,6 +22,7 @@ const CheckboxGroupElement = /* @__PURE__ */ createComponent({
   },
 });
 const withCheckboxGroupMarks = /* @__PURE__ */ withMarks<CheckboxGroupMarks>([], ['form']);
+const CheckboxGroupAttributes = { name: ['name', ''], label: ['label', ''], labelHidden: ['label-hidden', false], supportingText: ['supporting-text', ''], errorText: ['error-text', ''], error: ['error', false], disabled: ['disabled', false], required: ['required', false], optional: ['optional', false], requiredMark: ['required-mark', 'auto'], requiredText: ['required-text', ''], optionalText: ['optional-text', ''], orientation: ['orientation', 'vertical'], selectAllLabel: ['select-all-label', ''], form: ['form'] } as const;
 /**
  * Asks one question that may have several answers among a few choices shown all at once. Built from a field group (`<tanrei-field-group>`) and checkboxes (`<tanrei-checkbox>`): the field group's label, requirement, description and one error around the product's own checkboxes, whose checked values the group holds as one list under one name, and — where `select-all-label` is given — one more checkbox before the first that checks them all.
  *
@@ -30,4 +32,4 @@ const withCheckboxGroupMarks = /* @__PURE__ */ withMarks<CheckboxGroupMarks>([],
  * Events:
  * - `onChange` (`change`) — The person switched a checkbox of the set, or the select-all checkbox; `detail.value` is a copy of the new list, which the group already holds. Fired once per action, by the group and not by its checkboxes.
  */
-export const CheckboxGroup: Marked<typeof CheckboxGroupElement, CheckboxGroupMarks> = /* @__PURE__ */ withCheckboxGroupMarks(CheckboxGroupElement);
+export const CheckboxGroup: Marked<typeof CheckboxGroupElement, CheckboxGroupMarks> = /* @__PURE__ */ withServerAttributes(/* @__PURE__ */ withCheckboxGroupMarks(CheckboxGroupElement), 'tanrei-checkbox-group', TanreiCheckboxGroupElement, CheckboxGroupAttributes);

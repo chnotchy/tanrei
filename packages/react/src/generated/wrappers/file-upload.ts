@@ -4,6 +4,7 @@ import { type EventName, createComponent } from '@lit/react';
 import * as React from 'react';
 import type { TanreiEvent } from '../../events.js';
 import { type Marked, withMarks } from '../../marks.js';
+import { withServerAttributes } from '../../server.js';
 import { TanreiFileUpload as TanreiFileUploadElement, type TanreiFileUploadMoveDetail } from '@tanrei/web/components/file-upload';
 
 /** The attributes of `<tanrei-file-upload>` that are not properties of the element, as props of `FileUpload`. */
@@ -24,6 +25,7 @@ const FileUploadElement = /* @__PURE__ */ createComponent({
   },
 });
 const withFileUploadMarks = /* @__PURE__ */ withMarks<FileUploadMarks>([], ['form']);
+const FileUploadAttributes = { layout: ['layout', 'button'], multiple: ['multiple', false], accept: ['accept'], maxSize: ['max-size', null], maxFiles: ['max-files', null], label: ['label', ''], constraintsText: ['constraints-text', ''], dropText: ['drop-text', ''], emptyText: ['empty-text', ''], itemForm: ['item-form', 'row'], itemPreview: ['item-preview', false], itemFit: ['item-fit', 'cover'], itemNameHidden: ['item-name-hidden', false], itemWidth: ['item-width', null], itemHeight: ['item-height', null], reorderable: ['reorderable', false], dragHandleLabel: ['drag-handle-label', ''], dragHandleHint: ['drag-handle-hint', ''], moveToStartLabel: ['move-to-start-label', ''], moveBeforeLabel: ['move-before-label', ''], moveAfterLabel: ['move-after-label', ''], moveToEndLabel: ['move-to-end-label', ''], liftedText: ['lifted-text', ''], movedText: ['moved-text', ''], cancelledText: ['cancelled-text', ''], removeLabel: ['remove-label', ''], retryLabel: ['retry-label', ''], announcement: ['announcement', ''], disabled: ['disabled', false], error: ['error', false], required: ['required', false], name: ['name', ''], rows: ['rows', 'own'], typeErrorText: ['type-error-text', ''], sizeErrorText: ['size-error-text', ''], countErrorText: ['count-error-text', ''], form: ['form'] } as const;
 /**
  * Lets people choose files and shows what was chosen. Built from a File picker (`<tanrei-file-picker>`) — the trigger, the drop area, the limits in words, the judging of a choice — and File items (`<tanrei-file-item>`), one for each file, in a column of rows or a strip of tiles; it adds the state that ties them: which files are kept, the room that is left, one form for all its items, one message for many changes, where focus goes after a removal, and the form's value. **It never uploads**: it opens no connection and reads no byte of a file (FUP-7).
  *
@@ -38,4 +40,4 @@ const withFileUploadMarks = /* @__PURE__ */ withMarks<FileUploadMarks>([], ['for
  * - `onChange` (`change`) — While `rows` is `own`: the kept files changed by what a person did — a choice or a drop that kept or replaced a file, or a kept file's row removed. Once, after `select` and `reject`; `detail.files` is the `File[]` now kept. Bubbles. Never for `add()`, `clear()`, a reset or a change of `rows`.
  * - `onMove` (`move`) — While `rows` is `given` and `reorderable` is set: a person asked for a row to stand in another place, by the move menu, the keyboard or a drag. `detail.from` and `detail.to`, from 0. The file upload has moved nothing: put your file item in its new place. Bubbles.
  */
-export const FileUpload: Marked<typeof FileUploadElement, FileUploadMarks> = /* @__PURE__ */ withFileUploadMarks(FileUploadElement);
+export const FileUpload: Marked<typeof FileUploadElement, FileUploadMarks> = /* @__PURE__ */ withServerAttributes(/* @__PURE__ */ withFileUploadMarks(FileUploadElement), 'tanrei-file-upload', TanreiFileUploadElement, FileUploadAttributes);
