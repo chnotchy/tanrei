@@ -974,9 +974,6 @@
   padding-block-start: 0.75rem;
   border-block-start: var(--ts-hairline);
 }
-.ts-import .ts-actions {
-  margin-block-start: 0.5rem;
-}
 .ts-status {
   position: absolute;
   inline-size: 1px;

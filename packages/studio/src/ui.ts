@@ -8,7 +8,7 @@ import { createSourceDraft } from './draft.js';
 import { createHistory } from './history.js';
 import { studio } from './data';
 import { type StudioStrings, studioDirection, studioLanguage, studioStrings } from './strings';
-import { type Contrast, type Ctx, type Json, type Layer, type Place, button, codeField, fold, folds, h, isolated, ltr, panel, rename, rich, scrollingList, stateChip, textField, views } from './ui/dom';
+import { type Contrast, type Ctx, type Json, type Layer, type Place, button, fold, folds, h, isolated, ltr, panel, rename, rich, scrollingList, stateChip, textField, views } from './ui/dom';
 import { sectionPanels } from './ui/panels';
 import { createExportSheet } from './ui/export';
 import { createPreview } from './ui/preview';
@@ -406,20 +406,20 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     inspector.scrollTo({ top: 0 });
   }
   /**
-   * Load a layer in the place of the layer — a file chosen from the start point's menu, or text pasted under the file
-   * panel: one path for both. What the schema refuses, or a layer on a system the Studio does not have, is not loaded,
+   * Load a layer in the place of the layer — a file chosen from the start point's menu, or a layer handed to the page's
+   * API: one path for both. What the schema refuses, or a layer on a system the Studio does not have, is not loaded,
    * and the panel says why; a layer the schema accepts is loaded, and what the token engine and the build's checks say
-   * of it is said in the panel. A layer that holds changes asks first (`ask: false`: a script, through the page's API);
-   * the load is one step to undo. `file`: the file's name; none, the layer was pasted. Returns the problems that kept
+   * of it is said in the panel. Over a layer that holds changes, a file asks first (the API never asks); the load is one
+   * step to undo. `file`: the file's name; none, the layer came through the API. Returns the problems that kept
    * it out (empty: loaded, or the person kept their layer).
    */
-  function loadLayer(text: string, { file, ask = true }: { file?: string; ask?: boolean } = {}): string[] {
+  function loadLayer(text: string, file?: string): string[] {
     const refused = (problems: string[]) => (report('error', t.start.refused(file), problems), ctx.announce(t.start.refused(file)), problems);
     let parsed: unknown;
     try {
       parsed = JSON.parse(text);
     } catch (error) {
-      return refused([t.labelled(t.import.invalidJson, (error as Error).message)]);
+      return refused([t.labelled(t.source.invalidJson, (error as Error).message)]);
     }
     let next: Layer;
     try {
@@ -428,7 +428,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     } catch (error) {
       return refused((error as Error).message.split('\n'));
     }
-    if (ask && studio.holdsChanges(committed) && !window.confirm(t.start.confirmLoad(file))) return [];
+    if (file !== undefined && studio.holdsChanges(committed) && !window.confirm(t.start.confirmLoad(file))) return [];
     importReport.open = false;
     ctx.commit(next, { rebuild: true, alone: true });
     const problems: string[] = latest.problems ?? [];
@@ -436,7 +436,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     ctx.announce(problems.length ? t.start.importedProblems(file, problems.length) : t.start.imported(file));
     return [];
   }
-  const importFile = async (chosen: File) => loadLayer(await chosen.text(), { file: chosen.name });
+  const importFile = async (chosen: File) => loadLayer(await chosen.text(), chosen.name);
 
   /** Every row that is not locked, another of its values: one commit, one step to undo. */
   function shuffleRows() {
@@ -495,13 +495,6 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     const open = button(t.exporting.open, () => exportSheet.open(), { primary: !adapter, title: t.exporting.help, 'data-export-panel-open': true });
     const reset = button(t.export.reset, () => window.confirm(t.export.confirmReset) && ctx.commit({ ...studio.blank(layer.extends ?? studio.defaultId), id: layer.id }, { rebuild: true }), { 'data-reset': true });
 
-    // The layer to import: JSON, in a text field that holds code. It is loaded as a file from the start point is.
-    const importForm = () => {
-      const importArea = codeField({ label: t.import.label, placeholder: '{ "id": "acme", "extends": "tanrei", … }', rows: 8, attrs: { 'data-import': true } });
-      const importApply = button(t.import.apply, () => loadLayer(importArea.value), { 'data-import-apply': true });
-      return [h('p', { class: 'ts-help', text: t.import.help }), importArea, h('div', { class: 'ts-actions' }, importApply)];
-    };
-
     const refresh = () => {
       if (document.activeElement !== id) id.value = layer.id ?? '';
       if (document.activeElement !== name) name.value = layer.name ?? '';
@@ -514,15 +507,10 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     };
     refresh();
     ctx.onUpdate(refresh);
-
-    // The import is written when its fold first opens.
-    const importFold = fold({ label: t.import.title, attrs: { class: 'ts-import' } });
-    importFold.addEventListener('toggle', () => importFold.open && importFold.children.length === 1 && importFold.append(...importForm()));
     return panel(
       ctx,
       { title: adapter ? t.file.title : t.export.title, key: 'export', actions: [filename] },
       h('div', { class: 'ts-export-side' }, h('div', { class: 'ts-stack' }, id, name), checks, h('div', { class: 'ts-actions' }, open, reset)),
-      folds({}, importFold),
     );
   }
 
@@ -838,9 +826,9 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
     getState: () => ({ layer: structuredClone(layer), section, inspect, locks: [...locks], contrast, saveState, draft: draft.text, canUndo: history.canUndo, canRedo: history.canRedo, export: exportSheet.state() }),
     getLayer: () => structuredClone(layer),
     setLayer: (next: Layer) => ctx.commit(studio.fromLayer(next), { rebuild: true }),
-    /** Load a layer in the place of the layer, as Import does, without asking; throws what kept it out. */
+    /** Load a layer in the place of the layer, as the start point's Import a file… does, without asking; throws what kept it out. */
     importLayer: (input: string | object) => {
-      const problems = loadLayer(typeof input === 'string' ? input : JSON.stringify(input), { ask: false });
+      const problems = loadLayer(typeof input === 'string' ? input : JSON.stringify(input));
       if (problems.length) throw new Error(problems.join('\n'));
     },
     /** Start the layer from a start point of the bar (`studio.startPoints()`), as its menu does. */

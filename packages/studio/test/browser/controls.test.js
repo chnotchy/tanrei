@@ -27,10 +27,10 @@ studioTest('no control is hand-made: in every section and tab of Inspect, with t
   const held = { sections: new Set(), tokens: new Set(), source: new Set() };
   for (const name of VIEWS) {
     await view(name);
-    // Open what is drawn on opening: «specVersion and attribution», the import, a rule's row is there already.
-    for (const selector of ['[data-about-more] > summary', '.ts-import > summary']) for (const fold of await page.locator(selector).all()) await fold.click();
+    // Open what is drawn on opening: «specVersion and attribution»; a rule's row is there already.
+    for (const fold of await page.locator('[data-about-more] > summary').all()) await fold.click();
     // (A fold writes what it holds at its `toggle` event, a task after the press.)
-    await page.waitForFunction(() => [...document.querySelectorAll('[data-about-more], .ts-import')].every((fold) => !fold.open || fold.children.length > 1));
+    await page.waitForFunction(() => [...document.querySelectorAll('[data-about-more]')].every((fold) => !fold.open || fold.children.length > 1));
     if (name === 'tokens') {
       await page.locator('[data-search] input').fill('button.container.height.medium');
       await page.locator('[data-token="tanrei.comp.button.container.height.medium"] > span').click();
@@ -50,9 +50,9 @@ studioTest('no control is hand-made: in every section and tab of Inspect, with t
   assert.deepEqual(sorted(seen.tokens), RAIL, 'Inspect’s tokens');
   assert.deepEqual(sorted(seen.source), [...RAIL, 'textarea[data-source]'], 'Source: the layer file, in the Studio’s own editor');
   // What was a native text area inside a Field is a text field that holds code, complete by itself: none stands in a Field.
-  assert.deepEqual(sorted(held.sections), ['lines', 'lines[data-import]'], 'the sections: the attribution’s sources and the import');
-  assert.deepEqual(sorted(held.tokens), ['line[data-rule-match]', 'lines', 'lines[data-import]'], 'Inspect’s tokens: a rule’s pattern, an operation as JSON and a rule’s operation, the import');
-  assert.deepEqual(sorted(held.source), ['lines[data-import]'], 'Source: the import');
+  assert.deepEqual(sorted(held.sections), ['lines'], 'the sections: the attribution’s sources');
+  assert.deepEqual(sorted(held.tokens), ['line[data-rule-match]', 'lines'], 'Inspect’s tokens: a rule’s pattern, an operation as JSON and a rule’s operation');
+  assert.deepEqual(sorted(held.source), [], 'Source: none but its own editor');
   // (The Studio's own tree: a text field's own Field is in its shadow root, and is the text field's.)
   assert.equal(await page.evaluate(() => document.querySelectorAll('tanrei-field tanrei-text-field, tanrei-field tanrei-text-input, tanrei-field textarea').length), 0, 'the Studio frames no text field and no text input with a Field of its own');
   // The standalone app's items of the Studio's bar: its theme button and its language select are Tanrei's too.
@@ -204,12 +204,13 @@ studioTest('Arabic: a rule’s pattern and JSON are still read from the left, an
   const json = rule.locator('tanrei-text-field[type="code"][multiline] textarea');
   assert.deepEqual(await json.evaluate((el) => [getComputedStyle(el).direction, getComputedStyle(el).textAlign, getComputedStyle(el.getRootNode().host).direction]), ['ltr', 'left', 'rtl'], 'the code from the left, in a field that stands in a right-to-left pane');
   // Emptied, holding a bracket alone, or beginning with an Arabic string, the field is laid out alike (TXF-53).
-  // (In the layer to import, which is written nowhere until it is applied.)
-  await page.locator('.ts-import > summary').click();
-  const pasted = page.locator('[data-import] textarea');
+  // (In the attribution's sources, a field of code of its own in the layer's own words.)
+  await section('about');
+  await page.locator('[data-about-more] > summary').click();
+  const sources = page.locator('[data-about-more] tanrei-text-field[type="code"] textarea');
   for (const text of ['', '{', '["مرحبا", "acme"]']) {
-    await pasted.fill(text);
-    assert.deepEqual(await pasted.evaluate((el) => [el.dir, getComputedStyle(el).direction, getComputedStyle(el).textAlign, getComputedStyle(el).unicodeBidi === 'plaintext']), ['ltr', 'ltr', 'left', false], JSON.stringify(text));
+    await sources.fill(text);
+    assert.deepEqual(await sources.evaluate((el) => [el.dir, getComputedStyle(el).direction, getComputedStyle(el).textAlign, getComputedStyle(el).unicodeBidi === 'plaintext']), ['ltr', 'ltr', 'left', false], JSON.stringify(text));
   }
   await section('dials');
   const reset = page.locator('[data-dial="tanrei.dial.space.unit"] tanrei-button.ts-link');
