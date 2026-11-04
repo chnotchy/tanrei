@@ -1403,6 +1403,8 @@ export class TanreiMenu extends TanreiElement {
   private lastLayout = '';
   /** The rows of each surface, read when first asked after a change. */
   private levels: Map<Level, TanreiMenuRowBase[]> | null = null;
+  /** MNU-31: the form of the shortcuts the cascade gave when the menu was last open (read in `sync()` while it is). */
+  private shortcutVariant = DEFAULT_SHORTCUT_VARIANT;
   /**
    * The re-read of the items (`sync()`), once per turn however many items said they changed in it: a menu of N items
    * built, or N labels changed at once, re-reads its N items once — not once per item, which made the build O(N²).
@@ -1651,9 +1653,11 @@ export class TanreiMenu extends TanreiElement {
     // MNU-31: the form the shortcuts are drawn in, as the cascade gives it now — never cached, so a system switch is seen
     // the next time the menu opens or changes.
     // Read for the first row there is: a menu without rows (the overflow menu of a breadcrumb trail that fits, drawn
-    // with every trail of a page) asks the cascade nothing.
+    // with every trail of a page) asks the cascade nothing. And read while the menu is open: a closed menu draws no row,
+    // and its rows keep the form last read until it opens (`updated()` re-reads them then) — a read in a closed menu's
+    // first update had the browser style the whole page for it, once for every menu of a page that is still loading.
     let variant: string | null = null;
-    const shortcut = () => (variant ??= getComputedStyle(this).getPropertyValue(SHORTCUT_VARIANT).trim() || DEFAULT_SHORTCUT_VARIANT);
+    const shortcut = () => (variant ??= this.open ? (this.shortcutVariant = getComputedStyle(this).getPropertyValue(SHORTCUT_VARIANT).trim() || DEFAULT_SHORTCUT_VARIANT) : this.shortcutVariant);
     // MNU-59: an unknown value is auto.
     const space: TanreiMenuIconSpace = ICON_SPACES.includes(this.iconSpace) ? this.iconSpace : 'auto';
     const marks = (row: TanreiMenuRowBase) => row instanceof TanreiMenuCheckboxItem || row instanceof TanreiMenuRadioItem;

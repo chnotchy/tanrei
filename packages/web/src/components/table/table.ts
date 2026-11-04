@@ -19,6 +19,7 @@ import { WordsController } from '../../primitives/words.js';
 import type { TanreiTableDensityRegistry } from '../../registry.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
+import { readInPhase } from '../../primitives/read-phase.js';
 
 /** The core densities (regular, compact), plus any a design system's generated `.d.ts` registers. */
 export type TanreiTableDensity = keyof TanreiTableDensityRegistry;
@@ -221,25 +222,29 @@ function unwatchTurns(table: TanreiTable, roots: Node[]) {
  * What the sizes say is read for every table at once and written for every table after (TBL-19 to TBL-22). A table
  * that measured as soon as it had written made the browser style and lay out the page once per table — and, with the
  * rules by position added to the page's sheet in between, restyle every cell of every table each time: a page of
- * forty tables, forty times. So a table that has written asks for a measure, and the one that asks first starts it:
- * it runs as a microtask, which is after every table that is updated in the same task has written — elements that
- * are defined together, or parsed together, are — and before anything waiting for one of them (`updateComplete`).
+ * forty tables, forty times. A measure in a microtask of the turn shared that read between the tables of the turn, but
+ * still styled and laid out the page in it, before the frame: on a page that is still being loaded, once more for each
+ * module that defines a table, or anything else, in a turn of its own. So a table that has written asks for a measure
+ * in the frame's read phase (src/primitives/read-phase.ts), after its layout and before its paint: every table of the
+ * frame is read there with every other element that reads, at no cost, and what they write is drawn in that frame.
  * One observer of sizes serves every table, for the same reason: its entries arrive together.
  */
 const unmeasured = new Set<TanreiTable>();
+const MEASURE = {};
 function measureAll(tables: Iterable<TanreiTable>) {
   const read = [...tables].filter((table) => table.isConnected).map((table) => [table, table.sizes()] as const);
   for (const [table, sizes] of read) table.sized(sizes);
 }
 function measureSoon(table: TanreiTable) {
-  if (!unmeasured.size) {
-    queueMicrotask(() => {
-      const all = [...unmeasured];
-      unmeasured.clear();
-      measureAll(all);
-    });
-  }
   unmeasured.add(table);
+  readInPhase(MEASURE, () => {
+    const all = [...unmeasured];
+    unmeasured.clear();
+    const read = all.filter((each) => each.isConnected).map((each) => [each, each.sizes()] as const);
+    return () => {
+      for (const [each, sizes] of read) each.sized(sizes);
+    };
+  });
 }
 const observed = new WeakMap<Element, TanreiTable>();
 const resizes =
@@ -579,7 +584,7 @@ export class TanreiTable extends TanreiLightElement {
   /**
    * Reads the table the box holds and writes what follows from it: the caption and the name, the columns' alignment,
    * the row headers of a table of plain cells, the separation where the browser cannot query it — then asks for a
-   * measure, which every table of the task shares (`measureSoon`). Called when a property changes and when the
+   * measure, which every table of the frame shares (`measureSoon`). Called when a property changes and when the
    * table's content does (TBL-25); it writes only what differs, so it settles, its cost is the header row's, not the
    * rows', and it reads nothing of the layout: everything it writes is styled once, with what the other tables wrote.
    */

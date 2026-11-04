@@ -20,6 +20,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
 import { LIGHT_DOM_SUBJECTS, type LightDomSubject } from '../../test/light-dom.js';
+import { DRAWN_MARKS } from './sheets.js';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const read = (file: string) => fs.readFileSync(path.join(pkg, file), 'utf8');
@@ -317,5 +318,45 @@ test.describe('the sheets an element adds to its root', () => {
     expect(writes.filter((write) => write.root === 'document')).toEqual([]);
     expect(await page.evaluate(() => document.adoptedStyleSheets.length)).toBe(0);
     expect(await page.evaluate(() => document.querySelector('[data-tanrei-style-query-probe]'))).toBeNull();
+  });
+
+  test('the kinds the first question of a root asks for together are every element of test/light-dom.ts, by its mark', () => {
+    expect(DRAWN_MARKS).toEqual(Object.fromEntries(SUBJECTS.map((subject) => [subject.tag, subject.mark])));
+  });
+
+  // On a page whose elements are defined one module after another — each defining its elements in a task of its own,
+  // as a site's chunks arrive — a question of each kind in its own definition had the browser style the page once for
+  // each. The first question of the document asks it for every kind that stands in it, before the next is defined.
+  test('a page that loaded every stylesheet: the first element defined asks the cascade for every kind on the page, and none defined after it asks again', async ({ page }) => {
+    await page.addInitScript((marks) => {
+      const log: string[] = [];
+      (window as unknown as { __log: string[] }).__log = log;
+      const own = CSSStyleDeclaration.prototype.getPropertyValue;
+      CSSStyleDeclaration.prototype.getPropertyValue = function (name: string) {
+        if (marks.includes(name)) log.push(name);
+        return own.call(this, name);
+      };
+      const define = CustomElementRegistry.prototype.define;
+      CustomElementRegistry.prototype.define = function (name: string, ...rest: [CustomElementConstructor, ElementDefinitionOptions?]) {
+        log.push(`define ${name}`);
+        return define.call(this, name, ...rest);
+      };
+    }, SUBJECTS.map((subject) => subject.mark));
+    await watch(page, SUBJECTS.map((subject) => subject.mark));
+    await open(page, document(SUBJECTS.map((subject) => subject.html(0)).join('\n'), SUBJECTS.map((subject) => subject.css)));
+    await settle(page, 'tanrei-table');
+    const log = await page.evaluate(() => (window as unknown as { __log: string[] }).__log);
+    const tags = SUBJECTS.map((subject) => subject.tag);
+    const defined = log.flatMap((entry, at) => (tags.includes(entry.replace('define ', '')) ? [at] : []));
+    const asked = log.flatMap((entry, at) => (entry.startsWith('define ') ? [] : [at]));
+    expect(defined).toHaveLength(SUBJECTS.length);
+    // Every question about the marks is asked inside the definition of the first of the kinds (an element may also read
+    // its own mark for a purpose of its own later, as the app shell reads its breakpoint: that is not the question).
+    const second = defined[1];
+    const questions = new Set(asked.filter((at) => at < second).map((at) => log[at]));
+    expect([...questions].sort()).toEqual(SUBJECTS.map((subject) => subject.mark).sort());
+    // And each kind is drawn by the page's stylesheet: no element handed its root a sheet of its own.
+    const { writes } = await seen(page);
+    expect(writes.filter((write) => write.root === 'document' && write.added.some((mark) => mark !== 'other'))).toEqual([]);
   });
 });
