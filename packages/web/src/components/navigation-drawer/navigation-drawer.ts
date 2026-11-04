@@ -2515,6 +2515,34 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.schedulePins();
   };
 
+  /**
+   * NVD-61: a wheel turned toward an end the items already stand at scrolls nothing — not the page behind. The
+   * scroller's `overscroll-behavior: contain` says so, and Chromium and WebKit keep to it for every wheel; Gecko keeps to
+   * it only within one wheel transaction, which an event that scrolls nothing does not prolong, so 1.5 s after the items
+   * reached their end (`mousewheel.transaction.timeout`) a person still turning the wheel, or turning it again, scrolls
+   * the page. Not taken: a wheel with Ctrl (the page's zoom, and a trackpad's pinch), one without a vertical part, one
+   * over items that cannot scroll, and one that a scroller inside the items can still take.
+   */
+  private readonly onWheel = {
+    passive: false,
+    handleEvent: (event: WheelEvent) => {
+      if (event.ctrlKey || event.deltaY === 0 || !event.cancelable) return;
+      const scroller = event.currentTarget as HTMLElement;
+      const down = event.deltaY > 0;
+      const canTake = (element: Element) => {
+        const range = element.scrollHeight - element.clientHeight;
+        if (range < 1) return false;
+        return down ? range - element.scrollTop >= 1 : element.scrollTop >= 1;
+      };
+      if (scroller.scrollHeight - scroller.clientHeight < 1 || canTake(scroller)) return;
+      for (const each of event.composedPath()) {
+        if (each === scroller) break;
+        if (each instanceof Element && canTake(each) && /auto|scroll|overlay/.test(getComputedStyle(each).overflowY)) return;
+      }
+      event.preventDefault();
+    },
+  };
+
   /** NVD-77: how high the pinned rows stand together, the room above which nothing else is in view. */
   private pinnedHeight = 0;
   /** Who asks for the pinned rows to be reckoned in the read phase. */
@@ -3488,7 +3516,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
         <div class=${classMap({ main: true, filled: this.hasMain })}><slot name="main-action" @slotchange=${this.#onMainAction}></slot></div>
       </div>
       ${this.filterField()}
-      <div part="content" class="items" role="list" @scroll=${this.onScroll}>${this.filterLine()}<slot></slot></div>
+      <div part="content" class="items" role="list" @scroll=${this.onScroll} @wheel=${this.onWheel}>${this.filterLine()}<slot></slot></div>
       ${this.filterable ? html`<span class="filter-said" role="status" aria-atomic="true">${this.filterSaid}</span>` : nothing}
       <span class="clock"></span>
     `;
