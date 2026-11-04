@@ -15,6 +15,7 @@ import {
   answersPress,
   choiceAttribute,
   compChoice,
+  containedWheel,
   countWork,
   findInteractive,
   delegatedAria,
@@ -2648,7 +2649,7 @@ export class TanreiTabs extends TanreiElement {
     return html`
       <div part="tablist" class="row" role=${choice ? 'radiogroup' : 'tablist'} ${delegatedAria(this, { 'aria-label': this.label })} aria-orientation=${this.vertical && !choice ? 'vertical' : nothing}>
         <div part="divider" class="divider" aria-hidden="true"></div>
-        <div part="scroller track" class="scroller" data-tanrei-shape><div class="tabs"><slot></slot></div></div>
+        <div part="scroller track" class="scroller" data-tanrei-shape @wheel=${containedWheel}><div class="tabs"><slot></slot></div></div>
       </div>
       <slot></slot>
     `;

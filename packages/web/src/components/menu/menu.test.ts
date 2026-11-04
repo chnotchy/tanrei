@@ -10,6 +10,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
 import { MIRRORED, anchorOf, expectDrawnAlike, expectNewContext, expectRefusals, markOf } from '../../../test/links.js';
+import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { decodePng } from '../../../test/png.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
@@ -328,6 +329,17 @@ test.describe('overlay', () => {
     await expect(surface(page, 'top-start')).toHaveClass(/side-top/);
     expect(s.height % 1, 'nor a whole number tall').not.toBeCloseTo(0, 1);
     expect(Math.abs(s.y + s.height - (a.y - offset)), 'the offset above the anchor').toBeLessThan(0.1);
+  });
+
+  test('MNU-2: a wheel turned on past the end of the scrolled items, and turned again after a pause, leaves the page behind where it was', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 300 });
+    await mountFixtures(page, spec, { fixtures: [overlay('long', Array.from({ length: 16 }, (_, n) => it(`Item ${n + 1}`)))] });
+    await page.addStyleTag({ content: `#a-long { position: fixed; top: 20px; left: 300px; }` });
+    await menu(page, 'long').evaluate((el: any) => (el.open = true));
+    await expect.poll(() => isOpen(page, 'long')).toBe(true);
+    await motionEnded(page);
+    await expectWheelKeptFromPage(page, menu(page, 'long').locator('.scroll'), 'block');
+    expect(await isOpen(page, 'long')).toBe(true);
   });
 
   test('MNU-2: placed again as the page moves or the window resizes, a scrolled list keeps its offset and the focused item stays in view', async ({ page }) => {

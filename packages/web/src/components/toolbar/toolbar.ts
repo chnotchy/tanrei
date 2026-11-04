@@ -11,6 +11,7 @@ import {
   RovingKeys,
   SEPARATION_VALUES,
   type SeparationProp,
+  containedWheel,
   deepActive,
   flatParent,
   hostAria,
@@ -986,7 +987,7 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
           @toggle=${this.onOverflowMenuEvent}
         ></tanrei-menu>`
       : nothing;
-    return html`<div part="container" class="container" data-tanrei-shape>${parts}${overflow}</div>
+    return html`<div part="container" class="container" data-tanrei-shape @wheel=${containedWheel}>${parts}${overflow}</div>
       <span class="menus"><slot class="menus-slot"></slot>${menu}</span>`;
   }
 

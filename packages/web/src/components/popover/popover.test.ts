@@ -11,6 +11,7 @@ import { type Fixture, fixturesDocument, innerStrokeAtEdges, loadSpec, mountFixt
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, resolveEasing, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { motionEnded } from '../../../test/motions.js';
+import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { ANCHORED_PLACEMENTS, type AnchoredInput, type AnchoredPlacement, placeAnchored } from '../../primitives/placement.js';
@@ -827,6 +828,18 @@ test.describe('size and layout', () => {
     const last = await rect(host(page).locator('tanrei-button[dismissive]'));
     expect(bottom(last)).toBeLessThanOrEqual(bottom(await rect(container(page))) + 0.5);
     expect(await part(page, '.clip').evaluate((el) => [...el.querySelectorAll('.divider')].map((d) => getComputedStyle(d).visibility))).toEqual(['hidden', 'hidden']);
+  });
+
+  test('POP-8: a wheel turned on past the end of the content that scrolls, or of everything where it all scrolls together, and turned again after a pause, leaves the page behind where it was', async ({ page }) => {
+    const scrolling = spec.fixtures.find((f) => f.id === 'scrolling')!;
+    await mount(page, `${anchorAt(200, 20)}${popover('headline="What changed" closable close-label="Close what changed"', `${scrolling.content}<tanrei-button slot="actions" confirming>Manage storage</tanrei-button>`)}`, { width: 800, height: 900 });
+    await open(page);
+    await expectWheelKeptFromPage(page, part(page, '.content'), 'block');
+    await mount(page, `${anchorAt(20, 20)}${popover('headline="Empty the trash for every device you own?" closable close-label="Close" compact-presentation="own"', `The 12 files in it will be deleted.${ACTIONS}`)}`, { width: 320, height: 230 });
+    await override(page, { '--tanrei-dial-type-base': '32px' });
+    await open(page);
+    await expect.poll(() => part(page, '.clip').evaluate((el) => el.classList.contains('crowded'))).toBe(true);
+    await expectWheelKeptFromPage(page, part(page, '.clip'), 'block');
   });
 
   test('POP-8: under always — the default — both dividers stand for as long as the content scrolls, at its top and its end included; none while everything fits, and none on a side without a header', async ({ page }) => {

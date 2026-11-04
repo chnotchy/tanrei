@@ -5,6 +5,7 @@ import { iconGlyph } from '../styles/icons.js';
 import { productText } from '../styles/product-text.js';
 import { cornerRadius } from '../styles/shape.js';
 import { AnchoredSurfaceController, anchoredSurfaceStyles } from './anchored.js';
+import { containedWheel } from './contained-wheel.js';
 import { focusRing, syncFocusStyle } from './focus-ring.js';
 import type { OpenAxis } from './axes.js';
 import { itemRowStyles, rowTarget } from './item-row.js';
@@ -1354,7 +1355,7 @@ export class OptionListController implements ReactiveController {
           @pointermove=${this.onPointerMove}
           @click=${this.onClick}
         >
-          <div class="scroll" role="listbox" id="list" aria-labelledby=${labelledBy} aria-busy=${busy ? 'true' : nothing} @scroll=${this.onScroll}>${entries}${rest}</div>
+          <div class="scroll" role="listbox" id="list" aria-labelledby=${labelledBy} aria-busy=${busy ? 'true' : nothing} @scroll=${this.onScroll} @wheel=${containedWheel}>${entries}${rest}</div>
           ${after ?? nothing}
         </div>
       </div>

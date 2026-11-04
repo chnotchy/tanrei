@@ -8,6 +8,7 @@ import {
   PressController,
   SystemWatchController,
   compChoice,
+  containedWheel,
   giveTone,
   giveVariant,
   modalLayer,
@@ -501,6 +502,7 @@ export class TanreiSnackbar extends TanreiElement {
           role=${this.scrolls && headline ? 'group' : nothing}
           aria-labelledby=${this.scrolls && headline ? 'title' : nothing}
           @focus=${this.onFocus}
+          @wheel=${containedWheel}
         >
           ${form !== 'default' && this.statusLabel.trim() ? html`<span class="status-label">${this.statusLabel}</span>` : nothing}
           ${headline ? html`<span part="title" class="title" id="title">${this.headline}</span>` : nothing}

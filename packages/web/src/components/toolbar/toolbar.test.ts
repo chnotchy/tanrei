@@ -6,6 +6,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
+import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { type Fixture, type FixtureItem, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tab, tabTo } from '../../../test/harness.js';
 
 const spec = loadSpec('toolbar');
@@ -286,6 +287,19 @@ test.describe('layout', () => {
     // Nothing is hidden: no overflow button is drawn. The toolbar has its overflow menu now, so nothing is reported.
     for (const id of ['crowded', 'crowded-floating', 'crowded-vertical']) expect(await bar(page, id).evaluate((el) => el.shadowRoot!.querySelector('.overflow')), id).toBeNull();
     expect(seen.filter((w) => w.includes('TBR-8'))).toEqual([]);
+  });
+
+  test('TBR-8: a wheel turned on past the end of a toolbar that scrolls, along its axis, and turned again after a pause, leaves the page behind where it was', async ({ page }) => {
+    const many = GLYPHS.map((g) => a(g));
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [fixture('crowded', many, { variant: 'docked', overflow: 'scroll' }), fixture('crowded-vertical', many.slice(0, 7), { variant: 'floating', orientation: 'vertical', overflow: 'scroll' })],
+    });
+    await page.addStyleTag({ content: `.stage[data-fixture='crowded'] { inline-size: 200px; }` });
+    await expect.poll(() => css(container(page, 'crowded'), 'overflow-x')).toBe('auto');
+    await expectWheelKeptFromPage(page, container(page, 'crowded'), 'inline');
+    await expect.poll(() => css(container(page, 'crowded-vertical'), 'overflow-y')).toBe('auto');
+    await expectWheelKeptFromPage(page, container(page, 'crowded-vertical'), 'block');
   });
 
   test('TBR-8: a toolbar whose items fit does not scroll and clips nothing', async ({ page }) => {

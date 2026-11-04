@@ -8,6 +8,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Browser, type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { decodePng } from '../../../test/png.js';
 import { holdClock as holdPageClock, releaseClock } from '../../../test/page-clock.js';
 import { STOPPED_AFTER } from '../../../test/stopped-release.js';
@@ -1354,6 +1355,13 @@ test.describe('behavior', () => {
     await page.mouse.wheel(0, 40);
     await page.waitForTimeout(400);
     expect(await offset(page, id)).toBe(416);
+  });
+
+  test('CRL-14: a sideways wheel turned on past the end of the row, and turned again after a pause, leaves the page behind where it was, in either direction', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('wheel-end', { snap: false }, 8)] });
+    await expectWheelKeptFromPage(page, scroller(page, 'wheel-end'), 'inline');
+    await page.locator('[data-fixture="wheel-end"]').evaluate((el) => el.setAttribute('dir', 'rtl'));
+    await expectWheelKeptFromPage(page, scroller(page, 'wheel-end'), 'inline');
   });
 
   test('CRL-14: fixed widths that snap settle at a resting position, the end of the range included', async ({ page }) => {

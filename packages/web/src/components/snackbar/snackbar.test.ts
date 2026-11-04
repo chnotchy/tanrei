@@ -4,6 +4,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, iconFaceArrives, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens, rootTokensInPage } from '../../../test/harness.js';
+import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { motionEnded } from '../../../test/motions.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { attachPressLog, logPresses, notePress } from '../../../test/press-log.js';
@@ -1334,6 +1335,13 @@ test.describe('the bar', () => {
     await page.mouse.wheel(0, 120);
     await expect.poll(() => text.evaluate((el) => el.scrollTop)).toBeGreaterThan(wheeled);
     expect(await fixed()).toEqual(at);
+  });
+
+  test('SNK-25: a wheel turned on past the end of the text that scrolls, and turned again after a pause, leaves the page behind where it was', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => f.id === 'expanded-scrolls') });
+    const text = part(page, 'expanded-scrolls', 'text');
+    expect(await text.evaluate((el) => el.scrollHeight > el.clientHeight + 1)).toBe(true);
+    await expectWheelKeptFromPage(page, text, 'block');
   });
 
   test('SNK-26: while the icon set cannot draw a glyph, each glyph draws nothing in its kept box, never its name; the names still reach assistive technology; the glyph draws once the face arrives', async ({ page }) => {

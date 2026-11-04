@@ -7,6 +7,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
+import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { motionEnded } from '../../../test/motions.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
@@ -445,6 +446,12 @@ test.describe('layout and drawing', () => {
 });
 
 test.describe('choosing', () => {
+  test('CAL-7: a wheel turned on past the end of the year view, and turned again after a pause, leaves the page behind where it was', async ({ page }) => {
+    await mount(page, [f('y', { startView: 'year', value: '2026-09-17' })]);
+    await expect(host(page, 'y').locator('.year')).toHaveCount(201);
+    await expectWheelKeptFromPage(page, host(page, 'y').locator('.years'), 'block');
+  });
+
   test('CAL-8: in single mode a chosen day by click, Enter or Space becomes value, and change fires once when it differs', async ({ page }) => {
     await mount(page, [f('c', { value: '2026-09-17' })]);
     await day(page, 'c', '2026-09-18').click();
