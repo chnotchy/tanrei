@@ -1887,6 +1887,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private pendingOpener: Element | null = null;
   /** The menu button whose press is opening the drawer, until that update is drawn (NVD-22). */
   private pressedMenu: HTMLElement | null = null;
+  /** NVD-22: the drawer closes from a pointer's press on its menu button, and gives focus back as that press would. */
+  private pointerReturn = false;
   /** The first header button, as last told it was the menu button. */
   private menuButton: HTMLElement | null = null;
   /** NVD-53: the two widths a responsive drawer listens to, widest first, and what stops listening. */
@@ -2972,6 +2974,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
     const menu = this.headerButtons[0];
     if (!menu || !event.composedPath().includes(menu)) return;
     if (this.modal && this.open) {
+      // A press of the pointer moved no focus (onMouseDown): the focus it gives back is drawn as a pointer's would be.
+      this.pointerReturn = event.detail > 0;
       this.dismiss();
       return;
     }
@@ -3007,6 +3011,16 @@ export class TanreiNavigationDrawer extends TanreiElement {
 
   // ---- focus (NVD-19, NVD-22, NVD-28, NVD-36) ----
 
+  /**
+   * NVD-19: the cell focus goes to as a modal drawer opens, where it is the selected destination's (or the group row's
+   * that shows it) — not where its filter field is owed focus (NVD-88). `focusInside()` gives it.
+   */
+  private openingFocus(): HTMLElement | null {
+    if (this.filterFocusOwed && this.fieldShown) return null;
+    const { shower } = this.takeSnapshot();
+    return shower && !shower.disabled ? shower.cell : null;
+  }
+
   /** NVD-19, NVD-28: focus to the selected destination (or the group row that shows it), or else the first focusable element. */
   private focusInside() {
     // NVD-88: asked to focus its filter while it was closed: the field, in place of the selected destination.
@@ -3032,11 +3046,17 @@ export class TanreiNavigationDrawer extends TanreiElement {
     else panel?.focus();
   }
 
-  /** NVD-22, NVD-28: focus back where it was when the drawer opened — or dropped, where that element is gone. */
+  /**
+   * NVD-22, NVD-28: focus back where it was when the drawer opened — or dropped, where that element is gone. Closed by a
+   * pointer's press on the menu button, which moved no focus (onMouseDown), it is given as that press would have given
+   * it: with no focus indicator (`focusVisible: false`; where an engine lacks the option, as a script's focus).
+   */
   private restoreFocus() {
     const opener = this.opener as HTMLElement | null;
+    const options = this.pointerReturn ? ({ focusVisible: false } as FocusOptions) : undefined;
     this.opener = null;
-    if (opener && opener.isConnected && typeof opener.focus === 'function' && !opener.closest('[inert]')) opener.focus();
+    this.pointerReturn = false;
+    if (opener && opener.isConnected && typeof opener.focus === 'function' && !opener.closest('[inert]')) opener.focus(options);
     else if (this.hasFocus()) (deepActive() as HTMLElement | null)?.blur();
   }
 
@@ -3071,20 +3091,27 @@ export class TanreiNavigationDrawer extends TanreiElement {
     // Opened again while it still narrows to its column, focus is where its close gave it back.
     this.opener = this.pendingOpener ?? deepActive();
     this.pendingOpener = null;
+    this.pointerReturn = false;
     // MOT-4: a drawer opened before the document's first paint (written open in the page's markup) is drawn open at
     // once — it does not slide in, nor its scrim fade in, over the first frames.
     if (!documentPainted()) this.drawAtOnce();
+    // NVD-19: the selected destination that has focus already (in the column) keeps it as the drawer is shown — not
+    // given to the menu button or the dialog first and back, which in Chromium began a motion of each for a focus it held
+    // for no frame (openModal). Focus that comes from elsewhere moves once the dialog is drawn (focusInside, below): WebKit
+    // draws a destination shown in the top layer as it is first styled there, so a focus given before would be at once.
+    const active = this.hasFocus() ? deepActive() : null;
+    const focus = active && active === this.openingFocus() ? (active as HTMLElement) : null;
     if (this.collapses) {
       // NVD-40: a collapsible drawer widens from its column with more than the surface's own motion (WIDENING) — or,
       // still narrowing back to it, turns back from where it is (MOT-2). A dialog still sliding out (it was not
       // collapsible when it closed) is gone first.
       if (isLeaving(dialog) && !this.narrowing) void closeModal(dialog, { instant: true });
       this.narrowing = false;
-      openModal(dialog, { moves: WIDENING });
+      openModal(dialog, { moves: WIDENING, keep: focus });
     } else {
       // NVD-19, MDL-7: opened modally — or, still leaving, taken back where its slide has got to (MOT-2); the slide and
       // its scrim's fade begin in the first frame drawn after this task (src/primitives/modal-exit.ts).
-      openModal(dialog);
+      openModal(dialog, { keep: focus });
     }
     this.shown = true;
     modalLayer.add(this);
@@ -3209,6 +3236,19 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.pressedScrim = this.#onScrim(event);
     if (this.pressedScrim || !this.open) return;
     this.drag = { id: event.pointerId, x: event.clientX, time: event.timeStamp, following: false, lastX: event.clientX, lastTime: event.timeStamp, velocity: 0 };
+  };
+
+  /**
+   * NVD-22, NVD-37: a press on the menu button of an open modal drawer, which closes it on its click, moves no focus:
+   * focus stays where it is until the drawer closes and gives it back (as a pointer's focus: restoreFocus). Left to the
+   * engine the press gives focus to the button (Chromium, Firefox) or, where a pressed button takes none, to the dialog
+   * itself, which takes focus from script (WebKit) — and the focused destination left its focused color over the state
+   * motion before the drawer began to narrow, out of step with the width that the change of form recolors it with
+   * (NVD-35, NVD-40).
+   */
+  private readonly onMouseDown = (event: MouseEvent) => {
+    const menu = this.headerButtons[0];
+    if (this.collapsible && this.modal && this.open && menu && event.button === 0 && event.composedPath().includes(menu)) event.preventDefault();
   };
 
   /** The distance dragged toward the start edge (positive), whatever the direction of the text. */
@@ -3387,7 +3427,9 @@ export class TanreiNavigationDrawer extends TanreiElement {
 
   protected override willUpdate(changed: PropertyValues<this>) {
     // NVD-22, NVD-40: a collapsible modal drawer that closes gives focus back as it closes (`withdraw`, in this update).
-    const focusLeaves = changed.has('open') && !changed.has('variant') && !changed.has('collapsible') && !this.open && this.shown && this.dialog?.classList.contains('widening') && this.hasFocus();
+    // Focus already on the element it goes back to — a destination focused in the column before the drawer opened —
+    // stays there: it does not leave, to come back in the same update.
+    const focusLeaves = changed.has('open') && !changed.has('variant') && !changed.has('collapsible') && !this.open && this.shown && this.dialog?.classList.contains('widening') && this.hasFocus() && deepActive() !== this.opener;
     // NVD-53: `responsive` turned on or off, or `collapsible` changed under it: the widths are listened to, or no longer.
     if ((changed.has('responsive') || changed.has('collapsible')) && this.hasUpdated) {
       if (changed.has('responsive')) this.watchWidths();
@@ -3573,6 +3615,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
         @keydown=${this.onKeyDown}
         @cancel=${this.onNativeCancel}
         @pointerdown=${this.onPointerDown}
+        @mousedown=${this.onMouseDown}
         @pointermove=${this.onPointerMove}
         @pointerup=${this.onPointerUp}
         @pointercancel=${this.onPointerUp}

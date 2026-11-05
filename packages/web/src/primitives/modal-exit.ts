@@ -1,5 +1,6 @@
 import { type CSSResult, unsafeCSS } from 'lit';
 import { documentPainted, startFromNextFrame } from './motion.js';
+import { deepActive } from './modal.js';
 
 // How a modal `<dialog>` leaves (MDL-7: "keeping them drawn until the fade ends"), for every modal surface: the
 // dialog, the modal layer, the side and bottom sheets, the image preview, the modal date-time picker, the popover's sheet,
@@ -255,24 +256,35 @@ function scrimMotions(dialog: HTMLDialogElement): Animation[] {
  *
  * `moves`: what its entrance moves on the dialog itself besides what an appearance moves (`ModalMoves`); a dialog
  * taken back from leaving goes on with what its `closeModal()` named.
+ *
+ * `keep`: an element inside the dialog that has focus as it opens, and keeps it: it has focus once `showModal()`
+ * returns. Left to themselves the engines give focus to something else first — Chromium to the dialog's first
+ * focusable element, Firefox and WebKit to the dialog itself — and Chromium brings the style up to date before the
+ * component can give it back, so the focused element and the one that took focus for a moment each began a motion for
+ * a state they then left at once. The element carries `autofocus` while `showModal()` runs (Chromium takes it, through
+ * shadow roots and slots, and moves no focus), and where the engine gave focus elsewhere all the same (Firefox and
+ * WebKit look for it only in the dialog's own tree) it is given focus back in the same task, before any style is read,
+ * and without scrolling: where it is shown is the component's to say. Focus that moves into the dialog from elsewhere
+ * is the component's to give, after this: WebKit draws an element that is first styled in the top layer as it is then,
+ * so focus given to it before that would be drawn at once.
  */
-export function openModal(dialog: HTMLDialogElement, { instant = !documentPainted(), moves = [] }: { instant?: boolean; moves?: ModalMoves } = {}): void {
+export function openModal(dialog: HTMLDialogElement, { instant = !documentPainted(), moves = [], keep = null }: { instant?: boolean; moves?: ModalMoves; keep?: HTMLElement | null } = {}): void {
   if (dialog.open && !leaving.has(dialog)) return;
   if (instant) {
-    atOnce(dialog, () => show(dialog));
+    atOnce(dialog, () => show(dialog, keep));
     return;
   }
   const taken = leaving.get(dialog)?.moves ?? [];
-  show(dialog);
+  show(dialog, keep);
   // Asking flushes style: the transitions the open state starts exist now.
   startFromNextFrame([...turning(dialog, [...moves, ...taken]), ...scrimMotions(dialog)]);
 }
 
-/** Modal: shown, or taken back from leaving. */
-function show(dialog: HTMLDialogElement) {
+/** Modal: shown, or taken back from leaving; `keep` keeps focus (`openModal()`). */
+function show(dialog: HTMLDialogElement, keep: HTMLElement | null) {
   const state = leaving.get(dialog);
   if (!state) {
-    dialog.showModal();
+    showFocused(dialog, keep);
     return;
   }
   leaving.delete(dialog);
@@ -284,10 +296,22 @@ function show(dialog: HTMLDialogElement) {
       dialog.removeAttribute(LEAVING);
       dialog.inert = false;
       release(dialog, state.own);
-      dialog.showModal();
+      showFocused(dialog, keep);
     },
     state.moves,
   );
+}
+
+/** `showModal()`, `keep` keeping focus (`openModal()`). */
+function showFocused(dialog: HTMLDialogElement, keep: HTMLElement | null) {
+  const marked = !!keep && !keep.hasAttribute('autofocus');
+  if (marked) keep.setAttribute('autofocus', '');
+  try {
+    dialog.showModal();
+  } finally {
+    if (marked) keep.removeAttribute('autofocus');
+  }
+  if (keep && deepActive() !== keep) keep.focus({ preventScroll: true });
 }
 
 /**
