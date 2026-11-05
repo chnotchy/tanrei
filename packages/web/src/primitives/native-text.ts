@@ -34,6 +34,12 @@ export interface NativeTextOptions {
 export class NativeTextController {
   /** An input method is composing text in the element. */
   composing = false;
+  /**
+   * A composition has ended and the task that may send the `input` closing it has not run yet. An `input` that is not
+   * composing while this is true is the one that closes the composition — what happened in between (an Escape that
+   * closed a popup, SRC-5, CMB-21) is not undone by it.
+   */
+  ending = false;
   /** The value when the composition began. */
   private from = '';
   /** A value the product set during a composition; it is applied when the composition ends. */
@@ -65,12 +71,14 @@ export class NativeTextController {
     let heard = false;
     const hear = () => (heard = true);
     input.addEventListener('input', hear, { once: true });
+    this.ending = true;
     setTimeout(() => {
       input.removeEventListener('input', hear);
       const changed = input.value !== this.options.value();
       this.options.setValue(input.value);
       this.options.settled?.();
       if (!heard || changed) input.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true, inputType: 'insertCompositionText', data: event.data }));
+      this.ending = false;
     });
   };
 

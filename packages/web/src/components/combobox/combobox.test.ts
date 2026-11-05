@@ -1634,6 +1634,60 @@ test.describe('behavior: the list', () => {
     expect(others(await heard(page))).toEqual(['toggle false focus-out']);
   });
 
+  test('CMB-21, CMB-16 (TXI-4): a list closed between a composition’s end and the input that closes it stays closed — by Escape or by the product; that input is emitted only where the composition changed the text, and what the person types next opens the list again', async ({ page }) => {
+    await mount(page, [fx('c', {})], { reducedMotion: true });
+    /**
+     * A composition — inserting `text`, or nothing (cancelled) — then, in the same task, before the `input` that closes it
+     * arrives (src/primitives/native-text.ts sends it in a later task), the list is closed: by Escape from the input, or
+     * by the product. Returns once that closing input has reached the element.
+     */
+    const closeInTheGap = (how: 'escape' | 'product', text: string) =>
+      input(page, 'c').evaluate(
+        (el: HTMLInputElement, [by, inserted]) =>
+          new Promise<void>((resolve) => {
+            el.addEventListener('input', (event) => (event as InputEvent).isComposing || resolve());
+            el.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, composed: true }));
+            el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', ctrlKey: true, bubbles: true, composed: true, cancelable: true, isComposing: true, keyCode: 229 }));
+            if (inserted) {
+              el.value += inserted;
+              el.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true, isComposing: true, inputType: 'insertCompositionText', data: inserted }));
+            }
+            el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, composed: true, data: inserted }));
+            if (by === 'escape') el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true, cancelable: true }));
+            else ((el.getRootNode() as ShadowRoot).host as HTMLElement & { open: boolean }).open = false;
+          }),
+        [how, text] as const,
+      );
+    await listen(page, 'c');
+    await focusInput(page, 'c');
+    // A cancelled composition, then Escape: the list closes once and stays closed, and no input — the text never changed.
+    await type(page, 'k');
+    await shownList(page, 'c').toBe(true);
+    await heard(page);
+    await closeInTheGap('escape', '');
+    expect(await heard(page)).toEqual(['toggle false escape']);
+    await closedList(page, 'c');
+    expect(await read(page, 'c')).toMatchObject({ text: 'k', focused: true });
+    // A composition that inserted text is committed: its input is emitted, and the list stays closed.
+    await type(page, 'y');
+    await shownList(page, 'c').toBe(true);
+    await heard(page);
+    await closeInTheGap('escape', 'o');
+    expect(await heard(page)).toEqual(['input kyo', 'toggle false escape', 'input kyo']);
+    await closedList(page, 'c');
+    // Closed by the product in the gap: nothing opens it again.
+    await type(page, 't');
+    await shownList(page, 'c').toBe(true);
+    await heard(page);
+    await closeInTheGap('product', '');
+    expect(others(await heard(page))).toEqual([]);
+    await closedList(page, 'c');
+    // What the person types next opens it again (CMB-21).
+    await type(page, 'o');
+    expect(await heard(page)).toEqual(['toggle true', 'input kyoto']);
+    await shownList(page, 'c').toBe(true);
+  });
+
   test('CMB-30: Escape with the list open closes it, keeps the text and goes no further; with the list closed and the text edited it writes the committed value’s text back, emits input once and stops; otherwise it passes on, and never empties a value; a press outside closes with the reason outside and resolves the text; a list with nothing left to show closes with the reason empty and opens again when there is', async ({ page }) => {
     await mount(page, [fx('one', { value: 'tokyo' }), fx('custom', { allowCustomValue: true }), fx('remote', { filter: 'none', noChevron: true }, [option('Aiko Tanaka', 'aiko')])], { reducedMotion: true });
     await page.evaluate(() => {

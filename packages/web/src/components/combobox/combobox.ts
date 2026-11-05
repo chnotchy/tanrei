@@ -360,6 +360,10 @@ export class TanreiCombobox extends TanreiElement {
   private query: string | null = null;
   /** The text was last taken during a composition: its end makes the first match active (CMB-26). */
   private composedText = false;
+  /** CMB-21 (TXI-4): the text as the last composition began. */
+  private composedFrom = '';
+  /** CMB-21 (TXI-4): the list was open as the last composition ended. */
+  private openAtEnd = false;
   /**
    * CMB-29: a Tab went down in the field and its focus move has not been seen yet: the focus-out that follows is that
    * move, and a list it closes says tab. It is taken by that focus-out, and given up when the key comes up without one
@@ -423,7 +427,7 @@ export class TanreiCombobox extends TanreiElement {
   private readonly native = new NativeTextController({
     input: () => this.input,
     value: () => this.text,
-    setValue: (text) => this.took(text, this.native.composing),
+    setValue: (text) => this.took(text, this.native.composing, !this.closedInTheGap),
   });
   /** CMB-8: a floating label that does not fit on one line is given the room its lines take. */
   private readonly floating = new FloatingLabelController(this);
@@ -729,9 +733,10 @@ export class TanreiCombobox extends TanreiElement {
    * CMB-16, CMB-21, CMB-25, CMB-26: the person changed the text. The native `input` is the combobox's event — it is
    * composed and leaves the shadow root by itself. The list is filtered by the text, opened where there is something to
    * show, and the first match becomes the active option — none where a custom value is allowed or an input method is
-   * composing, so that Enter keeps what was typed.
+   * composing, so that Enter keeps what was typed. `opens`: false where the list may not open (the `input` that closes
+   * a composition, after the list closed, CMB-21).
    */
-  private took(text: string, composing: boolean) {
+  private took(text: string, composing: boolean, opens = true) {
     // What the native element holds is taken from here on: `inputValue` is the element's own again.
     this.nativeSeen = this.input?.value ?? text;
     if (text === this.text && this.editing && (composing || !this.composedText)) return;
@@ -745,14 +750,36 @@ export class TanreiCombobox extends TanreiElement {
     // CMB-48: what typing made active is announced once typing pauses.
     this.typed(active);
     if (this.open && this.presented) this.list.setActive(active, true);
-    else if (!this.open) this.openList('text', active);
+    else if (!this.open && opens) this.openList('text', active);
     // CMB-30: a list with nothing left to show closes with the reason empty, once the text is drawn (updated()).
   }
 
   #onInput(event: Event) {
     if (this.native.composingInput(event)) return;
     const input = event.target as HTMLInputElement;
-    this.took(input.value, false);
+    // CMB-16 (TXI-4): where the composition left the text as it found it, its closing `input` changed nothing and goes
+    // no further.
+    const kept = this.closedInTheGap;
+    if (kept && input.value === this.composedFrom) event.stopPropagation();
+    this.took(input.value, false, !kept);
+  }
+
+  /**
+   * CMB-21 (TXI-4): the list closed — by the person or the product — after a composition ended and before the `input`
+   * that closes it: the text that input brings does not open it again.
+   */
+  private get closedInTheGap() {
+    return this.native.ending && !this.native.composing && this.openAtEnd && !this.open;
+  }
+
+  #onCompositionStart() {
+    this.composedFrom = this.text;
+    this.native.onCompositionStart();
+  }
+
+  #onCompositionEnd(event: CompositionEvent) {
+    this.openAtEnd = this.open;
+    this.native.onCompositionEnd(event);
   }
 
   /** CMB-27, CMB-28, CMB-29: `value` is committed with the text that stands for it; `change` once while it differs. */
@@ -1246,8 +1273,8 @@ export class TanreiCombobox extends TanreiElement {
               @keydown=${this.#onKeyDown}
               @focus=${this.#onFocus}
               @blur=${this.#onBlur}
-              @compositionstart=${this.native.onCompositionStart}
-              @compositionend=${this.native.onCompositionEnd}
+              @compositionstart=${this.#onCompositionStart}
+              @compositionend=${this.#onCompositionEnd}
             />
           </div>
           ${clear
