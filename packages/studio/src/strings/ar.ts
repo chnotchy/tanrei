@@ -372,6 +372,7 @@ const ar: Dictionary = {
     keys: 'المفتاح Tab يضيف إزاحة. اضغط المفتاح Esc ثم Tab لتغادر المحرِّر بلوحة المفاتيح.',
     valid: 'صيغة JSON صالحة، ومطابقة للمخطط، ومقبولة لدى المحرّك.',
     notObject: 'الطبقة كائن JSON',
+    invalidJson: 'هذه ليست صيغة JSON صالحة',
     line: (line) => `السطر ${line}`,
     format: 'تنسيق',
     draftBadge: 'في المصدر تعديلات غير صالحة',
@@ -681,13 +682,6 @@ const ar: Dictionary = {
     copyLink: 'نسخ الرابط',
     linkCopied: 'تم نسخ الرابط.',
   },
-  import: {
-    title: 'استيراد طبقة',
-    help: 'الصق أي طبقة تمتدّ من نظام مضمَّن. كل ما فيها قابل للتعديل هنا، ولا يبقى شيء جانبًا.',
-    label: 'الطبقة بصيغة JSON',
-    apply: 'تحميل في Studio',
-    invalidJson: 'هذه ليست صيغة JSON صالحة',
-  },
   file: {
     title: 'الملف',
     idLocked: 'المعرّف (id) يساوي اسم الملف؛ أعد تسمية الملف لتعيد تسمية النظام',
@@ -710,17 +704,17 @@ const ar: Dictionary = {
     starts: 'البدء من',
     defaultNote: 'النظام الافتراضي',
     notNeutral: 'ليس بعد: ما زالت الطبقة الجذر في Tanrei تحمل قيم النظام الافتراضي. ستصبح بداية فارغة حين تصبح قيمها محايدة.',
-    gallery: 'أمثلة من معرض السمات',
+    gallery: 'ابدأ من المعرض',
     exampleNote: (name) => `${name}. مثال، وليس تصميمًا رسميًا.`,
     file: 'استيراد ملف…',
     fileNote: 'ملف طبقة، <id>.system.json',
     confirm: (name) => `أتريد البدء من ${name}؟ ستُستبدل تغييراتك على هذه الطبقة، ويعيدها التراجع.`,
-    confirmLoad: (file) => `أتريد تحميل ${file ?? 'الطبقة الملصقة'}؟ ستُستبدل تغييراتك على هذه الطبقة، ويعيدها التراجع.`,
+    confirmLoad: (file) => `أتريد تحميل ${file}؟ ستُستبدل تغييراتك على هذه الطبقة، ويعيدها التراجع.`,
     started: (name) => `بدأت من ${name}. يمكنك التراجع عن ذلك.`,
-    imported: (file) => `تم تحميل ${file ?? 'الطبقة الملصقة'}.`,
+    imported: (file) => `تم تحميل ${file ?? 'الطبقة'}.`,
     importedProblems: (given, count) => {
-      const file = given ?? 'الطبقة الملصقة';
-      // The pasted layer is feminine: the verb that refuses it agrees.
+      const file = given ?? 'الطبقة';
+      // The layer, named without a file, is feminine: the verb that refuses it agrees.
       const refuses = given ? 'سيرفضه' : 'سيرفضها';
       return counted(count, {
         zero: `تم تحميل ${file}.`,
@@ -731,7 +725,7 @@ const ar: Dictionary = {
         other: `تم تحميل ${file} مع # مشكلة. ${refuses} الأمر tanrei build حتى تُصلحها:`,
       });
     },
-    refused: (file) => `${file ? `لم يُحمَّل ${file}` : 'لم تُحمَّل الطبقة الملصقة'}. يحمل Studio طبقةً يقبلها المخطط وتمتدّ من نظام لديه:`,
+    refused: (file) => `${file ? `لم يُحمَّل ${file}` : 'لم تُحمَّل الطبقة'}. يحمل Studio طبقةً يقبلها المخطط وتمتدّ من نظام لديه:`,
   },
   frame: {
     history: 'السجل',

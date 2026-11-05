@@ -334,6 +334,7 @@ const es: Dictionary = {
     keys: 'Tab aplica sangría. Pulsa Esc y después Tab para salir del editor con el teclado.',
     valid: 'JSON válido, válido según el esquema y aceptado por el motor.',
     notObject: 'una capa es un objeto JSON',
+    invalidJson: 'No es JSON válido',
     line: (line) => `Línea ${line}`,
     format: 'Dar formato',
     draftBadge: 'El código fuente tiene ediciones no válidas',
@@ -603,13 +604,6 @@ const es: Dictionary = {
     copyLink: 'Copiar enlace',
     linkCopied: 'Enlace copiado.',
   },
-  import: {
-    title: 'Importar una capa',
-    help: 'Pega cualquier capa que extienda un sistema incluido. Todo lo que contiene se puede editar aquí: no queda nada al margen.',
-    label: 'JSON de la capa',
-    apply: 'Cargar en el Studio',
-    invalidJson: 'No es JSON válido',
-  },
   file: {
     title: 'Archivo',
     idLocked: 'id: es igual al nombre del archivo; cambia el nombre del archivo para cambiar el del sistema',
@@ -631,20 +625,20 @@ const es: Dictionary = {
     starts: 'Empezar desde',
     defaultNote: 'El sistema predeterminado',
     notNeutral: 'Todavía no: la capa raíz de Tanrei aún tiene los valores del sistema predeterminado. Será un punto de partida en blanco cuando sus valores sean neutros.',
-    gallery: 'Ejemplos de la galería de temas',
+    gallery: 'Empezar desde la galería',
     exampleNote: (name) => `${name}. Un ejemplo, no un diseño oficial.`,
     file: 'Importar un archivo…',
     fileNote: 'Un archivo de capa, <id>.system.json',
     confirm: (name) => `¿Empezar desde ${name}? Tus cambios en esta capa se reemplazan; Deshacer los recupera.`,
-    confirmLoad: (file) => `¿Cargar ${file ?? 'la capa pegada'}? Tus cambios en esta capa se reemplazan; Deshacer los recupera.`,
+    confirmLoad: (file) => `¿Cargar ${file}? Tus cambios en esta capa se reemplazan; Deshacer los recupera.`,
     started: (name) => `Empezaste desde ${name}. Deshacer lo revierte.`,
-    imported: (file) => (file ? `${file} cargado.` : 'Capa pegada cargada.'),
+    imported: (file) => (file ? `${file} cargado.` : 'Capa cargada.'),
     importedProblems: (file, count) => {
-      const loaded = file ? `${file} cargado` : 'Capa pegada cargada';
+      const loaded = file ? `${file} cargado` : 'Capa cargada';
       const it = file ? 'lo' : 'la';
       return count === 1 ? `${loaded}, con 1 problema. tanrei build ${it} rechazará hasta que se corrija:` : `${loaded}, con ${count} problemas. tanrei build ${it} rechazará hasta que se corrijan:`;
     },
-    refused: (file) => `No se cargó ${file ?? 'la capa pegada'}. El Studio admite una capa que el esquema acepta y que extiende un sistema que tiene:`,
+    refused: (file) => `No se cargó ${file ?? 'la capa'}. El Studio admite una capa que el esquema acepta y que extiende un sistema que tiene:`,
   },
   frame: {
     history: 'Historial',
