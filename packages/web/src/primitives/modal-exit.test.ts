@@ -260,40 +260,6 @@ for (const surface of SURFACES) {
         .toEqual({ drawn: false, open: false, leaving: false, inert: false });
     });
 
-    test(`MOT-4: written open in the page's markup, the ${surface.name}${surface.scrim ? ' and its scrim are' : ' is'} drawn open at once — no transition starts on its dialog before the document's first paint`, async ({ page }) => {
-      // Its dialog's own fade is no part of an AppearController's motion element where that is inside the dialog (an
-      // image preview's pages, a modal layer's content): left to itself it would play over the first frames, everything
-      // in it translucent, so openModal draws the dialog and its scrim at once before the first paint. Every transition
-      // that starts on a dialog in a shadow root is counted from before the first element is made (WebKit names no
-      // pseudo-element for a scrim's: the dialog's and its scrim's are counted alike).
-      await page.emulateMedia({ reducedMotion: 'no-preference' });
-      await page.setViewportSize(surface.window);
-      const spec = loadSpec(surface.spec);
-      const fixture = spec.fixtures.find((f) => f.id === surface.fixture)!;
-      const count = `<script>window.__runs = []; const attach = Element.prototype.attachShadow; Element.prototype.attachShadow = function (init) { const root = attach.call(this, init); root.addEventListener('transitionrun', (event) => { if (event.target.localName === 'dialog') window.__runs.push(event.target.localName + event.pseudoElement + ' ' + event.propertyName); }); return root; };</script>`;
-      const markup = await fixturesDocument(spec, { icons: true, fixtures: [{ ...fixture, props: { ...fixture.props, open: true } }], lead: count });
-      await page.route('http://modal-exit.test/', (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: markup }));
-      await page.goto('http://modal-exit.test/');
-      const host = fixtureHost(page, spec, surface.fixture);
-      await expect.poll(() => host.evaluate((el) => !!el.shadowRoot?.querySelector('dialog')?.matches(':modal'))).toBe(true);
-      // What it draws now, and what the engine has told of the transitions begun by then, a frame later (it tells of a
-      // transition in the frame after the one it began in).
-      const seen = await host.evaluate(async (el) => {
-        const dialog = el.shadowRoot!.querySelector('dialog')!;
-        const at = { opacity: getComputedStyle(dialog).opacity, scrim: getComputedStyle(dialog, '::backdrop').opacity };
-        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-        return { ...at, runs: (window as unknown as { __runs: string[] }).__runs };
-      });
-      expect(seen.runs, 'no transition starts on its dialog or its scrim').toEqual([]);
-      expect(seen.opacity, 'it is drawn whole').toBe('1');
-      await motionEnded(host);
-      const rest = await host.evaluate((el) => {
-        const dialog = el.shadowRoot!.querySelector('dialog')!;
-        return { opacity: getComputedStyle(dialog).opacity, scrim: getComputedStyle(dialog, '::backdrop').opacity };
-      });
-      expect(seen, 'its scrim, too, is drawn as it rests').toMatchObject(rest);
-    });
-
     test(`MOT-2: opened again while it leaves, the ${surface.name} goes back from what it shows, modal again`, async ({ page }) => {
       await page.emulateMedia({ reducedMotion: 'no-preference' });
       const host = await mount(page, surface);
@@ -333,6 +299,54 @@ for (const surface of SURFACES) {
       });
       expect(rest).toEqual({ modal: true, opacity: 1, scrim: surface.scrim ? 1 : rest.scrim, leaving: false, inert: false });
     });
+  });
+}
+
+/**
+ * The modal surfaces written open in the page's markup: those above, and those that open their `<dialog>` modally but
+ * leave in a way of their own — the modal navigation drawer, which slides out still modal, and the search's dialog and
+ * full-screen views, opened by `expanded` (the harness draws an expanded search's view in place unless `inline` is false).
+ */
+const WRITTEN_OPEN: (Pick<Surface, 'name' | 'spec' | 'fixture' | 'window' | 'scrim'> & { open: Record<string, unknown> })[] = [
+  ...SURFACES.map((surface) => ({ ...surface, open: { open: true } })),
+  { name: 'modal navigation drawer', spec: 'navigation-drawer', fixture: 'modal', window: { width: 480, height: 640 }, scrim: true, open: { open: true } },
+  { name: 'search as a dialog', spec: 'search', fixture: 'dialog-results', window: { width: 800, height: 640 }, scrim: true, open: { expanded: true, inline: false } },
+  { name: 'full-screen search', spec: 'search', fixture: 'full-screen', window: { width: 480, height: 640 }, scrim: false, open: { expanded: true, inline: false } },
+];
+
+for (const surface of WRITTEN_OPEN) {
+  test(`MOT-4: written open in the page's markup, the ${surface.name}${surface.scrim ? ' and its scrim are' : ' is'} drawn open at once — no transition starts on its dialog before the document's first paint`, async ({ page }) => {
+    // Its dialog's own fade is no part of an AppearController's motion element where that is inside the dialog (an
+    // image preview's pages, a modal layer's content): left to itself it would play over the first frames, everything
+    // in it translucent, so the dialog and its scrim are drawn at once before the first paint. Every transition that
+    // starts on a dialog in a shadow root is counted from before the first element is made (WebKit names no
+    // pseudo-element for a scrim's: the dialog's and its scrim's are counted alike).
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await page.setViewportSize(surface.window);
+    const spec = loadSpec(surface.spec);
+    const fixture = spec.fixtures.find((f) => f.id === surface.fixture)!;
+    const count = `<script>window.__runs = []; const attach = Element.prototype.attachShadow; Element.prototype.attachShadow = function (init) { const root = attach.call(this, init); root.addEventListener('transitionrun', (event) => { if (event.target.localName === 'dialog') window.__runs.push(event.target.localName + event.pseudoElement + ' ' + event.propertyName); }); return root; };</script>`;
+    const markup = await fixturesDocument(spec, { icons: true, fixtures: [{ ...fixture, props: { ...fixture.props, ...surface.open } }], lead: count });
+    await page.route('http://modal-exit.test/', (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: markup }));
+    await page.goto('http://modal-exit.test/');
+    const host = fixtureHost(page, spec, surface.fixture);
+    await expect.poll(() => host.evaluate((el) => !!el.shadowRoot?.querySelector('dialog')?.matches(':modal'))).toBe(true);
+    // What it draws now, and what the engine has told of the transitions begun by then, a frame later (it tells of a
+    // transition in the frame after the one it began in).
+    const seen = await host.evaluate(async (el) => {
+      const dialog = el.shadowRoot!.querySelector('dialog')!;
+      const at = { opacity: getComputedStyle(dialog).opacity, translate: getComputedStyle(dialog).translate, scrim: getComputedStyle(dialog, '::backdrop').opacity };
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return { ...at, runs: (window as unknown as { __runs: string[] }).__runs };
+    });
+    expect(seen.runs, 'no transition starts on its dialog or its scrim').toEqual([]);
+    expect(seen.opacity, 'it is drawn whole').toBe('1');
+    await motionEnded(host);
+    const rest = await host.evaluate((el) => {
+      const dialog = el.shadowRoot!.querySelector('dialog')!;
+      return { opacity: getComputedStyle(dialog).opacity, translate: getComputedStyle(dialog).translate, scrim: getComputedStyle(dialog, '::backdrop').opacity };
+    });
+    expect(seen, 'it stands where it rests, and its scrim is drawn as it rests').toMatchObject(rest);
   });
 }
 

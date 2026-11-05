@@ -154,7 +154,7 @@ export const RULES = {
       'src/components/combobox-field/combobox-field.test.ts': 1,
       'src/components/copy-button/copy-button.test.ts': 1,
       'src/components/date-time-picker/date-time-picker.test.ts': 14,
-      'src/components/dialog/dialog.test.ts': 3,
+      'src/components/dialog/dialog.test.ts': 2,
       'src/components/figure/figure.test.ts': 1,
       'src/components/file-item/file-item.test.ts': 1,
       'src/components/image-preview/image-preview.test.ts': 13,
