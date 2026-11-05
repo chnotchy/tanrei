@@ -80,7 +80,7 @@ export function sourceLevel(ctx: Ctx): HTMLElement[] {
   function show(text: string, parsed: Json | undefined, invalid?: { error: string; line?: number }) {
     const lines = new Set<number>();
     const found: [string, number | undefined][] = [];
-    if (invalid) found.push([t.labelled(t.import.invalidJson, invalid.error), invalid.line]);
+    if (invalid) found.push([t.labelled(t.source.invalidJson, invalid.error), invalid.line]);
     if (parsed) {
       // Schema problems name a JSON pointer; engine problems start with a token id. Both are shown verbatim.
       for (const message of (held ? ctx.studio.validate(parsed) : ctx.latest().problems) as string[]) {

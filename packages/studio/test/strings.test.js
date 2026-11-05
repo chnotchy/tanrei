@@ -76,7 +76,7 @@ const ASKED = {
   'start.open': [['Tanrei'], ['m3-like']],
   'start.exampleNote': [['M3-like (Material 3-inspired)']],
   'start.confirm': [['cupertino']],
-  'start.confirmLoad': [['acme.system.json'], [undefined]],
+  'start.confirmLoad': [['acme.system.json']],
   'start.started': [['m3-like']],
   'start.imported': [['acme.system.json'], [undefined]],
   'start.importedProblems': [['acme.system.json', 0], ['acme.system.json', 1], ['acme.system.json', 2], ['acme.system.json', 12], [undefined, 1], [undefined, 12]],
@@ -129,7 +129,7 @@ for (const tag of tags) {
           const said = mine(...values);
           assert.ok(typeof said === 'string' && said.trim(), `${key}(${values}) is empty`);
           // None, one and two may be said in words (a dual, «un solo tono»); from three on the figure is there. A
-          // name or a piece of text is always there, whole. A value left out (no file: the layer was pasted) is said in words.
+          // name or a piece of text is always there, whole. A value left out (no file: the layer came through the page's API) is said in words.
           for (const value of values) if (value !== undefined && (typeof value !== 'number' || value >= 3)) assert.ok(said.includes(String(value)), `${key}(${values}) does not say ${value}: ${said}`);
           assert.doesNotMatch(said, /undefined|NaN|\{[a-z]+\}|\[object/, `${key}(${values})`);
         }
@@ -227,7 +227,7 @@ test('English says what plain concatenation would, Japanese writes its own sente
     // [what the dictionary says now, what the code composed before]
     [en.labelled(en.reset, 'Text size'), 'Reset: Text size'],
     [en.labelled(en.editor.writes, en.editor.nothing), 'writes: nothing — the token inherits'],
-    [en.labelled(en.import.invalidJson, 'Unexpected token'), 'That is not valid JSON: Unexpected token'],
+    [en.labelled(en.source.invalidJson, 'Unexpected token'), 'That is not valid JSON: Unexpected token'],
     [en.withCount(en.tokens.more, 60), 'Show more (60)'],
     [en.withCount(en.a11y.all, 0), 'Everything tanrei build would report (0)'],
     [en.named('Type base', en.dials.value), 'Type base — value'],
@@ -253,7 +253,7 @@ test('English says what plain concatenation would, Japanese writes its own sente
 
     [ja.labelled(ja.reset, '文字の大きさ'), 'リセット：文字の大きさ'],
     [ja.labelled(ja.editor.writes, ja.editor.nothing), '書き込み：なし — トークンは継承されます'],
-    [ja.labelled(ja.import.invalidJson, 'Unexpected token'), '有効な JSON ではありません：Unexpected token'],
+    [ja.labelled(ja.source.invalidJson, 'Unexpected token'), '有効な JSON ではありません：Unexpected token'],
     [ja.withCount(ja.tokens.more, 60), 'さらに表示 (60)'],
     [ja.withCount(ja.a11y.all, 0), 'tanrei build が報告する内容のすべて (0)'],
     [ja.named('文字の基準サイズ', ja.dials.value), '文字の基準サイズ — 値'],
