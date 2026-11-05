@@ -3289,11 +3289,17 @@ test.describe('keys through results', () => {
     }
     // With nothing current — while an input method composes (SRC-14) — the modified Enter opens nothing.
     await trigger(page, 's').click();
-    await headerInput(page, 's').evaluate((el: HTMLInputElement) => {
-      el.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, composed: true }));
-      for (const [key, ctrlKey, shiftKey] of [['Enter', true, false], ['Enter', false, true]] as const) el.dispatchEvent(new KeyboardEvent('keydown', { key, ctrlKey, shiftKey, bubbles: true, composed: true, cancelable: true, isComposing: true, keyCode: 229 }));
-      el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, composed: true, data: '' }));
-    });
+    // The composition's end reaches the search in an `input` of its own, a task after `compositionend` (TXI-4); an
+    // input after the Escape below would open the view again (SRC-5), so it is waited for, as a person's key follows it.
+    await headerInput(page, 's').evaluate(
+      (el: HTMLInputElement) =>
+        new Promise<void>((resolve) => {
+          el.addEventListener('input', () => resolve(), { once: true });
+          el.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, composed: true }));
+          for (const [key, ctrlKey, shiftKey] of [['Enter', true, false], ['Enter', false, true]] as const) el.dispatchEvent(new KeyboardEvent('keydown', { key, ctrlKey, shiftKey, bubbles: true, composed: true, cancelable: true, isComposing: true, keyCode: 229 }));
+          el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, composed: true, data: '' }));
+        }),
+    );
     expect(await opened()).toEqual([]);
     await page.keyboard.press('Escape');
     // A current result without a destination (a button) has nowhere to open.
