@@ -1,8 +1,8 @@
 // The site's content security policy, enforced as the host sends it: the header of public/_headers on every page and the
 // page's own policy the build writes into it (src/lib/csp.mjs). The pages a reader opens raise no violation — their
 // inline scripts and the demos' event handlers run, the search loads its index (WebAssembly), Theme Studio rebuilds a
-// system, the fixtures' windows draw — and a script the page does not hold by its hash is refused, in a window's
-// document too (it keeps the page's policy).
+// system, the fixtures' windows draw, a file item draws its file's picture (a blob: address) — and a script the page
+// does not hold by its hash is refused, in a window's document too (it keeps the page's policy).
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //   DOCS_ENGINES=chromium,firefox,webkit node --test test/browser/csp.test.mjs   # in each engine
@@ -72,9 +72,10 @@ for (const engine of ENGINES) {
       await browser?.close();
     });
 
-    /** Opens the page and gives back what it was refused, as it goes on. */
-    async function open(address) {
+    /** Opens the page (after `setup`, run in it before its own scripts) and gives back what it was refused, as it goes on. */
+    async function open(address, setup) {
       const page = await browser.newPage();
+      if (setup) await page.addInitScript(setup);
       const refused = [];
       page.on('console', (message) => {
         if (REFUSED.test(message.text())) refused.push(`console: ${message.text()}`);
@@ -120,6 +121,47 @@ for (const engine of ENGINES) {
           return view.__ran;
         });
         assert.deepEqual(ran, []);
+      } finally {
+        await page.close();
+      }
+    });
+
+    // A file item draws the picture of an image file it is handed from an address it makes of the file (a blob: URL),
+    // once it is near the view. The file upload's gallery hands its stages files (the fixture `tiles-own` takes
+    // pictures), so its stages are drawn one after another here and each picture is asked for.
+    test('a file item’s picture of its file (a blob: address) is drawn without a violation', async () => {
+      // The addresses the page makes of files, counted as it makes them (the call is passed through unchanged).
+      const { page, refused } = await open('/components/file-upload/', () => {
+        const make = URL.createObjectURL.bind(URL);
+        window.__made = [];
+        URL.createObjectURL = (object) => {
+          const address = make(object);
+          if (object instanceof File) window.__made.push(address);
+          return address;
+        };
+      });
+      try {
+        const stages = page.locator('[data-fixture-gallery] [data-fixture-id]');
+        const count = await stages.count();
+        assert.ok(count > 0, 'the page has its gallery of fixtures');
+        for (let at = 0; at < count; at += 1) await stages.nth(at).scrollIntoViewIfNeeded();
+        await page.locator('[data-fixture-id="tiles-own"]').scrollIntoViewIfNeeded();
+        // A file item made the address of its file's picture, and no picture drawn from one is still loading: each has
+        // loaded or failed (the staged files hold no picture, so they fail, and the item draws its glyph instead).
+        await page.waitForFunction(() => {
+          if (window.__made.length === 0) return false;
+          const pending = [];
+          const walk = (root) => {
+            for (const element of root.querySelectorAll('*')) {
+              if (element.localName === 'img' && window.__made.includes(element.getAttribute('src')) && !element.complete) pending.push(element);
+              if (element.shadowRoot) walk(element.shadowRoot);
+            }
+          };
+          walk(document);
+          return pending.length === 0;
+        }, undefined, { timeout: 15_000 });
+        await page.waitForTimeout(300);
+        assert.deepEqual(refused, []);
       } finally {
         await page.close();
       }
