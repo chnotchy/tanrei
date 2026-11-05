@@ -4,6 +4,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { atRest } from '../../../test/at-rest.js';
+import { axTree } from '../../../test/ax-tree.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, drawerWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
@@ -1310,7 +1311,7 @@ test.describe('the collapsed form', () => {
     expectFirstFrameAtRest(seen);
   });
 
-  test('NVD-40: closing, the drawer is never swapped for another look — 800 wide the dialog narrows to its column and its color, elevation, corners and edge move to the column’s with it, in every engine, the column then drawn as its last frame was; 390 wide the modal drawer slides all the way out over its fading scrim before it leaves; 1280 wide the standard drawer keeps its look while it collapses — and the column’s last look is the docked column’s', async ({ page }) => {
+  test('NVD-40: closing, the drawer is never swapped for another look — 800 wide the dialog narrows to its column and its color, elevation, corners and edge move to the column’s with it, in every engine, the column then drawn as its last frame was, and the selected destination’s color moves with its width, focused or not (NVD-35); 390 wide the modal drawer slides all the way out over its fading scrim before it leaves; 1280 wide the standard drawer keeps its look while it collapses — and the column’s last look is the docked column’s', async ({ page }) => {
     const docs = (open: boolean) => [rail('r', MAIL, { responsive: true, open, expanded: true })];
     // 1280: the docked drawer collapses to its column (NVD-35); its look is the standard drawer's throughout.
     await page.setViewportSize({ width: 1280, height: 720 });
@@ -1334,20 +1335,41 @@ test.describe('the collapsed form', () => {
     expect(opening.rest.probe).toMatchObject({ tag: 'dialog', modal: true, width: 240, scrim: 1 });
     // Its first frame is the column it widens from; then every part of its look moves, none of it at once.
     expect(lookOf(opening.frames[0]!.probe), 'the first frame opening').toEqual(lookOf(column));
-    expectNoJump(opening, [...LOOK, 'width', 'scrim']);
+    expectNoJump(opening, [...LOOK, ...SELECTED, 'width', 'scrim']);
     const closing = await sampleFrames(page.locator('[data-fixture="r"]'), () => page.keyboard.press('Escape'), { probe: panelLook, elements: false });
     expect(closing.complete).toBe(true);
     // No longer modal from its first frame (MDL-5), and still in the top layer, over its scrim, until its motion has
     // ended; then the column, in the last frame's look.
     expect(closing.frames.filter((frame) => frame.probe.modal).map((frame) => frame.index)).toEqual([]);
     expect(closing.frames.filter((frame) => frame.probe.top).length).toBeGreaterThan(4);
-    expectNoJump(closing, [...LOOK, 'width', 'scrim']);
+    expectNoJump(closing, [...LOOK, ...SELECTED, 'width', 'scrim']);
     const last = [closing.before, ...closing.frames].filter((frame) => frame.probe.top).at(-1)!;
     expect(lookOf(last.probe), 'the last frame in the top layer').toEqual(lookOf(docked));
     expect(closing.rest.probe).toMatchObject({ tag: 'nav', modal: false, width: 72, x: column.x, y: column.y });
     expect(lookOf(closing.rest.probe), 'the column after closing is the docked column').toEqual(lookOf(docked));
+    expect(selectedOf(closing.rest.probe), 'the selected destination after closing is the column’s').toEqual(selectedOf(column));
     // The panel is drawn in every frame: never a frame without it.
     expect(closing.frames.filter((frame) => !frame.probe.shown).map((frame) => frame.index)).toEqual([]);
+    await expect.poll(() => activeValue(page)).toBe('header-button:Menu');
+
+    // Opened from the keyboard, the selected destination takes focus as the drawer widens, drawn focused, and loses it
+    // as the drawer closes: both ways its color moves with the width, over the change of form's motion — never over the
+    // state motion, which ends before the width does (Chromium did, closing), nor ahead of the column it becomes.
+    await mount(page, docs(false));
+    await tabTo(page, menu(page, 'r').locator('button'));
+    const keyed = await sampleFrames(page.locator('[data-fixture="r"]'), () => page.keyboard.press('Enter'), { probe: panelLook, elements: false });
+    expect(keyed.complete).toBe(true);
+    await expect.poll(() => activeValue(page)).toBe('inbox');
+    expect(keyed.rest.probe.selA, 'the selected destination is drawn focused').toBeGreaterThan(column.selA as number);
+    expectNoJump(keyed, SELECTED);
+    expectInStep(keyed, 'selA');
+    const unkeyed = await sampleFrames(page.locator('[data-fixture="r"]'), () => page.keyboard.press('Escape'), { probe: panelLook, elements: false });
+    expect(unkeyed.complete).toBe(true);
+    expectNoJump(unkeyed, SELECTED);
+    expectInStep(unkeyed, 'selA');
+    const lastKeyed = [unkeyed.before, ...unkeyed.frames].filter((frame) => frame.probe.top).at(-1)!;
+    expect(selectedOf(lastKeyed.probe), 'the selected destination in the last frame in the top layer').toEqual(selectedOf(column));
+    expect(selectedOf(unkeyed.rest.probe), 'the selected destination after closing').toEqual(selectedOf(column));
     await expect.poll(() => activeValue(page)).toBe('header-button:Menu');
 
     // 390: the modal drawer slides out, and its look stays the modal drawer's while it does.
@@ -1367,6 +1389,79 @@ test.describe('the collapsed form', () => {
     // What of it is on screen goes to nothing, and its scrim to 0, without a frame that cuts either short.
     expectNoJump(sliding, ['reach', 'scrim']);
     expect(sliding.rest.probe).toMatchObject({ shown: false, modal: false, reach: 0, scrim: 0 });
+  });
+
+  test('NVD-23, NVD-40: narrowing back to its column, closed, the drawer is exposed as its column is — the navigation landmark named by its label and its destinations, no dialog — in every engine; opened again as it narrows, it is the modal dialog again', async ({ page, browserName }) => {
+    await page.setViewportSize({ width: 800, height: 720 });
+    await mount(page, [rail('r', MAIL, { responsive: true, open: false, expanded: true })]);
+    const stage = page.locator('[data-fixture="r"]');
+    // The tree computed from the page's roles and names (Playwright's, in every engine), and Chromium's own, the one
+    // engine that gives it to a test: Chromium keeps a dialog's role where the page says none. It also marks a dialog
+    // element focusable whatever its role and tabindex (no key reaches it: it is in no sequential focus order), so the
+    // landmark's line is read without that state.
+    const trees = async () => ({
+      aria: await stage.ariaSnapshot(),
+      engine: browserName === 'chromium' ? (await axTree(page, '[data-fixture="r"]')).map((line) => line.replace(/^(\s*navigation "[^"]*") focusable=true$/, '$1')) : [],
+    });
+    const column = await trees();
+    expect(column.aria).toMatch(/^- navigation "Mail/);
+    expect(column.aria).not.toContain('dialog');
+    await menu(page, 'r').locator('button').click();
+    await motionEnded(drawer(page, 'r'));
+    expect(await stage.ariaSnapshot()).toMatch(/^- dialog "Mail/);
+    // Every motion of the drawer held halfway, from the task that closes it: the moment read is mid-narrowing on any
+    // machine.
+    const holdHalfway = () =>
+      drawer(page, 'r').evaluate((el, source) => {
+        el.addEventListener(
+          'close',
+          () => {
+            for (const motion of ((0, eval)(source) as (root: Element) => Animation[])(el)) {
+              const end = Number(motion.effect?.getComputedTiming().endTime);
+              if (!Number.isFinite(end)) continue;
+              motion.pause();
+              motion.currentTime = end / 2;
+            }
+          },
+          { once: true },
+        );
+      }, EVERY_ANIMATION);
+    const held = () =>
+      drawer(page, 'r').evaluate((el) => {
+        const dialog = el.shadowRoot!.querySelector('dialog');
+        return { open: dialog?.open, top: dialog?.matches(':popover-open'), width: Math.round(dialog?.getBoundingClientRect().width ?? 0) };
+      });
+    const letGo = () =>
+      drawer(page, 'r').evaluate((el, source) => {
+        for (const motion of ((0, eval)(source) as (root: Element) => Animation[])(el)) if (motion.playState === 'paused') motion.play();
+      }, EVERY_ANIMATION);
+    await holdHalfway();
+    await page.keyboard.press('Escape');
+    const halfway = await held();
+    expect(halfway, 'closed, still narrowing in the top layer').toMatchObject({ open: false, top: true });
+    expect(halfway.width).toBeGreaterThan(72);
+    expect(halfway.width).toBeLessThan(240);
+    expect(await trees(), 'narrowing, it is exposed as its column is').toEqual(column);
+    expect(await activeValue(page)).toBe('header-button:Menu');
+    // Opened again while it narrows: the modal dialog named by its label (MOT-2: it widens from where it is).
+    await drawer(page, 'r').evaluate(async (el: any) => {
+      el.open = true;
+      await el.updateComplete;
+    });
+    expect(await drawer(page, 'r').locator('dialog').evaluate((el) => el.matches(':modal'))).toBe(true);
+    expect(await stage.ariaSnapshot()).toMatch(/^- dialog "Mail/);
+    await letGo();
+    await motionEnded(drawer(page, 'r'));
+    await expect.poll(() => activeValue(page)).toBe('inbox');
+    // Once it has narrowed, the column's own tree, focus on the menu button.
+    await holdHalfway();
+    await page.keyboard.press('Escape');
+    expect(await trees()).toEqual(column);
+    await letGo();
+    await expect(drawer(page, 'r').locator('nav.column')).toHaveCount(1);
+    await expect(drawer(page, 'r').locator('dialog')).toHaveCount(0);
+    expect(await trees()).toEqual(column);
+    expect(await activeValue(page)).toBe('header-button:Menu');
   });
 
   test('NVD-41: a new selection changes the item containers’ colors in place over motion.state — no frame shows one narrower than at rest, expanded or collapsed, and none grows, shrinks or slides — and grows the icon indicator from its centre over motion.selection; collapsedLabels selected moves its short label with it and no cell; at once where motion is reduced', async ({ page }) => {
@@ -3530,6 +3625,9 @@ const panelLook = (root: Element) => {
   };
   const [bgR, bgG, bgB, bgA] = channels(style.backgroundColor);
   const [edgeR, edgeG, edgeB, edgeA] = channels(getComputedStyle(panel.querySelector('.edge')!).backgroundColor);
+  // The selected destination's item container (its active indicator), which the change of form recolors too.
+  const selected = [...host.querySelectorAll('tanrei-navigation-drawer-item')].map((item) => item.shadowRoot?.querySelector('.cell.selected .indicator')).find(Boolean);
+  const [selR, selG, selB, selA] = selected ? channels(getComputedStyle(selected).backgroundColor) : [0, 0, 0, 0];
   // Each shadow of the list: its colour's alpha and its blur.
   const shadows = style.boxShadow === 'none' ? [] : style.boxShadow.split(/,(?![^(]*\))/);
   const shadowAlpha = shadows.reduce((sum, shadow) => sum + (Number(shadow.match(/rgba?\([^)]*?,\s*([\d.]+)\)/)?.[1] ?? (/transparent/.test(shadow) ? 0 : 1))), 0);
@@ -3559,6 +3657,10 @@ const panelLook = (root: Element) => {
     radius: round(Number.parseFloat(style.borderStartEndRadius) || 0),
     shadowAlpha: round(shadowAlpha * 100) / 100,
     shadowBlur: round(shadowBlur),
+    selR,
+    selG,
+    selB,
+    selA,
     // The scrim while the dialog is in the top layer: open, or closed and still leaving there (MDL-7, closeModal).
     scrim: dialog && (dialog.open || dialog.matches(':popover-open')) ? Number(getComputedStyle(dialog, '::backdrop').opacity) : 0,
   };
@@ -3566,6 +3668,35 @@ const panelLook = (root: Element) => {
 /** The parts of the panel's look NVD-40 moves between the column's and the modal variant's. */
 const LOOK = ['bgR', 'bgG', 'bgB', 'bgA', 'edgeR', 'edgeG', 'edgeB', 'edgeA', 'radius', 'shadowAlpha', 'shadowBlur'];
 const lookOf = (probe: Record<string, unknown>) => Object.fromEntries(LOOK.map((name) => [name, probe[name]]));
+/** The selected destination's item container color, as premultiplied channels (NVD-35 recolors it with the form). */
+const SELECTED = ['selR', 'selG', 'selB', 'selA'];
+const selectedOf = (probe: Record<string, unknown>) => Object.fromEntries(SELECTED.map((name) => [name, probe[name]]));
+/**
+ * How far the share of its way a color has gone may stand from the share the width has gone: Firefox draws a moving
+ * translucent color in coarser steps than the frames (the selected indicator's alpha × 255 stood at 43.4 for three
+ * frames on its way from 62.2 to 40.8, 0.06 of its way behind the width at most), and an engine that moves it over the
+ * state motion instead is 0.25 ahead within five frames.
+ */
+const IN_STEP = 0.1;
+/**
+ * What `name` reads moves in step with the panel's width while the panel changes width (NVD-35, NVD-40: the change of
+ * form's one duration and easing draw both): in every frame it has gone the same share of its way as the width has of
+ * its own, within `IN_STEP`.
+ */
+function expectInStep(seen: Frames, name: string) {
+  const frames = course(seen);
+  const share = (key: string) => {
+    const values = frames.map((frame) => Number(frame.probe[key]));
+    const start = values[0]!;
+    const total = values.at(-1)! - start;
+    return { total, shares: values.map((value) => (total === 0 ? 0 : (value - start) / total)) };
+  };
+  const widths = share('width').shares;
+  const { total, shares: values } = share(name);
+  expect(total, `${name} moves`).not.toBe(0);
+  const behind = frames.flatMap((frame, i) => (Math.abs(values[i]! - widths[i]!) > IN_STEP ? [`frame ${frame.index}: ${name} ${Math.round(values[i]! * 100)}% of its way, width ${Math.round(widths[i]! * 100)}%`] : []));
+  expect(behind, `${name} moves with the width`).toEqual([]);
+}
 /** The frames of a change, from before it to where it rests. */
 const course = (seen: Frames) => [seen.before, ...seen.frames, ...(seen.complete ? [seen.rest] : [])];
 /**
