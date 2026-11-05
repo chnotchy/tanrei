@@ -5,6 +5,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectTurnedAlone, resolveEasing, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
+import { motionEnded } from '../../../test/motions.js';
 import { decodePng } from '../../../test/png.js';
 import { PLACEMENTS, type TanreiTooltipPlacement, type TooltipArrow, placeTooltip } from './tooltip-placement.js';
 
@@ -1898,7 +1899,9 @@ test.describe('accessibility', () => {
   test('no axe violations in light and dark, open and closed', async ({ page }) => {
     for (const theme of ['light', 'dark'] as const) {
       await mountFixtures(page, spec, { theme, icons: true, fixtures: [...spec.fixtures, f('closed', { open: false })] });
-      await page.waitForTimeout(400);
+      // The second mount writes its document into a window that was painted already, so an open tooltip may play its
+      // entrance (MOT-4): axe reads it at rest, once every motion in the page has ended.
+      await motionEnded(page);
       const results = await new AxeBuilder({ page }).include('main').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
     }

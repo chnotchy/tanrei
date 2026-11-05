@@ -8,6 +8,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
+import { motionEnded } from '../../../test/motions.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 
 const spec = loadSpec('side-sheet');
@@ -1077,7 +1078,9 @@ test.describe('accessibility', () => {
     test(`no axe violations in ${theme}, every fixture`, async ({ page }) => {
       for (const f of spec.fixtures) {
         await mount(page, [f], { theme });
-        await page.waitForTimeout(300);
+        // Every mount after the first writes its document into a window that was painted already, so an open sheet
+        // may play its entrance (MOT-4): axe reads it at rest, once every motion in the page has ended.
+        await motionEnded(page);
         const results = await new AxeBuilder({ page }).include('.stage').analyze();
         expect(results.violations, `${theme} ${f.id}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
       }

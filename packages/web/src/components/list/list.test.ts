@@ -1089,7 +1089,10 @@ test.describe('reordering', () => {
     for (const theme of ['light', 'dark'] as const) {
       await mountFixtures(page, spec, { theme, icons: true, fixtures: spec.fixtures.filter((f) => f.id.startsWith('reorderable')) });
       await handle(page, 'reorderable', 0).click();
-      await page.waitForTimeout(300);
+      // The move menu plays its entrance: axe reads it at rest (its text at full opacity), once it is open and every
+      // motion in the page has ended.
+      await expect(item(page, 'reorderable', 0).locator('tanrei-menu')).toHaveAttribute('open', '');
+      await motionEnded(page);
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => v.id).join(', ')}`).toEqual([]);
     }
