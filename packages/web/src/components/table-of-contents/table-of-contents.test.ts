@@ -1272,7 +1272,6 @@ test.describe('accessibility', () => {
         for (const el of named) el.label = `${el.label} (${el.parentElement!.dataset.fixture})`;
         await Promise.all(named.map((el) => el.updateComplete));
       }, TAG);
-      await page.waitForTimeout(400);
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} (${v.nodes.map((n) => n.target.join(' ')).join('; ')})`).join(', ')}`).toEqual([]);
     }

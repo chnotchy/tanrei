@@ -7,6 +7,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tabTo, withoutIconFont } from '../../../test/harness.js';
 import { motionEnded } from '../../../test/motions.js';
+import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { MIRRORED, anchorOf, expectDisabledLink, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, markOf } from '../../../test/links.js';
 
 const spec = loadSpec('list');
@@ -1002,14 +1003,31 @@ test.describe('reordering', () => {
     // Refused.
     await mountFixtures(page, spec, { fixtures: [byId('reorderable')] });
     await product(page, 'reorderable', 'ignore');
+    const [first, place] = [await bounds(item(page, 'reorderable', 0)), await bounds(item(page, 'reorderable', 1))];
+    const span = await reorderWindow(page);
     await tabTo(page, handle(page, 'reorderable', 0));
+    // The window is the list's timer, and the page clock holds it: "not yet" and "refused" are asked at exact page
+    // times, and the motions — on the document's timeline, which no page clock holds — are read once they have ended.
+    await holdClock(page);
     await page.keyboard.press('Space');
     await page.keyboard.press('ArrowDown');
     await page.keyboard.press('Space');
-    await page.waitForTimeout((await reorderWindow(page)) * 2 + 100);
+    const transform = () => item(page, 'reorderable', 1).evaluate((el) => (el as HTMLElement).style.transform);
+    // Until the window has passed, the items are drawn as they were dropped (LST-39): the item below in the place above.
+    await page.clock.runFor(span - 1);
+    await motionEnded(list(page, 'reorderable'));
+    expect((await bounds(item(page, 'reorderable', 1))).y).toBeCloseTo(first.y, 1);
+    const before = await announced(page, 'reorderable');
+    // Refused: the items go back to where the product has them, over the reorder motion, announcing nothing, with focus
+    // on the handle of the item that stands where the moved one stood.
+    await page.clock.runFor(1);
+    await expect.poll(transform).toBe('');
+    await motionEnded(list(page, 'reorderable'));
     expect(await order(page, 'reorderable')).toEqual(NAMES);
-    expect(await item(page, 'reorderable', 1).evaluate((el) => (el as HTMLElement).style.transform)).toBe('');
+    expect(await bounds(item(page, 'reorderable', 1))).toEqual(place);
+    expect(await announced(page, 'reorderable')).toBe(before);
     expect(await focused(page)).toBe('Inter:handle');
+    await releaseClock(page);
     // A product that answers late, within the window, is still answered.
     await mountFixtures(page, spec, { fixtures: [byId('reorderable')] });
     await product(page, 'reorderable', 60);

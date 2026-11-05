@@ -444,7 +444,10 @@ test.describe('accessibility', () => {
     test.setTimeout(120_000);
     for (const theme of ['light', 'dark'] as const) {
       await mountFixtures(page, spec, { theme, icons: true });
-      await page.waitForTimeout(300);
+      // A loading popup's indicator is shown once its show delay has passed, and then enters: axe reads every one shown
+      // (a progressbar, named), once every motion in the page has ended.
+      await expect(page.locator('tanrei-loading-indicator:not([role="progressbar"])')).toHaveCount(0);
+      await motionEnded(page);
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.html).join(' | ')}`).join('\n')}`).toEqual([]);
     }

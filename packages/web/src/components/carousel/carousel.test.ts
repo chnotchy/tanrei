@@ -2994,11 +2994,24 @@ test.describe('behavior', () => {
 
 test.describe('accessibility', () => {
   test('no axe violations in light and dark', async ({ page }) => {
+    // Nothing moves after a mount but autoplay's fill, which runs the whole interval, and at its end the row advances.
+    // axe reads with autoplay held as a hidden document holds it (CRL-33) — drawn as it is, the fill stopped where it
+    // was — so that no advance can move the row under the read, however long it takes. The page clock cannot hold it:
+    // axe runs on the page's timers.
+    const shown = (visible: boolean) =>
+      page.evaluate((state) => {
+        Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => state });
+        document.dispatchEvent(new Event('visibilitychange'));
+      }, visible ? 'visible' : 'hidden');
+    const held = () =>
+      page.locator('tanrei-carousel').evaluateAll((hosts) => hosts.every((host) => [...host.shadowRoot!.querySelectorAll('.fill')].every((fill) => fill.getAnimations().every((a) => a.playState !== 'running'))));
     for (const theme of ['light', 'dark'] as const) {
       await mountFixtures(page, spec, { theme, icons: true });
-      await page.waitForTimeout(300);
+      await shown(false);
+      expect(await held()).toBe(true);
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => v.id).join(', ')}`).toEqual([]);
+      await shown(true);
     }
   });
 });
