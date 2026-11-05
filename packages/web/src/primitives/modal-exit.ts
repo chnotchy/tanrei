@@ -3,8 +3,8 @@ import { documentPainted, startFromNextFrame } from './motion.js';
 
 // How a modal `<dialog>` leaves (MDL-7: "keeping them drawn until the fade ends"), for every modal surface: the
 // dialog, the modal layer, the side and bottom sheets, the image preview, the modal date-time picker, the popover's sheet,
-// the modal navigation drawer that slides (a collapsible one narrows to its column still modal) and the search's dialog
-// and full-screen views.
+// the modal navigation drawer (sliding out, or narrowing back to its column) and the search's dialog and full-screen
+// views.
 //
 // A closed `<dialog>` is `display: none` and out of the top layer. CSS can keep it drawn there while its exit plays
 // (`display` and `overlay` transitioned with `transition-behavior: allow-discrete`), but only Chromium does: WebKit and
@@ -21,6 +21,12 @@ import { documentPainted, startFromNextFrame } from './motion.js';
 // every transition on the dialog and its scrim has finished (their own `finished`, never a timer) it leaves the top layer
 // at once and is closed. `openModal()` on a dialog still leaving takes it back the same way: modal again, its exit turned
 // round from the values it shows (MOT-2).
+//
+// A surface that becomes part of the page as it leaves — a collapsible navigation drawer, which narrows back to the
+// column it widened from, holding the menu button that focus goes back to — leaves `interactive`: not inert and taking
+// the pointer, only its scrim taking none. An exit that moves more than what an appearance moves (`SHOWN`: the drawer's
+// width, color, elevation and corners) names it in `moves`, so that it too is drawn as it was shown where the dialog
+// changes hands.
 
 /** The attribute of a modal dialog that is leaving: closed, still drawn in the top layer while its exit plays. */
 export const LEAVING = 'data-tanrei-leaving';
@@ -39,12 +45,20 @@ const HELD = ['display', 'max-width', 'max-height', 'padding-top', 'padding-righ
 /** What an exit moves on the dialog itself: drawn as it was shown where the dialog changes hands. */
 const SHOWN = ['opacity', 'scale', 'translate', 'filter', 'transform'] as const;
 
+/**
+ * What else an exit moves on the dialog itself (`closeModal`'s and `openModal`'s `moves`): longhands, by the physical
+ * names the engines give their transitions (`width` for `inline-size`, a corner's radius for `border-radius`).
+ */
+export type ModalMoves = readonly string[];
+
 type Own = [property: string, value: string, priority: string][];
 
 interface Leaving {
   run: number;
   /** The dialog's own inline values of what is held, put back when it has left. */
   own: Own;
+  /** What its exit moves besides `SHOWN`. */
+  moves: ModalMoves;
 }
 
 const leaving = new WeakMap<HTMLDialogElement, Leaving>();
@@ -81,11 +95,12 @@ function motions(dialog: HTMLDialogElement): Animation[] {
   });
 }
 
-/** The transitions of what an appearance moves on the dialog itself (not on its scrim, nor inside it). */
-function turning(dialog: HTMLDialogElement): Animation[] {
+/** The transitions of what an appearance moves on the dialog itself, and of what `moves` names (not on its scrim, nor inside it). */
+function turning(dialog: HTMLDialogElement, moves: ModalMoves = []): Animation[] {
   return dialog.getAnimations().filter((animation) => {
     const effect = animation.effect as KeyframeEffect | null;
-    return effect?.target === dialog && effect.pseudoElement === null && (SHOWN as readonly string[]).includes((animation as CSSTransition).transitionProperty);
+    const property = (animation as CSSTransition).transitionProperty;
+    return effect?.target === dialog && effect.pseudoElement === null && ((SHOWN as readonly string[]).includes(property) || moves.includes(property));
   });
 }
 
@@ -106,9 +121,9 @@ function atOnce(dialog: HTMLDialogElement, change: () => void) {
  * scrim drawn as they were shown before it, with no transition; let go, they move from there to what their style gives
  * them now (MOT-2).
  */
-function asShown(dialog: HTMLDialogElement, change: () => void) {
+function asShown(dialog: HTMLDialogElement, change: () => void, moves: ModalMoves) {
   const style = getComputedStyle(dialog);
-  const shown = SHOWN.map((property) => [property, style.getPropertyValue(property)] as const);
+  const shown = [...SHOWN, ...moves].map((property) => [property, style.getPropertyValue(property)] as const);
   const scrim = getComputedStyle(dialog, '::backdrop').opacity;
   const kept: Own = [];
   hold(dialog, 'transition-property', 'none', kept);
@@ -118,7 +133,7 @@ function asShown(dialog: HTMLDialogElement, change: () => void) {
   // not left to replace them across the change. WebKit, taking the dialog out of the top layer and putting it back, can
   // keep a transition beside the one that replaces it — seen as a second `scale` on a dialog closed while its entrance
   // grew it, on a loaded machine — and the exit then waits for both.
-  for (const animation of turning(dialog)) animation.cancel();
+  for (const animation of turning(dialog, moves)) animation.cancel();
   dialog.setAttribute(QUIET, '');
   dialog.setAttribute(KEEPING, '');
   change();
@@ -146,12 +161,19 @@ function gone(dialog: HTMLDialogElement, state: Leaving) {
  * and its scrim's play from the values they showed; then it leaves the top layer. Resolves with true once it has, or with
  * false when it was opened again first (`openModal`). `instant` (or a dialog out of the document): closed now.
  *
+ * `interactive`: while it leaves it is not inert and takes the pointer (its scrim takes none) — a surface that becomes
+ * part of the page as it leaves and holds what focus goes back to (a collapsible navigation drawer narrowing to its
+ * column). `moves`: what its exit moves on the dialog itself besides what an appearance moves (`ModalMoves`).
+ *
  * The exit is what the dialog's style gives it closed: its `[open]` rules are its open look, and its closed rules
  * transition to the closed look. Give the dialog `modalExitStyles()`. It and its scrim's fade begin in the first frame
  * drawn after the closing task (`startFromNextFrame`, src/primitives/motion.ts); before the document's first paint they
  * are left as they are.
  */
-export async function closeModal(dialog: HTMLDialogElement, { instant = false }: { instant?: boolean } = {}): Promise<boolean> {
+export async function closeModal(
+  dialog: HTMLDialogElement,
+  { instant = false, interactive = false, moves = [] }: { instant?: boolean; interactive?: boolean; moves?: ModalMoves } = {},
+): Promise<boolean> {
   const was = leaving.get(dialog);
   if (was) {
     if (!instant) return leave(dialog, was);
@@ -163,23 +185,30 @@ export async function closeModal(dialog: HTMLDialogElement, { instant = false }:
     atOnce(dialog, () => dialog.close());
     return true;
   }
-  const state: Leaving = { run: ++runs, own: [] };
+  const state: Leaving = { run: ++runs, own: [], moves };
   leaving.set(dialog, state);
   const style = getComputedStyle(dialog);
   const drawn = HELD.map((property) => [property, style.getPropertyValue(property)] as const);
-  asShown(dialog, () => {
-    for (const [property, value] of drawn) hold(dialog, property, value, state.own);
-    hold(dialog, 'pointer-events', 'none', state.own);
-    dialog.setAttribute(LEAVING, '');
-    dialog.inert = true;
-    dialog.close();
-    dialog.setAttribute('popover', 'manual');
-    dialog.showPopover();
-  });
+  asShown(
+    dialog,
+    () => {
+      for (const [property, value] of drawn) hold(dialog, property, value, state.own);
+      if (!interactive) hold(dialog, 'pointer-events', 'none', state.own);
+      dialog.setAttribute(LEAVING, '');
+      // Inert while it changes hands, so that the focusing steps of `close()` and `showPopover()` give focus to nothing
+      // in it (a dialog shown as a popover takes focus itself): where focus goes back is the caller's (MDL-5).
+      dialog.inert = true;
+      dialog.close();
+      dialog.setAttribute('popover', 'manual');
+      dialog.showPopover();
+      dialog.inert = !interactive;
+    },
+    moves,
+  );
   // Asking flushes style: the exit's transitions, and its scrim's, exist now. They begin in the first frame drawn after
   // this task, as an entrance does: WebKit dated them from the frame drawn before it, and where a long task outlasted
   // the exit the surface and its scrim were gone in that frame without a frame of their motion.
-  if (documentPainted()) startFromNextFrame([...turning(dialog), ...scrimMotions(dialog)], { leaving: true });
+  if (documentPainted()) startFromNextFrame([...turning(dialog, moves), ...scrimMotions(dialog)], { leaving: true });
   return leave(dialog, state);
 }
 
@@ -223,16 +252,20 @@ function scrimMotions(dialog: HTMLDialogElement): Animation[] {
  * element where that is inside the dialog (an image preview's pages, which its container fades round; a modal layer's
  * content), so no controller makes it at once: left to itself it would play over the first frames, everything in the
  * dialog translucent (an image preview's controls below their contrast).
+ *
+ * `moves`: what its entrance moves on the dialog itself besides what an appearance moves (`ModalMoves`); a dialog
+ * taken back from leaving goes on with what its `closeModal()` named.
  */
-export function openModal(dialog: HTMLDialogElement, { instant = !documentPainted() }: { instant?: boolean } = {}): void {
+export function openModal(dialog: HTMLDialogElement, { instant = !documentPainted(), moves = [] }: { instant?: boolean; moves?: ModalMoves } = {}): void {
   if (dialog.open && !leaving.has(dialog)) return;
   if (instant) {
     atOnce(dialog, () => show(dialog));
     return;
   }
+  const taken = leaving.get(dialog)?.moves ?? [];
   show(dialog);
   // Asking flushes style: the transitions the open state starts exist now.
-  startFromNextFrame([...turning(dialog), ...scrimMotions(dialog)]);
+  startFromNextFrame([...turning(dialog, [...moves, ...taken]), ...scrimMotions(dialog)]);
 }
 
 /** Modal: shown, or taken back from leaving. */
@@ -243,23 +276,31 @@ function show(dialog: HTMLDialogElement) {
     return;
   }
   leaving.delete(dialog);
-  asShown(dialog, () => {
-    if (dialog.matches(':popover-open')) dialog.hidePopover();
-    dialog.removeAttribute('popover');
-    dialog.removeAttribute(LEAVING);
-    dialog.inert = false;
-    release(dialog, state.own);
-    dialog.showModal();
-  });
+  asShown(
+    dialog,
+    () => {
+      if (dialog.matches(':popover-open')) dialog.hidePopover();
+      dialog.removeAttribute('popover');
+      dialog.removeAttribute(LEAVING);
+      dialog.inert = false;
+      release(dialog, state.own);
+      dialog.showModal();
+    },
+    state.moves,
+  );
 }
 
 /**
  * The CSS a dialog opened and closed with `openModal()` and `closeModal()` needs, for `dialog` (its selector): where
  * the dialog changes hands its scrim starts no transition and stands at the opacity it showed — a `::backdrop` takes
- * neither from the dialog's inline style. Compose it after the dialog's own rules.
+ * neither from the dialog's inline style — and while it leaves its scrim takes no pointer, so that a press reaches the
+ * page, which is no longer inert. Compose it after the dialog's own rules.
  */
 export function modalExitStyles(dialog: string): CSSResult {
   return unsafeCSS(`
+  ${dialog}[${LEAVING}]::backdrop {
+    pointer-events: none;
+  }
   ${dialog}[${QUIET}]::backdrop {
     transition-property: none !important;
   }

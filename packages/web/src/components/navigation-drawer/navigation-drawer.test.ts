@@ -1337,10 +1337,12 @@ test.describe('the collapsed form', () => {
     expectNoJump(opening, [...LOOK, 'width', 'scrim']);
     const closing = await sampleFrames(page.locator('[data-fixture="r"]'), () => page.keyboard.press('Escape'), { probe: panelLook, elements: false });
     expect(closing.complete).toBe(true);
-    // Still in the top layer, over its scrim, until its motion has ended; then the column, in the last frame's look.
-    expect(closing.frames.filter((frame) => frame.probe.modal).length).toBeGreaterThan(4);
+    // No longer modal from its first frame (MDL-5), and still in the top layer, over its scrim, until its motion has
+    // ended; then the column, in the last frame's look.
+    expect(closing.frames.filter((frame) => frame.probe.modal).map((frame) => frame.index)).toEqual([]);
+    expect(closing.frames.filter((frame) => frame.probe.top).length).toBeGreaterThan(4);
     expectNoJump(closing, [...LOOK, 'width', 'scrim']);
-    const last = [closing.before, ...closing.frames].filter((frame) => frame.probe.modal).at(-1)!;
+    const last = [closing.before, ...closing.frames].filter((frame) => frame.probe.top).at(-1)!;
     expect(lookOf(last.probe), 'the last frame in the top layer').toEqual(lookOf(docked));
     expect(closing.rest.probe).toMatchObject({ tag: 'nav', modal: false, width: 72, x: column.x, y: column.y });
     expect(lookOf(closing.rest.probe), 'the column after closing is the docked column').toEqual(lookOf(docked));
@@ -1779,7 +1781,7 @@ test.describe('forms and focus', () => {
     await expect.poll(() => page.evaluate(() => location.hash)).toBe('#sent');
   });
 
-  test('NVD-22: a closing modal drawer slides out over the exit motion (a collapsible one narrows over motion.expand) and returns focus to where it was — or drops it when that element is gone', async ({ page }) => {
+  test('NVD-22: a closing modal drawer slides out over the exit motion (a collapsible one narrows over motion.expand) and returns focus to where it was as it closes, not when its motion ends, the page behind no longer inert — or drops it when that element is gone', async ({ page }) => {
     await mount(page, [fixture('m', MAIL, { variant: 'modal', open: false })]);
     await opener(page);
     await page.locator('#menu').focus();
@@ -1799,32 +1801,69 @@ test.describe('forms and focus', () => {
     expect(await page.evaluate(() => document.activeElement?.localName)).toBe('body');
     await page.emulateMedia({ reducedMotion: 'reduce' });
     expect(await css(dialog, 'transition-duration')).toBe('0s');
-    // Collapsible: it narrows back to its column over the change's motion, and focus returns to the menu button.
+    // Collapsible: it narrows back to its column over the change's motion. It is no longer modal from the moment it
+    // closes, not from when its column takes the dialog's place (MDL-5): focus is back on the menu button that opened
+    // it — slotted in the narrowing panel — and the page behind takes focus and the pointer, while the panel narrows and
+    // its scrim fades in the top layer.
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await mount(page, [rail('mc', MAIL, { variant: 'modal', open: false })]);
+    await page.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<button id="behind" style="position:fixed;inset-inline-end:0;inset-block-end:0">Behind</button>'));
     await menu(page, 'mc').locator('button').click();
     await expect.poll(() => activeValue(page)).toBe('inbox');
     // Wide before it closes: a close asked before the widening has drawn its first frame finds the dialog at its
-    // column's width and look, the leaving style equal to the current value, so the transitions are cancelled (CSS
-    // Transitions, starting of transitions) and nothing is left to narrow: the dialog closes at once, before `close`.
+    // column's width and look, so nothing is left to narrow.
     await motionEnded(drawer(page, 'mc'));
-    // Read as it closes: the dialog narrows in the top layer, and is the column again once that has ended.
+    const expand = await resolveToken(page, T('motion-expand-duration'), 'duration');
+    // Read in the task that closes it, as it closes.
     await drawer(page, 'mc').evaluate((el: any) =>
       el.addEventListener(
         'close',
         () => {
           const dialog = el.shadowRoot.querySelector('dialog');
-          (window as any).narrowing = { modal: dialog.matches(':modal'), duration: getComputedStyle(dialog).transitionDuration };
+          const focused = document.activeElement as HTMLElement | null;
+          const behind = document.querySelector<HTMLElement>('#behind')!;
+          const at = behind.getBoundingClientRect();
+          const hit = document.elementFromPoint(at.x + at.width / 2, at.y + at.height / 2);
+          behind.focus();
+          const takesFocus = document.activeElement === behind;
+          focused?.focus();
+          // Every engine names the transition of `inline-size` by its physical property.
+          const width = dialog?.getAnimations().find((animation: any) => animation.transitionProperty === 'width');
+          (window as any).narrowing = {
+            modal: !!dialog?.matches(':modal'),
+            drawn: !!dialog && getComputedStyle(dialog).display !== 'none' && (dialog.matches(':modal') || dialog.matches(':popover-open')),
+            focus: focused?.getAttribute('slot') === 'header-button' ? `header-button:${focused.getAttribute('label')}` : (focused?.localName ?? null),
+            takesFocus,
+            hit: hit?.id || hit?.localName || null,
+            // Begun, or held at its start until the next frame (startFromNextFrame).
+            width: width ? { playing: width.playState === 'running' || width.playState === 'paused', duration: Math.round(Number(width.effect.getTiming().duration)) } : null,
+          };
         },
         { once: true },
       ),
     );
     await page.keyboard.press('Escape');
     const narrowing = await page.evaluate(() => (window as any).narrowing);
-    expect(narrowing.modal).toBe(true);
-    expect(Number.parseFloat(narrowing.duration)).toBeCloseTo((await resolveToken(page, T('motion-expand-duration'), 'duration')) / 1000, 3);
-    await expect.poll(() => activeValue(page)).toBe('header-button:Menu');
+    expect(narrowing).toEqual({ modal: false, drawn: true, focus: 'header-button:Menu', takesFocus: true, hit: 'behind', width: { playing: true, duration: Math.round(expand) } });
+    // Once it has narrowed its column takes the dialog's place, and focus stays on the menu button.
     await expect(drawer(page, 'mc').locator('nav.column')).toHaveCount(1);
+    await expect(drawer(page, 'mc').locator('dialog')).toHaveCount(0);
+    expect(await activeValue(page)).toBe('header-button:Menu');
+    // Where motion is reduced it is its column again at once — in the first frame after the close — focus back.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await menu(page, 'mc').locator('button').click();
+    await expect.poll(() => activeValue(page)).toBe('inbox');
+    await drawer(page, 'mc').evaluate((el: any) => {
+      (window as any).collapsed = new Promise((resolve) =>
+        el.addEventListener(
+          'close',
+          () => requestAnimationFrame(() => resolve({ columns: el.shadowRoot.querySelectorAll('nav.column').length, dialogs: el.shadowRoot.querySelectorAll('dialog').length, focus: document.activeElement?.getAttribute('label') ?? null })),
+          { once: true },
+        ),
+      );
+    });
+    await page.keyboard.press('Escape');
+    expect(await page.evaluate(() => (window as any).collapsed)).toEqual({ columns: 1, dialogs: 0, focus: 'Menu' });
   });
 });
 
@@ -3503,6 +3542,8 @@ const panelLook = (root: Element) => {
     tag: panel.localName,
     shown,
     modal: !!dialog?.matches(':modal'),
+    // In the top layer: modal, or closed and still leaving there (MDL-7, closeModal).
+    top: !!dialog && (dialog.matches(':modal') || dialog.matches(':popover-open')),
     x: round(box.x),
     y: round(box.y),
     width: shown ? round(box.width) : 0,
