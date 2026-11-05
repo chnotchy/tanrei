@@ -170,7 +170,9 @@ const buttonStyles = css`
   ${unsafeCSS(lookBlock('unselected', 'button[aria-pressed]'))}
   ${unsafeCSS(lookBlock('selected', "button[aria-pressed='true']"))}
   /* BTN-40, BTN-41, BTN-43: a destructive button reads its variant's destructive parts; a toggle (aria-pressed) keeps its
-     own, and a link (the anchor, a) the plain parts of its variant: it only leads somewhere, and deletes nothing. */
+     own, and a link (the anchor, a) the plain parts of its variant: it only leads somewhere, and deletes nothing. The
+     a in :not() is needed although a button element never is one: styles, below, rewrites every button selector as
+     :is(button, a), and it is this a that then leaves the link out (the BTN-43 tests fail without it). */
   ${unsafeCSS(lookBlock('destructive', ':host([destructive]) button:not([aria-pressed], a)'))}
   /* BTN-45: the plain look on the tone a host gives (above). */
   ${unsafeCSS(toneBlock)}
