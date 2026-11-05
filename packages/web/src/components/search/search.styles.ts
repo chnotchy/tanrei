@@ -1,6 +1,6 @@
 import { css, unsafeCSS } from 'lit';
 import type { OpenAxis } from '../../primitives/index.js';
-import { SCRIM_FILTER, conditionBlock, focusGlow, focusRing, iconGlyph, keptSpaces, minimumTarget, pressHold, rippleStyles, rowTarget, scrimFilter, stateRules } from '../../primitives/index.js';
+import { SCRIM_FILTER, conditionBlock, focusGlow, focusRing, iconGlyph, keptSpaces, minimumTarget, modalExitStyles, pressHold, rippleStyles, rowTarget, scrimFilter, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 
@@ -637,6 +637,8 @@ export const styles = css`
       opacity: 0;
     }
   }
+  /* MOT-4: drawn open at once, the scrim starts no fade either (openModal). */
+  ${modalExitStyles('.full')}
   ${scrimFilter('.scrim', T('view-scrim-blur'))}
   .scrim {
     position: absolute;
