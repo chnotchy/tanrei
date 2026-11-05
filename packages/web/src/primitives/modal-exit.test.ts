@@ -1,9 +1,10 @@
 // How every modal surface leaves (src/primitives/modal-exit.ts, MDL-7: "keeping them drawn until the fade ends"): the
 // dialog (centred, and as a sheet in a compact window), the modal layer, the modal side and bottom sheets, the image
-// preview and the popover's sheet. In every engine, frame by frame on a held clock (test/frames.ts): closed, the surface
-// and its scrim stay drawn in the top layer and move to their closed look — no frame where they are gone before the
-// motion ends — while focus is back on the opener from the first frame (MDL-5) and the page behind is no longer inert.
-// Where motion is reduced it fades in place, drawn until it has. Opened again while it leaves, it goes back from the
+// preview, the popover's sheet, the modal navigation drawer, and the search's dialog and full-screen views. In every
+// engine, frame by frame on a held clock (test/frames.ts): closed, the surface and its scrim stay drawn in the top layer
+// and move to their closed look — no frame where they are gone before the motion ends — while focus is back on the
+// opener from the first frame (MDL-5) and the page behind is no longer inert. Where motion is reduced it fades in place,
+// drawn until it has, or, where its spec says so, is gone at once. Opened again while it leaves, it goes back from the
 // values it shows, modal again.
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Frames, type Probe, expectNoFlicker, sampleFrames } from '../../test/frames.js';
@@ -19,6 +20,14 @@ interface Surface {
   exit: 'fade' | 'slide';
   /** It draws a scrim (its `::backdrop` is not clear). */
   scrim: boolean;
+  /** Where motion is reduced: it fades in place, or it disappears at once (the search's SRC-23). */
+  reduced?: 'fade' | 'at-once';
+  /** The boolean that opens it (`open`, or the search's `expanded`). */
+  prop?: 'open' | 'expanded';
+  /** What it is mounted with besides being closed (the search's real overlay, not its view drawn in place). */
+  props?: Record<string, unknown>;
+  /** Focus goes back to the element itself (the search's bar input or trigger, in its shadow root), not to the opener. */
+  returnsToSelf?: boolean;
 }
 
 const SURFACES: Surface[] = [
@@ -29,7 +38,26 @@ const SURFACES: Surface[] = [
   { name: 'modal bottom sheet', spec: 'bottom-sheet', fixture: 'modal', window: { width: 480, height: 640 }, exit: 'slide', scrim: true },
   { name: 'image preview', spec: 'image-preview', fixture: 'single', window: { width: 640, height: 640 }, exit: 'fade', scrim: false },
   { name: 'popover as a sheet', spec: 'popover', fixture: 'compact', window: popoverWindow, exit: 'slide', scrim: true },
+  // NVD-22: it slides out over its fading scrim, at once where motion is reduced. (A collapsible one narrows to its
+  // column still modal, and gives focus back when its column has taken the dialog's place: NVD-40.)
+  { name: 'modal navigation drawer', spec: 'navigation-drawer', fixture: 'modal', window: { width: 480, height: 640 }, exit: 'slide', scrim: true, reduced: 'at-once' },
+  ...(['dialog-results', 'full-screen'] as const).map(
+    (fixture): Surface => ({
+      name: fixture === 'full-screen' ? 'full-screen search' : 'search as a dialog',
+      spec: 'search',
+      fixture,
+      window: fixture === 'full-screen' ? { width: 480, height: 640 } : { width: 800, height: 640 },
+      exit: 'fade',
+      scrim: fixture !== 'full-screen',
+      reduced: 'at-once',
+      prop: 'expanded',
+      props: { inline: false },
+      returnsToSelf: true,
+    }),
+  ),
 ];
+
+const propOf = (surface: Pick<Surface, 'prop'>) => surface.prop ?? 'open';
 
 /**
  * The surface's `<dialog>` (the first in the host's shadow root): whether it is drawn in the top layer, its opacity, its
@@ -52,45 +80,54 @@ const probe: Probe = (root) => {
 };
 
 /** The fixture, closed, so that the test opens it. */
-const closed = (spec: string, id: string): Fixture => {
-  const fixture = loadSpec(spec).fixtures.find((f) => f.id === id)!;
-  return { ...fixture, props: { ...fixture.props, open: false } };
+const closed = (surface: Surface): Fixture => {
+  const fixture = loadSpec(surface.spec).fixtures.find((f) => f.id === surface.fixture)!;
+  return { ...fixture, props: { ...fixture.props, ...surface.props, [propOf(surface)]: false } };
 };
 
 /** Mounts the surface closed, with a button before it that has focus when it opens; returns its host. */
 async function mount(page: Page, surface: Surface): Promise<Locator> {
   await page.setViewportSize(surface.window);
   const spec = loadSpec(surface.spec);
-  await mountFixtures(page, spec, { icons: true, fixtures: [closed(surface.spec, surface.fixture)] });
+  await mountFixtures(page, spec, { icons: true, fixtures: [closed(surface)] });
   const host = fixtureHost(page, spec, surface.fixture);
-  await host.evaluate((el) => {
+  await host.evaluate((el, returnsToSelf) => {
+    // Where focus goes back to the element itself, it is named so that the probe can tell it.
+    if (returnsToSelf) el.id = 'returned';
     // The popover's opener is its anchor, which the stage puts before it.
     const anchor = el.getAttribute('anchor');
     if (anchor && document.getElementById(anchor)) return;
     el.insertAdjacentHTML('beforebegin', '<button id="opener" type="button">Open</button>');
-  });
+  }, !!surface.returnsToSelf);
   return host;
 }
 
 const openerOf = (host: Locator) => host.evaluate((el) => el.getAttribute('anchor') ?? 'opener');
+/** Where focus is back once it has closed: on the opener, or on the element itself. */
+const returnOf = async (host: Locator, surface: Surface) => (surface.returnsToSelf ? 'returned' : openerOf(host));
+
+type Openable = HTMLElement & { updateComplete: Promise<unknown> } & Record<string, unknown>;
+
+/** Sets the boolean that opens it, and waits for the update. */
+const toggle = (host: Locator, surface: Surface, to: boolean) =>
+  host.evaluate(
+    async (el: Openable, [prop, to]) => {
+      el[prop] = to;
+      await el.updateComplete;
+    },
+    [propOf(surface), to] as const,
+  );
 
 /** Opens it from its opener, as a product does, and waits for its entrance to end. */
-async function open(page: Page, host: Locator) {
+async function open(page: Page, host: Locator, surface: Surface) {
   const opener = await openerOf(host);
   await page.locator(`#${opener}`).focus();
-  await host.evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }) => {
-    el.open = true;
-    await el.updateComplete;
-  });
+  await toggle(host, surface, true);
   await expect.poll(() => host.evaluate((el) => !!el.shadowRoot!.querySelector('dialog')?.matches(':modal'))).toBe(true);
   await motionEnded(host);
 }
 
-const close = (host: Locator) =>
-  host.evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }) => {
-    el.open = false;
-    await el.updateComplete;
-  });
+const close = (host: Locator, surface: Surface) => toggle(host, surface, false);
 
 const value = (seen: Frames, i: number, name: string) => seen.frames[i]!.probe[name] as number;
 
@@ -138,26 +175,38 @@ for (const surface of SURFACES) {
     test(`MDL-7: closed, the ${surface.name} and its scrim stay drawn in the top layer until their exit has played, focus back at once (MDL-5)`, async ({ page }) => {
       await page.emulateMedia({ reducedMotion: 'no-preference' });
       const host = await mount(page, surface);
-      await open(page, host);
+      await open(page, host, surface);
       const opener = await openerOf(host);
-      const seen = await sampleFrames(host, () => close(host), { probe, elements: false });
-      expectLeaves(seen, surface, opener);
+      const seen = await sampleFrames(host, () => close(host, surface), { probe, elements: false });
+      expectLeaves(seen, surface, await returnOf(host, surface));
       // The page behind is no longer inert: what is outside takes focus and presses.
-      await page.locator(`#${opener}`).evaluate((el) => (el as HTMLElement).blur());
+      await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
       await page.locator(`#${opener}`).focus();
       await expect(page.locator(`#${opener}`)).toBeFocused();
     });
 
-    test(`MDL-7: where motion is reduced the ${surface.name} fades out in place, drawn until it has`, async ({ page }) => {
-      await page.emulateMedia({ reducedMotion: 'reduce' });
-      const host = await mount(page, surface);
-      await open(page, host);
-      const opener = await openerOf(host);
-      const seen = await sampleFrames(host, () => close(host), { probe, elements: false });
-      expectLeaves(seen, surface, opener, { reduced: true });
-      const moved = seen.frames.filter((frame) => frame.probe.tx !== seen.frames[0]!.probe.tx || frame.probe.ty !== seen.frames[0]!.probe.ty);
-      expect(moved.map((frame) => frame.index), 'nothing slides').toEqual([]);
-    });
+    if (surface.reduced === 'at-once') {
+      test(`MDL-7: where motion is reduced the ${surface.name} disappears at once, its scrim with it, focus back`, async ({ page }) => {
+        await page.emulateMedia({ reducedMotion: 'reduce' });
+        const host = await mount(page, surface);
+        await open(page, host, surface);
+        const seen = await sampleFrames(host, () => close(host, surface), { probe, elements: false });
+        const drawn = seen.frames.filter((frame) => frame.probe.drawn !== false).map((frame) => `frame ${frame.index} (${frame.time.toFixed(0)} ms)`);
+        expect(drawn, 'it is gone from the first frame').toEqual([]);
+        expect(seen.frames[0]!.probe.focus, 'focus is back from the first frame').toBe(await returnOf(host, surface));
+        expect(seen.rest.probe.drawn, 'and stays gone').toBe(false);
+      });
+    } else {
+      test(`MDL-7: where motion is reduced the ${surface.name} fades out in place, drawn until it has`, async ({ page }) => {
+        await page.emulateMedia({ reducedMotion: 'reduce' });
+        const host = await mount(page, surface);
+        await open(page, host, surface);
+        const seen = await sampleFrames(host, () => close(host, surface), { probe, elements: false });
+        expectLeaves(seen, surface, await returnOf(host, surface), { reduced: true });
+        const moved = seen.frames.filter((frame) => frame.probe.tx !== seen.frames[0]!.probe.tx || frame.probe.ty !== seen.frames[0]!.probe.ty);
+        expect(moved.map((frame) => frame.index), 'nothing slides').toEqual([]);
+      });
+    }
 
     test(`MDL-7, MOT-1: opened at the end of a task that outlasts its entrance, the ${surface.name}${surface.scrim ? ' and its scrim move' : ' moves'} in from the first frame drawn after that task`, async ({ page }) => {
       // WebKit dates a transition begun in a task from the frame drawn before it, which stands still while the task
@@ -171,8 +220,8 @@ for (const surface of SURFACES) {
         const style = getComputedStyle(dialog);
         return { opacity: Number(style.opacity), translate: style.translate, scrim: Number(getComputedStyle(dialog, '::backdrop').opacity) };
       };
-      const first = await host.evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }, source) => {
-        el.open = true;
+      const first = await host.evaluate(async (el: Openable, [source, prop]) => {
+        el[prop] = true;
         await el.updateComplete;
         const dialog = el.shadowRoot!.querySelector('dialog')!;
         const motions = () => dialog.getAnimations({ subtree: true }).filter((animation) => (animation.effect as KeyframeEffect).target === dialog);
@@ -185,7 +234,7 @@ for (const surface of SURFACES) {
             resolve({ entrance, shown: shown(dialog), at: motions().map((animation) => `${(animation as CSSTransition).transitionProperty}${(animation.effect as KeyframeEffect).pseudoElement !== null ? ' (scrim)' : ''} at ${Math.round(Number(animation.currentTime))} ms`) }),
           ),
         );
-      }, read.toString());
+      }, [read.toString(), propOf(surface)] as const);
       expect(first.entrance, 'its entrance takes time').toBeGreaterThan(0);
       expect(first.at.length, 'it moves in').toBeGreaterThan(0);
       expect(first.at.filter((motion) => !motion.endsWith(' at 0 ms')), 'in the first frame after the task every motion of the surface and its scrim stands at its start').toEqual([]);
@@ -205,8 +254,8 @@ for (const surface of SURFACES) {
       // than the exit, and the first frame after it is read in its frame callback, as drawn.
       await page.emulateMedia({ reducedMotion: 'no-preference' });
       const host = await mount(page, surface);
-      await open(page, host);
-      const opener = await openerOf(host);
+      await open(page, host, surface);
+      const returned = await returnOf(host, surface);
       const read = (dialog: HTMLDialogElement) => {
         const style = getComputedStyle(dialog);
         // Its place as numbers: open, one engine writes `none`, another `0px`, and one held at an exit's start `0px 0%`.
@@ -218,13 +267,13 @@ for (const surface of SURFACES) {
           scrim: Number(getComputedStyle(dialog, '::backdrop').opacity),
         };
       };
-      const first = await host.evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }, source) => {
+      const first = await host.evaluate(async (el: Openable, [source, prop]) => {
         const dialog = el.shadowRoot!.querySelector('dialog')!;
         const shown = (0, eval)(`(${source})`) as (dialog: HTMLDialogElement) => Record<string, boolean | number | string>;
         const before = shown(dialog);
         await new Promise((resolve) => requestAnimationFrame(resolve));
         // In that frame's callback.
-        el.open = false;
+        el[prop] = false;
         await el.updateComplete;
         const motions = () => dialog.getAnimations({ subtree: true }).filter((animation) => (animation.effect as KeyframeEffect).target === dialog);
         const exit = Math.max(0, ...motions().map((animation) => Number(animation.effect!.getComputedTiming().endTime)));
@@ -241,13 +290,13 @@ for (const surface of SURFACES) {
             }),
           ),
         );
-      }, read.toString());
+      }, [read.toString(), propOf(surface)] as const);
       expect(first.exit, 'its exit takes time').toBeGreaterThan(0);
       expect(first.at.length, `it moves out: ${first.at.join(', ')}`).toBeGreaterThan(0);
       expect(first.at.filter((motion) => !motion.endsWith(' at 0 ms')), 'in the first frame after that work every motion of the surface and its scrim stands at its start').toEqual([]);
       if (surface.scrim) expect(first.at.some((motion) => motion.includes('(scrim)')), `the scrim fades out: ${first.at.join(', ')}`).toBe(true);
       expect(first.shown, 'and the surface and its scrim are drawn as they were shown open, in the top layer').toEqual(first.before);
-      expect(first.focus, 'focus is back on the opener (MDL-5)').toBe(opener);
+      expect(first.focus, 'focus is back on the opener (MDL-5)').toBe(returned);
       // And it still leaves: its exit plays to its end, and then it is out of the top layer, not modal, not inert.
       await motionEnded(host);
       await expect
@@ -263,15 +312,15 @@ for (const surface of SURFACES) {
     test(`MOT-2: opened again while it leaves, the ${surface.name} goes back from what it shows, modal again`, async ({ page }) => {
       await page.emulateMedia({ reducedMotion: 'no-preference' });
       const host = await mount(page, surface);
-      await open(page, host);
+      await open(page, host, surface);
       // Closed, and its exit held a third of the way (the dialog's and its scrim's transitions); then opened again.
-      const read = await host.evaluate(async (el: HTMLElement & { open: boolean; updateComplete: Promise<unknown> }) => {
+      const read = await host.evaluate(async (el: Openable, prop) => {
         const dialog = el.shadowRoot!.querySelector('dialog')!;
         const shown = () => {
           const style = getComputedStyle(dialog);
           return { opacity: Number(style.opacity), translate: style.translate, scrim: Number(getComputedStyle(dialog, '::backdrop').opacity), modal: dialog.matches(':modal'), drawn: style.display !== 'none' };
         };
-        el.open = false;
+        el[prop] = false;
         await el.updateComplete;
         const exit = dialog.getAnimations({ subtree: true });
         for (const animation of exit) {
@@ -279,12 +328,12 @@ for (const surface of SURFACES) {
           animation.currentTime = Number(animation.effect!.getComputedTiming().endTime) / 3;
         }
         const leaving = shown();
-        el.open = true;
+        el[prop] = true;
         await el.updateComplete;
         const back = shown();
         const entrance = dialog.getAnimations({ subtree: true }).map((animation) => (animation as CSSTransition).transitionProperty);
         return { leaving, back, entrance, exits: exit.length };
-      });
+      }, propOf(surface));
       expect(read.exits, 'the exit was running').toBeGreaterThan(0);
       expect(read.leaving.drawn && !read.leaving.modal, 'a third of the way out, it is drawn and not modal').toBe(true);
       expect(read.back.modal, 'opened again, it is modal').toBe(true);
@@ -303,16 +352,14 @@ for (const surface of SURFACES) {
 }
 
 /**
- * The modal surfaces written open in the page's markup: those above, and those that open their `<dialog>` modally but
- * leave in a way of their own — the modal navigation drawer, which slides out still modal, and the search's dialog and
- * full-screen views, opened by `expanded` (the harness draws an expanded search's view in place unless `inline` is false).
+ * The modal surfaces above, written open in the page's markup (the search's views opened by `expanded`: the harness
+ * draws an expanded search's view in place unless `inline` is false). A collapsible modal drawer written open is drawn
+ * open from its first frame as NVD-40 says (its own test).
  */
-const WRITTEN_OPEN: (Pick<Surface, 'name' | 'spec' | 'fixture' | 'window' | 'scrim'> & { open: Record<string, unknown> })[] = [
-  ...SURFACES.map((surface) => ({ ...surface, open: { open: true } })),
-  { name: 'modal navigation drawer', spec: 'navigation-drawer', fixture: 'modal', window: { width: 480, height: 640 }, scrim: true, open: { open: true } },
-  { name: 'search as a dialog', spec: 'search', fixture: 'dialog-results', window: { width: 800, height: 640 }, scrim: true, open: { expanded: true, inline: false } },
-  { name: 'full-screen search', spec: 'search', fixture: 'full-screen', window: { width: 480, height: 640 }, scrim: false, open: { expanded: true, inline: false } },
-];
+const WRITTEN_OPEN: (Pick<Surface, 'name' | 'spec' | 'fixture' | 'window' | 'scrim'> & { open: Record<string, unknown> })[] = SURFACES.map((surface) => ({
+  ...surface,
+  open: { ...surface.props, [propOf(surface)]: true },
+}));
 
 for (const surface of WRITTEN_OPEN) {
   test(`MOT-4: written open in the page's markup, the ${surface.name}${surface.scrim ? ' and its scrim are' : ' is'} drawn open at once — no transition starts on its dialog before the document's first paint`, async ({ page }) => {
@@ -365,9 +412,9 @@ test('MDL-2: holding the page’s scroll moves nothing behind sideways — a pag
       return { x: el.getBoundingClientRect().x, width: el.getBoundingClientRect().width, bar: window.innerWidth - root.clientWidth, style: root.style.cssText };
     });
   const before = await place();
-  await open(page, host);
+  await open(page, host, surface);
   const held = await place();
-  await close(host);
+  await close(host, surface);
   await motionEnded(host);
   const after = await place();
   expect({ x: held.x, width: held.width }, `nothing moves while the scroll is held (a bar ${before.bar} px wide before)`).toEqual({ x: before.x, width: before.width });
