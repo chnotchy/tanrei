@@ -214,27 +214,41 @@ function scrimMotions(dialog: HTMLDialogElement): Animation[] {
  * Its entrance and its scrim's fade, which the open state starts in this task, begin in the first frame drawn after
  * it, as an appearance does (`startFromNextFrame`, src/primitives/motion.ts): WebKit dates them from the frame drawn
  * before the task, and drew the surface and its scrim whole at once where a long task outlasted them. What moves inside
- * the dialog is its component's (an `AppearController`'s). Before the document's first paint they are left as they are
- * (MOT-4).
+ * the dialog is its component's (an `AppearController`'s).
+ *
+ * Before the document's first paint — a dialog in the page's markup with `open` — or `instant`, the dialog and its
+ * scrim are drawn open at once, with no transition (MOT-4). Their own fade is no part of an `AppearController`'s motion
+ * element where that is inside the dialog (an image preview's pages, which its container fades round; a modal layer's
+ * content), so no controller makes it at once: left to itself it would play over the first frames, everything in the
+ * dialog translucent (an image preview's controls below their contrast).
  */
-export function openModal(dialog: HTMLDialogElement): void {
+export function openModal(dialog: HTMLDialogElement, { instant = !documentPainted() }: { instant?: boolean } = {}): void {
+  if (dialog.open && !leaving.has(dialog)) return;
+  if (instant) {
+    atOnce(dialog, () => show(dialog));
+    return;
+  }
+  show(dialog);
+  // Asking flushes style: the transitions the open state starts exist now.
+  startFromNextFrame([...turning(dialog), ...scrimMotions(dialog)]);
+}
+
+/** Modal: shown, or taken back from leaving. */
+function show(dialog: HTMLDialogElement) {
   const state = leaving.get(dialog);
   if (!state) {
-    if (dialog.open) return;
     dialog.showModal();
-  } else {
-    leaving.delete(dialog);
-    asShown(dialog, () => {
-      if (dialog.matches(':popover-open')) dialog.hidePopover();
-      dialog.removeAttribute('popover');
-      dialog.removeAttribute(LEAVING);
-      dialog.inert = false;
-      release(dialog, state.own);
-      dialog.showModal();
-    });
+    return;
   }
-  // Asking flushes style: the transitions the open state starts exist now.
-  if (documentPainted()) startFromNextFrame([...turning(dialog), ...scrimMotions(dialog)]);
+  leaving.delete(dialog);
+  asShown(dialog, () => {
+    if (dialog.matches(':popover-open')) dialog.hidePopover();
+    dialog.removeAttribute('popover');
+    dialog.removeAttribute(LEAVING);
+    dialog.inert = false;
+    release(dialog, state.own);
+    dialog.showModal();
+  });
 }
 
 /**

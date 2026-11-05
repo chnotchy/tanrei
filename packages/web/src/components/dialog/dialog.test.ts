@@ -344,7 +344,7 @@ test.describe('presentation and focus', () => {
     expect(await css(dialog(page, 'd'), 'opacity')).toBe('1');
   });
 
-  test('DLG-13: a dialog in the page\'s markup with open appears in the first frame without its motion, and one mounted open after the first paint plays its entrance', async ({ page, browserName }) => {
+  test('DLG-13: a dialog in the page\'s markup with open appears in the first frame without its motion, and one mounted open after the first paint plays its entrance', async ({ page }) => {
     await mount(page, []);
     const main = page.locator('main');
     const mounted = await sampleFrames(main, () => main.evaluate((el) => el.insertAdjacentHTML('beforeend', '<tanrei-dialog id="late" headline="Discard draft?" open><tanrei-button slot="actions" confirming>Discard</tanrei-button></tanrei-dialog>')), { probe: appearProbe });
@@ -361,11 +361,10 @@ test.describe('presentation and focus', () => {
     await expect.poll(() => native.evaluate((el) => (el as HTMLDialogElement).open)).toBe(true);
     await motionEnded(native);
     expect(await native.evaluate((el) => [getComputedStyle(el).opacity, getComputedStyle(el).scale])).toEqual(['1', 'none']);
-    // The entrance would move the scale (0.96 under the default system); the scrim's fade is the modal layer's (WebKit
-    // names no pseudo-element for it, so its opacity is not told from the container's there).
-    const runs = (await page.evaluate(() => (window as unknown as { __runs: string[] }).__runs)).filter((run) => run.startsWith('tanrei-dialog dialog '));
-    expect(runs.filter((run) => !run.endsWith(' opacity'))).toEqual([]);
-    if (browserName !== 'webkit') expect(runs).toEqual([]);
+    // The entrance would move the scale (0.96 under the default system) and the opacity; the scrim does not fade in
+    // either (WebKit names no pseudo-element for its fade, which is counted here as the container's).
+    const runs = (await page.evaluate(() => (window as unknown as { __runs: string[] }).__runs)).filter((run) => run.startsWith('tanrei-dialog dialog'));
+    expect(runs).toEqual([]);
   });
 
   test('DLG-14: a dialog, or an alertdialog, named by the headline and described by the supporting text; an empty headline still opens and is reported', async ({ page }) => {

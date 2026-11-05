@@ -12,6 +12,7 @@ import { type Page, expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { buildSync } from 'esbuild';
 import { axTree } from '../../test/ax-tree.js';
+import { motionEnded } from '../../test/motions.js';
 
 const web = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const read = (file: string) => fs.readFileSync(path.join(web, file), 'utf8');
@@ -339,6 +340,16 @@ const settle = (page: Page) =>
     }
   });
 
+/**
+ * What axe finds in the stage once nothing on the page moves any more: a color is judged as it rests. An overlay's
+ * entrance draws everything in it translucent, and axe blends what it reads with the page behind (a modal drawer still
+ * slides in when the page is read).
+ */
+async function axe(page: Page) {
+  await motionEnded(page);
+  return new AxeBuilder({ page }).include('#stage').analyze();
+}
+
 /** What the element that carries the role says, and what the host carries. */
 function read_(page: Page, path: string[], names: string[], hostOwn: string[] = []) {
   return page.evaluate(
@@ -640,7 +651,7 @@ test('axe reports nothing on controls the product gives aria-* — the hosts car
     .map((subject, at) => subject.markup('aria-describedby="described" aria-labelledby="named" aria-current="page" aria-invalid="true" aria-errormessage="error"').replace('id="subject"', `id="subject-${at}"`))
     .join('');
   await load(page, 'tanrei-button', `<main><h1>Controls</h1>${markup}</main>`);
-  const result = await new AxeBuilder({ page }).include('#stage').analyze();
+  const result = await axe(page);
   expect(result.violations.map((violation) => `${violation.id}: ${violation.nodes.map((node) => node.target.join(' > ')).join(', ')}`)).toEqual([]);
 });
 
@@ -966,7 +977,7 @@ for (const [name, subject] of Object.entries(UNNAMED)) {
 for (const [name, subject] of Object.entries(SUBJECTS).filter(([, each]) => each.alone)) {
   test(`${subject.sentence} ${name}: axe reports nothing on it with the aria-* the product gives it — its host carries none`, async ({ page }) => {
     await load(page, subject.tag ?? `tanrei-${name}`, `<main><h1>Controls</h1>${subject.markup('aria-describedby="described" aria-labelledby="named" aria-current="page" aria-invalid="true" aria-errormessage="error"')}</main>`);
-    const result = await new AxeBuilder({ page }).include('#stage').analyze();
+    const result = await axe(page);
     expect(result.violations.map((violation) => `${violation.id}: ${violation.nodes.map((node) => node.target.join(' > ')).join(', ')}`)).toEqual([]);
   });
 }
@@ -1256,7 +1267,7 @@ for (const [name, subject] of Object.entries(HOLDING)) {
     await expect(host).toHaveAccessibleName('Product name');
     expect(await naming(page)).toEqual({ 'aria-label': 'Product name' });
     if (reports) expect(await reports(), 'named by the product: nothing is reported').toEqual([]);
-    const result = await new AxeBuilder({ page }).include('#stage').analyze();
+    const result = await axe(page);
     expect(result.violations.map((violation) => `${violation.id}: ${violation.nodes.map((node) => node.target.join(' > ')).join(', ')}`)).toEqual([]);
     if (reports) {
       await load(page, 'tanrei-list', subject.markup(''));
@@ -1286,7 +1297,7 @@ for (const [name, subject] of Object.entries(NAMELESS)) {
   test(`${subject.sentence} ${name}: with no role a name could stand on, the host holds the product’s name, and gives it back once it carries its role`, async ({ page }) => {
     await load(page, 'tanrei-list', subject.markup('aria-label="Product name"'));
     expect(await naming(page), 'held').toEqual({ 'data-aria-label': 'Product name' });
-    const result = await new AxeBuilder({ page }).include('#stage').analyze();
+    const result = await axe(page);
     expect(result.violations.map((violation) => violation.id)).toEqual([]);
     if (!subject.expose) return;
     await page.evaluate((expose) => {
@@ -1390,7 +1401,7 @@ for (const [name, subject] of Object.entries(MODED)) {
     await host.evaluate((element) => ((element as unknown as { label: string }).label = ''));
     await settle(page);
     await expect(carrier(), 'emptied: the product’s name, over the text of its content').toHaveAccessibleName('Product name');
-    const result = await new AxeBuilder({ page }).include('#stage').analyze();
+    const result = await axe(page);
     expect(result.violations.map((violation) => `${violation.id}: ${violation.nodes.map((node) => node.target.join(' > ')).join(', ')}`)).toEqual([]);
   });
 }
@@ -1405,7 +1416,7 @@ test('FLD-33 field: the product’s aria-* on the field’s host is moved, expos
   await expect(input).not.toHaveAccessibleDescription(/Described text/);
   await expect(input).not.toHaveAttribute('aria-current');
   expect((await reported()).map((each) => each.match(/aria-[a-z]+/)?.[0]).sort()).toEqual(['aria-current', 'aria-describedby', 'aria-label']);
-  const result = await new AxeBuilder({ page }).include('#stage').analyze();
+  const result = await axe(page);
   expect(result.violations.map((violation) => violation.id)).toEqual([]);
 });
 
@@ -1426,7 +1437,7 @@ test('SCA-10 SCA-18 scroll-area: the product’s aria-* on the host is its box�
   await expect(box).not.toHaveAttribute('role');
   await expect(box).not.toHaveAttribute('aria-label');
   expect(await nameless(), 'a name on nothing is reported').not.toEqual([]);
-  const result = await new AxeBuilder({ page }).include('#stage').analyze();
+  const result = await axe(page);
   expect(result.violations.map((violation) => violation.id)).toEqual([]);
 });
 
@@ -1444,7 +1455,7 @@ test('TOC-40 TOC-41 table-of-contents: with an empty label, a name the product g
     const current = await page.evaluate(() => document.querySelector('#subject')!.shadowRoot!.querySelector('#current')!.textContent ?? '');
     await expect(row, 'the row’s name holds what it draws').toHaveAccessibleName(current ? `${said} ${current}` : said);
     expect(await reported(), rest).toEqual([]);
-    const result = await new AxeBuilder({ page }).include('#stage').analyze();
+    const result = await axe(page);
     expect(result.violations.map((violation) => violation.id)).toEqual([]);
   }
   await load(page, 'tanrei-table-of-contents', `<tanrei-table-of-contents id="subject" presentation="compact">${list}</tanrei-table-of-contents>`);
