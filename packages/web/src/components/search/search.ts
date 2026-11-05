@@ -844,10 +844,6 @@ export class TanreiSearch extends TanreiElement {
    * compose over a completion shown; empty once the composition's first `input` replaced the completion, and otherwise.
    */
   private composedOver = '';
-  /** SRC-55: a composition that inserted nothing ended over a completion, which went with it: its closing `input` changed no value. */
-  private cancelledOver = false;
-  /** SRC-5 (TXI-4): the value as the last composition began, before a suggestion it edits became the value. */
-  private composedFrom = '';
   /** SRC-5 (TXI-4): the view was open as the last composition ended. */
   private expandedAtEnd = false;
   /** SRC-4, TXI-4: the value the search took or wrote itself last; another is the product's. */
@@ -888,8 +884,8 @@ export class TanreiSearch extends TanreiElement {
    * showing, in the input the person types in, the suggestion an arrow key reached or the inline completion (SRC-14,
    * SRC-55). During a composition the element's text is the input method's and the value follows it.
    */
-  private readonly barText = new NativeTextController({ input: () => this.barInput, value: () => this.shownText(this.barInput), setValue: (value) => this.takeValue(value) });
-  private readonly headerText = new NativeTextController({ input: () => this.headerInput, value: () => this.shownText(this.headerInput), setValue: (value) => this.takeValue(value) });
+  private readonly barText = this.nativeText(() => this.barInput);
+  private readonly headerText = this.nativeText(() => this.headerInput);
 
   /**
    * SRC-19, SRC-20: the bar's press — by pointer or touch only: Enter and Space in the input type and submit. SRC-36: a
@@ -1115,6 +1111,23 @@ export class TanreiSearch extends TanreiElement {
     const suggestion = this.activeSuggestion;
     if (suggestion) return suggestion.headline;
     return this.completion && this.queryActive ? this.value + this.completion : this.value;
+  }
+
+  /**
+   * SRC-4: an input of the search kept in step with `value` (`barText`, `headerText`). A composition is compared with
+   * `value` as the search's `input` reports it, not with what the input shows: one that leaves the value as it began —
+   * over a suggestion or a completion as well — changed nothing, and no `input` closes it (TXI-4). What the end of a
+   * composition makes current comes with the `input` that closes it (`onInput`), or here where none does (SRC-14,
+   * SRC-49).
+   */
+  private nativeText(input: () => HTMLInputElement | null) {
+    return new NativeTextController({
+      input,
+      value: () => this.shownText(input()),
+      reported: () => this.value,
+      setValue: (value) => this.takeValue(value),
+      settled: (closed) => closed || this.firstCurrent(),
+    });
   }
 
   /**
@@ -1577,29 +1590,17 @@ export class TanreiSearch extends TanreiElement {
    * after the element has taken the new value. SRC-5: typing opens the view; SRC-14, SRC-49: it makes the first place
    * current — and, while an input method composes, nothing. SRC-55: an insertion at the end may be completed; an edit
    * that only took the completion away (a cut of the selected completion) changed no value, and fires nothing.
-   * SRC-5 (TXI-4): the `input` that closes a composition does not open a view that closed after the composition ended;
-   * where the composition left the value as it found it, that input changed nothing and fires nothing.
+   * SRC-5 (TXI-4): the `input` that closes a composition does not open a view that closed after the composition ended.
    */
   private readonly onInput = (event: Event) => {
     const input = event.target as HTMLInputElement;
     const text = input === this.headerInput ? this.headerText : this.barText;
-    const cancelled = this.cancelledOver;
-    this.cancelledOver = false;
     const composing = text.composingInput(event);
+    // TXI-4: the engine's own `input` closing a composition that changed no value, stopped by the controller.
+    if (composing && !text.composing && !(event as InputEvent).isComposing) return;
     // Closed — by the person or the product — between the composition's end and this input.
     const keptClosed = !composing && text.ending && this.expandedAtEnd && !this.expanded;
-    if (keptClosed && input.value === this.composedFrom) {
-      event.stopPropagation();
-      return;
-    }
     if (!composing) {
-      // SRC-55: the `input` that closes a composition which inserted nothing over a completion changed no value: it
-      // fires nothing and completes nothing; what was current comes back, as after any composition.
-      if (cancelled && input.value === this.value) {
-        event.stopPropagation();
-        this.firstCurrent();
-        return;
-      }
       if (this.completion && input.value === this.value) {
         event.stopPropagation();
         this.dropCompletion();
@@ -1935,7 +1936,6 @@ export class TanreiSearch extends TanreiElement {
    * element itself, with its first `input`, and the search leaves the element alone until the composition ends.
    */
   private startComposition(input: HTMLInputElement | null) {
-    this.composedFrom = this.value;
     if (input && this.activeSuggestion && input === this.currentInput) this.takeValue(input.value);
     const over = !!input && input === this.currentInput && !!this.completion && this.queryActive && input.value === this.value + this.completion;
     this.composedOver = over ? input.value : '';
@@ -1956,8 +1956,8 @@ export class TanreiSearch extends TanreiElement {
   /**
    * SRC-55 (TXI-4): a composition ends. One that began over a completion and ends before its first `input` — cancelled,
    * having inserted nothing — leaves the completion in the element, selected, where the value would take it as typed:
-   * the completion goes instead, the input shows the value as typed, and the `input` that closes the composition fires
-   * nothing (`onInput`). SRC-5: whether the view is open now tells whether it closed before that input.
+   * the completion goes instead, and the input shows the value as typed: as it began, so no `input` closes the
+   * composition (`nativeText()`). SRC-5: whether the view is open now tells whether it closed before that input.
    */
   private endComposition(input: HTMLInputElement | null) {
     this.expandedAtEnd = this.expanded;
@@ -1966,7 +1966,6 @@ export class TanreiSearch extends TanreiElement {
     if (!over || !input || input.value !== over) return;
     input.value = this.value;
     input.setSelectionRange(this.value.length, this.value.length);
-    this.cancelledOver = true;
   }
 
   // ── The bar (SRC-5, SRC-19) ────────────────────────────────────────────────────────────────────────────

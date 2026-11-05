@@ -712,13 +712,14 @@ test.describe('opening and closing', () => {
     /**
      * A composition — inserting `text`, or nothing (cancelled) — then, in the same task, before the `input` that closes it
      * arrives (src/primitives/native-text.ts sends it in a later task), the view is closed: by Escape from the input, or
-     * by the product. Returns once that closing input has reached the element.
+     * by the product. Returns once the task in which that closing input may be sent has run — a timer set after
+     * `compositionend` runs after the component's — whether or not one was (TXI-4: none closes a composition that
+     * changed nothing).
      */
     const closeInTheGap = (field: Locator, how: 'escape' | 'product', text: string) =>
       field.evaluate(
         (el: HTMLInputElement, [by, inserted]) =>
           new Promise<void>((resolve) => {
-            el.addEventListener('input', (event) => (event as InputEvent).isComposing || resolve());
             el.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, composed: true }));
             el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', ctrlKey: true, bubbles: true, composed: true, cancelable: true, isComposing: true, keyCode: 229 }));
             if (inserted) {
@@ -728,6 +729,7 @@ test.describe('opening and closing', () => {
             el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, composed: true, data: inserted }));
             if (by === 'escape') el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true, cancelable: true }));
             else ((el.getRootNode() as ShadowRoot).host as any).expanded = false;
+            setTimeout(resolve);
           }),
         [how, text] as const,
       );
@@ -768,6 +770,65 @@ test.describe('opening and closing', () => {
     expect(await log(page)).toEqual(['toggle:false:escape:false']);
     expect(await prop(m, 'expanded')).toBe(false);
     await expect(trigger(page, 'm')).toBeFocused();
+  });
+
+  test('SRC-4, SRC-5 (TXI-4, TXI-1): a composition that ends with the value as it began — cancelled, or committing nothing — emits no input as it ends and opens nothing, in the order of every engine, and what was current is current again; a committed one emits exactly one input that is not composing', async ({ page }) => {
+    await mount(page, [live('s', { value: 'in' })]);
+    const s = host(page, 's');
+    const field = input(page, 's');
+    await s.evaluate((el) => {
+      const log = ((window as any).heard = [] as string[]);
+      el.addEventListener('input', (event) => log.push(`input:${(el as any).value}:${(event as InputEvent).isComposing}`));
+      el.addEventListener('toggle', (event) => log.push(`toggle:${(event as CustomEvent).detail.expanded}`));
+    });
+    /**
+     * A composition driven with the platform's events, as an engine sends them: `steps` are what the input holds after
+     * each of its `input`s while it composes; `last` is what the engine's own `input` after `compositionend` brings, as
+     * Firefox sends it (Chromium and WebKit send none). Returns the events heard once the task in which the search may
+     * send the input that closes the composition has run — a timer set after `compositionend` runs after the search's.
+     */
+    const compose = (steps: string[], last?: string) =>
+      field.evaluate(
+        (el: HTMLInputElement, [steps, last]) =>
+          new Promise<string[]>((resolve) => {
+            el.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, composed: true, data: '' }));
+            for (const step of steps) {
+              el.value = step;
+              el.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true, isComposing: true, inputType: 'insertCompositionText', data: step }));
+            }
+            el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, composed: true, data: '' }));
+            if (last !== undefined) {
+              el.value = last;
+              el.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true, isComposing: false, inputType: 'insertCompositionText', data: '' }));
+            }
+            setTimeout(() => resolve((window as any).heard.splice(0)));
+          }),
+        [steps, last] as const,
+      );
+    await field.focus();
+    // Collapsed: a composition that inserted nothing opens nothing and emits nothing, in either order.
+    expect(await compose([])).toEqual([]);
+    expect(await compose([], 'in')).toEqual([]);
+    expect(await prop(s, 'expanded')).toBe(false);
+    // Open: a cancelled composition — the input method takes its text away — emits only its own inputs, and the place
+    // that was current is current again.
+    await page.keyboard.press('ArrowDown');
+    await expect.poll(() => popoverOpen(view(page, 's'))).toBe(true);
+    await settled(s);
+    const current = await activeOption(page, 's');
+    await page.evaluate(() => (window as any).heard.splice(0));
+    expect(await compose(['inv', 'in'])).toEqual(['input:inv:true', 'input:in:true']);
+    await settled(s);
+    expect(await activeOption(page, 's')).toBe(current);
+    expect(await compose(['inv', 'in'], 'in')).toEqual(['input:inv:true', 'input:in:true']);
+    await settled(s);
+    expect(await activeOption(page, 's')).toBe(current);
+    expect([await prop(s, 'value'), await prop(s, 'expanded')]).toEqual(['in', true]);
+    // Committed: exactly one input that is not composing — the search's in Chromium's and WebKit's order, the engine's
+    // own in Firefox's.
+    expect(await compose(['inv'])).toEqual(['input:inv:true', 'input:inv:false']);
+    expect(await compose(['invo'], 'invo')).toEqual(['input:invo:true', 'input:invo:false']);
+    expect(await prop(s, 'value')).toBe('invo');
   });
 
   test('SRC-6: Escape, a chosen suggestion, submit, a press outside, Tab, Shift+Tab and focus leaving each close the docked view once with their reason; the value stays', async ({ page }) => {
@@ -3352,15 +3413,16 @@ test.describe('keys through results', () => {
     }
     // With nothing current — while an input method composes (SRC-14) — the modified Enter opens nothing.
     await trigger(page, 's').click();
-    // The composition's end reaches the search in an `input` of its own, a task after `compositionend` (TXI-4); an
-    // input after the Escape below would open the view again (SRC-5), so it is waited for, as a person's key follows it.
+    // The search ends a composition a task after `compositionend` (TXI-4: this one changed nothing, so no input closes
+    // it); that task is waited for — a timer set after `compositionend` runs after the search's — so that the Escape
+    // below follows it, as a person's key does.
     await headerInput(page, 's').evaluate(
       (el: HTMLInputElement) =>
         new Promise<void>((resolve) => {
-          el.addEventListener('input', () => resolve(), { once: true });
           el.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, composed: true }));
           for (const [key, ctrlKey, shiftKey] of [['Enter', true, false], ['Enter', false, true]] as const) el.dispatchEvent(new KeyboardEvent('keydown', { key, ctrlKey, shiftKey, bubbles: true, composed: true, cancelable: true, isComposing: true, keyCode: 229 }));
           el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, composed: true, data: '' }));
+          setTimeout(resolve);
         }),
     );
     expect(await opened()).toEqual([]);
