@@ -1630,6 +1630,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
     hasTitle: { state: true },
     hasMain: { state: true },
     presented: { state: true },
+    narrowing: { state: true },
     measured: { state: true },
   };
 
@@ -1819,7 +1820,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private hasMain = false;
   /** A collapsible modal drawer's dialog is drawn (open, or narrowing back to its column). */
   private presented = false;
-  /** A collapsible modal drawer's dialog is narrowing back to its column, closed (NVD-40). */
+  /** A collapsible modal drawer's dialog is narrowing back to its column, closed (NVD-40), and exposed as the column (NVD-23). */
   private narrowing = false;
   /** Measured from the product's own elements: the first header button's width, the main action's height. */
   private measured: Record<string, string> = {};
@@ -3386,11 +3387,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
 
   protected override willUpdate(changed: PropertyValues<this>) {
     // NVD-22, NVD-40: a collapsible modal drawer that closes gives focus back as it closes (`withdraw`, in this update).
-    // Focus leaves the panel before anything of this update is styled: a part that the change of form recolors would
-    // otherwise begin that motion for the focus it still has, and turn it round in no time when focus goes back.
-    if (changed.has('open') && !changed.has('variant') && !changed.has('collapsible') && !this.open && this.shown && this.dialog?.classList.contains('widening') && this.hasFocus()) {
-      (deepActive() as HTMLElement | null)?.blur();
-    }
+    const focusLeaves = changed.has('open') && !changed.has('variant') && !changed.has('collapsible') && !this.open && this.shown && this.dialog?.classList.contains('widening') && this.hasFocus();
     // NVD-53: `responsive` turned on or off, or `collapsible` changed under it: the widths are listened to, or no longer.
     if ((changed.has('responsive') || changed.has('collapsible')) && this.hasUpdated) {
       if (changed.has('responsive')) this.watchWidths();
@@ -3402,10 +3399,19 @@ export class TanreiNavigationDrawer extends TanreiElement {
     const collapsed = this.collapsed;
     // NVD-35: a change of form takes the change's motion, for as long as it lasts; the collapsed attribute reflects it.
     // NVD-54: not when the window's width changed the presentation, which is drawn at once.
-    if (this.wasCollapsed !== undefined && collapsed !== this.wasCollapsed && !instant) {
+    const formChange = this.wasCollapsed !== undefined && collapsed !== this.wasCollapsed && !instant;
+    if (formChange) {
       this.focusLost = collapsed && !this.modal && this.focusOnExpandedOnly();
       this.removeAttribute('data-sliding');
       this.setAttribute('data-form-change', '');
+    }
+    // Focus leaves the panel before anything else of this update is styled — a part that the change of form recolors
+    // would otherwise begin that motion for the focus it still has, and turn it round in no time when focus goes back —
+    // and once the change of form's motion is in force (data-form-change): where the style is brought up to date while
+    // focus leaves (Chromium does), the focused cell's recolor starts there, and it takes the change of form's duration
+    // and easing, in step with the narrowing, not the state motion's, which ends before it (NVD-35, NVD-40).
+    if (focusLeaves) (deepActive() as HTMLElement | null)?.blur();
+    if (formChange) {
       clearTimeout(this.formTimer);
       this.formTimer = setTimeout(() => this.removeAttribute('data-form-change'), this.expandDuration());
     }
@@ -3550,13 +3556,19 @@ export class TanreiNavigationDrawer extends TanreiElement {
     if (this.modal && (!this.collapses || this.presented)) {
       // NVD-23: a modal dialog named by the label, holding the navigation landmark. NVD-78: the product's ARIA on the host
       // is the dialog's, the element a person meets first.
+      // NVD-23, NVD-40: narrowing back to its column it is closed, and exposed as the column is — the navigation landmark
+      // named by the label (the dialog takes the landmark's role, its own `<nav>` none), not a dialog and not focusable
+      // itself. It stays the element that is drawn: it holds the menu button that focus went back to, so it cannot be
+      // inert, and an engine keeps a dialog's role where it is given none (Chromium, `role="none"`).
+      const asColumn = this.narrowing;
       return html`<dialog
         part="container"
         class=${classMap({ drawer: true, widening: this.collapses })}
         data-tanrei-appear
         style=${styleMap(this.collapses ? this.place : {})}
+        role=${asColumn ? 'navigation' : nothing}
         ${delegatedAria(this, { 'aria-label': this.label })}
-        tabindex="-1"
+        tabindex=${asColumn ? nothing : '-1'}
         data-tanrei-shape
         @keydown=${this.onKeyDown}
         @cancel=${this.onNativeCancel}
@@ -3566,7 +3578,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
         @pointercancel=${this.onPointerUp}
         @click=${this.onClick}
       >
-        <nav class="landmark" aria-label=${label} @click=${this.onClickCapture}>${this.body()}</nav>
+        <nav class="landmark" role=${asColumn ? 'none' : nothing} aria-label=${asColumn ? nothing : label} @click=${this.onClickCapture}>${this.body()}</nav>
       </dialog>`;
     }
     // NVD-40: a collapsible modal drawer's column, while it is closed: a layout region, drawn as a standard drawer's.
