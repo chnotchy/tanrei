@@ -6516,10 +6516,11 @@ topmost dialog; a close request without a key (Android's back) arrives as the na
 its own. A dialog opened from another stacks above it with its own scrim; the first becomes inert. The `<dialog>` appears
 as every modal surface does (`appearStyles()` and `AppearController`, src/primitives/motion.ts: role modal, from its
 centre): from `sys.motion.appear.*` to whole over `motion.enter-*`, and back the same way over `motion.exit-*`. It is
-closed at once — focus and the page are given back — and kept drawn in the top layer by `transition-behavior:
-allow-discrete` on `display` and `overlay` until its exit has played; opened again while it leaves, it is put back with
-`AppearController.keep()`, so that it goes on from what it shows. Mounted open before the first paint, it is there at
-once. Where motion is reduced it only fades, over `sys.motion.role.reduced`. Firefox has no `overlay` transition, so there it leaves the top layer at once, without the fade. Focus moves when it opens and closes, not when the motion ends. A snackbar waits for, and
+closed at once — focus and the page are given back — and kept drawn in the top layer, inert, until its exit and its
+scrim's have played, in every engine (`closeModal()`, src/primitives/modal-exit.ts, MDL-7); opened again while it leaves,
+it is taken back with `openModal()`, so that it goes on from what it shows. Mounted open before the first paint, it is
+there at once. Where motion is reduced it only fades, over `sys.motion.role.reduced`. Focus moves when it opens and
+closes, not when the motion ends. A snackbar waits for, and
 pauses under, an open dialog (`src/primitives/modal.ts`).
 
 **Layout (DLG-7…12, DLG-16).** Centred in the window (above the on-screen keyboard, measured from `visualViewport`), at
@@ -6588,9 +6589,8 @@ inside (Tab wraps), and returns on closing to where it was (or is dropped when t
 on `keydown` and only by the topmost overlay; a native `cancel` becomes `close` with `escape` when an Escape key was just
 pressed and `back` otherwise; the browser's own close is always cancelled, and should it close the dialog anyway the
 sheet asks and shows itself again unless you close it. It slides up from below the bottom edge over `motion.enter-*`
-(`@starting-style`) with the scrim fading in, and down over `motion.exit-*`, kept in the top layer by
-`transition-behavior: allow-discrete` (Firefox has no `overlay` transition, so there it leaves at once, as the dialog
-does). Where motion is reduced it fades in place. Mounted open, it appears in place without motion.
+(`@starting-style`) with the scrim fading in, and down over `motion.exit-*`, kept drawn in the top layer until it has,
+in every engine (`closeModal()`, as the dialog). Where motion is reduced it fades in place. Mounted open, it appears in place without motion.
 
 **Standard (BSH-3, BSH-4).** A `<section>` named by `label` (a region landmark). The host fills its nearest
 positioned ancestor (`position: absolute; inset: 0`, letting every press through), so give the parent that holds the
@@ -6842,8 +6842,8 @@ mounted open — stays inside (Tab wraps), and returns on closing to where it wa
 Escape is answered on `keydown` and only by the topmost overlay; a native `cancel` becomes `close` with `escape` when an
 Escape key was just pressed and `back` otherwise (`src/primitives/sheet.ts`, shared with the bottom sheet). It slides in
 from the end edge over `motion.enter-*` (`@starting-style`) with the scrim fading in, and out over `motion.exit-*` from
-wherever it is, kept in the top layer by `transition-behavior: allow-discrete` (Firefox has no `overlay` transition, so
-there it leaves at once, as the dialog does); where motion is reduced it fades in place. A drag (pointer events, followed
+wherever it is, kept drawn in the top layer until it has, in every engine (`closeModal()`, as the dialog); where motion
+is reduced it fades in place. A drag (pointer events, followed
 through the window) starts past an 8 px slop along the horizontal axis (a vertical move first is the content's scroll)
 and follows the pointer toward the end edge, never past where the sheet rests; released past half its width, or flung
 that way (0.5 px/ms), it asks to close, holds for a frame and then slides out from there if you closed it, or slides back
@@ -7343,17 +7343,19 @@ Shift+Tab leave it without closing it. No scrim, no trap, no `close`.
 **Modal (NVD-19…22, NVD-40).** A native `<dialog>` in the shadow root opened with `showModal()`: the top layer,
 `::backdrop` as the scrim (`scrim.color`), everything else inert, the page's scroll held (`holdPageScroll()`), a snackbar
 waiting (`modalLayer`). It slides in from its start edge (`translate`, `@starting-style`) over the enter motion and out over
-the exit motion. It slides out while it is still open (the `leaving` class), in the top layer over its fading scrim, and
-`close()` is called once the dialog's own transitions and its scrim's have finished (`getAnimations()`, as Menu leaves):
-no timer, and no `overlay` transition, which Firefox and WebKit do not run (there the drawer used to leave at once). Focus
-goes to the selected destination (or the group row that shows it), Tab wraps inside (`trapFocus()`), and returns once the
-drawer has left the top layer (until then what had it is behind the modal dialog). A drag follows the pointer toward the
+the exit motion. It opens and closes with `openModal()` and `closeModal()` (src/primitives/modal-exit.ts, MDL-7): closed,
+it is no longer modal at once — the page is given back — and stays drawn in the top layer, inert, sliding out over its
+fading scrim until their transitions have finished (no timer, and no `overlay` transition, which Firefox and WebKit do not
+run); opened again while it leaves, it goes back from where it is. Its slide and its scrim's fade begin in the first frame
+drawn after the task that opens or closes it. Focus goes to the selected destination (or the group row that shows it),
+Tab wraps inside (`trapFocus()`), and returns as it closes, not when its motion ends (MDL-5). A drag follows the pointer toward the
 start edge once past the slop; a release past half the width, or a fling, closes it. A collapsible modal drawer keeps its
 column in the host's layout box — a `<nav>` in the standard variant's look, collapsed — and, while open, replaces it with
 the dialog placed over the column's box (measured when it opens), which widens from the column's width over
 `motion.expand-*`, its scrim fading over the same time; its container color, elevation, end corners and end edge move from
 the column's look to the modal variant's over the same motion (`@starting-style` gives the column's look to its first
-frame). Closing narrows it back while it is still open and moves its look back to the column's; once that has finished
+frame). Closing narrows it back while it is still open and modal (the `leaving` class; its own `showModal()` and
+`close()`, not `closeModal()`) and moves its look back to the column's; once that has finished
 the dialog is closed and the column takes its place, in the same frame, drawn as the dialog's last frame was, its items
 scrolled where the dialog's were (and the dialog's where the column's were, opening). One element cannot be both: a
 closed `<dialog>` that is drawn is still exposed as a dialog (Chromium keeps the role whatever `role` says), and the
@@ -7762,7 +7764,10 @@ in right-to-left), the input with the same value and a medium clear button — s
 needs `viewport-fit=cover` to be non-zero), a divider under it, then the suggestions and your content, above the
 on-screen keyboard. Opening focuses the header's input with the caret at the end; closing returns focus to the bar's
 input, which does not reopen it. A press on the view that would take focus nowhere keeps it inside. It fades in and out
-over the open and close motion. The slots are not drawn in the header.
+over the open and close motion, at once where motion is reduced: both views open and close with `openModal()` and
+`closeModal()` (src/primitives/modal-exit.ts, MDL-7), so a closing view is no longer modal at once — focus and the page
+are given back — and stays drawn in the top layer, with its scrim, until their fade has played, in every engine. The
+slots are not drawn in the header.
 
 **Keyboard (SRC-12…15, SRC-57, SRC-55).** Suggestions are queries, and the query as typed is always what Enter takes
 until the person moves. With `query-row="first"` (the default) it is a row of the search's own, first in the listbox and
@@ -7901,8 +7906,8 @@ content up to the room left (its content scrolls under the header), its top fixe
 is its `::backdrop` in `view.scrim.color`; **a press on it closes the view (reason `outside`) and reaches nothing under
 it** — the page is inert. Its header starts with the back button of the full-screen header, in the
 search glyph's place and named by `back-label`: Tab reaches it and Enter or Space on it closes the view (reason `back`),
-so a person with neither Escape nor a pointer can leave. Both fade over the open and close motion; where `overlay` and
-`transition-behavior: allow-discrete` are missing the view leaves at once.
+so a person with neither Escape nor a pointer can leave. Both fade over the open and close motion, and at once where motion
+is reduced.
 
 **Results (SRC-42…46, SRC-49, SRC-50).** `<tanrei-search-result>` draws a suggestion's row from the suggestion tokens in
 its own shadow root. Its link is its own `<a href>` (a `<button>` without `href`, or with a `javascript:` one), which the
@@ -10600,9 +10605,9 @@ without Ctrl does nothing at fit and is not prevented.
 
 **What a browser cannot do, and what it does instead.**
 
-- **The exit fade** (IMP-33) needs a closed dialog held in the top layer (`overlay`, with `transition-behavior:
-  allow-discrete`). Where the engine has no `overlay` property the preview is gone at once when it closes, as a
-  `<tanrei-dialog>` is; focus and the page are given back at the same moment either way.
+- **The exit fade** (IMP-33) needs a closed dialog held in the top layer. It is handed over (`closeModal()`,
+  src/primitives/modal-exit.ts): closed at once — focus and the page are given back — and shown as a manual popover,
+  inert, until its fade has played, in every engine, as a `<tanrei-dialog>` is.
 - **`forced-color-adjust`** is written on the images (IMP-41); an engine without the property recolors no picture.
 - **Android's back** arrives as the dialog's own `cancel` and is reported as `back` unless an Escape key was seen
   within the last second (`closeRequestReason()`); a browser that closes the dialog itself is asked once more and the

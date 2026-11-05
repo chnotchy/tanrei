@@ -529,12 +529,11 @@ export const styles = css`
     background: ${t('view-container-color')};
     color: inherit;
     outline: none;
-    /* SRC-23: out, it fades over the close motion — kept in the top layer and displayed until it has. */
+    /* SRC-23: out, it fades over the close motion — kept drawn in the top layer until it has (closeModal). */
     opacity: 0;
-    transition-property: opacity, display, overlay;
+    transition-property: opacity;
     transition-duration: ${t('motion-close-duration')};
     transition-timing-function: ${t('motion-close-easing')};
-    transition-behavior: allow-discrete;
   }
   .full[open] {
     display: flex;
@@ -622,10 +621,9 @@ export const styles = css`
     background: ${t('view-scrim-color')};
     backdrop-filter: ${SCRIM_FILTER};
     opacity: 0;
-    transition-property: opacity, display, overlay;
+    transition-property: opacity;
     transition-duration: ${t('motion-close-duration')};
     transition-timing-function: ${t('motion-close-easing')};
-    transition-behavior: allow-discrete;
   }
   .full.hung[open]::backdrop {
     opacity: 1;
@@ -637,7 +635,8 @@ export const styles = css`
       opacity: 0;
     }
   }
-  /* MOT-4: drawn open at once, the scrim starts no fade either (openModal). */
+  /* SRC-23, SRC-41: closed, the view stays drawn in the top layer until its fade and its scrim's have played; MOT-4:
+     drawn open at once, the scrim starts no fade either (openModal, closeModal: src/primitives/modal-exit.ts). */
   ${modalExitStyles('.full')}
   ${scrimFilter('.scrim', T('view-scrim-blur'))}
   .scrim {

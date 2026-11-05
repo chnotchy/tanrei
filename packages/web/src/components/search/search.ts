@@ -46,6 +46,8 @@ import {
   takesText,
   delegatedAria, namedByProduct,
   delegatesAria,
+  closeModal,
+  isLeaving,
   openModal,
 } from '../../primitives/index.js';
 import '../button/button.js';
@@ -2190,7 +2192,8 @@ export class TanreiSearch extends TanreiElement {
     const dialog = this.dialog;
     if (!dialog || this.fullShown || !this.isConnected) return;
     // MOT-4: opened before the document's first paint (written `expanded` in the page's markup), the view and its scrim
-    // are drawn open at once; opened later, their fade begins in the first frame drawn after this task.
+    // are drawn open at once; opened later, their fade begins in the first frame drawn after this task. Still leaving,
+    // it is taken back from where its fade has got to (MOT-2).
     if (!dialog.open) openModal(dialog);
     this.fullShown = true;
     modalLayer.add(this);
@@ -2205,8 +2208,11 @@ export class TanreiSearch extends TanreiElement {
     }
   }
 
-  /** SRC-9: out of the top layer (fading), the page given back, focus back to the bar's input — which does not reopen it. */
-  private withdrawFull(restoreFocus = true) {
+  /**
+   * SRC-9, SRC-23, SRC-41: out of the top layer (fading, with its scrim), the page given back, focus back to the bar's
+   * input — which does not reopen it. `instant`: gone at once (drawn in place from now).
+   */
+  private withdrawFull(restoreFocus = true, instant = false) {
     const dialog = this.dialog;
     if (!this.fullShown) return;
     this.fullShown = false;
@@ -2215,7 +2221,9 @@ export class TanreiSearch extends TanreiElement {
     window.visualViewport?.removeEventListener('resize', this.onViewport);
     const active = deepActive();
     const inside = !!active && (dialog?.contains(active) || focusWithin(this) || active === document.body);
-    if (dialog?.open) dialog.close();
+    // SRC-23, SRC-41: no longer modal at once — the page is given back and focus moves now, not when the motion ends —
+    // and drawn in the top layer, with its scrim, until their fade has played (closeModal), in every engine.
+    if (dialog) void closeModal(dialog, { instant });
     // SRC-9, SRC-40: focus back to the bar's input — which does not reopen it — or to the trigger.
     if (restoreFocus && inside && !this.inert_) (this.triggered ? this.trigger : this.barInput)?.focus();
   }
@@ -2226,7 +2234,9 @@ export class TanreiSearch extends TanreiElement {
     const wanted = this.expanded && !this.inert_ && this.modal;
     dialog.classList.toggle('inline', this.inline);
     if (this.inline) {
-      if (this.fullShown) this.withdrawFull(false);
+      // Drawn in place from now: a view still leaving the top layer leaves it at once.
+      if (this.fullShown) this.withdrawFull(false, true);
+      else if (isLeaving(dialog)) void closeModal(dialog, { instant: true });
       // Drawn in place, the view is marked open and takes no focus of its own (`show()` would run the dialog's
       // focusing steps, in a view the page drew and nobody opened): the input keeps it where the person's act put it.
       if (wanted && !dialog.open) dialog.open = true;

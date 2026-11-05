@@ -1789,8 +1789,8 @@ test.describe('forms and focus', () => {
     await page.keyboard.press('Escape');
     const dialog = drawer(page, 'm').locator('dialog');
     expect(Number.parseFloat(await css(dialog, 'transition-duration'))).toBeCloseTo(exit / 1000, 3);
-    // Focus goes back once the drawer has left the top layer: until then what had it is behind a modal dialog.
-    await expect.poll(() => activeValue(page)).toBe('menu');
+    // Focus goes back as it closes, not when its motion ends (MDL-5): the drawer is no longer modal, and slides out.
+    expect(await activeValue(page)).toBe('menu');
     await drawer(page, 'm').evaluate((el: any) => (el.open = true));
     await expect.poll(() => activeValue(page)).toBe('inbox');
     await page.locator('#menu').evaluate((el) => el.remove());
@@ -3518,7 +3518,8 @@ const panelLook = (root: Element) => {
     radius: round(Number.parseFloat(style.borderStartEndRadius) || 0),
     shadowAlpha: round(shadowAlpha * 100) / 100,
     shadowBlur: round(shadowBlur),
-    scrim: dialog?.open ? Number(getComputedStyle(dialog, '::backdrop').opacity) : 0,
+    // The scrim while the dialog is in the top layer: open, or closed and still leaving there (MDL-7, closeModal).
+    scrim: dialog && (dialog.open || dialog.matches(':popover-open')) ? Number(getComputedStyle(dialog, '::backdrop').opacity) : 0,
   };
 };
 /** The parts of the panel's look NVD-40 moves between the column's and the modal variant's. */
