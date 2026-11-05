@@ -73,8 +73,8 @@ export interface AppearOptions {
   motion: string;
   /**
    * The condition that holds while the surface is open, on the motion element or an element round it in the same
-   * shadow root (`.surface.open`, `[open]`). Keep it apart from the top layer's own state (`:popover-open`) where the
-   * browser may take the surface out of it at once: the surface is taken out after `exit()` resolves. A modal
+   * shadow root (`.surface.open`, `[open]`). Keep it apart from the top layer's own state (`:popover-open`): the
+   * surface is taken out of the top layer after `exit()` resolves, so it stays in it while its exit plays. A modal
    * `<dialog>` is opened and closed with `openModal()` and `closeModal()` (src/primitives/modal-exit.ts), which keep it
    * drawn in the top layer, its `[open]` gone, until its exit and its scrim's have played: `[open]` is its condition.
    */
@@ -96,13 +96,14 @@ export interface AppearOptions {
 }
 
 /** The properties an appearance moves; what an exit waits for. `transform` too, for a surface still drawn with it. */
-const APPEAR_PROPERTIES = new Set(['opacity', 'scale', 'translate', 'filter', 'transform', 'display', 'overlay']);
-const MOVED = 'opacity, scale, translate, filter, display, overlay';
-// `display` and `overlay` change discretely, and only with `allow-discrete`: a popover the browser takes out of the top
-// layer (a light dismiss) stays drawn, and in the top layer, until its exit has played — in Chromium; WebKit and
-// Firefox take it away at once. A modal `<dialog>` does not rely on it: `closeModal()` keeps it drawn in every engine.
-// Written as a longhand, so that an engine without it drops only this declaration.
-const BEHAVIOUR = 'normal, normal, normal, normal, allow-discrete, allow-discrete';
+const APPEAR_PROPERTIES = new Set(['opacity', 'scale', 'translate', 'filter', 'transform']);
+// Neither `display` nor `overlay` is transitioned: nothing the browser takes out of the top layer by itself has an exit
+// to keep drawn. Every popover is a manual one, which the browser never light-dismisses (test/popovers-manual.test.mjs):
+// its component dismisses it, plays its exit and takes it out of the top layer once `exit()` resolves. A modal
+// `<dialog>` is closed with `closeModal()` (src/primitives/modal-exit.ts), which keeps it drawn, its display held, until
+// its exit has played. Kept drawn by a discrete transition of the two instead, only Chromium would play that exit:
+// WebKit and Firefox (which has no `overlay`) take the surface away at once.
+const MOVED = 'opacity, scale, translate, filter';
 
 /** `:is(<condition>)` on the motion element or on an element round it. */
 const under = (condition: string, motion: string) => `:is(${condition}) :is(${motion}), :is(${motion}):is(${condition})`;
@@ -190,11 +191,9 @@ export function appearStyles(options: AppearOptions): CSSResult {
     translate: calc(var(--_appear-dx) * var(--_appear-distance)) calc(var(--_appear-dy) * var(--_appear-distance));
     filter: var(--_appear-filter);`;
   const whole = 'opacity: 1; scale: none; translate: none; filter: none;';
-  const timing = (t: AppearTiming, properties = MOVED, behaviour = BEHAVIOUR) =>
-    `transition-property: ${properties}; transition-duration: ${t.duration}; transition-timing-function: ${t.easing}; transition-behavior: ${behaviour};`;
+  const timing = (t: AppearTiming, properties = MOVED) => `transition-property: ${properties}; transition-duration: ${t.duration}; transition-timing-function: ${t.easing};`;
   const reducedClosed = `opacity: ${sheet ? 0 : 'var(--_appear-opacity)'}; scale: none; translate: none; filter: none;`;
-  const reducedProperties = 'opacity, display, overlay';
-  const reducedBehaviour = 'normal, allow-discrete, allow-discrete';
+  const reducedProperties = 'opacity';
   return unsafeCSS(`
   :is(${motion}) {
     ${start}
@@ -219,11 +218,11 @@ export function appearStyles(options: AppearOptions): CSSResult {
   @media (prefers-reduced-motion: reduce) {
     :is(${motion}) {
       ${reducedClosed}
-      ${timing({ duration: fade, easing: exit.easing }, reducedProperties, reducedBehaviour)}
+      ${timing({ duration: fade, easing: exit.easing }, reducedProperties)}
     }
     ${open} {
       opacity: 1;
-      ${timing({ duration: fade, easing: enter.easing }, reducedProperties, reducedBehaviour)}
+      ${timing({ duration: fade, easing: enter.easing }, reducedProperties)}
     }
     @starting-style {
       ${open} {
