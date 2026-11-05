@@ -2449,7 +2449,10 @@ test.describe('accessibility', () => {
           void (document.querySelector('tanrei-snackbar-host') as any).show({ status: 'error', statusLabel: 'Error', title: 'Message not sent', message, action: 'Retry', closable: true, closeLabel: 'Close', expandLabel: 'Show full message' }),
         [LONG],
       );
-      await page.waitForTimeout(600);
+      // The snackbar the host shows plays its entrance: axe reads it at rest, once it is shown and every motion in the
+      // page has ended.
+      await expect.poll(() => showing(page)).toEqual([LONG]);
+      await motionEnded(page);
       const results = await new AxeBuilder({ page }).include('main').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
     }

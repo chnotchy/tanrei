@@ -7,6 +7,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, dialogWindow, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, tab } from '../../../test/harness.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('modal-layer');
 type P = Page;
@@ -364,7 +365,9 @@ test.describe('accessibility', () => {
       for (const fixture of spec.fixtures) {
         await page.setViewportSize(WINDOW);
         await mountFixtures(page, spec, { theme, fixtures: [fixture] });
-        await page.waitForTimeout(400);
+        // Every mount after the first writes its document into a window that was painted already, so the open layer
+        // plays its entrance (MOT-4): axe reads it at rest, once every motion in the page has ended.
+        await motionEnded(page);
         const results = await new AxeBuilder({ page }).analyze();
         expect(results.violations, `${theme} ${fixture.id}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
       }
