@@ -116,8 +116,9 @@
 //   contained-wheel — containWheel(), containedWheel: a wheel toward an end a scroller already stands at is cancelled,
 //                 so that it does not reach the page where Gecko's wheel transaction has let `overscroll-behavior` go
 //   modal-exit  — openModal(), closeModal(), modalExitStyles(): a modal <dialog> closes at once (focus goes back) and stays
-//                 drawn in the top layer, inert, until its exit and its scrim's have played, in every engine (MDL-7);
-//                 opened before the document's first paint, it and its scrim are drawn open at once (MOT-4)
+//                 drawn in the top layer, inert (or, `interactive`, taking focus and the pointer), until its exit and
+//                 its scrim's have played, in every engine (MDL-7); opened before the document's first paint, it and
+//                 its scrim are drawn open at once (MOT-4)
 //   scrim       — scrimFilter() and SCRIM_FILTER: a modal surface's scrim blur as a backdrop filter only where there is
 //                 a blur to draw (MDL-1)
 //   sheet       — what the sheets share (bottom sheet, BSH-5, BSH-9; side sheet, SSH-4): SheetDrag (slop, following,
@@ -303,7 +304,7 @@ export { VisibilityController } from './visibility.js';
 export { layoutScale } from './layout-scale.js';
 export { deepActive, focusWithin, holdPageScroll, modalLayer, returnFocus, tabbables, trapFocus } from './modal.js';
 export { containWheel, containedWheel } from './contained-wheel.js';
-export { LEAVING, closeModal, isLeaving, modalExitStyles, openModal } from './modal-exit.js';
+export { LEAVING, type ModalMoves, closeModal, isLeaving, modalExitStyles, openModal } from './modal-exit.js';
 export { SCRIM_FILTER, scrimFilter } from './scrim.js';
 export {
   POINTER_STOPPED_TIME,

@@ -1,11 +1,11 @@
 // How every modal surface leaves (src/primitives/modal-exit.ts, MDL-7: "keeping them drawn until the fade ends"): the
 // dialog (centred, and as a sheet in a compact window), the modal layer, the modal side and bottom sheets, the image
-// preview, the popover's sheet, the modal navigation drawer, and the search's dialog and full-screen views. In every
-// engine, frame by frame on a held clock (test/frames.ts): closed, the surface and its scrim stay drawn in the top layer
-// and move to their closed look — no frame where they are gone before the motion ends — while focus is back on the
-// opener from the first frame (MDL-5) and the page behind is no longer inert. Where motion is reduced it fades in place,
-// drawn until it has, or, where its spec says so, is gone at once. Opened again while it leaves, it goes back from the
-// values it shows, modal again.
+// preview, the popover's sheet, the modal navigation drawer (sliding, and collapsible: narrowing back to its column),
+// and the search's dialog and full-screen views. In every engine, frame by frame on a held clock (test/frames.ts):
+// closed, the surface and its scrim stay drawn in the top layer and move to their closed look — no frame where they are
+// gone before the motion ends — while focus is back on the opener from the first frame (MDL-5) and the page behind is
+// no longer inert. Where motion is reduced it fades in place, drawn until it has, or, where its spec says so, is gone at
+// once. Opened again while it leaves, it goes back from the values it shows, modal again.
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Frames, type Probe, expectNoFlicker, sampleFrames } from '../../test/frames.js';
 import { type Fixture, dialogWindow, fixtureHost, fixturesDocument, loadSpec, mountFixtures, popoverWindow } from '../../test/harness.js';
@@ -16,8 +16,8 @@ interface Surface {
   spec: string;
   fixture: string;
   window: { width: number; height: number };
-  /** How it moves out: a fade, or a slide (`translate` on one axis) where motion is not reduced. */
-  exit: 'fade' | 'slide';
+  /** How it moves out: a fade, a slide (`translate` on one axis), or a narrowing (its width) where motion is not reduced. */
+  exit: 'fade' | 'slide' | 'narrow';
   /** It draws a scrim (its `::backdrop` is not clear). */
   scrim: boolean;
   /** Where motion is reduced: it fades in place, or it disappears at once (the search's SRC-23). */
@@ -38,9 +38,11 @@ const SURFACES: Surface[] = [
   { name: 'modal bottom sheet', spec: 'bottom-sheet', fixture: 'modal', window: { width: 480, height: 640 }, exit: 'slide', scrim: true },
   { name: 'image preview', spec: 'image-preview', fixture: 'single', window: { width: 640, height: 640 }, exit: 'fade', scrim: false },
   { name: 'popover as a sheet', spec: 'popover', fixture: 'compact', window: popoverWindow, exit: 'slide', scrim: true },
-  // NVD-22: it slides out over its fading scrim, at once where motion is reduced. (A collapsible one narrows to its
-  // column still modal, and gives focus back when its column has taken the dialog's place: NVD-40.)
+  // NVD-22: it slides out over its fading scrim, at once where motion is reduced.
   { name: 'modal navigation drawer', spec: 'navigation-drawer', fixture: 'modal', window: { width: 480, height: 640 }, exit: 'slide', scrim: true, reduced: 'at-once' },
+  // NVD-22, NVD-40: a collapsible one narrows back to its column over its fading scrim, and once it has, its column
+  // takes the dialog's place; at once where motion is reduced.
+  { name: 'collapsible modal navigation drawer', spec: 'navigation-drawer', fixture: 'modal-collapsible-closed', window: { width: 800, height: 640 }, exit: 'narrow', scrim: true, reduced: 'at-once' },
   ...(['dialog-results', 'full-screen'] as const).map(
     (fixture): Surface => ({
       name: fixture === 'full-screen' ? 'full-screen search' : 'search as a dialog',
@@ -61,11 +63,13 @@ const propOf = (surface: Pick<Surface, 'prop'>) => surface.prop ?? 'open';
 
 /**
  * The surface's `<dialog>` (the first in the host's shadow root): whether it is drawn in the top layer, its opacity, its
- * translation, its scrim's opacity, and where focus is. Self-contained: it is sent as its source.
+ * translation, its width, its scrim's opacity, and where focus is — and, where the host draws no dialog (a collapsible
+ * drawer's column), that none is drawn. Self-contained: it is sent as its source.
  */
 const probe: Probe = (root) => {
   const dialog = root.shadowRoot?.querySelector('dialog');
-  if (!dialog) return {};
+  const focus = document.activeElement?.id ?? '';
+  if (!dialog) return { drawn: false, modal: false, scrim: 0, focus };
   const style = getComputedStyle(dialog);
   const [tx = '0px', ty = '0px'] = style.translate === 'none' ? [] : style.translate.split(' ');
   return {
@@ -74,8 +78,9 @@ const probe: Probe = (root) => {
     opacity: Number(style.opacity),
     tx: Number.parseFloat(tx),
     ty: Number.parseFloat(ty),
+    width: Math.round(dialog.getBoundingClientRect().width * 10) / 10,
     scrim: Number(getComputedStyle(dialog, '::backdrop').opacity),
-    focus: document.activeElement?.id ?? '',
+    focus,
   };
 };
 
@@ -139,7 +144,7 @@ const value = (seen: Frames, i: number, name: string) => seen.frames[i]!.probe[n
 function expectLeaves(seen: Frames, surface: Surface, opener: string, { reduced = false } = {}) {
   const frames = seen.frames;
   // The motion ends in the frame where nothing it moves changes any more.
-  const moving = frames.filter((frame, i) => i < frames.length - 1 && ['opacity', 'tx', 'ty', 'scrim'].some((name) => frame.probe[name] !== frames[i + 1]!.probe[name]));
+  const moving = frames.filter((frame, i) => i < frames.length - 1 && ['opacity', 'tx', 'ty', 'width', 'scrim'].some((name) => frame.probe[name] !== frames[i + 1]!.probe[name]));
   expect(moving.length, 'the exit is drawn over several frames').toBeGreaterThanOrEqual(4);
   const last = moving.at(-1)!.index;
   const gone = frames.filter((frame) => frame.index <= last && frame.probe.drawn !== true).map((frame) => `frame ${frame.index} (${frame.time.toFixed(0)} ms)`);
@@ -155,6 +160,12 @@ function expectLeaves(seen: Frames, surface: Surface, opener: string, { reduced 
     const opacity = way('opacity');
     expect(steps(opacity), `it fades over several frames: ${opacity.join(' → ')}`).toBeGreaterThanOrEqual(4);
     expect(opacity.at(-1), 'and has faded out by the end of its motion').toBeLessThan(0.05);
+  } else if (surface.exit === 'narrow') {
+    // To the frame where it ends, drawn: the frame after it is the column's, which draws no dialog.
+    const width = frames.slice(0, last + 1).map((_, i) => value(seen, i, 'width'));
+    expect(steps(width), `it narrows over several frames: ${width.join(' → ')}`).toBeGreaterThanOrEqual(4);
+    expect(width.every((v, i) => i === 0 || v <= width[i - 1]! + 0.1), `it only narrows: ${width.join(' → ')}`).toBe(true);
+    expect(width.at(-1)!, 'to its column').toBeLessThan(width[0]! / 2);
   } else {
     const axis = Math.abs(value(seen, last, 'tx')) > Math.abs(value(seen, last, 'ty')) ? 'tx' : 'ty';
     const offset = way(axis);
@@ -297,12 +308,14 @@ for (const surface of SURFACES) {
       if (surface.scrim) expect(first.at.some((motion) => motion.includes('(scrim)')), `the scrim fades out: ${first.at.join(', ')}`).toBe(true);
       expect(first.shown, 'and the surface and its scrim are drawn as they were shown open, in the top layer').toEqual(first.before);
       expect(first.focus, 'focus is back on the opener (MDL-5)').toBe(returned);
-      // And it still leaves: its exit plays to its end, and then it is out of the top layer, not modal, not inert.
+      // And it still leaves: its exit plays to its end, and then it is out of the top layer, not modal, not inert (or,
+      // a collapsible drawer, its column has taken the dialog's place).
       await motionEnded(host);
       await expect
         .poll(() =>
           host.evaluate((el) => {
-            const dialog = el.shadowRoot!.querySelector('dialog')!;
+            const dialog = el.shadowRoot!.querySelector('dialog');
+            if (!dialog) return { drawn: false, open: false, leaving: false, inert: false };
             return { drawn: getComputedStyle(dialog).display !== 'none', open: dialog.open, leaving: dialog.hasAttribute('data-tanrei-leaving'), inert: dialog.inert };
           }),
         )

@@ -7357,13 +7357,18 @@ column in the host's layout box — a `<nav>` in the standard variant's look, co
 the dialog placed over the column's box (measured when it opens), which widens from the column's width over
 `motion.expand-*`, its scrim fading over the same time; its container color, elevation, end corners and end edge move from
 the column's look to the modal variant's over the same motion (`@starting-style` gives the column's look to its first
-frame). Closing narrows it back while it is still open and modal (the `leaving` class; its own `showModal()` and
-`close()`, not `closeModal()`) and moves its look back to the column's; once that has finished
-the dialog is closed and the column takes its place, in the same frame, drawn as the dialog's last frame was, its items
-scrolled where the dialog's were (and the dialog's where the column's were, opening). One element cannot be both: a
-closed `<dialog>` that is drawn is still exposed as a dialog (Chromium keeps the role whatever `role` says), and the
-column is a navigation landmark only (NVD-23). Focus returns then (the element that had it — its menu button, usually —
-is drawn in the closing dialog until then).
+frame). It closes with `closeModal()` too, `interactive` and with what it moves besides its place named (`moves`: its
+width, container color, elevation and corners, held as shown where it changes hands): no longer modal at once — the page
+is given back, and focus returns as it closes (MDL-5) — it narrows back in the top layer, closed, its look moving back to
+the column's over its fading scrim. While it narrows it takes focus and the pointer (only its scrim takes none), since
+it is becoming the column and the element focus returns to — its menu button, usually — is slotted in it; before
+anything of the closing update is styled, focus leaves the panel, so that no part the change of form recolors starts
+that motion for a focus it loses in the same update. Once the narrowing has finished the dialog leaves the top layer and
+the column takes its place, in the same frame, drawn as the dialog's last frame was, focus kept where it is, its items
+scrolled where the dialog's were (and the dialog's where the column's were, opening); where motion is reduced that
+happens at once, and focus returns once the column is drawn. Opened again while it narrows, it turns back from where it
+is (`openModal()`). One element cannot be both: a closed `<dialog>` that is drawn is still exposed as a dialog (Chromium
+keeps the role whatever `role` says), and the column is a navigation landmark only (NVD-23).
 
 **Groups (NVD-44…48).** A group's row is drawn as a destination's, with the icon set's `expand_more` at
 `item.trailing-icon.size` in place of trailing content, turned half a turn while open. Its items are revealed and hidden

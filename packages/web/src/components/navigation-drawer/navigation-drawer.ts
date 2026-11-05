@@ -45,6 +45,7 @@ import {
   closeModal,
   isLeaving,
   openModal,
+  type ModalMoves,
 } from '../../primitives/index.js';
 import { FILTER_SETTLE_MS, filterWords, holdsWords } from '../../primitives/filter.js';
 import { WordsController } from '../../primitives/words.js';
@@ -110,6 +111,12 @@ const TOUCH_SLOP = 8;
 const FLING_VELOCITY = 0.5;
 /** Groups nested deeper than this are reported (NVD-48). */
 const DEEPEST = 3;
+/**
+ * NVD-40: what a collapsible modal drawer's dialog moves between its column and its full width besides its place — its
+ * width, container color, elevation and corners (the styles' `dialog.drawer.widening`), by the names the engines give
+ * their transitions — held as shown where it changes hands (closeModal, openModal).
+ */
+const WIDENING: ModalMoves = ['width', 'background-color', 'box-shadow', 'border-top-left-radius', 'border-top-right-radius', 'border-bottom-right-radius', 'border-bottom-left-radius'];
 
 const ITEM = 'tanrei-navigation-drawer-item';
 const GROUP = 'tanrei-navigation-drawer-group';
@@ -1812,6 +1819,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private hasMain = false;
   /** A collapsible modal drawer's dialog is drawn (open, or narrowing back to its column). */
   private presented = false;
+  /** A collapsible modal drawer's dialog is narrowing back to its column, closed (NVD-40). */
+  private narrowing = false;
   /** Measured from the product's own elements: the first header button's width, the main action's height. */
   private measured: Record<string, string> = {};
   /** Where a collapsible modal drawer's column is, for its dialog to widen from. */
@@ -3057,26 +3066,20 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private present() {
     const dialog = this.dialog;
     if (!dialog || this.shown || !this.isConnected) return;
-    // A collapsible drawer opened again while it was still narrowing to its column: it turns back from where it is,
-    // still modal, focus where it is.
-    if (dialog.open && dialog.classList.contains('leaving')) {
-      this.leaveRun++;
-      dialog.classList.remove('leaving');
-      this.shown = true;
-      modalLayer.add(this);
-      return;
-    }
     // A collapsible drawer's column was just replaced by its dialog: where focus was is read before that (willUpdate).
+    // Opened again while it still narrows to its column, focus is where its close gave it back.
     this.opener = this.pendingOpener ?? deepActive();
     this.pendingOpener = null;
     // MOT-4: a drawer opened before the document's first paint (written open in the page's markup) is drawn open at
     // once — it does not slide in, nor its scrim fade in, over the first frames.
     if (!documentPainted()) this.drawAtOnce();
     if (this.collapses) {
-      // NVD-40: a collapsible drawer widens from its column with more than the surface's own motion, and narrows back
-      // to it still modal (`withdraw`): it opens with its own showModal(). A sliding dialog still leaving is gone first.
-      if (isLeaving(dialog)) void closeModal(dialog, { instant: true });
-      if (!dialog.open) dialog.showModal();
+      // NVD-40: a collapsible drawer widens from its column with more than the surface's own motion (WIDENING) — or,
+      // still narrowing back to it, turns back from where it is (MOT-2). A dialog still sliding out (it was not
+      // collapsible when it closed) is gone first.
+      if (isLeaving(dialog) && !this.narrowing) void closeModal(dialog, { instant: true });
+      this.narrowing = false;
+      openModal(dialog, { moves: WIDENING });
     } else {
       // NVD-19, MDL-7: opened modally — or, still leaving, taken back where its slide has got to (MOT-2); the slide and
       // its scrim's fade begin in the first frame drawn after this task (src/primitives/modal-exit.ts).
@@ -3096,15 +3099,15 @@ export class TanreiNavigationDrawer extends TanreiElement {
    * NVD-20, NVD-22, NVD-40: out of the top layer, focus back where it was, the page given back, `close`. Without `notify`
    * (a change of presentation or variant, a removal) it comes down at once.
    *
-   * A drawer that slides is no longer modal at once — the page is given back and focus goes back now, not when the
-   * motion ends (MDL-5) — and stays drawn in the top layer, sliding out over its fading scrim, until that motion has
-   * ended (closeModal, MDL-7), in every engine.
+   * It is no longer modal at once — the page is given back and focus goes back now, not when the motion ends (MDL-5) —
+   * and stays drawn in the top layer over its fading scrim until that motion has ended (closeModal, MDL-7), in every
+   * engine. A drawer that slides leaves inert, sliding out.
    *
-   * A collapsible drawer narrows to its column, its look becoming the column's, while it is still modal in the top
-   * layer over its fading scrim, and leaves the top layer once that motion has ended: its own transitions' `finished`,
-   * the clock that draws it, in every engine — no timer. Then its column takes the dialog's place, drawn as the dialog's
-   * last frame was, and focus goes back: until then, what had it is slotted inside the dialog, and the column that will
-   * hold it is not drawn.
+   * A collapsible drawer narrows to its column, its look becoming the column's (WIDENING), and leaves `interactive`:
+   * what focus goes back to is often slotted in it (the menu button), and it is becoming the column, which is part of
+   * the page — so it takes focus and the pointer as it narrows, and only its scrim takes none. Once its motion has ended
+   * (its own transitions' `finished`, the clock that draws it — no timer) its column takes the dialog's place, drawn as
+   * the dialog's last frame was, focus kept where it is.
    */
   private withdraw(restore = true, notify = true) {
     if (!this.shown) return;
@@ -3112,49 +3115,53 @@ export class TanreiNavigationDrawer extends TanreiElement {
     modalLayer.delete(this);
     const dialog = this.dialog;
     const run = ++this.leaveRun;
-    if (dialog && !dialog.classList.contains('widening')) {
-      // A drag the product's close interrupted ends where the drawer is drawn: it slides out from there.
-      this.drag = null;
-      dialog.classList.remove('dragging');
-      dialog.style.removeProperty('--_drag');
-      holdPageScroll(this, false);
-      void closeModal(dialog, { instant: !notify });
+    // A drag the product's close interrupted ends where the drawer is drawn: it leaves from there.
+    this.drag = null;
+    dialog?.classList.remove('dragging');
+    dialog?.style.removeProperty('--_drag');
+    holdPageScroll(this, false);
+    const widening = !dialog || dialog.classList.contains('widening');
+    const left = dialog ? closeModal(dialog, widening ? { instant: !notify, interactive: true, moves: WIDENING } : { instant: !notify }) : null;
+    if (widening && !(dialog && isLeaving(dialog))) {
+      // Already out of the top layer (no motion to play: reduced motion, or at once): its column takes its place first,
+      // in this task's update, and focus goes back once it has — what had it may be slotted in the column.
+      this.takeColumn(run, restore);
+    } else {
       if (restore) this.restoreFocus();
       else this.opener = null;
-      if (notify) this.dispatchEvent(new Event('close'));
-      return;
-    }
-    const finish = () => {
-      if (run !== this.leaveRun || this.shown) return;
-      dialog?.classList.remove('leaving');
-      holdPageScroll(this, false);
-      const narrowing = this.collapses && this.presented;
-      if (narrowing) this.carriedOffset = this.scroller?.scrollTop ?? null;
-      if (dialog?.open) dialog.close();
-      const focus = () => {
-        if (restore) this.restoreFocus();
-        else this.opener = null;
-      };
-      if (!narrowing) {
-        focus();
-        return;
+      if (widening && left) {
+        this.narrowing = true;
+        void left.then((done) => done && this.takeColumn(run));
       }
-      this.presented = false;
-      void this.updateComplete.then(() => {
-        if (this.shown) return;
-        this.carryOffset();
-        focus();
-      });
-    };
-    if (!notify || !dialog?.open || !dialog.isConnected) finish();
-    else {
-      dialog.classList.add('leaving');
-      // The dialog's own motions and its scrim's; what its parts do over the change of form ends with them.
-      const running = dialog.getAnimations({ subtree: true }).filter((animation) => (animation.effect as KeyframeEffect | null)?.target === dialog);
-      if (running.length === 0) finish();
-      else void Promise.allSettled(running.map((animation) => animation.finished)).then(finish);
     }
     if (notify) this.dispatchEvent(new Event('close'));
+  }
+
+  /**
+   * NVD-40: a collapsible modal drawer out of the top layer: its column takes the dialog's place, its items scrolled as
+   * the dialog's were. Then focus goes back (`restore`, as `withdraw` says), or, after a narrowing that gave it back as
+   * it began, is kept where it is.
+   */
+  private takeColumn(run: number, restore?: boolean) {
+    if (run !== this.leaveRun || this.shown) return;
+    this.narrowing = false;
+    const back = () => {
+      if (restore) this.restoreFocus();
+      else this.opener = null;
+    };
+    if (!this.collapses || !this.presented) {
+      if (restore !== undefined) back();
+      return;
+    }
+    this.carriedOffset = this.scroller?.scrollTop ?? null;
+    const focused = restore === undefined && this.hasFocus() ? (deepActive() as HTMLElement | null) : null;
+    this.presented = false;
+    void this.updateComplete.then(() => {
+      if (this.shown) return;
+      this.carryOffset();
+      if (restore !== undefined) back();
+      else if (focused?.isConnected && deepActive() !== focused) focused.focus();
+    });
   }
 
   /** NVD-40: the items of the panel now drawn are scrolled where those of the panel it replaced were. */
@@ -3172,6 +3179,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
   }
 
   private readonly onKeyDown = (event: KeyboardEvent) => {
+    // A collapsible drawer narrowing to its column takes focus, but is no longer modal: its keys are the page's.
+    if (!this.shown) return;
     if (event.key === 'Escape') {
       if (event.defaultPrevented) return;
       event.preventDefault();
@@ -3376,6 +3385,12 @@ export class TanreiNavigationDrawer extends TanreiElement {
   // ---- updates ----
 
   protected override willUpdate(changed: PropertyValues<this>) {
+    // NVD-22, NVD-40: a collapsible modal drawer that closes gives focus back as it closes (`withdraw`, in this update).
+    // Focus leaves the panel before anything of this update is styled: a part that the change of form recolors would
+    // otherwise begin that motion for the focus it still has, and turn it round in no time when focus goes back.
+    if (changed.has('open') && !changed.has('variant') && !changed.has('collapsible') && !this.open && this.shown && this.dialog?.classList.contains('widening') && this.hasFocus()) {
+      (deepActive() as HTMLElement | null)?.blur();
+    }
     // NVD-53: `responsive` turned on or off, or `collapsible` changed under it: the widths are listened to, or no longer.
     if ((changed.has('responsive') || changed.has('collapsible')) && this.hasUpdated) {
       if (changed.has('responsive')) this.watchWidths();
