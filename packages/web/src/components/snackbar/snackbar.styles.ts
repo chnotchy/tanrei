@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, stateRules, type Tone, whenChosen } from '../../primitives/index.js';
+import { focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, SCROLL_HOLD_INSET, stateRules, type Tone, whenChosen } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
@@ -17,6 +17,11 @@ import { scriptTracking } from '../../styles/script-tracking.js';
 const PREFIX = '--tanrei-comp-snackbar';
 const T = (name: string) => `var(${PREFIX}-${name})`;
 const t = (name: string) => unsafeCSS(T(name));
+/**
+ * MDL-2: the room the window gains on a side while a modal overlay holds the page's scroll, which the host's box adds to
+ * its inset on that side, so that it stays where it was.
+ */
+const held = (side: keyof typeof SCROLL_HOLD_INSET) => unsafeCSS(`var(${SCROLL_HOLD_INSET[side]}, 0px)`);
 /**
  * A part's color drawn at one of the component's opacities (SNK-21, SNK-31, SNK-32, SNK-33): the color mixed with
  * transparent, never the element's `opacity`, so nothing else in or around that part fades with it — the focus
@@ -102,11 +107,12 @@ export const styles = css`
   }
   /* SNK-13: shown by its host as a manual popover — in the top layer and, at the bottom (the default, and what an
      unknown placement is), at the bottom of the window, centred, the margin above the bottom edge (and the keyboard, and
-     the safe area) and from the sides. None of the browser's popover box. */
+     the safe area) and from the sides. None of the browser's popover box. Its sides are the window's less the room the
+     window gains while a modal overlay holds the page's scroll (MDL-2), so that it does not move then. */
   :host([popover]) {
     box-sizing: border-box;
     position: fixed;
-    inset: auto 0 calc(${t('container-margin')} + env(safe-area-inset-bottom, 0px) + var(--tanrei-snackbar-keyboard, 0px)) 0;
+    inset: auto ${held('right')} calc(${t('container-margin')} + env(safe-area-inset-bottom, 0px) + var(--tanrei-snackbar-keyboard, 0px)) ${held('left')};
     inline-size: fit-content;
     max-inline-size: calc(100% - 2 * ${t('container-margin')});
     /* SNK-25: the host's area — the window less the margin above and below, inside the safe area, above the keyboard. */
@@ -129,10 +135,10 @@ export const styles = css`
   /* SNK-35: at the top end — the margin below the top edge and from the end edge, inside the safe area and below what
      the frame keeps over the top of the window (a sticky header of <tanrei-app-shell>, APS-17, or a product's own frame
      that sets the same property), so it never covers a top app bar. The end side is the direction's, and so is the
-     safe-area inset on that side. */
+     safe-area inset on that side, with the room the window gains on that side while the page's scroll is held (MDL-2). */
   :host([popover][placement='top-end']) {
-    --_inset-start: env(safe-area-inset-left, 0px);
-    --_inset-end: env(safe-area-inset-right, 0px);
+    --_inset-start: calc(env(safe-area-inset-left, 0px) + ${held('left')});
+    --_inset-end: calc(env(safe-area-inset-right, 0px) + ${held('right')});
     --_inset-top: max(env(safe-area-inset-top, 0px), var(--tanrei-app-shell-scroll-offset, 0px));
     inset: calc(${t('container-margin')} + var(--_inset-top)) auto auto auto;
     inset-inline-end: calc(${t('container-margin')} + var(--_inset-end));
@@ -147,8 +153,8 @@ export const styles = css`
     max-block-size: calc(100dvh - 2 * ${t('container-margin')} - var(--_inset-top) - env(safe-area-inset-bottom, 0px) - var(--tanrei-snackbar-keyboard, 0px));
   }
   :host([popover][placement='top-end']:dir(rtl)) {
-    --_inset-start: env(safe-area-inset-right, 0px);
-    --_inset-end: env(safe-area-inset-left, 0px);
+    --_inset-start: calc(env(safe-area-inset-right, 0px) + ${held('right')});
+    --_inset-end: calc(env(safe-area-inset-left, 0px) + ${held('left')});
   }
   /* SNK-35: shown, the bar fills its host's box, which is as wide as the bar's content within its bounds and, in a compact
      window, as wide as the window less the margins (above), and stands at its end where max-width holds it narrower.

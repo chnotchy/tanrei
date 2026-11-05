@@ -2,7 +2,7 @@
 title: モーダルレイヤー
 description: すべてのモーダルなサーフェスの下にあるレイヤーです。表示するものの背後のウィンドウを暗くし、そこにあるものをすべて操作不能にします。フォーカスを中へ移してとどめ、閉じたら返し、Escape、プラットフォームの「戻る」、暗い部分の押下で閉じるよう求めます。一度スタイルを変えれば、すべてのモーダルなサーフェスがそれに従います。
 translationOf: components/modal-layer.mdx
-sourceHash: 8a469382865ac350a70a4ce9f969a738e26e6df4
+sourceHash: 6dff609b840b61a4b73e9fe67a639e16f0edfb1c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -132,6 +132,26 @@ Web では `<tanrei-modal-layer>` です。ほかのプラットフォームは�
 ### 暗くしないとき
 
 暗い背景の上のビューアーのように、コンテンツが自分の塗りでウィンドウ全体を覆うときは、`scrim` をオフにします。暗くするものが残っていないからです。それでもレイヤーは背後のすべてをふさぎ、コンテンツの外を押せば閉じるよう求めます。
+
+### ウィンドウに固定した要素
+
+モーダルなサーフェスが開いている間、ページはスクロールせず、スクロールバーも消えます。スクロールバーが場所を取っていたところでは、レイヤーがその場所を残すので、ページは横にずれません。たいていのブラウザーでは、ウィンドウに固定した要素もそのまま動きません。ただ、固定した要素のためにはその場所を残せないブラウザーもあります。`::-webkit-scrollbar` でスタイルを付けたスクロールバーのときの Safari と、macOS の Chrome です。そこでは、サーフェスが開いている間、ウィンドウがスクロールバーの幅だけ広がり、ウィンドウの端から端まで固定した要素は広がったり動いたりします。
+
+Web では、そのときレイヤーが、ウィンドウが左右それぞれでどれだけ広がったかを、ドキュメントのルートの `--tanrei-scroll-hold-inset-left` と `--tanrei-scroll-hold-inset-right` に設定します。上部に端から端まで固定したアプリバーや、隅に固定したボタンのように、ウィンドウの端に合わせて固定している自分の要素では、この 2 つをその側の位置に足してください。そうすれば元の位置のまま動きません。スナックバーのような Tanrei 自身の要素は、すでにそうしています。2 つは必要な間しか設定されないので、フォールバックには必ず `0px` を指定します。
+
+```css
+.app-bar {
+  position: fixed;
+  top: 0;
+  left: var(--tanrei-scroll-hold-inset-left, 0px);
+  right: var(--tanrei-scroll-hold-inset-right, 0px);
+}
+.compose-button {
+  position: fixed;
+  bottom: var(--tanrei-sys-space-space400);
+  right: calc(var(--tanrei-sys-space-space400) + var(--tanrei-scroll-hold-inset-right, 0px));
+}
+```
 
 ### 推奨
 
