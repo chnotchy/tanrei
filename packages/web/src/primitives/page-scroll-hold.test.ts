@@ -23,7 +23,8 @@
 //   gutter for it (the padding branch, and the window widens).
 // - Firefox: headless Firefox under Playwright draws no scroll bar on any OS — its driver registers a user-agent sheet,
 //   `* { scrollbar-width: none !important }`, in headless mode only — and it has no `::-webkit-scrollbar`. Headless, it
-//   is held to "nothing written but the overflow" here; a bar that takes room in Firefox is tested by nothing.
+//   is held to "nothing written but the overflow" here; page-scroll-hold-firefox-headed.test.ts runs it headed on Linux,
+//   where it draws its classic bar.
 import { expect, test } from '@playwright/test';
 import { DRAWN_BARS, NONE, STYLED_BAR, expectNothingMoved, holdAndRelease, mount } from '../../test/page-scroll-hold.js';
 

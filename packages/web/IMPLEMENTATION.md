@@ -6544,7 +6544,8 @@ where it was; read them with a fallback, `var(--tanrei-scroll-hold-inset-right, 
 (bottom and top end). A product's own fixed elements are the product's: a fixed app bar across the window is written
 `left: var(--tanrei-scroll-hold-inset-left, 0px); right: var(--tanrei-scroll-hold-inset-right, 0px)`. Tested with the
 engines' bars drawn (`src/primitives/page-scroll-hold*.test.ts`): Chromium without `--hide-scrollbars`, and with
-`--enable-features=OverlayScrollbar` for the branch where the window widens.
+`--enable-features=OverlayScrollbar` for the branch where the window widens; Firefox headed on Linux under `Xvfb` with GTK's
+overlay bars off (headless Firefox draws none).
 
 **Layout (DLG-7…12, DLG-16).** Centred in the window (above the on-screen keyboard, measured from `visualViewport`), at
 least `container.margin` from every edge and the safe area, as wide as its content between `container.min-width` and
