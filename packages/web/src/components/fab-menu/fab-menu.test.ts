@@ -69,9 +69,10 @@ async function wire(page: P, { product = true }: { product?: boolean } = {}) {
     const log: string[] = ((window as any).log = []);
     for (const el of document.querySelectorAll('tanrei-fab-menu')) {
       const menu = el as HTMLElement & { open: boolean };
+      // The element's toggle is a CustomEvent with { open }, not the platform's ToggleEvent the DOM types give the name.
       menu.addEventListener('toggle', (e) => {
-        log.push(`toggle:${(e as CustomEvent).detail.open}`);
-        if (drive) menu.open = (e as CustomEvent).detail.open;
+        log.push(`toggle:${(e as Event as CustomEvent).detail.open}`);
+        if (drive) menu.open = (e as Event as CustomEvent).detail.open;
       });
       menu.addEventListener('close', (e) => {
         log.push(`close:${(e as CustomEvent).detail.reason}`);

@@ -176,7 +176,8 @@
   ],
   "scripts": {
     "generate": "cem analyze",
-    "build": "tsc -p tsconfig.json && node scripts/build.js && node ../tools/src/cli.js syntax",
+    "build": "tsc -p tsconfig.json && node scripts/build.js && node ../tools/src/cli.js syntax && tsc -p tsconfig.test.json",
+    "typecheck:test": "tsc -p tsconfig.test.json",
     "test": "playwright test",
     "test:ci-like": "bash ../../scripts/ci-like.sh",
     "test:node": "node ../tools/src/run-node-tests.js \"src/links/node/test/*.test.mjs\" \"test/*.test.mjs\"",
@@ -197,6 +198,7 @@
     "@tanrei/token-engine": "workspace:*",
     "@tanrei/tokens-build": "workspace:*",
     "@tanrei/tools": "workspace:*",
+    "@types/node": "^22.20.3",
     "esbuild": "^0.28.2",
     "typescript": "^7.0.2"
   }

@@ -187,8 +187,9 @@ test.describe('what prose costs', () => {
       // What a component does while it is defined: attributes on itself — `type` is a name prose's `:has()` asks about
       // — and a child; each followed by a read of a style, as a component's own update is.
       const restyles: number[] = [];
-      const collect = (event: { value: { name: string; args: { elementCount?: number } }[] }) => {
-        for (const each of event.value) if (each.name === 'UpdateLayoutTree' && typeof each.args.elementCount === 'number') restyles.push(each.args.elementCount);
+      // The protocol types a trace event as an object: these are read for their name and the restyle's element count.
+      const collect = (event: { value: object[] }) => {
+        for (const each of event.value as { name: string; args: { elementCount?: number } }[]) if (each.name === 'UpdateLayoutTree' && typeof each.args.elementCount === 'number') restyles.push(each.args.elementCount);
       };
       cdp.on('Tracing.dataCollected', collect);
       await cdp.send('Tracing.start', { transferMode: 'ReportEvents', traceConfig: { includedCategories: ['devtools.timeline', 'disabled-by-default-devtools.timeline'] } });

@@ -192,7 +192,7 @@ test.describe('behavior', () => {
     expect(
       await host(page, 'error-selected').evaluate((el) => {
         const root = el.shadowRoot!;
-        const frame = root.querySelector('tanrei-field-group')! as HTMLElement & Record<string, unknown>;
+        const frame = root.querySelector<HTMLElement>('tanrei-field-group')! as HTMLElement & Record<string, unknown>;
         const mine = el as HTMLElement & Record<string, unknown>;
         return {
           children: [...root.children].map((child) => child.localName),
@@ -575,7 +575,7 @@ test.describe('behavior', () => {
     expect(await checked(page, id)).toEqual([true, false, false]);
     await listen(page, id);
     await option(page, id, 1).locator('.container').click({ force: true });
-    await option(page, id, 1).evaluate((el) => el.click());
+    await option(page, id, 1).evaluate((el: HTMLElement) => el.click());
     await settled(page, id);
     expect([await value(page, id), await heard(page, 'group')]).toEqual(['standard', []]);
     // Its texts stay readable.

@@ -1277,9 +1277,9 @@ test.describe('before its code runs, text size, forced colors, insets, direction
     // A new window: one that has run the bundle keeps its elements defined, whatever document is written into it.
     const page = await first.context().newPage();
     await page.setViewportSize({ width, height });
-    const document = await fixturesDocument(spec, { fixtures: [f], icons: true });
-    const script = document.lastIndexOf('<script type="module">');
-    await page.setContent(`${document.slice(0, script)}</body></html>`);
+    const markup = await fixturesDocument(spec, { fixtures: [f], icons: true });
+    const script = markup.lastIndexOf('<script type="module">');
+    await page.setContent(`${markup.slice(0, script)}</body></html>`);
     await page.evaluate(() => document.fonts.ready);
     await page.bringToFront();
     return page;

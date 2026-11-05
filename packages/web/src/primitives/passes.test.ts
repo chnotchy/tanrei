@@ -27,7 +27,7 @@ const PAGE = 'http://passes.test/';
 const N = 50;
 
 /** A page of `body`, with the tokens, `css` as the page's own stylesheets and the bundle that defines every element. */
-const document = (body: string, css: string[] = [], style = '') =>
+const pageHtml = (body: string, css: string[] = [], style = '') =>
   `<!doctype html><html lang="en"><head><meta charset="utf-8"><style>${read('dist/tokens.css')}</style>${css.map((file) => `<style>${read(`dist/${file}`)}</style>`).join('')}${style ? `<style>${style}</style>` : ''}</head><body>${body}<script type="module">${read('dist/tanrei.bundle.js')}</script></body></html>`;
 
 async function open(page: Page, html: string) {
@@ -213,7 +213,7 @@ test.describe('the style passes and layouts of many instances drawn at once', ()
 
   for (const subject of SUBJECTS) {
     test(`${subject.name}: ${N} appended in one task cost a fixed number of style passes and layouts, not one for each`, async ({ page }) => {
-      await open(page, document(subject.html(0), subject.css, subject.style));
+      await open(page, pageHtml(subject.html(0), subject.css, subject.style));
       const cdp = await session(page);
       await rest(page, subject.frames);
       const few = await passes(page, cdp, append(subject.html, 5), subject.frames);
@@ -237,7 +237,7 @@ test.describe('the style passes and layouts of many instances drawn at once', ()
   test('tabs of four: a choice writes the row once and asks for no frame, however long the indicator slides', async ({ page }) => {
     const tabs = SUBJECTS.find((subject) => subject.name === 'tabs of four')!;
     const choose = async (duration: number) => {
-      await open(page, document(tabs.html(0)));
+      await open(page, pageHtml(tabs.html(0)));
       await rest(page, 30);
       await rootTokens(page, { '--tanrei-comp-tabs-motion-indicator-duration': `${duration}ms` });
       return page.evaluate(async () => {
@@ -304,7 +304,7 @@ test.describe('the style passes and layouts of many instances drawn at once', ()
       const nestedIn = subject.inside ? `${subject.tag} ${subject.inside}` : subject.tag;
       await watchQuestions(page, [subject.mark]);
       const count = async (css: string[]) => {
-        await open(page, document('', css));
+        await open(page, pageHtml('', css));
         const cdp = await session(page);
         await questions(page);
         const first = { passes: await passes(page, cdp, append(subject.html, N)), asked: (await questions(page)).length };

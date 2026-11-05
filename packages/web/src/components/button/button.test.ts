@@ -2492,7 +2492,7 @@ test.describe('destructive', () => {
     const seen = warnings(page);
     await mountFixtures(page, spec, {
       icons: true,
-      fixtures: ['selected', 'unselected'].flatMap((state) => [
+      fixtures: ['selected', 'unselected'].flatMap((state): Fixture[] => [
         { id: `${state}-destructive`, props: { variant: 'tonal', toggle: true, selected: state === 'selected', destructive: true, label: 'Pin' }, slots: { icon: 'push_pin' } },
         { id: state, props: { variant: 'tonal', toggle: true, selected: state === 'selected', label: 'Pin' }, slots: { icon: 'push_pin' } },
       ]),
@@ -2521,7 +2521,7 @@ test.describe('destructive', () => {
   // BTN-43: a link only leads somewhere; the action that deletes is the one at its destination. Each link with
   // destructive has a twin, the same link without it, and is compared with that twin rather than with a token, so
   // the test says "drawn as the link of its variant" in every engine and under every system.
-  const LINKS = VARIANTS.flatMap((variant) => [
+  const LINKS = VARIANTS.flatMap((variant): Fixture[] => [
     { id: `${variant}-link-destructive`, props: { variant, destructive: true, href: '#delete-account' }, content: 'Delete account' },
     { id: `${variant}-link`, props: { variant, href: '#delete-account' }, content: 'Delete account' },
   ]);

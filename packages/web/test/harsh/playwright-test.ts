@@ -5,9 +5,13 @@
 //   locator's and a page's actions go through its frame, and the mouse, the keyboard and the touchscreen are their own);
 // - slow every Chromium page the test opens — the `page` fixture's, a page of a context the test makes itself, a popup —
 //   before the test can use it (`newPage()` resolves once it is slowed; a popup is slowed as it appears).
-import type { Browser, BrowserContext, Page } from '@playwright/test';
-import { test as base } from '../../node_modules/@playwright/test/index.mjs';
+import type { Browser, BrowserContext, Page, test as realTest } from '@playwright/test';
+import * as real from '../../node_modules/@playwright/test/index.mjs';
 import { harsh } from '../harsh.js';
+
+// The real module is reached by its file, past the mapping of its name to this one; a type checker follows that file's
+// re-export only from its real path in the store, not from the link, so its `test` is typed here as the name's.
+const base = (real as unknown as { test: typeof realTest }).test;
 
 export * from '../../node_modules/@playwright/test/index.mjs';
 

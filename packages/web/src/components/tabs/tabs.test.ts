@@ -1465,7 +1465,7 @@ test.describe('concentric at every size', () => {
       page.evaluate(([px, py]) => {
         let el: Element | null = document.elementFromPoint(px, py);
         while (el && el.localName !== 'tanrei-tab') el = el.parentElement ?? ((el.getRootNode() as ShadowRoot).host ?? null);
-        return el ? [...el.parentElement!.querySelectorAll('tanrei-tab')].indexOf(el) : -1;
+        return el ? [...el.parentElement!.querySelectorAll<Element>('tanrei-tab')].indexOf(el) : -1;
       }, [x, y] as const);
     const mid = outer.x + outer.width / 2;
     const middle = outer.y + outer.height / 2;
@@ -3282,7 +3282,7 @@ test.describe('a shared choice', () => {
     // each staging names a group of its own.
     const ten = (group: string) => Array.from({ length: 10 }, (_, i) => member(`m${i + 1}`, 'web', { group }, own));
     /** The eighth row's top edge in every frame from two frames before `act` to ten after, and how far `region` scrolled. */
-    const during = async (region: string, act: () => Promise<void>) => {
+    const during = async (region: string, act: () => Promise<unknown>) => {
       await page.evaluate((selector) => {
         const w = window as any;
         const target = document.querySelector('[data-fixture="m8"] tanrei-tabs')!;

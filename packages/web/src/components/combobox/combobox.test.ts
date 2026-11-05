@@ -2447,7 +2447,7 @@ test.describe('behavior: the list', () => {
     await page.keyboard.press('Enter');
     expect(await read(page, 'one')).toMatchObject({ value: 'nairobi', text: 'Nairobi', open: false, expanded: 'false' });
     expect(await heard(page)).toEqual(['change nairobi', 'toggle false select']);
-    expect(await part(page, 'one', '.surface').evaluate((el) => [el.matches(':popover-open'), getComputedStyle(el).pointerEvents, el.inert]), 'still drawn, taking no input').toEqual([true, 'none', true]);
+    expect(await part(page, 'one', '.surface').evaluate((el: HTMLElement) => [el.matches(':popover-open'), getComputedStyle(el).pointerEvents, el.inert]), 'still drawn, taking no input').toEqual([true, 'none', true]);
     expect(await css(motion, 'transition-duration')).toBe('40s');
     // Told to open while still closing: it turns round from where it is. (It had faded for a few answers of 40 s: from
     // nothing it would be near 0 now, from where it was it is near 1.)

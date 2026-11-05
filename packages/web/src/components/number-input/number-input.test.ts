@@ -1993,7 +1993,7 @@ test.describe('behavior: exposure, forms, size and direction', () => {
     expect(await host(page, id).evaluate((el) => [...el.shadowRoot!.querySelectorAll('.stepper')].map((s) => s.classList.contains('down'))), 'down is first in reading order').toEqual([true, false]);
     // A floating label: from the right edge, at the text padding, its asterisk at its left end.
     await frame(page, 'float', { label: 'כמות', required: true, requiredMark: 'asterisk', requiredText: 'חובה' }, { variant: 'filled' });
-    await stage(page, 'float').evaluate((el) => (el.dir = 'rtl'));
+    await stage(page, 'float').evaluate((el: HTMLElement) => (el.dir = 'rtl'));
     await frames(page, 6);
     const [box_, label, asterisk] = [await box(container(page, 'float')), await box(part(page, 'float', '.floating')), await box(part(page, 'float', '.floating .asterisk'))];
     near(box_.x + box_.width - (label.x + label.width), await token(page, 'container-padding-inline-medium'), 'the label from the right edge');

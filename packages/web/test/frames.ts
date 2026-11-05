@@ -120,8 +120,12 @@ export interface Frames {
   complete: boolean;
 }
 
-/** A probe: an in-page function of the root that reads what the test cares about. It is sent as its source text, so it may use nothing from the test's scope. */
-export type Probe = (root: Element) => Record<string, number | string | boolean>;
+/**
+ * A probe: an in-page function of the root that reads what the test cares about. It is sent as its source text, so it
+ * may use nothing from the test's scope. A name it leaves undefined (`{}` where there is nothing to read) is not in the
+ * frame: the frame crosses to the test as JSON.
+ */
+export type Probe = (root: Element) => Record<string, number | string | boolean | undefined>;
 
 export interface SampleOptions {
   /** Frames to sample after the act; by default, until every motion has ended (at most `maxFrames`). */

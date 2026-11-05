@@ -116,7 +116,7 @@ const watch = (page: P) =>
     w.__events = [];
     document.addEventListener('toggle', (event) => {
       const li = event.target as Element;
-      if (li.localName === 'li') w.__events.push(`toggle:${li.getAttribute('data-t')}:${(event as CustomEvent<{ open: boolean }>).detail.open}`);
+      if (li.localName === 'li') w.__events.push(`toggle:${li.getAttribute('data-t')}:${(event as Event as CustomEvent<{ open: boolean }>).detail.open}`);
     });
     document.addEventListener('change', (event) => w.__events.push(`change:${JSON.stringify((event as CustomEvent).detail)}`));
   });
@@ -555,8 +555,8 @@ test.describe('open and closed', () => {
   test('TRV-9: open is the state of that parent alone — a closed parent’s rows are not drawn, take no space, cannot take focus and are not exposed, and keep their own open; the first frame is drawn as the items say, without motion and without toggle; a leaf’s open is ignored; the items stay in the document', async ({ page }) => {
     // From before the element is defined: every toggle, and every list whose height is moved.
     const early = `<script>window.__early = []; document.addEventListener('toggle', (event) => window.__early.push(event.target.localName)); new MutationObserver(() => { if (document.querySelector('[data-tanrei-moving]')) window.__early.push('moving'); }).observe(document, { subtree: true, attributes: true, attributeFilter: ['data-tanrei-moving'] });</script>`;
-    const document = await fixturesDocument(spec, { icons: true, fixtures: [...some('basic'), raw('kept', { label: 'Kept' }, '<ul><li><span>Outer</span><ul><li data-open><span>Inner</span><ul><li><span>Deep</span></li></ul></li></ul></li><li data-open><span>Leaf</span></li></ul>')] });
-    await page.setContent(document.replace('<head>', `<head>${early}`));
+    const markup = await fixturesDocument(spec, { icons: true, fixtures: [...some('basic'), raw('kept', { label: 'Kept' }, '<ul><li><span>Outer</span><ul><li data-open><span>Inner</span><ul><li><span>Deep</span></li></ul></li></ul></li><li data-open><span>Leaf</span></li></ul>')] });
+    await page.setContent(markup.replace('<head>', `<head>${early}`));
     await page.waitForFunction(() => !!customElements.get('tanrei-tree-view'));
     await frame(page);
     await nameItems(page);
@@ -673,7 +673,7 @@ test.describe('open and closed', () => {
     expect((await edges(inner)).height).toBe(height);
     // Turned on the way: it goes on from where it is, toward closed — drawn until the end, out of the keys at once.
     // Read in the task of the click, after the element has answered it: the list as the turn left it.
-    await list.evaluate((el) => {
+    await list.evaluate((el: HTMLElement) => {
       window.addEventListener('click', () => ((window as any).turned = { moving: el.getAttribute('data-tanrei-moving'), inert: el.inert, height: el.getBoundingClientRect().height, motions: el.getAnimations().length }), { once: true });
     });
     await row(page, 'basic', 'test').click();
@@ -691,7 +691,7 @@ test.describe('open and closed', () => {
     expect(await focused(page)).toBe('package.json');
     await settled(page);
     near((await edges(below)).top, before);
-    expect(await list.evaluate((el) => el.inert)).toBe(false);
+    expect(await list.evaluate((el: HTMLElement) => el.inert)).toBe(false);
     expect(await inner.evaluate((el) => el.checkVisibility())).toBe(false);
     // Reduced motion: at once.
     await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -2507,9 +2507,9 @@ test.describe('editing in place', () => {
 test.describe('before the element is defined, without script, in a shadow root', () => {
   test('TRV-1, TRV-9: the stylesheet alone draws the whole look — the indent, the chevrons and their turn, closed rows not shown, the guides, the room of a loading row — and nothing moves when the element is defined', async ({ page }) => {
     const fixtures = some('all-parts', 'compact-guides', 'disabled', 'loading', 'deep', 'rtl', 'long-labels', 'studio-tokens');
-    const document = await fixturesDocument(spec, { icons: true, fixtures });
-    const bundle = document.slice(document.lastIndexOf('<script type="module">'), document.lastIndexOf('</script>') + '</script>'.length);
-    await page.setContent(document.replace(bundle, ''));
+    const markup = await fixturesDocument(spec, { icons: true, fixtures });
+    const bundle = markup.slice(markup.lastIndexOf('<script type="module">'), markup.lastIndexOf('</script>') + '</script>'.length);
+    await page.setContent(markup.replace(bundle, ''));
     await page.evaluate(async () => {
       await document.fonts.ready;
       const family = getComputedStyle(document.documentElement).getPropertyValue('--tanrei-sys-icon-family-unselected').trim();
@@ -2561,8 +2561,8 @@ test.describe('before the element is defined, without script, in a shadow root',
   test('TRV-9: where script does not run every level is shown and no chevron is drawn — a nested list in the tree’s type and spacing', async ({ browser }) => {
     const context = await browser.newContext({ javaScriptEnabled: false });
     const page = await context.newPage();
-    const document = await fixturesDocument(spec, { icons: true, fixtures: some('all-closed') });
-    await page.setContent(document);
+    const markup = await fixturesDocument(spec, { icons: true, fixtures: some('all-closed') });
+    await page.setContent(markup);
     const seen = await page.evaluate(() => {
       const tree = document.querySelector('tanrei-tree-view')!;
       const rows = [...tree.querySelectorAll('li > :first-child')];

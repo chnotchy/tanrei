@@ -315,7 +315,7 @@ test.describe('behavior', () => {
   test('BDG-16: with no anchor the badge draws nothing, takes no space and exposes nothing, and a debug build reports it; given an anchor it draws on it at once, and gives it back when it is taken away', async ({ page }) => {
     const seen = warnings(page);
     // No content: nothing in the default slot. A count, a dot and a capped count alike.
-    const alone = [{ id: 'alone', props: { count: 3, label: '3 unread' } }, { id: 'alone-dot', props: { label: 'New messages' } }, { id: 'alone-capped', props: { count: 1200 } }];
+    const alone: Fixture[] = [{ id: 'alone', props: { count: 3, label: '3 unread' } }, { id: 'alone-dot', props: { label: 'New messages' } }, { id: 'alone-capped', props: { count: 1200 } }];
     await mountFixtures(page, spec, { icons: true, fixtures: alone });
     for (const { id } of alone) {
       await expect(host(page, id).locator('.corner'), id).toBeHidden();

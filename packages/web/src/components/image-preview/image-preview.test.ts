@@ -282,7 +282,8 @@ const drag = (page: P, from: [number, number], to: [number, number], { steps = 6
   );
 
 /** A wheel event made in the page, on the stage at (`x`, `y`); returns whether the preview took it (prevented its default). */
-const wheel = (page: P, x: number, y: number, init: WheelEventInit) =>
+// What crosses to the page: a wheel event's init without the objects it may name (a view, a related target).
+const wheel = (page: P, x: number, y: number, init: Omit<WheelEventInit, 'view' | 'relatedTarget'>) =>
   host(page).evaluate(
     (el, [px_, py, more]) => {
       const event = new WheelEvent('wheel', { clientX: px_ as number, clientY: py as number, bubbles: true, composed: true, cancelable: true, ...(more as WheelEventInit) });

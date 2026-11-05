@@ -1447,7 +1447,8 @@ test.describe('read-only', () => {
     const ro = host(page, 'read-only-selected');
     await expect(ro.getByRole('checkbox', { checked: true, disabled: false })).toHaveCount(1);
     await expect(input(page, 'read-only-selected')).toHaveAttribute('aria-readonly', 'true');
-    await expect(host(page, 'ro-mixed').getByRole('checkbox', { checked: 'mixed' })).toHaveCount(1);
+    // Playwright's role engine matches `checked=mixed` (aria-checked="mixed"); the option's type names only a boolean.
+    await expect(host(page, 'ro-mixed').getByRole('checkbox', { checked: 'mixed' as unknown as boolean })).toHaveCount(1);
     await expect(input(page, 'ro-mixed')).toHaveAttribute('aria-readonly', 'true');
     await expect(host(page, 'both').getByRole('checkbox', { disabled: true })).toHaveCount(1);
     await expect(input(page, 'both')).not.toHaveAttribute('aria-readonly');

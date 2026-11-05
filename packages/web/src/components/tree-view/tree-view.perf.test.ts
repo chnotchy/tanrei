@@ -68,8 +68,9 @@ async function cost(page: Page, cdp: CDPSession, act: () => Promise<void>): Prom
   await page.waitForFunction(() => !document.querySelector('#pane [data-pressed]'), undefined, { timeout: 10_000 });
   await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
   const restyles: number[] = [];
-  const collect = (event: { value: { name: string; args: { elementCount?: number } }[] }) => {
-    for (const each of event.value) if (each.name === 'UpdateLayoutTree' && typeof each.args.elementCount === 'number') restyles.push(each.args.elementCount);
+  // The protocol types a trace event as an object: these are read for their name and the restyle's element count.
+  const collect = (event: { value: object[] }) => {
+    for (const each of event.value as { name: string; args: { elementCount?: number } }[]) if (each.name === 'UpdateLayoutTree' && typeof each.args.elementCount === 'number') restyles.push(each.args.elementCount);
   };
   cdp.on('Tracing.dataCollected', collect);
   await cdp.send('Tracing.start', { transferMode: 'ReportEvents', traceConfig: { includedCategories: ['devtools.timeline', 'disabled-by-default-devtools.timeline'] } });

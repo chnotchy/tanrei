@@ -1079,7 +1079,7 @@ test.describe('opening and closing', () => {
     // at the frame it really starts, which on a loaded runner is after any later round trip.
     const started = () => view(page, 's').evaluate((el) => (el as unknown as { started: [string, number][] }).started);
     const ended = () => view(page, 's').evaluate((el) => (el as unknown as { ended: string[] }).ended);
-    await view(page, 's').evaluate((el) => {
+    await view(page, 's').evaluate((el: HTMLElement) => {
       const record = el as unknown as { started: [string, number][]; ended: string[] };
       record.started = [];
       record.ended = [];

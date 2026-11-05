@@ -1579,7 +1579,7 @@ test.describe('the members compared (the twin of a feature with parts of its own
       const root = el.shadowRoot!;
       const said = (native: Element | null | undefined) => (native ? ['aria-label', 'aria-description', 'aria-invalid', 'aria-required', 'aria-disabled'].map((name) => native.getAttribute(name)).concat([String((native as HTMLButtonElement).disabled), native.localName]) : null);
       const out: { markup: string; rect: { x: number; y: number; width: number; height: number }; said: unknown; kind: string; file?: number }[] = [];
-      const input = root.querySelector('tanrei-embedded-text-input') as HTMLElement & Record<string, unknown>;
+      const input = root.querySelector<HTMLElement>('tanrei-embedded-text-input') as HTMLElement & Record<string, unknown>;
       const attributes = (pairs: [string, unknown][]) => pairs.filter(([, value]) => value !== false && value !== '' && value !== null && value !== undefined).map(([name, value]) => (value === true ? name : `${name}="${String(value).replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('\n', '&#10;')}"`)).join(' ');
       const rect = (element: Element) => {
         const r = element.getBoundingClientRect();
