@@ -2,7 +2,9 @@ import { type CSSResult, unsafeCSS } from 'lit';
 import { documentPainted, startFromNextFrame } from './motion.js';
 
 // How a modal `<dialog>` leaves (MDL-7: "keeping them drawn until the fade ends"), for every modal surface: the
-// dialog, the modal layer, the side and bottom sheets, the image preview, the modal date-time picker, the popover's sheet.
+// dialog, the modal layer, the side and bottom sheets, the image preview, the modal date-time picker, the popover's sheet,
+// the modal navigation drawer that slides (a collapsible one narrows to its column still modal) and the search's dialog
+// and full-screen views.
 //
 // A closed `<dialog>` is `display: none` and out of the top layer. CSS can keep it drawn there while its exit plays
 // (`display` and `overlay` transitioned with `transition-behavior: allow-discrete`), but only Chromium does: WebKit and

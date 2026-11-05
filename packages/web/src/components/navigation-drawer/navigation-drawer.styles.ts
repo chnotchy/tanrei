@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, SCRIM_FILTER, conditionBlock, focusRing, iconGlyph, pressHold, rippleStyles, scrimFilter, stateRules } from '../../primitives/index.js';
+import { type OpenAxis, SCRIM_FILTER, conditionBlock, focusRing, iconGlyph, modalExitStyles, pressHold, rippleStyles, scrimFilter, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
@@ -474,9 +474,8 @@ export const drawerStyles = css`
 
   /* NVD-19, NVD-22: a modal drawer is a native modal <dialog> in the top layer at the window's start edge, its full height,
      over ::backdrop (the scrim); it slides in from its start edge over the enter motion and out over the exit motion.
-     It slides out while it is still open (\`leaving\`), in the top layer over its fading scrim, and is closed once that
-     motion has ended (the element waits for it): an engine that does not keep a closed dialog in the top layer for its
-     exit (\`overlay\`) draws the whole of it all the same. */
+     Closed, it is no longer modal at once and stays drawn in the top layer, sliding out over its fading scrim, until
+     that motion has ended (MDL-7: closeModal, src/primitives/modal-exit.ts), in every engine. */
   dialog.drawer {
     position: fixed;
     inset-block: 0;
@@ -579,6 +578,9 @@ export const drawerStyles = css`
     transition-duration: ${t('motion-expand-duration')};
     transition-timing-function: ${t('motion-expand-easing')};
   }
+  /* MDL-7: where a drawer that slides changes hands as it closes (closeModal), its scrim starts no transition and stands
+     at the opacity it showed. After the dialog's own rules. */
+  ${modalExitStyles('dialog.drawer')}
 
   ${shape}
 
