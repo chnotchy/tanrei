@@ -489,12 +489,9 @@ export const drawerStyles = css`
     transition-duration: ${t('motion-exit-duration')};
     transition-timing-function: ${t('motion-exit-easing')};
   }
-  dialog.drawer:not([open]),
-  dialog.drawer.leaving {
-    translate: var(--_away) 0;
-  }
   dialog.drawer:not([open]) {
     display: none;
+    translate: var(--_away) 0;
   }
   :host {
     --_away: -100%;
@@ -502,7 +499,7 @@ export const drawerStyles = css`
   :host(:dir(rtl)) {
     --_away: 100%;
   }
-  dialog.drawer[open]:not(.leaving) {
+  dialog.drawer[open] {
     transition-duration: ${t('motion-enter-duration')};
     transition-timing-function: ${t('motion-enter-easing')};
   }
@@ -523,14 +520,14 @@ export const drawerStyles = css`
     transition-duration: ${t('motion-exit-duration')};
     transition-timing-function: ${t('motion-exit-easing')};
   }
-  dialog.drawer[open]:not(.leaving)::backdrop {
+  dialog.drawer[open]::backdrop {
     opacity: 1;
     transition-duration: ${t('motion-enter-duration')};
     transition-timing-function: ${t('motion-enter-easing')};
   }
   /* (A starting style competes with the rules above by specificity: it names what they name.) */
   @starting-style {
-    dialog.drawer[open]:not(.leaving)::backdrop {
+    dialog.drawer[open]::backdrop {
       opacity: 0;
     }
   }
@@ -539,8 +536,8 @@ export const drawerStyles = css`
      column's box, measured when it opens) and narrows back to it, and its scrim fades, over the change's motion. Its
      look — the container color, the elevation, the end corners and the end edge — moves between the column's (the
      standard drawer's) and the modal variant's over the same motion, in step with its width: it opens from the column's
-     look (\`@starting-style\`) and closes to it (\`leaving\`, still in the top layer), so the frame in which the column
-     takes the dialog's place is drawn as the dialog's last one was. */
+     look (\`@starting-style\`) and closes to it (closed, still in the top layer: closeModal, no longer modal), so the
+     frame in which the column takes the dialog's place is drawn as the dialog's last one was. */
   dialog.drawer.widening {
     inset-block: auto;
     inset-block-start: var(--_top, 0px);
@@ -549,19 +546,18 @@ export const drawerStyles = css`
     transition-property: inline-size, translate, background-color, box-shadow, border-radius;
   }
   dialog.drawer.widening,
-  dialog.drawer.widening[open]:not(.leaving) {
+  dialog.drawer.widening[open] {
     transition-duration: ${t('motion-expand-duration')};
     transition-timing-function: ${t('motion-expand-easing')};
   }
   dialog.drawer.widening .edge {
     transition: background-color ${unsafeCSS(MORPH)};
   }
-  dialog.drawer.widening:not([open]),
-  dialog.drawer.widening.leaving {
+  dialog.drawer.widening:not([open]) {
     translate: 0 0;
     inline-size: var(--_column-width);
   }
-  ${unsafeCSS(variantBlock(DEFAULT_VARIANT, 'dialog.drawer.widening.leaving'))}
+  ${unsafeCSS(variantBlock(DEFAULT_VARIANT, 'dialog.drawer.widening:not([open])'))}
   @starting-style {
     dialog.drawer.widening[open] {
       translate: 0 0;
@@ -574,12 +570,12 @@ export const drawerStyles = css`
     transition: none;
   }
   dialog.drawer.widening::backdrop,
-  dialog.drawer.widening[open]:not(.leaving)::backdrop {
+  dialog.drawer.widening[open]::backdrop {
     transition-duration: ${t('motion-expand-duration')};
     transition-timing-function: ${t('motion-expand-easing')};
   }
-  /* MDL-7: where a drawer that slides changes hands as it closes (closeModal), its scrim starts no transition and stands
-     at the opacity it showed. After the dialog's own rules. */
+  /* MDL-7: where a drawer changes hands as it closes (closeModal), its scrim starts no transition and stands at the
+     opacity it showed, and while it leaves its scrim takes no pointer. After the dialog's own rules. */
   ${modalExitStyles('dialog.drawer')}
 
   ${shape}
@@ -592,14 +588,14 @@ export const drawerStyles = css`
     .title,
     :host([collapsed]) .title,
     dialog.drawer,
-    dialog.drawer[open]:not(.leaving),
+    dialog.drawer[open],
     dialog.drawer.widening,
-    dialog.drawer.widening[open]:not(.leaving),
+    dialog.drawer.widening[open],
     dialog.drawer.widening .edge,
     dialog.drawer::backdrop,
-    dialog.drawer[open]:not(.leaving)::backdrop,
+    dialog.drawer[open]::backdrop,
     dialog.drawer.widening::backdrop,
-    dialog.drawer.widening[open]:not(.leaving)::backdrop {
+    dialog.drawer.widening[open]::backdrop {
       transition-duration: 0s;
       transition-delay: 0s;
     }
