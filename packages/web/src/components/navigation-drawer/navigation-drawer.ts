@@ -41,6 +41,7 @@ import {
   platformConvention,
   readBinding,
   takesText,
+  documentPainted,
 } from '../../primitives/index.js';
 import { FILTER_SETTLE_MS, filterWords, holdsWords } from '../../primitives/filter.js';
 import { WordsController } from '../../primitives/words.js';
@@ -3064,6 +3065,11 @@ export class TanreiNavigationDrawer extends TanreiElement {
     // A collapsible drawer's column was just replaced by its dialog: where focus was is read before that (willUpdate).
     this.opener = this.pendingOpener ?? deepActive();
     this.pendingOpener = null;
+    // MOT-4: a drawer opened before the document's first paint (written open in the page's markup) is drawn open at
+    // once — it does not slide in, nor its scrim fade in, over the first frames. Not `openModal()`: the drawer leaves
+    // still modal and turns back from leaving on its own (`withdraw`), and a collapsible one widens from its column with
+    // more than the surface's own motion.
+    if (!documentPainted()) this.drawAtOnce();
     if (!dialog.open) dialog.showModal();
     this.shown = true;
     modalLayer.add(this);

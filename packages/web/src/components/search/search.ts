@@ -46,6 +46,7 @@ import {
   takesText,
   delegatedAria, namedByProduct,
   delegatesAria,
+  openModal,
 } from '../../primitives/index.js';
 import '../button/button.js';
 // SRC-37: the shortcut hint is drawn by the keyboard shortcut; SRC-47: the status row's indicator is the loading indicator.
@@ -2188,7 +2189,9 @@ export class TanreiSearch extends TanreiElement {
   private presentFull() {
     const dialog = this.dialog;
     if (!dialog || this.fullShown || !this.isConnected) return;
-    if (!dialog.open) dialog.showModal();
+    // MOT-4: opened before the document's first paint (written `expanded` in the page's markup), the view and its scrim
+    // are drawn open at once; opened later, their fade begins in the first frame drawn after this task.
+    if (!dialog.open) openModal(dialog);
     this.fullShown = true;
     modalLayer.add(this);
     holdPageScroll(this, true);

@@ -1248,7 +1248,9 @@ test.describe('accessibility', () => {
       for (const id of ['icon', 'scrolling', 'compact-stacked']) {
         await page.setViewportSize(dialogWindow(id));
         await mountFixtures(page, spec, { theme, icons: true, fixtures: [spec.fixtures.find((fx) => fx.id === id)!] });
-        await page.waitForTimeout(600);
+        // A color is judged as it rests: the entrance draws the dialog and its scrim translucent while it plays.
+        await expect.poll(() => isOpen(page, id)).toBe(true);
+        await motionEnded(page);
         const results = await new AxeBuilder({ page }).analyze();
         expect(results.violations, `${theme} ${id}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
       }
