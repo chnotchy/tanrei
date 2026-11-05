@@ -114,6 +114,32 @@ export async function comparePreviews({ componentCss, still }) {
     }
     for (let k = 0; k < 4; k++) await frame();
   };
+  // A code block draws its code at once, plain, and its first colors in a later task, the blocks of a page a few at a
+  // time (COD-28, specs/code-block.spec.json): a page of many blocks is still coloring them, its own and their copies,
+  // after the frames `settle` waits, and a preview and its copy were seen one colored and the other plain (CI, the Code
+  // block's page: the copy of its second block plain, 20 boxes against the page's 53, colored a moment later). Where one
+  // block of the pair has its colors (each block takes them whole, in one task), the other is waited for until it has
+  // its own — for 5 s at most; one whose colors never come is then measured plain, and differs.
+  const colored = async (element, copy) => {
+    const blocks = (root) => all(root).filter((e) => e.localName === 'tanrei-code-block');
+    const a = blocks(element);
+    const c = blocks(copy);
+    if (a.length !== c.length) return;
+    const has = (block) => block.querySelector('[data-syntax]') !== null;
+    const owed = a.flatMap((block, k) => (has(block) === has(c[k]) ? [] : [has(block) ? c[k] : block]));
+    if (!owed.length) return;
+    const observers = [];
+    const arrived = (block) =>
+      new Promise((resolve) => {
+        const observer = new MutationObserver(() => has(block) && resolve(undefined));
+        observer.observe(block, { childList: true, subtree: true });
+        observers.push(observer);
+        if (has(block)) resolve(undefined);
+      });
+    await Promise.race([Promise.all(owed.map(arrived)), new Promise((resolve) => setTimeout(resolve, 5000))]);
+    for (const observer of observers) observer.disconnect();
+    await frame();
+  };
 
   const previews = live.map((element, index) => ({ element, index })).filter(({ element }) => {
     if (stepped.has(element)) return false;
@@ -230,6 +256,7 @@ export async function comparePreviews({ componentCss, still }) {
     // the scroll above brings it in, and draws it with the Web Animations API, which `still` (CSS) does not stop: the
     // preview is measured once it, and its copy, have come to rest, as a reader sees them a moment later.
     await rest([element, copy]);
+    await colored(element, copy);
     const a = drawn(element);
     const c = drawn(copy);
     const ra = element.getBoundingClientRect();
